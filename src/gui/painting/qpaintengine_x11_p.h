@@ -64,6 +64,8 @@ public:
     bool begin(QPaintDevice *pdev);
     bool end();
 
+    void updateState(const QPaintEngineState &state);
+
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateRenderHints(QPainter::RenderHints hints);

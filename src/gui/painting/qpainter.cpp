@@ -41,7 +41,7 @@
 // Other
 #include <math.h>
 
-//#define QT_DEBUG_DRAW
+// #define QT_DEBUG_DRAW
 #ifdef QT_DEBUG_DRAW
 bool qt_show_painter_debug_output = true;
 #endif
@@ -62,75 +62,11 @@ template <class From, class To> QVector<To> qt_convert_points(const From *points
     return v;
 }
 
-
-QString qt_generate_brush_key(const QRectF &bounds, const QBrush &brush)
-{
-    Qt::BrushStyle style = brush.style();
-    QString key = QString("qt_gradient-%1%2%3%4%5")
-                  .arg(bounds.x())
-                  .arg(bounds.y())
-                  .arg(bounds.width())
-                  .arg(bounds.height())
-                  .arg(style);
-    if (style == Qt::LinearGradientPattern) {
-        const QLinearGradient *gr = static_cast<const QLinearGradient *>(brush.gradient());
-        key += QString("%1%2%3%4").arg(gr->start().x())
-               .arg(gr->start().y())
-               .arg(gr->finalStop().x())
-               .arg(gr->finalStop().x());
-    } else if (style == Qt::RadialGradientPattern) {
-        const QRadialGradient *gr = static_cast<const QRadialGradient *>(brush.gradient());
-        key += QString("%1%2%3%4%5").arg(gr->center().x())
-               .arg(gr->center().y())
-               .arg(gr->focalPoint().x())
-               .arg(gr->focalPoint().y())
-               .arg(gr->radius());
-    } else {
-        const QConicalGradient *gr = static_cast<const QConicalGradient *>(brush.gradient());
-        key += QString("%1%2%3").arg(gr->center().x())
-               .arg(gr->center().y())
-               .arg(gr->angle());
-    }
-
-    QGradientStops stops = brush.gradient()->stops();
-    for (int i = 0; i < stops.size(); ++i)
-        key += QString("%1%2").arg(stops.at(i).first).arg(stops.at(i).second.rgba());
-
-    return key;
-}
-
 void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output) {
-        printf("QPainter::drawHelper: op=%d, emulation=0x%x ( ", op, engine->emulationSpecifier);
-        static struct { uint value; const char *text; } emuMap[] = {
-            {    0x0001, "CoordTransform "},
-            {    0x0002, "PenWidthTransform "},
-            {    0x0004, "PatternTransform "},
-            {    0x0008, "PatternBrush "},
-            {    0x0010, "PixmapTransform "},
-            {    0x0020, "LinearGradientFill "},
-            {    0x0040, "LinearGradientFillPolygon "},
-            {    0x0080, "PixmapScale "},
-            {    0x0100, "AlphaFill "},
-            {    0x0200, "AlphaFillPolygon "},
-            {    0x0400, "AlphaStroke "},
-            {    0x0800, "AlphaPixmap "},
-            {    0x1000, "PainterPaths "},
-            {    0x2000, "ClipTransform "},
-            {    0x4000, "LineAntialiasing "},
-            {    0x10000, "BrushStroke"},
-            {    0x20000, "RadialGradientFill" },
-            {    0x40000, "ConicalGradientFill" },
-            {0x10000000, "UsesFontEngine "},
-            {0x20000000, "PaintOutsidePaintEvent "},
-            {       0x0, 0x0},
-        };
-        for (int i = 0; emuMap[i].text; ++i)
-            if (engine->emulationSpecifier & emuMap[i].value)
-                printf(emuMap[i].text);
-        printf(")\n");
+        printf("QPainter::drawHelper\n");
     }
 #endif
 
@@ -193,23 +129,28 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     p.setBackgroundMode(state->bgMode);
     p.setBrushOrigin(state->bgOrigin);
 
-    p.setRenderHint(QPainter::Antialiasing,
-                    engine->d_func()->renderhints & QPainter::Antialiasing);
+    p.setRenderHint(QPainter::Antialiasing, state->renderHints & QPainter::Antialiasing);
     p.setRenderHint(QPainter::SmoothPixmapTransform,
-                    engine->d_func()->renderhints & QPainter::SmoothPixmapTransform);
+                    state->renderHints & QPainter::SmoothPixmapTransform);
 
     p.drawPath(originalPath);
 
     p.end();
 
-    engine->updateMatrix(QMatrix());
+    Q_Q(QPainter);
+
+    q->save();
+    q->setMatrix(QMatrix(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
+    updateState(state);
+
     QPixmap pm;
     pm = QPixmap::fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
     engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
                        pm,
                        QRectF(0, 0, devWidth, devHeight),
                        Qt::ComposePixmap);
-    engine->setDirty(QPaintEngine::DirtyTransform);
+
+    q->restore();
 }
 
 
@@ -258,7 +199,8 @@ void QPainterPrivate::updateMatrix()
                               state->matrix.dx()-redirection_offset.x(),
                               state->matrix.dy()-redirection_offset.y());
     }
-    engine->setDirty(QPaintEngine::DirtyTransform);
+    state->dirtyFlags |= QPaintEngine::DirtyTransform;
+
 //     printf("VxF=%d, WxF=%d\n", state->VxF, state->WxF);
 //     qDebug() << " --- using matrix" << state->matrix << redirection_offset;
 }
@@ -283,6 +225,32 @@ void QPainterPrivate::updateInvMatrix()
     }
     invMatrix = m.inverted(&invertible);                // invert matrix
 }
+
+void QPainterPrivate::updateState(QPainterState *newState)
+{
+
+    if (!newState) {
+        engine->state = newState;
+
+    } else if (newState->state() || engine->state!=newState) {
+
+        if (engine->state->painter() != newState->painter)
+            engine->setDirty(QPaintEngine::AllDirty);
+
+        // Upon restore, revert all changes since last save
+        else if (engine->state != newState)
+            newState->dirtyFlags |= QPaintEngine::DirtyFlags(static_cast<QPainterState *>(engine->state)->changeFlags);
+
+        // We need to store all changes made so that restore can deal with them
+        else
+            newState->changeFlags |= newState->dirtyFlags;
+
+        engine->state = newState;
+        engine->updateState(*newState);
+        engine->clearDirty(QPaintEngine::AllDirty);
+    }
+}
+
 
 /*!
     \class QPainter
@@ -634,9 +602,9 @@ void QPainter::save()
 
     d->state = new QPainterState(d->states.back());
     // We need top propagate pending changes to the restore later..
-    d->state->changeFlags = d->engine->dirtyFlag;
+    d->state->changeFlags = d->state->dirtyFlags;
     d->states.push_back(d->state);
-    d->engine->updateState(d->state, false);
+    d->engine->state = d->state;
 }
 
 /*!
@@ -669,15 +637,15 @@ void QPainter::restore()
     // trigger clip update if the clip path/region has changed since
     // last save
     if (!d->state->clipInfo.isEmpty()
-        && (tmp->changeFlags & (QPaintEngine::DirtyClip | QPaintEngine::DirtyClipPath))) {
-        d->state->tmpClipRegion = clipRegion();
-        d->state->tmpClipOp = Qt::ReplaceClip;
+        && (tmp->changeFlags & (QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyClipPath))) {
+        d->state->clipRegion = clipRegion();
+        d->state->clipOperation = Qt::ReplaceClip;
         //Since we're updating the clip region anyway, pretend that the clip path hasn't changed:
-        tmp->changeFlags &= ~QPaintEngine::DirtyClipPath;
-        d->engine->setDirty(QPaintEngine::DirtyClip);
+        tmp->dirtyFlags &= ~QPaintEngine::DirtyClipPath;
+        d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
     }
 
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
     delete tmp;
 }
 
@@ -820,11 +788,10 @@ bool QPainter::begin(QPaintDevice *pd)
         d->updateMatrix();
 
     Q_ASSERT(d->engine->isActive());
-    d->engine->setRenderHint(QPainter::Antialiasing, false);
-    d->engine->setRenderHint(QPainter::TextAntialiasing, true);
+    d->state->renderHints = QPainter::TextAntialiasing;
     ++d->device->painters;
 
-    d->engine->emulationSpecifier = 0;
+    d->state->emulationSpecifier = 0;
 
     return true;
 }
@@ -856,7 +823,7 @@ bool QPainter::end()
     }
 
     bool ended = d->engine->end();
-    d->engine->updateState(0);
+    d->updateState(0);
     d->engine->setPaintDevice(0);
 
     if (d->engine->autoDestruct()) {
@@ -893,8 +860,6 @@ QPaintEngine *QPainter::paintEngine() const
 QFontMetrics QPainter::fontMetrics() const
 {
     Q_D(const QPainter);
-    if (d->engine)
-        d->engine->updateState(d->state);
     return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font, d->device);
 }
 
@@ -911,8 +876,6 @@ QFontMetrics QPainter::fontMetrics() const
 QFontInfo QPainter::fontInfo() const
 {
     Q_D(const QPainter);
-    if (d->engine)
-        d->engine->updateState(d->state);
     return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
@@ -962,8 +925,7 @@ void QPainter::setBrushOrigin(const QPointF &p)
         printf("QPainter::setBrushOrigin(), (%.2f,%.2f)\n", p.x(), p.y());
 #endif
     d->state->bgOrigin = p;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyBrush);
+    d->state->dirtyFlags |= QPaintEngine::DirtyBrushOrigin;
 }
 
 /*!
@@ -984,6 +946,7 @@ void QPainter::setCompositionMode(CompositionMode mode)
     Q_D(QPainter);
     // #### check for feature
     d->state->composition_mode = mode;
+    d->state->dirtyFlags |= QPaintEngine::DirtyCompositionMode;
 }
 
 /*!
@@ -1019,7 +982,7 @@ const QBrush &QPainter::background() const
 bool QPainter::hasClipping() const
 {
     Q_D(const QPainter);
-    return d->state->tmpClipOp != Qt::NoClip;
+    return d->state->clipOperation != Qt::NoClip;
 }
 
 
@@ -1048,14 +1011,14 @@ void QPainter::setClipping(bool enable)
         return;
 
     if (enable) {
-        d->state->tmpClipRegion = clipRegion();
-        d->state->tmpClipOp = Qt::ReplaceClip;
+        d->state->clipRegion = clipRegion();
+        d->state->clipOperation = Qt::ReplaceClip;
     } else {
-        d->state->tmpClipRegion = QRegion();
-        d->state->tmpClipOp = Qt::NoClip;
+        d->state->clipRegion = QRegion();
+        d->state->clipOperation = Qt::NoClip;
     }
-    d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
+    d->updateState(d->state);
 }
 
 
@@ -1230,16 +1193,13 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
         return;
     }
 
-//     if (d->state->clipInfo.size() == 0 && op != Qt::NoClip)
-//         op = Qt::ReplaceClip;
-
-    d->state->tmpClipRegion = r;
-    d->state->tmpClipOp = op;
+    d->state->clipRegion = r;
+    d->state->clipOperation = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
     d->state->clipInfo << QPainterClipInfo(r, op, d->state->worldMatrix);
-    d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
+    d->updateState(d->state);
 }
 
 /*!
@@ -1306,10 +1266,7 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
         d->state->worldMatrix = matrix * d->state->worldMatrix;                        // combines
     else
         d->state->worldMatrix = matrix;                                // set new matrix
-//     bool identity = d->state->worldMatrix.isIdentity();
-//     if (identity && pdev->devType() != QInternal::Picture)
-//         setWorldXForm(false);
-//     else
+
     if (!d->state->WxF)
         setMatrixEnabled(true);
     else
@@ -1553,16 +1510,14 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
         return;
 
     Q_D(QPainter);
-//     if (d->state->clipInfo.size() == 0 && op != Qt::NoClip)
-//         op = Qt::ReplaceClip;
 
-    d->state->tmpClipPath = path;
-    d->state->tmpClipOp = op;
+    d->state->clipPath = path;
+    d->state->clipOperation = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
     d->state->clipInfo << QPainterClipInfo(path, op, d->state->worldMatrix);
-    d->engine->setDirty(QPaintEngine::DirtyClipPath);
-    d->engine->updateState(d->state);
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipPath;
+    d->updateState(d->state);
 }
 
 /*!
@@ -1608,6 +1563,7 @@ void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
     d->state->brush = oldBrush;
     d->engine->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::DirtyPen | QPaintEngine::DirtyBrush));
 }
+
 /*!
     Draws the painter path specified by \a path using the current pen
     for outline and the current brush for filling.
@@ -1626,9 +1582,9 @@ void QPainter::drawPath(const QPainterPath &path)
 	return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    if (d->engine->hasFeature(QPaintEngine::PainterPaths) && d->engine->emulationSpecifier == 0) {
+    if (d->engine->hasFeature(QPaintEngine::PainterPaths) && d->state->emulationSpecifier == 0) {
         d->engine->drawPath(path);
     } else {
         d->draw_helper(path);
@@ -1683,9 +1639,9 @@ void QPainter::drawLine(const QLineF &l)
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    uint lineEmulation = d->engine->emulationSpecifier
+    uint lineEmulation = d->state->emulationSpecifier
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke
@@ -1740,9 +1696,9 @@ void QPainter::drawRect(const QRectF &r)
     if (!isActive() || rect.isEmpty())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    uint emulationSpecifier = d->engine->emulationSpecifier;
+    uint emulationSpecifier = d->state->emulationSpecifier;
 
     if ((emulationSpecifier & QPaintEngine::AlphaFill)
         && d->engine->hasFeature(QPaintEngine::AlphaFillPolygon))
@@ -1786,7 +1742,7 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
@@ -1797,7 +1753,7 @@ void QPainter::drawRects(const QRectF *rects, int rectCount)
                      rects[i].height());
             d->engine->drawRects(&r, 1);
         }
-    } else if (d->engine->emulationSpecifier) {
+    } else if (d->state->emulationSpecifier) {
         for (int i=0; i<rectCount; ++i)
             drawRect(rects[i]);
     } else {
@@ -1826,11 +1782,11 @@ void QPainter::drawPoint(const QPointF &p)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QPointF pt(p);
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    if (d->state->emulationSpecifier) {
+        if (d->state->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
@@ -1888,10 +1844,10 @@ void QPainter::drawPoints(const QPointF *points, int pointCount)
     if (!isActive() || pointCount <= 0)
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    if (d->state->emulationSpecifier) {
+        if (d->state->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             // ### use drawPoints function
             for (int i=0; i<pointCount; ++i) {
@@ -1953,8 +1909,7 @@ void QPainter::setBackgroundMode(Qt::BGMode mode)
     }
     Q_D(QPainter);
     d->state->bgMode = mode;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyBackground);
+    d->state->dirtyFlags |= QPaintEngine::DirtyBackgroundMode;
 }
 
 /*!
@@ -1984,11 +1939,7 @@ void QPainter::setPen(const QColor &color)
     if (qt_show_painter_debug_output)
         printf("QPainter::setPen(), color=%04x\n", color.rgb());
 #endif
-    Q_D(QPainter);
-    QPen newPen = QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine);
-    d->state->pen = newPen;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyPen);
+    setPen(QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine));
 }
 
 /*!
@@ -2008,11 +1959,9 @@ void QPainter::setPen(const QPen &pen)
         printf("QPainter::setPen(), color=%04x, (brushStyle=%d) style=%d, cap=%d, join=%d\n",
            pen.color().rgb(), pen.brush().style(), pen.style(), pen.capStyle(), pen.joinStyle());
 #endif
-
     Q_D(QPainter);
     d->state->pen = pen;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyPen);
+    d->state->dirtyFlags |= QPaintEngine::DirtyPen;
 }
 
 /*!
@@ -2026,15 +1975,7 @@ void QPainter::setPen(const QPen &pen)
 
 void QPainter::setPen(Qt::PenStyle style)
 {
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::setPen(), style=%d\n", style);
-#endif
-
-    Q_D(QPainter);
-    d->state->pen = QPen(Qt::black, 0, style);
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyPen);
+    setPen(QPen(Qt::black, 0, style));
 }
 
 /*!
@@ -2068,8 +2009,7 @@ void QPainter::setBrush(const QBrush &brush)
 #endif
     Q_D(QPainter);
     d->state->brush = brush;
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyBrush);
+    d->state->dirtyFlags |= QPaintEngine::DirtyBrush;
 }
 
 
@@ -2082,15 +2022,7 @@ void QPainter::setBrush(const QBrush &brush)
 
 void QPainter::setBrush(Qt::BrushStyle style)
 {
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::setBrush(), style=%d\n", style);
-#endif
-
-    Q_D(QPainter);
-    d->state->brush = QBrush(Qt::black, style);
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyBrush);
+    setBrush(QBrush(Qt::black, style));
 }
 
 /*!
@@ -2124,8 +2056,7 @@ void QPainter::setBackground(const QBrush &bg)
 
     Q_D(QPainter);
     d->state->bgBrush = bg;
-    if (d->engine && d->engine->isActive())
-        d->engine->setDirty(QPaintEngine::DirtyBackground);
+    d->state->dirtyFlags |= QPaintEngine::DirtyBackground;
 }
 
 /*!
@@ -2146,8 +2077,7 @@ void QPainter::setFont(const QFont &font)
 
     Q_D(QPainter);
     d->state->font = QFont(font.resolve(d->state->deviceFont), d->device);
-    if (d->engine)
-        d->engine->setDirty(QPaintEngine::DirtyFont);
+    d->state->dirtyFlags |= QPaintEngine::DirtyFont;
 }
 
 /*!
@@ -2159,8 +2089,6 @@ void QPainter::setFont(const QFont &font)
 const QFont &QPainter::font() const
 {
     Q_D(const QPainter);
-    if (d->engine)
-        d->engine->updateState(d->state);
     return d->state->pfont ? *d->state->pfont : d->state->font;
 }
 
@@ -2274,15 +2202,15 @@ void QPainter::drawEllipse(const QRectF &r)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QRectF rect(r.normalize());
 
     if (rect.isEmpty())
         return;
 
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    if (d->state->emulationSpecifier) {
+        if (d->state->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
@@ -2345,7 +2273,7 @@ void QPainter::drawArc(const QRectF &r, int a, int alen)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QRectF rect = r.normalize();
 
@@ -2402,7 +2330,7 @@ void QPainter::drawPie(const QRectF &r, int a, int alen)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     if (a > (360*16)) {
         a = a % (360*16);
@@ -2466,7 +2394,7 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QRectF rect = r.normalize();
 
@@ -2511,11 +2439,11 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QVector<QLineF> lines;
-    if (d->engine->emulationSpecifier) {
-        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
+    if (d->state->emulationSpecifier) {
+        if (d->state->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             QPointF offset(d->state->matrix.dx(), d->state->matrix.dy());
             for (int i=index; i<index + nlines*2; i+=2)
@@ -2544,7 +2472,7 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
 void QPainter::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     // Dummy implementation for now.
     for (int i=0; i<lineCount; ++i)
@@ -2649,9 +2577,9 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    uint lineEmulation = d->engine->emulationSpecifier
+    uint lineEmulation = d->state->emulationSpecifier
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke
@@ -2743,9 +2671,9 @@ void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule f
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
-    uint emulationSpecifier = d->engine->emulationSpecifier;
+    uint emulationSpecifier = d->state->emulationSpecifier;
     if ((emulationSpecifier & QPaintEngine::LinearGradientFill)
         && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
         emulationSpecifier &= ~QPaintEngine::LinearGradientFill;
@@ -2982,7 +2910,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
     Q_D(QPainter);
     if (!isActive() || pm.isNull() || (mode == Qt::CopyPixmap && d->device->devType() != QInternal::Pixmap))
         return;
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     qreal x = r.x();
     qreal y = r.y();
@@ -3075,7 +3003,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     qreal x = targetRect.x();
     qreal y = targetRect.y();
@@ -3171,7 +3099,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
     QTextEngine *engine = layout.d;
@@ -3207,7 +3135,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     QRectF bounds;
     qt_format_text(font(), r, flags, str, &bounds, 0, 0, 0, this);
@@ -3241,7 +3169,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     qt_format_text(font(), r, flags, str, br, 0, 0, 0, this);
 }
@@ -3265,7 +3193,7 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
         return;
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     int flags = o.alignment();
 
@@ -3320,7 +3248,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
     d->engine->drawTextItem(p, ti);
 }
 
@@ -3410,7 +3338,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
         return QRectF(r.x(),r.y(), 0,0);
 
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     int flags = o.alignment() | Qt::TextDontPrint;
     if (o.wrapMode() == QTextOption::WordWrap)
@@ -3474,7 +3402,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     qreal sw = pixmap.width();
     qreal sh = pixmap.height();
@@ -3560,7 +3488,7 @@ void QPainter::drawPicture(const QPointF &p, const QPicture &picture)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
     save();
     translate(p);
     const_cast<QPicture *>(&picture)->play(this);
@@ -3584,7 +3512,7 @@ void QPainter::eraseRect(const QRectF &r)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     if (d->state->bgBrush.texture().isNull())
         fillRect(r, d->state->bgBrush);
@@ -3670,21 +3598,12 @@ void QPainter::setRenderHint(RenderHint hint, bool on)
     }
 
     Q_D(QPainter);
-    d->engine->setRenderHint(hint, on);
-}
+    if (on)
+        d->state->renderHints |= hint;
+    else
+        d->state->renderHints &= ~hint;
 
-/*!
-    Returns a flag that specifies the rendering hints that this
-    painter supports.
-*/
-QPainter::RenderHints QPainter::supportedRenderHints() const
-{
-    if (!isActive()) {
-        qWarning("Painter must be active to set rendering hints");
-        return 0;
-    }
-    Q_D(const QPainter);
-    return d->engine->supportedRenderHints();
+    d->state->dirtyFlags |= QPaintEngine::DirtyHints;
 }
 
 /*!
@@ -3698,7 +3617,7 @@ QPainter::RenderHints QPainter::renderHints() const
         return 0;
     }
     Q_D(const QPainter);
-    return d->engine->renderHints();
+    return d->state->renderHints;
 }
 
 /*!
@@ -3760,8 +3679,8 @@ void QPainter::setWindow(const QRect &r)
     Q_D(QPainter);
     // Must update clip before changing matrix.
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
+        && d->engine->testDirty(QPaintEngine::DirtyClipRegion))
+        d->updateState(d->state);
 
     d->state->wx = r.x();
     d->state->wy = r.y();
@@ -3828,8 +3747,8 @@ void QPainter::setViewport(const QRect &r)
 
     // Must update clip before changing matrix.
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
+        && d->engine->testDirty(QPaintEngine::DirtyClipRegion))
+        d->updateState(d->state);
 
     d->state->vx = r.x();
     d->state->vy = r.y();
@@ -3920,8 +3839,8 @@ void QPainter::setViewTransformEnabled(bool enable)
 
     // Must update clip before changing matrix.
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
+        && d->engine->testDirty(QPaintEngine::DirtyClipRegion))
+        d->updateState(d->state);
 
     d->state->VxF = enable;
     d->updateMatrix();
@@ -4214,7 +4133,7 @@ void QPainter::drawCubicBezier(const QPolygon &a, int index)
     if (!isActive())
         return;
     Q_D(QPainter);
-    d->engine->updateState(d->state);
+    d->updateState(d->state);
 
     if ((int)a.size() - index < 4) {
         qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
@@ -4498,9 +4417,9 @@ QPainterState::QPainterState(const QPainterState *s)
     brush = QBrush(s->brush);
     bgOrigin = s->bgOrigin;
     bgBrush = QBrush(s->bgBrush);
-    tmpClipRegion = QRegion(s->tmpClipRegion);
-    tmpClipPath = s->tmpClipPath;
-    tmpClipOp = s->tmpClipOp;
+    clipRegion = QRegion(s->clipRegion);
+    clipPath = s->clipPath;
+    clipOperation = s->clipOperation;
     bgMode = s->bgMode;
     VxF = s->VxF;
     WxF = s->WxF;
@@ -4522,9 +4441,12 @@ QPainterState::QPainterState(const QPainterState *s)
     vh = s->vh;
     painter = s->painter;
     clipInfo = s->clipInfo;
-    changeFlags = 0;
     layoutDirection = s->layoutDirection;
     composition_mode = s->composition_mode;
+    emulationSpecifier = s->emulationSpecifier;
+    dirtyFlags = s->dirtyFlags;
+    changeFlags = 0;
+    renderHints = s->renderHints;
 }
 
 QPainterState::QPainterState()
@@ -4544,16 +4466,15 @@ void QPainterState::init(QPainter *p) {
     VxF = false;
     wx = wy = ww = wh = 0;
     vx = vy = vw = vh = 0;
-    changeFlags = 0;
     pfont = 0;
     painter = p;
     pen = QPen();
     bgOrigin = QPointF(0, 0);
     brush = QBrush();
     font = deviceFont = QFont();
-    tmpClipRegion = QRegion();
-    tmpClipPath = QPainterPath();
-    tmpClipOp = Qt::NoClip;
+    clipRegion = QRegion();
+    clipPath = QPainterPath();
+    clipOperation = Qt::NoClip;
 #ifndef QT_NO_TRANSFORMATIONS
     worldMatrix.reset();
     matrix.reset();
@@ -4563,6 +4484,10 @@ void QPainterState::init(QPainter *p) {
 #endif
     layoutDirection = QApplication::layoutDirection();
     composition_mode = QPainter::CompositionMode_SourceOver;
+    emulationSpecifier = 0;
+    dirtyFlags = 0;
+    changeFlags = 0;
+    renderHints = 0;
 }
 
 #ifdef QT3_SUPPORT
@@ -4774,3 +4699,71 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     (if not null) is set to the actual bounding rectangle of the
     output.
 */
+
+
+QPen QPaintEngineState::pen() const
+{
+    return static_cast<const QPainterState *>(this)->pen;
+}
+
+QBrush QPaintEngineState::brush() const
+{
+    return static_cast<const QPainterState *>(this)->brush;
+}
+
+QPointF QPaintEngineState::brushOrigin() const
+{
+    return static_cast<const QPainterState *>(this)->bgOrigin;
+}
+
+QBrush QPaintEngineState::backgroundBrush() const
+{
+    return static_cast<const QPainterState *>(this)->bgBrush;
+}
+
+Qt::BGMode QPaintEngineState::backgroundMode() const
+{
+    return static_cast<const QPainterState *>(this)->bgMode;
+}
+
+QFont QPaintEngineState::font() const
+{
+    return static_cast<const QPainterState *>(this)->font;
+}
+
+QMatrix QPaintEngineState::matrix() const
+{
+    return static_cast<const QPainterState *>(this)->matrix;
+}
+
+Qt::ClipOperation QPaintEngineState::clipOperation() const
+{
+    return static_cast<const QPainterState *>(this)->clipOperation;
+}
+
+QRegion QPaintEngineState::clipRegion() const
+{
+    return static_cast<const QPainterState *>(this)->clipRegion;
+}
+
+QPainterPath QPaintEngineState::clipPath() const
+{
+    return static_cast<const QPainterState *>(this)->clipPath;
+}
+
+QPainter::RenderHints QPaintEngineState::renderHints() const
+{
+    return static_cast<const QPainterState *>(this)->renderHints;
+}
+
+QPainter::CompositionMode QPaintEngineState::compositionMode() const
+{
+    return static_cast<const QPainterState *>(this)->composition_mode;
+}
+
+QPainter *QPaintEngineState::painter() const
+{
+    return static_cast<const QPainterState *>(this)->painter;
+}
+
+

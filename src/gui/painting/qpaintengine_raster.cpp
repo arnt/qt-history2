@@ -664,6 +664,22 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
 #endif
 }
 
+
+void QRasterPaintEngine::updateState(const QPaintEngineState &state)
+{
+    QPaintEngine::DirtyFlags flags = state.state();
+    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyHints) updateRenderHints(state.renderHints());
+// ### if (flags & DirtyCompositionMode) updateCompositionMode(state.clipRegion(), state.clipOperation());p
+}
+
+
 void QRasterPaintEngine::updatePen(const QPen &pen)
 {
 #ifdef QT_DEBUG_DRAW
@@ -762,6 +778,7 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
     Q_D(QRasterPaintEngine);
     d->brush = brush;
     d->brushMatrix = d->matrix;
+    d->brushOffset = offset;
 
     // Offset the brush matrix with offset.
     d->brushMatrix.translate(offset.x(), offset.y());
@@ -842,6 +859,25 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
     }
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
+}
+
+
+void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+    Q_D(QRasterPaintEngine);
+    QBrush oldBrush = d->brush;
+    QPointF oldOffset = d->brushOffset;
+    QPainterPath path(points[0]);
+    for (int i=1; i<pointCount; ++i)
+        path.lineTo(points[i]);
+    if (mode == PolylineMode) {
+        updateBrush(QBrush(), QPointF(0, 0));
+    } else {
+        path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
+        path.closeSubpath();
+    }
+    drawPath(path);
+    updateBrush(oldBrush, oldOffset);
 }
 
 

@@ -53,6 +53,8 @@ public:
     bool begin(QPaintDevice *pdev);
     bool end();
 
+    void updateState(const QPaintEngineState &state);
+
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
@@ -101,6 +103,8 @@ public:
 
     bool begin(QPaintDevice *pdev);
     bool end();
+
+    void updateState(const QPaintEngineState &state);
 
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPointF &pt);

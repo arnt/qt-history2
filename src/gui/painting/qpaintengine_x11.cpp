@@ -770,6 +770,23 @@ QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
     return QFlag(0);
 }
 
+void QX11PaintEngine::updateState(const QPaintEngineState &state)
+{
+    QPaintEngine::DirtyFlags flags = state.state();
+    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyClipPath) {
+        updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
+                                 state.clipPath().fillRule()),
+                         state.clipOperation());
+    }
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyHints) updateRenderHints(state.renderHints());
+}
+
 void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     d->render_hints = hints;

@@ -212,31 +212,15 @@ static int qt_polygon_recursion;
 */
 void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    if (hasFeature(PainterPaths)) {
-        Q_ASSERT(pointCount > 0); // these should have been cleared out by QPainter.
-        QPainterPath path(points[0]);
-        for (int i=1; i<pointCount; ++i)
-            path.lineTo(points[i]);
-        // ### don't like this... should perhaps introduce strokePath in api
-        if (mode == PolylineMode) {
-            updateBrush(QBrush(), QPoint(0, 0));
-            setDirty(DirtyBrush);
-        } else {
-            path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
-            path.closeSubpath();
-        }
-        drawPath(path);
-    } else {
-        Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
-                   "At least one drawPolygon function must be implemented");
-        qt_polygon_recursion = 1;
-        QPolygon p;
-        p.reserve(pointCount);
-        for (int i=0; i<pointCount; ++i)
-            p << points[i].toPoint();
-        drawPolygon(p.data(), pointCount, mode);
-        qt_polygon_recursion = 0;
-    }
+    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+               "At least one drawPolygon function must be implemented");
+    qt_polygon_recursion = 1;
+    QPolygon p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i].toPoint();
+    drawPolygon(p.data(), pointCount, mode);
+    qt_polygon_recursion = 0;
 }
 
 /*!
@@ -251,29 +235,15 @@ void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDra
 */
 void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
-    if (hasFeature(PainterPaths)) {
-        QPainterPath path(points[0]);
-        for (int i=1; i<pointCount; ++i)
-            path.lineTo(points[i]);
-        if (mode == PolylineMode) {
-            updateBrush(QBrush(), QPoint(0, 0));
-            setDirty(DirtyBrush);
-        } else {
-            path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
-            path.closeSubpath();
-        }
-        drawPath(path);
-    } else {
-        Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
-                   "At least one drawPolygon function must be implemented");
-        qt_polygon_recursion = 1;
-        QPolygonF p;
-        p.reserve(pointCount);
-        for (int i=0; i<pointCount; ++i)
-            p << points[i];
-        drawPolygon(p.data(), pointCount, mode);
-        qt_polygon_recursion = 0;
-    }
+    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+               "At least one drawPolygon function must be implemented");
+    qt_polygon_recursion = 1;
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
+    drawPolygon(p.data(), pointCount, mode);
+    qt_polygon_recursion = 0;
 }
 
 
@@ -342,13 +312,10 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
 */
 void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    updateBrush(QBrush(state->pen.color()), QPointF());
-    updatePen(QPen(Qt::NoPen));
     for (int i=0; i<pointCount; ++i) {
-        QRectF r(points[i].x(), points[i].y(), 1, 1);
-        drawRects(&r, 1);
+        QLineF line(points[i].x(), points[i].y(), points[i].x(), points[i].y());
+        drawLines(&line, 1);
     }
-    setDirty(DirtyPen|DirtyBrush);
 }
 
 
@@ -520,13 +487,13 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 /*!
-    \fn void QPaintEngine::setDirty(DirtyFlags df)
+    \fn void QPaintEngine::clearDirty(DirtyFlags df)
 
     \internal
 */
 
 /*!
-    \fn void QPaintEngine::clearDirty(DirtyFlags df)
+    \fn void QPaintEngine::setDirty(DirtyFlags df)
 
     \internal
 */
@@ -550,13 +517,11 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
-    : dirtyFlag(0),
-      active(0),
+    : active(0),
       selfDestruct(false),
       state(0),
       gccaps(caps),
-      d_ptr(new QPaintEnginePrivate),
-      emulationSpecifier(0)
+      d_ptr(new QPaintEnginePrivate)
 {
     d_ptr->q_ptr = this;
 }
@@ -566,13 +531,11 @@ QPaintEngine::QPaintEngine(PaintEngineFeatures caps)
 */
 
 QPaintEngine::QPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures caps)
-    : dirtyFlag(0),
-      active(0),
+    : active(0),
       selfDestruct(false),
       state(0),
       gccaps(caps),
-      d_ptr(&dptr),
-      emulationSpecifier(0)
+      d_ptr(&dptr)
 {
     d_ptr->q_ptr = this;
 }
@@ -590,7 +553,7 @@ QPaintEngine::~QPaintEngine()
 */
 QPainter *QPaintEngine::painter() const
 {
-    return state->painter;
+    return state ? state->painter() : 0;
 }
 
 /*!
@@ -601,6 +564,7 @@ QPainter *QPaintEngine::painter() const
   false we don't call the update functions.
 */
 
+#if 0
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
     Q_ASSERT(state);
@@ -781,6 +745,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateInternal(state);
 }
 
+#endif
+
 /*!
     The default implementation ignores the \a path and does nothing.
 */
@@ -829,7 +795,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path);
     if (!path.isEmpty()) {
         painter()->save();
-        painter()->setBrush(state->pen.brush());
+        painter()->setBrush(state->pen().brush());
         painter()->setPen(Qt::NoPen);
         painter()->drawPath(path);
         painter()->restore();
@@ -849,18 +815,20 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
             img = img.convertDepth(32);
         img.setAlphaBuffer(true);
         int i = 0;
+        QRgb pen_rgb = state->pen().color().rgb() & 0x00ffffff;
         while (i < img.height()) {
             uint *p = (uint *) img.scanLine(i);
             uint *end = p + img.width();
+
             while (p < end) {
-                *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
+                *p = ((0xff - qGray(*p)) << 24) | pen_rgb;
                 ++p;
             }
             ++i;
         }
 
         pm = QPixmap::fromImage(img);
-        state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
+        this->painter()->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
     }
 }
 
@@ -871,19 +839,9 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 */
 void QPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
-    if (hasFeature(PainterPaths)) {
-        updateBrush(QBrush(), QPointF(0, 0));
-        for (int i=0; i<lineCount; ++i) {
-            QPainterPath path(lines[i].p1());
-            path.lineTo(lines[i].p2());
-            drawPath(path);
-        }
-        setDirty(QPaintEngine::DirtyBrush);
-    } else {
-        for (int i=0; i<lineCount; ++i) {
-            QPointF pts[2] = { lines[i].p1(), lines[i].p2() };
-            drawPolygon(pts, 2, PolylineMode);
-        }
+    for (int i=0; i<lineCount; ++i) {
+        QPointF pts[2] = { lines[i].p1(), lines[i].p2() };
+        drawPolygon(pts, 2, PolylineMode);
     }
 }
 
@@ -942,106 +900,6 @@ void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
         }
     }
 }
-
-
-/*!
-  Returns the set of supported renderhints.
- */
-QPainter::RenderHints QPaintEngine::supportedRenderHints() const
-{
-    return 0;
-}
-
-/*!
-  Returns the currently set renderhints.
-*/
-QPainter::RenderHints QPaintEngine::renderHints() const
-{
-    return d->renderhints;
-}
-
-/*!
-  Sets the render hint \a hint on this engine if \a on is true;
-  otherwise clears the render hint.
-*/
-void QPaintEngine::setRenderHint(QPainter::RenderHint hint, bool on)
-{
-    if (on) {
-        d->renderhints |= hint;
-    } else {
-        d->renderhints &= ~hint;
-    }
-    setDirty(DirtyHints);
-}
-
-/*!
-  This function is caleed when the engine needs to be updated with
-  the new set of renderhints specified by \a hints.
-*/
-
-void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
-{
-}
-
-
-/*!
-    This function is called when the engine needs to be updated with
-    the new clip \a path. The value of \a op specifies how the clip path
-    should be combined with the current clip.
-*/
-void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
-{
-    updateClipRegion(QRegion(path.toFillPolygon().toPolygon(), path.fillRule()), op);
-}
-
-/*!
-  \fn QPaintEngine::updatePen(const QPen &pen)
-
-  This function is called when the engine needs to be updated with the
-  a new pen, specified by \a pen.
-*/
-
-
-/*!
-  \fn QPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
-
-  This function is called when the engine needs to be updated with
-  a new brush, specified with \a brush. \a origin describes the brush origin.
-
-  If the brush is a gradient brush, the gradient points are specified
-  in device coordinates.
-*/
-
-/*!
-  \fn QPaintEngine::updateFont(const QFont &f)
-
-  This function is called when the engine needs to be updated with
-  a new font, specified by \a f
-*/
-
-/*!
-  \fn QPaintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &brush)
-
-  This function is called when the engine needs to be updated with
-  new background settings. \a bgmode describes the background mode and
-  \a brush describes the background brush.
-*/
-
-/*!
-  \fn QPaintEngine::updateMatrix(const QMatrix &matrix)
-
-  This function is called when the engine needs to be updated with
-  new transformation settings, specified with \a matrix.
-*/
-
-/*!
-  \fn QPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
-
-  This function is called when the clip region changes. The clip operation \a op
-  specifies how the new region \a region should be combined (if at all) with
-  the new region.
-*/
-
 
 /*!
     \internal

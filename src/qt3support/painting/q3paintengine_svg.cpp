@@ -205,6 +205,18 @@ bool Q3SVGPaintEngine::end()
     return true;
 }
 
+void Q3SVGPaintEngine::updateState(const QPaintEngineState &state)
+{
+    QPaintEngine::DirtyFlags flags = state.state();
+    if (flags & DirtyPen) updatePen(state.pen());
+    if ((flags & DirtyBrush) || (flags & DirtyBrushOrigin))
+        updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+}
+
 void Q3SVGPaintEngine::updatePen(const QPen &pen)
 {
     d->cpen = pen;

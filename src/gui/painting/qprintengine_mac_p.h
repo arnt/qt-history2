@@ -58,14 +58,17 @@ public:
     int metric(QPaintDevice::PaintDeviceMetric) const;
 
     //forwarded functions
-    virtual void updatePen(const QPen &pen);
-    virtual void updateBrush(const QBrush &brush, const QPointF &pt);
-    virtual void updateFont(const QFont &font);
-    virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    virtual void updateMatrix(const QMatrix &matrix);
-    virtual void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
-    virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
-    virtual void updateRenderHints(QPainter::RenderHints hints);
+
+    void updateState(const QPaintEngineState &state);
+
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
+    void updateFont(const QFont &font);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateMatrix(const QMatrix &matrix);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
+    void updateRenderHints(QPainter::RenderHints hints);
     virtual void drawLines(const QLineF *lines, int lineCount);
     virtual void drawRects(const QRectF *r, int num);
     virtual void drawPoints(const QPointF *p, int pointCount);

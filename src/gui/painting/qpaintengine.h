@@ -23,12 +23,12 @@ class QLineF;
 class QPaintDevice;
 class QPaintEnginePrivate;
 class QPainterPath;
-class QPainterState;
 class QPointF;
 class QPolygonF;
 class QRectF;
 struct QGlyphLayout;
 class QTextItemInt;
+class QPaintEngineState;
 
 class Q_GUI_EXPORT QTextItem {
 public:
@@ -50,6 +50,7 @@ public:
     QFont font() const;
 };
 Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
+
 
 class Q_GUI_EXPORT QPaintEngine
 {
@@ -84,14 +85,17 @@ public:
     enum DirtyFlag {
         DirtyPen                = 0x0001,
         DirtyBrush              = 0x0002,
-        DirtyFont               = 0x0004,
-        DirtyBackground         = 0x0008,
-        DirtyTransform          = 0x0010,
-        DirtyClip               = 0x0020,
-        DirtyClipPath           = 0x0040,
-        DirtyHints              = 0x0080,
+        DirtyBrushOrigin        = 0x0004,
+        DirtyFont               = 0x0008,
+        DirtyBackground         = 0x0010,
+        DirtyBackgroundMode     = 0x0020,
+        DirtyTransform          = 0x0040,
+        DirtyClipRegion         = 0x0080,
+        DirtyClipPath           = 0x0100,
+        DirtyHints              = 0x0200,
+        DirtyCompositionMode    = 0x0400,
 
-        AllDirty                = 0x00ff
+        AllDirty                = 0xffff
     };
     Q_DECLARE_FLAGS(DirtyFlags, DirtyFlag)
 
@@ -111,14 +115,7 @@ public:
     virtual bool begin(QPaintDevice *pdev) = 0;
     virtual bool end() = 0;
 
-    virtual void updatePen(const QPen &pen) = 0;
-    virtual void updateBrush(const QBrush &brush, const QPointF &origin) = 0;
-    virtual void updateFont(const QFont &font) = 0;
-    virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
-    virtual void updateMatrix(const QMatrix &matrix) = 0;
-    virtual void updateClipRegion(const QRegion &region, Qt::ClipOperation op) = 0;
-    virtual void updateRenderHints(QPainter::RenderHints hints);
-    virtual void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
+    virtual void updateState(const QPaintEngineState &state) = 0;
 
     virtual void drawRects(const QRect *rects, int rectCount);
     virtual void drawRects(const QRectF *rects, int rectCount);
@@ -144,10 +141,6 @@ public:
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
                            Qt::ImageConversionFlags flags = Qt::AutoColor);
-
-    virtual QPainter::RenderHints supportedRenderHints() const;
-    QPainter::RenderHints renderHints() const;
-    void setRenderHint(QPainter::RenderHint hint, bool on);
 
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
@@ -179,35 +172,29 @@ public:
     virtual Type type() const = 0;
 
     inline void fix_neg_rect(int *x, int *y, int *w, int *h);
-    inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
-    inline void setDirty(DirtyFlags df) { dirtyFlag |= df; }
-    inline void clearDirty(DirtyFlags df) { dirtyFlag &= ~static_cast<uint>(df); }
+
+    inline bool testDirty(DirtyFlags df);
+    inline void setDirty(DirtyFlags df);
+    inline void clearDirty(DirtyFlags df);
 
     bool hasFeature(PaintEngineFeatures feature) const { return (gccaps & feature) != 0; }
 
     QPainter *painter() const;
 
-    inline void syncState() { updateState(state); }
+    inline void syncState() { Q_ASSERT(state); updateState(*state); }
 
 protected:
     QPaintEngine(QPaintEnginePrivate &data, PaintEngineFeatures devcaps=0);
 
-    uint dirtyFlag;
+    QPaintEngineState *state;
+    PaintEngineFeatures gccaps;
+
     uint active : 1;
     uint selfDestruct : 1;
-    QPainterState *state;
-    PaintEngineFeatures gccaps;
 
     QPaintEnginePrivate *d_ptr;
 
-    inline void updateState(QPainterState *state, bool updateGC = true);
-
 private:
-    uint emulationSpecifier;
-
-    inline QPainterState *painterState() const { return state; }
-    virtual void updateInternal(QPainterState *state, bool updateGC = true);
-
     void setAutoDestruct(bool autoDestruct) { selfDestruct = autoDestruct; }
     bool autoDestruct() const { return selfDestruct; }
 
@@ -227,6 +214,42 @@ private:
     friend class QMacCGContext;
 };
 
+
+class Q_GUI_EXPORT QPaintEngineState
+{
+public:
+    QPaintEngine::DirtyFlags state() const { return dirtyFlags; }
+
+    QPen pen() const;
+
+    QBrush brush() const;
+    QPointF brushOrigin() const;
+
+    QBrush backgroundBrush() const;
+    Qt::BGMode backgroundMode() const;
+
+    QFont font() const;
+
+    QMatrix matrix() const;
+
+    Qt::ClipOperation clipOperation() const;
+    QRegion clipRegion() const;
+    QPainterPath clipPath() const;
+
+    QPainter::RenderHints renderHints() const;
+
+    QPainter::CompositionMode compositionMode() const;
+
+    QPainter *painter() const;
+
+protected:
+    friend class QPaintEngine;
+    friend class QPainter;
+    friend class QPainterPrivate;
+
+    QPaintEngine::DirtyFlags dirtyFlags;
+};
+
 //
 // inline functions
 //
@@ -243,11 +266,22 @@ inline void QPaintEngine::fix_neg_rect(int *x, int *y, int *w, int *h)
     }
 }
 
-inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
-{
-    if (dirtyFlag || state!=newState)
-        updateInternal(newState, updateGC);
+inline bool QPaintEngine::testDirty(DirtyFlags df) {
+    Q_ASSERT(state);
+    return ((state->dirtyFlags & df) != 0);
 }
+
+inline void QPaintEngine::setDirty(DirtyFlags df) {
+    Q_ASSERT(state);
+    state->dirtyFlags |= df;
+}
+
+inline void QPaintEngine::clearDirty(DirtyFlags df)
+{
+    Q_ASSERT(state);
+    state->dirtyFlags &= ~static_cast<uint>(df);
+}
+
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures);
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags);

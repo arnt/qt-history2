@@ -55,6 +55,8 @@ public:
     bool begin(QPaintDevice *device);
     bool end();
 
+    void updateState(const QPaintEngineState &state);
+
     void updatePen(const QPen &pen);
     void updateBrush(const QBrush &brush, const QPointF &origin);
     void updateFont(const QFont &font);
@@ -65,6 +67,7 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     void fillPath(const QPainterPath &path, FillData *fillData);
 
@@ -119,6 +122,7 @@ public:
     qreal *gradientStopPoints(const QGradient *gradient);
     ARGB *gradientStopColors(const QGradient *gradient);
 
+    QPointF brushOffset;
     QBrush brush;
     QBrush bgBrush;
     QPen pen;

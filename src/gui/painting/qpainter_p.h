@@ -33,6 +33,7 @@
 #include "qmatrix.h"
 #include "qpainter.h"
 #include "qpainterpath.h"
+#include "qpaintengine.h"
 
 class QPaintEngine;
 
@@ -54,7 +55,8 @@ public:
     QRegion region;
 };
 
-class QPainterState
+
+class QPainterState : public QPaintEngineState
 {
 public:
     QPainterState();
@@ -69,9 +71,10 @@ public:
     QPen pen;
     QBrush brush;
     QBrush bgBrush;             // background brush
-    QRegion tmpClipRegion;
-    QPainterPath tmpClipPath;
-    Qt::ClipOperation tmpClipOp;
+    QRegion clipRegion;
+    QPainterPath clipPath;
+    Qt::ClipOperation clipOperation;
+    QPainter::RenderHints renderHints;
     QList<QPainterClipInfo> clipInfo;
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
@@ -89,9 +92,10 @@ public:
 
     Qt::BGMode bgMode;
     QPainter *painter;
-    uint changeFlags;
     Qt::LayoutDirection layoutDirection;
     QPainter::CompositionMode composition_mode;
+    uint emulationSpecifier;
+    uint changeFlags;
 };
 
 
@@ -135,6 +139,8 @@ public:
                          FillDraw          = 0x2,
                          StrokeAndFillDraw = 0x3
     };
+
+    void updateState(QPainterState *state);
 
     void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);
 

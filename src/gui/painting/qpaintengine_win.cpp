@@ -446,7 +446,6 @@ void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &tex
     }
 
     QFontEngine *fe = ti.fontEngine;
-    QPainterState *state = painterState();
 
     double scale = 1.;
     int angle = 0;
@@ -454,7 +453,7 @@ void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &tex
     qreal x = p.x();
     qreal y = p.y();
 
-    if (state->txop >= QPainterPrivate::TxScale
+    if (d->txop >= QPainterPrivate::TxScale
         && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
         // Draw rotated and sheared text on Windows 95, 98
 
@@ -462,10 +461,10 @@ void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &tex
         // Shearing transformations are done by QPainter.
 
         // rotation + scale + translation
-        scale = sqrt(state->matrix.m11()*state->matrix.m22()
-                      - state->matrix.m12()*state->matrix.m21());
-        angle = qRound(1800*acos(state->matrix.m11()/scale)/M_PI);
-        if (state->matrix.m12() < 0)
+        scale = sqrt(d->matrix.m11()*d->matrix.m22()
+                      - d->matrix.m12()*d->matrix.m21());
+        angle = qRound(1800*acos(d->matrix.m11()/scale)/M_PI);
+        if (d->matrix.m12() < 0)
             angle = 3600 - angle;
 
         transform = true;
@@ -546,7 +545,7 @@ void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &tex
                     qreal xp = x + glyphs->offset.x();
                     qreal yp = y + glyphs->offset.y();
                     if (transform)
-                        state->painter->matrix().map(xp, yp, &xp, &yp);
+                        d->matrix.map(xp, yp, &xp, &yp);
                     ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
                     x += glyphs->advance.x() + ((qreal)glyphs->space_18d6) / 64.;
                     y += glyphs->advance.y();
@@ -613,6 +612,20 @@ void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &tex
     if (d->txop >= QPainterPrivate::TxTranslate)
         d->setNativeMatrix(QMatrix());
 }
+
+
+void QWin32PaintEngine::updateState(const QPaintEngineState &state)
+{
+    QPaintEngine::DirtyFlags flags = state.state();
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+}
+
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
@@ -965,11 +978,11 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
 
 void QWin32PaintEngine::updateFont(const QFont &font)
 {
-    if (state->pfont)
-        delete state->pfont;
-#undef d
-    state->pfont = new QFont(font.d, d_func()->pdev);
-#define d d_func()
+//     if (state->pfont)
+//         delete state->pfont;
+// #undef d
+//     state->pfont = new QFont(font.d, d_func()->pdev);
+// #define d d_func()
 }
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)

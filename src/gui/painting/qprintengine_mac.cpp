@@ -421,6 +421,20 @@ bool QMacPrintEnginePrivate::newPage_helper()
     return true;
 }
 
+
+void QMacPrintEngine::updateState(const QPaintEngineState &state)
+{
+    QPaintEngine::DirtyFlags flags = state.state();
+    if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyHints) updateRenderHints(state.renderHints());
+}
+
 void QMacPrintEngine::updatePen(const QPen &pen)
 {
     Q_ASSERT(d->state == QPrinter::Active);
