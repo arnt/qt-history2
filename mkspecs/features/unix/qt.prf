@@ -1,10 +1,25 @@
 CONFIG *= moc
 INCLUDEPATH += $$QMAKE_INCDIR_QT
 !debug:DEFINES += QT_NO_DEBUG
-!target_qt {
-   !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
-   QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
-   thread:!isEmpty(QMAKE_LIBS_QT_THREAD):LIBS += $$QMAKE_LIBS_QT_THREAD
-   else:LIBS += $$QMAKE_LIBS_QT
+
+!isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
+for(QCONF, QCONFIG) {
+   qlib =
+   isEqual(QCONF, gui):qlib = qt
+   else:isEqual(QCONF, network):qlib = qnetwork
+   else:isEqual(QCONF, xml):qlib = qxml
+   else:isEqual(QCONF, opengl):qlib = qopengl
+   else:isEqual(QCONF, sql):qlib = qsqlkernel
+   else:isEqual(QCONF, kernel):qlib = qtkernel
+   else:message("Unknown QCONFIG: $$qlib):qlib =
+   !isEmpty(qlib) {
+      thread:qlib = $${qlib}-mt
+      target_qt:isEqual(TARGET, qlib) {
+         warning($$TARGET cannot have a QCONFIG of $$QCONF)
+      } else {
+         LIBS   += -l$${qlib}
+      }
+   }
 }
 plugin:DEFINES += QT_PLUGIN

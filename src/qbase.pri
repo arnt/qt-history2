@@ -1,7 +1,8 @@
+isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
+
 # Qt project file
+QMAKE_INTERNAL_CACHE_FILE = .qmake.internal.cache.$${TARGET}
 TEMPLATE	= lib
-TARGET		= qt
-embedded:TARGET	= qte
 VERSION		= 4.0.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
@@ -93,29 +94,27 @@ win32 {
 	    DEFINES+=QT_MAKEDLL
 	    exists(qt.rc):RC_FILE = qt.rc
 	}
+} else {
+    CANVAS_H	= $$CANVAS_CPP
+    KERNEL_H	= $$KERNEL_CPP
+    WIDGETS_H	= $$WIDGETS_CPP
+    SQL_H		= $$SQL_CPP
+    TABLE_H		= $$TABLE_CPP
+    DIALOGS_H	= $$DIALOGS_CPP
+    ICONVIEW_H	= $$ICONVIEW_CPP
+    NETWORK_H	= $$NETWORK_CPP
+    OPENGL_H	= $$OPENGL_CPP
+    THREAD_H	= $$THREAD_CPP
+    TOOLS_H		= $$TOOLS_CPP
+    CODECS_H	= $$CODECS_CPP
+    WORKSPACE_H	= $$WORKSPACE_CPP
+    XML_H		= $$XML_CPP
+    STYLES_H	= $$STYLES_CPP
+    ACCESSIBLE_H	= $$ACCESSIBLE_CPP
+    COMPAT_H	= $$COMPAT_CPP
+    !embedded:!mac:CONFIG	   += x11 x11inc
 }
 win32-borland:INCLUDEPATH += kernel
-
-unix {
-	CANVAS_H	= $$CANVAS_CPP
-	KERNEL_H	= $$KERNEL_CPP
-	WIDGETS_H	= $$WIDGETS_CPP
-	SQL_H		= $$SQL_CPP
-	TABLE_H		= $$TABLE_CPP
-	DIALOGS_H	= $$DIALOGS_CPP
-	ICONVIEW_H	= $$ICONVIEW_CPP
-	NETWORK_H	= $$NETWORK_CPP
-	OPENGL_H	= $$OPENGL_CPP
-	THREAD_H	= $$THREAD_CPP
-	TOOLS_H		= $$TOOLS_CPP
-	CODECS_H	= $$CODECS_CPP
-	WORKSPACE_H	= $$WORKSPACE_CPP
-	XML_H		= $$XML_CPP
-	STYLES_H	= $$STYLES_CPP
-	ACCESSIBLE_H	= $$ACCESSIBLE_CPP
-	COMPAT_H	= $$COMPAT_CPP
-	!embedded:!mac:CONFIG	   += x11 x11inc
-}
 
 aix-g++* {
 	QMAKE_CFLAGS   += -mminimal-toc
@@ -132,71 +131,15 @@ DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
 
 thread {
-	!win32-borland:TARGET = qt-mt
-	win32-borland:TARGET = qtmt
-	embedded:TARGET = qte-mt
+	win32-borland:TARGET = $${TARGET}mt
+	else:TARGET = $${TARGET}-mt
 }
-
-!cups:DEFINES += QT_NO_CUPS
-
-!nis:DEFINES += QT_NO_NIS
 
 largefile {
 	unix:!darwin:DEFINES += _LARGEFILE_SOURCE _FILE_OFFSET_BITS=64
 }
 
-#here for compatability, should go away ####
-include($$COMPAT_CPP/qt_compat.pri)
-
-#platforms
-include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
-x11:include($$KERNEL_CPP/qt_x11.pri)
-mac:include($$KERNEL_CPP/qt_mac.pri)
-embedded:include($$KERNEL_CPP/qt_qws.pri)
-
-#modules
-include($$KERNEL_CPP/qt_kernel.pri)
-include($$WIDGETS_CPP/qt_widgets.pri)
-include($$DIALOGS_CPP/qt_dialogs.pri)
-include($$ICONVIEW_CPP/qt_iconview.pri)
-include($$WORKSPACE_CPP/qt_workspace.pri)
-include($$NETWORK_CPP/qt_network.pri)
-include($$CANVAS_CPP/qt_canvas.pri)
-include($$TABLE_CPP/qt_table.pri)
-include($$XML_CPP/qt_xml.pri)
-include($$OPENGL_CPP/qt_opengl.pri)
-include($$SQL_CPP/qt_sql.pri)
-include($$KERNEL_CPP/qt_gfx.pri)
-include($$THREAD_CPP/qt_thread.pri)
-include($$TOOLS_CPP/qt_tools.pri)
-include($$CODECS_CPP/qt_codecs.pri)
-include($$STYLES_CPP/qt_styles.pri)
-embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
-include($$ACCESSIBLE_CPP/qt_accessible.pri)
-
-# qconfig.cpp
-exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {
-    SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
-}
+!staticlib:PRL_EXPORT_DEFINES += QT_SHARED
 
 #install directives
 include(qt_install.pri)
-!staticlib:PRL_EXPORT_DEFINES += QT_SHARED
-
-wince-* {
-	CONFIG -= incremental
-	message( ...removing plugin stuff... (not permanent) )
-	HEADERS -= $$TOOLS_CPP/qcomlibrary.h \
-		   $$KERNEL_CPP/qgplugin.h \
-		   $$KERNEL_CPP/qimageformatplugin.h \
-		   $$STYLES_CPP/qstyleplugin.h \
-		   $$CODECS_CPP/qtextcodecplugin.h \
-		   $$WIDGETS_CPP/qwidgetplugin.h
-	
-	SOURCES -= $$TOOLS_CPP/qcomlibrary.cpp \
-		   $$KERNEL_CPP/qgplugin.cpp \
-		   $$KERNEL_CPP/qimageformatplugin.cpp \
-		   $$STYLES_CPP/qstyleplugin.cpp \
-		   $$CODECS_CPP/qtextcodecplugin.cpp \
-		   $$WIDGETS_CPP/qwidgetplugin.cpp
-}

@@ -97,3 +97,8 @@ tools {
 		  $$TOOLS_CPP/quuid.cpp \
 		  $$TOOLS_CPP/qvector.cpp
 }
+
+# qconfig.cpp
+exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {
+    SOURCES += $$QT_BUILD_TREE/src/tools/qconfig.cpp
+}

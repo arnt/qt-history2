@@ -1,7 +1,6 @@
 # Qt compat module
 
 compat {
-	message("Move compat/* files into libqt3compat")
 	COMPAT_P	= compat
 	HEADERS += $$COMPAT_H/qasciicache.h \
 		  $$COMPAT_H/qasciidict.h \

@@ -274,6 +274,7 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
+CFG_SINGLEQTLIB=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -354,7 +355,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions|-singleqtlib)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -500,6 +501,13 @@ while [ "$#" -gt 0 ]; do
     depths)
 	CFG_QWS_DEPTHS="$VAL"
 	;;
+    singleqtlib) #just incase a user needs to turn off multiple libs
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_SINGLEQTLIB="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+        fi
+	;;
     qvfb) # left for commandline compatibility, not documented
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    [ "$VAL" = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
@@ -523,6 +531,7 @@ while [ "$#" -gt 0 ]; do
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/. -name '*.pro' -print`"
 	    fi
 	fi
+	QMAKE_PROJECTS=`echo $QMAKE_PROJECTS | sort | uniq`
 	;;
     x11)
         if [ "$Edition" = "troll" ] && [ "$VAL" = "yes" ]; then
@@ -1098,6 +1107,11 @@ if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
     else
 	CFG_ACCESSIBILITY=no
     fi
+fi
+
+#detect single lib support
+if [ "$CFG_SINGLEQTLIB" = "auto" ]; then
+    CFG_SINGLEQTLIB=no
 fi
 
 # if the source tree is different from the build tree,
@@ -2723,6 +2737,9 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 fi
+if [ "$CFG_SINGLEQTLIB" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG qt_one_lib"
+fi
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
@@ -3269,6 +3286,7 @@ fi
 [ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG"
+[ "$CFG_SINGLEQTLIB" = "yes" ] && echo "Single-Lib support... $CFG_SINGLEQTLIB"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
@@ -3492,6 +3510,10 @@ for file in .projects .projects.3; do
 	case $a in
 	*-kde.pro|*qtmain.pro) continue ;;
 	*/qmake/qmake.pro) continue ;;
+	*/src/*.pro)
+             [ `basename $a` = "qtlibs.pro" ] || continue
+             SPEC=$XQMAKESPEC
+             ;;
 	*projects.pro) continue ;;
 	*-pro.pro)
 	    [ "x$Edition" != "xpro" ] && continue

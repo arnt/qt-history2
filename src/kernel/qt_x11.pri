@@ -7,6 +7,11 @@ unix {
 	!xkb:DEFINES += QT_NO_XKB
 	xft2header:DEFINES+=QT_USE_XFT2_HEADER
 
+
+        xftfreetype {
+	   INCLUDEPATH += 3rdparty/opentype
+	   SOURCES += 3rdparty/opentype/ftxopentype.c
+        }
 	SOURCES += $$KERNEL_CPP/qtaddons_x11.cpp
 }
 

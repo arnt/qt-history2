@@ -26,13 +26,25 @@ target_qt {
             QMAKE_LFLAGS += $$QMAKE_LFLAGS_QT_DLL
         } 
     }
-} else {
-  thread {
-      LIBS += $$QMAKE_LIBS_QT_THREAD
-  } else {
-      LIBS += $$QMAKE_LIBS_QT
-  }
-  !isEmpty(QMAKE_QT_DLL) {
-
-  }
+}
+for(QCONF, QCONFIG) {
+   qlib =
+   isEqual(QCONF, gui):qlib = qt
+   else:isEqual(QCONF, network):qlib = qnetwork
+   else:isEqual(QCONF, xml):qlib = qxml
+   else:isEqual(QCONF, opengl):qlib = qopengl
+   else:isEqual(QCONF, sql):qlib = qsqlkernel
+   else:isEqual(QCONF, kernel):qlib = qtkernel
+   else:message("Unknown QCONFIG: $$qlib):qlib =
+   !isEmpty(qlib) {
+      thread {
+        win32-borland:qlib = $${qlib}mt
+	else:qlib = $${qlib}-mt
+      }
+      target_qt:isEqual(TARGET, qlib) {
+         warning($$TARGET cannot have a QCONFIG of $$QCONF)
+      } else {
+         LIBS   += $${qlib}.lib
+      }
+   }
 }
