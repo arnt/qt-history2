@@ -301,7 +301,7 @@ bool QLibrary::Private::loadLibrary()
 
     QString filename = library->library();
     if ( filename.find( ".dylib" ) == -1 )
-	filenam += ".dylib";
+	filename += ".dylib";
 
     if(!glibs_loaded)
 	glibs_loaded = new QDict<void>();
