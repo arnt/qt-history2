@@ -378,7 +378,7 @@ void QToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = ::qt_cast<QToolBoxButton*>(sender());
-    QWidget* widget;
+    QWidget *widget = 0;
     for ( QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i )
 	if ( (*i).button == tb ) {
 	    widget = (*i).widget;
