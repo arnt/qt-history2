@@ -1310,13 +1310,11 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
 
-    CGContextBeginPath(d->hd);
-    int adjustment = (d->current.pen.style() != Qt::NoPen
-                        && !(renderHints() & QPainter::LineAntialiasing)) ? 1 : 0;
-    CGRect mac_rect = CGRectMake(r.x(), r.y() + adjustment,
-                                 r.width() - adjustment, r.height() - adjustment);
-    CGContextAddRect(d->hd, mac_rect);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRect(path, 0, d->adjustedRect(r));
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
+                path);
+    CGPathRelease(path);
 }
 
 void
@@ -1359,27 +1357,24 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     CGPathAddArcToPoint(path, &transform, 0, 0, fw/2, 0, 1);
     CGPathAddArcToPoint(path, &transform, fw, 0, fw, fh/2, 1);
     CGPathCloseSubpath(path);
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
+                path);
     CGPathRelease(path);
 }
 
 void
-QCoreGraphicsPaintEngine::drawEllipse(const QRect &r)
+QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
 {
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform;
-    if(r.width() != r.height())
-        transform = CGAffineTransformMakeScale(((float)r.width())/r.height(), 1);
-    CGPathAddArc(path, r.width() == r.height() ? 0 : &transform,
-                 (r.x()+(r.width()/2))/((float)r.width()/r.height()),
-                 r.y() + (r.height()/2), r.height()/2, 0, 360, false);
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+    CGRect r = CGRectMake(rr.x(), rr.y(), rr.width(), rr.height());
+    CGAffineTransform transform = CGAffineTransformMakeScale(r.size.width / r.size.height, 1);
+    CGPathAddArc(path, &transform,
+                 (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
+                 r.origin.y + (r.size.height / 2), r.size.height / 2, 0, 2 * M_PI, false);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
+                path);
     CGPathRelease(path);
 }
 
@@ -1393,9 +1388,7 @@ QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
     float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
     CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()), r.y() + (r.height()/2),
 		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     CGPathRelease(path);
 }
 
@@ -1411,9 +1404,8 @@ QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
     CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                  r.y() + (r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
+                path);
     CGPathRelease(path);
 }
 
@@ -1442,9 +1434,8 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
     for(int i = 0; i < 2; i++)
         CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
                      r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath(d->hd);
-    CGContextAddPath(d->hd, path);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
+                path);
     CGPathRelease(path);
 }
 

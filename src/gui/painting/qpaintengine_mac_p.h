@@ -82,6 +82,12 @@ public:
     //internal functions
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
+    inline CGRect adjustedRect(const QRect &r) {
+        int adjustment = (current.pen.style() != Qt::NoPen
+                            && !(renderhints & QPainter::LineAntialiasing)) ? 1 : 0;
+        return CGRectMake(r.x(), r.y() + adjustment,
+                          r.width() - adjustment, r.height() - adjustment);
+    }
 };
 
 #endif // QPAINTENGINE_MAC_P_H
