@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#18 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -27,7 +27,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#18 $")
 
 
 QFont *QFont::defFont = 0;			// default font
@@ -193,8 +193,12 @@ void QFont::loadFont( HANDLE output_hdc ) const
 	    deffnt = SYSTEM_FONT;		// Windows NT 3.x
 	else if ( qt_winver == WV_32s )
 	    deffnt = SYSTEM_FONT;		// Win32s
-	else
+	else {
+#if !defined(DEFAULT_GUI_FONT)
+#define DEFAULT_GUI_FONT 17
+#endif
 	    deffnt = DEFAULT_GUI_FONT;		// Windows 95
+	}
 	n.lower();
 	if ( n == "default" )
 	    f = deffnt;
