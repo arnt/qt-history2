@@ -448,10 +448,9 @@ bool QStatusBar::event( QEvent *e )
     if ( e->type() == QEvent::ChildRemoved ) {
 	QStatusBarPrivate::SBItem* item = d->items.first();
 	while ( item ) {
-	    if ( item->w == ( (QChildEvent*)e )->child() ) {
+	    if ( item->w == ( (QChildEvent*)e )->child() )
 		d->items.removeRef( item );
-		item = d->items.next();
-	    }
+	    item = d->items.next();
 	}
     }
     return QWidget::event( e );
