@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#317 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#318 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1576,6 +1576,24 @@ void qt_leave_modal( QWidget *widget )
     app_do_modal = modal_stack != 0;
 }
 
+static bool qt_blocked_modal( QWidget *widget ) 
+{
+    if ( !app_do_modal )
+	return FALSE;
+     if ( qApp->activePopupWidget() )
+	return FALSE;
+    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
+	return FALSE;
+
+    QWidget *modal=0, *top=modal_stack->getFirst();
+
+    widget = widget->topLevelWidget();
+    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+	modal = widget;
+    if ( modal == top )				// don't block event
+	return FALSE;
+    return TRUE;
+}
 
 static bool qt_try_modal( QWidget *widget, MSG *msg )
 {
@@ -2152,7 +2170,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	     (qApp->activePopupWidget() != activePopupWidget) ){
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
-	    if (w) {
+	    if (w && !qt_blocked_modal( w ) ) {
 		if ( w->isEnabled() ) {
 		    QWidget* tw = w;
 		    while ( tw->focusProxy() )
@@ -2442,7 +2460,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 			    // High-order bit is 0x8000 on '95
 			    if ( map & 0x8000 )
 				map = (map^0x8000)|0x80000000;
-			}                                               
+			}
 			// If the high bit of the return value of
 			// MapVirtualKey is set, the key is a deadkey.
 			if ( !(map & 0x80000000) ) {
@@ -2540,9 +2558,9 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus ) 
+    if ( w->focusPolicy() == QWidget::WheelFocus )
 	w->setFocus();
-    
+
     // send the event to the widget that has the focus or its ancestors
     w = qApp->focus_widget;
     if (w){
