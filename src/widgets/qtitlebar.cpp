@@ -176,15 +176,7 @@ extern QRgb qt_colorref2qrgb(COLORREF col);
 
 void QTitleBar::readColors()
 {
-    aleftc = arightc = palette().active().highlight();
-    atextc = palette().active().highlightedText();
-#ifdef Q_WS_WIN
-    ileftc = irightc = palette().inactive().dark();
-    itextc = palette().inactive().background();
-#else
-    ileftc = irightc = palette().inactive().background();
-    itextc = palette().inactive().foreground();
-#endif
+    QPalette pal = palette();
 
 #ifdef Q_WS_WIN // ask system properties on windows
 #ifndef SPI_GETGRADIENTCAPTIONS
@@ -198,17 +190,14 @@ void QTitleBar::readColors()
 #endif
     if ( qt_winver == Qt::WV_98 || qt_winver == WV_2000 || qt_winver == WV_XP ) {
 	if ( QApplication::desktopSettingsAware() ) {
-	    aleftc = qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
-	    ileftc = qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
-	    atextc = qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT));
-	    itextc = qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
-
-	    arightc = aleftc;
-	    irightc = ileftc;
+	    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
+	    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
+	    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
+	    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
 
 	    BOOL gradient;
 #ifdef Q_OS_TEMP
-		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+	    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 #else
 #if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
@@ -217,14 +206,25 @@ void QTitleBar::readColors()
 #endif
 		SystemParametersInfoA( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 #endif
-
 	    if ( gradient ) {
-		arightc = qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-		irightc = qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+		pal.setColor( QPalette::Active, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) );
+		pal.setColor( QPalette::Inactive, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)) );
+	    } else {
+		pal.setColor( QPalette::Active, QColorGroup::Base, palette().active().highlight() );
+		pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().highlight() );
 	    }
 	}
-    }
+    } else 
 #endif // Q_WS_WIN
+    {
+	pal.setColor( QPalette::Active, QColorGroup::Highlight, palette().active().highlight() );
+	pal.setColor( QPalette::Active, QColorGroup::Base, palette().active().highlight() );
+	pal.setColor( QPalette::Inactive, QColorGroup::Highlight, palette().inactive().dark() );
+	pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().dark() );
+	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, palette().inactive().background() );
+    }
+
+    setPalette( pal );
     setActive( d->act );
 }
 

@@ -77,7 +77,6 @@ public:
     QWidget *window() const;
 
     QSize sizeHint() const;
-    QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
 
 public slots:
     void setActive( bool );

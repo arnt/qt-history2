@@ -1284,22 +1284,23 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
-
 	    if ( controls & SC_TitleBarLabel ) {
-		QColor left = titlebar->isActive() || !titlebar->window() ?
-			      titlebar->aleftc : titlebar->ileftc;
-		QColor right = titlebar->isActive() || !titlebar->window() ?
-			       titlebar->arightc : titlebar->irightc;
+		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ? 
+		    titlebar->palette().active() : titlebar->palette().inactive();
+
+		QColor left = cgroup.highlight();
+		QColor right = cgroup.base();
+
 		if ( left != right ) {
 		    double rS = left.red();
 		    double gS = left.green();
 		    double bS = left.blue();
 
-		    double rD = double(right.red() - rS) / titlebar->width();
-		    double gD = double(right.green() - gS) / titlebar->width();
-		    double bD = double(right.blue() - bS) / titlebar->width();
+		    const double rD = double(right.red() - rS) / titlebar->width();
+		    const double gD = double(right.green() - gS) / titlebar->width();
+		    const double bD = double(right.blue() - bS) / titlebar->width();
 
-		    int w = titlebar->width();
+		    const int w = titlebar->width();
 		    for ( int sx = 0; sx < w; sx++ ) {
 			rS+=rD;
 			gS+=gD;
@@ -1313,7 +1314,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		QRect ir = querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel );
 
-		p->setPen( titlebar->isActive() || !titlebar->window() ? titlebar->atextc : titlebar->itextc );
+		p->setPen( cgroup.highlightedText() );
 		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }

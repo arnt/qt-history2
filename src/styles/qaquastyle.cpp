@@ -1293,6 +1293,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    p->drawPixmap(0, 0, left);
 
 	    if(sub & SC_TitleBarLabel) {
+		QColorGroup cgroup = tb->isActive() || !tb->window() ? tb->palette().active() : tb->palette().inactive();
 		QPixmap mid, right;
 		qAquaPixmap( "win_act_mid", mid );
 		qAquaPixmap( "win_act_right", right );
@@ -1300,7 +1301,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->drawTiledPixmap( left.width(), 0, tb->width() - left.width() - right.width(),
 				    mid.height(), mid );
 		p->drawPixmap(tb->width() - right.width(), 0, right);
-		p->setPen( tb->isActive() || !tb->window() ? tb->atextc : tb->itextc );
+		p->setPen( cgroup.highlightedText() );
 		p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(),
 			    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->visibleText() );
 	    }
