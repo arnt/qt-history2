@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#97 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#96 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#97 $";
 #endif
 
 
@@ -296,11 +296,11 @@ Example of how to use a brush:
   painter.drawRect( 40,30, 200,100 );	// draw filled rectangle
   painter.setBrush( NoBrush );		// do not fill
   painter.setPen( black );		// set black pen, 0 pixel width
-  painter.drawrect( 10,10, 30,20 );	// draw rectangle outline
+  painter.drawRect( 10,10, 30,20 );	// draw rectangle outline
   painter.end();			// painting done
 \endcode
 
-The setStyle() function has a list of brush styles.
+The setStyle() function describes the brush styles.
 */
 
 
