@@ -10,7 +10,7 @@ public:
 	: QWidget(parent)
     {
 	view = new QTextView(this);
-	view->setFont(QFont("courier", 8));
+	view->setFont(QFont("courier", 10));
 	view->setWordWrap(QTextEdit::NoWrap);
 	QHBoxLayout *l = new QHBoxLayout(this);
 	l->addWidget(view);

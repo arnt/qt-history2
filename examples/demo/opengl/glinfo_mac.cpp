@@ -125,7 +125,7 @@ GLInfo::GLInfo()
 	aglDescribeRenderer(rf, AGL_ACCUM_MODES, &val );
 	infotext.sprintf("%sAccum Modes: 0x%08x\n", infotext.latin1(), val);
 	infotext += bitsToModes(val);
-	infotext += "OpenGL extensions:\n";
+	infotext += "OpenGL extensions:\n    ";
 	infotext += QString((const char *) glGetString(GL_EXTENSIONS)).replace(' ', "\n    ") + "\n";
 
 	aglSetCurrentContext(NULL);
