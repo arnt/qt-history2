@@ -138,7 +138,7 @@ void MainWindow::printImage()
 void MainWindow::showAboutBox()
 {
     QMessageBox::about(this, tr("About the image model example"),
-        tr("This example demonstrates how a standard view and a custom "
-           "delegate can be used to produce a specialized representation "
-           "of a data in a simple custom model."));
+        tr("This example demonstrates how a standard view and a custom\n"
+           "delegate can be used to produce a specialized representation\n "
+           "of data in a simple custom model."));
 }
