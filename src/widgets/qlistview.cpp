@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#267 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#268 $
 **
 ** Implementation of QListView widget class
 **
@@ -2736,6 +2736,11 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
         doAutoScroll();
     }
 }
+
+
+/*!  This slot handles auto-scrolling when the mouse button is pressed
+and the mouse is outside the widget.
+*/
 
 void QListView::doAutoScroll()
 {
