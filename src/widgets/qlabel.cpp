@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#119 $
 **
 ** Implementation of QLabel widget class
 **
@@ -207,10 +207,10 @@ void QLabel::init()
 
   The label resizes itself if auto-resizing is enabled.  Nothing
   happens if \e text is the same as the current label.
-  
+
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat().
-  
+
   Note that a label is only useful for rather small documents with one
   or maximal two lines of text.  If you need to display larger
   documents, a QTextView is the widget of choice. It will flicker less
@@ -247,9 +247,9 @@ void QLabel::setText( const QString &text )
 
     if ( textformat == RichText )
 	doc = new QSimpleTextDocument( ltext, this );
-    
+
     //###### TODO AutoText richt text detection
-    
+
     if ( autoresize ) {
 	QSize s = sizeHint();
 	if ( s.isValid() && s != size() )
@@ -852,49 +852,6 @@ QMovie* QLabel::movie() const
 {
     return lmovie;
 }
-
-
-/*!
-  Sets the label contents to QML document \e qml and
-  redraws the contents.
-
-  The label resizes itself if auto-resizing is enabled. Nothing
-  happens if \e qml is the same as the current label.
-
-  Note that a QLabel is only useful for rather small QML documents
-  with one or maximal two lines of text.  If you need to display
-  larger documents, a QMLView is the widget of choice. It will flicker
-  less on resize and can also provide a scrollbar if necessary.
-
-  \sa text(), setText(), setPixmap(), setAutoResize(), QMLView
-*/
-//##################
-// void QLabel::setQML( const QString & qml )
-// {
-//     unsetMovie();
-//     if ( qml && ltext == qml )
-// 	return;
-//     ltext = qml;
-//     if ( lpixmap ) {
-// 	delete lpixmap;
-// 	lpixmap = 0;
-//     }
-//     delete doc;
-//     doc = new QSimpleTextDocument( ltext, this );
-//     if ( accel )
-// 	accel->clear();
-//     if ( autoresize ) {
-// 	QSize s = sizeHint();
-// 	if ( s.isValid() && s != size() )
-// 	    resize( s );
-// 	else
-// 	    repaint();
-//     } else {
-// 	updateLabel();
-//     }
-//     updateGeometry();
-// }
-
 
 
 /*!
