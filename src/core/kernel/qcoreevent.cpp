@@ -150,6 +150,7 @@
     \value WindowStateChange The window's state, i.e. minimized, maximized or full-screen, has changed. See \l{QWidget::windowState()}.
     \value WindowTitleChange
     \value WindowUnblocked
+    \value ZOrderChange The widget's z-order has changed. This event is never sent to top level windows.
 
     \value User  User-defined event.
     \value MaxUser  Last user event id.

@@ -1006,25 +1006,20 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::raise()
+void QWidgetPrivate::raise_sys()
 {
-    QWidget *p = parentWidget();
-    if (p && p->d->children.contains(this)) {
-        p->d->children.removeAll(this);
-        p->d->children.append(this);
-    }
-    if (isTopLevel()) {
+    if (q->isTopLevel()) {
 #ifdef QT_NO_WINDOWGROUPHINT
-        if (!testWFlags(Qt::WStyle_Tool))
+        if (!q->testWFlags(Qt::WStyle_Tool))
             activateWindow();
-        qwsDisplay()->setAltitude(winId(), 0);
+        qwsDisplay()->setAltitude(q->winId(), 0);
 #else
         QWidget* act=0;
-        if (!testWFlags(Qt::WStyle_Tool))
+        if (!q->testWFlags(Qt::WStyle_Tool))
             act=this;
-        qwsDisplay()->setAltitude(winId(), 0);
+        qwsDisplay()->setAltitude(q->winId(), 0);
 
-        QObjectList childObjects =  children();
+        QObjectList childObjects =  q->children();
         if (!childObjects.isEmpty()) {
             QWidgetList toraise;
             for (int i = 0; i < childObjects.size(); ++i) {
@@ -1053,43 +1048,29 @@ void QWidget::raise()
         if (act)
             act->activateWindow();
 #endif // QT_NO_WINDOWGROUPHINT
-    } else if (p) {
-        p->d->setChildrenAllocatedDirty(geometry(), this);
-        paint_hierarchy(this, true);
+    } else if (QWidget *p = q->parentWidget()) {
+        p->d->setChildrenAllocatedDirty(q->geometry(), q);
+        paint_hierarchy(q, true);
     }
 }
 
-void QWidget::lower()
+void QWidgetPrivate::lower_sys()
 {
-    QWidget *p = parentWidget();
-    if (p && p->d->children.contains(this)) {
-        p->d->children.removeAll(this);
-        p->d->children.insert(0, this);
-    }
     if (isTopLevel()) {
         qwsDisplay()->setAltitude(winId(), -1);
-    } else if (p) {
-        p->d->setChildrenAllocatedDirty(geometry());
-        paint_children(p,geometry(),true);
+    } else if (QWidget *p = q->parentWidget()) {
+        p->d->setChildrenAllocatedDirty(q->geometry());
+        paint_children(p, q->geometry(),true);
     }
 }
 
-void QWidget::stackUnder(QWidget* w)
+void QWidgetPrivate::stackUnder_sys(QWidget* w)
 {
-    QWidget *p = parentWidget();
-    if (!p || !w || isTopLevel() || p != w->parentWidget())
-        return;
-    int loc = p->d->children.indexOf(w);
-    if (loc >= 0 && p->d->children.contains(this)) {
-        p->d->children.removeAll(this);
-        loc = p->d->children.indexOf(w);
-        p->d->children.insert(loc, this);
-    }
-    if (p) {
+    if (QWidget *p = q->parentWidget()) {
         // #### excessive repaints
         p->d->setChildrenAllocatedDirty();
-        paint_children(p,geometry(),true);
-        paint_children(p,w->geometry(),true);
+        paint_children(p, q->geometry(), true);
+        paint_children(p, w->geometry(), true);
     }
 }
 

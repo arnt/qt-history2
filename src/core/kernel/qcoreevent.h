@@ -161,6 +161,8 @@ public:
         EnterWhatsThisMode = 124,
         LeaveWhatsThisMode = 125,
 
+        ZOrderChange = 126,                     // child widget has had its z-order changed
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

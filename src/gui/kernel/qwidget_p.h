@@ -160,6 +160,10 @@ public:
     void resolvePalette();
 #endif
 
+    void raise_sys();
+    void lower_sys();
+    void stackUnder_sys(QWidget *);
+
     void setFont_sys(QFont *f = 0);
     void setFont_helper(const QFont &);
     void resolveFont();

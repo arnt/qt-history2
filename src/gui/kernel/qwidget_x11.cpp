@@ -1895,65 +1895,21 @@ void QWidgetPrivate::hide_sys()
     }
 }
 
-/*!
-    Raises this widget to the top of the parent widget's stack.
-
-    After this call the widget will be visually in front of any
-    overlapping sibling widgets.
-
-    \sa lower(), stackUnder()
-*/
-
-void QWidget::raise()
+void QWidgetPrivate::raise_sys()
 {
-    QWidget *p = parentWidget();
-    int from;
-    if (p && (from = p->d->children.indexOf(this)) >= 0)
-        p->d->children.move(from, p->d->children.size() - 1);
-    XRaiseWindow(X11->display, winId());
+    XRaiseWindow(X11->display, q->winId());
 }
 
-/*!
-    Lowers the widget to the bottom of the parent widget's stack.
-
-    After this call the widget will be visually behind (and therefore
-    obscured by) any overlapping sibling widgets.
-
-    \sa raise(), stackUnder()
-*/
-
-void QWidget::lower()
+void QWidgetPrivate::lower_sys()
 {
-    QWidget *p = parentWidget();
-    int from;
-    if (p && (from = p->d->children.indexOf(this)) >= 0)
-        p->d->children.move(from, 0);
-    XLowerWindow(X11->display, winId());
+    XLowerWindow(X11->display, q->winId());
 }
 
-
-/*!
-    Places the widget under \a w in the parent widget's stack.
-
-    To make this work, the widget itself and \a w must be siblings.
-
-    \sa raise(), lower()
-*/
-void QWidget::stackUnder(QWidget* w)
+void QWidgetPrivate::stackUnder_sys(QWidget* w)
 {
-    QWidget *p = parentWidget();
-    int from;
-    int to;
-    if (!w || isTopLevel() || p != w->parentWidget() || this == w)
-        return;
-    if (p && (to = p->d->children.indexOf(w)) >= 0 && (from = p->d->children.indexOf(this)) >= 0) {
-        if (from < to)
-            --to;
-        p->d->children.move(from, to);
-    }
     Window stack[2];
     stack[0] = w->winId();;
-    stack[1] = winId();
+    stack[1] = q->winId();
     XRestackWindows(X11->display, stack, 2);
 }
 

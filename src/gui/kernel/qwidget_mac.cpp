@@ -1648,58 +1648,44 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     QApplication::sendEvent(this, &e);
 }
 
-void QWidget::raise()
+void QWidgetPrivate::raise_sys()
 {
-    if(isDesktop())
+    if(q->isDesktop())
         return;
-    if(isTopLevel()) {
+    if(q->isTopLevel()) {
         //raise this window
-        BringToFront(qt_mac_window_for(this));
+        BringToFront(qt_mac_window_for(q));
         //we get to be the active process now
         ProcessSerialNumber psn;
         GetCurrentProcess(&psn);
         SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
-    } else if(QWidget *p = parentWidget()) {
-        int from = p->d->children.indexOf(this);
-        if (from >= 0)
-            p->d->children.move(from, p->d->children.size() - 1);
-        HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderAbove, 0);
+    } else if(QWidget *p = q->parentWidget()) {
+        HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderAbove, 0);
         qt_event_request_window_change();
     }
 }
 
-void QWidget::lower()
+void QWidgetPrivate::lower_sys()
 {
-    if(isDesktop())
+    if(q->isDesktop())
         return;
-
-    if(isTopLevel()) {
-        SendBehind(qt_mac_window_for(this), 0);
-    } else if(QWidget *p = parentWidget()) {
-        int from = p->d->children.indexOf(this);
-        if (from >= 0)
-            p->d->children.move(from, 0);
-        HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, 0);
+    if(q->isTopLevel()) {
+        SendBehind(qt_mac_window_for(q), 0);
+    } else if(QWidget *p = q->parentWidget()) {
+        HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderBelow, 0);
         qt_event_request_window_change();
     }
 }
 
-void QWidget::stackUnder(QWidget *w)
+void QWidgetPrivate::stackUnder_sys(QWidget *w)
 {
-    if(!w || isTopLevel() || isDesktop())
+    if(!w || q->isTopLevel() || q->isDesktop())
         return;
 
-    QWidget *p = parentWidget();
+    QWidget *p = q->parentWidget();
     if(!p || p != w->parentWidget())
         return;
-    int to = p->d->children.indexOf(w);
-    int from = p->d->children.indexOf(this);
-    if (to >= 0 && from >= 0) {
-        if (from < to)
-            --to;
-        p->d->children.move(from, to);
-    }
-    HIViewSetZOrder((HIViewRef)winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
+    HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
     qt_event_request_window_change();
 }
 

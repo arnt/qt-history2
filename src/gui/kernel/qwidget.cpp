@@ -6482,6 +6482,76 @@ Qt::HANDLE QWidget::handle() const
 #endif
 
 
+/*!
+    Raises this widget to the top of the parent widget's stack.
+
+    After this call the widget will be visually in front of any
+    overlapping sibling widgets.
+
+    \sa lower(), stackUnder()
+*/
+
+void QWidget::raise()
+{
+    Q_D(QWidget);
+    QWidget *p = parentWidget();
+    int from;
+    if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
+        p->d_func()->children.move(from, p->d_func()->children.size() - 1);
+    d->raise_sys();
+
+    QEvent e(QEvent::ZOrderChange);
+    QApplication::sendEvent(this, &e);
+}
+
+/*!
+    Lowers the widget to the bottom of the parent widget's stack.
+
+    After this call the widget will be visually behind (and therefore
+    obscured by) any overlapping sibling widgets.
+
+    \sa raise(), stackUnder()
+*/
+
+void QWidget::lower()
+{
+    Q_D(QWidget);
+    QWidget *p = parentWidget();
+    int from;
+    if (p && (from = p->d_func()->children.indexOf(this)) >= 0)
+        p->d_func()->children.move(from, 0);
+    d->lower_sys();
+
+    QEvent e(QEvent::ZOrderChange);
+    QApplication::sendEvent(this, &e);
+}
+
+
+/*!
+    Places the widget under \a w in the parent widget's stack.
+
+    To make this work, the widget itself and \a w must be siblings.
+
+    \sa raise(), lower()
+*/
+void QWidget::stackUnder(QWidget* w)
+{
+    Q_D(QWidget);
+    QWidget *p = parentWidget();
+    int from;
+    int to;
+    if (!w || isTopLevel() || p != w->parentWidget() || this == w)
+        return;
+    if (p && (to = p->d_func()->children.indexOf(w)) >= 0 && (from = p->d_func()->children.indexOf(this)) >= 0) {
+        if (from < to)
+            --to;
+        p->d_func()->children.move(from, to);
+    }
+    d->stackUnder_sys(w);
+
+    QEvent e(QEvent::ZOrderChange);
+    QApplication::sendEvent(this, &e);
+}
 
 #ifndef QT_NO_STYLE
 void QWidget::styleChange(QStyle&) { }
