@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#9 $
 **
 ** Implementation of QFile class
 **
@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#9 $";
 #endif
 
 
@@ -456,10 +456,6 @@ int QFile::readBlock( char *p, uint len )	// read data from file
 	nread = READ( fd, p, len );
     else					// buffered file
 	nread = fread( p, 1, len, fh );
-#if defined(CHECK_RANGE)
-    if ( nread != (int)len )
-	warning( "QFile::readBlock: File read error" );
-#endif
     index += nread;
     return nread;
 }

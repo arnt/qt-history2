@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#7 $
 **
 ** Implementation of QBuffer class
 **
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#7 $";
 #endif
 
 
@@ -118,11 +118,15 @@ int QBuffer::readBlock( char *p, uint len )	// read data from buffer
     }
 #endif
     if ( (uint)index + len > a.size() ) {	// overflow
+	if ( (uint)index >= a.size() ) {
 #if defined(CHECK_RANGE)
-	warning( "QBuffer::readBlock: Buffer read error" );
+	    warning( "QBuffer::readBlock: Buffer read error" );
 #endif
-	setStatus( IO_ReadError );
-	return -1;
+	    setStatus( IO_ReadError );
+	    return -1;
+	}
+	else
+	    len = a.size() - (uint)index - 1;
     }
     memcpy( p, a.data()+index, len );
     index += len;
