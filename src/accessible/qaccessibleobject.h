@@ -70,6 +70,8 @@ public:
     void	clearSelection();
 };
 
+#define Q_DEFINED_QACCESSIBLE_OBJECT
+#include "qwinexport.h"
 #endif //QT_ACCESSIBILITY_SUPPORT
 
 #endif //QACCESSIBLEOBJECT_H
