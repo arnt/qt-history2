@@ -152,19 +152,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	QString destdir = project->variables()["DESTDIR"].first();
-	if (destdir.isEmpty())
-	    destdir = ".";
-
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << destdir
-	  << " ] || mkdir -p " << destdir << "\n\t"
-	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
+	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+	QString destdir = project->variables()["DESTDIR"].first();
+	if(!destdir.isEmpty())
+	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
-	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR");
+	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
+	QString destdir = project->variables()["DESTDIR"].first();
+	if(!destdir.isEmpty())
+	    t << "\n\t" << "[ -d " << destdir << " ] || mkdir -p " << destdir;
 
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
@@ -204,9 +203,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     } else {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR") << "\n\t"
-	  << "-rm -f $(TARGET)" << "\n\t"
+	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+	QString destdir = project->variables()["DESTDIR"].first();
+	if(!destdir.isEmpty())
+	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
+	t << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t"
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGET)") << endl << endl;
     }
