@@ -12645,18 +12645,13 @@ QString &QString::operator=( const char *str )
 /*!
   \fn bool QString::isNull() const
 
-  Returns TRUE if the string is null.
-  A null string is also an empty string.
-
-  Example:
   \code
     QString a;          // a.unicode() == 0,  a.length() == 0
-    QString b = "";     // b.unicode() == "", b.length() == 0
     a.isNull();         // TRUE, because a.unicode() == 0
-    a.isEmpty();        // TRUE, because a.length() == 0
-    b.isNull();         // FALSE, because b.unicode() != 0
-    b.isEmpty();        // TRUE, because b.length() == 0
   \endcode
+
+  Returns TRUE if the string is null.
+  A null string is also an empty string.
 
   \sa isEmpty(), length()
 */
@@ -12664,10 +12659,11 @@ QString &QString::operator=( const char *str )
 /*!
   \fn bool QString::isEmpty() const
 
+  QString string("");
+  string.isEmpty();     // returns TRUE
+    
   Returns TRUE if the string is empty, i.e., if length() == 0.
   An empty string is not always a null string.
-
-  See example in isNull().
 
   \sa isNull(), length()
 */
@@ -12675,6 +12671,11 @@ QString &QString::operator=( const char *str )
 /*!
   \fn uint QString::length() const
 
+  \code
+    QString string("Trolltech");
+    uint a = string.length();   // a == 9
+  \endcode
+  
   Returns the length of the string.
 
   Null strings and empty strings have zero length.
@@ -13135,7 +13136,8 @@ QString &QString::sprintf( const char* cformat, ... )
   \code
     QString string("abcdef");
     string = string.fill('g');      // string == "gggggg"
-    
+  \endcode
+  
   Fills the string with \a len characters of value \a c, and returns a
   reference to the string.
 
@@ -13171,10 +13173,10 @@ QString& QString::fill( QChar c, int len )
 
   Finds the first occurrence of the character \a c, starting at
   position \a index. If \a index is -1, the search starts at the
-  last character; if -2, at the next to last character; etc.
+  last character; if -2, at the next to last character and so on.
 
-  The search is case-sensitive if \a cs is TRUE or case-insensitive
-  if \a cs is FALSE.
+  If \a cs is TRUE, then the search is case-sensitive.  If \a cs is FALSE,
+  then the search is case-insensitive.
 
   Returns the position of \a c or -1 if \a c could not be found.
 */
@@ -13204,7 +13206,8 @@ int QString::find( QChar c, int index, bool cs ) const
 /*! \overload
 
   Finds the first occurrence of the string \a str, starting at position
-  \a index. If \a index is negative, find() adds length() to \a index.
+  \a index. If \a index is -1, the search starts at the last character, if
+  it is -2, at the next to last character and so on.
 
   The search is case-sensitive if \a cs is TRUE or case-insensitive if
   \a cs is FALSE.
@@ -13288,14 +13291,21 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 /*! \overload
 
+  \code 
+    QString string("bananas");
+    int a = string.findRev( 'a' );      // a == 5
+  \endcode
+  
   Finds the first occurrence of the character \a c, starting at
-  position \a index and searching backwards. If \a index is negative,
-  findRev() adds length() to \a index before starting the search.
-
-  The search is case-sensitive if \a cs is TRUE or case-insensitive if \a
-  cs is FALSE.
+  position \a index and searching backwards. If the index is -1, 
+  the search starts at the last character, if it is -2, at the next
+  to last character and so on.
 
   Returns the position of \a c or -1 if \a c could not be found.
+
+  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
+  FALSE then the search is case-insensitive.
+
 */
 
 int QString::findRev( QChar c, int index, bool cs ) const
@@ -13306,14 +13316,20 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
 /*! \overload
 
-  Finds the first occurrence of the string \a str, starting at
-  position \a index and searching backwards. If \a index is negative,
-  findRev() adds length() to \a index before starting the search.
+  \code 
+    QString string("bananas");
+    int a = string.findRev( "ana" );      // a == 3
+  \endcode
+  
+  Finds the first occurrence of the character \a c, starting at
+  position \a index and searching backwards. If the index is -1, 
+  the search starts at the last character, if it is -2, at the next
+  to last character and so on.
 
-  The search is case-sensitive if \a cs is TRUE or case-insensitive if \e
-  cs is FALSE.
+  Returns the position of \a c or -1 if \a c could not be found.
 
-  Returns the position of \a str or -1 if \a str could not be found.
+  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
+  FALSE then the search is case-insensitive.
 */
 
 int QString::findRev( const QString& str, int index, bool cs ) const
@@ -13428,13 +13444,6 @@ int QString::contains( const char* str, bool cs ) const
 /*! \fn int QString::find( char c, int index, bool cs ) const
   \overload
 
-  Finds the first occurrence of the character \a c, starting at position
-  \a index. If \a index is negative, find() adds length() to \a index.
-
-  The search is case-sensitive if \a cs is TRUE or case-insensitive if
-  \a cs is FALSE.
-
-  Returns the position of \a c or -1 if \a str could not be found.
 */
 
 /*!\fn int QString::findRev( char c, int index, bool cs ) const
@@ -13482,6 +13491,12 @@ int QString::contains( const QString &str, bool cs ) const
 }
 
 /*!
+
+  \code
+    QString s = "Pineapple";
+    QString t = s.left( 4 );    // t == "Pine"
+  \endcode
+
   Returns a substring that contains the \a len leftmost characters
   of the string.
 
@@ -13489,11 +13504,6 @@ int QString::contains( const QString &str, bool cs ) const
   string.
 
 
-  Example:
-  \code
-    QString s = "Pineapple";
-    QString t = s.left( 4 );    // t == "Pine"
-  \endcode
 
   \sa right(), mid(), isEmpty()
 */
@@ -13548,18 +13558,19 @@ QString QString::right( uint len ) const
 }
 
 /*!
-  Returns a substring that contains the \a len characters of this
+
+  \code
+    QString s = "Five pineapples";
+    QString t = s.mid( 5, 4 );                  // t == "pine"
+  \endcode
+
+  Returns a string that contains the \a len characters of this
   string, starting at position \a index.
 
   Returns a null string if the string is empty or \a index is out
   of range.  Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
-  Example:
-  \code
-    QString s = "Five pineapples";
-    QString t = s.mid( 5, 4 );                  // t == "pine"
-  \endcode
 
   \sa left(), right()
 */
@@ -13585,19 +13596,21 @@ QString QString::mid( uint index, uint len ) const
 }
 
 /*!
-  Returns a string of length \a width that contains this
-  string and padded by the \a fill character.
 
-  If the length of the string exceeds \a width and \a truncate is FALSE,
-  then the returned string is a copy of the string.
-  If the length of the string exceeds \a width and \a truncate is TRUE,
-  then the returned string is a left(\a width).
-
-  Example:
   \code
     QString s("apple");
     QString t = s.leftJustify(8, '.');          // t == "apple..."
   \endcode
+
+  Returns a string of length \a width that contains this
+  string that is padded by the \a fill character.
+
+  If \a truncate is FALSE and the length of the string is more than \a width,
+  then the returned string is a copy of the string.
+
+  If \a truncate is TRUE and the length of the string is more than \a width, 
+  then any characters in a copy of the string after length \a width are 
+  removed, and the copy is returned.
 
   \sa rightJustify()
 */
@@ -13663,13 +13676,13 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
 }
 
 /*!
-  Returns a new string that is the string converted to lowercase.
-
-  Example:
+  
   \code
-    QString s("TeX");
-    QString t = s.lower();      // t == "tex"
+    QString string("TROlltECH");
+    str = string.lower();   // str == "trolltech"
   \endcode
+
+  Returns a string that is the string converted to lowercase.
 
   \sa upper()
 */
@@ -13811,17 +13824,19 @@ QString QString::simplifyWhiteSpace() const
 
 
 /*!
-  Insert \a s into the string before position \a index.
-
-  If \a index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \a index and \a s is then appended.
 
   \code
-    QString s = "I like fish";
-    s.insert( 2, "don't ");     // s == "I don't like fish"
-    s = "x";
-    s.insert( 3, "yz" );        // s == "x  yz"
+    QString string("I like fish");
+    str = string.insert( 2, "don't ");     // str == "I don't like fish"
   \endcode
+
+  Inserts \a s into the string before position \a index.
+
+  If \a index is beyond the end of the string, the string is extended with
+  spaces (ASCII 32) to length \a index and \a s is then appended and returns a
+  reference to the string.
+
+  \sa remove(), replace()
 */
 
 QString &QString::insert( uint index, const QString &s )
@@ -13831,8 +13846,10 @@ QString &QString::insert( uint index, const QString &s )
 }
 
 /*! \overload
-  Insert \a len units of QChar data from \a s into the string before
-  position \a index.
+  
+  Inserts the character from \a s into the string before the position
+  \s index \s len number of times and returns a reference to the string.
+  
 */
 
 QString &QString::insert( uint index, const QChar* s, uint len )
@@ -13874,15 +13891,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
 
   If \a index is beyond the end of the string, the string is extended with
   spaces (ASCII 32) to length \a index and \a c is then appended.
-
-  Example:
-  \code
-    QString s = "Ys";
-    s.insert( 1, 'e' );         // s == "Yes"
-    s.insert( 3, '!');          // s == "Yes!"
-  \endcode
-
-  \sa remove(), replace()
+ 
 */
 
 QString &QString::insert( uint index, QChar c ) // insert char
@@ -14007,12 +14016,17 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 
 /*!
+  \code
+    QString string("bananas");
+    int a = string.find( QRegExp("an"),0 );     // a == 1
+  \endcode
+    
   Finds the first occurrence of the constant regular expression \a rx,
   starting at
   position \a index. If \a index is -1, the search starts at the last
-  character; if -2, at the next to last character; etc.
+  character; if -2, at the next to last character and so on.
 
-  Returns the position of the next match or -1 if \a rx was not found.
+  Returns the position of the first occurence of \a rx or -1 if \a rx was not found.
 
   This function does not set QRegExp::matchedLength(),
   QRegExp::capturedTexts() and friends. Use QRegExp::search() for
@@ -14028,14 +14042,21 @@ int QString::find( const QRegExp &rx, int index ) const
 
 /*! \overload
 
-  Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index and searching backwards. If \a index is -1, the
-  search starts at the last character; if -2, at the next to last
-  character; etc.
+  \code 
+    QString string("bananas");
+    int a = string.findRev( QRegExp("an") );      // a == 3
+  \endcode
+  
+  Finds the first occurrence of the character \a c, starting at
+  position \a index and searching backwards. If the index is -1, 
+  the search starts at the last character, if it is -2, at the next
+  to last character and so on.
 
-  Returns the position of the next match (backwards) or -1 if \a rx was not
-  found.
+  Returns the position of \a c or -1 if \a c could not be found.
 
+  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
+  FALSE then the search is case-insensitive.
+  
   This function does not set QRegExp::matchedLength(),
   QRegExp::capturedTexts() and friends. Use QRegExp::searchRev()
   for that.
@@ -14512,8 +14533,13 @@ QString &QString::setNum( double n, char f, int prec )
 
 
 /*!
-  A convenience factory function that returns a string representation
-  of the number \a n to the base \a base.
+  \code
+    long a = 63;
+    QString str = QString::number( a, 16 );     // str == "3f"
+  \endcode
+
+  A convenience function that returns a string equivilant of the number 
+  \a n to the base \a base.
 
   \sa setNum()
 */
@@ -14526,9 +14552,6 @@ QString QString::number( long n, int base )
 
 /*! \overload
 
-  A convenience factory function that returns a string representation
-  of the number \a n to the base \a base.
-
   \sa setNum()
 */
 QString QString::number( ulong n, int base )
@@ -14539,9 +14562,6 @@ QString QString::number( ulong n, int base )
 }
 
 /*! \overload
-
-  A convenience factory function that returns a string representation
-  of the number \a n to the base \a base.
 
   \sa setNum()
 */
@@ -14568,11 +14588,28 @@ QString QString::number( uint n, int base )
 
 /*! \overload
 
-  This static function returns the printed value of \a n, formatted in the
-  \a f format with \a prec precision.
+  This static function returns a string equivilant of the number \a n formatted to the 
+  format \a f, with \a prec precision.
 
-  \a f can be 'f', 'F', 'e', 'E', 'g' or 'G', all of which have the
-  same meaning as for sprintf().
+  \a a is formatted according to the \a fmt format specified, which is
+  'g' by default and can be any of the following.
+
+  <ul>
+  <li> 'e' - Formats the double using the form [-]9.9999e[+|-]999
+  <li> 'E' - Formats the double using the form [-]9.9999E[+|-]999
+  <li> 'f' - Formats the double using the form [-]9999.9999
+  <li> 'g' - Formats the double using the 'e' or 'f' format, depending on which is the most precise
+  <li> 'G' - Formats the double using the 'E' or 'f' format, depending on which is the most precise
+  </ul>
+
+  These have the same effect as using sprintf().
+  
+  \a prec determines the precision of the double, just as for number() and sprintf().
+
+  \code
+    double m = 12.34;
+    QString string = QString::number( m, 'E' );    // string == "1.234000E+001"
+  \endcode
 
   \sa setNum()
  */
