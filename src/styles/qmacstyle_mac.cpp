@@ -47,27 +47,38 @@
 class QMacPainter : public QPainter
 {
 public:
+    ~QMacPainter();
     void noop() { QPainter::initPaintDevice(TRUE); }
 private:
-    ~QMacPainter();
+    QMacPainter();
 };
+RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
-static inline const Rect *mac_rect(const QRect &qr)
+static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd)
 {
     static Rect r;
-    SetRect(&r, qr.left(), qr.top(), qr.right()+1, qr.bottom()+1); //qt says be inclusive!
+    QPoint tl(qr.topLeft());
+    if(pd->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget*)pd;
+	tl = w->mapTo(w->topLevelWidget(), tl);
+    }
+    //Qt says be inclusive!
+    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - 1, tl.y() + qr.height() - 1);
     return &r;
 }
-static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) 
-{ return mac_rect(QRect(qp, qs)); }
 
-
+static int mac_count = 0;
 QMacStyle::QMacStyle(  )  : QAquaStyle()
 {
+    if(!mac_count++)
+	RegisterAppearanceClient();
 }
 
 QMacStyle::~QMacStyle()
 {
+    if(!(--mac_count))
+	UnregisterAppearanceClient();
 }
 
 /*! \reimp */
@@ -78,7 +89,72 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 			       SFlags flags,
 			       const QStyleOption& opt ) const
 {
-    QAquaStyle::drawPrimitive( pe, p, r, cg, flags, opt);
+    ThemeDrawState tds = 0;
+    if(!qAquaActive(cg))
+	tds |= kThemeStateInactive;
+    else
+	tds |= kThemeStateActive;
+    if(flags & Style_Down)
+	tds = kThemeStatePressed;
+
+    switch(pe) {
+    case PE_HeaderArrow: 
+    case PE_HeaderSection: {
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_Sunken)
+	    info.value = kThemeButtonOn;
+	if(pe == PE_HeaderArrow && (flags & Style_Up))
+	    info.adornment |= kThemeAdornmentArrowUpArrow;
+	((QMacPainter *)p)->noop();
+	DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeListHeaderButton, 
+			&info, NULL, NULL, NULL, 0);
+	break; }
+#if 0
+    case PE_ExclusiveIndicatorMask: 
+    case PE_ExclusiveIndicator: {
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_On)
+	    info.value = kThemeButtonOn;
+	if(pe == PE_ExclusiveIndicator) {
+	    ((QMacPainter *)p)->noop();
+	    DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeRadioButton, 
+			    &info, NULL, NULL, NULL, 0);
+	} else {
+	    p->save();
+	    QRegion rgn;
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p->device()), kThemeRadioButton,
+				 &info, rgn.handle(TRUE));
+	    p->setClipRegion(rgn);
+	    p->fillRect(r, black);
+	    p->restore();
+	}
+	break; }
+    case PE_IndicatorMask: 
+    case PE_Indicator: {
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_NoChange)
+	    info.value = kThemeButtonMixed;
+	else if(flags & Style_On)
+	    info.value = kThemeButtonOn;
+	if(pe == PE_Indicator) {
+	    ((QMacPainter *)p)->noop();
+	    DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeCheckBox,
+			    &info, NULL, NULL, NULL, 0);
+	} else {
+	    p->save();
+	    QRegion rgn;
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p->device()), kThemeCheckBox,
+				 &info, rgn.handle(TRUE));
+	    p->setClipRegion(rgn);
+	    p->fillRect(r, black);
+	    p->restore();
+	}
+	break; }
+#endif
+    default:
+	QAquaStyle::drawPrimitive( pe, p, r, cg, flags, opt);
+	break;
+    }
 }
 
 
@@ -90,23 +166,20 @@ void QMacStyle::drawControl( ControlElement element,
 				 SFlags how,
 				 const QStyleOption& opt ) const
 {
-    SFlags flags = Style_Default;
-    if (widget->isEnabled())
-	flags |= Style_Enabled;
-
+    ThemeDrawState tds = 0;
+    if(!qAquaActive(cg))
+	tds |= kThemeStateInactive;
+    else
+	tds |= kThemeStateActive;
+    if(how & Style_Down)
+	tds = kThemeStatePressed;
+    
     switch(element) {
     case CE_PushButton: {
-	ThemeButtonDrawInfo info;
-	if(!qAquaActive(cg))
-	    info.state |= kThemeStateInactive;
-	else
-	    info.state |= kThemeStateActive;
-	if(how & Style_Down)
-	    info.state = kThemeStatePressed;
-	info.value = kThemeButtonOn;
-	info.adornment = kThemeAdornmentNone;
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	((QMacPainter *)p)->noop();
-	DrawThemeButton(mac_rect(r), kThemePushButton, &info, NULL, NULL, NULL, 0);
+	DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemePushButton, 
+			&info, NULL, NULL, NULL, 0);
 	break; }
     default:
 	QAquaStyle::drawControl(element, p, widget, r, cg, how, opt);
