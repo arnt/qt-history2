@@ -729,9 +729,9 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
     can be copied to the clipboard with copy(), or cut to the clipboard with
     cut(). The entire text can be selected using selectAll().
 
-    When the cursor is moved, the currentCharFormatChanged() signal is
-    emitted to reflect the new formatting attributes at the new cursor
-    position.
+    When the cursor is moved and the underlying formatting attributes change,
+    the currentCharFormatChanged() signal is emitted to reflect the new attributes
+    at the new cursor position.
 
     QTextEdit holds a QTextDocument object which can be retrieved using the
     document() method. You can also set your own document object using setDocument().
