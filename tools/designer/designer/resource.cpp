@@ -2902,8 +2902,8 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	else
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->subMenu();
-	if ( ::qt_cast<QActionGroup*>(a) )
-	    continue;
+// 	if ( ::qt_cast<QActionGroup*>(a) )
+// 	    continue;
 	if ( s && s->count() ) {
 	    QString n = a->name();
 	    n.replace( "Action", "Menu" );
