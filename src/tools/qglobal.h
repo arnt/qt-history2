@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#95 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#96 $
 **
 ** Global type declarations and definitions
 **
@@ -133,10 +133,15 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
-#elif defined(_OS_HPUX_)
-// must be last, since the HP CC's we have seen do not identify themselves
-// in any documented manner
+#elif defined(_OS_HPUX_) && defined(c_plusplus)
+// must be last, since the HP compiers we have seen do not identify
+// themselves in any documented manner
+//
+// adding insult to injury, the only way to differentiate between
+// HP aCC and HP CC appears to be testing for c_plusplus
 #define _CC_HP_
+#elif defined(_OS_HPUX_)
+#define _CC_HP_ACC_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif
@@ -199,6 +204,8 @@
 #elif __BORLANDC__ >= 0x500
 #define HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
+#define HAS_BOOL_TYPE
+#elif defined(_CC_HP_ACC_)
 #define HAS_BOOL_TYPE
 #elif defined(sgi) && (_COMPILER_VERSION >= 710)
 #define HAS_BOOL_TYPE
