@@ -31,6 +31,11 @@ public:
 
     ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ) {}
     ~ParagData() {}
+    void join( QTextParagData *data ) {
+	ParagData *d = (ParagData*)data;
+	if ( marker == NoMarker )
+	    marker = d->marker;
+    }
     ParenList parenList;
     int lastLengthForCompletion;
     MarkerType marker;

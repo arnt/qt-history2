@@ -1041,6 +1041,7 @@ class Q_EXPORT QTextParagData
 public:
     QTextParagData() {}
     virtual ~QTextParagData() {}
+    virtual void join( QTextParagData * ) {}
 };
 
 class Q_EXPORT QTextParag

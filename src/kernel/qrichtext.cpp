@@ -3010,6 +3010,12 @@ void QTextParag::join( QTextParag *s )
 	    str->setFormat( i + start, s->str->at( i ).format(), TRUE );
 	}
     }
+    if ( !extraData() && s->extraData() ) {
+	setExtraData( s->extraData() );
+	s->setExtraData( 0 );
+    } else if ( extraData() && s->extraData() ) {
+	extraData()->join( s->extraData() );
+    }
     delete s;
     invalidate( 0 );
     r.setHeight( oh );
