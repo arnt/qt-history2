@@ -70,10 +70,10 @@
     to clearly separate the user interface from the underlying code that
     implements its functionality. Additional information on \cmd[qmake]
     and \cmd[uic] is included in this chapter. This chapter will also
-    explain how you can create dialogs dynamically directly from
-    <filename>.ui</filename> files using
-    <classname>QWidgetFactory</classname>, and how to access
-    sub-widgets.
+    explain how you can dynamically load dialogs from 
+    <filename>.ui</filename> files into your application
+    using <classname>QWidgetFactory</classname> and how to access the
+    widgets and sub-widgets of these dialogs. 
     \P
     </listitem>
 
@@ -127,10 +127,13 @@
     C++ or Qt there are a vast number of C++ books available, and a
     small but increasing number of Qt books. Qt comes with extensive
     online documentation and many example applications that you can try.
-    For <xref
+    </para>
+    <para>
+    The Professional Edition of Qt includes the Qt SQL module. In <xref
     linkend="creating-database-applications"> "Creating Database
-    Applications" some knowledge of SQL and relational databases is
-    required as specified at the beginning of that chapter.
+    Applications" we demonstrate how to build SQL applications with \qd;
+    this chapter requires some knowledge of SQL and relational
+    databases.
     \P
 
 </sect1>
