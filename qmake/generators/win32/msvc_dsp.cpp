@@ -68,10 +68,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
 	platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
-    QString precomph = Option::fixPathToLocalOS(project->first("PRECOMPH"));
-    QString precompcpp = Option::fixPathToLocalOS(project->first("PRECOMPCPP"));
-    if ( project->variables()["PRECOMPCPP"].size() > 1 )
-	warn_msg(WarnLogic, "dsp generator doesn't support multiple files in PRECOMPCPP, only first one used" );
+    QString precomph = Option::fixPathToLocalOS(project->first("PRECOMPILED_HEADER"));
+    QString precompcpp = Option::fixPathToLocalOS(project->first("PRECOMPILED_SOURCE"));
+    if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
+	warn_msg(WarnLogic, "dsp generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
     QString pch = QString(precomph).replace(".h", ".pch");
     bool usePCH = !precomph.isEmpty();
     bool deletePCHcpp = precompcpp.isEmpty();

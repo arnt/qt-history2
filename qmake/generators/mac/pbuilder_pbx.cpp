@@ -902,9 +902,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
-    if(!project->isEmpty("PRECOMPH"))
+    if(!project->isEmpty("PRECOMPILED_HEADER"))
 	t << "\t\t\t\t" << "PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
-	  << "\t\t\t\t" << "PREFIX_HEADER = \"" <<  project->first("PRECOMPH") << "\";" << "\n";
+	  << "\t\t\t\t" << "PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
 	if(QFile::exists(file)) {

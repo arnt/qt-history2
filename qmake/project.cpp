@@ -195,6 +195,10 @@ static QString varMap(const QString &x)
 	ret = "QMAKE_H_MOD_MOC";
     else if(ret == "QMAKE_LFLAGS_SHAPP")
 	ret = "QMAKE_LFLAGS_APP";
+    else if(ret == "PRECOMPH")
+	ret = "PRECOMPILED_HEADER";
+    else if(ret == "PRECOMPCPP")
+	ret = "PRECOMPILED_SOURCE";
     return ret;
 }
 

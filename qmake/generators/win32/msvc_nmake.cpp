@@ -54,7 +54,7 @@ QStringList
 &NmakeMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &aList = MakefileGenerator::findDependencies(file);
-    if (!project->variables()["PRECOMPH"].isEmpty())
+    if (!project->variables()["PRECOMPILED_HEADER"].isEmpty())
 	aList.append(pch);
     return aList;
 }
@@ -62,10 +62,10 @@ QStringList
 void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
-    if ( project->variables()["PRECOMPCPP"].size() > 1 )
-	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPCPP, only first one used" );
-    precomph = Option::fixPathToTargetOS(project->first("PRECOMPH"));
-    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
+    if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
+	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
+    precomph = Option::fixPathToTargetOS(project->first("PRECOMPILED_HEADER"));
+    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPILED_SOURCE"));
     pch = QString(precomph).replace(".h", ".pch");
     usePCH = !precomph.isEmpty();
     deletePCHcpp = precompcpp.isEmpty();

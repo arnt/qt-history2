@@ -55,6 +55,12 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
 	}
     }
+    if( project->isEmpty("QMAKE_CFLAGS_PRECOMPILE"))
+	project->variables()["QMAKE_CFLAGS_PRECOMPILE"].append(project->first("-x c-header -c"));
+    if( project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
+	project->variables()["QMAKE_CXXFLAGS_PRECOMPILE"].append(project->first("-x c++-header -c"));
+    if( project->isEmpty("QMAKE_CFLAGS_USE_PRECOMPILE"))
+	project->variables()["QMAKE_CFLAGS_USE_PRECOMPILE"].append(project->first("-include"));
     if( project->isEmpty("QMAKE_EXTENSION_PLUGIN") )
 	project->variables()["QMAKE_EXTENSION_PLUGIN"].append(project->first("QMAKE_EXTENSION_SHLIB"));
     if( project->isEmpty("QMAKE_COPY_FILE") )
@@ -106,19 +112,18 @@ UnixMakefileGenerator::init()
     QString compile_flag = var("QMAKE_COMPILE_FLAG");
     if(compile_flag.isEmpty())
 	compile_flag = "-c";
-    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH")) {
-	if(project->isActiveConfig("native_precompiled_headers")) {
-	    QString prefix_flags = project->first("QMAKE_CFLAGS_PREFIX_INCLUDE");
-	    if(prefix_flags.isEmpty())
-		prefix_flags = "-include";
-	    compile_flag += " " + prefix_flags + " " + fileFixify(project->first("PRECOMPH"));
-	} else {
-	    initOutPaths(); 	// Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
-	    QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
-	    project->variables()["SOURCES"].prepend(allmoc);
-	    project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
-	    project->variables()["HEADERS"].clear();
-	}
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
+	QString prefix_flags = project->first("QMAKE_CFLAGS_PREFIX_INCLUDE");
+	if(prefix_flags.isEmpty())
+	    prefix_flags = "-include";
+	compile_flag += " " + prefix_flags + " " + fileFixify(project->first("PRECOMPILED_HEADER"));
+    }
+    if(!project->isEmpty("ALLMOC_HEADER")) {
+	initOutPaths(); 	// Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
+	QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
+	project->variables()["SOURCES"].prepend(allmoc);
+	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
+	project->variables()["HEADERS"].clear();
     }
     if ( project->isEmpty("QMAKE_RUN_CC") )
 	project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
@@ -355,16 +360,16 @@ QStringList
 &UnixMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &ret = MakefileGenerator::findDependencies(file);
-    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") &&
-       project->isActiveConfig("native_precompiled_headers")) {
+    if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
+	QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
 	if(file.endsWith(".c")) {
-	    QString precomp_h = fileFixify(project->first("PRECOMPH") + ".gch/ppc_c");
+	    QString precomp_h = fileFixify(project->first("PRECOMPILED_HEADER") + ".gch/" + header_prefix + "c");
 	    if(!ret.contains(precomp_h))
 		ret += precomp_h;
 	} else {
 	    for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
 		if(file.endsWith(*it)) {
-		    QString precomp_h = fileFixify(project->first("PRECOMPH") + ".gch/ppc_c++");
+		    QString precomp_h = fileFixify(project->first("PRECOMPILED_HEADER") + ".gch/" + header_prefix + "c++");
 		    if(!ret.contains(precomp_h))
 			ret += precomp_h;
 		    break;
