@@ -1555,13 +1555,14 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 {
     QWidget* vp = viewport();
 
-#if 0 // ###this breaks a couple of listview subclasses on Windows
+    QPainter p(vp);
+
     QMemArray<QRect> rects = pe->region().rects();
-    for ( int i = 0; i < (int)rects.size(); ++i ) {
+    const int numrects = rects.size();
+    for ( int i = 0; i < numrects; ++i ) {
+	if ( numrects > 1 )
+	    p.save();
 	QRect r = rects[i];
-#endif
-	QPainter p(vp);
-	QRect r = pe->rect();
 
 	if ( d->clipped_viewport ) {
 	    QRect rr(
@@ -1587,9 +1588,9 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 	    int eh = r.height();
 	    drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
 	}
-#if 0
+	if ( numrects > 1 )
+	    p.restore();
     }
-#endif
 }
 
 
