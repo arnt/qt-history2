@@ -2742,22 +2742,24 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   /* We need to have the PostScript table around. */
 
   post_table = getTable("post");
-  if ( !post_table ) {
+  if ( post_table ) {
+      Fixed post_format = getFixed( post_table );
+
+      if( post_format.whole != 2 || post_format.fraction != 0 ) {
+	  qWarning("TrueType font does not have a format 2.0 'post' table");
+	  QString dummy;
+	  qWarning(dummy.sprintf("post format is %d.%d",post_format.whole,post_format.fraction));
+	  // Sivan Feb 2001: no longer defective.
+	  // defective = true;
+      }
+  }
+  BYTE *maxp = getTable("maxp");
+  if ( !maxp ) {
       defective = true;
       return;
   }
-  Fixed post_format = getFixed( post_table );
-
-  if( post_format.whole != 2 || post_format.fraction != 0 ) {
-    qWarning("TrueType font does not have a format 2.0 'post' table");
-    QString dummy;
-    qWarning(dummy.sprintf("post format is %d.%d",post_format.whole,post_format.fraction));
-    // Sivan Feb 2001: no longer defective.
-    // defective = true;
-  }
-
-  numGlyphs = getUSHORT( post_table + 32 );
-  //qDebug("number of glyphs in post table is %d", numGlyphs);
+  numGlyphs = getUSHORT( maxp + 4 );
+  qDebug("number of glyphs is %d", numGlyphs);
   replacementList = makePSFontNameList( f, psname );
   uni2glyphSetup();
 }
@@ -2814,7 +2816,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     s << "%%Creator: Converted from TrueType by Qt using PPR\n";
 
   /* If VM usage information is available, print it. */
-  if( target_type == 42 )
+  if( target_type == 42 && post_table)
     {
       VMMin = (int)getULONG( post_table + 16 );
       VMMax = (int)getULONG( post_table + 20 );
@@ -2901,25 +2903,26 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   s << ") def\n";
 
   /* Some information from the "post" table. */
-  Fixed ItalicAngle = getFixed( post_table + 4 );
-  s << "/ItalicAngle ";
-  s << ItalicAngle.whole;
-  s << ".";
-  s << ItalicAngle.fraction;
-  s << " def\n";
+  if ( post_table ) {
+      Fixed ItalicAngle = getFixed( post_table + 4 );
+      s << "/ItalicAngle ";
+      s << ItalicAngle.whole;
+      s << ".";
+      s << ItalicAngle.fraction;
+      s << " def\n";
 
-  s << "/isFixedPitch ";
-  s << (getULONG( post_table + 12 ) ? "true" : "false" );
-  s << " def\n";
+      s << "/isFixedPitch ";
+      s << (getULONG( post_table + 12 ) ? "true" : "false" );
+      s << " def\n";
 
-  s << "/UnderlinePosition ";
-  s << (int)getFWord( post_table + 8 );
-  s << " def\n";
+      s << "/UnderlinePosition ";
+      s << (int)getFWord( post_table + 8 );
+      s << " def\n";
 
-  s << "/UnderlineThickness ";
-  s << (int)getFWord( post_table + 10 );
+      s << "/UnderlineThickness ";
+      s << (int)getFWord( post_table + 10 );
   s << " def\n";
-
+  }
   s << "end readonly def\n";
 
 #ifdef Q_PRINTER_USE_TYPE42
@@ -3141,6 +3144,9 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
 
 QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
 {
+    return QPSPrinterFontPrivate::glyphName( charindex );
+#if 0    
+    // I don't see why we would need to use this at all!
     USHORT c;
     if ((c=unicode_for_glyph(charindex)) != 0x000) {
 	//fprintf(stdout,"glyph %04x char %04x\n",charindex,c);
@@ -3190,6 +3196,7 @@ QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
 
 	return QString::fromLatin1(ptr,len);
     }
+#endif
 }
 
 void QPSPrinterFontTTF::uni2glyphSetup()
