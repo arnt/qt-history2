@@ -480,7 +480,7 @@ unsigned long WINAPI QAxHostWindow::Release()
     return ref;
 }
 
-HRESULT QAxHostWindow::QueryInterface( REFIID iid, void **iface )
+HRESULT WINAPI QAxHostWindow::QueryInterface( REFIID iid, void **iface )
 {
     *iface = 0;
     
@@ -508,7 +508,7 @@ HRESULT QAxHostWindow::QueryInterface( REFIID iid, void **iface )
 }
 
 //**** IDispatch
-HRESULT QAxHostWindow::Invoke(DISPID dispIdMember, 
+HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember, 
 			      REFIID riid, 
 			      LCID lcid, 
 			      WORD wFlags, 
@@ -575,12 +575,12 @@ void QAxHostWindow::emitAmbientPropertyChange( DISPID dispid )
 }
 
 //**** IOleClientSite
-HRESULT QAxHostWindow::SaveObject()
+HRESULT WINAPI QAxHostWindow::SaveObject()
 {
     return E_NOTIMPL;
 }
 
-HRESULT QAxHostWindow::GetMoniker( DWORD, DWORD, IMoniker **ppmk )
+HRESULT WINAPI QAxHostWindow::GetMoniker( DWORD, DWORD, IMoniker **ppmk )
 {
     if ( !ppmk )
 	return E_POINTER;
@@ -589,60 +589,60 @@ HRESULT QAxHostWindow::GetMoniker( DWORD, DWORD, IMoniker **ppmk )
     return E_NOTIMPL;
 }
 
-HRESULT QAxHostWindow::GetContainer( LPOLECONTAINER *ppContainer )
+HRESULT WINAPI QAxHostWindow::GetContainer( LPOLECONTAINER *ppContainer )
 {
     return E_NOINTERFACE;
 }
 
-HRESULT QAxHostWindow::ShowObject()
+HRESULT WINAPI QAxHostWindow::ShowObject()
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::OnShowWindow( BOOL fShow )
+HRESULT WINAPI QAxHostWindow::OnShowWindow( BOOL fShow )
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::RequestNewObjectLayout()
+HRESULT WINAPI QAxHostWindow::RequestNewObjectLayout()
 {
     return E_NOTIMPL;
 }
 
 //**** IOleControlSite
-HRESULT QAxHostWindow::OnControlInfoChanged()
+HRESULT WINAPI QAxHostWindow::OnControlInfoChanged()
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::LockInPlaceActive(BOOL /*fLock*/)
+HRESULT WINAPI QAxHostWindow::LockInPlaceActive(BOOL /*fLock*/)
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
+HRESULT WINAPI QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
 {
     if ( !ppDisp )
 	return E_POINTER;
     return E_NOTIMPL;
 }
 
-HRESULT QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
+HRESULT WINAPI QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::TranslateAcceleratorA(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
 {
     return S_FALSE;
 }
 
-HRESULT QAxHostWindow::TranslateAcceleratorW(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
 {
     return S_FALSE;
 }
 
-HRESULT QAxHostWindow::OnFocus( BOOL bGotFocus )
+HRESULT WINAPI QAxHostWindow::OnFocus( BOOL bGotFocus )
 {
     if ( bGotFocus ) {
 	QFocusEvent e( QEvent::FocusIn );
@@ -654,13 +654,13 @@ HRESULT QAxHostWindow::OnFocus( BOOL bGotFocus )
     return S_OK;
 }
 
-HRESULT QAxHostWindow::ShowPropertyFrame()
+HRESULT WINAPI QAxHostWindow::ShowPropertyFrame()
 {
     return E_NOTIMPL;
 }
 
 //**** IOleWindow
-HRESULT QAxHostWindow::GetWindow( HWND *phwnd )
+HRESULT WINAPI QAxHostWindow::GetWindow( HWND *phwnd )
 {
     if ( !phwnd )
 	return E_POINTER;
@@ -669,7 +669,7 @@ HRESULT QAxHostWindow::GetWindow( HWND *phwnd )
     return S_OK;
 }
 
-HRESULT QAxHostWindow::ContextSensitiveHelp( BOOL fEnterMode )
+HRESULT WINAPI QAxHostWindow::ContextSensitiveHelp( BOOL fEnterMode )
 {
     if ( fEnterMode )
 	QWhatsThis::enterWhatsThisMode();
@@ -680,12 +680,12 @@ HRESULT QAxHostWindow::ContextSensitiveHelp( BOOL fEnterMode )
 }
 
 //**** IOleInPlaceSite
-HRESULT QAxHostWindow::CanInPlaceActivate()
+HRESULT WINAPI QAxHostWindow::CanInPlaceActivate()
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::OnInPlaceActivate()
+HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
 {
     OleLockRunning( m_spOleObject, TRUE, FALSE );
     m_spOleObject->QueryInterface( IID_IOleInPlaceObject, (void**) &m_spInPlaceObject );
@@ -696,12 +696,12 @@ HRESULT QAxHostWindow::OnInPlaceActivate()
     return S_OK;
 }
 
-HRESULT QAxHostWindow::OnUIActivate()
+HRESULT WINAPI QAxHostWindow::OnUIActivate()
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo )
+HRESULT WINAPI QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo )
 {
     if ( !ppFrame || !ppDoc || !lprcPosRect || !lprcClipRect || !lpFrameInfo )
 	return E_POINTER;
@@ -722,17 +722,17 @@ HRESULT QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOleInPlace
     return S_OK;
 }
 
-HRESULT QAxHostWindow::Scroll( SIZE scrollExtant )
+HRESULT WINAPI QAxHostWindow::Scroll( SIZE scrollExtant )
 {
     return S_FALSE;
 }
 
-HRESULT QAxHostWindow::OnUIDeactivate( BOOL )
+HRESULT WINAPI QAxHostWindow::OnUIDeactivate( BOOL )
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::OnInPlaceDeactivate()
+HRESULT WINAPI QAxHostWindow::OnInPlaceDeactivate()
 {
     if ( m_spInPlaceObject )
 	m_spInPlaceObject->Release();
@@ -740,12 +740,12 @@ HRESULT QAxHostWindow::OnInPlaceDeactivate()
     return S_OK;
 }
 
-HRESULT QAxHostWindow::DiscardUndoState()
+HRESULT WINAPI QAxHostWindow::DiscardUndoState()
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::DeactivateAndUndo()
+HRESULT WINAPI QAxHostWindow::DeactivateAndUndo()
 {
     IOleInPlaceObject *inPlace = 0;
     widget->queryInterface( IID_IOleInPlaceObject, (void**)&inPlace );
@@ -757,13 +757,13 @@ HRESULT QAxHostWindow::DeactivateAndUndo()
     return S_OK;
 }
 
-HRESULT QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
+HRESULT WINAPI QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
 {
     return S_OK;
 }
 
 //**** IOleInPlaceFrame
-HRESULT QAxHostWindow::InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths )
+HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths )
 {
     QMenuBar *mb = menuBar;
     QWidget *p = widget;
@@ -881,7 +881,7 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
     return popup;
 }
 
-HRESULT QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject )
+HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU holemenu, HWND hwndActiveObject )
 {
     if ( hmenuShared ) {
 	m_menuOwner = hwndActiveObject;
@@ -988,13 +988,13 @@ bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
     return TRUE;
 }
 
-HRESULT QAxHostWindow::RemoveMenus( HMENU hmenuShared )
+HRESULT WINAPI QAxHostWindow::RemoveMenus( HMENU hmenuShared )
 {
     //###
     return E_NOTIMPL;
 }
 
-HRESULT QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
+HRESULT WINAPI QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
 {
     QStatusBar *sb = statusBar;
     QWidget *p = widget;
@@ -1013,7 +1013,7 @@ HRESULT QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
 extern Q_EXPORT void qt_enter_modal(QWidget*);
 extern Q_EXPORT void qt_leave_modal(QWidget*);
 
-HRESULT QAxHostWindow::EnableModeless( BOOL fEnable )
+HRESULT WINAPI QAxHostWindow::EnableModeless( BOOL fEnable )
 {
     if ( !fEnable )
 	qt_enter_modal( host );
@@ -1023,30 +1023,30 @@ HRESULT QAxHostWindow::EnableModeless( BOOL fEnable )
     return S_OK;
 }
 
-HRESULT QAxHostWindow::TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers )
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA( LPMSG lpMsg, WORD grfModifiers )
 {
     return TranslateAcceleratorA( lpMsg, (DWORD)grfModifiers );
 }
 
-HRESULT QAxHostWindow::TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers )
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW( LPMSG lpMsg, WORD grfModifiers )
 {
     return TranslateAcceleratorW( lpMsg, (DWORD)grfModifiers );
 }
 
 //**** IOleInPlaceUIWindow
-HRESULT QAxHostWindow::GetBorder( LPRECT lprectBorder )
+HRESULT WINAPI QAxHostWindow::GetBorder( LPRECT lprectBorder )
 {
     RECT border = { 0,0, 100, 10 };
     *lprectBorder = border;
     return S_OK;
 }
 
-HRESULT QAxHostWindow::RequestBorderSpace( LPCBORDERWIDTHS pborderwidths )
+HRESULT WINAPI QAxHostWindow::RequestBorderSpace( LPCBORDERWIDTHS pborderwidths )
 {
     return S_OK;
 }
 
-HRESULT QAxHostWindow::SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
+HRESULT WINAPI QAxHostWindow::SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
 {
     if ( !pborderwidths )
 	return S_OK;
@@ -1059,7 +1059,7 @@ HRESULT QAxHostWindow::SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
     return S_OK;
 }
 
-HRESULT QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName )
+HRESULT WINAPI QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName )
 {
     if ( pszObjName )
 	widget->setCaption( BSTRToQString( (BSTR)pszObjName ) );

@@ -1191,7 +1191,7 @@ QMetaObject *QAxBase::metaObject() const
 	classinfo = 0;
 
 	if ( !coClassID.isEmpty() )
-	    cacheKey = QString( "%1$%2$%3" ).arg( coClassID ).arg( d->useEventSink ).arg( d->useClassInfo );
+	    cacheKey = QString( "%1$%2$%3" ).arg( coClassID ).arg( (int)d->useEventSink ).arg( (int)d->useClassInfo );
     } else {
 	IDispatch *disp = d->dispatch();
 	if ( disp ) {
@@ -1212,7 +1212,7 @@ QMetaObject *QAxBase::metaObject() const
 
 	    // ### event interfaces!!
 	    if ( !interfaceID.isEmpty() )
-		cacheKey = QString( "%1$%2$%3" ).arg( interfaceID ).arg( d->useEventSink ).arg( d->useClassInfo );
+		cacheKey = QString( "%1$%2$%3" ).arg( interfaceID ).arg( (int)d->useEventSink ).arg( (int)d->useClassInfo );
 	}
     }
 
