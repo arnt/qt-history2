@@ -165,6 +165,34 @@ bool Config::parenMatching( const QString &path )
     return ret;
 }
 
+int Config::indentTabSize( const QString &path )
+{
+    QSettings settings;
+    int ret = settings.readNumEntry( path + "/indentTabSize", 8 );
+    return ret;
+}
+
+int Config::indentIndentSize( const QString &path )
+{
+    QSettings settings;
+    int ret = settings.readNumEntry( path + "/indentIndentSize", 4 );
+    return ret;
+}
+
+bool Config::indentKeepTabs( const QString &path )
+{
+    QSettings settings;
+    bool ret = settings.readBoolEntry( path + "/indentKeepTabs", TRUE );
+    return ret;
+}
+
+bool Config::indentAutoIndent( const QString &path )
+{
+    QSettings settings;
+    bool ret = settings.readBoolEntry( path + "/indentAutoIndent", TRUE );
+    return ret;
+}
+
 void Config::setCompletion( bool b, const QString &path )
 {
     QSettings settings;
@@ -181,4 +209,28 @@ void Config::setParenMatching( bool b,const QString &path )
 {
     QSettings settings;
     settings.writeEntry( path + "/parenMatching", b );
+}
+
+void Config::setIndentTabSize( int s, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "/indentTabSize", s );
+}
+
+void Config::setIndentIndentSize( int s, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "/indentIndentSize", s );
+}
+
+void Config::setIndentKeepTabs( bool b, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "/indentKeepTabs", b );
+}
+
+void Config::setIndentAutoIndent( bool b, const QString &path )
+{
+    QSettings settings;
+    settings.writeEntry( path + "/indentAutoIndent", b );
 }

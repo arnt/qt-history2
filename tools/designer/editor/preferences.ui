@@ -1,23 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PreferencesBase</class>
-<include location="global" impldecl="in declaration">qmap.h</include>
-<include location="local" impldecl="in declaration">conf.h</include>
-<include location="local" impldecl="in declaration">dlldefs.h</include>
-<include location="global" impldecl="in implementation">qpalette.h</include>
-<include location="global" impldecl="in implementation">qlineedit.h</include>
-<include location="global" impldecl="in implementation">qpixmap.h</include>
-<include location="global" impldecl="in implementation">qcombobox.h</include>
-<include location="global" impldecl="in implementation">qfontdatabase.h</include>
-<include location="local" impldecl="in implementation">editor.h</include>
-<include location="global" impldecl="in implementation">qpushbutton.h</include>
-<include location="global" impldecl="in implementation">qcheckbox.h</include>
-<include location="global" impldecl="in implementation">qcolordialog.h</include>
-<include location="global" impldecl="in implementation">qsettings.h</include>
-<variable>QString path;</variable>
-<variable>QMap&lt;QString, ConfigStyle&gt; styles;</variable>
-<variable>ConfigStyle currentStyle;</variable>
-<variable>QString currentElement;</variable>
-<exportmacro>EDITOR_EXPORT</exportmacro>
 <widget class="QWidget">
     <property name="name">
         <cstring>PreferencesBase</cstring>
@@ -26,24 +8,24 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>358</width>
-            <height>311</height>
+            <width>307</width>
+            <height>344</height>
         </rect>
     </property>
     <property name="caption">
         <string>Form1</string>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>11</number>
+            <number>6</number>
         </property>
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QGroupBox">
+        <widget class="QGroupBox" row="0" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>GroupBox2</cstring>
             </property>
@@ -113,6 +95,8 @@
                                 <sizepolicy>
                                     <hsizetype>1</hsizetype>
                                     <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
                             <property name="text">
@@ -260,23 +244,17 @@
                     <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
                 </spacer>
             </grid>
         </widget>
-        <widget class="QGroupBox">
+        <widget class="QGroupBox" row="1" column="0">
             <property name="name">
                 <cstring>GroupBox3</cstring>
             </property>
             <property name="title">
                 <string>Optio&amp;ns</string>
             </property>
-            <grid>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -286,7 +264,7 @@
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget class="QCheckBox" row="0" column="0">
+                <widget class="QCheckBox">
                     <property name="name">
                         <cstring>checkWordWrap</cstring>
                     </property>
@@ -294,15 +272,7 @@
                         <string>&amp;Word Wrap</string>
                     </property>
                 </widget>
-                <widget class="QCheckBox" row="0" column="1">
-                    <property name="name">
-                        <cstring>checkParenMatching</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Parentheses &amp;Matching</string>
-                    </property>
-                </widget>
-                <widget class="QCheckBox" row="1" column="0">
+                <widget class="QCheckBox">
                     <property name="name">
                         <cstring>checkCompletion</cstring>
                     </property>
@@ -310,9 +280,106 @@
                         <string>Comple&amp;tion</string>
                     </property>
                 </widget>
-            </grid>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkParenMatching</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Parentheses &amp;Matching</string>
+                    </property>
+                </widget>
+            </vbox>
         </widget>
-    </vbox>
+        <widget class="QGroupBox" row="1" column="1">
+            <property name="name">
+                <cstring>GroupBox3_2</cstring>
+            </property>
+            <property name="title">
+                <string>Indentation</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout2</cstring>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QSpinBox" row="0" column="1">
+                            <property name="name">
+                                <cstring>spinTabSize</cstring>
+                            </property>
+                            <property name="value">
+                                <number>8</number>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="0">
+                            <property name="name">
+                                <cstring>TextLabel1_2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Tab Size:</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox" row="1" column="1">
+                            <property name="name">
+                                <cstring>spinIndentSize</cstring>
+                            </property>
+                            <property name="value">
+                                <number>4</number>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="1" column="0">
+                            <property name="name">
+                                <cstring>TextLabel2_3</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Indent Size:</string>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkKeepTabs</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Keep Tabs</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkAutoIndent</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Auto Indent</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </grid>
 </widget>
 <connections>
     <connection>
@@ -357,136 +424,7 @@
         <receiver>PreferencesBase</receiver>
         <slot>elementChanged(const QString&amp;)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">colorClicked()</slot>
-    <slot access="protected" language="C++" returnType="void">reInit()</slot>
-    <slot access="protected" language="C++" returnType="void">save()</slot>
-    <slot access="public" language="C++" returnType="void">updatePreview()</slot>
-    <slot access="protected" language="C++" returnType="void">boldChanged( bool b )</slot>
-    <slot access="protected" language="C++" returnType="void">elementChanged( const QString &amp;element )</slot>
-    <slot access="protected" language="C++" returnType="void">familyChanged( const QString &amp;f )</slot>
-    <slot access="protected" language="C++" returnType="void">italicChanged( bool b )</slot>
-    <slot access="protected" language="C++" returnType="void">setColorPixmap( const QColor &amp;c )</slot>
-    <slot access="public" language="C++" returnType="void">setPath( const QString &amp;p )</slot>
-    <slot access="protected" language="C++" returnType="void">sizeChanged( int s )</slot>
-    <slot access="protected" language="C++" returnType="void">underlineChanged( bool b )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    QFontDatabase fdb;
-    comboFamily-&gt;insertStringList( fdb.families() );
-    listElements-&gt;setCurrentItem( listElements-&gt;firstItem() );
-    currentElement = "";
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="colorClicked()" >{
-    QColor c = QColorDialog::getColor( currentStyle.color, this, "editor_getcolor_dlg" );
-    if ( c.isValid() ) {
-	currentStyle.color = c;
-	setColorPixmap( c );
-    }
-}</function>
-    <function name="reInit()" >{
-    styles = Config::readStyles( path );
-    currentElement = "";
-    elementChanged( "Comment" );
-    for ( int i = 0; i &lt; comboFamily-&gt;count(); ++i ) {
-	if ( listElements-&gt;text( i ) == "Comment" ) {
-	    listElements-&gt;setCurrentItem( i );
-	    break;
-	}
-    }
-    checkWordWrap-&gt;setChecked( Config::wordWrap( path ) );
-    checkCompletion-&gt;setChecked( Config::completion( path ) ); 
-    checkParenMatching-&gt;setChecked( Config::parenMatching( path ) ); 
-}</function>
-    <function name="save()" >{
-    if ( !currentElement.isEmpty() ) {
-	styles.remove( currentElement );
-	styles.insert( currentElement, currentStyle );
-	currentElement = "";
-    }
-
-    QSettings settings;
-    Config::saveStyles( styles, path );
-    Config::setWordWrap( checkWordWrap-&gt;isChecked(), path );
-    Config::setCompletion( checkCompletion-&gt;isChecked(), path ); 
-    Config::setParenMatching( checkParenMatching-&gt;isChecked(), path ); 
-}</function>
-    <function name="updatePreview()" >{
-    editPreview-&gt;setFont( currentStyle.font );
-    QPalette pal = editPreview-&gt;palette();
-    pal.setColor( QPalette::Active, QColorGroup::Text, currentStyle.color );
-    pal.setColor( QPalette::Active, QColorGroup::Foreground, currentStyle.color ); 
-    editPreview-&gt;setPalette( pal );
-}</function>
-    <function name="boldChanged(bool)" >{
-    currentStyle.font.setBold( b );
-    updatePreview();
-}</function>
-    <function name="elementChanged(const QString&amp;)" >{
-    if ( !currentElement.isEmpty() ) {
-	styles.remove( currentElement );
-	styles.insert( currentElement, currentStyle );
-	currentElement = "";
-    }
-    QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.find( element );
-    if ( it == styles.end() )
-	return;
-    ConfigStyle s = *it;
-    currentStyle = s;
-    comboFamily-&gt;lineEdit()-&gt;setText( s.font.family() );
-    spinSize-&gt;setValue( s.font.pointSize() );
-    checkBold-&gt;setChecked( s.font.bold() );
-    checkItalic-&gt;setChecked( s.font.italic() );
-    checkUnderline-&gt;setChecked( s.font.underline() );
-    setColorPixmap( s.color );
-    currentElement = element;
-    updatePreview();
-}</function>
-    <function name="familyChanged(const QString&amp;)" >{
-    QString oldFamily = currentStyle.font.family();
-    currentStyle.font.setFamily( f );
-    if ( currentElement == "Standard" ) {
-	for ( QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
-	    if ( (*it).font.family() == oldFamily )
-		(*it).font.setFamily( f );
-	}
-    }
-    updatePreview();
-}</function>
-    <function name="italicChanged(bool)" >{
-    currentStyle.font.setItalic( b );
-    updatePreview();
-}</function>
-    <function name="setColorPixmap(const QColor&amp;)" >{
-    QPixmap pm( 20, 20 );
-    pm.fill( c );
-    buttonColor-&gt;setPixmap( pm );
-    updatePreview();
-}</function>
-    <function name="setPath(const QString&amp;)" >{
-    path = p;
-}</function>
-    <function name="sizeChanged(int)" >{
-    int oldSize = currentStyle.font.pointSize();
-    currentStyle.font.setPointSize( s );
-    if ( currentElement == "Standard" ) {
-	for ( QMap&lt;QString, ConfigStyle&gt;::Iterator it = styles.begin(); it != styles.end(); ++it ) {
-	    if ( (*it).font.pointSize() == oldSize )
-		(*it).font.setPointSize( s );
-	}
-    }
-    updatePreview();
-}</function>
-    <function name="underlineChanged(bool)" >{
-    currentStyle.font.setUnderline( b );
-    updatePreview();
-}</function>
-</functions>
 <tabstops>
     <tabstop>listElements</tabstop>
     <tabstop>editPreview</tabstop>
@@ -499,4 +437,44 @@
     <tabstop>checkCompletion</tabstop>
     <tabstop>checkParenMatching</tabstop>
 </tabstops>
+<includes>
+    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="local" impldecl="in declaration">conf.h</include>
+    <include location="local" impldecl="in declaration">dlldefs.h</include>
+    <include location="global" impldecl="in implementation">qpalette.h</include>
+    <include location="global" impldecl="in implementation">qlineedit.h</include>
+    <include location="global" impldecl="in implementation">qpixmap.h</include>
+    <include location="global" impldecl="in implementation">qcombobox.h</include>
+    <include location="global" impldecl="in implementation">qfontdatabase.h</include>
+    <include location="local" impldecl="in implementation">editor.h</include>
+    <include location="global" impldecl="in implementation">qpushbutton.h</include>
+    <include location="global" impldecl="in implementation">qcheckbox.h</include>
+    <include location="global" impldecl="in implementation">qcolordialog.h</include>
+    <include location="global" impldecl="in implementation">qsettings.h</include>
+    <include location="local" impldecl="in implementation">preferences.ui.h</include>
+</includes>
+<variables>
+    <variable>QString path;</variable>
+    <variable>QMap&lt;QString, ConfigStyle&gt; styles;</variable>
+    <variable>ConfigStyle currentStyle;</variable>
+    <variable>QString currentElement;</variable>
+</variables>
+<slots>
+    <slot access="">init()</slot>
+    <slot access="">destroy()</slot>
+    <slot access="">colorClicked()</slot>
+    <slot access="">reInit()</slot>
+    <slot access="">save()</slot>
+    <slot access="">updatePreview()</slot>
+    <slot access="">boldChanged(bool b)</slot>
+    <slot access="">elementChanged(const QString &amp; element)</slot>
+    <slot access="">familyChanged(const QString &amp; f)</slot>
+    <slot access="">italicChanged(bool b)</slot>
+    <slot access="">setColorPixmap(const QColor &amp; c)</slot>
+    <slot access="">setPath(const QString &amp; p)</slot>
+    <slot access="">sizeChanged(int s)</slot>
+    <slot access="">underlineChanged(bool b)</slot>
+</slots>
+<exportmacro>EDITOR_EXPORT</exportmacro>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

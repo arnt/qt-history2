@@ -29,9 +29,18 @@ struct EDITOR_EXPORT Config
     static bool completion( const QString &path );
     static bool wordWrap( const QString &path );
     static bool parenMatching( const QString &path );
+    static int indentTabSize( const QString &path );
+    static int indentIndentSize( const QString &path );
+    static bool indentKeepTabs( const QString &path );
+    static bool indentAutoIndent( const QString &path );
+
     static void setCompletion( bool b, const QString &path );
     static void setWordWrap( bool b, const QString &path );
     static void setParenMatching( bool b,const QString &path );
+    static void setIndentTabSize( int s, const QString &path );
+    static void setIndentIndentSize( int s, const QString &path );
+    static void setIndentKeepTabs( bool b, const QString &path );
+    static void setIndentAutoIndent( bool b, const QString &path );
 
 };
 
