@@ -257,6 +257,10 @@ QDialog:
 QListView
   Have a function which will return the column which is sorted and the sort order 
 
+QString::vsprintf()
+  An user requested we add a function that takes a format string and va list.
+  (support/arc-11/23705)  
+
 
 New functionality
 -----------------
