@@ -120,7 +120,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
     t << "RES_FILE =	" << varList("RES_FILE") << endl;
     t << "COPY  =       " << var("QMAKE_COPY") << endl;
-    t << "DEL   =       " << var("QMAKE_DEL") << endl;
+    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
+    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
     t << endl;
 

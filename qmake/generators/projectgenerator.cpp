@@ -65,9 +65,9 @@ ProjectGenerator::init()
     //the scary stuff
     if(project->first("TEMPLATE_ASSIGN") != "subdirs") {
 	QString builtin_regex("*.ui; *.c; *.y; *.l");
-	for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) 
+	for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit)
 	    builtin_regex += "; *" + (*hit);
-	for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
+	for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
 	    builtin_regex += "; *" + (*cppit);
 	QStringList dirs = Option::projfile::project_dirs;
 	if(Option::projfile::do_pwd)
@@ -95,7 +95,7 @@ ProjectGenerator::init()
 		    int s = file.findRev(Option::dir_sep);
 		    if(s != -1)
 			dir = file.left(s+1);
-		    if(addFile(file)) 
+		    if(addFile(file))
 			file_count++;
 		}
 	    } else { //regexp
@@ -106,20 +106,21 @@ ProjectGenerator::init()
 		if(s != -1) {
 		    dir = regex.left(s+1);
 		    regex = regex.right(regex.length() - (s+1));
-		} 
+		}
 		QDir d(dir, regex);
 		for(int i = 0; i < (int)d.count(); i++) {
-		    if(addFile(dir + d[i])) 
+		    QString file = dir + d[i];
+		    if (addFile(file))
 			file_count++;
 		}
 	    }
 	    if(!dir.isEmpty() && !v["DEPENDPATH"].contains(dir))
 		v["DEPENDPATH"] += dir;
 	}
-    } 
+    }
     if(!file_count) { //shall we try a subdir?
 	QStringList dirs = Option::projfile::project_dirs;
-	if(Option::projfile::do_pwd) 
+	if(Option::projfile::do_pwd)
 	    dirs.prepend(".");
 	for(QStringList::Iterator pd = dirs.begin(); pd != dirs.end(); pd++) {
 	    if(QFile::exists((*pd))) {
@@ -128,7 +129,7 @@ ProjectGenerator::init()
 		if(fi.isDir()) {
 		    fileFixify(newdir);
 		    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
-		       !v["SUBDIRS"].contains(newdir)) 
+		       !v["SUBDIRS"].contains(newdir))
 			v["SUBDIRS"].append(newdir);
 		    if(Option::projfile::do_recursive) {
 			QDir d(newdir);
@@ -136,7 +137,7 @@ ProjectGenerator::init()
 			for(int i = 0; i < (int)d.count(); i++) {
 			    QString nd = newdir + QDir::separator() + d[i];
 			    fileFixify(nd);
-			    if(d[i] != "." && d[i] != ".." && !dirs.contains(nd)) 
+			    if(d[i] != "." && d[i] != ".." && !dirs.contains(nd))
 				dirs.append(nd);
 			}
 		    }
@@ -156,17 +157,17 @@ ProjectGenerator::init()
 		    if(fi.fileName() != "." && fi.fileName() != "..") {
 			fileFixify(newdir);
 			if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + ".pro") &&
-			   !v["SUBDIRS"].contains(newdir)) 
+			   !v["SUBDIRS"].contains(newdir))
 			   v["SUBDIRS"].append(newdir);
-			if(Option::projfile::do_recursive && !dirs.contains(newdir)) 
+			if(Option::projfile::do_recursive && !dirs.contains(newdir))
 			    dirs.append(newdir);
 		    }
 		}
 	    }
 	}
 	v["TEMPLATE_ASSIGN"] = "subdirs";
-	return; 
-    } 
+	return;
+    }
 
     QPtrList<MakefileDependDir> deplist;
     deplist.setAutoDelete(TRUE);
@@ -204,7 +205,7 @@ ProjectGenerator::init()
 				if(file_no_path == "qthread.h")
 				    addConfig("thread");
 			    }
-			    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); 
+			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 				cppit != Option::cpp_ext.end(); ++cppit) {
 				QString src((*dep_it).left((*dep_it).length() - h_ext.length()) + (*cppit));
 				if(QFile::exists(src)) {
@@ -289,7 +290,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 	WRITE_VAR("LEXSOURCES");
 	WRITE_VAR("YACCSOURCES");
 	WRITE_VAR("SOURCES");
-    } 
+    }
 #undef WRITE_VAR
     QStringList::Iterator it;
     for(it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
@@ -321,7 +322,7 @@ ProjectGenerator::addFile(QString file)
     int s = file.findRev(Option::dir_sep);
     if(s != -1)
 	dir = file.left(s+1);
-    if(file.mid(dir.length(), Option::moc_mod.length()) == Option::moc_mod) 
+    if(file.mid(dir.length(), Option::moc_mod.length()) == Option::moc_mod)
 	return FALSE;
 
     QString where;

@@ -935,7 +935,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	    yaccflags += " -p " + fi.baseName();
 	t << impl << ": " << (*it) << "\n\t"
 	  << ( "$(YACC) " + yaccflags + " " ) << (*it) << "\n\t"
-	  << "-$(DEL) " << impl << " " << decl << "\n\t"
+	  << "-$(DEL_FILE) " << impl << " " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.h " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.c " << impl << endl << endl;
 	t << decl << ": " << impl << endl << endl;
@@ -960,7 +960,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	}
 	t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
 	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
-	  << "-$(DEL) " << impl << " " << "\n\t"
+	  << "-$(DEL_FILE) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex." << stub << ".c " << impl << endl << endl;
     }
 }
@@ -1002,7 +1002,7 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
 void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 {
-    QString all_installs;
+    QString all_installs, all_uninstalls;
     QStringList &l = project->variables()[installs];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString pvar = (*it) + ".path";
@@ -1013,7 +1013,9 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	bool do_default = TRUE;
 	QString target, dst=project->variables()[pvar].first();
- 	QStringList tmp;
+	if(dst.right(1) != Option::dir_sep)
+	    dst += Option::dir_sep;
+ 	QStringList tmp, &uninst = project->variables()[(*it) + ".uninstall"];
  	//masks
  	tmp = project->variables()[(*it) + ".files"];
  	if(!tmp.isEmpty()) {
@@ -1021,7 +1023,18 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
  	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
 		do_default = FALSE;
 		for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
-		    QString dirstr = QDir::currentDirPath(), f = (*wild_it);
+		    if(QFile::exists((*wild_it))) { //real file
+			QString file = (*wild_it);
+			fileFixify(file);
+			QFileInfo fi(file);
+			target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
+			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
+			uninst.append(QString("-$(DEL_FILE) -r") + " \"" + file + "\"");
+			continue;
+		    }
+		    QString dirstr = QDir::currentDirPath(), f = (*wild_it); 		    //wild
 		    int slsh = f.findRev(Option::dir_sep);
 		    if(slsh != -1) {
 			dirstr = f.left(slsh+1);
@@ -1029,6 +1042,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    }
 		    if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
 			dirstr += Option::dir_sep;
+		    if(!uninst.isEmpty())
+			uninst.append("\n\t");
+		    uninst.append(QString("-$(DEL_FILE) -r") + " " + dst + f + "");
+
 		    QDir dir(dirstr, f);
 		    for(uint x = 0; x < dir.count(); x++) {
 			QString file = dir[x];
@@ -1037,7 +1054,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			file = dirstr + file;
 			fileFixify(file);
 			QFileInfo fi(file);
-			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
+			target += QString("-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
 				  " \"" + fi.filePath() + "\" \"" + dst + "\"\n\t";
 			if(fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			    target += var("QMAKE_STRIP") + " \"" + dst + "\"\n\t";
@@ -1059,15 +1076,22 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
-	      << "[ -d " << project->variables()[pvar].first() << " ] || mkdir -p "
-	      << project->variables()[pvar].first() << "\n\t"
-	      << target << endl << endl;
+	      << "[ -d " << dst << " ] || mkdir -p " << dst << "\n\t"
+	      << target << endl;
 	    all_installs += QString("install_") + (*it) + " ";
+	    if(!uninst.isEmpty()) {
+		t << "uninstall_" << (*it) << ": " << "\n\t"
+		  << uninst.join(" ") << "\n\t"
+		  << "-$(DEL_DIR) \"" << dst << "\"" << endl;
+		all_uninstalls += "uninstall_" + (*it) + " ";
+	    }
+	    t << endl;
 	}   else {
 	    debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
 	}
     }
     t << "install: all " << all_installs << "\n\n";
+    t << "uninstall: " << all_uninstalls << "\n\n";
 }
 
 QString

@@ -327,6 +327,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(t != "target")
 	return QString();
 
+    QStringList &uninst = project->variables()["uninstall." + t];
     QString ret, destdir=project->first("DESTDIR");
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
@@ -341,6 +342,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
 	dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
 	ret += "$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
+	if(!uninst.isEmpty())
+	    uninst.append("\n\t");
+	uninst.append("$(DEL_FILE) \"" + dst_prl + "\"");
     }
 
     QString target="$(TARGET)";
@@ -362,9 +366,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString("$(COPY) ") + src_targ + " " + dst_targ;
+    ret += QString("$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isEmpty("QMAKE_STRIP"))
-	ret += "\n\t" + var("QMAKE_STRIP") + " " + dst_targ;
+	ret += "\n\t" + var("QMAKE_STRIP") + " \"" + dst_targ + "\"";
+    if(!uninst.isEmpty())
+	uninst.append("\n\t");
+    uninst.append("$(DEL_FILE) \"" + dst_targ + "\"");
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || 
@@ -375,8 +382,11 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		ret += "\n\tln -sf " + dst_targ + " " + 
-		       Option::fixPathToTargetOS(targetdir + link, FALSE);
+		QString dst_link = Option::fixPathToTargetOS(targetdir + link, FALSE);
+		ret += "\n\tln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
+		if(!uninst.isEmpty())
+		    uninst.append("\n\t");
+		uninst.append("$(DEL_FILE) \"" + dst_link + "\"");
 	    }
 	}
     }

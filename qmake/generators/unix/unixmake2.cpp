@@ -131,7 +131,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "COPY     = " << var("QMAKE_COPY") << endl;
     t << "COPY_FILE= " << var("QMAKE_COPY_FILE") << endl;
     t << "COPY_DIR = " << var("QMAKE_COPY_DIR") << endl;
-    t << "DEL      = " << var("QMAKE_DEL") << endl;
+    t << "DEL_FILE = " << var("QMAKE_DEL_FILE") << endl;
+    t << "DEL_DIR  = " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE     = " << var("QMAKE_MOVE") << endl;
     t << endl;
 
@@ -213,7 +214,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
 	t << (*cppit) << ".o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
     t << ".c.o:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
-
     if(include_deps) {
 	QString cmd=var("QMAKE_CFLAGS_DEPS") + " ";
 	cmd += varGlue("DEFINES","-D"," -D","") + varGlue("PRL_EXPORT_DEFINES"," -D"," -D","");
@@ -276,7 +276,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QMakeProject proj;
-	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_DIRECTORY")) {
+	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_BUILD_DIRECTORY")) {
 		QString dir;
 		int slsh = (*it).findRev(Option::dir_sep);
 		if(slsh != -1)
@@ -285,7 +285,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		deps += " " + targ;
 		t << targ << ":" << "\n\t" 
 		  << "@echo \"Creating '" << targ << "'\"" << "\n\t"
-		  << "(cd " << proj.first("QMAKE_PRL_DIRECTORY") << "; $(MAKE) )" << endl;
+		  << "(cd " << proj.first("QMAKE_PRL_BUILD_DIR") << ";"
+		  << "$(MAKE) )" << endl;
 	    }
 	}
     }
