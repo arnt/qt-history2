@@ -258,7 +258,7 @@ bool QBuffer::at( Q_ULONG pos )
 #endif
     if ( pos > a_len ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QBuffer::at: Index %d out of range", pos );
+	qWarning( "QBuffer::at: Index %ld out of range", pos );
 #endif
 	return FALSE;
     }
