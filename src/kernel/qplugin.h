@@ -87,6 +87,12 @@ private:
     QString libfile;
     LibraryPolicy libPol;
     QApplicationInterface* appInterface;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QPlugIn( const QPlugIn & );
+    QPlugIn &operator=( const QPlugIn & );
+#endif
 };
 
 #endif
