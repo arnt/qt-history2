@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#62 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -600,7 +600,7 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
     }
     if ( !codec )
 	return FALSE;
-    str = codec->toUnicode(payload, payload.size());
+    str = codec->toUnicode(payload);
     return TRUE;
 }
 
