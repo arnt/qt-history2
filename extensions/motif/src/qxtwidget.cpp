@@ -75,7 +75,7 @@ void qwidget_realize(
 	reparentChildrenOf(qxtw);
     }
     qxtw->show();
-    XMapWindow( qt_xdisplay(), qxtw->winId() );
+    XMapWindow( QX11Info::display(), qxtw->winId() );
 }
 
 static
@@ -179,8 +179,8 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	Q_ASSERT(!managed);
 
 	String n, c;
-	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
-	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
+	XtGetApplicationNameAndClass(QX11Info::display(), &n, &c);
+	xtw = XtAppCreateShell(n, c, widget_class, QX11Info::display(),
 			       args, num_args);
 	if ( widget_class == qWidgetClass )
 	    ((QWidgetRec*)xtw)->qwidget.qxtwidget = this;
@@ -190,8 +190,8 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XtResizeWidget( xtw, 100, 100, 0 );
 	XtSetMappedWhenManaged(xtw, False);
 	XtRealizeWidget(xtw);
-	XSync(qt_xdisplay(), False);    // I want all windows to be created now
-	XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(), x(), y());
+	XSync(QX11Info::display(), False);    // I want all windows to be created now
+	XReparentWindow(QX11Info::display(), XtWindow(xtw), qparent->winId(), x(), y());
 	XtSetMappedWhenManaged(xtw, True);
 	need_reroot=true;
     }
@@ -284,7 +284,7 @@ QXtWidget::~QXtWidget()
 
     if ( need_reroot ) {
 	hide();
-	XReparentWindow(qt_xdisplay(), winId(), qApp->desktop()->winId(), x(), y());
+	XReparentWindow(QX11Info::display(), winId(), qApp->desktop()->winId(), x(), y());
     }
 
     XtDestroyWidget(xtw);
@@ -325,7 +325,7 @@ void QXtWidget::activateWindow()
 	    e.window = winId();
 	    e.mode = NotifyNormal;
 	    e.detail = NotifyInferior;
-	    XSendEvent( qt_xdisplay(), e.window, TRUE, NoEventMask, (XEvent*)&e );
+	    XSendEvent( QX11Info::display(), e.window, TRUE, NoEventMask, (XEvent*)&e );
 	}
     } else {
 	QWidget::activateWindow();
@@ -339,7 +339,7 @@ bool QXtWidget::isActiveWindow() const
 {
     Window win;
     int revert;
-    XGetInputFocus( qt_xdisplay(), &win, &revert );
+    XGetInputFocus( QX11Info::display(), &win, &revert );
 
     if ( win == None) return false;
 
@@ -353,7 +353,7 @@ bool QXtWidget::isActiveWindow() const
 	Window cursor = winId();
 	Window *ch;
 	unsigned int nch;
-	while ( XQueryTree(qt_xdisplay(), cursor, &root, &parent, &ch, &nch) ) {
+	while ( XQueryTree(QX11Info::display(), cursor, &root, &parent, &ch, &nch) ) {
 	    if (ch) XFree( (char*)ch);
 	    if ( parent == win ) return true;
 	    if ( parent == root ) return false;
@@ -378,7 +378,7 @@ void QXtWidget::moveEvent( QMoveEvent* )
     c.width = width();
     c.height = height();
     c.border_width = 0;
-    XSendEvent( qt_xdisplay(), c.event, TRUE, NoEventMask, (XEvent*)&c );
+    XSendEvent( QX11Info::display(), c.event, TRUE, NoEventMask, (XEvent*)&c );
     XtMoveWidget( xtw, x(), y() );
 }
 
@@ -399,6 +399,6 @@ void QXtWidget::resizeEvent( QResizeEvent* )
     c.width = width();
     c.height = height();
     c.border_width = 0;
-    XSendEvent( qt_xdisplay(), c.event, TRUE, NoEventMask, (XEvent*)&c );
+    XSendEvent( QX11Info::display(), c.event, TRUE, NoEventMask, (XEvent*)&c );
     XtResizeWidget( xtw, width(), height(), preferred.border_width );
 }
