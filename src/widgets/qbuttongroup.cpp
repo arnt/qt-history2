@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#54 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -348,9 +348,16 @@ void QButtonGroup::buttonToggled( bool on )
     ASSERT( bt->inherits("QButton") );
     ASSERT( bt->isToggleButton() );
 #endif
-    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
-	if ( !(bt == i->button) && i->button->isToggleButton() )
-	    i->button->setOn( FALSE );		// turn other radio buttons off
+    QButtonItem *i = buttons->first(); 
+    while( i ) {
+	if ( bt != i->button &&
+	     i->button->isToggleButton() &&
+	     i->button->isOn() ) {
+	    i->button->setOn( FALSE );
+	    if ( i->button->hasFocus() )
+		bt->setFocus();
+	}
+	i = buttons->next();
     }
 }
 
