@@ -2646,7 +2646,7 @@ void QWSServer::addKeyboardFilter(KeyboardFilter *f)
     The caller is responsible for matching each addition with a
     corresponding removal.
 */
-void QWSServer::removeKeyboardFilter( KeyboardFilter *f )
+void QWSServer::removeKeyboardFilter()
 {
      if (!keyFilters || keyFilters->isEmpty())
 	 return;
