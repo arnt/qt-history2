@@ -1,3 +1,4 @@
+#define QT_NO_PALETTE
 #define QT_NO_ACTION
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES
@@ -27,10 +28,10 @@
 #define QT_NO_TRANSFORMATIONS
 #define QT_NO_PSPRINTER
 #define QT_NO_PICTURE
-#define QT_NO_WIDGETS
 #define QT_NO_LAYOUT
 #define QT_NO_DRAWUTIL
 #define QT_NO_IMAGE_TRUECOLOR
 #define QT_NO_IMAGE_SMOOTHSCALE
 #define QT_NO_IMAGE_TEXT
 #define QT_NO_DIR
+

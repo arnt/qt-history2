@@ -123,8 +123,9 @@
 //define QT_NO_LAYOUT
 
 // widgets
-//#define QT_NO_WIDGETS
-
+#if defined(QT_NO_PALETTE)
+    #define QT_NO_WIDGETS
+#endif
 #if defined(QT_NO_WIDGETS) || defined(QT_NO_RICHTEXT)
     #define QT_NO_TEXTVIEW
 #endif
