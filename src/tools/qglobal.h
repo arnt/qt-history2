@@ -352,6 +352,7 @@
 #    define Q_CC_HP
 #    define Q_NO_BOOL_TYPE
 #    define Q_FULL_TEMPLATE_INSTANTIATION
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  endif
 
 #else
