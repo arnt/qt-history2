@@ -220,11 +220,22 @@ bool QPlugIn::loadInterface()
 	QStrList appIfaces = qApp->queryInterfaceList();
 	for ( uint i = 0; i < appIfaces.count(); i++ ) {
 	    QCString iface = appIfaces.at( i );
-	    QClientInterface* ci = plugInterface()->requestClientInterface( iface );
-	    QApplicationInterface* ai = qApp->requestApplicationInterface( iface );
-	    if ( ci && ai ) {
-		QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-		QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+	    QStrList clIface = plugInterface()->queryInterfaceList();
+	    if ( clIface.contains( iface ) ) {
+		QClientInterface* ci = plugInterface()->requestClientInterface( iface );
+		QApplicationInterface* ai = qApp->requestApplicationInterface( iface );
+		if ( ai && ci ) {
+		    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
+		    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+		} else {
+#ifdef CHECK_RANGE
+		    qWarning( "Can't setup connection for interface \"%s\"", (const char*)iface );
+		    if ( !ai )
+			qWarning( "\tApplication failed to provide requested implementation!");
+		    if ( !ci )
+			qWarning( "\tPlugIn failed to provide requested implementation!");
+#endif
+		}
 	    }
 	}
     }
