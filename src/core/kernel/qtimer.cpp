@@ -25,10 +25,10 @@
     \ingroup events
     \mainclass
 
-    It uses \link QTimerEvent timer events\endlink internally to
-    provide a more versatile timer. QTimer is very easy to use:
-    create a QTimer, call start() to start it and connect its
-    timeout() to the appropriate slots. When the time is up it will
+    QTimer uses \link QTimerEvent timer events\endlink internally to
+    provide a versatile timer. QTimer is very easy to use:
+    create a QTimer, connect its timeout() signal to the appropriate
+    slots, and call start() to start it. When the time is up it will
     emit the timeout() signal.
 
     Note that a QTimer object is destroyed automatically when its
@@ -44,8 +44,8 @@
     You can also use the static singleShot() function to create a
     single shot timer.
 
-    As a special case, a QTimer with timeout 0 times out as soon as
-    all the events in the window system's event queue have been
+    As a special case, a QTimer with a timeout of 0 times out as soon
+    as all the events in the window system's event queue have been
     processed.
 
     This can be used to do heavy work while providing a snappy
@@ -60,7 +60,7 @@
     return quickly (typically after processing one data item) so that
     Qt can deliver events to widgets and stop the timer as soon as it
     has done all its work. This is the traditional way of
-    implementing heavy work in GUI applications; multi-threading is
+    implementing heavy work in GUI applications; multithreading is
     now becoming available on more and more platforms, and we expect
     that null events will eventually be replaced by threading.
 
@@ -84,7 +84,7 @@ static const int INV_TIMER = -1;                // invalid timer id
 
 
 /*!
-    Constructs a timer called \a name, with the parent \a parent.
+    Constructs a timer called \a name, with a \a parent.
 
     Note that the parent object's destructor will destroy this timer
     object.
@@ -128,8 +128,8 @@ QTimer::~QTimer()
 
 
 /*!
-    Starts the timer with a \a msec milliseconds timeout, and returns
-    the ID of the timer, or zero when starting the timer failed.
+    Starts the timer with a \a msec milliseconds timeout. Returns
+    the ID of the timer, or zero if the timer failed to start.
 
     If \a sshot is true, the timer will be activated only once;
     otherwise it will continue until it is stopped.
@@ -231,12 +231,13 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 
 #include "qtimer.moc"
 
-/*! \reentrant
+/*! 
+    \reentrant
     This static function calls a slot after a given time interval.
 
     It is very convenient to use this function because you do not need
     to bother with a \link QObject::timerEvent() timerEvent\endlink or
-    to create a local QTimer object.
+    create a local QTimer object.
 
     Example:
     \code
@@ -252,11 +253,11 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
         }
     \endcode
 
-    This sample program automatically terminates after 10 minutes (i.e.
-    600000 milliseconds).
+    This sample program automatically terminates after 10 minutes
+    (600000 milliseconds).
 
     The \a receiver is the receiving object and the \a member is the
-    slot. The time interval is \a msec.
+    slot. The time interval is \a msec milliseconds.
 */
 
 void QTimer::singleShot(int msec, QObject *receiver, const char *member)
