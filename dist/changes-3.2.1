@@ -11,6 +11,13 @@ Compilers
 
 Small fixes to build with gcc-3.4.
 
+Qt Motif Extension
+------------------
+
+Document a known problem related to clipboard and selection handling
+between Qt and Motif components.  See the Qt Motif Extension
+documentation for a more detailed description of the problem.
+
 ****************************************************************************
 *			   Library					   *
 ****************************************************************************
@@ -18,3 +25,9 @@ Small fixes to build with gcc-3.4.
 - QApplication
         Update arguments passed to the constructor correctly when arguments
         have been processed already.
+
+- QMotifDialog [Qt Motif Extension]
+- QMotifWidget [Qt Motif Extension]
+	Fix incorrect usage of XtSetArg().  In certain cases, some
+	variables would be incorrectly modified, resulting in
+	out-of-bounds memory access and/or crashes.

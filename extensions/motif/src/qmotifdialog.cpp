@@ -294,7 +294,8 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
     // set the dialog type
     Arg *realargs = new Arg[ argcount + 1 ];
     memcpy( realargs, args, argcount * sizeof(Arg) );
-    XtSetArg( realargs[ argcount++ ], XmNdialogType, dtype );
+    XtSetArg(realargs[argcount], XmNdialogType, dtype);
+    ++argcount;
 
     d->dialog = XtCreateWidget( name, widgetclass, d->shell, realargs, argcount );
 
@@ -397,21 +398,21 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
     if ( ! QPaintDevice::x11AppDefaultVisual() ) {
 	// make Motif use the same visual/colormap/depth as Qt (if Qt
 	// is not using the default)
-	XtSetArg( realargs[argcount++], XtNvisual,
-		  QPaintDevice::x11AppVisual() );
-	XtSetArg( realargs[argcount++], XtNcolormap,
-		  QPaintDevice::x11AppColormap() );
-	XtSetArg( realargs[argcount++], XtNdepth,
-		  QPaintDevice::x11AppDepth() );
+	XtSetArg(realargs[argcount], XtNvisual, QPaintDevice::x11AppVisual());
+	++argcount;
+	XtSetArg(realargs[argcount], XtNcolormap, QPaintDevice::x11AppColormap());
+	++argcount;
+	XtSetArg(realargs[argcount], XtNdepth, QPaintDevice::x11AppDepth());
+	++argcount;
     }
 
     // create the dialog shell
     if ( parent ) {
 	d->shell = XtCreatePopupShell( name(), qmotifDialogWidgetClass, parent,
-				       args, argcount );
+				       realargs, argcount );
     } else {
 	d->shell = XtAppCreateShell( name(), name(), qmotifDialogWidgetClass,
-				     x11Display(), NULL, 0 );
+				     x11Display(), realargs, argcount );
     }
 
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = this;

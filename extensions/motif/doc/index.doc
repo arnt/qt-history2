@@ -72,4 +72,26 @@ For example:
     ...
 \endcode
 
+\endlist
+
+\section1 Known Problems and Limitations
+
+\list
+
+\i In some situations, clipboard transfers between Motif and Qt
+widgets will fail, and neither Motif nor Qt seem to recover.  This
+will occur when Motif and Qt are using the same X11 display
+connection.  This typically happens in 2 situations: 1) QApplication
+was created with a foreign display, or 2) QMotifWidget is used in the
+widget heirarchy.
+
+The only way to work around this problem is to ensure that Motif and
+Qt use a different X11 connection.  However, this solution will not
+work when using QMotifWidget in the widget heirarchy (since
+QMotifWidget uses the same X11 display connection that Qt does).
+
+This problem will be fixed in a future release.
+
+\endlist
+
 */
