@@ -828,7 +828,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	}
 	return vars[args[0]].isEmpty();
     } else if(func == "include" || func == "load") {
-	if(args.count() != 1) {
+	QString seek_var;
+	if(args.count() == 2 && func == "include") {
+	    seek_var = args[1];
+	} else if(args.count() != 1) {
 	    QString func_desc = "include(file)";
 	    if(func == "load")
 		func_desc = "load(feature)";
@@ -925,7 +928,14 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	int sb = scope_block;
 	int sf = scope_flag;
 	TestStatus sc = test_status;
-	bool r = read(file.latin1(), place);
+	bool r = FALSE;
+	if(!seek_var.isNull()) {
+	    QMap<QString, QStringList> tmp;
+	    if((r = read(file.latin1(), tmp)))
+		place[seek_var] += tmp[seek_var];
+	} else {
+	    r = read(file.latin1(), place);
+	}
 	if(r)
 	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
 	else
