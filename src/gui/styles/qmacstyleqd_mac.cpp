@@ -836,7 +836,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                                         SCFlags subActive,
                                         const QStyleOption& opt) const
 {
-#if 0
     ThemeDrawState tds = kThemeStateActive;
     if(qAquaActive(pal)) {
         if(!(flags & Style_Enabled))
@@ -974,8 +973,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
             }
             DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, NULL, NULL, NULL, 0);
         }
-        break; }
 #endif
+        break; }
     case CC_TitleBar: {
         if(!widget)
             break;
@@ -1252,7 +1251,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
     default:
         QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
     }
-#endif
 }
 
 int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
