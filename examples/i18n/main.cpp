@@ -88,6 +88,7 @@ MyWidget* showLang(QString lang)
 	delete translator;
     }
     translator = new QTranslator( 0 );
+qDebug( "lang = %s", lang.latin1() );
     translator->load( lang, "." );
     qApp->installTranslator( translator );
     MyWidget *m = new MyWidget;
@@ -103,11 +104,8 @@ int main( int argc, char** argv )
 	{ "cs", "de", "el", "en", "eo", "fr", "it", "jp", "ko", "no", "ru", "zh", 0 };
 
 #if defined(Q_OS_UNIX)
-    srand(getpid()<<2);
+    srand( getpid() << 2 );
 #endif
-
-    QFont font("unifont",16,50,FALSE);
-    qApp->setFont(font);
 
     QString lang;
     if ( argc == 2 )
