@@ -86,7 +86,8 @@ fi
 if [ "$XFT" = "yes" ]; then
     XFT_MAJOR=`grep XFT_MAJOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
     XFT_MINOR=`grep XFT_MINOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
-    [ "$VERBOSE" = "yes" ] && echo "  Found Xft version $XFT_MAJOR.$XFT_MINOR"
+    XFT_REVISION=`grep XFT_REVISION $XFT_H | head -n 1 | awk '{ print \$3 }'`
+    [ "$VERBOSE" = "yes" ] && echo "  Found Xft version $XFT_MAJOR.$XFT_MINOR.$XFT_REVISION"
     if [ "$XFT_MAJOR" = "2" ]; then
         XFT2=yes
 	LIBXFT="$LIBXFT -lfontconfig"
@@ -122,10 +123,18 @@ if [ "$XFT" = "yes" ]; then
     F=
     for INCDIR in $INCDIRS; do
 	if [ -f $INCDIR/$INC ]; then
-	    F=yes
-	    FREETYPE2_INCDIR=$INCDIR/freetype2
-	    [ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
-	    break
+	    # detect major version of freetype2
+	    FREETYPE_MAJOR=`grep "#define FREETYPE_MAJOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
+	    FREETYPE_MINOR=`grep "#define FREETYPE_MINOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
+	    FREETYPE_PATCH=`grep "#define FREETYPE_PATCH" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
+	    [ "$VERBOSE" = "yes" ] && \
+		echo "  Found Freetype version $FREETYPE_MAJOR.$FREETYPE_MINOR.$FREETYPE_PATCH"
+	    if [ "$FREETYPE_MAJOR" -eq "2" -a "$FREETYPE_MINOR" -ge "1" ]; then
+		F=yes
+		FREETYPE2_INCDIR=$INCDIR/freetype2
+		[ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
+		break
+	    fi
 	fi
     done
     if [ -z "$F" ]; then
