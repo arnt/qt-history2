@@ -173,26 +173,30 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QHash<int, QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
-void qt_mac_unicode_init(QWidget *w) {
-    if(!qt_mac_tsm_dict)
-	qt_mac_tsm_dict = new QHash<int, QTSMDocumentWrapper>();
-    else if(qt_mac_tsm_dict->contains((int)w->handle()))
+static QHash<Qt::HANDLE, QTSMDocumentWrapper *> *qt_mac_tsm_hash=NULL;
+void qt_mac_unicode_init(QWidget *w) 
+{
+    if(!qt_mac_tsm_hash) {
+	qt_mac_tsm_hash = new QHash<Qt::HANDLE, QTSMDocumentWrapper*>();
+	qt_mac_tsm_hash->setAutoDelete(true);
+    } else if(qt_mac_tsm_hash->contains(w->handle())) {
 	return;
-    qt_mac_tsm_dict->insert((int)w->handle(), QTSMDocumentWrapper());
+    }
+    qt_mac_tsm_hash->insert(w->handle(), new QTSMDocumentWrapper());
 }
-void qt_mac_unicode_cleanup(QWidget *w) {
-    if(w && qt_mac_tsm_dict && w->isTopLevel())
-	qt_mac_tsm_dict->remove((int)w->handle());
+void qt_mac_unicode_cleanup(QWidget *w) 
+{
+    if(w && qt_mac_tsm_hash && w->isTopLevel())
+	qt_mac_tsm_hash->erase(w->handle());
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
-    if(!w || !qt_mac_tsm_dict ||
-       !qt_mac_tsm_dict->contains((int)w->handle()))
+    if(!w || !qt_mac_tsm_hash || !qt_mac_tsm_hash->contains(w->handle()))
 	return 0;
-    return &(*qt_mac_tsm_dict)[(int)w->handle()];
+    return qt_mac_tsm_hash->value(w->handle());
 }
-void qt_mac_unicode_reset_input(QWidget *w) {
+void qt_mac_unicode_reset_input(QWidget *w) 
+{
     if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(w)) {
 	if(doc->inputWidget() && doc->inputWidget() != w) {
 	    FixTSMDocument(doc->document());
@@ -910,7 +914,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 			else if(s == "offthespot")
 			    qt_mac_input_spot = QT_MAC_OFFTHESPOT;
 			else
-			    qDebug("Qt: internal: Misunderstood input style '%s'", s.constData());
+			    qDebug("Qt: internal: Misunderstood input style '%s'", s.latin1());
 		    }
 		} else {
 		    //just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
@@ -1007,9 +1011,9 @@ void qt_cleanup()
 	    qt_mac_safe_pdev = NULL;
 	}
     }
-    if(qt_mac_tsm_dict) {
-	delete qt_mac_tsm_dict;
-	qt_mac_tsm_dict = NULL;
+    if(qt_mac_tsm_hash) {
+	delete qt_mac_tsm_hash;
+	qt_mac_tsm_hash = NULL;
     }
 }
 
@@ -2429,7 +2433,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(ekind == kEventWindowShown)
 		unhandled_dialogs.insert(wid, 1);
 	    else if(ekind == kEventWindowHidden)
-		unhandled_dialogs.remove(wid);
+		unhandled_dialogs.erase(wid);
 	    handled_event = FALSE;
 	    break;
 	} else if(widget->isDesktop()) {
