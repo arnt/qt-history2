@@ -253,9 +253,9 @@ const QFontCharSet& QFontFamily::charSet(const QString &) const
 {
   return QFontCharSet();
 }
+*/
 
 QUtf8Codec * quc=0;
-*/
 
 const QTextCodec * QFontData::mapper() const
 {
@@ -265,4 +265,4 @@ const QTextCodec * QFontData::mapper() const
   return quc;
 }
 
-QFont::CharSet QFont::defaultCharSet=QFont::anyCharSet;
+QFont::CharSet QFont::defaultCharSet=QFont::AnyCharSet;
