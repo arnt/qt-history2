@@ -255,9 +255,12 @@ typedef QStack<QWMatrix> QWMatrixStack;
   of flags: Horizontal, vertical and modifying flags.  The horizontal
   flags are: <ul>
 
+  <li> \c AlignAuto - Align according to the language. Left for most, right for hebrew and arabic.
   <li> \c AlignLeft - Align with the left edge.
-  <li> \c AlignRight - Align with the left edge.
+  <li> \c AlignRight - Align with the right edge.
   <li> \c AlignHCenter - Center horizontally in the available space.
+  <li> \c AlignJustify - Justify the text in the available space. Does not work for
+  everything and might be interpreted as AlignAuto in some cases.
 
   </ul> The vertical flags are: <ul>
 
