@@ -11,7 +11,7 @@ QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS
 
 /*!
     \class QSettings
-    \brief The QSettings class provides persistent platform-indendent GUI application settings.
+    \brief The QSettings class provides persistent platform-independent GUI application settings.
 
     \ingroup io
     \ingroup misc
