@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#68 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -26,7 +26,7 @@
 #include "qt_windows.h"
 
 
-extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
@@ -79,7 +79,9 @@ int QPaintDevice::fontInf( QFont *, int ) const
 }
 
 
-bool qt_bitblt_bsm = FALSE;			// ######### experimental
+bool qt_bitblt_bsm = FALSE;			// use black source method
+uint qt_bitblt_foreground = 0;			// bitBlt foreground color
+
 
 /*
   Draw transparent pixmap using the black source method.
@@ -280,7 +282,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( mask ) {
 	if ( src_pm->data->selfmask ) {
-	    HBRUSH b = CreateSolidBrush( Qt::black.pixel() );
+	    uint   c = dst->paintingActive() ? qt_bitblt_foreground
+					     : Qt::black.pixel();
+	    HBRUSH b = CreateSolidBrush( c );
 	    COLORREF tc, bc;
 	    b = (HBRUSH)SelectObject( dst_dc, b );
 	    tc = SetTextColor( dst_dc, Qt::black.pixel() );

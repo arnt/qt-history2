@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#153 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -31,7 +31,7 @@
 #include "qt_windows.h"
 
 
-extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 
 /*
   QWinFont holds extra font settings for the painter.
@@ -1767,6 +1767,8 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 }
 
 
+extern uint qt_bitblt_foreground;		// in qpaintdevice_win.cpp
+
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 			   int sx, int sy, int sw, int sh )
 {
@@ -1828,34 +1830,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     if ( txop <= TxTranslate ) {		// use optimized bitBlt
-	if ( pixmap.mask() && pixmap.data->selfmask ) {
-	    if ( qt_winver == WV_NT ) {
-		// The other method fails on NT
-		MaskBlt( hdc, x, y, sw, sh, pixmap.handle(), sx, sy, 
-			 pixmap.mask()->hbm(), sx, sy, 
-			 MAKEROP4(0x00aa0029,SRCCOPY) );
-	    } else {
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-		COLORREF tc, bc;
-		b = (HBRUSH)SelectObject( hdc, b );
-		tc = SetTextColor( hdc, COLOR_VALUE(black) );
-		bc = SetBkColor( hdc, COLOR_VALUE(white) );
-		HDC pm_dc;
-		if ( pixmap.isMultiCellPixmap() ) {
-		    pm_dc = pixmap.multiCellHandle();
-		    sy += pixmap.multiCellOffset();
-		} else {
-		    pm_dc = pixmap.handle();
-		}
-		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
-		BitBlt( hdc, x, y, sw, sh, pm_dc, sx, sy, 0x00b8074a );
-		SetBkColor( hdc, bc );
-		SetTextColor( hdc, tc );
-		DeleteObject( SelectObject(hdc, b) );
-	    }
-	} else {
-	    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
-	}
+	if ( pixmap.depth() == 1 )
+	    qt_bitblt_foreground = COLOR_VALUE(cpen.data->color);
+	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 	return;
     }
 
@@ -1871,20 +1848,14 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	pm_offset = 0;
     }
 
-    /*
-     We now have either stretch or free xform
-     mask:
-	xform pixmap and mask and blt it again
-     no mask:
-        stretch: StretchBlt
-	xform: xform pixmap and mask and blt it (use native xform if NT)
-    */
-
     if ( txop == TxScale && !mask ) {
+	// Plain scaling and no mask, then StretchBlt is fastest
 	int w, h;
 	map( x, y, sw, sh, &x, &y, &w, &h );
 	StretchBlt( hdc, x, y, w, h, pm_dc, sx,sy+pm_offset, sw,sh, SRCCOPY );
     } else {
+	// We have a complex xform or scaling with mask, then xform the
+	// pixmap (and possible mask) and bitBlt again.
 	QWMatrix mat( m11(), m12(),
 		      m21(), m22(),
 		      dx(),  dy() );
@@ -2052,7 +2023,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	}
 	if ( txop >= TxScale && !nat_xf ) {
 	    // Draw scaled, rotated and shared text on Windows 95, 98
-
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
@@ -2077,8 +2047,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
 		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
-	    }
-	    else {
+	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
 		aw = w;
 		ah = h;
@@ -2088,6 +2057,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
 		QBitmap bm( aw, ah );		// create bitmap
+		if ( bm.optimization() == QPixmap::MemoryOptim )
+		    bm.setOptimization( QPixmap::BestOptim );
 		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
@@ -2131,13 +2102,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 	    if ( testf(ExtDev) ) {		// to printer
-		/*
-		if ( !wx_bm->mask() ) {
-		    qDebug( "adding mask" );
-		    wx_bm->setMask( *wx_bm );
-		    qDebug( "selfmask: %i", (int)wx_bm->selfMask() );
-		}
-		*/
 		uint oldf = flags;
 		flags &= ~(VxF|WxF);
 		drawPixmap( x, y, *wx_bm );

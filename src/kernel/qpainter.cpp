@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#177 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2752,7 +2752,7 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 {
     init( color, CustomPattern );
-    data->pixmap = new QPixmap( pixmap );
+    setPixmap( pixmap );
 }
 
 /*!
@@ -2912,10 +2912,17 @@ void QBrush::setColor( const QColor &c )
 void QBrush::setPixmap( const QPixmap &pixmap )
 {
     detach();
-    data->style = CustomPattern;
     if ( data->pixmap )
 	delete data->pixmap;
-    data->pixmap = new QPixmap( pixmap );
+    if ( pixmap.isNull() ) {
+	data->style  = NoBrush;
+	data->pixmap = 0;
+    } else {
+	data->style = CustomPattern;
+	data->pixmap = new QPixmap( pixmap );
+	if ( data->pixmap->optimization() == QPixmap::MemoryOptim )
+	    data->pixmap->setOptimization( QPixmap::NormalOptim );
+    }
 }
 
 
