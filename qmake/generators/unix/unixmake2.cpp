@@ -625,12 +625,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	//this is an implicity depend on moc, so it will be built if necesary, however
 	//moc itself shouldn't have this dependency - this is a little kludgy but it is
 	//better than the alternative for now.
-	QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET");
+	QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET"),
+	    moc_dir = "$(QTDIR)/src/moc";
+	if(!project->isEmpty("QMAKE_MOC_SRC"))
+	    moc_dir = project->first("QMAKE_MOC_SRC");
 	fixEnvVariables(target);
 	fixEnvVariables(moc);
 	if(target != moc) 
 	    t << "$(MOC): \n\t"
-	      << "( cd $(QTDIR)/src/moc ; $(MAKE) )"  << endl << endl;
+	      << "( cd " << moc_dir << " ; $(MAKE) )"  << endl << endl;
     }
 
     writeMakeQmake(t);
