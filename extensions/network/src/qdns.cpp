@@ -31,7 +31,11 @@
 #include "qapplication.h"
 #include "qvector.h"
 #include "qstrlist.h"
-#include <qptrdict.h>
+#include "qptrdict.h"
+
+#if defined(_OS_WIN32_)
+#include "qt_windows.h"
+#endif
 
 
 //#define DEBUG_QDNS
@@ -54,7 +58,7 @@ static Q_UINT32 now()
     if ( originOfTime )
 	return originOfTime->secsTo( QDateTime::currentDateTime() );
 
-    originOfTime == new QDateTime( QDateTime::currentDateTime() );
+    originOfTime = new QDateTime( QDateTime::currentDateTime() );
     qAddPostRoutine( cleanup );
     return 0;
 }
@@ -1113,7 +1117,7 @@ void QDns::setLabel( const QString & label )
     l = label;
     n.clear();
 
-    if ( l.length() > 1 && l[l.length()-1] == '.' ) {
+    if ( l.length() > 1 && l[(int)l.length()-1] == '.' ) {
 	n.append( l.left( l.length()-1 ).lower() );
     } else {
 	int i = l.length();
@@ -1385,6 +1389,29 @@ static void doResInit( void )
 
 #else
 
+//
+// We need to get information about DNS etc. from the Windows
+// registry.  We don't worry about Unicode strings here.
+//
+
+static QString getWindowsRegString( HKEY key, const char *subKey )
+{
+    QString s;
+    char  buf[512];
+    DWORD bsz = sizeof(buf);
+    int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+    if ( r == ERROR_SUCCESS ) {
+	s = buf;
+    } else if ( r == ERROR_MORE_DATA ) {
+	char *ptr = new char[bsz+1];
+	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
+	if ( r == ERROR_SUCCESS )
+	    s = ptr;
+	delete [] ptr;
+    }
+    return s;
+}
+
 // ######### UGLEHACK!!!!!!! ######### !!!!!!!!!!!! ###############
 
 static void doResInit( void )
@@ -1400,6 +1427,21 @@ static void doResInit( void )
 #if defined(DEBUG_QDNS)
     qDebug( "using name server %s", h->ip4AddrString().latin1() );
 #endif
+
+    QString domainName, nameServer, searchList;
+    HKEY k;
+    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
+			   "System\\CurrentControlSet\\Services\\Tcpip\\Parameters",
+			   0, KEY_READ, &k );
+    if ( r == ERROR_SUCCESS ) {
+	domainName = getWindowsRegString( k, "Domain" );
+	nameServer = getWindowsRegString( k, "NameServer" );
+	searchList = getWindowsRegString( k, "SearchList" );
+    } else {
+	// Could not access the TCP/IP parameters
+    }
+    RegCloseKey( k );
+
     // \HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
     // contains three strings we need to read.
 
