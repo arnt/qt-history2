@@ -2627,8 +2627,6 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
 
-    QVariant temp;
-
     switch (call) {
     case QMetaObject::ReadProperty:
 	params.cArgs = 0;
