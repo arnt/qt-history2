@@ -1272,9 +1272,8 @@ void QTextParagraph::init()
 QTextParagraph::~QTextParagraph()
 {
     formats->unregisterFormat( format );
-    QTextParagraph* tmp = child;
     while ( child ) {
-	tmp = child;
+	QTextParagraph* tmp = child;
 	child = child->next;
 	delete tmp;
     }
@@ -1659,8 +1658,7 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
     case QStyleSheetItem::ListLowerAlpha:
     case QStyleSheetItem::ListUpperAlpha:
 	{
-	    int n = 1;
-	    n = par->parent->numberOfSubParagraph( par, TRUE );
+	    int n = par->parent->numberOfSubParagraph( par, TRUE );
 	    QString l;
 	    switch ( s ) {
 	    case QStyleSheetItem::ListLowerAlpha:
@@ -1793,13 +1791,15 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	} else {
 	    c = paragraph->text.charAt( current );
 	    int l = c.length();
-	    while ( l>0 && c[l-1]=='\n' )
-		l--;
-	    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+	    while ( l>0 && ( c[l-1]=='\n' || c[l-1]=='\r' ) )
+		--l;
+	    if ( l ) 
+		p->drawText(gx+currentx-ox, gy-oy+base, c, l );
 	    if ( only_partially_highlighted ) {
 		p->setClipRect( highlight );
 		p->setPen( cg.highlightedText() );
-		p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+		if ( l )
+		    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
 		p->setClipping( FALSE );
 	    }
 	}
@@ -2022,8 +2022,6 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	p->setFont( fmt->font() );
     QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     int space_width = fm.width(' ');
-    int fm_ascent = fm.ascent();
-    int fm_height = fm.height();
 
     widthUsed = 0;
 
@@ -2039,8 +2037,6 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	    else
 		fm = QFontMetrics( fmt->font() );
 	    space_width = fm.width(' ');
-	    fm_ascent = fm.ascent();
-	    fm_height = fm.height();
 	}
 
 	QTextRichString::Item* item = &paragraph->text.items[current];
@@ -2254,7 +2250,7 @@ void QTextFlow::drawFloatingItems(QPainter* p,
 				   int ox, int oy, int cx, int cy, int cw, int ch,
 				   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
-    QTextCustomItem *item = 0;
+    QTextCustomItem *item;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
 	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
@@ -2734,7 +2730,7 @@ QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &f
 
 void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 {
-    QTextCharFormat* f  = 0;
+    QTextCharFormat* f;
 
     if ( format.isAnchor() ) {
 	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
