@@ -24,6 +24,7 @@
 #include <qfile.h>
 #include <qhash.h>
 #include <qmetaobject.h>
+#include <quuid.h>
 #include <qwidget.h>
 
 #include <qt_windows.h>

@@ -13,8 +13,8 @@
 ****************************************************************************/
 
 #include "qaxbase.h"
+#include <quuid.h>
 #include <qt_windows.h>
-
 
 #include "../shared/types.h"
 

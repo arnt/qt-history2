@@ -26,6 +26,7 @@
 #include <qpointer.h>
 #include <qregexp.h>
 #include <qstatusbar.h>
+#include <quuid.h>
 #include <qwhatsthis.h>
 
 #include <ocidl.h>
