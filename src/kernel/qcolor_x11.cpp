@@ -210,10 +210,11 @@ void QColor::initialize()
     Display *dpy  = QPaintDevice::x11AppDisplay();
     int	     spec = QApplication::colorSpec();
 
-    screendata = new QColorScreenData*[ ScreenCount( dpy ) ];
+    screencount = ScreenCount( dpy );
+    screendata = new QColorScreenData*[ screencount ];
 
     int scr;
-    for ( scr = 0; scr < ScreenCount( dpy ); scr++ ) {
+    for ( scr = 0; scr < screencount; ++scr ) {
 	screendata[scr] = new QColorScreenData;
         screendata[scr]->g_vis = (Visual *) QPaintDevice::x11AppVisual( scr );
 	screendata[scr]->g_truecolor = screendata[scr]->g_vis->c_class == TrueColor;
@@ -785,8 +786,7 @@ void QColor::destroyAllocContext( int context )
 	return;
 
     int screen;
-    for ( screen = 0; screen < ScreenCount( QPaintDevice::x11AppDisplay() );
-	  screen++ ) {
+    for ( screen = 0; screen < screencount; ++screencount ) {
 	if ( screendata[screen]->g_truecolor )
 	    continue;
 
