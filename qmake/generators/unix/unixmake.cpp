@@ -124,7 +124,7 @@ UnixMakefileGenerator::init()
     }
     if(!project->isEmpty("ALLMOC_HEADER")) {
         initOutPaths();         // Need to fix outdirs since we do this before init() (because we could add to SOURCES et al)
-        QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentDirPath(), Option::output_dir);
+        QString allmoc = fileFixify(project->first("MOC_DIR") + "/allmoc.cpp", QDir::currentPath(), Option::output_dir);
         project->variables()["SOURCES"].prepend(allmoc);
         project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
         project->variables()["HEADERS"].clear();
@@ -579,7 +579,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             if(!project->isEmpty("DESTDIR")) {
                 src_lt.prepend(var("DESTDIR"));
                 src_lt = Option::fixPathToLocalOS(fileFixify(src_lt,
-                                                             QDir::currentDirPath(), Option::output_dir, FileFixifyAbsolute));
+                                                             QDir::currentPath(), Option::output_dir, FileFixifyAbsolute));
             }
             if(!ret.isEmpty())
                 ret += "\n\t";
@@ -602,7 +602,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             if(!project->isEmpty("DESTDIR")) {
                 src_pc.prepend(var("DESTDIR"));
                 src_pc = Option::fixPathToLocalOS(fileFixify(src_pc,
-                                                             QDir::currentDirPath(), Option::output_dir, FileFixifyAbsolute));
+                                                             QDir::currentPath(), Option::output_dir, FileFixifyAbsolute));
             }
             if(!ret.isEmpty())
                 ret += "\n\t";

@@ -128,7 +128,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
                     if(QFile::exists(dirs[i] + (*lst_it))) {
                         QString targ = dirs[i] + (*lst_it);
                         if(QDir::isRelativePath(targ))
-                            targ.prepend(QDir::currentDirPath() + QDir::separator());
+                            targ.prepend(QDir::currentPath() + QDir::separator());
                         vars["QMAKE_PRL_TARGET"] << targ;
                         found = true;
                     }

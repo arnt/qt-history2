@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 #include <qfileinfo.h>
+#include <qdatetime.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <qregexp.h>
@@ -143,7 +144,7 @@ main(int argc, char **argv)
                 qDebug("Read file %s [Compressed %d%%]", files[file].filePath().latin1(), compressRatio);
             
             //header
-            const QString resource = QDir::cleanDirPath(prefix + "/" + files[file].filePath());
+            const QString resource = QDir::cleanPath(prefix + "/" + files[file].filePath());
             QString resource_name = resource;
             resource_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
             uchar flags = 0;

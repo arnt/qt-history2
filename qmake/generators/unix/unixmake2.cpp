@@ -98,7 +98,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(QDir::currentDirPath());
+        QString pwd = fileFixify(QDir::currentPath());
         if(pwd.isEmpty())
             pwd = ".";
         t << " -I" << pwd;
@@ -373,7 +373,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 } else {
                     if(!incr_objs.isEmpty())
                         incr_objs += " ";
-                    incr_objs += "-L" + QDir::currentDirPath();
+                    incr_objs += "-L" + QDir::currentPath();
                 }
                 if(!incr_objs.isEmpty())
                     incr_objs += " ";
@@ -715,13 +715,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
             QFileInfo fi((*it));
             QString dir;
-            if(fi.dirPath() != ".")
-                dir = fi.dirPath() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+            if(fi.path() != ".")
+                dir = fi.path() + Option::dir_sep;
+            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
-            clean << (dir + fi.baseName(true) + Option::yacc_mod + Option::cpp_ext.first());
-            clean << (dir + fi.baseName(true) + Option::yacc_mod + Option::h_ext.first());
+            clean << (dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first());
+            clean << (dir + fi.completeBaseName() + Option::yacc_mod + Option::h_ext.first());
         }
         if(!clean.isEmpty()) {
             t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
@@ -735,12 +735,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
             QFileInfo fi((*it));
             QString dir;
-            if(fi.dirPath() != ".")
-                dir = fi.dirPath() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+            if(fi.path() != ".")
+                dir = fi.path() + Option::dir_sep;
+            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
-            clean << (dir + fi.baseName(true) + Option::lex_mod + Option::cpp_ext.first());
+            clean << (dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first());
         }
         if(!clean.isEmpty()) {
             t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
@@ -1036,7 +1036,7 @@ void UnixMakefileGenerator::init2()
             QString rpath_destdir = destdir;
             if(QDir::isRelativePath(rpath_destdir)) {
                 QFileInfo fi(Option::fixPathToLocalOS(rpath_destdir));
-                if(fi.convertToAbs())  //strange, shouldn't really happen
+                if(fi.makeAbsolute())  //strange, shouldn't really happen
                     rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
                 else
                     rpath_destdir = fi.filePath();
@@ -1061,7 +1061,7 @@ UnixMakefileGenerator::libtoolFileName()
     ret += Option::libtool_ext;
     if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
-        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentDirPath(), Option::output_dir));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentPath(), Option::output_dir));
     }
     return ret;
 }
@@ -1150,7 +1150,7 @@ UnixMakefileGenerator::pkgConfigFileName()
     ret += Option::pkgcfg_ext;
     if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
-        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentDirPath(), Option::output_dir));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentPath(), Option::output_dir));
     }
     return ret;
 }

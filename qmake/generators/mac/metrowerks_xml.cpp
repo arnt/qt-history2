@@ -295,7 +295,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                 if(arg == "INCLUDEPATH") {
                     list = project->variables()[arg];
                     list << Option::mkfile::qmakespec;
-                    list << QDir::current().currentDirPath();
+                    list << QDir::current().currentPath();
 
                     QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
                     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -544,7 +544,7 @@ MetrowerksMakefileGenerator::init()
         project->variables()["UICS"].append(uicfile + ".uics");
     }
     if(project->isEmpty("DESTDIR"))
-        project->variables()["DESTDIR"].append(QDir::currentDirPath());
+        project->variables()["DESTDIR"].append(QDir::currentPath());
     MakefileGenerator::init();
 
     if (project->isActiveConfig("opengl")) {
@@ -675,12 +675,12 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool)
             p = p.right(p.length() - eoc - 1);
         } else {
             QFileInfo fi(p);
-            if(fi.convertToAbs()) //strange
+            if(fi.makeAbsolute()) //strange
                 return false;
             p = fi.filePath();
         }
     }
-    p = QDir::cleanDirPath(p);
+    p = QDir::cleanPath(p);
     if(!volume.isEmpty())
         v = volume;
     p.replace("/", ":");

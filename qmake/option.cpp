@@ -269,7 +269,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
                     Option::prop::properties.append(arg);
                 } else {
                     QFileInfo fi(arg);
-                    if(!fi.convertToAbs()) //strange
+                    if(!fi.makeAbsolute()) //strange
                         arg = fi.filePath();
                     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
                        Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
@@ -368,7 +368,7 @@ Option::parseCommandLine(int argc, char **argv)
 
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
-            QString pwd = QDir::currentDirPath(),
+            QString pwd = QDir::currentPath(),
                    proj = pwd + "/" + pwd.right(pwd.length() - (pwd.lastIndexOf('/') + 1)) + Option::pro_ext;
             if(QFile::exists(proj)) {
                 Option::mkfile::project_files.append(proj);
@@ -461,7 +461,7 @@ static QString fixPath(QString x)
         x = dir + fi.fileName();
     }
 #endif
-    return QDir::cleanDirPath(x);
+    return QDir::cleanPath(x);
 }
 
 

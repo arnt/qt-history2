@@ -76,7 +76,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     // includes
     mocargs += " -I" + specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(QDir::currentDirPath());
+        QString pwd = fileFixify(QDir::currentPath());
         if(pwd.isEmpty())
             pwd = ".";
         mocargs += " -I" + pwd;
@@ -1025,7 +1025,7 @@ DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
 {
     if(project->isActiveConfig("flat"))
         return;
-    fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), FileFixifyRelative);
+    fileFixify(file, QDir::currentPath(), QDir::currentPath(), FileFixifyRelative);
     file = file.section(Option::dir_sep, 0, -2);
     if(file.right(Option::dir_sep.length()) != Option::dir_sep)
         file += Option::dir_sep;
@@ -1103,7 +1103,7 @@ DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
                 hypenfind = ofile.indexOf('-', hypenfind + 1);
             }
         }
-        file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + ofile));
+        file.setName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + ofile));
     }
     return Win32MakefileGenerator::openOutput(file, build);
 }

@@ -236,7 +236,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     QList<VcsolutionDepend*> solution_cleanup;
 
     QStringList subdirs = project->variables()["SUBDIRS"];
-    QString oldpwd = QDir::currentDirPath();
+    QString oldpwd = QDir::currentPath();
 
 
     for(int i = 0; i < subdirs.size(); ++i) {
@@ -251,7 +251,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                 subdirs.append(profile);
             } else {
                 QMakeProject tmp_proj;
-                QString dir = fi.dirPath(), fn = fi.fileName();
+                QString dir = fi.path(), fn = fi.fileName();
                 if(!dir.isEmpty()) {
                     if(!QDir::setCurrent(dir))
                         fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
@@ -280,8 +280,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
                         // If file doesn't exsist, then maybe the users configuration
                         // doesn't allow it to be created. Skip to next...
-                        if(!QFile::exists(QDir::currentDirPath() + Option::dir_sep + vcproj)) {
-                            warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(QDir::currentDirPath() + Option::dir_sep + vcproj).latin1());
+                        if(!QFile::exists(QDir::currentPath() + Option::dir_sep + vcproj)) {
+                            warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(QDir::currentPath() + Option::dir_sep + vcproj).latin1());
                             goto nextfile; // # Dirty!
                         }
 
@@ -291,7 +291,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         newDep->target = tmp_proj.first("MSVCPROJ_TARGET").section(Option::dir_sep, -1);
                         newDep->targetType = tmp_vcproj.projectTarget;
                         newDep->debugBuild = tmp_proj.isActiveConfig("debug");
-                        newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + vcproj)).toString().toUpper();
+                        newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentPath() + QDir::separator() + vcproj)).toString().toUpper();
 
                         // We want to store it as the .lib name.
                         if(newDep->target.endsWith(".dll"))
@@ -739,7 +739,7 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
     args += " -I" + specdir();
     args += varGlue("INCLUDEPATH"," -I", " -I", "");
     if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(QDir::currentDirPath());
+        QString pwd = fileFixify(QDir::currentPath());
         if(pwd.isEmpty())
             pwd = ".";
         args += " -I\"" + pwd + "\"";
@@ -1120,7 +1120,7 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
         file.setName(outdir + project->first("TARGET") + ext);
     }
     if(QDir::isRelativePath(file.name()))
-        file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + fixFilename(file.name())));
+        file.setName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + fixFilename(file.name())));
     return Win32MakefileGenerator::openOutput(file, build);
 }
 

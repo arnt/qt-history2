@@ -15,6 +15,7 @@
 #include "project.h"
 #include "property.h"
 #include "option.h"
+#include <qdatetime.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <qregexp.h>
@@ -1149,12 +1150,12 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
         QStringList include_roots;
         include_roots << Option::output_dir;
         if(parser.from_file) {
-            QString pfilewd = QFileInfo(parser.file).dirPath();
+            QString pfilewd = QFileInfo(parser.file).path();
             if(pfilewd.isEmpty())
                 include_roots << pfilewd;
         }
-        if(Option::output_dir != QDir::currentDirPath())
-            include_roots << QDir::currentDirPath();
+        if(Option::output_dir != QDir::currentPath())
+            include_roots << QDir::currentPath();
         for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
             if(QFile::exists((*it) + QDir::separator() + file)) {
                 file = (*it) + QDir::separator() + file;
@@ -1172,7 +1173,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     QString orig_file = file;
     int di = file.lastIndexOf(Option::dir_sep);
     QDir sunworkshop42workaround = QDir::current();
-    QString oldpwd = sunworkshop42workaround.currentDirPath();
+    QString oldpwd = sunworkshop42workaround.currentPath();
     if(di != -1) {
         if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
             fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
@@ -1237,7 +1238,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(QFile::exists(file))
             return true;
         //regular expression I guess
-        QString dirstr = QDir::currentDirPath();
+        QString dirstr = QDir::currentPath();
         int slsh = file.lastIndexOf(Option::dir_sep);
         if(slsh != -1) {
             dirstr = file.left(slsh+1);
@@ -1313,7 +1314,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         fixEnvVariables(file);
         int di = file.lastIndexOf(Option::dir_sep);
         QDir sunworkshop42workaround = QDir::current();
-        QString oldpwd = sunworkshop42workaround.currentDirPath();
+        QString oldpwd = sunworkshop42workaround.currentPath();
         if(di != -1) {
             if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
                 fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
@@ -1557,7 +1558,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
             else if(val == "LITERAL_HASH") //a real # (ie not a comment)
                 replacement = "#";
             else if(val == "PWD") //current working dir (of _FILE_)
-                replacement = QDir::currentDirPath();
+                replacement = QDir::currentPath();
             else if(val == "DIR_SEPARATOR")
                 replacement = Option::dir_sep;
             else if(val == "_LINE_") //parser line number
@@ -1807,7 +1808,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         dirs.append(r.left(slash));
                         r = r.mid(slash+1);
                     } else {
-                        dirs.append(QDir::currentDirPath());
+                        dirs.append(QDir::currentPath());
                     }
 
                     const QRegExp regex(r, QString::CaseSensitive, QRegExp::Wildcard);

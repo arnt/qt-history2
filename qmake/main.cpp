@@ -36,7 +36,7 @@ int main(int argc, char **argv)
         return 666;
 
     QDir sunworkshop42workaround = QDir::current();
-    QString oldpwd = sunworkshop42workaround.currentDirPath();
+    QString oldpwd = sunworkshop42workaround.currentPath();
 #ifdef Q_WS_WIN
     if(!(oldpwd.length() == 3 && oldpwd[0].isLetter() && oldpwd.endsWith(":/")))
 #endif
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         if(fi.isDir()) {
             dir = fi.filePath();
         } else {
-            QString tmp_dir = fi.dirPath();
+            QString tmp_dir = fi.path();
             if(!tmp_dir.isEmpty() && QFile::exists(tmp_dir))
                 dir = tmp_dir;
         }

@@ -41,7 +41,7 @@ static QByteArray combinePath(const char *infile, const char *outfile)
           The paths don't have the same drive, or they don't have the
           same root directory. Use an absolute path.
         */
-        return QFile::encodeName(inFileInfo.absFilePath());
+        return QFile::encodeName(inFileInfo.absoluteFilePath());
     } else {
         /*
           The paths have something in common. Use a path relative to

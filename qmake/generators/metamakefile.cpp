@@ -100,7 +100,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             if(!(Option::output.state() & IO_Open)) {
                 if(Option::output.name() == "-") {
                     Option::output.setName("");
-                    Option::output_dir = QDir::currentDirPath();
+                    Option::output_dir = QDir::currentPath();
                     Option::output.open(IO_WriteOnly | IO_Translate, stdout);
                     using_stdout = true;
                 } else {

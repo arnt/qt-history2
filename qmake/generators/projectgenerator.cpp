@@ -14,6 +14,7 @@
 
 #include "projectgenerator.h"
 #include "option.h"
+#include <qdatetime.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -65,7 +66,7 @@ ProjectGenerator::init()
         if(Option::projfile::do_pwd) {
             if(!v["INCLUDEPATH"].contains("."))
                 v["INCLUDEPATH"] += ".";
-            dirs.prepend(QDir::currentDirPath());
+            dirs.prepend(QDir::currentPath());
         }
 
         for(int i = 0; i < dirs.count(); ++i) {
@@ -125,7 +126,7 @@ ProjectGenerator::init()
             }
             if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
                 QFileInfo fi(dir);
-                if(fi.absFilePath() != QDir::currentDirPath())
+                if(fi.absoluteFilePath() != QDir::currentPath())
                     v["DEPENDPATH"] += fileFixify(dir);
             }
         }
@@ -365,7 +366,7 @@ ProjectGenerator::addConfig(const QString &cfg, bool add)
 bool
 ProjectGenerator::addFile(QString file)
 {
-    file = fileFixify(file, QDir::currentDirPath());
+    file = fileFixify(file, QDir::currentPath());
     QString dir;
     int s = file.lastIndexOf(Option::dir_sep);
     if(s != -1)
@@ -452,10 +453,10 @@ ProjectGenerator::openOutput(QFile &file, const QString &build) const
     if(!file.name().isEmpty()) {
         QFileInfo fi(file);
         if(fi.isDir())
-            outdir = fi.dirPath() + QDir::separator();
+            outdir = fi.path() + QDir::separator();
     }
     if(!outdir.isEmpty() || file.name().isEmpty()) {
-        QString dir = QDir::currentDirPath();
+        QString dir = QDir::currentPath();
         int s = dir.lastIndexOf('/');
         if(s != -1)
             dir = dir.right(dir.length() - (s + 1));

@@ -1918,7 +1918,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             CustomBuildTool.ToolName += " ";
         CustomBuildTool.ToolName += finf.baseName();
         if (CustomBuildTool.ToolPath.isEmpty())
-            CustomBuildTool.ToolPath += finf.dirPath();
+            CustomBuildTool.ToolPath += finf.path();
         CustomBuildTool.Outputs += out;
 
         // Make sure that all deps are only once        

@@ -453,9 +453,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             QMakeLocalFileName lfn(inc);
             if(QDir::isRelativePath(lfn.real())) {
                 if(try_local) {
-                    QString dir = QFileInfo(file->file.local()).dirPath();
+                    QString dir = QFileInfo(file->file.local()).path();
                     if(QDir::isRelativePath(dir)) 
-                        dir.prepend(QDir::currentDirPath() + "/");
+                        dir.prepend(QDir::currentPath() + "/");
                     if(!dir.endsWith("/"))
                         dir += "/";
                     QMakeLocalFileName f(dir + lfn.local());

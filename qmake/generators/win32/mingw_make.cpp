@@ -246,7 +246,7 @@ void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)
 {
     if(!project->variables()["RC_FILE"].isEmpty()) {
         t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
-          << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RC_FILE").replace(QRegExp("\\.rc"),".o") << " --include-dir=" << QFileInfo(var("RC_FILE")).dirPath() << endl << endl;
+          << var("QMAKE_RC") << " -i " << var("RC_FILE") << " -o " << var("RC_FILE").replace(QRegExp("\\.rc"),".o") << " --include-dir=" << QFileInfo(var("RC_FILE")).path() << endl << endl;
     }
     // Somewhat useless call I think...
     project->variables()["RES_FILE"].value(0).replace(QRegExp("\\.rc"),".o");
