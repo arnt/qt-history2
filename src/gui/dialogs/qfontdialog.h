@@ -57,7 +57,7 @@ private:
 private:
     Q_PRIVATE_SLOT(d, void sizeChanged(const QString &))
     Q_PRIVATE_SLOT(d, void familyHighlighted(int))
-    Q_PRIVATE_SLOT(d, void scriptHighlighted(int))
+    Q_PRIVATE_SLOT(d, void writingSystemHighlighted(int))
     Q_PRIVATE_SLOT(d, void styleHighlighted(int))
     Q_PRIVATE_SLOT(d, void sizeHighlighted(int))
     Q_PRIVATE_SLOT(d, void updateSample())

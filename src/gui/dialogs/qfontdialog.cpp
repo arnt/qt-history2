@@ -148,12 +148,13 @@ class QFontDialogPrivate : public QDialogPrivate
 {
     Q_DECLARE_PUBLIC(QFontDialog)
 public:
-    // ###
-    // QFontDialogPrivate() : script(QFontPrivate::defaultScript) {};
+    inline QFontDialogPrivate()
+        : writingSystem(QFontDatabase::Any)
+    { }
 
     void sizeChanged(const QString &);
     void familyHighlighted(int);
-    void scriptHighlighted(int);
+    void writingSystemHighlighted(int);
     void styleHighlighted(int);
     void sizeHighlighted(int);
     void updateSample();
@@ -178,8 +179,8 @@ public:
     QGroupBox * sample;
     QLineEdit * sampleEdit;
 
-    QLabel * scriptAccel;
-    QComboBox * scriptCombo;
+    QLabel * writingSystemAccel;
+    QComboBox * writingSystemCombo;
 
     QPushButton * ok;
     QPushButton * cancel;
@@ -192,8 +193,7 @@ public:
     QFontDatabase fdb;
 
     QString       family;
-    // ###
-    // QFont::Script script;
+    QFontDatabase::WritingSystem writingSystem;
     QString       style;
     int           size;
 
@@ -268,39 +268,38 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->sampleEdit->setText("AaBbYyZz");
     hbox->addWidget(d->sampleEdit);
 
-    d->scriptCombo = new QComboBox(this);
+    d->writingSystemCombo = new QComboBox(this);
 
-    d->scriptAccel = new QLabel(tr("Scr&ipt"), this);
-    d->scriptAccel->setBuddy(d->scriptCombo);
-    d->scriptAccel->setIndent(2);
+    d->writingSystemAccel = new QLabel(tr("Wr&iting System"), this);
+    d->writingSystemAccel->setBuddy(d->writingSystemCombo);
+    d->writingSystemAccel->setIndent(2);
 
     d->size = 0;
     d->smoothScalable = false;
 
-    connect(d->scriptCombo, SIGNAL(activated(int)),
-             SLOT(scriptHighlighted(int)));
+    connect(d->writingSystemCombo, SIGNAL(activated(int)),
+            SLOT(writingSystemHighlighted(int)));
     connect(d->familyList, SIGNAL(highlighted(int)),
-             SLOT(familyHighlighted(int)));
+            SLOT(familyHighlighted(int)));
     connect(d->styleList, SIGNAL(highlighted(int)),
-             SLOT(styleHighlighted(int)));
+            SLOT(styleHighlighted(int)));
     connect(d->sizeList, SIGNAL(highlighted(int)),
-             SLOT(sizeHighlighted(int)));
+            SLOT(sizeHighlighted(int)));
     connect(d->sizeEdit, SIGNAL(textChanged(QString)),
-             SLOT(sizeChanged(QString)));
+            SLOT(sizeChanged(QString)));
 
     connect(d->strikeout, SIGNAL(clicked()),
-             SLOT(updateSample()));
+            SLOT(updateSample()));
     connect(d->underline, SIGNAL(clicked()),
-             SLOT(updateSample()));
+            SLOT(updateSample()));
 
-    // ###
-#if 0
-    for (int i = 0; i < QFont::NScripts; i++) {
-        QString scriptname = QFontDatabase::scriptName((QFont::Script) i);
-        if (!scriptname.isEmpty())
-            d->scriptCombo->addItem(scriptname);
+    QList<QFontDatabase::WritingSystem> writingSystems = d->fdb.writingSystems();
+    writingSystems.prepend(QFontDatabase::Any);
+    for (int i = 0; i < writingSystems.count(); ++i) {
+        QString writingSystemName = QFontDatabase::writingSystemName(writingSystems.at(i));
+        if (!writingSystemName.isEmpty())
+            d->writingSystemCombo->addItem(writingSystemName);
     }
-#endif
 
     updateFamilies();
     if (d->familyList->count() != 0)
@@ -337,9 +336,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
 
     mainGrid->addWidget(d->sample, 4, 2, 4, 3);
 
-    mainGrid->addWidget(d->scriptAccel, 5, 0);
+    mainGrid->addWidget(d->writingSystemAccel, 5, 0);
     mainGrid->setRowSpacing(6, 2);
-    mainGrid->addWidget(d->scriptCombo, 7, 0);
+    mainGrid->addWidget(d->writingSystemCombo, 7, 0);
 
     mainGrid->setRowSpacing(8, 12);
 
@@ -533,9 +532,8 @@ void QFontDialog::updateFamilies()
 
     enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_APP=2, MATCH_FALLBACK, MATCH_FAMILY=3 };
 
-    // ###
+    QStringList familyNames = d->fdb.families(d->writingSystem);
 #if 0
-    QStringList familyNames = d->fdb.families(d->script);
     {
         // merge the unicode/unknown family list with the above list.
         QStringList l = d->fdb.families(QFont::Unicode) +
@@ -546,8 +544,6 @@ void QFontDialog::updateFamilies()
                 familyNames << *it;
         }
     }
-#else
-    QStringList familyNames = d->fdb.families();
 #endif
 
     familyNames.sort();
@@ -583,10 +579,10 @@ void QFontDialog::updateFamilies()
         //and try some fall backs
         match_t type = MATCH_NONE;
         if (bestFamilyType <= MATCH_NONE && familyName2 == f.lastResortFamily())
-                type = MATCH_LAST_RESORT;
+            type = MATCH_LAST_RESORT;
         if (bestFamilyType <= MATCH_LAST_RESORT && familyName2 == f.family())
-                type = MATCH_APP;
-        // ### add fallback for script
+            type = MATCH_APP;
+        // ### add fallback for writingSystem
         if (type != MATCH_NONE) {
             bestFamilyType = type;
             bestFamilyMatch = i;
@@ -599,7 +595,7 @@ void QFontDialog::updateFamilies()
         d->familyList->setCurrentItem(0);
     d->familyEdit->setText(d->familyList->currentText());
     if (style()->styleHint(QStyle::SH_FontDialog_SelectAssociatedText, 0, this) &&
-         d->familyList->hasFocus())
+        d->familyList->hasFocus())
         d->familyEdit->selectAll();
 
     d->familyList->blockSignals(false);
@@ -720,12 +716,11 @@ void QFontDialogPrivate::updateSample()
 /*!
     \internal
 */
-void QFontDialogPrivate::scriptHighlighted(int)
+void QFontDialogPrivate::writingSystemHighlighted(int index)
 {
     Q_Q(QFontDialog);
-    // ###
-    // script = index;
-    // sampleEdit->setText(fdb.scriptSample(script));
+    writingSystem = QFontDatabase::WritingSystem(index);
+    sampleEdit->setText(fdb.writingSystemSample(writingSystem));
     q->updateFamilies();
 }
 

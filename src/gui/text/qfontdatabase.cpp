@@ -767,15 +767,14 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
     FM_DEBUG("QFontDatabase::findFont\n"
              "  request:\n"
-             "    family: %s [%s], script: %d (%s)\n"
+             "    family: %s [%s], script: %d\n"
              "    weight: %d, style: %d\n"
              "    stretch: %d\n"
              "    pixelSize: %d\n"
              "    pitch: %c",
              family_name.isEmpty() ? "-- first in script --" : family_name.toLatin1().constData(),
              foundry_name.isEmpty() ? "-- any --" : foundry_name.toLatin1().constData(),
-             script, scriptName(script).toLatin1().constData(),
-             request.weight, request.style, request.stretch, request.pixelSize, pitch);
+             script, request.weight, request.style, request.stretch, request.pixelSize, pitch);
 #if defined(FONT_MATCH_DEBUG)
     if (force_encoding_id >= 0) {
         FM_DEBUG("    required encoding: %d", force_encoding_id);
@@ -981,6 +980,56 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 }
 
 
+static int scriptForWritingSystem(QFontDatabase::WritingSystem writingSystem)
+{
+    switch (writingSystem) {
+    case QFontDatabase::Hebrew:
+        return QUnicodeTables::Hebrew;
+    case QFontDatabase::Arabic:
+        return QUnicodeTables::Arabic;
+    case QFontDatabase::Syriac:
+        return QUnicodeTables::Syriac;
+    case QFontDatabase::Thaana:
+        return QUnicodeTables::Thaana;
+    case QFontDatabase::Devanagari:
+        return QUnicodeTables::Devanagari;
+    case QFontDatabase::Bengali:
+        return QUnicodeTables::Bengali;
+    case QFontDatabase::Gurmukhi:
+        return QUnicodeTables::Gurmukhi;
+    case QFontDatabase::Gujarati:
+        return QUnicodeTables::Gujarati;
+    case QFontDatabase::Oriya:
+        return QUnicodeTables::Oriya;
+    case QFontDatabase::Tamil:
+        return QUnicodeTables::Tamil;
+    case QFontDatabase::Telugu:
+        return QUnicodeTables::Telugu;
+    case QFontDatabase::Kannada:
+        return QUnicodeTables::Kannada;
+    case QFontDatabase::Malayalam:
+        return QUnicodeTables::Malayalam;
+    case QFontDatabase::Sinhala:
+        return QUnicodeTables::Sinhala;
+    case QFontDatabase::Thai:
+        return QUnicodeTables::Thai;
+    case QFontDatabase::Lao:
+        return QUnicodeTables::Lao;
+    case QFontDatabase::Tibetan:
+        return QUnicodeTables::Tibetan;
+    case QFontDatabase::Myanmar:
+        return QUnicodeTables::Myanmar;
+    case QFontDatabase::Korean:
+        return QUnicodeTables::Hangul;
+    case QFontDatabase::Khmer:
+        return QUnicodeTables::Khmer;
+    default:
+        break;
+    }
+    return QUnicodeTables::Common;
+}
+
+
 static QString styleString(int weight, QFont::Style style)
 {
     QString result;
@@ -1096,52 +1145,46 @@ QFontDatabase::QFontDatabase()
     d = db;
 }
 
-
-/*! Returns a sorted list of the names of the available font families.
-
-    If a family exists in several foundries, the returned name for
-    that font is in the form "family [foundry]". Examples: "Times
-    [Adobe]", "Times [Cronyx]", "Palatino".
-*/
-QStringList QFontDatabase::families() const
-{
-    load();
-
-    QStringList flist;
-    for (int i = 0; i < d->count; i++) {
-        QtFontFamily *f = d->families[i];
-        if (f->count == 0)
-            continue;
-        if (f->count == 1) {
-            flist.append(f->name);
-        } else {
-            for (int j = 0; j < f->count; j++) {
-                QString str = f->name;
-                QString foundry = f->foundries[j]->name;
-                if (!foundry.isEmpty()) {
-                    str += " [";
-                    str += foundry;
-                    str += "]";
-                }
-                flist.append(str);
-            }
-        }
-    }
-    return flist;
-}
-
-#if 0
 /*!
-    \overload
+    Returns a sorted list of the available writing systems. This is
+    list generated from information about all installed fonts on the
+    system.
 
+    \sa QFontDatabase::WritingSystem families
+*/
+QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
+{
+    load();
+
+    QList<WritingSystem> list;
+    for (int i = 0; i < d->count; ++i) {
+        QtFontFamily *family = d->families[i];
+        if (family->count == 0)
+            continue;
+        for (int x = Latin; x < WritingSystemsCount; ++x) {
+            const WritingSystem ws = WritingSystem(x);
+            if (!family->scripts[scriptForWritingSystem(ws)])
+                continue;
+            if (!list.contains(ws))
+                list.append(ws);
+        }
+    }
+    qSort(list);
+    return list;
+}
+
+
+/*!
     Returns a sorted list of the available font families which support
-    the Unicode script \a script.
+    the \a writingSystem.
 
     If a family exists in several foundries, the returned name for
     that font is in the form "family [foundry]". Examples: "Times
     [Adobe]", "Times [Cronyx]", "Palatino".
+
+    \sa writingSystems
 */
-QStringList QFontDatabase::families(int script) const
+QStringList QFontDatabase::families(WritingSystem writingSystem) const
 {
     load();
 
@@ -1150,7 +1193,7 @@ QStringList QFontDatabase::families(int script) const
         QtFontFamily *f = d->families[i];
         if (f->count == 0)
             continue;
-        if (!(f->scripts[script] & QtFontFamily::Supported))
+        if (writingSystem != Any && !f->scripts[scriptForWritingSystem(writingSystem)])
             continue;
         if (f->count == 1) {
             flist.append(f->name);
@@ -1169,12 +1212,13 @@ QStringList QFontDatabase::families(int script) const
     }
     return flist;
 }
-#endif
 
 /*!
     Returns a list of the styles available for the font family \a
     family. Some example styles: "Light", "Light Italic", "Bold",
     "Oblique", "Demi". The list may be empty.
+
+    \sa families
 */
 QStringList QFontDatabase::styles(const QString &family) const
 {
@@ -1603,78 +1647,132 @@ int QFontDatabase::weight(const QString &family,
 
 
 /*!
-    Returns a string that gives a default description of the \a script
-    (e.g. for displaying to the user in a dialog).  The name matches
-    the name of the script as defined by the Unicode 3.0 standard.
+    Returns the names the \a writingSystem (e.g. for displaying to the
+    user in a dialog).
 */
-QString QFontDatabase::scriptName(int script)
+QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
 {
-    Q_ASSERT_X(script >= 0 && script < QUnicodeTables::ScriptCount, "QFontDatabase::scriptName",
-               "argument out of range");
     const char *name = 0;
-    switch (script) {
-    case QUnicodeTables::Latin:
+    switch (writingSystem) {
+    case Any:
+        name = "Any";
+        break;
+    case Latin:
         name = "Latin";
         break;
-    case QUnicodeTables::Hebrew:
+    case Greek:
+        name = "Greek";
+        break;
+    case Cyrillic:
+        name = "Cyrillic";
+        break;
+    case Armenian:
+        name = "Armenian";
+        break;
+    case Hebrew:
         name = "Hebrew";
         break;
-    case QUnicodeTables::Arabic:
+    case Arabic:
         name = "Arabic";
         break;
-    case QUnicodeTables::Syriac:
+    case Syriac:
         name = "Syriac";
         break;
-    case QUnicodeTables::Thaana:
+    case Thaana:
         name = "Thaana";
         break;
-    case QUnicodeTables::Devanagari:
+    case Devanagari:
         name = "Devanagari";
         break;
-    case QUnicodeTables::Bengali:
+    case Bengali:
         name = "Bengali";
         break;
-    case QUnicodeTables::Gurmukhi:
+    case Gurmukhi:
         name = "Gurmukhi";
         break;
-    case QUnicodeTables::Gujarati:
+    case Gujarati:
         name = "Gujarati";
         break;
-    case QUnicodeTables::Oriya:
+    case Oriya:
         name = "Oriya";
         break;
-    case QUnicodeTables::Tamil:
+    case Tamil:
         name = "Tamil";
         break;
-    case QUnicodeTables::Telugu:
+    case Telugu:
         name = "Telugu";
         break;
-    case QUnicodeTables::Kannada:
+    case Kannada:
         name = "Kannada";
         break;
-    case QUnicodeTables::Malayalam:
+    case Malayalam:
         name = "Malayalam";
         break;
-    case QUnicodeTables::Sinhala:
+    case Sinhala:
         name = "Sinhala";
         break;
-    case QUnicodeTables::Thai:
+    case Thai:
         name = "Thai";
         break;
-    case QUnicodeTables::Lao:
+    case Lao:
         name = "Lao";
         break;
-    case QUnicodeTables::Tibetan:
+    case Tibetan:
         name = "Tibetan";
         break;
-    case QUnicodeTables::Myanmar:
+    case Myanmar:
         name = "Myanmar";
         break;
-    case QUnicodeTables::Hangul:
-        name = "Hangul";
+    case Georgian:
+        name = "Georgian";
         break;
-    case QUnicodeTables::Khmer:
+    case Khmer:
         name = "Khmer";
+        break;
+    case SimplifiedChinese:
+        name = "Simplified Chinese";
+        break;
+    case TraditionalChinese:
+        name = "Traditional Chinese";
+        break;
+    case Japanese:
+        name = "Japanese";
+        break;
+    case Korean:
+        name = "Korean";
+        break;
+    case Vietnamese:
+        name = "Vietnamese";
+        break;
+    case Yi:
+        name = "Yi";
+        break;
+    case Tagalog:
+        name = "Tagalog";
+        break;
+    case Hanunoo:
+        name = "Hanunoo";
+        break;
+    case Buhid:
+        name = "Buhid";
+        break;
+    case Tagbanwa:
+        name = "Tagbanwa";
+        break;
+    case Limbu:
+        name = "Limbu";
+        break;
+    case TaiLe:
+        name = "Tai Le";
+        break;
+    case Braille:
+        name = "Braille";
+        break;
+    case Other:
+        name = "Other";
+        break;
+    default:
+        Q_ASSERT_X(false, "QFontDatabase::writingSystemName", "invalid 'writingSystem' parameter");
         break;
     }
     return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
@@ -1682,280 +1780,205 @@ QString QFontDatabase::scriptName(int script)
 
 
 /*!
-    Returns a string with sample characters from \a script.
+    Returns a string with sample characters from \a writingSystem.
 */
-QString QFontDatabase::scriptSample(int script)
+QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
 {
-    Q_UNUSED(script);
-    QString sample = "AaBb";
-
-    // ###
-#if 0
-    switch (script) {
-    case QFont::Latin:
+    QString sample = QString::fromLatin1("AaBb");
+    switch (writingSystem) {
+    case Any:
+    case Other:
+        // show only ascii characters
+        sample += "YyzZ";
+        break;
+    case Latin:
         // This is cheating... we only show latin-1 characters so that we don't
         // end up loading lots of fonts - at least on X11...
         sample += QChar(0x00C3);
         sample += QChar(0x00E1);
         sample += "Zz";
         break;
-    case QFont::Greek:
+    case Greek:
         sample += QChar(0x0393);
         sample += QChar(0x03B1);
         sample += QChar(0x03A9);
         sample += QChar(0x03C9);
         break;
-    case QFont::Cyrillic:
+    case Cyrillic:
         sample += QChar(0x0414);
         sample += QChar(0x0434);
         sample += QChar(0x0436);
         sample += QChar(0x0402);
         break;
-    case QFont::Armenian:
+    case Armenian:
         sample += QChar(0x053f);
         sample += QChar(0x054f);
         sample += QChar(0x056f);
         sample += QChar(0x057f);
         break;
-    case QFont::Georgian:
-        sample += QChar(0x10a0);
-        sample += QChar(0x10b0);
-        sample += QChar(0x10c0);
-        sample += QChar(0x10d0);
-        break;
-    case QFont::Runic:
-        sample += QChar(0x16a0);
-        sample += QChar(0x16b0);
-        sample += QChar(0x16c0);
-        sample += QChar(0x16d0);
-        break;
-    case QFont::Ogham:
-        sample += QChar(0x1681);
-        sample += QChar(0x1687);
-        sample += QChar(0x1693);
-        sample += QChar(0x168d);
-        break;
-
-
-
-    case QFont::Hebrew:
+    case Hebrew:
         sample += QChar(0x05D0);
         sample += QChar(0x05D1);
         sample += QChar(0x05D2);
         sample += QChar(0x05D3);
         break;
-    case QFont::Arabic:
+    case Arabic:
         sample += QChar(0x0628);
         sample += QChar(0x0629);
         sample += QChar(0x062A);
         sample += QChar(0x063A);
         break;
-    case QFont::Syriac:
+    case Syriac:
         sample += QChar(0x0715);
         sample += QChar(0x0725);
         sample += QChar(0x0716);
         sample += QChar(0x0726);
         break;
-    case QFont::Thaana:
+    case Thaana:
         sample += QChar(0x0784);
         sample += QChar(0x0794);
         sample += QChar(0x078c);
         sample += QChar(0x078d);
         break;
-
-
-
-    case QFont::Devanagari:
+    case Devanagari:
         sample += QChar(0x0905);
         sample += QChar(0x0915);
         sample += QChar(0x0925);
         sample += QChar(0x0935);
         break;
-    case QFont::Bengali:
+    case Bengali:
         sample += QChar(0x0986);
         sample += QChar(0x0996);
         sample += QChar(0x09a6);
         sample += QChar(0x09b6);
         break;
-    case QFont::Gurmukhi:
+    case Gurmukhi:
         sample += QChar(0x0a05);
         sample += QChar(0x0a15);
         sample += QChar(0x0a25);
         sample += QChar(0x0a35);
         break;
-    case QFont::Gujarati:
+    case Gujarati:
         sample += QChar(0x0a85);
         sample += QChar(0x0a95);
         sample += QChar(0x0aa5);
         sample += QChar(0x0ab5);
         break;
-    case QFont::Oriya:
+    case Oriya:
         sample += QChar(0x0b06);
         sample += QChar(0x0b16);
         sample += QChar(0x0b2b);
         sample += QChar(0x0b36);
         break;
-    case QFont::Tamil:
+    case Tamil:
         sample += QChar(0x0b89);
         sample += QChar(0x0b99);
         sample += QChar(0x0ba9);
         sample += QChar(0x0bb9);
         break;
-    case QFont::Telugu:
+    case Telugu:
         sample += QChar(0x0c05);
         sample += QChar(0x0c15);
         sample += QChar(0x0c25);
         sample += QChar(0x0c35);
         break;
-    case QFont::Kannada:
+    case Kannada:
         sample += QChar(0x0c85);
         sample += QChar(0x0c95);
         sample += QChar(0x0ca5);
         sample += QChar(0x0cb5);
         break;
-    case QFont::Malayalam:
+    case Malayalam:
         sample += QChar(0x0d05);
         sample += QChar(0x0d15);
         sample += QChar(0x0d25);
         sample += QChar(0x0d35);
         break;
-    case QFont::Sinhala:
+    case Sinhala:
         sample += QChar(0x0d90);
         sample += QChar(0x0da0);
         sample += QChar(0x0db0);
         sample += QChar(0x0dc0);
         break;
-    case QFont::Thai:
+    case Thai:
         sample += QChar(0x0e02);
         sample += QChar(0x0e12);
         sample += QChar(0x0e22);
         sample += QChar(0x0e32);
         break;
-    case QFont::Lao:
+    case Lao:
         sample += QChar(0x0e8d);
         sample += QChar(0x0e9d);
         sample += QChar(0x0ead);
         sample += QChar(0x0ebd);
         break;
-    case QFont::Tibetan:
+    case Tibetan:
         sample += QChar(0x0f00);
         sample += QChar(0x0f01);
         sample += QChar(0x0f02);
         sample += QChar(0x0f03);
         break;
-    case QFont::Myanmar:
+    case Myanmar:
         sample += QChar(0x1000);
         sample += QChar(0x1001);
         sample += QChar(0x1002);
         sample += QChar(0x1003);
         break;
-    case QFont::Khmer:
+    case Georgian:
+        sample += QChar(0x10a0);
+        sample += QChar(0x10b0);
+        sample += QChar(0x10c0);
+        sample += QChar(0x10d0);
+        break;
+    case Khmer:
         sample += QChar(0x1780);
         sample += QChar(0x1790);
         sample += QChar(0x17b0);
         sample += QChar(0x17c0);
         break;
-
-
-
-    case QFont::Han:
-        sample += QChar(0x6f84);
-        sample += QChar(0x820a);
-        sample += QChar(0x61a9);
-        sample += QChar(0x9781);
-        break;
-    case QFont::Hiragana:
-        sample += QChar(0x3050);
-        sample += QChar(0x3060);
-        sample += QChar(0x3070);
-        sample += QChar(0x3080);
-        break;
-    case QFont::Katakana:
-        sample += QChar(0x30b0);
-        sample += QChar(0x30c0);
-        sample += QChar(0x30d0);
-        sample += QChar(0x30e0);
-        break;
-    case QFont::Hangul:
-        sample += QChar(0xac00);
-        sample += QChar(0xac11);
-        sample += QChar(0xac1a);
-        sample += QChar(0xac2f);
-        break;
-    case QFont::Bopomofo:
+    case SimplifiedChinese:
         sample += QChar(0x3105);
         sample += QChar(0x3115);
         sample += QChar(0x3125);
         sample += QChar(0x3129);
         break;
-    case QFont::Yi:
+    case TraditionalChinese:
+        break;
+    case Japanese:
+        sample += QChar(0x3050);
+        sample += QChar(0x3060);
+        sample += QChar(0x30b0);
+        sample += QChar(0x30c0);
+        break;
+    case Korean:
+        sample += QChar(0xac00);
+        sample += QChar(0xac11);
+        sample += QChar(0xac1a);
+        sample += QChar(0xac2f);
+        break;
+    case Vietnamese:
+        break;
+    case Yi:
         sample += QChar(0xa1a8);
         sample += QChar(0xa1a6);
         sample += QChar(0xa200);
         sample += QChar(0xa280);
         break;
-
-
-
-    case QFont::Ethiopic:
-        sample += QChar(0x1200);
-        sample += QChar(0x1240);
-        sample += QChar(0x1280);
-        sample += QChar(0x12c0);
+    case Tagalog:
         break;
-    case QFont::Cherokee:
-        sample += QChar(0x13a0);
-        sample += QChar(0x13b0);
-        sample += QChar(0x13c0);
-        sample += QChar(0x13d0);
+    case Hanunoo:
         break;
-    case QFont::CanadianAboriginal:
-        sample += QChar(0x1410);
-        sample += QChar(0x1500);
-        sample += QChar(0x15f0);
-        sample += QChar(0x1650);
+    case Buhid:
         break;
-    case QFont::Mongolian:
-        sample += QChar(0x1820);
-        sample += QChar(0x1840);
-        sample += QChar(0x1860);
-        sample += QChar(0x1880);
+    case Tagbanwa:
         break;
-
-
-    case QFont::CurrencySymbols:
-    case QFont::LetterlikeSymbols:
-    case QFont::NumberForms:
-    case QFont::MathematicalOperators:
-    case QFont::TechnicalSymbols:
-    case QFont::GeometricSymbols:
-    case QFont::MiscellaneousSymbols:
-    case QFont::EnclosedAndSquare:
-    case QFont::Braille:
+    case Limbu:
         break;
-
-
-    case QFont::Unicode:
-        sample += QChar(0x0174);
-        sample += QChar(0x0628);
-        sample += QChar(0x0e02);
-        sample += QChar(0x263A);
-        sample += QChar(0x3129);
-        sample += QChar(0x61a9);
-        sample += QChar(0xac2f);
+    case TaiLe:
         break;
-
-
-
-    default:
-        sample += QChar(0xfffd);
-        sample += QChar(0xfffd);
-        sample += QChar(0xfffd);
-        sample += QChar(0xfffd);
+    case Braille:
         break;
     }
-#endif
-
     return sample;
 }
 
@@ -2016,110 +2039,6 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 }
 
 void QFontDatabase::createDatabase()
-{
-    initializeDb();
-}
-
-/*! \fn QStringList QFontDatabase::families(bool onlyForLocale) const
-
-    The \a onlyForLocale parameter has been deprecated since Qt 3.0.
-
-    Use the other families() function instead.
-*/
-
-/*! \fn QStringList QFontDatabase::styles(const QString &family, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other styles() function instead.
-*/
-
-/*! \fn QList<int> QFontDatabase::pointSizes(const QString &family, const QString &style, const QString &charSet)
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other pointSizes() function instead.
-*/
-
-/*! \fn QList<int> QFontDatabase::smoothSizes(const QString &family, const QString &style, const QString &charSet)
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other smoothSizes() function instead.
-*/
-
-/*! \fn QFont QFontDatabase::font(const QString &familyName, const QString &style, int pointSize, const QString &charSet)
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other font() function instead.
-*/
-
-/*! \fn bool QFontDatabase::isBitmapScalable(const QString &family,
- const QString &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other isBitmapScalable() function instead.
-*/
-
-/*! \fn bool QFontDatabase::isSmoothlyScalable(const QString &family,
- const QString &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other isSmoothlyScalable() function instead.
-*/
-
-/*! \fn bool QFontDatabase::isScalable(const QString &family, const
- QString &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other isScalable() function instead.
-*/
-
-/*! \fn bool QFontDatabase::isFixedPitch(const QString &family, const
- QString &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other isFixedPitch() function instead.
-*/
-
-/*! \fn bool QFontDatabase::italic(const QString &family, const
- QString &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other italic() function instead.
-*/
-
-/*! \fn bool QFontDatabase::bold(const QString &family, const QString
- &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other bold() function instead.
-*/
-
-/*! \fn int QFontDatabase::weight(const QString &family, const QString
- &style, const QString &charSet) const
-
-    The \a charSet parameter has been deprecated since Qt 3.0. The
-    character set can be queried using QFont::charSet().
-
-    Use the other weight() function instead.
-*/
+{ initializeDb(); }
 
 #endif // QT_NO_FONTDATABASE
