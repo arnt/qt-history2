@@ -144,6 +144,9 @@ void HtmlWriter::flushHead()
     printfMeta( "%s:%d", sourceLoc.filePath().latin1(), sourceLoc.lineNum() );
     putsMeta( " -->\n" );
     putsMeta( "<html>\n<head>\n" );
+#ifdef DO_HEADER_DOC
+    putsMeta( "<meta name=\"generator\" content=\"HeaderDoc\">\n" );
+#endif
     putsMeta( "<meta http-equiv=\"Content-Type\" content=\"text/html;"
 	      " charset=ISO-8859-1\">\n" );
     if ( !t.isEmpty() ) {
