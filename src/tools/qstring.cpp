@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#231 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#232 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10392,16 +10392,16 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa \link shclass.html Shared classes\endlink
 */
 
-Q_EXPORT QString::Data *QString::shared_null = 0;
+Q_EXPORT QStringData *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;
 QT_STATIC_CONST_IMPL QChar QChar::null;
 QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderMark((ushort)0xfeff);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderSwapped((ushort)0xfffe);
 
-QString::Data* QString::makeSharedNull()
+QStringData* QString::makeSharedNull()
 {
-    return shared_null=new Data;
+    return shared_null=new QStringData;
 }
 
 // Uncomment this to get some useful statistics.
@@ -10445,7 +10445,7 @@ void Q_EXPORT qt_qstring_stats()
 */
 QString::QString( QChar ch )
 {
-    d = new Data(new QChar[1],1,1);
+    d = new QStringData(new QChar[1],1,1);
     d->unicode[0] = ch;
 }
 
@@ -10475,10 +10475,10 @@ QString::QString( int size, bool /*dummy*/ )
 	Q2HELPER(stat_construct_int++);
 	int l = size;
 	Q2HELPER(stat_construct_int_size+=l);
-	d = new Data(new QChar[l],0,l);
+	d = new QStringData(new QChar[l],0,l);
     } else {
 	Q2HELPER(stat_construct_null++);
-	d = shared_null ? shared_null : shared_null=new Data;
+	d = shared_null ? shared_null : shared_null=new QStringData;
 	d->ref();
     }
 }
@@ -10493,7 +10493,7 @@ QString::QString( const QByteArray& ba )
     Q2HELPER(stat_construct_ba++);
     uint l;
     QChar *uc = asciiToUnicode(ba,&l);
-    d = new Data(uc,l,l);
+    d = new QStringData(uc,l,l);
 }
 
 /*!
@@ -10507,7 +10507,7 @@ QString::QString( const QChar* unicode, uint length )
 {
     QChar* uc = new QChar[ length ];
     memcpy(uc, unicode, length*sizeof(QChar));
-    d = new Data(uc,length,length);
+    d = new QStringData(uc,length,length);
 }
 
 /*!
@@ -10532,7 +10532,7 @@ QString::QString( const char *str )
     uint l;
     QChar *uc = asciiToUnicode(str,&l);
     Q2HELPER(stat_construct_charstar_size+=l);
-    d = new Data(uc,l,l);
+    d = new QStringData(uc,l,l);
 }
 
 
@@ -10566,7 +10566,7 @@ QString::QString( const char *str, uint maxSize )
     Q2HELPER(stat_construct_charstar++);
     uint l;
     QChar *uc = asciiToUnicode( str, &l, maxSize-1 );
-    d = new Data(uc,l,l);
+    d = new QStringData(uc,l,l);
 }
 
 /*!
@@ -10586,7 +10586,7 @@ void QString::deref()
     }
 }
 
-void QString::Data::deleteSelf()
+void QStringData::deleteSelf()
 {
     delete this;
 }
@@ -10613,7 +10613,7 @@ QString &QString::operator=( const QCString& cs )
     deref();
     uint l;
     QChar *uc = asciiToUnicode(cs,&l);
-    d = new Data(uc,l,l);
+    d = new QStringData(uc,l,l);
     return *this;
 }
 
@@ -10631,7 +10631,7 @@ QString &QString::operator=( const char *str )
     deref();
     uint l;
     QChar *uc = asciiToUnicode(str,&l);
-    d = new Data(uc,l,l);
+    d = new QStringData(uc,l,l);
     return *this;
 }
 
@@ -10723,7 +10723,7 @@ void QString::setLength( uint newLen )
 	if ( d->unicode )
 	    memcpy( nd, d->unicode, sizeof(QChar)*len );
 	deref();
-	d = new Data( nd, newLen, newMax );
+	d = new QStringData( nd, newLen, newMax );
     } else {
 	d->len = newLen;
 	d->dirtyascii = 1;
@@ -10895,10 +10895,10 @@ bool QString::findArg(int& pos, int& len) const
     char lowest=0;
     for (uint i=0; i<length(); i++) {
 	if ( at(i) == '%' && i+1<length() ) {
-	    char d = at(i+1);
-	    if ( d >= '0' && d <= '9' ) {
-		if ( !lowest || d < lowest ) {
-		    lowest = d;
+	    char dig = at(i+1);
+	    if ( dig >= '0' && dig <= '9' ) {
+		if ( !lowest || dig < lowest ) {
+		    lowest = dig;
 		    pos = i;
 		    len = 2;
 		}
@@ -11091,7 +11091,7 @@ void QString::fill( QChar c, int len )
 	*this = "";
     } else {
 	QChar * nd = new QChar[len];
-	d = new Data(nd,len,len);
+	d = new QStringData(nd,len,len);
 	while (len--) *nd++ = c;
     }
 }
@@ -12561,7 +12561,7 @@ QString QString::fromLatin1(const char* chars, int len)
     if ( len < 0 ) {
 	uint l;
 	QChar *uc = asciiToUnicode(chars,&l);
-	return QString(new Data(uc,l,l), TRUE);
+	return QString(new QStringData(uc,l,l), TRUE);
     } else {
 	return QString( chars, len+1 );
     }
@@ -12988,7 +12988,7 @@ bool operator>=( const char *s1, const QString &s2 )
   data, thus it remains forever unmodified.
 */
 QConstString::QConstString( QChar* unicode, uint length ) :
-    QString(new Data(unicode, length, length),TRUE)
+    QString(new QStringData(unicode, length, length),TRUE)
 {
 }
 

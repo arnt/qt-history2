@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#2 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#3 $
 **
 ** Definition of Motif-like style class
 **
@@ -39,6 +39,8 @@ public:
     bool useHighlightColors() const;
 
     void polish( QPalette&);
+    void polish( QWidget* );
+    void polish( QApplication*);
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,

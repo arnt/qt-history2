@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#226 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -221,14 +221,14 @@ QImage::QImage( const char *xpm[] )
 }
 
 /*!
-  Constructs an image from \a data, which must be in a supported
+  Constructs an image from \a array, which must be in a supported
   image format image.
 
   \sa loadFromData()
 */
-QImage::QImage( const QByteArray &data )
+QImage::QImage( const QByteArray &array )
 {
-    loadFromData(data);
+    loadFromData(array);
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#41 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#42 $
 **
 ** Definition of QScrollView class
 **
@@ -90,6 +90,8 @@ public:
 
     QSize	viewportSize( int, int ) const;
     QSizePolicy sizePolicy() const;
+
+    void	removeChild(QObject* child);
 
 signals:
     void	contentsMoving(int x, int y);

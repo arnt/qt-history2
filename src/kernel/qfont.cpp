@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#129 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1453,7 +1453,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
   These flags are defined in the Qt namespace.
 
-  If \c ExpandTabs is set in \a flags, then:
+  If \c ExpandTabs is set in \a flgs, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
   of pixel-positions for tabs; otherwise
   if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
@@ -1480,7 +1480,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   \sa width(), QPainter::boundingRect()
 */
 
-QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
+QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 				  const QString& str, int len, int tabstops,
 				  int *tabarray, char **intern ) const
 {
@@ -1493,7 +1493,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 	    tabarraylen++;
 
     QRect r;
-    qt_format_text( *this, x, y, w, h, flags, str, len, &r,
+    qt_format_text( *this, x, y, w, h, flgs, str, len, &r,
 		    tabstops, tabarray, tabarraylen, intern, 0 );
 
     return r;
@@ -1504,7 +1504,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 
   If \a len is negative (default value), the whole string is used.
 
-  The \a flags argument is
+  The \a flgs argument is
   the bitwise OR of the following flags:  <ul>
   <li> \c SingleLine ignores newline characters in the text.
   <li> \c ExpandTabs expands tabulators.
@@ -1514,7 +1514,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 
   These flags are defined in qwindowdefs.h.
 
-  If \c ExpandTabs is set in \a flags, then:
+  If \c ExpandTabs is set in \a flgs, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
   of pixel-positions for tabs; otherwise
   if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
@@ -1529,10 +1529,10 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
   \sa boundingRect()
 */
 
-QSize QFontMetrics::size( int flags, const QString &str, int len, int tabstops,
+QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 			  int *tabarray, char **intern ) const
 {
-    return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();
+    return boundingRect(0,0,1,1,flgs,str,len,tabstops,tabarray,intern).size();
 }
 
 

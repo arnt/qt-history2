@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#8 $
+** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#9 $
 **
 ** Definition of signal/slot collections etc.
 **
@@ -52,9 +52,9 @@ public:
 class Q_EXPORT QConnectionListIt : public QListIterator<QConnection>
 {
 public:
-    QConnectionListIt( const QConnectionList &list ) : QListIterator<QConnection>(list) {}
-    QConnectionListIt &operator=(const QConnectionListIt &list)
-	{ return (QConnectionListIt&)QListIterator<QConnection>::operator=(list); }
+    QConnectionListIt( const QConnectionList &l ) : QListIterator<QConnection>(l) {}
+    QConnectionListIt &operator=(const QConnectionListIt &i)
+	{ return (QConnectionListIt&)QListIterator<QConnection>::operator=(i); }
 };
 
 
@@ -79,10 +79,10 @@ public:
 class Q_EXPORT QSignalDictIt : public QAsciiDictIterator<QConnectionList>
 {
 public:
-    QSignalDictIt( const QSignalDict &dict )
-	: QAsciiDictIterator<QConnectionList>(dict) {}
-    QSignalDictIt &operator=(const QSignalDictIt &dict)
-	{ return (QSignalDictIt&)QAsciiDictIterator<QConnectionList>::operator=(dict); }
+    QSignalDictIt( const QSignalDict &d )
+	: QAsciiDictIterator<QConnectionList>(d) {}
+    QSignalDictIt &operator=(const QSignalDictIt &i)
+	{ return (QSignalDictIt&)QAsciiDictIterator<QConnectionList>::operator=(i); }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#101 $
 **
 ** Implementation of layout classes
 **
@@ -661,8 +661,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	    x = r.left() + r.right() - x - w;
 	if ( vReversed )
 	    y = r.top() + r.bottom() - y - h;
-	QRect rr( x, y, w, h );
-	box->setGeometry(rr);
+	box->setGeometry( QRect( x, y, w, h ) );
     }
     if ( multi ) {
 	QListIterator<QMultiBox> it( *multi );
@@ -688,8 +687,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 		x = r.left() + r.right() - x - w;
 	    if ( vReversed )
 		y = r.top() + r.bottom() - y - h;
-	    QRect rr( x, y, w, h );
-	    box->setGeometry(rr);
+	    box->setGeometry( QRect( x, y, w, h ) );
 	    //end copying
 	}
     }
@@ -1075,17 +1073,16 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a align
+  Alignment is specified by \a alignmnt
 
 */
 
 void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
-  int fromCol, int toCol, int align )
+  int fromCol, int toCol, int alignmnt )
 {
     QLayoutBox *b = new QLayoutBox( item );
-    b->setAlignment( align );
+    b->setAlignment( alignmnt );
     array->add( b, fromRow, toRow, fromCol, toCol );
-
 }
 
 /*
@@ -1121,14 +1118,14 @@ static bool checkWidget( QLayout *l, QWidget *w )
   Adds the widget \a w to the cell grid at \a row, \a col.
   The top left position is (0,0)
 
-  Alignment is specified by \a align which takes the same arguments as
+  Alignment is specified by \a alignmnt which takes the same arguments as
   QLabel::setAlignment().  Note that widgets take all the space they
   can get; alignment has no effect unless you have set
   QWidget::maximumSize().
 
 */
 
-void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
+void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
 {
     if ( !checkWidget( this, w ) )
 	return;
@@ -1142,22 +1139,22 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 	return;
     }
     QWidgetItem *b = new QWidgetItem( w );
-    b->setAlignment( align );
+    b->setAlignment( alignmnt );
     add( b, row, col );
 }
 
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Alignment is specified by \a align which takes the same arguments as
+  Alignment is specified by \a alignmnt which takes the same arguments as
   QLabel::setAlignment().
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
-				      int fromCol, int toCol, int align	 )
+				      int fromCol, int toCol, int alignmnt )
 {
     QLayoutBox *b = new QLayoutBox( w );
-    b->setAlignment( align );
+    b->setAlignment( alignmnt );
     array->add( b, fromRow, toRow, fromCol, toCol );
 }
 
@@ -1615,7 +1612,7 @@ void QBoxLayout::addStrut( int size )
 
 /*!
   Adds \a widget to the box, with stretch factor \a stretch and
-  alignment \a align.
+  alignment \a alignmnt.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
@@ -1632,12 +1629,12 @@ void QBoxLayout::addStrut( int size )
   \sa addLayout(), addSpacing()
 */
 
-void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
+void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignmnt )
 {
     if ( !checkWidget( this, widget ) )
 	 return;
     QWidgetItem *b = new QWidgetItem( widget );
-    b->setAlignment( align );
+    b->setAlignment( alignmnt );
     QLayoutBox *box = new QLayoutBox( b );
 
     if ( horz( dir ) ) {

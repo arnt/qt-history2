@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#126 $
+** $Id: //depot/qt/main/src/tools/qstring.h#127 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -230,6 +230,22 @@ inline int operator>( QChar c, char ch ) { return !(ch>=c); }
 inline int operator>( char ch, QChar c ) { return !(c>=ch); }
 inline int operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
 
+// internal
+struct Q_EXPORT QStringData : public QShared {
+    QStringData() :
+	unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
+    QStringData(QChar *u, uint l, uint m) :
+	unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
+    ~QStringData() { if ( unicode ) delete [] unicode;
+	      if ( ascii ) delete [] ascii; }
+    void deleteSelf();
+    QChar *unicode;
+    char *ascii;
+    uint len;
+    uint maxl:30;
+    uint dirtyascii:1;
+};
+
 
 
 class Q_EXPORT QString
@@ -421,26 +437,12 @@ private:
     static QChar* asciiToUnicode( const QByteArray&, uint * len );
     static char* unicodeToAscii( const QChar*, uint len );
 
-    struct Q_EXPORT Data : public QShared {
-	Data() :
-	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
-	Data(QChar *u, uint l, uint m) :
-	    unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
-	~Data() { if ( unicode ) delete [] unicode;
-		  if ( ascii ) delete [] ascii; }
-	void deleteSelf();
-	QChar *unicode;
-	char *ascii;
-	uint len;
-	uint maxl:30;
-	uint dirtyascii:1;
-    };
-    Data *d;
-    static Data* shared_null;
-    static Data* makeSharedNull();
+    QStringData *d;
+    static QStringData* shared_null;
+    static QStringData* makeSharedNull();
 
     friend class QConstString;
-    QString(Data* dd, bool /*dummy*/) : d(dd) { }
+    QString(QStringData* dd, bool /*dummy*/) : d(dd) { }
 };
 
 class Q_EXPORT QCharRef {

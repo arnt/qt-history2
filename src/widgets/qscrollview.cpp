@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#101 $
 **
 ** Implementation of QScrollView class
 **
@@ -867,6 +867,14 @@ void QScrollView::removeChild(QWidget* child)
 
     QSVChildRec *r = d->rec(child);
     if ( r ) d->deleteChildRec( r );
+}
+
+/*!
+  Just an override to keep QObject::removeChild() accessible.
+*/
+void QScrollView::removeChild(QObject* child)
+{
+    QFrame::removeChild(child);
 }
 
 /*!

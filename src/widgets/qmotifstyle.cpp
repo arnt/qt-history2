@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#5 $
 **
 ** Implementation of Motif-like style class
 **
@@ -138,6 +138,27 @@ void QMotifStyle::polish( QPalette& pal)
     pal.setColor( QPalette::Active, QColorGroup::HighlightedText,
 		  active.base() );
 }
+
+/*!
+ \reimp
+ \internal
+ Keep QStyle::polish() visible.
+*/
+void QMotifStyle::polish( QWidget* w )
+{
+    QStyle::polish(w);
+}
+
+/*!
+ \reimp
+ \internal
+ Keep QStyle::polish() visible.
+*/
+void QMotifStyle::polish( QApplication* a )
+{
+    QStyle::polish(a);
+}
+
 
 
 

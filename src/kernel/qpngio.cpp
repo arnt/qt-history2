@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#18 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -842,24 +842,24 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     return length;
 }
 
-void QPNGFormat::info(png_structp png_ptr, png_infop)
+void QPNGFormat::info(png_structp png, png_infop)
 {
-    png_set_interlace_handling(png_ptr);
-    setup_qt(*image, png_ptr, info_ptr);
+    png_set_interlace_handling(png);
+    setup_qt(*image, png, info_ptr);
 }
 
-void QPNGFormat::row(png_structp png_ptr, png_bytep new_row,
+void QPNGFormat::row(png_structp png, png_bytep new_row,
    png_uint_32 row_num, int)
 {
     uchar* old_row = image->scanLine(row_num);
-    png_progressive_combine_row(png_ptr, old_row, new_row);
+    png_progressive_combine_row(png, old_row, new_row);
 }
 
 
-void QPNGFormat::end(png_structp png_ptr, png_infop info)
+void QPNGFormat::end(png_structp png, png_infop info)
 {
-    int offx = png_get_x_offset_pixels(png_ptr,info) - base_offx;
-    int offy = png_get_y_offset_pixels(png_ptr,info) - base_offy;
+    int offx = png_get_x_offset_pixels(png,info) - base_offx;
+    int offy = png_get_y_offset_pixels(png,info) - base_offy;
     if ( first_frame ) {
 	base_offx = offx;
 	base_offy = offy;
@@ -868,15 +868,15 @@ void QPNGFormat::end(png_structp png_ptr, png_infop info)
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
     state = FrameStart;
-    unused_data = png_ptr->buffer_size; // Since libpng doesn't tell us
+    unused_data = png->buffer_size; // Since libpng doesn't tell us
 }
 
 #ifdef PNG_USER_CHUNK_SUPPORTED
-int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
+int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    png_bytep data, png_uint_32 length)
 {
-    // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
-    if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg")
+    // debug("Got %ld-byte %s chunk", length, png->chunk_name);
+    if ( 0==strcmp((char*)png->chunk_name, "gIFg")
 	    && length == 4 ) {
 
 	//QPNGImageWriter::DisposalMethod disposal =
@@ -885,7 +885,7 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
 	return 1;
-    } if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFx")
+    } if ( 0==strcmp((char*)png->chunk_name, "gIFx")
 	    && length == 13 ) {
 	if ( strncmp((char*)data,"NETSCAPE2.0",11)==0 ) {
 	    int looping = (data[0xC]<<8)|data[0xB];
