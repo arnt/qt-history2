@@ -83,6 +83,8 @@ Ferdigstilling:
 	- Rotert tekst
 	- Bruk color RGB verdi i painter hvis device == printer (fargekube)
 	- Fargekube bug (når paletten endres har vi et problem)
+	- Farge dithering
+	- Windows makefile
 
     Clipboard
 
