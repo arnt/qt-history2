@@ -65,14 +65,11 @@
 #define PACKETMODE  0
 
 extern bool chokeMouse;
-// Wacom isn't being nice by not providing updated headers for this. so
-// define it here so we can do things correctly according to their
-// software implementation guide, and make it somewhat standard.
-#if !defined(CSR_TYPE)
-#define CSR_TYPE ( (UINT) 20 )
-#endif
 
 #include <wintab.h>
+#ifndef CSR_TYPE
+#define CSR_TYPE 20 // Some old Wacom wintab.h may not provide this constant.
+#endif
 #include <pktdef.h>
 #include <math.h>
 
@@ -92,7 +89,7 @@ static PtrWTOverlap	 ptrWTOverlap = 0;
 static PtrWTPacketsGet	 ptrWTPacketsGet = 0;
 static PtrWTGet		 ptrWTGet = 0;
 
-static const double PI = 3.14159265359;
+static const double PI = 3.14159265358979323846;
 
 static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
 HCTX qt_tablet_context;  // the hardware context for the tablet ( like a window handle )
