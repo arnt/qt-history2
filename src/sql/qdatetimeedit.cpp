@@ -100,7 +100,7 @@ static void readLocaleSettings()
 	}
 
 	// this code needs to change if new formats are added
-	QString sep = d.mid( QMIN( dpos, mpos ) + 2, abs( dpos - mpos ) - 2 );
+	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
 	if ( d.contains( sep ) == 2 ) {
 	    lDateSep = sep;
 	}
