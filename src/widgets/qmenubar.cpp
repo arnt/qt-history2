@@ -279,7 +279,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
     setBackgroundMode( PaletteButton );
     setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
-    setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
     QFontMetrics fm = fontMetrics();
     int h = 2*motifBarVMargin + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
@@ -296,8 +295,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 void QMenuBar::styleChange( QStyle& old )
 {
     setMouseTracking( style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle );
-    setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
-    setLineWidth( style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this ) );
     QFrame::styleChange( old );
 }
 

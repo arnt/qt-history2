@@ -210,7 +210,6 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
-    d->stack->setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     setFocusPolicy( TabFocus );
@@ -799,9 +798,8 @@ void QTabWidget::setMargin( int w )
  */
 void QTabWidget::styleChange( QStyle& old )
 {
-    d->stack->setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
-    setUpLayout();
     QWidget::styleChange( old );
+    setUpLayout();
 }
 
 
@@ -832,18 +830,18 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 	}
 	else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent*) e;
-	    if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab ) && 
-		 count() > 1 && 
+	    if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab ) &&
+		 count() > 1 &&
 		 ke->state() & Qt::ControlButton ) {
 		int page = currentPageIndex();
 		if ( ke->key() == Qt::Key_Backtab || ke->state() & Qt::ShiftButton ) {
-		    page--; 
+		    page--;
 		    if ( page < 0 )
 			page = count() - 1;
 		} else {
 		    page++;
 		    if ( page >= count() )
-			page = 0;		    
+			page = 0;		
 		}
 		setCurrentPage( page );
 		if ( !qApp->focusWidget() )

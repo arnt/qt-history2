@@ -352,12 +352,15 @@ void QFrame::updateFrameWidth()
         }
         break;
 
-    case Panel:
-    case StyledPanel:
-    case PopupPanel:
+	
     case GroupBoxPanel:
     case LineEditPanel:
     case TabWidgetPanel:
+	lwidth = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
+	// fall through
+    case Panel:
+    case StyledPanel:
+    case PopupPanel:
         switch ( frameStyle ) {
         case Plain:
         case Raised:
@@ -377,10 +380,10 @@ void QFrame::updateFrameWidth()
         }
         break;
     case MenuBarPanel:
-        fwidth = style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this );
+        fwidth = lwidth = style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this );
         break;
     case ToolBarPanel:
-	fwidth = style().pixelMetric( QStyle::PM_DockWindowFrameWidth, this );
+	fwidth = lwidth = style().pixelMetric( QStyle::PM_DockWindowFrameWidth, this );
         break;
     case HLine:
     case VLine:
@@ -688,6 +691,15 @@ void QFrame::drawContents( QPainter * )
 void QFrame::frameChanged()
 {
     update();
+    updateGeometry();
+}
+
+/*!\reimp
+ */
+void  QFrame::styleChange( QStyle& old )
+{
+    updateFrameWidth();
+    QWidget::styleChange( old );
 }
 
 #endif //QT_NO_FRAME

@@ -288,7 +288,6 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tab = 0;
     ncols = 1;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
-    setLineWidth(style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
@@ -1829,8 +1828,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	ok_key = FALSE;
 
     }
-    if ( !ok_key && 
-	 ( !e->state() || e->state() == AltButton || e->state() == ShiftButton ) && 
+    if ( !ok_key &&
+	 ( !e->state() || e->state() == AltButton || e->state() == ShiftButton ) &&
 	 e->text().length()==1 ) {
 	QChar c = e->text()[0].upper();
 
@@ -1975,10 +1974,10 @@ void QPopupMenu::leaveEvent( QEvent * )
 */
 void QPopupMenu::styleChange( QStyle& old )
 {
+    QFrame::styleChange( old );
     setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
     style().polishPopupMenu( this );
     updateSize();
-    QFrame::styleChange( old );
 }
 
 /*!

@@ -115,6 +115,7 @@ protected:
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void frameChanged();
+    void        styleChange( QStyle& );
 
 private:
     void        updateFrameWidth();
