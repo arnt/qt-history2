@@ -268,7 +268,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
 
-    if ( destroyw )
+    if ( destroyw ) 
 	DisposeWindow((WindowPtr)destroyw);
 }
 
@@ -302,7 +302,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	} else {
-	    if ( destroyWindow && !isTopLevel() && hd)
+	    if ( destroyWindow && isTopLevel() && hd && mytop == this) 
 	        DisposeWindow( (WindowPtr)hd );
 	}
 
