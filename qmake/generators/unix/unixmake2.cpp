@@ -978,7 +978,19 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
 	QString destdir = project->first("DESTDIR");
-	if ( !destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty() )
-	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + destdir;
+	if ( !destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty() ) {
+	    QString rpath_destdir = destdir;
+	    if(QDir::isRelativePath(rpath_destdir)) {
+		QFileInfo fi(Option::fixPathToLocalOS(rpath_destdir));
+		if(fi.convertToAbs())  //strange, shouldn't really happen
+		    rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, FALSE);
+		else
+		    rpath_destdir = fi.filePath();
+	    } else {
+		rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, FALSE);
+	    }
+	    qDebug("Got %s", rpath_destdir.latin1());
+	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + rpath_destdir;
+	}
     }
 }
