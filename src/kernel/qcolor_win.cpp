@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#21 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -14,14 +14,14 @@
 #include "qapp.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#21 $")
 
 
 /*****************************************************************************
@@ -59,7 +59,7 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-  //  return;
+    return;
 
     int numCols = maxColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
@@ -119,12 +119,12 @@ uint QColor::realizePal( QWidget *widget )	// realize palette
 {
     if ( !hpal )				// not using palette
 	return 0;
-    HDC hdc = GetDC( widget->id() );
+    HDC hdc = GetDC( widget->winId() );
     HPALETTE hpalT = SelectPalette( hdc, hpal, FALSE );
     uint i = RealizePalette( hdc );
     UpdateColors( hdc );
     SelectPalette( hdc, hpalT, FALSE );
-    ReleaseDC( widget->id(), hdc );
+    ReleaseDC( widget->winId(), hdc );
     return i;
 }
 
