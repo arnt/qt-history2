@@ -279,18 +279,12 @@ void MDIWindow::load( const QString& fn )
 	mmovie=qm;
     } else {
 	mmovie = 0;
-	medit->setAutoUpdate( FALSE );
-	medit->clear();
 
 	QTextStream t(&f);
-	while ( !t.atEnd() ) {
-	    QString s = t.readLine();
-	    medit->append( s );
-	}
+	QString s = t.read();
+	medit->setText( s );
 	f.close();
 
-	medit->setAutoUpdate( TRUE );
-	medit->repaint();
 
     }
     setCaption( filename );
