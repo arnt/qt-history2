@@ -22,6 +22,7 @@ public:
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
     QString iconSet( const QString& );
+    QIconSet iconset( const QString& );
     QString includeFile( const QString& );
     QString toolTip( const QString& );
     QString whatsThis( const QString& );
@@ -83,6 +84,11 @@ QString OpenGLWidgetInterface::iconSet( const QString& description )
     if ( description == "QGLWidget" )
 	return "pixmap.xpm";
     return QString::null;
+}
+
+QIconSet OpenGLWidgetInterface::iconset( const QString& )
+{
+    return QIconSet();
 }
 
 QString OpenGLWidgetInterface::includeFile( const QString& description )
