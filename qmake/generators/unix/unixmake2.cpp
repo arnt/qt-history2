@@ -1345,7 +1345,11 @@ UnixMakefileGenerator::writePkgConfigFile()
 	return;
     QTextStream t(&ft);
 
-    t << "prefix=" << qInstallPath() << endl;
+    QString prefix = qInstallPath();
+    QString libDir = prefix + "/lib";
+    QString includeDir = prefix + "/include";
+
+    t << "prefix=" << libDir << endl;
     t << "exec_prefix=${prefix}\n"
       << "libdir=${exec_prefix}/lib\n"
       << "includedir=${prefix}/include" << endl;
@@ -1363,15 +1367,17 @@ UnixMakefileGenerator::writePkgConfigFile()
 	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
     else
 	libs << "QMAKE_LIBS"; //obvious one
-    t << "Libs: ";
+    t << "Libs: -L" << libDir << " -l" << lname << " ";
     for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
 	t << project->variables()[(*it)].join(" ") << " ";
     t << endl;
 
     // flags
     // ### too many
-    t << "Cflags: " << var("QMAKE_CXXFLAGS") << " "
+    t << "Cflags: "
+	// << var("QMAKE_CXXFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
-      << varGlue("DEFINES","-D"," -D"," ")
-      << "-I" << qInstallPath() << "/include";
+      << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ")
+	//      << varGlue("DEFINES","-D"," -D"," ")
+      << " -I" << includeDir;
 }

@@ -1319,6 +1319,10 @@ MakefileGenerator::writePrlFile(QTextStream &t)
     t << "QMAKE_PRL_TARGET = " << target << endl;
     if(!project->isEmpty("PRL_EXPORT_DEFINES"))
 	t << "QMAKE_PRL_DEFINES = " << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
+    if(!project->isEmpty("PRL_EXPORT_CFLAGS"))
+	t << "QMAKE_PRL_CFLAGS = " << project->variables()["PRL_EXPORT_CFLAGS"].join(" ") << endl;
+    if(!project->isEmpty("PRL_EXPORT_CXXFLAGS"))
+	t << "QMAKE_PRL_CXXFLAGS = " << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ") << endl;
     if(!project->isEmpty("CONFIG"))
 	t << "QMAKE_PRL_CONFIG = " << project->variables()["CONFIG"].join(" ") << endl;
     if(!project->isEmpty("VERSION"))
