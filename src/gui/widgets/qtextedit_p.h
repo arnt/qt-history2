@@ -50,9 +50,6 @@ public:
 
     void selectionChanged();
 
-    // helper for compat functions
-    QTextBlock blockAt(const QPoint &pos, int *documentPosition = 0) const;
-
     inline int contentsX() const { return hbar->value(); }
     inline int contentsY() const { return vbar->value(); }
     inline int contentsWidth() const { return hbar->maximum() + viewport->width(); }

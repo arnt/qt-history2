@@ -510,23 +510,6 @@ void QTextEditPrivate::selectionChanged()
     emit q->selectionChanged();
 }
 
-QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) const
-{
-    const int docPos = doc->documentLayout()->hitTest(pos, QText::ExactHit);
-
-    if (docPos == -1) {
-        if (documentPosition)
-            *documentPosition = -1;
-        return QTextBlock();
-    }
-
-    if (documentPosition)
-        *documentPosition = docPos;
-
-    QTextDocumentPrivate *pt = doc->docHandle();
-    return QTextBlock(pt, pt->blockMap().findNode(docPos));
-}
-
 bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     int targetY = vbar->value() - viewport->height();
