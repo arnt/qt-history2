@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/moc/GNUmakefile#18 $
+# $Id: //depot/qt/main/src/moc/GNUmakefile#19 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -8,5 +8,5 @@
 #############################################################################
 
 PROJECT = moc
-
+RELEASE = 1
 include $(QTDIR)/GNUmakefile.inc
