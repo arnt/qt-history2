@@ -695,12 +695,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if(desktop)
         dialog = popup = false;                  // force these flags off
     if(!window)                              // always initialize
-        initializeWindow = true;
+        initializeWindow=true;
     if(dialog || popup || desktop) {          // these are top-level, too
         topLevel = true;
         setWFlags(WType_TopLevel);
         if(popup)
-            setWFlags(WStyle_Tool | WStyle_StaysOnTop); // a popup is a tool window
+            setWFlags(WStyle_Tool|WStyle_StaysOnTop); // a popup is a tool window
     }
     if(topLevel && parentWidget()) { // if our parent has WStyle_StaysOnTop, so must we
         QWidget *ptl = parentWidget()->topLevelWidget();
@@ -736,20 +736,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             setWinId((WId)hiview);
         }
     } else if(isTopLevel()) {
-        bool isTool = testWFlags(WStyle_Tool); // Let the rabbits wear glasses.
         Rect r;
         SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
         WindowClass wclass = kSheetWindowClass;
-	if (popup
-            || (isTool
-                && testWFlags(WStyle_NoBorder | WStyle_StaysOnTop)
-                   == (WStyle_NoBorder | WStyle_StaysOnTop))
-            || testWFlags(WStyle_Splash) == WStyle_Splash) {
-            if (qstrcmp(objectName(), "toolTipTip") == 0) // tool tips
-                wclass = kHelpWindowClass;
-            else
-                wclass = kModalWindowClass;
-        } else if(testWFlags(WShowModal))
+        if(popup || testWFlags(WStyle_Splash) == WStyle_Splash)
+            wclass = kModalWindowClass;
+        else if(testWFlags(WShowModal))
             wclass = kMovableModalWindowClass;
         else if(qt_mac_is_macdrawer(this))
             wclass = kDrawerWindowClass;
@@ -787,8 +779,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                         else
                             wclass = kFloatingWindowClass;
                     }
-                    if (wclass == kFloatingWindowClass && testWFlags(WStyle_StaysOnTop))
-                        wclass = kDocumentWindowClass;
                 }
                 // Only add extra decorations (well, buttons) for widgets that can have them
                 // and have an actual border we can put them on.
@@ -809,9 +799,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(testWFlags(WStyle_Tool))
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
-	wattr |= kWindowLiveResizeAttribute;
-        if (isTool && testWFlags(WStyle_Splash) != WStyle_Splash && !testWFlags(WStyle_StaysOnTop))
-	    wattr |= kWindowHideOnSuspendAttribute;
+        if(testWFlags(WStyle_Tool) && testWFlags(WStyle_Splash) != WStyle_Splash)
+            wattr |= kWindowHideOnSuspendAttribute;
 
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
@@ -833,6 +822,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             ADD_DEBUG_WINDOW_NAME(kWindowHideOnSuspendAttribute),
             { 0, 0 }
         }, known_classes[] = {
+            ADD_DEBUG_WINDOW_NAME(kHelpWindowClass),
             ADD_DEBUG_WINDOW_NAME(kPlainWindowClass),
             ADD_DEBUG_WINDOW_NAME(kDrawerWindowClass),
             ADD_DEBUG_WINDOW_NAME(kUtilityWindowClass),
@@ -843,7 +833,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
             ADD_DEBUG_WINDOW_NAME(kMovableModalWindowClass),
             ADD_DEBUG_WINDOW_NAME(kModalWindowClass),
-            ADD_DEBUG_WINDOW_NAME(kHelpWindowClass),
             { 0, 0 }
         };
 #undef ADD_DEBUG_WINDOW_NAME
@@ -895,6 +884,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &d->window_event);
         }
+	if(testWFlags(WStyle_StaysOnTop))
+	    ChangeWindowAttributes(qt_mac_window_for((HIViewRef)parentWidget()->winId()), 
+                                   kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(this))
             SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
         if(dialog && !parentWidget() && !testWFlags(WShowModal))
@@ -1504,6 +1496,7 @@ void QWidget::setWindowState(uint newstate)
                     else
                         SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
                     SetWindowUserState(window, &oldr);
+
                     SetWindowStandardState(window, &bounds);
                     ZoomWindow(window, inZoomOut, false);
 
