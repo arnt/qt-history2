@@ -15,7 +15,6 @@ embedded {
 		    $$KERNEL_H/qfontmanager_qws.h \
 		    $$KERNEL_H/qgfx_qws.h \
 		    $$KERNEL_H/qgfxlinuxfb_qws.h \
-		    $$KERNEL_H/qgfxmatroxdefs_qws.h \
 		    $$KERNEL_H/qgfxraster_qws.h \
 		    $$KERNEL_H/qlock_qws.h \
 		    $$KERNEL_H/qmemorymanager_qws.h \
@@ -152,7 +151,14 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_VOODOO3
 
-	contains( gfx-drivers, shadow ) {
+	contains( gfx-drivers, matrox ) {
+		HEADERS += $$KERNEL_H/qgfxmatrox_qws.h \
+			   $$KERNEL_H/qgfxmatroxdefs_qws.h
+		SOURCES += $$KERNEL_CPP/qgfxmatrox_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_MATROX
+
+	contains( gfx-drivers, shadowfb ) {
 		HEADERS += $$KERNEL_H/qgfxshadow_qws.h
 		SOURCES += $$KERNEL_CPP/qgfxshadow_qws.cpp
 	}

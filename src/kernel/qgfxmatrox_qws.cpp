@@ -30,13 +30,19 @@
 **
 **********************************************************************/
 
-#include "qgfxmatroxdefs_qws.h"
+#include "qgfxmatrox_qws.h"
 
 #ifndef QT_NO_QWS_MATROX
 
-#include "qgfxlinuxfb_qws.h"
-
+#include "qgfxmatroxdefs_qws.h"
+#include "qgfxraster_qws.h"
 #include "qimage.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // This is the least featureful of the accelerated drivers - use the
 // Voodoo3 or Mach64 drivers as better examples. The main interesting
@@ -610,34 +616,15 @@ private:
 
 };
 
-class QMatroxScreen : public QLinuxFbScreen {
-
-public:
-
-    QMatroxScreen( int display_id );
-    virtual ~QMatroxScreen();
-    virtual bool connect( const QString &spec );
-    virtual bool initDevice();
-    virtual void shutdownDevice();
-    virtual bool useOffscreen() { return false; }
-    virtual int initCursor(void*, bool);
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-protected:
-
-    virtual int pixmapOffsetAlignment() { return 256; }
-    virtual int pixmapLinestepAlignment() { return 256; }
-
-private:
-
-    unsigned int src_pixel_offset;
-
-};
 
 QMatroxScreen::QMatroxScreen( int display_id  )
     : QLinuxFbScreen( display_id )
 {
 }
+
+bool QMatroxScreen::useOffscreen() { return false; }
+int QMatroxScreen::pixmapOffsetAlignment() { return 256; }
+int QMatroxScreen::pixmapLinestepAlignment() { return 256; }
 
 // #define DEBUG_INIT
 

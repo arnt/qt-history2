@@ -42,6 +42,7 @@
 #include "qgfxtransformed_qws.h"
 #include "qgfxmach64_qws.h"
 #include "qgfxvoodoo_qws.h"
+#include "qgfxmatrox_qws.h"
 #include "qgfxvfb_qws.h"
 #include "qgfxvnc_qws.h"
 #include "qgfxvga16_qws.h"
@@ -127,6 +128,10 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     if ( driver == "voodoo3" )
         return new QVoodooScreen( displayId );
 #endif
+#ifndef QT_NO_QWS_MATROX
+    if ( driver == "matrox" )
+        return new QMatroxScreen( displayId );
+#endif
 #ifndef QT_NO_QWS_VNC
     if ( driver == "vnc" )
 	return new QVNCScreen( displayId );
@@ -185,6 +190,10 @@ QStringList QGfxDriverFactory::keys()
 #ifndef QT_NO_QWS_VOODOO3
     if ( !list.contains( "Voodoo3" ) )
 	list << "Voodoo3";
+#endif
+#ifndef QT_NO_QWS_MATROX
+    if ( !list.contains( "Matrox" ) )
+	list << "Matrox";
 #endif
 #ifndef QT_NO_QWS_VNC
     if ( !list.contains( "VNC" ) )
