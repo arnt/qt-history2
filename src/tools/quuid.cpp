@@ -141,9 +141,17 @@ QUuid::QUuid( const QString &text )
 */
 #ifndef QT_NO_QUUID_STRING
 /*!
+  QUuid::operator QString() const
+
+  Returns the string representation of the uuid.
+
+  \sa toString()
+*/
+
+/*!
   QString QUuid::toString() const
 
-  Returns a string in {12345678-1234-1234-1234-123456789ABC} format.
+  Returns the string representation of the uuid.
 */
 QString QUuid::toString() const
 {

@@ -85,6 +85,7 @@ struct Q_EXPORT QUuid
 #ifndef QT_NO_QUUID_STRING
     QUuid( const QString & );
     QString toString() const;
+    operator QString() const { return toString(); }
 #endif
     bool isNull() const;
 
