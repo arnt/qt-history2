@@ -1677,8 +1677,8 @@ QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse
 }
 
 QRect QMainWindowLayout::placeDockWindow(QDockWindow *dockwindow,
-                                          const QRect &r,
-                                          const QPoint &mouse)
+                                         const QRect &r,
+                                         const QPoint &mouse)
 {
     DEBUG("QMainWindowLayout::placeDockWindow");
 
@@ -1691,7 +1691,7 @@ QRect QMainWindowLayout::placeDockWindow(QDockWindow *dockwindow,
     }
 
     // if there is a window dock layout already here, forward the place
-    if (layout_info[pos].item) {
+    if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG("  forwarding...");
         QDockWindowLayout *l = qt_cast<QDockWindowLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l != 0);
