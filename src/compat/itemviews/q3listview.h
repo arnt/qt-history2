@@ -75,7 +75,7 @@ public:
 
     virtual void insertItem(Q3ListViewItem *);
     virtual void takeItem(Q3ListViewItem *);
-    virtual void removeItem(Q3ListViewItem *item) { takeItem(item); } //obsolete, use takeItem instead
+    virtual void removeItem(Q3ListViewItem *item) { takeItem(item); }
 
     int height() const;
     virtual void invalidateHeight();
@@ -237,7 +237,7 @@ public:
 
     virtual void insertItem(Q3ListViewItem *);
     virtual void takeItem(Q3ListViewItem *);
-    virtual void removeItem(Q3ListViewItem *item) { takeItem(item); } // obsolete, use takeItem instead
+    virtual void removeItem(Q3ListViewItem *item) { takeItem(item); }
 
     Q3Header * header() const;
 
@@ -423,6 +423,8 @@ private slots:
     void openFocusItem();
 
 private:
+    Q_DISABLE_COPY(Q3ListView)
+
     void contentsMousePressEventEx(QMouseEvent * e);
     void contentsMouseReleaseEventEx(QMouseEvent * e);
     void init();
@@ -436,13 +438,7 @@ private:
     bool clearRange(Q3ListViewItem *from, Q3ListViewItem *to, bool includeFirst = true);
     void doAutoScroll(const QPoint &cursorPos);
 
-    Q3ListViewPrivate * d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3ListView(const Q3ListView &);
-    Q3ListView &operator=(const Q3ListView &);
-#endif
+    Q3ListViewPrivate *d;
 };
 
 
@@ -454,7 +450,7 @@ public:
                 Controller,
                 RadioButtonController=Controller,
                 CheckBoxController };
-    // ### should be integrated with qbutton in ver4 perhaps
+
     enum ToggleState { Off, NoChange, On };
 
     QCheckListItem(QCheckListItem *parent, const QString &text,
@@ -482,7 +478,7 @@ public:
     int width(const QFontMetrics&, const Q3ListView*, int column) const;
     void setup();
 
-    virtual void setOn(bool); // ### should be replaced by setChecked in ver4
+    virtual void setOn(bool);
     bool isOn() const { return on; }
     Type type() const { return myType; }
     QString text() const { return Q3ListViewItem::text(0); }
@@ -514,7 +510,7 @@ private:
     void setCurrentState(ToggleState s);
 
     Type myType;
-    bool on; // ### remove in ver4
+    bool on;
     QCheckListItemPrivate *d;
 };
 

@@ -43,10 +43,7 @@ public:
     const QString& heading() const { return h; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    HtmlWriter( const HtmlWriter& );
-    HtmlWriter& operator=( const HtmlWriter& );
-#endif
+    Q_DISABLE_COPY(HtmlWriter)
 
     void flushHead();
     inline void doputchar( int ch );

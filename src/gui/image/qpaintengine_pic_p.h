@@ -52,12 +52,9 @@ protected:
     QPicturePaintEngine(QPaintEnginePrivate &dptr);
 
 private:
-    void writeCmdLength(int pos, const QRect &r, bool corr);
+    Q_DISABLE_COPY(QPicturePaintEngine)
 
-#if defined(Q_DISABLE_COPY)
-    QPicturePaintEngine(const QPicturePaintEngine &);
-    QPicturePaintEngine &operator=(const QPicturePaintEngine &);
-#endif
+    void writeCmdLength(int pos, const QRect &r, bool corr);
 };
 
 #endif // QPAINTENGINE_PIC_P_H

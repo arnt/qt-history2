@@ -100,6 +100,7 @@ private slots:
     void movieUpdated(const QRect&);
     void movieResized(const QSize&);
 #endif
+
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
@@ -114,12 +115,9 @@ public:
 #endif
 
 private:
-    friend class QTipLabel;
+    Q_DISABLE_COPY(QLabel)
 
-#if defined(Q_DISABLE_COPY)
-    QLabel(const QLabel &);
-    QLabel &operator=(const QLabel &);
-#endif
+    friend class QTipLabel;
 };
 
 

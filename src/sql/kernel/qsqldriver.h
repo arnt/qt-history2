@@ -92,11 +92,9 @@ protected:
     virtual void setOpen(bool o);
     virtual void setOpenError(bool e);
     virtual void setLastError(const QSqlError& e);
+
 private:
-#if defined(Q_DISABLE_COPY)
-    QSqlDriver(const QSqlDriver &);
-    QSqlDriver &operator=(const QSqlDriver &);
-#endif
+    Q_DISABLE_COPY(QSqlDriver)
 };
 
 #endif// QT_NO_SQL

@@ -33,8 +33,8 @@ public:
 
     static void singleShot(int msec, QObject *receiver, const char *member);
 
-    bool        isActive() const;
-    int                timerId() const        { return id; }
+    inline bool isActive() const { return id >= 0; }
+    int timerId() const { return id; }
 
 public slots:
     int                start(int msec, bool sshot = false);
@@ -48,22 +48,11 @@ protected:
     bool        event(QEvent *);
 
 private:
+    Q_DISABLE_COPY(QTimer)
+
     int id;
     uint single : 1;
     uint nulltimer : 1;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTimer(const QTimer &);
-    QTimer &operator=(const QTimer &);
-#endif
 };
-
-
-inline bool QTimer::isActive() const
-{
-    return id >= 0;
-}
-
 
 #endif // QTIMER_H

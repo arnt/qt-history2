@@ -25,11 +25,9 @@ class Q_GUI_EXPORT QPrintDialog : public QAbstractPrintDialog
 public:
     QPrintDialog(QPrinter *printer, QWidget *parent = 0);
     int exec();
+
 private:
-#if defined(Q_DISABLE_COPY)
-    QPrintDialog(const QPrintDialog &);
-    QPrintDialog &operator=(const QPrintDialog &);
-#endif
+    Q_DISABLE_COPY(QPrintDialog)
 };
 
 #endif // QPRINTDIALOG_H

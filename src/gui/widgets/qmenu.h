@@ -328,6 +328,8 @@ private:
 #endif
 
 private:
+    Q_DISABLE_COPY(QMenu)
+
     friend class QMenuBar;
     friend class QMenuBarPrivate;
     friend class QTornOffMenu;
@@ -338,10 +340,6 @@ private:
     friend bool watchingAboutToShow(QMenu *);
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
-#endif
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QMenu(const QMenu &);
-    QMenu &operator=(const QMenu &);
 #endif
 };
 

@@ -85,6 +85,7 @@ protected:
     bool uses3D() const;
 
 private:
+    Q_DISABLE_COPY(QToolButton)
     Q_PRIVATE_SLOT(d, void popupPressed())
 
 #ifdef QT_COMPAT
@@ -109,12 +110,6 @@ public:
     inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
-#endif
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QToolButton(const QToolButton &);
-    QToolButton& operator=(const QToolButton &);
 #endif
 };
 

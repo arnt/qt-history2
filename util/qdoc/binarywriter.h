@@ -25,10 +25,7 @@ public:
     void putsBase64( const char *str );
 
 private:
-#if defined(Q_DISABLE_COPY)
-    BinaryWriter( const BinaryWriter& );
-    BinaryWriter& operator=( const BinaryWriter& );
-#endif
+    Q_DISABLE_COPY(BinaryWriter)
 
     static int toBase64Digit( int ch );
 

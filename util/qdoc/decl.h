@@ -85,10 +85,7 @@ protected:
     QMap<QString, Decl *> symTable[NSymTables];
 
 private:
-#if defined(Q_DISABLE_COPY)
-    Decl( const Decl& );
-    Decl& operator=( const Decl& );
-#endif
+    Q_DISABLE_COPY(Decl)
 
     Decl *resolveHere( int whichSymTable, const QString& rellName ) const;
 
@@ -119,10 +116,7 @@ public:
     RootDecl() : Decl( Root, Location(), QString(""), 0 ) { }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    RootDecl( const RootDecl& );
-    RootDecl& operator=( const RootDecl& );
-#endif
+    Q_DISABLE_COPY(RootDecl)
 };
 
 class PropertyDecl;
@@ -155,10 +149,7 @@ protected:
     virtual void fillInDocsForThis();
 
 private:
-#if defined(Q_DISABLE_COPY)
-    ClassDecl( const ClassDecl& );
-    ClassDecl& operator=( const ClassDecl& );
-#endif
+    Q_DISABLE_COPY(ClassDecl)
 
     void emitHtmlListOfAllMemberFunctions() const;
 
@@ -235,10 +226,7 @@ public:
     virtual void printHtmlLong( HtmlWriter& out ) const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    FunctionDecl( const Decl& );
-    FunctionDecl& operator=( const Decl& );
-#endif
+    Q_DISABLE_COPY(FunctionDecl)
 
     CodeChunk r;
     bool c;
@@ -269,10 +257,7 @@ public:
     EnumDecl *parentEnum() const { return enumDecl; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    EnumItemDecl( const Decl& );
-    EnumItemDecl& operator=( const Decl& );
-#endif
+    Q_DISABLE_COPY(EnumItemDecl)
 
     EnumDecl *enumDecl;
     CodeChunk v;
@@ -297,10 +282,7 @@ public:
     virtual void printHtmlLong( HtmlWriter& out ) const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    EnumDecl( const Decl& );
-    EnumDecl& operator=( const Decl& );
-#endif
+    Q_DISABLE_COPY(EnumDecl)
 
     QValueList<EnumItemDecl *> il;
 };
@@ -318,10 +300,7 @@ public:
     virtual void printHtmlLong( HtmlWriter& out ) const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    TypedefDecl( const Decl& );
-    TypedefDecl& operator=( const Decl& );
-#endif
+    Q_DISABLE_COPY(TypedefDecl)
 
     CodeChunk t;
 };

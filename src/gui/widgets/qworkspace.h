@@ -77,7 +77,7 @@ protected:
 #endif
 
 private:
-    friend class QWorkspaceChild;
+    Q_DISABLE_COPY(QWorkspace)
     Q_PRIVATE_SLOT(d, void normalizeActiveWindow());
     Q_PRIVATE_SLOT(d, void minimizeActiveWindow());
     Q_PRIVATE_SLOT(d, void showOperationMenu());
@@ -86,13 +86,8 @@ private:
     Q_PRIVATE_SLOT(d, void updateActions());
     Q_PRIVATE_SLOT(d, void scrollBarChanged());
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWorkspace(const QWorkspace &);
-    QWorkspace& operator=(const QWorkspace &);
-#endif
+    friend class QWorkspaceChild;
 };
-
 
 #endif // QT_NO_WORKSPACE
 

@@ -211,14 +211,11 @@ protected:
     QLayout(QLayoutPrivate &d, QLayout*, QWidget*);
 
 private:
-    friend class QApplication;
+    Q_DISABLE_COPY(QLayout)
+
     static void activateRecursiveHelper(QLayoutItem *item);
 
-private:
-#if defined(Q_DISABLE_COPY)
-    QLayout(const QLayout &);
-    QLayout &operator=(const QLayout &);
-#endif
+    friend class QApplication;
 
 #ifdef QT_COMPAT
 public:
@@ -311,10 +308,7 @@ protected:
     void addItem(QLayoutItem *);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QGridLayout(const QGridLayout &);
-    QGridLayout &operator=(const QGridLayout &);
-#endif
+    Q_DISABLE_COPY(QGridLayout)
 
 #ifdef QT_COMPAT
 public:
@@ -404,10 +398,7 @@ protected:
     void insertItem(int index, QLayoutItem *);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QBoxLayout(const QBoxLayout &);
-    QBoxLayout &operator=(const QBoxLayout &);
-#endif
+    Q_DISABLE_COPY(QBoxLayout)
 };
 
 class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
@@ -427,11 +418,8 @@ public:
     QT_COMPAT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
 #endif
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QHBoxLayout(const QHBoxLayout &);
-    QHBoxLayout &operator=(const QHBoxLayout &);
-#endif
+private:
+    Q_DISABLE_COPY(QHBoxLayout)
 };
 
 class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
@@ -451,13 +439,9 @@ public:
     QT_COMPAT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
 #endif
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QVBoxLayout(const QVBoxLayout &);
-    QVBoxLayout &operator=(const QVBoxLayout &);
-#endif
+private:
+    Q_DISABLE_COPY(QVBoxLayout)
 };
-
 
 #endif // QT_NO_LAYOUT
 #endif // QLAYOUT_H

@@ -59,16 +59,13 @@ public:
                   QStyleHintReturn *returnData = 0) const;
 
     QPixmap stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
-                         const QWidget *widget = 0) const;
+                        const QWidget *widget = 0) const;
+
 private:
+    Q_DISABLE_COPY(QWindowsStyle)
+
     class Private;
     Private *d;
-
-    // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWindowsStyle(const QWindowsStyle &);
-    QWindowsStyle& operator=(const QWindowsStyle &);
-#endif
 };
 
 #endif // QT_NO_STYLE_WINDOWS

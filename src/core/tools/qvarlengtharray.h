@@ -77,13 +77,11 @@ public:
     inline const T * constData() const { return ptr; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QVarLengthArray(const QVarLengthArray &);
-    QVarLengthArray &operator=(const QVarLengthArray &);
-#endif
-    void *operator new(size_t sz);
+    Q_DISABLE_COPY(QVarLengthArray)
 
+    void *operator new(size_t sz);
     void realloc(int size, int alloc);
+
     int a;
     int s;
     unsigned char array[Prealloc * sizeof(T)];

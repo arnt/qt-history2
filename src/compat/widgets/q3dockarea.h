@@ -60,6 +60,8 @@ protected:
     void setGeometry(const QRect&);
 
 private:
+    Q_DISABLE_COPY(Q3DockAreaLayout)
+
     void init();
     int layoutItems(const QRect&, bool testonly = false);
     Qt::Orientation orient;
@@ -70,10 +72,6 @@ private:
     QWidget *parentWidget;
     QList<QRect> lines;
     QList<Q3DockWindow *> ls;
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    Q3DockAreaLayout(const Q3DockAreaLayout &);
-    Q3DockAreaLayout &operator=(const Q3DockAreaLayout &);
-#endif
 };
 
 class Q_COMPAT_EXPORT Q3DockArea : public QWidget
@@ -137,19 +135,14 @@ private:
     bool isLastDockWindow(Q3DockWindow *dw);
 
 private:
+    Q_DISABLE_COPY(Q3DockArea)
+
     Qt::Orientation orient;
     QList<Q3DockWindow *> dockWindows;
     Q3DockAreaLayout *layout;
     HandlePosition hPos;
     QList<Q3DockWindow *> forbiddenWidgets;
     Q3DockAreaPrivate *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3DockArea(const Q3DockArea &);
-    Q3DockArea& operator=(const Q3DockArea &);
-#endif
-
 };
 
 #ifndef QT_NO_TEXTSTREAM

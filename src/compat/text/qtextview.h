@@ -37,10 +37,7 @@ public:
     virtual ~QTextView();
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTextView(const QTextView &);
-    QTextView &operator=(const QTextView &);
-#endif
+    Q_DISABLE_COPY(QTextView)
 };
 
 #endif //QT_NO_TEXTVIEW

@@ -59,10 +59,7 @@ public:
     { mfunctions = map; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    MetaResolver( const MetaResolver& );
-    MetaResolver& operator=( const MetaResolver& );
-#endif
+    Q_DISABLE_COPY(MetaResolver)
 
     const Resolver *r;
 

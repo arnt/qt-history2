@@ -20,11 +20,9 @@
 
 #ifndef QT_NO_WIDGETSTACK
 
-
 class QWidgetStackPrivate;
 
-
-class Q_COMPAT_EXPORT QWidgetStack: public QFrame
+class Q_COMPAT_EXPORT QWidgetStack : public QFrame
 {
     Q_OBJECT
 public:
@@ -66,11 +64,8 @@ protected:
 
     QWidgetStackPrivate * d;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWidgetStack(const QWidgetStack &);
-    QWidgetStack& operator=(const QWidgetStack &);
-#endif
+private:
+    Q_DISABLE_COPY(QWidgetStack)
 };
 
 #endif // QT_NO_WIDGETSTACK

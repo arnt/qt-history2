@@ -52,10 +52,7 @@ signals:
     void widgetRemoved(int index);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QStackedLayout(const QStackedLayout &);
-    QStackedLayout &operator=(const QStackedLayout &);
-#endif
+    Q_DISABLE_COPY(QStackedLayout)
 };
 
 #endif

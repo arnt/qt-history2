@@ -36,11 +36,8 @@ public:
     void drawControl(ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
                       const QPalette &pal, SFlags how = Style_Default /*const Q3StyleOption& = Q3StyleOption::Default*/);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QCompactStyle(const QCompactStyle &);
-    QCompactStyle& operator=(const QCompactStyle &);
-#endif
+private:
+    Q_DISABLE_COPY(QCompactStyle)
 };
 
 #endif // QT_NO_STYLE_WINDOWS

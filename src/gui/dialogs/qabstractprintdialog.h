@@ -22,8 +22,8 @@ class QPrinter;
 class Q_GUI_EXPORT QAbstractPrintDialog : public QDialog
 {
     Q_DECLARE_PRIVATE(QAbstractPrintDialog)
-public:
 
+public:
     enum PrintRange {
         AllPages,
         Selection,
@@ -66,10 +66,7 @@ protected:
     QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr, QPrinter *printer, QWidget *parent = 0);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QAbstractPrintDialog(const QAbstractPrintDialog &);
-    QAbstractPrintDialog &operator=(const QAbstractPrintDialog &);
-#endif
+    Q_DISABLE_COPY(QAbstractPrintDialog)
 };
 
 #endif // QABSTRACTPRINTDIALOG_H

@@ -176,10 +176,7 @@ public:
     Doc *parse( const Location& loc, const QString& in );
 
 private:
-#if defined(Q_DISABLE_COPY)
-    DocParser( const DocParser& );
-    DocParser& operator=( const DocParser& );
-#endif
+    Q_DISABLE_COPY(DocParser)
 
     const Location& location();
     void flushWalkthrough( const Walkthrough& walk, StringSet *included,

@@ -141,10 +141,7 @@ protected:
     QIODevicePrivate *d_ptr;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QIODevice(const QIODevice &);
-    QIODevice &operator=(const QIODevice &);
-#endif
+    Q_DISABLE_COPY(QIODevice)
 };
 
 #define IO_Direct QIODevice::Direct

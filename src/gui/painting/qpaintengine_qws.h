@@ -98,13 +98,10 @@ protected:
 
 private:
     friend class QWSServer;
-//    friend class QPixmap;
     friend class QFontEngine;
+
 private:
-#if defined(Q_DISABLE_COPY)
-    QWSPaintEngine(const QWSPaintEngine &);
-    QWSPaintEngine &operator=(const QWSPaintEngine &);
-#endif
+    Q_DISABLE_COPY(QWSPaintEngine)
 };
 
 #endif

@@ -54,10 +54,7 @@ protected:
     ushort        painters;                        // refcount
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QPaintDevice(const QPaintDevice &);
-    QPaintDevice &operator=(const QPaintDevice &);
-#endif
+    Q_DISABLE_COPY(QPaintDevice)
 
 #if defined(Q_WS_X11) && defined(QT_COMPAT)
 public:

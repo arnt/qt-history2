@@ -270,6 +270,8 @@ protected:
     virtual void drawForeground(QPainter&, const QRect& area);
 
 private:
+    Q_DISABLE_COPY(QCanvas)
+
     void init(int w, int h, int chunksze=16, int maxclust=100);
 
     QCanvasChunk& chunk(int i, int j) const;
@@ -302,11 +304,6 @@ private:
     bool dblbuf;
 
     friend void qt_unview(QCanvas* c);
-
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QCanvas(const QCanvas &);
-    QCanvas &operator=(const QCanvas &);
-#endif
 };
 
 class QCanvasViewData;
@@ -344,10 +341,7 @@ private slots:
     void updateContentsSize();
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QCanvasView(const QCanvasView &);
-    QCanvasView &operator=(const QCanvasView &);
-#endif
+    Q_DISABLE_COPY(QCanvasView)
 };
 
 
@@ -368,10 +362,8 @@ public:
     void setOffset(int x, int y) { hotx = x; hoty = y; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCanvasPixmap(const QCanvasPixmap &);
-    QCanvasPixmap &operator=(const QCanvasPixmap &);
-#endif
+    Q_DISABLE_COPY(QCanvasPixmap)
+
     void init(const QImage&);
     void init(const QPixmap& pixmap, int hx, int hy);
 
@@ -412,10 +404,8 @@ public:
         { return uint(framecount); }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCanvasPixmapArray(const QCanvasPixmapArray &);
-    QCanvasPixmapArray &operator=(const QCanvasPixmapArray &);
-#endif
+    Q_DISABLE_COPY(QCanvasPixmapArray)
+
 #ifndef QT_NO_IMAGEIO
     bool readPixmaps(const QString& datafilenamepattern, int framecount, bool maskonly);
 #endif
@@ -478,10 +468,8 @@ public:
     void draw(QPainter& painter);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCanvasSprite(const QCanvasSprite &);
-    QCanvasSprite &operator=(const QCanvasSprite &);
-#endif
+    Q_DISABLE_COPY(QCanvasSprite)
+
     void addToChunks();
     void removeFromChunks();
     void changeChunks();
@@ -735,10 +723,8 @@ protected:
     virtual void draw(QPainter&);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCanvasText(const QCanvasText &);
-    QCanvasText &operator=(const QCanvasText &);
-#endif
+    Q_DISABLE_COPY(QCanvasText)
+
     void addToChunks();
     void removeFromChunks();
     void changeChunks();

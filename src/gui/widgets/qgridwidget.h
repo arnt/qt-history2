@@ -39,13 +39,11 @@ public:
 
 protected:
     void childEvent(QChildEvent*);
+
 private:
+    Q_DISABLE_COPY(QGridWidget)
+
     QGridLayout *lay;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGridWidget(const QGridWidget &);
-    QGridWidget& operator=(const QGridWidget &);
-#endif
 };
 
 #endif // QT_NO_GRIDWIDGET

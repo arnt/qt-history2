@@ -23,15 +23,14 @@ class QPrintDialogWinPrivate;
 class Q_GUI_EXPORT QPrintDialogWin : public QAbstractPrintDialog
 {
     Q_DECLARE_PRIVATE(QPrintDialogWin)
+
 public:
     QPrintDialogWin(QPrinter *printer, QWidget *parent = 0);
 
     int exec();
+
 private:
-#if defined(Q_DISABLE_COPY)
-    QPrintDialogWin(const QPrintDialogWin &);
-    QPrintDialogWin &operator=(const QPrintDialogWin &);
-#endif
+    Q_DISABLE_COPY(QPrintDialogWin)
 };
 
 #endif // Q_WS_WIN

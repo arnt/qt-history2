@@ -87,10 +87,7 @@ protected:
     QSVGPaintEngine(QSVGPaintEnginePrivate &dptr);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QSVGPaintEngine(const QSVGPaintEngine &);
-    QSVGPaintEngine &operator=(const QSVGPaintEngine &);
-#endif
+    Q_DISABLE_COPY(QSVGPaintEngine);
 };
 
 #endif

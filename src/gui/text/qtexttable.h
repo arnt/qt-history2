@@ -98,11 +98,9 @@ public:
     QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
+    Q_DISABLE_COPY(QTextTable)
+
     friend class QTextTableCell;
-#if defined(Q_DISABLE_COPY)
-    QTextTable(const QTextTable &o);
-    QTextTable & operator =(const QTextTable &o);
-#endif
 };
 
 #endif

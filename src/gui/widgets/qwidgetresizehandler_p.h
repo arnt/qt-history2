@@ -70,6 +70,8 @@ protected:
     void keyPressEvent(QKeyEvent *e);
 
 private:
+    Q_DISABLE_COPY(QWidgetResizeHandler)
+
     enum MousePosition {
         Nowhere,
         TopLeft, BottomRight, BottomLeft, TopRight,
@@ -98,13 +100,6 @@ private:
     bool isResize() const {
         return moveResizeMode && !isMove();
     }
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWidgetResizeHandler(const QWidgetResizeHandler &);
-    QWidgetResizeHandler& operator=(const QWidgetResizeHandler &);
-#endif
-
 };
 
 #endif //QT_NO_RESIZEHANDLER

@@ -64,6 +64,7 @@ protected:
     void focusOutEvent(QFocusEvent *fe);
 
     void sliderChange(SliderChange change);
+
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QDial(int minValue, int maxValue, int pageStep, int value,
@@ -76,11 +77,8 @@ signals:
     QT_MOC_COMPAT void dialReleased();
 #endif
 
-private: // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QDial(const QDial &);
-    QDial &operator=(const QDial &);
-#endif
+private:
+    Q_DISABLE_COPY(QDial)
 };
 
 #endif  // QT_NO_DIAL

@@ -129,13 +129,10 @@ public:
     int precision(int);
 
 private:
+    Q_DISABLE_COPY(QTextStream)
+
     void init();
     QTextStreamPrivate *d_ptr;
-
-#if defined(Q_DISABLE_COPY)
-    QTextStream(const QTextStream &);
-    QTextStream &operator=(const QTextStream &);
-#endif
 };
 
 typedef QTextStream QTS;
@@ -148,10 +145,7 @@ public:
     QTextIStream(FILE *f) : QTextStream(f, IO_ReadOnly) {}
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTextIStream(const QTextIStream &);
-    QTextIStream &operator=(const QTextIStream &);
-#endif
+    Q_DISABLE_COPY(QTextIStream)
 };
 
 class Q_CORE_EXPORT QTextOStream : public QTextStream
@@ -162,10 +156,7 @@ public:
     QTextOStream(FILE *f) : QTextStream(f, IO_WriteOnly) {}
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTextOStream(const QTextOStream &);
-    QTextOStream &operator=(const QTextOStream &);
-#endif
+    Q_DISABLE_COPY(QTextOStream)
 };
 
 /*****************************************************************************
@@ -175,13 +166,15 @@ private:
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);        // manipulator w/int argument
 
-class Q_CORE_EXPORT QTSManip {                        // text stream manipulator
+class Q_CORE_EXPORT QTSManip
+{
 public:
-    QTSManip(QTSMFI m, int a) { mf=m; arg=a; }
+    QTSManip(QTSMFI m, int a) { mf = m; arg = a; }
     void exec(QTextStream &s) { (s.*mf)(arg); }
+
 private:
     QTSMFI mf;                                        // QTextStream member function
-    int           arg;                                        // member function argument
+    int arg;                                          // member function argument
 };
 
 inline QTextStream &operator>>(QTextStream &s, QTSFUNC f)

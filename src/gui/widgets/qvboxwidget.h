@@ -29,11 +29,8 @@ public:
 #endif
     QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QVBoxWidget(const QVBoxWidget &);
-    QVBoxWidget& operator=(const QVBoxWidget &);
-#endif
+private:
+    Q_DISABLE_COPY(QVBoxWidget)
 };
 
 #endif // QT_NO_VBOX

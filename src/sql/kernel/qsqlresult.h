@@ -99,13 +99,10 @@ protected:
 
 private:
     QSqlResultPrivate* d;
-    void resetBindCount(); //HACK
+    void resetBindCount(); // HACK
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSqlResult(const QSqlResult &);
-    QSqlResult &operator=(const QSqlResult &);
-#endif
+private:
+    Q_DISABLE_COPY(QSqlResult)
 };
 
 #endif // QT_NO_SQL

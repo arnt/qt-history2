@@ -79,11 +79,9 @@ public:
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
                         const QStyleOption *opt) const;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QMacStyle(const QMacStyle &);
-    QMacStyle& operator=(const QMacStyle &);
-#endif
+private:
+    Q_DISABLE_COPY(QMacStyle)
+
     QMacStylePrivate *d;
 };
 

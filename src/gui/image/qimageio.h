@@ -80,6 +80,8 @@ public:
 
 
 private:
+    Q_DISABLE_COPY(QImageIO)
+
     void init();
 
     QImage im;               // image
@@ -90,12 +92,6 @@ private:
     char *params;            // image parameters
     QString descr;           // image description
     QImageIOData *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QImageIO(const QImageIO &);
-    QImageIO &operator=(const QImageIO &);
-#endif
 };
 
 #endif //QT_NO_IMAGEIO

@@ -221,11 +221,8 @@ protected:
     friend class QCoreApplication;
     friend class QWidget;
 
-private: // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QObject(const QObject &);
-    QObject &operator=(const QObject &);
-#endif
+private:
+    Q_DISABLE_COPY(QObject)
 };
 
 inline bool QObject::isAncestorOf(const QObject *child) const

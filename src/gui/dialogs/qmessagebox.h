@@ -153,6 +153,8 @@ private slots:
     void        buttonClicked();
 
 private:
+    Q_DISABLE_COPY(QMessageBox)
+
     void        init(int, int, int);
     int                indexOf(int) const;
     void        resizeButtons();
@@ -160,12 +162,6 @@ private:
     QMessageBoxData *mbd;
     void       *reserved1;
     void       *reserved2;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QMessageBox(const QMessageBox &);
-    QMessageBox &operator=(const QMessageBox &);
-#endif
 };
 
 /*

@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QTEMPORARYFILE_H__
-#define __QTEMPORARYFILE_H__
+
+#ifndef QTEMPORARYFILE_H
+#define QTEMPORARYFILE_H
 
 #include <qiodevice.h>
 #include <qfile.h>
@@ -45,10 +46,7 @@ public:
     static QTemporaryFile *createLocalFile(QFile &file);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTemporaryFile(const QTemporaryFile &);
-    QTemporaryFile &operator=(const QTemporaryFile &);
-#endif
+    Q_DISABLE_COPY(QTemporaryFile)
 };
 
-#endif /* __QTEMPORARYFILE_H__ */
+#endif // QTEMPORARYFILE_H

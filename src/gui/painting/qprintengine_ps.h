@@ -137,9 +137,7 @@ public:
     virtual Qt::HANDLE handle() const { return 0; };
 
 private:
-    // Disabled copy constructor and operator=
-    QPSPrintEngine(const QPSPrintEngine &);
-    QPSPrintEngine &operator=(const QPSPrintEngine &);
+    Q_DISABLE_COPY(QPSPrintEngine)
 };
 
 #endif // QT_NO_PRINTER

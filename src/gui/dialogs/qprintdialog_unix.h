@@ -35,7 +35,7 @@ public:
     int exec();
 
     void setPrinter(QPrinter *, bool = false);
-    QPrinter * printer() const;
+    QPrinter *printer() const;
 
     void addButton(QPushButton *but);
 
@@ -57,16 +57,11 @@ private slots:
     void fileNameEditChanged(const QString &text);
 
 private:
-    QGroupBox * setupDestination();
-    QGroupBox * setupOptions();
-    QGroupBox * setupPaper();
-    QGroupBox * setupPrinterSettings();
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QPrintDialogUnix(const QPrintDialogUnix &);
-    QPrintDialogUnix &operator=(const QPrintDialogUnix &);
-#endif
+    Q_DISABLE_COPY(QPrintDialogUnix)
+    QGroupBox *setupDestination();
+    QGroupBox *setupOptions();
+    QGroupBox *setupPaper();
+    QGroupBox *setupPrinterSettings();
 };
 
 #endif

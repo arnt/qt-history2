@@ -132,13 +132,12 @@ public slots:
 
 public:
     QTextDocumentPrivate *docHandle() const;
+
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
 
-#if defined(Q_DISABLE_COPY)
-    QTextDocument(const QTextDocument &);
-    QTextDocument &operator=(const QTextDocument &);
-#endif
+private:
+    Q_DISABLE_COPY(QTextDocument)
 };
 
 // ### just a temporary hook/interface, until Q4TextBrowser and friends moved into main

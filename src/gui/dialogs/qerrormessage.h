@@ -22,7 +22,8 @@
 
 class QErrorMessagePrivate;
 
-class Q_GUI_EXPORT QErrorMessage: public QDialog {
+class Q_GUI_EXPORT QErrorMessage: public QDialog
+{
     Q_OBJECT
     Q_DECLARE_PRIVATE(QErrorMessage)
 public:
@@ -37,12 +38,10 @@ public slots:
 protected:
     void done(int);
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QErrorMessage(const QErrorMessage &);
-    QErrorMessage &operator=(const QErrorMessage &);
-#endif
+private:
+    Q_DISABLE_COPY(QErrorMessage)
 };
 
-#endif //QT_NO_ERRORMESSAGE
+#endif // QT_NO_ERRORMESSAGE
 
 #endif

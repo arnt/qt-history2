@@ -29,11 +29,7 @@ class Q_CORE_EXPORT QThread : public QObject
 
     Q_OBJECT
     Q_DECLARE_PRIVATE(QThread)
-
-#if defined(Q_DISABLE_COPY)
-    QThread(const QThread &);
-    QThread &operator=(const QThread &);
-#endif // Q_DISABLE_COPY
+    Q_DISABLE_COPY(QThread)
 
 public:
     static Qt::HANDLE currentThread();

@@ -45,17 +45,13 @@ public:
     }
 
 #if defined(QT_COMPAT)
-    inline QT_COMPAT bool locked()
-    { return isLocked(); }
+    inline QT_COMPAT bool locked() { return isLocked(); }
 #endif
 
 private:
-    QMutexPrivate * d;
+    Q_DISABLE_COPY(QMutex)
 
-#if defined(Q_DISABLE_COPY)
-    QMutex(const QMutex &);
-    QMutex &operator=(const QMutex &);
-#endif
+    QMutexPrivate * d;
 };
 
 class Q_CORE_EXPORT QMutexLocker
@@ -78,12 +74,9 @@ public:
     { return mtx; }
 
 private:
-    QMutex *mtx;
+    Q_DISABLE_COPY(QMutexLocker)
 
-#if defined(Q_DISABLE_COPY)
-    QMutexLocker(const QMutexLocker &);
-    QMutexLocker &operator=(const QMutexLocker &);
-#endif
+    QMutex *mtx;
 };
 
 #else // QT_NO_THREAD
@@ -107,10 +100,7 @@ public:
 #endif
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QMutex(const QMutex &);
-    QMutex &operator=(const QMutex &);
-#endif
+    Q_DISABLE_COPY(QMutex)
 };
 
 class Q_CORE_EXPORT QMutexLocker
@@ -125,10 +115,7 @@ public:
     static inline QMutex *mutex() { return 0; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QMutexLocker(const QMutexLocker &);
-    QMutexLocker &operator=(const QMutexLocker &);
-#endif
+    Q_DISABLE_COPY(QMutexLocker)
 };
 
 #endif // QT_NO_THREAD

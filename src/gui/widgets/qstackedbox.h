@@ -50,11 +50,7 @@ protected:
     void childEvent(QChildEvent *e);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QStackedBox(const QStackedBox &);
-    QStackedBox &operator=(const QStackedBox &);
-#endif
-
+    Q_DISABLE_COPY(QStackedBox)
 };
 
 

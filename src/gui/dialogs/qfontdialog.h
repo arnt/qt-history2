@@ -70,14 +70,11 @@ private slots:
     void updateSample();
 
 private:
-    friend class QFontDialogPrivate;
-    QFontDialogPrivate * d;
+    Q_DISABLE_COPY(QFontDialog)
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QFontDialog(const QFontDialog &);
-    QFontDialog& operator=(const QFontDialog &);
-#endif
+    QFontDialogPrivate *d;
+
+    friend class QFontDialogPrivate;
 };
 
 #endif

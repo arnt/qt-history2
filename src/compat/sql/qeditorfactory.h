@@ -33,10 +33,7 @@ public:
     static void installDefaultFactory(QEditorFactory * factory);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QEditorFactory(const QEditorFactory &);
-    QEditorFactory &operator=(const QEditorFactory &);
-#endif
+    Q_DISABLE_COPY(QEditorFactory)
 };
 
 #endif // QT_NO_SQL

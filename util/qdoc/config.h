@@ -65,10 +65,7 @@ public:
 		     const QString& format, const QStringList& args ) const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    Config( const Config& );
-    Config& operator=( const Config& );
-#endif
+    Q_DISABLE_COPY(Config)
 
     bool matchLine( QString *key, QStringList *val );
     void showHelp();

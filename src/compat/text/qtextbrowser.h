@@ -63,17 +63,13 @@ protected:
     void keyPressEvent(QKeyEvent * e);
 
 private:
+    Q_DISABLE_COPY(QTextBrowser)
+
     void popupDetail(const QString& contents, const QPoint& pos);
     bool linksEnabled() const { return true; }
     void emitHighlighted(const QString &s);
     void emitLinkClicked(const QString &s);
     QTextBrowserData *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTextBrowser(const QTextBrowser &);
-    QTextBrowser& operator=(const QTextBrowser &);
-#endif
 };
 
 #endif // QT_NO_TEXTBROWSER

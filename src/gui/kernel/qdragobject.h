@@ -71,10 +71,7 @@ protected:
 #endif
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDragObject(const QDragObject &);
-    QDragObject &operator=(const QDragObject &);
-#endif
+    Q_DISABLE_COPY(QDragObject)
 };
 
 class Q_GUI_EXPORT QStoredDrag: public QDragObject {
@@ -96,10 +93,7 @@ protected:
     QStoredDrag(QStoredDragPrivate &, const char *mimeType, QWidget *dragSource = 0);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QStoredDrag(const QStoredDrag &);
-    QStoredDrag &operator=(const QStoredDrag &);
-#endif
+    Q_DISABLE_COPY(QStoredDrag)
 };
 
 class Q_GUI_EXPORT QTextDrag: public QDragObject {
@@ -128,10 +122,7 @@ protected:
     QTextDrag(QTextDragPrivate &, QWidget * dragSource = 0);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTextDrag(const QTextDrag &);
-    QTextDrag &operator=(const QTextDrag &);
-#endif
+    Q_DISABLE_COPY(QTextDrag)
 };
 
 class Q_GUI_EXPORT QImageDrag: public QDragObject {
@@ -159,10 +150,7 @@ protected:
     QImageDrag(QImageDragPrivate &, QWidget * dragSource = 0);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QImageDrag(const QImageDrag &);
-    QImageDrag &operator=(const QImageDrag &);
-#endif
+    Q_DISABLE_COPY(QImageDrag)
 };
 
 
@@ -194,10 +182,7 @@ public:
     static bool decodeLocalFiles(const QMimeSource* e, QStringList& i);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QUriDrag(const QUriDrag &);
-    QUriDrag &operator=(const QUriDrag &);
-#endif
+    Q_DISABLE_COPY(QUriDrag)
 };
 
 class Q_GUI_EXPORT QColorDrag : public QStoredDrag
@@ -218,10 +203,7 @@ public:
     static bool decode(QMimeSource *, QColor &col);
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QColorDrag(const QColorDrag &);
-    QColorDrag &operator=(const QColorDrag &);
-#endif
+    Q_DISABLE_COPY(QColorDrag)
 };
 
 #ifdef QT_COMPAT
@@ -258,6 +240,8 @@ private:
     void updatePixmap();
 
 private:
+    Q_DISABLE_COPY(QDragManager)
+
     QDragObject * object;
     void updateMode(Qt::ButtonState newstate);
     void updateCursor();
@@ -270,10 +254,6 @@ private:
 
     QPixmap *pm_cursor;
     int n_cursor;
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDragManager(const QDragManager &);
-    QDragManager &operator=(const QDragManager &);
-#endif
 };
 
 #endif

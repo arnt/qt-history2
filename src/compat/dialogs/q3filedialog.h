@@ -43,11 +43,8 @@ public:
     Q3FileIconProvider(QObject * parent = 0, const char* name = 0);
     virtual const QPixmap * pixmap(const QFileInfo &);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3FileIconProvider(const Q3FileIconProvider &);
-    Q3FileIconProvider& operator=(const Q3FileIconProvider &);
-#endif
+private:
+    Q_DISABLE_COPY(Q3FileIconProvider)
 };
 
 class Q_COMPAT_EXPORT Q3FilePreview
@@ -232,6 +229,8 @@ private slots:
     void goBack();
 
 private:
+    Q_DISABLE_COPY(Q3FileDialog)
+
     enum PopupAction {
         PA_Open = 0,
         PA_Delete,
@@ -302,13 +301,6 @@ private:
                                             QWidget *, const char *,
                                             const QString&, QString *,
                                             bool = true, bool = false);
-#endif
-
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3FileDialog(const Q3FileDialog &);
-    Q3FileDialog &operator=(const Q3FileDialog &);
 #endif
 };
 

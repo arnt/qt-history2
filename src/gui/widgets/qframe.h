@@ -91,10 +91,7 @@ protected:
     void drawFrame(QPainter *);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QFrame(const QFrame &);
-    QFrame &operator=(const QFrame &);
-#endif
+    Q_DISABLE_COPY(QFrame)
 
 #ifdef QT_COMPAT
 public:

@@ -51,10 +51,7 @@ public:
     void lint() const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    DocEmitter( const DocEmitter& );
-    DocEmitter& operator=( const DocEmitter& );
-#endif
+    Q_DISABLE_COPY(DocEmitter)
 
     void addHtmlFile( const QString& fileName );
 

@@ -153,10 +153,7 @@ private:
     friend class QProc;
 #endif
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QProcess(const QProcess &);
-    QProcess &operator=(const QProcess &);
-#endif
+    Q_DISABLE_COPY(QProcess)
 };
 
 #endif // QT_NO_PROCESS

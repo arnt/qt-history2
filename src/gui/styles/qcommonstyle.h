@@ -59,14 +59,8 @@ public:
                         const QStyleOption *opt) const;
 
 private:
-    // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QCommonStyle(const QCommonStyle &);
-    QCommonStyle &operator=(const QCommonStyle &);
-#endif
+    Q_DISABLE_COPY(QCommonStyle)
 };
-
-
 
 #endif // QT_NO_STYLE
 

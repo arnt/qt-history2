@@ -84,14 +84,14 @@ protected:
     void    paintEvent(QPaintEvent *);
 
 private:
+    Q_DISABLE_COPY(QLCDNumber)
+
     void    init();
     void    internalDisplay(const QString &);
     void    internalSetString(const QString& s);
-    void    drawString(const QString& s, QPainter &, QBitArray * = 0,
-                        bool = true);
+    void    drawString(const QString& s, QPainter &, QBitArray * = 0, bool = true);
     //void    drawString(const QString &, QPainter &, QBitArray * = 0) const;
-    void    drawDigit(const QPoint &, QPainter &, int, char,
-                       char = ' ');
+    void    drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
     void    drawSegment(const QPoint &, char, QPainter &, int, bool = false);
 
     int            ndigits;
@@ -103,12 +103,6 @@ private:
     QString digitStr;
     QBitArray points;
     QLCDNumberPrivate * d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QLCDNumber(const QLCDNumber &);
-    QLCDNumber &operator=(const QLCDNumber &);
-#endif
 };
 
 inline bool QLCDNumber::smallDecimalPoint() const
@@ -116,7 +110,6 @@ inline bool QLCDNumber::smallDecimalPoint() const
 
 inline int QLCDNumber::numDigits() const
 { return ndigits; }
-
 
 #endif // QT_NO_LCDNUMBER
 

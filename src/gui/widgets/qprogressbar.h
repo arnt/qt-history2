@@ -74,6 +74,8 @@ protected:
     void changeEvent(QEvent *);
 
 private:
+    Q_DISABLE_COPY(QProgressBar)
+
     int                total_steps;
     int                progress_val;
     int                percentage;
@@ -83,12 +85,6 @@ private:
     bool        percentage_visible  : 1;
     QProgressBarPrivate * d;
     void         initFrame();
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QProgressBar(const QProgressBar &);
-    QProgressBar &operator=(const QProgressBar &);
-#endif
 };
 
 

@@ -140,6 +140,8 @@ signals:
 #endif
 
 private:
+    Q_DISABLE_COPY(QAction)
+
 #ifdef QT_COMPAT
     friend class QMenuItem;
 #endif
@@ -148,10 +150,6 @@ private:
     friend class QMenu;
     friend class QMenuBar;
     friend class QShortcutMap;
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QAction(const QAction &);
-    QAction &operator=(const QAction &);
-#endif
 };
 
 #include "qactiongroup.h" // ### remove after tech-preview 1

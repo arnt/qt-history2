@@ -136,10 +136,7 @@ public:
 #endif
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QAbstractSlider(const QAbstractSlider &);
-    QAbstractSlider &operator=(const QAbstractSlider &);
-#endif
+    Q_DISABLE_COPY(QAbstractSlider)
 };
 
 #endif // QABSTRACTSLIDER_H

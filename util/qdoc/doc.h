@@ -132,10 +132,7 @@ protected:
     static QMap<QString, QString> classext;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    Doc( const Doc& com );
-    Doc& operator=( const Doc& com );
-#endif
+    Q_DISABLE_COPY(Doc)
 
     QString htmlTableOfContents() const;
 

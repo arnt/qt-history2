@@ -157,6 +157,8 @@ private slots:
     void doLineUp() { lineUpDockWindows(true); }
 
 private:
+    Q_DISABLE_COPY(Q3MainWindow)
+
     void triggerLayout(bool deleteLayout = true);
     bool dockMainWindow(QObject *dock) const;
 
@@ -173,11 +175,6 @@ private:
     friend class QHideDock;
     friend class Q3ToolBar;
     friend class Q3MainWindowLayout;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3MainWindow(const Q3MainWindow &);
-    Q3MainWindow& operator=(const Q3MainWindow &);
-#endif
 };
 
 #ifndef QT_NO_TOOLBAR

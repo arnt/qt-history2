@@ -638,11 +638,8 @@ private:
     friend QPoint posInWindow(const QWidget *w);
 #endif
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWidget(const QWidget &);
-    QWidget &operator=(const QWidget &);
-#endif
+private:
+    Q_DISABLE_COPY(QWidget)
 
     QWidgetData *data;
 

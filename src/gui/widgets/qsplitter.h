@@ -82,17 +82,12 @@ protected:
     void getRange(int id, int *, int *);
 
 private:
-    friend class QSplitterHandle;
+    Q_DISABLE_COPY(QSplitter)
 
+    friend class QSplitterHandle;
 #ifndef QT_NO_TEXTSTREAM
     friend Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
     friend Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
-#endif
-
-private:
-#if defined(Q_DISABLE_COPY)
-    QSplitter(const QSplitter &);
-    QSplitter& operator=(const QSplitter &);
 #endif
 };
 

@@ -89,13 +89,9 @@ public:
                   QStyleHintReturn* = 0*/) const;
 
 private:
-    bool highlightCols;
+    Q_DISABLE_COPY(QMotifStyle)
 
-    // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QMotifStyle(const QMotifStyle &);
-    QMotifStyle& operator=(const QMotifStyle &);
-#endif
+    bool highlightCols;
 };
 
 #endif // QT_NO_STYLE_MOTIF

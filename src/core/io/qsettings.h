@@ -116,14 +116,11 @@ public:
     bool sync();
 
 private:
-    QSettingsPrivate *d;
-
-#if defined(Q_DISABLE_COPY)
-    QSettings(const QSettings &);
-    QSettings &operator=(const QSettings &);
-#endif
+    Q_DISABLE_COPY(QSettings)
 
     QDateTime lastModificationTime(const QString &);
+
+    QSettingsPrivate *d;
 
     friend class QApplication;
 };

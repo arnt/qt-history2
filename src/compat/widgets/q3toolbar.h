@@ -77,11 +77,8 @@ private:
 
     friend class Q3MainWindow;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3ToolBar(const Q3ToolBar &);
-    Q3ToolBar& operator=(const Q3ToolBar &);
-#endif
+private:
+    Q_DISABLE_COPY(Q3ToolBar)
 };
 
 #endif // QT_NO_TOOLBAR

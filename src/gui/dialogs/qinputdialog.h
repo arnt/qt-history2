@@ -73,11 +73,8 @@ private slots:
     void textChanged(const QString &s);
     void tryAccept();
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QInputDialog(const QInputDialog &);
-    QInputDialog &operator=(const QInputDialog &);
-#endif
+private:
+    Q_DISABLE_COPY(QInputDialog)
 };
 
 #endif // QT_NO_INPUTDIALOG

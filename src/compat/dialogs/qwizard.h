@@ -88,24 +88,16 @@ protected:
     virtual void layOutTitleRow(QHBoxLayout *, const QString &);
 
 private:
+    Q_DISABLE_COPY(QWizard)
+
     void setBackEnabled(bool);
     void setNextEnabled(bool);
-
     void setHelpEnabled(bool);
-
     void setNextPage(QWidget *);
-
     void updateButtons();
-
     void layOut();
 
     QWizardPrivate *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWizard(const QWizard &);
-    QWizard& operator=(const QWizard &);
-#endif
 };
 
 #endif // QT_NO_WIZARD

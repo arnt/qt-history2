@@ -526,6 +526,8 @@ private:
 #endif
 
 private:
+    Q_DISABLE_COPY(Q3TextEdit)
+
     Q3TextDocument *doc;
     Q3TextCursor *cursor;
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
@@ -553,12 +555,6 @@ private:
     bool readonly : 1;
     bool undoEnabled : 1;
     bool overWrite : 1;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3TextEdit(const Q3TextEdit &);
-    Q3TextEdit &operator=(const Q3TextEdit &);
-#endif
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Q3TextEdit::AutoFormatting)
@@ -579,4 +575,5 @@ inline void Q3TextEdit::setCurrentFont(const QFont &f)
 }
 
 #endif // QT_NO_TEXTEDIT
+
 #endif // Q3TEXTEDIT_H

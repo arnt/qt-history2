@@ -263,6 +263,8 @@ private slots:
     void adjustItems();
 
 private:
+    Q_DISABLE_COPY(QListBox)
+
     void mousePressEventEx(QMouseEvent *);
     void tryGeometry(int, int) const;
     int currentRow() const;
@@ -282,12 +284,6 @@ private:
     QListBoxPrivate * d;
 
     static QListBox * changedListBox;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QListBox(const QListBox &);
-    QListBox &operator=(const QListBox &);
-#endif
 };
 
 
@@ -329,6 +325,8 @@ protected:
     void setCustomHighlighting(bool);
 
 private:
+    Q_DISABLE_COPY(QListBoxItem)
+
     QString txt;
     uint selectable : 1;
     uint s : 1;
@@ -341,12 +339,6 @@ private:
     friend class QListBoxPrivate;
     friend class QComboBox;
     friend class QComboBoxPopupItem;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QListBoxItem(const QListBoxItem &);
-    QListBoxItem &operator=(const QListBoxItem &);
-#endif
 };
 
 
@@ -367,11 +359,8 @@ public:
 protected:
     void  paint(QPainter *);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QListBoxText(const QListBoxText &);
-    QListBoxText &operator=(const QListBoxText &);
-#endif
+private:
+    Q_DISABLE_COPY(QListBoxText)
 };
 
 
@@ -398,12 +387,9 @@ protected:
     void paint(QPainter *);
 
 private:
+    Q_DISABLE_COPY(QListBoxPixmap)
+
     QPixmap pm;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QListBoxPixmap(const QListBoxPixmap &);
-    QListBoxPixmap &operator=(const QListBoxPixmap &);
-#endif
 };
 
 

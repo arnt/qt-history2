@@ -60,7 +60,9 @@ protected:
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
     void updateMask();
+
 private:
+    Q_DISABLE_COPY(QPushButton)
     Q_PRIVATE_SLOT(d, void popupPressed())
 
 public:
@@ -73,11 +75,6 @@ public:
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
 #endif
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QPushButton(const QPushButton &);
-    QPushButton &operator=(const QPushButton &);
-#endif
 };
-#endif
 
+#endif

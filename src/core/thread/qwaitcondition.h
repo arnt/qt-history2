@@ -37,12 +37,9 @@ public:
     void wakeAll();
 
 private:
-    QWaitConditionPrivate * d;
+    Q_DISABLE_COPY(QWaitCondition)
 
-#if defined(Q_DISABLE_COPY)
-    QWaitCondition(const QWaitCondition &);
-    QWaitCondition &operator=(const QWaitCondition &);
-#endif
+    QWaitConditionPrivate * d;
 };
 
 #endif // QWAITCONDITION_H

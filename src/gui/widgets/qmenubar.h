@@ -259,11 +259,11 @@ private:
 #endif
 
 private:
+    Q_DISABLE_COPY(QMenuBar)
     Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void actionHovered())
     Q_PRIVATE_SLOT(d, void internalShortcutActivated(int))
     Q_PRIVATE_SLOT(d, void updateLayout())
-
 
     friend class QMenu;
     friend class QWorkspacePrivate;
@@ -273,10 +273,6 @@ private:
     friend class QApplicationPrivate;
     static bool macUpdateMenuBar();
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
-#endif
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QMenuBar(const QMenuBar &);
-    QMenuBar &operator=(const QMenuBar &);
 #endif
 };
 

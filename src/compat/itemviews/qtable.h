@@ -26,7 +26,6 @@
 #include "qintdict.h"
 #endif // QT_H
 
-
 #ifndef QT_NO_TABLE
 
 #if defined(QT_LICENSE_PROFESSIONAL)
@@ -431,6 +430,8 @@ private slots:
     void updateGeometriesSlot();
 
 private:
+    Q_DISABLE_COPY(QTable)
+
     void contentsMousePressEventEx(QMouseEvent*);
     void updateGeometries();
     void repaintSelections(QTableSelection *oldSelection,
@@ -471,7 +472,6 @@ private:
                           QVector<TableWidget *> &tmp2);
     void finishContentsResze(bool updateBefore);
 
-private:
     QVector<QTableItem *> contents;
     QVector<QWidget *> widgets;
     int curRow;
@@ -505,11 +505,6 @@ private:
     QPoint dragStartPos;
     int oldCurrentRow, oldCurrentCol;
     FocusStyle focusStl;
-
-#if defined(Q_DISABLE_COPY)
-    QTable(const QTable &);
-    QTable &operator=(const QTable &);
-#endif
 };
 
 #endif // QT_NO_TABLE

@@ -39,10 +39,7 @@ public slots:
     virtual void stepDown() = 0;
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    Q3DateTimeEditBase(const Q3DateTimeEditBase &);
-    Q3DateTimeEditBase &operator=(const Q3DateTimeEditBase &);
-#endif
+    Q_DISABLE_COPY(Q3DateTimeEditBase)
 };
 
 class Q3DateEditPrivate;
@@ -113,16 +110,13 @@ protected slots:
     void updateButtons();
 
 private:
+    Q_DISABLE_COPY(Q3DateEdit)
+
     void init();
     int sectionOffsetEnd(int sec) const;
     int sectionLength(int sec) const;
     QString sectionText(int sec) const;
     Q3DateEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    Q3DateEdit(const Q3DateEdit &);
-    Q3DateEdit &operator=(const Q3DateEdit &);
-#endif
 };
 
 class Q3TimeEditPrivate;
@@ -198,14 +192,11 @@ protected slots:
     void updateButtons();
 
 private:
+    Q_DISABLE_COPY(Q3TimeEdit)
+
     void init();
     QString sectionText(int sec);
     Q3TimeEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    Q3TimeEdit(const Q3TimeEdit &);
-    Q3TimeEdit &operator=(const Q3TimeEdit &);
-#endif
 };
 
 
@@ -241,25 +232,19 @@ signals:
     void valueChanged(const QDateTime& datetime);
 
 protected:
-    // ### make init() private in Qt 4.0
     void init();
     void resizeEvent(QResizeEvent *);
 
 protected slots:
-    // ### make these two functions private in Qt 4.0,
-    //     and merge them into one with no parameter
     void newValue(const QDate& d);
     void newValue(const QTime& t);
 
 private:
+    Q_DISABLE_COPY(Q3DateTimeEdit)
+
     Q3DateEdit* de;
     Q3TimeEdit* te;
     Q3DateTimeEditPrivate* d;
-
-#if defined(Q_DISABLE_COPY)
-    Q3DateTimeEdit(const Q3DateTimeEdit &);
-    Q3DateTimeEdit &operator=(const Q3DateTimeEdit &);
-#endif
 };
 
 #endif

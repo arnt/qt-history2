@@ -94,11 +94,9 @@ protected:
     virtual void cutText();
 
 private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTitleBar(const QTitleBar &);
-    QTitleBar &operator=(const QTitleBar &);
-#endif
+    Q_DISABLE_COPY(QTitleBar)
 };
 
 #endif
+
 #endif //QTITLEBAR_P_H

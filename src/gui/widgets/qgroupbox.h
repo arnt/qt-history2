@@ -67,6 +67,7 @@ protected:
     void changeEvent(QEvent *);
 
 private:
+    Q_DISABLE_COPY(QGroupBox)
     Q_PRIVATE_SLOT(d, void fixFocus())
     Q_PRIVATE_SLOT(d, void setChildrenEnabled(bool b))
 
@@ -74,12 +75,6 @@ private:
 public:
     QT_COMPAT_CONSTRUCTOR QGroupBox(QWidget* parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QGroupBox(const QString &title, QWidget* parent, const char* name);
-#endif
-
-private:
-#if defined(Q_DISABLE_COPY)
-    QGroupBox(const QGroupBox &);
-    QGroupBox &operator=(const QGroupBox &);
 #endif
 };
 

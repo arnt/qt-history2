@@ -53,10 +53,7 @@ class QCache
         return n.t;
     }
 
-#if defined(Q_DISABLE_COPY)
-    QCache(const QCache &other);
-    QCache &operator=(const QCache &other);
-#endif
+    Q_DISABLE_COPY(QCache)
 
 public:
     inline QCache(int maxCost = 100)

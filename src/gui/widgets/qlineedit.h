@@ -181,14 +181,9 @@ public:
 #endif
 
 private:
+    Q_DISABLE_COPY(QLineEdit)
     Q_PRIVATE_SLOT(d, void clipboardChanged())
-
-#if defined(Q_DISABLE_COPY)
-    QLineEdit(const QLineEdit &);
-    QLineEdit &operator=(const QLineEdit &);
-#endif
 };
-
 
 #endif // QT_NO_LINEEDIT
 

@@ -93,21 +93,18 @@ signals:
     void helpButtonPressed();
 
     void currentChanged(QWidget *);
-    void selected(const QString&); // obsolete
+    void selected(const QString &);
 
 private slots:
     void showTab(int i);
 
 private:
+    Q_DISABLE_COPY(QTabDialog)
+
     void setSizes();
     void setUpLayout();
 
     QTabDialogPrivate *d;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTabDialog(const QTabDialog &);
-    QTabDialog& operator=(const QTabDialog &);
-#endif
 };
 
 #endif // QT_NO_TABDIALOG

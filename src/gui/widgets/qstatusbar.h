@@ -56,10 +56,7 @@ protected:
     bool event(QEvent *);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QStatusBar(const QStatusBar &);
-    QStatusBar& operator=(const QStatusBar &);
-#endif
+    Q_DISABLE_COPY(QStatusBar)
 };
 
 #endif // QT_NO_STATUSBAR

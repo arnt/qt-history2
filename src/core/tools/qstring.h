@@ -423,7 +423,7 @@ public:
     bool isRightToLeft() const { if (!d->clean) updateProperties(); return d->righttoleft; }
 
 private:
-#if defined (QT_NO_CAST_FROM_ASCII) && defined (Q_DISABLE_COPY)
+#if defined(QT_NO_CAST_FROM_ASCII) && !defined(Q_NO_UNRESOLVED_EXTERNALS)
     QString &operator+=(const char *s);
     QString &operator+=(const QByteArray &s);
     QString(const char *ch);
@@ -431,6 +431,7 @@ private:
     QString &operator=(const char  *ch);
     QString &operator=(const QByteArray &a);
 #endif
+
     struct Data {
         QAtomic ref;
         int alloc, size;

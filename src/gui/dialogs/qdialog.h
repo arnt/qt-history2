@@ -89,11 +89,8 @@ protected:
     bool eventFilter(QObject *, QEvent *);
     void adjustPosition(QWidget*);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QDialog(const QDialog &);
-    QDialog &operator=(const QDialog &);
-#endif
+private:
+    Q_DISABLE_COPY(QDialog)
 };
 
 #endif // QT_NO_DIALOG

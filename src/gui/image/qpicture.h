@@ -147,15 +147,11 @@ public:
                                  picture_io_handler write_picture);
 
 private:
-    void        init();
+    Q_DISABLE_COPY(QPictureIO)
+
+    void init();
 
     QPictureIOData *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QPictureIO(const QPictureIO &);
-    QPictureIO &operator=(const QPictureIO &);
-#endif
 };
 
 #endif //QT_NO_PICTUREIO

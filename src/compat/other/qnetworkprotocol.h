@@ -153,11 +153,8 @@ private slots:
 
     void removeMe();
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QNetworkProtocol(const QNetworkProtocol &);
-    QNetworkProtocol &operator=(const QNetworkProtocol &);
-#endif
+private:
+    Q_DISABLE_COPY(QNetworkProtocol)
 };
 
 class QNetworkOperationPrivate;
@@ -195,14 +192,10 @@ private slots:
     void deleteMe();
 
 private:
+    Q_DISABLE_COPY(QNetworkOperation)
+
     QByteArray &raw(int num) const;
     QNetworkOperationPrivate *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QNetworkOperation(const QNetworkOperation &);
-    QNetworkOperation &operator=(const QNetworkOperation &);
-#endif
 };
 
 #endif // QT_NO_NETWORKPROTOCOL

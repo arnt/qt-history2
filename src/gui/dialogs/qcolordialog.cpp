@@ -115,6 +115,8 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
+    Q_DISABLE_COPY(QWellArray)
+
     int nrows;
     int ncols;
     int cellw;
@@ -124,12 +126,6 @@ private:
     int selRow;
     int selCol;
     QWellArrayData *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWellArray(const QWellArray &);
-    QWellArray& operator=(const QWellArray &);
-#endif
 };
 
 void QWellArray::paintEvent(QPaintEvent *e)

@@ -113,17 +113,15 @@ private slots:
     QT_MOC_COMPAT void clearStatusText();
 
 private:
+    Q_DISABLE_COPY(Q3Action)
+
     void init();
+
+    Q3ActionPrivate* d;
 
     friend class Q3ActionPrivate;
     friend class Q3ActionGroup;
     friend class Q3ActionGroupPrivate;
-    Q3ActionPrivate* d;
-
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    Q3Action(const Q3Action &);
-    Q3Action &operator=(const Q3Action &);
-#endif
 };
 
 class Q_COMPAT_EXPORT Q3ActionGroup : public Q3Action
@@ -183,10 +181,7 @@ public:
     void insert(Q3Action *a) { add(a); }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    Q3ActionGroup(const Q3ActionGroup &);
-    Q3ActionGroup &operator=(const Q3ActionGroup &);
-#endif
+    Q_DISABLE_COPY(Q3ActionGroup)
 };
 
 #endif

@@ -201,11 +201,9 @@ private:
     void         endUpdate();
     QDataTablePrivate* d;
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDataTable(const QDataTable &);
-    QDataTable &operator=(const QDataTable &);
-#endif
+    Q_DISABLE_COPY(QDataTable)
 };
 
 #endif
+
 #endif

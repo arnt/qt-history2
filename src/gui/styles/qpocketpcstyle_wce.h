@@ -56,7 +56,8 @@ public:
     int styleHint(StyleHint,const QWidget *,const QStyleOption &,QStyleHintReturn *) const;
 
 private:
-    // Convenience
+    Q_DISABLE_COPY(QPocketPCStyle)
+
     Qt::Dock findLocation(QWidget *p) const;
     Qt::Dock findLocation(QPainter *p) const;
 
@@ -65,11 +66,6 @@ private:
     QPalette originalPal;
     bool gotOriginal;
 #endif // Q_OS_TEMP
-
-#if defined(Q_DISABLE_COPY)
-    QPocketPCStyle(const QPocketPCStyle &);
-    QPocketPCStyle& operator=(const QPocketPCStyle &);
-#endif
 };
 
 //#endif // QT_NO_STYLE_POCKETPC

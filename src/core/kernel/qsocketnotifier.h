@@ -44,17 +44,12 @@ protected:
     bool         event(QEvent *);
 
 private:
-    int                 sockfd;
-    Type         sntype;
-    bool         snenabled;
+    Q_DISABLE_COPY(QSocketNotifier)
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSocketNotifier(const QSocketNotifier &);
-    QSocketNotifier &operator=(const QSocketNotifier &);
-#endif
+    int sockfd;
+    Type sntype;
+    bool snenabled;
 };
-
 
 inline int QSocketNotifier::socket() const
 { return sockfd; }

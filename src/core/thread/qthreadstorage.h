@@ -93,10 +93,7 @@ class QThreadStorage
 private:
     QThreadStorageData d;
 
-#if defined(Q_DISABLE_COPY)
-    QThreadStorage(const QThreadStorage &);
-    QThreadStorage &operator=(const QThreadStorage &);
-#endif // Q_DISABLE_COPY
+    Q_DISABLE_COPY(QThreadStorage)
 
     static inline void deleteData(void *x)
     { delete reinterpret_cast<T&>(x); }

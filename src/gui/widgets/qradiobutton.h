@@ -46,11 +46,8 @@ public:
 
 #endif
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QRadioButton(const QRadioButton &);
-    QRadioButton &operator=(const QRadioButton &);
-#endif
+private:
+    Q_DISABLE_COPY(QRadioButton)
 };
 
 #endif // QT_NO_RADIOBUTTON

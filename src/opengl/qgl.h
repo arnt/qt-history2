@@ -313,11 +313,9 @@ private:
     void init(QGLContext *context, const QGLWidget* shareWidget);
     bool renderCxPm(QPixmap* pm);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGLWidget(const QGLWidget&);
-    QGLWidget& operator=(const QGLWidget&);
-#endif
+private:
+    Q_DISABLE_COPY(QGLWidget);
+
 #ifdef Q_WS_MAC
     friend class QMacGLWindowChangeEvent;
 #endif

@@ -69,10 +69,7 @@ protected:
     friend class QFontEngineMac;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QQuickDrawPaintEngine(const QQuickDrawPaintEngine &);
-    QQuickDrawPaintEngine &operator=(const QQuickDrawPaintEngine &);
-#endif
+    Q_DISABLE_COPY(QQuickDrawPaintEngine)
 };
 
 class QCoreGraphicsPaintEnginePrivate;
@@ -121,10 +118,7 @@ protected:
     void drawPolyInternal(const QPointArray &a, bool close=true);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCoreGraphicsPaintEngine(const QCoreGraphicsPaintEngine &);
-    QCoreGraphicsPaintEngine &operator=(const QCoreGraphicsPaintEngine &);
-#endif
+    Q_DISABLE_COPY(QCoreGraphicsPaintEngine)
 };
 
 #endif

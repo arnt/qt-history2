@@ -54,7 +54,7 @@ public:
 
     void setButton(int id);
 
-    QAbstractButton    *selected() const;
+    QAbstractButton *selected() const;
     int selectedId() const;
 
 signals:
@@ -71,18 +71,14 @@ protected:
     bool event(QEvent * e);
 
 private:
+    Q_DISABLE_COPY(Q3ButtonGroup)
+
     void init();
 
     bool excl_grp;
     bool radio_excl;
     QMap<int, QAbstractButton*> buttonIds;
     QButtonGroup group;
-
-private:
-#if defined(Q_DISABLE_COPY)
-    Q3ButtonGroup(const Q3ButtonGroup &);
-    Q3ButtonGroup &operator=(const Q3ButtonGroup &);
-#endif
 };
 
 class Q_COMPAT_EXPORT QVButtonGroup : public Q3ButtonGroup
@@ -94,11 +90,8 @@ public:
     inline QVButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Horizontal /* sic! */, title, parent, name) {}
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QVButtonGroup(const QVButtonGroup &);
-    QVButtonGroup &operator=(const QVButtonGroup &);
-#endif
+private:
+    Q_DISABLE_COPY(QVButtonGroup)
 };
 
 
@@ -111,11 +104,8 @@ public:
     inline QHButtonGroup(const QString &title, QWidget* parent=0, const char* name=0)
         : Q3ButtonGroup(1, Qt::Vertical /* sic! */, title, parent, name) {}
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QHButtonGroup(const QHButtonGroup &);
-    QHButtonGroup &operator=(const QHButtonGroup &);
-#endif
+private:
+    Q_DISABLE_COPY(QHButtonGroup)
 };
 
 

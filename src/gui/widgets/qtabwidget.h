@@ -98,18 +98,13 @@ protected:
     void updateMask();
 
 private:
+    Q_DISABLE_COPY(QTabWidget)
     Q_PRIVATE_SLOT(d, void showTab(int))
     Q_PRIVATE_SLOT(d, void removeTab(int))
     Q_DECLARE_PRIVATE(QTabWidget)
+
     void setUpLayout(bool = false);
     friend class QTabDialog;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTabWidget(const QTabWidget &);
-    QTabWidget& operator=(const QTabWidget &);
-#endif
-
 
 #ifdef QT_COMPAT
 public:

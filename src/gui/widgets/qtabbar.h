@@ -98,12 +98,8 @@ protected:
     void changeEvent(QEvent *);
 
 private:
-    Q_PRIVATE_SLOT(d, void scrollTabs());
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTabBar(const QTabBar &);
-    QTabBar& operator=(const QTabBar &);
-#endif
+    Q_DISABLE_COPY(QTabBar)
+    Q_PRIVATE_SLOT(d, void scrollTabs())
 };
 
 #endif

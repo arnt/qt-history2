@@ -63,10 +63,7 @@ public:
 #endif
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QCheckBox(const QCheckBox &);
-    QCheckBox &operator=(const QCheckBox &);
-#endif
+    Q_DISABLE_COPY(QCheckBox)
 };
 
 #endif // QT_NO_CHECKBOX

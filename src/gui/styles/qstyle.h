@@ -696,7 +696,9 @@ public:
     static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
 
 private:
-#ifdef QT_COMPAT
+    Q_DISABLE_COPY(QStyle)
+
+#if defined(QT_COMPAT) && !defined(QT_NO_UNRESOLVED_EXTERNALS)
     // Cause a compile error when trying to use style functions that
     // accept QColorGroup arguments. Remove in Qt 5.x.
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
@@ -712,12 +714,9 @@ private:
                    const QPixmap *pixmap,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const;
-#endif // QT_COMPAT
-
-#if defined(Q_DISABLE_COPY)
-    QStyle(const QStyle &);
-    QStyle& operator=(const QStyle &);
 #endif
 };
+
 #endif // QT_NO_STYLE
+
 #endif // QSTYLE_H

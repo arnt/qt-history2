@@ -26,7 +26,7 @@ class QAccelPrivate;
 class QKeySequence;
 class QWidget;
 
-class Q_COMPAT_EXPORT QAccel : public QObject                        // accelerator class
+class Q_COMPAT_EXPORT QAccel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAccel)
@@ -67,10 +67,8 @@ signals:
     void activatedAmbiguously(int id);
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QAccel(const QAccel &);
-    QAccel &operator=(const QAccel &);
-#endif
+    Q_DISABLE_COPY(QAccel)
+
     friend class QAccelManager;
 };
 

@@ -216,11 +216,9 @@ private slots:
     void stopDragAutoScroll();
 #endif
 
-private: // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QScrollView(const QScrollView &);
-    QScrollView &operator=(const QScrollView &);
-#endif
+private:
+    Q_DISABLE_COPY(QScrollView)
+
     void changeFrameRect(const QRect&);
 
 public:

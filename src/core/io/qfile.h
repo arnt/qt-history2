@@ -96,10 +96,7 @@ public:
     virtual QIOEngine *ioEngine() const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QFile(const QFile &);
-    QFile &operator=(const QFile &);
-#endif
+    Q_DISABLE_COPY(QFile)
 };
 
 #endif // QFILE_H

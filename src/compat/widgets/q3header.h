@@ -169,11 +169,8 @@ private:
 
     Q3HeaderData *d;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3Header(const Q3Header &);
-    Q3Header &operator=(const Q3Header &);
-#endif
+private:
+    Q_DISABLE_COPY(Q3Header)
 };
 
 

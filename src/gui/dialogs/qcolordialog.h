@@ -50,15 +50,13 @@ private:
 
     void showCustom(bool=true);
 
-private:        // Disabled copy constructor and operator=
+private:
+    Q_DISABLE_COPY(QColorDialog)
+
     QColorDialogPrivate *d;
+
     friend class QColorDialogPrivate;
     friend class QColorShower;
-
-#if defined(Q_DISABLE_COPY)
-    QColorDialog(const QColorDialog &);
-    QColorDialog& operator=(const QColorDialog &);
-#endif
 };
 
 #endif

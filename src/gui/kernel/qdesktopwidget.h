@@ -58,12 +58,9 @@ protected:
     void resizeEvent(QResizeEvent *e);
 
 private:
-    QDesktopWidgetPrivate *d;
+    Q_DISABLE_COPY(QDesktopWidget)
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDesktopWidget(const QDesktopWidget &);
-    QDesktopWidget &operator=(const QDesktopWidget &);
-#endif
+    QDesktopWidgetPrivate *d;
 
     friend class QApplication;
 #ifdef Q_WS_QWS

@@ -196,13 +196,10 @@ protected:
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
 private:
+    Q_DISABLE_COPY(QTextEdit)
     Q_PRIVATE_SLOT(d, void update(const QRect &r))
     Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d, void adjustScrollbars());
-#if defined(Q_DISABLE_COPY)
-    QTextEdit(const QTextEdit &);
-    QTextEdit &operator=(const QTextEdit &);
-#endif
 
 signals:
     QT_MOC_COMPAT void textChanged();

@@ -72,11 +72,8 @@ private:
     int cellh;
     QGridViewPrivate* d;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGridView(const QGridView &);
-    QGridView &operator=(const QGridView &);
-#endif
+private:
+    Q_DISABLE_COPY(QGridView)
 };
 
 inline int QGridView::cellWidth() const

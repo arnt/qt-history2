@@ -36,7 +36,7 @@ public:
     QSimpleRichText(const QString& text, const QFont& fnt,
                      const QString& context = QString::null, const QStyleSheet* sheet = 0);
     QSimpleRichText(const QString& text, const QFont& fnt,
-                     const QString& context,  const QStyleSheet* sheet,
+                     const QString& context, const QStyleSheet *sheet,
                      const QMimeSourceFactory* factory, int pageBreak = -1,
                      const QColor& linkColor = Qt::blue, bool linkUnderline = true);
     ~QSimpleRichText();
@@ -52,7 +52,6 @@ public:
     void draw(QPainter* p,  int x, int y, const QRect& clipRect,
                const QPalette& pal, const QBrush* paper = 0) const;
 
-    // obsolete
     void draw(QPainter* p,  int x, int y, const QRegion& clipRegion,
                const QPalette& pal, const QBrush* paper = 0) const {
         draw(p, x, y, clipRegion.boundingRect(), pal, paper);
@@ -64,13 +63,9 @@ public:
     bool inText(const QPoint& pos) const;
 
 private:
-    QSimpleRichTextData* d;
+    Q_DISABLE_COPY(QSimpleRichText)
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSimpleRichText(const QSimpleRichText &);
-    QSimpleRichText &operator=(const QSimpleRichText &);
-#endif
+    QSimpleRichTextData* d;
 };
 
 #endif // QT_NO_RICHTEXT

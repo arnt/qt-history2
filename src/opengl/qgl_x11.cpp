@@ -811,11 +811,8 @@ protected:
 private:
     QGLWidget*                realWidget;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGLOverlayWidget(const QGLOverlayWidget&);
-    QGLOverlayWidget&        operator=(const QGLOverlayWidget&);
-#endif
+private:
+    Q_DISABLE_COPY(QGLOverlayWidget)
 };
 
 

@@ -91,18 +91,14 @@ public:
     QDataStream &writeRawBytes(const char *, uint len);
 
 private:
+    Q_DISABLE_COPY(QDataStream)
+
     QIODevice *dev;
     bool owndev;
     bool printable;
     bool noswap;
     ByteOrder byteorder;
     int ver;
-
-private:
-#if defined(Q_DISABLE_COPY)
-    QDataStream(const QDataStream &);
-    QDataStream &operator=(const QDataStream &);
-#endif
 };
 
 

@@ -87,14 +87,10 @@ protected:
     bool eventFilter(QObject*, QEvent*);
 
 private:
+    Q_DISABLE_COPY(QSGIStyle)
+
     QSGIStylePrivate *d;
-
-    uint isApplicationStyle :1;
-#if defined(Q_DISABLE_COPY)
-    QSGIStyle(const QSGIStyle &);
-    QSGIStyle& operator=(const QSGIStyle &);
-#endif
-
+    uint isApplicationStyle : 1;
 };
 
 #endif // QT_NO_STYLE_SGI

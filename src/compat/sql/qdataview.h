@@ -44,14 +44,10 @@ public slots:
     virtual void clearValues();
 
 private:
+    Q_DISABLE_COPY(QDataView)
+
     QDataViewPrivate* d;
-
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDataView(const QDataView &);
-    QDataView &operator=(const QDataView &);
-#endif
 };
-
 
 #endif
 #endif

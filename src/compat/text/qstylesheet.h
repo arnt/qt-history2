@@ -189,14 +189,11 @@ public:
     virtual void error(const QString&) const;
 
 private:
+    Q_DISABLE_COPY(QStyleSheet)
+
     void init();
     QHash<QString, QStyleSheetItem *> styles;
     QStyleSheetItem* nullstyle;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QStyleSheet(const QStyleSheet &);
-    QStyleSheet &operator=(const QStyleSheet &);
-#endif
 };
 
 #endif // QT_NO_RICHTEXT

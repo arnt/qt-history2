@@ -71,15 +71,11 @@ protected:
     friend class QMimeSource;
 
 private:
+    Q_DISABLE_COPY(QClipboard)
+
 #if defined(Q_WS_MAC)
     void loadScrap(bool convert);
     void saveScrap();
-#endif
-
-    // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QClipboard(const QClipboard &);
-    QClipboard &operator=(const QClipboard &);
 #endif
 };
 

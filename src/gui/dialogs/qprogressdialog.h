@@ -97,11 +97,8 @@ private:
     QProgressDialogData *d;
     QTimer *forceTimer;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QProgressDialog(const QProgressDialog &);
-    QProgressDialog &operator=(const QProgressDialog &);
-#endif
+private:
+    Q_DISABLE_COPY(QProgressDialog)
 };
 
 #endif // QT_NO_PROGRESSDIALOG

@@ -39,12 +39,9 @@ public:
     bool tryAccess(int);
 
 private:
-    QSemaphorePrivate *d;
+    Q_DISABLE_COPY(QSemaphore)
 
-#if defined(Q_DISABLE_COPY)
-    QSemaphore(const QSemaphore &);
-    QSemaphore &operator=(const QSemaphore &);
-#endif
+    QSemaphorePrivate *d;
 };
 
 #endif // QSEMAPHORE_H

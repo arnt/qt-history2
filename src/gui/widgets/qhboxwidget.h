@@ -44,12 +44,9 @@ protected:
     void childEvent(QChildEvent *);
 
 private:
-    QBoxLayout *lay;
+    Q_DISABLE_COPY(QHBoxWidget)
 
-#if defined(Q_DISABLE_COPY)
-    QHBoxWidget(const QHBoxWidget &);
-    QHBoxWidget &operator=(const QHBoxWidget &);
-#endif
+    QBoxLayout *lay;
 };
 
 #endif // QT_NO_HBOX

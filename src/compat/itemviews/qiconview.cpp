@@ -411,12 +411,9 @@ protected:
 protected:
     QIconViewItem *item;
     QString startText;
-private:
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QIconViewItemLineEdit(const QIconViewItemLineEdit &);
-    QIconViewItemLineEdit &operator=(const QIconViewItemLineEdit &);
-#endif
 
+private:
+    Q_DISABLE_COPY(QIconViewItemLineEdit)
 };
 
 QIconViewItemLineEdit::QIconViewItemLineEdit(const QString &text, QWidget *parent,

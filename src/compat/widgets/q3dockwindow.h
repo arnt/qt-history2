@@ -39,7 +39,7 @@ class Q_COMPAT_EXPORT Q3DockWindow : public Q3Frame
 {
     Q_OBJECT
     Q_ENUMS(CloseMode Place)
-    Q_PROPERTY(int closeMode READ closeMode  WRITE setCloseMode) //### this shouldn't be of type int?!
+    Q_PROPERTY(int closeMode READ closeMode  WRITE setCloseMode)
     Q_PROPERTY(bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled)
     Q_PROPERTY(bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled)
     Q_PROPERTY(bool horizontallyStretchable READ isHorizontallyStretchable  WRITE setHorizontallyStretchable)
@@ -188,11 +188,8 @@ private:
     QWidgetResizeHandler *widgetResizeHandler;
     Q3DockWindowPrivate *d;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3DockWindow(const Q3DockWindow &);
-    Q3DockWindow& operator=(const Q3DockWindow &);
-#endif
+private:
+    Q_DISABLE_COPY(Q3DockWindow)
 };
 
 inline Q3DockArea *Q3DockWindow::area() const

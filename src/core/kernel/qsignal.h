@@ -52,11 +52,9 @@ public:
     }
     inline bool disconnect(const QObject *receiver, const char *member=0)
         { return d ? d->disconnect(receiver, member) : false; }
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSignal(const QSignal &);
-    QSignal &operator=(const QSignal &);
-#endif
+
+private:
+    Q_DISABLE_COPY(QSignal)
 };
 
 template <>
@@ -74,11 +72,9 @@ public:
     }
     inline bool disconnect(const QObject *receiver, const char *member=0)
         { return d ? d->disconnect(receiver, member) : false; }
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSignal(const QSignal &);
-    QSignal &operator=(const QSignal &);
-#endif
+
+private:
+    Q_DISABLE_COPY(QSignal)
 };
 
 class Q_CORE_EXPORT QGenericArgument

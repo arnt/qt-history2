@@ -71,10 +71,7 @@ protected:
     void start( const Location& loc );
 
 private:
-#if defined(Q_DISABLE_COPY)
-    Tokenizer( const Tokenizer& );
-    Tokenizer& operator=( const Tokenizer& );
-#endif
+    Q_DISABLE_COPY(Tokenizer)
 
     /*
       This limit on the length of a lexeme seems fairly high, but a
@@ -129,10 +126,7 @@ public:
     void stop() { yyIn = 0; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    FileTokenizer( const FileTokenizer& );
-    FileTokenizer& operator=( const FileTokenizer& );
-#endif
+    Q_DISABLE_COPY(FileTokenizer)
 
     FILE *yyIn;
 };
@@ -152,10 +146,7 @@ public:
     void stop();
 
 private:
-#if defined(Q_DISABLE_COPY)
-    StringTokenizer( const StringTokenizer& );
-    StringTokenizer& operator=( const StringTokenizer& );
-#endif
+    Q_DISABLE_COPY(StringTokenizer)
 
     const char *yyIn;
     int yyPos;

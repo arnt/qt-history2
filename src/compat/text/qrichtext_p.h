@@ -898,6 +898,8 @@ signals:
     void minimumWidthChanged(int);
 
 private:
+    Q_DISABLE_COPY(Q3TextDocument)
+
     void init();
     QPixmap *bufferPixmap(const QSize &s);
     // HTML parser
@@ -917,7 +919,6 @@ private:
     void setRichTextInternal(const QString &text, Q3TextCursor* cursor = 0);
     void setRichTextMarginsInternal(QList< QVector<QStyleSheetItem *> *>& styles, Q3TextParagraph* stylesPar);
 
-private:
     struct Q_COMPAT_EXPORT Focus {
         Q3TextParagraph *parag;
         int start, len;
@@ -975,10 +976,6 @@ private:
     double scaleFontsFactor;
 
     short list_tm,list_bm, list_lm, li_tm, li_bm, par_tm, par_bm;
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    Q3TextDocument(const Q3TextDocument &);
-    Q3TextDocument &operator=(const Q3TextDocument &);
-#endif
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

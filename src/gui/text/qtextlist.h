@@ -47,10 +47,7 @@ public:
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTextList(const QTextList &rhs);
-    QTextList &operator=(const QTextList &rhs);
-#endif
+    Q_DISABLE_COPY(QTextList)
 };
 
 #endif // QTEXTLIST_H

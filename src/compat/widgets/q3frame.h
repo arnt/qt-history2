@@ -45,12 +45,9 @@ protected:
     virtual void drawContents(QPainter *);
 
 private:
-    int marg;
-#if defined(Q_DISABLE_COPY)
-    Q3Frame(const QFrame &);
-    Q3Frame &operator=(const QFrame &);
-#endif
-};
+    Q_DISABLE_COPY(Q3Frame)
 
+    int marg;
+};
 
 #endif // Q3FRAME_H

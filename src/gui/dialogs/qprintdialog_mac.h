@@ -28,10 +28,7 @@ public:
     int exec();
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QPrintDialogMac(const QPrintDialogMac &);
-    QPrintDialogMac &operator=(const QPrintDialogMac &);
-#endif
+    Q_DISABLE_COPY(QPrintDialogMac)
 };
 
 #endif // QPRINTDIALOG_MAC_H

@@ -241,11 +241,8 @@ public:
 
 
 
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QStyle( const QStyle & );
-    QStyle& operator=( const QStyle & );
-#endif
+private:
+    Q_DISABLE_COPY(QStyle)
 };
 
 #endif // QT_NO_STYLE

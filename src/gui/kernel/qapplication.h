@@ -293,9 +293,12 @@ private:
     bool             inPopupMode() const;
     void             closePopup(QWidget *popup);
     void             openPopup(QWidget *popup);
+
 public:
     void setActiveWindow(QWidget* act);
+
 private:
+    Q_DISABLE_COPY(QApplication)
 
     // ### the next 2 friends should go away
     friend class QEventLoop;
@@ -308,13 +311,9 @@ private:
     friend class QTranslator;
     friend class QShortcut;
     friend class QAction;
+
 #if defined(Q_WS_QWS)
     friend class QInputContext;
-#endif
-private: // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QApplication(const QApplication &);
-    QApplication &operator=(const QApplication &);
 #endif
 };
 

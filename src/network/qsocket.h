@@ -106,11 +106,7 @@ protected slots:
     virtual void sn_write();
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QSocket(const QSocket &);
-    QSocket &operator=(const QSocket &);
-#endif
-
+    Q_DISABLE_COPY(QSocket)
     Q_DECLARE_PRIVATE(QSocket)
     Q_PRIVATE_SLOT(d, void tryConnecting(const QDnsHostInfo &))
     Q_PRIVATE_SLOT(d, void connectToNextAddress())

@@ -152,13 +152,9 @@ protected:
     int         metric(int) const;
 
 private:
-    QPrinterPrivate *d_ptr;
+    Q_DISABLE_COPY(QPrinter)
 
-private:
-#if defined(Q_DISABLE_COPY)
-    QPrinter(const QPrinter &);
-    QPrinter &operator=(const QPrinter &);
-#endif
+    QPrinterPrivate *d_ptr;
 
     friend class QPrintDialogWin;
 };

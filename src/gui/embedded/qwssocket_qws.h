@@ -33,11 +33,8 @@ public:
 
     virtual void connectToLocalFile(const QString &file);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWSSocket(const QWSSocket &);
-    QWSSocket &operator=(const QWSSocket &);
-#endif
+private:
+    Q_DISABLE_COPY(QWSSocket)
 };
 
 
@@ -54,13 +51,9 @@ public:
     ~QWSServerSocket();
 
 private:
-    void init(const QString &file, int backlog);
+    Q_DISABLE_COPY(QWSServerSocket)
 
-#if defined(Q_DISABLE_COPY)
-    // Disabled copy constructor and operator=
-    QWSServerSocket(const QWSServerSocket &);
-    QWSServerSocket &operator=(const QWSServerSocket &);
-#endif
+    void init(const QString &file, int backlog);
 };
 
 #endif // QT_NO_QWS_MULTIPROCESS

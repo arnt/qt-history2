@@ -63,12 +63,8 @@ public:
         AllTables = 0xff
     };
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSql(const QSql &);
-    QSql &operator=(const QSql &);
-#endif
-
+private:
+    Q_DISABLE_COPY(QSql)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)

@@ -100,16 +100,13 @@ protected slots:
     void activeTabChanged();
 
 private:
+    Q_DISABLE_COPY(QWindowsXPStyle)
+
     QWindowsXPStylePrivate *d;
 
     friend class QStyleFactory;
     friend class QWindowsXPStylePrivate;
     static bool resolveSymbols();
-
-#if defined(Q_DISABLE_COPY)
-    QWindowsXPStyle(const QWindowsXPStyle &);
-    QWindowsXPStyle& operator=(const QWindowsXPStyle &);
-#endif
 };
 
 #endif // QT_NO_STYLE_WINDOWSXP

@@ -88,18 +88,11 @@ protected:
     void changeEvent(QEvent *);
 
 private:
-
+    Q_DISABLE_COPY(Q3GroupBox)
     Q_PRIVATE_SLOT(d, void fixFocus())
     Q_PRIVATE_SLOT(d, void setChildrenEnabled(bool b))
 
-private:
     Q3GroupBoxPrivate *d;
-
-#if defined(Q_DISABLE_COPY)
-    Q3GroupBox(const Q3GroupBox &);
-    Q3GroupBox &operator=(const Q3GroupBox &);
-#endif
 };
-
 
 #endif // Q3GROUPBOX_H

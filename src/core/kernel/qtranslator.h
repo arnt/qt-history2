@@ -122,12 +122,10 @@ public:
     bool isEmpty() const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QTranslator(const QTranslator &);
-    QTranslator &operator=(const QTranslator &);
-#endif
+    Q_DISABLE_COPY(QTranslator)
 
     bool do_load(const uchar *data, int len);
+
 #ifdef QT_COMPAT
 public:
     QT_COMPAT QString find(const char *context, const char *sourceText, const char * comment = 0) const {

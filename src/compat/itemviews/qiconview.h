@@ -74,15 +74,13 @@ public:
     virtual QByteArray encodedData(const char* mime) const;
 
 private:
+    Q_DISABLE_COPY(QIconDrag)
+
     QIconDragPrivate *d;
     QChar endMark;
 
     friend class QIconView;
     friend class QIconViewPrivate;
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QIconDrag(const QIconDrag &);
-    QIconDrag &operator=(const QIconDrag &);
-#endif
 };
 
 #endif
@@ -444,6 +442,8 @@ protected:
     void changeEvent(QEvent *);
 
 private:
+    Q_DISABLE_COPY(QIconView)
+
     void contentsMousePressEventEx(QMouseEvent *e);
     virtual void drawDragShapes(const QPoint &pnt);
 #ifndef QT_NO_DRAGANDDROP
@@ -473,12 +473,6 @@ private:
     QBitmap mask(QPixmap *pix) const;
 
     QIconViewPrivate *d;
-
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QIconView(const QIconView &);
-    QIconView& operator=(const QIconView &);
-#endif
 };
 
 #endif // QT_NO_ICONVIEW

@@ -30,6 +30,7 @@ public:
     QRangeControl(int minValue, int maxValue,
                    int lineStep, int pageStep, int value);
     virtual ~QRangeControl();
+
     int                value()                const;
     void        setValue(int);
     void        addPage();
@@ -66,11 +67,8 @@ private:
 
     QRangeControlPrivate * d;
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QRangeControl(const QRangeControl &);
-    QRangeControl &operator=(const QRangeControl &);
-#endif
+private:
+    Q_DISABLE_COPY(QRangeControl)
 };
 
 
@@ -151,11 +149,8 @@ private:
 
     void updateDisplay();
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSpinWidget(const QSpinWidget&);
-    QSpinWidget& operator=(const QSpinWidget&);
-#endif
+private:
+    Q_DISABLE_COPY(QSpinWidget)
 };
 
 #endif // QT_NO_SPINWIDGET

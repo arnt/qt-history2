@@ -102,11 +102,9 @@ protected:
     void setError(Error err);
 
 private:
+    Q_DISABLE_COPY(QSocketDevice)
+
     friend class QSocketDeviceEngine;
-#if defined(Q_DISABLE_COPY)
-    QSocketDevice(const QSocketDevice &);
-    QSocketDevice &operator=(const QSocketDevice &);
-#endif
 };
 
 class QSocketDeviceEnginePrivate;

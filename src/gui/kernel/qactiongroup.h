@@ -65,15 +65,10 @@ signals:
     void hovered(QAction *);
 
 private:
-    Q_PRIVATE_SLOT(d, void actionTriggered());
-    Q_PRIVATE_SLOT(d, void actionChanged());
-    Q_PRIVATE_SLOT(d, void actionHovered());
-
-private:
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QActionGroup(const QActionGroup &);
-    QActionGroup &operator=(const QActionGroup &);
-#endif
+    Q_DISABLE_COPY(QActionGroup)
+    Q_PRIVATE_SLOT(d, void actionTriggered())
+    Q_PRIVATE_SLOT(d, void actionChanged())
+    Q_PRIVATE_SLOT(d, void actionHovered())
 };
 
 #endif

@@ -79,9 +79,7 @@ public slots:
     void deselect() { selectAll(false); }
 
 protected:
-    QPoint        cursorPoint() const;
-
-protected:
+    QPoint cursorPoint() const;
     virtual void insertAndMark(const QString&, bool mark);
     virtual void newLine();
     virtual void killLine();
@@ -95,20 +93,15 @@ protected:
     virtual void home(bool mark=false);
     virtual void end(bool mark=false);
 
-    bool getMarkedRegion(int *line1, int *col1,
-                          int *line2, int *col2) const;
+    bool getMarkedRegion(int *line1, int *col1, int *line2, int *col2) const;
     int lineLength(int row) const;
 
 private:
-    QMultiLineEditData *d;
+    Q_DISABLE_COPY(QMultiLineEdit)
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QMultiLineEdit(const QMultiLineEdit &);
-    QMultiLineEdit &operator=(const QMultiLineEdit &);
-#endif
+    QMultiLineEditData *d;
 };
 
 #endif // QT_NO_MULTILINEEDIT
 
-#endif // QMULTILINED_H
+#endif // QMULTILINEEDIT_H

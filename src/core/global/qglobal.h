@@ -31,7 +31,6 @@
 #include "qconfig.h"
 #endif
 
-
 /*
    The operating system, must be one of: (Q_OS_x)
 
@@ -535,17 +534,7 @@
 #  define Q_WS_WIN
 #endif
 
-/*
-   Some classes do not permit copies to be made of an object.
-   These classes contains a private copy constructor and operator=
-   to disable copying (the compiler gives an error message).
-   Undefine Q_DISABLE_COPY to turn off this checking.
-*/
-
-#define Q_DISABLE_COPY
-
 #if defined(__cplusplus)
-
 
 //
 // Useful type definitions for Qt
@@ -927,7 +916,7 @@ class QDataStream;
 #      define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    endif
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY /* avoid unresolved externals */
+#    define Q_NO_UNRESOLVED_EXTERNALS
 #  elif defined(QT_DLL) /* use a Qt DLL library */
 #    define Q_CORE_EXPORT Q_DECL_IMPORT
 #    define Q_GUI_EXPORT Q_DECL_IMPORT
@@ -938,11 +927,11 @@ class QDataStream;
 #    define Q_XML_EXPORT Q_DECL_IMPORT
 #    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
-#    undef  Q_DISABLE_COPY /* avoid unresolved externals */
+#    define Q_NO_UNRESOLVED_EXTERNALS
 #  endif
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  define Q_TEMPLATEDLL
-#  undef  Q_DISABLE_COPY /* avoid unresolved externals */
+#  define Q_NO_UNRESOLVED_EXTERNALS
 #else
 #  undef QT_MAKEDLL /* ignore these for other platforms */
 #  undef QT_DLL
@@ -1678,6 +1667,20 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 
 #define QT_TR_NOOP(x) (x)
 #define QT_TRANSLATE_NOOP(scope, x) (x)
+
+/*
+   Some classes do not permit copies to be made of an object. These
+   classes contains a private copy constructor and assignment
+   operator to disable copying (the compiler gives an error message).
+*/
+
+#ifndef Q_NO_UNRESOLVED_EXTERNALS
+#define Q_DISABLE_COPY(Class) \
+    Class(const Class &); \
+    Class &operator=(const Class &);
+#else
+#define Q_DISABLE_COPY(Class)
+#endif
 
 #endif /* __cplusplus */
 

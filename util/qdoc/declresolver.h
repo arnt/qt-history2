@@ -41,10 +41,7 @@ public:
     { chkmap = chunkMap; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    DeclResolver( const DeclResolver& );
-    DeclResolver& operator=( const DeclResolver& );
-#endif
+    Q_DISABLE_COPY(DeclResolver)
 
     QString resolved( const Decl *decl ) const;
 

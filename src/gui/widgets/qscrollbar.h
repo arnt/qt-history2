@@ -54,12 +54,7 @@ public:
 #endif
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QScrollBar(const QScrollBar &);
-    QScrollBar &operator=(const QScrollBar &);
-#endif
+    Q_DISABLE_COPY(QScrollBar)
 };
-
-
 
 #endif // QSCROLLBAR_H

@@ -53,13 +53,10 @@ signals:
     void intSignal(int);
 
 private:
+    Q_DISABLE_COPY(Q3Signal)
+
 #ifndef QT_NO_VARIANT
     QCoreVariant val;
-#endif
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    Q3Signal(const Q3Signal &);
-    Q3Signal &operator=(const Q3Signal &);
 #endif
 };
 

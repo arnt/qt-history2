@@ -24,7 +24,8 @@
 class QWidget;
 class QSqlPropertyMapPrivate;
 
-class Q_COMPAT_EXPORT QSqlPropertyMap {
+class Q_COMPAT_EXPORT QSqlPropertyMap
+{
 public:
     QSqlPropertyMap();
     virtual ~QSqlPropertyMap();
@@ -38,13 +39,10 @@ public:
     static QSqlPropertyMap * defaultMap();
     static void installDefaultMap(QSqlPropertyMap * map);
 
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QSqlPropertyMap(const QSqlPropertyMap &);
-    QSqlPropertyMap &operator=(const QSqlPropertyMap &);
-#endif
-    QSqlPropertyMapPrivate* d;
+private:
+    Q_DISABLE_COPY(QSqlPropertyMap)
 
+    QSqlPropertyMapPrivate* d;
 };
 
 #endif // QT_NO_SQL_FORM

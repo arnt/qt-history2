@@ -39,12 +39,8 @@ public:
     virtual void fixup(QString &) const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QValidator(const QValidator &);
-    QValidator& operator=(const QValidator &);
-#endif
+    Q_DISABLE_COPY(QValidator)
 };
-
 
 class Q_GUI_EXPORT QIntValidator : public QValidator
 {
@@ -71,12 +67,10 @@ public:
     int top() const { return t; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QIntValidator(const QIntValidator &);
-    QIntValidator& operator=(const QIntValidator &);
-#endif
+    Q_DISABLE_COPY(QIntValidator)
 
-    int b, t;
+    int b;
+    int t;
 };
 
 #ifndef QT_NO_REGEXP
@@ -110,12 +104,10 @@ public:
     int decimals() const { return d; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QDoubleValidator(const QDoubleValidator &);
-    QDoubleValidator& operator=(const QDoubleValidator &);
-#endif
+    Q_DISABLE_COPY(QDoubleValidator)
 
-    double b, t;
+    double b;
+    double t;
     int d;
 };
 
@@ -123,7 +115,6 @@ private:
 class Q_GUI_EXPORT QRegExpValidator : public QValidator
 {
     Q_OBJECT
-    // Q_PROPERTY(QRegExp regExp READ regExp WRITE setRegExp)
 
 public:
     QRegExpValidator(QObject *parent);
@@ -140,15 +131,12 @@ public:
     const QRegExp& regExp() const { return r; }
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QRegExpValidator(const QRegExpValidator&);
-    QRegExpValidator& operator=(const QRegExpValidator&);
-#endif
+    Q_DISABLE_COPY(QRegExpValidator)
 
     QRegExp r;
 };
-#endif // QT_NO_REGEXP
 
+#endif // QT_NO_REGEXP
 
 #endif // QT_NO_VALIDATOR
 

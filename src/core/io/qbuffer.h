@@ -38,10 +38,7 @@ public:
     virtual QIOEngine *ioEngine() const;
 
 private:
-#if defined(Q_DISABLE_COPY)
-    QBuffer(const QBuffer &);
-    QBuffer &operator=(const QBuffer &);
-#endif
+    Q_DISABLE_COPY(QBuffer)
 };
 
 #endif // QBUFFER_H

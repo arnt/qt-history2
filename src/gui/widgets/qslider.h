@@ -81,11 +81,9 @@ public slots:
     inline QT_MOC_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
     inline QT_MOC_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };
 #endif
+
 private:
-#if defined(Q_DISABLE_COPY)     // Disabled copy constructor and operator
-    QSlider(const QSlider &);
-    QSlider &operator=(const QSlider &);
-#endif
+    Q_DISABLE_COPY(QSlider)
 };
 
 #endif // QT_NO_SLIDER

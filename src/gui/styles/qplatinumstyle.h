@@ -74,11 +74,9 @@ protected:
     QColor mixedColor(const QColor &, const QColor &) const;
     void drawRiffles(QPainter* p,  int x, int y, int w, int h,
                       const QPalette &pal, bool horizontal) const;
-private:        // Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QPlatinumStyle(const QPlatinumStyle &);
-    QPlatinumStyle& operator=(const QPlatinumStyle &);
-#endif
+
+private:
+    Q_DISABLE_COPY(QPlatinumStyle)
 };
 
 #endif // QT_NO_STYLE_PLATINUM
