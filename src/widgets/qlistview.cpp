@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#309 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#310 $
 **
 ** Implementation of QListView widget class
 **
@@ -2651,15 +2651,18 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    QPoint vp = contentsToViewport(e->pos());
+    QPoint vp = contentsToViewport( e->pos() );
 
     if ( e->button() == RightButton ) {
-	QListViewItem * i;
+	QListViewItem * i = 0;
 	if ( viewport()->rect().contains( vp ) )
 	    i = itemAt( vp );
-	else
-	    i = d->currentSelected;
 
+	if ( !i ) {
+	    clearSelection();
+	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
+	}
+	
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
 	return;
@@ -2736,11 +2739,14 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
     QPoint vp = contentsToViewport(e->pos());
 
     if ( e->button() == RightButton ) {
-	QListViewItem * i;
+	QListViewItem * i = 0;
 	if ( viewport()->rect().contains( vp ) )
 	    i = itemAt( vp );
-	else
-	    i = d->currentSelected;
+
+	if ( !i ) {
+	    clearSelection();
+	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
+	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
@@ -3112,6 +3118,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 
 QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
 {
+    if ( viewPos.x() > contentsWidth() - contentsX() )
+	return 0;
+    
     if ( !d->drawables || d->drawables->isEmpty() )
 	buildDrawableList();
 
@@ -3472,7 +3481,8 @@ int QListView::itemMargin() const
 
   This signal is emitted when the right button is clicked (ie. when
   it's released).  The arguments are the relevant QListViewItem (may
-  be 0), the point in global coordinates and the relevant column.
+  be 0), the point in global coordinates and the relevant column (or -1 if the 
+  click was outside the list).
 */
 
 
