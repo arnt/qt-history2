@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#20 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#20 $";
 #endif
 
 
@@ -95,6 +95,8 @@ QListBox::QListBox( QWidget *parent, const char *name )
     setNumCols( 1 );
     setTableFlags( Tbl_smoothVScrolling ); 
     clearTableFlags( Tbl_clipCellPainting );
+    setFrameStyle( QFrame::Sunken | QFrame::Panel );
+    setLineWidth( 1 );
 }
 
 /*! Deletes the list box and frees the memory used. */
@@ -116,7 +118,7 @@ void QListBox::setStrList( const QStrList *l )
     setAutoUpdate( FALSE );
     if ( !l ) {
 #if defined(CHECK_NULL)
-	CHECK_PTR( l );
+	ASSERT( l != 0 );
 #endif
 	setNumRows( 0 );
 	return;
@@ -147,7 +149,7 @@ void QListBox::setStrList( const char **strs,int numStrings )
     setAutoUpdate( FALSE );
     if ( !strs ) {
 #if defined ( CHECK_NULL )
-	CHECK_PTR( strs );
+	ASSERT( strs != 0 );
 #endif
 	setNumRows( 0 );
 	return;
@@ -175,9 +177,12 @@ void QListBox::insertStrList( const QStrList *l, int index )
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
 	return;
 
-#if defined(CHECK_NULL)
-    CHECK_PTR( l );
+    if ( !l ) {
+#if defined ( CHECK_NULL )
+	ASSERT( l != 0 );
 #endif
+	return;
+    }
 
     QStrListIterator iter( *l );
     const char *tmp;
@@ -201,9 +206,12 @@ void QListBox::insertStrList( const char **strs, int numStrings, int index )
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
 	return;
 
-#if defined(CHECK_NULL)
-    CHECK_PTR( strs );
+    if ( !strs ) {
+#if defined ( CHECK_NULL )
+	ASSERT( strs != 0 );
 #endif
+	return;
+    }
 
     for( int i = numStrings - 1 ; i >= 0 ; i-- )
 	insertAny( strs[i], 0, 0, index, FALSE );
@@ -221,9 +229,12 @@ void QListBox::insertItem( const char *string, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
-#if defined(CHECK_NULL)
-    CHECK_PTR( string );
+    if ( !string ) {
+#if defined ( CHECK_NULL )
+	ASSERT( string != 0 );
 #endif
+	return;
+    }
     insertAny( string, 0, 0, index );
     updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible( index ) ) {
@@ -239,9 +250,12 @@ void QListBox::insertItem( const QPixmap *pixmap, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
-#if defined(CHECK_NULL)
-    CHECK_PTR( pixmap );
+    if ( !pixmap ) {
+#if defined ( CHECK_NULL )
+	ASSERT( pixmap != 0 );
 #endif
+	return;
+    }
     if ( stringsOnly ) {
 	stringsOnly = FALSE;
 	setCellHeight( 0 );
@@ -263,9 +277,12 @@ Inserts \e string into the list and sorts the list. \sa
 
 void QListBox::inSort( const char *string )
 {
-#if defined(CHECK_NULL)
-    CHECK_PTR( string );
+    if ( !string ) {
+#if defined ( CHECK_NULL )
+	ASSERT( string != 0 );
 #endif
+	return;
+    }
     itemList->inSort( newAny( string, 0 ) );
     QFontMetrics fm( font() );
     int w = fm.width( string ) + 6;
@@ -435,9 +452,12 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
-#if defined(CHECK_NULL)
-    CHECK_PTR( lbi );
+    if ( !lbi ) {
+#if defined ( CHECK_NULL )
+	ASSERT( lbi != 0 );
 #endif
+	return;
+    }
     insertAny( 0, 0, lbi, index );
     updateNumRows( FALSE );
     if ( autoUpdate() )
@@ -708,6 +728,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
 {
     clearTableFlags( Tbl_autoHScrollBar ); // wait until cell width is known
     QTableWidget::resizeEvent( e );
+    updateScrollBars();
     updateCellWidth();
     setTableFlags( Tbl_autoHScrollBar );  // new cell width set, do auto scrBar
 }
