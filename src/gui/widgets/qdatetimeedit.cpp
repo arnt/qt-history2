@@ -2419,7 +2419,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
                 int tmp = dt.date().month(); // I know the first possible month makes the date too small
                 while ((tmp = findMonth(t, tmp + 1)) != -1) {
                     const QCoreVariant copy(dt.addMonths(tmp - dt.date().month()));
-                    if (copy.toInt() >= minimum.toInt() && copy.toInt() <= maximum.toInt())
+                    if (copy >= minimum && copy <= maximum)
                         break;
                 }
                 if (tmp == -1)
@@ -2429,7 +2429,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
             case AmPmLowerCaseSection:
                 if (tooSmall && (t.count(space) == 2 || t.contains('m'))) {
                     const QCoreVariant copy(dt.addSecs(12 * 60 * 60));
-                    if (copy.toInt() >= minimum.toInt() && copy.toInt() <= maximum.toInt())
+                    if (copy >= minimum && copy <= maximum)
                         break;
                 }
                 return QValidator::Invalid;
@@ -2467,7 +2467,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
 
                     QCoreVariant var(dt);
                     setDigit(&var, sn.section, tmp);
-                    Q_ASSERT(var.toInt() >= minimum.toInt());
+                    Q_ASSERT(var >= minimum);
                     if (var > maximum) {
                         QDTEDEBUG("invalid because %s > %s",
                                   var.toString().toLatin1().constData(),

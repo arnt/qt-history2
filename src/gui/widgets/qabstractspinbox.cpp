@@ -1560,6 +1560,48 @@ bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2)
 
 /*!
     \internal
+    Compares two variants and returns true if \a arg1 >= \a arg2
+*/
+
+bool operator<=(const QCoreVariant &arg1, const QCoreVariant &arg2)
+{
+    if (arg1.type() != arg2.type())
+        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+                 arg1.typeName(), arg2.typeName());
+    switch (arg1.type()) {
+    case QCoreVariant::Int:
+    case QCoreVariant::Double:
+    case QCoreVariant::Date:
+    case QCoreVariant::Time:
+    case QCoreVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
+    default: break;
+    }
+    return false;
+}
+
+/*!
+    \internal
+    Compares two variants and returns true if \a arg1 >= \a arg2
+*/
+
+bool operator>=(const QCoreVariant &arg1, const QCoreVariant &arg2)
+{
+    if (arg1.type() != arg2.type())
+        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+                 arg1.typeName(), arg2.typeName());
+    switch (arg1.type()) {
+    case QCoreVariant::Int:
+    case QCoreVariant::Double:
+    case QCoreVariant::Time:
+    case QCoreVariant::Date:
+    case QCoreVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);
+    default: break;
+    }
+    return false;
+}
+
+/*!
+    \internal
     Adds two variants together and returns the result.
 */
 

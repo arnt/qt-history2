@@ -35,6 +35,8 @@
 
 bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
 bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
+bool operator<=(const QCoreVariant &arg1, const QCoreVariant &arg2);
+bool operator>=(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
