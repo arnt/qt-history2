@@ -261,7 +261,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qworkspace.h \
 		  $$WIDGETS_H/qaction.h \
-		  $$WIDGETS_H/qeffects_p.h \
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
