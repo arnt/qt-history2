@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#227 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#228 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1308,7 +1308,7 @@ void QComboBox::updateMask()
 	QPainter p( &bm, this );
 	p.setPen( color1 );
 	p.setBrush( color1 );
-	style().drawButtonMask(&p, 0, 0, width(), height() );
+	style().drawComboButtonMask(&p, 0, 0, width(), height() );
     }
     setMask( bm );
 }

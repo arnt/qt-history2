@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#64 $
 **
 ** Implementation of QToolButton class
 **
@@ -357,35 +357,8 @@ void QToolButton::toggle()
 void QToolButton::drawButton( QPainter * p )
 {
     if ( uses3D() || isDown() || (isOn()&&!son) ) {
-#if 0	
-	QPointArray a;
-	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
-	if ( isOn() && !isDown() && !uses3D() ) {
-	    if ( style() == WindowsStyle ) {
-		p->setBrush( QBrush(white,Dense4Pattern) );
-		p->setPen( NoPen );
-		p->setBackgroundMode( OpaqueMode );
-		p->drawRect( 0,0, width(),height() );
-		p->setBackgroundMode( TransparentMode );
-	    } else {
-		p->setBrush( colorGroup().mid() );
-		p->setPen( NoPen );
-		p->drawRect( 0,0, width(),height() );
-	    }
-	}
-	p->setPen( isDown() || isOn()
-		   ? colorGroup().dark()
-		   : colorGroup().light() );
-	p->drawPolyline( a );
-	a[1] = QPoint( width()-1, height()-1 );
-	p->setPen( isDown() || isOn()
-		   ? colorGroup().light()
-		   : colorGroup().dark() );
-	p->drawPolyline( a );
-#else
-	style().drawBevelButton( p, 0, 0, width(), height(), colorGroup(), (isOn()&&!son)||isDown(),
+	style().drawToolButton( p, 0, 0, width(), height(), colorGroup(), (isOn()&&!son)||isDown(),
 				&colorGroup().brush( QColorGroup::Button ) );
-#endif	
     }
     drawButtonLabel( p );
 
