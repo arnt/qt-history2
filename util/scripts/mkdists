@@ -143,7 +143,7 @@ while [ -n "$1" ]; do
 	VAL=$1
 	;;
    -type)
-        shift
+	shift
 	VAR=type
 	VAL=$1
 	;;
@@ -664,36 +664,10 @@ for plat in mac win x11 embedded; do
 	status "First cleanup.."
 	case $edition in
 	free)
-	    rm -f $PLATDIR/tools/designer/util/util-pro.pro
 	    #remove non-GPL sql stuff
 	    for f in src/sql/src/oci; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
-	    ;;
-	professional-US)
-	    #Remove non-professional modules and stuff
-	    for module in SQL Table XML OpenGL Network Canvas; do
-		sed -e 's,\(<li>.*<a.*> *${module}</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
-		mv ${TMP_FILE} $PLATDIR/doc/indices.doc
-            done
-	    for f in src/sql examples/sqltable examples/sql src/table examples/table \
-		     src/canvas examples/canvas src/network examples/httpd examples/ftpclient \
-                     examples/mail examples/networkprotocol src/opengl examples/box examples/gear \
-                     examples/gear examples/glpixmap examples/overlay examples/sharedbox examples/texture ; do
-		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
-	    done
-	    #fix designer
-	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
-	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h $PLATDIR/tools/designer/plugins/wizards/*sql*
-	    rm -rf $PLATDIR/include/qdatatable.h $PLATDIR/include/qdatabrowser.h $PLATDIR/include/qdataview.h
-	    rm -rf $PLATDIR/doc/table.doc 
-	    #xml is gross
-	    mv $PLATDIR/src/xml/* $PLATDIR/tools/designer/util
-	    rm -rf $PLATDIR/src/xml
-	    mv $PLATDIR/tools/designer/util/util-pro.pro $PLATDIR/tools/designer/util.pro
-	    ;;
-        enterprise)
-	    rm -f $PLATDIR/tools/designer/util/util-pro.pro
 	    ;;
 	esac
 	if [ "$plat" != "embedded" ]; then
@@ -779,6 +753,7 @@ for plat in mac win x11 embedded; do
 	if [ "x$DO_DOC" = "xyes" ]; then
 	    status "Running qdoc.."
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
+	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/tools/linguist/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
 	    if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ]; then
 		QTDIR=$PLATDIR/ $DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
