@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#166 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2377,7 +2377,7 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 
   A pen has a style, a width and a color.
 
-  The pen style defines the line type. The default pen style is \c SolidPen.
+  The pen style defines the line type. The default pen style is \c Qt::SolidLine.
   Setting the style to \c NoPen tells the painter to not draw lines or
   outlines.
 
