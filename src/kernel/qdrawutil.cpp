@@ -61,7 +61,7 @@
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
+
   \sa qDrawShadeRect(), qDrawShadePanel(), QStyle::drawSeparator()
 */
 
@@ -152,7 +152,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
   \relates QPainter
 
   <code>#include &lt;qdrawutil.h&gt;</code>
-  
+
   Draws a shaded rectangle/box given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
 
@@ -180,8 +180,8 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
-  \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(), 
+
+  \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(),
   QStyle::drawRect(), QStyle::drawRectStrong()
 */
 
@@ -265,7 +265,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
   \relates QPainter
 
   <code>#include &lt;qdrawutil.h&gt;</code>
-  
+
   Draws a shaded panel given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
 
@@ -289,7 +289,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
+
 
   \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect(), QStyle::drawPanel()
 */
@@ -380,7 +380,7 @@ static void qDrawWinShades( QPainter *p,
 			   const QColor &c3, const QColor &c4,
 			   const QBrush *fill )
 {
-    if ( w < 2 || h < 2 )			// nothing to draw
+    if ( w < 2 || h < 2 )			// can't do anything with that
 	return;
     QPen oldPen = p->pen();
     QPointArray a( 3 );
@@ -421,7 +421,7 @@ static void qDrawWinShades( QPainter *p,
   \relates QPainter
 
   <code>#include &lt;qdrawutil.h&gt;</code>
-  
+
   Draws a Windows-style button given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
 
@@ -441,7 +441,7 @@ static void qDrawWinShades( QPainter *p,
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
+
   \sa qDrawWinPanel(), QStyle::drawButton()
 */
 
@@ -461,8 +461,8 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
   \relates QPainter
 
   <code>#include &lt;qdrawutil.h&gt;</code>
-  
-  Draws a Windows-style panel given by (\a x, \a y, \a w, \a h) 
+
+  Draws a Windows-style panel given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
 
   The color group argument \a g specifies the shading colors.
@@ -482,7 +482,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
+
   \sa qDrawShadePanel(), qDrawWinButton(), QStyle::drawPanel()
 */
 
@@ -503,7 +503,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
   \relates QPainter
 
   <code>#include &lt;qdrawutil.h&gt;</code>
-  
+
   Draws a plain rectangle given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
 
@@ -521,7 +521,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
-  
+
   \sa qDrawShadeRect(), QStyle::drawRect()
 */
 
