@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#93 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#93 $");
 
 
 /*!
@@ -359,6 +359,10 @@ int QApplication::colorSpec()
   }
   \endcode
 
+  QColor provides more functionality for controlling color allocation and
+  freeing up certains colors. See QColor::enterAllocContext() for more
+  information.
+
   To see what mode you end up with, you can call QColor::numBitPlanes()
   once the QApplication object exists.  A value greater than 8 (typically
   16,24 or 32) means true color.
@@ -368,7 +372,7 @@ int QApplication::colorSpec()
   when you bypass Qt and write Xlib-specific code), you must <code>#undef
   TrueColor</code> to be able to specify \c QApplication::TrueColor.
 
-  \sa colorSpec(), QColor::numBitPlanes()
+  \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
 */
 
 void QApplication::setColorSpec( int spec )
