@@ -126,37 +126,20 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    qstrcmp( it.current()->name(), "central widget" ) != 0 &&
 	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) )
 	    comboReceiver->insertItem( it.current()->name() );
-	if ( qstrcmp( it.current()->name(), receiver->name() ) == 0 )
-	    comboReceiver->setCurrentItem( comboReceiver->count() - 1 );
 	++it;
     }
     comboReceiver->listBox()->sort();
+    for ( int i = 0; i < comboReceiver->count(); ++i ) {
+	if ( comboReceiver->text( i ) == QString( receiver->name() ) ) {
+	    comboReceiver->setCurrentItem( i );
+	    break;
+	}
+    }
+	
 
     signalBox->setCurrentItem( signalBox->firstItem() );
 
-    oldConnections = MetaDataBase::connections( formWindow, sender, receiver );
-    if ( !oldConnections.isEmpty() ) {
-	QValueList<MetaDataBase::Connection>::Iterator it = oldConnections.begin();
-	for ( ; it != oldConnections.end(); ++it ) {
-	    if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
-		 !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
-		continue;
-	    MetaDataBase::Connection conn = *it;
-	    QListViewItem *i = new QListViewItem( connectionView );
-	    i->setPixmap( 0, PixmapChooser::loadPixmap( "connecttool.xpm" ) );
-	    i->setText( 0, conn.sender->name() );
-	    i->setText( 1, conn.signal );
-	    i->setText( 2, conn.receiver->name() );
-	    i->setText( 3, conn.slot );
-	    MyConnection c;
-	    c.signal = conn.signal;
-	    c.slot = conn.slot;
-	    c.receiver = conn.receiver;
-	    this->connections.insert( i, c );
-	}
-    }
-
-    connectionsChanged();
+    fillConnectionsList();
     connectButton->setEnabled( FALSE );
     buttonAddSlot->setEnabled( receiver == fw->mainContainer() );
 }
@@ -377,6 +360,7 @@ void ConnectionEditor::receiverChanged( const QString &s )
     connectButton->setEnabled( slotBox->currentItem() != -1 );
     if ( connectButton->isEnabled() )
 	updateConnectButtonState();
+    fillConnectionsList();
 }
 
 void ConnectionEditor::updateConnectButtonState()
@@ -403,4 +387,33 @@ bool ConnectionEditor::hasConnection( const QString &snder, const QString &signa
 	++it;
     }
     return FALSE;
+}
+
+void ConnectionEditor::fillConnectionsList()
+{
+    connectionView->clear();
+    connections.clear();
+    oldConnections = MetaDataBase::connections( formWindow, sender, receiver );
+    if ( !oldConnections.isEmpty() ) {
+	QValueList<MetaDataBase::Connection>::Iterator it = oldConnections.begin();
+	for ( ; it != oldConnections.end(); ++it ) {
+	    if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
+		 !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
+		continue;
+	    MetaDataBase::Connection conn = *it;
+	    QListViewItem *i = new QListViewItem( connectionView );
+	    i->setPixmap( 0, PixmapChooser::loadPixmap( "connecttool.xpm" ) );
+	    i->setText( 0, conn.sender->name() );
+	    i->setText( 1, conn.signal );
+	    i->setText( 2, conn.receiver->name() );
+	    i->setText( 3, conn.slot );
+	    MyConnection c;
+	    c.signal = conn.signal;
+	    c.slot = conn.slot;
+	    c.receiver = conn.receiver;
+	    connections.insert( i, c );
+	}
+    }
+
+    connectionsChanged();
 }

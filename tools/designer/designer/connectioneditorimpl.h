@@ -49,6 +49,7 @@ protected:
     void addSlotClicked();
     void receiverChanged( const QString &s );
     void updateConnectButtonState();
+    void fillConnectionsList();
 
 private:
     bool ignoreSlot( const char* ) const;
