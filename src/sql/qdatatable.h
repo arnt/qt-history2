@@ -45,7 +45,7 @@
 #include "qstring.h"
 #include "qvariant.h"
 #include "qtable.h"
-#include "qsqlnamespace.h"
+#include "qsql.h"
 #include "qsqlcursor.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
@@ -57,7 +57,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QDataTablePrivate;
 
-class Q_EXPORT QDataTable : public QTable, public QSqlNamespace
+class Q_EXPORT QDataTable : public QTable
 {
     Q_OBJECT
 
@@ -140,7 +140,7 @@ signals:
     void         beforeInsert( QSqlRecord* buf );
     void         beforeUpdate( QSqlRecord* buf );
     void         beforeDelete( QSqlRecord* buf );
-    void         cursorChanged( Op mode );
+    void         cursorChanged( QSql::Op mode );
 
 public slots:
     virtual void find( const QString & str, bool caseSensitive,
@@ -156,13 +156,13 @@ protected slots:
 
 protected:
     enum Confirm {
-	Yes = 0,
-	No = 1,
-	Cancel = 2
+	Cancel = -1,
+	No = 0,
+	Yes = 1
     };
 
-    virtual Confirm confirmEdit( Op m );
-    virtual Confirm confirmCancel( Op m );
+    virtual Confirm confirmEdit( QSql::Op m );
+    virtual Confirm confirmCancel( QSql::Op m );
 
     virtual void handleError( const QSqlError& e );
 

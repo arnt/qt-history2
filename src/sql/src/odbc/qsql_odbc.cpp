@@ -312,7 +312,7 @@ QODBCResult::~QODBCResult()
 bool QODBCResult::reset ( const QString& query )
 {
     setActive( FALSE );
-    setAt( BeforeFirst );
+    setAt( QSql::BeforeFirst );
     SQLRETURN r;
 
 	// If a statement handle exists - reuse it
@@ -372,7 +372,7 @@ bool QODBCResult::fetch(int i)
     nullCache.clear();
     int actualIdx = i + 1;
     if ( actualIdx <= 0 ) {
-	setAt( BeforeFirst );
+	setAt( QSql::BeforeFirst );
 	return FALSE;
     }
     SQLRETURN r;

@@ -57,7 +57,7 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qstringlist.h"
-#include "qsqlnamespace.h"
+#include "qsql.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
@@ -111,15 +111,15 @@ private:
     QSqlFormManagerPrivate* d;
 };
 
-class Q_EXPORT QDataManager : public QSqlNamespace
+class Q_EXPORT QDataManager
 {
 public:
     QDataManager();
     virtual ~QDataManager();
 
     virtual void handleError( const QSqlError& error );
-    void setMode( Op m );
-    Op mode() const;
+    void setMode( QSql::Op m );
+    QSql::Op mode() const;
     void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
 

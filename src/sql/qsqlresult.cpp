@@ -74,7 +74,7 @@ QSqlResult::QSqlResult( const QSqlDriver * db )
 {
     d = new QSqlResultPrivate();
     d->sqldriver = db;
-    d->idx = BeforeFirst;
+    d->idx = QSql::BeforeFirst;
     d->isSel = FALSE;
     d->active = FALSE;
 }
@@ -124,8 +124,8 @@ int QSqlResult::at() const
 
 bool QSqlResult::isValid() const
 {
-    return ( d->idx != BeforeFirst && \
-	    d->idx != AfterLast ) ? TRUE : FALSE;
+    return ( d->idx != QSql::BeforeFirst && \
+	    d->idx != QSql::AfterLast ) ? TRUE : FALSE;
 }
 
 /*! \fn bool QSqlResult::isNull( int i )

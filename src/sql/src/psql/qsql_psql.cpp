@@ -371,7 +371,7 @@ bool QPSQLResult::reset ( const QString& query )
     if ( !driver()-> isOpen() || driver()->isOpenError() )
 	return FALSE;
     setActive( FALSE );
-    setAt( BeforeFirst );
+    setAt( QSql::BeforeFirst );
     if ( d->result )
 	PQclear( d->result );
     d->result = PQexec( d->connection, (const char*)query );
@@ -623,7 +623,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
 	    QTime tm = field->value().toDateTime().time();
-	    r = "'" + QString::number(dt.year()) + "-" + 
+	    r = "'" + QString::number(dt.year()) + "-" +
 		QString::number(dt.month()) + "-" +
 		QString::number(dt.day()) + " " +
 		tm.toString() + "'";

@@ -531,9 +531,9 @@ class QDataManager::QDataManagerPrivate
 {
 public:
     QDataManagerPrivate()
-	: mode( QDataManager::None ), autoEd( TRUE ), confEdits( 3 ),
+	: mode( QSql::None ), autoEd( TRUE ), confEdits( 3 ),
 	  confCancs( FALSE ) {}
-    QSqlNamespace::Op mode;
+    QSql::Op mode;
     bool autoEd;
     QBitArray confEdits;
     bool confCancs;
@@ -596,7 +596,7 @@ void QDataManager::handleError( const QSqlError& e )
 
 */
 
-void QDataManager::setMode( QSqlNamespace::Op m )
+void QDataManager::setMode( QSql::Op m )
 {
     d->mode = m;
 }
@@ -606,7 +606,7 @@ void QDataManager::setMode( QSqlNamespace::Op m )
 
 */
 
-QSqlNamespace::Op QDataManager::mode() const
+QSql::Op QDataManager::mode() const
 {
     return d->mode;
 }
@@ -651,7 +651,7 @@ void QDataManager::setConfirmEdits( bool confirm )
 
 void QDataManager::setConfirmInsert( bool confirm )
 {
-    d->confEdits[ Insert ] = confirm;
+    d->confEdits[ QSql::Insert ] = confirm;
 }
 
 /*! If \a confirm is TRUE, all updates will be confirmed by the user.
@@ -662,7 +662,7 @@ void QDataManager::setConfirmInsert( bool confirm )
 
 void QDataManager::setConfirmUpdate( bool confirm )
 {
-    d->confEdits[ Update ] = confirm;
+    d->confEdits[ QSql::Update ] = confirm;
 }
 
 /*! If \a confirm is TRUE, all deletes will be confirmed by the user.
@@ -673,7 +673,7 @@ void QDataManager::setConfirmUpdate( bool confirm )
 
 void QDataManager::setConfirmDelete( bool confirm )
 {
-    d->confEdits[ Delete ] = confirm;
+    d->confEdits[ QSql::Delete ] = confirm;
 }
 
 /*! Returns TRUE if the table confirms all edit operations (inserts,
@@ -691,7 +691,7 @@ bool QDataManager::confirmEdits() const
 
 bool QDataManager::confirmInsert() const
 {
-    return ( d->confEdits[ Insert ] );
+    return ( d->confEdits[ QSql::Insert ] );
 }
 
 /*! Returns TRUE if the table confirms updates, otherwise returns
@@ -700,7 +700,7 @@ bool QDataManager::confirmInsert() const
 
 bool QDataManager::confirmUpdate() const
 {
-    return ( d->confEdits[ Update ] );
+    return ( d->confEdits[ QSql::Update ] );
 }
 
 /*! Returns TRUE if the table confirms deletes, otherwise returns
@@ -709,7 +709,7 @@ bool QDataManager::confirmUpdate() const
 
 bool QDataManager::confirmDelete() const
 {
-    return ( d->confEdits[ Delete ] );
+    return ( d->confEdits[ QSql::Delete ] );
 }
 
 /*! If \a confirm is TRUE, all cancels will be confirmed by the user

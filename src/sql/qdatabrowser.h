@@ -45,7 +45,7 @@
 #include "qwidget.h"
 #include "qstring.h"
 #include "qstringlist.h"
-#include "qsqlnamespace.h"
+#include "qsql.h"
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #include "qsqlerror.h"
@@ -53,7 +53,7 @@
 
 class QSqlForm;
 
-class Q_EXPORT QDataBrowser : public QWidget, public QSqlNamespace
+class Q_EXPORT QDataBrowser : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking )

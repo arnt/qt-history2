@@ -46,7 +46,7 @@
 #include "qvariant.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
-#include "qsqlnamespace.h"
+#include "qsql.h"
 #endif // QT_H
 
 class QSqlDriver;
@@ -55,7 +55,7 @@ class QSqlResultInfo;
 class QSqlResultPrivate;
 struct QSqlResultShared;
 
-class Q_EXPORT QSqlResult : public QSqlNamespace
+class Q_EXPORT QSqlResult
 {
 friend class QSqlQuery;
 friend struct QSqlResultShared;

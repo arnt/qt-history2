@@ -599,7 +599,7 @@ bool QOCIResult::reset ( const QString& query )
 	}
 	setSelect( FALSE );
     }
-    setAt( BeforeFirst );
+    setAt( QSql::BeforeFirst );
     setActive( TRUE);
     return TRUE;
 }
@@ -709,7 +709,7 @@ bool QOCIResult::cacheNext()
 	}
     } else {
 	cached = TRUE;
-	setAt( AfterLast );
+	setAt( QSql::AfterLast );
     }
     return r == 0;
 }
@@ -748,7 +748,7 @@ bool QOCIResult::fetch( int i )
 
 bool QOCIResult::fetchFirst()
 {
-    if ( forwardOnly && at() != BeforeFirst )
+    if ( forwardOnly && at() != QSql::BeforeFirst )
 	return FALSE;
     if ( !forwardOnly && rowCache.contains( 0 ) ) {
 	setAt( 0 );
@@ -763,14 +763,14 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    if ( !forwardOnly && at() == AfterLast && rowCache.count() > 0 ) {
+    if ( !forwardOnly && at() == QSql::AfterLast && rowCache.count() > 0 ) {
 	setAt( rowCache.count() - 1 );
 	return TRUE;
     }
-    if ( at() >= BeforeFirst ) {
+    if ( at() >= QSql::BeforeFirst ) {
 	while ( fetchNext() )
 	    ; /* brute force */
-	if ( forwardOnly && at() == AfterLast ) {
+	if ( forwardOnly && at() == QSql::AfterLast ) {
 	    setAt( at() - 1 );
 	    return TRUE;
 	} else

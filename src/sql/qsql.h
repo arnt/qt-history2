@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSqlNamespace class
+** Definition of QSql class
 **
 ** Created : 2000-11-03
 **
@@ -45,7 +45,7 @@
 #include "qglobal.h"
 #endif // QT_H
 
-class Q_EXPORT QSqlNamespace
+class Q_EXPORT QSql
 {
 public:
     enum Op {

@@ -42,6 +42,7 @@
 #include "qsqlresult.h"
 #include "qdatetime.h"
 #include "qsqldatabase.h"
+#include "qsql.h"
 #include "qmap.h"
 
 class QSqlCursorPrivate
@@ -67,7 +68,7 @@ public:
     };
 
     QSqlCursorPrivate( const QString& name )
-	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
+	: lastAt( QSql::BeforeFirst ), nm( name ), srt( name ), md( 0 ){}
     ~QSqlCursorPrivate(){}
 
     int               lastAt;
@@ -509,7 +510,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 	str += " order by " + sort.toString( d->nm );
     str += ";";
     d->srt = sort;
-    d->lastAt = BeforeFirst;
+    d->lastAt = QSql::BeforeFirst;
     return exec( str );
 }
 
@@ -1029,7 +1030,7 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	d->lastAt = BeforeFirst;
+	d->lastAt = QSql::BeforeFirst;
 	if ( exec( q ) )
 	    ar = numRowsAffected();
     } else if ( driver() ) {

@@ -104,7 +104,7 @@ QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )
     : QWidget( parent, name, fl )
 {
     d = new QDataBrowserPrivate();
-    d->dat.setMode( Update );
+    d->dat.setMode( QSql::Update );
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -132,9 +132,9 @@ QDataBrowser::Boundary QDataBrowser::boundary()
     if ( !cur || !cur->isActive() )
 	return Unknown;
     if ( !cur->isValid() ) {
-	if ( cur->at() == QSqlResult::BeforeFirst )
+	if ( cur->at() == QSql::BeforeFirst )
 	    return BeforeBeginning;
-	if ( cur->at() == QSqlResult::AfterLast )
+	if ( cur->at() == QSql::AfterLast )
 	    return AfterEnd;
 	return Unknown;
     }
@@ -445,7 +445,7 @@ void QDataBrowser::insert()
 	return;
     bool doIns = TRUE;
     switch ( d->dat.mode() ) {
-    case Insert:
+    case QSql::Insert:
 	if ( autoEdit() && !insertCurrent() )
 	    doIns = FALSE;
 	break;
@@ -457,7 +457,7 @@ void QDataBrowser::insert()
 	break;
     }
     if ( doIns ) {
-	d->dat.setMode( Insert );
+	d->dat.setMode( QSql::Insert );
 	sqlCursor()->primeInsert();
 	emit primeInsert( d->frm.record() );
 	readFields();
@@ -484,14 +484,14 @@ void QDataBrowser::update()
     if ( !buf || !cur )
 	return;
     switch ( d->dat.mode() ){
-    case Insert:
+    case QSql::Insert:
 	insertCurrent();
 	break;
     default:
 	updateCurrent();
 	break;
     }
-    d->dat.setMode( Update );
+    d->dat.setMode( QSql::Update );
 }
 
 
@@ -514,7 +514,7 @@ void QDataBrowser::del()
     if ( !buf || !cur )
 	return;
     switch ( d->dat.mode() ){
-    case Insert:
+    case QSql::Insert:
 	cur->editBuffer( TRUE ); /* restore from cursor */
 	readFields();
 	break;
@@ -522,7 +522,7 @@ void QDataBrowser::del()
 	deleteCurrent();
 	break;
     }
-    d->dat.setMode( Update );
+    d->dat.setMode( QSql::Update );
 }
 
 

@@ -7,7 +7,7 @@ sql {
 		REQUIRES += table
 	}
 
-	HEADERS     += $$SQL_H/qsqlnamespace.h \
+	HEADERS     += $$SQL_H/qsql.h \
 		    $$SQL_H/qsqlquery.h \
 		    $$SQL_H/qsqldatabase.h \
 		    $$SQL_H/qsqlfield.h \
