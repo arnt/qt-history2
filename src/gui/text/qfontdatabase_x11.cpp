@@ -745,7 +745,7 @@ QFontDef FcPatternToQFontDef(FcPattern *pattern)
     return fontDef;
 }
 
-static const FcChar8 *specialLanguages[] = {
+static const char *specialLanguages[] = {
     "en",
     "he",
     "ar",
@@ -775,7 +775,7 @@ static void loadXft()
     if (!X11->has_xft)
         return;
 
-    Q_ASSERT_X(QUnicodeTables::ScriptCount == SpecialLanguageCount, "QFontDatabase",
+    Q_ASSERT_X((int)QUnicodeTables::ScriptCount == SpecialLanguageCount, "QFontDatabase",
                "New scripts have been added, the special language array needs updating");
 
     FcFontSet  *fonts;
@@ -839,7 +839,7 @@ static void loadXft()
         FcResult res = FcPatternGetLangSet(fonts->fonts[i], FC_LANG, 0, &langset);
         if (res == FcResultMatch) {
             for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
-                FcLangResult langRes = FcLangSetHasLang(langset, specialLanguages[i]);
+                FcLangResult langRes = FcLangSetHasLang(langset, (const FcChar8*)specialLanguages[i]);
                 if (langRes != FcLangDifferentLang)
                     family->scripts[i] = QtFontFamily::Supported;
                 else
@@ -1162,7 +1162,7 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
     if (script != QUnicodeTables::Common) {
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
         FcLangSet *ls = FcLangSetCreate();
-        FcLangSetAdd(ls, specialLanguages[script]);
+        FcLangSetAdd(ls, (const FcChar8*)specialLanguages[script]);
         FcPatternAddLangSet(pattern, FC_LANG, ls);
         FcLangSetDestroy(ls);
     }
@@ -1240,7 +1240,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             FcLangSet *langSet = 0;
             if (FcPatternGetLangSet(fs->fonts[i], FC_LANG, 0, &langSet) != FcResultMatch)
                 continue;
-            if (FcLangSetHasLang(langSet, specialLanguages[script]) != FcLangEqual)
+            if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
                 continue;
 
             FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
