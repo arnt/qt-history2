@@ -289,10 +289,7 @@ public:
 	    void *ptr;
 	} value;
     };
-private:
-    Private *d;
-    static Private shared_invalid;
-
+public:
     typedef void (*f_construct)(Private *, const void *);
     typedef void (*f_clear)(Private *);
     typedef bool (*f_null)(const Private *);
@@ -301,7 +298,6 @@ private:
     typedef bool (*f_compare)(const Private *, const Private *);
     typedef void (*f_cast)(QVariant::Private *d, Type t, void *, bool *);
     typedef bool (*f_canCast)(QVariant::Private *d, Type t);
-
     struct Handler {
 	f_construct construct;
 	f_clear clear;
@@ -312,9 +308,13 @@ private:
 	f_cast cast;
 	f_canCast canCast;
     };
+
+private:
+    Private *d;
+    static Private shared_invalid;
+
     static const Handler *handler;
     friend class QApplicationPrivate;
-
 
     Private *create(Type t, const void *v);
     inline void cleanUp(Private *p) { handler->clear(p); delete p; }
