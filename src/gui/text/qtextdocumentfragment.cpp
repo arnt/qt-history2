@@ -6,7 +6,7 @@
 #include <qdebug.h>
 #include <qstylesheet.h>
 #include <qtextcodec.h>
-#include <qstack.h>
+#include <qvarlengtharray.h>
 
 QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &parser, int formatsNode)
 {
@@ -493,9 +493,9 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
     parser.parse(html);
 //    parser.dumpHtml();
 
-    QStack<int> listReferences;
+    QVarLengthArray<int> listReferences;
     int indent = 0;
-    QStack<int> tableIndices;
+    QVarLengthArray<int> tableIndices;
 
     bool hasBlock = true;
     for (int i = 0; i < parser.count(); ++i) {
@@ -512,7 +512,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 		    Q_ASSERT(!tableIndices.isEmpty());
 		    QTextBlockFormat fmt;
 		    fmt.setNonDeletable(true);
-		    fmt.setTableFormatIndex(tableIndices.top());
+		    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
 		    fmt.setTableCellEndOfRow(true);
 		    d->appendBlock(fmt);
 		} else if (closedNode->tag == QLatin1String("table")) {
@@ -520,12 +520,12 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 		    QTextBlockFormat fmt;
 		    fmt.setNonDeletable(true);
 		    d->appendBlock(fmt);
-		    tableIndices.pop();
+		    tableIndices.resize(tableIndices.size() - 1);
 		} else if (closedNode->isListStart) {
 
 		    Q_ASSERT(!listReferences.isEmpty());
 
-		    listReferences.pop();
+		    listReferences.resize(listReferences.size() - 1);
 		    --indent;
 		}
 
@@ -540,15 +540,19 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 	    ++indent;
 	    listFmt.setIndent(indent);
 
-	    listReferences << d->localFormatCollection.createReferenceIndex(listFmt);
+	    const int idx = listReferences.size();
+	    listReferences.resize(idx + 1);
+	    listReferences[idx] = d->localFormatCollection.createReferenceIndex(listFmt);
 	} else if (node->tag == QLatin1String("table")) {
-	    tableIndices << d->localFormatCollection.createReferenceIndex(QTextTableFormat());
+	    const int idx = tableIndices.size();
+	    tableIndices.resize(tableIndices.size() + 1);
+	    tableIndices[idx] = d->localFormatCollection.createReferenceIndex(QTextTableFormat());
 	} else if (node->isTableCell) {
 	    Q_ASSERT(!tableIndices.isEmpty());
 
 	    QTextBlockFormat fmt;
 	    fmt.setNonDeletable(true);
-	    fmt.setTableFormatIndex(tableIndices.top());
+	    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
 	    if (node->bgColor.isValid())
 		fmt.setBackgroundColor(node->bgColor);
 	    d->appendBlock(fmt);
@@ -568,7 +572,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 
 		if (node->isListItem) {
 		    Q_ASSERT(!listReferences.isEmpty());
-		    block.setListFormatIndex(listReferences.top());
+		    block.setListFormatIndex(listReferences[listReferences.size() - 1]);
 		} else if (indent)
 		    block.setIndent(indent);
 
