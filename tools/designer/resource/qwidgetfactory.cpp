@@ -180,7 +180,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ], conn );
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
-	    ((QTable*)table)->setNumCols( 0 );
 	    if ( !fieldMap.isEmpty() ) {
 		    int i = 0;
 		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
@@ -1058,11 +1057,15 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setResizeEnabled( resizeable, i );
     } else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
+	bool isAlterable = (!widget->inherits( "QSqlTable" )); // sql table columns added in create()
 	bool isRow;
-	if ( ( isRow = e.tagName() == "row" ) )
-	    table->setNumRows( table->numRows() + 1 );
-	else
-	    table->setNumCols( table->numCols() + 1 );
+	if ( ( isRow = e.tagName() == "row" ) ) {
+	    if ( isAlterable )
+		table->setNumRows( table->numRows() + 1 );
+	} else {
+	    if ( isAlterable )
+		table->setNumCols( table->numCols() + 1 );
+	}
 
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
@@ -1092,9 +1095,9 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 
 	int i = isRow ? table->numRows() - 1 : table->numCols() - 1;
 	QHeader *h = !isRow ? table->horizontalHeader() : table->verticalHeader();
-	if ( hasPixmap )
+	if ( hasPixmap && isAlterable )
 	    h->setLabel( i, pix, txt );
-	else
+	else if ( isAlterable )
 	    h->setLabel( i, txt );
 	if ( !isRow && !field.isEmpty() ) {
 	    fieldMap.append( Field( txt, hasPixmap ? pix : QPixmap(), field ) );
