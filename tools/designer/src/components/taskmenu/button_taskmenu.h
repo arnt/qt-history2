@@ -32,8 +32,6 @@ public:
 
     virtual QList<QAction*> taskActions() const;
 
-    bool eventFilter(QObject *object, QEvent *event);
-
 private slots:
     void editText();
     void editIcon();

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "groupbox_taskmenu.h"
+#include "inplace_editor.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -19,7 +20,6 @@
 #include <abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
-#include <QtGui/QLineEdit>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 
@@ -54,23 +54,6 @@ QList<QAction*> GroupBoxTaskMenu::taskActions() const
     return action_list;
 }
 
-bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
-{
-    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
-    if (!lineEditor)
-        return false;
-
-    switch (event->type()) {
-        default: break;
-
-        case QEvent::FocusOut:
-            lineEditor->deleteLater();
-            break;
-    }
-
-    return false;
-}
-
 void GroupBoxTaskMenu::editTitle()
 {
     AbstractFormWindow *fw = formWindow();
@@ -79,7 +62,7 @@ void GroupBoxTaskMenu::editTitle()
         connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_groupbox->parentWidget() != 0);
 
-        m_editor = new QLineEdit();
+        m_editor = new InPlaceEditor(m_groupbox);
         m_editor->setFrame(false);
         m_editor->setText(m_groupbox->title());
         m_editor->selectAll();
@@ -94,8 +77,6 @@ void GroupBoxTaskMenu::editTitle()
         // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
         r.setHeight(20);
 
-        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
-        m_editor->setParent(m_groupbox->window());
         m_editor->setGeometry(QRect(m_groupbox->mapTo(m_groupbox->window(), r.topLeft()), r.size()));
 
         m_editor->setFocus();

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "label_taskmenu.h"
+#include "inplace_editor.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -19,7 +20,6 @@
 #include <abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
-#include <QtGui/QLineEdit>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 
@@ -48,23 +48,6 @@ QList<QAction*> LabelTaskMenu::taskActions() const
     return QDesignerTaskMenu::taskActions() + m_taskActions;
 }
 
-bool LabelTaskMenu::eventFilter(QObject *object, QEvent *event)
-{
-    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
-    if (!lineEditor)
-        return false;
-
-    switch (event->type()) {
-        default: break;
-
-        case QEvent::FocusOut:
-            lineEditor->deleteLater();
-            break;
-    }
-
-    return false;
-}
-
 void LabelTaskMenu::editText()
 {
     m_formWindow = AbstractFormWindow::findFormWindow(m_label);
@@ -72,9 +55,8 @@ void LabelTaskMenu::editText()
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_label->parentWidget() != 0);
 
-        m_editor = new QLineEdit();
+        m_editor = new InPlaceEditor(m_label);
         m_editor->setObjectName("__qt__passive_m_editor");
-        m_editor->installEventFilter(this); // ### we need this??
 
         m_editor->setFrame(false);
         m_editor->setText(m_label->text());
@@ -88,7 +70,6 @@ void LabelTaskMenu::editText()
         QRect r = opt.rect;
 
         m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
-        m_editor->setParent(m_label->window());
         m_editor->setGeometry(QRect(m_label->mapTo(m_label->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "button_taskmenu.h"
+#include "inplace_editor.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -19,7 +20,6 @@
 #include <abstractformwindowmanager.h>
 
 #include <QtGui/QAction>
-#include <QtGui/QLineEdit>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 
@@ -48,23 +48,6 @@ QList<QAction*> ButtonTaskMenu::taskActions() const
     return QDesignerTaskMenu::taskActions() + m_taskActions;
 }
 
-bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)
-{
-    QLineEdit *lineEditor = qobject_cast<QLineEdit*>(object);
-    if (!lineEditor)
-        return false;
-
-    switch (event->type()) {
-        default: break;
-
-        case QEvent::FocusOut:
-            lineEditor->deleteLater();
-            break;
-    }
-
-    return false;
-}
-
 void ButtonTaskMenu::editText()
 {
     m_formWindow = AbstractFormWindow::findFormWindow(m_button);
@@ -72,9 +55,8 @@ void ButtonTaskMenu::editText()
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_button->parentWidget() != 0);
 
-        m_editor = new QLineEdit();
+        m_editor = new InPlaceEditor(m_button);
         m_editor->setObjectName("__qt__passive_m_editor");
-        m_editor->installEventFilter(this); // ### we need this??
 
         m_editor->setFrame(false);
         m_editor->setText(m_button->text());
@@ -88,7 +70,6 @@ void ButtonTaskMenu::editText()
         QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
 
         m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
-        m_editor->setParent(m_button->window());
         m_editor->setGeometry(QRect(m_button->mapTo(m_button->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
