@@ -719,7 +719,7 @@ QTextEngine::~QTextEngine()
 }
 
 
-void QTextEngine::itemize( bool /*doBidi*/ )
+void QTextEngine::itemize( bool doBidi )
 {
     if ( !items.d ) {
 	int size = 1;
@@ -729,9 +729,16 @@ void QTextEngine::itemize( bool /*doBidi*/ )
     }
     items.d->size = 0;
 
-    if ( direction == QChar::DirON )
-	direction = basicDirection( string );
-    bidiItemize( string, items, direction == QChar::DirR );
+    if ( doBidi ) {
+	if ( direction == QChar::DirON )
+	    direction = basicDirection( string );
+	bidiItemize( string, items, direction == QChar::DirR );
+    } else {
+	BidiControl control( false );
+	int start = 0;
+	int stop = string.length() - 1;
+	appendItems(items, start, stop, control, QChar::DirL, string.unicode() );
+    }
 }
 
 

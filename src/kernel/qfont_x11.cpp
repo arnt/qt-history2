@@ -128,6 +128,7 @@ QFontX11Data::QFontX11Data()
     for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
 	fontstruct[i] = 0;
     }
+    memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
 }
 
 QFontX11Data::~QFontX11Data()
@@ -1225,6 +1226,9 @@ int QFontMetrics::lineSpacing() const
 */
 int QFontMetrics::width(QChar ch) const
 {
+    if ( ch.unicode() < widthCacheSize && d->x11data.widthCache[ ch.unicode() ] )
+	return d->x11data.widthCache[ ch.unicode() ];
+
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, ch );
     d->load( script );
@@ -1238,6 +1242,10 @@ int QFontMetrics::width(QChar ch) const
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+
+    if ( ch.unicode() < widthCacheSize && gi.xoff < 0x100 )
+	d->x11data.widthCache[ ch.unicode() ] = gi.xoff;
+
     return gi.xoff;
 }
 
@@ -1258,15 +1266,24 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if ( pos < 0 || pos > (int)str.length() )
 	return 0;
 
+    const QChar &c = str.unicode()[pos];
+    if ( c.unicode() < widthCacheSize && d->x11data.widthCache[ c.unicode() ] )
+	return d->x11data.widthCache[ c.unicode() ];
+
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, str.unicode()[pos] );
+    SCRIPT_FOR_CHAR( script, c );
     d->load( script );
 
     // ### optimise for non complex case
 
     QTextEngine layout( str,  d );
     layout.itemize( FALSE );
-    return layout.width( pos, 1 );
+    int w = layout.width( pos, 1 );
+
+    if ( c.unicode() < widthCacheSize && w < 0x100 )
+	d->x11data.widthCache[ c.unicode() ] = w;
+
+    return w;
 }
 
 
@@ -1288,8 +1305,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return 0;
-
-    // ### optimise for non complex case
 
     QTextEngine layout( str, d );
     layout.itemize( FALSE );
@@ -1351,8 +1366,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return QRect();
-
-    // ### optimise for non complex case
 
     QTextEngine layout( str, d );
     layout.itemize( FALSE );
