@@ -215,13 +215,13 @@ inline XmlOutput::xml_output attrE(const char *name, int v, int ifn)
     return attr(name, QString::number(v));
 }
 
-inline XmlOutput::xml_output attrL(const char *name, long v)
+inline XmlOutput::xml_output attrL(const char *name, qint64 v)
 {
     return attr(name, QString::number(v));
 }
 
 /*ifNot version*/
-inline XmlOutput::xml_output attrL(const char *name, long v, long ifn)
+inline XmlOutput::xml_output attrL(const char *name, qint64 v, qint64 ifn)
 {
     if (v == ifn)
         return noxml();
@@ -1082,9 +1082,9 @@ bool VCLinkerTool::parseOption(const char* option)
     case 0x033c960: // /HEAP:reserve[,commit]
         {
             QStringList both = QString(option+6).split(",");
-            HeapReserveSize = both[0].toLong();
+            HeapReserveSize = both[0].toLongLong();
             if(both.count() == 2)
-                HeapCommitSize = both[1].toLong();
+                HeapCommitSize = both[1].toLongLong();
         }
         break;
     case 0x3d91494: // /IDLOUT:[path\]filename
@@ -1231,9 +1231,9 @@ bool VCLinkerTool::parseOption(const char* option)
     case 0x348857b: // /STACK:reserve[,commit]
         {
             QStringList both = QString(option+7).split(",");
-            StackReserveSize = both[0].toLong();
+            StackReserveSize = both[0].toLongLong();
             if(both.count() == 2)
-                StackCommitSize = both[1].toLong();
+                StackCommitSize = both[1].toLongLong();
         }
         break;
     case 0x78dc00d: // /SUBSYSTEM:{CONSOLE|EFI_APPLICATION|EFI_BOOT_SERVICE_DRIVER|EFI_ROM|EFI_RUNTIME_DRIVER|NATIVE|POSIX|WINDOWS|WINDOWSCE}[,major[.minor]]
@@ -1271,7 +1271,7 @@ bool VCLinkerTool::parseOption(const char* option)
             found = false;
         break;
     case 0x34906d4: // /TLBID:id
-        TypeLibraryResourceID = QString(option+7).toLong();
+        TypeLibraryResourceID = QString(option+7).toLongLong();
         break;
     case 0x4907494: // /TLBOUT:[path\]filename
         TypeLibraryFile = option+8;

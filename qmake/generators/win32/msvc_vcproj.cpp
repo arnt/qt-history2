@@ -381,11 +381,11 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
 QUuid VcprojGenerator::increaseUUID(const QUuid &id)
 {
     QUuid result(id);
-    Q_LONG dataFirst = (result.data4[0] << 24) +
+    qint64 dataFirst = (result.data4[0] << 24) +
                        (result.data4[1] << 16) +
                        (result.data4[2] << 8) +
                         result.data4[3];
-    Q_LONG dataLast =  (result.data4[4] << 24) +
+    qint64 dataLast =  (result.data4[4] << 24) +
                        (result.data4[5] << 16) +
                        (result.data4[6] <<  8) +
                         result.data4[7];

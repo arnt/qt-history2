@@ -484,8 +484,8 @@ public:
     QString                 FunctionOrder;
     triState                GenerateDebugInformation;
     triState                GenerateMapFile;
-    long                    HeapCommitSize;
-    long                    HeapReserveSize;
+    qlonglong               HeapCommitSize;
+    qlonglong               HeapReserveSize;
     triState                IgnoreAllDefaultLibraries;
     QStringList             IgnoreDefaultLibraryNames;
     triState                IgnoreEmbeddedIDL;
@@ -511,8 +511,8 @@ public:
     triState                ResourceOnlyDLL;
     triState                SetChecksum;
     linkProgressOption      ShowProgress;
-    long                    StackCommitSize;
-    long                    StackReserveSize;
+    qlonglong               StackCommitSize;
+    qlonglong               StackReserveSize;
     QString                 StripPrivateSymbols;    // Should be list?
     subSystemOption         SubSystem;
     triState                SupportUnloadOfDelayLoadedDLL;
@@ -523,7 +523,7 @@ public:
     termSvrAwarenessType    TerminalServerAware;
     triState                TurnOffAssemblyGeneration;
     QString                 TypeLibraryFile;
-    long                    TypeLibraryResourceID;
+    qlonglong               TypeLibraryResourceID;
     QString                 Version;
     VCConfiguration*        config;
 };
