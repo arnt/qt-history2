@@ -429,7 +429,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
             return false;
         }
 
-        QProcessManager::instance().deadChildNotification();
+        QProcessManager::instance().deadChildNotification(0);
         return true;
     }
 
