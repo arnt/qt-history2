@@ -956,7 +956,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     QString name;
     int partId = 0;
     int stateId = 0;
-    if ( widget->hasMouse() )
+    if ( widget->hasMouse() && widget->isActiveWindow() )
 	flags |= Style_MouseOver;
 
     switch ( element ) {
@@ -1182,7 +1182,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
-    if ( w->hasMouse() )
+    if ( w->hasMouse() && w->isActiveWindow() )
 	flags |= Style_MouseOver;
 
     switch ( control ) {
@@ -1519,7 +1519,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = TUS_PRESSED;
 		    else if ( flags & Style_HasFocus )
 			stateId = TUS_FOCUSED;
-		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+		    else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
 			stateId = TUS_HOT;
 		    else
 			stateId = TUS_NORMAL;
@@ -1537,7 +1537,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = TUVS_PRESSED;
 		    else if ( flags & Style_HasFocus )
 			stateId = TUVS_FOCUSED;
-		    else if ( w->hasMouse() && theme.rec.contains( d->hotSpot ) )
+		    else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
 			stateId = TUS_HOT;
 		    else
 			stateId = TUVS_NORMAL;
@@ -2244,6 +2244,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     case QEvent::Leave:
 	if ( !widget->isActiveWindow() )
 	    break;
+    case QEvent::WindowDeactivate:
         if ( widget == d->hotWidget) {
             d->hotWidget = 0;
 	    d->hotHeader = QRect();
