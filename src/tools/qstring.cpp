@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#207 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#208 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12625,7 +12625,7 @@ int QChar::digitValue() const
 }
 
 /*!
-  Returns whether the character category
+  Returns the character category
   */
 QChar::Category QChar::category() const
 {
@@ -13466,6 +13466,10 @@ QString::QString( const char *str )
 /*!
   \internal
 
+  Note: This method is obsolete and should not be used in new code. It
+  is provided only as an aid for porting programs from Qt 1.x to Qt
+  2.x.
+
   This function is obsolete - the semantics is too tricky.
   Use QString("helloworld").left(5) instead.
 
@@ -14014,8 +14018,15 @@ void QString::fill( QChar c, int len )
 
 /*!
   \fn QString QString::copy() const
-  \obsolete
-  Returns a deep copy of this string.
+  
+  Note: This method is obsolete and should not be used in new code. It
+  is provided only as an aid for porting programs from Qt 1.x to Qt
+  2.x.
+
+  Returns a deep copy of this string. 
+
+  Doing this is redundant in Qt 2.x, since QString is implicitly
+  shared, and so will automatically be deeply copied as necessary.
 */
 
 /*!
@@ -14468,7 +14479,7 @@ QString QString::upper() const
 /*!
   Returns a new string that has white space removed from the start and the end.
 
-  White space means any character for which ucisspace() returns
+  White space means any character for which QChar::isSpace() returns
   TRUE. This includes ASCII characters 9 (TAB), 10 (LF), 11 (VT), 12
   (FF), 13 (CR), and 32 (Space).
 
@@ -14513,7 +14524,7 @@ QString QString::stripWhiteSpace() const
   plus any sequence of internal white space replaced with a single space
   (ASCII 32).
 
-  White space means any character for which ucisspace() returns
+  White space means any character for which QChar::isSpace() returns
   TRUE. This includes ASCII characters 9 (TAB), 10 (LF), 11 (VT), 12
   (FF), 13 (CR), and 32 (Space).
 
@@ -15178,13 +15189,17 @@ QString &QString::setNum( double n, char f, int prec )
 
 
 /*!
-  \obsolete
+  Note: This method is obsolete and should not be used in new code. It
+  is provided only as an aid for porting programs from Qt 1.x to Qt
+  2.x.
 
   Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
 
-  This is never necessary.
+  This method is redundant in Qt 2.x, because operator[] will
+  expand the string as necessary.
 */
+
 void QString::setExpand( uint index, QChar c )
 {
     int spaces = index - d->len;
@@ -15197,10 +15212,14 @@ void QString::setExpand( uint index, QChar c )
 /*!
   \fn const char* QString::data() const
 
-  Obsolete.  This method is provided to aide porting to Qt 2.0.
+  Note: This method is obsolete and should not be used in new code. It
+  is provided only as an aid for porting programs from Qt 1.x to Qt
+  2.x.
+
+  Returns a pointer to a 0-terminated classic C string.
 
   In Qt 1.x, this returned a char* allowing direct manipulation of the
-  string as a sequence of bytes.  Now that QString is a Unicode
+  string as a sequence of bytes.  In Qt 2.x where QString is a Unicode
   string, char* conversion constructs a temporary string, and hence
   direct character operations are meaningless.
 */
@@ -15351,20 +15370,28 @@ QString QString::fromUtf8(const char* utf8, int len)
 
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
+
+  Note: If this QString is not const or const&, the non-const at()
+  will be used instead, which will expand the string if \a i is beyond
+  the length of the string.
 */
 
 /*!
   \fn const QChar& QString::operator[](int) const
 
-  Returns the character at \a i, or 0 if \a i is beyond the length
-  of the string.
+  Returns the character at \a i, or QChar::null if \a i is beyond the
+  length of the string. 
+
+  Note: If this QString is not const or const&, the non-const operator[]
+  will be used instead, which will expand the string if \a i is beyond
+  the length of the string.
 */
 
 /*!
   \fn QChar& QString::operator[](int)
 
   Returns a reference to the character at \a i, expanding
-  the string with character-0 if necessary.  The resulting reference
+  the string with QChar::null if necessary.  The resulting reference
   can then be assigned to, or otherwise used immediately, but
   becomes invalid once further modifications are made to the string.
 */
@@ -15372,7 +15399,7 @@ QString QString::fromUtf8(const char* utf8, int len)
 /*!
   \fn QChar& QString::at( uint i )
   Returns a reference to the character at \a i, expanding
-  the string with character-0 if necessary.  The resulting reference
+  the string with QChar::null if necessary.  The resulting reference
   can then be assigned to, or otherwise used immediately, but
   becomes invalid once further modifications are made to the string.
 */
@@ -15387,7 +15414,7 @@ void QString::subat( uint i )
     if ( i >= olen ) {
 	setLength( i+1 );		// i is index; i+1 is needed length
 	for ( uint j=olen; j<=i; j++ )
-	    d->unicode[j]='\0';
+	    d->unicode[j] = QChar::null;
     } else {
 	// Just be sure to detach
 	real_detach();
