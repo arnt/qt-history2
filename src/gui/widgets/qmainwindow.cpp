@@ -241,7 +241,11 @@ QStatusBar *QMainWindow::statusBar() const
     \sa statusBar()
 */
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
-{ d->layout->setStatusBar(statusbar); }
+{
+    if (d->layout->statusBar())
+        delete d->layout->statusBar();
+    d->layout->setStatusBar(statusbar);
+}
 
 /*!
     Returns the central widget for the main window.  This function
