@@ -16,7 +16,7 @@ SOURCES		= glalpha.cpp \
 		  glcontrolwidget.cpp \
 		  main.cpp 
 unix:SOURCES	+= glinfo_x11.cpp
-win:SOURCES	+= glinfo_win.h
+win32:SOURCES   += glinfo_win.cpp
 TARGET		= gltest
 DEPENDPATH	= ../include
 INTERFACES	= gltest.ui
