@@ -85,7 +85,7 @@
 
 /*!
     Constructs an assistant client object. The \a path specifies the
-    path to the Qt Assistant executable. If the \a path is an empty
+    path to the Qt Assistant executable. If \a path is an empty
     string the system path (\c{%PATH%} or \c $PATH) is used.
 
     The assistant client object is a child of \a parent and is called

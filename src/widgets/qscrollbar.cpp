@@ -274,6 +274,9 @@ QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
     init();
 }
 
+/*!
+    Destructor.
+*/
 QScrollBar::~QScrollBar()
 {
     delete d;

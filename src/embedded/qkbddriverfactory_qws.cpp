@@ -91,8 +91,9 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
 */
 
 /*!
-    Creates a QWSKeyboardHandler object that matches \a key. This is
-    either a built-in driver, or a driver from a driver plugin.
+    Creates a QWSKeyboardHandler object that matches \a key for device
+    \a device. This is either a built-in driver, or a driver from a
+    driver plugin.
 
     \sa keys()
 */

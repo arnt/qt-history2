@@ -1197,7 +1197,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SC_ComboBoxEditField  combobox edit field; see also QComboBox.
     \value SC_ComboBoxArrow  combobox arrow
     \value SC_ComboBoxFrame combobox frame
-
+    \value SC_ComboBoxListBoxPopup combobox list box
 
     \value SC_SliderGroove  special subcontrol which contains the area
 	in which the slider handle may move.

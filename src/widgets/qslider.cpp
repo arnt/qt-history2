@@ -166,6 +166,9 @@ QSlider::QSlider( int minValue, int maxValue, int pageStep,
     sliderVal = value;
 }
 
+/*!
+    Destructor.
+*/
 QSlider::~QSlider()
 {
     delete d;
@@ -747,6 +750,7 @@ QSize QSlider::minimumSizeHint() const
     return s;
 }
 
+/*! \reimp */
 void QSlider::setSizePolicy( QSizePolicy sp )
 {
     d->defaultSizePolicy = FALSE;
