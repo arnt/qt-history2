@@ -50,7 +50,7 @@ win32:RC_FILE	= install.rc
 #CONFIG += eval
 #CONFIG += eval-cd
 #CONFIG += qsa
-CONFIG += edu
+#CONFIG += edu
 
 
 unix:LIBS		+= -L$$QT_BUILD_TREE/util/install/archive -larq

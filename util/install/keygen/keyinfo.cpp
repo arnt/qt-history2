@@ -49,7 +49,7 @@
 static const char alphabet[] = "X9MUEC7AJH3KS6DB4YFG2L5PQRT8VNZ";
 static const int AlphabetSize = 31;
 
-QString encodeBaseZ( uint k, int numDigits )
+static QString encodeBaseZ( uint k, int numDigits )
 {
     QString str;
 
@@ -60,7 +60,7 @@ QString encodeBaseZ( uint k, int numDigits )
     return str;
 }
 
-uint decodeBaseZ( const QString& str )
+static uint decodeBaseZ( const QString& str )
 {
     uint k = 0;
     int i = str.length();
@@ -146,11 +146,13 @@ static uint codeForKey( const QString& key )
     }
 }
 
+#ifndef QKEY_NO_GENERATE
 QString keyForFeatures( uint features, uint randomBits )
 {
     uint check = makeCheck( features, randomBits );
     return keyForCode( makeCode(features, check) );
 }
+#endif
 
 uint featuresForKey( const QString& key )
 {
@@ -186,7 +188,7 @@ uint featuresForKeyOnUnix( const QString& key )
 
 static QDate StartDate( 2001, 1, 1 );
 static uint MaxDays = 4000;
-
+#ifndef QKEY_NO_GENERATE
 QString encodedExpiryDate( const QDate& date )
 {
     uint days = StartDate.daysTo( date );
@@ -196,6 +198,7 @@ QString encodedExpiryDate( const QDate& date )
     uint x = ( days << 7 ) ^ days;
     return QString( "-" ) + encodeBaseZ( x ^ 0x0000beef, 4 );
 }
+#endif
 
 QDate decodedExpiryDate( const QString& encodedDate )
 {
