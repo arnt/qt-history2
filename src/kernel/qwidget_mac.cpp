@@ -1183,7 +1183,7 @@ void QWidget::setWindowModified(bool mod)
 {
     setAttribute(WA_WindowModified, mod);
     if(isTopLevel())
-	SetWindowModality((WindowRef)handle(), mod);
+	SetWindowModified((WindowRef)handle(), mod);
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
