@@ -216,11 +216,11 @@ bool ConnectionObject::isSender(const QObject *receiver, const char *signal) con
 	return false;
 
     int i = 0;
-    QObjectPrivate::Connections::Connection *connections = d_ptr->findConnection(sigindex, i);
+    QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
     if (connections) do {
 	if (connections->receiver == receiver)
 	    return true;
-	connections = d_ptr->findConnection(sigindex, i);
+	connections = d_func()->findConnection(sigindex, i);
     } while (connections);
     return false;
 }
@@ -234,10 +234,10 @@ QList<QObject*> ConnectionObject::receiverList(const char *signal) const
 	return receivers;
 
     int i = 0;
-    QObjectPrivate::Connections::Connection *connections = d_ptr->findConnection(sigindex, i);
+    QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
     if (connections) do {
 	receivers << connections->receiver;
-    	connections = d_ptr->findConnection(sigindex, i);
+    	connections = d_func()->findConnection(sigindex, i);
     } while (connections);
     return receivers;
 }
@@ -245,10 +245,10 @@ QList<QObject*> ConnectionObject::receiverList(const char *signal) const
 QList<QObject*> ConnectionObject::senders() const
 {
     QList<QObject*> senders;
-    if (!d_ptr->senders)
+    if (!d_func()->senders)
 	return senders;
-    for (int i = 0; i < d_ptr->senders->count; ++i)
-	senders << d_ptr->senders->senders[i].sender;
+    for (int i = 0; i < d_func()->senders->count; ++i)
+	senders << d_func()->senders->senders[i].sender;
 
     return senders;
 }
