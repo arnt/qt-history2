@@ -1000,7 +1000,6 @@ QCString QFontArabicUnicodeCodec::fromUnicode(const QString&, int& ) const
 
 QByteArray QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int from, int len ) const
 {
-    qDebug("apping from %d, len %d", from, len);
     QByteArray result( len*2 );
     uchar *data = (uchar *)result.data();
     const QChar *ch = uc.unicode() + from;
@@ -1013,7 +1012,7 @@ QByteArray QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int from, int
 	    *data++ = c;
 	} else {
 	    int shape = QArabicShaping::glyphVariant( uc, i+from );
-	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
+	    //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
 	    // take care of lam-alef ligatures (lam right of alef)
 	    ushort map;
 	    switch ( c ) {
@@ -1025,7 +1024,7 @@ QByteArray QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int from, int
 			    case 0x23:
 			    case 0x25:
 			    case 0x27:
-				qDebug(" lam of lam-alef ligature");
+				//qDebug(" lam of lam-alef ligature");
 				map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
 				goto next;
 			    default:
@@ -1040,7 +1039,7 @@ QByteArray QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int from, int
 		case 0x27: // alef
 		    if ( nextChar( uc, i+from )->unicode() == 0x0644 ) {
 			// have a lam alef ligature
-			qDebug(" alef of lam-alef ligature");
+			//qDebug(" alef of lam-alef ligature");
 			skipped += 2;
 			goto skip;
 		    } 
