@@ -61,10 +61,18 @@
  * QWSSocket
  *
  **********************************************************************/
-QWSSocket::QWSSocket(QObject *parent, const char *name)
-    : QSocket(parent, name)
+QWSSocket::QWSSocket(QObject *parent)
+    : QSocket(parent)
 {
 }
+
+#ifdef QT_COMPAT
+QWSSocket::QWSSocket(QObject *parent, const char *name)
+    : QSocket(parent)
+{
+    setObjectName(name);
+}
+#endif
 
 QWSSocket::~QWSSocket()
 {
@@ -95,8 +103,22 @@ void QWSSocket::connectToLocalFile(const QString &file)
  * QWSServerSocket
  *
  **********************************************************************/
+QWSServerSocket::QWSServerSocket(const QString& file, int backlog, QObject *parent)
+    : QServerSocket(parent)
+{
+    init(file, backlog);
+}
+
+#ifdef QT_COMPAT
 QWSServerSocket::QWSServerSocket(const QString& file, int backlog, QObject *parent, const char *name)
-    : QServerSocket(parent, name)
+    : QServerSocket(parent)
+{
+    setObjectName(name);
+    init(file, backlog);
+}
+#endif
+
+void QWSServerSocket::init(const QString &file, int backlog)
 {
     // create socket
     int s = ::socket(PF_LOCAL, SOCK_STREAM, 0);

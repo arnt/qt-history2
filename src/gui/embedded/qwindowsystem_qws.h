@@ -170,7 +170,10 @@ class QWSServer : public QObject
     Q_OBJECT
 
 public:
-    QWSServer(int flags = 0, QObject *parent=0, const char *name=0);
+    QWSServer(int flags = 0, QObject *parent=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QWSServer(int flags, QObject *parent, const char *name);
+#endif
     ~QWSServer();
     enum ServerFlags { DisableKeyboard = 0x01,
                        DisableMouse = 0x02 };
@@ -297,6 +300,7 @@ signals:
     void markedText(const QString &);
 #endif
 private:
+    void initServer(int flags);
 #ifndef QT_NO_COP
     static void sendQCopEvent(QWSClient *c, const QByteArray &ch,
                                const QByteArray &msg, const QByteArray &data,

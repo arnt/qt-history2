@@ -67,12 +67,25 @@ public:
     are passed on to the QObject constructor.
 */
 
-QCopChannel::QCopChannel(const QByteArray& channel, QObject* parent, const char* name) :
+QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent) :
     QObject(parent)
+{
+    init(channel);
+}
+
+#ifdef QT_COMPAT
+QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent, const char *name) :
+    QObject(parent)
+{
+    setObjectName(name);
+    init(channel);
+}
+#endif
+
+void QCopChannel::init(const QByteArray &channel)
 {
     d = new QCopChannelPrivate;
     d->channel = channel;
-    setObjectName(name);
 
     if (!qt_fbdpy) {
         qFatal("QCopChannel: Must construct a QApplication "

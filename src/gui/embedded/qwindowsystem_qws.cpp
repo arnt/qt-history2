@@ -663,13 +663,32 @@ static void ignoreSignal(int)
     parent is \a parent and it is called \a name.
 */
 
-QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
+QWSServer::QWSServer(int flags, QObject *parent) :
 #ifndef QT_NO_QWS_MULTIPROCESS
-    QWSServerSocket(qws_qtePipeFilename(),16,parent,name),
+    QWSServerSocket(qws_qtePipeFilename(),16,parent),
 #else
-    QObject(parent, name),
+    QObject(parent),
 #endif
     disablePainting(false)
+{
+    initServer(flags);
+}
+
+#ifdef QT_COMPAT
+QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
+#ifndef QT_NO_QWS_MULTIPROCESS
+    QWSServerSocket(qws_qtePipeFilename(),16,parent),
+#else
+    QObject(parent),
+#endif
+    disablePainting(false)
+{
+    setObjectName(name);
+    initServer(flags);
+}
+#endif
+
+void QWSServer::initServer(int flags)
 {
     d = new QWSServerData;
     Q_ASSERT(!qwsServer);

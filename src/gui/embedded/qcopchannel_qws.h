@@ -26,7 +26,10 @@ class QCopChannel : public QObject
 {
     Q_OBJECT
 public:
-    QCopChannel(const QByteArray& channel, QObject* parent=0, const char* name=0);
+    QCopChannel(const QByteArray &channel, QObject *parent=0);
+#ifdef QT_COMPAT
+    QCopChannel(const QByteArray &channel, QObject *parent, const char *name);
+#endif
     virtual ~QCopChannel();
 
     QByteArray channel() const;
@@ -45,6 +48,8 @@ signals:
     void received(const QByteArray &msg, const QByteArray &data);
 
 private:
+    void init(const QByteArray &channel);
+
     // server side
     static void registerChannel(const QString &ch, QWSClient *cl);
     static void detach(QWSClient *cl);
