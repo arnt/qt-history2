@@ -39,6 +39,7 @@
 #include <qdatetime.h>
 #include <qptrvector.h>
 #include <private/qsqlextension_p.h>
+#include <private/qinternal_p.h>
 
 #ifndef UNICODE
 #define UNICODE
@@ -48,6 +49,7 @@
 #include <sqlcli1.h>
 
 static const int COLNAMESIZE = 255;
+static const SQLSMALLINT qParamType[ 4 ] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
 class QDB2DriverPrivate
 {
@@ -448,6 +450,43 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
     return QSqlFieldInfo( fname, qDecodeDB2Type( type ), required, size, prec, QVariant(), type );
 }
 
+bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly )
+{
+    SQLRETURN r;
+    if ( !d->hStmt ) {
+	r = SQLAllocHandle( SQL_HANDLE_STMT,
+			    d->dp->hDbc,
+			    &d->hStmt );
+	if ( r != SQL_SUCCESS ) {
+	    qSqlWarning( "QDB2Result::reset: Unable to allocate statement handle", d );
+	    return FALSE;
+	}
+    } else {
+	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
+	if ( r != SQL_SUCCESS ) {
+	    qSqlWarning( "QDB2Result::reset: Unable to close statement handle", d );
+	    return FALSE;
+	}
+    }
+    
+    if ( forwardOnly ) {
+	r = SQLSetStmtAttr( d->hStmt,
+			    SQL_ATTR_CURSOR_TYPE,
+			    (SQLPOINTER) SQL_CURSOR_FORWARD_ONLY,
+			    SQL_IS_UINTEGER );
+    } else {
+	r = SQLSetStmtAttr( d->hStmt,
+			    SQL_ATTR_CURSOR_TYPE,
+			    (SQLPOINTER) SQL_CURSOR_STATIC,
+			    SQL_IS_UINTEGER );
+    }
+    if ( r != SQL_SUCCESS ) {
+	qSqlWarning( QString().sprintf("QDB2Result::reset: Unable to set %s attribute.", forwardOnly ? "SQL_CURSOR_FORWARD_ONLY" : "SQL_CURSOR_STATIC" ), d );
+	return FALSE;
+    }
+    return TRUE;
+}
+
 /************************************/
 
 QDB2Result::QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp )
@@ -475,38 +514,9 @@ bool QDB2Result::reset ( const QString& query )
 
     d->recInf.clear();
     d->valueCache.clear();
-    if ( !d->hStmt ) {
-	r = SQLAllocHandle( SQL_HANDLE_STMT,
-			    d->dp->hDbc,
-			    &d->hStmt );
-	if ( r != SQL_SUCCESS ) {
-	    qSqlWarning( "QDB2Result::reset: Unable to allocate statement handle", d );
-	    return FALSE;
-	}
-    } else {
-	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
-	if ( r != SQL_SUCCESS ) {
-	    qSqlWarning( "QDB2Result::reset: Unable to close statement handle", d );
-	    return FALSE;
-	}
-    }
-    
-    if ( isForwardOnly() ) {
-	r = SQLSetStmtAttr( d->hStmt,
-			    SQL_ATTR_CURSOR_TYPE,
-			    (SQLPOINTER) SQL_CURSOR_FORWARD_ONLY,
-			    SQL_IS_UINTEGER );
-    } else {
-	r = SQLSetStmtAttr( d->hStmt,
-			    SQL_ATTR_CURSOR_TYPE,
-			    (SQLPOINTER) SQL_CURSOR_STATIC,
-			    SQL_IS_UINTEGER );
-    }
-    if ( r != SQL_SUCCESS ) {
-	qSqlWarning( QString().sprintf("QDB2Result::reset: Unable to set %s attribute.", isForwardOnly() ? "SQL_CURSOR_FORWARD_ONLY" : "SQL_CURSOR_STATIC" ), d );
-	return FALSE;
-    }
-    
+
+    qMakeStatement( d, isForwardOnly() );
+        
     r = SQLExecDirect( d->hStmt,
 		       qToTChar( query ),
 		       (SQLINTEGER) query.length() );
@@ -531,12 +541,289 @@ bool QDB2Result::reset ( const QString& query )
 
 bool QDB2Result::prepare( const QString& query )
 {
-    return FALSE;
+    setActive( FALSE );
+    setAt( QSql::BeforeFirst );
+    SQLRETURN r;
+
+    d->recInf.clear();
+    d->valueCache.clear();
+    
+    qMakeStatement( d, isForwardOnly() );
+    
+    r = SQLPrepare( d->hStmt,
+		    qToTChar( query ),
+		    (SQLINTEGER) query.length() );
+
+    if ( r != SQL_SUCCESS ) {
+	qSqlWarning( "QDB2Result::prepare: Unable to prepare statement", d );
+	return FALSE;
+    }    
+    return TRUE;
 }
 
 bool QDB2Result::exec()
 {
-    return FALSE;
+    setActive( FALSE );
+    setAt( QSql::BeforeFirst );
+    SQLRETURN r;
+
+    d->recInf.clear();
+    d->valueCache.clear();
+    
+    qMakeStatement( d, isForwardOnly() );
+        
+    QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
+    tmpStorage.setAutoDelete( TRUE );
+
+    qMakeStatement( d, isForwardOnly() );
+      
+    // bind parameters - only positional binding allowed
+    if ( extension()->index.count() > 0 ) {
+	QMap<int, QString>::Iterator it;
+	int para = 1;
+	QVariant val;
+	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
+	    val = extension()->values[ it.data() ].value;
+	    SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
+	    tmpStorage.append( qAutoDeleter(ind) );
+	    if ( val.isNull() ) {
+		*ind = SQL_NULL_DATA;
+	    }
+	    switch ( val.type() ) {
+		case QVariant::Date: {
+		    DATE_STRUCT * dt = new DATE_STRUCT;
+		    tmpStorage.append( qAutoDeleter(dt) );
+		    QDate qdt = val.toDate();
+		    dt->year = qdt.year();
+		    dt->month = qdt.month();
+		    dt->day = qdt.day();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_DATE,
+					  SQL_DATE,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+					  *ind == SQL_NULL_DATA ? ind : NULL );
+		    break; }
+		case QVariant::Time: {
+		    TIME_STRUCT * dt = new TIME_STRUCT;
+		    tmpStorage.append( qAutoDeleter(dt) );
+		    QTime qdt = val.toTime();
+		    dt->hour = qdt.hour();
+		    dt->minute = qdt.minute();
+		    dt->second = qdt.second();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_TIME,
+					  SQL_TIME,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+	        			  *ind == SQL_NULL_DATA ? ind : NULL );
+		    break; }
+		case QVariant::DateTime: {
+		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
+		    tmpStorage.append( qAutoDeleter(dt) );
+		    QDateTime qdt = val.toDateTime();
+		    dt->year = qdt.date().year();
+		    dt->month = qdt.date().month();
+		    dt->day = qdt.date().day();
+		    dt->hour = qdt.time().hour();
+		    dt->minute = qdt.time().minute();
+		    dt->second = qdt.time().second();
+		    dt->fraction = qdt.time().msec() * 1000000;
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_TIMESTAMP,
+					  SQL_TIMESTAMP,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+					  *ind == SQL_NULL_DATA ? ind : NULL );
+		    break; }
+	        case QVariant::Int: {
+		    int * v = new int( val.toInt() );
+		    tmpStorage.append( qAutoDeleter(v) );
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_SLONG,
+					  SQL_INTEGER,
+					  0,
+					  0,
+					  (void *) v,
+					  0,
+					  *ind == SQL_NULL_DATA ? ind : NULL );
+		    break; }
+	        case QVariant::Double: {
+		    double * v = new double( val.toDouble() );
+		    tmpStorage.append( qAutoDeleter(v) );
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_DOUBLE,
+					  SQL_DOUBLE,
+					  0,
+					  0,
+					  (void *) v,
+					  0,
+					  *ind == SQL_NULL_DATA ? ind : NULL );
+		    break; }
+	        case QVariant::ByteArray: {
+		    if ( *ind != SQL_NULL_DATA ) {
+			*ind = val.asByteArray().size();
+		    }
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_BINARY,
+					  SQL_LONGVARBINARY,
+					  val.asByteArray().size(),
+					  0,
+					  (void *) val.asByteArray().data(),
+					  val.asByteArray().size(),
+					  ind );
+		    break; }
+	        case QVariant::String:
+#ifdef UNICODE
+		    {
+			QString * str = new QString( val.asString() );
+			str->ucs2();
+			int len = str->length()*2;
+			tmpStorage.append( qAutoDeleter(str) );
+			r = SQLBindParameter( d->hStmt,
+					      para,
+					      qParamType[ (int)extension()->values[ it.data() ].typ ],
+					      SQL_C_WCHAR,
+					      SQL_WVARCHAR,
+					      str->length(),
+					      0,
+					      (void *) str->unicode(),
+					      len,
+					      ind );
+			break;
+		    }
+#endif
+		    // fall through
+	        default: {
+		    QCString * str = new QCString( val.asString().local8Bit() );
+		    tmpStorage.append( qAutoDeleter(str) );
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  qParamType[ (int)extension()->values[ it.data() ].typ ],
+					  SQL_C_CHAR,
+					  SQL_VARCHAR,
+					  str->length() + 1,
+					  0,
+					  (void *) str->data(),
+					  str->length() + 1,
+					  ind );
+		    break; }
+	    }
+	    para++;
+	    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+		qWarning( "QDB2Result::exec: unable to bind variable: " + qDB2Warn( d ) );
+#endif
+		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+		return FALSE;
+	    }
+	}
+    }
+    r = SQLExecute( d->hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QDB2Result::exec: Unable to execute statement: " + qDB2Warn( d ) );
+#endif
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    SQLSMALLINT count;
+    r = SQLNumResultCols( d->hStmt, &count );
+    if ( count ) {
+	setSelect( TRUE );
+	for ( int i = 0; i < count; ++i ) {
+	    d->recInf.append( qMakeFieldInfo( d, i ) );
+	}
+    } else {
+	setSelect( FALSE );
+    }
+    setActive( TRUE );
+    d->valueCache.resize( count );
+
+    //get out parameters
+    if ( extension()->index.count() > 0 ) {
+	QMap<int, QString>::Iterator it;
+	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
+	
+	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.getFirst() );
+	    if ( !indPtr )
+		return FALSE;
+	    bool isNull = (*indPtr == SQL_NULL_DATA);
+	    tmpStorage.removeFirst();
+	    
+	    if ( extension()->values[ it.data() ].typ & QSql::Out == QSql::Out ) {
+		tmpStorage.removeFirst();
+		continue;
+	    }
+	    
+	    if ( isNull ) {
+		QVariant v;
+		v.cast( extension()->values[ it.data() ].value.type() );
+		extension()->values[ it.data() ].value = v;
+		tmpStorage.removeFirst();
+		continue;
+	    }
+
+	    switch ( extension()->values[ it.data() ].value.type() ) {
+		case QVariant::Date: {
+		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( QDate( ds->year, ds->month, ds->day ) );
+		    break; }
+		case QVariant::Time: {
+		    TIME_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIME_STRUCT>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
+		    break; }
+		case QVariant::DateTime: {
+		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
+								       QTime( dt->hour, dt->minute, dt->second ) ) );
+		    break; }
+	        case QVariant::Int: {
+		    int * v = qAutoDeleterData( (QAutoDeleter<int>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( *v );
+		    break; }
+	        case QVariant::Double: {
+		    double * v = qAutoDeleterData( (QAutoDeleter<double>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( *v );
+		    break; }
+	        case QVariant::ByteArray:
+		    break;
+	        case QVariant::String:
+#ifdef UNICODE
+		    {
+			QString * str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
+			extension()->values[ it.data() ].value = QVariant( *str );
+			break;
+		    }
+#endif
+		    // fall through
+	        default: {
+		    QCString * str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+		    extension()->values[ it.data() ].value = QVariant( *str );
+		    break; }
+	    }
+	    tmpStorage.removeFirst();
+	}
+    }
+    return TRUE;
 }
 
 bool QDB2Result::fetch( int i )
@@ -776,7 +1063,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 			d->hEnv,
 			&d->hDbc );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-	qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
+	qSqlWarning( "QDB2Driver::open: Unable to allocate connection", d );
 	setOpenError( TRUE );
 	return FALSE;
     }
@@ -1035,8 +1322,10 @@ bool QDB2Driver::hasFeature( DriverFeature f ) const
 	    return FALSE;
 #endif
 	case PreparedQueries:
-	    return FALSE;
+	    return TRUE;
 	case PositionalPlaceholders:
+	    return TRUE;
+	case NamedPlaceholders:
 	    return FALSE;
 	default:
 	    return FALSE;
