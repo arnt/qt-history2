@@ -1,4 +1,5 @@
 #include "qimageformatplugin.h"
+#ifndef QT_NO_IMAGEFORMATPLUGIN
 #include "qimageformatinterface_p.h"
 #include "qimage.h"
 
@@ -139,3 +140,4 @@ bool QImageFormatPlugin::saveImage( const QString &format, const QString &filena
     return FALSE;
 }
 
+#endif // QT_NO_IMAGEFORMATPLUGIN

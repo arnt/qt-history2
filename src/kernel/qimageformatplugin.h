@@ -6,6 +6,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_IMAGEFORMATPLUGIN
 class QImageFormat;
 class QImageFormatPluginPrivate;
 
@@ -24,5 +25,5 @@ public:
 private:
     QImageFormatPluginPrivate *d;
 };
-
+#endif // QT_NO_IMAGEFORMATPLUGIN
 #endif // QIMAGEFORMATPLUGIN_H

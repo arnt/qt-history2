@@ -1,4 +1,6 @@
 #include "qcomlibrary_p.h"
+
+#ifndef QT_NO_COMPONENT
 #include "qapplication.h"
 
 #ifndef QT_DEBUG_COMPONENT
@@ -138,3 +140,5 @@ QRESULT QComLibrary::queryInterface( const QUuid& request, QUnknownInterface** i
 
     return entry ? entry->queryInterface( request, iface ) : QE_NOCOMPONENT;
 }
+
+#endif QT_NO_COMPONENT

@@ -36,6 +36,8 @@
 **********************************************************************/
 
 #include "qwidgetplugin.h"
+
+#ifndef QT_NO_WIDGETPLUGIN
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
@@ -282,3 +284,4 @@ bool QWidgetPlugin::isContainer( const QString & ) const
     return FALSE;
 }
 
+#endif //QT_NO_WIDGETPLUGIN

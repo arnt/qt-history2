@@ -17,7 +17,7 @@
 // We mean it.
 //
 //
-
+#ifndef QT_NO_COMPONENT
 class Q_EXPORT QComLibrary : public QLibrary
 {
 public:
@@ -34,5 +34,5 @@ private:
     QLibraryInterface *libiface;
 
 };
-
+#endif //QT_NO_COMPONENT
 #endif // QUCOMLIBRARY_H

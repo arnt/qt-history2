@@ -43,6 +43,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 class QTextCodec;
 class QTextCodecPluginPrivate;
 
@@ -62,5 +63,5 @@ public:
 private:
     QTextCodecPluginPrivate *d;
 };
-
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QTEXTCODECPLUGIN_H

@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qtextcodecplugin.h"
+#ifndef QT_NO_TEXTCODECPLUGIN
 #include "qtextcodecinterface_p.h"
 
 /*!   \class QTextCodecPlugin qtextcodecplugin.h
@@ -176,3 +177,4 @@ QTextCodecPlugin::~QTextCodecPlugin()
 {
 }
 
+#endif // QT_NO_TEXTCODECPLUGIN

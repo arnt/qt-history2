@@ -1198,3 +1198,23 @@ Requires: RICHTEXT
 Name: QDateTimeEdit
 SeeAlso: ???
 
+Feature: TEXTCODECPLUGIN
+Section: Internationalization
+Requires: COMPONENT TEXTCODEC
+Name: QTextCodecPlugin
+SeeAlso: ???
+
+
+Feature: IMAGEFORMATPLUGIN
+Section: Images
+Requires: COMPONENT IMAGEIO
+Name: QImageFormatPlugin
+SeeAlso: ???
+
+
+Feature: WIDGETPLUGIN
+Section: Widgets
+Requires: COMPONENT
+Name: QWidgetPlugin
+SeeAlso: ???
+

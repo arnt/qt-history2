@@ -43,7 +43,7 @@
 #include "qstringlist.h"
 #include "qiconset.h"
 #endif // QT_H
-
+#ifndef QT_NO_WIDGETPLUGIN
 class QWidgetPluginPrivate;
 class QWidget;
 
@@ -68,4 +68,5 @@ private:
     QWidgetPluginPrivate *d;
 };
 
+#endif // QT_NO_WIDGETPLUGIN
 #endif // QWIDGETPLUGIN_H

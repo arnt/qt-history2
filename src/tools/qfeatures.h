@@ -427,11 +427,6 @@
 #define QT_NO_STYLE
 #endif
 
-// Dynamic module linking
-#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_DIR))
-#define QT_NO_COMPONENT
-#endif
-
 // DNS
 #if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
 #define QT_NO_DNS
@@ -632,6 +627,11 @@
 #define QT_NO_BUTTONGROUP
 #endif
 
+// Dynamic module linking
+#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_DIR) || defined(QT_NO_SETTINGS))
+#define QT_NO_COMPONENT
+#endif
+
 // HTTP file access
 #if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
 #define QT_NO_NETWORKPROTOCOL_HTTP
@@ -662,9 +662,19 @@
 #define QT_NO_HEADER
 #endif
 
+// QWidgetPlugin
+#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT))
+#define QT_NO_WIDGETPLUGIN
+#endif
+
 // Drag and drop
 #if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_MIME) || defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEIO_XPM))
 #define QT_NO_DRAGANDDROP
+#endif
+
+// QImageFormatPlugin
+#if !defined(QT_NO_IMAGEFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_IMAGEIO))
+#define QT_NO_IMAGEFORMATPLUGIN
 #endif
 
 // FTP file access
@@ -675,6 +685,11 @@
 // RichText (HTML) display
 #if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_DRAWUTIL) || defined(QT_NO_LAYOUT))
 #define QT_NO_RICHTEXT
+#endif
+
+// QTextCodecPlugin
+#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_TEXTCODEC))
+#define QT_NO_TEXTCODECPLUGIN
 #endif
 
 // Tool-buttons

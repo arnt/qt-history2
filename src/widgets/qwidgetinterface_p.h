@@ -27,6 +27,8 @@
 #include <qiconset.h>
 #endif // QT_H
 
+#ifndef QT_NO_WIDGETPLUGIN
+
 //
 //  W A R N I N G
 //  -------------
@@ -90,4 +92,5 @@ public:
     virtual bool isContainer( const QString &widget ) const = 0;
 };
 
+#endif // QT_NO_WIDGETPLUGIN
 #endif // QWIDGETINTERFACE_H
