@@ -133,12 +133,13 @@ public:
         QDirNode *parent;
         QFileInfo info;
         mutable QVector<QDirNode> children;
-        mutable bool read; // have we read the children
+        mutable bool populated; // have we read the children
     };
 
     QDirModelPrivate()
         : resolveSymlinks(true),
           readOnly(true),
+          lazyChildCount(false),
           iconProvider(&defaultProvider) {}
 
     void init();
@@ -179,18 +180,19 @@ public:
         {
             Q_ASSERT(parent);
             parent->children = children(parent);
-            parent->read = true;
+            parent->populated = true;
         }
     inline void clear(QDirNode *parent) const
         {
             Q_ASSERT(parent);
             parent->children = children(0);
-            parent->read = false;
+            parent->populated = false;
         }
 
     mutable QDirNode root;
     bool resolveSymlinks;
     bool readOnly;
+    bool lazyChildCount;
 
     QDir::Filters filters;
     QDir::SortFlags sort;
@@ -462,8 +464,12 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
         return true; // the drives
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     Q_ASSERT(p);
-    if (p->read) return rowCount(parent) > 0; // rowCount will lazily populate if needed
-    return p->info.isDir();
+    if (d->lazyChildCount) { // optimization that only checks for children if the node has been populated
+        if (p->populated)
+            return rowCount(parent) > 0; // rowCount will lazily populate if needed
+        return p->info.isDir();
+    }
+    return p->info.isDir() && rowCount(parent) > 0;
 }
 
 /*!
@@ -751,6 +757,29 @@ void QDirModel::setReadOnly(bool enable)
 bool QDirModel::isReadOnly() const
 {
     return d->readOnly;
+}
+
+/*!
+  \property QDirModel::lazyChildCount
+  \brief Whether the directory model optimizes the hasChildren function
+  to only check if the item is a directory.
+
+  If this property is set to true, the directory model will make sure that a directory
+  actually containes any files before reporting that it has children.
+  Otherwise the directory model will report that an item has children if the item
+  is a directory.
+
+  This property is false by default
+*/
+
+void QDirModel::setLazyChildCount(bool enable)
+{
+    d->lazyChildCount = enable;
+}
+
+bool QDirModel::lazyChildCount() const
+{
+    return d->lazyChildCount;
 }
 
 /*!
@@ -1076,7 +1105,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
         nodes[i].info = info.at(i);
-        nodes[i].read = false;
+        nodes[i].populated = false;
     }
 
     return nodes;

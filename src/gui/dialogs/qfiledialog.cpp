@@ -1286,6 +1286,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(cleanedFilter, filters, sort, q);
     model->setReadOnly(false);
+    model->setLazyChildCount(true);
 
     // Selections
     selections = new QItemSelectionModel(model);

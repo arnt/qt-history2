@@ -41,6 +41,7 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
     Q_OBJECT
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
+    Q_PROPERTY(bool lazyChildCount READ lazyChildCount WRITE setLazyChildCount)
 
 public:
     enum Roles { FileIconRole = DecorationRole, FilePathRole = UserRole + 1, FileNameRole };
@@ -91,6 +92,9 @@ public:
 
     void setReadOnly(bool enable);
     bool isReadOnly() const;
+
+    void setLazyChildCount(bool enable);
+    bool lazyChildCount() const;
 
     void refresh(const QModelIndex &parent = QModelIndex());
     QModelIndex index(const QString &path, int column = 0) const;
