@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#10 $
 **
 **  Studies in Geometry Management
 **
@@ -12,7 +12,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#10 $")
 
 
 
@@ -43,12 +43,10 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
 }
 
 
-
-
 /*!
 
   Creates a new QBoxLayout with direction \e d and main widget \e
-  parent.
+  parent.  \e parent may not be 0.
 
   \e border is the number of pixels between the edge of the widget and
   the managed children.  \e autoBorder is the default number of pixels
@@ -142,6 +140,7 @@ QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d,
 }
 
 
+
 /*!
   Adds a non-stretchable space with size \e size.  QBoxLayout gives
   default border and spacing. This function adds additional space.
@@ -232,6 +231,30 @@ void QBox::addMaxStrut( int size)
 
 void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 {
+
+#if defined(DEBUG)
+    if ( !widget ) {
+	debug( "QBoxLayout::addWidget: widget == 0" );
+	return;
+    }
+
+    QBoxLayout * ancestor = this;
+    while ( ancestor && !ancestor->isWidgetType() )
+	ancestor = (QBoxLayout *)(ancestor->parent());
+    if ( !ancestor || !ancestor->isWidgetType() ) {
+	debug( "QBoxLayout::addWidget: no widget ancestor found" );
+	return;
+    }
+
+    // ooh! a cast and then ANOTHER cast!
+    if ( (QWidget *)((QObject *)ancestor) != widget->parentWidget() ) {
+	debug( "QBoxLayout::addWidget: %s(%s) is not a child of %s(%s)",
+	       widget->name(), widget->className(),
+	       ancestor->name(), ancestor->className() );
+	return;
+    }
+#endif
+	
     if ( !pristine && defaultBorder() )
 	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() ); 
 	

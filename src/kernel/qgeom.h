@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#8 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#9 $
 **
 **  Geometry Management
 **
@@ -41,9 +41,9 @@ public:
     //void addMaxStrut( int );
 
 private:
-    QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction, const char *name=0 );
+    QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction,
+		 const char *name=0 );
     void addB( QBoxLayout *, int stretch );
-    //   QBox( QGeomManager*, QChain *, QChain *, QGeomManager::Direction d );
 
     QBasicManager * bm;
     int defBorder;
