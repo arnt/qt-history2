@@ -491,7 +491,7 @@ QFSFileInfoEngine::fileName(FileName file) const
             if (QT_CHDIR(qt_win95Name(d->file)) >= 0) {
                 char real[PATH_MAX];
                 if (QT_GETCWD(real, PATH_MAX))
-                    r = QString::fromLocal8Bit(real);
+                    ret = QString::fromLocal8Bit(real);
             }
             QT_CHDIR(cur);
         });
