@@ -108,6 +108,8 @@ void FormFile::setFileName( const QString &fn )
 	if ( filename.find( "unnamed" ) != 0 )
 	    filename = createUnnamedFileName();
 	return;
+    } else {
+	fileNameTemp = FALSE;
     }
     filename = fn;
     timeStamp.setFileName( filename + codeExtension() );
