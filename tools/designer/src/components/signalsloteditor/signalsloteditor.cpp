@@ -40,7 +40,7 @@ public:
 
     QString signal() const;
     QString slot() const;
-        
+
 private slots:
     void signalClicked(QListWidgetItem *item, Qt::MouseButton button,
                         Qt::KeyboardModifiers modifiers);
@@ -49,7 +49,7 @@ private slots:
 
 private:
     void populateSlotList(const QString &signal = QString());
-    
+
     QListWidget *m_signal_list, *m_slot_list;
     QPushButton *m_ok_button;
     QWidget *m_source, *m_destination;
@@ -91,44 +91,54 @@ static bool signalMatchesSlot(const QString &signal, const QString &slot)
     Q_ASSERT(slot_idx != -1);
 
     ++signal_idx; ++slot_idx;
-    
+
     if (slot.at(slot_idx) == QLatin1Char(')'))
         return true;
-    
+
     while (signal_idx < signal.size() && slot_idx < slot.size()) {
         QChar signal_c = signal.at(signal_idx);
         QChar slot_c = slot.at(slot_idx);
-        
+
         if (signal_c == QLatin1Char(',') && slot_c == QLatin1Char(')'))
             return true;
-        
+
         if (signal_c == QLatin1Char(')') && slot_c == QLatin1Char(')'))
             return true;
-        
+
         if (signal_c != slot_c)
             return false;
-        
+
         ++signal_idx; ++slot_idx;
     }
-    
+
     return false;
 }
 
 void SignalSlotDialog::populateSlotList(const QString &signal)
 {
     m_slot_list->clear();
+
+    QStringList signatures;
+
     if (IMemberSheet *members = qt_extension<IMemberSheet*>(m_core->extensionManager(), m_destination)) {
         for (int i=0; i<members->count(); ++i) {
             if (!members->isVisible(i))
                 continue;
-        
+
             if (members->isSlot(i)) {
                 if (!signal.isEmpty() && !signalMatchesSlot(signal, members->signature(i)))
                     continue;
-                QListWidgetItem *item = new QListWidgetItem(m_slot_list);
-                item->setText(members->signature(i));
+
+                signatures.append(members->signature(i));
             }
         }
+    }
+
+    signatures.sort();
+
+    foreach (QString sig, signatures) {
+        QListWidgetItem *item = new QListWidgetItem(m_slot_list);
+        item->setText(sig);
     }
 }
 
@@ -151,7 +161,7 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
             this,
                 SLOT(slotClicked(QListWidgetItem*, Qt::MouseButton, Qt::KeyboardModifiers)));
     m_slot_list->setEnabled(false);
-                
+
     QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
     connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
     m_ok_button = new QPushButton(tr("OK"), this);
@@ -162,7 +172,7 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     source_label->setText(widgetLabel(core, source));
     QLabel *destination_label = new QLabel(this);
     destination_label->setText(widgetLabel(core, destination));
-    
+
     QVBoxLayout *l1 = new QVBoxLayout(this);
 
     QHBoxLayout *l2 = new QHBoxLayout(l1);
@@ -177,17 +187,25 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
     l5->addStretch();
     l5->addWidget(cancel_button);
     l5->addWidget(m_ok_button);
-    
+
+    QStringList signatures;
+
     if (IMemberSheet *members = qt_extension<IMemberSheet*>(core->extensionManager(), source)) {
         for (int i=0; i<members->count(); ++i) {
             if (!members->isVisible(i))
                 continue;
 
             if (members->isSignal(i)) {
-                QListWidgetItem *item = new QListWidgetItem(m_signal_list);
-                item->setText(members->signature(i));
+                signatures.append(members->signature(i));
             }
         }
+    }
+
+    signatures.sort();
+
+    foreach (QString sig, signatures) {
+        QListWidgetItem *item = new QListWidgetItem(m_signal_list);
+        item->setText(sig);
     }
 
     populateSlotList();
@@ -199,7 +217,7 @@ void SignalSlotDialog::signalClicked(QListWidgetItem *item, Qt::MouseButton butt
 {
     Q_UNUSED(button);
     Q_UNUSED(modifiers);
-    
+
     if (item == 0) {
         populateSlotList();
         m_slot_list->setEnabled(false);
@@ -217,7 +235,7 @@ void SignalSlotDialog::slotClicked(QListWidgetItem *item, Qt::MouseButton button
     Q_UNUSED(item);
     Q_UNUSED(button);
     Q_UNUSED(modifiers);
-    
+
     m_ok_button->setEnabled(true);
 }
 
@@ -254,7 +272,7 @@ DomConnection *SignalSlotConnection::toUi() const
     result->setElementSignal(signal());
     result->setElementReceiver(receiver());
     result->setElementSlot(slot());
-    
+
     DomConnectionHints *hints = new DomConnectionHints;
     Connection::HintList hint_list = this->hints();
     QList<DomConnectionHint*> list;
@@ -275,16 +293,16 @@ DomConnection *SignalSlotConnection::toUi() const
         }
         list.append(hint);
     }
-    
+
     hints->setElementHint(list);
     result->setElementHints(hints);
-    
+
     return result;
 }
 
 void SignalSlotConnection::setSignal(const QString &signal)
 {
-    m_signal = signal; 
+    m_signal = signal;
     setSourceLabel(DisplayRole, m_signal);
 }
 
@@ -323,12 +341,12 @@ SignalSlotEditor::SignalSlotEditor(AbstractFormWindow *form_window, QWidget *par
 Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destination)
 {
     SignalSlotConnection *con = 0;
-    
+
     Q_ASSERT(source != 0);
     Q_ASSERT(destination != 0);
-    
+
     SignalSlotDialog *dialog = new SignalSlotDialog(m_form_window->core(), source, destination);
-    
+
     if (dialog->exec() == QDialog::Accepted) {
         con = new SignalSlotConnection(this);
         con->setSource(source);
@@ -336,9 +354,9 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
         con->setSignal(dialog->signal());
         con->setSlot(dialog->slot());
     }
-    
+
     delete dialog;
-    
+
     return con;
 }
 
@@ -372,14 +390,14 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
                         dom_con->elementSender().latin1());
             continue;
         }
-        QWidget *destination 
+        QWidget *destination
             = qFindChild<QWidget*>(parent, dom_con->elementReceiver());
         if (destination == 0) {
             qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
                         dom_con->elementReceiver().latin1());
             continue;
         }
-    
+
         Connection::HintList hint_list;
         DomConnectionHints *dom_hints = dom_con->elementHints();
         if (dom_hints != 0) {
@@ -393,11 +411,11 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
                     hint_type = ConnectionHint::DestinationLabel;
                 else
                     hint_type = ConnectionHint::EndPoint;
-                
+
                 hint_list.append(ConnectionHint(hint_type, QPoint(hint->elementX(), hint->elementY())));
             }
         }
-        
+
         SignalSlotConnection *con = new SignalSlotConnection(this);
         con->setSource(source);
         con->setDestination(destination);
