@@ -11,6 +11,10 @@
 #ifdef PEN_INPUT
 #include "input_pen.h"
 #endif
+
+#include "keyboard.h"
+#include "unikeyboard.h"
+
 #include <qwindowsystem_qws.h>
 
 
@@ -172,90 +176,162 @@ private:
 class TaskBar : public QFrame {
     Q_OBJECT
 public:
-    TaskBar()
-	:QFrame( 0, 0, WStyle_Tool | WStyle_Customize | WStyle_StaysOnTop )
-    {
-	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	QHBoxLayout *hbox = new QHBoxLayout( this, 2 );
-#if 0 //def PEN_INPUT
-	hbox->addSpacing(18); //#### room for pen input...
-#endif
-	launchButton = new QPushButton( "Launch", this );
-	hbox->addWidget( launchButton );
-	connect( launchButton, SIGNAL(clicked()), this, SLOT(launch()) );
-	
-	launchMenu = new QPopupMenu( this );
-	for (int i=0; command[i].label; i++) {
-	    launchMenu->insertItem( command[i].label, i );
-	}
-	connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
-
-	QPushButton *kbdButton = new QPushButton( "Kbd", this );
-	hbox->addWidget( kbdButton );
-	connect( kbdButton, SIGNAL(clicked()), this, SLOT(showKbd()) );
-	
-	launchMenu->insertSeparator();
-	launchMenu->insertItem("Quit", qApp, SLOT(quit()));
-	
-	hbox->addStretch( 1 );
-	clock = new Clock( this );
-	hbox->addWidget( clock );
-    }
-
+    TaskBar();
 private slots:
-    void launch() {
-	int y = launchButton->mapToGlobal(QPoint()).y() - launchMenu->sizeHint().height();
-	launchMenu->popup( QPoint(0,y ) );
-    }
+    void launch();
  
-
-
     void quit3()
     {
 	qApp->exit(3);
     }
 
-    void execute( int i )
-    {
-	if ( !fork() ) {
-	    for ( int fd = 0; fd < 100; fd++ ) 
-		::close( fd );
-	    chdir( command[i].dir );
-	    execl( command[i].file, command[i].file, command[i].arg1, 
-		   command[i].arg2, 0 );
-	}
-    }
+    void execute( int i );
 
-    void showKbd();
+    void showKbd( bool );
+    void chooseKbd();
     
 private:
     QLabel* clock;
     QPopupMenu *launchMenu;
     QPushButton *launchButton;
+    QWidget * keyboard;
+    enum KeyMode { Pen, Key, Unicode } keyMode;
 };
 
 #include "launcher.moc"
 
+TaskBar::TaskBar()
+    	:QFrame( 0, 0, WStyle_Tool | WStyle_Customize | WStyle_StaysOnTop )
+{
+    keyMode = Key;
+    keyboard = 0;
+    setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    QHBoxLayout *hbox = new QHBoxLayout( this, 2 );
+    launchButton = new QPushButton( "Launch", this );
+    hbox->addWidget( launchButton );
+    connect( launchButton, SIGNAL(clicked()), this, SLOT(launch()) );
+	
+    launchMenu = new QPopupMenu( this );
+    for (int i=0; command[i].label; i++) {
+	launchMenu->insertItem( command[i].label, i );
+    }
+    connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
 
-void TaskBar::showKbd() {
+    QPushButton *kbdButton = new QPushButton( "Kbd", this );
+    kbdButton->setToggleButton( TRUE );
+    hbox->addWidget( kbdButton );
+    connect( kbdButton, SIGNAL(toggled(bool)), this, SLOT(showKbd(bool)) );
+
+    QPushButton *kbdChoice = new QPushButton( "^", this );
+    hbox->addWidget( kbdChoice );
+    connect( kbdChoice, SIGNAL(clicked()), this, SLOT(chooseKbd()) );
+    
+    launchMenu->insertSeparator();
+    launchMenu->insertItem("Quit", qApp, SLOT(quit()));
+	
+    hbox->addStretch( 1 );
+    clock = new Clock( this );
+    hbox->addWidget( clock );
+}
+
+void TaskBar::chooseKbd()
+{
+    QPopupMenu pop( this );
+    pop.insertItem( "Handwriting", Pen );
+    pop.insertItem( "Keyboard", Key );
+    pop.insertItem( "Unicode", Unicode );
+    pop.setItemChecked( keyMode, TRUE );
+    int h = pop.sizeHint().height();
+    int i = pop.exec( mapToGlobal(QPoint(0,-h)));
+    if ( i == -1 )
+	return;
+    if ( i != keyMode && keyboard && keyboard->isVisible() )
+	keyboard->hide();
+    keyMode = (KeyMode)i;
+    showKbd( TRUE );
+}
+
+void TaskBar::execute( int i )
+{
+    if ( !fork() ) {
+	for ( int fd = 0; fd < 100; fd++ ) 
+	    ::close( fd );
+	chdir( command[i].dir );
+	execl( command[i].file, command[i].file, command[i].arg1, 
+	       command[i].arg2, 0 );
+    }
+}
+
+void TaskBar::launch() 
+{
+    int y = launchButton->mapToGlobal(QPoint()).y() - launchMenu->sizeHint().height();
+    launchMenu->popup( QPoint(0,y ) );
+}
+
+
+
+
+void TaskBar::showKbd( bool on ) 
+{
+    if ( !on ) {
+	if ( keyboard )
+	    keyboard->hide();
+	return;
+    }
+
 #ifdef PEN_INPUT    
     static QWSPenInput *pi;
-    if ( !pi ) {
-	pi = new QWSPenInput( 0, 0, QWidget::WStyle_Customize 
-			      | QWidget::WStyle_NoBorder 
-			      | QWidget::WStyle_StaysOnTop );
-	pi->setFrameStyle( QFrame::Box | QFrame::Plain );
-	pi->setLineWidth( 1 );
-	pi->addCharSet( "qimpen/asciilower.qpt" );
-	pi->addCharSet( "qimpen/numeric.qpt" );
-	pi->resize( pi->width(), pi->sizeHint().height() + 1 );
-	int h = qApp->desktop()->height();
-	pi->move( 0,  h - pi->height() );
-    }
-    pi->show();
+#endif
+    static Keyboard *kbd;
+    static UniKeyboard *uni;
+    
+    switch ( keyMode ) {
+    case Pen:
+#ifdef PEN_INPUT    
+	if ( !pi ) {
+	    pi = new QWSPenInput( 0, 0, QWidget::WStyle_Customize 
+				  | QWidget::WStyle_NoBorder 
+				  | QWidget::WStyle_StaysOnTop );
+	    pi->setFrameStyle( QFrame::Box | QFrame::Plain );
+	    pi->setLineWidth( 1 );
+	    pi->addCharSet( "qimpen/asciilower.qpt" );
+	    pi->addCharSet( "qimpen/numeric.qpt" );
+	    pi->resize( pi->width(), pi->sizeHint().height() + 1 );
+	    int h = y();
+	    pi->move( 0,  h - pi->height() );
+	}
+	keyboard = pi;
+	pi->show();
 
 #endif    
-
+	break;
+    case Key:
+	if ( !kbd ) {
+	    kbd = new Keyboard( 0, 0, QWidget::WStyle_Customize 
+				| QWidget::WStyle_NoBorder 
+				| QWidget::WStyle_StaysOnTop );
+	    kbd->resize( kbd->sizeHint().width(), kbd->sizeHint().height() + 1 );
+	    int h = y();
+	    kbd->move( 0,  h - kbd->height() );
+	}
+	keyboard = kbd;
+	kbd->show();
+	break;
+    case Unicode:
+	if ( !uni ) {
+	    uni = new UniKeyboard( 0, 0, QWidget::WStyle_Customize 
+				   | QWidget::WStyle_NoBorder 
+				   | QWidget::WStyle_StaysOnTop );
+	    uni->resize( qApp->desktop()->width(), 
+			 qApp->desktop()->height()/2  );
+	    int h = y();
+	    uni->move( 0,  h - uni->height() );
+	}
+	keyboard = uni;
+	uni->show();
+	break;
+    }
+    
 }
 
 

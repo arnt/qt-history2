@@ -6,6 +6,8 @@ public:
     void mouseReleaseEvent(QMouseEvent*);
     void paintEvent(QPaintEvent* e);
 
+    QSize sizeHint() const;
+    
 private:
     int getKey( int &w, int j = -1 );
 

@@ -218,3 +218,11 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
 void Keyboard::mouseReleaseEvent(QMouseEvent*)
 {
 }
+
+
+QSize Keyboard::sizeHint() const
+{
+    QFontMetrics fm=fontMetrics();
+    int d = fm.lineSpacing();
+    return QSize( 15*d, 5*d );
+}
