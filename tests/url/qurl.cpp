@@ -868,13 +868,13 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	d->ftp.close();
 	if ( d->user.isEmpty() )
 	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 "anonymous", "Qt@cool" );
+			 "anonymous", "Qt@cool", FTP::List );
 	else {
 	    if ( d->pass.isEmpty() )
 		if ( !getPassword() )
 		    return;
 	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
-			 d->user, d->pass );
+			 d->user, d->pass, FTP::List );
 	}
  	    
 	emit start();
@@ -883,14 +883,28 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 
 void QUrl::mkdir( const QString &dirname )
 {
-    QDir dir( d->path );
-    if ( dir.mkdir( dirname ) ) {
-	QFileInfo fi( dir, dirname );
-	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
-		      fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
-		      fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
-	emit entry( inf );
-	emit createdDirectory( inf );
+    if ( isLocalFile() ) {
+	d->dir = QDir( d->path );
+	if ( d->dir.mkdir( dirname ) ) {
+	    QFileInfo fi( d->dir, dirname );
+	    QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
+			  fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
+			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
+	    emit entry( inf );
+	    emit createdDirectory( inf );
+	}
+    } else if ( d->protocol == "ftp" ) {
+	d->ftp.close();
+	if ( d->user.isEmpty() )
+	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
+			 "anonymous", "Qt@cool", FTP::Mkdir, dirname);
+	else {
+	    if ( d->pass.isEmpty() )
+		if ( !getPassword() )
+		    return;
+	    d->ftp.open( d->host, 21, d->path.isEmpty() ? QString( "/" ) : d->path,
+			 d->user, d->pass, FTP::Mkdir, dirname );
+	}
     }
 }
 

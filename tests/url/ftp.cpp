@@ -96,7 +96,16 @@ void FTP::readyRead()
 	QString cmd = "PASS " + passwd + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
     } else if ( s.contains( "230" ) ) {
-	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	switch ( command ) {
+	case List:
+	    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+	    break;
+	case Mkdir:
+	    QString cmd( "MKD " + extraData + "\r\n" );
+	    qDebug( "mkdir: %s", extraData.latin1() );
+	    commandSocket->writeBlock( cmd, cmd.length() );
+	    break;
+	}
     } else if ( s.contains( "227" ) ) {
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
@@ -111,7 +120,9 @@ void FTP::readyRead()
     } else if ( s.contains( "250" ) ) {
 	qDebug( "cwd successfully" );
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-    }
+    } else 
+	qDebug( "unknown result: %s", s.data() );
+	       
 }
 
 FTP::FTP()
@@ -139,7 +150,8 @@ FTP::FTP()
 }
 
 void FTP::open( const QString &host_, int port, const QString &path_, 
-		const QString &username_, const QString &passwd_ )
+		const QString &username_, const QString &passwd_,
+		Command cmd, const QString &extraData_ )
 
 {
     commandSocket->connectToHost( host_, port );
@@ -149,6 +161,8 @@ void FTP::open( const QString &host_, int port, const QString &path_,
     path = path_;
     username = username_;
     passwd = passwd_;
+    command = cmd;
+    extraData = extraData_;
 }
 
 void FTP::close()
