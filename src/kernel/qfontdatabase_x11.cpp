@@ -636,8 +636,6 @@ static QtFontStyle::Key getStyle( char ** tokens )
 }
 
 
-extern bool qt_has_xft; // defined in qfont_x11.cpp
-
 static bool xlfdsFullyLoaded = FALSE;
 static unsigned char encodingLoaded[numEncodings];
 
@@ -763,7 +761,7 @@ static int getXftWeight(int xftweight)
 
 static void loadXft()
 {
-    if (!qt_has_xft)
+    if (!X11->has_xft)
 	return;
 
     XftFontSet  *fonts;
@@ -1361,10 +1359,9 @@ QFontEngine *loadEngine( QFont::Script script,
 	}
 #  endif // XFT_MATRIX
 
-	extern bool qt_use_antialiasing; // defined in qfont_x11.cpp
-	if ( !qt_use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
+	if ( !X11->use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
 							       QFont::NoAntialias) ) {
-	    Bool requestAA = ( qt_use_antialiasing &&
+	    Bool requestAA = ( X11->use_antialiasing &&
 			       !( request.styleStrategy & QFont::NoAntialias ) );
 	    XftPatternAddBool( pattern, XFT_ANTIALIAS, requestAA );
 	}

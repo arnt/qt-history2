@@ -32,20 +32,11 @@
 // NOT REVISED
 
 // defined in qapplication_x11.cpp
-extern Window qt_x11_wm_client_leader;
-extern void qt_x11_create_wm_client_leader();
-
-// defined in qapplication_x11.cpp
-void qt_insert_sip( QWidget*, int, int );
-int  qt_sip_count( QWidget* );
 bool qt_wstate_iconified( WId );
 void qt_updated_rootinfo();
 
 #ifndef QT_NO_XIM
 #include "qinputcontext_p.h"
-
-extern XIM qt_xim;
-extern XIMStyle qt_xim_style;
 #endif
 
 #include "qwidget_p.h"
@@ -59,19 +50,11 @@ extern void qt_clear_paintevent_clipping();
 extern bool qt_dnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
-// defined in qapplication_x11.cpp
-extern void qt_deferred_map_add( QWidget* );
-extern void qt_deferred_map_take( QWidget* );
-
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
 // defined in qapplication_x11.cpp
 extern Time qt_x_time;
-extern bool qt_use_xrender;
-
-// defined in qfont_x11.cpp
-extern bool qt_has_xft;
 
 int qt_x11_create_desktop_on_screen = -1;
 
@@ -83,7 +66,6 @@ extern bool qt_broken_wm;
 
 // defined in qapplication_x11.cpp
 extern bool qt_net_supports(Atom);
-extern unsigned long *qt_net_virtual_root_list;
 
 #if defined (QT_TABLET_SUPPORT)
 extern XDevice *devStylus;
@@ -131,6 +113,63 @@ Window qt_XCreateSimpleWindow( const QWidget *creator,
 			       ulong border, ulong background );
 void qt_XDestroyWindow( const QWidget *destroyer,
 			Display *display, Window window );
+
+
+static void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
+{
+    QX11Data::ScrollInProgress sip = { X11->sip_serial++, scrolled_widget, dx, dy };
+    X11->sip_list.append( sip );
+
+    XClientMessageEvent client_message;
+    client_message.type = ClientMessage;
+    client_message.window = scrolled_widget->winId();
+    client_message.format = 32;
+    client_message.message_type = ATOM(Qt_Scroll_Done);
+    client_message.data.l[0] = sip.id;
+
+    XSendEvent(X11->display, scrolled_widget->winId(), False, NoEventMask,
+	(XEvent*)&client_message );
+}
+
+static int qt_sip_count( QWidget* scrolled_widget )
+{
+    int sips=0;
+
+    for (int i = 0; i < X11->sip_list.size(); ++i) {
+	const QX11Data::ScrollInProgress &sip = X11->sip_list.at(i);
+	if ( sip.scrolled_widget == scrolled_widget )
+	    sips++;
+    }
+
+    return sips;
+}
+
+
+static void create_wm_client_leader()
+{
+    if ( X11->wm_client_leader ) return;
+
+    X11->wm_client_leader =
+	XCreateSimpleWindow( QPaintDevice::x11AppDisplay(),
+			     QPaintDevice::x11AppRootWindow(),
+			     0, 0, 1, 1, 0, 0, 0 );
+
+    // set client leader property to itself
+    XChangeProperty( QPaintDevice::x11AppDisplay(),
+		     X11->wm_client_leader, ATOM(Wm_Client_Leader),
+		     XA_WINDOW, 32, PropModeReplace,
+		     (unsigned char *)&X11->wm_client_leader, 1 );
+
+    // If we are session managed, inform the window manager about it
+    QByteArray session = qApp->sessionId().toLatin1();
+    if ( !session.isEmpty() ) {
+	XChangeProperty( QPaintDevice::x11AppDisplay(),
+			 X11->wm_client_leader, ATOM(Sm_Client_Id),
+			 XA_STRING, 8, PropModeReplace,
+			 (unsigned char *)session.data(), session.size() );
+    }
+}
+
 
 Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 {
@@ -320,7 +359,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	rendhd = 0;
     }
 
-    if ( qt_use_xrender && qt_has_xft )
+    if ( X11->use_xrender && X11->has_xft )
 	rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) x11Visual(),
 					 x11Colormap() );
 #endif // QT_NO_XFTFREETYPE
@@ -473,10 +512,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
 
-	if ( !qt_x11_wm_client_leader )
-	    qt_x11_create_wm_client_leader();
+	if ( !X11->wm_client_leader )
+	    create_wm_client_leader();
 
-	wm_hints.window_group = qt_x11_wm_client_leader;
+	wm_hints.window_group = X11->wm_client_leader;
 	wm_hints.flags |= WindowGroupHint;
 
 	XClassHint class_hint;
@@ -526,7 +565,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// set client leader property
 	XChangeProperty( dpy, id, ATOM(Wm_Client_Leader),
 			 XA_WINDOW, 32, PropModeReplace,
-			 (unsigned char *)&qt_x11_wm_client_leader, 1 );
+			 (unsigned char *)&X11->wm_client_leader, 1 );
     } else {
 	// non-toplevel widgets don't have a frame, so no need to
 	// update the strut
@@ -598,7 +637,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
 	if ( isTopLevel() )
-	    qt_deferred_map_take( this );
+	    X11->deferred_map.take(this);
 	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -808,7 +847,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 	d->createInputContext();
 	QInputContext *qic = (QInputContext *) topdata->xic;
 
-	if ( qt_xim && qic ) {
+	if ( X11->xim && qic ) {
 	    QPoint p( x, y );
 	    QPoint p2 = mapTo( topLevelWidget(), QPoint( 0, 0 ) );
 	    p = mapTo( topLevelWidget(), p);
@@ -1256,7 +1295,7 @@ void qt_x11_discard_double_buffer()
 
     XFreePixmap(QPaintDevice::x11AppDisplay(), global_double_buffer->hd);
 #ifndef QT_NO_XFTFREETYPE
-    if (qt_use_xrender && qt_has_xft)
+    if (X11->use_xrender && X11->has_xft)
 	XftDrawDestroy((XftDraw *) global_double_buffer->rendhd);
 #endif
 
@@ -1293,7 +1332,7 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 	XCreatePixmap(QPaintDevice::x11AppDisplay(), hd, width, height, depth);
 
 #ifndef QT_NO_XFTFREETYPE
-    if (qt_use_xrender && qt_has_xft)
+    if (X11->use_xrender && X11->has_xft)
 	global_double_buffer->rendhd =
 	    (Qt::HANDLE) XftDrawCreate(QPaintDevice::x11AppDisplay(),
 				       global_double_buffer->hd,
@@ -1463,7 +1502,7 @@ void QWidget::showWindow()
 	if ( d->d->topData()->parentWinId &&
 	     d->topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&
 	     !isMinimized() ) {
-	    qt_deferred_map_add( this );
+	    X11->deferred_map.append(this);
 	    return;
 	}
     }
@@ -1481,7 +1520,7 @@ void QWidget::hideWindow()
     clearWState( WState_Exposed );
     deactivateWidgetCleanup();
     if ( isTopLevel() ) {
-	qt_deferred_map_take( this );
+	X11->deferred_map.take(this);
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 
@@ -2307,10 +2346,10 @@ void QWidget::updateFrameStrut() const
 		XFree(data_ret);
 
 	    break;
-	} else if (qt_net_supports(ATOM(Net_Virtual_Roots)) && qt_net_virtual_root_list) {
+	} else if (qt_net_supports(ATOM(Net_Virtual_Roots)) && X11->net_virtual_root_list) {
 	    int i = 0;
-	    while (qt_net_virtual_root_list[i] != 0) {
-		if (qt_net_virtual_root_list[i++] == p)
+	    while (X11->net_virtual_root_list[i] != 0) {
+		if (X11->net_virtual_root_list[i++] == p)
 		    break;
 	    }
 	}
@@ -2353,7 +2392,7 @@ void QWidgetPrivate::createInputContext()
     QTLWExtra *topdata = tlw->d->topData();
 
 #ifndef QT_NO_XIM
-    if (qt_xim) {
+    if (X11->xim) {
 	if (! topdata->xic) {
 	    QInputContext *qic = new QInputContext(tlw);
 	    topdata->xic = (void *) qic;
@@ -2384,7 +2423,7 @@ void QWidgetPrivate::destroyInputContext()
 void QWidget::resetInputContext()
 {
 #ifndef QT_NO_XIM
-    if (qt_xim_style & XIMPreeditCallbacks) {
+    if (X11->xim_style & XIMPreeditCallbacks) {
 	QWidget *tlw = topLevelWidget();
 	QTLWExtra *topdata = tlw->d->topData();
 

@@ -258,9 +258,9 @@ public:
 private:
     bool notify_helper( QObject *receiver, QEvent * e);
 
-    void construct( int &argc, char **argv, Type );
+    void construct(Type);
     void initialize();
-    void process_cmdline( int* argcptr, char ** argv );
+    void process_cmdline();
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );

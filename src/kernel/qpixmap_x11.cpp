@@ -236,9 +236,6 @@ static void build_scale_table( uint **table, uint nBits )
 
 static int defaultScreen = -1;
 
-extern bool qt_use_xrender; // defined in qapplication_x11.cpp
-extern bool qt_has_xft;     // defined in qfont_x11.cpp
-
 #ifndef QT_NO_XFTFREETYPE
 #ifndef QT_XFT2
 // Xft1 doesn't have XftDrawCreateAlpha, so we fake it in qtaddons_x11.cpp
@@ -308,7 +305,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 				w, h, data->d );
 
 #ifndef QT_NO_XFTFREETYPE
-    if ( qt_use_xrender && qt_has_xft ) {
+    if ( X11->use_xrender && X11->has_xft ) {
 	if ( data->d == 1 ) {
 	    rendhd = (HANDLE) XftDrawCreateBitmap( x11Display(), hd );
 	} else {
@@ -378,7 +375,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
 					(char *)bits, w, h );
 
 #ifndef QT_NO_XFTFREETYPE
-    if ( qt_use_xrender && qt_has_xft )
+    if ( X11->use_xrender && X11->has_xft )
 	rendhd = (HANDLE) XftDrawCreateBitmap (x11Display (), hd);
 #endif // QT_NO_XFTFREETYPE
 
@@ -1006,7 +1003,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 					    bits, w, h );
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_use_xrender && qt_has_xft )
+	if ( X11->use_xrender && X11->has_xft )
 	    rendhd = (HANDLE) XftDrawCreateBitmap( x11Display(), hd );
 #endif // QT_NO_XFTFREETYPE
 
@@ -1423,7 +1420,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				    w, h, dd );
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_use_xrender && qt_has_xft ) {
+	if ( X11->use_xrender && X11->has_xft ) {
 	    if ( data->d == 1 ) {
 		rendhd = (HANDLE) XftDrawCreateBitmap( x11Display (), hd );
 	    } else {
@@ -1455,7 +1452,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 #ifndef QT_NO_XFTFREETYPE
 	// ### only support 32bit images at the moment
-	if (qt_use_xrender && qt_has_xft && img.depth() == 32) {
+	if (X11->use_xrender && X11->has_xft && img.depth() == 32) {
 	    data->alphapm = new QPixmap; // create a null pixmap
 
 	    // setup pixmap data
@@ -1782,7 +1779,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    pm.setMask( data->mask->xForm(matrix) );
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_use_xrender && qt_has_xft && data->alphapm ) { // xform the alpha channel
+	if ( X11->use_xrender && X11->has_xft && data->alphapm ) { // xform the alpha channel
 	    XImage *axi = 0;
 	    if ((axi = XGetImage(x11Display(), data->alphapm->handle(),
 				 0, 0, ws, hs, AllPlanes, ZPixmap))) {
@@ -1961,8 +1958,7 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 
 #ifndef QT_NO_XFTFREETYPE
     // copy alpha data
-    extern bool qt_use_xrender; // from qapplication_x11.cpp
-    if ( ! qt_use_xrender || ! src->data->alphapm )
+    if ( ! X11->use_xrender || ! src->data->alphapm )
 	return;
 
     if ( sw < 0 )

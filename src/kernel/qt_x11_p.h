@@ -27,6 +27,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qlist.h"
 #endif // QT_H
 
 // the following is necessary to work around breakage in many versions
@@ -234,8 +235,49 @@ extern "C" char *XSetIMValues( XIM /* im */, ... );
 #  include <X11/extensions/XShm.h>
 #endif // QT_MITSHM
 
+class QWidget;
+
 struct QX11Data
 {
+    Display *display;
+    char *displayName;
+    bool foreignDisplay;
+#if !defined(QT_NO_XIM)
+    XIM xim;
+    XIMStyle xim_style;
+#endif
+    // current focus model
+    enum {
+	FM_Unknown = -1,
+	FM_Other = 0,
+	FM_PointerRoot = 1
+    };
+    int focus_model;
+    // TRUE if Qt is compiled w/ XRandR support and XRandR exists on the connected Display
+    bool use_xrandr;
+    int xrandr_eventbase;
+    // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected Display
+    bool use_xrender;
+    bool has_xft;
+    bool use_antialiasing;
+    bool xftDone;
+    QList<QWidget *> deferred_map;
+    struct ScrollInProgress {
+	long id;
+	QWidget* scrolled_widget;
+	int dx, dy;
+    };
+    long sip_serial;
+    QList<ScrollInProgress> sip_list;
+
+    // window managers list of supported "stuff"
+    Atom *net_supported_list;
+    // list of virtual root windows
+    Window *net_virtual_root_list;
+    // client leader window
+    Window wm_client_leader;
+
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atoms {
 	Wm_Protocols,
@@ -328,5 +370,6 @@ struct QX11Data
 
 extern QX11Data *qt_x11Data;
 #define ATOM(x) qt_x11Data->atoms[QX11Data::x]
+#define X11 qt_x11Data
 
 #endif // QT_X11_H

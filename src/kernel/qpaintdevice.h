@@ -29,6 +29,7 @@ class QGfx;
 class QIODevice;
 class QString;
 class QTextItem;
+class QApplicationPrivate;
 
 
 #if defined(Q_WS_X11)
@@ -223,7 +224,7 @@ protected:
 				 int, int, int, int, Qt::RasterOp, bool );
 #endif
 #if defined(Q_WS_X11)
-    friend void qt_init_internal( int *, char **, Display *, Qt::HANDLE, Qt::HANDLE );
+    friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
     friend void qt_cleanup();
 #endif
 

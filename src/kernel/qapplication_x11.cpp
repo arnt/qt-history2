@@ -260,9 +260,6 @@ static const char *mwTitle	= 0;		// main widget title
 static char    *ximServer	= 0;		// XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
 static bool	noxim		= FALSE;	// connect to xim or not
-static Display *appDpy		= 0;		// X11 application display
-static char    *appDpyName	= 0;		// X11 display name
-static bool	appForeignDpy	= FALSE;        // we didn't create display
 static bool	appSync		= FALSE;	// X11 synchronization
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
@@ -282,37 +279,9 @@ static GC*	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 bool		qt_broken_wm		= FALSE;
 
 
-// window managers list of supported "stuff"
-Atom		*qt_net_supported_list	= 0;
-// list of virtual root windows
-Window		*qt_net_virtual_root_list	= 0;
-
-
-
-// client leader window
-Window qt_x11_wm_client_leader = 0;
-
 // function to update the workarea of the screen - in qdesktopwidget_x11.cpp
 extern void qt_desktopwidget_update_workarea();
 
-// current focus model
-enum {
-    FocusModel_Unknown = -1,
-    FocusModel_Other = 0,
-    FocusModel_PointerRoot = 1
-};
-static int qt_focus_model = -1;
-
-#ifndef QT_NO_XRANDR
-// TRUE if Qt is compiled w/ XRandR support and XRandR exists on the connected
-// Display
-bool	qt_use_xrandr	= FALSE;
-static int xrandr_eventbase;
-#endif
-
-// TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
-// Display
-Q_EXPORT bool qt_use_xrender = FALSE;
 
 // modifier masks for alt/meta - detected when the application starts
 static long qt_alt_mask = 0;
@@ -350,8 +319,10 @@ int qt_xfocusout_grab_counter = 0;
 #if defined (QT_TABLET_SUPPORT)
 // since XInput event classes aren't created until we actually open an XInput
 // device, here is a static list that we will use later on...
-const int INVALID_EVENT = -1;
-const int TOTAL_XINPUT_EVENTS = 7;
+enum {
+    INVALID_EVENT = -1,
+    TOTAL_XINPUT_EVENTS = 7
+};
 
 XDevice *devStylus = NULL;
 XDevice *devEraser = NULL;
@@ -380,7 +351,6 @@ static uint appliedstamp = 0;
 
 
 typedef int (*QX11EventFilter) (XEvent*);
-QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter);
 
 static QX11EventFilter qt_x11_event_filter = 0;
 Q_EXPORT QX11EventFilter qt_set_x11_event_filter(QX11EventFilter filter)
@@ -398,13 +368,9 @@ static bool qt_x11EventFilter( XEvent* ev )
 
 
 
-
-
 #if !defined(QT_NO_XIM)
-XIM		qt_xim			= 0;
-XIMStyle	qt_xim_style		= 0;
-static XIMStyle xim_default_style	= XIMPreeditCallbacks | XIMStatusNothing;
-static XIMStyle	xim_preferred_style	= 0;
+static const XIMStyle xim_default_style = XIMPreeditCallbacks | XIMStatusNothing;
+static XIMStyle	xim_preferred_style = 0;
 #endif
 
 static int composingKeycode=0;
@@ -424,16 +390,6 @@ QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
 extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 
-struct QScrollInProgress {
-    static long serial;
-    QScrollInProgress( QWidget* w, int x, int y ) :
-    id( serial++ ), scrolled_widget( w ), dx( x ), dy( y ) {}
-    long id;
-    QWidget* scrolled_widget;
-    int dx, dy;
-};
-long QScrollInProgress::serial=0;
-static QPtrList<QScrollInProgress> *sip_list = 0;
 
 
 // stuff in qt_xdnd.cpp
@@ -466,34 +422,6 @@ extern void qt_clear_paintevent_clipping();
 // Palette handling
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
-
-static QPtrList<QWidget>* deferred_map_list = 0;
-static void qt_deferred_map_cleanup()
-{
-    delete deferred_map_list;
-    deferred_map_list = 0;
-}
-void qt_deferred_map_add( QWidget* w)
-{
-    if ( !deferred_map_list ) {
-	deferred_map_list = new QPtrList<QWidget>;
-	qAddPostRoutine( qt_deferred_map_cleanup );
-    }
-    deferred_map_list->append( w );
-}
-void qt_deferred_map_take( QWidget* w )
-{
-    if (deferred_map_list ) {
-	deferred_map_list->remove( w );
-    }
-}
-static bool qt_deferred_map_contains( QWidget* w )
-{
-    if (!deferred_map_list)
-	return FALSE;
-    else
-	return deferred_map_list->contains( w );
-}
 
 
 class QETWidget : public QWidget		// event translator widget
@@ -545,7 +473,7 @@ extern "C" {
     {
 	// qDebug("xim_destroy_callback");
 	QApplication::close_xim();
-	XRegisterIMInstantiateCallback(appDpy, 0, 0, 0,
+	XRegisterIMInstantiateCallback(X11->display, 0, 0, 0,
 				       (XIMProc) xim_create_callback, 0);
     }
 
@@ -564,53 +492,53 @@ extern "C" {
 void QApplication::create_xim()
 {
 #ifndef QT_NO_XIM
-    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-    if ( qt_xim ) {
+    X11->xim = XOpenIM( X11->display, 0, 0, 0 );
+    if ( X11->xim ) {
 
 #ifdef USE_X11R6_XIM
 	XIMCallback destroy;
 	destroy.callback = (XIMProc) xim_destroy_callback;
 	destroy.client_data = 0;
-	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, (char *) 0 ) != 0 )
+	if ( XSetIMValues( X11->xim, XNDestroyCallback, &destroy, (char *) 0 ) != 0 )
 	    qWarning( "Xlib dosn't support destroy callback");
 #endif // USE_X11R6_XIM
 
 	XIMStyles *styles = 0;
-	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, (char *) 0, (char *) 0);
+	XGetIMValues(X11->xim, XNQueryInputStyle, &styles, (char *) 0, (char *) 0);
 	if ( styles ) {
 	    int i;
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+	    for ( i = 0; !X11->xim_style && i < styles->count_styles; i++ ) {
 		if ( styles->supported_styles[i] == xim_preferred_style ) {
-		    qt_xim_style = xim_preferred_style;
+		    X11->xim_style = xim_preferred_style;
 		    break;
 		}
 	    }
 	    // if the preferred input style couldn't be found, look for
 	    // Nothing
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+	    for ( i = 0; !X11->xim_style && i < styles->count_styles; i++ ) {
 		if ( styles->supported_styles[i] == (XIMPreeditNothing |
 						     XIMStatusNothing) ) {
-		    qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+		    X11->xim_style = XIMPreeditNothing | XIMStatusNothing;
 		    break;
 		}
 	    }
 	    // ... and failing that, None.
-	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ ) {
+	    for ( i = 0; !X11->xim_style && i < styles->count_styles; i++ ) {
 		if ( styles->supported_styles[i] == (XIMPreeditNone |
 						     XIMStatusNone) ) {
-		    qt_xim_style = XIMPreeditNone | XIMStatusNone;
+		    X11->xim_style = XIMPreeditNone | XIMStatusNone;
 		    break;
 		}
 	    }
 
-	    // qDebug("QApplication: using im style %lx", qt_xim_style);
+	    // qDebug("QApplication: using im style %lx", X11->xim_style);
 	    XFree( (char *)styles );
 	}
 
-	if ( qt_xim_style ) {
+	if ( X11->xim_style ) {
 
 #ifdef USE_X11R6_XIM
-	    XUnregisterIMInstantiateCallback(appDpy, 0, 0, 0,
+	    XUnregisterIMInstantiateCallback(X11->display, 0, 0, 0,
 					     (XIMProc) xim_create_callback, 0);
 #endif // USE_X11R6_XIM
 
@@ -637,10 +565,10 @@ void QApplication::close_xim()
 {
 #ifndef QT_NO_XIM
     // Calling XCloseIM gives a Purify FMR error
-    // XCloseIM( qt_xim );
+    // XCloseIM( X11->xim );
     // We prefer a less serious memory leak
 
-    qt_xim = 0;
+    X11->xim = 0;
     QWidgetList list = qApp->topLevelWidgets();
     for (int i = 0; i < list.size(); ++i)
 	list.at(i)->d->destroyInputContext();
@@ -739,15 +667,15 @@ static void qt_x11_create_intern_atoms()
     Q_ASSERT(i == QX11Data::NPredefinedAtoms);
 
     QByteArray settings_atom_name("_QT_SETTINGS_TIMESTAMP_");
-    settings_atom_name += XDisplayName(appDpyName);
+    settings_atom_name += XDisplayName(X11->displayName);
     names[i++] = settings_atom_name;
 
     Q_ASSERT(i == QX11Data::NAtoms);
 #if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
-    XInternAtoms( appDpy, (char **)names, i, False, qt_x11Data->atoms );
+    XInternAtoms( X11->display, (char **)names, i, False, X11->atoms );
 #else
     for (i = 0; i < QX11Data::NAtoms; ++i)
-	qt_x11Data->atoms[i] = XInternAtom( appDpy, (char *)names[i], False );
+	X11->atoms[i] = XInternAtom( X11->display, (char *)names[i], False );
 #endif
 }
 
@@ -768,7 +696,7 @@ bool QApplication::x11_apply_settings()
     QDateTime timestamp, settingsstamp;
     bool update_timestamp = FALSE;
 
-    if (XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
+    if (XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
 			   ATOM(Qt_Settings_Timestamp), 0, 0,
 			   False, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data) == Success && format == 8) {
@@ -779,7 +707,7 @@ bool QApplication::x11_apply_settings()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
+	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
 			       ATOM(Qt_Settings_Timestamp),
 			       offset, 1024, False, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
@@ -967,27 +895,21 @@ bool QApplication::x11_apply_settings()
 #ifndef QT_NO_XFTFREETYPE
     // we can only do this once at application startup, otherwise we'd
     // have Xft fonts trying to access non existing drawables.
-    static bool xftDone = FALSE;
-    if ( !xftDone ) {
-	// defined in qfont_x11.cpp
-	extern bool qt_has_xft;
-	extern bool qt_use_antialiasing;
+    if ( !X11->xftDone ) {
 
-	xftDone = TRUE;
-	qt_has_xft = FALSE;
-	qt_use_antialiasing = FALSE;
-	if (qt_use_xrender &&
+	X11->xftDone = TRUE;
+	X11->has_xft = FALSE;
+	X11->use_antialiasing = FALSE;
+	if (X11->use_xrender &&
 	    XftInit(0) && XftInitFtLibrary()) {
-	    qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
-	    qt_use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
+	    X11->has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
+	    X11->use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
 	}
     }
 #endif // QT_NO_XFTFREETYPE
 
 #ifndef QT_NO_XIM
-    QString ximInputStyle =
-	settings.readEntry( "/qt/XIMInputStyle",
-			    QObject::trUtf8( "On The Spot" ) ).lower();
+    QString ximInputStyle = settings.readEntry("/qt/XIMInputStyle", "on the spot");
     if ( ximInputStyle == "on the spot" )
 	xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
     else if ( ximInputStyle == "over the spot" )
@@ -1003,7 +925,7 @@ bool QApplication::x11_apply_settings()
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
 	s << settingsstamp;
 
-	XChangeProperty(appDpy, QPaintDevice::x11AppRootWindow( 0 ),
+	XChangeProperty(X11->display, QPaintDevice::x11AppRootWindow( 0 ),
 			ATOM(Qt_Settings_Timestamp), ATOM(Qt_Settings_Timestamp), 8,
 			PropModeReplace, (unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
@@ -1022,7 +944,7 @@ static void qt_set_input_encoding()
     ulong  nitems, after = 1;
     const char *data;
 
-    int e = XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
 				ATOM(Qt_Input_Encoding), 0, 1024,
 				False, XA_STRING, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
@@ -1074,7 +996,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
 	while (after > 0) {
 	    uchar *data;
-	    XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow( 0 ),
+	    XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow( 0 ),
 				ATOM(Resource_Manager),
 				offset, 8192, False, AnyPropertyType,
 				&type, &format, &nitems, &after,
@@ -1246,7 +1168,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
 
 // update the supported array
-void qt_get_net_supported()
+static void qt_get_net_supported()
 {
     Atom type;
     int format;
@@ -1254,22 +1176,22 @@ void qt_get_net_supported()
     unsigned long nitems, after;
     unsigned char *data;
 
-    int e = XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
 			       ATOM(Net_Supported), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
 
-    if (qt_net_supported_list)
-	delete [] qt_net_supported_list;
-    qt_net_supported_list = 0;
+    if (X11->net_supported_list)
+	delete [] X11->net_supported_list;
+    X11->net_supported_list = 0;
 
     if (e == Success && type == XA_ATOM && format == 32) {
 	QBuffer ts;
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
 			       ATOM(Net_Supported), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
@@ -1285,25 +1207,25 @@ void qt_get_net_supported()
 	// compute nitems
 	QByteArray buffer(ts.buffer());
 	nitems = buffer.size() / sizeof(Atom);
-	qt_net_supported_list = new Atom[nitems + 1];
+	X11->net_supported_list = new Atom[nitems + 1];
 	Atom *a = (Atom *) buffer.data();
 	uint i;
 	for (i = 0; i < nitems; i++)
-	    qt_net_supported_list[i] = a[i];
-	qt_net_supported_list[nitems] = 0;
+	    X11->net_supported_list[i] = a[i];
+	X11->net_supported_list[nitems] = 0;
     }
 }
 
 
 bool qt_net_supports(Atom atom)
 {
-    if (! qt_net_supported_list)
+    if (! X11->net_supported_list)
 	return FALSE;
 
     bool supported = FALSE;
     int i = 0;
-    while (qt_net_supported_list[i] != 0) {
-	if (qt_net_supported_list[i++] == atom) {
+    while (X11->net_supported_list[i] != 0) {
+	if (X11->net_supported_list[i++] == atom) {
 	    supported = TRUE;
 	    break;
 	}
@@ -1314,11 +1236,11 @@ bool qt_net_supports(Atom atom)
 
 
 // update the virtual roots array
-void qt_get_net_virtual_roots()
+static void qt_get_net_virtual_roots()
 {
-    if (qt_net_virtual_root_list)
-	delete [] qt_net_virtual_root_list;
-    qt_net_virtual_root_list = 0;
+    if (X11->net_virtual_root_list)
+	delete [] X11->net_virtual_root_list;
+    X11->net_virtual_root_list = 0;
 
     if (!qt_net_supports(ATOM(Net_Virtual_Roots)))
 	return;
@@ -1329,7 +1251,7 @@ void qt_get_net_virtual_roots()
     unsigned long nitems, after;
     unsigned char *data;
 
-    int e = XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+    int e = XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
 			       ATOM(Net_Virtual_Roots), 0, 0,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
     if (data)
@@ -1340,7 +1262,7 @@ void qt_get_net_virtual_roots()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, QPaintDevice::x11AppRootWindow(),
+	    XGetWindowProperty(X11->display, QPaintDevice::x11AppRootWindow(),
 			       ATOM(Net_Virtual_Roots), offset, 1024,
 			       False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
@@ -1356,37 +1278,12 @@ void qt_get_net_virtual_roots()
 	// compute nitems
 	QByteArray buffer(ts.buffer());
 	nitems = buffer.size() / sizeof(Window);
-	qt_net_virtual_root_list = new Window[nitems + 1];
+	X11->net_virtual_root_list = new Window[nitems + 1];
 	Window *a = (Window *) buffer.data();
 	uint i;
 	for (i = 0; i < nitems; i++)
-	    qt_net_virtual_root_list[i] = a[i];
-	qt_net_virtual_root_list[nitems] = 0;
-    }
-}
-
-void qt_x11_create_wm_client_leader()
-{
-    if ( qt_x11_wm_client_leader ) return;
-
-    qt_x11_wm_client_leader =
-	XCreateSimpleWindow( QPaintDevice::x11AppDisplay(),
-			     QPaintDevice::x11AppRootWindow(),
-			     0, 0, 1, 1, 0, 0, 0 );
-
-    // set client leader property to itself
-    XChangeProperty( QPaintDevice::x11AppDisplay(),
-		     qt_x11_wm_client_leader, ATOM(Wm_Client_Leader),
-		     XA_WINDOW, 32, PropModeReplace,
-		     (unsigned char *)&qt_x11_wm_client_leader, 1 );
-
-    // If we are session managed, inform the window manager about it
-    QByteArray session = qApp->sessionId().toLatin1();
-    if ( !session.isEmpty() ) {
-	XChangeProperty( QPaintDevice::x11AppDisplay(),
-			 qt_x11_wm_client_leader, ATOM(Sm_Client_Id),
-			 XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)session.data(), session.size() );
+	    X11->net_virtual_root_list[i] = a[i];
+	X11->net_virtual_root_list[nitems] = 0;
     }
 }
 
@@ -1394,11 +1291,11 @@ static void qt_check_focus_model()
 {
     Window fw = None;
     int unused;
-    XGetInputFocus( appDpy, &fw, &unused );
+    XGetInputFocus( X11->display, &fw, &unused );
     if ( fw == PointerRoot )
-	qt_focus_model = FocusModel_PointerRoot;
+	X11->focus_model = QX11Data::FM_PointerRoot;
     else
-	qt_focus_model = FocusModel_Other;
+	X11->focus_model = QX11Data::FM_Other;
 }
 
 
@@ -1456,15 +1353,30 @@ extern bool qt_app_has_font;
 // ### in qpaintdevice.h which then should have a static too but can't have
 // ### it because "storage class specifiers invalid in friend function
 // ### declarations" :-) Ideas anyone?
-void qt_init_internal( int *argcptr, char **argv,
-		       Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
+void qt_init( QApplicationPrivate *priv, int,
+	      Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 {
+    X11 = new QX11Data;
+    X11->display = display;
+    X11->displayName = 0;
+    X11->foreignDisplay = (display != 0);
+    X11->xim = 0;
+    X11->xim_style = 0;
+    X11->focus_model = -1;
+    X11->use_xrandr = FALSE;
+    X11->use_xrender = FALSE;
+    X11->has_xft = FALSE;
+    X11->use_antialiasing = FALSE;
+    X11->xftDone = FALSE;
+    X11->sip_serial = 0;
+    X11->net_supported_list = 0;
+    X11->net_virtual_root_list = 0;
+    X11->wm_client_leader = 0;
+
     if ( display ) {
 	// Qt part of other application
 
-	appForeignDpy = TRUE;
 	appName = qstrdup( "Qt-subapplication" );
-	appDpy  = display;
 
 	// Install default error handlers
 
@@ -1474,7 +1386,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	// Qt controls everything (default)
 
 	const char *p;
-	int argc = *argcptr;
+	int argc = priv->argc;
+	char **argv = priv->argv;
 	int j;
 
 	// Install default error handlers
@@ -1484,8 +1397,8 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	// Set application name
 
-	p = strrchr( argv[0], '/' );
-	appName = p ? p + 1 : argv[0];
+	p = strrchr( priv->argv[0], '/' );
+	appName = p ? p + 1 : priv->argv[0];
 
 	// Get command line params
 	j = 1;
@@ -1497,7 +1410,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    QByteArray arg(argv[i]);
 	    if ( arg == "-display" ) {
 		if ( ++i < argc )
-		    appDpyName = argv[i];
+		    X11->displayName = argv[i];
 	    } else if ( arg == "-fn" || arg == "-font" ) {
 		if ( ++i < argc )
 		    appFont = argv[i];
@@ -1571,7 +1484,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		argv[j++] = argv[i];
 	}
 
-	*argcptr = j;
+	priv->argc = j;
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 	if ( !appNoGrab && !appDoGrab ) {
@@ -1599,14 +1512,14 @@ void qt_init_internal( int *argcptr, char **argv,
 	// Connect to X server
 
 	if( qt_is_gui_used ) {
-	    if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
+	    if ( ( X11->display = XOpenDisplay(X11->displayName) ) == 0 ) {
 		qWarning( "%s: cannot connect to X server %s", appName,
-			  XDisplayName(appDpyName) );
+			  XDisplayName(X11->displayName) );
 		exit( 1 );
 	    }
 
 	    if ( appSync )				// if "-sync" argument
-		XSynchronize( appDpy, TRUE );
+		XSynchronize( X11->display, TRUE );
 	}
     }
     // Common code, regardless of whether display is foreign.
@@ -1614,12 +1527,11 @@ void qt_init_internal( int *argcptr, char **argv,
     // Get X parameters
 
     if( qt_is_gui_used ) {
-	qt_x11Data = new QX11Data;
 
-	appScreen = DefaultScreen(appDpy);
-	appScreenCount = ScreenCount(appDpy);
+	appScreen = DefaultScreen(X11->display);
+	appScreenCount = ScreenCount(X11->display);
 
-	QPaintDevice::x_appdisplay = appDpy;
+	QPaintDevice::x_appdisplay = X11->display;
 	QPaintDevice::x_appscreen = appScreen;
 
 	// allocate the arrays for the QPaintDevice data
@@ -1632,14 +1544,14 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPaintDevice::x_appdefvisual_arr = new bool[ appScreenCount ];
 
 	int screen;
-	QString serverVendor( ServerVendor( appDpy) );
-	if (serverVendor.contains("XFree86") && VendorRelease(appDpy) < 40300000)
+	QString serverVendor( ServerVendor( X11->display) );
+	if (serverVendor.contains("XFree86") && VendorRelease(X11->display) < 40300000)
 	    qt_hebrew_keyboard_hack = TRUE;
 
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
-	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(appDpy, screen);
-	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(appDpy, screen);
-	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(appDpy, screen);
+	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(X11->display, screen);
+	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(X11->display, screen);
+	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(X11->display, screen);
 
 	    // setup the visual and colormap for each screen
 	    Visual *vis;
@@ -1668,7 +1580,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
 	    } else {
 		// use the default visual
-		vis = DefaultVisual(appDpy, screen);
+		vis = DefaultVisual(X11->display, screen);
 		QPaintDevice::x_appdefvisual_arr[ screen ] = TRUE;
 
 		if ( qt_visual_option == TrueColor ||
@@ -1676,14 +1588,14 @@ void qt_init_internal( int *argcptr, char **argv,
 		    // find custom visual
 
 		    int dpth, c;
-		    vis = find_truecolor_visual( appDpy, screen, &dpth, &c );
+		    vis = find_truecolor_visual( X11->display, screen, &dpth, &c );
 		    QPaintDevice::x_appdepth_arr[ screen ] = dpth;
 		    QPaintDevice::x_appcells_arr[ screen ] = c;
 
 		    QPaintDevice::x_appvisual_arr[ screen ] = vis;
 		    QPaintDevice::x_appdefvisual_arr[ screen ] =
 			(XVisualIDFromVisual(vis) ==
-			 XVisualIDFromVisual(DefaultVisual(appDpy, screen)));
+			 XVisualIDFromVisual(DefaultVisual(X11->display, screen)));
 		}
 
 #if defined( QT_MODULE_OPENGL )
@@ -1701,11 +1613,11 @@ void qt_init_internal( int *argcptr, char **argv,
 		memset( &visInfo, 0, sizeof(XVisualInfo) );
 		visInfo.visualid = XVisualIDFromVisual( vis );
 		visInfo.screen = screen;
-		vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
+		vi = XGetVisualInfo( X11->display, VisualIDMask | VisualScreenMask,
 				     &visInfo, &nvis );
 		if ( vi ) {
 		    int useGL;
-		    int ret = glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+		    int ret = glXGetConfig( X11->display, vi, GLX_USE_GL, &useGL );
 		    if ( ret != 0 || !useGL ) {
 			// We have to find another visual that is GL capable
 			int i;
@@ -1714,13 +1626,13 @@ void qt_init_internal( int *argcptr, char **argv,
 			visInfo.screen = screen;
 			visInfo.c_class = vi->c_class;
 			visInfo.depth = vi->depth;
-			visuals = XGetVisualInfo( appDpy, VisualClassMask |
+			visuals = XGetVisualInfo( X11->display, VisualClassMask |
 						  VisualDepthMask |
 						  VisualScreenMask, &visInfo,
 						  &nvis );
 			if ( visuals ) {
 			    for ( i = 0; i < nvis; i++ ) {
-				int ret = glXGetConfig( appDpy, &visuals[i],
+				int ret = glXGetConfig( X11->display, &visuals[i],
 							GLX_USE_GL, &useGL );
 				if ( ret == 0 && useGL ) {
 				    vis = visuals[i].visual;
@@ -1773,7 +1685,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			// on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
 			// doesn't give us correct colors. Why this happens, I have
 			// no clue, so we disable this for HPUX
-			if (XGetRGBColormaps(appDpy,
+			if (XGetRGBColormaps(X11->display,
 					     QPaintDevice::x11AppRootWindow( screen ),
 					     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
 			    i = 0;
@@ -1792,12 +1704,12 @@ void qt_init_internal( int *argcptr, char **argv,
 
 		    if (QPaintDevice::x_appcolormap_arr[ screen ] == 0) {
 			QPaintDevice::x_appcolormap_arr[ screen ] =
-			    DefaultColormap(appDpy, screen);
+			    DefaultColormap(X11->display, screen);
 		    }
 		} else {
 		    // create a custom colormap
 		    QPaintDevice::x_appcolormap_arr[ screen ] =
-			XCreateColormap(appDpy, QPaintDevice::x11AppRootWindow( screen ),
+			XCreateColormap(X11->display, QPaintDevice::x11AppRootWindow( screen ),
 					vis, AllocNone);
 		}
 	    }
@@ -1826,7 +1738,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	// See if XRandR is supported on the connected display
 	int xrandr_errorbase;
 	Q_UNUSED( xrandr_eventbase );
-	if ( XRRQueryExtension( appDpy, &xrandr_eventbase, &xrandr_errorbase ) ) {
+	if ( XRRQueryExtension( X11->display, &xrandr_eventbase, &xrandr_errorbase ) ) {
 	    // XRandR is supported
 	    qt_use_xrandr = TRUE;
 	}
@@ -1835,13 +1747,13 @@ void qt_init_internal( int *argcptr, char **argv,
 #ifndef QT_NO_XRENDER
 	// See if XRender is supported on the connected display
 	int xrender_eventbase, xrender_errorbase;
-	if (XRenderQueryExtension(appDpy, &xrender_eventbase, &xrender_errorbase)) {
+	if (XRenderQueryExtension(X11->display, &xrender_eventbase, &xrender_errorbase)) {
 	    // XRender is supported, let's see if we have a PictFormat for the
 	    // default visual
 	    XRenderPictFormat *format =
-		XRenderFindVisualFormat(appDpy,
+		XRenderFindVisualFormat(X11->display,
 					(Visual *) QPaintDevice::x_appvisual);
-	    qt_use_xrender = (format != 0) && (QPaintDevice::x_appdepth != 8);
+	    X11->use_xrender = (format != 0) && (QPaintDevice::x_appdepth != 8);
 	}
 #endif // QT_NO_XRENDER
 
@@ -1849,19 +1761,19 @@ void qt_init_internal( int *argcptr, char **argv,
 	// If XKB is detected, set the GrabsUseXKBState option so input method
 	// compositions continue to work (ie. deadkeys)
 	unsigned int state = XkbPCF_GrabsUseXKBStateMask;
-	(void) XkbSetPerClientControls(appDpy, state, &state);
+	(void) XkbSetPerClientControls(X11->display, state, &state);
 #endif
 
 	// look at the modifier mapping, and get the correct masks for alt/meta
 	// find the alt/meta masks
-	XModifierKeymap *map = XGetModifierMapping(appDpy);
+	XModifierKeymap *map = XGetModifierMapping(X11->display);
 	if (map) {
 	    int i, maskIndex = 0, mapIndex = 0;
 	    for (maskIndex = 0; maskIndex < 8; maskIndex++) {
 		for (i = 0; i < map->max_keypermod; i++) {
 		    if (map->modifiermap[mapIndex]) {
 			KeySym sym =
-			    XKeycodeToKeysym(appDpy, map->modifiermap[mapIndex], 0);
+			    XKeycodeToKeysym(X11->display, map->modifiermap[mapIndex], 0);
 			if ( qt_alt_mask == 0 &&
 			     ( sym == XK_Alt_L || sym == XK_Alt_R ) ) {
 			    qt_alt_mask = 1 << maskIndex;
@@ -1891,7 +1803,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		for ( i = 0; i < map->max_keypermod; i++ ) {
 		    if ( map->modifiermap[ mapIndex ] ) {
 			KeySym sym =
-			    XKeycodeToKeysym( appDpy, map->modifiermap[ mapIndex ], 0 );
+			    XKeycodeToKeysym( X11->display, map->modifiermap[ mapIndex ], 0 );
 			if ( sym == XK_Mode_switch ) {
 			    qt_mode_switch_remove_mask |= 1 << maskIndex;
 			}
@@ -1921,13 +1833,13 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	int screen;
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
-	    XSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ),
+	    XSelectInput( X11->display, QPaintDevice::x11AppRootWindow( screen ),
 			  KeymapStateMask | EnterWindowMask | LeaveWindowMask |
 			  PropertyChangeMask );
 
 #ifndef QT_NO_XRANDR
 	    if (qt_use_xrandr)
-		XRRSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ), True );
+		XRRSelectInput( X11->display, QPaintDevice::x11AppRootWindow( screen ), True );
 #endif // QT_NO_XRANDR
 	}
     }
@@ -1958,7 +1870,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	if ( ! xim_preferred_style ) // no configured input style, use the default
 	    xim_preferred_style = xim_default_style;
 
-	qt_xim = 0;
+	X11->xim = 0;
 	QString ximServerName(ximServer);
 	if (ximServer)
 	    ximServerName.prepend("@im=");
@@ -1973,7 +1885,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    qWarning( "Qt: Cannot set locale modifiers: %s",
 		      ximServerName.ascii());
 	else if (! noxim)
-	    XRegisterIMInstantiateCallback(appDpy, 0, 0, 0,
+	    XRegisterIMInstantiateCallback(X11->display, 0, 0, 0,
 					   (XIMProc) xim_create_callback, 0);
 #else // !USE_X11R6_XIM
 	else if ( XSetLocaleModifiers ("") == 0 )
@@ -2005,7 +1917,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	const QString XFREENAMEERASER = "eraser";
 #endif
 
-	devices = XListInputDevices( appDpy, &ndev);
+	devices = XListInputDevices( X11->display, &ndev);
 	if ( devices == NULL ) {
 	    qWarning( "Failed to get list of devices" );
 	    ndev = -1;
@@ -2031,11 +1943,11 @@ void qt_init_internal( int *argcptr, char **argv,
 		curr_event_count = 0;
 
 		if ( gotStylus ) {
-		    devStylus = XOpenDevice( appDpy, devs->id );
+		    devStylus = XOpenDevice( X11->display, devs->id );
 		    dev = devStylus;
 		    ev_class = event_list_stylus;
 		} else if ( gotEraser ) {
-		    devEraser = XOpenDevice( appDpy, devs->id );
+		    devEraser = XOpenDevice( X11->display, devs->id );
 		    dev = devEraser;
 		    ev_class = event_list_eraser;
 		}
@@ -2152,7 +2064,7 @@ void QApplication::x11_initialize_style()
     unsigned long length, after;
     uchar *data;
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Kwin_Running),
+	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(Kwin_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
@@ -2162,14 +2074,14 @@ void QApplication::x11_initialize_style()
 	    app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Kwm_Running),
+	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(Kwm_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
 	app_style = QStyleFactory::create("windows");
     }
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), ATOM(Dtwm_Is_Running),
+	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(), ATOM(Dtwm_Is_Running),
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
 	// DTWM is running, meaning most likely CDE is running...
@@ -2178,7 +2090,7 @@ void QApplication::x11_initialize_style()
     }
     // maybe another desktop?
     if ( !app_style &&
-	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+	 XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
 			     ATOM(Gnome_Background_Properties), 0, 1, False, AnyPropertyType,
 			     &type, &format, &length, &after, &data ) == Success &&
 	 length ) {
@@ -2188,16 +2100,6 @@ void QApplication::x11_initialize_style()
     }
 }
 #endif
-
-void qt_init( int *argcptr, char **argv, QApplication::Type )
-{
-    qt_init_internal( argcptr, argv, 0, 0, 0 );
-}
-
-void qt_init( Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
-{
-    qt_init_internal( 0, 0, display, visual, colormap );
-}
 
 
 /*****************************************************************************
@@ -2221,13 +2123,13 @@ void qt_cleanup()
 
 #if defined (QT_TABLET_SUPPORT)
     if ( devStylus != NULL )
-	XCloseDevice( appDpy, devStylus );
+	XCloseDevice( X11->display, devStylus );
     if ( devEraser != NULL )
-	XCloseDevice( appDpy, devEraser );
+	XCloseDevice( X11->display, devEraser );
 #endif
 
 #if !defined(QT_NO_XIM)
-    if ( qt_xim )
+    if ( X11->xim )
 	QApplication::close_xim();
 #endif
 
@@ -2240,25 +2142,20 @@ void qt_cleanup()
 	}
     }
 
-#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<appScreenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
+#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<appScreenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
     QT_CLEANUP_GC(app_gc_ro);
     QT_CLEANUP_GC(app_gc_ro_m);
     QT_CLEANUP_GC(app_gc_tmp);
     QT_CLEANUP_GC(app_gc_tmp_m);
 #undef QT_CLEANUP_GC
 
-    delete sip_list;
-    sip_list = 0;
-
     // Reset the error handlers
     XSetErrorHandler( original_x_errhandler );
     XSetIOErrorHandler( original_xio_errhandler );
 
-    if ( qt_is_gui_used && !appForeignDpy )
-	XCloseDisplay( appDpy );		// close X display
-    appDpy = 0;
-
-    qt_x11_wm_client_leader = 0;
+    if ( qt_is_gui_used && !X11->foreignDisplay )
+	XCloseDisplay( X11->display );		// close X display
+    X11->display = 0;
 
     if ( QPaintDevice::x_appdepth_arr )
 	delete [] QPaintDevice::x_appdepth_arr;
@@ -2273,18 +2170,20 @@ void qt_cleanup()
     if ( QPaintDevice::x_appdefvisual_arr )
 	delete [] QPaintDevice::x_appdefvisual_arr;
 
-    if ( appForeignDpy ) {
+    if ( X11->foreignDisplay ) {
 	delete [] (char *)appName;
 	appName = 0;
     }
 
-    if (qt_net_supported_list)
-	delete [] qt_net_supported_list;
-    qt_net_supported_list = 0;
+    if (X11->net_supported_list)
+	delete [] X11->net_supported_list;
+    X11->net_supported_list = 0;
 
-    if (qt_net_virtual_root_list)
-	delete [] qt_net_virtual_root_list;
-    qt_net_virtual_root_list = 0;
+    if (X11->net_virtual_root_list)
+	delete [] X11->net_virtual_root_list;
+    X11->net_virtual_root_list = 0;
+
+    delete X11;
 }
 
 
@@ -2300,20 +2199,20 @@ void qt_save_rootinfo()				// save new root info
     uchar *data;
 
     if (ATOM(Xsetroot_Id)) {			// kill old pixmap
-	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+	if ( XGetWindowProperty( X11->display, QPaintDevice::x11AppRootWindow(),
 				 ATOM(Xsetroot_Id), 0, 1,
 				 True, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success ) {
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
 		 after == 0 && data ) {
-		XKillClient( appDpy, *((Pixmap*)data) );
+		XKillClient( X11->display, *((Pixmap*)data) );
 	    }
-	    Pixmap dummy = XCreatePixmap( appDpy, QPaintDevice::x11AppRootWindow(),
+	    Pixmap dummy = XCreatePixmap( X11->display, QPaintDevice::x11AppRootWindow(),
 					  1, 1, 1 );
-	    XChangeProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+	    XChangeProperty( X11->display, QPaintDevice::x11AppRootWindow(),
 			     ATOM(Xsetroot_Id), XA_PIXMAP, 32,
 			     PropModeReplace, (uchar *)&dummy, 1 );
-	    XSetCloseDownMode( appDpy, RetainPermanent );
+	    XSetCloseDownMode( X11->display, RetainPermanent );
 	}
     }
     if ( data )
@@ -2331,7 +2230,7 @@ bool qt_wstate_iconified( WId winid )
     int format;
     unsigned long length, after;
     uchar *data;
-    int r = XGetWindowProperty( appDpy, winid, ATOM(Wm_State), 0, 2,
+    int r = XGetWindowProperty( X11->display, winid, ATOM(Wm_State), 0, 2,
 				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data );
     bool iconic = FALSE;
@@ -2351,18 +2250,12 @@ const char *qAppName()				// get application name
 
 Display *qt_xdisplay()				// get current X display
 {
-    return appDpy;
+    return X11->display;
 }
 
 int qt_xscreen()				// get current X screen
 {
     return appScreen;
-}
-
-// ### REMOVE 4.0
-WId qt_xrootwin()				// get X root window
-{
-    return QPaintDevice::x11AppRootWindow();
 }
 
 WId qt_xrootwin( int scrn )			// get X root window for screen
@@ -2383,27 +2276,27 @@ static GC create_gc( int scrn, bool monochrome )
 {
     GC gc;
     if ( monochrome ) {
-	Pixmap pm = XCreatePixmap( appDpy, RootWindow( appDpy, scrn ), 8, 8, 1 );
-	gc = XCreateGC( appDpy, pm, 0, 0 );
-	XFreePixmap( appDpy, pm );
+	Pixmap pm = XCreatePixmap( X11->display, RootWindow( X11->display, scrn ), 8, 8, 1 );
+	gc = XCreateGC( X11->display, pm, 0, 0 );
+	XFreePixmap( X11->display, pm );
     } else {
 	if ( QPaintDevice::x11AppDefaultVisual( scrn ) ) {
-	    gc = XCreateGC( appDpy, RootWindow( appDpy, scrn ), 0, 0 );
+	    gc = XCreateGC( X11->display, RootWindow( X11->display, scrn ), 0, 0 );
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
 	    a.background_pixel = QColor(Qt::black).pixel( scrn );
 	    a.border_pixel = QColor(Qt::black).pixel( scrn );
 	    a.colormap = QPaintDevice::x11AppColormap( scrn );
-	    w = XCreateWindow( appDpy, RootWindow( appDpy, scrn ), 0, 0, 100, 100,
+	    w = XCreateWindow( X11->display, RootWindow( X11->display, scrn ), 0, 0, 100, 100,
 			       0, QPaintDevice::x11AppDepth( scrn ), InputOutput,
 			       (Visual*)QPaintDevice::x11AppVisual( scrn ),
 			       CWBackPixel|CWBorderPixel|CWColormap, &a );
-	    gc = XCreateGC( appDpy, w, 0, 0 );
-	    XDestroyWindow( appDpy, w );
+	    gc = XCreateGC( X11->display, w, 0, 0 );
+	    XDestroyWindow( X11->display, w );
 	}
     }
-    XSetGraphicsExposures( appDpy, gc, False );
+    XSetGraphicsExposures( X11->display, gc, False );
     return gc;
 }
 
@@ -2606,7 +2499,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 	if ( w->testAttribute( QWidget::WA_SetCursor ) )
 	    qt_x11_enforce_cursor( w );
     }
-    XFlush( appDpy );				// make X execute it NOW
+    XFlush( X11->display );				// make X execute it NOW
 }
 
 /*!
@@ -2632,7 +2525,7 @@ void QApplication::restoreOverrideCursor()
 	    if ( w->testAttribute( QWidget::WA_SetCursor ) )
 		qt_x11_enforce_cursor( w );
 	}
-	XFlush( appDpy );
+	XFlush( X11->display );
     }
     if ( !app_cursor ) {
 	delete cursorStack;
@@ -2655,14 +2548,14 @@ Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
     uchar *data;
     Window root, parent, target=0, *children=0;
     uint   nchildren;
-    if ( XGetWindowProperty( appDpy, win, property, 0, 0, FALSE, AnyPropertyType,
+    if ( XGetWindowProperty( X11->display, win, property, 0, 0, FALSE, AnyPropertyType,
 			     &type, &format, &nitems, &after, &data ) == Success ) {
 	if ( data )
 	    XFree( (char *)data );
 	if ( type )
 	    return win;
     }
-    if ( !XQueryTree(appDpy,win,&root,&parent,&children,&nchildren) ) {
+    if ( !XQueryTree(X11->display,win,&root,&parent,&children,&nchildren) ) {
 	if ( children )
 	    XFree( (char *)children );
 	return 0;
@@ -2694,7 +2587,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     int lx, ly;
 
     Window target;
-    if ( !XTranslateCoordinates(appDpy,
+    if ( !XTranslateCoordinates(X11->display,
 				QPaintDevice::x11AppRootWindow(screen),
 				QPaintDevice::x11AppRootWindow(screen),
 				x, y, &lx, &ly, &target) ) {
@@ -2722,13 +2615,13 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		if ( widget->isVisible() && !widget->isDesktop() ) {
 		    Window wid = widget->winId();
 		    while ( ctarget && !w ) {
-			XTranslateCoordinates(appDpy,
+			XTranslateCoordinates(X11->display,
 					      QPaintDevice::x11AppRootWindow(screen),
 					      ctarget, x, y, &lx, &ly, &ctarget);
 			if ( ctarget == wid ) {
 			    // Found
 			    w = widget;
-			    XTranslateCoordinates(appDpy,
+			    XTranslateCoordinates(X11->display,
 						  QPaintDevice::x11AppRootWindow(screen),
 						  ctarget, x, y, &lx, &ly, &ctarget);
 			}
@@ -2768,8 +2661,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 void QApplication::flushX()
 {
-    if ( appDpy )
-	XFlush( appDpy );
+    if ( X11->display )
+	XFlush( X11->display );
 }
 
 /*!
@@ -2798,8 +2691,8 @@ void QApplication::flush()
 
 void QApplication::syncX()
 {
-    if ( appDpy )
-	XSync( appDpy, False );			// don't discard events
+    if ( X11->display )
+	XSync( X11->display, False );			// don't discard events
 }
 
 
@@ -2809,8 +2702,8 @@ void QApplication::syncX()
 
 void QApplication::beep()
 {
-    if ( appDpy )
-	XBell( appDpy, 0 );
+    if ( X11->display )
+	XBell( X11->display, 0 );
 }
 
 
@@ -2878,7 +2771,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
 			groupLeader = groupLeader->parentWidget();
 		    if ( !groupLeader ) {
-			if ( ! qt_net_supported_list )
+			if ( ! X11->net_supported_list )
 			    amw->raise(); // help broken window managers
 			amw->setActiveWindow();
 		    }
@@ -3001,7 +2894,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    composingKeycode = xkey_keycode; // ### not documented in xlib
 
 #ifndef QT_NO_XIM
- 	if ( event->type != XKeyPress || ! (qt_xim_style & XIMPreeditCallbacks) )
+ 	if ( event->type != XKeyPress || ! (X11->xim_style & XIMPreeditCallbacks) )
 	    return 1;
 
 	/*
@@ -3111,7 +3004,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    unsigned long nitems, after;
 
 		    if (event->xproperty.atom == ATOM(Kde_Net_Wm_Frame_Strut)) {
-			e = XGetWindowProperty(appDpy, event->xproperty.window,
+			e = XGetWindowProperty(X11->display, event->xproperty.window,
 					       ATOM(Kde_Net_Wm_Frame_Strut),
 					       0, 4, // struts are 4 longs
 					       False, XA_CARDINAL, &ret, &format,
@@ -3137,7 +3030,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    } else if (event->xproperty.atom == ATOM(Net_Wm_State)) {
 			// using length of 1024 should be safe for all current
 			// and possible NET states...
-			e = XGetWindowProperty(appDpy, event->xproperty.window,
+			e = XGetWindowProperty(X11->display, event->xproperty.window,
 					       ATOM(Net_Wm_State), 0, 1024, False,
 					       XA_ATOM, &ret, &format, &nitems,
 					       &after, &data);
@@ -3177,9 +3070,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    widget->d->topData()->parentWinId = 0;
 			    // map the window if we were waiting for a
 			    // transition to withdrawn
-			    if ( qt_deferred_map_contains( widget ) ) {
-				qt_deferred_map_take( widget );
-				XMapWindow( appDpy, widget->winId() );
+			    int idx = X11->deferred_map.indexOf(widget);
+			    if (idx != -1) {
+				X11->deferred_map.removeAt(idx);
+				XMapWindow( X11->display, widget->winId() );
 			    }
 			} else if (widget->d->topData()->parentWinId !=
 				   QPaintDevice::x11AppRootWindow()) {
@@ -3189,19 +3083,18 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			    // haven't been reparented to root -
 			    // (the parentWinId != QPaintDevice::x11AppRootWindow()) check above
 
-			    e = XGetWindowProperty(appDpy, widget->winId(), ATOM(Wm_State),
+			    e = XGetWindowProperty(X11->display, widget->winId(), ATOM(Wm_State),
 						   0, 2, False, ATOM(Wm_State), &ret,
 						   &format, &nitems, &after, &data );
 
 			    if (e == Success && ret == ATOM(Wm_State) &&
 				format == 32 && nitems > 0) {
 				long *state = (long *) data;
-				switch (state[0]) {
-				case WithdrawnState:
+				if (state[0] == WithdrawnState) {
 				    // if we are in the withdrawn state, we are free to
 				    // reuse this window provided we remove the
 				    // WM_STATE property (ICCCM 4.1.3.1)
-				    XDeleteProperty(appDpy, widget->winId(),
+				    XDeleteProperty(X11->display, widget->winId(),
 						    ATOM(Wm_State));
 
 				    // set the parent id to zero, so that show() will
@@ -3209,13 +3102,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 				    widget->d->topData()->parentWinId = 0;
 				    // map the window if we were waiting for a
 				    // transition to withdrawn
-				    if ( qt_deferred_map_contains( widget ) ) {
-					qt_deferred_map_take( widget );
-					XMapWindow( appDpy, widget->winId() );
+				    int idx = X11->deferred_map.indexOf(widget);
+				    if (idx != -1) {
+					X11->deferred_map.removeAt(idx);
+					XMapWindow( X11->display, widget->winId() );
 				    }
-				    break;
-				default:
-				    break;
 				}
 			    }
 
@@ -3289,11 +3180,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	XRRUpdateConfiguration(event);
 
 	// update the size for desktop widget
-	int scr = XRRRootToScreen( appDpy, event->xany.window );
+	int scr = XRRRootToScreen( X11->display, event->xany.window );
 	QWidget *w = desktop()->screen( scr );
 	QSize oldSize( w->size() );
-	w->crect.setWidth( DisplayWidth( appDpy, scr ) );
-        w->crect.setHeight( DisplayHeight( appDpy, scr ) );
+	w->crect.setWidth( DisplayWidth( X11->display, scr ) );
+        w->crect.setHeight( DisplayHeight( X11->display, scr ) );
 	if ( w->size() != oldSize ) {
 	    QResizeEvent e( w->size(), oldSize );
 	    QApplication::sendEvent( w, &e );
@@ -3338,7 +3229,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		QInputContext *qic =
 		    (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
 
-		if ((qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
+		if ((X11->xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
 		     qic && qic->composing && qic->focusWidget) {
 		    // input method has sent us a commit string
 		    QByteArray data(513);
@@ -3389,7 +3280,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	widget->d->createInputContext();
 	setActiveWindow( widget );
-	if ( qt_focus_model == FocusModel_PointerRoot ) {
+	if ( X11->focus_model == QX11Data::FM_PointerRoot ) {
 	    // We got real input focus from somewhere, but we were in PointerRoot
 	    // mode, so we don't trust this event.  Check the focus model to make
 	    // sure we know what focus mode we are using...
@@ -3426,9 +3317,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( event->xcrossing.focus &&
 	     !widget->isDesktop() && !widget->isActiveWindow() ) {
-	    if ( qt_focus_model == FocusModel_Unknown ) // check focus model
+	    if ( X11->focus_model == QX11Data::FM_Unknown ) // check focus model
 		qt_check_focus_model();
-	    if ( qt_focus_model == FocusModel_PointerRoot ) // PointerRoot mode
+	    if ( X11->focus_model == QX11Data::FM_PointerRoot ) // PointerRoot mode
 		setActiveWindow( widget );
 	}
 	qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
@@ -3466,9 +3357,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    enter = event_widget;
 	    if ( ev.xcrossing.focus &&
 		 enter && !enter->isDesktop() && !enter->isActiveWindow() ) {
-		if ( qt_focus_model == FocusModel_Unknown ) // check focus model
+		if ( X11->focus_model == QX11Data::FM_Unknown ) // check focus model
 		    qt_check_focus_model();
-		if ( qt_focus_model == FocusModel_PointerRoot ) // PointerRoot mode
+		if ( X11->focus_model == QX11Data::FM_PointerRoot ) // PointerRoot mode
 		    setActiveWindow( enter );
 	    }
 	    break;
@@ -3476,7 +3367,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	if ( ( ! enter || enter->isDesktop() ) &&
 	     event->xcrossing.focus && widget == active_window &&
-	     qt_focus_model == FocusModel_PointerRoot // PointerRoot mode
+	     X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
 	     ) {
 	    setActiveWindow( 0 );
 	}
@@ -3522,9 +3413,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( event->xreparent.parent == QPaintDevice::x11AppRootWindow() ) {
 	    if ( widget->isTopLevel() ) {
 		widget->d->topData()->parentWinId = event->xreparent.parent;
-		if ( qt_deferred_map_contains( widget ) ) {
-		    qt_deferred_map_take( widget );
-		    XMapWindow( appDpy, widget->winId() );
+		int idx = X11->deferred_map.indexOf(widget);
+		if (idx != -1) {
+		    X11->deferred_map.removeAt(idx);
+		    XMapWindow( X11->display, widget->winId() );
 		}
 	    }
 	} else
@@ -3535,14 +3427,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    widget->d->topData()->fleft = widget->d->topData()->fright =
 	     widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
 
-	    if ( qt_focus_model != FocusModel_Unknown ) {
+	    if ( X11->focus_model != QX11Data::FM_Unknown ) {
 		// toplevel reparented...
 		QWidget *newparent = QWidget::find( event->xreparent.parent );
 		if ( ! newparent || newparent->isDesktop() ) {
 		    // we dont' know about the new parent (or we've been
 		    // reparented to root), perhaps a window manager
 		    // has been (re)started?  reset the focus model to unknown
-		    qt_focus_model = FocusModel_Unknown;
+		    X11->focus_model = QX11Data::FM_Unknown;
 		}
 	    }
 	}
@@ -3862,13 +3754,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     static int x_root_save = -1, y_root_save = -1;
 
     if ( event->type == MotionNotify ) { // mouse move
-	if (event->xmotion.root != RootWindow(appDpy, x11Screen()) &&
+	if (event->xmotion.root != RootWindow(X11->display, x11Screen()) &&
 	    ! qt_xdnd_dragging )
 	    return FALSE;
 
 	XMotionEvent lastMotion = event->xmotion;
-	while( XPending( appDpy ) )  { // compres mouse moves
-	    XNextEvent( appDpy, &nextEvent );
+	while( XPending( X11->display ) )  { // compres mouse moves
+	    XNextEvent( X11->display, &nextEvent );
 	    if ( nextEvent.type == ConfigureNotify
 		 || nextEvent.type == PropertyNotify
 		 || nextEvent.type == Expose
@@ -3878,7 +3770,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    } else if ( nextEvent.type != MotionNotify ||
 			nextEvent.xmotion.window != event->xmotion.window ||
 			nextEvent.xmotion.state != event->xmotion.state ) {
-		XPutBackEvent( appDpy, &nextEvent );
+		XPutBackEvent( X11->display, &nextEvent );
 		break;
 	    }
 	    if ( !qt_x11EventFilter(&nextEvent)
@@ -3978,7 +3870,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
 	    XEvent myEv;
-	    if ( XCheckTypedEvent( appDpy, xinput_button_press, &myEv ) ) {
+	    if ( XCheckTypedEvent( X11->display, xinput_button_press, &myEv ) ) {
 		if ( translateXinputEvent( &myEv ) ) {
 		    //Spontaneous event sent.  Check if we need to continue.
 		    if ( chokeMouse ) {
@@ -4011,7 +3903,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	} else {				// mouse button released
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
 	    XEvent myEv;
-	    if ( XCheckTypedEvent( appDpy, xinput_button_release, &myEv ) ) {
+	    if ( XCheckTypedEvent( X11->display, xinput_button_release, &myEv ) ) {
 		if ( translateXinputEvent( &myEv ) ) {
 		    //Spontaneous event sent.  Check if we need to continue.
 		    if ( chokeMouse ) {
@@ -4303,7 +4195,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	    scaleFactor = PRESSURE_LEVELS / max_pressure;
     }
 #if defined (Q_OS_IRIX)
-    s = XQueryDeviceState( appDpy, dev );
+    s = XQueryDeviceState( X11->display, dev );
     if ( s == NULL )
         return FALSE;
     iClass = s->data;
@@ -4738,7 +4630,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 
     if ( type == QEvent::KeyPress ) {
 	bool mb=FALSE;
-	if ( qt_xim ) {
+	if ( X11->xim ) {
 	    QTLWExtra*  xd = tlw->d->topData();
 	    QInputContext *qic = (QInputContext *) xd->xic;
 	    if ( qic ) {
@@ -5192,67 +5084,25 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 #endif
 
 
-// declared above: static QPtrList<QScrollInProgress> *sip_list = 0;
-
-void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
-{
-    if ( !sip_list ) {
-	sip_list = new QPtrList<QScrollInProgress>;
-	sip_list->setAutoDelete( TRUE );
-    }
-
-    QScrollInProgress* sip = new QScrollInProgress( scrolled_widget, dx, dy );
-    sip_list->append( sip );
-
-    XClientMessageEvent client_message;
-    client_message.type = ClientMessage;
-    client_message.window = scrolled_widget->winId();
-    client_message.format = 32;
-    client_message.message_type = ATOM(Qt_Scroll_Done);
-    client_message.data.l[0] = sip->id;
-
-    XSendEvent( appDpy, scrolled_widget->winId(), False, NoEventMask,
-	(XEvent*)&client_message );
-}
-
-int qt_sip_count( QWidget* scrolled_widget )
-{
-    if ( !sip_list )
-	return 0;
-
-    int sips=0;
-
-    for (QScrollInProgress* sip = sip_list->first();
-	sip; sip=sip_list->next())
-    {
-	if ( sip->scrolled_widget == scrolled_widget )
-	    sips++;
-    }
-
-    return sips;
-}
 
 static
 bool translateBySips( QWidget* that, QRect& paintRect )
 {
-    if ( sip_list ) {
-	int dx=0, dy=0;
-	int sips=0;
-	for (QScrollInProgress* sip = sip_list->first();
-	    sip; sip=sip_list->next())
-	{
-	    if ( sip->scrolled_widget == that ) {
-		if ( sips ) {
-		    dx += sip->dx;
-		    dy += sip->dy;
-		}
-		sips++;
+    int dx=0, dy=0;
+    int sips=0;
+    for (int i = 0; i < X11->sip_list.size(); ++i) {
+	const QX11Data::ScrollInProgress &sip = X11->sip_list.at(i);
+	if ( sip.scrolled_widget == that ) {
+	    if ( sips ) {
+		dx += sip.dx;
+		dy += sip.dy;
 	    }
+	    sips++;
 	}
-	if ( sips > 1 ) {
-	    paintRect.moveBy( dx, dy );
-	    return TRUE;
-	}
+    }
+    if ( sips > 1 ) {
+	paintRect.moveBy( dx, dy );
+	return TRUE;
     }
     return FALSE;
 }
@@ -5320,14 +5170,13 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
 bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 {
-    if ( !sip_list ) return FALSE;
-
     long id = event->xclient.data.l[0];
 
     // Remove any scroll-in-progress record for the given id.
-    for (QScrollInProgress* sip = sip_list->first(); sip; sip=sip_list->next()) {
-	if ( sip->id == id ) {
-	    sip_list->remove( sip_list->current() );
+    for (int i = 0; i < X11->sip_list.size(); ++i) {
+	const QX11Data::ScrollInProgress &sip = X11->sip_list.at(i);
+	if ( sip.id == id ) {
+	    X11->sip_list.removeAt(i);
 	    return TRUE;
 	}
     }

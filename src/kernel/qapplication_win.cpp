@@ -730,11 +730,12 @@ static void qt_set_windows_resources()
 // need to get default font?
 extern bool qt_app_has_font;
 
-void qt_init( int *argcptr, char **argv, QApplication::Type )
+void qt_init( QApplicationPrivate *priv, QApplication::Type )
 {
 
 #if defined(QT_DEBUG)
-    int argc = *argcptr;
+    int argc = priv->argc;
+    char **argv = priv->argv;
     int i, j;
 
   // Get command line params
@@ -750,10 +751,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	else
 	    argv[j++] = argv[i];
     }
-    *argcptr = j;
+    priv->argc = j;
 #else
-    Q_UNUSED( argcptr );
-    Q_UNUSED( argv );
+    Q_UNUSED( priv );
 #endif // QT_DEBUG
 
 

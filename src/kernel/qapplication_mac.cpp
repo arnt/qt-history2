@@ -732,7 +732,7 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 }
 
 /* platform specific implementations */
-void qt_init(int* argcptr, char **argv, QApplication::Type)
+void qt_init(QApplicationPrivate *priv, QApplication::Type)
 {
     if(qt_is_gui_used) {
 	ProcessSerialNumber psn;
@@ -747,8 +747,10 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	}
     }
 
+    char **argv = d->argv;
+
     // Get command line params
-    if(int argc = *argcptr) {
+    if(int argc = priv->argc) {
 	int i, j = 1;
 	for(i=1; i < argc; i++) {
 	    if(argv[i] && *argv[i] != '-') {
@@ -779,7 +781,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #endif
 			argv[j++] = argv[i];
 	}
-	*argcptr = j;
+	priv->argc = j;
 	// Set application name
 	char *p = strrchr(argv[0], '/');
 	appName = p ? p + 1 : argv[0];

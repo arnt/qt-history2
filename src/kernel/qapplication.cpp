@@ -294,11 +294,12 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
   qapplication_xyz.cpp file.
 */
 
-void qt_init( int *, char **, QApplication::Type );
-void qt_cleanup();
-#if defined(Q_WS_X11)
-void qt_init( Display* dpy, Qt::HANDLE, Qt::HANDLE );
+void qt_init( QApplicationPrivate *priv, int type
+#ifdef Q_WS_X11
+	      , Display *display = 0, Qt::HANDLE visual = 0, Qt::HANDLE colormap = 0
 #endif
+    );
+void qt_cleanup();
 
 QStyle   *QApplication::app_style      = 0;	// default application style
 bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
@@ -487,13 +488,14 @@ static void qt_fix_tooltips()
 }
 #endif
 
-void QApplication::process_cmdline( int* argcptr, char ** argv )
+void QApplication::process_cmdline()
 {
     // process platform-indep command line
-    if ( !qt_is_gui_used || !*argcptr)
+    if ( !qt_is_gui_used || !d->argc)
 	return;
 
-    int argc = *argcptr;
+    int argc = d->argc;
+    char **argv = d->argv;
     int i, j;
 
     j = 1;
@@ -545,7 +547,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #else
 	argv[j] = 0;
 #endif
-	*argcptr = j;
+	d->argc = j;
     }
 }
 
@@ -625,7 +627,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 QApplication::QApplication( int &argc, char **argv )
     : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
-    construct( argc, argv, GuiClient );
+    construct(GuiClient);
 }
 
 
@@ -671,7 +673,7 @@ QApplication::QApplication( int &argc, char **argv )
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
     : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
-    construct( argc, argv, GUIenabled ? GuiClient : Tty );
+    construct(GUIenabled ? GuiClient : Tty);
 }
 
 /*!
@@ -685,20 +687,15 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 QApplication::QApplication( int &argc, char **argv, Type type )
     : QKernelApplication(new QApplicationPrivate(argc, argv))
 {
-    construct( argc, argv, type );
+    construct(type);
 }
 
-void QApplication::construct( int &argc, char **argv, Type type )
+void QApplication::construct(Type type)
 {
     qt_appType = type;
     qt_is_gui_used = (type != Tty);
-    static const char *empty = "";
-    if ( argc == 0 || argv == 0 ) {
-	argc = 0;
-	argv = (char **)&empty; // ouch! careful with QApplication::argv()!
-    }
-    qt_init( &argc, argv, type );   // Must be called before initialize()
-    process_cmdline( &argc, argv );
+    qt_init(d, type);   // Must be called before initialize()
+    process_cmdline();
     initialize();
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
@@ -732,12 +729,10 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     qt_appType = GuiClient;
     // ... no command line.
 
-    if ( ! dpy ) {
+    if ( ! dpy )
 	qWarning( "QApplication: invalid Display* argument." );
-	qt_init( &aargc, aargv, GuiClient );
-    } else {
-	qt_init( dpy, visual, colormap );
-    }
+
+    qt_init(d, GuiClient, dpy, visual, colormap);
 
     initialize();
 
@@ -767,14 +762,11 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
 
-    if ( ! dpy ) {
+    if ( ! dpy )
 	qWarning( "QApplication: invalid Display* argument." );
-	qt_init( &argc, argv, GuiClient );
-    } else {
-	qt_init(dpy, visual, colormap);
-    }
+    qt_init(d, GuiClient, dpy, visual, colormap);
 
-    process_cmdline( &argc, argv );
+    process_cmdline();
     initialize();
 
     if ( qt_is_gui_used )
@@ -2085,8 +2077,8 @@ bool QApplication::event( QEvent *e )
 
 	    killTimer(qt_double_buffer_timer);
 	    qt_double_buffer_timer = 0;
+	    return TRUE;
 	}
-	return TRUE;
     }
     return QKernelApplication::event(e);
 }

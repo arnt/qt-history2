@@ -48,6 +48,11 @@ QKernelApplication *QKernelApplication::self = 0;
 QKernelApplicationPrivate::QKernelApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv)
 {
+    static const char *empty = "";
+    if ( argc == 0 || argv == 0 ) {
+	argc = 0;
+	argv = (char **)&empty; // ouch! careful with QApplication::argv()!
+    }
 }
 
 /*!\internal
@@ -95,7 +100,7 @@ QKernelApplication::~QKernelApplication()
     QThread::cleanup();
 #endif
 
-removePostedEvents(this);
+    removePostedEvents(this);
     self = 0;
     is_app_running = FALSE;
 

@@ -43,10 +43,6 @@
 #define QFONTLOADER_DEBUG
 #define QFONTLOADER_DEBUG_VERBOSE
 
-Q_EXPORT bool qt_has_xft = FALSE;
-bool qt_use_antialiasing = FALSE;
-
-
 double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
 {
     if (pointSize < 0) return -1.;

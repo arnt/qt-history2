@@ -1458,7 +1458,7 @@ static bool read_bool_env_var( const char *var, bool defaultvalue )
     return (x && *x) ? (strcmp(x,"0") != 0) : defaultvalue;
 }
 
-void qt_init( int *argcptr, char **argv, QApplication::Type type )
+void qt_init(QApplicationPrivate *priv, QApplication::Type type )
 {
     if ( type == QApplication::GuiServer )
 	qt_is_gui_used = FALSE; //we'll turn it on in a second
@@ -1474,7 +1474,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
     int flags = 0;
     char *p;
-    int argc = *argcptr;
+    int argc = priv->argc;
+    char **argv = priv->argv;
     int j;
 
     // Set application name
@@ -1544,7 +1545,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	}
     }
 
-    *argcptr = j;
+    priv->argc = j;
 
     mouseInWidget = new QGuardedPtr<QWidget>;
 

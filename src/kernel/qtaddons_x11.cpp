@@ -32,8 +32,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-extern bool qt_use_xrender; // defined in qapplication_x11.cpp
-
 extern "C" {
 
 #define XFT_DRAW_N_SRC 2
@@ -95,7 +93,7 @@ XftDraw *XftDrawCreateAlpha( Display *display,
     draw->render_set = True;
     draw->render_able = False;
 
-    if ( qt_use_xrender ) {
+    if ( X11->use_xrender ) {
 	draw->render_able = True;
 
 	XRenderPictFormat *format = 0;

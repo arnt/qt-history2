@@ -75,7 +75,6 @@
 #include "qfontengine_p.h"
 #include "qtextlayout_p.h"
 #include "qtextengine_p.h"
-extern bool qt_has_xft;
 #endif
 
 static bool qt_gen_epsf = FALSE;
@@ -4857,7 +4856,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 	//qDebug("engine = %p name=%s, script=%d", engine, engine ? engine->name() : "(null)", script);
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_has_xft && engine && engine->type() == QFontEngine::Xft ) {
+	if ( X11->has_xft && engine && engine->type() == QFontEngine::Xft ) {
 	    // ### cache filename directly!
 	    XftPattern *pattern = static_cast<QFontEngineXft *>( engine )->pattern();
 	    //qDebug("xfthandle=%p", font);

@@ -46,8 +46,6 @@ extern void qt_clear_paintevent_clipping();
 
 extern bool qt_xdnd_enable( QWidget* w, bool on );
 
-extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
-extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.const
 extern int *qt_last_x;
 extern int *qt_last_y;
 extern WId qt_last_cursor;

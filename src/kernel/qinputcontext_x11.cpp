@@ -33,9 +33,6 @@ bool qt_compose_emptied = FALSE;
 
 // #define QT_XIM_DEBUG
 
-// from qapplication_x11.cpp
-extern XIM	qt_xim;
-extern XIMStyle	qt_xim_style;
 
 /* The cache here is needed, as X11 leaks a few kb for every
    XFreeFontSet call, so we avoid creating and deletion of fontsets as
@@ -296,7 +293,7 @@ QInputContext::QInputContext(QWidget *widget)
 {
 #if !defined(QT_NO_XIM)
     fontsetRefCount++;
-    if (! qt_xim) {
+    if (! X11->xim) {
 	qWarning("QInputContext: no input method context available");
 	return;
     }
@@ -314,7 +311,7 @@ QInputContext::QInputContext(QWidget *widget)
     font = widget->font();
     fontset = getFontSet( font );
 
-    if (qt_xim_style & XIMPreeditArea) {
+    if (X11->xim_style & XIMPreeditArea) {
 	rect.x = 0;
 	rect.y = 0;
 	rect.width = widget->width();
@@ -324,7 +321,7 @@ QInputContext::QInputContext(QWidget *widget)
 					   XNArea, &rect,
 					   XNFontSet, fontset,
 					   (char *) 0);
-    } else if (qt_xim_style & XIMPreeditPosition) {
+    } else if (X11->xim_style & XIMPreeditPosition) {
 	spot.x = 1;
 	spot.y = 1;
 
@@ -332,7 +329,7 @@ QInputContext::QInputContext(QWidget *widget)
 					   XNSpotLocation, &spot,
 					   XNFontSet, fontset,
 					   (char *) 0);
-    } else if (qt_xim_style & XIMPreeditCallbacks) {
+    } else if (X11->xim_style & XIMPreeditCallbacks) {
 	startcallback.client_data = (XPointer) this;
 	startcallback.callback = (XIMProc) xic_start_callback;
 	drawcallback.client_data = (XPointer) this;
@@ -348,15 +345,15 @@ QInputContext::QInputContext(QWidget *widget)
     }
 
     if (preedit_attr) {
-	ic = XCreateIC(qt_xim,
-		       XNInputStyle, qt_xim_style,
+	ic = XCreateIC(X11->xim,
+		       XNInputStyle, X11->xim_style,
 		       XNClientWindow, widget->winId(),
 		       XNPreeditAttributes, preedit_attr,
 		       (char *) 0);
 	XFree(preedit_attr);
     } else
-	ic = XCreateIC(qt_xim,
-		       XNInputStyle, qt_xim_style,
+	ic = XCreateIC(X11->xim,
+		       XNInputStyle, X11->xim_style,
 		       XNClientWindow, widget->winId(),
 		       (char *) 0);
 
@@ -422,7 +419,7 @@ void QInputContext::reset()
 void QInputContext::setComposePosition(int x, int y)
 {
 #if !defined(QT_NO_XIM)
-    if (qt_xim && ic) {
+    if (X11->xim && ic) {
 	XPoint point;
 	point.x = x;
 	point.y = y;
@@ -442,7 +439,7 @@ void QInputContext::setComposePosition(int x, int y)
 void QInputContext::setComposeArea(int x, int y, int w, int h)
 {
 #if !defined(QT_NO_XIM)
-    if (qt_xim && ic) {
+    if (X11->xim && ic) {
 	XRectangle rect;
 	rect.x = x;
 	rect.y = y;
@@ -466,7 +463,7 @@ int QInputContext::lookupString(XKeyEvent *event, QByteArray &chars,
     int count = 0;
 
 #if !defined(QT_NO_XIM)
-    if (qt_xim && ic) {
+    if (X11->xim && ic) {
 	count = XmbLookupString((XIC) ic, event, chars.data(),
 				chars.size(), key, status);
 
@@ -485,7 +482,7 @@ int QInputContext::lookupString(XKeyEvent *event, QByteArray &chars,
 void QInputContext::setFocus()
 {
 #if !defined(QT_NO_XIM)
-    if (qt_xim && ic)
+    if (X11->xim && ic)
 	XSetICFocus((XIC) ic);
 #endif // !QT_NO_XIM
 }
