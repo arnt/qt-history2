@@ -72,7 +72,7 @@ opengl:SUBDIRS +=   opengl/box \
 		    opengl/texture
 
 x11:nas:SUBDIRS += 	    sound
-win32:SUBDIRS +=	    sound
+mac|win32:SUBDIRS +=	    sound
 
 iconview:SUBDIRS += fileiconview \
 		    iconview \
