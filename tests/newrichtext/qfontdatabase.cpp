@@ -232,6 +232,9 @@ struct QtFontFamily
     bool xlfdLoaded : 1;
     bool fullyLoaded : 1;
     QString name;
+#ifdef Q_WS_X11
+    QCString xftFilename;
+#endif
 
     int count;
     QtFontFoundry **foundries;
