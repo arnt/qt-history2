@@ -8,16 +8,12 @@ FORMS	= mainform.ui \
 	colornameform.ui \
 	findform.ui \
 	optionsform.ui
-IMAGES	= images/filenew \
-	images/fileopen \
-	images/filesave \
-	images/print \
-	images/undo \
-	images/redo \
-	images/editcut \
-	images/editcopy \
-	images/editpaste \
-	images/searchfind \
+IMAGES	= images/filenew.png \
+	images/fileopen.png \
+	images/filesave.png \
+	images/editcut.png \
+	images/editcopy.png \
+	images/searchfind.png \
 	images/tabwidget.png \
 	images/table.png \
 	images/iconview.png \

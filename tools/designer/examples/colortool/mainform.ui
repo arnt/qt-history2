@@ -153,7 +153,7 @@
             <cstring>fileNewAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>filenew</iconset>
+            <iconset>filenew.png</iconset>
         </property>
         <property name="text">
             <string>New</string>
@@ -170,7 +170,7 @@
             <cstring>fileOpenAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>fileopen</iconset>
+            <iconset>fileopen.png</iconset>
         </property>
         <property name="text">
             <string>Open</string>
@@ -187,7 +187,7 @@
             <cstring>fileSaveAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>filesave</iconset>
+            <iconset>filesave.png</iconset>
         </property>
         <property name="text">
             <string>Save</string>
@@ -232,7 +232,7 @@
             <cstring>editCutAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>editcut</iconset>
+            <iconset>editcut.png</iconset>
         </property>
         <property name="text">
             <string>Delete</string>
@@ -249,7 +249,7 @@
             <cstring>editCopyAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>editcopy</iconset>
+            <iconset>editcopy.png</iconset>
         </property>
         <property name="text">
             <string>Copy</string>
@@ -266,7 +266,7 @@
             <cstring>editFindAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>searchfind</iconset>
+            <iconset>searchfind.png</iconset>
         </property>
         <property name="text">
             <string>Find</string>
