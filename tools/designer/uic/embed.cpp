@@ -292,7 +292,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "{\n";
 	out << "public:\n";
 	out << "    StaticInitImages_" << cProject << "() { qInitImages_" << cProject << "(); }\n";
-	out << "#if defined(Q_OS_SCO) && defined(Q_CC_GNU)\n";
+	out << "#if defined(Q_OS_SCO) || defined(Q_OS_UNIXWARE)\n";
 	out << "    ~StaticInitImages_" << cProject << "() { }\n";
 	out << "#else\n";
 	out << "    ~StaticInitImages_" << cProject << "() { qCleanupImages_" << cProject << "(); }\n";
