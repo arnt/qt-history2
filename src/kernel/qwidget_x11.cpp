@@ -47,6 +47,7 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qt_x11.h"
+#include <stdlib.h>
 
 // NOT REVISED
 
