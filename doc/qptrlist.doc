@@ -21,7 +21,6 @@
     \class QPtrList
     \brief The QPtrList class is a template class that provides a list.
 
-    \ingroup collection
     \ingroup tools
 
     \important autoDelete setAutoDelete
@@ -821,7 +820,6 @@
     \brief The QPtrListIterator class provides an iterator for
     QPtrList collections.
 
-    \ingroup collection
     \ingroup tools
 
     Define a template instance QPtrListIterator\<X\> to create a list
@@ -1024,7 +1022,6 @@
     \class QStrList qstrlist.h
     \brief The QStrList class provides a doubly-linked list of char*.
 
-    \ingroup collection
     \ingroup tools
     \ingroup text
 
@@ -1106,7 +1103,6 @@
     \brief The QStrIList class provides a doubly-linked list of char*
     with case-insensitive comparison.
 
-    \ingroup collection
     \ingroup tools
 
     This class is a QPtrList\<char\> instance (a list of char*).
@@ -1227,7 +1223,6 @@
     \class QPtrListAutoDelete
     \brief The QPtrListAutoDelete class is a template class that provides a list that auto-deletes its data.
 
-    \ingroup collection
     \ingroup tools
 
     A QPtrListAutoDelete is identical to a QPtrList with

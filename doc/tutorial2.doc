@@ -163,9 +163,8 @@ pull in the \c qvaluevector.h header.
 \skipto QValueVector
 \printline
 
-Qt provides a number of containers, some value based like
-QValueVector, and others pointer based. (See \link collection.html
-Collection Classes\endlink.) Here we've just typedefed one container
+Qt provides a number of containers, for example, QList and QVector.
+Here we've just typedefed one container
 type; we will keep each data set of elements in one \c ElementVector.
 
 \skipto const double EPSILON

@@ -62,7 +62,7 @@ command-line options like \e -geometry, so the program will automatically
 behave the way X clients are expected to.
 
 \printline ApplicationWindow
-\printline setCaption
+\printline setWindowTitle
 \printline show
 
 We create an \e ApplicationWindow as a top-level widget, set its window
@@ -312,7 +312,7 @@ save. When the user does some further editing and wishes to close the
 window without explicit saving, \link #closeEvent
 ApplicationWindow::closeEvent()\endlink will ask about it.
 
-\printline setCaption
+\printline setWindowTitle
 
 It may be that the document was saved under a different name than the
 old caption suggests, so we set the window caption just to be sure.

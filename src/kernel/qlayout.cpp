@@ -844,13 +844,11 @@ private:
     space the column will get over and above its necessary minimum.
 
     Normally, each managed widget or layout is put into a cell of its
-    own using addWidget(), addLayout() or by the \link
-    QLayout::setAutoAdd() auto-add facility\endlink. It is also
-    possible for a widget to occupy multiple cells using
-    the row and column spanning overloads of addItem() and
-    addWidget(). If you do this, QGridLayout will guess how to
-    distribute the size over the columns/rows (based on the stretch
-    factors).
+    own using addWidget(). It is also possible for a widget to occupy
+    multiple cells using the row and column spanning overloads of
+    addItem() and addWidget(). If you do this, QGridLayout will guess
+    how to distribute the size over the columns/rows (based on the
+    stretch factors).
 
     To remove a widget from a layout, call remove(). Calling
     QWidget::hide() on a widget also effectively removes the widget
@@ -1137,16 +1135,6 @@ static bool checkWidget( QLayout *l, QWidget *w )
     Alignment is specified by \a alignment, which is a bitwise OR of
     \l Qt::AlignmentFlags values. The default alignment is 0, which
     means that the widget fills the entire cell.
-
-    \list
-    \i You should not call this if you have enabled the
-    \link QLayout::setAutoAdd() auto-add facility of the layout\endlink.
-
-    \i From Qt 3.0, the \a alignment parameter is interpreted more
-    aggressively than in previous versions of Qt. A non-default
-    alignment now indicates that the widget should not grow to fill
-    the available space, but should be sized according to sizeHint().
-    \endlist
 
 */
 void QGridLayout::addWidget( QWidget *w, int row, int col, Alignment alignment )
@@ -1897,7 +1885,7 @@ void QBoxLayout::insertStretch( int index, int stretch )
 
     \a layout becomes a child of the box layout.
 
-    \sa setAutoAdd(), insertWidget(), insertSpacing()
+    \sa insertWidget(), insertSpacing()
 */
 void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
 {
@@ -1933,7 +1921,7 @@ void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
     alignment now indicates that the widget should not grow to fill
     the available space, but should be sized according to sizeHint().
 
-    \sa setAutoAdd(), insertLayout(), insertSpacing()
+    \sa insertLayout(), insertSpacing()
 */
 void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
 			       Alignment alignment )
@@ -1996,7 +1984,7 @@ void QBoxLayout::addStretch( int stretch )
     alignment now indicates that the widget should not grow to fill
     the available space, but should be sized according to sizeHint().
 
-    \sa insertWidget(), setAutoAdd(), addLayout(), addSpacing()
+    \sa insertWidget(), addLayout(), addSpacing()
 */
 void QBoxLayout::addWidget( QWidget *widget, int stretch,
 			    Alignment alignment )
@@ -2008,7 +1996,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch,
     Adds \a layout to the end of the box, with serial stretch factor
     \a stretch.
 
-    \sa insertLayout(), setAutoAdd(), addWidget(), addSpacing()
+    \sa insertLayout(), addWidget(), addSpacing()
 */
 void QBoxLayout::addLayout( QLayout *layout, int stretch )
 {
@@ -2328,15 +2316,6 @@ void QBoxLayout::calcHfw( int w )
     \l QBoxLayout for more details.
 
     The simplest use of the class is like this:
-    \code
-	QBoxLayout * l = new QHBoxLayout( widget );
-	l->setAutoAdd( TRUE );
-	new QSomeWidget( widget );
-	new QSomeOtherWidget( widget );
-	new QAnotherWidget( widget );
-    \endcode
-
-    or like this:
     \code
 	QBoxLayout * l = new QHBoxLayout( widget );
 	l->addWidget( existingChildOfWidget );

@@ -55,7 +55,7 @@ the reference count.
 
 Object assignment (with operator=()) for implicitly and explicitly
 shared objects is implemented using shallow copies. A deep copy can be
-made by calling a copy() function or by using \l QDeepCopy.
+made by calling a copy() function.
 
 The benefit of sharing is that a program does not need to duplicate
 data unnecessarily, which results in lower memory use and less copying
@@ -185,17 +185,17 @@ The Qt classes that are implicitly shared are:
 \i \l QFontInfo
 \i \l QFontMetrics
 \i \l QIconSet
+\i \l QList
 \i \l QMap
 \i \l QPalette
 \i \l QPen
 \i \l QPicture
 \i \l QPixmap
-\i \l QRegion
 \i \l QRegExp
+\i \l QRegion
+\i \l QStack
 \i \l QString
 \i \l QStringList
-\i \l QValueList
-\i \l QValueStack
 \endlist
 
 These classes automatically detach from common data if an object is
@@ -223,14 +223,6 @@ also happens if anything is \link ::bitBlt() bitBlt()\endlink'ed into
 \c p2.
 
 \warning Do not copy an implicitly shared container (QMap,
-QValueVector, etc.) while you are iterating over it.
-
-\section1 QCString: implicit or explicit?
-
-\l QCString uses a mixture of implicit and explicit sharing. Functions
-inherited from QByteArray, such as data(), employ explicit sharing, while
-those only in QCString detach automatically. Thus, QCString is rather an
-"experts only" class, provided mainly to ease porting from Qt 1.x to Qt 2.0.
-We recommend that you use \l QString, a purely implicitly shared class.
+QVector, etc.) while you are iterating over it.
 
 */

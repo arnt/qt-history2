@@ -1794,7 +1794,7 @@ public:
     \warning Using this QRegExp version is much more expensive than
     the overloaded string and character versions.
 
-    \sa QStringList::split() simplifyWhiteSpace()
+    \sa QStringList::split() simplified()
 */
 QString QString::section( const QRegExp &reg, int start, int end, int flags ) const
 {

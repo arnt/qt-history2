@@ -19,11 +19,10 @@
     \reentrant
     \brief The QPtrCollection class is the base class of most pointer-based Qt collections.
 
-    \ingroup collection
     \ingroup tools
 
     The QPtrCollection class is an abstract base class for the Qt
-    \link collection.html collection classes\endlink QDict, QPtrList,
+    collection classes QDict, QPtrList,
     etc. Qt also includes value based collections, e.g. QValueList,
     QMap, etc.
 

@@ -33,7 +33,7 @@
     elements. 
 
     The QPtrVector collection class is also a kind of array. Like most
-    \link collection.html collection classes\endlink, it uses pointers
+    collection classes, it uses pointers
     to the contained items.
 
     QMemArray uses \link shclass.html explicit sharing\endlink with a

@@ -566,9 +566,9 @@ if there isn't one). If you want pointers to all the widgets of a given
 class you can call the \index QObject::queryList()
 \Func QObject::queryList()
 function, passing it the name of the class. It returns a
-\l QObjectList pointer which points to every object
-in the dialog that is derived from the given class. See the online
-\link http://doc.trolltech.com/qobject.html QObject \endlink
+\link QList QList<QObject*>\endlink pointer which points to every
+object in the dialog that is derived from the given class. See the
+online \link http://doc.trolltech.com/qobject.html QObject \endlink
 documentation for further details.
 
 \section3 Implementing Slots for Dynamic Dialogs

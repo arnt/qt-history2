@@ -21,7 +21,6 @@
     \class QIntCache qintcache.h
     \brief The QIntCache class is a template class that provides a cache based on long keys.
 
-    \ingroup collection
     \ingroup tools
 
     QIntCache is implemented as a template class. Define a template
@@ -261,7 +260,6 @@
     \class QIntCacheIterator qcache.h
     \brief The QIntCacheIterator class provides an iterator for QIntCache collections.
 
-    \ingroup collection
     \ingroup tools
 
     Note that the traversal order is arbitrary; you are not guaranteed

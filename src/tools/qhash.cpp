@@ -231,3 +231,7 @@ void QHashData::free()
     delete [] buckets;
     delete this;
 }
+
+/*!
+    \class QHash
+*/

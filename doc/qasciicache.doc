@@ -22,7 +22,6 @@
 
     \brief The QAsciiCache class is a template class that provides a cache based on char* keys.
 
-    \ingroup collection
     \ingroup tools
 
     QAsciiCache is implemented as a template class. Define a template
@@ -280,7 +279,6 @@
     \class QAsciiCacheIterator qasciicache.h
     \brief The QAsciiCacheIterator class provides an iterator for QAsciiCache collections.
 
-    \ingroup collection
     \ingroup tools
 
     Note that the traversal order is arbitrary; you are not guaranteed

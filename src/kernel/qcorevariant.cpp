@@ -980,8 +980,6 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     x.asInt();
     // x.isNull() == true, y.isNull() == true, z.isNull() == false
     \endcode
-
-    See the \link collection.html Collection Classes\endlink.
 */
 
 /*!

@@ -1340,7 +1340,7 @@ QStyle* QWidget::setStyle( const QString &style )
     \brief whether the widget is a top-level widget
 
     A top-level widget is a widget which usually has a frame and a
-    \link QWidget::caption caption (title)\endlink. \link
+    \link QWidget::setWindowTitle title\endlink. \link
     QWidget::isPopup() Popup\endlink and \link QWidget::isDesktop()
     desktop\endlink widgets are also top-level widgets.
 

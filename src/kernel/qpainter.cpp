@@ -34,6 +34,11 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
 		    QPainter* painter);
 
+/*!
+    \class QPainter
+*/
+
+
 QPainter::QPainter()
 {
     d = new QPainterPrivate;

@@ -493,9 +493,6 @@ that may be used independently of the GUI classes.
 In particular, these classes do not depend on QApplication at all,
 and so can be used in non-GUI programs.
 
-See also the \link collection.html introduction to the Qt collection
-classes. \endlink 
-
 */
 
 /*! \defgroup io

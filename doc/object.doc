@@ -521,8 +521,8 @@ filters.
 Finally, many applications want to create and send their own events.
 
 Creating an event of a built-in type is very simple: create an object
-of the relevant type, and then call \l QApplication::sendEvent() or \l
-QApplication::postEvent().
+of the relevant type, and then call \l QCoreApplication::sendEvent() or \l
+QCoreApplication::postEvent().
 
 sendEvent() processes the event immediately - when sendEvent()
 returns, (the event filters and) the object have already processed the

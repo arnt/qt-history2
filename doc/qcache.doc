@@ -21,7 +21,6 @@
     \class QCache
     \brief The QCache class is a template class that provides a cache based on QString keys.
 
-    \ingroup collection
     \ingroup tools
 
     A cache is a least recently used (LRU) list of cache items. Each
@@ -266,7 +265,6 @@
     \class QCacheIterator qcache.h
     \brief The QCacheIterator class provides an iterator for QCache collections.
 
-    \ingroup collection
     \ingroup tools
 
     Note that the traversal order is arbitrary; you are not guaranteed

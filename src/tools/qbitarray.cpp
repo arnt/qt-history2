@@ -7,7 +7,6 @@
     \reentrant
     \brief The QBitArray class provides an array of bits.
 
-    \ingroup collection
     \ingroup tools
     \ingroup shared
 
@@ -372,8 +371,6 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
     \class QBitRef qbitarray.h
     \reentrant
     \brief The QBitRef class is an internal class, used with QBitArray.
-
-    \ingroup collection
 
     The QBitRef is required by the indexing [] operator on bit arrays.
     It is not for use in any other context.

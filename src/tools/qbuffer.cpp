@@ -43,7 +43,6 @@
     \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
     \ingroup io
-    \ingroup collection
 
     QBuffer is used to read and write to a memory buffer. It is
     normally used with a QTextStream or a QDataStream. QBuffer has an

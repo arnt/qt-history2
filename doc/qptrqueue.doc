@@ -17,7 +17,6 @@
     \class QPtrQueue
     \brief The QPtrQueue class is a template class that provides a queue.
 
-    \ingroup collection
     \ingroup tools
 
     QValueVector can be used as an STL-compatible alternative to this
