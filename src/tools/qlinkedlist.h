@@ -237,7 +237,7 @@ Q_INLINE_TEMPLATE void QLinkedList<T>::deleteAll()
 	       "QLinkedList<T>::deleteAll", "Cannot delete non-pointer types");
     ConstIterator it = constBegin();
     while (it != constEnd()) {
-	delete *it;
+	qDelete(*it);
 	++it;
     }
 }

@@ -392,7 +392,7 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::deleteAll()
 	       "QHash<Key, T>::deleteAll", "Cannot delete non-pointer types");
     ConstIterator it = constBegin();
     while (it != constEnd()) {
-	delete *it;
+	qDelete(*it);
 	++it;
     }
 }

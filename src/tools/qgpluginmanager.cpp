@@ -368,7 +368,6 @@ const QLibrary* QGPluginManager::library( const QString& _feature ) const
 		that->addLibrary( new QComLibrary( lib ) );
 	    } else {
 		QList<QComLibrary *> same;
-		same.setAutoDelete( TRUE );
 		for ( QStringList::ConstIterator bit = sameBasename.begin();
 		      bit != sameBasename.end(); ++bit )
 		    same.append( new QComLibrary( *bit ) );
@@ -382,6 +381,7 @@ const QLibrary* QGPluginManager::library( const QString& _feature ) const
 		}
 		if ( bestMatch )
 		    that->addLibrary( same.takeAt(same.indexOf(bestMatch)) );
+		same.deleteAll();
 	    }
 
 	    if ( ( library = that->plugDict[feature] ) )
