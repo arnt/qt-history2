@@ -739,7 +739,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild(VARIANT varChildID, I
         return E_INVALIDARG;
 
     QAccessibleInterface *acc = 0;
-    Relation rel = varChildID.lVal ? Child : Self;
+    RelationFlag rel = varChildID.lVal ? Child : Self;
     accessible->navigate(rel, varChildID.lVal, &acc);
 
     if (acc) {
