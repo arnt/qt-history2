@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#236 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#237 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1390,6 +1390,33 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
 	    text() );
 }
 
+static QStringList makeFiltersList( QString filter )
+{
+    if ( filter.isEmpty() )
+        return QStringList();
+
+    int i = filter.find( ";;", 0 );
+    QString sep( ";;" );
+    if ( i == -1 ) {
+        if ( filter.find( "\n", 0 ) != -1 ) {
+            sep = "\n";
+            i = filter.find( sep, 0 );
+        }
+    }
+    QStringList lst;
+
+    while ( i != -1 ) {
+        if ( filter.left( i ).length() > 0 )
+            lst.append( filter.left( i ) );
+        filter.remove( 0, i + sep.length() );
+        i = filter.find( sep, 0 );
+    }
+
+    if ( !filter.simplifyWhiteSpace().isEmpty() )
+        lst.append( filter.simplifyWhiteSpace() );
+
+    return lst;
+}
 
 /*!
   \class QFileDialog qfiledialog.h
@@ -1462,8 +1489,11 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 {
     init();
     if ( !filter.isEmpty() ) {
-        cwd.setNameFilter( filter );
-        d->types->insertItem( filter );
+        QStringList filters = makeFiltersList( filter );
+        cwd.setNameFilter( filters.first() );
+        QStringList::Iterator it = filters.begin();
+        for ( ; it != filters.end(); ++it )
+            d->types->insertItem( *it );
     } else {
         d->types->insertItem( tr( "All files (*)" ) );
     }
@@ -2005,7 +2035,10 @@ void qt_leave_modal( QWidget* );
   selected.
 
   Only files matching \a filter are selectable.  If \a filter is QString::null,
-  all files are selectable.
+  all files are selectable. In the filter string multiple filters can be specified
+  seperated by either two semicolons next to each other or seperated by newlines. To add
+  two filters, one to show all C++ files and one to show all header files, the filter
+  string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
   If \a widget and/or \a name is provided, the dialog will be centered
   over \a widget and \link QObject::name() named \endlink \a name.
@@ -2040,7 +2073,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 {
     QStringList lst;
     if ( !filter.isEmpty() )
-        lst.append( filter );
+        lst = makeFiltersList( filter );
 
     return QFileDialog::getOpenFileName( lst, startWith, parent, name );
 }
@@ -2140,7 +2173,10 @@ QString QFileDialog::getOpenFileName( const QStringList &filters, const QString 
   selected.
 
   Only files matching \a filter are selectable.  If \a filter is QString::null,
-  all files are selectable.
+  all files are selectable. In the filter string multiple filters can be specified
+  seperated by either two semicolons next to each other or seperated by newlines. To add
+  two filters, one to show all C++ files and one to show all header files, the filter
+  string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
   If \a widget and/or \a name is provided, the dialog will be centered
   over \a widget and \link QObject::name() named \endlink \a name.
@@ -2175,7 +2211,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 {
     QStringList lst;
     if ( !filter.isEmpty() )
-        lst.append( filter );
+        lst = makeFiltersList( filter );
 
     return QFileDialog::getSaveFileName( lst, startWith, parent, name );
 }
@@ -3309,7 +3345,10 @@ void QFileDialog::modeButtonsDestroyed()
   "c:\\quake\\quake").
 
   \a filter is the default glob pattern (which the user can change).
-  The default is all files.
+  The default is all files. In the filter string multiple filters can be specified
+  seperated by either two semicolons next to each other or seperated by newlines. To add
+  two filters, one to show all C++ files and one to show all header files, the filter
+  string could look like "C++ Files (*.cpp *.cc *.C *.cxx *.c++);;Header Files (*.h *.hxx *.h++)"
 
   \a dir is the starting directory.  If \a
   dir is not supplied, QFileDialog picks something presumably useful
@@ -3334,7 +3373,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 {
     QStringList lst;
     if ( !filter.isEmpty() )
-        lst.append( filter );
+        lst = makeFiltersList( filter );
 
     return QFileDialog::getOpenFileNames( lst, dir, parent, name );
 }
