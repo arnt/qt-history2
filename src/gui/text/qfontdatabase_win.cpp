@@ -23,7 +23,7 @@ static HFONT stock_sysfont  = 0;
 // see the Unicode subset bitfields in the MSDN docs
 static int requiredUnicodeBits[QFont::NScripts][2] = {
     //Latin,
-    { 0, 1 },
+    { 0, 127 },
     //Greek,
     { 7, 127 },
     //Cyrillic,
