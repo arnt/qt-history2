@@ -27,6 +27,7 @@ QTableView *createView(const QString &title, QSqlTableModel *model)
 {
     QTableView *view = new QTableView;
     view->setModel(model);
+    view->setItemDelegate(new QSqlRelationalDelegate(view));
     view->setWindowTitle(title);
     return view;
 }
