@@ -22,18 +22,15 @@ int main( int argc, char *argv[] )
     if ( create_connections() ) {
 	QSqlCursor staffCursor( "staff" );
 
-	staffCursor.setDisplayLabel( "forename", "Forename" );
-	staffCursor.setDisplayLabel( "surname", "Surname" );
-	staffCursor.setDisplayLabel( "salary", "Annual Salary" );
 	staffCursor.setAlignment( "salary", Qt::AlignRight );
 
 	QSqlTable *staffTable = new QSqlTable( &staffCursor );
 
 	app.setMainWidget( staffTable );
 
-	staffTable->addColumn( staffCursor.field( "forename" ) );
-	staffTable->addColumn( staffCursor.field( "surname" ) );
-	staffTable->addColumn( staffCursor.field( "salary" ) );
+	staffTable->addColumn( "forename", "Forename" );
+	staffTable->addColumn( "surname", "Surname" );
+	staffTable->addColumn( "salary", "Annual Salary" );
 
 	QStringList order = QStringList() << "surname" << "forename";
 	staffTable->setSort( order );
@@ -51,11 +48,11 @@ int main( int argc, char *argv[] )
 bool create_connections()
 {
     // create the default database connection
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
-    defaultDB->setDatabaseName( "sales" );
-    defaultDB->setUserName( "salesuser" );
-    defaultDB->setPassword( "salespw" );
-    defaultDB->setHostName( "saleshost" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
+    defaultDB->setDatabaseName( "testdb" );
+    defaultDB->setUserName( "db" );
+    defaultDB->setPassword( "db" );
+    defaultDB->setHostName( "silverfish" );
     if ( ! defaultDB->open() ) { 
 	qWarning( "Failed to open sales database: " + 
 		  defaultDB->lastError().driverText() );
@@ -64,11 +61,11 @@ bool create_connections()
     }
 
     // create a named connection to oracle
-    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QOCI", "ORACLE" );
-    oracle->setDatabaseName( "orders" );
-    oracle->setUserName( "ordersuser" );
-    oracle->setPassword( "orderspw" );
-    oracle->setHostName( "ordershost" );
+    QSqlDatabase *oracle = QSqlDatabase::addDatabase( "QPSQL6", "ORACLE" );
+    oracle->setDatabaseName( "pingpong" );
+    oracle->setUserName( "db" );
+    oracle->setPassword( "db" );
+    oracle->setHostName( "silverfish" );
     if ( ! oracle->open() ) {
 	qWarning( "Failed to open orders database: " + 
 		  oracle->lastError().driverText() );
