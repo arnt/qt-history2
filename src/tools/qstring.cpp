@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#66 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#65 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#66 $")
 
 
 /*****************************************************************************
@@ -786,7 +786,7 @@ int QString::contains( const char *str, bool cs ) const
   Example:
   \code
     QString s = "Pineapple";
-    QString t = s.left( 4 );		// t == "Pine"
+    QString t = s.left( 4 );			// t == "Pine"
   \endcode
 
   \sa right(), mid()
@@ -819,7 +819,7 @@ QString QString::left( uint len ) const
   Example:
   \code
     QString s = "Pineapple";
-    QString t = s.right( 5 );		// t == "apple"
+    QString t = s.right( 5 );			// t == "apple"
   \endcode
 
   \sa left(), mid()
@@ -1554,6 +1554,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator==( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
+
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1561,6 +1562,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator==( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
+
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1568,6 +1570,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator==( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
+
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1575,6 +1578,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator!=( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
+
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1582,6 +1586,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator!=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
+
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1589,6 +1594,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator!=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are different, or FALSE if they are equal.
+
   Equivalent to <code>strcmp(s1,s2) != 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1596,6 +1602,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator<( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) < 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1603,6 +1610,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator<( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \e s1 is alphabetically less than \e s2, otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) < 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1611,6 +1619,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \relates QString
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) <= 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1619,6 +1628,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \relates QString
   Returns TRUE if \e s1 is alphabetically less than or equal to \e s2,
   otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) <= 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1626,6 +1636,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator>( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) > 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1633,6 +1644,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \fn bool operator>( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \e s1 is alphabetically greater than \e s2, otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) > 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1641,6 +1653,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \relates QString
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) >= 0</code>.
  ----------------------------------------------------------------------------*/
 
@@ -1649,6 +1662,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \relates QString
   Returns TRUE if \e s1 is alphabetically greater than or equal to \e s2,
   otherwise FALSE.
+
   Equivalent to <code>strcmp(s1,s2) >= 0</code>.
  ----------------------------------------------------------------------------*/
 
