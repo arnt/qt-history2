@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#121 $
 **
 ** Definition of QIconView widget class
 **
@@ -2848,7 +2848,8 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	if ( item && !item->renameBox ) {
 	    selectAll( FALSE );
 	    item->setSelected( TRUE, TRUE );
-	    emit doubleClicked( item );
+	    if ( e->button() == LeftButton )
+		emit doubleClicked( item );
 	}
     }
 
