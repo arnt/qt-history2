@@ -68,6 +68,12 @@ public:
     QString workingDirectory;
     Q_PID pid;
 
+    bool standardOutputClosed;
+    bool standardErrorClosed;
+
+    bool outputChannelClosing;
+    void closeOutputChannel();
+
     QString program;
     QStringList arguments;
     QStringList environment;
@@ -87,8 +93,8 @@ public:
     QSocketNotifier *writeSocketNotifier;
     QSocketNotifier *startupSocketNotifier;
 
-    // the wonderfull windows notifier
-    QTimer * notifier;
+    // the wonderful windows notifier
+    QTimer *notifier;
     QWindowsPipeWriter *pipeWriter;
     QWinEventNotifier *processFinishedNotifier;
 

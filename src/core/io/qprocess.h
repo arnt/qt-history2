@@ -57,6 +57,9 @@ public:
     ProcessChannel inputChannel() const;
     void setInputChannel(ProcessChannel channel);
 
+    void closeInputChannel(ProcessChannel channel);
+    void closeOutputChannel();
+
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &dir);
 

@@ -150,6 +150,7 @@ QProcessPrivate::QProcessPrivate()
     childStartedPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
+    outputChannelClosing = false;
 #ifdef Q_WS_WIN
     pipeWriter = 0;
     processFinishedNotifier = 0;
@@ -238,6 +239,11 @@ void QProcessPrivate::canReadStandardOutput()
         emit q->error(processError);
         return;
     }
+    if (standardOutputClosed) {
+        outputReadBuffer.truncate(readBytes);
+        return;
+    }
+
     outputReadBuffer.truncate(available - readBytes);
 
     if (readBytes == 0) {
@@ -271,6 +277,11 @@ void QProcessPrivate::canReadStandardError()
         emit q->error(processError);
         return;
     }
+    if (standardErrorClosed) {
+        errorReadBuffer.truncate(readBytes);
+        return;
+    }
+
     errorReadBuffer.truncate(available - readBytes);
 
     if (readBytes == 0) {
@@ -304,8 +315,10 @@ void QProcessPrivate::canWrite()
 
     writeBuffer.free(written);
     emit q->bytesWritten(written);
-    if (writeSocketNotifier)
+    if (writeSocketNotifier && !writeBuffer.isEmpty())
         writeSocketNotifier->setEnabled(true);
+    if (writeBuffer.isEmpty() && outputChannelClosing)
+        closeOutputChannel();
 }
 
 /*! \internal
@@ -357,6 +370,18 @@ void QProcessPrivate::startupNotification()
     }
 }
 
+/*! \internal
+*/
+void QProcessPrivate::closeOutputChannel()
+{
+    if (writeSocketNotifier) {
+        writeSocketNotifier->setEnabled(false);
+        delete writeSocketNotifier;
+        writeSocketNotifier = 0;
+    }
+    destroyPipe(writePipe);
+}
+
 /*!
     Constructs a QProcess object with the given \a parent.
 */
@@ -397,6 +422,59 @@ void QProcess::setInputChannel(ProcessChannel channel)
 {
     Q_D(QProcess);
     d->processChannel = channel;
+}
+
+/*!
+    Closes the input channel \a channel. After calling this function,
+    QProcess will no longer receive data on the channel. Any data that
+    has already been received is still available for reading.
+
+    Call this function to save memory, if you are not interested in
+    the output of the process.
+
+    \sa closeOutputChannel(), setInputChannel()
+*/
+void QProcess::closeInputChannel(ProcessChannel channel)
+{
+    Q_D(QProcess);
+
+    if (channel == StandardOutput)
+        d->standardOutputClosed = true;
+    else
+        d->standardErrorClosed = true;
+}
+
+/*!
+    Schedules the output channel of QProcess to be closed. The channel
+    will close once all data has been written to the process. After
+    calling this function, any attempts to write to the process will
+    fail.
+
+    Closing the output channel is necessary for programs that read
+    input data until the channel has been closed. For example, the
+    program "more" is used to display text data in a console on both
+    Unix and Windows. But it will not display the text data until
+    QProcess' output channel has been closed. Example:
+
+    \code
+        QProcess more;
+        more.start("more");
+        more.write("Text to display");
+        more.closeOutputChannel();
+        // QProcess will emit readyRead() once "more" starts printing
+    \endcode
+
+    The output channel is implicitly opened when start() is called.
+
+    \sa closeInputChannel()
+*/
+void QProcess::closeOutputChannel()
+{
+    Q_D(QProcess);
+    d->outputChannelClosing = true;
+    if (d->writeBuffer.isEmpty())
+        d->closeOutputChannel();
+
 }
 
 /*!
@@ -590,6 +668,11 @@ bool QProcess::waitForReadyRead(int msecs)
     } else if (d->processState != Running)
         return (bytesAvailable() > 0);
 
+    if (d->processChannel == QProcess::StandardOutput && d->standardOutputClosed)
+        return false;
+    if (d->processChannel == QProcess::StandardError && d->standardErrorClosed)
+        return false;
+
     if (d->waitForReadyRead(msecs) || (bytesAvailable() > 0))
         return true;
 
@@ -678,6 +761,10 @@ Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
 #endif
 
     Q_D(QProcess);
+
+    if (d->outputChannelClosing)
+        return 0;
+
     if (len == 1) {
         d->writeBuffer.putChar(*data);
         if (d->writeSocketNotifier)
@@ -743,6 +830,10 @@ void QProcess::start(const QString &program, const QStringList &arguments)
     d->outputReadBuffer.clear();
     d->errorReadBuffer.clear();
     setOpenMode(QIODevice::ReadWrite);
+
+    d->outputChannelClosing = false;
+    d->standardOutputClosed = false;
+    d->standardErrorClosed = false;
 
     d->program = program;
     d->arguments = arguments;

@@ -25,7 +25,6 @@
 #include <qmutex.h>
 #include <qsignal.h>
 #include <qsocketnotifier.h>
-#include <qdebug.h>
 
 #include <errno.h>
 #include <stdlib.h>
@@ -127,8 +126,8 @@ void QProcessManager::deadChildNotification(int)
         if (child) {
             ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
             ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-            qInvokeMetaMember(child, "processDied");
             children.remove(childpid);
+            qInvokeMetaMember(child, "processDied");
         }
     }
 }
