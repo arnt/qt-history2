@@ -15,15 +15,15 @@
 #define OBJECTINSPECTOR_H
 
 #include "objectinspector_global.h"
-
+#include <abstractobjectinspector.h>
 #include <QPointer>
-#include <QTreeWidget>
 
 class AbstractFormEditor;
 class AbstractFormWindow;
 class ObjectItem;
+class TreeWidget;
 
-class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QTreeWidget
+class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public AbstractObjectInspector
 {
     Q_OBJECT
 public:
@@ -32,17 +32,14 @@ public:
 
     virtual AbstractFormEditor *core() const;
 
-public slots:
     void setFormWindow(AbstractFormWindow *formWindow);
-    
+
 private slots:
     void slotSelectionChanged();
-    
-protected:
-    void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
 private:
     AbstractFormEditor *m_core;
+    TreeWidget *m_treeWidget;
     QPointer<AbstractFormWindow> m_formWindow;
     ObjectItem *m_root;
     bool m_ignoreUpdate;

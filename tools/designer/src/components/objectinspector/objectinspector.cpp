@@ -20,6 +20,7 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
 #include <abstractwidgetdatabase.h>
+#include <treewidget.h>
 
 // Qt
 #include <QApplication>
@@ -29,101 +30,38 @@
 #include <QItemDelegate>
 #include <QPair>
 #include <QPainter>
+#include <QVBoxLayout>
 
 #include <qdebug.h>
 
-class ObjectInspectorDelegate: public QItemDelegate
-{
-public:
-    ObjectInspectorDelegate(ObjectInspector *objectInspector)
-        : QItemDelegate(objectInspector) {}
-        
-        
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &opt,
-                       const QModelIndex &index) const
-    {
-        QStyleOptionViewItem option = opt;
-    
-        option.state &= ~(QStyle::Style_Selected | QStyle::Style_HasFocus);
-    
-        if (opt.state & QStyle::Style_Selected)
-            painter->fillRect(option.rect, QColor(230, 230, 230));
-    
-        painter->drawLine(option.rect.x(), option.rect.bottom(),
-                        option.rect.right(), option.rect.bottom());
-    
-        painter->drawLine(option.rect.right(), option.rect.y(),
-                        option.rect.right(), option.rect.bottom());
-    
-        QItemDelegate::paint(painter, option, index);
-    }
-
-    virtual QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
-    {
-        QStyleOptionViewItem option = opt;
-    
-        option.state &= ~(QStyle::Style_Selected | QStyle::Style_HasFocus);
-    
-        return QItemDelegate::sizeHint(option, index) + QSize(4,4);
-    }
-};
-
-
 ObjectInspector::ObjectInspector(AbstractFormEditor *core, QWidget *parent)
-    : QTreeWidget(parent),
+    : AbstractObjectInspector(parent),
       m_core(core),
       m_ignoreUpdate(false)
 {
-    setItemDelegate(new ObjectInspectorDelegate(this));
-    
-    // ### move
-    setAlternatingRowColors(true);
-    setOddRowColor(QColor(250, 248, 235));
-    setEvenRowColor(QColor(255, 255, 255));
-    
-    setColumnCount(2);
-    headerItem()->setText(0, tr("Object"));
-    headerItem()->setText(1, tr("Class"));
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
 
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    header()->setResizeMode(QHeaderView::Stretch, 1);
-    
-    connect(this, SIGNAL(doubleClicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)), 
+    m_treeWidget = new TreeWidget(this);
+    vbox->addWidget(m_treeWidget);
+
+    m_treeWidget->setColumnCount(2);
+    m_treeWidget->headerItem()->setText(0, tr("Object"));
+    m_treeWidget->headerItem()->setText(1, tr("Class"));
+
+    m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    m_treeWidget->header()->setResizeMode(QHeaderView::Stretch, 1);
+
+    connect(m_treeWidget, SIGNAL(doubleClicked(QTreeWidgetItem *, int, Qt::MouseButton, Qt::KeyboardModifiers)),
         this, SLOT(slotSelectionChanged()));
-        
-    connect(this, SIGNAL(returnPressed(QTreeWidgetItem *, int)), 
+
+    connect(m_treeWidget, SIGNAL(returnPressed(QTreeWidgetItem *, int)),
         this, SLOT(slotSelectionChanged()));
 }
 
 ObjectInspector::~ObjectInspector()
 {
 }
-
-void ObjectInspector::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
-{
-    QStyleOptionViewItem opt = viewOptions();
-    QStyleOptionViewItem option = opt;
-
-    if (selectionModel()->isSelected(index))
-        painter->fillRect(rect, QColor(230, 230, 230));
-
-    painter->drawLine(rect.x(), rect.bottom(),
-                      rect.right(), rect.bottom());
-
-    if (model()->hasChildren(index)) {
-        static const int size = 9;
-        int left = rect.width() - (indentation() + size) / 2 ;
-        int top = rect.y() + (rect.height() - size) / 2;
-        painter->drawLine(left + 2, top + 4, left + 6, top + 4);
-        if (!isOpen(index))
-            painter->drawLine(left + 4, top + 2, left + 4, top + 6);
-        QPen oldPen = painter->pen();
-        painter->setPen(opt.palette.dark().color());
-        painter->drawRect(left, top, size - 1, size - 1);
-        painter->setPen(oldPen);
-    }
-}
-
 
 AbstractFormEditor *ObjectInspector::core() const
 {
@@ -134,24 +72,24 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 {
     if (m_ignoreUpdate)
         return;
-    
+
     m_formWindow = fw;
 
-    int xoffset = horizontalScrollBar()->value();
-    int yoffset = verticalScrollBar()->value();
+    int xoffset = m_treeWidget->horizontalScrollBar()->value();
+    int yoffset = m_treeWidget->verticalScrollBar()->value();
 
-    clear();
-    
+    m_treeWidget->clear();
+
     if (!fw)
         return;
 
     AbstractWidgetDataBase *db = fw->core()->widgetDataBase();
 
-    viewport()->setUpdatesEnabled(false);
-    
+    m_treeWidget->viewport()->setUpdatesEnabled(false);
+
     QStack< QPair<QTreeWidgetItem*, QObject*> > workingList;
     QObject *rootObject = fw->mainContainer();
-    workingList.append(qMakePair(new QTreeWidgetItem(this), rootObject));
+    workingList.append(qMakePair(new QTreeWidgetItem(m_treeWidget), rootObject));
 
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
@@ -161,7 +99,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         QString objectName = object->objectName();
         if (objectName.isEmpty())
             objectName = tr("<noname>");
-        
+
         item->setText(0, objectName);
 
         QString className;
@@ -170,11 +108,11 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             item->setText(1, className);
             item->setIcon(0, widgetItem->icon());
         }
-        
+
         QVariant ptr;
         qVariantSet(ptr, object, "QObject");
         item->setData(0, 1000, ptr);
-            
+
         if (IContainer *c = qt_extension<IContainer*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {
                 QObject *page = c->widget(i);
@@ -193,24 +131,24 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             }
         }
 
-        openItem(item);
+        m_treeWidget->openItem(item);
     }
 
-    horizontalScrollBar()->setValue(xoffset);
-    verticalScrollBar()->setValue(yoffset);
+    m_treeWidget->horizontalScrollBar()->setValue(xoffset);
+    m_treeWidget->verticalScrollBar()->setValue(yoffset);
 
-    viewport()->setUpdatesEnabled(true);
-    viewport()->update();
+    m_treeWidget->viewport()->setUpdatesEnabled(true);
+    m_treeWidget->viewport()->update();
 }
 
 void ObjectInspector::slotSelectionChanged()
 {
     if (!m_formWindow)
         return;
-        
+
     m_formWindow->clearSelection(false);
- 
-    QList<QTreeWidgetItem*> items = selectedItems();
+
+    QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = 0;
         Q_ASSERT(qVariantGet(item->data(0, 1000), object, "QObject"));

@@ -51,6 +51,7 @@
 #include <QVariant>
 #include <QStatusBar>
 #include <QSettings>
+#include <QPixmap>
 
 #include <qevent.h>
 #include <qdebug.h>
@@ -181,7 +182,7 @@ void MainWindow::windowChanged()
         m_tabOrderEditMode->setChecked(fw->editMode() == AbstractFormWindow::TabOrderEditMode);
     } else {
         //### re-enable when the bug in QAbstractItemView::reset() is fixed
-        if (ObjectInspector *objectInspector = core->objectInspector())
+        if (AbstractObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(0);
 
         if (AbstractPropertyEditor *propertyEditor = core->propertyEditor())
@@ -220,7 +221,7 @@ void MainWindow::selectionChanged()
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
         QWidget *sel = fw->cursor()->selectedWidget(0);
 
-        if (ObjectInspector *objectInspector = core->objectInspector())
+        if (AbstractObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(fw);
 
         if (AbstractPropertyEditor *propertyEditor = core->propertyEditor()) {
@@ -229,7 +230,7 @@ void MainWindow::selectionChanged()
 
         enableFormActions(true);
     } else {
-        if (ObjectInspector *objectInspector = core->objectInspector())
+        if (AbstractObjectInspector *objectInspector = core->objectInspector())
             objectInspector->setFormWindow(0);
 
         if (AbstractPropertyEditor *propertyEditor = core->propertyEditor())
@@ -242,12 +243,22 @@ void MainWindow::selectionChanged()
 void MainWindow::propertyChanged(const QString &name, const QVariant &value)
 {
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
-        if (name == QLatin1String("windowTitle")) {
-            QString filename = fw->fileName().isEmpty() ? QLatin1String("Untitled")
-                                                        : fw->fileName();
-            fw->setWindowTitle(QString("%1 - (%2)").arg(value.toString()).arg(filename));
-        }
+
         fw->cursor()->setProperty(name, value);
+
+        if (name == QLatin1String("windowTitle")) {
+            QString filename = fw->fileName().isEmpty()
+                ? QString::fromLatin1("Untitled")
+                : fw->fileName();
+
+            fw->setWindowTitle(QString::fromLatin1("%1 - (%2)")
+                    .arg(value.toString())
+                    .arg(filename));
+
+        } else if (name == QLatin1String("geometry")) {
+            fw->setGeometry(value.toRect());
+        }
+
         if (core->objectInspector())
             core->objectInspector()->setFormWindow(fw);
     }

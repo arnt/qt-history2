@@ -17,6 +17,7 @@
 #include "sdk_global.h"
 
 #include <QObject>
+#include <QPointer>
 
 class AbstractWidgetBox;
 class AbstractPropertyEditor;
@@ -25,11 +26,11 @@ class AbstractWidgetDataBase;
 class AbstractMetaDataBase;
 class AbstractWidgetFactory;
 class AbstractDnDManager;
+class AbstractObjectInspector;
 
 class QWidget;
 
 class QExtensionManager;
-class ObjectInspector;
 
 class QT_SDK_EXPORT AbstractFormEditor: public QObject
 {
@@ -38,99 +39,44 @@ public:
     AbstractFormEditor(QObject *parent = 0);
     virtual ~AbstractFormEditor();
 
-    inline QExtensionManager *extensionManager() const;
+    QExtensionManager *extensionManager() const;
 
-    inline QWidget *topLevel() const;
-    inline AbstractWidgetBox *widgetBox() const;
-    inline AbstractPropertyEditor *propertyEditor() const;
-    inline AbstractFormWindowManager *formWindowManager() const;
-    inline AbstractWidgetDataBase *widgetDataBase() const;
-    inline AbstractMetaDataBase *metaDataBase() const;
-    inline AbstractWidgetFactory *widgetFactory() const;
+    QWidget *topLevel() const;
+    AbstractWidgetBox *widgetBox() const;
+    AbstractPropertyEditor *propertyEditor() const;
+    AbstractFormWindowManager *formWindowManager() const;
+    AbstractWidgetDataBase *widgetDataBase() const;
+    AbstractMetaDataBase *metaDataBase() const;
+    AbstractWidgetFactory *widgetFactory() const;
 
-    inline ObjectInspector *objectInspector() const; // ### abstract
+    AbstractObjectInspector *objectInspector() const;
 
-    inline void setTopLevel(QWidget *topLevel);
-    inline void setWidgetBox(AbstractWidgetBox *widgetBox);
-    inline void setPropertyEditor(AbstractPropertyEditor *propertyEditor);
-    inline void setObjectInspector(ObjectInspector *objectInspector); // ### abstract
+    void setTopLevel(QWidget *topLevel);
+    void setWidgetBox(AbstractWidgetBox *widgetBox);
+    void setPropertyEditor(AbstractPropertyEditor *propertyEditor);
+    void setObjectInspector(AbstractObjectInspector *objectInspector);
 
 protected:
-    inline void setFormManager(AbstractFormWindowManager *formWindowManager);
-    inline void setMetaDataBase(AbstractMetaDataBase *metaDataBase);
-    inline void setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase);
-    inline void setWidgetFactory(AbstractWidgetFactory *widgetFactory);
-    inline void setExtensionManager(QExtensionManager *extensionManager);
+    void setFormManager(AbstractFormWindowManager *formWindowManager);
+    void setMetaDataBase(AbstractMetaDataBase *metaDataBase);
+    void setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase);
+    void setWidgetFactory(AbstractWidgetFactory *widgetFactory);
+    void setExtensionManager(QExtensionManager *extensionManager);
 
 private:
-    QWidget *m_topLevel;
-    AbstractWidgetBox *m_widgetBox;
-    AbstractPropertyEditor *m_propertyEditor;
-    AbstractFormWindowManager *m_formWindowManager;
-    QExtensionManager *m_extensionManager;
-    AbstractMetaDataBase *m_metaDataBase;
-    AbstractWidgetDataBase *m_widgetDataBase;
-    AbstractWidgetFactory *m_widgetFactory;
-    ObjectInspector *m_objectInspector;
+    QPointer<QWidget> m_topLevel;
+    QPointer<AbstractWidgetBox> m_widgetBox;
+    QPointer<AbstractPropertyEditor> m_propertyEditor;
+    QPointer<AbstractFormWindowManager> m_formWindowManager;
+    QPointer<QExtensionManager> m_extensionManager;
+    QPointer<AbstractMetaDataBase> m_metaDataBase;
+    QPointer<AbstractWidgetDataBase> m_widgetDataBase;
+    QPointer<AbstractWidgetFactory> m_widgetFactory;
+    QPointer<AbstractObjectInspector> m_objectInspector;
 
 private:
     AbstractFormEditor(const AbstractFormEditor &other);
     void operator = (const AbstractFormEditor &other);
 };
-
-inline AbstractWidgetBox *AbstractFormEditor::widgetBox() const
-{ return m_widgetBox; }
-
-inline void AbstractFormEditor::setWidgetBox(AbstractWidgetBox *widgetBox)
-{ m_widgetBox = widgetBox; }
-
-inline AbstractPropertyEditor *AbstractFormEditor::propertyEditor() const
-{ return m_propertyEditor; }
-
-inline void AbstractFormEditor::setPropertyEditor(AbstractPropertyEditor *propertyEditor)
-{ m_propertyEditor = propertyEditor; }
-
-inline QWidget *AbstractFormEditor::topLevel() const
-{ return m_topLevel; }
-
-inline void AbstractFormEditor::setTopLevel(QWidget *topLevel)
-{ m_topLevel = topLevel; }
-
-inline AbstractFormWindowManager *AbstractFormEditor::formWindowManager() const
-{ return m_formWindowManager; }
-
-inline void AbstractFormEditor::setFormManager(AbstractFormWindowManager *formWindowManager)
-{ m_formWindowManager = formWindowManager; }
-
-inline QExtensionManager *AbstractFormEditor::extensionManager() const
-{ return m_extensionManager; }
-
-inline void AbstractFormEditor::setExtensionManager(QExtensionManager *extensionManager)
-{ m_extensionManager = extensionManager; }
-
-inline AbstractMetaDataBase *AbstractFormEditor::metaDataBase() const
-{ return m_metaDataBase; }
-
-inline void AbstractFormEditor::setMetaDataBase(AbstractMetaDataBase *metaDataBase)
-{ m_metaDataBase = metaDataBase; }
-
-inline AbstractWidgetDataBase *AbstractFormEditor::widgetDataBase() const
-{ return m_widgetDataBase; }
-
-inline void AbstractFormEditor::setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase)
-{ m_widgetDataBase = widgetDataBase; }
-
-inline AbstractWidgetFactory *AbstractFormEditor::widgetFactory() const
-{ return m_widgetFactory; }
-
-inline void AbstractFormEditor::setWidgetFactory(AbstractWidgetFactory *widgetFactory)
-{ m_widgetFactory = widgetFactory; }
-
-inline ObjectInspector *AbstractFormEditor::objectInspector() const
-{ return m_objectInspector; }
-
-inline void AbstractFormEditor::setObjectInspector(ObjectInspector *objectInspector)
-{ m_objectInspector = objectInspector; }
-
 
 #endif // ABSTRACTFORMEDITOR_H

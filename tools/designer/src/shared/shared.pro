@@ -25,7 +25,8 @@ HEADERS += \
     connectionedit.h \
     qtundo.h \
     pluginmanager.h \
-    qdesigner_formbuilder.h
+    qdesigner_formbuilder.h \
+    treewidget.h
 
 SOURCES += \
     spacer.cpp \
@@ -33,7 +34,9 @@ SOURCES += \
     connectionedit.cpp \
     qtundo.cpp \
     pluginmanager.cpp \
-    qdesigner_formbuilder.cpp
+    qdesigner_formbuilder.cpp \
+    treewidget.cpp
+
 
 
 

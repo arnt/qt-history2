@@ -1,0 +1,31 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef TREEWIDGET_H
+#define TREEWIDGET_H
+
+#include "shared_global.h"
+#include <QTreeWidget>
+
+class QT_SHARED_EXPORT TreeWidget: public QTreeWidget
+{
+    Q_OBJECT
+public:
+    TreeWidget(QWidget *parent = 0);
+    virtual ~TreeWidget();
+
+protected:
+    void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
+};
+
+#endif // TREEWIDGET_H
