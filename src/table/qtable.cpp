@@ -151,13 +151,15 @@ private:
 
 struct QTablePrivate
 {
-    QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE )
+    QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ),
+	redirectMouseEvent( FALSE )
     {
 	hiddenRows.setAutoDelete( TRUE );
 	hiddenCols.setAutoDelete( TRUE );
     }
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
+    uint redirectMouseEvent : 1;
     QIntDict<int> hiddenRows, hiddenCols;
     QTimer *geomTimer;
 };
@@ -3124,6 +3126,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
     mousePressed = TRUE;
     if ( isEditing() )
 	endEdit( editRow, editCol, TRUE, edMode != Editing );
+    d->redirectMouseEvent = FALSE;
 
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
@@ -3194,6 +3197,17 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
+	if ( item( tmpRow, tmpCol ) &&
+	     item( tmpRow, tmpCol )->editType() == QTableItem::WhenCurrent ) {
+	    d->redirectMouseEvent = TRUE;
+	    QWidget *w = cellWidget( tmpRow, tmpCol );
+	    if ( w ) {
+		QMouseEvent ev( e->type(), w->mapFromGlobal( e->globalPos() ),
+				e->globalPos(), e->button(), e->state() );
+		QApplication::sendPostedEvents( w, 0 );
+		QApplication::sendEvent( w, &ev );
+	    }
+	}
 	if ( isSelected( tmpRow, tmpCol, FALSE ) ) {
 	    shouldClearSelection = TRUE;
 	} else {
@@ -3416,6 +3430,18 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
     }
     mousePressed = FALSE;
     autoScrollTimer->stop();
+
+    if ( d->redirectMouseEvent && pressedRow == curRow && pressedCol == curCol &&
+	 item( pressedRow, pressedCol ) && item( pressedRow, pressedCol )->editType() ==
+	 QTableItem::WhenCurrent ) {
+	QWidget *w = cellWidget( pressedRow, pressedCol );
+	if ( w ) {
+	    QMouseEvent ev( e->type(), w->mapFromGlobal( e->globalPos() ),
+			    e->globalPos(), e->button(), e->state() );
+	    QApplication::sendPostedEvents( w, 0 );
+	    QApplication::sendEvent( w, &ev );
+	}
+    }
 }
 
 /*!
