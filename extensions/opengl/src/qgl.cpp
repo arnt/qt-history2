@@ -938,7 +938,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 
 /*!
-  \fn void QGLContext::swapBuffers()
+  \fn void QGLContext::swapBuffers() const
 
   Swaps the screen contents with an off-screen buffer. Works only if
   the context is in double buffer mode.
