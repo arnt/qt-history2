@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#243 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#244 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -514,7 +514,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent * e)
 {
-    qDebug("focus in, reason %d", e->reason() );
     d->pmDirty = TRUE;
     cursorOn = FALSE;
     blinkOn();
@@ -529,7 +528,6 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
 {
-    qDebug("focus out, reason %d", e->reason() );
     if ( style() == WindowsStyle ) {
 #if defined(_WS_X11_)
 	// X11 users are very accustomed to "auto-copy"
