@@ -4424,6 +4424,23 @@ QPointArray QCanvasLine::areaPoints() const
     return p;
 }
 
+/*! 
+    \reimp
+
+*/
+
+void QCanvasLine::moveBy(double dx, double dy)
+{
+    if (dx || dy) {
+	removeFromChunks();
+	x1 += dx;
+	y1 += dy;
+	x2 += dx;
+	y2 += dy;
+	addToChunks();
+    }
+}
+
 /*!
     \class QCanvasRectangle qcanvas.h
     \brief The QCanvasRectangle class provides a rectangle on a QCanvas.

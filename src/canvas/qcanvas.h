@@ -658,6 +658,7 @@ public:
     static int RTTI;
 
     void setPen(QPen p);
+    void moveBy(double dx, double dy);
 
 protected:
     void drawShape(QPainter &);
