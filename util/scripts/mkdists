@@ -686,21 +686,19 @@ copy_platform_files() {
 
 remove_file_and_includes() 
 {
-    file="$PLATDIR/$1"
-    include_dir="$PLATDIR/include"
-    [ "$#" -gt 1 ] && include_dir="$2"
-    [ ! -e "$file" ] && return 1
-    if [ -d "$file" ]; then
-	HEADER_FILES=`find $file -name *.h`
-	rm -rf $file
-	for a in $HEADER_FILES; do
-	    base=`basename $a`
-	    [ -e "$include_dir/$base" ] && rm -f "$include_dir/$base"
+    for a in $@; do
+	file="$PLATDIR/$a"
+	[ ! -e "$file" ] && continue
+	HEADER_FILES="$file"
+	[ -d "$file" ] && HEADER_FILES=`find $file -name *.h`
+	for include_dir in "$PLATDIR/include" "$PLATDIR/include/private"; do
+	    for a in $HEADER_FILES; do
+		base=`basename $a`
+		[ -e "$include_dir/$base" ] && rm -f "$include_dir/$base"
+	    done
 	done
-    else
-	base=`basename $file`
-	rm -rf "$file" "$include_dir/$base"
-    fi
+	rm -rf $file
+    done
 }
 
 for plat in mac win x11 qnx6 embedded; do
@@ -792,8 +790,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
 	esac
-	remove_file_and_includes "extensions/nsplugin" #we don't distribute the nsplugin anymore
-	remove_file_and_includes "extensions/xt" #and neither the xt extension
+	remove_file_and_includes "extensions/nsplugin" "extensions/xt" #we don't distribute these anymore
 	
 	if [ "$plat" != "embedded" ] && [ "$plat" != "qnx6" ]; then
 	    #Remove embedded from mkspec so that configure does not think we are running embedded
@@ -808,10 +805,8 @@ for plat in mac win x11 qnx6 embedded; do
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
 	if [ "$plat" != "mac" ]; then
-	    remove_file_and_includes "src/styles/qaquastyle.h"
-	    remove_file_and_includes "src/styles/qaquastyle_p.h"
-	    remove_file_and_includes "src/styles/qaquastylepix_p.h"
-	    remove_file_and_includes "src/styles/qaquastyle_p.cpp"
+	    remove_file_and_includes "src/styles/qaquastyle.h" "src/styles/qaquastyle_p.h"
+	    remove_file_and_includes "src/styles/qaquastylepix_p.h" "src/styles/qaquastyle_p.cpp"
 	    rm -rf "$PLATDIR/plugins/src/styles/aqua" "$PLATDIR/plugins/src/styles/mac"
 	fi
 
@@ -834,8 +829,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -f "$PLATDIR/src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		remove_file_and_includes "extensions/xt"
-		remove_file_and_includes "extensions/motif"
+		remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 	    elif [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
@@ -844,8 +838,7 @@ for plat in mac win x11 qnx6 embedded; do
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    elif [ "$plat" = "mac" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-		remove_file_and_includes "extensions/xt"
-		remove_file_and_includes "extensions/motif"
+		remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
@@ -863,8 +856,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    #Unix only code
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
-	    remove_file_and_includes "extensions/xt"
-	    remove_file_and_includes "extensions/motif"
+	    remove_file_and_includes "extensions/xt" "extensions/motif" #x11 only
 	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
