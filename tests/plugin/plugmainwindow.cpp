@@ -47,6 +47,8 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 
 PlugMainWindow::~PlugMainWindow()
 {
+    QWidgetFactory::removeWidgetFactory( widgetManager );
+    QActionFactory::removeActionFactory( actionManager );
     delete widgetManager;
     delete actionManager;
 }
