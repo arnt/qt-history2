@@ -173,6 +173,10 @@ void ConfigureApp::parseCmdLine()
 	    ++args;
 	    qmakeIncludes += (*args);
 	}
+	else if( (*args) == "-l" ) {
+	    ++args;
+	    qmakeLibs += (*args);
+	}
 	else if( (*args) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( (*args) == "-dsp" )
@@ -299,7 +303,7 @@ bool ConfigureApp::displayHelp()
 	cout << "                    (qt.pro, qtmain.pro)." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
-//	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
+	cout << "-l <library>        Add <library> to the library list." << endl;
 	cout << "-enable-*           Enable the specified module, where module is one of" << endl;
 	cout << "                    " << modules.join( " " ) << endl;
 	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
@@ -341,6 +345,9 @@ void ConfigureApp::generateOutputVars()
 	qmakeDefines += "QT_NO_STL";
     }
 
+    if( !qmakeLibs.isEmpty() ) {
+	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
+    }
     qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
 
     qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
@@ -430,10 +437,16 @@ void ConfigureApp::generateCachefile()
 
 void ConfigureApp::generateConfigfiles()
 {
-    QString outName( qtDir + "/include/qconfig.h" );
+    QString outDir( qtDir + "/include" );
 
-//    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
-//    QFile::remove( outName );
+
+    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
+	outDir = qtDir + "/src/tools";
+
+    QString outName( outDir + "/qconfig.h" );
+
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
     QFile outFile( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -461,12 +474,13 @@ void ConfigureApp::generateConfigfiles()
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 
 	outFile.close();
-//	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
-    outName = qtDir + "/include/qmodules.h";
+    outName = outDir + "/qmodules.h";
 
-//    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
-//    QFile::remove( outName );
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
     outFile.setName( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -484,7 +498,8 @@ void ConfigureApp::generateConfigfiles()
 	    outStream << "#endif" << endl;
 	}
 	outFile.close();
-//	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
+	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
 
 }
@@ -511,9 +526,18 @@ void ConfigureApp::displayConfig()
 	    cout << (*incs) << " ";
 	cout << endl;
     }
+    if( !qmakeLibs.isEmpty() ) {
+	cout << "Additional libraries........";
+	for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
+	    cout << (*libs) << " ";
+	cout << endl;
+    }
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" ) {
 	cout << "Licensing forced to professional edition.  If this is not what you want, unset" << endl;
 	cout << "the FORCE_PROFESSIONAL environment variable." << endl <<endl;
+    }
+    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
+	cout << "Using internal configuration." << endl;
     }
 }
 
