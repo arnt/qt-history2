@@ -183,7 +183,7 @@ inline int QScrollBar::sliderStart() const
     return sliderPos;
 }
 
-inline void QScrollBar::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
+inline void QScrollBar::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 { 
     QWidget::setSizePolicy( hor, ver, hfw ); 
 }
