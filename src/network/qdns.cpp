@@ -1028,11 +1028,11 @@ void QDnsManager::answer()
     QDnsQuery * q = queries[i];
     QDnsAnswer answer( a, q );
     answer.parse();
-    answer.notify();
-    if ( answer.ok ) {
+    if ( answer.ok )
 	queries.take( i );
+    answer.notify();
+    if ( answer.ok )
 	delete q;
-    }
 }
 
 
