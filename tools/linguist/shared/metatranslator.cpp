@@ -264,8 +264,8 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
 		    utfeight = TRUE;
 		    break;
 		}
+		i++;
 	    }
-	    i++;
 	}
 	if ( !utfeight && comment != 0 ) {
 	    int i = 0;
@@ -274,8 +274,8 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
 		    utfeight = TRUE;
 		    break;
 		}
+		i++;
 	    }
-	    i++;
 	}
     }
 }
