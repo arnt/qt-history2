@@ -438,9 +438,12 @@ fi
 
 QT_CXX=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
+[ "x$GIF" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_BUILTIN_GIF_READER"
 [ "x$JPEG" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_JPEG_SUPPORT"
+[ "x$JPEG" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_JPEG_SUPPORT"
 [ "x$NAS_SOUND" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_NAS_SUPPORT"
 [ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SM_SUPPORT"
+[ "x$SM" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_SM_SUPPORT"
 [ "x$THREAD" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_QT_THREAD_SUPPORT"
 [ "x$ZLIB" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/zlib"
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
