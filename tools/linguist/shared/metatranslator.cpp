@@ -446,7 +446,25 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 		    unfinished++;
 		else
 		    finished++;
-		tor.insert( m.key() );
+
+		QCString context = m.key().context();
+		QCString sourceText = m.key().sourceText();
+		QCString comment = m.key().comment();
+
+		/*
+		  Drop the comment in (context, sourceText, comment),
+		  unless (context, sourceText, "") already exists, or
+		  unless we already dropped the comment of (context,
+		  sourceText, comment0).
+		*/
+		if ( comment.isEmpty()
+		     || contains(context, sourceText, "")
+		     || !tor.findMessage(context, sourceText, "").translation()
+			    .isNull() ) {
+		    tor.insert( m.key() );
+		} else {
+		    tor.insert( QTranslatorMessage(context, sourceText, "") );
+		}
 	    }
 	}
     }

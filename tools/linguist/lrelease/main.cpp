@@ -29,8 +29,8 @@ typedef QValueList<MetaTranslatorMessage> TML;
 static void printUsage()
 {
     fprintf( stderr, "Usage:\n"
-	      "    lrelease [ options ] project-file\n"
-	      "    lrelease [ options ] ts-files\n"
+	      "    lrelease [options] project-file\n"
+	      "    lrelease [options] ts-files\n"
 	      "Options:\n"
 	      "    -help  Display this information and exit\n"
 	      "    -verbose\n"
@@ -43,8 +43,8 @@ static void releaseQmFile( const QString& tsFileName, bool verbose )
 {
     MetaTranslator tor;
     QString qmFileName = tsFileName;
-    qmFileName.replace( QRegExp(QString("\\.ts$")), QString::null );
-    qmFileName += QString( ".qm" );
+    qmFileName.replace( QRegExp("\\.ts$"), "" );
+    qmFileName += ".qm";
 
     if ( tor.load(tsFileName) ) {
 	if ( verbose )
@@ -91,12 +91,14 @@ int main( int argc, char **argv )
 	QString fullText = t.read();
 	f.close();
 
-	if ( fullText.find(QString("<!DOCTYPE TS>")) == -1 ) {
+	if ( fullText.find(QString("<!DOCTYPE TS>")) >= 0 ) {
+	    releaseQmFile( argv[i], verbose );
+	} else {
 	    QMap<QString, QString> tagMap = proFileTagMap( fullText );
 	    QMap<QString, QString>::Iterator it;
 
 	    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-        	QStringList toks = QStringList::split( QChar(' '), it.data() );
+        	QStringList toks = QStringList::split( ' ', it.data() );
 		QStringList::Iterator t;
 
         	for ( t = toks.begin(); t != toks.end(); ++t ) {
@@ -111,8 +113,6 @@ int main( int argc, char **argv )
 			 "lrelease warning: Met no 'TRANSLATIONS' entry in"
 			 " project file '%s'\n",
 			 argv[i] );
-	} else {
-	    releaseQmFile( QString(argv[i]), verbose );
 	}
     }
 
