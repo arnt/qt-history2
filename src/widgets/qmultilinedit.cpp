@@ -1,11 +1,19 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#63 $
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+**
+**
+**
+**
+**
+**
+**
+**
 **
 ***********************************************************************/
 
@@ -1573,9 +1581,29 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     }
     newY = QMIN( (int)contents->count() - 1, newY );
     QFontMetrics fm( font() );
-    int newX = xPosToCursorPos( *getString( newY ), fm,
+    QString *s = getString( newY );
+    int newX = xPosToCursorPos( *s, fm,
 				e->pos().x() - BORDER + xOffset(),
 				cellWidth() - 2 * BORDER );
+
+    if ( markWord ) {
+	if ( markAnchorY < markDragY || markAnchorY == markDragY
+	     && markAnchorX < markDragX ) {
+	    // going right
+	    int i = newX;
+	    int lim = s->length();
+	    while ( i < lim && isprint(s->at(i)) && !isspace(s->at(i)) )
+		i++;
+	    newX = i;
+	} else {
+	    // going left
+	    int i = newX;
+	    while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
+		i--;
+	    i++;
+	    newX = i;
+	}
+    }
 
     if ( markDragX == newX && markDragY == newY )
 	return;
@@ -1613,6 +1641,7 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
     if ( m->button() ==  LeftButton ) {
 	dragMarking    = TRUE;
 	markWord( cursorX, cursorY );
+	wordMark = TRUE;
 	updateCell( cursorY, 0, FALSE );
     }
 }
