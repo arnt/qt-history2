@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#123 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#124 $
 **
 ** Global type declarations and definitions
 **
@@ -25,8 +25,8 @@
 #define QGLOBAL_H
 
 
-#define QT_VERSION	140
-#define QT_VERSION_STR	"1.40"
+#define QT_VERSION	139
+#define QT_VERSION_STR	"1.39-snapshot"
 
 
 //
