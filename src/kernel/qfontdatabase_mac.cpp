@@ -34,6 +34,7 @@ void QFontDatabase::createDatabase()
 {
     if(db) return;
     db = new QFontDatabasePrivate;
+    qfontdatabase_cleanup.set(&db);
 
 
     QString foundry_name = "Mac";
@@ -71,7 +72,7 @@ void QFontDatabase::createDatabase()
 
 	    QtFontFamily *family = db->family( fam_name, TRUE );
 	    QtFontFoundry *foundry = family->foundry( foundry_name, TRUE );
-	    
+
 	    FMFontFamilyInstanceIterator fit;
 	    if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
 		FMFont font;
@@ -85,7 +86,7 @@ void QFontDatabase::createDatabase()
 		    styleKey.italic = italic;
 		    styleKey.oblique = false;
 		    styleKey.weight = weight;
-		    
+
 		    QtFontStyle *style = foundry->style( styleKey, TRUE );
 		    style->smoothScalable = TRUE;
 
@@ -116,7 +117,7 @@ void QFontDatabase::createDatabase()
     }
 }
 
-static inline void load(const QString & = QString::null, int = -1 ) 
+static inline void load(const QString & = QString::null, int = -1 )
 {
 }
 

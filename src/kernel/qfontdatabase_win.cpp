@@ -375,6 +375,8 @@ static void initializeDb()
     if ( db ) return;
 
     db = new QFontDatabasePrivate;
+    qfontdatabase_cleanup.set(&db);
+
     populate_database( QString::null );
 
 #ifdef QFONTDATABASE_DEBUG

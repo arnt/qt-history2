@@ -45,6 +45,8 @@
 #include <private/qunicodetables_p.h>
 #include "qfontengine_p.h"
 
+#include <qcleanuphandler.h>
+
 #include <stdlib.h>
 
 // #define QFONTDATABASE_DEBUG
@@ -184,11 +186,13 @@ struct QtFontStyle
     }
 
     ~QtFontStyle() {
-	free( pixelSizes );
-#ifdef Q_WS_x11
+#ifdef Q_WS_X11
 	delete [] weightName;
 	delete [] setwidthName;
+	while ( count-- )
+	    free(pixelSizes[count].encodings);
 #endif
+	free( pixelSizes );
     }
 
     Key key;
@@ -586,6 +590,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp, const QFo
 
 
 
+static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
 static QFontDatabasePrivate *db=0;
 #define SMOOTH_SCALABLE 0xffff
 

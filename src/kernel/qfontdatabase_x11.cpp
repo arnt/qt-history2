@@ -1087,6 +1087,7 @@ static void initializeDb()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
+    qfontdatabase_cleanup.set(&db);
 
     memset( encodingLoaded, FALSE, sizeof( encodingLoaded ) );
 

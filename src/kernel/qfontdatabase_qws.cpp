@@ -67,6 +67,7 @@ void QFontDatabase::createDatabase()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
+    qfontdatabase_cleanup.set(&db);
 
     if(!qt_fontmanager)
         qt_fontmanager=new QFontManager();
