@@ -105,15 +105,17 @@ int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
     QDir dir(d, stem + "*.lib");
-    QRegExp num("[0-9]*");
+    QStringList entries = dir.entryList();
     int nbeg, nend, biggest=-1;
-    for(int x=0; x < dir.count(); x++) {
-	if((nbeg = num.match(d[x], 0, &nend)) != -1) {
-	    int n = QString(d[x]).mid(nbeg, nend - nbeg).toInt();
+    for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
+	if((nbeg = (*it).find(QRegExp("[0-9]"))) != -1) {
+	    nend = (*it).findRev(QRegExp("[0-9]", nbeg)) + 1;
+	    int n = (*it).mid(nbeg, nend - nbeg).toInt();
 	    if(n > biggest)
 		biggest = n;
 	}
     }
+    return biggest;
 }
 
 

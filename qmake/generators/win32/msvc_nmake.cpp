@@ -250,7 +250,10 @@ NmakeMakefileGenerator::init()
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d.lib", hver);
-		    project->variables()["TMAKE_LIBS"].first().replace(QRegExp("qt\\.lib"), ver);
+
+		    QStringList &libs = project->variables()["TMAKE_LIBS"];
+		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
+			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_DLL"];

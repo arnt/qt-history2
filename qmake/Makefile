@@ -1,5 +1,6 @@
 #qmake code
-OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj
+OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
+	winmakefile.obj
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
@@ -106,6 +107,9 @@ makefile.obj: generators\makefile.cpp
 
 unixmake.obj: generators\unix\unixmake.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) generators\unix\unixmake.cpp
+
+winmakefile.obj: generators/win32/winmakefile.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) generators/win32/winmakefile.cpp
 
 borland_bmake.obj: generators/win32/borland_bmake.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) generators/win32/borland_bmake.cpp

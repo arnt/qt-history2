@@ -109,7 +109,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 					"\t%QTDIR%\\bin\\moc.exe " + mocablesFromMOC[(*it)] + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "\"" << mocablesFromMOC[(*it)] << "\"" << endl << endl;
+			t << "USERDEP_" << base << "=\"" << mocablesFromMOC[(*it)] << "\"" << endl << endl;
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" 
 			  << build << "!ENDIF " << endl << endl;
@@ -262,9 +262,11 @@ DspMakefileGenerator::init()
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
-		    project->variables()["TMAKE_LIBS"].first().replace(QRegExp("qt\\.lib"), ver);
+		    QStringList &libs = project->variables()["TMAKE_LIBS"];
+		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
+			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
-		if ( project->isActiveConfig("dll") ) {
+		 if ( project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] +=project->variables()["TMAKE_LIBS_QT_DLL"];
 		}
 	    }
@@ -292,8 +294,9 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
-	    project->variables()["TARGET_EXT"].append(
-		QStringList::split('.', project->variables()["VERSION"].first())[0] + ".dll");
+	    QString ver_xyz(project->variables()["VERSION"].first());
+	    ver_xyz.replace(QRegExp("\\."), "");
+	    project->variables()["TARGET_EXT"].append(ver_xyz + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
@@ -318,7 +321,7 @@ DspMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner));
     }
     MakefileGenerator::init();
-#if 0 //FIXME?
+#if defined(_OS_WIN32_) && 0
     tmake_use_win32_registry();
     $HKEY_CURRENT_USER->Open("Software\\Microsoft\\DevStudio\\5.0",$is_msvc5);
     if ( $is_msvc5 ) {
@@ -372,8 +375,9 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_TARGET"].append(
 	    QString("/out:\"") + project->variables()["TARGET"].first() + "\"");
 	if ( project->isActiveConfig("dll") ) {
-	    project->variables()["MSVCDSP_TARGET"].append(
-		QString(" /implib:\"") + project->variables()["TARGET"].first() + "\"");
+	    QString imp = project->variables()["TARGET"].first();
+	    imp.replace(QRegExp("\\.dll"), ".lib");
+	    project->variables()["MSVCDSP_TARGET"].append(QString(" /implib:\"") + imp + "\"");
 	}
     }
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
@@ -399,7 +403,7 @@ DspMakefileGenerator::findTemplate(QString file)
 {
     QString ret;
     if(!QFile::exists(ret = file) && !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))) &&
-       !QFile::exists((ret = (QString(getenv("QTDIR")) + "/mkspecs/etc/" + file))))
+	!QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/etc/" + file)))
 	return "";
     return ret;
 }
