@@ -146,9 +146,10 @@
   required; for example to indicate whether the user pressed "OK" or
   "Cancel". A dialog can be closed by calling the accept() or the
   reject() slots, and exec() will return \c Accepted or \c Rejected as
-  appropriate. After the exec() call has returned the result is
-  available from result(). Note that if the \c WDestructiveClose flag
-  is set, then when accept() returns the dialog is deleted.
+  appropriate. The exec() call returns the result of the dialog. The
+  result is also available from result() if the dialog has not been
+  destroyed. If the \c WDestructiveClose flag is set, then when exec()
+  returns the dialog is deleted.
 
   \target examples
   \section1 Examples
@@ -319,6 +320,9 @@ void QDialog::hideDefault()
   \fn int  QDialog::result() const
 
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
+
+  Do not call this function if the dialog was constructed with the \c
+  WDestructiveClose flag. (exec() returns the result code anyway.)
 */
 
 /*!
@@ -395,7 +399,7 @@ void QDialog::done( int r )
 	qApp->quit();
 
     if ( testWFlags(WDestructiveClose) )
-	delete this;
+	deleteLater();
 }
 
 /*!

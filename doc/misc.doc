@@ -1005,8 +1005,10 @@ pages provide information about how to secure your server.
 
 \title Mailing Lists
 
-Trolltech operates two mailing lists for Qt users:
-\c qt-announce and \c qt-interest.
+Trolltech operates several mailing lists for Qt users including
+\c qt-announce, \c qt-interest and \c snapshot-users.
+
+See \l{http://www.trolltech.com/developer/mailinglists/}.
 
 \section1 qt-announce
 
@@ -1035,7 +1037,6 @@ list, similarly send an email containing just the word
 \link mailto:qt-announce-request@trolltech.com
 qt-announce-request@trolltech.com\endlink.
 
-
 \section1 qt-interest
 
 This mailing list is a discussion forum for Qt users. Typical traffic
@@ -1043,7 +1044,7 @@ is 10 to 20 messages per day.
 
 An archive of the messages from qt-interest is available on the Trolltech
 web site:
-\link http://www.trolltech.com/qt-interest/ Qt Mailing List Archive\endlink.
+\link http://lists.trolltech.com/qt-interest/ Qt Mailing List Archive\endlink.
 
 To subscribe to the \c qt-interest mailing list, send an
 email containing just the word \c{subscribe} or <tt>subscribe
@@ -1057,6 +1058,10 @@ list, similarly send an email containing just the word
 <tt>unsubscribe <em>your@email.address</em></tt> to
 \link mailto:qt-interest-request@trolltech.com
 qt-interest-request@trolltech.com\endlink.
+
+This list is now available as network news using the NNTP protocol
+from <a href="news://nntp.trolltech.com/trolltech.qt-interest/">
+news://nntp.trolltech.com/trolltech.qt-interest/</a>.
 
 \section1 snapshot-users
 

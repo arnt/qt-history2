@@ -99,6 +99,8 @@ In both cases QErrorMessage will queue pending messages, and display
 them (or not) in order, as soon as the user presses Enter or clicks OK
 after seeing each message.
 
+\img qerrormessage.png
+
 \sa QMessageBox QStatusBar::message()
 */
 
