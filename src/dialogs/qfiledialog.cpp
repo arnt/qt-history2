@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#144 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#145 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1079,6 +1079,7 @@ void QFileDialog::setFilter( const QString & newFilter )
 void QFileDialog::setDir( const QString & pathstr )
 {
     QDir tmp( pathstr );
+    tmp.setFilter( cwd.filter() );
     setDir( tmp );
 }
 
@@ -1867,7 +1868,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 void QFileDialog::setMode( Mode newMode )
 {
     if ( d->mode != newMode ) {
-	cwd.setFilter( QDir::All );
+	//cwd.setFilter( QDir::All );
 	d->mode = newMode;
 	QString sel = d->currentFileName;
 	if ( newMode == Directory ) {
@@ -1973,6 +1974,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 	} else if ( files->hasFocus() || d->moreFiles->hasFocus() ) {
 	    ke->accept();
 	}
+    } else if ( ke->key() == Key_Escape ) {
+	ke->ignore();
     }
 
     if ( !ke->isAccepted() ) {
