@@ -5332,7 +5332,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    QEvent::Type t;
 	    translateKeyEventInternal( &evPress, countIntern, textIntern,
 				       stateIntern, asciiIntern, codeIntern, t );
-	    if ( stateIntern == state && !textIntern.isEmpty() ) {
+	    bool isReturn = (codeIntern == Key_Return) ||
+                            (codeIntern == Key_Enter) ||
+                            ((codeIntern == 0) && (asciiIntern == '\n'));
+	    if (stateIntern == state && !textIntern.isEmpty() && !isReturn) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
 		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
 				 asciiIntern, stateIntern, textIntern, FALSE,
