@@ -151,6 +151,8 @@ public:
     { append(t); }
     inline QVector &operator<< (const T &t)
     { append(t); return *this; }
+    inline QVector &operator<<(const QVector &l)
+    { *this += l; return *this; }
 
 private:
     void detach_helper();

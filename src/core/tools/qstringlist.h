@@ -53,6 +53,8 @@ public:
     { QStringList n = *this; n += other; return n; }
     inline QStringList &operator<<(const QString &str)
     { append(str); return *this; }
+    inline QStringList &operator<<(const QStringList &l)
+    { *this += l; return *this; }
 
 #ifndef QT_NO_REGEXP
     inline int indexOf(const QRegExp &rx, int from = 0) const;

@@ -227,6 +227,8 @@ public:
     { append(t); }
     inline QList &operator<< (const T &t)
     { append(t); return *this; }
+    inline QList &operator<<(const QList &l)
+    { *this += l; return *this; }
 
 private:
     void detach_helper();
