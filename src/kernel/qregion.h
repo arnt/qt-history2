@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#45 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#46 $
 **
 ** Definition of QRegion class
 **
@@ -84,7 +84,6 @@ public:
 			{ return !(operator==(r)); }
 
 #if defined(_WS_WIN_)
-    QRegion winRegion( HRGN ) const;
     HRGN    handle() const { return data->rgn; }
 #elif defined(_WS_X11_)
     Region  handle() const { return data->rgn; }

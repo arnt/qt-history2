@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#40 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -92,13 +92,6 @@ QRegion::~QRegion()
 	    DeleteObject( data->rgn );
 	delete data;
     }
-}
-
-QRegion QRegion::winRegion( HRGN h ) const
-{
-    QRegion r(FALSE);
-    r.data->rgn = h;
-    return r;
 }
 
 QRegion &QRegion::operator=( const QRegion &r )
