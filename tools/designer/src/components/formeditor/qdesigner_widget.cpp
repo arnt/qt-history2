@@ -270,7 +270,6 @@ bool QLayoutWidget::event(QEvent *e)
             break;
             
         case QEvent::LayoutRequest:
-            resize(layout()->sizeHint());
             break;
                         
         default:

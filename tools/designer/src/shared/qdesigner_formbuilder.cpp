@@ -39,7 +39,14 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         return widget;
     }
     
-    return FormBuilder::createWidget(widgetName, parentWidget, name);
+    QWidget *widget = FormBuilder::createWidget(widgetName, parentWidget, name);
+    if (!widget) {
+        qWarning("failed to create a widget for type %s", widgetName.latin1());
+        widget = new QWidget(parentWidget);
+        widget->setObjectName(name);
+    }
+    
+    return widget;
 }
 
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
