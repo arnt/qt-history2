@@ -1346,7 +1346,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     }
     QCoreVariant value;
     void *argv[1];
-    if (t == QCoreVariant::LastType) {
+    if (t == int(QCoreVariant::LastType)) {
         argv[0] = &value;
     } else {
         value = QCoreVariant(t, (void*)0);
@@ -1355,7 +1355,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if (t != QCoreVariant::LastType && argv[0] != value.data())
+    if (t != int(QCoreVariant::LastType) && argv[0] != value.data())
         return QCoreVariant((QCoreVariant::Type)t, argv[0]);
     return value;
 }
