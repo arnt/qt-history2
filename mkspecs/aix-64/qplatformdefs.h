@@ -40,7 +40,7 @@
 // included by <resolv.h>. Note that <arpa/nameser.h> must be included
 // before <resolv.h>.
 #include <netinet/in.h>
-#define class nsrr_class // AIX 4.3.1.0
+#define class c_class // AIX 4.3.1.0
 #include <arpa/nameser.h>
 #undef class
 #include <resolv.h>
