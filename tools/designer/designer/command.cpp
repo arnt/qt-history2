@@ -415,6 +415,10 @@ SetPropertyCommand::SetPropertyCommand( const QString &n, FormWindow *fw,
       wasChanged( TRUE ), isResetCommand( reset )
 {
     wasChanged = MetaDataBase::isPropertyChanged( w, propName );
+    if ( oldCurrentItemText.isNull() )
+	oldCurrentItemText = "";
+    if ( newCurrentItemText.isNull() )
+	newCurrentItemText = "";
 }
 
 
@@ -525,7 +529,6 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	editor->setWidget( widget, formWindow() );
     if ( select )
 	editor->propertyList()->setCurrentProperty( propName );
-
     const QMetaProperty *p =
 	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
     if ( !p ) {
