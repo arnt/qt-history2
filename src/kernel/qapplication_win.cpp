@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#324 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#325 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -300,7 +300,7 @@ static void qt_show_system_menu( QWidget* tlw)
 
 #undef enabled
 #undef disabled
-			
+
     int ret = TrackPopupMenuEx( menu,
 				TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
 				tlw->geometry().x(), tlw->geometry().y(),
@@ -382,17 +382,17 @@ static void qt_set_windows_resources()
 		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     cg.setColor( QColorGroup::HighlightedText,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
-	
+
     QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 		     (cg.foreground().green()+cg.button().green())/2,
 		     (cg.foreground().blue()+cg.button().blue())/2);
     QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 		     disabled, Qt::white, Qt::white, cg.background() );
-	
+
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
-    
+
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
@@ -406,7 +406,7 @@ static void qt_set_windows_resources()
 			 (cg.foreground().blue()+cg.button().blue())/2);
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, Qt::white, Qt::white, cg.background() );
-	
+
 	QPalette pal(cg, dcg, cg);
 	QApplication::setPalette( pal, TRUE, "QPopupMenu");
 	QApplication::setPalette( pal, TRUE, "QMenuBar");
@@ -425,7 +425,7 @@ static void qt_set_windows_resources()
 			 (cg.foreground().blue()+cg.button().blue())/2);
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, Qt::white, Qt::white, cg.background() );
-	
+
 	QPalette pal(cg, dcg, cg);
 	QApplication::setPalette( pal, TRUE, "QTipLabel");
     }
@@ -1165,7 +1165,7 @@ void qt_erase_bg( HDC hdc, int x, int y, int w, int h,
 
 int QApplication::exec()
 {
-    quit_now  = FALSE;
+    quit_now = FALSE;
     quit_code = 0;
     enter_loop();
     return quit_code;
@@ -1200,7 +1200,8 @@ bool QApplication::processNextEvent( bool canWait )
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
 	    int ok;
-	    while ( numZeroTimers && !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) )
+	    while ( numZeroTimers &&
+		    !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) )
 		activateZeroTimers();
 	    if ( !ok )				// no event
 		return FALSE;
@@ -1241,7 +1242,7 @@ bool QApplication::processNextEvent( bool canWait )
 void QApplication::processEvents( int maxtime )
 {
     uint ticks = (uint)GetTickCount();
-    while ( !quit_now && processNextEvent(FALSE) ) {
+    while ( !app_exit_loop && processNextEvent(FALSE) ) {
 	if ( (uint)GetTickCount() - ticks > (uint)maxtime )
 	    break;
     }
@@ -1389,19 +1390,20 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = widget->translatePaintEvent( msg );
 	    break;
 
-	case WM_ERASEBKGND: {			// erase window background
-	    RECT r;
-	    GetClientRect( hwnd, &r );
+	case WM_ERASEBKGND:			// erase window background
+	    {
+		RECT r;
+		GetClientRect( hwnd, &r );
 #if defined(QT_ERASE_BACKGROUND)
-	    qt_erase_background
+		qt_erase_background
 #else
-	   qt_erase_bg
+		qt_erase_bg
 #endif
 		    ( (HDC)wParam, r.left, r.top,
 		      r.right-r.left, r.bottom-r.top,
 		      widget->backgroundColor(),
 		      widget->backgroundPixmap(), 0, 0 );
-return 0;
+		return 0;
 	    }
 	    break;
 
@@ -1418,7 +1420,8 @@ return 0;
 		// we give up after 1024 attempts (to avoid an infinite loop).
 		int maxiter = 1024;
 		QWidget *popup;
-		while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
+		while ( (popup=QApplication::activePopupWidget()) &&
+			maxiter-- )
 		    popup->hide();
 	    }
 	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
@@ -1441,7 +1444,7 @@ return 0;
 		return n;
 	    }
 	    break;
-	
+
 	case WM_SETTINGCHANGE:
 	    if ( QApplication::desktopSettingsAware() )
 		qt_set_windows_resources();
@@ -1459,35 +1462,36 @@ return 0;
 	    }
 	    result = FALSE;
 	    break;
-	
+
 	case WM_QUERYENDSESSION:
 	    {
 		if ( sm_smActive ) // bogus message from windows
 		    return TRUE;
-		
+
 		sm_smActive = TRUE;
 		sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
 		sm_cancel = FALSE;
 		qApp->commitData( *win_session_manager );
 		if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
-		    //#### sync filesystems according to Arnt, how?
+		    //### should call something like fsync() for all
+		    //file descriptors being closed?
 		}
 		return !sm_cancel;
 	    }
-	
+
 	case WM_ENDSESSION:
 	    {
 		sm_smActive = FALSE;
 		sm_blockUserInput = FALSE;
 		bool endsession = (bool) wParam;
-		
+
 		if ( endsession ) {
 		    qApp->quit();
 		}
-		
+
 		return 0;
 	    }
-	
+
 	case WM_GETMINMAXINFO:
 	    if ( widget->xtra() ) {
 		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
@@ -2132,7 +2136,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	// instead.
 	GetCursorPos( &gpos );
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
-	
+
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    // Magic for masked widgets
 	    qt_button_down = findChildWidget( this, pos );
@@ -2144,7 +2148,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     if ( qApp->inPopupMode() ) {			// in popup mode
 	QWidget* activePopupWidget = qApp->activePopupWidget();
 	QWidget *popup = activePopupWidget;
-	
+
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
@@ -2177,10 +2181,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 	    QApplication::sendEvent( popup, &e );
 	}
-	
+
 	if ( releaseAfter )
 	    qt_button_down = 0;
-	
+
 	if ( type == QEvent::MouseButtonPress &&
 	     (qApp->activePopupWidget() != activePopupWidget) ){
 	    // the popup dissappeared. Replay the event
@@ -2280,7 +2284,7 @@ static ushort KeyTbl[] = {			// keyboard mapping table
     VK_SUBTRACT,	Qt::Key_Minus,
     VK_DECIMAL,		Qt::Key_Period,
     VK_DIVIDE,		Qt::Key_Slash,
-    VK_APPS,		Qt::Key_Menu,			
+    VK_APPS,		Qt::Key_Menu,
     0,			0
 };
 
@@ -2504,7 +2508,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    break;
 		}
 	    }
-	
+
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
@@ -2522,7 +2526,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
 				   state, grab, text );
 	    }
-	
+
 
 	} else {
 	    // Must be KEYUP
@@ -2566,7 +2570,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     globalPos.ry() = HIWORD ( msg.lParam );
 
     QWheelEvent e( globalPos, delta, state );
-    e.ignore();	
+    e.ignore();
 
     QWidget* w = QApplication::widgetAt( globalPos, TRUE );
     if ( !w)

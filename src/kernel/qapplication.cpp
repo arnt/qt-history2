@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#281 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#282 $
 **
 ** Implementation of QApplication class
 **
@@ -192,11 +192,11 @@
 	overrideCursor(),
 	setOverrideCursor(),
 	restoreOverrideCursor().
-	
+
      <li> X Window System synchronization:
 	flushX(),
 	syncX().
-	
+
      <li> Session management:
 	isSessionRestored(),
 	sessionId(),
@@ -277,7 +277,7 @@ int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
 QPalette *qt_std_pal = 0;
-void qt_create_std_palette() 
+void qt_create_std_palette()
 {
     if ( qt_std_pal )
 	delete qt_std_pal;
@@ -641,7 +641,7 @@ QApplication::~QApplication()
 /*!
   Sets the application GUI style to \e style.  Ownership of the style
   object is not transfered.
-  
+
   When switching application styles, the color palette is set back to
   the initital colors or the system defaults. This is necessary since
   certain styles have to adapt the color palette to be fully
@@ -701,7 +701,7 @@ void QApplication::setStyle( QStyle *style )
     app_style->polish( tmpPal );
     if ( tmpPal != *app_pal )
 	setPalette( tmpPal, TRUE );
-	
+
 }
 
 
@@ -1211,10 +1211,11 @@ void QApplication::exit( int retcode )
 {
     if ( !qApp )				// no global app object
 	return;
-    if ( ((QApplication*)qApp)->quit_now )			// don't overwrite quit code
+    if ( ((QApplication*)qApp)->quit_now )	// don't overwrite quit code...
 	return;
-    ((QApplication*)qApp)->quit_now  = TRUE;
-    ((QApplication*)qApp)->quit_code = retcode;
+    ((QApplication*)qApp)->quit_code = retcode;	// here
+    ((QApplication*)qApp)->quit_now = TRUE;
+    ((QApplication*)qApp)->app_exit_loop = TRUE;
 }
 
 
@@ -2005,18 +2006,17 @@ bool QApplication::desktopSettingsAware()
 int QApplication::enter_loop()
 {
     loop_level++;
-    quit_now = FALSE;
 
     bool old_app_exit_loop = app_exit_loop;
     app_exit_loop = FALSE;
 
-    while ( !quit_now && !app_exit_loop )
+    while ( !app_exit_loop )
 	processNextEvent( TRUE );
 
-    app_exit_loop = old_app_exit_loop;
+    app_exit_loop = old_app_exit_loop || quit_now;
     loop_level--;
 
-    if ( quit_now && !loop_level )
+    if ( app_exit_loop && !loop_level )
 	emit aboutToQuit();
 
     return 0;
