@@ -154,7 +154,7 @@ void QAccessible::setRootObject(QObject *o)
 class QWindowsEnumerate : public IEnumVARIANT
 {
 public:
-    QWindowsEnumerate( const QMemArray<int> &a )
+    QWindowsEnumerate( const QVector<int> &a )
 	: ref( 0 ), current( 0 ),array( a )
     {
     }
@@ -171,7 +171,7 @@ public:
 private:
     ULONG ref;
     ULONG current;
-    QMemArray<int> array;
+    QVector<int> array;
 };
 
 HRESULT STDMETHODCALLTYPE QWindowsEnumerate::QueryInterface( REFIID id, LPVOID *iface )
@@ -973,7 +973,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection( VARIANT *pvarChi
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    QMemArray<int> sel = accessible->selection();
+    QVector<int> sel = accessible->selection();
     if ( sel.isEmpty() ) {
 	(*pvarChildren).vt = VT_EMPTY;
 	return S_FALSE;
