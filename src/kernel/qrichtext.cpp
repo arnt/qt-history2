@@ -2294,17 +2294,39 @@ void QTextString::truncate( int index )
 {
     index = QMAX( index, 0 );
     index = QMIN( index, (int)data.size() - 1 );
-    // ### WWA: need to destruct lost stuff?
+    if ( index < (int)data.size() ) {
+	for ( int i = index + 1; i < (int)data.size(); ++i ) {
+	    if ( data[ i ].isCustom ) {
+		delete data[ i ].customItem();
+		if ( data[ i ].d.custom->format )
+		    data[ i ].d.custom->format->removeRef();
+		delete data[ i ].d.custom;
+		data[ i ].d.custom = 0;
+	    } else if ( data[ i ].format() ) {
+		data[ i ].format()->removeRef();
+	    }
+	}
+    }
     data.truncate( index );
     textChanged = TRUE;
 }
 
 void QTextString::remove( int index, int len )
 {
+    for ( int i = index; i < (int)data.size() && i - index < len; ++i ) {
+	if ( data[ i ].isCustom ) {
+	    delete data[ i ].customItem();
+	    if ( data[ i ].d.custom->format )
+		data[ i ].d.custom->format->removeRef();
+	    delete data[ i ].d.custom;
+	    data[ i ].d.custom = 0;
+	} else if ( data[ i ].format() ) {
+	    data[ i ].format()->removeRef();
+	}
+    }
     memmove( data.data() + index, data.data() + index + len,
 	     sizeof( Char ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
-    // ### WWA: need to destruct removed stuff?
     textChanged = TRUE;
 }
 
