@@ -1085,6 +1085,7 @@ const QGLColormap & QGLWidget::colormap() const
 static void qStoreColors(QWidget * tlw, Colormap cmap,
                           const QGLColormap & cols)
 {
+    Q_UNUSED(tlw);
     XColor c;
     QRgb color;
 
