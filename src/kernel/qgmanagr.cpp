@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#15 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#15 $");
 
 
 
@@ -715,7 +715,6 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
     if ( e->type() == Event_Resize ) {
 	QResizeEvent *r = (QResizeEvent*)e;
 	resizeHandle( w, r->size() );
-	return TRUE;			    // eat event
     }
 
     return FALSE;			    // standard event processing
