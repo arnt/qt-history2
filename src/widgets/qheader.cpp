@@ -1084,9 +1084,9 @@ void QHeader::setOffset( int x )
 {
     int oldOff = offset();
     offs = x;
-    if( d->lastPos < width() ) {
+    if( d->lastPos < ( orient == Horizontal ? width() : height() ) )
 	offs = 0;
-    } else if ( reverse() )
+    else if ( reverse() )
 	offs = d->lastPos - width() - x;
     if ( orient == Horizontal )
 	scroll( oldOff-offset(), 0 );
