@@ -12,7 +12,6 @@ public:
     QPunycodeCodec(int i):idx(i){}
 
     virtual int mibEnum() const;
-    virtual const char * mimeName () const;
     const char *name() const;
 
 #if !defined(Q_NO_USING_KEYWORD)
