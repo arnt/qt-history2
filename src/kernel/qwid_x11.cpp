@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#10 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#10 $";
 #endif
 
 
@@ -72,12 +72,15 @@ bool QWidget::create()				// create widget
 	border = testFlag(WStyle_Border) ? 1 : 0;
     }
 
+    fg_col = black;
+    bg_col = white;
+
     id = XCreateSimpleWindow( dpy, parentwin,
 			      ncrect.left(), ncrect.top(),
 			      ncrect.width(), ncrect.height(),
 			      border,
-			      BlackPixel(dpy,screen),
-			      WhitePixel(dpy,screen) );
+			      fg_col.pixel(),
+			      bg_col.pixel() );
     set_id( id );				// set widget id/handle + hd
     setDevType( PDT_WIDGET );
 
@@ -104,10 +107,8 @@ bool QWidget::create()				// create widget
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
     setMouseMoveEvents( FALSE );
-    gc = XCreateGC( dpy, id, 0, 0 );		// create graphics context
-    XSetFont( dpy, gc, fnt.fontId() );
-    XSetBackground( dpy, gc, WhitePixel(dpy,screen) );
-    XSetForeground( dpy, gc, BlackPixel(dpy,screen) );
+    gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
+		    fg_col.pixel() );
     setCursor( arrowCursor );			// default cursor
     setFlag( WState_Created );
     return TRUE;
@@ -129,7 +130,7 @@ bool QWidget::destroy()				// destroy widget
 		++it;
 	    }
 	}
-	XFreeGC( dpy, gc );			// free graphics context
+	qXFreeGC( gc );				// free graphics context
 	XDestroyWindow( dpy, ident );
 	set_id( 0 );
     }
@@ -156,30 +157,26 @@ bool QWidget::setMouseMoveEvents( bool onOff )
 
 QColor QWidget::backgroundColor() const		// get background color
 {
-    if ( bg_col.isValid() )
-	return bg_col;
-    return white;				// white is default background
+    return bg_col;
 }
 
 QColor QWidget::foregroundColor() const		// get foreground color
 {
-    if ( fg_col.isValid() )
-	return fg_col;
-    return black;				// black is default foreground
+    return fg_col;
 }
 
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
-    XSetBackground( dpy, gc, c.pixel() );
-    XSetWindowBackground( dpy, ident, c.pixel() );
+    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel() );
+    XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
 
 void QWidget::setForegroundColor( const QColor &c )
 {						// set foreground color
     fg_col = c;
-    XSetForeground( dpy, gc, c.pixel() );
+    gc = qXChangeGC( gc, fnt.fontId(), bg_col.pixel(), fg_col.pixel() );
     update();
 }
 
@@ -193,8 +190,7 @@ void QWidget::setFont( const QFont &f )		// set font
 {
 
     Font fid = f.fontId();
-    if ( fid )
-	XSetFont( dpy, gc, fid );
+    gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel() );
     fnt = f;
 }
 

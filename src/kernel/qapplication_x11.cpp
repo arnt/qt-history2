@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#12 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#12 $";
 #endif
 
 
@@ -52,6 +52,8 @@ static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
+
+static void	cleanupGCCache();		// cleanup GC cache
 
 void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
@@ -159,6 +161,7 @@ int main( int argc, char **argv )
     QFont::cleanup();
     QColor::cleanup();
     cleanupTimers();
+    cleanupGCCache();
 
     XCloseDisplay( appDpy );			// close X display
 
@@ -1046,6 +1049,124 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 	    return TRUE;			// delete widget
     }
     return FALSE;
+}
+
+
+// --------------------------------------------------------------------------
+// GC caching for widgets
+//
+
+struct GCInfo {					// information about GC
+    GC	  gc;					// GC handle
+    Font  font;					// font
+    ulong bgc;					// background color
+    ulong fgc;					// foreground color
+    int   refcount;				// number of owners
+};
+
+declare(QListM,GCInfo);
+static QListM(GCInfo) *gcList = 0;		// list of GCs
+
+static GCInfo *findGC( GC gc )			// find 'gc' in list
+{
+    if ( !gcList )
+	return 0;
+    register GCInfo *g = gcList->first();
+    while ( g && g->gc != gc )
+	g = gcList->next();
+    return g;
+}
+
+static GCInfo *matchGC( Font font, ulong bgc, ulong fgc )
+{						// find matching GC
+    if ( !gcList )
+	return 0;
+    register GCInfo *g = gcList->first();
+    while ( g && !(g->font == font && g->bgc == bgc && g->fgc == fgc) )
+	g = gcList->next();
+    return g;
+}
+
+static GCInfo *createGC( Font font, ulong bgc, ulong fgc )
+{						// create new GC
+    register GCInfo *g = new GCInfo;
+    XGCValues v;
+    CHECK_PTR( g );
+    g->font = font;
+    g->bgc = bgc;
+    g->fgc = fgc;
+    g->refcount = 1;
+    v.font = font;
+    v.background = bgc;
+    v.foreground = fgc;
+    g->gc = XCreateGC( appDpy, appRootWin,
+		       (GCFont | GCBackground | GCForeground), &v );
+    gcList->insert( g );
+    return g;
+}
+
+GC qXAllocGC( Font font, ulong bgc, ulong fgc )
+{
+    if ( !gcList ) {
+	gcList = new QListM(GCInfo);
+	CHECK_PTR( gcList );
+    }
+    register GCInfo *g = matchGC( font, bgc, fgc );
+    if ( g )
+	g->refcount++;
+    else
+	g = createGC( font, bgc, fgc );
+    return g->gc;
+}
+
+void qXFreeGC( GC gc )
+{
+    register GCInfo *g = findGC( gc );
+    ASSERT( g );
+    g->refcount--;
+}
+
+GC qXChangeGC( GC gc, Font font, ulong bgc, ulong fgc )
+{
+    GCInfo *gMatch = matchGC( font, bgc, fgc );
+    GCInfo *gThis = findGC( gc );
+    ASSERT( gThis );
+    if ( gMatch ) {				// found matching GC
+	gMatch->refcount++;
+	gThis->refcount--;
+	gc = gMatch->gc;
+    }
+    else {
+	if ( gThis->refcount == 1 ) {		// only this reference
+	    gc = gThis->gc;
+	    if ( font != gThis->font )
+		XSetFont( appDpy, gc, font );
+	    if ( bgc != gThis->bgc )
+		XSetBackground( appDpy, gc, bgc );
+	    if ( fgc != gThis->fgc )
+		XSetForeground( appDpy, gc, fgc );
+	}
+	else {					// create new GC
+	    gThis->refcount--;
+	    gThis = createGC( font, bgc, fgc );
+	    gc = gThis->gc;
+	}
+    }
+    return gc;
+}
+
+static void cleanupGCCache()			// cleanup the GC cache
+{
+    if ( !gcList )
+	return;
+    register GCInfo *g = gcList->first();
+    while ( g ) {
+	XFreeGC( appDpy, g->gc );
+	ASSERT( g->refcount == 0 );
+	g = gcList->next();
+    }
+    gcList->setAutoDelete( TRUE );
+    delete gcList;
 }
 
 

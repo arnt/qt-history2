@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#11 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#11 $";
 #endif
 
 
@@ -366,6 +366,12 @@ void QPainter::updateFont()			// update after changed font
 	pdev->cmd( PDC_SETFONT, param );
 	return;
     }
+    if ( borrowWidgetGC ) {
+	QWidget *w = (QWidget *)pdev;
+	if ( cfont.fontId() == w->font().fontId() )
+	    return;				// can still use widget's gc
+	createOwnGC();
+    }
     XSetFont( dpy, gc, cfont.fontId() );
 }
 
@@ -382,6 +388,20 @@ void QPainter::updatePen()			// update after changed pen
 	param[0].pen = &cpen;
 	pdev->cmd( PDC_SETPEN, param );
 	return;
+    }
+    if ( borrowWidgetGC ) {			// use the widget's GC
+	QWidget *w = (QWidget*)pdev;
+	if ( cpen.style() == SolidLine &&
+	     cpen.width() == 0 &&
+	     cpen.color().pixel() == w->fg_col.pixel() &&
+	     bg_col.pixel() == w->bg_col.pixel() &&
+	     bg_mode == TransparentMode &&
+	     rop == CopyROP && !testf(ClipOn) )
+	    return;				// can still use widget's gc
+	else {
+	    createOwnGC();			// calls updatePen()
+	    return;
+	}
     }
     char *dashes;				// custom pen dashes
     int dash_len = 0;				// length of dash list
@@ -539,6 +559,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setf(ExtDev);				// this is an extended device
     dpy = pdev->dpy;				// get display variable
     hd = pdev->hd;				// get handle to drawable
+    borrowWidgetGC = FALSE;			// assume own gc
     if ( testf(ExtDev) ) {
 	gc = 0;
 	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
@@ -546,7 +567,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
     }
-    else
+    else if ( pdev->devType() != PDT_WIDGET )
 	gc = XCreateGC( dpy, hd, 0, 0 );
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
@@ -561,6 +582,10 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	bg_col = w->backgroundColor();		// use widget bg color
 	sw = tw = w->clientSize().width();	// default view size
 	sh = th = w->clientSize().height();
+	cpen = QPen( w->foregroundColor() );	// use widget fg color
+	flags &= ~DirtyPen;			// pen is ok
+	gc = w->getGC();
+	borrowWidgetGC = TRUE;			// optimize gc
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixMap *pm = (QPixMap*)pdev;
@@ -573,9 +598,15 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else
 	sw = sh = tw = th = 1;
-    setBackgroundColor( bg_col );		// default background color
-    setBackgroundMode( TransparentMode );	// default background mode
-    setRasterOp( CopyROP );			// default raster operation
+    if ( borrowWidgetGC ) {			// optimize
+	bg_mode = TransparentMode;
+	rop = CopyROP;
+    }
+    else {
+	setBackgroundColor( bg_col );		// default background color
+	setBackgroundMode( TransparentMode );	// default background mode
+	setRasterOp( CopyROP );			// default raster operation
+    }
     return TRUE;
 }
 
@@ -587,12 +618,21 @@ bool QPainter::end()				// end painting
 	pdev->cmd( PDC_END, 0 );
     if ( gc_brush )
 	XFreeGC( dpy, gc_brush );
-    if ( gc )
+    if ( gc && !borrowWidgetGC )
 	XFreeGC( dpy, gc );
     clearf( IsActive );
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
     return TRUE;
+}
+
+
+void QPainter::createOwnGC()			// create our own GC
+{
+    ASSERT( borrowWidgetGC );
+    borrowWidgetGC = FALSE;
+    gc = XCreateGC( dpy, hd, 0, 0 );
+    updatePen();
 }
 
 
@@ -654,6 +694,8 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	pdev->cmd( PDC_SETROP, param );
 	return;
     }
+    if ( borrowWidgetGC && rop != CopyROP )
+	createOwnGC();
     XSetFunction( dpy, gc, ropCodes[rop] );
     if ( gc_brush )
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
@@ -956,6 +998,8 @@ void QPainter::setClipping( bool onOff )	// set clipping on/off
 	pdev->cmd( PDC_SETCLIP, param );
 	return;
     }
+    if ( borrowWidgetGC )
+	createOwnGC();
     if ( testf(ClipOn) ) {
 	XSetRegion( dpy, gc, crgn.data->rgn );
 	if ( gc_brush )
@@ -1723,7 +1767,7 @@ void ins_text_bitmap( const QWXFMatrix &m, const char *str, int len, QBitMap *bm
     }
     else {
 	delete bm;
-	debug( "bm refused, count = %d, size=%d", bmDict->count(),bmSize );
+//	debug( "bm refused, count = %d, size=%d", bmDict->count(),bmSize );
     }
 }
 
@@ -1762,6 +1806,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    bool create_new_bm = wxf_bm == 0;
 	    QWXFMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
+	    if ( borrowWidgetGC )
+		createOwnGC();
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QBitMap bm( w, h );		// create bitmap
 		QPainter paint;
