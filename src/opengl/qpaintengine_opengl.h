@@ -16,7 +16,6 @@
 
 #include "qpaintengine.h"
 
-class QPainterState;
 class QOpenGLPaintEnginePrivate;
 
 class QOpenGLPaintEngine : public QPaintEngine
