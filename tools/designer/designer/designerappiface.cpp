@@ -1,5 +1,4 @@
-#include <qinitguid.h>
-#include <qcomponentinterface.h>
+#define Q_GUIDIMPL
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "formwindow.h"
@@ -1056,14 +1055,14 @@ void DesignerProjectInterfaceImpl::openDatabase( const QString &connection )
 {
     if ( !mainWindow || !mainWindow->currProject() )
 	return;
-    return mainWindow->currProject()->openDatabase( connection );
+    mainWindow->currProject()->openDatabase( connection );
 }
 
 void DesignerProjectInterfaceImpl::closeDatabase( const QString &connection )
 {
     if ( !mainWindow || !mainWindow->currProject() )
 	return;
-    return mainWindow->currProject()->closeDatabase( connection );
+    mainWindow->currProject()->closeDatabase( connection );
 }
 
 

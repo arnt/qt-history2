@@ -1,4 +1,4 @@
-#include <qinitguid.h>
+#define Q_GUIDIMPL
 #include "../designerinterface.h"
 
 #include <qcleanuphandler.h>

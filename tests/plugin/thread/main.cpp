@@ -1,4 +1,4 @@
-#include <qinitguid.h>
+#define Q_GUIDIMPL
 #include "../tools/designer/plugins/designerinterface.h"
 
 #include <qaction.h>

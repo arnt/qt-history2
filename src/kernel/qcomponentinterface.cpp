@@ -1,4 +1,4 @@
-#include "qinitguid.h"
+#define Q_GUIDIMPL
 #include "qcomponentinterface.h"
 #ifndef QT_NO_STYLE
 #include "qstyleinterface.h"

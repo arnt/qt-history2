@@ -38,7 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-#define QT_DEBUG_COMPONENT
+//#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion

@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-#include <qinitguid.h>
+#define Q_GUIDIMPL
 #include "../../qsqldriverinterface.h"
 #include "qsql_oci.h"
 

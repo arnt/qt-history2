@@ -1,4 +1,4 @@
-#include <qinitguid.h>
+#define Q_GUIDIMPL
 #include <qstyleinterface.h>
 #include <qwindowsstyle.h>
 

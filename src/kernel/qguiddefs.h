@@ -26,7 +26,7 @@ struct Q_EXPORT QGuid
 #undef Q_GUID
 #endif
 
-#if defined(Q_INITGUID)
+#if defined(Q_GUIDIMPL)
 #define Q_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8 ) \
         Q_EXTERN_C const QGuid QDECLSPEC_SELECTANY name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
 #else
