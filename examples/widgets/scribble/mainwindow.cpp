@@ -1,0 +1,148 @@
+#include <QtGui>
+
+#include "mainwindow.h"
+#include "scribblearea.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+    scribbleArea = new ScribbleArea(this);
+    setCentralWidget(scribbleArea);
+
+    createActions();
+    createMenus();
+
+    setWindowTitle(tr("Scribble"));
+    resize(500, 500);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (maybeSave()) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+void MainWindow::open()
+{
+    if (maybeSave()) {
+        QString fileName = QFileDialog::getOpenFileName(this,
+                                   tr("Open File"), QDir::currentPath());
+        if (!fileName.isEmpty())
+            scribbleArea->openImage(fileName);
+    }
+}
+
+void MainWindow::save()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    QString fileFormat = action->iconText();
+    saveFile(fileFormat);
+}
+
+void MainWindow::createActions()
+{
+    openAct = new QAction(tr("&Open..."), this);
+    openAct->setShortcut(tr("Ctrl+O"));
+    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+
+    foreach (QByteArray format, QImageWriter::supportedImageFormats()) {
+        QString text = tr("%1...").arg(QString(format).toUpper());
+
+        QAction *action = new QAction(text, this);
+        connect(action, SIGNAL(triggered()), this, SLOT(save()));
+        saveAsActs.append(action);
+    }
+
+    exitAct = new QAction(tr("E&xit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
+    penColorAct = new QAction(tr("&Pen Color..."), this);
+    connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
+
+    penWidthAct = new QAction(tr("Pen &Width..."), this);
+    connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
+
+    clearScreenAct = new QAction(tr("&Clear Screen"), this);
+    clearScreenAct->setShortcut(tr("Ctrl+L"));
+    connect(clearScreenAct, SIGNAL(triggered()),
+            scribbleArea, SLOT(clearImage()));
+}
+
+void MainWindow::createMenus()
+{
+    saveAsMenu = new QMenu(tr("&Save As"));
+    foreach (QAction *action, saveAsActs)
+        saveAsMenu->addAction(action);
+
+    fileMenu = new QMenu(tr("&File"));
+    fileMenu->addAction(openAct);
+    fileMenu->addMenu(saveAsMenu);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAct);
+
+    optionMenu = new QMenu(tr("&Options"));
+    optionMenu->addAction(penColorAct);
+    optionMenu->addAction(penWidthAct);
+    optionMenu->addSeparator();
+    optionMenu->addAction(clearScreenAct);
+
+    menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(optionMenu);
+}
+
+bool MainWindow::maybeSave()
+{
+    if (scribbleArea->isModified()) {
+        int ret = QMessageBox::warning(this, tr("Scribble"),
+                          tr("The image has been modified.\n"
+                             "Do you want to save your changes?"),
+                          QMessageBox::Yes | QMessageBox::Default,
+                          QMessageBox::No,
+                          QMessageBox::Cancel | QMessageBox::Escape);
+        if (ret == QMessageBox::Yes) {
+            return saveFile("PNG");
+        } else if (ret == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool MainWindow::saveFile(const QString &fileFormat)
+{
+    QString initialPath = QDir::currentPath() + "/untitled."
+                          + fileFormat.toLower();
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                               initialPath,
+                               tr("%1 Files (*.%2);;All Files (*)")
+                               .arg(fileFormat)
+                               .arg(fileFormat.toLower()));
+    if (fileName.isEmpty()) {
+        return false;
+    } else {
+        return scribbleArea->saveImage(fileName, fileFormat.toAscii());
+    }
+}
+
+void MainWindow::penColor()
+{
+    QColor newColor = QColorDialog::getColor(scribbleArea->getPenColor());
+    if (newColor.isValid())
+        scribbleArea->setPenColor(newColor);
+}
+
+void MainWindow::penWidth()
+{
+    bool ok;
+    int newWidth = QInputDialog::getInteger(this, tr("Select Pen Width"),
+                                            tr("Select pen width:"),
+                                            scribbleArea->getPenWidth(),
+                                            1, 50, 1, &ok);
+    if (ok)
+        scribbleArea->setPenWidth(newWidth);
+}
