@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#68 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#67 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#68 $";
 #endif
 
 
@@ -625,12 +625,30 @@ void QWidget::update( int x, int y, int w, int h )
 	XClearArea( dpy, ident, x, y, w, h, TRUE );
 }
 
-/*!
-Repaints the widget directly.
+/*! \fn void QWidget::repaint( bool erase )
 
-Doing a repaint() is faster than doing an update(), but since
-repaint() does not make a server trip and there is some time skew
-between the server and client, your client may get confused. */
+  Repaints the widget directly.
+
+  Doing a repaint() is faster than doing an update(), but since
+  repaint() does not make a server trip and there is some time skew
+  between the server and client, your client may get confused. */
+
+/*! \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
+
+  Repaints the widget directly.
+
+  Doing a repaint() is faster than doing an update(), but since
+  repaint() does not make a server trip and there is some time skew
+  between the server and client, your client may get confused. */
+
+/*! Repaints the widget directly.
+
+  This function is virtual, and the other overloaded repaint()s call
+  it.
+
+  Doing a repaint() is faster than doing an update(), but since
+  repaint() does not make a server trip and there is some time skew
+  between the server and client, your client may get confused. */
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
