@@ -357,12 +357,12 @@ public:
 	FontChange = 96,                        // font has changed
 	EnabledChange = 97,                     // enabled state has changed
 	ActivationChange = 98,                  // window activation has changed
-	StyleChange = 99,                      // style has changed
+	StyleChange = 99,                       // style has changed
 	IconTextChange = 100,                   // icon text has changed
 	ModifiedChange = 101,                   // modified state has changed
 
 	User = 1000,				// first user event id
-	MaxUser = 65535,				// last user event id
+	MaxUser = 65535				// last user event id
     };
 
     QEvent(Type type) : t(type), posted(FALSE), spont(FALSE) {}
