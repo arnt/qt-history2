@@ -234,7 +234,7 @@ bool qt_dispatch_socketnotifier(MSG *msg)
 #ifdef GWLP_USERDATA
         QEventLoop *eventLoop = (QEventLoop*)GetWindowLongPtrA(msg->hwnd, GWLP_USERDATA);
 #else
-        QEventLoop *eventLoop = (QEventLoop*)GetWindowLongA(msg->hwnd, GWLP_USERDATA);
+        QEventLoop *eventLoop = (QEventLoop*)GetWindowLongA(msg->hwnd, GWL_USERDATA);
 #endif
         if (eventLoop) {
             QSNDict *sn_vec[3] = { &eventLoop->d->sn_read, &eventLoop->d->sn_write, &eventLoop->d->sn_except };
