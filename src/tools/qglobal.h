@@ -192,7 +192,6 @@
 #  endif
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 96
 #    define Q_DELETING_VOID_UNDEFINED
-#    define Q_FP_CCAST_BROKEN
 #  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
