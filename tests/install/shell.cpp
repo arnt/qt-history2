@@ -138,18 +138,18 @@ WinShell::WinShell()
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( SHGetPathFromIDList( item, (LPTSTR)buffer.data() ) ) {
-		localProgramsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
+		localProgramsFolderName = OLESTR2QString( (LPOLESTR)buffer.data() );
 		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-		    if( SHGetPathFromIDListW( item, (LPTSTR)buffer.data() ) )
-			commonProgramsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
+		    if( SHGetPathFromIDListW( item, (LPOLESTR)buffer.data() ) )
+			commonProgramsFolderName = OLESTR2QString( (LPOLESTR)buffer.data() );
 		    else
 			qDebug( "Could not get name of common programs folder" );
 		}
 		else
 		    qDebug( "Could not get common programs folder location" );
 
-		if( GetWindowsDirectoryW( (LPTSTR)buffer.data(), buffer.size() ) )
-		    windowsFolderName = OLESTR2QString( (LPTSTR)buffer.data() );
+		if( GetWindowsDirectoryW( (LPOLESTR)buffer.data(), buffer.size() ) )
+		    windowsFolderName = OLESTR2QString( (LPOLESTR)buffer.data() );
 		else
 		    qDebug( "Could not get Windows directory" );
 	    }
