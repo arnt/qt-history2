@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#7 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
 ** Author  : Haavard Nord
 ** Created : 950323
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

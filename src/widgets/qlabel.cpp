@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#31 $
 **
 ** Implementation of QLabel widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941215
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------

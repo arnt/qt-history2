@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#16 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#17 $
 **
 ** Definition of QPushButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940221
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

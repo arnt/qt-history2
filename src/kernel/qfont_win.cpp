@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#12 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940630
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#12 $")
 
 
 QFont *QFont::defFont = 0;			// default font

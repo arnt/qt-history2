@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#4 $
 **
 ** Definition of QTableView class
 **
 ** Author  : Eirik Eng
 ** Created : 941115
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

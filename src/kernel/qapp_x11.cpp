@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#128 $
 **
 ** Implementation of X11 startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#127 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#128 $")
 
 
 /*****************************************************************************

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#5 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940712
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#4 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#5 $")
 
 
 // --------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#56 $
 **
 ** Implementation of QPixmap class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940501
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#56 $")
 
 
 /*****************************************************************************

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#21 $
 **
 ** Implementation of QTextStream class
 **
 ** Author  : Haavard Nord
 ** Created : 940922
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#21 $")
 
 
 /*!

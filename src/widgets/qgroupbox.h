@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#4 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#5 $
 **
 ** Definition of QGroupBox widget class
 **
 ** Author  : Haavard Nord
 ** Created : 950203
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#9 $
 **
 ** Implementation of QRegion class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940801
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#9 $")
 
 
 QRegion::QRegion()				// create empty region

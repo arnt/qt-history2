@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#105 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#104 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#105 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#16 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#17 $
 **
 ** Macros and definitions related to QObject
 **
 ** Author  : Haavard Nord
 ** Created : 930419
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains ugly macros and definitions that are necessary to make

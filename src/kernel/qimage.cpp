@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#49 $
 **
 ** Implementation of QImage and QImageIO classes
 **
 ** Author  : Haavard Nord
 ** Created : 950207
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#49 $")
 
 
 /*!

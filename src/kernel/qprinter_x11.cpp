@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#10 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
 ** Author  : Haavard Nord
 ** Created : 950810
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#10 $")
 
 
 /*****************************************************************************

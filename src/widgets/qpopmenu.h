@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#20 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#21 $
 **
 ** Definition of QPopupMenu class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

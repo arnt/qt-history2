@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#14 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#15 $
 **
 ** Definition of QLCDNumber class
 **
 ** Author  : Eirik Eng
 ** Created : 940518
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

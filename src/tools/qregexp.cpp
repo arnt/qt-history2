@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#26 $
 **
 ** Implementation of QRegExp class
 **
 ** Author  : Haavard Nord
 ** Created : 950126
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------

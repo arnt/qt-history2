@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#13 $
 **
 ** Implementation of QPSPrinter class
 **
 ** Author  : Eirik Eng
 ** Created : 941003
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#13 $")
 
 
 #if !defined(QT_HEADER_PS)

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#49 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
 ** Author  : Eirik Eng
 ** Created : 940515
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -24,7 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#49 $")
 
 
 static const int fontFields = 14;

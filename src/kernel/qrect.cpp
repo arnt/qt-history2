@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#22 $
 **
 ** Implementation of QRect class
 **
 ** Author  : Haavard Nord
 ** Created : 931028
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#22 $")
 
 
 /*! \class QRect qrect.h

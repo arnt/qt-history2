@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#9 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#10 $
 **
 ** Definition of QFontInfo class
 **
 ** Author  : Eirik Eng
 ** Created : 950131
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

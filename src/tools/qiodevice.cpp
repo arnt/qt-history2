@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#16 $
 **
 ** Implementation of QIODevice class
 **
 ** Author  : Haavard Nord
 ** Created : 940913
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#16 $")
 
 
 /*----------------------------------------------------------------------------

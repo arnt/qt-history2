@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#59 $
 **
 ** Implementation of QPopupMenu class
 **
 ** Author  : Haavard Nord
 ** Created : 941128
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#59 $")
 
 
 // Mac style parameters

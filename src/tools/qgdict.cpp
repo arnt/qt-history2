@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#27 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------

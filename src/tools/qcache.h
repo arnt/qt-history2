@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#6 $
+** $Id: //depot/qt/main/src/tools/qcache.h#7 $
 **
 ** Definition of QCache template/macro class
 **
 ** Author  : Eirik Eng
 ** Created : 950209
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

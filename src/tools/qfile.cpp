@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#26 $
 **
 ** Implementation of QFile class
 **
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#4 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#5 $
 **
 ** Definition of QBuffer class
 **
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

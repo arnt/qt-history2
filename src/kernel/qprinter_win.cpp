@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#9 $
 **
 ** Implementation of QPrinter class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 950810
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qwidget.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#9 $")
 
 
 // QPrinter states

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#8 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#9 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
 ** Author  : Eirik Eng
 ** Created : 950208
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

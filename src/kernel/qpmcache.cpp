@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#5 $
 **
 ** Implementation of QPixmapCache class
 **
 ** Author  : Haavard Nord
 ** Created : 950504
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#4 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#5 $")
 
 
 /*!

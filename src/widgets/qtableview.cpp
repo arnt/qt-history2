@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#12 $
 **
 ** Implementation of QTableView class
 **
 ** Author  : Eirik Eng
 ** Created : 941115
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------
 ** NOTE: The hSbActive and vSbActive flags must be set and reset ONLY
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#12 $")
 
 
 const int sbDim = 16;

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#34 $
 **
 ** Implementation of QPicture class
 **
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#34 $")
 
 
 /*!

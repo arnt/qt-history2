@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#18 $
 **
 ** Implementation of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#18 $")
 
 
 /*!

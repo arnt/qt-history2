@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#3 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -11,7 +11,7 @@
 ** Author  : Eirik Eng
 ** Created : 940927
 **
-** Copyright (c) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

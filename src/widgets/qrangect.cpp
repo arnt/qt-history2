@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#10 $
 **
 ** Implementation of QRangeControl class
 **
 ** Author  : Eirik Eng
 ** Created : 940427
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qrangect.h"
 #include "qglobal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------

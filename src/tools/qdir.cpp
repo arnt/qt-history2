@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#15 $
 **
 ** Implementation of QDir class
 **
 ** Author  : Eirik Eng
 ** Created : 950427
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#15 $")
 
 
 #if !defined(PATH_MAX)

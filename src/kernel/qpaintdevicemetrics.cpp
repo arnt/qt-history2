@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#8 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
 ** Author  : Haavard Nord
 ** Created : 941109
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qpdevmet.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#8 $")
 
 
 /*!

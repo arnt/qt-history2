@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#15 $
 **
 ** Implementation of QMessageBox class
 **
 ** Author  : Haavard Nord
 ** Created : 950503
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#15 $")
 
 
 /*!

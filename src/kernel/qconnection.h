@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#6 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#7 $
 **
 ** Definition of QConnection class
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#9 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
 ** Author  : Haavard Nord
 ** Created : 950829
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#9 $")
 
 
 //

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#15 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#16 $
 **
 **                    ***   INTERNAL HEADER FILE   ***
 **
@@ -10,7 +10,7 @@
 ** Author  : Eirik Eng
 ** Created : 941229
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** Internal header file containing private data common to QFont,

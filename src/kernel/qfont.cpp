@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#37 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
 ** Author  : Eirik Eng
 ** Created : 941207
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#17 $
 **
 ** Definition of QPaintDevice constants and flags
 **
 ** Author  : Haavard Nord
 ** Created : 940721
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

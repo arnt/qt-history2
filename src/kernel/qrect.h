@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#14 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#15 $
 **
 ** Definition of QRect class
 **
 ** Author  : Haavard Nord
 ** Created : 931028
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

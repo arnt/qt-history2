@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#19 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 931205
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#19 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp

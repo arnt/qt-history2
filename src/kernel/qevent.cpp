@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#26 $
 **
 ** Implementation of event classes
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#26 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp

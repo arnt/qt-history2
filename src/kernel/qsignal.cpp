@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#10 $
 **
 ** Implementation of QSignal class
 **
 ** Author  : Haavard Nord
 ** Created : 941201
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#10 $")
 
 /*! \class QSignal qsignal.h
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#3 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -10,7 +10,7 @@
 ** Author  : Haavard Nord
 ** Created : 950829
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

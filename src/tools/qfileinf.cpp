@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#11 $
 **
 ** Implementation of QFileInfo class
 **
 ** Author  : Eirik Eng
 ** Created : 950628
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#11 $")
 
 
 struct QFileInfoCache

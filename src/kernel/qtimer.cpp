@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#11 $
 **
 ** Implementation of QTimer class
 **
 ** Author  : Haavard Nord
 ** Created : 931111
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qtimer.h"
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#11 $")
 
 
 /*----------------------------------------------------------------------------

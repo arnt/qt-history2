@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#20 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#21 $
 **
 ** Definition of QImage and QImageIO classes
 **
 ** Author  : Haavard Nord
 ** Created : 950207
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#6 $
 **
 ** Implementation of QRegion class
 **
 ** Author  : Haavard Nord
 ** Created : 950726
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#6 $")
 
 
 /*!

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#22 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#23 $
 **
 ** Definition of QBrush class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#11 $
 **
 ** Implementation of QFileDialog class
 **
 ** Author  : Eirik Eng
 ** Created : 950429
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#11 $")
 
 
 /*----------------------------------------------------------------------------

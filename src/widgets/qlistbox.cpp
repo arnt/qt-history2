@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#49 $
 **
 ** Implementation of QListBox widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941121
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#49 $")
 
 
 declare(QListM, QLBItem);

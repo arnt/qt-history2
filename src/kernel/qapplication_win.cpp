@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#29 $
 **
 ** Implementation of Windows startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 931203
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#29 $")
 
 
 // --------------------------------------------------------------------------

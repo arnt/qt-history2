@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#10 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#11 $
 **
 ** Definition of QAccel class
 **
 ** Author  : Haavard Nord
 ** Created : 950419
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#5 $
+** $Id: //depot/qt/main/src/tools/qstack.h#6 $
 **
 ** Definition of QStack template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 920917
 **
-** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

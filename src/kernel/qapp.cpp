@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#69 $
 **
 ** Implementation of QApplication class
 **
 ** Author  : Haavard Nord
 ** Created : 931107
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#69 $")
 
 
 /*----------------------------------------------------------------------------

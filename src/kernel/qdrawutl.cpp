@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#4 $
 **
 ** Implementation of draw utilities
 **
 ** Author  : Haavard Nord
 ** Created : 950920
 **
-** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#3 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#4 $")
 
 
 /*!

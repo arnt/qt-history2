@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#88 $
 **
 ** Implementation of QWidget class
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** IMPORTANT NOTE: Widget identifier should only be set with the set_id()
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#87 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#88 $")
 
 
 /*----------------------------------------------------------------------------

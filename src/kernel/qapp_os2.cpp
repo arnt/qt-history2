@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#9 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
 ** Author  : Haavard Nord
 ** Created : 940707
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#9 $")
 
 
 // --------------------------------------------------------------------------

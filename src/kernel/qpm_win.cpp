@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#16 $
 **
 ** Implementation of QPixmap class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940501
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#16 $")
 
 
 bool QPixmap::optimAll = TRUE;

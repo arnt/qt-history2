@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#39 $
 **
 ** Implementation of QLineEdit widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#39 $")
 
 
 /*!

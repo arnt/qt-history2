@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#19 $
 **
 ** Global functions
 **
 ** Author  : Haavard Nord
 ** Created : 920604
 **
-** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------

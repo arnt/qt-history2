@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#6 $
 **
 ** Implementation of QPicture class for OS/2 PM
 **
 ** Author  : Haavard Nord
 ** Created : 940802
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#6 $")
 
 
 QPicture::QPicture()

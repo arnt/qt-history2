@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#6 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#7 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -11,7 +11,7 @@
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

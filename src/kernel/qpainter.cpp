@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#69 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file containts the platform independent implementation of the
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#69 $")
 
 
 /*----------------------------------------------------------------------------

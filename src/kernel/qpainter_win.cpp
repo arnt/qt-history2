@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#25 $
 **
 ** Implementation of QPainter class for Windows
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#25 $")
 
 
 // --------------------------------------------------------------------------
