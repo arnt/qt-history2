@@ -251,7 +251,7 @@ void QPrinter::interpret(PMPrintSettings *s)
 {
     //get values
     UInt32 from, to;
-    if(PMGetFirstPage(*s, &from) == noErr && PMGetFirstPage(*s, &to) == noErr)
+    if(PMGetFirstPage(*s, &from) == noErr && PMGetLastPage(*s, &to) == noErr)
 	setFromTo(from, to);
 
     UInt32 copies;
