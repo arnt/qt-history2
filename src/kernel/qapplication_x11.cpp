@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#422 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#423 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -906,10 +906,12 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	        xim_style = xim_preferred_style;
 		break;
 	    } else if (styles->supported_styles[i] ==
+			(XIMPreeditNone | XIMStatusNone) ||
+		       styles->supported_styles[i] ==
 			(XIMPreeditNothing | XIMStatusNothing) ) {
+		// Either of these will suffice as a default
 	        if ( !xim_style )
-		    xim_style =
-			XIMPreeditNothing | XIMStatusNothing;
+		    xim_style = styles->supported_styles[i];
 	    }
 	}
 	if ( !xim_style ) {
