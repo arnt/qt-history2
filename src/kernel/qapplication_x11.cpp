@@ -687,7 +687,7 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
-    qWarning( "X Error: %s %d\n  Major opcode:  %d\n  Resource id:  %d",
+    qWarning( "X Error: %s %d\n  Major opcode:  %d\n  Resource id:  %ld",
 	      errstr, err->error_code, err->request_code, err->resourceid );
     //### we really should distinguish between severe, non-severe and
     //### application specific errors
