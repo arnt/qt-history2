@@ -341,6 +341,14 @@ void PixmapCollection::createCppFile()
 
 	out << "static DesignerMimeSourceFactory *designerMimeSourceFactory = 0;" << endl;
 
+	out << "void qInitImages_" << project->fixedProjectName() << "()" << endl;
+	out << "{" << endl;
+	out << "    if ( designerMimeSourceFactory )" << endl;
+	out << "	return;" << endl;
+	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactory;" << endl;
+	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
+	out << "}" << endl;
+
 	out << "static void qInitImages()" << endl;
 	out << "{" << endl;
 	out << "    if ( designerMimeSourceFactory )" << endl;
