@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#103 $
 **
 ** Implementation of QScrollView class
 **
@@ -2022,3 +2022,13 @@ QSizePolicy QScrollView::sizePolicy() const
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
+
+
+/*!
+  \reimp
+*/
+
+void QScrollView::drawContents( QPainter * )
+{
+    //implemented to get rid of a compiler warning.
+}

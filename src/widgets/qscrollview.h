@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#42 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#43 $
 **
 ** Definition of QScrollView class
 **
@@ -151,6 +151,7 @@ protected:
     virtual void setVBarGeometry(QScrollBar& vbar, int x, int y, int w, int h);
 
 private:
+    virtual void drawContents( QPainter* );
     void moveContents(int x, int y);
 
     QScrollViewData* d;
