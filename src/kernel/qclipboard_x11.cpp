@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#17 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#17 $");
 
 
 /*****************************************************************************
@@ -239,6 +239,7 @@ void *QClipboard::data( const char *format ) const
 	if ( started.msecsTo(now) > 5000 ) {
 	    return 0;
 	}
+        XSync(dpy,FALSE); // Toss a ball while we wait.
     }
 
     Atom prop = xevent.xselection.property;
