@@ -23,12 +23,9 @@
 #include <qstyleoption.h>
 
 
-
 QDockWindowSeparator::QDockWindowSeparator(QDockWindowLayout *l, QWidget *parent)
     : QWidget(parent), layout(l), state(0)
-{
-    setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
-}
+{ setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor); }
 
 /*!
     Returns a rectangle centered around \a point.  The parent dock
@@ -47,7 +44,8 @@ QRect QDockWindowSeparator::calcRect(const QPoint &point)
 
 void QDockWindowSeparator::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) return;
+    if (event->button() != Qt::LeftButton)
+        return;
 
     Q_ASSERT(!state);
     state = new DragState;
@@ -56,20 +54,25 @@ void QDockWindowSeparator::mousePressEvent(QMouseEvent *event)
 
     // clear focus... it will be restored when the mouse button is released
     state->prevFocus = qApp->focusWidget();
-    if (state->prevFocus) state->prevFocus->clearFocus();
+    if (state->prevFocus)
+        state->prevFocus->clearFocus();
 
     layout->saveLayoutInfo();
 }
 
 void QDockWindowSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) return;
+    if (event->button() != Qt::LeftButton)
+        return;
 
     layout->relayout();
     layout->discardLayoutInfo();
 
+    Q_ASSERT(state != 0);
+
     // restore focus
-    if (state->prevFocus) state->prevFocus->setFocus();
+    if (state->prevFocus)
+        state->prevFocus->setFocus();
     state->prevFocus = 0;
 
     delete state;
@@ -86,7 +89,8 @@ void QDockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
     // constrain the mouse move event
     layout->resetLayoutInfo();
     p = state->origin + layout->constrain(this, delta);
-    if (p == state->last) return;
+    if (p == state->last)
+        return;
     state->last = p;
 
     layout->relayout();
@@ -95,7 +99,6 @@ void QDockWindowSeparator::mouseMoveEvent(QMouseEvent *event)
 void QDockWindowSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-
     QStyleOption opt(0);
     opt.state = QStyle::State_None;
     if (isEnabled())
