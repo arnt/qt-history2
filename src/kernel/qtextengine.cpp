@@ -88,7 +88,7 @@ struct BidiControl {
 	return ctx[0].level;
     }
     inline QChar::Direction direction() {
-	return (ctx[cCtx].level ? QChar::DirR : QChar:: DirL );
+	return ((ctx[cCtx].level%2) ? QChar::DirR : QChar:: DirL );
     }
 
     Context ctx[63];
