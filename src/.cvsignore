@@ -4,3 +4,5 @@ dodepend obj
 GNUmakefile.static
 tmp
 tmp
+*.mak
+NMakefile.qtmain-*
