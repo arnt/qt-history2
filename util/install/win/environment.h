@@ -8,6 +8,7 @@ class QEnvironment
 public:
     static QString getEnv( QString varName, int envBlock = LocalEnv );
     static void putEnv( QString varName, QString varValue, int envBlock = LocalEnv );
+    static void removeEnv( QString varName, int envBlock = LocalEnv );
 #if defined(Q_OS_WIN32)
     static QString getRegistryString( QString keyName, QString valueName, int scope = CurrentUser );
     static bool recordUninstall( QString displayName, QString cmdString );

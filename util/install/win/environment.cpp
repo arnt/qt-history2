@@ -156,6 +156,47 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 #endif
 }
 
+void QEnvironment::removeEnv( QString varName, int envBlock )
+{
+#if defined(Q_OS_WIN32)
+    HKEY hkKey;
+    if( envBlock & GlobalEnv )
+	hkKey = HKEY_LOCAL_MACHINE;
+    else
+	hkKey = HKEY_CURRENT_USER;
+
+    if( envBlock & PersistentEnv ) {
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    HKEY env;
+	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+		RegDeleteValue( env, (WCHAR*)qt_winTchar( varName, true ) );
+		RegCloseKey( env );
+	    }
+	}
+	else { // Win 9x
+	    QFile autoexec( "c:\\autoexec.bat" );
+	    QTextStream ostream( &autoexec );
+	    ostream.setEncoding( QTextStream::Locale );
+
+	    if( autoexec.open( IO_Append | IO_ReadWrite | IO_Translate ) ) {
+		ostream << "set " << varName << "=" << endl;
+		autoexec.close();
+	    }
+	}
+    }
+
+    if( envBlock & LocalEnv ) {
+	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
+	    SetEnvironmentVariableW( varNameT, 0 );
+	    delete varNameT;
+	} else {
+	    SetEnvironmentVariableA( varName.local8Bit(), 0 );
+	}
+    }
+#endif
+}
+
 #if defined(Q_OS_WIN32)
 bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 {
