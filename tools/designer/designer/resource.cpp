@@ -1284,7 +1284,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
-	if ( strcmp( it.current(), "resizeMode" ) == 0 ) {
+	if ( strcmp( it.current(), "resizeMode" ) == 0 && w->inherits( "QLayout" ) ) {
 	    saveProperty( w, it.current(), "", QVariant::String, ts, indent );
 	} else if ( p->isSetType() ) {
 	    saveSetProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
