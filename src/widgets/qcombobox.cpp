@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#226 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#227 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -37,6 +37,7 @@
 #include "qbitmap.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QComboBox qcombobox.h
   \brief The QComboBox widget is a combined button and popup list.
@@ -876,7 +877,7 @@ QSize QComboBox::sizeHint() const
 	sw = 4 + 4 + maxW + extraW;
 	sh = 5 + 5 + maxH;
     }
-    
+
     return QSize( sw, sh );
 }
 
@@ -1048,7 +1049,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
-	style().drawComboButton( &p, 0, 0, width(), height(), 
+	style().drawComboButton( &p, 0, 0, width(), height(),
 				 g, d->arrowDown, d->ed != 0 );
 	if ( !d->ed ) {
 	    QRect clip = style().comboButtonRect( 0, 0, width(), height() );

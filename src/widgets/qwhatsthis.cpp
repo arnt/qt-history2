@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#56 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -37,6 +37,7 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 
+// NOT REVISED
 /*!
   \class QWhatsThis qwhatsthis.h
 

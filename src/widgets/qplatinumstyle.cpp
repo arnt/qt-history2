@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#7 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -38,6 +38,7 @@
 #include "qscrollbar.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QPlatinumStyle qplatinumstyle.h
   \brief Platinum Look and Feel

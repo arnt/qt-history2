@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#97 $
 **
 ** Implementation of QSlider class
 **
@@ -39,6 +39,7 @@ static const bool funnyWindowsStyle = FALSE;
 static int sliderStartVal = 0; //##### class member?
 
 
+// NOT REVISED
 /*!
   \class QSlider qslider.h
   \brief The QSlider widget provides a vertical or horizontal slider.

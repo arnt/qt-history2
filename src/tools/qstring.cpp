@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#280 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#281 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9577,6 +9577,7 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
     return al.row() == bl.row() ? al.cell() - bl.cell() : al.row() - bl.row();
 }
 
+// NOT REVISED
 /*! \class QCharRef qstring.h
   \brief QCharRef is a helper class for QString.
 

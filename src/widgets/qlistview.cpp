@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#316 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#317 $
 **
 ** Implementation of QListView widget class
 **
@@ -182,6 +182,7 @@ struct QListViewPrivate
 
 
 
+// NOT REVISED
 /*!
   \class QListViewItem qlistview.h
   \brief The QListViewItem class implements a list view item.
@@ -2063,7 +2064,7 @@ void QListView::removeColumn( int index )
 {
     if ( index < 0 || index > (int)d->column.count() - 1 )
 	return;
-    
+
     if ( d->vci ) {
 	QListViewPrivate::ViewColumnInfo *vi = d->vci, *prev = 0, *next = 0;
 	for ( int i = 0; i < index; ++i ) {
@@ -2082,7 +2083,7 @@ void QListView::removeColumn( int index )
 		d->vci = next;
 	}
     }
-    
+
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it ) {
 	QListViewPrivate::ItemColumnInfo *ci = (QListViewPrivate::ItemColumnInfo*)it.current()->columns;
@@ -2112,9 +2113,9 @@ void QListView::removeColumn( int index )
     }
     d->column.take( d->column.size() - 1 );
     d->column.resize( d->column.size() - 1 );
-    
+
     d->h->removeLabel( index );
-    
+
     triggerUpdate();
     if ( d->column.count() == 0 )
 	clear();

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#125 $
 **
 ** Implementation of QTableView class
 **
@@ -60,6 +60,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 }
 
 
+// NOT REVISED
 /*!
   \class QTableView qtableview.h
   \brief This is an abstract base class for implementing tables
@@ -2249,7 +2250,7 @@ void QTableView::updateTableSize()
     xOffs++; //so that setOffset will not return immediately
     setOffset(xofs,yOffset(),FALSE); //to calculate internal state correctly
     setAutoUpdate(updateOn);
-    
+
     updateScrollBars( horSteps |  horRange |
 		      verSteps |  verRange );
     showOrHideScrollBars();

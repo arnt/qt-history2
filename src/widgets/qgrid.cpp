@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#19 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -24,6 +24,7 @@
 #include "qlayout.h"
 #include "qapplication.h"
 
+// NOT REVISED
 /*!
   \class QGrid qgrid.h
   \brief The QGrid widget performs geometry management on its children

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#20 $
 **
 ** Implementation of QColorDialog class
 **
@@ -437,7 +437,7 @@ void QColorShower::showAlpha( bool b )
 QColorShower::QColorShower( QWidget *parent, const char *name )
     :QWidget( parent, name)
 {
-    curCol = qRgb( 0,0,0 ); 
+    curCol = qRgb( 0,0,0 );
     QColIntValidator *val256 = new QColIntValidator( 0, 255, this );
     QColIntValidator *val360 = new QColIntValidator( 0, 360, this );
 
@@ -749,6 +749,7 @@ void QColorDialogPrivate::addCustom()
 }
 
 
+// NOT REVISED
 /*!
   \class QColorDialog qcolordialog.h
   \brief The QColorDialog provides a dialog widget for specifying colors.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#36 $
 **
 ** Implementation of validator classes.
 **
@@ -30,6 +30,7 @@
 #include <limits.h> // *_MIN, *_MAX
 #include <ctype.h> // isdigit
 
+// NOT REVISED
 /*!
   \class QValidator qvalidator.h
 
@@ -55,7 +56,7 @@
   is a plausible intermediate state during entry of an \c Acceptable
   string is \c Valid.
 
-  Here are some examples: 
+  Here are some examples:
   <ol>
 
   <li>For a line edit that accepts integers from 0 to 999 inclusive,
@@ -74,7 +75,7 @@
   "http://www.troll.no" and "hour" are \c Invalid.
 
   </ol>
-  
+
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
   call fixup() if the user presses Return and the content is not

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#82 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -42,6 +42,7 @@ struct QSpinBoxPrivate
 };
 
 
+// NOT REVISED
 /*!
   \class QSpinBox qspinbox.h
 

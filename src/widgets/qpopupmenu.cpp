@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#249 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#250 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -89,6 +89,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 
 
 
+// NOT REVISED
 /*!
   \class QPopupMenu qpopupmenu.h
   \brief The QPopupMenu class provides a popup menu widget.

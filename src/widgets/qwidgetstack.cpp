@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#51 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -48,7 +48,7 @@ public:
     };
 };
 
-
+// NOT REVISED
 /*! \class QWidgetStack qwidgetstack.h
 
   \brief The QWidgetStack class provides a stack of widgets, where the

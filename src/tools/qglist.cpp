@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#60 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -28,6 +28,7 @@
 #include "qdatastream.h"
 
 
+// NOT REVISED
 /*!
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.

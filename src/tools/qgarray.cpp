@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#50 $
 **
 ** Implementation of QGArray class
 **
@@ -43,6 +43,7 @@
 #endif
 
 
+// NOT REVISED
 /*!
   \class QShared qshared.h
   \brief The QShared struct is internally used for implementing shared classes.

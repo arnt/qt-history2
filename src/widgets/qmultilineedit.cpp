@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#82 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -34,6 +34,7 @@
 #include <ctype.h>
 
 
+// NOT REVISED
 /*!
   \class QMultiLineEdit qmultilineedit.h
 
@@ -886,7 +887,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 		copy();
 	    else
 		unknown++;
-	    break; 
+	    break;
 	default:
 	    unknown++;
 	}

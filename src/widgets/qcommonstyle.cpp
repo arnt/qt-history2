@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#5 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -40,6 +40,7 @@
 #include <limits.h>
 
 
+// NOT REVISED
 /*!
   \class QCommonStyle qcommonstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
@@ -253,7 +254,7 @@ QCommonStyle::drawSliderGrooveMask( QPainter *p,
 {
      if ( orient == Horizontal )
 	 p->fillRect(x, y, w, h, color1);
-    else 
+    else
 	p->fillRect(x, y, w, h, color1);
 }
 

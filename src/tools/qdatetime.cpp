@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#80 $
 **
 ** Implementation of date and time classes
 **
@@ -72,6 +72,7 @@ const char *QDate::weekdayNames[] ={
   QDate member functions
  *****************************************************************************/
 
+// NOT REVISED
 /*!
   \class QDate qdatetime.h
   \brief The QDate class provides date functions.
@@ -84,7 +85,7 @@ const char *QDate::weekdayNames[] ={
   for all dates earlier than 14th September 1752, and the day it
   computes is correct only in some countries for years between 1752
   and 1923.
-  
+
   The end of time is reached around 8000AD, by which time we expect Qt
   to be obsolete.
 
@@ -922,7 +923,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 	    t.ds = 0;
 	    return;
 	}
-    } 
+    }
     d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
     t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
 	    1000*tM->tm_sec;

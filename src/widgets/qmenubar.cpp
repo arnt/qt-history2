@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#163 $
 **
 ** Implementation of QMenuBar class
 **
@@ -35,6 +35,7 @@
 #include "qdom.h"
 #endif // QT_BUILDER
 
+// NOT REVISED
 /*!
   \class QMenuBar qmenubar.h
   \brief The QMenuBar class provides a horizontal menu bar.

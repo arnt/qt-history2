@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#43 $
 **
 ** Implementation of QStatusBar class
 **
@@ -33,6 +33,7 @@
 #include "qapplication.h"
 #include "qsizegrip.h"
 
+// NOT REVISED
 /*! \class QStatusBar qstatusbar.h
 
   \brief The QStatusBar class provides a horizontal bar suitable for

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#93 $
 **
 ** Implementation of QFrame widget class
 **
@@ -29,6 +29,7 @@
 #include "qframe.h"
 #include "qbitmap.h"
 
+// NOT REVISED
 /*!
   \class QFrame qframe.h
   \brief The QFrame class is the base class of widgets that (can) have a frame.
@@ -620,7 +621,7 @@ void QFrame::drawContents( QPainter * )
 
   This function can be reimplemented by subclasses that need to know
   when the frame attributes change.
-  
+
   The default implementation calls update().
 */
 

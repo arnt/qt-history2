@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#123 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#124 $
 **
 ** Implementation of QTextStream class
 **
@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+// NOT REVISED
 /*!
   \class QTextStream qtextstream.h
 

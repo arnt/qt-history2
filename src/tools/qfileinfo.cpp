@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#60 $
 **
 ** Implementation of QFileInfo class
 **
@@ -86,6 +86,7 @@ struct QFileInfoCache
 };
 
 
+// NOT REVISED
 /*!
   \class QFileInfo qfileinfo.h
   \brief The QFileInfo class provides system-independent file information.

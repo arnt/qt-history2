@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#71 $
 **
 ** Implementation of QRegExp class
 **
@@ -27,13 +27,14 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+// NOT REVISED
 /*!
   \class QRegExp qregexp.h
   \ingroup tools
   \ingroup misc
   \brief The QRegExp class provides pattern matching using regular expressions or wildcards.
 
-  
+
   QRegExp knows these regexp primitives:
   <ul plain>
   <li><dfn>c</dfn> matches the character 'c'

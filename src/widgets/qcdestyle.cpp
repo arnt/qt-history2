@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcdestyle.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qcdestyle.cpp#3 $
 **
 ** Implementation of CDE-like style class
 **
@@ -38,6 +38,7 @@
 #include "qscrollbar.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QCDEStyle qcdestyle.h
   \brief CDE Look and Feel
@@ -195,7 +196,7 @@ void QCDEStyle::drawIndicator( QPainter* p,
 			       int s, bool down, bool /* enabled */ )
 {
     bool showUp = !down && s == QButton::Off;
-    QBrush fill =  down ? g.brush( QColorGroup::Mid )   : 
+    QBrush fill =  down ? g.brush( QColorGroup::Mid )   :
 			  g.brush( QColorGroup::Button );
     qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 
@@ -253,7 +254,7 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     a.translate( x, y );
     QColor fillColor = on ? g.dark() : g.background();
     p->setPen( fillColor );
-    p->setBrush( on ?  g.brush( QColorGroup::Dark )        : 
+    p->setBrush( on ?  g.brush( QColorGroup::Dark )        :
 		       g.brush( QColorGroup::Background ) );
     p->drawPolygon( a );
 }

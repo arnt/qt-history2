@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#95 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#96 $
 **
 ** Implementation of QTabDialog class
 **
@@ -37,6 +37,7 @@
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
+// NOT REVISED
 /*!
   \class QTabDialog qtabdialog.h
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#95 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#96 $
 **
 ** Implementation of QFile class
 **
@@ -58,6 +58,7 @@ QCString qt_win95Name(const QString s)
 #endif
 
 
+// NOT REVISED
 /*!
   \class QFile qfile.h
   \brief The QFile class is an I/O device that operates on files.

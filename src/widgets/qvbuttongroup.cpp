@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbuttongroup.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qvbuttongroup.cpp#2 $
 **
 ** Implementation of QVButtonGroup class
 **
@@ -25,6 +25,7 @@
 
 #include "qvbuttongroup.h"
 
+// NOT REVISED
 /*!
   \class QVButtonGroup qvbuttongroup.h
 
@@ -38,7 +39,7 @@
   and is specifically designed for buttons.
 */
 
-/*!  
+/*!
   Constructs a vertical button group with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.

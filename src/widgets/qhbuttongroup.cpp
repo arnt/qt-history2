@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbuttongroup.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qhbuttongroup.cpp#2 $
 **
 ** Implementation of QHButtonGroup class
 **
@@ -25,6 +25,7 @@
 
 #include "qhbuttongroup.h"
 
+// NOT REVISED
 /*!
   \class QHButtonGroup qhbuttongroup.h
 
@@ -38,7 +39,7 @@
   and is specifically designed for buttons.
 */
 
-/*!  
+/*!
   Constructs a horizontal button group with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.

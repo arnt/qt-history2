@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#25 $
 **
 ** Implementation of something useful.
 **
@@ -64,6 +64,7 @@ public:
 };
 
 
+// NOT REVISED
 /*! \class QDial qdial.h
 
   \brief The QDial widget provides a dial (or speedometer, or potentiometer) widget.
@@ -633,7 +634,7 @@ void QDial::setWrapping( bool enable )
 
 /*!
   Returns TRUE if wrapping is enabled, else FALSE.
-  
+
   \sa QDial::setWrapping()
 */
 

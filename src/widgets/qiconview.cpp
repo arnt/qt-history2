@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#120 $
 **
 ** Definition of QIconView widget class
 **
@@ -228,16 +228,17 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
  *
  *****************************************************************************/
 
+// NOT REVISED
 /*!
   \class QIconDragItem qiconview.h
-  
+
   \brief The QIconDragItem is the internal data structure of a QIconDrag
 
   This class is used internally in the QIconDrag to store the data (in fact,
-  a list of QIconDragItems is used by QIconDrag). Such an item stores 
+  a list of QIconDragItems is used by QIconDrag). Such an item stores
   the data about the geometry of an item of the iconview which is dragged
   around, so that drag shades can be drawn correctly.
-  
+
 */
 
 /*!
@@ -1544,8 +1545,8 @@ void QIconViewItem::setIconRect( const QRect &r )
   the iconview itself using DnD. So the QIconView provides some methods for
   extended DnD too. To use DnD correctly in the iconview, please read following
   instructions:
-  
-  
+
+
 
 */
 

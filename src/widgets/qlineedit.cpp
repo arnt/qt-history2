@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#238 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#239 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -57,6 +57,7 @@ struct QLineEditPrivate {
 };
 
 
+// NOT REVISED
 /*!
   \class QLineEdit qlineedit.h
 

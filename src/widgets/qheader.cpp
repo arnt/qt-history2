@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#99 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -51,6 +51,7 @@ struct QHeaderData
 };
 
 
+// NOT REVISED
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
@@ -613,7 +614,7 @@ QRect QHeader::sRect( int i )
 
 
 /*!
-  Sets the icon on logical section \a i to \a iconset and the text to \a s. 
+  Sets the icon on logical section \a i to \a iconset and the text to \a s.
   If the section does not exist, nothing happens.
   If \a size is non-negative, the section width is set to \a size.
 

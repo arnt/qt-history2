@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#63 $
 **
 ** Implementation of QToolButton class
 **
@@ -49,6 +49,7 @@ public:
 };
 
 
+// NOT REVISED
 /*!
   \class QToolButton qtoolbutton.h
 
@@ -650,7 +651,7 @@ void QToolButton::popupTimerDone()
   Sets the time delay between pressing the button and the appearance of
   the associated popupmenu in milliseconds. Usually this is around 1/2 of
   a second.
-  
+
   \sa popupDelay(), setPopup()
 */
 void QToolButton::setPopupDelay( int delay )
@@ -661,7 +662,7 @@ void QToolButton::setPopupDelay( int delay )
 /*!
   Returns the delay between pressing the button and the appearance of
   the associated popupmenu in milliseconds.
-  
+
   \sa setPopupDelay(), setPopup()
 */
 int QToolButton::popupDelay() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#82 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -29,6 +29,7 @@
 //!hanordce #include <stdio.h>
 
 
+// NOT REVISED
 /*!
   \class QLCDNumber qlcdnumber.h
 

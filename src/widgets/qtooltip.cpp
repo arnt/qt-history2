@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#94 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -489,6 +489,7 @@ void QTipManager::hideTip()
 }
 
 
+// NOT REVISED
 /*!
   \class QToolTip qtooltip.h
 
@@ -983,7 +984,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.88 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.89 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

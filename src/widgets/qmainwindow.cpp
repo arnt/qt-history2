@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#84 $
 **
 ** Implementation of QMainWindow class
 **
@@ -48,6 +48,7 @@
 #include "qaction.h"
 #endif
 
+// NOT REVISED
 /*! \class QMainWindow qmainwindow.h
 
   \brief The QMainWindow class provides a typical application window,

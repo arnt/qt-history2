@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#84 $
 **
 ** Implementation of QTabBar class
 **
@@ -27,6 +27,8 @@
 
 #include <ctype.h>
 
+
+// NOT REVISED
 /*!
   \class QTab qtabbar.h
   \brief The structures in a QTabBar.

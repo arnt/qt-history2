@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#104 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#105 $
 **
 ** Implementation of QMessageBox class
 **
@@ -156,6 +156,7 @@ static const char* critical_xpm[]={
 #define QT_END_TEXT qt_dialog_default_key
 
 
+// NOT REVISED
 /*!
   \class QMessageBox qmessagebox.h
   \brief Displays a brief message, an icon, and some buttons.

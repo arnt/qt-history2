@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#87 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#88 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -30,6 +30,7 @@
 #include <ctype.h>
 
 
+// NOT REVISED
 /*!
   \class QGDict qgdict.h
   \brief The QGDict class is an internal class for implementing QDict template classes.

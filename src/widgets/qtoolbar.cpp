@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#55 $
 **
 ** Implementation of QToolBar class
 **
@@ -43,6 +43,7 @@
 #include "qaction.h"
 #endif
 
+// NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
   \brief The QToolBar class provides a simple tool bar.

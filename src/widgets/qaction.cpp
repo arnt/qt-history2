@@ -12,6 +12,8 @@
 #include "qvalidator.h"
 #include "qtl.h"
 
+// NOT REVISED
+
 static const char*folder[]={
 "16 16 9 1",
 "g c #808080",
@@ -65,6 +67,8 @@ static const char*unknown[]={
 "...##aaaaa#.....",
 ".....##aa#......",
 ".......##......."};
+
+
 
 
 /*************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#111 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#112 $
 **
 ** Implementation of QDir class
 **
@@ -86,6 +86,7 @@ extern void slashify(QString &);
 
 
 
+// NOT REVISED
 /*!
   \class QDir qdir.h
   \brief Traverses directory structures and contents in a

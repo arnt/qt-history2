@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#318 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#319 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1442,6 +1442,7 @@ static QStringList makeFiltersList( const QString &filter )
     return QStringList::split( sep, filter );
 }
 
+// NOT REVISED
 /*!
   \class QFileDialog qfiledialog.h
   \brief The QFileDialog provides a dialog widget for inputting file names.

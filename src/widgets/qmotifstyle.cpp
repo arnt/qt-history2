@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#21 $
 **
 ** Implementation of Motif-like style class
 **
@@ -41,6 +41,7 @@
 #include "qpopupmenu.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QMotifStyle qmotifstyle.h
   \brief Motif Look and Feel
@@ -1037,7 +1038,7 @@ static void get_combo_parameters( const QRect &r,
 				  int &sy )
 {
     ew = get_combo_extra_width( r.height(), &awh );
-    
+
     sh = (awh+3)/4;
     if ( sh < 3 )
 	sh = 3;
@@ -1057,7 +1058,7 @@ static void get_combo_parameters( const QRect &r,
 /*! \reimp
  */
 void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-				    const QColorGroup &g, 
+				    const QColorGroup &g,
 				    bool /* sunken */,
 				    bool editable,
 				    bool /*enabled */,
@@ -1067,7 +1068,7 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
     int awh, ax, ay, sh, sy, dh, ew;
     get_combo_parameters( buttonRect(x,y,w,h), ew, awh, ax, ay, sh, dh, sy );
-    
+
     drawButton( p, x, y, w, h, g, FALSE, &fill );
 
     qDrawArrow( p, DownArrow, MotifStyle, FALSE,
@@ -1084,7 +1085,7 @@ void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 	QRect r( comboButtonRect(x,y,w,h) );
 	r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
 	qDrawShadePanel( p, r, g, TRUE, 1, &fill );
-    }  
+    }
 }
 
 
@@ -1102,7 +1103,7 @@ QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h)
 QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
     int awh, ax, ay, sh, sy, dh, ew;
-    get_combo_parameters( buttonRect( x, y, w, h ), 
+    get_combo_parameters( buttonRect( x, y, w, h ),
 			  ew, awh, ax, ay, sh, dh, sy );
     return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
 }

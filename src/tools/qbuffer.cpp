@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#45 $
 **
 ** Implementation of QBuffer class
 **
@@ -26,6 +26,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
+// NOT REVISED
 /*!
   \class QBuffer qbuffer.h
   \brief The QBuffer class is an I/O device that operates on a QByteArray

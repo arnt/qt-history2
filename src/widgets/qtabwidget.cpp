@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#27 $
 **
 ** Implementation of QTabWidget class
 **
@@ -30,6 +30,8 @@
 #include "qapplication.h"
 #include "qwidgetstack.h"
 #include "qbitmap.h"
+
+// NOT REVISED
 /*!
   \class QTabWidget qtabwidget.h
 

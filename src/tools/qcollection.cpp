@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#31 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -25,6 +25,7 @@
 
 #include "qcollection.h"
 
+// NOT REVISED
 /*!
   \class QCollection qcollection.h
   \brief The QCollection class is the base class of all Qt collections.

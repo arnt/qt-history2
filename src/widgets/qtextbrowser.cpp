@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#14 $
 **
 ** Implementation of the QTextView class
 **
@@ -42,6 +42,7 @@
 #include "qdragobject.h"
 
 
+// NOT REVISED
 /*!
   \class QTextBrowser qtextbrowser.h
   \brief A rich text  browser with simple navigation.

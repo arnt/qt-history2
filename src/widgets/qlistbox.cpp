@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#308 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#309 $
 **
 ** Implementation of QListBox widget class
 **
@@ -68,7 +68,7 @@ public:
 	int indent;
 	bool dirty;
     };
-    
+
     QListBoxItem * head;
     QPtrDict<ItemInfo> infoDict;
     QListBoxItem * current;
@@ -115,6 +115,7 @@ QListBoxPrivate::~QListBoxPrivate()
 }
 
 
+// NOT REVISED
 /*!
   \class QListBoxItem qlistbox.h
 
@@ -223,12 +224,12 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
 /*!
   Constructs and empty listbox item which will be inserted
   as child of \a parent. Using this you can create a tree
-  structure in a listbox. It really you want to work with a 
-  hirarchical structure (a tree) it큦 suggested to use 
-  a QListView instead of a QListBox. The possibility to 
+  structure in a listbox. It really you want to work with a
+  hirarchical structure (a tree) it큦 suggested to use
+  a QListView instead of a QListBox. The possibility to
   create a tree structure in a listbox is very limited and
   only supported because it큦 needed in comboboxes.
-  
+
   \sa QListView::QListView()
 */
 
@@ -236,7 +237,7 @@ QListBoxItem::QListBoxItem( QListBoxItem *parent )
 {
     if ( !parent )
 	return;
-    
+
     lbox = parent->lbox;
     s = FALSE;
     dirty = TRUE;
@@ -405,14 +406,14 @@ QListBoxText::QListBoxText( QListBox* listbox, const QString &text, QListBoxItem
 }
 
 /*!
-  Constructs a list box item showing the text \a text, which 
-  will be inserted as child of \a parent. Using this you can 
-  create a tree structure in a listbox. It really you want to 
-  work with a  hirarchical structure (a tree) it큦 suggested to use 
-  a QListView instead of a QListBox. The possibility to 
+  Constructs a list box item showing the text \a text, which
+  will be inserted as child of \a parent. Using this you can
+  create a tree structure in a listbox. It really you want to
+  work with a  hirarchical structure (a tree) it큦 suggested to use
+  a QListView instead of a QListBox. The possibility to
   create a tree structure in a listbox is very limited and
   only supported because it큦 needed in comboboxes.
-  
+
   \sa QListView::QListView()
 */
 
@@ -503,14 +504,14 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pixmap, QListB
 }
 
 /*!
-  Constructs a list box item showing the pixmap \a pixmap, which 
-  will be inserted as child of \a parent. Using this you can 
-  create a tree structure in a listbox. It really you want to 
-  work with a  hirarchical structure (a tree) it큦 suggested to use 
-  a QListView instead of a QListBox. The possibility to 
+  Constructs a list box item showing the pixmap \a pixmap, which
+  will be inserted as child of \a parent. Using this you can
+  create a tree structure in a listbox. It really you want to
+  work with a  hirarchical structure (a tree) it큦 suggested to use
+  a QListView instead of a QListBox. The possibility to
   create a tree structure in a listbox is very limited and
   only supported because it큦 needed in comboboxes.
-  
+
   \sa QListView::QListView()
 */
 
@@ -622,10 +623,10 @@ int QListBoxPixmap::width( const QListBox* ) const
   (QListBox does however not support multiple-column items; QListView
   does that job.)
   Also a listbox can display items arranged in a tree. But this is
-  quite limited, and if you really want to display and work with 
+  quite limited, and if you really want to display and work with
   a tree, you should use a QListView. The tree stuff in the QListBox
   is only supported because it큦 needed in comboboxes.
-  
+
   The list box items can be accessed both as QListBoxItem objects
   (recommended) and using integer indexes (the original QListBox
   implementation used an array of strings internally, and the API
@@ -750,7 +751,7 @@ QListBox * QListBox::changedListBox = 0;
 /*!
   Destroys the list box.  Deletes all list box items.
 */
- 
+
 QListBox::~QListBox()
 {
     if ( changedListBox == this )
@@ -1012,7 +1013,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	index = count();
 
     QListBoxItem * item = (QListBoxItem *)lbi;
-    
+
     if ( !item->lbox ) {
 	QListBoxPrivate::ItemInfo *i = new QListBoxPrivate::ItemInfo;
 	i->item = item;
@@ -1046,7 +1047,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	    item->n = 0;
 	}
     }
-    
+
     d->count++;
     triggerUpdate( TRUE );
 }
@@ -3131,7 +3132,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     }
 
     i->paint( p );
-    
+
     if ( d->current == i && hasFocus() ) {
 	if ( numColumns() > 1 || d->differentDepths )
 	    cw = i->width( this );

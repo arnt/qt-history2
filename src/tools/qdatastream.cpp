@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#50 $
 **
 ** Implementation of QDataStream class
 **
@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+// NOT REVISED
 /*!
   \class QDataStream qdatastream.h
 

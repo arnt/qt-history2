@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#79 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#80 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -48,6 +48,8 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+
+// NOT REVISED
 
 struct QPrintDialogPrivate
 {
@@ -538,7 +540,7 @@ static void deleteGlobalPrintDialog()
     globalPrintDialog = 0;
 }
 
-/* \internal
+/*! \internal
 
   \class QPrintDialog qprintdialog.h
 

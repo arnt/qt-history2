@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qvbox.cpp#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,6 +23,7 @@
 #include "qvbox.h"
 #include "qlayout.h"
 
+// NOT REVISED
 /*!
   \class QVBox qvbox.h
   \brief The QVBox widget performs geometry management on its children

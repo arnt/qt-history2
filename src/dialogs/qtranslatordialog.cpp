@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#10 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -31,6 +31,8 @@
 #include "qheader.h"
 #include "qmenubar.h"
 #include "qapplication.h"
+
+// NOT REVISED
 
 class QTranslatorSignaller : public QTranslator
 {

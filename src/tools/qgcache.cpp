@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#52 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -29,6 +29,7 @@
 #include "qstring.h"
 
 
+// NOT REVISED
 /*!
   \class QGCache qgcache.h
 

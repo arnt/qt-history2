@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#25 $
 **
 ** Implementation of the QTextView class
 **
@@ -43,7 +43,7 @@
 
 
 
-
+// NOT REVISED
 /*!
   \class QTextView qtextview.h
   \brief A sophisticated single-page rich text viewer.

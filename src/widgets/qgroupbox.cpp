@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#72 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -37,6 +37,7 @@
 #include "qdom.h"
 #endif
 
+// NOT REVISED
 /*!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.

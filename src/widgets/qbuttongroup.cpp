@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#71 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -31,6 +31,7 @@
 
 
 
+// NOT REVISED
 /*!
   \class QButtonGroup qbuttongroup.h
   \brief The QButtonGroup widget organizes QButton widgets in a group.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#73 $
 **
 ** Global functions
 **
@@ -30,10 +30,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+// NOT REVISED
+
 /*!
   \relates QApplication
   Returns the Qt version number for the library, typically "1.30"
-  or "1.31".
+  or "2.01".
 */
 
 Q_EXPORT

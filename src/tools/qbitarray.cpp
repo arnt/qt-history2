@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#51 $
 **
 ** Implementation of QBitArray class
 **
@@ -29,6 +29,7 @@
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
 
 
+// NOT REVISED
 /*!
   \class QBitVal qbitarray.h
   \brief The QBitVal class is an internal class, used with QBitArray.

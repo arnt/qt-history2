@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#24 $
 **
 ** Implementation of QStringList
 **
@@ -27,6 +27,7 @@
 #include "qdatastream.h"
 #include "qtl.h"
 
+// NOT REVISED
 /*!
   \class QStringList qstringlist.h
   \brief A list of strings.

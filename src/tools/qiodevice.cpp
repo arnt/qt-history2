@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#51 $
 **
 ** Implementation of QIODevice class
 **
@@ -25,6 +25,7 @@
 
 #include "qiodevice.h"
 
+// NOT REVISED
 /*!
   \class QIODevice qiodevice.h
 
@@ -63,7 +64,7 @@
   <li> flush() ensures that all buffered data are written to the real device.
 
   </ul>There are also some other, less used, action functions: <ul>
-  
+
   <li> getch() reads a single character.
 
   <li> ungetch() forgets the last call to getch(), if possible.
@@ -81,7 +82,7 @@
   <li> reset() moves the read/write pointer to the start of the
   device, if that is possible for this device.
 
-  </ul>The state access are all "get" functions.  The QIODevice subclass 
+  </ul>The state access are all "get" functions.  The QIODevice subclass
   calls setState() to update the state, and simple access functions
   tell the user of the device what the device's state is.  Here are
   the settings, and their associated access functions: <ul>

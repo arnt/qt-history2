@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#140 $
 **
 ** Implementation of QScrollBar class
 **
@@ -30,6 +30,7 @@
 #include "qtimer.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QScrollBar qscrollbar.h
 

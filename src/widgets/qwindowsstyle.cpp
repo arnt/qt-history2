@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#17 $
 **
 ** Implementation of Windows-like style class
 **
@@ -41,6 +41,7 @@
 #include "qpopupmenu.h"
 #include <limits.h>
 
+// NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
   \brief Windows Look and Feel
@@ -815,7 +816,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	break;
     }
 
-    
+
     QBrush oldBrush = p->brush();
     p->setBrush( g.brush( QColorGroup::Button ) );
     p->setPen( NoPen );
@@ -824,7 +825,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
     p->setBrush( oldBrush );
 
 
-    
+
     if ( dir != SlUp ) {
 	p->setPen( c4 );
 	p->drawLine( x1, y1, x2, y1 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#47 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#48 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -73,6 +73,7 @@ struct QProgressData
 };
 
 
+// NOT REVISED
 /*!
   \class QProgressDialog qprogressdialog.h
   \brief Provides feedback on the progress of a slow operation.

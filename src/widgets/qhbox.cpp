@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#20 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -24,6 +24,7 @@
 #include "qapplication.h"
 #include "qobjectlist.h"
 
+// NOT REVISED
 /*!
   \class QHBox qhbox.h
   \brief The QHBox widget performs geometry management on its children

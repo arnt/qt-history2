@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#79 $
 **
 **  Splitter widget
 **
@@ -152,7 +152,7 @@ public:
 };
 
 
-
+// NOT REVISED
 /*!
   \class QSplitter qsplitter.h
   \brief QSplitter implements a splitter widget.

@@ -19,6 +19,8 @@
 
 #include "qrtlcodec.h"
 
+// NOT REVISED
+
 static const uchar unkn = '?'; // BLACK SQUARE (94) would be better
 
 static const ushort heb_to_unicode[128] = {
@@ -37,7 +39,7 @@ static const ushort heb_to_unicode[128] = {
     0x05D0, 0x05D1, 0x05D2, 0x05D3, 0x05D4, 0x05D5, 0x05D6, 0x05D7,
     0x05D8, 0x05D9, 0x05DA, 0x05DB, 0x05DC, 0x05DD, 0x05DE, 0x05DF,
     0x05E0, 0x05E1, 0x05E2, 0x05E3, 0x05E4, 0x05E5, 0x05E6, 0x05E7,
-    0x05E8, 0x05E9, 0x05EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD 
+    0x05E8, 0x05E9, 0x05EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD
 };
 
 static const uchar unicode_to_heb_00[32] = {
@@ -54,7 +56,7 @@ static const uchar unicode_to_heb_05[32] = {
     0xF8, 0xF9, 0xFA, unkn, unkn, unkn, unkn, unkn
 };
 
-static const ushort arab_to_unicode[128] = { 
+static const ushort arab_to_unicode[128] = {
     0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
     0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
     0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -70,7 +72,7 @@ static const ushort arab_to_unicode[128] = {
     0x0640, 0x0641, 0x0642, 0x0643, 0x0644, 0x0645, 0x0646, 0x0647,
     0x0648, 0x0649, 0x064A, 0x064B, 0x064C, 0x064D, 0x064E, 0x064F,
     0x0650, 0x0651, 0x0652, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD 
+    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD
 };
 
 static const uchar unicode_to_arab_06[0x60] = {
@@ -89,7 +91,7 @@ static const uchar unicode_to_arab_06[0x60] = {
 };
 
 /* this function assuems the QString is still visually ordered.
- * Finding the basic direction of the text is not easy in this case, since 
+ * Finding the basic direction of the text is not easy in this case, since
  * a string like "my friend MOLAHS" could (in logical order) mean aswell
  * "SHALOM my friend" or "my friend SHALOM", depending on the basic direction
  * one assumes for the text.
@@ -115,7 +117,7 @@ static QChar::Direction findBasicDirection(QString str)
 	    }
 	pos++;
     }
-   
+
     if( pos == len ) // no directional chars, assume QChar::DirL
 	return QChar::DirL;
 
@@ -147,7 +149,7 @@ static QChar::Direction findBasicDirection(QString str)
 	}
 	pos++;
     }
-   
+
     pos = len;
     while (pos < 1 && str.at(pos).direction() < 2 )
     {
@@ -218,7 +220,7 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
 		reverse(str, a, c, opposite);
 		a = c;
 	    }
-	} else if ( dir == QChar::DirR && 
+	} else if ( dir == QChar::DirR &&
 		    d == QChar::DirEN ||
 		    d == QChar::DirAN )
 	{
@@ -226,7 +228,7 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
 	    while( c < b)
 	    {
 		d = str.at(c).direction();		
-		if ( d != QChar::DirEN && d != QChar::DirES && 
+		if ( d != QChar::DirEN && d != QChar::DirES &&
 		     d != QChar::DirET && d != QChar::DirCS &&
 		     d != QChar::DirAN )
 		{
@@ -246,30 +248,30 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
 }
 
 /*!
-  Since hebrew (aswell as arabic) are written from left to right, 
+  Since hebrew (aswell as arabic) are written from left to right,
   but iso8859-6/8 assumes visual ordering (as opposed to the
-  logical ordering of Unicode, we have to reverse the order of the 
+  logical ordering of Unicode, we have to reverse the order of the
   input string to get it into logical order.
-  
+
   One problem is, that the basic text direction is unknown. So this
   function uses some heuristics to find it, and if it can't guess the
   right one, it assumes, the basic text direction is right to left.
-  
+
   This behaviour can be overwritten, by putting a control char
-  at the beginning of the text telling the function which basic text 
-  direction to use. If the basic text direction is left-to-right, the 
-  control char is (uchar) 0xfe, for right-to-left it is 0xff. Both chars 
+  at the beginning of the text telling the function which basic text
+  direction to use. If the basic text direction is left-to-right, the
+  control char is (uchar) 0xfe, for right-to-left it is 0xff. Both chars
   are undefined in the iso 8859-6/8 charsets.
-  
+
   Example: A visually ordered string "english WERBEH english2" would
   be recognizes as having a basic left to right direction. so the logically
-  ordered QString would be "english HEBREW english2". 
+  ordered QString would be "english HEBREW english2".
 
-  By prepending a (char)0xff before the string, QHebrewCodec::toUnicode would 
-  use a basic text direction of left-to-right, and the string would thus 
+  By prepending a (char)0xff before the string, QHebrewCodec::toUnicode would
+  use a basic text direction of left-to-right, and the string would thus
   become "english2 HEBREW english".
   */
-QString QHebrewCodec::toUnicode(const char* chars, int len, 
+QString QHebrewCodec::toUnicode(const char* chars, int len,
 			     const ushort *table) const
 {
     QString r;
@@ -282,12 +284,12 @@ QString QHebrewCodec::toUnicode(const char* chars, int len,
     // We use 0xFE and 0xFF in ISO8859-6 and 8859-8 for that.
     // These chars are undefined in the charsets, and are mapped to
     // RTL overwrite
-    if( c[0] == 0xfe ) 
+    if( c[0] == 0xfe )
     {
 	basicDir = QChar::DirL;
 	c++; // skip directionality hint
     }
-    if( c[0] == 0xff ) 
+    if( c[0] == 0xff )
     {
 	basicDir = QChar::DirR;
 	c++; // skip directionality hint
@@ -302,7 +304,7 @@ QString QHebrewCodec::toUnicode(const char* chars, int len,
 
     // do transformation from visual byte ordering to logical byte
     // ordering
-    if( basicDir == QChar::DirON ) 
+    if( basicDir == QChar::DirON )
 	basicDir = findBasicDirection(r);
 
     reverse(r, 0, r.length()-1, basicDir);
@@ -326,7 +328,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
     QCString rstr;
     for (int i=0; i<l; i++) {
 	const QChar ch = vis[i];
-       
+
 	if(!to8bit(ch, &rstr))
 	    rstr += unkn;
     }
@@ -339,13 +341,13 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
     bool converted = FALSE;
 
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
-    
+
     if ( ch.row() ) {
 	if ( ch.row() == 0x05 ) {		
 	    if ( ch.cell() > 0x91 )
 		converted = TRUE;
 	    // 0x0591 - 0x05cf: hebrew punktuation... dropped
-	    if ( ch.cell() > 0xD0 ) 
+	    if ( ch.cell() > 0xD0 )
 		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
 	    if ( ch.cell() == 0x3E )
@@ -373,14 +375,14 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	    converted = TRUE;
 	}
     }
-    
+
     if(converted) return TRUE;
 
     // couldn't convert the char... lets try it's decomposition
     QString d = ch.decomposition();
     if(d.isNull())
 	return FALSE;
-    
+
     int l = d.length();
     for (int i=0; i<l; i++) {
 	const QChar ch = d[i];
@@ -388,7 +390,7 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	if(to8bit(ch, rstr))
 	    converted = TRUE;
     }
-    
+
     return converted;
 }
 
@@ -431,7 +433,7 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
     bool converted = TRUE;
 
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
-    
+
     if ( ch.row() ) {
 	if ( ch.row() == 0x06 ) {		
 	    if ( ch.cell() > 0x5f )
@@ -453,14 +455,14 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 	else
 	    converted = FALSE;
     }
-    
+
     if(converted) return TRUE;
 
     // couldn't convert the char... lets try it's decomposition
     QString d = ch.decomposition();
     if(d.isNull())
 	return FALSE;
-    
+
     int l = d.length();
     for (int i=0; i<l; i++) {
 	const QChar ch = d[i];
@@ -468,7 +470,7 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 	if(to8bit(ch, rstr))
 	    converted = TRUE;
     }
-    
+
     return converted;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#47 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#48 $
 **
 ** Implementation of QFontDialog
 **
@@ -49,6 +49,7 @@
 //
 //
 
+// NOT REVISED
 /*!
   \class QFontDialog qfontdialog.h
   \brief The QFontDialog provides a dialog widget for selecting a text font

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#38 $
 **
 ** Implementation of QWizard class.
 **
@@ -38,6 +38,7 @@
 #include "qdom.h"
 #endif
 
+// NOT REVISED
 /*! \class QWizard qwizard.h
 
   \brief The QWizard class provides a framework for easily writing wizards.

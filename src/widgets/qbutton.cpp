@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#153 $
 **
 ** Implementation of QButton widget class
 **
@@ -104,6 +104,7 @@ QTimer *QButton::timer()
 }
 
 
+// NOT REVISED
 /*!
   \class QButton qbutton.h
 
