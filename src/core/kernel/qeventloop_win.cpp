@@ -194,7 +194,7 @@ bool QEventLoop::unregisterTimer(int ind)
     else
         KillTimer(0, t->id);
     timerDict->remove(t->id);
-    timerVec->remove(t);
+    timerVec->removeAll(t);
     delete t;
     return true;
 }
@@ -384,7 +384,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     if (!sn)
         return;
 
-    d->sn_pending_list.remove(sn);                // remove from activation list
+    d->sn_pending_list.removeAll(sn);                // remove from activation list
 
     dict->remove(sockfd);
     delete sn;
@@ -541,7 +541,7 @@ int QEventLoop::activateSocketNotifiers()
     int n_act = 0;
     QEvent event(QEvent::SockAct);
     while (!d->sn_pending_list.isEmpty()) {
-        QSockNot *sn = d->sn_pending_list.takeAt(0);
+        QSockNot *sn = d->sn_pending_list.takeFirst();
         QCoreApplication::sendEvent(sn->obj, &event);
         n_act++;
     }

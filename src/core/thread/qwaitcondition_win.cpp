@@ -57,7 +57,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 
     mtx.lock();
     QWaitConditionEvent *wce =
-        freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeAt(0);
+        freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeFirst();
     wce->priority = GetThreadPriority(GetCurrentThread());
 
     // insert 'wce' into the queue (sorted by priority)
@@ -85,7 +85,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 
     mtx.lock();
     // remove 'wce' from the queue
-    queue.remove(wce);
+    queue.removeAll(wce);
     ResetEvent(wce->event);
     freeQueue.append(wce);
     mtx.unlock();

@@ -59,7 +59,7 @@ public:
     void reset()
     {
         while (!stdinBuf.isEmpty()) {
-            delete (stdinBuf.isEmpty() ? 0 : stdinBuf.takeAt(0));
+            delete (stdinBuf.isEmpty() ? 0 : stdinBuf.takeFirst());
         }
         closeHandles();
         stdinBufRead = 0;
@@ -539,7 +539,7 @@ void QProcess::socketWrite(int)
         d->stdinBufRead += written;
         if (d->stdinBufRead == d->stdinBuf.first()->size()) {
             d->stdinBufRead = 0;
-            delete (d->stdinBuf.isEmpty() ? 0 : d->stdinBuf.takeAt(0));
+            delete (d->stdinBuf.isEmpty() ? 0 : d->stdinBuf.takeFirst());
             if (wroteToStdinConnected && d->stdinBuf.isEmpty())
                 emit wroteToStdin();
         }
