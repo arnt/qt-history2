@@ -59,6 +59,7 @@ public:
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
+    void reopenChildren(const QModelIndex &parent, bool update);
 
     QHeaderView *header;
     int indent;

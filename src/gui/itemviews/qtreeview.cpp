@@ -298,15 +298,15 @@ void QTreeView::showColumn(int column)
   Opens the model item specified by the \a index.
 */
 
-void QTreeView::open(const QModelIndex &item)
+void QTreeView::open(const QModelIndex &index)
 {
-    if (!item.isValid())
+    if (!index.isValid())
         return;
-    int idx = d->viewIndex(item);
+    int idx = d->viewIndex(index);
     if (idx > -1) // is visible
         d->open(idx, true);
     else
-        d->opened.append(item);
+        d->opened.append(index);
 }
 
 /*!
@@ -566,10 +566,10 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
-                               | (d->model->rowCount(parent) - 1 > index.row()
-                                  ? QStyle::Style_Sibling : 0)
-                               | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
-                               | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
+                    | (d->model->rowCount(parent) - 1 > index.row()
+                       ? QStyle::Style_Sibling : 0)
+                    | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
+                    | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
     }
     // then go out level by level
@@ -658,13 +658,13 @@ void QTreeView::doItemsLayout()
 {
     QAbstractItemView::doItemsLayout();
     QStyleOptionViewItem option = viewOptions();
-    QModelIndex index = model()->index(0, 0, root());
-    if (!index.isValid())
+    if (model()->rowCount(root()) <= 0)
         return;
+    QModelIndex index = model()->index(0, 0, root());
     d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
     d->layout(-1);
+    d->reopenChildren(root(), false);
     updateGeometries();
-//    d->viewport->update();
 }
 
 /*!
@@ -876,8 +876,10 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         QModelIndex current_index = items[current_item].index;
         QModelIndex previous_index = items[previous_item].index;
 
-        int current_height = delegate->sizeHint(fontMetrics, option, d->model, current_index).height();
-        int previous_height = delegate->sizeHint(fontMetrics, option, d->model, previous_index).height();
+        int current_height = delegate->sizeHint(fontMetrics, option,
+                                                d->model, current_index).height();
+        int previous_height = delegate->sizeHint(fontMetrics, option,
+                                                 d->model, previous_index).height();
         int current_y = d->coordinateAt(current_value, current_height);
         int previous_y = d->coordinateAt(previous_value, previous_height);
 
@@ -1173,6 +1175,7 @@ void QTreeViewPrivate::open(int i, bool update)
         return;
 
     opened.append(index);
+
     items[i].open = true;
     layout(i);
 
@@ -1183,16 +1186,7 @@ void QTreeViewPrivate::open(int i, bool update)
     }
 
     // make sure we open children that are already open
-    // FIXME: this is slow: optimize
-    QVector<QModelIndex> o = opened;
-    for (int j = 0; j < o.count(); ++j) {
-        if (model->parent(o.at(j)) == index) {
-            int k = opened.indexOf(o.at(j));
-            opened.remove(k);
-            int v = viewIndex(o.at(j));
-            open(v, update);
-        }
-    }
+    reopenChildren(index, update);
 
     if (update)
         emit q->expanded(index);
@@ -1416,5 +1410,19 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     } else {
         items.clear();
         q->doItemsLayout();
+    }
+}
+
+void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
+{
+    // FIXME: this is slow: optimize
+    QVector<QModelIndex> o = opened;
+    for (int j = 0; j < o.count(); ++j) {
+        if (model->parent(o.at(j)) == parent) {
+            int k = opened.indexOf(o.at(j));
+            opened.remove(k);
+            int v = viewIndex(o.at(j));
+            open(v, update);
+        }
     }
 }
