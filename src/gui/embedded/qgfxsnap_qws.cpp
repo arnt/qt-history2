@@ -1,5 +1,4 @@
 /****************************************************************************
-** $Id$
 **
 ** Implementation of QSNAPScreen and QGfxSNAP classes for Embedded Qt
 **
