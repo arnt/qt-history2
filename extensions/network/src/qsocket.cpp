@@ -1020,7 +1020,7 @@ bool QSocket::listen( const QHostAddress &a, int p )
 {
     setSocket( -1 );
     d->socket->bind( a, p );
-    d->socket->listen( 1 );
+    return d->socket->listen( 1 );
 }
 
 

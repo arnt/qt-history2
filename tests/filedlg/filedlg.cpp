@@ -60,7 +60,7 @@ public:
     const QPixmap * pixmap( const QFileInfo &fi );
 };
 
-ImageIconProvider::ImageIconProvider( QWidget *parent=0, const char *name=0 ) :
+ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name ) :
     QFileIconProvider( parent, name ),
     imagepm(image_xpm)
 {
