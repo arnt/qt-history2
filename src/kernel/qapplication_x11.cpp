@@ -2429,7 +2429,13 @@ int qt_xscreen()				// get current X screen
     return appScreen;
 }
 
-WId qt_xrootwin( int scrn )			// get X root window
+// ### REMOVE 4.0
+WId qt_xrootwin()				// get X root window
+{
+    return QPaintDevice::x11AppRootWindow();
+}
+
+WId qt_xrootwin( int scrn )			// get X root window for screen
 {
     return QPaintDevice::x11AppRootWindow( scrn );
 }
