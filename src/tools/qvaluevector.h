@@ -45,14 +45,15 @@
 #endif
 
 
-template <class T>
+template <typename T>
 class QValueVector : public QVector<T>
 {
 public:
 
     inline QValueVector() : QVector<T>() {}
     inline QValueVector( const QValueVector<T>& v ) : QVector<T>(v) {}
-    inline QValueVector( size_type n, const T& val = T() ) : QVector<T>(n, val) {}
+    inline QValueVector( typename QValueVector<T>::size_type n,
+			 const T& val = T() ) : QVector<T>(n, val) {}
 
 #ifndef QT_NO_STL
     inline QValueVector( const std::vector<T>& v ) : QVector<T>()
@@ -72,7 +73,7 @@ public:
     }
 #endif
 
-    T &at( size_type i)
+    T &at( typename QValueVector<T>::size_type i)
     {
 	Q_ASSERT(i >= 0 && i < size());
 	detach();
