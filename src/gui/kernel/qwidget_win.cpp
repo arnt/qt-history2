@@ -959,11 +959,13 @@ void QWidget::repaint(const QRegion& rgn)
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
         d->composeBackground(redirectionOffset);
 
-#ifdef QT_RASTER_PAINTENGINE
-    rasterEngine->setFlushOnEnd(true);
-#endif
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
+
+#ifdef QT_RASTER_PAINTENGINE
+    rasterEngine->setFlushOnEnd(true);
+    rasterEngine->flush(this);
+#endif
 
     if (do_clipping)
         qt_clear_paintevent_clipping();
