@@ -170,9 +170,7 @@ static FILE * mac_debug=0;
 
 void qDebug( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -187,6 +185,7 @@ void qDebug( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     } else {
 	exit(0);
     }
@@ -196,9 +195,7 @@ void qDebug( const char *msg, ... )
 Q_EXPORT
 void debug( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -213,14 +210,13 @@ void debug( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     }
 }
 
 void qWarning( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -235,6 +231,7 @@ void qWarning( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     }
 }
 
@@ -242,9 +239,7 @@ void qWarning( const char *msg, ... )
 Q_EXPORT
 void warning( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -259,14 +254,13 @@ void warning( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     }
 }
 
 void qFatal( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -281,6 +275,7 @@ void qFatal( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     }
     exit(0);
 }
@@ -289,9 +284,7 @@ void qFatal( const char *msg, ... )
 Q_EXPORT
 void fatal( const char *msg, ... )
 {
-    if( !mac_debug ) {
-	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
-    }
+    mac_debug=fopen( "Mac OS 8.5:Troll:debug.txt", "a" );
     if(mac_debug) {
 	char buf[512];
 	va_list ap;
@@ -306,6 +299,7 @@ void fatal( const char *msg, ... )
 	    fprintf( mac_debug, "\n" );		// add newline
 	    fflush( mac_debug );
 	}
+	fclose(mac_debug);
     }
     exit(0);
 }
