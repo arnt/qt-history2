@@ -81,7 +81,7 @@ void QAbstractItemViewPrivate::init()
 
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
                                q->metaObject()->indexOfSlot("doItemsLayout()"), q));
-    
+
     q->setAttribute(WA_PaintOnScreen);
     q->setAttribute(WA_NoBackground);
 
@@ -512,7 +512,7 @@ int QAbstractItemView::selectionBehavior() const
 */
 void QAbstractItemView::setCurrentItem(const QModelIndex &index)
 {
-    d->selectionModel->setCurrentItem(index, selectionCommand(NoButton, data));
+    d->selectionModel->setCurrentItem(index, selectionCommand(NoButton, index));
 }
 
 /*!
