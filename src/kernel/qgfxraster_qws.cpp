@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#63 $
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -4503,7 +4503,6 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 
     rx += xoffs;
     ry += yoffs;
-    QRect cr;
 
     // Very gross clip
     if ( !clipbounds.intersects(QRect(rx,ry,w,h)) )
@@ -4528,7 +4527,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     int botd = ry + h - 1 - clipbounds.bottom();
     if ( botd > 0 )
 	h -= botd;
-    
+
     QRect cursRect(rx, ry, w+1, h+1);
 
     GFX_START(cursRect);
@@ -4554,6 +4553,8 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 	j = 0;
 	tj = h;
     }
+
+    QRect cr;
 
     unsigned char *l = scanLine(ry);
     unsigned char *srcline = srcScanLine(j+srcoffs.y());
@@ -4662,8 +4663,9 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 			break;
 		      case SeparateAlpha:
 			// Separate alpha table
-			unsigned char * alphap=alphabits+(j*alphalinestep)
-					       +(x-rx);
+			unsigned char * alphap=alphabits
+						+((j+srcoffs.y())*alphalinestep)
+						+(x-rx)+srcoffs.x();
 			hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
 		    }
 		}
