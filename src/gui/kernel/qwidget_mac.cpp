@@ -313,12 +313,17 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             widget = QWidget::find((WId)hiview);
         if(ekind == kEventControlDraw) {
             if(widget) {
-                //update clip
+                //requested rgn
                 widget->d->clp_serial++;
                 RgnHandle rgn;
                 GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
                 QRegion qrgn(qt_mac_convert_mac_region(rgn));
-                widget->d->clp = qrgn;
+
+                //get widget region
+                RgnHandle widgetRgn = qt_mac_get_rgn();
+                GetControlRegion(hiview, kControlStructureMetaPart, widgetRgn);
+                widget->d->clp = qt_mac_convert_mac_region(widgetRgn);
+                qt_mac_dispose_rgn(widgetRgn);
                 if(!widget->isTopLevel()) {
                     QPoint pt(posInWindow(widget));
                     widget->d->clp.translate(pt.x(), pt.y());
@@ -345,8 +350,16 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                     widget->hd = GetWindowFromPort(qdref);
 
 #if 0
-                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->className(), widget->objectName().local8Bit(),
+                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
                        (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd, widget->cg_hd);
+                QVector<QRect> region_rects = qrgn.rects();
+                qDebug("Region! %d", region_rects.count());
+                for(int i = 0; i < region_rects.count(); i++)
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), region_rects[i].width(), region_rects[i].height());
+                region_rects = widget->d->clp.rects();
+                qDebug("Widget Region! %d", region_rects.count());
+                for(int i = 0; i < region_rects.count(); i++)
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), region_rects[i].width(), region_rects[i].height());
 #endif
                 if((widget->data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {  //process the actual paint event.
                     if(widget->testWState(Qt::WState_InPaintEvent))

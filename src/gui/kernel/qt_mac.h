@@ -110,13 +110,14 @@ QMacSavedPortInfo::setClipRegion(const QRegion &r)
 {
     if(r.isEmpty())
         return setClipRegion(QRect());
-    else if(!r.handle())
+    RgnHandle rgn = r.handle();
+    if(!rgn)
         return setClipRegion(r.boundingRect());
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->lock();
 #endif
-    SetClip(r.handle());
+    SetClip(rgn);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->unlock();
