@@ -72,6 +72,10 @@ public:
 #include <qguardedptr.h>
 #include "private/qaquastyle_p.h"
 
+/* I need these to simulate the pushbutton pulse */
+#include <qimage.h>
+#include <qpixmapcache.h>
+
 #include <string.h>
 
 #define QMAC_NO_MACSTYLE_ANIMATE //just disable animations for now
@@ -155,10 +159,14 @@ int QMacStyleFocusWidget::focusOutset()
 
 class QMacStylePrivate : public QAquaAnimate
 {
-    ControlRef button, progressbar;
+    ControlRef progressbar;
     QGuardedPtr<QMacStyleFocusWidget> focusWidget;
 public:
-    QMacStylePrivate() : QAquaAnimate(), button(0), progressbar(0) { }
+    struct ButtonState {
+	int frame;
+	enum { ButtonDark, ButtonLight } dir;
+    } buttonState;
+    QMacStylePrivate() : QAquaAnimate(), progressbar(0) { }
     ~QMacStylePrivate();
     ControlRef control(QAquaAnimate::Animates);
 protected:
@@ -168,20 +176,7 @@ protected:
 ControlRef
 QMacStylePrivate::control(QAquaAnimate::Animates as)
 {
-    if(as == QAquaAnimate::AquaPushButton) {
-	if(!button) {
-	    if(CreatePushButtonControl((WindowPtr)qt_mac_safe_pdev->handle(),
-					qt_glb_mac_rect(QRect(0, 0, 40, 40), (QPaintDevice*)0, FALSE),
-					0, &button)) {
-		qDebug("Unexpected error: %s:%d", __FILE__, __LINE__);
-	    } else {
-		Boolean t = true;
-		SetControlData(button, 0, kControlPushButtonDefaultTag, sizeof(t), &t);
-		ShowControl(button);
-	    }
-	}
-	return button;
-    } else if(as == QAquaAnimate::AquaProgressBar) {
+    if(as == QAquaAnimate::AquaProgressBar) {
 	if(progressbar)
 	    return progressbar;
 	if(CreateProgressBarControl((WindowPtr)qt_mac_safe_pdev->handle(),
@@ -196,20 +191,28 @@ QMacStylePrivate::control(QAquaAnimate::Animates as)
 }
 QMacStylePrivate::~QMacStylePrivate()
 {
-    if(button)
-	DisposeControl(button);
-    button = NULL;
+    buttonState.frame = 0;
+    buttonState.dir = ButtonState::ButtonDark;
     if(progressbar)
 	DisposeControl(progressbar);
     progressbar = NULL;
 }
-void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
+void QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 {
+    if(as == AquaPushButton) {
+	if(buttonState.frame == 25 && buttonState.dir == ButtonState::ButtonDark)
+	    buttonState.dir = ButtonState::ButtonLight;
+	else if(!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
+	    buttonState.dir = ButtonState::ButtonDark;
+	buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
+    } 
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
-    if(QWidgetList *list = qApp->topLevelWidgets()) {
-	for (QWidget *widget = list->first(); widget; widget = list->next()) {
-	    if(widget->isActiveWindow())
-		IdleControls((WindowPtr)widget->handle());
+    else {
+	if(QWidgetList *list = qApp->topLevelWidgets()) {
+	    for (QWidget *widget = list->first(); widget; widget = list->next()) {
+		if(widget->isActiveWindow())
+		    IdleControls((WindowPtr)widget->handle());
+	    }
 	}
     }
 #endif
@@ -553,7 +556,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
 	if(pe == PE_Indicator) {
-
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
@@ -874,21 +876,57 @@ void QMacStyle::drawControl(ControlElement element,
 	d->addWidget(btn);
 	if(btn->isToggleButton() && btn->isOn())
 	    tds = kThemeStatePressed;
-#ifndef QMAC_NO_MACSTYLE_ANIMATE
+	bool do_draw = TRUE;
+	QPixmap *buffer = NULL;
+	QString pmkey;
+	QTextOStream os(&pmkey);
+	int frame = d->buttonState.frame;
+	if(how & Style_Down)
+	    frame = 0;
+	os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() 
+	   << "_" << how << "_" << frame;
 	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
-	    ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
-	    SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(1, 1, 1, 2)));
-	    ((QMacPainter *)p)->setport();
-	    DrawControlInCurrentPort(btn);
-	} else
-#endif
-	{
+	    tds = kThemeStatePressed;
+	    if(frame) {
+		if(!(buffer = QPixmapCache::find(pmkey))) {
+		    buffer = new QPixmap(r.width(), r.height(), 32);
+		    buffer->fill(color0);
+		} else {
+		    do_draw = FALSE;
+		}
+	    }
+	}
+	if(do_draw) {
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	    if(btn->isFlat())
 		info.adornment = kThemeAdornmentNoShadow;
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 2)),
-			    kThemePushButton, &info, NULL, NULL, NULL, 0);
+	    const Rect *mac_rct = NULL;
+	    const QRect off_rct(1, 1, 1, 2);
+	    if(buffer) {
+		QMacSavedPortInfo::setPaintDevice(buffer);
+		mac_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), buffer, TRUE, off_rct);
+	    } else {
+		((QMacPainter *)p)->setport();
+		mac_rct = qt_glb_mac_rect(r, p, TRUE, off_rct);
+	    }
+	    DrawThemeButton(mac_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
+	    if(buffer) {
+		if(frame) {
+		    QImage img;
+		    img = *buffer;
+		    for(int y = 0; y < img.height(); y++) {
+			uchar *bytes = img.scanLine(y);
+			for(int x = 0; x < img.bytesPerLine(); x++) 
+			    *(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
+		    }
+		    *buffer = img;
+		}
+	    }
+	}
+	if(buffer) {
+	    p->drawPixmap(r, *buffer);
+	    if(do_draw && !QPixmapCache::insert(pmkey, buffer))	// save in cache
+		delete buffer;
 	}
 	break; }
     default:
