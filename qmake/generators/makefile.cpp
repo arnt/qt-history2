@@ -2104,90 +2104,63 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                 }
             }
         }
-        { //is it a file from a .ui?
-            QString inc_file = dep.real().section(Option::dir_sep, -1);
-            int extn = inc_file.lastIndexOf('.');
-            if(extn != -1 &&
-               (inc_file.right(inc_file.length()-extn) == Option::cpp_ext.first() ||
-                inc_file.right(inc_file.length()-extn) == Option::h_ext.first())) {
-                QString uip = inc_file.left(extn) + Option::ui_ext;
-                QStringList uil = project->variables()["FORMS"];
-                for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-                    if((*it).section(Option::dir_sep, -1) == uip) {
-                        QString ret_name;
-                        if(!project->isEmpty("UI_DIR"))
-                            ret_name = project->first("UI_DIR");
-                        else if(!project->isEmpty("UI_HEADERS_DIR"))
-                            ret_name = project->first("UI_HEADERS_DIR");
-                        else
-                            ret_name = (*it).section(Option::dir_sep, 0, -2);
-                        if(!ret_name.isEmpty() && !ret_name.endsWith(Option::dir_sep))
-                            ret_name += Option::dir_sep;
-                        ret_name += inc_file;
+        if(project->isActiveConfig("lex_included")) { //is this the lex file?
+            QString rhs = Option::lex_mod + Option::cpp_ext.first();
+            if(dep.real().endsWith(rhs)) {
+                QString lhs = dep.real().left(dep.real().length() - rhs.length()) + Option::lex_ext;
+                QStringList ll = project->variables()["LEXSOURCES"];
+                for(QStringList::Iterator it = ll.begin(); it != ll.end(); ++it) {
+                    QString s = (*it), d;
+                    int slsh = s.lastIndexOf(Option::dir_sep);
+                    if(slsh != -1) {
+                        d = s.left(slsh + 1);
+                            s = s.right(s.length() - slsh - 1);
+                    }
+                    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+                        d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
+                    if(s == lhs) {
+                        QString ret_name = d + dep.real();
                         ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
                         goto found_dep_from_heuristic;
                     }
                 }
             }
-            if(project->isActiveConfig("lex_included")) { //is this the lex file?
-                QString rhs = Option::lex_mod + Option::cpp_ext.first();
-                if(dep.real().endsWith(rhs)) {
-                    QString lhs = dep.real().left(dep.real().length() - rhs.length()) + Option::lex_ext;
-                    QStringList ll = project->variables()["LEXSOURCES"];
-                    for(QStringList::Iterator it = ll.begin(); it != ll.end(); ++it) {
-                        QString s = (*it), d;
-                        int slsh = s.lastIndexOf(Option::dir_sep);
-                        if(slsh != -1) {
-                            d = s.left(slsh + 1);
-                            s = s.right(s.length() - slsh - 1);
-                        }
-                        if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-                            d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
-                        if(s == lhs) {
-                            QString ret_name = d + dep.real();
-                            ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
-                            ret = QMakeLocalFileName(ret_name);
-                            goto found_dep_from_heuristic;
-                        }
+        }
+        { //is it from a .y?
+            QString rhs = Option::yacc_mod + Option::h_ext.first();
+            if(dep.real().endsWith(rhs)) {
+                QString lhs = dep.local().left(dep.local().length() - rhs.length()) + Option::yacc_ext;
+                QStringList yl = project->variables()["YACCSOURCES"];
+                for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
+                    QString s = (*it), d;
+                    int slsh = s.lastIndexOf(Option::dir_sep);
+                    if(slsh != -1) {
+                        d = s.left(slsh + 1);
+                        s = s.right(s.length() - slsh - 1);
                     }
-                }
-            }
-            { //is it from a .y?
-                QString rhs = Option::yacc_mod + Option::h_ext.first();
-                if(dep.real().endsWith(rhs)) {
-                    QString lhs = dep.local().left(dep.local().length() - rhs.length()) + Option::yacc_ext;
-                    QStringList yl = project->variables()["YACCSOURCES"];
-                    for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
-                        QString s = (*it), d;
-                        int slsh = s.lastIndexOf(Option::dir_sep);
-                        if(slsh != -1) {
-                            d = s.left(slsh + 1);
-                            s = s.right(s.length() - slsh - 1);
-                        }
-                        if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-                            d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
-                        if(s == lhs) {
-                            QString ret_name = d + dep.local();
-                            ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
-                            ret = QMakeLocalFileName(ret_name);
-                            goto found_dep_from_heuristic;
-                        }
-                    }
-                }
-            }
-            if(mocAware() &&                    //is it a moc file?
-               (dep.local().endsWith(Option::cpp_ext.first()) || dep.local().endsWith(Option::cpp_moc_ext))
-               || ((Option::cpp_ext.first() != Option::h_moc_ext) && dep.local().endsWith(Option::h_moc_ext))) {
-                QStringList &l = project->variables()["MOCABLES"];
-                for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-                    const QString moc = createMocFileName((*it));
-                    QString fixed_moc = Option::fixPathToTargetOS(moc);
-                    if(fixed_moc.section(Option::dir_sep, -(dep.local().count('/')+1)) == dep.local()) {
-                        QString ret_name = fileFixify(moc, QDir::currentPath(), Option::output_dir);
+                    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+                        d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
+                    if(s == lhs) {
+                        QString ret_name = d + dep.local();
+                        ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
                         goto found_dep_from_heuristic;
                     }
+                }
+            }
+        }
+        if(mocAware() &&                    //is it a moc file?
+           (dep.local().endsWith(Option::cpp_ext.first()) || dep.local().endsWith(Option::cpp_moc_ext))
+           || ((Option::cpp_ext.first() != Option::h_moc_ext) && dep.local().endsWith(Option::h_moc_ext))) {
+            QStringList &l = project->variables()["MOCABLES"];
+            for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+                const QString moc = createMocFileName((*it));
+                QString fixed_moc = Option::fixPathToTargetOS(moc);
+                if(fixed_moc.section(Option::dir_sep, -(dep.local().count('/')+1)) == dep.local()) {
+                    QString ret_name = fileFixify(moc, QDir::currentPath(), Option::output_dir);
+                    ret = QMakeLocalFileName(ret_name);
+                    goto found_dep_from_heuristic;
                 }
             }
         }
