@@ -528,7 +528,7 @@ void ConfigureApp::qmakeDone()
 	args << dictionary[ "QMAKE_ALL_ARGS" ];
 	args << "-o";
         args << makefileName;
-	args << "-path";
+	args << "-spec";
 	args << dictionary[ "QMAKESPEC" ];
 	if( makefileName.right( 4 ) == ".dsp" ) {
 	    args << "-t";
