@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#364 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#365 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2311,7 +2311,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    w = qt_button_down;
 	if ( w && w != this ) {
 	    widget = w;
-	    pos = w->mapFromGlobal( globalPos );
+	    pos = w->mapFromGlobal(QPoint(gpos.x, gpos.y));
 	}
 
 	if ( type == QEvent::MouseButtonRelease &&
