@@ -16,7 +16,7 @@
         <string>Sql Wizard</string>
     </property>
     <property name="icon">
-        <pixmap></pixmap>
+        <pixmap>logo.png</pixmap>
     </property>
     <property name="layoutMargin" stdset="0">
     </property>
