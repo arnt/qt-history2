@@ -601,11 +601,10 @@ void Generator::generateMetacall()
             goto skip_properties;
         fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
 
-        if (needGet){
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
+        if (needElse)
+            fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
+        if (needGet) {
             fprintf(out, "        void *_v = _a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -625,16 +624,17 @@ void Generator::generateMetacall()
                     fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
                             propindex, p.read.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
+
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
+
         if (needSet) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
             fprintf(out, "        void *_v = _a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -649,17 +649,16 @@ void Generator::generateMetacall()
                             propindex, p.write.constData(), p.type.constData());
                 }
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
 
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
+
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
         if (needReset) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
@@ -668,17 +667,15 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: %s; break;\n",
                         propindex, p.reset.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
 
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
         if (needDesignable) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
             fprintf(out, "        bool *_b = (bool*)_a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -688,16 +685,15 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.designable.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
+
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
         if (needScriptable) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
             fprintf(out, "        bool *_b = (bool*)_a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -707,16 +703,15 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.scriptable.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
+
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
         if (needStored) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
             fprintf(out, "        bool *_b = (bool*)_a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -726,16 +721,15 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.stored.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
+
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
         if (needEditable) {
-            if (needElse)
-                fprintf(out, " else ");
-            needElse = true;
-            fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
             fprintf(out, "        bool *_b = (bool*)_a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
@@ -745,11 +739,11 @@ void Generator::generateMetacall()
                 fprintf(out, "        case %d: *_b = %s; break;\n",
                          propindex, p.editable.constData());
             }
-            fprintf(out,
-                    "        }\n"
-                    "        _id -= %d;\n"
-                    "    }", cdef->propertyList.count());
+            fprintf(out, "        }\n");
         }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
 
 
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
