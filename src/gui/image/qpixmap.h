@@ -181,7 +181,9 @@ private:
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
 #endif
     static Optimization defOptim;
+#ifdef Q_WS_MAC
     friend CGContextRef qt_mac_cg_context(const QPaintDevice *);
+#endif
     friend struct QPixmapData;
     friend class QBitmap;
     friend class QPaintDevice;
