@@ -1114,9 +1114,15 @@ bool QODBCDriver::open( const QString & db,
 		setOpenError( TRUE );
 		return FALSE;
     }
-    QString      connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password + ";";
-    SQLSMALLINT  cb;
-    SQLTCHAR     connOut[1024]; // The doc says at least 1024 characters
+    QString connQStr;
+    if ( db.contains(".dsn") ) {
+	connQStr = "FILEDSN=" + db;
+    } else {
+	connQStr = "DSN=" + db;
+    }
+    connQStr += ";UID=" + user + ";PWD=" + password + ";";
+    SQLSMALLINT cb;
+    SQLTCHAR connOut[1024];
     r = SQLDriverConnect( d->hDbc,
 			    NULL,
 #ifdef UNICODE
