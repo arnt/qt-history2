@@ -510,16 +510,21 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     --h;
 #endif
 
+    bool outlineOnly = false;
     if (d->brushStyle == Qt::LinearGradientPattern) {
         d->fillGradient(r);
+        outlineOnly = true;
+    } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
+        d->fillAlpha(r);
+        outlineOnly = true;
+    }
+
+    if (outlineOnly) {
         if (d->penStyle != Qt::NoPen) {
             SelectObject(d->hdc, stock_nullBrush);
             Rectangle(d->hdc, r.x(), r.y(), r.x() + w, r.y() + h);
             SelectObject(d->hdc, d->hbrush);
         }
-        return;
-    } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
-        d->fillAlpha(r);
         return;
     }
 
