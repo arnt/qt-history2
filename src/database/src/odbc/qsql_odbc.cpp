@@ -433,17 +433,11 @@ QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
 QODBCResult::~QODBCResult()
 {
     if ( d->hStmt ) {
-//	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-//#ifdef CHECK_RANGE
-//	if ( r!= SQL_SUCCESS )
-//	    qSqlWarning( "QODBCDriver: Unable to free statement handle", d );
-//#endif
-    	SQLRETURN r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
-    	if ( r != SQL_SUCCESS ) {
+	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 #ifdef CHECK_RANGE
-		qSqlWarning( "QODBCDriver: Unable to close statement", d );
+	if ( r!= SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
 #endif
-    	}
     }
     delete d;
 }
