@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#140 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#140 $");
 
 
 /*!
@@ -791,7 +791,7 @@ static void objSearch( QObjectList *result,
     QObject * obj;
     while ( (obj=it.current()) != 0 ) {	// for each found object...
 	++it;
-	obj->setFont( newFont );
+	((QWidget *)obj)->setFont( newFont );
     }
     delete list;			// delete the list, not the objects
   \endcode
