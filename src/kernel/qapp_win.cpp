@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#122 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#122 $");
 
 
 /*****************************************************************************
@@ -75,8 +75,14 @@ static void	msgHandler( QtMsgType, const char * );
 static void	cleanupPostedEvents();
 static void     unregWinClasses();
 
+// Simpler timers are needed when Qt does not have the
+// event loop (such as for plugins).
+bool		qt_win_use_simple_timers = FALSE;
+void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
+
 static void	initTimers();
 static void	cleanupTimers();
+static void	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
@@ -201,57 +207,11 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
 
-
-  // Detect the Windows version
-
-    DWORD dwVer = GetVersion();
-    if ( dwVer < 0x80000000 )
-	qt_winver = WV_NT;		// Windows NT 3.x
-    else if ( LOBYTE(LOWORD(dwVer)) < 4 )
-	qt_winver = WV_32s;		// Win32s
-    else
-	qt_winver = WV_95;		// Windows 95
-
   // Call user main()
 
-    int retcode = main( argc, argv.data() );
-
-    return retcode;
+    return main( argc, argv.data() );
 }
 
-
-// Activate a timer, used by both event-loop based
-// and simple timers.
-static void do_timers( uint timerid, MSG* msg )
-{
-#if defined(USE_HEARTBEAT)
-    if ( timerid != (WPARAM)heartBeat ) {
-	if ( !msg || !qApp || !qApp->winEventFilter(msg) )
-	    activateTimer( timerid );
-    } else if ( curWin && qApp ) {		// process heartbeat
-	POINT p;
-	GetCursorPos( &p );
-	HANDLE newWin = WindowFromPoint(p);
-	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
-	    QWidget *curWidget = QWidget::find(curWin);
-	    QEvent leave( Event_Leave );
-	    QApplication::sendEvent( curWidget, &leave );
-	    curWin = 0;
-	}
-    }
-#else
-    if ( !msg || !qApp || !qApp->winEventFilter(msg) )
-	activateTimer( timerid );
-#endif
-}
-
-// Simpler timers are needed when Qt does not have the
-// event loop (such as for plugins).
-bool		qt_win_use_simple_timers = FALSE;
-void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
-{
-    do_timers( idEvent, 0 );
-}
 
 
 /*****************************************************************************
@@ -280,6 +240,32 @@ void qt_init( int *argcptr, char **argv )
     }
     *argcptr = j;
 #endif // DEBUG
+
+  // Detect the Windows version
+
+#ifndef VER_PLATFORM_WIN32s
+#define VER_PLATFORM_WIN32s	    0
+#endif
+#ifndef VER_PLATFORM_WIN32_WINDOWS
+#define VER_PLATFORM_WIN32_WINDOWS  1
+#endif
+#ifndef VER_PLATFORM_WIN32_NT
+#define VER_PLATFORM_WIN32_NT	    2
+#endif
+
+    OSVERSIONINFO osver;
+    osver.dwOSVersionInfoSize = sizeof(osver);
+    GetVersionEx( &osver );
+    switch ( osver.dwPlatformId ) {
+	case VER_PLATFORM_WIN32s:
+	    qt_winver = WV_32s;
+	    break;
+	case VER_PLATFORM_WIN32_WINDOWS:
+	    qt_winver = WV_95;
+	    break;
+	default:
+	    qt_winver = WV_NT;
+    }
 
   // Misc. initialization
 
@@ -890,7 +876,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
     if ( msg.message == WM_TIMER ) {		// timer message received
-	do_timers( msg.wParam, &msg );
+	dispatchTimer( msg.wParam, &msg );
 	return TRUE;
     }
 
@@ -1402,6 +1388,37 @@ static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
+
+void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
+{
+    dispatchTimer( idEvent, 0 );
+}
+
+
+// Activate a timer, used by both event-loop based and simple timers.
+
+static void dispatchTimer( uint timerId, MSG *msg )
+{
+#if defined(USE_HEARTBEAT)
+    if ( timerId != (WPARAM)heartBeat ) {
+	if ( !msg || !qApp || !qApp->winEventFilter(msg) )
+	    activateTimer( timerId );
+    } else if ( curWin && qApp ) {		// process heartbeat
+	POINT p;
+	GetCursorPos( &p );
+	HANDLE newWin = WindowFromPoint(p);
+	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
+	    QWidget *curWidget = QWidget::find(curWin);
+	    QEvent leave( Event_Leave );
+	    QApplication::sendEvent( curWidget, &leave );
+	    curWin = 0;
+	}
+    }
+#else
+    if ( !msg || !qApp || !qApp->winEventFilter(msg) )
+	activateTimer( timerId );
+#endif
+}
 
 
 //
