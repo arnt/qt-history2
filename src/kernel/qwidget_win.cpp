@@ -78,7 +78,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     bool topLevel = testWFlags(WType_TopLevel);
     bool popup = testWFlags(WType_Popup);
-    //bool tool = testWFlags(WType_Popup|WStyle_Tool); NOT USED
     bool modal = testWFlags(WType_Modal);
     bool desktop  = testWFlags(WType_Desktop);
     HINSTANCE appinst  = qWinAppInst();
@@ -91,7 +90,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	initializeWindow = TRUE;
 
     if ( popup ) {
-	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
 
@@ -198,7 +196,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else if ( topLevel ) {			// create top-level widget
 	// WWA: I cannot get the Unicode versions to work.
 
-	if ( !popup && !testWFlags( WStyle_Dialog ) && !testWFlags( WStyle_Tool) )
+	if ( popup )
 	    parentw = 0;
 
 	if ( exsty )
@@ -355,7 +353,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	while ( (obj=it.current()) ) {
 	    if ( obj->isWidgetType() ) {
 		QWidget *w = (QWidget *)obj;
-		SetParent( w->winId(), winId() );
+		if ( !w->isPopup() ) {
+		    SetParent( w->winId(), winId() );
+		}
 	    }
 	    ++it;
 	}
@@ -765,7 +765,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( testWFlags(WStyle_Tool) ) {
+    if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	QSize fSize = frameSize();
 	SetWindowPos( winId(), 0,
 		      fpos.x(), fpos.y(), fSize.width(), fSize.height(),

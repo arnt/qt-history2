@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#351 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#352 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1301,9 +1301,9 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 
 void QApplication::winFocus( QWidget *widget, bool gotFocus )
 {
+    if ( inPopupMode() ) // some delayed focus event to ignore
+	return;
     if ( gotFocus ) {
-	if ( inPopupMode() ) // some delayed focus event to ignore
-	    return;
 	active_window = widget->topLevelWidget();
 	QWidget *w = widget->focusWidget();
 	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
@@ -1328,7 +1328,7 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	}
     } else {
 	active_window = 0;
-	if ( focus_widget && !inPopupMode() ) {
+	if ( focus_widget ) {
 	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;

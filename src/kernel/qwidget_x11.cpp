@@ -165,7 +165,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	initializeWindow = TRUE;
 
     if ( popup ) {				
-	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
 
