@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#176 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#177 $
 **
 ** Implementation of QFileDialog class
 **
@@ -551,7 +551,7 @@ void QFileDialog::init()
     files->setColumnAlignment( 1, AlignRight );
     files->addColumn( tr("Type"), 10 + fm.width( tr("Directory") ) );
     files->setColumnWidthMode( 2, QListView::Maximum );
-    files->addColumn( tr("Date"), 50 );
+    files->addColumn( tr("Date"), 70 );
     files->setColumnWidthMode( 3, QListView::Maximum );
     files->addColumn( tr("Attributes"), 20 + fm.width( tr("Attributes") ) );
     files->setColumnWidthMode( 0, QListView::Maximum );
@@ -905,15 +905,15 @@ void QFileDialog::setDir( const QDir &dir )
 void QFileDialog::rereadDir()
 {
     if ( d ) {
-	QString cp( cwd.canonicalPath() );
-	int i = d->paths->count()-1;
-	while( i >= 0 && d->paths->text( i ) <= cp )
-	    i--;
-	if ( i < d->paths->count() )
-	    i++;
-	if ( i == d->paths->count() || d->paths->text( i ) != cp )
-	    d->paths->insertItem( cwd.canonicalPath(), i );
-	d->paths->setCurrentItem( i );
+        QString cp( cwd.canonicalPath() );
+        int i = d->paths->count()-1;
+        while( i >= 0 && d->paths->text( i ) <= cp )
+            i--;
+        if ( i < d->paths->count() )
+            i++;
+        if ( i == d->paths->count() || d->paths->text( i ) != cp )
+            d->paths->insertItem( cwd.canonicalPath(), i );
+        d->paths->setCurrentItem( i );
     }
 
     d->cdToParent->setEnabled( !cwd.isRoot() );
@@ -921,27 +921,27 @@ void QFileDialog::rereadDir()
     const QFileInfoList *filist = 0;
 
     while ( !filist ) {
-	filist = cwd.entryInfoList();
-	if ( !filist &&
-	     QMessageBox::warning( this, tr("Open File"),
-				   QString( tr("Unable to read directory\n") )
-				   + cwd.absPath()
-				   + QString::fromLatin1("\n\n")
-				   + tr("Please make sure that the directory\n"
-				      "is readable.\n"),
-				   tr("Use Parent Directory"),
-				   tr("Use Old Contents") ) ) {
-	    return;
-	}
-	if ( !filist ) {
-	    QString tmp( cwd.absPath() );
+        filist = cwd.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
+        if ( !filist &&
+             QMessageBox::warning( this, tr("Open File"),
+                                   QString( tr("Unable to read directory\n") )
+                                   + cwd.absPath()
+                                   + QString::fromLatin1("\n\n")
+                                   + tr("Please make sure that the directory\n"
+                                        "is readable.\n"),
+                                   tr("Use Parent Directory"),
+                                   tr("Use Old Contents") ) ) {
+            return;
+        }
+        if ( !filist ) {
+            QString tmp( cwd.absPath() );
 	
-	    // change to parent, reread
-	    // ...
+            // change to parent, reread
+            // ...
 
-	    // but for now
-	    return;
-	}
+            // but for now
+            return;
+        }
     }
 
     d->moreFiles->clear();
@@ -950,17 +950,20 @@ void QFileDialog::rereadDir()
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
-	++it;
-	if ( fi->fileName() != QString::fromLatin1(".") &&
-	     ( !cwd.isRoot() ||
-		    fi->fileName() != QString::fromLatin1("..") ) ) {
-	    QListViewItem * i
-		= new QFileDialogPrivate::File( d, fi, files );
-	    if ( mode() == ExistingFiles && fi->isDir() )
-		i->setSelectable( FALSE );
-	    (void)new QFileDialogPrivate::MCItem( d->moreFiles, i );
-	}
+        ++it;
+        if ( fi->fileName() != QString::fromLatin1(".") &&
+             ( !cwd.isRoot() ||
+               fi->fileName() != QString::fromLatin1("..") ) ) {
+            QListViewItem * i
+                = new QFileDialogPrivate::File( d, fi, files );
+            if ( mode() == ExistingFiles && fi->isDir() )
+                i->setSelectable( FALSE );
+            (void)new QFileDialogPrivate::MCItem( d->moreFiles, i );
+        }
+    
     }
+    d->moreFiles->setCurrentItem( 0 );
+    files->setCurrentItem( files->firstChild() );
 }
 
 
