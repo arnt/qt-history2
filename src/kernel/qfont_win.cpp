@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#90 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -425,13 +425,15 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	else
 	    lf.lfHeight = -(d->req.pointSize/10);
     } else {
-	lf.lfHeight = -(d->req.pointSize/10);
-/*
-    This code should adjust the font size on-screen, but it will be re-
-    introduced in Qt 2.0, maybe with some special API (aavit) to enable it.
-	lf.lfHeight = -int((float)d->req.pointSize*
-			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
-*/
+	if ( !VxF )
+	    lf.lfHeight = -(d->req.pointSize/10);
+	/*
+	  This code should adjust the font size on-screen, but it will be re-
+	  introduced in Qt 2.0, maybe with some special API (aavit) to enable it.
+	*/
+	else
+	    lf.lfHeight = -int((float)d->req.pointSize*
+			       GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
