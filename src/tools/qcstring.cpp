@@ -43,7 +43,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <zlib.h>
+#include <../3rdparty/zlib/zlib.h>
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
@@ -322,7 +322,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
     for (;;) {
 	bazip.resize( len );
 	int res = ::compress(  (uchar*)bazip.data(), &len, (uchar*)data, nbytes );
-	
+
 	switch ( res ) {
 	case Z_OK:
 	    if ( len != bazip.size() )
@@ -337,7 +337,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
 	    // try again with the correct length
 	    continue;
 	}
-	
+
 	break;
     }
 
@@ -392,7 +392,7 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 #endif
 	    break;
 	}
-	
+
 	break;
     }
 
