@@ -57,6 +57,8 @@ QUrl::QUrl()
     d->nameFilter = "*";
     connect( &d->ftp, SIGNAL( newEntry( const QUrlInfo & ) ),
 	     this, SLOT( sendNewEntry( const QUrlInfo & ) ) );
+    connect( &d->ftp, SIGNAL( listFinished() ),
+	     this, SLOT( listFinished() ) );
 }
 
 QUrl::QUrl( const QString& url )
@@ -958,9 +960,9 @@ QString QUrl::nameFilter() const
 
 QUrlInfo QUrl::makeInfo() const
 {
-    if ( d->entryMap.contains( "." ) ) 
+    if ( d->entryMap.contains( "." ) )
 	return d->entryMap[ "." ];
-        
+
     return QUrlInfo();
 }
 
@@ -1000,4 +1002,9 @@ void QUrl::addEntry( const QUrlInfo &i )
 QUrlInfo QUrl::info( const QString &entry ) const
 {
     return d->entryMap[ entry ];
+}
+
+void QUrl::listFinished()
+{
+    emit finished();
 }

@@ -110,11 +110,12 @@ protected:
     void parse( const QString& url );
     void addEntry( const QUrlInfo &i );
     void clearEntries();
-    
+
     static char hex2int( char c );
 
 protected slots:
     void sendNewEntry( const QUrlInfo &i );
+    void listFinished();
     
 private:
     QUrlPrivate *d;

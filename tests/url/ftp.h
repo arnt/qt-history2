@@ -38,5 +38,6 @@ protected slots:
 
 signals:
     void newEntry( const QUrlInfo & );
-
+    void listFinished();
+    
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#16 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -433,7 +433,8 @@ struct QFileDialogPrivate {
     QSplitter *splitter;
     QUrl url;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
-
+    bool hadDotDot;
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1536,10 +1537,13 @@ void QFileDialog::init()
     d->moreFiles = 0;
     d->infoPreview = TRUE;
     d->contentsPreview = TRUE;
-
+    d->hadDotDot = FALSE;
+    
     d->url = QUrl( "file:/" );
     connect( &d->url, SIGNAL( start() ),
              this, SLOT( clearView() ) );
+    connect( &d->url, SIGNAL( finished() ),
+             this, SLOT( polishDirectory() ) );
     connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
              this, SLOT( insertEntry( const QUrlInfo & ) ) );
     connect( &d->url, SIGNAL( removed( const QString & ) ),
@@ -3519,10 +3523,24 @@ void QFileDialog::clearView()
 	d->paths->insertItem( d->url, i );
     d->paths->setCurrentItem( i );
     d->last = 0;
+    d->hadDotDot = FALSE;
+}
+
+void QFileDialog::polishDirectory()
+{
+    if ( !d->hadDotDot && d->url.path() != "/" ) {
+	QUrlInfo ui( d->url, ".." );
+	ui.setName( ".." );
+	insertEntry( ui );
+    }
 }
 
 void QFileDialog::insertEntry( const QUrlInfo &inf )
 {
+    if ( inf.name() == ".." )
+	d->hadDotDot = TRUE;
+    else if ( inf.name() == "." )
+	return;
     QListViewItemIterator it( files );
     QListViewItem *item = 0;
     if ( inf.isDir() ) {

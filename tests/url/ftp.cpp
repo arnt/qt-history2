@@ -30,6 +30,7 @@ void FTP::dataConnected()
 
 void FTP::dataClosed()
 {
+    emit listFinished();
     qDebug( "CLOOOOSED" );
 }
 
