@@ -382,6 +382,8 @@ public:
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
 
+    bool isRenaming() const;
+
 public slots:
     virtual void arrangeItemsInGrid( const QSize &grid, bool update = TRUE );
     virtual void arrangeItemsInGrid( bool update = TRUE );

@@ -6138,6 +6138,13 @@ QListView::RenameAction QListView::defaultRenameAction() const
     return d->defRenameAction;
 }
 
+/*! Returns whether currently an item of the listview is being renamed
+  */
+
+bool QListView::isRenaming() const
+{
+    return currentItem() && currentItem()->renameBox;
+}
 
 /**********************************************************************
  *

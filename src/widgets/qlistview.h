@@ -192,7 +192,7 @@ protected:
     virtual void okRename( int col );
     virtual void cancelRename( int col );
 
-    void ignoreDoubleClick(); 
+    void ignoreDoubleClick();
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
@@ -345,6 +345,8 @@ public:
     enum RenameAction { Accept, Reject };
     virtual void setDefaultRenameAction( RenameAction a );
     RenameAction defaultRenameAction() const;
+    bool isRenaming() const;
+
 
 public slots:
     virtual void clear();

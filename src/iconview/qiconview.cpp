@@ -5944,4 +5944,12 @@ void QIconView::windowActivationChange( bool )
 	viewport()->update();
 }
 
+/*! Returns whether currently an item of the iconview is being renamed
+  */
+
+bool QIconView::isRenaming() const
+{
+    return currentItem() && currentItem()->renameBox;
+}
+
 #endif // QT_NO_ICONVIEW
