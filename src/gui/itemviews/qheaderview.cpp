@@ -1200,8 +1200,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
 {
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
-    switch (d->state)
-    case QHeaderViewPrivate::MoveSection: {
+    switch (d->state) {
+    case QHeaderViewPrivate::MoveSection: 
         moveSection(visualIndex(d->section), visualIndex(d->target));
         d->section = d->target = -1;
         d->updateSectionIndicator(d->section, pos);
