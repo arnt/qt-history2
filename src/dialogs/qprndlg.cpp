@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#19 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#19 $");
 
 
 struct QPrintDialogPrivate
@@ -70,6 +70,19 @@ struct QPrintDialogPrivate
 };
 
 
+static void perhapsAddPrinter( QListView * printers, const char * name,
+			       const char * host, const char * comment )
+{
+    const QListViewItem * i = printers->firstChild();
+    while( i && qstrcmp( i->text( 0 ), name ) )
+	i = i->nextSibling();
+    if ( !i )
+	(void)new QListViewItem( printers, name,
+				 host ? host : "locally connected",
+				 comment ? comment : "" );
+}
+
+
 static void parsePrintcap( QListView * printers )
 {
     QFile printcap( "/etc/printcap" );
@@ -97,8 +110,6 @@ static void parsePrintcap( QListView * printers )
 	    if ( i >= 0 ) {
 		// have : want |
 		int j = printerDesc.findRev( '|', i-1 );
-		if ( j < 0 )
-		    j = 0;
 		printerName = printerDesc.mid( j+1, i-j-1 );
 		if ( j > 0 ) {
 		    // try hacking up a comment from the aliases...
@@ -132,11 +143,9 @@ static void parsePrintcap( QListView * printers )
 		    printerHost = printerDesc.mid( i, j-i );
 		}
 	    }
-	    if ( printerHost.isNull() )
-		printerHost = "locally connected";
 	    if ( printerName.length() )
-		(void)new QListViewItem( printers, printerName, printerHost,
-					 printerComment );
+		perhapsAddPrinter( printers, printerName, printerHost,
+				   printerComment );
 	    // chop away the line, for processing the next one
 	    printerDesc = 0;
 	}
@@ -145,9 +154,74 @@ static void parsePrintcap( QListView * printers )
 }
 
 
-static void parseEtcLp( QListView * )
+static void parseEtcLp( QListView * printers )
 {
-    // later
+    QDir lp( "/etc/lp/printers" );
+    const QFileInfoList * dirs = lp.entryInfoList();
+    if ( !dirs )
+	return;
+
+    QFileInfoListIterator it( *dirs );
+    QFileInfo *printer;
+    QString tmp;
+    while ( (printer = it.current()) != 0 ) {
+	++it;
+	if ( printer->isDir() ) {
+	    tmp.sprintf( "/etc/lp/printers/%s/configuration",
+			 printer->fileName().data() );
+	    QFile configuration( tmp );
+	    int ll;
+	    char * line = new char[1025];
+	    QRegExp remote( "^Remote:" );
+	    QRegExp contentType( "^Content types:" );
+	    QString printerHost;
+	    bool canPrintPostscript = FALSE;
+	    if ( configuration.open( IO_ReadOnly ) ) {
+		while( !configuration.atEnd() &&
+		       (ll=configuration.readLine( line, 1024 )) > 0 ) {
+		    if ( remote.match( line ) == 0 ) {
+			const char * p = line;
+			while( *p != ':' )
+			    p++;
+			p++;
+			while( isspace(*p) )
+			    p++;
+			printerHost = p;
+			printerHost.simplifyWhiteSpace();
+		    } else if ( contentType.match( line ) == 0 ) {
+			char * p = line;
+			while( *p != ':' )
+			    p++;
+			p++;
+			char * e;
+			while( *p ) {
+			    while( isspace(*p) )
+				p++;
+			    if ( *p ) {
+				char s;
+				e = p;
+				while( isalnum(*e) )
+				    e++;
+				s = *e;
+				*e = '\0';
+				if ( !qstrcmp( p, "postscript" ) ||
+				     !qstrcmp( p, "any" ) ) {
+				    canPrintPostscript = TRUE;
+				}
+				*e = s;
+				if ( s == ',' )
+				    e++;
+				p = e;
+			    }
+			}
+		    }
+		}
+		if ( canPrintPostscript )
+		    perhapsAddPrinter( printers, printer->fileName().data(),
+				       printerHost, 0 );
+	    }
+	}
+    }
 }
 
 
@@ -160,13 +234,13 @@ static void deleteGlobalPrinterDialog()
 
 
 /*! \class QPrintDialog qprndlg.h
-  
+
   \brief The QPrintDialog class provides a dialog for specifying
   print-out details.
-  
+
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.
-  
+
   At present, the only easy way to use the class is through the static
   function getPrinterSetup().
 */
@@ -241,7 +315,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     else if ( ms.height() < 460 && ss.height() >= 480 )
 	ms.setHeight( 460 );
     resize( ms );
-    
+
     setPrinter( prn );
 }
 
@@ -294,26 +368,46 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
 #if defined(UNIX)
+    char * etcLpDefault = 0;
+
     QFileInfo f;
     f.setFile( "/etc/printcap" );
     if ( f.isFile() && f.isReadable() )
 	parsePrintcap( d->printers );
-    f.setFile( "/etc/lp" );
-    if ( f.isDir() )
+    f.setFile( "/etc/lp/printers/" );
+   if ( f.isDir() ) {
 	parseEtcLp( d->printers );
+	QFile def( "/etc/lp/default" );
+	if ( def.open( IO_ReadOnly ) ) {
+	    etcLpDefault = new char[1025];
+	    def.readLine( etcLpDefault, 1024 );
+	    char * p = etcLpDefault;
+	    while( p && *p ) {
+		if ( !isprint(*p) || isspace(*p) )
+		    *p = 0;
+		else
+		    p++;
+	    }
+	}
+    }
 
     char * dollarPrinter;
     dollarPrinter = getenv( "PRINTER" );
     int quality = 0;
 
     const QListViewItem * lvi = d->printers->firstChild();
+    d->printers->setCurrentItem( (QListViewItem *)lvi );
     while( lvi ) {
 	QRegExp ps1( "[^a-z]ps[^a-z]" );
 	QRegExp ps2( "[^a-z]ps$" );
 	QRegExp lp1( "[^a-z]lp[^a-z]" );
 	QRegExp lp2( "[^a-z]lp$" );
-	if ( quality < 3 &&
+	if ( quality < 4 &&
 	     !qstrcmp( lvi->text( 0 ), dollarPrinter ) ) {
+	    d->printers->setCurrentItem( (QListViewItem *)lvi );
+	    quality = 4;
+	} else if ( quality < 3 && etcLpDefault &&
+		    !qstrcmp( lvi->text( 0 ), etcLpDefault ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 3;
 	} else if ( quality < 2 &&
@@ -333,6 +427,8 @@ QGroupBox * QPrintDialog::setupDestination()
     }
     if ( d->printers->currentItem() )
 	d->printers->setSelected( d->printers->currentItem(), TRUE );
+
+    delete[] etcLpDefault;
 #endif
 
     d->printers->setMinimumSize( 404, fontMetrics().height() * 5 );
@@ -449,20 +545,20 @@ QGroupBox * QPrintDialog::setupOptions()
     tll->addWidget( divider, 1 );
 
     // copies
-    
+
     horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
     QLabel * l = new QLabel( tr("Number of copies"), g, "Number of copies" );
     horiz->addWidget( l );
-    
+
     QSpinBox * spin = new QSpinBox( 1, 99, 1, g, "copies" );
     spin->setValue( 1 );
     spin->setMinimumSize( spin->sizeHint() );
     horiz->addWidget( spin, 1 );
     connect( spin, SIGNAL(valueChanged(int)),
 	     this, SLOT(setNumCopies(int)) );
-    
+
     QSize s = d->firstPageLabel->sizeHint()
 	      .max( d->lastPageLabel->sizeHint() )
 	      .max( l->sizeHint() );
@@ -471,7 +567,7 @@ QGroupBox * QPrintDialog::setupOptions()
     l->setMinimumSize( s.width() + 19, s.height() );
 
     tll->activate();
-    
+
     return g;
 }
 
@@ -505,7 +601,7 @@ QGroupBox * QPrintDialog::setupPaper()
     rb->setMinimumSize( rb->sizeHint() );
     d->orient->insert( rb, (int)QPrinter::Landscape );
     tll->addWidget( rb );
-    
+
     QFrame * divider = new QFrame( g, "divider", 0, TRUE );
     divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
     divider->setMinimumHeight( 6 );
@@ -666,7 +762,7 @@ void QPrintDialog::okClicked()
     d->printer->setOrientation( d->orientation );
     d->printer->setPageSize( d->pageSize );
     d->printer->setPageOrder( d->pageOrder2 );
-    
+
     accept();
 }
 
