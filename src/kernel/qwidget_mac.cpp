@@ -54,26 +54,13 @@
 #include <qstack.h>
 #include <qcursor.h>
 
+const unsigned char * p_str(const char *); //qglobal.cpp
+
 // NOT REVISED
 
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
-
-const unsigned char * p_str(const char * c)
-{
-    static unsigned char * ret=NULL;
-    static int ret_len = 0;
-
-    int len = qstrlen(c);
-    if(len > ret_len) {
-	delete ret;
-	ret = new unsigned char[ret_len = (len+2)];
-    }
-    ret[0]=len;
-    qstrcpy(((char *)ret)+1,c);
-    return ret;
-}
 
 QPoint posInWindow(QWidget *w)
 {

@@ -279,15 +279,43 @@ int qWinVersion()
 
 static QtMsgHandler handler = 0;			// pointer to debug handler
 
+#ifdef Q_OS_MAC
+const unsigned char * p_str(const char * c)
+{
+    static unsigned char * ret=NULL;
+    static int ret_len = 0;
+
+    int len = qstrlen(c);
+    if(len > ret_len) {
+	delete ret;
+	ret = new unsigned char[ret_len = (len+2)];
+    }
+    ret[0]=len;
+    qstrcpy(((char *)ret)+1,c);
+    return ret;
+}
+
+QCString p2qstring(const unsigned char *c) {
+       char *arr = (char *)malloc(c[0] + 1);
+       memcpy(arr, c+1, c[0]);
+       arr[c[0]] = '\0';
+       QCString ret = arr;
+       delete arr;
+       return ret;
+} 
+#endif
 
 #ifdef Q_OS_MAC9
 
 #include "qt_mac.h"
-const unsigned char * p_str(const char * c);
 
+extern bool	  qt_is_gui_used;
 static void mac_default_handler(const char *msg)
 {
-      DebugStr(p_str(msg));	
+      if(qt_is_gui_used)
+        DebugStr(p_str(msg));	
+      else
+         fprintf(stderr, msg);
 }
 
 #endif

@@ -23,7 +23,7 @@
 #define QT_NO_XINERAMA
 //mac thingy
 #ifndef ONE_PIXEL_LOCK
-//#define ONE_PIXEL_LOCK
+#define ONE_PIXEL_LOCK
 #endif
 //carbon things
 #define ALLOW_OLD_CARBON
@@ -33,6 +33,8 @@
 #define ALLOW_OLD_BLOCKING_APIS 0
 
 //hacks to work around wchar problems
+#define __WCHARTDEF__
+#define __NO_WIDE_CHAR 1
 #undef wchar_t
 typedef unsigned short hide_wchar_t; 
 #define wchar_t hide_wchar_t
@@ -43,10 +45,12 @@ typedef unsigned short hide_wchar_t;
 #define strdup(x) qstrdup(x)
 
 #include <cstdlib> //pull in some posix stuff
-using namespace std;
+using std::calloc;
+using std::free;
+using std::realloc;
 
 //hacks to work around malloc(0) returning NULL
-static inline void *_mac9_malloc(size_t s) { return malloc(s ? s : 1); }
+static inline void *_mac9_malloc(size_t s) { return std::malloc(s ? s : 1); }
 #define malloc(x) _mac9_malloc(x)
 
 #endif //MAC9
