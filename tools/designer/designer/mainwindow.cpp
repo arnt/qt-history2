@@ -2683,7 +2683,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
-	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
+	if ( ( (QMouseEvent*)e )->button() == LeftButton &&
+	     o && ( o->inherits( "QDesignerMenuBar" ) ||
 		   o->inherits( "QDesignerToolBar" ) ||
 		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) || o->inherits( "QDesignerToolBarSeparator" ) ) &&
 		    o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
@@ -2700,6 +2701,9 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		pw = pw->parentWidget();
 	    }
 	}
+	if ( o && o->inherits( "QDesignerToolBar" )
+	     && ( (QMouseEvent*)e )->button() == RightButton )
+	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )

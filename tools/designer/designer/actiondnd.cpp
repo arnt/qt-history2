@@ -168,6 +168,18 @@ void QDesignerToolBar::paintEvent( QPaintEvent *e )
     drawIndicator( p );
 }
 
+void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
+{
+    qDebug( "here" );
+    if ( e->button() == RightButton ) {
+	QPopupMenu menu( 0 );
+	menu.insertItem( tr( "Delete Toolbar" ), 1 );
+	int res = menu.exec( e->globalPos() );
+	if ( res != -1 )
+	    delete this;
+    }
+}
+
 void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 {
     if ( e->button() == MidButton )

@@ -687,6 +687,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = new QMainWindow( parent, name, 0 );
 	QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
+	mw->setDockMenuEnabled( FALSE );
 	MetaDataBase::addEntry( dw );
 	mw->setCentralWidget( dw );
 	(void)mw->statusBar();

@@ -122,6 +122,7 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
+    void mousePressEvent( QMouseEvent *e );
 
 private slots:
     void actionRemoved();
