@@ -307,13 +307,6 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     } else {
 	CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
     }
-
-#ifndef QMAC_ONE_PIXEL_LOCK
-    if(dst->devType() == QInternal::Pixmap) {
-	QPixmap *pm = (QPixmap *)dst;
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
-    }
-#endif
 }
 
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,

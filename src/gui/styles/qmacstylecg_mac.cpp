@@ -6,6 +6,7 @@
 #include <qevent.h>
 #include <qpaintdevice.h>
 #include <qpainter.h>
+#include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qpointer.h>
 #include <qpopupmenu.h>
@@ -105,10 +106,12 @@ class QMacStyleCGPrivate : public QObject
 public:
     static const int RefreshRate = 33;  // Gives us about 30 frames a second.
     QPointer<QPushButton> defaultButton;
+    QList<QPointer<QProgressBar> > progressbars;
     CFAbsoluteTime defaultButtonStart;
     int timerID;
+    UInt8 progressFrame;
     
-    QMacStyleCGPrivate() { defaultButtonStart = 0; timerID = -1; }
+    QMacStyleCGPrivate() : timerID(-1), progressFrame(0) {}
     inline void animateButton(QPushButton *btn) {
         defaultButton = btn;
         defaultButtonStart = CFAbsoluteTimeGetCurrent();
@@ -123,11 +126,27 @@ public:
         if (tmp->isVisible())
             tmp->update();
     }
+    inline void animateProgressBar() {
+        if (timerID <= 0)
+            timerID = startTimer(RefreshRate);
+    }
 protected:
     inline void timerEvent(QTimerEvent *)
     {
-        if (!defaultButton.isNull()) {
-            defaultButton->update();
+        if (!defaultButton.isNull() || !progressbars.isEmpty()) {
+            if (!defaultButton.isNull())
+                defaultButton->update();
+            else
+                defaultButtonStart = 0;
+            if (!progressbars.isEmpty()) {
+                ++progressFrame;
+                for (int i = 0; i < progressbars.size(); ++i) {
+                    QProgressBar *pb = progressbars.at(i);
+                    if (pb->totalSteps() == 0 || pb->progress() > 0
+                        && pb->progress() < pb->totalSteps())
+                        pb->update();
+                }
+            }
         } else {
             killTimer(timerID);
             timerID = -1;
@@ -159,6 +178,11 @@ void QMacStyleCG::polish(QWidget *w)
             d->animateButton(btn);
         }
     }
+    QProgressBar *progressbar = ::qt_cast<QProgressBar *>(w);
+    if (progressbar) {
+        d->progressbars.append(progressbar);
+        d->animateProgressBar();
+    }
 
     QPixmap px(0, 0, 32);
     if (w->testAttribute(QWidget::WA_MacMetalStyle)) {
@@ -189,11 +213,8 @@ void QMacStyleCG::polish(QWidget *w)
 
     if (!px.isNull()) {
         QPalette pal = w->palette();
-        QBrush background = pal.brush(QPalette::Active, QPalette::Background);
-        background.setPixmap(px);
+        QBrush background(px);
         pal.setBrush(QPalette::Background, background);
-        background = pal.brush(QPalette::Active, QPalette::Button);
-        background.setPixmap(px);
         pal.setBrush(QPalette::Button, background);
         w->setPalette(pal);
     }
@@ -219,11 +240,8 @@ void QMacStyleCG::polish(QApplication *app)
                               kHIThemeOrientationNormal);
     
     p.end();
-    QBrush background = pal.brush(QPalette::Active, QPalette::Background);
-    background.setPixmap(px);
+    QBrush background(px);
     pal.setBrush(QPalette::Background, background);
-    background = pal.brush(QPalette::Active, QPalette::Button);
-    background.setPixmap(px);
     pal.setBrush(QPalette::Button, background);
     app->setPalette(pal);
 }
@@ -519,6 +537,32 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             }
         }
         break; }
+    case CE_ProgressBarContents: {
+        const QProgressBar *progressbar = static_cast<const QProgressBar *>(widget);
+        HIThemeTrackDrawInfo tdi;
+        tdi.version = qt_mac_hitheme_version;
+        tdi.reserved = 0;
+        if(qt_aqua_size_constrain(progressbar) == QAquaSizeSmall)
+            tdi.kind = progressbar->totalSteps() ? kThemeProgressBar : kThemeIndeterminateBar;
+        else
+            tdi.kind = progressbar->totalSteps() ? kThemeLargeProgressBar
+                                                 : kThemeLargeIndeterminateBar;
+        tdi.bounds = *qt_glb_mac_rect(r, p);
+        tdi.max = progressbar->totalSteps();
+        tdi.min = 0;
+        tdi.value = progressbar->progress();
+        tdi.attributes = kThemeTrackHorizontal;
+        tdi.trackInfo.progress.phase = d->progressFrame;
+        if (!qAquaActive(pal))
+            tdi.enableState = kThemeTrackInactive;
+        else if (!progressbar->isEnabled())
+            tdi.enableState = kThemeTrackDisabled;
+        else
+            tdi.enableState = kThemeTrackActive;
+        HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+        break; }
+    case CE_ProgressBarLabel:
+        break; // Why?
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }

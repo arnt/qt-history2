@@ -34,10 +34,6 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     if(!hd)
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    Q_ASSERT(locked);
-#endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
     for(int yy=0;yy<h;yy++) {
@@ -55,9 +51,6 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 	    *(drow + xx) = q;
 	}
     }
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
 }
 
 static inline QRgb qt_conv16ToRgb(ushort c) {
@@ -159,10 +152,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     if(!hd)
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    Q_ASSERT(locked);
-#endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 
@@ -214,9 +203,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    break;
 	}
     }
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
 
     data->uninit = FALSE;
 
@@ -243,10 +229,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	}
 	if (alphamap) {
 	    data->alphapm = new QPixmap(w, h, 32);
-#ifndef QMAC_ONE_PIXEL_LOCK
-	    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
-	    Q_ASSERT(locked);
-#endif
 	    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)), *drow;
 	    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
             if (img.depth() == 32) {
@@ -272,9 +254,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
                     }
                 }
             }
-#ifndef QMAC_ONE_PIXEL_LOCK
-	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
-#endif
 	}
 #endif //!QMAC_PIXMAP_ALPHA
     }
@@ -332,10 +311,6 @@ QImage QPixmap::convertToImage() const
     if(!hd)
 	qDebug("Qt: internal: No hd! %s %d", __FILE__, __LINE__);
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    Q_ASSERT(locked);
-#endif
     QRgb q;
     long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
@@ -363,9 +338,6 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
     if(data->mask && !data->alphapm) {
 	QImage alpha = data->mask->convertToImage();
 	image.setAlphaBuffer(TRUE);
@@ -424,9 +396,6 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
     return image;
 }
 
@@ -439,10 +408,6 @@ void QPixmap::fill(const QColor &fillColor)
 
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this);
-#ifndef QMAC_ONE_PIXEL_LOCK
-    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    Q_ASSERT(locked);
-#endif
     detach();					// detach other references
     if(depth() == 1 || depth() == 32) { //small optimization over QD
 	ulong *dptr = (ulong *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
@@ -466,9 +431,6 @@ void QPixmap::fill(const QColor &fillColor)
 	SetRect(&r,0,0,width(),height());
 	PaintRect(&r);
     }
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
 }
 
 void QPixmap::detach()
@@ -524,9 +486,7 @@ void QPixmap::deref()
 	}
 
         if(hd && qApp) {
-#ifdef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-#endif
 	    CGContextRelease((CGContextRef)cg_hd);
 	    cg_hd = 0;
 	    DisposeGWorld((GWorldPtr)hd);
@@ -607,20 +567,12 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	return pm;
     }
 
-#ifndef QMAC_ONE_PIXEL_LOCK
-    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    Q_ASSERT(locked);
-#endif
     sptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
     sbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
     ws=width();
     hs=height();
 
     QPixmap pm(w, h, depth(), optimization());
-#ifndef QMAC_ONE_PIXEL_LOCK
-    locked = LockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
-    Q_ASSERT(locked);
-#endif
     dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pm.handle()));
     dbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pm.handle()));
     bpp = 32;
@@ -642,10 +594,6 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	QPixmap pm;
 	return pm;
     }
-#ifndef QMAC_ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
-    UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));
-#endif
 
     if(depth() == 1) {
 	if(data->mask) {
@@ -721,10 +669,8 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 	qDebug("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
 	Q_ASSERT(0);
     } else {
-#ifdef QMAC_ONE_PIXEL_LOCK
 	bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)hd));
 	Q_ASSERT(locked);
-#endif
 	data->w=w;
 	data->h=h;
     }

@@ -179,13 +179,6 @@ QQuickDrawPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool u
 	    end();
 	    return false;
 	}
-#ifndef QMAC_ONE_PIXEL_LOCK
-	if(!d->locked) {
-	    bool locked = LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
-	    Q_ASSERT(locked);
-	    d->locked = true;
-	}
-#endif
     }
     d->unclipped = unclipped;
 #ifndef USE_CORE_GRAPHICS
@@ -208,10 +201,6 @@ QQuickDrawPaintEngine::end()
     if(d->locked) {
 	if(d->pdev->devType() == QInternal::Widget)
 	    UnlockPortBits(GetWindowPort((WindowPtr)d->pdev->handle()));
-#ifndef QMAC_ONE_PIXEL_LOCK
-	else
-	    UnlockPixels(GetGWorldPixMap((GWorldPtr)d->pdev->handle()));
-#endif
 	d->locked = false;
     }
 
