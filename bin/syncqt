@@ -15,24 +15,35 @@ use Cwd;
 use Config;
 use strict;
 
-# ensure correct environment -----------------------------------------
-die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
+die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"}; # sanity check
 
-# global variables ---------------------------------------------------
-my $isunix         = 0;
-my $scriptname     = $0;
-$scriptname        =~ s/(.*)\///; # basename
-my $basedir        = $ENV{"QTDIR"};
-my $includedir     = $basedir . "/include";
+# global variables
+my $isunix = 0;
+my $basedir = $ENV{"QTDIR"};
 $basedir =~ s=\\=/=g;
-$includedir =~ s=\\=/=g;
+my %modules = ( # path to module name map
+	    "QtGui" => "$basedir/src/gui",
+	    "QtOpenGL" => "$basedir/src/opengl",
+	    "QtCore" => "$basedir/src/core",
+	    "QtXml" => "$basedir/src/xml",
+	    "QtSql" => "$basedir/src/sql",
+	    "QtNetwork" => "$basedir/src/network",
+	    "QtCanvas" => "$basedir/src/canvas",
+	    "Qt3Compat" => "$basedir/src/compat",
+	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
+);
+$modules{"QCore"} .= ";mkspecs" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
-# default options ----------------------------------------------------
-my $showonly       = 0;
-my $remove_stale   = 0;
-my $force_win      = 0;
+# global variables (modified by options)
+my $module = 0;
+my $showonly = 0;
+my $remove_stale = 0;
+my $force_win = 0;
 my $force_relative = 0;
-$force_relative    = 1 if ( -d "/System/Library/Frameworks" );
+my @modules_to_sync;
+$force_relative = 1 if ( -d "/System/Library/Frameworks" );
+my $includedir = $basedir . "/include";
+$includedir =~ s=\\=/=g;
 
 # functions ----------------------------------------------------------
 
@@ -44,111 +55,28 @@ $force_relative    = 1 if ( -d "/System/Library/Frameworks" );
 ######################################################################
 sub showUsage
 {
-    print "$scriptname usage:\n";
-    print "  -remove-stale         Removes stale headers              (default: $remove_stale)\n";
-    print "  -relative             Force relative symlinks            (default: $force_relative)\n";
-    print "  -windows              Force platform to Windows          (default: $force_win)\n";
+    print "$0 usage:\n";
+    print "  -remove-stale         Removes stale headers              (default: " . ($remove_stale ? "yes" : "no") . ")\n";
+    print "  -relative             Force relative symlinks            (default: " . ($force_relative ? "yes" : "no") . ")\n";
+    print "  -windows              Force platform to Windows          (default: " . ($force_win ? "yes" : "no") . ")\n";
+    print "  -showonly             Show action but not perform        (default: " . ($showonly ? "yes" : "no") . ")\n";
     print "  -outdir <PATH>        Specify include directory for sync (default: $includedir)\n";
-    print "  -showonly             Show action but not perform        (default: $showonly)\n";
     print "  -help                 This help\n";
-}
-
-######################################################################
-# Syntax:  parseArgs()
-# Params:  -none-
-#
-# Purpose: Parse all arguments on the command line.
-#          Accepts all options starting with any number of '-' (>0),
-#          so:
-#             -h, --h, ---h, -help, --help, ---help, -?, --?, ---?
-#          are all ok.
-######################################################################
-sub parseArgs
-{
-    while ( @ARGV ) {
-	my $var = 0;
-	my $val = 0;
-
-	#parse
-        my $arg = shift @ARGV;
-	if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "?") {
-	    $var = "show_help";
-	    $val = "yes";
-	} elsif("$arg" eq "-o" || "$arg" eq "-outdir") {
-	    $var = "output";
-	    $val = shift @ARGV;
-	} elsif("$arg" eq "-showonly" || "$arg" eq "-remove-stale" || "$arg" eq "-windows" || "$arg" eq "-relative") {
-	    $var = substr($arg, 1);
-	    $val = "yes";
-	} elsif("$arg" =~ /^-no-(.*)$/) {
-	    $var = $1;
-	    $val = "no";
-	#these are for commandline compat
-	} elsif("$arg" eq "-inc") {
-	    $var = "output";
-	    $val = shift @ARGV;
-	} elsif("$arg" eq "-show") {
-	    $var = "showonly";
-	    $val = "yes";
-	}
-
-	#do something
-	if(!$var || "$var" eq "show_help") {
-	    print "Unknown option: $arg\n\n" if(!$var);
-	    showUsage();
-	    exit 0;
-	} elsif ("$var" eq "showonly") {
-	    if("$val" eq "yes") {
-		$showonly++;
-	    } elsif($showonly) {
-		$showonly--;
-	    }
-	} elsif ("$var" eq "remove_stale") {
-	    if("$val" eq "yes") {
-		$remove_stale++;
-	    } elsif($remove_stale) {
-		$remove_stale--;
-	    }
-	} elsif ("$var" eq "windows") {
-	    if("$val" eq "yes") {
-		$force_win++;
-	    } elsif($force_win) {
-		$force_win--;
-	    }
-	} elsif ("$var" eq "relative") {
-	    if("$val" eq "yes") {
-		$force_relative++;
-	    } elsif($force_relative) {
-		$force_relative--;
-	    }
-	} elsif ("$var" eq "output") {
-	    my $outdir = $val;
-	    if($outdir !~ /^\//) {
-		$includedir = getcwd();
-		chomp $includedir;
-		$includedir .= "/" . $outdir;
-	    } else {
-		$includedir = $outdir;
-	    }
-	    # \ -> /
-	    $includedir =~ s=\\=/=g;
-        }
-    }
+    exit 0;
 }
 
 ######################################################################
 # Syntax:  checkUnix()
 # Params:  -none-
 #
-# Purpose: Check if script runs on a *nix system or not, and sets the
+# Purpose: Check if script runs on a Unix system or not, and sets the
 #          global variable $isunix to the result. Cygwin systems are
-#          _not_ accounted as *nix systems.
+#          _not_ ounted as Unix systems.
 ######################################################################
 sub checkUnix {
     my ($r) = 0;
     if ( $force_win != 0) {
-        $isunix = 0;
-        return;
+        return 0;
     } elsif ( -f "/bin/uname" ) {
         $r = 1;
         (-f "\\bin\\uname") && ($r = 0);
@@ -160,47 +88,7 @@ sub checkUnix {
         $_ = $Config{'osname'};
         $r = 0 if( /(ms)|(cyg)win/i );
     }
-    $isunix = $r;
-}
-
-######################################################################
-# Syntax:  removeStale()
-# Params:  -none-
-#
-# Purpose: Removes all stale headerfiles in the include directory that
-#          don't seem to belong there.
-######################################################################
-sub removeStale
-{
-    my @subdirs = ($includedir);
-    foreach (@subdirs) {
-        my $subdir = "$_";
-        opendir DIR, "$subdir";
-        while(my $t = readdir(DIR)) {
-            my $file = "$subdir/$t";
-            if(-d "$file") {
-                push @subdirs, "$file" unless($t eq "." || $t eq ".." || $t eq "arch");
-            } else {
-                my $remove_file = 0;
-                if(open(F, "<$file")) {
-                    while(<F>) {
-                        my $line = $_;
-                        chomp $line;
-                        if($line =~ /^\#include \"([^\"]*)\"$/) {
-                            my $include = $1;
-                            $include = $subdir . "/" . $include unless(substr($include, 0, 1) eq "/");
-                            $remove_file = 1 unless(-e "$include");
-                        } else {
-                            $remove_file = 0;
-                            last;
-                        }
-                    }
-                    unlink "$file" if($remove_file);
-                }
-            }
-        }
-        closedir DIR;
-    }
+    return $r;
 }
 
 ######################################################################
@@ -285,22 +173,10 @@ sub syncClassNames {
                 $symbol = $4;
             }
             if($symbol && $symbol =~ /^Q/) {
-                $ret++;
                 if($showonly) {
                     print "SYMBOL: $symbol\n";
                 } else {
-                    my $header = "$includedir/$library/$symbol";
-                    unless(-e "$header") {
-                        print "SYMBOL: $symbol ($iheader)\n";
-                        my $header_dir = dirname($header);
-                        mkpath $header_dir, 0777;
-
-                        #write it
-                        my $iheader_out = fixPaths($iheader, $header);
-                        open HEADER, ">$header" || die "Could not open $header for writing!\n";
-                        print HEADER "#include \"$iheader_out\"\n";
-                        close HEADER;
-                    }
+		    $ret += syncHeader("$includedir/$library/$symbol", $iheader);		    
                 }
             }
         }
@@ -310,47 +186,33 @@ sub syncClassNames {
 }
 
 ######################################################################
-# Syntax:  syncHeader(header, iheader, library)
+# Syntax:  syncHeader(header, iheader)
 # Params:  header, string, filename to create "symlink" for
 #          iheader, string, destination name of symlink
-#          library, string, library subdirectory in include directory
 #
-# Purpose: Syncronizes header to iheader, into library's include
-#          structure and the "catch all" Qt include directory.
+# Purpose: Syncronizes header to iheader
 ######################################################################
 sub syncHeader {
-    my ($header, $iheader, $library) = @_;
+    my ($header, $iheader) = @_;
     $iheader =~ s=\\=/=g;
     $header =~ s=\\=/=g;
     if(-e "$iheader") {
         my $iheader_no_basedir = $iheader;
         $iheader_no_basedir =~ s,^$basedir/?,,;
 
-        my $headers_created = 0;
-        my @headers_out;
-        if (($header =~ /_p.h$/)) {
-            @headers_out = ( "$includedir/Qt/private/$header", "$includedir/$library/private/$header" );
-        } else {
-            @headers_out = ( "$includedir/Qt/$header", "$includedir/$library/$header" );
-        }
-        unlink "$includedir/$header" if(-e "$includedir/$header"); #remove old symlink from 3.x
-        foreach(@headers_out) {
-            my $header_out = $_;
-            unless(-e "$header_out") {
-                $headers_created++;
-
-                my $header_out_dir = dirname($header_out);
-                mkpath $header_out_dir, 0777;
-
-                #write it
-                my $iheader_out = fixPaths($iheader, $header_out);
-                open HEADER, ">$header_out" || die "Could not open $header_out for writing!\n";
-                print HEADER "#include \"$iheader_out\"\n";
-                close HEADER;
-            }
-        }
-        print "header created for $iheader_no_basedir\n" if($headers_created > 0);
+	unless(-e "$header") {
+	    my $header_dir = dirname($header);
+	    mkpath $header_dir, 0777;
+	    
+	    #write it
+	    my $iheader_out = fixPaths($iheader, $header);
+	    open HEADER, ">$header" || die "Could not open $header for writing!\n";
+	    print HEADER "#include \"$iheader_out\"\n";
+	    close HEADER;
+	    return 1;
+	}
     }
+    return 0;
 }
 
 ######################################################################
@@ -510,8 +372,83 @@ sub findFiles {
 # --------------------------------------------------------------------
 # "main" function
 # --------------------------------------------------------------------
-parseArgs();
-checkUnix();
+$isunix = checkUnix; #cache checkUnix
+
+while ( @ARGV ) {
+    my $var = 0;
+    my $val = 0;
+
+    #parse
+    my $arg = shift @ARGV;
+    if ("$arg" eq "-h" || "$arg" eq "-help" || "$arg" eq "?") {
+	$var = "show_help";
+	$val = "yes";
+    } elsif("$arg" eq "-o" || "$arg" eq "-outdir") {
+	$var = "output";
+	$val = shift @ARGV;
+    } elsif("$arg" eq "-showonly" || "$arg" eq "-remove-stale" || "$arg" eq "-windows" || "$arg" eq "-relative") {
+	$var = substr($arg, 1);
+	$val = "yes";
+    } elsif("$arg" =~ /^-no-(.*)$/) {
+	$var = $1;
+	$val = "no";
+	#these are for commandline compat
+    } elsif("$arg" eq "-inc") {
+	$var = "output";
+	$val = shift @ARGV;
+    } elsif("$arg" eq "-module") {
+	$var = "module";
+	$val = shift @ARGV;
+    } elsif("$arg" eq "-show") {
+	$var = "showonly";
+	$val = "yes";
+    }
+
+    #do something
+    if(!$var || "$var" eq "show_help") {
+	print "Unknown option: $arg\n\n" if(!$var);
+	showUsage();
+    } elsif ("$var" eq "showonly") {
+	if("$val" eq "yes") {
+	    $showonly++;
+	} elsif($showonly) {
+	    $showonly--;
+	}
+    } elsif ("$var" eq "remove-stale") {
+	if("$val" eq "yes") {
+	    $remove_stale++;
+	} elsif($remove_stale) {
+	    $remove_stale--;
+	}
+    } elsif ("$var" eq "windows") {
+	if("$val" eq "yes") {
+	    $force_win++;
+	} elsif($force_win) {
+	    $force_win--;
+	}
+    } elsif ("$var" eq "relative") {
+	if("$val" eq "yes") {
+	    $force_relative++;
+	} elsif($force_relative) {
+	    $force_relative--;
+	}
+    } elsif ("$var" eq "module") {
+	die "No such module: $val" unless(defined $modules{$val});
+	push @modules_to_sync, $val;
+    } elsif ("$var" eq "output") {
+	my $outdir = $val;
+	if($outdir !~ /^\//) {
+	    $includedir = getcwd();
+	    chomp $includedir;
+	    $includedir .= "/" . $outdir;
+	} else {
+	    $includedir = $outdir;
+	}
+	# \ -> /
+	$includedir =~ s=\\=/=g;
+    }
+}
+@modules_to_sync = keys(%modules) if($#modules_to_sync == -1);
 
 # create path
 mkpath $includedir, 0777;
@@ -519,27 +456,45 @@ mkpath $includedir, 0777;
 my @ignore_headers = ();
 my @ignore_master_headers = ( "qt.h", "qpaintdevicedefs.h" );
 
-# path -> module name  conversion map
-my %dirs = (
-         "$basedir/src/gui" => "QtGui",
-         "$basedir/src/opengl" => "QtOpenGL",
-         "$basedir/src/core" => "QtCore",
-         "$basedir/src/xml" => "QtXml",
-         "$basedir/src/sql" => "QtSql",
-         "$basedir/src/network" => "QtNetwork",
-         "$basedir/src/canvas" => "QtCanvas",
-         "$basedir/src/compat" => "Qt3Compat",
-         "$basedir/extensions/activeqt/container".
-         ";$basedir/extensions/activeqt/control" => "ActiveQt",
-);
-$dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"};
-
-removeStale if($remove_stale);
-
-foreach (keys %dirs) {
-    my $dir = "$_";
-    my $lib = $dirs{$dir};
+foreach (@modules_to_sync) {
+    my $lib = $_;
+    my $dir = "$modules{$lib}";
     my $master_header_out = "";
+
+    #remove the old files
+    if($remove_stale) {
+	my @subdirs = ("$includedir/$lib");
+	foreach (@subdirs) {
+	    my $subdir = "$_";
+	    opendir DIR, "$subdir";
+	    while(my $t = readdir(DIR)) {
+		my $file = "$subdir/$t";
+		if(-d "$file") {
+		    push @subdirs, "$file" unless($t eq "." || $t eq ".." || $t eq "arch");
+		} else {
+		    my $remove_file = 0;
+		    if(open(F, "<$file")) {
+			while(<F>) {
+			    my $line = $_;
+			    chomp $line;
+			    if($line =~ /^\#include \"([^\"]*)\"$/) {
+				my $include = $1;
+				$include = $subdir . "/" . $include unless(substr($include, 0, 1) eq "/");
+				$remove_file = 1 unless(-e "$include");
+			    } else {
+				$remove_file = 0;
+				last;
+			    }
+			}
+			unlink "$file" if($remove_file);
+		    }
+		}
+	    }
+	    closedir DIR;
+	}
+    }
+
+    #create the new ones
     foreach (split(/;/, $dir)) {
         #calc subdirs
         my @subdirs = ($_);
@@ -562,22 +517,36 @@ foreach (keys %dirs) {
                     $header = 0 if("$header" eq "$_");
                 }
                 if($header) {
+		    my $header_copies = 0;
+		    #figure out if it is a public header
+		    my $public_header = $header;
+		    if($public_header =~ /_(p|mac|win|unix|x11).h$/) {
+			$public_header = 0;
+		    } else {
+			foreach (@ignore_master_headers) {
+			    $public_header = 0 if("$header" eq "$_");
+			}
+		    }
+
                     my $iheader = $subdir . "/" . $header;
                     if($showonly) {
                         print "$header [$lib]\n";
                     } else {
-                        #figure out if this belongs in the master file
-                        unless($header =~ /_/) {
-                            my $public_header = $header;
-                            foreach (@ignore_master_headers) {
-                                $public_header = 0 if("$header" eq "$_");
-                            }
-                            $master_header_out .= "#include \"$public_header\"\n" if($public_header);
-                        }
-                        #now sync the header file (ie symlink/include it)
-                        syncHeader($header, $iheader, $lib);
+                        #put it into the master file
+			$master_header_out .= "#include \"$public_header\"\n" if($public_header);
+                        #now sync the header file
+			my @headers;
+			if ($public_header) {
+			    @headers = ( "$includedir/Qt/$header", "$includedir/$lib/$header" );
+			} else {
+			    @headers = ( "$includedir/Qt/private/$header", "$includedir/$lib/private/$header" );
+			}
+			foreach(@headers) {
+			    $header_copies += syncHeader($_, $iheader);
+			}
                     }
-                    syncClassNames($iheader, $lib) unless($header =~ /_/);
+		    $header_copies += syncClassNames($iheader, $lib) if($public_header);
+		    print "header created for $iheader ($header_copies)\n" if($header_copies > 0);
                 }
             }
         }
@@ -607,6 +576,7 @@ foreach (keys %dirs) {
 }
 
 if(!$isunix) {
-   symlinkFile("$basedir/dist/win/Makefile", "$basedir/Makefile");
-   symlinkFile("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++");
+    unlink "$basedir/Makefile";
+    symlinkFile("$basedir/dist/win/Makefile", "$basedir/Makefile");
+    symlinkFile("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++");
 }
