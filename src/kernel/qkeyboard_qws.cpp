@@ -64,6 +64,21 @@ private:
     struct termios origTermData;
 };
 
+class QWSUsbKeyboardHandler : public QWSKeyboardHandler
+{
+    Q_OBJECT
+public:
+    QWSUsbKeyboardHandler();
+    virtual ~QWSUsbKeyboardHandler();
+
+private slots:
+    void readKeyboardData();
+
+private:
+    QString terminalName;
+    QSocketNotifier *notifier;
+};
+
 class QWSVr41xxButtonsHandler : public QWSKeyboardHandler
 {
     Q_OBJECT
@@ -283,7 +298,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 
     if ( kbdFD >= 0 ) {
 	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this, 
+	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
     }
 
@@ -446,6 +461,183 @@ void QWSTtyKeyboardHandler::readKeyboardData()
     }
 }
 
+/* USB driver */
+
+QWSUsbKeyboardHandler::QWSUsbKeyboardHandler() : QWSKeyboardHandler()
+{
+    terminalName = "/dev/input/event0";
+    kbdFD = -1;
+    notifier = 0;
+
+    if ((kbdFD = open(terminalName, O_RDONLY, 0)) < 0)
+    {
+	printf("Cannot open %s\n", terminalName.latin1() );
+    } else {
+	printf("Opened USB %s\n",terminalName.latin1());
+    }
+    
+    if ( kbdFD >= 0 ) {
+	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
+	connect( notifier, SIGNAL(activated(int)),this,
+		 SLOT(readKeyboardData()) );
+    
+    }
+    
+}
+
+QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
+{
+    if (kbdFD >= 0)
+    {
+	::close(kbdFD);
+	kbdFD = -1;
+    }
+    delete notifier;
+    notifier = 0;
+}
+
+
+void QWSUsbKeyboardHandler::readKeyboardData()
+{
+    static int shift = 0;
+    static int alt   = 0;
+    static int ctrl  = 0;
+    static bool extended = false;
+    static int prevuni = 0;
+    static int prevkey = 0;
+
+    unsigned char buf[81];
+    int n;
+
+    qDebug("USB read data");
+    
+    n = read(kbdFD, buf, 16 );
+
+    int ch = buf[10];
+    int keyCode = Qt::Key_unknown;
+    bool release = buf[12]==0 ? true : false;
+
+
+    if (ch == 224) {
+	// extended
+	extended = true;
+    }
+
+    if (ch & 0x80) {
+	release = true;
+	ch &= 0x7f;
+    }
+
+    /*
+	printf( "%d ", ch );
+	if (extended)
+	    printf(" (Extended) ");
+	if (release)
+	    printf(" (Release) ");
+	printf("\r\n");
+*/
+
+    if (extended)
+ {
+     switch (ch)
+ {
+ case 72:
+     keyCode = Qt::Key_Up;
+     break;
+ case 75:
+     keyCode = Qt::Key_Left;
+     break;
+ case 77:
+     keyCode = Qt::Key_Right;
+     break;
+ case 80:
+     keyCode = Qt::Key_Down;
+     break;
+ case 82:
+     keyCode = Qt::Key_Insert;
+     break;
+ case 71:
+     keyCode = Qt::Key_Home;
+     break;
+ case 73:
+     keyCode = Qt::Key_Prior;
+     break;
+ case 83:
+     keyCode = Qt::Key_Delete;
+     break;
+ case 79:
+     keyCode = Qt::Key_End;
+     break;
+ case 81:
+     keyCode = Qt::Key_Next;
+     break;
+ }
+ }
+    else
+ {
+     if (ch < 90)
+ {
+     keyCode = QWSServer::keyMap()[ch].key_code;
+ }
+ }
+
+    // Virtual console switching
+    int term = 0;
+    if (ctrl && alt && keyCode >= Qt::Key_F1 && keyCode <= Qt::Key_F10)
+	term = keyCode - Qt::Key_F1 + 1;
+    else if (ctrl && alt && keyCode == Qt::Key_Left)
+	term = QMAX(vtQws - 1, 1);
+    else if (ctrl && alt && keyCode == Qt::Key_Right)
+	term = QMIN(vtQws + 1, 10);
+    if (term && !release) {
+	ctrl = 0;
+	alt = 0;
+	ioctl(kbdFD, VT_ACTIVATE, term);
+	return;
+    }
+
+    // Ctrl-Alt-Backspace exits qws
+    if (ctrl && alt && keyCode == Qt::Key_Backspace) {
+	qApp->quit();
+    }
+
+    if (keyCode == Qt::Key_Alt) {
+	alt = release ? 0 : AltButton;
+    }
+    else if (keyCode == Qt::Key_Control) {
+	ctrl = release ? 0 : ControlButton;
+    }
+    else if (keyCode == Qt::Key_Shift) {
+	shift = release ? 0 : ShiftButton;
+    }
+    else if (keyCode != Qt::Key_unknown) {
+	int unicode = 0;
+	if (!extended)
+    {
+	if (shift)
+	    unicode =  QWSServer::keyMap()[ch].shift_unicode ?  QWSServer::keyMap()[ch].shift_unicode : 0xffff;
+	else if (ctrl)
+	    unicode =  QWSServer::keyMap()[ch].ctrl_unicode ?  QWSServer::keyMap()[ch].ctrl_unicode : 0xffff;
+	else
+	    unicode =  QWSServer::keyMap()[ch].unicode ?  QWSServer::keyMap()[ch].unicode : 0xffff;
+	//printf("unicode: %c\r\n", unicode);
+    }
+	int modifiers = alt | ctrl | shift;
+	bool repeat = FALSE;
+	if (prevuni == unicode && prevkey == keyCode && !release)
+	    repeat = TRUE;
+	server->processKeyEvent( unicode, keyCode, modifiers, !release, repeat );
+	if (!release) {
+	    prevuni = unicode;
+	    prevkey = keyCode;
+	} else {
+	    prevkey = prevuni = 0;
+	}
+    }
+    extended = false;
+
+}
+
 /*
  * vr41xx buttons driver
  */
@@ -463,7 +655,7 @@ QWSVr41xxButtonsHandler::QWSVr41xxButtonsHandler() : QWSKeyboardHandler()
 
     if ( buttonFD >= 0 ) {
 	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this, 
+	connect( notifier, SIGNAL(activated(int)),this,
 		 SLOT(readKeyboardData()) );
     }
 }
@@ -598,13 +790,17 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
     server = this;
 
     QWSKeyboardHandler *handler = 0;
-
+    
     if ( spec == "Buttons" ) {
 	handler = new QWSVr41xxButtonsHandler();
     } else if ( spec == "QVFbKeyboard" ) {
 	handler = new QWSVFbKeyboardHandler();
     } else if ( spec == "TTY" ) {
-	handler = new QWSTtyKeyboardHandler();
+	if(getenv("QWS_USB_KEYBOARD")) {
+	    handler = new QWSUsbKeyboardHandler();
+	} else {
+	    handler = new QWSTtyKeyboardHandler();
+	}
     } else {
 	qWarning( "Keyboard type %s unsupported", spec.latin1() );
     }
