@@ -692,6 +692,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 #ifdef QT_COMPAT
     case CE_Q3PopupMenuScroller: 
 #endif
+    case CE_MenuTearoff:
     case CE_MenuHorizontalExtra:
     case CE_MenuVerticalExtra:
     case CE_MenuScroller: {
@@ -699,17 +700,22 @@ void QMacStyleQD::drawControl(ControlElement element,
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
 	ThemeMenuState tms = kThemeMenuActive;
 	ThemeMenuItemType tmit = kThemeMenuItemPlain;
+	if(how & Style_Active)
+	    tms |= kThemeMenuSelected;
 	if(element == CE_MenuScroller) {
-	    if(how & Style_Active)
-		tms |= kThemeMenuSelected;
 	    if((how & Style_Down))
 		tmit = kThemeMenuItemScrollDownArrow;
 	    else
 		tmit = kThemeMenuItemScrollUpArrow;
 	}
-	p->fillRect(r, blue);
 	((QMacStyleQDPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
+	if(element == CE_MenuTearoff) {
+	    p->setPen( QPen( pal.dark(), 1, DashLine ) );
+	    p->drawLine( r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1 );
+	    p->setPen( QPen( pal.light(), 1, DashLine ) );
+	    p->drawLine( r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2 );
+	}
 	break; }
     case CE_MenuBarEmptyArea:
 	p->fillRect(r, pal.brush(QPalette::Button));
@@ -717,6 +723,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p, FALSE), kThemeMenuBarNormal,
 				   kThemeMenuSquareMenuBar);
 	break;
+
     case CE_MenuItem: {
 	if(!widget || opt.isDefault())
 	    break;
@@ -761,6 +768,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	int xpos = x;
 	if(reverse)
 	    xpos += w - checkcol;
+
 	if(mi && !mi->icon().isNull()) {              // draw iconset
 	    if(checked) {
 		QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
@@ -829,13 +837,12 @@ void QMacStyleQD::drawControl(ControlElement element,
 	    xpos = macItemFrame + tab;
 	else
 	    xpos += xm;
-
 	if(mi) {
 	    QString s = mi->text();
 	    if (!s.isNull()) {                        // draw text
 		int t = s.indexOf('\t');
 		int m = macItemVMargin;
-		int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
+		int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
 		if (t >= 0) {                         // draw tab text
 		    int xp;
 		    if (reverse)

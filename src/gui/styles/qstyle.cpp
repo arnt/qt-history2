@@ -896,6 +896,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_MenuItem  a menu item in a QMenu.
     \value CE_MenuScroller scrolling areas in a QMenu when the
 	style supports scrolling.
+    \value CE_MenuTearoff a menu item representing the tear off section of
+        a QMenu.
 
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
 
@@ -1488,8 +1490,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
     \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
-    \value PM_PopupMenuScrollerHeight height of the scroller area in a popupmenu.
-    \value PM_PopupMenuScrollerHeight height of the scroller area in a popupmenu.
+    \value PM_PopupMenuScrollerHeight height of the scroller area in a QMenu.
+    \value PM_PopupMenuScrollerHeight height of the scroller area in a QMenu.
+    \value PM_MenuTearoffHeight height of a tear off area in a QMenu.
     \value PM_CheckListButtonSize area (width/height) of the
 	checkbox/radiobutton in a QCheckListItem
     \value PM_CheckListControllerSize area (width/height) of the

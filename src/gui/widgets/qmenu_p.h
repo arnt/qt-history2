@@ -18,7 +18,8 @@ class Q4MenuPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(Q4Menu);
 public:
     Q4MenuPrivate() : itemsDirty(0), maxIconWidth(0), ncols(0), mouseDown(0), 
-		      currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), checkable(0)  { }  
+		      currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
+		      checkable(0)  { }  
     ~Q4MenuPrivate() 
     { 
 	for(QList<Q4MenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it) 
@@ -72,7 +73,7 @@ public:
     inline int indexOf(QAction *act) { return q_func()->actions().indexOf(act); }
 
     //tear off support
-    uint tearoff : 1, tornoff : 1;
+    uint tearoff : 1, tornoff : 1, tearoffHighlighted : 1;
     QPointer<Q4TornOffMenu> tornPopup;
 
     //checkable

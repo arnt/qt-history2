@@ -24,7 +24,6 @@
 // These really are QStyle::fu, but for now I just hard code them..
 int scrollSizeDistance = 15; //the distance to center within on the desktop
 int scrollConsumeAllSpace = false; //toggles when the popupmenu will scroll to fill the screen
-int tearOffHeight = 10; //height of the tear off area
 
 // internal class used for the torn off popup
 class Q4TornOffMenu : public Q4Menu
@@ -168,7 +167,7 @@ QRect Q4MenuPrivate::actionRect(Q4MenuAction *act)
     if(scroll)
 	ret.moveBy(0, scroll->scrollOffset);
     if(tearoff)
-	ret.moveBy(0, tearOffHeight);
+	ret.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, q));
     return ret;
 }
 
@@ -336,6 +335,7 @@ void Q4MenuPrivate::scrollMenu(uint dir)
    eventFilter (which can be nasty for users of QMenuBar's). */
 bool Q4MenuPrivate::mouseEventTaken(QMouseEvent *e)
 {
+    tearoffHighlighted = 0;
     QPoint pos = q->mapFromGlobal(e->globalPos());
     if(scroll && !activeMenu) { //let the scroller "steal" the event
 	bool isScroll = false;
@@ -365,10 +365,11 @@ bool Q4MenuPrivate::mouseEventTaken(QMouseEvent *e)
     }
 
     if(tearoff) { //let the tear off thingie "steal" the event..
-	QRect tearRect(0, 0, q->width(), tearOffHeight);
+	QRect tearRect(0, 0, q->width(), q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, q));
 	if(d->scroll && d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
 	    tearRect.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, q));
 	if(tearRect.contains(pos)) {
+	    tearoffHighlighted = 1;
 	    if(e->type() == QEvent::MouseButtonRelease) {
 		if(tornPopup) {
 		    tornPopup->close();
@@ -518,7 +519,7 @@ QSize Q4Menu::sizeHint() const
 	s.setHeight(s.height() + actions[i]->rect.height());
     }
     if(d->tearoff)
-	s.setHeight(s.height()+tearOffHeight);
+	s.setHeight(s.height()+style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
     return s.expandedTo(QApplication::globalStrut()); //should consult the QStyle::sizeForContents ####
 }
 
@@ -528,6 +529,7 @@ void Q4Menu::popup(const QPoint &p, QAction *atAction)
 	d->scroll->scrollOffset = 0;
 	d->scroll->scrollFlags = Q4MenuPrivate::Q4MenuScroller::ScrollNone;
     }
+    d->tearoffHighlighted = 0;
 
     d->updateActions();
     QPoint pos = p;
@@ -655,49 +657,9 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     d->updateActions();
 
     QPainter p(this);
-    QRegion clippedArea;
-    //draw (and calculate) the scroller regions..
-    if(d->scroll) {
-	const int scrollerHeight = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
-	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp) {
-	    QRect topScroll(0, 0, width(), scrollerHeight);
-	    clippedArea += QRegion(topScroll);
-	    p.setClipRect(topScroll);
-	    p.save();
-	    QStyle::SFlags flags = QStyle::Style_Default;
-	    if(d->scroll->scrollDirection & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
-		flags |= QStyle::Style_Active;
-	    qDebug("drawing up in %d %d %d %d", topScroll.x(), topScroll.y(), topScroll.width(), topScroll.height());
-	    style().drawControl(QStyle::CE_MenuScroller, &p, this, topScroll, palette(), flags);
-	    p.restore();
-	}
-	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollDown) {
-	    QRect bottomScroll(0, height()-scrollerHeight, width(), scrollerHeight);
-	    clippedArea += QRegion(bottomScroll);
-	    p.save();
-	    p.setClipRect(bottomScroll);
-	    QStyle::SFlags flags = QStyle::Style_Down;
-	    if(d->scroll->scrollDirection & Q4MenuPrivate::Q4MenuScroller::ScrollDown)
-		flags |= QStyle::Style_Active;
-	    qDebug("drawing down in %d %d %d %d", bottomScroll.x(), bottomScroll.y(), bottomScroll.width(), bottomScroll.height());
-	    style().drawControl(QStyle::CE_MenuScroller, &p, this, bottomScroll, palette(), flags);
-	    p.restore();
-	}
-    }
-    //paint the tear off..
-    if(d->tearoff) {
-	QRect tearRect(0, 0, width(), tearOffHeight);
-	if(d->scroll && d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
-	    tearRect.moveBy(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, this));
-	clippedArea += QRegion(tearRect);
-	p.save();
-	p.setClipRect(tearRect);
-	p.fillRect(tearRect, darkGreen);
-	p.restore();
-    }
 
     //draw the items that need updating..
-    QRegion emptyArea = QRegion(rect()) - clippedArea;
+    QRegion emptyArea = QRegion(rect());
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
 	QRect adjustedActionRect = d->actionRect(action);
@@ -705,12 +667,9 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	   continue;
 
 	//set the clip region to be extra safe (and adjust for the scrollers)
-	p.save();
-	{
-	    QRegion adjustedActionReg(adjustedActionRect);
-	    emptyArea -= adjustedActionReg;
-	    p.setClipRegion(adjustedActionReg - clippedArea);
-	}
+	QRegion adjustedActionReg(adjustedActionRect);
+	emptyArea -= adjustedActionReg;
+	p.setClipRegion(adjustedActionReg);
 
 	QPalette pal = palette();
 	QStyle::SFlags flags = QStyle::Style_Default;
@@ -724,10 +683,44 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	    flags |= QStyle::Style_Down;
 	style().drawControl(QStyle::CE_MenuItem, &p, this, adjustedActionRect, pal, flags,
 			    QStyleOption(action->action, d->maxIconWidth, 0)); //what should the _tab be? ###
-
-	p.restore(); //restore paint run
     }
 
+    //draw the scroller regions..
+    if(d->scroll) {
+	const int scrollerHeight = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
+	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp) {
+	    QRect topScroll(0, 0, width(), scrollerHeight);
+	    emptyArea -= QRegion(topScroll);
+	    p.setClipRect(topScroll);
+	    QStyle::SFlags flags = QStyle::Style_Default;
+	    //if(d->scroll->scrollDirection & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
+	    //flags |= QStyle::Style_Active;
+	    style().drawControl(QStyle::CE_MenuScroller, &p, this, topScroll, palette(), flags);
+	}
+	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollDown) {
+	    QRect bottomScroll(0, height()-scrollerHeight, width(), scrollerHeight);
+	    emptyArea -= QRegion(bottomScroll);
+	    p.setClipRect(bottomScroll);
+	    QStyle::SFlags flags = QStyle::Style_Down;
+	    //if(d->scroll->scrollDirection & Q4MenuPrivate::Q4MenuScroller::ScrollDown)
+	    //flags |= QStyle::Style_Active;
+	    style().drawControl(QStyle::CE_MenuScroller, &p, this, bottomScroll, palette(), flags);
+	}
+    }
+    //paint the tear off..
+    if(d->tearoff) {
+	QRect tearRect(0, 0, width(), style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
+	if(d->scroll && d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
+	    tearRect.moveBy(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, this));
+	emptyArea -= QRegion(tearRect);
+	p.setClipRect(tearRect);
+	QStyle::SFlags flags = QStyle::Style_Default;
+	if(d->tearoffHighlighted)
+	    flags |= QStyle::Style_Active;
+	style().drawControl(QStyle::CE_MenuTearoff, &p, this, tearRect, palette(), flags);
+    }
+
+    //finally the rest of the space
     p.setClipRegion(emptyArea);
     style().drawControl(QStyle::CE_MenuEmptyArea, &p, this, rect(), palette());
 }
@@ -832,7 +825,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 			    if(d->scroll && (d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)) {
 				int topVisible = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
 				if(d->tearoff)
-				    topVisible += tearOffHeight;
+				    topVisible += style().pixelMetric(QStyle::PM_MenuTearoffHeight, q);
 				if(((y + d->scroll->scrollOffset) - topVisible) < act->rect.height())
 				    scroll_direction = Q4MenuPrivate::Q4MenuScroller::ScrollUp;
 			    }
@@ -846,7 +839,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 				if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
 				    bottomVisible -= scrollerHeight;
 				if(d->tearoff)
-				    bottomVisible -= tearOffHeight;
+				    bottomVisible -= style().pixelMetric(QStyle::PM_MenuTearoffHeight, q);
 				if((y + d->scroll->scrollOffset + act->rect.height()) > bottomVisible)
 				    scroll_direction = Q4MenuPrivate::Q4MenuScroller::ScrollDown;
 			    }

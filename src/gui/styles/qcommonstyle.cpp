@@ -970,6 +970,17 @@ void QCommonStyle::drawControl( ControlElement element,
 	break;
 #endif // QT_NO_PROGRESSBAR
 
+    case CE_MenuTearoff: {
+	if(flags & Style_Active)
+	    p->fillRect( r, pal.brush(QPalette::Highlight) );
+	else
+	    p->fillRect( r, pal.brush(QPalette::Button) );
+	p->setPen( QPen( pal.dark(), 1, DashLine ) );
+	p->drawLine( r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1 );
+	p->setPen( QPen( pal.light(), 1, DashLine ) );
+	p->drawLine( r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2 );
+	break; }
+
     case CE_MenuBarItem:
 	{
 	    if (opt.isDefault())
@@ -2450,7 +2461,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 12;
 	break;
 
+    case PM_MenuTearoffHeight:
+	ret = 6;
+	break;
 
+    case PM_MenuScrollerHeight:
     case PM_MenuFrameHorizontalExtra:
     case PM_MenuFrameVerticalExtra:
 	ret = 0;

@@ -286,6 +286,7 @@ public:
 	CE_MenuScroller,
 	CE_MenuVerticalExtra,
 	CE_MenuHorizontalExtra,
+	CE_MenuTearoff,
 	CE_MenuEmptyArea,
 
 	CE_MenuBarItem,
@@ -493,6 +494,7 @@ public:
 	PM_MenuScrollerHeight,
 	PM_MenuFrameHorizontalExtra,
 	PM_MenuFrameVerticalExtra,
+	PM_MenuTearoffHeight,
 
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
