@@ -154,7 +154,7 @@ int QGenericHeader::size() const
 
 QSize QGenericHeader::sizeHint() const
 {
-    if (d->sections.isEmpty())
+    if (d->sections.isEmpty() || !isVisible())
             return QSize();
     QItemOptions options = viewOptions();
     int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
