@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#234 $
 **
 ** Implementation of QObject class
 **
@@ -2008,7 +2008,10 @@ static void dumpRecursive( int level, QObject *object )
 /*!
   Dumps a tree of children to the debug output.
 
-  This function is useful for debugging.
+  This function is useful for debugging. This function does nothing if
+  the library has been compiled in release mode (i.e without debugging
+  information).
+
 */
 
 void QObject::dumpObjectTree()
@@ -2020,7 +2023,9 @@ void QObject::dumpObjectTree()
   Dumps information about signal connections etc. for this object to the
   debug output.
 
-  This function is useful for debugging.
+  This function is useful for debugging. This function does nothing if
+  the library has been compiled in release mode (i.e without debugging
+  information).
 */
 
 void QObject::dumpObjectInfo()
