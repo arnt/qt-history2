@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#6 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#7 $
 **
 ** Definition of QImage class
 **
@@ -136,12 +136,6 @@ struct QImageData {
     void	convertBitOrder( int );
     static int	systemBitOrder();		// display HW bit order
     static int	systemByteOrder();		// client computer byte order
-
-    static int	red( ulong rgb )   { return (int)(rgb & 0xff); }
-    static int	green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
-    static int	blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
-    static ulong setRGB( int r, int g, int b )
-	{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
 };
 
 struct QIODevice;
@@ -151,10 +145,10 @@ struct QImageIO : public QImageData {
    ~QImageIO();
     int		status;				// IO status
     QString	format;				// image format
-    QIODevice  *iodev;				// IO device
-    QString	fname;				// file name
+    QIODevice  *ioDevice;			// IO device
+    QString	fileName;			// file name
     QString	params;				// image parameters
-    QString	descr;				// image description
+    QString	description;			// image description
 
     static const char *imageFormat( const char *fileName );
     static const char *imageFormat( QIODevice * );
