@@ -37,7 +37,7 @@ void SourceEditor::setForm( FormWindow *fw )
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
     QString txt;
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	txt += "function " + QString( formWindow->name() ) + "::" + QString( (*it).slot );
+	txt += "function " + QString( (*it).slot );
 	txt += "\n{\n    \n}\n\n";
     }
     iFace->setText( txt );
@@ -45,4 +45,10 @@ void SourceEditor::setForm( FormWindow *fw )
 
 void SourceEditor::setFunction( const QString &func )
 {
+}
+
+void SourceEditor::closeEvent( QCloseEvent *e )
+{
+    emit hidden();
+    e->accept();
 }

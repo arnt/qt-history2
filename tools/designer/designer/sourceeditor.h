@@ -25,14 +25,23 @@
 #include <qvbox.h>
 
 class FormWindow;
+class QCloseEvent;
 
 class SourceEditor : public QVBox
 {
+    Q_OBJECT
+
 public:
     SourceEditor( QWidget *parent, EditorInterface *iface );
 
     void setForm( FormWindow *fw );
     void setFunction( const QString &func );
+
+protected:
+    void closeEvent( QCloseEvent *e );
+
+signals:
+    void hidden();
 
 private:
     EditorInterface *iFace;

@@ -971,13 +971,16 @@ void MainWindow::setupWindowActions()
     int j = 0;
     for ( int i = 0; i < int( windows.count() ); ++i ) {
 	QWidget *w = windows.at( i );
-	if ( !w->inherits( "FormWindow" ) )
+	if ( !w->inherits( "FormWindow" ) && !w->inherits( "SourceEditor" ) )
 	    continue;
 	j++;
 	QString itemText;
 	if ( j < 10 )
 	    itemText = QString("&%1 ").arg( j );
-	itemText += w->name();
+	if ( w->inherits( "FormWindow" ) )
+	    itemText += w->name();
+	else
+	    itemText += w->caption();
 
 	int id = windowMenu->insertItem( itemText, this, SLOT( windowsMenuActivated( int ) ) );
 	windowMenu->setItemParameter( id, i );
@@ -3644,6 +3647,7 @@ void MainWindow::editFunction( const QString &func )
 	editor = sourceEditors.first();
     }
     editor->show();
+    editor->setFocus();
     editor->setForm( lastActiveFormWindow );
     editor->setFunction( func );
 }
