@@ -138,9 +138,11 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	return FALSE;
     }
     bool widgetEvent = w == o;
+    bool titleBar = FALSE;
     if ( !widgetEvent && o->inherits("QTitleBar") && (ee->type() == QEvent::MouseMove || ee->type() == QEvent::MouseButtonPress)) {
 	QWidget *tb = (QWidget*)o;
 	QPoint p = ((QMouseEvent*)ee)->pos();
+	titleBar = TRUE;
 	if ( !tb->rect().contains(p) || tb->style().querySubControl( QStyle::CC_TitleBar, tb, p ) == QStyle::SC_TitleBarLabel )
 	    widgetEvent = TRUE;
 	else
@@ -198,10 +200,8 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	setMovingEnabled( me && widgetEvent );
 	mouseMoveEvent( e );
 	setMovingEnabled( me );
-	if ( buttonDown )
+	if ( buttonDown && ( mode != Center || titleBar ) )
 	    return TRUE;
-	else
-	    return FALSE;
     } break;
     case QEvent::KeyPress:
 	keyPressEvent( (QKeyEvent*)e );
