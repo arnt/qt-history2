@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#23 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#23 $";
 #endif
 
 
@@ -291,7 +291,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		delete str;
 		break;
 	    case PDC_DRAWPIXMAP: {
-		QPixmap pixmap(8,8,1);
+		QPixmap pixmap;
 		s >> p >> pixmap;
 		painter->drawPixmap( p, pixmap );
 	        }
@@ -476,11 +476,16 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    s << *p[0].rect << (INT16)p[1].ival << p[2].str;
 	    break;
 	case PDC_DRAWPIXMAP: {
-	    QRect    r  = *p[0].rect;
-	    QPixmap *pm1 = (QPixmap *)p[2].pixmap;
-	    QPixmap  pm2( r.width(), r.height(), pm1->depth() );
-	    bitBlt( &pm2, 0, 0, pm1, r.x(), r.y(), r.width(), r.height() );
-	    s << *p[1].point << pm2;
+	    QRect r  = *p[0].rect;
+	    s << *p[1].point;
+	    QPixmap *pm = (QPixmap *)p[2].pixmap;
+	    if ( r.size() != pm->size() ) {
+		QPixmap  pm2( r.width(), r.height(), pm->depth() );
+		bitBlt( &pm2, 0, 0, pm, r.x(), r.y(), r.width(), r.height() );
+		s << pm2;
+	    }
+	    else
+		s << *pm;
 	    }
 	    break;
 	case PDC_SAVE:
