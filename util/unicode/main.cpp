@@ -252,8 +252,14 @@ QHash<int, int> decompositionLength;
 int highestComposedCharacter = 0;
 int numLigatures = 0;
 int highestLigature = 0;
-int longestLigature = 0;
-QList<QByteArray> ligatures;
+
+struct Ligature {ushort u1; ushort u2; ushort ligature;};
+// we need them sorted after the first component for fast lookup
+bool operator < (const Ligature &l1, const Ligature &l2) {
+    return l1.u1 < l2.u1;
+}
+
+QHash<ushort, QList<Ligature> > ligatureHashes;
 
 QHash<int, int> combiningClassUsage;
 
@@ -530,13 +536,12 @@ static void readCompositionExclusion()
         UnicodeData data = unicodeData.value(i, UnicodeData(i));
         if (!data.excludedComposition
             && data.decompositionType == QChar::Canonical && data.decomposition.size() > 1) {
+            Q_ASSERT(data.decomposition.size() == 2);
+
             ++numLigatures;
             highestLigature = qMax(highestLigature, data.decomposition.at(0));
-            QByteArray ligature;
-            for (int i = 0; i < data.decomposition.size(); ++i)
-                ligature += QByteArray::number(data.decomposition.at(i), 16) + " ";
-            ligatures.append(ligature);
-            longestLigature = qMax(longestLigature, data.decomposition.size());
+            Ligature l = {(ushort)data.decomposition.at(0), (ushort)data.decomposition.at(1), i};
+            ligatureHashes[data.decomposition.at(1)].append(l);
         }
     }
 }
@@ -1014,7 +1019,125 @@ static QByteArray createCompositionInfo()
     return out;
 }
 
+static QByteArray createLigatureInfo()
+{
+    qDebug("createCompositionInfo:");
 
+    QList<DecompositionBlock> blocks;
+    QList<int> blockMap;
+    QList<unsigned short> ligatures;
+
+    const int BMP_BLOCKSIZE = 32;
+    const int BMP_SHIFT = 5;
+    const int BMP_END = 0x3100;
+    Q_ASSERT(highestLigature < BMP_END);
+
+    int used = 0;
+    int tableIndex = 0;
+
+    for (int block = 0; block < BMP_END/BMP_BLOCKSIZE; ++block) {
+        DecompositionBlock b;
+        for (int i = 0; i < BMP_BLOCKSIZE; ++i) {
+            int uc = block*BMP_BLOCKSIZE + i;
+            QList<Ligature> l = ligatureHashes.value(uc);
+            if (!l.isEmpty()) {
+                b.decompositionPositions.append(tableIndex);
+                qBubbleSort(l);
+
+                ligatures.append(l.size());
+                for (int i = 0; i < l.size(); ++i) {
+                    ligatures.append(l.at(i).u1);
+                    ligatures.append(l.at(i).ligature);
+                }
+                tableIndex += 2*l.size() + 1;
+            } else {
+                b.decompositionPositions.append(0xffff);
+            }
+        }
+        int index = blocks.indexOf(b);
+        if (index == -1) {
+            index = blocks.size();
+            b.index = used;
+            used += BMP_BLOCKSIZE;
+            blocks.append(b);
+        }
+        blockMap.append(blocks.at(index).index);
+    }
+
+    int bmp_blocks = blocks.size();
+    Q_ASSERT(blockMap.size() == BMP_END/BMP_BLOCKSIZE);
+
+    int bmp_block_data = bmp_blocks*BMP_BLOCKSIZE*2;
+    int bmp_trie = BMP_END/BMP_BLOCKSIZE*2;
+    int bmp_mem = bmp_block_data + bmp_trie;
+    qDebug("    %d unique blocks in BMP.",blocks.size());
+    qDebug("        block data uses: %d bytes", bmp_block_data);
+    qDebug("        trie data uses : %d bytes", bmp_trie);
+    qDebug("        memory usage: %d bytes", bmp_mem);
+
+    QByteArray out;
+
+
+    out += "static const unsigned short uc_ligature_trie[] = {\n";
+
+    // first write the map
+    out += "    // 0 - 0x" + QByteArray::number(BMP_END, 16);
+    for (int i = 0; i < BMP_END/BMP_BLOCKSIZE; ++i) {
+        if (!(i % 8)) {
+            if (!((i*BMP_BLOCKSIZE) % 0x1000))
+                out += "\n";
+            out += "\n    ";
+        }
+        out += QByteArray::number(blockMap.at(i) + blockMap.size());
+        out += ", ";
+    }
+    out += "\n";
+    // write the data
+    for (int i = 0; i < blocks.size(); ++i) {
+        out += "\n";
+        const DecompositionBlock &b = blocks.at(i);
+        for (int j = 0; j < b.decompositionPositions.size(); ++j) {
+            if (!(j % 8))
+                out += "\n    ";
+            out += "0x" + QByteArray::number(b.decompositionPositions.at(j), 16);
+            out += ", ";
+        }
+    }
+    out += "\n};\n\n"
+
+           "#define GET_LIGATURE_INDEX(u2) "
+           "(uc_ligature_trie[uc_ligature_trie[u2>>" + QByteArray::number(BMP_SHIFT) +
+           "] + (u2 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")]);\n\n"
+
+           "static const unsigned short uc_ligature_map [] = {\n";
+
+    for (int i = 0; i < ligatures.size(); ++i) {
+        if (!(i % 8)) {
+            out += "\n    ";
+        }
+        out += "0x" + QByteArray::number(ligatures.at(i), 16);
+        out += ", ";
+    }
+
+    out += "\n};\n\n"
+
+           "ushort QUnicodeTables::ligature(ushort u1, ushort u2)\n"
+           "{\n"
+           "    const unsigned short index = GET_LIGATURE_INDEX(u2);\n"
+           "    if (index == 0xffff)\n"
+           "        return 0;\n"
+           "    const unsigned short *ligatures = uc_ligature_map+index;\n"
+           "    ushort length = *ligatures;\n"
+           "    ++ligatures;\n"
+           "    // ### use bsearch\n"
+           "    for (uint i = 0; i < length; ++i)\n"
+           "        if (ligatures[2*i] == u1)\n"
+           "            return ligatures[2*i+1];\n"
+           "    return 0;\n"
+           "}\n\n";
+
+    return out;
+}
 
 int main(int, char **)
 {
@@ -1030,9 +1153,8 @@ int main(int, char **)
 
     computeUniqueProperties();
     QByteArray properties = createPropertyInfo();
-
-
     QByteArray compositions = createCompositionInfo();
+    QByteArray ligatures = createLigatureInfo();
 
     QFile f("qunicodetables.cpp");
     f.open(IO_WriteOnly|IO_Truncate);
@@ -1057,6 +1179,7 @@ int main(int, char **)
     f.writeBlock(header.data(), header.length());
     f.writeBlock(properties.data(), properties.length());
     f.writeBlock(compositions.data(), compositions.length());
+    f.writeBlock(ligatures.data(), ligatures.size());
 
 #if 0
 //     dump(0, 0x7f);
