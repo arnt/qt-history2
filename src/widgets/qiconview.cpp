@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#111 $
 **
 ** Definition of QIconView widget class
 **
@@ -634,6 +634,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QSt
 
 void QIconViewItem::init()
 {
+    f = 0;
     if ( view ) {
 	itemKey = itemText;
 	dirty = TRUE;
@@ -651,6 +652,8 @@ void QIconViewItem::init()
 
 QIconViewItem::~QIconViewItem()
 {
+    if ( f )
+	delete f;
     view->removeItem( this );
     removeRenameBox();
 }
@@ -1086,12 +1089,14 @@ bool QIconViewItem::intersects( QRect r ) const
 
 void QIconViewItem::setFont( const QFont &font )
 {
-    f = font;
+    if ( !f )
+	f = new QFont;
+    *f = font;
 
     if ( fm )
 	delete fm;
 
-    fm = new QFontMetrics( f );
+    fm = new QFontMetrics( *f );
     calcRect();
     repaint();
 }
@@ -1102,7 +1107,9 @@ void QIconViewItem::setFont( const QFont &font )
 
 QFont QIconViewItem::font() const
 {
-    return f;
+    if ( !f )
+	return view->font();
+    return *f;
 }
 
 /*!
@@ -1290,15 +1297,19 @@ void QIconViewItem::calcRect( const QString &text_ )
 
 void QIconViewItem::paintItem( QPainter *p )
 {
-    p->setFont( view->font() );
+    if ( f )
+	p->setFont( *f );
+    else
+	p->setFont( view->font() );
+
     if ( view->d->singleClickMode ) {
 	if ( view->d->highlightedItem == this ) {
-	    if ( view->d->singleClickConfig.highlightedText )
+	    if ( view->d->singleClickConfig.highlightedText && !f )
 		p->setFont( *view->d->singleClickConfig.highlightedText );
 	    if ( view->d->singleClickConfig.highlightedTextCol )
 		p->setPen( *view->d->singleClickConfig.highlightedTextCol );
 	} else {
-	    if ( view->d->singleClickConfig.normalText )
+	    if ( view->d->singleClickConfig.normalText && !f )
 		p->setFont( *view->d->singleClickConfig.normalText );
 	    if ( view->d->singleClickConfig.normalTextCol )
 		p->setPen( *view->d->singleClickConfig.normalTextCol );

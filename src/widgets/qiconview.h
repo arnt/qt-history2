@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#50 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#51 $
 **
 ** Definition of QIconView widget class
 **
@@ -230,7 +230,7 @@ private:
     bool selected, selectable;
     QRect itemRect, itemTextRect, itemIconRect;
     QFontMetrics *fm;
-    QFont f;
+    QFont *f;
     QIconSet::Size itemViewMode;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
