@@ -39,6 +39,7 @@
 #define QMAP_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #include "qshared.h"
 #include "qdatastream.h"
 #include "qpair.h"
@@ -134,46 +135,8 @@ class QMapIterator
     const T& data() const { return node->data; }
 
 private:
-    int inc() {
-	QMapNodeBase* tmp = node;
-	if ( tmp->right ) {
-	    tmp = tmp->right;
-	    while ( tmp->left )
-		tmp = tmp->left;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->right) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    if (tmp->right != y)
-		tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
-
-    int dec() {
-	QMapNodeBase* tmp = node;
-	if (tmp->color == QMapNodeBase::Red &&
-	    tmp->parent->parent == tmp ) {
-	    tmp = tmp->right;
-	} else if (tmp->left != 0) {
-	    QMapNodeBase* y = tmp->left;
-	    while ( y->right )
-		y = y->right;
-	    tmp = y;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->left) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
+    int inc();
+    int dec();
 
 public:
     QMapIterator<K,T>& operator++() {
@@ -198,6 +161,51 @@ public:
 	return tmp;
     }
 };
+
+template <class K, class T>
+Q_INLINE_TEMPLATES int QMapIterator<K,T>::inc()
+{
+    QMapNodeBase* tmp = node;
+    if ( tmp->right ) {
+	tmp = tmp->right;
+	while ( tmp->left )
+	    tmp = tmp->left;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->right) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	if (tmp->right != y)
+	    tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
+
+template <class K, class T>
+Q_INLINE_TEMPLATES int QMapIterator<K,T>::dec()
+{
+    QMapNodeBase* tmp = node;
+    if (tmp->color == QMapNodeBase::Red &&
+	tmp->parent->parent == tmp ) {
+	tmp = tmp->right;
+    } else if (tmp->left != 0) {
+	QMapNodeBase* y = tmp->left;
+	while ( y->right )
+	    y = y->right;
+	tmp = y;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->left) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
 
 template<class K, class T>
 class QMapConstIterator
@@ -243,46 +251,8 @@ class QMapConstIterator
     const T& data() const { return node->data; }
 
 private:
-    int inc() {
-	QMapNodeBase* tmp = node;
-	if ( tmp->right ) {
-	    tmp = tmp->right;
-	    while ( tmp->left )
-		tmp = tmp->left;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->right) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    if (tmp->right != y)
-		tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
-
-    int dec() {
-	QMapNodeBase* tmp = node;
-	if (tmp->color == QMapNodeBase::Red &&
-	    tmp->parent->parent == tmp ) {
-	    tmp = tmp->right;
-	} else if (tmp->left != 0) {
-	    QMapNodeBase* y = tmp->left;
-	    while ( y->right )
-		y = y->right;
-	    tmp = y;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->left) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
+    int inc();
+    int dec();
 
 public:
     QMapConstIterator<K,T>& operator++() {
@@ -308,6 +278,50 @@ public:
     }
 };
 
+template <class K, class T>
+Q_INLINE_TEMPLATES int QMapConstIterator<K,T>::inc()
+{
+    QMapNodeBase* tmp = node;
+    if ( tmp->right ) {
+	tmp = tmp->right;
+	while ( tmp->left )
+	    tmp = tmp->left;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->right) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	if (tmp->right != y)
+	    tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
+
+template <class K, class T>
+Q_INLINE_TEMPLATES int QMapConstIterator<K,T>::dec()
+{
+    QMapNodeBase* tmp = node;
+    if (tmp->color == QMapNodeBase::Red &&
+	tmp->parent->parent == tmp ) {
+	tmp = tmp->right;
+    } else if (tmp->left != 0) {
+	QMapNodeBase* y = tmp->left;
+	while ( y->right )
+	    y = y->right;
+	tmp = y;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->left) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
 
 class Q_EXPORT QMapPrivateBase : public QShared
 {
@@ -351,89 +365,20 @@ public:
     /**
      * Functions
      */
-    QMapPrivate() {
-	header = new Node;
-	header->color = QMapNodeBase::Red; // Mark the header
-	header->parent = 0;
-	header->left = header->right = header;
-    }
-    QMapPrivate( const QMapPrivate< Key, T >* _map ) : QMapPrivateBase( _map ) {
-	header = new Node;
-	header->color = QMapNodeBase::Red; // Mark the header
-	if ( _map->header->parent == 0 ) {
-	    header->parent = 0;
-	    header->left = header->right = header;
-	} else {
-	    header->parent = copy( (NodePtr)(_map->header->parent) );
-	    header->parent->parent = header;
-	    header->left = header->parent->minimum();
-	    header->right = header->parent->maximum();
-	}
-    }
+    QMapPrivate();
+    QMapPrivate( const QMapPrivate< Key, T >* _map );
     ~QMapPrivate() { clear(); delete header; }
 
-    NodePtr copy( NodePtr p ) {
-	if ( !p )
-	    return 0;
-	NodePtr n = new Node( *p );
-	n->color = p->color;
-	if ( p->left ) {
-	    n->left = copy( (NodePtr)(p->left) );
-	    n->left->parent = n;
-	} else {
-	    n->left = 0;
-	}
-	if ( p->right ) {
-	    n->right = copy( (NodePtr)(p->right) );
-	    n->right->parent = n;
-	} else {
-	    n->right = 0;
-	}
-	return n;
-    }
-
-    void clear() {
-	clear( (NodePtr)(header->parent) );
-	header->color = QMapNodeBase::Red;
-	header->parent = 0;
-	header->left = header->right = header;
-	node_count = 0;
-    }
-
-    void clear( NodePtr p ) {
-	while ( p != 0 ) {
-	    clear( (NodePtr)p->right );
-	    NodePtr y = (NodePtr)p->left;
-	    delete p;
-	    p = y;
-	}
-    }
+    NodePtr copy( NodePtr p );
+    void clear();
+    void clear( NodePtr p );
 
     Iterator begin()	{ return Iterator( (NodePtr)(header->left ) ); }
     Iterator end()	{ return Iterator( header ); }
     ConstIterator begin() const { return ConstIterator( (NodePtr)(header->left ) ); }
     ConstIterator end() const { return ConstIterator( header ); }
 
-    ConstIterator find(const Key& k) const {
-	QMapNodeBase* y = header;        // Last node
-	QMapNodeBase* x = header->parent; // Root node.
-
-	while ( x != 0 ) {
-	    // If as k <= key(x) go left
-	    if ( !( key(x) < k ) ) {
-		y = x;
-		x = x->left;
-	    } else {
-		x = x->right;
-	    }
-	}
-
-	// Was k bigger/smaller then the biggest/smallest
-	// element of the tree ? Return end()
-	if ( y == header || k < key(y) )
-	    return ConstIterator( header );
-	return ConstIterator( (NodePtr)y );
-    }
+    ConstIterator find(const Key& k) const;
 
     void remove( Iterator it ) {
 	NodePtr del = (NodePtr) removeAndRebalance( it.node, header->parent, header->left, header->right );
@@ -465,55 +410,8 @@ public:
     }
 #endif
 
-    Iterator insertSingle( const Key& k ) {
-	// Search correct position in the tree
-	QMapNodeBase* y = header;
-	QMapNodeBase* x = header->parent;
-	bool result = TRUE;
-	while ( x != 0 ) {
-	    result = ( k < key(x) );
-	    y = x;
-	    x = result ? x->left : x->right;
-	}
-	// Get iterator on the last not empty one
-	Iterator j( (NodePtr)y );
-	if ( result ) {
-	    // Smaller then the leftmost one ?
-	    if ( j == begin() ) {
-		return insert(x, y, k );
-	    } else {
-		// Perhaps daddy is the right one ?
-		--j;
-	    }
-	}
-	// Really bigger ?
-	if ( (j.node->key) < k )
-	    return insert(x, y, k );
-	// We are going to replace a node
-	return j;
-    }
-
-    Iterator insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k ) {
-	NodePtr z = new Node( k );
-	if (y == header || x != 0 || k < key(y) ) {
-	    y->left = z;                // also makes leftmost = z when y == header
-	    if ( y == header ) {
-		header->parent = z;
-		header->right = z;
-	    } else if ( y == header->left )
-		header->left = z;           // maintain leftmost pointing to min node
-	} else {
-	    y->right = z;
-	    if ( y == header->right )
-		header->right = z;          // maintain rightmost pointing to max node
-	}
-	z->parent = y;
-	z->left = 0;
-	z->right = 0;
-	rebalance( z, header->parent );
-	++node_count;
-	return Iterator(z);
-    }
+    Iterator insertSingle( const Key& k );
+    Iterator insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k );
 
 protected:
     /**
@@ -526,6 +424,151 @@ protected:
      */
     NodePtr header;
 };
+
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::QMapPrivate() {
+    header = new Node;
+    header->color = QMapNodeBase::Red; // Mark the header
+    header->parent = 0;
+    header->left = header->right = header;
+}
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::QMapPrivate( const QMapPrivate< Key, T >* _map ) : QMapPrivateBase( _map ) {
+    header = new Node;
+    header->color = QMapNodeBase::Red; // Mark the header
+    if ( _map->header->parent == 0 ) {
+	header->parent = 0;
+	header->left = header->right = header;
+    } else {
+	header->parent = copy( (NodePtr)(_map->header->parent) );
+	header->parent->parent = header;
+	header->left = header->parent->minimum();
+	header->right = header->parent->maximum();
+    }
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::NodePtr QMapPrivate<Key,T>::copy( QMapPrivate<Key,T>::NodePtr p )
+{
+    if ( !p )
+	return 0;
+    NodePtr n = new Node( *p );
+    n->color = p->color;
+    if ( p->left ) {
+	n->left = copy( (NodePtr)(p->left) );
+	n->left->parent = n;
+    } else {
+	n->left = 0;
+    }
+    if ( p->right ) {
+	n->right = copy( (NodePtr)(p->right) );
+	n->right->parent = n;
+    } else {
+	n->right = 0;
+    }
+    return n;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear()
+{
+    clear( (NodePtr)(header->parent) );
+    header->color = QMapNodeBase::Red;
+    header->parent = 0;
+    header->left = header->right = header;
+    node_count = 0;
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear( QMapPrivate<Key,T>::NodePtr p )
+{
+    while ( p != 0 ) {
+	clear( (NodePtr)p->right );
+	NodePtr y = (NodePtr)p->left;
+	delete p;
+	p = y;
+    }
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::ConstIterator QMapPrivate<Key,T>::find(const Key& k) const
+{
+    QMapNodeBase* y = header;        // Last node
+    QMapNodeBase* x = header->parent; // Root node.
+
+    while ( x != 0 ) {
+	// If as k <= key(x) go left
+	if ( !( key(x) < k ) ) {
+	    y = x;
+	    x = x->left;
+	} else {
+	    x = x->right;
+	}
+    }
+
+    // Was k bigger/smaller then the biggest/smallest
+    // element of the tree ? Return end()
+    if ( y == header || k < key(y) )
+	return ConstIterator( header );
+    return ConstIterator( (NodePtr)y );
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insertSingle( const Key& k )
+{
+    // Search correct position in the tree
+    QMapNodeBase* y = header;
+    QMapNodeBase* x = header->parent;
+    bool result = TRUE;
+    while ( x != 0 ) {
+	result = ( k < key(x) );
+	y = x;
+	x = result ? x->left : x->right;
+    }
+    // Get iterator on the last not empty one
+    Iterator j( (NodePtr)y );
+    if ( result ) {
+	// Smaller then the leftmost one ?
+	if ( j == begin() ) {
+	    return insert(x, y, k );
+	} else {
+	    // Perhaps daddy is the right one ?
+	    --j;
+	}
+    }
+    // Really bigger ?
+    if ( (j.node->key) < k )
+	return insert(x, y, k );
+    // We are going to replace a node
+    return j;
+}
+
+
+template <class Key, class T>
+Q_INLINE_TEMPLATES QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k )
+{
+    NodePtr z = new Node( k );
+    if (y == header || x != 0 || k < key(y) ) {
+	y->left = z;                // also makes leftmost = z when y == header
+	if ( y == header ) {
+	    header->parent = z;
+	    header->right = z;
+	} else if ( y == header->left )
+	    header->left = z;           // maintain leftmost pointing to min node
+    } else {
+	y->right = z;
+	if ( y == header->right )
+	    header->right = z;          // maintain rightmost pointing to max node
+    }
+    z->parent = y;
+    z->left = 0;
+    z->right = 0;
+    rebalance( z, header->parent );
+    ++node_count;
+    return Iterator(z);
+}
+
 
 #ifdef QT_CHECK_RANGE
 # if !defined( QT_NO_DEBUG ) && defined( QT_CHECK_MAP_RANGE )
@@ -595,14 +638,7 @@ public:
 	if ( sh->deref() )
 	    delete sh;
     }
-    QMap<Key,T>& operator= ( const QMap<Key,T>& m )
-    {
-	m.sh->ref();
-	if ( sh->deref() )
-	    delete sh;
-	sh = m.sh;
-	return *this;
-    }
+    QMap<Key,T>& operator= ( const QMap<Key,T>& m );
 #ifndef QT_NO_STL
     QMap<Key,T>& operator= ( const Q_TYPENAME std::map<Key,T>& m )
     {
@@ -620,24 +656,10 @@ public:
     }
 #endif
 
-    iterator begin()
-    {
-	detach();
-	return sh->begin();
-    }
-    iterator end()
-    {
-	detach();
-	return sh->end();
-    }
-    const_iterator begin() const
-    {
-	return ((const Priv*)sh)->begin();
-    }
-    const_iterator end() const
-    {
-	return ((const Priv*)sh)->end();
-    }
+    iterator begin() { detach(); return sh->begin(); }
+    iterator end() { detach(); return sh->end(); }
+    const_iterator begin() const { return ((const Priv*)sh)->begin(); }
+    const_iterator end() const { return ((const Priv*)sh)->end(); }
     iterator replace( const Key& k, const T& v )
     {
 	remove( k );
@@ -652,62 +674,17 @@ public:
     {
 	return sh->node_count == 0;
     }
-    QPair<iterator,bool> insert( const value_type& x )
-    {
-	detach();
-	size_type n = size();
-	iterator it = sh->insertSingle( x.first );
-	bool inserted = FALSE;
-	if ( n < size() ) {
-	    inserted = TRUE;
-	    it.data() = x.second;
-	}
-	return QPair<iterator,bool>( it, inserted );
-    }
+    QPair<iterator,bool> insert( const T& x );
+
     void erase( iterator it )
     {
 	detach();
 	sh->remove( it );
     }
-    void erase( const key_type& k )
-    {
-	detach();
-	iterator it( sh->find( k ).node );
-	if ( it != end() )
-	    sh->remove( it );
-    }
-    size_type count( const key_type& k ) const
-    {
-	const_iterator it( sh->find( k ).node );
-	if ( it != end() ) {
-	    size_type c = 0;
-	    while ( it != end() ) {
-		++it;
-		++c;
-	    }
-	    return c;
-	}
-	return 0;
-    }
-
-    T& operator[] ( const Key& k )
-    {
-	detach();
-	QMapNode<Key,T>* p = sh->find( k ).node;
-	if ( p != sh->end().node )
-	    return p->data;
-	return insert( k, T() ).data();
-    }
-
-    void clear()
-    {
-	if ( sh->count == 1 )
-	    sh->clear();
-	else {
-	    sh->deref();
-	    sh = new QMapPrivate<Key,T>;
-	}
-    }
+    void erase( const key_type& k );
+    size_type count( const key_type& k ) const;
+    T& operator[] ( const Key& k );
+    void clear();
 
     typedef QMapIterator< Key, T > Iterator;
     typedef QMapConstIterator< Key, T > ConstIterator;
@@ -745,23 +722,9 @@ public:
 
     bool isEmpty() const { return sh->node_count == 0; }
 
-
-    iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
-	detach();
-	size_type n = size();
-	iterator it = sh->insertSingle( key );
-	if ( overwrite || n < size() )
-	    it.data() = value;
-	return it;
-    }
-
+    iterator insert( const Key& key, const T& value, bool overwrite = TRUE );
     void remove( iterator it ) { detach(); sh->remove( it ); }
-    void remove( const Key& k ) {
-	detach();
-	iterator it( sh->find( k ).node );
-	if ( it != end() )
-	    sh->remove( it );
-    }
+    void remove( const Key& k );
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QMap<Key,T>& ) const { return FALSE; }
@@ -774,15 +737,112 @@ protected:
     /**
      * Helpers
      */
-    void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QMapPrivate<Key,T>( sh ); } }
+    void detach() {  if ( sh->count > 1 ) detachInternal(); }
 
     Priv* sh;
+private:
+    void detachInternal();
 };
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= ( const QMap<Key,T>& m )
+{
+    m.sh->ref();
+    if ( sh->deref() )
+	delete sh;
+    sh = m.sh;
+    return *this;
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES QPair<QMap<Key,T>::iterator,bool> QMap<Key,T>::insert( const T& x )
+{
+    detach();
+    size_type n = size();
+    iterator it = sh->insertSingle( x.first );
+    bool inserted = FALSE;
+    if ( n < size() ) {
+	inserted = TRUE;
+	it.data() = x.second;
+    }
+    return QPair<iterator,bool>( it, inserted );
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES void QMap<Key,T>::erase( const Key& k )
+{
+    detach();
+    iterator it( sh->find( k ).node );
+    if ( it != end() )
+	sh->remove( it );
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES QMap<Key,T>::size_type QMap<Key,T>::count( const Key& k ) const
+{
+    const_iterator it( sh->find( k ).node );
+    if ( it != end() ) {
+	size_type c = 0;
+	while ( it != end() ) {
+	    ++it;
+	    ++c;
+	}
+	return c;
+    }
+    return 0;
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES T& QMap<Key,T>::operator[] ( const Key& k )
+{
+    detach();
+    QMapNode<Key,T>* p = sh->find( k ).node;
+    if ( p != sh->end().node )
+	return p->data;
+    return insert( k, T() ).data();
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES void QMap<Key,T>::clear()
+{
+    if ( sh->count == 1 )
+	sh->clear();
+    else {
+	sh->deref();
+	sh = new QMapPrivate<Key,T>;
+    }
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES QMap<Key,T>::iterator QMap<Key,T>::insert( const Key& key, const T& value, bool overwrite )
+{
+    detach();
+    size_type n = size();
+    iterator it = sh->insertSingle( key );
+    if ( overwrite || n < size() )
+	it.data() = value;
+    return it;
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES void QMap<Key,T>::remove( const Key& k )
+{
+    detach();
+    iterator it( sh->find( k ).node );
+    if ( it != end() )
+	sh->remove( it );
+}
+
+template<class Key, class T>
+Q_INLINE_TEMPLATES void QMap<Key,T>::detachInternal()
+{
+    sh->deref(); sh = new QMapPrivate<Key,T>( sh );
+}
 
 
 #ifndef QT_NO_DATASTREAM
 template<class Key, class T>
-inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
+Q_INLINE_TEMPLATES QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     m.clear();
     Q_UINT32 c;
     s >> c;
@@ -798,7 +858,7 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 
 
 template<class Key, class T>
-inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
+Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << (Q_UINT32)m.size();
     QMapConstIterator<Key,T> it = m.begin();
     for( ; it != m.end(); ++it )

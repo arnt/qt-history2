@@ -37,6 +37,7 @@
 #define QPAIR_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #include "qdatastream.h"
 #endif // QT_H
 
@@ -58,20 +59,20 @@ struct QPair
 };
 
 template <class T1, class T2>
-inline bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
+Q_INLINE_TEMPLATES bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
 {
     return x.first == y.first && x.second == y.second;
 }
 
 template <class T1, class T2>
-inline bool operator<( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
+Q_INLINE_TEMPLATES bool operator<( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
 {
     return x.first < y.first ||
 	   ( !( y.first < x.first ) && x.second < y.second );
 }
 
 template <class T1, class T2>
-inline QPair<T1, T2> qMakePair( const T1& x, const T2& y )
+Q_INLINE_TEMPLATES QPair<T1, T2> qMakePair( const T1& x, const T2& y )
 {
     return QPair<T1, T2>( x, y );
 }

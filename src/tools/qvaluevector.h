@@ -58,33 +58,8 @@ public:
     {
     }
 
-    QValueVectorPrivate( const QValueVectorPrivate<T>& x )
-	: QShared()
-    {
-	if ( x.size() > 0 ) {
-	    start = new T[ x.size() ];
-	    finish = start + x.size();
-	    end = start + x.size();
-	    qCopy( x.start, x.finish, start );
-	} else {
-	    start = 0;
-	    finish = 0;
-	    end = 0;
-	}
-    }
-
-    QValueVectorPrivate( size_t size )
-    {
-	if ( size > 0 ) {
-	    start = new T[size];
-	    finish = start + size;
-	    end = start + size;
-	} else {
-	    start = 0;
-	    finish = 0;
-	    end = 0;
-	}
-    }
+    QValueVectorPrivate( const QValueVectorPrivate<T>& x );
+    QValueVectorPrivate( size_t size );
 
     void derefAndDelete() // work-around for hp-cc
     {
@@ -116,93 +91,127 @@ public:
 	return end - start;
     }
 
-    void insert( pointer pos, const T& x )
-    {
-	const size_t lastSize = size();
-	const size_t n = lastSize !=0 ? 2*lastSize : 1;
-	const size_t offset = pos - start;
-	pointer newStart = new T[n];
-	pointer newFinish = newStart + offset;
-	qCopy( start, pos, newStart );
-	*newFinish = x;
-	qCopy( pos, finish, ++newFinish );
-	delete[] start;
-	start = newStart;
-	finish = newStart + lastSize + 1;
-	end = newStart + n;
-    }
-
-    void insert( pointer pos, size_t n, const T& x )
-    {
-	if ( size_t( end - finish ) >= n ) {
-	    // enough room
-	    const size_t elems_after = finish - pos;
-	    pointer old_finish = finish;
-	    if ( elems_after > n ) {
-		qCopy( finish - n, finish, finish );
-		finish += n;
-		qCopyBackward( pos, old_finish - n, old_finish );
-		qFill( pos, pos + n, x );
-	    } else {
-		pointer filler = finish;
-		size_t i = n - elems_after;
-		for ( ; i > 0; --i, ++filler )
-		    *filler = x;
-		finish += n - elems_after;
-		qCopy( pos, old_finish, finish );
-		finish += elems_after;
-		qFill( pos, old_finish, x );
-	    }
-	} else {
-	    // not enough room
-	    const size_t lastSize = size();
-	    const size_t len = lastSize + QMAX( lastSize, n );
-	    pointer newStart = new T[len];
-	    pointer newFinish = qCopy( start, pos, newStart );
-	    // fill up inserted space
-	    size_t i = n;
-	    for ( ; i > 0; --i, ++newFinish )
-		*newFinish = x;
-	    newFinish = qCopy( pos, finish, newFinish );
-	    delete[] start;
-	    start = newStart;
-	    finish = newFinish;
-	    end = newStart + len;
-	}
-    }
-
-    void reserve( size_t n )
-    {
-	const size_t lastSize = size();
-	pointer tmp = growAndCopy( n, start, finish );
-	start = tmp;
-	finish = tmp + lastSize;
-	end = start + n;
-    }
-
-    void clear()
-    {
-	delete[] start;
-	start = 0;
-	finish = 0;
-	end = 0;
-    }
+    void insert( pointer pos, const T& x );
+    void insert( pointer pos, size_t n, const T& x );
+    void reserve( size_t n );
+    void clear();
 
     pointer start;
     pointer finish;
     pointer end;
 
 private:
-    pointer growAndCopy( size_t n, pointer s, pointer f )
-    {
-	pointer newStart = new T[n];
-	qCopy( s, f, newStart );
-	delete[] start;
-	return newStart;
-    }
+    pointer growAndCopy( size_t n, pointer s, pointer f );
 
     QValueVectorPrivate& operator=( const QValueVectorPrivate<T>& x );
+
 };
+
+templace <class T>
+Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( const QValueVectorPrivate<T>& x )
+    : QShared()
+{
+    if ( x.size() > 0 ) {
+	start = new T[ x.size() ];
+	finish = start + x.size();
+	end = start + x.size();
+	qCopy( x.start, x.finish, start );
+    } else {
+	start = 0;
+	finish = 0;
+	end = 0;
+    }
+}
+
+templace <class T>
+Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( size_t size )
+{
+    if ( size > 0 ) {
+	start = new T[size];
+	finish = start + size;
+	end = start + size;
+    } else {
+	start = 0;
+	finish = 0;
+	end = 0;
+    }
+}
+
+templace <class T>
+Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, const T& x )
+{
+    const size_t lastSize = size();
+    const size_t n = lastSize !=0 ? 2*lastSize : 1;
+    const size_t offset = pos - start;
+    pointer newStart = new T[n];
+    pointer newFinish = newStart + offset;
+    qCopy( start, pos, newStart );
+    *newFinish = x;
+    qCopy( pos, finish, ++newFinish );
+    delete[] start;
+    start = newStart;
+    finish = newStart + lastSize + 1;
+    end = newStart + n;
+}
+
+templace <class T>
+Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, size_t n, const T& x )
+{
+    if ( size_t( end - finish ) >= n ) {
+	// enough room
+	const size_t elems_after = finish - pos;
+	pointer old_finish = finish;
+	if ( elems_after > n ) {
+	    qCopy( finish - n, finish, finish );
+	    finish += n;
+	    qCopyBackward( pos, old_finish - n, old_finish );
+	    qFill( pos, pos + n, x );
+	} else {
+	    pointer filler = finish;
+	    size_t i = n - elems_after;
+	    for ( ; i > 0; --i, ++filler )
+		*filler = x;
+	    finish += n - elems_after;
+	    qCopy( pos, old_finish, finish );
+	    finish += elems_after;
+	    qFill( pos, old_finish, x );
+	}
+    } else {
+	// not enough room
+	const size_t lastSize = size();
+	const size_t len = lastSize + QMAX( lastSize, n );
+	pointer newStart = new T[len];
+	pointer newFinish = qCopy( start, pos, newStart );
+	// fill up inserted space
+	size_t i = n;
+	for ( ; i > 0; --i, ++newFinish )
+	    *newFinish = x;
+	newFinish = qCopy( pos, finish, newFinish );
+	delete[] start;
+	start = newStart;
+	finish = newFinish;
+	end = newStart + len;
+    }
+}
+
+templace <class T>
+Q_INLINE_TEMPLATES void QValueVectorPrivate::reserve( size_t n )
+{
+    const size_t lastSize = size();
+    pointer tmp = growAndCopy( n, start, finish );
+    start = tmp;
+    finish = tmp + lastSize;
+    end = start + n;
+}
+
+templace <class T>
+Q_INLINE_TEMPLATES pointer QValueVectorPrivate::growAndCopy( size_t n, pointer s, pointer f )
+{
+    pointer newStart = new T[n];
+    qCopy( s, f, newStart );
+    delete[] start;
+    return newStart;
+}
 
 template <class T>
 class QValueVector
@@ -233,11 +242,7 @@ public:
 	sh->ref();
     }
 
-    QValueVector( size_type n, const T& val = T() )
-    {
-	sh = new QValueVectorPrivate<T>( n );
-	qFill( begin(), end(), val );
-    }
+    QValueVector( size_type n, const T& val = T() );
 
 #ifndef QT_NO_STL
     QValueVector( std::vector<T>& v ) // ### remove in 4.0
@@ -377,41 +382,9 @@ public:
 	--sh->finish;
     }
 
-    iterator insert( iterator pos, const T& x )
-    {
-	size_type offset = pos - sh->start;
-	detach();
-	if ( pos == end() ) {
-	    if ( sh->finish == sh->end )
-		push_back( x );
-	    else {
-		*sh->finish = x;
-		++sh->finish;
-	    }
-	} else {
-	    if ( sh->finish == sh->end ) {
-		sh->insert( pos, x );
-	    } else {
-		*sh->finish = *(sh->finish - 1);
-		++sh->finish;
-		qCopyBackward( pos, sh->finish - 2, sh->finish - 1 );
-		*pos = x;
-	    }
-	}
-	return begin() + offset;
-    }
-
-    iterator insert( iterator pos, size_type n, const T& x )
-    {
-	if ( n != 0 ) {
-	    size_type offset = pos - sh->start;
-	    detach();
-	    pos = begin() + offset;
-	    sh->insert( pos, n, x );
-	}
-	return pos;
-    }
-
+    iterator insert( iterator pos, const T& x );
+    iterator insert( iterator pos, size_type n, const T& x );
+    
     void reserve( size_type n )
     {
 	if ( capacity() < n ) {
@@ -478,18 +451,66 @@ public:
 protected:
     void detach()
     {
-	if ( sh->count > 1 ) {
-	    sh->deref();
-	    sh = new QValueVectorPrivate<T>( *sh );
-	}
+	if ( sh->count > 1 ) { detachInternal(); }
     }
     QValueVectorPrivate<T>* sh;
 };
 
+template <class T>
+Q_INLINE_TEMPLATES QValueVector<T>::QValueVector( size_type n, const T& val = T() )
+{
+    sh = new QValueVectorPrivate<T>( n );
+    qFill( begin(), end(), val );
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueVector<T>::detachInternal()
+{
+    sh->deref();
+    sh = new QValueVectorPrivate<T>( *sh );
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, const T& x )
+{
+    size_type offset = pos - sh->start;
+    detach();
+    if ( pos == end() ) {
+	if ( sh->finish == sh->end )
+	    push_back( x );
+	else {
+	    *sh->finish = x;
+	    ++sh->finish;
+	}
+    } else {
+	if ( sh->finish == sh->end ) {
+	    sh->insert( pos, x );
+	} else {
+	    *sh->finish = *(sh->finish - 1);
+	    ++sh->finish;
+	    qCopyBackward( pos, sh->finish - 2, sh->finish - 1 );
+	    *pos = x;
+	}
+    }
+    return begin() + offset;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueVector<T>::iterator QValueVector<T>::insert( iterator pos, size_type n, const T& x )
+{
+    if ( n != 0 ) {
+	size_type offset = pos - sh->start;
+	detach();
+	pos = begin() + offset;
+	sh->insert( pos, n, x );
+    }
+    return pos;
+}
+
 
 #ifndef QT_NO_DATASTREAM
 template<class T>
-inline QDataStream& operator>>( QDataStream& s, QValueVector<T>& v )
+Q_INLINE_TEMPLATES QDataStream& operator>>( QDataStream& s, QValueVector<T>& v )
 {
     v.clear();
     Q_UINT32 c;
@@ -505,7 +526,7 @@ inline QDataStream& operator>>( QDataStream& s, QValueVector<T>& v )
 }
 
 template<class T>
-inline QDataStream& operator<<( QDataStream& s, const QValueVector<T>& v )
+Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QValueVector<T>& v )
 {
     s << (Q_UINT32)v.size();
     // ### use typename QValueVector<T>::const_iterator once all supported

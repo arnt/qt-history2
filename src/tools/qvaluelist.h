@@ -213,15 +213,8 @@ public:
     /**
      * Functions
      */
-    QValueListPrivate() { node = new Node; node->next = node->prev = node; nodes = 0; }
-    QValueListPrivate( const QValueListPrivate<T>& _p ) : QShared() {
-	node = new Node; node->next = node->prev = node; nodes = 0;
-	Iterator b( _p.node->next );
-	Iterator e( _p.node );
-	Iterator i( node );
-	while( b != e )
-	    insert( i, *b++ );
-    }
+    QValueListPrivate();
+    QValueListPrivate( const QValueListPrivate<T>& _p );
 
     void derefAndDelete() // ### hack to get around hp-cc brain damage
     {
@@ -233,109 +226,155 @@ public:
     // Workaround MS bug in memory de/allocation in DLL vs. EXE
     virtual
 #endif
-    ~QValueListPrivate() {
-	NodePtr p = node->next;
-	while( p != node ) {
-	    NodePtr x = p->next;
-	    delete p;
-	    p = x;
-	}
-	delete node;
-    }
+    ~QValueListPrivate();
 
-    Iterator insert( Iterator it, const T& x ) {
-	NodePtr p = new Node( x );
-	p->next = it.node;
-	p->prev = it.node->prev;
-	it.node->prev->next = p;
-	it.node->prev = p;
-	nodes++;
-	return p;
-    }
-
-    Iterator remove( Iterator it ) {
-	Q_ASSERT ( it.node != node );
-	NodePtr next = it.node->next;
-	NodePtr prev = it.node->prev;
-	prev->next = next;
-	next->prev = prev;
-	delete it.node;
-	nodes--;
-	return Iterator( next );
-    }
-
-    NodePtr find( NodePtr start, const T& x ) const {
-	ConstIterator first( start );
-	ConstIterator last( node );
-	while( first != last) {
-	    if ( *first == x )
-		return first.node;
-	    ++first;
-	}
-	return last.node;
-    }
-
-    int findIndex( NodePtr start, const T& x ) const {
-	ConstIterator first( start );
-	ConstIterator last( node );
-	int pos = 0;
-	while( first != last) {
-	    if ( *first == x )
-		return pos;
-	    ++first;
-	    ++pos;
-	}
-	return -1;
-    }
-
-    uint contains( const T& x ) const {
-	uint result = 0;
-	Iterator first = Iterator( node->next );
-	Iterator last = Iterator( node );
-	while( first != last) {
-	    if ( *first == x )
-		++result;
-	    ++first;
-	}
-	return result;
-    }
-
-    uint remove( const T& x ) {
-	uint result = 0;
-	Iterator first = Iterator( node->next );
-	Iterator last = Iterator( node );
-	while( first != last) {
-	    if ( *first == x ) {
-		first = remove( first );
-		++result;
-	    } else
-		++first;
-	}
-	return result;
-    }
-
-    NodePtr at( size_type i ) const {
-	Q_ASSERT( i <= nodes );
-	NodePtr p = node->next;
-	for( size_type x = 0; x < i; ++x )
-	    p = p->next;
-	return p;
-    }
-
-    void clear() {
-	nodes = 0;
-	NodePtr p = node->next;
-	while( p != node ) {
-	    NodePtr next = p->next;
-	    delete p;
-	    p = next;
-	}
-	node->next = node->prev = node;
-    }
+    Iterator insert( Iterator it, const T& x );
+    Iterator remove( Iterator it );
+    NodePtr find( NodePtr start, const T& x ) const;
+    int findIndex( NodePtr start, const T& x ) const;
+    uint contains( const T& x ) const;
+    uint remove( const T& x );
+    NodePtr at( size_type i ) const;
+    void clear();
 
     NodePtr node;
     size_type nodes;
 };
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::QValueListPrivate()
+{
+    node = new Node; node->next = node->prev = node; nodes = 0;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::QValueListPrivate( const QValueListPrivate<T>& _p )
+    : QShared()
+{
+    node = new Node; node->next = node->prev = node; nodes = 0;
+    Iterator b( _p.node->next );
+    Iterator e( _p.node );
+    Iterator i( node );
+    while( b != e )
+	insert( i, *b++ );
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::~QValueListPrivate() {
+    NodePtr p = node->next;
+    while( p != node ) {
+	NodePtr x = p->next;
+	delete p;
+	p = x;
+    }
+    delete node;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( QValueListPrivate<T>::Iterator it, const T& x )
+{
+    NodePtr p = new Node( x );
+    p->next = it.node;
+    p->prev = it.node->prev;
+    it.node->prev->next = p;
+    it.node->prev = p;
+    nodes++;
+    return p;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( QValueListPrivate<T>::Iterator it )
+{
+    Q_ASSERT ( it.node != node );
+    NodePtr next = it.node->next;
+    NodePtr prev = it.node->prev;
+    prev->next = next;
+    next->prev = prev;
+    delete it.node;
+    nodes--;
+    return Iterator( next );
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( QValueListPrivate<T>::NodePtr start, const T& x ) const
+{
+    ConstIterator first( start );
+    ConstIterator last( node );
+    while( first != last) {
+	if ( *first == x )
+	    return first.node;
+	++first;
+    }
+    return last.node;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES int QValueListPrivate<T>::findIndex( QValueListPrivate<T>::NodePtr start, const T& x ) const
+{
+    ConstIterator first( start );
+    ConstIterator last( node );
+    int pos = 0;
+    while( first != last) {
+	if ( *first == x )
+	    return pos;
+	++first;
+	++pos;
+    }
+    return -1;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES uint QValueListPrivate<T>::contains( const T& x ) const
+{
+    uint result = 0;
+    Iterator first = Iterator( node->next );
+    Iterator last = Iterator( node );
+    while( first != last) {
+	if ( *first == x )
+	    ++result;
+	++first;
+    }
+    return result;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES uint QValueListPrivate<T>::remove( const T& x )
+{
+    uint result = 0;
+    Iterator first = Iterator( node->next );
+    Iterator last = Iterator( node );
+    while( first != last) {
+	if ( *first == x ) {
+	    first = remove( first );
+	    ++result;
+	} else
+	    ++first;
+    }
+    return result;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueListPrivate<T>::NodePtr QValueListPrivate<T>::at( size_type i ) const
+{
+    Q_ASSERT( i <= nodes );
+    NodePtr p = node->next;
+    for( size_type x = 0; x < i; ++x )
+	p = p->next;
+    return p;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES void QValueListPrivate<T>::clear()
+{
+    nodes = 0;
+    NodePtr p = node->next;
+    while( p != node ) {
+	NodePtr next = p->next;
+	delete p;
+	p = next;
+    }
+    node->next = node->prev = node;
+}
 
 #ifdef QT_CHECK_RANGE
 # if !defined( QT_NO_DEBUG ) && defined( QT_CHECK_VALUELIST_RANGE )
@@ -414,18 +453,7 @@ public:
 	return TRUE;
     }
 #endif
-    bool operator== ( const QValueList<T>& l ) const
-    {
-	if ( size() != l.size() )
-	    return FALSE;
-	const_iterator it2 = begin();
-	const_iterator it = l.begin();
-	for( ; it != l.end(); ++it, ++it2 )
-	    if ( !( *it == *it2 ) )
-		return FALSE;
-	return TRUE;
-    }
-
+    bool operator== ( const QValueList<T>& l ) const;
     bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
     iterator begin() { detach(); return iterator( sh->node->next ); }
     const_iterator begin() const { return const_iterator( sh->node->next ); }
@@ -433,7 +461,7 @@ public:
     const_iterator end() const { return const_iterator( sh->node ); }
     iterator insert( iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
     uint remove( const T& x ) { detach(); return sh->remove( x ); }
-    void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
+    void clear();
 
     QValueList<T>& operator<< ( const T& x )
     {
@@ -446,12 +474,7 @@ public:
     void push_front( const T& x ) { detach(); sh->insert( begin(), x ); }
     void push_back( const T& x ) { detach(); sh->insert( end(), x ); }
     iterator erase( iterator pos ) { detach(); return sh->remove( pos ); }
-    iterator erase( iterator first, iterator last )
-    {
-	while ( first != last )
-	    erase( first++ );
-	return last;
-    }
+    iterator erase( iterator first, iterator last );
     reference front() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
     const_reference front() const { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
     reference back() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *(--end()); }
@@ -462,11 +485,7 @@ public:
 	iterator tmp = end();
 	erase( --tmp );
     }
-    void insert( iterator pos, size_type n, const T& x )
-    {
-	for ( ; n > 0; --n )
-	    insert( pos, x );
-    }
+    void insert( iterator pos, size_type n, const T& x );
     // Some compilers (incl. vc++) would instantiate this function even if
     // it is not used; this would constrain QValueList to classes that provide
     // an operator<
@@ -477,21 +496,8 @@ public:
     }
     */
 
-    QValueList<T> operator+ ( const QValueList<T>& l ) const
-    {
-	QValueList<T> l2( *this );
-	for( const_iterator it = l.begin(); it != l.end(); ++it )
-	    l2.append( *it );
-	return l2;
-    }
-
-    QValueList<T>& operator+= ( const QValueList<T>& l )
-    {
-	for( const_iterator it = l.begin(); it != l.end(); ++it )
-	    append( *it );
-	return *this;
-    }
-
+    QValueList<T> operator+ ( const QValueList<T>& l ) const;
+    QValueList<T>& operator+= ( const QValueList<T>& l );
 
     iterator fromLast() { detach(); return iterator( sh->node->prev ); }
     const_iterator fromLast() const { return const_iterator( sh->node->prev ); }
@@ -534,17 +540,78 @@ protected:
     /**
      * Helpers
      */
-    void detach() { if ( sh->count > 1 ) { sh->deref(); sh = new QValueListPrivate<T>( *sh ); } }
+    void detach() { if ( sh->count > 1 ) detachInternal(); }
 
     /**
      * Variables
      */
     QValueListPrivate<T>* sh;
+    
+private:
+    void detachInternal();
 };
 
+template <class T>
+Q_INLINE_TEMPLATES bool QValueList<T>::operator== ( const QValueList<T>& l ) const
+{
+    if ( size() != l.size() )
+	return FALSE;
+    const_iterator it2 = begin();
+    const_iterator it = l.begin();
+    for( ; it != l.end(); ++it, ++it2 )
+	if ( !( *it == *it2 ) )
+	    return FALSE;
+    return TRUE;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES void QValueList<T>::clear()
+{
+    if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; }
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueList<T>::iterator QValueList<T>::erase( QValueList<T>::iterator first, QValueList<T>::iterator last )
+{
+    while ( first != last )
+	erase( first++ );
+    return last;
+}
+
+
+template <class T>
+Q_INLINE_TEMPLATES void QValueList<T>::insert( QValueList<T>::iterator pos, size_type n, const T& x )
+{
+    for ( ; n > 0; --n )
+	insert( pos, x );
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueList<T> QValueList<T>::operator+ ( const QValueList<T>& l ) const
+{
+    QValueList<T> l2( *this );
+    for( const_iterator it = l.begin(); it != l.end(); ++it )
+	l2.append( *it );
+    return l2;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES QValueList<T>& QValueList<T>::operator+= ( const QValueList<T>& l )
+{
+    for( const_iterator it = l.begin(); it != l.end(); ++it )
+	append( *it );
+    return *this;
+}
+
+template <class T>
+Q_INLINE_TEMPLATES void QValueList<T>::detachInternal()
+{
+    sh->deref(); sh = new QValueListPrivate<T>( *sh );
+}
+
 #ifndef QT_NO_DATASTREAM
-template<class T>
-inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
+template <class T>
+Q_INLINE_TEMPLATES QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 {
     l.clear();
     Q_UINT32 c;
@@ -560,8 +627,8 @@ inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
     return s;
 }
 
-template<class T>
-inline QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+template <class T>
+Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
     s << (Q_UINT32)l.size();
     QValueListConstIterator<T> it = l.begin();

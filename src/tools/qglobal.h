@@ -781,6 +781,11 @@ Q_EXPORT int qWinVersion();
 
 #define Q_UNUSED(x) (void)x;
 
+#ifndef SOME_BROKEN_COMPILER
+#define Q_INLINE_TEMPLATES 
+#else
+#define Q_INLINE_TEMPLATES inline
+#endif
 
 //
 // Debugging and error handling

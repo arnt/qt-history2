@@ -39,6 +39,7 @@
 #define QTL_H
 
 #ifndef QT_H
+#include "qglobal.h"
 #include "qtextstream.h"
 #include "qstring.h"
 #endif // QT_H
@@ -151,7 +152,7 @@ inline void qSwap( T& _value1, T& _value2 )
 
 
 template <class InputIterator>
-inline void qBubbleSort( InputIterator b, InputIterator e )
+Q_INLINE_TEMPLATES void qBubbleSort( InputIterator b, InputIterator e )
 {
     // Goto last element;
     InputIterator last = e;
@@ -192,7 +193,7 @@ inline void qBubbleSort( Container &c )
 
 
 template <class Value>
-inline void qHeapSortPushDown( Value* heap, int first, int last )
+Q_INLINE_TEMPLATES void qHeapSortPushDown( Value* heap, int first, int last )
 {
     int r = first;
     while( r <= last/2 ) {
@@ -223,7 +224,7 @@ inline void qHeapSortPushDown( Value* heap, int first, int last )
 
 
 template <class InputIterator, class Value>
-inline void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
+Q_INLINE_TEMPLATES void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
 {
     // Create the heap
     InputIterator insert = b;
@@ -254,7 +255,7 @@ inline void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
 
 
 template <class InputIterator>
-inline void qHeapSort( InputIterator b, InputIterator e )
+Q_INLINE_TEMPLATES void qHeapSort( InputIterator b, InputIterator e )
 {
     // Empty ?
     if ( b == e )
@@ -275,7 +276,7 @@ inline void qHeapSort( InputIterator b, InputIterator e )
 
 
 template <class Container>
-inline void qHeapSort( Container &c )
+Q_INLINE_TEMPLATES void qHeapSort( Container &c )
 {
     if ( c.begin() == c.end() )
 	return;
