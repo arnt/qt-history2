@@ -363,7 +363,9 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
 	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
-	QRect dwRect( QStyle::visualRect( QRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) ), rect ) );
+	QRect dwRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) );
+	if ( QApplication::reverseLayout() && orientation() == Horizontal )
+	    dwRect = QStyle::visualRect( dwRect, rect );
 	lastLine.append( DockData( dw, dwRect ) );
 	if ( dw->inherits( "QToolBar" ) )
 	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
