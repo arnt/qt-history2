@@ -74,8 +74,6 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
-static bool qt_enable_richtext_copy = FALSE;
-
 struct QUndoRedoInfoPrivate
 {
     QTextString text;
@@ -110,6 +108,54 @@ public:
     bool optimMode : 1;
 #endif
 };
+
+class QRichTextDrag : public QTextDrag
+{
+public:
+    QRichTextDrag( QWidget *dragSource = 0, const char *name = 0 );
+
+    void setPlainText( const QString &txt ) { setText( txt ); }
+    void setRichText( const QString &txt ) { richTxt = txt; }
+
+    virtual QByteArray encodedData( const char *mime ) const;
+    virtual const char* format( int i ) const;
+
+    static bool canDecode( QMimeSource* e );
+
+private:
+    QString richTxt;
+
+};
+
+QRichTextDrag::QRichTextDrag( QWidget *dragSource, const char *name )
+    : QTextDrag( dragSource, name )
+{
+}
+
+QByteArray QRichTextDrag::encodedData( const char *mime ) const
+{
+    if ( qstrcmp( "text/html", mime ) == 0 )
+	return QCString( richTxt.latin1() ); // #### how to correctly convert that?
+    else
+	return QTextDrag::encodedData( mime );
+}
+
+bool QRichTextDrag::canDecode( QMimeSource* e )
+{
+    if ( e->provides( "text/html" ) )
+	return TRUE;
+    return QTextDrag::canDecode( e );
+}
+
+const char* QRichTextDrag::format( int i ) const
+{
+    if ( i < 4 ) // #### not nice
+	return QTextDrag::format( i );
+    else if ( i == 4 )
+	return "text/html";
+    else
+	return 0;
+}
 
 static bool block_set_alignment = FALSE;
 
@@ -2820,7 +2866,16 @@ void QTextEdit::paste()
 #ifndef QT_NO_CLIPBOARD
     if ( isReadOnly() )
 	return;
-    pasteSubType( "plain" );
+    QString subType = "plain";
+    if ( textFormat() != PlainText ) {
+	QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
+	if ( !m )
+	    return;
+	if ( m->provides( "text/html" ) )
+	    subType = "html";
+    }
+
+    pasteSubType( subType.latin1() );
     updateMicroFocusHint();
 #endif
 }
@@ -2848,6 +2903,17 @@ void QTextEdit::repaintChanged()
     paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
+
+QRichTextDrag *QTextEdit::dragObject( QWidget *parent ) const
+{
+    if ( !doc->hasSelection( QTextDocument::Standard ) || doc->selectedText( QTextDocument::Standard ).isEmpty() )
+	return 0;
+    QRichTextDrag *drag = new QRichTextDrag( parent );
+    drag->setPlainText( doc->selectedText( QTextDocument::Standard ) );
+    drag->setRichText( doc->selectedText( QTextDocument::Standard, TRUE ) );
+    return drag;
+}
+
 /*!
     Copies the selected text (from selection 0) to the clipboard and
     deletes it from the text edit.
@@ -2862,13 +2928,20 @@ void QTextEdit::cut()
     if ( isReadOnly() )
 	return;
 
-    QString t;
-    if ( doc->hasSelection( QTextDocument::Standard ) &&
-	 !( t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy ) ).isEmpty() ) {
-	QApplication::clipboard()->setText( t, d->clipboard_mode );
-	removeSelectedText();
-    }
+    QRichTextDrag *drag = dragObject();
+    if ( !drag )
+	return;
+    QApplication::clipboard()->setData( drag, d->clipboard_mode );
+    removeSelectedText();
     updateMicroFocusHint();
+}
+
+void QTextEdit::normalCopy()
+{
+    QRichTextDrag *drag = dragObject();
+    if ( !drag )
+	return;
+    QApplication::clipboard()->setData( drag, d->clipboard_mode );
 }
 
 /*! Copies any selected text (from selection 0) to the clipboard.
@@ -2878,17 +2951,12 @@ void QTextEdit::cut()
 
 void QTextEdit::copy()
 {
-    QString t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText(), d->clipboard_mode );
-    else if ( doc->hasSelection( QTextDocument::Standard ) &&
-	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
-	QApplication::clipboard()->setText( t, d->clipboard_mode );
+    normalCopy();
 #else
-    if ( doc->hasSelection( QTextDocument::Standard ) &&
-	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
-	QApplication::clipboard()->setText( t, d->clipboard_mode );
+    normalCopy();
 #endif
 }
 
@@ -3829,7 +3897,9 @@ void QTextEdit::startDrag()
 #ifndef QT_NO_DRAGANDDROP
     mousePressed = FALSE;
     inDoubleClick = FALSE;
-    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy ), viewport() );
+    QDragObject *drag = dragObject( viewport() );
+    if ( !drag )
+	return;
     if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
@@ -4348,11 +4418,19 @@ void QTextEdit::setDocument( QTextDocument *dc )
 */
 void QTextEdit::pasteSubType( const QCString& subtype )
 {
-    QCString st = subtype;
-    QString t = QApplication::clipboard()->text( st, d->clipboard_mode );
+    QString st = subtype;
+    st.prepend( "text/" );
+    QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
+    if ( !m )
+	return;
     if ( doc->hasSelection( QTextDocument::Standard ) )
 	removeSelectedText();
-    if ( !t.isEmpty() ) {
+    if ( !m->provides( st.latin1() ) )
+	return;
+    QString t = QString::fromLatin1( m->encodedData( st ) );
+    if ( t.isEmpty() )
+	return;
+    if ( st == "text/html" ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
 	    t.remove( 0, 11 );
 	    QTextCursor oldC = *cursor;
@@ -4395,7 +4473,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	    ensureCursorVisible();
 	    return;
 	}
-
+    } else {
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to LF
 	int index = t.find( QString::fromLatin1("\r\n"), 0 );
