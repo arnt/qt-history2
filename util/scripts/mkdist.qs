@@ -48,7 +48,6 @@ const tabSize = 4;
 var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tmake"),
 		       new RegExp("^util"),
-		       new RegExp("^tutorial"),
 		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
@@ -64,7 +63,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/designer/data"),
 		       new RegExp("^tools/designer/tests"),
 		       new RegExp("^src/gui/itemviews/qheaderwidget"),
-		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
 		       new RegExp("^LICENSE.TROLL") ];
@@ -638,13 +636,32 @@ function compile(platform, edition, platformName)
 	execute(["ssh", login, "cp",
 		 platformName + "/include/QtCore/qconfig.h",
 		 platformName + "clean/include/QtCore/qconfig.h"]);
-	// copy generated atomic.h
+	// copy generated arch
 	execute(["ssh", login, "cp", "-r",
 		 platformName + "/include/Qt/arch",
 		 platformName + "clean/include/Qt/."]);
 	execute(["ssh", login, "cp", "-r",
 		 platformName + "/include/QtCore/arch",
 		 platformName + "clean/include/QtCore/."]);
+	// copy qatomic.h
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/Qt/."]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/QtCore/."]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/QtCore/QAtomic"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/QtCore/QBasicAtomic"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/QtCore/QAtomicPointer"]);
+	execute(["ssh", login, "cp",
+		 platformName + "/src/core/thread/qatomic.h",
+		 platformName + "clean/include/QtCore/QBasicAtomicPointer"]);
 	// copy generated .qt.config
 	execute(["ssh", login, "cp",
 		 platformName + "/mkspecs/.qt.config",
