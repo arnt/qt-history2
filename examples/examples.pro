@@ -119,5 +119,4 @@ embedded:SUBDIRS -= showimg
 win32:SUBDIRS += trayicon
 embedded:SUBDIRS += trayicon
 
-x11:SUBDIRS	+= biff \
-		   desktop
+x11:SUBDIRS	+= desktop
