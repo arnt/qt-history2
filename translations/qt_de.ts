@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="obsolete">Abbrechen</translation>
+        <translation type="unfinished">Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -126,171 +126,171 @@
     </message>
     <message>
         <source>Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menü</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Volume Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Lautstärke -</translation>
     </message>
     <message>
         <source>Volume Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Ton aus</translation>
     </message>
     <message>
         <source>Volume Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Lautstärke +</translation>
     </message>
     <message>
         <source>Bass Boost</source>
-        <translation type="unfinished"></translation>
+        <translation>Bass Boost</translation>
     </message>
     <message>
         <source>Bass Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Bass +</translation>
     </message>
     <message>
         <source>Bass Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Bass -</translation>
     </message>
     <message>
         <source>Treble Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhen +</translation>
     </message>
     <message>
         <source>Treble Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhen -</translation>
     </message>
     <message>
         <source>Media Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergabe</translation>
     </message>
     <message>
         <source>Media Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <source>Media Previous</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriger</translation>
     </message>
     <message>
         <source>Media Next</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächster</translation>
     </message>
     <message>
         <source>Media Record</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnen</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation type="unfinished"></translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Standby</source>
-        <translation type="unfinished"></translation>
+        <translation>Standby</translation>
     </message>
     <message>
         <source>Open URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne URL</translation>
     </message>
     <message>
         <source>Launch Mail</source>
-        <translation type="unfinished"></translation>
+        <translation>Start Mail</translation>
     </message>
     <message>
         <source>Launch Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Start Media Player</translation>
     </message>
     <message>
         <source>Launch (0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (0)</translation>
     </message>
     <message>
         <source>Launch (1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (1)</translation>
     </message>
     <message>
         <source>Launch (2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (2)</translation>
     </message>
     <message>
         <source>Launch (3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (3)</translation>
     </message>
     <message>
         <source>Launch (4)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (4)</translation>
     </message>
     <message>
         <source>Launch (5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (5)</translation>
     </message>
     <message>
         <source>Launch (6)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (6)</translation>
     </message>
     <message>
         <source>Launch (7)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (7)</translation>
     </message>
     <message>
         <source>Launch (8)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (8)</translation>
     </message>
     <message>
         <source>Launch (9)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (9)</translation>
     </message>
     <message>
         <source>Launch (A)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (A)</translation>
     </message>
     <message>
         <source>Launch (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (B)</translation>
     </message>
     <message>
         <source>Launch (C)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (C)</translation>
     </message>
     <message>
         <source>Launch (D)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (D)</translation>
     </message>
     <message>
         <source>Launch (E)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (E)</translation>
     </message>
     <message>
         <source>Launch (F)</source>
-        <translation type="unfinished"></translation>
+        <translation>Start (F)</translation>
     </message>
     <message>
         <source>Meta</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta</translation>
     </message>
 </context>
 <context>
@@ -302,22 +302,22 @@
     </message>
     <message>
         <source>Executable &apos;%1&apos; requires Qt %2, found Qt %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Applikation &apos;%1&apos; benötigt Qt %2, aber Qt %3 gefunden.</translation>
     </message>
     <message>
         <source>Incompatible Qt Library Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Bibliothek ist inkompatibel</translation>
     </message>
 </context>
 <context>
     <name>QAquaStyle</name>
     <message>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -452,15 +452,15 @@
     </message>
     <message>
         <source>Debug Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug Ausgabe:</translation>
     </message>
     <message>
         <source>Warning:</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung:</translation>
     </message>
     <message>
         <source>Fatal Error:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler:</translation>
     </message>
 </context>
 <context>
@@ -719,7 +719,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -1024,68 +1024,77 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type="unfinished">Rechner %1 nicht gefunden</translation>
+        <translation>Rechner %1 nicht gefunden</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type="unfinished">Verbindung mit %1 verweigert</translation>
+        <translation>Verbindung mit %1 verweigert</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <source>Connecting to host failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung mit Rechner schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Login failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Anmeldung schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Listing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt des Verzeichnises kann nicht angezeigt werden:
+%1</translation>
     </message>
     <message>
         <source>Changing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändern des Verzeichnises schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Downloading file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen der Datei schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Uploading file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen der Datei schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Removing file failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen der Datei schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Creating directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen des Verzeichnises schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Removing directory failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen des Verzeichnises schlug fehl:
+%1</translation>
     </message>
     <message>
         <source>Not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Verbindung</translation>
     </message>
     <message>
         <source>Connection refused for data connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung für die Daten Verbindung verweigert</translation>
     </message>
 </context>
 <context>
@@ -1162,27 +1171,27 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler</translation>
     </message>
     <message>
         <source>Request aborted</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfrage wurde abgebrochen</translation>
     </message>
     <message>
         <source>No server set to connect to</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Rechner gesetzt für die Verbindung</translation>
     </message>
     <message>
         <source>Server closed connection unexpectedly</source>
-        <translation type="unfinished"></translation>
+        <translation>Server hat die Verbindung unerwartet geschlossen</translation>
     </message>
     <message>
         <source>Invalid HTTP response header</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger HTTP Antwort-Header</translation>
     </message>
     <message>
         <source>Invalid HTTP chunked body</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger HTTP Chunked-Body</translation>
     </message>
 </context>
 <context>
@@ -1254,17 +1263,20 @@ nach
     <message>
         <source>Could not read directory
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Verzeichnis nicht lesen
+%1</translation>
     </message>
     <message>
         <source>Could not create directory
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Verzeichnis nicht erstellen
+%1</translation>
     </message>
     <message>
         <source>Could not remove file or directory
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Datei oder Verzeichnis nicht löschen
+%1</translation>
     </message>
 </context>
 <context>
@@ -1282,35 +1294,35 @@ nach
     <name>QMenuBar</name>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Config</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration</translation>
     </message>
     <message>
         <source>Preference</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Optionen</translation>
+        <translation>Optionen</translation>
     </message>
     <message>
         <source>Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichten</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden</translation>
     </message>
 </context>
 <context>
@@ -1357,7 +1369,7 @@ nach
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for multiplatform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, and all major commercial Unix variants.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Über Qt&lt;/h3&gt;&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++.&lt;/p&gt;&lt;p&gt;Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf MS&amp;nbsp;Windows, Mac&amp;nbsp;OS&amp;nbsp;X, Linux und allen anderen großen kommerziellen Unix-Versionen.&lt;br&gt;Qt ist auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Qt ist ein Produkt von Trolltech. Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1617,82 +1629,82 @@ nach
     <name>QRegExp</name>
     <message>
         <source>no error occurred</source>
-        <translation type="unfinished">kein Fehler</translation>
+        <translation>kein Fehler</translation>
     </message>
     <message>
         <source>disabled feature used</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht aktivierte Eigenschaft wurde benutzt</translation>
     </message>
     <message>
         <source>bad char class syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>falsche Syntax für Zeichen Klasse</translation>
     </message>
     <message>
         <source>bad lookahead syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>falsche Syntax für Lookahead</translation>
     </message>
     <message>
         <source>bad repetition syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>falsche Syntax für Wiederholungen</translation>
     </message>
     <message>
         <source>invalid octal value</source>
-        <translation type="unfinished"></translation>
+        <translation>ungültiger Oktal-Wert</translation>
     </message>
     <message>
         <source>missing left delim</source>
-        <translation type="unfinished"></translation>
+        <translation>fehlende linke Begrenzung</translation>
     </message>
     <message>
         <source>unexpected end</source>
-        <translation type="unfinished"></translation>
+        <translation>unerwartetes Ende</translation>
     </message>
     <message>
         <source>met internal limit</source>
-        <translation type="unfinished"></translation>
+        <translation>internes Limit erreicht</translation>
     </message>
 </context>
 <context>
     <name>QSql</name>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Delete this record?</source>
-        <translation type="unfinished">Diesen Datensatz löschen?</translation>
+        <translation>Diesen Datensatz löschen?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Save edits?</source>
-        <translation type="unfinished">Änderungen speichern?</translation>
+        <translation>Änderungen speichern?</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="unfinished">Bestätigen</translation>
+        <translation>Bestätigen</translation>
     </message>
     <message>
         <source>Cancel your edits?</source>
-        <translation type="unfinished">Änderungen verwerfen?</translation>
+        <translation>Änderungen verwerfen?</translation>
     </message>
 </context>
 <context>
@@ -1784,7 +1796,7 @@ nach
     <name>QToolBar</name>
     <message>
         <source>More...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr...</translation>
     </message>
 </context>
 <context>
@@ -1915,23 +1927,23 @@ nach
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
     <message>
         <source>&lt; &amp;Back</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt; &amp;Zurück</translation>
     </message>
     <message>
         <source>&amp;Next &gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Weiter &gt;</translation>
     </message>
     <message>
         <source>&amp;Finish</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab&amp;schließen</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Hilfe</translation>
     </message>
 </context>
 <context>
