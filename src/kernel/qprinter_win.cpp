@@ -539,7 +539,7 @@ bool QPrinter::setup( QWidget *parent )
             else
                 dm->dmOrientation = DMORIENT_LANDSCAPE;
             dm->dmCopies = ncopies;
-            dm->dmPaperSize = mapPageSizeDevmode( page_size );
+            dm->dmPaperSize = mapPageSizeDevmode( pageSize() );
             dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
             if ( colorMode() == Color )
                 dm->dmColor = DMCOLOR_COLOR;
@@ -592,7 +592,7 @@ bool QPrinter::setup( QWidget *parent )
                 else
                     dm->dmOrientation = DMORIENT_LANDSCAPE;
                 dm->dmCopies = ncopies;
-                dm->dmPaperSize = mapPageSizeDevmode( page_size );
+                dm->dmPaperSize = mapPageSizeDevmode( pageSize() );
                 dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
                 if ( colorMode() == Color )
                     dm->dmColor = DMCOLOR_COLOR;
