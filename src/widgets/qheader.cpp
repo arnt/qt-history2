@@ -39,7 +39,7 @@
 #ifndef QT_NO_HEADER
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qbitmap.h"
+#include "qpixmap.h"
 #include "qbitarray.h"
 #include "qvector.h"
 

@@ -41,7 +41,6 @@
 
 #include "qpainter.h"
 #include "qpointarray.h"
-#include "qtimer.h"
 #include "qcolor.h"
 #include "qapplication.h"
 #include "qregion.h"

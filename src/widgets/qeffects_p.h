@@ -1,5 +1,5 @@
 /****************************************************************************
-**
+** $Id: //depot/qt/main/src/widgets/qeffects_p.h#1 $
 **
 ** Definition of QEffects functions
 **
@@ -35,8 +35,22 @@
 **
 **********************************************************************/
 
-#ifndef QEFFECTS_H
-#define QEFFECTS_H
+#ifndef QEFFECTS_P_H
+#define QEFFECTS_P_H
+
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of qeffects.cpp, qcombobox.cpp, qpopupmenu.cpp and qtooltip.cpp.
+// This header file may change from version to version without notice,
+// or even be removed.
+//
+// We mean it.
+//
+//
 
 #include "qnamespace.h"
 
@@ -58,4 +72,5 @@ struct QEffects
 extern void Q_EXPORT qScrollEffect( QWidget*, QEffects::DirFlags dir = QEffects::DownScroll, int time = -1 );
 extern void Q_EXPORT qFadeEffect( QWidget*, int time = -1 );
 #endif // QT_NO_EFFECTS
-#endif // QEFFECTS_H
+
+#endif // QEFFECTS_P_H

@@ -39,15 +39,15 @@
 
 #ifndef QT_NO_ACTION
 
-#include <qtoolbar.h>
-#include <qlist.h>
-#include <qpopupmenu.h>
-#include <qaccel.h>
-#include <qtoolbutton.h>
-#include <qtooltip.h>
-#include <qwhatsthis.h>
-#include <qstatusbar.h>
-#include <qobjectlist.h>
+#include "qtoolbar.h"
+#include "qlist.h"
+#include "qpopupmenu.h"
+#include "qaccel.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
+#include "qwhatsthis.h"
+#include "qstatusbar.h"
+#include "qobjectlist.h"
 
 
 /*!

@@ -40,24 +40,25 @@
 
 #ifndef QT_H
 #include "qcommonstyle.h"
-#include "qpalette.h"
 #endif // QT_H
 
 #ifndef QT_NO_STYLE_MOTIF
+
+class QPalette;
 
 class Q_EXPORT QMotifStyle : public QCommonStyle
 {
     Q_OBJECT
 public:
-    QMotifStyle( bool useHighlightCols = FALSE);
+    QMotifStyle( bool useHighlightCols=FALSE );
     virtual ~QMotifStyle();
 
     void setUseHighlightColors( bool );
     bool useHighlightColors() const;
 
-    void polish( QPalette&);
+    void polish( QPalette& );
     void polish( QWidget* );
-    void polish( QApplication*);
+    void polish( QApplication* );
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
@@ -74,11 +75,11 @@ public:
 			  bool editable = FALSE,
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
-    QRect comboButtonRect( int x, int y, int w, int h) const;
+    QRect comboButtonRect( int x, int y, int w, int h ) const;
     QRect comboButtonFocusRect( int x, int y, int w, int h ) const;
 
 
-    void drawPushButton( QPushButton* btn, QPainter *p);
+    void drawPushButton( QPushButton* btn, QPainter *p );
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
@@ -97,7 +98,7 @@ public:
     void drawTab( QPainter*,  const QTabBar*, QTab*, bool selected );
     void drawTabMask( QPainter*,  const QTabBar*, QTab*, bool selected );
 
-    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
+    void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int& ) const;
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
 				uint controls, uint activeControl );
 
@@ -105,7 +106,7 @@ public:
     void drawSlider( QPainter *p,
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
-			     Orientation, bool tickAbove, bool tickBelow);
+			     Orientation, bool tickAbove, bool tickBelow );
     void drawSliderGroove( QPainter *p,
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
@@ -113,7 +114,7 @@ public:
 
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
-		       const QColorGroup &g, Orientation);
+		       const QColorGroup &g, Orientation );
 
 
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,

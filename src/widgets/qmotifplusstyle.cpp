@@ -40,17 +40,17 @@ n** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
 #ifndef QT_NO_STYLE_MOTIFPLUS
 
 #define INCLUDE_MENUITEM_DEF
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qpalette.h>
-#include <qframe.h>
-#include <qpushbutton.h>
-#include <qmenubar.h>
-#include <qdrawutil.h>
-#include <qscrollbar.h>
-#include <qtabbar.h>
-#include <qguardedptr.h>
-#include <qlayout.h>
+#include "qapplication.h"
+#include "qpainter.h"
+#include "qpalette.h"
+#include "qframe.h"
+#include "qpushbutton.h"
+#include "qmenubar.h"
+#include "qdrawutil.h"
+#include "qscrollbar.h"
+#include "qtabbar.h"
+#include "qguardedptr.h"
+#include "qlayout.h"
 
 
 typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int,

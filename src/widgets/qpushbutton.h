@@ -65,6 +65,7 @@ public:
     ~QPushButton();
 
     QSize	sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
     void	move( int x, int y );
     void	move( const QPoint &p );

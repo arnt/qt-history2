@@ -41,10 +41,10 @@
 #include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qstrlist.h"
-#include "qscrollbar.h"
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qptrdict.h"
+#include "qtimer.h"
 
 #include <stdlib.h>
 

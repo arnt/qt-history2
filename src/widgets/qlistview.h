@@ -38,6 +38,13 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
+#ifndef QT_H
+#include "qscrollview.h"
+#endif // QT_H
+
+#ifndef QT_NO_LISTVIEW
+
+
 class QPixmap;
 class QFont;
 class QHeader;
@@ -46,12 +53,6 @@ class QIconSet;
 class QListView;
 struct QListViewPrivate;
 class QListViewItemIterator;
-
-#ifndef QT_H
-#include "qscrollview.h"
-#endif // QT_H
-
-#ifndef QT_NO_LISTVIEW
 
 
 class Q_EXPORT QListViewItem: public Qt

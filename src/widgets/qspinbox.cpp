@@ -480,6 +480,14 @@ void QSpinBox::arrangeWidgets()
 	vi->setGeometry( contentsRect() );
 }
 
+/*
+  !\reimp
+*/
+QSizePolicy QSpinBox::sizePolicy() const
+{
+    //### removeme 3.0
+    return QWidget::sizePolicy();
+}
 
 /*!
   Sets the current value of the spin box to \a value.  This is

@@ -42,6 +42,7 @@
 #ifndef QT_NO_MENUBAR
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
+#include "qpopupmenu.h"
 #include "qaccel.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

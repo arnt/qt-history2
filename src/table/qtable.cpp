@@ -44,6 +44,7 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qobjectlist.h>
+#include "qiconset.h"
 #include <stdlib.h>
 #include <limits.h>
 

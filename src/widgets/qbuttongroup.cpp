@@ -39,7 +39,6 @@
 #ifndef QT_NO_COMPLEXWIDGETS
 #include "qbutton.h"
 #include "qlist.h"
-#include "qradiobutton.h"
 #include "qapplication.h"
 
 

@@ -820,16 +820,6 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 }
 
 
-/*!
-  \reimp
-  Present for binary compatibility only!
-*/
-
-void QMultiLineEdit::timerEvent( QTimerEvent * )
-{
-    // ############ Remove in 3.0!!!!!!!!
-}
-
 #ifndef QT_NO_DRAGANDDROP
 void QMultiLineEdit::doDrag()
 {

@@ -48,12 +48,12 @@
 #include "qcursor.h"
 #include "qpainter.h"
 #include "qmenubar.h"
+#include "qpopupmenu.h"
 #include "qtoolbar.h"
 #include "qstatusbar.h"
 #include "qscrollview.h"
 #include "qtooltip.h"
 #include "qdatetime.h"
-#include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qbitmap.h"
 

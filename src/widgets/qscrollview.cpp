@@ -2274,7 +2274,16 @@ void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 /*!
   \reimp
 */
-QSize QScrollView::sizeHint() const
+QSizePolicy QScrollView::sizePolicy() const
+{
+    //### removeme 3.0
+    return QWidget::sizePolicy();
+}
+
+
+/*!
+  \reimp
+*/                                                                            QSize QScrollView::sizeHint() const
 {
     constPolish();
     QSize result = QSize(frameWidth()*2, frameWidth()*2);

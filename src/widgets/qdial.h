@@ -3,7 +3,7 @@
 **
 ** Definition of the dial widget
 **
-** Created : 990104
+** Created : 1999.01.04
 **
 ** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 **
@@ -46,7 +46,6 @@
 
 #ifndef QT_NO_DIAL
 
-//class QTimer;
 class QDialPrivate;
 
 class Q_EXPORT QDial: public QWidget, public QRangeControl

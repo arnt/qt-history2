@@ -81,10 +81,10 @@ public:
     virtual QString 	cleanText() const;
 
     virtual void	setSpecialValueText( const QString &text );
-    QString 		specialValueText() const;
+    QString		specialValueText() const;
 
-    virtual void 	setWrapping( bool on );
-    bool 		wrapping() const;
+    virtual void	setWrapping( bool on );
+    bool		wrapping() const;
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
     virtual void	setButtonSymbols( ButtonSymbols );
@@ -93,7 +93,8 @@ public:
     virtual void	setValidator( const QValidator* v );
     const QValidator * validator() const;
 
-    QSize 		sizeHint() const;
+    QSize		sizeHint() const;
+    QSizePolicy		sizePolicy() const;
 
     int	 minValue() const;
     int	 maxValue() const;

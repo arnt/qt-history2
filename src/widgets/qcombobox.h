@@ -96,39 +96,39 @@ public:
     void	changeItem( const QPixmap &pixmap, const QString &text, int index );
 
     int		currentItem() const;
-    virtual void	setCurrentItem( int index );
+    virtual void setCurrentItem( int index );
 
     bool	autoResize()	const;
-    virtual void	setAutoResize( bool );
+    virtual void setAutoResize( bool );
     QSize	sizeHint() const;
-    virtual QSizePolicy sizePolicy() const;
+    QSizePolicy sizePolicy() const;
 
-    virtual void	setBackgroundColor( const QColor & );
-    virtual void	setPalette( const QPalette & );
-    virtual void	setFont( const QFont & );
-    virtual void	setEnabled( bool );
+    void	setBackgroundColor( const QColor & );
+    void	setPalette( const QPalette & );
+    void	setFont( const QFont & );
+    void	setEnabled( bool );
 
-    virtual void	setSizeLimit( int );
+    virtual void setSizeLimit( int );
     int		sizeLimit() const;
 
-    virtual void	setMaxCount( int );
+    virtual void setMaxCount( int );
     int		maxCount() const;
 
     enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom,
 		  AfterCurrent, BeforeCurrent };
 
-    virtual void	setInsertionPolicy( Policy policy );
+    virtual void setInsertionPolicy( Policy policy );
     Policy 	insertionPolicy() const;
 
-    virtual void	setValidator( const QValidator * );
+    virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
 
-    virtual void	setListBox( QListBox * );
+    virtual void setListBox( QListBox * );
     QListBox * 	listBox() const;
 
     QLineEdit*	lineEdit() const;
 
-    virtual void	setAutoCompletion( bool );
+    virtual void setAutoCompletion( bool );
     bool	autoCompletion() const;
 
     bool	eventFilter( QObject *object, QEvent *event );
@@ -142,7 +142,7 @@ public:
 public slots:
     void	clearValidator();
     void	clearEdit();
-    virtual void	setEditText( const QString &);
+    virtual void setEditText( const QString &);
 
 signals:
     void	activated( int index );
@@ -168,7 +168,7 @@ protected:
     void	focusInEvent( QFocusEvent *e );
     void	styleChange( QStyle& );
 
-    void	popup(); //#### virtual in 3.0
+    virtual void popup();
     void	updateMask();
 
 private:

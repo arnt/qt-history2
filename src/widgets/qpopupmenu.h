@@ -54,18 +54,18 @@ public:
     QPopupMenu( QWidget *parent=0, const char *name=0 );
    ~QPopupMenu();
 
-    void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
+    void	popup( const QPoint & pos, int indexAtPoint = 0 ); // open
     void	updateItem( int id );
 
     virtual void	setCheckable( bool );
     bool	isCheckable() const;
 
-    void	setFont( const QFont & );	// reimplemented set font
-    void	show();				// reimplemented show
-    void	hide();				// reimplemented hide
+    void	setFont( const QFont & );
+    void	show();
+    void	hide();
 
     int		exec();
-    int 	exec( const QPoint & pos, int indexAtPoint = 0 );// modal popup
+    int 	exec( const QPoint & pos, int indexAtPoint = 0 ); // modal
 
     virtual void	setActiveItem( int );
     QSize	sizeHint() const;
@@ -77,13 +77,13 @@ public:
 
     int	insertTearOffHandle( int id=-1, int index=-1 );
     
-    void 	activateItemAt( int index ); // ### virtual in QMenuData 3.0
+    void activateItemAt( int index );
 
 
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
-    void	activatedRedirect( int itemId );// to parent menu
+    void	activatedRedirect( int itemId ); // to parent menu
     void	highlightedRedirect( int itemId );
     void	aboutToShow();
     void	aboutToHide();
@@ -108,7 +108,9 @@ protected:
     void 	styleChange( QStyle& );
     int 	columns() const;
 
-    bool focusNextPrevChild( bool next );
+    bool	focusNextPrevChild( bool next );
+
+    QRect	itemGeometry( int index );
 
 private slots:
     void	subActivated( int itemId );
@@ -130,14 +132,13 @@ private:
 
     void	actSig( int, bool = FALSE );
     void	hilitSig( int );
-    virtual void	setFirstItemActive();
+    virtual void setFirstItemActive();
     void	hideAllPopups();
     void	hidePopups();
     bool	tryMenuBar( QMouseEvent * );
     void	byeMenuBar();
 
     int		itemAtPos( const QPoint & ) const;
-    QRect		itemGeometry( int index ); // ## protected in 3.0
     void	updateSize();
     void	updateRow( int row );
     void	updateAccel( QWidget * );

@@ -37,7 +37,6 @@
 
 #include "qlabel.h"
 #ifndef QT_NO_LABEL
-#include "qbitmap.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qaccel.h"

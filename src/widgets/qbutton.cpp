@@ -43,7 +43,6 @@
 #include "qtimer.h"
 #include "qaccel.h"
 #include "qpixmapcache.h"
-#include "qfocusdata.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include <ctype.h>

@@ -39,10 +39,14 @@
 #define QMENUBAR_H
 
 #ifndef QT_H
-#include "qpopupmenu.h"
+#include "qpopupmenu.h" // ### remove or keep for users' convenience?
+#include "qframe.h"
+#include "qmenudata.h"
 #endif // QT_H
 
 #ifndef QT_NO_MENUBAR
+
+class QPopupMenu;
 
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {

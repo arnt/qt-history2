@@ -40,11 +40,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-
-// if we did not include QIconSet, we would break code due to the missing
-// conversion QPixmap->QIconset
-#include "qiconset.h"
-
+#include "qiconset.h" // conversion QPixmap->QIconset
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -245,7 +241,7 @@ public:
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 
-    void activateItemAt( int index );
+    virtual void activateItemAt( int index );
 
 protected:
     int		   actItem;

@@ -47,7 +47,6 @@
 #include "qdragobject.h"
 #include "qtimer.h"
 #include "qpopupmenu.h"
-#include "qstringlist.h"
 
 #include <ctype.h>
 

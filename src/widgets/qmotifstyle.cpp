@@ -39,15 +39,12 @@
 #ifndef QT_NO_STYLE_MOTIF
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qpalette.h" // for now
+#include "qpalette.h"
+#include "qdrawutil.h"
+#include "qpixmap.h"
+#include "qpalette.h"
 #include "qwidget.h"
-#include "qlabel.h"
-#include "qimage.h"
 #include "qpushbutton.h"
-#include "qwidget.h"
-#include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
 #define INCLUDE_MENUITEM_DEF
@@ -109,7 +106,7 @@ QMotifStyle::~QMotifStyle()
 
   \sa QStyle::polish( QPalette& )
  */
-void QMotifStyle::setUseHighlightColors( bool arg)
+void QMotifStyle::setUseHighlightColors( bool arg )
 {
     highlightCols = arg;
 }
@@ -126,7 +123,7 @@ bool QMotifStyle::useHighlightColors() const
 
 /*! \reimp */
 
-void QMotifStyle::polish( QPalette& pal)
+void QMotifStyle::polish( QPalette& pal )
 {
     if ( pal.normal().light() == pal.normal().base() ) {
 	QColor nlight = pal.normal().light().dark(108 );
@@ -968,7 +965,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 				     int tab, QMenuItem* mi, 
 				     const QPalette& pal,
 				     bool act, bool enabled,
-				     int x, int y, int w, int h)
+				     int x, int y, int w, int h )
 {
     const QColorGroup & g = pal.active();
     bool dis	  = !enabled;

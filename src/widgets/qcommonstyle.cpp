@@ -39,15 +39,9 @@
 #if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qpalette.h" // for now
-#include "qwidget.h"
-#include "qlabel.h"
-#include "qimage.h"
+#include "qdrawutil.h"
+#include "qpixmap.h"
 #include "qpushbutton.h"
-#include "qwidget.h"
-#include "qrangecontrol.h"
 #include "qtabbar.h"
 #include "qscrollbar.h"
 #include "qtoolbutton.h"

@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qtoolbar.h"
+#include "qtoolbar.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -77,7 +77,7 @@ public:
 
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
-    void setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable ); // ########### make virtual
+    virtual void setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable );
     bool isDockEnabled( QToolBar *tb, ToolBarDock dock ) const;
 
     void addToolBar( QToolBar *, ToolBarDock = Top, bool newLine = FALSE );
@@ -103,8 +103,6 @@ public:
 
     bool getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-// WARNING: compilers requiring Q_TEMPLATE_NEEDS_CLASS_DECLARATION
-//	    may not be supported in future Qt versions.
 #ifndef Q_TEMPLATE_NEEDS_CLASS_DECLARATION
     QList<QToolBar> toolBars( ToolBarDock dock ) const;
 #endif
@@ -115,9 +113,9 @@ public:
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
-    void setUsesTextLabel( bool ); // virtual 3.0
-    void setToolBarsMovable( bool ); // virtual 3.0
-    void setOpaqueMoving( bool ); // virtual 3.0
+    virtual void setUsesTextLabel( bool );
+    virtual void setToolBarsMovable( bool );
+    virtual void setOpaqueMoving( bool );
     void setDockMenuEnabled( bool );
 
     void whatsThis();

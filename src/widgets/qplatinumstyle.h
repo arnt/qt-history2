@@ -40,10 +40,11 @@
 
 #ifndef QT_H
 #include "qwindowsstyle.h"
-#include "qpalette.h"
 #endif // QT_H
 
 #ifndef QT_NO_STYLE_PLATINUM
+
+class QPalette;
 
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {

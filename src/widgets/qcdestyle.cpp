@@ -37,18 +37,9 @@
 
 #include "qcdestyle.h"
 #ifndef QT_NO_STYLE_CDE
-#include "qapplication.h"
 #include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qpalette.h" // for now
-#include "qwidget.h"
-#include "qlabel.h"
-#include "qimage.h"
-#include "qpushbutton.h"
-#include "qwidget.h"
-#include "qrangecontrol.h"
-#include "qscrollbar.h"
+#include "qdrawutil.h"
+#include "qbutton.h"
 #include <limits.h>
 
 // NOT REVISED
