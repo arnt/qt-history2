@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#2 $
+** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#3 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -15,6 +15,7 @@
 #include <qtextstream.h>
 #include <qtextcodec.h>
 #include <qtranslator.h>
+#include <stdlib.h>
 
 static QString* defaultScope = 0;
 
@@ -52,8 +53,8 @@ QString extractContents( const QString& line )
 	    case 'f':
 		contents += '\f';
 		break;
-	    case 'e':
-		contents += '\e';
+	    case 'v':
+		contents += '\v';
 		break;
 	    case 'b':
 		contents += '\b';
