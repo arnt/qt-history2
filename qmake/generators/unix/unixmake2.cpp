@@ -265,13 +265,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << odir << ".deps/%.d: %.cpp\n\t";
         if(project->isActiveConfig("echo_depend_creation"))
             t << "@echo Creating depend for $<" << "\n\t";
-        t << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
+        t << mkdir_p_asstring("$(@D)") << "\n\t"
           << "@$(CXX) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
         t << odir << ".deps/%.d: %.c\n\t";
         if(project->isActiveConfig("echo_depend_creation"))
             t << "@echo Creating depend for $<" << "\n\t";
-        t << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
+        t << mkdir_p_asstring("$(@D)") << "\n\t"
           << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
         QString src[] = { "SOURCES", "UICIMPLS", "SRCMOC", QString::null };
@@ -364,7 +364,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     incr_lflags += var("QMAKE_LFLAGS_RELEASE");
                 t << incr_target_dir << ": $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << "\n\t";
                 if(!destdir.isEmpty())
-                    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+                    t << "\n\t" << mkdir_p_asstring(destdir) << "\n\t";
                 t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir <<
                     " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << endl;
                 //communicated below
@@ -390,7 +390,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << var("TARGET") << ": " << var("PRE_TARGETDEPS") << " " << incr_deps << " " << target_deps
               << " " << var("POST_TARGETDEPS") << "\n\t";
             if(!destdir.isEmpty())
-                t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+                t << "\n\t" << mkdir_p_asstring(destdir) << "\n\t";
             if(!project->isEmpty("QMAKE_PRE_LINK"))
                 t << var("QMAKE_PRE_LINK") << "\n\t";
             t << "$(LINK) $(LFLAGS) -o $(TARGET) " << incr_deps << " " << incr_objs << " $(OBJCOMP) $(LIBS)";
@@ -404,7 +404,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJMOC) "
               << target_deps << " " << var("POST_TARGETDEPS") << "\n\t";
             if(!destdir.isEmpty())
-                t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+                t << mkdir_p_asstring(destdir) << "\n\t";
             if(!project->isEmpty("QMAKE_PRE_LINK"))
                 t << var("QMAKE_PRE_LINK") << "\n\t";
             t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(OBJCOMP) $(LIBS)";
@@ -447,7 +447,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     incr_lflags += var("QMAKE_LFLAGS_RELEASE");
                 t << incr_target_dir << ": $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << "\n\t";
                 if(!destdir.isEmpty())
-                    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+                    t << mkdir_p_asstring(destdir) << "\n\t";
                 t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir <<
                     " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << endl;
                 //communicated below
@@ -473,7 +473,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << " " << var("POST_TARGETDEPS");
         }
         if(!destdir.isEmpty())
-            t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
+            t << "\n\t" << mkdir_p_asstring(destdir) << "\n\t";
         if(!project->isEmpty("QMAKE_PRE_LINK"))
             t << "\n\t" << var("QMAKE_PRE_LINK");
 
@@ -544,10 +544,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
             t << var("DESTDIR") << "$(TARGET): " << var("PRE_TARGETDEPS")
               << " $(OBJECTS) $(OBJMOC) $(OBJCOMP) " << var("POST_TARGETDEPS") << "\n\t";
-            if(!project->isEmpty("DESTDIR")) {
-                QString destdir = project->first("DESTDIR");
-                t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-            }
+            if(!project->isEmpty("DESTDIR")) 
+                t << mkdir_p_asstring(project->first("DESTDIR")) << "\n\t";
             t << "-$(DEL_FILE) $(TARGET)" << "\n\t"
               << var("QMAKE_AR_CMD") << "\n";
             if(!project->isEmpty("QMAKE_POST_LINK"))
@@ -579,10 +577,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                     t << (*libit) << ": " << valList(build) << "\n\t";
                     ar = "$(AR) " + (*libit) + " " + build.join(" ");
                 }
-                if(!project->isEmpty("DESTDIR")) {
-                    QString destdir = project->first("DESTDIR");
-                    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-                }
+                if(!project->isEmpty("DESTDIR")) 
+                    t << mkdir_p_asstring(project->first("DESTDIR")) << "\n\t";
                 t << "-$(DEL_FILE) " << (*libit) << "\n\t"
                   << ar << "\n";
                 if(!project->isEmpty("QMAKE_POST_LINK"))
@@ -640,7 +636,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         QString destdir = project->first("DESTDIR");
         t << pkginfo << ": " << "\n\t";
         if(!destdir.isEmpty())
-            t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+            t << mkdir_p_asstring(destdir) << "\n\t";
         t << "@$(DEL_FILE) " << pkginfo << "\n\t"
           << "@echo \"APPL"
           << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
@@ -654,7 +650,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         QString destdir = project->first("DESTDIR");
         t << info_plist_out << ": " << "\n\t";
         if(!destdir.isEmpty())
-            t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+            t << mkdir_p_asstring(destdir) << "\n\t";
         t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
           << "@sed -e \"s,@ICON@," << icon.section(Option::dir_sep, -1)
           << ",g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") << ",g\" "
@@ -665,7 +661,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!project->isEmpty("ICON")) {
             QString dir = project->first("DESTDIR") + "../Resources/";
             t << dir << icon.section(Option::dir_sep, -1) << ": " << icon << "\n\t"
-              << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
+              << mkdir_p_asstring(dir) << "\n\t"
               << "@$(DEL_FILE) " << dir << icon.section(Option::dir_sep, -1) << "\n\t"
               << "@$(COPY_FILE) " << icon << " " << dir << endl;
         }
@@ -679,7 +675,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 for(int file = 0; file < files.count(); file++) {
                     QString dst = path + Option::dir_sep + QFileInfo(files[file]).fileName();
                     t << dst << ": " << files[file] << "\n\t"
-                      << "@test -d " << path << " || mkdir -p " << path << "\n\t"
+                      << mkdir_p_asstring(path) << "\n\t"
                       << "@$(DEL_FILE) " << dst << "\n\t"
                       << "@$(COPY_FILE) " << files[file] << " " << dst << endl;
                 }
@@ -696,7 +692,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString ddir_c = fileFixify((project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
                                  project->first("OBJECTS_DIR")) + ddir);
     t << "dist: " << "\n\t"
-      << "@mkdir -p " << ddir_c << " && "
+      << mkdir_p_asstring(ddir_c) << "\n\t"
       << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && ";
     if(!project->isEmpty("TRANSLATIONS"))
         t << "$(COPY_FILE) --parents " << var("TRANSLATIONS") << " " << ddir_c << Option::dir_sep << " && ";
@@ -854,7 +850,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 compiler = "$(CXX) ";
             }
             t << outfile << ": " << precomph << " " << findDependencies(precomph).join(" \\\n\t\t")
-              << "\n\t" << "test -d " << outdir << " || mkdir -p " << outdir
+              << "\n\t" << mkdir_p_asstring(outdir)
               << "\n\t" << compiler << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
         }
     }
