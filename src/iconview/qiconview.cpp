@@ -4158,7 +4158,7 @@ void QIconView::setSorting( bool sort, bool ascending )
 
     The default is FALSE, i.e. no sorting on insertion.
 
-    To set the soring, use setSorting().
+    To set the sorting, use setSorting().
 */
 
 bool QIconView::sorting() const
