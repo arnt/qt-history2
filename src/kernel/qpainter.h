@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#53 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#54 $
 **
 ** Definition of QPainter class
 **
@@ -211,7 +211,7 @@ private:
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
-	   IsStartingUp=0x200 };
+	   FontMet=0x200, FontInf=0x400, IsStartingUp=0x800 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
@@ -262,6 +262,8 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #endif
+    friend class QFontMetrics;
+    friend class QFontInfo;
 };
 
 
