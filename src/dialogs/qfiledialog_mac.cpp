@@ -237,18 +237,20 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	if(!parent->topLevelWidget()->isDesktop()) {
 	    options.modality = kWindowModalityWindowModal;
 	    options.parentWindow = (WindowRef)parent->handle();
-	}
-	parent = parent->topLevelWidget();
-	QString s = parent->caption();
-	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
-	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
-	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+	} else {
+	    parent = parent->topLevelWidget();
+	    QString s = parent->caption();
+	    options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+	    options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
+	    options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
 
-	QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
-	if(options.location.h + w > r.right())
-	    options.location.h -= (options.location.h + w) - r.right() + 10;
-	if(options.location.v + h > r.bottom())
-	    options.location.v -= (options.location.v + h) - r.bottom() + 10;
+	    QRect r = QApplication::desktop()->screenGeometry(
+		QApplication::desktop()->screenNumber(parent));
+	    if(options.location.h + w > r.right())
+		options.location.h -= (options.location.h + w) - r.right() + 10;
+	    if(options.location.v + h > r.bottom())
+		options.location.v -= (options.location.v + h) - r.bottom() + 10;
+	}
     } else if(QWidget *p = qApp->mainWidget()) {
 	static int last_screen = -1;
 	int scr = QApplication::desktop()->screenNumber(p);
@@ -374,18 +376,20 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	if(!parent->topLevelWidget()->isDesktop()) {
 	    options.modality = kWindowModalityWindowModal;
 	    options.parentWindow = (WindowRef)parent->handle();
-	}
-	parent = parent->topLevelWidget();
-	QString s = parent->caption();
-	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
-	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
-	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+	} else {
+	    parent = parent->topLevelWidget();
+	    QString s = parent->caption();
+	    options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+	    options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
+	    options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
 
-	QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
-	if(options.location.h + w > r.right())
-	    options.location.h -= (options.location.h + w) - r.right() + 10;
-	if(options.location.v + h > r.bottom())
-	    options.location.v -= (options.location.v + h) - r.bottom() + 10;
+	    QRect r = QApplication::desktop()->screenGeometry(
+		QApplication::desktop()->screenNumber(parent));
+	    if(options.location.h + w > r.right())
+		options.location.h -= (options.location.h + w) - r.right() + 10;
+	    if(options.location.v + h > r.bottom())
+		options.location.v -= (options.location.v + h) - r.bottom() + 10;
+	}
     } else if(QWidget *p = qApp->mainWidget()) {
 	static int last_screen = -1;
 	int scr = QApplication::desktop()->screenNumber(p);
