@@ -259,6 +259,7 @@ QImageFormat* QMNGFormatType::decoderFor( const uchar* buffer, int length )
      && buffer[5]==10
      && buffer[6]==26
      && buffer[7]==10
+#ifdef QT_NO_IMAGEIO_PNG // if we don't have native PNG support use libmng
      || buffer[0]==137 // PNG signature
      && buffer[1]=='P'
      && buffer[2]=='N'
@@ -267,6 +268,7 @@ QImageFormat* QMNGFormatType::decoderFor( const uchar* buffer, int length )
      && buffer[5]==10
      && buffer[6]==26
      && buffer[7]==10
+#endif
     )
 	return new QMNGFormat;
     return 0;
