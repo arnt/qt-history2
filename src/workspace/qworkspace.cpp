@@ -1318,12 +1318,10 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( --a < 0 )
 		    a = d->focus.count()-1;
 		QWorkspaceChild* c = d->focus.at( a );
-		if ( !c ) {
+		if ( !c || c == o ) {
 		    activateWindow( 0 );
 		    break;
 		}
-		if ( c == o )
-		    break;
 		if ( c->isShown() ) {
 		    activateWindow( c->windowWidget(), FALSE );
 		    break;
