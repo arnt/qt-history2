@@ -35,7 +35,12 @@
 class IconPreview : public QLabel, public QFilePreview
 {
 public:
-    IconPreview( QWidget *parent=0 ) : QLabel( parent ) {}
+    IconPreview( QWidget *parent=0 ) : QLabel( parent )
+    {
+	setFrameStyle( QFrame::Panel | QFrame::Sunken );
+	setBackgroundColor( QColor( "white" ) );
+	setAlignment( Qt::AlignHCenter | Qt::AlignVCenter );
+    }
     void previewUrl( const QUrl &u )
     {
 	QString path = u.path();
