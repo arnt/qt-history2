@@ -116,8 +116,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
 
     QString s;
     dumpWidget(fw->mainContainer(), s, 0);
-    qDebug() << "ObjectInspector::setFormWindow():\n" << s;
-    
+
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
@@ -126,9 +125,9 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         QString objectName;
         if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(object))
             objectName = promoted->child()->objectName();
-        else 
+        else
             objectName = object->objectName();
-            
+
         if (objectName.isEmpty())
             objectName = tr("<noname>");
 

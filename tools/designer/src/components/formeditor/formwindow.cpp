@@ -238,7 +238,6 @@ void FormWindow::init()
     m_commandHistory = new QtUndoStack(this);
     connect(m_commandHistory, SIGNAL(commandExecuted()), this, SLOT(updateDirty()));
     connect(m_commandHistory, SIGNAL(commandExecuted()), this, SIGNAL(changed()));
-
     connect(commandHistory(), SIGNAL(commandExecuted()), this, SLOT(checkSelection()));
 
     core()->metaDataBase()->add(this);

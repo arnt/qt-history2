@@ -1,20 +1,35 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QMessageBox>
 
 #include <abstractwidgetdatabase.h>
 #include "promotetocustomwidgetdialog.h"
 
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(AbstractWidgetDataBase *db,
                                                         const QString &base_class_name,
                                                         QWidget *parent)
     : QDialog(parent)
 {
+    setModal(true);
+
     m_db = db;
-    
+
     setupUi(this);
-    
+
     m_class_name_input->addItem(QString());
     for (int i = 0; i < db->count(); ++i) {
         AbstractWidgetDataBaseItem *item = db->item(i);

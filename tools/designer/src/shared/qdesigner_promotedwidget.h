@@ -20,7 +20,7 @@ class QT_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public IProp
 public:
     PromotedWidgetPropertySheet(QDesignerPromotedWidget *promoted, QExtensionManager *extension_manager, QObject *parent);
     virtual ~PromotedWidgetPropertySheet();
-    
+
     virtual int count() const;
 
     virtual int indexOf(const QString &name) const;
@@ -70,10 +70,10 @@ public:
     QWidget *child() const { return m_child; }
     AbstractWidgetDataBaseItem *item() const { return m_item; }
     const char *customClassName() { return m_custom_class_name.constData(); }
-    
+
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-        
+
 protected:
     virtual void childEvent(QChildEvent *e);
 
