@@ -4,14 +4,10 @@
 1.  Unpack the archive if you have not done so already:
 
 	cd /Developer
-	gnutar xzvf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
+	tar xzvf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
 
     This creates the directory /Developer/%DISTNAME% containing the
     files from the main archive.
-
-    Rename %DISTNAME% to qt (or make a symlink):
-
-	mv %DISTNAME% qt
 
     The rest of this file assumes that Qt is unpacked in /Developer/qt.
 
@@ -67,27 +63,26 @@
 
 5.  Building.
 
-    This step compiles the Qt library, and builds the example programs,
-    the tutorial, and the tools (e.g. Qt Designer, etc.).
+    This step compiles the Qt libraries, the demo programs, and the
+    tools (e.g. Qt Linguist, etc.).
 
     Type:
 
         cd $QTDIR
 	./configure
 
-    This will configure the Qt library for your machine.  Run ./configure -help
+    This will configure the Qt libraries for your machine.  Run ./configure -help
     to get a list of configuration options. 
 
-    To create the library and compile all the examples and the
-    tutorial, type:
+    To create compile everything, simply type:
 
 	/usr/bin/make
 
+    This technology preview was tested on Mac OS X 10.3 with Xcode Tools 1.2.
     If your platform or compiler is not supported, please contact us at
-    qt-bugs@trolltech.com so that we can assist you. If it is supported
-    but you have problems, see http://www.trolltech.com/platforms/ for
-    information on known issues.
-
+    qt-bugs@trolltech.com so that we can assist you. If it is supported but you
+    have problems, see http://www.trolltech.com/platforms/ for information on
+    known issues.
 
 6.  Launching Qt applications from the Finder.
 
@@ -96,12 +91,15 @@
     executables will need to use the Qt library on your system. You can acheive
     this by using symbolic links.
 
-    We recommend making these symbolic links (if you have configured Qt with
-    -thread [ie threading enabled], please change the libqt below with
-    libqt-mt):
+    We recommend making these symbolic links:
 
-    ln -sf $QTDIR/lib/libqt.3.dylib /usr/lib
-    ln -sf $QTDIR/lib/libqui.1.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtCore.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtGui.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtNetwork.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtSql.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtOpenGL.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtXml.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQt3Compat.4.dylib /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
     case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
@@ -112,8 +110,13 @@
     can do (if you have configured Qt with -thread [ie threading enabled],
     please change the libqt below with libqt-mt):
 
-    ln -sf $QTDIR/lib/libqt.3.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libqui.1.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtCore.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtGui.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtNetwork.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtSql.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtOpenGL.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtXml.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQt3Compat.4.dylib $HOME/lib
 
     Note: you can also achieve similar functionality by adding your
     DYLD_LIBRARY_PATH to the GUI's environment.
