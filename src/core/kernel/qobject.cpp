@@ -1049,7 +1049,7 @@ QObject *QObject::findChild(const QString &name) const
 QObjectList QObject::findChildren(const QString &name) const
 {
     QObjectList list;
-    qFindChildren_helper(this, name, 0, QObject::staticMetaObject,
+    qt_qFindChildren_helper(this, name, 0, QObject::staticMetaObject,
                          reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
@@ -1067,7 +1067,7 @@ QObjectList QObject::findChildren(const QString &name) const
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
     QObjectList list;
-    qFindChildren_helper(this, QString(), &re, QObject::staticMetaObject,
+    qt_qFindChildren_helper(this, QString(), &re, QObject::staticMetaObject,
                          reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
@@ -1075,7 +1075,7 @@ QObjectList QObject::findChildren(const QRegExp &re) const
 
 /*! \internal
  */
-void qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
+void qt_qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
                          const QMetaObject &mo, QList<void*> *list)
 {
     if (!parent || !list)
@@ -1093,7 +1093,7 @@ void qFindChildren_helper(const QObject *parent, const QString &name, const QReg
                     list->append(obj);
             }
         }
-        qFindChildren_helper(obj, name, re, mo, list);
+        qt_qFindChildren_helper(obj, name, re, mo, list);
     }
 }
 
