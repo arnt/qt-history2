@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#5 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -122,6 +122,30 @@ static const char * minimize_xpm[] = {
 "                "};
 
 
+static const char * normalize_xpm[] = {
+/* width height num_colors chars_per_pixel */
+"16 16 3 1",
+/* colors */
+" 	s None	c None",
+".	c white",
+"X	c #707070",
+/* pixels */
+"                ",
+"                ",
+"     ........   ",
+"     .XXXXXXXX  ",
+"     .X     .X  ",
+"     .X     .X  ",
+"  ....X...  .X  ",
+"  .XXXXXXXX .X  ",
+"  .X     .XXXX  ",
+"  .X     .X     ",
+"  .X     .X     ",
+"  .X......X     ",
+"  .XXXXXXXX     ",
+"                ",
+"                ",
+"                "};
 
 
 #define TITLEBAR_HEIGHT 18
@@ -154,10 +178,18 @@ QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent
 	     this, SIGNAL( doMaximize() ) );
     iconB = new QToolButton( this, "iconify" );
     iconB->setFocusPolicy( NoFocus );
-    iconB->setIconSet( QPixmap( minimize_xpm ) );
     iconB->resize(BUTTON_SIZE, BUTTON_SIZE);
-    connect( iconB, SIGNAL( clicked() ),
-	     this, SIGNAL( doMinimize() ) );
+    
+    if ( imode ) {
+	iconB->setIconSet( QPixmap( normalize_xpm ) );
+	connect( iconB, SIGNAL( clicked() ),
+		 this, SIGNAL( doNormal() ) );
+    }
+    else {
+	iconB->setIconSet( QPixmap( minimize_xpm ) );
+	connect( iconB, SIGNAL( clicked() ),
+		 this, SIGNAL( doMinimize() ) );
+    }
 
     titleL = new QLabel( this );
 
@@ -318,7 +350,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const c
 
 
     connect( clientw, SIGNAL( destroyed() ), this, SLOT( clientDestroyed() ) );
-    
+
     clientw->reparent( this, 0, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
 
