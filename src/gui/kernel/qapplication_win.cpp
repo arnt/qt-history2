@@ -498,6 +498,8 @@ static void qt_set_windows_resources()
                                                && isFlat ? COLOR_MENUHILIGHT
                                                          : COLOR_HIGHLIGHT))));
         menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
+        menu.setColor(QPalette::Disabled, QPalette::Button,
+                      menu.color(QPalette::Active, QPalette::Button));
         menu.setColor(QPalette::Inactive, QPalette::Button,
                       menu.color(QPalette::Active, QPalette::Button));
         menu.setColor(QPalette::Inactive, QPalette::Text,
