@@ -89,6 +89,8 @@ public:
 	bool as_file);
     virtual void streamAsFile(QNPStream*, const char* fname);
 
+    void* getJavaPeer() const;
+
 protected:
     QNPInstance();
 
@@ -114,6 +116,9 @@ public:
     virtual const char* getMIMEDescription() const=0;
     virtual const char* getPluginNameString() const=0;
     virtual const char* getPluginDescriptionString() const=0;
+
+    virtual void* getJavaClass() const;
+    void* getJavaEnv() const;
 
 protected:
     QNPlugin();

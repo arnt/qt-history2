@@ -495,7 +495,7 @@ NPP_Initialize(void)
 extern "C" jref
 NPP_GetJavaClass(void)
 {
-    qNP->getJavaClass();
+    return qNP->getJavaClass();
 }
 
 /*
@@ -1560,14 +1560,14 @@ QNPInstance::InstanceMode QNPInstance::mode() const
 
 /*!
   Returns the value of the named arguments, or 0 if no argument
-  with that name appears in the &ltEMBED&gt; tag of this instance.
+  with that name appears in the &lt;EMBED&gt; tag of this instance.
   If the argument appears, but has no value assigned, the empty
   string is returned.  In summary:
 
   <ul>
-   <li> <b>&ltEMBED ...&gt;</b> - arg("FOO") == 0
-   <li> <b>&ltEMBED FOO ...&gt;</b> - arg("FOO") == ""
-   <li> <b>&ltEMBED FOO=BAR ...&gt;</b> - arg("FOO") == "BAR"
+   <li> <b>&lt;EMBED ...&gt;</b> - arg("FOO") == 0
+   <li> <b>&lt;EMBED FOO ...&gt;</b> - arg("FOO") == ""
+   <li> <b>&lt;EMBED FOO=BAR ...&gt;</b> - arg("FOO") == "BAR"
   </ul>
 */
 const char* QNPInstance::arg(const char* name) const
@@ -1634,11 +1634,14 @@ void QNPInstance::status(const char* msg)
   or 0 if the plug-in does not have a Java class, Java is disabled, or
   an error occurred .  
 
-  See also:
-  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavapeer>
-  Netscape: NPN_GetJavaPeer</a>
+  The return value is actually a <tt>jref</tt> we use <tt>void*</tt> so
+  as to avoid burdening plugins which do not require Java.
+
+  \sa QNPlugin::getJavaClass(), QNPlugin::getJavaEnv(), getJavaPeer(),
+      <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavapeer>
+      Netscape: NPN_GetJavaPeer</a>
 */
-jref QNPInstance::getJavaPeer()
+void* QNPInstance::getJavaPeer() const
 {
     return NPN_GetJavaPeer(pi->npp);
 }
@@ -1874,11 +1877,14 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
   Override to return a reference to the Java class that represents
   the plugin.  The default returns 0, indicating no class.
 
-  See also:
-  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#nppgetjavaclass>
-  Netscape: NPP_GetJavaClass</a>
+  The return value is actually a <tt>jref</tt> we use <tt>void*</tt> so
+  as to avoid burdening plugins which do not require Java.
+
+  \sa getJavaEnv(), QNPInstance::getJavaPeer(),
+      <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#nppgetjavaclass>
+      Netscape: NPP_GetJavaClass</a>
 */
-jref QNPlugin::getJavaClass()
+void* QNPlugin::getJavaClass() const
 {
     return NULL;
 }
@@ -1887,11 +1893,14 @@ jref QNPlugin::getJavaClass()
   Returns a pointer to the Java execution environment, or 0 if
   Java is disabled or an error occurred.
 
-  See also:
-  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavaenv>
-  Netscape: NPN_GetJavaEnv</a>
+  The return value is actually a <tt>JRIEnv*</tt> we use <tt>void*</tt> so
+  as to avoid burdening plugins which do not require Java.
+
+  \sa getJavaClass(), QNPInstance::getJavaPeer(),
+      <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#npngetjavaenv>
+      Netscape: NPN_GetJavaEnv</a>
 */
-JRIEnv* QNPlugin::getJavaEnv()
+void* QNPlugin::getJavaEnv() const
 {
     return NPN_GetJavaEnv();
 }

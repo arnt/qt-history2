@@ -20,8 +20,8 @@ RANLIB	=	ranlib
 ####### Files
 
 HEADERS =	qnp.h
-SOURCES =	qnpbind.cpp
-OBJECTS =	qnpbind.o
+SOURCES =	qnp.cpp
+OBJECTS =	qnp.o
 SRCMOC	=	moc_qnp.cpp
 OBJMOC	=	moc_qnp.o
 TARGET	=	libqnp.so.0.1
@@ -82,7 +82,7 @@ clean:
 
 ####### Compile
 
-qnpbind.o: qnpbind.cpp
+qnp.o: qnp.cpp
 
 moc_qnp.o: moc_qnp.cpp \
 		qnp.h
