@@ -75,6 +75,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
+    QVariant dynamicCall( const QCString&, QValueList<QVariant> &vars );
     QAxObject *querySubObject( const QCString &name, const QVariant &v1 = QVariant(),
 					    const QVariant &v2 = QVariant(),
 					    const QVariant &v3 = QVariant(),

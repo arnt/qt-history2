@@ -246,7 +246,7 @@ public:
 	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
 	    int p;
 	    for ( p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
-		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p );
 
 	    // emit the generated signal
 	    bool ret = combase->qt_emit( index, objects );
@@ -292,9 +292,8 @@ public:
 		}
 	    }
 	    // cleanup
-	    for ( p = 0; p < pcount; ++p ) {
+	    for ( p = 0; p < pcount; ++p )
 		objects[p].type->clear(objects+p);
-	    }
 	    delete [] objects;
 	    return ret ? S_OK : DISP_E_MEMBERNOTFOUND;
 	} else {
@@ -1466,20 +1465,30 @@ QMetaObject *QAxBase::metaObject() const
 		    if ( funcdesc->invkind == INVOKE_FUNC || paramTypes.count() )
 			offset = 1;
 
-		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - offset ].tdesc;
-		    QString ptype = guessTypes( tdesc, info, enumDict, function );
+		    TYPEDESC tdesc = funcdesc->lprgelemdescParam[ p - offset ].tdesc;
+		    PARAMDESC pdesc = funcdesc->lprgelemdescParam[ p - offset ].paramdesc;
 
-		    prototype += constRefify( ptype );
-		    if ( optional )
-			ptype += "=0";
-		    paramTypes << ptype;
-		    parameters << paramName;
+		    QString ptype = guessTypes( tdesc, info, enumDict, function );
+		    if ( pdesc.wParamFlags & PARAMFLAG_FRETVAL ) {
+			returnType = ptype;
+			paramTypes[0] = returnType;
+		    } else {
+			prototype += constRefify( ptype );
+			if ( optional )
+			    ptype += "=0";
+			paramTypes << ptype;
+			parameters << paramName;
+		    }
 		    if ( p < funcdesc->cParams )
 			prototype += ",";
 		}
 
-		if ( !!prototype )
-		    prototype += ")";
+		if ( !!prototype ) {
+		    if ( prototype.right(1) == "," )
+			prototype[(int)prototype.length()-1] = ')';
+		    else
+			prototype += ")";
+		}
 
 		QMetaProperty *prop = 0;
 
@@ -2136,7 +2145,7 @@ QString QAxBase::generateDocumentation()
 		stream << "void";
 	    } else {
 		const QUParameter *param = method->parameters;
-		bool returnType = ( param->inOut & QUParameter::Out ) && !qstrcmp( param->name, "return" );
+		bool returnType = param->inOut == QUParameter::Out;
 		if ( !returnType )
 		    stream << "void";
 		else if ( QUType::isEqual( &static_QUType_ptr, param->type ) )
@@ -2317,7 +2326,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     // setup the parameters
     VARIANT ret; // Invoke initializes it
     VARIANT *pret = 0;
-    if ( slot->parameters && ( slot->parameters[0].inOut & QUParameter::Out ) ) // slot has return value
+    if ( slot->parameters && ( slot->parameters[0].inOut == QUParameter::Out ) ) // slot has return value
 	pret = &ret;
     int slotcount = slot->count - ( pret ? 1 : 0 );
 
@@ -2346,14 +2355,14 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
 
     // get return value
     if ( pret )
-	VARIANTToQUObject( ret, _o );
+	VARIANTToQUObject( ret, _o, slot->parameters );
 
     // update out parameters
     for ( p = 0; p < slotcount; ++p ) {
-	if ( slot->parameters && slot->parameters[p+1].inOut & QUParameter::Out ) {
+	if ( slot->parameters && slot->parameters[p + (pret ? 1 : 0)].inOut & QUParameter::Out ) {
 	    QUObject *obj = _o + p+1;
 	    arg = params.rgvarg[ slotcount - p-1 ];
-	    VARIANTToQUObject( arg, obj );
+	    VARIANTToQUObject( arg, obj, slot->parameters + p + (pret ? 1 : 0) );
 	}
     }
 
@@ -2524,7 +2533,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     while ( vars[varc].isValid() )
 	varc++;
 
-    QCString function = name;
+    QString function = name;
     VARIANT *arg = varc ? new VARIANT[varc] : 0;
     VARIANTARG *res = (VARIANTARG*)inout;
     unsigned short disptype;
@@ -2535,9 +2544,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	if ( id >= 0 ) {
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
 	    function = slot->method->name;
-	    int retoff = ( slot->method->count && slot->method->parameters->inOut & QUParameter::Out ) ? 1 : 0;
-	    for ( int i = 0; i < varc; ++i )
-		arg[varc-i-1] = QVariantToVARIANT( vars[i], slot->method->parameters + i + retoff );
+	    int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
+	    for ( int i = 0; i < varc; ++i ) {
+		const QUParameter *param = slot->method->parameters + i + retoff;
+		arg[varc-i-1] = QVariantToVARIANT( vars[i], param );
+	    }
 	    disptype = DISPATCH_METHOD;
 	} else {
 #ifdef QT_CHECK_STATE
@@ -2554,7 +2565,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 		varc = 1;
 		const QMetaProperty *prop = metaObject()->property( id, TRUE );
 		arg[0] = QVariantToVARIANT( vars[0], prop ? prop->type() : 0 );
-		res = 0;		
+		res = 0;
 		disptype = DISPATCH_PROPERTYPUT;
 	    } else {
 		disptype = DISPATCH_PROPERTYGET;
@@ -2570,11 +2581,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     }
 
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
+    OLECHAR *names = (TCHAR*)function.ucs2();
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN && function.lower().left(3) == "set" ) {
 	function = function.mid( 3 );
-	OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
+	OLECHAR *names = (TCHAR*)function.ucs2();
 	disptype = DISPATCH_PROPERTYPUT;
 	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     }
@@ -2601,6 +2612,15 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     if ( hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD )
 	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, 0 );
 
+    if ( disptype == DISPATCH_METHOD && id >= 0 ) {
+	const QMetaData *slot = metaObject()->slot( id, TRUE );
+	function = slot->method->name;
+	int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
+	for ( int i = 0; i < varc; ++i )
+	    vars[i] = VARIANTToQVariant( arg[varc-i-1] );
+	disptype = DISPATCH_METHOD;
+    }
+
     // clean up
     for ( int i = 0; i < varc; ++i )
 	VariantClear( params.rgvarg+i );
@@ -2611,10 +2631,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 
 
 /*!
-    Calls the COM object's function \a function, passing the
+    Calls the COM object's method \a function, passing the
     parameters \a var1, \a var1, \a var2, \a var3, \a var4, \a var5,
-    \a var6, \a var7 and \a var8, and returns the value, or an
-    invalid QVariant if the function does not return a value.
+    \a var6, \a var7 and \a var8, and returns the value returned by
+    the method, or an invalid QVariant if the method does not return
+    a value or when the function call failed.
 
     \a function must be provided as the full prototype, for example as
     it would be written in a QObject::connect() call.
@@ -2661,7 +2682,7 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     VARIANTARG res;
 
     int varc = 0;
-    QVariant vars[9];
+    QVariant vars[9]; // 8 + terminating invalid
     vars[varc++] = var1;
     vars[varc++] = var2;
     vars[varc++] = var3;
@@ -2674,6 +2695,42 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
     if ( !internalInvoke( function, &res, vars ) )
 	return QVariant();
+
+    QVariant qvar = VARIANTToQVariant( res );
+    VariantClear( &res );
+
+    return qvar;
+}
+
+/*!
+    \overload
+
+    Calls the COM object's method \a function, passing the
+    parameters in \a vars, and returns the value returned by
+    the method, or an invalid QVariant if the method does not return
+    a value or when the function call failed.
+
+    The QVariant objects in \a vars are updated when the method has
+    out-parameters.
+*/
+QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &vars )
+{
+    VARIANTARG res;
+    res.vt = VT_EMPTY;
+
+    const int count = vars.count();
+    QVariant *vararray = new QVariant[ count + 1 ];
+    int i = 0;
+    for ( QValueList<QVariant>::Iterator it = vars.begin(); it != vars.end(); ++it )
+	vararray[i++] = *it;
+
+    bool ok = internalInvoke( function, &res, vararray );
+    if ( ok ) {
+	vars.clear();
+	for ( i = 0; i < count; ++i )
+	    vars << vararray[i];
+    }
+    delete[] vararray;
 
     QVariant qvar = VARIANTToQVariant( res );
     VariantClear( &res );
