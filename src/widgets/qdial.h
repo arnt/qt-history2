@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#10 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#11 $
 **
 ** Definition of the dial widget
 **
@@ -57,6 +57,9 @@ public:
     virtual void setNotchTarget( double );
     double notchTarget() const;
 
+    void setShowNotches( bool b );
+    bool showNotches();
+    
 public slots:
     virtual void setValue( int );
     void addLine();
@@ -87,7 +90,7 @@ protected:
 
     void repaintScreen();
     void paint( QPainter &p );
-    
+
 protected slots:
     void blink();
 

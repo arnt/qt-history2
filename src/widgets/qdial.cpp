@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#22 $
 **
 ** Implementation of something useful.
 **
@@ -56,7 +56,10 @@ public:
     double target;
     QTimer *blinkTimer;
     QColor color;
-
+    QRegion eraseArea;
+    bool eraseAreaValid;
+    bool showNotches;
+    
     QPointArray lines;
 };
 
@@ -123,6 +126,8 @@ QDial::QDial( QWidget *parent, const char *name )
     connect( d->blinkTimer, SIGNAL( timeout() ),
 	     this, SLOT( blink() ) );
     d->color = colorGroup().foreground();
+    d->eraseAreaValid = FALSE;
+    d->showNotches = FALSE;
     setFocusPolicy( QWidget::TabFocus );
 }
 
@@ -147,6 +152,8 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     connect( d->blinkTimer, SIGNAL( timeout() ),
 	     this, SLOT( blink() ) );
     d->color = colorGroup().foreground();
+    d->eraseAreaValid = FALSE;
+    d->showNotches = FALSE;
     setFocusPolicy( QWidget::TabFocus );
 }
 
@@ -290,7 +297,22 @@ void QDial::paint( QPainter &p )
 	}
     }
 
-    p.drawLineSegments( d->lines );
+    if ( d->showNotches )
+	p.drawLineSegments( d->lines );
+
+    int d_ = r / 6;
+    int dx = d_ + ( width() - 2 * r ) / 2;
+    int dy = d_ + ( height() - 2 * r ) / 2;
+    QRect br( dx, dy, r * 2 - 2 * d_ - 2, r * 2 - 2 * d_ - 2 );
+
+    p.setPen( NoPen );
+    p.setBrush( QBrush( colorGroup().light(), Dense4Pattern ) );
+    p.drawEllipse( br );
+    
+    p.setPen( QPen( colorGroup().dark() ) );
+    p.drawArc( br, 60 * 16, 180 * 16 );
+    p.setPen( QPen( colorGroup().light() ) );
+    p.drawArc( br, 240 * 16, 180 * 16 );
 
     double a;
     if ( maxValue() == minValue() )
@@ -312,6 +334,10 @@ void QDial::paint( QPainter &p )
 		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
     arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
 		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
+    
+    d->eraseArea = arrow.boundingRect();
+    d->eraseAreaValid = TRUE;
+    
     if ( isEnabled() ) {
 	p.setPen( d->color );
 	p.setBrush( d->color );
@@ -719,18 +745,35 @@ void QDial::subtractPage()
 /*!
   Repaints the dial flickerfree.
 */
-  
+
 void QDial::repaintScreen()
 {
     int rad = QMIN( width(), height() ) / 2;
-    int d = rad / 6;
-    int dx = d + ( width() - 2 * rad ) / 2;
-    int dy = d + ( height() - 2 * rad ) / 2;
-    QRegion r( dx, dy, rad * 2 - 2 * d, rad * 2 - 2 * d, QRegion::Ellipse );
+    int d_ = rad / 6;
+    int dx = d_ + ( width() - 2 * rad ) / 2;
+    int dy = d_ + ( height() - 2 * rad ) / 2;
+    QRegion r( dx, dy, rad * 2 - 2 * d_, rad * 2 - 2 * d_, QRegion::Ellipse );
     QPainter p;
     p.begin( this );
     p.setClipRegion( r );
-    p.fillRect( QRect( dx, dy, rad * 2 - 2 * d, rad * 2 - 2 * d ), colorGroup().background() );
+    p.save();
+    if ( d->eraseAreaValid ) {
+	r = r.intersect( d->eraseArea );
+	p.setClipRegion( r );
+    }
+    p.fillRect( QRect( dx, dy, rad * 2 - 2 * d_, rad * 2 - 2 * d_ ), colorGroup().background() );
+    p.restore();
     paint( p );
     p.end();
+}
+
+void QDial::setShowNotches( bool b )
+{
+    d->showNotches = b;
+    repaint( FALSE );
+}
+
+bool QDial::showNotches()
+{
+    return d->showNotches;
 }
