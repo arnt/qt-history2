@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#35 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -1802,9 +1802,9 @@ void QTextEdit::formatMore()
 	    lastBottom = -1;
     }
 
-    if ( bottom > contentsHeight() && !cursor->document()->parent() )
+    if ( bottom > contentsHeight() )
 	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
-    else if ( lastBottom != -1 && lastBottom < contentsHeight() && !cursor->document()->parent() )
+    else if ( lastBottom != -1 && lastBottom < contentsHeight() )
 	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
 
     if ( lastFormatted )
