@@ -382,7 +382,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     setWState( WState_Created );		// accept move/resize events
     hdc = 0;					// no display context
-    
+
     if ( window ) {				// got window from outside
 	if ( IsWindowVisible(window) )
 	    setWState( WState_Visible );
@@ -1029,7 +1029,7 @@ void QWidget::repaint(const QRegion& rgn)
 }
 
 
-void QWidget::setWindowState_helper(uint newstate)
+void QWidget::setWindowState(uint newstate)
 {
     uint oldstate = windowState();
 

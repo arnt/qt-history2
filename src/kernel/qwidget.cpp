@@ -1456,9 +1456,7 @@ QStyle* QWidget::setStyle( const QString &style )
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
 bool QWidget::isMinimized() const
-{
-    return testWState(WState_Minimized);
-}
+{ return testWState(WState_Minimized); }
 
 /*!
     Shows the widget minimized, as an icon.
@@ -1471,7 +1469,7 @@ bool QWidget::isMinimized() const
 */
 void QWidget::showMinimized()
 {
-    setWindowState(windowState() | WindowMinimized);
+    setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
 }
 
@@ -1490,9 +1488,7 @@ void QWidget::showMinimized()
     \sa windowState(), showMaximized(), visible, show(), hide(), showNormal(), minimized
 */
 bool QWidget::isMaximized() const
-{
-    return testWState(WState_Maximized);
-}
+{ return testWState(WState_Maximized); }
 
 
 
@@ -1517,6 +1513,8 @@ uint QWidget::windowState() const
 }
 
 /*!
+  \fn void QWidget::setWindowState(uint windowState)
+
   Sets the window state to \a windowState. The window state is a OR'ed
   combination of Qt::WindowState: \c WindowMinimized, \c
   WindowMaximized, \c WindowFullScreen and \c WindowActive.
@@ -1542,14 +1540,6 @@ uint QWidget::windowState() const
 
   \sa Qt::WindowState windowState()
 */
-void QWidget::setWindowState(uint windowState)
-{
-    if(windowState & WindowMaximized)
-	windowState = windowState & ~WindowMinimized;
-    if(windowState & WindowMinimized)
-	windowState = windowState & ~WindowActive;
-    setWindowState_helper(windowState);
-}
 
 /*!
     \property QWidget::fullScreen
@@ -1558,9 +1548,7 @@ void QWidget::setWindowState(uint windowState)
     \sa windowState(), minimized, maximized
 */
 bool QWidget::isFullScreen() const
-{
-    return testWState(WState_FullScreen);
-}
+{ return testWState(WState_FullScreen); }
 
 /*!
     Shows the widget in full-screen mode.
@@ -1612,7 +1600,7 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    setWindowState(windowState() | WindowMaximized);
+    setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
 }
 
@@ -4524,8 +4512,8 @@ bool QWidget::event( QEvent *e )
 		type = QEvent::ShowMaximized;
 	    else
 		type = QEvent::ShowNormal;
-	    QEvent wse(type);
-	    QApplication::sendEvent(this, &wse);
+	    QEvent e(type);
+	    QApplication::sendEvent(this, &e);
 	    break;
 	}
 

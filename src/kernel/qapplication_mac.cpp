@@ -1328,6 +1328,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    return FALSE;
     }
 
+    bool window_state_change = FALSE;
     switch(windowPart) {
     case inStructure:
     case inDesk:
@@ -1408,16 +1409,20 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	break;
     }
     case inCollapseBox: {
-	widget->setWindowState(widget->windowState() | WindowMinimized);
+	window_state_change = TRUE;
+	widget->setWState(WState_Minimized);
 	//we send a hide to be like X11/Windows
 	QEvent e(QEvent::Hide);
 	QApplication::sendSpontaneousEvent(widget, &e);
 	break; }
     case inZoomIn:
-	widget->setWindowState(WindowNoState);
+	window_state_change = TRUE;
+	widget->clearWState(WState_Minimized);
+	widget->clearWState(WState_Maximized);
 	break;
     case inZoomOut:
-	widget->setWindowState(widget->windowState() | WindowMaximized);
+	window_state_change = TRUE;
+	widget->setWState(WState_Maximized);
 	break;
     case inProxyIcon: {
 	QEvent e(QEvent::IconDrag);
@@ -1427,6 +1432,12 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
 	break;
     }
+
+    if (window_state_change) {
+	QEvent e(QEvent::WindowStateChange);
+	sendSpontaneousEvent(widget, &e);
+    }
+
     return FALSE;
 }
 

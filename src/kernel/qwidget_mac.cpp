@@ -1549,7 +1549,7 @@ void QWidget::hideWindow()
     qt_event_cleanup_for_widget(this);
 }
 
-void QWidget::setWindowState_helper(uint newstate)
+void QWidget::setWindowState(uint newstate)
 {
     uint oldstate = windowState();
 

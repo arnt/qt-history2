@@ -773,7 +773,7 @@ void QWidget::hideWindow()
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 }
 
-void QWidget::setWindowState_helper(uint newstate)
+void QWidget::setWindowState(uint newstate)
 {
     uint oldstate = windowState();
 

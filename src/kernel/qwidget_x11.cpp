@@ -1627,7 +1627,7 @@ void QWidget::repaint(const QRegion& rgn)
 	d->updatePropagatedBackground(&rgn);
 }
 
-void QWidget::setWindowState_helper(uint newstate)
+void QWidget::setWindowState(uint newstate)
 {
     bool needShow = FALSE;
     uint oldstate = windowState();
@@ -1725,6 +1725,7 @@ void QWidget::setWindowState_helper(uint newstate)
     if (newstate & WindowActive)
 	setActiveWindow();
 
+    qDebug("%s/%s: sending WindowStateChange", name(), className());
     QEvent e(QEvent::WindowStateChange);
     QApplication::sendEvent(this, &e);
 }

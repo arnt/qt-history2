@@ -563,7 +563,6 @@ private:
     void         setParent_helper( QObject *parent );
     void	 reparent_helper( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 deactivateWidgetCleanup();
-    void         setWindowState_helper(uint windowState);
     void         setGeometry_helper(int, int, int, int, bool);
     void         show_helper();
     void         hide_helper();
