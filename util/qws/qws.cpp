@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#10 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#11 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -121,14 +121,14 @@ void QWSServer::newConnection( int socket )
 void QWSServer::doClient()
 {
     QWSClient* client = (QWSClient*)sender();
-    
+
     // read next command
     if ( command_type == -1 ) {
 	command = 0;
 	command_type = qws_read_uint( client );
     }
-    
-    if ( !command ) {     
+
+    if ( !command ) {
 	switch ( command_type ) {
 	case QWSCommand::Create:
 	    command = new QWSCreateCommand;
@@ -146,7 +146,7 @@ void QWSServer::doClient()
 	    qDebug( "QWSServer::doClient() : Protocol error!" );
 	}
     }
-    
+
     if ( command ) {
 	if ( command->read( client ) ) {
 
@@ -164,7 +164,7 @@ void QWSServer::doClient()
 		invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
 		break;
 	    }
-	    
+	
 	    command_type = -1;
 	    delete command;
 	    command = 0;
@@ -196,7 +196,7 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.winId, 
+    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.winId,
 	    cmd->simpleData.property );
     if ( properties()->addProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
  	qDebug( "add property successful" );
@@ -206,14 +206,14 @@ void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
 
 void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeSetProperty %d %d %d %s", 
+    qDebug( "QWSServer::invokeSetProperty %d %d %d %s",
 	    cmd->simpleData.winId, cmd->simpleData.property,
 	    cmd->simpleData.mode, cmd->rawData );
     QCString ba( cmd->rawLen );
     ba = cmd->rawData;
-    if ( properties()->setProperty( cmd->simpleData.winId, 
-				    cmd->simpleData.property, 
-				    cmd->simpleData.mode, 
+    if ( properties()->setProperty( cmd->simpleData.winId,
+				    cmd->simpleData.property,
+				    cmd->simpleData.mode,
 				    ba ) )
  	qDebug( "set property successful" );
     else
@@ -222,12 +222,12 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 {
-    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.winId, 
+    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.winId,
 	    cmd->simpleData.property );
     if ( properties()->removeProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
- 	qDebug( "add property successful" );
+ 	qDebug( "remove property successful" );
     else
- 	qDebug( "adding property failed" );
+ 	qDebug( "removing property failed" );
 }
 
 class Main : public QWidget {
