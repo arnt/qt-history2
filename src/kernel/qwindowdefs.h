@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#52 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#53 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -156,13 +156,6 @@ char *qAppName();				// get application name
 
 void  qAddPreRoutine( void (*)() );
 void  qAddPostRoutine( void (*)() );
-
-class QAddPreRoutine {				// class for registering pre-
-public:						//    routines
-    typedef void (*vf)();
-    QAddPreRoutine( void (*p)( int, char ** ) ) { qAddPreRoutine((vf)p); }
-    QAddPreRoutine( void (*p)() )		{ qAddPreRoutine(p); }
-};
 
 
 // GUI styles
