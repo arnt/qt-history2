@@ -170,6 +170,9 @@ QStringList QStyleFactory::styles()
     QStringList list;
 #endif //QT_NO_COMPONENT
 
+#ifndef QT_NO_STYLE_WINDOWSXP
+    list << "Windows XP";
+#endif
 #ifndef QT_NO_STYLE_WINDOWS
     list << "Windows";
 #endif
