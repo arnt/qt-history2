@@ -753,16 +753,13 @@ int main(int argc, char **argv)
     enum State {
         Default = 0,
         Output,
-        NameSpace,
-        ClassName
+        NameSpace
     } state;
     state = Default;
     
     QByteArray outname;
-    QByteArray object;
-    
+    QByteArray typeLib;
     QByteArray nameSpace;
-    QByteArray className;
     
     for (int a = 1; a < argc; ++a) {
         QByteArray arg(argv[a]);
@@ -772,9 +769,8 @@ int main(int argc, char **argv)
             if (first == '-' || first == '/') {
                 arg = arg.mid(1);
                 arg.toLower();
-                if (arg == "c") {
-                    state = ClassName;
-                } else if (arg == "o") {
+
+                if (arg == "o") {
                     state = Output;
                 } else if (arg == "n") {
                     state = NameSpace;
@@ -792,37 +788,27 @@ int main(int argc, char **argv)
                     break;
                 } else if (arg == "h") {
                     qWarning("dumpcpp Version1.0\n\n"
+                        "Generate a C++ namespace from a type library.\n\n"
                         "Usage:\n"
-                        "dumpcpp input [-c <classname>] [-n <namespace>] [-o <filename>]\n\n"
-                        "   input:     A ProgID, CLSID, type library file or type library ID\n"
-                        "   classname: The name of the generated C++ class (ignored for typelibs)\n"
+                        "dumpcpp input [-[-n <namespace>] [-o <filename>]\n\n"
+                        "   input:     A type library file, type library ID, ProgID or CLSID\n\n"
+                        "Optional parameters:\n"
                         "   namespace: The name of the generated C++ namespace\n"
                         "   filename:  The file name (without extension) of the generated files\n"
                         "\n"
-                        "classname, namespace and filename will be generated if not provided.\n\n"
                         "Other parameters:\n"
                         "   -nometaobject Don't generate meta object information (no .cpp file)\n"
                         "   -impl Only generate the .cpp file\n"
                         "   -decl Only generate the .h file\n"
                         "\n"
                         "Examples:\n"
-                        "   dumpcpp Outlook.Application -n Outlook -c Application -o outlook.application\n"
-                        "\n"
-                        "   Generate a file outlook.h declaring a C++ namespace 'Outlook', a file\n"
-                        "   outlook.application.h declaring a C++ class 'Application' in the namespace\n"
-                        "   'Outlook' as well as a file outlook.application.cpp with the meta object\n"
-                        "   data for the class 'Application'.\n"
-                        "\n"
+                        "   dumpcpp Outlook.Application -o outlook\n"
                         "   dumpcpp {3B756301-0075-4E40-8BE8-5A81DE2426B7}\n"
-                        "\n"
-                        "   Generate a file wrapperaxlib.h declaring the namespace 'wrapperaxLib' and\n"
-                        "   one C++ class for each coclass and dispinterface in the type library, as\n"
-                        "   well as a file wrapperaxlib.cpp with the meta object data."
                         "\n");
                     return 0;
                 }
             } else {
-                object = arg;
+                typeLib = arg;
             }
             break;
 
@@ -836,11 +822,6 @@ int main(int argc, char **argv)
             state = Default;
             break;
 
-        case ClassName:
-            className = arg;
-            state = Default;
-            break;
-            
         default:
             break;
         }
@@ -849,69 +830,69 @@ int main(int argc, char **argv)
     if (category == DoNothing)
         return 0;
     
-    if (object.isEmpty()) {
-        qWarning("dumpcpp: No object or type library name provided.\n"
+    if (typeLib.isEmpty()) {
+        qWarning("dumpcpp: No object class or type library name provided.\n"
             "         Use -h for help.");
         return -1;
     }
 
-    // interpret input as type library ID
-    if (!QFile::exists(object) && object.at(0) == '{' && object.at(object.length()-1) == '}') {
-        QSettings settings;
-        QString key = QString("/Classes/TypeLib/%1").arg(QLatin1String(object));
-        QStringList versions = settings.subkeyList(key);
+    // not a file - search registry
+    if (!QFile::exists(typeLib)) {
+        bool isObject = false;
+        QCoreSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", Qt::NativeFormat);
+
+        // regular string and not a file - must be ProgID
+        if (typeLib.at(0) != '{') {
+            CLSID clsid;
+            if (CLSIDFromProgID(QString(QLatin1String(typeLib)).utf16(), &clsid) != S_OK) {
+                qWarning("dumpcpp: '%s' is not a type library and not a registered ProgID", typeLib);
+                return -2;
+            }
+            QUuid uuid(clsid);
+            typeLib = uuid.toString().latin1();
+            isObject = true;
+        }
+
+        // check if CLSID
+        if (!isObject) {
+            QVariant test = settings.value("/CLSID/" + typeLib + "/.");
+            isObject = test.isValid();
+        }
+
+        // search typelib ID for CLSID
+        if (isObject)
+            typeLib = settings.value("/CLSID/" + typeLib + "/Typelib/.").toByteArray();
+
+        // interpret input as type library ID
+        QString key = QString("/TypeLib/") + QLatin1String(typeLib);
+        settings.beginGroup(key);
+        QStringList versions = settings.childGroups();
         QStringList codes;
         if (versions.count()) {
+            settings.beginGroup("/" + versions.last());
+            codes = settings.childGroups();
             key += "/" + versions.last();
-            codes = settings.subkeyList(key);
+            settings.endGroup();
         }
+        settings.endGroup();
+
         for (int c = 0; c < codes.count(); ++c) {
-            object = settings.readEntry(key + "/" + codes.at(c) + "/win32/.");
-            if (QFile::exists(object))
+            typeLib = settings.value(key + "/" + codes.at(c) + "/win32/.").toByteArray();
+            if (QFile::exists(typeLib)) {
                 break;
+            }
         }
     }
 
-    // interpret input as type library file
-    if (QFile::exists(object) && generateTypeLibrary(object, outname, (ObjectCategory)category))
-        return 0;
-
-    
-    QAxObject axobject(object);
-    if (object.isNull()) {
-        qWarning("dumpcpp: Could not instantiate COM object '%s'", object.data());
+    if (!QFile::exists(typeLib)) {
+        qWarning("dumpcpp: type library '%s' not found", typeLib);
         return -2;
     }
 
-    if (className.isEmpty()) {
-        if (!object.contains('{') && !object.contains(' ')) {
-            int classNameIndex = 0;
-            if (object.contains('.')) {
-                nameSpace = object.left(object.indexOf('.'));
-                classNameIndex = object.indexOf('.') + 1;
-            }
-            if (object.contains('/'))
-                classNameIndex = object.lastIndexOf('/') + 1;
-            className = object.mid(classNameIndex);
-        } else {
-            BSTR progid;
-            IOleObject *oleObject = 0;
-            axobject.queryInterface(IID_IOleObject, (void**)&oleObject);
-            if (oleObject) {
-                oleObject->GetUserType(USERCLASSTYPE_FULL, &progid);
-                className = BSTRToQString(progid).latin1();
-                oleObject->Release();
-            }
-        }
+    if (!generateTypeLibrary(typeLib, outname, (ObjectCategory)category)) {
+        qWarning("dumpcpp: error processing type library '%s'", typeLib);
+        return -1;
     }
-    
-    if (className.isEmpty())
-        className = "Class1";
 
-    if (outname.isEmpty()) {
-        if (!nameSpace.isEmpty())
-            outname = nameSpace.toLower() + ".";
-        outname += className.toLower();
-    }
-    return generateClass(&axobject, className, nameSpace, outname, (ObjectCategory)category) ? 0 : -4;
+    return 0;
 }
