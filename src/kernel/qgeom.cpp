@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#22 $
 **
 **  Geometry Management
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#22 $");
 
 
 
@@ -688,7 +688,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 
     if ( a & (AlignHCenter|AlignLeft) )
 	basicManager()->addSpacing( c, 0 );
-    basicManager()->addWidget( c, w );
+    basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
     if ( a & (AlignHCenter|AlignRight) )
 	basicManager()->addSpacing( c, 0 );
 
@@ -706,7 +706,7 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 
     if ( a & (AlignVCenter|AlignTop) )
 	basicManager()->addSpacing( c, 0 );
-    basicManager()->addWidget( c, w );
+    basicManager()->addWidget( c, w, 1 ); //stretch ignored in parallel chain
     if ( a & (AlignVCenter|AlignBottom) )
 	basicManager()->addSpacing( c, 0 );
 }
