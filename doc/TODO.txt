@@ -127,6 +127,9 @@ QFileDialog
 QDir
   Static function that will return the application directory
 
+QTable
+  Be able to set the whole table to be editable or not as well as the individual cells
+
 Feature Requests
 ----------------
 
