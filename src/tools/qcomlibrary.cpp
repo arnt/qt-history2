@@ -41,6 +41,7 @@
 #include <qfileinfo.h>
 #include <qdatetime.h>
 #include <qcleanuphandler.h>
+#include <errno.h>
 
 #ifdef QT_THREAD_SUPPORT
 #  include "qmutexpool_p.h"
@@ -318,7 +319,8 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 {
     QFile file( library );
     if (! file.open( IO_ReadOnly ) ) {
-	perror( (const char*) QFile::encodeName(library) ); // ### remove debuggery!
+	qWarning( "%s: %s", (const char*) QFile::encodeName(library),
+	    strerror( errno ) );
 	return FALSE;
     }
 
@@ -336,7 +338,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 	fdlen = maplen;
     } else {
 	// mmap failed
-	perror( "mmap" ); // ### remove debuggery!
+	qWarning( "mmap: %s", strerror( errno ) );
 #endif // USE_MMAP
 	// try reading the data into memory instead
 	data = file.readAll();
@@ -358,7 +360,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 
 #ifdef USE_MMAP
     if ( mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0 ) {
-	perror( "munmap" ); // ### remove debuggery!
+	qWarning( "munmap: %s", strerror( errno ) );
     }
 #endif // USE_MMAP
 
