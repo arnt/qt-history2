@@ -285,10 +285,13 @@ while [ -n "$1" ]; do
     CURRENT_OPT="$1"
     case $1 in
     #Autoconf style options
-    --enable-*|--disable-*)
-	VAR=`echo $1 | sed "s,^--.*-\(.*\),\1,"`
+    --enable-*)
+	VAR=`echo $1 | sed "s,^--enable-\(.*\),\1,"`
 	VAL=yes
-	[ `echo $1 | sed "s,^--\(.*\)-.*,\1,"` = "disable" ] && VAL=no
+	;;
+    --disable-*)
+	VAR=`echo $1 | sed "s,^--disable-\(.*\),\1,"`
+	VAL=no
 	;;
     --*=*)
 	VAR=`echo $1 | sed "s,^--\(.*\)=.*,\1,"`
@@ -2159,7 +2162,7 @@ elif [ "$CFG_ZLIB" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
-[ "$CFG_NAS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
+[ "$CFG_NAS" = "system" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
 [ "$CFG_REMOTE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG remote"
