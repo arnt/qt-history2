@@ -248,6 +248,7 @@ bool QWaitCondition::wait(unsigned long time)
 #endif
 
     pthread_mutex_unlock( &mutex );
+    pthread_mutex_destroy( &mutex );
 
     return (ret == 0);
 }
