@@ -39,6 +39,7 @@
 #ifndef QT_NO_SQL
 
 #include "qapplication.h"
+#include "qwidget.h"
 #include "qsqlcursor.h"
 #include "qsqlform.h"
 #include "qsqldriver.h"
@@ -819,5 +820,91 @@ bool QDataManager::confirmCancels() const
 {
     return d->confCancs;
 }
+
+/*!  \internal
+
+  Virtual function which returns a confirmation for an edit of mode \a
+  m.  Derived classes can reimplement this function and provide their
+  own confirmation dialog.  The default implementation uses a message
+  box which prompts the user to confirm the edit action.  The dialog
+  is centered over \a parent.
+
+*/
+
+QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
+{
+    QString cap;
+    switch ( m ) {
+    case QSql::None:
+	return QSql::Cancel;
+    case QSql::Insert:
+	cap = "Insert";
+	break;
+    case QSql::Update:
+	cap = "Update";
+	break;
+    case QSql::Delete:
+	cap = "Delete";
+	break;
+    }
+    int ans = 1;
+    if ( m == QSql::Delete )
+	ans = QMessageBox::information ( parent, qApp->tr( cap ),
+					 qApp->tr("Delete this record?"),
+					 qApp->tr( "Yes" ),
+					 qApp->tr( "No" ),
+					 QString::null, 0, 1 );
+    else
+	ans = QMessageBox::information ( parent, qApp->tr( cap ),
+					 qApp->tr( "Save edits?" ),
+					 qApp->tr( "Yes" ),
+					 qApp->tr( "No" ),
+					 qApp->tr( "Cancel" ), 0, 2 );
+    QSql::Confirm conf = QSql::No;
+    switch ( ans ) {
+    case 0:
+	conf = QSql::Yes;
+	break;
+    case 1:
+	conf = QSql::No;
+	break;
+    case -1:
+	conf = QSql::Cancel;
+	break;
+    }
+    return conf;
+}
+
+/*!  \internal
+
+  Virtual function which returns a confirmation for cancelling an edit
+  mode \a m.  Derived classes can reimplement this function and
+  provide their own confirmation dialog.  The default implementation
+  uses a message box which prompts the user to confirm the edit
+  action. The dialog is centered over \a parent.
+
+
+*/
+
+QSql::Confirm  QDataManager::confirmCancel( QWidget* parent, QSql::Op )
+{
+    QSql::Confirm conf = QSql::No;
+    switch ( QMessageBox::information ( parent, qApp->tr( "Confirm" ),
+					qApp->tr( "Cancel your edits?" ),
+					qApp->tr( "Yes" ),
+					qApp->tr( "No" ), QString::null, 0, 1 ) ) {
+    case 0:
+	conf = QSql::Yes;
+	break;
+    case 1:
+	conf = QSql::No;
+	break;
+    case -1:
+	conf = QSql::Cancel;
+	break;
+    }
+    return conf;
+}
+
 
 #endif

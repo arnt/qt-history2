@@ -111,6 +111,8 @@ private:
     QSqlFormManagerPrivate* d;
 };
 
+class QWidget;
+
 class Q_EXPORT QDataManager
 {
 public:
@@ -118,16 +120,19 @@ public:
     virtual ~QDataManager();
 
     virtual void handleError( const QSqlError& error );
-    void setMode( QSql::Op m );
+    virtual void setMode( QSql::Op m );
     QSql::Op mode() const;
-    void setAutoEdit( bool autoEdit );
+    virtual void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
 
-    void setConfirmEdits( bool confirm );
-    void setConfirmInsert( bool confirm );
-    void setConfirmUpdate( bool confirm );
-    void setConfirmDelete( bool confirm );
-    void setConfirmCancels( bool confirm );
+    virtual QSql::Confirm confirmEdit( QWidget* parent, QSql::Op m );
+    virtual QSql::Confirm confirmCancel( QWidget* parent, QSql::Op m );
+
+    virtual void setConfirmEdits( bool confirm );
+    virtual void setConfirmInsert( bool confirm );
+    virtual void setConfirmUpdate( bool confirm );
+    virtual void setConfirmDelete( bool confirm );
+    virtual void setConfirmCancels( bool confirm );
 
     bool confirmEdits() const;
     bool confirmInsert() const;

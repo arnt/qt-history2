@@ -60,6 +60,12 @@ public:
 	AfterLast = -2
     };
 
+    enum Confirm {
+	Cancel = -1,
+	No = 0,
+	Yes = 1
+    };
+
 };
 
 #endif

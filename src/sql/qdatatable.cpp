@@ -523,12 +523,15 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     QWidget *editorWidget = cellWidget( r, c );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
-	int conf = Yes;
+	int conf = QSql::Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape && d->dat.mode() == QSql::Insert ){
-	    if ( confirmCancels() && !d->cancelMode )
+	    if ( confirmCancels() && !d->cancelMode ) {
+		d->cancelMode = TRUE;
 		conf = confirmCancel( QSql::Insert );
-	    if ( conf == Yes ) {
+		d->cancelMode = FALSE;
+	    }
+	    if ( conf == QSql::Yes ) {
 		insertCancelled = TRUE;
 		endInsert();
 	    } else {
@@ -538,9 +541,12 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	if ( ke->key() == Key_Escape && d->dat.mode() == QSql::Update ) {
-	    if ( confirmCancels() && !d->cancelMode )
+	    if ( confirmCancels() && !d->cancelMode ) {
+		d->cancelMode = TRUE;
 		conf = confirmCancel( QSql::Update );
-	    if ( conf == Yes ){
+		d->cancelMode = FALSE;
+	    }
+	    if ( conf == QSql::Yes ){
 		endUpdate();
 	    } else {
 		editorWidget->setActiveWindow();
@@ -857,11 +863,11 @@ void QDataTable::insertCurrent()
 	return;
     }
     int b = 0;
-    int conf = Yes;
+    int conf = QSql::Yes;
     if ( confirmEdits() || confirmInsert() )
 	conf = confirmEdit( QSql::Insert );
     switch ( conf ) {
-    case Yes: {
+    case QSql::Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	emit beforeInsert( d->editBuffer );
 	b = sqlCursor()->insert();
@@ -882,11 +888,11 @@ void QDataTable::insertCurrent()
 	}
 	break;
     }
-    case No:
+    case QSql::No:
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
 	break;
-    case Cancel:
+    case QSql::Cancel:
 	if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
 	    setEditMode( Editing, currentRow(), currentColumn() );
 	break;
@@ -934,11 +940,11 @@ void QDataTable::updateCurrent()
 	return;
     }
     int b = 0;
-    int conf = Yes;
+    int conf = QSql::Yes;
     if ( confirmEdits() || confirmUpdate() )
 	conf = confirmEdit( QSql::Update );
     switch ( conf ) {
-    case Yes: {
+    case QSql::Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	emit beforeUpdate( d->editBuffer );
 	b = sqlCursor()->update();
@@ -958,11 +964,11 @@ void QDataTable::updateCurrent()
 	}
 	break;
     }
-    case No:
+    case QSql::No:
 	endUpdate();
 	setEditMode( NotEditing, -1, -1 );
 	break;
-    case Cancel:
+    case QSql::Cancel:
 	setCurrentCell( d->editRow, d->editCol );
 	if ( QTable::beginEdit( d->editRow, d->editCol, FALSE ) )
 	    setEditMode( Editing, d->editRow, d->editCol );
@@ -998,17 +1004,17 @@ void QDataTable::deleteCurrent()
 	return;
 
     int b = 0;
-    int conf = Yes;
+    int conf = QSql::Yes;
     if ( confirmEdits() || confirmDelete() )
 	conf = confirmEdit( QSql::Delete );
 
     // Have to have this here - the confirmEdit() might pop up a
-    // dialog that causes a repaint -> moves the cursor to the
-    // record it have to repaint..
+    // dialog that causes a repaint which the cursor to the
+    // record it has to repaint.
     if ( !sqlCursor()->seek( currentRow() ) )
 	return;
     switch ( conf ) {
-	case Yes:{
+	case QSql::Yes:{
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	sqlCursor()->primeDelete();
 	emit primeDelete( sqlCursor()->editBuffer() );
@@ -1023,7 +1029,7 @@ void QDataTable::deleteCurrent()
 	updateRow( currentRow() );
 	}
 	break;
-    case No:
+    case QSql::No:
 	setEditMode( NotEditing, -1, -1 );
 	break;
     }
@@ -1038,36 +1044,9 @@ void QDataTable::deleteCurrent()
 
 */
 
-QDataTable::Confirm QDataTable::confirmEdit( QSql::Op m )
+QSql::Confirm QDataTable::confirmEdit( QSql::Op m )
 {
-    QString cap;
-    switch ( m ) {
-    case QSql::None:
-	return QDataTable::Cancel;
-    case QSql::Insert:
-	cap = "Insert";
-	break;
-    case QSql::Update:
-	cap = "Update";
-	break;
-    case QSql::Delete:
-	cap = "Delete";
-	break;
-    }
-    QDataTable::Confirm conf;
-    if ( m == QSql::Delete )
-	conf = (QDataTable::Confirm)QMessageBox::information ( this, tr( cap ),
-		tr("Delete this record?"),
-		tr( "Yes" ),
-		tr( "No" ),
-		QString::null, 0, 1 );
-    else
-	conf = (QDataTable::Confirm)QMessageBox::information ( this, tr( cap ),
-		tr( "Save edits?" ),
-		tr( "Yes" ),
-		tr( "No" ),
-		tr( "Cancel" ), 0, 2 );
-    return conf;
+    return d->dat.confirmEdit( this, m );
 }
 
 /*!  Protected virtual function which returns a confirmation for
@@ -1078,15 +1057,9 @@ QDataTable::Confirm QDataTable::confirmEdit( QSql::Op m )
 
 */
 
-QDataTable::Confirm  QDataTable::confirmCancel( QSql::Op )
+QSql::Confirm  QDataTable::confirmCancel( QSql::Op m )
 {
-    d->cancelMode = TRUE;
-    QDataTable::Confirm conf =  (QDataTable::Confirm)QMessageBox::information ( this, tr( "Confirm" ),
-					      tr( "Cancel your edits?" ),
-					      tr( "Yes" ),
-					      tr( "No" ), QString::null, 0, 1 );
-    d->cancelMode = FALSE;
-    return conf;
+    return d->dat.confirmCancel( this, m );
 }
 
 
