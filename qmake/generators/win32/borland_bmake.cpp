@@ -167,15 +167,15 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << "$(ZIP) " << var("PROJECT") << ".zip " << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)"
       << endl << endl;
 
-    t << "clean:\n\t"
-      << varGlue("OBJECTS","-del ","\n\t-del ","") << "\n\t"
-      << varGlue("SRCMOC" ,"-del ","\n\t-del ","") << "\n\t"
-      << varGlue("OBJMOC" ,"-del ","\n\t-del ","") << "\n\t"
-      << varGlue("UICDECLS" ,"-del ","\n\t-del ","") << "\n\t"
-      << varGlue("UICIMPLS" ,"-del ","\n\t-del ","") << "\n\t"
-      << "-del $(TARGET)" << "\n\t"
-      << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
-      << varGlue("CLEAN_FILES","-del ","\n\t-del ","");
+    t << "clean:\n"
+      << varGlue("OBJECTS","\t-del ","\n\t-del ","")
+      << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
+      << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
+      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
+      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
+      << "\n\t-del $(TARGET)"
+      << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
+      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	t << "\n\t-del " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     }
