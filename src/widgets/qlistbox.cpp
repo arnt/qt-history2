@@ -768,7 +768,7 @@ QListBox::~QListBox()
 */
 
 /*!
-  \fn void QListBox::mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos)
+  \fn void QListBox::mouseButtonPressed (int button, QListBoxItem * item, const QPoint & pos)
 
   This signal is emitted whenever the user presses the mouse button
   on a listbox.
@@ -2288,7 +2288,7 @@ void QListBox::clearSelection()
 /*!
   If \a select is TRUE, all items get selected, else all get unselected.
   This works only in the selection modes Multi and Extended. In
-  Single and NoSelection mode the selection of the current item is 
+  Single and NoSelection mode the selection of the current item is
   just set to \a select.
 */
 
