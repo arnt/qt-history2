@@ -1,0 +1,134 @@
+/*!
+  \page gallery-cde.html
+
+  \title Widget Gallery
+
+  This page shows some of the widgets available in Qt
+  when configured to use the "cde" style.
+
+
+  \section1 Display Widgets
+
+  \table 100%
+    \row \i \inlineimage cde-progressbar.png
+    \i QProgressBar
+
+    The QProgressBar widget provides a horizontal progress bar.
+    \row \i \inlineimage cde-lcdnumber.png
+    \i QLCDNumber
+
+    The QLCDNumber widget displays a number with LCD-like digits.
+    \row \i \inlineimage cde-label.png
+    \i QLabel
+
+    The QLabel widget provides a text or image display.
+  \endtable
+
+  \section1 Buttons
+
+  \table 100%
+    \row \i \inlineimage cde-pushbutton.png
+    \i QPushButton
+
+    The QPushButton widget provides a command button.
+    \row \i \inlineimage cde-toolbutton.png
+    \i QToolButton
+
+    The QToolButton class provides a quick-access button to commands
+       or options, usually used inside a QToolBar.
+    \row \i \inlineimage cde-checkbox.png
+    \i QCheckBox
+
+    The QCheckBox widget provides a checkbox with a text label.
+    \row \i \inlineimage cde-radiobutton.png
+    \i QRadioButton
+
+    The QRadioButton widget provides a radio button with a text or pixmap label.
+  \endtable
+
+  \section1 Input Widgets
+
+  \table 100%
+    \row \i \inlineimage cde-datetimeedit.png
+    \i QDateTimeEdit
+
+    The QDateTimeEdit class provides a widget for editing dates and times.
+    \row \i \inlineimage cde-spinbox.png
+    \i QSpinBox
+
+    The QSpinBox class provides a spin box widget.
+    \row \i \inlineimage cde-combobox.png
+    \i QComboBox
+
+    The QComboBox widget is a combined button and popup list.
+    \row \i \inlineimage cde-lineedit.png
+    \i QLineEdit
+
+    The QLineEdit widget is a one-line text editor.
+    \row \i \inlineimage cde-slider.png
+    \i QSlider
+
+    The QSlider widget provides a vertical or horizontal slider.
+    \row \i \inlineimage cde-dial.png
+    \i QDial
+
+    The QDial class provides a rounded range control (like a
+       speedometer or potentiometer).
+    \row \i \inlineimage cde-textedit.png
+    \i QTextEdit
+
+    The QTextEdit class provides a widget that is used to edit and
+     display both plain and rich text.
+    \row \i \inlineimage cde-verticalscrollbar.png
+    \i QScrollBar
+
+    \l{QScrollBar}s can also be given a vertical orientation.
+    \row \i \inlineimage cde-horizontalscrollbar.png
+    \i QScrollBar
+
+    The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
+  \endtable
+
+  \section1 Containers
+
+  \table 100%
+    \row \i \inlineimage cde-toolbox.png
+    \i QToolBox
+
+    The QToolBox class provides a column of tabbed widget items.
+    \row \i \inlineimage cde-stackedwidget.png
+    \i QStackedWidget
+
+    The QStackedWidget class provides a stack of widgets where only
+       the top widget is visible.
+    \row \i \inlineimage cde-groupbox.png
+    \i QGroupBox
+
+    The QGroupBox widget provides a group box frame with a title.
+    \row \i \inlineimage cde-tabwidget.png
+    \i QTabWidget
+
+    The QTabWidget class provides a stack of tabbed widgets.
+    \row \i \inlineimage cde-frame.png
+    \i QFrame
+
+    The QFrame widget provides a simple decorated container for other widgets.
+  \endtable
+
+  \section1 Item Views
+
+  \table 100%
+    \row \i \inlineimage cde-listview.png
+    \i QListView
+
+    The QListView class provides a default model/view implementation of a list/icon view. The QListWidget class provides a classic item-based list/icon view.
+    \row \i \inlineimage cde-treeview.png
+    \i QTreeView
+
+    The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.
+    \row \i \inlineimage cde-tableview.png
+    \i QTableView
+
+    The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.
+  \endtable
+*/

@@ -13,9 +13,19 @@
 
   The \l{gallery-macintosh.html}{Macintosh style} provided by QMacStyle.
 
-  \row \i \inlineimage windows-tablewidget.png
+  \row \i \inlineimage windows-tableview.png
   \i \bold{Windows}
 
-  The \l{gallery-windows.html}{Windows 95 style} provided by QWindowsStyle.
+  The \l{gallery-windows.html}{Windows style} provided by QWindowsStyle.
+
+  \row \i \inlineimage motif-tabwidget.png
+  \i \bold{Motif}
+
+  The \l{gallery-motif.html}{Motif style} provided by QMotifStyle.
+
+  \row \i \inlineimage cde-treeview.png
+  \i \bold{Common Desktop Environment}
+
+  The \l{gallery-cde.html}{CDE style} provided by QCDEStyle.
   \endtable
 */
