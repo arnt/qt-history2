@@ -107,7 +107,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
 	t << "LFLAGS	=	";
 	if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
-	    t << varGlue("QMAKE_LIBDIR","-L"," -L","") << " ";
+	    t << varGlue("QMAKE_LIBDIR","-L",";","") << " ";
 	t << var("QMAKE_LFLAGS") << endl;
 	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
     }
@@ -348,6 +348,7 @@ BorlandMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
+	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
