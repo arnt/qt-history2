@@ -305,36 +305,27 @@ Foo, fOo and FOO are all treated as the same. The following search
 patterns can be used:
 
 \list
-\i deep -- lists all the documents that contain the word 'deep'
+\i \c deep -- lists all the documents that contain the word 'deep'
 
-\i deep* -- lists all the documents that contain a word beginning with
-'deep'
+\i \c{deep*} -- lists all the documents that contain a word beginning
+with 'deep'
 
-\i deep copy -- lists all documents that contain both 'deep' \e and 'copy'
+\i \c{deep copy} -- lists all documents that contain both 'deep' \e
+and 'copy'
 
-\i "deep copy" -- list all documents that contain the phrase 'deep copy'
+\i \c{"deep copy"} -- list all documents that contain the phrase 'deep copy'
 \endlist
 
 The wildcard (*) character cannot be used within quotes. 
-
-Since the search engine is built and optimized for a fast search
-instead of perfect string matching, some words are not considered in
-the search. One example is the English word 'a'. It would not make
-sense to search for 'a' because it contains no information. Searching
-for 'a' would return thousands of documents without knowing anything
-about these documents, except that they all contain 'a'. But searching
-for a more meaningful phrase such as 'this is a string', will return 
-all documents which contain the phrase.
 
 The list of documents is ordered according to the number of
 occurrences of the search text they contain, with those with the
 highest number of occurrences appearing first. Simply click any
 document in the list to have it display in the document pane.
 
-As soon as the documentation was changend, e.g. if new documents were added
-or old ones removed, \QA will index the current documents. So far this
-indexing works only for latin1 encoded documents, i.e. unicode is not 
-supported yet.
+If the documentation is changed, e.g. if new documents are added or
+old ones removed, \QA will reindex. At present this only works for
+latin1 encoded documents, i.e. Unicode is not yet supported.
 
 \chapter Adding Documentation to Qt Assistant
 
