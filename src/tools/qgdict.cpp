@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#85 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -80,16 +80,17 @@ int QGDict::hashKeyString( const QString &key )
     int i;
     register uint h=0;
     uint g;
+    const QChar *p = key.unicode();
     if ( cases ) {				// case sensitive
 	for ( i=0; i<(int)key.length(); i++ ) {
-	    h = (h<<4) + key[i].cell();
+	    h = (h<<4) + p[i].cell();
 	    if ( (g = h & 0xf0000000) )
 		h ^= g >> 24;
 	    h &= ~g;
 	}
     } else {					// case insensitive
 	for ( i=0; i<(int)key.length(); i++ ) {
-	    h = (h<<4) + key[i].lower().cell();
+	    h = (h<<4) + p[i].lower().cell();
 	    if ( (g = h & 0xf0000000) )
 		h ^= g >> 24;
 	    h &= ~g;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#250 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#251 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12772,7 +12772,6 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   Compares this string to \a s, returning an integer less than, equal to, or
   greater than zero if it is, respectively, lexically less than, equal to,
   or greater than \a s.
-
 */
 int QString::compare( const QString& s ) const
 {
@@ -12780,7 +12779,10 @@ int QString::compare( const QString& s ) const
 }
 
 bool operator==( const QString &s1, const QString &s2 )
-{ return s1.length()==s2.length() && ucstrcmp(s1,s2) == 0; }
+{
+    return (s1.length() == s2.length()) &&
+	   (memcmp((char*)s1.unicode(),(char*)s2.unicode(),s1.length()*2) ==0);
+}
 
 bool operator!=( const QString &s1, const QString &s2 )
 { return !(s1==s2); }
