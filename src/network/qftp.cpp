@@ -43,15 +43,15 @@ class QFtpListener : public QServerSocket
 {
     Q_OBJECT
 public:
-    QFtpListener(QObject *parent, const char *name);
+    QFtpListener(QObject *parent);
     void newConnection(int);
 
 signals:
     void newConnectionReady(int);
 };
 
-QFtpListener::QFtpListener(QObject *parent, const char *name)
-    : QServerSocket(0, 1, parent, name)
+QFtpListener::QFtpListener(QObject *parent)
+    : QServerSocket(0, 1, parent)
 {
 }
 
@@ -77,7 +77,7 @@ public:
         CsConnectionRefused
     };
 
-    QFtpDTP(QFtpPI *p, QObject *parent=0, const char *name=0);
+    QFtpDTP(QFtpPI *p, QObject *parent = 0);
 
     void setData(QByteArray *);
     void setDevice(QIODevice *);
@@ -271,13 +271,12 @@ QFtpCommand::~QFtpCommand()
  * QFtpDTP implemenatation
  *
  *********************************************************************/
-QFtpDTP::QFtpDTP(QFtpPI *p, QObject *parent, const char *name) :
+QFtpDTP::QFtpDTP(QFtpPI *p, QObject *parent) :
     QObject(parent),
     socket(0),
     pi(p),
     callWriteData(false)
 {
-    setObjectName(name);
     listener = 0;
     clearData();
 }
@@ -303,7 +302,8 @@ void QFtpDTP::setBytesTotal(int bytes)
 
 void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
 {
-    socket = new QSocket(this, "QFtpDTP Passive state socket");
+    socket = new QSocket(this);
+    socket->setObjectName("QFtpDTP Passive state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
@@ -315,7 +315,8 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
 int QFtpDTP::setupListener()
 {
     if (!listener) {
-        listener = new QFtpListener(this, "QFtpDTP Active state server socket");
+        listener = new QFtpListener(this);
+        listener->setObjectName("QFtpDTP Active state server socket");
         if (!listener->ok()) {
             delete listener;
             listener = 0;
@@ -683,7 +684,8 @@ void QFtpDTP::socketBytesWritten(int bytes)
 
 void QFtpDTP::setupSocket(int sock)
 {
-    socket = new QSocket(this, "QFtpDTP Active state socket");
+    socket = new QSocket(this);
+    socket->setObjectName("QFtpDTP Active state socket");
     socket->setSocket(sock);
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
@@ -710,12 +712,13 @@ QFtpPI::QFtpPI(QObject *parent) :
     QObject(parent),
     rawCommand(false),
     dtp(this),
-    commandSocket(0, "QFtpPI_socket"),
+    commandSocket(0),
     state(Begin), abortState(None),
     currentCmd(QString::null),
     waitForDtpToConnect(false),
     waitForDtpToClose(false)
 {
+    commandSocket.setObjectName("QFtpPI_socket");
     connect(&commandSocket, SIGNAL(hostFound()),
             SLOT(hostFound()));
     connect(&commandSocket, SIGNAL(connected()),
@@ -1300,6 +1303,29 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     Constructs a QFtp object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 */
+QFtp::QFtp(QObject *parent)
+    : QObject(*new QFtpPrivate, parent)
+{
+    d->errorString = tr("Unknown error");
+
+    connect(&d->pi, SIGNAL(connectState(int)),
+            SLOT(piConnectState(int)));
+    connect(&d->pi, SIGNAL(finished(QString)),
+            SLOT(piFinished(QString)));
+    connect(&d->pi, SIGNAL(error(int,QString)),
+            SLOT(piError(int,QString)));
+    connect(&d->pi, SIGNAL(rawFtpReply(int,QString)),
+            SLOT(piFtpReply(int,QString)));
+
+    connect(&d->pi.dtp, SIGNAL(readyRead()),
+            SIGNAL(readyRead()));
+    connect(&d->pi.dtp, SIGNAL(dataTransferProgress(int,int)),
+            SIGNAL(dataTransferProgress(int,int)));
+    connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
+            SIGNAL(listInfo(QUrlInfo)));
+}
+
+#ifdef QT_COMPAT
 QFtp::QFtp(QObject *parent, const char *name)
     : QObject(*new QFtpPrivate, parent)
 {
@@ -1322,6 +1348,7 @@ QFtp::QFtp(QObject *parent, const char *name)
     connect(&d->pi.dtp, SIGNAL(listInfo(QUrlInfo)),
             SIGNAL(listInfo(QUrlInfo)));
 }
+#endif
 
 /*!
     \enum QFtp::State

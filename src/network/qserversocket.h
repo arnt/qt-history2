@@ -34,11 +34,16 @@ class QM_EXPORT_NETWORK QServerSocket : public QObject
 {
     Q_OBJECT
 public:
-    QServerSocket(Q_UINT16 port, int backlog = 1,
-                   QObject *parent=0, const char *name=0);
-    QServerSocket(const QHostAddress & address, Q_UINT16 port, int backlog = 1,
-                   QObject *parent=0, const char *name=0);
-    QServerSocket(QObject *parent=0, const char *name=0);
+    QServerSocket(QObject *parent = 0);
+    QServerSocket(Q_UINT16 port, int backlog = 1, QObject *parent = 0);
+    QServerSocket(const QHostAddress &address, Q_UINT16 port, int backlog = 1, QObject *parent=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QServerSocket(QObject *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QServerSocket(Q_UINT16 port, int backlog, QObject *parent,
+                                        const char *name);
+    QT_COMPAT_CONSTRUCTOR QServerSocket(const QHostAddress &address, Q_UINT16 port, int backlog,
+                                        QObject *parent, const char *name);
+#endif
     virtual ~QServerSocket();
 
     bool ok() const;

@@ -42,7 +42,10 @@ public:
         ErrSocketRead
     };
 
-    QSocket(QObject *parent=0, const char *name=0);
+    QSocket(QObject *parent = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSocket(QObject *parent, const char *name);
+#endif
     virtual ~QSocket();
 
     enum State {

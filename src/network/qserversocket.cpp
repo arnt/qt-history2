@@ -65,11 +65,9 @@ public:
     value larger than 0.
 */
 
-QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
-                              QObject *parent, const char *name)
+QServerSocket::QServerSocket(Q_UINT16 port, int backlog, QObject *parent)
     : QObject(parent)
 {
-    setObjectName(name);
     d = new QServerSocketPrivate;
     init(QHostAddress(), port, backlog);
 }
@@ -89,11 +87,9 @@ QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
 */
 
 QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
-                              int backlog,
-                              QObject *parent, const char *name)
+                              int backlog, QObject *parent)
     : QObject(parent)
 {
-    setObjectName(name);
     d = new QServerSocketPrivate;
     init(address, port, backlog);
 }
@@ -112,13 +108,40 @@ QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
     \sa setSocket()
 */
 
+QServerSocket::QServerSocket(QObject *parent)
+    : QObject(parent)
+{
+    d = new QServerSocketPrivate;
+}
+
+
+#ifdef QT_COMPAT
+QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
+                              QObject *parent, const char *name)
+    : QObject(parent)
+{
+    setObjectName(name);
+    d = new QServerSocketPrivate;
+    init(QHostAddress(), port, backlog);
+}
+
+QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
+                              int backlog,
+                              QObject *parent, const char *name)
+    : QObject(parent)
+{
+    setObjectName(name);
+    d = new QServerSocketPrivate;
+    init(address, port, backlog);
+}
+
 QServerSocket::QServerSocket(QObject *parent, const char *name)
     : QObject(parent)
 {
     setObjectName(name);
     d = new QServerSocketPrivate;
 }
-
+#endif
 
 /*!
     Returns true if the socket is ready to use; otherwise returns false.

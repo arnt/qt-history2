@@ -37,7 +37,10 @@ class QM_EXPORT_FTP QFtp : public QObject
     Q_DECLARE_PRIVATE(QFtp)
 
 public:
-    QFtp(QObject *parent = 0, const char *name = 0);
+    QFtp(QObject *parent = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QFtp(QObject *parent, const char *name);
+#endif
     virtual ~QFtp();
 
     enum State {

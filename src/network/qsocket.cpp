@@ -770,6 +770,21 @@ void QSocketPrivate::connectToNextAddress()
     constructor.
 */
 
+QSocket::QSocket(QObject *parent)
+    : QObject(parent), QIODevice(*new QSocketPrivate())
+{
+    /*
+        The d_ptr member variable is necessary because we have two
+        base classes with a variable called d_ptr.
+    */
+    d_ptr = QIODevice::d_ptr;
+
+    d->internalSetSocketDevice(0);
+    setFlags(IO_Direct);
+    resetStatus();
+}
+
+#ifdef QT_COMPAT
 QSocket::QSocket(QObject *parent, const char *name)
     : QObject(parent), QIODevice(*new QSocketPrivate())
 {
@@ -784,7 +799,7 @@ QSocket::QSocket(QObject *parent, const char *name)
     setFlags(IO_Direct);
     resetStatus();
 }
-
+#endif
 
 /*!
     Destroys the socket, closing the connection if necessary.
