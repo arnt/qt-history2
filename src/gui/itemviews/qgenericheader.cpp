@@ -89,8 +89,10 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget
     setMouseTracking(true);
     setFocusPolicy(NoFocus);
 
-    // FIXME: this should also be called in setModel()
-    contentsInserted(model->topLeft(root()), model->bottomRight(root()));
+    if (d->orientation == Horizontal)
+        initializeSections(0, model->columnCount() - 1);
+    else
+        initializeSections(0, model->rowCount() - 1);
 }
 
 QGenericHeader::~QGenericHeader()
@@ -400,45 +402,12 @@ void QGenericHeader::initializeSections(int start, int end)
     emit sectionCountChanged(oldCount, count());
     d->viewport->update();
 }
-/*
-void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    QModelIndex parent = model()->parent(topLeft);
-//    Q_ASSERT(parent == model()->parent(bottomRight));
-    if (parent != root())
-        return;
-    QModelIndex::Type type = topLeft.type();
-    int from = orientation() == Vertical ? topLeft.row() : topLeft.column();
-    int to =  orientation() == Vertical ? bottomRight.row() : bottomRight.column();
-    for (int idx = from; idx < to; ++idx) {
-        int sec = section(idx);
-        QModelIndex item = (orientation() == Vertical ?
-                            model()->index(sec, 0, 0, type) :
-                            model()->index(0, sec, 0, type));
-        if (d->sections.at(idx).mode == Custom) { // resize the section to fit the new content
-            QItemOptions options;
-            getViewOptions(&options);
-            int hint = 0;
-            if (orientation() == Vertical)
-                hint = itemDelegate()->sizeHint(fontMetrics(), options, item).height();
-            else
-                hint = itemDelegate()->sizeHint(fontMetrics(), options, item).width();
-            int size = sectionSize(sec);
-            if (hint > size)
-                resizeSection(sec, hint);
-            else // we have to check them all
-                resizeSection(sec, sectionSizeHint(sec)); // FIXME: get the size of the section from the contents
-            resizeSections();
-        }
-    }
-    QAbstractItemView::contentsChanged(topLeft, bottomRight);
-}
-*/
+
 void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     if (topLeft.isValid() && bottomRight.isValid()) {
         QModelIndex parent = model()->parent(topLeft);
-        if (orientation() == Horizontal)
+        if (d->orientation == Horizontal)
             initializeSections(topLeft.column(), bottomRight.column());
         else
             initializeSections(topLeft.row(), bottomRight.row());
@@ -448,7 +417,7 @@ void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIn
 void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
 {
     QModelIndex parent = model()->parent(topLeft);
-    if (orientation() == Horizontal)
+    if (d->orientation == Horizontal)
         initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
     else
         initializeSections(topLeft.row(), model()->rowCount(parent) - 1);
@@ -456,11 +425,7 @@ void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelInd
 
 void QGenericHeader::ensureItemVisible(const QModelIndex &)
 {
-    // this should only update the scrollvalue, and only if the item is not visible
-//     if (orientation() == Horizontal)
-//         setOffset(sectionPosition(index.column()));
-//     else
-//         setOffset(sectionPosition(index.row()));
+    // do nothing - this should be handled by the parent view
 }
 
 void QGenericHeader::updateSection(int section)
@@ -491,8 +456,7 @@ void QGenericHeader::resizeSections()
         if (mode == Interactive) {
             secSize = sectionSize(secs[i].section);
         } else {//if (mode == QGenericHeader::Custom)
-            // FIXME: get the size of the section from the contents;
-            //  this is just a temprary (hacky) solution
+            // FIXME: get the size of the section from the contents;  this is just a temprary solution
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (par)
                 secSize = (orientation() == Horizontal
@@ -504,7 +468,7 @@ void QGenericHeader::resizeSections()
     }
     int position = 0;
     int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
-    for (int i = 0; i < count; ++i) { // FIXME: last pos
+    for (int i = 0; i < count; ++i) {
         secs[i].position = position;
         mode = secs[i].mode;
         if (mode == Stretch) {
@@ -875,13 +839,14 @@ void QGenericHeader::setResizeMode(ResizeMode mode)
 
 void QGenericHeader::setResizeMode(ResizeMode mode, int section)
 {
-    if (section >= d->sections.count())
+    if (section >= d->sections.count()) {
+        qWarning("setResizeMode: section %d does not exist", section);
         return;
+    }
     ResizeMode old = d->sections[index(section)].mode;
     d->sections[index(section)].mode = mode;
     if (mode == Stretch && old != Stretch)
         d->stretchSections++;
-    // FIXME: handle this
 }
 
 QGenericHeader::ResizeMode QGenericHeader::resizeMode(int section) const
