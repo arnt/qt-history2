@@ -1850,6 +1850,7 @@ void QWSServer::invokeRegisterChannel( QWSQCopRegisterChannelCommand *cmd,
 				       QWSClient *client )
 {
     QCopChannel::registerChannel( cmd->channel, client );
+    emit newChannel( cmd->channel );
 }
 
 void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )

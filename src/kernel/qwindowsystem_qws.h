@@ -254,7 +254,9 @@ public:
 
 signals:
     void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );
-
+#ifndef QT_NO_COP
+    void newChannel( const QString& );
+#endif
 private:
 #ifndef QT_NO_COP
     static void sendQCopEvent( QWSClient *c, const QCString &ch,
