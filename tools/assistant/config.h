@@ -45,6 +45,8 @@ public:
     bool setCurrentProfile( const QString &name );
     bool startedWithProfile() const;
     bool validProfileName() const;
+    void hideSideBar( bool b );
+    bool sideBarHidden() const;
 
     // From profile, read only
     QStringList profiles() const;
@@ -135,6 +137,7 @@ private:
     bool profDiffer;
     bool startWithProfile;
     bool profileNameValid;
+    bool hideSidebar;
 };
 
 #endif

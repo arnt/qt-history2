@@ -31,7 +31,7 @@
 static Config *static_configuration = 0;
 
 Config::Config( const QString &name )
-    : startWithProfile( FALSE ), profileNameValid( TRUE )
+    : startWithProfile( FALSE ), profileNameValid( TRUE ), hideSidebar( FALSE )
 {
     if( !static_configuration ) {
 	static_configuration = this;
@@ -43,7 +43,7 @@ Config::Config( const QString &name )
 }
 
 Config::Config()
-    : startWithProfile( FALSE ), profileNameValid( TRUE )
+    : startWithProfile( FALSE ), profileNameValid( TRUE ), hideSidebar( FALSE )
 {
     profil = new Profile();
 }
@@ -189,7 +189,8 @@ void Config::saveSettings()
     settings.writeEntry( key + "GeometryWidth", geom.width() );
     settings.writeEntry( key + "GeometryHeight", geom.height() );
     settings.writeEntry( key + "GeometryMaximized", maximized );
-    settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
+    if ( !hideSidebar )
+	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
     settings.writeEntry( key + "LastProfile", profil->props["name"] );
 }
 
@@ -362,4 +363,14 @@ bool Config::startedWithProfile() const
 bool Config::validProfileName() const
 {
     return profileNameValid;
+}
+
+void Config::hideSideBar( bool b )
+{
+    hideSidebar = b;
+}
+
+bool Config::sideBarHidden() const
+{
+    return hideSidebar;
 }

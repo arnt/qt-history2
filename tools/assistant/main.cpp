@@ -141,6 +141,7 @@ int main( int argc, char ** argv )
     QStringList catlist;
     QString file, profileName;
     bool server = FALSE;
+    bool hideSidebar = FALSE;
     if ( argc == 2 ) {
 	if ( (argv[1])[0] != '-' )
 	    file = argv[1];
@@ -167,6 +168,8 @@ int main( int argc, char ** argv )
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		profileName = argv[++i];
+	    } else if ( QString( argv[i] ).lower() == "-onlybrowser" ) {
+		hideSidebar = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
@@ -183,6 +186,8 @@ int main( int argc, char ** argv )
 		printf( "                         the same directory as the profile.\n" );
 		printf( "                         For further informations have a look\n" );
 		printf( "                         at the assistant online help.\n" );
+		printf( " -onlyBrowser            assistant will only have the browser,\n" );
+		printf( "                         i.e. the side bar will be hidden.\n" )
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
@@ -213,6 +218,7 @@ int main( int argc, char ** argv )
 
     bool max = conf->isMaximized();
     QString link = conf->source();
+    conf->hideSideBar( hideSidebar );
 
 //     QString firstRunString = config->readEntry( DocuParser::DocumentKey + "FirstRunString" );
 //     if ( firstRunString != QString( QT_VERSION_STR ) ) {

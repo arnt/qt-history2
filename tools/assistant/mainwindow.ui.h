@@ -40,7 +40,6 @@ void MainWindow::init()
     goActionDocFiles = new QMap<QAction*,QString>;
     goActions->setAutoDelete( TRUE );
 
-
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
     windows->append( this );
@@ -77,6 +76,9 @@ void MainWindow::init()
 
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
+
+    if ( config->sideBarHidden() )
+	dw->hide();
 
     setObjectsEnabled( FALSE );
     setup();
