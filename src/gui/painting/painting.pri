@@ -75,6 +75,13 @@ wince-* {
 
 
 unix:x11 {
+#	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
+#	SOURCES += 					\
+#	 	painting/qpaintengine_raster.cpp	\
+#		painting/qdrawhelper.cpp 		\
+#		painting/qblackraster.c			\
+#		painting/qgrayraster.c
+
 	HEADERS += \
 		painting/qpaintengine_x11_p.h
 
