@@ -449,8 +449,9 @@ void qt_init( int *argcptr, char **argv )
     // Detect the Windows version
     (void)QApplication::winVersion();
 
-    
+    qDebug("Getting gui thread id");
     gui_thread=GetCurrentThreadId();
+    qDebug("Value is %d",gui_thread);
     
 #if defined(DEBUG)
     int argc = *argcptr;
@@ -1283,6 +1284,7 @@ void QApplication::processEvents( int maxtime )
 
 void QApplication::wakeUpGuiThread()
 {
+    qDebug("Posting message to %d",gui_thread);
     PostThreadMessage(gui_thread,WM_USER+666,0,0);
 }
 
