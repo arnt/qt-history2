@@ -140,8 +140,8 @@ public:
     static QList<QPixmapData*> *pixmapData;
 };
 
-QHash<QPixmap::QPixmapData*, QImage*> *QwsPixmap::images = 0;
-QList<QPixmap::QPixmapData*> *QwsPixmap::pixmapData = 0;
+QHash<QPixmapData*, QImage*> *QwsPixmap::images = 0;
+QList<QPixmapData*> *QwsPixmap::pixmapData = 0;
 
 void QwsPixmap::mapPixmaps(bool from)
 {
