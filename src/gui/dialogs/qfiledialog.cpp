@@ -787,9 +787,9 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
                     "Choose a file to open");
   \endcode
 
-  The function creates a modal file dialog called \a name, with
-  parent, \a parent. If a parent is not 0, the dialog will be shown
-  centered over the parent.
+  The function creates a modal file dialog with parent, \a parent. If
+  a parent is not 0, the dialog will be shown centered over the
+  parent.
 
   The file dialog's working directory will be set to \a startWith. If \a
   startWith includes a file name, the file will be selected. The filter
@@ -870,9 +870,8 @@ QString QFileDialog::getOpenFileName(const QString &startWith,
   This is a convenience static function that will return a file name
   selected by the user. The file does not have to exist.
 
-  It creates a modal file dialog called \a name, with parent, \a parent.
-  If a parent is not 0, the dialog will be shown centered over the
-  parent.
+  It creates a modal file dialog with parent, \a parent. If a parent
+  is not 0, the dialog will be shown centered over the parent.
 
   \code
     QString s = QFileDialog::getSaveFileName(
@@ -963,9 +962,8 @@ QString QFileDialog::getSaveFileName(const QString &startWith,
                     true);
   \endcode
 
-  This function creates a modal file dialog called \a name, with
-  parent, \a parent. If parent is not 0, the dialog will be shown
-  centered over the parent.
+  This function creates a modal file dialog with parent, \a parent. If
+  parent is not 0, the dialog will be shown centered over the parent.
 
   The dialog's working directory is set to \a dir, and the caption is
   set to \a caption. Either of these may be QString::null in which case
@@ -1045,9 +1043,9 @@ QString QFileDialog::getExistingDirectory(const QString &dir,
                             "Select one or more files to open");
   \endcode
 
-  This function creates a modal file dialog called \a name, with
-  parent \a parent. If \a parent is not 0, the dialog will be shown
-  centered over the parent.
+  This function creates a modal file dialog with parent \a parent. If
+  \a parent is not 0, the dialog will be shown centered over the
+  parent.
 
   The file dialog's working directory will be set to \a dir. If \a
   dir includes a file name, the file will be selected. The filter

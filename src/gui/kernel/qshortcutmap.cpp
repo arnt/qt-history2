@@ -19,7 +19,7 @@
 #define d d_func()
 #define p p_func()
 
-/*! \internal
+/* \internal
     Entry data for QShortcutMap
     Contains:
         Keysequence for entry
@@ -56,7 +56,7 @@ QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
 }
 #endif // QT_NO_DEBUG
 
-/*! \internal
+/* \internal
     Private data for QShortcutMap
 */
 class QShortcutMapPrivate
@@ -503,7 +503,7 @@ void QShortcutMap::dispatchEvent()
     QApplication::sendEvent(const_cast<QWidget*>(next->owner), &se);
 }
 
-/*! \internal
+/* \internal
     QShortcutMap dump function, only available when Debug_QShortcutMap is
     defined.
 */
