@@ -204,6 +204,27 @@ void *QLibrary::resolve( const char* symb )
 
   The function returns a null pointer if the symbol could not be
   resolved or the library could not be loaded.
+
+  This function is useful only if you want to resolve a single
+  symbol, e.g. a function pointer from a specific library once:
+
+  \code
+  typedef void (*FunctionType)();
+  static FunctionType *ptrFunction = 0;
+  static bool triedResolve = FALSE;
+  if ( !ptrFunction && !triedResolve )
+      ptrFunction = QLibrary::resolve( "foo", "function" );
+
+  if ( ptrFunction )
+      ptrFunction();
+  else
+      ...
+  \endcode
+
+  If you want to resolve multiple symbols, use a QLibrary object
+  and call the non-static version of resolve().
+
+  \sa resolve()
 */
 void *QLibrary::resolve( const QString &filename, const char *symb )
 {

@@ -469,7 +469,7 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     if ( v.isNull() ) {
 	v = "\\0"; // escape null string
     } else {
-	v.replace(QRegExp("\\"), "\\\\"); // escape backslash
+	v.replace(QRegExp("\\\\"), "\\\\"); // escape backslash
 	v.replace(QRegExp("\n"), "\\n"); // escape newlines
     }
     grp.modified = TRUE;
