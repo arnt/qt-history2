@@ -12,6 +12,8 @@
 #include "qunicodetables_p.h"
 #include "qunicodedata.cpp"
 
+#define CURRENT_VERSION QChar::Unicode_4_0
+
 #define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))
 
 QChar::Category QUnicodeTables::category(uint ucs4)
@@ -159,7 +161,7 @@ ushort QUnicodeTables::ligature(ushort u1, ushort u2)
 }
 
 
-static QString decompose(const QString &str, bool canonical)
+static QString decompose(const QString &str, bool canonical, QChar::UnicodeVersion version)
 {
     unsigned short buffer[3];
 
@@ -180,6 +182,8 @@ static QString decompose(const QString &str, bool canonical)
         int tag;
         const unsigned short *d = decomposition(ucs4, &length, &tag, buffer);
         if (!d || (canonical && tag != QChar::Canonical))
+            continue;
+        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(ucs4) > version)
             continue;
 
         s.replace(uc - utf16, ucs4 > 0x10000 ? 2 : 1, (const QChar *)d, length);
@@ -231,7 +235,7 @@ static QString compose(const QString &str)
 }
 
 
-static QString canonicalOrder(const QString &str)
+static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
 {
     QString s = str;
     const int l = s.length()-1;
@@ -258,11 +262,17 @@ static QString canonicalOrder(const QString &str)
         }
 
         int c2 = QUnicodeTables::combiningClass(u2);
+        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(u2) > version)
+            c2 = 0;
+
         if (c2 == 0) {
             pos = p2+1;
             continue;
         }
         int c1 = QUnicodeTables::combiningClass(u1);
+        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(u1) > version)
+            c1 = 0;
+
         if (c1 > c2) {
             QChar *uc = s.data();
             int p = pos;
@@ -294,18 +304,39 @@ static QString canonicalOrder(const QString &str)
 
 QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode)
 {
-    // first decomposition
-    QString s = decompose(str, mode < QUnicodeTables::NormalizationMode_KD);
+    return normalize(str, mode, CURRENT_VERSION);
+}
+
+QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode, QChar::UnicodeVersion version)
+{
+    QString s = str;
+    if (version != CURRENT_VERSION) {
+        for (int i = 0; i < NumNormalizationCorrections; ++i) {
+            const NormalizationCorrection n = uc_normalization_corrections[i];
+            if (n.version > version) {
+                QString orig;
+                orig += QChar(highSurrogate(n.ucs4));
+                orig += QChar(lowSurrogate(n.ucs4));
+                QString replacement;
+                replacement += QChar(highSurrogate(n.old_mapping));
+                replacement += QChar(lowSurrogate(n.old_mapping));
+                s.replace(orig, replacement);
+            }
+        }
+    }
+    s = decompose(s, mode < QUnicodeTables::NormalizationMode_KD, CURRENT_VERSION);
 
     // now canonical ordering
-    s = canonicalOrder(s);
+    s = canonicalOrder(s, CURRENT_VERSION);
 
     if (mode == QUnicodeTables::NormalizationMode_D || mode == QUnicodeTables::NormalizationMode_KD)
         return s;
 
     // last composition
     return compose(s);
+
 }
+
 
 enum Script {
     // European Alphabetic Scripts
