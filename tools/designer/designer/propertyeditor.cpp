@@ -2448,15 +2448,19 @@ void PropertyList::setupProperties()
     }
 
 #ifndef QT_NO_SQL
-    if ( !editor->widget()->inherits( "QSqlTable" ) && !editor->widget()->inherits( "QSqlWidget" ) && parent_is_data_aware( editor->widget() ) ) {
+    if ( !editor->widget()->inherits( "QSqlTable" ) && !editor->widget()->inherits( "QSqlWidget" ) &&
+	 !editor->widget()->inherits( "QSqlDialog" ) &&parent_is_data_aware( editor->widget() ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
 
-    if ( editor->widget()->inherits( "QSqlTable" ) || editor->widget()->inherits( "QSqlWidget" ) ) {
-	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
+    if ( editor->widget()->inherits( "QSqlTable" ) || editor->widget()->inherits( "QSqlWidget" ) || editor->widget()->inherits( "QSqlDialog" ) ) {
+	if ( editor->widget()->inherits( "QSqlTable" ) )
+	    item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
+	else
+	    item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
