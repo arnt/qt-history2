@@ -18,6 +18,14 @@
 **
 **********************************************************************/
 
+#define Q_INITGUID
+#include "designerappiface.h"
+#include "filterinterface.h"
+#include "../shared/editorinterface.h"
+#include "actioninterface.h"
+#include "widgetinterface.h"
+#undef Q_INITGUID
+
 #include "mainwindow.h"
 #include "defs.h"
 #include "formwindow.h"
@@ -43,8 +51,6 @@
 #include "about.h"
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
-#include "designerappiface.h"
-#include "filterinterface.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -1302,7 +1308,7 @@ void MainWindow::fileOpen()
 
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    QInterfaceManager<FilterInterface> manager( "FilterInterface", dir );
+    QInterfaceManager<FilterInterface> manager( IID_FilterInterface, dir );
     {
 	QString filename;
 	QStringList filterlist;
@@ -3623,8 +3629,8 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    DesignerApplicationInterface *appInterface = new DesignerApplicationInterface;
-    actionPluginManager = new QInterfaceManager<ActionInterface>( "ActionInterface", dir, "*.dll; *.so" );
+    QUnknownInterface *appInterface = (QUnknownInterface*)(QComponentInterface*)(new DesignerApplicationInterfaceImpl);
+    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, dir, "*.dll; *.so" );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -3638,6 +3644,7 @@ void MainWindow::setupActionManager()
 	    continue;
 
 	QString grp = iface->group( *it );
+	iface->release();
 	if ( grp.isEmpty() )
 	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
@@ -3684,7 +3691,7 @@ void MainWindow::setupEditor()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    editorPluginManager = new QInterfaceManager<EditorInterface>( "EditorInterface", dir, "*.dll; *.so" );
+    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, dir, "*.dll; *.so" );
 
     MetaDataBase::setEditor( editorPluginManager->queryInterface( "Editor" ) );
 }

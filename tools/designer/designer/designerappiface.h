@@ -14,31 +14,11 @@ class FormWindow;
 class PropertyEditor;
 class QStatusBar;
 class QListViewItemIterator;
-
-class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
-{
-public:
-    DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent );
-
-    void setMessage( const QString &, int ms = 3000 );
-
-private:
-    QStatusBar *statusBar;
-};
-
-class DesignerMainWindowInterfaceImpl : public DesignerMainWindowInterface
-{
-public:
-    DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent );
-
-private:
-    MainWindow *mainWindow;
-};
-
+/*
 class DesignerFormWindowInterfaceImpl : public DesignerFormWindowInterface
 {
 public:
-    DesignerFormWindowInterfaceImpl( FormListItem *fw, QUnknownInterface *parent );
+    DesignerFormWindowInterfaceImpl( FormListItem *fw );
 
     void save() const;
     void close() const;
@@ -60,13 +40,14 @@ protected:
 
 private:
     FormListItem *item;
+
+    unsigned long ref;
 };
 
 class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterfaceImpl
 {
 public:
-    DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent );
-    QString interfaceId() const { return createId( DesignerFormWindowInterface::interfaceId(), "DesignerActiveFormWindowInterface" ); }
+    DesignerActiveFormWindowInterfaceImpl( FormList *fl );
 
     unsigned long addRef();
 
@@ -77,7 +58,7 @@ private:
 class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 {
 public:
-    DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent  );
+    DesignerFormListInterfaceImpl( FormList *fl );
 
     unsigned long addRef();
     unsigned long release();
@@ -108,7 +89,7 @@ class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
 {
     friend class DesignerActiveFormWindowInterfaceImpl;
 public:
-    DesignerWidgetListInterfaceImpl( FormWindow *fw, QUnknownInterface *parent );
+    DesignerWidgetListInterfaceImpl( FormWindow *fw );
 
     unsigned long release();
 
@@ -120,9 +101,9 @@ public:
     void selectAll() const;
     void removeAll() const;
 
-/*    FormWindow *formWindow() const;
+    FormWindow *formWindow() const;
     void setFormWindow( FormWindow* );
-*/
+
 private:
     QPtrDictIterator<QWidget> *dictIterator;
     FormWindow *formWindow;
@@ -131,7 +112,7 @@ private:
 class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
 {
 public:
-    DesignerWidgetInterfaceImpl( QWidget *w, QUnknownInterface *parent );
+    DesignerWidgetInterfaceImpl( QWidget *w );
 
     void setSelected( bool );
     bool selected() const;
@@ -146,32 +127,54 @@ class DesignerActiveWidgetInterfaceImpl : public DesignerWidgetInterfaceImpl
 {
     friend class DesignerWidgetListInterfaceImpl;
 public:
-    DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe, QUnknownInterface *parent );
-
-    QString interfaceId() const { return createId( DesignerWidgetInterfaceImpl::interfaceId(), "DesignerActiveWidgetInterface" ); }
+    DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe );
 
     unsigned long addRef();
 
 private:
     QGuardedPtr<PropertyEditor> propertyEditor;
 };
-
+*/
 /*
  * Application
  */
 
-class DesignerApplicationInterface : public QComponentInterface
+class DesignerApplicationInterfaceImpl : public QComponentInterface
+{
+    friend class DesignerStatusBarInterfaceImpl;
+public:
+    DesignerApplicationInterfaceImpl();
+
+    // QUnknownInterface
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+    // QComponentInterface
+    QString name() const;
+    QString description() const;
+    QString version() const;
+    QString author() const;
+
+private:
+    unsigned long ref;
+
+    DesignerStatusBarInterface *sbIface;
+};
+
+class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
 {
 public:
-    DesignerApplicationInterface();
+    DesignerStatusBarInterfaceImpl( QComponentInterface* );
 
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerApplicationInterface" ); }
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
 
-    QString name() const { return "Qt Designer"; }
-    QString description() const { return "GUI Editor for the Qt Toolkit"; }
-    QString version() const { return "1.1"; }
-    QString author() const { return "Trolltech"; }
+    void setMessage( const QString &, int ms = 3000 );
 
+public:
+    QComponentInterface* appIface;
+    QStatusBar *statusBar;
 };
 
 #endif

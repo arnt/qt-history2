@@ -3,18 +3,18 @@
 
 #include <qcomponentinterface.h>
 #include <qmap.h>
+#include <qstringlist.h>
 
 class QWidget;
 class QObjectList;
 class QObject;
 
+// {8668161A-6037-4220-86B6-CCAA20127DF8}
+Q_GUID( IID_EditorInterface, 0x8668161a, 0x6037, 0x4220, 0x86, 0xb6, 0xcc, 0xaa, 0x20, 0x12, 0x7d, 0xf8 );
+
 class EditorInterface : public QUnknownInterface
 {
 public:
-    EditorInterface( QUnknownInterface *parent = 0 )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "EditorInterface" ); }
-
     virtual QStringList featureList() const = 0;
     virtual QWidget *editor( QWidget *parent ) const = 0;
 

@@ -15,48 +15,48 @@
 /*
  * Interfaces for MainWindow access
  */
+// {A0E661DA-F45C-4830-AF47-03EC53EB1633}
+Q_GUID(IID_DesignerMainWindowInterface, 
+0xa0e661da, 0xf45c, 0x4830, 0xaf, 0x47, 0x3, 0xec, 0x53, 0xeb, 0x16, 0x33);
+
 class DesignerMainWindowInterface : public QUnknownInterface
 {
 public:
-    DesignerMainWindowInterface( QUnknownInterface *parent = 0 )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerMainWindowInterface" ); }
 };
+
+// {C797C970-36E5-463b-AEAE-54AF3F05588F}
+Q_GUID(IID_DesignerStatusBarInterface, 
+0xc797c970, 0x36e5, 0x463b, 0xae, 0xae, 0x54, 0xaf, 0x3f, 0x5, 0x58, 0x8f);
 
 class DesignerStatusBarInterface : public QUnknownInterface
 {
 public:
-    DesignerStatusBarInterface( QUnknownInterface *parent = 0 )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerStatusBarInterface" ); }
-
     virtual void setMessage( const QString&, int ms = 3000 ) = 0;
 };
 
 /*
  * Interfaces for Widget access
  */
+// {B7A60C5D-6476-4978-8C05-CCE5CE706D2B}
+Q_GUID(IID_DesignerWidgetInterface, 
+0xb7a60c5d, 0x6476, 0x4978, 0x8c, 0x5, 0xcc, 0xe5, 0xce, 0x70, 0x6d, 0x2b);
 
 class DesignerWidgetInterface : public QUnknownInterface
 {
 public:
-    DesignerWidgetInterface( QUnknownInterface *parent = 0 )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerWidgetInterface" ); }
-
     virtual void setSelected( bool ) = 0;
     virtual bool selected() const = 0;
 
     virtual void remove() = 0;
 };
 
+// {5F8283D7-311D-4bfb-AD6A-476B77E8C288}
+Q_GUID(IID_DesignerWidgetListInterface, 
+0x5f8283d7, 0x311d, 0x4bfb, 0xad, 0x6a, 0x47, 0x6b, 0x77, 0xe8, 0xc2, 0x88);
+
 class DesignerWidgetListInterface : public QUnknownInterface
 {
 public:
-    DesignerWidgetListInterface( QUnknownInterface *parent = 0 )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerWidgetListInterface" ); }
-
     virtual uint count() const = 0;
     virtual DesignerWidgetInterface *toFirst() = 0;
     virtual DesignerWidgetInterface *current() = 0;
@@ -69,14 +69,16 @@ public:
 /*
  * Interfaces for FormWindow access
  */
+// {A76C2285-3A5C-468b-B72F-509447034D7C}
+Q_GUID(IID_DesignerFormWindowInterface, 
+0xa76c2285, 0x3a5c, 0x468b, 0xb7, 0x2f, 0x50, 0x94, 0x47, 0x3, 0x4d, 0x7c);
+// {1615FA5A-AA58-40c0-8613-5ECD71FCC8E8}
+Q_GUID(IID_DesignerActiveFormWindowInterface, 
+0x1615fa5a, 0xaa58, 0x40c0, 0x86, 0x13, 0x5e, 0xcd, 0x71, 0xfc, 0xc8, 0xe8);
 
 class DesignerFormWindowInterface : public QUnknownInterface
 {
 public:
-    DesignerFormWindowInterface( QUnknownInterface *parent )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerFormWindowInterface" ); }
-
     virtual void save() const = 0;
     virtual void close() const = 0;
     virtual void undo() const = 0;
@@ -91,13 +93,13 @@ public:
     virtual bool connect( const char *, QObject *, const char * ) = 0;
 };
 
+// {2002DD2F-9B9F-48c3-821C-619EE0375D27}
+Q_GUID(IID_DesignerFormListInterface, 
+0x2002dd2f, 0x9b9f, 0x48c3, 0x82, 0x1c, 0x61, 0x9e, 0xe0, 0x37, 0x5d, 0x27);
+
 class DesignerFormListInterface : public QUnknownInterface
 {
 public:
-    DesignerFormListInterface( QUnknownInterface* parent ) 
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerFormListInterface" ); }
-
     virtual const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const = 0;
     virtual void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& ) = 0;
     virtual QString text( DesignerFormWindowInterface*, int col ) const = 0;
@@ -119,37 +121,37 @@ public:
 /*
  * Interfaces for PropertyEditor access
  */
+// {834330A1-8542-4c1e-948A-58D68CE97BFD}
+Q_GUID(IID_DesignerPropertyEditorInterface, 
+0x834330a1, 0x8542, 0x4c1e, 0x94, 0x8a, 0x58, 0xd6, 0x8c, 0xe9, 0x7b, 0xfd);
 
 class DesignerPropertyEditorInterface : public QUnknownInterface
 {
 public:
-    DesignerPropertyEditorInterface( QUnknownInterface *parent )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerPropertyEditorInterface" ); }
 };
 
 /*
  * Interfaces for HierarchyView access
  */
+// {13BB1270-2A4C-4d7f-A4D0-B49834DB2774}
+Q_GUID(IID_DesignerHierarchyViewInterface, 
+0x13bb1270, 0x2a4c, 0x4d7f, 0xa4, 0xd0, 0xb4, 0x98, 0x34, 0xdb, 0x27, 0x74);
 
 class DesignerHierarchyViewInterface : public QUnknownInterface
 {
 public:
-    DesignerHierarchyViewInterface( QUnknownInterface *parent )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerHierarchyViewInterface" ); }
 };
 
 /*
  * Interfaces for Configuration access
  */
+// {4F5BA81F-520D-4a59-95DD-BDB8B5B24190}
+Q_GUID(IID_DesignerConfigurationInterface, 
+0x4f5ba81f, 0x520d, 0x4a59, 0x95, 0xdd, 0xbd, 0xb8, 0xb5, 0xb2, 0x41, 0x90);
 
 class DesignerConfigurationInterface : public QUnknownInterface
 {
 public:
-    DesignerConfigurationInterface( QUnknownInterface *parent )
-	: QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "DesignerConfigurationInterface" ); }
 };
 
 #endif //DESIGNERINTERFACE_H

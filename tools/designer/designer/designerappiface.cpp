@@ -8,52 +8,101 @@
 #include <qobjectlist.h>
 #include <qstatusbar.h>
 
-DesignerApplicationInterface::DesignerApplicationInterface()
-    : QComponentInterface()
-{
-    MainWindow* mw = (MainWindow*)qApp->mainWidget();
-    FormList* fl = mw ? mw->formlist() : 0;
-    if ( !fl )
-	return;
+/*
+ * Application Interface
+*/
 
-    new DesignerMainWindowInterfaceImpl( mw, this );
-    new DesignerFormListInterfaceImpl( fl, this );
-    new DesignerConfigurationInterface( this );
+DesignerApplicationInterfaceImpl::DesignerApplicationInterfaceImpl()
+: ref( 0 ), sbIface( 0 )
+{
+}
+
+QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)(QComponentInterface*)this;
+    else if ( guid == IID_QComponentInterface )
+	iface = (QComponentInterface*)this;
+    else if ( guid == IID_DesignerStatusBarInterface )
+	iface = sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterfaceImpl( (QComponentInterface*)this ) );
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long DesignerApplicationInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerApplicationInterfaceImpl::release()
+{
+    if ( !--ref )
+	delete this;
+
+    return ref;
+}
+
+QString DesignerApplicationInterfaceImpl::name() const 
+{ 
+    return "Qt Designer"; 
+}
+
+QString DesignerApplicationInterfaceImpl::description() const 
+{ 
+    return "GUI Editor for the Qt Toolkit"; 
+}
+
+QString DesignerApplicationInterfaceImpl::version() const 
+{ 
+    return "1.1"; 
+}
+
+QString DesignerApplicationInterfaceImpl::author() const 
+{ 
+    return "Trolltech"; 
 }
 
 /*
- * DesignerMainWindowInterface
+ * StatusBar Interface
 */
-DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent )
-    : DesignerMainWindowInterface( parent ), mainWindow( mw )
+DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QComponentInterface *ai )
+: DesignerStatusBarInterface(), appIface( ai ), statusBar( 0 )
 {
-    PropertyEditor* pe = mw ? mw->propertyeditor() : 0;
-    HierarchyView* hv = mw ? mw->objectHierarchy() : 0;
-
-    new DesignerStatusBarInterfaceImpl( mw->statusBar(), this );
-    new DesignerPropertyEditorInterface( this );
-    new DesignerHierarchyViewInterface( this );
+    QWidget *mw = qApp ? qApp->mainWidget() : 0;
+    if ( mw && mw->inherits( "QMainWindow" ) )
+	statusBar = ((QMainWindow*)mw)->statusBar();
 }
 
-/*
- * DesignerStatusBarInterface
-*/
-DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent )
-    : DesignerStatusBarInterface( parent ), statusBar( sb )
+QUnknownInterface *DesignerStatusBarInterfaceImpl::queryInterface( const QGuid& guid )
 {
+    return appIface->queryInterface( guid );
 }
 
-void DesignerStatusBarInterfaceImpl::setMessage( const QString &m, int ms )
+unsigned long DesignerStatusBarInterfaceImpl::addRef()
+{
+    return appIface->addRef();
+}
+
+unsigned long DesignerStatusBarInterfaceImpl::release()
+{
+    return appIface->release();
+}
+
+void DesignerStatusBarInterfaceImpl::setMessage( const QString &text, int ms )
 {
     if ( statusBar )
-	statusBar->message( m, ms );
+	statusBar->message( text, ms );
 }
 
+#if 0
 /*
  * DesignerFormListInterface
 */
-DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent )
-    : DesignerFormListInterface( parent ), formList( fl )
+DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl )
+    : DesignerFormListInterface(), formList( fl )
 {
     new DesignerActiveFormWindowInterfaceImpl( fl, this );
     listIterator = 0;
@@ -216,8 +265,8 @@ bool DesignerFormListInterfaceImpl::connect( const char * signal, QObject *recei
  * DesignerFormWindowInterface
 */
 
-DesignerFormWindowInterfaceImpl::DesignerFormWindowInterfaceImpl( FormListItem *fw, QUnknownInterface *parent )
-    : DesignerFormWindowInterface( parent ), item( fw )
+DesignerFormWindowInterfaceImpl::DesignerFormWindowInterfaceImpl( FormListItem *fw )
+    : DesignerFormWindowInterface(), item( fw )
 {
     MainWindow *mw = (MainWindow*)qApp->mainWidget();
     PropertyEditor *pe = mw->propertyeditor();
@@ -313,8 +362,8 @@ bool DesignerFormWindowInterfaceImpl::connect( const char *signal, QObject *rece
 /*
  * DesignerActiveFormWindowInterface
 */
-DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent )
-: DesignerFormWindowInterfaceImpl( 0, parent ), formList( fl )
+DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl( FormList *fl )
+: DesignerFormWindowInterfaceImpl( 0 ), formList( fl )
 {
 }
 
@@ -330,7 +379,7 @@ unsigned long DesignerActiveFormWindowInterfaceImpl::addRef()
 /*
  * DesignerWidgetListInterface implementation
  */
-DesignerWidgetListInterfaceImpl::DesignerWidgetListInterfaceImpl( FormWindow *fw, QUnknownInterface *parent )
+DesignerWidgetListInterfaceImpl::DesignerWidgetListInterfaceImpl( FormWindow *fw )
 : DesignerWidgetListInterface( parent ), dictIterator( 0 ), formWindow( fw )
 {
 }
@@ -414,8 +463,8 @@ void DesignerWidgetListInterfaceImpl::removeAll() const
 /*
  * DesignerWidgetInterface implementation
  */
-DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( QWidget *w, QUnknownInterface *parent )
-: DesignerWidgetInterface( parent ), widget( w )
+DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( QWidget *w )
+: DesignerWidgetInterface(), widget( w )
 {
 }
 
@@ -456,8 +505,8 @@ void DesignerWidgetInterfaceImpl::remove()
 /*
  * DesignerActiveWidgetInterface implementation
  */
-DesignerActiveWidgetInterfaceImpl::DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe, QUnknownInterface *parent )
-: DesignerWidgetInterfaceImpl( 0, parent ), propertyEditor( pe )
+DesignerActiveWidgetInterfaceImpl::DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe )
+: DesignerWidgetInterfaceImpl(), propertyEditor( pe )
 {
 }
 
@@ -472,3 +521,4 @@ unsigned long DesignerActiveWidgetInterfaceImpl::addRef()
 */
     return rc;
 }
+#endif
