@@ -1923,7 +1923,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
 		int i = 0;
-		while ( fm.width( ci->tmpText + t[ i ] ) + pw < width )
+		int len = t.length();
+		while ( i < len && fm.width( ci->tmpText + t[ i ] ) + pw < width )
 		    ci->tmpText += t[ i++ ];
 		ci->tmpText.remove( 0, 3 );
 		if ( ci->tmpText.isEmpty() )
@@ -1937,7 +1938,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			ci->truncated = TRUE;
 			QString tempText = "...";
 			int i = 0;
-			while ( fm.width( tempText + z[ i ]) + pw < width )
+			int len = z.length();
+			while ( i < len && fm.width( tempText + z[ i ]) + pw < width )
 			    tempText += z[i++];
 			tempText.remove( 0, 3 );
 			if ( tempText.isEmpty() )
