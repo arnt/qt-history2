@@ -1364,18 +1364,32 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				   "<p>Applications and libraries linked against a shared Qt library "
 				   "are small and can make use of components and plugins.</p>" );
 	}
-    } else if ( i->text( 0 ) == "SQL Drivers" ) {
+    } else if ( i->text( 0 ) == "Sql Drivers" ) {
 	explainOption->setText("Select the SQL Drivers you want to support. "
-			       "You need to have the client installed properly." );
-    } else if ( i->parent() && i->parent()->text( 0 )== "SQL Drivers" ) {
-	explainOption->setText("Select the SQL Drivers you want to support. "
-			       "You need to have the client libraries installed properly. "
-			       "Selected SQL Drivers will be integrated into Qt. \nYou can also "
-			       "build every SQL Driver as a plugin to be more flexible for later "
-			       "extensions. Building a plugin is not supported in the installer at "
-			       "this point. You will have to do it manually after the installation "
-			       "succeeded. Read the help files in QTDIR\\plugins\\src\\sqldrivers for "
-			       "further instructions." );
+				"<font color=#FF0000>You must have the appropriate client libraries "
+				"and header files installed correctly before you can build the Qt SQL drivers.</font>" );
+    } else if ( ( i->parent() && i->parent()->text( 0 )== "Sql Drivers" )
+	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Sql Drivers" ) ) {
+	explainOption->setText( "Select the SQL Drivers you want to support. "
+			        "<font color=#FF0000>You must have the appropriate client libraries "
+				"and header files installed correctly before you can build the Qt SQL drivers.</font> "
+				"Selected SQL Drivers will be integrated into Qt. \nYou can also "
+				"build every SQL Driver as a plugin to be more flexible for later "
+				"extensions. Building a plugin is not supported in the installer at "
+				"this point. You will have to do it manually after the installation "
+				"succeeded. Read the help files in QTDIR\\plugins\\src\\sqldrivers for "
+				"further instructions." );
+    } else if ( i->text( 0 ) == "Styles" ) {
+	explainOption->setText( QString("Select support for the various GUI styles that Qt has emulation for." ) );
+    } else if ( ( i->parent() && i->parent()->text( 0 ) == "Styles" ) 
+	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Styles" ) ) {
+	QString styleName = (i->parent()->text( 0 ) == "Styles") ? i->text( 0 ) : i->parent()->text( 0 );
+	if ( styleName == "Windows" || styleName == "Motif" ) {
+	    explainOption->setText( QString("The %1 style is builtin to the Qt library.").arg( styleName ) );
+	} else {
+	    explainOption->setText( QString("Selects support for the %1 style. The style can be built "
+				    "as a plugin, or builtin to the library, or not at all.").arg( styleName ) );
+	}
     } else if ( i == accOff ) {
 	explainOption->setText( "Turns off accessibility support. People who need accessibility "
 				"clients will not be able to use your software." );
@@ -1405,9 +1419,9 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     } else if ( i == tabletOff ) {
 	explainOption->setText( "Support for the Wacom tablet is disabled. This is the default option." );
     } else if ( i == tabletOn ) {
-	explainOption->setText( "This option builds in support for Wacom(c) tablets. Note to build this "
-				"you must have built the Wintab SDK available at "
-				"http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
+	explainOption->setText( "This option builds in support for Wacom(c) tablets.\n"
+				"To use a supported tablet, you must have built the Wintab SDK available "
+				"at http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
 				"set appropriately." );
     } else if ( i->text(0) == "Image Formats" ) {
 	explainOption->setText( "Qt ships with support for a wide range of common image formats. "
