@@ -13,6 +13,7 @@ QOCI
 - [done] or... never cache anything until the first fetch() <= this will optimize copying QSql around before it is actually used.
 - transaction support
 - fix QOCIResultPrivate to use proper field size when creating memory
+- OCI_FETCH_PRIOR?
 
 QODBC
 - check out the easysoft Oracle ODBC driver, and see how useful it is
@@ -29,4 +30,6 @@ Sql tables
 - [done]allow data to be displayed without using setNumRows() or QSql::size().
 
 - replace Q_UNUSED with unnamed parms
+
+- solve *.pro path problems for building drivers
 
