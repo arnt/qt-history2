@@ -951,7 +951,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 	preprocfile = outdir + "moc_macrodefs.h";
 
 	t << preprocfile << ": " << ph << "\n\t"
-	  << "$(CXX) -x c++ -E -dM -DQT_NO_STL $(CXXFLAGS) $(INCPATH) " << ph
+	  << "$(CXX) -x c++ -E -dM -DQT_NO_STL $(CXXFLAGS) $(INCPATH) -UQT_COMPAT_WARNINGS -DQT_COMPAT " << ph
 	  << " -o " << preprocfile << endl << endl;
     }
 
@@ -972,7 +972,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 		  << "$(MOC) " <<  " -f" << (*it) << " " << tmpfile <<" -o " << m << endl << endl;
 
 		// << "$(DEL_FILE) " << tmpfile << endl << endl;
-		
+
 	    } else {
 		t << m << ": " << deps << "\n\t"
 		  << "$(MOC)";
