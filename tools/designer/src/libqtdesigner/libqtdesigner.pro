@@ -2,6 +2,7 @@ TEMPLATE=lib
 TARGET=QtDesigner
 CONFIG += qt dll
 DESTDIR = ../../../../lib
+DLLDESTDIR = ../../../../bin
 DEFINES += QT_SDK_LIBRARY
 DEFINES += QT_EXTENSION_LIBRARY
 

@@ -13,11 +13,6 @@ INCLUDEPATH += ../../sdk \
     ../../uilib \
     ../../extension
 
-LIBS += -L../../../lib \
-    -lQtDesigner \
-    -lshared \
-    -luilib \
-
 HEADERS += default_membersheet.h signalsloteditor.h membersheet.h signalsloteditor_global.h
 
 SOURCES += default_membersheet.cpp signalsloteditor.cpp

@@ -18,7 +18,3 @@ INCLUDEPATH += \
     ../../sdk \
     ../../uilib \
     ../../extension
-
-LIBS += -L../../../lib \
-    -lQtDesigner \
-    -luilib \

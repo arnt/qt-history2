@@ -11,14 +11,6 @@ INCLUDEPATH += \
     ../../shared \
     ../formeditor
 
-LIBS += \
-    -L../../../lib \
-    -lQtDesigner \
-    -lshared \
-    -lformeditor \
-    -luilib \
-    -lpropertyeditor \
-
 DEFINES += QT_WIDGETBOX_LIBRARY
 
 SOURCES += widgetbox.cpp

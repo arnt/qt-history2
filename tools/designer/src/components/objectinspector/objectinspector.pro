@@ -10,11 +10,6 @@ INCLUDEPATH += \
     ../../uilib \
     ../../shared
 
-LIBS += -L../../../lib \
-    -lQtDesigner \
-    -luilib \
-    -lshared
-
 HEADERS += objectinspector.h \
     objectinspector_global.h
 

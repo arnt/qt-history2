@@ -11,9 +11,6 @@ TARGET = specialeditor
 
 DESTDIR = ../../../lib
 
-LIBS += -L../../../lib \
-    -lQtDesigner
-
 DEFINES += QT_SPECIALEDITORSUPPORT_LIBRARY
 
 SOURCES += defaultspecialeditor.cpp \

@@ -3,15 +3,15 @@ QT += xml network
 CONFIG += qt
 
 mac:TARGETDEPS += ../../../../lib/libQtDesigner.dylib \
-    ../../lib/libformeditor.lib \
-    ../../lib/libobjectinspector.lib \
-    ../../lib/libimagecollection.lib \
-    ../../lib/libshared.lib \
-    ../../lib/libpropertyeditor.lib \
-    ../../lib/libspecialeditor.lib \
-    ../../lib/libsignalsloteditor.lib
+    ../../lib/libformeditor.dylib \
+    ../../lib/libobjectinspector.dylib \
+    ../../lib/libimagecollection.dylib \
+    ../../lib/libshared.dylib \
+    ../../lib/libpropertyeditor.dylib \
+    ../../lib/libspecialeditor.dylib \
+    ../../lib/libsignalsloteditor.dylib
 
-unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
+unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.a \
     ../../lib/libformeditor.a \
     ../../lib/libobjectinspector.a \
     ../../lib/libwidgetbox.a \
@@ -20,7 +20,7 @@ unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
     ../../lib/libpropertyeditor.a \
     ../../lib/libsignalsloteditor.a
 
-win32:TARGETDEPS += ../../../../lib/QtDesigner.dll \
+win32:TARGETDEPS += ../../../../lib/QtDesigner.lib \
     ../../lib/formeditor.lib \
     ../../lib/objectinspector.lib \
     ../../lib/widgetbox.lib \
@@ -42,7 +42,6 @@ INCLUDEPATH += ../uilib \
     ../components/propertyeditor
 
 LIBS += -L../../lib \
-    -lQtDesigner \
     -lshared \
     -lformeditor \
     -lobjectinspector \
@@ -50,9 +49,10 @@ LIBS += -L../../lib \
     -lwidgetbox \
     -limagecollection \
     -lspecialeditor \
-    -lshared \
     -luilib \
-    -lsignalsloteditor
+    -lsignalsloteditor \
+    -L../../../../lib \
+    -lQtDesigner
 
 HEADERS +=  designerapp.h \
     mainwindow.h \

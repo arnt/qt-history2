@@ -15,13 +15,6 @@ INCLUDEPATH += ../../sdk \
     ../propertyeditor \
     ../signalsloteditor
 
-LIBS += -L../../../lib \
-    -lQtDesigner \
-    -lshared \
-    -lpropertyeditor \
-    -lsignalsloteditor \
-    -luilib
-
 HEADERS += qdesigner_widget.h \
            qdesigner_tabwidget.h \
            qdesigner_stackedbox.h \
