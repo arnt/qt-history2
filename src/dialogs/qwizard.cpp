@@ -227,12 +227,13 @@ QWizard::~QWizard()
 
 void QWizard::show()
 {
-    if ( d->current )
-	showPage( d->current->w );
-    else if ( pageCount() > 0 )
-	showPage( d->pages.at( 0 )->w );
-    else
-	showPage( 0 );
+    if ( !d->current ) {
+	// No page yet
+	if ( pageCount() > 0 )
+	    showPage( d->pages.at( 0 )->w );
+	else
+	    showPage( 0 );
+    }
 
     QDialog::show();
 }
@@ -320,6 +321,11 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
 
 /*!
     Makes \a page the current page and emits the selected() signal.
+
+    This virtual function is called whenever a different page is to
+    be shown, including the first time the QWizard is shown.
+    By reimplementing it (and calling QWizard::showPage()),
+    you can prepare each page prior to it being shown.
 */
 
 void QWizard::showPage( QWidget * page )
