@@ -5,6 +5,7 @@ $P4 = "p4";
 $maxChanges = 30;
 $userName = `whoami`;
 chomp $userName;
+$checkmissing = 0;
 $change = 0;
 $all = 0;
 $ask = 1;
@@ -15,6 +16,23 @@ $resolve = 1;
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
 $0 =~ s/.*\///;
+
+#known branches
+$targetBranch{"qt-2.3"} = "3.0";
+$targetBranch{"qt-3.0"} = "3.1";
+$targetBranch{"qt-3.1"} = "3.2";
+$targetBranch{"qt-3.2"} = "3";
+$targetBranch{"qt-3CE"} = "3";
+$targetBranch{"qt-3"} = "4.0";
+$targetBranch{"qt-4.0"} = "main";
+$targetBranch{"qtopia-1.6"} = "1";
+$targetBranch{"qtopia-1"} = "2";
+$targetBranch{"qtopia-2"} = "main";
+$targetBranch{"qtest-main"} = "stable";
+$targetBranch{"qtest-stable"} = "main";
+$targetBranch{"support-stable"} = "main";
+$targetBranch{"support-main"} = "stable";
+$targetBranch{"autotests-3"} = "main";
 
 open( P4, "$P4 -V |") || die "$0: Couldn't exec $P4: $!\n";
 $line = <P4>;
@@ -30,24 +48,104 @@ sub usage {
     exit( 0 );
 }
 
-for $arg ( @ARGV ) {
-  if ( $arg eq "--help" ) {
-    usage;
-  } elsif ( $arg eq "--all" ) {
-    $all = 1;
-    $ask = 0;
-    $force = 1;
-  } elsif ( $arg eq "--force" ) {
-    $force = 1;
-  } elsif ( $arg eq "--ignoredeleted" ) {
-    $ignoredeleted = 1;
-  } elsif ( $arg eq "--noresolve" ) {
-    $resolve = 0;
-  } elsif ( $arg =~ /^\d+$/ ) {
-    $change = $arg;
-  } else {
-    usage;
-  }
+while ( @ARGV ) {
+    my $arg = shift @ARGV;
+    if ( $arg eq "--help" ) {
+	usage;
+    } elsif ( $arg eq "--all" ) {
+	$all = 1;
+	$ask = 0;
+	$force = 1;
+    } elsif ( $arg eq "--checkmissing" ) {
+	$checkmissing = shift @ARGV;
+    } elsif ( $arg eq "--force" ) {
+	$force = 1;
+    } elsif ( $arg eq "--ignoredeleted" ) {
+	$ignoredeleted = 1;
+    } elsif ( $arg eq "--noresolve" ) {
+	$resolve = 0;
+    } elsif ( $arg =~ /^\d+$/ ) {
+	$change = $arg;
+    } else {
+	usage;
+    }
+}
+
+if( $checkmissing ) { #just look for missing
+    open( P4, "$P4 changes -u $userName -m 1024 $checkmissing |") || die "$0: Couldn't exec $P4: $!\n";
+    while( $line = <P4> ) {
+	chop $line;
+	next unless($line);
+	next unless($line =~ /Change ([0-9]+) on.*/);
+	my $change = $1;
+
+	#get the files in the change
+	my @files;
+	my $branch = 0;
+	open( P4DESC, "$P4 -ztag describe $change |") || die "$0: Couldn't exec $P4: $!\n";
+	while( $line = <P4DESC> ) {
+	    if ( $line =~ /\.\.\. depotFile[0-9]+ (\/\/depot\/.*)/ ) { 
+		my $file = $1;
+		if( $file =~ /\/\/depot\/(([^\/]*)\/([^\/]*))\/(.*)/ ) {
+		    my $file_branch = ${2} . "-" . ${3};
+		    if( !$branch || $branch eq $file_branch) {
+			push @files, $4;
+			$branch = $file_branch;
+		    } else {
+			print "Files have different branches in change $change!\n";
+		    }
+		}
+	    } 
+	}
+	close(P4DESC);
+	my $toBranch;
+	if(defined($targetBranch{"$branch"})) {
+	    $toBranch = $targetBranch{"$branch"};
+	} else {
+	    print(" ** Warning: No target branch found for $branch. Assuming qt/main.\n");
+	    $toBranch = "main";
+	}
+
+	#check which has not been integrated
+	my @not_integrated;
+	foreach $file (@files) {
+	    open( P4CHANG, "$P4 changes -m $maxChanges \"//depot/qt/$toBranch/$file\"|" ) ||
+		die "$0: Couldn't exec $P4: $!\n";
+	    while( $line = <P4CHANG> ) {
+		chop $line;
+		last unless($line =~ /Change ([0-9]+) on.*/);
+		my $pot_change = $1, $pot_file = 0;
+		last if($pot_change < $change);
+		open( P4DESC, "$P4 -ztag describe $pot_change|" ) || die "$0: Couldn't exec $P4: $!\n";
+		while( $line = <P4DESC>) {
+		    chop $line;
+		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/$file/) {
+			$pot_file = 1;
+		    } elsif($line =~ /\.\.\. action[0-9]+ (.*)/ && $pot_file) {
+			$file = 0 if($1 eq "integrate");
+			last;
+		    }
+		}
+		close(P4DESC);
+	    }
+	    close(P4CHANG);
+	    push @not_integrated, $file if($file);
+	}
+
+	#spit out the message
+	if ( $#not_integrated != -1 ) {
+	    if($#not_integrated == $#files) {
+		print "Change $change is not integrated!\n";
+	    } else {
+		print "Change $change is not fully integrated:\n";
+		foreach $file (@not_integrated) {
+		    print "   $file\n";
+		}
+	    }
+	}
+    }
+    close( P4 );
+    exit(0)
 }
 
 if ( $change == 0 ) { # Get your latest change list
@@ -106,22 +204,6 @@ if ( $#fromBranchFiles == -1 ) {
 
 # Different products (e.g. Qt and Qtopia) will have different integration
 # targets for different branches...
-
-$targetBranch{"qt-2.3"} = "3.0";
-$targetBranch{"qt-3.0"} = "3.1";
-$targetBranch{"qt-3.1"} = "3.2";
-$targetBranch{"qt-3.2"} = "3";
-$targetBranch{"qt-3CE"} = "3";
-$targetBranch{"qt-3"} = "4.0";
-$targetBranch{"qt-4.0"} = "main";
-$targetBranch{"qtopia-1.6"} = "1";
-$targetBranch{"qtopia-1"} = "2";
-$targetBranch{"qtopia-2"} = "main";
-$targetBranch{"qtest-main"} = "stable";
-$targetBranch{"qtest-stable"} = "main";
-$targetBranch{"support-stable"} = "main";
-$targetBranch{"support-main"} = "stable";
-$targetBranch{"autotests-3"} = "main";
 
 $product = $pathComponents[3];
 $fromBranch = $pathComponents[4];
