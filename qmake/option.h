@@ -83,7 +83,7 @@ struct Option
 
     //QMAKE_GENERATE_MAKEFILE options
     struct mkfile {
-	static QString qmakepath;
+	static QString qmakespec;
 	static bool do_cache;
 	static bool do_deps;
 	static bool do_dep_heuristics;

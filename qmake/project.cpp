@@ -312,31 +312,31 @@ QMakeProject::read(QString project, QString pwd)
 	    Option::mkfile::cachefile = cachefile;
 	    if(!cachefile.isEmpty()) {
 		read(cachefile, cache);
-		if(Option::mkfile::qmakepath.isEmpty() && !cache["QMAKEPATH"].isEmpty())
-		    Option::mkfile::qmakepath = cache["QMAKEPATH"].first();
+		if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
+		    Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
 	    }
 	}
 
 	/* parse mkspec */
-	if(Option::mkfile::qmakepath.isNull() || Option::mkfile::qmakepath.isEmpty()) {
-	    if(!getenv("QMAKEPATH")) {
-		fprintf(stderr, "QMAKEPATH has not been set, so configuration cannot be deduced.\n");
+	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty()) {
+	    if(!getenv("QMAKESPEC")) {
+		fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::mkfile::qmakepath = getenv("QMAKEPATH");
+	    Option::mkfile::qmakespec = getenv("QMAKESPEC");
 	}
-	if(QDir::isRelativePath(Option::mkfile::qmakepath)) {
+	if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
 	    if(!getenv("QTDIR")) {
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::mkfile::qmakepath.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
+	    Option::mkfile::qmakespec.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
 	}
-	QString spec = Option::mkfile::qmakepath + QDir::separator() + "qmake.conf";
-	debug_msg(1, "QMAKEPATH conf: reading %s", spec.latin1());
+	QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
+	debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
 
 	if(!read(spec, base_vars)) {
-	    fprintf(stderr, "Failure to read QMAKEPATH conf file %s.\n", spec.latin1());
+	    fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.latin1());
 	    return FALSE;
 	}
 	if(!cachefile.isEmpty()) {
@@ -396,7 +396,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
 	return TRUE;
-    else if(Option::mkfile::qmakepath.right(x.length()) == x)
+    else if(Option::mkfile::qmakespec.right(x.length()) == x)
 	return TRUE;
 
     return ( vars["CONFIG"].findIndex(x) != -1 );

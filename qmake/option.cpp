@@ -77,7 +77,7 @@ bool Option::projfile::do_pwd = TRUE;
 QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
-QString Option::mkfile::qmakepath;
+QString Option::mkfile::qmakespec;
 bool Option::mkfile::do_deps = TRUE;
 bool Option::mkfile::do_dep_heuristics = TRUE;
 bool Option::mkfile::do_cache = TRUE;
@@ -112,7 +112,7 @@ bool usage(const char *a0)
 	    "\t-t templ       Overrides TEMPLATE as templ\n"
 	    "\t-help          This help\n"
 	    "\t-cache file    Use file as cache           [makefile mode only]\n"
-	    "\t-path dir      Use dir as QMAKEPATH        [makefile mode only]\n"
+	    "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
 	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
@@ -178,8 +178,8 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::do_dep_heuristics = FALSE;
 		    } else if(opt == "mkcache") {
 			Option::mkfile::cachefile = argv[++x];
-		    } else if(opt == "path") {
-			Option::mkfile::qmakepath = argv[++x];
+		    } else if(opt == "spec") {
+			Option::mkfile::qmakespec = argv[++x];
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
 			return usage(argv[0]);

@@ -43,6 +43,7 @@
 <li><a href="#Introduction">Introducing <em>qmake</em></a></li>
 <li><a href="#Concepts"><em>qmake</em> Concepts</a></li> 
 <li><a href="#Details"><em>qmake</em> Details</a></li> 
+<li><a href="#Tutorial"><em>qmake</em> tutorial</a></li>
 </ul>
 
 See also the <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>.
@@ -73,30 +74,29 @@ install <em>qmake</em> separately:
 
 After <em>qmake</em> is built:
 
-<ol>
-<li>Set the QMAKEPATH environment variable to point to a directory containing a description of your platform and compiler (see below)
-<li>Add the 'qmake' executable to your PATH
-</ol>
+<ol> <li>Set the QMAKESPEC environment variable to point to a directory
+containing a description of your platform and compiler (see below) <li>Add
+the 'qmake' executable to your PATH </ol>
 
 Here are some examples:
 
 <ul>
 <li>Unix Bourne shell:<p>
 \code
-	QMAKEPATH=/home/db/mkspecs/linux-g++
+	QMAKESPEC=/usr/local/qt/mkspecs/linux-g++
 	PATH=$PATH:/local/qmake/bin
-	export QMAKEPATH PATH
+	export QMAKESPEC PATH
 \endcode
 
 <li>Unix C shell:<p>
 \code
-	setenv QMAKEPATH /home/db/mkspecs/linux-g++
+	setenv QMAKESPEC /usr/local/qt/mkspecs/linux-g++
 	setenv PATH $PATH:/local/qmake/bin
 \endcode
 
 <li>Microsoft Windows:<p>
 \code
-	set QMAKEPATH=c:\mkspecs\win32-msvc
+	set QMAKESPEC=c:\qt\mkspecs\win32-msvc
 	set PATH=%PATH%;c:\qmake\bin
 \endcode
 </ul>
@@ -133,7 +133,7 @@ project, type:
 \endcode
 
 
-This builds the 'hello' program. Remember to set the <a href="#QMAKEPATH">QMAKEPATH</a> environment 
+This builds the 'hello' program. Remember to set the <a href="#QMAKESPEC">QMAKESPEC</a> environment 
 variable properly before you run qmake.
 
 <h1><a name="Introduction">Introducing qmake</a></h1>
@@ -176,30 +176,30 @@ for:
 <li>msdev dsp project files
 </ul>
 
-<h3><a name="QMAKEPATH">QMAKEPATH</a></h3>
+<h3><a name="QMAKESPEC">QMAKESPEC</a></h3>
 
 <em>qmake</em> requires a description of your platform so that a
 suitable makefile can be generated.  These descriptions are kept in a
 'makefile specification' files called qmake.conf. <em>qmake</em>
 requires this configuration file in order to generate appropriate
 makefiles for specific platform and compiler combinations.  The \c
-QMAKEPATH environment variable must be set to the name of a directory
+QMAKESPEC environment variable must be set to the name of a directory
 which contains this configuration file.  The qmake.conf file will
 contain such basic information as the compiler to use, the names of
 system libraries and location of system headers.  
 
 On startup, <em>qmake</em> will attempt to locate the qmake.conf file
-for your platform by using the QMAKEPATH environment variable.  Alternatively, 
-load all of its default values.  The QMAKEPATH environment variable
+for your platform by using the QMAKESPEC environment variable.  Alternatively, 
+load all of its default values.  The QMAKESPEC environment variable
 can be used to tell <em>qmake</em> where to find this file, or a
 command line option can be given.  <em>qmake</em> ships with many
-standard QMAKEPATH files for many platform-compiler combinations.  See
-the <a href="qmake-commandreference.html#QMAKEPATH"<em>qmake</em>
+standard QMAKESPEC files for many platform-compiler combinations.  See
+the <a href="qmake-commandreference.html#QMAKESPEC"<em>qmake</em>
 command reference</a> for more info.
 
-The QMAKEPATH environment variable should point to a directory which
+The QMAKESPEC environment variable should point to a directory which
 contains information about your platform and compiler.  When invoked,
-<em>qmake</em> will use $QMAKEPATH to find your compiler specifications.
+<em>qmake</em> will use $QMAKESPEC to find your compiler specifications.
 This configuration file contains compiler options and lists tools and
 libraries.
 
@@ -209,7 +209,7 @@ You can find many platform-compiler combination descriptions in the
 
 <h3><a name="ProjectFiles">Project Files</a></h3>
 
-Armed with your platform description from the appropriate QMAKEPATH
+Armed with your platform description from the appropriate QMAKESPEC
 file, <em>qmake</em> will then load any specified 'project files'
 which describe your software project and generate a makefile to build
 that project.  A <em>project file</em> will typically contain a list
@@ -225,7 +225,7 @@ linking).
 <h3>Project Templates</h3>
 
 <em>qmake</em> understands several kinds of 'templates' which tell
-<em>qmake</em> what kind of project it is building. The most common
+<em>qmake</em> what kind of project it is building. The supported
 values are:
 
 <ul>
@@ -286,10 +286,12 @@ This template recognizes the following system variables:
 <li>SUBDIRS - contains the name of all subdirectories to be processed
 </ul>
 
-<em>qmake</em> assumes that each subdirectory contains additional
-project files to be processed.  See the <em>qmake</em> <a
-href="qmakecommandreference.html#subdirs">reference manual</a> for
-details.
+<em>qmake</em> assumes that each subdirectory contains additional project
+files to be processed.  Each sub-project file must be named the same as the
+directory (ie in subdirectory display, you must have a display.pro which
+will be made by built by qmake, and finally make the project).  See the
+<em>qmake</em> <a href="qmakecommandreference.html#subdirs">reference
+manual</a> for details.
 
 <h3>Special Templates for Microsoft Visual C++</h3>
 
@@ -369,11 +371,11 @@ parsed from top to bottom and consist of a series of user defined
 variables as well as operations on those variables.  When
 <em>qmake</em> is finished parsing the file without error, a makefile
 is generated for the platform-compiler combination specified by the
-QMAKEPATH file.  The order of execution for <em>qmake</em> is:
+QMAKESPEC file.  The order of execution for <em>qmake</em> is:
 
 <ol>
-<li>Parse the mkspec information
-<li>Parse the cache file, if available
+<li>Parse the QMAKESPEC config file (qmake.conf)
+<li>Parse the cache file, if available (.qmake.cache)
 <li>Parse and commandline options
 <li>Parse the project file
 </ol>
@@ -483,8 +485,8 @@ several ways to test for something being "in scope":
     <a href="qmake-commandreference"> command reference</a>) you may
     use the OS dependant scope (unix/win32)
 <li>Function testing (see the <a href="#Functions">function tests</a> section)
-<li>If a given compiler is used as specified by the QMAKEPATH (see the 
-    <a href="#QMAKEPATH">QMAKEPATH</a> section).
+<li>If a given compiler is used as specified by the QMAKESPEC (see the 
+    <a href="#QMAKESPEC">QMAKESPEC</a> section).
 </ul>
 
 Scopes must be colon separated from their assignment for example:
@@ -550,25 +552,164 @@ command reference</a> for more info.
 
 <h3>Cache file</h3>
 
-<em>qmake</em> can optionally consults a 'cache' file to prevent
-mistaken misconfiguration. <em>qmake</em> will never generate a cache
-file on its own, it is the obligation of some outside program to do
-this, however the syntax is controlled and is similar to a standard
-.pro. The cache file must be called \c .qmake.cache, and should be
-placed at the top directory of your project.  <em>qmake</em> will
-later walk backwards in your project hierarchy to find it.  Currently
-defined in the .qmake.cache is the following:
-
-   QMAKEPATH : This variable will tell qmake what mkspec was used on
-   previous runs, and will prefer to default to using this spec.
-   CONFIG : This variable will tell qmake what CONFIG's you had turned on
-   in the previous qmake, it will use this list as its list of currently
-   "in scope" variables.
+<em>qmake</em> can optionally consults a 'cache' file to prevent mistaken
+misconfiguration. <em>qmake</em> will never generate a cache file on its
+own, it is the obligation of some outside program to do this, however the
+syntax is identical a normal .pro. The cache file must be called \c
+.qmake.cache, and should be placed at the top directory of your project.
+<em>qmake</em> will later walk backwards in your project hierarchy to find
+it (ie starting at the your current working directory, then its parent, and
+so on until it reaches a .qmake.cache, or the root).
 
 <em>qmake</em> does not require the use of a .qmake.cache - and if it
 does not exist will silently ignore it. If however it exists and you
 want to override it, you may use the -nocache option. See the <a
 href="qmake-commandreference.html#cache"<em>qmake</em> command
 reference</a> for more info.
+
+
+
+<a name="Tutorial"><h3>Tutorial</h3></a>
+
+With all the above you have enough to go on your way designing a simple
+build structure with <em>qmake</em>, however in practice there are several
+caveats to setting up such a project, this tutorial will try to run-through
+a project file and describe what the output will be - it will also try to
+give some helpful pointers on using qmake in a similar fashion as TrollTech
+(and we ALL want to do that!). 
+
+So to start we will outline a simple build procedure. The first think you
+meet in many projects is a configure script, if you are writing a project
+of any size you may want to do this, by hand or even with autoconf. Once
+this script has been run you need to create some Makefiles, similarly you
+will probably want to create a .qmake.cache in your top level directory
+(probably where your configure script is). If you create this .qmake.cache
+each time the user runs configure you can guarantee that your whole tree
+will be built using the same config options. The most useful things to put
+in the .qmake.cache are:
+
+CONFIG    - This will tell qmake what CONFIG's are in scope
+QMAKESPEC - This will tell qmake what configuration should be used to
+            create Makefiles. Strictly speaking this isn't necesary since
+            the QMAKESPEC environment variable can be used instead, however
+            placing it here will remove necessity for the environment
+            variable.
+
+OBJ_DIR
+UI_DIR
+MOC_DIR   - If you want all your files to go to a directory (project-wide)
+	        then specifying them in the .cache file will help.
+
+After this has been done simple run qmake on the necesary .pro files and
+your are set. That is all that this tutorial is going to mention such a
+configure script, if you are writing a small project (less than a couple
+.pro files) then you may not need to bother with a configure script, and
+certainly qmake will be none-the-wiser.
+
+Now as we are all wondering, how do we write project files for qmake to
+process? First you must decide what kind of output you expect, namely a
+library or an application, for demonstration purposes we will show an
+application:
+
+TEMPLATE=app
+TARGET=hello_world
+SOURCES=main.cpp hello.cpp
+HEADERS=hello.h
+    
+Taken line by line:
+
+TEMPLATE=app
+This will cause the output to be an application, it will be a fully
+resolved object and will be placed in DESTDIR, which in this case is not set,
+which means current working directory.
+
+TARGET=hello_world
+An application will be created called hello_world
+
+SOURCES=main.cpp hello.cpp
+Both main.cpp and hello.cpp will be compiled and linked into the final
+output of hello_world. It will look through these files and parse them as a
+preprocessor and try to resolve all dependancies for the makefile.
+
+HEADERS=hello.h
+This tells qmake to look at hello.h. It doesn't mean it will actually do
+anything in the Makefile, but instead qmake will try to decide if something
+*should* be done. This mostly means if the header file needs to be moc'd
+special rules will be added and it the new files will be added to the
+project.
+
+In many cases this is enough. With all this you are set to build a
+hello_world, however suppose your project was bigger and you had some
+platform specific code:
+
+TEMPLATE=app
+TARGET=hello_world
+SOURCES=main.cpp hello.cpp
+HEADERS=hello.h
+unix:SOURCES+=hello_unix.cpp
+win32 {
+    SOURCES += hello_win.cpp
+    CONFIG += bye_world
+}
+bye_world:DEFINES += DO_GOODBYE
+data.path=$$target.path/data
+data.files = data/*.dat
+INSTALLS += data
+target.path=/usr/local/$$TARGET
+INSTALLS += target
+
+Explaining these new lines:
+
+unix:SOURCES+=hello_unix.cpp
+If the current target is unix then the file hello_unix.cpp will be included
+in SOURCES and used as above.
+
+win32 {
+This starts a block, if win32 is the current target (then the above test
+will have failed) and the following statements will be hit, otherwise qmake
+will ignore them.
+
+    SOURCES += hello_win.cpp
+Similar to above hello_win.cpp will be added to the SOURCES, again this is
+only if win32 was the current target
+
+    CONFIG += bye_world
+This will modify the CONFIG variable and add bye_world to the list of
+active configurations.
+
+}
+This terminates the block, after this everything will be processed as
+usual. It is safe to nest these conditionals (up to 32 deep), and qmake
+will only process the correct blocks.
+
+bye_world:DEFINES += DO_GOODBYE
+If bye_world is in the CONFIG list, then DO_GOODBYE will be added to the
+list of DEFINES, as above this case will only happen if:
+
+1) this is a win32 build, in which case the win32 block would have set it
+2) if the QMAKESPEC/qmake.conf variable defined it (not likely)
+3) if the .qmake.cache file specified it (in your configure script?)
+4) on the commandline to qmake.
+
+
+data.path=$$target.path/data
+data.files = data/*.dat
+INSTALLS += data
+This is a trickier, so we will take all three lines at a time. First we
+fill in an object called data. Strictly speaking these aren't objects, as
+you are free to assign to anything in data (data.qmake for
+example), however only certain variables will be looked at by qmake
+(outlined in <a href="#InstallDetails">Install Targets</a>). 
+
+Then it adds the 'data' object to the list of INSTALLS, which will later be
+processed by qmake to create an install target.
+
+target.path=/usr/local/$$TARGET
+Sets the target.path to /usr/local/hello_world
+
+INSTALLS += target
+This is similar to the above, but shows that target is a special install
+object, that will use the .path member to decide where to put the things
+qmake creates (in this case just $$TARGET, but in a library more could be created).
 
 */

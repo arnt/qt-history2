@@ -63,36 +63,94 @@ href="qmake-guide.html"><em>qmake</em> User's Guide</a>.
 <h3>Syntax</h3>
 
 \code
-qmake [options] project-files
+qmake [options] files
 \endcode
 
 <h3>Options</h3>
 
+
 The following options can be specified on the command line to <em>qmake</em>:
+
+<ul>
+<li>\c -o file <br>
+	<em>qmake</em> output will be directed to \a file. If this argument
+	is not specified qmake will try to guess a suitable name, if '-' is
+	specified output is directed to stdout. 
+<li>\c -unix <br>
+	<em>qmake</em> will run in unix mode.  In this mode Unix file
+	naming and path conventions will be used. This is the default mode on all Unices.
+<li>\c -win32 <br>
+	<em>qmake</em> will run in win32 mode.  In this mode Windows file naming and path
+	conventions will be used. This is the default mode on Windows.
+<li>\c -d <br>
+	<em>qmake</em> will output useful debugging information.
+<li>\c -t tmpl <br>
+	<em>qmake</em> will override any set TEMPLATE variables with tmpl.
+<li>\c -help <br>
+	<em>qmake</em> will go over these features and give some usefull help.
+</ul>
+
+
+QMake supports two different modes of operation. The first mode (and
+default) is makefile generation, in this mode qmake will take a .pro file
+and turn it into a proper system Makefile. This is the mode documented in
+this guide, however there is an additional mode in qmake to generate .pro
+files from source code.
+
+To toggle between these modes you must specify in the first argument what
+mode you want, if no mode is specified qmake will assume you want makefile
+mode, the available mode switches are:
+
+<ul>
+<li>\c -makefile <br>
+	<em>qmake</em> output will be a makefile (<a href="#MakefileMode">Makefile Mode</a>).
+<li>\c -project <br>
+	<em>qmake</em> output will be a project file (<a href="#ProjectfileMode">Projectfile Mode</a>).
+</ul>
+
+<h4><a name="MakefileMode">Makefile Mode</a></h4>
+
+In Makefile mode QMake will generate a makefile. Additionally you may
+supply the following arguments in this mode:
 
 <ul>
 <li>\c -nocache <br>
 	<em>qmake</em> will ignore the .qmake.cache file.
 <li>\c -nodepend <br>
 	<em>qmake</em> will not genereate any dependancy information.
-<li>\c -o file <br>
-	<em>qmake</em> output will be directed to \a file.
-<li>\c -unix <br>
-	<em>qmake</em> will run in unix mode.  In this mode ###
-<li>\c -win32 <br>    
-	<em>qmake</em> will run in win32 mode.  In this mode ###
 <li>\c -cache file <br>
 	<em>qmake</em> will use \a file as the cache file, ignoring any other .qmake.cache file found
-<li>\c -path dir <br>
-	<em>qmake</em> will use \a dir as a path to platform-conpiler information and QMAKEPATH will be ignored.
-<li>\c -d <br>
-	<em>qmake</em> will output useful debugging information.
+<li>\c -spec spec <br>
+	<em>qmake</em> will use \a spec as a path to platform-conpiler information and QMAKESPEC will be ignored.
 </ul>
 
-The \c project-files can be a list of one or more project files,
-separated by spaces.  If \a project-files is a directory name, all
-project files in that directory (and all subdirectories) will be
-processed.
+The \c files argument can be a list of one or more project files, separated
+by spaces. You may also pass qmake assignments on the commandline here and
+they will be processed before all files specified, for example:
+
+qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
+
+This will generate a Makefile from test.pro, with Unix pathnames, however
+many of these arguments aren't necesary as they are the default:
+
+qmake "CONFIG+=test" test.pro 
+
+<h4><a name="ProjectfileMode">Projectfile Mode</a></h4>
+
+In Projectfile mode QMake will generate a project file. Additionally you may
+supply the following arguments in this mode:
+
+<ul>
+<li>\c -nopwd <br>
+	<em>qmake</em> will not look in your current working directory for
+	source code and only use specified \c files
+</ul>
+
+The \c files argument can be a list of files or directories, if a directory
+is specified this will be included in the DEPENDPATH and relevant code from
+there will be included in the generated project file, if a file is given it
+will go into the correct variable depending on extention (ie .ui files go
+into INTERFACES, .cpp files go into SOURCES, etc).
 
 <h1><a name="SystemVariables">System Variables</a></h1>
 
@@ -345,7 +403,7 @@ Also see <a href="#DirectoryNote">this note</a>.
 <dd>This variable is set by <em>qmake</em> if files can be found that
 contain the <code>Q_OBJECT</code>.  <code>OBJMOC</code> contains the
 name of all intermediate moc object files. The value of this variable
-is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
+is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
 modified.
 
 <p><p>
@@ -494,7 +552,7 @@ Also see <a href="#DirectoryNote">this note</a>.
 <dt><a name="LEXIMPLS"></a>\c LEXIMPLS
 
 <dd>This variable contains a list of lex implementation files.  The value
-of this variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely
+of this variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely
 needs to be modified.
 
 <p><p>
@@ -513,7 +571,7 @@ files.The value of this variable is typically handled by
 <dd>This variable specifies the name of the makefile which
 <em>qmake</em> should use when outputting the dependancy information
 for building a project.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -530,7 +588,7 @@ handled internally by <em>qmake</em> and rarely needs to be modified.
 <dd>This variable is generated from <a
 href="#SOURCES"><code>SOURCES</code></a>.  The extension of each
 source file will been replaced by .o (Unix) or .obj (Win32).  The
-value of this variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+value of this variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 <p><p>
@@ -539,7 +597,7 @@ rarely needs to be modified.
 
 <dd>This variable contains a list of header files that require some
 sort of precompilation step (such as with moc). The value of this
-variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
+variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
 modified.  
 
 <p><p>
@@ -548,19 +606,19 @@ modified.
 
 <dd>This variable contains the name of the <em>qmake</em> program
 itself and is placed in generated makefiles.  The value of this
-variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
+variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
 modified.
 
 <p><p>
 
 
 
-<dt><a name="QMAKEPATH_systemvariable"></a>\c QMAKEPATH
+<dt><a name="QMAKESPEC_systemvariable"></a>\c QMAKESPEC
 
 <dd>This variable contains the name of the <em>qmake</em>
 configuration to use when generating makefiles.  The value of this
-variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
-modified. Use the <a href="#QMAKEPATH">QMAKEPATH</a> environment
+variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
+modified. Use the <a href="#QMAKESPEC">QMAKESPEC</a> environment
 variable instead.
 
 <p><p>
@@ -586,7 +644,7 @@ variable instead.
 
 <dd>This variable is empty unless the 'app' <a
 href="#TEMPLATE">TEMPLATE</a> is specified.  The value of this
-variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
+variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
 modified.  Use the following instead:
 
 \code
@@ -603,7 +661,7 @@ app {
 
 <dd>This variable is empty unless the 'app' or 'dll' <a
 href="#TEMPLATE">TEMPLATE</a> is specified.  The value of this
-variable is typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be
+variable is typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be
 modified.  
 
 <p><p>
@@ -615,7 +673,7 @@ modified.
 
 This variable contains the command for invoking the program which
 creates, modifies and extracts archives. The value of this variable is
-typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> 
+typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> 
 and rarely needs to be modified.
 
 <p><p>
@@ -624,7 +682,7 @@ and rarely needs to be modified.
 <dt><a name="QMAKE_CFLAGS_DEBUG"></a>\c QMAKE_CFLAGS_DEBUG
 
 <dd>This variable contains the flags for the C compiler in debug mode.The value of this variable is
-typically handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> 
+typically handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> 
 and rarely needs to be modified.
 
 <p><p>
@@ -635,7 +693,7 @@ and rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a
 multi-threaded program.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 <p><p>
@@ -646,7 +704,7 @@ rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a debug
 multi-threaded program.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 <p><p>
@@ -657,7 +715,7 @@ rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a 
 multi-threaded dll.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 
@@ -668,7 +726,7 @@ rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a debug
 multi-threaded dll.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 <p><p>
@@ -679,7 +737,7 @@ rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a non-debug
 program.  The value of this variable is typically
-handled by <em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and
+handled by <em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and
 rarely needs to be modified.
 
 <p><p>
@@ -690,7 +748,7 @@ rarely needs to be modified.
 
 <dd>This variable contains the compiler flags for creating a shared
 library. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -701,7 +759,7 @@ to be modified.
 
 <dd>This variable contains the compiler flags for creating a threaded
 program. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 
@@ -737,7 +795,7 @@ href="#TEMPLATE">TEMPLATE</a> option is specified.
 
 <dd>This variable contains the c++ compiler flags for creating a debug
 program. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -747,7 +805,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a multi-threaded
 program. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -758,7 +816,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a debug multi-threaded
 program. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -769,7 +827,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a multi-threaded
 dll. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -780,7 +838,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a multi-threaded debug
 dll. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 
@@ -791,7 +849,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a non-debug
 program. The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -802,7 +860,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a
 shared library.  The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -813,7 +871,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for creating a
 threaded program.  The value of this variable is typically handled by
-<em>qmake</em> or <a href="#QMAKEPATH">qmake.conf</a> and rarely needs
+<em>qmake</em> or <a href="#QMAKESPEC">qmake.conf</a> and rarely needs
 to be modified.
 
 <p><p>
@@ -824,7 +882,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for suppressing compiler warnings.
  The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -833,7 +891,7 @@ to be modified.
 
 <dd>This variable contains the c++ compiler flags for generating compiler warnings.
  The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -894,7 +952,7 @@ to be modified.
 
 <dd>This variable contains the location of OpenGL header files. The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -904,7 +962,7 @@ value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the location of all known header files
 paths. The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -915,7 +973,7 @@ paths. The value of this variable is typically handled by
 <dd>This variable contains the location of all known header files
 paths when building threaded programs. The value of this variable is
 typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -927,7 +985,7 @@ typically handled by <em>qmake</em> or
 
 This variable contains the location of X11 header files paths.  The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -938,7 +996,7 @@ value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains link flags when building console
 programs.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -949,7 +1007,7 @@ programs.The value of this variable is typically handled by
 <dd>This variable contains link flags when building console
 programs.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -960,7 +1018,7 @@ programs.The value of this variable is typically handled by
 <dd>This variable contains link flags when building console
 programs.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -970,7 +1028,7 @@ programs.The value of this variable is typically handled by
 
 <dd>This variable contains link flags when building debug programs.The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -980,7 +1038,7 @@ value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains link flags when building plugins. The value
 of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -991,7 +1049,7 @@ of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains link flags when building programs that
 utilize the Qt library built as a dll. The value of this variable is
 typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1002,7 +1060,7 @@ typically handled by <em>qmake</em> or
 <dd>This variable contains link flags when building release
 programs. The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1019,7 +1077,7 @@ programs. The value of this variable is typically handled by
 
 <dd>This variable contains link flags when building shared libraries
 The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1035,7 +1093,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains link flags when building threaded projects.
 The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1045,7 +1103,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains link flags when building windows projects.
 The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1054,7 +1112,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains link flags when building windows projects.
 The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1064,7 +1122,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains link flags when building windows dll projects.
 The value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1075,7 +1133,7 @@ The value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the location of all known library
 directories.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1087,7 +1145,7 @@ directories.The value of this variable is typically handled by
 <dd>This variable contains the location of all library
 directory flags.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1098,7 +1156,7 @@ directory flags.The value of this variable is typically handled by
 <dd>This variable contains the location of the OpenGL library
 directory.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1109,7 +1167,7 @@ directory.The value of this variable is typically handled by
 <dd>This variable contains the location of the Qt library
 directory.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1120,7 +1178,7 @@ directory.The value of this variable is typically handled by
 <dd>This variable contains the location of the X11 library
 directory.The value of this variable is typically handled by
 <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1130,7 +1188,7 @@ directory.The value of this variable is typically handled by
 
 <dd>This variable contains all project libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1147,7 +1205,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all OpenGL libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1157,7 +1215,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all OpenGL Qt libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1167,7 +1225,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all Qt libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1177,7 +1235,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all Qt dll libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1219,7 +1277,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all windows libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1229,7 +1287,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all X11 libraries.The value of this
 variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1239,7 +1297,7 @@ variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains all X11 session management libraries.  The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1256,7 +1314,7 @@ value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the command to execute when creating a
 shared library. The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1267,7 +1325,7 @@ value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the command to execute when creating a link
 to a shared library. The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1277,7 +1335,7 @@ value of this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains the name of the makefile to create. The
 value of this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1296,7 +1354,7 @@ value of this variable is typically handled by <em>qmake</em> or
 <dd>This variable contains the names of all moc source files to
 generate and include in the project. The value of this variable is
 typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1350,7 +1408,7 @@ typically handled by <em>qmake</em> or
 
 <dd>This variable contains the name of the project target.  The value of
 this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1433,7 +1491,7 @@ this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains a list of yacc source files. The value of
 this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 <p><p>
 
@@ -1442,7 +1500,7 @@ this variable is typically handled by <em>qmake</em> or
 
 <dd>This variable contains a list of yacc object files. The value of
 this variable is typically handled by <em>qmake</em> or
- <a href="#QMAKEPATH">qmake.conf</a> and rarely needs to be modified.
+ <a href="#QMAKESPEC">qmake.conf</a> and rarely needs to be modified.
 
 
 <p><p>
@@ -1564,17 +1622,17 @@ For example:
 
 For a higher level introduction to using <em>qmake</em> environment
 variables and configuration options see the <a
-href="qmake-guide.html#QMAKEPATH"><em>qmake</em> User's Guide</a>.
+href="qmake-guide.html#QMAKESPEC"><em>qmake</em> User's Guide</a>.
 
 
-<h3><a name="QMAKEPATH">QMAKEPATH</a></h3>
+<h3><a name="QMAKESPEC">QMAKESPEC</a></h3>
 
 <em>qmake</em> requires a platform and compiler description file which
 contains many default values used to generate appropriate makefiles.
 The standard Qt distribution comes with many of these files, located
 in the 'mkspecs' subdirectory of the Qt installation.
 
-The <a href="qmake-guide.html#QMAKEPATH">QMAKEPATH</a> environment
+The <a href="qmake-guide.html#QMAKESPEC">QMAKESPEC</a> environment
 variable can contain any of the following:
 
 <ul>
@@ -1582,7 +1640,7 @@ variable can contain any of the following:
 <li>The name of a platform-compiler combination.  In this case, <em>qmake</em> will search in the directory specified by the QTDIR environment variable.
 </ul>
 
-Note: the QMAKEPATH path will automatically be added to the <a
+Note: the QMAKESPEC path will automatically be added to the <a
 href="#INCLUDEPATHS">INCLUDEPATHS</a> system variable.
 
 <h3><a name="cache"></a>Cache File</h3>
