@@ -349,7 +349,7 @@ void MainWindow::loadScript()
 {
 #ifndef QT_NO_QAXSCRIPT
     QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
-						this, 0, "Open Script");
+						this, "Open Script");
 
     if (file.isEmpty())
 	return;
