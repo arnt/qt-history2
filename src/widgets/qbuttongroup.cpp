@@ -51,17 +51,18 @@
   \ingroup organizers
 
   A button group widget makes it easier to deal with groups of
-  buttons.  A button in a button group is associated with a unique
+  buttons.  Each button in a button group has a unique
   identifier. The button group emits a clicked() signal with this
-  identifier when the button is clicked. Thus, a button group is an
-  ideal solution when you have several similar buttons and want to
-  connect all their clicked() signals to one slot, for example.
+  identifier when the button is clicked. This makes a button group
+  particularly useful when you have several similar buttons and want to
+  connect all their clicked() signals to one slot.
 
   An \link setExclusive() exclusive\endlink button group switches off
   all toggle buttons except the one that was clicked. A button group
   is by default non-exclusive. All radio
   buttons that are inserted will be
-  mutually exclusive even if the button group is non-exclusive.
+  mutually exclusive even if the button group is non-exclusive. (See
+  setRadioButtonExclusive().)
 
   There are two ways of using a button group:
   <ol>
@@ -75,22 +76,29 @@
   using the insert() function with an identifier.
   </ol>
 
+    A button can be removed from the group with remove(). A pointer to a
+    button with a given id can be obtained using find(). The id of a
+    button is available using id(). A button can be set on with
+    setButton(). The number of buttons in the group is returned by
+    count().
+
   <img src=qbttngrp-m.png> <img src=qbttngrp-w.png>
 
   \sa QButton, QPushButton, QCheckBox, QRadioButton
 */
 
 /*! \property QButtonGroup::exclusive
-    \brief Whether the button group is exclusive
+    \brief whether the button group is exclusive
 
-  If this property is set to TRUE, then the buttons in the group are toggled, and
-  to untoggle a button you must click on another button in the group.
+  If this property is TRUE, then the buttons in the group are
+  toggled, and to untoggle a button you must click on another button in
+  the group.
 */
 
 /*! \property QButtonGroup::radioButtonExclusive
-    \brief Whether the radiobuttons in the group are exclusive
+    \brief whether the radiobuttons in the group are exclusive
 
-  If this property is set to TRUE, the radiobuttons in the group are treated
+  If this property is TRUE, the radiobuttons in the group are treated
   exclusively.
 */
 
@@ -125,7 +133,7 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a button group with a title.
+  Constructs a button group with the title \a title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
 */
@@ -152,8 +160,8 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 }
 
 /*!
-  Constructs a button group with a \a title. Child widgets will be arranged
-  in \a strips rows or columns (depending on \a orientation).
+  Constructs a button group with title \a title. Child widgets will be
+  arranged in \a strips rows or columns (depending on \a orientation).
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
 */
@@ -208,16 +216,18 @@ void QButtonGroup::setExclusive( bool enable )
   Inserts a button with the identifier \e id into the button group.
   Returns the button identifier.
 
-  It is not necessary to manually insert buttons that have this button
-  group as their parent widget. An exception is when you want custom
-  identifiers instead of the default 0, 1, 2, etc.
+    Buttons are normally inserted into a button group automatically by
+    giving the button group as the parent when the button is
+    constructed. So it is not necessary to manually insert buttons that
+    have this button group as their parent widget. An exception is when
+    you want custom identifiers instead of the default 0, 1, 2, etc.
 
   The button is assigned the identifier \e id or an automatically
   generated identifier.	 It works as follows: If \e id >= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
   equal to the number of buttons in the group.	If \e id is any other
   negative integer, for instance -2, a unique identifier (negative
-  integer \<= -2) is generated.
+  integer \<= -2) is generated. No button has an id of -1.
 
   Inserting several buttons with \e id = -1 assigns the identifiers 0,
   1, 2, etc.
@@ -267,7 +277,7 @@ int QButtonGroup::count() const
 }
 
 /*!
-  Removes a button from the button group.
+  Removes the button from the button group.
   \sa insert()
 */
 
@@ -447,7 +457,7 @@ void QButtonGroup::buttonToggled( bool on )
 
 
 /*!  Sets the button with id \a id to be on; if this is an
-  exclusive group, all other buttons in the group to be off.
+  exclusive group, all other buttons in the group will be set to off.
 */
 
 void QButtonGroup::setButton( int id )
@@ -557,7 +567,8 @@ void QButtonGroup::moveFocus( int key )
 /*!  Returns a pointer to the selected radio button in this group, if
   one exists, or 0 if there is no selected radio button in this group.
 
-  <b>Warning: </b>In future versions of Qt, the selected toggle button will be returned.
+  <b>Warning: </b>In future versions of Qt, the selected toggle button
+  will be returned.
 */
 
 QButton * QButtonGroup::selected() const

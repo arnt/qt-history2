@@ -304,7 +304,7 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
   overwriting any characters there and extending the buffer if necessary.
   Returns the number of bytes actually written.
 
-  Returns -1 if a error occurred.
+  Returns -1 if an error occurred.
 
   \sa readBlock()
 */

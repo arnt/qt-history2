@@ -154,7 +154,9 @@ QTimer *QButton::timer()
 
   \ingroup abstractwidgets
 
-  The QButton class implements an abstract button, and lets subclasses
+  <b>If you want to create a button use QPushButton.</b>
+
+  The QButton class implements an \e abstract button, and lets subclasses
   specify how to reply to user actions and how to draw the button.
 
   QButton provides both push and toggle buttons.  The QRadioButton and
@@ -164,7 +166,7 @@ QTimer *QButton::timer()
   Any button can have either a text or pixmap label.  setText() sets
   the button to be a text button and setPixmap() sets it to be a
   pixmap button.  The text/pixmap is manipulated as necessary to
-  create "disabled" appearance when the button is disabled.
+  create the "disabled" appearance when the button is disabled.
 
   QButton provides most of the states used for buttons:
   <ul>
@@ -228,7 +230,7 @@ QTimer *QButton::timer()
   \l QCheckBox and \l QRadioButton) can display both text and pixmaps.
 
   To subclass QButton, you have to reimplement at least drawButton()
-  (to draw the button's outskirts) and drawButtonLabel() (to draw its
+  (to draw the button's outline) and drawButtonLabel() (to draw its
   text or pixmap).  It is generally advisable to reimplement
   sizeHint() as well, and sometimes hitButton() (to determine whether
   a button press is within the button).
@@ -268,14 +270,14 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::accel
-    \brief The accelarator associated with the button
+    \brief the accelerator associated with the button
 
-  This property will return 0 if there is no accelarator set, if you set
-  this property to 0 then any current accelarator is removed.
+  This property will return 0 if there is no accelerator set, if you set
+  this property to 0 then any current accelerator is removed.
 */
 
 /*! \property QButton::autoRepeat
-    \brief Whether autoRepeat is enabled
+    \brief whether autoRepeat is enabled
 
   If autoRepeat is enabled then the clicked() signal is emitted at 
   regular intervals if the button is down.  This property has
@@ -283,7 +285,7 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::autoResize
-    \brief Whether autoResize is enabled
+    \brief whether autoResize is enabled
     \obsolete
 
   If autoResize is enabled then the button will resize itself
@@ -291,7 +293,7 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::down
-    \brief Whether the button is down (i.e. pressed)
+    \brief whether the button is down (i.e. pressed)
 
   If down is enabled then the button is set to be pressed down.  The 
   signals pressed() and clicked() are not emitted if you set this
@@ -299,20 +301,20 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::exclusiveToggle
-    \brief Whether the button is an exclusive toggle
+    \brief whether the button is an exclusive toggle
 
   If exclusiveToggle is enabled and the button is in a QButtonGroup then the 
   button can only be toggled off by another one being toggled on.
 */
 
 /*! \property QButton::on
-    \brief Whether the button is toggled.
+    \brief whether the button is toggled
 
   This property should only be set for toggle buttons.
 */
 
 /*! \property QButton::pixmap
-    \brief The pixmap shown on the button
+    \brief the pixmap shown on the button
 
   This property will return 0 if the button has no pixmap.
 
@@ -325,27 +327,27 @@ QTimer *QButton::timer()
 */
 
 /*! \property QButton::text
-    \brief The text shown on the button
+    \brief the text shown on the button
 
   This property will return a null string if the button has
   no text.  If the text has an ampersand '&' in it, then an
-  accelarator is automatically created for it using the 
-  character after the ampersand as the accelarator key.
+  accelerator is automatically created for it using the 
+  character after the ampersand as the accelerator key.
 */
 
 /*! \property QButton::toggleButton
-    \brief Whether the button is a toggle button
+    \brief whether the button is a toggle button
 */
 
 /*! \property QButton::toggleState
-    \brief Whether the button is toggled
+    \brief whether the button is toggled
 
   If this is property is changed then it does not cause the button
   to be repainted.
 */
 
 /*! \property QButton::toggleType
-    \brief The type of toggle on the button
+    \brief the type of toggle on the button
 
   The default toggle type is SingleShot.
 */
@@ -539,10 +541,10 @@ void QButton::setAutoRepeat( bool enable )
 
 
 /*!
-  Performs an animated click: The button is pressed and released a short while
-  later.
+  Performs an animated click: the button is pressed and released a short
+  while later.
 
-  pressed(), released(), clicked(), toggled(), and stateChanged()
+  The pressed(), released(), clicked(), toggled(), and stateChanged()
   signals are emitted as appropriate.
 
   This function does nothing if the button is \link setEnabled()
@@ -604,7 +606,7 @@ void QButton::setState( ToggleState s )
   Returns TRUE if \e pos is inside the clickable button rectangle, or
   FALSE if it is outside.
 
-  Per default, the clickable area is the entire widget. Subclasses may
+  By default, the clickable area is the entire widget. Subclasses may
   reimplement it, though.
 */
 bool QButton::hitButton( const QPoint &pos ) const
