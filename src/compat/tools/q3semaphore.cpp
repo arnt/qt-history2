@@ -59,6 +59,9 @@
     blocking.
 */
 
+#ifdef max
+#undef max
+#endif
 
 class Q3SemaphorePrivate {
 public:
