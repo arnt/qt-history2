@@ -13,6 +13,7 @@ namespace qdb {
     typedef QValueList<QVariant> Record; /* list which only contains non-list datatypes */
     typedef QValueList<Record> Data; /* list of records */
     typedef QMap< QVariant, QValueList<int> > ColumnKey;
+    typedef QValueStack<QVariant> Stack;
 
     struct Parser {
 	//## todo
@@ -82,8 +83,6 @@ namespace qdb {
 	virtual int counter() = 0;
 	virtual Op* next() = 0;
     };
-
-    typedef QValueStack<QVariant> Stack;
 
     struct Environment
     {
