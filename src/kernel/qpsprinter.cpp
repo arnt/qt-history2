@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#88 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2247,6 +2247,9 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
+    if ( !paint )
+	return FALSE; // just to avoid a segfault
+
     if ( c == PDC_BEGIN ) {		// start painting
 	d->pagesInBuffer = 0;
 	d->buffer = new QBuffer();
