@@ -14,6 +14,8 @@ class QListView;
 class QIconView;
 class QTextEdit;
 class QTabBar;
+class QComboBox;
+class QTitleBar;
 class QWidgetStack;
 
 QString buddyString( QWidget * );
@@ -229,6 +231,49 @@ protected:
     QTabBar *tabBar() const;
 };
 
+class QAccessibleComboBox : public QAccessibleWidget
+{
+public:
+    QAccessibleComboBox( QObject *o );
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+
+    Role	role( int control ) const;
+    State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
+
+protected:
+    QComboBox *comboBox() const;
+};
+
+class QAccessibleTitleBar : public QAccessibleWidget
+{
+public:
+    QAccessibleTitleBar( QObject *o );
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+    Role	role( int control ) const;
+    State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
+
+protected:
+    QTitleBar *titleBar() const;
+};
+
 class QAccessibleScrollView : public QAccessibleWidget
 {
 public:
@@ -239,8 +284,8 @@ public:
 
     QString	text( Text t, int control ) const;
 
-    virtual int itemHitTest( int x, int y ) const;
-    virtual QRect itemLocation( int item ) const;
+    virtual int itemAt( int x, int y ) const;
+    virtual QRect itemRect( int item ) const;
     virtual int itemCount() const;
 };
 
@@ -274,8 +319,8 @@ class QAccessibleListBox : public QAccessibleScrollView
 public:
     QAccessibleListBox( QObject *o );
 
-    int		itemHitTest( int x, int y ) const;
-    QRect	itemLocation( int item ) const;
+    int		itemAt( int x, int y ) const;
+    QRect	itemRect( int item ) const;
     int		itemCount() const;
 
     QString	text( Text t, int control ) const;
@@ -296,8 +341,8 @@ class QAccessibleListView : public QAccessibleScrollView
 public:
     QAccessibleListView( QObject *o );
 
-    int		itemHitTest( int x, int y ) const;
-    QRect	itemLocation( int item ) const;
+    int		itemAt( int x, int y ) const;
+    QRect	itemRect( int item ) const;
     int		itemCount() const;
 
     QString	text( Text t, int control ) const;
@@ -318,8 +363,8 @@ class QAccessibleIconView : public QAccessibleScrollView
 public:
     QAccessibleIconView( QObject *o );
 
-    int		itemHitTest( int x, int y ) const;
-    QRect	itemLocation( int item ) const;
+    int		itemAt( int x, int y ) const;
+    QRect	itemRect( int item ) const;
     int		itemCount() const;
 
     QString	text( Text t, int control ) const;
@@ -340,8 +385,8 @@ class QAccessibleTextEdit : public QAccessibleScrollView
 public:
     QAccessibleTextEdit( QObject *o );
 
-    int		itemHitTest( int x, int y ) const;
-    QRect	itemLocation( int item ) const;
+    int		itemAt( int x, int y ) const;
+    QRect	itemRect( int item ) const;
     int		itemCount() const;
 
     QString	text( Text t, int control ) const;

@@ -19,12 +19,14 @@
 #include <qscrollview.h>
 #include <qheader.h>
 #include <qtabbar.h>
+#include <qcombobox.h>
 #include <qrangecontrol.h>
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qiconview.h>
 #include <qtextedit.h>
 #include <qwidgetstack.h>
+#include "../../../../src/widgets/qtitlebar_p.h"
 
 
 QString buddyString( QWidget *widget ) 
@@ -1594,6 +1596,386 @@ QMemArray<int> QAccessibleTabBar::selection() const
 }
 
 /*! 
+  \class QAccessibleComboBox qaccessiblewidget.h
+  \brief The QAccessibleComboBox class implements the QAccessibleInterface for editable and read-only combo boxes.
+  \preliminary
+*/
+
+
+/*! 
+  Constructs a QAccessibleComboBox object for \a o.
+*/
+QAccessibleComboBox::QAccessibleComboBox( QObject *o )
+: QAccessibleWidget( o, ComboBox )
+{
+    Q_ASSERT(o->inherits("QComboBox"));
+}
+
+/*!
+  Returns the combo box.
+*/
+QComboBox *QAccessibleComboBox::comboBox() const
+{
+    return (QComboBox*)object();
+}
+
+/*! \reimp */
+int QAccessibleComboBox::controlAt( int x, int y ) const
+{
+    for ( int i = childCount(); i >= 0; --i ) {
+	if ( rect( i ).contains( x, y ) )
+	    return i;
+    }
+    return -1;
+}
+
+/*! \reimp */
+QRect QAccessibleComboBox::rect( int control ) const
+{
+    switch( control ) {
+    case 1:
+	{
+	    QPoint tp;
+	    QRect r;
+	    if ( comboBox()->editable() ) {
+		tp = comboBox()->lineEdit()->mapToGlobal( QPoint( 0,0 ) );
+		r = comboBox()->lineEdit()->rect();
+	    } else  {
+		tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
+		r = comboBox()->style().comboButtonRect( 0, 0, comboBox()->rect().width(), comboBox()->rect().height() );
+	    }
+	    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
+	}
+	break;
+    case 2:
+	{
+	    QPoint tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
+	    QRect r = comboBox()->style().comboButtonRect( 0, 0, comboBox()->rect().width(), comboBox()->rect().height() );
+	    return QRect( tp.x() + r.width(), tp.y() + r.y(), comboBox()->rect().width() - r.width(), r.height() );
+	}
+    default:
+	break;
+    }
+    return QAccessibleWidget::rect( control );
+}
+
+/*! \reimp */
+int QAccessibleComboBox::navigate( NavDirection direction, int startControl ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
+	return QAccessibleWidget::navigate( direction, startControl );
+
+    switch ( direction ) {
+    case NavFirstChild:
+	return 1;
+	break;
+    case NavLastChild:
+	return childCount();
+	break;
+    case NavNext:
+    case NavRight:
+	return startControl + 1 > childCount() ? -1 : startControl + 1;
+    case NavPrevious:
+    case NavLeft:
+	return startControl -1 < 1 ? -1 : startControl - 1;
+    default:
+	break;
+    }
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleComboBox::childCount() const
+{
+    return 2;
+}
+
+/*! \reimp */
+QRESULT	QAccessibleComboBox::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return QS_FALSE;
+}
+
+/*! \reimp */
+QString QAccessibleComboBox::text( Text t, int control ) const
+{
+    QString str;
+
+    switch ( t ) {
+    case Name:
+	if ( control < 2 )
+	    return stripAmp( buddyString( comboBox() ) );
+	return comboBox()->tr("Open");
+    case Accelerator:
+	if ( control < 2 ) {
+	    str = hotKey( buddyString( comboBox() ) );
+	    if ( !!str )
+		return "Alt + " + str;
+	    return str;
+	}
+	return comboBox()->tr("Alt + Down Arrow" );
+    case Value:
+	if ( control < 2 ) {
+	    if ( comboBox()->editable() )
+		return comboBox()->lineEdit()->text();
+	    return comboBox()->currentText();	
+	}
+	break;
+    case DefaultAction:
+	if ( control == 2 )
+	    return comboBox()->tr("Open");
+	break;
+    default:
+	str = QAccessibleWidget::text( t, 0 );
+	break;
+    }
+    return str;
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleComboBox::role( int control ) const
+{
+    switch ( control ) {
+    case 0:
+	return ComboBox;
+    case 1:
+	if ( comboBox()->editable() )
+	    return EditableText;
+	return StaticText;
+    case 2:
+	return PushButton;
+    default:
+	return List;
+    }    
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleComboBox::state( int control ) const
+{
+    return QAccessibleWidget::state( 0 );
+}
+
+/*! \reimp */
+bool QAccessibleComboBox::doDefaultAction( int control )
+{
+    if ( control != 2 )
+	return FALSE;
+    comboBox()->popup();
+    return TRUE;
+}
+
+/*! 
+  \class QAccessibleTitleBar qaccessiblewidget.h
+  \brief The QAccessibleTitleBar class implements the QAccessibleInterface for title bars.
+  \preliminary
+*/
+
+/*! 
+  Constructs a QAccessibleComboBox object for \a o.
+*/
+QAccessibleTitleBar::QAccessibleTitleBar( QObject *o )
+: QAccessibleWidget( o, ComboBox )
+{
+    Q_ASSERT(o->inherits("QTitleBar"));
+}
+
+/*!
+  Returns the title bar.
+*/
+QTitleBar *QAccessibleTitleBar::titleBar() const
+{
+    return (QTitleBar*)object();
+}
+
+/*! \reimp */
+int QAccessibleTitleBar::controlAt( int x, int y ) const
+{
+    int ctrl = titleBar()->style().titleBarPointOver( titleBar(), titleBar()->mapFromGlobal( QPoint( x,y ) ) );
+
+    switch ( ctrl )
+    {
+    case QStyle::TitleSysMenu:
+	return 1;
+    case QStyle::TitleLabel:
+	return 2;
+    case QStyle::TitleMinButton:
+	return 3;
+    case QStyle::TitleNormalButton:
+    case QStyle::TitleMaxButton:
+	return 4;
+    case QStyle::TitleCloseButton:
+	return 5;
+    default:
+	break;
+    }
+    return 0;
+}
+
+/*! \reimp */
+QRect QAccessibleTitleBar::rect( int control ) const
+{
+    if ( !control )
+	return QAccessibleWidget::rect( control );
+
+    int ctrlW, ctrlH, titleW, titleH;
+    titleBar()->style().titleBarMetrics( titleBar(), ctrlW, ctrlH, titleW, titleH );
+
+    QRect r;
+    switch ( control ) {
+    case 1:
+	r = QRect( 0, 0, ctrlW, ctrlH );
+    default:
+	break;
+    }
+
+    QPoint tp = titleBar()->mapToGlobal( QPoint( 0,0 ) );
+    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
+}
+
+/*! \reimp */
+int QAccessibleTitleBar::navigate( NavDirection direction, int startControl ) const
+{
+    if ( direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl )
+	return QAccessibleWidget::navigate( direction, startControl );
+
+    switch ( direction ) {
+    case NavFirstChild:
+	return 1;
+	break;
+    case NavLastChild:
+	return childCount();
+	break;
+    case NavNext:
+    case NavRight:
+	return startControl + 1 > childCount() ? -1 : startControl + 1;
+    case NavPrevious:
+    case NavLeft:
+	return startControl -1 < 1 ? -1 : startControl - 1;
+    default:
+	break;
+    }
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleTitleBar::childCount() const
+{
+    return 5;
+}
+
+/*! \reimp */
+QRESULT QAccessibleTitleBar::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    return QS_FALSE;
+}
+
+/*! \reimp */
+QString QAccessibleTitleBar::text( Text t, int control ) const
+{
+    QString str = QAccessibleWidget::text( t, control );
+    if ( !!str )
+	return str;
+
+    switch ( t ) {
+    case Name:
+	switch ( control ) {
+	case 1:
+	    return titleBar()->tr("System");
+	case 3:
+	    if ( titleBar()->window->isMinimized() )
+		return titleBar()->tr("Restore up");
+	    return titleBar()->tr("Minimize");
+	case 4:
+	    if ( titleBar()->window->isMaximized() )
+		return titleBar()->tr("Restore down");	
+	    return titleBar()->tr("Maximize");
+	case 5:
+	    return titleBar()->tr("Close");
+	default:
+	    break;
+	}
+	break;
+    case Value:
+	if ( !control || control == 2 )
+	    return titleBar()->window->caption();
+	break;
+    case DefaultAction:
+	if ( control > 2 )
+	    return titleBar()->tr("Press");
+	break;
+    case Description:
+	switch ( control ) {
+	case 1:
+	    return titleBar()->tr("Contains commands to manipulate the window");
+	case 3:
+	    if ( titleBar()->window->isMinimized() )
+		return titleBar()->tr("Puts a minimized back to normal");
+	    return titleBar()->tr("Moves the window out of the way");
+	case 4:
+	    if ( titleBar()->window->isMaximized() )
+		return titleBar()->tr("Puts a maximized window back to normal");
+	    return titleBar()->tr("Makes the window full screen");
+	case 5:
+	    return titleBar()->tr("Closes the window");
+	default:
+	    return titleBar()->tr("Displays the name of the window and contains controls to manipulate it");
+	}
+    default:
+	break;
+    }
+    return str;
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleTitleBar::role( int control ) const
+{
+    switch ( control )
+    {
+    case 1:
+    case 3:
+    case 4:
+    case 5:
+	return PushButton;
+    default:
+	return TitleBar;
+    }
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleTitleBar::state( int control ) const
+{
+    return QAccessibleWidget::state( control );
+}
+
+/*! \reimp */
+bool QAccessibleTitleBar::doDefaultAction( int control )
+{
+    switch ( control ) {
+    case 3:
+	if ( titleBar()->window->isMinimized() )
+	    titleBar()->window->showNormal();
+	else 
+	    titleBar()->window->showMinimized();
+	return TRUE;
+    case 4:
+	if ( titleBar()->window->isMaximized() )
+	    titleBar()->window->showNormal();
+	else 
+	    titleBar()->window->showMaximized();
+	return TRUE;
+    case 5:
+	titleBar()->window->close();
+	return TRUE;
+    default:
+	break;
+    }
+    return FALSE;
+}
+
+
+/*! 
   \class QAccessibleViewport qaccessiblewidget.h
   \brief The QAccessibleViewport class hides the viewport of scrollviews for accessibility.
   \internal
@@ -1621,14 +2003,14 @@ int QAccessibleViewport::controlAt( int x, int y ) const
 	return control;
 
     QPoint p = widget()->mapFromGlobal( QPoint( x,y ) );
-    return scrollView()->itemHitTest( p.x(), p.y() );
+    return scrollView()->itemAt( p.x(), p.y() );
 }
 
 QRect QAccessibleViewport::rect( int control ) const
 {
     if ( !control )
 	return QAccessibleWidget::rect( control );
-    QRect rect = scrollView()->itemLocation( control );
+    QRect rect = scrollView()->itemRect( control );
     QPoint tl = widget()->mapToGlobal( QPoint( 0,0 ) );
     return QRect( tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height() );
 }
@@ -1740,7 +2122,7 @@ QString QAccessibleScrollView::text( Text t, int control ) const
 /*!
   Returns the ID of the item at viewport position \a x, \a y.
 */
-int QAccessibleScrollView::itemHitTest( int x, int y ) const
+int QAccessibleScrollView::itemAt( int x, int y ) const
 {
     return 0;
 }
@@ -1748,7 +2130,7 @@ int QAccessibleScrollView::itemHitTest( int x, int y ) const
 /*!
   Returns the location of the item with ID \a item in viewport coordinates.
 */
-QRect QAccessibleScrollView::itemLocation( int item ) const
+QRect QAccessibleScrollView::itemRect( int item ) const
 {
     return QRect();
 }
@@ -1783,14 +2165,14 @@ QListBox *QAccessibleListBox::listBox() const
 }
 
 /*! \reimp */
-int QAccessibleListBox::itemHitTest( int x, int y ) const
+int QAccessibleListBox::itemAt( int x, int y ) const
 {
     QListBoxItem *item = listBox()->itemAt( QPoint( x, y ) );
     return listBox()->index( item ) + 1;
 }
 
 /*! \reimp */
-QRect QAccessibleListBox::itemLocation( int item ) const
+QRect QAccessibleListBox::itemRect( int item ) const
 {
     return listBox()->itemRect( listBox()->item( item-1 ) );
 }
@@ -1947,7 +2329,7 @@ QListView *QAccessibleListView::listView() const
 }
 
 /*! \reimp */
-int QAccessibleListView::itemHitTest( int x, int y ) const
+int QAccessibleListView::itemAt( int x, int y ) const
 {
     QListViewItem *item = listView()->itemAt( QPoint( x, y ) );
     if ( !item )
@@ -1965,7 +2347,7 @@ int QAccessibleListView::itemHitTest( int x, int y ) const
 }
 
 /*! \reimp */
-QRect QAccessibleListView::itemLocation( int control ) const
+QRect QAccessibleListView::itemRect( int control ) const
 {
     QListViewItem *item = findLVItem( listView(), control );
     if ( !item )
@@ -2171,14 +2553,14 @@ QIconView *QAccessibleIconView::iconView() const
 }
 
 /*! \reimp */
-int QAccessibleIconView::itemHitTest( int x, int y ) const
+int QAccessibleIconView::itemAt( int x, int y ) const
 {
     QIconViewItem *item = iconView()->findItem( QPoint( x, y ) );
     return iconView()->index( item ) + 1;
 }
 
 /*! \reimp */
-QRect QAccessibleIconView::itemLocation( int control ) const
+QRect QAccessibleIconView::itemRect( int control ) const
 {
     QIconViewItem *item = findIVItem( iconView(), control );
 
@@ -2360,7 +2742,7 @@ QTextEdit *QAccessibleTextEdit::textEdit() const
 }
 
 /*! \reimp */
-int QAccessibleTextEdit::itemHitTest( int x, int y ) const
+int QAccessibleTextEdit::itemAt( int x, int y ) const
 {
     int p;
     QPoint cp = textEdit()->viewportToContents( QPoint( x,y ) );
@@ -2369,7 +2751,7 @@ int QAccessibleTextEdit::itemHitTest( int x, int y ) const
 }
 
 /*! \reimp */
-QRect QAccessibleTextEdit::itemLocation( int item ) const
+QRect QAccessibleTextEdit::itemRect( int item ) const
 {
     QRect rect = textEdit()->paragraphRect( item - 1 );
     if ( !rect.isValid() )

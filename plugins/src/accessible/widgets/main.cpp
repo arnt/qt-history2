@@ -96,7 +96,7 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
     if ( classname == "QLineEdit" ) {
 	*iface = new QAccessibleText( object, EditableText );
     } else if ( classname == "QComboBox" ) {
-	*iface = new QAccessibleWidget( object, ComboBox );
+	*iface = new QAccessibleComboBox( object );
     } else if ( classname == "QSpinBox" ) {
 	*iface = new QAccessibleRangeControl( object, SpinBox );
     } else if ( classname == "QSpinWidget" ) {
@@ -161,7 +161,7 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
     } else if ( classname == "QTabBar" ) {
 	*iface = new QAccessibleTabBar( object );
     } else if ( classname == "QTitleBar" ) {
-	*iface = new QAccessibleWidget( object, TitleBar );
+	*iface = new QAccessibleTitleBar( object );
     } else if ( classname == "QWorkspaceChild" ) {
 	*iface = new QAccessibleWidget( object, Window );
     } else if ( classname == "QSizeGrip" ) {
