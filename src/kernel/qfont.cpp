@@ -1855,7 +1855,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 			  int *tabarray, QTextParag **intern ) const
 {
-    return boundingRect(0,0,1,1,flgs,str,len,tabstops,tabarray,intern).size();
+    return boundingRect(0,0,0,0,flgs,str,len,tabstops,tabarray,intern).size();
 }
 
 
