@@ -2,14 +2,14 @@
 #include <qfileinfo.h>
 #include <qtextstream.h>
 #include <qregexp.h>
-#include <qglobal.h>
 #include <qhash.h>
 #include "configureapp.h"
 
 // iostream.h is deprecated on .net compilers, so we don't use it.
-#if defined ( Q_CC_MSVC_NET )
+
+#ifdef Q_CC_MSVC_NET
 #  include <iostream>
-#elif
+#else
 #  include <iostream.h>
 #endif
 
@@ -1421,20 +1421,29 @@ void Configure::buildQmake()
 }
 #endif
 
+const char *qtProjects[] = {
+    "qcompat",
+    "qnetwork",
+    "qopengl",
+    "qsql",
+    "qgui",
+    "qcore",
+    "qtlibs",
+    "qtmain",
+    "qxml",
+    0
+};
+
 void Configure::findProjects( const QString& dirName )
 {
     static QHash<QString,bool> excludeTable;
     static bool initExcludeTable = false;
     if (!initExcludeTable) {
-	excludeTable["qcompat.pro"]    = true;
-	excludeTable["qnetwork.pro"]   = true;
-	excludeTable["qopengl.pro"]    = true;
-	excludeTable["qsql.pro"]       = true;
-	excludeTable["qgui.pro"]       = true;
-	excludeTable["qtkernel.pro"]   = true;
-	excludeTable["qtlibs.pro"]     = true;
-	excludeTable["qtmain.pro"]     = true;
-	excludeTable["qxml.pro"]       = true;
+	int i = 0;
+	while (qtProjects[i]) {
+	    excludeTable[QString(qtProjects[i]) + ".pro"] = true;
+	    ++i;
+	}
 	initExcludeTable = true;
     }
 
@@ -1515,65 +1524,44 @@ void Configure::generateMakefiles()
 	if( spec != "win32-msvc.net" )
 	    dictionary[ "VCPROJFILES" ] = "no";
 
+    	int i = 0;
 #if !defined(EVAL)
-	makeList[0].append( new MakeItem(
-		    dictionary[ "QT_SOURCE_TREE" ] + "/src",
-		    "qtlibs.pro",
-		    "Makefile",
-		    Lib ) );
-	if( dictionary[ "DSPFILES" ] == "yes" ) {
+	while (qtProjects[i]) {
+	    QString qtProject(qtProjects[i]);
 	    makeList[0].append( new MakeItem(
 			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtlibs.pro",
-			"qtlibs.dsp",
+			qtProject + ".pro",
+			qtProject == "qtlibs" ? "Makefile" : "Makefile." + qtProject,
 			Lib ) );
-	}
-	if( dictionary[ "VCPFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(
-			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtlibs.pro",
-			"qtlibs.vcp",
-			Lib ) );
-	}
-	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(
-			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtlibs.pro",
-			"qtlibs.vcproj",
-			Lib ) );
-	}
-	makeList[0].append( new MakeItem(
-		    dictionary[ "QT_SOURCE_TREE" ] + "/src",
-		    "qtmain.pro",
-		    "Makefile.main",
-		    Lib ) );
-	if( dictionary[ "DSPFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(
-			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtmain.pro",
-			"qtmain.dsp",
-			Lib ) );
-	}
-	if( dictionary[ "VCPFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(
-			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtmain.pro",
-			"qtmain.vcp",
-			Lib ) );
-	}
-	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(
-			dictionary[ "QT_SOURCE_TREE" ] + "/src",
-			"qtmain.pro",
-			"qtmain.vcproj",
-			Lib ) );
+	    if( dictionary[ "DSPFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(
+			    dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			    qtProject + ".pro",
+			    qtProject + ".dsp",
+			    Lib ) );
+	    }
+	    if( dictionary[ "VCPFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(
+			    dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			    qtProject + ".pro",
+			    qtProject + ".vcp",
+			    Lib ) );
+	    }
+	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(
+			    dictionary[ "QT_SOURCE_TREE" ] + "/src",
+			    qtProject + ".pro",
+			    qtProject + ".vcproj",
+			    Lib ) );
+	    }
+	    ++i;
 	}
 #endif
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
 
 	QString pwd = QDir::currentDirPath();
-	for ( int i=0; i<3; i++ ) {
+	for ( i=0; i<3; i++ ) {
 	    for ( int j=0; j<makeList[i].size(); ++j) {
 		MakeItem *it=makeList[i][j];
 		QString dirPath = QDir::convertSeparators( it->directory + "/" );
