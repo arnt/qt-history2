@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#74 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#75 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -109,6 +109,8 @@ public:
 
     QImage	createAlphaMask( int conversion_flags ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
+
+    QImage	mirror() const;
 
     static Endian systemBitOrder();
     static Endian systemByteOrder();

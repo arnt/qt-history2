@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#203 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2166,6 +2166,23 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
     return m;
 }
 
+
+/*!
+  Returns a QImage which is a vertically mirrored copy of this
+  image. The original QImage is left unchanged.
+*/
+
+QImage QImage::mirror() const
+{
+    QImage res = copy();
+    if ( !isNull() ) {
+	int numScanLines = height();
+	int lineSize = bytesPerLine();
+	for ( int i = 0; i < numScanLines; i++ )
+	    memcpy( res.scanLine(numScanLines-1-i), scanLine(i), lineSize );
+    }
+    return res;
+}
 
 
 /*!
@@ -4430,3 +4447,5 @@ bool QImage::operator!=( const QImage & i ) const
 {
     return !(*this == i);
 }
+
+
