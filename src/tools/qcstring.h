@@ -75,7 +75,7 @@ Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
 
 // ### remove 3.0
-#if defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE)
 #undef	strlen
 #define strlen qstrlen
 #endif
@@ -87,7 +87,7 @@ Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
 
 // ### remove 3.0
-#if defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE)
 #undef	strcpy
 #define strcpy qstrcpy
 #endif
@@ -101,7 +101,7 @@ Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
 { return (str1 && str2) ? strcmp(str1,str2) : (int)((long)str2 - (long)str1); }
 
 // ### remove 3.0
-#if defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE)
 #undef	strcmp
 #define strcmp qstrcmp
 #endif
@@ -113,7 +113,7 @@ Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
 { return (str1 && str2) ? strncmp(str1,str2,len) :
 			  (int)((long)str2 - (long)str1); }
 // ### remove 3.0
-#if defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE)
 #undef	strncmp
 #define strncmp qstrncmp
 #endif
@@ -122,7 +122,7 @@ Q_EXPORT int qstricmp( const char *, const char * );
 Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 // ### remove 3.0
-#if defined(QT_CLEAN_NAMESPACE)
+#if !defined(QT_CLEAN_NAMESPACE)
 #undef	stricmp
 #define stricmp	 qstricmp
 #undef	strnicmp
