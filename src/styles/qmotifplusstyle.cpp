@@ -733,7 +733,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags how,
-				   void **data = 0 ) const
+				   void **data ) const
 {
     switch (element) {
     case CE_PushButton:
