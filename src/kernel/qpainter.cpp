@@ -2754,7 +2754,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	painter->setClipping( FALSE );
     }
 
-    if ( !singleline && str.length() < 30 )
+    // make sure the string really isn't single line
+    if (!singleline)
 	singleline = str.find( '\n' ) == -1;
 
     bool isRightToLeft = str.isRightToLeft();
