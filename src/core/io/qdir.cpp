@@ -1025,7 +1025,7 @@ QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec
         return d->data->fileInfos;
     }
     QFileInfoList ret;
-    QStringList l = d->data->fileEngine->entryList(d->data->filterSpec, nameFilters);
+    QStringList l = d->data->fileEngine->entryList(filterSpec, nameFilters);
     d->sortFileList(sortSpec, l, 0, &ret);
     return ret;
 }
