@@ -46,7 +46,7 @@ QString project_builtin_regx() //calculate the builtin regular expression..
 { 
     QString ret;
     QStringList builtin_exts(".c");
-    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext;
+    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts";
     builtin_exts += Option::h_ext + Option::cpp_ext;
     for(QStringList::Iterator ext_it = builtin_exts.begin(); 
 	ext_it != builtin_exts.end(); ++ext_it) {
@@ -361,7 +361,8 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 	  << getWritableVar("INTERFACES") 
 	  << getWritableVar("LEXSOURCES") 
 	  << getWritableVar("YACCSOURCES") 
-	  << getWritableVar("SOURCES");
+	  << getWritableVar("SOURCES")
+	  << getWritableVar("TRANSLATIONS");
     }
     for(it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
 	t << (*it) << endl;
@@ -420,6 +421,8 @@ ProjectGenerator::addFile(QString file)
 	    where = "LEXSOURCES";
 	else if(file.endsWith(Option::yacc_ext))
 	    where = "YACCSOURCES";
+	else if(file.endsWith(".ts"))
+	    where = "TRANSLATIONS";
     }
 
     QString newfile = fileFixify(file);
