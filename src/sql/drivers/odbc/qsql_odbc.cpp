@@ -625,6 +625,15 @@ bool QODBCResult::fetchLast()
     SQLRETURN r;
     fieldCache.clear();
     nullCache.clear();
+    
+    if ( isForwardOnly() ) {
+	int i = at();
+	while ( fetchNext() ) 
+	    ++i;
+	setAt( i );
+	return;
+    }
+    
     r = SQLFetchScroll( d->hStmt,
 		       SQL_FETCH_LAST,
 		       0 );
