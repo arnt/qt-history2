@@ -11,26 +11,11 @@ Window::Window(QWidget *parent)
     QLabel *mimeTypeLabel = new QLabel(tr("MIME types:"), this);
     mimeTypeInfo = new QComboBox(this);
 
-    dropFrame = new QFrame(this);
-    dropFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    QLabel *dropLabel = new QLabel(tr("Drop items here"), dropFrame);
-    dropLabel->setAlignment(Qt::AlignHCenter);
-
-    QVBoxLayout *dropFrameLayout = new QVBoxLayout(dropFrame);
-    dropFrameLayout->addWidget(dropLabel);
-
-    QHBoxLayout *dropLayout = new QHBoxLayout;
-    dropLayout->addStretch(0);
-    dropLayout->addWidget(dropFrame);
-    dropLayout->addStretch(0);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(textLabel);
-    mainLayout->addWidget(textInfo);
-    mainLayout->addWidget(mimeTypeLabel);
-    mainLayout->addWidget(mimeTypeInfo);
-    mainLayout->addSpacing(32);
-    mainLayout->addLayout(dropLayout);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(textLabel);
+    layout->addWidget(textInfo);
+    layout->addWidget(mimeTypeLabel);
+    layout->addWidget(mimeTypeInfo);
 
     setAcceptDrops(true);
     setWindowTitle(tr("Drop Events"));
@@ -38,9 +23,7 @@ Window::Window(QWidget *parent)
 
 void Window::dragMoveEvent(QDragMoveEvent *event)
 {
-    if (event->mimeData()->hasFormat("text/plain")
-        && event->answerRect().intersects(dropFrame->geometry()))
-
+    if (event->mimeData()->hasFormat("text/plain"))
         event->acceptProposedAction();
 }
 
