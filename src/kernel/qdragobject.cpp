@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#63 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -559,7 +559,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	    char* b = codec->fromUnicode(txt,l);
 	    r.setRawData( b, (uint)l );
 	} else if ( 0==stricmp(mime,"text/plain") ) {
-	    r = Q1String(txt.ascii());
+	    r = QCString(txt.ascii());
 	}
     }
     return r;
@@ -670,7 +670,7 @@ void QImageDrag::setImage( QImage image )
 const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
-	static Q1String str;
+	static QCString str;
 	str.sprintf("image/%s",(((QImageDrag*)this)->ofmts).at(i));
 	str = str.lower();
 	if ( str == "image/pbmraw" )
@@ -684,7 +684,7 @@ const char * QImageDrag::format(int i) const
 QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
-	Q1String f = fmt+6;
+	QCString f = fmt+6;
 	QByteArray data;
 	QBuffer w( data );
 	w.open( IO_WriteOnly );
@@ -908,7 +908,7 @@ bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
 		l.append( d+f );
 		c++;
 	    } else {
-		Q1String s(d+f,c-f+1);
+		QCString s(d+f,c-f+1);
 		l.append( s );
 	    }
 	}

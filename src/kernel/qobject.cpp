@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#178 $
 **
 ** Implementation of QObject class
 **
@@ -202,9 +202,9 @@ static inline bool isSpace( char x )
 #endif
 }
 
-static Q1String rmWS( const char *src )
+static QCString rmWS( const char *src )
 {
-    Q1String result( strlen(src)+1 );
+    QCString result( strlen(src)+1 );
     char *d = result.data();
     char *s = (char *)src;
     char last = 0;
@@ -903,7 +903,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
 {
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
-	    Q1String s = rmWS( signal+1 );
+	    QCString s = rmWS( signal+1 );
 	    return connections->find( s );
 	} else {
 	    return connections->find( signal );
@@ -1328,8 +1328,8 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #endif
-    Q1String signal_name = rmWS( signal );	// white space stripped
-    Q1String member_name = rmWS( member );
+    QCString signal_name = rmWS( signal );	// white space stripped
+    QCString member_name = rmWS( member );
     signal = signal_name;
     member = member_name;
 
@@ -1485,8 +1485,8 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
     if ( !sender->connections )			// no connected signals
 	return FALSE;
-    Q1String signal_name;
-    Q1String member_name;
+    QCString signal_name;
+    QCString member_name;
     QMetaData *rm = 0;
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;

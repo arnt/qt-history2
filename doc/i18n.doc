@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.4 1998/11/10 16:53:15 warwick Exp $
+** $Id: i18n.doc,v 1.5 1998/11/11 14:00:55 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -40,7 +40,7 @@ in the following stages:
 	<p>
 	Strings that are in "programmer space" - such as QObject
 	names and file format texts need not use QString - the
-	traditional char*, or the Q1String class will suffice.
+	traditional char*, or the QCString class will suffice.
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
 	Whe you use <tt>"quoted text"</tt> in the program for text

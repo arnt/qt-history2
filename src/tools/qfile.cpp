@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#69 $
 **
 ** Implementation of QFile class
 **
@@ -329,7 +329,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	Q1String perm;
+	QCString perm;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?

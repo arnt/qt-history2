@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#55 $
 **
 ** Implementation of QPicture class
 **
@@ -253,7 +253,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
     INT16	i_16, i1_16, i2_16;		// parameters...
     INT8	i_8;
     UINT32	ul;
-    Q1String	str1;
+    QCString	str1;
     QString	str;
     QPoint	p, p1, p2;
     QRect	r;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#71 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#72 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -199,7 +199,7 @@ public:
 private:
     QImage	im;				// image
     int		iostat;				// IO status
-    Q1String	frmt;				// image format
+    QCString	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
     char       *params;				// image parameters

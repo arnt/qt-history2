@@ -1,8 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#85 $
+** $Id: //depot/qt/main/src/tools/qstring.h#86 $
 **
 ** Definition of the QString class, extended char array operations,
-** and QByteArray and Q1String classes
+** and QByteArray and QCString classes
 **
 ** Created : 920609
 **
@@ -582,22 +582,22 @@ Q_EXPORT inline QString operator+( char c1, const QString &s2 )
 
 
 /*****************************************************************************
-  Q1String class
+  QCString class
  *****************************************************************************/
 
 class QRegExp;
 
-class Q_EXPORT Q1String : public QByteArray	// string class
+class Q_EXPORT QCString : public QByteArray	// string class
 {
 public:
-    Q1String() {}				// make null string
-    Q1String( int size );			// allocate size incl. \0
-    Q1String( const Q1String &s ) : QByteArray( s ) {}
-    Q1String( const char *str );		// deep copy
-    Q1String( const char *str, uint maxlen );	// deep copy, max length
+    QCString() {}				// make null string
+    QCString( int size );			// allocate size incl. \0
+    QCString( const QCString &s ) : QByteArray( s ) {}
+    QCString( const char *str );		// deep copy
+    QCString( const char *str, uint maxlen );	// deep copy, max length
 
-    Q1String    &operator=( const Q1String &s );// shallow copy
-    Q1String    &operator=( const char *str );	// deep copy
+    QCString    &operator=( const QCString &s );// shallow copy
+    QCString    &operator=( const char *str );	// deep copy
 
     bool	isNull()	const;
     bool	isEmpty()	const;
@@ -606,9 +606,9 @@ public:
     bool	truncate( uint pos );
     bool	fill( char c, int len = -1 );
 
-    Q1String	copy()	const;
+    QCString	copy()	const;
 
-    Q1String    &sprintf( const char *format, ... );
+    QCString    &sprintf( const char *format, ... );
 
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const char *str, int index=0, bool cs=TRUE ) const;
@@ -620,26 +620,26 @@ public:
     int		contains( const char *str, bool cs=TRUE ) const;
     int		contains( const QRegExp & ) const;
 
-    Q1String	left( uint len )  const;
-    Q1String	right( uint len ) const;
-    Q1String	mid( uint index, uint len) const;
+    QCString	left( uint len )  const;
+    QCString	right( uint len ) const;
+    QCString	mid( uint index, uint len) const;
 
-    Q1String	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
-    Q1String	rightJustify( uint width, char fill=' ',bool trunc=FALSE)const;
+    QCString	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
+    QCString	rightJustify( uint width, char fill=' ',bool trunc=FALSE)const;
 
-    Q1String	lower() const;
-    Q1String	upper() const;
+    QCString	lower() const;
+    QCString	upper() const;
 
-    Q1String	stripWhiteSpace()	const;
-    Q1String	simplifyWhiteSpace()	const;
+    QCString	stripWhiteSpace()	const;
+    QCString	simplifyWhiteSpace()	const;
 
-    Q1String    &insert( uint index, const char * );
-    Q1String    &insert( uint index, char );
-    Q1String    &append( const char * );
-    Q1String    &prepend( const char * );
-    Q1String    &remove( uint index, uint len );
-    Q1String    &replace( uint index, uint len, const char * );
-    Q1String    &replace( const QRegExp &, const char * );
+    QCString    &insert( uint index, const char * );
+    QCString    &insert( uint index, char );
+    QCString    &append( const char * );
+    QCString    &prepend( const char * );
+    QCString    &remove( uint index, uint len );
+    QCString    &replace( uint index, uint len, const char * );
+    QCString    &replace( const QRegExp &, const char * );
 
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
@@ -650,159 +650,159 @@ public:
     float	toFloat( bool *ok=0 )	const;
     double	toDouble( bool *ok=0 )	const;
 
-    Q1String    &setStr( const char *s );
-    Q1String    &setNum( short );
-    Q1String    &setNum( ushort );
-    Q1String    &setNum( int );
-    Q1String    &setNum( uint );
-    Q1String    &setNum( long );
-    Q1String    &setNum( ulong );
-    Q1String    &setNum( float, char f='g', int prec=6 );
-    Q1String    &setNum( double, char f='g', int prec=6 );
+    QCString    &setStr( const char *s );
+    QCString    &setNum( short );
+    QCString    &setNum( ushort );
+    QCString    &setNum( int );
+    QCString    &setNum( uint );
+    QCString    &setNum( long );
+    QCString    &setNum( ulong );
+    QCString    &setNum( float, char f='g', int prec=6 );
+    QCString    &setNum( double, char f='g', int prec=6 );
 
     bool	setExpand( uint index, char c );
 
 		operator const char *() const;
-    Q1String    &operator+=( const char *str );
-    Q1String    &operator+=( char c );
+    QCString    &operator+=( const char *str );
+    QCString    &operator+=( char c );
 };
 
 
 /*****************************************************************************
-  Q1String stream functions
+  QCString stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const Q1String & );
-QDataStream &operator>>( QDataStream &, Q1String & );
+QDataStream &operator<<( QDataStream &, const QCString & );
+QDataStream &operator>>( QDataStream &, QCString & );
 
 
 /*****************************************************************************
-  Q1String inline functions
+  QCString inline functions
  *****************************************************************************/
 
-inline Q1String &Q1String::operator=( const Q1String &s )
-{ return (Q1String&)assign( s ); }
+inline QCString &QCString::operator=( const QCString &s )
+{ return (QCString&)assign( s ); }
 
-inline Q1String &Q1String::operator=( const char *str )
-{ return (Q1String&)duplicate( str, strlen(str)+1 ); }
+inline QCString &QCString::operator=( const char *str )
+{ return (QCString&)duplicate( str, strlen(str)+1 ); }
 
-inline bool Q1String::isNull() const
+inline bool QCString::isNull() const
 { return data() == 0; }
 
-inline bool Q1String::isEmpty() const
+inline bool QCString::isEmpty() const
 { return data() == 0 || *data() == '\0'; }
 
-inline uint Q1String::length() const
+inline uint QCString::length() const
 { return strlen( data() ); }
 
-inline bool Q1String::truncate( uint pos )
+inline bool QCString::truncate( uint pos )
 { return resize(pos+1); }
 
-inline Q1String Q1String::copy() const
-{ return Q1String( data() ); }
+inline QCString QCString::copy() const
+{ return QCString( data() ); }
 
-inline Q1String &Q1String::prepend( const char *s )
+inline QCString &QCString::prepend( const char *s )
 { return insert(0,s); }
 
-inline Q1String &Q1String::append( const char *s )
+inline QCString &QCString::append( const char *s )
 { return operator+=(s); }
 
-inline Q1String &Q1String::setNum( short n )
+inline QCString &QCString::setNum( short n )
 { return setNum((long)n); }
 
-inline Q1String &Q1String::setNum( ushort n )
+inline QCString &QCString::setNum( ushort n )
 { return setNum((ulong)n); }
 
-inline Q1String &Q1String::setNum( int n )
+inline QCString &QCString::setNum( int n )
 { return setNum((long)n); }
 
-inline Q1String &Q1String::setNum( uint n )
+inline QCString &QCString::setNum( uint n )
 { return setNum((ulong)n); }
 
-inline Q1String &Q1String::setNum( float n, char f, int prec )
+inline QCString &QCString::setNum( float n, char f, int prec )
 { return setNum((double)n,f,prec); }
 
-inline Q1String::operator const char *() const
+inline QCString::operator const char *() const
 { return (const char *)data(); }
 
 
 /*****************************************************************************
-  Q1String non-member operators
+  QCString non-member operators
  *****************************************************************************/
 
-Q_EXPORT inline bool operator==( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline bool operator==( const QCString &s1, const QCString &s2 )
 { return strcmp(s1.data(),s2.data()) == 0; }
 
-Q_EXPORT inline bool operator==( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator==( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) == 0; }
 
-Q_EXPORT inline bool operator==( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator==( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) == 0; }
 
-Q_EXPORT inline bool operator!=( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline bool operator!=( const QCString &s1, const QCString &s2 )
 { return strcmp(s1.data(),s2.data()) != 0; }
 
-Q_EXPORT inline bool operator!=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator!=( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) != 0; }
 
-Q_EXPORT inline bool operator!=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator!=( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) != 0; }
 
-Q_EXPORT inline bool operator<( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator<( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) < 0; }
 
-Q_EXPORT inline bool operator<( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator<( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) < 0; }
 
-Q_EXPORT inline bool operator<=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator<=( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) <= 0; }
 
-Q_EXPORT inline bool operator<=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator<=( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) <= 0; }
 
-Q_EXPORT inline bool operator>( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator>( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) > 0; }
 
-Q_EXPORT inline bool operator>( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator>( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) > 0; }
 
-Q_EXPORT inline bool operator>=( const Q1String &s1, const char *s2 )
+Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) >= 0; }
 
-Q_EXPORT inline bool operator>=( const char *s1, const Q1String &s2 )
+Q_EXPORT inline bool operator>=( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) >= 0; }
 
-Q_EXPORT inline Q1String operator+( const Q1String &s1, const Q1String &s2 )
+Q_EXPORT inline QCString operator+( const QCString &s1, const QCString &s2 )
 {
-    Q1String tmp( s1.data() );
+    QCString tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline Q1String operator+( const Q1String &s1, const char *s2 )
+Q_EXPORT inline QCString operator+( const QCString &s1, const char *s2 )
 {
-    Q1String tmp( s1.data() );
+    QCString tmp( s1.data() );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline Q1String operator+( const char *s1, const Q1String &s2 )
+Q_EXPORT inline QCString operator+( const char *s1, const QCString &s2 )
 {
-    Q1String tmp( s1 );
+    QCString tmp( s1 );
     tmp += s2;
     return tmp;
 }
 
-Q_EXPORT inline Q1String operator+( const Q1String &s1, char c2 )
+Q_EXPORT inline QCString operator+( const QCString &s1, char c2 )
 {
-    Q1String tmp( s1.data() );
+    QCString tmp( s1.data() );
     tmp += c2;
     return tmp;
 }
 
-Q_EXPORT inline Q1String operator+( char c1, const Q1String &s2 )
+Q_EXPORT inline QCString operator+( char c1, const QCString &s2 )
 {
-    Q1String tmp;
+    QCString tmp;
     tmp += c1;
     tmp += s2;
     return tmp;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#16 $
 **
 ** Implementation of QTextCodec class
 **
@@ -437,7 +437,7 @@ public:
 class QTextCodecFromIOD : public QTextCodec {
     friend QTextCodecFromIODDecoder;
 
-    Q1String n;
+    QCString n;
 
     // If from_unicode_page[row][cell] is 0 and from_unicode_page_multibyte,
     //  use from_unicode_page_multibyte[row][cell] as string.
@@ -771,7 +771,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 
 const char* QTextCodec::locale()
 {
-    static Q1String lang;
+    static QCString lang;
     if ( lang.isEmpty() ) {
 	lang = getenv( "LANG" ); //########Windows??
 	if ( lang.isEmpty() )

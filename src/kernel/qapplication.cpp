@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#171 $
 **
 ** Implementation of QApplication class
 **
@@ -160,7 +160,7 @@ void process_cmdline( int* argcptr, char ** argv )
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	Q1String arg = argv[i];
+	QCString arg = argv[i];
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
@@ -170,7 +170,7 @@ void process_cmdline( int* argcptr, char ** argv )
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    qApp->setStyle( new QPlatinumStyle() );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
-	    Q1String s = argv[++i];
+	    QCString s = argv[++i];
 	    s = s.lower();
 	    if ( s == "windows" )
 		qApp->setStyle( new QWindowsStyle() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#36 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -147,7 +147,7 @@ struct QWindowsRegisteredMimeType {
     QWindowsRegisteredMimeType(int c, const char *m) :
 	cf(c), mime(m) {}
     int cf;
-    Q1String mime;
+    QCString mime;
 };
 
 static QList<QWindowsRegisteredMimeType> mimetypes;
@@ -448,7 +448,7 @@ QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, 
     QDataStream s(&iod);
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
     if (qt_read_dib( s, img )) { // ##### encaps "-14"
-	Q1String ofmt = mime+6;
+	QCString ofmt = mime+6;
 	QByteArray ba;
 	QBuffer iod(ba);
 	iod.open(IO_WriteOnly);
@@ -901,7 +901,7 @@ const char* QDragMoveEvent::format( int fn )
     if (!current_dropobj) // Sanity
 	return 0;
 
-    static Q1String fmt;
+    static QCString fmt;
     fmt="";
 
     int n;

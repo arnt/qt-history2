@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#75 $
 **
 ** Implementation of QTextStream class
 **
@@ -700,7 +700,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
     }
 #endif
 
-    //All Q1Strings and const char* are defined to be in Latin1
+    //All QCStrings and const char* are defined to be in Latin1
     if ( !mapper && latin1 ) {
 	dev->writeBlock( p, len );
     } else {
@@ -1209,10 +1209,10 @@ QTextStream &QTextStream::operator>>( QString &str )
   Reads a word from the stream and returns a reference to the stream.
 */
 
-QTextStream &QTextStream::operator>>( Q1String &str )
+QTextStream &QTextStream::operator>>( QCString &str )
 {
     CHECK_STREAM_PRECOND
-    Q1String  *dynbuf = 0;
+    QCString  *dynbuf = 0;
     const int buflen = 256;
     char      buffer[buflen];
     char     *s = buffer;
@@ -1226,7 +1226,7 @@ QTextStream &QTextStream::operator>>( Q1String &str )
 	}
 	if ( i >= buflen-1 ) {
 	    if ( !dynbuf )  {			// create dynamic buffer
-		dynbuf = new Q1String(buflen*2);
+		dynbuf = new QCString(buflen*2);
 		memcpy( dynbuf->data(), s, i );	// copy old data
 	    } else if ( i >= (int)dynbuf->size()-1 ) {
 		dynbuf->resize( dynbuf->size()*2 );

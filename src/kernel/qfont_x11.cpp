@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#124 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -57,7 +57,7 @@ enum FontFieldNames {				// X LFD fields
 
 // Internal functions
 
-static bool	parseXFontName( Q1String &fontName, char **tokens );
+static bool	parseXFontName( QCString &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
 static bool	smoothlyScalable( const QString &fontName );
 static bool	fontExists( const QString &fontName );
@@ -69,13 +69,13 @@ static int	getWeight( const QString &weightString, bool adjustScore=FALSE );
 class QFont_Private : public QFont
 {
 public:
-    int	    fontMatchScore( char *fontName, Q1String &buffer,
+    int	    fontMatchScore( char *fontName, QCString &buffer,
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *polymorphic,
 			    int *resx, int *resy );
-    Q1String bestMatch( const char *pattern, int *score );
-    Q1String bestFamilyMember( const char *family, int *score );
-    Q1String findFont( bool *exact );
+    QCString bestMatch( const char *pattern, int *score );
+    QCString bestFamilyMember( const char *family, int *score );
+    QCString findFont( bool *exact );
     bool needsSet() { return charSet() >= Set_1 && charSet() <= Set_N; }
 };
 
@@ -109,7 +109,7 @@ private:
     QFontInternal( const QString & );
     void computeLineWidth();
 
-    Q1String	    n;
+    QCString	    n;
     XFontStruct	   *f;
     XFontSet	    set;
     QFontDef	    s;
@@ -476,7 +476,7 @@ void QFont::initFontInfo() const
     f->computeLineWidth();
 
     char *tokens[fontFields];
-    Q1String buffer = f->name();
+    QCString buffer = f->name();
     bool validx = !PRIV->needsSet() && parseXFontName(buffer, tokens);
 
     if ( validx ) {
@@ -669,7 +669,7 @@ void QFont::load( HANDLE ) const
 // of a font.
 //
 
-int QFont_Private::fontMatchScore( char	 *fontName,	 Q1String &buffer,
+int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 				   float *pointSizeDiff, int  *weightDiff,
 				   bool	 *scalable     , bool *polymorphic,
                                    int   *resx	       , int  *resy )
@@ -875,12 +875,12 @@ struct MatchData {			// internal for bestMatch
     int	    weightDiff;
 };
 
-Q1String QFont_Private::bestMatch( const char *pattern, int *score )
+QCString QFont_Private::bestMatch( const char *pattern, int *score )
 {
     MatchData	best;
     MatchData	bestScalable;
 
-    Q1String	matchBuffer( 256 );	// X font name always <= 255 chars
+    QCString	matchBuffer( 256 );	// X font name always <= 255 chars
     char **	xFontNames;
     int		count;
     int		sc;
@@ -919,7 +919,7 @@ Q1String QFont_Private::bestMatch( const char *pattern, int *score )
 	    }
 	}
     }
-    Q1String bestName;
+    QCString bestName;
     char *tokens[fontFields];
 
     if ( best.score != exactScore && ( bestScalable.score > best.score ||
@@ -958,7 +958,7 @@ Q1String QFont_Private::bestMatch( const char *pattern, int *score )
 }
 
 
-Q1String QFont_Private::bestFamilyMember( const char *family, int *score )
+QCString QFont_Private::bestFamilyMember( const char *family, int *score )
 {
     char pattern[256];
     sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
@@ -966,7 +966,7 @@ Q1String QFont_Private::bestFamilyMember( const char *family, int *score )
 }
 
 
-Q1String QFont_Private::findFont( bool *exact )
+QCString QFont_Private::findFont( bool *exact )
 {
     QString familyName = substitute( family() );
     *exact = TRUE;				// assume exact match
@@ -992,7 +992,7 @@ Q1String QFont_Private::findFont( bool *exact )
 				: "black";
 	const char* slant = italic() ? "i" : "r";
 	int size = pointSize()*10;
-	Q1String s;
+	QCString s;
 	s.sprintf(
 	    "-*-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
 	    "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
@@ -1008,7 +1008,7 @@ debug("Font set: %s",s.data());
 	return s;
     } else {
 	int score;
-	Q1String bestName = bestFamilyMember( familyName, &score );
+	QCString bestName = bestFamilyMember( familyName, &score );
 	if ( score != exactScore )
 	    *exact = FALSE;
 
@@ -1700,7 +1700,7 @@ const QFontDef *QFontInfo::spec() const
 // Splits an X font name into fields separated by '-'
 //
 
-static bool parseXFontName( Q1String &fontName, char **tokens )
+static bool parseXFontName( QCString &fontName, char **tokens )
 {
     if ( fontName.isEmpty() || fontName[0] != '-' ) {
 	tokens[0] = 0;
@@ -1774,7 +1774,7 @@ static bool fontExists( const QString &fontName )
 void QFontInternal::computeLineWidth()
 {
     char *tokens[fontFields];
-    Q1String buffer(256);		// X font name always <= 255 chars
+    QCString buffer(256);		// X font name always <= 255 chars
     strcpy( buffer.data(), name() );
     if ( !parseXFontName(buffer, tokens) ) {
 	lw   = 1;                   // name did not conform to X LFD

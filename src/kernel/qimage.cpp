@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#193 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2434,7 +2434,7 @@ class QImageHandler
 public:
     QImageHandler( const char *f, const char *h, bool tm,
 		   image_io_handler r, image_io_handler w );
-    Q1String	      format;			// image format
+    QCString	      format;			// image format
     QRegExp	      header;			// image header pattern
     bool	      text_mode;		// image I/O mode
     image_io_handler  read_image;		// image read function
@@ -3552,7 +3552,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 static void write_pbm_image( QImageIO *iio )
 {
     QIODevice* out = iio->ioDevice();
-    Q1String str;
+    QCString str;
 
     QImage  image  = iio->image();
     QString format = iio->format();
@@ -3880,7 +3880,7 @@ static void write_xbm_image( QImageIO *iio )
 // Skip until ", read until the next ", return the rest in *buf
 // Returns FALSE on error, TRUE on success
 
-static bool read_xpm_string( Q1String &buf, QIODevice *d,
+static bool read_xpm_string( QCString &buf, QIODevice *d,
 			     const char **source, int &index )
 {
     if ( source ) {
@@ -3926,7 +3926,7 @@ static bool read_xpm_string( Q1String &buf, QIODevice *d,
 static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 				     QImage & image)
 {
-    Q1String buf;
+    QCString buf;
     QIODevice *d = 0;
     buf.resize( 200 );
 

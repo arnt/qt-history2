@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.10 1998/11/10 16:53:15 warwick Exp $
+** $Id: porting.doc,v 1.11 1998/11/11 14:00:55 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -146,7 +146,7 @@ A big advantage of the new QString is that it automatically expands
  when you write to an indexed position.
 <dt><b>Use QString</b></dt>
 <dd>
-Try to always use QString.  If you MUST, use Q1String which is the
+Try to always use QString.  If you MUST, use QCString which is the
  implementation used in Qt 1.x.
 <dt><b>Unicode vs. ASCII</b></dt>
 <dd>
@@ -172,7 +172,7 @@ This hack:
 <dt><b>System functions</b></dt>
 <dd>
 You may find yourself needing ascii() for passing to the operating system
- or other libraries, and be tempted to use Q1String to save the conversion,
+ or other libraries, and be tempted to use QCString to save the conversion,
  but you are better off using unicode throughout, then when the operating
  system supports unicode, you'll be prepared.
 <dt><b>Bugs removed</b></dt>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#61 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -106,7 +106,7 @@ static Atom qt_xdnd_dragsource_xid = 0;
 // the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
 
-static QIntDict<Q1String> * qt_xdnd_drag_types = 0;
+static QIntDict<QCString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // rectangle in which the answer will be the same
@@ -160,19 +160,19 @@ const char* qt_xdnd_atom_to_str( Atom a )
     if ( !a ) return 0;
 
     if ( !qt_xdnd_drag_types ) {
-	qt_xdnd_drag_types = new QIntDict<Q1String>( 17 );
+	qt_xdnd_drag_types = new QIntDict<QCString>( 17 );
 	qt_xdnd_drag_types->setAutoDelete( TRUE );
 	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
-	//Q1String * s;
-	//s = new Q1String( "text/plain" );
+	//QCString * s;
+	//s = new QCString( "text/plain" );
 	//qt_xdnd_drag_types->insert( (long)XA_STRING, s );
     }
-    Q1String* result;
+    QCString* result;
     if ( !(result=qt_xdnd_drag_types->find( a )) ) {
 	const char* mimeType = XGetAtomName( qt_xdisplay(), a );
 	if ( !mimeType )
 	    return 0; // only happens on protocol error
-	result = new Q1String( mimeType );
+	result = new QCString( mimeType );
 	qt_xdnd_drag_types->insert( (long)a, result );
 	XFree((void*)mimeType);
     }

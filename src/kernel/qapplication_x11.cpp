@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#372 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#373 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -518,7 +518,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     ulong  nitems, after = 1;
     long offset = 0;
     char *data;
-    Q1String res;
+    QCString res;
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
 			    offset, 256, FALSE, AnyPropertyType,
@@ -528,8 +528,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	XFree(data);
     }
     int l = 0, r, i;
-    Q1String item, key, value;
-    Q1String resFont, resFG, resBG;
+    QCString item, key, value;
+    QCString resFont, resFG, resBG;
     while( (unsigned) l < res.length()) {
 	r = res.find( "\n", l );
 	if ( r < 0 )
@@ -627,7 +627,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		argv[j++] = argv[i];
 		continue;
 	    }
-	    Q1String arg = argv[i];
+	    QCString arg = argv[i];
 	    if ( arg == "-display" ) {
 		if ( ++i < argc )
 		    appDpyName = argv[i];
@@ -659,7 +659,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		    qt_ncols_option = QMAX(0,atoi(argv[i]));
 	    } else if ( arg == "-visual" ) {  // xv and netscape use this name
 		if ( ++i < argc ) {
-		    Q1String s = Q1String(argv[i]).lower();
+		    QCString s = QCString(argv[i]).lower();
 		    if ( s == "truecolor" ) {
 			qt_visual_option = TrueColor;
 		    } else {
@@ -669,7 +669,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 #if !defined(NO_XIM)
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
-		    Q1String s = Q1String(argv[i]).lower();
+		    QCString s = QCString(argv[i]).lower();
 		    if ( s == "overthespot" ) {
 			xim_preferred_style =
 			    XIMPreeditPosition | XIMStatusNothing;
@@ -701,7 +701,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 #if defined(DEBUG) && defined(_OS_LINUX_)
 	if ( !appNoGrab && !appDoGrab ) {
-	    Q1String s;
+	    QCString s;
 	    s.sprintf( "/proc/%d/cmdline", getppid() );
 	    QFile f( s );
 	    if ( f.open( IO_ReadOnly ) ) {
@@ -3280,7 +3280,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     QEvent::Type type;
     int	   code = -1;
-    Q1String chars(64);
+    QCString chars(64);
     int	   count = 0;
     int	   state;
     bool   autor = FALSE;

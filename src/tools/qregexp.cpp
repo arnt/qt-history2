@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#57 $
 **
 ** Implementation of QRegExp class
 **
@@ -947,7 +947,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
   Returns the position of the next match, or -1 if \e rx was not found.
 */
 
-int Q1String::find( const QRegExp &rx, int index ) const
+int QCString::find( const QRegExp &rx, int index ) const
 {
     return (uint)index >= size() ? -1 : rx.match( data(), index );
 }
@@ -962,7 +962,7 @@ int Q1String::find( const QRegExp &rx, int index ) const
   found.
 */
 
-int Q1String::findRev( const QRegExp &rx, int index ) const
+int QCString::findRev( const QRegExp &rx, int index ) const
 {
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() )
@@ -993,7 +993,7 @@ int Q1String::findRev( const QRegExp &rx, int index ) const
   \sa find(), findRev()
 */
 
-int Q1String::contains( const QRegExp &rx ) const
+int QCString::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
 	return 0;
@@ -1028,7 +1028,7 @@ int Q1String::contains( const QRegExp &rx ) const
   
 */
 
-Q1String &Q1String::replace( const QRegExp &rx, const char *str )
+QCString &QCString::replace( const QRegExp &rx, const char *str )
 {
     if ( isEmpty() )
 	return *this;
