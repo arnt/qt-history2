@@ -110,12 +110,7 @@ void QSqlDatabase::init( const QString& type )
 {
     d = new QSqlDatabasePrivate();
     d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-    QPlugIn* pi = d->plugIns->plugIn( type );
-    //    QPlugIn* pi;
-    //    if ( d->plugIns->selectFeature( type ) )
-    //	pi = d->plugIns->plugIn( type );
-    if ( pi && pi->queryInterface() == "QSqlDriverInterface" )
-     	d->driver = ((QSqlDriverPlugIn*)pi)->create( type );
+    d->driver = d->plugIns->create( type );
     if ( !d->driver ) {
 #ifdef CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());

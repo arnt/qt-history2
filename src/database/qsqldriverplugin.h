@@ -9,26 +9,15 @@
 
 #ifndef QT_NO_SQL
 
-class Q_EXPORT QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
-{
-public:
-    QSqlDriverPlugIn( const QString& filename, QApplicationInterface* = 0, LibraryPolicy = Default );
-    QString queryInterface() const { return "QSqlDriverInterface"; }
-
-    QSqlDriver* create( const QString& name );
-};
-
-class Q_EXPORT QSqlDriverPlugInManager : public QPlugInManager< QSqlDriverPlugIn >
+class Q_EXPORT QSqlDriverPlugInManager : public QInterfaceManager< QSqlDriverInterface >
 {
 public:
     QSqlDriverPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
 			     QApplicationInterface* = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default );
-    ~QSqlDriverPlugInManager()
-    {
-    }
+
+    QSqlDriver* create( const QString& name );
 };
 
 #endif // QT_NO_SQL
 
 #endif
-

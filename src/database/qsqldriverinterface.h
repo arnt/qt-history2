@@ -2,19 +2,20 @@
 #define QSQLDRIVERINTERFACE_H
 
 #ifndef QT_H
-#include "qplugininterface.h"
-#include "qstringlist.h"
+#include "qapplicationinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
 class QSqlDriver;
-class Q_EXPORT QSqlDriverInterface : public QPlugInInterface
+class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 {
 public:
-    QString queryInterface() const { return "QSqlDriverInterface"; }
-
     virtual QSqlDriver* create( const QString& name ) = 0;
+
+    virtual QStringList featureList() = 0;
+
+    static QString interfaceID() { return "QSqlDriverInterface"; }
 };
 
 #endif // QT_NO_SQL
