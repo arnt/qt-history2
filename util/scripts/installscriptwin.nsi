@@ -64,7 +64,6 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
 
-
 Function un.onUninstSuccess
   HideWindow
   MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
@@ -85,3 +84,119 @@ Section Uninstall
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true
 SectionEnd
+
+!include WriteEnvStr.nsh
+!include WritePathStr.nsh
+
+#
+# to set the qt env. varibles
+# push "c:\qt"  #QTDIR
+# call setQtEnvVariables
+#
+Function SetQtEnvVariables
+  exch $2 ; the installation path = QTDIR
+  push $0 ; I think WriteEnvStr mixes up $0 and $1
+  push $1
+  
+  MessageBox MB_ICONINFORMATION|MB_OK "Setting QTDIR to $2"
+  DetailPrint "Setting QTDIR to $2"
+  push "QTDIR"
+  push $2
+  Call WriteEnvStr ; set the QTDIR
+
+  MessageBox MB_ICONINFORMATION|MB_OK "Adding $2\bin to PATH"
+  DetailPrint "Adding $2\bin to PATH"
+  push "$2\bin"
+  Call AddToPath ; set the PATH
+  
+  push "QMAKESPEC"
+  Call GetMkSpec
+  Call WriteEnvStr ; set the QMAKESPEC
+
+# we don't need this, right?
+;  push "INCLUDE"
+;  push $2\include;%INCLUDE%
+;  Call WriteEnvStr ; set the PATH
+
+  pop $1
+  pop $0
+  pop $2
+FunctionEnd
+
+#
+# removes the qt env. varibles
+# push "c:\qt"  #QTDIR
+# call un.RemoveQtEnvVariables
+#
+Function un.RemoveQtEnvVariables
+  exch $0 ; QTDIR
+  
+  DetailPrint "Removing QTDIR"
+  push "QTDIR"
+  Call un.DeleteEnvStr ; removes QTDIR
+  
+  DetailPrint "Removing $0\bin from the PATH"
+  push "$0\bin"
+  Call un.RemoveFromPath ; removes qt from the path
+  
+  DetailPrint "Removing QMAKESPEC"
+  push "QMAKESPEC"
+  Call un.DeleteEnvStr ; removes QMAKESPEC
+
+  pop $0
+FunctionEnd
+
+#
+# the result is placed on top of the stack
+#
+Function GetMkSpec
+  push $0
+
+  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\8.0" "InstallDir"
+  StrCmp $0 "" +1 win32-msvc.net ; found msvc.net 2005
+
+  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\7.1" "InstallDir"
+  StrCmp $0 "" +1 win32-msvc.net ; found msvc.net 2003
+
+  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\7.0" "InstallDir"
+  StrCmp $0 "" +1 win32-msvc.net ; found msvc.net 2002
+
+  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\6.0\Setup" "VsCommonDir"
+  StrCmp $0 "" +1 win32-msvc ; found msvc 6.0
+
+  ReadRegStr $0 HKLM "Software\Intel\Compilers\C++\80" "Major Version"
+  StrCmp $0 "" +1 win32-icc ; found icc 8.x
+
+  ; we don't support this compiler, but it doesn't hurt :)
+  ReadRegStr $0 HKLM "Software\Intel\Compilers\C++\70" "Major Version"
+  StrCmp $0 "" +1 win32-icc ; found icc 7.x
+
+  Goto win32-unknown
+
+  win32-msvc.net:
+    pop $0
+    push "win32-msvc.net"
+    DetailPrint "Setting QMAKESPEC to win32-msvc.net"
+    Goto getmkspec_done
+  
+  win32-msvc:
+    pop $0
+    push "win32-msvc"
+    DetailPrint "Setting QMAKESPEC to win32-msvc"
+    Goto getmkspec_done
+    
+  win32-icc:
+    pop $0
+    push "win32-icc"
+    DetailPrint "Setting QMAKESPEC to win32-icc"
+    Goto getmkspec_done
+
+  ; unknown compiler
+  win32-unknown:
+    pop $0
+    push "win32-msvc.net" ; fall back on .net
+    DetailPrint "Did not find any compiler, setting QMAKESPEC to win32-msvc.net"
+
+  getmkspec_done:
+FunctionEnd
+
