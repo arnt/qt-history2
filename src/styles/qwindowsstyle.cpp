@@ -140,24 +140,32 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonTool:
 	{
 	    QBrush fill;
+	    bool stippled = FALSE;
 
 	    if (! (flags & (Style_Down | Style_MouseOver)) &&
 		(flags & Style_On) &&
 		(flags & Style_Enabled) &&
-		use2000style)
+		use2000style) {
 		fill = QBrush(cg.light(), Dense4Pattern);
-	    else
+		stippled = TRUE;
+	    } else
 		fill = cg.brush(QColorGroup::Button);
 
 	    if (flags & (Style_Raised | Style_Down | Style_On)) {
-		if (flags & Style_AutoRaise)
+		if (flags & Style_AutoRaise) {
 		    qDrawShadePanel(p, r, cg, flags & (Style_Down | Style_On),
 				    1, &fill);
-		else
+
+		    if (stippled) {
+			p->setPen(cg.button());
+			p->drawRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2);
+		    }
+		} else
 		    qDrawWinButton(p, r, cg, flags & (Style_Down | Style_On),
 				   &fill);
 	    } else
 		p->fillRect(r, fill);
+
 	    break;
 	}
 
@@ -848,7 +856,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	// equally between the tickmark regions.
     case PM_SliderControlThickness:
 	{
-	    QSlider * sl = (QSlider *) widget;
+	    const QSlider * sl = (const QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
 			: sl->width();
 	    int ticks = sl->tickmarks();
@@ -903,7 +911,7 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     switch (contents) {
     case CT_PushButton:
 	{
-	    QPushButton *button = (QPushButton *) widget;
+	    const QPushButton *button = (const QPushButton *) widget;
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	    int w = sz.width(), h = sz.height();
 
@@ -1387,7 +1395,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 						  data);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
-		int mid = groove.height() / 2;
+		int mid = thickness / 2;
 
 		if ( ticks & QSlider::Above )
 		    mid += len / 8;
@@ -1408,6 +1416,11 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 				 groove.y() + groove.height() - 3 );
 		}
 	    }
+
+	    if (sub & SC_SliderTickmarks)
+		QCommonStyle::drawComplexControl(ctrl, p, widget, r, cg, how,
+						 SC_SliderTickmarks, subActive,
+						 data );
 
 	    if ( sub & SC_SliderHandle ) {
 		// 4444440
@@ -1612,11 +1625,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    break;
 		}
 	    }
-
-	    if ( sub & SC_SliderTickmarks )
-		QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
-						  SC_SliderTickmarks, subActive,
-						  data );
 
 	    break;
 	}

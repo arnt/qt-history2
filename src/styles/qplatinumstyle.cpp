@@ -1098,6 +1098,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    const QSlider *slider = (const QSlider *) widget;
 	    int thickness = pixelMetric( PM_SliderControlThickness, widget );
 	    int len = pixelMetric( PM_SliderLength, widget );
+	    int ticks = slider->tickmarks();
 
 	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
 						  data),
@@ -1109,7 +1110,6 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 
 		int x, y, w, h;
 		int mid = thickness / 2;
-		int ticks = slider->tickmarks();
 
 		if ( ticks & QSlider::Above )
 		    mid += len / 8;
@@ -1118,11 +1118,11 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 
 		if ( slider->orientation() == Horizontal ) {
 		    x = 0;
-		    y = r.y() + mid - 3;
+		    y = groove.y() + mid - 3;
 		    w = slider->width();
 		    h = 7;
 		} else {
-		    x = r.x()+ mid - 3;
+		    x = groove.x() + mid - 3;
 		    y = 0;
 		    w = 7;
 		    h = slider->height();
@@ -1227,8 +1227,8 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    p->drawLine( x2 - my + 2, y2 - 1, x2 - 1, y1 + my + 2 );
 		    p->drawLine( x1 + 1, y2 - 1, x2 -my + 2, y2 - 1 );
 
-		    drawRiffles( p, r.x(), r.y() + 2, r.width() - 3,
-				 r.height() - 4, cg, TRUE );
+		    drawRiffles( p, handle.x(), handle.y() + 2, handle.width() - 3,
+				 handle.height() - 4, cg, TRUE );
 		} else {  // Horizontal
 		    QBrush oldBrush = p->brush();
 		    p->setBrush( cg.brush( QColorGroup::Button ) );
@@ -1401,16 +1401,12 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	}
     case CC_Slider:
 	{
-	    const QSlider *slide;
-	    slide = (const QSlider*)widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
-					  slide );
-
-	    int thickness = pixelMetric( PM_SliderControlThickness,
-					 slide );
+	    const QSlider *slider = (const QSlider *) widget;
+	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget);
+	    int thickness = pixelMetric( PM_SliderControlThickness, widget);
 	    int mid = thickness / 2;
-	    int ticks = slide->tickmarks();
-	    int len = pixelMetric( PM_SliderLength, slide );
+	    int ticks = slider->tickmarks();
+	    int len = pixelMetric( PM_SliderLength, widget );
 
 	    switch ( sc ) {
 	    case SC_SliderGroove:
@@ -1418,12 +1414,11 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		    mid += len / 8;
 		if ( ticks & QSlider::Below )
 		    mid -= len / 8;
-		if ( slide->orientation() == QSlider::Horizontal )
+		if ( slider->orientation() == QSlider::Horizontal )
 		    rect.setRect( 0, tickOffset,
-				  slide->width(), thickness );
+				  slider->width(), thickness );
 		else
-		    rect.setRect( tickOffset, 0, thickness,
-				  slide->width() );
+		    rect.setRect( tickOffset, 0, thickness, slider->height() );
 		break;
 	    default:
 		rect = QWindowsStyle::querySubControlMetrics( control, widget,

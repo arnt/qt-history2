@@ -1565,7 +1565,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 		const QSlider *slider = (const QSlider *) widget;
 		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
 		int thickness   = pixelMetric( PM_SliderControlThickness, widget );
-		int len         = pixelMetric( PM_SliderLength, widget );
+		int len         = pixelMetric( PM_SliderLength, widget ) + 2;
 		int sliderPos   = 0;
 		int motifBorder = 2;
 
@@ -1579,7 +1579,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 		else
 		    rect.setRect( tickOffset + motifBorder,
 				  sliderPos + motifBorder,
-				  thickness - 2*motifBorder, len );
+				  thickness - 2*motifBorder, len);
 	    } else
 		rect = QMotifStyle::querySubControlMetrics(control, widget,
 							   subcontrol, data);
