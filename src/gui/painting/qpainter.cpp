@@ -1239,7 +1239,8 @@ double QPainter::translationY() const
 
 
 /*!
-    \internal
+    Draws the painter path specified by \a path using the current pen
+    for outline and the current brush for filling.
 */
 void QPainter::drawPath(const QPainterPath &path)
 {
