@@ -66,7 +66,7 @@ static int ucstricmp( const QString &as, const QString &bs )
 	a++,b++;
     if ( l==-1 )
 	return ( as.length()-bs.length() );
-    return a->unicode() - b->unicode();
+    return ::lower( *a ).unicode() - ::lower( *b ).unicode();
 }
 
 #ifdef Q_WS_X11
@@ -282,21 +282,37 @@ public:
 
 QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
 {
-    for ( int i = 0; i < count; i++ ) {
-	if ( ucstricmp( families[i]->name, f ) == 0 )
-	    return families[i];
+    int low = 0;
+    int high = count;
+    int pos = count / 2;
+    int res = 1;
+    if ( count ) {
+	while ( (res = ucstricmp( families[pos]->name, f )) && pos != low ) {
+	    if ( res > 0 )
+		high = pos;
+	    else
+		low = pos;
+	    pos = (high + low) / 2;
+	};
+	if ( !res )
+	    return families[pos];
     }
     if ( !create )
 	return 0;
 
-//     qDebug("adding family %s",  f.latin1() );
+    if ( res < 0 )
+	pos++;
+
+    // qDebug("adding family %s at %d",  f.latin1(), pos );
     if ( !(count % 8) )
 	families = (QtFontFamily **)
 		   realloc( families,
 			    (((count+8) >> 3 ) << 3) * sizeof( QtFontFamily * ) );
 
-    families[count] = new QtFontFamily( f );
-    return families[count++];
+    memmove( families + pos + 1, families + pos, (count-pos)*sizeof(QtFontFamily *) );
+    families[pos] = new QtFontFamily( f );
+    count++;
+    return families[pos];
 }
 
 
