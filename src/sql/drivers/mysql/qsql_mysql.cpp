@@ -274,7 +274,6 @@ QVariant QMYSQLResult::data( int field )
     }
     default:
     case QVariant::String:
-    case QVariant::CString:
 	return QVariant( val );
     }
 #ifdef QT_CHECK_RANGE
@@ -712,12 +711,10 @@ QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) co
 	}
 	break;
 	case QVariant::String:
-	case QVariant::CString: {
 	    // Escape '\' characters
 	    r = QSqlDriver::formatValue( field );
 	    r.replace( "\\", "\\\\" );
 	    break;
-	}
 	default:
 	    r = QSqlDriver::formatValue( field, trimStrings );
 	}
