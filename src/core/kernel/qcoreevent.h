@@ -74,6 +74,7 @@ public:
         Speech = 42,                            // reserved for speech input
         MetaCall =  43,       // meta call event
         SockAct = 50,                           // socket activation
+        WinEventAct = 123,                      // win event activation
         DeferredDelete = 52,                    // deferred delete event
         DragEnter = 60,                         // drag moves into widget
         DragMove = 61,                          // drag moves in widget

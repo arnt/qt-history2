@@ -52,7 +52,7 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
 
 void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
 {
-    QEvent event(QEvent::SockAct);
+    QEvent event(QEvent::WinEventAct);
     QCoreApplication::sendEvent(wen, &event);
 }
 

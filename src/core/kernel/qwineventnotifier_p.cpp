@@ -81,7 +81,7 @@ bool QWinEventNotifier::event(QEvent * e)
 {
     // hijack the socket notifier code for now
     QObject::event(e);                        // will activate filters
-    if (e->type() == QEvent::SockAct) {
+    if (e->type() == QEvent::WinEventAct) {
         emit activated(handleToEvent);
         return true;
     }
