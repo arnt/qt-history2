@@ -29,6 +29,7 @@ class QMenuItem;
 class QTab;
 class QListViewItem;
 class QCheckListItem;
+class QFontMetrics;
 
 class QStyleOption {
 public:
@@ -115,22 +116,17 @@ public:
 
     virtual void polish( QPalette & );
 
-    virtual QRect itemRect( QPainter *p, const QRect &r,
+    virtual QRect itemRect( const QFontMetrics &fm, const QRect &r,
 			    int flags, bool enabled,
 			    const QString &text, int len = -1 ) const;
 
-    virtual QRect itemRect( QPainter *p, const QRect &r,
-			    int flags, bool enabled,
-			    const QPixmap &pixmap ) const;
+    virtual QRect itemRect( const QRect &r,
+			    int flags, const QPixmap &pixmap ) const;
 
     QRect itemRect( QPainter *p, const QRect &r,
 		    int flags, bool enabled,
 		    const QPixmap *pixmap,
-		    const QString &text, int len = -1 ) const {
-	return pixmap
-	    ? itemRect(p, r, flags, enabled, *pixmap)
-	    : itemRect(p, r, flags, enabled, text, len);
-    }
+		    const QString &text, int len = -1 ) const;
 
     virtual void drawItem( QPainter *p, const QRect &r,
 			   int flags, const QPalette &pal, bool enabled,

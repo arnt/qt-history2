@@ -470,11 +470,12 @@ void QStyle::polish( QPalette&)
 
 /*!
     Returns the appropriate area (see below) within rectangle \a r in
-    which to draw \a text using painter \a p. If \a len is -1 (the
-    default) all the \a text is drawn; otherwise only the first \a len
-    characters of \a text are drawn. The text is aligned in accordance
-    with the alignment \a flags (see \l{Qt::AlignmentFlags}). The \a
-    enabled bool indicates whether or not the item is enabled.
+    which to draw \a text using the font metrics \a fm. If \a len is
+    -1 (the default) all the \a text is drawn; otherwise only the
+    first \a len characters of \a text are drawn. The text is aligned
+    in accordance with the alignment \a flags (see
+    \l{Qt::AlignmentFlags}). The \a enabled bool indicates whether or
+    not the item is enabled.
 
     If \a r is larger than the area needed to render the \a text the
     rectangle that is returned will be offset within \a r in
@@ -484,7 +485,7 @@ void QStyle::polish( QPalette&)
     returned will be \e larger than \a r (the smallest rectangle large
     enough to render the \a text).
 */
-QRect QStyle::itemRect( QPainter *p, const QRect &r,
+QRect QStyle::itemRect( const QFontMetrics &fm, const QRect &r,
 			int flags, bool enabled,
 			const QString& text, int len ) const
 {
@@ -495,8 +496,8 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     int h = r.height();
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
-    if ( !text.isNull() && p ) {
-	result = p->boundingRect( x, y, w, h, flags, text, len );
+    if ( !text.isNull() ) {
+	result = fm.boundingRect( x, y, w, h, flags, text, len );
 	if ( gs == Qt::WindowsStyle && !enabled ) {
 	    result.setWidth(result.width()+1);
 	    result.setHeight(result.height()+1);
@@ -514,12 +515,9 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     Returns the appropriate area within rectangle \a r in
     which to draw \a pixmap using painter \a p.
 */
-QRect QStyle::itemRect( QPainter *p, const QRect &r,
-			int flags, bool enabled,
-			const QPixmap &pixmap ) const
+QRect QStyle::itemRect( const QRect &r,
+			int flags, const QPixmap &pixmap ) const
 {
-    Q_UNUSED(p)
-    Q_UNUSED(enabled)
     QRect result;
     int x = r.x();
     int y = r.y();
@@ -539,6 +537,18 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     return result;
 }
 
+/*!
+  \obsolete
+*/
+QRect QStyle::itemRect( QPainter *p, const QRect &r,
+			int flags, bool enabled,
+			const QPixmap *pixmap,
+			const QString &text, int len ) const
+{
+    return pixmap
+	? itemRect(r, flags, *pixmap)
+	: itemRect(p->fontMetrics(), r, flags, enabled, text, len);
+}
 
 /*!
     Draws the \a text in rectangle \a r using painter \a p and palette
