@@ -113,6 +113,7 @@ QMutex *qt_mac_port_mutex = NULL;
 static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
+extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
 static Qt::HANDLE currentCursor;                  //current cursor
@@ -259,7 +260,7 @@ void qt_remove_postselect_handler( VFPTR handler )
 //timer stuff
 static void	initTimers();
 static void	cleanupTimers();
-static int      activateNullTimers();
+int      qt_activate_null_timers();
 
 /* Event masks */
 
@@ -689,6 +690,12 @@ static EventLoopTimerUPP timerUPP = NULL;       //UPP
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     TimerInfo *tmr = ((TimerInfo *)data);
+    if(qt_mac_in_drag) { //just send it immediately
+	QTimerEvent e( tmr->id );
+	QApplication::sendEvent( tmr->obj, &e );	// send event
+	QApplication::flush(); //make sure to flush changes
+	return;
+    } 
     if(tmr->pending)
 	return;
     tmr->pending = TRUE;
@@ -753,11 +760,10 @@ static void cleanupTimers()			// cleanup timer data structure
     }
 }
 
-static int activateNullTimers()
+int qt_activate_null_timers()
 {
     if(!zero_timer_count)
 	return 0;
-
     int ret = 0;
     for(register TimerInfo *t = timerList->first();
 	ret != zero_timer_count && t; t = timerList->next()) {
@@ -1057,7 +1063,6 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 bool QApplication::processNextEvent( bool canWait )
 {
     //TrackDrag says you may not use the EventManager things..
-    extern bool qt_mac_in_drag; //qdnd_mac.cpp
     if(qt_mac_in_drag) {
 	qWarning("Whoa! Cannot process events whilst dragging!");
 	return FALSE;
@@ -1078,7 +1083,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
     sendPostedEvents();
-    activateNullTimers(); //try to send null timers..
+    qt_activate_null_timers(); //try to send null timers..
 
     EventRef event;
     do {
@@ -2380,8 +2385,7 @@ bool QApplication::qt_mac_apply_settings()
     QSettings settings;
 
     /*
-      Qt settings.  This is now they are written into the datastream.
-
+      Qt settings.  This is how they are written into the datastream.
       /qt/Palette/ *             - QPalette
       /qt/font                   - QFont
       /qt/libraryPath            - QStringList
@@ -2434,8 +2438,7 @@ bool QApplication::qt_mac_apply_settings()
     }
 
     // read library (ie. plugin) path list
-    QStringList pathlist =
-	settings.readListEntry("/qt/libraryPath", ':');
+    QStringList pathlist = settings.readListEntry("/qt/libraryPath", ':');
     if (! pathlist.isEmpty()) {
 	QStringList::ConstIterator it = pathlist.begin();
 	while (it != pathlist.end())
@@ -2453,19 +2456,16 @@ bool QApplication::qt_mac_apply_settings()
     } else
 	stylename = "default";
 
-    num =
-	settings.readNumEntry("/qt/doubleClickInterval",
-			      QApplication::doubleClickInterval());
+    num = settings.readNumEntry("/qt/doubleClickInterval",
+				QApplication::doubleClickInterval());
     QApplication::setDoubleClickInterval(num);
 
-    num =
-	settings.readNumEntry("/qt/cursorFlashTime",
-			      QApplication::cursorFlashTime());
+    num = settings.readNumEntry("/qt/cursorFlashTime",
+				QApplication::cursorFlashTime());
     QApplication::setCursorFlashTime(num);
 
-    num =
-	settings.readNumEntry("/qt/wheelScrollLines",
-			      QApplication::wheelScrollLines());
+    num = settings.readNumEntry("/qt/wheelScrollLines",
+				QApplication::wheelScrollLines());
     QApplication::setWheelScrollLines(num);
 
     QString colorspec = settings.readEntry("/qt/colorSpec",
@@ -2497,9 +2497,7 @@ bool QApplication::qt_mac_apply_settings()
 	}
     }
 
-    QStringList effects =
-	settings.readListEntry("/qt/GUIEffects");
-
+    QStringList effects = settings.readListEntry("/qt/GUIEffects");
     if (! effects.isEmpty()) {
 	if ( effects.contains("none") )
 	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);

@@ -64,6 +64,8 @@ static const char* default_pm[] = {
 "X X X X X X X",
 };
 //functions
+extern uint qGlobalPostedEventsCount();
+int qt_activate_null_timers(); //qapplication_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag );
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra );
@@ -204,7 +206,8 @@ const char* QDropEvent::format( int i ) const
 
 void QDragManager::timerEvent( QTimerEvent* )
 {
-    return;
+    if(qt_activate_null_timers()) 
+	QApplication::flush();
 }
 
 bool QDragManager::eventFilter( QObject *, QEvent * )
@@ -349,8 +352,10 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	qt_macdnd_register( widget,  widget->extraData());
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
+    int tid = startTimer( 1 );
     //now let the mac take control..
     result = TrackDrag( theDrag, &fakeEvent, dragRegion.handle(TRUE) ); 
+    killTimer( tid );
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
     return result == noErr;
@@ -447,8 +452,11 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	    }
 	}
     }
-    QApplication::sendPostedEvents();
-    QApplication::flush();
+
+    if(qGlobalPostedEventsCount()) {
+	QApplication::sendPostedEvents();
+	QApplication::flush();
+    }
     return 0;
 }
 static DragTrackingHandlerUPP qt_mac_tracking_handlerUPP = NULL;
