@@ -57,7 +57,6 @@ typedef long long QuadByte;
 #define QGfxRaster_Generic 0
 
 struct SWCursorData {
-    char empty[8];	// ######### we're being overwritten - memory manager?
     unsigned char cursor[SW_CURSOR_DATA_SIZE];
     unsigned char under[SW_CURSOR_DATA_SIZE*4];	// room for 32bpp display
     QRgb clut[256];
@@ -119,14 +118,7 @@ QScreenCursor::~QScreenCursor()
 
 bool QScreenCursor::supportsAlphaCursor()
 {
-    if ( gfx->bitDepth() == 8 ) {
-	// It's much too slow doing alpha blending in palette mode.
-#if defined(QWS_DEPTH_8GRAYSCALE) || defined(QWS_DEPTH_8DIRECT)
-	return true;
-#endif
-    }
-
-    return gfx->bitDepth() > 8;
+    return gfx->bitDepth() >= 8;
 }
 
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
@@ -1330,7 +1322,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 #elif defined(QWS_DEPTH_8DIRECT)
 	    transclut[loopc] = ((r >> 5) << 5) | ((g >> 6) << 3) | (b >> 5);
 #else
-	    transclut[loopc] = QColor( srcclut[loopc] ).pixel();
+	    transclut[loopc] = QColor( srcclut[loopc] ).alloc();
 #endif
 	}
     }
@@ -1481,7 +1473,6 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	    if(x==x2) {
 		FLUSH(x);
 		GFX_END
-		//	goto end;   Is this really necessary?? It's hideous!
 		return;
 	    }
 	    if(d>=0) {
@@ -1511,7 +1502,6 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	    }
 	    if(x==x2) {
 		GFX_END
-		//goto end;
 		return;
 	    }
 	    if (dashedLines && --dc <= 0) {
@@ -1538,7 +1528,6 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 		drawPointUnclipped( x, scanLine(y) );
 	    if(y==y2) {
 		GFX_END
-		//goto end;
 		return;
 	    }
 	    if (dashedLines && --dc <= 0) {
@@ -1554,8 +1543,6 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	    d+=ax;
 	}
     }
-    //end:
-    //;
     GFX_END
 }
 
@@ -1756,10 +1743,10 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    } else {
 #elif defined(QWS_DEPTH_8DIRECT)
 	    if(src_normal_palette) {
-	    r=((val & 0xe0) >> 5) << 5;
-	    g=((val & 0x18) >> 3) << 6;
-	    b=((val & 0x07)) << 5;
-	    ret=(r << 16) | (g << 8) | b;
+		r=((val & 0xe0) >> 5) << 5;
+		g=((val & 0x18) >> 3) << 6;
+		b=((val & 0x07)) << 5;
+		ret=(r << 16) | (g << 8) | b;
 	    } else {
 #else
 	    if(true) {
@@ -1889,7 +1876,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    	ret=monobitval & 0x1;
 	    	monobitval=monobitval >> 1;
 	    } else {
-		ret=monobitval & 0x80;
+		ret=(monobitval & 0x80) >> 7;
 		monobitval=monobitval << 1;
 		monobitval=monobitval & 0xff;
 	    }
@@ -1985,17 +1972,17 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    	ret=monobitval & 0x1;
 	    	monobitval=monobitval >> 1;
 	    } else {
-		ret=monobitval & 0x80;
+		ret=(monobitval & 0x80) >> 7;
 		monobitval=monobitval << 1;
 		monobitval=monobitval & 0xff;
 	    }
-	    if ( ret ) ret=255; // ### grayscale 8bit
+	    ret = transclut[ret];
 	} else if(sdepth==32) {
 	    unsigned int hold=*((unsigned int *)(*srcdata));
 	    r=(hold & 0xff0000) >> 16;
 	    g=(hold & 0x00ff00) >> 8;
 	    b=(hold & 0x0000ff);
-	    ret = QColor( r, g, b ).pixel();
+	    ret = QColor( r, g, b ).alloc();
 	    if(reverse) {
 		(*srcdata)-=4;
 	    } else {
@@ -2013,7 +2000,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    g=(hold & 0x00ff00) >> 8;
 	    b=(hold & 0x0000ff);
 	    (*srcdata)+=4;
-	    ret= QColor(r,g,b).pixel();
+	    ret= QColor(r,g,b).alloc();
 	} else if(sdepth==15) {
 	    qWarning("Eek,15bpp->1bpp");
 	    ret=0;
@@ -2308,7 +2295,6 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    // Probably not worth trying to pack writes if there's a mask
 	    // colour, at least not yet
 	    int count=( x2-x1+1 );
-	    //if(xoffs<srcoffs.x()) {
 	    if(reverse) {
 		unsigned short int gv = srccol;
 		while( count-- ) {
@@ -2795,8 +2781,7 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
     if (ncliprect == 1 && cbrush.style()==SolidPattern) {
 	// Fast path
 	if(depth==16) {
-	    QColor tmp=cbrush.color();
-	    pixel=tmp.alloc();
+	    pixel=cbrush.color().pixel();
 	    int x1,y1,x2,y2;
 	    rx+=xoffs;
 	    ry+=yoffs;
@@ -2855,8 +2840,7 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	    GFX_END
 	    return;
 	} else if(depth==32) {
-	    QColor tmp=cbrush.color();
-	    pixel=tmp.alloc();
+	    pixel=cbrush.color().pixel();
 	    int x1,y1,x2,y2;
 	    rx+=xoffs;
 	    ry+=yoffs;
@@ -3578,30 +3562,25 @@ QScreen::QScreen()
 
     // Now read in palette
     if(vinfo.bits_per_pixel==8) {
-	// Build greyscale palette
 	screencols=256;
 	unsigned int loopc;
-	fb_cmap cmap;
-	cmap.start=0;
-	cmap.len=256;
-	cmap.red=(unsigned short int *)
+	startcmap = new fb_cmap;
+	startcmap->start=0;
+	startcmap->len=256;
+	startcmap->red=(unsigned short int *)
 		 malloc(sizeof(unsigned short int)*256);
-	cmap.green=(unsigned short int *)
+	startcmap->green=(unsigned short int *)
 		   malloc(sizeof(unsigned short int)*256);
-	cmap.blue=(unsigned short int *)
+	startcmap->blue=(unsigned short int *)
 		  malloc(sizeof(unsigned short int)*256);
-	cmap.transp=(unsigned short int *)
+	startcmap->transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
-	ioctl(fd,FBIOGETCMAP,&cmap);
+	ioctl(fd,FBIOGETCMAP,startcmap);
 	for(loopc=0;loopc<256;loopc++) {
-	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
-				   cmap.green[loopc] >> 8,
-				   cmap.blue[loopc] >> 8);
+	    screenclut[loopc]=qRgb(startcmap->red[loopc] >> 8,
+				   startcmap->green[loopc] >> 8,
+				   startcmap->blue[loopc] >> 8);
 	}
-	free(cmap.red);
-	free(cmap.green);
-	free(cmap.blue);
-	free(cmap.transp);
     } else {
 	screencols=0;
     }
@@ -3705,6 +3684,7 @@ bool QScreen::initCard()
 				   cmap.blue[loopc] >> 8);
 	}
 #else
+	// 6x6x6 216 color cube
 	int idx = 0;
 	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
 	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
@@ -3737,6 +3717,16 @@ void QScreen::shutdownCard()
 
     // Causing crashes. Not needed.
     //setMode(startupw,startuph,startupd);
+/*
+    if ( startupd == 8 ) {
+	ioctl(fd,FBIOPUTCMAP,startcmap);
+	free(startcmap->red);
+	free(startcmap->green);
+	free(startcmap->blue);
+	free(startcmap->transp);
+	delete startcmap;
+    }
+*/
 }
 
 void QScreen::setMode(int nw,int nh,int nd)

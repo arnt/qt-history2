@@ -78,6 +78,8 @@ protected:
 
 extern QScreenCursor * qt_screencursor;
 
+struct fb_cmap;
+
 class QScreen {
 
 public:
@@ -121,6 +123,7 @@ protected:
     int startupw;
     int startuph;
     int startupd;
+    fb_cmap *startcmap;
     int fd;
 
     int hotx;
