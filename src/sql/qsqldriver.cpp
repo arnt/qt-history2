@@ -289,7 +289,7 @@ QSqlError QSqlDriver::lastError() const
     An empty string should be treated as QSql::Tables for
     downward compatibility.
 
-    \sa QSql::TableTypes
+    \sa QSql::TableType
 */
 
 QStringList QSqlDriver::tables( const QString&	) const

@@ -891,6 +891,13 @@ void QGLContext::init( QPaintDevice *dev )
 */
 
 /*!
+    \fn void QGLContext::setValid( bool valid )
+    \internal
+
+    Forces the GL rendering context to be valid.
+*/
+
+/*!
     \fn bool QGLContext::isSharing() const
 
     Returns TRUE if display list sharing with another context was

@@ -10,7 +10,7 @@
 The Qt Motif Extension assists the migration of old Xt and Motif based
 applications to the more comfortable Qt toolkit.  This extension
 replaces the older Xt/Motif Support Extension included with earlier
-version of Qt.
+versions of Qt.
 
 The Qt Motif Extension consists of the following classes:
 
@@ -19,7 +19,7 @@ The Qt Motif Extension consists of the following classes:
 \i \l QMotifWidget - Provides the QWidget API for Motif widgets.
 \i \l QMotifDialog - Provides the QDialog API for Motif dialogs.
 \i \l QXtWidget - The Xt/Motif integration widget from the previous
-Xt/Motif extension.  This class is unsupported, and provided only for
+Xt/Motif extension.  This class is unsupported, and only provided for
 projects moving to the new Motif extension.
 \endlist
 
@@ -42,7 +42,7 @@ and color depth that QApplication uses.  When using CDE, the color
 scheme may be incorrect when using a Visual, Colormap and color depth
 that is not the default.  To work around this problem, add the
 following resource string to your startup files (for example,
-$HOME/.dt/sessions/current/dt.resources):
+\c $HOME/.dt/sessions/current/dt.resources):
 
 \code
     *userColorObj: false

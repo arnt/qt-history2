@@ -411,22 +411,38 @@ const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
 }
 
 
+/*!
+    \class QWindowsXPStyle
+    \brief The QWindowsXPStyle class provides a Microsoft WindowsXP-like look and feel.
+
+    \ingroup appearance
+
+    \warning This style is only available on the Windows XP platform
+    because it makes use of Windows XP's style engine.
+*/
+
+/*!
+    Constructs a QWindowsStyle
+*/
 QWindowsXPStyle::QWindowsXPStyle()
 : QWindowsStyle()
 {
     d = new QWindowsXPStylePrivate;
 }
 
+/*! \reimp */
 QWindowsXPStyle::~QWindowsXPStyle()
 {
     delete d;
 }
 
+/*! \reimp */
 void QWindowsXPStyle::unPolish( QApplication *app )
 {
     QWindowsStyle::unPolish( app );
 }
 
+/*! \reimp */
 void QWindowsXPStyle::polish( QApplication *app )
 {
     QWindowsStyle::polish( app );
@@ -440,6 +456,7 @@ void QWindowsXPStyle::polish( QApplication *app )
     d->groupBoxTextColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
 }
 
+/*! \reimp */
 void QWindowsXPStyle::polish( QWidget *widget )
 {
     QWindowsStyle::polish( widget );
@@ -507,6 +524,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
     updateRegion( widget );
 }
 
+/*! \reimp */
 void QWindowsXPStyle::unPolish( QWidget *widget )
 {
     // Unpolish of widgets is the first thing that
@@ -547,6 +565,7 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     QWindowsStyle::unPolish( widget );
 }
 
+/*! \reimp */
 void QWindowsXPStyle::updateRegion( QWidget *widget )
 {
     if ( !use_xp )
@@ -566,6 +585,7 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
     }
 }
 
+/*! \reimp */
 void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 				    QPainter *p,
 				    const QRect &r,
@@ -915,6 +935,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     theme.drawBackground();
 }
 
+/*! \reimp */
 void QWindowsXPStyle::drawControl( ControlElement element,
 				  QPainter *p,
 				  const QWidget *widget,
@@ -1059,6 +1080,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     d->currentWidget = 0;
 }
 
+/*! \reimp */
 void QWindowsXPStyle::drawControlMask( ControlElement element,
 			  QPainter *p,
 			  const QWidget *widget,
@@ -1139,6 +1161,7 @@ static int qPositionFromValue( const QRangeControl * rc, int logical_val,
     // span <= 4096
 }
 
+/*! \reimp */
 void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 					 QPainter* p,
 					 const QWidget* w,
@@ -1891,6 +1914,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     d->currentWidget = 0;
 }
 
+/*! \reimp */
 int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 				 const QWidget *widget ) const
 {
@@ -2011,6 +2035,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
     return QWindowsStyle::pixelMetric( metric, widget );
 }
 
+/*! \reimp */
 QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 					      const QWidget *widget,
 					      SubControl sc,
@@ -2098,6 +2123,7 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
     return QWindowsStyle::querySubControlMetrics( control, widget, sc, option );
 }
 
+/*! \reimp */
 int QWindowsXPStyle::styleHint( StyleHint stylehint,
 			   const QWidget *widget,
 			   const QStyleOption& opt,
@@ -2248,6 +2274,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     return QWindowsStyle::eventFilter( o, e );
 }
 
+/*! \reimp */
 void QWindowsXPStyle::activeTabChanged()
 {
     const QObject *s = sender();
