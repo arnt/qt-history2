@@ -453,7 +453,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 {
     if( func == "exists") {
 	if(args.count() != 1) {
-	    fprintf(stderr, "%d: system(exec) requires one argument.\n", line_count);
+	    fprintf(stderr, "%d: exists(file) requires one argument.\n", line_count);
 	    return FALSE;
 	}
 	QString file = args.first();
