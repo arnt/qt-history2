@@ -1126,7 +1126,6 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
         QString target, dst= fileFixify(project->variables()[pvar].first(), FileFixifyAbsolute, false);
         if(dst.right(1) != Option::dir_sep)
             dst += Option::dir_sep;
-        qDebug("%s", dst.latin1());
         QStringList tmp, uninst = project->variables()[(*it) + ".uninstall"];
         //other
         tmp = project->variables()[(*it) + ".extra"];
