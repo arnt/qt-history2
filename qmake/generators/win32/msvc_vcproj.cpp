@@ -613,6 +613,7 @@ void VcprojGenerator::initLibrarianTool()
 
 void VcprojGenerator::initLinkerTool()
 {
+    findLibraries(); // Need to add the highest version of the libs
     VCConfiguration &RConf = vcProject.Configuration[0];
     RConf.linker.parseOptions(project->variables()["MSVCPROJ_LFLAGS"]);
     RConf.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
