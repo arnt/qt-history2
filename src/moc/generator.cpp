@@ -78,6 +78,9 @@ static const char* const type_map[ntypes] =
 int qvariant_nameToType(const char* name)
 {
     if (name) {
+        if (strcmp(name, "QVariant") == 0)
+            return 0xffffffff;
+
         if (strcmp(name, "QCString") == 0)
             name = "QByteArray";
         else if (strcmp(name, "QCoreVariantMap") == 0)
