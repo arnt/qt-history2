@@ -640,7 +640,7 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
 
 void QPrinter::setPageRangeEnabled( uint mask )
 {
-    d->pageRangeEnabled = mask & ( All | Selection | Range ) )
+    d->pageRangeEnabled = ( mask & ( All | Selection | Range ) );
     if( !( d->pageRangeEnabled & d->pageRange ) )
 	d->pageRange = All;
     if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
