@@ -280,7 +280,6 @@ private:
     friend class QFontEngineBox;
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
-    friend class QX11PaintEngine;
 #elif defined( Q_WS_WIN )
     friend class QFontEngineWin;
     friend class QWin32PaintEngine;
