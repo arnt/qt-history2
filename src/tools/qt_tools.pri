@@ -55,6 +55,7 @@ tools {
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
+		  $$TOOLS_H/qunicodetables_p.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/qvaluestack.h \
@@ -116,6 +117,7 @@ tools {
 		  $$TOOLS_CPP/qsettings.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
+		  $$TOOLS_CPP/qunicodetables.cpp \
 		  $$TOOLS_CPP/qucom.cpp \
 		  $$TOOLS_CPP/quuid.cpp
 }
