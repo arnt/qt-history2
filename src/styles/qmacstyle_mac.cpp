@@ -64,7 +64,8 @@ extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 
 //static utility variables
 static ThemeWindowType macWinType = kThemeUtilityWindow;
-static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static QColor qt_mac_highlight_active_color = QColor( 0xC2, 0xC2, 0xC2 );
+static QColor qt_mac_highlight_inactive_color = qt_mac_highlight_active_color.light();
 static const int macItemFrame         = 2;    // menu item frame width
 static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
@@ -268,10 +269,9 @@ void QMacStyle::polish( QApplication* app )
 
     QEvent ev(QEvent::Style);
     QApplication::sendEvent(this, &ev);
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_color );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_color.light() );
+    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-
     pal.setColor( QColorGroup::HighlightedText, Qt::black);
 
     app->setPalette( pal, TRUE );
@@ -1408,33 +1408,26 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
 }
 
 /*! \reimp */
+//these came from carbon mailing list waiting for addition of
+//kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
+#define MAC_ACTIVE_HIGHLIGHT_COLOR -3
+#define MAC_INACTIVE_HIGHLIGHT_COLOR -4
 bool QMacStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::Style) {
-	Collection c=NewCollection();
-	GetTheme(c);
-
-	RGBColor color;
-	SInt32 s = sizeof(color);
-	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
-	    QColor qc(color.red/256, color.green/256, color.blue/256);
-	    if(qt_mac_highlight_color != qc) {
-		qt_mac_highlight_color = qc;
-		if(e->spontaneous()) {
-		    QPalette pal = qApp->palette();
-		    pal.setColor( QPalette::Active, QColorGroup::Highlight,
-				  qt_mac_highlight_color );
-		    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, 
-				  qt_mac_highlight_color.light() );
-		    qApp->setPalette( pal, TRUE );
-		}
-	    }
-	} else {
-	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	RGBColor c;
+	GetThemeBrushAsColor(MAC_ACTIVE_HIGHLIGHT_COLOR, 32, true, &c );
+	qt_mac_highlight_active_color = QColor(c.red / 256, c.green / 256, c.blue / 256);
+	GetThemeBrushAsColor(MAC_INACTIVE_HIGHLIGHT_COLOR, 32, true, &c );
+	qt_mac_highlight_inactive_color = QColor(c.red / 256, c.green / 256, c.blue / 256);
+	if(e->spontaneous()) {
+	    QPalette pal = qApp->palette();
+	    pal.setColor(QPalette::Active, QColorGroup::Highlight, 
+			  qt_mac_highlight_active_color);
+	    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, 
+			  qt_mac_highlight_inactive_color);
+	    qApp->setPalette(pal, TRUE);
 	}
-
-	//cleanup
-	DisposeCollection(c);
     }
     return FALSE;
 }
