@@ -83,7 +83,7 @@
 */
 
 /*!
-    \fn Region  QRegion::handle() const
+    \fn QRegion::RgnHandle QRegion::handle() const
 
     Returns the region's handle.
 */

@@ -578,6 +578,14 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 */
 
 /*!
+    \fn QSize QSizeF::toSize() const
+
+    Returns a size with integer precision.
+    Note that the coordinates in the returned size are less precise than
+    those in the floating point size.
+*/
+
+/*!
     Swaps the width and height values.
 
     \sa expandedTo() boundedTo() setWidth() setHeight()

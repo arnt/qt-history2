@@ -935,14 +935,12 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     \a bottomRight as the bottom-right corner.
 */
 
-
 /*!
-    \fn QRectF::QRectF(const QPointF &topLeft, const QSize &size)
+    \fn QRectF::QRectF(const QPointF &topLeft, const QSizeF &size)
 
     Constructs a rectangle with \a topLeft as the top-left corner and
     \a size as the rectangle size.
 */
-
 
 /*!
     \fn QRectF::QRectF(float x, float y, float width, float height)
@@ -958,6 +956,12 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     \endcode
 */
 
+/*!
+    \fn QRectF::QRectF(const QRect &rect)
+
+    Constructs a rectangle with floating point accuracy from the given
+    \a rect.
+*/
 
 /*!
     \fn bool QRectF::isNull() const
@@ -1066,7 +1070,7 @@ QRectF QRectF::normalize() const
 
     Returns a reference to the x-coordinate at the left edge of the rectangle.
 
-    \sa rTop(), rRight(), rBottom()
+    \sa rTop() rWidth() rHeight()
 */
 
 /*!
@@ -1074,7 +1078,23 @@ QRectF QRectF::normalize() const
 
     Returns a reference to the y-coordinate at the top edge of the rectangle.
 
-    \sa rLeft(),  rRight(), rBottom()
+    \sa rLeft() rWidth() rHeight()
+*/
+
+/*!
+    \fn float &QRectF::rWidth()
+
+    Returns a reference to the width of the rectangle.
+
+    \sa rLeft() rTop() rHeight()
+*/
+
+/*!
+    \fn float &QRectF::rHeight()
+
+    Returns a reference to the height of the rectangle.
+
+    \sa rLeft() rTop() rWidth()
 */
 
 /*!
@@ -1258,14 +1278,14 @@ QRectF QRectF::normalize() const
     \sa setCoords() rect()
 */
 
-/*!
+/*
   \fn void QRectF::rect(float *x, float *y, float *w, float *h) const
 
   Use getRect() instead.
 */
 
 
-/*!
+/*
   \fn void QRectF::coords(float *xp1, float *yp1, float *xp2, float *yp2) const
 
   Use getCoords() instead.
@@ -1354,7 +1374,7 @@ QRectF QRectF::normalize() const
 
 /*!
     Moves the rectangle so that the position of its center point lies at the
-    given \a point. The size of the rectangle is unchanged.
+    point specified by \a p. The size of the rectangle is unchanged.
 
     \sa center() moveTopLeft() moveBottomRight() moveTopRight() moveBottomLeft()
 */
@@ -1608,6 +1628,14 @@ bool QRectF::intersects(const QRectF &r) const
         && qMax(yp, r.yp) <= qMin(yp + h, r.yp + r.h);
 }
 
+/*!
+    \fn QRect QRectF::toRect() const
+
+    Returns a rectangle with integer precision.
+    Note that the coordinates in the returned rectangle are less precise
+    than those in the floating point rectangle.
+*/
+
 
 /*!
     \fn bool operator==(const QRectF &r1, const QRectF &r2)
@@ -1627,7 +1655,6 @@ bool QRectF::intersects(const QRectF &r) const
     Returns true if the rectangles \a r1 and \a r2 are different; otherwise
     returns false.
 */
-
 
 /*****************************************************************************
   QRectF stream functions
