@@ -63,7 +63,7 @@ e.g. "myapp.rc", and let it contain this single line of text:
 IDI_ICON1               ICON    DISCARDABLE     "myappico.ico"
 \endcode
 
-Lastly, assuming you are using tmake to generate your makefiles, add this
+Lastly, assuming you are using qmake to generate your makefiles, add this
 line to your "myapp.pro" file:
 
 \code
@@ -73,12 +73,8 @@ RC_FILE = myapp.rc
 Regenerate your makefile and your application. The .exe file will now be
 represented with your icon in e.g. Explorer.
 
-If you do not use tmake, the necessary steps are: First, run the "rc"
+If you do not use qmake, the necessary steps are: First, run the "rc"
 program on the .rc file, then link your application with the resulting
 .res file.
-
-If an application icon has been set in this way, Qt will also use it in
-all top-level windows where you do not specify another icon using
-QWidget::setIcon().
 
 */
