@@ -1144,22 +1144,42 @@ void QDragManager::move( const QPoint & globalPos )
 
     {
 	Atom   type = None;
-	int f;
+	int f, r;
 	unsigned long n, a;
 	WId *proxy_id;
 	qt_ignore_badwindow();
-	XGetWindowProperty( QPaintDevice::x11AppDisplay(), target, qt_xdnd_proxy, 0,
-			    1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
-	if ( qt_badwindow() ) {
+	r = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
+				target,
+				qt_xdnd_proxy,
+				0,
+				1,
+				False,
+				XA_WINDOW,
+				&type,
+				&f,
+				&n,
+				&a,
+				(uchar**)&proxy_id );
+	if ( ( r != Success ) || qt_badwindow() ) {
 	    proxy_target = target = 0;
 	} else if ( type == XA_WINDOW && proxy_id ) {
 	    proxy_target = *proxy_id;
 	    XFree(proxy_id);
 	    proxy_id = 0;
 	    qt_ignore_badwindow();
-	    XGetWindowProperty( QPaintDevice::x11AppDisplay(), proxy_target, qt_xdnd_proxy, 0,
-				1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id );
-	    if ( qt_badwindow() || !type || !proxy_id || *proxy_id != proxy_target ) {
+	    r = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
+				    proxy_target,
+				    qt_xdnd_proxy,
+				    0,
+				    1,
+				    False,
+				    XA_WINDOW,
+				    &type,
+				    &f,
+				    &n,
+				    &a,
+				    (uchar**)&proxy_id );
+	    if ( ( r != Success ) || qt_badwindow() || !type || !proxy_id || *proxy_id != proxy_target ) {
 		// Bogus
 		proxy_target = 0;
 		target = 0;
@@ -1170,14 +1190,28 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( proxy_target ) {
 	    int *tv;
 	    qt_ignore_badwindow();
-	    XGetWindowProperty( QPaintDevice::x11AppDisplay(), proxy_target, qt_xdnd_aware, 0,
-				1, False, AnyPropertyType, &type, &f,&n,&a,(uchar**)&tv );
-	    target_version = QMIN(qt_xdnd_version,tv ? *tv : 1);
-	    if ( tv ) XFree(tv);
-	    if ( !qt_badwindow() && type )
-		emask = EnterWindowMask;
-	    else
+	    r = XGetWindowProperty( QPaintDevice::x11AppDisplay(),
+				    proxy_target,
+				    qt_xdnd_aware,
+				    0,
+				    1,
+				    False,
+				    AnyPropertyType,
+				    &type,
+				    &f,
+				    &n,
+				    &a,
+				    (uchar**)&tv );
+	    if ( r != Success ) {
 		target = 0;
+	    } else {
+		target_version = QMIN(qt_xdnd_version,tv ? *tv : 1);
+		if ( tv ) XFree(tv);
+		if ( !qt_badwindow() && type )
+		    emask = EnterWindowMask;
+		else
+		    target = 0;
+	    }
 	}
     }
 
