@@ -1420,13 +1420,13 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
 */
 float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
+    if (!eng->items.size())
+        eng->itemize();
+
     if (!i && !eng->items.size()) {
         *cursorPos = 0;
         return eng->lines[0].x;
     }
-
-    if (!eng->items.size())
-        eng->itemize();
 
     const QScriptLine &line = eng->lines[i];
     eng->justify(line);
