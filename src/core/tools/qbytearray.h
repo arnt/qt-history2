@@ -450,19 +450,19 @@ inline const QByteArray operator+(const char *a1, const QByteArray &a2)
 inline const QByteArray operator+(char a1, const QByteArray &a2)
 { return QByteArray(&a1, 1) += a2; }
 inline int QByteArray::indexOf(const char *c, int i) const
-{ return indexOf(fromRawData(c, strlen(c)), i); }
+{ return indexOf(fromRawData(c, qstrlen(c)), i); }
 inline int QByteArray::lastIndexOf(const char *c, int i) const
-{ return lastIndexOf(fromRawData(c, strlen(c)), i); }
+{ return lastIndexOf(fromRawData(c, qstrlen(c)), i); }
 inline QBool QByteArray::contains(const char *c) const
-{ return contains(fromRawData(c, strlen(c))); }
+{ return contains(fromRawData(c, qstrlen(c))); }
 inline QByteArray &QByteArray::replace(int index, int len, const char *c)
-{ return replace(index, len, fromRawData(c, strlen(c))); }
+{ return replace(index, len, fromRawData(c, qstrlen(c))); }
 inline QByteArray &QByteArray::replace(char before, const char *c)
-{ return replace(before, fromRawData(c, strlen(c))); }
+{ return replace(before, fromRawData(c, qstrlen(c))); }
 inline QByteArray &QByteArray::replace(const QByteArray &before, const char *c)
-{ return replace(before, fromRawData(c, strlen(c))); }
+{ return replace(before, fromRawData(c, qstrlen(c))); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
-{ return replace(fromRawData(before, strlen(before)), fromRawData(after, strlen(after))); }
+{ return replace(fromRawData(before, qstrlen(before)), fromRawData(after, qstrlen(after))); }
 
 inline QByteArray &QByteArray::setNum(short n, int base)
 { return setNum(Q_LONGLONG(n), base); }
