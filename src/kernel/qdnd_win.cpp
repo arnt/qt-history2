@@ -498,8 +498,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     updatePixmap();
 
     return r == DRAGDROP_S_DROP
-	&& result_effect == DROPEFFECT_MOVE
-	&& !acceptact;
+	&& (result_effect & DROPEFFECT_MOVE);
+	//&& !acceptact;
 }
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
@@ -915,7 +915,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    if (!acceptact&&!acceptfmt)
+    if (!acceptfmt&&!acceptact)
 	*pdwEffect = DROPEFFECT_NONE;
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
@@ -956,7 +956,22 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
 	de.acceptAction(acceptact);
 	de.accept(acceptfmt);
+	
 	QApplication::sendEvent( widget, &de );
+
+	acceptfmt = de.isAccepted();
+    acceptact = de.isActionAccepted();
+
+	if (!acceptact&&!acceptfmt)
+	*pdwEffect = DROPEFFECT_NONE;
+    else if (!acceptact)
+	*pdwEffect = DROPEFFECT_COPY;
+    else if ( de.action() == QDropEvent::Move )
+	*pdwEffect = DROPEFFECT_MOVE;
+    else if ( de.action() == QDropEvent::Copy )
+	*pdwEffect = DROPEFFECT_COPY;
+    else if ( de.action() == QDropEvent::Link )
+	*pdwEffect = DROPEFFECT_LINK;
 
 
 	// We won't get any mouserelease-event, so manually adjust qApp state:
