@@ -2942,7 +2942,9 @@ FormWindow* MainWindow::insertFormWindow( int type )
 	iface->release();
     }
 
+    // the wizard might have changed a lot, lets update everything
     actionEditor->setFormWindow( fw );
+    hierarchyView->functionList()->refreshFunctions();
 
     return fw;
 }
