@@ -1237,7 +1237,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	    QWhatsThis::add( button, that->whatsThis() );
 #endif
     }
-    for (QList<QActionGroupPrivate::MenuItem*>::Iterator pu(menuitems.begin()); *pu; ++pu) {
+    for (QList<QActionGroupPrivate::MenuItem*>::Iterator pu(menuitems.begin()); pu != menuitems.end(); ++pu) {
 	QWidget* parent = (*pu)->popup->parentWidget();
 	if (::qt_cast<QPopupMenu*>(parent)) {
 	    QPopupMenu* ppopup = (QPopupMenu*)parent;
@@ -1247,7 +1247,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	    (*pu)->popup->setEnabled(that->isEnabled());
 	}
     }
-    for (QList<QPopupMenu*>::Iterator pm(popupmenus.begin()); *pm; ++pm) {
+    for (QList<QPopupMenu*>::Iterator pm(popupmenus.begin()); pm != popupmenus.end(); ++pm) {
 	QPopupMenu *popup = *pm;
 	QPopupMenu *parent = ::qt_cast<QPopupMenu*>(popup->parentWidget());
 	if (!parent)
@@ -1922,7 +1922,7 @@ void QActionGroup::internalToggle( QAction *a )
     int index = d->actions.findIndex(a);
     if (index == -1)
 	return;
-    
+
     int lastItem = index;
     for (int i=0; i<lastItem; ++i) {
 	QAction *action = d->actions.at(i);
