@@ -7,7 +7,7 @@
 #ifdef QT_NO_IMAGEIO_MNG
 #undef QT_NO_IMAGEIO_MNG
 #endif
-#include "..\..\..\..\src\kernel\qmngio.cpp"
+#include "../../../../src/kernel/qmngio.cpp"
 
 class MNGFormat : public QImageFormatInterface
 {
