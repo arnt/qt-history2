@@ -209,6 +209,7 @@ void SetupWizardImpl::integratorDone()
     bool common( folderGroups->currentItem() == 1 );
 
     logOutput( QString::null, true );
+    setNextEnabled( buildPage, true );
     
     /*
     ** We still have some more items to do in order to finish all the
@@ -276,19 +277,21 @@ void SetupWizardImpl::integratorDone()
 void SetupWizardImpl::makeDone()
 {
     QStringList args;
-    QStringList integrators = QStringList::split( ' ', "integrate_msvc.bat integrate_borland.bat integrate_gcc.bat" );
+    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 
-    connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
-    connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
-    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
+    if( sysID != MSVC )
+	integratorDone();
+    else {
+	connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
+	connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
+	connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
 
-    args << tmpPath + QString( "\\" ) + integrators[ sysID ];
-    args << devSysPath->text() + "\\Common\\MsDev98\\Addins";
+	args << "nmake";
 
-    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
-    integrator.setArguments( args );
-    integrator.start();
-    setNextEnabled( buildPage, true );
+	integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
+	integrator.setArguments( args );
+	integrator.start();
+    }
 }
 
 void SetupWizardImpl::configDone()
@@ -402,10 +405,16 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    else
 		osDir = "WIN95";
 	    QStringList path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+	    QStringList::Iterator it;
+
 	    path.prepend( msDevDir + "\\BIN" );
 	    path.prepend( msVCDir + "\\BIN" );
 	    path.prepend( vsCommonDir + "\\Tools\\" + osDir );
 	    path.prepend( vsCommonDir + "\\Tools" );
+	    if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
+		path.prepend( installPath->text() + "\\bin" );
+	    if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
+		path.prepend( installPath->text() + "\\lib" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
 	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
 	    include.prepend( msVCDir + "\\ATL\\INCLUDE" );
@@ -507,10 +516,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	ConfirmDlg confirm;
 
 	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
-	if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
-	    path.prepend( "%QTDIR%\\lib" );
-	if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
-	    path.prepend( "%QTDIR%\\bin" );
+	if( path.findIndex( installPath->text() + "\\lib" ) == -1 )
+	    path.prepend( installPath->text() + "\\lib" );
+	if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
+	    path.prepend( installPath->text() + "\\bin" );
 	QEnvironment::putEnv( "PATH", path.join( ";" ) );
 
 	confirm.confirmText->setText( "Do you want to set QTDIR to point to the new installation?" );
@@ -612,6 +621,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QTextStream tmpStream;
 	bool settingsOK;
 
+	saveSettings();
 	outputDisplay->append( "Execute configure...\n" );
 
 	args << QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configure.exe";

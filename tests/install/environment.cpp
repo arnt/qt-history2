@@ -43,6 +43,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	}
 	else { //  Win 9x
 	    // Persistent environment on Windows 9x is not fully supported yet.
+	    return QString( getenv( varName ) );
 	}
     }
     if( envBlock & LocalEnv ) {
