@@ -745,11 +745,11 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	} else {
             w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
+            if (orientation == Qt::Horizontal)
+                max_item_extent = qMax(max_item_extent, w->sizeHint().height());
+            else
+                max_item_extent = qMax(max_item_extent, w->sizeHint().width());
 	}
-        if (orientation == Qt::Horizontal)
-            max_item_extent = qMax(max_item_extent, w->height());
-        else
-            max_item_extent = qMax(max_item_extent, w->width());
 	--i;
     }
 
