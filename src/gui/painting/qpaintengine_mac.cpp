@@ -1152,7 +1152,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
             height = qpattern->data.pixmap->height();
         } else {
             qpattern->as_mask = true;
-            qpattern->data.bytes = qt_patternForBrush(bs, true);
+            qpattern->data.bytes = qt_patternForBrush(bs, false);
             width = height = 8;
             const QColor &col = brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
@@ -1446,22 +1446,30 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
-                                     Qt::BlendMode mode)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
         return;
 
+    CGContextSaveGState(d->hd);
+    if(pm.isQBitmap() || pm.depth() == 1) {
+        const QColor &col = d->current.pen.color();
+        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
+                                 qt_mac_convert_color_to_cg(col.green()),
+                                 qt_mac_convert_color_to_cg(col.blue()),
+                                 qt_mac_convert_color_to_cg(col.alpha()));
+    }
+    QRegion rgn(r); 
+    qt_mac_clip_cg(d->hd, rgn, 0);
+
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
-
-    CGContextSaveGState(d->hd);
-    QRegion rgn(r); qt_mac_clip_cg(d->hd, rgn, 0);
     CGImageRef image = qt_mac_create_cgimage(pm, mode);
     HIViewDrawCGImage(d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
-    CGContextRestoreGState(d->hd);
     CGImageRelease(image);
+
+    CGContextRestoreGState(d->hd);
 }
 
 void
