@@ -34,7 +34,7 @@ void ResultWindow::slotExec()
 {
     sql.setName( tableList->currentText() );
     sql.setSort( sql.primaryIndex() );
-    dataGrid->setCursor( &sql, TRUE );
+    dataGrid->setSqlCursor( &sql, TRUE );
     dataGrid->refresh( QDataTable::RefreshAll );
 }
 
