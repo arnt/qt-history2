@@ -2,8 +2,14 @@ REQUIRES        = embedded
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 TMAKE_CC = g++
-TMAKE_CFLAGS += -O3 -DNDEBUG -DNONANSI_INCLUDES
-TMAKE_CXXFLAGS += -O3 -DQUIET
+win32-msvc.net {
+   TMAKE_CFLAGS += -O2 -DNDEBUG -DNONANSI_INCLUDES
+   TMAKE_CXXFLAGS += -O2 -DQUIET
+}
+else {
+   TMAKE_CFLAGS += -O3 -DNDEBUG -DNONANSI_INCLUDES
+   TMAKE_CXXFLAGS += -O3 -DQUIET
+}
 HEADERS		= decoders.h \
 		  dither.h \
 		  fs2.h \

@@ -913,7 +913,7 @@ void VcprojGenerator::initOld()
 
     // INCREMENTAL:NO ------------------------------------------------
     if(!project->isActiveConfig("incremental")) {
-	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
+	project->variables()["QMAKE_LFLAGS"].append(QString("/INCREMENTAL:no"));
         if ( is_qt )
 	    project->variables()["MSVCPROJ_DEBUG_OPT"] = "/GZ /Zi";
     }
