@@ -1036,7 +1036,7 @@ static int scramble(const QString &str)
 {
     int scrambled = 0;
     for (int i = 0; i < str.length(); ++i)
-	scrambled += (int)(str.at(i).latin1()) * (i+1);
+	scrambled += (int)(str.at(i).toLatin1()) * (i+1);
     return scrambled;
 }
 

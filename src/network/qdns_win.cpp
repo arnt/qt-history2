@@ -68,7 +68,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 
 #if defined(QDNS_DEBUG)
     qDebug("QDnsAgent::run(%p): looking up \"%s\" (IPv6 support is %s)",
-           this, hostName.latin1(),
+           this, hostName.toLatin1(),
            (local_getaddrinfo && local_freeaddrinfo) ? "enabled" : "disabled");
 #endif
 
@@ -77,7 +77,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         // and the IPv6 addresses at the end of the address list in
         // results.
         qt_addrinfo *res;
-        int err = local_getaddrinfo(hostName.latin1(), 0, 0, &res);
+        int err = local_getaddrinfo(hostName.toLatin1(), 0, 0, &res);
         if (err == 0) {
             for (qt_addrinfo *p = res; p != 0; p = p->ai_next) {
                 switch (p->ai_family) {
@@ -125,7 +125,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         }
     } else {
         // Fall back to gethostbyname, which only supports IPv4.
-        hostent *ent = gethostbyname(hostName.latin1());
+        hostent *ent = gethostbyname(hostName.toLatin1());
         if (ent) {
             char **p;
             switch (ent->h_addrtype) {
@@ -154,7 +154,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 #if defined(QDNS_DEBUG)
     if (results.d->err != QDnsHostInfo::NoError) {
         qDebug("QDnsAgent::run(%p): error (%s)",
-               this, results.d->errorStr.latin1());
+               this, results.d->errorStr.toLatin1());
     } else {
         QString tmp;
         for (int i = 0; i < results.d->addrs.count(); ++i) {
@@ -162,7 +162,7 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
             tmp += results.d->addrs.at(i).toString();
         }
         qDebug("QDnsAgent::run(%p): found %i entries: {%s}",
-               this, results.d->addrs.count(), tmp.latin1());
+               this, results.d->addrs.count(), tmp.toLatin1());
     }
 #endif
     return results;
