@@ -1292,8 +1292,10 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( c );
 	else
 	    setCurrentItem( 0 );
-    } else if ( d->useCompletion && d->ed == 0 && 
+    } else if ( /* d->useCompletion && */ d->ed == 0 &&
 		e->text() != QString::null ) {
+	// strictly speaking, we should test for useCompletion, but
+	// the code is a pure win, so let's do it anyway.
 	QString ct = currentText().left( d->completeAt ) + e->text();
 	int i = completionIndex( ct, currentItem() );
 	if ( i < 0 && d->completeAt > 0 )
