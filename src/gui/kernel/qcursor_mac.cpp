@@ -101,9 +101,11 @@ static QCursorData *currentCursor = 0; //current cursor
 static Point currentPoint = { 0, 0 };
 void qt_mac_set_cursor(const QCursor *c, const QPoint &p)
 {
-    if(!c && QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2) {
-        if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
+    if (!c) {
+        if (QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2
+            && currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor) {
             currentCursor->curs.fc.widget->hide();
+        }
         currentCursor = 0;
         return;
     }
