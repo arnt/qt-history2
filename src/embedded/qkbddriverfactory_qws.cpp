@@ -1,4 +1,5 @@
 /****************************************************************************
+** $Id$
 **
 ** Implementation of QKbdDriverFactory class
 **
@@ -45,7 +46,7 @@
 #include "qkbdvr41xx_qws.h"
 #include <stdlib.h>
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
 class QKbdDriverFactoryPrivate : public QObject
@@ -130,7 +131,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key, const QString
 # endif
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QKbdDriverFactoryPrivate;
@@ -180,7 +181,7 @@ QStringList QKbdDriverFactory::keys()
 	list << "USB";
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QKbdDriverFactoryPrivate;

@@ -1,4 +1,5 @@
 /****************************************************************************
+** $Id$
 **
 ** Implementation of QMouseDriverFactory class
 **
@@ -45,7 +46,7 @@
 #include "qmouselinuxtp_qws.h"
 #include <stdlib.h>
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
 class QMouseDriverFactoryPrivate : public QObject
@@ -132,7 +133,7 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
 	return new QWSBusMouseHandler( key, device );
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QMouseDriverFactoryPrivate;
@@ -190,7 +191,7 @@ QStringList QMouseDriverFactory::keys()
 	list << "Bus";
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QMouseDriverFactoryPrivate;

@@ -1,4 +1,5 @@
 /****************************************************************************
+** $Id$
 **
 ** Implementation of QGfxDriverFactory class
 **
@@ -53,7 +54,7 @@
 #endif
 #include <stdlib.h>
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
 class QGfxDriverFactoryPrivate : public QObject
@@ -156,7 +157,7 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 	return new QRepeaterScreen( displayId );
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QGfxDriverFactoryPrivate;
@@ -226,7 +227,7 @@ QStringList QGfxDriverFactory::keys()
 	list << "Repeater";
 #endif
 
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QGfxDriverFactoryPrivate;

@@ -646,7 +646,7 @@ QString QFileInfo::absFilePath() const
 {
     QString tmp;
     if ( QDir::isRelativePath(fn)
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#if defined(Q_OS_WIN32)
 	 && fn[1] != ':'
 #endif
 	 ) {
