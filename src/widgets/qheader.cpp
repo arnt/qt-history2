@@ -400,7 +400,9 @@ void QHeader::paintRect( int p, int s )
 {
     QPainter paint( this );
     paint.setPen( QPen( black, 1, DotLine ) );
-    if ( orient == Horizontal )
+    if ( reverse() )
+	paint.drawRect( p - s, 3, s, height() - 5 );
+    else if ( orient == Horizontal )
 	paint.drawRect( p, 3, s, height() - 5 );
     else
 	paint.drawRect( 3, p, height() - 5, s );
@@ -477,10 +479,10 @@ int QHeader::cellAt( int pos ) const
 int QHeader::findLine( int c )
 {
     int i = 0;
-    if ( c > d->lastPos ) {
+    if ( c > d->lastPos || (reverse() && c < 0 )) {
 	return d->count;
     } else {
-	int section = d->sectionAt( c );
+	int section = sectionAt( c );
 	if ( section < 0 )
 	    return handleIdx;
 	i = d->s2i[section];
@@ -614,6 +616,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
 
+    int pos = c;
     if( reverse() ) 
 	c = d->lastPos - c;
     
@@ -660,7 +663,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 	handleColumnResize( handleIdx, c, FALSE );
 	break;
     case Moving: {
-	int newPos = findLine( c );
+	int newPos = findLine( pos );
 	if ( newPos != moveToIdx ) {
 	    if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
 		repaint( sRect(handleIdx) );
@@ -723,7 +726,7 @@ QRect QHeader::sRect( int index )
 	return rect(); // ### eeeeevil
 
     if ( reverse() )
-	return QRect(  d->lastPos - d->positions[index] - d->sizes[index] -offset(), 0, d->sizes[section], height() );
+	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
     else if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
@@ -964,11 +967,9 @@ void QHeader::setOffset( int x )
     int oldOff = offset();
     offs = x;
     if( d->lastPos < width() ) {
-	qDebug("setting to 0");
 	offs = 0;
     } else if ( reverse() )
 	offs = d->lastPos - width() - x;
-    qDebug("setOffset(%d) %d", x, offs);
     if ( orient == Horizontal )
 	scroll( oldOff-offset(), 0 );
     else
@@ -989,7 +990,7 @@ int QHeader::pPos( int i ) const
 {
     int pos;
     if ( i == count() )
-	pos = d->positions[i-1] + d->sizes[ d->i2s[i-1] ];
+	pos = d->lastPos;
     else
 	pos = d->positions[i];
     if ( reverse() )
@@ -1305,14 +1306,11 @@ void QHeader::paintEvent( QPaintEvent *e )
 	    id = 0;
     }
     if ( reverse() ) {
-	qDebug("painting from %d", id);
 	for ( int i = id; i >= 0; i-- ) {
 	    QRect r = sRect( i );
 	    paintSection( &p, i, r );
-	    if ( r.right() >= e->rect().right() ) {
-		qDebug("...to %d", i);
+	    if ( r.right() >= e->rect().right() )
 		return;
-	    }
 	}
     } else {
 	for ( int i = id; i < count(); i++ ) {
@@ -1517,7 +1515,6 @@ bool QHeader::reverse () const {
 /*! \reimp */
 void QHeader::resizeEvent( QResizeEvent *e )
 {
-    //qDebug("resize: width = %d, oldWidth=%d, offset = %d", e->size().width(), e->oldSize().width(), offs );
     QWidget::resizeEvent( e );
 
     if( d->lastPos < width() ) {
@@ -1535,12 +1532,7 @@ int QHeader::headerWidth() const
 
 void QHeader::calculatePositions()
 {
-    int oldWidth = d->lastPos;
     d->calculatePositions();
-    
-    if( reverse() )
-	offs -= oldWidth - d->lastPos;
-    //qDebug("offset = %d", offs);
 }
 
 //#### what about lastSectionCoversAll?
