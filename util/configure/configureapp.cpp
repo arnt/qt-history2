@@ -1160,7 +1160,7 @@ void Configure::generateConfigfiles()
 	}
     }
 
-    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/arch/i386/arch/qatomic.h";
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/i386/arch/qatomic.h";
     QDir archhelper;
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch");
     if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h", FALSE))
