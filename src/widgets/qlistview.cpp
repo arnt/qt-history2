@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#275 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#276 $
 **
 ** Implementation of QListView widget class
 **
@@ -2185,11 +2185,14 @@ void QListView::updateGeometries()
 /*!
   Updates the display when a section has changed size.
 */
-void QListView::handleSizeChange( int section, int, int )
+void QListView::handleSizeChange( int section, int os, int ns )
 {
     updateGeometries();
-    int left = d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
-    viewport()->repaint( left, 0, visibleWidth()-left,
+    int left = d->h->cellPos( section ) - contentsX(); //d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
+    if ( columnAlignment( section ) == AlignLeft )
+        left += QMIN( os, ns ) - 1;
+    
+    viewport()->repaint( left, 0, visibleWidth() - left,
                          visibleHeight(), FALSE );
 }
 
