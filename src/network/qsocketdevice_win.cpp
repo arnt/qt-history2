@@ -144,8 +144,8 @@ void QSocketDevice::setBlocking( bool enable )
     if ( !isValid() )
 	return;
 
-    unsigned long dummy;
-    ioctlsocket( fd, FIONBIO, (enable?0:&dummy) );
+    unsigned long dummy = enable ? 0 : 1;
+    ioctlsocket( fd, FIONBIO, &dummy );
 }
 
 
