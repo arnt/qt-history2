@@ -58,17 +58,10 @@ public:
 
 #ifndef QT_NO_DATASTREAM
 template <class T>
-Q_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l )
-{
-    return operator>>(s, (QList<T>&)l);
-}
+Q_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l );
 
 template <class T>
-Q_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l )
-{
-    return operator<<(s, (QList<T>&)l);
-}
+Q_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l );
 #endif // QT_NO_DATASTREAM
-
 
 #endif // QSTRINGLIST_H

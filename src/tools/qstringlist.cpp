@@ -405,4 +405,18 @@ QStringList QStrList::toStringList() const
     return res;
 }
 
+#ifndef QT_NO_DATASTREAM
+template <class T>
+QDataStream& operator>>( QDataStream& s, QStringList& l )
+{
+    return operator>>(s, (QList<T>&)l);
+}
+
+template <class T>
+QDataStream& operator<<( QDataStream& s, const QStringList& l )
+{
+    return operator<<(s, (QList<T>&)l);
+}
+#endif // QT_NO_DATASTREAM
+
 #endif //QT_NO_STRINGLIST
