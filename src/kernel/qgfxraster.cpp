@@ -1216,7 +1216,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);
     srctype=SourceImage;
-    alphatype==IgnoreAlpha;
+    alphatype=IgnoreAlpha;
     if ( p->devType() == QInternal::Widget ) {
 	QWidget * w=(QWidget *)p;
 	srcwidth=w->width();
@@ -1344,7 +1344,7 @@ static int match(QRgb a,QRgb b)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 {
-    int loopc,loopc2;
+    int loopc;
 
     if(!cols) {
 	srcclut[0]=0x0;
@@ -1389,6 +1389,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	    unsigned int hold=0xfffff;
 	    unsigned int tmp;
 	    int pos=0;
+	    int loopc2;
 	    for(loopc2=0;loopc2<clutcols;loopc2++) {
 		tmp=match(srcclut[loopc],clut[loopc2]);
 		if(tmp<hold) {
@@ -3685,7 +3686,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %lx",finfo.smem_start);
+	    qDebug("Physical framebuffer address %p",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can
