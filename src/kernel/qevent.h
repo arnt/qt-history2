@@ -370,6 +370,7 @@ public:
 };
 
 
+/* An internal class */
 class Q_EXPORT QDragResponseEvent : public QEvent
 {
 public:

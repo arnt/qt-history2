@@ -122,7 +122,7 @@
   <li> \c DragMove -
   <li> \c DragLeave -
   <li> \c Drop -
-  <li> \c DragResponse -
+  <li> \c DragResponse - an internal event used by Qt on some platforms.
   <li> \c ChildInserted -
   <li> \c ChildRemoved -
   <li> \c LayoutHint -
