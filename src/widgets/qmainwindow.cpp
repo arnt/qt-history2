@@ -2611,6 +2611,12 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		} else {
 		    QPoint op = t->pos();
 		    QRect r = d->oldPosRect;
+		    if ( r.width() > r.height() && t->width() < t->height() ||
+			 r.width() < r.height() && t->width() > t->height() ) {
+			d->rectPainter->drawRect( r );
+			r.setRect( e->x(), e->y(), t->width(), t->height() );
+			d->rectPainter->drawRect( r );
+		    }
 		    int a = r.x() - op.x();
 		    int b = r.y() - op.y();
 		    int ap = a / 20;
