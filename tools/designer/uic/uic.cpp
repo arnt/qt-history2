@@ -481,9 +481,6 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( dbAware ) {
 	out << "    " << "virtual bool setCursor( QSqlCursor* cursor );" << endl;
 	out << "    " << "virtual QSqlCursor* createCursor( const QString& name );" << endl;
-	out << "    " << "QSqlCursor* defaultCursor();" << endl;
-	if ( dbForm )
-	    out << "    " << "QSqlForm* defaultForm();" << endl;
 	out << endl;
     }
 
@@ -990,7 +987,6 @@ void Uic::createFormImpl( const QDomElement &e )
 			for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 			    createFormImpl( n, (*it2), (*it), (*it2) );
 			}
-
 		    }
 		}
 	    }
@@ -1157,7 +1153,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
 			out << indent << "if ( " << c << " ) {" << endl;
-			out << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
+			out << indent << indent << "QSqlCursor* c = " << c << "->sqlCursor();" << endl;
 			out << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
 			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
@@ -1165,16 +1161,20 @@ void Uic::createFormImpl( const QDomElement &e )
 			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
 			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
-			out << indent << indent << "if ( !c->isActive() )" << endl;
-			out << indent << indent << indent << c << "->refresh();" << endl;
+			out << indent << indent << c << "->refresh();" << endl;
 			out << indent << "}" << endl;
 		    }
 		}
 	    }
 	}
 	if ( needSqlFormEventHandler ) {
-	    out << indent << "QSqlCursor* cursor = defaultCursor();" << endl;
-	    out << indent << "if ( cursor && !cursor->isActive() ) {" << endl;
+	    out << indent << "if ( !sqlCursor() )" << endl;
+	    QString defaultTable = getDatabaseInfo( e, "table" );
+	    out << indent << indent << "setCursor( createCursor( \"" << defaultTable << "\" ) );" << endl;
+	    out << indent << "if ( !form() )" << endl;
+	    out << indent << indent << "setForm( " << defaultTable << "Form );" << endl;
+	    out << indent << "QSqlCursor* cur = sqlCursor();" << endl;
+	    out << indent << "if ( cur && !cur->isActive() ) {" << endl;
 	    out << indent << indent << "refresh();" << endl;
 	    out << indent << indent << "firstRecord();" << endl;
 	    out << indent << "}" << endl;
@@ -1275,6 +1275,8 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     bool dbForm = ( dbForms[ "(default)" ].count() != 0 );
     int i;
 
+    QString defaultTable = getDatabaseInfo( e, "table" );
+
     out << "/*  " << endl;
     out << " *  Sets the cursor identified by 'cursor' to be used" << endl;
     out << " *  by the " << objName << ".  Returns TRUE if 'cursor' was recognized," << endl;
@@ -1286,6 +1288,8 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << " */" << endl;
     out << "bool " << nameOfClass << "::setCursor( QSqlCursor* cursor )" << endl;
     out << "{" << endl;
+    out << indent << "if ( !cursor )" << endl;
+    out << indent << indent << "return FALSE;" << endl;
     out << indent << "QString n = cursor->name();" << endl;
     out << indent << "bool recognized = FALSE;" << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
@@ -1297,6 +1301,8 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		 ++it2 ) {
 		out << indent << "if ( n == \"" << (*it2) << "\" ) {" << endl;
 		out << indent << indent << (*it2) << "Cursor = cursor;" << endl;
+		if ( (*it2) == defaultTable )
+		    out << indent << indent << "setSqlCursor( cursor );" << endl;
 		out << indent << indent << "recognized = TRUE;" << endl;
 		QStringList::Iterator it3;
 		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
@@ -1319,40 +1325,26 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << "}" << endl;
     out << endl;
 
-    QString defaultTable = getDatabaseInfo( e, "table" );
-
-    out << "/*  " << endl;
-    out << " *  Returns a pointer to the default cursor." << endl;
-    if ( dbForm )
-	out << " *  Reimplemented from QSqlNavigator which relies on a default cursor" << endl;
-    out << " *  If the default cursor does not exist, it is first created with " << endl;
-    out << " *  " << nameOfClass << "::createCursor()." << endl;
-    out << " */" << endl;
-    out << "QSqlCursor* " << nameOfClass << "::defaultCursor()" << endl;
-    out << "{" << endl;
-    if ( !defaultTable.isEmpty() ) {
-	out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
-	out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
-	out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
-	out << indent << "}" << endl;
-	out << indent << "return " << defaultTable << "Cursor;" << endl;
-    } else {
-	out << indent << "return 0;" << endl;
-    }
-    out << "}" << endl;
-    out << endl;
-
-    if ( dbForm ) {
-	out << "/*  " << endl;
-	out << " *  Returns a pointer to the default form.  Reimplemented from" << endl;
-	out << " *  QSqlNavigator which relies on a default form." << endl;
-	out << " */" << endl;
-	out << "QSqlForm* " << nameOfClass << "::defaultForm()" << endl;
-	out << "{" << endl;
-	out << indent << "return " << defaultTable << "Form;" << endl;
-	out << "}" << endl;
-	out << endl;
-    }
+//     out << "/*  " << endl;
+//     out << " *  Returns a pointer to the default cursor." << endl;
+//     if ( dbForm )
+//	out << " *  Reimplemented from QSqlNavigator which relies on a default cursor" << endl;
+//     out << " *  If the default cursor does not exist, it is first created with " << endl;
+//     out << " *  " << nameOfClass << "::createCursor()." << endl;
+//     out << " */" << endl;
+//     out << "QSqlCursor* " << nameOfClass << "::defaultCursor()" << endl;
+//     out << "{" << endl;
+//     if ( !defaultTable.isEmpty() ) {
+//	out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
+//	out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
+//	out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
+//	out << indent << "}" << endl;
+//	out << indent << "return " << defaultTable << "Cursor;" << endl;
+//     } else {
+//	out << indent << "return 0;" << endl;
+//     }
+//     out << "}" << endl;
+//     out << endl;
 
     out << "/*  " << endl;
     out << " *  Returns a pointer to a new cursor based on 'name'." << endl;
