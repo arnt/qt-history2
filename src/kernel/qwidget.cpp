@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#296 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#297 $
 **
 ** Implementation of QWidget class
 **
@@ -2974,6 +2974,7 @@ bool QWidget::event( QEvent *e )
 		break;
 	    QWidget *w = this;
 	    while ( w ) {
+		k->accept();
 		w->keyPressEvent( k );
 		if ( k->isAccepted() || w->isTopLevel() )
 		    break;
