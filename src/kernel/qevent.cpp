@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#6 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#6 $";
 #endif
 
 
@@ -99,29 +99,37 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
 \class QEvent qevent.h
-\brief The QEvent class is base class of all event classes. Event object
+\brief The QEvent class is base class of all event classes. Event objects
 contain event parameters.
 
-The main event loop of Qt fetches window system events from the event
-queue, translates the events to Qt events and sends them to the widgets.
-Most events come from the underlying window system, but it is also
-possible to manually send events through the QApplication class.
+The main event loop of Qt fetches native window system events from the event
+queue, translates the events to Qt events and sends those translated
+events to application objects.
+
+Generally, events come from the underlying window system, but it is also
+possible to manually send events through the QApplication class
+(see QApplication::sendEvent() and QApplication::postEvent()).
 
 Only classes that inherit QObject and reimplement the virtual QObject::event()
-function can receive events.
+function may receive events.
 
-QWidget reimplements this function to examine the event type and send the
-event to the appropriate virtual event handler; QWidget::keyPressEvent(),
-QWidget::mouseMoveEvent() etc.
+The QWidget class reimplements the event() function to
+dispatch the event to an appropriate virtual function (event handler) on
+basis of the event type.
 
-The basic QEvent contains only the event type parameter. Subclasses of
-QEvent contain parameters that descripe the particular event; QKeyEvent,
-QMouseEvent etc.
+QWidget::keyPressEvent() and QWidget::mouseMoveEvent() are examples of
+widget event handlers.
+
+The basic QEvent contains only an event type parameter. Subclasses of
+QEvent contain additional parameters that descripe the particular event.
+
+The subclasses of QEvent are: QTimerEvent, QMouseEvent, QKeyEvent, QFocusEvent,
+QPaintEvent, QMoveEvent, QResizeEvent and QCloseEvent.
 */
 
 /*!
 \fn QEvent::QEvent( int type )
-Contructs a base event with a \e type. The file qevent.h has a list of
+Contructs an event object with a \e type. The file qevent.h has a list of
 all event types.
 */
 
@@ -133,43 +141,44 @@ Returns the event type.
 
 /*!
 \class QTimerEvent qevent.h
-\brief The QTimerEvent class contains the timer identifier parameter of a
-timer event.
+\brief The QTimerEvent class contains parameters that describe a timer event.
+
+Timer events are sent at regular intervals to objects that have started
+one or more timers.  Each timer has a unique identifier.
+
+The virtual function QWidget::timerEvent() receives timer events.
 
 \sa QObject::startTimer() and QObject::killTimer().
 */
 
 /*!
 \fn QTimerEvent::QTimerEvent( int timerId )
-Constructs a timer event object with a timer identifier.
+Constructs a timer event object with the timer identifier set to \e timerId.
 */
 
 /*!
-\fn int QTimer::timerId() const
-Returns the timer identifier, which is the same identifier returned from
-QObject::startTimer().
+\fn int QTimerEvent::timerId() const
+Returns the unique timer identifier, which is the same identifier as
+returned from QObject::startTimer().
 */
 
 
 /*!
 \class QMouseEvent qevent.h
-\brief The QMouseEvent class contains parameters that describe the mouse event.
+\brief The QMouseEvent class contains parameters that describe a mouse event.
 
-Widgets receive mouse events by the virtual functions
-QWidget::mousePressEvent(), QWidget::mouseReleaseEvent(),
-QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent().
+The virtual functions QWidget::mousePressEvent(), QWidget::mouseReleaseEvent(),
+QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent() receive mouse
+events.
 */
 
 /*!
 \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
-Constructs a mouse event object with parameters.
+Constructs a mouse event object.
 
-Arguments:
-\arg \e type parameter must be Event_MouseButtonPress,
-Event_MouseButtonRelease, Event_MouseButtonDblClick or Event_MouseMove.
-\arg \e pos is the mouse position.
-\arg \e button is the button that caused the event.
-\arg \e state is the current mouse button state.
+The type parameter must be \c Event_MouseButtonPress,
+\c Event_MouseButtonRelease,
+\c Event_MouseButtonDblClick or \c Event_MouseMove.
 */
 
 /*!
@@ -182,45 +191,49 @@ event.
 \fn int QMouseEvent::button() const
 Returns the button that caused the event.
 
-Possible return values are LeftButton, RightButton, MidButton and NoButton.
-The button value is always NoButton when a mouse move event has been
+Possible return values are \c LeftButton, \c RightButton, \c MidButton and
+\c NoButton.
+
+The button value is always \c NoButton (0) when a mouse move event is
 received.
 */
 
 /*!
 \fn int QMouseEvent::state() const
-Returns the current buttons state.
+Returns the current button state (a combination of mouse buttons and keyboard
+modifiers).
 
-The return value is  LeftButton, RightButton, MidButton, ShiftButton,
-ControlButton and AltButton OR'ed together.
+The returned value is \c LeftButton, \c RightButton, \c MidButton,
+\c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 */
 
 
 /*!
 \class QKeyEvent qevent.h
-\brief The QKeyEvent class contains parameters that describe the key event.
+\brief The QKeyEvent class contains parameters that describe a key event.
 
-Widgets receive key event by the virtual functions
-QWidget::keyPressEvent() and QWidget::keyReleaseEvent().
+Key events contain a special accept flag which tells whether the receiver
+wants the key.
+
+The virtual functions QWidget::keyPressEvent() and QWidget::keyReleaseEvent()
+receive key events.
 */
 
 /*!
-\fn QKeyEvent::QKeyEvent( int type, int kc, char ac, int state )
-Constructs a key event object with parameters.
+\fn QKeyEvent::QKeyEvent( int type, int key, char ascii, int state )
+Constructs a key event object.
 
-Arguments:
-\arg \e type parameter must be Event_KeyPress or Event_KeyRelease.
-\arg \e kc is the key code
-\arg \e ac is the ascii code
-\arg \e state is the keyboard status
+The type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
+
+The accept flag is set to TRUE.
 */
 
 /*!
 \fn int QKeyEvent::key() const
-Returns the keyboard code that was pressed or released.
+Returns the code if the key that was pressed or released.
 
 The header file qkeycode.h lists the possible keybord codes.  These codes
-are independent of the underlying platform.
+are independent of the underlying window system.
 */
 
 /*!
@@ -230,24 +243,24 @@ Returns the ASCII code of the key that was pressed or released.
 
 /*!
 \fn int QKeyEvent::state() const
-Returns the keyboard status flags.
+Returns the keyboard modifier flags.
 
-The return value is ShiftButton, ControlButton and AltButton OR'ed together.
+The returned value is \c ShiftButton, \c ControlButton and \c AltButton
+OR'ed together.
 */
-
 
 /*!
 \fn bool QKeyEvent::isAccepted() const
-Returns TRUE if the receiver of the event recognized this event and
-decided to keep it.
+Returns TRUE if the receiver of the event wants to keep the key.
 */
 
 /*!
 \fn void QKeyEvent::accept()
-Sets the accep flag parameter of the key event object.
+Sets the accept flag of the key event object.
 
-Setting the accept parameter indicates that the event receiver wants
+Setting the accept parameter indicates that the receiver of the event wants
 the key event. Unwanted key events are sent to the parent widget.
+
 The accept flag is set by default.
 
 \sa ignore().
@@ -259,6 +272,7 @@ Clears the accept flag parameter of the key event object.
 
 Clearing the accept parameter indicates that the event receiver does
 not want the key event. Unwanted key events are sent to the parent widget.
+
 The accept flag is set by default.
 
 \sa accept().
@@ -268,22 +282,32 @@ The accept flag is set by default.
 /*!
 \class QFocusEvent qevent.h
 \brief The QFocusEvent class contains event parameters for widget focus events.
-\todo Has to be implemented.
 
-Widgets receive focus event by the virtual function
-QWidget::focusChangeEvent().
+Focus events are sent to widgets when the text input focus is about to
+change.
+
+\todo Not implemented yet.
+
+The virtual function QWidget::focusChangeEvent() receives focus events.
+
+\sa QWidget::setFocus().
 */
 
 /*!
 \fn QFocusEvent::QFocusEvent( int type )
-Constructs a focus event object with parameters.
+Constructs a focus event object.
 
-The \e type parameter muse be either Event_FocusIn or Event_FocusOut.
+The \e type parameter must be either \e Event_FocusIn or \e Event_FocusOut.
 */
 
 /*!
-\fn bool QFocusEvent::gotFocus()
-Returns TRUE if the widget got the focus.
+\fn bool QFocusEvent::gotFocus() const
+Returns TRUE if the widget received the text input focus.
+*/
+
+/*!
+\fn bool QFocusEvent::lostFocus() const
+Returns TRUE if the widget lost the text input focus.
 */
 
 
@@ -291,10 +315,12 @@ Returns TRUE if the widget got the focus.
 \class QPaintEvent qevent.h
 \brief The QPaintEvent class contains event parameters for paint events.
 
-Paint events are sent to widgets that needs to update themselves, for instance
+Paint events are sent to widgets that need to update themselves, for instance
 when a part of a widget is exposed because an overlying widget is moved away.
-This event is received by the virtual function
-QWidget::paintEvent().
+
+The virtual function QWidget::paintEvent() receives paint events.
+
+\sa QWidget::update() and QWidget::repaint().
 */
 
 /*!
@@ -313,8 +339,11 @@ Returns the rectangle that should be updated.
 \brief The QMoveEvent class contains event parameters for move events.
 
 Move events are sent to widgets that have been moved to a new position
-relative to their parent.  This event is received by the virtual function
-QWidget::moveEvent().
+relative to their parent.
+
+The virtual function QWidget::moveEvent() receives move events.
+
+\sa QWidget::move() and QWidget::setGeometry().
 */
 
 /*!
@@ -333,9 +362,11 @@ QWidget::pos().
 \class QResizeEvent qevent.h
 \brief The QResizeEvent class contains event parameters for resize events.
 
-Move events are sent to widgets that have been resized.
-This event is received by the virtual function
-QWidget::resizeEvent().
+Resize events are sent to widgets that have been resized.
+
+The virtual function QWidget::resizeEvent() receives resize events.
+
+\sa QWidget::resize() and QWidget::setGeometry().
 */
 
 /*!
@@ -344,7 +375,7 @@ Constructs a resize event with the new widget size.
 */
 
 /*!
-\fn QSize &QResizeEvent::pos()
+\fn QSize &QResizeEvent::size()
 Returns the new size of the widget, which is the same as
 QWidget::size().
 */
@@ -352,29 +383,38 @@ QWidget::size().
 
 /*!
 \class QCloseEvent qevent.h
-\brief The QCloseEvent class contains parameters that describe the close event.
+\brief The QCloseEvent class contains parameters that describe a close event.
 
-Close events are sent to widgets that the user wants to close, for instance
-by choosing "close" from the window menu.
-Widgets receive close event by the virtual function
-QWidget::closeEvent().
+Close events are sent to widgets the user wants to close, for instance
+by choosing "close" from a window menu.
+
+Close events contains a special accept flag which tells whether the receiver
+wants the widget to be closed.
+
+The virtual function QWidget::closeEvent() receives close events.
+
+\sa QWidget::close().
 */
 
 /*!
 \fn QCloseEvent::QCloseEvent()
-Constructs a close event object with the accept parameter set to TRUE.
+Constructs a close event object with the accept parameter flag set to TRUE.
+*/
 
 /*!
 \fn bool QCloseEvent::isAccepted() const
 Returns TRUE if the receiver of the event has agreed to close the widget.
+
+\sa accept() and ignore().
 */
 
 /*!
 \fn void QCloseEvent::accept()
-Sets the accep flag parameter of the close event object.
+Sets the accep flag of the close event object.
 
-Setting the accept parameter indicates that the event receiver agrees in
-closing the widget window.
+Setting the accept flag indicates that the receiver of this event agrees
+to close the widget.
+
 The accept flag is set by default.
 
 \sa ignore().
@@ -382,10 +422,11 @@ The accept flag is set by default.
 
 /*!
 \fn void QCloseEvent::ignore()
-Clears the accept flag parameter of the close event object.
+Clears the accept flag of the close event object.
 
-Clearing the accept parameter indicates that the event receiver does
-not want the widget window to close.
+Clearing the accept flag indicates that the receiver of this event does not
+want the widget to close.
+
 The accept flag is set by default.
 
 \sa accept().
