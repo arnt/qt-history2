@@ -60,9 +60,9 @@
 //   FREEBSD	- FreeBSD
 //   NETBSD	- NetBSD
 //   OPENBSD    - OpenBSD
+//   BSDI	- BSD/OS
 //   IRIX	- SGI Irix
 //   OSF	- Tru64 / Digital UNIX
-//   BSDI	- BSDi BSD/OS
 //   UNIXWARE	- SCO UnixWare
 //   SCO	- SCO of some sort
 //   AIX	- AIX
@@ -71,7 +71,58 @@
 //   DYNIX	- DYNIX/ptx
 //   RELIANT	- Reliant UNIX
 //   QNX	- QNX
-//   UNIX	- Any UNIX bsd/sysv system
+//   UNIX	- Any UNIX BSD/SYSV system
+//
+// On UNIX we sometimes need to explictly specify recent system interfaces
+// because they are not specified by default.  HP-UX, Tru64 and Solaris are
+// examples of such platforms.  On the other hand other platforms sometimes
+// specified recent interfaces by default in <unistd.h>.  Such is the case
+// of Linux and AIX.
+// Note that X/Open specifications are SYSV-related.  BSD systems have more
+// stable interfaces...
+//
+// The idea for configuring X/Open systems is:
+//
+// 1) Ask for most recent X/Open specification available.
+//    Either this is done explicitly by defining
+//    	_XOPEN_SOURCE          to 600 for XPG6
+//    	_XOPEN_SOURCE          to 500 for SUSv2/XPG5
+//    	_XOPEN_SOURCE_EXTENDED to 1   for SUS/XPG4v2
+//    	_XOPEN_SOURCE          to 1   for plain XPG4
+//    or this is sometimes done implictly by defining
+//    	_HPUX_SOURCE on HP-UX
+//    	_SGI_SOURCE  on Irix
+//    	_GNU_SOURCE  on GNU systems (imports draft X/Open interfaces)
+//
+// 2) Draft POSIX standards and X/Open specifcations more recent than the
+//    current X/Open specification are often available before they are
+//    officially included in an X/Open specification.  If needed they
+//    should be specified separately.  For example define
+//    	_POSIX_C_SOURCE   to 199506L for IEEE Std 1003.1c (1995) / POSIX.1c
+//    	_POSIX_C_SOURCE   to 199309L for IEEE Std 1003.1b (1993) / POSIX.1b
+//    	_POSIX_C_SOURCE   to 1       for IEEE Std 1003.1  (1990) / POSIX.1
+//    	_FILE_OFFSET_BITS to 64      for X/Open Large File Support (draft 8)
+//    	                             		(large file aware mode)
+//
+// 3) Some functions are neither in the current X/Open specification nor
+//    in any current POSIX standard.  However they are still made available
+//    either by including specific platform-dependant header files (to be
+//    avoided) or by using platform-dependant macros like _BSD_SOURCE or
+//    _GNU_SOURCE.  Such exceptional things are better controlled near to
+//    the code that needs the specific functions.  Typical example is to
+//    define
+//    	_POSIX_PII_SOCKET on Tru64 for draft IEEE Std 1003.1g/D6.6 (March 1997)
+//
+// 4) Only now may <unistd.h> be included - explicitly or not!
+//    It will define some internal macros so that system header files
+//    that are included afterwards import the correct interfaces.
+//    Now you may also test the availability of some specification.
+//    Important examples are:
+//    	_XOPEN_XPG3    defined    for XPG3
+//    	_XOPEN_XPG4    defined    for XPG4
+//    	_XOPEN_UNIX    defined    for SUS/XPG4v2
+//    	_XOPEN_VERSION set to 500 for SUSv2/XPG5
+//    	_POSIX_THREADS defined    for IEEE Std 1003.1c (1995) / POSIX.1c
 //
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -154,38 +205,12 @@
 #endif
 
 #if defined(Q_OS_UNIX)
-// 1) Ask for most recent X/Open specification available.
-                                   // ask for upcoming XPG6?
-#  define _XOPEN_SOURCE 500        // fall back on XPG5 / SUSv2 / UNIX 98
-#  undef _XOPEN_SOURCE_EXTENDED	   // get rid of warnings
-#  define _XOPEN_SOURCE_EXTENDED 1 // fall back on XPG4-UNIX / SUS / UNIX 95
-                                   // fall back on ol' XPG4 or XPG3
-// 2) POSIX standards and X/Open drafts more recent than the current X/Open
-//    specification are often available. Specify them separately.
-#  define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
-                                   // IEEE Std 1003.1b (1993) / POSIX.1b
-                                   // IEEE Std 1003.1 (1990) / POSIX.1
-/* ### finalize before 3.0 ###
-#  define _FILE_OFFSET_BITS 64     // X/Open Large File Support (draft 8)
-                                   // choosing large file aware mode
-				   // vs. transitional mixed mode
+#  define _XOPEN_SOURCE 500          // import SUSv2/XPG5
+#  define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
+#  define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
+/* ### implement 3.0
+#  define _FILE_OFFSET_BITS 64       // X/Open Large File Support (draft 8)
 */
-// 3) Some functions are neither in the current X/Open specification nor in
-//    any current POSIX standard. However they are still made available either
-//    by including specific platform-dependant header files (to be avoided)
-//    or using platform-dependant macros like _BSD_SOURCE.
-//    Such exceptional things are better controlled near to the code that
-//    needs the specific functions. So for now add platform-specific macros
-//    and include platform-specific header files near to the code that needs
-//    them.
-// 4) Now include <unistd.h> which will hopefully define other macros to tell
-//    us which of the specified interfaces are available. For example macro
-//    _POSIX_THREADS should be defined if POSIX.1c pthreads are supported.
-//    In practice POSIX drafts are sometimes implemented instead of the
-//    final standard...
-//    Now, as we have deferred step 3) to implementation files, we have
-//    to defer step 4) which comes after step 3) to implementation files
-//    as well.
 #endif
 
 
@@ -684,5 +709,5 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
-#endif // QGLOBAL_H
 
+#endif // QGLOBAL_H

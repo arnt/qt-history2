@@ -36,23 +36,44 @@
 **********************************************************************/
 
 #include "qglobal.h"
+
+// vsnprintf() is not available on all platforms.
+#if defined(Q_OS_UNIX)
+// It is available on BSD, specified by SUSv2/XPG5, and possibly available
+// on SUS/XPG4 platforms as a platform-specific extension.
+#  if defined(BSD4_4)
+// All BSD systems have vsnprintf().  Seen on FreeBSD 1.0 through 2.4,
+// NetBSD 1.0 through 1.5, OpenBSD 2.1 through 2.8.
+#  else
+// Note that Irix 6.5 is an incomplete SUSv2 implementation.
+// _SGI_SOURCE must be defined prior to including <stdio.h>.
+#    if defined(Q_OS_IRIX) && !defined(_SGI_SOURCE)
+#      define _SGI_SOURCE
+#    endif
+#    include <unistd.h>
+#    if !defined(_XOPEN_VERSION) || (_XOPEN_VERSION<500)
+// vsnprintf() was first specified by SUSv2/XPG5.
+#      define QT_NO_VSNPRINTF
+#    endif
+#  endif
+#endif
+
 #include "qasciidict.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
 #if defined(Q_OS_WIN32)
-#define vsnprintf _vsnprintf
+#  define vsnprintf _vsnprintf
 #else
-#include <errno.h>
+#  include <errno.h>
 #endif
 
 // NOT REVISED
 
 /*!
   \relates QApplication
-  Returns the Qt version number for the library, typically "1.30"
-  or "2.1.0".
+  Returns the Qt version number for the library, typically "1.44" or "2.3.0".
 */
 
 const char *qVersion()
@@ -285,6 +306,7 @@ int qWinVersion()
 
 static QtMsgHandler handler = 0;			// pointer to debug handler
 
+
 #ifdef Q_OS_MAC
 const unsigned char * p_str(const char * c)
 {
@@ -310,6 +332,7 @@ QCString p2qstring(const unsigned char *c) {
        return ret;
 } 
 #endif
+
 
 #ifdef Q_OS_MAC9
 
@@ -356,7 +379,11 @@ void debug( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
+#ifdef QT_NO_VSNPRINTF
+	vsprintf( buf, msg, ap );
+#else
 	vsnprintf( buf, 512, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
@@ -378,7 +405,11 @@ void qWarning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
+#ifdef QT_NO_VSNPRINTF
+	vsprintf( buf, msg, ap );
+#else
 	vsnprintf( buf, 512, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
@@ -402,7 +433,11 @@ void warning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
+#ifdef QT_NO_VSNPRINTF
+	vsprintf( buf, msg, ap );
+#else
 	vsnprintf( buf, 512, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
@@ -424,7 +459,11 @@ void qFatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
+#ifdef QT_NO_VSNPRINTF
+	vsprintf( buf, msg, ap );
+#else
 	vsnprintf( buf, 512, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
@@ -452,7 +491,11 @@ void fatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
+#ifdef QT_NO_VSNPRINTF
+	vsprintf( buf, msg, ap );
+#else
 	vsnprintf( buf, 512, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
