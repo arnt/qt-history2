@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#70 $
 **
 ** Definition of QIconView widget class
 **
@@ -1123,6 +1123,8 @@ void QIconViewItem::calcRect( const QString &text_ )
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
     w = r.width();
     h = r.height();
+    if ( w < fm->width( "X" ) )
+	w = fm->width( "X" );
 
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
