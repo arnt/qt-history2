@@ -1462,13 +1462,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	char chr = KeyTranslate((void *)GetScriptManagerVariable(smKCHRCache), 
 				(modif & shiftKey) | keyc, &state);
 	int mychar=get_key(chr);
-
-	//set ascii/unicode
-	QString mystr;
-	if((modifiers & (Qt::ControlButton)) || (mychar > 127 || mychar < 0))
-	    chr = 0;
-	else 
-	    mystr = QChar(chr);
+	QString mystr = QChar(chr);
 
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 
@@ -1507,6 +1501,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	    if(!isAccel) {
+		if((modifiers & (Qt::ControlButton | Qt::AltButton)) || (mychar > 127 || mychar < 0)) {
+		    mystr = QString();
+		    chr = 0;
+		}
+
 		QKeyEvent ke(etype,mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendEvent(widget,&ke);
 	    }
