@@ -642,7 +642,7 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    jpeg|libjpeg)
+    libjpeg|jpeg)
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAR" = "jpeg" ]; then
 	    echo "-${VAL}-jpeg is left for compatibility, in the future please use -${VAL}-libjpeg"
@@ -1537,8 +1537,9 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir]
 	[-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ]
-	[-datadir dir] [-debug] [-release] [-qt-gif] [-no-gif] [-no-sm]
-	[-sm] [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng]
+	[-datadir dir] [-debug] [-release] [-no-gif] [-qt-gif] [-no-sm]
+	[-sm] [-qt-zlib] [-system-zlib] [-qt-libjpeg] [-system-libjpeg]
+	[-qt-libpng] [-system-libpng] [-qt-libmng] [-system-libmng]
 	[-no-thread] [-thread] [-no-nis] [-nis] [-no-cups] [-cups]
 	[-no-largefile] [-largefile] [-no-stl] [-stl]
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
