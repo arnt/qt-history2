@@ -230,6 +230,7 @@ void QSimpleRichText::setWidth( int w )
 {
     if ( w == d->cachedWidth && !d->cachedWidthWithPainter )
 	return;
+    d->doc->formatter()->setAllowBreakInWords( d->doc->isPageBreakEnabled() );
     d->cachedWidth = w;
     d->cachedWidthWithPainter = FALSE;
     d->doc->doLayout( 0, w );
@@ -250,7 +251,8 @@ void QSimpleRichText::setWidth( QPainter *p, int w )
 {
     if ( w == d->cachedWidth  && d->cachedWidthWithPainter )
 	return;
-    d->doc->formatter()->setAllowBreakInWords( p && p->device() &&
+    d->doc->formatter()->setAllowBreakInWords( d->doc->isPageBreakEnabled() ||
+		       p && p->device() &&
 		     p->device()->devType() == QInternal::Printer );
     p->save();
     d->cachedWidth = w;

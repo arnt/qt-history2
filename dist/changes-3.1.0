@@ -28,7 +28,8 @@ using QWidgetStacks in the created GUIs.
 
 Qt Assistant, the Qt help documentation browser, got support for
 adding custom documentation sets. This makes it easy to use it as the
-help browser for customer applications.
+help browser for customer applications. Additionally Qt Assistant
+supports full text search in the documentation now.
 
 As the industry is phasing out Motif, more and more companies are
 finding themselves in a situation where they need a gradual migration
