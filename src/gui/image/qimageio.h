@@ -79,6 +79,8 @@ public:
 
     enum ImageFormatError {
         UnknownError,
+        FileNotFound,
+        DeviceError,
         UnsupportedImageFormat,
         InvalidImageData
     };

@@ -294,13 +294,7 @@ QImageIO::QImageIO(const QString &fileName, const QByteArray &format)
     : d(new QImageIOPrivate(this))
 {
     d->device = new QFile(fileName);
-    if (!d->device->open(QIODevice::ReadWrite)) {
-        if (!d->device->open(QIODevice::ReadOnly)) {
-            qWarning("QImageIO::QImageIO(), unable to open %s: %s",
-                     fileName.toLatin1().constData(), d->device->errorString().toLatin1().constData());
-        }
-    }
-
+    d->fileName = fileName;
     d->deleteDevice = true;
     d->format = format;
 }
@@ -407,7 +401,7 @@ QIODevice *QImageIO::device() const
 
 /*!
     This is a convenience function that creates a QFile internally,
-    and then attempts to open \a fileName in \l ReadWrite mode.
+    and assigns the name \a fileName to it.
 */
 void QImageIO::setFileName(const QString &fileName)
 {
@@ -415,13 +409,6 @@ void QImageIO::setFileName(const QString &fileName)
         delete d->device;
 
     d->device = new QFile(fileName);
-    if (!d->device->open(QIODevice::ReadWrite)) {
-        if (!d->device->open(QIODevice::ReadOnly)) {
-            qWarning("QImageIO::QImageIO(), unable to open \"%s\": %s",
-                     fileName.toLatin1().constData(), d->device->errorString().toLatin1().constData());
-        }
-    }
-
     d->deleteDevice = true;
     d->fileName = fileName;
     delete d->handler;
@@ -610,9 +597,27 @@ bool QImageIO::load()
         return false;
     }
 
-    if (!d->device->isOpen()) {
+    if (!d->deleteDevice && !d->device->isOpen()) {
         qWarning("QImageIO::load() called with closed device");
         return false;
+    }
+
+    if (d->deleteDevice && !d->device->isOpen() && !d->device->open(QIODevice::ReadOnly)) {
+        QList<QByteArray> extensions = inputFormats();
+        int currentExtension = 0;
+
+        QFile *file = static_cast<QFile *>(d->device);
+
+        do {
+            file->setFileName(d->fileName + QLatin1Char('.') + extensions.at(currentExtension++));
+            file->open(QIODevice::ReadOnly);
+        } while (!file->isOpen() && currentExtension < extensions.size());
+
+        if (!d->device->isOpen()) {
+            d->error = FileNotFound;
+            d->errorString = QT_TRANSLATE_NOOP(QImageIO, "File not found");
+            return false;
+        }
     }
 
     if (!d->handler)
@@ -653,6 +658,21 @@ bool QImageIO::save()
 {
     if (!d->device) {
         qWarning("QImageIO::save() called with no device");
+        d->error = DeviceError;
+        d->errorString = QT_TRANSLATE_NOOP(QImageIO, "No device");
+        return false;
+    }
+
+    if (!d->deleteDevice && !d->device->isOpen()) {
+        qWarning("QImageIO::save() called with closed device");
+        d->error = DeviceError;
+        d->errorString = QT_TRANSLATE_NOOP(QImageIO, "Device not open");
+        return false;
+    }
+
+    if (d->deleteDevice && !d->device->open(QIODevice::WriteOnly)) {
+        d->error = DeviceError;
+        d->errorString = QT_TRANSLATE_NOOP(QImageIO, "Unable to write to the device");
         return false;
     }
 
