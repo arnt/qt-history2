@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#42 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -338,6 +338,15 @@ static bool block_set_alignment = FALSE;
   paragraph to be joined with the following paragraph.
 */
 
+/*! \enum QTextEdit::VerticalAlignment
+
+  This enum is used to set the vertical alignment of the text.
+
+  \value AlignNormal Normal alignment
+  \valu AlignSuperScript Superscript
+  \valu AlignSubScript Subscript
+*/
+
 /*!  \fn void QTextEdit::copyAvailable (bool yes)
 
   This signal is emitted when text is selected or de-selected in the text
@@ -487,6 +496,16 @@ static bool block_set_alignment = FALSE;
   The new color is \a c.
 
   \sa setColor()
+*/
+
+/*! \fn void QTextEdit::currentVerticalAlignmentChanged( VerticalAlignment a )
+
+  This signal is emitted if the vertical alignment of the current
+  format has changed.
+
+  The new vertical alignment is \a a.
+
+  \sa setVerticalAlignment()
 */
 
 /*! \fn void QTextEdit::currentAlignmentChanged( int a )
@@ -981,7 +1000,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
     bool doUpdateCurrentFormat = TRUE;
 
     switch ( action ) {
-    case ActionDelete:
+    case ActionDelete: {
 	checkUndoRedoInfo( UndoRedoInfo::Delete );
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
@@ -993,9 +1012,13 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    cursor->parag()->at( cursor->index() )->format()->addRef();
 	    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
 	}
-	if ( cursor->remove() )
+	QTextParag *old = cursor->parag();
+	if ( cursor->remove() ) {
+	    if ( old != cursor->parag() && lastFormatted == old )
+		lastFormatted = cursor->parag() ? cursor->parag()->prev() : 0;
 	    undoRedoInfo.d->text += "\n";
-	break;
+	}
+    } break;
     case ActionBackspace:
 	if ( cursor->parag()->style() && cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
 	     cursor->index() == 0 ) {
@@ -1035,8 +1058,10 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	}
 	undoRedoInfo.d->text += "\n";
 	cursor->splitAndInsertEmptyParag();
-	if ( cursor->parag()->prev() )
+	if ( cursor->parag()->prev() ) {
 	    lastFormatted = cursor->parag()->prev();
+	    lastFormatted->invalidate( 0 );
+	}
 	doUpdateCurrentFormat = FALSE;
     } break;
     case ActionKill:
@@ -1052,8 +1077,12 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		cursor->parag()->at( cursor->index() )->format()->addRef();
 		undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
 	    }
-	    if ( cursor->remove() )
+	    QTextParag *old = cursor->parag();
+	    if ( cursor->remove() ) {
+		if ( old != cursor->parag() && lastFormatted == old )
+		    lastFormatted = cursor->parag() ? cursor->parag()->prev() : 0;
 		undoRedoInfo.d->text += "\n";
+	    }
 	} else {
 	    int oldLen = undoRedoInfo.d->text.length();
 	    undoRedoInfo.d->text += cursor->parag()->string()->toString().mid( cursor->index() );
@@ -1147,20 +1176,32 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
     }
 }
 
-/*!
-  Deletes the selected text (i.e. the default selection's text). If
-  there is no selected text (in selection 0) nothing happens.
+/*! Removes the selection \a selNum (by default 0). This does not
+  remove the selected text.
 
-  \sa selectedText
+  \sa removeSelectedText()
 */
 
-void QTextEdit::removeSelectedText()
+void QTextEdit::removeSelection( int selNum )
+{
+    doc->removeSelection( selNum );
+    repaintChanged();
+}
+
+/*!  Deletes the selected text (i.e. the default selection's text) of
+  the selection selNum (by default, 0). If there is no selected text
+  nothing happens.
+
+  \sa selectedText removeSelection()
+*/
+
+void QTextEdit::removeSelectedText( int selNum )
 {
     if ( isReadOnly() )
 	return;
 
-    QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
-    QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
+    QTextCursor c1 = doc->selectionStartCursor( selNum );
+    QTextCursor c2 = doc->selectionEndCursor( selNum );
 
     // ### no support for editing tables yet
     if ( c1.nestedDepth() || c2.nestedDepth() )
@@ -1172,14 +1213,14 @@ void QTextEdit::removeSelectedText()
     drawCursor( FALSE );
     checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
     if ( !undoRedoInfo.valid() ) {
-	doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
+	doc->selectionStart( selNum, undoRedoInfo.id, undoRedoInfo.index );
 	undoRedoInfo.d->text = QString::null;
     }
     int oldLen = undoRedoInfo.d->text.length();
-    undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
+    undoRedoInfo.d->text = doc->selectedText( selNum );
     undoRedoInfo.oldAligns.resize( undoRedoInfo.oldAligns.size() + QMAX( 0, c2.parag()->paragId() - c1.parag()->paragId() + 1 ) );
     readFormats( c1, c2, oldLen, undoRedoInfo.d->text, TRUE );
-    doc->removeSelectedText( QTextDocument::Standard, cursor );
+    doc->removeSelectedText( selNum, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();
     formatMore();
@@ -1935,6 +1976,83 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
     }
 }
 
+/*! Inserts \a text in the paragraph \a para and position \a index */
+
+void QTextEdit::insertAt( const QString &text, int para, int index )
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return;
+    QTextCursor tmp = *cursor;
+    cursor->setParag( p );
+    cursor->setIndex( index );
+    insert( text, FALSE, TRUE, FALSE );
+    *cursor = tmp;
+    removeSelection( QTextDocument::Standard );
+}
+
+/*! Inserts \a text as the paragraph at position \a para. If \a para
+  is -1, the text is appended.
+*/
+
+void QTextEdit::insertParagraph( const QString &text, int para )
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( p ) {
+	QTextCursor tmp( doc );
+	tmp.setParag( p );
+	tmp.setIndex( 0 );
+	tmp.insert( text, TRUE );
+	tmp.splitAndInsertEmptyParag();
+	repaintChanged();
+    } else {
+	append( text );
+    }
+}
+
+/*! Removes the paragraph \a para */
+
+void QTextEdit::removeParagraph( int para )
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return;
+    if ( p == doc->firstParag() && p == doc->lastParag() ) {
+	p->remove( 0, p->length() - 1 );
+	repaintChanged();
+	return;
+    }
+    drawCursor( FALSE );
+    bool resetCursor = cursor->parag() == p;
+    if ( p->prev() )
+	p->prev()->setNext( p->next() );
+    else
+	doc->setFirstParag( p->next() );
+    if ( p->next() )
+	p->next()->setPrev( p->prev() );
+    else
+	doc->setLastParag( p->prev() );
+    QTextParag *start = p->next();
+    int h = p->rect().height();
+    delete p;
+    p = start;
+    int dy = -h;
+    while ( p ) {
+	p->setParagId( p->prev() ? p->prev()->paragId() + 1 : 0 );
+	p->move( dy );
+	p->invalidate( 0 );
+	p->setEndState( -1 );
+	p = p->next();
+    }
+
+    if ( resetCursor ) {
+	cursor->setParag( doc->firstParag() );
+	cursor->setIndex( 0 );
+    }
+    repaintChanged();
+    drawCursor( TRUE );
+}
+
 /*!
   Undoes the last operation.
 
@@ -2177,9 +2295,15 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
+	emit currentVerticalAlignmentChanged( (VerticalAlignment)currentFormat->vAlign() );
 	if ( cursor->index() == cursor->parag()->length() - 1 ) {
 	    currentFormat->addRef();
 	    cursor->parag()->string()->setFormat( cursor->index(), currentFormat, TRUE );
+	    if ( cursor->parag()->length() == 1 ) {
+		cursor->parag()->invalidate( 0 );
+		cursor->parag()->format();
+		repaintChanged();
+	    }
 	}
     }
 }
@@ -2338,6 +2462,7 @@ void QTextEdit::updateCurrentFormat()
 	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
+	emit currentVerticalAlignmentChanged( (VerticalAlignment)currentFormat->vAlign() );
     }
 
     if ( currentAlignment != cursor->parag()->alignment() ) {
@@ -2430,6 +2555,19 @@ void QTextEdit::setColor( const QColor &c )
     QTextFormat f( *currentFormat );
     f.setColor( c );
     setFormat( &f, QTextFormat::Color );
+}
+
+/*!
+  Sets the vertical alignment of the current format, i.e. of the text, to \a a.
+
+  \sa color() setPaper()
+*/
+
+void QTextEdit::setVerticalAlignment( VerticalAlignment a )
+{
+    QTextFormat f( *currentFormat );
+    f.setVAlign( (QTextFormat::VerticalAlignment)a );
+    setFormat( &f, QTextFormat::VAlign );
 }
 
 void QTextEdit::setFontInternal( const QFont &f_ )
@@ -2610,10 +2748,11 @@ void QTextEdit::getCursorPosition( int *parag, int *index ) const
     *index = cursor->index();
 }
 
-/*!
-  Sets a selection which starts at position \a indexFrom in
-  paragraph \a paraFrom and ends at position \a indexTo in
-  paragraph \a paraTo.
+/*!  Sets a selection which starts at position \a indexFrom in
+  paragraph \a paraFrom and ends at position \a indexTo in paragraph
+  \a paraTo. Existing selections which have a different id (selNum)
+  are not removed, existing selections which have the same id as \a
+  selNum are removed.
 
   Uses the selection settings of selection \a selNum. If \a selNum is 0,
   this is the default selection.
@@ -2624,6 +2763,10 @@ void QTextEdit::getCursorPosition( int *parag, int *index ) const
 void QTextEdit::setSelection( int paraFrom, int indexFrom,
 			      int paraTo, int indexTo, int selNum )
 {
+    if ( doc->hasSelection( selNum ) ) {
+	doc->removeSelection( selNum );
+	repaintChanged();
+    }
     if ( selNum > doc->numSelections() - 1 )
 	doc->addSelection( selNum );
     QTextParag *p1 = doc->paragAt( paraFrom );
@@ -3121,6 +3264,8 @@ void QTextEdit::append( const QString &text )
     if ( f == PlainText ) {
 	QTextCursor oldc( *cursor );
 	cursor->gotoEnd();
+	if ( cursor->index() > 0 )
+	    cursor->splitAndInsertEmptyParag();
 	insert( text, FALSE, TRUE );
 	*cursor = oldc;
     } else if ( f == RichText ) {
@@ -3527,7 +3672,7 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
     else
 	formatter = new QTextFormatterBreakInWords;
     formatter->setWrapAtColumn( document()->formatter()->wrapAtColumn() );
-    formatter->setWrapEnabled( document()->formatter()->isWrapEnabled() );
+    formatter->setWrapEnabled( document()->formatter()->isWrapEnabled( 0 ) );
     document()->setFormatter( formatter );
     doc->invalidate();
     viewport()->repaint( FALSE );
@@ -3614,16 +3759,16 @@ void QTextEdit::clearUndoRedo()
     emit redoAvailable( doc->commands()->isRedoAvailable() );
 }
 
-/*!
-  This function gets the format of the character at position \a index in
-  paragraph \a para. Sets \a font to the character's font and \a color
-  to the character's color.
+/*!  This function gets the format of the character at position \a
+  index in paragraph \a para. Sets \a font to the character's font, \a
+  color to the character's color and \a verticalAlignment to the
+  character's vertical alignment.
 
   Returns FALSE if \a para or \a index is out of range otherwise
   returns TRUE.
 */
 
-bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color )
+bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment )
 {
     if ( !font || !color )
 	return FALSE;
@@ -3634,6 +3779,40 @@ bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color )
 	return FALSE;
     *font = p->at( index )->format()->font();
     *color = p->at( index )->format()->color();
+    *verticalAlignment = (VerticalAlignment)p->at( index )->format()->vAlign();
+    return TRUE;
+}
+
+/*!  This function gets the format of the paragraph \a para. Sets \a
+  font to the paragraphs's font, \a color to the paragraph's color, \a
+  verticalAlignment to the paragraph's vertical alignment, \a
+  alignment to the paragraph's alignment, \a displayMode to the
+  paragraph's display mode, \a listStyle to the paragraph's list style
+  (if the display mode is QStyleSheetItem::DisplayListItem) and \a
+  listDepth to the depth of the list (if the display mode is
+  QStyleSheetItem::DisplayListItem).
+
+  Returns FALSE if \a para is out of range otherwise returns TRUE.
+*/
+
+bool QTextEdit::getParagraphFormat( int para, QFont *font, QColor *color,
+				    VerticalAlignment *verticalAlignment, int *alignment,
+				    QStyleSheetItem::DisplayMode *displayMode,
+				    QStyleSheetItem::ListStyle *listStyle,
+				    int *listDepth )
+{
+    if ( !font || !color || !alignment || !displayMode || !listStyle )
+	return FALSE;
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return FALSE;
+    *font = p->paragFormat()->font();
+    *color = p->paragFormat()->color();
+    *verticalAlignment = (VerticalAlignment)p->paragFormat()->vAlign();
+    *alignment = p->alignment();
+    *displayMode = p->style() ? p->style()->displayMode() : QStyleSheetItem::DisplayBlock;
+    *listStyle = p->listStyle();
+    *listDepth = p->listDepth();
     return TRUE;
 }
 
@@ -3820,6 +3999,58 @@ void QTextEdit::setReadOnly( bool b )
 	viewport()->setCursor( arrowCursor );
     else
 	viewport()->setCursor( ibeamCursor );
+}
+
+/*! Scrolls to the bottom of the document and does formatting if
+  required */
+
+void QTextEdit::scrollToBottom()
+{
+    sync();
+    setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
+}
+
+/*! Returns the rectangle of the paragraph \a para in contents
+  coordinates, or an invalid rectangle if \a para is out of range.
+*/
+
+QRect QTextEdit::paragraphRect( int para ) const
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return QRect( -1, -1, -1, -1 );
+    return p->rect();
+}
+
+/*! Returns the paragraph which is at position \a pos (in contents
+  coordinates), or -1 if there is no paragraph at \a pos.
+*/
+
+int QTextEdit::paragraphAt( const QPoint &pos ) const
+{
+    QTextCursor c( doc );
+    c.place( pos, doc->firstParag() );
+    if ( c.parag() )
+	return c.parag()->paragId();
+    return -1;
+}
+
+/*! Returns the index of the character (relative to its paragraph) at
+  position \a pos (in contents coordinates). If \a para is not null,
+  \a para is set to this paragraph. If there is no character at \a
+  pos, -1 is returned.
+*/
+
+int QTextEdit::charAt( const QPoint &pos, int *para ) const
+{
+    QTextCursor c( doc );
+    c.place( pos, doc->firstParag() );
+    if ( c.parag() ) {
+	if ( para )
+	    *para = c.parag()->paragId();
+	return c.index();
+    }
+    return -1;
 }
 
 #endif //QT_NO_TEXTEDIT
