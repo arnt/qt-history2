@@ -458,6 +458,43 @@ int QLayoutSupport::findItemAt(QGridLayout *gridLayout, int at_row, int at_colum
     return -1;
 }
 
+void QLayoutWidgetItem::setGeometry(const QRect &r)
+{
+    widget()->setGeometry(r);
+}
+
+QSize QLayoutWidgetItem::sizeHint() const
+{
+    if (QLayout *l = theLayout())
+        return l->sizeHint();
+
+    return QWidgetItem::sizeHint();
+}
+
+QSize QLayoutWidgetItem::minimumSize() const
+{
+    if (QLayout *l = theLayout())
+        return l->minimumSize();
+
+    return QWidgetItem::minimumSize();
+}
+
+QSize QLayoutWidgetItem::maximumSize() const
+{
+    if (QLayout *l = theLayout())
+        return l->maximumSize();
+
+    return QWidgetItem::maximumSize();
+}
+
+Qt::Orientations QLayoutWidgetItem::expandingDirections() const
+{
+    if (QLayout *l = theLayout())
+        return l->expandingDirections();
+
+    return QWidgetItem::expandingDirections();
+}
+
 void QLayoutWidgetItem::addTo(QLayout *layout)
 {
     static_cast<FriendlyLayout*>(layout)->addChildWidget(widget());

@@ -174,20 +174,11 @@ class QLayoutWidgetItem: public QWidgetItem
 public:
     QLayoutWidgetItem(QWidget *widget): QWidgetItem(widget) {}
 
-    virtual void setGeometry(const QRect &r)
-    { widget()->setGeometry(r); }
-
-    virtual QSize sizeHint() const
-    { return theLayout()->sizeHint(); }
-
-    virtual QSize minimumSize() const
-    {return theLayout()->minimumSize(); }
-
-    virtual QSize maximumSize() const
-    { return theLayout()->maximumSize(); }
-
-    virtual Qt::Orientations expandingDirections() const
-    { return theLayout()->expandingDirections(); }
+    virtual void setGeometry(const QRect &r);
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSize() const;
+    virtual QSize maximumSize() const;
+    virtual Qt::Orientations expandingDirections() const;
 
     void addTo(QLayout *layout);
     void removeFrom(QLayout *layout);
