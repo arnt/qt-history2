@@ -37,19 +37,22 @@ void ResultWindow::slotExec()
 	    if ( b ) {
 		switch ( browseType->id( b ) ) {
 		case 0: // SQL
-		    dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
+		    //		    dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
+		    sql.setQuery( "select * from " + tableList->currentText() + ";" );
+		    dataGrid->setQuery( &sql );		    
 		    break;
 		case 1: // Rowset
-		    dataGrid->setRowset( tableList->currentText() );
+		    //		    dataGrid->setRowset( tableList->currentText() );
 		    break;
 		case 2: // View
-		    dataGrid->setView( tableList->currentText() );
+		    //		    dataGrid->setView( tableList->currentText() );
 		    break;
 		}
 	    }
 	    break;
 	case 1:
-	    dataGrid->setQuery( queryEdit->text().simplifyWhiteSpace() );
+	    sql.setQuery( queryEdit->text().simplifyWhiteSpace() );
+	    dataGrid->setQuery( &sql );
 	    break;
 	}
     }

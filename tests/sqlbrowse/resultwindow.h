@@ -29,6 +29,7 @@ public slots:
     void newSelection( const QSqlFieldList* fields );
 private:
     QSqlDatabase* db;
+    QSql sql;
 };
 
 #endif
