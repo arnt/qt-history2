@@ -18,7 +18,7 @@ windows by dragging them outside \qd's dock areas.
 </para>
 <para id="aipl">
 General preferences can be set by clicking
-\menu[Edit|Preferences] to invoke the Preferences
+\menu[Edit|Preferences] to invoke the \dlg[Preferences]
 dialog. If you check the 'Restore last workspace on startup' checkbox
 then \qd will remember the sizes and positions of the toolbars and the
 dockable windows. You can change \qd's main window background either by
@@ -26,7 +26,9 @@ selecting a color or a pixmap. You can also switch off the grid (uncheck
 Show Grid) since using layouts makes the grid redundant.
 </para>
 <para id="aipu">
-The Preferences dialog may have additional tabs, depending on what
+\x[Plugins]
+\x[Code Editing]
+The \dlg[Preferences] dialog may have additional tabs, depending on what
 plugins you have installed. We'll describe the C++ Editor tab since this
 is installed by default.
 </para>
@@ -45,6 +47,7 @@ The code editor is available if an Editor plugin is installed. The C++
 Editor plugin is installed by default.
 </para>
 <para id="aiqn">
+\x[Keypresses (Qt Designer's code editor)]
 The code editor provides the following keystrokes:
 <itemizedlist>
 <listitem><para id="aiqq">Left Arrow -- Moves the cursor one character left</para></listitem>
@@ -62,8 +65,8 @@ The code editor provides the following keystrokes:
 <listitem><para id="airc">Ctrl+C -- Copies the selected text to the clipboard (also Ctrl+Insert under Windows)</para></listitem>
 <listitem><para id="aird">Ctrl+D -- Deletes the character to the right of the cursor</para></listitem>
 <listitem><para id="aire">Ctrl+E -- Moves the cursor to the end of the line</para></listitem>
-<listitem><para id="airf">Ctrl+F -- Invokes the Find Text dialog</para></listitem>
-<listitem><para id="airg">Ctrl+G -- Invokes the Goto Line dialog</para></listitem>
+<listitem><para id="airf">Ctrl+F -- Invokes the \dlg[Find Text] dialog</para></listitem>
+<listitem><para id="airg">Ctrl+G -- Invokes the \dlg[Goto Line] dialog</para></listitem>
 <listitem><para id="airh">Ctrl+H -- Deletes the character to the left of the cursor</para></listitem>
 <listitem><para id="airi">Ctrl+I -- Indent the line or selected text that contains the cursor</para></listitem>
 <listitem><para id="airj">Alt+I -- Starts incremental search (see below)</para></listitem>
@@ -71,7 +74,7 @@ The code editor provides the following keystrokes:
 the line</para></listitem>
 <listitem><para id="airm">Ctrl+N -- Moves the cursor one line down</para></listitem>
 <listitem><para id="airn">Ctrl+P -- Moves the cursor one line up</para></listitem>
-<listitem><para id="airo">Ctrl+R -- Invokes the Replace Text dialog</para></listitem>
+<listitem><para id="airo">Ctrl+R -- Invokes the \dlg[Replace Text] dialog</para></listitem>
 <listitem><para id="airp">Ctrl+V -- Pastes the clipboard text into line edit (also Shift+Insert under Windows)</para></listitem>
 <listitem><para id="airq">Ctrl+X -- Cuts the marked text, copy to clipboard (also Shift+Delete under Windows)</para></listitem>
 <listitem><para id="airr">Ctrl+Y -- Redoes the last operation</para></listitem>
@@ -88,8 +91,8 @@ the line</para></listitem>
 <para id="aisc">
 To select (mark) text hold down the Shift key whilst pressing one of the
 movement keystrokes, for example, \key[Shift+Right Arrow]
-will select the character to the right, and <keycap>Shift+Ctrl+Right
-Arrow</keycap> will select the word to the right, etc.
+will select the character to the right, and 
+\key[Shift+Ctrl+Right Arrow] will select the word to the right, etc.
 </para>
 <para id="aisi">
 Pressing \key[Alt+I] starts incremental search. The
@@ -109,7 +112,7 @@ will complete your text for you; if it finds more than one possibility
 it will pop up a list of choices. You can use the arrow keys to choose a
 piece of text then press \key[Return], or press
 \key[Esc] to continue typing. You can switch off completion
-in the Preferences dialog.
+in the \dlg[Preferences] dialog.
 </para>
 <para id="aitc">
 When you enter
@@ -126,6 +129,8 @@ ignore the list.
 <sect1 id="creatingandusingtemplates">
 <title>Creating and Using Templates </title>
 <para id="aitq">
+\x[Creating and Using Templates]
+\x[Templates|Creating and Using]
 \qd supports two approaches to creating template forms. The simplest
 approach involves little more than saving a \f[.ui]
 file into the templates directory. The second approach involves creating
@@ -148,31 +153,31 @@ First we'll create the simple template.
 <orderedlist numeration="arabic">
 <listitem>
 <para id="aium">
-Click \menu[File|New] to invoke the New Form dialog.
+Click \menu[File|New] to invoke the \dlg[New Form] dialog.
 Click the Dialog template then click \ok.
 </para>
 </listitem>
 <listitem>
 <para id="aius">
-Click the \button[Text Label] toolbar button, then click
+Click the \toolbutton[Text Label] toolbar button, then click
 near the top left of the form. Change the font Point Size property to 16
 and change the text property to your or your company's name. Click the
-\button[Line] toolbar button, then click the form below
+\toolbutton[Line] toolbar button, then click the form below
 the label; click Horizontal on the pop-up menu.
 </para>
 </listitem>
 <listitem>
 <para id="aivb">
-Select the label and the line. (Ctrl+Click the form, then drag the
+Select the label and the line. (\key[Ctrl+Click] the form, then drag the
 rubber band so that it touches or includes the line and the label.)
 Press \key[Ctrl+L] to lay them out vertically.
 </para>
 </listitem>
 <listitem>
 <para id="aivi">
-Click the \button[Save] toolbar button. In the Save As
+Click the \toolbutton[Save] toolbar button. In the \dlg[Save As]
 dialog, navigate to \qd's templates directory,
-(\fn[qt/tools/designer/templates] relative to wherever
+(\fe[qt/tools/designer/templates] relative to wherever
 Qt is installed). Type in the name 'Simple_Dialog.ui' and click
 \button[Save]. 
 </para>
@@ -188,7 +193,7 @@ project.
 
 <para id="aivz">
 Now that we have the simple template we are ready to use it. Click
-\menu[File|New] to invoke the New Form dialog. One
+\menu[File|New] to invoke the \dlg[New Form dialog]. One
 of the templates that will appear is 'Simple Dialog'. Click the simple
 dialog, then click \ok. A new form will appear with the same widgets and
 layout as the template. Add any other widgets and functionality. When
@@ -200,6 +205,7 @@ you attempt to save the form you will be prompted for a new form name.
 <sect2 id="baseclasstemplates">
 <title>Base-class Templates </title>
 <para id="aiwm">
+\x[Templates|Base Class Templates]
 These templates are useful when you want to provide some default
 functionality that all the forms based on the base class can inherit.
 In our example we'll use a class called
@@ -207,7 +213,7 @@ In our example we'll use a class called
 the basis of a template.
 We won't describe the class itself, but will focus instead on making use
 of it as a \qd template. The source for the class is in
-\fn[qt/tools/designer/eg/sizeaware].
+\fe[qt/tools/designer/eg/sizeaware].
 </para>
 
 <para id="aiwx">
@@ -218,12 +224,12 @@ container widget.
 If you want to base the template on a custom widget you must first add
 it to \qd's custom widgets.
 Click \menu[Tools|Custom|Edit Custom Widgets] to
-invoke the Edit Custom Widgets dialog. (This dialog is explained in more
+invoke the \dlg[Edit Custom Widgets] dialog. (This dialog is explained in more
 detail in <xref linkend="old-custom-widgets"> "Simple Custom Widgets".)
 Click \button[New Widget]. Change the Class from
 'MyCustomWidget' to 'SizeAware'. Click the Headerfile ellipsis button
 and select the file 
-\f[qt/tools/designer/eg/sizeaware/sizeaware.h]. Check
+\fe[qt/tools/designer/eg/sizeaware/sizeaware.h]. Check
 the Container Widget checkbox. This
 class provides two properties. Click the Properties tab. Click
 \button[New Property] and change the property name to
@@ -233,7 +239,7 @@ the property name to 'settingsFile'. Click \button[Close].
 <para id="aixr">
 To create a template, based on an existing widget or on your own custom
 widget, click \menu[File|Create Template] to invoke
-the Create Template dialog. Change the Template Name to 'SizeAware' and
+the \dlg[Create Template] dialog. Change the Template Name to 'SizeAware' and
 click the SizeAware base class, then click
 \button[Create]. The dialog will create the template and
 close itself immediately. Close \qd and restart it.
@@ -262,21 +268,22 @@ single main window.)
 \f[qmsdev.dsp] file that is supplied with Qt.
 </para>
 <para id="aiyw">
+\x[Visual Studio]
 Start up Visual Studio and click <guimenuitem>File|Open
 Workspace</guimenuitem>. Open
-\f[%QTDIR%\\tools\\designer\\integration\\qmsdev\\qmsdev.dsp].
+\fe[%QTDIR%\\tools\\designer\\integration\\qmsdev\\qmsdev.dsp].
 Click \menu[Build|Set Active Configuration] and in
 the list click 'QMsDev - Win32 Release', then click \ok. Now click
 \menu[Build|Build qmsdev.dll]. You should now copy
 the file
-\f[%QTDIR%\\tools\\designer\\integration\\qmsdev\\Release\\qmsdev.dll]
-into <filename>\\Program Files\\Microsoft Visual
-Studio\\Common\\MSDev98\\AddIns</filename>. Now click
-\menu[Tools|Customize]. Click the Add-in Macro Files
+\fe[%QTDIR%\\tools\\designer\\integration\\qmsdev\\Release\\qmsdev.dll]
+into 
+\fe[\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns]. 
+Now click \menu[Tools|Customize]. Click the Add-in Macro Files
 tab, then click the \button[Browse] button. Change the
-file type to 'Add-ins (.dll)' and navigate to <filename>\\Program
-Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns</filename>. Click
-the \f[qmsdev.dll] file, click
+file type to 'Add-ins (.dll)' and navigate to 
+\fe[\\Program Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns]. 
+Click the \f[qmsdev.dll] file, click
 \button[Open], then click \button[Close].
 </para>
 <para id="aizo">
@@ -294,6 +301,8 @@ Double clicking a \f[.ui] file in the workspace
 overview will now launch \qd.
 </para>
 <para id="ajac">
+\x[Macros|Q_OBJECT]
+\x[Q_OBJECT]
 If you create a \f[.cpp] file which contains the
 <literal>Q_OBJECT</literal> macro you will need an additional file which
 is generated by the \cmd[moc] to be included in your project. For
@@ -307,7 +316,7 @@ the \button[Add MOC] toolbar button; this will create an
 empty \f[.moc] file in your project workspace. Right
 click the newly created \f[.moc] file, then click
 \menu[Settings] from the pop-up menu to invoke the
-Project Settings dialog. Click the Custom Build tab. Click the
+\dlg[Project Settings] dialog. Click the Custom Build tab. Click the
 \button[Dependencies] button to pop up the User Defined
 Dependencies dialog. Type in
 <literal>$(InputDir)\$(InputPath)</literal>, then press
@@ -322,6 +331,7 @@ the \f[qmsdev.dll] file from the add-ins directory.
 <sect2 id="creatingmakefileswithoutqmake">
 <title>Creating Makefiles without qmake </title>
 <para id="ajbe">
+\x[Makefiles]
 The \cmd[qmake] tool provided with Qt can create Makefiles appropriate
 to your platform based on \f[.pro] project files. This
 section describes the dependencies involved in building a Qt application
@@ -329,6 +339,8 @@ and gives a couple of simple example Makefiles. This section assumes
 that you have a good understanding of Makefiles.
 </para>
 <para id="ajbl">
+\x[Macros|Q_OBJECT]
+\x[Q_OBJECT]
 \qd produces \f[.ui] files which are used to generate
 \f[.h] and \f[.cpp] files for the
 compiler to compile. The \f[.ui] files are processed by
@@ -432,6 +444,7 @@ with Qt.
 <title>Importing Foreign File Formats </title>
 
 <para id="ajfk">
+\x[Foreign File Formats]
 To import a file in a supported foreign file format click 
 \menu[File|Open], then click the File Type combobox to choose the file
 type you wish to load. Click the required file and \qd will convert and
@@ -450,6 +463,7 @@ in the File Type combobox.
 <title>Importing Qt Architect Files </title>
 
 <para id="ajgc">
+\x[Foreign File Formats|Qt Architect]
 <ulink url="http://qtarch.sourceforge.net/">Qt Architect</>
 is a free GUI builder for Qt written by Jeff Harris and Klaus Ebner. The
 \f[.dlg] extension is associated with Qt Architect dialog files.
@@ -537,6 +551,7 @@ format due to differences between the two tools; these are listed below:
 <title>Importing Glade Files </title>
 
 <para id="ajjl">
+\x[Foreign File Formats|Glade]
 <ulink url="http://glade.pn.org/">Glade</> is a free GUI builder for
 GTK+ and GNOME written by Damon Chaplin. The \f[.glade] extension is
 associated with Glade files.

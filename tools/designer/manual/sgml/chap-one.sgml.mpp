@@ -893,7 +893,7 @@ documentation.)
     application starts it will put the current clipboard text (if any)
     into the line edit. The code is written directly in Designer; the
     snippets are taken from the generated
-    \f[qt/tools/designer/eg/multiclip/multiclip.cpp]
+    \fe[qt/tools/designer/eg/multiclip/multiclip.cpp]
     file. 
     </para>
     <para id="amcn">
@@ -966,9 +966,9 @@ documentation.)
 \scan eg/multiclip/multiclip.cpp /::dataChanged/ /^}/
 </programlisting>
     We take a copy of the clipboard's text and call our own
-    \fs[clippingChanged()] slot with the text we've
+    \fse[clippingChanged()] slot with the text we've
     retrieved. If the user has checked the Auto Add Clippings checkbox
-    we call our \fs[addClipping()] slot to add the
+    we call our \fse[addClipping()] slot to add the
     clipping to the list box.
     </para>
 
@@ -989,12 +989,12 @@ documentation.)
 
     <para id="amfq">
     In the \fs[dataChanged()] slot we called another
-    custom slot, \fs[clippingChanged()]. 
+    custom slot, \fse[clippingChanged()]. 
 <programlisting>
 \scan eg/multiclip/multiclip.cpp /::clippingChanged/ /^}/
 </programlisting>
     We set the line edit to whatever text is passed to the
-    \fs[clippingChanged()] slot and update the LCD
+    \fse[clippingChanged()] slot and update the LCD
     number with the length of the new text.
     </para>
 
@@ -1027,14 +1027,14 @@ documentation.)
     <para id="amhb">
     To make the Add Clipping button functional we need to connect the
     button's \fs[clicked()] signal to our
-    \fs[addClipping()] slot. Click the
+    \fse[addClipping()] slot. Click the
     \toolbutton[Connect Signals/Slots] toolbar button. Click
     the Add Clipping button, drag to the form and release. (Make sure
     you drag to the form rather than another widget -- the form will
     have a thin pink border during the drag. If you make a mistake
     simply change the name in the Slots combobox.) The \dlg[Edit Connections]
     dialog will appear. Click the \fs[clicked()] signal
-    and our \fs[addClipping()] slot. Click \ok to
+    and our \fse[addClipping()] slot. Click \ok to
     confirm the connection. 
     </para>
 
@@ -1083,7 +1083,7 @@ documentation.)
     button. Click the Copy Previous button, drag to the form and
     release. The \dlg[Edit Connections] dialog will pop up. Click the
     \fs[clicked()] signal and the
-    \fs[copyPrevious()] slot. Click \ok.
+    \fse[copyPrevious()] slot. Click \ok.
     </para>
     </listitem>
     </orderedlist>
@@ -1106,22 +1106,22 @@ documentation.)
 <programlisting>
 \scan eg/multiclip/multiclip.cpp /::deleteClipping/ /^}/
 </programlisting>
-    We call our own \fs[clippingChanged()] slot with an
+    We call our own \fse[clippingChanged()] slot with an
     empty string and use the list box's
-    \fn[removeItem()] function to remove the current
+    \fne[removeItem()] function to remove the current
     item.
     </para>
     </listitem>
     <listitem>
     <para id="amkm">
     Connect the Delete Clipping button's \fs[clicked()]
-    signal to our \fs[deleteClipping()] slot.
+    signal to our \fse[deleteClipping()] slot.
     (Press \key[F3] -- which is the same as clicking the 
     \toolbutton[Connect Signals/Slots] toolbar button. Click the
     Delete Clipping button and drag to the form; release. The 
     \dlg[Edit Connections] dialog will appear. Click the
     \fs[clicked()] signal and the
-    \fs[deleteClipping()] slot. Click \ok.)
+    \fse[deleteClipping()] slot. Click \ok.)
     </para>
     </listitem>
     </orderedlist>
@@ -1154,7 +1154,7 @@ First we need to create a \f[main.cpp] file.
 </programlisting>
 The program creates a \class[QApplication] object and an
 instance of our MulticlipForm, sets the form to be the main widget and
-shows the form. The \fn[app.exec()] call starts off the
+shows the form. The \fne[app.exec()] call starts off the
 event loop.
 </para>
 

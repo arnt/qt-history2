@@ -9,7 +9,7 @@
 \x[Menus|Adding]
 \x[Creating Toolbars]
 \x[Toolbars, Creating]
-\x[Toolbars Buttons|Adding]
+\x[Toolbar Buttons|Adding]
 In this chapter we will explain how to create an application's main
 window and how to add actions (explained shortly), menus and toolbars.
 We will also demonstrate how some common actions, like cut and paste in
@@ -85,11 +85,12 @@ buttons.
     \x[Main Window|Creating]
     \x[Creating Main Windows]
     \x[Main Window|Wizard]
+    \x[Wizards|Main Window]
     \x[Creating Menus]
     \x[Menus|Adding]
     \x[Creating Toolbars]
     \x[Toolbars, Creating]
-    \x[Toolbars Buttons|Adding]
+    \x[Toolbar Buttons|Adding]
     We will use the main window wizard to build a main window. The
     wizard allows us to create actions and a menu bar and toolbar
     through which the user can invoke the actions. We will also create
@@ -122,7 +123,7 @@ buttons.
 	\x[Menus|Adding]
 	\x[Creating Toolbars]
 	\x[Toolbars, Creating]
-	\x[Toolbars Buttons|Adding]
+	\x[Toolbar Buttons|Adding]
 	We will accept the defaults for File Actions, i.e. have menu
 	items, toolbar buttons and the relevant connections created. But
 	for the Edit Actions we don't want any connections created since
@@ -137,7 +138,7 @@ buttons.
 	\item<para id="ajsx">
 	\x[Creating Toolbars]
 	\x[Toolbars, Creating]
-	\x[Toolbars Buttons|Adding]
+	\x[Toolbar Buttons|Adding]
 	\x[Separator|Menu item]
 	\x[Separator|Toolbar button]
 	The \i[Setup Toolbar] wizard page is used to populate a toolbar
@@ -222,9 +223,9 @@ buttons.
 	    \dlg[Edit Pixmap Collection] dialog. The pixmap we require
 	    is not in the default collection. Click the \button[Add]
 	    button and a file dialog will appear. The icons we require
-	    are in the Qt examples directory, \f[qt/examples/textedit/].
+	    are in the Qt examples directory, \fe[qt/examples/textedit/].
 	    Navigate to the textedit directory and select the
-	    \f[textbold.xpm] file. Click the new textbold icon in the
+	    \fe[textbold.xpm] file. Click the new textbold icon in the
 	    pixmap collection then click \ok. <!-- (See <xref
 	    linkend="choose-a-pixmap-dialog"> "Edit Pixmap Collection
 	    Dialog" and <xref linkend="the-pixmap-collection-dialog">
@@ -265,11 +266,11 @@ buttons.
 	    For the italic action change its \prop[name] to 'italicAction' and
 	    ensure its \prop[toggleAction] property is True. The 
 	    \prop[iconSet] is in
-	    the textedit directory and is called \f[textitalic.xpm]; add
+	    the textedit directory and is called \fe[textitalic.xpm]; add
 	    its pixmap in the same way that we added the bold pixmap.
 	    (For example, click the ellipsis (\key[...]), click
 	    \button[Add], navigate to the textedit directory and click
-	    the \f[textitalic.xpm] pixmap. Then click the textitalic
+	    the \fe[textitalic.xpm] pixmap. Then click the textitalic
 	    pixmap in the pixmap collection and click \ok). Change the
 	    action's \prop[text] to 'italic', its \prop[menuText] 
 	    to '&amp;Italic' and
@@ -281,7 +282,7 @@ buttons.
 	    to 'underlineAction'
 	    and set its \prop[toggleAction] property to True. The 
 	    \prop[iconSet] is in
-	    the same directory and is called \f[textunder.xpm]; add it
+	    the same directory and is called \fe[textunder.xpm]; add it
 	    in the same way as the previous pixmaps. Change its \prop[text] to
 	    'underline', its \prop[menuText] to '&amp;Underline' and its 
 	    \prop[accel] to 'CTRL+U'.
@@ -328,7 +329,7 @@ buttons.
 	    Create a new action within the alignActionGroup action
 	    group. Change the \prop[name] of this action to 'leftAlignAction'
 	    and ensure its \prop[toggleAction] property is True. Use the
-	    \prop[iconSet] in the textedit directory called \f[textleft.xpm],
+	    \prop[iconSet] in the textedit directory called \fe[textleft.xpm],
 	    adding the pixmap to the pixmap collection in the same way
 	    as we added the textbold pixmap earlier. Change its \prop[text] to
 	    'left', its menuText to '&amp;Left' and its \prop[accel] to
@@ -339,7 +340,7 @@ buttons.
 	    Create another new action within alignActionGroup. Change
 	    this action's \prop[name] to 'rightAlignAction' and set its
 	    \prop[toggleAction] property to True. Set its \prop[iconSet] to
-	    \f[textright.xpm] using the pixmap collection as before.
+	    \fe[textright.xpm] using the pixmap collection as before.
 	    Change its \prop[text] to 'right', its menuText to
 	    '&amp;Right' and its \prop[accel] to 'CTRL+R'.
 	    </para>\Item
@@ -348,7 +349,7 @@ buttons.
 	    Create a third action within alignActionGroup. Change its
 	    \prop[name] to 'centerAlignAction' and make its
 	    \prop[toggleAction] property True. Change its \prop[iconSet]
-	    to \f[textcenter.xpm]. Change its \prop[text] to 'center'
+	    to \fe[textcenter.xpm]. Change its \prop[text] to 'center'
 	    and its \prop[menuText] to '&amp;Center'. We won't set an
 	    accelerator for this action.
 	    </para>\Item
@@ -621,7 +622,7 @@ buttons.
 
 	    <para id="akjq">
 	    Create a new slot with the signature
-	    \fs[changeAlignment(QAction *align)]. (Click
+	    \fse[changeAlignment(QAction *align)]. (Click
 	    \menu[Edit|Slots], click \button[New Slot], enter the slot's
 	    signature and click \ok.) Click alignActionGroup in the
 	    \dlg[Action Editor], then click \button[Connect]. Connect the
@@ -692,8 +693,8 @@ buttons.
 	When the user starts the richedit application we want the focus
 	to be in the textEdit widget so we'll add one line of code to
 	the \fn[init()] function to achieve this. (All the code snippets
-	are from \f[eg/richedit/richedit.cpp] which is generated by
-	\cmd[uic] from \f[richedit.ui].)
+	are from \fe[eg/richedit/richedit.cpp] which is generated by
+	\cmd[uic] from \fe[richedit.ui].)
 <programlisting>
 \scan eg/richedit/richedit.cpp /->setFocus/ 0
 </programlisting>
@@ -715,14 +716,14 @@ buttons.
 <programlisting>
 \scan eg/richedit/richedit.cpp /::fileNew/ /^}/ 
 </programlisting>
-	    The \fn[fileNew()] function clears the text and the filename.
+	    The \fne[fileNew()] function clears the text and the filename.
 	    </para>
 
 	    <para id="akng">
 <programlisting>
 \scan eg/richedit/richedit.cpp /::fileOpen/ /^}/ 
 </programlisting>
-	    The \fn[fileOpen()] function asks the user to choose a file
+	    The \fne[fileOpen()] function asks the user to choose a file
 	    using \fn[QFileDialog::getOpenFileName()]. If they 
 	    choose a file we set the fileName member to its name, open
 	    it and read its contents directly into the text edit via a
@@ -734,9 +735,9 @@ buttons.
 \scan eg/richedit/richedit.cpp /::fileSave\(/ /^}/ 
 </programlisting>
 	    If there is no current file name we call
-	    \fn[fileSaveAs()] which will prompt for a
+	    \fne[fileSaveAs()] which will prompt for a
 	    file name and if a file name is given calls
-	    \fn[fileSave()]. If we have a file name we
+	    \fne[fileSave()]. If we have a file name we
 	    open a file and write the text from the text edit into the
 	    file via a text stream. We also set the text edit's modified
 	    property to FALSE.
@@ -746,9 +747,9 @@ buttons.
 <programlisting>
 \scan eg/richedit/richedit.cpp /::fileSaveAs/ /^}/ 
 </programlisting>
-	    The \fn[fileSaveAs] function prompts the user for a file
+	    The \fne[fileSaveAs] function prompts the user for a file
 	    name and if they give a file name, saves the text to the
-	    file by calling \fn[fileSave()].
+	    file by calling \fne[fileSave()].
 	    </para>
 
 	    <para id="akon">
@@ -757,7 +758,7 @@ buttons.
 </programlisting>
 	    When we exit the application we must perform the same check
 	    for unsaved changes as we've done in the preceding
-	    functions, so we've included the \fn[fileExit()] function's
+	    functions, so we've included the \fne[fileExit()] function's
 	    code here.
 	    </para>
 
@@ -765,7 +766,7 @@ buttons.
 <programlisting>
 \scan eg/richedit/richedit.cpp /::saveAndContinue/ /^}/ 
 </programlisting>
-	    The \fn[saveAndContinue()] function is included for
+	    The \fne[saveAndContinue()] function is included for
 	    completeness. 	    
 	    </para>
 
@@ -812,10 +813,10 @@ buttons.
 	Hierarchy window and click on the Includes (in Implementation)
 	item. We need to include the files that our source code
 	depends on. Right click the Includes item and click New. Type in
-	\c[&lt;qapplication.h&gt;] for \fn[fileExit()]'s \fn[exit()] call.
+	\c[&lt;qapplication.h&gt;] for \fne[fileExit()]'s \fn[exit()] call.
 	In the same way add \c[&lt;qmessagebox.h&gt;] for
-	\fn[saveAndContinue()]'s message box, \c[&lt;qfiledialog.h&gt;]
-	for the \fn[fileOpen()] and \fn[fileSaveAs()] functions, and
+	\fne[saveAndContinue()]'s message box, \c[&lt;qfiledialog.h&gt;]
+	for the \fne[fileOpen()] and \fne[fileSaveAs()] functions, and
 	\c[&lt;qfontdatabase.h&gt;] for the \class[QFontDatabase] class
 	in \fn[init()].
 	</para>

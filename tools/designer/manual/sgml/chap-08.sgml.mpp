@@ -2,6 +2,7 @@
 <title>The Key Bindings</title>
 
 <para id="aduz">
+\x[Keypresses (Qt Designer)]
 <itemizedlist>
 <listitem><para id="advb">Ctrl+A -- Selects all GUI elements in the currently active form. </para></listitem>
 <listitem><para id="advc">Ctrl+B -- Breaks the currently selected layout so that you can add or delete GUI elements. </para></listitem>
@@ -15,8 +16,8 @@
 <listitem><para id="advk">Ctrl+L -- Applies a vertical box layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a vertical box layout to this container. </para></listitem>
 <listitem><para id="advl">Alt+L -- Pulls down the \menu[Layout] menu. </para></listitem>
 <listitem><para id="advm">Ctrl+M -- Opens an online version of this manual in the help browser. </para></listitem>
-<listitem><para id="advn">Ctrl+N -- Invokes the New Form dialog. </para></listitem>
-<listitem><para id="advo">Ctrl+O -- Invokes the Open File dialog. </para></listitem>
+<listitem><para id="advn">Ctrl+N -- Invokes the \dlg[New Form] dialog. </para></listitem>
+<listitem><para id="advo">Ctrl+O -- Invokes the \dlg[Open File] dialog. </para></listitem>
 <listitem><para id="advp">Alt+P -- Pulls down the \menu[Preview] menu. </para></listitem>
 <listitem><para id="advq">Ctrl+R -- Checks the accelerators in the currently active form for duplicates. </para></listitem>
 <listitem><para id="advr">Ctrl+S -- Saves the currently active form. </para></listitem>
