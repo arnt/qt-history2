@@ -1800,6 +1800,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
   is \e posted (with QApplication::postEvent()).
 
+  Note that if a child is removed immediately after it is inserted, the 
+  \c ChildInserted event may be suppressed, but the \c ChildRemoved 
+  event will always be sent. In this case there will be a \c ChildRemoved
+  event without a corresponding \c ChildInserted event.
 
   The handler for these events is QObject::childEvent().
 */

@@ -1929,7 +1929,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		delete pe->event;
 		pe->event = 0;
 		l->remove();
-		return TRUE;
+		continue;
 	    }
 	    l->next();
 	}

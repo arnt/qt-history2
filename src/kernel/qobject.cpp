@@ -693,6 +693,11 @@ void QObject::timerEvent( QTimerEvent * )
   posted (with \l{QApplication::postEvent()}) to make sure that the
   child's construction is completed before this function is called.
 
+  Note that if a child is removed immediately after it is inserted, the 
+  \c ChildInserted event may be suppressed, but the \c ChildRemoved 
+  event will always be sent. In this case there will be a \c ChildRemoved
+  event without a corresponding \c ChildInserted event.
+
   If you change state based on \c ChildInserted events, call
   QWidget::constPolish(), or do
 \code
