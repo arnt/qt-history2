@@ -1618,7 +1618,7 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
     QString fn;
     QString ref;
 
-    if (node == 0 || node == relative)
+    if (node == 0 || node == relative || fileBase(node).isEmpty())
 	return QString();
 
     fn = fileName(node);
