@@ -945,19 +945,19 @@ QUrlPrivate::QUrlPrivate()
 
 QUrlPrivate::QUrlPrivate(const QUrlPrivate &copy)
     : scheme(copy.scheme),
-      userName(userName),
-      password(password),
-      host(host),
-      port(port),
-      path(path),
-      query(query),
-      fragment(fragment),
-      encodedOriginal(encodedOriginal),
-      isValid(isValid),
-      valueDelimiter(valueDelimiter),
-      pairDelimiter(pairDelimiter),
-      stateFlags(stateFlags),
-      encodedNormalized(encodedNormalized)
+      userName(copy.userName),
+      password(copy.password),
+      host(copy.host),
+      port(copy.port),
+      path(copy.path),
+      query(copy.query),
+      fragment(copy.fragment),
+      encodedOriginal(copy.encodedOriginal),
+      isValid(copy.isValid),
+      valueDelimiter(copy.valueDelimiter),
+      pairDelimiter(copy.pairDelimiter),
+      stateFlags(copy.stateFlags),
+      encodedNormalized(copy.encodedNormalized)
 { ref = 1; }
 
 QString QUrlPrivate::authority(QUrl::FormattingOptions options) const
