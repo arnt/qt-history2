@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#34 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -473,7 +473,7 @@ QColor QColor::dark( int factor ) const		// get dark color
   \relates QColor
   Writes a color object to the stream.
 
-  Format: RGB value serialized as UINT32.
+  Serialization format: RGB value serialized as an UINT32.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )

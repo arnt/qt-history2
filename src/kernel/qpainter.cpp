@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#66 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#65 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#66 $")
 
 
 /*----------------------------------------------------------------------------
@@ -610,6 +610,32 @@ const QWMatrix &QPainter::worldMatrix() const
   If \e combine is TRUE, then \e m is combined with the
   current transformation matrix, otherwise \e m will replace
   the current transformation matrix.
+
+  World transformations are applies after the view transformations (\link
+  setWindow window\endlink and \link setViewport viewport\endlink).
+
+  The following functions can transform the coordinate system without using
+  a QWMatrix:
+  <ul>
+  <li>translate()
+  <li>scale()
+  <li>shear()
+  <li>rotate()
+  </ul>
+
+  They operate on the painter's \link worldMatrix internal matrix\endlink
+  and are implemented like this:
+
+  \code
+    void QPainter::rotate( float a )
+    {
+	wxmat.rotate( a );
+	setWorldMatrix( wxmat );
+    }
+  \endcode
+
+  See the \link QWMatrix QWMatrix documentation\endlink for a general
+  discussion on coordinate system transformations.
 
   \sa worldMatrix(), setWorldXForm(), setWindow(), setViewport(),
   setViewXForm()
@@ -1453,7 +1479,7 @@ void QBrush::setColor( const QColor &c )
   Sets the brush pixmap.  The style is set to \c CustomPattern.
 
   The curren brush color will only have an effect for monochrome pixmaps,
-  i.e.  QPixmap::depth() == 1.
+  i.e.	QPixmap::depth() == 1.
 
   \sa pixmap(), color()
  ----------------------------------------------------------------------------*/
