@@ -120,6 +120,7 @@ rm -fv	  dialogs/qdeveloper.h \
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for i in ${DISTDIR}/qt/extensions/nsplugin/src/np* ${DISTDIR}/qt/extensions/nsplugin/src/jri*
 do
+    rm -f $i
     echo "#error \"This file is provided by Netscape.  Please see documentation.\"" >$i
 done
 
@@ -283,7 +284,7 @@ if [ "${platform}" = "x11" ]; then
   echo 'Removing more Windows-specific files...' >&2
   cd ${DISTDIR}/qt
   rm -f bin/*.bat
-  rm -r src/tmp
+  rm -rf src/tmp
   rm src/qtmain.pro src/Makefile.win32-dll
   find . -name 'qtwin.*' | xargs rm -vf
   rm -rf ${DISTDIR}/qt/lib
