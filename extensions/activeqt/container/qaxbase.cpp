@@ -1813,6 +1813,8 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
     if (tdesc.vt & VT_BYREF)
         str += "&";
 
+    if (str.isEmpty())
+        str = "int";
     return str;
 }
 
@@ -2058,6 +2060,10 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
                 prototype += "&";
             if (optional)
                 paramName += "=0";
+            else if (pdesc.wParamFlags & PARAMFLAG_FHASDEFAULT) {
+                // ### get the value from pdesc.pparamdescex
+                paramName += "=0";
+            }
             parameters << paramName;
         }
         if (p < funcdesc->cParams && !(pdesc.wParamFlags & PARAMFLAG_FRETVAL))
