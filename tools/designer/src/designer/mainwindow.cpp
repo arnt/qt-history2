@@ -1102,8 +1102,11 @@ void MainWindow::aboutDesigner()
                       "<br/><br/>Version %2"
                       "<br/>Qt Designer is a graphical user interface designer "
                       "for Qt applications.<br/><br/>"
-                      "<b>### Insert license information here ###</b>")
-                      .arg(tr("Qt Designer")).arg("4.0");
+                      "<br/>Copyright 2000-2004 Trolltech AS. All rights reserved."
+                      "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+                      " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
+                      " PARTICULAR PURPOSE.<br/> ")
+                      .arg(tr("Qt Designer")).arg("4.0 beta 1");
     QMessageBox mb;
     mb.setWindowTitle(tr("About Qt Designer"));
     mb.setText(text);
