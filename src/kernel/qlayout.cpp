@@ -1457,9 +1457,9 @@ void QGridLayout::setColSpacing( int col, int minSize )
 
     \sa setColSpacing()
 */
-int QGridLayout::colSpacing( int row ) const
+int QGridLayout::colSpacing( int col ) const
 {
-    return data->colSpacing( row );
+    return data->colSpacing( col );
 }
 
 /*!
