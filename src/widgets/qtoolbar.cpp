@@ -304,6 +304,9 @@ void QToolBar::setUpGM()
 void QToolBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
+    if ( mw && !mw->toolBarsMovable() ) {
+	return;
+    }
     qDrawShadePanel( &p, 0, 0, width(), height(),
 		     colorGroup(), FALSE, 1, 0 );
     style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),

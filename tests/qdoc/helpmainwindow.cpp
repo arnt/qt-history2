@@ -183,6 +183,7 @@ static const char * pix_print[] = {
 HelpMainWindow::HelpMainWindow()
     : QMainWindow()
 {
+    setToolBarsMovable( FALSE );
     setCaption( tr( "Qt Online Documentation" ) );
     setIcon( QPixmap(qtlogo_xpm) );
     QSplitter *splitter = new QSplitter( this );
@@ -266,7 +267,6 @@ HelpMainWindow::HelpMainWindow()
 			       SLOT( slotGoForward() ), tb );
     QToolButton *b = new QToolButton( QPixmap( pix_home ), tr( "Home" ), "", this,
 				      SLOT( slotGoHome() ), tb );
-    tb->addSeparator();
     b = new QToolButton( QPixmap( pix_print ), tr( "Print" ), "", this,
 			 SLOT( slotFilePrint() ), tb );
     tb->setStretchableWidget( new QWidget( tb ) );
