@@ -602,7 +602,7 @@ for plat in mac win x11 embedded; do
 	plat3=mac9
 	;;
     embedded)
-	[ "x$DO_QWS" = "xyes" ] || continue
+	[ "x$DO_EMBEDDED" = "xyes" ] || continue
 	plat2=unix
 	;;
     x11)
