@@ -682,9 +682,10 @@ void QWorkspace::childEvent( QChildEvent * e)
 	child->internalRaise();
 	if ( hasBeenHidden )
 	    w->hide();
-	else if ( !isVisible() ) // that's a case were we don't receive a showEvent in time. Tricky.
+	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
-	activateWindow( w );
+	if ( child->isVisibleTo( this ) )
+	    activateWindow( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
@@ -702,7 +703,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	emit windowActivated( 0 );
 	return;
     }
-    if ( !isVisible() ) {
+    if ( !isVisibleTo( 0 ) ) {
 	d->becomeActive = w;
 	return;
     }
@@ -743,10 +744,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	}
     }
 
-    if ( d->active->isVisible() )
-	emit windowActivated( w );
-    else
-	emit windowActivated( 0 );
+    emit windowActivated( w );
 }
 
 
@@ -1373,6 +1371,9 @@ void QWorkspace::activatePreviousWindow()
     if ( !d->active ) {
 	if ( d->focus.last() )
 	    activateWindow( d->focus.first()->windowWidget(), FALSE );
+	else
+	    activateWindow( 0 );
+	
 	return;
     }
 
@@ -1384,7 +1385,7 @@ void QWorkspace::activatePreviousWindow()
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
     else
-	d->active = 0;
+	activateWindow( 0 );
 }
 
 
