@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#65 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#65 $")
 
 
 declare(QListM, QListBoxItem);
@@ -633,7 +633,7 @@ void QListBox::removeItem( int index )
 {
     if ( !checkIndex( "removeItem", count(), index ) )
 	return;
-    if ( current >= index )
+    if ( current >= index && current > 0 )
 	current--;
     bool    updt = autoUpdate() && itemVisible( index );
     QListBoxItem *lbi = itemList->take( index );
