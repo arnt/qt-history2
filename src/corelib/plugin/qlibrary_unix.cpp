@@ -101,7 +101,7 @@ bool QLibraryPrivate::load_sys()
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
             QString attempt(path + prefixes[prefix] + name + suffixes[suffix]);
             QFileInfo attempt_fi(attempt);
-            if(attempt_fi.exists() && !attempt_fi.isDir())
+            if(!attempt_fi.isDir())
                 pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
