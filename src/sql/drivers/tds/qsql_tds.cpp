@@ -97,9 +97,6 @@
 #define CS_PUBLIC
 #endif
 
-Q_DECLARE_METATYPE(DBPROCESS*)
-Q_DECLARE_METATYPE(LOGINREC*)
-
 QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, int errNo = -1)
 {
     return QSqlError(QLatin1String("QTDS: ") + err, QString(), type, errNo);
@@ -293,7 +290,7 @@ void QTDSResult::cleanup()
 
 QVariant QTDSResult::handle() const
 {
-    return qVariantFromValue(d->dbproc);
+    return QVariant(qRegisterMetaType<DBPROCESS *>("DBPROCESS*"), &d->dbproc);
 }
 
 bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
@@ -488,7 +485,7 @@ QTDSDriver::QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QO
 
 QVariant QTDSDriver::handle() const
 {
-    return qVariantFromValue(d->login);
+    return QVariant(qRegisterMetaType<LOGINREC *>("LOGINREC*"), &d->login);
 }
 
 void QTDSDriver::init()
