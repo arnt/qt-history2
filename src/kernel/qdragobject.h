@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#23 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#24 $
 **
 ** Definition of QDragObject
 **
@@ -46,6 +46,11 @@ public:
     virtual bool provides(const char*) const;
     virtual const char * format(int) const=0;
     virtual QByteArray encodedData(const char*) const=0;
+
+    void setPixmap(QPixmap);
+    void setPixmap(QPixmap, QPoint hotspot);
+    QPixmap pixmap() const;
+    QPoint pixmapHotspot() const;
 
     QWidget * source();
 
@@ -151,6 +156,7 @@ private:
     void drop();
 
 private:
+    void updatePixmap();
     QDragObject * object;
 
     QWidget * dragSource;

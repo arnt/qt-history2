@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#42 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -35,6 +35,7 @@
 #include <X11/X.h> // for Atom
 #include <X11/Xlib.h> // for XEvent
 #include <X11/Xatom.h> // for XA_STRING and friends
+#include <X11/extensions/shape.h>
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -117,6 +118,32 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
+
+class QShapedPixmapWidget : public QWidget {
+    QPixmap pixmap;
+public:
+    QShapedPixmapWidget() :
+	QWidget(0,0,WStyle_Customize | WStyle_Tool | WStyle_NoBorder)
+    {
+    }
+
+    void setPixmap(QPixmap pm)
+    {
+	pixmap = pm;
+	if ( pixmap.mask() ) {
+	    XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
+                               pixmap.mask()->handle(), ShapeSet );
+	}
+	resize(pm.width(),pm.height());
+    }
+
+    void paintEvent(QPaintEvent*)
+    {
+	bitBlt(this,0,0,&pixmap);
+    }
+};
+
+QShapedPixmapWidget * qt_xdnd_deco = 0;
 
 const char* qt_xdnd_atom_to_str( Atom a )
 {
@@ -452,14 +479,19 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 
 static QCursor *noDropCursor = 0;
 
-#define noDropCursorWidth 18
-#define noDropCursorHeight 18
+#define noDropCursorWidth 20
+#define noDropCursorHeight 20
 static unsigned char noDropCutBits[] = {
- 0xc0,0x0f,0xfc,0xf0,0x3f,0xfc,0x78,0x78,0xfc,0x1c,0xe0,0xfc,0x3e,0xc0,0xfd,
- 0x76,0x80,0xfd,0xe7,0x80,0xff,0xc3,0x01,0xff,0x83,0x03,0xff,0x03,0x07,0xff,
- 0x03,0x0e,0xff,0x07,0x9c,0xff,0x06,0xb8,0xfd,0x0e,0xf0,0xfd,0x1c,0xe0,0xfc,
- 0x78,0x70,0xfc,0xf0,0x3f,0xfc,0xc0,0x0f,0xfc};
+ 0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
+ 0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
+ 0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
+ 0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00};
 
+static unsigned char noDropCutMask[] = {
+ 0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
+ 0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
+ 0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
+ 0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 
 
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
@@ -519,7 +551,8 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	} else {
 	    if ( !noDropCursor ) {
 		QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
-		noDropCursor = new QCursor( b, b );
+		QBitmap m( noDropCursorWidth, noDropCursorHeight, noDropCutMask, TRUE );
+		noDropCursor = new QCursor( b, m );
 	    }
 	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
 	    restoreCursor = TRUE;
@@ -549,8 +582,56 @@ void QDragManager::cancel()
     }
 
     qt_xdnd_source_object = 0;
+    delete qt_xdnd_deco;
+    qt_xdnd_deco = 0;
 }
 
+static
+Window findRealWindow( const QPoint & pos, Window w, int md )
+{
+    if ( w == qt_xdnd_deco->winId() && !md )
+	return 0;
+
+    if ( md ) {
+	XWindowAttributes attr;
+	XGetWindowAttributes( qt_xdisplay(), w, &attr );
+
+	if ( attr.map_state != IsUnmapped
+	    && QRect(attr.x,attr.y,attr.width,attr.height)
+		.contains(pos) )
+	{
+	    {
+		Atom   type = None;
+		int f;
+		unsigned long n, a;
+		unsigned char *data;
+
+		XGetWindowProperty( qt_xdisplay(), w, qt_wm_state, 0,
+		    0, False, AnyPropertyType, &type, &f,&n,&a,&data );
+
+		if ( data )
+		    XFree(data);
+
+		if ( type )
+		    return w;
+	    }
+
+	    Window r, p;
+	    Window* c;
+	    uint nc;
+	    if ( XQueryTree( qt_xdisplay(), w, &r, &p, &c, &nc ) ) {
+		r=0;
+		for (uint i=nc; !r && i--; ) {
+		    r = findRealWindow( pos-QPoint(attr.x,attr.y),
+					c[i], md-1 );
+		}
+		XFree(c);
+		return r;
+	    }
+	}
+    }
+    return 0;
+}
 
 void QDragManager::move( const QPoint & globalPos )
 {
@@ -559,6 +640,9 @@ void QDragManager::move( const QPoint & globalPos )
 	 !qt_xdnd_source_sameanswer.isEmpty() ) { // ### probably unnecessary
 	return;
     }
+
+    qt_xdnd_deco->move(globalPos-qt_xdnd_source_object->pixmapHotspot());
+    qt_xdnd_deco->raise();
 
     Window target = 0;
     int lx = 0, ly = 0;
@@ -569,7 +653,9 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    if ( target != 0 )
+    if ( target == qt_xdnd_deco->winId() ) {
+	target = findRealWindow(globalPos,qt_xrootwin(),4);
+    } else if ( target != 0 )
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
 
     if ( target == 0 )
@@ -667,6 +753,8 @@ bool qt_xdnd_handle_badwindow()
 	qt_xdnd_current_target = 0;
 	delete qt_xdnd_source_object;
 	qt_xdnd_source_object = 0;
+	delete qt_xdnd_deco;
+	qt_xdnd_deco = 0;
 	return TRUE;
     }
     if ( qt_xdnd_dragsource_xid ) {
@@ -854,7 +942,6 @@ QByteArray QDropEvent::data( const char * format )
     return qt_xdnd_obtain_data( format );
 }
 
-
 bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 {
     if ( object == o )
@@ -867,6 +954,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
     }
 
     qt_xdnd_source_object = o;
+    qt_xdnd_deco = new QShapedPixmapWidget();
 
     willDrop = FALSE;
 
@@ -877,7 +965,24 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
+    updatePixmap();
 
     qApp->enter_loop();
+
+    delete qt_xdnd_deco;
+    qt_xdnd_deco = 0;
+
     return FALSE;
+}
+
+void QDragManager::updatePixmap()
+{
+    if ( object && !object->pixmap().isNull() ) {
+	qt_xdnd_deco->setPixmap(object->pixmap());
+	qt_xdnd_deco->move(QCursor::pos()-qt_xdnd_source_object->pixmapHotspot());
+	//qt_xdnd_deco->repaint(FALSE);
+	qt_xdnd_deco->show();
+    } else if ( qt_xdnd_deco ) {
+	qt_xdnd_deco->hide();
+    }
 }

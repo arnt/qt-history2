@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#39 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -37,6 +37,8 @@
 struct QDragData {
     QDragData(): autoDelete( TRUE ) {}
     bool autoDelete;
+    QPixmap pixmap;
+    QPoint hot;
 };
 
 
@@ -101,6 +103,49 @@ QDragObject::~QDragObject()
     delete d;
 }
 
+/*!
+  Set the pixmap to display while dragging the object.  The platform-specific
+  implementation will use this in a loose fashion - so provide a small masked
+  pixmap, but do not require that the user ever sees it in all its splendour.
+
+  The \a hotspot is the point on (or off) the pixmap that should be under the
+  cursor as it is dragged.
+
+  In Qt 1.40, the pixmap is never displayed.
+*/
+void QDragObject::setPixmap(QPixmap pm, QPoint hotspot)
+{
+    d->pixmap = pm;
+    d->hot = hotspot;
+    if ( manager && manager->object == this )
+	manager->updatePixmap();
+}
+
+/*!
+  \overload
+  Uses the hotspot (-8,-8).
+*/
+void QDragObject::setPixmap(QPixmap pm)
+{
+    setPixmap(pm,QPoint(-8,-8));
+}
+
+/*!
+  Returns the currently set pixmap
+  (which \link QPixmap::isNull() isNull()\endlink if none is set).
+*/
+QPixmap QDragObject::pixmap() const
+{
+    return d->pixmap;
+}
+
+/*!
+  Returns the currently set pixmap hitspot.
+*/
+QPoint QDragObject::pixmapHotspot() const
+{
+    return d->hot;
+}
 
 /*!
   Starts a drag operation using the contents of this object.
