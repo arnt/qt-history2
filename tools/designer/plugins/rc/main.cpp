@@ -9,7 +9,7 @@ class RCFilter : public ImportFilterInterface, public QLibraryInterface
 public:
     RCFilter();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,23 +29,20 @@ RCFilter::RCFilter()
 {
 }
 
-QUnknownInterface *RCFilter::queryInterface( const QUuid &uuid )
+QRESULT RCFilter::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-
+    *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(ImportFilterInterface*)this;
+	*iface = (QUnknownInterface*)(ImportFilterInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_ImportFilterInterface )
-	iface = (ImportFilterInterface*)this;
+	*iface = (ImportFilterInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+	*iface = (QLibraryInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long RCFilter::addRef()
