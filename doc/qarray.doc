@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.9 1996/02/23 16:59:40 hanord Exp $
+** $Id: qarray.doc,v 1.10 1996/05/06 20:45:54 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -311,7 +311,7 @@
       // forget to resetRawData - will crash
   \endcode
 
-  \warning If you do not call resetRawData(), QGArray will attempt to
+  \warning If you do not call resetRawData(), QArray will attempt to
   deallocate or reallocate the raw data, which might not be too good.
   Be careful.
 
