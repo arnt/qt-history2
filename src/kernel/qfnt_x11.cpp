@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#32 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#32 $";
 #endif
 
 // #define DEBUG_FONT
@@ -915,10 +915,16 @@ void resetFontDef( QFontDef *def )
 // QFontMetrics member functions
 //
 
+/*! Constructs a new object that operates on \e font. \sa setFont(). */
+
 QFontMetrics::QFontMetrics( const QFont &font )
     : f( font )
 {
 }
+
+/*! Returns the maximum ascent of the font.  The ascent is the
+  distance from the base line to the uppermost line where pixels may
+  be drawn. */
 
 int QFontMetrics::ascent() const
 {
@@ -927,6 +933,11 @@ int QFontMetrics::ascent() const
     return f.d->xfd->f->max_bounds.ascent;
 }
 
+/*! Returns the maximum descent of the font.  The descent is the
+  distance from the base line to the lowermost line where pixels may
+  be drawn. (Note that this is different from X, which adds 1 pixel.)
+  */
+
 int QFontMetrics::descent() const
 {
     if ( DIRTY_METRICS )
@@ -934,12 +945,18 @@ int QFontMetrics::descent() const
     return f.d->xfd->f->max_bounds.descent - 1;
 }
 
+/*! Returns the height of the font.  This is always equal to
+  ascent()+descent()+1 (the 1 is for the base line). \sa leading(). */
+
 int QFontMetrics::height() const
 {
     if ( DIRTY_METRICS )
 	f.loadFont();
     return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
+
+/*! Returns the leading of the font in pixels.  This is the natural
+  inter-line spacing. \sa height(). */
 
 int QFontMetrics::leading() const
 {
@@ -949,12 +966,27 @@ int QFontMetrics::leading() const
 	   f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
 }
 
+/*! Returns the distance from one base line to the next.  This value
+  is always equal to leading()+height(). \sa height(), leading() */
+
 int QFontMetrics::lineSpacing() const
 {
     if ( DIRTY_METRICS )
 	f.loadFont();
     return f.d->xfd->f->ascent + f.d->xfd->f->descent;
 }
+
+/*! Returns the width in pixels of the first \e len characters of \e str.
+
+  if \e len is negative or larger than the length of \e str, the whole
+  string is used.
+
+  Note that this value is \e not equal to boundingRect().width();
+  boundingRect() returns a rectangle desribing the pixels this string
+  will cover whereas width() returns the distance to where the next
+  string should be drawn.  Thus, width(stra)+width(strb) is always
+  equal to width(strcat(stra, strb)).  This is almost never the case
+  with boundingRect(). */
 
 int QFontMetrics::width( const char *str, int len ) const
 {
@@ -965,11 +997,20 @@ int QFontMetrics::width( const char *str, int len ) const
     return XTextWidth( f.d->xfd->f, str, len );
 }
 
+/*! Returns the bounding rectangle of the first \e len characters of \e str.
+
+  if \e len is negative or larger than the length of \e str, the whole
+  string is used.
+
+  Note that the bounding rectangle may extend to the left of (0,0) and
+  that the text output may cover \e all pixels in the bounding
+  rectangle. */
+
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
     if ( DIRTY_METRICS )
 	f.loadFont();
-    if ( len < 0 )
+    if ( len < 0 || len > strlen(str) )
 	len = strlen( str );
     XFontStruct *fs = f.d->xfd->f;
     int direction;
@@ -1011,6 +1052,8 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     return QRect( startX, -ascent, width, descent + ascent );
 }
 
+/*! Returns the width of the widest character in the font. */
+
 int QFontMetrics::maxWidth() const
 {
     if ( DIRTY_METRICS )
@@ -1018,11 +1061,17 @@ int QFontMetrics::maxWidth() const
     return f.d->xfd->f->max_bounds.width;
 }
 
+/*! Returns the distance from the base line to where an underscore
+  should be drawn. \sa strikeOutPos(), lineWidth(). */
+
 int QFontMetrics::underlinePos() const
 {
     int pos = ( lineWidth()*2 + 3 )/6; // int( ((float)lineWidth())/3 + 0.5 )
     return pos ? pos : 1;
 }
+
+/*! Returns the distance from the base line to where the strike-out
+  line should be drawn. \sa underlinePos(), lineWidth(). */
 
 int QFontMetrics::strikeOutPos() const
 {
@@ -1031,6 +1080,9 @@ int QFontMetrics::strikeOutPos() const
     int pos = f.d->xfd->f->max_bounds.ascent/3;
     return pos ? pos : 1;
 }
+
+/*! Returns the width of the underline and strike-out lines, adjusted
+for the point size of the font. \sa underlinePos(), strikeOutPos(). */
 
 int QFontMetrics::lineWidth() const
 {
