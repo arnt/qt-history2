@@ -14,7 +14,7 @@
 
 #include "qguieventloop_p.h"
 #include "qcoreapplication.h"
-#include "qeventloop_p.h"
+#include <private/qeventloop_p.h>
 #include "qmutex.h"
 #include "qwidget.h"
 #include "qinputcontext_p.h"

@@ -40,7 +40,7 @@ win32 {
 	INCLUDEPATH += tmp
 	!staticlib {
 	    DEFINES+=QT_MAKEDLL
-	    exists(qt.rc):RC_FILE = qt.rc
+	    exists(../qt.rc):RC_FILE = ../qt.rc
 	}
 }
 win32-borland:INCLUDEPATH += kernel

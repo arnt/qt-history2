@@ -17,7 +17,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qt_windows.h"
 #include <limits.h>
 

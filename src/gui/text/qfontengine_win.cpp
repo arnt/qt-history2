@@ -14,7 +14,7 @@
 #include "qtextengine_p.h"
 #include <qglobal.h>
 #include "qt_windows.h"
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 
 #include <qpaintdevice.h>
 #include <qpainter.h>
@@ -24,7 +24,7 @@
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
 
-#include "qpainter_p.h"
+#include <private/qpainter_p.h>
 #include "qpaintengine.h"
 #include "qstackarray.h"
 

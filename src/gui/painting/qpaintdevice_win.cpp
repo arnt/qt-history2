@@ -18,7 +18,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qt_windows.h"
 
 

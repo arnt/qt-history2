@@ -24,7 +24,7 @@
 #include "qapplication.h"
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"
-#include "qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qprinter_p.h"
 #include "qsettings.h"
 #include "qlibrary.h"
