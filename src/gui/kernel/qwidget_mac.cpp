@@ -1401,14 +1401,14 @@ void QWidget::hide_sys()
             QWidget *w = 0;
             if(parentWidget())
                 w = parentWidget()->topLevelWidget();
-            if(!w || !w->isVisible()) {
+            if(!w || (!w->isVisible() && !w->isMinimized())) {
                 for(WindowPtr wp = GetFrontWindowOfClass(kDocumentWindowClass, true);
                     wp; wp = GetNextWindowOfClass(wp, kDocumentWindowClass, true)) {
                     if((w = QWidget::find((WId)wp)))
                         break;
                 }
             }
-            if(w && w->isVisible())
+            if(w && w->isVisible() && !w->isMinimized())
                 qt_event_request_activate(w);
         }
     } else {
