@@ -80,6 +80,10 @@ public:
     void *pHnd;
 #endif
 
+    bool loadLibrary();
+    bool freeLibrary();
+    void *resolveSymbol( const char * );
+
 public slots:
     /*
       Only components that implement the QLibraryInterface can 
@@ -137,6 +141,10 @@ public:
     void *pHnd;
 #endif
 
+    bool loadLibrary();
+    bool freeLibrary();
+    void *resolveSymbol( const char * );
+
 private:
     QLibrary *library;
 };
@@ -144,9 +152,9 @@ private:
 
 /*
   The platform dependent implementations of
-  - qt_load_library
-  - qt_free_library
-  - qt_resolve_symbol
+  - loadLibrary
+  - freeLibrary
+  - resolveSymbol
 
   It's not too hard to guess what the functions do.
 */
@@ -154,37 +162,46 @@ private:
 // Windows
 #include "qt_windows.h"
 
-static HINSTANCE qt_load_library( const QString& lib )
+bool QLibrary::QLibraryPrivate::loadLibrary()
 {
-    HINSTANCE handle;
+    if ( pHnd )
+	return TRUE;
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	handle = LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
+	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar(library->library(), TRUE) );
     else
 #endif
-	handle = LoadLibraryA(QFile::encodeName(lib).data());
+	pHnd = LoadLibraryA(QFile::encodeName(library->library()).data());
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !handle )
-	qSystemWarning( QString("Failed to load library %1!").arg( lib ) );
+    if ( !pHnd )
+	qSystemWarning( QString("Failed to load library %1!").arg( library->library() ) );
 #endif
 
-    return handle;
+    return pHnd != 0;
 }
 
-static bool qt_free_library( HINSTANCE handle )
+bool QLibrary::QLibraryPrivate::freeLibrary()
 {
-    bool ok = FreeLibrary( handle );
+    if ( !pHnd )
+	return TRUE;
+    bool ok = FreeLibrary( pHnd );
+    if ( ok )
+	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !ok )
+    else
 	qSystemWarning( "Failed to unload library!" );
 #endif
 
     return ok;
 }
 
-static void* qt_resolve_symbol( HINSTANCE handle, const char* f )
+void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 {
-    void* address = GetProcAddress( handle, f );
+    if ( !pHnd )
+	return FALSE;
+
+    void* address = GetProcAddress( pHnd, f );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !address )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
@@ -197,31 +214,42 @@ static void* qt_resolve_symbol( HINSTANCE handle, const char* f )
 // for HP-UX < 11.x and 32 bit
 #include <dl.h>
 
-static void* qt_load_library( const QString& lib )
+bool QLibrary::QLibraryPrivate::loadLibrary()
 {
+    if ( pHnd )
+	return TRUE;
+
     shl_t handle = new shl_t;
-    *handle = shl_load( lib.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    *handle = shl_load( library->library().latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
-	qDebug( "Failed to load library %1!", lib.latin1() );
+	qDebug( "Failed to load library %1!", library->library().latin1() );
 #endif
-    return (void*)handle;
+    pHnd = (void*)handle;
+    return pHnd != 0;
 }
 
-static bool qt_free_library( void* h )
+bool QLibrary::QLibraryPrivate::freeLibrary()
 {
-    shl_t handle = *((shl_t*)h);
-    if ( !shl_unload( handle ) {
+    if ( !pHnd )
+	return TRUE;
+
+    shl_t handle = *((shl_t*)pHnd);
+    if ( !shl_unload( pHnd ) {
 	delete handle;
+	pHnd = 0;
 	return TRUE;
     }
     return FALSE;
 }
 
-static void* qt_resolve_symbol( void* handle, const char* symbol )
+void* QLibrary::QLibraryPrivate::resolveSymbol( const char* symbol )
 {
+    if ( !pHnd )
+	return FALSE;
+
     void* address;
-    if ( shl_findsym( (shl_t*)handle, symbol, TYPE_UNDEFINED, address ) < 0 ) {
+    if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	qDebug( "Couldn't resolve symbol \"%1\"", symbol );
 #endif
@@ -256,50 +284,62 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 static QDict<void> *glibs_loaded = NULL;
 
 // Mac
-static void* qt_load_library( const QString &file )
+bool QLibrary::QLibraryPrivate::loadLibrary()
 {
+    if ( pHnd )
+	return TRUE;
+
     if(!glibs_loaded)
 	glibs_loaded = new QDict<void>();
-    else if(glibs_loaded->find(file)) 
-	return glibs_loaded->find(file);
+    else if( ( pHnd = glibs_loaded->find(library->library()) ))
+	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
-    if( NSCreateObjectFileImageFromFile(file, &img)  != NSObjectFileImageSuccess )
-	return NULL;
+    if( NSCreateObjectFileImageFromFile(library->library(), &img)  != NSObjectFileImageSuccess )
+	return FALSE;
 
-    void *ret = (void *)NSLinkModule(img, file, NSLINKMODULE_OPTION_PRIVATE);
-    glibs_loaded->insert(file, ret); //insert it in the loaded hash
-    return ret;
+    pHnd = (void *)NSLinkModule(img, library->library(), NSLINKMODULE_OPTION_PRIVATE);
+    if ( pHnd ) {
+	glibs_loaded->insert( library->library(), pHnd ); //insert it in the loaded hash
+	return pHnd;
+    }
 #else
-    return NULL;
+    return FALSE;
 #endif
 }
 
-static bool qt_free_library( void *handle )
+bool QLibrary::QLibraryPrivate::freeLibrary()
 {
+    if ( !pHnd )
+	return TRUE;
+
     if(glibs_loaded) {
 	for(QDictIterator<void> it(*glibs_loaded); it.current(); ++it) {
-	    if( it.current() == handle) {
+	    if( it.current() == pHnd) {
 		glibs_loaded->remove(it.currentKey());
 		break;
 	    }
 	}
     }
 #ifdef DO_MAC_LIBRARY
-    NSUnLinkModule(handle, FALSE);
+    NSUnLinkModule(pHnd, FALSE);
+    pHnd = 0;
     return TRUE;
 #else
     return FALSE;
 #endif
 }
 
-static void* qt_resolve_symbol( void *handle, const char *symbol)
+void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
 {
+    if ( !pHnd )
+	return FALSE;
+
 #ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
-    return NSAddressOfSymbol(NSLookupSymbolInModule(handle, symn2));
+    return NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
 #else
     return NULL;
 #endif
@@ -307,17 +347,17 @@ static void* qt_resolve_symbol( void *handle, const char *symbol)
 
 #elif defined(Q_OS_MAC9)
 
-static void* qt_load_library( const QString &file )
-{
-    return NULL;
-}
-
-static bool qt_free_library( void *handle )
+bool QLibrary::QLibraryPrivate::loadLibrary()
 {
     return FALSE;
 }
 
-static void* qt_resolve_symbol( void *, const char *symbol)
+bool QLibrary::QLibraryPrivate::freeLibrary()
+{
+    return FALSE;
+}
+
+void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     return NULL;
 }
@@ -327,30 +367,43 @@ static void* qt_resolve_symbol( void *, const char *symbol)
 // Something else, assuming POSIX
 #include <dlfcn.h>
 
-static void* qt_load_library( const QString& lib )
+bool QLibrary::QLibraryPrivate::loadLibrary()
 {
-    void* handle = dlopen( lib, RTLD_LAZY );
+    if ( pHnd )
+	return TRUE;
+
+    pHnd = dlopen( library->library(), RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !handle )
+    if ( !pHnd )
 	qWarning( dlerror() );
 #endif
-    return handle;
+    return pHnd != 0;
 }
 
-static bool qt_free_library( void* handle )
+bool QLibrary::QLibraryPrivate::freeLibrary()
 {
-    int ok = dlclose( handle );
+    if ( !pHnd )
+	return TRUE;
+
+    int ec = dlclose( pHnd );
+    if ( !ec )
+	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    const char* error = dlerror();
-    if ( error )
-	qWarning( error );
+    else {
+	const char* error = dlerror();
+	if ( error )
+	    qWarning( error );
+    }
 #endif
-    return ok == 0;
+    return pHnd == 0;
 }
 
-static void* qt_resolve_symbol( void* handle, const char* f )
+void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 {
-    void* address = dlsym( handle, f );
+    if ( !pHnd )
+	return FALSE;
+
+    void* address = dlsym( pHnd, f );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
@@ -365,7 +418,7 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 /*!
   \class QLibrary qlibrary.h
 
-  \brief The QLibrary class provides a wrapper for library loading and unloading.
+  \brief The QLibrary class provides a wrapper for handling shared libraries.
   \ingroup componentmodel
 */
 
@@ -379,7 +432,7 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 
   \value Delayed  The library get's loaded as soon as needed
   \value Immediately  The library is loaded immediately
-  \value Manual  The library has to be loaded and unloaded manually
+  \value Manual  The library has to be unloaded manually
 */
 
 /*!
@@ -393,7 +446,7 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 {
     d = new QLibraryPrivate( this );
     if ( pol == Immediately )
-	load();
+	d->loadLibrary();
 }
 
 /*!
@@ -412,26 +465,26 @@ QLibrary::~QLibrary()
 }
 
 /*!
-  Loads the shared library and initializes the connection to the component.
+  Loads the shared library and initializes the connection to the component server.
   Returns a pointer to the QUnknownInterface provided by the component if the 
-  library was loaded successfully, otherwise returns null.
+  library was loaded successfully, otherwise unloades the library again and returns 
+  null.
   If the component implements the QLibraryInterface, the init() function will
   be called and the loading canceled if this function returns FALSE. 
   If the policy is not Manual, the system will call the canUnload() function of 
   this interface and try to unload the library in regular intervalls.
 
-  This function gets called automatically by queryInterface if the policy is not Manual.
-  Otherwise you have to make sure that the library has been loaded before usage.
+  This function gets called automatically by queryInterface.
 
-  \sa setPolicy(), unload()
+  \sa setPolicy(), unload(), resolve
 */
-QUnknownInterface* QLibrary::load()
+QUnknownInterface* QLibrary::createInstance()
 {
     if ( libfile.isEmpty() )
 	return 0;
 
     if ( !d->pHnd )
-	d->pHnd = qt_load_library( libfile );
+	d->loadLibrary();
 
     if ( d->pHnd && !entry ) {
 #if QT_DEBUG_COMPONENT == 2
@@ -439,9 +492,9 @@ QUnknownInterface* QLibrary::load()
 #endif
 	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
-	infoProc = (QtLoadInfoProc) qt_resolve_symbol( d->pHnd, "qt_load_interface" );
+	infoProc = (QtLoadInfoProc) d->resolveSymbol( "qt_load_interface" );
 	if ( !infoProc )
-	    infoProc = (QtLoadInfoProc) qt_resolve_symbol( d->pHnd, "_qt_load_interface" );
+	    infoProc = (QtLoadInfoProc) d->resolveSymbol( "_qt_load_interface" );
 #if QT_DEBUG_COMPONENT == 2
 	if ( !infoProc )
 	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
@@ -483,13 +536,43 @@ QUnknownInterface* QLibrary::load()
 }
 
 /*!
+  Returns the address of the exported symbol \a symb. The library gets
+  loaded if necessary. The function returns NULL if the symbol could
+  not be resolved or the library not be loaded.
+
+  \code
+  typedef int (*addProc)( int, int );
+
+  addProc add = (addProc) library->resolve( "add" );
+  if ( add )
+      return add( 5, 8 );
+  else
+      return 5 + 8;
+  \endcode
+
+  \sa load
+*/
+void *QLibrary::resolve( const char* symb )
+{
+    if ( !d->pHnd )
+	d->loadLibrary();
+    if ( !d->pHnd )
+	return 0;
+
+    void *address = d->resolveSymbol( symb );
+    if ( !address )
+	address = d->resolveSymbol( QString( "_" ) + symb );
+    return address;
+}
+
+/*!
   Returns TRUE if the library is loaded.
 
   \sa load
 */
 bool QLibrary::isLoaded() const
 {
-    return entry != 0;
+    return d->pHnd != 0;
 }
 
 /*!
@@ -546,7 +629,7 @@ bool QLibrary::unload( bool force )
 	entry = 0;
     }
 
-    if ( !qt_free_library( d->pHnd ) )
+    if ( !d->freeLibrary() )
     {
 #if QT_DEBUG_COMPONENT == 2
 	qDebug( "%s could not be unloaded.", libfile.latin1() );
@@ -572,8 +655,8 @@ void QLibrary::setPolicy( Policy pol )
 {
     libPol = pol;
 
-    if ( libPol == Immediately && !entry )
-	load();
+    if ( libPol == Immediately && !d->pHnd)
+	d->loadLibrary();
 }
 
 /*!
@@ -596,22 +679,14 @@ QString QLibrary::library() const
 
 /*!
   Forwards the query to the component and returns the result.
-  If the current policy is not Manual, load() gets called as necessary.
+  The library gets loaded if necessary.
 
   \sa QUnknownInterface::queryInterface
 */
 QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 {
-    if ( !entry ) {
-	if ( libPol != Manual )
-	    load();
-	else {
-#if defined(QT_CHECK_NULL)
-	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
-#endif
-	    return 0;
-	}
-    }
+    if ( !entry )
+	createInstance();
 
     QUnknownInterface * iface = 0;
     if( entry )

@@ -60,7 +60,9 @@ public:
     QLibrary( const QString& filename, Policy = Delayed );
     ~QLibrary();
 
-    QUnknownInterface* load();
+    QUnknownInterface* createInstance();
+    void *resolve( const char* );
+
     bool unload( bool force = FALSE );
     bool isLoaded() const;
 
