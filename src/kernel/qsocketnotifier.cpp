@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#16 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -55,10 +55,15 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
     // make the socket non-blocking here, usually using fcntl( O_NONBLOCK )
     ::connect( sockfd, (struct sockaddr*)&sa,	// connect to host
 	       sizeof(sa) );			//   NOT QObject::connect()!
-    QSocketNotifier sn( sockfd, QSocketNotifier::Read );
-    QObject::connect( &sn, SIGNAL(activated(int)),
+    QSocketNotifier *sn;
+    sn = new QSocketNotifier( sockfd, QSocketNotifier::Read, parent );
+    QObject::connect( sn, SIGNAL(activated(int)),
 		      myObject, SLOT(dataReceived()) );
   \endcode
+
+  The optional \a parent argument can be set to make the socket notifier a
+  child of some widget and therefore be automatically destroyed when the
+  widget is destroyed.
 
   For read notifiers, it makes little sense to connect the activated()
   signal to more than one slot, because the data can be read from the
