@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#143 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#144 $
 #
 # this is a massive hack, written very quickly
 #
@@ -392,7 +392,7 @@ sub codeincludes {
 
 
 sub processdocs {
-    local ($url, $doc, $class, %word, $idoc);
+    local ($url, $doc, $class, %word);
 
     foreach $url ( sort keys %type ) {
 #print "processing url: ", $url, "\n";
@@ -1207,6 +1207,9 @@ sub readc {
 		$def = $1;
 		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only in what argument(s) it accepts.\n\n" . $2;
 		$overload = 1;
+	    } elsif ($doc =~ /^\\overload\s*\n\s*(.*?)\s*$/s) {
+		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only in what argument(s) it accepts.\n\n" . $1;
+		$overload = 1;
 	    } elsif ($doc =~ /^\\fn\s+([^;\n\(\)]+(?:\(\s*\)\s*)?\([^\);]*\)\s*(?:const)?);?\s+(.*?)\s*$/s) {
 		$def = $1;
 		$doc = $2;
@@ -1285,7 +1288,7 @@ sub readc {
 }
 
 sub makenames {
-    local($_, $dum, $ferdig, $anchor, %total);
+    local($_, $dum, $ferdig, $anchor);
 
     foreach ( sort keys %name ) {
 	next if /^globals.html/;
@@ -1673,7 +1676,7 @@ sub printclass {
 	    $p = $class . "::" . $i;
 	    if ( defined( $anchor{$p} ) && $type{$anchor{$p}} eq "fn" ) {
 		my $parent;
-		$parent = $anchir{$p};
+		$parent = $anchor{$p};
 		$parent =~ s/\x23.*//;
 		$parent = $name{$parent} . "::" . $i;
 		print "imp: ", $name{$anchor{$p}}, " - ", $parent, "\n";
