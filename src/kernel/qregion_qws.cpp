@@ -102,6 +102,11 @@ SOFTWARE.
 #ifndef _XREGION_H
 #define _XREGION_H
 
+#ifdef TRUE
+#undef TRUE
+#undef FALSE
+#endif
+
 #define TRUE 1
 #define FALSE 0
 #define MAXSHORT 32767

@@ -56,6 +56,7 @@
 #include "qcursor.h"
 #include "qinputcontext_p.h"
 #include "qfile.h"
+#include "qhash.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"

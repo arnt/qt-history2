@@ -193,6 +193,7 @@ public:
     Type type() { return Qws; }
 
     bool canRender( const QChar *string,  int len );
+    inline const char *name() const { return 0; };
 
     QFontDef fontDef;
     /*QMemoryManager::FontID*/ void *id;
