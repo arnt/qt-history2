@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#3 $
 **
 ** Definition of QScrollBar class
 **
@@ -21,11 +21,13 @@ class QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:
-    enum Orientation{Horizontal,Vertical};
+    enum Orientation{ Horizontal, Vertical };
 
-    QScrollBar( QView *parent = NULL, Orientation o = Vertical );
+    QScrollBar( QView *parent=0, const char *name=0 );
+    QScrollBar( Orientation, QView *parent=0, const char *name=0 );
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
-		int value, QView *parent = NULL, Orientation o = Vertical );
+		int value, Orientation,
+		QView *parent=0, const char *name=0 );
 
     void	setOrientation( Orientation );
     Orientation orientation() const;
@@ -33,38 +35,38 @@ public:
     bool	tracking() const;
 
 signals:
-    void newValue( int value );
+    void    	newValue( int value );
 
 protected:
-    void     timerEvent( QTimerEvent *e );
-    bool     keyPressEvent( QKeyEvent *e );
-    void     resizeEvent( QResizeEvent *e );
-    void     paintEvent( QPaintEvent *e );
+    void     	timerEvent( QTimerEvent *e );
+    bool     	keyPressEvent( QKeyEvent *e );
+    void     	resizeEvent( QResizeEvent *e );
+    void     	paintEvent( QPaintEvent *e );
 
-    void     mousePressEvent( QMouseEvent *e );
-    void     mouseReleaseEvent( QMouseEvent *e );
-    void     mouseMoveEvent( QMouseEvent *e );
+    void     	mousePressEvent( QMouseEvent *e );
+    void     	mouseReleaseEvent( QMouseEvent *e );
+    void     	mouseMoveEvent( QMouseEvent *e );
 
-    void     valueChange();	       // Virtual functions from QRangeControl
-    void     stepChange();
-    void     rangeChange();
+    void     	valueChange();	       // virtual functions from QRangeControl
+    void     	stepChange();
+    void     	rangeChange();
 
-    int	     sliderStart() const;
+    int	     	sliderStart() const;
 
 private:
-    void     initialize();
-    void     positionSliderFromValue();
-    int	     calculateValueFromSlider() const;
+    void     	init();
+    void     	positionSliderFromValue();
+    int	     	calculateValueFromSlider() const;
 
-    uint     pressedControl   : 8;
-    uint     track	      : 1;
-    uint     clickedAt	      : 1;
-    uint     orient	      : 1;
-    uint     thresholdReached : 1;
-    uint     isTiming	      : 1;
+    uint     	pressedControl   : 8;
+    uint     	track	         : 1;
+    uint     	clickedAt	 : 1;
+    uint     	orient	         : 1;
+    uint     	thresholdReached : 1;
+    uint     	isTiming	 : 1;
 
-    QCOOT    sliderPos;
-    QCOOT    clickOffset;
+    QCOOT    	sliderPos;
+    QCOOT    	clickOffset;
 };
 
 
@@ -87,7 +89,6 @@ inline int QScrollBar::sliderStart() const
 {
     return sliderPos;
 }
-
 
 
 #endif // QSCRBAR_H

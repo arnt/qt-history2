@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#4 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#5 $
 **
 ** Definition of QLCDNumber class
 **
@@ -21,13 +21,15 @@ class QLCDNumber : public QWidget		// LCD number widget
 {
     Q_OBJECT
 public:
-    QLCDNumber( QView *p, int noOfDigits = 1 );
+    QLCDNumber( QView *parent=0, const char *name=0 );
+    QLCDNumber( uint numDigits, QView *parent=0, const char *name=0 );
    ~QLCDNumber();
 
-    enum Mode {HEX, DEC, OCT, BIN};
+    enum Mode { HEX, DEC, OCT, BIN };
 
-    void    setDigits( int noOfDigits );
-    int	    digits();
+    uint    numDigits()	const	{ return ndigits; }
+    void    setNumDigits( uint nDigits );
+
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( long	  num ) const;
 
@@ -50,15 +52,16 @@ protected:
     void    paintEvent( QPaintEvent * );
 
 private:
+    void    init();
     void    drawString( const char *, QPainter &, QBitArray * = 0,
 			bool = TRUE );
     void    drawDigit( const QPoint &, QPainter &, int, char, char = ' ' );
     void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
 
-    uint      nDigits	 : 8;
-    uint      base	 : 2;
-    uint      smallPoint : 1;
-    QString   digitStr;
+    uint    ndigits	: 8;
+    uint    base	: 2;
+    uint    smallPoint	: 1;
+    QString digitStr;
     QBitArray points;
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#5 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#5 $";
 #endif
 
 
@@ -60,28 +60,45 @@ const int repeatTime	= 100;
 #define SLIDER_MIN	6
 
 
-QScrollBar::QScrollBar( QView *parent,Orientation d ) : QWidget( parent )
+QScrollBar::QScrollBar( QView *parent, const char *name )
+	: QWidget( parent, name )
 {
-    orient = d;
-    initialize();
+    orient = Vertical;
+    init();
+}
+
+QScrollBar::QScrollBar( Orientation o, QView *parent, const char *name )
+	: QWidget( parent, name )
+{
+    orient = o;
+    init();
 }
 
 QScrollBar::QScrollBar( int minVal, int maxVal, int lineStep, int pageStep,
-			int value, QView *parent, Orientation d )
-   : QWidget(parent) ,QRangeControl(minVal, maxVal, lineStep, pageStep, value)
+			int value,  Orientation o,
+			QView *parent, const char *name )
+	: QWidget( parent, name ),
+	  QRangeControl( minVal, maxVal, lineStep, pageStep, value )
 {
-    orient = d;
-    initialize();
+    orient = o;
+    init();
 }
 
-void QScrollBar::initialize()
+void QScrollBar::init()
 {
     track	     = TRUE;
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setForegroundColor(lightGray);
-    setBackgroundColor(foregroundColor().dark(1.12));
+    setForegroundColor( lightGray );
+    setBackgroundColor( foregroundColor().dark(1.12) );
+}
+
+
+void QScrollBar::setOrientation( Orientation o )
+{
+    orient = o;
+    update();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#7 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,24 +16,40 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#7 $";
 #endif
 
 
-QRadioButton::QRadioButton( QView *parent, const char *label ) : QButton(parent)
+static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
+{
+    switch ( gs ) {
+	case MacStyle:
+	case WindowsStyle:
+	    *w = *h = 15;
+	    break;
+	case PMStyle:
+	    *w = *h = 16;
+	    break;
+	case MotifStyle:
+	    *w = *h = 13;
+	    break;
+    }
+}
+
+
+QRadioButton::QRadioButton( QView *parent, const char *name )
+	: QButton( parent, name )
 {
     initMetaObject();
-    setText( label );
     setOnOffButton( TRUE );
     noHit = FALSE;
 }
 
-QRadioButton::QRadioButton( QView *parent, const QRect &r,
-		      const char *label ) : QButton(parent)
+QRadioButton::QRadioButton( const char *label, QView *parent, const char *name)
+	: QButton( parent, name )
 {
     initMetaObject();
-    setText( label );
-    changeGeometry( r );
+    setLabel( label );
     setOnOffButton( TRUE );
     noHit = FALSE;
 }
@@ -48,6 +64,19 @@ void QRadioButton::setChecked( bool checked )
 }
 
 
+void QRadioButton::resizeFitLabel()
+{
+    QFontMetrics  fm( font() );
+    int w = fm.width( label() );
+    int h = fm.height();
+    int wbm, hbm;
+    getSizeOfBitMap( style(), &wbm, &hbm );
+    if ( h < hbm )
+	h = hbm;
+    resize( w+wbm+6, h );
+}
+
+
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
     return noHit ? FALSE : clientRect().contains( pos );
@@ -58,19 +87,9 @@ void QRadioButton::drawButton( QPainter *paint )
     register QPainter *p = paint;
     GUIStyle gs = style();
     QSize sz = clientSize();
+    QFontMetrics fm( font() );
     int x=0, y, w, h;
-    switch ( gs ) {
-	case MacStyle:
-	case WindowsStyle:
-	    w = h = 15;
-	    break;
-	case PMStyle:
-	    w = h = 16;
-	    break;
-	case MotifStyle:
-	    w = h = 13;
-	    break;
-    }
+    getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;
 
 #define SAVE_RADIOBUTTON_PIXMAPS
@@ -80,9 +99,10 @@ void QRadioButton::drawButton( QPainter *paint )
     QPixMap *pm = findPixmap( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
-	if ( text() ) {				// draw text extra
+	if ( label() ) {				// draw text extra
 	    p->pen().setColor( foregroundColor() );
-	    p->drawText( w+6, sz.height()/2+4, text() );
+	    p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(),
+			 label() );
 	}
 	return;
     }
@@ -236,9 +256,10 @@ void QRadioButton::drawButton( QPainter *paint )
 	w += wx;
     }
 #endif
-    if ( text() ) {
+    if ( label() ) {
+	QFontMetrics fm( font() );
 	p->pen().setColor( foregroundColor() );
-	p->drawText( w+6, sz.height()/2+4, text() );
+	p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(), label() );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#7 $
 **
 ** Implementation of QPushButton class
 **
@@ -11,12 +11,13 @@
 *****************************************************************************/
 
 #include "qpushbt.h"
+#include "qfontmet.h"
 #include "qpainter.h"
 #include "qpntarry.h"
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#7 $";
 #endif
 
 
@@ -66,18 +67,17 @@ static void resizeDefButton( QPushButton *b )
 }
 
 
-QPushButton::QPushButton( QView *parent, const char *label ) : QButton(parent)
+QPushButton::QPushButton( QView *parent, const char *name )
+	: QButton( parent, name )
 {
     init();
-    setText( label );
 }
 
-QPushButton::QPushButton( QView *parent, const QRect &r, const char *label )
-	: QButton(parent)
+QPushButton::QPushButton( const char *label, QView *parent, const char *name )
+	: QButton( parent, name )
 {
     init();
-    setText( label );
-    QWidget::changeGeometry( r );
+    setLabel( label );
 }
 
 void QPushButton::init()
@@ -108,6 +108,15 @@ void QPushButton::setDefault( bool def )	// set default on/off
     }
     else
 	resizeDefButton( (QPushButton*)this );
+}
+
+
+void QPushButton::resizeFitLabel()
+{
+    QFontMetrics  fm( font() );
+    int w = fm.width( label() );
+    int h = fm.height();
+    resize( w+6, h+6 );
 }
 
 
@@ -284,13 +293,15 @@ void QPushButton::drawButton( QPainter *paint )
 
 void QPushButton::drawButtonFace( QPainter *paint )
 {
-    if ( !text() )
+    if ( !label() )
 	return;
     register QPainter *p = paint;
+    QFontMetrics fm( font() );
     QSize sz = clientSize();
     int w = sz.width();
     GUIStyle gs = style();
-    QPoint pos( w/2 - strlen(text())*3, sz.height()/2 + 4 );
+    QPoint pos( w/2 - fm.width(label())/2, sz.height()/2 + fm.height()/2 -
+		fm.descent() );
     int dt;
     switch ( gs ) {
 	case MacStyle:
@@ -304,7 +315,9 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	    dt = gs == WindowsStyle ? 2 : 1;
 	    break;
     }
-    if ( isDown() || isOn() )			// shift text
-	pos += QPoint(dt,dt);
-    p->drawText( pos, text() );
+    if ( isDown() || isOn() ) {			// shift text
+	pos.rx() += dt;
+	pos.ry() += dt;
+    }
+    p->drawText( pos, label() );
 }

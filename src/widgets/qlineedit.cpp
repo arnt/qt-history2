@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#4 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#4 $";
 #endif
 
 
@@ -63,17 +63,13 @@ static uint showLastPartOffset( char *s, const QFont &f, int width )
 }
 
 
-QLineEdit::QLineEdit( QView *parent ) : QWidget( parent )
+QLineEdit::QLineEdit( QView *parent, const char *name )
+	: QWidget( parent, name )
 {
-    initialize();
+    init();
 }
 
-QLineEdit::QLineEdit()
-{
-    initialize();
-}
-
-void QLineEdit::initialize()
+void QLineEdit::init()
 {
     pm		= 0;
     cursorPos	= 0;

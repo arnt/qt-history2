@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#1 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#2 $
 **
 ** Definition of QLineEdit class
 **
@@ -21,8 +21,7 @@ class QLineEdit : public QWidget
 {
     Q_OBJECT
 public:
-    QLineEdit( QView *parent = 0 );
-    QLineEdit();
+    QLineEdit( QView *parent=0, const char *name=0 );
    ~QLineEdit();
 
     void    keyFocusEvent( bool inFocus );
@@ -43,7 +42,7 @@ protected:
     void    mousePressEvent( QMouseEvent * );
 
 private:
-    void    initialize();
+    void    init();
     void    paint( bool frame = FALSE );
     void    pixmapPaint();
     void    paintText( QPainter *, const QSize &, bool frame = FALSE );

@@ -1,17 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#4 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#5 $
 **
 ** Definition of QPushButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940221
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
-#ifndef QPBUTTON_H
-#define QPBUTTON_H
+#ifndef QPUSHBT_H
+#define QPUSHBT_H
 
 #include "qbutton.h"
 
@@ -20,14 +20,16 @@ class QPushButton : public QButton
 {
     Q_OBJECT
 public:
-    QPushButton( QView *parent=0, const char *label = 0 );
-    QPushButton( QView *parent, const QRect &r, const char *label = 0 );
+    QPushButton( QView *parent=0, const char *name=0 );
+    QPushButton( const char *label, QView *parent=0, const char *name=0 );
 
     void    setAutoDefault( bool autoDef );
     bool    isAutoDefault() const { return autoDefButton; }
 
     void    setDefault( bool def );
     bool    isDefault() const { return defButton; }
+
+    void    resizeFitLabel();
 
   // Reimplemented move,resize etc. because of auto-sized default push buttons
     bool    move( int, int );
@@ -70,4 +72,4 @@ inline bool QPushButton::changeGeometry( const QRect &r )
 }
 
 
-#endif // QPBUTTON_H
+#endif // QPUSHBT_H

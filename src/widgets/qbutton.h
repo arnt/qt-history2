@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#4 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#5 $
 **
 ** Definition of QButton class
 **
@@ -8,10 +8,6 @@
 **
 ** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
-** --------------------------------------------------------------------------
-** The QButton class is an abstract button. It is super class for QPushButton,
-** QCheckBox etc.  The subclasses implement virtual functions to specify user
-** interface functionality.
 *****************************************************************************/
 
 #ifndef QBUTTON_H
@@ -27,10 +23,12 @@ class QButton : public QWidget			// button class
 {
     Q_OBJECT
 public:
-    QButton( QView *parent=0 );
+    QButton( QView *parent=0, const char *name=0 );
 
-    char    *text()		const;		// button text
-    void     setText( const char * );
+    const char *label()		const;		// get/set button text
+    void setLabel( const char *label, bool resize=FALSE );
+
+    virtual void resizeFitLabel();
 
 signals:
     void    pressed();

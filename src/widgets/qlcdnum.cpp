@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#5 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#5 $";
 #endif
 
 
@@ -177,23 +177,26 @@ char *getSegments( char ch )			// gets list of segments for ch
 }
 
 
-QLCDNumber::QLCDNumber( QView *p, int noOfDigits ) : QWidget( p )
+QLCDNumber::QLCDNumber( QView *parent, const char *name )
+	: QWidget( parent, name )
+{
+    ndigits = 1;
+    init();
+}
+
+QLCDNumber::QLCDNumber( uint numDigits, QView *parent, const char *name )
+	: QWidget( parent, name )
+{
+    ndigits = numDigits;
+    init();
+}
+
+void QLCDNumber::init()
 {
     initMetaObject();
     base = DEC;
     smallPoint = FALSE;
-    if ( noOfDigits <= 0 )
-	noOfDigits = 1;
-    else if ( noOfDigits > 99 ) {
-#if defined(CHECK_RANGE)
-	warning( "QLCDNumber: Maximum 99 digits allowed" );
-#endif
-	noOfDigits = 99;
-    }
-    nDigits = noOfDigits;
-    digitStr.fill( ' ', nDigits );
-    points.fill( 0, nDigits );
-    digitStr[nDigits - 1] = '0';     // Default is the number zero.
+    setNumDigits( ndigits );
     setBackgroundColor( lightGray );
 }
 
@@ -202,17 +205,61 @@ QLCDNumber::~QLCDNumber()
 }
 
 
+void QLCDNumber::setNumDigits( uint numDigits )
+{
+    if ( numDigits > 99 ) {
+#if defined(CHECK_RANGE)
+	warning( "QLCDNumber: Maximum 99 digits allowed" );
+#endif
+	numDigits = 99;
+    }
+    if ( numDigits == ndigits )			// no change
+	return;
+    if ( digitStr.isNull() ) {
+	ndigits = numDigits;
+	digitStr.fill( ' ', ndigits );
+	points.fill( 0, ndigits );
+	digitStr[ndigits - 1] = '0';		// "0" is the default number
+    }
+    else {
+	int i;
+	int dif;
+	if ( numDigits > ndigits ) {		// expand
+	    dif = numDigits - ndigits;
+	    QString buf;
+	    buf.fill( ' ', dif );
+	    digitStr.insert( 0, buf );
+	    points.resize( numDigits );
+	    for ( i=numDigits-1; i>=dif; i-- )
+		points.setBit( i, points.testBit(i-dif) );
+	    for ( i=0; i<dif; i++ )
+		points.clearBit( i );
+	}
+	else {					// shrink
+	    dif = ndigits - numDigits;
+	    digitStr = digitStr.right( numDigits );	    
+	    QBitArray tmpPoints = points;
+	    points.resize( numDigits );
+	    for ( i=0; i<numDigits; i++ )
+		points.setBit( i, tmpPoints.testBit(i+dif) );
+	}
+	ndigits = numDigits;
+	update();
+    }
+}
+
+
 bool QLCDNumber::checkOverflow( long num ) const
 {
     bool of;
-    long2string( num, base, nDigits, &of );
+    long2string( num, base, ndigits, &of );
     return of;
 }
 
 bool QLCDNumber::checkOverflow( double num ) const
 {
     bool of;
-    double2string( num, base, nDigits, &of );
+    double2string( num, base, ndigits, &of );
     return of;
 }
 
@@ -234,7 +281,7 @@ void QLCDNumber::display( float num )
 void QLCDNumber::display( long num )
 {
     bool of;
-    QString s = long2string( num, base, nDigits, &of );
+    QString s = long2string( num, base, ndigits, &of );
     if ( of )
 	emit overflow();
     else
@@ -244,7 +291,7 @@ void QLCDNumber::display( long num )
 void QLCDNumber::display( double num )
 {
     bool of;
-    QString s = double2string( num, base, nDigits, &of );
+    QString s = double2string( num, base, ndigits, &of );
     if ( of )
 	emit overflow();
     else
@@ -255,31 +302,31 @@ void QLCDNumber::display( double num )
 void QLCDNumber::display( const char *s )
 {
     QPainter p;
-    QString buffer(nDigits+1);
+    QString buffer(ndigits+1);
     int i;
     int len = strlen(s);
 
     p.begin( this );
     if ( !smallPoint ) {
-	if ( len >= nDigits ) {			  // String too long?
-	    for( i=0; i<nDigits; i++ )		  // Yes, whow first chars.
-		buffer[i] = s[len - nDigits + i];
+	if ( len >= ndigits ) {			  // String too long?
+	    for( i=0; i<ndigits; i++ )		  // Yes, show first chars.
+		buffer[i] = s[len - ndigits + i];
 	} else {
-	    for( i=0; i<nDigits-len; i++ )	  // Pad with spaces.
+	    for( i=0; i<ndigits-len; i++ )	  // Pad with spaces.
 		buffer[i] = ' ';
 	    for( i=0; i<len; i++ )
-		buffer[nDigits - len + i] = s[i];
+		buffer[ndigits - len + i] = s[i];
 	}
 	drawString( buffer, p );
    } else {
 	int  index = -1;
 	bool lastWasPoint = TRUE;
-	QBitArray newPoints(nDigits);
+	QBitArray newPoints(ndigits);
 	newPoints.clearBit(0);
 	for ( i=0; i<len; i++ ) {
 	    if ( s[i] == '.' ) {
 		if ( lastWasPoint ) {		// Point already set for digit?
-		    if ( index == nDigits - 1 ) // No more digits?
+		    if ( index == ndigits - 1 ) // No more digits?
 			break;
 		    index++;
 		    buffer[index] = ' ';	// 2 points in a row, add space
@@ -287,7 +334,7 @@ void QLCDNumber::display( const char *s )
 		newPoints.setBit(index);	// Set decimal point
 		lastWasPoint = TRUE;
 	    } else {
-		if ( index == nDigits - 1 )
+		if ( index == ndigits - 1 )
 		    break;
 		index++;
 		buffer[index] = s[i];
@@ -295,13 +342,13 @@ void QLCDNumber::display( const char *s )
 		lastWasPoint = FALSE;
 	    }
 	}
-	if ( index < nDigits - 1 ) {
+	if ( index < ndigits - 1 ) {
 	    for( i=index; i>=0; i-- ) {
-		buffer[nDigits - 1 - index + i] = buffer[i];
-		newPoints.setBit( nDigits - 1 - index + i,
+		buffer[ndigits - 1 - index + i] = buffer[i];
+		newPoints.setBit( ndigits - 1 - index + i,
 				   newPoints.testBit(i) );
 	    }
-	    for( i=0; i<nDigits-index-1; i++ ) {
+	    for( i=0; i<ndigits-index-1; i++ ) {
 		buffer[i] = ' ';
 		newPoints.clearBit(i);
 	    }
@@ -312,7 +359,7 @@ void QLCDNumber::display( const char *s )
 }
 
 
-void QLCDNumber::setMode(Mode m)
+void QLCDNumber::setMode( Mode m )
 {
     if ( base == m )
 	return;
@@ -320,7 +367,7 @@ void QLCDNumber::setMode(Mode m)
     display( "" );
 }
 
-void QLCDNumber::smallDecimalPoint(bool b)
+void QLCDNumber::smallDecimalPoint( bool b )
 {
     if ( smallPoint == b )
 	return;
@@ -333,11 +380,10 @@ void QLCDNumber::resizeEvent( QResizeEvent * )
 {
 }
 
-void QLCDNumber::paintEvent(QPaintEvent *)
+void QLCDNumber::paintEvent( QPaintEvent * )
 {
     QPainter p;
     QColor tc, bc;
-
 
     p.begin(this);
     tc = backgroundColor().dark();
@@ -358,14 +404,14 @@ void QLCDNumber::drawString( const char *s, QPainter &p,
 
     int digitSpace = smallPoint ? 2 : 1;
     int xSegLen	   = clientWidth()*5/
-			 (nDigits*(5 + digitSpace) + digitSpace);
+			 (ndigits*(5 + digitSpace) + digitSpace);
     int ySegLen	   = clientHeight()*5/12;
     int segLen	   = ySegLen > xSegLen ? xSegLen : ySegLen;
     int xAdvance   = segLen*( 5 + digitSpace )/5;
-    int xOffset	   = ( clientWidth() - nDigits*xAdvance + segLen/5 )/2;
+    int xOffset	   = ( clientWidth() - ndigits*xAdvance + segLen/5 )/2;
     int yOffset	   = ( clientHeight() - segLen*2 )/2;
 
-    for ( int i=0;  i<nDigits; i++ ) {
+    for ( int i=0;  i<ndigits; i++ ) {
 	pos = QPoint( xOffset + xAdvance*i, yOffset );
 	if ( newString )
 	    drawDigit( pos, p, segLen, s[i], digitStr[i] );
@@ -383,8 +429,8 @@ void QLCDNumber::drawString( const char *s, QPainter &p,
     }
     if ( newString ) {
 	digitStr = s;
-	if ( digitStr.length() > nDigits )
-	    digitStr.resize( nDigits );
+	if ( digitStr.length() > ndigits )
+	    digitStr.resize( ndigits );
 	if ( newPoints )
 	    points = *newPoints;
     }

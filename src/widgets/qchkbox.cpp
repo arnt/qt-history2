@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#6 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,23 +16,38 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#6 $";
 #endif
 
 
-QCheckBox::QCheckBox( QView *parent, const char *label ) : QButton(parent)
+static void getSizeOfBitMap( GUIStyle gs, int *w, int *h )
+{
+    switch ( gs ) {				// calculate coords
+	case MacStyle:
+	case WindowsStyle:
+	    *w = *h = 13;
+	    break;
+	case PMStyle:
+	    *w = *h = 16;
+	    break;
+	case MotifStyle:
+	    *w = *h = 10;
+    }
+}
+
+
+QCheckBox::QCheckBox( QView *parent, const char *name )
+	: QButton( parent, name )
 {
     initMetaObject();
-    setText( label );
     setOnOffButton( TRUE );
 }
 
-QCheckBox::QCheckBox( QView *parent, const QRect &r,
-		      const char *label ) : QButton(parent)
+QCheckBox::QCheckBox( const char *label, QView *parent, const char *name )
+	: QButton( parent, name )
 {
     initMetaObject();
-    setText( label );
-    changeGeometry( r );
+    setLabel( label );
     setOnOffButton( TRUE );
 }
 
@@ -46,24 +61,27 @@ void QCheckBox::setChecked( bool checked )
 }
 
 
+void QCheckBox::resizeFitLabel()
+{
+    QFontMetrics  fm( font() );
+    int w = fm.width( label() );
+    int h = fm.height();
+    int wbm, hbm;
+    getSizeOfBitMap( style(), &wbm, &hbm );
+    if ( h < hbm )
+	h = hbm;
+    resize( w+wbm+6, h );
+}
+
+
 void QCheckBox::drawButton( QPainter *paint )	// draw check box
 {
     register QPainter *p = paint;
     GUIStyle gs = style();
     QSize sz = clientSize();
+    QFontMetrics fm( font() );
     int x=0, y, w, h;
-    switch ( gs ) {				// calculate coords
-	case MacStyle:
-	case WindowsStyle:
-	    w = h = 13;
-	    break;
-	case PMStyle:
-	    w = h = 16;
-	    break;
-	case MotifStyle:
-	    x = 1;
-	    w = h = 10;
-    }
+    getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;
 
 #define SAVE_CHECKBOX_PIXMAPS
@@ -73,9 +91,10 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QPixMap *pm = findPixmap( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
-	if ( text() ) {				// draw text extra
+	if ( label() ) {			// draw text extra
 	    p->pen().setColor( foregroundColor() );
-	    p->drawText( x+w+6, sz.height()/2+4, text() );
+	    p->drawText( x+w+6, sz.height()/2+fm.height()/2-fm.descent(),
+			 label() );
 	}
 	return;
     }
@@ -183,8 +202,8 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	w += wx;
     }
 #endif
-    if ( text() ) {				// draw check box text
+    if ( label() ) {				// draw check box text
 	p->pen().setColor( foregroundColor() );
-	p->drawText( w+x+6, sz.height()/2+4, text() );
+	p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(), label() );
     }
 }

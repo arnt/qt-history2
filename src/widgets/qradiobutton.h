@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#2 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#3 $
 **
 ** Definition of QRadioButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940222
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,11 +20,13 @@ class QRadioButton : public QButton
 {
     Q_OBJECT
 public:
-    QRadioButton( QView *parent=0, const char *label = 0 );
-    QRadioButton( QView *parent, const QRect &r, const char *label = 0 );
+    QRadioButton( QView *parent=0, const char *name=0 );
+    QRadioButton( const char *label, QView *parent=0, const char *name=0 );
 
     void    setChecked( bool check );
     bool    isChecked() const { return isOn(); }
+
+    void    resizeFitLabel();
 
 protected:
     bool    hitButton( const QPoint & ) const;
