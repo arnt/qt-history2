@@ -657,7 +657,20 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
             h = widget->height() - y;
         pm = QPixmap(w, h, 32);
         extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
-        const BitMap *windowPort = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(widget)));
+        const BitMap *windowPort = 0;
+        if(widget->isDesktop()) {
+	    GDHandle gdh;
+#if 0
+	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)
+		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
+#else
+	    if(!(gdh=GetMainDevice()))
+		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
+#endif
+	    windowPort = (BitMap*)(*(*gdh)->gdPMap);
+        } else {
+            windowPort = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(widget)));
+        }
         const BitMap *pixmapPort = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pm.handle()));
         Rect macSrcRect, macDstRect;
         SetRect(&macSrcRect, x, y, x + w, y + h);
