@@ -739,7 +739,7 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
 {
     dgl->makeCurrent();
     dgl->bindTexture(image);
-    drawTextureRect(image.width(), image.width(), r, sr);
+    drawTextureRect(image.width(), image.height(), r, sr);
 }
 
 void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr)
