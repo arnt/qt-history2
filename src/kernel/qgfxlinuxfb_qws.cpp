@@ -180,19 +180,9 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	pos&=~0x7;
 	entryp=((int *)pos);
 	lowest=((unsigned int *)pos)+1;
-	optype=&shared->optype;
-	lastop=&shared->lastop;
 	pos+=(sizeof(int))*2;
 	entries=(QPoolEntry *)pos;
-    } else {
-	optype = &shared->optype;
-	lastop = &shared->lastop;
     }
-
-#ifndef QT_NO_QWS_REPEATER
-    screen_optype=(int *)optype;
-    screen_lastop=(int *)lastop;
-#endif
 
     // Now read in palette
     if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
@@ -479,15 +469,10 @@ bool QLinuxFbScreen::initDevice()
 	entryp=((int *)pos);
 	lowest=((unsigned int *)pos)+1;
 	// These keep track of accelerator state
-	optype=&shared->optype;
-	lastop=&shared->lastop;
 	pos+=(sizeof(int))*2;
 	entries=(QPoolEntry *)pos;
 	*entryp=0;
 	*lowest=mapsize;
-    } else {
-	optype = &shared->optype;
-	lastop = &shared->lastop;
     }
 
     shared->fifocount=0;
@@ -498,11 +483,6 @@ bool QLinuxFbScreen::initDevice()
     shared->clipright=0xffffffff;
     shared->clipbottom=0xffffffff;
     shared->rop=0xffffffff;
-
-#ifndef QT_NO_QWS_REPEATER
-    screen_optype=(int *)optype;
-    screen_lastop=(int *)lastop;
-#endif
 
     *optype=0;
     *lastop=0;
@@ -826,6 +806,10 @@ int QLinuxFbScreen::sharedRamSize(void * end)
 {
     shared=(QLinuxFb_Shared *)end;
     shared--;
+    optype = &shared->optype;
+    lastop = &shared->lastop;
+    screen_optype = (int *)&shared->optype;
+    screen_lastop = (int *)&shared->optype;
     return sizeof(QLinuxFb_Shared);
 }
 
