@@ -1223,11 +1223,20 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     // contained in the internal .qmake.cache file
     t << varGlue("CONFIG", "qt_config=", " ", "") << endl << endl;
 
-    t << "Name: Qt" << endl;
+    QString name = project->first("QMAKE_PKGCONFIG_NAME");
+    if(name.isEmpty()) {
+        name = project->first("QMAKE_ORIG_TARGET").toLower();
+        name.replace(0, 1, name[0].toUpper());
+    }
+    t << "Name: " << name << endl;
     QString desc = project->first("QMAKE_PKGCONFIG_DESCRIPTION");
     if(desc.isEmpty()) {
-        desc = project->first("TARGET").toLower();
-        desc.replace(0, 1, desc[0].toUpper());
+        if(name.isEmpty()) {
+            desc = project->first("QMAKE_ORIG_TARGET").toLower();
+            desc.replace(0, 1, desc[0].toUpper());
+        } else {
+            desc = name;
+        }
         if(project->first("TEMPLATE") == "lib") {
             if(project->isActiveConfig("plugin"))
                desc += " Plugin";
