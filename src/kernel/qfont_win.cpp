@@ -178,7 +178,7 @@ void QFont::cleanup()
 	QFontPrivate::fontCache->clear();
     delete QFontPrivate::fontCache;
     QFontPrivate::fontCache = 0;
-    Q_ASSERT( shared_dc_font == 0 );
+    shared_dc_font = 0;
     DeleteDC( shared_dc );
     shared_dc = 0;
 #ifndef Q_OS_TEMP
