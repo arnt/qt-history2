@@ -1131,6 +1131,12 @@ void QWSServer::doClient( QWSClient *client )
 	    invokeQCopSend( (QWSQCopSendCommand*)cs->command, cs->client );
 	    break;
 #endif
+#ifndef QT_NO_QWS_REPEATER
+	case QWSCommand::RepaintRegion:
+	    invokeRepaintRegion((QWSRepaintRegionCommand*)cs->command,
+				cs->client);
+	    break;
+#endif
 	}
 	delete cs->command;
 	delete cs;
@@ -1187,6 +1193,14 @@ void QWSServer::refresh()
     exposeRegion( QRegion(0,0,swidth,sheight) );
     syncRegions();
 }
+
+#ifndef QT_NO_QWS_REPEATER
+void QWSServer::refresh(QRegion & r)
+{
+    exposeRegion(r);
+    syncRegions();
+}
+#endif
 
 /*!
   Sets the area of the screen \a r which Qt/Embedded applications will consider
@@ -1803,6 +1817,17 @@ void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
 }
 
 #endif
+
+#ifndef QT_NO_QWS_REPEATER
+void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
+				    QWSClient * client)
+{
+    QRegion r1;
+    r1.setRects(cmd->rectangles,cmd->simpleData.numrects);
+    refresh(r1);
+}
+#endif
+
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.

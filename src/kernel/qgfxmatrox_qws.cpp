@@ -73,6 +73,17 @@ inline void matrox_regw(volatile unsigned int regindex,unsigned long val)
     *((volatile unsigned long int *)(matrox_regbase+regindex))=val;
 }
 
+inline void matrox_regw8(volatile unsigned int regindex,unsigned char val)
+{
+    *((volatile unsigned char *)(matrox_regbase+regindex))=val;
+}
+
+inline void matrox_regwx(int index,unsigned char val)
+{
+    matrox_regw8(PALWTADD,index);
+    matrox_regw8(X_DATAREG,val);
+}
+
 // Older Matrox hardware has no hardware cursor; leave it for now
 
 template <const int depth, const int type>
@@ -84,6 +95,7 @@ public:
 
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
+    virtual void drawLine(int,int,int,int);
     virtual void sync();
 
 private:
@@ -107,7 +119,7 @@ inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
     int t=linestep();
     t=(t*8)/depth;
     matrox_regw(YTOP,r.top()*t);
-    matrox_regw(YBOT,r.bottom()*t);
+    matrox_regw(YBOT,(r.bottom())*t);
 }
 
 template<const int depth,const int type>
@@ -144,7 +156,7 @@ template<const int depth,const int type>
 inline bool QGfxMatrox<depth,type>::checkDest()
 {
     ulong buffer_offset;
-    if (!qt_screen->onCard(buffer,buffer_offset)) {
+    if (!gfx_screen->onCard(buffer,buffer_offset)) {
 	return FALSE;
     }
 
@@ -189,7 +201,7 @@ inline bool QGfxMatrox<depth,type>::checkSourceDest()
     if (srctype == SourcePen) {
 	src_buffer_offset = -1;
     } else {
-	if (!qt_screen->onCard(srcbits,src_buffer_offset)) {
+	if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
 	    return FALSE;
 	}
 	if(src_buffer_offset & 0x7) {
@@ -236,8 +248,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
-    (*optype)=1;
-    (*lastop)=LASTOP_RECT;
+    (*gfx_optype)=1;
+    (*gfx_lastop)=LASTOP_RECT;
 
     int loopc;
 
@@ -255,9 +267,16 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     checkDest();
 
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp2=qt_screen;
+    qt_screen=gfx_screen;
+#endif
     matrox_regw(FCOL,get_color(tmp.alloc()));
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp2;
+#endif
 
-    (*optype)=1;
+    (*gfx_optype)=1;
 
     // Last in 1d00-1dff range
 
@@ -287,6 +306,84 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     }
     GFX_END
     QWSDisplay::ungrab();
+}
+
+template<const int depth,const int type>
+void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
+{
+    if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine) {
+	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+	return;
+    }
+
+    QWSDisplay::grab( TRUE );
+
+    if(checkDest()) {
+
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_LINE;
+
+	x1+=xoffs;
+	y1+=yoffs;
+	x2+=xoffs;
+	y2+=yoffs;
+
+	int dx,dy;
+	dx=abs(x2-x1);
+	dy=abs(y2-y1);
+
+        GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+
+	QColor tmp=cpen.color();
+
+	QScreen * tmpscreen=qt_screen;
+	qt_screen=gfx_screen;
+	unsigned int tmp2=tmp.alloc();
+	qt_screen=tmpscreen;
+
+	int loopc;
+
+	int b=dy<dx ? dy : dx;   // min
+	int a=dy<dx ? dx : dy;   // max
+
+	unsigned int sgn=0;
+
+	if(dx>dy) {
+	    sgn |= 0x1;
+	}
+	if(x2<x1) {
+	    sgn |= 0x2;
+	}
+	if(y2<y1) {
+	    sgn |= 0x4;
+	}
+
+	for(loopc=0;loopc<ncliprect;loopc++) {
+	    do_scissors(cliprect[loopc]);
+	    matrox_regw(FCOL,tmp2);
+	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | DWG_REPLACE |
+			DWG_SOLID | DWG_SHIFTZERO | DWG_BFCOL);
+	    matrox_regw(AR0,b*2);
+	    matrox_regw(AR1,(b*2)-a-(y2-y1));
+	    matrox_regw(AR2,(b*2)-(a*2));
+	    matrox_regw(SGN,sgn);
+	    matrox_regw(XDST,x1);
+	    int p=y1;
+	    int t=linestep();
+	    t=(t*8)/depth;
+	    //t&=0x1f;
+	    p*=(t >> 5);
+	    matrox_regw(YDST,p);
+	    matrox_regw(LEN | EXEC,a);  // Vector length
+	}
+
+	GFX_END
+	QWSDisplay::ungrab();
+	return;
+    } else {
+	QWSDisplay::ungrab();
+	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+    }
 }
 
 template<const int depth,const int type>
@@ -321,8 +418,8 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 
     if(checkSourceDest()) {
 
-	(*optype)=1;
-	(*lastop)=LASTOP_BLT;
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_BLT;
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
@@ -337,24 +434,24 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	    xp2 -= mx;
 	    w += mx;
 	}
-	
+
 	QRect cursRect(xp, yp, w+1, h+1);
 
 	GFX_START(cursRect)
 
-	    
+
         bool rev = (yp > yp2) || ((yp == yp2) && (xp > xp2));
 	int dy = (yp > yp2) ? -1 : 1;
 	int dx = (xp > xp2) ? -1 : 1;
-	
+
 	int loopc = (dy<0) ? ncliprect-1 : 0;
-	
+
 	while ( loopc >=0 && loopc < ncliprect ) {
-	
+
 	    int ylevel = cliprect[loopc].y();
 	    if ( dx != dy ) {
 		// find other end of strip
-		while ( loopc >=0 && loopc < ncliprect 
+		while ( loopc >=0 && loopc < ncliprect
 			&& cliprect[loopc].y() == ylevel )
 		    loopc -= dx;
 		loopc += dx;
@@ -373,8 +470,8 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 
 		if ( !rev ) {
 		    matrox_regw(AR5,src_pixel_linestep);
-		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_SGNZERO |
-				DWG_BFCOL | DWG_REPLACE);
+		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO |
+				DWG_SGNZERO | DWG_BFCOL | DWG_REPLACE);
 		    tw--;
 		    start=yp2*src_pixel_linestep+xp2+src_pixel_offset;
 		    end=start+tw;
@@ -400,13 +497,13 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 		matrox_regw(LEN | EXEC,th);
 
 		loopc += dx;
-	    } while ( loopc >= 0 && loopc < ncliprect && 
+	    } while ( loopc >= 0 && loopc < ncliprect &&
 		      cliprect[loopc].y() == ylevel );
-	    
+
 	    //find next strip
 	    if ( dx != dy )
 		loopc = end_of_strip - dx;
-	    
+
 	}
 	QRect r(0,0,width,height);
 	do_scissors(r);
@@ -421,6 +518,34 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
     }
 }
 
+class QMatroxCursor : public QScreenCursor
+{
+public:
+    QMatroxCursor();
+    ~QMatroxCursor();
+
+    virtual void init(SWCursorData *,bool=FALSE);
+
+    virtual void set( const QImage &image, int hotx, int hoty );
+    virtual void move( int x, int y );
+    virtual void show();
+    virtual void hide();
+
+    virtual bool restoreUnder( const QRect &, QGfxRasterBase * = 0 )
+                { return FALSE; }
+    virtual void saveUnder() {}
+    virtual void drawCursor() {}
+    virtual void draw() {}
+    virtual bool supportsAlphaCursor() { return false; }
+
+    static bool enabled() { return false; }
+
+private:
+
+    int hotx;
+    int hoty;
+
+};
 
 class QMatroxScreen : public QLinuxFbScreen {
 
@@ -432,7 +557,7 @@ public:
     virtual bool initDevice();
     virtual void shutdownDevice();
     virtual bool useOffscreen() { return false; }
-
+    virtual int initCursor(void*, bool);
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
 
 protected:
@@ -461,6 +586,9 @@ bool QMatroxScreen::connect( const QString &spec )
     canaccel=false;
 
     const unsigned char* config = qt_probe_bus();
+
+    if(!config)
+	return false;
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x102b) {
@@ -504,7 +632,7 @@ bool QMatroxScreen::connect( const QString &spec )
 				      aperturefd,s);
 	if(membase==0 || membase==(unsigned char *)-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Failure to mmap /dev/mem, offset %d, %s",s,
+	    qDebug("Failure to mmap /dev/mem, offset %ld, %s",s,
 		   strerror(errno));
 #endif
 	    close(aperturefd);
@@ -556,11 +684,173 @@ QGfx * QMatroxScreen::createGfx(unsigned char * b,int w,int h,int d,
     return QLinuxFbScreen::createGfx(b,w,h,d,linestep);
 }
 
+int QMatroxScreen::initCursor(void* e, bool init)
+{
+#ifndef QT_NO_QWS_CURSOR
+    extern bool qws_sw_cursor;
+
+    if(qws_sw_cursor==true) {
+	return QLinuxFbScreen::initCursor(e,init);
+    }
+    qt_screencursor=new QMatroxCursor();
+    qt_screencursor->init(0,false);
+#endif
+    return 0;
+}
+
 extern bool qws_accel;
 
 extern "C" QScreen * qt_get_screen_matrox( int display_id )
 {
     return new QMatroxScreen( display_id );
+}
+
+QMatroxCursor::QMatroxCursor()
+{
+
+}
+
+QMatroxCursor::~QMatroxCursor()
+{
+    matrox_regwx(XCURCTL,0);
+}
+
+void QMatroxCursor::init(SWCursorData *,bool)
+{
+    myoffset=(qt_screen->width()*qt_screen->height()*qt_screen->depth())/8;
+    myoffset+=8;
+    fb_start=qt_screen->base();
+}
+
+int matrox_ngval(QRgb r)
+{
+    if(qAlpha(r)<255) {
+	return 0;        // Transparent
+    } else if(qBlue(r)>240) {
+        return 3;        // White
+    } else {
+        return 2;        // Black
+    }
+}
+
+void QMatroxCursor::set(const QImage& image,int hx,int hy)
+{
+    cursor=&image;
+    hotx=hx;
+    hoty=hy;
+
+    matrox_regwx(XCURCTL,0x3);  // X-style cursor
+
+    if(cursor->isNull()) {
+        qDebug("Null cursor image!");
+	abort();
+        return;
+    }
+
+    // 64-bit align it
+    unsigned int offset=myoffset;
+
+    while(offset & 0x7ff)
+	offset++;
+
+    int loopc,loopc2;
+
+    unsigned char * tmp;
+
+    //offset-=4;
+
+    // 3=white, 1=black?
+
+    unsigned long * tmp2;
+
+    tmp2=(unsigned long *)(fb_start+offset);
+
+    for(loopc=0;loopc<64;loopc++) {
+	for(loopc2=0;loopc2<4;loopc2++) {
+	    *(tmp2++)=0;
+	}
+    }
+
+    // Write the cursor data in the image into the weird format
+    // that Voodoo3 expects for cursors, which is some truly weird
+    // planar format (hence the two inner loops)
+    // We assume cursors are multiples of 8 pixels wide
+    for(loopc=0;loopc<cursor->height();loopc++) {
+	tmp=fb_start+offset+(loopc*16);
+	int count=1;
+        for(loopc2=0;loopc2<(cursor->width()/8);loopc2++) {
+            unsigned int v1,v2,v3,v4,v5,v6,v7,v8;
+            unsigned int pos=loopc2*8;
+            v8=matrox_ngval(cursor->pixel(pos,loopc)) & 1;
+            v7=matrox_ngval(cursor->pixel(pos+1,loopc)) & 1;
+            v6=matrox_ngval(cursor->pixel(pos+2,loopc)) & 1;
+            v5=matrox_ngval(cursor->pixel(pos+3,loopc)) & 1;
+            v4=matrox_ngval(cursor->pixel(pos+4,loopc)) & 1;
+            v3=matrox_ngval(cursor->pixel(pos+5,loopc)) & 1;
+            v2=matrox_ngval(cursor->pixel(pos+6,loopc)) & 1;
+            v1=matrox_ngval(cursor->pixel(pos+7,loopc)) & 1;
+            unsigned char put=(v8 << 7) | (v7 << 6) | (v6 << 5) |
+			      (v5 << 4) | (v4 << 3) | (v3 << 2) |
+			      (v2 << 1) | v1;
+            *(tmp+count)=put;
+	    count--;
+	    if(count==-1) {
+		count=1;
+		tmp+=2;
+	    }
+        }
+	tmp=fb_start+offset+(loopc*16)+8;
+	count=1;
+        for(loopc2=0;loopc2<(cursor->width()/8);loopc2++) {
+            unsigned int v1,v2,v3,v4,v5,v6,v7,v8;
+            unsigned int pos=loopc2*8;
+            v8=matrox_ngval(cursor->pixel(pos,loopc)) >> 1;
+            v7=matrox_ngval(cursor->pixel(pos+1,loopc)) >> 1;
+            v6=matrox_ngval(cursor->pixel(pos+2,loopc)) >> 1;
+            v5=matrox_ngval(cursor->pixel(pos+3,loopc)) >> 1;
+            v4=matrox_ngval(cursor->pixel(pos+4,loopc)) >> 1;
+            v3=matrox_ngval(cursor->pixel(pos+5,loopc)) >> 1;
+            v2=matrox_ngval(cursor->pixel(pos+6,loopc)) >> 1;
+            v1=matrox_ngval(cursor->pixel(pos+7,loopc)) >> 1;
+            unsigned char put=(v8 << 7) | (v7 << 6) | (v6 << 5) |
+			      (v5 << 4) | (v4 << 3) | (v3 << 2) |
+			      (v2 << 1) | v1;
+	    *(tmp+count)=put;
+	    count--;
+	    if(count==-1) {
+		count=1;
+		tmp+=2;
+	    }
+        }
+    }
+
+    matrox_regwx(XCURADDL,(offset >> 10) & 0xff);
+    matrox_regwx(XCURADDH,(offset >> 18) & 0xff);
+    matrox_regwx(XCURCOL0RED,0);
+    matrox_regwx(XCURCOL0GREEN,0);
+    matrox_regwx(XCURCOL0BLUE,0);
+    matrox_regwx(XCURCOL1RED,0xff);
+    matrox_regwx(XCURCOL1GREEN,0xff);
+    matrox_regwx(XCURCOL1BLUE,0xff);
+}
+
+void QMatroxCursor::hide()
+{
+    matrox_regwx(XCURCTL,0);
+}
+
+void QMatroxCursor::show()
+{
+    matrox_regwx(XCURCTL,0x3);
+}
+
+void QMatroxCursor::move(int x,int y)
+{
+    x-=hotx;
+    y-=hoty;
+    x+=cursor->width();
+    y+=64;
+    matrox_regw(CURPOS,(y << 16) | x);  // bottom left?
 }
 
 #endif // QT_NO_QWS_MATROX

@@ -229,6 +229,10 @@ public:
 
     // the following are internal.
     void refresh();
+#ifndef QT_NO_QWS_REPEATER
+    void refresh(QRegion &);
+#endif
+
     void enablePainting(bool);
     static void processEventQueue();
     static QList<QWSInternalWindowInfo> * windowList();
@@ -300,7 +304,10 @@ private:
     void invokeRegisterChannel( QWSQCopRegisterChannelCommand *cmd,
 				QWSClient *client );
     void invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client );
-
+#endif
+#ifndef QT_NO_QWS_REPEATER
+    void invokeRepaintRegion( QWSRepaintRegionCommand *cmd, 
+			      QWSClient *client );
 #endif
 
     QWSMouseHandler* newMouseHandler(const QString& spec);

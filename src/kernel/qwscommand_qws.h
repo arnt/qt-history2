@@ -112,6 +112,9 @@ struct QWSCommand : QWSProtocolItem
 	QCopRegisterChannel,
 	QCopSend,
 	RegionName
+#ifndef QT_NO_QWS_REPEATER
+	,RepaintRegion
+#endif
     };
     static QWSCommand *factory( int type );
 };
@@ -263,6 +266,27 @@ struct QWSSetPropertyCommand : public QWSCommand
 
     char *data;
 };
+
+#ifndef QT_NO_QWS_REPEATER
+struct QWSRepaintRegionCommand : public QWSCommand
+{
+    QWSRepaintRegionCommand() :
+	QWSCommand( QWSCommand::RepaintRegion, sizeof( simpleData ),
+		    (char*)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSCommand::setData( d, len, allocateMem );
+	rectangles = (QRect *)rawDataPtr;
+    }
+
+    struct SimpleData {
+	int numrects;
+    } simpleData;
+
+    QRect * rectangles;
+
+};
+#endif
 
 struct QWSRemovePropertyCommand : public QWSCommand
 {

@@ -127,7 +127,7 @@ public:
     virtual bool restoreUnder( const QRect &r, QGfxRasterBase *g = 0 );
     virtual void saveUnder();
     virtual void drawCursor();
-    void draw();
+    //void draw();
     virtual bool supportsAlphaCursor();
 
     static bool enabled() { return qt_sw_cursor; }
@@ -233,7 +233,17 @@ public:
 
     virtual void setDirty( const QRect& );
 
+#ifndef QT_NO_QWS_REPEATER
+    int * opType() { return screen_optype; }
+    int * lastOp() { return screen_lastop; }
+#endif
+
 protected:
+
+#ifndef QT_NO_QWS_REPEATER
+    int * screen_optype;
+    int * screen_lastop;
+#endif
 
     QRgb screenclut[256];
     int screencols;
@@ -337,6 +347,9 @@ public:
     // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
+#ifndef QT_NO_QWS_REPEATER
+    virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int)=0;
+#endif
     // This one is pen
     virtual void setSourcePen()=0;
 
@@ -373,11 +386,15 @@ public:
     virtual void restore()=0;
 
     virtual void setRop(RasterOp)=0;
+#ifndef QT_NO_QWS_REPEATER
+    virtual void setScreen(QScreen *,QScreenCursor *,bool,int *,int *) {} 
+#endif
 
     bool isScreenGfx() { return is_screen_gfx; } //for cursor..
 
 protected:
     bool is_screen_gfx;
+
 };
 
 

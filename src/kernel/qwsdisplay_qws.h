@@ -106,6 +106,9 @@ public:
     void registerChannel( const QCString& channel );
     void sendMessage(const QCString &channel, const QCString &msg,
 		       const QByteArray &data );
+#ifndef QT_NO_QWS_REPEATER
+    void repaintRegion(QRegion &);
+#endif
 
     QWSQCopMessageEvent* waitForQCopResponse();
 

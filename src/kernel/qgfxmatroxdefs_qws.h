@@ -44,6 +44,7 @@
 #define PLNWT 0x1c1c
 #define FXLEFT 0x1ca8
 #define FXRIGHT 0x1cac
+#define XDST 0x1cb0
 #define YDST 0x1c90
 #define LEN 0x1c5c
 #define DWGCTL 0x1c00
@@ -64,6 +65,7 @@
 #define DWG_REPLACE 0x000c0000
 
 #define DWG_TRAP 0x04
+#define DWG_LINE_CLOSE 0x02
 #define DWG_SOLID 0x0800
 #define DWG_ARZERO 0x1000
 #define DWG_SGNZERO 0x2000
@@ -74,3 +76,19 @@
 
 #define DWG_MODE (DWG_TRAP | DWG_SOLID | DWG_ARZERO | DWG_SGNZERO | DWG_SHIFTZERO | DWG_TRANSC | DWG_REPLACE)
 
+#define CURPOS 0x3c0c
+#define PALWTADD 0x3c00
+#define X_DATAREG 0x3c0a
+
+#define XCURCTL 0x6
+#define XCURADDL 0x4
+#define XCURADDH 0x5
+#define XCURCOL0RED 0x8
+#define XCURCOL0GREEN 0x9
+#define XCURCOL0BLUE 0xa
+#define XCURCOL1RED 0xc
+#define XCURCOL1GREEN 0xd
+#define XCURCOL1BLUE 0xe
+
+#define XYSTRT 0x1c40
+#define XYEND 0x1c44

@@ -117,7 +117,8 @@
 static int qt_thread_pipe[2];
 #endif
 
-const int qwsSharedRamSize = 32 * 1024;	//Small amount to fit on small devices.
+const int qwsSharedRamSize = 100 * 1024;
+                          //Small amount to fit on small devices.
 
 extern void qt_setMaxWindowRect(const QRect& r);
 
@@ -907,6 +908,17 @@ void QWSDisplay::setProperty( int winId, int property, int mode,
     d->sendCommand( cmd );
 }
 
+#ifndef QT_NO_QWS_REPEATER
+void QWSDisplay::repaintRegion(QRegion & r)
+{
+    QWSRepaintRegionCommand cmd;
+    cmd.simpleData.numrects=r.rects().count();
+    cmd.setData( (char *)r.rects().data(),
+		 r.rects().count() * sizeof(QRect), FALSE );
+    d->sendCommand( cmd );
+}
+#endif
+
 void QWSDisplay::removeProperty( int winId, int property )
 {
     QWSRemovePropertyCommand cmd;
@@ -1418,7 +1430,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	strncpy( p, strEnv.latin1(), strEnv.length() );
 	putenv( p );
 #endif
-	
+
     }
 
     if( qt_is_gui_used )

@@ -67,7 +67,7 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 	} else
 	    bytesRead = 1; // hack!
     }
-	
+
     if ( bytesRead ) {
 	if ( !rawLen )
 	    return TRUE;
@@ -197,6 +197,11 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::RegionName:
 	command = new QWSRegionNameCommand;
 	break;
+#ifndef QT_NO_QWS_REPEATER
+    case QWSCommand::RepaintRegion:
+	command = new QWSRepaintRegionCommand;
+	break;
+#endif
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
     }

@@ -42,9 +42,9 @@
 
 #include <qapplication.h>
 
-//#define DEBUG_INIT
+// #define DEBUG_INIT
 
-#ifndef __sparc__    
+#ifndef __sparc__
 #include <sys/io.h>
 #endif
 
@@ -52,6 +52,7 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxmach64defs_qws.h"
 
+bool no3d=false;
 
 // An integer, lastop, is stored in shared memory and is set to one
 // of these values. The reason for this is that if an accelerated
@@ -92,12 +93,16 @@ inline void regw(volatile unsigned int regindex,unsigned long val)
 // Write a 32-bit graphics card register to 3d engine register block
 inline void regw2(volatile unsigned int regindex,unsigned long val)
 {
+    if(no3d)
+	abort();
     *((volatile unsigned long int *)(regbase2+regindex))=val;
 }
 
 // Write a 32-bit floating point value to 3d engine register block
 inline void regwf2(volatile unsigned int regindex,float val)
 {
+    if(no3d)
+	abort();
     unsigned int writeval;
     *((float *)&writeval)=val;
     *((volatile unsigned long int *)(regbase2+regindex))=writeval;
@@ -106,6 +111,8 @@ inline void regwf2(volatile unsigned int regindex,float val)
 // Read a 32-bit value from 3d engine register block
 inline unsigned int regr2(volatile unsigned int regindex)
 {
+    if(no3d)
+	abort();
     unsigned long int val;
     val=*((volatile unsigned long *)(regbase2+regindex));
     return val;
@@ -156,38 +163,9 @@ inline void wait_for_fifo(short entries)
     }
 }
 
-// Reset the graphics engine
-inline void reset_engine()
-{
-    (*lastop)=LASTOP_RESET;
-    // We use wait_for_fifo(1)'s in case the fifo queue has bunged up
-    // for some reason; this is safer
-    wait_for_fifo(1);
-    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
-    wait_for_fifo(1);
-    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
-    wait_for_fifo(1);
-    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
-}
-
 // Wait for all FIFO entries to become free (so we know no commands are
 // going to be queued up) then wait for the currently executing graphics
 // command to finish. Used by sync()
-
-inline void wait_for_idle()
-{
-    wait_for_fifo(16);
-
-    int loopc;
-
-    for(loopc=0;loopc<1000000;loopc++) {
-	if(((regr(GUI_STAT) & 0x1)==0) && loopc>100)
-	    return;
-    }
-
-    qDebug("Wait for idle timeout!");
-    reset_engine();
-}
 
 template <const int depth, const int type>
 class QGfxMach64 : public QGfxRaster<depth,type> {
@@ -224,6 +202,33 @@ private:
 
 };
 
+inline void reset_engine()
+{
+    // We use wait_for_fifo(1)'s in case the fifo queue has bunged up
+    // for some reason; this is safer
+    wait_for_fifo(1);
+    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
+    wait_for_fifo(1);
+    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
+    wait_for_fifo(1);
+    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
+}
+
+inline void wait_for_idle()
+{
+    wait_for_fifo(16);
+
+    int loopc;
+
+    for(loopc=0;loopc<1000000;loopc++) {
+	if(((regr(GUI_STAT) & 0x1)==0) && loopc>100)
+	    return;
+    }
+
+    qDebug("Wait for idle timeout!");
+    reset_engine();
+}
+
 #define vgabase 0x1000
 
 template<const int depth,const int type>
@@ -233,7 +238,7 @@ QGfxMach64<depth,type>::QGfxMach64(unsigned char * a,int b,int c)
 }
 
 // Sets up the graphics engine hardware scissors - these cut off
-// hardware graphics operations that go outside their borders and 
+// hardware graphics operations that go outside their borders and
 // can be used to implement clipping
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::do_scissors(QRect & r)
@@ -312,7 +317,7 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
 	src_buffer_offset = -1;
 	return FALSE;
     } else {
-	if (!qt_screen->onCard(srcbits,src_buffer_offset)) {
+	if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
 	    return FALSE;
 	}
 	if(src_buffer_offset & 0x7) {
@@ -337,7 +342,7 @@ template<const int depth,const int type>
 inline bool QGfxMach64<depth,type>::checkDest()
 {
     ulong buffer_offset;
-    if (!qt_screen->onCard(buffer,buffer_offset)) {
+    if (!gfx_screen->onCard(buffer,buffer_offset)) {
 	return FALSE;
     }
     int pixelstep=(linestep()*8)/depth;
@@ -363,7 +368,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
     QWSDisplay::grab( TRUE );
-    if((*optype)!=1 || (*lastop)!=LASTOP_LINE) {
+    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
 	if(!checkDest()) {
 	    QWSDisplay::ungrab();
 	    QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
@@ -371,7 +376,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	}
 	// The scaler engine operates independently of the 2d engine
 	// so we need to wait for it to finish if it's doing something
-	if((*optype)>1)
+	if((*gfx_optype)>1)
 	    wait_for_idle();
 
 	// This is avoided if the last operation was a line
@@ -379,11 +384,11 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	regw(DP_SRC,0x00000100);
 	regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
 
-	(*lastop)=LASTOP_LINE;
+	(*gfx_lastop)=LASTOP_LINE;
     }
 
     // Note that the last operation used the 2d engine
-    (*optype)=1;
+    (*gfx_optype)=1;
 
     int loopc;
 
@@ -409,7 +414,18 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     wait_for_fifo(1);
-    regw(DP_FRGD_CLR,cpen.color().pixel());
+
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp=qt_screen;
+    qt_screen=gfx_screen;
+#endif
+    QColor c=cpen.color();
+    unsigned int tmpcol=c.alloc();
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp;
+#endif
+
+    regw(DP_FRGD_CLR,tmpcol);
 
     // Figure out distance between endpoints
     int dx,dy;
@@ -491,7 +507,7 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
-    if((*optype)!=1 || (*lastop)!=LASTOP_RECT) {
+    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_RECT) {
 	wait_for_fifo(7);
 
 	// probably not needed
@@ -506,12 +522,12 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
         regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
         regw(DST_CNTL,0x00000003);
 
-	(*lastop)=LASTOP_RECT;
+	(*gfx_lastop)=LASTOP_RECT;
     }
 
-    if((*optype)>1)
+    if((*gfx_optype)>1)
 	sync();
-    (*optype)=1;
+    (*gfx_optype)=1;
 
     int loopc;
 
@@ -527,7 +543,15 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     QColor tmp=cbrush.color();
     wait_for_fifo(1);
+
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp2=qt_screen;
+    qt_screen=gfx_screen;
+#endif
     regw(DP_FRGD_CLR,tmp.alloc());
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp2;
+#endif
 
     if(cbrush.style()!=NoBrush) {
 	int p=ncliprect;
@@ -660,8 +684,8 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 
 	if(srctype==SourceImage) {
 
-	    if((*optype)!=1 || (*lastop)!=LASTOP_BLT) {
-		(*lastop)=LASTOP_BLT;
+	    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLT) {
+		(*gfx_lastop)=LASTOP_BLT;
 		wait_for_fifo(8);
 		// Write to all bits of the pixel
 		regw(DP_WRITE_MASK,0xffffffff);
@@ -712,23 +736,30 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	} else {
 	    // This is used for drawing a solid colour with a mask -
 	    // used for brushes
-	    if((*optype)!=1 || (*lastop)!=LASTOP_BLTPEN) {
+	    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLTPEN) {
 		setPixWidth(depth,srcdepth,16,alphatype==LittleEndianMask);
 		QColor tmp=cpen.color();
 		wait_for_fifo(8);
 		regw(DP_WRITE_MASK,0xffffffff);
+#ifndef QT_NO_QWS_REPEATER
+		QScreen * tmp2=qt_screen;
+		qt_screen=gfx_screen;
+#endif
 		regw(DP_FRGD_CLR,tmp.alloc());
+#ifndef QT_NO_QWS_REPEATER
+		qt_screen=tmp2;
+#endif
 		regw(DP_MIX,0x00070003);
 		regw(DP_SRC,0x00030100);
 		regw(CLR_CMP_CNTL,0x00000000);
 		regw(SRC_CNTL,0x00000004);
 		regw(DST_CNTL,0x00000003);
 		regw(SRC_Y_X,0);
-		(*lastop)=LASTOP_BLTPEN;
+		(*gfx_lastop)=LASTOP_BLTPEN;
 	    }
 	}
 
-	(*optype)=1;
+	(*gfx_optype)=1;
 
 	int loopc;
 	for(loopc=0;loopc<ncliprect;loopc++) {
@@ -774,11 +805,11 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	return;
     }
 
-    (*lastop)=LASTOP_STRETCHBLT;
+    (*gfx_lastop)=LASTOP_STRETCHBLT;
 
-    if((*optype)!=2)
+    if((*gfx_optype)!=2)
 	wait_for_idle();
-    (*optype)=2;
+    (*gfx_optype)=2;
 
     int xp=xoffs+rx;
     int yp=yoffs+ry;
@@ -799,7 +830,7 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	// We need the offset from the start of video memory for a
 	// different register than SRC_BUFFER_OFFSET
 	unsigned long my_src_buffer_offset;
-	if (!qt_screen->onCard(srcbits,my_src_buffer_offset))
+	if (!gfx_screen->onCard(srcbits,my_src_buffer_offset))
 	    qFatal("checkSourceDest() lied!");
 
 	int srcpixelpitch=srclinestep;
@@ -945,7 +976,7 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     GFX_START(cursRect);
 
     if(srctype==SourceImage) {
-	if((*optype)!=1 || (*lastop)!=LASTOP_TILEDBLT) {
+	if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLT) {
 	    wait_for_fifo(4);
 	    regw(SRC_CNTL,0x00000003);
 	    regw(DP_WRITE_MASK,0xffffffff);
@@ -965,25 +996,32 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 		regw(DP_FRGD_CLR,srcclut[0]);
 		regw(DP_BKGD_CLR,srcclut[1]);
 	    }
-	    (*lastop)=LASTOP_TILEDBLT;
+	    (*gfx_lastop)=LASTOP_TILEDBLT;
 	}
     } else {
-	if((*optype)!=1 || (*lastop)!=LASTOP_TILEDBLTPEN) {
+	if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLTPEN) {
 	    setPixWidth(depth,1,1,alphatype==LittleEndianMask);
 	    wait_for_fifo(7);
 	    regw(SRC_CNTL,0x00000001);
 	    regw(DP_WRITE_MASK,0xffffffff);
 	    QColor tmp=cpen.color();
+#ifndef QT_NO_QWS_REPEATER	    
+	    QScreen * tmp2=qt_screen;
+	    qt_screen=gfx_screen;
+#endif	    
 	    regw(DP_FRGD_CLR,tmp.alloc());
+#ifndef QT_NO_QWS_REPEATER	    
+	    qt_screen=tmp2;
+#endif
 	    regw(DP_MIX,0x00070003);
 	    regw(DP_SRC,0x00030100);
 	    regw(CLR_CMP_CNTL,0x00000000);
 	    regw(DST_CNTL,0x00000003);
-	    (*lastop)=LASTOP_TILEDBLTPEN;
+	    (*gfx_lastop)=LASTOP_TILEDBLTPEN;
 	}
     }
 
-    (*optype)=1;
+    (*gfx_optype)=1;
 
     wait_for_fifo(4);
     regw(SC_LEFT,0);
@@ -1079,6 +1117,9 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	return;
     }
 
+    if(no3d)
+	return;
+
     QWSDisplay::grab( TRUE );;
     if(!checkSourceDest()) {
 	QWSDisplay::ungrab();
@@ -1087,8 +1128,8 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
     // Used the 3d/scaler pipeline, like stretchBlt
 
-    (*optype)=2;
-    (*lastop)=LASTOP_ALPHA;
+    (*gfx_optype)=2;
+    (*gfx_lastop)=LASTOP_ALPHA;
 
     int xx[4];
     int yy[4];
@@ -1239,7 +1280,7 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	     (logpitch << 24));
 
 	unsigned long foffset;
-	if (!qt_screen->onCard(srcbits,foffset))
+	if (!gfx_screen->onCard(srcbits,foffset))
 	    qFatal("checkSourceDest() lied!");
 
 	// These registers are used for mip-mapping on Mach64. We don't need
@@ -1399,7 +1440,12 @@ bool QMachScreen::connect( const QString &displaySpec )
     // May Happen
     const unsigned char* config = qt_probe_bus();
 
+    if(!config)
+	return false;
+
     unsigned short int * manufacturer=(unsigned short int *)config;
+    unsigned short int * device=(unsigned short int *)(config+2);
+
     if(*manufacturer!=0x1002) {
 	qDebug("This does not appear to be an ATI card");
 	qDebug("Are you sure QWS_CARD_SLOT is pointing to the right entry in "
@@ -1407,12 +1453,26 @@ bool QMachScreen::connect( const QString &displaySpec )
 	return FALSE;
     }
 
+    if(*device==0x5654) {
+	qDebug("Mach64 VT mapsize %x",mapsize);
+	regbase2=(unsigned char *)0xdeadbeef;
+	no3d=true;
+    } else {
+	qDebug("Device %d",*device);
+	no3d=false;
+    }
+
     // We expect the address pointer for the registers in config space
-    // (the 3rd address specified) to be a memory one, so we do a simple 
+    // (the 3rd address specified) to be a memory one, so we do a simple
     // sanity check
     const unsigned char * bar=config+0x10;
     const unsigned long int * addr=(const unsigned long int *)bar;
-    unsigned long int s=*(addr+2);  // Registers pointer 3
+    unsigned long int s;
+    if(no3d) {
+	s=*(addr);
+    } else {
+	s=*(addr+2);
+    }
     unsigned long int olds=s;
     if(s & 0x1) {
 #ifdef DEBUG_INIT
@@ -1440,22 +1500,29 @@ bool QMachScreen::connect( const QString &displaySpec )
 	    return FALSE;
 	}
 	s=(s >> 4) << 4;
+	if(no3d) {
+	    s+=(1024*1024*8)-4096;
+	}
 	// The registers block is 4k
-	membase=(unsigned char *)mmap(0,4096,PROT_READ |
+	membase=(unsigned char *)mmap(0,no3d ? 1024 : 4096,PROT_READ |
 				      PROT_WRITE,MAP_SHARED,
 				      aperturefd,s);
 	if(membase==0 || membase==(unsigned char *)-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Failure to mmap /dev/mem, offset %d, %s",s,
+	    qDebug("Failure to mmap /dev/mem, offset %lu %lx, %s",s,s,
 		   strerror(errno));
 #endif
 	    close(aperturefd);
 	    return FALSE;
 	}
-	// 2d engine block is the second 1k block
-	regbase=membase+1024;
-	// 3d engine block is the first 1k block
-	regbase2=membase;
+	if(no3d) {
+	    regbase=membase+(1024*3);
+	} else {
+	    // 2d engine block is the second 1k block
+	    regbase=membase+1024;
+	    // 3d engine block is the first 1k block
+	    regbase2=membase;
+	}
     }
 
     qDebug("Detected Mach64");
@@ -1479,14 +1546,22 @@ bool QMachScreen::initDevice()
 {
     // Disable register reading in main aperture - normally the last
     // few k of the main framebuffer space is a duplication of the register
-    // block - the accelerated Mach64 kernel framebuffer driver doesn't fix 
-    // this 
+    // block - the accelerated Mach64 kernel framebuffer driver doesn't fix
+    // this
     // Frees up 8k or so and is safer (if we scribble over the end of
     // our framebuffer area into this block then it won't be interpreted
     // as graphics commands)
     // Also enable register block 1 for the 3d engine
-    wait_for_fifo(1);
-    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
+
+    if(!no3d) {
+	wait_for_fifo(1);
+	qDebug("Buscntl %x",regr(BUS_CNTL));
+	regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
+    } else {
+	wait_for_fifo(1);
+	qDebug("No3d buscntl %x",regr(BUS_CNTL));
+	regw(BUS_CNTL,regr(BUS_CNTL) & ~0x08000001);
+    }
 
     // However, that doesn't always work, so make sure it isn't mapped
     // anyway

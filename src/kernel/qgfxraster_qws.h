@@ -101,6 +101,18 @@ public:
     int pixelHeight() const { return height; }
     virtual int bitDepth() = 0;
 
+#ifndef QT_NO_QWS_REPEATER
+    virtual void setScreen(QScreen * t,QScreenCursor * c,bool swc,int * ot,
+			   int * lo) {
+	gfx_screen=t;
+	gfx_screencursor=c;
+	gfx_swcursor=swc;
+	gfx_lastop=lo;
+	gfx_optype=ot;
+	setClut(gfx_screen->clut(),gfx_screen->numCols());
+    }
+#endif
+
     void save();
     void restore();
 
@@ -131,8 +143,7 @@ protected:
     bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=FALSE);
 
     virtual void setSourceWidgetOffset( int x, int y );
-    void useBrush();
-    void usePen();
+
     virtual void setSourcePen();
     unsigned char *scanLine(int i) { return buffer+(i*lstep); }
     unsigned char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
@@ -154,6 +165,12 @@ protected:
 			   bool reverse=FALSE);
 
 protected:
+    QScreen * gfx_screen;
+    QScreenCursor * gfx_screencursor;
+    bool gfx_swcursor;
+    volatile int * gfx_lastop;
+    volatile int * gfx_optype;
+
     SourceType srctype;
     PixelType srcpixeltype;
     unsigned char * srcbits;
@@ -245,6 +262,9 @@ public:
     QGfxRaster(unsigned char *,int w,int h);
     ~QGfxRaster();
 
+    void useBrush();
+    void usePen();
+
     virtual void drawPoint( int,int );
     virtual void drawPoints( const QPointArray &,int,int );
     virtual void drawLine( int,int,int,int );
@@ -262,6 +282,9 @@ public:
 
     virtual void setSource(const QImage *);
     virtual void setSource(const QPaintDevice *);
+#ifndef QT_NO_QWS_REPEATER
+    virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int);
+#endif
 
 protected:
 

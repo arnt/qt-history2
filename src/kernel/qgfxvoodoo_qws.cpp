@@ -126,25 +126,31 @@ private:
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::do_scissors(QRect & r)
 {
+    // Voodoo clipping includes minimum values but excludes maximum values
+
     voodoo_wait_for_fifo(2);
     voodoo_regw(CLIP0MIN,(r.top()) << 16 | r.left());
-    voodoo_regw(CLIP0MAX,(r.bottom()+1) << 16 | (r.right()+1));
+    voodoo_regw(CLIP0MAX,(r.bottom()) << 16 | (r.right()));
 }
 
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::sync()
 {
     // NOP to avoid documented deadlock
-    (*lastop)=LASTOP_SYNC;
+    (*gfx_lastop)=LASTOP_SYNC;
     voodoo_regw(COMMAND,0x100);
+
+    // Need a slight pause - possibly to let the operation actually kick
+    // off?
+
+    usleep(100);
 
     // Now wait until we're told graphics engine is idle
     int loopc;
     for(loopc=0;loopc<1000;loopc++) {
         unsigned int stat=voodoo_regr(VOODOOSTATUS);
-	if((!(stat & 0x300)) && loopc>3) {
+	if((stat & ~0x40)==0x1f)
 	    return;
-	}
     }
     qDebug("Idle timeout!");
 }
@@ -174,7 +180,7 @@ template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkDest()
 {
     ulong buffer_offset;
-    if (!qt_screen->onCard(buffer,buffer_offset)) {
+    if (!gfx_screen->onCard(buffer,buffer_offset)) {
 	return FALSE;
     }
 
@@ -200,7 +206,7 @@ inline bool QGfxVoodoo<depth,type>::checkSourceDest()
     if (srctype == SourcePen) {
 	src_buffer_offset = -1;
     } else {
-	if (!qt_screen->onCard(srcbits,src_buffer_offset)) {
+	if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
 	    return FALSE;
 	}
 	if(src_buffer_offset & 0x7) {
@@ -244,7 +250,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
     QWSDisplay::grab( TRUE );
-    if(!checkDest()) {
+    if(!checkDest() || true) {
 	QWSDisplay::ungrab();
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
@@ -269,7 +275,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     int x3,y3,x4,y4;
 
-    if((*lastop)!=LASTOP_RECT) {
+    if((*gfx_lastop)!=LASTOP_RECT) {
 	voodoo_wait_for_fifo(2);
 	voodoo_regw(SRCFORMAT,3 << 16);
 	// With the Voodoo 3 you write the command code into COMMAND
@@ -278,8 +284,18 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 	voodoo_regw(COMMAND,0x5 | (0xcc << 24));
     }
 
-    (*optype)=1;
-    (*lastop)=LASTOP_RECT;
+    (*gfx_optype)=1;
+    (*gfx_lastop)=LASTOP_RECT;
+    
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp=qt_screen;
+    qt_screen=gfx_screen;
+#endif
+    QColor c=cbrush.color();
+    srccol=c.alloc();
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp;
+#endif
 
     voodoo_wait_for_fifo(1);
     voodoo_regw(COLORFORE,srccol);
@@ -356,8 +372,8 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 
     if(checkSourceDest()) {
 
-	(*optype)=1;
-	(*lastop)=LASTOP_BLT;
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_BLT;
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
@@ -375,57 +391,90 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	// important for getting the right results with an overlapping
 	// blt
 
+	voodoo_wait_for_fifo(1);
+	voodoo_regw(COMMANDEXTRA,0x4);
+
+	int mx = QMIN(xp,xp2);
+	if ( mx < 0 ) {
+	    xp -= mx;
+	    xp2 -= mx;
+	    w += mx;
+	}
+
+	bool down, right;
+
 	if(yp>yp2) {
 	    // Down, reverse
+	    down=true;
 	    if(xp>xp2) {
 		// Right, reverse
-		xp+=(w-1);
-		xp2+=(w-1);
-		yp+=(h-1);
-		yp2+=(h-1);
+		right=true;
 		dirmask|=0x4000 | 0x8000;
 	    } else {
 		// Left, normal
-		yp+=(h-1);
-		yp2+=(h-1);
+		right=false;
 		dirmask|=0x8000;
 	    }
 	} else {
 	    // Up, normal
 	    // Down, reverse
+	    down=false;
 	    if(xp>xp2) {
 		// Right, reverse
-		xp+=(w-1);
-		xp2+=(w-1);
 		dirmask|=0x4000;
+		right=true;
 	    } else {
 		// Left, normal
+		right=false;
 	    }
 	}
 
-	// Wait for vsync if screen-to-screen blt (to smooth
-	// window movement)
-	if(srcbits==buffer)
-	    voodoo_regw(COMMANDEXTRA,0x4);
+	int loopc=down ? ncliprect-1 : 0;
 
-	voodoo_wait_for_fifo(4);
-	voodoo_regw(COMMAND,0x1 | (0x1cc << 24) | dirmask);
-	voodoo_regw(SRCSIZE,w | (h << 16));
-	voodoo_regw(DSTSIZE,w | (h << 16));
-	voodoo_regw(DSTXY,xp | (yp << 16));
+	while ( loopc >=0 && loopc < ncliprect ) {
 
-	int loopc;
-	for(loopc=0;loopc<ncliprect;loopc++) {
-	    do_scissors(cliprect[loopc]);
-	    voodoo_wait_for_fifo(1);
-	    voodoo_regw(LAUNCHAREA,xp2 | (yp2 << 16));
+	    QRect r1(cliprect[loopc]);
+	    QRect r2(xp,yp,w,h);
+	    r2=r2.intersect(r1);
+	    int ww=r2.width();
+	    int hh=r2.height();
+	    int xp3=r2.left();
+	    int yp3=r2.top();
+	    int dx=r2.left()-xp;
+	    int dy=r2.top()-yp;
+	    int xp4=xp2+dx;
+	    int yp4=yp2+dy;
+
+
+	    if(ww>0 && hh>0) {
+
+		if(right) {
+		    xp3+=(ww-1);
+		    xp4+=(ww-1);
+		}
+		if(down) {
+		    yp3+=(hh-1);
+		    yp4+=(hh-1);
+		}
+
+		voodoo_wait_for_fifo(4);
+		voodoo_regw(SRCXY,xp4 | (yp4 << 16));
+		voodoo_regw(DSTSIZE,ww | (hh << 16));
+		voodoo_regw(DSTXY,xp3 | (yp3 << 16));
+		voodoo_regw(COMMAND,0x1 | (0x1cc << 24) | dirmask | 0x100);
+	    }
+	    if(down) {
+		loopc--;
+	    } else {
+		loopc++;
+	    }
 	}
-	voodoo_wait_for_fifo(5);
-	voodoo_regw(CLIP0MIN,0);
-	voodoo_regw(CLIP0MAX,(height << 16) | width);
-	voodoo_regw(CLIP0MIN,0);
-	voodoo_regw(CLIP0MAX,(height << 16) | width);
-	voodoo_regw(COMMANDEXTRA,0);
+
+	voodoo_wait_for_fifo(1);
+	voodoo_regw(COMMANDEXTRA,0x0);
+
+	QRect r(0,0,width,height);
+	do_scissors(r);
 
 	GFX_END
 	QWSDisplay::ungrab();
@@ -449,7 +498,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     // is guaranteed to be performed in that order; on Mach64 without a
     // sync() before the second blt the stretchBlt and second blt might overlap
     // and both write to the same area simultaneously
- 
+
     if(ncliprect)
 	return;
 
@@ -472,8 +521,8 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 
     if(checkSourceDest()) {
 
-	(*optype)=1;
-	(*lastop)=LASTOP_STRETCHBLT;
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_STRETCHBLT;
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
@@ -515,15 +564,18 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-    if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine)
+    if(ncliprect<1 || myrop!=CopyROP || cpen.style()!=SolidLine
+       || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || true) {
+	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
 	return;
+    }
 
     QWSDisplay::grab( TRUE );
 
     if(checkDest()) {
 
-	(*optype)=1;
-	(*lastop)=LASTOP_LINE;
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_LINE;
 
 	x1+=xoffs;
 	y1+=yoffs;
@@ -540,8 +592,16 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
         GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
 	QColor tmp=cpen.color();
-	unsigned int tmp2=tmp.alloc();
 
+#ifndef QT_NO_QWS_REPEATER
+	QScreen * tmpscreen=qt_screen;
+	qt_screen=gfx_screen;
+#endif
+	unsigned int tmp2=tmp.alloc();
+#ifndef QT_NO_QWS_REPEATER	
+	qt_screen=tmpscreen;
+#endif
+	
 	int loopc;
 
 	voodoo_wait_for_fifo(2);
@@ -640,6 +700,9 @@ bool QVoodooScreen::connect( const QString &spec )
     // May Happen
     const unsigned char* config = qt_probe_bus();
 
+    if(!config)
+	return false;
+
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x121a) {
 	qDebug("This does not appear to be a 3Dfx card");
@@ -651,7 +714,7 @@ bool QVoodooScreen::connect( const QString &spec )
     const unsigned char * bar=config+0x10;
     const unsigned long int * addr=(const unsigned long int *)bar;
     // We expect the address pointer for the registers in config space
-    // (the 1st address specified) to be a memory one, so we do a simple 
+    // (the 1st address specified) to be a memory one, so we do a simple
     // sanity check
     unsigned long int s=*(addr+0); // First registers pointer
     unsigned long int olds=s;
@@ -689,7 +752,7 @@ bool QVoodooScreen::connect( const QString &spec )
 				      aperturefd,s);
 	if(membase==0 || membase==(unsigned char *)-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Failure to mmap /dev/mem, offset %d, %s",s,
+	    qDebug("Failure to mmap /dev/mem, offset %ld, %s",s,
 		   strerror(errno));
 #endif
 	    close(aperturefd);
@@ -720,9 +783,10 @@ bool QVoodooScreen::initDevice()
 {
     QLinuxFbScreen::initDevice();
 
-    voodoo_wait_for_fifo(2);
+    voodoo_wait_for_fifo(3);
     voodoo_regw(LINESTIPPLE,0xffffffff);
     voodoo_regw(LINESTYLE,0);
+    voodoo_regw(COMMANDEXTRA,0);
 
     return true;
 }
@@ -798,9 +862,9 @@ int voodoo_ngval(QRgb r)
     if(qAlpha(r)<255) {
 	return 1;        // Transparent
     } else if(qBlue(r)>240) {
-        return 2;        // White
+        return 0;        // White
     } else {
-        return 0;        // Black
+        return 2;        // Black
     }
 }
 
@@ -816,11 +880,10 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
         return;
     }
 
-    // 64-bit align it
+    // 1k-align it
     unsigned int offset=myoffset;
-    if(offset & 0xf) {
-	offset=(offset+16) & (!0xf);
-    }
+    while(offset & 0x40)
+	offset++;
 
     int loopc,loopc2;
 

@@ -193,6 +193,11 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	lastop = &dummy_lastop;
     }
 
+#ifndef QT_NO_QWS_REPEATER
+    screen_optype=(int *)optype;
+    screen_lastop=(int *)lastop;
+#endif
+    
     // Now read in palette
     if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
 	screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
@@ -235,7 +240,7 @@ void QLinuxFbScreen::disconnect()
     close(fd);
 }
 
-//#define DEBUG_VINFO
+// #define DEBUG_VINFO
 
 static void writeTerm(const char* termctl, int sizeof_termctl)
 {
@@ -491,6 +496,11 @@ bool QLinuxFbScreen::initDevice()
 	lastop = &dummy_lastop;
     }
 
+#ifndef QT_NO_QWS_REPEATER
+    screen_optype=(int *)optype;
+    screen_lastop=(int *)lastop;
+#endif
+    
     *optype=0;
     *lastop=0;
 

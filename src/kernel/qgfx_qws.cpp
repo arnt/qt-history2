@@ -338,7 +338,10 @@ QScreen * qt_probe_bus()
 
 #else
 
-const char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
+#ifdef QT_NO_QWS_REPEATER
+const
+#endif
+char * qt_qws_hardcoded_slot="/proc/bus/pci/01/00.0";
 
 const unsigned char* qt_probe_bus()
 {
@@ -350,14 +353,17 @@ const unsigned char* qt_probe_bus()
 	static unsigned char config[256];
 	FILE * f=fopen(slot,"r");
 	if(!f) {
+	    qDebug("Open failure for %s",slot);
 	    slot=0;
 	} else {
 	    int r=fread((char*)config,256,1,f);
 	    fclose(f);
-	    if(r<1)
+	    if(r<1) {
+		qDebug("Read failure");
 		return 0;
-	    else
+	    } else {
 		return config;
+	    }
 	}
     }
     return 0;

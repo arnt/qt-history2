@@ -129,16 +129,16 @@ struct SWCursorData {
 
 #ifndef QT_NO_QWS_CURSOR
 # define GFX_START(r) bool swc_do_save=FALSE; \
-		     if(is_screen_gfx && qt_sw_cursor) { \
-                        if((*optype)) sync(); \
-			swc_do_save = qt_screencursor->restoreUnder(r,this); \
+		     if(is_screen_gfx && gfx_swcursor) { \
+                        if((*gfx_optype)) sync(); \
+			swc_do_save = gfx_screencursor->restoreUnder(r,this); \
 			beginDraw(); \
 		     }
-# define GFX_END if(is_screen_gfx && qt_sw_cursor) { \
-                    if((*optype)) sync(); \
+# define GFX_END if(is_screen_gfx && gfx_swcursor) { \
+                    if((*gfx_optype)) sync(); \
 		    endDraw(); \
 		    if(swc_do_save) \
-			qt_screencursor->saveUnder(); \
+			gfx_screencursor->saveUnder(); \
 		}
 #else //QT_NO_QWS_CURSOR
 
@@ -154,7 +154,7 @@ struct SWCursorData {
 //
 #ifndef QT_NO_QWS_VGA_16
 # define QT_NEED_SIMPLE_ALLOC
-# define GFX_8BPP_PIXEL(r,g,b) qt_screen->alloc(r,g,b)
+# define GFX_8BPP_PIXEL(r,g,b) gfx_screen->alloc(r,g,b)
 #else
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 # define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
@@ -404,14 +404,17 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 {
     int depth = gfx->bitDepth();
 
-    if (!data || !data->enable)
+    if (!data || !data->enable) {
 	return FALSE;
+    }
 
-    if (!r.intersects(data->bound))
+    if (!r.intersects(data->bound)) {
 	return FALSE;
+    }
 
-    if ( g && !g->is_screen_gfx )
+    if ( g && !g->is_screen_gfx ) {
 	return FALSE;
+    }
 
     if (!save_under) {
 	QWSDisplay::grab( TRUE );
@@ -476,7 +479,7 @@ void QScreenCursor::saveUnder()
     int y = data->y - data->hoty;
 
     if ( depth < 8 ) {
-	qt_sw_cursor = FALSE;   // prevent recursive call from blt
+        qt_sw_cursor = FALSE;   // prevent recursive call from blt
 	gfxunder->setAlphaType(QGfx::IgnoreAlpha);
 	gfxunder->setSource( qApp->desktop() );
 	gfxunder->blt(0,0,data->width,data->height,x,y);
@@ -825,6 +828,9 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     if(((unsigned long)b) & 0x3) {
 	qDebug("QGfx buffer unaligned: %lx",(unsigned long)b);
     }
+
+    gfx_screen=qt_screen;
+    gfx_screencursor=qt_screencursor;
     srcpixeltype = pixeltype = NormalPixel;
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
@@ -854,6 +860,9 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     globalRegionRevision = 0;
     src_normal_palette=FALSE;
     clutcols = 0;
+    gfx_swcursor=qt_sw_cursor;
+    gfx_lastop=lastop;
+    gfx_optype=optype;
     update_clip();
     myrop=CopyROP;
     stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
@@ -861,7 +870,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     src_little_endian=TRUE;
 #if !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_8GRAYSCALE)
     // default color map
-    setClut( qt_screen->clut(), qt_screen->numCols() );
+    setClut( gfx_screen->clut(), gfx_screen->numCols() );
 #endif
 }
 
@@ -872,6 +881,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 
 QGfxRasterBase::~QGfxRasterBase()
 {
+    sync();
     delete [] dashes;
     delete [] cliprect;
 }
@@ -903,7 +913,7 @@ void QGfxRasterBase::endTransaction(void* data)
 
 void QGfxRasterBase::sync()
 {
-    (*optype)=0;
+    (*gfx_optype)=0;
 }
 
 /*!
@@ -1096,9 +1106,9 @@ void QGfxRasterBase::setDashes(char *dashList, int n)
 void QGfxRasterBase::fixClip()
 {
     currentRegionRevision = *globalRegionRevision;
-    QSize s = qt_screen->mapToDevice(QSize(qt_screen->width(), qt_screen->height()) );
+    QSize s = gfx_screen->mapToDevice(QSize(gfx_screen->width(), gfx_screen->height()) );
     QRegion rgn = qt_fbdpy->regionManager()->region( globalRegionIndex );
-    rgn = qt_screen->mapFromDevice( rgn, s );
+    rgn = gfx_screen->mapFromDevice( rgn, s );
     widgetrgn &= rgn;
     update_clip();
 }
@@ -1141,10 +1151,10 @@ void QGfxRasterBase::update_clip()
 		ncliprect = 0;
 		clipbounds = QRect();
 	    } else {
-		QRect trgn = qt_screen->mapToDevice( setrgn, QSize( width, height ) );
+		QRect trgn = gfx_screen->mapToDevice( setrgn, QSize( width, height ) );
 
 		// cache bounding rect
-		QRect sr( QPoint(0,0), qt_screen->mapToDevice( QSize(width, height) ) );
+		QRect sr( QPoint(0,0), gfx_screen->mapToDevice( QSize(width, height) ) );
 		clipbounds = sr.intersect(trgn);
 
 		// Convert to simple array for speed
@@ -1164,10 +1174,10 @@ void QGfxRasterBase::update_clip()
 	    setrgn=widgetrgn;
 	}
 
-	QRegion trgn = qt_screen->mapToDevice( setrgn, QSize( width, height ) );
+	QRegion trgn = gfx_screen->mapToDevice( setrgn, QSize( width, height ) );
 
 	// cache bounding rect
-	QRect sr( QPoint(0,0), qt_screen->mapToDevice( QSize(width, height) ) );
+	QRect sr( QPoint(0,0), gfx_screen->mapToDevice( QSize(width, height) ) );
 	clipbounds = sr.intersect(trgn.boundingRect());
 
 	// Convert to simple array for speed
@@ -1614,26 +1624,6 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 }
 
 /*!
-This takes the currently-set brush and stores its color value in the
-variable pixel for drawing points, lines and rectangles.
-*/
-
-inline void QGfxRasterBase::useBrush()
-{
-    pixel = cbrush.color().pixel();
-}
-
-/*!
-This takes the currently-set pen and stores its color value in the
-variable pixel for drawing points, lines and rectangles.
-*/
-
-inline void QGfxRasterBase::usePen()
-{
-    pixel = cpen.color().pixel();
-}
-
-/*!
 This corresponds to QPainter::setBrush, and sets the gfx's brush to \a
 b.
 */
@@ -1646,7 +1636,15 @@ void QGfxRasterBase::setBrush( const QBrush & b )
     } else {
 	patternedbrush=FALSE;
     }
-    srccol=b.color().pixel();
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp=qt_screen;
+    qt_screen=gfx_screen;
+#endif
+    QColor tmpcol=b.color();
+    srccol=tmpcol.alloc();
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp;
+#endif
 }
 
 /*!
@@ -1673,7 +1671,15 @@ the glyphs.
 
 void QGfxRasterBase::setSourcePen()
 {
-    srccol = cpen.color().pixel();
+#ifndef QT_NO_QWS_REPEATER
+    QScreen * tmp=qt_screen;
+    qt_screen=gfx_screen;
+#endif
+    QColor tmpcol=cpen.color();
+    srccol = tmpcol.alloc();
+#ifndef QT_NO_QWS_REPEATER
+    qt_screen=tmp;
+#endif
     src_normal_palette=TRUE;
     srctype=SourcePen;
     setSourceWidgetOffset( 0, 0 );
@@ -1934,6 +1940,20 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	simple_8bpp_alloc=FALSE;
 #endif
 	(*srcdata)+=4;
+    } else if(sdepth==16) {
+	unsigned int r,g,b;
+	unsigned int hold=*((unsigned int *)(*srcdata));
+	r=((hold & (0x1f << 11)) >> 11) << 3;
+	g=((hold & (0x3f << 5)) >> 5) << 2;
+	b=(hold & 0x1f) << 3;
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=TRUE;
+#endif
+	ret = GFX_8BPP_PIXEL(r,g,b);
+#ifdef QT_NEED_SIMPLE_ALLOC
+	simple_8bpp_alloc=FALSE;
+#endif
+	(*srcdata)+=2;
     } else if ( sdepth == 4 ) {
 	ret = monobitval & 0x0f;
 	if ( !monobitcount ) {
@@ -2367,7 +2387,7 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
     srcbits=i->scanLine(0);
     src_little_endian=(i->bitOrder()==QImage::LittleEndian);
     setSourceWidgetOffset( 0, 0 );
-    QSize s = qt_screen->mapToDevice( QSize(i->width(), i->height()) );
+    QSize s = gfx_screen->mapToDevice( QSize(i->width(), i->height()) );
     srcwidth=s.width();
     srcheight=s.height();
     src_normal_palette=FALSE;
@@ -2376,6 +2396,28 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
     else  if(srcdepth<=8)
 	buildSourceClut(i->colorTable(),i->numColors());
 }
+
+#ifndef QT_NO_QWS_REPEATER
+template <const int depth, const int type>
+void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
+				       int d,QRgb * clut,int numcols)
+{
+    srctype=SourceImage;
+    srcpixeltype=NormalPixel;
+    srclinestep=l;
+    srcdepth=d;
+    srcbits=c;
+    src_little_endian=true;
+    setSourceWidgetOffset(0,0);
+    srcwidth=w;
+    srcheight=h;
+    src_normal_palette=FALSE;
+    if ( srcdepth == 1 )
+	buildSourceClut( 0, 0 );
+    else  if(srcdepth<=8)
+	buildSourceClut(clut,numcols);
+}
+#endif
 
 /*!
 \fn void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
@@ -2414,7 +2456,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	    int r = qRed(srcclut[loopc]);
 	    int g = qGreen(srcclut[loopc]);
 	    int b = qBlue(srcclut[loopc]);
-	    transclut[loopc] = qt_screen->alloc(r,g,b);
+	    transclut[loopc] = gfx_screen->alloc(r,g,b);
 	}
     }
 }
@@ -2513,9 +2555,9 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
     x += xoffs;
     y += yoffs;
     if (inClip(x,y)) {
-	if((*optype))
+	if((*gfx_optype))
 	    sync();
-	(*optype)=0;
+	(*gfx_optype)=0;
 	usePen();
     GFX_START(QRect(x,y,2,2))
 	drawPointUnclipped( x, scanLine(y) );
@@ -2537,7 +2579,7 @@ void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int 
     usePen();
     QRect cr;
     bool in = FALSE;
-    bool foundone=( ((*optype)==0) ? TRUE : FALSE );
+    bool foundone=( ((*gfx_optype)==0) ? TRUE : FALSE );
 
     GFX_START(clipbounds);
     while (npoints--) {
@@ -2549,7 +2591,7 @@ void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int 
 	if ( in ) {
 	    if(foundone==FALSE) {
 		sync();
-		(*optype)=0;
+		(*gfx_optype)=0;
 		foundone=TRUE;
 	    }
 	    drawPointUnclipped( x, scanLine(y) );
@@ -2575,9 +2617,9 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	return;
     }
 
-    if((*optype))
+    if((*gfx_optype))
 	sync();
-    (*optype)=0;
+    (*gfx_optype)=0;
     usePen();
     x1+=xoffs;
     y1+=yoffs;
@@ -2962,10 +3004,10 @@ void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int in
 	cpen.width(), cpen.joinStyle(), close );
 
     usePen();
-    if((*optype)!=0) {
+    if((*gfx_optype)!=0) {
 	sync();
     }
-    (*optype)=0;
+    (*gfx_optype)=0;
     GFX_START(clipbounds)
     scan(pa, TRUE, 0, pa.count(), FALSE);
     GFX_END
@@ -3036,6 +3078,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	    myptr+=x1;
 
 	    PackType put;
+	    
 # ifdef QWS_PACKING_4BYTE
 	    put = pixel | ( pixel << 16 );
 # else
@@ -3300,8 +3343,9 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    PackType dput;
+	   
 # ifndef QWS_PACKING_4BYTE
+	    PackType dput;
 	    unsigned short int * fun;
 	    fun=(unsigned short int *)&dput;
 # endif
@@ -3360,8 +3404,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    PackType dput;
 # ifndef QWS_PACKING_4BYTE
+	    PackType dput;
 	    unsigned char *fun = (unsigned char *)&dput;
 # endif
 	    while ( frontadd-- )
@@ -3821,10 +3865,13 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	while ( w-- )
 	    *(myptr++) = *(alphaptr++);
 #else
+       
+# ifdef QWS_PACKING_4BYTE
 	PackType put;
-# ifndef QWS_PACKING_4BYTE
-	//unsigned short int *fun = (unsigned short int*)&put;
 # endif
+	
+	//unsigned short int *fun = (unsigned short int*)&put;
+	
 	myptr=(unsigned short int *)l;
 
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
@@ -4004,20 +4051,20 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	if ( x1&1 ) {
 	    QRgb rgb = alphabuf[loopc++];
 	    *myptr++ = (*myptr & 0x0f) |
-		(qt_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) << 4);
+		(gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) << 4);
 	}
 
         for ( ;loopc < w-1; loopc += 2 ) {
 	    QRgb rgb1 = alphabuf[loopc];
 	    QRgb rgb2 = alphabuf[loopc+1];
-	    *myptr++ = qt_screen->alloc( qRed(rgb1), qGreen(rgb1), qBlue(rgb1) ) |
-		(qt_screen->alloc( qRed(rgb2), qGreen(rgb2), qBlue(rgb2) ) << 4);
+	    *myptr++ = gfx_screen->alloc( qRed(rgb1), qGreen(rgb1), qBlue(rgb1) ) |
+		(gfx_screen->alloc( qRed(rgb2), qGreen(rgb2), qBlue(rgb2) ) << 4);
 	}
 
 	if ( !(x2&1) ) {
 	    QRgb rgb = alphabuf[w-1];
 	    *myptr = (*myptr & 0xf0) |
-		qt_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) );
+		gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) );
 	}
 
     } else if ( depth == 1 ) {
@@ -4050,9 +4097,9 @@ Draw a filled rectangle in the current brush colour from \a rx,\a ry to \a w,
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 {
-    if((*optype))
+    if((*gfx_optype))
 	sync();
-    (*optype)=0;
+    (*gfx_optype)=0;
     setAlphaType(IgnoreAlpha);
     if ( w <= 0 || h <= 0 ) return;
 
@@ -4099,6 +4146,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
 	    int loopc,loopc2;
+	    
 	    PackType put;
 # ifdef QWS_PACKING_4BYTE
 	    put = pixel | (pixel << 16);
@@ -4336,9 +4384,9 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 	return;
     }
 
-    if((*optype))
+    if((*gfx_optype))
 	sync();
-    (*optype)=0;
+    (*gfx_optype)=0;
     //int m=QMIN( index+npoints-1, int(a.size())-1 );
 #ifndef QT_NO_QWS_CURSOR
     GFX_START(a.boundingRect())
@@ -4367,10 +4415,10 @@ or the even-odd (alternative) fill algorithm.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
 {
-    if((*optype)!=0) {
+    if((*gfx_optype)!=0) {
 	sync();
     }
-    (*optype)=0;
+    (*gfx_optype)=0;
     useBrush();
     GFX_START(clipbounds)
     if ( cbrush.style()!=NoBrush ) {
@@ -4595,9 +4643,9 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 {
     if ( !w || !h ) return;
-    if((*optype)!=0)
+    if((*gfx_optype)!=0)
 	sync();
-    (*optype)=0;
+    (*gfx_optype)=0;
     int osrcdepth=srcdepth;
     if(srctype==SourcePen) {
 	srclinestep=0;//w;
@@ -4807,9 +4855,9 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )
 {
-    if((*optype))
+    if((*gfx_optype))
 	sync();
-    (*optype)=0;
+    (*gfx_optype)=0;
     QRect cr;
     unsigned char * srcptr;
     unsigned char * data = new unsigned char [(w*depth)/8];
@@ -4974,6 +5022,56 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
         yOff = 0;
     }
     GFX_END
+}
+
+/*!
+This takes the currently-set brush and stores its color value in the
+variable pixel for drawing points, lines and rectangles.
+*/
+
+template <const int depth, const int type>
+GFX_INLINE void QGfxRaster<depth,type>::useBrush()
+{
+    if(depth==32) {
+	pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
+	      | (cbrush.color().blue());
+    } else if(depth==16) {
+	pixel=((cbrush.color().red() >> 3) << 11) |
+	      ((cbrush.color().green() >> 2) << 5) |
+	      (cbrush.color().blue() >> 3);
+   } else if(depth==1) {
+	pixel=qGray(cbrush.color().red(),cbrush.color().green(),
+		    cbrush.color().blue()) < 128 ? 1 : 0;
+    } else {
+	pixel=gfx_screen->alloc(cbrush.color().red(),
+				cbrush.color().green(),
+				cbrush.color().blue());
+    }
+}
+
+/*!
+This takes the currently-set pen and stores its color value in the
+variable pixel for drawing points, lines and rectangles.
+*/
+
+template <const int depth, const int type>
+GFX_INLINE void QGfxRaster<depth,type>::usePen()
+{
+    if(depth==32) {
+	pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
+	      | (cpen.color().blue());
+    } else if(depth==16) {
+	pixel=((cpen.color().red() >> 3) << 11) |
+	      ((cpen.color().green() >> 2) << 5) |
+	      (cpen.color().blue() >> 3);
+    } else if(depth==1) {
+	pixel=qGray(cpen.color().red(),cpen.color().green(),
+		    cpen.color().blue()) < 128 ? 1 : 0;
+    } else {
+	pixel=gfx_screen->alloc(cpen.color().red(),
+				cpen.color().green(),
+				cpen.color().blue());
+    }
 }
 
 /*!
@@ -5464,6 +5562,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxvga16_qws.cpp"
 #endif
 
+#if !defined(QT_NO_QWS_REPEATER)
+#include "qgfxrepeater_qws.cpp"
+#endif
+
 //#if !defined(QT_NO_QWS_SVGALIB)
 //# include "qgfxsvgalib_qws.cpp"
 //#endif
@@ -5483,6 +5585,9 @@ struct DriverTable
 #endif
 #if !defined(QT_NO_QWS_VFB)
     { "QVFb", qt_get_screen_qvfb, 0 },
+#endif
+#if !defined(QT_NO_QWS_REPEATER)
+    { "Repeater", qt_get_screen_repeater, 0 },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16, 0 },

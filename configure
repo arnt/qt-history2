@@ -468,6 +468,9 @@ do
    -accel-mach64)
 	QWS_ACCEL_MACH64=y
 	;;
+   -repeater)
+	QWS_REPEATER=y
+	;;
    -accel-matrox)
 	QWS_ACCEL_MATROX=y
 	;;
@@ -1476,6 +1479,10 @@ fi
 if [ -z "$QWS_ACCEL_MACH64" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MACH64"
+fi
+if [ -z "$QWS_REPEATER" -a "$EMBEDDED" != no ]
+then
+    D_FLAGS="$D_FLAGS QT_NO_QWS_REPEATER"
 fi
 if [ -z "$QWS_ACCEL_MATROX" -a "$EMBEDDED" != no ]
 then
