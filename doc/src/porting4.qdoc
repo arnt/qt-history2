@@ -241,9 +241,9 @@
     \input porting4-renamedenumvalues.qdocinc
     \endtable
 
-    In addition, the following \l{Qt::WFlag}{window flags} have been
-    either replaced with \l{Qt::WidgetAttribute}{widget attributes}
-    or have been deprecated:
+    In addition, the following \l{Qt::WindowFlag}{window flags} have
+    been either replaced with \l{Qt::WidgetAttribute}{widget
+    attributes} or have been deprecated:
 
     \table
     \header \o Qt 3 type \o Qt 4 equivalent
@@ -365,7 +365,7 @@
     \header \o Qt 3 property \o Qt 4 equivalent
     \row \o QButton::autoRepeat \o N/A
     \row \o QButton::autoResize \o N/A
-    \row \o QButton::exclusiveToggle \o See \l QButton::autoExclusive.
+    \row \o QButton::exclusiveToggle \o See \l QAbstractButton::autoExclusive.
     \row \o QButton::pixmap \o Use QAbstractButton::icon instead.
     \row \o QButton::toggleState \o Use QCheckBox::setState() and QCheckBox::state() instead.
     \row \o QButton::toggleType \o Use QCheckBox::setTristate() instead.
@@ -549,6 +549,7 @@
     The \c QAquaStyle class is no longer provided in Qt 4. Use
     QMacStyle instead.
 
+    \target qasciidict.section
     \section1 QAsciiCache<T>
 
     \c QAsciiCache<T> has been renamed Q3AsciiCache<T> and moved to
@@ -1679,7 +1680,7 @@
     See \l{model-view-programming.html}{Model/View Programming} for
     an overview of the new item view classes.
 
-    \target qgroubox.section
+    \target qgroupbox.section
     \section1 QGroupBox
 
     The QGroupBox class has been redesigned in Qt 4. The old \c
@@ -1973,6 +1974,7 @@
 
     \omit ### More detail \endomit
 
+    \target qmemarray.section
     \section1 QMemArray<T>
 
     QMemArray<T> has been moved to Qt3Support. It has been replaced
@@ -3289,62 +3291,62 @@
     now.
 
     \table
-    \header \i Old PrimitiveElement \i New name \i Remark
-    \row \i PE_ButtonCommand                \i \l PE_PanelButtonCommand
-    \row \i PE_ButtonDefault                \i \l PE_FrameDefaultButton
-    \row \i PE_ButtonBevel                  \i \l PE_PanelButtonBevel
-    \row \i PE_ButtonTool                   \i \l PE_PanelButtonTool
-    \row \i PE_ButtonDropDown               \i \l PE_IndicatorButtonDropDown
-    \row \i PE_FocusRect                    \i \l PE_FrameFocusRect
-    \row \i PE_ArrowUp                      \i \l PE_IndicatorArrowUp
-    \row \i PE_ArrowDown                    \i \l PE_IndicatorArrowDown
-    \row \i PE_ArrowRight                   \i \l PE_IndicatorArrowRight
-    \row \i PE_ArrowLeft                    \i \l PE_IndicatorArrowLeft
-    \row \i PE_SpinBoxUp                    \i \l PE_IndicatorSpinUp
-    \row \i PE_SpinBoxDown                  \i \l PE_IndicatorSpinDown
-    \row \i PE_SpinBoxPlus                  \i \l PE_IndicatorSpinPlus
-    \row \i PE_SpinBoxMinus                 \i \l PE_IndicatorSpinMinus
-    \row \i PE_SpinBoxSlider                \i \l CE_SpinBoxSlider \i uses QStyle::drawControl()
-    \row \i PE_Indicator                    \i \l PE_IndicatorCheckBox
-    \row \i PE_IndicatorMask                \i REMOVED \i use QStyle::styleHint() to retrieve mask
-    \row \i PE_ExclusiveIndicator           \i \l PE_IndicatorRadioButton
-    \row \i PE_ExclusiveIndicatorMask       \i REMOVED \i use QStyle::styleHint() to retrieve mask
-    \row \i PE_DockWindowHandle             \i \l PE_IndicatorToolBarHandle
-    \row \i PE_DockWindowSeparator          \i \l PE_Q3DockWindowSeparator
-    \row \i PE_DockWindowResizeHandle       \i \l PE_IndicatorDockWindowResizeHandle
-    \row \i PE_DockWindowTitle              \i \l CE_DockWindowTitle \i uses QStyle::drawControl()
-    \row \i PE_Splitter                     \i \l CE_Splitter \i uses QStyle::drawControl()
-    \row \i PE_Panel                        \i \l PE_Frame
-    \row \i PE_PanelMenu                    \i \l PE_FrameMenu
-    \row \i PE_PanelMenuBar                 \i \l PE_PanelMenuBar
-    \row \i PE_PanelDockWindow              \i \l PE_FrameDockWindow
-    \row \i PE_TabBarBase                   \i \l PE_FrameTabBarBase
-    \row \i PE_HeaderSection                \i \l CE_HeaderSection \i uses QStyle::drawControl()
-    \row \i PE_HeaderArrow                  \i \l PE_IndicatorHeaderArrow
-    \row \i PE_StatusBarSection             \i \l PE_FrameStatusBar
-    \row \i PE_Separator                    \i \l PE_Q3Separator
-    \row \i PE_SizeGrip                     \i \l CE_SizeGrip \i uses QStyle::drawControl()
-    \row \i PE_CheckMark                    \i \l PE_IndicatorMenuCheckMark
-    \row \i PE_ScrollBarAddLine             \i \l CE_ScrollBarAddLine \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarSubLine             \i \l CE_ScrollBarSubLine \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarAddPage             \i \l CE_ScrollBarAddPage \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarSubPage             \i \l CE_ScrollBarSubPage \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarSlider              \i \l CE_ScrollBarSlider  \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarFirst               \i \l CE_ScrollBarFirst   \i uses QStyle::drawControl()
-    \row \i PE_ScrollBarLast                \i \l CE_ScrollBarLast    \i uses QStyle::drawControl()
-    \row \i PE_ProgressBarChunk             \i \l PE_IndicatorProgressChunk
-    \row \i PE_PanelLineEdit                \i \l PE_FrameLineEdit
-    \row \i PE_PanelTabWidget               \i \l PE_FrameTabWidget
-    \row \i PE_WindowFrame                  \i \l PE_FrameWindow
-    \row \i PE_CheckListController          \i \l PE_Q3CheckListController
-    \row \i PE_CheckListIndicator           \i \l PE_Q3CheckListIndicator
-    \row \i PE_CheckListExclusiveIndicator  \i \l PE_Q3CheckListExclusiveIndicator
-    \row \i PE_PanelGroupBox                \i \l PE_FrameGroupBox
-    \row \i PE_TreeBranch                   \i \l PE_IndicatorBranch
-    \row \i PE_RubberBand                   \i \l CE_RubberBand \i uses QStyle::drawControl()
-    \row \i PE_PanelToolBar                 \i \l PE_PanelToolBar
-    \row \i PE_ToolBarHandle                \i \l PE_IndicatorToolBarHandle
-    \row \i PE_ToolBarSeparator             \i \l PE_IndicatorToolBarSeparator
+    \header \o Old name \o New name \o Remark
+    \row \o \c PE_ButtonCommand             \o QStyle::PE_PanelButtonCommand
+    \row \o \c PE_ButtonDefault             \o QStyle::PE_FrameDefaultButton
+    \row \o \c PE_ButtonBevel               \o QStyle::PE_PanelButtonBevel
+    \row \o \c PE_ButtonTool                \o QStyle::PE_PanelButtonTool
+    \row \o \c PE_ButtonDropDown            \o QStyle::PE_IndicatorButtonDropDown
+    \row \o \c PE_FocusRect                 \o QStyle::PE_FrameFocusRect
+    \row \o \c PE_ArrowUp                   \o QStyle::PE_IndicatorArrowUp
+    \row \o \c PE_ArrowDown                 \o QStyle::PE_IndicatorArrowDown
+    \row \o \c PE_ArrowRight                \o QStyle::PE_IndicatorArrowRight
+    \row \o \c PE_ArrowLeft                 \o QStyle::PE_IndicatorArrowLeft
+    \row \o \c PE_SpinBoxUp                 \o QStyle::PE_IndicatorSpinUp
+    \row \o \c PE_SpinBoxDown               \o QStyle::PE_IndicatorSpinDown
+    \row \o \c PE_SpinBoxPlus               \o QStyle::PE_IndicatorSpinPlus
+    \row \o \c PE_SpinBoxMinus              \o QStyle::PE_IndicatorSpinMinus
+    \row \o \c PE_SpinBoxSlider             \o QStyle::CE_SpinBoxSlider \o uses QStyle::drawControl()
+    \row \o \c PE_Indicator                 \o QStyle::PE_IndicatorCheckBox
+    \row \o \c PE_IndicatorMask             \o N/A \o use QStyle::styleHint() to retrieve mask
+    \row \o \c PE_ExclusiveIndicator        \o QStyle::PE_IndicatorRadioButton
+    \row \o \c PE_ExclusiveIndicatorMask    \o N/A \o use QStyle::styleHint() to retrieve mask
+    \row \o \c PE_DockWindowHandle          \o QStyle::PE_IndicatorToolBarHandle
+    \row \o \c PE_DockWindowSeparator       \o QStyle::PE_Q3DockWindowSeparator
+    \row \o \c PE_DockWindowResizeHandle    \o QStyle::PE_IndicatorDockWindowResizeHandle
+    \row \o \c PE_DockWindowTitle           \o QStyle::CE_DockWindowTitle \o uses QStyle::drawControl()
+    \row \o \c PE_Splitter                  \o QStyle::CE_Splitter \o uses QStyle::drawControl()
+    \row \o \c PE_Panel                     \o QStyle::PE_Frame
+    \row \o \c PE_PanelMenu                 \o QStyle::PE_FrameMenu
+    \row \o \c PE_PanelMenuBar              \o QStyle::PE_PanelMenuBar
+    \row \o \c PE_PanelDockWindow           \o QStyle::PE_FrameDockWindow
+    \row \o \c PE_TabBarBase                \o QStyle::PE_FrameTabBarBase
+    \row \o \c PE_HeaderSection             \o QStyle::CE_HeaderSection \o uses QStyle::drawControl()
+    \row \o \c PE_HeaderArrow               \o QStyle::PE_IndicatorHeaderArrow
+    \row \o \c PE_StatusBarSection          \o QStyle::PE_FrameStatusBar
+    \row \o \c PE_Separator                 \o QStyle::PE_Q3Separator
+    \row \o \c PE_SizeGrip                  \o QStyle::CE_SizeGrip \o uses QStyle::drawControl()
+    \row \o \c PE_CheckMark                 \o QStyle::PE_IndicatorMenuCheckMark
+    \row \o \c PE_ScrollBarAddLine          \o QStyle::CE_ScrollBarAddLine \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarSubLine          \o QStyle::CE_ScrollBarSubLine \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarAddPage          \o QStyle::CE_ScrollBarAddPage \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarSubPage          \o QStyle::CE_ScrollBarSubPage \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarSlider           \o QStyle::CE_ScrollBarSlider  \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarFirst            \o QStyle::CE_ScrollBarFirst   \o uses QStyle::drawControl()
+    \row \o \c PE_ScrollBarLast             \o QStyle::CE_ScrollBarLast    \o uses QStyle::drawControl()
+    \row \o \c PE_ProgressBarChunk          \o QStyle::PE_IndicatorProgressChunk
+    \row \o \c PE_PanelLineEdit             \o QStyle::PE_FrameLineEdit
+    \row \o \c PE_PanelTabWidget            \o QStyle::PE_FrameTabWidget
+    \row \o \c PE_WindowFrame               \o QStyle::PE_FrameWindow
+    \row \o \c PE_CheckListController       \o QStyle::PE_Q3CheckListController
+    \row \o \c PE_CheckListIndicator        \o QStyle::PE_Q3CheckListIndicator
+    \row \o \c PE_CheckListExclusiveIndicato\o QStyle::PE_Q3CheckListExclusiveIndicator
+    \row \o \c PE_PanelGroupBox             \o QStyle::PE_FrameGroupBox
+    \row \o \c PE_TreeBranch                \o QStyle::PE_IndicatorBranch
+    \row \o \c PE_RubberBand                \o QStyle::CE_RubberBand \o uses QStyle::drawControl()
+    \row \o \c PE_PanelToolBar              \o QStyle::PE_PanelToolBar
+    \row \o \c PE_ToolBarHandle             \o QStyle::PE_IndicatorToolBarHandle
+    \row \o \c PE_ToolBarSeparator          \o QStyle::PE_IndicatorToolBarSeparator
     \endtable
 
     The QStyle::drawControlMask() and QStyle::drawComplexControlMask()
@@ -3755,8 +3757,9 @@
     a QStackedBox with a QDialog and provide \l{QPushButton}s
     yourself.
 
-    The \l{Simple Wizard} and \l{Complex Wizard} examples show
-    how to create wizards without using Q3Wizard.
+    The \l{dialogs/simplewizard}{Simple Wizard} and
+    \l{dialogs/complexwizard}{Complex Wizard} examples show how to
+    create wizards without using Q3Wizard.
 
     \section1 QWorkspace
 

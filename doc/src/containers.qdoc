@@ -2,8 +2,8 @@
 
     \title Generic Containers
 
-    \keyword {container class}
-    \keyword {container classes}
+    \keyword container class
+    \keyword container classes
 
     \tableofcontents
 
@@ -29,7 +29,7 @@
     \l{STL-style iterators}. The Java-style iterators are easier to
     use and provide high-level functionality, whereas the STL-style
     iterators are slightly more efficient and can be used together
-    with Qt's and STL's \l{qtalgorithms.h}{generic algorithms}.
+    with Qt's and STL's \l{generic algorithms}.
 
     Qt also offers a \l{foreach} keyword that make it very easy to
     iterate over all the items stored in a container.
@@ -72,16 +72,16 @@
     \row \o \l{QStack}<T>
     \o This is a convenience subclass of QVector that provides
     "last in, first out" (LIFO) semantics. It adds the following
-    functions to those already present in QVector: \link
-    QStack::push() push()\endlink, \link QStack::pop() pop()\endlink,
-    and \link QStack::top() top()\endlink.
+    functions to those already present in QVector:
+    \l{QStack::push()}{push()}, \l{QStack::pop()}{pop()},
+    and \l{QStack::top()}{top()}.
 
     \row \o \l{QQueue}<T>
     \o This is a convenience subclass of QList that provides
     "first in, first out" (FIFO) semantics. It adds the following
-    functions to those already present in QList: \link
-    QQueue::enqueue() enqueue()\endlink, \link QQueue::dequeue()
-    dequeue()\endlink, and \link QQueue::head() head()\endlink.
+    functions to those already present in QList:
+    \l{QQueue::enqueue()}{enqueue()},
+    \l{QQueue::dequeue()}{dequeue()}, and \l{QQueue::head()}{head()}.
 
     \row \o \l{QSet}<T>
     \o This provides a single-valued mathematical set with fast
@@ -116,7 +116,7 @@
     otherwise the C++ compiler will misinterpret the two >'s as a
     right-shift operator (>>) and report a syntax error.
 
-    \keyword {assignable data type}
+    \keyword assignable data type
 
     The values stored in the various containers can be of any
     \e{assignable data type}. To qualify, a type must provide a
@@ -199,7 +199,7 @@
         }
     \endcode
 
-    \keyword {default-constructed values}
+    \keyword default-constructed values
 
     The documentation of certain container class functions refer to
     \e{default-constructed values}; for example, QVector
@@ -251,13 +251,14 @@
     the same interface as QList's iterators; similarly, the iterator
     types for QHash have the same interface as QMap's iterators.
 
-    Unlike STL-style iterators (covered \link {STL-style iterators}
-    below \endlink), Java-style iterators point \e between items
-    rather than directly \e at items. For this reason, they are either
-    pointing to the very beginning of the container (before the first
-    item), at the very end of the container (after the last item), or
-    between two items. The diagram below shows the valid iterator
-    positions as red arrows for a list containing four items:
+    Unlike STL-style iterators (covered \l{STL-style
+    iterators}{below}), Java-style iterators point \e between items
+    rather than directly \e at items. For this reason, they are
+    either pointing to the very beginning of the container (before
+    the first item), at the very end of the container (after the last
+    item), or between two items. The diagram below shows the valid
+    iterator positions as red arrows for a list containing four
+    items:
 
     \img javaiterators1.png
 
@@ -276,9 +277,9 @@
     It works as follows: The QList to iterate over is passed to the
     QListIterator constructor. At that point, the iterator is located
     just in front of the first item in the list (before item "A").
-    Then we call \link QListIterator::hasNext() hasNext() \endlink to
+    Then we call \l{QListIterator::hasNext()}{hasNext()} to
     check whether there is an item after the iterator. If there is, we
-    call \link QListIterator::next() next() \endlink to jump over that
+    call \l{QListIterator::next()}{next()} to jump over that
     item. The next() function returns the item that it jumps over. For
     a QList<QString>, that item is of type QString.
 
@@ -292,12 +293,12 @@
     \endcode
 
     The code is symmetric with iterating forward, except that we
-    start by calling \link QListIterator::toBack() toBack() \endlink
+    start by calling \l{QListIterator::toBack()}{toBack()}
     to move the iterator after the last item in the list.
 
     The diagram below illustrates the effect of calling
-    \link QListIterator::next() next() \endlink and
-    \link QListIterator::previous() previous() \endlink on an iterator:
+    \l{QListIterator::next()}{next()} and
+    \l{QListIterator::previous()}{previous()} on an iterator:
 
     \img javaiterators2.png
 
@@ -305,21 +306,21 @@
 
     \table
     \header \o Function \o Behavior
-    \row    \o \link QListIterator::toFront() toFront() \endlink
+    \row    \o \l{QListIterator::toFront()}{toFront()}
             \o Moves the iterator to the front of the list (before the first item)
-    \row    \o \link QListIterator::toBack() toBack() \endlink
+    \row    \o \l{QListIterator::toBack()}{toBack()}
             \o Moves the iterator to the back of the list (after the last item)
-    \row    \o \link QListIterator::hasNext() hasNext() \endlink
+    \row    \o \l{QListIterator::hasNext()}{hasNext()}
             \o Returns true if the iterator isn't at the back of the list
-    \row    \o \link QListIterator::next() next() \endlink
+    \row    \o \l{QListIterator::next()}{next()}
             \o Returns the next item and advances the iterator by one position
-    \row    \o \link QListIterator::peekNext() peekNext() \endlink
+    \row    \o \l{QListIterator::peekNext()}{peekNext()}
             \o Returns the next item without moving the iterator
-    \row    \o \link QListIterator::hasPrevious() hasPrevious() \endlink
+    \row    \o \l{QListIterator::hasPrevious()}{hasPrevious()}
             \o Returns true if the iterator isn't at the front of the list
-    \row    \o \link QListIterator::previous() previous() \endlink
+    \row    \o \l{QListIterator::previous()}{previous()}
             \o Returns the previous item and moves the iterator back by one position
-    \row    \o \link QListIterator::peekPrevious() peekPrevious() \endlink
+    \row    \o \l{QListIterator::peekPrevious()}{peekPrevious()}
             \o Returns the previous item without moving the iterator
     \endtable
 
@@ -337,12 +338,12 @@
     \endcode
 
     The next() call in the loop is made every time. It jumps over the
-    next item in the list. The \link QListIterator::remove() remove()
-    \endlink function removes the last item that we jumped over from
-    the list. The call to \link QListIterator::remove() remove()
-    \endlink does not invalidate the iterator, so it is safe to
-    continue using it. This works just as well when iterating
-    backward:
+    next item in the list. The
+    \l{QMutableListIterator::remove()}{remove()} function removes the
+    last item that we jumped over from the list. The call to
+    \l{QMutableListIterator::remove()}{remove()} does not invalidate
+    the iterator, so it is safe to continue using it. This works just
+    as well when iterating backward:
 
     \code
         QMutableListIterator<int> i(list);
@@ -354,8 +355,8 @@
     \endcode
 
     If want just want to modify the value of an existing item, we can
-    use \link QListIterator::setValue() setValue() \endlink. In the
-    code below, we replace any value larger than 128 with 128:
+    use \l{QMutableListIterator::setValue()}{setValue()}. In the code
+    below, we replace any value larger than 128 with 128:
 
     \code
         QMutableListIterator<int> i(list);
@@ -365,15 +366,16 @@
         }
     \endcode
 
-    Just like \link QListIterator::remove() remove() \endlink, \link
-    QListIterator::setValue() setValue() \endlink operates on the
+    Just like \l{QMutableListIterator::remove()}{remove()},
+    \l{QMutableListIterator::setValue()}{setValue()} operates on the
     last item that we jumped over. If we iterate forward, this is the
     item just before the iterator; if we iterate backward, this is
     the item just after the iterator.
 
-    The \link QListIterator::next() next() \endlink function returns a
-    non-const reference to the item in the list. For simple operations,
-    we don't even need \link QListIterator::setValue() setValue() \endlink:
+    The \l{QMutableListIterator::next()}{next()} function returns a
+    non-const reference to the item in the list. For simple
+    operations, we don't even need
+    \l{QMutableListIterator::setValue()}{setValue()}:
 
     \code
         QMutableListIterator<int> i(list);
@@ -386,18 +388,18 @@
     QMapIterator, which is somewhat different because it iterates on
     (key, value) pairs.
 
-    Like QListIterator, QMapIterator provides \link
-    QMapIterator::toFront() toFront() \endlink, \link
-    QMapIterator::toBack() toBack() \endlink, \link
-    QMapIterator::hasNext() hasNext() \endlink, \link
-    QMapIterator::next() next() \endlink, \link
-    QMapIterator::peekNext() peekNext() \endlink, \link
-    QMapIterator::hasPrevious() hasPrevious() \endlink, \link
-    QMapIterator::previous() previous() \endlink, \link
-    QMapIterator::peekPrevious() peekPrevious() \endlink, and \link
-    QMapIterator::remove() peekPrevious() \endlink. The key and value
-    components are extracted by calling key() and value() on the
-    object returned by next(), peekNext(), previous(), or peekPrevious().
+    Like QListIterator, QMapIterator provides 
+    \l{QMapIterator::toFront()}{toFront()}, 
+    \l{QMapIterator::toBack()}{toBack()}, 
+    \l{QMapIterator::hasNext()}{hasNext()}, 
+    \l{QMapIterator::next()}{next()}, 
+    \l{QMapIterator::peekNext()}{peekNext()}, 
+    \l{QMapIterator::hasPrevious()}{hasPrevious()}, 
+    \l{QMapIterator::previous()}{previous()}, and
+    \l{QMapIterator::peekPrevious()}{peekPrevious()}. The key and
+    value components are extracted by calling key() and value() on
+    the object returned by next(), peekNext(), previous(), or
+    peekPrevious().
 
     The following example removes all (capital, country) pairs where
     the capital's name ends with "City":
@@ -435,25 +437,14 @@
     \endcode
 
     If we want to iterate through all the items with the same
-    value, we can use \link QMapIterator::findNext() findNext()
-    \endlink or \link QMapIterator::findPrevious() findPrevious() \endlink.
+    value, we can use \l{QMapIterator::findNext()}{findNext()}
+    or \l{QMapIterator::findPrevious()}{findPrevious()}.
     Here's an example where we remove all the items with a particular
     value:
 
     \code
         QMutableMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget))
-            i.remove();
-    \endcode
-
-    Similarly, the \link QMapIterator::findNextKey() findNextKey()
-    \endlink or \link QMapIterator::findPreviousKey() findPreviousKey()
-    \endlink functions allow us to iterate through all the items with
-    the same key (for example, in a multi-map):
-
-    \code
-        QMutableMapIterator<int, QWidget *> i(multimap);
-        while (i.findNextKey(-1))
             i.remove();
     \endcode
 
@@ -486,13 +477,13 @@
     \endtable
 
     The API of the STL iterators is modelled on pointers in an array.
-    For example, the ++ operator advances the iterator to the next
-    item, and the * operator returns the item that the iterator
+    For example, the \c ++ operator advances the iterator to the next
+    item, and the \c * operator returns the item that the iterator
     points to. In fact, for QVector and QStack, which store their
-    items at adjacent memory positions, the \link QVector::iterator
-    iterator \endlink type is just a typedef for T *, and the \link
-    QVector::iterator const_iterator \endlink type is just a typedef
-    for const T *.
+    items at adjacent memory positions, the
+    \l{QVector::iterator}{iterator} type is just a typedef for \c{T *},
+    and the \l{QVector::iterator}{const_iterator} type is
+    just a typedef for \c{const T *}.
 
     In this discussion, we will concentrate on QList and QMap. The
     iterator types for QLinkedList, QVector, and QSet have exactly
@@ -500,7 +491,7 @@
     types for QHash have the same interface as QMap's iterators.
 
     Here's a typical loop for iterating through all the elements of a
-    QList<QString> in order and converting them to lower-case:
+    QList<QString> in order and converting them to lowercase:
 
     \code
         QList<QString> list;
@@ -511,15 +502,14 @@
             *i = (*i).toLower();
     \endcode
 
-    Unlike Java-style iterators (covered \link {Java-style iterators}
-    above \endlink), STL-style iterators point directly at items. The
-    begin() function of a container returns an iterator that points
-    to the first item in the container. The end() function of a
-    container returns an iterator to the imaginary item one position
-    past the last item in the container. end() marks an invalid
-    position; it must never be dereferenced. It is typically used in
-    a loop's break condition. If the list is empty, begin() equals
-    end(), so we never execute the loop.
+    Unlike \l{Java-style iterators}, STL-style iterators point
+    directly at items. The begin() function of a container returns an
+    iterator that points to the first item in the container. The
+    end() function of a container returns an iterator to the
+    imaginary item one position past the last item in the container.
+    end() marks an invalid position; it must never be dereferenced.
+    It is typically used in a loop's break condition. If the list is
+    empty, begin() equals end(), so we never execute the loop.
 
     The diagram below shows the valid iterator positions as red
     arrows for a vector containing four items:
@@ -819,12 +809,12 @@
     use to store the items:
 
     \list
-    \o \link QString::capacity() capacity()\endlink returns the
+    \o \l{QString::capacity()}{capacity()} returns the
        number of items for which memory is allocated (for QHash and
        QSet, the number of buckets in the hash table).
-    \o \link QString::reserve() reserve(\e size)\endlink explicitly
+    \o \l{QString::reserve()}{reserve}(\e size) explicitly
        preallocates memory for \e size items.
-    \o \link QString::squeeze() squeeze()\endlink frees any memory
+    \o \l{QString::squeeze()}{squeeze()} frees any memory
        not required to store the items.
     \endlist
 
@@ -844,8 +834,8 @@
     expensive if the QVector contains many items, since half of the
     items must be moved one position in memory.
 
-    In the documentation, we use the following terminology, based on
-    the \link somewhere "big Oh" notation \endlink:
+    In the documentation, we sometimes use the following terminology,
+    based on the "big Oh" notation:
 
     \list
     \o \e{constant time}: O(1). A function is said to run in constant

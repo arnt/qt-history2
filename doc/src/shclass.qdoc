@@ -21,6 +21,7 @@
     \keyword implicitly shared
     \keyword reference counting
     \keyword shared implicitly
+    \keyword shared classes
 
     Many C++ classes in Qt use implicit data sharing to maximize resource
     usage and minimize copying of data.

@@ -14,7 +14,6 @@
 
 /*!
     \page classes.html
-
     \title Qt's Classes
 
     For a shorter list that only includes the most frequently used
@@ -26,10 +25,9 @@
 
 /*!
     \page modules.html
+    \title Qt Classes by Module
     \startpage index.html Qt Reference Documentation
     \nextpage qtcore.html QtCore Classes
-
-    \title Qt Classes by Module
 
     \table
     \row \i \l{qtcore.html}{QtCore} \i Core classes used by other modules.
@@ -50,6 +48,8 @@
     \previouspage modules.html Qt Classes by Module
     \nextpage qtgui.html QtGui Classes
 
+    \keyword QtCore
+
     \generatelist {classesbymodule QtCore}
 */
 
@@ -59,6 +59,8 @@
     \contentspage modules.html Qt Classes by Module
     \previouspage qtcore.html QtCore Classes
     \nextpage qtnetwork.html QtNetwork Classes
+
+    \keyword QtGui
 
     \generatelist {classesbymodule QtGui}
 */
@@ -70,6 +72,8 @@
     \previouspage qtgui.html QtGui Classes
     \nextpage qtopengl.html QtOpenGL Classes
 
+    \keyword QtNetwork
+
     \generatelist {classesbymodule QtNetwork}
 */
 
@@ -79,6 +83,8 @@
     \contentspage modules.html Qt Classes by Module
     \previouspage qtnetwork.html QtNetwork Classes
     \nextpage qtsql.html QtSql Classes
+
+    \keyword QtOpenGL
 
     \generatelist {classesbymodule QtOpenGL}
 */
@@ -90,6 +96,8 @@
     \previouspage qtopengl.html QtOpenGL Classes
     \nextpage qtxml.html QtXml Classes
 
+    \keyword QtSql
+
     \generatelist {classesbymodule QtSql}
 */
 
@@ -98,6 +106,8 @@
     \title QtXml Classes
     \contentspage modules.html Qt Classes by Module
     \previouspage qtsql.html QtSql Classes
+
+    \keyword QtXml
 
     \generatelist {classesbymodule QtXml}
 */
