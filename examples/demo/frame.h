@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.h#3 $
+** $Id: //depot/qt/main/examples/demo/frame.h#4 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -36,6 +36,7 @@ private:
     int idWindows, idMotif, idMotifPlus, idPlatinum, idSGI;
     int idEnglish;
 
+    QString title;
     QListBox *categories;
     QWidgetStack *stack;
 };

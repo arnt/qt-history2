@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#3 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#4 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -78,7 +78,8 @@ void CategoryItem::paint( QPainter *p )
 Frame::Frame( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
-    setCaption( tr( "Qt Demo Collection" ) );
+    title = tr( "Qt Demo Collection" );
+    setCaption( title );
 
     // set up the menu bar
     QMenuBar *mainMenu = menuBar();
@@ -126,7 +127,7 @@ void Frame::addCategory( QWidget *w, const QPixmap &p, const QString &n )
     CategoryItem *item = new CategoryItem( categories, w, p, n, i );
     if ( !stack->visibleWidget() ) {
 	categories->setCurrentItem( item );
-	stack->raiseWidget( w );
+	clickedCategory( item );
     }
     if ( i < 3 && categories->height() < 3 * item->height( categories ) )
 	categories->setMinimumHeight( 3 * item->height( categories ) );
@@ -172,6 +173,7 @@ void Frame::clickedCategory( QListBoxItem *item )
 {
     if ( item ) {
 	CategoryItem *c = (CategoryItem*)item;
+	topLevelWidget()->setCaption( title + " - " + item->text() );
 	stack->raiseWidget( c->widget() );
     }
 }
