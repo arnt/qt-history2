@@ -887,7 +887,8 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d = new QMainWindowPrivate;
 #ifdef Q_WS_MACX
     if(isTopLevel())
-	ChangeWindowAttributes((WindowPtr)handle(), 1L << 6, 0); //hide toolbars thingie
+	ChangeWindowAttributes((WindowPtr)handle(), 
+			       kWindowToolbarButtonAttribute, 0); //hide toolbars thingie
     d->opaque = TRUE;
 #else
     d->opaque = FALSE;
