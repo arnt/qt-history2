@@ -240,8 +240,6 @@ void QSettingsPrivate::setStatus(QSettings::Status status)
 
 void QSettingsPrivate::update()
 {
-    Q_Q(QSettings);
-
     flush();
     pendingChanges = false;
 }
