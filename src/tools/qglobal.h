@@ -71,77 +71,71 @@
 //
 
 #if defined(macintosh)
-#define _OS_MAC_
+#  define _OS_MAC_
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
-#define _OS_MSDOS_
+#  define _OS_MSDOS_
 #elif defined(OS2) || defined(_OS2) || defined(__OS2__)
-#if defined(__EMX__)
-#define _OS_OS2EMX_
-#else
-#define _OS_OS2_
-#endif
+#  if defined(__EMX__)
+#    define _OS_OS2EMX_
+#  else
+#    define _OS_OS2_
+#  endif
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#define _OS_WIN32_
+#  define _OS_WIN32_
 #elif defined(__MWERKS__) && defined(__INTEL__)
-#define _OS_WIN32_
+#  define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)
-#if defined(__SVR4)
-#define _OS_SOLARIS_
-#else
-#define _OS_SUN_
-#endif
+#  if defined(__SVR4)
+#    define _OS_SOLARIS_
+#  else
+#    define _OS_SUN_
+#  endif
 #elif defined(hpux) || defined(__hpux) || defined(__hpux__)
-#define _OS_HPUX_
+#  define _OS_HPUX_
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
-#define _OS_ULTRIX_
+#  define _OS_ULTRIX_
 #elif defined(reliantunix)
-#define _OS_RELIANTUNIX_
+#  define _OS_RELIANTUNIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
-#define _OS_LINUX_
+#  define _OS_LINUX_
 #elif defined(__FreeBSD__)
-#define _OS_FREEBSD_
+#  define _OS_FREEBSD_
 #elif defined(__NetBSD__)
-#define _OS_NETBSD_
+#  define _OS_NETBSD_
 #elif defined(__OpenBSD__)
-#define _OS_OPENBSD_
+#  define _OS_OPENBSD_
 #elif defined(sgi) || defined(__sgi)
-#define _OS_IRIX_
+#  define _OS_IRIX_
 #elif defined(__osf__)
-#define _OS_OSF_
+#  define _OS_OSF_
 #elif defined(bsdi) || defined(__bsdi__)
-#define _OS_BSDI_
+#  define _OS_BSDI_
 #elif defined(_AIX)
-#define _OS_AIX_
+#  define _OS_AIX_
 #elif defined(__Lynx__)
-#define _OS_LYNXOS_
+#  define _OS_LYNXOS_
 #elif defined(_UNIXWARE)
-#define _OS_UNIXWARE_
+#  define _OS_UNIXWARE_
 #elif defined(__GNU__)
-#define _OS_GNU_
+#  define _OS_GNU_
 #elif defined(DGUX)
-#define _OS_DGUX_
+#  define _OS_DGUX_
 #elif defined(__QNX__)
-#define _OS_QNX_
+#  define _OS_QNX_
 #elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
-#define _OS_SCO_
+#  define _OS_SCO_
 #elif defined(sco) || defined(_UNIXWARE7)
-#define _OS_UNIXWARE7_
+#  define _OS_UNIXWARE7_
 #elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
-#define _OS_UNIXWARE7_
+#  define _OS_UNIXWARE7_
 #else
-#error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
+#  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
 
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WIN32_)
-#undef	_OS_UNIX_
+#  undef _OS_UNIX_
 #elif !defined(_OS_UNIX_)
-#define _OS_UNIX_
-// QT_CLEAN_NAMESPACE is not defined by default; it would break too
-// much code.
-#if !defined(QT_CLEAN_NAMESPACE) && !defined(UNIX)
-// ### remove 3.0
-#define UNIX
-#endif
+#  define _OS_UNIX_
 #endif
 
 
@@ -169,113 +163,118 @@
 // Should be sorted most-authorative to least-authorative
 
 #if defined(__SC__)
-#define _CC_SYM_
+#  define _CC_SYM_
 #elif defined( __KCC )
-#define _CC_KAI_
-#define Q_HAS_BOOL_TYPE
+#  define _CC_KAI_
+#  define Q_HAS_BOOL_TYPE
 #elif defined(applec)
-#define _CC_MPW_
+#  define _CC_MPW_
 #elif defined(__MWERKS__)
-#define _CC_MWERKS_
-#define Q_HAS_BOOL_TYPE
+#  define _CC_MWERKS_
+#  define Q_HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
-#define _CC_MSVC_
+#  define _CC_MSVC_
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
-#define _CC_BOR_
+#  define _CC_BOR_
 #elif defined(__WATCOMC__)
-#define _CC_WAT_
-#define Q_HAS_BOOL_TYPE
+#  define _CC_WAT_
+#  define Q_HAS_BOOL_TYPE
 #elif defined(__GNUC__)
-#define _CC_GNU_
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-#define Q_FULL_TEMPLATE_INSTANTIATION
-#define Q_TEMPLATE_NEEDS_CLASS_DECLARATION
-#define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
-#define Q_SPURIOUS_NON_VOID_WARNING
-#endif
-#if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
-#define Q_DELETING_VOID_UNDEFINED
-#define Q_FP_CCAST_BROKEN
-#endif
-#if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
-#define Q_PACKED __attribute__ ((packed))
-#endif
+#  define _CC_GNU_
+#  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+#    define Q_FULL_TEMPLATE_INSTANTIATION
+#    define Q_TEMPLATE_NEEDS_CLASS_DECLARATION
+#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
+#    define Q_SPURIOUS_NON_VOID_WARNING
+#  endif
+#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 6
+#    define Q_HAS_BOOL_TYPE
+#  endif
+#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 96
+#    define Q_DELETING_VOID_UNDEFINED
+#    define Q_FP_CCAST_BROKEN
+#  endif
+#  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
+#    define Q_PACKED __attribute__ ((packed))
+#  endif
 #elif defined(__xlC__)
-#define _CC_XLC_
-#define Q_FULL_TEMPLATE_INSTANTIATION
+#  define _CC_XLC_
+#  define Q_FULL_TEMPLATE_INSTANTIATION
+#  if __xlC__ >= 0x500
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(como40)
-#define _CC_EDG_
-#define _CC_COMEAU_
+#  define _CC_EDG_
+#  define _CC_COMEAU_
+#  define Q_HAS_BOOL_TYPE
+#  define Q_C_CALLBACKS
 #elif defined(__USLC__)
-#define _CC_USLC_
-#ifdef __EDG__ // UnixWare7
-#define Q_HAS_BOOL_TYPE
-#endif
+#  define _CC_USLC_
+#  ifdef __EDG__
+// UnixWare7
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
-#define Q_HAS_BOOL_TYPE
-#define _CC_EDG_
+#  define Q_HAS_BOOL_TYPE
+#  define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
-#define _CC_OC_
+#  define _CC_OC_
 #elif defined(__SUNPRO_CC)
-#define _CC_SUN_
-#if __SUNPRO_CC >= 0x500
-#define Q_HAS_BOOL_TYPE
-#define Q_SPARCWORKS_FUNCP_BUG
-#define Q_C_CALLBACKS
-#endif
+#  define _CC_SUN_
+#  if __SUNPRO_CC >= 0x500
+#    define Q_HAS_BOOL_TYPE
+#    define Q_SPARCWORKS_FUNCP_BUG
+#    define Q_C_CALLBACKS
+#  endif
 #elif defined(__DECCXX)
-#define _CC_DEC_
+#  define _CC_DEC_
+#  if __DECCXX_VER >= 60060005
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(__CDS__)
-#define _CC_CDS_
-#define Q_HAS_BOOL_TYPE
+#  define _CC_CDS_
+#  define Q_HAS_BOOL_TYPE
 #elif defined(_OS_HPUX_)
-// this test is from aCC online help
-#if defined(__HP_aCC) || __cplusplus >= 199707L
-// this is the aCC
-#define _CC_HP_ACC_
-#define Q_HAS_BOOL_TYPE
+#  if defined(__HP_aCC) || __cplusplus >= 199707L
+#    define _CC_HP_ACC_
+#    define Q_HAS_BOOL_TYPE
+#  else
+#    define _CC_HP_
+#    define Q_FULL_TEMPLATE_INSTANTIATION
+#    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
+#  endif
 #else
-// this is the CC
-#define _CC_HP_
-#define Q_FULL_TEMPLATE_INSTANTIATION
-#define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
-#endif // __HP_aCC
-#else
-#error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
-#endif
-
-#if defined(_CC_COMEAU_)
-#define Q_C_CALLBACKS
+#  error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
 #endif
 
 #ifndef Q_PACKED
-#define Q_PACKED
+#  define Q_PACKED
 #endif
 
 // Window system setting
 
 #if defined(_OS_MAC_)
-#define _WS_MAC_
+#  define _WS_MAC_
 #elif defined(_OS_MSDOS_)
-#define _WS_WIN16_
-#error "Qt requires Win32 and does not work with Windows 3.x"
+#  define _WS_WIN16_
+#  error "Qt requires Win32 and does not work with Windows 3.x"
 #elif defined(_WIN32_X11_)
-#define _WS_X11_
+#  define _WS_X11_
 #elif defined(_OS_WIN32_)
-#define _WS_WIN32_
+#  define _WS_WIN32_
 #elif defined(_OS_OS2_)
-#error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
+#  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(_OS_UNIX_)
-#ifdef QWS
-#define _WS_QWS_
-#else
-#define _WS_X11_
-#endif
+#  ifdef QWS
+#    define _WS_QWS_
+#  else
+#    define _WS_X11_
+#  endif
 #endif
 
 #if defined(_WS_WIN16_) || defined(_WS_WIN32_)
-#define _WS_WIN_
+#  define _WS_WIN_
 #endif
 
 
@@ -294,28 +293,20 @@
 //
 
 #if defined(bool)
-#define Q_HAS_BOOL_TYPE
-#elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
-#define Q_HAS_BOOL_TYPE
+#  define Q_HAS_BOOL_TYPE
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
-#define Q_HAS_BOOL_TYPE
-#elif defined(_CC_COMEAU_)
-#define Q_HAS_BOOL_TYPE
+#  define Q_HAS_BOOL_TYPE
 #elif defined(sgi) && ( (_COMPILER_VERSION >= 710) || defined(_BOOL) )
-#define Q_HAS_BOOL_TYPE
-#elif defined(__DECCXX) && (__DECCXX_VER >= 60060005)
-#define Q_HAS_BOOL_TYPE
-#elif defined(_AIX) && (__xlC__ >= 0x500)
-#define Q_HAS_BOOL_TYPE
+#  define Q_HAS_BOOL_TYPE
 #endif
 
 #if !defined(Q_HAS_BOOL_TYPE)
-#if defined(_CC_MSVC_)
-#define _CC_BOOL_DEF_
-#define bool		int
-#else
+#  if defined(_CC_MSVC_)
+#    define _CC_BOOL_DEF_
+#    define bool int
+#  else
 enum { false, true } bool;
-#endif
+#  endif
 #endif
 
 typedef unsigned char	uchar;
@@ -339,11 +330,11 @@ const bool TRUE = !0;
 
 #if defined(_CC_MSVC_)
 // Workaround for static const members.
-#define QT_STATIC_CONST static
-#define QT_STATIC_CONST_IMPL
+#  define QT_STATIC_CONST static
+#  define QT_STATIC_CONST_IMPL
 #else
-#define QT_STATIC_CONST static const
-#define QT_STATIC_CONST_IMPL const
+#  define QT_STATIC_CONST static const
+#  define QT_STATIC_CONST_IMPL const
 #endif
 
 
@@ -407,30 +398,30 @@ extern bool qt_winunicode;
 //
 
 #if defined(_OS_WIN32_)
-#if defined(QT_NODLL)
-#undef QT_MAKEDLL
-#undef QT_DLL
-#endif
-#ifdef QT_DLL
-#if defined(QT_MAKEDLL)		/* create a Qt DLL library */
-#undef QT_DLL
-#define Q_EXPORT  __declspec(dllexport)
-#define Q_TEMPLATEDLL
-#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
-#endif
-#endif
-#if defined(QT_DLL)		/* use a Qt DLL library */
-#define Q_EXPORT  __declspec(dllimport)
-#define Q_TEMPLATEDLL
-#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
-#endif
-#else // ! _OS_WIN32_
-#undef QT_MAKEDLL		/* ignore these for other platforms */
-#undef QT_DLL
+#  if defined(QT_NODLL)
+#    undef QT_MAKEDLL
+#    undef QT_DLL
+#  endif
+#  ifdef QT_DLL
+#    if defined(QT_MAKEDLL)	/* create a Qt DLL library */
+#      undef QT_DLL
+#      define Q_EXPORT  __declspec(dllexport)
+#      define Q_TEMPLATEDLL
+#      undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#    endif
+#  endif
+#  if defined(QT_DLL)		/* use a Qt DLL library */
+#    define Q_EXPORT  __declspec(dllimport)
+#    define Q_TEMPLATEDLL
+#    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
+#  endif
+#else
+#  undef QT_MAKEDLL		/* ignore these for other platforms */
+#  undef QT_DLL
 #endif
 
 #ifndef Q_EXPORT
-#define Q_EXPORT
+#  define Q_EXPORT
 #endif
 
 //
@@ -446,14 +437,14 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 //
 
 #if !defined(NO_CHECK)
-#define CHECK_STATE				// check state of objects etc.
-#define CHECK_RANGE				// check range of indexes etc.
-#define CHECK_NULL				// check null pointers
-#define CHECK_MATH				// check math functions
+#  define CHECK_STATE				// check state of objects etc.
+#  define CHECK_RANGE				// check range of indexes etc.
+#  define CHECK_NULL				// check null pointers
+#  define CHECK_MATH				// check math functions
 #endif
 
 #if !defined(NO_DEBUG) && !defined(DEBUG)
-#define DEBUG					// display debug messages
+#  define DEBUG					// display debug messages
 #endif
 
 //
@@ -463,33 +454,33 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 //
 
 #if !defined(CC_WARNINGS)
-#define Q_NO_WARNINGS
+#  define Q_NO_WARNINGS
 #endif
 #if defined(Q_NO_WARNINGS)
-#if defined(_CC_MSVC_)
-#pragma warning(disable: 4244)
-#pragma warning(disable: 4275)
-#pragma warning(disable: 4514)
-#pragma warning(disable: 4800)
-#elif defined(_CC_BOR_)
-#pragma option -w-inl
-#pragma option -w-aus
-#pragma warn -inl
-#pragma warn -pia
-#pragma warn -ccc
-#pragma warn -rch
-#pragma warn -sig
-#elif defined(_CC_MWERKS_)
-#pragma warn_possunwant off
+#  if defined(_CC_MSVC_)
+#    pragma warning(disable: 4244)
+#    pragma warning(disable: 4275)
+#    pragma warning(disable: 4514)
+#    pragma warning(disable: 4800)
+#  elif defined(_CC_BOR_)
+#    pragma option -w-inl
+#    pragma option -w-aus
+#    pragma warn -inl
+#    pragma warn -pia
+#    pragma warn -ccc
+#    pragma warn -rch
+#    pragma warn -sig
+#  elif defined(_CC_MWERKS_)
+#    pragma warn_possunwant off
+#  endif
 #endif
-#endif // Q_NO_WARNINGS
 
 //
 // Avoid dead code
 //
 
 #if defined(_CC_EDG_) || defined(_CC_WAT_)
-#define Q_NO_DEAD_CODE
+#  define Q_NO_DEAD_CODE
 #endif
 
 //
@@ -561,9 +552,9 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if defined(CHECK_NULL)
-#define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#  define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
-#define CHECK_PTR(p)
+#  define CHECK_PTR(p)
 #endif
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
