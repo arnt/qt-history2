@@ -400,9 +400,6 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 
     qApp->setName( appName );
     if ( qt_is_gui_used ) {
-#ifndef QT_NO_STYLE_AQUA
-	QAquaStyle::appearanceChanged();
-#endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #endif
@@ -424,6 +421,10 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
 			     GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
     }
+
+#ifndef QT_NO_STYLE_AQUA
+    QAquaStyle::appearanceChanged();
+#endif
 }
 
 /*****************************************************************************
@@ -1981,6 +1982,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	} else if(ekind == kEventWindowActivated) {
+#ifndef QT_NO_STYLE_AQUA
+	    //I shouldn't have to do this, but the StyleChanged isn't happening as I expected
+	    //so this is in for now, FIXME!
+	    QAquaStyle::appearanceChanged();
+#endif
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
