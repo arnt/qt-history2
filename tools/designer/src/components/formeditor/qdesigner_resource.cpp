@@ -755,7 +755,9 @@ bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QStr
 
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
-    if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
+    if (prop == QLatin1String("objectName")) // ### don't store the property objectName
+        return false;
+    else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
         return false;
     else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop))
         return false;

@@ -482,6 +482,8 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
     }
 
+    output << option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName) << "));\n";
+
     for (int i=0; i<lst.size(); ++i) {
         DomProperty *p = lst.at(i);
         QString propertyName = p->attributeName();
@@ -634,6 +636,14 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::String: {
+            if (propertyName == QLatin1String("objectName")) {
+                QString v = p->elementString()->text();
+                if (v == varName)
+                    break;
+
+                qWarning("Deprecated: the property `objectName' is different from the variable name");
+            }
+
             if (p->elementString()->hasAttributeNotr()
                     && toBool(p->elementString()->attributeNotr())) {
                 propertyValue = QLatin1String("QString::fromUtf8(")
