@@ -81,7 +81,7 @@ void QWSSocket::connectToLocalFile(const QString &file)
     } else {
         perror( "QWSSocket::connectToLocalFile connection refused ");
         ::close(s);
-        emit error(Qt::ConnectionRefusedError);
+        emit error(ConnectionRefusedError);
     }
 }
 
