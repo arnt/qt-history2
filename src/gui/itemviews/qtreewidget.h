@@ -156,10 +156,13 @@ public:
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
 
-    bool isVisible(const QTreeWidgetItem *item) const;
+    bool isItemVisible(const QTreeWidgetItem *item) const;
+    bool isItemOpen(const QTreeWidgetItem *item) const;
 
 public slots:
     void ensureItemVisible(const QTreeWidgetItem *item);
+    void openItem(const QTreeWidgetItem *item);
+    void closeItem(const QTreeWidgetItem *item);
     void sortItems(int column);
     void clear();
 

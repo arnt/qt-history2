@@ -114,8 +114,10 @@ QTreeModel::~QTreeModel()
 void QTreeModel::clear()
 {
     for (int i = 0; i < tree.count(); ++i) {
+        tree.at(i)->par = 0;
         tree.at(i)->view = 0;
         delete tree.at(i);
+        tree[i] = 0;
     }
     tree.clear();
     emit reset();
@@ -136,10 +138,9 @@ void QTreeModel::setColumnCount(int columns)
     c = columns;
     if (c < _c)
         emit columnsRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
-//    header->setColumnCount(c);
     header->values.resize(c);
     for (int i = _c; i < c; ++i)
-        header->setText(i, QString::number(i)); // FIXME: shoulnd't save anything
+        header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
     if (c > _c)
         emit columnsInserted(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
 }
@@ -1239,12 +1240,23 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
   Returns true if the \a item is in the viewport, otherwise returns false.
 */
 
-bool QTreeWidget::isVisible(const QTreeWidgetItem *item) const
+bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
     return d->viewport->rect().contains(rect);
+}
+
+/*!
+  Returns true if the \a item is open; otherwise returns false.
+*/
+
+bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    return isOpen(index);
 }
 
 /*!
@@ -1256,6 +1268,28 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QTreeView::ensureItemVisible(index);
+}
+
+/*!
+    Opens the \a item.
+*/
+
+void QTreeWidget::openItem(const QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    open(index);
+}
+
+/*!
+    Closes the \a item.
+*/
+
+void QTreeWidget::closeItem(const QTreeWidgetItem *item)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    close(index);
 }
 
 void QTreeWidget::sortItems(int column)
