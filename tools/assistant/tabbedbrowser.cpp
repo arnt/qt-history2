@@ -238,7 +238,8 @@ void TabbedBrowser::setup()
     QFont fnt(font());
     QFontInfo fntInfo(fnt);
     fnt.setFamily(config->fontFamily());
-    fnt.setPointSize(config->fontSize());
+    if (config->fontSize() > 0)
+        fnt.setPointSize(config->fontSize());
     setBrowserFont(fnt);
 
     QPalette pal = palette();
