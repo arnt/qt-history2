@@ -2848,7 +2848,7 @@ QStringList QFileDialog::selectedFiles() const
 		u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it) ) );
 	    }
 	    if ( u.isLocalFile() ) {
-		QString s = u.toString();
+		QString s = u.toString(TRUE);
 		if ( s.left( 5 ) == "file:" )
 		    s.remove( 0, 5 );
 		QUrl::decode( s );
@@ -3614,7 +3614,8 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	if ( !d->currentFileName.isNull() || isDir ) {
 	    if ( u.fileName() != ".." ) {
 		QString fn = u.fileName();
-		QUrl::decode(fn);
+		// filename seems to already be decoded!
+		// QUrl::decode(fn);
 		nameEdit->setText( fn );
 	    } else {
 		nameEdit->setText("");
