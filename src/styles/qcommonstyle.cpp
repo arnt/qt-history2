@@ -51,6 +51,7 @@
 #include "qscrollbar.h"
 #include "qtoolbutton.h"
 #include "qspinbox.h"
+#include "../widgets/qrangecontrolwidget_p.h"
 #include "qgroupbox.h"
 #include <limits.h>
 
@@ -84,12 +85,12 @@ QCommonStyle::~QCommonStyle()
 /*!\reimp
 */
 void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-                                    QMenuItem* mi, QColorGroup& g,
-                                    bool, bool, bool )
+				    QMenuItem* mi, QColorGroup& g,
+				    bool, bool, bool )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-            g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
+	    g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
 #endif
 }
 
@@ -102,38 +103,38 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 #ifndef QT_NO_PUSHBUTTON
     QRect r = pushButtonContentsRect( btn );
     if ( btn->isDown() || btn->isOn() ){
-        int sx = 0;
-        int sy = 0;
-        getButtonShift(sx, sy);
-        r.moveBy( sx, sy );
+	int sx = 0;
+	int sy = 0;
+	getButtonShift(sx, sy);
+	r.moveBy( sx, sy );
     }
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
     if ( btn->isMenuButton() ) {
-        int dx = menuButtonIndicatorWidth( btn->height() );
-        drawArrow( p, DownArrow, FALSE,
-                   x+w-dx, y+2, dx-4, h-4,
-                   btn->colorGroup(),
-                   btn->isEnabled() );
-        w -= dx;
+	int dx = menuButtonIndicatorWidth( btn->height() );
+	drawArrow( p, DownArrow, FALSE,
+		   x+w-dx, y+2, dx-4, h-4,
+		   btn->colorGroup(),
+		   btn->isEnabled() );
+	w -= dx;
     }
 
     if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
-        QIconSet::Mode mode = btn->isEnabled()
-                              ? QIconSet::Normal : QIconSet::Disabled;
-        if ( mode == QIconSet::Normal && btn->hasFocus() )
-            mode = QIconSet::Active;
-        QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
-        int pixw = pixmap.width();
-        int pixh = pixmap.height();
-        p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
-        x += pixw + 4;
-        w -= pixw + 4;
+	QIconSet::Mode mode = btn->isEnabled()
+			      ? QIconSet::Normal : QIconSet::Disabled;
+	if ( mode == QIconSet::Normal && btn->hasFocus() )
+	    mode = QIconSet::Active;
+	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
+	x += pixw + 4;
+	w -= pixw + 4;
     }
     drawItem( p, x, y, w, h,
-              AlignCenter | ShowPrefix,
-              btn->colorGroup(), btn->isEnabled(),
-              btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
+	      AlignCenter | ShowPrefix,
+	      btn->colorGroup(), btn->isEnabled(),
+	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
 #endif
 }
 
@@ -144,14 +145,14 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 /*!\reimp
  */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
-                                  int& overlap) const
+				  int& overlap) const
 {
 #ifndef QT_NO_TABBAR
     overlap = 3;
     hframe = 24;
     vframe = 0;
     if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
-        vframe += 10;
+	vframe += 10;
 #endif
 }
 
@@ -161,39 +162,39 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 {
 #ifndef QT_NO_TABBAR
     if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
-        // triangular, above or below
-        int y;
-        int x;
-        QRect r = t->rect();
-        QPointArray a( 10 );
-        a.setPoint( 0, 0, -1 );
-        a.setPoint( 1, 0, 0 );
-        y = r.height()-2;
-        x = y/3;
-        a.setPoint( 2, x++, y-1 );
-        a.setPoint( 3, x++, y );
-        a.setPoint( 3, x++, y++ );
-        a.setPoint( 4, x, y );
+	// triangular, above or below
+	int y;
+	int x;
+	QRect r = t->rect();
+	QPointArray a( 10 );
+	a.setPoint( 0, 0, -1 );
+	a.setPoint( 1, 0, 0 );
+	y = r.height()-2;
+	x = y/3;
+	a.setPoint( 2, x++, y-1 );
+	a.setPoint( 3, x++, y );
+	a.setPoint( 3, x++, y++ );
+	a.setPoint( 4, x, y );
 
-        int i;
-        int right = r.width() - 1;
-        for ( i = 0; i < 5; i++ )
-            a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+	int i;
+	int right = r.width() - 1;
+	for ( i = 0; i < 5; i++ )
+	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
 
-        if ( tb->shape() == QTabBar::TriangularAbove )
-            for ( i = 0; i < 10; i++ )
-                a.setPoint( i, a.point(i).x(),
-                            r.height() - 1 - a.point( i ).y() );
+	if ( tb->shape() == QTabBar::TriangularAbove )
+	    for ( i = 0; i < 10; i++ )
+		a.setPoint( i, a.point(i).x(),
+			    r.height() - 1 - a.point( i ).y() );
 
-        a.translate( r.left(), r.top() );
+	a.translate( r.left(), r.top() );
 
-        if ( selected )
-            p->setBrush( tb->colorGroup().base() );
-        else
-            p->setBrush( tb->colorGroup().background() );
-        p->setPen( tb->colorGroup().foreground() );
-        p->drawPolygon( a );
-        p->setBrush( NoBrush );
+	if ( selected )
+	    p->setBrush( tb->colorGroup().base() );
+	else
+	    p->setBrush( tb->colorGroup().background() );
+	p->setPen( tb->colorGroup().foreground() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
     }
 #endif
 }
@@ -213,18 +214,18 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 {
 #ifndef QT_NO_SCROLLBAR
     if ( !sb->rect().contains( p ) )
-        return NoScroll;
+	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
     pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
     if ( pos < sliderMin )
-        return SubLine;
+	return SubLine;
     if ( pos < sliderStart )
-        return SubPage;
+	return SubPage;
     if ( pos < sliderStart + sliderLength )
-        return Slider;
+	return Slider;
     if ( pos < sliderMax + sliderLength )
-        return AddPage;
+	return AddPage;
     return AddLine;
 #endif
 }
@@ -236,13 +237,13 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 #ifndef QT_NO_PUSHBUTTON
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
-        fw = buttonDefaultIndicatorWidth();
+	fw = buttonDefaultIndicatorWidth();
 
     return buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
 #endif
 }
 
-void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h, 
+void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
 				const QColor &left, const QColor &right,
 				bool /*active*/ )
 {
@@ -267,20 +268,20 @@ void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
     }
 }
 
-void QCommonStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, 
+void QCommonStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
 				     const QString &text, const QColor &tc, bool /*active*/ )
 {
     p->setPen( tc );
     p->drawText( x, y, w, h, AlignAuto | AlignVCenter | SingleLine, text );
 }
 
-void QCommonStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h, 
+void QCommonStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h,
 				      const QColorGroup &g, bool down )
 {
     drawToolButton( p, x, y, w, h, g, FALSE, down, TRUE );
 }
 
-void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, 
+void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h,
 					   const QPixmap *pm, int /*button*/, bool down )
 {
     if ( pm ) {
@@ -295,27 +296,26 @@ void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, in
 }
 
 // header
-void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h, 
+void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool down )
 {
     drawBevelButton( p, x, y, w, h, g, down );
 }
 
-// spinbox
-void QCommonStyle::drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, 
-				     const QColorGroup &g, const QSpinBox * /*sp*/, 
-				     bool /*upDown*/, bool /*enabled*/, bool down )
+// range control widget
+void QCommonStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
+						 const QColorGroup &g, QRangeControlWidget*,
+						 bool /*downbtn*/, bool /*enabled*/, bool down )
 {
     drawButton( p, x, y, w, h, g, down );
 }
 
-void QCommonStyle::drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, 
-				     const QColorGroup &g, const QSpinBox *sp,
-				     bool downbtn, bool /*enabled*/, bool down )
+void QCommonStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+						 const QColorGroup &g, QRangeControlWidget* rc,
+						 bool downbtn, bool /*enabled*/, bool down )
 {
     p->save();
-    if ( sp->buttonSymbols() == QSpinBox::PlusMinus ) {
-	
+    if ( rc->buttonSymbols() == QRangeControlWidget::PlusMinus ) {
 	p->setPen( g.buttonText() );
 	p->setBrush( g.buttonText() );
 
@@ -380,65 +380,65 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
 
     switch ( type ) {
     case QFrame::Box:
-        if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-        else
-            qDrawShadeRect( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth, mlwidth );
-        break;
+	if ( cstyle == QFrame::Plain )
+	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
+	else
+	    qDrawShadeRect( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth, mlwidth );
+	break;
 
     case QFrame::StyledPanel:
-        if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-        else
-            drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
-        break;
+	if ( cstyle == QFrame::Plain )
+	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
+	else
+	    drawPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
+	break;
 
     case QFrame::PopupPanel:
-        if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-        else
-            drawPopupPanel( p, x, y, w, h, g, lwidth );
-        break;
+	if ( cstyle == QFrame::Plain )
+	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
+	else
+	    drawPopupPanel( p, x, y, w, h, g, lwidth );
+	break;
 
     case QFrame::Panel:
-        if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
-        else
-            qDrawShadePanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
-        break;
+	if ( cstyle == QFrame::Plain )
+	    qDrawPlainRect( p, x, y, w, h, g.foreground(), lwidth );
+	else
+	    qDrawShadePanel( p, x, y, w, h, g, cstyle == QFrame::Sunken, lwidth );
+	break;
 
     case QFrame::WinPanel:
-        if ( cstyle == QFrame::Plain )
-            qDrawPlainRect( p, x, y, w, h, g.foreground(), 2 );
-        else
-            qDrawWinPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken );
-        break;
+	if ( cstyle == QFrame::Plain )
+	    qDrawPlainRect( p, x, y, w, h, g.foreground(), 2 );
+	else
+	    qDrawWinPanel( p, x, y, w, h, g, cstyle == QFrame::Sunken );
+	break;
     case QFrame::MenuBarPanel:
-        drawMenuBarPanel( p, x, y, w, h, g );
-        break;
+	drawMenuBarPanel( p, x, y, w, h, g );
+	break;
     case QFrame::ToolBarPanel:
-        drawToolBarPanel( p, x, y, w, h, g );
-        break;
+	drawToolBarPanel( p, x, y, w, h, g );
+	break;
     case QFrame::HLine:
     case QFrame::VLine:
-        if ( type == QFrame::HLine ) {
-            p1 = QPoint( x, h/2 );
-            p2 = QPoint( x+w, p1.y() );
-        }
-        else {
-            p1 = QPoint( x+w/2, 0 );
-            p2 = QPoint( p1.x(), h );
-        }
-        if ( cstyle == QFrame::Plain ) {
-            QPen oldPen = p->pen();
-            p->setPen( QPen(g.foreground(),lwidth) );
-            p->drawLine( p1, p2 );
-            p->setPen( oldPen );
-        }
-        else
-            qDrawShadeLine( p, p1, p2, g, cstyle == QFrame::Sunken,
-                            lwidth, mlwidth );
-        break;
+	if ( type == QFrame::HLine ) {
+	    p1 = QPoint( x, h/2 );
+	    p2 = QPoint( x+w, p1.y() );
+	}
+	else {
+	    p1 = QPoint( x+w/2, 0 );
+	    p2 = QPoint( p1.x(), h );
+	}
+	if ( cstyle == QFrame::Plain ) {
+	    QPen oldPen = p->pen();
+	    p->setPen( QPen(g.foreground(),lwidth) );
+	    p->drawLine( p1, p2 );
+	    p->setPen( oldPen );
+	}
+	else
+	    qDrawShadeLine( p, p1, p2, g, cstyle == QFrame::Sunken,
+			    lwidth, mlwidth );
+	break;
     default:
 	break;
     }

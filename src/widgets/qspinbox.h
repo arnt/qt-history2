@@ -48,8 +48,6 @@
 class QLineEdit;
 class QValidator;
 
-struct QSpinBoxPrivate;
-
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
@@ -65,18 +63,18 @@ class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
     Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
     Q_PROPERTY( int value READ value WRITE setValue )
-	
+
 public:
     QSpinBox( QWidget* parent = 0, const char *name = 0 );
     QSpinBox( int minValue, int maxValue, int step = 1,
 	      QWidget* parent = 0, const char* name = 0 );
     ~QSpinBox();
 
-    QString 		text() const;
+    QString		text() const;
 
-    virtual QString 	prefix() const;
-    virtual QString 	suffix() const;
-    virtual QString 	cleanText() const;
+    virtual QString	prefix() const;
+    virtual QString	suffix() const;
+    virtual QString	cleanText() const;
 
     virtual void	setSpecialValueText( const QString &text );
     QString		specialValueText() const;
@@ -138,15 +136,10 @@ protected:
     virtual void	valueChange();
     virtual void	rangeChange();
 
-    void		mousePressEvent( QMouseEvent *e );
-    void		mouseReleaseEvent( QMouseEvent *e );
-    void		mouseMoveEvent( QMouseEvent *e );
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );
     void		leaveEvent( QEvent* );
-
-    void		drawContents( QPainter *p );
 
     void		styleChange( QStyle& );
 
@@ -155,19 +148,20 @@ protected slots:
 
 private:
     void initSpinBox();
-    struct QSpinBoxPrivate* d;
+    class Private;
+    Private* d;
     QLineEdit* vi;
     QValidator* validate;
     QString pfix;
     QString sfix;
     QString specText;
-    QRect up;
-    QRect down;
+//     QRect up;
+//     QRect down;
 
     uint wrap		: 1;
     uint edited		: 1;
-    uint buttonDown	: 2;
-    uint enabled	: 2;
+//     uint buttonDown	: 2;
+//     uint enabled	: 2;
 
     void arrangeWidgets();
 

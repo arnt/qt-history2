@@ -70,15 +70,15 @@ public:
 
     //menubars
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-                          QMenuItem* mi, QColorGroup& g,
-                          bool active, bool down, bool hasFocus );
+			  QMenuItem* mi, QColorGroup& g,
+			  bool active, bool down, bool hasFocus );
 
     int menuBarFrameWidth() const { return 2; }
 
     // titlebar
-    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right, 
+    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right,
 		       bool active );
-    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text, 
+    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text,
 		       const QColor &tc, bool active );
 
     void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
@@ -87,11 +87,13 @@ public:
     // header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
 
-    // spinbox
-    void drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
-			const QSpinBox *sp, bool upDown, bool enabled, bool down );
-    void drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
-			const QSpinBox *sp, bool upDown, bool enabled, bool down );
+    // range control widget
+    virtual void drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down );
+    virtual void drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down );
 
     // groupbox
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );

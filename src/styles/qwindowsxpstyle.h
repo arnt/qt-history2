@@ -25,12 +25,12 @@ public:
 
     // shapes
     void drawPanel( QPainter *p, int x, int y, int w, int h,
-                    const QColorGroup &, bool sunken=FALSE,
-                    int lineWidth = 1, const QBrush *fill = 0 );
+		    const QColorGroup &, bool sunken=FALSE,
+		    int lineWidth = 1, const QBrush *fill = 0 );
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
-                     const QColorGroup &g, bool sunken = FALSE,
-                     const QBrush *fill = 0 );
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
 
     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
@@ -51,7 +51,7 @@ public:
 
     // ToolButton
     void drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool on, bool down, bool enabled, 
+		     const QColorGroup &g, bool on, bool down, bool enabled,
 		     bool autoRaised = FALSE, const QBrush *fill = 0 );
     void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
@@ -137,9 +137,9 @@ public:
 			const QColorGroup &, const QBrush *fill = 0 );
 
     // TitleBar
-    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right, 
+    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right,
 		       bool active );
-    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text, 
+    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text,
 		       const QColor &tc, bool active );
     void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
     void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down );
@@ -149,10 +149,14 @@ public:
 
     // spinbox
     int spinBoxFrameWidth() const;
-    void drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
-			const QSpinBox *sp, bool upDown, bool enabled, bool down );
-    void drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, 
-			const QSpinBox *sp, bool upDown, bool enabled, bool down );
+
+    // range control widget
+    virtual void drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down );
+    virtual void drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down );
 
     // groupbox
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );

@@ -48,14 +48,13 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#include "../widgets/qrangecontrolwidget_p.h"
 
-struct QSpinBoxPrivate
+class QSpinBox::Private
 {
-    QSpinBoxPrivate(): buttonSymbols( QSpinBox::UpDownArrows ), auRepTimer( 0 ) {}
-
-    QSpinBox::ButtonSymbols buttonSymbols;
-
-    QTimer *auRepTimer;
+public:
+    Private() {}
+    QRangeControlWidget* buttons;
 };
 
 
@@ -173,15 +172,14 @@ QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 
 void QSpinBox::initSpinBox()
 {
-    d = new QSpinBoxPrivate;
+    d = new Private;
+
+    d->buttons = new QRangeControlWidget( this, "buttons" );
+    connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
+    connect( d->buttons, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
 
     wrap = FALSE;
     edited = FALSE;
-    buttonDown = 0;
-    enabled = 0;
-
-    up = QRect();
-    down = QRect();
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
     vi = new QLineEdit( this, "line editor" );
@@ -434,7 +432,7 @@ QSize QSpinBox::sizeHint() const
 	w = QMAX( w, fm.width( s ) + wx );
     }
 
-    return QSize( w + down.width(), h ).expandedTo( QApplication::globalStrut() );
+    return QSize( w + d->buttons->downRect().width(), h ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -467,8 +465,7 @@ void QSpinBox::arrangeWidgets()
 	rx = x - fw;
     }
 
-    up = QRect( x, y, bs.width(), bs.height() );
-    down = QRect( x, height() - fw - bs.height(), bs.width(), bs.height() );
+    d->buttons->setGeometry( x, y, bs.width(), height() - 2*fw );
     vi->setGeometry( lx, fw, rx, height() - 2*fw );
 }
 
@@ -493,10 +490,6 @@ void QSpinBox::setValue( int value )
 
 void QSpinBox::stepUp()
 {
-    if ( d->auRepTimer && sender() == d->auRepTimer ) {
-	d->auRepTimer->stop();
-	d->auRepTimer->start( 100 );
-    }
     if ( edited )
 	interpretText();
     if ( wrapping() && ( value()+lineStep() > maxValue() ) )
@@ -516,10 +509,6 @@ void QSpinBox::stepUp()
 
 void QSpinBox::stepDown()
 {
-    if ( d->auRepTimer && sender() == d->auRepTimer ) {
-	d->auRepTimer->stop();
-	d->auRepTimer->start( 100 );
-    }
     if ( edited )
 	interpretText();
     if ( wrapping() && ( value()-lineStep() < minValue() ) )
@@ -611,100 +600,6 @@ void QSpinBox::resizeEvent( QResizeEvent* )
     arrangeWidgets();
 }
 
-static uint theButton = 0;
-
-/*!\reimp
-*/
-void QSpinBox::mousePressEvent( QMouseEvent *e )
-{
-    if ( e->button() != LeftButton )
-	return;
-
-    uint oldButtonDown = buttonDown;
-
-    if ( down.contains( e->pos() ) && enabled & 1 )
-	buttonDown = 1;
-    else if ( up.contains( e->pos() ) && enabled & 2 )
-	buttonDown = 2;
-    else
-	buttonDown = 0;
-
-    theButton = buttonDown;
-    if ( oldButtonDown != buttonDown ) {
-	if ( !buttonDown ) {
-	    repaint( down.unite( up ), FALSE );
-	} else if ( buttonDown & 1 ) {
-	    repaint( down, FALSE );
-	    if ( !d->auRepTimer ) {
-		d->auRepTimer = new QTimer( this );
-		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepDown() ) );
-		d->auRepTimer->start( 300 );
-	    }
-	    stepDown();
-	} else if ( buttonDown & 2 ) {
-	    repaint( up, FALSE );
-	    if ( !d->auRepTimer ) {
-		d->auRepTimer = new QTimer( this );
-		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepUp() ) );
-		d->auRepTimer->start( 300 );
-	    }
-	    stepUp();
-	}
-    }
-}
-
-/*!\reimp
-*/
-void QSpinBox::mouseReleaseEvent( QMouseEvent *e )
-{
-    if ( e->button() != LeftButton )
-	return;
-
-    uint oldButtonDown = theButton;
-    theButton = 0;
-    if ( oldButtonDown != theButton ) {
-	if ( oldButtonDown & 1 )
-	    repaint( down, FALSE );
-	else if ( oldButtonDown & 2 )
-	    repaint( up, FALSE );
-    }
-    delete d->auRepTimer;
-    d->auRepTimer = 0;
-
-    buttonDown = 0;
-}
-
-/*!\reimp
-*/
-void QSpinBox::mouseMoveEvent( QMouseEvent *e )
-{
-    if ( !(e->state() & LeftButton ) )
-	return;
-
-    uint oldButtonDown = theButton;
-    if ( oldButtonDown & 1 && !down.contains( e->pos() ) ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->stop();
-	theButton = 0;
-	repaint( down, FALSE );
-    } else if ( oldButtonDown & 2 && !up.contains( e->pos() ) ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->stop();
-	theButton = 0;
-	repaint( up, FALSE );
-    } else if ( !oldButtonDown && up.contains( e->pos() ) && buttonDown & 2 ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->start( 500 );
-	theButton = 2;
-	repaint( up, FALSE );
-    } else if ( !oldButtonDown && down.contains( e->pos() ) && buttonDown & 1 ) {
-	if ( d->auRepTimer )
-	    d->auRepTimer->start( 500 );
-	theButton = 1;
-	repaint( down, FALSE );
-    }
-}
-
 /*!\reimp
 */
 void QSpinBox::wheelEvent( QWheelEvent * e )
@@ -724,25 +619,6 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
     for (i=0; i<QABS(ioff); i++)
 	offset > 0 ? stepDown() : stepUp();
     offset -= ioff;
-}
-
-/*!\reimp
-*/
-void QSpinBox::drawContents( QPainter *p )
-{
-    style().drawSpinBoxButton( p, down.x(), down.y(), down.width(), down.height(), 
-			enabled & 1 ? colorGroup() : palette().disabled(),
-			this, TRUE, enabled & 1, theButton & 1 );
-    style().drawSpinBoxSymbol( p, down.x(), down.y(), down.width(), down.height(), 
-			enabled & 1 ? colorGroup() : palette().disabled(),
-			this, TRUE, enabled & 1, theButton & 1 );
-
-    style().drawSpinBoxButton( p, up.x(), up.y(), up.width(), up.height(), 
-			enabled & 2 ? colorGroup() : palette().disabled(),
-			       this, FALSE, enabled & 2, theButton & 2 );
-    style().drawSpinBoxSymbol( p, up.x(), up.y(), up.width(), up.height(), 
-			enabled & 2 ? colorGroup() : palette().disabled(),
-			this, FALSE, enabled & 2, theButton & 2 );
 }
 
 /*!  This virtual function is called by QRangeControl whenever the
@@ -815,21 +691,12 @@ void QSpinBox::updateDisplay()
     vi->setText( currentValueText() );
     vi->repaint( FALSE ); // we want an immediate repaint, might be that a widget connected to the value changed does some longer stuff which would result in a bad feedback of the spinbox
     edited = FALSE;
-    enabled = 0;
 
-    enabled |= isEnabled() && (wrapping() || value() > minValue());
-    enabled |= ( isEnabled() && (wrapping() || value() < maxValue()) ) * 2;
+    bool upEnabled = isEnabled() && (wrapping() || value() < maxValue());
+    bool downEnabled = isEnabled() && (wrapping() || value() > minValue());
 
-    if ( theButton & 1 && ( enabled & 1 ) == 0 ) {
-	theButton &= ~1;
-	buttonDown &= ~1;
-    }
-
-    if ( theButton & 2 && ( enabled & 2 ) == 0 ) {
-	theButton &= ~2;
-	buttonDown &= ~2;
-    }
-
+    d->buttons->setUpEnabled( upEnabled );
+    d->buttons->setDownEnabled( downEnabled );
     repaint( FALSE );
 }
 
@@ -870,7 +737,7 @@ void QSpinBox::interpretText()
 
 QRect QSpinBox::upRect() const
 {
-    return up;
+    return d->buttons->upRect();
 }
 
 
@@ -880,7 +747,7 @@ QRect QSpinBox::upRect() const
 
 QRect QSpinBox::downRect() const
 {
-    return down;
+    return d->buttons->downRect();
 }
 
 
@@ -1030,8 +897,15 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
     if ( buttonSymbols() == newSymbols )
 	return;
 
-    d->buttonSymbols = newSymbols;
-    repaint( FALSE );
+    switch ( newSymbols ) {
+    case UpDownArrows:
+	d->buttons->setButtonSymbols( QRangeControlWidget::UpDownArrows );
+	break;
+    case PlusMinus:
+	d->buttons->setButtonSymbols( QRangeControlWidget::PlusMinus );
+	break;
+    }
+    //    repaint( FALSE );
 }
 
 /*!  Returns the current button symbol mode.  The default is \c
@@ -1042,7 +916,13 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
-    return d->buttonSymbols;
+    switch( d->buttons->buttonSymbols() ) {
+    case QRangeControlWidget::UpDownArrows:
+	return UpDownArrows;
+    case QRangeControlWidget::PlusMinus:
+	return PlusMinus;
+    }
+    return UpDownArrows;
 }
 
 /*!

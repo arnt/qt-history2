@@ -54,6 +54,7 @@ class QToolButton;
 class QTabWidget;
 class QSpinBox;
 class QGroupBox;
+class QRangeControlWidget;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -140,7 +141,7 @@ public:
 
     // toolbutton
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken, 
+		     const QColorGroup &g, bool sunken,
 		     const QBrush *fill = 0 );
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
@@ -296,10 +297,10 @@ public:
     virtual QSize toolBarSeparatorSize( Qt::Orientation orientation ) const;
 
     // title bar
-    virtual void drawTitleBar( QPainter *p, int x, int y, int w, int h, 
-			       const QColor &left, const QColor &right, 
+    virtual void drawTitleBar( QPainter *p, int x, int y, int w, int h,
+			       const QColor &left, const QColor &right,
 			       bool active ) = 0;
-    virtual void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, 
+    virtual void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
 			       const QString &text, const QColor &tc, bool active ) = 0;
     virtual void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;
     virtual void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down ) = 0;
@@ -309,10 +310,14 @@ public:
 
     // spinbox
     virtual int spinBoxFrameWidth() const = 0;
-    virtual void drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QSpinBox *sp, 
-				bool downbtn, bool enabled, bool down ) = 0;
-    virtual void drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QSpinBox *sp,
-				bool downbtn, bool enabled, bool down ) = 0;
+
+    // range control widget
+    virtual void drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down ) = 0;
+    virtual void drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+					       const QColorGroup &g, QRangeControlWidget* rc,
+					       bool downbtn, bool enabled, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;

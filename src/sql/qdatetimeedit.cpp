@@ -40,6 +40,7 @@
 #ifndef QT_NO_SQL
 
 #include "../kernel/qrichtext_p.h"
+#include "../widgets/qrangecontrolwidget_p.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include "qbitmap.h"
@@ -57,7 +58,8 @@ class QDateTimeEditBase::Private
 {
 public:
     Private()
-	: frm( TRUE ),
+	: buttons( 0 ),
+	frm( TRUE ),
 	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
 	  pm(0),
 	  focusSec(0),
@@ -176,6 +178,8 @@ public:
 
     QPixmap* pixmap() { return pm; }
 
+    QRangeControlWidget* buttons;
+
 protected:
     void applyFocusSelection()
     {
@@ -193,6 +197,8 @@ private:
     int focusSec;
     QValueList< QNumberSection > sections;
     QString sep;
+
+
 };
 
 /*!
@@ -243,20 +249,11 @@ QDateTimeEditBase::~QDateTimeEditBase()
 
 void QDateTimeEditBase::init()
 {
-    setBackgroundMode(PaletteBase);
+    setBackgroundMode( PaletteBase );
 
-    up   = new QPushButton( this );
-    up->setFocusPolicy( QWidget::NoFocus );
-    up->setAutoDefault( FALSE );
-    up->setAutoRepeat( TRUE );
-
-    down = new QPushButton( this );
-    down->setFocusPolicy( QWidget::NoFocus );
-    down->setAutoDefault( FALSE );
-    down->setAutoRepeat( TRUE );
-
-    connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
-    connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
+    d->buttons = new QRangeControlWidget( this, "buttons" );
+    connect( d->buttons, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
+    connect( d->buttons, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 
@@ -281,71 +278,13 @@ bool QDateTimeEditBase::event( QEvent *e )
     return QWidget::event( e );
 }
 
-
 /*! \internal
+
+  Lays out the editor internals according to the size \a s.
 
 */
 
-void QDateTimeEditBase::updateArrows()
-{
-    QString key( QString::fromLatin1( "$qt$qdatetimeedit$" ) );
-    key += QString::fromLatin1( "^v" );
-    key += QString::number( down->height() );
-    QString upKey = key + QString::fromLatin1( "$up" );
-    QString dnKey = key + QString::fromLatin1( "$down" );
-    QBitmap upBm;
-    QBitmap dnBm;
-
-    bool found = QPixmapCache::find( dnKey, dnBm )
-		 && QPixmapCache::find( upKey, upBm );
-
-    if ( !found ) {
-	QPainter p;
-	int w = down->width()-4;
-	if ( w < 3 )
-	    return;
-	else if ( !(w & 1) )
-	    w--;
-	w -= ( w / 7 ) * 2;     // Empty border
-	int h = w/2 + 2;        // Must have empty row at foot of arrow
-	dnBm.resize( w, h );
-	p.begin( &dnBm );
-	p.eraseRect( 0, 0, w, h );
-	QPointArray a;
-	a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
-	p.setBrush( color1 );
-	p.drawPolygon( a );
-	p.end();
-#ifndef QT_NO_TRANSFORMATIONS
-	QWMatrix wm;
-	wm.scale( 1, -1 );
-	upBm = dnBm.xForm( wm );
-#else
-	upBm.resize( w, h );
-	p.begin( &upBm );
-	p.eraseRect( 0, 0, w, h );
-	a.setPoints( 3,  0, h-2,  w-1, h-2,  h-2, 0 );
-	p.setBrush( color1 );
-	p.drawPolygon( a );
-	p.end();
-#endif
-	QPixmapCache::insert( dnKey, dnBm );
-	QPixmapCache::insert( upKey, upBm );
-    }
-    down->setPixmap( dnBm );
-    up->setPixmap( upBm );
-
-}
-
-
-
-/*! \internal
-
-  Lays out the arrows according to the size \a s.
-
-*/
-
-void QDateTimeEditBase::layoutArrows( const QSize& s )
+void QDateTimeEditBase::layout( const QSize& s )
 {
     int fw = 0;
     if ( frame() )
@@ -358,23 +297,15 @@ void QDateTimeEditBase::layoutArrows( const QSize& s )
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
 
     int y = fw;
-    int x, lx;
+    int x = 0;
     if ( QApplication::reverseLayout() ) {
 	x = y;
-	lx = x + bs.width() + fw;
     } else {
 	x = width() - y - bs.width();
-	lx = fw;
     }
 
-    if ( up->size() != bs || down->size() != bs ) {
-	up->resize( bs );
-	down->resize( bs );
-	updateArrows();
-    }
-
-    up->move( x, y );
-    down->move( x, height() - y - up->height() );
+    d->buttons->move( x, y );
+    d->buttons->resize( bs.width(), height() - y );
     QSize pmSize( s.width(), s.height() );
     d->resize( pmSize );
 }
@@ -385,18 +316,8 @@ void QDateTimeEditBase::layoutArrows( const QSize& s )
 
 void QDateTimeEditBase::resizeEvent( QResizeEvent *e )
 {
-    layoutArrows( e->size() );
+    layout( e->size() );
     QWidget::resizeEvent( e );
-
-#if 0
-    int fw       = 0;
-    if ( frame() )
-	fw = style().defaultFrameWidth();
-    int h        = height() - fw*2;
-    int numWidth = QFontMetrics(font()).width("X");
-    int offset   = width() - up->width() - fw;
-    int sepWidth = QFontMetrics(font()).width( separator );
-#endif
 }
 
 

@@ -15,6 +15,7 @@
 #include <qcursor.h>
 #include <qscrollbar.h>
 #include <qslider.h>
+#include "../widgets/qrangecontrolwidget_p.h"
 
 #if defined (Q_WS_WIN)
 # include <qt_windows.h>
@@ -133,9 +134,9 @@ public:
 	return OpenThemeData( hwnd, c );
     }
 
-    static bool getThemeResult( HRESULT res ) 
+    static bool getThemeResult( HRESULT res )
     {
-	if ( res == S_OK ) 
+	if ( res == S_OK )
 	    return TRUE;
 	THEME_ERROR_CONTEXT myThemeErrorContext;
 	HRESULT hRslt = GetThemeLastErrorContext(&myThemeErrorContext);
@@ -271,22 +272,22 @@ public:
 
     Q_DECLARE_HANDLE(HIMAGELIST);
 
-    typedef HRESULT ( WINAPI *SetWindowThemeFnc)( 
-	HWND hwnd, 
-	LPCWSTR pstrSubAppName, 
-	LPCWSTR pstrSubIdList 
+    typedef HRESULT ( WINAPI *SetWindowThemeFnc)(
+	HWND hwnd,
+	LPCWSTR pstrSubAppName,
+	LPCWSTR pstrSubIdList
     );
-    typedef BOOL ( WINAPI *IsThemeBackgroundPartiallyTransparentFnc)( 
-	HTHEME hTheme, 
-	int iPartId, 
-	int iStateId 
+    typedef BOOL ( WINAPI *IsThemeBackgroundPartiallyTransparentFnc)(
+	HTHEME hTheme,
+	int iPartId,
+	int iStateId
     );
-    typedef INT ( WINAPI *GetThemeSysSizeFnc)( 
-	HTHEME hTheme, 
-	INT iSizeID 
+    typedef INT ( WINAPI *GetThemeSysSizeFnc)(
+	HTHEME hTheme,
+	INT iSizeID
     );
-    typedef HRESULT ( WINAPI *CloseThemeDataFnc)( 
-	HTHEME hTheme 
+    typedef HRESULT ( WINAPI *CloseThemeDataFnc)(
+	HTHEME hTheme
     );
 
     typedef HRESULT ( WINAPI *DrawThemeBackgroundFnc)(
@@ -423,7 +424,7 @@ public:
 	int iStateId,
 	int iPropId,
 	MARGINS *pMargins
-    );    
+    );
     typedef HRESULT ( WINAPI *GetThemeMetricFnc)(
 	HTHEME hTheme,
 	int iPartId,
@@ -533,7 +534,7 @@ public:
 	HTHEME hTheme,
 	int iPartId,
 	int iStateId
-    ); 
+    );
     typedef HTHEME ( WINAPI *OpenThemeDataFnc)(
 	HWND hwnd,
 	LPCWSTR pstrClassList
@@ -610,7 +611,7 @@ public:
     // hot-widget stuff
     QPoint hotSpot;
 
-    QWidget *hotWidget;    
+    QWidget *hotWidget;
     QTab *hotTab;
     QRect hotHeader;
     QPalette oldPalette;
@@ -716,7 +717,7 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 
 // shapes
 void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
-                const QColorGroup &g, bool sunken, int lineWidth, const QBrush *fill )
+		const QColorGroup &g, bool sunken, int lineWidth, const QBrush *fill )
 {
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"TAB" );
@@ -743,7 +744,7 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     bla[0] = 'P';bla[1] = 'O';bla[2] = 'P';
 
     while( TRUE ) {
-	
+
 	for ( int i = 'A'; i <= 'Z'; i++ ) {
 	    HTHEME htheme = Private::OpenThemeData( hwnd, bla );
 	    if ( htheme ) {
@@ -779,7 +780,7 @@ void QWindowsXPStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 
 
 void QWindowsXPStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-                 const QColorGroup &g, bool sunken, const QBrush *fill )
+		 const QColorGroup &g, bool sunken, const QBrush *fill )
 {
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"BUTTON" );
@@ -833,7 +834,7 @@ void QWindowsXPStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 	statusId = 1;
 
     Private::DrawThemeBackground( htheme, p->handle(), 1, statusId, &r, 0 );
-    
+
     Private::CloseThemeData( htheme );
 #else
     QWindowsStyle::drawToolButton( p, x, y, w, h, g, on, down, enabled, autoRaised, fill );
@@ -964,7 +965,7 @@ void QWindowsXPStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p )
 	    stateId  =2;
 	} else if ( btn->hasFocus() ) {
 	    stateId = 5;
-	} else 
+	} else
 	    stateId = 1;
     } else {
 	stateId = 4;
@@ -1089,7 +1090,7 @@ void QWindowsXPStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
     int xpos = x;
     if( !QApplication::reverseLayout() )
-        xpos += w - 2 - 16;
+	xpos += w - 2 - 16;
 
     RECT r2;
     r2.left = xpos;
@@ -1100,7 +1101,7 @@ void QWindowsXPStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     if ( sunken )
 	Private::DrawThemeBackground( htheme, p->handle(), 1, 3, &r2, 0 );
     else
-	Private::DrawThemeBackground( htheme, p->handle(), 1, 
+	Private::DrawThemeBackground( htheme, p->handle(), 1,
 	    enabled ? ( d->hotWidget == p->device() ? 2 : 1 ) : 4, &r2, 0 );
 
     Private::CloseThemeData( htheme );
@@ -1301,7 +1302,7 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
     if (sliderStart > sliderMax) // sanity check
-        sliderStart = sliderMax;
+	sliderStart = sliderMax;
 
     int b = 0;
     int dimB = buttonDim;
@@ -1315,13 +1316,13 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
     int extent = HORIZONTAL ? sb->height() : sb->width();
 
     if ( HORIZONTAL ) {
-        subY = addY = ( extent - dimB ) / 2;
-        subX = b;
-        addX = length - dimB - b;
+	subY = addY = ( extent - dimB ) / 2;
+	subX = b;
+	addX = length - dimB - b;
     } else {
-        subX = addX = ( extent - dimB ) / 2;
-        subY = b;
-        addY = length - dimB - b;
+	subX = addX = ( extent - dimB ) / 2;
+	subY = b;
+	addY = length - dimB - b;
     }
 
     subB.setRect( subX,subY,dimB,dimB );
@@ -1330,15 +1331,15 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
     int sliderEnd = sliderStart + sliderLength;
     int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
-        subPageR.setRect( subB.right() + 1, b,
-                          sliderStart - subB.right() - 1 , sliderW );
-        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+	subPageR.setRect( subB.right() + 1, b,
+			  sliderStart - subB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
     } else {
-        subPageR.setRect( b, subB.bottom() + 1, sliderW,
-                          sliderStart - subB.bottom() - 1 );
-        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+	subPageR.setRect( b, subB.bottom() + 1, sliderW,
+			  sliderStart - subB.bottom() - 1 );
+	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
@@ -1363,14 +1364,14 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 	    stateId += 8;
 
 	Private::DrawThemeBackground( htheme, p->handle(), 1, stateId, &r, 0 );
-    } 
+    }
     if ( controls & SubLine ) {
 	RECT r;
 	r.left = subB.left();
 	r.right = subB.right();
 	r.top = subB.top();
 	r.bottom = subB.bottom();
-	
+
 	int stateId;
 	if ( maxedOut )
 	    stateId = 4;
@@ -1411,7 +1412,7 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 	Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 2 : 3, 4, &r, 0 );
 	Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 8 : 9, 4, &gr, 0 );
     } else {
-        if (controls & SubPage ) {
+	if (controls & SubPage ) {
 	    RECT r;
 	    r.left = subPageR.left();
 	    r.right = subPageR.right() + HORIZONTAL;
@@ -1425,7 +1426,7 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 		stateId = 1;
 
 	    Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 4 : 5, stateId, &r, 0 );
-        } 
+	}
 	if ( controls  & AddPage ) {
 	    RECT r;
 	    r.left = addPageR.left() - HORIZONTAL;
@@ -1441,8 +1442,8 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 
 	    Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 4 : 5, stateId, &r, 0 );
 	}
-        if ( controls & Slider ) {
-            if ( !maxedOut ) {
+	if ( controls & Slider ) {
+	    if ( !maxedOut ) {
 		RECT r;
 		r.left = sliderR.left();
 		r.right = sliderR.right();
@@ -1473,14 +1474,14 @@ void QWindowsXPStyle::drawScrollBarControls( QPainter *p,  const QScrollBar *sb,
 
 		Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 2 : 3, stateId, &r, 0 );
 		Private::DrawThemeBackground( htheme, p->handle(), HORIZONTAL ? 8 : 9, stateId, &gr, 0 );
-            }
-        }
+	    }
+	}
     }
     // ### perhaps this should not be able to accept focus if maxedOut?
     if ( sb->hasFocus() && (controls & Slider) )
-        drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
-                               sliderR.width()-5, sliderR.height()-5), g,
-                      &sb->backgroundColor());
+	drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
+			       sliderR.width()-5, sliderR.height()-5), g,
+		      &sb->backgroundColor());
 
     Private::CloseThemeData( htheme );
 #else
@@ -1598,15 +1599,15 @@ void QWindowsXPStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
     xx = x+3;
     yy = y+5;
     for ( i=0; i<3; i++ ) {
-        a.setPoint( 2*i,   xx, yy );
-        a.setPoint( 2*i+1, xx, yy+2 );
-        xx++; yy++;
+	a.setPoint( 2*i,   xx, yy );
+	a.setPoint( 2*i+1, xx, yy+2 );
+	xx++; yy++;
     }
     yy -= 2;
     for ( i=3; i<7; i++ ) {
-        a.setPoint( 2*i,   xx, yy );
-        a.setPoint( 2*i+1, xx, yy+2 );
-        xx++; yy--;
+	a.setPoint( 2*i,   xx, yy );
+	a.setPoint( 2*i+1, xx, yy+2 );
+	xx++; yy--;
     }
     p->setPen( g.text() );
     p->drawLineSegments( a );
@@ -1646,7 +1647,7 @@ void QWindowsXPStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
     if ( active )
 	drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 		g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.highlightedText() );
-    else 
+    else
 	drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 		g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
 }
@@ -1657,8 +1658,8 @@ void QWindowsXPStyle::drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 // TitleBar
-void QWindowsXPStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h, 
-				   const QColor &left, const QColor &right, 
+void QWindowsXPStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
+				   const QColor &left, const QColor &right,
 				   bool active )
 {
 #if defined(Q_WS_WIN)
@@ -1681,8 +1682,8 @@ void QWindowsXPStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
 #endif
 }
 
-void QWindowsXPStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, 
-					const QString &text, 
+void QWindowsXPStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
+					const QString &text,
 					const QColor &tc, bool active )
 {
 #if defined(Q_WS_WIN)
@@ -1694,7 +1695,7 @@ void QWindowsXPStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h
 
     Q_RECT
 
-    Private::DrawThemeText( htheme, p->handle(), 6, active ? 1 : 2, 
+    Private::DrawThemeText( htheme, p->handle(), 6, active ? 1 : 2,
 	(TCHAR*)qt_winTchar(text, FALSE), text.length(), DT_LEFT | DT_BOTTOM | DT_SINGLELINE, 0, &r );
 
     Private::CloseThemeData( htheme );
@@ -1703,12 +1704,12 @@ void QWindowsXPStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h
 #endif
 }
 
-void QWindowsXPStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h,
 					 const QColorGroup &g, bool down )
 {
 }
 
-void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h,
 					      const QPixmap *pm, int button, bool down )
 {
 #if defined(Q_WS_WIN)
@@ -1733,7 +1734,7 @@ void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w,
     case 3: // close
 	partId = 16;
 	break;
-    case 4: // restore 
+    case 4: // restore
     case 5:
 	partId = 19;
 	break;
@@ -1756,7 +1757,7 @@ void QWindowsXPStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w,
 }
 
 // Header
-void QWindowsXPStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 					const QColorGroup &g, bool down )
 {
 #if defined(Q_WS_WIN)
@@ -1767,7 +1768,7 @@ void QWindowsXPStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h
     }
 
     Q_RECT
-    
+
     int stateId;
     if ( down )
 	stateId = 3;
@@ -1790,22 +1791,23 @@ int QWindowsXPStyle::spinBoxFrameWidth() const
     return 0;
 }
 
-void QWindowsXPStyle::drawSpinBoxButton( QPainter *p, int x, int y, int w, int h, 
-					const QColorGroup &g, const QSpinBox *sp, 
-					bool downbtn, bool enabled, bool down )
+// range control widget
+void QWindowsXPStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
+						    const QColorGroup &g, QRangeControlWidget* rc,
+						    bool downbtn, bool enabled, bool down )
 {
     if ( !d->use_xp )
-	QWindowsStyle::drawSpinBoxButton( p, x, y, w, h, g, sp, downbtn, enabled, down );
+	QWindowsStyle::drawRangeControlWidgetButton( p, x, y, w, h, g, sp, downbtn, enabled, down );
 }
 
-void QWindowsXPStyle::drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h, 
-					const QColorGroup &g, const QSpinBox *sp, 
-					bool downbtn, bool enabled, bool down )
+void QWindowsXPStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+						    const QColorGroup &g, QRangeControlWidget* rc,
+						    bool downbtn, bool enabled, bool down )
 {
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"SPIN" );
     if ( !htheme ) {
-	QWindowsStyle::drawSpinBoxSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
+	QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
 	return;
     }
 
@@ -1825,12 +1827,12 @@ void QWindowsXPStyle::drawSpinBoxSymbol( QPainter *p, int x, int y, int w, int h
 
     Private::CloseThemeData( htheme );
 #else
-    QWindowsStyle::drawSpinBoxSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
+    QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
 #endif
 }
 
 // GroupBox
-void QWindowsXPStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h,
 					const QColorGroup &g, const QString &text, bool enabled )
 {
 #if defined(Q_WS_WIN)
@@ -1841,7 +1843,7 @@ void QWindowsXPStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h
     }
 
     Q_RECT
-    
+
     Private::DrawThemeText( htheme, p->handle(), 4, 1, (TCHAR*)qt_winTchar( text, FALSE ), text.length(), DT_CENTER | DT_SINGLELINE | DT_VCENTER, 0, &r );
 
     Private::CloseThemeData( htheme );
@@ -1850,7 +1852,7 @@ void QWindowsXPStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h
 #endif
 }
 
-void QWindowsXPStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h,
 					const QColorGroup &g, const QGroupBox *gb )
 {
 #if defined(Q_WS_WIN)
@@ -1871,7 +1873,7 @@ void QWindowsXPStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h
 }
 
 // statusbar
-void QWindowsXPStyle::drawStatusBarSection( QPainter *p, int x, int y, int w, int h, 
+void QWindowsXPStyle::drawStatusBarSection( QPainter *p, int x, int y, int w, int h,
 					   const QColorGroup &g, bool permanent )
 {
 #if defined(Q_WS_WIN)
@@ -1931,7 +1933,7 @@ void QWindowsXPStyle::drawProgressBar( QPainter *p, int x, int y, int w, int h, 
 	return;
     }
 
-    Q_RECT 
+    Q_RECT
 
     Private::DrawThemeBackground( htheme, p->handle(), 1, 1, &r, 0 );
 
@@ -1972,7 +1974,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 {
     if ( o && o->isWidgetType() ) {
 	switch ( e->type() ) {
-	case QEvent::MouseMove: 
+	case QEvent::MouseMove:
 	    {
 		if ( d->hotWidget != o )
 		    break;

@@ -108,8 +108,7 @@ protected:
     void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
-    void updateArrows();
-    void layoutArrows( const QSize& s );
+    void layout( const QSize& s );
     int focusSection() const;
 
     void setSectionSelection( int sec, int selstart, int selend );
@@ -120,7 +119,6 @@ protected:
     virtual void removeLastNumber( int sec );
 
 private:
-    QPushButton        * up, * down;
     class Private;
     Private* d;
 };
