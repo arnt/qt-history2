@@ -5,7 +5,7 @@
 
 class QEventDispatcherWin32Private;
 
-class QEventDispatcherWin32 : public QAbstractEventDispatcher
+class Q_CORE_EXPORT QEventDispatcherWin32 : public QAbstractEventDispatcher
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QEventDispatcherWin32)
@@ -27,9 +27,8 @@ public:
     void wakeUp();
     void flush();
 
-protected:
-    void winProcessEvent(void *message);
-    bool winEventFilter(void *message, long *res);
+    virtual void winProcessEvent(void *message);
+    virtual bool winEventFilter(void *message, long *res);
 
 private:
     friend bool qt_dispatch_socketnotifier(MSG *msg);
