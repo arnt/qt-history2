@@ -288,6 +288,7 @@ void QProgressDialog::init( QWidget *creator,
     d->autoReset = TRUE;
     d->forceHide = FALSE;
     setCancelButtonText( canc );
+    connect( this, SIGNAL(canceled()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(canceled()), this, SLOT(cancel()) );
     forceTimer = new QTimer( this );
     connect( forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()) );
