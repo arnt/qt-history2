@@ -93,8 +93,6 @@ additional information about required libraries.
 \target QMYSQL3
 \section2 QMYSQL3 for MySQL 3.x and MySQL 4.x
 
-\keyword QMYSQL3
-
 \section3 General information
 
 MySQL 3.x doesn't support SQL transactions by default, although there
@@ -146,8 +144,6 @@ make in the line above.
 
 \target QOCI8
 \section2 QOCI8 for the Oracle Call Interface (OCI)
-
-\keyword QOCI8
 
 \section3 General information
 
@@ -247,8 +243,6 @@ set PATH=%PATH%;c:\oracle\bin
 \target QODBC3
 \section2 QODBC3 for Open Database Connectivity (ODBC)
 
-\keyword QODBC3
-
 \section3 General information
 
 ODBC is a general interface that allows you to connect to multiple
@@ -322,8 +316,6 @@ make in the line above.
 
 \target QPSQL7
 \section2 QPSQL7 for PostgreSQL version 6 and 7
-
-\keyword QPSQL7
 
 \section3 General information
 
@@ -404,8 +396,6 @@ line above.
 \target QTDS7
 \section2 QTDS7 for Sybase Adaptive Server and Microsoft SQL Server
 
-\keyword QTDS7
-
 \section3 How to build the plugin on Unix/Linux
 
 Under Unix, two libraries are available which support the TDS protocol:
@@ -452,8 +442,6 @@ the line above.
 \target QDB2
 \section2 QDB2 for IBM DB2 (v7.1 or higher)
 
-\keyword QDB2
-
 \section3 General information
 
 The Qt DB2 plugin makes it possible to access IBM DB2 databases. It
@@ -492,8 +480,6 @@ with \c make in the line above.
 \target QSQLITE
 \section2 QSQLITE for SQLite
 
-\keyword QSQLITE
-
 The Qt SQLite plugin makes it possible to access SQLite databases.
 SQLite is an in-process database, which means that it is not necessary
 to have a database server. SQLite operates on a single file, which
@@ -529,8 +515,6 @@ make
 
 \target QIBASE
 \section2 QIBASE for Borland Interbase
-
-\keyword QIBASE
 
 \section3 General information
 
