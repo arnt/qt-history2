@@ -19,7 +19,7 @@
 
 class QSqlModelPrivate;
 class QSqlError;
-class QSqlField;
+class QSqlRecord;
 class QSqlQuery;
 
 class QSqlModel: public QAbstractItemModel
@@ -33,7 +33,7 @@ public:
 
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
-    QSqlField field(int column) const;
+    QSqlRecord record() const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);

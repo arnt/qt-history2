@@ -497,7 +497,7 @@ void QSqlTableModel::setSort(int column, SortOrder order)
 QString QSqlTableModel::orderByStatement() const
 {
     QString s;
-    QSqlField f = field(d->sortColumn);
+    QSqlField f = d->rec.field(d->sortColumn);
     if (!f.isValid())
         return s;
     s.append("ORDER BY ").append(f.name());

@@ -223,12 +223,13 @@ void QSqlModel::setLastError(const QSqlError &error)
 }
 
 /*!
-    Returns the field information about the given \a column or an
-    invalid QSqlField if \a column is out of bounds.
+   Returns the record containing information about the fields
+   that are currently displayed. Returns an empty record if
+   the model has not yet been initialized.
 */
-QSqlField QSqlModel::field(int column) const
+QSqlRecord QSqlModel::record() const
 {
-    return d->rec.field(column);
+    return d->rec;
 }
 
 /*!
