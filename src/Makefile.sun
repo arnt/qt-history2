@@ -6,8 +6,8 @@ include Makefile
 
 #CDBGFLAGS	= -g -pto
 CFLAGS		= -O2 -pto
-CDBGFLAGS	= -g
-CSTATICFLAGS	= -pto -ptv -xar
+CDBGFLAGS	= -g -pto
+CSTATICFLAGS	= -ptv -xar
 MAKE		= gmake
 
 CC		= CC
