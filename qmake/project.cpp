@@ -881,19 +881,30 @@ QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
     for(int x = 0, rep; x < 5; x++) {
+	int jump_to = 0;
 	QRegExp reg_var;
 	reg_var.setMinimal(TRUE);
 	if( x == 0 ) //function blocked out by {}'s
-	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
+	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
 	else if( x == 1 ) //variables blocked out by {}'s
-	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
+	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
 	else if(x == 2) //environment
-	    reg_var = QRegExp("(^|[^\\\\])\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
+	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
 	else if(x == 3) //function
-	    reg_var = QRegExp("(^|[^\\\\])\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
+	    reg_var = QRegExp("(^|\\\\*\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
 	else if(x == 4) //normal variable
-	    reg_var = QRegExp("(^|[^\\\\])\\$\\$([a-zA-Z0-9_\\.-]*)");
-	while((rep = reg_var.search(str)) != -1) {
+	    reg_var = QRegExp("(^|\\\\*)\\$\\$([a-zA-Z0-9_\\.-]*)");
+	while((rep = reg_var.search(str, jump_to)) != -1) {
+	    QString prefix = reg_var.cap(1);
+	    if(!prefix.isEmpty()) { //escaping
+		prefix = prefix.left(prefix.length()-1);
+		if(!(prefix.length() % 2)) {
+		    str.replace(rep, reg_var.matchedLength(), reg_var.cap(0).mid(1));
+		    jump_to = rep + reg_var.matchedLength();
+		    continue;
+		}
+	    }
+
 	    QString replacement;
 	    if(x == 2) {//environment
 		replacement = getenv(reg_var.cap(2));
@@ -990,7 +1001,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    }
 	    debug_msg(2, "Project parser: %d (%s) :: %s -> %s", x, str.latin1(),
 		      reg_var.capturedTexts().join("::").latin1(), replacement.latin1());
-	    str.replace(rep, reg_var.matchedLength(), reg_var.cap(1) + replacement);
+	    str.replace(rep, reg_var.matchedLength(), prefix + replacement);
 	}
     }
     return str;
