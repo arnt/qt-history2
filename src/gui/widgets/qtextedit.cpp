@@ -361,8 +361,6 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
         QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
 
-        cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
-
         viewport->setBackgroundRole(QPalette::Base);
         viewport->setAcceptDrops(true);
         q->setFocusPolicy(Qt::WheelFocus);
