@@ -1169,7 +1169,7 @@ QString QDir::cleanDirPath( const QString &filePath )
 	while ( upLevel-- )
 	    newPath.insert( 0, QString::fromLatin1("/..") );
 	if ( !newPath.isEmpty() )
-	    newPath.remove( (uint)0, 1 );
+	    newPath.remove( (uint)0, (uint)1 );
 	else
 	    newPath = QString::fromLatin1(".");
     } else {
