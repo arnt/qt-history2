@@ -302,6 +302,7 @@ static QPoint realWidgetPos( QWidget *w )
 class QDockWindowHandle : public QWidget
 {
     Q_OBJECT
+    friend class QDockWindow;
 
 public:
     QDockWindowHandle( QDockWindow *dw );
@@ -383,6 +384,8 @@ void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
     mousePressed = TRUE;
     offset = e->pos();
     dockWindow->startRectDraw( e->pos(), !opaque );
+    if ( !opaque )
+	qApp->installEventFilter( dockWindow );
 }
 
 void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
@@ -396,6 +399,7 @@ void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 {
+    qApp->removeEventFilter( dockWindow );
     if ( !mousePressed )
 	return;
     dockWindow->endRectDraw( !opaque );
@@ -474,6 +478,7 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
 class QDockWindowTitleBar : public QTitleBarLabel
 {
     Q_OBJECT
+    friend class QDockWindow;
 
 public:
     QDockWindowTitleBar( QDockWindow *dw );
@@ -518,6 +523,8 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     offset = e->pos();
     dockWindow->startRectDraw( e->pos(), !opaque );
+    if ( !opaque )
+	qApp->installEventFilter( dockWindow );
 }
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
@@ -531,6 +538,9 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    qApp->removeEventFilter( dockWindow );
+    if ( !mousePressed )
+	return;
     dockWindow->endRectDraw( !opaque );
     mousePressed = FALSE;
     if ( !hadDblClick )
@@ -747,6 +757,7 @@ void QDockWindow::setOrientation( Orientation o )
 
 QDockWindow::~QDockWindow()
 {
+    qApp->removeEventFilter( this );
     if ( area() )
 	area()->removeDockWindow( this, FALSE, FALSE );
     if ( area()  && area()->parentWidget() &&
@@ -1467,5 +1478,23 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 	}
     }
 }
+
+bool QDockWindow::eventFilter( QObject *o, QEvent *e )
+{
+    if ( e->type() == QEvent::KeyPress ) {
+	QKeyEvent *ke = (QKeyEvent*)e;
+	if ( ke->key() == Key_Escape ) {
+	    horHandle->mousePressed = FALSE;
+	    verHandle->mousePressed = FALSE;
+	    titleBar->mousePressed = FALSE;
+	    endRectDraw( !opaque );
+	    qApp->removeEventFilter( this );
+	    return TRUE;
+	}
+    }
+
+    return QFrame::eventFilter( o, e );
+}
+
 
 #include "qdockwindow.moc"

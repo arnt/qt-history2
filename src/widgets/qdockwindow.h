@@ -124,6 +124,8 @@ public:
     virtual void setOpaqueMoving( bool b );
     bool opaqueMoving() const;
 
+    bool eventFilter( QObject *o, QEvent *e );
+
 signals:
     void orientationChanged( Orientation o );
     void placeChanged( QDockWindow::Place p );
