@@ -767,8 +767,8 @@ int QListBoxPixmap::rtti() const
     \ingroup advanced
     \mainclass
 
-    This is typically a single-column list in which zero or one item
-    is selected, but it can also be used in many other ways.
+    This is typically a single-column list in which either no item or
+    one item is selected, but it can also be used in many other ways.
 
     QListBox will add scroll bars as necessary, but it isn't intended
     for \e really big lists. If you want more than a few thousand
@@ -786,33 +786,32 @@ int QListBoxPixmap::rtti() const
     Because QListBox offers multiple selection it must display
     keyboard focus and selection state separately. Therefore there are
     functions both to set the selection state of an item, i.e.
-    setSelected(), and to choose which item displays keyboard focus,
-    i.e. setCurrentItem().
+    setSelected(), and to set which item displays keyboard focus, i.e.
+    setCurrentItem().
 
     The list box normally arranges its items in a single column and
     adds a vertical scroll bar if required. It is possible to have a
     different fixed number of columns (setColumnMode()), or as many
     columns as will fit in the list box's assigned screen space
-    (setColumnMode( FitToWidth )), or to have a fixed number of rows
+    (setColumnMode(FitToWidth)), or to have a fixed number of rows
     (setRowMode()) or as many rows as will fit in the list box's
-    assigned screen space (setRowMode( FitToHeight )). In all these
+    assigned screen space (setRowMode(FitToHeight)). In all these
     cases QListBox will add scroll bars, as appropriate, in at least
     one direction.
 
     If multiple rows are used, each row can be as high as necessary
     (the normal setting), or you can request that all items will have
-    the same height by calling setVariableHeight( FALSE ). The same
+    the same height by calling setVariableHeight(FALSE). The same
     applies to a column's width, see setVariableWidth().
 
-    The items discussed are QListBoxItem objects. QListBox provides
+    The QListBox's items are QListBoxItem objects. QListBox provides
     methods to insert new items as strings, as pixmaps, and as
     QListBoxItem * (insertItem() with various arguments), and to
     replace an existing item with a new string, pixmap or QListBoxItem
     (changeItem() with various arguments). You can also remove items
     singly with removeItem() or clear() the entire list box. Note that
-    if you create a QListBoxItem yourself and insert it, it becomes
-    the property of QListBox and you must not delete it. (QListBox
-    will delete it when appropriate.)
+    if you create a QListBoxItem yourself and insert it, QListBox
+    takes ownership of the item.
 
     You can also create a QListBoxItem, such as QListBoxText or
     QListBoxPixmap, with the list box as first parameter. The item
@@ -830,8 +829,7 @@ int QListBoxPixmap::rtti() const
     (recommended) and using integer indexes (the original QListBox
     implementation used an array of strings internally, and the API
     still supports this mode of operation). Everything can be done
-    using the new objects; most things can be done using the indexes,
-    too, but unfortunately not everything.
+    using the new objects, and most things can be done using indexes.
 
     Each item in a QListBox contains a QListBoxItem. One of the items
     can be the current item. The highlighted() signal is emitted when

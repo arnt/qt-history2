@@ -2346,13 +2346,14 @@ void QListViewItem::ignoreDoubleClick()
     \mainclass
 
     It can display and control a hierarchy of multi-column items, and
-    provides the ability to add new items at any time. Among others
-    the user may select one or many items and sort the list in
-    increasing or decreasing order by any column.
+    provides the ability to add new items at any time. The user may
+    select one or many items (depending on the SelectionMode) and sort
+    the list in increasing or decreasing order by any column.
 
-    The simplest mode of use is to create a QListView, add some column
-    headers using addColumn() and create one or more QListViewItem or
-    QCheckListItem objects with the QListView as parent:
+    The simplest pattern of use is to create a QListView, add some
+    column headers using addColumn() and create one or more
+    QListViewItem or QCheckListItem objects with the QListView as
+    parent:
 
     \quotefile xml/tagreader-with-features/structureparser.h
     \skipto QListView * table
@@ -2433,7 +2434,7 @@ void QListViewItem::ignoreDoubleClick()
     Because QListView offers multiple selection it must display
     keyboard focus and selection state separately. Therefore there are
     functions both to set the selection state of an item
-    (setSelected()) and to select which item displays keyboard focus
+    (setSelected()) and to set which item displays keyboard focus
     (setCurrentItem()).
 
     QListView emits two groups of signals; one group signals changes
