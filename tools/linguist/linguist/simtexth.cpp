@@ -24,6 +24,8 @@
 #include <metatranslator.h>
 #include <string.h>
 
+#include "simtexth.h"
+
 typedef QValueList<MetaTranslatorMessage> TML;
 
 /*
@@ -165,12 +167,12 @@ static inline CoMatrix intersection( const CoMatrix& m, const CoMatrix& n )
     return p;
 }
 
-QStringList similarTextHeuristicCandidates( const MetaTranslator *tor,
+CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 					    const char *text,
 					    int maxCandidates )
 {
     QValueList<int> scores;
-    QStringList candidates;
+    CandidateList candidates;
     CoMatrix cmTarget( text );
     int targetLen = qstrlen( text );
 
@@ -203,7 +205,8 @@ QStringList similarTextHeuristicCandidates( const MetaTranslator *tor,
 		    break;
 	    }
 	    scores.insert( scores.at(i), score );
-	    candidates.insert( candidates.at(i), (*it).translation() );
+	    candidates.insert( candidates.at(i),
+			       Candidate(s, (*it).translation()) );
 	}
     }
     return candidates;
