@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>430</width>
-            <height>379</height>
+            <width>426</width>
+            <height>377</height>
         </rect>
     </property>
     <property stdset="1">
@@ -164,14 +164,7 @@
                             <name>sizeType</name>
                             <enum>Expanding</enum>
                         </property>
-                        <property>
-                            <name>sizeHint</name>
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                        <property>
+                        <property stdset="1">
                             <name>sizeHint</name>
                             <size>
                                 <width>20</width>
@@ -215,37 +208,7 @@
                             <cstring>listInterfaces</cstring>
                         </property>
                     </widget>
-                    <widget row="2"  column="0" >
-                        <class>QPushButton</class>
-                        <property stdset="1">
-                            <name>name</name>
-                            <cstring>buttonAddInterface</cstring>
-                        </property>
-                        <property stdset="1">
-                            <name>text</name>
-                            <string>&amp;Add...</string>
-                        </property>
-                        <property stdset="1">
-                            <name>enabled</name>
-                            <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget row="3"  column="0" >
-                        <class>QPushButton</class>
-                        <property stdset="1">
-                            <name>name</name>
-                            <cstring>buttonRemoveInterface</cstring>
-                        </property>
-                        <property stdset="1">
-                            <name>text</name>
-                            <string>&amp;Remove</string>
-                        </property>
-                        <property stdset="1">
-                            <name>enabled</name>
-                            <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget row="0"  column="1"  rowspan="4"  colspan="1" >
+                    <widget row="0"  column="1"  rowspan="2"  colspan="1" >
                         <class>QListBox</class>
                         <property stdset="1">
                             <name>name</name>
@@ -269,14 +232,7 @@
                             <name>sizeType</name>
                             <enum>Expanding</enum>
                         </property>
-                        <property>
-                            <name>sizeHint</name>
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                        <property>
+                        <property stdset="1">
                             <name>sizeHint</name>
                             <size>
                                 <width>20</width>
@@ -284,7 +240,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget row="5"  column="1" >
+                    <widget row="3"  column="1" >
                         <class>QLayoutWidget</class>
                         <property stdset="1">
                             <name>name</name>
@@ -319,7 +275,7 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget row="5"  column="0" >
+                    <widget row="3"  column="0" >
                         <class>QLabel</class>
                         <property stdset="1">
                             <name>name</name>
@@ -334,7 +290,7 @@
                             <cstring>editDatabaseFile</cstring>
                         </property>
                     </widget>
-                    <widget row="4"  column="0"  rowspan="1"  colspan="2" >
+                    <widget row="2"  column="0"  rowspan="1"  colspan="2" >
                         <class>Line</class>
                         <property stdset="1">
                             <name>name</name>
@@ -391,14 +347,7 @@
                         <name>sizeType</name>
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                    <property>
+                    <property stdset="1">
                         <name>sizeHint</name>
                         <size>
                             <width>20</width>
@@ -478,18 +427,6 @@
         <slot>helpClicked()</slot>
     </connection>
     <connection>
-        <sender>buttonAddInterface</sender>
-        <signal>clicked()</signal>
-        <receiver>ProjectSettingsBase</receiver>
-        <slot>addUiFile()</slot>
-    </connection>
-    <connection>
-        <sender>buttonRemoveInterface</sender>
-        <signal>clicked()</signal>
-        <receiver>ProjectSettingsBase</receiver>
-        <slot>removeUiFile()</slot>
-    </connection>
-    <connection>
         <sender>buttonDatabaseFile</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
@@ -508,8 +445,6 @@
     <tabstop>editProjectFile</tabstop>
     <tabstop>editProjectDescription</tabstop>
     <tabstop>listInterfaces</tabstop>
-    <tabstop>buttonAddInterface</tabstop>
-    <tabstop>buttonRemoveInterface</tabstop>
     <tabstop>editDatabaseFile</tabstop>
     <tabstop>buttonHelp</tabstop>
     <tabstop>buttonOk</tabstop>
