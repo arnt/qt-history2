@@ -1615,6 +1615,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     }
 
     qt_xdnd_source_object = o;
+    qt_xdnd_source_object->setTarget( 0 );
     qt_xdnd_deco = new QShapedPixmapWidget();
 
     willDrop = FALSE;
