@@ -333,7 +333,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		if(QFile::exists(form_dot_h))
 		    files += form_dot_h;
 		buildable = FALSE;
-	    } else if(srcs[i] == "HEADERS") {
+	    } else if(srcs[i] == "HEADERS" || srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES") {
 		buildable = FALSE;
 	    }
 
@@ -494,8 +494,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkf.close();
 	}
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(keyFor("QMAKE_PBX_PREPROCESS_TARGET"));
-	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_TARGET") << " = {" << "\n"
+	QString phase_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
+//	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
+	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
+	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
