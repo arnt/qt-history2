@@ -64,7 +64,10 @@ Ferdigstilling:
 
     Tastaturfokus/default knapp
 
-    Postscript generering (font metrics)
+    Postscript generering
+	- Font metrics
+	- Rydd opp i gammel transparent bitmap-kode
+	- Kan vi støtte drawPixmap med maske?
 
     Windows look & feel (spes. meny og combobox)
 
