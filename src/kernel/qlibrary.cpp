@@ -153,7 +153,7 @@ static void* qt_load_library( const QString &file )
     if( NSCreateObjectFileImageFromFile(file, &img)  != NSObjectFileImageSuccess )
 	return NULL;
 
-    void *ret = (void *)NSLinkModule(img, file, TRUE);
+    void *ret = (void *)NSLinkModule(img, file, NSLINKMODULE_OPTION_PRIVATE);
     glibs_loaded->insert(file, ret); //insert it in the loaded hash
     return ret;
 #else
@@ -179,12 +179,12 @@ static bool qt_free_library( void *handle )
 #endif
 }
 
-static void* qt_resolve_symbol( void *, const char *symbol)
+static void* qt_resolve_symbol( void *handle, const char *symbol)
 {
 #ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
-    return NSAddressOfSymbol(NSLookupAndBindSymbol(symn2));
+    return NSAddressOfSymbol(NSLookupSymbolInModule(handle, symn2));
 #else
     return NULL;
 #endif
