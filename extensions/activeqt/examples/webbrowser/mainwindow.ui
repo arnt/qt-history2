@@ -50,7 +50,7 @@
                         <cstring>WebBrowser</cstring>
                     </property>
                     <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                        <enum>StrongFocus</enum>
                     </property>
                     <property name="control">
                         <string>{8856F961-340A-11D0-A96B-00C04FD705A2}</string>
@@ -365,4 +365,7 @@
     <slot>navigateBegin()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>qaxwidget.h</includehint>
+</includehints>
 </UI>
