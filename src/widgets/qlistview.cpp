@@ -1825,8 +1825,11 @@ void QListView::init()
 
 void QListView::setShowSortIndicator( bool show )
 {
+    if ( show == d->sortIndicator )
+	return;
+
     d->sortIndicator = show;
-    if ( show && d->sortcolumn != Unsorted )
+    if ( d->sortcolumn != Unsorted && d->sortIndicator )
 	d->h->setSortIndicator( d->sortcolumn, d->ascending );
     else
 	d->h->setSortIndicator( -1 );
@@ -4124,7 +4127,8 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 
 void QListView::setSorting( int column, bool ascending )
 {
-    if ( column == -1 ) column = Unsorted;
+    if ( column == -1 )
+	column = Unsorted;
 
     if ( d->sortcolumn == column && d->ascending == ascending )
 	return;
@@ -4133,6 +4137,9 @@ void QListView::setSorting( int column, bool ascending )
     d->sortcolumn = column;
     if ( d->sortcolumn != Unsorted && d->sortIndicator )
 	d->h->setSortIndicator( d->sortcolumn, d->ascending );
+    else
+	d->h->setSortIndicator( -1 );
+
     triggerUpdate();
 }
 
