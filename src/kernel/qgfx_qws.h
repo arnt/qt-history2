@@ -254,10 +254,8 @@ public:
     int * opType() { return screen_optype; }
     int * lastOp() { return screen_lastop; }
 
-#ifndef QT_NO_QWS_SHADOWFB
     virtual void haltUpdates();
     virtual void resumeUpdates();
-#endif
 
 protected:
 
