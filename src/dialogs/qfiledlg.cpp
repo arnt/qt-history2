@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#92 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#93 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1093,6 +1093,9 @@ void QFileDialog::rereadDir()
 
 static QString filedlg_dir;
 
+// Defined in qapp.cpp:
+void qt_enter_modal( QWidget* );
+void qt_leave_modal( QWidget* );
 
 /*!
   Opens a modal file dialog and returns the name of the file to be
@@ -1189,10 +1192,20 @@ QString QFileDialog::getOpenFileName( const char *startWith,
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
+    
+    // Need to workaround non-modality of GetOpenFileName, like MFC does it.
+    QWidget dummy( parent, "QFileDialog dummy" );
+    if ( !parent )
+	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
+			   qApp->desktop()->height()/2 - 200, 200, 200 );
+    ofn.hwndOwner = dummy.winId();
+    
+    qt_enter_modal( &dummy );
     if ( GetOpenFileName(&ofn) ) {
 	result = file;
 	filedlg_dir = QFileInfo(file).dirPath();
     }
+    qt_leave_modal( &dummy );
 
     delete [] win_filter;
     delete [] file;
@@ -1312,10 +1325,20 @@ QString QFileDialog::getSaveFileName( const char *startWith,
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
+
+    // Need to workaround non-modality of GetSaveFileName, like MFC does it.
+    QWidget dummy( parent, "QFileDialog dummy" );
+    if ( !parent )
+	dummy.setGeometry( qApp->desktop()->width()/2 - 200,
+			   qApp->desktop()->height()/2 - 200, 200, 200 );
+    ofn.hwndOwner = dummy.winId();
+    
+    qt_enter_modal( &dummy );
     if ( GetSaveFileName(&ofn) ) {
 	result = file;
 	filedlg_dir = QFileInfo(file).dirPath();
     }
+    qt_leave_modal( &dummy );
 
     delete [] win_filter;
     delete [] file;
