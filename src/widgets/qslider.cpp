@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#9 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#9 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -413,9 +413,8 @@ void QSlider::paintEvent( QPaintEvent * )
     QColorGroup g = colorGroup();
     switch ( style() ) {
     case WindowsStyle:
-	//### drawWinFocusFrame
 	if ( hasFocus() )
-	    qDrawPlainRect( &p, 0, 0, width(), height(), black );
+	    p.drawWinFocusRect( 0, 0, width(), height() );
 	if ( orient == Horizontal ) {
 	    qDrawWinPanel( &p, 0, height()/2 - 2,  width(), 4 , g, TRUE );
 	    p.setPen( black );

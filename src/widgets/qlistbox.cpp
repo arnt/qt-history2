@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#88 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#88 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1171,9 +1171,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
 	if ( style() == WindowsStyle ) {
-	    p->setPen( QPen( yellow, 0, DotLine ) );	// !!!hardcoded
-	    p->setBrush( NoBrush );
-	    p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
+	    p->drawWinFocusRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
 	} else {
 	    p->setPen( g.base() );
 	    p->setBrush( NoBrush );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#79 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#79 $");
 
 
 /*!
@@ -337,8 +337,12 @@ void QPushButton::drawButton( QPainter *paint )
 	lastDown = isDown();
 	lastDef = defButton;
 	if ( hasFocus() ) {
-	    p->setPen( black );
-	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	    if ( style() == WindowsStyle ) {
+		p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	    } else {
+		p->setPen( black );
+		p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	    }
 	}
 	return;
     }

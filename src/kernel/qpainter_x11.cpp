@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#201 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#200 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#201 $");
 
 
 /*****************************************************************************
@@ -1693,10 +1693,11 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
     if ( !isActive() || txop == TxRotShear )
 	return;
+    static char winfocous_line[] = { 1, 1 };
 
     QPen     old_pen = cpen;
     RasterOp old_rop = (RasterOp)rop;
-    setPen( black );
+    setPen( white );
     setRasterOp( XorROP );
 
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1714,7 +1715,11 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
+    XSetDashes( dpy, gc, 0, winfocous_line, 2 );
+    XSetLineAttributes( dpy, gc, 0, LineOnOffDash, CapButt, JoinMiter );
+
     XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
+
     setRasterOp( old_rop );
     setPen( old_pen );
 }
