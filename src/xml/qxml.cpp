@@ -3519,6 +3519,7 @@ bool QXmlSimpleReaderPrivate::parseProlog()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -3706,7 +3707,9 @@ bool QXmlSimpleReaderPrivate::parseElement()
                 break;
         }
     }
+    return false;
 }
+
 /*
   Helper to break down the size of the code in the case statement.
   Return false on error, otherwise true.
@@ -4176,7 +4179,9 @@ bool QXmlSimpleReaderPrivate::parseContent()
                 break;
         }
     }
+    return false;
 }
+
 bool QXmlSimpleReaderPrivate::reportEndEntities()
 {
     int count = (int)xmlRef.count();
@@ -4323,6 +4328,7 @@ bool QXmlSimpleReaderPrivate::parseMisc()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -4554,6 +4560,7 @@ bool QXmlSimpleReaderPrivate::parsePI()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -4758,6 +4765,7 @@ bool QXmlSimpleReaderPrivate::parseDoctype()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -4937,6 +4945,7 @@ bool QXmlSimpleReaderPrivate::parseExternalID()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -5106,6 +5115,7 @@ bool QXmlSimpleReaderPrivate::parseMarkupdecl()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -5248,6 +5258,7 @@ bool QXmlSimpleReaderPrivate::parsePEReference()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -5451,6 +5462,7 @@ bool QXmlSimpleReaderPrivate::parseAttlistDecl()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -5699,6 +5711,7 @@ bool QXmlSimpleReaderPrivate::parseAttType()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -5813,6 +5826,7 @@ bool QXmlSimpleReaderPrivate::parseAttValue()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6050,6 +6064,7 @@ bool QXmlSimpleReaderPrivate::parseElementDecl()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6192,6 +6207,7 @@ bool QXmlSimpleReaderPrivate::parseNotationDecl()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6326,6 +6342,7 @@ bool QXmlSimpleReaderPrivate::parseChoiceSeq()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6625,6 +6642,7 @@ bool QXmlSimpleReaderPrivate::parseEntityDecl()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6745,6 +6763,7 @@ bool QXmlSimpleReaderPrivate::parseEntityValue()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6857,6 +6876,7 @@ bool QXmlSimpleReaderPrivate::parseComment()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -6971,6 +6991,7 @@ bool QXmlSimpleReaderPrivate::parseAttribute()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -7052,6 +7073,7 @@ bool QXmlSimpleReaderPrivate::parseName()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -7131,6 +7153,7 @@ bool QXmlSimpleReaderPrivate::parseNmtoken()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -7301,6 +7324,7 @@ bool QXmlSimpleReaderPrivate::parseReference()
                 break;
         }
     }
+    return false;
 }
 
 /*
@@ -7542,6 +7566,7 @@ bool QXmlSimpleReaderPrivate::parseString()
 
         next();
     }
+    return false;
 }
 
 /*
