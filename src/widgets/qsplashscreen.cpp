@@ -40,6 +40,17 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
+class QSplashScreenPrivate
+{
+public:
+    QPixmap pixmap;
+    QString currStatus;
+    QColor currColor;
+    int currAlign;
+};
+
+
+
 /*!
    \class QSplashScreen qsplashscreen.h
    \brief The QSplashScreen widget provides a splash screen that can be shown during
@@ -82,7 +93,9 @@
    It is sometimes useful to update the splash screen with messages,
    for example, announcing connections established or modules loaded
    as the application starts up. QSplashScreen supports this with the
-   setStatus() function.
+   setStatus() function.  It is also possible to get a pointer to
+   the pixmap used in the splash screen and do your own drawing with
+   pixmap().
 
    The user can hide the splash screen by clicking on it with the
    mouse. Since the splash screen is typically displayed before the
@@ -106,22 +119,26 @@
 
     There should be no need to set the widget flags, \a f.
 */
-
 QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
-    : QWidget( 0, 0, WStyle_Customize | WStyle_Splash | f ), pix( pixmap )
+    : QWidget( 0, 0, WStyle_Customize | WStyle_Splash | f )
 {
-    setErasePixmap( pix );
-    resize( pixmap.size() );
-    move( QApplication::desktop()->screenGeometry().center()
-	  - rect().center() );
+    d = new QSplashScreenPrivate();
+    d->pixmap = pixmap;
+    setPixmap( d->pixmap );  // Does an implicit repaint
     show();
-    repaint();
+}
+
+/*!
+  Destructor.
+*/
+QSplashScreen::~QSplashScreen()
+{
+    delete d;
 }
 
 /*!
     \reimp
 */
-
 void QSplashScreen::mousePressEvent( QMouseEvent * )
 {
     hide();
@@ -135,6 +152,7 @@ void QSplashScreen::mousePressEvent( QMouseEvent * )
 */
 void QSplashScreen::repaint()
 {
+    drawContents();
     QWidget::repaint();
     QApplication::flush();
 }
@@ -148,13 +166,9 @@ void QSplashScreen::repaint()
 void QSplashScreen::setStatus( const QString &message, int alignment,
 			       const QColor &color )
 {
-    QPixmap textPix = pix;
-    QPainter painter( &textPix, this );
-    painter.setPen( color );
-    QRect r = rect();
-    r.setRect( r.x() + 10, r.y() + 10, r.width() - 20, r.height() - 20 );
-    painter.drawText( r, alignment, message );
-    setErasePixmap( textPix );
+    d->currStatus = message;
+    d->currAlign = alignment;
+    d->currColor = color;
     repaint();
 }
 
@@ -171,4 +185,39 @@ void QSplashScreen::finish( QWidget *mainWin )
     Q_UNUSED( mainWin );
 #endif
     close();
+}
+
+/*!
+  Set the pixmap that will be used as the image of the splash screen to \a pixmap.
+*/
+void QSplashScreen::setPixmap( const QPixmap &pixmap )
+{
+    d->pixmap = pixmap;
+    resize( d->pixmap.size() );
+    move( QApplication::desktop()->screenGeometry().center()
+	  - rect().center() );
+    repaint();
+}
+
+/*!
+  Returns the pixmap that is used in the splash screen, minus any text possibly
+  set with setStatus().
+*/
+QPixmap* QSplashScreen::pixmap() const
+{
+    return &( d->pixmap );
+}
+
+/*!
+  \intern
+*/
+void QSplashScreen::drawContents()
+{
+    QPixmap textPix = d->pixmap;
+    QPainter painter( &textPix, this );
+    painter.setPen( d->currColor );
+    QRect r = rect();
+    r.setRect( r.x() + 10, r.y() + 10, r.width() - 20, r.height() - 20 );
+    painter.drawText( r, d->currAlign, d->currStatus );
+    setErasePixmap( textPix );
 }
