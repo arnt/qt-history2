@@ -198,7 +198,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
 
     defaultCtorRadioButton->setChecked(true);
 
-    connect(classNameLineEdit, SIGNAL(textChanged(QString)),
+    connect(classNameLineEdit, SIGNAL(textChanged(const QString &)),
             this, SLOT(classNameChanged()));
     connect(defaultCtorRadioButton, SIGNAL(toggled(bool)),
             copyCtorCheckBox, SLOT(setEnabled(bool)));
