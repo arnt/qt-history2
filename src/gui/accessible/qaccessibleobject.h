@@ -19,7 +19,7 @@
 #include "qaccessible.h"
 #endif // QT_H
 
-#ifndef QT_NO_ACCESSIBILITY_SUPPORT
+#ifndef QT_NO_ACCESSIBILITY
 
 class QAccessibleObjectPrivate;
 class QObject;

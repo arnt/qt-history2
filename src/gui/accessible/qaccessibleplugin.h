@@ -21,7 +21,7 @@
 #include "qfactoryinterface.h"
 #endif // QT_H
 
-#ifndef QT_NO_ACCESSIBLEPLUGIN
+#ifndef QT_NO_ACCESSIBILITY
 
 struct QAccessibleInterface;
 
@@ -46,6 +46,6 @@ public:
     virtual QAccessibleInterface *create(const QString &key, QObject *object) = 0;
 };
 
-#endif // QT_NO_ACCESSIBLEPLUGIN
+#endif // QT_NO_ACCESSIBILITY
 
 #endif // QACCESSIBLEPLUGIN_H

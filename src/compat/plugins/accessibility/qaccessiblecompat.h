@@ -6,6 +6,8 @@
 #include <qlistview.h>
 #include <qtextedit.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 class Q3AccessibleScrollView : public QAccessibleWidget
 {
 public:
@@ -95,4 +97,5 @@ protected:
     QWidgetStack *widgetStack() const;
 };
 
+#endif // QT_NO_ACCESSIBILITY
 #endif

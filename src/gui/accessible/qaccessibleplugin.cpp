@@ -14,7 +14,7 @@
 
 #include "qaccessibleplugin.h"
 
-#ifndef QT_NO_ACCESSIBLEPLUGIN
+#ifndef QT_NO_ACCESSIBILITY
 
 #include "qaccessible.h"
 
@@ -67,4 +67,4 @@ QAccessiblePlugin::~QAccessiblePlugin()
     \sa keys()
 */
 
-#endif // QT_NO_ACCESSIBLEPLUGIN
+#endif // QT_NO_ACCESSIBILITY
