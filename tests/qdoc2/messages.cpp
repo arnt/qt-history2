@@ -36,10 +36,14 @@ static bool omit( const char *message )
     count++;
     msgMap->insert( QString(message), count );
 
-    bool oh = ( numAll > maxAll || count > maxSame );
-    if ( oh )
+    if ( numAll > maxAll || count > maxSame ) {
 	numOmitted++;
-    return oh;
+	return TRUE;
+    } else if ( count == maxSame && warningLevel > 2 ) {
+	fprintf( stderr,
+		 "qdoc: Omitting further similar warnings after this:\n" );
+    }
+    return FALSE;
 }
 
 void setMaxSimilarMessages( int n )

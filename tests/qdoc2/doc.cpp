@@ -597,7 +597,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( command[3] == QChar('e') ) {
 		    consume( "line" );
 		    warning( 3, location(),
-			     "Command '\\line' is obsolete, use '\\printline'" );
+			     "Command '%s' is obsolete, use '%s'",
+			     "\\line", "\\printlint" );
 		    enterPre();
 		    yyOut += QString( "\\printline" );
 		} else {
@@ -722,7 +723,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 's', 4 ):
 		consume( "skip" );
 		warning( 3, location(),
-			 "Command '\\skip' is obsolete, use '\\skipto'" );
+			 "Command '%s' is obsolete, use '%s'",
+			 "\\skip", "\\skipto" );
 		enterPre();
 		yyOut += QString( "\\skipto" );
 		break;
@@ -749,7 +751,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'u', 5 ):
 		consume( "until" );
 		warning( 3, location(),
-			 "Command '\\until' is obsolete, use '\\printuntil'" );
+			 "Command '%s' is obsolete, use '%s'",
+			 "\\until", "\\printuntil" );
 		enterPre();
 		yyOut += QString( "\\printuntil" );
 		break;
