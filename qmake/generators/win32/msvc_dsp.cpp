@@ -282,7 +282,24 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "# End Source File" << endl;
 		}
 	    }
+	    else if(variable == "MSVCDSP_PICTURES") {
+		if(project->variables()["IMAGES"].isEmpty())
+		    continue;
+
+		t << "# Begin Group \"Images\"\n";
+		t << "# Prop Default_Filter \"png jpeg bmp xpm\"\n";
+		
+		QStringList &list = project->variables()["IMAGES"];
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString base = (*it);
+		    t << "# Begin Source File\n\nSOURCE=" << base << endl;
+		    t << "# End Source File" << endl;
+		}
+
+		t << "\n# End Group\n";
+	    }
 	    else if(variable == "MSVCDSP_FORMS") {
+		qDebug( "MSVCDSP_FORMS" );
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 
@@ -318,7 +335,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			QStringList &list = project->variables()["IMAGES"];
 			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			    imagesBuild.append(" " + base);
+			    imagesBuild.append(" " + *it );
 			}
 		    }
 
@@ -331,7 +348,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
 		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
-			build.append("\t" + uicpath + " -embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
+			build.append("\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
 			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
 		    

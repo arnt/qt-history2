@@ -39,7 +39,7 @@ INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive
 
 win32:RC_FILE	= install.rc
 
-#CONFIG += eval
+CONFIG += eval
 
 unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
 win32:LIBS		+= ../archive/arq.lib

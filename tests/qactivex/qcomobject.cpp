@@ -634,11 +634,12 @@ static inline void QVariantToQUObject( const QVariant &var, QUObject &obj )
     }
 }
 
-/*!
-    \class QAxEventSink qactivex.cpp
+/*
+    \internal
+    \class QAxEventSink qcomobject.cpp
 
-    The QAxEventSink class implements the event sink for all
-    IConnectionPoints implemented in the COM object.
+    \brief The QAxEventSink class implements the event sink for all
+	   IConnectionPoints implemented in the COM object.
 */
 
 class QAxEventSink : public IDispatch,
@@ -890,14 +891,17 @@ private:
 
 
 /*!
-    \class QComBase qactivex.h
+    \class QComBase qcomobject.h
+
     \brief The QComBase class is an abstract class that provides properties 
-	   and slots to initalize and access an COM object.
+	   and slots to initalize and access a COM object.
+
+    \extension QActiveX
 */
 
 /*!
-    Creates an empty QComBase widget. 
-    Use setControl() to instantiate an ActiveX control.
+    Creates a QComBase object that wraps the COM object \a iface. If \a iface is null (the default),
+    use setControl() to instantiate a COM object.
 */
 QComBase::QComBase( IUnknown *iface )
 : ptr( iface ), eventSink( 0 ), metaobj( 0 )
@@ -917,8 +921,7 @@ QComBase::~QComBase()
 }
 
 /*!
-    \property control
-    \brief the name of the COM object. This can be the UUID of the component, or the name.
+    Sets the control to \a c and initilializes the COM object. Any existing COM object is shut down before.
 
     The most efficient way to set this property is by using the UUID of the registered component, e.g.
     \code
@@ -969,6 +972,9 @@ void QComBase::setControl( const QString &c )
 #endif
 }
 
+/*!
+    Returns the UUID of the current component.
+*/
 QString QComBase::control() const
 {
     return ctrl;
@@ -2200,12 +2206,41 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
 }
 
 /*!
-    \class QComObject qactivex.h
-    \brief The QComObject class provides a QObject that wraps a COM object.
+    \fn IUnknown *QComBase::iface() const
+
+    Returns the pointer to the IUnknown interface implementation of the current COM object, or the null pointer
+    if there is no COM object. You must not call Release() on the returned pointer.
 */
 
 /*!
-    Creates an empty COM object. To initialize the object, use \link QComBase::setControl setControl \endlink.
+    \fn bool QComBase::qt_emit( int, QUObject* );
+    \internal 
+*/
+
+/*!
+    \fn const char *QComBase::className() const
+    \internal
+*/
+
+/*!
+    \fn bool QComBase::isNull() const
+
+    Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
+*/
+
+
+
+
+/*!
+    \class QComObject qcomobject.h
+    \brief The QComObject class provides a QObject that wraps a COM object.
+
+    \extension QActiveX
+*/
+
+/*!
+    Creates an empty COM object and propagates \a parent and \a name to the QObject constructor. 
+    To initialize the object, call \link QComBase::setControl() setControl \endlink.
 */
 QComObject::QComObject( QObject *parent, const char *name )
 : QObject( parent, name )
@@ -2214,6 +2249,7 @@ QComObject::QComObject( QObject *parent, const char *name )
 
 /*! 
     Creates a QComObject that wraps the COM object \a c.
+    \a parent and \a name are propagated to the QWidget contructor.
 */
 QComObject::QComObject( const QString &c, QObject *parent, const char *name )
 : QObject( parent, name )
@@ -2223,6 +2259,7 @@ QComObject::QComObject( const QString &c, QObject *parent, const char *name )
 
 /*!
     Creates a QComObject that wraps the COM object referenced by \a iface.
+    \a parent and \a name are propagated to the QWidget contructor.
 */
 QComObject::QComObject( IUnknown *iface, QObject *parent, const char *name )
 : QObject( parent, name ), QComBase( iface )
@@ -2329,3 +2366,8 @@ bool QComObject::qt_property( int _id, int _f, QVariant *_v )
 	return TRUE;
     return QObject::qt_property( _id, _f, _v );
 }
+
+/*!
+    \fn QObject *QComObject::qObject()
+    \reimp
+*/

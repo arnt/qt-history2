@@ -10,6 +10,7 @@
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qmultilineedit.h>
+#include <qtabwidget.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -23,6 +24,23 @@ BuildPageImpl::BuildPageImpl( QWidget* parent, const char* name, WFlags fl )
 ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
     : ConfigPage( parent, name, fl )
 {
+    if( globalInformation.reconfig() ) {
+	currentInstLabel->show();
+	currentInstallation->show();
+	rebuildInstallation->show();
+    } else {
+	currentInstLabel->hide();
+	currentInstallation->hide();
+	rebuildInstallation->hide();
+    }
+#if defined(EVAL)
+    // ### these pages should probably be included but all options should be
+    // disabled so that the evaluation customer can see how he can configure Qt
+    configTabs->removePage( generalTab );
+    configTabs->removePage( advancedTab );
+#else
+    configTabs->removePage( installTab );
+#endif
 }
 
 FinishPageImpl::FinishPageImpl( QWidget* parent, const char* name, WFlags fl )

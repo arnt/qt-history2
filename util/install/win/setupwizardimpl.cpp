@@ -449,12 +449,7 @@ void SetupWizardImpl::initPages()
 #if !defined(Q_OS_UNIX)
 	ADD_PAGE( foldersPage,		FoldersPageImpl		)
 #endif
-#if !defined(EVAL)
-	// ### this page should probably be included but all options should be
-	// disabled so that the evaluation customer can see how he can
-	// configure Qt
 	ADD_PAGE( configPage,		ConfigPageImpl		)
-#endif
 	ADD_PAGE( progressPage,		ProgressPageImpl		)
 	ADD_PAGE( buildPage,		BuildPageImpl		)
 	ADD_PAGE( finishPage,		FinishPageImpl		)
@@ -510,9 +505,15 @@ void SetupWizardImpl::initConnections()
 	connect( configPage->configList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
 	connect( configPage->configList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
 	connect( configPage->configList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+
 	connect( configPage->advancedList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
-	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
 	connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+
+#if defined(EVAL)
+	connect( configPage->installList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+#endif
+
 	connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
     }
 }
@@ -1536,6 +1537,12 @@ void SetupWizardImpl::configPageChanged()
 	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
 	optionSelected( configPage->advancedList->currentItem() );
     }
+#if defined(EVAL)
+    else if ( configPage->installList->isVisible() ) {
+	configPage->installList->setSelected( configPage->installList->currentItem(), true );
+	optionSelected( configPage->installList->currentItem() );
+    }
+#endif
 }
 
 void SetupWizardImpl::licenseChanged()

@@ -347,19 +347,11 @@ void SetupWizardImpl::prepareEnvironment()
     if( globalInformation.reconfig() ) {
 	qtDir = QEnvironment::getEnv( "QTDIR" );
 	if ( configPage ) {
-	    configPage->currentInstLabel->show();
-	    configPage->currentInstallation->show();
-	    configPage->rebuildInstallation->show();
 	    configPage->currentInstallation->setText( qtDir );
 	}
     }
     else {
 	qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( optionsPage->installPath->text() ) );
-	if ( configPage ) {
-	    configPage->currentInstLabel->hide();
-	    configPage->currentInstallation->hide();
-	    configPage->rebuildInstallation->hide();
-	}
     }
 
 #if defined(Q_OS_WIN32)
@@ -464,6 +456,45 @@ void SetupWizardImpl::prepareEnvironment()
 
 void SetupWizardImpl::showPageConfig()
 {
+#if defined(EVAL)
+    setBackEnabled( buildPage, false );
+
+    configPage->installList->setSorting( -1 );
+
+    QCheckListItem *item;
+    QCheckListItem *folder;
+    QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
+
+    folder = new QCheckListItem ( configPage->installList, "Database drivers" );
+    folder->setOpen( true );
+
+    item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
+    item->setOn( findFileInPaths( "ntwdblib.dll", paths ) );
+    tdsPluginInstall = item;
+
+    item = new QCheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
+    item->setOn( findFileInPaths( "oci.dll", paths ) );
+    ociPluginInstall = item;
+
+    if ( globalInformation.sysId() != GlobalInformation::Borland ) {
+	// I was not able to make Postgres work with Borland
+	item = new QCheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+	item->setOn( TRUE );
+	psqlPluginInstall = item;
+    } else {
+	psqlPluginInstall = 0;
+    }
+
+    item = new QCheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
+    item->setOn( TRUE );
+    mysqlPluginInstall = item;
+
+    item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
+    item->setOn( findFileInPaths( "odbc32.dll", paths ) );
+    odbcPluginInstall = item;
+
+    optionSelected( 0 );
+#else
     // First make sure that the current license information is saved
     if( !globalInformation.reconfig() ) {
 	writeLicense( QDir::homeDirPath() + "/.qt-license" );
@@ -808,6 +839,7 @@ void SetupWizardImpl::showPageConfig()
     setJpegDirect( mngDirect->isOn() );
 
     setBackEnabled( buildPage, false );
+#endif
 }
 
 void SetupWizardImpl::showPageBuild()
@@ -849,6 +881,45 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
+#if defined(EVAL)
+    if ( i == mysqlPluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the MySQL 3.x database driver."
+		    ) );
+    }
+    if ( i == ociPluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "<p>Installs the Oracale Call Interface (OCI) driver.</p> "
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the Oracle Client is installed and set up. "
+		    "The driver depends on the oci.dll.</font></p>"
+		    ) );
+    }
+    if ( i == odbcPluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the Open Database Connectivity (ODBC) driver. "
+		    "This driver depends on the odbc32.dll which should be "
+		    "available on all modern Windows installations."
+		    ) );
+    }
+    if ( i == psqlPluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the PostgreSQL 7.1 driver. This driver can "
+		    "be used to access PostgreSQL 6 databases as well "
+		    "as PostgreSQL 7 databases."
+		    ) );
+    }
+    if ( i == tdsPluginInstall ) {
+	configPage->explainOption->setText( tr(
+		    "Installs the TDS driver to access Sybase Adaptive "
+		    "Server and Microsoft SQL Server (it is recommended "
+		    "to rather use ODBC instead of TDS where applicable). "
+		    "<p><font color=\"red\">Choosing this option requires "
+		    "that the ntwdblib.dll is available.</font></p>"
+		    ) );
+    }
+    return; // ### at the moment, the other options are not available in the evaluation version
+#endif
     if( ( i == mysqlDirect || i == mysqlPlugin ) && 
 	!(findFileInPaths( "libmysql.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "mysql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )

@@ -444,15 +444,17 @@ QThread::QThread()
 /*!
   QThread destructor.  Note that deleting a QThread object will not stop
   the execution of the thread it represents.  Deleting a running QThread
-  will probably result in a program crash.
+  (ie. finished() returns FALSE) will probably result in a program crash.
+  You can wait() on the thread to make sure that the thread has finished.
 */
 QThread::~QThread()
 {
+#ifndef QT_NO_DEBUG
     if( d->running && !d->finished ) {
 	qWarning("QThread object destroyed while thread is still running.");
-    } else {
+    } else
+#endif
 	delete d;
-    }
 }
 
 

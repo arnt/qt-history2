@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = browser \
-	  web
+SUBDIRS = container \
+	  webbrowser

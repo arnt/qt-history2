@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>443</width>
+            <width>460</width>
             <height>284</height>
         </rect>
     </property>
@@ -353,6 +353,41 @@
                     <property name="name">
                         <cstring>configTabs</cstring>
                     </property>
+                    <widget class="QWidget">
+                        <property name="name">
+                            <cstring>installTab</cstring>
+                        </property>
+                        <attribute name="title">
+                            <string>Install</string>
+                        </attribute>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QListView">
+                                <column>
+                                    <property name="text">
+                                        <string>Installation options</string>
+                                    </property>
+                                    <property name="clickable">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="resizeable">
+                                        <bool>false</bool>
+                                    </property>
+                                </column>
+                                <property name="name">
+                                    <cstring>installList</cstring>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
                     <widget class="QWidget">
                         <property name="name">
                             <cstring>generalTab</cstring>

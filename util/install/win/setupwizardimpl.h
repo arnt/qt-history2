@@ -151,6 +151,14 @@ private:
 
     QCheckListItem *staticItem;
 
+#if defined(EVAL)
+    QCheckListItem *mysqlPluginInstall;
+    QCheckListItem *ociPluginInstall;
+    QCheckListItem *odbcPluginInstall;
+    QCheckListItem *psqlPluginInstall;
+    QCheckListItem *tdsPluginInstall;
+#endif
+
     // wizard pages
     LicenseAgreementPageImpl	*licenseAgreementPage;
     LicensePageImpl		*licensePage;

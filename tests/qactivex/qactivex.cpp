@@ -106,9 +106,12 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 extern BSTR QStringToBSTR( const QString &str );
 extern QString BSTRToQString( BSTR bstr );
 
-/*!
-    \class QClientSite
-    \brief The QClientSite class implements the interfaces for the OLE client to communicate with the OLE object.
+/*
+    \internal
+    \class QClientSite qactivex.cpp
+
+    \brief The QClientSite class implements the interfaces for the OLE client 
+	   to communicate with the OLE object.
 */
 class QClientSite : public IDispatch,
 		    public IAdviseSink2,
@@ -771,38 +774,32 @@ private:
 /*!
     \class QActiveX qactivex.h
     \brief The QActiveX class provides a QWidget that wraps an ActiveX control.
+
+    \extension QActiveX
 */
 
 /*!
-    Since we create the metaobject for this class on the fly we have to make sure
-    staticMetaObject works, otherwise it's impossible to subclass QActiveX control
-    and have metadata in the subclass.
-*/
-
-//static QActiveX *currentInstance = 0;
-
-/*!
-    Creates an empty QActiveX widget. To initialize a control, use \link QComBase::setControl setControl \endlink.
+    Creates an empty QActiveX widget and propagates \a parent and \a name to the QWidget constructor. 
+    To initialize a control, call \link QComBase::setControl() setControl \endlink.
 */
 QActiveX::QActiveX( QWidget *parent, const char *name )
 : QWidget( parent, name ), clientsite( 0 )
 {
-    //currentInstance = this;
 }
 
 /*!
     Creates an QActiveX widget and initializes the ActiveX control \a c.
+    \a parent and \a name are propagated to the QWidget contructor.
 */
 QActiveX::QActiveX( const QString &c, QWidget *parent, const char *name )
 : QWidget( parent, name ), clientsite( 0 )
 {
     setControl( c );
-    //currentInstance = this;
 }
 
 /*!
     Shuts down the ActiveX control and destroys the QActiveX widget, 
-    cleaning all allocated resources.
+    cleaning up all allocated resources.
 */
 QActiveX::~QActiveX()
 {
@@ -810,7 +807,7 @@ QActiveX::~QActiveX()
 }
 
 /*!
-    Initializes the ActiveX control.  
+    Initializes the ActiveX control.
 */
 bool QActiveX::initialize( IUnknown **ptr )
 {
@@ -847,7 +844,7 @@ bool QActiveX::initialize( IUnknown **ptr )
 }
 
 /*!
-    Destroys the ActiveX control.
+    Shuts down the ActiveX control.
 */
 void QActiveX::clear()
 {
@@ -904,19 +901,6 @@ QMetaObject *QActiveX::parentMetaObject() const
 {
     return QWidget::staticMetaObject();
 }
-
-/*!
-    \reimp
-*/
-/*
-QMetaObject *QActiveX::staticMetaObject()
-{
-    Q_ASSERT( currentInstance );
-    QMetaObject *mo = currentInstance->QActiveX::metaObject();
-    currentInstance = 0;
-    return mo;
-}
-*/
 
 /*!
     \reimp
@@ -1069,3 +1053,8 @@ void QActiveX::windowActivationChange( bool old )
     if ( inplace )
 	inplace->OnFrameWindowActivate( isActiveWindow() );
 }
+
+/*!
+    \fn QObject *QActiveX::qObject()
+    \reimp
+*/

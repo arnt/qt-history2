@@ -1117,10 +1117,6 @@ then
 	XKB=yes
 	$x11tests/xkb.test $XQMAKESPEC $VERBOSE $L_FLAGS $I_FLAGS && XKB=no
     fi
-    # Work around broken X11 headers when using GCC 2.95 or later
-    NOTYPE=no
-    $x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
-    [ "x$NOTYPE" = "xyes" ] && QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
 fi
 
 # Next, emit a usage message if something failed.
@@ -2341,4 +2337,3 @@ echo
 echo Qt is now configured for building. Just run $MAKE.
 echo To reconfigure, run $MAKE clean and configure.
 echo
-

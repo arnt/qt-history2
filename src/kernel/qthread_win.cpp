@@ -168,7 +168,6 @@ void QThreadPrivate::internalRun( QThread* that )
     dictSection()->leave();
 
     that->run();
-    d->running = FALSE;
 
     dictSection()->enter();
     if ( threadDict ) {
@@ -177,10 +176,12 @@ void QThreadPrivate::internalRun( QThread* that )
     d->id = 0;
     dictSection()->leave();
 
-    if ( d->deleted )
+    if ( d->deleted ) {
 	delete d;
-    else
+    } else {
 	d->finished = TRUE;
+	d->running = FALSE;
+    }
 }
 
 /*
@@ -299,8 +300,11 @@ void QThread::start()
 	this, 0, &(d->id) );
 
 #ifdef QT_CHECK_RANGE
-    if ( !d->handle )
+    if ( !d->handle ) {
+	d->running = FALSE;
+	d->finished = TRUE;
 	qSystemWarning( "Couldn't create thread" );
+    }
 #endif
 }
 
