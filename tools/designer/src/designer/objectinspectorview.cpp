@@ -1,4 +1,3 @@
-
 #include "objectinspectorview.h"
 
 // components
@@ -8,7 +7,7 @@
 #include <abstractformeditor.h>
 
 ObjectInspectorView::ObjectInspectorView(AbstractFormEditor *core, QWidget *parent)
-    : QMainWindow(parent),
+: QMainWindow(parent, Qt::WStyle_Tool),
       m_core(core)
 {
     setWindowTitle(tr("Object Inspector"));

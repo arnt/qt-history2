@@ -48,6 +48,7 @@ MainWindow::MainWindow()
       mCloseForm(true), mSettingsSaved(false),
       mNewFormDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
 {
+    invisibleParent = new QWidget(0);
     setWindowTitle(tr("Qt Designer"));
     setupFormEditor();
     setupWidgetBox();
@@ -82,6 +83,8 @@ MainWindow::~MainWindow()
     // the widgetbox has to go before formwindowmanager, 'cause of the scratchpad.
     delete core->widgetBox();
     core->setWidgetBox(0);
+
+    delete invisibleParent;
 }
 
 void MainWindow::setupFormEditor()
@@ -94,8 +97,8 @@ void MainWindow::setupFormEditor()
     connect(m_formManager, SIGNAL(formWindowClosing(AbstractFormWindow *, bool *)),
             this, SLOT(handleClose(AbstractFormWindow *, bool *)));
 
-    new PropertyEditorView(core);
-    new ObjectInspectorView(core);
+    new PropertyEditorView(core, invisibleParent);
+    new ObjectInspectorView(core, invisibleParent);
     // new SpecialEditorSupport(core); ### disabled for now
 }
 
@@ -479,7 +482,7 @@ void MainWindow::newForm(const QString &widgetClass)
     if (maxUntitled)
         newTitle += " " + QString::number(maxUntitled + 1);
     AbstractWidgetFactory *f = core->widgetFactory();
-    AbstractFormWindow *fw = m_formManager->createFormWindow(this, Qt::WType_TopLevel);
+    AbstractFormWindow *fw = m_formManager->createFormWindow(invisibleParent, Qt::WType_TopLevel);
     setupFormWindow(fw);
 
     fw->setAttribute(Qt::WA_DeleteOnClose);
@@ -685,6 +688,18 @@ void MainWindow::closeEvent(QCloseEvent *ev)
 
     saveSettings();
     QApplication::instance()->quit();
+}
+
+void MainWindow::changeEvent(QEvent *ev)
+{
+    switch (ev->type()) {
+    case QEvent::ActivationChange:
+        if (isActiveWindow()) {
+            core->propertyEditor()->topLevelWidget()->raise();
+            core->objectInspector()->topLevelWidget()->raise();
+        }
+        break;
+    }
 }
 
 void MainWindow::previewForm()

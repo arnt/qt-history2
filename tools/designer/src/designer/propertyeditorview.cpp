@@ -5,7 +5,7 @@
 #include <propertyeditor.h>
 
 PropertyEditorView::PropertyEditorView(AbstractFormEditor *core, QWidget *parent)
-    : QMainWindow(parent),
+: QMainWindow(parent, Qt::WStyle_Tool),
       m_core(core)
 {
     setWindowTitle(tr("Property Editor"));

@@ -28,6 +28,7 @@ public slots:
 
 protected:
     void closeEvent(QCloseEvent *ev);
+    void changeEvent(QEvent *ev);
 
 private slots:
     void windowChanged();
@@ -97,6 +98,9 @@ private:
     QAction *m_actionWindowSeparator;
 
     QHash<QAction*, AbstractFormWindow*> m_showWindowActions;
+
+
+    QWidget *invisibleParent;
 };
 
 #endif // MAINWINDOW_H
