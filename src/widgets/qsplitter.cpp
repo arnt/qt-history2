@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#14 $
 **
 **  Splitter widget
 **
@@ -454,7 +454,7 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 }
 
 /*!
-  Moves the center of the splitter handle as close as possible to
+  Moves the left/top edge of the splitter handle as close as possible to
   \a p which is the distance from the left (or top) edge of the widget.
 
   Only has effect if both widgets are set.
@@ -466,15 +466,15 @@ void QSplitter::moveSplitter( QCOORD p )
 	return;
     QRect r = contentsRect();
     if ( orient == Horizontal ) {
-	w1->setGeometry( r.x(), r.y(), p, r.height() );
+	w1->setGeometry( r.x(), r.y(), p - r.x(), r.height() );
+	d->setGeometry( p, r.y(), 2*bord, r.height() );
 	p += 2*bord;
-	w2->setGeometry( p, r.y(), r.width() - p + 1, r.height() );
-	d->setGeometry( p - 2*bord , r.y(), 2*bord, r.height() );
+	w2->setGeometry( p, r.y(), r.width() - p, r.height() );
     } else {
-	w1->setGeometry( r.x(), r.y(), r.width(), p );
+	w1->setGeometry( r.x(), r.y(), r.width(), p - r.y() );
+	d->setGeometry( r.x(), p, r.width(), 2*bord );
 	p += 2*bord;
-	w2->setGeometry( r.x(), p, r.width(), r.height() - p + 1 );
-	d->setGeometry( r.x(), p - 2*bord, r.width(), 2*bord );
+	w2->setGeometry( r.x(), p, r.width(), r.height() - p );
     }
 }
 
@@ -497,11 +497,11 @@ int QSplitter::adjustPos( int p )
 
     QCOORD min = p0 + 1; //### no zero size widgets
     min = QMAX( min, p0 + pick( w1->minimumSize() ) );
-    min = QMAX( min, p1 - pick( w2->maximumSize() ) );
+    min = QMAX( min, p1 - pick( w2->maximumSize() ) -2*bord + 1 );
 
     QCOORD max = p1 - 1; //### no zero size widgets
     max = QMIN( max, p1 - pick( w2->minimumSize() ) );
-    max = QMIN( max, p0 + pick( w1->maximumSize() ) );
+    max = QMIN( max, p0 + pick( w1->maximumSize() ) -2*bord + 1 );
 
     p -= bord; // measure from prev->right
     p = QMAX( min, QMIN( p, max - 2*bord ) );
