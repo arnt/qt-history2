@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#7 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#7 $";
 #endif
 
 
@@ -189,7 +189,7 @@ void QDialog::adjustSize()
 
 
 // --------------------------------------------------------------------------
-// Detects any widget geometry changed done by the user.
+// Detects any widget geometry changes done by the user.
 //
 
 void QDialog::move( int x, int y )
