@@ -1367,7 +1367,7 @@ void QPrinter::reinit()
 	    if ( dm ) {
 		writeDevmode( dm );
 		qt_winTchar( printer_name, true );		
-		hdcTmp = CreateDC( L"WINSPOOL", printer_name.ucs2(), 0, dm ); 
+		hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm ); 
 		GlobalUnlock( hdevmode );
 	    }
 	} , {
