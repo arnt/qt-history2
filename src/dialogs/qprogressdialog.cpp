@@ -134,7 +134,7 @@ public:
   QEventLoop::processEvents(ExcludeUserInput) to keep the event loop
   running to ensure that the application doesn't freeze. Do the
   operation in a loop, call \l setProgress() at intervals, and check
-  for cancellation with wasCancelled(). For example:
+  for cancellation with wasCanceled(). For example:
 \code
 QProgressDialog progress( "Copying files...", "Abort Copy", numFiles,
                           this, "progress", TRUE );
@@ -142,7 +142,7 @@ for ( int i = 0; i < numFiles; i++ ) {
     progress.setProgress( i );
     qApp->processEvents();
 
-    if ( progress.wasCancelled() )
+    if ( progress.wasCanceled() )
         break;
     //... copy one file
 }
@@ -157,14 +157,14 @@ progress.setProgress( numFiles );
   is often an alternative to a modeless progress dialog.
 
   You need to have an event loop to be running, connect the
-  cancelled() signal to a slot that stops the operation, and call \l
+  canceled() signal to a slot that stops the operation, and call \l
   setProgress() at intervals. For example:
 \code
 Operation::Operation( QObject *parent = 0 )
     : QObject( parent ), steps( 0 )
 {
     pd = new QProgressDialog( "Operation in progress.", "Cancel", 100 );
-    connect( pd, SIGNAL(cancelled()), this, SLOT(cancel()) );
+    connect( pd, SIGNAL(canceled()), this, SLOT(cancel()) );
     t = new QTimer( this );
     connect( t, SIGNAL(timeout()), this, SLOT(perform()) );
     t->start( 0 );
@@ -311,19 +311,27 @@ void QProgressDialog::init( QWidget *creator,
     d->autoReset = TRUE;
     d->forceHide = FALSE;
     setCancelButtonText( canc );
-    connect( this, SIGNAL(cancelled()), this, SLOT(cancel()) );
+    connect( this, SIGNAL(canceled()), this, SLOT(cancel()) );
     forceTimer = new QTimer( this );
     connect( forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()) );
     layout();
 }
 
 /*!
-  \fn void QProgressDialog::cancelled()
+  \fn void QProgressDialog::canceled()
 
   This signal is emitted when the cancel button is clicked.
   It is connected to the cancel() slot by default.
 
-  \sa wasCancelled()
+  \sa wasCanceled()
+*/
+
+/*!
+  \fn void QProgressDialog::cancelled()
+
+  \obsolete
+
+  Use canceled() instead.
 */
 
 
@@ -398,7 +406,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 	} else {
 	    cancelButton->reparent( this, 0, QPoint(0,0), FALSE );
 	}
-	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()) );
 #ifndef QT_NO_ACCEL
 	QAccel *accel = new QAccel( this );
 	accel->connectItem( accel->insertItem(Key_Escape),
@@ -458,7 +466,16 @@ void QProgressDialog::setBar( QProgressBar *bar )
 
 /*!
   \property QProgressDialog::wasCancelled
-  \brief whether the dialog was cancelled
+  \brief whether the dialog was canceled
+
+  \obsolete
+
+  Use \l wasCanceled instead.
+*/
+
+/*!
+  \property QProgressDialog::wasCanceled
+  \brief whether the dialog was canceled
 
   \sa setProgress()
 */
@@ -513,7 +530,7 @@ void QProgressDialog::reset()
 }
 
 /*!
-  Resets the progress dialog. wasCancelled() becomes TRUE until
+  Resets the progress dialog. wasCanceled() becomes TRUE until
   the progress dialog is reset.
   The progress dialog becomes hidden.
 */
@@ -730,6 +747,7 @@ int QProgressDialog::minimumDuration() const
 
 void QProgressDialog::closeEvent( QCloseEvent *e )
 {
+    emit canceled();
     emit cancelled();
     QDialog::closeEvent( e );
 }

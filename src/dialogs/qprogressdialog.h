@@ -53,7 +53,8 @@ class QProgressDialogData;
 class Q_EXPORT QProgressDialog : public QDialog
 {
     Q_OBJECT
-    Q_PROPERTY( bool wasCancelled READ wasCancelled )
+    Q_PROPERTY( bool wasCancelled READ wasCancelled DESIGNABLE false STORED false ) // ### remove in 4.0
+    Q_PROPERTY( bool wasCanceled READ wasCanceled )
     Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )
     Q_PROPERTY( int progress READ progress WRITE setProgress )
     Q_PROPERTY( bool autoReset READ autoReset WRITE setAutoReset )
@@ -73,7 +74,9 @@ public:
     void	setCancelButton( QPushButton * );
     void	setBar( QProgressBar * );
 
+    // ### Qt 4.0: remove wasCancelled() in 4.0
     bool	wasCancelled() const;
+    inline bool	wasCanceled() const { return wasCancelled(); }
 
     int		totalSteps() const;
     int		progress()   const;
@@ -101,7 +104,9 @@ public:
     int		minimumDuration() const;
 
 signals:
+    // ### remove cancelled() in 4.0
     void	cancelled();
+    void	canceled();
 
 protected:
     void	resizeEvent( QResizeEvent * );
