@@ -235,8 +235,8 @@ void QWidget::resetInputContext()
     QWidget has many member functions, but some of them have little
     direct functionality: for example, QWidget has a font property,
     but never uses this itself. There are many subclasses which
-    provide real functionality, such as QPushButton, QListBox and
-    QTabDialog, etc.
+    provide real functionality, such as QPushButton, QListWidget and
+    QTabWidget, etc.
 
     \section1 Groups of functions:
 
@@ -398,9 +398,9 @@ void QWidget::resetInputContext()
     \i \c{QWidget *parent = 0} is the parent of the new widget.
     If it is 0 (the default), the new widget will be a window.
     If not, it will be a child of \e parent, and be constrained by \e
-    parent's geometry (unless you specify \c Qt::WType_TopLevel as
-    widget flag).
-    \i \c{Qt::WFlags f = 0} (where available) sets the widget flags; the
+    parent's geometry (unless you specify \c Qt::Window as
+    window flag).
+    \i \c{Qt::WFlags f = 0} (where available) sets the window flags; the
     default is suitable for almost all widgets, but to get, for
     example, a window without a window system frame, you
     must use special flags.
@@ -2542,7 +2542,10 @@ QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 
 
 /*!
-  Returns the background role.
+  Returns the background role of the widget.
+
+  The background role defines the brush from the widget's palette that
+  is used to render the background.
 
   \sa setBackgroundRole(), foregroundRole()
  */
@@ -2558,6 +2561,9 @@ QPalette::ColorRole QWidget::backgroundRole() const
 
 /*!
   Sets the background role of the widget to \a role.
+
+  The background role defines the brush from the widget's palette that
+  is used to render the background.
 
   \sa backgroundRole(), foregroundRole()
  */
@@ -2594,6 +2600,9 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
 /*!
   Returns the foreground role.
 
+  The foreground role defines the color from the widget's palette that
+  is used to draw the foreground.
+
   If no explicit foreground role is set, returns a role that contrasts
   with the backgroundRole().
 
@@ -2611,8 +2620,12 @@ QPalette::ColorRole QWidget::foregroundRole() const
 }
 
 /*!
-  Sets the foreground role of the widget to \a role \sa
-  backgroundRole(), setForegroundRole()
+  Sets the foreground role of the widget to \a role.
+
+  The foreground role defines the color from the widget's palette that
+  is used to draw the foreground.
+
+  \sa backgroundRole(), setForegroundRole()
  */
 void QWidget::setForegroundRole(QPalette::ColorRole role)
 {
@@ -4993,7 +5006,7 @@ void QWidget::leaveEvent(QEvent *)
     to, but some slow widgets need to optimize by painting only the
     requested region: QPaintEvent::region(). This speed optimization
     does not change the result, as painting is clipped to that region
-    during event processing. QListView and QCanvas do this, for
+    during event processing. QListView and QTableView do this, for
     example.
 
     Qt also tries to speed up painting by merging multiple paint

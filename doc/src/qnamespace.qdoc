@@ -610,7 +610,7 @@
     mentioned below.
 
     \value WA_DeleteOnClose makes Qt delete this widget when the
-    widget has accepted closeEvent().
+    widget has accepted the close event (see QWidget::closeEvent()).
 
     \value WA_QuitOnClose makes Qt quit the application when the last
     widget with the attribute set has accepted closeEvent(). This
@@ -625,23 +625,18 @@
     program doesn't keep up with key input, Qt may try to compress key
     events so that more than one character can be processed in each
     event.
-
     For example, a word processor widget might receive 2, 3 or more
     characters in each QKeyEvent::text(), if the layout recalculation
     takes too long for the CPU.
-
     If a widget supports multiple character unicode input, it is
     always safe to turn the compression on.
-
     Qt performs key event compression only for printable characters.
     Qt::Modifier keys, cursor movement keys, function keys and
     miscellaneous action keys (e.g. Escape, Enter, Backspace,
     PrintScreen) will stop key event compression, even if there are
     more compressible key events available.
-
     Not all platforms support this compression, in which case turning
     it on will have no effect.
-
     This is set/cleared by the widget's author.
 
     \value WA_PendingMoveEvent Indicates that a move event is
@@ -1420,11 +1415,11 @@
     If you make it modal, the dialog will prevent other top-level
     windows in the application from getting any input. \c Dialog
     implies \c Window. We refer to a top-level window that has
-    a parent as a \e secondary window. (See also \c WGroupLeader.)
+    a parent as a \e secondary window. (See also \c Qt::WA_GroupLeader.)
 
-    \value Sheet
+    \value Sheet indicates that this widget is a Macintosh sheet.
 
-    \value Drawer
+    \value Drawer indicates that this widget is a Macintosh drawer.
 
     \value Popup  indicates that this widget is a popup
     top-level window, i.e. that it is modal, but has a window system
@@ -1470,23 +1465,22 @@
 
     \value WindowTitleHint  Gives the window a title bar.
 
-    \value WindowSystemMenuHint  Adds a window system menu.
+    \value WindowSystemMenuHint  Adds a window system menu, and possibly a close button.
 
     \value WindowMinimizeButtonHint  Adds a minimize button. On
-           Windows, this flag must be combined with \c
-           Qt::WindowSystemMenuHint for it to work.
+           some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
 
     \value WindowMaximizeButtonHint  Adds a maximize button. On
-           Windows, this flag must be combined with \c
-           Qt::WindowSystemMenuHint for it to work.
+           some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
 
     \value WindowMinMaxButtonsHint  Adds a minimize and a maximize
-           button. On Windows, this flag must be combined with \c
-           Qt::WindowSystemMenuHint for it to work.
+           button. On some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
 
-    \value WindowContextHelpButtonHint  Adds a context help button to dialogs.
+    \value WindowContextHelpButtonHint  Adds a context help button to dialogs. 
+	On some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
 
     \value WindowShadeButtonHint
+
     \value WindowStaysOnTopHint  Informs the window system that the
            window should stay on top of all other windows. Note that
            on some window managers on X11 you also have to pass \c
