@@ -63,7 +63,8 @@ struct Q_EXPORT QMapData
 	Node *left;
 	Node *right;
 	Node *parent;
-	Color color;
+	uint color : 1;
+	uint root : 1;
     };
     QAtomic ref;
     int node_count;
@@ -123,7 +124,8 @@ struct Q_EXPORT QMapData
     static QMapData *QMapData::init( QMapData *d )
     {
 	d->ref = 1;
-	d->header.color = Red; // Mark the header
+	d->header.color = Red;
+	d->header.root = 1; // Mark the header
 	d->header.parent = 0;
 	d->header.left = d->header.right = &d->header;
 	d->node_count = 0;
@@ -137,8 +139,9 @@ class QMap
 {
 public:
     struct Node : QMapData::Node {
-	Node( const Key &k ) : key(k) {}
-	Node( const Node &o ) : QMapData::Node(o), key(o.key), data(o.data) {}
+	Node() { root = 0; }
+	Node( const Key &k ) : key(k) { root = 0; }
+	Node( const Node &o ) : QMapData::Node(o), key(o.key), data(o.data) { root = 0; }
 	Key key;
 	T data;
     };
@@ -155,15 +158,19 @@ public:
 	Iterator( Node* p ) : n( p ) {}
 	Iterator( const Iterator& it ) : n( it.n ) {}
 
+	inline bool atEnd() const { return n->root; }
+
 	bool operator==( const Iterator& it ) const { return n == it.n; }
 	bool operator!=( const Iterator& it ) const { return n != it.n; }
-	T& operator*() { return n->data; }
-	const T& operator*() const { return n->data; }
-	const Key& key() const { return n->key; }
-	T& data() { return n->data; }
-	T& value() { return n->data; }
-	const T& data() const { return n->data; }
-	const T& value() const { return n->data; }
+
+	T& operator*() { Q_ASSERT(!atEnd()); return n->data; }
+	const T& operator*() const { Q_ASSERT(!atEnd()); return n->data; }
+
+	const Key& key() const { Q_ASSERT(!atEnd()); return n->key; }
+	const T& value() const { Q_ASSERT(!atEnd()); return n->data; }
+	T& value() { Q_ASSERT(!atEnd()); return n->data; }
+	const T& data() const { Q_ASSERT(!atEnd()); return n->data; }
+	T& data() { Q_ASSERT(!atEnd()); return n->data; }
 
 	Iterator& operator++() {
 	    n = static_cast<Node *>(QMapData::next(n));
@@ -206,13 +213,16 @@ public:
 	ConstIterator( const ConstIterator& it ) : n( it.n ) {}
 	ConstIterator( const Iterator& it ) : n( it.n ) {}
 
+	inline bool atEnd() const { return n->root; }
+
 	bool operator==( const ConstIterator& it ) const { return n == it.n; }
 	bool operator!=( const ConstIterator& it ) const { return n != it.n; }
-	const T& operator*()  const { return n->data; }
 
-	const Key& key() const { return n->key; }
-	const T& data() const { return n->data; }
-	const T& value() const { return n->data; }
+	const T& operator*()  const { Q_ASSERT(!atEnd()); return n->data; }
+
+	const Key& key() const { Q_ASSERT(!atEnd()); return n->key; }
+	const T& data() const { Q_ASSERT(!atEnd()); return n->data; }
+	const T& value() const { Q_ASSERT(!atEnd()); return n->data; }
 
 	ConstIterator& operator++() {
 	    n = static_cast<Node *>(QMapData::next(n));

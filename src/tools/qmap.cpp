@@ -159,7 +159,7 @@ QMapData::Node * QMapData::removeAndRebalance(Node * z)
 	    z->parent->right = y;
 	y->parent = z->parent;
 	// Swap the colors
-	Color c = y->color;
+	uint c = y->color;
 	y->color = z->color;
 	z->color = c;
 	y = z;
