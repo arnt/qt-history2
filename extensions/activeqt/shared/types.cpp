@@ -410,6 +410,10 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 */
 bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
+    // three dummy variables to avoid code duplication for VT_I2/4 etc.
+    int intvalue;
+    uint uintvalue;
+
     switch ( arg.vt ) {
     case VT_BSTR:
 	{
@@ -456,74 +460,115 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_BOOL|VT_BYREF:
 	static_QUType_bool.set( obj, *arg.pboolVal );
 	break;
+    case VT_I1:
+    case VT_I2:
     case VT_I4:
+    case VT_INT:
+	switch ( arg.vt ) {
+	case VT_I1:
+	    intvalue = arg.cVal;
+	    break;
+	case VT_I2:
+	    intvalue = arg.iVal;
+	    break;
+	case VT_I4:
+	    intvalue = arg.lVal;
+	    break;
+	case VT_INT:
+	    intvalue = arg.intVal;
+	    break;
+	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch ( vartype ) {
 	    case QVariant::Color:
-		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.lVal ) ) );
+		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor(intvalue) ) );
 		break;
 	    case QVariant::Int:
-		static_QUType_varptr.set( obj, new int(arg.lVal) );
+		static_QUType_varptr.set( obj, new int(intvalue) );
 		break;
 	    }
 	} else {
-	    static_QUType_int.set( obj, arg.lVal );
+	    static_QUType_int.set( obj, intvalue );
 	}
 	break;
+    case VT_I1|VT_BYREF:
+    case VT_I2|VT_BYREF:
     case VT_I4|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
-	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
-	    if ( reference )
-		*reference = OLEColorToQColor( *arg.plVal );
-	    else
-		reference = new QColor(OLEColorToQColor( *arg.plVal ));
-	    static_QUType_varptr.set( obj, reference );
-	} else {
-	    static_QUType_int.set( obj, *arg.plVal );
-	}
-	break;
-    case VT_INT:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-	    switch( vartype ) {
-	    case QVariant::Color:
-		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.intVal ) ) );
-		break;
-	    case QVariant::Int:
-		static_QUType_varptr.set( obj, new int( arg.intVal ) );
-		break;
-	    }
-	} else {
-	    static_QUType_int.set( obj, arg.intVal );
-	}
-	break;
     case VT_INT|VT_BYREF:
+	switch ( arg.vt ) {
+	case VT_I1|VT_BYREF:
+	    intvalue = *arg.pcVal;
+	    break;
+	case VT_I2|VT_BYREF:
+	    intvalue = *arg.piVal;
+	    break;
+	case VT_I4|VT_BYREF:
+	    intvalue = *arg.plVal;
+	    break;
+	case VT_INT|VT_BYREF:
+	    intvalue = *arg.pintVal;
+	    break;
+	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
 	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 	    if ( reference )
-		*reference = OLEColorToQColor( *arg.pintVal );
+		*reference = OLEColorToQColor( intvalue );
 	    else
-		reference = new QColor(OLEColorToQColor( *arg.pintVal ));
+		reference = new QColor(OLEColorToQColor( intvalue ));
 	    static_QUType_varptr.set( obj, reference );
 	} else {
-	    static_QUType_int.set( obj, *arg.pintVal );
+	    static_QUType_int.set( obj, intvalue );
 	}
 	break;
+    case VT_UI1:
+    case VT_UI2:
     case VT_UI4:
+    case VT_UINT:
+	switch ( arg.vt ) {
+	case VT_UI1:
+	    uintvalue = arg.bVal;
+	    break;
+	case VT_UI2:
+	    uintvalue = arg.uiVal;
+	    break;
+	case VT_UI4:
+	    uintvalue = arg.ulVal;
+	    break;
+	case VT_UINT:
+	    uintvalue = arg.uintVal;
+	    break;
+	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::Color:
-		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.ulVal ) ) );
+		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( uintvalue ) ) );
 		break;
 	    case QVariant::UInt:
-		static_QUType_varptr.set( obj, new uint( arg.ulVal ) );
+		static_QUType_varptr.set( obj, new uint( uintvalue ) );
 		break;
 	    }
 	}
 	break;
+    case VT_UI1|VT_BYREF:
+    case VT_UI2|VT_BYREF:
     case VT_UI4|VT_BYREF:
+    case VT_UINT|VT_BYREF:
+	switch ( arg.vt ) {
+	case VT_UI1|VT_BYREF:
+	    uintvalue = *arg.pbVal;
+	    break;
+	case VT_UI2|VT_BYREF:
+	    uintvalue = *arg.puiVal;
+	    break;
+	case VT_UI4|VT_BYREF:
+	    uintvalue = *arg.pulVal;
+	    break;
+	case VT_UINT|VT_BYREF:
+	    uintvalue = *arg.puintVal;
+	    break;
+	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch ( vartype ) {
@@ -531,9 +576,9 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		{
 		    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 		    if ( reference )
-			*reference = OLEColorToQColor( *arg.pulVal );
+			*reference = OLEColorToQColor( uintvalue );
 		    else
-			reference = new QColor(OLEColorToQColor( *arg.pulVal ));
+			reference = new QColor(OLEColorToQColor( uintvalue ));
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
@@ -541,44 +586,20 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		{
 		    uint *reference = (uint*)static_QUType_varptr.get( obj );
 		    if ( reference )
-			*reference = *arg.pulVal;
+			*reference = uintvalue;
 		    else
-			reference = new uint( *arg.pulVal );
+			reference = new uint( uintvalue );
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
 	    }
 	} 
 	break;
-    case VT_UINT:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-	    switch( vartype ) {
-	    case QVariant::Color:
-		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.uintVal ) ) );
-		break;
-	    case QVariant::UInt:
-		static_QUType_varptr.set( obj, new uint( arg.uintVal ) );
-		break;
-	    }
-	}
-	break;
-    case VT_UINT|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-	    switch( vartype ) {
-	    case QVariant::UInt:
-		{
-		    uint *reference = (uint*)static_QUType_varptr.get( obj );
-		    if ( reference )
-			*reference = *arg.puintVal;
-		    else
-			reference = new uint( *arg.puintVal );
-		    static_QUType_varptr.set( obj, reference );
-		}
-		break;
-	    }
-	}
+    case VT_R4:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
+	    static_QUType_varptr.set( obj, new double(arg.fltVal) );
+	else
+	    static_QUType_double.set( obj, arg.fltVal );
 	break;
     case VT_R8:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
@@ -586,10 +607,12 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	else
 	    static_QUType_double.set( obj, arg.dblVal );
 	break;
+    case VT_R4|VT_BYREF:
+	static_QUType_double.set( obj, *arg.pfltVal );
+	break;
     case VT_R8|VT_BYREF:
 	static_QUType_double.set( obj, *arg.pdblVal );
 	break;
-
     case VT_DATE: // DATE -> QDateTime
 	static_QUType_varptr.set( obj, new QDateTime( DATEToQDateTime( arg.date ) ) );
 	break;
