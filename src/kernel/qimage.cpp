@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#92 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#92 $");
 
 
 /*!
@@ -2728,24 +2728,23 @@ static void write_xpm_image( QImageIO * iio )
     // write header
     QTextStream s( iio->ioDevice() );
     s << "/* XPM */" << endl
-      << "static char *" << fbname(iio->fileName()) << "[]={" << endl
-      << "\"" << w << " " << h << " " << colours << " "
-      << cpp << "\"," << endl;
+      << "static char*" << fbname(iio->fileName()) << "[]={" << endl
+      << "\"" << w << " " << h << " " << colours << " " << cpp << "\"";
 
     // write palette
     QIntDictIterator<int> c( colourMap );
     while ( c.current() ) {
 	if ( (c.currentKey() & ~RGB_MASK) != 0 )
-	    line.sprintf( "\"%s c None\",", 
+	    line.sprintf( "\"%s c None\"", 
 			  xpm_colour_name( cpp, (int)c.current() ) );
 	else
-	    line.sprintf( "\"%s c #%02x%02x%02x\",", 
+	    line.sprintf( "\"%s c #%02x%02x%02x\"", 
 			  xpm_colour_name( cpp, (int)c.current() ),
 			  qRed( c.currentKey() ),
 			  qGreen( c.currentKey() ),
 			  qBlue( c.currentKey() ) );
 	++c;
-	s << line << endl;
+	s << "," << endl << line;
     }
 
     // write pixels
@@ -2760,9 +2759,9 @@ static void write_xpm_image( QImageIO * iio )
 		line[ x*cpp + 1 ] = chars[1];
 	}
 	line[ cpp*w ] = '\0';
-	s << "\"" << line << "\"," << endl;
+	s << "," << endl << "\"" << line << "\"";
     }
-    s << "NULL};" << endl;
+    s << "};" << endl;
 
     iio->setStatus( 0 );
 }
