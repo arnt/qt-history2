@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#46 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#47 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -176,39 +176,40 @@ enum GUIStyle {
 
 typedef ulong WFlags;
 
-#define WState_Created	0x00000001		// widget state flags
-#define WState_Disabled 0x00000002
-#define WState_Visible	0x00000004
-#define WState_Active	0x00000008
-#define WState_Paint	0x00000010
-#define WState_MGrab	0x00000020
-#define WState_KGrab	0x00000040
-#define WState_Focus	0x00000080
+const ulong WState_Created	= 0x00000001;	// widget state flags
+const ulong WState_Disabled	= 0x00000002;
+const ulong WState_Visible	= 0x00000004;
+const ulong WState_Active	= 0x00000008;
+const ulong WState_Paint	= 0x00000010;
+const ulong WState_MGrab	= 0x00000020;
+const ulong WState_KGrab	= 0x00000040;
+const ulong WState_Focus	= 0x00000080;
 
-#define WType_Overlap	0x00000100		// widget type flags
-#define WType_Modal	0x00000200
-#define WType_Popup	0x00000400
-#define WType_Desktop	0x00000800
+const ulong WType_Overlap	= 0x00000100;	// widget type flags
+const ulong WType_Modal		= 0x00000200;
+const ulong WType_Popup		= 0x00000400;
+const ulong WType_Desktop	= 0x00000800;
 
-#define WStyle_Title	0x00001000		// widget style flags
-#define WStyle_Border	0x00002000
-#define WStyle_Close	0x00004000
-#define WStyle_Resize	0x00008000
-#define WStyle_Minimize 0x00010000
-#define WStyle_Maximize 0x00020000
-#define WStyle_MinMax	(WStyle_Minimize | WStyle_Maximize)
-#define WStyle_All	0x000ff000
+const ulong WStyle_Title	= 0x00001000;	// widget style flags
+const ulong WStyle_Border	= 0x00002000;
+const ulong WStyle_Close	= 0x00004000;
+const ulong WStyle_Resize	= 0x00008000;
+const ulong WStyle_Minimize 	= 0x00010000;
+const ulong WStyle_Maximize 	= 0x00020000;
+const ulong WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
+const ulong WStyle_All		= 0x000ff000;
 
-#define WMouseTracking	0x00100000		// misc widget flags
-#define WConfigPending	0x00200000
-#define WResizeNoErase	0x00400000
-#define WExplicitHide	0x00800000
-#define WCursorSet	0x01000000
-#define WPaintDesktop	0x02000000
-#define WPaintUnclipped	0x04000000
-#define WNoUpdates	0x08000000
-#define WRecreated	0x10000000
-#define WHasAccel	0x20000000
+const ulong WMouseTracking	= 0x00100000;	// misc widget flags
+const ulong WHasAccel		= 0x00200000;
+const ulong WConfigPending	= 0x00400000;
+const ulong WResizeNoErase	= 0x00800000;
+const ulong WExplicitHide	= 0x01000000;
+const ulong WCursorSet		= 0x02000000;
+const ulong WPaintDesktop	= 0x04000000;
+const ulong WPaintUnclipped	= 0x08000000;
+const ulong WPaintClever	= 0x10000000;
+const ulong WNoUpdates		= 0x20000000;
+const ulong WRecreated		= 0x40000000;
 
 
 // Extra Widget data
@@ -232,11 +233,11 @@ enum RasterOp					// raster op/transfer mode
 
 const AlignLeft		= 0x000;		// text alignment
 const AlignRight	= 0x001;
-const AlignCenter	= 0x002;
 const AlignHCenter	= 0x002;
 const AlignTop		= 0x000;
 const AlignBottom	= 0x004;
 const AlignVCenter	= 0x008;
+const AlignCenter	= AlignVCenter | AlignHCenter;
 
 const SingleLine	= 0x010;		// misc. flags
 const DontClip		= 0x020;
