@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#207 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#208 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1500,6 +1500,16 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	}
 	break;
 
+    case Key_F1:
+	if ( actItem < 0 || e->state() != ShiftButton)
+	    break;
+	mi = mitems->at( actItem );
+	if ( mi->isEnabled() && !mi->whatsThis().isNull() ){
+	    if ( !QWhatsThis::inWhatsThisMode() )
+		QWhatsThis::enterWhatsThisMode();
+	    int y = itemPos( actItem) + cellHeight( actItem );
+	    QWhatsThis::leaveWhatsThisMode( mi->whatsThis(), mapToGlobal( QPoint(0,y) ) );
+	}
     default:
 	ok_key = FALSE;
 
