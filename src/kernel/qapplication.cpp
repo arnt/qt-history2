@@ -316,9 +316,7 @@ void qt_init( Display* dpy, Qt::HANDLE, Qt::HANDLE );
 QApplication *qApp = 0;			// global application object
 
 QStyle   *QApplication::app_style      = 0;	// default application style
-#ifdef Q_WS_X11
 bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
-#endif // Q_WS_X11
 
 int	  QApplication::app_cspec      = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
