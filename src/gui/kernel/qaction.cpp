@@ -26,9 +26,8 @@
 /*
   internal: guesses a descriptive text from a text suited for a menu entry
  */
-static QString qt_strippedText(const QString &text)
+static QString qt_strippedText(QString s)
 {
-    QString s = text.trimmed();
     s.remove( QString::fromLatin1("...") );
     int i = 0;
     while (i < s.size()) {
@@ -39,7 +38,7 @@ static QString qt_strippedText(const QString &text)
             ++i;
         s.remove(i-1,1);
     }
-    return s;
+    return s.trimmed();
 };
 
 
