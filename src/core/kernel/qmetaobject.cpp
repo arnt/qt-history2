@@ -1216,7 +1216,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     }
     QCoreVariant value;
     void *argv[1];
-    if (t == 0xffffffff) {
+    if ((uint)t == 0xffffffff) {
         argv[0] = &value;
     } else {
         value = QCoreVariant(t, (void*)0);
@@ -1225,7 +1225,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if (t != 0xffffffff && argv[0] != value.data())
+    if ((uint)t != 0xffffffff && argv[0] != value.data())
         return QCoreVariant(t, argv[0]);
     return value;
 }
@@ -1258,12 +1258,12 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
         if (t == QCoreVariant::Invalid)
             t = QCoreVariant::nameToType(mobj[QMetaObject::WriteProperty]->d.stringdata
                                       + mobj[QMetaObject::WriteProperty]->d.data[handle + 1]);
-        if (t != QCoreVariant::Invalid && t != 0xffffffff && !v.cast(t))
+        if (t != QCoreVariant::Invalid && (uint)t != 0xffffffff && !v.cast(t))
             return false;
     }
 
     void *argv[1];
-    if (t == 0xffffffff)
+    if ((uint)t == 0xffffffff)
         argv[0] = &v;
     else
         argv[0] = v.data();
