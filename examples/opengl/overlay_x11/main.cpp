@@ -37,7 +37,7 @@ QColor findOverlayTransparentColor()
     appVisual = (Visual*)QPaintDevice::x11AppVisual();
 #endif
 
-    debug( "Default Visual ID: 0x%x", (int)XVisualIDFromVisual(appVisual) );
+    qDebug( "Default Visual ID: 0x%x", (int)XVisualIDFromVisual(appVisual) );
 
     typedef struct OverlayProp {
 	long  visual;
@@ -81,11 +81,11 @@ QColor findOverlayTransparentColor()
 	    return QColor( qRgb( 1, 2, 3 ), overlayProp[i].value );
     }
 
-    warning( "Default visual is not in overlay plane" );
+    qWarning( "Default visual is not in overlay plane" );
     return invalidColor;
 
 #else // defined(Q_WS_X11)
-    warning( "Wrong window system - Only X11 has overlay support." );
+    qWarning( "Wrong window system - Only X11 has overlay support." );
     return invalidColor;
 #endif
 }
@@ -97,13 +97,13 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     if ( !QGLFormat::hasOpenGL() ) {
-	warning( "This system has no OpenGL support. Exiting." );
+	qWarning( "This system has no OpenGL support. Exiting." );
 	return -1;
     }
 
     QColor transparentColor = findOverlayTransparentColor();
     if ( !transparentColor.isValid() ) {
-	warning( "Failed to get transparent color for overlay. Exiting." );
+	qWarning( "Failed to get transparent color for overlay. Exiting." );
 	return -1;
     }
 
