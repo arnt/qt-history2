@@ -413,7 +413,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
 {
     // European Alphabetic Scripts
     // Latin,
-    0x0030,
+    0x0041,
     // Greek,
     0x0390,
     // Cyrillic,
@@ -1280,6 +1280,8 @@ QStringList QFontDatabase::families() const
 }
 
 /*!
+    \overload
+
     Returns a sorted list of the available font families which support
     the Unicode script \a script.
 
