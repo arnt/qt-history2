@@ -94,10 +94,7 @@ QRect QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRu
         clip = QRegion(reinterpret_cast<const QPolygon*>(data)->toPointArray(), fillRule);
         break;
     }
-    QRegion currentClip = q->clipRegion();
-    if (!currentClip.isEmpty())
-        clip &= currentClip;
-    q->setClipRegion(clip);
+    q->setClipRegion(clip, Qt::IntersectClip);
     return clip.boundingRect();
 }
 
