@@ -39,6 +39,7 @@
 #include "mainwindow.h"
 #include "metadatabase.h"
 #include "widgetfactory.h"
+#include "hierarchyview.h"
 
 
 bool QDesignerAction::addTo( QWidget *w )
@@ -893,6 +894,7 @@ void QDesignerMenuBar::dropEvent( QDropEvent *e )
 						this, (QDesignerPopupMenu*)popup, oldPos, insertAt, txt );
     // do not execute, we did the work already
     formWindow->commandHistory()->addCommand( cmd );
+    formWindow->mainWindow()->objectHierarchy()->rebuild();
 
     indicator->hide();
 }
