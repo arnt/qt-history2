@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#20 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#21 $
 **
 ** Definition of QFont class
 **
@@ -17,10 +17,10 @@
 #include "qstring.h"
 
 
-struct QFontData;
+struct QFontData;				// internal font data
 
 
-class QFont
+class QFont					// font class
 {
 public:
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
@@ -32,13 +32,12 @@ public:
 		     Bold  = 75, Black	= 87 };
     enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet };
 
-    QFont();					    // default font
+    QFont();					// default font
     QFont( const char *family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
     QFont( const QFont & );
     virtual ~QFont();
     QFont      &operator=( const QFont & );
-    QFont	copy() const;
 
     const char *family()	const;
     void	setFamily( const char * );
