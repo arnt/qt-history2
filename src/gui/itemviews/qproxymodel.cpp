@@ -296,50 +296,14 @@ QAbstractItemModel::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 }
 
 /*!
-        Returns true if the contents of the model can be sorted; otherwise returns
-        false.
-
-        \sa QAbstractItemModel::isSortable()
-*/
-bool QProxyModel::isSortable() const
-{
-    return true;
-}
-
-/*!
     Sorts the child items in the specified \a column of the given \a parent
     according to the sort order defined by \a order.
 
     \sa QAbstractItemModel::sort()
 */
-void QProxyModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
+void QProxyModel::sort(int column, Qt::SortOrder order)
 {
-    d->model->sort(column, order, parent);
-}
-
-/*!
-        Returns true if the data referred to by indexes \a left and \a right is
-        equal; otherwise returns false.
-
-        \sa greaterThan() lessThan() QAbstractItemModel::equal()
-*/
-bool QProxyModel::equal(const QModelIndex &left, const QModelIndex &right) const
-{
-    return d->model->equal(left, right);
-}
-
-/*!
-    Returns true if the item represented by the \a left index is less than the
-    item represented by the \a right index; otherwise returns false.
-
-    The return value will depend on how the model compares the information it
-    holds.
-
-    \sa QAbstractItemModel::lessThan()
-*/
-bool QProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    return d->model->lessThan(left, right);
+    d->model->sort(column, order);
 }
 
 /*!

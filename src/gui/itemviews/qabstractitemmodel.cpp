@@ -957,68 +957,24 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 
     \sa ItemFlag
 */
-QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &) const
+QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     return ItemIsSelectable | ItemIsEnabled;
 }
 
 /*!
-    Returns true if the items in the model can be sorted; otherwise
-    returns false.
-
-    The base class implementation returns false.
-
-    \sa sort()
-*/
-bool QAbstractItemModel::isSortable() const
-{
-    return false;
-}
-
-/*!
-    Sorts the model by \a column in the given \a order for all the items with
-    the specified \a parent. Sorting will only occur if the model is sortable.
+    Sorts the model by \a column in the given \a order.
 
     The base class implementation does nothing.
 
     \sa isSortable()
 */
-void QAbstractItemModel::sort(int, Qt::SortOrder, const QModelIndex &)
+void QAbstractItemModel::sort(int column, Qt::SortOrder order)
 {
+    Q_UNUSED(column);
+    Q_UNUSED(order);
     // do nothing
-}
-
-/*!
-    Returns true if the data referred to by indexes \a left and \a right is
-    equal; otherwise returns false.
-
-    \sa greaterThan() lessThan()
-*/
-bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right) const
-{
-    return left == right;
-}
-
-/*!
-    \fn bool QAbstractItemModel::greaterThan(const QModelIndex &left, const QModelIndex &right) const
-
-    Returns true if the data at index \a left is greater than the
-    data at index \a right; otherwise returns false.
-
-    \sa equal() lessThan()
-*/
-
-/*!
-    Returns true if the data at index \a left is less than the
-    data at index \a right; otherwise returns false.
-
-    \sa equal() greaterThan()
-*/
-bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    if (left.row() == right.row())
-        return left.column() < right.column();
-    return left.row() < right.row();
 }
 
 /*!

@@ -193,23 +193,11 @@ public:
         { return removeColumns(column, 1, parent); }
 
     virtual void fetchMore(const QModelIndex &parent);
-
     virtual ItemFlags flags(const QModelIndex &index) const;
-
-    virtual bool isSortable() const;
-    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder,
-                      const QModelIndex &parent = QModelIndex());
-
-    virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
-    virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
-    inline bool greaterThan(const QModelIndex &left, const QModelIndex &right) const
-        { return lessThan(right, left); }
-
+    virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     virtual QModelIndex buddy(const QModelIndex &index) const;
-
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                                   int hits = 1, MatchFlags flags = MatchDefault) const;
-
     virtual QSize span(const QModelIndex &index) const;
 
 signals:

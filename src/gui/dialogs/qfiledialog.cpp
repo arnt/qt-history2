@@ -993,6 +993,8 @@ void QFileDialogPrivate::deletePressed(const QModelIndex &index)
 
 void QFileDialogPrivate::selectionChanged(const QItemSelection &selection)
 {
+    Q_UNUSED(selection);
+
     if (fileName->hasFocus())
         return; // the selection changed because of autocompletion
 

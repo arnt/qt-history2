@@ -53,10 +53,7 @@ public:
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
-    bool isSortable() const;
-    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
-    void sortAll(int column, Qt::SortOrder);
-
+    void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
@@ -489,55 +486,12 @@ QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 
 /*!
   \internal
-  \reimp
-
-  Returns if the model is sortable, otherwise returns false.
-*/
-
-bool QTreeModel::isSortable() const
-{
-    return true;
-}
-
-/*!
-  \internal
-  \reimp
-
-  Sorts one level of the tree with the given \a parent
-  in the given \a order by the values in the given \a column.
-*/
-
-void QTreeModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent)
-{
-    if (column == -1)
-        return;
-
-    QList<QTreeWidgetItem*>::iterator begin;
-    QList<QTreeWidgetItem*>::iterator end;
-    QTreeWidgetItem *par = static_cast<QTreeWidgetItem*>(parent.data());
-
-    if (!par) {
-        begin = tree.begin();
-        end = tree.end();
-    } else {
-        begin = par->children.begin();
-        end = par->children.end();
-    }
-
-    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
-    qHeapSort(begin, end, compare);
-
-    emit reset(); // items with their subtrees may have been moved
-}
-
-/*!
-  \internal
 
   Sorts the entire tree in the model in the given \a order,
   by the values in the given \a column.
 */
 
-void QTreeModel::sortAll(int column, Qt::SortOrder order)
+void QTreeModel::sort(int column, Qt::SortOrder order)
 {
     // sort top level
     LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
@@ -1598,7 +1552,7 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 {
-    d->model()->sortAll(column, order);
+    d->model()->sort(column, order);
     header()->setSortIndicator(column, order);
 }
 
@@ -1806,7 +1760,7 @@ void QTreeWidget::sortItems(int column)
         order = (order == Qt::AscendingOrder && column == section
                  ? Qt::DescendingOrder : Qt::AscendingOrder);
         header()->setSortIndicator(column, order);
-        d->model()->sortAll(column, order);
+        d->model()->sort(column, order);
         if (!header()->isSortIndicatorShown())
             header()->setSortIndicatorShown(true);
     }

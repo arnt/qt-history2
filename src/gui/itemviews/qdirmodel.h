@@ -66,11 +66,7 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const; // specific for this model
 
-    bool isSortable() const;
-    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
-
-    bool equal(const QModelIndex &left, const QModelIndex &right) const;
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    void sort(int column, Qt::SortOrder order);
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;

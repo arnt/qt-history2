@@ -489,25 +489,13 @@ bool QDirModel::isEditable(const QModelIndex &index) const
 }
 
 /*!
-  Returns true if the items in the directory model can be sorted;
-  otherwise returns false.
-
-*/
-
-bool QDirModel::isSortable() const
-{
-    return true;
-}
-
-/*!
   Sort the model items in the \a column using the \a order given.
   The order is a value defined in \l Qt::SortOrder.
 
 */
 
-void QDirModel::sort(int column, Qt::SortOrder order, const QModelIndex &)
+void QDirModel::sort(int column, Qt::SortOrder order)
 {
-    // FIXME: parent is ignored
     QDir::SortFlags sort = 0;
     if(order == Qt::DescendingOrder)
         sort |= QDir::Reversed;
@@ -531,52 +519,6 @@ void QDirModel::sort(int column, Qt::SortOrder order, const QModelIndex &)
     };
 
     setSorting(sort);
-}
-
-/*!
-  \fn bool QDirModel::equal(const QModelIndex &first, const QModelIndex &second) const
-
-  Returns true if the \a first model index is equal to the \a second
-  index given.
-*/
-
-bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
-{
-    if (!(left.isValid() && right.isValid()))
-        return left == right;
-    QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
-    QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
-    return l->info.absoluteFilePath() == r->info.absoluteFilePath();
-}
-
-/*!
-  \fn bool QDirModel::lessThan(const QModelIndex &first, const QModelIndex &second) const
-
-  Returns true if the \a first model item is less than the \a second
-  item given.
-
-*/
-
-bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    if (!(left.isValid() && right.isValid()))
-        return false;
-
-    QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
-    QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
-
-    // this depends on the sort column
-    int spec = sorting();
-    if (spec & QDir::Name) // col 0
-        return (l->info.fileName() < r->info.fileName());
-    if (spec & QDir::Size) // col 1
-        return (l->info.size() < r->info.size());
-    if (spec & QDir::DirsFirst) // col 2
-        return !l->info.isDir();
-    if (spec & QDir::Time) // col 3
-        return l->info.lastModified() < r->info.lastModified();
-
-    return QAbstractItemModel::lessThan(left, right);
 }
 
 /*!

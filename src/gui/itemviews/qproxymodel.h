@@ -56,11 +56,7 @@ public:
     void fetchMore(const QModelIndex &parent);
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
-    bool isSortable() const;
-    void sort(int column, Qt::SortOrder order, const QModelIndex &parent);
-
-    bool equal(const QModelIndex &left, const QModelIndex &right) const;
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    void sort(int column, Qt::SortOrder order);
 
     QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                           int hits, QAbstractItemModel::MatchFlags flags) const;

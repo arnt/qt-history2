@@ -245,7 +245,6 @@ void QTreeView::setRootIsDecorated(bool show)
   in the view has the same height. This enables the view to do some
   optimizations.
 */
-
 bool QTreeView::uniformRowHeights() const
 {
     return d->uniformRowHeights;
@@ -848,10 +847,10 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    int start = d->viewIndex(itemAt(isRightToLeft() ? rect.right() : rect.left(),
-                                    rect.top()));
-    int stop = d->viewIndex(itemAt(isRightToLeft() ? rect.left() : rect.right(),
-                                   rect.bottom()));
+    int start = d->viewIndex(itemAt(isRightToLeft()
+                                    ? rect.right() : rect.left(), rect.top()));
+    int stop = d->viewIndex(itemAt(isRightToLeft()
+                                   ? rect.left() : rect.right(), rect.bottom()));
     d->select(start, stop, command);
 }
 

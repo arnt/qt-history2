@@ -784,13 +784,6 @@ QSqlDatabase QSqlTableModel::database() const
      return d->db;
 }
 
-/*! \reimp
-*/
-bool QSqlTableModel::isSortable() const
-{
-    return true;
-}
-
 /*!
     Sorts the data by \a column with the sort order \a order.
     This will immediately select data, use setSort()
@@ -801,7 +794,7 @@ bool QSqlTableModel::isSortable() const
 
     \sa setSort(), isSortable(), select(), orderByClause()
 */
-void QSqlTableModel::sort(int column, Qt::SortOrder order, const QModelIndex & /* parent */)
+void QSqlTableModel::sort(int column, Qt::SortOrder order)
 {
     d->sortColumn = column;
     d->sortOrder = order;

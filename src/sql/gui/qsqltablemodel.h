@@ -55,8 +55,7 @@ public:
     QSqlDatabase database() const;
     int fieldIndex(const QString &fieldName) const;
 
-    bool isSortable() const;
-    void sort(int column, Qt::SortOrder order, const QModelIndex &parent = QModelIndex());
+    void sort(int column, Qt::SortOrder order);
     virtual void setSort(int column, Qt::SortOrder order);
 
     QString filter() const;
