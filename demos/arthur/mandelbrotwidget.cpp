@@ -12,8 +12,6 @@ const double defaultScale = 0.000004;
 MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     : DemoWidget(parent)
 {
-    setAttribute(Qt::WA_PaintOnScreen);
-    setAttribute(Qt::WA_NoSystemBackground);
     setCursor(Qt::CrossCursor);
     setFocusPolicy(Qt::WheelFocus);
     cx = defaultCX;
@@ -42,6 +40,7 @@ void MandelbrotWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
+    p.fillRect(rect(), Qt::black);
     if (!pixmap.isNull()) {
         if (scale != lastScale) {
             double scaleFactor = scale / lastScale;
@@ -65,14 +64,15 @@ void MandelbrotWidget::paintEvent(QPaintEvent *)
             p.drawPixmap(pixmapDrawPoint, pixmap);
         }
 
-        QString text = tr("cx = %1, cy = %2, scale = %3").arg(cx).arg(cy).arg(scale);
+        QString text = tr("Use mouse wheel to zoom. Press and hold left mouse button to move around.");
         QFontMetrics fm = p.fontMetrics();
-        p.setBrush(Qt::black);
-        p.fillRect(0, 0, fm.width(text), fm.lineSpacing(), Qt::black);
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0,0,0,127));
+        int textWidth = fm.width(text);
+        p.drawRect(width()/2-textWidth/2-5, 0, textWidth+10, fm.lineSpacing()+5);
         p.setPen(Qt::white);
-        p.drawText(0, fm.leading() + fm.ascent(), text);
+        p.drawText(width()/2-textWidth/2, fm.leading() + fm.ascent(), text);
     } else {
-        p.fillRect(rect(), Qt::black);
         p.setPen(Qt::white);
         p.drawText(rect(), Qt::AlignCenter, tr("Rendering initial image, please wait..."));
     }
