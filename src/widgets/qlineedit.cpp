@@ -2776,7 +2776,7 @@ void QLineEdit::parseMaskFields( const QString &maskFields )
     bool s;
     bool escape = FALSE;
     int index = 0;
-    for ( uint i = 0; i < d->inputMask.length(); i++ ) {
+    for ( i = 0; i < d->inputMask.length(); i++ ) {
 	c = d->inputMask.at(i);
 	if ( escape ) {
 	    s = TRUE;
