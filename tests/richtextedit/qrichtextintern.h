@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#8 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#9 $
 **
 ** Internal rich text classes
 **
@@ -52,6 +52,7 @@ public:
 class QtTextRichString
 {
     friend class QtTextRow;
+    friend class QtTextFormatContext;
     struct Item {
 	Item() {
 	    format = 0;
@@ -112,16 +113,16 @@ public:
 };
 
 
-class QtBox
+class QtTextParagraph
 {
 public:
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
+    QtTextParagraph( QtTextParagraph* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
 	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
 
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
+    QtTextParagraph( QtTextParagraph* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
 	   const QStyleSheetItem *stl );
 
-    ~QtBox();
+    ~QtTextParagraph();
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion,
@@ -130,18 +131,18 @@ public:
     void setWidth (QPainter* p, QFontMetrics& fm, int newWidth, bool forceResize = FALSE);
 
 
-    QtBox* parent;
+    QtTextParagraph* parent;
     QtTextFormatCollection* formats;
     QtTextCharFormat format;
     QtTextRichString text;
     const QStyleSheetItem* style;
     QMap<QString, QString> attributes_;
-    QtBox* child;
-    QtBox* prev;
-    QtBox* next;
-    
-    QtBox* nextInDocument();
-    QtBox* prevInDocument();
+    QtTextParagraph* child;
+    QtTextParagraph* prev;
+    QtTextParagraph* next;
+
+    QtTextParagraph* nextInDocument();
+    QtTextParagraph* prevInDocument();
 
     QtTextRow* rows;
 
@@ -153,10 +154,10 @@ public:
     int width;
     int widthUsed;
     int height;
-    
+
     void locate( QPainter* p, int index, int offset, int &lx, int &ly, int &lheight );
 
-    
+
     inline int margin(QStyleSheetItem::Margin m) const
     {
 	if (style->margin(m) != QStyleSheetItem::Undefined)
@@ -171,7 +172,7 @@ public:
 	return parent?parent->whiteSpaceMode():QStyleSheetItem::WhiteSpaceNormal;
     }
 
-    int numberOfSubBox( QtBox* subbox, bool onlyListItems);
+    int numberOfSubBox( QtTextParagraph* subbox, bool onlyListItems);
     QStyleSheetItem::ListStyle listStyle();
     inline int alignment() const
     {
@@ -179,25 +180,26 @@ public:
 	    return style->alignment();
 	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
     }
+    
+    void invalidateLayout();
+    bool dirty;
     int x;
     int y;
 
 };
 
 
-
-
-// internal class for QtBox
+// internal class for QtTextParagraph
 class QtTextRow
 {
 public:
     QtTextRow();
     QtTextRow( QPainter* p,  QtTextRow* row, QFontMetrics &fm,
-	       QtBox* b, int w, int& min, int align);
+	       QtTextParagraph* b, int w, int& min, int align);
     QtTextRow( QPainter* p,  QtTextRow* row, QFontMetrics &fm,
 	       const QtTextRichString* t, int &index, int w, int& min, int align);
     ~QtTextRow();
-    
+
     void move( int nx, int ny );
     inline int x() const;
     inline int y() const;
@@ -209,17 +211,17 @@ public:
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions&,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    
+
     void locate(QPainter* p, int index, int offset, int &lx, int &ly, int &lh);
     void indexAt(QPainter* p, int xpos, int &index, int& offset );
 
     bool dirty;
 
-    QtBox* box;
+    QtTextParagraph* box;
     const QtTextRichString* text;
     int first;
     int last;
-    
+
     QtTextRow* next;
     QtTextRow* prev;
 private:
@@ -288,7 +290,7 @@ public:
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
-    
+
     virtual bool expandsHorizontally() { return FALSE;  }
     int width;
     int height;
@@ -320,6 +322,48 @@ public:
 private:
 };
 
+class QtTextFormatContext {
+ public:
+    QtTextFormatContext(QtRichText& document);
+    ~QtTextFormatContext();
+    
+    QtTextParagraph* box;
+    int first;
+    int last;
+    int current;
+    int currentx;
+    int currentasc;
+    int currentdesc;
+    bool atEnd() const;
+    bool pastEnd() const;
+    bool pastEndOfLine() const; 
+    void gotoBox( QPainter* p, QtTextParagraph* b );
+
+    bool doLayout( QPainter* p, int w, int ymax );
+
+    
+    void makeLineLayout( QPainter* p, const QFontMetrics& fm );
+    bool gotoNextLine( QPainter* p, const QFontMetrics& fm );
+    void gotoLineStart( QPainter* p, const QFontMetrics& fm );
+    void drawLine( QPainter* p, int ox, int oy,
+		   QRegion& backgroundRegion,
+		   const QColorGroup& cg, const QtTextOptions& to );
+    void gotoNextItem( QPainter* p, const QFontMetrics& fm );
+    
+    void updateCharFormat( QPainter* p, const QFontMetrics& fm );
+
+    int x_;
+    int y_;
+    int x() const { return x_; }
+    int y() const { return y_; }
+    int width;
+    int widthUsed;
+    int height;
+    int base;
+    int fill;
+    
+    QtRichText* doc;
+};
 
 class QtTextCursor{
 public:
@@ -334,11 +378,11 @@ public:
     int height;
 
     int width() { return 1; }
-    QtBox* box;
+    QtTextParagraph* box;
     int index;
     int offset;
 
-    /*    
+    /*
     bool hasSelection;
     bool selectionDirty;
     void clearSelection();
@@ -351,7 +395,7 @@ public:
 
     void right(QPainter* p, bool select = FALSE);
     void left(QPainter* p, bool select = FALSE);
-    
+
     /*
     void up(QPainter* p, bool select = FALSE);
     void down(QPainter* p, bool select = FALSE);
@@ -360,7 +404,7 @@ public:
     */
     void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
 
-    void goTo(QtBox* b, bool select = FALSE);
+    void goTo(QtTextParagraph* b, bool select = FALSE);
     void calculatePosition(QPainter* p);
 
     int xline;
@@ -371,7 +415,7 @@ private:
 };
 
 
-class QtRichText : public QtBox
+class QtRichText : public QtTextParagraph
 {
 public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
@@ -390,7 +434,7 @@ public:
 private:
     void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
-    bool parse (QtBox* current, const QStyleSheetItem* cursty, QtBox* dummy,
+    bool parse (QtTextParagraph* current, const QStyleSheetItem* cursty, QtTextParagraph* dummy,
 		QtTextCharFormat fmt, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#6 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#7 $
 **
 ** Implementation of the QtTextView class
 **
@@ -99,6 +99,8 @@ public:
     bool linkunderline;
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
+    QtTextFormatContext* fc;
+    QtTextFormatContext* fcresize;
 };
 
 
@@ -135,6 +137,8 @@ void QtTextView::init()
     d->mylinkcol = blue;
     d->paplinkcol = d->mylinkcol;
     d->linkunderline = TRUE;
+    d->fc = 0;
+    d->fcresize = 0;
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
@@ -186,7 +190,7 @@ void QtTextView::setText( const QString& text, const QString& context)
     d->original_txt = text;
     d->contxt = context;
 
-    if ( d->txt.isEmpty() )
+    if ( text.isEmpty() )
 	d->txt = QString::fromLatin1("<p></p>");
     else if ( d->textformat == AutoText ) {
 	if ( QStyleSheet::mightBeRichText( text ) )
@@ -216,6 +220,9 @@ void QtTextView::setText( const QString& text, const QString& context)
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
+
+    delete d->fc;
+    d->fc = new QtTextFormatContext( richText() );
 }
 
 
@@ -471,7 +478,61 @@ const QBrush& QtTextView::paper()
 void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
+    if ( !d->fc ) {
+	qDebug("ooops");
+	return;
+    }
+    int y = 0;
     QRegion r(cx-ox, cy-oy, cw, ch);
+    QtTextParagraph* b = &richText();
+    while ( b->child )
+	b = b->child;
+
+    while ( b && !b->dirty && b->y + b->height < cy ) {
+	y = b->y + b->height;
+	b = b->nextInDocument();
+    }
+
+    QFontMetrics fm( p->fontMetrics() );
+    while ( b && y <= cy + ch ) {
+	b->x =0;
+	b->y = y;
+	b->width = viewport()->width();
+	d->fc->gotoBox( p, b );
+	do {
+	    d->fc->makeLineLayout( p, fm );
+	    if ( d->fc->y() + d->fc->height >= cy )
+		d->fc->drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
+	}
+	while ( d->fc->gotoNextLine( p, fm ) );
+	y = d->fc->y();
+	b->height = y - b->y;
+	b->dirty = FALSE;
+	b = b->nextInDocument();
+    };
+    
+    
+//     if ( y >= contentsHeight() ) {
+// 	bool u = viewport()->isUpdatesEnabled();
+// 	viewport()->setUpdatesEnabled( FALSE );
+// 	resizeContents( viewport()->width(), y + (b ? 500:0) );
+// 	viewport()->setUpdatesEnabled( u );
+//     }
+    
+    p->setClipRegion(r);
+
+    if ( paper().pixmap() )
+	p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+			   *paper().pixmap(), ox, oy);
+    else
+	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
+
+    qApp->syncX();
+
+    p->setClipping( FALSE );
+    return;
+    
+    //QRegion r(cx-ox, cy-oy, cw, ch);
     richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions( &paper() )); //## todo linkcolor
 
     p->setClipRegion(r);
@@ -481,7 +542,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 			   *paper().pixmap(), ox, oy);
     else
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-    
+
     qApp->syncX();
 
     p->setClipping( FALSE );
@@ -502,10 +563,22 @@ void QtTextView::viewportResizeEvent(QResizeEvent* )
 
 void QtTextView::doResize()
 {
+    if ( !d->fcresize ) {
+	qDebug("ooops");
+	return;
+    }
+	
+    {
+	QPainter p( viewport() );
+	if ( !d->fcresize->doLayout( &p, viewport()->width(), d->fcresize->y() + 1000 ) )
+	    d->resizeTimer->start( 0, TRUE );
+	resizeContents( viewport()->width(), d->fcresize->y() );
+    }
+    return;
     QSize vw = viewportSize( QMAX( richText().widthUsed,
 				   richText().width),
 			     richText().height );
-    {
+    {		
 	QPainter p(this);
 	richText().setWidth( &p, vw.width() );
     }
@@ -522,6 +595,23 @@ void QtTextView::doResize()
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
+    
+    viewport()->setUpdatesEnabled( FALSE );
+    QScrollView::resizeEvent( e );
+   viewport()->setUpdatesEnabled( TRUE );
+    richText().invalidateLayout();
+    {
+	QPainter p( viewport() );
+	d->fc->gotoBox( &p, &richText() );
+	d->fc->doLayout( &p, viewport()->width(), viewport()->height() + contentsY() );
+	delete d->fcresize;
+	d->fcresize = new QtTextFormatContext( *d->fc );
+	d->resizeTimer->start( 0, TRUE );
+    }
+    viewport()->repaint( FALSE );
+    return;
+    
+    
     if ( FALSE && contentsHeight() > 4 * height() ) {
       // large document, do deferred resize
       d->resizeTimer->start( 200, TRUE );
@@ -659,7 +749,6 @@ QtTextEdit::QtTextEdit(QWidget *parent, const char *name)
     cursorTimer->start(200, TRUE);
     connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
     cursor = 0;
-
 }
 
 QtTextEdit::~QtTextEdit()
@@ -915,12 +1004,14 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
+    return;
     if (!cursor_hidden)
  	cursor->draw(p, ox, oy, cx, cy, cw, ch);
 }
 
 void QtTextEdit::cursorTimerDone()
 {
+    return;// TODO
     if ( !cursor )
 	return;
      if (cursor_hidden) {

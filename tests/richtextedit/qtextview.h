@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#4 $
 **
 ** Definition of the QtTextView class
 **
@@ -105,6 +105,7 @@ private:
 
 
 class QtTextCursor;
+class QFC;
 
 class Q_EXPORT QtTextEdit : public QtTextView
 {
