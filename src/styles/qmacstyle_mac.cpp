@@ -299,7 +299,11 @@ void QMacStyle::polish( QWidget* w )
 	QBoxLayout * layout = bar->boxLayout();
 	layout->setSpacing(0);
 	layout->setMargin(0);
-    } 
+    } else if(w->inherits("QTipLabel")) {
+	QLabel *label = (QLabel*)w;
+	label->setFrameStyle(QFrame::NoFrame);
+	label->setLineWidth( 1 );
+    }
 #ifdef Q_WS_MAC
     else if(w->inherits("QPopupMenu")) {
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
