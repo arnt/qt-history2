@@ -590,7 +590,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	} else {
 	    b = new QDesignerPushButton( parent, name );
 	}
-	b->setAutoDefault( TRUE );
+	QWidget *w = find_formwindow( b );
+	b->setAutoDefault( w && ( (FormWindow*)w )->mainContainer()->inherits( "QDialog" ) );
 	return b;
     } else if ( className == "QToolButton" ) {
 	if ( init ) {
