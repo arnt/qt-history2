@@ -25,6 +25,7 @@
 #include "connectiondialog.h"
 #include "mainwindow.h"
 #include "hierarchyview.h"
+#include "formfile.h"
 
 #include <qaction.h>
 #include <qlineedit.h>
@@ -121,7 +122,7 @@ void ActionEditor::deleteAction()
 	}
 	++it;
     }
-
+    formWindow->formFile()->setModified( TRUE );
     if ( formWindow )
 	formWindow->setActiveObject( formWindow->mainContainer() );
 }
