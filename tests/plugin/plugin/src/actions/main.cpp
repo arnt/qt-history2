@@ -38,6 +38,8 @@ public:
     QString description() { return "Test implementation of the QActionInterface"; }
     QString author() { return "vohi"; }
 
+    bool connectNotify( QApplication* theApp );
+
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
 
@@ -60,20 +62,22 @@ protected:
     bool eventFilter( QObject*, QEvent* );
 
 private:
-    QClientInterface* cIface;
     QGuardedPtr<SoundDialog> dialog;
 };
 
 TestInterface::TestInterface()
 {
-    cIface = 0;
     dialog = new SoundDialog( 0, 0, FALSE );
     widgets.addCleanUp( dialog );
 }
 
 TestInterface::~TestInterface()
 {
-    delete cIface;
+}
+
+bool TestInterface::connectNotify( QApplication* theApp )
+{
+    return theApp->requestApplicationInterface( "PlugMainWindowInterface" );
 }
 
 QStringList TestInterface::featureList()
