@@ -42,3 +42,7 @@ PROJECTNAME	= Qt Designer
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
+
+isEmpty(templates.path):templates.path=$$QT_PREFIX/tools/designer/templates
+templates.files = ../templates/*
+INSTALLS += templates
