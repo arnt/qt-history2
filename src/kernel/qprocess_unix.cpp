@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#62 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -121,9 +121,6 @@ public:
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
     QSocketNotifier *notifierStderr;
-    int socketStdin[2];
-    int socketStdout[2];
-    int socketStderr[2];
 
     ssize_t stdinBufRead;
     QProc *proc;
@@ -155,6 +152,9 @@ public:
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProc: Constructor for pid %d and QProcess %p", pid, process );
 #endif
+	socketStdin = 0;
+	socketStdout = 0;
+	socketStderr = 0;
     }
     ~QProc()
     {
@@ -163,9 +163,20 @@ public:
 #endif
 	if ( process != 0 )
 	    process->d->proc = 0;
+	if( socketStdin != 0 )
+	    ::close( socketStdin );
+	// ### close these sockets even on parent exit or is it better only on
+	// sigchld (but what do I have to do with them on exit then)?
+	if( socketStdout != 0 )
+	    ::close( socketStdout );
+	if( socketStderr != 0 )
+	    ::close( socketStderr );
     }
 
     pid_t pid;
+    int socketStdin;
+    int socketStdout;
+    int socketStderr;
     QProcess *process;
 };
 
@@ -318,8 +329,8 @@ void QProcessManager::sigchldHnd( int fd )
 		qDebug( "QProcessManager::sigchldHnd(): process exited (QProcess available)" );
 #endif
 		// read pending data
-		process->socketRead( process->d->socketStdout[0] );
-		process->socketRead( process->d->socketStderr[0] );
+		process->socketRead( proc->socketStdout );
+		process->socketRead( proc->socketStderr );
 
 		if ( process->notifyOnExit )
 		    emit process->processExited();
@@ -366,13 +377,6 @@ QProcessPrivate::QProcessPrivate()
     notifierStdout = 0;
     notifierStderr = 0;
 
-    socketStdin[0] = 0;
-    socketStdin[1] = 0;
-    socketStdout[0] = 0;
-    socketStdout[1] = 0;
-    socketStderr[0] = 0;
-    socketStderr[1] = 0;
-
     exitValuesCalculated = FALSE;
 
     proc = 0;
@@ -384,8 +388,13 @@ QProcessPrivate::~QProcessPrivate()
     qDebug( "QProcessPrivate: Destructor" );
 #endif
 
-    if ( proc != 0 )
+    if ( proc != 0 ) {
+	if ( proc->socketStdin != 0 ) {
+	    ::close( proc->socketStdin );
+	    proc->socketStdin = 0;
+	}
 	proc->process = 0;
+    }
 
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
@@ -399,12 +408,6 @@ QProcessPrivate::~QProcessPrivate()
     if ( notifierStderr ) {
 	delete notifierStderr;
     }
-    if( socketStdin[1] != 0 )
-	::close( socketStdin[1] );
-    if( socketStdout[0] != 0 )
-	::close( socketStdout[0] );
-    if( socketStderr[0] != 0 )
-	::close( socketStderr[0] );
 }
 
 /*
@@ -414,26 +417,18 @@ QProcessPrivate::~QProcessPrivate()
 */
 void QProcessPrivate::closeOpenSocketsForChild()
 {
-    ::close( socketStdin[1] );
-    ::close( socketStdout[0] );
-    ::close( socketStderr[0] );
-
     if ( procManager != 0 ) {
 	if ( procManager->sigchldFd[0] != 0 )
 	    ::close( procManager->sigchldFd[0] );
 	if ( procManager->sigchldFd[1] != 0 )
 	    ::close( procManager->sigchldFd[1] );
 
-	// delete also the sockets from other QProcess instances
+	// close also the sockets from other QProcess instances
 	QProc *proc;
-	QProcess *process;
 	for ( proc=procManager->procList->first(); proc!=0; proc=procManager->procList->next() ) {
-	    process = proc->process;
-	    if ( process != 0 ) {
-		::close( process->d->socketStdin[1] );
-		::close( process->d->socketStdout[0] );
-		::close( process->d->socketStderr[0] );
-	    }
+	    ::close( proc->socketStdin );
+	    ::close( proc->socketStdout );
+	    ::close( proc->socketStderr );
 	}
     }
 }
@@ -540,14 +535,18 @@ bool QProcess::start()
 #endif
     reset();
 
+    int sStdin[2];
+    int sStdout[2];
+    int sStderr[2];
+
     // open sockets for piping
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdin ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdout ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStderr ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) ) {
 	return FALSE;
     }
 
@@ -580,9 +579,12 @@ bool QProcess::start()
     if ( pid == 0 ) {
 	// child
 	d->closeOpenSocketsForChild();
-	::dup2( d->socketStdin[0], STDIN_FILENO );
-	::dup2( d->socketStdout[1], STDOUT_FILENO );
-	::dup2( d->socketStderr[1], STDERR_FILENO );
+	::close( sStdin[1] );
+	::close( sStdout[0] );
+	::close( sStderr[0] );
+	::dup2( sStdin[0], STDIN_FILENO );
+	::dup2( sStdout[1], STDOUT_FILENO );
+	::dup2( sStderr[1], STDERR_FILENO );
 	::chdir( workingDir.absPath().latin1() );
 	if ( fd[0] )
 	    ::close( fd[0] );
@@ -618,19 +620,20 @@ bool QProcess::start()
 	}
     }
 
-    d->newProc( pid, this );
 
-    ::close( d->socketStdin[0] );
-    ::close( d->socketStdout[1] );
-    ::close( d->socketStderr[1] );
+    ::close( sStdin[0] );
+    ::close( sStdout[1] );
+    ::close( sStderr[1] );
+
+    d->newProc( pid, this );
+    d->proc->socketStdin = sStdin[1];
+    d->proc->socketStdout = sStdout[0];
+    d->proc->socketStderr = sStderr[0];
 
     // setup notifiers for the sockets
-    d->notifierStdin = new QSocketNotifier( d->socketStdin[1],
-	    QSocketNotifier::Write );
-    d->notifierStdout = new QSocketNotifier( d->socketStdout[0],
-	    QSocketNotifier::Read );
-    d->notifierStderr = new QSocketNotifier( d->socketStderr[0],
-	    QSocketNotifier::Read );
+    d->notifierStdin = new QSocketNotifier( sStdin[1], QSocketNotifier::Write );
+    d->notifierStdout = new QSocketNotifier( sStdout[0], QSocketNotifier::Read );
+    d->notifierStderr = new QSocketNotifier( sStderr[0], QSocketNotifier::Read );
     connect( d->notifierStdin, SIGNAL(activated(int)),
 	    this, SLOT(socketWrite(int)) );
     connect( d->notifierStdout, SIGNAL(activated(int)),
@@ -654,18 +657,12 @@ error:
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start(): error starting process" );
 #endif
-    ::close( d->socketStdin[1] );
-    ::close( d->socketStdout[0] );
-    ::close( d->socketStderr[0] );
-    ::close( d->socketStdin[0] );
-    ::close( d->socketStdout[1] );
-    ::close( d->socketStderr[1] );
-    d->socketStdin[0] = 0;
-    d->socketStdin[1] = 0;
-    d->socketStdout[0] = 0;
-    d->socketStdout[1] = 0;
-    d->socketStderr[0] = 0;
-    d->socketStderr[1] = 0;
+    ::close( sStdin[1] );
+    ::close( sStdout[0] );
+    ::close( sStderr[0] );
+    ::close( sStdin[0] );
+    ::close( sStdout[1] );
+    ::close( sStderr[1] );
     ::close( fd[0] );
     ::close( fd[1] );
     delete[] arglistQ;
@@ -759,7 +756,7 @@ bool QProcess::isRunning() const
 void QProcess::writeToStdin( const QByteArray& buf )
 {
 #if defined(QT_QPROCESS_DEBUG)
-//    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin[1] );
+//    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin );
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
@@ -777,7 +774,9 @@ void QProcess::writeToStdin( const QByteArray& buf )
 */
 void QProcess::closeStdin()
 {
-    if ( d->socketStdin[1] !=0 ) {
+    if ( d->proc == 0 )
+	return;
+    if ( d->proc->socketStdin !=0 ) {
 	while ( !d->stdinBuf.isEmpty() ) {
 	    delete d->stdinBuf.dequeue();
 	}
@@ -785,13 +784,13 @@ void QProcess::closeStdin()
 	    delete d->notifierStdin;
 	    d->notifierStdin = 0;
 	}
-	if ( ::close( d->socketStdin[1] ) != 0 ) {
+	if ( ::close( d->proc->socketStdin ) != 0 ) {
 	    qWarning( "Could not close stdin of child process" );
 	}
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin[1] );
+	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin );
 #endif
-	d->socketStdin[1] = 0;
+	d->proc->socketStdin = 0;
     }
 }
 
@@ -811,9 +810,9 @@ void QProcess::socketRead( int fd )
     QByteArray *buffer;
     uint oldSize;
     int n;
-    if ( fd == d->socketStdout[0] ) {
+    if ( fd == d->proc->socketStdout ) {
 	buffer = &bufStdout;
-    } else if ( fd == d->socketStderr[0] ) {
+    } else if ( fd == d->proc->socketStderr ) {
 	buffer = &bufStderr;
     }
 
@@ -827,25 +826,25 @@ void QProcess::socketRead( int fd )
 	buffer->resize( oldSize );
     // eof or error?
     if ( n == 0 || n == -1 ) {
-	if ( fd == d->socketStdout[0] ) {
+	if ( fd == d->proc->socketStdout ) {
 #if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
 #endif
 	    d->notifierStdout->setEnabled( FALSE );
 	    delete d->notifierStdout;
 	    d->notifierStdout = 0;
-	    ::close( d->socketStdout[0] );
-	    d->socketStdout[0] = 0;
+	    ::close( d->proc->socketStdout );
+	    d->proc->socketStdout = 0;
 	    return;
-	} else if ( fd == d->socketStderr[0] ) {
+	} else if ( fd == d->proc->socketStderr ) {
 #if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
 #endif
 	    d->notifierStderr->setEnabled( FALSE );
 	    delete d->notifierStderr;
 	    d->notifierStderr = 0;
-	    ::close( d->socketStderr[0] );
-	    d->socketStderr[0] = 0;
+	    ::close( d->proc->socketStderr );
+	    d->proc->socketStderr = 0;
 	    return;
 	}
     }
@@ -858,13 +857,13 @@ void QProcess::socketRead( int fd )
 	    buffer->resize( oldSize + n );
     }
 
-    if ( fd == d->socketStdout[0] ) {
+    if ( fd == d->proc->socketStdout ) {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
 		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStdout();
-    } else if ( fd == d->socketStderr[0] ) {
+    } else if ( fd == d->proc->socketStderr ) {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
 		buffer->size()-oldSize, fd );
@@ -880,7 +879,7 @@ void QProcess::socketRead( int fd )
 */
 void QProcess::socketWrite( int fd )
 {
-    if ( fd != d->socketStdin[1] || d->socketStdin[1] == 0 )
+    if ( fd != d->proc->socketStdin || d->proc->socketStdin == 0 )
 	return;
     if ( d->stdinBuf.isEmpty() ) {
 	d->notifierStdin->setEnabled( FALSE );
