@@ -2169,15 +2169,17 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
     QtGpPath *path = 0;
     GdipCreatePath(0, &path);
 
-    QPointF prev;
+    QPointF prev, start;
 
     // Drawing the subpaths
     for (int i=0; i<p.elementCount(); ++i) {
         const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
+            if (i>0 && start.x() == p.elementAt(i-1).x && start.y() == p.elementAt(i-1).y)
+                GdipClosePathFigure(path);
             GdipStartPathFigure(path);
-            prev = QPointF(elm.x, elm.y);
+            start = prev = QPointF(elm.x, elm.y);
             break;
         case QPainterPath::LineToElement:
             GdipAddPathLine(path,
@@ -2202,6 +2204,10 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
     }
 
     GdipSetPathFillMode(path, p.fillMode() == QPainterPath::Winding ? 1 : 0);
+
+    if (start.x() == p.elementAt(p.elementCount()-1).x
+        && start.y() == p.elementAt(p.elementCount()-1).y)
+        GdipClosePathFigure(path);
 
     if (d->brush)
         GdipFillPath(d->graphics, d->brush, path);
