@@ -2969,17 +2969,18 @@ QPixmap QCommonStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixm
 {
     switch (iconMode) {
     case IM_Disabled: {
-        QBitmap pixmapMask;
-        if (pixmap.mask()) {
-            pixmapMask = *pixmap.mask();
-        } else {
-            QImage img = pixmap.toImage();
-            pixmapMask.fromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
-        }
+
+        QBitmap pixmapMask(pixmap.size());
+        pixmapMask.fill(Qt::color0);
+        
+        QPainter painter;
+        painter.begin(&pixmapMask);
+        painter.drawPixmap(0, 0, pixmap);
+        painter.end();
+
         QPixmap ret(pixmap.width() + 1, pixmap.height() + 1);
         ret.fill(opt->palette.color(QPalette::Disabled, QPalette::Background));
 
-        QPainter painter;
         painter.begin(&ret);
         painter.setPen(opt->palette.color(QPalette::Disabled, QPalette::Light));
         painter.drawPixmap(1, 1, pixmapMask);
