@@ -33,7 +33,9 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#if !defined(Q_OS_HPUX)
 #include <X11/Xmu/StdCmap.h>
+#endif
 
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
@@ -137,6 +139,19 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
         }
     }
 #if !defined(Q_OS_SOLARIS)
+    // HP-UX is by default bundled with only the shared version of the
+    // R4 libXmu library, and it doesn't bundle Xmu.h. Installing
+    // official patches provides the R6 version with the .h file. To
+    // avoid compile errors, we resolve the Xmu library in run-time
+    // and fall back to creating our own color map if it fails.
+#if defined(Q_OS_HPUX)
+    typedef Status (*_XmuLookupStandardColormap)(Display *dpy, int screen, VisualID visualid, unsigned int depth,
+                                                 Atom property, Bool replace, Bool retain);
+    _XmuLookupStandardColormap qt_XmuLookupStandardColormap;
+    qt_XmuLookupStandardColormap = _XmuLookupStandardColormap(QLibrary::resolve("Xmu", "XmuLookupStandardColormap"));
+#define XmuLookupStandardColormap qt_XmuLookupStandardColormap
+    if (qt_XmuLookupStandardColormap)
+#endif
     if (!x->cmap) {
         if (XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
                                        XA_RGB_DEFAULT_MAP,false,true)) {
