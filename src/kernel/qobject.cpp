@@ -335,23 +335,25 @@ static void remove_tree( QObject* obj )
 */
 
 QObject::QObject( QObject *parent, const char *name )
-    : d( 0 )
+    :
+    isSignal( FALSE ),				// assume not a signal object
+    isWidget( FALSE ), 				// assume not a widget object
+    pendTimer( FALSE ),				// no timers yet
+    blockSig( FALSE ),      			// not blocking signals
+    wasDeleted( FALSE ),       			// double-delete catcher
+    isTree( FALSE ), 				// no tree yet
+    objname( name ? qstrdup(name) : 0 ),        // set object name
+    parentObj( 0 ),				// no parent yet. It is set by insertChild()
+    childObjects( 0 ), 				// no children yet
+    connections( 0 ),				// no connections yet
+    senderObjects( 0 ),        			// no signals connected yet
+    eventFilters( 0 ), 				// no filters installed
+    postedEvents( 0 ), 				// no events posted
+    d( 0 )
 {
     if ( !metaObj )				// will create object dict
 	(void) staticMetaObject();
-    objname       = name ? qstrdup(name) : 0;   // set object name
-    childObjects  = 0;				// no children yet
-    connections   = 0;				// no connections yet
-    senderObjects = 0;				// no signals connected yet
-    eventFilters  = 0;				// no filters installed
-    postedEvents  = 0;				// no events posted
-    isSignal   = FALSE;				// assume not a signal object
-    isWidget   = FALSE;				// assume not a widget object
-    pendTimer  = FALSE;				// no timers yet
-    blockSig   = FALSE;				// not blocking signals
-    wasDeleted = FALSE;				// double-delete catcher
-    isTree = FALSE;				// no tree yet
-    parentObj  = parent;			// to avoid root checking in insertChild()
+
     if ( parent ) {				// add object to parent
 	parent->insertChild( this );
     } else {
@@ -1169,14 +1171,13 @@ void QObject::insertChild( QObject *obj )
     if ( !childObjects ) {
 	childObjects = new QObjectList;
 	Q_CHECK_PTR( childObjects );
-    }
+    } else if ( obj->parentObj == this ) {
 #if defined(QT_CHECK_STATE)
-    else if ( childObjects->findRef(obj) >= 0 ) {
 	qWarning( "QObject::insertChild: Object %s::%s already in list",
 		 obj->className(), obj->name( "unnamed" ) );
+#endif
 	return;
     }
-#endif
     obj->parentObj = this;
     childObjects->append( obj );
 

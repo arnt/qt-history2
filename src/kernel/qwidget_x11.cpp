@@ -290,7 +290,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
 	xd->x_colormap = a.colormap;
 	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
-	setX11Data( xd );    
+	setX11Data( xd );
     } else if ( desktop ) {			// desktop widget
 	id = (WId)parentw;			// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -639,12 +639,11 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
         topData()->parentWinId = 0;
 
-    if ( parentObj ) {				// remove from parent
-	parentObj->removeChild( this );
-    }
-    if ( parent ) {				// insert into new parent
-	parentObj = parent;			// avoid insertChild warning
-	parent->insertChild( this );
+    if ( parent != parentObj ) {
+	if ( parentObj )				// remove from parent
+	    parentObj->removeChild( this );
+	if ( parent )				// insert into new parent
+	    parent->insertChild( this );
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();

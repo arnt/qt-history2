@@ -371,17 +371,18 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 
     setWinId( 0 );
 
-    QWidget *oldparent = parentWidget();
-    if ( oldparent ) {				// remove from parent
-	oldparent->removeChild( this );
-	oldparent->setChildrenAllocatedDirty();
-	oldparent->paintable_region_dirty = TRUE;
-    }
-    if ( parent ) {				// insert into new parent
-	parentObj = parent;			// avoid insertChild warning
-	parent->insertChild( this );
-	parent->setChildrenAllocatedDirty();
-	parent->paintable_region_dirty = TRUE;
+    if ( parentObj != parent ) {
+	QWidget *oldparent = parentWidget();
+	if ( oldparent ) {				// remove from parent
+	    oldparent->removeChild( this );
+	    oldparent->setChildrenAllocatedDirty();
+	    oldparent->paintable_region_dirty = TRUE;
+	}
+	if ( parent ) {				// insert into new parent
+	    parent->insertChild( this );
+	    parent->setChildrenAllocatedDirty();
+	    parent->paintable_region_dirty = TRUE;
+	}
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();

@@ -142,7 +142,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	popup = FALSE;				// force this flags off
 #ifndef Q_OS_TEMP
 	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
-	    crect.setRect( GetSystemMetrics( 76 /* SM_XVIRTUALSCREEN  */ ), GetSystemMetrics( 77 /* SM_YVIRTUALSCREEN  */ ), 
+	    crect.setRect( GetSystemMetrics( 76 /* SM_XVIRTUALSCREEN  */ ), GetSystemMetrics( 77 /* SM_YVIRTUALSCREEN  */ ),
 			   GetSystemMetrics( 78 /* SM_CXVIRTUALSCREEN */ ), GetSystemMetrics( 79 /* SM_CYVIRTUALSCREEN */ ) );
 	else
 #endif
@@ -461,13 +461,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     setWinId( 0 );
 
     if ( parent != parentObj ) {
-	if ( parentObj ) {			// remove from parent
+	if ( parentObj )				// remove from parent
 	    parentObj->removeChild( this );
-	}
-	if ( parent ) {				// insert into new parent
-	    parentObj = parent;			// avoid insertChild warning
+	if ( parent )					// insert into new parent
 	    parent->insertChild( this );
-	}
     }
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
@@ -487,9 +484,9 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 		QWidget *w = (QWidget *)obj;
 		if ( w->isPopup() )
 		    ;
-		else if ( w->isTopLevel() ) 
+		else if ( w->isTopLevel() )
 		    w->reparent( this, w->getWFlags(), w->pos(), !w->isHidden() );
-		else 
+		else
 		    SetParent( w->winId(), winId() );
 	    }
 	    ++it;
@@ -908,7 +905,7 @@ void QWidget::showWindow()
 
     if ( testWFlags(WStyle_Tool) || isPopup() )
 	sm = SW_SHOWNOACTIVATE;
-    
+
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
 }
@@ -1211,7 +1208,7 @@ void QWidget::erase( int x, int y, int w, int h )
     int oy = offset.y();
 
     qt_erase_background( hdc, x, y, w, h, bg_col, backgroundPixmap(), ox, oy );
-    
+
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
