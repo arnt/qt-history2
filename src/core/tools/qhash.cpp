@@ -899,6 +899,57 @@ void QHashData::free()
     \internal
 */
 
+/*! \typedef QHash::ConstIterator
+
+    Qt-style synonym for QHash::const_iterator.
+*/
+
+/*! \typedef QHash::Iterator
+
+    Qt-style synonym for QHash::iterator.
+*/
+
+
+/*! \typedef QHash::iterator::difference_type
+    \internal
+*/
+
+/*! \typedef QHash::iterator::iterator_category
+    \internal
+*/
+
+/*! \typedef QHash::iterator::pointer
+    \internal
+*/
+
+/*! \typedef QHash::iterator::reference
+    \internal
+*/
+
+/*! \typedef QHash::iterator::value_type
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::difference_type
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::iterator_category
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::pointer
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::reference
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::value_type
+    \internal
+*/
+
 /*! \class QHash::iterator
     \brief The QHash::iterator class provides an STL-style non-const iterator for QHash and QMultiHash.
 

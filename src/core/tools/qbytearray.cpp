@@ -1104,16 +1104,18 @@ QByteArray::QByteArray(const char *str)
 
 /*!
     Constructs a byte array containing the first \a size bytes of
-    string \a str.
+    array \a data.
 
-    If \a str is 0, a null byte array is constructed.
+    If \a data is 0, a null byte array is constructed.
 
     QByteArray makes a deep copy of the string data.
+
+    \sa fromRawData()
 */
 
-QByteArray::QByteArray(const char *str, int size)
+QByteArray::QByteArray(const char *data, int size)
 {
-    if (!str) {
+    if (!data) {
         d = &shared_null;
     } else if (size <= 0) {
         d = &shared_empty;
@@ -1125,7 +1127,7 @@ QByteArray::QByteArray(const char *str, int size)
             d->ref = 0;
             d->alloc = d->size = size;
             d->data = d->array;
-            memcpy(d->array, str, size);
+            memcpy(d->array, data, size);
             d->array[size] = '\0';
         }
     }
@@ -3393,24 +3395,15 @@ QByteArray QByteArray::number(double n, char f, int prec)
 }
 
 /*!
-    Constructs a QConstByteArray that uses the first \a size characters
-    in the array \a bytes.
+    Constructs a QByteArray that uses the first \a size characters in
+    the array \a data. The bytes in \a data are \e not copied. The
+    caller must be able to guarantee that \a data will not be deleted
+    or modified as long as the QByteArray (or an unmodified copy of
+    it) exists.
 
-    Only a pointer to the data in \a bytes is copied. The caller must
-    be able to guarantee that \a bytes will not be delete or modified
-    during the QConstByteArray's lifetime.
-
-    To minimize copying, highly optimized applications can use
-    QConstByteArray to create a QByteArray-compatible object from
-    existing byte data. It is then the programmer's responsibility to
-    ensure that the byte data exists for the entire lifetime of the
-    QConstByteArray object.
-
-    The resulting QConstByteArray object can be used as a const
-    QByteArray. Any attempts to modify copies of the QConstByteArray
-    will cause it to create a deep copy of the data, ensuring that
-    the raw data isn't modified. The QConstByteArray object itself
-    should never be modified.
+    Any attempts to modify the QByteArray or copies of it will cause
+    it to create a deep copy of the data, ensuring that the raw data
+    isn't modified.
 
     Here's an example of how we can read data using a QDataStream on
     raw data in memory without requiring to copy the data into a
@@ -3424,20 +3417,34 @@ QByteArray QByteArray::number(double n, char f, int prec)
             0x6d, 0x5b
         };
 
-	QConstByteArray data(mydata, sizeof(mydata));
-        QBuffer buffer(data);
-        buffer.open(IO_ReadOnly);
-        QDataStream in(&buffer);
+	QByteArray data = QByteArray::fromRawData(mydata, sizeof(mydata));
+        QDataStream in(&data, IO_ReadOnly);
 	...
     \endcode
 */
 
-QByteArray QByteArray::fromRawData(const char *bytes, int size)
+QByteArray QByteArray::fromRawData(const char *data, int size)
 {
     Data *x = static_cast<Data *>(qMalloc(sizeof(Data)));
     x->ref = 1;
     x->alloc = x->size = size;
-    x->data = bytes ? const_cast<char *>(bytes) : x->array;
+    x->data = data ? const_cast<char *>(data) : x->array;
     *x->array = '\0';
     return QByteArray(x, 0);
 }
+
+/*! \typedef QByteArray::ConstIterator
+    \internal
+*/
+
+/*! \typedef QByteArray::Iterator
+    \internal
+*/
+
+/*! \typedef QByteArray::const_iterator
+    \internal
+*/
+
+/*! \typedef QByteArray::iterator
+    \internal
+*/

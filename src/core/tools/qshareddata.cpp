@@ -70,7 +70,6 @@
     \quotefile sharedemployee/employee.cpp
 
     \skipto ::Employee()
-    \printline
     \printuntil }
 
     In the default constructor, we create an object of type

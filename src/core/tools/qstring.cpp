@@ -3020,7 +3020,7 @@ QByteArray QString::toUtf8() const
     If \a size is -1 (the default), it is taken to be qstrlen(\a
     str).
 
-    \inline sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
+    \sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
 */
 QString QString::fromLatin1(const char *str, int size)
 {
@@ -4736,11 +4736,11 @@ ushort QString::toUShort(bool *ok, int base) const
     Returns 0.0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \code
-        QString string( "1234.56" );
-        double a = string.toDouble();   // a == 1234.56
+        QString str = "1234.56";
+        double val = str.toDouble();   // val == 1234.56
     \endcode
 
     This function tries to interpret the string according to the
