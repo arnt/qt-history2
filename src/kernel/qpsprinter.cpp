@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#29 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#29 $");
 
 
 #if !defined(QT_HEADER_PS)
@@ -193,7 +193,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
     stream.setf( QTextStream::hex, QTextStream::basefield );
 
     if ( img.depth() == 1 ) {
-	img.convertDepth( 8 );
+	img = img.convertDepth( 8 );
 	if ( img.color(0) == 0 ) {			// black
 	    img.setColor( 0, fgCol.rgb() );
 	    img.setColor( 1, bgCol.rgb() );
