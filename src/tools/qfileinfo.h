@@ -114,7 +114,7 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-#if (QT_VERSION-0 >= 400)
+#if (QT_VERSION-0 >= 0x040000)
 #error "QFileInfo::size() should return QIODevice::Offset instead of uint"
 #elif defined(QT_LARGEFILE_SUPPORT)
     QIODevice::Offset size()	const;
@@ -130,7 +130,7 @@ private:
     void	doStat() const;
     static void slashify( QString & );
     static void makeAbs( QString & );
-    
+
     QString	fn;
     QFileInfoCache *fic;
     bool	cache;
