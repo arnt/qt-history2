@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#7 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#7 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -328,13 +328,24 @@ void QToolButton::toggle()
 void QToolButton::drawButton( QPainter * p )
 {
     // ### must do something about motif style
-    if ( uses3D() ) {
+    if ( uses3D() || isOn() ) {
 	QPointArray a;
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
-	p->setPen( isDown() ? colorGroup().dark() : colorGroup().light() );
+	if ( isOn() && !isDown() && !uses3D() ) {
+	    p->setBrush( QBrush(white,Dense4Pattern) );
+	    p->setPen( NoPen );
+	    p->setBackgroundMode( OpaqueMode );
+	    p->drawRect( 0,0, width(),height() );
+	    p->setBackgroundMode( TransparentMode );
+	}
+	p->setPen( isDown() || isOn()
+		   ? colorGroup().dark()
+		   : colorGroup().light() );
 	p->drawPolyline( a );
 	a[1] = QPoint( width()-1, height()-1 );
-	p->setPen( isDown() ? colorGroup().light() : colorGroup().dark() );
+	p->setPen( isDown() || isOn()
+		   ? colorGroup().light()
+		   : colorGroup().dark() );
 	p->drawPolyline( a );
     }
     drawButtonLabel( p );
