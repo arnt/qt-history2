@@ -12,7 +12,7 @@
 moc \- generate Qt meta object support code
 .SH SYNOPSIS
 .B moc
-[-o file] [-i] [-f] [-k] [-ldbg] [-nw] [-p path] [-q path] file
+[-o file] [-i] [-f] [-k] [-ldbg] [-nw] [-p path] [-q path] [-v] file
 .SH DESCRIPTION
 This page documents the
 .B Meta Object Compiler
@@ -80,6 +80,11 @@ Makes
 prepend
 .IR path /
 to the file name of qt #include files in the generated code.
+.TP
+.I "-v"
+Displays the version of
+.B moc
+and Qt.
 .PP
 You can explicitely tell the
 .B moc
@@ -464,6 +469,6 @@ public:
 .PP
 .SH "SEE ALSO"
 .BR http://www.trolltech.com/ " and"
-.BR "C++ ARM, section r.11.3" " (for the answer to the quiz.)"
+.BR "C++ ARM, section r.11.3" " (for the answer to the quiz)"
 .SH AUTHOR
-Eirik Eng, Trolltech <eiriken@trolltech.com>
+Eirik Eng, Trolltech AS <eiriken@trolltech.com>
