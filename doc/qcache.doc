@@ -2,9 +2,53 @@
     \class QCache
     \brief The QCache class is a template class that provides a cache.
 
+    \ingroup qtl
     \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
 
-    ###
+    QCache\<Key, T\> defines a cache that store objects of type T
+    associated with keys of type Key. For example, here's the
+    definition of a cache that stores objects of type MyDataStructure
+    associated with an integer key:
+
+    \code
+	QCache<int, MyDataStructure> cache;
+    \endcode
+
+    The advantage of using QCache over some other key-based data
+    structure (such as QMap or QHash) is that QCache automatically
+    takes ownership of the items that are inserted into the cache and
+    deletes them to make place for new items, if necessary. When
+    inserting an item into the cache, you can specify a \e{cost},
+    which should be grossly proportional to the amount of memory
+    taken by the item. When the sum of all items' costs (totalCost())
+    exceeds the cache's limit (maxCost()), QCache starts deleting
+    items in the cache to stay under the limit, starting with less
+    recently accessed items.
+
+    By default, QCache's maxCost() is 100. You can specify a
+    different value in the QCache constructor:
+
+    \code
+	QCache<int, MyDataStructure> cache(5000);
+    \endcode
+
+    Each time you call insert(), you can specify a cost as third
+    argument (after the key and a pointer to the object to insert).
+    After the call, the inserted item is owned by the QCache, which
+    may delete it at any time to make place for other item.
+
+    To look up items in the cache, use find() or operator[](). This
+    function looks up an item by its key, and returns either a
+    pointer to the cached object (which is owned by the cache) or 0.
+
+    If you want to remove an item from the cache for a certain key,
+    call remove(). This will also delete the item. If you want to
+    remove an item from the cache without deleting it, call take().
+
+    \sa QHash, QMap
 */
 
 /*! \fn QCache::QCache(int maxCost)
