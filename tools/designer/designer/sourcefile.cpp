@@ -26,18 +26,25 @@
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), ed( 0 ), fileNameTemp( temp ),
       timeStamp( 0, p->makeAbsolute( fn ) ), pro( p ), pkg( FALSE )
+      , accepted( TRUE )
 {
-    load();
     iface = 0;
-    pro->addSourceFile( this );
-    MetaDataBase::addEntry( this );
+    
     if ( !temp )
-	checkFileName( FALSE );
+	accepted = checkFileName( TRUE );
+    
+    if (accepted) {
+	load();
+	pro->addSourceFile( this );
+	MetaDataBase::addEntry( this );
+    }
+    
 }
 
 SourceFile::~SourceFile()
 {
-    delete iface;
+    if (iface)
+	delete iface;
 }
 
 QString SourceFile::text() const

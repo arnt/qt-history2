@@ -203,9 +203,13 @@ void SourceTemplateItem::insert( Project *pro )
 	f = new SourceFile( src.filename, FALSE, pro );
     else
 	f = new SourceFile( SourceFile::createUnnamedFileName( src.extension ), TRUE, pro );
-    f->setText( src.code );
-    MainWindow::self->editSource( f );
-    f->setModified( TRUE );
+    if ( f->isAccepted()) {
+	f->setText( src.code );
+	MainWindow::self->editSource( f );
+	f->setModified( TRUE );
+    } else {
+	delete f;
+    }
 }
 
 void SourceTemplateItem::setProject( Project *pro )

@@ -51,6 +51,8 @@ public:
 
     static QString createUnnamedFileName( const QString &extension );
 
+    bool isAccepted() const { return accepted; }
+
 private:
     bool checkFileName( bool allowBreak );
 
@@ -63,6 +65,7 @@ private:
     TimeStamp timeStamp;
     Project *pro;
     bool pkg;
+    bool accepted;
 
 };
 
