@@ -42,12 +42,8 @@ extern Qt::WindowsVersion qt_winver;		// in qapplication_win.cpp
 static QWidget *clipboardOwner()
 {
     static QWidget *owner = 0;
-    if ( owner )				// owner already created
-	return owner;
-    if ( qApp->mainWidget() )			// there's a main widget
-	owner = qApp->mainWidget();
-    else					// otherwise create fake widget
-	owner = new QWidget( 0, "internalClipboardOwner" );
+    if ( !owner )
+	owner = new QWidget( 0, "internal clipboard owner" );
     return owner;
 }
 
@@ -231,7 +227,7 @@ static void renderFormat(int cf)
 	    HANDLE h = GlobalAlloc( GHND, len );
 	    char *d = (char *)GlobalLock( h );
 	    memcpy( d, md.data(), len );
-	    SetClipboardData( cf, h );		
+	    SetClipboardData( cf, h );
 	    GlobalUnlock( h );
 	    return;
 	}

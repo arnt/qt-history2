@@ -36,12 +36,13 @@
 
 // REVISED: arnt
 
-/*
-    ##### If we had two clipboards, one for automatic copy (ie. the normal
-    ##### X11 selection mechanism) and one for CTRL-C copying (ie. the
-    ##### Windows norm), then highlight-copy-highlight-paste could be
-    ##### implemented in QMultiLineEdit, etc., instead of having different
-    ##### behaviour on Windows and X11.
+/* ##### 
+
+  If we had two clipboards, one for automatic copy (ie. the normal
+  X11 selection mechanism) and one for CTRL-C copying (ie. the
+  Windows norm), then highlight-copy-highlight-paste could be
+  implemented in QMultiLineEdit, etc., instead of having different
+  behaviour on Windows and X11.
 */
 
 /*****************************************************************************
@@ -69,7 +70,7 @@ void setupOwner()
 {
     if ( owner )
 	return;
-    owner = new QWidget( 0, "internal clibpoard owner" );
+    owner = new QWidget( 0, "internal clipboard owner" );
     qAddPostRoutine( cleanup );
 }
 
@@ -322,6 +323,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 
 void QClipboard::ownerDestroyed()
 {
+    owner = 0;
 }
 
 
