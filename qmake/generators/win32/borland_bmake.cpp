@@ -502,4 +502,3 @@ BorlandMakefileGenerator::init()
 		project->first("DESTDIR") + project->first("TARGET") + tdsPostfix );
     }
 }
-

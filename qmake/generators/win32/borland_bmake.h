@@ -55,5 +55,4 @@ public:
 inline BorlandMakefileGenerator::~BorlandMakefileGenerator()
 { }
 
-
 #endif /* __BORLAND_BMAKE_H__ */

@@ -2106,8 +2106,9 @@ MakefileGenerator::openOutput(QFile &file) const
 
 //Factory thing
 #include "unixmake.h"
-#include "borland_bmake.h"
 #include "msvc_nmake.h"
+#include "borland_bmake.h"
+#include "mingw_make.h"
 #include "msvc_dsp.h"
 #include "msvc_vcproj.h"
 #include "metrowerks_xml.h"
@@ -2141,6 +2142,8 @@ MakefileGenerator::create(QMakeProject *proj)
 	    mkfile = new NmakeMakefileGenerator(proj);
     } else if(gen == "BMAKE") {
 	mkfile = new BorlandMakefileGenerator(proj);
+    } else if(gen == "MINGW") {
+	mkfile = new MingwMakefileGenerator(proj);
     } else if(gen == "METROWERKS") {
 	mkfile = new MetrowerksMakefileGenerator(proj);
     } else if(gen == "PROJECTBUILDER") {

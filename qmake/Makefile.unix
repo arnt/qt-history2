@@ -1,7 +1,8 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o \
-     msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o \
-     projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o msvc_objectmodel.o
+OBJS=project.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
+     borland_bmake.o mingw_make.o msvc_dsp.o msvc_vcproj.o option.o \
+     winmakefile.o projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o \
+     msvc_objectmodel.o
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
@@ -140,6 +141,9 @@ unixmake2.o: generators/unix/unixmake2.cpp
 
 borland_bmake.o: generators/win32/borland_bmake.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/borland_bmake.cpp
+
+mingw_make.o: generators/win32/mingw_make.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/mingw_make.cpp
 
 msvc_objectmodel.o: generators/win32/msvc_objectmodel.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
