@@ -68,7 +68,7 @@
                         <cstring>buttonHelp</cstring>
                     </property>
                     <property name="text">
-                        <string>Help</string>
+                        <string>&amp;Help</string>
                     </property>
                     <property name="accel">
                         <number>4144</number>
@@ -99,7 +99,7 @@
                         <cstring>buttonOk</cstring>
                     </property>
                     <property name="text">
-                        <string>OK</string>
+                        <string>&amp;OK</string>
                     </property>
                     <property name="accel">
                         <number>0</number>
@@ -116,7 +116,7 @@
                         <cstring>buttonCancel</cstring>
                     </property>
                     <property name="text">
-                        <string>Cancel</string>
+                        <string>&amp;Cancel</string>
                     </property>
                     <property name="accel">
                         <number>0</number>
