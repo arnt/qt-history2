@@ -732,6 +732,21 @@ void MainWindow::setupFileActions()
     a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
+    a->setText( tr( "Open" ) );
+    a->setMenuText( tr( "&Open..." ) );
+    a->setIconSet( createIconSet("fileopen.xpm") );
+    a->setAccel( CTRL + Key_O );
+    a->setStatusTip( tr( "Opens an existing form") );
+    a->setWhatsThis( tr("<b>Open a User-Interface (ui) file</b>"
+			"<p>Use the filedialog to select the file you want to "
+			"open. You can also use Drag&Drop to open multiple files.</p>") );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
+    a->addTo( tb );
+    a->addTo( fileMenu );
+
+    fileMenu->insertSeparator();
+
+    a = new QAction( this, 0 );
     a->setText( tr( "New Project" ) );
     a->setMenuText( tr( "New &Project..." ) );
     a->setIconSet( createIconSet("filenew.xpm") );
@@ -744,25 +759,13 @@ void MainWindow::setupFileActions()
     a = new QAction( this, 0 );
     a->setText( tr( "Close Project" ) );
     a->setMenuText( tr( "Close P&roject" ) );
-    a->setIconSet( createIconSet("filenew.xpm") );
     a->setStatusTip( tr( "Closes the current project" ) );
     a->setWhatsThis( tr("<b>Closes the current project</b>"
 			"<p>Closes the current project, if one exists.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCloseProject() ) );
     a->addTo( fileMenu );
 
-    a = new QAction( this, 0 );
-    a->setText( tr( "Open" ) );
-    a->setMenuText( tr( "&Open..." ) );
-    a->setIconSet( createIconSet("fileopen.xpm") );
-    a->setAccel( CTRL + Key_O );
-    a->setStatusTip( tr( "Opens an existing form") );
-    a->setWhatsThis( tr("<b>Open a User-Interface (ui) file</b>"
-			"<p>Use the filedialog to select the file you want to "
-			"open. You can also use Drag&Drop to open multiple files.</p>") );
-    connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
-    a->addTo( tb );
-    a->addTo( fileMenu );
+    fileMenu->insertSeparator();
 
     a = new QAction( this, 0 );
     a->setText( tr( "Save" ) );
@@ -778,7 +781,6 @@ void MainWindow::setupFileActions()
 #if 0 // #### Reggie: I don't like it
     connect( this, SIGNAL( formModified(bool) ), a, SLOT( setEnabled(bool) ) );
 #endif
-    fileMenu->insertSeparator();
     a->addTo( tb );
     a->addTo( fileMenu );
 
@@ -825,6 +827,23 @@ void MainWindow::setupFileActions()
     a->setWhatsThis( tr( "Creates a new template" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileCreateTemplate() ) );
     a->addTo( fileMenu );
+
+    fileMenu->insertSeparator();
+
+    recentlyFilesMenu = new QPopupMenu( this );
+    recentlyProjectsMenu = new QPopupMenu( this );
+
+    fileMenu->insertItem( tr( "Recenty opened files " ), recentlyFilesMenu );
+    fileMenu->insertItem( tr( "Recenty opened projects" ), recentlyProjectsMenu );
+
+    connect( recentlyFilesMenu, SIGNAL( aboutToShow() ),
+	     this, SLOT( setupRecentlyFilesMenu() ) );
+    connect( recentlyProjectsMenu, SIGNAL( aboutToShow() ),
+	     this, SLOT( setupRecentlyProjectsMenu() ) );
+    connect( recentlyFilesMenu, SIGNAL( activated( int ) ),
+	     this, SLOT( recentlyFilesMenuActivated( int ) ) );
+    connect( recentlyProjectsMenu, SIGNAL( activated( int ) ),
+	     this, SLOT( recentlyProjectsMenuActivated( int ) ) );
 
     fileMenu->insertSeparator();
 
@@ -1326,9 +1345,11 @@ void MainWindow::fileOpen()
 	    QFileInfo fi( filename );
 
 	    if ( fi.extension() == "pro" ) {
+		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
 	    } else if ( fi.extension() == "ui" ) {
 		openFile( filename );
+		addRecentlyOpened( filename, recentlyFiles );
 	    } else {
 		QString filter;
 		for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
@@ -2923,6 +2944,8 @@ void MainWindow::writeConfig()
     config.writeEntry( "SplashScreen", splashScreen );
     config.writeEntry( "DocPath", docPath );
     config.writeEntry( "FileFilter", fileFilter );
+    config.writeEntry( "RecentlyOpenedFiles", recentlyFiles, ',' );
+    config.writeEntry( "RecentlyOpenedProjects", recentlyProjects, ',' );
     config.setGroup( "Grid" );
     config.writeEntry( "Snap", snGrid );
     config.writeEntry( "Show", sGrid );
@@ -3051,6 +3074,8 @@ void MainWindow::readConfig()
     config.setGroup( "General" );
     if ( restoreConfig ) {
 	splashScreen = config.readBoolEntry( "SplashScreen", TRUE );
+	recentlyFiles = config.readListEntry( "RecentlyOpenedFiles", ',' );
+	recentlyProjects = config.readListEntry( "RecentlyOpenedProjects", ',' );
 	config.setGroup( "Background" );
 	backPix = config.readBoolEntry( "UsePixmap", TRUE );
 	if ( backPix ) {
@@ -3701,4 +3726,41 @@ void MainWindow::setupEditor()
     dir += "/plugins";
     editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, dir, "*.dll; *.so" );
     MetaDataBase::setEditor( editorPluginManager->library( "Editor" ) != 0 );
+}
+
+void MainWindow::setupRecentlyFilesMenu()
+{
+    recentlyFilesMenu->clear();
+    int id = 0;
+    for ( QStringList::Iterator it = recentlyFiles.begin(); it != recentlyFiles.end(); ++it )
+	recentlyFilesMenu->insertItem( *it, id );
+}
+
+void MainWindow::setupRecentlyProjectsMenu()
+{
+    recentlyProjectsMenu->clear();
+    int id = 0;
+    for ( QStringList::Iterator it = recentlyProjects.begin(); it != recentlyProjects.end(); ++it )
+	recentlyProjectsMenu->insertItem( *it, id );
+}
+
+void MainWindow::recentlyFilesMenuActivated( int id )
+{
+    if ( id != -1 )
+	openFile( *recentlyFiles.at( id ) );
+}
+
+void MainWindow::recentlyProjectsMenuActivated( int id )
+{
+    if ( id != -1 )
+	openProject( *recentlyProjects.at( id ) );
+}
+
+void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
+{
+    if ( lst.find( fn ) != lst.end() )
+	return;
+    if ( lst.count() >= 10 )
+	lst.remove( lst.begin() );
+    lst << fn;
 }

@@ -185,6 +185,7 @@ public slots:
     void helpAbout();
     void helpAboutQt();
 
+private slots:
     void propertyEditorHidden();
     void hierarchyViewHidden();
     void formListHidden();
@@ -205,6 +206,11 @@ public slots:
     void closeAllForms();
     void createNewTemplate();
     void projectSelected( QAction *a );
+
+    void setupRecentlyFilesMenu();
+    void setupRecentlyProjectsMenu();
+    void recentlyFilesMenuActivated( int id );
+    void recentlyProjectsMenuActivated( int id );
 
 private:
     void setupMDI();
@@ -245,6 +251,8 @@ private:
     void checkTempFiles();
     void openHelpForDialog( const QString &dia );
     void openProject( const QString &fn );
+
+    void addRecentlyOpened( const QString &fn, QStringList &lst );
 
 private:
     PropertyEditor *propertyEditor;
@@ -290,7 +298,7 @@ private:
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
-    QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu;
+    QPopupMenu *customWidgetMenu, *windowMenu, *fileMenu, *recentlyFilesMenu, *recentlyProjectsMenu;
     QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar;
 
     Preferences *prefDia;
@@ -306,6 +314,8 @@ private:
     QList<SourceEditor> sourceEditors;
     bool previewing;
     QComponentInterface *appInterface;
+    QStringList recentlyFiles;
+    QStringList recentlyProjects;
 
 };
 
