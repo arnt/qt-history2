@@ -312,8 +312,22 @@ void Uic::createFormDecl( const QDomElement &e )
 
     forwardDecl = unique( forwardDecl );
     for ( it = forwardDecl.begin(); it != forwardDecl.end(); ++it ) {
-	if ( !(*it).isEmpty() && (*it) != objClass )
-	    out << "class " << *it << ";" << endl;
+	if ( !(*it).isEmpty() && (*it) != objClass ) {
+	    QString forwardName = *it;
+	    QStringList forwardNamespaces = QStringList::split( "::",
+								forwardName );
+	    forwardName = forwardNamespaces.last();
+	    forwardNamespaces.remove( forwardNamespaces.fromLast() );
+
+	    QStringList::ConstIterator ns = forwardNamespaces.begin();
+	    while ( ns != forwardNamespaces.end() ) {
+		out << "namespace " << *ns << " {" << endl;
+		++ns;
+	    }
+	    out << "class " << forwardName << ";" << endl;
+	    for ( int i = 0; i < (int) forwardNamespaces.count(); i++ )
+		out << "}" << endl;
+	}
     }
 
     for ( it = forwardDecl2.begin(); it != forwardDecl2.end(); ++it ) {
