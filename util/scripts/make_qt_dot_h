@@ -68,7 +68,8 @@ map {
     map {
 	if ( m/\.h$/ &&
 	    !m/^$IGNORE$/ &&
-	    ! -f "$ENV{QTDIR}/src/compat/$_" )
+	    ! -f "$ENV{QTDIR}/src/compat/$_"  &&
+	    ! -f "$ENV{QTDIR}/src/attic/$_" )
 	{
 	    $p="$dir/$_";
 	    if ( /_qws\./ ) {
