@@ -825,7 +825,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     if ( ptrWTInfo ) {
 	// make sure we have WinTab
 	if ( !ptrWTInfo( 0, 0, NULL ) ) {
+#if defined(QT_CHECK_STATE)
 	    qWarning( "Wintab services not available" );
+#endif
 	    return;
 	}
 
@@ -1104,11 +1106,13 @@ static void unregWinClasses()
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
-#if defined (QT_TABLET_SUPPORT)
+#if defined (QT_TABLET_SUPPORT )
     if ( ptrWTOpen ) {
 	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
+#if defined (QT_CHECK_STATE)
 	if ( hTab == NULL )
 	    qWarning( "Failed to open the tablet" );
+#endif	
     }
 #endif
 }
@@ -2254,9 +2258,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    // cooperate with other tablet applications, but when
 		    // we get focus, I want to use the tablet...
 		    if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-			if ( ptrWTEnable(hTab, TRUE) )
-			    if ( !ptrWTOverlap(hTab, TRUE) )
+			if ( ptrWTEnable(hTab, TRUE) ) {
+			    bool present = !ptrWTOverlap(hTab, TRUE);
+#if defined(QT_CHECK_STATE)
+			    if ( !present )
 				qWarning( "Failed to re-enable tablet context" );
+#endif
+			}
 		    }
 		}
 #endif
@@ -4395,8 +4403,11 @@ void QApplication::flush()
 
 
 #if defined (QT_TABLET_SUPPORT)
+extern bool qt_is_gui_used;
 static void initWinTabFunctions()
 {
+    if ( !qt_is_gui_used )
+	return;
     QLibrary library( "wintab32" );
     library.setAutoUnload( FALSE );
 #if defined(UNICODE)
