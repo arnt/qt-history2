@@ -341,8 +341,11 @@ void QProcessManager::sigchldHnd( int fd )
     // the slot connected to the processExited() signal (e.g. by showing a
     // modal dialog) and there are more than one process which exited in the
     // meantime.
-    if ( sn )
+    if ( sn ) {
+	if ( !sn->isEnabled() )
+	    return
 	sn->setEnabled( FALSE );
+    }
 
     char tmp;
     ::read( fd, &tmp, sizeof(tmp) );
@@ -1018,8 +1021,7 @@ bool QProcess::isRunning() const
     if ( d->proc == 0 )
 	return FALSE;
     int status;
-    if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid )
-    {
+    if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid ) {
 	// compute the exit values
 	QProcess *that = (QProcess*)this; // mutable
 	that->exitNormal = WIFEXITED( status ) != 0;
@@ -1037,7 +1039,7 @@ bool QProcess::isRunning() const
 	    FD_SET( d->procManager->sigchldFd[1], &fds );
 	    tv.tv_sec = 0;
 	    tv.tv_usec = 0;
-	    while ( ::select( d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv ) > 0 )
+	    if ( ::select( d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv ) > 0 )
 		d->procManager->sigchldHnd( d->procManager->sigchldFd[1] );
 	}
 
