@@ -1081,7 +1081,7 @@ full_class_head:	  class_head
 			;
 
 nested_class_head:	  class_key
-			  qualified_class_name 	
+			  qualified_class_name
 			  opt_base_spec		{ templateClass = templateClassOld; }
 
 exception_spec_opt:		/* empty */
@@ -2999,8 +2999,10 @@ void generateClass()		      // generate C++ source code for a class
 	Argument *a = f->args->first();
 	int offset = 0;
 	const char *predef_call_func = 0;
-
-	if ( !a ) {
+	bool hasReturnValue = f->type != "void" && (validUType( f->type ) || isVariantType( f->type) );
+	if ( hasReturnValue ) {
+	    ; // no predefined function available
+	} else if ( !a ) {
 	    predef_call_func = "activate_signal";
 	} else if ( f->args->count() == 1 ) {
 	    QCString ctype = (a->leftType + ' ' + a->rightType).simplifyWhiteSpace();
@@ -3038,7 +3040,8 @@ void generateClass()		      // generate C++ source code for a class
 	fixRightAngles( &argstr );
 
 	fprintf( out, "\n// SIGNAL %s\n", (const char*)f->name );
-	fprintf( out, "void %s::%s(", (const char*)qualifiedClassName(),
+	fprintf( out, "%s %s::%s(", (const char*) f->type,
+		 (const char*)qualifiedClassName(),
 		 (const char*)f->name );
 
 	if ( argstr.isEmpty() )
@@ -3052,32 +3055,42 @@ void generateClass()		      // generate C++ source code for a class
 		fprintf( out, ", t0" );
 	    fprintf( out, " );\n}\n" );
 	} else {
+	    if ( hasReturnValue )
+		fprintf( out, "    %s something;\n", f->type.data() );
 	    int nargs = f->args->count();
-	    fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
+	    fprintf( out, "    if ( signalsBlocked() )\n\treturn%s;\n", hasReturnValue ? " something" : "" );
 	    fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
 		     sigindex );
-	    fprintf( out, "    if ( !clist )\n\treturn;\n" );
+	    fprintf( out, "    if ( !clist )\n\treturn%s;\n", hasReturnValue ? " something" : "" );
 	    fprintf( out, "    QUObject o[%d];\n", f->args->count() + 1 );
+
+	    // initialize return value to something
+	    if ( hasReturnValue ) {
+		if ( validUType( f->type ) ) {
+		    QCString utype = uType( f->type );
+		    fprintf( out, "    static_QUType_%s.set(o,something);\n", utype.data() );
+		} else if ( uType( f->type ) == "varptr" ) {
+		    fprintf( out, "    static_QUType_varptr.set(o,&something);\n" );
+		} else {
+		    fprintf( out, "    static_QUType_ptr.set(o,&something);\n" );
+		}
+	    }
+
+	    // initialize arguments
 	    if ( !f->args->isEmpty() ) {
 		offset = 0;
 		Argument* a = f->args->first();
 		while ( a ) {
 		    QCString type = a->leftType + ' ' + a->rightType;
 		    type = type.simplifyWhiteSpace();
-		    if ( validUType( type ) ) {
-			QCString utype = uType( type );
-			fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
-		    } else if ( uType( type ) == "varptr" ) {
-			fprintf( out, "    static_QUType_varptr.set(o+%d,&t%d);\n", offset+1, offset );
-		    } else {
-			fprintf( out, "    static_QUType_ptr.set(o+%d,&t%d);\n", offset+1, offset );
-		    }
+		    QCString utype = uType( type );
+		    fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
 		    a = f->args->next();
 		    offset++;
 		}
 	    }
 	    fprintf( out, "    activate_signal( clist, o );\n" );
-	
+
 	    // get return values from inOut parameters
 	    if ( !f->args->isEmpty() ) {
 		offset = 0;
@@ -3087,19 +3100,28 @@ void generateClass()		      // generate C++ source code for a class
 		    type = type.simplifyWhiteSpace();
 		    if ( validUType( type ) && isInOut( type ) ) {
 			QCString utype = uType( type );
-			if ( utype == "enum" ) {
+			if ( utype == "enum" )
 			    fprintf( out, "    t%d = (%s)static_QUType_%s.get(o+%d);\n", offset, type.data(), utype.data(), offset+1 );
-			} else {
+			else
 			    fprintf( out, "    t%d = static_QUType_%s.get(o+%d);\n", offset, utype.data(), offset+1 );
-			}
 		    }
 		    a = f->args->next();
 		    offset++;
 		}
 	    }
+
+	    // get and return return value
+	    if ( hasReturnValue ) {
+		QCString utype = uType( f->type );
+		if ( utype == "enum" || utype == "ptr" || utype == "varptr" ) // need cast
+		    fprintf( out, "    return (%s)static_QUType_%s.get(o);\n", f->type.data(), utype.data() );
+		else
+		    fprintf( out, "    return static_QUType_%s.get(o);\n", utype.data() );
+	    }
+
 	    fprintf( out, "}\n" );
 	}
-	
+
 	f = g->signals.next();
 	sigindex++;
     }
@@ -3267,21 +3289,21 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "\nbool %s::qt_static_property( QObject* oo, int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
 
     if ( !g->props.isEmpty() ) {
-	
+
 	fprintf( out, "    %s* o = (%s*) oo;\n", (const char*) g->className,  (const char*) g->className );
-	
+
 	fprintf( out, "    switch ( id - staticMetaObject()->propertyOffset() ) {\n" );
 	int propindex = -1;
 	bool need_resolve = FALSE;
-	
+
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ){
 	    propindex ++;
 	    fprintf( out, "    case %d: ", propindex );
 	    fprintf( out, "switch( f ) {\n" );
-	
+
 	    uint flag_break = 0;
 	    uint flag_propagate = 0;
-	
+
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: o->%s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
@@ -3348,7 +3370,7 @@ void generateClass()		      // generate C++ source code for a class
 		flag_break |= 1 << (5+1);
 	    else if ( it.current()->stored != "false" )
 		fprintf( out, "\tcase 5: return o?o->%s():TRUE;\n", it.current()->stored.data() );
-	
+
 	    int i = 0;
 	    if ( flag_propagate != 0 ) {
 		fprintf( out, "\t" );
@@ -3382,7 +3404,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\treturn FALSE;\n" );
 	fprintf( out, "    }\n" );
 	fprintf( out, "    return TRUE;\n" );
-	
+
 	if ( need_resolve )
 	    fprintf( out, "resolve:\n    return %s::qt_static_property( o, staticMetaObject()->resolveProperty(id), f, v );\n",
 		     (const char *) purestSuperClassName() );
