@@ -42,9 +42,9 @@ HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
 {
 }
 
-void HelpWindow::setSource(const QString &name)
+void HelpWindow::setSource(const QUrl &name)
 {
-    if (name.isEmpty())
+    if (!name.isValid())
         return;
 
     if (newWindow || shiftPressed) {
@@ -54,14 +54,8 @@ void HelpWindow::setSource(const QString &name)
         mw->saveSettings();
         MainWindow *nmw = new MainWindow;
 
-        QFileInfo currentInfo(source());
-        QFileInfo linkInfo(name);
-        QString target = name;
-        if(linkInfo.isRelative())
-            target = currentInfo.absolutePath() + QLatin1String("/") + name;
-
         nmw->setup();
-        nmw->showLink(target);
+        nmw->showLink(name.toString());
         nmw->move(mw->geometry().topLeft());
         if (mw->isMaximized())
             nmw->showMaximized();
@@ -70,7 +64,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    if (name.left(7) == QLatin1String("http://") || name.left(6) == QLatin1String("ftp://")) {
+    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp")) {
         QString webbrowser = Config::configuration()->webBrowser();
         if (webbrowser.isEmpty()) {
 #if defined(Q_OS_WIN32)
@@ -95,11 +89,11 @@ void HelpWindow::setSource(const QString &name)
         }
         QProcess *proc = new QProcess(this);
         QObject::connect(proc, SIGNAL(finished(int)), proc, SLOT(deleteLater()));
-        proc->start(webbrowser, QStringList() << name);
+        proc->start(webbrowser, QStringList() << name.toString());
         return;
     }
 
-    if (name.right(3) == QLatin1String("pdf")) {
+    if (name.path().right(3) == QLatin1String("pdf")) {
         QString pdfbrowser = Config::configuration()->pdfReader();
         if (pdfbrowser.isEmpty()) {
 #if defined(Q_OS_MAC)
@@ -124,15 +118,14 @@ void HelpWindow::setSource(const QString &name)
         }
         QProcess *proc = new QProcess(this);
         QObject::connect(proc, SIGNAL(finished()), proc, SLOT(deleteLater()));
-        proc->start(pdfbrowser, QStringList() << name);
+        proc->start(pdfbrowser, QStringList() << name.toString());
 
         return;
     }
 
-    QUrl u(source());
-    if (u.resolved(QUrl::fromLocalFile(name)).toLocalFile().isEmpty()) {
+    if (name.toLocalFile().isEmpty()) {
         QMessageBox::information(mw, tr("Help"), tr("Can't load and display non-local file\n"
-                    "%1").arg(name));
+                    "%1").arg(name.toString()));
         return;
     }
 
@@ -179,7 +172,7 @@ QMenu *HelpWindow::createPopupMenu(const QPoint& pos)
     lastAnchor = document()->documentLayout()->anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
         if (lastAnchor.at(0) == QLatin1Char('#')) {
-            QString src = source();
+            QString src = source().toString();
             int hsh = src.indexOf(QLatin1Char('#'));
             lastAnchor = (hsh>=0 ? src.left(hsh) : src) + lastAnchor;
         }

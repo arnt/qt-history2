@@ -27,7 +27,7 @@ class HelpWindow : public QTextBrowser
     Q_OBJECT
 public:
     HelpWindow( MainWindow *m, QWidget *parent = 0);
-    void setSource( const QString &name );
+    void setSource( const QUrl &name );
     QMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
     void openLinkInNewWindow( const QString &link );

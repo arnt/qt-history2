@@ -115,7 +115,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
              mainWin, SLOT(backwardAvailable(bool)));
     connect(win, SIGNAL(forwardAvailable(bool)),
              mainWin, SLOT(forwardAvailable(bool)));
-    connect(win, SIGNAL(sourceChanged(const QString &)), this, SLOT(sourceChanged()));
+    connect(win, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(sourceChanged()));
 
     ui.tab->cornerWidget(Qt::TopRight)->setEnabled(ui.tab->count() > 1);
     return win;

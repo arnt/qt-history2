@@ -51,7 +51,7 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
             } else if (data.type() == QVariant::ByteArray) {
                 img.loadFromData(data.toByteArray());
             }
-            context = browser->source();
+            context = browser->source().toString();
         }
 
         if (img.isNull() && QTextImageHandler::externalLoader)

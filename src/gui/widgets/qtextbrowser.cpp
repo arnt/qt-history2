@@ -20,7 +20,6 @@
 #include <qdesktopwidget.h>
 #include <qdebug.h>
 #include <qabstracttextdocumentlayout.h>
-#include <qurl.h>
 #include "private/qtextdocumentlayout_p.h"
 #include <qtextcodec.h>
 #include <qpainter.h>
@@ -35,10 +34,10 @@ public:
 
     void init();
 
-    QStack<QString> stack;
-    QStack<QString> forwardStack;
-    QString home;
-    QString currentURL;
+    QStack<QUrl> stack;
+    QStack<QUrl> forwardStack;
+    QUrl home;
+    QUrl currentURL;
 
     QStringList searchPaths;
 
@@ -87,7 +86,7 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
     if (stack.isEmpty())
         return name;
 
-    QFileInfo path(QFileInfo(currentURL).absolutePath(), name);
+    QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), name);
     return path.absoluteFilePath();
 }
 
@@ -204,11 +203,11 @@ QTextBrowser::~QTextBrowser()
     normally in the text browser with the text set to the contents of
     the named document with setText().
 */
-QString QTextBrowser::source() const
+QUrl QTextBrowser::source() const
 {
     Q_D(const QTextBrowser);
     if (d->stack.isEmpty())
-        return QString::null;
+        return QUrl();
     else
         return d->stack.top();
 }
@@ -231,32 +230,25 @@ void QTextBrowser::setSearchPaths(const QStringList &paths)
 void QTextBrowser::reload()
 {
     Q_D(QTextBrowser);
-    QString s = d->currentURL;
-    d->currentURL = QString::null;
+    QUrl s = d->currentURL;
+    d->currentURL = QUrl();
     setSource(s);
 }
 
-void QTextBrowser::setSource(const QString& name)
+void QTextBrowser::setSource(const QUrl &url)
 {
     Q_D(QTextBrowser);
     if (isVisible())
         qApp->setOverrideCursor(Qt::WaitCursor);
 
     d->textOrSourceChanged = true;
-    QString source = name;
-    QString anchor;
-    const int hash = name.indexOf('#');
-    if (hash != -1) {
-        source = name.left(hash);
-        anchor = name.mid(hash+1);
-    }
 
     QString txt;
 
     bool doSetText = false;
 
-    if (!source.isEmpty() && (source != d->currentURL || d->forceLoadOnSourceChange)) {
-        QVariant data = loadResource(HtmlResource, source);
+    if (url.isValid() && (url != d->currentURL || d->forceLoadOnSourceChange)) {
+        QVariant data = loadResource(HtmlResource, url);
         if (data.type() == QVariant::String) {
             txt = data.toString();
         } else if (data.type() == QVariant::ByteArray) {
@@ -265,7 +257,7 @@ void QTextBrowser::setSource(const QString& name)
             txt = codec->toUnicode(ba);
         }
         if (txt.isEmpty())
-            qWarning("QTextBrowser: no document for %s", source.latin1());
+            qWarning("QTextBrowser: no document for %s", url.toString().latin1());
 
         if (isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);
@@ -276,37 +268,32 @@ void QTextBrowser::setSource(const QString& name)
             }
         }
 
-        d->currentURL = name; // the full one including anchor
+        d->currentURL = url;
         doSetText = true;
     }
     d->forceLoadOnSourceChange = false;
 
-    if (!anchor.isEmpty()) {
-        source += '#';
-        source += anchor;
-    }
+    if (!d->home.isValid())
+        d->home = url;
 
-    if (d->home.isEmpty())
-        d->home = source;
-
-    if (d->stack.isEmpty() || d->stack.top() != source)
-        d->stack.push(name);
+    if (d->stack.isEmpty() || d->stack.top() != url)
+        d->stack.push(url);
 
     int stackCount = d->stack.count();
-    if (d->stack.top() == name)
+    if (d->stack.top() == url)
         stackCount--;
     emit backwardAvailable(stackCount > 0);
 
     stackCount = d->forwardStack.count();
-    if (d->forwardStack.isEmpty() || d->forwardStack.top() == name)
+    if (d->forwardStack.isEmpty() || d->forwardStack.top() == url)
         stackCount--;
     emit forwardAvailable(stackCount > 0);
 
     if (doSetText)
         QTextEdit::setHtml(txt);
 
-    if (!anchor.isEmpty()) {
-        scrollToAnchor(anchor);
+    if (!url.fragment().isEmpty()) {
+        scrollToAnchor(url.fragment());
     } else {
         d->hbar->setValue(0);
         d->vbar->setValue(0);
@@ -315,7 +302,7 @@ void QTextBrowser::setSource(const QString& name)
     if (isVisible())
         qApp->restoreOverrideCursor();
 
-    emit sourceChanged(source);
+    emit sourceChanged(url);
 }
 
 /*!
@@ -335,7 +322,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::sourceChanged(const QString& src)
+    \fn void QTextBrowser::sourceChanged(const QUrl &src)
 
     This signal is emitted when the mime source has changed, \a src
     being the new source.
@@ -345,7 +332,7 @@ void QTextBrowser::setSource(const QString& name)
     clicks on links or presses the equivalent key sequences.
 */
 
-/*!  \fn void QTextBrowser::highlighted (const QString &link)
+/*!  \fn void QTextBrowser::highlighted (const QUrl &link)
 
     This signal is emitted when the user has selected but not
     activated a link in the document. \a link is the value of the \c
@@ -353,25 +340,10 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::linkClicked(const QString& link)
-
-    This signal is emitted when the user clicks a link. The \a link is
-    the value of the \c href i.e. the name of the target document.
-
-    The \a link will be the absolute location of the document, based
-    on the value of the anchor's href tag and the current context of
-    the document.
-
-    \sa anchorClicked()
-*/
-
-/*!
-    \fn void QTextBrowser::anchorClicked(const QString &link)
+    \fn void QTextBrowser::anchorClicked(const QUrl &link)
 
     This signal is emitted when the user clicks an anchor. The \a link is
     the value of the \c href i.e. the name of the target document.
-
-    \sa linkClicked()
 */
 
 /*!
@@ -414,7 +386,7 @@ void QTextBrowser::forward()
 void QTextBrowser::home()
 {
     Q_D(QTextBrowser);
-    if (!d->home.isNull())
+    if (d->home.isValid())
         setSource(d->home);
 }
 
@@ -459,11 +431,13 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
     QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
     if (anchor.isEmpty()) {
         d->viewport->setCursor(Qt::ArrowCursor);
+        emit highlighted(QUrl());
         emit highlighted(QString::null);
     } else {
         d->viewport->setCursor(Qt::PointingHandCursor);
 
         QUrl url = QUrl(d->currentURL).resolved(anchor);
+        emit highlighted(url);
         emit highlighted(url.toString());
     }
 
@@ -481,7 +455,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     if (!anchor.isEmpty()) {
         d->textOrSourceChanged = false;
 
-        const QString url = QUrl(d->currentURL).resolved(anchor).toString();
+        const QUrl url = d->currentURL.resolved(anchor);
         emit anchorClicked(url);
 
         if (!d->textOrSourceChanged)
@@ -511,15 +485,12 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     \row    \i ImageResource \i QImage or QPixmap or QByteArray
     \endtable
 */
-QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
+QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QUrl &name)
 {
     Q_D(QTextBrowser);
 
     QByteArray data;
-    QString source = name;
-    if (source.startsWith("file:"))
-        source = source.mid(6);
-    QString fileName = d->findFile(source);
+    QString fileName = d->findFile(name.toLocalFile());
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         data = f.readAll();

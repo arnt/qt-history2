@@ -404,7 +404,7 @@ void MainWindow::showLinks(const QStringList &links)
 
     QStringList::ConstIterator it = pendingLinks.begin();
     // Initial showing, The tab is empty so update that without creating it first
-    if (tabs->currentBrowser()->source().isEmpty()) {
+    if (!tabs->currentBrowser()->source().isValid()) {
         pendingBrowsers.append(tabs->currentBrowser());
         tabs->setTitle(tabs->currentBrowser(), pendingLinks.first());
     }

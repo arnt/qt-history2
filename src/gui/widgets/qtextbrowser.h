@@ -15,6 +15,7 @@
 #define QTEXTBROWSER_H
 
 #include "qtextedit.h"
+#include <qurl.h>
 
 class QTextBrowserPrivate;
 
@@ -22,7 +23,7 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString source READ source WRITE setSource)
+    Q_PROPERTY(QUrl source READ source WRITE setSource)
     Q_OVERRIDE(bool modified SCRIPTABLE false)
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
@@ -32,7 +33,7 @@ public:
     QTextBrowser(QWidget* parent = 0);
     virtual ~QTextBrowser();
 
-    QString source() const;
+    QUrl source() const;
 
     QStringList searchPaths() const;
     void setSearchPaths(const QStringList &paths);
@@ -41,10 +42,10 @@ public:
         HtmlResource,
         ImageResource
     };
-    virtual QVariant loadResource(ResourceType type, const QString &name);
+    virtual QVariant loadResource(ResourceType type, const QUrl &name);
 
 public slots:
-    virtual void setSource(const QString& name);
+    virtual void setSource(const QUrl &name);
     virtual void backward();
     virtual void forward();
     virtual void home();
@@ -53,9 +54,10 @@ public slots:
 signals:
     void backwardAvailable(bool);
     void forwardAvailable(bool);
-    void sourceChanged(const QString&);
-    void highlighted(const QString&);
-    void anchorClicked(const QString &);
+    void sourceChanged(const QUrl &);
+    void highlighted(const QUrl &);
+    void highlighted(const QString &);
+    void anchorClicked(const QUrl &);
 
 protected:
     void keyPressEvent(QKeyEvent *ev);
