@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#10 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#11 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -20,16 +20,13 @@
 class QImage
 {
 public:
-    const IgnoreEndian = 0;			// bit/byte order values
-    const BigEndian    = 1;
-    const LittleEndian = 2;
+    enum Endian { IgnoreEndian, BigEndian, LittleEndian };
 
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
 	    int bitOrder=IgnoreEndian );
     QImage( const QImage & );
-    QImage( const QPixmap & );
-    virtual ~QImage();
+   ~QImage();
 
     QImage     &operator=( const QImage & );
     QImage     &operator=( const QPixmap & );
@@ -62,8 +59,8 @@ public:
 			int bitOrder=IgnoreEndian );
     void	reset();
 
-    bool	convertDepth( int, QImage * )	 const;
-    bool	convertBitOrder( int, QImage * ) const;
+    QImage	convertDepth( int )	const;
+    QImage	convertBitOrder( int )	const;
 
     static int	systemBitOrder();
     static int	systemByteOrder();
@@ -71,7 +68,6 @@ public:
 private:
     void	freeBits();
 
-public:
     struct QImageData : QShared {		// internal image data
 	int	w;				// image width
 	int	h;				// image height
@@ -84,14 +80,7 @@ public:
 #if defined(_WS_WIN16_)
 	bool	contig;
 #endif
-    };
-
-protected:
-    QImageData *data;
-    QImage( int, int );
-    void    copyTo( QImage * ) const;
-    virtual QImageData *newData();
-    virtual void	deleteData( QImageData * );
+    } *data;
 };
 
 
@@ -99,28 +88,22 @@ struct QIODevice;
 typedef void (*image_io_handler)( QImageIO * );	// image IO handler
 
 
-class QImageIO : public QImage
+class QImageIO
 {
 public:
     QImageIO();
-    QImageIO( int width, int height, int depth, int numColors=0,
-	      int bitOrder=IgnoreEndian );
-    QImageIO( const QImageIO & );
-    QImageIO( const QPixmap & );
    ~QImageIO();
 
-    QImageIO   &operator=( const QImageIO & );
-    QImageIO   &operator=( const QPixmap & );
-    void	detach();
-    QImageIO	copy()		const;
 
-    int		status()	const;
-    const char *format()	const;
-    QIODevice  *ioDevice()	const;
-    const char *fileName()	const;
-    const char *parameters()	const;
-    const char *description()	const;
+    QImage	image()		const	{ return im; }
+    int		status()	const	{ return iostat; }
+    const char *format()	const	{ return frmt; }
+    QIODevice  *ioDevice()	const	{ return iodev; }
+    const char *fileName()	const	{ return fname; }
+    const char *parameters()	const	{ return params; }
+    const char *description()	const	{ return descr; }
 
+    void	setImage( const QImage & );
     void	setStatus( int );
     void	setFormat( const char * );
     void	setIODevice( QIODevice * );
@@ -141,18 +124,19 @@ public:
 				 image_io_handler write_image );
 
 private:
-    struct QImageIOData : QImageData {
-	int	    status;			// IO status
-	QString	    format;			// image format
-	QIODevice  *iodev;			// IO device
-	QString	    fname;			// file name
-	QString	    params;			// image parameters
-	QString	    descr;			// image description
-    };
-    QImageData *newData();
-    void	deleteData( QImageData * );
+    QImage	im;				// image
+    int	    	iostat;				// IO status
+    QString	frmt;				// image format
+    QIODevice  *iodev;				// IO device
+    QString	fname;				// file name
+    QString	params;				// image parameters
+    QString	descr;				// image description
 };
 
+
+// --------------------------------------------------------------------------
+// QImage member functions
+//
 
 inline uchar **QImage::jumpTable() const
 {
@@ -187,7 +171,6 @@ inline bool QImage::contiguousBits() const
     return TRUE;
 #endif
 }
-
 
 #if !(defined(QIMAGE_C) || defined(DEBUG))
 
