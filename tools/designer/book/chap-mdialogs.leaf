@@ -460,7 +460,7 @@ Dialog}.
 \section3 C++ Tab
 
 Click the C++ Tab to change the \Cmd qmake options. See the \link
-qmake-manual-5.html#2-4 qmake documentation \endlink for details on
+qmake-manual.book qmake documentation \endlink for details on
 what these options mean. Click the 'Template' combobox and choose
 application or library to create makefiles for building applications
 or libraries. Click the 'Config' combobox to select the project

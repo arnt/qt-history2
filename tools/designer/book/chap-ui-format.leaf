@@ -6,11 +6,11 @@ provides an overview of the XML format used, and should provide enough
 information for developers to write their own \c .ui parsers so that
 they can read and modify \c .ui files programatically.
 
-One way to parse a \File .ui file is to use Qt and the \l QDom class;
-this is how \QD does it: see the \c uilib/qwidgetfactory.h and \c
-uilib/qwidgetfactory.cpp source files. For information on dynamically
-loading and running \File .ui files see \l{Loading and Executing a
-Dynamic Dialog}.
+One way to parse a \File .ui file is to use Qt and the \l QDomDocument
+class; this is how \QD does it: see the \c uilib/qwidgetfactory.h and
+\c uilib/qwidgetfactory.cpp source files. For information on
+dynamically loading and running \File .ui files see \l{Loading and
+Executing a Dynamic Dialog}.
 
 The doctype of a \c .ui file is simply "UI", so the doctype tag is:
 
@@ -71,7 +71,7 @@ This element is used to store the form's actions. It only occurs in
 The \c actions element contains one or more \c action elements. Each
 \c action element contains one or more properties. Each property has a
 \c name attribute, and a single value which is contained within a
-\link datatype datatype\endlink element.
+\link #datatype datatype\endlink element.
 
 \code
 <actions>
@@ -659,4 +659,4 @@ group. For example:
   </inactive>
 </palette>
 \endcode
-See \link color color\endlink for the format of the \c{<color>} element.
+See \link #color color\endlink for the format of the \c{<color>} element.
