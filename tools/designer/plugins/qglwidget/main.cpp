@@ -27,6 +27,7 @@ public:
     QString whatsThis( const QString& );
     bool isContainer( const QString& );
 
+private:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
@@ -82,12 +83,12 @@ QString OpenGLWidgetInterface::iconSet( const QString& )
 
 QString OpenGLWidgetInterface::includeFile( const QString& description )
 {
-    return QString::null;
+    return "qgl.h";
 }
 
 QString OpenGLWidgetInterface::toolTip( const QString& description )
 {
-    return QString::null;
+    return QT_TR_NOOP("A widget for OpenGL rendering");
 }
 
 QString OpenGLWidgetInterface::whatsThis( const QString& )
