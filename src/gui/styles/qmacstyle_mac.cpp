@@ -5357,6 +5357,16 @@ QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) 
             }
         }
         break;
+    case SR_RadioButtonContents:
+    case SR_CheckBoxContents:
+        {
+            QRect ir = subRect(sr == SR_RadioButtonContents ? SR_RadioButtonIndicator
+                                                            : SR_CheckBoxIndicator, opt, w);
+            rect.setRect(ir.right() + 2, opt->rect.y(),
+                         opt->rect.width() - ir.width() - 2, opt->rect.height());
+            break;
+        }
+        break;
     }
     return rect;
 }
