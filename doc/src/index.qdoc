@@ -53,15 +53,6 @@ General
 <tr>
 <td valign="top">
 <ul>
-<li><a href="http://lists.trolltech.com">Mailing Lists</a></li>
-<li><a href="http://doc.trolltech.com/qq/">Qt Quarterly</a></li>
-<li><a href="http://www.trolltech.com/products/solutions/">Qt Solutions</a></li>
-<li><a href="http://www.trolltech.com/freesoftware/">Contributed Qt Components</a></li>
-<li><a href="bughowto.html">How to Report a Bug</a></li>
-</ul>
-</td>
-<td valign="top">
-<ul>
 <li><a href="qt4-intro.html">What's New in Qt 4</a></li>
 <li><a href="how-to-learn-qt.html">How to Learn Qt</a></li>
 <li><a href="tutorial.html">Tutorial</a></li>
@@ -76,6 +67,15 @@ General
 <li><a href="commercialedition.html">Commercial Edition</a></li>
 <li><a href="opensourceedition.html">Open Source Edition</a></li>
 <li><a href="http://www.trolltech.com/developer/faqs/">Frequently Asked Questions</a></li>
+</ul>
+</td>
+<td valign="top">
+<ul>
+<li><a href="http://lists.trolltech.com">Mailing Lists</a></li>
+<li><a href="http://doc.trolltech.com/qq/">Qt Quarterly</a></li>
+<li><a href="http://www.trolltech.com/products/solutions/">Qt Solutions</a></li>
+<li><a href="http://www.trolltech.com/freesoftware/">Contributed Qt Components</a></li>
+<li><a href="bughowto.html">How to Report a Bug</a></li>
 </ul>
 </td>
 </tr>

@@ -2,7 +2,7 @@
 
     \title A standard ActiveX and the "simple" ActiveQt widget.
 
-    \input simple-demo.qdocinc
+    \input examples/activeqt/simple-demo.qdocinc
 */
 
 /*! \page qaxserver-example-simple.html
@@ -51,5 +51,5 @@
     Events from the ActiveX controls are handled using both Visual Basic Script
     and JavaScript.
 
-    \input simple-demo.qdocinc
+    \input examples/activeqt/simple-demo.qdocinc
 */

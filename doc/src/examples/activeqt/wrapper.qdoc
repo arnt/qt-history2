@@ -3,7 +3,7 @@
 
     \title Standard Qt widgets in an HTML page
 
-    \input wrapper-demo.qdocinc
+    \input examples/activeqt/wrapper-demo.qdocinc
 */
 
 /*! \page qaxserver-example-wrapper.html
@@ -35,5 +35,5 @@
     The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
     WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input wrapper-demo.qdocinc
+    \input examples/activeqt/wrapper-demo.qdocinc
 */

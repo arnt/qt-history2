@@ -43,16 +43,17 @@
 
     Note that although we specify 4 x 3 to QPainter::drawRect() as
     the size, the actual rectangle ends up emcompassing 5 x 4 pixels.
-    This is different from some toolkits (including earlier versions
-    of Qt); starting with Qt 4, the size you specify is the size of
+    This is what most modern graphic APIs do.
+    
+    the size you specify is the size of
     the mathematical rectangle, without considering the pen width.
     This makes sense when you apply transformations (scaling,
     shearing, etc.). This applies to all the relevant functions in
     QPainter (e.g., \l{QPainter::drawRoundRect()}{drawRoundRect()},
     \l{QPainter::drawEllipse()}{drawEllipse()}).
 
-    Similarly, the QPainter::drawLine() call draws both end points of
-    the line, not just one.
+    The QPainter::drawLine() call draws both end points of the line,
+    not just one.
 
     Here are the classes that relate most closely to the coordinate
     system. Some classes exist in two versions: an \c{int}-based

@@ -2,7 +2,7 @@
 
     \title Two simple Qt widgets
 
-    \input multiple-demo.qdocinc
+    \input examples/activeqt/multiple-demo.qdocinc
 */
 
 /*! \page qaxserver-example-multiple.html
@@ -43,5 +43,5 @@
     The \link qaxserver-demo-multiple.html demonstration \endlink requires your
     WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input multiple-demo.qdocinc
+    \input examples/activeqt/multiple-demo.qdocinc
 */

@@ -916,7 +916,7 @@
     angle really has changed.
 
     Then we set the new angle value and repaint our widget. The
-    QWidget::repaint() function clears the widget (usually filling it with
+    QWidget::update() function clears the widget (usually filling it with
     its background color) and sends a paint event to the widget. This
     results in a call to the paint event function of the widget.
 
@@ -1008,7 +1008,7 @@
 
     The diagram above shows the layout we're trying to achieve. The
     left side shows a schematic view of the layout; the right side is
-    a screenshot.
+    an actual screenshot of the program.
 
     \printline addWidget
 
@@ -1259,13 +1259,6 @@
     the force value, we don't need to repaint the widget.
 
     \skipto ::paintEvent
-    \printuntil return
-
-    We have now optimized the paint event to repaint only the parts of the
-    widget that need updating. First we check whether we have to paint
-    anything at all, and we return if we don't.
-
-    \printline QPainter
     \printuntil }
 
     We paint as in Chapter 9.
@@ -1400,15 +1393,18 @@
     \quotefromfile tutorial/t11/cannonfield.cpp
 
     \skipto include
-    \skipto math
+    \skipto math.h
     \printline math
-    \skipto using namespace std
-    \printline namespace
 
-    We include the math library because we need the \c sin() and \c
-    cos() functions. We also import all symbols from the \c std
-    namespace, so we don't need to type \c std::sin() and \c
-    std::cos().
+    We include \c <math.h> because we need the \c sin() and \c cos()
+    functions. (An alternative would be to include the more modern
+    \c <cmath> header file. Unfortunately, some Unix platforms still don't
+    support these properly.)
+
+    \omit
+    We also import all symbols from the \c std namespace, so we don't
+    need to type \c std::sin() and \c std::cos().
+    \endomit
 
     \skipto ::CannonField
     \printuntil }
@@ -1426,13 +1422,13 @@
     cannon angle and force. Finally, we start the timer.
 
     \skipto ::moveShot
-    \printuntil repaint
+    \printuntil update
     \printline }
 
     \c moveShot() is the slot that moves the shot, called every 50
     milliseconds when the QTimer fires.
 
-    Its tasks are to compute the new position, repaint the screen with the
+    Its tasks are to compute the new position, update the screen with the
     shot in the new position, and if necessary, stop the timer.
 
     First we make a QRegion that holds the old \c shotRect(). A
@@ -1662,12 +1658,10 @@
 
     \quotefromfile tutorial/t12/cannonfield.cpp
 
-    \skipto stdlib
+    \skipto stdlib.h
     \printline stdlib
-    \skipto using namespace std
-    \printline using namespace
 
-    We include the \c <cstdlib> header file because we need the \c
+    We include the \c <stdlib.h> header file because we need the \c
     rand() function.
 
     \skipto newTarget
@@ -1677,15 +1671,15 @@
     "random" position for the target. In fact, the \c newTarget()
     function will try to paint the target. Because we are in a
     constructor, the \c CannonField widget is invisible. Qt
-    guarantees that no harm is done when calling \c repaint() on a
-    hidden widget.
+    guarantees that no harm is done when calling QWidget::update() on
+    a hidden widget.
 
     \skipto ::newTarget
-    \printuntil repaint
+    \printuntil update
     \printline }
 
-    This private function creates a target center point at a new "random"
-    position.
+    This private function creates a target center point at a new
+    random position.
 
     We use the \c rand() function to fetch random integers. The \c
     rand() function normally returns the same series of numbers each
@@ -1748,11 +1742,10 @@
     been added:
 
     \skipto ::paintEvent
-    \skipto targetRect
-    \printline updateR
+    \skipto paintTarget
     \printline paintTarget
 
-    These two lines make sure that the target is also painted when necessary.
+    This line makes sure that the target is also painted when necessary.
 
     \skipto ::paintTarget
     \printuntil }
@@ -2213,8 +2206,7 @@
     The paint event has two extra lines:
 
     \skipto ::paintEvent
-    \skipto barrierRect
-    \printline barrierRect
+    \skipto paintBarrier
     \printline paintBarrier
 
     \c paintBarrier() does the same sort of thing as \c paintShot(),

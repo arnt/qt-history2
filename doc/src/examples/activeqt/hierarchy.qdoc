@@ -2,7 +2,7 @@
 
     \title Qt Widget Hierarchy
 
-    \input hierarchy-demo.qdocinc
+    \input examples/activeqt/hierarchy-demo.qdocinc
 */
 
 /*! \page qaxserver-example-hierarchy.html
@@ -66,5 +66,5 @@
   The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input hierarchy-demo.qdocinc
+    \input examples/activeqt/hierarchy-demo.qdocinc
 */

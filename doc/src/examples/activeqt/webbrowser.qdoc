@@ -2,7 +2,6 @@
     \ingroup qaxcontainer-examples
   \title A Web Browser
 
-
   This example utilizes the Microsoft Web Browser ActiveX control 
   to implement a fully functional Web Browser application. The
   user interface has been developed using the Qt Designer
