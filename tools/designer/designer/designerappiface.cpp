@@ -294,8 +294,6 @@ void DesignerActiveFormWindowInterfaceImpl::reconnect()
 {
     FormListItem* fli = (FormListItem*)formList->currentItem();
     FormWindow *newForm = fli ? fli->formWindow() : 0;
-    if ( newForm == lastForm )
-	return;
 
     for ( QValueList<ConnectSignal>::Iterator cit1 = signalList.begin(); cit1 != signalList.end(); ++cit1 ) {
 	if ( lastForm && (*cit1).target )
@@ -335,6 +333,9 @@ bool DesignerActiveFormWindowInterfaceImpl::requestConnect( const char* signal, 
     c.target = target;
     c.slot = qstrdup(slot);
     signalList.append( c );
+
+    reconnect();
+
     return TRUE;
 }
 
@@ -345,6 +346,9 @@ bool DesignerActiveFormWindowInterfaceImpl::requestConnect( QObject *sender, con
     c.sender = sender;
     c.slot = qstrdup(slot);
     slotList.append( c );
+
+    reconnect();
+
     return TRUE;
 }
 
