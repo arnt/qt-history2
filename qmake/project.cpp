@@ -342,11 +342,13 @@ QMakeProject::read(QString project, QString pwd)
 	if(Option::debug_level)
 	    printf("MKSPEC file: reading %s\n", Option::specfile.latin1());
 
-	base_vars = cache; //start with the cache
 	if(!read(Option::specfile, base_vars)) {
 	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", Option::specfile.latin1());
 	    return FALSE;
 	}
+	for( QMap<QString, QStringList>::Iterator it = cache.begin(); it != cache.end(); ++it)
+	    base_vars[it.key()] += it.data();
+
 	cfile = project;
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
 	    if(!parse("(internal)", (*it), base_vars)) {
@@ -488,7 +490,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps)
     if(!Option::do_cache)
 	return;
 
-    QStringList &configs = cache["CONFIG"];
+    QStringList &configs = vars["CONFIG"];
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
 	if((*it).isEmpty())
 	    continue;
