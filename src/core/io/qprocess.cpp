@@ -79,7 +79,7 @@ void QProcessPrivate::cleanup()
     }
 #endif
     pid = 0;
-    exitCode = 0;
+    // exitCode = 0; // We deliberately do not reset the exit code.
     crashed = false;
     if (standardReadSocketNotifier) {
         standardReadSocketNotifier->setEnabled(false);
@@ -216,12 +216,11 @@ void QProcessPrivate::processDied()
         emit q->error(processError);
     }
 
-    int code = exitCode;
     cleanup();
 
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
-    emit q->finished(code);
+    emit q->finished(exitCode);
 }
 
 void QProcessPrivate::startupNotification()
@@ -509,6 +508,12 @@ void QProcess::kill()
 {
     Q_D(QProcess);
     d->killProcess();
+}
+
+int QProcess::exitCode() const
+{
+    Q_D(const QProcess);
+    return d->exitCode;
 }
 
 #define d d_func()

@@ -71,6 +71,8 @@ public:
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 
+    int exitCode() const;
+
     // QIODevice
     Q_LONGLONG bytesAvailable() const;
     bool isSequential() const;
@@ -81,7 +83,7 @@ public:
 signals:
     void started();
     void finishing();
-    void finished(int exitStatus);
+    void finished(int exitCode);
     void error(QProcess::ProcessError error);
     void stateChanged(QProcess::ProcessState state);
 
