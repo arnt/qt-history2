@@ -39,7 +39,6 @@ tools {
 		  $$TOOLS_H/qstack.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstringlist.h \
-		  $$TOOLS_H/qstringmap.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
@@ -82,7 +81,6 @@ tools {
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
-		  $$TOOLS_CPP/qstringmap.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp
 
 }
