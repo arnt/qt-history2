@@ -913,30 +913,30 @@ QMetaObject *QAxBase::metaObject() const
 		// get information about type
 		TYPEATTR *typeattr;
 		info->GetTypeAttr( &typeattr );
+		bool interesting = TRUE;
 		if ( typeattr ) {
-		    if ( ( typeattr->typekind != TKIND_DISPATCH && typeattr->typekind != TKIND_INTERFACE ) ||
-			 ( typeattr->guid == IID_IDispatch || typeattr->guid == IID_IUnknown ) ) {
-			info->ReleaseTypeAttr( typeattr );
-			break;
-		    }
-		    
-		    // UUID
-		    QUuid uuid( typeattr->guid );
-		    QString uuidstr = uuid.toString().upper();
-		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-		    static interfacecount = 0;
-		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
-
 		    // get number of functions, variables, and implemented interfaces
 		    nFuncs = typeattr->cFuncs;
 		    nVars = typeattr->cVars;
 		    nImpl = typeattr->cImplTypes;
 
-		    info->ReleaseTypeAttr( typeattr );
+		    if ( ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_INTERFACE ) &&
+			( typeattr->guid != IID_IDispatch && typeattr->guid != IID_IUnknown ) ) {
+			// UUID
+			QUuid uuid( typeattr->guid );
+			QString uuidstr = uuid.toString().upper();
+			uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+			static interfacecount = 0;
+			infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
+
+			info->ReleaseTypeAttr( typeattr );
+		    } else {
+			interesting = FALSE;
+		    }
 		}
 
 		// get information about all functions
-		for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
+		if ( interesting ) for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
 		    FUNCDESC *funcdesc;
 		    info->GetFuncDesc( fd, &funcdesc );
 		    if ( !funcdesc )
@@ -1209,7 +1209,7 @@ QMetaObject *QAxBase::metaObject() const
 		}
 		
 		// get information about all variables
-		for ( ushort vd = 0; vd < nVars; ++vd ) {
+		if ( interesting ) for ( ushort vd = 0; vd < nVars; ++vd ) {
 		    VARDESC *vardesc;
 		    info->GetVarDesc( vd, &vardesc );
 		    if ( !vardesc )
