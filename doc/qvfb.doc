@@ -45,9 +45,9 @@ The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
 \section1 Using the Virtual Framebuffer
 
 \list 1 
-\i Make sure QT_NO_QWS_VFB in \c $QTDIR/src/tools/qconfig.h is not defined
+\i Make sure QT_NO_QWS_VFB in \c $QTDIR/src/tools/qconfig.h is \e not defined
     and compile the Qt/Embedded library.
-\i Compile qvfb as a normal Qt/X11 application and run it. Do not
+\i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
     compile it as a Qt/Embedded application.
 \i Start a Qt/Embedded master application (i.e., construct QApplication with
     QApplication::GuiServer flag or use the -qws command line parameter).
@@ -60,32 +60,48 @@ The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
     be \c QVFb:0.
 \endlist
 
-qvfb supports the following command line options:
+\c qvfb supports the following command line options:
  
 \list
-\i \c {-width width}: the width of the virtual framebuffer (default: 240).
-\i \c {-height height}: the height of the virtual framebuffer (default: 320).
-\i \c {-depth depth}: the depth of the virtual framebuffer (1, 8 or 32; default: 8).
-\i \c -nocursor: do not display the X11 cursor in the framebuffer window.
-\i \c {-qwsdisplay :id} the Qt/Embedded display id to provide (default: 0).
+\i \c{-width width} 
+
+the width of the virtual framebuffer (default: 240).
+
+\i \c{-height height} 
+
+the height of the virtual framebuffer (default: 320).
+
+\i \c{-depth depth} 
+
+the depth of the virtual framebuffer (1, 8 or 32; default: 8).
+
+\i \c{-nocursor} 
+
+do not display the X11 cursor in the framebuffer window.
+
+\i \c{-qwsdisplay :id} 
+
+the Qt/Embedded display id to provide (default: 0).
+
 \endlist
 
 \section1 Virtual Framebuffer Design
 
 The virtual framebuffer emulates a framebuffer using a shared memory region
 (the virtual frame buffer) and a utility to display the framebuffer in a
-window (qvfb).  The regions of the display that have changed are updated
+window (\c qvfb).  The regions of the display that have changed are updated
 periodically, so you will see discrete snapshots of the framebuffer rather
 than each individual drawing operation.  For this reason drawing problems
 such as flickering may not be apparent until the program is run using a real
 framebuffer.
 
-The target refresh rate can be set via the "View|Refresh Rate" menu item.
-This will cause qvfb to check for updated regions more quickly.  The rate
-is a target only.  If little drawing is being done, the framebuffer will
-not show any updates between drawing events.  If an application is displaying
-an animation the updates will be frequent, and the application and
-qvfb will compete for processor time.
+The target refresh rate can be set via the <b>View|Refresh Rate</b>
+menu item. This will cause \c qvfb to check for updated regions more
+frequently.  The rate is a target only.  If little drawing is being
+done, the framebuffer will not show any updates between drawing
+events.  If an application is displaying an animation the updates will
+be frequent, and the application and \c qvfb will compete for processor
+time.
 
 Mouse and keyboard events are passed to the Qt/Embedded master process via
 named pipes.

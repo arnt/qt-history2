@@ -47,7 +47,7 @@ There is also a detailed explanation at
 \i Make sure that you have the Linux kernel source code in
 \l file:/usr/src/linux/.
 
-\i Log in as root and cd /usr/src/linux
+\i Log in as root and \c cd \c /usr/src/linux
 
 \i Configure the kernel:
    
@@ -89,7 +89,7 @@ There is also a detailed explanation at
 \i Edit /etc/lilo.conf.
 
   \warning Keep a backup of /etc/lilo.conf, and have a rescue disk
-  available. If you make a mistake here, the machine may not boot.
+  available. If you make a mistake, the machine may not boot.
 
    The file /etc/lilo.conf specifies how the system boots. The precise
    contents of the file varies from system to system, this is one example:
@@ -105,9 +105,6 @@ other=/dev/hda1
 	label=nt
 	table=/dev/hda
 \endcode
-
-  \warning Keep a backup of /etc/lilo.conf, and have a rescue disk
-  available. If you make a mistake here, the machine may not boot.
 
   Make a new "image" section that is a copy of the first one, but with
   image = /boot/linux.vesafb and label = Linux-vesafb. Place it just

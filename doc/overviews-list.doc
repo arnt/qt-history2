@@ -4,107 +4,98 @@
 
 \title All Overviews and HOWTOs
 
-<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
+\table
 
-<tr>
-<th bgcolor=#a2c511>Qt Object Model</th>
-<th bgcolor=#a2c511>Geometry and Layout</th></tr>
-</tr>
+\header
+\i Qt Object Model
+\i Geometry and Layout
 
-<tr>
-<td rowspan=3 valign=top>
-\list
-\i \link object.html Qt Object Model \endlink
-\i \link objecttrees.html Object Trees and Object Ownership \endlink
-\i \link signalsandslots.html Signals and Slots \endlink
-\i \link metaobjects.html Meta Object System \endlink
-\i \link properties.html Properties \endlink
-\i \link moc.html Using the Meta Object Compiler \endlink
-\i \link templates.html Why doesn't Qt use templates for signals and slots? \endlink
-\endlist
-</td>
+\row 
+\i13
+    \list
+    \i \link object.html Qt Object Model \endlink
+    \i \link objecttrees.html Object Trees and Object Ownership \endlink
+    \i \link signalsandslots.html Signals and Slots \endlink
+    \i \link metaobjects.html Meta Object System \endlink
+    \i \link properties.html Properties \endlink
+    \i \link moc.html Using the Meta Object Compiler \endlink
+    \i \link templates.html Why doesn't Qt use templates for signals and slots? \endlink
+    \endlist
 
-<td valign=top>
-\list
-\i \link layout.html Layout Classes \endlink
-\i \link customlayout.html Writing your own layout manager \endlink
-\i \link coordsys.html The Coordinate System \endlink
-\i \link geometry.html Window Geometry \endlink
-\endlist
-</td></tr>
+\i
+    \list
+    \i \link layout.html Layout Classes \endlink
+    \i \link customlayout.html Writing your own layout manager \endlink
+    \i \link coordsys.html The Coordinate System \endlink
+    \i \link geometry.html Window Geometry \endlink
+    \endlist
 
-<tr>
-<th bgcolor=#a2c511>Internationalization</th>
-</tr>
+\header
+\i Internationalization
 
-<tr>
-<td valign=top>
-\list
-\i \link i18n.html Internationalization with Qt \endlink
-\i \link scripts.html Qt's Text Engine \endlink
-\i \link unicode.html About Unicode \endlink
-\endlist
-</td>
-</tr>
+\row
+\i
+    \list
+    \i \link i18n.html Internationalization with Qt \endlink
+    \i \link scripts.html Qt's Text Engine \endlink
+    \i \link unicode.html About Unicode \endlink
+    \endlist
 
-<tr>
-<th bgcolor=#a2c511>General</th>
-<th bgcolor=#a2c511>Qt/Embedded</th>
-</tr>
+\header
+\i General
+\i Qt/Embedded
 
-<tr>
-<td align=top>
-\list
-\i \link porting.html Porting to Qt 3.x \endlink
-\i \link commonproblems.html FAQs \endlink
-\i \link plugins-howto.html Qt Plugins\endlink
-\omit
-\i \link component.html The Qt Component Model \endlink
-\endomit
-\i \link datastreamformat.html Format of the QDataStream Operators \endlink
-\i \link debug.html Debugging Techniques \endlink
-\i \link design.html Design Principles \endlink
-\i \link dnd.html Drag and Drop \endlink
-\i \link editions.html Qt Editions \endlink
-\i \link eventsandfilters.html Events and Event Filters \endlink
-\i \link buyhowto.html How to Buy Qt \endlink
-\i \link bughowto.html How to Report A Bug \endlink
-\i \link focus.html Keyboard Focus Overview \endlink
-\i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
-\i \link mailinglists.html Mailing Lists \endlink
-\i \link appicon.html Setting the Application Icon \endlink
-\i \link session.html Session Management \endlink
-\i \link shclass.html Shared Classes \endlink
-\i \link customstyles.html Style overview \endlink
-\i \link qt-template-lib.html Qt Template Library\endlink
-\i \link threads.html Thread Support in Qt \endlink
-\i \link timers.html Timers \endlink
-\i \link pictures.html Pictures of Most Qt Widgets \endlink
-\i \link xt.html Qt Xt/Motif Support Extension \endlink
-\endlist
-</td>
-<td valign=top>
-\list
-\i \link qembed.html  QEmbed tool - inline files/images \endlink
-\i \link qvfb-qws.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
-\i \link install-qws.html Installing Qt/Embedded \endlink
-\i \link features.html The Feature Definition File \endlink
-\i \link embedclasses.html The Qt/Embedded-specific classes \endlink
-\i \link accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
-\i \link casestudy-qws.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink
-\i \link HOWTO-framebuffer.html Enabling the Linux Framebuffer \endlink
-\i \link running-qws.html Running Qt/Embedded applications \endlink
-\i \link charinput-qws.html Character input in Qt/Embedded \endlink
-\i \link fonts-qws.html Fonts in Qt/Embedded \endlink
-\i \link pointer-qws.html Qt/Embedded Pointer Handling \endlink
-\i \link envvars.html Qt/Embedded environment variables \endlink
-\i \link porting-qws.html Porting your applications to Qt/Embedded \endlink
-\i \link embedporting.html Issues when porting Qt/Embedded to another OS \endlink
-\i \link performance-qws.html Qt/Embedded Performance Tuning \endlink
-\i \link vnc-qws.html Qt/Embedded as a VNC Server \endlink
-\endlist
-</td>
-</tr>
-</table>
+\row
+\i
+    \list
+    \i \link porting.html Porting to Qt 3.x \endlink
+    \i \link commonproblems.html FAQs \endlink
+    \i \link plugins-howto.html Qt Plugins\endlink
+    \omit
+    \i \link component.html The Qt Component Model \endlink
+    \endomit
+    \i \link datastreamformat.html Format of the QDataStream Operators \endlink
+    \i \link debug.html Debugging Techniques \endlink
+    \i \link design.html Design Principles \endlink
+    \i \link dnd.html Drag and Drop \endlink
+    \i \link editions.html Qt Editions \endlink
+    \i \link eventsandfilters.html Events and Event Filters \endlink
+    \i \link buyhowto.html How to Buy Qt \endlink
+    \i \link bughowto.html How to Report A Bug \endlink
+    \i \link focus.html Keyboard Focus Overview \endlink
+    \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
+    \i \link mailinglists.html Mailing Lists \endlink
+    \i \link appicon.html Setting the Application Icon \endlink
+    \i \link session.html Session Management \endlink
+    \i \link shclass.html Shared Classes \endlink
+    \i \link customstyles.html Style overview \endlink
+    \i \link qt-template-lib.html Qt Template Library\endlink
+    \i \link threads.html Thread Support in Qt \endlink
+    \i \link timers.html Timers \endlink
+    \i \link pictures.html Pictures of Most Qt Widgets \endlink
+    \i \link xt.html Qt Xt/Motif Support Extension \endlink
+    \endlist
+
+\i
+    \list
+    \i \link qvfb-qws.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
+    <p>&nbsp;</p>
+    \i \link install-qws.html Installing Qt/Embedded \endlink
+    \i \link features.html The Feature Definition File \endlink
+    \i \link embedclasses.html The Qt/Embedded-specific classes \endlink
+    \i \link accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
+    \i \link casestudy-qws.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink
+    \i \link HOWTO-framebuffer.html Enabling the Linux Framebuffer \endlink
+    \i \link running-qws.html Running Qt/Embedded applications \endlink
+    \i \link charinput-qws.html Character input in Qt/Embedded \endlink
+    \i \link fonts-qws.html Fonts in Qt/Embedded \endlink
+    \i \link pointer-qws.html Qt/Embedded Pointer Handling \endlink
+    \i \link envvars.html Qt/Embedded environment variables \endlink
+    \i \link porting-qws.html Porting your applications to Qt/Embedded \endlink
+    \i \link embedporting.html Issues when porting Qt/Embedded to another OS \endlink
+    \i \link performance-qws.html Qt/Embedded Performance Tuning \endlink
+    \i \link vnc-qws.html Qt/Embedded as a VNC Server \endlink
+    \endlist
+\endtable
 
 */

@@ -37,107 +37,108 @@
 
 \title Qt/Embedded Case Study - Cassiopeia E-100
 
-<h2>Introduction</h2>
+\section1 Introduction
 
 This document describes the steps involved in installing Linux on an embedded
 device and building a Qt/Embedded application.  The target device is the
 Cassiopeia E-100/E-105.  The device has a MIPS Vr4121 processor, 16MB RAM
-(32MB in E-105), a Compact Flash slot and a 240x320 16 bit per pixel LCD
+(32MB in the E-105), a Compact Flash slot and a 240x320 16 bit per pixel LCD
 display.
-<p>
+
 The only part of this document that is specific to the Cassiopeia is the
 installation of Linux and the development tools.  The example application
 can be compiled and run on your desktop machine.
 
-<h2>Installing Linux</h2>
+\section1 Installing Linux
 
-All the information and software required to get Linux running on the VR series
-of processors is available from the <a href="http://www.linux-vr.org/">Linux VR
-</a> web site.  In Summary:
+All the information and software required to get Linux running on the
+VR series of processors is available from the 
+\link http://www.linux-vr.org/ Linux VR\endlink web site.  In Summary:
 
-<h3>Install the tools</h3>
+\section2 Install the tools
 
 Follow the instructions at
-<a href="http://www.linux-vr.org/tools.html">http://www.linux-vr.org/tools.html</a>.
+\l http://www.linux-vr.org/tools.html.
 
-<h3>Build the kernel</h3>
+\section2 Build the kernel
 
 Get a sample root ramdisk from
-<a href=ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk>ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk</a>
-<p>
+\l ftp://ftp.ltc.com/pub/linux/mips/ramdisk/ramdisk.
+
 Follow the instructions at
-<a href="http://www.linux-vr.org/ramdisk.html">http://www.linux-vr.org/ramdisk.html</a>
+\l http://www.linux-vr.org/ramdisk.html
 to create a ramdisk.o file.
-<p>
+
 Now build your kernel
-<a href="http://www.linux-vr.org/kernel.html">http://www.linux-vr.org/kernel.html</a>
+\l http://www.linux-vr.org/kernel.html
 using this ramdisk object.  Make sure you have at least the following
 configuration:
 
-<ul>
-<li>Development/incomplete drivers
-<li>Casio E105 Platform
-<li>Network and System V IPC
-<li>RAM disk and Initial RAM disk support
-<li>Support for console on virtual terminal (so that you can see boot messages)
-<li>/proc and ext2 filesystem support
-<li>Simple Frame Buffer with HPC device control
-</ul>
+\list
+\i Development/incomplete drivers
+\i Casio E105 Platform
+\i Network and System V IPC
+\i RAM disk and Initial RAM disk support
+\i Support for console on virtual terminal (so that you can see boot messages)
+\i \c /proc and ext2 filesystem support
+\i Simple Frame Buffer with HPC device control
+\endlist
 
-<h3>Booting Linux</h3>
+\section2 Booting Linux
 
 Follow the instructions at
-<a href="http://www.linux-vr.org/booting.html">http://www.linux-vr.org/booting.html</a>.
-<p>
+\l http://www.linux-vr.org/booting.html.
+
 You should see the linux boot messages on the LCD display.
 
-<h2>A Qt/Embedded Application</h2>
+\section1 A Qt/Embedded Application
 
 Usually a device such as the Cassiopeia would have a shell, configured as the
 Qt/Embedded server, that allows client applications to be launched.
 For the purposes of this tutorial, we will write a simple application that
 serves as the Qt/Embedded server and client.  A more complete Qt/Embbeded
-server can be found in $QTDIR/examples/compact.
-<p>
+server can be found in \c $QTDIR/examples/compact.
+
 The application that we will write is a simple note pad.  It will allow
 notes to be created, viewed and deleted.  Since the Cassiopeia doesn't have
 a keyboard, we will include a simple on-screen keyboard for input.
 
-<h3>Note Pad</h3>
+\section2 Note Pad
 
 Our note pad user interface is very simple.  It consists of a toolbar with
 "New" and "Delete" buttons, a combo box to select the note to view and
 an editing area.
-<p>
-Take a moment to browse the source code for Note Pad in $QTDIR/examples/notepad/.
-The code is quite simple, but there are some things worth noting:
 
-<ol>
-<li>Two fonts are set - helvetica 10 point as the application default font,
+Take a moment to browse the source code for Note Pad in \c
+$QTDIR/examples/notepad/. The code is quite simple, but there are some
+things worth noting:
+
+\list 1
+\i Two fonts are set - helvetica 10 point as the application's default font,
 and helvetica 12 point for the editor.  Since we will use prerendered fonts
-these fonts must be prepared as <a href=fonts-qws.html>described here</a>.
-<li>The QApplication is constructed with the QApplication::GuiServer type
+these fonts must be prepared as \link fonts-qws.html described
+here\endlink.
+\i The QApplication is constructed with the QApplication::GuiServer type
 specified.  This makes the note pad a Qt/Embedded server.  One server must
 be running for Qt/Embedded clients to run.  In this case our application is
 both server and client because it is the only application we wish to run on
 our device.
-<li>The Cassiopeia has no keyboard (generally) so we must provide some means
+\i The Cassiopeia (usually) has no keyboard so we must provide some means
 of character input with the pen.  The simplest method is to display a small
 keyboard.  The compact example includes a keyboard, so we use this code.
 Key and pointer input is Qt/Embedded specific, so it is surrounded
 by #ifdef Q_WS_QWS ...  #endif so that we can compile the example with Qt/X11
 or Qt/Windows if we wish.
-<li>The touch panel needs to be calibrated.  There is a calibration module
+\i The touch panel needs to be calibrated.  There is a calibration module
 included in the compact demo, so we use this.
-</ol>
+\endlist
 
-<h3>Creating a suitable Qt/Embedded Library</h3>
+\section2 Creating a suitable Qt/Embedded Library
 
-Since our application is quite simple we can remove some unneeded features
-from Qt/Embedded.  Edit $QTDIR/src/tools/qconfig.h and disable unneeded
-features as follows:
-<p>
-<pre>
+Since our application is quite simple we can remove some unnecessary
+features from Qt/Embedded.  Edit \c $QTDIR/src/tools/qconfig.h and
+disable the following features:
+\code
     #define QT_NO_IMAGEIO_BMP
     #define QT_NO_IMAGEIO_PPM
     #define QT_NO_IMAGEIO_XBM
@@ -169,72 +170,73 @@ features as follows:
     #define QT_NO_TABDIALOG
     #define QT_NO_WIZARD
     #define QT_NO_EFFECTS
-</pre>
+\endcode
 
-<p>
-See <a href=features.html>Qt Features</a> for a description of the features
-that can be disabled.  This leaves us with a small set of widgets and
-dialogs necessary for our application.  Cross-compile the library for the mips
-target on the x86 platform:
-<pre>
+See \link features.html Qt Features\endlink for a description of the
+features that can be disabled.  This leaves us with a small set of
+widgets and dialogs necessary for our application.  Cross-compile the
+library for the mips target on the x86 platform:
+\code
     cd $QTDIR
     ./configure -xplatform linux-mips-g++ -platform linux-x86-g++
     make
     mipsel-linux-strip $QTDIR/lib/libqt.so.2.2.0
-</pre>
+\endcode
+
 The library is stripped to conserve ramdisk space.
 
-<h3>Installation</h3>
+\section2 Installation
 
 Compile the application:
-<pre>
+\code
     cd examples/notepad
     make
     mipsel-linux-strip notepad
-</pre>
+\endcode
+
 We have chosen to link the application dynamically.  While this is important
 if we plan to run multiple applications, it is a waste of space in an
 application such as notepad that is supposed to be the only application
 running.  You can link statically by configuring with:
-<pre>
+\code
     ./configure -static -xplatform linux-mips-g++ -platform linux-x86-g++
-</pre>
-<p>
+\endcode
+
 We must install our application and its support files in the ramdisk.  Mount
 the ramdisk using loopback device (you will need loopback device support
 in your kernel):
-<pre>
+\code
     mkdir /mnt/ramdisk
     mount -o loop ~/ramdisk /mnt/ramdisk
-</pre>
+\endcode
 
-Copy the Qt/Embedded library to the ramdisk /lib directory and make the
+Copy the Qt/Embedded library to the ramdisk \c /lib directory and make the
 necessary links:
-<pre>
+\code
     cd /mnt/ramdisk/lib
     cp $QTDIR/lib/libqt.so.2.2.0 .
     ln -s libqt.so.2.2.0 libqt.so.2.2
     ln -s libqt.so.2.2.0 libqt.so.2
-</pre>
+\endcode
 
-The fonts must be installed in /usr/local/qt-embedded/etc/fonts:
-<pre>
+The fonts must be installed in \c /usr/local/qt-embedded/etc/fonts:
+\code
     cd /mnt/ramdisk
     mkdir usr/local
     mkdir usr/local/qt-embedded
     mkdir usr/local/qt-embedded/etc
     mkdir usr/local/qt-embedded/etc/fonts
     cp helvetica_100_50.qlf helvetica_120_50.qlf usr/local/qt-embedded/etc/fonts
-</pre>
+\endcode
 
-When the kernel boots it looks for several files to run.  In order to have
-our application run when the kernel boots, we rename it to /bin/sh.  A /tmp
-directory is also used by Qt/Embedded:
-<pre>
+When the kernel boots it looks for several files to run.  In order to
+have our application run when the kernel boots, we change its name to
+\c /bin/sh.  A \c /tmp directory is also used by Qt/Embedded:
+\code
     cp $QTDIR/examples/notepad/notepad /mnt/ramdisk/bin/sh
     mkdir /mnt/ramdisk/tmp
     umount /mnt/ramdisk
-</pre>
+\endcode
 
 Create a ramdisk object, link it with the kernel, copy it to the compact flash
 and boot Linux.  You should see the calibration screen appear on the LCD

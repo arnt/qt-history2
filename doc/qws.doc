@@ -42,31 +42,31 @@ to be modified for other platforms.
 \list 1
 \i Unpack the archive if you have not done so already
 
-<pre>
-	cd &lt;anywhere&gt;
-	gunzip qt-embedded-<i>version</i>-commercial.tar.gz    # uncompress the archive
-	tar xf qt-embedded-<i>version</i>-commercial.tar       # unpack it
-</pre>
+\code
+    cd <anywhere>;
+    gunzip qt-embedded-VERSION-commercial.tar.gz    # uncompress the archive
+    tar xf qt-embedded-VERSION-commercial.tar       # unpack it
+\endcode
+Replace VERSION with the Qt/Embedded version number throughout.
 
-  This document assumes that the archive is installed as <tt>~/qt-<i>version</i></tt>.
-
+This document assumes that the archive is installed as \c{~/qt-VERSION}. 
 \i Compile the Qt/Embedded library and examples.
 
-<pre>
-	cd ~/qt-<i>version</i>
-	export QTDIR=~/qt-<i>version</i>
-	./configure
-	make
-</pre>
+\code
+    cd ~/qt-VERSION
+    export QTDIR=~/qt-VERSION
+    ./configure
+    make
+\endcode
 
 The configuration system is designed to allow platform-specific options
 to be added, but in general all Linux system which have framebuffer
 support can use the "linux-generic-g++" platform.
 The configuration system also supports cross-compilers:
-to build <i>on</i> Linux/x86 <i>for</i> the Linux/MIPSEL target, you would use:
-<pre>
-	./configure -platform linux-x86-g++ -xplatform linux-mips-g++
-</pre>
+to build \e on Linux/x86 \e for the Linux/MIPSEL target, you would use:
+\code
+    ./configure -platform linux-x86-g++ -xplatform linux-mips-g++
+\endcode
 
 Only a small number of configurations are predefined, all much the same.
 Configurations files are found in \c configs/.
@@ -93,11 +93,11 @@ Configurations files are found in \c configs/.
    The frame buffer must also be enabled with a boot parameter. See
    \c /usr/src/linux/Documentation/fb for details.
 
-   The fbset program, which should be included in Linux distributions,
+   The \c fbset program, which should be included in Linux distributions,
    may be used to switch video modes without rebooting the system. The
    video mode active when the server is started will be used. (8-bit
-   modes are still experimental.) NOTE: fbset does not work with the vesafb
-   driver.
+   modes are still experimental.) <b>Note</b>: \c fbset does not work
+   with the vesafb driver.
 
 \i Change permissions.
 
@@ -112,19 +112,19 @@ Configurations files are found in \c configs/.
 
    Log into a virtual console and do:
 
-<pre>
-	cd ~/qt-<i>version</i>/
-   	./start-demo
-</pre>
+\code
+    cd ~/qt-VERSION/
+    ./start-demo
+\endcode
   
 
 \i Miscellaneous troubleshooting and known bugs.
 
   To kill gpm, run the following command as root:
   
-<pre>
-	gpm -k
-</pre>
+\code
+    gpm -k
+\endcode
 
   In some cases, if the server does not work, it will work when run as root.
 
@@ -132,28 +132,28 @@ Configurations files are found in \c configs/.
 
   Show processes using the framebuffer:
 
-<pre>
+\code
     fuser -v /dev/fb0
-</pre>
+\endcode
 
   Kill such processes:
-<pre>
+\code
     fuser -vk /dev/fb0
-</pre>
+\endcode
   or harsher:
-<pre>
+\code
     fuser -k -KILL /dev/fb0
-</pre>
+\endcode
 
   Show existing semaphores:
-<pre>
+\code
     ipcs            
-</pre>
+\endcode
  
   Remove semaphores:
-<pre>
+\code
     ipcrm
-</pre>
+\endcode
 
   The communication between client and server is done through the
   named pipe \c /tmp/.QtEmbedded; sometimes it may need to be deleted
@@ -162,7 +162,10 @@ Configurations files are found in \c configs/.
 \i Customization.
 
    The Qt/Embedded library can be reduced in size by
-   \link features.html removing unneeded features \endlink.
+   \link features.html removing unnecessary features \endlink.
+
+\endlist
+
 */
 
 /*! \page fonts-qws.html
@@ -173,31 +176,29 @@ Configurations files are found in \c configs/.
 
 Qt/Embedded supports four font formats:
 
-<ul>
- <li><b>TrueType (TTF)</b> - the scalable font technology now standard
+\list
+ \i <b>TrueType (TTF)</b> - the scalable font technology now standard
 	    on MS-Windows and Apple Macintosh, and becoming popular on X11.
- <li><b>Postscript Type1 (PFA/PFB)</b> - scalable fonts often used by printers,
+ \i <b>Postscript Type1 (PFA/PFB)</b> - scalable fonts often used by printers,
 	    also popular on X11. These are similar in functionality to TTF
 	    fonts and are not discussed further in this document.
- <li><b>Bitmap Distribution Format fonts (BDF)</b> - a standard format
+ \i <b>Bitmap Distribution Format fonts (BDF)</b> - a standard format
 	    for non-scalable fonts. A large number of BDF fonts are
 	    supplied as part of standard X11 distributions - most of
-	    these can be used with Qt/Embedded. You should <em>not</em>
+	    these can be used with Qt/Embedded. You should \e not
 	    use these in a production system: they are very slow to
-	    load and take up a <em>lot</em> of storage space. Instead,
+	    load and take up a \e lot of storage space. Instead,
 	    render the BDF to a QPF.
- <li><b>Qt Prerendered Font (QPF)</b> - a light-weight non-scalable font
+ \i <b>Qt Prerendered Font (QPF)</b> - a light-weight non-scalable font
 	    format specific to Qt/Embedded.
-</ul>
+\endlist
 
-Support for each of these font formats,
-except QPF which is always enabled,
-can be enabled or disabled independently by using the
-<a href=features.html>Qt/Embedded Features Definition</a>
-There is support in
-Qt/Embedded for writing a QPF font file from any font, thus you can
-initially enable TTF and BDF formats, save QPF files for the fonts and
-sizes you need, then remove TTF and BDF support.
+Support for each of these font formats, except QPF which is always
+enabled, can be enabled or disabled independently by using the \link
+features.html Qt/Embedded Features Definition\endlink. There is
+support in Qt/Embedded for writing a QPF font file from any font, thus
+you can initially enable TTF and BDF formats, save QPF files for the
+fonts and sizes you need, then remove TTF and BDF support.
 
 See the \c tools/makeqpf for a tool that assists producing QPF files
 from the TTF and BDF, or just run your application with the \c -savefonts
@@ -211,20 +212,20 @@ BDF fonts all characters are rendered when the font is used.
 With QPF fonts, the characters are stored in the same format as Qt uses
 when drawing.
 
-As an example, a 10-point Times font containing the ASCII characters uses
+For example, a 10-point Times font containing the ASCII characters uses
 around 1300 bytes when stored in QPF format.
 
 Taking advantage of the way the QPF format is structured, Qt/Embedded
 memory-maps the data rather than reading and parsing it.
-This reduces the RAM consumption even further.
+This reduces RAM consumption even further.
 
-The scalable fonts use a larger amount of memory per font, but
-these fonts can give a memory saving if many different sizes of each
+Scalable fonts use a larger amount of memory per font, but
+these fonts provide a memory saving if many different sizes of each
 font are needed.
 
 \section1 Smooth Fonts
 
-TTF, PFA, and QPF fonts can be rendered as <i>smooth</i> anti-aliased
+TTF, PFA, and QPF fonts can be rendered as \e{smooth} anti-aliased
 fonts to give superior readability, especially on low-resolution
 devices. The difference between smooth and non-smooth fonts is
 illustrated below (you may need to change your display to low
@@ -289,8 +290,8 @@ If an application is run with the \c -savefonts command-line option,
 then whenever a font other than a QPF font is used, a corresponding QPF file
 is saved. This allows you to easily find the font usage of your applications
 and to generate QPF files so that you can eventually reduce the memory
-usage of your applications by disabling TTF and BDF support from Qt/Embedded.
-option, or by modifying the initialization of \c qws_savefonts in
+usage of your applications by disabling TTF and BDF support from Qt/Embedded,
+or by modifying the initialization of \c qws_savefonts in
 \c kernel/qapplication_qws.cpp of the Qt/Embedded library source code.
 In extreme cases of memory-saving, it is possible to save partially-rendered
 fonts (eg. only the characters in "Product Name<sup>TM</sup>") if you are
@@ -314,42 +315,43 @@ TrueType and Type1 support.
 A Qt/Embedded application requires a master application to be running
 or to be a master application itself.  The
 master application is primarily responsible for managing top-level window
-regions, pointer and keyboard input.
+regions, and pointer and keyboard input.
 
 Any Qt/Embedded application can be a
 master application by constructing the QApplication object with the
-<i>QApplication::GuiServer</i> type, or running the application with the
-<i>-qws</i> command line option.
+\e{QApplication::GuiServer} type, or running the application with the
+\e{-qws} command line option.
 
 This document assumes you have the Linux framebuffer configured correctly
 and no master process is running.  If you do not have a working Linux
 framebuffer you can use the
-<a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>, or you can
-run Qt/Embedded as a <a href="vnc-qws.html">VNC server</a>.
+\link qvfb-qws.html Qt/Embedded virtual framebuffer\endlink, or you can
+run Qt/Embedded as a \link vnc-qws.html VNC server\endlink.
 
-Change to a Linux console and select an example to run, e.g. examples/widgets.
+Change to a Linux console and select an example to run, e.g. \c examples/widgets.
 Make sure $QTDIR is set to the directory where you installed Qt/Embedded
 and add the $QTDIR/lib directory to $LD_LIBRARY_PATH, e.g.:
-<pre>
-export QTDIR=$HOME/qt-<i>version</i>
+\code
+export QTDIR=$HOME/qt-VERSION
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-</pre>
+\endcode
 
-Run the application with the <i>-qws</i> option:
+Run the application with the \e{-qws} option:
 
-<pre>
+\code
 cd $QTDIR/examples/widgets
 ./widgets -qws
-</pre>
+\endcode
 
 You should see the widgets example appear.  If your mouse doesn't work
 correctly you need to specify the type of mouse to use.
-You can exit the master application at any time using ctrl+alt+backspace.
+You can exit the master application at any time using <b>Ctrl+Alt+Backspace</b>.
 
 If you wish to run additional applications you should run them as clients
-i.e. without the <i>-qws</i> option.
+i.e. without the \e{-qws} option.
 
-<h2>Displays</h2>
+\section1 Displays
+
 Qt/Embedded allows multiple displays to be used simultaneously by running
 multiple Qt/Embedded master processes.  This is achieved using the -display
 command line parameter or the $QWS_DISPLAY environment variable.
@@ -364,37 +366,49 @@ for example if you want to use the mach64 driver on fb1 as display 2:
 \endcode
 
 To try this functionality you can do the following:
-<ol>
-<li>Change to VC 1 and run the launcher:<br>
-<tt>$ cd examples/launcher</tt><br>
-<tt>$ ./launcher</tt>
+\list 1
+\i Change to VC 1 and run the launcher:
 
-<li>Switch to VC 2 and run another one:<br>
-<tt>$ cd examples/launcher</tt><br>
-<tt>$ ./launcher -display :1</tt>
+\code
+    $ cd examples/launcher
+    $ ./launcher
+\endcode
+
+\i Switch to VC 2 and run another one:
+
+\code
+    $ cd examples/launcher
+    $ ./launcher -display :1
+\endcode
+
 Another launcher will be started.  Start an application in this launcher.
 
-<li>Press ctrl+alt+F1 - back to display 0.  You can also start additional
+\i Press <b>Ctrl+Alt+F1</b> - back to display 0.  You can also start additional
 applications on a particular display by specifying the display id. Change
-to VC 3:<br>
-<tt>$ cd examples/widgets</tt><br>
-<tt>$ ./widgets -display :1</tt><br>
+to VC 3:
+
+\code
+    $ cd examples/widgets
+    $ ./widgets -display :1
+\endcode
+
 will display the widgets example on dislpay :1 (VC 2).
-</ol>
+\endlist
 
 Only the master process needs to specify the driver/device part explicitly.
 The clients get the information they need from the master when they connect.
 So once you have a master server running using a particular driver, you can
 just use "client -display :n" to use display n.
 
-<h2>Mouse Input</h2>
+\section1 Mouse Input
+
 At the time of writing Qt/Embedded supports MouseMan (default), Microsoft,
 IntelliMouse and some other devices specific to certain hardware (e.g. Vr
 touch panel).  To specify the mouse to use set the $QWS_MOUSE_PROTO environment
 variable, e.g.:
-<pre>
+\code
 export QWS_MOUSE_PROTO=IntelliMouse
-</pre>
+\endcode
 
 \sa \link pointer-qws.html Qt/Embedded Pointer Handling \endlink
 
@@ -426,14 +440,14 @@ using \c #ifdef directives:
 /*! \page pointer-qws.html
 \title Qt/Embedded Pointer Handling
 
-Pointer handling in Qt/Embedded works for any mouse-like device such as
-a touchpanel, a trackball, or real mouse.
+Pointer handling in Qt/Embedded works for any mouse or mouse-like
+device such as touchpanels and trackballs.
 
-In a real device, only a small number of pointer devices (usually one)
-would be supported, but for demonstration purposes, Qt/Embedded includes
-a large number of supported devices.
+Usually only one pointer device is supported in an embedded device,
+but for demonstration purposes, Qt/Embedded includes a large number of
+supported devices.
 
-<h2>Mouse Protocols</h2>
+\section1 Mouse Protocols
 
 Qt/Embedded normally auto-detects the mouse type and device if it is one of
 the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
@@ -441,16 +455,16 @@ serial lines. If multiple mice are detected, all may be used simultaneously.
 
 Alternatively, you may set the environment variable \c QWS_MOUSE_PROTO to
 determine which mouse to use. This environment variable may be set to:
-<blockquote>
-    <i>&lt;protocol&gt;</i><tt>:</tt><i>&lt;device&gt;</i>
-</blockquote>
-where <i>&lt;protocol&gt;</i> is one of:
-<ul>
- <li>MouseMan
- <li>IntelliMouse
- <li>Microsoft
-</ul>
-and <i>&lt;device&gt;</i> is the mouse device, often \c /dev/mouse.
+\quote
+    \e{\<protocol\>}\c{:}\e{\<device\>}
+\endquote
+where \e{\<protocol\>} is one of:
+\list
+ \i MouseMan
+ \i IntelliMouse
+ \i Microsoft
+\endlist
+and \e{\<device\>} is the mouse device, often \c /dev/mouse.
 If no such variable is specified, the built-in default
 is \c Auto, which enables auto-detection of the mouse protocol
 and device.
@@ -458,7 +472,7 @@ and device.
 To add another protocol, new subclasses of QAutoMouseSubHandler or
 QMouseHandler can be written in \c kernel/qwsmouse_qws.cpp.
 
-<h2>Touch Panels</h2>
+\section1 Touch Panels
 
 Qt/Embedded ships with support for the NEC Vr41XX touchpanel
 and the iPAQ touchpanel.
@@ -476,30 +490,28 @@ of options are available that would not be considered in a desktop
 application environment. These options reduce the memory and/or CPU
 requirements at the cost of other factors.
 
-<ul>
- <li><a href=features.html><b>Tuning the functionality of Qt</b></a>
- <li><a href=#general>General programming style</a>
- <li><a href=#static>Static vs. Dynamic linking</a>
- <li><a href=#alloc>Alternative memory allocation</a>
-</ul>
+\list
+ \i \link features.html <b>Tuning the functionality of Qt\endlink
+ \i \link #general General programming style\endlink
+ \i \link #static Static vs. Dynamic linking\endlink
+ \i \link #alloc Alternative memory allocation\endlink
+\endlist
 
-<a name=general>
-<h3>General programming style</h3>
-</a>
+\target general
+\section1 General programming style
 
 The following guidelines will improve CPU performance:
-<ul>
- <li>Create dialogs and widgets once, then QWidget::hide() and
+\list
+ \i Create dialogs and widgets once, then QWidget::hide() and
 	QWidget::show() them, rather than creating them and deleting
 	them every time they are needed.
 	This will use a little more memory, but will be much faster.
 	Try to create them the first time "lazily" to avoid slow startup
 	(only create the Find dialog the first time the user invokes it).
-</ul>
+\endlist
 
-<a name=static>
-<h3>Static vs. Dynamic linking</h3>
-</a>
+\target static
+\section1 Static vs. Dynamic linking
 
 Much CPU and memory is used by the ELF linking process. You can make
 significant savings by using a static build of your application suite.
@@ -520,7 +532,7 @@ you run configure.
 To build your application suite as an all-in-one application, design each
 application as a stand-alone widget or set of widgets, with only minimal
 code in the main() function. Then, write an application that gives
-some way to choose among the applications (eg. a QIconView). The
+some way to switch between the applications (eg. a QIconView). The
 \link http://www.trolltech.com/products/qt/embedded/qpe.html QPE
 \endlink is an example of this. It can be built either as a set of
 dynamically-linked executables, or as a single static application.
@@ -529,9 +541,8 @@ Note that you should generally still link dynamically against the standard
 C library and any other libraries which might be used by other applications
 on your device.
 
-<a name=alloc>
-<h3>Alternative memory allocation</h3>
-</a>
+\target alloc
+\section1 Alternative memory allocation
 
 We have found that the libraries shipped with some C++ compilers on
 some platforms have poor performance in the built-in "new" and "delete"
@@ -585,20 +596,22 @@ and ensure you also enable 16-bit display support. Run your application via:
 \code
     application -display VNC:0
 \endcode
-then, run a VNC client pointed at the machine that is running your application. For
-example, using the X11 VNC client to view the application from the same machine:
+then, run a VNC client pointed at the machine that is running your
+application. For example, using the X11 VNC client to view the
+application from the same machine:
 \code
     vncviewer localhost:0
 \endcode
 
 By default, Qt/Embedded will create a 640 by 480 pixel display. You can change
 this by setting the \c QWS_SIZE environment variable to another size,
-eg. \c QWS_SIZE=240x320.
+e.g. \c QWS_SIZE=240x320.
 
-VNC clients are available for a vast array of display systems - X11, Windows, Amiga,
-DOS, VMS, and dozens of others.
+VNC clients are available for a vast array of display systems - X11,
+Windows, Amiga, DOS, VMS, and dozens of others.
 
 The \link qvfb-qws.html Qt Virtual Framebuffer \endlink is an alternative
 technique. It uses shared memory and thus is much faster and smoother, but
 it does not operate over a network.
+
 */
