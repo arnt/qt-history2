@@ -5019,7 +5019,7 @@ void QCanvasSprite::setSequence(QCanvasPixmapArray* a)
     if ( isvisible && images )
 	hide();
     images = a;
-    if ( frm > (int)images->count() )
+    if ( frm >= (int)images->count() )
 	frm = 0;
     if ( isvisible )
 	show();
