@@ -6,7 +6,7 @@ class MacStyle : public QStylePlugin
 public:
     MacStyle();
 
-    QStringList keys();
+    QStringList keys() const;
     QStyle *create(const QString&);
 };
 
@@ -14,7 +14,7 @@ MacStyle::MacStyle() : QStylePlugin()
 {
 }
 
-QStringList MacStyle::keys()
+QStringList MacStyle::keys() const
 {
     QString mstyle = "Macintosh";
     if(Collection c=NewCollection()) {

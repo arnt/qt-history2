@@ -21,7 +21,7 @@ public:
     QSQLiteDriverPlugin();
 
     QSqlDriver* create(const QString &);
-    QStringList keys();
+    QStringList keys() const;
 };
 
 QSQLiteDriverPlugin::QSQLiteDriverPlugin()
@@ -38,7 +38,7 @@ QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
     return 0;
 }
 
-QStringList QSQLiteDriverPlugin::keys()
+QStringList QSQLiteDriverPlugin::keys() const
 {
     QStringList l;
     l  << "QSQLITE";

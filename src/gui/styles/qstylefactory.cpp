@@ -12,10 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qstyleinterface_p.h" // up here for GCC 2.7.* compatibility
 #include "qstylefactory.h"
-
-#ifndef QT_NO_STYLE
+#include "qstyleplugin.h"
+#include "private/qfactoryloader_p.h"
+#include "qmutex.h"
 
 #include "qapplication.h"
 #include "qwindowsstyle.h"
@@ -37,37 +37,9 @@ QString pstring2qstring(const unsigned char *c); //qglobal.cpp
 #include "qt_mac.h"
 #include "qmacstyle_mac.h"
 #endif
-#include <stdlib.h>
 
-#include <private/qpluginmanager_p.h>
-#ifndef QT_NO_COMPONENT
-class QStyleFactoryPrivate : public QObject
-{
-public:
-    QStyleFactoryPrivate();
-    ~QStyleFactoryPrivate();
-
-    static QPluginManager<QStyleFactoryInterface> *manager;
-};
-
-static QStyleFactoryPrivate *instance = 0;
-QPluginManager<QStyleFactoryInterface> *QStyleFactoryPrivate::manager = 0;
-
-QStyleFactoryPrivate::QStyleFactoryPrivate()
-: QObject(qApp)
-{
-    manager = new QPluginManager<QStyleFactoryInterface>(IID_QStyleFactory, QApplication::libraryPaths(), "/styles", false);
-}
-
-QStyleFactoryPrivate::~QStyleFactoryPrivate()
-{
-    delete manager;
-    manager = 0;
-
-    instance = 0;
-}
-
-#endif //QT_NO_COMPONENT
+Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
+                                 (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles"))
 
 /*!
     \class QStyleFactory qstylefactory.h
@@ -96,8 +68,9 @@ QStyle *QStyleFactory::create(const QString& key)
     QStyle *ret = 0;
     QString style = key.toLower();
 #ifndef QT_NO_STYLE_WINDOWS
-    if (style == "windows")
+    if (style == "windows") {
         ret = new QWindowsStyle;
+    }
     else
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
@@ -145,20 +118,12 @@ QStyle *QStyleFactory::create(const QString& key)
 #endif
     { } // Keep these here - they make the #ifdefery above work
 
-#ifndef QT_NO_COMPONENT
     if(!ret) {
-        if (!instance)
-            instance = new QStyleFactoryPrivate;
-
-        QInterfacePtr<QStyleFactoryInterface> iface;
-        QStyleFactoryPrivate::manager->queryInterface(style, &iface);
-
-        if (iface)
-            ret = iface->create(style);
+        if (QStyleFactoryInterface *factory = qt_cast<QStyleFactoryInterface*>(loader()->instance(style)))
+            ret = factory->create(style);
     }
     if(ret)
-        ret->setObjectName(key.local8Bit());
-#endif
+        ret->setObjectName(style);
     return ret;
 }
 
@@ -169,13 +134,7 @@ QStyle *QStyleFactory::create(const QString& key)
 */
 QStringList QStyleFactory::keys()
 {
-    QStringList list;
-#ifndef QT_NO_COMPONENT
-    if (!instance)
-        instance = new QStyleFactoryPrivate;
-
-    list = QStyleFactoryPrivate::manager->featureList();
-#endif //QT_NO_COMPONENT
+    QStringList list = loader()->keys();
 
 #ifndef QT_NO_STYLE_WINDOWS
     if (!list.contains("Windows"))
@@ -226,4 +185,3 @@ QStringList QStyleFactory::keys()
 
     return list;
 }
-#endif // QT_NO_STYLE

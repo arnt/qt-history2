@@ -15,7 +15,7 @@ class PNGFormat : public QImageFormatPlugin
 public:
     PNGFormat();
 
-    QStringList keys();
+    QStringList keys() const;
     bool loadImage(const QString &format, const QString &filename, QImage *);
     bool saveImage(const QString &format, const QString &filename, const QImage&);
     bool installIOHandler(const QString &);
@@ -26,7 +26,7 @@ PNGFormat::PNGFormat()
 }
 
 
-QStringList PNGFormat::keys()
+QStringList PNGFormat::keys() const
 {
     QStringList list;
     list << "PNG";

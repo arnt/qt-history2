@@ -50,10 +50,16 @@
 #include "qcoreapplication.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
-#include "qsqldriverinterface_p.h"
-#include "private/qpluginmanager_p.h"
+#include "qsqldriverplugin.h"
+#include "private/qfactoryloader_p.h"
 #include "private/qsqlnulldriver_p.h"
+#include "qmutex.h"
+#include "qhash.h"
 #include <stdlib.h>
+
+
+Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
+                                 (QSqlDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/sqldrivers"))
 
 const char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
@@ -65,9 +71,6 @@ class QSqlDatabasePrivate
 public:
     QSqlDatabasePrivate(QSqlDriver *dr = 0):
         driver(dr),
-#ifndef QT_NO_COMPONENT
-        plugIns(0),
-#endif
         port(-1)
     {
         ref = 1;
@@ -80,9 +83,6 @@ public:
 
     QAtomic ref;
     QSqlDriver* driver;
-#ifndef QT_NO_COMPONENT
-    QPluginManager<QSqlDriverFactoryInterface> *plugIns;
-#endif
     QString dbname;
     QString uname;
     QString pword;
@@ -111,18 +111,12 @@ QSqlDatabasePrivate::QSqlDatabasePrivate(const QSqlDatabasePrivate &other)
     port = other.port;
     connOptions = other.connOptions;
     driver = other.driver;
-#ifndef QT_NO_COMPONENT
-    plugIns = other.plugIns;
-#endif
 }
 
 QSqlDatabasePrivate::~QSqlDatabasePrivate()
 {
     if (driver != shared_null()->driver) {
         delete driver;
-#ifndef QT_NO_COMPONENT
-        delete plugIns;
-#endif
     }
 }
 
@@ -357,17 +351,7 @@ void QSqlDatabase::removeDatabase(const QString& connectionName)
 
 QStringList QSqlDatabase::drivers()
 {
-    QStringList l;
-
-#ifndef QT_NO_COMPONENT
-    QPluginManager<QSqlDriverFactoryInterface> *plugIns;
-    plugIns = new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory,
-                    QCoreApplication::libraryPaths(), "/sqldrivers");
-
-    l = plugIns->featureList();
-    delete plugIns;
-#endif
-
+    QStringList l = loader()->keys();
     DriverDict dict = QSqlDatabasePrivate::driverDict();
     for (DriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
         if (!l.contains(itd.key()))
@@ -583,17 +567,10 @@ void QSqlDatabasePrivate::init(const QString& type)
         }
     }
 
-#ifndef QT_NO_COMPONENT
     if (!driver) {
-        plugIns = new QPluginManager<QSqlDriverFactoryInterface>(IID_QSqlDriverFactory,
-                            QCoreApplication::libraryPaths(), "/sqldrivers");
-
-        QInterfacePtr<QSqlDriverFactoryInterface> iface = 0;
-        plugIns->queryInterface(type, &iface);
-        if(iface)
-            driver = iface->create(type);
+        if (QSqlDriverFactoryInterface *factory = qt_cast<QSqlDriverFactoryInterface*>(loader()->instance(type)))
+            driver = factory->create(type);
     }
-#endif
 
     if (!driver) {
 

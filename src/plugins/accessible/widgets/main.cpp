@@ -15,7 +15,7 @@ class AccessibleFactory : public QAccessiblePlugin, QAccessible
 public:
     AccessibleFactory();
 
-    QStringList keys();
+    QStringList keys() const;
     QAccessibleInterface *create(const QString &classname, QObject *object);
 };
 
@@ -23,7 +23,7 @@ AccessibleFactory::AccessibleFactory()
 {
 }
 
-QStringList AccessibleFactory::keys()
+QStringList AccessibleFactory::keys() const
 {
     QStringList list;
     list << "QLineEdit";

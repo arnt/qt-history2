@@ -18,7 +18,8 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qmap.h>
-#include "q4library_p.h"
+#include <qstringlist.h>
+#include "qlibrary_p.h"
 #endif // QT_H
 
 class QFactoryLoader : public QObject
@@ -32,11 +33,12 @@ public:
     ~QFactoryLoader();
 
     QStringList keys() const;
-    void *create(const QString &key) const;
+    QObject *instance(const QString &key) const;
 
 private:
-    QList<Q4LibraryPrivate*> libraryList;
-    QMap<QString,Q4LibraryPrivate*> keyMap;
+    QList<QLibraryPrivate*> libraryList;
+    QMap<QString,QLibraryPrivate*> keyMap;
+    QStringList keyList;
 };
 
 #endif // QFACTORYLOADER_P_H

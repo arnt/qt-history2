@@ -6,7 +6,7 @@ class GfxShadowFbDriver : public QGfxDriverPlugin
 public:
     GfxShadowFbDriver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxShadowFbDriver::GfxShadowFbDriver()
 {
 }
 
-QStringList GfxShadowFbDriver::keys()
+QStringList GfxShadowFbDriver::keys() const
 {
     QStringList list;
     list << "ShadowFb";

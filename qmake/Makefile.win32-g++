@@ -40,8 +40,6 @@ QTOBJS= \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
-	qlibrary.o \
-	qlibrary_win.o \
 	qlist.o \
 	qlocale.o \
 	qmap.o \
@@ -74,12 +72,6 @@ distclean:: clean
 qconfig.o: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
-qlibrary.o: ..\src\core\library\qlibrary.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary.cpp
-
-qlibrary_win.o: ..\src\core\library\qlibrary_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary_win.cpp
-
 qtextstream.o: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp
 
@@ -104,8 +96,8 @@ qstring.o: ..\src\core\tools\qstring.cpp
 qlocale.o: ..\src\core\tools\qlocale.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlocale.cpp
 
-quuid.o: ..\src\core\library\quuid.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\quuid.cpp
+quuid.o: ..\src\core\plugin\quuid.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\plugin\quuid.cpp
 
 qdatastream.o: ..\src\core\io\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp

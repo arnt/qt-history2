@@ -16,13 +16,18 @@
 #define QACCESSIBLE_H
 
 #ifndef QT_H
+#include "qglobal.h"
+#endif
+
+#ifndef QT_NO_ACCESSIBILITY
+
+#ifndef QT_H
 #include "qrect.h"
 #include "qvector.h"
 #include <private/qcom_p.h>
 #include "qvariant.h"
 #endif // QT_H
 
-#ifndef QT_NO_ACCESSIBILITY
 
 struct QAccessibleInterface;
 

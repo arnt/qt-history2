@@ -6,7 +6,7 @@ class GfxTransformedDriver : public QGfxDriverPlugin
 public:
     GfxTransformedDriver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxTransformedDriver::GfxTransformedDriver()
 {
 }
 
-QStringList GfxTransformedDriver::keys()
+QStringList GfxTransformedDriver::keys() const
 {
     QStringList list;
     list << "Transformed";

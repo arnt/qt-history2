@@ -16,7 +16,7 @@ class MNGFormat : public QImageFormatPlugin
 public:
     MNGFormat();
 
-    QStringList keys();
+    QStringList keys() const;
     bool loadImage(const QString &format, const QString &filename, QImage *image);
     bool saveImage(const QString &format, const QString &filename, const QImage &image);
     bool installIOHandler(const QString &);
@@ -27,7 +27,7 @@ MNGFormat::MNGFormat()
 }
 
 
-QStringList MNGFormat::keys()
+QStringList MNGFormat::keys() const
 {
     QStringList list;
     list << "MNG";

@@ -6,7 +6,7 @@ class GfxMatroxDriver : public QGfxDriverPlugin
 public:
     GfxMatroxDriver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxMatroxDriver::GfxMatroxDriver()
 {
 }
 
-QStringList GfxMatroxDriver::keys()
+QStringList GfxMatroxDriver::keys() const
 {
     QStringList list;
     list << "Matrox";

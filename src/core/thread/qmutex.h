@@ -19,6 +19,8 @@
 #include "qglobal.h"
 #endif // QT_H
 
+typedef void *QStaticMutex;
+
 #ifndef QT_NO_THREAD
 
 class QMutexPrivate;
@@ -29,7 +31,7 @@ class Q_CORE_EXPORT QMutex
     friend class QWaitConditionPrivate;
 
 public:
-    QMutex(bool recursive = false);
+    QMutex(bool recursive = true);
     ~QMutex();
 
     void lock();
@@ -63,6 +65,7 @@ public:
     inline QMutexLocker(QMutex *m)
         : mtx(m)
     { relock(); }
+    QMutexLocker(QStaticMutex &m);
     inline ~QMutexLocker()
     { unlock(); }
 
@@ -129,5 +132,14 @@ private:
 };
 
 #endif // QT_NO_THREAD
+
+class Q_CORE_EXPORT QStaticLocker : public QMutexLocker
+{
+    static QStaticMutex staticLocker;
+public:
+    inline QStaticLocker()
+        :QMutexLocker(staticLocker){}
+};
+
 
 #endif // QMUTEX_H

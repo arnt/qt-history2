@@ -14,87 +14,27 @@
 
 #include "qtextcodecfactory.h"
 
-#ifndef QT_NO_TEXTCODEC
-
-#ifndef QT_NO_COMPONENT
 #include "qcoreapplication.h"
-#include "qcleanuphandler.h"
-#include <private/qpluginmanager_p.h>
-#include "qtextcodecinterface_p.h"
+#include "qtextcodecplugin.h"
+#include "private/qfactoryloader_p.h"
+#include "qmutex.h"
 
-#include <private/qmutexpool_p.h>
-
-#include <stdlib.h>
-
-
-static QPluginManager<QTextCodecFactoryInterface> *manager = 0;
-static QSingleCleanupHandler< QPluginManager<QTextCodecFactoryInterface> > cleanup_manager;
-
-static void create_manager()
-{
-    if (manager) // already created
-        return;
-
-    // protect manager creation
-    QMutexLocker locker(qt_global_mutexpool ?
-                         qt_global_mutexpool->get(&manager) : 0);
-
-    // we check the manager pointer again to make sure that another thread
-    // has not created the manager before us.
-
-    if (manager) // already created
-        return;
-
-    manager =
-        new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
-                                                       QCoreApplication::libraryPaths(), "/codecs",
-                                                       false);
-    cleanup_manager.set(&manager);
-}
-
-#endif // QT_NO_COMPONENT
-
+Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
+                                 (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), "/codecs"))
 
 QTextCodec *QTextCodecFactory::createForName(const QString &name)
 {
-    QTextCodec *codec = 0;
-
-#ifndef QT_NO_COMPONENT
-
-    // make sure the manager is created
-    create_manager();
-
-    QInterfacePtr<QTextCodecFactoryInterface> iface;
-    manager->queryInterface(name, &iface);
-
-    if (iface)
-        codec = iface->createForName(name);
-
-#endif // QT_NO_COMPONENT
-
-    return codec;
+    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+        return factory->create(name);
+    return 0;
 }
-
 
 QTextCodec *QTextCodecFactory::createForMib(int mib)
 {
-    QTextCodec *codec = 0;
-
-#ifndef QT_NO_COMPONENT
-
-    // make sure the manager is created
-    create_manager();
-
-    QInterfacePtr<QTextCodecFactoryInterface> iface;
-    manager->queryInterface("MIB-" + QString::number(mib), &iface);
-
-    if (iface)
-        codec = iface->createForMib(mib);
-
-#endif // QT_NO_COMPONENT
-
-    return codec;
+    QString name = "MIB-" + QString::number(mib);
+    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+        return factory->create(name);
+    return 0;
 }
 
 
-#endif // QT_NO_TEXTCODEC

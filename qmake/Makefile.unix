@@ -25,7 +25,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/core/io/qbuffer.cpp \
 	   @SOURCE_PATH@/src/core/io/qfsfileengine_unix.cpp @SOURCE_PATH@/src/core/io/qfileengine_unix.cpp \
 	   @SOURCE_PATH@/src/core/tools/qvector.cpp @SOURCE_PATH@/src/core/tools/qbitarray.cpp \
-	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/library/quuid.cpp \
+	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/plugin/quuid.cpp \
 	   @SOURCE_PATH@/src/core/io/qfsfileinfoengine_unix.cpp @SOURCE_PATH@/src/core/io/qfileinfoengine_unix.cpp \
 	   @SOURCE_PATH@/src/core/io/qfsdirengine_unix.cpp @SOURCE_PATH@/src/core/io/qdirengine_unix.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo.cpp @SOURCE_PATH@/src/core/tools/qdatetime.cpp \
@@ -151,8 +151,8 @@ qbitarray.o: @SOURCE_PATH@/src/core/tools/qbitarray.cpp
 qdir.o: @SOURCE_PATH@/src/core/io/qdir.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qdir.cpp
 
-quuid.o: @SOURCE_PATH@/src/core/library/quuid.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/library/quuid.cpp
+quuid.o: @SOURCE_PATH@/src/core/plugin/quuid.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/plugin/quuid.cpp
 
 qfileinfo.o: @SOURCE_PATH@/src/core/io/qfileinfo.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qfileinfo.cpp

@@ -56,7 +56,6 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qtoolbutton.h \
 	widgets/qvalidator.h \
 	widgets/qvbox.h \
-	widgets/qwidgetinterface_p.h \
 	widgets/qwidgetplugin.h \
         widgets/qrubberband.h \
 	widgets/qworkspace.h

@@ -16,20 +16,25 @@
 #define QTEXTCODECPLUGIN_H
 
 #ifndef QT_H
-#include "qgplugin.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
-#ifndef QT_NO_TEXTCODECPLUGIN
 class QTextCodec;
-class QTextCodecPluginPrivate;
-class QStringList;
-template <typename T> class QList;
 
-class Q_CORE_EXPORT QTextCodecPlugin : public QGPlugin
+struct Q_CORE_EXPORT QTextCodecFactoryInterface : public QFactoryInterface
+{
+    virtual QTextCodec *create(const QString &key) = 0;
+};
+
+Q_DECLARE_INTERFACE(QTextCodecFactoryInterface, "http://trolltech.com/Qt/QTextCodecFactoryInterface")
+
+class Q_CORE_EXPORT QTextCodecPlugin : public QObject, public QTextCodecFactoryInterface
 {
     Q_OBJECT
+    Q_INTERFACES(QTextCodecFactoryInterface:QFactoryInterface)
 public:
-    QTextCodecPlugin();
+    QTextCodecPlugin(QObject *parent = 0);
     ~QTextCodecPlugin();
 
     virtual QStringList names() const = 0;
@@ -39,7 +44,8 @@ public:
     virtual QTextCodec *createForMib(int mib) = 0;
 
 private:
-    QTextCodecPluginPrivate *d;
+    QStringList keys() const;
+    QTextCodec *create(const QString &name);
 };
-#endif // QT_NO_TEXTCODECPLUGIN
+
 #endif // QTEXTCODECPLUGIN_H

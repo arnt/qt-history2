@@ -15,7 +15,7 @@ class JPEGFormat : public QImageFormatPlugin
 public:
     JPEGFormat();
 
-    QStringList keys();
+    QStringList keys() const;
     bool loadImage(const QString &format, const QString &filename, QImage *);
     bool saveImage(const QString &format, const QString &filename, const QImage &);
     bool installIOHandler(const QString &);
@@ -26,7 +26,7 @@ JPEGFormat::JPEGFormat()
 }
 
 
-QStringList JPEGFormat::keys()
+QStringList JPEGFormat::keys() const
 {
     QStringList list;
     list << "JPEG";

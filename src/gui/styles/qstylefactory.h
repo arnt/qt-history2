@@ -17,9 +17,6 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE
-
-class QString;
 class QStyle;
 
 class Q_GUI_EXPORT QStyleFactory
@@ -28,7 +25,5 @@ public:
     static QStringList keys();
     static QStyle *create(const QString&);
 };
-
-#endif //QT_NO_STYLE
 
 #endif //QSTYLEFACTORY_H

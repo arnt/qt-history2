@@ -16,31 +16,29 @@
 #define QSTYLEPLUGIN_H
 
 #ifndef QT_H
-#include "qgplugin.h"
-#include "qstringlist.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE
-#ifndef QT_NO_COMPONENT
-
 class QStyle;
-class QStylePluginPrivate;
 
-class Q_GUI_EXPORT QStylePlugin : public QGPlugin
+struct Q_GUI_EXPORT QStyleFactoryInterface : public QFactoryInterface
 {
-    Q_OBJECT
-public:
-    QStylePlugin();
-    ~QStylePlugin();
-
-    virtual QStringList keys() = 0;
     virtual QStyle *create(const QString &key) = 0;
-
-private:
-    QStylePluginPrivate *d;
 };
 
-#endif // QT_NO_COMPONENT
-#endif // QT_NO_STYLE
+Q_DECLARE_INTERFACE(QStyleFactoryInterface, "http://trolltech.com/Qt/QStyleFactoryInterface")
+
+class Q_GUI_EXPORT QStylePlugin : public QObject, public QStyleFactoryInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QStyleFactoryInterface:QFactoryInterface)
+public:
+    QStylePlugin(QObject *parent = 0);
+    ~QStylePlugin();
+
+    virtual QStringList keys() const = 0;
+    virtual QStyle *create(const QString &key) = 0;
+};
 
 #endif // QSTYLEPLUGIN_H

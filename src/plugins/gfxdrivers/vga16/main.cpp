@@ -6,7 +6,7 @@ class GfxVga16Driver : public QGfxDriverPlugin
 public:
     GfxVga16Driver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxVga16Driver::GfxVga16Driver()
 {
 }
 
-QStringList GfxVga16Driver::keys()
+QStringList GfxVga16Driver::keys() const
 {
     QStringList list;
     list << "VGA16";

@@ -13,8 +13,7 @@
 ****************************************************************************/
 
 #include "qtextcodecplugin.h"
-#ifndef QT_NO_TEXTCODECPLUGIN
-#include "qtextcodecinterface_p.h"
+#include "qstringlist.h"
 
 /*!
     \class QTextCodecPlugin qtextcodecplugin.h
@@ -74,87 +73,37 @@
     \sa mibEnums()
 */
 
-
-
-class QTextCodecPluginPrivate : public QTextCodecFactoryInterface
-{
-public:
-    QTextCodecPluginPrivate(QTextCodecPlugin *p)
-        : plugin(p)
-    {
-    }
-    virtual ~QTextCodecPluginPrivate();
-
-    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-    QTextCodec *createForMib(int mib);
-    QTextCodec *createForName(const QString &name);
-
-private:
-    QTextCodecPlugin *plugin;
-};
-
-QTextCodecPluginPrivate::~QTextCodecPluginPrivate()
-{
-    delete plugin;
-}
-
-QRESULT QTextCodecPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (iid == IID_QUnknown)
-        *iface = this;
-    else if (iid == IID_QFeatureList)
-        *iface = this;
-    else if (iid == IID_QTextCodecFactory)
-        *iface = this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList QTextCodecPluginPrivate::featureList() const
-{
-    QStringList keys = plugin->names();
-    QList<int> mibs = plugin->mibEnums();
-    for (QList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it)
-        keys += QString("MIB-%1").arg(*it);
-    return keys;
-}
-
-QTextCodec *QTextCodecPluginPrivate::createForMib(int mib)
-{
-    return plugin->createForMib(mib);
-}
-
-QTextCodec *QTextCodecPluginPrivate::createForName(const QString &name)
-{
-    return plugin->createForName(name);
-}
-
-
 /*!
     Constructs a text codec plugin. This is invoked automatically by
     the \c Q_EXPORT_PLUGIN macro.
 */
-QTextCodecPlugin::QTextCodecPlugin()
-    : QGPlugin(d = new QTextCodecPluginPrivate(this))
+QTextCodecPlugin::QTextCodecPlugin(QObject *parent)
+    :QObject(parent)
 {
 }
 
 /*!
     Destroys the text codec plugin.
-
-    You never have to call this explicitly. Qt destroys a plugin
-    automatically when it is no longer used.
 */
 QTextCodecPlugin::~QTextCodecPlugin()
 {
 }
 
-#endif // QT_NO_TEXTCODECPLUGIN
+QStringList QTextCodecPlugin::keys() const
+{
+    QStringList keys = names();
+    QList<int> mibs = mibEnums();
+    for (int i = 0; i < mibs.count(); ++i)
+        keys += "MIB-" + QString::number(mibs.at(i));
+    return keys;
+}
+
+QTextCodec *QTextCodecPlugin::create(const QString &name)
+{
+    if (name.startsWith("MIB-"))
+        return createForMib(name.mid(4).toInt());
+    return createForName(name);
+}
+
+
+

@@ -6,7 +6,7 @@ class PlatinumStyle : public QStylePlugin
 public:
     PlatinumStyle();
 
-    QStringList keys();
+    QStringList keys() const;
     QStyle *create(const QString&);
 };
 
@@ -15,7 +15,7 @@ PlatinumStyle::PlatinumStyle()
 {
 }
 
-QStringList PlatinumStyle::keys()
+QStringList PlatinumStyle::keys() const
 {
     QStringList list;
     list << "Platinum";

@@ -6,7 +6,7 @@ class GfxMach64Driver : public QGfxDriverPlugin
 public:
     GfxMach64Driver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxMach64Driver::GfxMach64Driver()
 {
 }
 
-QStringList GfxMach64Driver::keys()
+QStringList GfxMach64Driver::keys() const
 {
     QStringList list;
     list << "Mach64";

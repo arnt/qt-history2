@@ -16,31 +16,33 @@
 #define QSQLDRIVERPLUGIN_H
 
 #ifndef QT_H
-#include "qgplugin.h"
-#include "qstringlist.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
-#ifndef QT_NO_COMPONENT
-
 class QSqlDriver;
-class QSqlDriverPluginPrivate;
 
-class Q_SQL_EXPORT QSqlDriverPlugin : public QGPlugin
+struct Q_SQL_EXPORT QSqlDriverFactoryInterface : public QFactoryInterface
 {
-    Q_OBJECT
-public:
-    QSqlDriverPlugin();
-    ~QSqlDriverPlugin();
-
-    virtual QStringList keys() = 0;
-    virtual QSqlDriver *create(const QString &key) = 0;
-
-private:
-    QSqlDriverPluginPrivate *d;
+    virtual QSqlDriver* create(const QString& name) = 0;
 };
 
-#endif // QT_NO_COMPONENT
+Q_DECLARE_INTERFACE(QSqlDriverFactoryInterface, "http://trolltech.com/Qt/QSqlDriverFactoryInterface")
+
+class Q_SQL_EXPORT QSqlDriverPlugin : public QObject, public QSqlDriverFactoryInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QSqlDriverFactoryInterface:QFactoryInterface)
+public:
+    QSqlDriverPlugin(QObject *parent = 0);
+    ~QSqlDriverPlugin();
+
+    virtual QStringList keys() const = 0;
+    virtual QSqlDriver *create(const QString &key) = 0;
+
+};
+
 #endif // QT_NO_SQL
 
 #endif // QSQLDRIVERPLUGIN_H

@@ -3,7 +3,6 @@
 HEADERS += \
 	styles/qstyle.h \
 	styles/qstylefactory.h \
-	styles/qstyleinterface_p.h \
 	styles/qstyleoption.h \
 	styles/qstyleplugin.h \
 	styles/qcommonstyle.h

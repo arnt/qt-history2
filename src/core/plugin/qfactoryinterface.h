@@ -19,8 +19,7 @@
 
 struct QFactoryInterface
 {
-    virtual QStringList keys() = 0;
-    virtual void *create(const QString &key) = 0;
+    virtual QStringList keys() const = 0;
 };
 
 Q_DECLARE_INTERFACE(QFactoryInterface, "http://trolltech.com/Qt/QFactoryInterface")

@@ -12,7 +12,7 @@ include(global/global.pri)
 include(thread/thread.pri)
 include(tools/tools.pri)
 include(io/io.pri)
-include(library/library.pri)
+include(plugin/plugin.pri)
 include(kernel/kernel.pri)
 include(codecs/codecs.pri)
 

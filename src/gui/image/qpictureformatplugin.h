@@ -16,21 +16,33 @@
 #define QPICTUREFORMATPLUGIN_H
 
 #ifndef QT_H
-#include "qgplugin.h"
+#include "qplugin.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
 
-#ifndef QT_NO_PICTUREFORMATPLUGIN
-class QPictureFormatPluginPrivate;
 class QPicture;
 class QImage;
 class QString;
 class QStringList;
 
-class Q_GUI_EXPORT QPictureFormatPlugin : public QGPlugin
+struct Q_GUI_EXPORT QPictureFormatInterface : public QFactoryInterface
+{
+    virtual bool loadPicture(const QString &format, const QString &filename, QPicture *) = 0;
+    virtual bool savePicture(const QString &format, const QString &filename, const QPicture &) = 0;
+
+    virtual bool installIOHandler(const QString &) = 0;
+};
+
+Q_DECLARE_INTERFACE(QPictureFormatInterface, "http://trolltech.com/Qt/QPictureFormatInterface")
+
+
+#ifndef QT_NO_PICTUREFORMATPLUGIN
+class Q_GUI_EXPORT QPictureFormatPlugin : public QObject, public QPictureFormatInterface
 {
     Q_OBJECT
+    Q_INTERFACES(QPictureFormatInterface:QFactoryInterface)
 public:
-    QPictureFormatPlugin();
+    QPictureFormatPlugin(QObject *parent = 0);
     ~QPictureFormatPlugin();
 
     virtual QStringList keys() const = 0;
@@ -38,8 +50,6 @@ public:
     virtual bool savePicture(const QString &format, const QString &filename, const QPicture &pic);
     virtual bool installIOHandler(const QString &format) = 0;
 
-private:
-    QPictureFormatPluginPrivate *d;
 };
-#endif // QT_NO_IMAGEFORMATPLUGIN
+#endif // QT_NO_PICTUREFORMATPLUGIN
 #endif // QIMAGEFORMATPLUGIN_H

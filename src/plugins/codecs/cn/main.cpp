@@ -11,7 +11,7 @@ class CNTextCodecs : public QTextCodecPlugin
 public:
     CNTextCodecs() {}
 
-    QStringList names() const { return QStringList() << "GB18030" << "GBK" << "gb2312.1980-0" << "gbk-0"; }
+    QStringList names() const  { return QStringList() << "GB18030" << "GBK" << "gb2312.1980-0" << "gbk-0"; }
     QList<int> mibEnums() const { return QList<int>() << -2025 << 57 << 2025; }
 
     QTextCodec *createForMib(int);

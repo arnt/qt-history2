@@ -24,6 +24,8 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qregion.h"
+#include "qmutex.h"
+#include "private/qfactoryloader_p.h"
 
 /*!
     \class QPicture qpicture.h
@@ -1204,8 +1206,8 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
 #ifndef QT_NO_PICTUREIO
 #include "qregexp.h"
 #include "qapplication.h"
-#include "qpictureformatinterface_p.h"
-#include "private/qpluginmanager_p.h"
+#include "qpictureformatplugin.h"
+#include "private/qfactoryloader_p.h"
 #include "qfile.h"
 
 /*!
@@ -1436,31 +1438,19 @@ QPictureHandler::QPictureHandler(const char *f, const char *h, const QByteArray&
 
 typedef QList<QPictureHandler *> QPHList;
 static QPHList pictureHandlers;
-#ifndef QT_NO_COMPONENT
-static QPluginManager<QPictureFormatInterface> *plugin_manager = 0;
-#else
-static void *plugin_manager = 0;
-#endif
 
 void qt_init_picture_plugins()
 {
-#ifndef QT_NO_COMPONENT
-    if (plugin_manager)
+    QStaticLocker locker;
+    static bool loaded = false;
+    if (loaded)
         return;
-
-    plugin_manager = new QPluginManager<QPictureFormatInterface>(IID_QPictureFormat, QApplication::libraryPaths(), "/pictureformats");
-
-    QStringList features = plugin_manager->featureList();
-    QStringList::Iterator it = features.begin();
-    while (it != features.end()) {
-        QString str = *it;
-        ++it;
-        QInterfacePtr<QPictureFormatInterface> iface;
-        plugin_manager->queryInterface(str, &iface);
-        if (iface)
-            iface->installIOHandler(str);
-    }
-#endif
+    loaded = true;
+    static QFactoryLoader loader(QPictureFormatInterface_iid, QCoreApplication::libraryPaths(), "/pictureformats");
+    QStringList keys = loader.keys();
+    for (int i = 0; i < keys.count(); ++i)
+        if (QPictureFormatInterface *format = qt_cast<QPictureFormatInterface*>(loader.instance(keys.at(i))))
+            format->installIOHandler(keys.at(i));
 }
 
 static void cleanup()
@@ -1468,10 +1458,6 @@ static void cleanup()
     // make sure that picture handlers are delete before plugin manager
     while (!pictureHandlers.isEmpty())
         delete pictureHandlers.takeFirst();
-#ifndef QT_NO_COMPONENT
-    delete plugin_manager;
-    plugin_manager = 0;
-#endif
 }
 
 void qt_init_picture_handlers()                // initialize picture handlers
@@ -1983,10 +1969,6 @@ bool QPictureIO::write()
     if (d->frmt.isEmpty())
         return false;
     QPictureHandler *h = get_picture_handler(d->frmt);
-    if (!h && !plugin_manager) {
-        qt_init_picture_plugins();
-        h = get_picture_handler(d->frmt);
-    }
     if (!h || !h->write_picture) {
         qWarning("QPictureIO::write: No such picture format handler: %s",
                  format());

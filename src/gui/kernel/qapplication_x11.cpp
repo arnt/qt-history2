@@ -2074,8 +2074,7 @@ void QApplication::x11_initialize_style()
         if (data) XFree((char *)data);
         // kwin is there. check if KDE's styles are available,
         // otherwise use windows style
-        if ((app_style = QStyleFactory::create("highcolor")) == 0)
-            app_style = QStyleFactory::create("windows");
+        app_style = QStyleFactory::create("windows");
     }
     if (!app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),

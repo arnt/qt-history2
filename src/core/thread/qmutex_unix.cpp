@@ -124,9 +124,9 @@
 
 /*!
     Constructs a new mutex. The mutex is created in an unlocked state.
-    A recursive mutex is created if \a recursive is true; a normal
-    mutex is created if \a recursive is false (the default). With a
-    recursive mutex, a thread can lock the same mutex multiple times
+    A recursive mutex is created if \a recursive is true (the
+    default); a normal mutex is created if \a recursive is false. With
+    a recursive mutex, a thread can lock the same mutex multiple times
     and it will not be unlocked until a corresponding number of
     unlock() calls have been made.
 */

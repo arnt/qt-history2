@@ -18,7 +18,7 @@
 #include <qstringlist.h>
 #include <qfile.h>
 #include <qdir.h>
-#include <private/qspinlock_p.h>
+#include <qmutex.h>
 #include <qmap.h>
 #include <qsettings.h>
 #ifdef Q_OS_MAC
@@ -325,8 +325,6 @@ static bool qt_unix_query(const QString &library, uint *version, QByteArray *key
 typedef QMap<QString, QLibraryPrivate*> LibraryMap;
 Q_GLOBAL_STATIC(LibraryMap, libraryMap)
 
-static QStaticSpinLock libraryMapLock = 0;
-
 QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
     :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0), pluginState(MightBeAPlugin)
 {
@@ -337,7 +335,7 @@ QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
 
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
 {
-    QSpinLockLocker locker(libraryMapLock);
+    QStaticLocker locker;
     if (QLibraryPrivate *lib = libraryMap()->value(canonicalFileName)) {
         ++lib->libraryUnloadCount;
         ++lib->libraryRefCount;
@@ -348,7 +346,7 @@ QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
 
 QLibraryPrivate::~QLibraryPrivate()
 {
-    QSpinLockLocker locker(libraryMapLock);
+    QStaticLocker locker;
     QLibraryPrivate *that = libraryMap()->take(fileName);
     Q_ASSERT(this == that);
 }

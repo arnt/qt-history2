@@ -15,6 +15,7 @@
 #include <qdir.h>
 #include <qdebug.h>
 #include <qsettings.h>
+#include "qmutex.h"
 #include "qfactoryinterface.h"
 #include "qfactoryloader_p.h"
 
@@ -40,10 +41,10 @@ QFactoryLoader::QFactoryLoader(const char *iid,
         if (!QDir(path).exists(".", true))
             continue;
         QStringList plugins = QDir(path).entryList(filters);
-        Q4LibraryPrivate *library = 0;
+        QLibraryPrivate *library = 0;
         for (int j = 0; j < plugins.count(); ++j) {
             QString fileName = QDir::cleanDirPath(path + "/" + plugins.at(j));
-            library = Q4LibraryPrivate::findOrCreate(QDir(fileName).canonicalPath());
+            library = QLibraryPrivate::findOrCreate(QDir(fileName).canonicalPath());
             if (!library->isPlugin()) {
                 library->release();
                 continue;
@@ -81,9 +82,12 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                     // library was built with a future Qt version,
                     // whereas the new one has a Qt version that fits
                     // better
-                    Q4LibraryPrivate *previous = keyMap.value(keys.at(k));
-                    if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION))
-                        keyMap[keys.at(k)] = library;
+                    QString key = keys.at(k).toLower();
+                    QLibraryPrivate *previous = keyMap.value(key);
+                    if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION)) {
+                        keyMap[key] = library;
+                        keyList += keys.at(k);
+                    }
                 }
             } else {
                 qWarning("In %s:\n Plugin does not implement factory interface %s", QFile::encodeName(fileName).constData(), iid);
@@ -101,14 +105,14 @@ QFactoryLoader::~QFactoryLoader()
 
 QStringList QFactoryLoader::keys() const
 {
-    return keyMap.keys();
+    return keyList;
 }
 
-void *QFactoryLoader::create(const QString &key) const
+QObject *QFactoryLoader::instance(const QString &key) const
 {
-    if (Q4LibraryPrivate* library = keyMap.value(key))
+    QStaticLocker locker;
+    if (QLibraryPrivate* library = keyMap.value(key))
         if (library->instance || library->loadPlugin())
-            if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(library->instance()))
-                return factory->create(key);
+            return library->instance();
     return 0;
 }

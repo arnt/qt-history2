@@ -6,7 +6,7 @@ class GfxVncDriver : public QGfxDriverPlugin
 public:
     GfxVncDriver();
 
-    QStringList keys();
+    QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
@@ -15,7 +15,7 @@ GfxVncDriver::GfxVncDriver()
 {
 }
 
-QStringList GfxVncDriver::keys()
+QStringList GfxVncDriver::keys() const
 {
     QStringList list;
     list << "VNC";
