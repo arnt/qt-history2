@@ -198,10 +198,10 @@ public:
 
     bool isUndoAvailable();
     bool isRedoAvailable();
-    
+
     void setUndoDepth( int d ) { steps = d; }
     int undoDepth() const { return steps; }
-    
+
 private:
     QList<QTextCommand> history;
     int current, steps;
@@ -314,7 +314,8 @@ public:
     QString fileName() const;
     QString text() const;
     QString text( int parag, bool formatted ) const;
-
+    QString originalText() const;
+    
     int x() const;
     int y() const;
     int width() const;
@@ -436,7 +437,7 @@ public:
     int length() const;
     QTextCommandHistory *commands() const { return commandHistory; }
     void clear( bool createEmptyParag = FALSE );
-    
+
 signals:
     void minimumWidthChanged( int );
 
@@ -503,6 +504,7 @@ private:
     int *tArray;
     int tStopWidth;
     int uDepth;
+    QString oText;
     
 };
 
@@ -808,7 +810,7 @@ public:
     int wrapAtColumn() const { return wrapColumn;}
     virtual void setWrapEnabled( bool b ) { wrapEnabled = b; }
     virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
-    
+
 protected:
     virtual QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
@@ -819,7 +821,7 @@ protected:
 private:
     bool wrapEnabled;
     int wrapColumn;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1438,6 +1440,11 @@ inline void QTextDocument::setTabArray( int *a )
 inline void QTextDocument::setTabStops( int tw )
 {
     tStopWidth = tw;
+}
+
+inline QString QTextDocument::originalText() const
+{
+    return oText;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

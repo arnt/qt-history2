@@ -139,7 +139,7 @@
   which should display it. But you need then connect to textChanged()
   and selectionChanged() of all the views and update the others
   (preferable a bit delayed for efficiece reasons).
-  
+
   Note that QTextDocument is a class, which is not in the public
   API. If you want to do more specialized stuff (like described), you
   might use that anyway. But be aware that the API of QTextDocument
@@ -1449,6 +1449,8 @@ void QTextView::setFontInternal( const QFont &f_ )
 
 QString QTextView::text() const
 {
+    if ( isReadOnly() )
+	return doc->originalText();
     return doc->text();
 }
 
@@ -1622,20 +1624,20 @@ void QTextView::getSelection( int &parag_from, int &index_from,
 }
 
 /*!  Sets the text format to \a format. Possible choices are
-  
+
   <ul>
 
   <li> \c PlainText - all characters are displayed verbatim, including
   all blanks and linebreaks.
-  
+
   <li> \c RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
-  
+
   <li> \c AutoText - this is also the default. The view autodetects
   which rendering style suits best, \c PlainText or \c
   RichText. Technically, this is done by using the
   QStyleSheet::mightBeRichText() heuristic.
-  
+
   </ul>
 */
 
@@ -1673,8 +1675,8 @@ int QTextView::linesOfParagraph( int parag ) const
     return p->lines();
 }
 
-/*! Returns the number of lines in the view. 
-  
+/*! Returns the number of lines in the view.
+
   WARNING: This function is slow. As lines change all the time during
   word wrapping, this function has to iterate over all paragraphs and
   ask for the number of lines of that.
