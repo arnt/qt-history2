@@ -39,6 +39,14 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
+#if 0
+#if defined(Q_OS_WIN32)
+#include <winsock.h>
+#else
+#include "qplatformdefs.h"
+#endif
+#endif
+
 #include "qsocket.h"
 #include "qurlinfo.h"
 #include "qurloperator.h"
@@ -166,6 +174,7 @@ public:
     { return sendCommands( QStringList( cmd ) ); }
 
     void clearPendingCommands();
+    void abort();
 
     QString currentCommand() const
     { return currentCmd; }
@@ -199,6 +208,12 @@ private:
 	Failure
     };
 
+    enum AbortState {
+	None,
+	AbortStarted,
+	WaitForAbortToFinish
+    };
+
     bool processReply();
     bool startNextCmd();
 
@@ -206,6 +221,7 @@ private:
     QString replyText;
     char replyCode[3];
     State state;
+    AbortState abortState;
     QStringList pendingCommands;
     QString currentCmd;
 
@@ -535,7 +551,8 @@ void QFtpDTP::slotBytesWritten( int bytes )
 QFtpPI::QFtpPI( QObject *parent ) :
     QObject( parent ),
     dtp(this),
-    state(Begin), currentCmd(QString::null),
+    state(Begin), abortState(None),
+    currentCmd(QString::null),
     waitForDtpToConnect(FALSE),
     waitForDtpToClose(FALSE)
 {
@@ -590,6 +607,36 @@ void QFtpPI::clearPendingCommands()
     pendingCommands.clear();
     currentCmd = QString::null;
     state = Idle;
+}
+
+void QFtpPI::abort()
+{
+    pendingCommands.clear();
+
+    if ( abortState != None )
+	// ABOR already sent
+	return;
+
+    abortState = AbortStarted;
+#if 0
+    // ### at least the FTP server on trueblue does not understand this:
+    // send Telnet IP and Synch followed by ABOR (as describe in RFC 959 p. 35)
+#if defined(QFTPPI_DEBUG)
+    qDebug( "QFtpPI send: Telnet IP" );
+#endif
+    uchar ip = 244;
+    commandSocket.writeBlock( (char*)&ip, 1 );
+#if defined(QFTPPI_DEBUG)
+    qDebug( "QFtpPI send: Telnet Synch (as urgent)" );
+#endif
+    uchar dm = 242;
+    send( commandSocket.socket(), &dm, 1, MSG_OOB );
+#endif
+
+#if defined(QFTPPI_DEBUG)
+    qDebug( "QFtpPI send: ABOR" );
+#endif
+    commandSocket.writeBlock( "ABOR\r\n", 6 );
 }
 
 void QFtpPI::hostFound()
@@ -702,6 +749,17 @@ bool QFtpPI::processReply()
 	    waitForDtpToClose = TRUE;
 	    return FALSE;
 	}
+    }
+
+    switch ( abortState ) {
+	case AbortStarted:
+	    abortState = WaitForAbortToFinish;
+	    break;
+	case WaitForAbortToFinish:
+	    abortState = None;
+	    return TRUE;
+	default:
+	    break;
     }
 
     // get new state
@@ -1044,8 +1102,9 @@ void QFtp::init()
   stateChanged() signal is emitted when the state of the connecting
   process changes.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1064,8 +1123,9 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
   Logins to the FTP server with the username \a user and the password \a
   password.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1083,8 +1143,9 @@ int QFtp::login( const QString &user, const QString &password )
 /*!
   Closes the connection to the FTP server.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1100,8 +1161,9 @@ int QFtp::close()
   Lists the directory content of the directory \a dir of the FTP server. If
   \a dir is empty, it lists the content of the current directory.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1123,8 +1185,9 @@ int QFtp::list( const QString &dir )
 /*!
   Changes the working directory of the server to \a dir.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1140,8 +1203,9 @@ int QFtp::cd( const QString &dir )
   Downloads the file \a file from the server. The downloaded file is reported
   in chunks by the newData() signal.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1162,8 +1226,9 @@ int QFtp::get( const QString &file )
   Stores the data \a data under \a file on the server. The progress of the
   upload is reported by the dataSize() and dataProgress() signals.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1183,8 +1248,9 @@ int QFtp::put( const QByteArray &data, const QString &file )
 /*!
   Deletes the file \a file from the server.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1199,8 +1265,9 @@ int QFtp::remove( const QString &file )
 /*!
   Creates the directory \a dir on the server.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1215,8 +1282,9 @@ int QFtp::mkdir( const QString &dir )
 /*!
   Removes the directory \a dir from the server.
 
-  This function returns immediately; it returns a unique identifier for the
-  scheduled command.
+  This function returns immediately; the command is scheduled and its execution
+  is done asynchronous. In order to identify this command, the function returns
+  a unique identifier.
 
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
@@ -1226,6 +1294,37 @@ int QFtp::mkdir( const QString &dir )
 int QFtp::rmdir( const QString &dir )
 {
     return addCommand( new QFtpCommand( Rmdir, QStringList("RMD "+dir+"\r\n") ) );
+}
+
+/*!
+  Aborts the current command and deletes all scheduled commands.
+
+  If there is a started but not finished command (i.e. a command for which the
+  start() signal was already emitted, but no finishedSuccess() or
+  finishedError() signal is emitted yet), this function sends an \c ABORT
+  command to the server. When the server replies that the command is aborted,
+  the finishedError() is emitted for that command. Due to timing issues, it is
+  possible that the command is already finished before the abort request
+  arrives at the server. In this case, the finishedSuccess() signal is emitted.
+
+  For all other commands that are affected by the abort(), no signals are
+  emitted.
+
+  If you don't start further FTP commands directly after the abort(), there
+  won't be any scheduled commands and the doneError() resp. doneSuccess()
+  signal is emitted.
+*/
+void QFtp::abort()
+{
+    QFtpPrivate *d = ::d( this );
+    if ( d->pending.isEmpty() )
+	return;
+
+    QFtpCommand *c = d->pending.take( 0 );
+    d->pending.clear();
+    d->pending.append( c );
+
+    d->pi.abort();
 }
 
 /*!

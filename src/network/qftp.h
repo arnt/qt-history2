@@ -90,7 +90,6 @@ public:
 	Rmdir,
 //###	Copy,
 //###	Rename,
-//###	Abort,
 	FtpCommand
     };
 
@@ -108,6 +107,9 @@ public:
     int currentId() const;
     Command currentCommand() const;
     State state() const;
+
+public slots:
+    void abort();
 
 signals:
     void stateChanged( int );
