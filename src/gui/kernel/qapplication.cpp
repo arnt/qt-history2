@@ -2680,6 +2680,13 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
 
         while (w) {
+            // throw away any mouse-tracking-only mouse events
+            if (!w->hasMouseTracking()
+                && mouse->type() == QEvent::MouseMove
+                && (mouse->state()&Qt::MouseButtonMask) == 0) {
+                res = true;
+                break;
+            }
             QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
             me.spont = mouse->spontaneous();
             res = notify_helper(w, w == receiver ? mouse : &me);

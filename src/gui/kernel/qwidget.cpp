@@ -4485,10 +4485,6 @@ bool QWidget::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::MouseMove:
-        // throw away any mouse-tracking-only mouse events
-        if (!hasMouseTracking() &&
-            (((QMouseEvent*)e)->state()&Qt::MouseButtonMask) == 0)
-            break;
         mouseMoveEvent((QMouseEvent*)e);
         if (! ((QMouseEvent*)e)->isAccepted())
             return d->compositeEvent(e);
