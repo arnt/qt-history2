@@ -17,7 +17,6 @@
 #include <qregexp.h>
 #include <qhash.h>
 #include <qdir.h>
-#include <stdlib.h>
 #include <time.h>
 
 NmakeMakefileGenerator::NmakeMakefileGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(FALSE)
@@ -416,10 +415,10 @@ NmakeMakefileGenerator::init()
 	return;
     }
 
+    processVars();
+    
     if(!project->isActiveConfig("debug"))
 	project->variables()["DEFINES"] += "QT_NO_DEBUG";
-
-    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
     if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	project->variables()["CONFIG"].remove("staticlib");
@@ -427,14 +426,6 @@ NmakeMakefileGenerator::init()
     } else {
 	project->variables()["CONFIG"].append("staticlib");
     }
-    if(!project->variables()["QMAKE_INCDIR"].isEmpty())
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    
-    processQtConfig();    
-    fixTargetExt();
-    processRttiConfig();
-    processMocConfig();
-    processLibsVar();
 
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
     for(int i = 0; filetags[i]; i++) {
@@ -456,7 +447,6 @@ NmakeMakefileGenerator::init()
 	minor.replace(".", "");
 	project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
-    processRcFileVar();
 
     // Base class init!
     MakefileGenerator::init();
@@ -477,12 +467,6 @@ NmakeMakefileGenerator::init()
 	project->variables()["PRECOMPILED_PCH"]    = precompPch;
     }
 
-    if(!project->variables()["VERSION"].isEmpty()) {
-	QStringList l = project->first("VERSION").split('.');
-	project->variables()["VER_MAJ"].append(l[0]);
-	project->variables()["VER_MIN"].append(l[1]);
-    }
-
     QString version = project->first("VERSION").replace(".", "");
     if(project->isActiveConfig("dll")) {
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
@@ -492,6 +476,4 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
 	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
     }
-
-    processExtraWinCompilersVar();
 }

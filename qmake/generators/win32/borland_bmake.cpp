@@ -314,7 +314,7 @@ BorlandMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
-    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
+    processVars();
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
@@ -337,14 +337,6 @@ BorlandMakefileGenerator::init()
 	project->variables()["CONFIG"].append("staticlib");
     }
 
-    if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) 
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-
-    processQtConfig();
-    fixTargetExt();
-    processMocConfig();
-    processLibsVar();
-
     char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
     for(int i = 0; filetags[i]; i++) {
 	project->variables()["QMAKE_FILETAGS"] << filetags[i];
@@ -354,13 +346,7 @@ BorlandMakefileGenerator::init()
 	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 
-    processRcFileVar();
     MakefileGenerator::init();
-    if ( !project->variables()["VERSION"].isEmpty()) {
-	QStringList l = project->first("VERSION").split('.');
-	project->variables()["VER_MAJ"].append(l[0]);
-	project->variables()["VER_MIN"].append(l[1]);
-    }
 
     if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	// bcc does not generate a .tds file for static libs
@@ -371,5 +357,4 @@ BorlandMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix);
     }
 
-    processExtraWinCompilersVar();
 }

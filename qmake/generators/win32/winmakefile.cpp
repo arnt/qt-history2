@@ -426,6 +426,25 @@ Win32MakefileGenerator::processPrlFiles()
     }
 }
 
+
+void Win32MakefileGenerator::processVars()
+{
+    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
+    if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) 
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
+    if ( !project->variables()["VERSION"].isEmpty()) {
+	QStringList l = project->first("VERSION").split('.');
+	project->variables()["VER_MAJ"].append(l[0]);
+	project->variables()["VER_MIN"].append(l[1]);
+    }
+    processQtConfig();
+    fixTargetExt();
+    processMocConfig();
+    processLibsVar();
+    processRcFileVar();
+    processExtraWinCompilersVar();
+}
+
 void Win32MakefileGenerator::processLibsVar()
 {
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];

@@ -27,6 +27,9 @@
 
 class Win32MakefileGenerator : public MakefileGenerator
 {
+public:
+    Win32MakefileGenerator(QMakeProject *p);
+    ~Win32MakefileGenerator();
 protected:
     virtual void writeSubDirs(QTextStream &t);
     int findHighestVersion(const QString &dir, const QString &stem);
@@ -34,6 +37,7 @@ protected:
     QString findDependency(const QString &);
     virtual bool findLibraries();
     virtual void processPrlFiles();
+    virtual void processVars();
     virtual void processLibsVar();
     virtual void fixTargetExt();
     virtual void processRttiConfig();
@@ -41,9 +45,6 @@ protected:
     virtual void processRcFileVar();
     virtual void processExtraWinCompilersVar();
     virtual void processQtConfig();
-public:
-    Win32MakefileGenerator(QMakeProject *p);
-    ~Win32MakefileGenerator();
 };
 
 inline Win32MakefileGenerator::~Win32MakefileGenerator()
