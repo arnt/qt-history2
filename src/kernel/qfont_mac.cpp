@@ -477,11 +477,12 @@ void QFontPrivate::load(QFont::Script script)
 	    engineData->ref();
 	}
 	if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
-	    Q_ASSERT(engine->type() == QFontEngine::Mac);
+	    Q_ASSERT(e->type() == QFontEngine::Mac);
 	    engine = (QFontEngineMac*)e;
 	    engine->ref();
 	} else {
 	    engine = new QFontEngineMac;
+	    QFontCache::instance->insertEngine(key, engine);
 	}
 	engineData->engine = engine;
 
