@@ -1690,8 +1690,8 @@ QString Doc::htmlFunctionIndex()
 	while ( s != (*f).end() ) {
 	    QString t = *s + gulbrandsen + f.key() + parenParen;
 	    QString y = href( t, *s );
-	    if ( y != t );
-	    html += QChar( ' ' );
+	    if ( y != t )
+		html += QChar( ' ' );
 	    html += y;
 	    if ( t == hook )
 		html += QString(" <a href=\"http://www.kbuxton.com/discordia/"
