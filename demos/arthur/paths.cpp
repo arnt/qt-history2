@@ -48,9 +48,9 @@ void Paths::paintEvent(QPaintEvent *)
     QPainterPath path;
 
     // Add the bezier curves to it
-    path.beginSubpath();
+    path.moveTo(a.at(0));
     for (int bez=0; bez<bezierCount; ++bez) {
-        path.addBezier(a.at(bez*3), a.at(bez*3+1), a.at(bez*3+2), a.at(bez*3+3));
+        path.curveTo(a.at(bez*3+1), a.at(bez*3+2), a.at(bez*3+3));
     }
     path.closeSubpath();
 
