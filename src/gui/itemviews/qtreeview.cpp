@@ -1171,7 +1171,7 @@ void QTreeViewPrivate::open(int i, bool update)
 {
     QModelIndex index = items.at(i).index;
 
-    if (!model->hasChildren(index))
+    if (!model->hasChildren(index) || d->items.at(i).open)
         return;
 
     opened.append(index);
