@@ -4764,7 +4764,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	if ( i < d->paths->count() )
 	    i++;
 	if ( i == d->paths->count() || d->paths->text( i ) != cp )
-	    d->paths->insertItem( *openFolderIcon, d->url, i );
+	    d->paths->insertItem( *openFolderIcon, d->url.toString( FALSE, FALSE ), i );
 	d->paths->setCurrentItem( i );
 	d->last = 0;
 	d->hadDotDot = FALSE;

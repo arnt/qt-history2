@@ -1055,19 +1055,23 @@ void QUrl::decode( QString& url )
 }
 
 /*!  Composes a string of the URL and returns it. If \a encodedPath is
-  TRUE, the path in the returned string will be encoded. The second
-  bool parameter is meaningless and just provided for compatibility
-  reasons.
+  TRUE, the path in the returned string will be encoded. If \a
+  forcePrependProtocol is TRUE, the protocol (file:/) is also
+  prepended to local filenames, else no protocol is prepended for
+  local filenames.
 */
 
-QString QUrl::toString( bool encodedPath, bool /*forcePrependProtocol*/ ) const
+QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 {
     QString res, p = path();
     if ( encodedPath )
 	encode( p );
 
     if ( isLocalFile() ) {
+	if ( forcePrependProtocol )
 	    res = d->protocol + ":" + p;
+	else
+	    res = p;
     } else {
 	res = d->protocol + "://";
 	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
