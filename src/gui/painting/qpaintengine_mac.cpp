@@ -947,14 +947,17 @@ static void qt_mac_dispose_pattern(void *info)
 static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
 {
     QBrush *brush = static_cast<QBrush *>(info);
-    const float red = qt_mac_convert_color_to_cg(brush->color().red());
-    out[0] = red + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().red())-red);
-    const float green = qt_mac_convert_color_to_cg(brush->color().green());
-    out[1] = green + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().green())-green);
-    const float blue = qt_mac_convert_color_to_cg(brush->color().blue());
-    out[2] = blue + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().blue())-blue);
-    const float alpha = qt_mac_convert_color_to_cg(brush->color().alpha());
-    out[3] = alpha + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().alpha()) - alpha);
+    QGradientStop stops = brush->gradient()->stops();
+    QColor c1 = stops.first().second;
+    QColor c2 = stops.last().second;
+    const float red = qt_mac_convert_color_to_cg(c1.red());
+    out[0] = red + in[0] * (qt_mac_convert_color_to_cg(c2.red())-red);
+    const float green = qt_mac_convert_color_to_cg(c1.green());
+    out[1] = green + in[0] * (qt_mac_convert_color_to_cg(c2.green())-green);
+    const float blue = qt_mac_convert_color_to_cg(c1.blue());
+    out[2] = blue + in[0] * (qt_mac_convert_color_to_cg(c2.blue())-blue);
+    const float alpha = qt_mac_convert_color_to_cg(c1.alpha());
+    out[3] = alpha + in[0] * (qt_mac_convert_color_to_cg(c2.alpha()) - alpha);
 }
 
 //clipping handling
@@ -1239,7 +1242,8 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)), 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        const QPointF start = brush.gradientStart(), stop =  brush.gradientStop();
+        const QLinearGradient *linGrad = static_cast<QLinearGradient*>(brush.gradient());
+        const QPointF start = linGrad.start(), stop =  linGrad->finalStop();
         d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);

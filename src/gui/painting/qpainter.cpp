@@ -83,12 +83,15 @@ void QPainterPrivate::draw_helper_fill_lineargradient(const QPainterPath &path)
     QRect bounds = (QPolygonF(path.boundingRect()) * state->matrix).boundingRect().toRect();
     q->resetMatrix();
 
-    QPointF p1 = state->brush.gradientStart() - bounds.topLeft();
-    QPointF p2 = state->brush.gradientStop() - bounds.topLeft();
+    Q_ASSERT(state->brush.style() == Qt::LinearGradientPattern);
+    const QLinearGradient *linGrad = static_cast<const QLinearGradient *>(state->brush.gradient());
+
+    QPointF p1 = linGrad->start() - bounds.topLeft();
+    QPointF p2 = linGrad->finalStop() - bounds.topLeft();
 
     QPixmap image = qt_image_linear_gradient(bounds,
-                                             p1, state->brush.color(),
-                                             p2, state->brush.gradientColor());
+                                             p1, linGrad->stops().first().second,
+                                             p2, linGrad->stops().last().second);
     engine->drawPixmap(QRectF(bounds.topLeft(), image.size()),
                        image,
                        QRectF(0, 0, image.width(), image.height()),
@@ -2334,18 +2337,6 @@ void QPainter::setBrush(Qt::BrushStyle style)
 const QBrush &QPainter::brush() const
 {
     Q_D(const QPainter);
-
-    if (d->state->brush.style() == Qt::LinearGradientPattern) {
-        if (!d->txinv) {
-            QPainter *that = (QPainter*)this;        // mutable
-            that->d_ptr->updateInvMatrix();
-        }
-        static QBrush tmp_brush = QBrush(d->state->brush.gradientStart() * d->invMatrix,
-                                         d->state->brush.color(),
-                                         d->state->brush.gradientStop() * d->invMatrix,
-                                         d->state->brush.gradientColor());
-        return tmp_brush;
-    }
     return d->state->brush;
 }
 

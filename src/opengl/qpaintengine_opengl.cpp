@@ -786,8 +786,10 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QPointF gstart = brush.gradientStart();
-    QPointF gstop  = brush.gradientStop();
+    const QLinearGradient *lg = static_cast<const QLinearGradient *>(brush.gradient());
+
+    QPointF gstart = lg->start();
+    QPointF gstop  = lg->finalStop();
 
     // save GL state
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -801,8 +803,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     gstart -= goff;
     gstop -= goff;
 
-    QColor gcol1 = brush.color();
-    QColor gcol2 = brush.gradientColor();
+    QColor gcol1 = lg->stops().first().second;
+    QColor gcol2 = lg->stops().last().second;
 
     int dx = qRound(gstop.x() - gstart.x());
     int dy = qRound(gstop.y() - gstart.y());

@@ -268,23 +268,6 @@ QBrush::QBrush(const QBrush &b)
     ++d->ref;
 }
 
-/*!
-    Creates a linear gradient brush. The brush will interpolate
-    between the color \a col1 in the point \a p1 to the color \a col2
-    in the point \a p2. The areas outside the interpolation area
-    is filled with the color for that corresponding side.
-*/
-
-QBrush::QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2)
-{
-    init(col1, Qt::LinearGradientPattern);
-    QGradientBrushData *grad = static_cast<QGradientBrushData*>(d);
-    QLinearGradient lg(p1, p2);
-    lg.appendStop(0, col1);
-    lg.appendStop(1, col2);
-    grad->gradient = lg;
-}
-
 QBrush::QBrush(const QGradient &gradient)
 {
     const Qt::BrushStyle enum_table[] = {
@@ -526,45 +509,6 @@ void QBrush::setTexture(const QPixmap &pixmap)
     } else {
         detach(Qt::NoBrush);
     }
-}
-
-
-/*!
-    \fn QColor QBrush::gradientColor() const
-
-    Returns the gradient's secondary color.
-
-    \sa gradientStart() gradientStop()
-*/
-QColor QBrush::gradientColor() const
-{
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QGradientBrushData*>(d)->gradient.stops().at(1).second
-                     : QColor();
-}
-
-/*!
-    \fn QPointF QBrush::gradientStart() const
-
-    Returns the gradient's starting color.
-
-    \sa gradientStop() gradientColor()
-*/
-QPointF QBrush::gradientStart() const
-{
-    return d->style == Qt::LinearGradientPattern ? static_cast<const QLinearGradient *>(&static_cast<const QGradientBrushData*>(d)->gradient)->start() : QPointF();
-}
-
-/*!
-    \fn QPointF QBrush::gradientStop() const
-
-    Returns the gradient's ending color.
-
-    \sa gradientStart() gradientColor()
-*/
-QPointF QBrush::gradientStop() const
-{
-    return d->style == Qt::LinearGradientPattern ? static_cast<const QLinearGradient *>(&static_cast<const QGradientBrushData*>(d)->gradient)->finalStop() : QPointF();
 }
 
 

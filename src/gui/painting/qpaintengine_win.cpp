@@ -1361,8 +1361,10 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 #endif
     Q_ASSERT(qGradientFill);
 
-    QColor gcol1 = brush.color();
-    QColor gcol2 = brush.gradientColor();
+    const QLinearGradient *linGrad = static_cast<const QLinearGradient *>(brush.gradient());
+
+    QColor gcol1 = linGrad->stops().first().second;
+    QColor gcol2 = linGrad->stops().last().second;
 
     bool useMemDC = !(rect.x() == 0
                      && rect.y() == 0
@@ -1380,8 +1382,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QPointF gstart = brush.gradientStart();
-    QPointF gstop  = brush.gradientStop();
+    QPointF gstart = linGrad->start();
+    QPointF gstop  = linGrad->finalStop();
 
     gstart -= rect.topLeft();
     gstop -= rect.topLeft();

@@ -2015,7 +2015,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 if (left != right) {
                     QPoint p1(tb->rect.x(), tb->rect.top() + tb->rect.height()/2);
                     QPoint p2(tb->rect.right(), tb->rect.top() + tb->rect.height()/2);
-                    fillBrush = QBrush(p1, left, p2, right);
+                    QLinearGradient lg(p1, p2);
+                    lg.appendStop(0, left);
+                    lg.appendStop(1, right);
+                    fillBrush = lg;
                 }
 
                 p->fillRect(opt->rect, fillBrush);

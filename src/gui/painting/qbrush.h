@@ -38,7 +38,6 @@ public:
 
     QBrush(const QBrush &brush);
 
-    QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2);
     QBrush(const QGradient &gradient);
 
     ~QBrush();
@@ -54,10 +53,6 @@ public:
     inline const QColor &color() const;
     void setColor(const QColor &color);
     inline void setColor(Qt::GlobalColor color) { setColor(QColor(color)); }
-
-    QColor gradientColor() const;
-    QPointF gradientStart() const;
-    QPointF gradientStop() const;
 
     const QGradient *gradient() const;
 
