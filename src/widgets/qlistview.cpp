@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#4 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,7 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#4 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -466,7 +466,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	int cs;
 
 	// need to paint this item?
-	if ( ih > 0 && head->y < cy+cw && head->y+ih >= cy ) {
+	if ( ih > 0 && head->y < cy+ch && head->y+ih >= cy ) {
 
 	    if ( fx < 0 ) {
 		// find first interesting column, once
@@ -502,7 +502,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		if ( c + 1 == lc && x + cs < cx + cw )
 		    r.setRight( cx + cw + ox - 1 );
 		p->save();
-		p->setClipRect( r ); // ### could intersect a bit
+		p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		p->translate( r.left(), r.top() );
 		head->item->paintCell( p, colorGroup(),
 				       root->h->mapToLogical( c ), r.width() );
@@ -527,12 +527,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		int rbottom = head->y + ith;
 		int rright = tx;
 		int rleft = tx + treeStepSize();
-		rtop = QMAX( rtop, cy + oy );
-		rbottom = QMIN( rbottom, cy+oy+ch );
-		rleft = QMAX( rleft, cx+ox );
-		rright = QMIN( rright, cx+ox+cw );
+		rtop = QMAX( rtop, cy );
+		rbottom = QMIN( rbottom, cy+ch );
+		rleft = QMAX( rleft, cx );
+		rright = QMIN( rright, cx+cw );
 
-		r.setRect( rleft+ox, rtop+ox, rright-rleft, rbottom-rtop );
+		r.setRect( rleft+ox, rtop+oy, rright-rleft, rbottom-rtop );
 
 		p->setClipRect( r );
 		head->item->paintTreeBranches( p, colorGroup(),
