@@ -60,7 +60,7 @@ int main( int argc, char ** argv ) {
     label->setText(
         "This is an example for QWidgetView. "
         "It shows that you can have Qt widgets that exceed the "
-        "built-in 16-bit limit of MS-Windows, X11 and MacOS X. "
+        "built-in 16-bit limit of MS-Windows, X11 and Mac OS X. "
         "The green grid is one big widget that is 128000 x 128000 pixels large. It contains "
         "a magenta child widget that itself has a height of 66560 pixels. Click anywhere "
         "to add small child widgets.");
