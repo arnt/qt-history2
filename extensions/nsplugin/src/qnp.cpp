@@ -395,7 +395,6 @@ char **PluginSDK_QApplication::argv={ 0 };
 #ifdef _WS_X11_
 static void np_set_timer( int interval )
 {
-qDebug("set timer %dms",interval);
     // Ensure we only have one timeout in progress - QApplication is
     // computing the one amount of time we need to wait.
     if ( qt_np_timerid ) {
@@ -411,7 +410,6 @@ qDebug("set timer %dms",interval);
 
 static void np_do_timers( void*, void* )
 {
-qDebug("do timers");
     qt_np_timerid = 0; // It's us, and we just expired, that's why we are here.
 
     qt_activate_timers();
