@@ -537,7 +537,7 @@ void write_jpeg_image(QImageIO* iio)
     }
 
     delete iod_dest;
-    delete row_pointer[0];
+    delete [] row_pointer[0];
 }
 
 void qInitJpegIO()
