@@ -96,7 +96,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 
 void SourceEditor::setFunction( const QString &func )
 {
-    iFace->scrollTo( func );
+    iFace->scrollTo( lIface->createFunctionStart( formWindow->name(), func ) );
 }
 
 void SourceEditor::closeEvent( QCloseEvent *e )
