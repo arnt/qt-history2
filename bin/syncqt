@@ -94,14 +94,13 @@ sub checkUnix {
 ######################################################################
 # Syntax:  classNames(iheader)
 # Params:  iheader, string, filename to parse for classname "symlinks"
-#          library, string, library subdirectory in include directory
 #
-# Purpose: All classnames found in iheader are synced into library's
-#          include structure
+# Purpose: Scans through iheader to find all classnames that should be
+#          synced into library's include structure
 ######################################################################
 sub classNames {
     my @ret;
-    my ($iheader, $library) = @_;
+    my ($iheader) = @_;
 
     my $parsable = "";
     if(open(F, "<$iheader")) {
@@ -198,7 +197,7 @@ sub syncHeader {
 	unless(-e "$header") {
 	    my $header_dir = dirname($header);
 	    mkpath $header_dir, 0777;
-	    
+
 	    #write it
 	    my $iheader_out = fixPaths($iheader, $header);
 	    open HEADER, ">$header" || die "Could not open $header for writing!\n";
@@ -486,7 +485,8 @@ foreach (@modules_to_sync) {
 				last;
 			    }
 			}
-			unlink "$file" if($remove_file);
+			close(F);
+                	unlink "$file" if($remove_file);
 		    }
 		}
 	    }
@@ -533,7 +533,7 @@ foreach (@modules_to_sync) {
                     if($showonly) {
                         print "$header [$lib]\n";
 			foreach(@classes) {
-			    print "SYMBOL: $_\n";			    
+			    print "SYMBOL: $_\n";
 			}
                     } else {
 			#find out all the places it goes..
@@ -558,8 +558,8 @@ foreach (@modules_to_sync) {
 			    #deal with the install file
 			    if($public_header) {
 				foreach(@classes) {
-				    $install_classes .= " \\\n  \$\$quote(\"" . 
-					(length($install_classes) ? "\\n\\t" : "") . 
+				    $install_classes .= " \\\n  \$\$quote(\"" .
+					(length($install_classes) ? "\\n\\t" : "") .
 					"-\$(INSTALL_FILE) \"$iheader\" \"PREFIXPATH/$_\"\")";
 				}
 				$install_files .= "$iheader ";
