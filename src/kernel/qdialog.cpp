@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#66 $
 **
 ** Implementation of QDialog class
 **
@@ -28,6 +28,7 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
+
 
 /*!
   \class QDialog qdialog.h
@@ -167,19 +168,28 @@ void QDialog::setDefault( QPushButton *pushButton )
 */
 
 
-
 /*!
-  Starts the dialog and returns the result code.
+  For modal dialogs: Starts the dialog and returns the result code.
 
   Equivalent to calling show(), then result().
 
-  This function is very useful for modal dialogs. It enters a new local
-  event loop. The event loop is terminated when the dialog is hidden,
-  usually by calling done().
+  This function is very useful for modal dialogs, but makes no sense for
+  modeless dialog. It enters a new local event loop. The event loop is
+  terminated when the dialog is hidden, usually by calling done().
+
+  A warning message is printed if you call this function for a modeless
+  dialog.
+
+  \sa show(), result()
 */
 
 int QDialog::exec()
 {
+#if defined(CHECK_STATE)
+    if ( !testWFlags(WType_Modal) )
+	warning( "QDialog::exec: Calling this function for a modeless dialog "
+		 "makes no sense" );
+#endif
     setResult( 0 );
     show();
     return result();
