@@ -305,7 +305,7 @@
 #  define Q_HAS_BOOL_TYPE
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
 #  define Q_HAS_BOOL_TYPE
-#elif defined(sgi) && ( (_COMPILER_VERSION >= 710) || defined(_BOOL) )
+#elif defined(sgi) && defined(_BOOL)
 #  define Q_HAS_BOOL_TYPE
 #endif
 
