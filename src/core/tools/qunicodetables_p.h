@@ -29,7 +29,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-namespace QUnicodeTables {
+namespace Q_CORE_EXPORT QUnicodeTables {
 
     // see http://www.unicode.org/reports/tr14/tr14-13.html
     // we don't use the XX and AI properties and map them to AL instead.

@@ -49,7 +49,7 @@ class QMacSockNotPrivate;
 
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
-struct QSockNot
+struct Q_CORE_EXPORT QSockNot
 {
     QSocketNotifier *obj;
     int fd;
@@ -59,7 +59,7 @@ struct QSockNot
 #endif
 };
 
-class QSockNotType
+class Q_CORE_EXPORT QSockNotType
 {
 public:
     QSockNotType();
