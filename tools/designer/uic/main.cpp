@@ -278,7 +278,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( fileName, out, doc, !impl, subcl, trmacro, className, nofwd );
+    Uic( fileName, outputFile, out, doc, !impl, subcl, trmacro, className, nofwd );
 
     if ( !protector.isEmpty() ) {
 	out << endl;

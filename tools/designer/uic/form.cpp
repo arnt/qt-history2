@@ -26,6 +26,8 @@
 #include <qvaluelist.h>
 #include <qfile.h>
 #include <qfileinfo.h>
+#include <qdir.h>
+#include <qregexp.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
 
@@ -60,7 +62,48 @@ static QByteArray unzipXPM( QString data, ulong& length )
     return baunzip;
 }
 
+#if QT_VERSION >= 0x030900
+#error Add this functionality to QDir (relativePathTo() maybe?) and \
+remove it from here and from moc
+#endif
 
+QCString combinePath( const char *infile, const char *outfile )
+{
+    QFileInfo inFileInfo( QDir::current(), QFile::decodeName(infile) );
+    QFileInfo outFileInfo( QDir::current(), QFile::decodeName(outfile) );
+    int numCommonComponents = 0;
+
+    QStringList inSplitted =
+	QStringList::split( '/', inFileInfo.dir().canonicalPath(), TRUE );
+    QStringList outSplitted =
+	QStringList::split( '/', outFileInfo.dir().canonicalPath(), TRUE );
+
+    while ( !inSplitted.isEmpty() && !outSplitted.isEmpty() &&
+	    inSplitted.first() == outSplitted.first() ) {
+	inSplitted.remove( inSplitted.begin() );
+	outSplitted.remove( outSplitted.begin() );
+	numCommonComponents++;
+    }
+
+    if ( numCommonComponents < 2 ) {
+	/*
+	  The paths don't have the same drive, or they don't have the
+	  same root directory. Use an absolute path.
+	*/
+	return QFile::encodeName( inFileInfo.absFilePath() );
+    } else {
+	/*
+	  The paths have something in common. Use a path relative to
+	  the output file.
+	*/
+	while ( !outSplitted.isEmpty() ) {
+	    outSplitted.remove( outSplitted.begin() );
+	    inSplitted.prepend( ".." );
+	}
+	inSplitted.append( inFileInfo.fileName() );
+	return QFile::encodeName( inSplitted.join("/") );
+    }
+}
 
 /*!
   Creates a declaration (header file) for the form given in \a e
@@ -436,13 +479,13 @@ void Uic::createFormDecl( const QDomElement &e )
 	    protectedVars += var;
     }
 
-    if ( !publicFuncts.isEmpty() )
-	writeFunctionsDecl( publicFuncts, publicFunctRetTyp, publicFunctSpec );
     if ( !publicVars.isEmpty() ) {
 	for ( it = publicVars.begin(); it != publicVars.end(); ++it )
 	    out << indent << *it << endl;
 	out << endl;
     }
+    if ( !publicFuncts.isEmpty() )
+	writeFunctionsDecl( publicFuncts, publicFunctRetTyp, publicFunctSpec );
 
     if ( needPolish || !publicSlots.isEmpty() ) {
 	out << "public slots:" << endl;
@@ -479,20 +522,20 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << "protected:" << endl;
-    if ( !protectedFuncts.isEmpty() )
-	writeFunctionsDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
     if ( !protectedVars.isEmpty() ) {
 	for ( it = protectedVars.begin(); it != protectedVars.end(); ++it )
 	    out << indent << *it << endl;
 	out << endl;
     }
+    if ( !protectedFuncts.isEmpty() )
+	writeFunctionsDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
 
     // child layouts
     registerLayouts( e );
     out << endl;
 
 #if QT_VERSION >= 0x030900
-#warning Make languageChange() a virtual protected non-slot member of QWidget
+#error Make languageChange() a virtual protected non-slot member of QWidget
 #endif
 
     out << "protected slots:" << endl;
@@ -506,8 +549,6 @@ void Uic::createFormDecl( const QDomElement &e )
     // create all private stuff
     if ( !privateFuncts.isEmpty() || !privateVars.isEmpty() || !imageMembers.isEmpty() ) {
 	out << "private:" << endl;
-	if ( !privateFuncts.isEmpty() )
-	    writeFunctionsDecl( privateFuncts, privateFunctRetTyp, privateFunctSpec );
 	if ( !privateVars.isEmpty() ) {
 	    for ( it = privateVars.begin(); it != privateVars.end(); ++it )
 		out << indent << *it << endl;
@@ -517,6 +558,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    out << imageMembers;
 	    out << endl;
 	}
+	if ( !privateFuncts.isEmpty() )
+	    writeFunctionsDecl( privateFuncts, privateFunctRetTyp, privateFunctSpec );
     }
 
     if ( !privateSlots.isEmpty() ) {
@@ -544,7 +587,7 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 	    pure = " = 0";
 	QString fname = Parser::cleanArgs( *it );
-	out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+	out << "    " << specifier << type << " " << fname << pure << ";" << endl;
     }
     out << endl;
 }
@@ -573,6 +616,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // find additional slots and functions
     QStringList extraFuncts;
     QStringList extraFunctTyp;
+    QStringList extraFunctSpecifier;
 
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
@@ -587,6 +631,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    functionName = functionName.left( functionName.length() - 1 );
 	extraFuncts += functionName;
 	extraFunctTyp += n.attribute( "returnType", "void" );
+	extraFunctSpecifier += n.attribute( "specifier", "virtual" );
     }
 
     nl = e.parentNode().toElement().elementsByTagName( "function" );
@@ -601,6 +646,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    functionName = functionName.left( functionName.length() - 1 );
 	extraFuncts += functionName;
 	extraFunctTyp += n.attribute( "returnType", "void" );
+	extraFunctSpecifier += n.attribute( "specifier", "virtual" );
     }
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -754,8 +800,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << "#include \"" << *it << "\"" << endl;
     }
 
-    if ( QFile::exists( fileName + ".h" ) ) {
-	out << "#include \"" << QFileInfo(fileName).fileName() << ".h\"" << endl;
+    QString uiDotH = fileName + ".h";
+    if ( QFile::exists( uiDotH ) ) {
+	if ( !outputFileName.isEmpty() )
+	    uiDotH = combinePath( uiDotH, outputFileName );
+	out << "#include \"" << uiDotH << "\"" << endl;
 	writeFunctImpl = FALSE;
     }
 
@@ -786,11 +835,24 @@ void Uic::createFormImpl( const QDomElement &e )
 			// shouldn't we test the initial 'length' against the
 			// resulting 'length' to catch corrupt UIC files?
 			int a = 0;
+			int column = 0;
+			bool inQuote = FALSE;
 			out << "static const char* const " << img << "_data[] = { " << endl;
 			while ( baunzip[a] != '\"' )
 			    a++;
-			for ( ; a < (int) length; a++ )
+			for ( ; a < (int) length; a++ ) {
 			    out << baunzip[a];
+			    if ( baunzip[a] == '\n' ) {
+				column = 0;
+			    } else if ( baunzip[a] == '"' ) {
+				inQuote = !inQuote;
+			    }
+
+			    if ( column++ >= 511 && inQuote ) {
+				out << "\"\n\""; // be nice with MSVC & Co.
+				column = 1;
+			    }
+			}
 			out << endl;
 		    } else {
 			images += img;
@@ -1226,18 +1288,74 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // create stubs for additional slots if necessary
     if ( !extraFuncts.isEmpty() && writeFunctImpl ) {
-	QStringList::Iterator it2;
-	for ( it = extraFuncts.begin(), it2 = extraFunctTyp.begin(); it != extraFuncts.end(); ++it, ++it2 ) {
+	it = extraFuncts.begin();
+	QStringList::Iterator it2 = extraFunctTyp.begin();
+	QStringList::Iterator it3 = extraFunctSpecifier.begin();
+	while ( it != extraFuncts.end() ) {
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
+	    type = type.simplifyWhiteSpace();
 	    QString fname = Parser::cleanArgs( *it );
-	    out << type << " " << nameOfClass << "::" << fname << endl;
-	    out << "{" << endl;
-	    if ( *it != "init()" && *it != "destroy()" )
-		out << indent << "qWarning( \"" << nameOfClass << "::" << fname << ": Not implemented yet!\" );" << endl;
-	    out << "}" << endl;
-	    out << endl;
+	    if ( !(*it3).startsWith("pure") ) { // "pure virtual" or "pureVirtual"
+		out << type << " " << nameOfClass << "::" << fname << endl;
+		out << "{" << endl;
+		if ( *it != "init()" && *it != "destroy()" ) {
+		    QRegExp numeric( "^(?:signed|unsigned|u?char|u?short|u?int"
+				     "|u?long|Q_U?INT(?:8|16|32)|Q_U?LONG|float"
+				     "|double)$" );
+		    QString retVal;
+
+		    /*
+		      We return some kind of dummy value to shut the
+		      compiler up.
+
+		      1.  If the type is 'void', we return nothing.
+
+		      2.  If the type is 'bool', we return 'FALSE'.
+
+		      3.  If the type is 'unsigned long' or
+			  'Q_UINT16' or 'double' or similar, we
+			  return '0'.
+
+		      4.  If the type is 'Foo *', we return '0'.
+
+		      5.  If the type is 'Foo &', we create a static
+			  variable of type 'Foo' and return it.
+
+		      6.  If the type is 'Foo', we assume there's a
+			  default constructor and use it.
+		    */
+		    if ( type != "void" ) {
+			QStringList toks = QStringList::split( " ", type );
+			bool isBasicNumericType =
+				( toks.grep(numeric).count() == toks.count() );
+
+			if ( type == "bool" ) {
+			    retVal = "FALSE";
+			} else if ( isBasicNumericType || type.endsWith("*") ) {
+			    retVal = "0";
+			} else if ( type.endsWith("&") ) {
+			    do {
+				type.truncate( type.length() - 1 );
+			    } while ( type.endsWith(" ") );
+			    retVal = "uic_temp_var";
+			    out << indent << "static " << type << " " << retVal << ";" << endl;
+			} else {
+			    retVal = type + "()";
+			}
+		    }
+
+		    out << indent << "qWarning( \"" << nameOfClass << "::" << fname << ": Not implemented yet\" );" << endl;
+		    if ( !retVal.isEmpty() )
+			out << indent << "return " << retVal << ";" << endl;
+		}
+		out << "}" << endl;
+		out << endl;
+	    }
+	    ++it;
+	    ++it2;
+	    ++it3;
 	}
     }
 }

@@ -106,11 +106,11 @@ QString Uic::mkStdSet( const QString& prop )
 
   The class Uic encapsulates the user interface compiler (uic).
  */
-Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
-	  bool decl, bool subcl, const QString &trm, const QString& subClass,
-	  bool omitForwardDecls )
-    : out( outStream ), trout( &languageChangeBody ), trmacro( trm ),
-      nofwd( omitForwardDecls )
+Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
+	  QDomDocument doc, bool decl, bool subcl, const QString &trm,
+	  const QString& subClass, bool omitForwardDecls )
+    : out( outStream ), trout( &languageChangeBody ),
+      outputFileName( outputFn ), trmacro( trm ), nofwd( omitForwardDecls )
 {
     fileName = fn;
     writeFunctImpl = TRUE;
