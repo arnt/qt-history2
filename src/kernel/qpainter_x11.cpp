@@ -897,7 +897,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
 	qWarning( "QPainter::begin: Painter is already active."
-		 "\n\tYou must end() the painter before a second begin()" );
+		  "\n\tYou must end() the painter before a second begin()" );
 #endif
 	return FALSE;
     }
@@ -922,11 +922,11 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
 
     if ( pdev->isExtDev() && pdev->paintingActive() ) {
-		// somebody else is already painting
+	// somebody else is already painting
 #if defined(CHECK_STATE)
 	qWarning( "QPainter::begin: Another QPainter is already painting "
-		 "this device;\n\tAn extended paint device can only be painted "
-	         "by one QPainter at a time." );
+		  "this device;\n\tAn extended paint device can only be "
+		  "painted by one QPainter at a time." );
 #endif
 	return FALSE;
     }
@@ -935,7 +935,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     flags = IsActive | DirtyFont;		// init flags
     int dt = pdev->devType();			// get the device type
 
-    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )	// this is an extended device
+    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 	setf(ExtDev);
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
@@ -2182,7 +2182,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    index+=65535;
 	}
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
-		    npoints, CoordModeOrigin );	
+		    npoints, CoordModeOrigin );
     }
 }
 
