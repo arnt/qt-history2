@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#85 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -467,11 +467,12 @@ void QTipManager::hideTip()
     if ( label && label->isVisible() ) {
 	label->hide();
 	fallAsleep.start( 10000, TRUE );
-	if ( currentTip && currentTip->group )
-	    emit currentTip->group->removeTip();
     } else if ( wakeUp.isActive() ) {
 	wakeUp.stop();
     }
+
+    if ( currentTip && currentTip->group )
+	emit currentTip->group->removeTip();
 
     if ( currentTip && currentTip->autoDelete )
 	delete currentTip;
@@ -974,7 +975,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.79 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.80 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
