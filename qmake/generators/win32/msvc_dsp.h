@@ -39,6 +39,7 @@ public:
     bool hasBuiltinCompiler(const QString &filename) const;
 
 protected:
+    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
 

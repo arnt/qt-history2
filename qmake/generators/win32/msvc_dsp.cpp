@@ -76,6 +76,15 @@ bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
     return filename.endsWith(".c");
 }
 
+QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+{
+    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
+    ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
+                varGlue("DEFINES"," -D"," -D",""));
+    ret.replace("$(INCPATH)",  this->var("MSVCDSP_INCPATH"));
+    return ret;
+}
+
 bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file)
 {
     if (usePCH) {
@@ -172,11 +181,10 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 else
                     buildStep += " \\\n\t";
                 QString command(compilerCommands.join(" "));
-                command.replace("${QMAKE_FILE_OUT}", fileOut);
+                qDebug("replaceExtraCompilerVariables('%s', '%s', '%s')", qPrintable(command), qPrintable(fileIn), qPrintable(fileOut));
+                // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
                 command.replace("${QMAKE_FILE_IN}", fileIn);
-                command.replace("${QMAKE_FILE_BASE}", fileBase);
-                command.replace("$(INCPATH)", varGlue("INCLUDES", " -I", " -I", ""));
-                command.replace("$(DEFINES)", varGlue("DEFINES", " -D", " -D", ""));
+                command = replaceExtraCompilerVariables(command, fileIn, fileOut);
 
                 buildName = compilerName.first();
                 buildStep += command;
@@ -575,9 +583,9 @@ DspMakefileGenerator::init()
         inc.replace("\"", "");
         if(inc.endsWith("\\")) // Remove trailing \'s from paths
             inc.truncate(inc.length()-1);
-        project->variables()["MSVCDSP_INCPATH"].append("/I \"" + inc + "\"");
+        project->variables()["MSVCDSP_INCPATH"].append("/I\"" + inc + "\"");
     }
-    project->variables()["MSVCDSP_INCPATH"].append("/I \"" + specdir() + "\"");
+    project->variables()["MSVCDSP_INCPATH"].append("/I\"" + specdir() + "\"");
 
     QString dest;
     QString postLinkStep;
