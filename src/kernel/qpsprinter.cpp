@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#96 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -25,7 +25,6 @@
 
 #include "qpsprinter.h"
 #include "qpainter.h"
-#include "qpaintdevicedefs.h"
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qdatetime.h"
@@ -190,7 +189,7 @@ static const char *ps_header[] = {
 "    showpage",
 "} D",
 "",
-"/P {",					// PDC_DRAWPOINT [x y]
+"/P {",					// PdcDrawPoint [x y]
 "    NP",
 "    MT",
 "    0.5 0.5 rmoveto",
@@ -202,11 +201,11 @@ static const char *ps_header[] = {
 "    fill",
 "} D",
 "",
-"/M {",					// PDC_MOVETO [x y]
+"/M {",					// PdcMoveTo [x y]
 "    /Cy ED /Cx ED",
 "} D",
 "",
-"/L {",					// PDC_LINETO [x y]
+"/L {",					// PdcLineTo [x y]
 "    NP",
 "    Cx Cy MT",
 "    /Cy ED /Cx ED",
@@ -214,7 +213,7 @@ static const char *ps_header[] = {
 "    QS",
 "} D",
 "",
-"/DL {",				// PDC_DRAWLINE [x0 y0 x1 y1]
+"/DL {",				// PdcDrawLine [x0 y0 x1 y1]
 "    4 2 roll",
 "    NP",
 "    MT",
@@ -222,7 +221,7 @@ static const char *ps_header[] = {
 "    QS",
 "} D",
 "",
-"/R {",					// PDC_DRAWRECT [x y w h]
+"/R {",					// PdcDrawRect [x y w h]
 "    /h ED /w ED /y ED /x ED",
 "    NP",
 "    x y MT",
@@ -264,7 +263,7 @@ static const char *ps_header[] = {
 "/xr D0 /yr D0",
 "/rx D0 /ry D0 /rx2 D0 /ry2 D0",
 "",
-"/RR {",				// PDC_DRAWROUNDRECT [x y w h xr yr]
+"/RR {",				// PdcDrawRoundRect [x y w h xr yr]
 "    /yr ED /xr ED /h ED /w ED /y ED /x ED",
 "    xr 0 le yr 0 le or",
 "    {x y w h R}",		    // Do rect if one of rounding values is less than 0.
@@ -289,7 +288,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/E {",				// PDC_DRAWELLIPSE [x y w h]
+"/E {",				// PdcDrawEllipse [x y w h]
 "    /h ED /w ED /y ED /x ED",
 "    mat CM pop",
 "    x w 2 div add y h 2 div add translate",
@@ -302,7 +301,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/A {",				// PDC_DRAWARC [x y w h ang1 ang2]
+"/A {",				// PdcDrawArc [x y w h ang1 ang2]
 "    16 div exch 16 div exch",
 "    NP",
 "    ARC",
@@ -310,7 +309,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/PIE {",				// PDC_DRAWPIE [x y w h ang1 ang2]
+"/PIE {",				// PdcDrawPie [x y w h ang1 ang2]
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
 "    NP",
 "    x w 2 div add y h 2 div add MT",
@@ -320,7 +319,7 @@ static const char *ps_header[] = {
 "    QS",
 "} D",
 "",
-"/CH {",				// PDC_DRAWCHORD [x y w h ang1 ang2]
+"/CH {",				// PdcDrawChord [x y w h ang1 ang2]
 "    16 div exch 16 div exch",
 "    NP",
 "    ARC",
@@ -330,7 +329,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/BZ {",				// PDC_DRAWQUADBEZIER [3 points]
+"/BZ {",				// PdcDrawQuadBezier [3 points]
 "    curveto",
 "    QS",
 "} D",
@@ -359,18 +358,18 @@ static const char *ps_header[] = {
 "",
 "} D",
 "",
-"/BC {",				// PDC_SETBKCOLOR [R G B]
+"/BC {",				// PdcSetBkColor [R G B]
 "    CRGB",
 "    BkCol astore pop",
 "} D",
 "",
-"/B {",					// PDC_SETBRUSH [style R G B]
+"/B {",					// PdcSetBrush [style R G B]
 "    CRGB",
 "    BCol astore pop",
 "    /BSt ED",
 "} D",
 "",
-"/PE {",				// PDC_SETPEN [style width R G B]
+"/PE {",				// PdcSetPen [style width R G B]
 "    CRGB",
 "    PCol astore pop",
 "    /LWi ED",
@@ -402,7 +401,7 @@ static const char *ps_header[] = {
 "",
 "",// isn't this important enough to try to avoid the SC?
 "",
-"/T {",					// PDC_DRAWTEXT2 [string x y]
+"/T {",					// PdcDrawText2 [string x y]
 "    MT",				// ### Uff
 "    PCol SC",				// set pen/text color
 "    show",
@@ -2250,7 +2249,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     if ( !paint )
 	return FALSE; // just to avoid a segfault
 
-    if ( c == PDC_BEGIN ) {		// start painting
+    if ( c == PdcBegin ) {		// start painting
 	d->pagesInBuffer = 0;
 	d->buffer = new QBuffer();
 	d->buffer->open( IO_WriteOnly );
@@ -2275,7 +2274,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	return TRUE;
     }
 
-    if ( c == PDC_END ) {			// painting done
+    if ( c == PdcEnd ) {			// painting done
 	bool pageCountAtEnd = (d->buffer == 0);
 	if ( !pageCountAtEnd )
 	    emitHeader( TRUE );
@@ -2293,7 +2292,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->realDevice = 0;
     }
 
-    if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
+    if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
 	if ( dirtyMatrix )
 	    matrixSetup( paint );
 	if ( dirtyNewPage )
@@ -2303,37 +2302,37 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     switch( c ) {
-    case PDC_DRAWPOINT:
+    case PdcDrawPoint:
 	stream << POINT(0) << "P\n";
 	break;
-    case PDC_MOVETO:
+    case PdcMoveTo:
 	stream << POINT(0) << "M\n";
 	break;
-    case PDC_LINETO:
+    case PdcLineTo:
 	stream << POINT(0) << "L\n";
 	break;
-    case PDC_DRAWLINE:
+    case PdcDrawLine:
 	stream << POINT(0) << POINT(1) << "DL\n";
 	break;
-    case PDC_DRAWRECT:
+    case PdcDrawRect:
 	stream << RECT(0) << "R\n";
 	break;
-    case PDC_DRAWROUNDRECT:
+    case PdcDrawRoundRect:
 	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "RR\n";
 	break;
-    case PDC_DRAWELLIPSE:
+    case PdcDrawEllipse:
 	stream << RECT(0) << "E\n";
 	break;
-    case PDC_DRAWARC:
+    case PdcDrawArc:
 	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "A\n";
 	break;
-    case PDC_DRAWPIE:
+    case PdcDrawPie:
 	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "PIE\n";
 	break;
-    case PDC_DRAWCHORD:
+    case PdcDrawChord:
 	stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
 	break;
-    case PDC_DRAWLINESEGS:
+    case PdcDrawLineSegments:
 	if ( p[0].ptarr->size() > 0 ) {
 	    QPointArray a = *p[0].ptarr;
 	    QPoint pt;
@@ -2349,7 +2348,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "QS\n";
 	}
 	break;
-    case PDC_DRAWPOLYLINE:
+    case PdcDrawPolyline:
 	if ( p[0].ptarr->size() > 1 ) {
 	    QPointArray a = *p[0].ptarr;
 	    QPoint pt = a.point( 0 );
@@ -2363,7 +2362,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "QS\n";
 	}
 	break;
-    case PDC_DRAWPOLYGON:
+    case PdcDrawPolygon:
 	if ( p[0].ptarr->size() > 2 ) {
 	    QPointArray a = *p[0].ptarr;
 	    if ( p[1].ival )
@@ -2382,7 +2381,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << "/WFi false d\n";
 	}
 	break;
-    case PDC_DRAWQUADBEZIER:
+    case PdcDrawQuadBezier:
 	if ( p[0].ptarr->size() == 4 ) {
 	    stream << "NP\n";
 	    QPointArray a = *p[0].ptarr;
@@ -2395,8 +2394,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "BZ\n";
 	}
 	break;
-    case PDC_DRAWTEXT2:
+    case PdcDrawText2:
 	if ( !p[1].str->isEmpty() ) {
+	    debug( "string is %s", p[1].str->ascii() );
 	    // #### Unicode ignored
 
 	    char * tmp = new char[ p[1].str->length() * 2 + 2 ];
@@ -2415,9 +2415,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    delete [] tmp;
 	}
 	break;
-    case PDC_DRAWTEXT2FRMT:;
+    case PdcDrawText2Formatted:;
 	return FALSE;			// uses QPainter instead
-    case PDC_DRAWPIXMAP: {
+    case PdcDrawPixmap: {
 	if ( p[1].pixmap->isNull() )
 	    break;
 	QPoint pnt = *(p[0].point);
@@ -2426,7 +2426,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	drawImage( paint, pnt, img );
 	break;
     }
-    case PDC_DRAWIMAGE: {
+    case PdcDrawImage: {
 	if ( p[1].image->isNull() )
 	    break;
 	QPoint pnt = *(p[0].point);
@@ -2434,31 +2434,31 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	drawImage( paint, pnt, img );
 	break;
     }
-    case PDC_SETBKCOLOR:
+    case PdcSetBkColor:
 	stream << COLOR(*(p[0].color)) << "BC\n";
 	break;
-    case PDC_SETBKMODE:
+    case PdcSetBkMode:
 	if ( p[0].ival == Qt::TransparentMode )
 	    stream << "/OMo false d\n";
 	else
 	    stream << "/OMo true d\n";
 	break;
-    case PDC_SETROP:
+    case PdcSetROP:
 #if defined(CHECK_RANGE)
 	if ( p[0].ival != Qt::CopyROP )
 	    warning( "QPrinter: Raster operation setting not supported" );
 #endif
 	break;
-    case PDC_SETBRUSHORIGIN:
+    case PdcSetBrushOrigin:
 	break;
-    case PDC_SETFONT:
+    case PdcSetFont:
 	setFont( *(p[0].font) );
 	break;
-    case PDC_SETPEN:
+    case PdcSetPen:
 	stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
 	       << ' ' << COLOR(p[0].pen->color()) << "PE\n";
 	break;
-    case PDC_SETBRUSH:
+    case PdcSetBrush:
 	if ( p[0].brush->style() == Qt::CustomPattern ) {
 #if defined(CHECK_RANGE)
 	    warning( "QPrinter: Pixmap brush not supported" );
@@ -2468,23 +2468,23 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream << (int)p[0].brush->style()	 << ' '
 	       << COLOR(p[0].brush->color()) << "B\n";
 	break;
-    case PDC_SETTABSTOPS:
-    case PDC_SETTABARRAY:
+    case PdcSetTabStops:
+    case PdcSetTabArray:
 	return FALSE;
-    case PDC_SETUNIT:
+    case PdcSetUnit:
 	break;
-    case PDC_SETVXFORM:
-    case PDC_SETWINDOW:
-    case PDC_SETVIEWPORT:
-    case PDC_SETWXFORM:
-    case PDC_SETWMATRIX:
-    case PDC_RESTOREWMATRIX:
+    case PdcSetVXform:
+    case PdcSetWindow:
+    case PdcSetViewport:
+    case PdcSetWXform:
+    case PdcSetWMatrix:
+    case PdcRestoreWMatrix:
 	dirtyMatrix = TRUE;
 	break;
-    case PDC_SETCLIP:
+    case PdcSetClip:
 	d->dirtyClipping = TRUE;
 	break;
-    case PDC_SETCLIPRGN:
+    case PdcSetClipRegion:
 	d->dirtyClipping = TRUE;
 	break;
     case PDC_PRT_NEWPAGE:
@@ -2878,22 +2878,22 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
 
     param[0].color = &paint->backgroundColor();
     if ( *param[0].color != Qt::white )
-	cmd( PDC_SETBKCOLOR, paint, param );
+	cmd( PdcSetBkColor, paint, param );
 
     param[0].ival = paint->backgroundMode();
     if (param[0].ival != Qt::TransparentMode )
-	cmd( PDC_SETBKMODE, paint, param );
+	cmd( PdcSetBkMode, paint, param );
 
     param[0].font = &paint->font();
-    cmd( PDC_SETFONT, paint, param );
+    cmd( PdcSetFont, paint, param );
 
     param[0].pen = &paint->pen();
     if (*param[0].pen != defaultPen )
-	cmd( PDC_SETPEN, paint,param );
+	cmd( PdcSetPen, paint,param );
 
     param[0].brush = &paint->brush();
     if (*param[0].brush != defaultBrush )
-	cmd( PDC_SETBRUSH, paint, param);
+	cmd( PdcSetBrush, paint, param);
 
     if ( paint->hasViewXForm() || paint->hasWorldXForm() )
 	matrixSetup( paint );

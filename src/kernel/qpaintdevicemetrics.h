@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#17 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
@@ -29,7 +29,6 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicedefs.h"
 #endif // QT_H
 
 
@@ -38,12 +37,21 @@ class Q_EXPORT QPaintDeviceMetrics			// paint device metrics
 public:
     QPaintDeviceMetrics( const QPaintDevice * );
 
-    int	  width()	const	{ return (int)pdev->metric(PDM_WIDTH); }
-    int	  height()	const	{ return (int)pdev->metric(PDM_HEIGHT); }
-    int	  widthMM()	const	{ return (int)pdev->metric(PDM_WIDTHMM); }
-    int	  heightMM()	const	{ return (int)pdev->metric(PDM_HEIGHTMM); }
-    int	  numColors()	const	{ return (int)pdev->metric(PDM_NUMCOLORS); }
-    int	  depth()	const	{ return (int)pdev->metric(PDM_DEPTH); }
+    enum {
+	PdmWidth = 1,
+	PdmHeight,
+	PdmWidthMM,
+	PdmHeightMM,
+	PdmNumColors,
+	PdmDepth
+    };
+
+    int	  width()	const	{ return (int)pdev->metric(PdmWidth); }
+    int	  height()	const	{ return (int)pdev->metric(PdmHeight); }
+    int	  widthMM()	const	{ return (int)pdev->metric(PdmWidthMM); }
+    int	  heightMM()	const	{ return (int)pdev->metric(PdmHeightMM); }
+    int	  numColors()	const	{ return (int)pdev->metric(PdmNumColors); }
+    int	  depth()	const	{ return (int)pdev->metric(PdmDepth); }
 
 private:
     QPaintDevice *pdev;

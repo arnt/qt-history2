@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#97 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qpaintdevice.h"
-#include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -143,20 +143,20 @@ void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
 
   Set the x11-specific data
 */
-  
+
 void QPaintDevice::setX11Data( const QPaintDeviceX11Data* d )
 {
     if ( d ) {
 	if ( !x11Data )
 	    x11Data = new QPaintDeviceX11Data;
 	*x11Data = *d;
-    } 
+    }
     else if ( x11Data ) {
 	delete x11Data;
 	x11Data = 0;
     }
 }
-    
+
 
 /*
   \internal
@@ -407,13 +407,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )
-	    sw = src->metric( PDM_WIDTH ) - sx;
+	    sw = src->metric( QPaintDeviceMetrics::PdmWidth ) - sx;
 	else
 	    return;
     }
     if ( sh <= 0 ) {				// special height
 	if ( sh < 0 )
-	    sh = src->metric( PDM_HEIGHT ) - sy;
+	    sh = src->metric( QPaintDeviceMetrics::PdmHeight ) - sy;
 	else
 	    return;
     }
@@ -451,7 +451,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	QPoint p(dx,dy);
 	param[0].point	= &p;
 	param[1].pixmap = pm;
-	dst->cmd( PDC_DRAWPIXMAP, 0, param );
+	dst->cmd( QPaintDevice::PdcDrawPixmap, 0, param );
 	if ( tmp_pm )
 	    delete pm;
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#49 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -19,13 +19,13 @@
 *****************************************************************************/
 
 #include "qprinter.h"
-#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qwidget.h"
 #include "qapplication.h"
 #include "qt_windows.h"
+#include "qpaintdevicemetrics.h"
 
 extern Qt::WindowsVersion qt_winver;
 
@@ -99,7 +99,7 @@ bool windowPrintDlg(PRINTDLG* pd)
 		: PrintDlgA( (PRINTDLGA*)pd ) ) != 0;
 }
 
-typedef struct 
+typedef struct
 {
     int winSizeName;
     QPrinter::PageSize qtSizeName;
@@ -188,7 +188,7 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 
 bool QPrinter::setup( QWidget *parent )
 {
-    
+
     if ( parent )
 	parent = parent->topLevelWidget();
     else
@@ -321,7 +321,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
-    if ( c ==  PDC_BEGIN ) {			// begin; start printing
+    if ( c ==  PdcBegin ) {			// begin; start printing
 	bool ok = state == PST_IDLE;
 	if ( ok && !hdc ) {
 	    setup( 0 );
@@ -354,7 +354,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	} else {
 	    state = PST_ACTIVE;
 	}
-    } else if ( c == PDC_END ) {
+    } else if ( c == PdcEnd ) {
 	if ( hdc ) {
 	    EndPage( hdc );			// end; printing done
 	    EndDoc( hdc );
@@ -367,7 +367,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    state = PST_ABORTED;
 	    return FALSE;
 	}
-	if ( c == PDC_DRAWPIXMAP || c == PDC_DRAWIMAGE ) {
+	if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
 	    QPoint  pos	   = *p[0].point;
 	    QPixmap pixmap;
 	    QImage  image;
@@ -376,7 +376,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    int h;
 	    int d;
 
-	    if ( c == PDC_DRAWPIXMAP ) {
+	    if ( c == PdcDrawPixmap ) {
 		pixmap = *p[1].pixmap;
 		w = pixmap.width();
 		h = pixmap.height();
@@ -414,7 +414,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
 	    uchar *bits;
 
-	    if ( c == PDC_DRAWPIXMAP ) {
+	    if ( c == PdcDrawPixmap ) {
 		bits = new uchar[bmh->biSizeImage];
 		GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
 			   bits, bmi, DIB_RGB_COLORS );
@@ -438,7 +438,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		DeleteObject( hbm );
 		DeleteObject( hdcPrn );
 	    }
-	    if ( c == PDC_DRAWPIXMAP ) {
+	    if ( c == PdcDrawPixmap ) {
 		delete [] bits;
 	    }
 	    free( bmi );
@@ -455,29 +455,29 @@ int QPrinter::metric( int m ) const
 	return 0;
     int query;
     switch ( m ) {
-	case PDM_WIDTH:
-	    query = HORZRES;
-	    break;
-	case PDM_HEIGHT:
-	    query = VERTRES;
-	    break;
-	case PDM_WIDTHMM:
-	    query = HORZSIZE;
-	    break;
-	case PDM_HEIGHTMM:
-	    query = VERTSIZE;
-	    break;
-	case PDM_NUMCOLORS:
-	    query = NUMCOLORS;
-	    break;
-	case PDM_DEPTH:
-	    query = PLANES;
-	    break;
-	default:
+    case QPaintDeviceMetrics::PdmWidth:
+	query = HORZRES;
+	break;
+    case QPaintDeviceMetrics::PdmHeight:
+	query = VERTRES;
+	break;
+    case QPaintDeviceMetrics::PdmWidthMM:
+	query = HORZSIZE;
+	break;
+    case QPaintDeviceMetrics::PdmHeightMM:
+	query = VERTSIZE;
+	break;
+    case QPaintDeviceMetrics::PdmNumColors:
+	query = NUMCOLORS;
+	break;
+    case QPaintDeviceMetrics::PdmDepth:
+	query = PLANES;
+	break;
+    default:
 #if defined(CHECK_RANGE)
-	    warning( "QPrinter::metric: Invalid metric command" );
+	warning( "QPrinter::metric: Invalid metric command" );
 #endif
-	    return 0;
+	return 0;
     }
     return GetDeviceCaps( handle(), query );
 }

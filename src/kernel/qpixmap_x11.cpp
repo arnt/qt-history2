@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#153 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -41,11 +41,11 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qpaintdevicedefs.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include <stdlib.h>
 #include "qt_x11.h"
+#include "qpaintdevicemetrics.h"
 #ifdef MITSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -573,27 +573,26 @@ void QPixmap::fill( const QColor &fillColor )
 int QPixmap::metric( int m ) const
 {
     int val;
-    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
-	if ( m == PDM_WIDTH )
-	    val = width();
-	else
-	    val = height();
+    if ( m == QPaintDeviceMetrics::PdmWidth )
+	val = width();
+    else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	val = height();
     } else {
 	Display *dpy = x11Display();
 	int scr = x11Screen();
 	switch ( m ) {
-	    case PDM_WIDTHMM:
+	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*width())/
 		      DisplayWidth(dpy,scr);
 		break;
-	    case PDM_HEIGHTMM:
+	    case QPaintDeviceMetrics::PdmHeightMM:
 		val = (DisplayHeightMM(dpy,scr)*height())/
 		      DisplayHeight(dpy,scr);
 		break;
-	    case PDM_NUMCOLORS:
+	    case QPaintDeviceMetrics::PdmNumColors:
 		val = 1 << depth();
 		break;
-	    case PDM_DEPTH:
+	    case QPaintDeviceMetrics::PdmDepth:
 		val = depth();
 		break;
 	    default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#82 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -20,7 +20,7 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qt_windows.h"
@@ -306,33 +306,32 @@ void QPixmap::fill( const QColor &fillColor )
 int QPixmap::metric( int m ) const
 {
     int val;
-    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
-	if ( m == PDM_WIDTH )
-	    val = width();
-	else
-	    val = height();
+    if ( m == QPaintDeviceMetrics::PdmWidth )
+	val = width();
+    else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	val = height();
     } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
-	    case PDM_WIDTHMM:
-		val = GetDeviceCaps( gdc, HORZSIZE );
-		break;
-	    case PDM_HEIGHTMM:
-		val = GetDeviceCaps( gdc, VERTSIZE );
-		break;
-	    case PDM_NUMCOLORS:
-		if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
-		    val = GetDeviceCaps( gdc, SIZEPALETTE );
-		else
-		    val = GetDeviceCaps( gdc, NUMCOLORS );
-		break;
-	    case PDM_DEPTH:
-		val = GetDeviceCaps( gdc, PLANES );
-		break;
-	    default:
-		val = 0;
+	case QPaintDeviceMetrics::PdmWidthMM:
+	    val = GetDeviceCaps( gdc, HORZSIZE );
+	    break;
+	case QPaintDeviceMetrics::PdmHeightMM:
+	    val = GetDeviceCaps( gdc, VERTSIZE );
+	    break;
+	case QPaintDeviceMetrics::PdmNumColors:
+	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
+		val = GetDeviceCaps( gdc, SIZEPALETTE );
+	    else
+		val = GetDeviceCaps( gdc, NUMCOLORS );
+	    break;
+	case QPaintDeviceMetrics::PdmDepth:
+	    val = GetDeviceCaps( gdc, PLANES );
+	    break;
+	default:
+	    val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QPixmap::metric: Invalid metric command" );
+	    warning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
 	ReleaseDC( 0, gdc );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#175 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -24,12 +24,12 @@
 *****************************************************************************/
 
 #include "qpainter.h"
-#include "qpaintdevicedefs.h"
 #include "qbitmap.h"
 #include "qstack.h"
 #include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
+#include "qpaintdevicemetrics.h"
 #include <stdlib.h>
 
 typedef QStack<QWMatrix> QWMatrixStack;
@@ -186,22 +186,12 @@ QPainter::QPainter( const QPaintDevice *pd,
 
 /*!
   Destroys the painter.
-
-  If you called begin() but not end(), the destructor outputs a warning
-  message.  Note that there is no need to call end() if you used one of
-  the constructors which takes a paint device argument.
 */
 
 QPainter::~QPainter()
 {
-    if ( isActive() ) {
-	if ( (flags & CtorBegin) == 0 ) {
-#if defined(CHECK_STATE)
-	    warning( "QPainter: You called begin() but not end()" );
-#endif
-	}
+    if ( isActive() )
 	end();
-    }
     if ( tabarray )				// delete tab array
 	delete [] tabarray;
     if ( ps_stack )
@@ -341,7 +331,7 @@ void QPainter::save()
 	    updatePen();
 	if ( testf(DirtyBrush) )
 	    updateBrush();
-	pdev->cmd( PDC_SAVE, this, 0 );
+	pdev->cmd( QPaintDevice::PdcSave, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
@@ -384,7 +374,7 @@ void QPainter::save()
 void QPainter::restore()
 {
     if ( testf(ExtDev) ) {
-	pdev->cmd( PDC_RESTORE, this, 0 );
+	pdev->cmd( QPaintDevice::PdcRestore, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
@@ -648,7 +638,7 @@ void QPainter::setTabStops( int ts )
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
 	QPDevCmdParam param[1];
 	param[0].ival = ts;
-	pdev->cmd( PDC_SETTABSTOPS, this, param );
+	pdev->cmd( QPaintDevice::PdcSetTabStops, this, param );
     }
 }
 
@@ -695,7 +685,7 @@ void QPainter::setTabArray( int *ta )
 	QPDevCmdParam param[2];
 	param[0].ival = tabarraylen;
 	param[1].ivec = tabarray;
-	pdev->cmd( PDC_SETTABARRAY, this, param );
+	pdev->cmd( QPaintDevice::PdcSetTabArray, this, param );
     }
 }
 
@@ -729,7 +719,7 @@ void QPainter::setViewXForm( bool enable )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	pdev->cmd( PDC_SETVXFORM, this, param );
+	pdev->cmd( QPaintDevice::PdcSetVXform, this, param );
     }
     updateXForm();
 }
@@ -808,7 +798,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETWINDOW, this, param );
+	pdev->cmd( QPaintDevice::PdcSetWindow, this, param );
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -885,7 +875,7 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	pdev->cmd( PDC_SETVIEWPORT, this, param );
+	pdev->cmd( QPaintDevice::PdcSetViewport, this, param );
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -912,7 +902,7 @@ void QPainter::setWorldXForm( bool enable )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	pdev->cmd( PDC_SETWXFORM, this, param );
+	pdev->cmd( QPaintDevice::PdcSetWXform, this, param );
     }
     updateXForm();
 }
@@ -1019,7 +1009,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	QPDevCmdParam param[2];
 	param[0].matrix = &m;
 	param[1].ival = combine;
-	pdev->cmd( PDC_SETWMATRIX, this, param );
+	pdev->cmd( QPaintDevice::PdcSetWMatrix, this, param );
     }
     if ( identity )
 	setWorldXForm( FALSE );
@@ -1145,8 +1135,8 @@ void QPainter::resetXForm()
     if ( !isActive() )
 	return;
     wx = wy = vx = vy = 0;			// default view origins
-    ww = vw = pdev->metric( PDM_WIDTH );
-    wh = vh = pdev->metric( PDM_HEIGHT );
+    ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
+    wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
 }
@@ -1739,9 +1729,9 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	param[0].point = &p;
 	param[1].image = &subimage;
 #if defined(_WS_WIN_)
-	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hdc )
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
 #else
-	if ( !pdev->cmd(PDC_DRAWIMAGE,this,param) || !hd )
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
 #endif
 	    return;
     }
@@ -1917,16 +1907,20 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    param[2].str = &newstr;
 	    if ( pdev->devType() != QInternal::Printer ) {
 #if defined(_WS_WIN_)
-		if ( !pdev->cmd(PDC_DRAWTEXT2FRMT,this,param) || !hdc )
+		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
+				 this, param) ||
+		     !hdc )
 #else
-		if ( !pdev->cmd(PDC_DRAWTEXT2FRMT,this,param) || !hd )
+		if ( !pdev->cmd( QPaintDevice::PdcDrawText2Formatted,
+				 this, param) ||
+		     !hd )
 #endif
-		    return;			// QPrinter wants PDC_DRAWTEXT2
+		    return;			// QPrinter wants PdcDrawText2
 	    }
 	}
     }
 
-    QFontMetrics fm = fontMetrics();		// get font metrics
+    const QFontMetrics & fm = fontMetrics();		// get font metrics
 
     qt_format_text(fm, x, y, w, h, tf, str, len, brect,
 		   tabstops, tabarray, tabarraylen, internal, this);

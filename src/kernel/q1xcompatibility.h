@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/q1xcompatibility.h#8 $
+** $Id: //depot/qt/main/src/kernel/q1xcompatibility.h#9 $
 **
 ** Various macros etc. to ease porting from Qt 1.x to 2.0.  THIS FILE
 ** WILL CHANGE OR DISAPPEAR IN THE NEXT VERSION OF Qt.
@@ -77,15 +77,15 @@
 #define Q_CUSTOM_EVENT(x)       ((QCustomEvent*)x)
 
 
-#define NoButton	QMouseEvent::NoButton
-#define LeftButton	QMouseEvent::LeftButton
-#define RightButton	QMouseEvent::RightButton
-#define MidButton	QMouseEvent::MidButton
-#define MouseButtonMask	QMouseEvent::MouseButtonMask
-#define ShiftButton	QMouseEvent::ShiftButton
-#define ControlButton	QMouseEvent::ControlButton
-#define AltButton	QMouseEvent::AltButton
-#define KeyButtonMask	QMouseEvent::KeyButtonMask
+#define NoButton	Qt::NoButton
+#define LeftButton	Qt::LeftButton
+#define RightButton	Qt::RightButton
+#define MidButton	Qt::MidButton
+#define MouseButtonMask	Qt::MouseButtonMask
+#define ShiftButton	Qt::ShiftButton
+#define ControlButton	Qt::ControlButton
+#define AltButton	Qt::AltButton
+#define KeyButtonMask	Qt::KeyButtonMask
 
 // Painter device types (is-A)
 
@@ -100,5 +100,65 @@
 // Painter device flags
 
 #define PDF_EXTDEV	QInternal::ExternalDevice
+
+// old qpaindevicedefs.h stuff
+
+#define PDC_BEGIN QPaintDevice::PdcBeg
+#define PDC_DRAWARC QPaintDevice::PdcDrawArc
+#define PDC_DRAWCHORD QPaintDevice::PdcDrawChord
+#define PDC_DRAWELLIPSE QPaintDevice::PdcDrawEllipse
+#define PDC_DRAWIMAGE QPaintDevice::PdcDrawImage
+#define PDC_DRAWLINE QPaintDevice::PdcDrawLine
+#define PDC_DRAWLINESEGS QPaintDevice::PdcDrawLineSegments/g
+#define PDC_DRAWPIE QPaintDevice::PdcDrawPie
+#define PDC_DRAWPIXMAP QPaintDevice::PdcDrawPixmap
+#define PDC_DRAWPOINT QPaintDevice::PdcDrawPoint
+#define PDC_DRAWPOLYGON QPaintDevice::PdcDrawPolygon
+#define PDC_DRAWPOLYLINE QPaintDevice::PdcDrawPolyline
+#define PDC_DRAWQUADBEZIER QPaintDevice::PdcDrawQuadBezier
+#define PDC_DRAWRECT QPaintDevice::PdcDrawRect
+#define PDC_DRAWROUNDRECT QPaintDevice::PdcDrawRoundRect
+#define PDC_DRAWTEXT QPaintDevice::PdcDrawText
+#define PDC_DRAWTEXT2 QPaintDevice::PdcDrawText2
+#define PDC_DRAWTEXT2FRMT QPaintDevice::PdcDrawText2Formatted
+#define PDC_DRAWTEXTFRMT QPaintDevice::PdcDrawTextFormatted
+#define PDC_DRAW_FIRST QPaintDevice::PdcDrawFirst
+#define PDC_DRAW_LAST QPaintDevice::PdcDrawLast
+#define PDC_END QPaintDevice::PdcEnd
+#define PDC_LINETO QPaintDevice::PdcLineTo
+#define PDC_MOVETO QPaintDevice::PdcMoveTo
+#define PDC_NOP QPaintDevice::PdcNOP
+#define PDC_RESERVED_START QPaintDevice::PdcReservedStart
+#define PDC_RESERVED_STOP QPaintDevice::PdcReservedStop
+#define PDC_RESTORE QPaintDevice::PdcRestore
+#define PDC_RESTOREWMATRIX QPaintDevice::PdcRestoreWMatrix
+#define PDC_SAVE QPaintDevice::PdcSave
+#define PDC_SAVEWMATRIX QPaintDevice::PdcSaveWMatrix
+#define PDC_SETBKCOLOR QPaintDevice::PdcSetBkColor
+#define PDC_SETBKMODE QPaintDevice::PdcSetBkMode
+#define PDC_SETBRUSH QPaintDevice::PdcSetBrush
+#define PDC_SETBRUSHORIGIN QPaintDevice::PdcSetBrushOrigin
+#define PDC_SETCLIP QPaintDevice::PdcSetClip
+#define PDC_SETCLIPRGN QPaintDevice::PdcSetClipRegion
+#define PDC_SETDEV QPaintDevice::PdcSetdev
+#define PDC_SETFONT QPaintDevice::PdcSetFont
+#define PDC_SETPEN QPaintDevice::PdcSetPen
+#define PDC_SETROP QPaintDevice::PdcSetROP
+#define PDC_SETTABARRAY QPaintDevice::PdcSetTabArray
+#define PDC_SETTABSTOPS QPaintDevice::PdcSetTabStops
+#define PDC_SETUNIT QPaintDevice::PdcSetUnit
+#define PDC_SETVIEWPORT QPaintDevice::PdcSetViewport
+#define PDC_SETVXFORM QPaintDevice::PdcSetVXform
+#define PDC_SETWINDOW QPaintDevice::PdcSetWindow
+#define PDC_SETWMATRIX QPaintDevice::PdcSetWMatrix
+#define PDC_SETWXFORM QPaintDevice::PdcSetWXform
+
+#define PDM_WIDTH QPaintDeviceMetrics::PdmWidth
+#define PDM_HEIGHT QPaintDeviceMetrics::PdmHeight
+#define PDM_WIDTHMM QPaintDeviceMetrics::PdmWidthMM
+#define PDM_HEIGHTMM QPaintDeviceMetrics::PdmHeightMM
+#define PDM_NUMCOLORS QPaintDeviceMetrics::PdmNumColors
+#define PDM_DEPTH QPaintDeviceMetrics::PdmDepth
+
 
 #endif // Q1XCOMPATIBILITY_H

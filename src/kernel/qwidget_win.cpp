@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#202 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -19,7 +19,6 @@
 *****************************************************************************/
 
 #include "qapplication.h"
-#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qwidgetlist.h"
@@ -31,6 +30,8 @@
 #include "qfocusdata.h"
 #include "qlayout.h"
 #include "qt_windows.h"
+#include "qpaintdevicemetrics.h"
+
 
 extern Qt::WindowsVersion qt_winver;
 
@@ -56,7 +57,7 @@ static HHOOK	journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
 /*****************************************************************************
@@ -716,7 +717,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    h = crect.height() - y;
 	QRect r(x,y,w,h);
 	QPaintEvent e( r, erase );
-	qt_set_paintevent_clipping( this, r ); 
+	qt_set_paintevent_clipping( this, r );
 	if ( erase )
 	    this->erase( x, y, w, h );
 	QApplication::sendEvent( this, &e );
@@ -728,7 +729,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	QPaintEvent e( reg );
-	qt_set_paintevent_clipping( this, reg ); 
+	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase( reg );
 	QApplication::sendEvent( this, &e );
@@ -990,34 +991,33 @@ void QWidget::drawText( int x, int y, const QString &str )
 int QWidget::metric( int m ) const
 {
     int val;
-    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
-	if ( m == PDM_WIDTH )
-	    val = crect.width();
-	else
-	    val = crect.height();
+    if ( m == QPaintDeviceMetrics::PdmWidth ) {
+	val = crect.width();
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	val = crect.height();
     } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
 	    //###H: return widget mm width/height
-	    case PDM_WIDTHMM:
-		val = GetDeviceCaps( gdc, HORZSIZE );
-		break;
-	    case PDM_HEIGHTMM:
-		val = GetDeviceCaps( gdc, VERTSIZE );
-		break;
-	    case PDM_NUMCOLORS:
-		if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
-		    val = GetDeviceCaps( gdc, SIZEPALETTE );
-		else
-		    val = GetDeviceCaps( gdc, NUMCOLORS );
-		break;
-	    case PDM_DEPTH:
-		val = GetDeviceCaps( gdc, PLANES );
-		break;
-	    default:
-		val = 0;
+	case QPaintDeviceMetrics::PdmWidthMM:
+	    val = GetDeviceCaps( gdc, HORZSIZE );
+	    break;
+	case QPaintDeviceMetrics::PdmHeightMM:
+	    val = GetDeviceCaps( gdc, VERTSIZE );
+	    break;
+	case QPaintDeviceMetrics::PdmNumColors:
+	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
+		val = GetDeviceCaps( gdc, SIZEPALETTE );
+	    else
+		val = GetDeviceCaps( gdc, NUMCOLORS );
+	    break;
+	case QPaintDeviceMetrics::PdmDepth:
+	    val = GetDeviceCaps( gdc, PLANES );
+	    break;
+	default:
+	    val = 0;
 #if defined(CHECK_RANGE)
-		warning( "QWidget::metric: Invalid metric command" );
+	    warning( "QWidget::metric: Invalid metric command" );
 #endif
 	}
 	ReleaseDC( 0, gdc );

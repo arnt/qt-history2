@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#62 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -24,10 +24,10 @@
 *****************************************************************************/
 
 #include "qprinter.h"
+#include "qpaintdevicemetrics.h"
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qdir.h"
-#include "qpaintdevicedefs.h"
 #include "qpsprinter.h"
 #include "qprintdialog.h"
 #include "qapplication.h"
@@ -173,7 +173,7 @@ bool QPrinter::setup( QWidget * parent )
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
-    if ( c ==  PDC_BEGIN ) {
+    if ( c ==  PdcBegin ) {
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
 #if defined(_OS_WIN32_)
@@ -315,7 +315,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	bool r = FALSE;
 	if ( state == PST_ACTIVE && pdrv ) {
 	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
-	    if ( c == PDC_END ) {
+	    if ( c == PdcEnd ) {
 		state = PST_IDLE;
 		delete pdrv;
 		pdrv = 0;
@@ -357,24 +357,24 @@ int QPrinter::metric( int m ) const
 			     4127, 2920, 127, 2064, 1460, 1032, 729, 516, 363,
 			     258, 181, 648, 684, 624, 935, 792, 1224 };
     switch ( m ) {
-	case PDM_WIDTH:
+	case QPaintDeviceMetrics::PdmWidth:
 	    val = orient == Portrait ? widths[ s ] : heights[ s ];
 	    break;
-	case PDM_HEIGHT:
+	case QPaintDeviceMetrics::PdmHeight:
 	    val = orient == Portrait ? heights[ s ] : widths[ s ];
 	    break;
-	case PDM_WIDTHMM:
+	case QPaintDeviceMetrics::PdmWidthMM:
 	    val = orient == Portrait ? widths[ s ] : heights[ s ];
 	    val = (val * 254 + 360) / 720; // +360 to get the right rounding
 	    break;
-	case PDM_HEIGHTMM:
+	case QPaintDeviceMetrics::PdmHeightMM:
 	    val = orient == Portrait ? heights[ s ] : widths[ s ];
 	    val = (val * 254 + 360) / 720;
 	    break;
-	case PDM_NUMCOLORS:
+	case QPaintDeviceMetrics::PdmNumColors:
 	    val = 16777216;
 	    break;
-	case PDM_DEPTH:
+	case QPaintDeviceMetrics::PdmDepth:
 	    val = 24;
 	    break;
 	default:

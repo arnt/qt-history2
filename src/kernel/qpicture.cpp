@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#61 $
 **
 ** Implementation of QPicture class
 **
@@ -24,12 +24,12 @@
 *****************************************************************************/
 
 #include "qpicture.h"
-#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qfile.h"
 #include "qdatastream.h"
+#include "qpaintdevicemetrics.h"
 
 
 /*!
@@ -221,12 +221,12 @@ bool QPicture::play( QPainter *painter )
     UINT8  c, clen;
     UINT32 nrecords;
     s >> c >> clen;
-    if ( c == PDC_BEGIN ) {
+    if ( c == PdcBegin ) {
 	s >> nrecords;
 	if ( !exec( painter, s, nrecords ) )
 	    c = 0;
     }
-    if ( c !=  PDC_BEGIN ) {
+    if ( c !=  PdcBegin ) {
 #if defined(CHECK_RANGE)
 	warning( "QPicture::play: Format error" );
 #endif
@@ -278,140 +278,140 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	strm_pos = s.device()->at();
 #endif
 	switch ( c ) {				// exec cmd
-	    case PDC_NOP:
+	    case PdcNOP:
 		break;
-	    case PDC_DRAWPOINT:
+	    case PdcDrawPoint:
 		s >> p;
 		painter->drawPoint( p );
 		break;
-	    case PDC_MOVETO:
+	    case PdcMoveTo:
 		s >> p;
 		painter->moveTo( p );
 		break;
-	    case PDC_LINETO:
+	    case PdcLineTo:
 		s >> p;
 		painter->lineTo( p );
 		break;
-	    case PDC_DRAWLINE:
+	    case PdcDrawLine:
 		s >> p1 >> p2;
 		painter->drawLine( p1, p2 );
 		break;
-	    case PDC_DRAWRECT:
+	    case PdcDrawRect:
 		s >> r;
 		painter->drawRect( r );
 		break;
-	    case PDC_DRAWROUNDRECT:
+	    case PdcDrawRoundRect:
 		s >> r >> i1_16 >> i2_16;
 		painter->drawRoundRect( r, i1_16, i2_16 );
 		break;
-	    case PDC_DRAWELLIPSE:
+	    case PdcDrawEllipse:
 		s >> r;
 		painter->drawEllipse( r );
 		break;
-	    case PDC_DRAWARC:
+	    case PdcDrawArc:
 		s >> r >> i1_16 >> i2_16;
 		painter->drawArc( r, i1_16, i2_16 );
 		break;
-	    case PDC_DRAWPIE:
+	    case PdcDrawPie:
 		s >> r >> i1_16 >> i2_16;
 		painter->drawPie( r, i1_16, i2_16 );
 		break;
-	    case PDC_DRAWCHORD:
+	    case PdcDrawChord:
 		s >> r >> i1_16 >> i2_16;
 		painter->drawChord( r, i1_16, i2_16 );
 		break;
-	    case PDC_DRAWLINESEGS:
+	    case PdcDrawLineSegments:
 		s >> a;
 		painter->drawLineSegments( a );
 		break;
-	    case PDC_DRAWPOLYLINE:
+	    case PdcDrawPolyline:
 		s >> a;
 		painter->drawPolyline( a );
 		break;
-	    case PDC_DRAWPOLYGON:
+	    case PdcDrawPolygon:
 		s >> a >> i_8;
 		painter->drawPolygon( a, i_8 );
 		break;
-	    case PDC_DRAWQUADBEZIER:
+	    case PdcDrawQuadBezier:
 		s >> a;
 		painter->drawQuadBezier( a );
 		break;
-	    case PDC_DRAWTEXT:
+	    case PdcDrawText:
 		s >> p >> str1;
 		painter->drawText( p, str1 );
 		break;
-	    case PDC_DRAWTEXTFRMT:
+	    case PdcDrawTextFormatted:
 		s >> r >> i_16 >> str1;
 		painter->drawText( r, i_16, str1 );
 		break;
-	    case PDC_DRAWTEXT2:
+	    case PdcDrawText2:
 		s >> p >> str;
 		painter->drawText( p, str );
 		break;
-	    case PDC_DRAWTEXT2FRMT:
+	    case PdcDrawText2Formatted:
 		s >> r >> i_16 >> str;
 		painter->drawText( r, i_16, str );
 		break;
-	    case PDC_DRAWPIXMAP: {
+	    case PdcDrawPixmap: {
 		QPixmap pixmap;
 		s >> p >> pixmap;
 		painter->drawPixmap( p, pixmap );
 		}
 		break;
-	    case PDC_DRAWIMAGE: {
+	    case PdcDrawImage: {
 		QImage image;
 		s >> p >> image;
 		painter->drawImage( p, image );
 		}
 		break;
-	    case PDC_BEGIN:
+	    case PdcBegin:
 		s >> ul;			// number of records
 		if ( !exec( painter, s, ul ) )
 		    return FALSE;
 		break;
-	    case PDC_END:
+	    case PdcEnd:
 		if ( nrecords == 0 )
 		    return TRUE;
 		break;
-	    case PDC_SAVE:
+	    case PdcSave:
 		painter->save();
 		break;
-	    case PDC_RESTORE:
+	    case PdcRestore:
 		painter->restore();
 		break;
-	    case PDC_SETBKCOLOR:
+	    case PdcSetBkColor:
 		s >> color;
 		painter->setBackgroundColor( color );
 		break;
-	    case PDC_SETBKMODE:
+	    case PdcSetBkMode:
 		s >> i_8;
 		painter->setBackgroundMode( (Qt::BGMode)i_8 );
 		break;
-	    case PDC_SETROP:
+	    case PdcSetROP:
 		s >> i_8;
 		painter->setRasterOp( (Qt::RasterOp)i_8 );
 		break;
-	    case PDC_SETBRUSHORIGIN:
+	    case PdcSetBrushOrigin:
 		s >> p;
 		painter->setBrushOrigin( p );
 		break;
-	    case PDC_SETFONT:
+	    case PdcSetFont:
 		s >> font;
 		painter->setFont( font );
 		break;
-	    case PDC_SETPEN:
+	    case PdcSetPen:
 		s >> pen;
 		painter->setPen( pen );
 		break;
-	    case PDC_SETBRUSH:
+	    case PdcSetBrush:
 		s >> brush;
 		painter->setBrush( brush );
 		break;
-	    case PDC_SETTABSTOPS:
+	    case PdcSetTabStops:
 		s >> i_16;
 		painter->setTabStops( i_16 );
 		break;
-	    case PDC_SETTABARRAY:
+	    case PdcSetTabArray:
 		s >> i_16;
 		if ( i_16 == 0 ) {
 		    painter->setTabArray( 0 );
@@ -426,37 +426,37 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    delete [] ta;
 		}
 		break;
-	    case PDC_SETVXFORM:
+	    case PdcSetVXform:
 		s >> i_8;
 		painter->setViewXForm( i_8 );
 		break;
-	    case PDC_SETWINDOW:
+	    case PdcSetWindow:
 		s >> r;
 		painter->setWindow( r );
 		break;
-	    case PDC_SETVIEWPORT:
+	    case PdcSetViewport:
 		s >> r;
 		painter->setViewport( r );
 		break;
-	    case PDC_SETWXFORM:
+	    case PdcSetWXform:
 		s >> i_8;
 		painter->setWorldXForm( i_8 );
 		break;
-	    case PDC_SETWMATRIX:
+	    case PdcSetWMatrix:
 		s >> matrix >> i_8;
 		painter->setWorldMatrix( matrix, i_8 );
 		break;
-	    case PDC_SAVEWMATRIX:
+	    case PdcSaveWMatrix:
 		painter->saveWorldMatrix();
 		break;
-	    case PDC_RESTOREWMATRIX:
+	    case PdcRestoreWMatrix:
 		painter->restoreWorldMatrix();
 		break;
-	    case PDC_SETCLIP:
+	    case PdcSetClip:
 		s >> i_8;
 		painter->setClipping( i_8 );
 		break;
-	    case PDC_SETCLIPRGN:
+	    case PdcSetClipRegion:
 		s >> rgn;
 		painter->setClipRegion( rgn );
 		break;
@@ -484,7 +484,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
     QDataStream s;
     s.setDevice( &pictb );
-    if ( c ==  PDC_BEGIN ) {			// begin; write header
+    if ( c ==  PdcBegin ) {			// begin; write header
 	QByteArray empty( 0 );
 	pictb.setBuffer( empty );		// reset byte array in buffer
 	pictb.open( IO_WriteOnly );
@@ -495,7 +495,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	s << (UINT32)trecs;			// total number of records
 	formatOk = FALSE;
 	return TRUE;
-    } else if ( c == PDC_END ) {		// end; calc checksum and close
+    } else if ( c == PdcEnd ) {		// end; calc checksum and close
 	trecs++;
 	s << (UINT8)c << (UINT8)0;
 	QByteArray buf = pictb.buffer();
@@ -516,70 +516,70 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
     s << (UINT8)0;				// write dummy length info
     int pos = (int)pictb.at();			// save position
     switch ( c ) {
-	case PDC_DRAWPOINT:
-	case PDC_MOVETO:
-	case PDC_LINETO:
-	case PDC_SETBRUSHORIGIN:
+	case PdcDrawPoint:
+	case PdcMoveTo:
+	case PdcLineTo:
+	case PdcSetBrushOrigin:
 	    s << *p[0].point;
 	    break;
-	case PDC_DRAWLINE:
+	case PdcDrawLine:
 	    s << *p[0].point << *p[1].point;
 	    break;
-	case PDC_DRAWRECT:
-	case PDC_DRAWELLIPSE:
+	case PdcDrawRect:
+	case PdcDrawEllipse:
 	    s << *p[0].rect;
 	    break;
-	case PDC_DRAWROUNDRECT:
-	case PDC_DRAWARC:
-	case PDC_DRAWPIE:
-	case PDC_DRAWCHORD:
+	case PdcDrawRoundRect:
+	case PdcDrawArc:
+	case PdcDrawPie:
+	case PdcDrawChord:
 	    s << *p[0].rect << (INT16)p[1].ival << (INT16)p[2].ival;
 	    break;
-	case PDC_DRAWLINESEGS:
-	case PDC_DRAWPOLYLINE:
-	case PDC_DRAWQUADBEZIER:
+	case PdcDrawLineSegments:
+	case PdcDrawPolyline:
+	case PdcDrawQuadBezier:
 	    s << *p[0].ptarr;
 	    break;
-	case PDC_DRAWPOLYGON:
+	case PdcDrawPolygon:
 	    s << *p[0].ptarr << (INT8)p[1].ival;
 	    break;
-	case PDC_DRAWTEXT2:
+	case PdcDrawText2:
 	    s << *p[0].point << *p[1].str;
 	    break;
-	case PDC_DRAWTEXT2FRMT:
+	case PdcDrawText2Formatted:
 	    s << *p[0].rect << (INT16)p[1].ival << *p[2].str;
 	    break;
-	case PDC_DRAWPIXMAP:
+	case PdcDrawPixmap:
 	    s << *p[0].point;
 	    s << *p[1].pixmap;
 	    break;
-	case PDC_DRAWIMAGE:
+	case PdcDrawImage:
 	    s << *p[0].point;
 	    s << *p[1].image;
 	    break;
-	case PDC_SAVE:
-	case PDC_RESTORE:
+	case PdcSave:
+	case PdcRestore:
 	    break;
-	case PDC_SETBKCOLOR:
+	case PdcSetBkColor:
 	    s << *p[0].color;
 	    break;
-	case PDC_SETBKMODE:
-	case PDC_SETROP:
+	case PdcSetBkMode:
+	case PdcSetROP:
 	    s << (INT8)p[0].ival;
 	    break;
-	case PDC_SETFONT:
+	case PdcSetFont:
 	    s << *p[0].font;
 	    break;
-	case PDC_SETPEN:
+	case PdcSetPen:
 	    s << *p[0].pen;
 	    break;
-	case PDC_SETBRUSH:
+	case PdcSetBrush:
 	    s << *p[0].brush;
 	    break;
-	case PDC_SETTABSTOPS:
+	case PdcSetTabStops:
 	    s << (INT16)p[0].ival;
 	    break;
-	case PDC_SETTABARRAY:
+	case PdcSetTabArray:
 	    s << (INT16)p[0].ival;
 	    if ( p[0].ival ) {
 		int *ta = p[1].ivec;
@@ -587,20 +587,20 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 		    s << (INT16)ta[i];
 	    }
 	    break;
-	case PDC_SETUNIT:
-	case PDC_SETVXFORM:
-	case PDC_SETWXFORM:
-	case PDC_SETCLIP:
+	case PdcSetUnit:
+	case PdcSetVXform:
+	case PdcSetWXform:
+	case PdcSetClip:
 	    s << (INT8)p[0].ival;
 	    break;
-	case PDC_SETWINDOW:
-	case PDC_SETVIEWPORT:
+	case PdcSetWindow:
+	case PdcSetViewport:
 	    s << *p[0].rect;
 	    break;
-	case PDC_SETWMATRIX:
+	case PdcSetWMatrix:
 	    s << *p[0].matrix << (INT8)p[1].ival;
 	    break;
-	case PDC_SETCLIPRGN:
+	case PdcSetClipRegion:
 	    s << *p[0].rgn;
 	    break;
 #if defined(CHECK_RANGE)
@@ -641,22 +641,23 @@ int QPicture::metric( int m ) const
 {
     int val;
     switch ( m ) {
-	case PDM_WIDTH:
+	// ### ### ### ### ### ### hard coded value!!!
+	case QPaintDeviceMetrics::PdmWidth:
 	    val = 640;
 	    break;
-	case PDM_HEIGHT:
+	case QPaintDeviceMetrics::PdmHeight:
 	    val = 480;
 	    break;
-	case PDM_WIDTHMM:
+	case QPaintDeviceMetrics::PdmWidthMM:
 	    val = 236;
 	    break;
-	case PDM_HEIGHTMM:
+	case QPaintDeviceMetrics::PdmHeightMM:
 	    val = 176;
 	    break;
-	case PDM_NUMCOLORS:
+	case QPaintDeviceMetrics::PdmNumColors:
 	    val = 16777216;
 	    break;
-	case PDM_DEPTH:
+	case QPaintDeviceMetrics::PdmDepth:
 	    val = 24;
 	    break;
 	default:

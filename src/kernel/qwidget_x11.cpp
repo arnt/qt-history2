@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#358 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#359 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qapplication.h"
-#include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qwidgetlist.h"
@@ -49,7 +49,7 @@ extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
 
 // paintevent clipping magic
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
 
@@ -576,17 +576,14 @@ XFontSet xic_fontset(void* qfs, int pt)
     static XFontSet fixed_fontset = 0;
     if ( !fixed_fontset ) {
 	QCString n;
-	n.sprintf(
-	    "-*-Helvetica-*-*-normal-*-*-%d-*-*-*-*-*-*,"
-	    "-*-*-*-*-normal-*-*-%d-*-*-*-*-*-*,"
-	    "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
-		pt*10,
-		pt*10,
-		pt*10
-	);
-	fixed_fontset =
-		    XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
-			    &missing, &nmissing, 0 );
+	n.sprintf( "-*-Helvetica-*-*-normal-*-*-%d-*-*-*-*-*-*,"
+		   "-*-*-*-*-normal-*-*-%d-*-*-*-*-*-*,"
+		   "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
+		   pt*10,
+		   pt*10,
+		   pt*10 );
+	fixed_fontset = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
+					&missing, &nmissing, 0 );
     }
     return fixed_fontset;
 }
@@ -597,19 +594,18 @@ void QWidget::setFontSys()
     if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
 	XIC xic = (XIC)tlw->extra->topextra->xic;
 
-	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
+	XFontSet fontset = xic_fontset( fontMetrics().fontSet(),
+					font().pointSize());
 
-	XVaNestedList preedit_att = XVaCreateNestedList(0,
-			XNFontSet, fontset,
-			NULL);
-	XVaNestedList status_att = XVaCreateNestedList(0,
-			XNFontSet, fontset,
-			NULL);
+	XVaNestedList preedit_att = XVaCreateNestedList( 0, XNFontSet, fontset,
+							 NULL );
+	XVaNestedList status_att = XVaCreateNestedList( 0, XNFontSet, fontset,
+							NULL );
 
-	XSetICValues(xic,
-			XNPreeditAttributes, preedit_att,
-			XNStatusAttributes, status_att,
-		    0);
+	XSetICValues( xic,
+		      XNPreeditAttributes, preedit_att,
+		      XNStatusAttributes, status_att,
+		      0 );
     }
 }
 
@@ -1119,7 +1115,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	    h = crect.height() - y;
 	QRect r(x,y,w,h);
 	QPaintEvent e( r, erase );
-	qt_set_paintevent_clipping( this, r ); 
+	qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 )
 	    XClearArea( x11Display(), winId(), x, y, w, h, FALSE );
 	QApplication::sendEvent( this, &e );
@@ -1148,7 +1144,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	QPaintEvent e( reg );
-	qt_set_paintevent_clipping( this, reg ); 
+	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase(reg);
 	QApplication::sendEvent( this, &e );
@@ -1716,27 +1712,26 @@ void QWidget::drawText( int x, int y, const QString &str )
 int QWidget::metric( int m ) const
 {
     int val;
-    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
-	if ( m == PDM_WIDTH )
-	    val = crect.width();
-	else
-	    val = crect.height();
+    if ( m == QPaintDeviceMetrics::PdmWidth ) {
+	val = crect.width();
+    } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
+	val = crect.height();
     } else {
 	Display *dpy = x11Display();
 	int scr = x11Screen();
 	switch ( m ) {
-	    case PDM_WIDTHMM:
+	    case QPaintDeviceMetrics::PdmWidthMM:
 		val = (DisplayWidthMM(dpy,scr)*crect.width())/
 		      DisplayWidth(dpy,scr);
 		break;
-	    case PDM_HEIGHTMM:
+	    case QPaintDeviceMetrics::PdmHeightMM:
 		val = (DisplayHeightMM(dpy,scr)*crect.height())/
 		      DisplayHeight(dpy,scr);
 		break;
-	    case PDM_NUMCOLORS:
+	    case QPaintDeviceMetrics::PdmNumColors:
 		val = DisplayCells(dpy,scr);
 		break;
-	    case PDM_DEPTH:
+	    case QPaintDeviceMetrics::PdmDepth:
 		val = DisplayPlanes(dpy,scr);
 		break;
 	    default:
