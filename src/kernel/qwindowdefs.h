@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#68 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#69 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -176,12 +176,12 @@ const ulong WState_Created	= 0x00000001;	// widget state flags
 const ulong WState_Disabled	= 0x00000002;
 const ulong WState_Visible	= 0x00000004;
 const ulong WState_Reserved	= 0x00000008;
-const ulong WState_NoUpdates	= 0x00000010;
+const ulong WState_DisUpdates	= 0x00000010;
 const ulong WState_PaintEvent	= 0x00000020;
 const ulong WState_ActiveFocus	= 0x00000040;
 const ulong WState_AcceptFocus	= 0x00000080;
 
-const ulong WType_Overlap	= 0x00000100;	// widget type flags
+const ulong WType_TopLevel	= 0x00000100;	// widget type flags
 const ulong WType_Modal		= 0x00000200;
 const ulong WType_Popup		= 0x00000400;
 const ulong WType_Desktop	= 0x00000800;
