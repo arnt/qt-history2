@@ -209,7 +209,7 @@ public:
 // IViewObject
     STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd,
 		    HDC hicTargetDevice, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
-		    BOOL(__stdcall*pfnContinue)(DWORD), DWORD dwContinue );
+		    BOOL(__stdcall*pfnContinue)(ULONG_PTR), ULONG_PTR dwContinue );
     STDMETHOD(GetColorSet)( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
 		    HDC hicTargetDev, LOGPALETTE **ppColorSet );
     STDMETHOD(Freeze)( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze );
@@ -2550,7 +2550,7 @@ class HackPainter : public QPainter
 */
 HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
 		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
-		BOOL(__stdcall* /*pfnContinue*/)(DWORD), DWORD /*dwContinue*/ )
+		BOOL(__stdcall* /*pfnContinue*/)(ULONG_PTR), ULONG_PTR /*dwContinue*/ )
 {
     if ( !lprcBounds )
 	return E_INVALIDARG;
