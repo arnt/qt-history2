@@ -31,5 +31,5 @@ network {
 	unix:SOURCES += qsocketdevice_unix.cpp
 	win32:SOURCES += qsocketdevice_win.cpp
 
-	mac:INCLUDEPATH += 3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
+	mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 }
