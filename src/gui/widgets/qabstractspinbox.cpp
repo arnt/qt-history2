@@ -940,7 +940,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
             hint.rheight() += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        sizehintdirty = false;
+        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
     }
 }
 

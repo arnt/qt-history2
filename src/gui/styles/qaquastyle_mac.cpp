@@ -46,8 +46,9 @@ class QListViewItem;
 //#define DEBUG_SIZE_CONSTRAINT
 
 QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
-    : QWidget(w, "magicFocusWidget", (noerase ? (Qt::WResizeNoErase | Qt::WRepaintNoErase) : (Qt::WFlag)0)), d(0)
+    : QWidget(w, 0), d(0)
 {
+    setObjectName("magicFocusWidget");
     setFocusPolicy(Qt::NoFocus);
     if(noerase)
         setAttribute(Qt::WA_NoSystemBackground, true);
@@ -86,7 +87,7 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 }
 bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 {
-    if((e->type() == QEvent::ChildInserted || e->type() == QEvent::ChildRemoved) &&
+    if ((e->type() == QEvent::ChildAdded || e->type() == QEvent::ChildRemoved) &&
         ((QChildEvent*)e)->child() == this) {
         if(e->type() == QEvent::ChildRemoved)
             o->removeEventFilter(this); //once we're removed, stop listening
@@ -322,9 +323,9 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
         case QEvent::MouseButtonRelease:
         case QEvent::FocusOut:
         case QEvent::Show: {
-            QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
+            QList<QPushButton *> list = qFindChildren<QPushButton *>(btn->topLevelWidget());
             for (int i = 0; i < list.size(); ++i) {
-                QPushButton *pBtn = static_cast<QPushButton *>(list.at(i));
+                QPushButton *pBtn = list.at(i);
                 if ((e->type() == QEvent::FocusOut
                      && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
                      && pBtn != btn)
