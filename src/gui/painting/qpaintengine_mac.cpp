@@ -1311,7 +1311,10 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
+    int adjustment = (d->current.pen.style() != Qt::NoPen
+                        && !(renderHints() & QPainter::LineAntialiasing)) ? 1 : 0;
+    CGRect mac_rect = CGRectMake(r.x(), r.y() + adjustment,
+                                 r.width() - adjustment, r.height() - adjustment);
     CGContextAddRect(d->hd, mac_rect);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
