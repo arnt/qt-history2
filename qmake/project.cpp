@@ -182,10 +182,12 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
     QStringList vallist;  /* vallist is the broken up list of values */
     QRegExp quoted("[^\\\\](\"[^\"]*[^\\\\]\")");
-    for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
+    {
+	for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
 	vallist += QStringList::split(' ', vals.left(x));
 	vallist.append(quoted.cap(1));
 	vals.remove(0, x + quoted.matchedLength());
+	}
     }
     vallist += QStringList::split(' ', vals);
 
