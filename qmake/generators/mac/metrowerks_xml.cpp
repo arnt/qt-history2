@@ -213,7 +213,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			if(!volume.isEmpty())
 			    p.prepend(volume); 
 			p.replace(QRegExp("/"), ":");
-			if(p.right(1) != ':')
+			if(p.right(1) != ":")
 			    p += ':';
 
 			QString recursive = "false";
