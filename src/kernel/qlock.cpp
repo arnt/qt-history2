@@ -66,7 +66,6 @@ class QLockData
 public:
 #ifdef Q_NO_SEMAPHORE
     QCString file;
-    bool created;
 #endif
     int id;
     int count;
@@ -114,7 +113,7 @@ QLock::QLock( const QString &filename, char id, bool create )
     for(int x = 0; x < 2; x++) {
 	data->id = open(data->file, O_RDWR | (x ? O_CREAT : 0), S_IRWXU);
 	if(data->id != -1 || !create) {
-	    data->created = x;
+	    data->owned = x;
 	    break;
 	}
     }
@@ -153,7 +152,7 @@ QLock::~QLock()
 #ifdef Q_NO_SEMAPHORE
     if(isValid()) {
 	close(data->id);
-	if( data->created ) 
+	if( data->owned ) 
 	    unlink( data->file );
     }
 #else
