@@ -900,7 +900,7 @@ int QPrinter::winPageSize() const
 QList<int> QPrinter::supportedResolutions() const
 {
     QList<QVariant> varlist
-        = d->printEngine->property(QPrintEngine::PPK_SupportedResolution).toList();
+        = d->printEngine->property(QPrintEngine::PPK_SupportedResolutions).toList();
     QList<int> intlist;
     for (int i=0; i<varlist.size(); ++i)
         intlist << varlist.at(i).toInt();
@@ -1572,7 +1572,7 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 
     \item PPK_SelectionOption
 
-    \item PPK_SupportedResolution A list of integer QVariants
+    \item PPK_SupportedResolutions A list of integer QVariants
     describing the set of supported resolutions that the printer has.
 
     \item PPK_WindowsPageSize An integer specifying a DM_PAPER entry

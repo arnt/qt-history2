@@ -38,7 +38,7 @@ public:
         PPK_PrinterProgram,
         PPK_Resolution,
         PPK_SelectionOption,
-        PPK_SupportedResolution,
+        PPK_SupportedResolutions,
 
         PPK_WindowsPageSize,
 

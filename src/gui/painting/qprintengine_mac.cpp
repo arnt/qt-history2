@@ -671,7 +671,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         break; }
     case PPK_Resolution: // ###
         break;
-    case PPK_SupportedResolution:
+    case PPK_SupportedResolutions:
         ret = d->supportedResolutions();
         break;
     default:

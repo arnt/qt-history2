@@ -985,7 +985,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
         break;
 
-    case PPK_SupportedResolution:
+    case PPK_SupportedResolutions:
 
         break;
 
@@ -1105,7 +1105,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         value = d->resolution;
         break;
 
-    case PPK_SupportedResolution:
+    case PPK_SupportedResolutions:
         value = d->queryResolutions();
         break;
 
