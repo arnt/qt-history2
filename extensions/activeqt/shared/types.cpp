@@ -46,12 +46,6 @@ IFontDisp *QFontToIFont( const QFont &font )
 
     IFontDisp *f;
     OleCreateFontIndirect( &fdesc, IID_IFontDisp, (void**)&f );
-
-    IFont *ifont;
-    f->QueryInterface( IID_IFont, (void**)&ifont );
-    QFont verify = IFontToQFont( ifont );
-    ifont->Release();
-    Q_ASSERT( verify == font );
     return f;
 }
 
@@ -449,7 +443,7 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		if ( reference )
 		    *reference = qpixmap;
 		else
-		    reference = new QPixmap();
+		    reference = new QPixmap( qpixmap );
 		static_QUType_ptr.set( obj, reference );
 	    } else {
 		disp->AddRef();
