@@ -139,11 +139,11 @@ public:
     bool hasContentsPreview() const;
     void setInfoPreview( bool );
     void setContentsPreview( bool );
-    
+
     void setInfoPreviewWidget( QWidget *w );
     void setContentsPreviewWidget( QWidget *w );
 
-    QUrlOperator url() const;
+    QUrl url() const;
 
 public slots:
     void setDir( const QString& );

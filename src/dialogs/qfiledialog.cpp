@@ -1062,7 +1062,7 @@ void QFileListBox::dragObjDestroyed()
 
 void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
 {
-    startDragUrl = filedialog->url();
+    startDragUrl = filedialog->d->url;
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
 
@@ -1117,7 +1117,7 @@ void QFileListBox::viewportDragLeaveEvent( QDragLeaveEvent * )
     changeDirTimer->stop();
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
-//     if ( startDragDir != filedialog->url() )
+//     if ( startDragDir != filedialog->d->url )
 // 	filedialog->setUrl( startDragUrl );
 }
 
@@ -1196,7 +1196,7 @@ void QFileListBox::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    QUrl u( filedialog->url(), currDropItem->text() );
+    QUrl u( filedialog->d->url, currDropItem->text() );
     filedialog->setDir( u );
     currDropItem = 0;
 }
@@ -1432,7 +1432,7 @@ void QFileListView::dragObjDestroyed()
 
 void QFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 {
-    startDragUrl = filedialog->url();
+    startDragUrl = filedialog->d->url;
     startDragDir = filedialog->dirPath();
     currDropItem = 0;
 
@@ -1487,7 +1487,7 @@ void QFileListView::viewportDragLeaveEvent( QDragLeaveEvent * )
     changeDirTimer->stop();
     setCurrentDropItem( QPoint( -1, -1 ) );
 //########
-//     if ( startDragDir != filedialog->url() )
+//     if ( startDragDir != filedialog->d->url )
 // 	filedialog->setUrl( startDragUrl );
 }
 
@@ -1567,7 +1567,7 @@ void QFileListView::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    QUrl u( filedialog->url(), currDropItem->text( 0 ) );
+    QUrl u( filedialog->d->url, currDropItem->text( 0 ) );
     filedialog->setDir( u );
     currDropItem = 0;
 }
@@ -2387,7 +2387,7 @@ QStringList QFileDialog::selectedFiles() const
 	QListViewItem * i = files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrlOperator( url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		QString u = QUrlOperator( d->url, ((QFileDialogPrivate::File*)i)->info.name() );
 		lst << u;
 	    }
 	    i = i->nextSibling();
@@ -2726,7 +2726,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	*workingDirectory = dlg->url();
+	*workingDirectory = dlg->d->url;
     }
     delete dlg;
     return result;
@@ -2815,7 +2815,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	*workingDirectory = dlg->url();
+	*workingDirectory = dlg->d->url;
     }
     delete dlg;
     return result;
@@ -2838,7 +2838,7 @@ void QFileDialog::okClicked()
 	return;
     }
 
-    *workingDirectory = url();
+    *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
 
@@ -2920,7 +2920,7 @@ void QFileDialog::filterClicked()
 
 void QFileDialog::cancelClicked()
 {
-    *workingDirectory = url();
+    *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
     reject();
@@ -3595,7 +3595,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     }
 
     QString result;
-    dialog->setSelection( dialog->url().toString() );
+    dialog->setSelection( dialog->d->url.toString() );
 
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
@@ -4202,12 +4202,12 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrlOperator( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		QString u = QUrlOperator( dlg->d->url, ((QFileDialogPrivate::File*)i)->info.name() );
 		s.append( u );
 	    }
 	    i = i->nextSibling();
 	}
-	*workingDirectory = dlg->url();
+	*workingDirectory = dlg->d->url;
     }
     delete dlg;
     return s;
@@ -4227,7 +4227,7 @@ void QFileDialog::fixupNameEdit()
   Returns the URL of the current working directory.
 */
 
-QUrlOperator QFileDialog::url() const
+QUrl QFileDialog::url() const
 {
     return d->url;
 }
@@ -4474,7 +4474,7 @@ void QFileDialog::setPreviewMode( bool info, bool contents )
 /*!
   Returns TRUE if the file dialog is allowed to show a
   preview with file informations.
-  
+
   \sa setPreviewMode() setInfoPreview()
 */
 bool QFileDialog::hasInfoPreview() const
@@ -4485,7 +4485,7 @@ bool QFileDialog::hasInfoPreview() const
 /*!
   Returns TRUE if the file dialog is allowed to show a
   preview of the files contents.
-  
+
   \sa setPreviewMode() setContentsPreview()
 */
 
