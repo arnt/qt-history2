@@ -198,7 +198,7 @@ public:
 	inMovement = FALSE;
 	dockMenu = TRUE;
 #ifndef QT_NO_CURSOR
-	oldCursor = Qt::ArrowCursor;
+	oldCursor = Qt::arrowCursor;
 #endif
     }
 
@@ -330,7 +330,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
 	    if ( p < (int)l->count() - 1 && tb->nl )
 		l->at( p + 1 )->nl = TRUE;
 	    tb->oldIndex = p;
-	}	
+	}
 	return l->take( p );
     }
     return 0;
