@@ -75,7 +75,7 @@ CLASS="EMPHASIS"
 
 <p>In Qt 2.x, Qt Designer was a pure graphical ui-file editor, in
 other words: a visual form designer. The goal was to turn the most
-tedious part of GUI programming - the dialog design - into an pleasant
+tedious part of GUI programming - the dialog design - into a pleasant
 experience. We believe that goal was reached.  From an architectural
 point of view, Qt Designer in 2.x is a fairly simple program. It reads
 and writes ui-files. Each ui-file contains an XML description of one
@@ -85,7 +85,7 @@ code from those XML descriptions.
 
 <p>In Qt 3.0, Qt Designer goes beyond that. In addition to many new
 design features like the ability of creating main windows and actions,
-it introduces
+it introduces:
 
 <ul>
 
@@ -94,17 +94,18 @@ application,
 
 <li> a new way of extending the functionality of created forms called
 <em>ui.h-extension</em>.  This new technique does not require
-subclassing anymore.
+subclassing.
 
 <li> a way of <em>loading forms dynamically</em> at runtime.
 
 </ul>
 
-<p> The purpose of this document is to motivate those new concepts, to
-explain why we did those changes and to show how they work internally.
+<p> The purpose of this document is to explain the motivation for making
+these changes, describe the new concepts involved and show how these features 
+work internally.
 
-<p>Note that despite those new concepts, Qt Designer in 3.0 is still
-usage compatible with Qt Designer in 2.x. This means you can use it
+<p>Note that despite the new concepts, the Qt Designer in 3.0 is still
+usage compatible with the Qt Designer in 2.x. This means you can use it
 exactly the way you used Qt Designer before. However, by utilizing its
 new concepts you gain additional benefits - if you want to.
 
@@ -124,8 +125,8 @@ Visual Studio.
 
 <h2>Project management</h2>
 
-<p> Reading and writing single, non-connected ui-files is conceptual
-easy and worked fairly well in Qt 2.x. However, it lacked certain
+<p> Reading and writing single, non-connected ui-files is conceptually
+simple and worked fairly well in Qt 2.x. However, it lacked certain
 features that made us introduce project management for the GUI part of
 an application in Qt Designer. The main benefits of project management
 are:
@@ -140,8 +141,8 @@ are:
 
 </ul>
 
-<p>The following is a discussion of those benefits and why project
-management is required to achieve those.
+<p>The following is a discussion of these benefits and why project
+management is required to achieve them.
 
 <h3> Grouping of forms </h3>
 
@@ -151,19 +152,20 @@ all forms available at a single click in the forms list.
 
 <h3> Sharing images in a image collection </h3>
 
-<p> Without project management, you can use images within a form
-only. Those images then had to be stored in the XML file and thus were
+<p> Without project management, images were duplicated in each
+form they were used within.
+Images had to be stored in the XML file and thus were
 added to the generated code later. This resulted not only in very
-large ui-files, but also made sharing of images over form bounderies
+large ui-files, but also made sharing of images across form boundaries
 impossible. If you had an arrow-up pixmap in three different forms,
 the same pixmap was stored three times in the executable code.
 
 <p> As a workaround, we introduced a pixmap-loading function that you
-could define in Qt Designer. It then was your responsible to provide
-the implemenation of this function in your application code. The big
+could define in Qt Designer. It then was your responsibility to provide
+the implementation of this function in your application code. The big
 disadvantage of this approach was that you couldn't see the images
-during the design process in Qt Designer, which not only makes
-designing a form more boring, but also has noticable impact on
+during the design process in Qt Designer. This not only makes
+designing a form more boring, but also has a noticeable impact on
 geometry management.
 
 <p> In Qt 3.0, we added the concept of a project based image
@@ -173,19 +175,19 @@ images are stored as PNGs (portable network graphics) in a
 subdirectory <tt>images</tt> inside the project directory. Whenever
 you modify the image collection, Qt Designer creates a source file
 <tt>images.cpp</tt> which contains both the image data in binary
-format and a function to instantiate those images. Those images are
+format and a function to instantiate the images. The Images are
 accessible by all forms in the project and the data will be shared.
 
-<p> As further benefit, <tt>images.cpp</tt> adds the images to the
+<p> A further benefit is that <tt>images.cpp</tt> adds the images to the
 default QMimeSourceFactory. This way they are accessible from
-rich-text lables, What's This? context help and even tooltips through
+rich-text labels, What's This? context help and even tooltips through
 standard HTML image tags. The <tt>source</tt> argument of the image
 tag is simply the image's name in the image collection. This also
 works during the design process in Qt Designer.
 
 <h3> Sharing database settings </h3>
 
-<p> Qt 3.0 introduce a brand new database module Qt Sql. In order to
+<p> Qt 3.0 introduces a brand new database module Qt Sql. In order to
 be able to design database forms, Qt Designer needs to know about the
 available databases and their tables. To get this information the
 first time, Qt Designer needs to connect to the databases. For later
@@ -210,8 +212,8 @@ different approach.
 
 <p> The majority of Qt users were already using a project-file format
 to create cross-platform makefiles: tmake project files, or
-<tt>*.pro</tt>. Those project files already featured among other
-things a list of all ui-files for the project. This was necessary in
+<tt>*.pro</tt>. Among other things those project files already 
+featured a list of all ui-files for the project. This was necessary in
 order to invoke uic during the build process.
 
 <p> In Qt 3.0, tmake was enhanced to be qmake, and is now an integral
@@ -219,14 +221,14 @@ part of Qt itself. This is why it was natural to us, to use qmake
 project files in Qt Designer as well. When you add a form to your
 project in Qt Designer, it is automatically added to the INTERFACES
 section of the project file, and thus qmake generates the required
-build rules without any further work. Similar, the image collection
+build rules without any further work. Similarly, the image collection
 file <tt>images.cpp</tt> is added to the SOURCES section and thus gets
 automatically compiled into your executable.
 
 <p> If you are not using qmake as your build system, but something
 different (e.g. automake/autoconf or jam), your life has not
 changed. See the .pro file as a file describing the GUI part of your
-application. All you need to do is - as previously - adding the
+application. All you need to do is - as previously - add the
 ui-files and the images collection to your own Makefiles.
 
 <h2>Extending the functionality of a form</h2>
@@ -264,7 +266,7 @@ implementation file.
 
 <p> The big question now is how to add custom implementation code to
 those custom slots. Adding code to the generated <tt>form.cpp</tt> is
-not an option, as those get recreated by the uic whenever the form
+not an option, as this gets recreated by the uic whenever the form
 changes - and we definitely do not want to advocate a combination of
 generated and handwritten code.
 
@@ -275,28 +277,28 @@ via C++ inheritance as shown in the next figure:
 
 <p><center><img src="images/designer2.png"></img></center>
 
-<p> Here the user wrote an additional class <tt>FormImpl</tt>, split
+<p> Here the user wrote an additional class <tt>FormImpl</tt>, which is split
 into the header file <tt>formimpl.h</tt> and the implementation file
 <tt>formimpl.cpp</tt>. The header file includes the uic-generated
 <tt>form.h</tt> and reimplements all custom slots. This is possible
-because uic generates custom slots to be virtual. In addition to
+because uic generated custom slots are virtual. In addition to
 implementing custom slots, this approach gives the user a way to do
-extra initialization work in the constructor of the subclass,
-respecitively extra cleanups in the destructor.
+extra initialization work in the constructor of the subclass, and
+respectively extra cleanups in the destructor.
 
-<p> Because of those benefits and its flexibility, the approach became
+<p> Because of these benefits and its flexibility, this approach became
 the main way of using Qt Designer in Qt 2.x.
 
 <p> As a side note: To keep the namespace clean, most users did not
 follow the <tt>Form</tt> and <tt>FormImpl</tt> naming scheme shown in
-the figure, but named their Qt Designer forms <tt>FormBase</tt> and
+the figure, but instead named their Qt Designer forms <tt>FormBase</tt> and
 their subclasses <tt>Form</tt>. This made a lot of sense, because they
 always subclassed and were using those subclasses in application code.
 
 <h3> The ui.h-extension approach</h3>
 
-<p> Despite its flexibility and cleaness, the subclassing approach
-showed some disadvantage:
+<p> Despite its flexibility and cleanness, the subclassing approach
+has some disadvantages:
 
 <ul>
 
@@ -312,11 +314,11 @@ process. To make the development process smoother, uic generates empty
 stubs for custom slots rather than pure virtual functions. While this
 approach keeps the code compiling and running, programmers can find
 themselves in a situation where they do not pay attention to the
-runtime warning message and loose time before they find a small
+runtime warning message and lose time before they find a small
 spelling error in their subclass.
 
 <li> And last but not least, in bigger projects with hundreds of
-forms, the additional subclasses can make a noticable difference it
+forms, the additional subclasses can make a noticeable difference in
 terms of compilation speed and code size.
 
 </ul>
@@ -354,19 +356,19 @@ updates the corresponding implementation.
 <li>Whenever the user removes a custom slot, Qt Designer removes it
 from the ui.h-file.
 
-</ol> 
+</ol>
 
 <p> This way integrity is guaranteed, there is no more need for
 subclassing and no more danger of forgotten or misspelled slots in
 subclasses.
 
-<p> You can edit ui.h-files either directely in Qt Designer with the
+<p> You can edit ui.h-files either directly in Qt Designer with the
 built-in C++ editor plugin, or use whatever favorite development
 environment you have.
 
 <p><small><b>Historic remark:</b> Early beta releases of Qt 3.0 did not yet implement
 the entire ui.h-concept but kept the C++ code inside the XML
-ui-files. This has shown to be less useful as we hoped it might be, as
+ui-files. This has shown to be less useful than we hoped it would be, as
 it made editing with custom editors and debugging more difficult.</small>
 
 
@@ -378,7 +380,7 @@ or other code the user might want to add, but the objects are still
 entirely constructed and destructed inside the generated
 <tt>form.cpp</tt> code.
 
-<p> This leaves the user without a possible to do further form
+<p> This leaves the user without the possibility of doing further form
 initializations or cleanups that you normally would do within the
 constructor and destructor functions of a C++ class.
 
@@ -394,7 +396,7 @@ invoked by the destructor before any form controls get deleted.
 <p> We extracted the part of Qt Designer that is responsible for
 loading and previewing a form into a library of its own,
 <em>libqui</em>. A new class <tt>QWidgetFactory</tt> makes it possible
-to load ui-files at runtime and instantiate forms from those.
+to load ui-files at runtime and instantiate forms from them.
 
 <p> This dynamic approach keeps the GUI design and the code separate
 and is useful in environments where the GUI may have to change more
