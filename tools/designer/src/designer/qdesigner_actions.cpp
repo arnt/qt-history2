@@ -562,12 +562,28 @@ void QDesignerActions::editPreferences()
 void QDesignerActions::previewForm()
 {
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
+        QDialog *fakeTopLevel = new QDialog(fw);
+        QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
+        fakeTopLevel->hide();
+
         QDesignerFormBuilder builder(core());
+
         QByteArray bytes = fw->contents().toUtf8();
         QBuffer buffer(&bytes);
-        QWidget *widget = builder.load(&buffer, 0);
+
+        QWidget *widget = builder.load(&buffer, fakeTopLevel);
         Q_ASSERT(widget);
-        widget->show();
+
+        QSize size = widget->size();
+
+        widget->setParent(fakeTopLevel, 0);
+        layout->addWidget(widget);
+
+        fakeTopLevel->resize(size);
+        fakeTopLevel->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
+        fakeTopLevel->exec();
+
+        delete fakeTopLevel;
     }
 }
 
