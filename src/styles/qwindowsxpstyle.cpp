@@ -1797,7 +1797,7 @@ void QWindowsXPStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, i
 						    bool downbtn, bool enabled, bool down )
 {
     if ( !d->use_xp )
-	QWindowsStyle::drawRangeControlWidgetButton( p, x, y, w, h, g, sp, downbtn, enabled, down );
+	QWindowsStyle::drawRangeControlWidgetButton( p, x, y, w, h, g, rc, downbtn, enabled, down );
 }
 
 void QWindowsXPStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
@@ -1807,7 +1807,7 @@ void QWindowsXPStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, i
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"SPIN" );
     if ( !htheme ) {
-	QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
+	QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, rc, downbtn, enabled, down );
 	return;
     }
 
@@ -1818,7 +1818,7 @@ void QWindowsXPStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, i
 	stateId = 4;
     else if ( down )
 	stateId = 3;
-    else if ( d->hotWidget == (QWidget*)sp && QRect( x, y, w, h ).contains( d->hotSpot ) )
+    else if ( d->hotWidget == (QWidget*)rc && QRect( x, y, w, h ).contains( d->hotSpot ) )
 	stateId = 2;
     else
 	stateId = 1;
@@ -1827,7 +1827,7 @@ void QWindowsXPStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, i
 
     Private::CloseThemeData( htheme );
 #else
-    QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, sp, downbtn, enabled, down );
+    QWindowsStyle::drawRangeControlWidgetSymbol( p, x, y, w, h, g, rc, downbtn, enabled, down );
 #endif
 }
 
