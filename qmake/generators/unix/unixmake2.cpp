@@ -514,8 +514,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "staticlib: $(TARGETA)" << endl << endl;
             t << "$(TARGETA): " << var("PRE_TARGETDEPS") << " $(OBJECTS) $(OBJCOMP)";
             if(do_incremental)
-                t << " $(INCREMENTAL_OBJECTS) ";
-            t << var("POST_TARGETDEPS") << "\n\t"
+                t << " $(INCREMENTAL_OBJECTS)";
+            t << " " << var("POST_TARGETDEPS") << "\n\t"
               << "-$(DEL_FILE) $(TARGETA) " << "\n\t"
               << var("QMAKE_AR_CMD");
             if(do_incremental)
