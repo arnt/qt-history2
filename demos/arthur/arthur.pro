@@ -30,6 +30,8 @@ contains(QT_CONFIG, opengl) {
 	HEADERS += glpainter.h
 	SOURCES += glpainter.cpp
 	QT += opengl
+} else {
+	DEFINES += QT_NO_OPENGL
 }
 
 
