@@ -197,8 +197,8 @@ signals:
     void returnPressed(QTreeWidgetItem *item, int column);
     void expanded(QTreeWidgetItem *item);
     void collapsed(QTreeWidgetItem *item);
-    void currentChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void selectionChanged();
+    void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void itemSelectionChanged();
     void itemEntered(QTreeWidgetItem *item, int column, Qt::MouseButton button,
                      Qt::KeyboardModifiers modifiers);
     void aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem *item, int column);
@@ -217,7 +217,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitExpanded(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitCollapsed(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
     Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *meny, const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))

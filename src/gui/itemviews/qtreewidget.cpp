@@ -1240,7 +1240,7 @@ public:
     void emitReturnPressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -1288,9 +1288,10 @@ void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
     emit q->collapsed(model()->item(index));
 }
 
-void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+                                                const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->item(current), model()->item(previous));
+    emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
 void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
@@ -1443,7 +1444,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::currentChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+    \fn void QTreeWidget::currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 
     This signal is emitted when the current item changes. The current
     item is specified by \a current, and this replaces the \a previous
@@ -1451,7 +1452,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QTreeWidget::selectionChanged()
+    \fn void QTreeWidget::itemSelectionChanged()
 
     This signal is emitted when the selection changes in the tree widget.
     The current selection can be found with selectedItems().
@@ -1508,10 +1509,10 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
