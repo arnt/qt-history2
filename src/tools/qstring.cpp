@@ -433,9 +433,7 @@ bool QChar::isPrint() const
 */
 bool QChar::isSpace() const
 {
-    if( ucs >= 9 && ucs <=13 ) return TRUE;
-    Category c = ::category( *this );
-    return c >= Separator_Space && c <= Separator_Paragraph;
+    return ::isSpace( *this );
 }
 
 /*!

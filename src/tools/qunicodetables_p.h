@@ -148,5 +148,12 @@ inline unsigned char combiningClass( const QChar &ch )
 #endif
 }
 
+inline bool isSpace( const QChar &ch )
+{
+    if( ch.unicode() >= 9 && ch.unicode() <=13 ) return TRUE;
+    QChar::Category c = ::category( ch );
+    return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
+}
+
 
 #endif
