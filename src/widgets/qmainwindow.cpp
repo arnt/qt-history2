@@ -105,7 +105,7 @@
   it in the order of the list you got from toolBarsOnDock().
   When restoring the layout, create the toolbars exactly in the order in
   which the infos are loaded.
-  
+
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
 
@@ -999,7 +999,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl ) {
+		if ( !t || t->nl || t->t->y() > tmp->t->y() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1024,7 +1024,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl ) {
+		if ( !t || t->nl || t->t->y() > tmp->t->x() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
