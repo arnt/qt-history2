@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qabstractitemdelegate.h"
 #include <qabstractitemmodel.h>
 #include <qfontmetrics.h>
@@ -64,11 +76,6 @@ QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *, const Q
     return 0;
 }
 
-void QAbstractItemDelegate::removeEditor(EndEditAction, QWidget *, const QModelIndex &)
-{
-    // do nothing
-}
-
 void QAbstractItemDelegate::setContentFromEditor(QWidget *, const QModelIndex &) const
 {
     // do nothing
@@ -84,10 +91,20 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &
     // do nothing
 }
 
+void QAbstractItemDelegate::removeEditor(EndEditAction, QWidget *, const QModelIndex &)
+{
+    // do nothing
+}
+
+bool QAbstractItemDelegate::event(QEvent *, const QModelIndex &)
+{
+    // do nothing
+    return false;
+}
+
 /*!
   Creates a string with ... like "Trollte..." or "...olltech" depending on the alignment
 */
-
 QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                                             const QString &org) const
 {

@@ -14,13 +14,12 @@ public:
 
     void init();
 
-    inline bool shouldEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action)
-        { return q_func()->model()->isEditable(item) && (action & startEditActions) && state != QAbstractItemView::Editing; }
+    inline bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index)
+        { return model->isEditable(index) && (action & startEditActions) && state != QAbstractItemView::Editing; }
 
-    bool createEditor(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
-//     bool sendItemEvent(const QModelIndex &data, QEvent *event);
-//     QWidget *findPersistentEditor(const QModelIndexPtr &item) const;
-//     void insertPersistentEditor(const QModelIndexPtr &item, QWidget *editor);
+    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QEvent *event, const QModelIndex &index);
+    QWidget *persistentEditor(const QModelIndex &index) const;
+    void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
     QAbstractItemModel *model;
     QPointer<QWidget> currentEditor;
@@ -35,10 +34,9 @@ public:
     // #### this datastructur is far to inefficient. We need a faster
     // #### way to associate data with an item and look it up.
     // use QHash<QGenericModelItenPtr, QWidget*>
-    //QList<QPair<QModelIndex, QWidget*> > persistentEditors;
+    QList<QPair<QModelIndex, QWidget*> > persistentEditors;
 
     bool layoutLock; // FIXME: this is because the layout will trigger resize events
-    //QRect dragRect;
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QPoint pressedPosition;

@@ -753,10 +753,6 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericListView::startItemsLayout()
 {
-    // we should keep the original layout rect if and only start layout once
-//    if (/*d->movement != Static && arrangeItemsDone()*/ d->layoutBounds.isValid())
-//        return;
-
     d->layoutStart = 0;
     d->layoutWraps = 0;
     d->translate = 0;
@@ -770,9 +766,9 @@ void QGenericListView::startItemsLayout()
     d->prepareItemsLayout();
 
     if (d->layoutMode == Instant)
-        doItemsLayout(model()->rowCount(root()));
+        doItemsLayout(model()->rowCount(root())); // layout everything
     else
-        QAbstractItemView::startItemsLayout(); // do delayed layout
+        QAbstractItemView::startItemsLayout(); // do layout in batches
 }
 
 void QGenericListView::stopItemsLayout()
@@ -809,7 +805,6 @@ bool QGenericListView::doItemsLayout(int delta)
         stopItemsLayout();
         return true; // done
     }
-
     return false; // not done
 }
 
@@ -861,7 +856,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             hint = delegate->sizeHint(fontMetrics, options, item);
             dx = (gw ? gw : hint.width());
 
-            if (wrap && (x + spacing/* + dx*/ >= w))
+            if (wrap && (x + spacing >= w))
                 d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
 
             d->xposVector.push_back(x);
@@ -882,7 +877,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             hint = delegate->sizeHint(fontMetrics, options, item);
             dy = (gh ? gh : hint.height());
 
-            if (wrap && (y + spacing/* + dy*/ >= h))
+            if (wrap && (y + spacing >= h))
                 d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
 
             d->yposVector.push_back(y);
@@ -980,7 +975,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
         // remove all items from the tree
         int leafCount = d->tree.leafCount();
         for (int i = 0; i < leafCount; ++i)
-            d->tree.clearLeaf(i); // FIXME: use fill(0)
+            d->tree.clearLeaf(i);
         insertFrom = 0;
 
         int h = d->contentsSize.height();
@@ -1132,7 +1127,7 @@ void QGenericListViewPrivate::createItems(int to)
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
-        size = delegate->sizeHint(fontMetrics, options, model->index(i, 0, root)); // FIXME: optimized size
+        size = delegate->sizeHint(fontMetrics, options, model->index(i, 0, root));
         QGenericListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }

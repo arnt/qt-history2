@@ -1,3 +1,15 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the widgets module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QABSTRACTITEMDELEGATE_H
 #define QABSTRACTITEMDELEGATE_H
 
@@ -68,19 +80,22 @@ public:
     };
 
     // painting
-    virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const = 0;
+    virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &index) const = 0;
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-                           const QModelIndex &item) const = 0;
+                           const QModelIndex &index) const = 0;
 
     // editing
-    virtual EditType editType(const QModelIndex &item) const;
+    virtual EditType editType(const QModelIndex &index) const;
     virtual QWidget *createEditor(StartEditAction action, QWidget *parent,
-                                  const QItemOptions &options, const QModelIndex &item);
-    virtual void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
-    virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
-    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
-    virtual void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &item);
+                                  const QItemOptions &options, const QModelIndex &index);
+    virtual void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
+    virtual void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
+    virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &index) const;
+    virtual void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
+    // events for non-widget editors
+    virtual bool event(QEvent *e, const QModelIndex &index);
+    
 protected:
     QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align, const QString &org) const;

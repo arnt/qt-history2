@@ -632,7 +632,7 @@ void QGenericTreeView::updateGeometries()
 
     int w = viewport()->width();
     int col = model()->columnCount(0);
-    if (w <= 0 || col <= 0) // if we have no viewport or no columns, there is nothing to do
+    if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
         return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
     while (w > 0 && col > 0)
