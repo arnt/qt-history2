@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#231 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#232 $
 #
 # this is a massive hack, written very quickly
 #
@@ -947,8 +947,7 @@ sub getfile {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
 	if ( /^#if/ ) {
 	    push @defines, $ifdef;
-	    $ifdef = 1 if ( !/_H_?$/ && !/QT_FEATURE/ && !/QT_MOC_CPP/ &&
-			    !/QT_NO_CODECS/ );
+	    $ifdef = 1 if ( !/_H_?$/ && !/QT_NO_/ && !/QT_MOC_CPP/ );
 	}
 	if ( !$ifdef ) {
 	    if ( defined( $preprocess ) ) {
