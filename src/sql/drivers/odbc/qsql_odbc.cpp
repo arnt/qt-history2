@@ -948,6 +948,9 @@ bool QODBCResult::exec()
 		    break; }
  	        case QVariant::ByteArray: {
 		    QByteArray ba = val.toByteArray();
+		    SQLINTEGER * len = new SQLINTEGER;
+		    *len = ba.size();
+		    tmpStorage.append( len );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -957,7 +960,7 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) ba.data(),
 					  ba.size(),
-					  NULL );
+					  len );
 		    break; }
 	        case QVariant::String:
 		    if ( d->unicode ) {
