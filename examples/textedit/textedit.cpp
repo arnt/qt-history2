@@ -39,6 +39,7 @@
 #include <qtextformat.h>
 #include <qtextdocument.h>
 #include <qtexttable.h>
+#include <qprintdialog.h>
 #include <private/qtextdocumentlayout_p.h>
 
 TextEdit::TextEdit(QWidget *parent)
@@ -272,13 +273,15 @@ void TextEdit::fileSaveAs()
 
 void TextEdit::filePrint()
 {
-    /*
     if (!currentEditor)
         return;
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
-    if (printer.setup(this)) {
+
+    QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    if (dlg->exec() == QDialog::Accepted) {
+//    if (printer.setup(this)) {
         QPainter p(&printer);
         // Check that there is a valid device to print to.
         if (!p.device()) return;
@@ -313,7 +316,6 @@ void TextEdit::filePrint()
             printer.newPage();
             page++;
         } while (true);
-        */
 
         /*
 	QSimpleRichText richText(edit->plainText(), font,
@@ -337,10 +339,9 @@ void TextEdit::filePrint()
 	    page++;
 	} while (true);
         */
-    /*
     }
+    delete dlg;
 #endif
-*/
 }
 
 void TextEdit::fileClose()
