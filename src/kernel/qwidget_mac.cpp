@@ -2039,7 +2039,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     if(qApp->closingDown())
 	return;
 
-    if(dirty_myself) {
+    if(dirty_myself && !wasDeleted) {
 	//dirty myself
 	if(extra) {
 	    setRegionDirty(FALSE);
@@ -2065,6 +2065,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     QWidget *last = this, *w;
     int px = myp.x() - x(), py = myp.y() - y();
     for(QWidget *widg = parentWidget(); widg; last = widg, widg = widg->parentWidget()) {
+	if(widg->wasDeleted) //no point in dirting
+	    continue;
 	myr = myr.intersect(QRect(px, py, widg->width(), widg->height()));
 	widg->setRegionDirty(FALSE);
 
