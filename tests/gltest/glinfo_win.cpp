@@ -122,7 +122,7 @@ QString GLInfo::getText()
     infotext->sprintf( "%s\nWGL extension version: %.1f\nWGL extensions (WGL_):\n%s\n",
 		       infotext->latin1(),
 		       (float) WGL_WGLEXT_VERSION,
-		       !wglExts.isEmpty() ? wglExts.latin1() : "None" );
+		       !wglExts.isEmpty() ? wglExts.latin1() : "None\n" );
     infotext->sprintf("%sOpenGL extensions (GL_): \n", infotext->latin1() );
     *infotext += QString( (char *) glGetString( GL_EXTENSIONS ) ).replace( ' ', '\n' );
     
