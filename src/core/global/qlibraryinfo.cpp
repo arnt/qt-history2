@@ -287,7 +287,7 @@ QLibraryInfo::location(LibraryLocation loc)
             break;
         }
         if(!key.isNull()) {
-            QSettings settings(qt_library_config_file, Qt::IniFormat);
+            QSettings settings(qt_library_config_file, QSettings::IniFormat);
             return settings.value("QtCore/" + key, QDir::currentPath()).toString();
         }
     }

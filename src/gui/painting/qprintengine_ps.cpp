@@ -4895,7 +4895,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
 #ifdef Q_WS_X11
     // append qsettings fontpath
-    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(QSettings::UserScope, QLatin1String("trolltech.com"));
     settings.beginGroup(QLatin1String("Qt"));
     embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
 

@@ -956,7 +956,7 @@ bool QAxBase::setControl(const QString &c)
             if (res == S_OK)
                 d->ctrl = QUuid(clsid).toString();
             else {
-                QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\") + c, Qt::NativeFormat);
+                QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\") + c, QSettings::NativeFormat);
                 d->ctrl = controls.value(QLatin1String("/CLSID/Default")).toString();
                 if (d->ctrl.isEmpty()) {
                     controls.beginGroup(QLatin1String("/CLSID"));

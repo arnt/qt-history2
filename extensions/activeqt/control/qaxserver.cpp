@@ -187,7 +187,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
     if (typeLibVersion.isEmpty())
         typeLibVersion = "1.0";
     
-    QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", Qt::NativeFormat);
+    QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes", QSettings::NativeFormat);
     
     // we try to create the ActiveX widgets later on...
     bool delete_qApp = false;

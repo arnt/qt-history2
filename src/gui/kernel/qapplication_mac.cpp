@@ -2852,7 +2852,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 */
 bool QApplicationPrivate::qt_mac_apply_settings()
 {
-    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+    QSettings settings(QSettings::UserScope, QLatin1String("trolltech.com"));
     settings.beginGroup(QLatin1String("Qt"));
 
     /*

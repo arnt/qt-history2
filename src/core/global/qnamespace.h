@@ -1132,16 +1132,6 @@ public:
         SmoothTransformation
     };
 
-    enum SettingsFormat {
-        NativeFormat,
-        IniFormat
-    };
-
-    enum SettingsScope {
-        UserScope,
-        SystemScope
-    };
-
     enum InputMethodQuery {
         ImMicroFocus,
         ImFont,

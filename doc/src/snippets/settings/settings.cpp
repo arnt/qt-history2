@@ -38,16 +38,16 @@ void snippet_locations()
 {
     QSettings obj1("software.org", "DataMill");
     QSettings obj2("software.org");
-    QSettings obj3(Qt::SystemScope, "software.org", "DataMill");
-    QSettings obj4(Qt::SystemScope, "software.org");
+    QSettings obj3(QSettings::SystemScope, "software.org", "DataMill");
+    QSettings obj4(QSettings::SystemScope, "software.org");
 
-    QSettings settings(Qt::IniFormat, Qt::UserScope,
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                        "software.org", "DataMill");
 
-    QSettings settings("datamill.ini", Qt::IniFormat);
+    QSettings settings("datamill.ini", QSettings::IniFormat);
 
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
-                       Qt::NativeFormat);
+                       QSettings::NativeFormat);
 }
 
 class MainWindow : public QMainWindow

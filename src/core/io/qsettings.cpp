@@ -188,8 +188,8 @@ after_loop:
 // see also qsettings_win.cpp and qsettings_mac.cpp
 
 #if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
-QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
-                                           Qt::SettingsScope scope,
+QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format,
+                                           QSettings::Scope scope,
                                            const QString &organization,
                                            const QString &application)
 {
@@ -201,7 +201,7 @@ QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
 #endif
 
 #if !defined(Q_OS_WIN)
-QSettingsPrivate *QSettingsPrivate::create(const QString &fileName, Qt::SettingsFormat format)
+QSettingsPrivate *QSettingsPrivate::create(const QString &fileName, QSettings::Format format)
 {
     QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(fileName, format);
     p->init();
@@ -885,8 +885,8 @@ static QString userIniPath()
     return result + QDir::separator();
 }
 
-QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
-                                                   Qt::SettingsScope scope,
+QConfFileSettingsPrivate::QConfFileSettingsPrivate(QSettings::Format format,
+                                                   QSettings::Scope scope,
                                                    const QString &organization,
                                                    const QString &application)
 {
@@ -902,12 +902,12 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
         org = QLatin1String("unknown-organization.trolltech.com");
     }
 
-    const char *extension = format == Qt::IniFormat ? ".ini" : ".conf";
+    const char *extension = format == QSettings::IniFormat ? ".ini" : ".conf";
 
     QString appFile = org + QDir::separator() + application + QLatin1String(extension);
     QString orgFile = org + QLatin1String(extension);
 
-    if (scope == Qt::UserScope) {
+    if (scope == QSettings::UserScope) {
         if (!application.isEmpty())
             confFiles[F_User | F_Application] = QConfFile::fromName(userIniPath() + appFile);
         confFiles[F_User | F_Organization] = QConfFile::fromName(userIniPath() + orgFile);
@@ -925,7 +925,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
-                                                   Qt::SettingsFormat format)
+                                                   QSettings::Format format)
 {
     confFiles[0] = QConfFile::fromName(fileName);
     for (int i = 1; i < NumConfFiles; ++i)
@@ -1226,7 +1226,7 @@ bool QConfFileSettingsPrivate::readFile(QConfFile *confFile)
 
     if (actualSize != 0) {
 #ifdef Q_OS_MAC
-        if (format == Qt::NativeFormat) {
+        if (format == QSettings::NativeFormat) {
             ok = readPlistFile(confFile->name, &newKeys);
         } else
 #endif
@@ -1251,7 +1251,7 @@ bool QConfFileSettingsPrivate::writeFile(QConfFile *confFile)
     bool ok = false;
 
 #ifdef Q_OS_MAC
-    if (format == Qt::NativeFormat) {
+    if (format == QSettings::NativeFormat) {
         ok = writePlistFile(confFile->name, confFile->originalKeys);
     } else
 #endif
@@ -1691,7 +1691,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     only the first file (the user-specific location for the
     application at hand) is accessible for writing. To write to any
     of the other files, omit the application name and/or specify
-    Qt::SystemScope (as opposed to Qt::UserScope, the default).
+    QSettings::SystemScope (as opposed to QSettings::UserScope, the default).
 
     Let's see with an example:
 
@@ -1720,7 +1720,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     paths.
 
     If you want to use INI files on all platforms instead of the
-    native API, you can pass Qt::IniFormat as the first argument to
+    native API, you can pass QSettings::IniFormat as the first argument to
     the QSettings constructor, followed by the scope, the
     organization domain name, and the application name:
 
@@ -1734,7 +1734,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \printline /QSettings settings.*Ini/
 
-    The file format can either be Qt::IniFormat or Qt::NativeFormat.
+    The file format can either be QSettings::IniFormat or QSettings::NativeFormat.
     On Mac OS X, the native format is an XML-based format called \e
     plist. On Windows, the native format is the Windows registry, and
     the first argument is a path in the registry rather than a file
@@ -1743,7 +1743,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printline HKEY
     \printline Native
 
-    On X11 and embedded Linux, Qt::IniFormat and Qt::NativeFormat have
+    On X11 and embedded Linux, QSettings::IniFormat and QSettings::NativeFormat have
     the same meaning.
 
     \section1 Restoring the State of a GUI Application
@@ -1841,13 +1841,13 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         QSettings settings("technopro.co.jp", "Facturo-Pro");
     \endcode
 
-    The scope is Qt::UserScope and the format is Qt::NativeFormat.
+    The scope is QSettings::UserScope and the format is QSettings::NativeFormat.
 
     \sa {Locations for Storing Settings}
 */
 QSettings::QSettings(const QString &organization, const QString &application,
                              QObject *parent)
-    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope, organization, application),
+    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, QSettings::UserScope, organization, application),
               parent)
 {
 }
@@ -1857,21 +1857,21 @@ QSettings::QSettings(const QString &organization, const QString &application,
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If \a scope is Qt::UserScope, the QSettings object searches
+    If \a scope is QSettings::UserScope, the QSettings object searches
     user-specific settings first, before it seaches system-wide
     settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
-    Qt::SystemScope, the QSettings object ignores user-specific
+    QSettings::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
-    The storage format is always Qt::NativeFormat.
+    The storage format is always QSettings::NativeFormat.
 
     If no application name is given, the QSettings object will
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QSettings::QSettings(Qt::SettingsScope scope, const QString &organization,
+QSettings::QSettings(QSettings::Scope scope, const QString &organization,
                              const QString &application, QObject *parent)
-    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, scope, organization, application),
+    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, scope, organization, application),
               parent)
 {
 }
@@ -1881,21 +1881,21 @@ QSettings::QSettings(Qt::SettingsScope scope, const QString &organization,
     application called \a application from the organization with the
     Internet domain name \a organization, and with parent \a parent.
 
-    If \a scope is Qt::UserScope, the QSettings object searches
+    If \a scope is QSettings::UserScope, the QSettings object searches
     user-specific settings first, before it seaches system-wide
     settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
-    Qt::SystemScope, the QSettings object ignores user-specific
+    QSettings::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
-    If \a format is Qt::NativeFormat, the native API is used for
-    storing settings. If \a format is Qt::IniFormat, the INI format
+    If \a format is QSettings::NativeFormat, the native API is used for
+    storing settings. If \a format is QSettings::IniFormat, the INI format
     is used.
 
     If no application name is given, the QSettings object will
     only access the organization-wide
     \l{Locations for Storing Settings}{locations}.
 */
-QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+QSettings::QSettings(QSettings::Format format, QSettings::Scope scope,
                              const QString &organization, const QString &application,
                              QObject *parent)
     : QObject(*QSettingsPrivate::create(format, scope, organization, application),
@@ -1908,17 +1908,17 @@ QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
     stored in the file called \a fileName, with parent \a parent. If
     the file doesn't already exist, it is created.
 
-    If \a format is Qt::NativeFormat, the meaning of \a fileName
+    If \a format is QSettings::NativeFormat, the meaning of \a fileName
     depends on the platform. On Unix/X11, \a fileName is the name of
     an INI file. On Mac OS X, \a fileName is the name of a .plist
     file. On Windows, \a fileName is a path in the system registry.
 
-    If \a format is Qt::IniFormat, \a fileName is the name of an INI
+    If \a format is QSettings::IniFormat, \a fileName is the name of an INI
     file.
 
     \sa fileName()
 */
-QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
+QSettings::QSettings(const QString &fileName, QSettings::Format format,
                              QObject *parent)
     : QObject(*QSettingsPrivate::create(fileName, format),
               parent)
@@ -1931,7 +1931,7 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
     QCoreApplication::setOrganizationDomain() and
     QCoreApplication::setApplicationName().
 
-    The scope is Qt::UserScope and the format is Qt::NativeFormat.
+    The scope is QSettings::UserScope and the format is QSettings::NativeFormat.
 
     The code
 
@@ -1953,7 +1953,7 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format,
     settings, and status() will return \c AccessError.
 */
 QSettings::QSettings(QObject *parent)
-    : QObject(*QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+    : QObject(*QSettingsPrivate::create(QSettings::NativeFormat, QSettings::UserScope,
                                         QCoreApplication::organizationDomain(),
                                         QCoreApplication::applicationName()),
               parent)
@@ -1962,25 +1962,25 @@ QSettings::QSettings(QObject *parent)
 
 #else
 QSettings::QSettings(const QString &organization, const QString &application)
-    : d_ptr(QSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope, organization, application))
+    : d_ptr(QSettingsPrivate::create(QSettings::NativeFormat, QSettings::UserScope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(Qt::SettingsScope scope, const QString &organization, const QString &application)
-    : d_ptr(QSettingsPrivate::create(Qt::NativeFormat, scope, organization, application))
+QSettings::QSettings(QSettings::Scope scope, const QString &organization, const QString &application)
+    : d_ptr(QSettingsPrivate::create(QSettings::NativeFormat, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+QSettings::QSettings(QSettings::Format format, QSettings::Scope scope,
                      const QString &organization, const QString &application)
     : d_ptr(QSettingsPrivate::create(format, scope, organization, application))
 {
     d_ptr->q_ptr = this;
 }
 
-QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format)
+QSettings::QSettings(const QString &fileName, QSettings::Format format)
     : d_ptr(QSettingsPrivate::create(fileName, format))
 {
     d_ptr->q_ptr = this;
@@ -2036,7 +2036,7 @@ void QSettings::sync()
     Returns the path where settings written using this QSettings
     object are stored.
 
-    On Windows, if the format is Qt::NativeFormat, the return value
+    On Windows, if the format is QSettings::NativeFormat, the return value
     is a system registry path, not a file path.
 
     \sa isWritable()
@@ -2790,8 +2790,8 @@ void QSettings::setUserIniPath(const QString &dir)
 /*! \enum QSettings::Scope
     \compat
 
-    \value User The settings are specific to the current user (same as Qt::UserScope).
-    \value Global The settings are shared by all users on the current machine (same as Qt::SystemScope).
+    \value User The settings are specific to the current user (same as QSettings::UserScope).
+    \value Global The settings are shared by all users on the current machine (same as QSettings::SystemScope).
 
     \sa setPath()
 */
@@ -2802,15 +2802,15 @@ void QSettings::setUserIniPath(const QString &dir)
     Specifies the \a organization, \a application, and \a scope to
     use by the QSettings object.
 
-    Use the appropriate constructor instead, with Qt::UserScope
-    instead of QSettings::User and Qt::SystemScope instead of
+    Use the appropriate constructor instead, with QSettings::UserScope
+    instead of QSettings::User and QSettings::SystemScope instead of
     QSettings::Global.
 
     \oldcode
         QSettings settings;
         settings.setPath("twikimaster.com", "Kanooth", QSettings::Global);
     \newcode
-        QSettings settings(Qt::SystemScope, "twikimaster.com", "Kanooth");
+        QSettings settings(QSettings::SystemScope, "twikimaster.com", "Kanooth");
     \endcode
 */
 

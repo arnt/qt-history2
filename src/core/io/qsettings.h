@@ -43,25 +43,45 @@ class Q_CORE_EXPORT QSettings
     Q_DECLARE_PRIVATE(QSettings)
 
 public:
-    enum Status { NoError = 0, AccessError, FormatError };
+    enum Status { 
+        NoError = 0, 
+        AccessError, 
+        FormatError 
+    };
+    
+    enum Format {
+        NativeFormat,
+        IniFormat
+    };
+
+    enum Scope {
+        UserScope,
+        SystemScope
+#ifdef QT_COMPAT
+        ,
+        User = UserScope,
+        Global = SystemScope
+#endif    
+    };
+
 
 #ifndef QT_NO_QOBJECT
     QSettings(const QString &organization, const QString &application = QString(),
               QObject *parent = 0);
-    QSettings(Qt::SettingsScope scope, const QString &organization,
+    QSettings(QSettings::Scope scope, const QString &organization,
               const QString &application = QString(), QObject *parent = 0);
-    QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+    QSettings(QSettings::Format format, QSettings::Scope scope,
               const QString &organization, const QString &application = QString(),
               QObject *parent = 0);
-    QSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent = 0);
+    QSettings(const QString &fileName, QSettings::Format format, QObject *parent = 0);
     QSettings(QObject *parent = 0);
 #else
     QSettings(const QString &organization, const QString &application = QString());
-    QSettings(Qt::SettingsScope scope, const QString &organization,
+    QSettings(QSettings::Scope scope, const QString &organization,
               const QString &application = QString());
-    QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
+    QSettings(QSettings::Format format, QSettings::Scope scope,
               const QString &organization, const QString &application = QString());
-    QSettings(const QString &fileName, Qt::SettingsFormat format);
+    QSettings(const QString &fileName, QSettings::Format format);
 #endif
     ~QSettings();
 
@@ -161,13 +181,12 @@ public:
     inline QT_COMPAT void insertSearchPath(System, const QString &) {}
     inline QT_COMPAT void removeSearchPath(System, const QString &) {}
 
-    enum Scope { User, Global };
     inline QT_COMPAT void setPath(const QString &organization, const QString &application,
                                   Scope scope = Global)
     {
         QObject *parent = this->parent();
         this->~QSettings();
-        new (this) QSettings(scope == Global ? Qt::SystemScope : Qt::UserScope,
+        new (this) QSettings(scope == Global ? QSettings::SystemScope : QSettings::UserScope,
                              organization, application, parent);
     }
     inline QT_COMPAT void resetGroup()

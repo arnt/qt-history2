@@ -153,9 +153,9 @@ public:
     void update();
 
     static QString normalizedKey(const QString &key);
-    static QSettingsPrivate *create(Qt::SettingsFormat format, Qt::SettingsScope scope,
+    static QSettingsPrivate *create(QSettings::Format format, QSettings::Scope scope,
                                         const QString &organization, const QString &application);
-    static QSettingsPrivate *create(const QString &fileName, Qt::SettingsFormat format);
+    static QSettingsPrivate *create(const QString &fileName, QSettings::Format format);
 
     static void processChild(QString key, ChildSpec spec, QMap<QString, QString> &result);
 
@@ -201,9 +201,9 @@ protected:
 class QConfFileSettingsPrivate : public QSettingsPrivate
 {
 public:
-    QConfFileSettingsPrivate(Qt::SettingsFormat format, Qt::SettingsScope scope,
+    QConfFileSettingsPrivate(QSettings::Format format, QSettings::Scope scope,
                              const QString &organization, const QString &application);
-    QConfFileSettingsPrivate(const QString &fileName, Qt::SettingsFormat format);
+    QConfFileSettingsPrivate(const QString &fileName, QSettings::Format format);
     ~QConfFileSettingsPrivate();
 
     void remove(const QString &key);
@@ -234,7 +234,7 @@ private:
 #endif
 
     QConfFile *confFiles[NumConfFiles];
-    Qt::SettingsFormat format;
+    QSettings::Format format;
     Qt::CaseSensitivity cs;
     bool readAccess;
     bool writeAccess;

@@ -233,7 +233,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
 class QMacSettingsPrivate : public QSettingsPrivate
 {
 public:
-    QMacSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
+    QMacSettingsPrivate(QSettings::Scope scope, const QString &organization,
                         const QString &application);
     ~QMacSettingsPrivate();
 
@@ -260,7 +260,7 @@ private:
     int numDomains;
 };
 
-QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
+QMacSettingsPrivate::QMacSettingsPrivate(QSettings::Scope scope, const QString &organization,
                                          const QString &application)
 {
     QString javaPackageName;
@@ -284,7 +284,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
         javaPackageName.prepend(QLatin1String("com."));
     suiteId = javaPackageName;
 
-    if (scope == Qt::SystemScope)
+    if (scope == QSettings::SystemScope)
         spec |= F_Global;
 
     if (application.isEmpty()) {
@@ -309,7 +309,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
         }
     }
 
-    hostName = (scope == Qt::SystemScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
+    hostName = (scope == QSettings::SystemScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
 }
 
 QMacSettingsPrivate::~QMacSettingsPrivate()
@@ -414,12 +414,12 @@ bool QMacSettingsPrivate::isWritable() const
     return true; // ###
 }
 
-QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
-                                           Qt::SettingsScope scope,
+QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format,
+                                           QSettings::Scope scope,
                                            const QString &organization,
                                            const QString &application)
 {
-    if (format == Qt::NativeFormat) {
+    if (format == QSettings::NativeFormat) {
         QMacSettingsPrivate *p = new QMacSettingsPrivate(scope, organization, application);
         return p;
     } else {

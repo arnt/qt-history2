@@ -40,7 +40,7 @@ typedef QVector<RegistryLocation> RegistryLocationList;
 class QWinSettingsPrivate : public QSettingsPrivate
 {
 public:
-    QWinSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
+    QWinSettingsPrivate(QSettings::Scope scope, const QString &organization,
                         const QString &application);
     QWinSettingsPrivate(QString rKey);
     ~QWinSettingsPrivate();
@@ -366,7 +366,7 @@ static void deleteChildGroups(HKEY parentHandle)
 ** class QWinSettingsPrivate
 */
 
-QWinSettingsPrivate::QWinSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
+QWinSettingsPrivate::QWinSettingsPrivate(QSettings::Scope scope, const QString &organization,
                                          const QString &application)
 {
     deleteWriteHandleOnExit = false;
@@ -377,7 +377,7 @@ QWinSettingsPrivate::QWinSettingsPrivate(Qt::SettingsScope scope, const QString 
         QString appPrefix = prefix + QLatin1Char('\\') + application;
 
         RegistryLocation loc;
-        if (scope == Qt::UserScope) {
+        if (scope == QSettings::UserScope) {
             if (!application.isEmpty()) {
                 if (createOrOpenKey(HKEY_CURRENT_USER, appPrefix, &loc))
                     regList.append(loc);
@@ -809,12 +809,12 @@ bool QWinSettingsPrivate::isWritable() const
     return writeHandle() != 0;
 }
 
-QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
-                                           Qt::SettingsScope scope,
+QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format,
+                                           QSettings::Scope scope,
                                            const QString &organization,
                                            const QString &application)
 {
-    if (format == Qt::NativeFormat) {
+    if (format == QSettings::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(scope, organization, application);
         return p;
     } else {
@@ -826,9 +826,9 @@ QSettingsPrivate *QSettingsPrivate::create(Qt::SettingsFormat format,
 }
 
 QSettingsPrivate *QSettingsPrivate::create(const QString &fileName,
-                                           Qt::SettingsFormat format)
+                                           QSettings::Format format)
 {
-    if (format == Qt::NativeFormat) {
+    if (format == QSettings::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(fileName);
         return p;
     } else {
