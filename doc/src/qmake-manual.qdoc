@@ -3105,17 +3105,22 @@
        this contains a colon-separated list of directories.
     \o In a directory listed in the \c QMAKEFEATURES property variable; this
        contains a colon-spearated list of directories.
-    \o In the directory defined by \c FEATURES_DIR beneath the project's root
-       directory (where the .qmake.cache file is generated).
-    \o In a directory defined by \c mkspecs/$FEATURES_DIR beneath any of the
-       directories listed in the \c QMAKEPATH environment variable; this
-       contains a colon-separated list of directories.
-    \o In the directory specified by \c $QMAKESPEC/features.
-    \o In the \c data_install/mkspecs/$FEATURES_DIR directory.
-    \o In the \c $QMAKESPEC/../$FEATURES_DIR directory.
+    \o In a features directory beneath the project's root directory (where
+       the .qmake.cache file is generated).
+    \o In a features directory residing within a \c mkspecs directory.
+       \c mkspecs directories can be located beneath any of the directories
+       listed in the \c QMAKEPATH environment variable (a colon-separated list
+       of directories). (\c{$QMAKEPATH/mkspecs/<features>})
+    \o In a features directory residing beneath the directory provided by the
+       \c QMAKESPEC environment variable. (\c{$QMAKESPEC/<features>})
+    \o In a features directory residing in the \c data_install/mkspecs directory.
+       (\c{data_install/mkspecs/<features>})
+    \o In a features directory that exists as a sibling of the directory
+       specified by the \c QMAKESPEC environment variable.
+       (\c{$QMAKESPEC/../<features>})
     \endlist
 
-    The \c FEATURES_DIR environment variable contains the following values:
+    The following features directories are searched for features files:
 
     \list 1
     \o \c{features/unix}, \c{features/win32}, or \c{features/macx}, depending on
@@ -3131,7 +3136,25 @@
 
     With this addition to the \c CONFIG variable, \c qmake will search the
     locations listed above for the \c myfeatures.prf file after it has
-    finished parsing your project file.
+    finished parsing your project file. On Unix systems, it will look for
+    the following file:
+
+    \list 1
+    \o \c $QMAKEFEATURES/myfeatures.prf (for each directory listed in the
+       \c QMAKEFEATURES environment variable)
+    \o \c $$QMAKEFEATURES/myfeatures.prf (for each directory listed in the
+       \c QMAKEFEATURES property variable)
+    \o \c myfeatures.prf (in the project's root directory)
+    \o \c $QMAKEPATH/mkspecs/features/unix/myfeatures.prf and
+       \c $QMAKEPATH/mkspecs/features/myfeatures.prf (for each directory
+       listed in the \c QMAKEPATH environment variable)
+    \o \c $QMAKESPEC/features/unix/myfeatures.prf and
+       \c $QMAKESPEC/features/myfeatures.prf
+    \o \c data_install/mkspecs/features/unix/myfeatures.prf and
+       \c data_install/mkspecs/features/myfeatures.prf
+    \o \c $QMAKESPEC/../features/unix/myfeatures.prf and
+       \c $QMAKESPEC/../features/myfeatures.prf
+    \endlist
 */
 
 /*!
