@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#472 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#473 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1253,13 +1253,16 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
   Main event loop
  *****************************************************************************/
 
+extern bool qt_is_gui_used;
+
 int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
 #if defined(QT_THREAD_SUPPORT)
     qt_gui_thread = GetCurrentThreadId();
-    qApp->unlock();
+    if (qt_is_gui_used)
+	qApp->unlock();
 #endif
     enter_loop();
 
