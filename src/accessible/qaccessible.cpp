@@ -217,6 +217,17 @@
     \value Descendent	    The first object is an indirect child
 			    of the second object
     \value Sibling	    The objects are siblings
+    \value HierarchyMask    A mask for hierarchical relationships
+
+    \value Up		    The first object is above the second object
+    \value Down		    The first object is below the second object
+    \value Left		    The first object is left from the second object
+    \value Right	    The first object is right from the second object
+    \value Covers	    The first object covers the second object
+    \value Covered	    The first object is covered by the second object
+    \value GeometryMask	    A mask for geometrical relationships. 
+			    Geometrical relationships are only relevant between siblings.
+
     \value FocusChild	    The first object is the second object's
 			    focus child
     \value Label	    The first object is the label of the
@@ -226,16 +237,11 @@
     \value Controller	    The first object controls the second object
     \value Controlled	    The first object is controlled by the the
 			    second object
-    \value LogicalMask	    A mask for the values above
-    \value Above	    The first object is above the second object
-    \value Below	    The first object is below the second object
-    \value Left		    The first object is left from the second object
-    \value Right	    The first object is right from the second object
-    \value GeometricalMask  A mask
+    \value LogicalMask	    A mask for logical relationships
 
-    relationTo() can return a combination of the different values
-    (some values are obviously mutually exclusive). navigate() only
-    accepts one value.
+    relationTo() can return a combination of the different values.
+    (some values are obviously mutually exclusive). navigate() can
+    accepts only one distinct value.
 */
 
 /*!
@@ -695,7 +701,8 @@ bool QAccessible::isActive()
     The returned value indicates the relation of the called object to the \a other object,
     e.g. if \a other is child of this object the return value will be \c Ancestor.
 
-    The return value is a combination of the bitflags in the \c Relation enumeration.
+    The return value is a combination of the bitflags in the \c Relation enumeration. The
+    returned value always includes a bit from the hierarchical relations
 
     All objects provide this information.
 */

@@ -198,17 +198,22 @@ public:
 	Child		= 0x00000004,
 	Descendent	= 0x00000008,
 	Sibling		= 0x00000010,
-	FocusChild	= 0x00000011,
-	Label		= 0x00000012,
-	Buddy		= 0x00000014,
-	Controller	= 0x00000018,
-	Controlled	= 0x00000020,
-	LogicalMask	= 0x0000ffff,
-	Above		= 0x00010000,
-	Below		= 0x00020000,
-	Left		= 0x00040000,
-	Right		= 0x00080000,
-	GeometricalMask = 0xffff0000
+	HierarchyMask	= 0x000000ff,
+
+	Up		= 0x00000100,
+	Down		= 0x00000200,
+	Left		= 0x00000400,
+	Right		= 0x00000800,
+	Covers		= 0x00001000,
+	Covered		= 0x00002000,
+	GeometryMask	= 0x0000ff00,
+
+	FocusChild	= 0x00010000,
+	Label		= 0x00020000,
+	Buddy		= 0x00040000,
+	Controller	= 0x00080000,
+	Controlled	= 0x00100000,
+	LogicalMask	= 0x00ff0000
     };
 
     typedef QAccessibleInterface*(*InterfaceFactory)(const QString &key, QObject*);

@@ -697,10 +697,10 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
 	}
 	break;
     case NAVDIR_UP:
-	control = accessible->navigate(Above, varStart.lVal, &acc);
+	control = accessible->navigate(Up, varStart.lVal, &acc);
 	break;
     case NAVDIR_DOWN:
-	control = accessible->navigate(Below, varStart.lVal, &acc);
+	control = accessible->navigate(Down, varStart.lVal, &acc);
 	break;
     case NAVDIR_LEFT:
 	control = accessible->navigate(Left, varStart.lVal, &acc);
