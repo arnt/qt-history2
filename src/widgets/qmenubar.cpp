@@ -503,6 +503,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	waitforalt = 0;
 	return FALSE;
     } else if ( ! ( event->type() == QEvent::Accel ||
+	event->type() == QEvent::AccelOverride ||
 	event->type() == QEvent::KeyPress ||
 	event->type() == QEvent::KeyRelease ) ||
 	! style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) ) {
@@ -516,7 +517,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	QKeyEvent * ke = (QKeyEvent *) event;
 	// ### this thinks alt and meta are the same
 	if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
-	    // A new Alt press and we wait for release, eat 
+	    // A new Alt press and we wait for release, eat
 	    // this key and don't wait for Alt on this widget
 	    if ( waitforalt ) {
 		waitforalt = 0;
@@ -528,7 +529,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    } else if ( hasFocus() ) {
 		setAltMode( FALSE );
 		ke->accept();
-		waitforalt = 0;
 		return TRUE;
 	    // Start waiting for Alt release on focus widget
 	    } else {
@@ -539,7 +539,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	// Other modifiers kills focus on menubar
 	} else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
 	    setAltMode( FALSE );
-	    waitforalt = 0;
 	// Got other key, no need to wait for Alt release
 	} else {
 	    waitforalt = 0;
@@ -571,13 +570,13 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->installEventFilter( this );
 	    }
 	    return TRUE;
-	// Cancel if next keypress/keyrelease is NOT Alt/Meta, 
-	} else if ( (((event->type() == QEvent::KeyPress)   || (event->type() == QEvent::KeyRelease)) &&
-		   !(((QKeyEvent *)event)->key() == Key_Alt || ((QKeyEvent *)event)->key() == Key_Meta)) ) {
+	// Cancel if next keypress is NOT Alt/Meta,
+	} else if ( !hasFocus() && (event->type() == QEvent::AccelOverride ) &&
+		    !(((QKeyEvent *)event)->key() == Key_Alt ||
+		      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    setAltMode( FALSE );
-	    waitforalt = 0;
 	}
     }
 
