@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#24 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2718,7 +2718,7 @@ void QMultiLineEdit::setMaxLines(int m)
 	    markDragX = 0;
 	    markDragY = m;
 	}
-	while ( content->remove(m) )
+	while ( contents->remove(m) )
 	    ;
 	updateCellWidth();
 	update();
