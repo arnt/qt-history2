@@ -128,6 +128,8 @@ class Q_GUI_EXPORT QPainter
     double translationY() const;
 
     // drawing functions
+    void strokePath(const QPainterPath &path, const QPen &pen);
+    void fillPath(const QPainterPath &path, const QBrush &brush);
     void drawPath(const QPainterPath &path);
     void setClipPath(const QPainterPath &path);
 

@@ -1279,6 +1279,31 @@ void QPainter::setClipPath(const QPainterPath &path)
 }
 
 /*!
+    Draws the outline (strokes) the path \a path with the pen specified
+    by \a pen
+*/
+void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
+{
+    save();
+    setPen(pen);
+    setBrush(Qt::NoBrush);
+    drawPath(path);
+    restore();
+}
+
+/*!
+    Fills the path \a path using the brush \ a brush. The outline
+    is not drawn.
+*/
+void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
+{
+    save();
+    setBrush(brush);
+    setPen(Qt::NoPen);
+    drawPath(path);
+    restore();
+}
+/*!
     Draws the painter path specified by \a path using the current pen
     for outline and the current brush for filling.
 */
