@@ -253,7 +253,7 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
 	QFont f = QApplication::font( this );
 	doc = new QSimpleRichText( text, f );
 	doc->adjustSize();
-	r.setRect( 0, 0, doc->widthUsed(), doc->height() );
+	r.setRect( 0, 0, doc->width(), doc->height() );
     }
     else
 #endif
