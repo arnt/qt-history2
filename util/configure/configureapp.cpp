@@ -25,6 +25,7 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "BUILD_QMAKE" ]	    = "yes";
     dictionary[ "DSPFILES" ]	    = "yes";
+    dictionary[ "VCPROJFILES" ]	    = "yes";
     dictionary[ "QMAKESPEC" ]	    = getenv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ]  = "no";
     dictionary[ "LEAN" ]	    = "no";
@@ -33,7 +34,7 @@ Configure::Configure( int& argc, char** argv )
 
     /*
 	Figure out the version number doing:
-      
+
 	    QT_MAJOR = QT_VERSION >> 16;
 	    QT_MINOR = ( QT_VERSION >> 8 ) & 0xff;
 	    QT_PATCH = QT_VERSION & 0xff;
@@ -338,6 +339,11 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-dsp" )
 	    dictionary[ "DSPFILES" ] = "yes";
 
+	else if( (*args) == "-no-vcproj" )
+	    dictionary[ "VCPROJFILES" ] = "no";
+	else if( (*args) == "-vcproj" )
+	    dictionary[ "VCPROJFILES" ] = "yes";
+
 	else if( (*args) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
 
@@ -554,6 +560,9 @@ bool Configure::displayHelp()
 
 	cout << "-no-dsp              Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp               * Enable the generation of VC++ .DSP-files." << endl << endl;
+
+	cout << "-no-vcproj           Disable the generation of VC++ .VCPROJ-files." << endl;
+	cout << "-vcproj            * Enable the generation of VC++ .VCPROJ-files." << endl << endl;
 
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
@@ -1046,7 +1055,9 @@ void Configure::displayConfig()
 
 void Configure::buildQmake()
 {
-    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||  dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
+    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||
+    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
+    	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     } else {
@@ -1097,6 +1108,11 @@ void Configure::findProjects( const QString& dirName )
 				makeList += fi->fileName();
 				makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
 			    }
+			    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+				makeList += dirName;
+				makeList += fi->fileName();
+				makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".vcproj";
+			    }
 			}
 		    }
 		}
@@ -1114,6 +1130,9 @@ void Configure::generateMakefiles()
 	if( dictionary[ "QMAKESPEC" ] != "win32-msvc" )
 	    dictionary[ "DSPFILES" ] = "no";
 
+	if( dictionary[ "QMAKESPEC" ] != "win32-msvc.net" )
+	    dictionary[ "VCPROJFILES" ] = "no";
+
 	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 	    makeList += "qt.pro";
 	    makeList += "Makefile";
@@ -1122,6 +1141,11 @@ void Configure::generateMakefiles()
 		makeList += "qt.pro";
 		makeList += "qt.dsp";
 	    }
+	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+		makeList += "qt.pro";
+		makeList += "qt.vcproj";
+	    }
 	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 	    makeList += "qtmain.pro";
 	    makeList += "Makefile.main";
@@ -1129,6 +1153,11 @@ void Configure::generateMakefiles()
 		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 		makeList += "qtmain.pro";
 		makeList += "qtmain.dsp";
+	    }
+	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+		makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
+		makeList += "qtmain.pro";
+		makeList += "qtmain.vcproj";
 	    }
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
@@ -1159,7 +1188,8 @@ void Configure::generateMakefiles()
 	    args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
 	    args << projectName;
 	    args << dictionary[ "QMAKE_ALL_ARGS" ];
-	    if ( makefileName.right( 4 ) != ".dsp" ) {
+	    if ( makefileName.right( 4 ) != ".dsp" &&
+	         makefileName.right( 7 ) != ".vcproj" ) {
 		args << "-o";
 		args << makefileName;
 	    }
@@ -1168,7 +1198,8 @@ void Configure::generateMakefiles()
 	    if( dictionary[ "DEPENDENCIES" ] == "no" )
 		args << "-nodepend";
 
-	    if( makefileName.right( 4 ) == ".dsp" )
+	    if( makefileName.right( 4 ) == ".dsp" ||
+	        makefileName.right( 7 ) == ".vcproj" )
 		args << "-t" << qmakeTemplate;
 	    else
 		cout << "For " << projectName.latin1() << endl;
@@ -1176,7 +1207,8 @@ void Configure::generateMakefiles()
 
 
 	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-	    if ( !( qmakeTemplate == "subdirs" && makefileName.right( 4 ) == ".dsp" ) ) {
+	    if ( !( qmakeTemplate == "subdirs" &&
+	          ( makefileName.right( 4 ) == ".dsp" || makefileName.right( 7 ) == ".vcproj") ) ) {
 		if( int r = system( args.join( " " ).latin1() ) ) {
 		    cout << "Qmake failed, return code " << r  << endl << endl;
 		    dictionary[ "DONE" ] = "yes";
