@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#130 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#131 $
 **
 ** Definition of QApplication class
 **
@@ -55,8 +55,10 @@ class Q_EXPORT QApplication : public QObject
 {
     Q_OBJECT
 public:
-    QApplication( int &argc, char **argv );
+    QApplication( int &argc, char **argv);
 #if defined(_WS_X11_)
+    QApplication( int &argc, char **argv, bool GUIenabled );
+    static bool  is_gui_used;
     QApplication( Display* dpy );
 #endif
     virtual ~QApplication();
@@ -86,7 +88,7 @@ public:
 
     static QPalette	     palette( const QWidget* = 0 );
     static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE, const char* className = 0 );
-#ifdef QT_BUILDER    
+#ifdef QT_BUILDER
     static QPalette	     palette( const QWidget*, const char* className  );
 #endif // QT_BUILDER
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#548 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#549 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -837,6 +837,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #endif
       // Connect to X server
 
+if( QApplication::is_gui_used ) {
 	if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 	    qWarning( "%s: cannot connect to X server %s", appName,
 		     XDisplayName(appDpyName) );
@@ -847,11 +848,12 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( appSync )				// if "-sync" argument
 	    XSynchronize( appDpy, TRUE );
     }
-
+}
   // Common code, regardless of whether display is foreign.
 
   // Get X parameters
 
+if( QApplication::is_gui_used ) {
     appScreen  = DefaultScreen(appDpy);
     appRootWin = RootWindow(appDpy,appScreen);
 
@@ -925,8 +927,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
+}
     gettimeofday( &watchtime, 0 );
 
+if( QApplication::is_gui_used ) {
     qApp->setName( appName );
 
     XSelectInput( appDpy, appRootWin,
@@ -935,12 +939,13 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		  EnterWindowMask | LeaveWindowMask |
 		  FocusChangeMask | PropertyChangeMask
 		  );
-
+}
 #if !defined(NO_XIM)
     qt_xim = 0;
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
+if( QApplication::is_gui_used ) {
     if ( !XSupportsLocale() )
 	qDebug("Qt: Locales not supported on X server");
     else if ( XSetLocaleModifiers ("") == NULL )
@@ -1000,6 +1005,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
 #else
      setlocale( LC_CTYPE, 0 );
+if( QApplication::is_gui_used ) {
 #endif
 
     // Always use the locale codec, since we have no examples of non-local
@@ -1019,6 +1025,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
     qt_fix_tooltips();
+}
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -1064,7 +1071,7 @@ void qt_cleanup()
     }
 #endif
 
-    if ( !QPaintDevice::x11AppDefaultColormap() )
+    if ( QApplication::is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
@@ -1079,7 +1086,7 @@ void qt_cleanup()
 	sip_list = 0;
     }
 
-    if ( !appForeignDpy )
+    if ( QApplication::is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
 }
@@ -1940,6 +1947,7 @@ bool QApplication::processNextEvent( bool canWait )
     XEvent event;
     int	   nevents = 0;
 
+if (is_gui_used ) {
     sendPostedEvents();
 
     while ( XPending(appDpy) ) {		// also flushes output buffer
@@ -1951,7 +1959,7 @@ bool QApplication::processNextEvent( bool canWait )
 	if ( x11ProcessEvent( &event ) == 1 )
 	    return TRUE;
     }
-
+}
     if ( quit_now || app_exit_loop )		// break immediately
 	return FALSE;
 
@@ -1977,9 +1985,11 @@ bool QApplication::processNextEvent( bool canWait )
     } else {
 	FD_ZERO( &app_readfds );
     }
-    FD_SET( app_Xfd, &app_readfds );
 
+if (is_gui_used ) {
+    FD_SET( app_Xfd, &app_readfds );
     XFlush( appDpy );
+}
     int nsel;
 
 #if defined(_OS_WIN32_)
@@ -1988,7 +1998,7 @@ bool QApplication::processNextEvent( bool canWait )
 #define FDCAST (void*)
 #endif
 
-    nsel = select( QMAX(app_Xfd,sn_highest)+1,
+    nsel = select( is_gui_used ? ( QMAX(app_Xfd,sn_highest)+1) : (sn_highest+1) ,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),

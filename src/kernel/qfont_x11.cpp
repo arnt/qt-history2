@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#186 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -356,7 +356,8 @@ void QFont::cleanup()
 {
     delete fontCache;
     fontCache = 0;
-    fontDict->setAutoDelete( TRUE );
+    if ( fontDict )
+	fontDict->setAutoDelete( TRUE );
     delete fontDict;
     delete fontNameDict;
 }

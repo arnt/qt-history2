@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#275 $
 **
 ** Implementation of QApplication class
 **
@@ -255,6 +255,7 @@ static bool makeqdevel = FALSE;		// developer tool needed?
 static QWidget *desktopWidget	= 0;		// root window widget
 static QTextCodec *default_codec	= 0;		// root window widget
 bool QApplication::app_exit_loop = FALSE;	// flag to exit local loop
+bool QApplication::is_gui_used;
 
 
 //Definitions for posted events.
@@ -307,6 +308,8 @@ static void destroy_palettes()
 void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
     // process platform-indep command line
+    if ( !is_gui_used )
+        return;
 
     int argc = *argcptr;
     int i, j;
@@ -421,8 +424,42 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   \sa argc(), argv()
 */
 
-QApplication::QApplication( int &argc, char **argv )
+//######### BINARY COMPATIBILITY constructor
+QApplication::QApplication( int &argc, char **argv)
 {
+    is_gui_used = TRUE;
+    init_precmdline();
+    static char *empty = "";
+    if ( argc == 0 || argv == 0 ) {
+        argc = 0;
+        argv = &empty;
+    }
+    qt_init( &argc, argv );   // Must be called before initialize()
+    process_cmdline( &argc, argv );
+
+    initialize( argc, argv );
+
+}
+
+
+#if defined(_WS_X11_)
+
+/*!
+  Constructs an application object
+  with the command line arguments \e argc and \e argv.
+
+  Initializes the window system if \a GUIenabled is TRUE,
+  otherwise a non-GUI application is created.
+
+  \warning This functionality is experimental.
+  
+  This constructor is only available on X11 in this version of the Qt
+  library.
+*/
+
+QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
+{
+    is_gui_used = GUIenabled;
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
@@ -436,7 +473,6 @@ QApplication::QApplication( int &argc, char **argv )
 }
 
 
-#if defined(_WS_X11_)
 
 /*!
   Create an application, given an already open display.  This is
@@ -2340,4 +2376,5 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa isPhase2()
  */
+
 
