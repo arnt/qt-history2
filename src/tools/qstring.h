@@ -889,14 +889,14 @@ inline QString &QString::prepend( QChar c )
 inline QString &QString::prepend( char c )
 { return insert(0,c); }
 
+#ifndef QT_NO_CAST_ASCII
+inline QString &QString::prepend( const QByteArray & s )
+{ return insert(0,s); }
+#endif
+
 #ifndef QT_NO_STL
 inline QString &QString::prepend( const std::string& s )
 { return insert(0, s); }
-#endif
-
-#ifndef QT_NO_CAST_ASCII
-inline QString &QString::operator+=( const QByteArray &s )
-{ return operator+=(QString(s)); }
 #endif
 
 inline QString &QString::append( const QString & s )
