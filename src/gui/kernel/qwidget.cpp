@@ -40,16 +40,14 @@
 #endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
-#include "qinputcontext.h"
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qdebug.h"
 
-#ifndef Q_WS_MAC
 #include "qinputcontext.h"
-#endif
+
 #ifdef Q_WS_WIN
 #include <private/qwininputcontext_p.h>
 #endif
@@ -93,7 +91,6 @@ QWidgetPrivate::~QWidgetPrivate()
         deleteExtra();
 }
 
-#ifndef Q_WS_MAC
 /*!
     \internal
     This is an internal function, you should never call this.
@@ -201,8 +198,6 @@ void QWidget::resetInputContext()
 #endif // QT_NO_IM
 }
 
-
-#endif
 
 /*!
     \class QWidget qwidget.h

@@ -37,9 +37,7 @@
 #include "qdnd_p.h"
 #include "qdebug.h"
 
-#ifndef Q_WS_MAC
 #include "qinputcontext.h"
-#endif
 #ifdef Q_WS_X11
 #include <private/qt_x11_p.h>
 #include "qinputcontextfactory.h"
@@ -2007,9 +2005,7 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-#if !defined(Q_WS_MAC)
 	focusWidget()->d->unfocusInputContext();
-#endif
         setFocusWidget(0, Qt::ActiveWindowFocusReason);
     } else if (QApplicationPrivate::active_window) {
         QWidget *w = QApplicationPrivate::active_window->focusWidget();
@@ -3664,7 +3660,6 @@ void QApplicationPrivate::emitLastWindowClosed()
 // Input Method support
 // ************************************************************************
 
-#ifndef Q_WS_MAC
 /*!
     This function replaces all QInputContext instances in the
     application. The function's argument is the identifier name of
@@ -3689,6 +3684,5 @@ QInputContext *QApplication::inputContext() const
 #endif
     return d->inputContext;
 }
-#endif
 
 #include "moc_qapplication.cpp"

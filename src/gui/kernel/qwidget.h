@@ -482,10 +482,8 @@ public:
 
     void ensurePolished() const;
 
-#if !defined(Q_WS_MAC)
     QInputContext *inputContext();
     void setInputContext(QInputContext *);
-#endif
 
 signals:
     void customContextMenuRequested(const QPoint &pos);

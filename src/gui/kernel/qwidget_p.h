@@ -194,10 +194,8 @@ public:
     bool compositeEvent(QEvent *e);
     void setWindowIcon_sys();
 
-#if !defined(Q_WS_MAC)
     void focusInputContext();
     void unfocusInputContext();
-#endif
 
 #if defined(Q_WS_X11)
     void checkChildrenDnd();
@@ -264,7 +262,7 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
-#if !defined(Q_WS_MAC) && !defined(QT_NO_IM)
+#if !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
     static QWidgetMapper *mapper;

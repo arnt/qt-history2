@@ -151,9 +151,7 @@ public:
                && qt_dispatchAccelEvent;
     }
 #endif
-#if !defined(Q_WS_MAC)
     static QInputContext *inputContext;
-#endif
 
     static Qt::MouseButtons mouse_buttons;
     static Qt::KeyboardModifiers modifier_buttons;

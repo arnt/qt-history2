@@ -70,7 +70,6 @@ enum {
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
 extern void qt_clear_paintevent_clipping(); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
-extern void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
@@ -2136,13 +2135,6 @@ void QWidget::setMask(const QBitmap &bitmap)
 void QWidget::clearMask()
 {
     setMask(QRegion());
-}
-
-void QWidget::resetInputContext()
-{
-    if (!hasFocus())
-        return;
-    qt_mac_unicode_reset_input(this);
 }
 
 void QWidget::setWindowOpacity(qreal level)

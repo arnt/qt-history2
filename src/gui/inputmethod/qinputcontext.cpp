@@ -393,7 +393,7 @@ void QInputContext::sendEvent(const QInputMethodEvent &event)
     }
 
     QWidget *focus = focusWidget();
-    if (!focusWidget())
+    if (!focus)
 	return;
 
     QInputMethodEvent e(event);
