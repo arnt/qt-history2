@@ -244,12 +244,14 @@ void QRadioButton::drawButton( QPainter *paint )
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
-	QBitmap bm( pm->size() );
-	bm.fill( color0 );
-	pmpaint.begin( &bm );
-	style().drawExclusiveIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
-	pmpaint.end();
-	pm->setMask( bm );
+	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
+	    QBitmap bm( pm->size() );
+	    bm.fill( color0 );
+	    pmpaint.begin( &bm );
+	    style().drawExclusiveIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+	    pmpaint.end();
+	    pm->setMask( bm );
+	}
 
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
