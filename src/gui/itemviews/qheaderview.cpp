@@ -1099,7 +1099,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     if (d->reverse()) {
         if (rect.left() > area.left())
-            painter.fillRect(area.left(), 0, rect.left() - area.left() - 1, height,
+            painter.fillRect(area.left(), 0, rect.left() - area.left(), height,
                              palette().background());
     } else if (rect.right() < area.right()) {
         painter.fillRect(rect.right() + 1, 0,
