@@ -458,7 +458,7 @@ QString FormFile::codeComment() const
     return QString( "/****************************************************************************\n"
     "** ui.h extension file, included from the uic-generated form implementation.\n"
     "**\n"
-    "** If you wish to add, delete or rename functions respectively slots use\n"
+    "** If you wish to add, delete or rename functions or slots use\n"
     "** Qt Designer which will update this file, preserving your code. Create an\n"
     "** init() function in place of a constructor, and a destroy() function in\n"
     "** place of a destructor.\n"

@@ -111,7 +111,6 @@
     raised or sunken
     \value StyledPanel  draws a rectangular panel with a look that
     depends on the current GUI style. It can be raised or sunken.
-    QFrame calls QStyle::drawPanel()
     \value HLine  QFrame draws a horizontal line that frames nothing
     (useful as separator)
     \value VLine  QFrame draws a vertical line that frames nothing
@@ -121,9 +120,9 @@
     sunken like those in Windows 95. Specifying this shape sets
     the line width to 2 pixels. WinPanel is provided for compatibility.
     For GUI style independence we recommend using StyledPanel instead.
-    \value ToolBarPanel  QFrame calls QStyle::drawToolBarPanel()
-    \value MenuBarPanel  QFrame calls QStyle::drawMenuBarPanel()
-    \value PopupPanel  QFrame calls QStyle::drawPopupPanel()
+    \value ToolBarPanel
+    \value MenuBarPanel
+    \value PopupPanel
     \value LineEditPanel is used to draw a frame suitable for line edits. The
     look depends upon the current GUI style.
     \value TabWidgetPanel is used to draw a frame suitable for tab widgets. The

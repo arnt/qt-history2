@@ -398,6 +398,13 @@ QDate::shortDayName() and have been made static (as they should had
 been in the first place). The old names are still provided for source
 compatibility.
 
+\section1 QFileDialog
+
+If the mode was not set explicitly, and the user entered a
+non-existent file, the dialog would accept this. In Qt 3.x, you must
+set the mode, e.g. setMode(QFileDialog::AnyFile), to get the same
+behavior.
+
 \section1 QFont
 
 The internals of QFont have changed significantly between Qt 2.2 and
