@@ -23,6 +23,7 @@ CannonField::CannonField( QWidget *parent, const char *name )
     shoot_ang	  = 0;
     shoot_f	  = 0;
     gameEnded     = FALSE;
+    target	  = QPoint( 0,0 );
     newTarget();
 }
 

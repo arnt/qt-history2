@@ -21,6 +21,7 @@ CannonField::CannonField( QWidget *parent, const char *name )
     timerCount    = 0;
     shoot_ang	  = 0;
     shoot_f	  = 0;
+    target	  = QPoint( 0,0 );
     newTarget();
 }
 

@@ -24,6 +24,7 @@ CannonField::CannonField( QWidget *parent, const char *name )
     shoot_f	  = 0;
     gameEnded     = FALSE;
     barrelPressed = FALSE;
+    target	  = QPoint( 0,0 );
     newTarget();
 }
 
