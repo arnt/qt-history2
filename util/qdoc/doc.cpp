@@ -22,7 +22,6 @@
 #include "stringset.h"
 
 static QString parenParen( QString("()") );
-static QRegExp hashHashHash( QString("#" "##") );
 
 /*
   These three macros are used so often that all-upper-case names are
@@ -2172,6 +2171,7 @@ void Doc::printHtml( HtmlWriter& out ) const
 QString Doc::finalHtml() const
 {
     QMap<QString, int> offsetMap;
+    static QRegExp hashHashHash( QString("###") );
 
     QString yyOut;
 
