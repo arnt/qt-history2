@@ -210,74 +210,74 @@ ProjectGenerator::init()
 	return;
     }
 
-    QList<MakefileDependDir> deplist;
+    //setup deplist
+    QList<QMakeLocalFileName> deplist;
     {
 	QStringList &d = v["DEPENDPATH"];
-	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it) {
-	    QString r = (*it), l = Option::fixPathToLocalOS((*it));
-	    deplist.append(MakefileDependDir(r, l));
-	}
+	for(QStringList::Iterator it = d.begin(); it != d.end(); ++it) 
+	    deplist.append(QMakeLocalFileName((*it)));
     }
+    setDependencyPaths(deplist);
+
     QStringList &h = v["HEADERS"];
     bool no_qt_files = TRUE;
     QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
+	QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_MOCS|QMakeSourceFileInfo::SEEK_DEPS);
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-	    if(generateDependencies(deplist, (*val_it), TRUE)) {
-		QStringList &tmp = findDependencies((*val_it));
-		if(!tmp.isEmpty()) {
-		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
-			QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
-			    file_no_path = (*dep_it).section(Option::dir_sep, -1);
-			if(!file_dir.isEmpty()) {
-			    for(QList<MakefileDependDir>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
-				if((*it).local_dir == file_dir && !v["INCLUDEPATH"].contains((*it).real_dir))
-				    v["INCLUDEPATH"] += (*it).real_dir;
-			    }
+	    QStringList tmp = QMakeSourceFileInfo::dependencies((*val_it));
+	    if(!tmp.isEmpty()) {
+		for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
+		    QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
+			file_no_path = (*dep_it).section(Option::dir_sep, -1);
+		    if(!file_dir.isEmpty()) {
+			for(QList<QMakeLocalFileName>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
+			    if((*it).local() == file_dir && !v["INCLUDEPATH"].contains((*it).real()))
+				v["INCLUDEPATH"] += (*it).real();
 			}
-			if(no_qt_files && file_no_path.indexOf(QRegExp("^q[a-z_0-9].h$")) != -1)
-			    no_qt_files = FALSE;
-			QString h_ext;
-			for(QStringList::Iterator hit = Option::h_ext.begin();
-			    hit != Option::h_ext.end(); ++hit) {
-			    if((*dep_it).endsWith((*hit))) {
-				h_ext = (*hit);
-				break;
-			    }
+		    }
+		    if(no_qt_files && file_no_path.indexOf(QRegExp("^q[a-z_0-9].h$")) != -1)
+			no_qt_files = FALSE;
+		    QString h_ext;
+		    for(QStringList::Iterator hit = Option::h_ext.begin();
+			hit != Option::h_ext.end(); ++hit) {
+			if((*dep_it).endsWith((*hit))) {
+			    h_ext = (*hit);
+			    break;
 			}
-			if(!h_ext.isEmpty()) {
-			    if((*dep_it).startsWith("q")) {
-				QString qhdr = (*dep_it).toLower();
-				if(file_no_path == "qthread.h")
-				    addConfig("thread");
-			    }
-			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
-				cppit != Option::cpp_ext.end(); ++cppit) {
-				QString src((*dep_it).left((*dep_it).length() - h_ext.length()) +
-					    (*cppit));
-				if(QFile::exists(src)) {
-				    bool exists = FALSE;
-				    QStringList &srcl = v["SOURCES"];
-				    for(QStringList::Iterator src_it = srcl.begin();
-					src_it != srcl.end(); ++src_it) {
-					if((*src_it).toLower() == src.toLower()) {
-					    exists = TRUE;
-					    break;
-					}
+		    }
+		    if(!h_ext.isEmpty()) {
+			if((*dep_it).startsWith("q")) {
+			    QString qhdr = (*dep_it).toLower();
+			    if(file_no_path == "qthread.h")
+				addConfig("thread");
+			}
+			for(QStringList::Iterator cppit = Option::cpp_ext.begin();
+			    cppit != Option::cpp_ext.end(); ++cppit) {
+			    QString src((*dep_it).left((*dep_it).length() - h_ext.length()) +
+					(*cppit));
+			    if(QFile::exists(src)) {
+				bool exists = FALSE;
+				QStringList &srcl = v["SOURCES"];
+				for(QStringList::Iterator src_it = srcl.begin();
+				    src_it != srcl.end(); ++src_it) {
+				    if((*src_it).toLower() == src.toLower()) {
+					exists = TRUE;
+					break;
 				    }
-				    if(!exists)
-					srcl.append(src);
 				}
+				if(!exists)
+				    srcl.append(src);
 			    }
-			} else if((*dep_it).endsWith(Option::lex_ext) &&
-				  file_no_path.startsWith(Option::lex_mod)) {
-			    addConfig("lex_included");
 			}
-			if(!h.contains((*dep_it))) {
-			    if(generateMocList((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())
-				h += (*dep_it);
-			}
+		    } else if((*dep_it).endsWith(Option::lex_ext) &&
+			      file_no_path.startsWith(Option::lex_mod)) {
+			addConfig("lex_included");
+		    }
+		    if(!h.contains((*dep_it))) {
+			if(QMakeSourceFileInfo::mocable((*dep_it)) && !findMocDestination((*dep_it)).isEmpty())
+			    h += (*dep_it);
 		    }
 		}
 	    }

@@ -2,7 +2,7 @@
 OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o \
      borland_bmake.o mingw_make.o msvc_dsp.o msvc_vcproj.o option.o \
      winmakefile.o projectgenerator.o metrowerks_xml.o  pbuilder_pbx.o \
-     msvc_objectmodel.o meta.o qtmd5.o
+     msvc_objectmodel.o meta.o qtmd5.o makefiledeps.o
 
 #qt code
 QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qbytearray.o qcstring.o \
@@ -191,6 +191,9 @@ option.o: option.cpp option.h
 
 qtmd5.o: qtmd5.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) qtmd5.cpp
+
+makefiledeps.o: generators/makefiledeps.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) generators/makefiledeps.cpp
 
 makefile.o: generators/makefile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/makefile.cpp

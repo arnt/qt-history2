@@ -1,5 +1,9 @@
 1.08a -
 
+   The dependency generation system has been redesigned to be faster (as over time
+   it had gotten slower and slower as features crept in). This new system is used
+   for dependency calcuation and moc detection.
+
    qmake has been changed to allow features to be introduced without changes to
    C++ sources (ie project files).
 

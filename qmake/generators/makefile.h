@@ -16,6 +16,7 @@
 
 #include "option.h"
 #include "project.h"
+#include "makefiledeps.h"
 #include <qtextstream.h>
 #include <qlist.h>
 
@@ -25,17 +26,14 @@
 #define QT_POPEN popen
 #endif
 
-class MakefileGenerator
+class MakefileGenerator : protected QMakeSourceFileInfo
 {
     QString spec;
     bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
-    QString dependencyKey(const QString &file) const;
     void checkMultipleDefinition(const QString &, const QString &);
-    QMap<QString, bool> depProcessed;
-    QMap<QString, QString> depHeuristics, fileFixed;
-    QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
+    QMap<QString, QString> fileFixed, mocablesToMOC, mocablesFromMOC;
     QMap<QString, QStringList> depends;
 
 protected:
@@ -48,23 +46,15 @@ protected:
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
+    QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
 
 protected:
-
     QMakeProject *project;
-
-    class MakefileDependDir {
-    public:
-	MakefileDependDir(const QString &r, const QString &l) : real_dir(r), local_dir(l) { }
-	QString real_dir, local_dir;
-    };
-    bool generateDependencies(QList<MakefileDependDir> &dirs, const QString &x, bool recurse);
 
     QString buildArgs();
 
     QString specdir();
     QString cleanFilePath(const QString &file) const;
-    bool generateMocList(const QString &fn);
 
     QString findMocSource(const QString &moc_file) const;
     QString findMocDestination(const QString &src_file) const;
@@ -98,9 +88,6 @@ protected:
     //make sure libraries are found
     virtual bool findLibraries();
     virtual QString findDependency(const QString &);
-
-    void setProcessedDependencies(const QString &file, bool b);
-    bool processedDependencies(const QString &file);
 
     virtual QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
