@@ -154,7 +154,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    mocFile = project->first("MOC_DIR");
 		else if(dir_pos != -1)
 		    mocFile = fn_target.left(dir_pos+1);
-		
+
 		bool cpp_ext = FALSE;
 		for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
 		    if((cpp_ext = (fn_target.right(ext_len) == (*cppit))))
@@ -260,8 +260,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		      (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
 		    x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
-		    for(x+=8; 
-			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'); 
+		    for(x+=8;
+			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t');
 			x++);
 		    char term = *(big_buffer + x);
 		    if(term == '"');
@@ -397,17 +397,27 @@ MakefileGenerator::init()
     QMap<QString, QStringList> &v = project->variables();
     { //opaths
 	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
-	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() && 
+	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
 	       v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
+		qDebug( "using abs root");
 		QFileInfo fi(Option::mkfile::cachefile);
 		if(!fi.convertToAbs()) {
-		    QString cache_r = fi.dirPath(), pwd = QDir::currentDirPath();
-		    if(pwd.left(cache_r.length()) == cache_r) {
+		    QString cache_r = fi.dirPath(), pwd = Option::output_dir;
+		    // QDir::currentDirPath();
+
+		    qDebug( "cache_r %s pwd %s",
+			    (const char *) cache_r,
+			    (const char *) pwd );
+
+		    if ( pwd.left(cache_r.length()) == cache_r ) {
 			QString root = v["QMAKE_ABSOLUTE_SOURCE_ROOT"].first();
 			root = Option::fixPathToTargetOS( root );
 			if(!root.isEmpty()) {
 			    pwd = Option::fixPathToTargetOS(root + pwd.mid(cache_r.length()));
-			    if(QFile::exists(pwd)) 
+			    qDebug( "pwd (new abs path): %s",
+				    (const char *) pwd );
+
+			    if(QFile::exists(pwd))
 				v.insert("QMAKE_ABSOLUTE_SOURCE_PATH", pwd);
 			}
 		    }
@@ -419,7 +429,7 @@ MakefileGenerator::init()
 	    asp = Option::fixPathToTargetOS( asp );
 	    if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
 		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
-	} 
+	}
 	QString currentDir = QDir::currentDirPath();
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_DIR"), QString("DESTDIR"), QString("SUBLIBS_DIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
