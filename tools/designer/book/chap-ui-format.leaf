@@ -170,7 +170,16 @@ object and its slot. Each \c slot element provides a slot's signature.
 \target customwidgets
 \section2 customwidgets
 
-\omit
+\QD can operate with custom widgets. A custom widget is represented in
+a \File .ui file using the \c{<customwidget>} element.
+
+Each custom widget has a class name and a header file. They also have
+a size hint and size policy. A pixmap can be specified; this is
+displayed on a \QD toolbar button which the user can use to create an
+instance of the custom widget. Custom widgets usually emit signals,
+and these are listed. The name and type of any properties that the
+widget has are also included.
+
 \code
 <customwidgets>
     <customwidget>
@@ -194,7 +203,7 @@ object and its slot. Each \c slot element provides a slot's signature.
     </customwidget>
 </customwidgets>
 \endcode
-\endomit
+
 \target exportmacro
 \section2 exportmacro
 
@@ -203,37 +212,119 @@ object and its slot. Each \c slot element provides a slot's signature.
 \target forwards
 \section2 forwards
 
-### TODO
+It is sometimes necessary to forward declare classes, particularly if
+code is being written in \File .ui.h files within \QD. Each forward
+declaration is listed as it should appear in the generated C++ code.
+
+\code
+<forwards>
+    <forward>class QStringList;</forward>
+</forwards>
+\endcode
 
 \target images
 \section2 images
 
-### TODO
+Images are normally stored in their own files and associated with
+forms using project files. This has the advantage that images can be
+shared across any number of forms in a project, and between projects.
+
+In some cases it may be desireable to store image data directly in a
+form, and the \c{<image>} tag allows for this.
+
+### TODO encoding & formats
+
+\code
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="409">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523234530022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006ab440370316528264b4c198450c5808a94d1ed00aac214832b43124b544ec414d34b4c4c441103f11341120831309758313d0cf3b0840b7258d55a73010092c14eca</data>
+    </image>
+</images>
+\endcode
 
 \target includes
 \section2 includes
 
-### TODO
+It is sometimes necessary to \c{#include} header files in a \File .ui
+file. Header files may be 'local', i.e. relative to the project's
+directory, or 'global', i.e. part of Qt or the compilers standard
+libraries. Header files are declared in the implementation wherever
+possible, although sometimes it is necessary to declare them in the
+declaration (header) file.
+
+\QD automatically adds \c{<include>} tags for a \File .ui's \File
+.ui.h file.
+
+\code
+<includes>
+    <include location="local" impldecl="in implementation">pixmapcollection.h</include>
+    <include location="local" impldecl="in implementation">pixmapchooser.h</include>
+    <include location="local" impldecl="in implementation">project.h</include>
+    <include location="global" impldecl="in implementation">qfileinfo.h</include>
+    <include location="global" impldecl="in implementation">qimage.h</include>
+    <include location="global" impldecl="in declaration">qpixmap.h</include>
+    <include location="local" impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
+</includes>
+\endcode
 
 \target layoutdefaults
 \section2 layoutdefaults
 
-### TODO
+Every form has a default spacing and margin size. These can be
+overridden on a case-by-case basis.
+
+\code
+<layoutdefaults spacing="6" margin="11"/>
+\endcode
 
 \target menubar
 \section2 menubar
 
-### TODO
+Applications that use QMainWindow often have a menubar. The menubar
+has a name property and one or more popup menu items. Each menu item
+has one or more actions and optionally separators.
+
+\code
+<menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="PopupMenu">
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Help" name="PopupMenu_2">
+        <action name="helpAboutAction"/>
+        <action name="helpAboutQtAction"/>
+    </item>
+</menubar>
+\endcode
 
 \target pixmapfunction
 \section2 pixmapfunction
 
-### TODO
+Images are normally included by listing their filenames in project
+files. Images can also be included inline using the \l images tag.
+Another way of dealing with images is to specify a function name. This
+function will be called, with the name (or 'key') of the relevant
+image, and is responsible for loading the appropriate image. To
+specify such a function the \c{<pixmapfunction>} tag is used.
+
+\code
+<pixmapfunction>splashScreen</pixmapfunction>
+\endcode
 
 \target pixmapinproject
 \section2 pixmapinproject
 
-### TODO
+Most applications store their images as separate files listed in the
+application's project file. This can be signified by including the
+\c{<pixmapinproject>} tag.
+
+\code
+<pixmapinproject/>
+\endcode
 
 \target signals
 \section2 signals
@@ -291,7 +382,7 @@ object and its slot. Each \c slot element provides a slot's signature.
 \i \c cstring - a C string value (8-bit), e.g. \c{<cstring>Some text</cstring>}
 \i \c cursor - an integer which indicates the cursor type, e.g.
 \c{<cursor>4</cursor>}. The valid integers for the cursor type are:
-    \list
+    \list 
     \i 0 - ArrowCursor
     \i 1 - UpArrowCursor
     \i 2 - CrossCursor
