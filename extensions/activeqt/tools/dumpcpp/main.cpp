@@ -193,8 +193,17 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
     }
 
     // slots - but not property setters
+    int defaultArguments = 0;
     for (int islot = mo->slotOffset(); islot < mo->slotCount(); ++islot) {
         QMetaMember slot = mo->slot(islot);
+
+#if 0
+        // makes not sense really to respect default arguments...
+        if (slot.attributes() & Cloned) {
+            ++defaultArguments;
+            continue;
+        }
+#endif
         
         QByteArray slotSignature(slot.signature());
         if (functions.contains(slotSignature.left(slotSignature.indexOf('('))))
@@ -204,23 +213,34 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         QByteArray slotType(slot.typeName());
 
         QByteArray slotNamedSignature;
-        if (!slotParameters.isEmpty()) {
-            QByteArray slotSignatureTruncated(slotSignature.left(slotSignature.indexOf(')')));
+        if (slotSignature.endsWith("()")) { // no parameters - no names
+            slotNamedSignature = slotSignature;
+        } else {
+            slotNamedSignature = slotSignature.left(slotSignature.indexOf('(') + 1);
+            QByteArray slotSignatureTruncated(slotSignature.mid(slotNamedSignature.length()));
+            slotSignatureTruncated.truncate(slotSignatureTruncated.length() - 1);
+
             QList<QByteArray> signatureSplit = slotSignatureTruncated.split(',');
-            QList<QByteArray> parameterSplit = slotParameters.split(',');
+            QList<QByteArray> parameterSplit;
+            if (slotParameters.isEmpty()) { // generate parameter names
+                for (int i = 0; i < signatureSplit.count(); ++i)
+                    parameterSplit << QByteArray("p") + QByteArray::number(i);
+            } else {
+                parameterSplit = slotParameters.split(',');
+            }
+            
             for (int i = 0; i < signatureSplit.count(); ++i) {
                 slotNamedSignature += signatureSplit.at(i);
                 slotNamedSignature += " ";
                 slotNamedSignature += parameterSplit.at(i);
+                if (defaultArguments >= signatureSplit.count() - i) {
+                    slotNamedSignature += " = ";
+                    slotNamedSignature += signatureSplit.at(i) + "()";
+                }
                 if (i + 1 < signatureSplit.count())
                     slotNamedSignature += ", ";
             }
             slotNamedSignature += ')';
-        } else if (!slotSignature.contains("()")) {
-            out << "    // ignored slot - no parameters: " << slotSignature;
-            continue;
-        } else {
-            slotNamedSignature = slotSignature;
         }
 
         out << "    inline ";
@@ -251,6 +271,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "    }" << endl;
 
         out << endl;
+        defaultArguments = 0;
     }
 
     if (!(category & NoMetaObject)) {
