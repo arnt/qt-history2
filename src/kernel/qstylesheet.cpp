@@ -857,7 +857,7 @@ int QStyleSheetItem::lineSpacing() const
     definition of a set of tags. This definition will be used by the
     internal rich text rendering system to parse and display text
     documents to which the style sheet applies. Rich text is normally
-    visualized in a QTextView or a QTextBrowser. However, QLabel,
+    visualized in a QTextEdit or a QTextBrowser. However, QLabel,
     QWhatsThis and QMessageBox also support it, and other classes are
     likely to follow. With QSimpleRichText it is possible to use the
     rich text renderer for custom widgets as well.
@@ -876,7 +876,7 @@ int QStyleSheetItem::lineSpacing() const
 	    attributes:
 	    \list
 	    \i \c title -- The caption of the document. This attribute is
-		easily accessible with QTextView::documentTitle().
+		easily accessible with QTextEdit::documentTitle().
 	    \i \c type -- The type of the document. The default type is \c
 		page. It indicates that the document is displayed in a
 		page of its own. Another style is \c detail, which can be

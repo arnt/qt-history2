@@ -73,50 +73,49 @@ public:
 
 
 /*!
-  \class QToolButton qtoolbutton.h
+    \class QToolButton qtoolbutton.h
+    \brief The QToolButton class provides a quick-access button to
+    commands or options, usually used inside a QToolBar.
 
-  \brief The QToolButton class provides a quick-access button to
-  commands or options, usually used inside a QToolBar.
+    \ingroup basic
+    \mainclass
 
-  \ingroup basic
-  \mainclass
+    A tool button is a special button that provides quick-access to
+    specific commands or options. As opposed to a normal command
+    button, a tool button usually doesn't show a text label, but shows
+    an icon instead. Its classic usage is to select tools, for example
+    the "pen" tool in a drawing program. This would be implemented
+    with a QToolButton as toggle button (see setToggleButton() ).
 
-  A tool button is a special button that provides quick-access to
-  specific commands or options. As opposed to a normal command button,
-  a tool button usually doesn't normally show a text label, but an icon.  Its
-  classic usage is to select tools, for example the "pen" tool in a
-  drawing program. This would be implemented with a QToolButton as
-  toggle button (see setToggleButton() ).
+    QToolButton supports auto-raising. In auto-raise mode, the button
+    draws a 3D frame only when the mouse points at it. The feature is
+    automatically turned on when a button is used inside a QToolBar.
+    Change it with setAutoRaise().
 
-  QToolButton supports auto-raising. In auto-raise mode, the button
-  draws a 3D frame only when the mouse points at it.  The feature is
-  automatically turned on when a button is used inside a QToolBar.
-  Change it with setAutoRaise().
+    A tool button's icon is set as QIconSet. This makes it possible to
+    specify different pixmaps for the disabled and active state. The
+    disabled pixmap is used when the button's functionality is not
+    available. The active pixmap is displayed when the button is
+    auto-raised because the mouse pointer is hovering over it.
 
-  A tool button's icon is set as QIconSet. This makes it possible to
-  specify different pixmaps for the disabled and active state. The
-  disabled pixmap is used when the button's functionality is not
-  available. The active pixmap is displayed when the button is
-  auto-raised because the user is pointing at it.
+    The button's look and dimension is adjustable with
+    setUsesBigPixmap() and setUsesTextLabel(). When used inside a
+    QToolBar in a QMainWindow, the button automatically adjusts to
+    QMainWindow's settings (see QMainWindow::setUsesTextLabel() and
+    QMainWindow::setUsesBigPixmaps()).
 
-  The button's look and dimension is adjustable with
-  setUsesBigPixmap() and setUsesTextLabel(). When used inside a
-  QToolBar, the button automatically adjusts to QMainWindow's settings
-  (see QMainWindow::setUsesTextLabel() and
-  QMainWindow::setUsesBigPixmaps()).
+    A tool button can offer additional choices in a popup menu. The
+    feature is sometimes used with the "Back" button in a web browser.
+    After pressing and holding the button down for a while, a menu
+    pops up showing a list of possible pages to jump to. With
+    QToolButton you can set a popup menu using setPopup(). The default
+    delay is 600ms; you can adjust it with setPopupDelay().
 
-  A tool button can offer additional choices in a popup menu.  The
-  feature is sometimes used with the "Back" button in a web browser.
-  After pressing the button down for awhile, a menu pops up showing
-  all possible pages to browse back.  With QToolButton you can set a
-  popup menu using setPopup(). The default delay is 600ms; you may
-  adjust it with setPopupDelay().
+    \img qdockwindow.png Toolbar with Toolbuttons \caption A floating
+    QToolbar with QToolbuttons
 
-  \img qdockwindow.png Toolbar with Toolbuttons
-  \caption A floating QToolbar with QToolbuttons
-
-  \sa QPushButton QToolBar QMainWindow
-  \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
+    \sa QPushButton QToolBar QMainWindow \link guibooks.html#fowler
+    GUI Design Handbook: Push Button\endlink
 */
 
 /*!
@@ -131,7 +130,8 @@ public:
 
 
 /*!
-  Constructs an empty tool button with parent \a parent and name \a name.
+    Constructs an empty tool button called \a name, with parent \a
+    parent.
 */
 
 QToolButton::QToolButton( QWidget * parent, const char *name )
@@ -161,13 +161,14 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 
 
 /*!
-  Constructs a tool button as an arrow button. The ArrowType \a type
-  defines the arrow direction. Possible values are LeftArrow,
-  RightArrow, UpArrow and DownArrow.
+    Constructs a tool button as an arrow button. The \c ArrowType \a
+    type defines the arrow direction. Possible values are \c
+    LeftArrow, \c RightArrow, \c UpArrow and \c DownArrow.
 
-  An arrow button has auto-repeat turned on by default.
+    An arrow button has auto-repeat turned on by default.
 
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+    The \a parent and \a name arguments are sent to the QWidget
+    constructor.
 */
 QToolButton::QToolButton( ArrowType type, QWidget *parent, const char *name )
     : QButton( parent, name )
@@ -180,7 +181,7 @@ QToolButton::QToolButton( ArrowType type, QWidget *parent, const char *name )
 }
 
 
-/*!  Set-up code common to all the constructors */
+/*  Set-up code common to all the constructors */
 
 void QToolButton::init()
 {
@@ -211,12 +212,14 @@ void QToolButton::init()
 
 #ifndef QT_NO_TOOLBAR
 
-/*!  Constructs a tool button that is a child of \a parent (which must be
-  a QToolBar) and named \a name.
+/*!
+    Constructs a tool button called \a name, that is a child of \a
+    parent (which must be a QToolBar).
 
-  The tool button will display \a iconSet, with its text label and
-  tool tip set to \a textLabel and its status bar message set to \a
-  grouptext. It will be connected to the \a slot in object \a receiver.
+    The tool button will display \a iconSet, with its text label and
+    tool tip set to \a textLabel and its status bar message set to \a
+    grouptext. It will be connected to the \a slot in object \a
+    receiver.
 */
 
 QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
@@ -257,7 +260,9 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 #endif
 
 
-/*! Destroys the object and frees any allocated resources. */
+/*!
+    Destroys the object and frees any allocated resources.
+*/
 
 QToolButton::~QToolButton()
 {
@@ -271,13 +276,14 @@ QToolButton::~QToolButton()
 
 
 /*!
-  \property QToolButton::toggleButton
-  \brief whether this tool button is a toggle button.
+    \property QToolButton::toggleButton
+    \brief whether this tool button is a toggle button.
 
-  Toggle buttons have an on/off state similar to \link QCheckBox check
-  boxes. \endlink A tool button is not a toggle button by default.
+    Toggle buttons have an on/off state similar to \link QCheckBox
+    check boxes. \endlink A tool button is not a toggle button by
+    default.
 
-  \sa setOn(), toggle()
+    \sa setOn(), toggle()
 */
 
 void QToolButton::setToggleButton( bool enable )
@@ -286,7 +292,8 @@ void QToolButton::setToggleButton( bool enable )
 }
 
 
-/*!  \reimp
+/*!
+    \reimp
 */
 QSize QToolButton::sizeHint() const
 {
@@ -343,7 +350,8 @@ QSize QToolButton::sizeHint() const
 	    expandedTo(QApplication::globalStrut()));
 }
 
-/*! \reimp
+/*!
+    \reimp
  */
 QSize QToolButton::minimumSizeHint() const
 {
@@ -351,18 +359,18 @@ QSize QToolButton::minimumSizeHint() const
 }
 
 /*!
-  \property QToolButton::usesBigPixmap
-  \brief whether this toolbutton uses big pixmaps.
+    \property QToolButton::usesBigPixmap
+    \brief whether this toolbutton uses big pixmaps.
 
-  QToolButton automatically connects this property to the relevant signal
-  in the QMainWindow in which it resides.  We strongly recommend that
-  you use QMainWindow::setUsesBigPixmaps() instead.
+    QToolButton automatically connects this property to the relevant
+    signal in the QMainWindow in which it resides. We strongly
+    recommend that you use QMainWindow::setUsesBigPixmaps() instead.
 
-  This property's default is TRUE.
+    This property's default is TRUE.
 
-  \warning If you set some buttons (in a QMainWindow) to have big pixmaps and
-  others to have small pixmaps, QMainWindow may not get the geometry
-  right.
+    \warning If you set some buttons (in a QMainWindow) to have big
+    pixmaps and others to have small pixmaps, QMainWindow may not get
+    the geometry right.
 */
 
 void QToolButton::setUsesBigPixmap( bool enable )
@@ -379,13 +387,13 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
 
 /*!
-  \property QToolButton::usesTextLabel
-  \brief whether the toolbutton displays a text label below the button pixmap.
+    \property QToolButton::usesTextLabel
+    \brief whether the toolbutton displays a text label below the button pixmap.
 
     The default is FALSE.
 
-  QToolButton automatically connects this slot to the relevant signal
-  in the QMainWindow in which is resides.
+    QToolButton automatically connects this slot to the relevant
+    signal in the QMainWindow in which is resides.
 */
 
 void QToolButton::setUsesTextLabel( bool enable )
@@ -402,13 +410,13 @@ void QToolButton::setUsesTextLabel( bool enable )
 
 
 /*!
-  \property QToolButton::on
-  \brief whether this tool button is on.
+    \property QToolButton::on
+    \brief whether this tool button is on.
 
-  This property has no effect on \link isToggleButton() non-toggling
-  buttons. \endlink The default is FALSE (i.e. off).
+    This property has no effect on \link isToggleButton() non-toggling
+    buttons. \endlink The default is FALSE (i.e. off).
 
-  \sa isToggleButton() toggle()
+    \sa isToggleButton() toggle()
 */
 
 void QToolButton::setOn( bool enable )
@@ -419,12 +427,13 @@ void QToolButton::setOn( bool enable )
 }
 
 
-/*!  Toggles the state of this tool button.
+/*!
+    Toggles the state of this tool button.
 
-  This function has no effect on \link isToggleButton() non-toggling
-  buttons. \endlink
+    This function has no effect on \link isToggleButton() non-toggling
+    buttons. \endlink
 
-  \sa isToggleButton() toggled()
+    \sa isToggleButton() toggled()
 */
 
 void QToolButton::toggle()
@@ -435,8 +444,9 @@ void QToolButton::toggle()
 }
 
 
-/*! \reimp
- */
+/*!
+    \reimp
+*/
 void QToolButton::drawButton( QPainter * p )
 {
     QStyle::SCFlags controls = QStyle::SC_ToolButton;
@@ -482,7 +492,9 @@ void QToolButton::drawButton( QPainter * p )
 }
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QToolButton::drawButtonLabel(QPainter *p)
 {
     QRect r =
@@ -516,7 +528,8 @@ void QToolButton::drawButtonLabel(QPainter *p)
 }
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QToolButton::enterEvent( QEvent * e )
 {
@@ -527,7 +540,8 @@ void QToolButton::enterEvent( QEvent * e )
 }
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QToolButton::leaveEvent( QEvent * e )
 {
@@ -537,7 +551,8 @@ void QToolButton::leaveEvent( QEvent * e )
     QButton::leaveEvent( e );
 }
 
-/*!\reimp
+/*!
+    \reimp
  */
 void QToolButton::moveEvent( QMoveEvent * )
 {
@@ -548,7 +563,8 @@ void QToolButton::moveEvent( QMoveEvent * )
 	repaint( FALSE );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
@@ -574,7 +590,9 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
     QButton::mousePressEvent( e );
 }
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 bool QToolButton::eventFilter( QObject *o, QEvent *e )
 {
 #ifndef QT_NO_POPUPMENU
@@ -598,8 +616,10 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 }
 
 /*!
-Returns TRUE if this button should be drawn using raised edges;
-otherwise returns FALSE. \sa drawButton()
+    Returns TRUE if this button should be drawn using raised edges;
+    otherwise returns FALSE.
+
+    \sa drawButton()
 */
 
 bool QToolButton::uses3D() const
@@ -613,11 +633,11 @@ bool QToolButton::uses3D() const
 
 
 /*!
-  \property QToolButton::textLabel
-  \brief the label of this button.
+    \property QToolButton::textLabel
+    \brief the label of this button.
 
-  Setting this property automatically sets the text as tool tip too.
-  There is no default text.
+    Setting this property automatically sets the text as a tool tip
+    too. There is no default text.
 */
 
 void QToolButton::setTextLabel( const QString &newLabel )
@@ -629,7 +649,7 @@ void QToolButton::setTextLabel( const QString &newLabel )
     \overload
 
     Sets the label of this button to \a newLabel and automatically
-  sets it as tool tip too if \a tipToo is TRUE.
+    sets it as a tool tip if \a tipToo is TRUE.
 */
 
 void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
@@ -715,13 +735,14 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 
 #endif
 
-/*! \property QToolButton::iconSet
+/*!
+    \property QToolButton::iconSet
     \brief the icon set providing the icon shown on the button
 
-  Setting this property sets \l QToolButton::pixmap to a null pixmap.
-  There is no default iconset.
+    Setting this property sets \l QToolButton::pixmap to a null
+    pixmap. There is no default iconset.
 
-  \sa pixmap(), setToggleButton(), isOn()
+    \sa pixmap(), setToggleButton(), isOn()
 */
 void QToolButton::setIconSet( const QIconSet & set )
 {
@@ -797,19 +818,19 @@ QIconSet QToolButton::iconSet( bool /* on */ ) const
 
 #ifndef QT_NO_POPUPMENU
 /*!
-  Associates the popup menu \a popup with this tool button.
+    Associates the popup menu \a popup with this tool button.
 
-  The popup will be shown each time the tool button has been pressed
-  down for a certain amount of time. A typical application example is
-  the "back" button in some web browsers's tool bars. If the user clicks it,
-  the browser simply browses back to the previous page. If the user
-  holds the button down for a while, the tool button shows a menu
-  containing the current history list.
+    The popup will be shown each time the tool button has been pressed
+    down for a certain amount of time. A typical application example
+    is the "back" button in some web browsers's tool bars. If the user
+    clicks it, the browser simply browses back to the previous page.
+    If the user presses and holds the button down for a while, the
+    tool button shows a menu containing the current history list.
 
-  Ownership of the popup menu is not transferred to the tool button.
+    Ownership of the popup menu is not transferred to the tool button.
 
-  \sa popup()
- */
+    \sa popup()
+*/
 void QToolButton::setPopup( QPopupMenu* popup )
 {
     if ( popup && !d->popupTimer ) {
@@ -823,20 +844,20 @@ void QToolButton::setPopup( QPopupMenu* popup )
 }
 
 /*!
-  Returns the associated popup menu, or 0 if no popup menu has been
-  defined.
+    Returns the associated popup menu, or 0 if no popup menu has been
+    defined.
 
-  \sa setPopup()
- */
+    \sa setPopup()
+*/
 QPopupMenu* QToolButton::popup() const
 {
     return d->popup;
 }
 
 /*!
-  Opens (pops up) the associated popup menu. If there is no such menu,
-  this function does nothing. This function does not return until the
-  popup menu has been closed by the user.
+    Opens (pops up) the associated popup menu. If there is no such
+    menu, this function does nothing. This function does not return
+    until the popup menu has been closed by the user.
 */
 void QToolButton::openPopup()
 {
@@ -911,14 +932,14 @@ void QToolButton::popupTimerDone()
 }
 
 /*!
-  \property QToolButton::popupDelay
-  \brief the time delay between pressing the button and the appearance of the associated popup menu in milliseconds.
+    \property QToolButton::popupDelay
+    \brief the time delay between pressing the button and the appearance of the associated popup menu in milliseconds.
 
-  Usually this is around half a second. A value of 0 will add a
-  special section to the toolbutton that can be used to open the
-  popupmenu.
+    Usually this is around half a second. A value of 0 will add a
+    special section to the toolbutton that can be used to open the
+    popupmenu.
 
-  \sa setPopup()
+    \sa setPopup()
 */
 void QToolButton::setPopupDelay( int delay )
 {
@@ -935,11 +956,11 @@ int QToolButton::popupDelay() const
 
 
 /*!
-  \property QToolButton::autoRaise
-  \brief whether auto-raising is enabled or not.
+    \property QToolButton::autoRaise
+    \brief whether auto-raising is enabled or not.
 
-  The default is disabled (i.e. FALSE).
- */
+    The default is disabled (i.e. FALSE).
+*/
 void QToolButton::setAutoRaise( bool enable )
 {
     d->autoraise = enable;
@@ -952,15 +973,15 @@ bool QToolButton::autoRaise() const
     return d->autoraise;
 }
 
+/*!
+    \property QToolButton::textPosition
+    \brief the position of the text label of this button.
+*/
+
 QToolButton::TextPosition QToolButton::textPosition() const
 {
     return d->textPos;
 }
-
-/*! \property QToolButton::textPosition
-  \brief the position of the text label of this button.
-
-*/
 
 void QToolButton::setTextPosition( TextPosition pos )
 {
@@ -970,7 +991,9 @@ void QToolButton::setTextPosition( TextPosition pos )
 }
 
 #ifndef QT_NO_PALETTE
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QToolButton::paletteChange( const QPalette & )
 {
     if ( s )

@@ -618,7 +618,7 @@ void QSpinBox::stepDown()
 /*!
     Intercepts and handles the events coming to the embedded QLineEdit
     that have special meaning for the QSpinBox. The object is passed
-    as \a obj and the event is passed as \a ev.
+    as \a o and the event is passed as \a ev.
 */
 
 bool QSpinBox::eventFilter( QObject* o, QEvent* ev )

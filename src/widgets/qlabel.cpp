@@ -128,7 +128,7 @@ public:
 
     <img src=qlabel-m.png> <img src=qlabel-w.png>
 
-    \sa QLineEdit, QTextView, QPixmap, QMovie,
+    \sa QLineEdit, QTextEdit, QPixmap, QMovie,
     \link guibooks.html#fowler GUI Design Handbook: Label\endlink
 */
 
@@ -259,9 +259,9 @@ void QLabel::init()
     Note that Qlabel is well-suited to display small rich text
     documents, i.e. those small documents that get their document
     specific settings (font, text color, link color) from the label's
-    palette and font properties. For large documents, use QTextView
-    instead. QTextView will flicker less on resize and can also
-    provide a scrollbar when necessary.
+    palette and font properties. For large documents, use QTextEdit
+    in read-only mode instead. QTextEdit will flicker less on resize
+    and can also provide a scrollbar when necessary.
 
     \sa text, setTextFormat(), setBuddy(), alignment
 */

@@ -147,7 +147,6 @@ The default property mappings used by Qt widgets are:
 	\l QPushButton,
 	\l QRadioButton,
 	\l QTextEdit,
-	\l QTextView
      \i text
 \row \i \l QTimeEdit
      \i time

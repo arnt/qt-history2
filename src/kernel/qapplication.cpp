@@ -3520,7 +3520,7 @@ void QApplication::setStartDragTime( int ms )
   start after a mouse click and after a certain time elapsed, you
   should use the value which this method returns as the delay (in ms).
 
-  Qt also uses this delay internally, e.g. in QTextView and QLineEdit,
+  Qt also uses this delay internally, e.g. in QTextEdit and QLineEdit,
   for starting a drag.
 
   The default value is 500 ms.

@@ -47,88 +47,93 @@
 #include "qpainter.h"
 
 /*!
-  \class QTabWidget qtabwidget.h
+    \class QTabWidget qtabwidget.h
+    \brief The QTabWidget class provides a stack of tabbed widgets.
 
-  \brief The QTabWidget class provides a stack of tabbed widgets.
+    \ingroup organizers
+    \ingroup advanced
+    \mainclass
 
-  \ingroup organizers
-  \mainclass
-  \ingroup advanced
+    A tabbed widget is a widget that has a tab bar of tabs, and for
+    each tab a "page" which is a widget. The user selects which page
+    to see and use by clicking on its tab or by pressing the indicated
+    Alt+\e{letter} key combination.
 
-  A tabbed widget is a widget that has a tab bar of tabs, and for each
-  tab a "page" which is a widget. The user selects which page to see
-  and use by clicking on its tab or by pressing the indicated
-  Alt+\e{letter} key combination.
+    QTabWidget provides a single row of tabs along the top or bottom
+    of the pages (see \l{TabPosition}).
 
-  QTabWidget provides a single row of tabs along the top or bottom of
-  the pages (see \l{TabPosition}).
+    The normal way to use QTabWidget is to do the following in the
+    constructor:
+    \list 1
+    \i Create a QTabWidget.
+    \i Create a QWidget for each of the pages in the tab dialog,
+    insert children into it, set up geometry management for it and use
+    addTab() (or insertTab()) to set up a tab and keyboard accelerator
+    for it.
+    \i Connect to the signals and slots.
+    \endlist
 
-  The normal way to use QTabWidget is to do the following in the
-  constructor:
-  \list 1
-  \i Create a QTabWidget.
-  \i Create a QWidget for each of the pages in the tab dialog, insert
-  children into it, set up geometry management for it and use addTab()
-  (or insertTab()) to set up a tab and keyboard accelerator for it.
-  \i Connect to the signals and slots.
-  \endlist
+    The position of the tabs is set with setTabPosition(), their shape
+    with setTabShape(), and their margin with setMargin().
 
-  The position of the tabs is set with setTabPosition(), their
-  shape with setTabShape(), and their margin with setMargin().
+    If you don't call addTab() the page you have created will not be
+    visible. Don't confuse the object name you supply to the QWidget
+    constructor and the tab label you supply to addTab(). addTab()
+    takes a name which indicates an accelerator and is meaningful and
+    descriptive to the user, whereas the widget name is used primarily
+    for debugging.
 
-  If you don't call addTab() the page you have created will not be
-  visible.  Don't confuse the object name you supply to the
-  QWidget constructor and the tab label you supply to addTab().
-  addTab() takes a name which indicates an accelerator and is
-  meaningful and descriptive to the user, whereas the widget name is
-  used primarily for debugging.
+    The signal currentChanged() is emitted when the user selects a
+    page.
 
-  The signal currentChanged() is emitted when the user selects a page.
+    The current page is available as an index position with
+    currentPageIndex() or as a wiget pointer with currentPage(). You
+    can retrieve a pointer to a page with a given index using page(),
+    and can find the index position of a page with indexOf(). Use
+    setCurrentPage() to show a particular page by index, or showPage()
+    to show a page by widget pointer.
 
-  The current page is available as an index position with
-  currentPageIndex() or as a wiget pointer with currentPage(). You can
-  retrieve a pointer to a page with a given index using page(), and
-  can find the index position of a page with indexOf(). Use
-  setCurrentPage() to show a particular page by index, or showPage()
-  to show a page by widget pointer.
+    You can change a tab's label and iconset using changeTab() or
+    setTabLabel() and setTabIconSet(). A tab page can be removed with
+    removePage().
 
-  You can change a tab's label and iconset using changeTab() or
-  setTabLabel() and setTabIconSet(). A tab page can be removed with
-  removePage().
+    Each tab is either enabled or disabled at any given time (see
+    setTabEnabled()). If a tab is enabled, the tab text is drawn
+    normally and the user can select that tab. If it is disabled, the
+    tab is drawn in a different way and the user cannot select that
+    tab. Note that even if a tab is disabled, the page can still be
+    visible, for example if all of the tabs happen to be disabled.
 
-  Each tab is either enabled or disabled at any given time (see
-  setTabEnabled()).  If a tab is enabled, the tab text is drawn in
-  black and the user can select that tab.  If it is disabled, the tab
-  is drawn in a different way and the user cannot select that tab.
-  Note that even if a tab is disabled, the page can still be visible,
-  for example if all of the tabs happen to be disabled.
+    Although tab widgets can be a very good way to split up a complex
+    dialog, it's also very easy to get into a mess. See QTabDialog for
+    some design hints. An alternative is to use a QWidgetStack for
+    which you provide some means of navigating between pages, for
+    example, a QToolBar or a QListBox.
 
-  Although tab widgets can be a very good way to split up a complex
-  dialog, it's also very easy to get into a mess. See QTabDialog for
-  some design hints.
+    Most of the functionality in QTabWidget is provided by a QTabBar
+    (at the top, providing the tabs) and a QWidgetStack (most of the
+    area, organizing the individual pages).
 
-  Most of the functionality in QTabWidget is provided by a QTabBar (at
-  the top, providing the tabs) and a QWidgetStack (most of the area,
-  organizing the individual pages).
+    <img src=qtabwidget-m.png> <img src=qtabwidget-w.png>
 
-  <img src=qtabwidget-m.png> <img src=qtabwidget-w.png>
-
-  \sa QTabDialog
+    \sa QTabDialog
 */
 
 
-/*! \enum QTabWidget::TabPosition
+/*!
+    \enum QTabWidget::TabPosition
 
-  This enum type defines where QTabWidget can draw the tab row:
-  \value Top  above the pages
-  \value Bottom  below the pages
+    This enum type defines where QTabWidget draws the tab row:
+    \value Top  above the pages
+    \value Bottom  below the pages
 */
 
-/*! \enum QTabWidget::TabShape
+/*!
+    \enum QTabWidget::TabShape
 
-  This enum type defines the shape of the tabs:
-  \value Rounded  rounded look (normal)
-  \value Triangular  triangular look (very unusual, included for completeness)
+    This enum type defines the shape of the tabs:
+    \value Rounded  rounded look (normal)
+    \value Triangular  triangular look (very unusual, included for completeness)
 */
 
 /* undocumented now
@@ -143,12 +148,13 @@
 */
 
 
-/*! \fn void QTabWidget::currentChanged( QWidget* );
+/*!
+    \fn void QTabWidget::currentChanged( QWidget* );
 
-  This signal is emitted whenever the current page changes. The
-  parameter is the new current page.
+    This signal is emitted whenever the current page changes. The
+    parameter is the new current page.
 
-  \sa currentPage(), showPage(), tabLabel()
+    \sa currentPage(), showPage(), tabLabel()
 */
 
 class QTabBarBase : public QWidget
@@ -195,8 +201,8 @@ public:
 };
 
 /*!
-  Constructs a tabbed widget with parent \a parent, name \a name,
-  and widget flags \a f.
+    Constructs a tabbed widget called \a name with parent \a parent,
+    and widget flags \a f.
 */
 QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
@@ -218,7 +224,8 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     installEventFilter( this );
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 QTabWidget::~QTabWidget()
 {
@@ -226,24 +233,24 @@ QTabWidget::~QTabWidget()
 }
 
 /*!
-  Adds another tab and page to the tab view.
+    Adds another tab and page to the tab view.
 
-    The new page is \a child; the tab's label is \a label.
-  Note the difference between the widget name (which you supply to
-  widget constructors and to setTabEnabled(), for example) and the tab
-  label. The name is internal to the program and invariant, whereas
-  the label is shown on-screen and may vary according to language and
-  other factors.
+    The new page is \a child; the tab's label is \a label. Note the
+    difference between the widget name (which you supply to widget
+    constructors and to setTabEnabled(), for example) and the tab
+    label. The name is internal to the program and invariant, whereas
+    the label is shown on-screen and may vary according to language
+    and other factors.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro&wse" then Alt+W becomes an accelerator which will
+    label is "Bro\&wse" then Alt+W becomes an accelerator which will
     move the focus to this tab.
 
-  If you call addTab() after show() the screen will flicker and the
-  user may be confused.
+    If you call addTab() after show() the screen will flicker and the
+    user may be confused.
 
-  \sa insertTab()
+    \sa insertTab()
 */
 void QTabWidget::addTab( QWidget *child, const QString &label)
 {
@@ -256,11 +263,12 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 
 /*!
     \overload
-  Adds another tab and page to the tab view.
 
-  This function is the same as addTab(), but with an additional
-  \a iconset.
- */
+    Adds another tab and page to the tab view.
+
+    This function is the same as addTab(), but with an additional \a
+    iconset.
+*/
 void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label )
 {
     QTab * t = new QTab();
@@ -270,12 +278,13 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
     addTab( child, t );
 }
 
-/*! \overload
+/*!
+    \overload
 
-  This is a low-level function for adding tabs. It is useful if you
-  are using setTabBar() to set a QTabBar subclass with an overridden
-  QTabBar::paint() routine for a subclass of QTab. The \a child is
-  the new page and \a tab is the tab to put the \a child on.
+    This is a low-level function for adding tabs. It is useful if you
+    are using setTabBar() to set a QTabBar subclass with an overridden
+    QTabBar::paint() function for a subclass of QTab. The \a child is
+    the new page and \a tab is the tab to put the \a child on.
 */
 void QTabWidget::addTab( QWidget *child, QTab* tab )
 {
@@ -290,27 +299,27 @@ void QTabWidget::addTab( QWidget *child, QTab* tab )
 
 
 /*!
-  Inserts another tab and page to the tab view.
+    Inserts another tab and page to the tab view.
 
-    The new page is \a child; the tab's label is \a label.
-  Note the difference between the widget name (which you supply to
-  widget constructors and to setTabEnabled(), for example) and the tab
-  label. The name is internal to the program and invariant, whereas
-  the label is shown on-screen and may vary according to language and
-  other factors.
+    The new page is \a child; the tab's label is \a label. Note the
+    difference between the widget name (which you supply to widget
+    constructors and to setTabEnabled(), for example) and the tab
+    label. The name is internal to the program and invariant, whereas
+    the label is shown on-screen and may vary according to language
+    and other factors.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as an accelerator for the tab, e.g. if the
-    label is "Bro&wse" then Alt+W becomes an accelerator which will
+    label is "Bro\&wse" then Alt+W becomes an accelerator which will
     move the focus to this tab.
 
-  If \a index is not specified, the tab is simply added. Otherwise
-  it is inserted at the specified position.
+    If \a index is not specified, the tab is simply appended.
+    Otherwise it is inserted at the specified position.
 
-  If you call insertTab() after show(), the screen will flicker and the
-  user may be confused.
+    If you call insertTab() after show(), the screen will flicker and
+    the user may be confused.
 
-  \sa addTab()
+    \sa addTab()
 */
 void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 {
@@ -323,11 +332,12 @@ void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 
 /*!
     \overload
-  Inserts another tab and page to the tab view.
 
-  This function is the same as insertTab(), but with an additional
-  \a iconset.
- */
+    Inserts another tab and page to the tab view.
+
+    This function is the same as insertTab(), but with an additional
+    \a iconset.
+*/
 void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
 {
     QTab * t = new QTab();
@@ -339,13 +349,13 @@ void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QStri
 
 /*!
     \overload
-  This is a lower-level method for inserting tabs, similar to the other
-  insertTab() method.  It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() routine for a
-  subclass of QTab.
-  The \a child is the new page, \a tab is the tab to put the \a child
-  on and \a index is the position in the tab bar that this page should
-  occupy.
+
+    This is a lower-level method for inserting tabs, similar to the
+    other insertTab() method. It is useful if you are using
+    setTabBar() to set a QTabBar subclass with an overridden
+    QTabBar::paint() function for a subclass of QTab. The \a child is
+    the new page, \a tab is the tab to put the \a child on and \a
+    index is the position in the tab bar that this page should occupy.
 */
 void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 {
@@ -359,8 +369,8 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 
 
 /*!
-  Defines a new \a label for page \a{w}'s tab.
- */
+    Defines a new \a label for page \a{w}'s tab.
+*/
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
     int id = d->stack->id( w );
@@ -385,8 +395,9 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 
 /*!
     \overload
-  Defines a new \a iconset and a new \a label for page \a{w}'s tab.
- */
+
+    Defines a new \a iconset and a new \a label for page \a{w}'s tab.
+*/
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
 {
     int id = d->stack->id( w );
@@ -415,9 +426,9 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
 }
 
 /*!
-  Returns TRUE if the page \a w is enabled; otherwise returns FALSE.
+    Returns TRUE if the page \a w is enabled; otherwise returns FALSE.
 
-  \sa setTabEnabled(), QWidget::isEnabled()
+    \sa setTabEnabled(), QWidget::isEnabled()
 */
 
 bool QTabWidget::isTabEnabled( QWidget* w ) const
@@ -433,14 +444,14 @@ bool QTabWidget::isTabEnabled( QWidget* w ) const
     If \a enable is TRUE, page \a w is enabled; otherwise page \a w is
     disabled. The page's tab is redrawn appropriately.
 
-  QTabWidget uses QWidget::setEnabled() internally, rather than keeping a
-  separate flag.
+    QTabWidget uses QWidget::setEnabled() internally, rather than
+    keeping a separate flag.
 
-  Note that even a disabled tab/page may be visible.  If the page is
-  visible already, QTabWidget will not hide it; if all the pages
-  are disabled, QTabWidget will show one of them.
+    Note that even a disabled tab/page may be visible. If the page is
+    visible already, QTabWidget will not hide it; if all the pages are
+    disabled, QTabWidget will show one of them.
 
-  \sa isTabEnabled(), QWidget::setEnabled()
+    \sa isTabEnabled(), QWidget::setEnabled()
 */
 
 void QTabWidget::setTabEnabled( QWidget* w, bool enable)
@@ -452,12 +463,14 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
     }
 }
 
-/*!  Ensures that page \a w is shown.  This is useful mainly for accelerators.
+/*!
+    Ensures that page \a w is shown. This is useful mainly for
+    accelerators.
 
-  \warning Used carelessly, this function can easily surprise or
-  confuse the user.
+    \warning Used carelessly, this function can easily surprise or
+    confuse the user.
 
-  \sa QTabBar::setCurrentTab()
+    \sa QTabBar::setCurrentTab()
 */
 void QTabWidget::showPage( QWidget * w)
 {
@@ -471,9 +484,11 @@ void QTabWidget::showPage( QWidget * w)
     }
 }
 
-/*! Removes page \a w from this stack of widgets.  Does not
-  delete \a w.
-  \sa showPage(), QWidgetStack::removeWidget()
+/*!
+    Removes page \a w from this stack of widgets. Does not delete \a
+    w.
+
+    \sa showPage(), QWidgetStack::removeWidget()
 */
 void QTabWidget::removePage( QWidget * w )
 {
@@ -489,7 +504,8 @@ void QTabWidget::removePage( QWidget * w )
     }
 }
 
-/*!  Returns the label text for the tab on page \a w.
+/*!
+    Returns the label text for the tab on page \a w.
 */
 
 QString QTabWidget::tabLabel( QWidget * w ) const
@@ -498,8 +514,9 @@ QString QTabWidget::tabLabel( QWidget * w ) const
     return t ? t->label : QString::null;
 }
 
-/*!  Sets the tab label for page \a w to \a l
- */
+/*!
+    Sets the tab label for page \a w to \a l
+*/
 
 void QTabWidget::setTabLabel( QWidget * w, const QString &l )
 {
@@ -511,8 +528,9 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
     setUpLayout();
 }
 
-/*! Returns a pointer to the page currently being displayed by the
-    tab dialog.  The tab dialog does its best to make sure that this value
+/*!
+    Returns a pointer to the page currently being displayed by the tab
+    dialog. The tab dialog does its best to make sure that this value
     is never 0 (but if you try hard enough, it can be).
 */
 
@@ -521,13 +539,15 @@ QWidget * QTabWidget::currentPage() const
     return page( currentPageIndex() );
 }
 
-/*! \property QTabWidget::autoMask
+/*!
+    \property QTabWidget::autoMask
     \brief whether the tab widget is automatically masked
 
     \sa QWidget::setAutoMask()
 */
 
-/*! \property QTabWidget::currentPage
+/*!
+    \property QTabWidget::currentPage
     \brief the index position of the current tab page
 
   \sa QTabBar::currentTab()
@@ -546,9 +566,9 @@ void QTabWidget::setCurrentPage( int index )
 
 
 /*!
-  Returns the index position of page \a w, or -1 if the widget cannot
-  be found.
- */
+    Returns the index position of page \a w, or -1 if the widget
+    cannot be found.
+*/
 int QTabWidget::indexOf( QWidget* w ) const
 {
     return d->tabs->indexOf( d->stack->id( w ) );
@@ -556,8 +576,8 @@ int QTabWidget::indexOf( QWidget* w ) const
 
 
 /*!
-  \reimp
- */
+    \reimp
+*/
 void QTabWidget::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
@@ -565,10 +585,11 @@ void QTabWidget::resizeEvent( QResizeEvent *e )
 }
 
 /*!
-  Replaces the QTabBar heading the dialog by the tab bar \a tb.
-  Note that this must be called \e before any tabs have been added,
-  or the behavior is undefined.
-  \sa tabBar()
+    Replaces the dialog's QTabBar heading with the tab bar \a tb. Note
+    that this must be called \e before any tabs have been added, or
+    the behavior is undefined.
+
+    \sa tabBar()
 */
 void QTabWidget::setTabBar( QTabBar* tb)
 {
@@ -584,8 +605,9 @@ void QTabWidget::setTabBar( QTabBar* tb)
 
 
 /*!
-  Returns the currently set QTabBar.
-  \sa setTabBar()
+    Returns the current QTabBar.
+
+    \sa setTabBar()
 */
 QTabBar* QTabWidget::tabBar() const
 {
@@ -593,7 +615,8 @@ QTabBar* QTabWidget::tabBar() const
 }
 
 /*!
-  Ensures that the selected tab's page is visible and appropriately sized.
+    Ensures that the selected tab's page is visible and appropriately
+    sized.
 */
 
 void QTabWidget::showTab( int i )
@@ -605,9 +628,9 @@ void QTabWidget::showTab( int i )
     }
 }
 
-/*!
-  Set up the layout.
- */
+/*
+    Set up the layout.
+*/
 void QTabWidget::setUpLayout( bool onlyCheck )
 {
     if ( onlyCheck && !d->dirty )
@@ -669,7 +692,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	updateMask();
 }
 
-/*!\reimp
+/*!
+    \reimp
 */
 QSize QTabWidget::sizeHint() const
 {
@@ -684,8 +708,10 @@ QSize QTabWidget::sizeHint() const
 }
 
 
-/*! \reimp
-  Returns a suitable minimum size for the tab widget.
+/*!
+    \reimp
+
+    Returns a suitable minimum size for the tab widget.
 */
 QSize QTabWidget::minimumSizeHint() const
 {
@@ -699,7 +725,8 @@ QSize QTabWidget::minimumSizeHint() const
 		  s.height() + t.height() + d->tabBase->height() );
 }
 
-/*! \reimp
+/*!
+    \reimp
  */
 void QTabWidget::showEvent( QShowEvent * )
 {
@@ -707,14 +734,15 @@ void QTabWidget::showEvent( QShowEvent * )
 }
 
 
-/*! \property QTabWidget::tabPosition
+/*!
+    \property QTabWidget::tabPosition
     \brief the position of the tabs in this tab widget
 
-  Possible values for this property are QTabWidget::Top and
-  QTabWidget::Bottom.
+    Possible values for this property are \c QTabWidget::Top and \c
+    QTabWidget::Bottom.
 
-  \sa TabPosition
- */
+    \sa TabPosition
+*/
 QTabWidget::TabPosition QTabWidget::tabPosition() const
 {
     return d->pos;
@@ -741,11 +769,12 @@ void QTabWidget::setTabPosition( TabPosition pos)
     setUpLayout();
 }
 
-/*! \property QTabWidget::tabShape
+/*!
+    \property QTabWidget::tabShape
     \brief the shape of the tabs in this tab widget
 
-    Possible values for this property are QTabWidget::Rounded (default) or
-    QTabWidget::Triangular.
+    Possible values for this property are \c QTabWidget::Rounded
+    (default) or \c QTabWidget::Triangular.
 
     \sa TabShape
 */
@@ -776,11 +805,12 @@ void QTabWidget::setTabShape( TabShape s )
 }
 
 
-/*! \property QTabWidget::margin
+/*!
+    \property QTabWidget::margin
     \brief the margin in this tab widget
 
-  The margin is the distance between the innermost pixel of the frame
-  and the outermost pixel of the pages.
+    The margin is the distance between the innermost pixel of the
+    frame and the outermost pixel of the pages.
 */
 int QTabWidget::margin() const
 {
@@ -794,7 +824,8 @@ void QTabWidget::setMargin( int w )
 }
 
 
-/*! \reimp
+/*!
+    \reimp
  */
 void QTabWidget::styleChange( QStyle& old )
 {
@@ -803,7 +834,8 @@ void QTabWidget::styleChange( QStyle& old )
 }
 
 
-/*! \reimp
+/*!
+    \reimp
  */
 void QTabWidget::updateMask()
 {
@@ -818,7 +850,8 @@ void QTabWidget::updateMask()
 }
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
@@ -863,7 +896,8 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 }
 
 /*!
-  Returns the tab page at index position \a index.
+    Returns the tab page at index position \a index or 0 if the \a
+    index is out of range.
 */
 QWidget *QTabWidget::page( int index ) const
 {
@@ -875,7 +909,8 @@ QWidget *QTabWidget::page( int index ) const
 }
 
 /*!
-  Returns the label of the tab at index position \a index.
+    Returns the label of the tab at index position \a index or
+    QString::null if the \a index is out of range.
 */
 QString QTabWidget::label( int index ) const
 {
@@ -886,8 +921,9 @@ QString QTabWidget::label( int index ) const
     return QString::null;
 }
 
-/*! \property QTabWidget::count
-     \brief the number of tabs in the tab bar
+/*!
+    \property QTabWidget::count
+    \brief the number of tabs in the tab bar
 */
 int QTabWidget::count() const
 {
@@ -895,7 +931,9 @@ int QTabWidget::count() const
 }
 
 /*!
-  Returns the iconset of page \a w.
+    Returns the iconset of page \a w or a \link QIconSet::QIconSet()
+    null iconset\endlink if \a w is not a tab page or does not have an
+    iconset.
 */
 QIconSet QTabWidget::tabIconSet( QWidget * w ) const
 {
@@ -912,7 +950,7 @@ QIconSet QTabWidget::tabIconSet( QWidget * w ) const
 }
 
 /*!
-  Sets the iconset for page \a w to \a iconset.
+    Sets the iconset for page \a w to \a iconset.
 */
 void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
 {
@@ -940,9 +978,10 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
 }
 
 /*!
-  Sets the tab tool tip for page \a w to \a tip.
-  \sa removeTabToolTip(), tabToolTip()
- */
+    Sets the tab tool tip for page \a w to \a tip.
+
+    \sa removeTabToolTip(), tabToolTip()
+*/
 void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
 {
     int index = d->tabs->indexOf( d->stack->id( w ) );
@@ -952,9 +991,11 @@ void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
 }
 
 /*!
-  Returns the tab tool tip for page \a w.
-  \sa setTabToolTip(), removeTabToolTip()
- */
+    Returns the tab tool tip for page \a w or QString::null if no tool
+    tip has been set.
+
+    \sa setTabToolTip(), removeTabToolTip()
+*/
 QString QTabWidget::tabToolTip( QWidget * w ) const
 {
     int index = d->tabs->indexOf( d->stack->id( w ) );
@@ -963,10 +1004,12 @@ QString QTabWidget::tabToolTip( QWidget * w ) const
     return d->tabs->toolTip( index );
 }
 
-/*! Removes the tab tool tip for page \a w. If the page does not have
-  a tip, nothing happens.
-  \sa setTabToolTip(), tabToolTip()
- */
+/*!
+    Removes the tab tool tip for page \a w. If the page does not have
+    a tip, nothing happens.
+
+    \sa setTabToolTip(), tabToolTip()
+*/
 void QTabWidget::removeTabToolTip( QWidget * w )
 {
     int index = d->tabs->indexOf( d->stack->id( w ) );
