@@ -15,11 +15,9 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qmime.h>
 #include <qvariant.h>
 #include <qlist.h>
 #include <qmap.h>
-#include <qevent.h>
 #endif
 
 class QAbstractItemModel;
@@ -80,7 +78,9 @@ typedef QList<QModelIndex> QModelIndexList;
 typedef QList<QCoreVariant> QCoreVariantList;
 
 class QWidget;
+class QDropEvent;
 class QDragObject;
+class QMimeSource;
 class QAbstractItemModelPrivate;
 
 class Q_GUI_EXPORT QAbstractItemModel : public QObject

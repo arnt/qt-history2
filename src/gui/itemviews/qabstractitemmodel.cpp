@@ -11,8 +11,10 @@
 ****************************************************************************/
 
 #include "qabstractitemmodel.h"
+#include <qevent.h>
 #include <qdragobject.h>
 #include <qdatastream.h>
+#include <qmime.h>
 #include <qatomic.h>
 #include <qdebug.h>
 #include <private/qabstractitemmodel_p.h>

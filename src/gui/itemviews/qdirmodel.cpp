@@ -15,6 +15,7 @@
 #include <qvector.h>
 #include <qobject.h>
 #include <qdragobject.h>
+#include <qevent.h>
 #include <private/qabstractitemmodel_p.h>
 
 /* XPM */
