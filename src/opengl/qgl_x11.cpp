@@ -265,8 +265,11 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	return FALSE;
 
     if ( deviceIsPixmap() &&
-	 ((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() &&
-	 ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen()) {
+	 (((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() ||
+	  ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen() ||
+	  ((XVisualInfo*)vi)->visualid != 
+	        XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() )) ) 
+    {
 	XFree( vi );
 	XVisualInfo appVisInfo;
 	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
@@ -771,7 +774,7 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 	delete glcx;
 	glcx = 0;
     }
-    QWidget::reparent( parent, f, p, showIt );
+    QWidget::reparent( parent, f, p, FALSE );
     setContext( new QGLContext( reqf, this ) );
     if ( showIt )
 	show();
