@@ -14,7 +14,7 @@
 #ifndef Q3PICTURE_H
 #define Q3PICTURE_H
 
-#include <QPicture>
+#include <QtGui/qpicture.h>
 
 class Q_COMPAT_EXPORT Q3Picture : public QPicture
 {
