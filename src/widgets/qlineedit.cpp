@@ -920,6 +920,9 @@ void QLineEdit::doDrag()
     QTextDrag *tdo = new QTextDrag( markedText(), this );
     if ( tdo->drag() ) {
 	// ##### Delete original (but check if it went to me)
+#if defined (_WS_WIN_)
+        del();
+#endif
     }
 }
 
