@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#71 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#70 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#71 $")
 
 
 /*****************************************************************************
@@ -524,10 +524,10 @@ bool QString::resize( uint len )
   Example:
   \code
     QString s;
-    s.sprintf( "%d - %s", 1, "first" );		// result \< 256 chars
+    s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
 
     QString big( 25000 );			// very long string
-    big.sprintf( "%d - %s", 2, longString );	// result \< 25000 chars
+    big.sprintf( "%d - %s", 2, longString );	// result < 25000 chars
   \endcode
 
   \warning All vsprintf() implementations will write past the end of
@@ -1463,10 +1463,9 @@ bool QString::setExpand( uint index, char c )
 }
 
 
-/*----------------------------------------------------------------------------
+/* OBSOLETE - or at least not in qstring.h
   \fn QString::operator char *() const
-  Returns the string data.
- ----------------------------------------------------------------------------*/
+  Returns the string data. */
 
 /*----------------------------------------------------------------------------
   \fn QString::operator const char *() const
