@@ -4038,8 +4038,9 @@ int QImageIO::quality() const
     Sets the quality of the written image to \a q, related to the
     compression ratio.
 
-    \a q must be in the range 0..100. Specify 0 to obtain small
-    compressed files, 100 for large uncompressed files
+    \a q must be in the range -1..100. Specify 0 to obtain small
+    compressed files, 100 for large uncompressed files. (-1 signifies
+    the default compression.)
 
     \sa quality() QImage::save()
 */
@@ -6117,6 +6118,8 @@ void QImage::setOffset(const QPoint& p)
 }
 #ifndef QT_NO_IMAGE_TEXT
 /*!
+    \internal
+
     Returns the internal QImageDataMisc object. This object will be
     created if it doesn't already exist.
 */

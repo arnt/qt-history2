@@ -995,6 +995,8 @@ QGridLayout::QGridLayout( int nRows, int nCols,
 /*!
     Destroys the grid layout. Geometry management is terminated if
     this is a top-level grid.
+
+    The layout's widgets are \e not destroyed.
 */
 QGridLayout::~QGridLayout()
 {
@@ -1654,7 +1656,9 @@ QBoxLayout::QBoxLayout( Direction d, int spacing, const char *name )
 }
 
 /*!
-  Destroys this box layout.
+    Destroys this box layout.
+
+    The layout's widgets are \e not destroyed.
 */
 QBoxLayout::~QBoxLayout()
 {
@@ -2366,7 +2370,9 @@ QHBoxLayout::QHBoxLayout( int spacing, const char *name )
 }
 
 /*!
-  Destroys this box layout.
+    Destroys this box layout.
+
+    The layout's widgets are \e not destroyed.
 */
 QHBoxLayout::~QHBoxLayout()
 {
@@ -2439,7 +2445,9 @@ QVBoxLayout::QVBoxLayout( int spacing, const char *name )
 }
 
 /*!
-  Destroys this box layout.
+    Destroys this box layout.
+
+    The layout's widgets are \e not destroyed.
 */
 QVBoxLayout::~QVBoxLayout()
 {
