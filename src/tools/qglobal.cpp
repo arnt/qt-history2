@@ -468,8 +468,15 @@ void fatal( const char *msg, ... )
     }
 }
 
-/*
-  Prints the message \a msg
+/*!
+  \relates QApplication
+
+  Prints the message \a msg and uses \a code to get a system 
+  specific error message. The system's last error code will be 
+  used if possible when no code is provided.
+
+  This function does nothing when Qt is built with Q_NO_DEBUG
+  defined.
 */
 void qSystemWarning( const char* msg, int code )
 {
