@@ -4002,8 +4002,8 @@ void QTable::setNumRows( int r )
     if ( r > numRows() ) {
 	clearSelection( FALSE );
 	while ( numRows() < r ) {
-	    leftHeader->addLabel( QString::number( numRows() + 1 ), 20 );
-	    int tmpw = fontMetrics().width( QString::number( numRows() + 1 ) + "  " );
+	    leftHeader->addLabel( QString::number( numRows() ), 20 );
+	    int tmpw = fontMetrics().width( QString::number( numRows() ) + "  " );
 	    w = QMAX( w, tmpw );
 	}
     } else {
