@@ -1250,13 +1250,48 @@ PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QT
 					    const QValueList<Column> &columns )
     : Command( n, fw ), newRows( rows ), newColumns( columns ), table( t )
 {
-
+    int i = 0;
+    for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
+	PopulateTableCommand::Column col;
+	col.text = table->horizontalHeader()->label( i );
+	if ( table->horizontalHeader()->iconSet( i ) )
+	    col.pix = table->horizontalHeader()->iconSet( i )->pixmap();
+	// ### todo field stuff
+	oldColumns.append( col );
+    }
+    for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
+	PopulateTableCommand::Row row;
+	row.text = table->verticalHeader()->label( i );
+	if ( table->verticalHeader()->iconSet( i ) )
+	    row.pix = table->verticalHeader()->iconSet( i )->pixmap();
+	oldRows.append( row );
+    }
 }
 
 void PopulateTableCommand::execute()
 {
+    table->setNumCols( newColumns.count() );
+    int i = 0;
+    for ( QValueList<Column>::Iterator cit = newColumns.begin(); cit != newColumns.end(); ++cit, ++i ) {
+	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
+	// ### todo field stuff
+    }
+    table->setNumRows( newRows.count() );
+    i = 0;
+    for ( QValueList<Row>::Iterator rit = newRows.begin(); rit != newRows.end(); ++rit, ++i )
+	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
 }
 
 void PopulateTableCommand::unexecute()
 {
+    table->setNumCols( oldColumns.count() );
+    int i = 0;
+    for ( QValueList<Column>::Iterator cit = oldColumns.begin(); cit != oldColumns.end(); ++cit, ++i ) {
+	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
+	// ### todo field stuff
+    }
+    table->setNumRows( oldRows.count() );
+    i = 0;
+    for ( QValueList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )
+	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
 }

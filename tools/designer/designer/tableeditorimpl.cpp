@@ -7,6 +7,8 @@
 #include <qlistbox.h>
 #include <qlineedit.h>
 #include "pixmapchooser.h"
+#include "command.h"
+#include <qvaluelist.h>
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
@@ -187,6 +189,30 @@ void TableEditor::rowUpClicked()
 
 void TableEditor::applyClicked()
 {
+    QValueList<PopulateTableCommand::Row> rows;
+    QValueList<PopulateTableCommand::Column> cols;
+
+    int i = 0;
+    for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
+	PopulateTableCommand::Column col;
+	col.text = table->horizontalHeader()->label( i );
+	if ( table->horizontalHeader()->iconSet( i ) )
+	    col.pix = table->horizontalHeader()->iconSet( i )->pixmap();
+	// ### todo field stuff
+	cols.append( col );
+    }
+    for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
+	PopulateTableCommand::Row row;
+	row.text = table->verticalHeader()->label( i );
+	if ( table->verticalHeader()->iconSet( i ) )
+	    row.pix = table->verticalHeader()->iconSet( i )->pixmap();
+	rows.append( row );
+    }
+
+    PopulateTableCommand *cmd = new PopulateTableCommand( tr( "Edit Rows and Columns of '%1' " ).arg( editTable->name() ),
+							  formWindow, editTable, rows, cols );
+    cmd->execute();
+    formWindow->commandHistory()->addCommand( cmd );
 }
 
 void TableEditor::chooseRowPixmapClicked()
