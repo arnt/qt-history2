@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#6 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#7 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -58,14 +58,14 @@ CategoryItem::CategoryItem( QListBox *parent, QWidget *widget,
 }
 
 CategoryItem::CategoryItem( QListBox * parent, QWidget *widget, const QPixmap &p1, const QPixmap &p2,
-                            const QString &name, int id )
-	: QListBoxItem( parent ),
+			    const QString &name, int id )
+    : QListBoxItem( parent ),
       _id( id),
       _widget( widget ),
       pm_Unsel( p1 ),
       pm_Sel( p2 )
 {
-	setText( name );
+    setText( name );
 }
 
 
@@ -91,8 +91,8 @@ void CategoryItem::paint( QPainter *p )
     int w = width( listBox() );
     int tx = (w-p->fontMetrics().boundingRect(text()).width())/2;
     p->drawText( tx, 80, text() );
-    if (selected())
-	    p->drawPixmap( (w-pm_Sel.width())/2, 10, pm_Sel );
+    if ( selected() )
+	p->drawPixmap( (w-pm_Sel.width())/2, 10, pm_Sel );
     else
     	p->drawPixmap( (w-pm_Unsel.width())/2, 10, pm_Unsel );
 }
