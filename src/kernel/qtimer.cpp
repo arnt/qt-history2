@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#26 $
 **
 ** Implementation of QTimer class
 **
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#26 $");
 
 
 /*!
@@ -44,7 +44,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $");
 
   This can be used to do heavy work while providing a snappy
   user interface: \code
-    QTimer * t = new QTimer( myObject, "timer for background processing" );
+    QTimer *t = new QTimer( myObject );
     connect( t, SIGNAL(timeout()), SLOT(processOneThing()) );
     t->start( 0, TRUE );
   \endcode
@@ -52,7 +52,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#25 $");
   myObject->processOneThing() will be called repeatedly and should
   return quickly (typically after processing one data item) so that Qt
   can deliver events to widgets, and stop the timer as soon as it has
-  done all its work.  This is the traditional way to implement heavy
+  done all its work.  This is the traditional way of implementing heavy
   work in GUI applications; multi-threading is now becoming available
   on more and more platforms and we expect that null events will
   eventually be replaced by threading.
