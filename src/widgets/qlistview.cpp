@@ -1913,16 +1913,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		current->i->paintCell( p, colorGroup(), ac, r.width(),
 				       columnAlignment( ac ) );
 		p->restore();
-		if ( c == 0 && current->i == d->focusItem && hasFocus() &&
-		     !d->allColumnsShowFocus ) {
-		    p->save();
-		    //WINDOWSBUG### should use this
-		    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
-		    current->i->paintFocus( p, colorGroup(), r );
-		    p->restore();
-		}
 		x += cs;
 		c++;
+	    }
+	    if ( current->i == d->focusItem && hasFocus() &&
+		 !d->allColumnsShowFocus ) {
+		p->save();
+		//WINDOWSBUG### should use this
+		//p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		int c = d->h->mapToActual( 0 );
+		QRect r( d->h->cellPos( c ) - ox, current->y - oy, d->h->cellSize( c ), ih );
+		current->i->paintFocus( p, colorGroup(), r );
+		p->restore();
 	    }
 	}
 
