@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#209 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#208 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#209 $");
 
 
 /*!
@@ -2398,15 +2398,9 @@ void QWidget::hide()
     hideWindow();
 
     // next bit tries to move the focus if the focus widget is now
-    // hidden.  if there is no suitable focus widget, clear focus.
-    if ( focusData() ) {
-	QWidget * fw, * pw;
-	fw = pw = focusData()->it.current();
-	while ( pw && pw != this && !pw->isTopLevel() )
-	    pw = pw->parentWidget();
-	if ( pw == this && !topLevelWidget()->focusNextPrevChild( TRUE ) )
-	    fw->clearFocus();
-    }
+    // hidden.
+    if ( qApp && qApp->focusWidget() == this )
+	focusNextPrevChild( TRUE );
 
     clearWFlags( WState_Visible );
 
