@@ -58,22 +58,25 @@ public:
   clients.
 
   The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
-  communicate inside of the same address space or between different processes.
+  communicate both within the same address space and between different
+  processes.
 
-  Currently, this facility is only available on Qt/Embedded as on X11
-  and Windows we are exploring the use of existing standard such as
+  Currently, this facility is only available on Qt/Embedded. On X11
+  and Windows we are exploring the use of existing standards such as
   DCOP and COM.
 
-  QCopChannel contains important functions like send() and isRegistered()
-  which are static and therefore usable without an object.
+  QCopChannel provides send() and isRegistered() which are static
+  functions that are usable without an object. 
+  
+  The channel() function returns the name of the channel.
 
-  In order to \e listen to the traffic on the channel, you should either
-  subclass from QCopChannel and provide an re-implementation for receive(),
-  or you should connect() to the received() signal.
+  In order to \e listen to the traffic on a channel, you should either
+  subclass QCopChannel and reimplement receive(), or connect() to the
+  received() signal.
  */
 
 /*!
-  Constructs a QCop channel and registers it with the server under the name
+  Constructs a QCop channel and registers it with the server using the name
   \a channel. The standard \a parent and \a name arguments are passed on
   to the QObject constructor.
  */
@@ -108,9 +111,9 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 }
 
 /*!
-  Destroys the client's side end of the channel and notifies the server
-  about the closing. The server itself keeps the channel open until the
-  last registered client detaches.
+  Destroys the client's end of the channel and notifies the server
+  that the client has closed its connection. The server will keep the
+  channel open until the last registered client detaches.
 */
 
 QCopChannel::~QCopChannel()
@@ -147,7 +150,7 @@ QCString QCopChannel::channel() const
   The default implementation emits the received() signal.
 
   Note that the format of \a data has to be well defined in order to
-  demarshall the contained information.
+  extract the information it contains.
   \sa send()
  */
 void QCopChannel::receive( const QCString &msg, const QByteArray &data )
@@ -183,8 +186,8 @@ bool QCopChannel::isRegistered( const QCString& channel )
 }
 
 /*!
-  Send the message \a msg on \a channel. The message will be distributed
-  to all clients subscribed to the channel.
+  Send the message \a msg on channel \a channel. The message will be
+  distributed to all clients subscribed to the channel.
 
   \sa receive()
  */
@@ -196,9 +199,11 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
 }
 
 /*!
+    \overload
   Same as above function except the additional \a data parameter.
-  QDataStream provides a convenient way to fill the byte array with
-  auxiliary data.
+
+  Note that QDataStream provides a convenient way to fill the byte array
+  with auxiliary data.
  */
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg,

@@ -1399,7 +1399,8 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 }
 
 /*!
-  A convenience function for loadCharmap().
+  A convenience function for loadCharmap() that loads the charmap
+  definition from the file \a filename.
 */
 QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 {

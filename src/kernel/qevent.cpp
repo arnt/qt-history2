@@ -1046,12 +1046,12 @@ void QFocusEvent::resetReason()
   \ingroup event
 
   Context events are sent to widgets when a user triggers a menu. What
-  triggers this is platform dependant, for example on windows pressing
+  triggers this is platform dependant. On windows, for example, pressing
   the menu button or releasing the right button will cause this event to
   be sent. It is customary to use this to show a QPopupMenu when this
-  event is triggered if you have such a context menu.
+  event is triggered if you have a relevant context menu.
 
-  ContextMenu events contain a special accept flag that tells whether
+  ContextMenu events contain a special accept flag that indicates whether
   the receiver accepted the contextMenu.  If the event handler does not
   accept the event, then whatever triggered the event will be handled as
   a regular input event if possible.
@@ -1062,13 +1062,14 @@ void QFocusEvent::resetReason()
 /*!
   \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
 
-  Constructs a context event object with the accept parameter flag set to FALSE.
+  Constructs a context event object with the accept parameter flag set
+  to FALSE.
 
   The \a reason parameter must be \c QContextMenuEvent::Mouse
   or \c QContextMenuEvent::Keyboard.
 
-  The \a pos parameter specifies the position relative to the
-  receiving widget. \a globalPos is the position in absolute
+  The \a pos parameter specifies the mouse position relative to the
+  receiving widget. \a globalPos is the mouse position in absolute
   coordinates. \a state is the ButtonState at the time of the event.
 */
 
@@ -1076,12 +1077,13 @@ void QFocusEvent::resetReason()
 /*!
   \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
 
-  Constructs a context event object with the accept parameter flag set to FALSE.
+  Constructs a context event object with the accept parameter flag set
+  to FALSE.
 
   The \a reason parameter must be \c QContextMenuEvent::Mouse
   or \c QContextMenuEvent::Keyboard.
 
-  The \a pos parameter specifies the position relative to the
+  The \a pos parameter specifies the mouse position relative to the
   receiving widget. \a state is the ButtonState at the time of the event.
 
   The globalPos() is initialized to QCursor::pos(), which may not be
@@ -1098,7 +1100,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn const QPoint &QContextMenuEvent::pos() const
 
-  Returns the position of the mouse pointer relative to the widget that received the event.
+  Returns the position of the mouse pointer relative to the widget that
+  received the event.
 
   \sa x(), y(), globalPos()
 */
@@ -1177,15 +1180,17 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \enum QContextMenuEvent::Reason
 
-  This type describes the reason the ContextMenuEvent was sent.
+  This enum describes the reason the ContextMenuEvent was sent.
   The values are:
 
-   \value Mouse     The mouse caused the event to be sent, normally this means
-            right mouse button was clicked, but this is platform specific.
-   \value Keyboard  The keyboard somehow caused this event to be sent. On windows
-            this means the menu button was pressed.
-   \value Other	    The event was sent by another way (i.e. not by the mouse or 
-	    keyboard).
+   \value Mouse     The mouse caused the event to be sent. Normally this
+   means the right mouse button was clicked, but this is platform specific.
+
+   \value Keyboard  The keyboard caused this event to be sent.
+   On windows this means the menu button was pressed.
+
+   \value Other	    The event was sent by some other means (i.e. not by the
+   mouse or keyboard).
 */
 
 

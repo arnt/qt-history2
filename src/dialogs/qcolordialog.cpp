@@ -1491,8 +1491,9 @@ void QColorDialog::Private::addCustom()
   <img src=qcolordlg-w.png>
 */
 
-/*!  Constructs a default color dialog. Use setColor() for setting an
-  initial value.
+/*!  Constructs a default color dialog with parent \a parent called \a
+ name. If \a modal is TRUE the dialog will be modal. Use setColor() for
+ setting an initial value.
 
   \sa getColor()
 */
@@ -1506,10 +1507,12 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 
 /*!
-  Pops up a modal color dialog, lets the user choose a color, and returns
-  that color. The color is initially set to \a initial. Returns an invalid
-  (see QColor::isValid()) color if the user cancels the dialog. All colors
-  allocated by the dialog will be deallocated before this function returns.
+  Pops up a modal color dialog, lets the user choose a color, and
+  returns that color. The color is initially set to \a initial. The
+  dialog is a child of \a parent and is called \a name. Returns an
+  invalid (see QColor::isValid()) color if the user cancels the dialog.
+  All colors allocated by the dialog will be deallocated before this
+  function returns.
 */
 
 QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
@@ -1536,8 +1539,9 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 
 
 /*!
-  Pops up a modal color dialog, letting the user choose a color and an
-  alpha channel value. The color+alpha is initially set to \a initial.
+  Pops up a modal color dialog to allow the user to choose a color and
+  an alpha channel value. The color+alpha is initially set to \a
+  initial. The dialog is a child of \a parent and called \a name.
 
   If \a ok is non-null, \c *ok is set to TRUE if the user clicked OK,
   and FALSE if the user clicked Cancel.

@@ -58,66 +58,79 @@
 
   \ingroup basic
 
-  A combo box may be defined as a selection widget which displays the
-  current selection, and which can pop up a list of possible
-  selections.  Some combo boxes also allow the user to select
-  arbitrary strings, using a line editor.
+  A combobox is a selection widget which displays the current item and
+  can pop up a list of items.  A combobox may be editable in which case
+  the user can enter arbitrary strings.
 
-  Since combo boxes occupy little screen space and always display the
-  current selection, they are very well suited to displaying and
-  selecting modes (such as font family and size): The user can always
-  see what mode he/she is in, and the majority of the screen space is
-  available for real work.
+  Since comboboxes occupy little screen space and always display the
+  current item, they are well suited to displaying items that the user
+  will want to see, such as font family or size. Using a combobox the
+  user can always see which item they've selected with the minimum amount
+  of screen space being used. 
 
-  QComboBox supports three different appearances: Motif 1.x, Motif 2.0
-  and Windows 95.  In Motif 1.x, a combo box was called XmOptionMenu.
-  In Motif 2.0, OSF introduced an improved combo box and
+  QComboBox supports three different display styles: Motif 1.x, Motif 2.0
+  and Windows 95.  In Motif 1.x, a combobox was called XmOptionMenu.
+  In Motif 2.0, OSF introduced an improved combobox and
   named that XmComboBox.  QComboBox provides both.
 
-  QComboBox provides two different constructors.  The simplest one
-  creates an old-style combo box in Motif style:
+  QComboBox provides two different constructors.  The simplest
+  constructor creates an old-style combobox in Motif style:
   \code
-      QComboBox * c = new QComboBox( this, "read-only combo" );
+      QComboBox *c = new QComboBox( this, "read-only combobox" );
   \endcode
 
-  The other one creates a new-style combo box in Motif style, and can
-  create both read-only and read-write combo boxes:
+  The other constructor creates a new-style combobox in Motif style, and
+  can create both read-only and read-write comboboxes:
   \code
-      QComboBox * c1 = new QComboBox( FALSE, this, "read-only combo" );
-      QComboBox * c2 = new QComboBox( TRUE, this, "read-write combo" );
+      QComboBox *c1 = new QComboBox( FALSE, this, "read-only combobox" );
+      QComboBox *c2 = new QComboBox( TRUE, this, "read-write combobox" );
   \endcode
 
-  New-style combo boxes use a list box in both Motif and Windows
+  New-style comboboxes use a list box in both Motif and Windows
   styles, and both the content size and the on-screen size of the list
-  box can be limited.  Old-style combo boxes use a popup in Motif
-  style, and that popup will happily grow larger than the desktop if
-  you put enough data in it.
+  box can be limited with sizeLimit() and setMaxCount() respectively.
+  Old-style comboboxes use a popup in Motif style, and that popup will
+  happily grow larger than the desktop if you put enough data into it.
 
-  The two constructors create identical-looking combos in Windows
+  The two constructors create identical-looking comboboxes in Windows
   style.
 
-  Combo boxes can contain pixmaps as well as texts; the
-  insert() and changeItem() functions are suitably overloaded.  For
-  read-write combo boxes, the function clearEdit()
+  Comboboxes can contain pixmaps as well as strings; the
+  insertItem() and changeItem() functions are suitably overloaded.  For
+  read-write comboboxes, the function clearEdit()
   is provided, to clear the displayed string without changing the
-  combo box' contents.
+  combobox's contents.
 
-  A combo box emits two signals, activated() and highlighted(), when a
-  new item has been activated (selected) or highlighted (set to
-  current).  Both signals exist in two versions, one with a \c char*
+  A combobox emits two signals, activated() and highlighted(), when a
+  new item has been activated (selected) or highlighted (made
+  current).  Both signals exist in two versions, one with a \c QString 
   argument and one with an \c int argument.  If the user highlights or
-  activates a pixmap, only the \c int signals are emitted.
+  activates a pixmap, only the \c int signals are emitted. Whenever the
+  text of an editable combobox is changed the textChanged() signal is
+  emitted.
 
-  When the user enters a new string in a read-write combo, the widget
+  When the user enters a new string in a read-write combobox, the widget
   may or may not insert it, and it can insert it in several locations.
-  The default policy is is \c AtBottom, you can change it using
+  The default policy is is \c AtBottom but you can change this using
   setInsertionPolicy().
 
-  It is possible to constrain the input to an editable combo box using
+  It is possible to constrain the input to an editable combobox using
   QValidator; see setValidator().  By default, all input is accepted.
 
-  A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
+  A combobox has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
+
+  A combobox can be populated using the insert functions,
+  insertStringList() and insertItem() for example. Items can be changed
+  with changeItem(). An item can be removed with removeItem() and all
+  items can be removed with clear(). The text of the current item is
+  returned by currentText(), and the text of a numbered item is returned
+  with text(). The current item can be set with setCurrentItem(). The
+  number of items in the combobox is returned by count(); the maximum
+  number of items can be set with setMaxCount(). You can allow editing
+  using setEditable(). For editable comboboxes you can set
+  auto-completion using setAutoCompletion() and whether or not the user
+  can add duplicates is set with setDuplicatesEnabled().
 
   <img src="qcombo1-m.png">(Motif 1, read-only)<br clear=all>
   <img src="qcombo2-m.png">(Motif 2, read-write)<br clear=all>
@@ -132,53 +145,53 @@
 
 /*! \enum QComboBox::Policy
 
-  This enum type specifies what QComboBox should do with a new string
+  This enum specifies what the QComboBox should do when a new string is
   entered by the user.  The following policies are defined:
 
-  \value NoInsertion means not to insert the string in the combo.
+  \value NoInsertion the string will not be inserted into the combobox.
 
-  \value AtTop means to insert the string at the top of the combo box.
+  \value AtTop insert the string as the first item in the combobox.
 
-  \value AtCurrent means to replace the previously selected item with
-  the typed string.
+  \value AtCurrent replace the previously selected item with the string
+  the user has entered.
 
-  \value AtBottom means to insert the string at the bottom of the
-  combo box.
+  \value AtBottom insert the string as the last item in the
+  combobox.
 
-  \value AfterCurrent means to to insert the string just after the
+  \value AfterCurrent insert the string after the
   previously selected item.
 
-  \value BeforeCurrent means to to insert the string just before the
+  \value BeforeCurrent insert the string before the
   previously selected item.
 
-  activated() is always emitted, of course.
+  activated() is always emitted when the string is entered.
 
-  If inserting the new string would cause the combo box to breach
-  its content size limit, the item at the other end of the list is
-  deleted.  The definition of "other end" is implementation-dependent.
+  If inserting the new string would cause the combobox to breach its
+  content size limit, the item at the other end of the list is deleted.
+  The definition of "other end" is implementation-dependent.
 */
 
 
 /*! \fn void QComboBox::activated( int index )
 
   This signal is emitted when a new item has been activated (selected).
-  The \e index is the position of the item in the popup list.
+  The \e index is the position of the item in the combobox.
 */
 
 /*! \fn void QComboBox::activated( const QString &string )
 
   This signal is emitted when a new item has been activated
-  (selected). \a string is the activated string.
+  (selected). \a string is the selected string.
 
-  You can also use activated(int) signal, but be aware that its
-  argument is meaningful only for selected strings, not for typed
+  You can also use the activated(int) signal, but be aware that its
+  argument is meaningful only for selected strings, not for user entered
   strings.
 */
 
 /*! \fn void QComboBox::highlighted( int index )
 
   This signal is emitted when a new item has been set to current.
-  The \e index is the position of the item in the popup list.
+  The \e index is the position of the item in the combobox.
 */
 
 /*! \fn void QComboBox::highlighted( const QString &string )
@@ -191,62 +204,63 @@
 
 /*! \fn void QComboBox::textChanged( const QString &string )
 
-  This signal is useful for editable comboboxes. It is emitted whenever
+  This signal is used for editable comboboxes. It is emitted whenever
   the contents of the text entry field changes.
 */
 
 /*! \property QComboBox::autoCompletion
-    \brief Whether auto completion is enabled or not
+    \brief whether auto-completion is enabled 
 
   This property can only be set for editable comboboxes, for non-editable
   comboboxes it has no effect.
 */
 
 /*! \property QComboBox::autoResize
-    \brief Whether auto resize is enabled or not
+    \brief whether auto resize is enabled 
     \obsolete
 
-  If this property is set to TRUE then the combo box will resize itself
+  If this property is set to TRUE then the combobox will resize itself
   whenever its contents change.
 */
 
 /*! \property QComboBox::count
-    \brief The number of items in the combo box
+    \brief the number of items in the combobox
 */
 
 /*! \property QComboBox::currentItem
-    \brief The index of the current item in the combo box
+    \brief the index of the current item in the combobox
 */
 
 /*! \property QComboBox::currentText
-    \brief The text of the current item
+    \brief the text of the combobox's current item
 */
 
 /*! \property QComboBox::duplicatesEnabled
-    \brief Whether duplicates are allowed or not
+    \brief whether duplicates are allowed 
 
-  This property only has an effect if the combo box is editable.
+  This property only has an effect if the combobox is editable.
 */
 
 /*! \property QComboBox::editable
-    \brief Whether the combo box is editable or not
+    \brief whether the combobox is editable 
 */
 
 /*! \property QComboBox::insertionPolicy
-    \brief The position of the items inserted by the user
+    \brief the position of the items inserted by the user
 
   The default insertion policy is \c AtBottom.
 */
 
 /*! \property QComboBox::maxCount
-    \brief The maximum number of items allowed in the combo box
+    \brief the maximum number of items allowed in the combobox
 */
 
 /*! \property QComboBox::sizeLimit
-    \brief The maximum on-screen size of the combo box.
+    \brief the maximum on-screen size of the combobox.
 
-  This is disregarded in Motif 1.x style.  The default limit is ten lines.
-  If the number of items in the combo box is/grows larger than lines, a list box is added.
+  This is disregarded in Motif 1.x style.  The default limit is ten
+  lines. If the number of items in the combobox is or grows larger than
+  lines, a scrollbar is added.
 */
 
 class QComboBoxPopup : public QPopupMenu
@@ -386,9 +400,9 @@ static inline bool checkIndex( const char *method, const char * name,
 
 
 /*!
-  Constructs a combo box widget with a parent and a name.
+  Constructs a combobox widget with parent \a parent and name \a name.
 
-  This constructor creates a popup menu if the program uses Motif look
+  This constructor creates a popup list if the program uses Motif look
   and feel; this is compatible with Motif 1.x.
 */
 
@@ -423,11 +437,11 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs a combo box with a maximum size and either Motif 2.0 or
+  Constructs a combobox with a maximum size and either Motif 2.0 or
   Windows look and feel.
 
   The input field can be edited if \a rw is TRUE, otherwise the user
-  may only choose one of the items in the combo box.
+  may only choose one of the items in the combobox.
 */
 
 
@@ -459,7 +473,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
 
 /*!
-  Destroys the combo box.
+  Destroys the combobox.
 */
 
 QComboBox::~QComboBox()
@@ -496,7 +510,7 @@ void QComboBox::insertStrList( const QPtrStrList &list, int index )
 }
 
 /*!
-  Inserts the list of strings at the index \e index in the combo box.
+  Inserts the \a list of strings at position \a index in the combobox.
 
   This is only for compatibility, as it does not support Unicode
   strings.  See insertStringList().
@@ -534,7 +548,7 @@ void QComboBox::insertStrList( const QPtrStrList *list, int index )
 }
 
 /*!
-  Inserts the list of strings at the index \e index in the combo box.
+  Inserts the \a list of strings at position \a index in the combobox.
 */
 
 void QComboBox::insertStringList( const QStringList &list, int index )
@@ -562,7 +576,8 @@ void QComboBox::insertStringList( const QStringList &list, int index )
 }
 
 /*!
-  Inserts the array of ASCII strings at the index \e index in the combo box.
+  Inserts the array of char * \a strings at position \a index in the
+  combobox.
 
   The \e numStrings argument is the number of strings.
   If \e numStrings is -1 (default), the \e strs array must be
@@ -607,8 +622,8 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 
 
 /*!
-  Inserts a text item at position \e index. The item will be appended if
-  \e index is negative.
+  Inserts a text item with text \a t, at position \a index. The item
+  will be appended if \a index is negative.
 */
 
 void QComboBox::insertItem( const QString &t, int index )
@@ -634,8 +649,8 @@ void QComboBox::insertItem( const QString &t, int index )
 }
 
 /*!
-  Inserts a pixmap item at position \e index. The item will be appended if
-  \e index is negative.
+  Inserts a \a pixmap item at position \a index. The item will be
+  appended if \a index is negative.
 */
 
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
@@ -661,8 +676,8 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 /*!
-  Inserts a pixmap item with additional text \a text at position \e
-  index. The item will be appended if \e index is negative.
+  Inserts a \a pixmap item with additional text \a text at position \a
+  index. The item will be appended if \a index is negative.
 */
 
 void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int index )
@@ -689,7 +704,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int inde
 
 
 /*!
-  Removes the item at position \e index.
+  Removes the item at position \a index.
 */
 
 void QComboBox::removeItem( int index )
@@ -735,7 +750,7 @@ void QComboBox::removeItem( int index )
 
 
 /*!
-  Removes all combo box items.
+  Removes all combobox items.
 */
 
 void QComboBox::clear()
@@ -768,7 +783,7 @@ QString QComboBox::currentText() const
 
 
 /*!
-  Returns the text item at a given index, or
+  Returns the text item at position \a index, or
   \link QString::operator!() null string\endlink
   if the item is not a string.
   \sa currentText()
@@ -785,7 +800,8 @@ QString QComboBox::text( int index ) const
 }
 
 /*!
-  Returns the pixmap item at a given index, or 0 if the item is not a pixmap.
+  Returns the pixmap item at position \a index, or 0 if the item is not
+  a pixmap.
 */
 
 const QPixmap *QComboBox::pixmap( int index ) const
@@ -799,7 +815,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
 }
 
 /*!
-  Replaces the item at position \e index with a text.
+  Replaces the item at position \a index with the text \a t.
 */
 
 void QComboBox::changeItem( const QString &t, int index )
@@ -820,8 +836,8 @@ void QComboBox::changeItem( const QString &t, int index )
 }
 
 /*!
-  Replaces the item at position \e index with a pixmap, unless the
-  combo box is writable.
+  Replaces the item at position \a index with the pixmap \a im, unless
+  the combobox is editable.
 
   \sa insertItem()
 */
@@ -839,7 +855,8 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 }
 
 /*!
-  Replaces the item at position \e index with a pixmap plus text.
+  Replaces the item at position \a index with the pixmap \a im and the
+  text \a t.
 
   \sa insertItem()
 */
@@ -1005,8 +1022,8 @@ void QComboBox::internalClickTimeout()
 /*!
   Reimplements QWidget::setPalette().
 
-  Sets the palette for both the combo box button and the
-  combo box popup list.
+  Sets the palette for both the combobox button and the
+  combobox popup list to \a palette.
 */
 
 void QComboBox::setPalette( const QPalette &palette )
@@ -1021,8 +1038,8 @@ void QComboBox::setPalette( const QPalette &palette )
 /*!
   Reimplements QWidget::setFont().
 
-  Sets the font for both the combo box button and the
-  combo box popup list.
+  Sets the font for both the combobox button and the
+  combobox popup list to \a font.
 */
 
 void QComboBox::setFont( const QFont &font )
@@ -1177,7 +1194,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 /*!
   \internal
-  Returns the button arrow rectangle for windows style combo boxes.
+  Returns the button arrow rectangle for windows style comboboxes.
 */
 QRect QComboBox::arrowRect() const
 {
@@ -1317,9 +1334,9 @@ static int listHeight( QListBox *l, int sl )
 
 
 /*!
-  Popups the combo box popup list.
+  Pops up the combobox popup list.
 
-  If the list is empty, no selections appear.
+  If the list is empty, no items appear.
 */
 
 void QComboBox::popup()
@@ -1396,7 +1413,7 @@ void QComboBox::updateMask()
 
 /*!
   \internal
-  Pops down (removes) the combo box popup list box.
+  Pops down (removes) the combobox popup list box.
 */
 void QComboBox::popDownListBox()
 {
@@ -1429,7 +1446,7 @@ void QComboBox::reIndex()
 
 /*!
   \internal
-  Repaints the combo box.
+  Repaints the combobox.
 */
 
 void QComboBox::currentChanged()
@@ -1446,7 +1463,7 @@ void QComboBox::currentChanged()
   The event filter steals events from the popup or listbox when they
   are popped up. It makes the popup stay up after a short click in
   motif style. In windows style it toggles the arrow button of the
-  combo box field, and activates an item and takes down the listbox
+  combobox field, and activates an item and takes down the listbox
   when the mouse button is released.
 */
 
@@ -1755,7 +1772,9 @@ void QComboBox::setEnabled( bool enable )
 
 
 
-/*!  Sets this combo box to be editable only as allowed by \a v.
+/*!  
+    Applies the validator \a v to the combobox so that only text which
+    is valid according to \a v is accepted.
 
   This function does nothing if the combo is not editable.
 
@@ -1769,8 +1788,8 @@ void QComboBox::setValidator( const QValidator * v )
 }
 
 
-/*!  Returns the validator which constrains editing for this combo
-  box if there is any, or else 0.
+/*!  Returns the validator which constrains editing for this combobox if
+ there is one, otherwise returns 0.
 
   \sa setValidator() clearValidator() QValidator
 */
@@ -1790,8 +1809,8 @@ void QComboBox::clearValidator()
 }
 
 
-/*!  Sets the combo box to use \a newListBox instead of the current
-  list box or popup.  As a side effect, clears the combo box of its
+/*!  Sets the combobox to use \a newListBox instead of the current
+  list box or popup.  As a side effect, it clears the combobox of its
   current contents.
 
   \warning QComboBox assumes that newListBox->text(n) returns
@@ -1824,8 +1843,8 @@ void QComboBox::setListBox( QListBox * newListBox )
 }
 
 
-/*!  Returns the current list box, or 0 if there is no list box
-  currently.  (QComboBox can use QPopupMenu instead of QListBox.)
+/*!  Returns the current list box, or 0 if there is no list box.
+  (QComboBox can use QPopupMenu instead of QListBox.)
   Provided to match setListBox().
 
   \sa setListBox()
@@ -1837,7 +1856,7 @@ QListBox * QComboBox::listBox() const
 }
 
 /*!
-  Returns the line editor, or 0 if there is no line editor currently.
+  Returns the line editor, or 0 if there is no line editor.
 
   Only editable listboxes have a line editor.
  */
@@ -1848,13 +1867,13 @@ QLineEdit* QComboBox::lineEdit() const
 
 
 
-/*!  Clears the line edit without changing the combo's contents.  Does
-  nothing if the combo isn't editable.
+/*!  Clears the line edit without changing the combobox's contents.
+ Does nothing if the combobox isn't editable.
 
-  This is particularly handy when using a combo box as a line edit
-  with history.  For example you can connect the combo's activated()
+  This is particularly handy when using a combobox as a line edit
+  with history.  For example you can connect the combobox's activated()
   signal to clearEdit() in order to present the user with a new, empty
-  line as soon as return is pressed.
+  line as soon as Return is pressed.
 
   \sa setEditText()
 */
@@ -1866,13 +1885,13 @@ void QComboBox::clearEdit()
 }
 
 
-/*!  Sets the text in the embedded line edit to \a newText without
-  changing the combo's contents.  Does nothing if the combo isn't
+/*!  Sets the text in the line edit to \a newText without
+  changing the combobox's contents.  Does nothing if the combobox isn't
   editable.
 
   This is useful e.g. for providing a good starting point for the
-  user's editing and entering the change in the combo only when the
-  user presses enter.
+  user's editing and entering the change in the combobox only when the
+  user presses Enter.
 
   \sa clearEdit() insertItem()
 */

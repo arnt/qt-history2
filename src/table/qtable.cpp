@@ -875,39 +875,32 @@ bool QTableItem::isEnabled() const
 
 /*! \class QComboTableItem qtable.h
 
-  \brief The QComboTableItem class implements a convenient class to
-  use combo boxes in a QTable.
+  \brief The QComboTableItem class provides a means of using comboboxes
+  in QTables.
 
   \module table
 
-  QComboTableItems fill table cells with combo boxes of the
-  edit type WhenCurrent (c.f. \l{EditType}). As long as the cell does not
-  have the focus it paints itself like a combo box, but without using a real
-  QComboBox widget. When the item becomes the current one, it shows a
-  real combo box, so that the user can edit the value.
+  A QComboTableItem is a table item which looks and behaves like a
+  combobox. The advantage of using QComboTableItems rather than real
+  comboboxes is that a QComboTableItem uses far less resources than a real
+  combobox. When the cell has the focus it displays a real combobox
+  which the user can interact with. When the cell does not have the
+  focus the cell \e looks like a combobox. Only strings (i.e. no
+  pixmaps) may be used in QComboTableItems.
 
-  This implementation saves resources: although the user always sees
-  a combo box there is no need for expensive QComboBox widgets
-  to be visible all the time.
+  QComboTableItem items have the edit type WhenCurrent (see
+  \l{EditType}). The QComboTableItem's list of items is provided by a
+  QStringList passed to the constructor. The list of items can be
+  changed later with setStringList(). 
 
-  The menu entries of the combo box are taken from a
-  QStringList with the first list item serving as the top most
-  combo box entry. After creation the original menu list may
-  be exchanged using setStringList().
+  The list of items may be changed using setStringList(). The current
+  item can be set with setCurrentItem() and retrieved with
+  currentItem(). The text of the current item can be obtained with
+  currentText(), and the text of a particular item can be retrieved with
+  text(). The QComboTableItem can accept user input if it isEditable()
+  -- see setEditable().
 
-  Pixmaps can neither be used in menu entries
-  nor can a QComboTableItem be accompanied by icons.
-
-  The current entry in a combo table item might be selected by the user or via
-  setCurrentItem(). Whilst currentText() allows to query the
-  menu text of the currently active entry, text() returns
-  the menu text of any desired combo box entry.
-
-  Whether the user is allowed to edit menu entries is determined
-  at construction time of a QComboTableItem object but can be
-  changed later using setEditable().
-
-  To fill a table cell with a QComboTableItems use QTable::setItem():
+  To populate a table cell with a QComboTableItem use QTable::setItem():
 
   \walkthrough table/euroconversion/converter.cpp
   \skipto QStringList
@@ -918,7 +911,7 @@ bool QTableItem::isEnabled() const
   (Code taken from \link euroconvert-example.html
   table/euroconversion/converter.cpp \endlink )
 
-  A combo box item is deleted like ordinary \l{QTableItem}s
+  A combobox item is deleted like any other \l{QTableItem}
   using QTable::clearCell().
 
   QComboTableItems can be distinguished from QTableItems and
@@ -926,18 +919,12 @@ bool QTableItem::isEnabled() const
   (see rtti()).
 */
 
-/*! Creates a combo box item for the \a table spreadsheet.
+/*! Creates a combobox item for the \a table. The combobox's list of
+    items is passed in the \a list argument. If \a editable is TRUE the
+    user may enter new items; if \a editable is FALSE the user may only
+    select from the list of items provided.
 
-  The \a list argument determines the texts of the combo box entries.
-  The resulting QComboTableItem has as many menu entries as
-  \a list has members whilst the first \a list entry appears
-  as the top most combo box entry. The menu texts might be changed later using
-  setStringList().
-
-  \a editable specifies whether the combo box entries can be edited by the user
-  or not. QComboTableItems as an entity are of the edit type QTableItem::WhenCurrent.
-
-  To use a combo box item as content for a QTable cell use
+  To use a combobox item as content for a QTable cell use
   QTable::setItem(), e.g.:
 
   \walkthrough table/small-table-demo/main.cpp
@@ -953,9 +940,9 @@ bool QTableItem::isEnabled() const
   (Code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink).
 
-  Like regular \l{QTableItem}s combo table items might serve
-  as content for a QTable which is not its parent. It can
-  however not be used in more than one QTables at one time.
+  Like regular \l{QTableItem}s, a combobox table item might be used
+  in a QTable which is not its parent. A QComboTableItems may not be
+  used in more than one QTable at a time.
 
   By default QComboTableItems cannot be replaced by other items as
   they return FALSE for isReplaceable().
@@ -971,8 +958,6 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 
 /*! Sets the entries of this QComboTableItem to the strings
    in the string list \a l.
-
-  The first list entry appears as the top most combo box entry.
 */
 
 void QComboTableItem::setStringList( const QStringList &l )
@@ -1027,14 +1012,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
 }
 
-/*! Makes the combo box menu entry no. \a i the current one:
-
-  \walkthrough table/small-table-demo/main.cpp
-  \skipto QComboTableItem
-  \printuntil setCurrentItem
-
-  (Code taken from \link small-table-demo-example.html
-  table/small-table-demo/main.cpp \endlink )
+/*! Makes the combobox item \a i the current item.
 
   \sa currentItem()
 */
@@ -1048,7 +1026,9 @@ void QComboTableItem::setCurrentItem( int i )
 
 /*! \overload
 
-  Makes the combo box entry reading \a s the current one.
+  Makes the combobox item whose text is \a s the current item.
+
+  Does nothing if the text is not found.
 
   \sa currentItem()
 */
@@ -1060,7 +1040,7 @@ void QComboTableItem::setCurrentItem( const QString &s )
 	setCurrentItem( i );
 }
 
-/*! Returns the number of the current item.
+/*! Returns the position index of the current item.
 
   \sa setCurrentItem()
 */
@@ -1070,7 +1050,7 @@ int QComboTableItem::currentItem() const
     return current;
 }
 
-/*! Returns the text of the currently selected combo box entry.
+/*! Returns the text of the currently combobox item.
 
   \sa currentItem() text()
 */
@@ -1080,7 +1060,7 @@ QString QComboTableItem::currentText() const
     return *entries.at( current );
 }
 
-/*! Returns the number of combo box entries.
+/*! Returns the total number of combobox items.
 */
 
 int QComboTableItem::count() const
@@ -1088,7 +1068,7 @@ int QComboTableItem::count() const
     return entries.count();
 }
 
-/*! Returns the text of combo box entry no. \a i.
+/*! Returns the text of the combobox item at position \a i.
 
   \sa currentText()
 */
@@ -1098,9 +1078,10 @@ QString QComboTableItem::text( int i ) const
     return *entries.at( i );
 }
 
-/*! Determines whether the entries of this combo table item
-  can be changed by the user (\a b is TRUE) or not (\a b
-  is FALSE).
+/*! 
+    If \b is TRUE the combobox item can be edited, i.e. the user can
+    enter a string item themselves. If \b is FALSE the user may not
+    enter an item, they may only choose one of the existing items.
 
   \sa isEditable()
 */
@@ -1110,8 +1091,8 @@ void QComboTableItem::setEditable( bool b )
     edit = b;
 }
 
-/*! Returns whether combo box entries of \e this item can
-  be changed by the user or not.
+/*! Returns whether the combobox items of this combobox can
+  be changed by the user.
 
   \sa setEditable()
 */
@@ -1131,7 +1112,7 @@ bool QComboTableItem::isEditable() const
 
 /*! \class QCheckTableItem qtable.h
 
-  \brief The QCheckTableItem provides checkboxes in QTables.
+  \brief The QCheckTableItem class provides checkboxes in QTables.
 
   \module table
 
@@ -1269,15 +1250,13 @@ bool QCheckTableItem::isChecked() const
 /*! \class QTable qtable.h
   \module table
 
-  \brief The QTable class provides a flexible and editable table widget.
+  \brief The QTable class provides a flexible editable table widget.
 
-  This allows programmers to easily incorporate spreadsheet functionality
-  into their applications.
+    The QTable widget provides a grid of cells with a header row at the
+    top and a numbering column at the left. Each cell contains a
+    QTableItem, QCheckTableItem or a QComboTableItem.
 
-  A QTable widget consists of a table grid of cells created by
-  interweaving
-  columns and rows and framed by a horizontal header above and
-  a vertical header to the left. The default headers simply show
+  The default headers simply show
   consecutive row and column numbers beginning with \e 1 denoting the
   first row or column. Note that this visual numeration
   differs from the internal numbering within the Qt program:
@@ -1311,7 +1290,7 @@ bool QCheckTableItem::isChecked() const
   (Code taken from \link wineorder-example.html
    table/wineorder/productlist.cpp \endlink)
 
-  Cells can also contain combo boxes and checkboxes. In this
+  Cells can also contain comboboxes and checkboxes. In this
   case QComboTableItem and QCheckTableItem objects are
   linked to the relevant cells using setItem().
 

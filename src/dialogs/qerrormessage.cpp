@@ -101,7 +101,10 @@ void jump( QtMsgType t, const char * m )
 }
 
 
-/*!  Constructs and installs an error handler window. */
+/*!  Constructs and installs an error handler window. 
+    The parent \a parent and name \a name are passed on to the QDialog
+    constructor
+*/
 
 QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     : QDialog( parent, name )

@@ -63,16 +63,16 @@ public:
 
 /*!
   \class QInputDialog qinputdialog.h
-  \brief A convenience dialog to get a simple input from the user
+  \brief The QInputDialog class provides a simple convenience dialog to get a single value from the user
   \ingroup dialogs
 
-  The QInputDialog is a simple dialog which can be used if you
-  need a simple input from the user. This can be text, a number or
-  an item from a list. Also a label has to be set to tell the user
-  what he/she should input.
+  The QInputDialog is a simple dialog which can be used if you need to
+  get a single input value from the user. The input value can be a
+  string, a number or an item from a list. A label has to be set to tell
+  the user what they should input.
 
-  In this Qt version only the 4 static convenience functions
-  getText(), getInteger(), getDouble() and getItem() of QInputDialog
+  In this Qt version the 4 static convenience functions,
+  getText(), getInteger(), getDouble() and getItem() 
   are available.
 
   Use it like this:
@@ -94,27 +94,28 @@ public:
 /*!
   \enum QInputDialog::Type
 
-  This enum type specifies the type of the dialog
-  (which kind of input can be done):
+  This enum specifies the type of the dialog, i.e. what kind of data you
+  want the user to input:
 
-  \value LineEdit  A QLineEdit is used for taking the input, so a textual or
-  (e.g. using a QValidator) a numerical input can be done. Using lineEdit()
-  the QLineEdit can be accessed.
-  \value SpinBox  A QSpinBox is used for taking the input, so a decimal
-  input can be done. Using spinBox() the QSpinBox can be accessed.
+  \value LineEdit  A QLineEdit is used for obtaining the input which may be
+  a string or (e.g. using a QValidator) a number. The QLineEdit can be
+  accessed using lineEdit().
+  \value SpinBox  A QSpinBox is used for obtaining a numerical input.
+  Use spinBox() to access the QSpinBox.
   \value ComboBox  A read-only QComboBox is used for taking the input,
-  so one item of a list can be chosen. Using comboBox() the QComboBox
-  can be accessed.
-  \value EditableComboBox  An editable QComboBox is used for taking the input,
-  so either one item of a list can be chosen or a text can be entered. Using
-  editableComboBox() the QComboBox can be accessed.
+  so one item of the combobox's list can be chosen. Use comboBox() to
+  access the QComboBox.
+  \value EditableComboBox  An editable QComboBox is used for taking the
+  input, so an item from the combobox's list can be chosen or the user
+  can enter a string. Use editableComboBox() to access the QComboBox.
 */
 
 /*!
-  Constructs the dialog. \a label is the text which is shown to the user (it should mention
-  to the user what he/she should input), \a parent the parent widget of the dialog, \a name
-  the name of it and if you set \a modal to TRUE, the dialog pops up modally, else it pops
-  up modeless. With \a type you specify the type of the dialog.
+  Constructs the dialog. The \a label is the text which is shown to the user
+  (it should mention to the user what they should input). The \a parent
+  is the dialog's parent widget. The widget is called \a name. If \a
+  modal is TRUE the dialog will be modal. The \a type parameter is used
+  to specify which type of dialog to construct.
 
   \sa getText(), getInteger(), getDouble(), getItem()
 */
@@ -177,7 +178,7 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 }
 
 /*!
-  Returns the line edit, which is used in the LineEdit mode
+  Returns the line edit, which is used in LineEdit mode
 */
 
 QLineEdit *QInputDialog::lineEdit() const
@@ -186,7 +187,7 @@ QLineEdit *QInputDialog::lineEdit() const
 }
 
 /*!
-  Returns the spinbox, which is used in the SpinBox mode
+  Returns the spinbox, which is used in SpinBox mode
 */
 
 QSpinBox *QInputDialog::spinBox() const
@@ -195,7 +196,7 @@ QSpinBox *QInputDialog::spinBox() const
 }
 
 /*!
-  Returns the combobox, which is used in the ComboBox mode
+  Returns the combobox, which is used in ComboBox mode
 */
 
 QComboBox *QInputDialog::comboBox() const
@@ -204,7 +205,7 @@ QComboBox *QInputDialog::comboBox() const
 }
 
 /*!
-  Returns the combobox, which is used in the EditableComboBox mode
+  Returns the combobox, which is used in EditableComboBox mode
 */
 
 QComboBox *QInputDialog::editableComboBox() const
@@ -261,17 +262,20 @@ QInputDialog::~QInputDialog()
 }
 
 /*!
-  Static convenience function to get a textual input from the user. \a caption is the text
-  which is displayed in the title bar of the dialog. \a label is the text which
-  is shown to the user (it should mention to the user what he/she should input), \a text
-  the default text which will be initially set to the line edit \a mode the echo mode the
-  lineedit will use, \a ok a pointer to a bool which will be (if not 0!) set to TRUE if the
-  user pressed ok or to FALSE if the user pressed cancel, \a parent the parent widget of the
-  dialog, and \a name the name of the dialog. The dialogs pops up modally!
+  Static convenience function to get a string from the user. \a
+  caption is the text which is displayed in the title bar of the dialog.
+  \a label is the text which is shown to the user (it should mention 
+  what they should input), \a text the default text which is placed in
+  the line edit. The \a mode is the echo mode the
+  line edit will use. 
+  If \a ok is not-null it will be set to TRUE if the user pressed OK and
+  FALSE if the user pressed Cancel.
+  The dialog's parent is \a parent; the dialog is called \a name. The
+  dialog will be modal.
 
   This method returns the text which has been entered in the line edit.
 
-  You will use this static method like this:
+  Use this static method like this:
 
   \code
   bool ok = FALSE;
@@ -306,19 +310,23 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 }
 
 /*!
-  Static convenience function to get an integral input from the user. \a caption is the text
-  which is displayed in the title bar of the dialog. \a label is the text which
-  is shown to the user (it should mention to the user what he/she should input), \a num
-  the default number which will be initially set to the spinbox, \a from and \a to the
-  range in which the entered number has to be, \a step the step in which the number can
-  be increased/decreased by the spinbox, \a ok a pointer to
-  a bool which will be (if not 0!) set to TRUE if the user pressed ok or to FALSE if the
-  user pressed cancel, \a parent the parent widget of the dialog and \a name
-  the name of it. The dialogs pops up modally!
+  Static convenience function to get an integer input from the user. \a
+  caption is the text which is displayed in the title bar of the dialog.
+  \a label is the text which is shown to the user (it should mention 
+  what they should input), \a num is the default number which the
+  spinbox will be set to.
+  \a from and \a to are the minimum and maximum values the user may
+  choose, and \a step is the amount by which the values change as the
+  user presses the arrow buttons to increment or decrement the value.
+
+  If \a ok is not-null it will be set to TRUE if the user pressed OK and
+  FALSE if the user pressed Cancel.
+  The dialog's parent is \a parent; the dialog is called \a name. The
+  dialog will be modal.
 
   This method returns the number which has been entered by the user.
 
-  You will use this static method like this:
+  Use this static method like this:
 
   \code
   bool ok = FALSE;
@@ -351,19 +359,24 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 }
 
 /*!
-  Static convenience function to get a decimal input from the user. \a caption is the text
-  which is displayed in the title bar of the dialog. \a label is the text which
-  is shown to the user (it should mention to the user what he/she should input), \a num
-  the default decimal number which will be initially set to the line edit, \a from and \a to the
-  range in which the entered number has to be, \a decimals the number of decimal which
-  the number may have, \a ok a pointer to
-  a bool which will be (if not 0!) set to TRUE if the user pressed ok or to FALSE if the
-  user pressed cancel, \a parent the parent widget of the dialog and \a name
-  the name of it. The dialogs pops up modally!
+  Static convenience function to get a floating point number from the user. \a
+  caption is the text which is displayed in the title bar of the dialog.
+  \a label is the text which is shown to the user (it should mention 
+  what they should input), \a num is the default floating point number
+  that the line edit will be set to.
+  \a from and \a to are the minimum and maximum values the user may
+  choose, and \a decimals is the maximum number of decimal places the
+  number may have.
 
-  This method returns the number which has been entered by the user.
+  If \a ok is not-null it will be set to TRUE if the user pressed OK and
+  FALSE if the user pressed Cancel.
+  The dialog's parent is \a parent; the dialog is called \a name. The
+  dialog will be modal.
 
-  You will use this static method like this:
+  This method returns the floating point number which has been entered
+  by the user.
+
+  Use this static method like this:
 
   \code
   bool ok = FALSE;
@@ -410,20 +423,24 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 }
 
 /*!
-  Static convenience function to let the user select an item from a string list. \a caption is the text
-  which is displayed in the title bar of the dialog. \a label is the text which
-  is shown to the user (it should mention to the user what he/she should input), \a list the
-  string list which is inserted into the combobox, \a current the number of the item which should
-  be initially the current item, \a editable specifies if the combobox should be editable (if it is TRUE)
-  or read-only (if \a editable is FALSE), \a ok a pointer to
-  a bool which will be (if not 0!) set to TRUE if the user pressed ok or to FALSE if the
-  user pressed cancel, \a parent the parent widget of the dialog and \a name
-  the name of it. The dialogs pops up modally!
+  Static convenience function to let the user select an item from a
+  string list. \a caption is the text which is displayed in the title
+  bar of the dialog. \a label is the text which is shown to the user (it
+  should mention what they should input). \a list is the
+  string list which is inserted into the combobox, and \a current is the number
+  of the item which should be the current item. If \a editable is TRUE
+  the user can enter their own text; if \a editable is FALSE the user
+  may only select one of the existing items.
 
-  This method returns the text of the current item, or if \a editable was TRUE, the current
-  text of the combobox.
+  If \a ok is not-null it will be set to TRUE if the user pressed OK and
+  FALSE if the user pressed Cancel.
+  The dialog's parent is \a parent; the dialog is called \a name. The
+  dialog will be modal.
 
-  You will use this static method like this:
+  This method returns the text of the current item, or if \a editable
+  is TRUE, the current text of the combobox.
+
+  Use this static method like this:
 
   \code
   QStringList lst;

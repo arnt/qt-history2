@@ -119,6 +119,9 @@ public:
   Constructs a default font dialog. Use setFont() for setting
   the initial values.
 
+    The \a parent, \a name, \a modal and \a f parameters are passed to
+    the QDialog constructor.
+
   \sa getFont()
 */
 
@@ -300,10 +303,12 @@ QFontDialog::~QFontDialog()
 /*!
   Opens a modal font dialog and returns the font selected by the user.
 
+  The dialog has parent \a parent and is called \a name.
+
   \a initial is the initial selected font.
 
-  The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
-  the user clicked Cancel.
+  If the \a ok parameter is not-null, *ok is set to TRUE if the user
+  clicked OK, and FALSE if the user clicked Cancel.
 
   If the user clicks Cancel, the \a initial font is returned.
 
@@ -334,10 +339,14 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
 }
 
 /*!
+    \overload
+
   Opens a modal font dialog and returns the font selected by the user.
 
-  The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
-  the user clicked Cancel.
+  The dialog has parent \a parent and is called \a name.
+
+  If the \a ok parameter is not-null, *ok is set to TRUE if the user
+  clicked OK, and FALSE if the user clicked Cancel.
 
   If the user clicks Cancel, the Qt default font is returned.
 
@@ -438,8 +447,9 @@ void QFontDialog::sizeChanged( const QString &s )
 }
 
 
-/*!  Event filter to make up, down, pageup and pagedown work correctly
-  in the line edits.
+/*!  Event filter to make the up, down, pageup and pagedown keys work
+ correctly in the line edits. The source of the event is the object \a o
+ and the event is \a e.
 */
 
 bool QFontDialog::eventFilter( QObject * o , QEvent * e )
@@ -740,8 +750,7 @@ void QFontDialog::sizeHighlighted( const QString &s )
 }
 
 /*!
-  Sets the \a f to the font which values should be set
-  in the QFontDialog.
+  Sets the font the QFontDialog highlights to \a f.
 
   \sa font()
 */

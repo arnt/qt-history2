@@ -1073,12 +1073,30 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 */
 
 /*!
-  Opens an information message box with a caption, a text, and up to three
-  buttons.  Returns the identifier of the button that was clicked.
+  Opens an information message box with the caption \a caption and the
+  text \a text. The dialog may have up to three buttons. Each of the
+  button parameters, \a button0, \a button1 and \a button2 may be set to
+  one of the following values:
 
-  If \e parent is 0, then the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  <ul>
+  <li>\c QMessageBox::NoButton
+  <li>\c QMessageBox::Ok
+  <li>\c QMessageBox::Cancel
+  <li>\c QMessageBox::Yes
+  <li>\c QMessageBox::No
+  <li>\c QMessageBox::Abort
+  <li>\c QMessageBox::Retry
+  <li>\c QMessageBox::Ignore
+  </ul>
+
+  If you don't want all three buttons, set the last button, or last two
+  buttons to QMessageBox::NoButton.
+
+  Returns the index of the button that was clicked.
+
+  If \a parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa warning(), critical()
 */
@@ -1098,12 +1116,30 @@ int QMessageBox::information( QWidget *parent,
 
 
 /*!
-  Opens a warning message box with a caption, a text and up to three
-  buttons.  Returns the identifier of the button that was clicked.
+  Opens a warning message box with the caption \a caption and the
+  text \a text. The dialog may have up to three buttons. Each of the
+  button parameters, \a button0, \a button1 and \a button2 may be set to
+  one of the following values:
 
-  If \e parent is 0, the message box becomes an application-global
-  modal dialog box.  If \e parent is a widget, the message box becomes
-  modal relative to \e parent.
+  <ul>
+  <li>\c QMessageBox::NoButton
+  <li>\c QMessageBox::Ok
+  <li>\c QMessageBox::Cancel
+  <li>\c QMessageBox::Yes
+  <li>\c QMessageBox::No
+  <li>\c QMessageBox::Abort
+  <li>\c QMessageBox::Retry
+  <li>\c QMessageBox::Ignore
+  </ul>
+
+  If you don't want all three buttons, set the last button, or last two
+  buttons to QMessageBox::NoButton.
+
+  Returns the index of the button that was clicked.
+
+  If \a parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
 
   \sa information(), critical()
 */
@@ -1123,8 +1159,26 @@ int QMessageBox::warning( QWidget *parent,
 
 
 /*!
-  Opens a critical message box with a caption, a text and up to three
-  buttons.  Returns the identifier of the button that was clicked.
+  Opens a critical message box with the caption \a caption and the
+  text \a text. The dialog may have up to three buttons. Each of the
+  button parameters, \a button0, \a button1 and \a button2 may be set to
+  one of the following values:
+
+  <ul>
+  <li>\c QMessageBox::NoButton
+  <li>\c QMessageBox::Ok
+  <li>\c QMessageBox::Cancel
+  <li>\c QMessageBox::Yes
+  <li>\c QMessageBox::No
+  <li>\c QMessageBox::Abort
+  <li>\c QMessageBox::Retry
+  <li>\c QMessageBox::Ignore
+  </ul>
+
+  If you don't want all three buttons, set the last button, or last two
+  buttons to QMessageBox::NoButton.
+
+  Returns the index of the button that was clicked.
 
   If \e parent is 0, then the message box becomes an application-global
   modal dialog box.  If \e parent is a widget, the message box becomes
@@ -1148,15 +1202,20 @@ int QMessageBox::critical( QWidget *parent,
 
 
 /*!
-  Displays a simple about box with window caption \a caption and
-  body text \a text.
+  Displays a simple about box with caption \a caption and
+  text \a text.
 
-  about() looks for a suitable icon for the box in four locations:
-  <ol> <li>It prefers \link QWidget::icon() parent->icon() \endlink
-  if that exists.  <li>If not, it tries the top-level widget
-  containing \a parent <li>If that fails, it tries the \link
-  QApplication::mainWidget() main widget. \endlink <li>As a last
-  resort it uses the Information icon. </ol>
+  about() looks for a suitable icon in four locations:
+  <ol> 
+  <li>It prefers \link QWidget::icon() parent->icon() \endlink
+  if that exists.  
+  <li>If not, it tries the top-level widget
+  containing \a parent.
+  <li>If that fails, it tries the \link
+  QApplication::mainWidget() main widget. \endlink 
+  <li>As a last
+  resort it uses the Information icon. 
+  </ol>
 
   The about box has a single button labelled OK.
 
@@ -1244,9 +1303,10 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
 
 /*!
-  Displays an information message box with a caption, a text and
-  1-3 buttons.  Returns the number of the button that was clicked
-  (0, 1 or 2).
+    \overload 
+  Displays an information message box with caption \a caption, text \a
+  text and one, two or three buttons. Returns the index of the button
+  that was clicked (0, 1 or 2).
 
   \a button0Text is the text of the first button and is optional.  If
   \a button0Text is not supplied, "OK" (translated) will be used.
@@ -1282,6 +1342,7 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
 
 
 /*!
+    \overload 
   Displays a warning message box with a caption, a text, and
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1, or 2).
@@ -1320,6 +1381,7 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
 
 
 /*!
+    \overload 
   Displays a critical error message box with a caption, a text, and
   1-3 buttons.  Returns the number of the button that was clicked
   (0, 1 or 2).

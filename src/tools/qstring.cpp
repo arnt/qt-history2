@@ -15746,9 +15746,12 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
   In order to minimize copying, highly optimized applications can use
   QConstString to provide a QString-compatible object from existing
-  Unicode data.  It is then the user's responsibility to make sure
-  that the Unicode data must exist for the entire lifetime of the
+  Unicode data.  It is then the programmer's responsibility to ensure
+  that the Unicode data exists for the entire lifetime of the
   QConstString object.
+
+  A QConstString is created with the QConstString constructor. The
+  string held by the object can be obtained by calling string().
 */
 
 /*!

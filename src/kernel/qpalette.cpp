@@ -52,11 +52,12 @@
   \ingroup drawing
 
   A color group contains a group of colors used by widgets for drawing
-  themselves.  Widgets should not use colors such as "red" and "turqoise";
-  they should instead use "foreground" and "base" wherever possible.  The color roles
-  are enumerated and defined in the ColorRole documentation.
+  themselves. We recommend that widgets use color group roles such as
+  "foreground" and "base" rather than literal colors like "red" or
+  "turqoise". The color roles are enumerated and defined in the
+  ColorRole documentation.
 
-  The most common usage of QColorGroup is like this:
+  The most common use of QColorGroup is like this:
 
   \code
     QPainter p;
@@ -67,10 +68,11 @@
 
   See the \l ColorRole documentation below for more details on roles.
 
-  It is also possible to modify color groups or create them from scratch.
+  It is also possible to modify color groups or create new color groups
+  from scratch.
 
   The color group class can be created using three different
-  constructors or by modifying one supplied by the system.  The
+  constructors or by modifying one supplied by the Qt.  The
   default constructor creates an all-black color group, which can then
   be modified using set functions.  There are two functions that take
   long lists of arguments (slightly different lists - beware!).  And
@@ -81,7 +83,7 @@
 
   You modify a color group by calling the access functions setColor()
   and setBrush(), depending on whether you want a pure color or a
-  pixmap pattern, for example.
+  pixmap pattern.
 
   There are also corresponding color() and brush() getters, and a
   commonly used convenience function to get each ColorRole:
@@ -126,29 +128,29 @@
 
   All of these are normally derived from \c Background and used
   in ways that depend on that relationship.  For example, buttons
-  depend on it to make the bevels look good, and Motif scroll bars
+  depend on it to make the bevels look attractive, and Motif scroll bars
   depend on \c Mid to be slightly different from \c Background.
 
   Selected (marked) items have two roles:
 
   \value Highlight   a color to indicate a selected or highlighted item.
 
-  \value HighlightedText  a text color that contrasts to \c Highlight.
+  \value HighlightedText  a text color that contrasts with \c Highlight.
 
   Finally, there is a special role for text that needs to be
-  drawn where \c Text or \c Foreground would provide bad contrast,
+  drawn where \c Text or \c Foreground would give poor contrast,
   such as on pressed push buttons:
 
   \value BrightText a text color that is very different from \c
   Foreground and contrasts well with e.g. \c Dark.
 
-  \value Link a text color used for hyperlinks.
+  \value Link a text color used for unvisited hyperlinks.
 
-  \value LinkVisited a test color used for previously visited hyperlinks.
+  \value LinkVisited a text color used for already visited hyperlinks.
 
   Note that text colors can be used for things other than just words;
-  text colors are \e usually used for text, but it's quite common to
-  have lines, icons and so on that belong with a text color logically.
+  text colors are \e usually used for text, but it's quite common to use
+  the text color roles for lines, icons, etc.
 
   This image shows most of the color roles in use:
   <img src="palette.png" width="603" height="166" alt="">
@@ -205,7 +207,7 @@ Constructs a color group. You can pass either brushes, pixmaps or
 plain colors for each parameter.
 
 This constructor can be very handy sometimes, but don't overuse it:
-Such long lists of arguments are rather error-prone.
+such long lists of arguments are rather error-prone.
 
 \sa QBrush
 */
@@ -352,7 +354,7 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 /*!
   \fn const QColor & QColorGroup::mid() const
-  Returns the medium color of the color group.
+  Returns the mid color of the color group.
 
   \sa ColorRole
 */
@@ -415,7 +417,7 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 /*!
   \fn const QColor & QColorGroup::link() const
-  Returns the link text color of the color group.
+  Returns the unvisited link text color of the color group.
 
   \sa ColorRole
 */

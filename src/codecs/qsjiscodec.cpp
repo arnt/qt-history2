@@ -41,7 +41,7 @@
 
 /*! \class QSjisCodec qsjiscodec.h
 
-  \brief Provides conversion to and from Shift-JIS.
+  \brief Th QSjisCodec class provides conversion to and from Shift-JIS.
 
   The QJisCodec class subclasses QTextCodec to provide support for
   Shift-JIS, an encoding of JIS X 0201 Latin, JIS X 0201 Kana or JIS X

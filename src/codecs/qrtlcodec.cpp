@@ -447,16 +447,23 @@ QString QHebrewCodec::toUnicode(const char* chars, int len ) const
 }
 
 /*!
-  Transforms a logically ordered QString into a visually ordered string in the 8859-8
-  encoding. Qt's BiDi algorithm is used to perform this task. Please note, that newline
-  characters do affect the reordering, as reordering is done on a line by line basis.
-  
-  You might however get wrong results if you feed the string line by line to the method, as
-  the algorithm operates on a whole paragraph of text, and the contents of a previous line
-  may affect reordering of the next line.
-  
-  To ensure you get correct results please always call this method with one paragraph of text
-  to reorder.
+  Transforms the logically ordered QString, \a uc, into a visually
+  ordered string in the 8859-8 encoding. Qt's BiDi algorithm is used to
+  perform this task. Please note, that newline characters affect the
+  reordering, as reordering is done on a line by line basis.
+
+  You might get wrong results if you feed the string line by line to
+  this method, as the algorithm is designed to operate on a whole
+  paragraph of text at a time, and the contents of a previous line may
+  affect the reordering of the next line.
+
+  To ensure you get correct results always call this method with
+  an entire paragraph of text to reorder.
+
+  Some encodings (for example japanese or utf8) are multibye (so one
+  input character is mapped to two output characters). The \a len_in_out
+  argument specifies the number of QChars that should be converted and
+  is set to the number of characters returned.
 */
 QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {

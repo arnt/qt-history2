@@ -65,6 +65,8 @@
 
   This abstract class implements some of the widget's look and feel
   that is common to all GUI styles provided and shipped as part of Qt.
+
+  All the functions are documented in \l QStyle.
 */
 
 /*!

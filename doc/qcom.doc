@@ -111,8 +111,12 @@
 
 /*!
   \class QComponentInterface qcom.h
-  \brief The QComponentInterface class is an interface to get information about components.
+  \brief The QComponentInterface class provides a means of obtaining basic information about components.
   \ingroup componentmodel
+
+    The functions provided by QComponentInterface are name(),
+    description(), author() and version(), all of which return a string
+    containing the relevant information.
 */
 
 /*!
@@ -196,8 +200,11 @@
 
 /*!
   \class QComponentServerInterface qcom.h
-  \brief The QComponentServerInterface class is an interface to register and unregister components.
+  \brief The QComponentServerInterface class provides a means of registering and unregistering components.
   \ingroup componentmodel
+
+  This class provides two functions, registerComponents() and
+  unregisterComponents().
 
   \sa QComponentFactory
 */
@@ -205,10 +212,11 @@
 /*!
   \fn bool QComponentServerInterface::registerComponents( const QString &filepath ) const
 
-  Registers the components in this server in the system registry and returns
-  TRUE when successfull, otherwise returns FALSE. \a filepath is the absolut path
-  to the shared library file.
+  Registers the components in this server in the system registry and
+  returns TRUE when successful, otherwise returns FALSE. The \a filepath is
+  the absolute path to the shared library file.
 
+  Example:
   \code
   QSettings register;
   bool ok;
@@ -219,13 +227,15 @@
 
   return ok;
   \endcode
+
+  See \l QSettings.
 */
 
 /*!
   \fn bool QComponentServerInterface::unregisterComponents() const
 
   Removes the component in this server from the system registry and returns
-  TRUE if successfull, otherwise returns FALSE.
+  TRUE if successful, otherwise returns FALSE.
 
   \code
   QSettings settings;
@@ -237,6 +247,8 @@
 
   return ok;
   \endcode
+
+  See \l QSettings.
 */
 
 #endif // QT_NO_COMPONENT

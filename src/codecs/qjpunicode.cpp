@@ -10506,72 +10506,72 @@ static uint unicode11ToJisx0212(uint h, uint l)
 
 // and now for the inlines:
 
-/*! \fn uint  QJpUnicodeConv::AsciiToUnicode (uint ascii) const
+/*! \fn uint  QJpUnicodeConv::asciiToUnicode (uint ascii) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::Jisx0201ToUnicode (uint jis) const
+/*! \fn uint  QJpUnicodeConv::jisx0201ToUnicode (uint jis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::Jisx0201LatinToUnicode (uint jis) const
+/*! \fn uint  QJpUnicodeConv::jisx0201LatinToUnicode (uint jis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::Jisx0201KanaToUnicode (uint jis) const
+/*! \fn uint  QJpUnicodeConv::jisx0201KanaToUnicode (uint jis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::Jisx0208ToUnicode (uint jis) const
+/*! \fn uint  QJpUnicodeConv::jisx0208ToUnicode (uint jis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::Jisx0212ToUnicode (uint jis) const
+/*! \fn uint  QJpUnicodeConv::jisx0212ToUnicode (uint jis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToAscii (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToAscii (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201 (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToJisx0201 (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201Latin (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToJisx0201Latin (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0201Kana (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToJisx0201Kana (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0208 (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToJisx0208 (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToJisx0212 (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToJisx0212 (uint unicode) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::SjisToUnicode (uint sjis) const
+/*! \fn uint  QJpUnicodeConv::sjisToUnicode (uint sjis) const
 
 \internal
 */
 
-/*! \fn uint  QJpUnicodeConv::UnicodeToSjis (uint unicode) const
+/*! \fn uint  QJpUnicodeConv::unicodeToSjis (uint unicode) const
 
 \internal
 */

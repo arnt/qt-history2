@@ -89,12 +89,12 @@ static bool block_set_alignment = FALSE;
   \ingroup basic
   \ingroup helpsystem
 
-    QTextView is a widget which can show large amounts of read-only text
+    QTextView is a widget which can show large amounts of uneditable text
     with varying fonts and font attributes, e.g. different point sizes,
-    colors, bold, italic etc. Paragraphs can have different alignments
+    colors, bold, italic, etc. Paragraphs can have different alignments
     and word-wrap policies. QTextView can also show images (using
     QMimeSourceFactory), lists and tables. If the text is too large to
-    view within the widget's viewport, scrollbars will appear. The text
+    view within the text view's viewport, scrollbars will appear. The text
     view can load both plain text and HTML files (a subset of HTML 4 and
     CSS1 is supported).
     The rendering style and valid tags are defined by a styleSheet().
@@ -107,20 +107,20 @@ static bool block_set_alignment = FALSE;
     If you want to provide your users with editable rich text use
     QTextEdit. If you want a text browser with more navigation use
     QTextBrowser. If you just need to display a small piece of rich text
-    use QSimpleRichText or QLabel.
+    use QLabel or QSimpleRichText.
 
     Set the text with setText(). You can include rich text directly in
-    code since it is based on HTML tags, e.g.
+    your source code since it is based on HTML tags, e.g.
     \code
         textView->setText( "<font color=\"red\">Red</font>" );
     \endcode
     You can append text with append(), for example to display an output log.
 
     By default the text view will try to guess the format of the text
-    (plain text or HTML) and render accordingly, but you can control
+    (plain text or HTML) and display accordingly, but you can control
     this with setTextFormat().
 
-    By default the text view wraps words at whitespace at the width of
+    By default the text view wraps words at whitespace to fit within 
     the text view widget. The setWordWrap() function is used to specify
     the kind of word wrap you want, or \c NoWrap if you don't want any
     wrapping.
@@ -152,11 +152,11 @@ static bool block_set_alignment = FALSE;
     The lines() function returns the number of lines in the text,
     paragraphs() returns the number of paragraphs. The number of lines
     within a particular paragraph is returned by linesOfParagraph(). The
-    length of the text in characters is returned by length().
+    length of the entire text in characters is returned by length().
 
     You can scroll to an anchor in the text, e.g. \c{<a name="anchor">}
     with scrollToAnchor(). The find() function can be used to find and
-    highlight (select) a given string within the text.
+    select a given string within the text.
 
     The user can navigate the text view by using the scrollbars and by
     clicking hypertext links with the mouse. The following keyboard
@@ -165,8 +165,8 @@ static bool block_set_alignment = FALSE;
     <ul>
     <li><i> Up Arrow </i> -- Move one line up
     <li><i> Down Arrow </i> -- Move one line down
-    <li><i> Left Arrow </i> -- Move one column left
-    <li><i> Right Arrow </i> -- Move one column right
+    <li><i> Left Arrow </i> -- Move one character left
+    <li><i> Right Arrow </i> -- Move one character right
     <li><i> Page Up </i> -- Move one (viewport) page up
     <li><i> Page Down </i> -- Move one (viewport) page down
     <li><i> Home </i> -- Move to the beginning of the text
@@ -180,18 +180,17 @@ static bool block_set_alignment = FALSE;
     documentTitle() function will return the text from within HTML
     \c{<title>} tags.
 
-    The text displayed in a text view has \e context. The context is a
+    The text displayed in a text view has a \e context. The context is a
     path which the text view's QMimeSourceFactory uses to resolve the
     locations of files and images. It is passed to the
-    mimeSourceFactory() when quering data. (See QTextView::QTextView()
+    mimeSourceFactory() when quering data. (See QTextView()
     and context().)
 
   Note that we do not intend to add a full-featured web browser widget
-  to Qt (because that would easily double Qt's size and only few
+  to Qt (because that would easily double Qt's size and only a few
   applications would benefit from it). In particular, the rich text
   support in Qt is designed to provide a fast, portable and efficient
-  way to add reasonable online help facilities to applications. We
-  will, however, extend it to some degree in future versions of Qt.
+  way to add reasonable online help facilities to applications. 
 
 */
 
@@ -204,8 +203,8 @@ static bool block_set_alignment = FALSE;
   TRUE. If no text has been selected or if the selected text is
   deselected this signal is emitted with \a yes set to FALSE.
 
-    If \a yes is TRUE, copy() can be used to copy the selection to the
-    clipboard. If \a yes is FALSE copy() does nothing.
+    If \a yes is TRUE then copy() can be used to copy the selection to the
+    clipboard. If \a yes is FALSE then copy() does nothing.
 
     \sa selectionChanged()
 */
@@ -452,7 +451,7 @@ bool QTextView::event( QEvent *e )
 }
 
 /*!
-    Processes the keyboard event, \a e.
+    Processes the key event, \a e.
     By default key events are used to provide keyboard navigation.
  */
 
@@ -1513,7 +1512,7 @@ void QTextView::doResize()
     formatMore();
 }
 
-/* \internal */
+/*! \internal */
 
 void QTextView::doChangeInterval()
 {
@@ -2277,8 +2276,8 @@ int QTextView::lines() const
 }
 
 /*!
-    Returns the number of the line in paragraph \a para in  which the
-    character at position \a index appears. The \a index position is
+    Returns the line number of the line in paragraph \a para in which
+    the character at position \a index appears. The \a index position is
     relative to the beginning of the paragraph. If there is no such
     paragraph or no such character at the \a index position (e.g. the
     index is out of range) -1 is returned.
@@ -2467,7 +2466,7 @@ QStyleSheet* QTextView::styleSheet() const
     return doc->styleSheet();
 }
 
-/*! Sets the stylesheet to use with this text view.
+/*! Sets the stylesheet to use with this text view to \a styleSheet.
 
     \sa styleSheet()
  */
@@ -2479,7 +2478,7 @@ void QTextView::setStyleSheet( QStyleSheet* styleSheet )
 
 /*!
   \property QTextView::paper
-  \brief the background (paper) color
+  \brief the background (paper) brush.
 
   The brush that is currently used to draw the background of the
   text view. The initial setting is an empty brush.
@@ -2594,7 +2593,7 @@ bool QTextView::hasSelectedText() const
    selected text.
 
    The text is always returned as \c PlainText regardless of the text
-   format. In a future version of Qt an HTML subset may be returned
+   format. In a future version of Qt an HTML subset \e may be returned
    depending on the text format.
 
    \sa hasSelectedText()
@@ -2662,9 +2661,7 @@ QString QTextView::context() const
 
 /*!
   \property QTextView::documentTitle
-  \brief the title of the document
-
-  Returns the document title parsed from the text.
+  \brief the title of the document parsef from the text.
 
   For \c PlainText the title will be an empty string. For \c RichText
   the title will be the text between the \c{<title>} tags, if present,
@@ -2681,10 +2678,10 @@ void QTextView::makeParagVisible( QTextParag *p )
     setContentsPos( contentsX(), QMIN( p->rect().y(), contentsHeight() - visibleHeight() ) );
 }
 
-/*! Scrolls the text view to make the anchor called \a name visible, if
- it can be found in the document. If the anchor isn't found no scrolling
- will occur. An anchor is defined using the HTML anchor tag, e.g.
- \c{<a name="target">}.
+/*! Scrolls the text view to make the text at the anchor called \a name
+ visible, if it can be found in the document. If the anchor isn't found
+ no scrolling will occur. An anchor is defined using the HTML anchor
+ tag, e.g. \c{<a name="target">}.
 */
 
 void QTextView::scrollToAnchor( const QString& name )
@@ -2827,7 +2824,7 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 
 /*! \enum QTextView::WordWrap
 
-  This enum describes the QTextView's word wrap modes.  The following
+  This enum defines the QTextView's word wrap modes.  The following
   values are valid:
 
   \value NoWrap  Do not wrap the text.
@@ -2836,19 +2833,19 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   widget (this is the default). Wrapping is at whitespace by default;
   this can be changed with setWrapPolicy().
 
-  \value FixedPixelWidth Wrap at a fixed number of pixels from the
-  widget's left side. The number of pixels is set with
+  \value FixedPixelWidth Wrap the text at a fixed number of pixels from
+  the widget's left side. The number of pixels is set with
   wrapColumnOrWidth().
 
-  \value FixedColumnWidth Wrap at a fixed number of character columns
-  from the widget's left side. The number of characters is set with
-  wrapColumnOrWidth().
+  \value FixedColumnWidth Wrap the text at a fixed number of character
+  columns from the widget's left side. The number of characters is set
+  with wrapColumnOrWidth().
   This is useful whenever you need formatted text that can also be
   displayed gracefully on devices with monospaced fonts, for example a
   standard VT100 terminal, where you might set wrapColumnOrWidth() to
   80.
 
- \sa setWordWrap() wordwrap()
+ \sa setWordWrap() wordWrap()
 */
 
 /*!
@@ -2934,10 +2931,10 @@ int QTextView::wrapColumnOrWidth() const
 
 /*! \enum QTextView::WrapPolicy
 
-  Defines where text can be wrapped in word wrap mode.
+  This enum defines where text can be wrapped in word wrap mode.
 
   The following values are valid:
-  \value AtWhiteSpace  Break lines at whitespace, e.g. spaces or
+  \value AtWhiteSpace  Break lines at whitespace, i.e. spaces or
   newlines.
   \value Anywhere  Break anywhere, including within words.
 
@@ -2999,9 +2996,9 @@ int QTextView::undoDepth() const
 
 /*!
   \property QTextView::length
-  \brief the number of characters in the text
+  \brief the total number of characters in the text
 
-  Returns the number of characters of the text.
+  Returns the total number of characters of the text.
 */
 
 int QTextView::length() const
@@ -3066,8 +3063,8 @@ bool QTextView::getFormat( int parag, int index, QFont *font, QColor *color )
 /*! This function is called to create the popup menu which is shown
   when the user clicks on the text view with the right mouse button. If
   you want to create a custom popup menu, reimplement this function
-  and return the created popup menu. Ownership is transferred to
-  the caller.
+  and return the created popup menu. Ownership of the popup menu is
+  transferred to the caller.
 */
 
 QPopupMenu *QTextView::createPopupMenu()
@@ -3122,7 +3119,7 @@ void QTextView::setFont( const QFont &f )
 
     Zooms in on the text by by making the standard font size one
     point larger and recalculating all font sizes. This does not change
-    the size of images.
+    the size of any images.
 
     \sa zoomOut()
 
@@ -3134,7 +3131,7 @@ void QTextView::setFont( const QFont &f )
 
     Zooms out on the text by by making the standard font size one
     point smaller and recalculating all font sizes. This does not change
-    the size of images.
+    the size of any images.
 
     \sa zoomIn()
 */
@@ -3143,7 +3140,7 @@ void QTextView::setFont( const QFont &f )
 /*!
     Zooms in on the text by by making the standard font size \a range
     points larger and recalculating all font sizes. This does not change
-    the size of images.
+    the size of any images.
 
     \sa zoomOut()
 */
@@ -3157,7 +3154,7 @@ void QTextView::zoomIn( int range )
 
 /*! Zooms out on the text by making the standard font size \a range
     points smaller and recalculating all font sizes. This does not
-    change the size of images.
+    change the size of any images.
 
     \sa zoomIn()
 */
