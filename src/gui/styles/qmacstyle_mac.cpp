@@ -2104,7 +2104,8 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     switch (sr) {
     case QStyle::SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            HIRect inRect = CGRectMake(0, 0, btn->rect.width(), btn->rect.height());
+            HIRect inRect = CGRectMake(btn->rect.x(), btn->rect.y(),
+                                       btn->rect.width(), btn->rect.height());
             HIRect outRect;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
@@ -2116,8 +2117,8 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
             r.setRect(int(outRect.origin.x), int(outRect.origin.y - 2),
-                      int(qMin(btn->rect.width() - 2 * outRect.origin.x, outRect.size.width)),
-                      int(qMin(btn->rect.height() - 2 * outRect.origin.y, outRect.size.height)));
+                      int(qMin(qAbs(btn->rect.width() - 2 * outRect.origin.x), outRect.size.width)),
+                      int(qMin(qAbs(btn->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
         }
         break;
     case QStyle::SR_ProgressBarGroove:
@@ -3655,12 +3656,14 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
     case QStyle::SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             Rect macRect, myRect;
-            SetRect(&myRect, 0, 0, btn->rect.width(), btn->rect.height());
+            SetRect(&myRect, btn->rect.left(), btn->rect.top(), btn->rect.right(), btn->rect.bottom());
             ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
             GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
             r = QRect(macRect.left, macRect.top - 2,
-                      qMin(btn->rect.width() - 2 * macRect.left, macRect.right - macRect.left),
-                      qMin(btn->rect.height() - 2 * macRect.top, macRect.bottom - macRect.top));
+                      qMin(qAbs(btn->rect.width() - 2 * macRect.left),
+                           macRect.right - macRect.left),
+                      qMin(qAbs(btn->rect.height() - 2 * macRect.top),
+                           macRect.bottom - macRect.top));
         }
         break;
     case QStyle::SR_ProgressBarContents:
