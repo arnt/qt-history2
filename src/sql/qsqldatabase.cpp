@@ -16,6 +16,11 @@
 
 #ifndef QT_NO_SQL
 
+#ifdef Q_OS_WIN32
+// Conflicting declarations of LPCBYTE in sqlfront.h and winscard.h
+#define _WINSCARD_H_
+#endif
+
 #ifdef QT_SQL_POSTGRES
 #include "drivers/psql/qsql_psql.h"
 #endif

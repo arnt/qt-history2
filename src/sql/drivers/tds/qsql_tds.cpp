@@ -14,6 +14,8 @@
 
 #include <qglobal.h>
 #ifdef Q_OS_WIN32    // We assume that MS SQL Server is used. Set Q_USE_SYBASE to force Sybase.
+// Conflicting declarations of LPCBYTE in sqlfront.h and winscard.h
+#define _WINSCARD_H_
 #include <windows.h>
 #else
 #define Q_USE_SYBASE
