@@ -5344,11 +5344,11 @@ void QWidget::showFullScreen()
 
 
 
-/*!\obsolete  Use eraseColor() instead. */
+/*!\obsolete  Use paletteBackgroundColor() or eraseColor() instead. */
 const QColor & QWidget::backgroundColor() const { return eraseColor(); }
-/*!\obsolete  Use setEraseColor() instead. */
+/*!\obsolete  Use setPaletteBackgroundColor() or setEraseColor() instead. */
 void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
-/*!\obsolete  Use erasePixmap() instead. */
+/*!\obsolete  Use paletteBackgroundPixmap()  or erasePixmap() instead. */
 const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
-/*!\obsolete  Use setErasePixmap() instead. */
+/*!\obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead. */
 void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
