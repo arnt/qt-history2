@@ -1389,7 +1389,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                 static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
             radialGradientData->alphaColor = !brush.isOpaque();
             radialGradientData->initColorTable();
-            QRectF bounds = path ? path->boundingRect() : deviceRect;
+            QRectF bounds = path ? path->boundingRect() : QRectF(deviceRect);
             tempImage = qt_draw_radial_gradient_image(bounds.toRect(), radialGradientData);
 
             fillData->data = textureFillData;
@@ -1415,7 +1415,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
                 static_cast<const QConicalGradient *>(brush.gradient())->angle();
             conicalGradientData->alphaColor = !brush.isOpaque();
             conicalGradientData->initColorTable();
-            QRectF bounds = path ? path->boundingRect() : deviceRect;
+            QRectF bounds = path ? path->boundingRect() : QRectF(deviceRect);
             tempImage = qt_draw_conical_gradient_image(bounds.toRect(), conicalGradientData);
 
             fillData->data = textureFillData;
