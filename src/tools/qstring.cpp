@@ -13192,8 +13192,9 @@ QString &QString::sprintf( const char* cformat, ... )
 	    int* n = va_arg(ap, int*);
 	    *n = result.length();
 	} else {
-	    char in[64], out[330] = "";
+	    char in[64], out[330];
 	    strncpy(in,f.latin1(),63);
+	    out[0] = '\0';
 	    char fch = format[pos+len].latin1();
 	    in[f.length()] = fch;
 	    switch ( fch ) {
