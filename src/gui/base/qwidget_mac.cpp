@@ -879,7 +879,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
 	data->fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
 	if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget()->winId())) {
-	    qDebug("created hiview %p (%s::%s) [%p]", hiview, objectName(), className(), (HIViewRef)parentWidget()->winId());
 	    HIRect bounds = CGRectMake(data->crect.x(), data->crect.y(), data->crect.width(), data->crect.height());
 	    HIViewSetFrame(hiview, &bounds);
 	    setWinId((WId)hiview);
