@@ -34,6 +34,7 @@ OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec); //qglobal.cpp
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
+class QAuServerMacCallBackData;
 class QAuServerMac : public QAuServer {
     Q_OBJECT
 
@@ -47,24 +48,38 @@ public:
     bool okay();
 
 private:
+    static void qt_mac_sound_callbk(QTCallBack callbk, long data);
+    QAuServerMacCallBackData *callback; 
     QPixmap *offscreen;
     Movie aMovie;
     Fixed volume;
 };
+struct QAuServerMacCallBackData {
+    QAuServerMacCallBackData(QAuServerMac *serv, QSound *q) : server(serv), qsound(q), callback(0) { }
+    ~QAuServerMacCallBackData() { 	if(callback) DisposeCallBack(callback); }
+
+    QAuServerMac *server;
+    QSound *qsound;
+    QTCallBack callback; //QT as in Quicktime :)
+};
 
 static int servers = 0;
+static QTCallBackUPP movieCallbackProc = 0;
 QAuServerMac::QAuServerMac(QObject* parent) :
-    QAuServer(parent,"Mac Audio Server"), aMovie(nil), volume(1)
+    QAuServer(parent,"Mac Audio Server"), callback(0), aMovie(nil), volume(1)
 {
-    if(!servers++)
+    if(!servers++) 
 	EnterMovies();
     offscreen = new QPixmap(1, 1); //what should the size be? FIXME
 }
 
 QAuServerMac::~QAuServerMac()
 {
-    if(!(--servers))
+    if(!(--servers)) {
+	if(movieCallbackProc)
+	    DisposeQTCallBackUPP(movieCallbackProc);
 	ExitMovies();
+    }
 }
 
 static Movie get_movie(const QString &filename, QPixmap *offscreen) 
@@ -74,65 +89,63 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 	qDebug("Qt: internal: bogus %d", __LINE__);
 	return NULL;
     }
-
-    short movieResFile;
     Movie aMovie = nil;
-    if(OpenMovieFile(&fileSpec, &movieResFile, fsRdPerm) != noErr)
+    short movieResFile;
+    if(OpenMovieFile(&fileSpec, &movieResFile, fsCurPerm) != noErr)
 	return NULL;
-
-    short           movieResID = 0;         /* want first movie */
-    Str255          movieName;
-    Boolean         wasChanged;
-    if(NewMovieFromFile(&aMovie, movieResFile, &movieResID, movieName, newMovieActive, &wasChanged) != noErr)
+    if(NewMovieFromFile(&aMovie, movieResFile, 0, 0, newMovieActive, 0) != noErr)
 	return NULL;
-
-    // If a movie soundtrack is played then the movie will be played on
-    // the current graphics port. So create an offscreen graphics port.
-    SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0);
+    SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0); //just a temporary offscreen
     CloseMovieFile(movieResFile);
     return aMovie;
+}
+
+void QAuServerMac::qt_mac_sound_callbk(QTCallBack callbk, long data)
+{
+    qDebug("happened!!!");
+    QAuServerMacCallBackData *iteration = (QAuServerMacCallBackData*)data;
+    if(!iteration->server->decLoop(iteration->qsound))
+	CancelCallBack(callbk);
 }
 
 void QAuServerMac::play(const QString& filename)
 {
     if(!(aMovie = get_movie(filename, offscreen)))
        return;
-    SetMovieVolume(aMovie, kFullVolume);
     GoToBeginningOfMovie(aMovie);
+    SetMovieVolume(aMovie, kFullVolume);
     StartMovie(aMovie);
 }
 
-/*
-void
-QAuServerMac::setVolume(int x) 
-{  
-    volume = x;
-    if(aMovie) 
-	MCDoAction(aMovie, mcActionSetVolume, &volume); 
-} 
-void
-QAuServerMac::playLoop(const QString &filename) 
-{
-    if(!(aMovie = get_movie(filename, offscreen)))
-       return;
-    Boolean loop = true;
-    MCDoAction(aMovie, mcActionSetLooping, &loop);
-    MCDoAction(aMovie, mcActionSetVolume, &volume); 
-
-    //play
-    Fixed rate = 1;
-    MCDoAction(aMovie, mcActionPlay, &raterate);
-}
-*/
-
 void QAuServerMac::play(QSound* s)
 {
-    play(s->fileName());
+    if(!s->loopsRemaining())
+	return;
+    if(!(aMovie = get_movie(s->fileName(), offscreen)))
+       return;
+    GoToBeginningOfMovie(aMovie);
+    SetMovieVolume(aMovie, kFullVolume);
+    if(s->loopsRemaining() > 1) {
+	callback = new QAuServerMacCallBackData(this, s);
+	callback->callback = NewCallBack(GetMovieTimeBase(aMovie), callBackAtExtremes);
+	if(!movieCallbackProc)
+	    movieCallbackProc = NewQTCallBackUPP(qt_mac_sound_callbk);
+	CallMeWhen(callback->callback, movieCallbackProc, (long int)callback, triggerAtStop, 0, 0);
+    }
+    StartMovie(aMovie);
 }
 
 void QAuServerMac::stop(QSound*)
 {
+    if(callback) {
+	delete callback;
+	callback = 0;
+    }
     StopMovie(aMovie);
+    if(aMovie) {
+	DisposeMovie(aMovie);
+	aMovie = 0;
+    }
 }
 
 bool QAuServerMac::okay()
