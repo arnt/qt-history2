@@ -19,9 +19,9 @@ PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     // install event filter on child widgets
     QObjectList l = queryList("QWidget");
     for (int i = 0; i < l.size(); ++i) {
-	QObject * obj = l.at(i);
+        QObject * obj = l.at(i);
         obj->installEventFilter(this);
-	((QWidget*)obj)->setFocusPolicy(NoFocus);
+        ((QWidget*)obj)->setFocusPolicy(Qt::NoFocus);
     }
 }
 
@@ -43,9 +43,9 @@ bool PreviewWidget::eventFilter(QObject *, QEvent *e)
     case QEvent::KeyRelease:
     case QEvent::Enter:
     case QEvent::Leave:
-	return TRUE; // ignore;
+        return TRUE; // ignore;
     default:
-	break;
+        break;
     }
     return FALSE;
 }

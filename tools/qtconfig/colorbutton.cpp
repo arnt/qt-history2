@@ -24,7 +24,7 @@ ColorButton::ColorButton(QWidget *parent, const char *name)
     : QAbstractButton(parent, name), mousepressed(FALSE)
 {
     setAcceptDrops(TRUE);
-    col = black;
+    col = Qt::black;
     connect(this, SIGNAL(clicked()), SLOT(changeColor()));
 }
 

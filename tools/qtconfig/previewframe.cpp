@@ -36,7 +36,7 @@ void PreviewFrame::setPreviewPalette(QPalette pal)
 void Workspace::paintEvent( QPaintEvent* )
 {
     QPainter p ( this );
-    p.setPen( QPen( white ) );
-    p.drawText ( 0, height() / 2,  width(), height(), AlignHCenter,
-		"The moose in the noose\nate the goose who was loose." );
+    p.setPen( QPen( Qt::white ) );
+    p.drawText ( 0, height() / 2,  width(), height(), Qt::AlignHCenter,
+                "The moose in the noose\nate the goose who was loose." );
 }

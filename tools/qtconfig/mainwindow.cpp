@@ -264,23 +264,23 @@ MainWindow::MainWindow()
     wslspin->setValue(QApplication::wheelScrollLines());
     resolvelinks->setChecked(qt_resolve_symlinks);
 
-    effectcheckbox->setChecked(QApplication::isEffectEnabled(UI_General));
+    effectcheckbox->setChecked(QApplication::isEffectEnabled(Qt::UI_General));
     effectbase->setEnabled(effectcheckbox->isChecked());
 
-    if (QApplication::isEffectEnabled(UI_FadeMenu))
+    if (QApplication::isEffectEnabled(Qt::UI_FadeMenu))
         menueffect->setCurrentItem(2);
-    else if (QApplication::isEffectEnabled(UI_AnimateMenu))
+    else if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu))
         menueffect->setCurrentItem(1);
 
-    if (QApplication::isEffectEnabled(UI_AnimateCombo))
+    if (QApplication::isEffectEnabled(Qt::UI_AnimateCombo))
         comboeffect->setCurrentItem(1);
 
-    if (QApplication::isEffectEnabled(UI_FadeTooltip))
+    if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip))
         tooltipeffect->setCurrentItem(2);
-    else if (QApplication::isEffectEnabled(UI_AnimateTooltip))
+    else if (QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))
         tooltipeffect->setCurrentItem(1);
 
-    if ( QApplication::isEffectEnabled( UI_AnimateToolBox ) )
+    if ( QApplication::isEffectEnabled( Qt::UI_AnimateToolBox ) )
         toolboxeffect->setCurrentItem( 1 );
 
     QSize globalStrut = QApplication::globalStrut();
@@ -565,7 +565,7 @@ void MainWindow::buildInactiveEffect()
     midlight = btn.light(115);
     mid = btn.dark(150);
     dark = btn.dark();
-    shadow = black;
+    shadow = Qt::black;
 
     cg.setColor( QColorGroup::Light, light );
     cg.setColor( QColorGroup::Midlight, midlight );
@@ -582,10 +582,10 @@ void MainWindow::buildInactiveEffect()
 void MainWindow::buildDisabled()
 {
     QColorGroup cg = editPalette.active();
-    cg.setColor( QColorGroup::ButtonText, darkGray );
-    cg.setColor( QColorGroup::Foreground, darkGray );
-    cg.setColor( QColorGroup::Text, darkGray );
-    cg.setColor( QColorGroup::HighlightedText, darkGray );
+    cg.setColor( QColorGroup::ButtonText, Qt::darkGray );
+    cg.setColor( QColorGroup::Foreground, Qt::darkGray );
+    cg.setColor( QColorGroup::Text, Qt::darkGray );
+    cg.setColor( QColorGroup::HighlightedText, Qt::darkGray );
     editPalette.setDisabled( cg );
 
     buildDisabledEffect();
@@ -603,7 +603,7 @@ void MainWindow::buildDisabledEffect()
     midlight = btn.light(115);
     mid = btn.dark(150);
     dark = btn.dark();
-    shadow = black;
+    shadow = Qt::black;
 
     cg.setColor( QColorGroup::Light, light );
     cg.setColor( QColorGroup::Midlight, midlight );

@@ -20,11 +20,11 @@ class PaletteEditorAdvanced : public PaletteEditorAdvancedBase
     Q_OBJECT
 public:
     PaletteEditorAdvanced( QWidget * parent=0, const char * name=0,
-			   bool modal=FALSE, WFlags f=0 );
+                           bool modal=FALSE, Qt::WFlags f=0 );
     ~PaletteEditorAdvanced();
 
-    static QPalette getPalette( bool *ok, const QPalette &pal, BackgroundMode mode = PaletteBackground,
-				QWidget* parent = 0, const char* name = 0 );
+    static QPalette getPalette( bool *ok, const QPalette &pal, Qt::BackgroundMode mode = Qt::PaletteBackground,
+                                QWidget* parent = 0, const char* name = 0 );
 
 protected slots:
     void paletteSelected(int);
@@ -61,7 +61,7 @@ protected:
 private:
     void setPreviewPalette( const QPalette& );
     void updateColorButtons();
-    void setupBackgroundMode( BackgroundMode );
+    void setupBackgroundMode( Qt::BackgroundMode );
 
     QPalette pal() const;
     void setPal( const QPalette& );
