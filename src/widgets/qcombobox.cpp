@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#60 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#60 $");
 
 
 /*!
@@ -595,7 +595,7 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
-    return QSize( 4 + 4 + maxW + 2*dist + buttonW, maxH + 4 + 4 );
+    return QSize( 4 + 4 + maxW + 2*dist + buttonW, maxH + 5 + 5 );
 }
 
 
