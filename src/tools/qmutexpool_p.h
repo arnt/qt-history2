@@ -21,7 +21,7 @@
 class QMutexPool
 {
 public:
-    QMutexPool( int size = 17 );
+    QMutexPool( bool recursive = FALSE, int size = 17 );
     ~QMutexPool();
 
     QMutex *get( void *address );
@@ -29,6 +29,7 @@ public:
 private:
     QMutex mutex;
     QMemArray<QMutex*> mutexes;
+    bool recurs;
 };
 
 extern QMutexPool *qt_global_mutexpool;

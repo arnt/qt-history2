@@ -18,7 +18,7 @@ public:
 	  until *everything* in Qt has been destructed.  Unfortunately there is
 	  no way to guarantee this, so we never destroy this mutex pool.
 	*/
-	qt_global_mutexpool = new QMutexPool;
+	qt_global_mutexpool = new QMutexPool( TRUE );
     }
 };
 QGlobalMutexPoolInitializer qt_global_mutexpool_initializer;
@@ -76,12 +76,15 @@ QGlobalMutexPoolInitializer qt_global_mutexpool_initializer;
 */
 
 /*!
-  Constructs  a QMutexPool, reserving space for \a size QMutexes.  The
-  QMutexes are created when needed, and deleted when the QMutexPool
+  Constructs  a QMutexPool, reserving space for \a size QMutexes.
+  If \a recursive is TRUE, all QMutexes in the pool will be
+  recursive mutexes, otherwise they will all be non-recursive (the default).
+
+  The QMutexes are created when needed, and deleted when the QMutexPool
   is destructed.
 */
-QMutexPool::QMutexPool( int size )
-    : mutex( FALSE ), mutexes( size )
+QMutexPool::QMutexPool( bool recursive, int size )
+    : mutex( FALSE ), mutexes( size ), recurs( recursive )
 {
     mutexes.fill( 0 );
 }
@@ -96,15 +99,12 @@ QMutexPool::~QMutexPool()
     QMutex **d = mutexes.data();
     int index = 0;
     while ( (uint)index < mutexes.size() )
-	delete d[index];
+	delete d[index++];
 }
 
 /*!
-  Returns a QMutex from the pool.  All mutexes in the pool are
-  recursive mutexes.
-
-  QMutexPool uses the value \a address to determine which mutex is
-  retured from the pool.
+  Returns a QMutex from the pool. QMutexPool uses the value \a address
+  to determine which mutex is retured from the pool.
 */
 QMutex *QMutexPool::get( void *address )
 {
@@ -118,7 +118,7 @@ QMutex *QMutexPool::get( void *address )
 	// we need to check once again that the mutex hasn't been created, since
 	// 2 threads could be trying to create a mutex as the same index...
 	if ( ! d[index] ) {
-	    d[index] = new QMutex( TRUE );
+	    d[index] = new QMutex( recurs );
 	}
     }
     return d[index];
