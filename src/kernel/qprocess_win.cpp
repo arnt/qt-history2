@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#34 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -265,6 +265,9 @@ void QProcess::kill() const
 
 bool QProcess::isRunning() const
 {
+    if ( !d->pid.hProcess )
+	return FALSE;
+
     if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
 	// there might be data to read
 	QProcess *that = (QProcess*)this;
