@@ -298,7 +298,21 @@ void MainWindow::on_actionEditFindAgainPrev_triggered()
 
 void MainWindow::on_actionGoHome_triggered()
 {
-    showLink(Config::configuration()->homePage());
+    QString home = Config::configuration()->homePage();    
+#if defined(Q_OS_WIN32)
+    QUrl url(home);
+    home = home.toLower();
+    if (!url.isValid()) {
+        foreach (QFileInfo drive, QDir::drives()) {
+            if (home.startsWith(drive.absolutePath().toLower())) {
+                home = "file:" + home;
+                break;
+            }
+        }
+    }
+    home = home.replace("\\", "/");
+#endif
+    showLink(home);
 }
 
 void MainWindow::on_actionFilePrint_triggered()
