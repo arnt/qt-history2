@@ -1725,12 +1725,13 @@ void QString::setLength( uint newLen )
 void QString::reserve( uint minCapacity )
 {
     if ( d->maxl < minCapacity ) {
-	QChar *nd = QT_ALLOC_QCHAR_VEC( minCapacity + 1 );
+	QChar *nd = QT_ALLOC_QCHAR_VEC( minCapacity );
 	if ( nd ) {
 	    uint len = d->len;
-	    memcpy( nd, d->unicode, sizeof(QChar) * len );
+	    if ( len )
+		memcpy( nd, d->unicode, sizeof(QChar) * len );
 	    deref();
-	    d = new QStringData( nd, len, minCapacity + 1 );
+	    d = new QStringData( nd, len, minCapacity );
 	}
     }
 }
@@ -1744,12 +1745,13 @@ void QString::reserve( uint minCapacity )
 void QString::squeeze()
 {
     if ( d->maxl > d->len ) {
-	QChar *nd = QT_ALLOC_QCHAR_VEC( d->len + 1 );
+	QChar *nd = QT_ALLOC_QCHAR_VEC( d->len );
 	if ( nd ) {
 	    uint len = d->len;
-	    memcpy( nd, d->unicode, sizeof(QChar) * len );
+	    if ( len )
+		memcpy( nd, d->unicode, sizeof(QChar) * len );
 	    deref();
-	    d = new QStringData( nd, len, d->len + 1 );
+	    d = new QStringData( nd, len, len );
 	}
     }
 }
