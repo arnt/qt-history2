@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#43 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#43 $");
 
 
 static const int motifBorder = 2;
@@ -44,12 +44,9 @@ static int sliderStartVal = 0; //##### class member?
 
   Tickmarks may be added using setTickmarks().
 
-  A slider can be controlled by the keyboard, but it has a
-  default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
-  enable keyboard focus.
+  A slider has a default focusPolicy() of \a TabFocus.
 
-  <img src=qslider-m.gif> <img src=qslider-w.gif>
-*/
+  <img src=qslider-m.gif> <img src=qslider-w.gif> */
 
 
 /*!
@@ -118,7 +115,7 @@ void QSlider::init()
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
-    setFocusPolicy( NoFocus );
+    setFocusPolicy( TabFocus );
     initTicks();
 }
 
