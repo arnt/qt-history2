@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#73 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#73 $");
 
 
 /*!
@@ -98,6 +98,7 @@ void QPushButton::init()
 {
     initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = FALSE;
+    setAcceptFocus( TRUE );
 }
 
 
@@ -331,6 +332,10 @@ void QPushButton::drawButton( QPainter *paint )
 	p->drawPixmap( 0, 0, pm_direct );
 	lastDown = isDown();
 	lastDef = defButton;
+	if ( hasFocus() ) {
+	    p->setPen( black );
+	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	}
 	return;
     }
     bool use_pm = TRUE;
@@ -401,6 +406,10 @@ void QPushButton::drawButton( QPainter *paint )
 	} else {
 	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, 2,
 			     updated ? &fill : 0 );
+	}
+	if ( hasFocus() ) {
+	    p->setPen( black );
+	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
 	}
     }
     if ( p->brush().style() != NoBrush )
