@@ -31,7 +31,7 @@
 
 <h1 align=center>Qt Template Library</h1><br clear="all">
 
-The Qt template library  contains the following classes:
+The Qt template library contains the following classes:
 
 <ul>
 <li> \l QMap a dictionary
@@ -54,27 +54,33 @@ If you can not make copies of the objects you want to store you are
 better off with QCollection and friends. They were designed to handle
 exactly that kind of pointer semantics. This applies for example to
 all classes derived from QObject. QObjects don't have a copy
-constructor, so using them them in the STL as storage type is
-impossible.  Of course you could store pointers to QObjects in a
-QValueList, but using QList directly seems to be the better choice for
-this kind of application domain as QCollection containers provide more
-sanity checking.
+constructor, so using them them as values is impossible. You may
+choose be store pointers to QObjects in a QValueList, but using QList
+directly seems to be the better choice for this kind of application
+domain. QList, like all other QCollection based containers, provides
+more sanity checking.
 
-If you have objects which have value semantics, you should use the Qt
-template library.  Value semantics require at least a copy
-constructor, an assignment operator and a default constructor that
-does not take any arguments. Note that a fast copy constructor is
-absolutely crucial for the overall performance of the container.
+If you have objects that implement value semantics, use the Qt
+template library.  Value semantics require at least 
+<ul>
+<li>a copy cnstructor, 
+<li>an assignment operator and 
+<ku> a default constructor, i.e. a
+constructor that does not take any arguments. 
+</ul>
+Note that a fast copy constructor is absolutely crucial for the
+overall performance of the container since many copy operations are
+going to happen.
 
-Example for value based classes are QRect, QPoint, QSize and all C++
-base types such as int, bool or double.
+Examples for value based classes are QRect, QPoint, QSize and all C++
+base types like int, bool or double.
 
-The Qt template library is designed for speed. This means on the
-drawback side that compared to the QCollection-based containers, less
-error checking is provided. Especially iterators are extremely
-fast. But since the template library containers do not track
-associated iterators, certain validy checks, for example on removing
-items, cannot be performed automatically.
+The Qt template library is designed for speed. Especially iterators
+are extremely fast. On the drawback side, lesser error checking than
+in the QCollection based containers is provided. A template library
+container for example does not track associated iterators. This makes
+certain validy checks, like on removing items, impossible to perform
+automatically.
 
 <h2> Iterators </h2>
 
@@ -84,7 +90,7 @@ than using iterators. This is no disadvantage as the size of an
 iterator matches the size of a normal pointer, namely 32 or 64 bits
 depending on your CPU architecture.
 
-In order to iterate over some container, do it like this:
+In order to iterate over some container, do like this:
 
 \code
 	typedef QValueList<int> List;
@@ -93,20 +99,15 @@ In order to iterate over some container, do it like this:
 		printf("Number is %i\n",*it);
 \endcode
 
-The most important facts here are, that begin() delivers the iterator pointing
-at the first element while end() returns an iterator pointing behind the last
-element. It follows from that, that you may not use the item referenced by end()
-iterator, since the end() iterator points behind the last item in the list.
+begin() returns the iterator pointing at the first element, while
+end() returns an iterator that points \e behind the last
+element. end() marks an invalid position, it can never be
+dereferenced. It's the break condition in any iteration, may it be
+from begin() or fromLast().Increment or decrement iterators with the
+prefix operator instead of the the postfix one, since this is slightly
+faster.
 
-In the above example you should especially notice that the prefix increment
-operator is used for the iterator instead of the postfix one. The reason is
-that the prefix one is faster. In addition you should notice the term
-List::Iterator. You could have used QValueListIterator<int> instead but is not
-as convenient to use with typedefs. To sum it up: The official Qt style of
-coding is the one using the scoping operator.
-
-All QTL classes can be iterated over by using the same syntax.
-The following example demonstrates this:
+The same concept applies to the other container classes:
 
 \code
 	typedef QMap<QString,QString> Map;
@@ -120,30 +121,30 @@ The following example demonstrates this:
 		printf("Data=%i\n", *it );
 \endcode
 
-Note that there are two kind of iterators, the volatile iterator as
-shown in the example above and ConstIterator. Both are exactly the
-same apart from ConstIterator returning a const reference to its
-current object. Use the ConstIterator if the container is const or if
-you are in a const function. Note that assigning ConstIterator to an
-Interator is not allowed since it would break the const semantics.
+There are two kind of iterators, the volatile iterator shown in the
+examples above and a version that returns a const reference to its
+current object, the ConstIterator. Const iterators are required
+whenever the container itself is const, for example a member variable
+inside a const function. Assigning a ConstIterator to a normal
+Iterator is not allowed as it would violate const semantics.
 
 <h2> Template functions </h2>
 
-There is more in the template library then just container
+There is more to the template library then just container
 classes. Since the containers are templates, the code is instantiated
-for every different kind of incarnation. As an example,
-QValueList<int> and QValueList<double> cause the QValueList code to
-appear twice in your application. To avoid bloat, the template classes
-therefore have been designed to be as slim as possible. Any more
-advanced functionality that requries more code has been moved to
-template functions outside the classes. The functions are in turn
-usable with a wide range of containers.
+for every different kind of incarnation. As an example, the two
+declarations QValueList<int> and QValueList<double> would cause the
+QValueList code to appear twice in your application. To avoid bloat,
+the template classes therefore have been designed to be as slim as
+possible. Any more advanced functionality that requries more code has
+been moved to template functions outside the classes. These functions
+are in turn usable with a wide range of containers.
 
-Currently, the library only implements a few template functions,
-namely qHeapSort(), qBubbleSort(), qSwap() and qCopy().
+Currently, the library provides the template functions qHeapSort(),
+qBubbleSort(), qSwap() and qCopy().
 
 qHeapSort() and qBubbleSort() implement the well known sorting
-algorithms. You can use them like this;
+algorithms. You can use them like this:
 
 \code
 	typedef QValueList<int> List;
@@ -166,7 +167,8 @@ elements enclosed in the two iterators, namely 100, 1234 and 12.  The
 third example shows that iterators really are just pointers and can be
 treated as such.
 
-Note that the sorting templates won't work with ConstIterators.
+Note that the sorting templates naturally won't work with
+const iterators.
 
 A second utility is qSwap(). It exchanges the values of two variables:
 
@@ -176,10 +178,8 @@ A second utility is qSwap(). It exchanges the values of two variables:
 	qSwap( second, name );
 \endcode
 
-Another template function is qCopy(). It copies a container or
-a slice of it to an OutputIterator. Currently there is only
-the QTextOStream Iterator which can be used with a QTextOStream.
-Using this class you can easily print out a list.
+Another template function is qCopy(). It copies a container or a slice
+of it to an OutputIterator, in this case a QTextOStreamIterator:
 
 \code
 	typedef QValueList<int> List;
@@ -189,10 +189,9 @@ Using this class you can easily print out a list.
 	qCopy( l, QTextOStreamIterator( str ) );
 \endcode
 
-In addition, you can use usual iterators as OutputIterator. But you
-have to make sure that right hand of the iterator there are as many
-elements present as you want to insert. The following example
-illustrates that:
+In addition, you can use any usual iterator as OutputIterator. Just
+make sure that right hand of the iterator are as many elements present
+as you want to insert. The following example illustrates that:
 
 \code
 	QStringList l1, l2;
@@ -201,9 +200,9 @@ illustrates that:
 	qCopy( l2, l1.begin();
 \endcode
 
-At the end of this code fragment the List l1 contains "Torben",
+At the end of this code fragment, the List l1 contains "Torben",
 "Matthias", "Arnt" and "Sue", with the prior contents being
-overwritten Another flavour of qCopy() takes three arguments to make
+overwritten. Another flavour of qCopy() takes three arguments to make
 it possible to copy a slice of a container:
 
 \code
@@ -217,9 +216,9 @@ it possible to copy a slice of a container:
 \endcode
 
 If you write new algorithms, consider writing them as template
-functions in order to make them usable for as many containers
-possible.  In the above example you could easily print out a standard
-C++ array like this:
+functions in order to make them usable with as many containers
+possible.  In the above example, you could just as well print out a
+standard C++ array with qCopy():
 
 \code
 	int arr[] = { 100, 200, 300 };
@@ -229,8 +228,9 @@ C++ array like this:
 
 <h2> Streaming </h2>
 
-All containers can be be serialized with the streaming operators. Here
-is an example. It assumes that \c str is some QDataStream:
+All containers can be be serialized with the respective streaming
+operators. Here is an example. It assumes that \c str is some
+QDataStream:
 
 \code
 	QValueList<QRect> l;
@@ -238,7 +238,7 @@ is an example. It assumes that \c str is some QDataStream:
 	str << l;
 \endcode
 
-The container can be read in again like this;
+The container can be read in again like this:
 
 \code
 	QValueList<QRect> l;
