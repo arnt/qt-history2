@@ -141,7 +141,7 @@ public:
 #ifndef QT_NO_LAYOUT
 	layout(0),
 #endif
-	hasPendingMove(1), hasPendingResize(1)
+	attributes(0)
 	{}
     ~QWidgetPrivate();
 
@@ -172,8 +172,10 @@ public:
     QLayout *layout;
 #endif
 
-    uint hasPendingMove : 1; // will be attribute
-    uint hasPendingResize :1; // will be attribute
+    uint attributes;
+
+    void setAttribute(QWidget::Attribute attribute, bool b);
+    bool hasAttribute(QWidget::Attribute attribute) const;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const
@@ -185,6 +187,19 @@ inline QTLWExtra *QWidgetPrivate::topData() const
 {
     const_cast<QWidgetPrivate *>(this)->createTLExtra();
     return extra->topextra;
+}
+
+inline void QWidgetPrivate::setAttribute(QWidget::Attribute attribute, bool b)
+{
+    if (b)
+	attributes |= (1<<attribute);
+    else
+	attributes &= ~(1<<attribute);
+}
+
+inline bool QWidgetPrivate::hasAttribute(QWidget::Attribute attribute) const
+{
+    return attributes & (1<<attribute);
 }
 
 

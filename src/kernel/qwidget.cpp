@@ -3067,43 +3067,6 @@ void QWidget::setInputMethodEnabled( bool b )
 
 
 /*!
-    Enables key event compression, if \a compress is TRUE, and
-    disables it if \a compress is FALSE.
-
-    By default key compression is off, so widgets receive one key
-    press event for each key press (or more, since autorepeat is
-    usually on). If you turn it on and your program doesn't keep up
-    with key input, Qt may try to compress key events so that more
-    than one character can be processed in each event.
-
-    For example, a word processor widget might receive 2, 3 or more
-    characters in each QKeyEvent::text(), if the layout recalculation
-    takes too long for the CPU.
-
-    If a widget supports multiple character unicode input, it is
-    always safe to turn the compression on.
-
-    Qt performs key event compression only for printable characters.
-    Modifier keys, cursor movement keys, function keys and
-    miscellaneous action keys (e.g. Escape, Enter, Backspace,
-    PrintScreen) will stop key event compression, even if there are
-    more compressible key events available.
-
-    Not all platforms support this compression, in which case turning
-    it on will have no effect.
-
-    \sa QKeyEvent::text();
-*/
-
-void QWidget::setKeyCompression(bool compress)
-{
-    if ( compress )
-	setWState( WState_CompressKeys );
-    else
-	clearWState( WState_CompressKeys );
-}
-
-/*!
     \property QWidget::isActiveWindow
     \brief whether this widget is the active window
 
@@ -3548,15 +3511,15 @@ void QWidget::internalShow()
 	d->layout->activate();
 
     // make sure we receive pending move and resize events
-    if (d->hasPendingMove) {
+    if (d->hasAttribute(WA_PendingMoveEvent)) {
 	QMoveEvent e(crect.topLeft(), crect.topLeft());
 	QApplication::sendEvent(this, &e);
-	d->hasPendingMove = false;
+	d->setAttribute(WA_PendingMoveEvent, false);
     }
-    if (d->hasPendingResize) {
+    if (d->hasAttribute(WA_PendingResizeEvent)) {
 	QResizeEvent e(crect.size(), crect.size());
 	QApplication::sendEvent(this, &e);
-	d->hasPendingResize = false;
+	d->setAttribute(WA_PendingResizeEvent, false);
     }
 
     // become visible before showing all children
@@ -4084,11 +4047,10 @@ QSize QWidget::minimumSizeHint() const
 
 
 /*!
-    \fn QWidget *QWidget::parentWidget( bool sameWindow ) const
+    \fn QWidget *QWidget::parentWidget() const
 
     Returns the parent of this widget, or 0 if it does not have any
-    parent widget. If \a sameWindow is TRUE and the widget is top
-    level returns 0; otherwise returns the widget's parent.
+    parent widget.
 */
 
 /*!
@@ -5590,3 +5552,70 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 /*! void QWidget::setBackgroundPixmap( const QPixmap &pm )
   \obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead.
 */
+
+/*!
+    \enum QWidget::Attribute
+
+    \keyword widget attributes
+
+    This enum type is used to specify various widget
+    attributes. Attributes are set and cleared with
+    QWidget::setAttribute(), and queried with QWidget::hasAttribute().
+
+    \table
+    \header \i Attribute \i Meaning \i Set by
+
+    \row \i WA_KeyCompression \i Enables key event compression if set,
+    and disables it if not set. By default key compression is off, so
+    widgets receive one key press event for each key press (or more,
+    since autorepeat is usually on). If you turn it on and your
+    program doesn't keep up with key input, Qt may try to compress key
+    events so that more than one character can be processed in each
+    event.
+
+    For example, a word processor widget might receive 2, 3 or more
+    characters in each QKeyEvent::text(), if the layout recalculation
+    takes too long for the CPU.
+
+    If a widget supports multiple character unicode input, it is
+    always safe to turn the compression on.
+
+    Qt performs key event compression only for printable characters.
+    Modifier keys, cursor movement keys, function keys and
+    miscellaneous action keys (e.g. Escape, Enter, Backspace,
+    PrintScreen) will stop key event compression, even if there are
+    more compressible key events available.
+
+    Not all platforms support this compression, in which case turning
+    it on will have no effect.
+
+    \i widget author
+
+    \row \i WA_PendingMoveEvent \i Indicates that a move event is
+    pending, e.g. when a hidden widget was moved. \i Qt kernel
+
+    \row \i WA_PendingResizeEvent \i Indicates that a resize event is
+    pending, e.g. when a hidden widget was resized. \i Qt kernel
+
+    \endtable
+*/
+
+/*! Sets the attribute \a attribute on this widget if \b is true;
+  otherwise clears the attribute.
+
+  \sa hasAttribute()
+ */
+void QWidget::setAttribute(Attribute attribute, bool b)
+{
+    d->setAttribute(attribute, b);
+}
+
+/*!  Returns true if attribute \a attribute is set on this widget;
+  otherwise returns false.
+
+  \sa setAttribute()
+ */
+bool QWidget::hasAttribute(Attribute attribute) const
+{
+    return d->hasAttribute(attribute);
+}

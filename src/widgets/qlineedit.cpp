@@ -1826,7 +1826,7 @@ void QLineEdit::drawContents( QPainter *p )
 
     if (paletteBackgroundPixmap())
 	bg = QBrush(cg.background(), *paletteBackgroundPixmap());
-    else if (enabled)
+    else if (!enabled)
 	bg = cg.brush( QColorGroup::Background );
 
     p->save();
@@ -2217,7 +2217,7 @@ void QLineEditPrivate::init( const QString& txt )
     //   less, horizontal space; and is fixed vertically.
     q->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     q->setBackgroundMode( PaletteBase );
-    q->setKeyCompression( TRUE );
+    q->setAttribute(QWidget::WA_KeyCompression, true);
     q->setMouseTracking( TRUE );
     q->setAcceptDrops( TRUE );
     q->setFrame( TRUE );

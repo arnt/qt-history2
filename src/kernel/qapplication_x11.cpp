@@ -5187,7 +5187,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // compress keys
-    if ( !text.isEmpty() && testWState(WState_CompressKeys) &&
+    if ( !text.isEmpty() && hasAttribute(WA_KeyCompression) &&
 	 // do not compress keys if the key event we just got above matches
 	 // one of the key ranges used to compute stopCompression
 	 !( (code >= Key_Escape && code <= Key_SysReq)
@@ -5548,7 +5548,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		d->hasPendingResize = true;
+		d->setAttribute(WA_PendingResizeEvent, true);
 	    }
 	}
 
@@ -5560,7 +5560,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		d->hasPendingMove = true;
+		d->setAttribute(WA_PendingMoveEvent, true);
 	    }
 	}
     } else {

@@ -945,7 +945,7 @@ void QTextEdit::init()
     resizeContents( 0, doc->lastParagraph() ?
 		    ( doc->lastParagraph()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
 
-    setKeyCompression( TRUE );
+    setAttribute(WA_KeyCompression, true);
     viewport()->setMouseTracking( TRUE );
 #ifndef QT_NO_CURSOR
     viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );

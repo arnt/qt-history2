@@ -32,6 +32,7 @@
 
 
 #include <string.h>
+#include <limits.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
 typedef QPtrStack<QWMatrix> QWMatrixStack;

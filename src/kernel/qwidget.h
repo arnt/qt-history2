@@ -446,7 +446,8 @@ public:
     // whats this help
     virtual bool customWhatsThis() const;
 
-    QWidget *		parentWidget( bool sameWindow = FALSE ) const;
+    QWidget *parentWidget() const;
+
     WState		testWState( WState s ) const;
     WFlags		testWFlags( WFlags f ) const;
     static QWidget *	find( WId );
@@ -465,6 +466,15 @@ public:
     CGContextRef macCGContext(bool clipped=TRUE) const;
 #endif
 #endif
+
+
+    enum Attribute {
+	WA_KeyCompression,
+	WA_PendingMoveEvent,
+	WA_PendingResizeEvent
+    };
+    void setAttribute(Attribute, bool);
+    bool hasAttribute(Attribute) const;
 
 protected:
     // Event handlers
@@ -549,7 +559,6 @@ protected:
 
     virtual bool focusNextPrevChild( bool next );
 
-    void setKeyCompression(bool);
     void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
 
 #if defined(Q_WS_MAC)
@@ -561,6 +570,8 @@ protected:
 
 #ifndef QT_NO_COMPAT
 public:
+    QWidget *parentWidget( bool sameWindow ) const;
+    inline void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
     inline void setFont( const QFont &f, bool ) { setFont( f ); }
 #ifndef QT_NO_PALETTE
     inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
@@ -819,12 +830,17 @@ inline void QWidget::resize( const QSize &s )
 inline void QWidget::setGeometry( const QRect &r )
 { setGeometry( r.left(), r.top(), r.width(), r.height() ); }
 
+#ifndef QT_NO_COMPAT
 inline QWidget *QWidget::parentWidget( bool sameWindow ) const
 {
     if ( sameWindow )
 	return isTopLevel() ? 0 : (QWidget *)QObject::parent();
     return (QWidget *)QObject::parent();
 }
+#endif
+
+inline QWidget *QWidget::parentWidget() const
+{ return static_cast<QWidget *>(QObject::parent()); }
 
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }

@@ -1546,7 +1546,7 @@ void QWidget::showMaximized()
 	    Rect oldr;
 	    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
 	    SetWindowUserState((WindowPtr)hd, &oldr);
-	    
+
 	    SetWindowStandardState((WindowPtr)hd, &bounds);
 	    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
 	    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
@@ -1743,9 +1743,9 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     if(isMove || isResize) {
 	if(!visible) {
 	    if (isMove && pos() != oldp)
-		d->hasPendingMove = true;
+		d->setAttribute(WA_PendingMoveEvent, true);
 	    if (isResize)
-		d->hasPendingResize = true;
+		d->setAttribute(WA_PendingResizeEvent, true);
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
 	    const bool oldreg_empty=oldregion.isEmpty(), newreg_empty = clpreg.isEmpty();

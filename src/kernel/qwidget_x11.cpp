@@ -1902,9 +1902,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
     } else {
 	if (isMove && pos() != oldPos)
-	    d->hasPendingMove = true;
+	    d->setAttribute(WA_PendingMoveEvent, true);
 	if (isResize)
-	    d->hasPendingResize = true;
+	    d->setAttribute(WA_PendingResizeEvent, true);
     }
 }
 

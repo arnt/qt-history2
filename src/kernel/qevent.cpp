@@ -703,7 +703,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     the result of a known key (e.g. it may be the result of a compose
     sequence or a keyboard macro, or due to key event compression).
 
-    \sa QWidget::setKeyCompression()
+    \sa QWidget::WA_KeyCompression
 */
 
 /*!
@@ -723,7 +723,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     releasing modifying keys as Shift, Control, Alt and Meta. In these
     cases key() will contain a valid value.
 
-    \sa QWidget::setKeyCompression()
+    \sa QWidget::WA_KeyCompression
 */
 
 /*!
@@ -800,7 +800,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     Returns the number of single keys for this event. If text() is not
     empty, this is simply the length of the string.
 
-    \sa QWidget::setKeyCompression()
+    \sa QWidget::WA_KeyCompression
 */
 
 /*!
