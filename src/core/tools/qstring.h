@@ -355,7 +355,7 @@ public:
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
 
-    inline static QT_COMPAT QString fromAscii(const char *str, int maxSize)
+    inline static QString fromAscii(const char *str, int maxSize)
     {
         if (!str)
             return QString::null;
@@ -366,7 +366,7 @@ public:
         else
             return fromAscii(QByteArray(str, len));
     }
-    inline static QT_COMPAT QString fromLatin1(const char *str, int maxSize)
+    inline static QString fromLatin1(const char *str, int maxSize)
     {
         if (!str)
             return QString::null;
@@ -377,7 +377,7 @@ public:
         else
             return fromLatin1(QByteArray(str, len));
     }
-    inline static QT_COMPAT QString fromUtf8(const char *str, int maxSize)
+    inline static QString fromUtf8(const char *str, int maxSize)
     {
         if (!str)
             return QString::null;
@@ -388,7 +388,7 @@ public:
         else
             return fromUtf8(QByteArray(str, len));
     }
-    inline static QT_COMPAT QString fromLocal8Bit(const char *str, int maxSize)
+    inline static QString fromLocal8Bit(const char *str, int maxSize)
     {
         if (!str)
             return QString::null;
@@ -399,7 +399,7 @@ public:
         else
             return fromLocal8Bit(QByteArray(str, len));
     }
-    inline static QT_COMPAT QString fromUcs2(const ushort *ucs2, int size = -1)
+    inline static QString fromUcs2(const ushort *ucs2, int size = -1)
     {
         QString result = fromUtf16(ucs2);
         if (size >= 0 && result.size() > size)
