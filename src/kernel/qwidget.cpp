@@ -5,7 +5,7 @@
 **
 ** Created : 931031
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -5600,6 +5600,9 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
+#if (QT_VERSION-0 >= 0x040000)
+#error "QWidget::showFullScreen() should be virtual (see change #16156)"
+#endif
 void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )

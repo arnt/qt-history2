@@ -5,7 +5,7 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -342,11 +342,11 @@ public slots:
     virtual void	show();
     virtual void	hide();
 #ifndef QT_NO_COMPAT
-    void		iconify()	{ showMinimized(); }
+    void		iconify() { showMinimized(); }
 #endif
     virtual void	showMinimized();
     virtual void	showMaximized();
-    void		showFullScreen(); // virtual 3.0
+    void		showFullScreen();
     virtual void	showNormal();
     virtual void	polish();
     void 		constPolish() const;
@@ -912,7 +912,7 @@ struct Q_EXPORT QTLWExtra {
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
     short    basew, baseh;			// base sizes
 #if defined(Q_WS_X11)
-    WId  parentWinId;			// parent window Id (valid after reparenting)
+    WId  parentWinId;				// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     reserved: 2;			// reserved
     uint     dnd : 1; 				// DND properties installed
@@ -951,7 +951,7 @@ struct Q_EXPORT QWExtra {
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(Q_WS_X11)
-    WId xDndProxy;			// XDND forwarding to embedded windows
+    WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
 #if defined(Q_WS_MAC)
     QRegion clip_saved, clip_sibs, clip_children;
@@ -972,11 +972,11 @@ struct Q_EXPORT QWExtra {
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
-    char     bg_mode_visual;				// visual background mode
+    char     bg_mode_visual;			// visual background mode
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
-    QRect micro_focus_hint;                     // micro focus hint
+    QRect micro_focus_hint;			// micro focus hint
     QSizePolicy size_policy;
 };
 
