@@ -160,7 +160,7 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     for ( int i = start+1; i <= stop; i++ ) {
 
 	QFont::Script s = (QFont::Script)scriptForChar( text[i].unicode() );
-	if ( s != script ) {
+	if ( s != script && ::category( text[i].unicode() ) != QChar::Mark_NonSpacing ) {
 	    QScriptItem item;
 	    item.position = i;
 	    item.analysis.script = s;
