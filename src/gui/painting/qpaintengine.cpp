@@ -72,16 +72,44 @@
 
   \value LinearGradients The engine can fill with linear gradients
 
+  \value LinearGradientFillPolygon The engine is capable of gradient
+  fills in polygons only. Engines that support this feature and not
+  regular gradient filling will have all primitives converted to
+  polygons first so that this feature can be used instead.
+
   \value PixmapScale The engine can scale pixmaps.
 
-  \value AlphaFill The engine can fill and outline with alpha colors
+  \value AlphaPixmap The engine can draw alpha pixmaps.
+
+  \value AlphaFill The engine can fill with alpha colors. If this
+  feature is not specified, alpha filling can be emulated using alpha
+  pixmaps.
+
+  \value AlphaFillPolygon The engine can fill polygons with alpha
+  colors. Engines that specify this feature and not AlphaFill will
+  have all primitives converted to polygons first, so that this
+  feature can be used instead.
+
+  \value AlphaStroke The engine can draw outlines with alpha
+  colors. Engines that do not support alphastroke can emulate it using
+  AlphaFill, AlphaFillPolygon or AlphaPixmap.
 
   \value PainterPaths The engine has path support.
 
   \value ClipTransform The engine is capable of transforming clip regions.
 
-    \value PaintOutsidePaintEvent The engine is capable of painting
-    outside of paint events.
+  \value PaintOutsidePaintEvent The engine is capable of painting
+  outside of paint events.
+
+  \value PatternBrush The engine is capable of rendering brushes with
+  the brush patterns specified in Qt::BrushStyle.
+
+  \value LineAntialiasing The engine is capable of line antialiasing.
+
+  \value FillAntialiasing The engine is capable of fill
+  antialiasing. If an engine is capable of fill, but not line
+  antialiasing, line antialiasing will be emulated using a filled
+  polygon that has the shape of the line.
 
   \omitvalue UsesFontEngine
 */
@@ -115,7 +143,8 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawPolygon(const QPolygon &polygon, PolygonDrawMode mode)
+    \fn void QPaintEngine::drawPolygon(const QPolygon &polygon,
+    QPaintEngine::PolygonDrawMode mode)
 
     Reimplement this pure virtual function to draw \a polygon using
     the drawing mode \a mode.
@@ -221,12 +250,12 @@ void QPaintEngine::drawLines(const QList<QLineF> &lines)
 }
 
 /*!
-    \fn void QPaintEngine::drawPixmap(const QRectF &rectangle, const QPixmap
-    &pixmap, const QRectF &sr, Qt::PixmapDrawingMode mode)
+    \fn void QPaintEngine::drawPixmap(const QRectF &r, const QPixmap
+    &pm, const QRectF &sr, Qt::PixmapDrawingMode mode)
 
-    Reimplement this function to draw the part of the \a pixmap
-    specified by the \a sr rectangle in the given \a rectangle using
-    the given drawing \a mode.
+    Reimplement this function to draw the part of the \a pm
+    specified by the \a sr rectangle in the given \a r using the given
+    drawing \a mode.
 */
 
 
@@ -842,15 +871,16 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op
 */
 
 /*!
-  \fn QPaintEngine::updateClipRegion(const QRegion &region, bool enabled)
+  \fn QPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 
-  This function is called when the clip region changes, specified by \a region or
-  when clipping is enabled or disabled, specified by \a enabled.
+  This function is called when the clip region changes. The clip operation \a op
+  specifies how the new region \a region should be combined (if at all) with
+  the new region.
 */
 
 
 /*!
-    \interal
+    \internal
     Sets the paintdevice that this engine operates on to \a device
 */
 void QPaintEngine::setPaintDevice(QPaintDevice *device)

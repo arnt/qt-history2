@@ -79,6 +79,13 @@ const double Q_PI = 3.14159265358979323846;
 */
 
 /*!
+    \fn QPointArray::QPointArray(const QVector<QPoint> &pts)
+
+    Constructs a pointarray containing a copy of the points specified
+    in pts.
+*/
+
+/*!
     Constructs a point array from the rectangle \a r.
 
     If \a closed is false, then the point array just contains the

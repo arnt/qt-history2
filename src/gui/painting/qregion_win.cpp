@@ -69,7 +69,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
     \warning This constructor can be used to create complex regions that will
     slow down painting when used.
 */
-QRegion::QRegion(const QPointArray &a, Qt::FillRule rule)
+QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
 {
     if (a.size() < 3) {
         d = &shared_empty;
@@ -78,7 +78,7 @@ QRegion::QRegion(const QPointArray &a, Qt::FillRule rule)
         d = new QRegionData;
         d->ref.init(1);
         d->rgn = CreatePolygonRgn(reinterpret_cast<const POINT*>(a.data()), a.size(),
-                                  rule == Qt::OddEvenFill ? ALTERNATE : WINDING);
+                                  fillRule == Qt::OddEvenFill ? ALTERNATE : WINDING);
     }
 }
 
@@ -474,3 +474,11 @@ bool QRegion::operator==(const QRegion &r) const
     return d->rgn == 0 ? true // both empty
                        : EqualRgn(d->rgn, r.d->rgn); // both non-empty
 }
+
+/*!
+    \fn HRGN QRegion::handle() const
+
+    \internal
+
+    Returns the Win32 GDI handle of this region.
+*/

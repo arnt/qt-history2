@@ -354,17 +354,6 @@ QPrinter::~QPrinter()
     delete d;
 }
 
-
-//void QPrinter::setPrintRange(QPrinter::PrintRange range)
-//{
-//    d->printEngine->setPrintRange(range);
-//}
-//
-//QPrinter::PrintRange QPrinter::printRange() const
-//{
-//    return d->printEngine->printRange();
-//}
-
 /*!
     Returns the printer name. This value is initially set to the name
     of the default printer.
@@ -665,64 +654,6 @@ QPrinter::ColorMode QPrinter::colorMode() const
     return d->printEngine->colorMode();
 }
 
-
-/*
-  Returns the from-page setting. The default value is 0.
-
-  If fromPage() and toPage() both return 0 this signifies 'print the
-  whole document'.
-
-  The application is responsible for reading this setting and
-  printing accordingly.
-
-  \sa setFromTo(), toPage()
-*/
-//int QPrinter::fromPage() const
-//{
-//    return d->fromPage;
-//}
-
-
-/*
-  Returns the to-page setting. The default value is 0.
-
-  If fromPage() and toPage() both return 0 this signifies 'print the
-  whole document'.
-
-  The application is responsible for reading this setting and
-  printing accordingly.
-
-  \sa setFromTo(), fromPage()
-*/
-//int QPrinter::toPage() const
-//{
-//    return d->toPage;
-//}
-
-
-/*
-  Sets the from-page and to-page settings to \a fromPage and \a
-  toPage respectively.
-
-  The from-page and to-page settings specify what pages to print.
-
-  If fromPage() and toPage() both return 0 this signifies 'print the
-  whole document'.
-
-  This function is useful mostly to set a default value that the
-  user can override in the print dialog when you call setup().
-
-  \sa fromPage(), toPage(), setMinMax(), setup()
-*/
-
-//void QPrinter::setFromTo(int fromPage, int toPage)
-//{
-//    Q_ASSERT(!d->paintEngine->isActive());
-//    d->fromPage = fromPage;
-//    d->toPage = toPage;
-//}
-//
-
 /*!
   Returns the number of copies to be printed. The default value is 1.
 
@@ -782,46 +713,6 @@ void QPrinter::setNumCopies(int numCopies)
 {
    d->printEngine->setNumCopies(numCopies);
 }
-
-
-/*!
-    \fn QString QPrinter::printerSelectionOption() const
-
-    Returns the printer options selection string. This is only useful
-    if the print command has been explicitly set.
-
-    The default is an empty string which signifies that the printer
-    should be selected in a system-dependent manner.
-
-    Any other value implies that the given value should be used.
-
-    \sa setPrinterSelectionOption()
-*/
-//QString QPrinter::printerSelectionOption() const
-//{
-//    return d->printEngine->printerSelectionOption();
-//}
-
-
-/*!
-    \fn void QPrinter::setPrinterSelectionOption(const QString & option)
-
-    Sets the printer to use \a option to select the printer. \a option
-    is an empty string by default (which implies that Qt should be
-    smart enough to guess correctly), but it can be set to other
-    values to use a specific printer selection option.
-
-    If the printer selection option is changed while the printer is
-    active, the current print job may or may not be affected.
-
-    \sa printerSelectionOption()
-*/
-
-//void QPrinter::setPrinterSelectionOption(const QString & option)
-//{
-//    Q_ASSERT(!d->printEngine->isActive());
-//    d->printEngine->setPrinterSelectionOption(option);
-//}
 
 
 /*!
@@ -922,11 +813,6 @@ QPrinter::PaperSource QPrinter::paperSource() const
 {
     return d->printEngine->paperSource();
 }
-
-//void QPrinter::setMargins(const QRect &margins)
-//{
-//    qWarning("QPrinter::setMargins() not implemented");
-//}
 
 /*!
     Returns the page's rectangle; this is usually smaller than the
@@ -1320,8 +1206,8 @@ int QPrinter::toPage() const
 
     The from-page and to-page settings specify what pages to print.
 
-    If fromPage() and toPage() both return 0 this signifies 'print the
-    whole document'.
+    If from and to both return 0 this signifies 'print the whole
+    document'.
 
     This function is useful mostly to set a default value that the
     user can override in the print dialog when you call setup().
@@ -1540,5 +1426,17 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
         const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return const_cast<QPrinter*>(this)->d->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
 }
+
+/*!
+    \fn HDC QPrinter::getDC() const
+
+    \internal
+*/
+
+/*!
+    \fn void QPrinter::releaseDC(HDC dc) const
+
+    \internal
+*/
 
 #endif // QT_COMPAT

@@ -615,7 +615,9 @@ void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int 
 
 //########### This doesn't really belong here; we need qscreen_qws.cpp
 
-
+/*!
+    \internal
+*/
 QWSPaintEngine *QScreen::createPaintEngine()
 {
     return new QWSPaintEngine;

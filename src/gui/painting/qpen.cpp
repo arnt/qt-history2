@@ -241,9 +241,26 @@ void QPen::setStyle(Qt::PenStyle s)
 /*!
     \fn float QPen::width() const
 
-    Returns the pen width.
+    Returns the pen width with integer preceision.
 
     \sa setWidth()
+*/
+
+
+/*!
+    \fn float QPen::widthF() const
+
+    Returns the pen width with floating point precision.
+
+    \sa setWidthF()
+*/
+
+/*!
+    \fn QPen::setWidth(int width)
+
+    \overload
+
+    Sets the pen width to \a width
 */
 
 /*!
@@ -381,6 +398,12 @@ bool QPen::operator==(const QPen &p) const
                           && p.d->color == d->color);
 }
 
+
+/*!
+    \fn QPen::isDetached() const
+
+    \internal
+*/
 
 /*****************************************************************************
   QPen stream functions

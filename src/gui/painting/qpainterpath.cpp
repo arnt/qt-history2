@@ -930,7 +930,7 @@ Qt::FillRule QPainterPath::fillRule() const
 }
 
 /*!
-    \fn void QPainterPath::setFillRule(FillRule fillRule)
+    \fn void QPainterPath::setFillRule(Qt::FillRule fillRule)
 
     Sets the fill rule of the painter path to \a fillRule.
 
@@ -1003,8 +1003,9 @@ QPainterPath QPainterPath::toReversed() const
 
 
 /*!
-    Returns a list of polygons corresponding to the subpaths in the painter
-    path.
+    Returns the painter path as a list of polygons. One polygon is
+    created for each subpath. The polygons are transformed using the
+    transformation matrix \a matrinx.
 */
 QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {
@@ -1047,7 +1048,19 @@ QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 }
 
 /*!
-    Returns the painter path as a filled polygon.
+    Returns the painter path as one polygon that can be used for
+    filling. This polygon is created by first converting all subpaths
+    to polygons, then using a rewinding technique to make sure that
+    overlapping subpaths can be filled using the correct fill rule.
+
+    The polygon is transformed using the transformation matrix \a
+    matrix.
+
+    Note that rewinding inserts addition lines in the polygon so
+    the outline of the fill polygon does not match the outline of
+    the path.
+
+    \sa toSubpathPolygons(), toFillPolygons()
 */
 QPolygon QPainterPath::toFillPolygon(const QMatrix &matrix) const
 {
@@ -1067,7 +1080,18 @@ QPolygon QPainterPath::toFillPolygon(const QMatrix &matrix) const
 }
 
 /*!
-  Creates a polygon from the path.
+    Returns the path as a list of polygons. The polygons are
+    transformed using the transformation matrix \a matrix.
+
+    This function differs from toSubpathPolygons() and toFillPolygon()
+    in that it creates one rewinded polygon for all subpaths that have
+    overlapping bounding rectangles.
+
+    This function is provided, because it is usually faster to draw
+    several small polygons than to draw one large polygon, even though
+    the total number of points drawn is the same.
+
+    \sa toSubpathPolygons(), toFillPolygon()
 */
 QList<QPolygon> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 {
