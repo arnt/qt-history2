@@ -193,9 +193,9 @@ to stop inserting new widgets on the form if you double clicked a
 widget toolbar button. 
 
 \i \Menu{Tools|Connect Signals and Slots} Click this toolbar button
-(or press \Key F3) to connect signals and slots and click on a widget
+(or press \Key F3) to connect signals and slots. Click on a widget
 and drag the pink rubber band to the widget (or form) that you want to
-connect to; then release the mouse button and the \l{Edit Connections
+connect to. Release the mouse button and the \l{Edit Connections
 Dialog} will appear. 
 
 \i \Menu {Tools|Tab Order} Click this menu option (or press \Key F4) to
@@ -207,105 +207,103 @@ the tab order, and continue until all the widgets have the tab order
 numbers you want. If you make a mistake, double click the first widget
 and start again. 
 
-\i \Menu {Tools|Buttons|PushButton} Click this option and click
-the form to place the Pushbutton widget on the form. 
+\i \Menu {Tools|Buttons|PushButton} Click this option and then click
+the form to place a Pushbutton on the form. 
 
-\i \Menu {Tools|Buttons|ToolButton} Click this option and click
-the form to place the Toolbutton widget on the form.
+\i \Menu {Tools|Buttons|ToolButton} Click this option and then click
+the form to place a Toolbutton on the form.
 
-\i \Menu {Tools|Buttons|RadioButton} Click this option and
-click the form to place the Radiobutton widget on the form. 
+\i \Menu {Tools|Buttons|RadioButton} Click this option and then
+click the form to place a Radiobutton on the form. 
 
-\i \Menu {Tools|Buttons|CheckBox} Click this option and 
-click the form to place the CheckBox widget on the form.
+\i \Menu {Tools|Buttons|CheckBox} Click this option and then 
+click the form to place a CheckBox on the form.
 
-\i \Menu {Tools|Containers|GroupBox} Click this option and 
-click the form to place the Groupbox widget on the form.
+\i \Menu {Tools|Containers|GroupBox} Click this option and then 
+click the form to place a Groupbox on the form.
 
-\i \Menu {Tools|Containers|ButtonGroup} Click this option and
-click the form to place the ButtonGroup widget on the form.
+\i \Menu {Tools|Containers|ButtonGroup} Click this option and then
+click the form to place a ButtonGroup on the form.
 
-\i \Menu {Tools|Containers|Frame} Click this option and
-click the form to place the Frame widget on the form.
+\i \Menu {Tools|Containers|Frame} Click this option and then
+click the form to place a Frame on the form.
 
-\i \Menu {Tools|Containers|TabWidget} Click this option and
-click the form to place the TabWidget widget on the form.
+\i \Menu {Tools|Containers|TabWidget} Click this option and then
+click the form to place a TabWidget on the form.
 
-\i \Menu {Tools|Views|ListBox} Click this option and
-click the form to place the ListBox widget on the form.
+\i \Menu {Tools|Views|ListBox} Click this option and then
+click the form to place a ListBox on the form.
 
-\i \Menu {Tools|Views|ListView} Click this option and
-click the form to place the ListView widget on the form.
+\i \Menu {Tools|Views|ListView} Click this option and then
+click the form to place a ListView on the form.
 
-\i \Menu {Tools|Views|Icon View} Click this option and
-click the form to place the Icon widget on the form.
+\i \Menu {Tools|Views|Icon View} Click this option and then
+click the form to place an Icon on the form.
 
-\i \Menu {Tools|Views|Table} Click this option and click the form to
-place the Table widget on the form.
+\i \Menu {Tools|Views|Table} Click this option and then click the form to
+place a Table on the form.
 
-\i \Menu {Tools|Database|DataTable} Click this option and 
-click the form to place the DataTable widget on the form.
+\i \Menu {Tools|Database|DataTable} Click this option and then 
+click the form to place a DataTable on the form.
 
-\i \Menu {Tools|Database|DataBrowser} Click this option and 
-click the form to place the DataBrowser widget on the form.
+\i \Menu {Tools|Database|DataBrowser} Click this option and then 
+click the form to place a DataBrowser on the form.
 
-\i \Menu {Tools|Database|DataView} Click this option and click the
-form to place the DataView widget on the form.
+\i \Menu {Tools|Database|DataView} Click this option and then click the
+form to place a DataView on the form.
 
-\i \Menu {Tools|Input|LineEdit} Click this option and click the form
-to place the LineEdit widget on the form.
+\i \Menu {Tools|Input|LineEdit} Click this option and then click the form
+to place a LineEdit on the form.
 
-\i \Menu {Tools|Input|SpinBox} Click this option and 
-click the form to place the SpinBox widget on the form.
+\i \Menu {Tools|Input|SpinBox} Click this option and then 
+click the form to place a SpinBox on the form.
 
-\i \Menu {Tools|Input|DateEdit} Click this option and 
-click the form to place the DateEdit widget on the form.
+\i \Menu {Tools|Input|DateEdit} Click this option and then 
+click the form to place a DateEdit on the form.
 
-\i \Menu {Tools|Input|TimeEdit} Click this option and 
-click the form to place the TimeEdit widget on the form.
+\i \Menu {Tools|Input|TimeEdit} Click this option and then 
+click the form to place a TimeEdit on the form.
 
-\i \Menu {Tools|Input|DateTimeEdit} Click this option and 
-click the form to place the DateTimeEdit widget on the form.
+\i \Menu {Tools|Input|DateTimeEdit} Click this option and then 
+click the form to place a DateTimeEdit on the form.
 
-\i \Menu {Tools|Input|TextEdit} Click this option and 
-click the form to place the TextEdit widget on the form.
+\i \Menu {Tools|Input|TextEdit} Click this option and then 
+click the form to place a TextEdit on the form.
 
-\i \Menu {Tools|Input|ComboBox} Click this option and 
-click the form to place the ComboBox widget on the form.
+\i \Menu {Tools|Input|ComboBox} Click this option and then 
+click the form to place a ComboBox on the form.
 
-\i \Menu {Tools|Input|Slider} Click this option and 
-click the form to place the Slider widget on the form.
+\i \Menu {Tools|Input|Slider} Click this option and then 
+click the form to place a Slider on the form.
 
-\i \Menu {Tools|Input|ScrollBar} Click this option and 
-click the form to place the Scrollbar widget on the form.
+\i \Menu {Tools|Input|ScrollBar} Click this option and then 
+click the form to place a Scrollbar on the form.
 
-\i \Menu {Tools|Input|Dial} Click this option and 
-click the form to place the Dial widget on the form.
+\i \Menu {Tools|Input|Dial} Click this option and then 
+click the form to place a Dial on the form.
 
-\i \Menu {Tools|Display|TextLabel} Click this option  and 
-click the form to place the TextLabel widget on the form.
+\i \Menu {Tools|Display|TextLabel} Click this option  and then 
+click the form to place a TextLabel on the form.
 
-\i \Menu {Tools|Display|PixmapLabel} Click this option and 
-click the form to place the PixmapLabel widget on the form.
+\i \Menu {Tools|Display|PixmapLabel} Click this option and then 
+click the form to place a PixmapLabel on the form.
 
-\i \Menu {Tools|Display|LCDNumber} Click this option and 
-click the form to place the LCDNumber widget on the form.
+\i \Menu {Tools|Display|LCDNumber} Click this option and then 
+click the form to place a LCDNumber on the form.
 
-\i \Menu {Tools|Display|Line} Click this option and 
-click the form to place the Line widget on the form.
+\i \Menu {Tools|Display|Line} Click this option and then 
+click the form to place a Line on the form.
 
-\i \Menu {Tools|Display|ProgressBar} Click this option and 
-click the form to place the ProgressBar widget on the form.
+\i \Menu {Tools|Display|ProgressBar} Click this option and then 
+click the form to place a ProgressBar on the form.
 
-\i \Menu {Tools|Display|TextBrowser} Click this option and 
-click the form to place the TextBrowser widget on the form.
+\i \Menu {Tools|Display|TextBrowser} Click this option and then 
+click the form to place a TextBrowser on the form.
 
 \i \Menu {Tools|Custom|Edit Custom Widgets} Click this menu option
-to invoke the \l{Edit Custom Widget Dialog}. The \Menu{Tools|Custom}
-menu also lists the names of any custom widgets that have been added
-to \QD; to add one of these widgets click its name.
+to invoke the \l{Edit Custom Widget Dialog}. 
 
-\i \Menu {Tools|Custom|My Custom Widget} Click this option and click
+\i \Menu {Tools|Custom|My Custom Widget} Click this option and then click
 the form to place the Custom Widget on the form. Note:This menu option
 appears if you have created a widget using Tools|Custom|Edit Custom
 Widgets. 
@@ -414,7 +412,8 @@ view each window in the order in which they were opened, continuing on
 to the next window that was opened.
 
 \i \Menu{Window|Previous} Click this menu option (or press \Key
-Ctrl+Shift+F6) to view each window in reverse order from last window that you opened. 
+Ctrl+Shift+F6) to view each window in reverse order from last window
+that you opened. 
 
 \i \Menu{Window|Tile} Click this menu option to arrange allthe open
 files and forms side by side so that each window is visible. This
@@ -438,7 +437,8 @@ menu option to make the \l{Property Editors/Signal Handlers} window
 visible or to hide the window if you do not want it to be visible. 
 
 \i \Menu{Window|Views|Object Explorer} Click this menu option to make
-the \l{Object Explorer} window visible or to hide the window if you do not want it to be visible. 
+the \l{Object Explorer} window visible or to hide the window if you do
+not want it to be visible. 
 
 \i \Menu{Window|Views|Line Up} Click this menu option to eliminate
 extra space between toolbars and line them up next to each other all
@@ -450,7 +450,9 @@ want them to be visible. If the toolbar buttons are currently visible,
 a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Edit} Click this menu option to make the Edit
-toolbar buttons visible or to hide the toolbar buttons if you do not want them to be visible. If the toolbar buttons are currently visible, a check mark will appear next to the name in the menu. 
+toolbar buttons visible or to hide the toolbar buttons if you do not
+want them to be visible. If the toolbar buttons are currently visible,
+a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Search} Click this menu option to make the
 Search toolbar buttons visible or to hide the toolbar buttons if you
@@ -458,24 +460,25 @@ do not want them to be visible. If the toolbar buttons are currently
 visible, a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Layout} Click this menu option to make the
-Layout toolbar buttons visible or to hide the toolbar buttons if you do not
-want them to be visible. If the toolbar buttons are currently visible,
-a check mark will appear next to the name in the menu. 
+Layout toolbar buttons visible or to hide the toolbar buttons if you
+do not want them to be visible. If the toolbar buttons are currently
+visible, a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Tools} Click this menu option to make the
-Tools toolbar buttons visible or to hide the toolbar buttons if you do not
-want them to be visible. If the toolbar buttons are currently visible,
-a check mark will appear next to the name in the menu. 
+Tools toolbar buttons visible or to hide the toolbar buttons if you do
+not want them to be visible. If the toolbar buttons are currently
+visible, a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Buttons} Click this menu option to make the
-Buttons toolbar buttons visible or to hide the toolbar buttons if you do not
-want them to be visible. If the toolbar buttons are currently visible,
-a check mark will appear next to the name in the menu. 
+Buttons toolbar buttons visible or to hide the toolbar buttons if you
+do not want them to be visible. If the toolbar buttons are currently
+visible, a check mark will appear next to the name in the menu. 
 
 \i \Menu{Window|Toolbars|Containers} Click this menu option to make the
-Containers toolbar buttons visible or to hide the toolbar buttons if you do not
-want them to be visible. If the toolbar buttons are currently visible,
-a check mark will appear next to the name in the menu. 
+Containers toolbar buttons visible or to hide the toolbar buttons if
+you do not want them to be visible. If the toolbar buttons are
+currently visible, a check mark will appear next to the name in the
+menu. 
 
 \i \Menu{Window|Toolbars|Views} Click this menu option to make the
 Views toolbar buttons visible or to hide the toolbar buttons if you do not

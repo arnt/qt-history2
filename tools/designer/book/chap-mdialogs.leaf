@@ -24,7 +24,7 @@ Into' combobox.
 
 The 'Dialog' file type is highlighted by default when the \Dialog{New
 File} dialog pops up. Click on the file type you want to use and click
-\OK to create it. Click \CANCEL to leave the \Dialog{New File} dialog
+\OK to create it. Click \CANCEL to leave the dialog
 without creating a new file. Note that if you select C++ Project, the
 'Insert Into' combobox will be grayed out, since it is not possible to
 insert a new C++ Project into an existing project.
@@ -316,29 +316,14 @@ to leave the dialog without opening a file.
 \target dialog-image-collection
 \section2 Image Collection Dialog
 
-Click \Menu{Project|Image Collection} to invoke the \Dialog{Manage Image
-Collection Dialog}. This dialog adds images that are imported from any
-location to the current project or to edits images that currently
-exist. 
+Click \Menu{Project|Image Collection} to invoke the \Dialog{Manage
+Image Collection Dialog}. Use this dialog to view images that
+currently exist, to add new images, or to delete images.  
 
-Click Add to invoke the \Dialog {Choose Images... Dialog}. This dialog
-defaults the directory and file type. To choose a different
-directory, click the 'Look In' combobox. Choose a file and the name
-will appear in the 'File Name' combobox. To choose a different file
-type, click the 'File Type'combobox. As you choose different files,
-you can preview the images in the window located on the right side of
-the dialog. Click the 'Create New Folder' toolbar button to create a
-new directory. Click the 'List View' toolbar button to view folders
-and files in a list with only the names showing. Click the 'Details'
-toolbar button to view the folders and file names along with their
-size, type, date, and attributes. Click the Size, Type, Date, or
-Attributes column headers to sort the folders or files. Click \Button
-Open to open the file. Click \CANCEL to leave the dialog without
-opening a file.
-
-Click the \Button Delete button to delete an existing image
-from the listbox. Click the \Button Close button to leave the dialog
-without editing or adding images.
+Click Add to invoke the \Dialog {Choose Images... Dialog}.  Click the
+\Button Delete button to delete an existing image from the listbox.
+Click the \Button Close button to leave the dialog without editing or
+adding images.
 
 
 \target dialog-edit-database-connections
@@ -352,7 +337,7 @@ database or to edit the current connection.
 \section2 Project Setting Dialog
 
 Click \Menu {Project|Project Settings} to invoke the \Dialog{Project
-Settings Dialog}. This dialog has makes changes the project settings.
+Settings Dialog}. Use this dialog to make changes to the project settings.
 
 \section3 Settings Tab
 
@@ -386,49 +371,56 @@ without making any changes to the project settings.
 \section2 Find Text Dialog
 
 Click \Menu{Search|Find} (or press \Key Ctrl+F) to invoke the \l{Find
-Text Dialog}. This dialog finds specific words or characters in the files.
+Text Dialog}. Use this dialog to find specific text in a project file.
 
-To find the text in the file that you want, type the text in the 'Find' listbox. You
-can define more specific searches by checking any or all of the
-checkboxes in the 'Options' section. The checkboxes are 'Whole words
-only','Case Sensitive' and 'Start at Beginning'. The 'Direction'
-section offers the 'Forward' radiobutton and the 'Backward'
-radiobutton to specify the location in the file in which you would
-like to start the search. Click the \Button Find button to search for
-text. When the text is found, it is highlighted in the file. Continue
-clicking \Button Find to search the whole file for other occurrences
-of the text.  Click the \Button Close button to leave the dialog.
+To find the text you want in a file, type the text in the
+'Find' combobox. You can make the search more specific by checking any
+or all of the checkboxes in the 'Options' section. Click the 'Whole
+words only' checkbox to narrow the search to whole words. Click 'Case
+Sensitive' to search for text that is case sensitive, based on the text
+you typed in the combobox. Click 'Start at Beginning' to start the
+search from the beginning of the file. The 'Direction' section
+offers the 'Forward' radiobutton and the 'Backward' radiobutton to
+specify the direction to perform the search in the file. Click the
+\Button Find button to start the search. When the text is found, it is
+highlighted in the file. Continue clicking \Button Find to search the
+whole file for other occurrences of the text.  Click the \Button Close
+button to leave the dialog.
 
 \target dialog-replace-text
 \section2 Replace Text Dialog
 
 Click \Menu{Search|Replace} (or press \Key {Ctrl+R}) to invoke the
-\Dialog{Replace Text Dialog}. This dialog replaces specific text in a
-file. 
+\Dialog{Replace Text Dialog}. Use this dialog to replace text in a
+project file.
 
 To replace text, type the text you would like to replace in the 'Find'
-listbox. Type the new text in the 'Replace' listbox. You can define
-more specific searches by checking any or all of the checkboxes in the
-'Options' section. The checkboxes are 'Whole words only','Case
-Sensitive' and 'Start at Beginning'. The 'Direction' section offers
-the 'Forward' radiobutton and the 'Backward' radiobutton to specify
-the order in which you would like to search. Click the \Button Replace
-button to search and replace the text. When the text is found, it is
-highlighted in the file. Continue clicking \Button Replace button to
-search and replace the each occurrence of the text in the file. Click
-\Button {Replace All} button to replace all occurences of the text in
-the file at one time. Click the \Button Close button to leave the
-dialog.
+combobox. Type the new text in the 'Replace' combobox. You can make
+the search more specific by checking any or all of the checkboxes in
+the 'Options' section. Click the 'Whole words only' checkbox to narrow
+the search to whole words. Click 'Case Sensitive' to search for text
+that is case sensitive, based on the text you typed in the combobox.
+Click 'Start at Beginning' to start the search from the beginning of
+the file. The 'Direction' section offers the 'Forward' radiobutton and
+the 'Backward' radiobutton to specify the direction to perform the
+search in the file.
+
+Click the \Button Replace button to search and replace the text. When
+the text is found, it is highlighted in the file. Continue clicking
+\Button Replace button to search and replace each occurrence of the
+text in the file. Click \Button {Replace All} button to replace all
+occurences of the text in the file at one time. Click the \Button
+Close button to leave the dialog.
 
 \target dialog-go-to-line
 \section2 Goto Line Dialog
 
 Click \Menu{Search|Goto line} (or press \Key {Alt+G}) to invoke the
-\Dialog{Goto Line Dialog}. This dialog takes you to a specific line in
+\Dialog{Goto Line Dialog}. Use this dialog to go to a specific line in
 the file. 
 
 To choose a line number, type the number in the 'Line' spinbox, or
-move the arrows up or down in the spinbox. Click the \Button Goto
+click the arrows in the spinbox. Click the \Button Goto
 button. The cursor is placed at the beginning of the line in the file.
 Click the \Button Close button to leave the dialog.
 
@@ -437,51 +429,348 @@ Click the \Button Close button to leave the dialog.
 \target dialog-qt-designer
 \section2  Qt Designer Dialog
 
-\Dialog{Qt Designer Dialog} Click \Menu{Help|About...} to view
-information information about \QD.
+Click \Menu{Help|About...} to invoke the \Dialog{Qt Designer Dialog}.
+This dialog provides information about \QD such as the version, and
+the licensing terms, conditions, and disclaimers.
 
 \target dialog-qt-designer
 \section2 Qt Designer Dialog
 
-\Dialog{Qt Designer Dialog} Click \Menu{Help|About Qt...} to view
-information about Qt.
+Click \Menu{Help|About Qt...} to invoke the \Dialog{Qt Designer
+Dialog}. This dialog provides information about Qt.
 
 
-\section1 Select a Color Dialog
 
-You can choose a color from the 'Basic Colors' section and a sample of
-the color will appear in the small box on the bottom of the dialog,
-along with details about color in the line edites to the right. In
-addition, the crosshairs in the larger window in the top right of the
-dialog show the location of the color in the spectrum. You can also
-create a palette of custom colors. There are two ways to do add custom
-colors. Click a color on the color spectrum window. When the color
-appears in the small box below the window, click the color and drag it
-to one of the blank boxes in the 'Custom Color' section of the dialog.
-You can also click and drag colors from the 'Basic Colors' section.
-Another way to add colors is to click the \Button {Add to Custom
-Colors} when you have chosen a color. Click \OK to accept the changes,
-or click \CANCEL to exit the dialog without selecting a color or
-adding custom colors.
 
+
+
+
+
+
+
+
+
+\target dialog-edit-connections
 \section1 Edit Connections Dialog
 
-Connections between signals and slots can be modified in the
-\Dialog{Edit Connections Dialog}. The top left hand listbox lists the
-Signals that the widget can emit. The top right combobox lists the
-form and its widgets. Beneath the combobox is the 'Slots' listbox
-which shows the slots available in the form or widget displayed in the
-'Slots' combobox which are compatible with the highlighted signal. To
-connect a signal to a slot, choose a signal from the 'Signals' listbox
-by clicking on it. Then choose a form or widget from the 'Slots'
-combobox. Choose a slot for the widget or form you select from the
-listbox. Click \Button Connect. The new connection will appear in the
-'Connections' listbox, along with any existing connections. Click the
-column headers Sender, Signal, Receiver, or Slot to sort the
-connections. To disconnect an existing connection, choose the
-connection from the 'Connections' listbox and click the \Button
-Disconnect button. Click \Button {Edit Slots} to invoke the
-\Dialog{Edit Slots Dialog}. Click \OK to accepts the changes. Click
-\CANCEL to leave the dialog without making changes to the connections.   
+Invoke this dialog by clicking Edit|Connections to first invoke the
+\Dialog 'View Connection'. Then click the \Button Edit button. Use
+this dialog to modify connections between signals and slots. 
+
+The top left hand listbox displays the Signals that the widget can emit.
+The top right combobox lists the form and its widgets. Beneath the
+combobox is the 'Slots' listbox which shows the slots available in the
+form or widget displayed in the 'Slots' combobox which are compatible
+with the highlighted signal. To connect a signal to a slot, choose a
+signal from the 'Signals' listbox by clicking on it. Then choose a
+form or widget from the 'Slots' combobox. Choose a slot for the widget
+or form you select from the listbox. The \Button Connect button will
+flash and the new connection will appear in the 'Connections' listbox,
+along with any existing connections. Click the column headers Sender,
+Signal, Receiver, or Slot to sort the connections. To disconnect an
+existing connection, choose the connection from the 'Connections'
+listbox and click the \Button Disconnect button. Click \Button {Edit
+Slots} to invoke the \Dialog{Edit Slots Dialog}. Click \OK to accept
+the changes. Click \CANCEL to leave the dialog without making changes
+to the connections.   
+
+\target dialog-edit-custom-widgets
+\section1 Edit Custom Widgets Dialog
+
+Invoke this dialog by clicking Tools|Custom|Edit Custom Widgets. Use
+this dialog to create custom widgets. Custom widgets are created in
+code. They may comprise of a combination of existing widgets but with
+additional functionality, slots and signals, or they may be written
+from scratch, or a mixture of both. A custom widget is often a
+specialization (subclass) of another widget or a combination of
+widgets working together or a blend of both these approaches. If you
+simply want a collection of widgets in a particular configuration it
+is easiest to create them, select them as a group, and copy and paste
+them as required within Qt Designer. Custom widgets are generally
+created when you need to add new functionality to existing widgets or
+groups of widgets. To add create a new widget, click the \Button New
+Widget button. You will find more information about adding new widgets in
+the 'Definitions Section'. To load a file which contains descriptions
+of custom widgets, click the \Button {Load Descriptions} button.
+Clicking this button invokes the \Dialog Open dialog. To save the
+descriptions of the listed custom widgets, click the \Button {Save
+Descriptions} button, which invokes the \Dialog {Save As} dialog. To
+delete a widget, click the widget in the listbox and then click the
+\Button Delete Widget button. Click \Button Close to leave the Edit
+Custom Widgets dialog.
+
+\section2 The Definition Tab
+
+To create a custom widget, click New Widget. Click the Definition tab
+if you are not already there. You should change the
+'Class' name from 'MyCustomWidget' to a unique name by typing in the
+line edit. Type in the 'Headerfile' line edit to change the name or
+type the name of a header file you want to use. To search for a saved
+header file in a directory, click the \Button {ellipsis ...} button to
+the right of the Headerfile line edit to invoke the \Dialog Open
+dialog. Click the 'Select Access' combobox to choose how the file will
+be included. Global include files will be included using brackets
+(<>). Local files will be included using quotation marks. If you have
+a pixmap that you want to use to identify your widget on the toolbar,
+click the ellipsis button to the right of 'Pixmap' property. (The
+ellipsis button appears when you click in the Value part of the
+Properties list by a pixmap or iconSet property.) This invokes the
+\Dialog{Choose a Pixmap Dialog}. Click the 'Size Hint' spin
+boxes to select the reccommended size for the widget. If you do not
+want to have a recommended size, enter -1/-1 in the spinboxes. Click
+the 'Size Policy' spinboxes to select the vertical size properties of
+the widget. Click the 'Container Widget' checkbox if the custom widget
+you are creating should be able to contain other widgets (children).
+
+\section2 The Signals Tab
+
+Click the Signals tab to view a list of all the signals the selected
+widget can emit. To add a new signal, click the \Button
+{New Signal} button. Click the 'Signal' line edit and provide an
+argument for the signal and give the signal a unique name. To delete a
+signal from the listbox, click the signal to choose it and then click
+the \Button {Delete Signal} button.
+
+\section2 The Slots Tab
+
+Click the Slots tab to view a list of all the slots of the selected
+custom widget. Click the 'Slot' or 'Access' cloumn headers to sort
+the signals in the listbox. To add a slot, click the \Button {New
+Slot} button. Click the 'Slot' line edit and provide an argument for
+the slot and give the slot a unique name. Click the 'Access' combobox
+to choose between public or protected access for your widget. To
+delete a slot from the listbox, click the slot and then click the
+\Button {Delete Slot}.
+
+\section2 The Properties Tab
+
+Click the Properties tab to view the list of properties for the
+selected widget. Click the 'Property' or 'Type' column headers to sort
+the properties in the listbox. To add a property, click the \Button 'New
+Property' button. Click the 'Property Name' line edit if you want to
+change the default name of the property. Note that properties have to
+be implemented in the class using the property system of Qt. To choose
+a property type, click the 'Type' combobox. To delete a property from
+the listbox, click the property and then click the \Button {Delete
+Property} button.
+
+\target dialog-choose-images
+\section1 Choose Images Dialog
+
+Use this dialog to choose images to use in a project.
+
+This dialog defaults the directory and file type. To choose a
+different directory, click the 'Look In' combobox. Choose a file and
+the name will appear in the 'File Name' combobox. To choose a
+different file type, click the 'File Type'combobox. As you choose
+different files, you can preview the images in the window located on
+the right side of the dialog. Click the 'Create New Folder' toolbar
+button to create a new directory. Click the 'List View' toolbar button
+to view folders and files in a list with only the names showing. Click
+the 'Details' toolbar button to view the folders and file names along
+with their size, type, date, and attributes. Click the Size, Type,
+Date, or Attributes column headers to sort the folders or files. Click
+\Button Open to open the file. Click \CANCEL to leave the dialog
+without opening a file.
+
+\target dialog-choose-an-image
+\section1 Choose an Image Dialog
+
+Use this dialog to choose images to use for a widget. 
+
+To choose an image from the dialog, click the image and then click
+\OK. Click \Button Add to invoke the \Dialog {Choose Images...
+Dialog}. To delete and image, click the image and then click the
+\Button Delete button. To leave the dialog without making any changes,
+click \CANCEL.
+
+\target dialog-select-color
+\section1 Select Color Dialog
+
+Use this dialog to select color preferences or to create color
+palettes. 
+
+Choose a color from the 'Basic Colors' section and a sample of
+the color will appear in the small preview box at the bottom of the
+dialog. To the right of the color sample, you will see line edits that
+have information about the location of the color in the color
+spectrum. In addition, the crosshairs in the larger color spectrum
+window show the location of the color. You can also create a palette
+of custom colors. There are two ways to do add custom colors. Click a
+color on the color spectrum window. When the color appears in the
+small box below the window, click the color and drag it to one of the
+blank boxes in the 'Custom Color' section of the dialog. You can also
+click and drag colors from the 'Basic Colors' section. Another way to
+add colors is to click the \Button {Add to Custom Colors} when you
+have chosen a color. Click \OK to accept the changes, or click \CANCEL
+to exit the dialog without selecting a color or adding custom colors.
+
+\target dialog-edit-palette
+\section1 Edit Palette Dialog
+
+The \Dialog {Edit Palette} dialog is invoked by clicking on the
+'Palette' line edit in the 'Property Editors/Signal Handlers' window.
+Use this dialog to change the palette of the current widget or form.
+You can use a generated palette, or selet colors for each color group
+and each color role. The palette can be tested with different widget
+layouts in the preview section.
+
+The 'Build Palette' section contains three buttons to help you build
+the palette. Click the \Button 3-D Effects button to invoke the
+\Dialog {Select Color Dialog}. Click the \Button Background to invoke
+the \Dialog {Select Color Dialog}. Click the \Button {Tune Palette}
+button to invoke the \Dialog {Tune Palette Dialog}. Click the 'Select
+Palette' combobox in the 'Preview' section to choose a palette to
+preview.
+
+Click \OK to accept the changes to the palette. Click \CANCEL to leave
+the dialog without making changes to the palette.
+
+\target dialog-tune-palette
+\section1 Tune Palette Dialog
+
+{Tune Palette Dialog} is invoked when you click the \Button
+{Tune Palette} button in the \Dialog {Edit Palette Dialog}.
+
+To select a type of palette, click the 'Select Palette' combobox and
+choose a palette. The 'Auto' section ####. Click the 'Central color
+roles' combobox to select a color role. Click the \Button 'Choose
+Pixmap' button to invoke the \Dialog {Choose a Pixmap Dialog}. Click
+the \Button {Select Color} button to invoke the \Dialog {Select Color
+Dialog}. Check the 'Build from button color' checkbox in the '3-D
+shadow effects' section to let the 3-D effects colors be calculated
+from the button-color. Uncheck the checkbox to enable the 'Choose 3-D
+effect color role' combobox. Click the combobox to select a color role
+for the 3-D effects. Click the \Button {Select Color} button to invoke
+the \Dialog {Select Color Dialog}. 
+
+Click \OK to accept changes to the palette. Click \CANCEL to leave
+the dialog without making changes to the palette.
+
+\target dialog-select-font
+\section1 Select Font Dialog
+
+Use the \Dialog {Select Font} dialog to make changes to the font size
+and style. 
+
+Click the 'Font' listbox to choose a font type. The current selected
+type appears in the line edit above the 'Font' listbox. Click the
+'Font Style' listbox to choose a style for the font. The choices
+available in the listbox are limited to the type of font you choose.
+Not all fonts have all styles available. The current selected style
+appears in the line edit above the 'Font Style' listbox. Click the
+'Size' listbox to choose a size for the font. The current selected
+size appears in the line edit above the 'Size' line edit. Click the
+checkboxes in the 'Effects' section to create a 'Strikeout' or
+'Underline' effect for the selected font. Click the 'Script' and
+choose a style of writing. View your font selections and styles in the
+'Sample' listbox. 
+
+\target dialog-text
+\section1 Text Dialog
+
+Use the \Dialog Text dialog to type text. It is invoked by clicking
+the 'ellipsis...' button in the 'whats This' property in the 'Property
+Editors/Signal Handlers' window. Click \OK to accept the text. Click
+\CANCEL to leave the dialog without saving any text.
+
+\target dialog-title
+\section1 Title Dialog
+
+Use this dialog to change the title of the widget by typing
+the new title in the line edit. Click \OK to accept the change. Click
+\CANCEL to leave the dialog without saving the change.
+
+
+\target dialog dialog-page-title
+\section1 Page Title Dialog
+
+Invoke the \Dialog {Page Title} dialog by right-clicking the Tab
+widget. Use this dialog to change the name of each tab in a Tab
+widget. Click \OK to accept the new name change. Click \CANCEL to
+leave the dialog without making any changes.  
+
+\target dialog edit-listbox
+\section1 Edit Listbox Dialog
+
+Right-click a Listbox on the form and select 'Edit' to invoke this
+dialog. Use this dialog to add items to the list box and to change the
+item's properties.
+
+To add an item to the listbox, click the \Button {New Item}. If you
+want to change the default name of the item, click the 'Text' line
+edit in the 'Item Properties' section and type a new name for the
+item. Click the \Button {Select a Pixmap} to invoke the \Dialog
+{Choose and Image Dialog}. Click a #### pixmap and then click the
+\Button {Delete Pixmap} button to delete the selected pixmap. To
+delete an item from the listbox, click the item and then click the
+\Button Delete button. To move an item up or down in the listbox,
+click the \Button {Move Up} or \Button {Move Down} buttons. Click
+\Button Apply to accept the changes. Click \OK to leave the dialog
+once the changes have been accepted. Click \CANCEL to leave the dialog
+without saving any changes.  
+
+\target dialog edit-listview
+\section1 Edit Listview
+
+Right-click a Listview on the form and select 'Edit' to invoke this
+dialog. Use the dialog to add items to the listview. The \Dialog Edit
+Listview dialog has two tabs, one for items and one for columns.
+
+\section2 The Items Tab 
+
+The dialog opens with the default on the Items tab. Use this tab to
+add, change, or remove items in the listview. To add a new item,
+click the \Button {New Item} button. The new item is shown at the top
+of the listbox. To add sub-items to an existing item, click the item
+and then click the \Button {New Subitem} button. Click the 'Column'
+spinbox to choose a column for which the item text or pixmap will be
+placed. Click the 'Text' line edit to type text for a column, or to
+change the name of an item or subitem. Click a #### pixmap
+and then click the \Button {Delete Pixmap} button to delete the
+selected pixmap. To delete an item from the listbox, click the item
+and then click the \Button Delete button. To move an item up or down
+in the listbox, click the \Button {Move Up} or \Button {Move Down}
+buttons. To move the  Click \Button Apply to accept the changes. Click \OK to leave
+the dialog once the change have been accepted. Click \CANCEL to leave
+the dialog without saving any changes.  
+
+
+
+\target dialog-edit-iconview
+\section1 Edit Iconview
+
+
+
+
+\target dialog edit-table
+\section1 Edit Table
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
