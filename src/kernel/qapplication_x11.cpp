@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#337 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#338 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2842,6 +2842,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	pos.ry() = event->xbutton.y;
 	globalPos.rx() = event->xbutton.x_root;
 	globalPos.ry() = event->xbutton.y_root;
+	state = translateButtonState( event->xbutton.state );
 	switch ( event->xbutton.button ) {
 	    case Button1: button = LeftButton;	
 		if ( isEnabled() &&
@@ -2901,7 +2902,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		}
 		return TRUE;
 	}
-	state = translateButtonState( event->xbutton.state );
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 	    qt_button_down = this;
 	    if ( mouseActWindow == event->xbutton.window &&
