@@ -21,6 +21,9 @@
 #endif
 #define QT_FATAL_ASSERT
 #define QT_NO_XINERAMA
+#define QT_NO_OPENGL
+#define QT_NO_STYLE_WINDOWSXP 
+
 //mac thingy
 #ifndef ONE_PIXEL_LOCK
 #define ONE_PIXEL_LOCK

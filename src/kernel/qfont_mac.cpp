@@ -194,8 +194,10 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     //now convert
     int buf_len = 2056;     //buffer
     uchar *buf = (uchar *)malloc(buf_len);
-    ItemCount run_len = 20; //runs
-    ScriptCodeRun runs[run_len];
+#define DEFAULT_RUNS 20
+    ItemCount run_len = DEFAULT_RUNS; //runs
+    ScriptCodeRun runs[DEFAULT_RUNS];
+#undef DEFAULT_RUNS
     ByteCount read, converted; //returns
     int read_so_far = 0;
     const int flags = kUnicodeUseFallbacksMask | kUnicodeTextRunMask;

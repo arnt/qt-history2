@@ -43,6 +43,7 @@
 #include "qglobal.h"
 #include "qdir_p.h"
 #include "qfileinfo.h"
+#include "qplatformdefs.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"

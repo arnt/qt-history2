@@ -43,6 +43,7 @@
 #endif
 
 #include "qfileinfo.h"
+#include "qplatformdefs.h"
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
@@ -70,7 +71,7 @@ bool QFileInfo::isFile() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_REG : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
 }
 
 
@@ -78,7 +79,7 @@ bool QFileInfo::isDir() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? (fic->st.st_mode & STAT_MASK) == STAT_DIR : FALSE;
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
 }
 
 bool QFileInfo::isSymLink() const
@@ -221,11 +222,11 @@ void QFileInfo::doStat() const
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
-    STATBUF *b = &that->fic->st;
+    QT_STATBUF *b = &that->fic->st;
 #if defined(Q_OS_UNIX)
     that->symLink = FALSE;
 #endif
-    int r = STAT( QFile::encodeName(QDir::convertSeparators(fn)), b );
+    int r = QT_STAT( QFile::encodeName(QDir::convertSeparators(fn)), b );
     if ( r != 0 ) {
 		delete that->fic;
 		that->fic = 0;

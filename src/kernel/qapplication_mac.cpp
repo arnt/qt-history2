@@ -93,6 +93,8 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <qdir.h>
+#elif defined(Q_WS_MAC9)
+#include <ctype.h>
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
@@ -593,10 +595,9 @@ int qStartTimer( int interval, QObject *obj )
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
     if(interval == 0) {
+    static int serial_id = 666;
 	t->mac_timer = NULL;
-	timeval tv;
-	gettimeofday(&tv, NULL);
-	t->id = tv.tv_usec;
+	t->id = serial_id++;
 	zero_timer_count++;
     } else {
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
