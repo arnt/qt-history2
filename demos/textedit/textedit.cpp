@@ -264,10 +264,12 @@ bool TextEdit::load(const QString &f)
     QByteArray data = file.readAll();
     QTextCodec *codec = Qt::codecForHtml(data);
     QString str = codec->toUnicode(data);
-    if (Qt::mightBeRichText(str))
+    if (Qt::mightBeRichText(str)) {
         edit->setHtml(str);
-    else
+    } else {
+        str = QString::fromLocal8Bit(data);
         edit->setPlainText(str);
+    }
 
     filenames.insert(edit, f);
     return true;
