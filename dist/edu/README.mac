@@ -4,7 +4,7 @@ Getting Started with Qt/Mac Educational Edition
 
 Welcome to the world of Qt programming!
 
-The Qt/Mac Educational Edition is built for Mac OS X.
+The Qt/Mac Educational Edition is built for Mac OS X (gcc 2.95).
 
 Please read the file LICENSE and agree to its contents before 
 you start using the Qt/Mac Educational Edition.
@@ -42,8 +42,7 @@ In order to compile the example programs from source you should:
    setenv DYLD_LIBRARY_PATH $DYLD_LIBRARY_PATH:$QTDIR/lib
 
    After you have done this, you will need to login again, or re-source 
-   the profile before continuing, so that at least $QTDIR is set.  
-   The installation will give an error message and not proceed otherwise.
+   the profile before continuing.
 
 Qt programs may be built from the command line (i.e. in a terminal window). 
 When working from the command line, the qmake tool is invaluable. It builds 
@@ -53,11 +52,9 @@ you save a project. It can also be manually created easily with a text editor.
 
 If you have been using tmake in the past you may simply copy your .pro 
 files onto Mac OS X and run qmake over them. Currently qmake will generate 
-unix-like Makefile specifically for Mac OS X. In the future, qmake will 
-support CodeWarrior and/or Project Builder.
+a Makefile or a ProjectBuilder project file.
 
 See the qmake section in the Qt reference manual for further information.
-
 
 Running Qt programs
 -------------------
@@ -90,13 +87,14 @@ This Qt/Mac Educational Edition has the following limitations compared
 to the full Qt/Mac Professional and Enterprise Editions:
 
 * The Qt source code is not included. Instead, the Qt library is provided
-pre-compiled.
+  pre-compiled.
 
-* The library is pre-built as a dynamic, multi-threaded library without
-debugging information. In the full versions, you may choose to build it as
-a static or dynamic library with single-threaded mode turned on or
-off. You may also build it with or without debugging information
-included included as an assistance during application development.
+* The library is pre-built as a dynamic, multi-threaded library (for
+  gcc 2.95)without debugging information. In the full versions, you may
+  choose to build it as a static or dynamic library with single-threaded
+  mode turned on or off. You may also build it with or without debugging
+  information included included as an assistance during application
+  development.
 
 
 Reporting Bugs, Mailing List and Support
