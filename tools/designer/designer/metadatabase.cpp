@@ -1400,7 +1400,15 @@ QString MetaDataBase::pixmapKey( QObject *o, int pixmap )
 	return QString::null;
     }
 
-    return *r->pixmapKeys.find( pixmap );
+    QString s = *r->pixmapKeys.find( pixmap );
+    if ( !s.isNull() )
+	return s;
+    if ( !o->isWidgetType() )
+	return s;
+    QWidget *w = (QWidget*)o;
+    if ( w->icon() )
+	return *r->pixmapKeys.find( w->icon()->serialNumber() );
+    return s;
 }
 
 void MetaDataBase::clearPixmapKeys( QObject *o )

@@ -1796,6 +1796,9 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     }
     if ( prop == "icon" ) {
 	formwindow->setIcon( v.toPixmap() );
+	QString pmk = MetaDataBase::pixmapKey( formwindow, v.toPixmap().serialNumber() );
+	MetaDataBase::setPixmapKey( formwindow,
+				    formwindow->icon()->serialNumber(), pmk );
     }
 
     if ( prop == "geometry" ) {
