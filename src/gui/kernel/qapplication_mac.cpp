@@ -394,7 +394,7 @@ void qt_mac_update_os_settings()
             { "QListView", kThemeViewsFont },
             { "QListBox", kThemeViewsFont },
             { "QTitleBar", kThemeWindowTitleFont },
-            { "QMenuBar", kThemeMenuTitleFont },
+            { "Q4MenuBar", kThemeMenuTitleFont },
             { "QMenu", kThemeMenuItemFont },
             { "Q3MenuBar", kThemeMenuTitleFont },
             { "Q3PopupMenu", kThemeMenuItemFont },
@@ -442,6 +442,7 @@ void qt_mac_update_os_settings()
             { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
             { "QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
             { "QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
+            { "Q3PopupMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
             { 0, 0, 0 } };
         QColor qc;
         RGBColor c;
@@ -463,7 +464,8 @@ void qt_mac_update_os_settings()
                 pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
                 pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
             }
-            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu")) {
+            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu") || 
+               !strcmp(mac_widget_colors[i].qt_class, "Q3PopupMenu")) {
                 GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
                 pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
                 GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
