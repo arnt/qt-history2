@@ -106,13 +106,17 @@ public:
 
     void deletePid()
     {
-	delete pid;
-	pid = 0;
+	if ( pid ) {
+	    CloseHandle( pid->hProcess );
+	    CloseHandle( pid->hThread );
+	    delete pid;
+	    pid = 0;
+	}
     }
 
     void newPid()
     {
-	delete pid;
+	deletePid();
 	pid = new PROCESS_INFORMATION;
 	memset( pid, 0, sizeof(PROCESS_INFORMATION) );
     }
@@ -269,7 +273,7 @@ bool QProcess::start( QStringList *env )
 #ifndef Q_OS_TEMP
     if( qt_winunicode ) {
 #endif
-	STARTUPINFO startupInfo = { 
+	STARTUPINFO startupInfo = {
 	    sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
@@ -321,7 +325,7 @@ bool QProcess::start( QStringList *env )
 	free( applicationName );
 	free( commandLine );
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif
     {
 	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
