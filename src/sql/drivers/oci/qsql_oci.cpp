@@ -390,7 +390,7 @@ public:
 					dataSize,
 					SQLT_BIN,
 					(dvoid *) createInd( count-1 ),
-					0, 0, OCI_DEFAULT );
+					0, 0, OCI_DYNAMIC_FETCH );
 		} else if ( ofi.oraType == SQLT_LBI ) {
 		    r = OCIDefineByPos( d->sql,
 					&dfn,
