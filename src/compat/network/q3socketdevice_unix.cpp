@@ -49,20 +49,6 @@ static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *a
 # undef accept
 #endif
 
-// Solaris redefines bind -> __xnet_bind with _XOPEN_SOURCE_EXTENDED
-static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
-{ return ::bind(s, addr, addrlen); }
-#if defined(bind)
-# undef bind
-#endif
-
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
-static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
-{ return ::connect(s, addr, addrlen); }
-#if defined(connect)
-# undef connect
-#endif
-
 // UnixWare 7 redefines listen -> _listen
 static inline int qt_socket_listen(int s, int backlog)
 { return ::listen(s, backlog); }

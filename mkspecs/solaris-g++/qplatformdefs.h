@@ -51,6 +51,16 @@
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return  ::connect(s, addr, addrlen); }
+#ifdef connect
+#undef connect
+#endif
+
+// Solaris redefines bind -> __xnet_bind with _XOPEN_SOURCE_EXTENDED
+static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
+{ return ::bind(s, addr, addrlen); }
+#if defined(bind)
+# undef bind
+#endif
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
@@ -102,8 +112,6 @@ extern "C" int gethostname(char *, int);
 #define QT_VSNPRINTF		::vsnprintf
 #endif
 
-#ifdef connect
-#undef connect
-#endif
+
 
 #endif // QPLATFORMDEFS_H
