@@ -57,11 +57,14 @@ QGroupBox *Window::createSecondExclusiveGroup()
     QRadioButton *radio2 = new QRadioButton(tr("Radi&o button 2"), groupBox);
     QRadioButton *radio3 = new QRadioButton(tr("Radio &button 3"), groupBox);
     radio1->setChecked(true);
+    QCheckBox *checkBox = new QCheckBox(tr("Independent checkbo&x"), groupBox);
+    checkBox->setChecked(true);
 
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
     vbox->addWidget(radio1);
     vbox->addWidget(radio2);
     vbox->addWidget(radio3);
+    vbox->addWidget(checkBox);
     vbox->addStretch(1);
 
     return groupBox;
@@ -94,6 +97,9 @@ QGroupBox *Window::createPushButtonGroup()
     groupBox->setChecked(true);
 
     QPushButton *pushButton = new QPushButton(tr("&Normal Button"), groupBox);
+    QPushButton *toggleButton = new QPushButton(tr("&Toggle Button"), groupBox);
+    toggleButton->setCheckable(true);
+    toggleButton->setChecked(true);
     QPushButton *flatButton = new QPushButton(tr("&Flat Button"), groupBox);
     flatButton->setFlat(true);
 
@@ -107,6 +113,7 @@ QGroupBox *Window::createPushButtonGroup()
 
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
     vbox->addWidget(pushButton);
+    vbox->addWidget(toggleButton);
     vbox->addWidget(flatButton);
     vbox->addWidget(popupButton);
     vbox->addStretch(1);
