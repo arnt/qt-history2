@@ -68,7 +68,8 @@ QSizeGrip (Win32) (Volker)
   Outlined resize as set in the system properties
 
 QButtonGroup
-  Should work not only for QRadioButtons
+  Should work not only for QRadioButtons ( I don't understand this
+  point - Matthias)
 
 QProgressBar
   setPercentageVisible( bool )
@@ -82,6 +83,10 @@ QScrollView
 
 QApplication
   something like bool hasPostedEvents() (info/arc-07/15087)
+  Something like QApplication::flush() to send posted events.
+
+QObject
+  UserData. d-pointer.
 
 New functionality
 -----------------
@@ -144,3 +149,30 @@ Text drawing in Qt (Matthias, Reggie, Lars)
 QThread (Volker, Brad)
     Evaluate possibility of event-loop passing and provide API for
     accessing low-level properties (e.g. priority and rights)
+
+Widgetflags (Matthias )
+    Reordering, cleanups. Introducing of a new WType_Dialog for
+    secondard windows. Fix testWState and testWFlags. Currently 
+    they return true if _something_ is set. This is pretty pointless
+    but used internally in Qt for some low-level optimizations. Those
+    have to be identified and fixed.
+
+Qt/MS-Windows (Matthias, Volker)
+   widget class work (qt_req_winclass). Should be possible to get rid
+   of the close button.
+   problems with non-clipping DC, should probably use GetDCEx instead
+   of GetWindowDC.
+
+Qt/X11 (Matthias, Brad)
+   NET_WM functionality directly in Qt. Maybe also better support for
+   Motif hints.
+
+moc: (Matthias)
+    new and faster signal and slot system
+    Q_DISPATCH macro and Q_OBJECT extensions to support remote
+    function calls. 
+    Bridge to KDE's dcop system.
+
+QListView / QListBox:
+    Make them usable with external data only (i.e.l without
+    QListViewItem, QListBoxItem, directly from the database).
