@@ -756,7 +756,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 	if(func == "load") {
 	    if(!file.endsWith(Option::prf_ext))
 		file += Option::prf_ext;
-	    if(file.find(Option::dir_sep) == -1) {
+	    if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
 		if(QFile::exists(Option::mkfile::qmakespec + QDir::separator() + file)) {
 		    file.prepend(Option::mkfile::qmakespec + QDir::separator());
 		} else {
