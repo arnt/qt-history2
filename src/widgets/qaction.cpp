@@ -60,17 +60,18 @@
 
   In GUI applications many commands can be invoked via a menu option, a
   toolbar button and a keyboard accelerator. Since the same action must
-  be performed regardless of how the action was invoked and since the
-  menu and toolbar should be kept in sync it is useful to represent a
+  be performed regardless of how the action was invoked, and since the
+  menu and toolbar should be kept in sync, it is useful to represent a
   command as an \e action. An action can be added to a menu and a
   toolbar and will automatically be kept in sync, for example, if the
-  user presses a Bold toolbar button the Bold menu item will be checked.
+  user presses a Bold toolbar button the Bold menu item will
+  automatically be checked.
 
   A QAction may contain an icon, a menu text, an accelerator, a status
   text, a whats this text and a tool tip. Most of these can be set in
-  the constructor. They can all be set independently with setIconSet(),
+  the constructor. They can also be set independently with setIconSet(),
   setText(), setMenuText(), setToolTip(), setStatusTip(), setWhatsThis()
-  and setAccel().
+  and setAccel(), respectively.
 
   An action may be a toggle action e.g. a Bold toolbar button, or a
   command action, e.g. 'Open File' which invokes an open file dialog.

@@ -78,11 +78,11 @@
   Each accelerator item consists of an identifier and a \l
   QKeySequence. A single key sequence consists of a keyboard code
   combined with modifiers (\c SHIFT, \c CTRL, \c ALT or \c
-  UNICODE_ACCEL).  For example, <code>CTRL + Key_P</code> could be a
+  UNICODE_ACCEL).  For example, \c{CTRL + Key_P} could be a
   shortcut for printing a document. The key codes are listed in
   qnamespace.h. As an alternative, use \c UNICODE_ACCEL with the
   unicode code point of the character. For example,
-  <code>UNICODE_ACCEL + 'A'</code> gives the same accelerator as \c
+  \c{UNICODE_ACCEL + 'A'} gives the same accelerator as \c
   Key_A.
 
   When an accelerator key is pressed, the accelerator sends out the
@@ -93,7 +93,7 @@
 
   Use setEnabled() to enable/disable all items in the accelerator, or
   setItemEnabled() to enable/disable individual items.  An item is
-  active only when the QAccel is enabled and the item itself is.
+  active only when both the QAccel and the item itself are enabled.
 
   The function setWhatsThis() specifies a help text that appears when
   the user presses an accelerator key in What's This mode.
@@ -112,7 +112,7 @@
   \endcode
 
   \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
-  QButton::setAccel() QLabel::setBuddy()
+  QButton::setAccel() QLabel::setBuddy() QKeySequence
   \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
@@ -254,7 +254,7 @@ QAccel::~QAccel()
 */
 
 /*!
-  Returns TRUE if the accelerator is enabled, or FALSE if it is disabled.
+  Returns TRUE if the accelerator is enabled; otherwise returns FALSE.
   \sa setEnabled(), isItemEnabled()
 */
 
@@ -308,8 +308,8 @@ static int get_seq_id()
 
   \code
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
-    a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P to print document
-    a->insertItem( Key_X + ALT , 201 );		// Alt+X  to quit
+    a->insertItem( Key_P + CTRL, 200 );		// Ctrl+P, e.g. to print document
+    a->insertItem( Key_X + ALT , 201 );		// Alt+X, e.g.  to quit
     a->insertItem( UNICODE_ACCEL + 'q', 202 );	// Unicode 'q' to quit
     a->insertItem( Key_D );			// gets a unique negative id < -1
     a->insertItem( Key_P + CTRL + SHIFT );	// gets a unique negative id < -1
@@ -346,8 +346,8 @@ void QAccel::clear()
 
 
 /*!
-  Returns the key sequence of the accelerator item with the identifier \a id,
-  or an invalid sequence if the id cannot be found.
+  Returns the key sequence of the accelerator item with identifier \a id,
+  or an invalid key sequence (0) if the id cannot be found.
 */
 
 QKeySequence QAccel::key( int id )
@@ -358,8 +358,8 @@ QKeySequence QAccel::key( int id )
 
 
 /*!
-  Returns the identifier of the accelerator item with the key code \a key, or
-  -1 if the item cannot be found.
+  Returns the identifier of the accelerator item with the key code \a
+  key, or -1 if the item cannot be found.
 */
 
 int QAccel::findKey( const QKeySequence& key ) const
@@ -384,7 +384,7 @@ bool QAccel::isItemEnabled( int id ) const
 
 /*!
   Enables the accelerator item with the identifier \a id if \a enable is
-  TRUE, and disables \a id if \a enable is FALSE.
+  TRUE, and disables item \a id if \a enable is FALSE.
 
   To work, an item must be enabled and be in an enabled QAccel.
 
@@ -517,16 +517,16 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 
 
 /*!
-  Returns the shortcut key for \a str, or 0 if \a str has no
-  shortcut sequence.
+  Returns the shortcut key sequence for \a str, or an invalid key
+  sequence (0) if \a str has no shortcut sequence.
 
   For example, shortcutKey("E&amp;xit") returns ALT+Key_X,
   shortcutKey("&amp;Exit") returns ALT+Key_E and shortcutKey("Exit")
   returns 0.  (In code that does not inherit the Qt namespace class,
-  you need to write e.g. Qt::ALT+Qt::Key_X.)
+  you must write e.g. Qt::ALT+Qt::Key_X.)
 
   We provide a \link accelerators.html list of common accelerators
-  \endlink in English.  At the time of this writing, Microsoft and The
+  \endlink in English. At the time of writing, Microsoft and
   Open Group do not appear to have issued equivalent recommendations for
   other languages.
 */
@@ -620,7 +620,7 @@ void QAccel::setWhatsThis( int id, const QString& text )
 
 /*!
   Returns the What's This help text for the specified item \a id or
-  QString::null if no text has been defined yet.
+  QString::null if no text has been specified.
 
   \sa setWhatsThis()
  */
@@ -658,10 +658,10 @@ agrees with Microsoft.
 
 The emboldened letter plus Alt is Microsoft's recommended choice, and
 we recommend supporting it.  For an Apply button, for example, we
-recommend QButton::setText( \link QWidget::tr() tr \endlink("&Apply") );
+recommend QButton::setText( \link QWidget::tr() tr \endlink("&amp;Apply") );
 
 If you have conflicting commands (e.g. About and Apply buttons in the
-same dialog), you have to decide for yourself.
+same dialog), you must decide for yourself.
 
 \list
 \i <b><u>A</u></b>bout
@@ -729,7 +729,7 @@ same dialog), you have to decide for yourself.
 \endlist
 
 There are also a lot of other keys and actions (that use other
-modifier keys than Alt).  See the Microsoft and Open Group
+modifier keys than Alt).  See the Microsoft and The Open Group
 documentation for details.
 
 The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
