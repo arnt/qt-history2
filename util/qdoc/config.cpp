@@ -366,7 +366,7 @@ bool Config::isDef( const QString& symbol ) const
 
 bool Config::generateHtmlFile( const QString& fileName ) const
 {
-    return onlyfn.exactMatch( className );
+    return onlyfn.exactMatch( fileName );
 }
 
 bool Config::matchLine( QString *key, QStringList *val )
