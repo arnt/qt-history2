@@ -2983,8 +2983,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         len = str.length() - pos;
 
     QFontMetrics fm( fontMetrics() );
-    QString string = str.mid( pos, len );
-    len = string.length();
 
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
         if ( testf(DirtyFont) ) {
@@ -2994,6 +2992,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[3];
 	    QPoint p(x, y);
+	    QString string( str );
 	    param[0].point = &p;
 	    param[1].str = &string;
 	    param[2].ival = QFont::Latin;// #######
@@ -3097,7 +3096,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     const TextLayout *layout = TextLayout::instance();
     ScriptItemArray items;
-    layout->itemize( items, string );
+    layout->itemize( items, str );
 
     int start = 0;
     int end = items.size();
@@ -3133,7 +3132,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	int current = visualOrder[i]+start;
 	const ScriptItem &it = items[ current ];
 	ShapedItem shaped;
-	layout->shape( shaped, cfont, string, items, current );
+	layout->shape( shaped, cfont, str, items, current );
 	int swidth = layout->width( shaped );
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
@@ -3154,9 +3153,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    length = pos + len - it.position - from;
 //  	qDebug("drawing item %d (from: %d, length: %d), script=%d, fe=%p", current, from, length, script, fe );
 
+	from = shaped.d->logClusters[from];
+	length = (from+length >= shaped.d->num_glyphs) ?
+		 shaped.d->num_glyphs - from : shaped.d->logClusters[from+length] - from;
 	fe->draw( this, x,  y, shaped.glyphs()+from, shaped.advances()+from,
 		  shaped.offsets()+from, length, rightToLeft );
-	if ( from != 0 || length != shaped.count() )
+	if ( from != 0 || length != shaped.d->num_glyphs )
 	    x += layout->width( shaped, from,  length );
 	else
 	    x += swidth;
