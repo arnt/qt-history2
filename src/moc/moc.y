@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#37 $
+** $Id: //depot/qt/main/src/moc/moc.y#38 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -26,16 +26,10 @@
 **
 ** Notice that this code is not possible to compile with GNU bison, instead
 ** use standard AT&T yacc or Berkeley yacc.
-** Don't panic if you get 7 shift/reduce conflicts. That is perfectly normal.
 **
 ** TODO:
-**    Figure out what to do with public/method
-**    Better grammer. int as def. return value.
 **    Clean up memory.
 *****************************************************************************/
-
-/* Gi feilmelding hvis Q_OBJECT IKKE ligger i private: delen av klassen!!! */
-
 
 %{
 #include "qlist.h"
@@ -46,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#38 $";
 #endif
 
 
