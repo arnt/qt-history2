@@ -347,9 +347,14 @@ bool QIconSet::isNull() const
 
   This is equivalent to assigning QIconSet(\a pm, \a size) to this
   icon set.
+
+  This function does nothing if \a pm is a null pixmap.
 */
 void QIconSet::reset( const QPixmap & pm, Size size )
 {
+    if ( pm.isNull() )
+	return;
+
     detach();
     if ( size == Small ||
 	 ( size == Automatic && pm.width() <= iconSize( Small ).width() ) )
@@ -373,10 +378,15 @@ void QIconSet::reset( const QPixmap & pm, Size size )
   considered to be Small. You can use setIconSize() to set the preferred 
   size of a generated icon.
 
+  This function does nothing if \a pm is a null pixmap.
+
   \sa reset()
 */
 void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state )
 {
+    if ( pm.isNull() )
+	return;
+
     detach();
     if ( d ) {
 	if ( state == Off ) {

@@ -340,8 +340,9 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
 {
     d = new QActionPrivate;
     d->toggleaction = toggle;
-    if ( !icon.isNull() && !icon.pixmap().isNull() )
+    if ( !icon.isNull() )
 	setIconSet( icon );
+
     d->text = text;
     d->menutext = menuText;
     setAccel( accel );
@@ -403,6 +404,9 @@ QAction::~QAction()
 */
 void QAction::setIconSet( const QIconSet& icon )
 {
+    if ( icon.isNull() )
+	return;
+
     register QIconSet *i = d->iconset;
     d->iconset = new QIconSet( icon );
     delete i;
@@ -989,8 +993,10 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     for ( QPtrListIterator<QToolButton> mb( menubuttons ); mb.current(); ++mb ) {
 	mb.current()->setEnabled( that->isEnabled() );
 
-	mb.current()->setTextLabel( that->text() );
-	mb.current()->setIconSet( that->iconSet() );
+	if ( !that->text().isNull() )
+	    mb.current()->setTextLabel( that->text() );
+	if ( !that->iconSet().isNull() )
+	    mb.current()->setIconSet( that->iconSet() );
 
 	QToolTip::remove( mb.current() );
 	QWhatsThis::remove( mb.current() );
@@ -1271,9 +1277,9 @@ bool QActionGroup::addTo( QWidget* w )
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
-		if ( !iconSet().isNull() && !iconSet().pixmap().isNull() )
+		if ( !iconSet().isNull() )
 		    btn->setIconSet( iconSet() );
-		else
+		else if ( !defAction->iconSet().isNull() )
 		    btn->setIconSet( defAction->iconSet() );
 		if ( !!text() )
 		    btn->setTextLabel( text() );
@@ -1327,7 +1333,7 @@ bool QActionGroup::addTo( QWidget* w )
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 
 	    int id;
-	    if ( !iconSet().isNull() && !iconSet().pixmap().isNull() ) {
+	    if ( !iconSet().isNull() ) {
 		if ( menuText().isEmpty() )
 		    id = menu->insertItem( iconSet(), text(), popup );
 		else
