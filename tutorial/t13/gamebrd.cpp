@@ -49,11 +49,12 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     shoot = new QPushButton( "Shoot", this, "shoot" );
     shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()) );
+    connect( shoot, SIGNAL(clicked()), SLOT(fire()) );
 
-    reStart = new QPushButton( "New Game", this, "newgame" );
-    reStart->setFont( QFont( "Times", 18, QFont::Bold ) );
-    connect( reStart, SIGNAL(clicked()), SLOT(newGame()) );
+    restart = new QPushButton( "New Game", this, "newgame" );
+    restart->setFont( QFont( "Times", 18, QFont::Bold ) );
+
+    connect( restart, SIGNAL(clicked()), SLOT(newGame()) );
 
     hits  	       = new QLCDNumber( 2, this, "hits" );
     shotsLeft 	       = new QLCDNumber( 2, this, "shotsleft" );
@@ -65,12 +66,11 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     force->setGeometry( 10, angle->y() + angle->height() + 10, 75, 130 );
     cannonField->move( angle->x() + angle->width() + 10, angle->y() );
     shoot->setGeometry( 10, 315, 75, 30 );
-    reStart->setGeometry( 380, 10, 110, 30 );
+    restart->setGeometry( 380, 10, 110, 30 );
     hits->setGeometry( 130, 10, 40, 30 );
     hitsL->setGeometry( hits->x() + hits->width() + 5, 10, 60, 30 );
     shotsLeft->setGeometry( 240, 10, 40, 30 );
-    shotsLeftL->setGeometry( shotsLeft->x() + shotsLeft->width() + 5, 10, 
-                             60, 30);
+    shotsLeftL->setGeometry( shotsLeft->x()+shotsLeft->width()+5, 10, 60, 30 );
 
     newGame();
 }

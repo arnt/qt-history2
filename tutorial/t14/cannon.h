@@ -24,6 +24,7 @@ public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );
     void  shoot();
+    void  newTarget();
     void  setGameOver();
     void  restartGame();
 signals:
@@ -37,7 +38,6 @@ protected:
     void  mousePressEvent( QMouseEvent * );
     void  mouseMoveEvent( QMouseEvent * );
     void  mouseReleaseEvent( QMouseEvent * );
-    void  mouseDoubleEvent( QMouseEvent * );
 private:
     void  stopShooting();
     void  paintShot( QPainter * );
@@ -48,7 +48,6 @@ private:
     QRect shotRect() const;
     QRect targetRect() const;
     QRect barrierRect() const;
-    void  newTarget();
     bool  barrelHit( const QPoint & ) const;
 
     int   ang;

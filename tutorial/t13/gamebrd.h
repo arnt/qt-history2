@@ -33,7 +33,7 @@ protected slots:
 private:
     QPushButton *quit;
     QPushButton *shoot;
-    QPushButton *reStart;
+    QPushButton *restart;
     LCDRange    *angle;
     LCDRange    *force;
     QLCDNumber  *hits;

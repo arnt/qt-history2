@@ -7,7 +7,7 @@
 #include "cannon.h"
 #include <qpainter.h>
 #include <qpixmap.h>
-#include <qwmatrix.h>
+#include <qdatetm.h>
 #include <qfont.h>
 
 #include <math.h>
@@ -44,30 +44,10 @@ void CannonField::setForce( int newton )
 {
     if ( newton < 0 )
 	newton = 0;
-    if ( newton > 50 )
-	newton = 50;
     if ( f == newton )
 	return;
     f = newton;
     emit forceChanged( f );
-    const bool cheat = TRUE;
-    if ( cheat ) {
-	update();
-	QRect r;
-	QPainter p;
-	p.begin( this );
-	timerCount = 0;
-	shoot_ang = ang;
-	shoot_f = f;
-	p.setPen( red );
-	do {
-	    r = shotRect();
-	    p.drawPoint( r.center() );
-	    timerCount++;
-	} while ( r.x() < width() );
-	timerCount = 0;
-	p.end();
-    }
 }
 
 void CannonField::shoot()
@@ -79,6 +59,20 @@ void CannonField::shoot()
     shoot_f    = f;
     shooting   = TRUE;
     startTimer( 50 );
+}
+
+void  CannonField::newTarget()
+{
+    static bool first_time = TRUE;
+    if ( first_time ) {
+	first_time = FALSE;
+	QTime midnight( 0, 0, 0 );
+	srand( midnight.secsTo(QTime::currentTime()) );
+    }
+    erase( targetRect() );
+    target = QPoint( 200 + rand() % 190,
+		     10  + rand() % 255 );
+    repaint( targetRect() );
 }
 
 void CannonField::setGameOver()
@@ -95,7 +89,6 @@ void CannonField::restartGame()
 {    
     if ( shooting )
 	stopShooting();
-    newTarget();
     gameEnded = FALSE;
     repaint();
 }
@@ -105,23 +98,15 @@ void CannonField::timerEvent( QTimerEvent * )
     erase( shotRect() );
     timerCount++;
 
-    QRect shotR   = shotRect();
+    QRect shotR = shotRect();
 
     if ( shotR.intersects( targetRect() ) ) {
-	erase( targetRect() );
 	stopShooting();
-	newTarget();
-	repaint( targetRect(), FALSE );
 	emit hit();	
 	return;
     }
-    if ( shotR.intersects( barrierRect() ) ) {
-	stopShooting();
-	repaint( barrierRect(), FALSE );
-	emit missed();
-	return;
-    }	
-    if ( shotR.x() > width() || shotR.y() > height() ) {
+    if ( (shotR.x() > width() || shotR.y() > height()) ||
+	 shotR.intersects(barrierRect()) ) {
 	stopShooting();
 	emit missed();
 	return;
@@ -160,17 +145,6 @@ void CannonField::mousePressEvent( QMouseEvent *e )
 	barrelPressed = TRUE;
 }
 
-const QRect barrel_rect(33, -4, 15, 8);
-
-bool CannonField::barrelHit( const QPoint &p ) const
-{
-    QWMatrix mtx;
-    mtx.translate( 0, height() - 1 );
-    mtx.rotate( -ang );
-    QRect r = mtx.map( barrel_rect );
-    return r.contains( p );
-}
-
 void CannonField::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !barrelPressed )
@@ -181,18 +155,13 @@ void CannonField::mouseMoveEvent( QMouseEvent *e )
     if ( pnt.y() >= height() )
 	pnt.setY( height() - 1 );
     double rad = atan( ((double) rect().bottom() - pnt.y()) /  pnt.x() );
-    setAngle ( qRound ( rad*180/3.14159265 ) );
+    setAngle( qRound ( rad*180/3.14159265 ) );
 }
 
 void CannonField::mouseReleaseEvent( QMouseEvent *e )
 {
-    mouseMoveEvent( e );
-    barrelPressed = FALSE;
-}
-
-void CannonField::mouseDoubleEvent( QMouseEvent *e )
-{
-    mousePressEvent( e );
+    if ( e->button() == LeftButton )
+	barrelPressed = FALSE;
 }
 
 void CannonField::stopShooting()
@@ -221,6 +190,8 @@ void CannonField::paintBarrier( QPainter *p )
     p->setPen( black );
     p->drawRect( barrierRect() );
 }
+
+const QRect barrel_rect(33, -4, 15, 8);
 
 void CannonField::paintCannon( QPainter *p )
 {
@@ -272,7 +243,7 @@ QRect CannonField::shotRect() const
 QRect CannonField::targetRect() const
 {
     QRect r( 0, 0, 20, 10 );
-    r.setCenter( target );
+    r.setCenter( QPoint(target.x(),height() - 1 - target.y()) );
     return r;
 }
 
@@ -281,8 +252,15 @@ QRect CannonField::barrierRect() const
     return QRect( 145, height() - 100, 15, 100 );
 }
 
-void  CannonField::newTarget()
+bool CannonField::barrelHit( const QPoint &p ) const
 {
-    target = QPoint( 200 + rand() % ( width() - 200 - 10), 
-                      35 + rand() % (height() - 35  - 10) );
+    QWMatrix mtx;
+    mtx.translate( 0, height() - 1 );
+    mtx.rotate( -ang );
+    debug( "------\np=(%d,%d)", p.x(), p.y() );
+    QPoint p2;
+    p2 = mtx.map(p);
+    mtx = mtx.invert();
+    debug( 
+    return barrel_rect.contains( mtx.map(p) );
 }
