@@ -127,6 +127,9 @@ public:
     int count() const;
     void sort(Qt::SortOrder order);
 
+    QListWidgetItem *currentItem() const;
+    void setCurrentItem(QListWidgetItem *item);
+
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 

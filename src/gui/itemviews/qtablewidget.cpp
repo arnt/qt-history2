@@ -678,6 +678,16 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
     }
 }
 
+QTableWidgetItem *QTableWidget::currentItem() const
+{
+    return d->model()->item(currentIndex());
+}
+
+void QTableWidget::setCurrentItem(QTableWidgetItem *item)
+{
+    setCurrentIndex(d->model()->index(item));
+}
+
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);

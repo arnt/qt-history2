@@ -663,6 +663,16 @@ void QListWidget::sort(Qt::SortOrder order)
     d->model()->sort(0, QModelIndex::Null, order);
 }
 
+QListWidgetItem *QListWidget::currentItem() const
+{
+    return d->model()->at(currentIndex().row());
+}
+
+void QListWidget::setCurrentItem(QListWidgetItem *item)
+{
+    setCurrentIndex(d->model()->index(item));
+}
+
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
     Q_ASSERT(item);

@@ -133,6 +133,9 @@ public:
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
+    QTableWidgetItem *currentItem() const;
+    void setCurrentItem(QTableWidgetItem *item);
+
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);
 
