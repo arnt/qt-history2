@@ -3219,7 +3219,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             if (!prop.isEnumType())
                 type = prop.type();
             QVariantToVoidStar(VARIANTToQVariant(arg, proptype, type), *v, proptype, type);
-            if (arg.vt != VT_DISPATCH && arg.vt != VT_UNKNOWN)
+            if ((arg.vt != VT_DISPATCH && arg.vt != VT_UNKNOWN) || type == QVariant::Pixmap || type == QVariant::Font)
                 clearVARIANT(&arg);
         }
         break;
@@ -3786,7 +3786,7 @@ QVariant QAxBase::dynamicCall(const char *function, QList<QVariant> &vars)
         return QVariant();
 
     QVariant qvar = VARIANTToQVariant(res, rettype);
-    if (res.vt != VT_DISPATCH && res.vt != VT_UNKNOWN)
+    if ((res.vt != VT_DISPATCH && res.vt != VT_UNKNOWN) || qvar.type() == QVariant::Pixmap || qvar.type() == QVariant::Font)
         clearVARIANT(&res);
 
     return qvar;
