@@ -1391,13 +1391,13 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	    bmh->biWidth	  = dst->width();
 	    bmh->biHeight	  = -dst->height();			// top-down bitmap
 	    bmh->biPlanes	  = 1;
-	    bmh->biBitCount	  = dst->depth();
+	    bmh->biBitCount	  = 32;
 	    bmh->biCompression	  = BI_RGB;
 	    bmh->biSizeImage	  = dst->width() * dst->height() * 4;
 	    bmh->biClrUsed	  = 0;
 	    bmh->biClrImportant	  = 0;
 
-	    QPixmap pm( dst->width(), dst->height(), 32 );
+	    QPixmap pm( dst->width(), dst->height(), -1 );
 	    pm.initAlphaPixmap( 0, 0, bmi );
 
 #ifndef Q_OS_TEMP
