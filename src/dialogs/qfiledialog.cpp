@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#2 $";
 #endif
 
 
@@ -30,7 +30,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#1 $";
 
   Example:
   \code
-    QString fileName = QFileDialog::getLoadFile();
+    QString fileName = QFileDialog::getOpenFileName();
     if ( !fileName.isNull() ) {			// got a file name
 	...
     }
@@ -230,9 +230,10 @@ void QFileDialog::rereadDir()
 
     const QFileInfoList *filist = d.entryInfos();
     QFileInfoIterator 	 it( *filist );
-    QFileInfo		*fi;
-    for ( fi=fiter.toFirst(); fi && fi->isDir(); fi = ++it ) {
+    QFileInfo		*fi = it.current();
+    while ( fi && fi->isDir() ) {
 	dirs->insertItem( fi->fileName().data() );
+	fi = ++it;
     }    
     while ( fi ) {
 	files->insertItem( fi->fileName().data() );
@@ -249,39 +250,41 @@ void QFileDialog::rereadDir()
 
 
 /*----------------------------------------------------------------------------
-  The do-it-all static function that opens a file dialog and returns
-  a file name for a file to be loaded.
+  Opens a modal file dialog and returns the name of the file to be opened.
+  Returns a \link QString::isNull() null string\endlink if the user cancelled
+  the dialog.
  ----------------------------------------------------------------------------*/
 
-QString QFileDialog::getLoadFile( const QPoint &p, 
-				  const char *pathName, const char *filter )
+QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
+				      QWidget *parent, const char *name )
 {
-    QFileDialog dlg( 0, 0, TRUE );
-    if ( p != QPoint(-1,-1) )
-	dlg.move( p );
-    dlg.show();
-    if ( dlg.result() == QDialog::Accepted )
-	return dlg.selectedFile();
-    else
-	return QString();
+    QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
+    CHECK_PTR( dlg );
+    dlg->setCaption( "Open" );
+    QString result;
+    if ( dlg->exec() == QDialog::Accepted )
+	result = dlg->selectedFile();
+    delete dlg;
+    return result;
 }
 
 /*----------------------------------------------------------------------------
-  The do-it-all static function that opens a file dialog and returns
-  a file name for a file to be saved.
+  Opens a modal file dialog and returns the name of the file to be saved.
+  Returns a \link QString::isNull() null string\endlink if the user cancelled
+  the dialog.
  ----------------------------------------------------------------------------*/
 
-QString QFileDialog::getSaveFile( const QPoint &p, 
-				  const char *pathName, const char *filter )
+QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
+				      QWidget *parent, const char *name )
 {
-    QFileDialog dlg( 0, 0, TRUE );
-    if ( p != QPoint(-1,-1) )
-	dlg.move( p );
-    dlg.show();
-    if ( dlg.result() == QDialog::Accepted )
-	return dlg.selectedFile();
-    else
-	return QString();
+    QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
+    CHECK_PTR( dlg );
+    dlg->setCaption( "Save As" );
+    QString result;
+    if ( dlg->exec() == QDialog::Accepted )
+	result = dlg->selectedFile();
+    delete dlg;
+    return result;
 }
 
 
