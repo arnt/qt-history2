@@ -145,6 +145,10 @@ void MainWindow::setupEditActions()
     actionEditDelete->setWhatsThis( whatsThisFrom( "Edit|Delete" ) );
     connect( actionEditDelete, SIGNAL( activated() ), this, SLOT( editDelete() ) );
     actionEditDelete->setEnabled( FALSE );
+#ifdef Q_WS_MAC
+    QAction *macDelete = new QAction( tr( "Delete" ), QPixmap(), tr( "&Delete" ), Key_Backspace, this, 0 );
+    connect( macDelete, SIGNAL( activated() ), this, SLOT( editDelete() ) );
+#endif
 
     actionEditSelectAll = new QAction( tr( "Select All" ), QPixmap(), tr( "Select &All" ), CTRL + Key_A, this, 0 );
     actionEditSelectAll->setStatusTip( tr( "Selects all widgets" ) );
