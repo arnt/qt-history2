@@ -129,33 +129,30 @@ static const char * const tree_branch_closed_xpm[] = {
 "#########"};
 
 static const char * const tb_extension_arrow_v_xpm[] = {
-    "7 9 3 1",
+    "5 8 3 1",
     "            c None",
     ".            c #000000",
     "+            c none",
-    ".+++++.",
-    "..+++..",
-    "+..+..+",
-    "++...++",
-    ".++.++.",
-    "..+++..",
-    "+..+..+",
-    "++...++",
-    "+++.+++"
+    ".+++.",
+    "..+..",
+    "+...+",
+    "++.++",
+    ".+++.",
+    "..+..",
+    "+...+",
+    "++.++"
 };
 
 static const char * const tb_extension_arrow_h_xpm[] = {
-    "9 7 3 1",
+    "8 5 3 1",
     "            c None",
     ".            c #000000",
     "+            c none",
-    "..++..+++",
-    "+..++..++",
-    "++..++..+",
-    "+++..++..",
-    "++..++..+",
-    "+..++..++",
-    "..++..+++"
+    "..++..++",
+    "+..++..+",
+    "++..++..",
+    "+..++..+",
+    "..++..++",
 };
 
 static const char * const filedialog_start_xpm[]={
@@ -2692,7 +2689,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_ToolBarExtensionExtent:
-        ret = 14;
+        ret = 12;
         break;
 
     case PM_TabBarTabOverlap:
