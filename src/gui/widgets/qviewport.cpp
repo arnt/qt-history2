@@ -625,9 +625,7 @@ void QViewportPrivate::showOrHideScrollBars()
 */
 QSize QViewport::minimumSizeHint() const
 {
-    int h = fontMetrics().height();
-    if (h < 10)
-        h = 10;
+    int h = qMax(10, fontMetrics().height());
     int f = 2 * d->frameWidth;
     return QSize((6 * h) + f, (4 * h) + f);
 }
