@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#485 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#486 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1581,7 +1581,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
-    } else
+    } else {
 	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST
 	     && message != WM_MOUSEWHEEL ) {
 	    if ( qApp->activePopupWidget() != 0) { // in popup mode
@@ -1610,7 +1610,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    widget->translateMouseEvent( msg );	// mouse event
 	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg );
-	} else
+	} else {
 	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event
 	    case WM_KEYUP:
@@ -1905,6 +1905,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    }
+	}
+    }
 
     if ( evt_type != QEvent::None ) {		// simple event
 	QEvent e( evt_type );
