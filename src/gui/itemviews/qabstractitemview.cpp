@@ -555,9 +555,14 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::reset()
 {
-    bool block = blockSignals(true); // no rootChanged signal
-    setRoot(QModelIndex::Null); // does a relayout
-    blockSignals(block);
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    for (; it != d->editors.end(); ++it)
+        itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled, it.value(), model(), it.key());
+    d->editors.clear();
+    
+    d->state = NoState;
+    if (isVisible())
+        doItemsLayout();
      // the views will be updated later
 }
 
