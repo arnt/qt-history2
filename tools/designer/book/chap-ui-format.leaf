@@ -42,12 +42,14 @@ types:
 \i \link images images\endlink - embedded images: only for \c .ui files than include embedded images; images are normally stored in a separate \c images directory
 \i \link includes includes\endlink - include files
 \i \link layoutdefaults layoutdefaults\endlink - default values for layout attributes
+\i \link layoutfunctions layoutfunctions\endlink - dynamic default values for layout attributes
 \i \link menubar menubar\endlink - menu bar, for \l QMainWindow forms
 \i \link pixmapfunction pixmapfunction\endlink - the name of the function to use for retrieving pixmaps if neither embedded nor external pixmaps are being used
 \i \link pixmapinproject pixmapinproject\endlink - an element whose
 presence ndicates that the pixmaps are handled by the \c .pro file
 \i \link signals signals\endlink - signal declarations
 \i \link slots slots\endlink - slot declarations
+\i \link functions functions\endlink - function declarations
 \i \link tabstops tabstops\endlink - the form's tab order
 \i \link toolbars toolbars\endlink - toolbars, for \l QMainWindow forms
 \i \link variables variables\endlink - class variables
@@ -140,7 +142,6 @@ notices, as a simple string.
 ** not clear to you.
 **
 *********************************************************************</comment>
-</comment>
 \endcode
 
 \target connections
@@ -152,7 +153,7 @@ the form.
 The \c connections element contains one or more \c connection elements
 and one or more \c slot elements. Each \c connection element
 identifies the signaling object and its signal, and the receiving
-object and its slot. Each \c slot element provides a slot's prototype.
+object and its slot. 
 
 \code
 <connections>
@@ -163,9 +164,6 @@ object and its slot. Each \c slot element provides a slot's prototype.
         <receiver>EditorForm</receiver>
         <slot>changeAlignment(QAction*)</slot>
     </connection>
-    ...
-    <slot access="public" specifier="virtual" language="C++" 
-	returnType="void">changeAlignment(QAction* align)</slot>
     ...
 </connections>
 \endcode
@@ -307,6 +305,24 @@ overridden on a case-by-case basis.
 <layoutdefaults spacing="6" margin="11"/>
 \endcode
 
+See also \l layoutfunctions.
+
+\target layoutfunctions
+\section2 layoutfunctions
+
+Sometimes the spacing respectively margin values should be dynamically, e.g.
+to provide a common look in a windowmanager.
+
+\code
+<layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
+\endcode
+
+If a layout has no property \c margin or \c spacing specified, the default values
+(\c layoutdefaults)of the form will be used. If there are functions, this functions
+are used, i.e. functions have a higher priority than default values, but the
+highest priority has a directly to a layout specified number.
+
+
 \target menubar
 \section2 menubar
 
@@ -359,13 +375,42 @@ application's project file. This can be signified by including the
 \target signals
 \section2 signals
 
-See \l connections.
+Within a \c{<signals>} tag, all signals are listed.
+
+\code
+<signals>
+    <signal>sthChanged()</signal>
+</signals>
+\endcode
 
 \target slots
 \section2 slots
 
+See \l functions.
 
-See \l connections.
+\target functions
+\section2 functions
+
+The \cfunctions element contains a list of functions. Function can be
+either normal C++ functions or Slots. For a better specification of a
+function, the following attributes are available:
+
+\list 
+\i type: \c slot or \c function
+\i access: \c private, \c protected or \c public. Default: \c public
+\i returnType: the return datatype of the function. Default: void
+\i specifier: \c{non virtual}, \c virtual or \c{pure virtual}. Default: \c virtual
+\i language: specifies the programming language. Default: \c C++
+\endlist
+
+\code
+<functions>
+    <function type="slot" access="protected">calculateFields()</function>
+    <function type="slot" access="private">startCounter()</function>
+    <function type="function" access="private" specifier="non virtual">isValid()</function>
+    <function type="function" access="public" returnType="QString">getMessage()</function>
+</functions>
+\endcode
 
 \target tabstops
 \section2 tabstops
