@@ -91,7 +91,7 @@ public:
 			{ return !(operator==(r)); }
 
 #if defined(Q_WS_WIN)
-    HRGN    handle() const { return data->is_rect ? &data->data->rgn; }
+    HRGN    handle() const { return data->rgn; }
 #elif defined(Q_WS_X11)
     Region  handle() const { return data->rgn; }
 #elif defined(Q_WS_MAC)
