@@ -1010,17 +1010,18 @@ void QDockArea::setFixedExtent( int d, QDockWindow *dw )
 	    if ( dw->x() != w->x() )
 		continue;
 	}
-	if ( orientation() == Horizontal ) 
+	if ( orientation() == Horizontal )
 	    d = QMAX( d, w->minimumHeight() );
 	else
 	    d = QMAX( d, w->minimumWidth() );
-	lst.append( w );
+	if ( w->isResizeEnabled() )
+	    lst.append( w );
     }
     for ( w = lst.first(); w; w = lst.next() ) {
-	if ( orientation() == Horizontal ) 
+	if ( orientation() == Horizontal )
 	    w->setFixedExtentHeight( d );
 	else
 	    w->setFixedExtentWidth( d );
-    }    
+    }
 }
 
