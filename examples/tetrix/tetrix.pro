@@ -12,4 +12,4 @@ SOURCES		= gtetrix.cpp \
 		  tetrix.cpp \
 		  tpiece.cpp
 TARGET		= tetrix
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

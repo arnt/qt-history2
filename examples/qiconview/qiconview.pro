@@ -4,4 +4,4 @@ HEADERS		= qiconview.h
 SOURCES		= main.cpp \
 		  qiconview.cpp
 TARGET		= qiconview
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -4,4 +4,4 @@ HEADERS		= table.h
 SOURCES		= main.cpp \
 		  table.cpp
 TARGET		= table
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

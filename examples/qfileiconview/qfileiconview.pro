@@ -10,4 +10,4 @@ SOURCES		= main.cpp \
               ../../simple/dirview/dirview.cpp \
               ../../simple/qiconview/qiconview.cpp
 TARGET		= qfileiconview
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

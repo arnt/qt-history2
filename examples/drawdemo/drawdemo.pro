@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= drawdemo.cpp
 TARGET		= drawdemo
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= desktop.cpp
 TARGET		= desktop
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

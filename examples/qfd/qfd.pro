@@ -4,4 +4,4 @@ HEADERS		= fontdisplayer.h
 SOURCES		= fontdisplayer.cpp \
 		  qfd.cpp
 TARGET		= qfd
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -4,4 +4,4 @@ HEADERS		= listviews.h
 SOURCES		= listviews.cpp \
 		  main.cpp
 TARGET		= listviews
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

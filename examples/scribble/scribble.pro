@@ -4,4 +4,4 @@ HEADERS		= scribble.h
 SOURCES		= main.cpp \
 		  scribble.cpp
 TARGET		= scribble
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

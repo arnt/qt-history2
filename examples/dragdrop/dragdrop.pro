@@ -6,4 +6,4 @@ SOURCES		= dropsite.cpp \
 		  main.cpp \
 		  secret.cpp
 TARGET		= dragdrop
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

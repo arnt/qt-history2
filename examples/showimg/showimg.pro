@@ -4,4 +4,4 @@ HEADERS		= showimg.h
 SOURCES		= main.cpp \
 		  showimg.cpp
 TARGET		= showimg
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

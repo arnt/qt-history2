@@ -6,4 +6,4 @@ SOURCES		= ab_centralwidget.cpp \
 		  ab_mainwindow.cpp \
 		  main.cpp
 TARGET		= addressbook
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -24,4 +24,4 @@ SOURCES		= themes.cpp \
 		  metal.cpp
 
 TARGET		= themes
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= cursor.cpp
 TARGET		= cursor
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

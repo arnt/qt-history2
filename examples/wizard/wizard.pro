@@ -4,4 +4,4 @@ HEADERS		= wizard.h
 SOURCES		= main.cpp \
 		  wizard.cpp
 TARGET		= wizard
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= menu.h
 SOURCES		= menu.cpp
 TARGET		= menu
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

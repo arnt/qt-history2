@@ -4,4 +4,4 @@ HEADERS		= mywidget.h
 SOURCES		= main.cpp \
 		  mywidget.cpp
 TARGET		= i18n
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -4,4 +4,4 @@ HEADERS		= dirview.h
 SOURCES		= dirview.cpp \
 		  main.cpp
 TARGET		= dirview
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

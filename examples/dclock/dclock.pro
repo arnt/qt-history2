@@ -4,4 +4,4 @@ HEADERS		= dclock.h
 SOURCES		= dclock.cpp \
 		  main.cpp
 TARGET		= dclock
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

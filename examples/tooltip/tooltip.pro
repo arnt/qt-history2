@@ -4,4 +4,4 @@ HEADERS		= tooltip.h
 SOURCES		= main.cpp \
 		  tooltip.cpp
 TARGET		= tooltip
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

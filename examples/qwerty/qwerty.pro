@@ -4,4 +4,4 @@ HEADERS		= qwerty.h
 SOURCES		= main.cpp \
 		  qwerty.cpp
 TARGET		= qwerty
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

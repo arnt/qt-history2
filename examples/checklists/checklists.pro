@@ -4,4 +4,4 @@ HEADERS		= checklists.h
 SOURCES		= checklists.cpp \
 		  main.cpp
 TARGET		= checklists
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

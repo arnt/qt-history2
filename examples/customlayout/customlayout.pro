@@ -8,4 +8,4 @@ SOURCES		= border.cpp \
 		  flow.cpp \
 		  main.cpp
 TARGET		= customlayout
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -6,4 +6,4 @@ SOURCES		= life.cpp \
 		  lifedlg.cpp \
 		  main.cpp
 TARGET		= life
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

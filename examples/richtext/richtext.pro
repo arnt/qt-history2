@@ -4,4 +4,4 @@ HEADERS		= richtext.h
 SOURCES		= main.cpp \
 		  richtext.cpp
 TARGET		= richtext
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

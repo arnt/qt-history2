@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= main.cpp
 TARGET		= movies
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -12,4 +12,4 @@ SOURCES		= main.cpp \
 		  sheetdlg.cpp \
 		  table.cpp
 TARGET		= sheet
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

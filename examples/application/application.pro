@@ -4,4 +4,4 @@ HEADERS		= application.h
 SOURCES		= application.cpp \
 		  main.cpp
 TARGET		= application
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

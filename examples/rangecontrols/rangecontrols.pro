@@ -4,4 +4,4 @@ HEADERS		= rangecontrols.h
 SOURCES		= main.cpp \
 		  rangecontrols.cpp
 TARGET		= rangecontrols
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= scrollview.cpp
 TARGET		= scrollview
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

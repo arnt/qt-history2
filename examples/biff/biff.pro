@@ -4,4 +4,4 @@ HEADERS		= biff.h
 SOURCES		= biff.cpp \
 		  main.cpp
 TARGET		= biff
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

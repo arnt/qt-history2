@@ -6,4 +6,4 @@ SOURCES		= main.cpp \
 		  motor.cpp \
 		  vw.cpp
 TARGET		= validator
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

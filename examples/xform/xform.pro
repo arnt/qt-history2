@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= xform.cpp
 TARGET		= xform
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

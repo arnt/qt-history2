@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= progress.cpp
 TARGET		= progress
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

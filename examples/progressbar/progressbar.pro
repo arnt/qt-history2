@@ -4,4 +4,4 @@ HEADERS		= progressbar.h
 SOURCES		= main.cpp \
 		  progressbar.cpp
 TARGET		= progressbar
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

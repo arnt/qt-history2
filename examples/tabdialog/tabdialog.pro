@@ -4,4 +4,4 @@ HEADERS		= tabdialog.h
 SOURCES		= main.cpp \
 		  tabdialog.cpp
 TARGET		= tabdialog
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

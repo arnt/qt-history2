@@ -3,4 +3,4 @@ CONFIG		= qt warn_on release
 HEADERS		= 
 SOURCES		= splitter.cpp
 TARGET		= splitter
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -4,4 +4,4 @@ HEADERS		= aclock.h
 SOURCES		= aclock.cpp \
 		  main.cpp
 TARGET		= aclock
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include

@@ -4,4 +4,4 @@ HEADERS		= tictac.h
 SOURCES		= main.cpp \
 		  tictac.cpp
 TARGET		= tictac
-DEPENDPATH=$(QTDIR)/include
+DEPENDPATH=../../include
