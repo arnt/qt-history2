@@ -77,7 +77,7 @@ public:
 #elif defined(Q_WS_X11)
     inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
 #elif defined(Q_WS_MAC)
-    inline RgnHandle handle(bool require_rgn=FALSE) const;
+    RgnHandle handle(bool require_rgn=FALSE) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
     inline void *handle() const { return d->region; }
@@ -107,8 +107,7 @@ private:
 	Region rgn;
 	void *xrectangles;
 #elif defined(Q_WS_MAC)
-	uint is_rect:1;
-	QRect rect;
+	QRect *rect;
 	RgnHandle rgn;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_X11)

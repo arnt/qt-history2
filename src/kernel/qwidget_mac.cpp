@@ -1028,7 +1028,7 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
-    if ( isTopLevel() || (!parent || parent->isVisible() ) )
+    if(isTopLevel() || (!parent || parent->isVisible()))
 	setWState(WState_Hidden);
     if(dropable)
 	setAcceptDrops(FALSE);
@@ -1180,7 +1180,7 @@ void QWidget::setCursor(const QCursor &cursor)
     d->createExtra();
     delete d->extraData()->curs;
     d->extraData()->curs = new QCursor(cursor);
-    setWState( WState_OwnCursor );
+    setWState(WState_OwnCursor);
 
     if(qApp && qApp->activeWindow() &&
        QApplication::widgetAt(QCursor::pos(), TRUE) == this) {
@@ -1434,7 +1434,7 @@ void QWidget::showWindow()
 		if (r.right() > avail.right())
 		    movex = avail.right() - r.width();
 		// +2 to prevent going under the menu bar
-		move( QMAX( avail.left(), movex), QMAX( avail.top() + 2, movey ));
+		move(QMAX(avail.left(), movex), QMAX(avail.top() + 2, movey));
 	}
     }
     fstrut_dirty = TRUE;
@@ -2489,15 +2489,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	extra->clip_saved = extra->clip_sibs & chldrgns;
     }
 
-    qDebug("finally calculated %s::%s (%d)", name(), className(), do_children);
-    QVector<QRect> ars = extra->clip_saved.rects();
-    for(int i = 0; i < ars.count(); i++)
-	qDebug("%d %d %d %d", ars[i].x(), ars[i].y(), ars[i].width(), ars[i].height());
-    qDebug("other!!!!!!!!!!!!!!!!!!!!!!!");
-    ars = extra->clip_sibs.rects();
-    for(int i = 0; i < ars.count(); i++)
-	qDebug("%d %d %d %d", ars[i].x(), ars[i].y(), ars[i].width(), ars[i].height());
-
     //finally return the correct region
     if(do_children)
 	return extra->clip_saved;
@@ -2516,10 +2507,10 @@ void QWidget::macWidgetChangedWindow()
 {
 }
 
-void QWidget::setMouseTracking( bool enable )
+void QWidget::setMouseTracking(bool enable)
 {
-    if ( enable )
-	setWState( WState_MouseTracking );
+    if(enable)
+	setWState(WState_MouseTracking);
     else
-	clearWState( WState_MouseTracking );
+	clearWState(WState_MouseTracking);
 }

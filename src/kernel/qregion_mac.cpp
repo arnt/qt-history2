@@ -19,7 +19,7 @@
 #include "qbitmap.h"
 #include "qt_mac.h"
 
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX )
 #define RGN_CACHE_SIZE 200
 static bool rgncache_init = false;
 static int rgncache_used;
@@ -27,8 +27,8 @@ static RgnHandle rgncache[RGN_CACHE_SIZE];
 static void qt_mac_cleanup_rgncache()
 {
     rgncache_init = false;
-    for (int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	if (rgncache[i]) {
+    for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
+	if(rgncache[i]) {
 	    --rgncache_used;
 	    DisposeRgn(rgncache[i]);
 	    rgncache[i] = 0;
@@ -39,15 +39,15 @@ static void qt_mac_cleanup_rgncache()
 RgnHandle qt_mac_get_rgn()
 {
     RgnHandle ret = 0;
-    if (!rgncache_init) {
+    if(!rgncache_init) {
 	rgncache_used = 0;
 	rgncache_init = true;
-	for (int i = 0; i < RGN_CACHE_SIZE; ++i)
+	for(int i = 0; i < RGN_CACHE_SIZE; ++i)
 	    rgncache[i] = 0;
 	qAddPostRoutine(qt_mac_cleanup_rgncache);
-    } else if (rgncache_used) {
-	for (int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	    if (rgncache[i]) {
+    } else if(rgncache_used) {
+	for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
+	    if(rgncache[i]) {
 		ret = rgncache[i];
 		SetEmptyRgn(ret);
 		rgncache[i] = 0;
@@ -56,16 +56,16 @@ RgnHandle qt_mac_get_rgn()
 	    }
 	}
     }
-    if (!ret)
+    if(!ret)
 	ret = NewRgn();
     return ret;
 }
 
 void qt_mac_dispose_rgn(RgnHandle r)
 {
-    if (rgncache_init && rgncache_used < RGN_CACHE_SIZE) {
-	for (int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	    if (!rgncache[i]) {
+    if(rgncache_init && rgncache_used < RGN_CACHE_SIZE) {
+	for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
+	    if(!rgncache[i]) {
 		++rgncache_used;
 		rgncache[i] = r;
 		break;
@@ -81,30 +81,30 @@ RgnHandle qt_mac_get_rgn() { return NewRgn(); }
 void qt_mac_dispose_rgn(RgnHandle r) { DisposeRgn(r); }
 #endif
 
-QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), true, 0, 0, -1, -1, 0 };
+QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, 0 };
 
-QRegion::QRegion()
-    :d(&shared_empty)
+QRegion::QRegion() : d(&shared_empty)
 {
     ++d->ref;
 }
 
 void QRegion::rectifyRegion()
 {
-    if (!d->is_rect)
+    if(d->rgn) {
+	Q_ASSERT(!d->rect);
 	return;
-    if (isEmpty())
-	detach();
-    d->is_rect = false;
+    }
+    detach();
     d->rgn = qt_mac_get_rgn();
-    QRect drect = dRect();;
-    if (!drect.isEmpty()) {
-	Rect rect;
-	SetRect(&rect, drect.x(), drect.y(), drect.right() + 1, drect.bottom() + 1);
+    if(d->rect && !d->rect->isEmpty()) {
+	Rect r;
+	SetRect(&r, d->rect->x(), d->rect->y(), d->rect->right() + 1, d->rect->bottom() + 1);
 	OpenRgn();
-	FrameRect(&rect);
+	FrameRect(&r);
 	CloseRgn(d->rgn);
     }
+    delete d->rect;
+    d->rect = NULL;
 }
 
 /*!
@@ -112,14 +112,14 @@ void QRegion::rectifyRegion()
 */
 RgnHandle QRegion::handle(bool require_rgn) const
 {
-    if (require_rgn && d->is_rect)
+    if(require_rgn && !d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    return d->is_rect ? 0 : d->rgn;
+    return d->rect ? 0 : d->rgn;
 }
 
 QRegion::QRegion(const QRect &r, RegionType t)
 {
-    if (r.isEmpty()) {
+    if(r.isEmpty()) {
 	d = &shared_empty;
 	++d->ref;
 	return;
@@ -127,16 +127,13 @@ QRegion::QRegion(const QRect &r, RegionType t)
     QRect rr = r.normalize();
     d = new QRegionData;
     d->ref = 1;
-    if (t == Rectangle) {
-	d->is_rect = true;
-	d->rectl = r.left();
-	d->rectt = r.top();
-	d->rectr = r.right();
-	d->rectb = r.bottom();
+    if(t == Rectangle) {
+	d->rgn = NULL;
+	d->rect = new QRect(r.x(), r.y(), r.width(), r.height());
     } else {
+	d->rect = NULL;
 	Rect rect;
 	SetRect(&rect, rr.x(), rr.y(), rr.right() + 1, rr.bottom() + 1);
-	d->is_rect = false;
 	d->rgn = qt_mac_get_rgn();
 	OpenRgn();
 	FrameOval(&rect);
@@ -147,15 +144,14 @@ QRegion::QRegion(const QRect &r, RegionType t)
 //### We do not support winding yet, how do we do that?? --SAM
 QRegion::QRegion(const QPointArray &a, bool)
 {
-    if (a.size() > 0) {
+    if(a.size() > 0) {
 	d = new QRegionData;
 	d->ref = 1;
-	d->is_rect = false;
+	d->rect = NULL;
 	d->rgn = qt_mac_get_rgn();
-
 	OpenRgn();
 	MoveTo(a[0].x(), a[0].y());
-	for (int loopc = 1; loopc < a.size(); ++loopc) {
+	for(int loopc = 1; loopc < a.size(); ++loopc) {
 	    LineTo(a[loopc].x(), a[loopc].y());
 	    MoveTo(a[loopc].x(), a[loopc].y());
 	}
@@ -193,20 +189,20 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
     int x, y;
     const int zero = 0;
     bool little = image.bitOrder() == QImage::LittleEndian;
-    for (y = 0; y < image.height(); ++y) {
+    for(y = 0; y < image.height(); ++y) {
 	uchar *line = image.scanLine(y);
 	int w = image.width();
 	uchar all = zero;
 	int prev1 = -1;
-	for (x = 0; x < w; ) {
+	for(x = 0; x < w; ) {
 	    uchar byte = line[x / 8];
-	    if (x > w - 8 || byte != all) {
-		if (little) {
-		    for (int b = 8; b > 0 && x < w; --b) {
-			if (!(byte & 0x01) == !all) {			    // More of the same
+	    if(x > w - 8 || byte != all) {
+		if(little) {
+		    for(int b = 8; b > 0 && x < w; --b) {
+			if(!(byte & 0x01) == !all) {			    // More of the same
 			} else {
 			    // A change.
-			    if (all != zero) {
+			    if(all != zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -218,10 +214,10 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 			++x;
 		    }
 		} else {
-		    for (int b = 8; b > 0 && x < w; --b) {
-			if (!(byte & 0x80) == !all) {			    // More of the same
+		    for(int b = 8; b > 0 && x < w; --b) {
+			if(!(byte & 0x80) == !all) {			    // More of the same
 			} else {			    // A change.
-			    if (all != zero) {
+			    if(all != zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -237,7 +233,7 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 		x += 8;
 	    }
 	}
-	if (all != zero) {
+	if(all != zero) {
 	    AddSpan
 	}
     }
@@ -246,13 +242,13 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 
 QRegion::QRegion(const QBitmap &bm)
 {
-    if ( bm.isNull() ) {
+    if( bm.isNull() ) {
 	d = &shared_empty;
 	++d->ref;
     } else {
 	d = new QRegionData;
 	d->ref = 1;
-	d->is_rect = false;
+	d->rect = NULL;
 #if 0 //this should work, but didn't
 	d->rgn = qt_mac_get_rgn();
 	BitMapToRegion(d->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
@@ -264,24 +260,28 @@ QRegion::QRegion(const QBitmap &bm)
 
 void QRegion::cleanUp(QRegion::QRegionData *x)
 {
-    if (!x->is_rect)
+    if(x == &shared_empty)
+	return;
+    if(x->rgn)
 	qt_mac_dispose_rgn(x->rgn);
     delete x;
 }
 
 QRegion::~QRegion()
 {
-    if (!--d->ref)
+    if(!--d->ref)
 	cleanUp(d);
 }
 
 QRegion &QRegion::operator=(const QRegion &r)
 {
+    if(r.d == d)
+	return *this;
     QRegionData *x = r.d;
     ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-	cleanUp(x);
+    QRegionData *old = qAtomicSetPtr(&d, x);
+    if(!--old->ref)
+	cleanUp(old);
     return *this;
 }
 
@@ -290,35 +290,38 @@ QRegion QRegion::copy() const
     QRegion r;
     QRegionData *x = new QRegionData;
     x->ref = 1;
-    x->is_rect = d->is_rect;
-    if (x->is_rect) {
-	x->rectl = d->rectl;
-	x->rectt = d->rectt;
-	x->rectr = d->rectr;
-	x->rectb = d->rectb;
-	x->rgn = 0;
+    if(d == &shared_empty) {
+	x->rgn = NULL;
+	x->rect = new QRect(0, 0, 0, 0);
+    } else if(d->rect) {
+	x->rgn = NULL;
+	x->rect = new QRect(d->rect->x(), d->rect->y(), d->rect->width(), d->rect->height());
     } else {
+	x->rect = NULL;
 	x->rgn = qt_mac_get_rgn();
 	CopyRgn(d->rgn, x->rgn);
     }
-    x = qAtomicSetPtr(&r.d, x);
-    if (!--x->ref)
-	cleanUp(x);
+    QRegionData *old = qAtomicSetPtr(&r.d, x);
+    if(--old->ref) 
+	cleanUp(old);
     return r;
 }
 
 bool QRegion::isEmpty() const
 {
-    if (d->is_rect)
-	return dRect().isEmpty();
+    if(d == &shared_empty)
+	return true;
+    if(d->rect)
+	return d->rect->isEmpty();
     return EmptyRgn(d->rgn);
 }
 
 bool QRegion::contains(const QPoint &p) const
 {
-    if (d->is_rect)
-	return dRect().contains(p);
-
+    if(d == &shared_empty)
+	return false;
+    if(d->rect)
+	return d->rect->contains(p);
     Point point;
     point.h = p.x();
     point.v = p.y();
@@ -327,9 +330,10 @@ bool QRegion::contains(const QPoint &p) const
 
 bool QRegion::contains(const QRect &r) const
 {
-    if (d->is_rect)
-	return dRect().intersects(r);
-
+    if(d == &shared_empty)
+	return false;
+    if(d->rect)
+	return d->rect->intersects(r);
     Rect rect;
     SetRect(&rect, r.x(), r.y(), r.x() + r.width(), r.y() + r.height());
     return RectInRgn(&rect, d->rgn);
@@ -337,33 +341,35 @@ bool QRegion::contains(const QRect &r) const
 
 void QRegion::translate(int x, int y)
 {
+    if(d == &shared_empty)
+	return;
     detach();
-    if (d->is_rect) {
-	QRect drect = dRect();
-	drect.moveBy(x, y);
-	d->rectl = drect.left();
-	d->rectt = drect.top();
-	d->rectr = drect.right();
-	d->rectb = drect.bottom();
-    } else {
+    if(d->rect) 
+	d->rect->moveBy(x, y);
+    else 
 	OffsetRgn(d->rgn, x, y);
-    }
 }
 
 QRegion QRegion::unite(const QRegion &r) const
 {
-    if (d->is_rect && r.d->is_rect) {
-	if (dRect().contains(r.dRect()))
+#if 0
+    if(d == &shared_empty)
+	return r;
+    if(r.d == &shared_empty)
+	return *this;
+#endif
+    if(d->rect && r.d->rect) {
+	if(d->rect->contains(*r.d->rect))
 	    return copy();
     }
-
-    if (d->is_rect)
+    if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    if (r.d->is_rect)
+    if(!r.d->rgn)
 	const_cast<QRegion &>(r).rectifyRegion();
     QRegion result;
     result.detach();
-    result.d->is_rect = false;
+    delete result.d->rect;
+    result.d->rect = NULL;
     result.d->rgn = qt_mac_get_rgn();
     UnionRgn(d->rgn, r.d->rgn, result.d->rgn);
     return result;
@@ -371,16 +377,20 @@ QRegion QRegion::unite(const QRegion &r) const
 
 QRegion QRegion::intersect(const QRegion &r) const
 {
-    if (d->is_rect && r.d->is_rect)
-	return QRegion(dRect() & r.dRect());
-
-    if (d->is_rect)
+#if 0
+    if(d == &shared_empty || r.d == &shared_empty)
+	return QRegion();
+#endif
+    if(d->rect && r.d->rect)
+	return QRegion(*d->rect & *r.d->rect);
+    if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    if (r.d->is_rect)
+    if(!r.d->rgn)
 	const_cast<QRegion &>(r).rectifyRegion();
     QRegion result;
     result.detach();
-    result.d->is_rect = false;
+    delete result.d->rect;
+    result.d->rect = NULL;
     result.d->rgn = qt_mac_get_rgn();
     SectRgn(d->rgn, r.d->rgn, result.d->rgn);
     return result;
@@ -388,13 +398,18 @@ QRegion QRegion::intersect(const QRegion &r) const
 
 QRegion QRegion::subtract(const QRegion &r) const
 {
-    if (d->is_rect)
+#if 0
+    if(d == &shared_empty || r.d == &shared_empty)
+	return *this;
+#endif
+    if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    if (r.d->is_rect)
+    if(!r.d->rgn)
 	const_cast<QRegion &>(r).rectifyRegion();
     QRegion result;
     result.detach();
-    result.d->is_rect = false;
+    delete result.d->rect;
+    result.d->rect = NULL;
     result.d->rgn = qt_mac_get_rgn();
     DiffRgn(d->rgn, r.d->rgn, result.d->rgn);
     return result;
@@ -402,13 +417,20 @@ QRegion QRegion::subtract(const QRegion &r) const
 
 QRegion QRegion::eor(const QRegion &r) const
 {
-    if (d->is_rect)
+#if 0
+    if(d == &shared_empty)
+	return r;
+    if(r.d == &shared_empty)
+	return *this;
+#endif
+    if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    if (r.d->is_rect)
+    if(!r.d->rgn)
 	const_cast<QRegion &>(r).rectifyRegion();
     QRegion result;
     result.detach();
-    result.d->is_rect = false;
+    delete result.d->rect;
+    result.d->rect = NULL;
     result.d->rgn = qt_mac_get_rgn();
     XorRgn(d->rgn, r.d->rgn, result.d->rgn);
     return result;
@@ -416,8 +438,10 @@ QRegion QRegion::eor(const QRegion &r) const
 
 QRect QRegion::boundingRect() const
 {
-    if (d->is_rect)
-	return dRect();
+    if(d == &shared_empty)
+	return QRect(0, 0, 0, 0);
+    if(d->rect)
+	return *d->rect;
     Rect r;
     GetRegionBounds(d->rgn, &r);
     return QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top));
@@ -426,10 +450,10 @@ QRect QRegion::boundingRect() const
 typedef QList<QRect> RectList;
 static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *myd)
 {
-    if (msg == kQDRegionToRectsMsgParse) {
+    if(msg == kQDRegionToRectsMsgParse) {
 	RectList *rl = static_cast<RectList *>(myd);
 	QRect rct(rect->left, rect->top, (rect->right - rect->left), (rect->bottom - rect->top));
-	if (!rct.isEmpty())
+	if(!rct.isEmpty())
 	    rl->append(rct);
     }
     return noErr;
@@ -437,12 +461,13 @@ static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, voi
 
 QVector<QRect> QRegion::rects() const
 {
-    if (d->is_rect) {
-	QRect drect = dRect();
-	if(drect.isEmpty())
+    if(d == &shared_empty)
+	return QVector<QRect>(0);
+    if(d->rect) {
+	if(d->rect->isEmpty())
 	    return QVector<QRect>(0);
 	QVector<QRect> ret(1);
-	ret[0] = drect;
+	ret[0] = *d->rect;
 	return ret;
     }
 
@@ -452,11 +477,11 @@ QVector<QRect> QRegion::rects() const
     oss = QDRegionToRects(d->rgn, kQDParseRegionFromTopLeft, cbk, static_cast<void *>(&rl));
     DisposeRegionToRectsUPP(cbk);
 
-    if (oss != noErr)
+    if(oss != noErr)
 	return QVector<QRect>(0);
 
     QVector<QRect> ret(rl.count());
-    for (int cnt = 0; cnt < rl.count(); ++cnt )
+    for(int cnt = 0; cnt < rl.count(); ++cnt )
 	ret[cnt] = rl.at(cnt);
 
     return ret;
@@ -465,24 +490,26 @@ QVector<QRect> QRegion::rects() const
 void QRegion::setRects(const QRect *rects, int num)
 {
     // Could be optimized
-    if (num == 1) {
+    if(num == 1) {
 	*this = QRegion(*rects);
 	return;
     }
     *this = QRegion();
-    for (int i = 0; i < num; ++i)
+    for(int i = 0; i < num; ++i)
 	*this |= rects[i];
 }
 
 bool QRegion::operator==(const QRegion &r) const
 {
-    if (d == r.d)
+    if(d == r.d)
 	return true;
-    if (d->is_rect && r.d->is_rect)
-	return dRect() == r.dRect();
-    if (d->is_rect)
+    if(r.d == &shared_empty || d == &shared_empty)
+	return false;
+    if(d->rect && r.d->rect)
+	return *d->rect == *r.d->rect;
+    if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
-    if (r.d->is_rect)
+    if(!r.d->rgn)
 	const_cast<QRegion &>(r).rectifyRegion();
     return EqualRgn(d->rgn, r.d->rgn);
 }
