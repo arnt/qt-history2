@@ -792,7 +792,7 @@ void QDateTimeEdit::changeEvent(QEvent *e)
         } else if (d->displayFormat == d->defaultDateFormat) {
             frm = &d->defaultDateFormat;
         } else if (d->displayFormat == d->defaultDateTimeFormat) {
-            frm = &d->defaultTimeFormat;
+            frm = &d->defaultDateTimeFormat;
         }
 
         if (frm) {
@@ -895,6 +895,7 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
         return d->cachedText;
     }
     QString ret = d->escapedFormat;
+    qDebug() << d->escapedFormat << d->displayFormat;
     for (int i=0; i<d->sections.size(); ++i) {
 	int l = d->sectionSize(d->sections.at(i).section);
 	int pos = d->sections.at(i).pos;
@@ -1135,7 +1136,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 static QString macParseDateLocale(QVariant::Type type)
 {
     CFGregorianDate macGDate;
-    macGDate.year = 99;
+    macGDate.year = 2999;
     macGDate.month = 11;
     macGDate.day = 20; // <---- Should be 22, but seems something is wrong.
     macGDate.hour = 10;
@@ -1222,7 +1223,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
 
     // Date
 
-    const QDate date(1999, 11, 22);
+    const QDate date(2999, 11, 22);
     const QString shortMonthName = QDate::shortMonthName(date.month());
     const QString longMonthName = QDate::longMonthName(date.month());
     const QString shortDayName = QDate::shortDayName(date.dayOfWeek());
@@ -1255,7 +1256,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
         str.replace(index, shortMonthName.size(), QLatin1String("MMM"));
     }
 
-    index = str.indexOf(QLatin1String("1999"));
+    index = str.indexOf(QLatin1String("2999"));
     if (index != -1) {
         str.replace(index, 4, QLatin1String("yyyy"));
     } else {
@@ -1270,7 +1271,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
 #ifdef Q_WS_MAC
     str = macParseDateLocale(QVariant::DateTime);
 #else
-    str = QDateTime(QDate(1999, 11, 22), QTime(10, 34, 56)).toString(Qt::LocalDate);
+    str = QDateTime(QDate(2999, 11, 22), QTime(10, 34, 56)).toString(Qt::LocalDate);
 #endif
     index = str.indexOf(QLatin1String("10"));
     if (index != -1)
@@ -1309,11 +1310,13 @@ void QDateTimeEditPrivate::readLocaleSettings()
         str.replace(index, shortMonthName.size(), QLatin1String("MMM"));
     }
 
-    index = str.indexOf(QLatin1String("99"));
-    if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
-        str.replace(index - 2, 4, QLatin1String("yyyy"));
-    } else if (index != -1 ){
-        str.replace(index, 2, QLatin1String("yy"));
+    index = str.indexOf(QLatin1String("2999"));
+    if (index != -1) {
+        str.replace(index, 4, QLatin1String("yyyy"));
+    } else {
+        index = str.indexOf(QLatin1String("99"));
+        if (index != -1)
+            str.replace(index, 2, QLatin1String("yy"));
     }
 
     defaultDateTimeFormat = str;
