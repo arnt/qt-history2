@@ -73,7 +73,7 @@ void QTextEngine::itemize( int mode )
     if ( !(mode & NoBidi) ) {
 	if ( direction == QChar::DirON )
 	    direction = basicDirection( string );
-	bidiItemize( string, items, direction == QChar::DirR );
+	bidiItemize( string, items, direction == QChar::DirR, mode );
     } else {
 	BidiControl control( false );
 	int start = 0;
