@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.7 1995/12/15 12:18:44 hanord Exp $
+** $Id: qlist.doc,v 1.8 1995/12/15 15:40:14 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -54,7 +54,7 @@
     }
   \endcode
 
-  The program output is:
+  Program output:
   \code
 	Bill earns 50000
 	Steve earns 80000
@@ -139,7 +139,7 @@
   list copy all of the item's data (known as a deep copy) when an item is
   inserted.  insert(), inSort() and append() call the virtual function
   QCollection::newItem() for the item to be inserted. Reimplement it if you
-  want to have deep copies in your list.
+  want deep copies.
 
   When removing an item from a list, the virtual function
   QCollection::deleteItem() is called.  QList's default implementation
@@ -199,8 +199,7 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QList::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it is
-  not empty.
+  Returns TRUE if the list is empty, i.e. count() == 0, otherwise FALSE.
   \sa count()
  ----------------------------------------------------------------------------*/
 
@@ -665,7 +664,7 @@
   \ingroup iterators
 
   QListIterator is implemented as both a template and a macro class.
-  Defined a template instance QListIterator\<X\> to create a list iterator
+  Define a template instance QListIterator\<X\> to create a list iterator
   that operates on QList\<X\> (list of X*).
 
   Example:
@@ -702,7 +701,7 @@
     }
   \endcode
 
-  The program output is:
+  Program output:
   \code
 	Bill earns 50000
 	Steve earns 80000
@@ -720,7 +719,7 @@
     void main()
     {
       ...
-	QListIteratorM(Employee) it;	  // list of pointers to Employee
+	QListIteratorM(Employee) it;	  // list iterator
       ...
   \endcode
 
@@ -771,7 +770,7 @@
     }
   \endcode
 
-  The program output is:
+  Program output:
   \code
 	Ron
   \endcode
@@ -798,8 +797,7 @@
 
 /*----------------------------------------------------------------------------
   \fn bool QListIterator::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, or FALSE if it is
-  not empty.
+  Returns TRUE if the list is empty, i.e. count() == 0, otherwise FALSE.
   \sa count()
  ----------------------------------------------------------------------------*/
 
@@ -863,7 +861,7 @@
 
 /*----------------------------------------------------------------------------
   \fn type *QListIterator::operator+=( uint jump )
-  Returns the object \e jump positions after the current item, or null if
+  Returns the item \e jump positions after the current item, or null if
   it is beyond the last item.  Makes this the current item.
  ----------------------------------------------------------------------------*/
 
@@ -878,7 +876,7 @@
 
 /*----------------------------------------------------------------------------
   \fn type *QListIterator::operator-=( uint jump )
-  Returns the object \e jump positions before the current item, or null if
+  Returns the item \e jump positions before the current item, or null if
   it is beyond the first item.  Makes this the current item.
  ----------------------------------------------------------------------------*/
 
