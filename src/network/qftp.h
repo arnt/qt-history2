@@ -133,6 +133,9 @@ private slots:
     void piError(int, const QString&);
     void piConnectState(int);
     void piFtpReply(int, const QString&);
+
+private:
+    Q_DISABLE_COPY(QFtp)
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

@@ -32,13 +32,13 @@ public:
     QUrlInfo();
     QUrlInfo(const QUrlInfo &ui);
     QUrlInfo(const QString &name, int permissions, const QString &owner,
-              const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
-              const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
-              bool isWritable, bool isReadable, bool isExecutable);
+             const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+             const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+             bool isWritable, bool isReadable, bool isExecutable);
     QUrlInfo(const QUrl &url, int permissions, const QString &owner,
-              const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
-              const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
-              bool isWritable, bool isReadable, bool isExecutable);
+             const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
+             const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+             bool isWritable, bool isReadable, bool isExecutable);
     QUrlInfo &operator=(const QUrlInfo &ui);
     virtual ~QUrlInfo();
 
@@ -78,9 +78,9 @@ public:
                        int sortBy);
 
     bool operator==(const QUrlInfo &i) const;
+
 private:
     QUrlInfoPrivate *d;
-
 };
 
 #endif

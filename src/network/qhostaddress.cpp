@@ -223,9 +223,15 @@ void QHostAddressPrivate::clear()
     \sa QSocket, QServerSocket, QSocketDevice
 */
 
+/*! \enum QHostAddress::SpecialAddress
 
-/*!
-    Creates a host address object with the IP address 0.0.0.0.
+    \value NullAddress The null address. Equivalent to QHostAddress().
+    \value LocalHostAddress The IPv4 localhost address. Equivalent to QHostAddress("127.0.0.1").
+    \value LocalHostIPv6Address The IPv6 localhost address. Equivalent to QHostAddress("::1").
+    \value AnyAddress The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
+*/
+
+/*!  Creates a host address object with the IP address 0.0.0.0.
 
     \sa clear()
 */
@@ -256,20 +262,18 @@ QHostAddress::QHostAddress(const QHostAddress &address)
 }
 
 /*!
-    Constructs the special host address.
-
-    \sa SpecialAddress
+    Constructs a QHostAddress object for \a address.
 */
-QHostAddress::QHostAddress(QHostAddress::SpecialAddress addressType)
+QHostAddress::QHostAddress(SpecialAddress address)
     : d(new QHostAddressPrivate)
 {
-    switch (addressType) {
+    switch (address) {
     case NullAddress:
         break;
-    case LocalhostAddress:
+    case LocalHostAddress:
         setAddress("127.0.0.1");
         break;
-    case LocalhostIPv6Address:
+    case LocalHostIPv6Address:
         setAddress("::1");
         break;
     case AnyAddress:
@@ -458,13 +462,11 @@ bool QHostAddress::operator ==(const QHostAddress &other) const
 
     return memcmp(&d->a6, &other.d->a6, sizeof(Q_IPV6ADDR)) == 0;
 }
-/*
-bool QHostAddress::operator !=(const QHostAddress &other) const
-{
-    return !(*this == other);
-}
-*/
 
+/*!
+    Returns true if this host address is the same as the \a other
+    address given; otherwise returns false.
+*/
 bool QHostAddress::operator ==(SpecialAddress other) const
 {
     QT_ENSURE_PARSED(this);
@@ -476,12 +478,6 @@ bool QHostAddress::operator ==(SpecialAddress other) const
 
     return memcmp(&d->a6, &otherAddress.d->a6, sizeof(Q_IPV6ADDR)) == 0;
 }
-/*
-bool QHostAddress::operator !=(SpecialAddress other) const
-{
-    return !(*this == other);
-}
-*/
 
 /*!
     Returns true if this host address is null (INADDR_ANY or in6addr_any).

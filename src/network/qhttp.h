@@ -224,6 +224,8 @@ private slots:
     void slotBytesWritten(Q_LLONG);
 
 private:
+    Q_DISABLE_COPY(QHttp)
+
     QHttpPrivate *d;
 
     int addRequest(QHttpRequest *);

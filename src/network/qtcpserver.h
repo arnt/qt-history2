@@ -49,7 +49,7 @@ public:
     int socketDescriptor() const;
     bool setSocketDescriptor(int socketDescriptor);
 
-    bool waitForConnection(int msec = 0, bool *timedOut = 0);
+    bool waitForNewConnection(int msec = 0, bool *timedOut = 0);
     virtual bool hasPendingConnection() const;
     virtual QTcpSocket *nextPendingConnection();
 
@@ -64,6 +64,7 @@ signals:
 
 private:
     Q_PRIVATE_SLOT(d, void processIncomingConnection(int))
+    Q_DISABLE_COPY(QTcpServer)
 };
 
 #endif

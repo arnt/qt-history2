@@ -13,19 +13,25 @@
 
 /*! \class QTcpSocket
 
-    \reentrant
-    \brief The QTcpSocket class provides a TCP connection.
+    \brief The QTcpSocket class provides a TCP socket.
 
-    \if defined(commercial)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
+    \reentrant
     \ingroup io
     \module network
 
-    It is a convenience class for QAbstractSocket.
+    TCP (Transmission Control Protocol) is a reliable,
+    stream-oriented, connection-oriented transport protocol. TCP is
+    suited for continuous transmission of data.
 
-    \sa QTcpServer, QUdpSocket
+    QTcpSocket is a convenience subclass of QAbstractSocket that
+    allows you to establish a TCP connection and transfer streams of
+    data. See the QAbstractSocket documentation for details.
+
+    \sa QTcpServer, QUdpSocket, QFtp, QHttp
 */
 #include "qdns.h"
 #include "qlist.h"
@@ -42,21 +48,15 @@
 class QTcpSocketPrivate : public QAbstractSocketPrivate
 {
     Q_DECLARE_PUBLIC(QTcpSocket)
-
-public:
-    QTcpSocketPrivate();
-    virtual ~QTcpSocketPrivate();
-
-    void close();
 };
 
 /*!
-    Creates a QTcpSocket object in \c Qt::Unconnected state.
+    Creates a QTcpSocket object in state \c Qt::UnconnectedState.
 
     The \a parent argument is passed on to the QObject constructor.
 */
-QTcpSocket::QTcpSocket(QObject *parent) : QAbstractSocket(Qt::TcpSocket,
-                                                          *new QTcpSocketPrivate, parent)
+QTcpSocket::QTcpSocket(QObject *parent)
+    : QAbstractSocket(Qt::TcpSocket, *new QTcpSocketPrivate, parent)
 {
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::QTcpSocket()");
@@ -77,13 +77,4 @@ QTcpSocket::~QTcpSocket()
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::~QTcpSocket()");
 #endif
-}
-
-QTcpSocketPrivate::QTcpSocketPrivate()
-{
-    port = 0;
-}
-
-QTcpSocketPrivate::~QTcpSocketPrivate()
-{
 }

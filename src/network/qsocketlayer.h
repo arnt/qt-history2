@@ -54,7 +54,7 @@ public:
                             QHostAddress *addr = 0, Q_UINT16 *port = 0);
     Q_LLONG sendDatagram(const char *data, Q_LLONG len,
                         const QHostAddress &addr, Q_UINT16 port);
-    bool hasPendingDatagram() const;
+    bool hasPendingDatagrams() const;
     Q_LLONG pendingDatagramSize() const;
 
     Qt::SocketState socketState() const;
@@ -77,10 +77,9 @@ public:
     QString errorString() const;
 
 private:
-    QSocketLayerPrivate *d;
+    Q_DISABLE_COPY(QSocketLayer)
 
-    QSocketLayer(const QSocketLayer &);
-    QSocketLayer &operator =(const QSocketLayer &);
+    QSocketLayerPrivate *d;
 };
 
 #endif

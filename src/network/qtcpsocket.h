@@ -34,8 +34,7 @@ public:
     virtual ~QTcpSocket();
 
 private:
-    QTcpSocket(const QTcpSocket &);
-    QTcpSocket &operator =(const QTcpSocket &);
+    Q_DISABLE_COPY(QTcpSocket)
 };
 
 #endif // QTCPSOCKET_H

@@ -13,6 +13,7 @@
 
 #ifndef QUDPSOCKET_H
 #define QUDPSOCKET_H
+
 #include "qabstractsocket.h"
 #include "qhostaddress.h"
 
@@ -28,23 +29,22 @@ class QM_EXPORT_NETWORK QUdpSocket : public QAbstractSocket
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QUdpSocket)
-        public:
+public:
     QUdpSocket(QObject *parent = 0);
     virtual ~QUdpSocket();
 
     bool bind(const QHostAddress &address, Q_UINT16 port);
     bool bind(Q_UINT16 port = 0);
 
-    virtual bool hasPendingDatagram() const;
-    virtual Q_LLONG pendingDatagramSize() const;
-    virtual Q_LLONG receiveDatagram(char *data, Q_LLONG maxlen,
-                                    QHostAddress *host = 0, Q_UINT16 *port = 0);
-    virtual Q_LLONG sendDatagram(const char *data, Q_LLONG len,
-                                 const QHostAddress &host, Q_UINT16 port);
+    bool hasPendingDatagrams() const;
+    Q_LLONG pendingDatagramSize() const;
+    Q_LLONG receiveDatagram(char *data, Q_LLONG maxlen,
+                            QHostAddress *host = 0, Q_UINT16 *port = 0);
+    Q_LLONG sendDatagram(const char *data, Q_LLONG len,
+                         const QHostAddress &host, Q_UINT16 port);
 
 private:
-    QUdpSocket(const QUdpSocket &);
-    QUdpSocket &operator =(const QUdpSocket &);
+    Q_DISABLE_COPY(QUdpSocket)
 };
 
 #endif // QUdpSOCKET_H

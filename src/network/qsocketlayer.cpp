@@ -395,11 +395,11 @@ Q_UINT16 QSocketLayer::peerPort() const
     \code
         QSocketLayer socketLayer;
         socketLayer.initialize(Qt::TcpSocket, Qt::IPv4Protocol);
-        socketLayer.connectToHost(QHostAddress::LocalhostAddress, 22);
+        socketLayer.connectToHost(QHostAddress::LocalHostAddress, 22);
         // returns false
 
         socketLayer.waitForWrite();
-        socketLayer.connectToHost(QHostAddress::LocalhostAddress, 22);
+        socketLayer.connectToHost(QHostAddress::LocalHostAddress, 22);
         // returns true
     \endcode
 
@@ -479,7 +479,7 @@ bool QSocketLayer::bind(const QHostAddress &address, Q_UINT16 port)
             int clientSocket = socketLayer.accept();
             // a client is connected
         }
-    \encode
+    \endcode
 
     \sa bind(), accept()
 */
@@ -518,7 +518,7 @@ int QSocketLayer::accept()
 
     For UDP sockets, this function returns the accumulated size of all
     pending datagrams, and it is therefore more useful for UDP sockets
-    to call hasPendingDatagram() and pendingDatagramSize().
+    to call hasPendingDatagrams() and pendingDatagramSize().
 */
 Q_LLONG QSocketLayer::bytesAvailable() const
 {
@@ -533,13 +533,13 @@ Q_LLONG QSocketLayer::bytesAvailable() const
     function is only called by UDP sockets, where a datagram can have
     a size of 0. TCP sockets call bytesAvailable().
 */
-bool QSocketLayer::hasPendingDatagram() const
+bool QSocketLayer::hasPendingDatagrams() const
 {
-    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::hasPendingDatagram(), false);
-    Q_CHECK_NOT_STATE(QSocketLayer::hasPendingDatagram(), Qt::UnconnectedState, false);
-    Q_CHECK_TYPE(QSocketLayer::hasPendingDatagram(), Qt::UdpSocket, false);
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::hasPendingDatagrams(), false);
+    Q_CHECK_NOT_STATE(QSocketLayer::hasPendingDatagrams(), Qt::UnconnectedState, false);
+    Q_CHECK_TYPE(QSocketLayer::hasPendingDatagrams(), Qt::UdpSocket, false);
 
-    return d->nativeHasPendingDatagram();
+    return d->nativeHasPendingDatagrams();
 }
 
 /*!
@@ -569,7 +569,7 @@ Q_LLONG QSocketLayer::pendingDatagramSize() const
 
     Returns -1 if an error occurred.
 
-    \sa hasPendingDatagram()
+    \sa hasPendingDatagrams()
 */
 Q_LLONG QSocketLayer::receiveDatagram(char *data, Q_LLONG maxLength,
                                       QHostAddress *address, Q_UINT16 *port)
@@ -582,8 +582,8 @@ Q_LLONG QSocketLayer::receiveDatagram(char *data, Q_LLONG maxLength,
 
 /*!
     Writes a UDP datagram of size \a length bytes to the socket from
-    \a data and returns the number of bytes written, or -1 if an error
-    occurred.
+    \a data to the address \a host on port \a port, and returns the
+    number of bytes written, or -1 if an error occurred.
 
     Only one datagram is sent, and if there is too much data to fit
     into a single datagram, the operation will fail and socketError()

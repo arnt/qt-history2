@@ -1515,7 +1515,7 @@ QFtp::QFtp(QObject *parent, const char *name)
 */
 
 /*!
-    \fn void QFtp::dataTransferProgress(int done, int total)
+    \fn void QFtp::dataTransferProgress(Q_LLONG done, Q_LLONG total)
 
     This signal is emitted in response to a get() or put() request to
     indicate the current progress of the download or upload.
@@ -1904,6 +1904,11 @@ Q_ULONG QFtp::bytesAvailable() const
 {
     return d->pi.dtp.bytesAvailable();
 }
+
+/*! \fn Q_LONG QFtp::readBlock(char *data, Q_ULONG maxlen)
+
+    Use read() instead.
+*/
 
 /*!
     Reads \a maxlen bytes from the data socket into \a data and

@@ -38,7 +38,6 @@ public:
     QWindowsSockInit winSock;
 #endif
 
-
     void setError(Qt::SocketError error, const QString &errorString) const;
 
     enum SocketOption {
@@ -60,7 +59,7 @@ public:
     int nativeAccept();
     Q_LLONG nativeBytesAvailable() const;
 
-    bool nativeHasPendingDatagram() const;
+    bool nativeHasPendingDatagrams() const;
     Q_LLONG nativePendingDatagramSize() const;
     Q_LLONG nativeReceiveDatagram(char *data, Q_LLONG maxLength,
                                   QHostAddress *address, Q_UINT16 *port);

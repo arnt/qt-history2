@@ -106,8 +106,7 @@ static void qt_ignore_sigpipe()
     ::sigaction(SIGPIPE, &noaction, 0);
 }
 
-/*! \internal
-
+/*
     Extracts the port and address from a sockaddr, and stores them in
     \a port and \a addr if they are non-null.
 */
@@ -177,8 +176,7 @@ bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
 }
 
 
-/*! \internal
-
+/*
     Returns the value of the socket option \a opt.
 */
 int QSocketLayerPrivate::option(SocketOption opt) const
@@ -208,7 +206,7 @@ int QSocketLayerPrivate::option(SocketOption opt) const
 }
 
 
-/*! \internal
+/*
     Sets the socket option \a opt to \a v.
 */
 bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
@@ -458,7 +456,7 @@ Q_LLONG QSocketLayerPrivate::nativeBytesAvailable() const
     return available;
 }
 
-bool QSocketLayerPrivate::nativeHasPendingDatagram() const
+bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 {
     // Create a sockaddr struct and reset its port number.
 #if !defined(QT_NO_IPV6)
@@ -492,7 +490,7 @@ bool QSocketLayerPrivate::nativeHasPendingDatagram() const
     result = (storagePtrIPv4->sin_port != 0);
 
 #if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeHasPendingDatagram() == %s",
+    qDebug("QSocketLayerPrivate::nativeHasPendingDatagrams() == %s",
            result ? "true" : "false");
 #endif
     return result;

@@ -14,41 +14,56 @@
 /*! \class QTcpServer
 
     \brief The QTcpServer class provides a TCP-based server.
+
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
+
     \reentrant
     \ingroup io
     \module network
 
-    This class is a server which accepts incoming TCP connections. You
-    can specify the port or have QTcpServer pick one, and listen on
-    just one address, or on all the machine's addresses.
+    This class makes it possible to accept incoming TCP connections.
+    You can specify the port or have QTcpServer pick one
+    automatically. You can listen on a specific address or on all the
+    machine's addresses.
 
-    Call listen() to have the server listen for incoming
-    connections. isListening() can be called to check whether or not
-    the server is listening for incoming connections. The
-    newConnection() signal is emitted when a connection is
-    available. hasPendingConnection() returns true if an incoming
-    connection is currently pending. Call nextPendingConnection() to
-    accept the pending connection as a connected QTcpSocket. Call
-    close() to close the server.
+    Call listen() to have the server listen for incoming connections.
+    The newConnection() signal is emitted each time a client connects
+    to the server.
 
-    When listening for connections, the server's address and port can
-    be fetched by calling serverAddress() and serverPort().
+    Call nextPendingConnection() to accept the pending connection as
+    a connected QTcpSocket. The function returns a pointer to a
+    QTcpSocket in Qt::ConnectedState that you can use for
+    communicating with the client.
 
     If an error occurs, serverError() returns the type of error, and
     errorString() can be called to get a human readable description of
     what happened.
 
-    This class supports blocking operations for when the event loop is
-    not available. waitForConnection() is a blocking function call
-    which suspends the execution of the program until either a
+    When listening for connections, the address and port on which the
+    server is listening are available as serverAddress() and
+    serverPort().
+
+    Calling close() makes QTcpServer stop listening for incoming
+    connections.
+
+    Although QTcpServer is mostly designed for use with an event
+    loop, it's possible to use it without one. In that case, you must
+    use waitForNewConnection(), which blocks until either a
     connection is available or a timeout expires.
 
-    For low level access, socketDescriptor() returns the native socket
-    descriptor that the server uses to listen for connections. This
-    socket can be set by calling setSocketDescriptor().
+    The network/fortuneserver example illustrates how to use
+    QTcpServer in an application.
+
+    \sa QTcpSocket
+*/
+
+/*! \fn QTcpServer::newConnection()
+
+    This signal is emitted every time a new connection is available.
+
+    \sa QTcpServer::hasPendingConnection(), QTcpServer::nextPendingConnection()
 */
 
 //#define QTCPSERVER_DEBUG
@@ -123,9 +138,8 @@ void QTcpServerPrivate::processIncomingConnection(int)
         qDebug("QTcpServerPrivate::processIncomingConnection() accepted socket %i", descriptor);
 #endif
         q->incomingConnection(descriptor);
+        emit q->newConnection();
     }
-
-    emit q->newConnection();
 }
 
 /*!
@@ -263,7 +277,8 @@ int QTcpServer::socketDescriptor() const
 
 /*!
     Sets the socket descriptor this server should use when listening
-    for incoming connections.
+    for incoming connections to \a socketDescriptor. The socket is
+    assumed to be in listening state.
 */
 bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 {
@@ -317,17 +332,18 @@ QHostAddress QTcpServer::serverAddress() const
 /*!
     Waits for at most \a msec milliseconds or until an incoming
     connection is available. Returns true if a connection is
-    available; otherwise returns false.
+    available; otherwise returns false. If the operation timed out and
+    \a timedOut is not 0, \a timedOut will be set to true.
 
     This is a blocking function call; its use is disadvised in a
     single threaded application, as the whole thread will stop
-    responding until the function returns. waitForConnection() is most
-    useful when there is no event loop available. The general approach
-    is to connect to the newConnection() signal.
+    responding until the function returns. waitForNewConnection() is
+    mostly useful when there is no event loop available. The general
+    approach is to connect to the newConnection() signal.
 
     \sa hasPendingConnection(), nextPendingConnection()
 */
-bool QTcpServer::waitForConnection(int msec, bool *timedOut)
+bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 {
     if (d->state != Qt::ListeningState)
         return false;

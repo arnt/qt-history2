@@ -1510,6 +1510,11 @@ Q_ULONG QHttp::bytesAvailable() const
     return d->rba.size();
 }
 
+/*! \fn Q_LONG QHttp::readBlock(char *data, Q_ULONG maxlen)
+
+    Use read() instead.
+*/
+
 /*!
     Reads \a maxlen bytes from the response content into \a data and
     returns the number of bytes read. Returns -1 if an error occurred.

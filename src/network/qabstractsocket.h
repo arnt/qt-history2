@@ -103,6 +103,7 @@ public:
     Q_LLONG at() const;
     bool seek(Q_LLONG offset);
 
+    using QIODevice::write;
     Q_LLONG read(char *data, Q_LLONG maxlen);
     Q_LLONG write(const char *data, Q_LLONG len);
     Q_LLONG readLine(char *data, Q_LLONG maxlen);
@@ -129,7 +130,8 @@ protected:
     QAbstractSocketPrivate *d_ptr;
 
 private:
-    Q_DECLARE_PRIVATE(QAbstractSocket);
+    Q_DECLARE_PRIVATE(QAbstractSocket)
+    Q_DISABLE_COPY(QAbstractSocket)
 
     Q_PRIVATE_SLOT(d, void connectToNextAddress());
     Q_PRIVATE_SLOT(d, void startConnecting(const QDnsHostInfo &));
