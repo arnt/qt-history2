@@ -76,7 +76,7 @@ struct QProgressData
 };
 
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QProgressDialog qprogressdialog.h
   \brief Provides feedback on the progress of a slow operation.
