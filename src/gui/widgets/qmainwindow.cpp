@@ -471,7 +471,7 @@ void QMainWindow::addToolBar(QToolBar *toolbar)
 
     \sa setWindowTitle()
 */
-QToolBar *QMainWindow::createToolBar(const QString &title)
+QToolBar *QMainWindow::addToolBar(const QString &title)
 {
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setWindowTitle(title);

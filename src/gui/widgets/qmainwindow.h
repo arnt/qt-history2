@@ -57,7 +57,7 @@ public:
 
     void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
     void addToolBar(QToolBar *toolbar);
-    QToolBar *createToolBar(const QString &title);
+    QToolBar *addToolBar(const QString &title);
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     void removeToolBar(QToolBar *toolbar);
 
