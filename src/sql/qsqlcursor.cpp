@@ -427,7 +427,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   \code
   QSqlCursor myCursor( "Employee" );
   QSqlIndex pk = myCursor.primaryIndex();
-  myCursor["id"] = 10;
+  myCursor.setValue( "id", 10 );
   myCursor.select( pk, pk ); // generates "select ... from Employee where id=10 order by id;"
   ...
   \endcode
