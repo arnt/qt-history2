@@ -947,14 +947,29 @@ void QWin32GC::updatePen(QPainterState *state)
 	    d->hpen = stock_nullPen;
 	    d->penRef = stock_ptr;
 	    SelectObject(d->hdc, d->hpen);
-	    SetTextColor(d->hdc, d->pColor);
+#ifndef Q_OS_TEMP
+	    SetTextColor( hdc, pix );
+#else
+	    if ( old_pix != pix ) {
+		SetTextColor( hdc, pix );
+		old_pix = pix;
+	    }
+#endif
 	    if (hpen_old)
 		DeleteObject(hpen_old);
 	    return;
 	}
 	if (obtain_pen(&d->penRef, &d->hpen, d->pColor)) {
 	    SelectObject(d->hdc, d->hpen);
-	    SetTextColor(d->hdc, d->pColor);
+#ifndef Q_OS_TEMP
+	    SetTextColor( hdc, pix );
+#else
+	    if ( old_pix != pix ) {
+		SetTextColor( hdc, pix );
+		old_pix = pix;
+	    }
+#endif
+
 	    if (hpen_old)
 		DeleteObject(hpen_old);
 	    return;
@@ -1014,7 +1029,14 @@ void QWin32GC::updatePen(QPainterState *state)
     {
 	d->hpen = CreatePen(s, state->pen.width(), d->pColor);
     }
-    SetTextColor(d->hdc, d->pColor);			// pen color is also text color
+#ifndef Q_OS_TEMP
+    SetTextColor( hdc, pix );                   // pen color is also text color
+#else
+    if ( old_pix != pix ) {
+	SetTextColor( hdc, pix );
+	old_pix = pix;
+    }
+#endif
     SelectObject(d->hdc, d->hpen);
     if (hpen_old)				// delete last pen
 	DeleteObject(hpen_old);
