@@ -920,7 +920,6 @@ bool QDirModel::isDir(const QModelIndex &index) const
 
 /*!
   Create a directory with the \a name in the \a parent model item.
-
 */
 
 QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
@@ -935,7 +934,19 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     d->savePersistentIndexes();
 
     QString path = p->info.absoluteFilePath();
+
+    // For the indexOf() method to work, the new directory has to be a direct child of
+    // the parent directory. 
+    QDir newDir(name); 
     QDir dir(path);
+    if (newDir.isRelative()) newDir = QDir(path + "/" + name); 
+    QString childName = newDir.dirName(); // Get the singular name of the directory
+    newDir.cdUp();
+    if (newDir.absolutePath() != dir.absolutePath()) {
+        d->restorePersistentIndexes();
+        return QModelIndex();
+    }
+
     if (!dir.mkdir(name)) {
         d->restorePersistentIndexes();
         return QModelIndex();
@@ -945,7 +956,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     d->restorePersistentIndexes();
 
     QStringList entryList = d->entryList(path);
-    int r = entryList.indexOf(name);
+    int r = entryList.indexOf(childName);
     QModelIndex i = index(r, 0, parent); // return an invalid index
     emit rowsInserted(parent, r, 1);
     return i;
