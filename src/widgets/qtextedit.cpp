@@ -782,8 +782,18 @@ bool QTextEdit::event( QEvent *e )
 	    case Key_Tab:
 #if defined (Q_WS_WIN)
 	    case Key_Insert:
+	    case Key_Delete:
 #endif
 		ke->accept();
+	    default:
+		break;
+	    }
+	} else {
+	    switch ( ke->key() ) {
+#if defined (Q_WS_WIN)
+	    case Key_Insert:
+		ke->accept();
+#endif
 	    default:
 		break;
 	    }
@@ -864,14 +874,23 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	emit returnPressed();
 	break;
     case Key_Delete:
-	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
+#if defined (Q_WS_WIN)
+	if ( e->state() & ShiftButton ) {
+	    cut();
+	    break;
+	} else 
+#endif
+        if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
 	    removeSelectedText();
 	    break;
 	}
-
 	doKeyboardAction( ActionDelete );
 	clearUndoRedoInfo = FALSE;
 
+	break;
+    case Key_Insert:
+	if ( e->state() & ShiftButton )
+	    paste();
 	break;
     case Key_Backspace:
 	if ( doc->hasSelection( QTextDocument::Standard, TRUE ) ) {
@@ -998,11 +1017,14 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		case Key_K:
 		    doKeyboardAction( ActionKill );
 		    break;
-		case Key_Insert:
 #if defined(Q_WS_WIN)
+		case Key_Insert:
 		    copy();
-#endif
 		    break;
+		case Key_Delete:
+		    del();
+		    break;
+#endif
 		}
 		break;
 	    }

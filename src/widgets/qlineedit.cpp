@@ -679,6 +679,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Insert:
 	    copy();
 	    break;
+	case Key_Delete:
+	    if ( !d->readonly )
+		del();
+	    break;
 #endif
 #endif
 	case Key_Right:
@@ -973,8 +977,9 @@ bool QLineEdit::event( QEvent * e )
 	    case Key_Z:
 	    case Key_Left:
 	    case Key_Right:
-#if defined (_WS_WIN_)
+#if defined (Q_WS_WIN)
 	    case Key_Insert:
+	    case Key_Delete:
 #endif
 		ke->accept();
 	    default:
