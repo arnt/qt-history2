@@ -239,14 +239,16 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
     projectCombo->insertStringList( projects );
     projectCombo->setCurrentText( currentProject );
 
-    QStringList languages = MetaDataBase::languages();
     QStringList::Iterator it;
-    for ( it = languages.begin(); it != languages.end(); ++it ) {
-	ProjectItem *pi = new ProjectItem( templateView, *it + " " + tr( "Project" ) );
-	allItems.append( pi );
-	pi->setLanguage( *it );
-	pi->setPixmap( PixmapChooser::loadPixmap( "project.xpm" ) );
-	pi->setDragEnabled( FALSE );
+    QStringList languages = MetaDataBase::languages();
+    if ( !MainWindow::self->singleProjectMode() ) {
+	for ( it = languages.begin(); it != languages.end(); ++it ) {
+	    ProjectItem *pi = new ProjectItem( templateView, *it + " " + tr( "Project" ) );
+	    allItems.append( pi );
+	    pi->setLanguage( *it );
+	    pi->setPixmap( PixmapChooser::loadPixmap( "project.xpm" ) );
+	    pi->setDragEnabled( FALSE );
+	}
     }
 
     QIconViewItem *cur = 0;
@@ -256,48 +258,50 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
     fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     fi->setDragEnabled( FALSE );
     cur = fi;
-    fi = new FormItem( templateView,tr( "Wizard" ) );
-    allItems.append( fi );
-    fi->setFormType( FormItem::Wizard );
-    fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-    fi->setDragEnabled( FALSE );
-    fi = new FormItem( templateView, tr( "Widget" ) );
-    allItems.append( fi );
-    fi->setFormType( FormItem::Widget );
-    fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-    fi->setDragEnabled( FALSE );
-    fi = new FormItem( templateView, tr( "Main Window" ) );
-    allItems.append( fi );
-    fi->setFormType( FormItem::MainWindow );
-    fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-    fi->setDragEnabled( FALSE );
+    if ( !MainWindow::self->singleProjectMode() ) {
+	fi = new FormItem( templateView,tr( "Wizard" ) );
+	allItems.append( fi );
+	fi->setFormType( FormItem::Wizard );
+	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setDragEnabled( FALSE );
+	fi = new FormItem( templateView, tr( "Widget" ) );
+	allItems.append( fi );
+	fi->setFormType( FormItem::Widget );
+	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setDragEnabled( FALSE );
+	fi = new FormItem( templateView, tr( "Main Window" ) );
+	allItems.append( fi );
+	fi->setFormType( FormItem::MainWindow );
+	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+	fi->setDragEnabled( FALSE );
 
-    QString templPath = templatePath;
-    if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
-	QString path = getenv( "QTDIR" );
-	if ( !path.isEmpty() ) {
-	    path.append( "/tools/designer/templates" );
-	    if ( QFileInfo( path ).exists() )
-		templPath = path;
+	QString templPath = templatePath;
+	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
+	    QString path = getenv( "QTDIR" );
+	    if ( !path.isEmpty() ) {
+		path.append( "/tools/designer/templates" );
+		if ( QFileInfo( path ).exists() )
+		    templPath = path;
+	    }
 	}
-    }
-    if ( !templPath.isEmpty() ) {
-	QDir dir( templPath  );
-	const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
-	if ( filist ) {
-	    QFileInfoListIterator it( *filist );
-	    QFileInfo *fi;
-	    while ( ( fi = it.current() ) != 0 ) {
-		++it;
-		if ( !fi->isFile() || fi->extension() != "ui" )
-		    continue;
-		QString name = fi->baseName();
-		name = name.replace( QRegExp( "_" ), " " );
-		CustomFormItem *ci = new CustomFormItem( templateView, name );
-		allItems.append( ci );
-		ci->setDragEnabled( FALSE );
-		ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-		ci->setTemplateFile( fi->absFilePath() );
+	if ( !templPath.isEmpty() ) {
+	    QDir dir( templPath  );
+	    const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
+	    if ( filist ) {
+		QFileInfoListIterator it( *filist );
+		QFileInfo *fi;
+		while ( ( fi = it.current() ) != 0 ) {
+		    ++it;
+		    if ( !fi->isFile() || fi->extension() != "ui" )
+			continue;
+		    QString name = fi->baseName();
+		    name = name.replace( QRegExp( "_" ), " " );
+		    CustomFormItem *ci = new CustomFormItem( templateView, name );
+		    allItems.append( ci );
+		    ci->setDragEnabled( FALSE );
+		    ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+		    ci->setTemplateFile( fi->absFilePath() );
+		}
 	    }
 	}
     }
@@ -320,23 +324,28 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	}
     }
 
-    QStringList sourceTemplates = MainWindow::self->sourceTemplates();
-    for ( QStringList::Iterator sit = sourceTemplates.begin(); sit != sourceTemplates.end(); ++sit ) {
-	SourceTemplateInterface *siface = MainWindow::self->sourceTemplateInterface( *sit );
-	if ( !siface )
-	    continue;
-	SourceTemplateItem * si = new SourceTemplateItem( templateView, *sit );
-	allItems.append( si );
-	si->setTemplate( *sit );
-	si->setLanguage( siface->language( *sit ) );
-	si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
-	si->setDragEnabled( FALSE );
-	siface->release();
+    if ( !MainWindow::self->singleProjectMode() ) {
+	QStringList sourceTemplates = MainWindow::self->sourceTemplates();
+	for ( QStringList::Iterator sit = sourceTemplates.begin(); sit != sourceTemplates.end(); ++sit ) {
+	    SourceTemplateInterface *siface = MainWindow::self->sourceTemplateInterface( *sit );
+	    if ( !siface )
+		continue;
+	    SourceTemplateItem * si = new SourceTemplateItem( templateView, *sit );
+	    allItems.append( si );
+	    si->setTemplate( *sit );
+	    si->setLanguage( siface->language( *sit ) );
+	    si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
+	    si->setDragEnabled( FALSE );
+	    siface->release();
+	}
     }
 
     templateView->viewport()->setFocus();
     projectChanged( projectCombo->currentText() );
     templateView->setCurrentItem( cur );
+
+    if ( MainWindow::self->singleProjectMode() )
+	adjustSize();
 }
 
 void NewForm::accept()

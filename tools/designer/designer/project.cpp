@@ -234,6 +234,13 @@ void Project::setFileName( const QString &fn, bool doClear )
 {
     if ( fn == filename )
 	return;
+
+    if ( MainWindow::self->singleProjectMode() ) {
+	// ####
+	singleProFileName = fn;
+	//filename = "/some/tmp";
+    }
+
     filename = fn;
 
     if ( !filename.endsWith( ".pro" ) )
@@ -649,6 +656,10 @@ void Project::save( bool onlyProjectFile )
     saveConnections();
 
     setModified( FALSE );
+
+    if ( MainWindow::self->singleProjectMode() ) {
+	// ############
+    }
 }
 
 #ifndef QT_NO_SQL
@@ -1162,7 +1173,8 @@ void Project::addObject( QObject *o )
 {
     objs.append( o );
     MetaDataBase::addEntry( o );
-    FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
+    FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
+    ff->setFileName( "APPOBJ" + QString( o->name() ) + ".ui" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
 				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
     fw->setMainWindow( MainWindow::self );
@@ -1177,21 +1189,8 @@ void Project::addObject( QObject *o )
 
 void Project::setObjects( const QObjectList &ol )
 {
-    objs = ol;
-    for ( QObjectListIt it( objs ); it.current(); ++it ) {
-	MetaDataBase::addEntry( it.current() );
-	FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
-	FormWindow *fw = new FormWindow( ff, MainWindow::self,
-					 MainWindow::self->qWorkspace(), "qt_fakewindow" );
-	fw->setMainWindow( MainWindow::self );
-	fw->setProject( this );
-	fw->setGeometry( -100, -100, 50, 50 );
-	fw->show();
-	fakeForms.insert( (void*)it.current(), fw );
-	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
-		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
-	emit objectAdded( it.current() );
-    }
+    for ( QObjectListIt it( ol ); it.current(); ++it )
+	addObject( it.current() );
 }
 
 void Project::removeObject( QObject *o )

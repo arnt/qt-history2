@@ -234,6 +234,7 @@ private:
     bool modified;
     QObjectList objs;
     QPtrDict<FormWindow> fakeForms;
+    QString singleProFileName;
 
 };
 

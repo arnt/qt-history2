@@ -259,9 +259,13 @@ QString WorkspaceItem::text( int column ) const
 	    return project->projectName();
 	return project->makeRelative( project->fileName() );
     case FormFileType:
-	return formFile->formName() + ": " + formFile->fileName();
+	if ( !MainWindow::self->singleProjectMode() )
+	    return formFile->formName() + ": " + formFile->fileName();
+	return formFile->formName();
     case FormSourceType:
-	return formFile->codeFile();
+	if ( !MainWindow::self->singleProjectMode() )
+	    return formFile->codeFile();
+	return formFile->formName() + " [Source]";
     case SourceFileType:
 	return sourceFile->fileName();
     case ObjectType:
