@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#101 $
 **
 ** Implementation of QRadioButton class
 **
@@ -141,11 +141,10 @@ QSize QRadioButton::sizeHint() const
     // NB: QCheckBox::sizeHint() is similar
 
     QSize sz;
-    if (pixmap()) {
+    if (pixmap())
 	sz = pixmap()->size();
-    } else {
+    else
 	sz = fontMetrics().size( ShowPrefix, text() );
-    }
     GUIStyle gs = style();
     QSize bmsz = sizeOfBitmap( gs );
     if ( sz.height() < bmsz.height() )
@@ -363,4 +362,18 @@ void QRadioButton::updateMask()
 	}
     }
     setMask(bm);
+}
+
+
+/*! \reimp */
+
+void QRadioButton::focusInEvent( QFocusEvent * e )
+{
+    QButton * b = 0;
+    if ( group() && !isOn() )
+	b = group()->selected();
+    if ( b )
+	b->setFocus();
+    else
+	QButton::focusInEvent( e );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#39 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#40 $
 **
 ** Definition of QRadioButton class
 **
@@ -50,6 +50,7 @@ protected:
     void    drawButtonLabel( QPainter * );
 
     void    resizeEvent( QResizeEvent* );
+    void    focusInEvent( QFocusEvent * );
 
     void    updateMask();
 
