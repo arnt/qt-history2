@@ -11,29 +11,29 @@
 class QTextFormatProperty
 {
 public:
-    QTextFormatProperty() : type(QTextFormat::Undefined) {}
+    inline QTextFormatProperty() : type(QTextFormat::Undefined) {}
 
-    QTextFormatProperty(bool value) : type(QTextFormat::Bool)
+    inline QTextFormatProperty(bool value) : type(QTextFormat::Bool)
     { data.boolValue = value; }
 
-    QTextFormatProperty(int value) : type(QTextFormat::Integer)
+    inline QTextFormatProperty(int value) : type(QTextFormat::Integer)
     { data.intValue = value; }
 
-    QTextFormatProperty(float value) : type(QTextFormat::Float)
+    inline QTextFormatProperty(float value) : type(QTextFormat::Float)
     { data.floatValue = value; }
 
     QTextFormatProperty(const QString &value);
 
-    QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
+    inline QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
     { (*this) = rhs; }
 
-    QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
+    inline QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
 
-    ~QTextFormatProperty()
+    inline ~QTextFormatProperty()
     { free(); }
 
     bool operator==(const QTextFormatProperty &rhs) const;
-    bool operator!=(const QTextFormatProperty &rhs) const
+    inline bool operator!=(const QTextFormatProperty &rhs) const
     { return !operator==(rhs); }
 
     QTextFormat::PropertyType type;
@@ -44,7 +44,7 @@ public:
 	mutable void *ptr;
     } data;
 
-    QString stringValue() const
+    inline QString stringValue() const
     { return *reinterpret_cast<QString *>(&data.ptr); }
 
 private:
