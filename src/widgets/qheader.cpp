@@ -772,13 +772,12 @@ QRect QHeader::sRect( int index )
     if ( count() > 0 && index >= count() ) {
 	int s = d->positions[count()-1]-offset()+d->sizes[mapToSection(count()-1)];
 	if ( orient == Horizontal )
-	    return QRect(  s, 0, width()-s+10, height() );
+	    return QRect( s, 0, width()-s+10, height() );
 	else
-	    return QRect(  0, s, width(), height() - s +10);
+	    return QRect( 0, s, width(), height() - s +10);
     }
     if ( section < 0 )
 	return rect(); // ### eeeeevil
-
 
     if ( reverse() )
 	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
@@ -1253,7 +1252,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
     if ( section < 0 ) {
-	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), QStyle::Style_Raised );
 	return;
     }
@@ -1267,7 +1266,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
-	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), flags );
     } else {
 	if ( orientation() == Horizontal ) {
