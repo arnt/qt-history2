@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#168 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1396,8 +1396,10 @@ bool QFontMetrics::inFont(QChar ch) const
     XFontStruct *f = FS;
     if ( f && !mapper() ) {
 	return ::inFont(f,ch);
+    } else if ( mapper() ) {
+	return mapper()->canEncode(ch);
     }
-    return TRUE; // ###### XFontSet range?  Use mapper()?
+    return TRUE; // ###### XFontSet range?
 }
 
 static

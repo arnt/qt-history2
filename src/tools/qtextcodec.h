@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#14 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#15 $
 **
 ** Definition of QTextCodec class
 **
@@ -73,6 +73,8 @@ public:
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
     QString toUnicode(const char* chars) const;
+    virtual bool canEncode( QChar ) const;
+    virtual bool canEncode( const QString& ) const;
 
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;

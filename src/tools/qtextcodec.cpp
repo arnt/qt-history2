@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#67 $
 **
 ** Implementation of QTextCodec class
 **
@@ -584,6 +584,28 @@ QString QTextCodec::toUnicode(const char* chars) const
     return toUnicode(chars,strlen(chars));
 }
 
+/*!
+  Returns TRUE if the unicode character \a ch can be fully encoded
+  with this codec.  The default implementation tests if the result of
+  toUnicode(fromUnicode(ch)) is the original \a ch. Subclasses may be
+  able to improve the efficiency.
+*/
+bool QTextCodec::canEncode( QChar ch ) const
+{
+    return toUnicode(fromUnicode(ch)) == ch;
+}
+
+/*!
+  Returns TRUE if the unicode string \a s can be fully encoded
+  with this codec.  The default implementation tests if the result of
+  toUnicode(fromUnicode(s)) is the original \a s. Subclasses may be
+  able to improve the efficiency.
+*/
+bool QTextCodec::canEncode( const QString& s ) const
+{
+    return toUnicode(fromUnicode(s)) == s;
+}
+
 
 
 /*!
@@ -964,7 +986,8 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 	    // Chained multi-byte
 	    mb = t.multibyte;
 	} else {
-	    result += QChar(t.unicode);
+	    if ( t.unicode )
+		result += QChar(t.unicode);
 	    mb=codec->to_unicode_multibyte;
 	}
 	uchars++;
@@ -1293,7 +1316,7 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 {
     QString r;
     const unsigned char * c = (const unsigned char *)chars;
-    for( int i=0; i<len; i++ ) {
+    for( int i=0; i<len && c[i]; i++ ) { // Note: NUL ends string
 	if ( c[i] > 127 )
 	    r[i] = unicodevalues[forwardIndex].values[c[i]-128];
 	else
