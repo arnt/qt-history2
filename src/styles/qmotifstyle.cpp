@@ -237,13 +237,13 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ExclusiveIndicator:
 	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-	    static QCOORD inner_pts[] = { // used for filling diamond
+	    QCOORD inner_pts[] = { // used for filling diamond
 		2,r.height()/2,
 		r.width()/2,2,
 		r.width()-3,r.height()/2,
 		r.width()/2,r.height()-3
 	    };
-	    static QCOORD top_pts[] = { // top (^) of diamond
+	    QCOORD top_pts[] = { // top (^) of diamond
 		0,r.height()/2,
 		r.width()/2,0,
 		r.width()-2,r.height()/2-1,
@@ -254,7 +254,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 		r.width()/2,2,
 		r.width()-4,r.height()/2-1
 	    };
-	    static QCOORD bottom_pts[] = { // bottom (v) of diamond
+	    QCOORD bottom_pts[] = { // bottom (v) of diamond
 		1,r.height()/2+1,
 		r.width()/2,r.height()-1,
 		r.width()-1,r.height()/2,
