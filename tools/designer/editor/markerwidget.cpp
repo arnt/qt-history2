@@ -383,8 +383,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
-    if ( !( (Editor*)viewManager->currentView() )->supportsBreakPoints() )
-	return;
+    bool supports = ( (Editor*)viewManager->currentView() )->supportsBreakPoints();
     QTextParagraph *p = ( (Editor*)viewManager->currentView() )->document()->firstParagraph();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
     while ( p ) {
@@ -393,7 +392,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 	    if ( !d )
 		return;
 	    ParagData *data = (ParagData*)d;
-	    if ( e->x() < width() - 15 ) {
+	    if ( supports && ( e->x() < width() - 15 ) ) {
 		if ( data->marker == ParagData::Breakpoint ) {
 		    data->marker = ParagData::NoMarker;
 		} else {
