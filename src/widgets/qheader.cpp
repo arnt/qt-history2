@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#20 $
 **
 **  Table header
 **
@@ -388,7 +388,7 @@ void QHeader::moveAround( int fromIdx, int toIdx )
 	for ( i = fromIdx; i < toIdx - 1; i++ ) {
 	    int t;
 	    a2l[i] = t = a2l[i+1];
-	    l2a[t] = t;
+	    l2a[t] = i;
 	}
 	a2l[toIdx-1] = idx;
 	l2a[idx] = toIdx-1;
@@ -396,7 +396,7 @@ void QHeader::moveAround( int fromIdx, int toIdx )
 	for ( i = fromIdx; i > toIdx ; i-- ) {
 	    int t;
 	    a2l[i] = t = a2l[i-1];
-	    l2a[t] = t;
+	    l2a[t] = i;
 	}
 	a2l[toIdx] = idx;
 	l2a[idx] = toIdx;
