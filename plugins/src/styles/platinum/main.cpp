@@ -24,7 +24,7 @@ QStringList PlatinumStyle::keys() const
 
 QStyle* PlatinumStyle::create( const QString& s )
 {
-    if ( s.lower() == "platinum" )
+    if ( s.toLower() == "platinum" )
         return new QPlatinumStyle();
 
     return 0;

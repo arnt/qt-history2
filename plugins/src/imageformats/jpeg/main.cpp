@@ -64,7 +64,7 @@ bool JPEGFormat::saveImage( const QString &format, const QString &filename, cons
 
 bool JPEGFormat::installIOHandler( const QString &name )
 {
-    if ( name.upper() != "JPEG" )
+    if ( name.toUpper() != "JPEG" )
 	return FALSE;
 
     qInitJpegIO();

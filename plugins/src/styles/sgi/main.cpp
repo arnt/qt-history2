@@ -24,7 +24,7 @@ QStringList SGIStyle::keys() const
 
 QStyle* SGIStyle::create( const QString& s )
 {
-    if ( s.lower() == "sgi" )
+    if ( s.toLower() == "sgi" )
         return new QSGIStyle();
 
     return 0;

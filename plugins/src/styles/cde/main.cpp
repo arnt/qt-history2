@@ -24,7 +24,7 @@ QStringList CDEStyle::keys() const
 
 QStyle* CDEStyle::create( const QString& s )
 {
-    if ( s.lower() == "cde" )
+    if ( s.toLower() == "cde" )
 	return new QCDEStyle();
 
     return 0;

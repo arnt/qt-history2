@@ -24,7 +24,7 @@ QStringList MotifStyle::keys() const
 
 QStyle* MotifStyle::create( const QString& s )
 {
-    if ( s.lower() == "motif" )
+    if ( s.toLower() == "motif" )
 	return new QMotifStyle();
 
     return 0;
