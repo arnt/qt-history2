@@ -71,7 +71,6 @@
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
-    qDebug( "QPrinter::QPrinter" );
     orient = Portrait;
     page_size = A4;
     ncopies = 1;
@@ -87,7 +86,6 @@ QPrinter::QPrinter()
 
 QPrinter::~QPrinter()
 {
-    qDebug( "QPrinter::~QPrinter" );
 }
 
 
@@ -98,7 +96,6 @@ QPrinter::~QPrinter()
 
 bool QPrinter::newPage()
 {
-    qDebug( "QPrinter::newPage" );
     return FALSE;
 }
 
@@ -111,7 +108,6 @@ bool QPrinter::newPage()
 
 bool QPrinter::abort()
 {
-    qDebug( "QPrinter::abort" );
     return FALSE;
 }
 
@@ -122,7 +118,6 @@ bool QPrinter::abort()
 
 bool QPrinter::aborted() const
 {
-    qDebug( "QPrinter::aborted" );
     return FALSE;
 }
 
@@ -137,7 +132,6 @@ bool QPrinter::aborted() const
 
 bool QPrinter::setup( QWidget * parent )
 {
-    qDebug( "QPrinter::setup" );
     QPrintDialog prndlg( this, parent );
     return prndlg.exec() == QDialog::Accepted;
 }
@@ -150,7 +144,6 @@ bool QPrinter::setup( QWidget * parent )
 
 bool QPrinter::cmd( int, QPainter *, QPDevCmdParam * )
 {
-    qDebug( "QPrinter::cmd" );
     return TRUE;
 }
 
@@ -166,7 +159,6 @@ bool QPrinter::cmd( int, QPainter *, QPDevCmdParam * )
 
 int QPrinter::metric( int ) const
 {
-    qDebug( "QPaintDevice::metric" );
     return 1;
 }
 
@@ -187,7 +179,6 @@ margins() is automatically subtracted from the pageSize() by QPrinter.
 
 QSize QPrinter::margins() const
 {
-    qDebug( "QPrinter::margins" );
     return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
 }
 

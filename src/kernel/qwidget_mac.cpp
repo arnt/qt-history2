@@ -95,7 +95,6 @@ WId myactive = -1;
 //FIXME Documentation on Quartz, where is it?
 void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindow */ )
 {
-    qDebug( "QWidget::create" );
     bg_pix = 0;
     back_type = 1;
     WId root_win = 0;
@@ -172,10 +171,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 
     bg_col = pal.normal().background();
     if ( !parentWidget() ) {
-	qDebug( "Toplevel %d\n", id );
 	setWinId( id );
     } else {
-	qDebug( "Non-toplevel %d\n", id );
 	winid = id;
     }
 
@@ -206,7 +203,6 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
 
 void QWidget::destroy( bool, bool )
 {
-    qDebug( "QWidget::destroy" );
 }
 
 /*!
@@ -237,7 +233,6 @@ void QWidget::destroy( bool, bool )
 void QWidget::reparent( QWidget *, WFlags, const QPoint &,
 			bool )
 {
-    qDebug( "QWidget::reparent" );
 }
 
 
@@ -258,7 +253,6 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     LocalToGlobal(&mac_p);
   }
 
-  //  qDebug("QWidget::mapToGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), mac_p.h, mac_p.v);
   QPoint p2(mac_p.h,mac_p.v);
   return p2;
 }
@@ -283,7 +277,6 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     mac_p.v -= p->y();
   }
 
-  //qDebug("QWidget::mapFromGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), mac_p.h, mac_p.v);
   QPoint p2(mac_p.h,mac_p.v);
   return p2;
 }
@@ -309,18 +302,15 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 */
 void QWidget::setMicroFocusHint(int, int, int, int, bool )
 {
-    qDebug( "QWidget::setMicroFocusHint" );
 }
 
 void QWidget::setFontSys()
 {
-    qDebug( "QWidget::setFontSys" );
 }
 
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-    qDebug( "QWidget::setBackgroundColorDirect" );
     back_type = 1;
     bg_col = color;
     if ( bg_pix )
@@ -330,7 +320,6 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 
 void QWidget::setBackgroundPixmapDirect( const QPixmap & )
 {
-    qDebug( "QWidget::setBackgroundPixmapDirect" );
 }
 
 void show_children( QWidget * w, int show )
@@ -383,7 +372,6 @@ void redraw_children(QWidget * w)
 */
 void QWidget::setBackgroundEmpty()
 {
-    qDebug( "QWidget::setBackgroundEmpty" );
 }
 
 
@@ -404,7 +392,6 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor( const QCursor & )
 {
-    qDebug( "QApplication::setCursor" );
 }
 
 
@@ -419,7 +406,6 @@ void QWidget::setCursor( const QCursor & )
 
 void QWidget::unsetCursor()
 {
-    qDebug( "QApplication::unsetCursor" );
 }
 
 /*!
@@ -429,8 +415,6 @@ void QWidget::unsetCursor()
 
 void QWidget::setCaption( const QString &cap )
 {
-    qDebug( "QWidget::setCaption" );
-
     SetWTitle((WindowPtr)winid, p_str(cap.latin1()));
 }
 
@@ -442,7 +426,6 @@ void QWidget::setCaption( const QString &cap )
 
 void QWidget::setIcon( const QPixmap & )
 {
-    qDebug( "QWidget::setIcon" );
 }
 
 
@@ -453,7 +436,6 @@ void QWidget::setIcon( const QPixmap & )
 
 void QWidget::setIconText( const QString & )
 {
-    qDebug( "QWidget::setIconText" );
 }
 
 
@@ -477,7 +459,6 @@ QWidget *mac_mouse_grabber = 0;
 
 void QWidget::grabMouse()
 {
-    qDebug( "QWidget::grabMouse" );
     mac_mouse_grabber=this;
 }
 
@@ -495,7 +476,6 @@ void QWidget::grabMouse()
 
 void QWidget::grabMouse( const QCursor & )
 {
-    qDebug( "QWidget::grabMouse" );
     mac_mouse_grabber=0;
 }
 
@@ -507,7 +487,6 @@ void QWidget::grabMouse( const QCursor & )
 
 void QWidget::releaseMouse()
 {
-    qDebug( "QWidget::releaseMouse" );
 }
 
 /*!
@@ -525,7 +504,6 @@ QWidget *mac_keyboard_grabber = 0;
 
 void QWidget::grabKeyboard()
 {
-    qDebug( "QWidget::grabKeyboard" );
     mac_keyboard_grabber = this;
 }
 
@@ -537,7 +515,6 @@ void QWidget::grabKeyboard()
 
 void QWidget::releaseKeyboard()
 {
-    qDebug( "QWidget::releaseKeyboard" );
     mac_keyboard_grabber = 0;
 }
 
@@ -554,7 +531,6 @@ void QWidget::releaseKeyboard()
 
 QWidget *QWidget::mouseGrabber()
 {
-    qDebug( "QWidget::mouseGrabber" );
     return 0;
 }
 
@@ -570,7 +546,6 @@ QWidget *QWidget::mouseGrabber()
 
 QWidget *QWidget::keyboardGrabber()
 {
-    qDebug( "QWidget::keyboardGrabber" );
     return 0;
 }
 
@@ -594,7 +569,6 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    qDebug( "QWidget::setActiveWindow" );
     QWidget *widget = QWidget::find( myactive );
     // FIXME: This is likely to flicker
     if ( widget && !widget->isPopup() )
@@ -626,7 +600,6 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    qDebug( "QWidget::update no parameters" );
     update( 0, 0, width(), height() );    
 }
 
@@ -652,8 +625,6 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-  qDebug( "QLCD QWidget::update" );
-
   if ( testWFlags( WState_Created ) ) {
     if ( !isVisible() )
       return;
@@ -664,7 +635,6 @@ void QWidget::update( int x, int y, int w, int h )
       y += widg->y();
     }
     SetRect( &r, x, y, x+w, y+h );
-    qDebug( "QWidget::update( %d %d %d %d )", x, y, w, h );
     InvalWindowRect( (WindowRef)winId(), &r );
   }
 }
@@ -708,7 +678,6 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-  qDebug( "QLCD  is to be repainted%d %d %d %d %d", x, y, w, h, erase);
   if ( (widget_state & (WState_Visible|WState_BlockUpdates)) 
        == WState_Visible ) {
     if ( w < 0 )
@@ -742,7 +711,6 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion& , bool erase )
 {
-    qDebug( "QWidget::repaint QRegion" );
     repaint( 0, 0, width(), height(), erase );
 }
 
@@ -758,7 +726,6 @@ void QWidget::repaint( const QRegion& , bool erase )
 
 void QWidget::showWindow()
 {
-    qDebug( "QWidget::showWindow" );
     setWState( WState_Visible );
     clearWState( WState_ForceHide );
     QShowEvent e( FALSE );
@@ -779,7 +746,6 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    qDebug( "QWidget::hide" );
 }
 
 
@@ -794,7 +760,6 @@ void QWidget::hideWindow()
 
 void QWidget::showMinimized()
 {
-    qDebug( "QWidget::showMinimized" );
 }
 
 /*!
@@ -805,13 +770,11 @@ void QWidget::showMinimized()
  */
 bool QWidget::isMinimized() const
 {
-    qDebug( "QWidget::isMinimized" );
     return false;
 }
 
 bool QWidget::isMaximized() const
 {
-    qDebug( "QWidget::isMaximized" );
     return false;
 }
 
@@ -831,7 +794,6 @@ bool QWidget::isMaximized() const
 
 void QWidget::showMaximized()
 {
-    qDebug( "QWidget::showMaximized" );
 }
 
 /*!
@@ -845,7 +807,6 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
-    qDebug( "QWidget::showNormal" );
 }
 
 
@@ -860,7 +821,6 @@ void QWidget::showNormal()
 
 void QWidget::raise()
 {
-    qDebug( "QWidget::raise" );
 }
 
 /*!
@@ -874,7 +834,6 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
-    qDebug( "QWidget::lower" );
 }
 
 
@@ -887,7 +846,6 @@ void QWidget::lower()
 */
 void QWidget::stackUnder( QWidget*)
 {
-    qDebug( "QWidget::stackUnder" );
 }
 
 
@@ -976,7 +934,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int, int )
 {
-    qDebug( "QWidget::setMinimumSize" );
 }
 
 /*!
@@ -995,7 +952,6 @@ void QWidget::setMinimumSize( int, int )
 
 void QWidget::setMaximumSize( int, int )
 {
-    qDebug( "QWidget::setMaximumSize" );
 }
 
 /*!
@@ -1019,7 +975,6 @@ void QWidget::setMaximumSize( int, int )
 
 void QWidget::setSizeIncrement( int, int )
 {
-    qDebug( "QWidget::setSizeIncrement" );
 }
 /*!
   \overload void QWidget::setSizeIncrement( const QSize& )
@@ -1035,7 +990,6 @@ void QWidget::setSizeIncrement( int, int )
 
 void QWidget::setBaseSize( int, int )
 {
-    qDebug( "QWidget::setSizeIncrement" );
 }
 
 
@@ -1067,7 +1021,6 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-  qDebug( "QLCD  is to be erased %d %d %d %d %d", x, y, w, h, back_type);
   if ( back_type == 1 ) {
     // solid background
     Rect r;
@@ -1114,7 +1067,6 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
-    qDebug( "QWidget::erase QRegion" );
     RGBColor rc;
     this->lockPort();
     rc.red = bg_col.red()*256;
@@ -1136,7 +1088,6 @@ void QWidget::erase( const QRegion& reg )
 
 void QWidget::scroll( int, int )
 {
-    qDebug( "QWidget::scroll" );
 }
 
 /*! Scrolls \a r \a dx pixels to the right and \a dy downwards.  Both
@@ -1155,7 +1106,6 @@ void QWidget::scroll( int, int )
 */
 void QWidget::scroll( int, int, const QRect& )
 {
-    qDebug( "QWidget::scroll" );
 }
 
 
@@ -1178,7 +1128,6 @@ void QWidget::scroll( int, int, const QRect& )
 
 void QWidget::drawText( int, int, const QString & )
 {
-    qDebug( "QWidget::drawText" );
 }
 
 
@@ -1190,7 +1139,6 @@ void QWidget::drawText( int, int, const QString & )
 
 int QWidget::metric( int m ) const
 {
-    qDebug( "QPaintDevice::metric" );
     WindowPtr p = (WindowPtr)winid;
     if ( m == QPaintDeviceMetrics::PdmWidth ) {
 	if ( parentWidget() ) {
@@ -1241,12 +1189,10 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
-    qDebug( "QWidget::createTLSysExtra" );
 }
 
 void QWidget::deleteTLSysExtra()
 {
-    qDebug( "QWidget::deleteTLSysExtra" );
 }
 
 
@@ -1258,7 +1204,6 @@ void QWidget::deleteTLSysExtra()
 
 bool QWidget::acceptDrops() const
 {
-    qDebug( "QWidget::acceptDrops" );
     return false;
 }
 
@@ -1275,7 +1220,6 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops( bool )
 {
-    qDebug( "QWidget::isDesktop" );
 }
 
 /*!
@@ -1292,7 +1236,6 @@ void QWidget::setAcceptDrops( bool )
 
 void QWidget::setMask( const QRegion& )
 {
-    qDebug( "QWidget::setMask" );
 }
 
 /*!
@@ -1310,7 +1253,6 @@ void QWidget::setMask( const QRegion& )
 
 void QWidget::setMask( const QBitmap & )
 {
-    qDebug( "QWidget::setMask" );
 }
 
 /*!
@@ -1321,22 +1263,18 @@ void QWidget::setMask( const QBitmap & )
 
 void QWidget::clearMask()
 {
-    qDebug( "QWidget::clearMask" );
 }
 
 /*!\reimp
  */
 void QWidget::setName( const char * )
 {
-    qDebug( "QWidget::setName" );
 }
 
 
 //FIXME: untested
 void QWidget::propagateUpdates(int x, int y, int w, int h)
 {
-  qDebug( "QLCD propup %d %d %dx%d %s %s %d", x, y, w, h, name(), className(), isVisible());
-
   lockPort();
   QRect paintRect( 0, 0, w, h );
 
@@ -1373,98 +1311,94 @@ static QPoint posInWindow(QWidget *w)
   return QPoint(x, y);
 }
 
-//FIXME: I think function was used to define a clipping region
-//FIXME: Basically in ensures that I widget doesn't draw over
-//FIXME: The top of child widgets
-//FIXME: Maybe we should use Qt/Embedded code for doing this.
 void QWidget::lockPort()
 {
-  createExtra();
-  if ( !hd || extra->is_locked)
-    return;
-  extra->is_locked = TRUE;
+    createExtra();
+    if ( !hd || extra->is_locked)
+	return;
+    extra->is_locked = TRUE;
 
-  //this is all important, set the window port before painting can happen
-  SetPortWindowPort( (WindowPtr)hd );
-  QPoint mp = posInWindow(this);
+    //this is all important, set the window port before painting can happen
+    SetPortWindowPort( (WindowPtr)hd );
+    QPoint mp = posInWindow(this);
 
-  //save the old settings
-  GetClip(extra->savedClip);
-  extra->savedOrigin = QWExtra::currentOrigin;
+    //save the old settings
+    GetClip(extra->savedClip);
+    extra->savedOrigin = QWExtra::currentOrigin;
 
-  Rect rect;
-  SetOrigin(0, 0); //start with an origin in 0, 0. I'll set it properly after this
+    Rect rect;
+    SetOrigin(0, 0); //start with an origin in 0, 0. I'll set it properly after this
 
-  //clippedRgn will contain my clipped area
-  RgnHandle clippedRgn = NewRgn();
-  OpenRgn();
-  SetRect(&rect,mp.x(),mp.y(),mp.x()+width(),mp.y()+height());
-  FrameRect(&rect);
-  CloseRgn(clippedRgn);
+    //clippedRgn will contain my clipped area
+    RgnHandle clippedRgn = NewRgn();
+    OpenRgn();
+    SetRect(&rect,mp.x(),mp.y(),mp.x()+width(),mp.y()+height());
+    FrameRect(&rect);
+    CloseRgn(clippedRgn);
 
-  //clip out my children
-  if(const QObjectList *chldnlst=children()) {
-    RgnHandle chldRgns = NewRgn();
-    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-      if((*it)->isWidgetType()) {
-	QWidget *cw = (QWidget *)(*it);
-	if(cw->isVisible() && cw->back_type != 3) {
-	  QPoint cmp = posInWindow(cw);
-	  RgnHandle chldRgn = NewRgn();
-	  OpenRgn();
-	  SetRect(&rect, cmp.x(), cmp.y(), cmp.x()+cw->width(), cmp.y()+cw->height());
-	  FrameRect(&rect);
-	  CloseRgn(chldRgn);
+    //clip out my children
+    if(const QObjectList *chldnlst=children()) {
+	RgnHandle chldRgns = NewRgn();
+	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
+	    if((*it)->isWidgetType()) {
+		QWidget *cw = (QWidget *)(*it);
+		if(cw->isVisible() && cw->back_type != 3) {
+		    QPoint cmp = posInWindow(cw);
+		    RgnHandle chldRgn = NewRgn();
+		    OpenRgn();
+		    SetRect(&rect, cmp.x(), cmp.y(), cmp.x()+cw->width(), cmp.y()+cw->height());
+		    FrameRect(&rect);
+		    CloseRgn(chldRgn);
 
-	  UnionRgn(chldRgn, chldRgns, chldRgns);
-	  DisposeRgn(chldRgn);
+		    UnionRgn(chldRgn, chldRgns, chldRgns);
+		    DisposeRgn(chldRgn);
+		}
+	    }
 	}
-      }
+	SectRgn(chldRgns, clippedRgn, chldRgns);
+	XorRgn(chldRgns, clippedRgn, clippedRgn);
     }
-    SectRgn(chldRgns, clippedRgn, chldRgns);
-    XorRgn(chldRgns, clippedRgn, clippedRgn);
-  }
 
-  //clip away my siblings
-  if(parentWidget()) {
-    if(const QObjectList *siblst = parentWidget()->children()) {
-      RgnHandle sibRgns = NewRgn();
-      //loop to this because its in zorder, and i don't care about people behind me
-      QObjectListIt it(*siblst);
-      for(it.toLast(); it.current() && it.current() != this; --it) {
-	if((*it)->isWidgetType()) {
-	  QWidget *sw = (QWidget *)(*it);
-	  if(sw->isVisible()) {
-	    QPoint smp = posInWindow(sw);
-	    RgnHandle sibRgn = NewRgn();
-	    OpenRgn();
-	    SetRect(&rect, smp.x(), smp.y(), smp.x()+sw->width(), smp.y()+sw->height());
-	    FrameRect(&rect);
-	    CloseRgn(sibRgn);
+    //clip away my siblings
+    if(parentWidget()) {
+	if(const QObjectList *siblst = parentWidget()->children()) {
+	    RgnHandle sibRgns = NewRgn();
+	    //loop to this because its in zorder, and i don't care about people behind me
+	    QObjectListIt it(*siblst);
+	    for(it.toLast(); it.current() && it.current() != this; --it) {
+		if((*it)->isWidgetType()) {
+		    QWidget *sw = (QWidget *)(*it);
+		    if(sw->isVisible()) {
+			QPoint smp = posInWindow(sw);
+			RgnHandle sibRgn = NewRgn();
+			OpenRgn();
+			SetRect(&rect, smp.x(), smp.y(), smp.x()+sw->width(), smp.y()+sw->height());
+			FrameRect(&rect);
+			CloseRgn(sibRgn);
 
-	    UnionRgn(sibRgn, sibRgns, sibRgns);
-	    DisposeRgn(sibRgn);
-	  }
+			UnionRgn(sibRgn, sibRgns, sibRgns);
+			DisposeRgn(sibRgn);
+		    }
+		}
+	    }
+	    SectRgn(sibRgns, clippedRgn, sibRgns);
+	    XorRgn(sibRgns, clippedRgn, clippedRgn);
 	}
-      }
-      SectRgn(sibRgns, clippedRgn, sibRgns);
-      XorRgn(sibRgns, clippedRgn, clippedRgn);
     }
-  }
 
-  /* NOTE TO SELF, FIXME FIXME FIXME
-     after all that we can set the clipped out area, this is horribly inefficent however.
-     we will optimize this later by doing the following:
-     1) only call lock in QPainter::begin, and unlock in QPainter::end
-     2) take the origin into account in the event handler
-  */
-  OffsetRgn(clippedRgn, -mp.x(), -mp.y());
-  SetClip(clippedRgn);
-  DisposeRgn(clippedRgn);
+    /* NOTE TO SELF, FIXME FIXME FIXME
+       after all that we can set the clipped out area, this is horribly inefficent however.
+       we will optimize this later by doing the following:
+       1) only call lock in QPainter::begin, and unlock in QPainter::end
+       2) take the origin into account in the event handler
+    */
+    OffsetRgn(clippedRgn, -mp.x(), -mp.y());
+    SetClip(clippedRgn);
+    DisposeRgn(clippedRgn);
 
-  //handle origin now
-  QWExtra::currentOrigin = QPoint(-mp.x(), -mp.y());
-  SetOrigin( -mp.x(), -mp.y() );
+    //handle origin now
+    QWExtra::currentOrigin = QPoint(-mp.x(), -mp.y());
+    SetOrigin( -mp.x(), -mp.y() );
 }
 
 void QWidget::unlockPort() 

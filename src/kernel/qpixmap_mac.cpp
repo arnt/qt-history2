@@ -60,7 +60,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   bool force_mono = (dd == 1 || isQBitmap() ||
 		     (conversion_flags & ColorMode_Mask)==MonoOnly );
 
-  qDebug("%d", __LINE__);
   if ( force_mono ) {                         // must be monochrome
     if ( d != 1 ) {
       image = image.convertDepth( 1, conversion_flags );  // dither
@@ -91,14 +90,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
   }
 
-  qDebug("%d", __LINE__);
   if ( d == 1 )                               // 1 bit pixmap (bitmap)
     image = image.convertBitOrder( QImage::BigEndian );
 
  
   int w = image.width();
   int h = image.height();
-  qDebug("%d", __LINE__);
 
   if ( width() == w && height() == h && ( (d == 1 && depth() == 1) ||
 					  (d != 1 && depth() != 1) ) ) {
@@ -116,7 +113,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     *this = pm;
   }
 
-  qDebug("%d", __LINE__);
   lockPort();
   
   // Slow and icky, but the proper way crashed
@@ -140,7 +136,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     setMask( m );
   }
 
-  qDebug("%d", __LINE__);
   unlockPort();
   return TRUE;
 }
@@ -296,8 +291,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-  qDebug("QPixmap::init %dx%d", w, h);
-
   static int serial = 0;
     
   data = new QPixmapData;
@@ -342,7 +335,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   e=NewGWorld((GWorldPtr *)&hd,d,&rect,0,0,someflags);
 
   if((e & gwFlagErr)!=0) {
-    qDebug("%s:%d", __FILE__, __LINE__);
     // Something went wrong
     hd=0;
   } else {
@@ -391,12 +383,10 @@ QWMatrix QPixmap::trueMatrix(const QWMatrix & matrix,int w,int h)
 
 void QPixmap::setOptimization( Optimization optimization )
 {
-  qDebug("QPixmap::setOptimization");
 }
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-  qDebug("QPixmap::grabWindow");
   QPixmap pm;
   return pm;
 }
@@ -421,8 +411,8 @@ QPixmap::unlockPort()
     return;
   
   data->is_locked = FALSE;
-  SetGWorld(data->savedworld,data->savedhandle);
   UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
+  SetGWorld(data->savedworld,data->savedhandle);
 }
 
 BitMap

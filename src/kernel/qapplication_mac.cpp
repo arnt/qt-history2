@@ -200,7 +200,6 @@ UnsignedWide thesecs;
 
 void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 {
-    qDebug( "QApplication::qt_init" );
     char *p;
 
     // Set application name
@@ -234,7 +233,6 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
-    qDebug( "qt_cleanup()" );
     cleanupTimers();
 }
 
@@ -244,17 +242,15 @@ void qt_cleanup()
 
 void qt_save_rootinfo()				// save new root info
 {
-    qDebug( "qt_save_rootinfo" );
 }
 
 void qt_updated_rootinfo()
 {
-    qDebug( "qt_update_rootinfo" );
+
 }
 
 bool qt_wstate_iconified( WId )
 {
-    qDebug( "qt_wstate_iconified" );
     return FALSE;
 }
 
@@ -320,13 +316,11 @@ bool qt_wstate_iconified( WId )
 
 void qAddPostRoutine( Q_CleanUpFunction )
 {
-    qDebug( "qAddPostRoutine" );
 }
 
 
 void qRemovePostRoutine( Q_CleanUpFunction )
 {
-    qDebug( "qRemovePostRoutine" );
 }
 
 
@@ -364,7 +358,6 @@ extern QWidget * mac_keyboard_grabber;
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    qDebug( "QApplication::setMainWidget" );
     main_widget = mainWidget;
 }
 
@@ -418,7 +411,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 
 void QApplication::setOverrideCursor( const QCursor &, bool )
 {
-    qDebug( "QApplication::setOverrideCursor" );
 }
 
 /*!
@@ -433,7 +425,6 @@ void QApplication::setOverrideCursor( const QCursor &, bool )
 
 void QApplication::restoreOverrideCursor()
 {
-    qDebug( "QApplication::restoreOverrideCursor" );
 }
 
 #endif
@@ -477,7 +468,6 @@ void QApplication::restoreOverrideCursor()
 
 void QApplication::setGlobalMouseTracking( bool )
 {
-    qDebug( "QApplication::setGlobalMouseTracking" );
 }
 
 
@@ -496,7 +486,6 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
       QWidget *curwidg=(QWidget *)(*it);
       int wx=curwidg->x(), wy=curwidg->y();
       int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-      //qDebug("recursive_match %d %d  %d %d",wx,wy,wx2,wy2);
       if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 	return recursive_match(curwidg,x-wx,y-wy);
       }
@@ -554,7 +543,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
 
 void QApplication::beep()
 {
-    qDebug( "QApplication::beep" );
 }
 
 
@@ -586,7 +574,6 @@ void QApplication::beep()
 
 int QApplication::exec()
 {
-    qDebug( "QApplication::exec" );
     quit_now = FALSE;
     quit_code = 0;
 
@@ -1040,7 +1027,6 @@ static int sn_activate()
 
 bool QApplication::processNextEvent( bool canWait )
 {
-  //  qDebug( "QApplication::processNextEvent" );
   int	   nevents = 0;
 
   if(qt_is_gui_used) {
@@ -1194,7 +1180,6 @@ extern WId myactive;
 
 bool QApplication::do_mouse_down( EventRecord* es )
 {
-  qDebug("QApplication::do_mouse_down");
   EventRecord *er = (EventRecord *)es;
   WindowPtr wp;
   short windowPart;
@@ -1224,12 +1209,10 @@ bool QApplication::do_mouse_down( EventRecord* es )
     in_widget = TRUE;
     break;
   case inGrow:
-    qDebug("inGrow");
     Rect limits;
     widget = QWidget::find( (WId)wp );
    
     if( widget ) {
-      qDebug( "Widget found" );
       if ( widget->extra ) {
 	SetRect( &limits, widget->extra->minw, widget->extra->minh,
 		 widget->extra->maxw, widget->extra->maxh);
@@ -1384,7 +1367,7 @@ int QApplication::macProcessEvent(MSG * m)
 		    Point pp2 = er->where;
 		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 		}
-		if ( widget && (mouse_button_state != Qt::NoMouse
+		if ( widget && (mouse_button_state != Qt::NoButton
 				|| widget->hasMouseTracking() || hasGlobalMouseTracking())) {
 		    SetPortWindowPort( wp );
 
@@ -1393,8 +1376,8 @@ int QApplication::macProcessEvent(MSG * m)
 		    QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::NoButton, 
 				     mouse_button_state);
 		    QApplication::sendEvent( widget, &qme );
-		    qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
-			   plocal.x(), plocal.y());
+//		    qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
+//			   plocal.x(), plocal.y());
 		} 
 	    }
 	}
@@ -1408,7 +1391,6 @@ int QApplication::macProcessEvent(MSG * m)
 
 void QApplication::wakeUpGuiThread()
 {
-    qDebug( "QApplication::wakeUpGuiThread" );
 }
 
 /*****************************************************************************
@@ -1430,13 +1412,11 @@ void QApplication::wakeUpGuiThread()
 
 void qt_enter_modal( QWidget * )
 {
-    qDebug( "qt_enter_modal" );
 }
 
 
 void qt_leave_modal( QWidget * )
 {
-    qDebug( "qt_leave_modal" );
 }
 
 
@@ -1462,7 +1442,6 @@ void QApplication::processEvents( int maxtime)
 
 bool QApplication::macEventFilter( void ** )
 {
-    qDebug( "QApplication::macEventFilter" );
     return 0;
 }
 
@@ -1484,12 +1463,10 @@ bool QApplication::macEventFilter( void ** )
 
 void QApplication::openPopup( QWidget * )
 {
-    qDebug( "QApplication::openPopup" );
 }
 
 void QApplication::closePopup( QWidget * )
 {
-    qDebug( "QApplication::closePopup" );
 }
 
 /*****************************************************************************
@@ -1511,7 +1488,6 @@ void QApplication::closePopup( QWidget * )
  */
 void  QApplication::setCursorFlashTime( int msecs )
 {
-    qDebug( "QApplication::setCursorFlashTime" );
     cursor_flash_time = msecs;
 }
 
@@ -1531,7 +1507,6 @@ void  QApplication::setCursorFlashTime( int msecs )
  */
 int QApplication::cursorFlashTime()
 {
-    qDebug( "QApplication::cursorFlashTime" );
     return cursor_flash_time;
 }
 
@@ -1547,7 +1522,6 @@ int QApplication::cursorFlashTime()
 
 void QApplication::setDoubleClickInterval( int ms )
 {
-    qDebug( "QApplication::setDoubleClickInterval" );
     mouse_double_click_time = ms;
 }
 
@@ -1564,7 +1538,6 @@ void QApplication::setDoubleClickInterval( int ms )
 
 int QApplication::doubleClickInterval()
 {
-    qDebug( "QApplication::doubleClickInterval" );
     return mouse_double_click_time;
 }
 
@@ -1581,7 +1554,6 @@ int QApplication::doubleClickInterval()
  */
 void QApplication::setWheelScrollLines( int n )
 {
-    qDebug( "QApplication::setWheelScrollLines" );
     wheel_scroll_lines = n;
 }
 
@@ -1592,7 +1564,6 @@ void QApplication::setWheelScrollLines( int n )
  */
 int QApplication::wheelScrollLines()
 {
-    qDebug( "QApplication::wheelScrollLines" );
     return wheel_scroll_lines;
 }
 
@@ -1604,7 +1575,6 @@ int QApplication::wheelScrollLines()
 */
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
-    qDebug( "QApplication::setEffectEnabled" );
     switch (effect) {
     case UI_AnimateMenu:
 	animate_menu = enable;
@@ -1641,7 +1611,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 */
 bool QApplication::isEffectEnabled( Qt::UIEffect )
 {
-    qDebug( "QApplication::isEffectEnabled" );
     return FALSE;
 }
 

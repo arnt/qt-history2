@@ -49,68 +49,56 @@
 
 bool QDropEvent::provides( const char * ) const
 {
-    qDebug( "QDropEvent::provides" );
     return FALSE;
 }
 
 QByteArray QDropEvent::encodedData( const char * ) const
 {
-    qDebug( "QDropEvent::encodedData" );
     return QByteArray();
 }
 
 const char* QDropEvent::format( int ) const
 {
-    qDebug( "QDropEvent::format" );
     return "text/plain";
 }
 
 void QDragManager::timerEvent( QTimerEvent* )
 {
-    qDebug( "QDragManager::timerEvent" );
     return;
 }
 
 bool QDragManager::eventFilter( QObject *, QEvent * )
 {
-    qDebug( "QDragManager::eventFilter" );
     return FALSE;
 }
 
 void QDragManager::updateMode( ButtonState )
 {
-    qDebug( "QDragManager::updateMode" );
 }
 
 void QDragManager::updateCursor()
 {
-    qDebug( "QDragManager::updateCursor" );
 }
 
 void QDragManager::cancel( bool )
 {
-    qDebug( "QDragManager::cancel" );
 }
 
 void QDragManager::move( const QPoint & )
 {
-    qDebug( "QDragManager::move" );
 }
 
 void QDragManager::drop()
 {
-    qDebug( "QDragManager::drop" );
 }
 
 bool QDragManager::drag( QDragObject *, QDragObject::DragMode )
 {
-    qDebug( "QDragManager::drag" );
     return FALSE;
 }
 
 void QDragManager::updatePixmap()
 {
-    qDebug( "QDragManager::updatePixmap" );
 }
 
 

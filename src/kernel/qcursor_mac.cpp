@@ -83,17 +83,14 @@ struct QCursorData : public QShared {
 
 QCursorData::QCursorData( int )
 {
-    qDebug( "QCursorData::QCursorData" );
 }
 
 QCursorData::~QCursorData()
 {
-    qDebug( "QCursorData::~QCursorData" );
 }
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
-    qDebug( "QCursor::find_cur" );
     return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
 }
 
@@ -105,7 +102,6 @@ QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 */
 void QCursor::cleanup()
 {
-    qDebug( "QCursor::cleanup" );
 }
 
 
@@ -119,7 +115,6 @@ static bool initialized = FALSE;
 
 void QCursor::initialize()
 {
-    qDebug( "QCursor::initialize" );
     int shape;
     for( shape = 0; shape < cursors; shape++ )
 	cursorTable[shape].data = new QCursorData( shape );
@@ -133,7 +128,6 @@ void QCursor::initialize()
 */
 QCursor::QCursor()
 {
-    qDebug( "QCursor::QCursor" );
 }
 
 
@@ -168,14 +162,12 @@ QCursor::QCursor()
 
 QCursor::QCursor( int )
 {
-    qDebug( "QCursor::QCursor" );
 }
 
 
 void QCursor::setBitmap( const QBitmap &, const QBitmap &,
 			 int, int )
 {
-    qDebug( "QCursor::setBitmap" );
 }
 
 
@@ -185,7 +177,6 @@ void QCursor::setBitmap( const QBitmap &, const QBitmap &,
 
 QCursor::QCursor( const QCursor & )
 {
-    qDebug( "QCursor::QCursor" );
 }
 
 /*!
@@ -194,7 +185,6 @@ QCursor::QCursor( const QCursor & )
 
 QCursor::~QCursor()
 {
-    qDebug( "QCursor::~QCursor" );
 }
 
 
@@ -204,7 +194,6 @@ QCursor::~QCursor()
 
 QCursor &QCursor::operator=( const QCursor & )
 {
-    qDebug( "QCursor::operator" );
     return *this;
 }
 
@@ -240,7 +229,6 @@ QCursor &QCursor::operator=( const QCursor & )
 
 int QCursor::shape() const
 {
-    qDebug( "QCursor::shape" );
     return 1;
 }
 
@@ -274,7 +262,6 @@ int QCursor::shape() const
 
 void QCursor::setShape( int )
 {
-    qDebug( "QCursor::setShape" );
 }
 
 
@@ -283,7 +270,6 @@ void QCursor::setShape( int )
 */
 const QBitmap *QCursor::bitmap() const
 {
-    qDebug( "QCursor::bitmap" );
     return 0;
 }
 
@@ -293,7 +279,6 @@ const QBitmap *QCursor::bitmap() const
 
 const QBitmap *QCursor::mask() const
 {
-    qDebug( "QCursor::mask" );
     return 0;
 }
 
@@ -303,7 +288,6 @@ const QBitmap *QCursor::mask() const
 
 QPoint QCursor::hotSpot() const
 {
-    qDebug( "QCursor::hotSpot" );
     return QPoint( 0, 0 );
 }
 
@@ -318,7 +302,6 @@ QPoint QCursor::hotSpot() const
 
 Qt::HANDLE QCursor::handle() const
 {
-    qDebug( "QCursor::handle" );
     return 0;
 }
 
@@ -335,7 +318,6 @@ Qt::HANDLE QCursor::handle() const
 
 QPoint QCursor::pos()
 {
-    qDebug( "QWidget::mapFromGlobal" );
     return QPoint( 0, 0 );
 }
 
@@ -350,7 +332,6 @@ QPoint QCursor::pos()
 
 void QCursor::setPos( int, int )
 {
-    qDebug( "QWidget::mapToGlobal" );
 }
 
 /*!
@@ -364,5 +345,4 @@ void QCursor::setPos( int, int )
 
 void QCursor::update() const
 {
-    qDebug( "QCursor::setPos" );
 }

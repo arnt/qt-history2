@@ -97,7 +97,6 @@ const int TxRotShear=3;
 
 void QPainter::initialize()
 {
-    qDebug( "QPainter::initialize" );
 }
 
 /*!
@@ -106,7 +105,6 @@ void QPainter::initialize()
 
 void QPainter::cleanup()
 {
-    qDebug( "QPainter::cleanup" );
 }
 
 
@@ -124,13 +122,11 @@ static QPaintDeviceDict *pdev_dict = 0;
 
 void QPainter::redirect( QPaintDevice *, QPaintDevice * )
 {
-    qDebug( "QPainer::redirect" );
 }
 
 
 void QPainter::init()
 {
-    qDebug( "QPainter::init implemented" );
     flags = IsStartingUp;
     bg_col = white;                             // default background color
     bg_mode = TransparentMode;                  // default background mode
@@ -195,7 +191,6 @@ void QPainter::updateFont()
 
 void QPainter::updatePen()
 {
-    qDebug( "QPainter::updatePen implemented" );
     if ( !pdev || !pdev->handle() )
 	return;
     WindowPtr p = (WindowPtr)pdev->handle();
@@ -215,7 +210,6 @@ void QPainter::updatePen()
 
 void QPainter::updateBrush()
 {
-    qDebug( "QPainter::updateBrush implemented" );
     if( !pdev || !pdev->handle() )
 	return;
 
@@ -277,8 +271,6 @@ typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 
 bool QPainter::begin( const QPaintDevice *pd )
 {
-    qDebug( "QPainter::begin implemented x11 like" );
-
     if ( isActive() ) {                         // already active painting
 #if defined(CHECK_STATE)
         warning( "QPainter::begin: Painter is already active."
@@ -430,7 +422,6 @@ bool QPainter::begin( const QPaintDevice *pd )
 
 bool QPainter::end()				// end painting
 {
-    qDebug( "QPainter::end implemented x11 like" );
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
         warning( "QPainter::end: Missing begin() or begin() failed" );
@@ -459,7 +450,6 @@ bool QPainter::end()				// end painting
 
 void QPainter::flush()
 {
-    qDebug( "QPainter::flush" );
 }
 
 
@@ -475,7 +465,6 @@ void QPainter::flush()
 
 void QPainter::setBackgroundColor( const QColor & )
 {
-    qDebug( "QPainter::setBackgroundColor" );
 }
 
 /*!
@@ -493,7 +482,6 @@ void QPainter::setBackgroundColor( const QColor & )
 
 void QPainter::setBackgroundMode( BGMode )
 {
-    qDebug( "QPixmap::setMask" );
 }
 
 /*!
@@ -503,7 +491,6 @@ void QPainter::setBackgroundMode( BGMode )
 
 void QPainter::setRasterOp( RasterOp )
 {
-    qDebug( "QPainter::setRasterOp" );
 }
 
 // ### matthias - true?
@@ -520,7 +507,6 @@ void QPainter::setRasterOp( RasterOp )
 
 void QPainter::setBrushOrigin( int, int )
 {
-    qDebug( "QPainter::setBrushOrigin" );
 }
 
 
@@ -532,7 +518,6 @@ void QPainter::setBrushOrigin( int, int )
 
 void QPainter::setClipping( bool )
 {
-    qDebug( "QPainter::setClipping" );
 }
 
 
@@ -542,7 +527,6 @@ void QPainter::setClipping( bool )
 
 void QPainter::setClipRect( const QRect & )
 {
-    qDebug( "QPainter::setClipRect" );
 }
 
 /*!
@@ -557,9 +541,7 @@ void QPainter::setClipRect( const QRect & )
 
 void QPainter::setClipRegion( const QRegion & )
 {
-    qDebug( "QPainter::setClipRegion" );
 }
-
 
 /*!
   Internal function for drawing a polygon.
@@ -567,7 +549,6 @@ void QPainter::setClipRegion( const QRegion & )
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
-    qDebug( "QPainter::drawPolyInternal implemented tested" );
     pdev->lockPort();
     RgnHandle polyRegion = NewRgn();
     OpenRgn();
@@ -600,7 +581,6 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 
 void QPainter::drawPoint( int x, int y )
 {
-    qDebug( "QPainter::drawPoint implemented tested" );
     if ( !isActive() )
         return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -633,7 +613,6 @@ void QPainter::drawPoint( int x, int y )
 
 void QPainter::drawPoints( const QPointArray&, int, int )
 {
-    qDebug( "QPainter::drawPoints" );
 }
 
 
@@ -644,7 +623,6 @@ void QPainter::drawPoints( const QPointArray&, int, int )
 
 void QPainter::moveTo( int x, int y )
 {
-  qDebug( "QPainter::moveTo implemented untested" );
   if ( !isActive() )
     return;
   if ( testf(ExtDev|VxF|WxF) ) {
@@ -657,13 +635,6 @@ void QPainter::moveTo( int x, int y )
     }
     map( x, y, &x, &y );
   }
-
-  if(pdev->devType() == QInternal::Widget) {
-    QWidget *foo =  static_cast<QWidget *>(pdev);
-    if(!strcmp(foo->name(), "lcd"))
-      qDebug( "lcdhack: moveTo %d %d", x, y );
-  }
-
 
   penx = x;
   peny = y;
@@ -689,12 +660,6 @@ void QPainter::lineTo( int x, int y )
 	return;
     }
     map( x, y, &x, &y );
-  }
-
-  if(pdev->devType() == QInternal::Widget) {
-    QWidget *foo =  static_cast<QWidget *>(pdev);
-    if(!strcmp(foo->name(), "lcd"))
-      qDebug( "lcdhack: lineTo %d %d", x, y );
   }
 
   pdev->lockPort();
@@ -748,7 +713,6 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 
 void QPainter::drawRect( int x, int y, int w, int h )
 {
-    qDebug( "QPainter::drawRect implemented tested" );
     if ( !isActive() )
         return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -807,7 +771,6 @@ void QPainter::drawRect( int x, int y, int w, int h )
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
-    qDebug( "QApplication::style implemented untested" );
     drawWinFocusRect( x, y, w, h, TRUE, color0 );
 }
 
@@ -831,7 +794,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 				 const QColor &bgColor )
 {
-    qDebug( "QApplication::style implemented untested" );
     drawWinFocusRect( x, y, w, h, FALSE, bgColor);
 }
 
@@ -844,7 +806,6 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 void QPainter::drawWinFocusRect( int, int, int, int,
 				 bool, const QColor & )
 {
-    qDebug( "QPainter::drawWinFocusRect" );
 }
 #endif
 
@@ -876,7 +837,6 @@ void QPainter::drawWinFocusRect( int, int, int, int,
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 {
-    qDebug( "QPainter::drawRoundRect implemented tested" );
     if ( !isActive() )
         return;
     if ( xRnd <= 0 || yRnd <= 0 ) {
@@ -968,7 +928,6 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
 {
-    qDebug( "QPainter::drawEllipse implemented tested" );
     if ( !isActive() ) {
         return;
     }
@@ -1031,7 +990,6 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     // FIXME transformation is broken
-    qDebug( "QPainter::drawArc transformation is broken" );
     if ( !isActive() )
         return;
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -1082,7 +1040,6 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
-    qDebug( "QPainter::drawPie" );
     if ( a > (360*16) ) {
       a = a % (360*16);
     } else if ( a < 0 ) {
@@ -1171,7 +1128,6 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 
 void QPainter::drawChord( int, int, int, int, int, int )
 {
-    qDebug( "QPainter::drawChord" );
 }
 
 
@@ -1189,7 +1145,6 @@ void QPainter::drawChord( int, int, int, int, int, int )
 
 void QPainter::drawLineSegments( const QPointArray &, int, int )
 {
-    qDebug( "QPainter::drawLineSegments" );
 }
 
 
@@ -1205,7 +1160,6 @@ void QPainter::drawLineSegments( const QPointArray &, int, int )
 
 void QPainter::drawPolyline( const QPointArray &, int, int )
 {
-    qDebug( "QPainter::drawPolyline" );
 }
 
 
@@ -1230,7 +1184,6 @@ void QPainter::drawPolyline( const QPointArray &, int, int )
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
                             int index, int npoints )
 {
-    qDebug( "QPainter::drawPolygon" );
     if ( npoints < 0 )
         npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
@@ -1273,7 +1226,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 
 void QPainter::drawQuadBezier( const QPointArray &, int )
 {
-    qDebug( "QPainter::drawQuadBezier" );
 }
 
 
@@ -1447,7 +1399,6 @@ extern const unsigned char * p_str(const char * c);
 
 void QPainter::drawText( int x, int y, const QString &str, int len)
 {
-  qDebug( "QPainter::drawText" );
   if ( !isActive() )
     return;
   if ( len < 0 )
@@ -1620,7 +1571,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
  */
 QPoint QPainter::pos() const
 {
-    qDebug( "QPainter::pos" );
     return QPoint();
 }
 

@@ -50,7 +50,6 @@
 
 QRegion::QRegion()
 {
-    qDebug( "QRegion::QRegion" );
 }
 
 /*!
@@ -59,7 +58,6 @@ QRegion::QRegion()
 
 QRegion::QRegion( bool )
 {
-    qDebug( "QRegion::QRegion bool" );
 }
 
 /*!
@@ -68,7 +66,6 @@ QRegion::QRegion( bool )
 
 QRegion::QRegion( const QRect &, RegionType )
 {
-    qDebug( "QRegion::QRegion QRect" );
 }
 
 
@@ -85,7 +82,6 @@ QRegion::QRegion( const QRect &, RegionType )
 
 QRegion::QRegion( const QPointArray &, bool )
 {
-    qDebug( "QRegion::QRegion QPointArray" );
 }
 
 
@@ -95,7 +91,6 @@ QRegion::QRegion( const QPointArray &, bool )
 
 QRegion::QRegion( const QRegion & )
 {
-    qDebug( "QRegion::QRegion QRegion" );
 }
 
 /*!
@@ -111,7 +106,6 @@ QRegion::QRegion( const QRegion & )
 */
 QRegion::QRegion( const QBitmap & )
 {
-    qDebug( "QRegion::QRegion QBitmap" );
 }
 
 /*!
@@ -120,7 +114,6 @@ QRegion::QRegion( const QBitmap & )
 
 QRegion::~QRegion()
 {
-    qDebug( "QRegion::~QRegion" );
 }
 
 
@@ -132,7 +125,6 @@ QRegion::~QRegion()
 
 QRegion &QRegion::operator=( const QRegion & )
 {
-    qDebug( "QRegion::operator" );
     return *this;
 }
 
@@ -145,7 +137,6 @@ QRegion &QRegion::operator=( const QRegion & )
 
 QRegion QRegion::copy() const
 {
-    qDebug( "QRegion::copy" );
     QRegion r( data->is_null );
     return r;
 }
@@ -161,7 +152,6 @@ QRegion QRegion::copy() const
 
 bool QRegion::isNull() const
 {
-    qDebug( "QRegion::isNull" );
     return data->is_null;
 }
 
@@ -192,7 +182,6 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    qDebug( "QRegion::isEmpty" );
     return false;
 }
 
@@ -204,7 +193,6 @@ bool QRegion::isEmpty() const
 
 bool QRegion::contains( const QPoint & ) const
 {
-    qDebug( "QRegion::contains" );
     return false;
 }
 
@@ -215,7 +203,6 @@ bool QRegion::contains( const QPoint & ) const
 
 bool QRegion::contains( const QRect & ) const
 {
-    qDebug( "QRegion::contains QRect" );
     return false;
 }
 
@@ -226,7 +213,6 @@ bool QRegion::contains( const QRect & ) const
 
 void QRegion::translate( int, int )
 {
-    qDebug( "QRegion::translate" );
 }
 
 
@@ -240,7 +226,6 @@ void QRegion::translate( int, int )
 
 QRegion QRegion::unite( const QRegion & ) const
 {
-    qDebug( "QRegion::unite" );
     QRegion result( FALSE );
     return result;
 }
@@ -255,7 +240,6 @@ QRegion QRegion::unite( const QRegion & ) const
 
 QRegion QRegion::intersect( const QRegion & ) const
 {
-    qDebug( "QRegion::intersect" );
     QRegion result( FALSE );
     return result;
 }
@@ -271,7 +255,6 @@ QRegion QRegion::intersect( const QRegion & ) const
 
 QRegion QRegion::subtract( const QRegion & ) const
 {
-    qDebug( "QRegion::subtract" );
     QRegion result( FALSE );
     return result;
 }
@@ -286,7 +269,6 @@ QRegion QRegion::subtract( const QRegion & ) const
 
 QRegion QRegion::eor( const QRegion & ) const
 {
-    qDebug( "QRegion::eor" );
     QRegion result( FALSE );
     return result;
 }
@@ -299,7 +281,6 @@ QRegion QRegion::eor( const QRegion & ) const
 
 QRect QRegion::boundingRect() const
 {
-    qDebug( "QRegion::boundingRect" );
     return QRect();
 }
 
@@ -328,7 +309,6 @@ struct _XRegion {
 
 QArray<QRect> QRegion::rects() const
 {
-    qDebug( "QRegion::rects" );
     QArray<QRect> a( (int)1 );
     return a;
 }
@@ -349,7 +329,6 @@ QArray<QRect> QRegion::rects() const
 */
 void QRegion::setRects( const QRect *rects, int num )
 {
-    qDebug( "QRegion::setRects" );
     // Could be optimized
     *this = QRegion();
     for (int i=0; i<num; i++)
@@ -363,7 +342,6 @@ void QRegion::setRects( const QRect *rects, int num )
 
 bool QRegion::operator==( const QRegion & ) const
 {
-    qDebug( "QRegion::operator" );
     return false;
 }
 

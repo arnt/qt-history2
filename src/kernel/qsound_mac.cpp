@@ -69,44 +69,36 @@ class QAuBucket { }; // Just an ID - we cast to and from AuBucketID
 QAuServerNAS::QAuServerNAS(QObject* ) :
     QAuServer(parent,"Network Audio System")
 {
-    qDebug( "QAuServerNAS::QAuServerNAS" );
 }
 
 QAuServerNAS::~QAuServerNAS()
 {
-    qDebug( "QAuServerNAS::~QAuServerNAS" );
 }
 
 void QAuServerNAS::play(const QString& )
 {
-    qDebug( "QAuServerNAS::play" );
 }
 
 void QAuServerNAS::play(QAuBucket* id)
 {
-    qDebug( "QAuServerNAS::play" );
 }
 
 QAuBucket* QAuServerNAS::newBucket(const QString& )
 {
-    qDebug( "QAuServerNAS::newBucket" );
     return 0
 }
 
 void QAuServerNAS::deleteBucket(QAuBucket* )
 {
-    qDebug( "QAuServerNAS::deleteBucket" );
 }
 
 bool QAuServerNAS::okay()
 {
-    qDebug( "QAuServerNAS::okay" );
     return false;
 }
 
 void QAuServerNAS::dataReceived()
 {
-    qDebug( "QAuServerNAS::dataReceived" );
 }
 
 #include "qsound_mac.moc"
@@ -128,13 +120,11 @@ public:
 QAuServerNull::QAuServerNull(QObject* parent) :
     QAuServer(parent,"Null Audio Server")
 {
-    qDebug( "QAuServerNull::QAuServerNull" );
 }
 
 
 QAuServer* qt_new_audio_server()
 {
-    qDebug( "qt_new_audio_server" );
     return new QAuServerNull(qApp);
 }
 

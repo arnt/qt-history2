@@ -61,7 +61,6 @@
 
 void QClipboard::clear()
 {
-    qDebug( "QClipboard::clear" );
 }
 
 
@@ -72,7 +71,6 @@ void QClipboard::clear()
 
 void QClipboard::ownerDestroyed()
 {
-    qDebug( "QClipboard::ownerDestroyed" );
 }
 
 
@@ -83,7 +81,6 @@ void QClipboard::ownerDestroyed()
 
 void QClipboard::connectNotify( const char * )
 {
-    qDebug( "QClipboard::connectNotify" );
 }
 
 
@@ -92,7 +89,6 @@ void QClipboard::connectNotify( const char * )
 
 bool QClipboard::event( QEvent * )
 {
-    qDebug( "QClipboard::event" );
     return TRUE;
 }
 
@@ -107,7 +103,6 @@ bool QClipboard::event( QEvent * )
 */
 QMimeSource* QClipboard::data() const
 {
-    qDebug( "QClipboard::data" );
     return 0;
 }
 
@@ -125,24 +120,20 @@ QMimeSource* QClipboard::data() const
 */
 void QClipboard::setData( QMimeSource* )
 {
-    qDebug( "QDragObject::drag" );
 }
 
 void QClipboard::setSelectionMode(bool)
 {
-    qDebug( "QClipboard::setSelectionMode" );
 }
 
 
 bool QClipboard::selectionModeEnabled() const
 {
-    qDebug( "QClipboard::selectionModeEnabled" );
     return FALSE;
 }
 
 bool QClipboard::supportsSelection() const
 {
-    qDebug( "QClipboard::supportSelection" );
     return FALSE;
 }
 

@@ -95,7 +95,6 @@
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
-    qDebug( "QPaintDevice::QPaintDevice" );
     if ( !qApp ) {				// global constructor
 #if defined(CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
@@ -114,7 +113,6 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-    qDebug( "QPaintDevice::~QPaintDevice" );
 #if defined(CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
@@ -178,7 +176,6 @@ QPaintDevice::~QPaintDevice()
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
-    qDebug( "QPaintDevice::paintingActive" );
     return FALSE;
 }
 
@@ -190,7 +187,6 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 
 int QPaintDevice::metric( int ) const
 {
-    qDebug( "QPaintDevice::metric" );
     return 0;
 }
 
@@ -203,7 +199,6 @@ int QPaintDevice::metric( int ) const
 
 int QPaintDevice::fontMet( QFont *, int, const char *, int ) const
 {
-    qDebug( "QPaintDevice::fontMet" );
     return 0;
 }
 
@@ -216,7 +211,6 @@ int QPaintDevice::fontMet( QFont *, int, const char *, int ) const
 
 int QPaintDevice::fontInf( QFont *, int ) const
 {
-    qDebug( "QPaintDevice::fontInf" );
     return 0;
 }
 
@@ -284,8 +278,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
 {
-  qDebug( "QPaintDevice::bitBlt" );
-
   if(dx+sw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
     sw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
   }
@@ -301,10 +293,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   SetRect(&r,sx,sy,sx+sw,sy+sh);
   Rect r2;
   SetRect(&r2,dx,dy,dx+sw,dy+sh);
-  qDebug("one..");
   CopyBits(src->portBitMap(), dst->portBitMap(), &r,&r2,(short)srcCopy,0);
-  qDebug("two..");
-
   dst->unlockPort();
 }
 

@@ -76,7 +76,6 @@ typedef QIntDictIterator<QColorData> QColorDictIt;
 
 void qt_reset_color_avail()
 {
-    qDebug( "qt_reset_color_avail" );
 }
 
 /*****************************************************************************
@@ -90,7 +89,6 @@ void qt_reset_color_avail()
 
 int QColor::maxColors()
 {
-    qDebug( "QColor::maxColors" );
     return 2^24;
 }
 
@@ -104,7 +102,6 @@ int QColor::maxColors()
 
 int QColor::numBitPlanes()
 {
-    qDebug( "QPixmap::defaultDepth" );
     return 32;
 }
 
@@ -117,7 +114,6 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    qDebug( "QColor::initialize" );
 }
 
 /*!
@@ -128,7 +124,6 @@ void QColor::initialize()
 
 void QColor::cleanup()
 {
-    qDebug( "QColor::cleanup" );
 }
 
 
@@ -151,14 +146,12 @@ void QColor::cleanup()
 
 uint QColor::alloc()
 {
-    qDebug( "QColor::alloc" );
     return 0;
 }
 
 
 void QColor::setSystemNamedColor( const QString& )
 {
-    qDebug( "QColor::setSystemNamedColor" );
 }
 
 /*!
@@ -220,7 +213,6 @@ void QColor::setSystemNamedColor( const QString& )
 
 int QColor::enterAllocContext()
 {
-    qDebug( "QColor::enterAllocContext" );
     return 1;
 }
 
@@ -235,7 +227,6 @@ int QColor::enterAllocContext()
 
 void QColor::leaveAllocContext()
 {
-    qDebug( "QColor::leaveAllocContext" );
 }
 
 
@@ -249,7 +240,6 @@ void QColor::leaveAllocContext()
 
 int QColor::currentAllocContext()
 {
-    qDebug( "QColor::currentAllocContext" );
     return 0;
 }
 
@@ -272,6 +262,5 @@ int QColor::currentAllocContext()
 
 void QColor::destroyAllocContext( int )
 {
-    qDebug( "QColor::destroyAllocContext" );
 }
 
