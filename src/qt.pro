@@ -684,7 +684,11 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
 		    $$DATABASE_H/qsqlerror.h \
 		    $$DATABASE_H/qsqlresult.h \
-		    $$DATABASE_H/qsqlindex.h
+		    $$DATABASE_H/qsqlindex.h \
+		    $$DATABASE_H/qsqltablebase.h \
+		    $$DATABASE_H/qsqltable.h \
+		    $$DATABASE_H/qsqlrowsettable.h \
+		    $$DATABASE_H/qsqlviewtable.h
 database:SOURCES += database/qsql.cpp \
 		    database/qsqlpropertymanager.cpp \
 		    database/qsqldatabase.cpp \
@@ -698,7 +702,11 @@ database:SOURCES += database/qsql.cpp \
 		    database/qsqldriverplugin.cpp \
 		    database/qsqlerror.cpp \
 		    database/qsqlresult.cpp \
-		    database/qsqlindex.cpp
+		    database/qsqlindex.cpp \
+		    database/qsqltablebase.cpp \
+		    database/qsqltable.cpp \
+		    database/qsqlrowsettable.cpp \
+		    database/qsqlviewtable.cpp
 
 opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
