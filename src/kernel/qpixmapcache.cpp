@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#26 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -74,7 +74,7 @@ public:
     QPMCache():
 	QObject( 0, "global pixmap cache" ),
 	QCache<QPixmap>( cache_limit * 1024, cache_size ),
-	id( 0 ), ps( 0 )
+	id( 0 ), ps( 0 ), t( FALSE )
 	{
 	    qAddPostRoutine( cleanup_pixmap_cache );
 	    setAutoDelete( TRUE );
@@ -84,15 +84,13 @@ public:
 private:
     int id;
     int ps;
+    bool t;
 };
 
 
-/* If the cache hasn't grown since the last tick, cut it down a
-   little.  Remember its size anyway.
-
-   This is supposed to cut the cache size down by about 80% in a
+/* This is supposed to cut the cache size down by about 80-90% in a
    minute once the application becomes idle, to let any inserted
-   pixmap remain in the cache for 20 seconds before it becomes a
+   pixmap remain in the cache for some time before it becomes a
    candidate for cleaning-up, and to not cut down the size of the
    cache while the cache is in active use.
 
@@ -102,25 +100,30 @@ private:
 
 void QPMCache::timerEvent( QTimerEvent * )
 {
-    if ( totalCost() <= ps ) {
-	int mc = maxCost();
-	setMaxCost( totalCost() * 3 / 4 ); // arbitrary cut-down
-	setMaxCost( mc );
-    }
-
+    int mc = maxCost();
+    bool nt = totalCost() == ps;
+    int d = totalCost();
+    setMaxCost( nt ? totalCost() * 3 / 4 : totalCost() -1 );
+    setMaxCost( mc );
     ps = totalCost();
 
     if ( !count() ) {
 	killTimer( id );
 	id = 0;
+    } else if ( nt != t ) {
+	killTimer( id );
+	id = startTimer( nt ? 10000 : 30000 );
+	t = nt;
     }
 }
 
 bool QPMCache::insert( const char *k, const QPixmap *d, int c, int p )
 {
     bool r = QCache<QPixmap>::insert( k, d, c, p );
-    if ( r && !id )
-	id = startTimer( 10000 );
+    if ( r && !id ) {
+	id = startTimer( 30000 );
+	t = FALSE;
+    }
     return r;
 }
 
