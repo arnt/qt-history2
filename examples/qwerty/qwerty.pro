@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= qwerty.h
 SOURCES		= main.cpp \
 		  qwerty.cpp
+QT	+= compat

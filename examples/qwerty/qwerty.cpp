@@ -26,6 +26,8 @@
 
 #include <qtextcodec.h>
 
+using namespace Qt;
+
 const bool no_writing = FALSE;
 
 static QPtrList<QTextCodec> *codecList = 0;
