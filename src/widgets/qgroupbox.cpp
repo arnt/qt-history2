@@ -438,10 +438,9 @@ int QGroupBox::insideSpacing() const
 }
 
 /*!
-  Sets the the width of the blank spacing between each of the items in the
-  group to \a m pixels.
+  Sets the the width of the inside margin to \a m pixels.
 
-  \sa insideSpacing()
+  \sa insideMargin()
 */
 void QGroupBox::setInsideMargin( int m )
 {
@@ -452,6 +451,8 @@ void QGroupBox::setInsideMargin( int m )
 /*!
   Sets the width of the blank spacing between each of the items in the
   group to \a s pixels.
+
+  \sa insideSpacing()
 */
 void QGroupBox::setInsideSpacing( int s )
 {
