@@ -1813,8 +1813,6 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
     if (tdesc.vt & VT_BYREF)
         str += "&";
 
-    if (str.isEmpty())
-        str = "int";
     return str;
 }
 
