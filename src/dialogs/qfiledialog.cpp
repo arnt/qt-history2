@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#268 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#269 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3009,7 +3009,13 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->insertItem( QFileDialog::tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
 
-    if ( !workingDirectory->isEmpty() ) {
+    if ( !dir.isEmpty() ) {
+	QFileInfo f( dir );
+	if ( f.isDir() ) {
+	    dialog->setDir( dir );
+	    *workingDirectory = dir;
+	}
+    } else if ( !workingDirectory->isEmpty() ) {
 	QFileInfo f( *workingDirectory );
 	if ( f.isDir() )
 	    dialog->setDir( *workingDirectory );
