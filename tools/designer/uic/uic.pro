@@ -14,7 +14,7 @@ SOURCES	= uic.cpp  \
 		  ../integration/kdevelop/kdewidgets.cpp
 
 TARGET		= uic
-INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../util ../../../src/3rdparty/zlib/
 !zlib:unix:LIBS      += -lz
 
 unix:LIBS	+= -lqutil -L../lib
