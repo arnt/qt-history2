@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#12 $
 **
 ** Definition of QPaintDevice class
 **
@@ -23,7 +23,7 @@
 #define PDT_WIDGET	0x01
 #define PDT_PIXMAP	0x02
 #define PDT_PRINTER	0x03
-#define PDT_METAFILE	0x04
+#define PDT_PICTURE	0x04
 #define PDT_MASK	0x0f
 
 
