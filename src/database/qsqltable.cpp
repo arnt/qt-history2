@@ -130,6 +130,7 @@ void QSqlTable::addColumn( const QSqlField& field )
 	//	qDebug("current num cols:" + QString::number(numCols()));
 	setNumCols( numCols() + 1 );
 	//	qDebug("new num cols:" + QString::number(numCols()));
+	//qDebug("fieldnumber:" + QString::number(field.fieldNumber()));
 	d->colIndex.append( field.fieldNumber() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field.displayLabel() );
@@ -209,7 +210,7 @@ void QSqlTable::reset()
     setNumCols(0);
     d->haveAllRows = FALSE;
     d->colIndex.clear();
-    if ( sorting() ) 
+    if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
 
@@ -404,12 +405,12 @@ void QSqlTable::columnClicked ( int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    // ### need to have smarter painting
+    // ### 
     QTable::paintCell(p,row,col,cr,selected);
     QSql* sql = d->sql();
     if ( !sql )
 	return;
-    if ( sql->seek(row) ) {
+    if ( sql->seek( row ) ) {
 	QString text = sql->value( indexOf(col) ).toString();
 	if ( sql->isNull( indexOf(col) ) )
 	    text = nullText();
