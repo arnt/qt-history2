@@ -10,5 +10,6 @@
 <ul>
 <li><a href="qtable.html">QTable</a>
 <li><a href="qtableitem.html">QTableItem</a>
+<li><a href="qtableselection.html">QTableSelection</a>
 </ul>
 */

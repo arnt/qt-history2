@@ -57,6 +57,7 @@ public:
     int anchorCol() const { return aCol; }
 
     bool isActive() const { return active; }
+    bool isValid() const { return !dirty; }
     
 private:
     uint active : 1;
@@ -175,9 +176,13 @@ public:
     bool isRowSelected( int row, bool full = FALSE ) const;
     bool isColumnSelected( int col, bool full = FALSE ) const;
     void clearSelection();
-    int selectionCount() const;
-    bool selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol );
-
+    int numSelections() const;
+    QTableSelection selection( int num );
+    virtual int addSelection( const QTableSelection &s );
+    virtual void removeSelection( const QTableSelection &s );
+    virtual void removeSelection( int num );
+    virtual int currentSelection() const;
+    
     void setShowGrid( bool b );
     bool showGrid() const;
 
@@ -278,7 +283,7 @@ private:
     EditMode edMode;
     int editCol, editRow;
     QList<QTableSelection> selections;
-    QTableSelection *currentSelection;
+    QTableSelection *currentSel;
     QTimer *autoScrollTimer;
     bool sGrid, mRows, mCols;
     int lastSortCol;
