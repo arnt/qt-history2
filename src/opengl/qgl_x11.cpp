@@ -645,7 +645,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
 {
     QFont f = fnt;
-    f.setStyleHint( QFont::AnyStyle, QFont::PreferBitmap );
+    f.setStyleStrategy( QFont::PreferBitmap );
     glXUseXFont( (Font) f.handle(), 0, 256, listBase );
 }
 
