@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#263 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#264 $
 **
 ** Implementation of QListView widget class
 **
@@ -1147,7 +1147,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     // Change width() if you change this.
 
     if ( !p )
-	return;
+        return;
 
     QListView *lv = listView();
     int r = lv ? lv->itemMargin() : 1;
@@ -1158,24 +1158,24 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int marg = lv ? lv->itemMargin() : 1;
 
     if ( isSelected() &&
-	 (column==0 || listView()->allColumnsShowFocus()) ) {
+         (column==0 || listView()->allColumnsShowFocus()) ) {
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
-			 cg.brush( QColorGroup::Highlight ) );
+                     cg.brush( QColorGroup::Highlight ) );
 	    p->setPen( cg.highlightedText() );
     } else {
-	p->setPen( cg.text() );
+        p->setPen( cg.text() );
     }
 
     if ( icon ) {
-	p->drawPixmap( r, (height()-icon->height())/2, *icon );
-	r += icon->width() + listView()->itemMargin();
+        p->drawPixmap( r, (height()-icon->height())/2, *icon );
+        r += icon->width() + listView()->itemMargin();
     }
 
     QString t = text( column );
     if ( !t.isEmpty() ) {
-	// should do the ellipsis thing in drawText()
-	p->drawText( r, 0, width-marg-r, height(),
-		     align | AlignVCenter, t );
+        // should do the ellipsis thing in drawText()
+        p->drawText( r, 0, width-marg-r, height(),
+                     align | AlignVCenter, t );
     }
 }
 
@@ -1761,12 +1761,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int x = contentsX() - ox;
 	    int w = visibleWidth();
 	    if ( contentsX() ) {
-		x--;
-		w++;
+            x--;
+            w++;
 	    }
 	    if ( contentsX() + visibleWidth() < contentsWidth() ) {
-		w++;
+            w++;
 	    }
+        
+        int tmpW = header()->cellPos( header()->count() - 1 ) + 
+                   header()->cellSize( header()->count() - 1 ) - contentsX();
+        if ( w > tmpW )
+            w = tmpW;
+        
 	    r.setRect( x, current->y - oy, w, ih );
 	    //WINDOWSBUG### should use this
 	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
@@ -3127,8 +3133,9 @@ void QListView::setSelected( QListViewItem * item, bool selected )
     if ( item && !isMultiSelection() && selected && d->focusItem != item )
         setCurrentItem( item );
 
-        if ( !isMultiSelection() )
-            emit selectionChanged( selected ? item : 0 );
+    if ( !isMultiSelection() )
+        emit selectionChanged( selected ? item : 0 );
+
     emit selectionChanged();
 }
 
