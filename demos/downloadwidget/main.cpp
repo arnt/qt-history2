@@ -91,7 +91,9 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
 bool DownloadDelegate::editorEvent(QEvent *e, QAbstractItemModel* model, const QModelIndex &index)
 {
-    if (!e || e->type() != QEvent::MouseButtonPress || index.column() != 0)
+    bool typeOk = e && (e->type() == QEvent::MouseButtonPress
+                     || e->type() == QEvent::MouseButtonDblClick);
+    if (!typeOk || index.column() != 0)
         return QItemDelegate::editorEvent(e, model, index);
 
     if (static_cast<QMouseEvent*>(e)->x() < 20) {
