@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <iostream.h>
 
-#include "assistant.h"
 #include "mainwindow.h"
 #include "docuparser.h"
 #include "helpdialogimpl.h"

@@ -17,37 +17,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
-static const char * book_xpm[]={
-    "22 22 4 1",
-    "# c #000000",
-    "a c #808080",
-    "b c #ffffff",
-    ". c None",
-    "......................",
-    "......................",
-    "......................",
-    "......................",
-    ".....##...............",
-    "....#ab#....###.......",
-    "....#abb#.##bb#.......",
-    "....#abbb#abbb###.....",
-    "....#abbb#bbbb#a#.....",
-    "....#abbb#abbb#a#.....",
-    "....#abbb#bbbb#a#.....",
-    "....#abbb#abbb#a#.....",
-    "....#abbb#bbbb#a#.....",
-    ".....#abb#abb##a#.....",
-    "......#ab#b##bba#.....",
-    ".......#a##aaaaa#.....",
-    ".......##a#######.....",
-    "........##............",
-    "......................",
-    "......................",
-    "......................",
-    "......................"};
-
-
 #include "helpdialogimpl.h"
 #include "helpwindow.h"
 #include "topicchooserimpl.h"
@@ -82,8 +51,6 @@ static const char * book_xpm[]={
 #include <qstatusbar.h>
 #include <qvalidator.h>
 #include <qsettings.h>
-
-static QPixmap *bookPixmap = 0;
 
 struct IndexKeyword {
     IndexKeyword( const QString &kw, const QString &l )
@@ -214,7 +181,6 @@ void HelpDialog::initialize()
     connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
 
-    bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->setExtensionType( "html", "text/html;charset=UTF-8" );
 
@@ -771,7 +737,7 @@ void HelpDialog::insertContents()
 
 	HelpNavigationContentsItem *newEntry;
 	newEntry = new HelpNavigationContentsItem( listContents, 0 );
-	newEntry->setPixmap( 0, *bookPixmap );
+	newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.xpm" ) );
 
 	HelpNavigationContentsItem *contentEntry;
 	QPtrStack<HelpNavigationContentsItem> stack;

@@ -26,19 +26,6 @@
 #include <qtoolbutton.h>
 #include <qpixmap.h>
 
-static const char * close_xpm[] = {
-"8 8 2 1",
-"# c #000000",
-". c None",
-"##....##",
-".##..##.",
-"..####..",
-"...##...",
-"..####..",
-".##..##.",
-"##....##",
-"........"};
-
 Assistant::Assistant( QWidget *parent )
     : QWidget( parent, 0, WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
@@ -53,7 +40,7 @@ Assistant::Assistant( QWidget *parent )
     browser->setFrameStyle( QFrame::NoFrame );
     browser->setText( tr( "Welcome to the <b>Qt Assistant</b>. Qt Assistant will give you quicker access to help and tips while using applications like Qt Designer." ) );
     closeButton = new QToolButton( this );
-    closeButton->setPixmap( QPixmap( close_xpm ) );
+    closeButton->setPixmap( QPixmap::fromMimeSource( "close.xpm" ) );
     closeButton->setFixedSize( 16, 15 );
     closeButton->setAutoRaise( TRUE );
     connect( closeButton, SIGNAL( clicked() ), this, SLOT( hide() ) );
