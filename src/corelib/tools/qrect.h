@@ -78,6 +78,8 @@ public:
 
     inline void translate(int dx, int dy);
     inline void translate(const QPoint &p);
+    inline QRect translated(int dx, int dy) const;
+    inline QRect translated(const QPoint &p) const;
 
     void moveTo(int x, int t);
     void moveTo(const QPoint &p);
@@ -91,9 +93,12 @@ public:
     inline void getRect(int *x, int *y, int *w, int *h) const;
 
     void setCoords(int x1, int y1, int x2, int y2);
+#ifdef QT3_SUPPORT
     void addCoords(int x1, int y1, int x2, int y2);
+#endif
     inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
+    void adjust(int x1, int y1, int x2, int y2);
     QRect adjusted(int x1, int y1, int x2, int y2) const;
 
     QSize size() const;
@@ -281,6 +286,12 @@ inline void QRect::translate(const QPoint &p)
     y2 += p.y();
 }
 
+inline QRect QRect::translated(int dx, int dy) const
+{ return QRect(x1 + dx, y1 + dy, x2 + dx, y2 + dy); }
+
+inline QRect QRect::translated(const QPoint &p) const
+{ return QRect(x1 + p.x(), y1 + p.y(), x2 + p.x(), y2 + p.y()); }
+
 inline void QRect::moveTo(int x, int y)
 {
     x2 += x - x1;
@@ -371,16 +382,23 @@ inline void QRect::setCoords(int xp1, int yp1, int xp2, int yp2)
     y2 = yp2;
 }
 
-inline void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
+#ifdef QT3_SUPPORT
+inline void QRect::addCoords(int dx1, int dy1, int dx2, int dy2)
 {
-    x1 += xp1;
-    y1 += yp1;
-    x2 += xp2;
-    y2 += yp2;
+    adjust(dx1, dy1, dx2, dy2);
 }
+#endif
 
 inline QRect QRect::adjusted(int xp1, int yp1, int xp2, int yp2) const
 { return QRect(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2)); }
+
+inline void QRect::adjust(int dx1, int dy1, int dx2, int dy2)
+{
+    x1 += dx1;
+    y1 += dy1;
+    x2 += dx2;
+    y2 += dy2;
+}
 
 inline void QRect::setWidth(int w)
 { x2 = (x1 + w - 1); }
@@ -469,13 +487,46 @@ public:
     bool isValid() const;
     QRectF normalize() const;
 
-    qreal x() const;
-    qreal y() const;
+    inline qreal left() const { return xp; }
+    inline qreal top() const { return yp; }
+    inline qreal right() const { return xp + w; }
+    inline qreal bottom() const { return yp + h; }
 
-    QPointF center() const;
+    inline qreal x() const;
+    inline qreal y() const;
+    inline void setLeft(qreal pos);
+    inline void setTop(qreal pos);
+    inline void setRight(qreal pos);
+    inline void setBottom(qreal pos);
+    inline void setX(qreal x);
+    inline void setY(qreal y);
+
+    inline QPointF topLeft() const { return QPointF(xp, yp); }
+    inline QPointF bottomRight() const { return QPointF(xp+w, yp+h); }
+    inline QPointF topRight() const { return QPointF(xp+w, yp); }
+    inline QPointF bottomLeft() const { return QPointF(xp, yp+h); }
+    inline QPointF center() const;
+
+    void setTopLeft(const QPointF &p);
+    void setBottomRight(const QPointF &p);
+    void setTopRight(const QPointF &p);
+    void setBottomLeft(const QPointF &p);
+
+    void moveLeft(qreal pos);
+    void moveTop(qreal pos);
+    void moveRight(qreal pos);
+    void moveBottom(qreal pos);
+    void moveTopLeft(const QPointF &p);
+    void moveBottomRight(const QPointF &p);
+    void moveTopRight(const QPointF &p);
+    void moveBottomLeft(const QPointF &p);
+    void moveCenter(const QPointF &p);
 
     void translate(qreal dx, qreal dy);
     void translate(const QPointF &p);
+
+    QRectF translated(qreal dx, qreal dy) const;
+    QRectF translated(const QPointF &p) const;
 
     void moveTo(qreal x, qreal t);
     void moveTo(const QPointF &p);
@@ -484,28 +535,17 @@ public:
     void getRect(qreal *x, qreal *y, qreal *w, qreal *h) const;
 
     void setCoords(qreal x1, qreal y1, qreal x2, qreal y2);
-    void addCoords(qreal x1, qreal y1, qreal x2, qreal y2);
     void getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const;
 
+    void adjust(qreal x1, qreal y1, qreal x2, qreal y2);
     QRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const;
 
-    QPointF origin() const;
     QSizeF size() const;
     qreal width() const;
     qreal height() const;
     void setWidth(qreal w);
     void setHeight(qreal h);
     void setSize(const QSizeF &s);
-
-    inline qreal left() const { return xp; }
-    inline qreal top() const { return yp; }
-    inline qreal right() const { return xp + w; }
-    inline qreal bottom() const { return yp + h; }
-
-    inline QPointF topLeft() const { return QPointF(xp, yp); }
-    inline QPointF bottomRight() const { return QPointF(xp+w, yp+h); }
-    inline QPointF topRight() const { return QPointF(xp+w, yp); }
-    inline QPointF bottomLeft() const { return QPointF(xp, yp+h); }
 
     QRectF operator|(const QRectF &r) const;
     QRectF operator&(const QRectF &r) const;
@@ -581,8 +621,42 @@ inline qreal QRectF::x() const
 inline qreal QRectF::y() const
 { return yp; }
 
+inline void QRectF::setLeft(qreal pos) { qreal diff = pos - xp; xp += diff; w -= diff; }
+
+inline void QRectF::setRight(qreal pos) { w = pos - xp; }
+
+inline void QRectF::setTop(qreal pos) { qreal diff = pos - yp; yp += diff; h -= diff; }
+
+inline void QRectF::setBottom(qreal pos) { h = pos - yp; }
+
+inline void QRectF::setTopLeft(const QPointF &p) { setLeft(p.x()); setTop(p.y()); }
+
+inline void QRectF::setTopRight(const QPointF &p) { setRight(p.x()); setTop(p.y()); }
+
+inline void QRectF::setBottomLeft(const QPointF &p) { setLeft(p.x()); setBottom(p.y()); }
+
+inline void QRectF::setBottomRight(const QPointF &p) { setRight(p.x()); setBottom(p.y()); }
+
 inline QPointF QRectF::center() const
 { return QPointF(xp + w/2, yp + h/2); }
+
+inline void QRectF::moveLeft(qreal pos) { xp = pos; }
+
+inline void QRectF::moveTop(qreal pos) { yp = pos; }
+
+inline void QRectF::moveRight(qreal pos) { xp = pos - w; }
+
+inline void QRectF::moveBottom(qreal pos) { yp = pos - h; }
+
+inline void QRectF::moveTopLeft(const QPointF &p) { moveLeft(p.x()); moveTop(p.y()); }
+
+inline void QRectF::moveTopRight(const QPointF &p) { moveRight(p.x()); moveTop(p.y()); }
+
+inline void QRectF::moveBottomLeft(const QPointF &p) { moveLeft(p.x()); moveBottom(p.y()); }
+
+inline void QRectF::moveBottomRight(const QPointF &p) { moveRight(p.x()); moveBottom(p.y()); }
+
+inline void QRectF::moveCenter(const QPointF &p) { xp = p.x() - w/2; yp = p.y() - h/2; }
 
 inline qreal QRectF::width() const
 { return w; }
@@ -592,9 +666,6 @@ inline qreal QRectF::height() const
 
 inline QSizeF QRectF::size() const
 { return QSizeF(w, h); }
-
-inline QPointF QRectF::origin() const
-{ return QPointF(xp, yp); }
 
 inline void QRectF::translate(qreal dx, qreal dy)
 {
@@ -608,6 +679,11 @@ inline void QRectF::translate(const QPointF &p)
     yp += p.y();
 }
 
+inline QRectF QRectF::translated(qreal dx, qreal dy) const
+{ return QRectF(xp + dx, yp + dy, w, h); }
+
+inline QRectF QRectF::translated(const QPointF &p) const
+{ return QRectF(xp + p.x(), yp + p.y(), w, h); }
 
 inline void QRectF::getRect(qreal *x, qreal *y, qreal *aw, qreal *ah) const
 {
@@ -641,13 +717,8 @@ inline void QRectF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
     h = yp2 - yp1;
 }
 
-inline void QRectF::addCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
-{
-    xp += xp1;
-    yp += yp1;
-    w += xp2 - xp1;
-    h += yp2 - yp1;
-}
+inline void QRectF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
+{ xp += xp1; yp += yp1; w += xp2 - xp1; h += yp2 - yp1; }
 
 inline QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
 { return QRectF(xp + xp1, yp + yp2, w + xp2 - xp1, h + yp2 - yp1); }

@@ -487,7 +487,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         if (bgCol.isValid()) {
             QRectF bgRect = QRectF(off, fd->size);
             const qreal margin = fd->margin + fd->border;
-            bgRect.addCoords(margin, margin, -margin, -margin);
+            bgRect.adjust(margin, margin, -margin, -margin);
 
             if (frame == q->document()->rootFrame())
                 bgRect = context.clip;
@@ -675,7 +675,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
     {
         QRectF textRect = firstLine.naturalTextRect();
-        pos += textRect.origin().toPoint();
+        pos += textRect.topLeft().toPoint();
         if (dir == Qt::RightToLeft)
             pos.rx() += qRound(textRect.width());
     }

@@ -443,7 +443,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
             d->ellipseHack = true;
         }
     }, {
-        rect.addCoords(0, 0, 1, 1);
+        rect.adjust(0, 0, 1, 1);
     });
 
     HGDIOBJ oldPen;

@@ -47,7 +47,7 @@
     setWidth(), setHeight() and setSize(). The dimensions can also be
     changed with the move functions, e.g. moveBy(), moveCenter(),
     moveBottomRight(), etc. You can also add coordinates to a
-    rectangle with addCoords().
+    rectangle with adjust().
 
     You can test to see if a QRect contains a specific point with
     contains(). You can also test to see if two QRects intersect with
@@ -587,6 +587,29 @@ void QRect::moveCenter(const QPoint &p)
 
 
 /*!
+    \fn QRect QRect::translated(int dx, int dy) const
+
+    Returns a copy of the rectangle that is translated \a dx along the
+    x axis and \a dy along the y axis, relative to the current
+    position. Positive values move the rectangle to the right and
+    down.
+
+*/
+
+
+/*!
+    \fn QRect QRect::translated(const QPoint &p) const
+
+    \overload
+
+    Returns a copy of the rectangle that is translated \a{p}\e{.x()}
+    along the x axis and \a{p}\e{.y()} along the y axis, relative to
+    the current position.  Positive values move the rectangle to the
+    right and down.
+*/
+
+
+/*!
   \fn  void QRect::setRect(int x, int y, int w, int h)
 
   Sets the coordinates of the rectangle's top-left corner to (\a{x},
@@ -608,16 +631,30 @@ void QRect::moveCenter(const QPoint &p)
 
 
 /*!
-  \fn void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
+    \fn void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
+
+    \compat
 
     Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
     existing coordinates of the rectangle.
+
+    \sa adjust()
 */
 
 /*! \fn QRect QRect::adjusted(int xp1, int yp1, int xp2, int yp2) const
 
     Returns a new rectangle with \a xp1, \a yp1, \a xp2 and \a yp2
     added to the existing coordinates of this rectangle.
+
+    \sa adjust()
+*/
+
+/*! \fn void QRect::adjust(int xp1, int yp1, int xp2, int yp2)
+
+    Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
+    existing coordinates of the rectangle.
+
+    \sa adjusted
 */
 
 /*!
@@ -1069,6 +1106,111 @@ QRectF QRectF::normalize() const
     \sa top() x() setY()
 */
 
+
+/*!
+    \fn void QRectF:setLeft(qreal pos)
+
+    Sets the left edge of the rectangle to \a pos. May change the
+    width, but will never change the right edge of the rectangle.
+
+    Identical to setX().
+
+    \sa left(), setTop(), setWidth()
+*/
+
+/*!
+    \fn void QRectF:setTop(qreal pos)
+
+    Sets the top edge of the rectangle to \a pos. May change the
+    height, but will never change the bottom edge of the rectangle.
+
+    Identical to setY().
+
+    \sa top(), setBottom(), setHeight()
+*/
+
+/*!
+    \fn void QRectF:setRight(qreal pos)
+
+    Sets the right edge of the rectangle to \a pos. May change the
+    width, but will never change the left edge of the rectangle.
+
+    \sa right(), setLeft(), setWidth()
+*/
+
+/*!
+    \fn void QRectF:setBottom(qreal pos)
+
+    Sets the bottom edge of the rectangle to \a pos. May change the
+    height, but will never change the top edge of the rectangle.
+
+    \sa bottom(), setTop(), setHeight()
+*/
+
+/*!
+    \fn void QRectF:setX(qreal x)
+
+    Sets the x position of the rectangle (its left end) to \a x. May
+    change the width, but will never change the right edge of the
+    rectangle.
+
+    Identical to setLeft().
+
+    \sa x(), setY()
+*/
+
+/*!
+    \fn void QRectF:setY(qreal y)
+
+    Sets the y position of the rectangle (its top) to \a y. May change
+    the height, but will never change the bottom edge of the
+    rectangle.
+
+    Identical to setTop().
+
+    \sa y(), setX()
+*/
+
+/*!
+  \fn void QRectF:setTopLeft(const QPoqreal &p)
+
+    Set the top-left corner of the rectangle to \a p. May change
+    the size, but will the never change the bottom-right corner of
+    the rectangle.
+
+    \sa topLeft(), moveTopLeft(), setBottomRight(), setTopRight(), setBottomLeft()
+*/
+
+/*!
+  \fn void QRectF:setBottomRight(const QPointF &p)
+
+    Set the bottom-right corner of the rectangle to \a p. May change
+    the size, but will the never change the top-left corner of
+    the rectangle.
+
+    \sa bottomRight(), moveBottomRight(), setTopLeft(), setTopRight(), setBottomLeft()
+*/
+
+/*!
+  \fn void QRectF:setTopRight(const QPointF &p)
+
+    Set the top-right corner of the rectangle to \a p. May change
+    the size, but will the never change the bottom-left corner of
+    the rectangle.
+
+    \sa topRight(), moveTopRight(), setTopLeft(), setBottomRight(), setBottomLeft()
+*/
+
+/*!
+  \fn void QRectF:setBottomLeft(const QPointF &p)
+
+    Set the bottom-left corner of the rectangle to \a p. May change
+    the size, but will the never change the top-right corner of
+    the rectangle.
+
+    \sa bottomLeft(), moveBottomLeft(), setTopLeft(), setBottomRight(), setTopRight()
+*/
+
 /*!
     \fn QPointF QRectF::center() const
 
@@ -1112,6 +1254,84 @@ QRectF QRectF::normalize() const
 
 */
 
+/*!
+  \fn void QRectF::moveLeft(qreal pos)
+
+    Sets the left position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa left(), setLeft(), moveTop(), moveRight(), moveBottom()
+*/
+
+/*!
+  \fn void QRectF::moveTop(qreal pos)
+
+    Sets the top position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa top(), setTop(), moveLeft(), moveRight(), moveBottom()
+*/
+
+
+/*!
+  \fn void QRectF::moveRight(qreal pos)
+
+    Sets the right position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa right(), setRight(), moveLeft(), moveTop(), moveBottom()
+*/
+
+
+/*!
+  \fn void QRectF::moveBottom(qreal pos)
+
+    Sets the bottom position of the rectangle to \a pos, leaving the
+    size unchanged.
+
+    \sa bottom(), setBottom(), moveLeft(), moveTop(), moveRight()
+*/
+
+
+/*!
+  \fn void QRectF::moveTopLeft(const QPointF &p)
+
+    Sets the top-left position of the rectangle to \a p, leaving the
+    size unchanged.
+
+    \sa topLeft(), setTopLeft(), moveBottomRight(), moveTopRight(), moveBottomLeft()
+*/
+
+
+/*!
+  \fn void QRectF::moveBottomRight(const QPointF &p)
+
+    Sets the bottom-right position of the rectangle to \a p, leaving
+    the size unchanged.
+
+    \sa bottomRight(), setBottomRight(), moveTopLeft(), moveTopRight(), moveBottomLeft()
+*/
+
+
+/*!
+  \fn void QRectF::moveTopRight(const QPointF &p)
+
+    Sets the top-right position of the rectangle to \a p, leaving the
+    size unchanged.
+
+    \sa topRight(), setTopRight(), moveTopLeft(), moveBottomRight(), moveBottomLeft()
+*/
+
+
+/*!
+  \fn void QRectF::moveBottomLeft(const QPointF &p)
+
+    Sets the bottom-left position of the rectangle to \a p, leaving
+    the size unchanged.
+
+    \sa bottomLeft(), setBottomLeft(), moveTopLeft(), moveBottomRight(), moveTopRight()
+*/
+
 
 /*!
   \fn void QRectF::moveTo(qreal x, qreal y)
@@ -1144,6 +1364,29 @@ QRectF QRectF::normalize() const
     Moves the rectangle \a{p}\e{.x()} along the x axis and
     \a{p}\e{.y()} along the y axis, relative to the current position.
     Positive values move the rectangle to the right and downwards.
+*/
+
+
+/*!
+    \fn QRectF QRectF::translated(qreal dx, qreal dy) const
+
+    Returns a copy of the rectangle that is translated \a dx along the
+    x axis and \a dy along the y axis, relative to the current
+    position. Positive values move the rectangle to the right and
+    down.
+
+*/
+
+
+/*!
+    \fn QRectF QRectF::translated(const QPointF &p) const
+
+    \overload
+
+    Returns a copy of the rectangle that is translated \a{p}\e{.x()}
+    along the x axis and \a{p}\e{.y()} along the y axis, relative to
+    the current position.  Positive values move the rectangle to the
+    right and down.
 */
 
 
@@ -1183,6 +1426,13 @@ QRectF QRectF::normalize() const
     \a yp2) added to the position of its bottom-right corner.
 */
 
+/*! \fn void QRect::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
+
+    Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
+    existing coordinates of the rectangle.
+
+    \sa adjusted
+*/
 /*!
     \fn QSizeF QRectF::size() const
 
