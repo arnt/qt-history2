@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#14 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#14 $";
 #endif
 
 
@@ -45,9 +45,9 @@ QRegion::QRegion()				// create empty region
 QRegion::QRegion( const QRect &r, RegionType t )
 {						// create region from rect
     QRect rr = r;
+    rr.fixup();
     data = new QRegionData;
     CHECK_PTR( data );
-    rr.fixup();
     int id;
     if ( t == Rectangle ) {			// rectangular region
 	data->rgn = XCreateRegion();
