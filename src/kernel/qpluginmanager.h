@@ -100,21 +100,21 @@ public:
 	    return 0;
 
 	Type* plugin = new Type( file, defPol, defFunction );
-	if ( defPol == QPlugIn::Manual )
-	    plugin->load();
-
 	bool useful = FALSE;
-	QStringList al = ((QPlugIn*)plugin)->featureList();
-	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
-	    useful = TRUE;
-	    if ( !plugDict[*a] ) {
-		plugDict.insert( *a, plugin );
-		signalEmitter->emitFeatureAdded( *a );
-	    }
+
+	if ( plugin->load() ) {
+	    QStringList al = ((QPlugIn*)plugin)->featureList();
+	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
+		useful = TRUE;
+		if ( !plugDict[*a] ) {
+		    plugDict.insert( *a, plugin );
+		    signalEmitter->emitFeatureAdded( *a );
+		}
 #ifdef CHECK_RANGE
-	    else
-		qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
+		else
+		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
 #endif
+	    }
 	}
 
 	if ( useful ) {
