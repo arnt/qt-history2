@@ -1190,7 +1190,6 @@ QStoredDrag::QStoredDrag(QStoredDragPrivate &dd,  const char* mimeType, QWidget 
 QStoredDrag::~QStoredDrag()
 {
     delete [] (char*)d->fmt;
-    delete d;
 }
 
 /*!
