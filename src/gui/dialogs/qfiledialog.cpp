@@ -888,9 +888,13 @@ void QFileDialogPrivate::navigateToParent()
 
 void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 {
-    history.push_back(rootIndex());
-    setRootIndex(index);
-    updateButtons(index);
+    if (d->model->isDir(index)) {
+        history.push_back(rootIndex());
+        setRootIndex(index);
+        updateButtons(index);        
+    } else {
+        q->accept();
+    }
 }
 
 /*!
