@@ -1,6 +1,5 @@
 #include "qtableview.h"
 #include <qgenericheader.h>
-#include <qalgorithms.h>
 #include <private/qgenerictableview_p.h>
 
 class QTableModel : public QAbstractItemModel
@@ -33,10 +32,9 @@ public:
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 
-    void setItem(int row, int column, QTableViewItem *item);
-    const QTableViewItem *item(int row, int column) const;
-    const QTableViewItem *item(const QModelIndex &index) const;
-    QTableViewItem *item(const QModelIndex &index);
+    void setItem(int row, int column, const QTableViewItem &item);
+    QTableViewItem item(int row, int column) const;
+    QTableViewItem item(const QModelIndex &index) const;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                       QModelIndex::Type type = QModelIndex::View) const;
@@ -57,9 +55,9 @@ public:
     
 private:
     int r, c;
-    QVector<QTableViewItem*> table;
-    QVector<QTableViewItem*> leftHeader;
-    QVector<QTableViewItem*> topHeader;
+    QVector<QTableViewItem> table;
+    QVector<QTableViewItem> leftHeader;
+    QVector<QTableViewItem> topHeader;
 };
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent)
@@ -68,9 +66,6 @@ QTableModel::QTableModel(int rows, int columns, QObject *parent)
 
 QTableModel::~QTableModel()
 {
-    qDeleteAll(table);
-    qDeleteAll(leftHeader);
-    qDeleteAll(topHeader);
 }
 
 void QTableModel::setRowCount(int rows)
@@ -82,15 +77,9 @@ void QTableModel::setRowCount(int rows)
     r = rows;
 
     table.resize(s); // FIXME: this will destroy the layout
-    for (int i = _r * c; i < s; ++i)
-        table[i] = new QTableViewItem();
-
     leftHeader.resize(r);
-    for (int j = _r; j < r; ++j) {
-        QTableViewItem *item = new QTableViewItem();
-        item->setText(QString::number(j));
-        leftHeader[j] = item;
-    }
+    for (int j = _r; j < r; ++j)
+	leftHeader[j].setText(QString::number(j));
 
     int top = qMax(r - 1, 0);
     int bottom = qMax(r - 1, 0);
@@ -112,15 +101,9 @@ void QTableModel::setColumnCount(int columns)
     c = columns;
 
     table.resize(s); // FIXME: this will destroy the layout
-    for (int i = r * _c; i < s; ++i)
-        table[i] = new QTableViewItem();
-
     topHeader.resize(c);
-    for (int j = _c; j < c; ++j) {
-        QTableViewItem *item = new QTableViewItem();
-        item->setText(QString::number(j));
-        topHeader[j] = item;
-    }
+    for (int j = _c; j < c; ++j)
+	topHeader[j].setText(QString::number(j));
 
     int left = qMax(_c - 1, 0);
     int bottom = qMax(r - 1, 0);
@@ -229,44 +212,30 @@ QIconSet QTableModel::columnIconSet(int column) const
     return data(idx, QAbstractItemModel::Decoration).toIconSet();
 }
 
-void QTableModel::setItem(int row, int column, QTableViewItem *item)
+void QTableModel::setItem(int row, int column, const QTableViewItem &item)
 {
     table[tableIndex(row, column)] = item;
 }
 
-const QTableViewItem *QTableModel::item(int row, int column) const
+QTableViewItem QTableModel::item(int row, int column) const
 {
     return table.at(tableIndex(row, column));
 }
 
-const QTableViewItem *QTableModel::item(const QModelIndex &index) const
+QTableViewItem QTableModel::item(const QModelIndex &index) const
 {
     if (!isValid(index))
-	return 0;
+	return QTableViewItem();
     if (index.type() == QModelIndex::VerticalHeader)
 	return leftHeader.at(index.row());
     else if (index.type() == QModelIndex::HorizontalHeader)
 	return topHeader.at(index.column());
     else
 	return table.at(tableIndex(index.row(), index.column()));
-    return 0;
+    return QTableViewItem();
 }
 
-QTableViewItem *QTableModel::item(const QModelIndex &index)
-{
-    if (!isValid(index))
-	return 0;
-        if (index.type() == QModelIndex::VerticalHeader)
-	return leftHeader[index.row()];
-    else if (index.type() == QModelIndex::HorizontalHeader)
-	return topHeader[index.column()];
-    else
-	return table[tableIndex(index.row(), index.column())];
-    return 0;
-}
-
-QModelIndex QTableModel::index(int row, int column, const QModelIndex&,
-                               QModelIndex::Type type) const
+QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c)
 	return QModelIndex(row, column, 0, type);
@@ -285,17 +254,21 @@ int QTableModel::columnCount(const QModelIndex &) const
 
 QVariant QTableModel::data(const QModelIndex &index, int role) const
 {
-    const QTableViewItem *itm = item(index);
-    if (itm)
-	return itm->data(role);
+    if (index.isValid())
+	return item(index).data(role);
     return QVariant();
 }
 
 void QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    QTableViewItem *itm = item(index);
-    if (itm)
-	itm->setData(role, value);
+    if (!index.isValid())
+	return;
+    if (index.type() == QModelIndex::VerticalHeader)
+	leftHeader[index.row()].setData(role, value);
+    else if (index.type() == QModelIndex::HorizontalHeader)
+	topHeader[index.column()].setData(role, value);
+    else
+	table[tableIndex(index.row(), index.column())].setData(role, value);
     emit contentsChanged(index, index);
 }
 
@@ -309,12 +282,10 @@ QModelIndex QTableModel::insertItem(const QModelIndex &index)
 	insert = QModelIndex(rowCount(), 0, 0);
 
     int ti = tableIndex(insert.row(), 0) - 1;
-    table.insert(ti, c, 0);
-    for (int i = ti; i < (ti + c); ++i)
-	table[i] = new QTableViewItem();
+    table.insert(ti, c, QTableViewItem());
 
-    QTableViewItem *item = new QTableViewItem();
-    item->setText(QString::number(index.row()));
+    QTableViewItem item;
+    item.setText(QString::number(index.row()));
     leftHeader.insert(index.row(), 1, item);
     ++r;
 
@@ -323,14 +294,12 @@ QModelIndex QTableModel::insertItem(const QModelIndex &index)
 
 bool QTableModel::isSelectable(const QModelIndex &index) const
 {
-    const QTableViewItem *itm = item(index);
-    return itm && itm->isSelectable();
+    return item(index).isSelectable();
 }
 
 bool QTableModel::isEditable(const QModelIndex &index) const
 {
-    const QTableViewItem *itm = item(index);
-    return itm && itm->isEditable();
+    return item(index).isEditable();
 }
 
 bool QTableModel::isValid(const QModelIndex &index) const
@@ -360,6 +329,7 @@ bool QTableViewItem::operator ==(const QTableViewItem &other) const
 
 QVariant QTableViewItem::data(int role) const
 {
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i)
 	if (values.at(i).role == role)
 	    return values.at(i).value;
@@ -368,6 +338,7 @@ QVariant QTableViewItem::data(int role) const
 
 void QTableViewItem::setData(int role, const QVariant &value)
 {
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
 	if (values.at(i).role == role) {
 	    values[i].value = value;
@@ -423,6 +394,16 @@ int QTableView::rowCount() const
 int QTableView::columnCount() const
 {
     return model()->columnCount();
+}
+
+QTableViewItem QTableView::item(int row, int column) const
+{
+    return d->model()->item(row, column);
+}
+
+void QTableView::setItem(int row, int column, const QTableViewItem &item)
+{
+    d->model()->setItem(row, column, item);
 }
 
 void QTableView::setText(int row, int column, const QString &text)

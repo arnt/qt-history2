@@ -121,6 +121,7 @@ bool QListView_Item::operator ==(const QListView_Item &other) const
 
 QVariant QListView_Item::data(int role) const
 {
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
 	if (values.at(i).role == role)
 	    return values.at(i).value;
@@ -130,6 +131,7 @@ QVariant QListView_Item::data(int role) const
 
 void QListView_Item::setData(int role, const QVariant &value)
 {
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
 	if (values.at(i).role == role) {
 	    values[i].value = value;

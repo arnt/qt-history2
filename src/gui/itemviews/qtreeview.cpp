@@ -177,12 +177,8 @@ void QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
     if (!index.isValid())
 	return;
     QTreeViewItem *itm = item(index);
-    if (!itm)
-	return;
-    if (role == Display)
-	itm->setText(index.column(), value.toString());
-    else if (role == Decoration)
-	itm->setIconSet(index.column(), value.toIconSet());
+    if (itm)
+	itm->setData(index.column(), role, value);
     emit contentsChanged(index, index);
 }
 
@@ -259,6 +255,7 @@ QVariant QTreeViewItem::data(int column, int role) const
     if (column < 0 || column >= c)
 	return QVariant();
     const QVector<Data> column_values = values.at(column);
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < column_values.count(); ++i) {
 	if (column_values.at(i).role == role)
 	    return column_values.at(i).value;
@@ -271,14 +268,13 @@ void QTreeViewItem::setData(int column, int role, const QVariant &value)
     if (column >= c)
 	setColumnCount(column + 1);
     QVector<Data> column_values = values.at(column);
-
+    role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < column_values.count(); ++i) {
 	if (column_values.at(i).role == role) {
-	    column_values[i].value = value;
+	    values[column][i].value = value;
 	    return;
 	}
     }
-    //column_values.append(Data(role, value));
     values[column].append(Data(role, value));
 }
 
