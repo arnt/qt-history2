@@ -95,14 +95,12 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     switch(pd->devType()) {
     case QInternal::Printer:
     case QInternal::Pixmap:
-    int x = (int)pd->handle();
 	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
 	break;
     case QInternal::Widget:
 	SetPortWindowPort((WindowPtr)pd->handle());
 	break;
     default:
-	qDebug("ugh?!");
 	return FALSE;
     }
     return TRUE;
@@ -116,7 +114,6 @@ inline void QMacSavedPortInfo::init()
    	GetBackColor(&back);
 	GetForeColor(&fore);
 	GetGWorld(&world, &handle);
-	int x = (int)world;
 	valid_gworld = TRUE;
     register_self();
 	fi = new QMacSavedFontInfo(world);
@@ -130,7 +127,6 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
     deregister_self();
     if(mac_window_count) {
-    int x = (int)world;
     if(valid_gworld) 
 	    SetGWorld(world,handle); //always do this one first
     else
@@ -151,8 +147,6 @@ inline void QMacSavedPortInfo::removingGWorld(const GWorldPtr w)
     if(!gports.count())
         return;
     for(QListIterator<QMacSavedPortInfo> it(gports); it.current(); ++it) {
-        int x = (int)(*it)->world;
-        int y = (int)w;
         if((*it)->world == w) 
             (*it)->valid_gworld = FALSE;
     }
