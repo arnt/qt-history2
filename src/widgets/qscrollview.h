@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#34 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#35 $
 **
 ** Definition of QScrollView class
 **
@@ -65,6 +65,10 @@ public:
     QScrollBar*  horizontalScrollBar() const;
     QScrollBar*  verticalScrollBar() const;
     QWidget*	 viewport() const;
+    QWidget*	 clipper() const;
+
+    int		visibleWidth() const;
+    int		visibleHeight() const;
 
     int		contentsWidth() const;
     int		contentsHeight() const;
@@ -77,6 +81,10 @@ public:
 
     void	updateContents( int x, int y, int w, int h );
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
+
+    void	contentToViewport(int x, int y, int& vx, int& vy);
+    void	viewportToContent(int vx, int vy, int& x, int& y);
+    void	enableClipper(bool y);
 
 signals:
     void	contentsMoving(int x, int y);
