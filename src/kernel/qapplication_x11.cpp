@@ -1362,11 +1362,10 @@ static void qt_check_focus_model()
   QApplication::colorSpec() is QApplication::ManyColor.
 */
 
-static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
+static Visual *find_truecolor_visual( Display *dpy, int scr, int *depth, int *ncols )
 {
     XVisualInfo *vi, rvi;
     int best=0, n, i;
-    int scr = DefaultScreen(dpy);
     rvi.c_class = TrueColor;
     rvi.screen  = scr;
     vi = XGetVisualInfo( dpy, VisualClassMask | VisualScreenMask,
@@ -1583,13 +1582,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	appScreen = DefaultScreen(appDpy);
 	appScreenCount = ScreenCount(appDpy);
 
-	// Set X paintdevice parameters
-
 	QPaintDevice::x_appdisplay = appDpy;
 	QPaintDevice::x_appscreen = appScreen;
-	QPaintDevice::x_appdepth = DefaultDepth(appDpy,appScreen);
-	QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
-	QPaintDevice::x_approotwindow = RootWindow(appDpy, appScreen);
 
 	// allocate the arrays for the QPaintDevice data
 	QPaintDevice::x_appdepth_arr = new int[ appScreenCount ];
@@ -1608,191 +1602,172 @@ void qt_init_internal( int *argcptr, char **argv,
 	Q_CHECK_PTR( QPaintDevice::x_appdefvisual_arr );
 
 	int screen;
-	for ( screen = 0; screen < appScreenCount; screen++ ) {
+	for ( screen = 0; screen < appScreenCount; ++screen ) {
 	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(appDpy, screen);
 	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(appDpy, screen);
 	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(appDpy, screen);
 
-	    // ### TODO - make Qt obey -visual -cmap and -ncols options for all screens
-	    if ( screen != appScreen ) {
-		// for now, just take the defaults for all screens other than the
-		// default
-		QPaintDevice::x_appcolormap_arr[screen] =
-		    DefaultColormap( appDpy, screen );
-		QPaintDevice::x_appdefcolormap_arr[screen] = TRUE;
-		QPaintDevice::x_appvisual_arr[screen] = DefaultVisual( appDpy, screen );
-		QPaintDevice::x_appdefvisual_arr[screen] = TRUE;
-	    }
-	}
+	    // setup the visual and colormap for each screen
+	    Visual *vis;
+	    if ( visual && screen == appScreen ) {
+		// use the provided visual on the default screen only
+		vis = (Visual *) visual;
 
-	// setup the visual and colormap for the default screen - this will need to
-	// be moved inside the above loop eventually...
-	Visual *vis;
-	if (! visual) {
-	    // use the default visual
-	    QPaintDevice::x_appdepth = DefaultDepth(appDpy,appScreen);
-	    QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
+		// figure out the depth of the visual we are using
+		ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
+		int depth = 0;
+		QPaintDevice::x_appdepth_arr[ screen ] = 0;
+		while ( depth_bits & 1 ) {
+		    ++depth;
+		    depth_bits >>= 1;
+		}
 
-	    vis = DefaultVisual(appDpy,appScreen);
-	    QPaintDevice::x_appdefvisual = TRUE;
-	    QPaintDevice::x_appdefvisual_arr[appScreen] = TRUE;
+		QPaintDevice::x_appdepth_arr[ screen ] = depth;
+		QPaintDevice::x_appcells_arr[ screen ] = vis->map_entries;
+		QPaintDevice::x_appvisual_arr[ screen ] = vis;
+		QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
+	    } else {
+		// use the default visual
+		vis = DefaultVisual(appDpy, screen);
+		QPaintDevice::x_appdefvisual_arr[ screen ] = TRUE;
 
-	    if ( qt_visual_option == TrueColor ||
-		 QApplication::colorSpec() == QApplication::ManyColor ) {
-		// find custom visual
+		if ( qt_visual_option == TrueColor ||
+		     QApplication::colorSpec() == QApplication::ManyColor ) {
+		    // find custom visual
 
-		vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
-					     &QPaintDevice::x_appcells );
+		    int d, c;
+		    vis = find_truecolor_visual( appDpy, screen, &d, &c );
+		    QPaintDevice::x_appdepth_arr[ screen ] = d;
+		    QPaintDevice::x_appcells_arr[ screen ] = c;
 
-		QPaintDevice::x_appvisual = vis;
-		QPaintDevice::x_appvisual_arr[appScreen] = vis;
-		QPaintDevice::x_appdefvisual =
-		    (XVisualIDFromVisual(vis) ==
-		     XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
-		QPaintDevice::x_appdefvisual_arr[appScreen] =
-		    QPaintDevice::x_appdefvisual;
-	    }
+		    QPaintDevice::x_appvisual_arr[ screen ] = vis;
+		    QPaintDevice::x_appdefvisual_arr[ screen ] =
+			(XVisualIDFromVisual(vis) ==
+			 XVisualIDFromVisual(DefaultVisual(appDpy, screen)));
+		}
 
 #if defined( QT_MODULE_OPENGL )
-	    // If we are using OpenGL widgets we HAVE to make sure
-	    // that the default visual is GL enabled, otherwise it
-	    // will wreck havock when e.g trying to render to
-	    // GLXPixmaps via QPixmap. This is because QPixmap is
-	    // always created with a QPaintDevice that uses
-	    // x_appvisual per default. Preferably, use a visual that
-            // has depth and stencil buffers.
+		// If we are using OpenGL widgets we HAVE to make sure
+		// that the default visual is GL enabled, otherwise it
+		// will wreck havock when e.g trying to render to
+		// GLXPixmaps via QPixmap. This is because QPixmap is
+		// always created with a QPaintDevice that uses
+		// x_appvisual per default. Preferably, use a visual that
+		// has depth and stencil buffers.
 
-	    int nvis;
-	    XVisualInfo * vi;
-	    XVisualInfo visInfo;
-	    memset( &visInfo, 0, sizeof(XVisualInfo) );
-	    visInfo.visualid = XVisualIDFromVisual( vis );
-	    visInfo.screen = appScreen;
-	    vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
-				 &visInfo, &nvis );
-	    if ( vi ) {
-		int useGL;
-		glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
-		if ( !useGL ) {
-		    // We have to find another visual that is GL capable
-		    int i;
-		    XVisualInfo * visuals;
-		    memset( &visInfo, 0, sizeof(XVisualInfo) );
-		    visInfo.screen = appScreen;
-		    visInfo.c_class = vi->c_class;
-		    visInfo.depth = vi->depth;
-		    visuals = XGetVisualInfo( appDpy, VisualClassMask |
-					      VisualDepthMask |
-					      VisualScreenMask, &visInfo,
-					      &nvis );
-		    if ( visuals ) {
-			for ( i = 0; i < nvis; i++ ) {
-			    glXGetConfig( appDpy, &visuals[i], GLX_USE_GL,
-					  &useGL );
-			    if ( useGL ) {
-				vis = visuals[i].visual;
-				QPaintDevice::x_appdefvisual = FALSE;
-				QPaintDevice::x_appdefvisual_arr[appScreen] = FALSE;
-				break;
+		int nvis;
+		XVisualInfo * vi;
+		XVisualInfo visInfo;
+		memset( &visInfo, 0, sizeof(XVisualInfo) );
+		visInfo.visualid = XVisualIDFromVisual( vis );
+		visInfo.screen = screen;
+		vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
+				     &visInfo, &nvis );
+		if ( vi ) {
+		    int useGL;
+		    glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+		    if ( !useGL ) {
+			// We have to find another visual that is GL capable
+			int i;
+			XVisualInfo * visuals;
+			memset( &visInfo, 0, sizeof(XVisualInfo) );
+			visInfo.screen = screen;
+			visInfo.c_class = vi->c_class;
+			visInfo.depth = vi->depth;
+			visuals = XGetVisualInfo( appDpy, VisualClassMask |
+						  VisualDepthMask |
+						  VisualScreenMask, &visInfo,
+						  &nvis );
+			if ( visuals ) {
+			    for ( i = 0; i < nvis; i++ ) {
+				glXGetConfig( appDpy, &visuals[i], GLX_USE_GL,
+					      &useGL );
+				if ( useGL ) {
+				    vis = visuals[i].visual;
+				    QPaintDevice::x_appdefvisual_arr[ screen ] = FALSE;
+				    break;
+				}
 			    }
+			    XFree( visuals );
 			}
-			XFree( visuals );
 		    }
+		    XFree( vi );
 		}
-		XFree( vi );
-	    }
 #endif
-     	    QPaintDevice::x_appvisual = vis;
-	    QPaintDevice::x_appvisual_arr[appScreen] = vis;
-	} else {
-	    // use the provided visual
-	    vis = (Visual *) visual;
-
-	    // figure out the depth of the visual we are using
-	    ulong depth_bits = vis->red_mask | vis->green_mask | vis->blue_mask;
-	    QPaintDevice::x_appdepth = 0;
-	    while ( depth_bits & 1 ) {
-		++QPaintDevice::x_appdepth;
-		depth_bits >>= 1;
+		QPaintDevice::x_appvisual_arr[ screen ] = vis;
 	    }
 
-	    QPaintDevice::x_appcells = vis->map_entries;
-	    QPaintDevice::x_appvisual = vis;
-	    QPaintDevice::x_appdefvisual = FALSE;
-	    QPaintDevice::x_appvisual_arr[appScreen] = vis;
-	    QPaintDevice::x_appdefvisual_arr[appScreen] = FALSE;
-	}
-
-	// work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
-	// with depth 8
-	if (QPaintDevice::x_appdepth == 8)
-	    QPaintDevice::x_appcells = 256;
-
-	for ( screen = 0; screen < appScreenCount; screen++ ) {
 	    // work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
 	    // with depth 8
 	    if (QPaintDevice::x_appdepth_arr[ screen ] == 8)
 		QPaintDevice::x_appcells_arr[ screen ] = 256;
-	}
 
-	if (! colormap) {
-	    if ( vis->c_class == TrueColor ) {
-		QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefvisual;
-		QPaintDevice::x_appdefcolormap_arr[appScreen] =
-		    QPaintDevice::x_appdefvisual_arr[appScreen];
+	    if ( colormap && screen == appScreen ) {
+		// use the provided colormap for the default screen only
+		QPaintDevice::x_appcolormap_arr[ screen ] = colormap;
+		QPaintDevice::x_appdefcolormap_arr[ screen ] = FALSE;
 	    } else {
-		QPaintDevice::x_appdefcolormap =
-		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
-		QPaintDevice::x_appdefcolormap_arr[appScreen] =
-		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
-	    }
+		if ( vis->c_class == TrueColor ) {
+		    QPaintDevice::x_appdefcolormap_arr[ screen ] =
+			QPaintDevice::x_appdefvisual_arr[ screen ];
+		} else {
+		    QPaintDevice::x_appdefcolormap_arr[ screen ] =
+			!qt_cmap_option && QPaintDevice::x_appdefvisual_arr[ screen ];
+		}
 
-	    if ( QPaintDevice::x_appdefcolormap ) {
-		XStandardColormap *stdcmap;
-		VisualID vid = XVisualIDFromVisual((Visual *) QPaintDevice::x_appvisual);
-		int i, count;
+		if ( QPaintDevice::x_appdefcolormap_arr[ screen ] ) {
+		    // use default colormap
+		    XStandardColormap *stdcmap;
+		    VisualID vid =
+			XVisualIDFromVisual((Visual *)
+					    QPaintDevice::x_appvisual_arr[ screen ]);
+		    int i, count;
 
-		QPaintDevice::x_appcolormap = 0;
-		QPaintDevice::x_appcolormap_arr[appScreen] = 0;
+		    QPaintDevice::x_appcolormap_arr[ screen ] = 0;
 
-		QString serverVendor( ServerVendor( appDpy) );
-		if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
-		    // on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
-		    // doesn't give us correct colors. Why this happens, I have
-		    // no clue, so we disable this for HPUX
-		    if (XGetRGBColormaps(appDpy, QPaintDevice::x11AppRootWindow(),
-				     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
-		        i = 0;
-			while (i < count && QPaintDevice::x_appcolormap == 0) {
-			    if (stdcmap[i].visualid == vid) {
-				QPaintDevice::x_appcolormap = stdcmap[i].colormap;
-				QPaintDevice::x_appcolormap_arr[appScreen] = stdcmap[i].colormap;
+		    QString serverVendor( ServerVendor( appDpy) );
+		    if ( ! serverVendor.contains( "Hewlett-Packard" ) ) {
+			// on HPUX 10.20 local displays, the RGB_DEFAULT_MAP colormap
+			// doesn't give us correct colors. Why this happens, I have
+			// no clue, so we disable this for HPUX
+			if (XGetRGBColormaps(appDpy,
+					     QPaintDevice::x11AppRootWindow( screen ),
+					     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
+			    i = 0;
+			    while (i < count &&
+				   QPaintDevice::x_appcolormap_arr[ screen ] == 0) {
+				if (stdcmap[i].visualid == vid) {
+				    QPaintDevice::x_appcolormap_arr[ screen ] =
+					stdcmap[i].colormap;
+				}
+				i++;
 			    }
-			    i++;
+
+			    XFree( (char *)stdcmap );
 			}
-
-		        XFree( (char *)stdcmap );
 		    }
-		}
 
-		if (QPaintDevice::x_appcolormap == 0) {
-		    QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
-		    QPaintDevice::x_appcolormap_arr[appScreen] =
-			QPaintDevice::x_appcolormap;
+		    if (QPaintDevice::x_appcolormap_arr[ screen ] == 0) {
+			QPaintDevice::x_appcolormap_arr[ screen ] =
+			    DefaultColormap(appDpy, screen);
+		    }
+		} else {
+		    // create a custom colormap
+		    QPaintDevice::x_appcolormap_arr[ screen ] =
+			XCreateColormap(appDpy, QPaintDevice::x11AppRootWindow( screen ),
+					vis, AllocNone);
 		}
-	    } else {
-		QPaintDevice::x_appcolormap =
-		    XCreateColormap(appDpy, QPaintDevice::x11AppRootWindow(),
-				    vis, AllocNone);
-		QPaintDevice::x_appcolormap_arr[appScreen] =
-		    QPaintDevice::x_appcolormap;
 	    }
-	} else {
-	    QPaintDevice::x_appcolormap = colormap;
-	    QPaintDevice::x_appdefcolormap = FALSE;
-	    QPaintDevice::x_appcolormap_arr[appScreen] = colormap;
-	    QPaintDevice::x_appdefcolormap_arr[appScreen] = FALSE;
 	}
+
+	// Set X paintdevice parameters for the default screen
+	QPaintDevice::x_appdepth = QPaintDevice::x_appdepth_arr[ appScreen ];
+	QPaintDevice::x_appcells = QPaintDevice::x_appcells_arr[ appScreen ];
+	QPaintDevice::x_approotwindow = QPaintDevice::x_approotwindow_arr[ appScreen ];
+	QPaintDevice::x_appcolormap = QPaintDevice::x_appcolormap_arr[ appScreen ];
+	QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefcolormap_arr[ appScreen ];
+	QPaintDevice::x_appvisual = QPaintDevice::x_appvisual_arr[ appScreen ];
+	QPaintDevice::x_appdefvisual = QPaintDevice::x_appdefvisual_arr[ appScreen ];
 
 	// Support protocols
 
