@@ -284,6 +284,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 
     d->request.family = family;
     d->request.pointSize = pointSize * 10;
+    d->request.pixelSize = pixelSize();
     d->request.weight = weight;
     d->request.italic = italic;
 }
@@ -435,6 +436,7 @@ void QFont::setPointSize( int pointSize )
 
     detach();
     d->request.pointSize = (short) pointSize;
+    d->request.pixelSize = pixelSize();
     d->request.dirty = TRUE;
 }
 
@@ -459,6 +461,7 @@ void QFont::setPointSizeFloat( float pointSize )
 
     detach();
     d->request.pointSize = (short) ps;
+    d->request.pixelSize = pixelSize();
     d->request.dirty = TRUE;
 }
 
@@ -1397,6 +1400,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     s >> bits;
 
     font.d->request.pointSize = pointSize;
+    font.d->request.pixelSize = font.pixelSize();
     font.d->request.styleHint = styleHint;
     font.d->request.weight = weight;
     font.d->request.dirty = TRUE;
