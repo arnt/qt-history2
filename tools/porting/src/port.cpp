@@ -76,17 +76,14 @@ int projectMode(QString inFile, QString outDir)
 void usage(char **argv)
 {
     using namespace std;
-    cout << "Usage: " << argv[0] << " infile.cpp/h [outfile.cpp/h]" << endl;
-    cout << "       " << argv[0] << " infile.pro [outdir]" << endl;
+    cout << "Usage: " << argv[0] << " infile.cpp/h outfile.cpp/h" << endl;
+    cout << "       " << argv[0] << " infile.pro outdir" << endl;
     cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
     cout << "and compatibility functions in the core library." << endl;
     cout << endl;
     cout << "Port has two usage modes: " << endl;
-    cout << "* File mode:     port infile.cpp/h [out_file]" << endl;
-    cout << "* Project mode:  port infile.pro   [out_directory]" << endl;
-    cout << endl;
-    cout << "The out arguments are optional. The ported file(s) will" << endl;
-    cout << "printed to standard out if not specified." << endl;
+    cout << "* File mode:     port infile.cpp/h out_file" << endl;
+    cout << "* Project mode:  port infile.pro   out_directory" << endl;
     cout << endl;
     cout << "See README for more info." << endl;
 }
@@ -95,7 +92,7 @@ int main(int argc, char**argv)
 {
     QString in;
     QString out;
-    if(argc==1 || argc >3) {
+    if(argc !=3) {
         usage(argv);
         return 0;
     }

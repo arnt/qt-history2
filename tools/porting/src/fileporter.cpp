@@ -44,8 +44,6 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     if(!outFilePath.isEmpty()) {
         QString completeOutPath = outBasePath + outFilePath;
         FileWriter::instance()->writeFileVerbously(completeOutPath, portedContents);
-    } else {
-        puts(portedContents.constData());
     }
     delete sym;
 }

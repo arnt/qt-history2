@@ -35,16 +35,11 @@ void ProjectPorter::portProject(QString inPath, QString proFileName, QString out
     if(templateTag == "subdirs") {
         QStringList subdirs = proFileMap["SUBDIRS"].split(" ", QString::SkipEmptyParts);
         foreach(QString subdir, subdirs) {
-            //printf("Processing subdir %s\n", subdir.latin1());
             QString newInPath  = inPath  + subdir + "/";
             QString newOutPath = outPath + subdir + "/";
             
             QStringList dirsInSubdir = subdir.split(QRegExp("/|\\\\"), QString::SkipEmptyParts);
             QString newProFileName = dirsInSubdir.last() + ".pro";
-            /*
-            printf("newInPath %s\nnewOutPath %s\nnewProFileName %s \n ",
-                newInPath.latin1(),  newOutPath.latin1(), newProFileName.latin1() );
-            */
             portProject(newInPath, newProFileName, newOutPath);
         }
      }
@@ -91,15 +86,11 @@ void ProjectPorter::portProject(QString inPath, QString proFileName, QString out
     QString portedProFile = portProFile(proFileContents, proFileMap);
     if(!outPath.isEmpty())
         FileWriter::instance()->writeFileVerbously(outPath+proFileName, portedProFile.latin1());
-    else
-        puts(portedProFile.latin1());
 }
 
 QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagMap)
 {
-//    puts("porting .pro file");
-//    puts(tagMap["QT"].latin1());
-    
+   
     //add compat to the Qt tag
     QStringList QTTagAdd;
     QStringList config = tagMap["QT"].split(" ", QString::SkipEmptyParts);
@@ -122,10 +113,8 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
             j+=insertText.size() + 1;
         }
     }
-     
- 
- //   puts(contents.latin1());
-        
+    
+         
     return contents;
 }
 
