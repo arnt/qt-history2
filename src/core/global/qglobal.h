@@ -585,15 +585,6 @@ typedef const char *pcchar;
 #    define Q_DECL_CONSTRUCTOR_DEPRECATED explicit Q_DECL_DEPRECATED
 #  endif
 #endif
-// moc compats (signals/slots)
-#ifdef QT_MOC_COMPAT
-# undef QT_MOC_COMPAT
-#endif
-# if defined(Q_MOC_RUN)
-#   define QT_MOC_COMPAT QT_MOC_COMPAT
-#else
-#   define QT_MOC_COMPAT
-#endif
 #if defined(QT3_SUPPORT_WARNINGS)
 #  if !defined(QT_COMPAT_WARNINGS) //also enable compat
 #    define QT_COMPAT_WARNINGS
@@ -629,6 +620,15 @@ typedef const char *pcchar;
 #  define QT_COMPAT_VARIABLE
 #  undef QT_COMPAT_CONSTRUCTOR
 #  define QT_COMPAT_CONSTRUCTOR
+#endif
+// moc compats (signals/slots)
+#ifdef QT_MOC_COMPAT
+# undef QT_MOC_COMPAT
+#endif
+# if defined(Q_MOC_RUN)
+#   define QT_MOC_COMPAT QT_MOC_COMPAT
+#else
+#   define QT_MOC_COMPAT QT3_SUPPORT
 #endif
 
 #ifdef __i386__
