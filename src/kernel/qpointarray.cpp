@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#31 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------
@@ -572,8 +572,7 @@ QPointArray QPointArray::bezier() const
 	return p;
     }
     int v;
-    int n = 3;					// n + 1 control points
-    int m = 0;					// m = # Bezier points
+    const int n = 3;				// n + 1 control points
     float xvec[4];
     float yvec[4];
     for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
@@ -581,15 +580,11 @@ QPointArray QPointArray::bezier() const
 	point( v, &x, &y );
 	xvec[v] = (float)x;
 	yvec[v] = (float)y;
-	if ( v > 0 ) {
-	    x -= (int)xvec[v-1];
-	    y -= (int)yvec[v-1];
-	    if ( x < 0 ) x = -x;
-	    if ( y < 0 ) y = -y;
-	    m += x > y ? x : y;
-	}
     }
 
+    QRect r = boundingRect();
+    int m = QMAX(r.width(),r.height())/2;
+    m = QMIN(m,30);				// m = number of result points
     if ( m < 2 )				// at least two points
 	m = 2;
     QPointArray p( m );				// p = Bezier point array
@@ -603,17 +598,22 @@ QPointArray QPointArray::bezier() const
     float cy = 3.0F * (yvec[1] - y0);
     float by = 3.0F * (yvec[2] - yvec[1]) - cy;
     float ay = yvec[3] - (y0 + cy + by);
-    float t = 0.0F;
-    float xf,yf;
+    float t = dt;
+
+    pd->x = (Qpnta_t)xvec[0];
+    pd->y = (Qpnta_t)yvec[0];
+    pd++;
+    m -= 2;
 
     while ( m-- ) {
-	xf = ((ax * t + bx) * t + cx) * t + x0;
-	yf = ((ay * t + by) * t + cy) * t + y0;
-	pd->x = (Qpnta_t)qRound( xf );
-	pd->y = (Qpnta_t)qRound( yf );
+	pd->x = (Qpnta_t)qRound( ((ax * t + bx) * t + cx) * t + x0 );
+	pd->y = (Qpnta_t)qRound( ((ay * t + by) * t + cy) * t + y0 );
 	pd++;
 	t += dt;
     }
+
+    pd->x = (Qpnta_t)xvec[3];
+    pd->y = (Qpnta_t)yvec[3];
 
     return p;
 }
