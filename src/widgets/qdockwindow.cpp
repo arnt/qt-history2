@@ -999,6 +999,7 @@ void QDockWindow::init()
     // Set up the initial handle layout for Vertical
     // Handle layout will change on calls to setOrienation()
     QGridLayout *glayout = new QGridLayout( this, 3, 3 );
+    glayout->setResizeMode( QLayout::Minimum );
     glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
     glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
     glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
