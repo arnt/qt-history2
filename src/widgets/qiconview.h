@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#55 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#56 $
 **
 ** Definition of QIconView widget class
 **
@@ -260,7 +260,7 @@ public:
     enum SelectionMode {
 	Single = 0,
 	Multi,
-	StrictMulti
+	Extended
     };
     enum AlignMode {
 	East = 0,
@@ -345,7 +345,7 @@ public:
 
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
-    
+
     bool eventFilter( QObject * o, QEvent * );
 
     QSize minimumSizeHint() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#328 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#329 $
 **
 ** Implementation of QListView widget class
 **
@@ -145,7 +145,7 @@ struct QListViewPrivate
     QPtrDict<void> * dirtyItems;
 
     QListView::SelectionMode selectionMode;
-    
+
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
     // TRUE if the widget should ignore a double-click
@@ -1592,7 +1592,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->dirtyItemTimer = new QTimer( this );
     d->visibleTimer = new QTimer( this );
     d->margin = 1;
-    d->selectionMode = QListView::SingleSelection;
+    d->selectionMode = QListView::Single;
     d->sortcolumn = 0;
     d->ascending = TRUE;
     d->allColumnsShowFocus = FALSE;
@@ -2857,12 +2857,13 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     QListViewItem *oldCurrent = currentItem();
     setCurrentItem( i );
-
-
+    
     if ( i->isSelectable() ) {
-	if ( selectionMode() != MultiSelection  )
+	if ( selectionMode() == Single )
+	    setSelected( i, TRUE );
+	else if ( selectionMode() == Multi  )
 	    setSelected( i, d->select );
-	else if ( selectionMode() == StrictMultiSelection ) {
+	else if ( selectionMode() == Extended ) {
 	    if ( !( ( e->state() & ControlButton ) ||
 		 ( e->state() & ShiftButton ) ) ) {
 		clearSelection();
@@ -3342,7 +3343,7 @@ int QListView::itemPos( const QListViewItem * item )
   and to single-selection mode if \a enable is FALSE.
 
   If you enable multi-selection mode, it's possible to specify
-  if this mode should be \a strict or not. Strict means, that the
+  if this mode should be \a extended or not. Extended means, that the
   user can only select multiple items when pressing the Shift
   or Control button at the same time.
 
@@ -3352,9 +3353,9 @@ int QListView::itemPos( const QListViewItem * item )
 void QListView::setMultiSelection( bool enable )
 {
     if ( !enable )
-	d->selectionMode = QListView::SingleSelection;
+	d->selectionMode = QListView::Single;
     else if ( !isMultiSelection() )
-	d->selectionMode = QListView::MultiSelection;
+	d->selectionMode = QListView::Multi;
 }
 
 
@@ -3367,7 +3368,7 @@ void QListView::setMultiSelection( bool enable )
 
 bool QListView::isMultiSelection() const
 {
-    return d->selectionMode != QListView::SingleSelection;;
+    return d->selectionMode != QListView::Single;
 }
 
 /*
@@ -3379,8 +3380,8 @@ bool QListView::isMultiSelection() const
  */
 void QListView::setSelectionMode( SelectionMode mode )
 {
-    d->selectionMode = mode;
     setMultiSelection( isMultiSelection() );
+    d->selectionMode = mode;
 }
 
 /*!

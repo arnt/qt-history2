@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#125 $
 **
 ** Definition of QIconView widget class
 **
@@ -930,7 +930,7 @@ int QIconViewItem::index() const
   If \a s is FALSE, the item gets unselected. If \a s is TRUE
   <li> and QIconView::selectionMode is Single, the item gets selected and the
   item which was selected, gets unselected
-  <li> and QIconView::selectionMode is StrictMulti and \a cb is TRUE, the
+  <li> and QIconView::selectionMode is Extended and \a cb is TRUE, the
   item gets selected
   <li> and QIconView::selectionMode is Multi the item gets selected.
 
@@ -945,7 +945,7 @@ void QIconViewItem::setSelected( bool s, bool cb )
 	else {
 	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem )
 		view->d->currentItem->setSelected( FALSE );
-	    else if ( view->d->selectionMode == QIconView::StrictMulti && !cb )
+	    else if ( view->d->selectionMode == QIconView::Extended && !cb )
 		view->selectAll( FALSE );
 	}
 	selected = s;
@@ -1613,7 +1613,7 @@ void QIconViewItem::setIconRect( const QRect &r )
   <ul>
   <li>\c Single (only one item can be selected)
   <li>\c Multi (multiple items can be selected)
-  <li>\c StrictMulti (multiple items can be selected, but only if the user pressed CTRL while selecting them)
+  <li>\c Extended (multiple items can be selected, but only if the user pressed CTRL while selecting them)
   </ul>
 */
 
@@ -1970,7 +1970,7 @@ void QIconView::removeItem( QIconViewItem *item )
 	return;
 
     QRect r = item->rect();
-    
+
     if ( item == d->firstItem ) {
 	d->firstItem = d->firstItem->next;
 	if ( d->firstItem )
@@ -1991,7 +1991,7 @@ void QIconView::removeItem( QIconViewItem *item )
     }
 
     repaintContents( r.x(), r.y(), r.width(), r.height(), TRUE );
-    
+
     d->count--;
 }
 
@@ -2078,7 +2078,7 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     emit currentChanged();
     emit currentChanged( d->currentItem );
     emitNewSelectionNumber();
-    
+
     if ( old )
 	repaintItem( old );
     repaintItem( d->currentItem );
@@ -2288,7 +2288,7 @@ void QIconView::showEvent( QShowEvent * )
   Sets the selection mode of the iconview to \a m. This can be
   <li>Single (only one item can be selected)
   <li>Multi (multiple items can be selected)
-  <li>StrictMulti (multiple items can be selected, but only if the user pressed
+  <li>Extended (multiple items can be selected, but only if the user pressed
   CTRL while selecting them)
 */
 
@@ -2893,7 +2893,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    d->rubber = 0;
 	    d->rubber = new QRect( e->x(), e->y(), 0, 0 );
 
-	    if ( d->selectionMode == StrictMulti && !( e->state() & ControlButton ) )
+	    if ( d->selectionMode == Extended && !( e->state() & ControlButton ) )
 		selectAll( FALSE );
 	}
 
@@ -3479,7 +3479,7 @@ void QIconView::focusInEvent( QFocusEvent * )
 {
     if ( d->currentItem )
 	repaintItem( d->currentItem );
-    else 
+    else
 	setCurrentItem( d->firstItem );
 }
 
