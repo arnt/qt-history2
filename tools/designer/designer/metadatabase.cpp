@@ -1120,6 +1120,8 @@ bool MetaDataBase::hasEditor()
 static QString make_pretty( const QString &s )
 {
     QString res = s;
+    if ( res.find( ")" ) - res.find( "(" ) == 1 )
+	return res;
     res.replace( QRegExp( "[(]" ), "( " );
     res.replace( QRegExp( "[)]" ), " )" );
     res.replace( QRegExp( "&" ), " &" );

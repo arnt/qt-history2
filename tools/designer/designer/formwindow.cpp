@@ -113,6 +113,10 @@ FormWindow::FormWindow( MainWindow *mw, QWidget *parent, const char *name )
       commands( 100 ), pixInline( TRUE )
 {
     init();
+    MetaDataBase::addEntry( this );
+    if ( !MetaDataBase::hasSlot( this, "init()" ) ) {
+	MetaDataBase::addSlot( this, "init()", "protected", mainWindow()->currProject()->language() );
+    }
 }
 
 FormWindow::FormWindow( QWidget *parent, const char *name )
