@@ -22,6 +22,7 @@
 #ifdef Q_OS_UNIX
 # include <sys/ioctl.h>
 # include <stdio.h>
+# include <termio.h>
 #endif
 
 int
