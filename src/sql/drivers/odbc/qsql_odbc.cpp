@@ -429,6 +429,20 @@ bool QODBCResult::fetch(int i)
     return TRUE;
 }
 
+bool QODBCResult::fetchNext()
+{
+    SQLRETURN r;
+    fieldCache.clear();
+    nullCache.clear();
+    r = SQLFetchScroll( d->hStmt,
+		       SQL_FETCH_NEXT,
+		       0 );
+    if ( r != SQL_SUCCESS )
+	return FALSE;
+    setAt( at() + 1 );
+    return TRUE;
+}
+
 bool QODBCResult::fetchFirst()
 {
     if ( isForwardOnly() && at() != QSql::BeforeFirst )

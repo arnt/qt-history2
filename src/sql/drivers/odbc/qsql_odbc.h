@@ -72,6 +72,7 @@ public:
     SQLHANDLE   statement();
 
 protected:
+    bool	fetchNext();
     bool	fetchFirst();
     bool	fetchLast();
     bool	fetchNext();
