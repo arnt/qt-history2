@@ -1076,26 +1076,28 @@ void DockWidgetCommand::init(QDockWidget *dockWidget)
     m_dockWidget = dockWidget;
 }
 
-// ---- SetDockWidgetWidgetCommand ----
-SetDockWidgetWidgetCommand::SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow)
+// ---- SetDockWidgetCommand ----
+SetDockWidgetCommand::SetDockWidgetCommand(AbstractFormWindow *formWindow)
     : DockWidgetCommand(tr("Set Dock Window Widget"), formWindow)
 {
 }
 
-void SetDockWidgetWidgetCommand::init(QDockWidget *dockWidget, QWidget *widget)
+void SetDockWidgetCommand::init(QDockWidget *dockWidget, QWidget *widget)
 {
     DockWidgetCommand::init(dockWidget);
     m_widget = widget;
     m_oldWidget = dockWidget->widget();
 }
 
-void SetDockWidgetWidgetCommand::undo()
+void SetDockWidgetCommand::undo()
 {
     m_dockWidget->setWidget(m_oldWidget);
 }
 
-void SetDockWidgetWidgetCommand::redo()
+void SetDockWidgetCommand::redo()
 {
+    formWindow()->unmanageWidget(m_widget);
+    formWindow()->core()->metaDataBase()->add(m_widget);
     m_dockWidget->setWidget(m_widget);
 }
 

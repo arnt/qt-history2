@@ -504,11 +504,11 @@ protected:
     QPointer<QDockWidget> m_dockWidget;
 };
 
-class QT_SHARED_EXPORT SetDockWidgetWidgetCommand: public DockWidgetCommand
+class QT_SHARED_EXPORT SetDockWidgetCommand: public DockWidgetCommand
 {
     Q_OBJECT
 public:
-    SetDockWidgetWidgetCommand(AbstractFormWindow *formWindow);
+    SetDockWidgetCommand(AbstractFormWindow *formWindow);
 
     void init(QDockWidget *dockWidget, QWidget *widget);
 

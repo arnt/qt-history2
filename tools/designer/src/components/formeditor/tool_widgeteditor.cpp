@@ -99,58 +99,37 @@ bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEve
 
 bool WidgetEditorTool::handleContextMenu(QWidget *widget, QWidget *managedWidget, QContextMenuEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleContextMenu(managedWidget, e);
-    return true;
+    return m_formWindow->handleContextMenu(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleMouseButtonDblClickEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleMouseButtonDblClickEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleMouseButtonDblClickEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleMousePressEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleMousePressEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleMouseMoveEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleMouseMoveEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleMouseMoveEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleMouseReleaseEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleMouseReleaseEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleMouseReleaseEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleKeyPressEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleKeyPressEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e)
 {
-    Q_UNUSED(widget);
-
-    m_formWindow->handleKeyReleaseEvent(managedWidget, e);
-    return true;
+    return m_formWindow->handleKeyReleaseEvent(widget, managedWidget, e);
 }
 
 bool WidgetEditorTool::handlePaintEvent(QWidget *widget, QWidget *managedWidget, QPaintEvent *e)

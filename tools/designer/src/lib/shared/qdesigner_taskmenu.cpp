@@ -126,7 +126,7 @@ void QDesignerTaskMenu::createDockWidget()
     reparentCmd->init(widget(), dockWidget);
     formWindow->commandHistory()->push(reparentCmd);
 
-    SetDockWidgetWidgetCommand *setDockWidgetCmd = new SetDockWidgetWidgetCommand(formWindow);
+    SetDockWidgetCommand *setDockWidgetCmd = new SetDockWidgetCommand(formWindow);
     setDockWidgetCmd->init(dockWidget, m_widget);
     formWindow->commandHistory()->push(setDockWidgetCmd);
 

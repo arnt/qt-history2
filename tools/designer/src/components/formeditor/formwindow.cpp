@@ -293,17 +293,6 @@ void FormWindow::setMainContainer(QWidget *w)
     emit mainContainerChanged(m_mainContainer);
 }
 
-void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
-{
-    static_cast<FriendlyWidget*>(w)->paintEvent(e);
-    QAbstractButton *btn = qobject_cast<QAbstractButton*>(w);
-    if (btn && qobject_cast<QGroupBox*>(w->parentWidget()) != 0) {
-        QPainter p(btn);
-        p.setBrush(Qt::red);
-        p.drawEllipse(btn->width() - 12, 2, 10, 5);
-    }
-}
-
 QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 {
     Q_ASSERT(widget);
@@ -318,66 +307,68 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
     return mainContainer();
 }
 
-void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
+bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
 
     if (e->buttons() != Qt::LeftButton)
-        return;
+        return true;
 
-    bool inLayout = LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout;
+    bool inLayout = LayoutInfo::layoutType(m_core, managedWidget->parentWidget()) != LayoutInfo::NoLayout;
     // ### && w->parentWidget() is managed?
 
     // if the dragged widget is not in a layout, raise it
     if (inLayout == false)
-        w->raise();
+        managedWidget->raise();
 
     startPos = mapFromGlobal(e->globalPos());
 
-    if (isMainContainer(w) == true) { // press was on the formwindow
+    if (isMainContainer(managedWidget) == true) { // press was on the formwindow
         clearSelection(true);
 
         drawRubber = true;
         currRect = QRect();
         startRectDraw(e->globalPos(), this, Rubber);
-        return;
+        return true;
     }
 
-    bool selected = isWidgetSelected(w);
+    bool selected = isWidgetSelected(managedWidget);
 
     if (e->modifiers() & Qt::ShiftModifier) {
         // shift-click - toggle selection state of widget
-        selectWidget(w, !selected);
-        return;
+        selectWidget(managedWidget, !selected);
+        return true;
     }
 
     bool blocked = blockSelectionChanged(true);
 
     if (selected == true && inLayout == true) {
         // select the direct parent
-        selectWidget(w->parentWidget());
+        selectWidget(managedWidget->parentWidget());
     }
 
     if (selected == false) {
         clearSelection(false);
     }
 
-    raiseChildSelections(w);
-    selectWidget(w);
+    raiseChildSelections(managedWidget);
+    selectWidget(managedWidget);
 
     blockSelectionChanged(blocked);
+
+    return true;
 }
 
-void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
 
     if (e->buttons() != Qt::LeftButton)
-        return;
+        return true;
 
     if (drawRubber == true) {
         continueRectDraw(e->globalPos(), this, Rubber);
-        return;
+        return true;
     }
 
     QPoint pos = mapFromGlobal(e->globalPos());
@@ -385,13 +376,13 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
     if (canStartDrag == false) {
         // nothing to do
-        return;
+        return true;
     }
 
     bool blocked = blockSelectionChanged(true);
 
     // if widget is laid out, find the first non-laid out super-widget
-    QWidget *current = w;
+    QWidget *current = managedWidget;
     while (QWidget *p = current->parentWidget()) {
         bool managed = isManaged(current);
         bool parentLaidout = LayoutInfo::layoutType(m_core, p) != LayoutInfo::NoLayout;
@@ -406,7 +397,7 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
     QDesignerResource builder(this);
 
-    QList<QWidget*> sel = checkSelectionsForMove(w);
+    QList<QWidget*> sel = checkSelectionsForMove(managedWidget);
 
     QList<AbstractDnDItem*> item_list;
     foreach (QWidget *widget, sel) {
@@ -430,9 +421,11 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
     blockSelectionChanged(blocked);
 
     emitSelectionChanged(); // ensure the selection is updated!
+
+    return true;
 }
 
-void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
+bool FormWindow::handleMouseReleaseEvent(QWidget *, QWidget *, QMouseEvent *e)
 {
     e->accept();
 
@@ -447,6 +440,8 @@ void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
     }
 
     emitSelectionChanged(); // inform about selection changes
+
+    return true;
 }
 
 void FormWindow::checkPreviewGeometry(QRect &r)
@@ -795,24 +790,6 @@ void FormWindow::raiseChildSelections(QWidget *w)
     }
 }
 
-bool FormWindow::allowMove(QWidget *w)
-{
-    if (!hasFeature(EditFeature))
-        return false;
-
-    w = w->parentWidget();
-    while (w) {
-        bool valid = isMainContainer(w) || isManaged(w);
-
-        if (valid && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout)
-            return true;
-
-        w = w->parentWidget();
-    }
-
-    return false;
-}
-
 QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
 {
     QWidget *container = 0;
@@ -925,10 +902,8 @@ void FormWindow::selectWidgets()
     emitSelectionChanged();
 }
 
-void FormWindow::handleKeyPressEvent(QWidget *w, QKeyEvent *e)
+bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
 {
-    Q_UNUSED(w);
-
     e->accept(); // we always accept!
 
     switch (e->key()) {
@@ -942,12 +917,14 @@ void FormWindow::handleKeyPressEvent(QWidget *w, QKeyEvent *e)
             cursor()->movePosition(AbstractFormWindowCursor::Right);
             break;
     }
+
+    return true;
 }
 
-void FormWindow::handleKeyReleaseEvent(QWidget *w, QKeyEvent *e)
+bool FormWindow::handleKeyReleaseEvent(QWidget *, QWidget *, QKeyEvent *e)
 {
-    Q_UNUSED(w);
     e->accept();
+    return true;
 }
 
 void FormWindow::selectAll()
@@ -1273,11 +1250,12 @@ void FormWindow::lowerWidgets()
     endCommand();
 }
 
-void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent *e)
+bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
 
-    emit activated(w);
+    emit activated(managedWidget);
+    return true;
 }
 
 void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e)
@@ -1302,28 +1280,32 @@ void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenu
 }
 
 
-void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
+bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMenuEvent *e)
 {
-    if (!isMainContainer(w)) { // press on a child widget
-        bool selected = isWidgetSelected(w);
+    e->accept();
+
+    if (!isMainContainer(managedWidget)) { // press on a child widget
+        bool selected = isWidgetSelected(managedWidget);
         if (selected == false) {
             clearSelection(false);
         }
 
-        raiseChildSelections(w); // raise selections and select widget
-        selectWidget(w);
+        raiseChildSelections(managedWidget); // raise selections and select widget
+        selectWidget(managedWidget);
 
         // if widget is laid out, find the first non-laid out super-widget
-        QWidget *realWidget = w; // but store the original one
+        QWidget *realWidget = managedWidget; // but store the original one
 
         if (qobject_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
-            finishContextMenu(w, this, e);
+            finishContextMenu(managedWidget, this, e);
         } else {
             finishContextMenu(realWidget, realWidget, e);
         }
     } else {
         finishContextMenu(this, this, e);
     }
+
+    return true;
 }
 
 void FormWindow::setContents(QIODevice *dev)

@@ -245,7 +245,6 @@ private:
     void continueRectDraw(const QPoint &global, QWidget *, RectType t);
     void endRectDraw();
 
-    bool allowMove(QWidget *w);
     QWidget *containerAt(const QPoint &pos, QWidget *notParentOf);
 
     QList<QWidget*> checkSelectionsForMove(QWidget *w);
@@ -253,14 +252,14 @@ private:
     void checkPreviewGeometry(QRect &r);
 
     void finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e);
-    void handleContextMenu(QWidget *w, QContextMenuEvent *e);
-    void handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent *e);
-    void handleMousePressEvent(QWidget *w, QMouseEvent *e);
-    void handleMouseMoveEvent(QWidget *w, QMouseEvent *e);
-    void handleMouseReleaseEvent(QWidget *w, QMouseEvent *e);
-    void handleKeyPressEvent(QWidget *w, QKeyEvent *e);
-    void handleKeyReleaseEvent(QWidget *w, QKeyEvent *e);
-    void handlePaintEvent(QWidget *w, QPaintEvent *e);
+
+    bool handleContextMenu(QWidget *widget, QWidget *managedWidget, QContextMenuEvent *e);
+    bool handleMouseButtonDblClickEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e);
+    bool handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e);
+    bool handleMouseMoveEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e);
+    bool handleMouseReleaseEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e);
+    bool handleKeyPressEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e);
+    bool handleKeyReleaseEvent(QWidget *widget, QWidget *managedWidget, QKeyEvent *e);
 
     bool isCentralWidget(QWidget *w) const;
     QWidget *designerWidget(QWidget *w) const;
