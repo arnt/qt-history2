@@ -1830,6 +1830,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
 	    } else if ( retoff ) {
 		objects = new QUObject[1];
+		objects[0].payload.ptr = 0;
 	    }
 
 	    // call the slot if everthing went fine.
@@ -1838,14 +1839,16 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 		// update reference parameters and value
 		for ( int p = 0; p < pcount; ++p ) {
-		    if ( params[p+ retoff ? 1 : 0].inOut & QUParameter::Out )
-			if ( !QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], params+p+1 ) )
+		    const QUParameter *param = params + p + (retoff ? 1 : 0 );
+		    if ( param->inOut & QUParameter::Out ) {
+			if ( !QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], param ) )
 			    ok = FALSE;
-		    objects[p+1].type->clear( objects + p + 1 );
+		    }
+		    clearQUObject( objects+p+1, param );
 		}
 		if ( retoff ) {
 		    QUObjectToVARIANT( objects, *pvarResult, params );
-		    objects->type->clear( objects );
+		    clearQUObject( objects, params );
 		}
 	    }
 

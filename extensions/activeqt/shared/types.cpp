@@ -809,10 +809,10 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	static_QUType_ptr.set( &obj, new QPixmap( var.toPixmap() ) );
 	break;
     case QVariant::Date:
-	static_QUType_ptr.set( &obj, new QDateTime( var.toDate() ) );
+	static_QUType_ptr.set( &obj, new QDate( var.toDate() ) );
 	break;
     case QVariant::Time:
-	static_QUType_ptr.set( &obj, new QDateTime( QDate(), var.toTime() ) );
+	static_QUType_ptr.set( &obj, new QTime( var.toTime() ) );
 	break;
     case QVariant::DateTime:
 	static_QUType_ptr.set( &obj, new QDateTime( var.toDateTime() ) );
@@ -1011,4 +1011,56 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	makeReference( arg );
 
     return TRUE;
+}
+
+void clearQUObject( QUObject *obj, const QUParameter *param )
+{
+    if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	obj->type->clear( obj );
+    } else {
+	const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	void *ptrvalue = static_QUType_varptr.get( obj );
+	switch( vartype ) {
+	case QVariant::Bool:
+	    delete (bool*)ptrvalue;
+	    break;
+	case QVariant::Int:
+	    delete (int*)ptrvalue;
+	    break;
+	case QVariant::UInt:
+	    delete (uint*)ptrvalue;
+	    break;
+	case QVariant::Double:
+	    delete (double*)ptrvalue;
+	    break;
+	case QVariant::String:
+	    delete (QString*)ptrvalue;
+	    break;
+	case QVariant::CString:
+	    delete (QCString*)ptrvalue;
+	    break;
+	case QVariant::Color:
+	    delete (QColor*)ptrvalue;
+	    break;
+	case QVariant::Date:
+	    delete (QDate*)ptrvalue;
+	    break;
+	case QVariant::Time:
+	    delete (QTime*)ptrvalue;
+	    break;
+	case QVariant::DateTime:
+	    delete (QDateTime*)ptrvalue;
+	    break;
+	case QVariant::Pixmap:
+	    delete (QPixmap*)ptrvalue;
+	    break;
+	case QVariant::Font:
+	    delete (QFont*)ptrvalue;
+	    break;
+	case QVariant::List:
+	    delete (QValueList<QVariant>*)ptrvalue;
+	    break;
+	}
+	obj->payload.ptr = 0;
+    }
 }

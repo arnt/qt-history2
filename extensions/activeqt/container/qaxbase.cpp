@@ -253,18 +253,18 @@ public:
 	    // emit the generated signal
 	    bool ret = combase->qt_emit( index, objects );
 
-	    for ( p = 0; p < pcount; ++p ) { // update the VARIANT for references and free memory
+	    // update the VARIANT for references and free memory
+	    for ( p = 0; p < pcount; ++p ) { 
 		const QUParameter *param = params+p;
 		if ( param->inOut & QUParameter::Out ) {
 		    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
 		    QUObject *obj = objects + p + 1;
 		    QUObjectToVARIANT( obj, *arg, param );
 		}
+		clearQUObject( objects+p+1, param );
 	    }
-	    // cleanup
-	    for ( p = 0; p < pcount; ++p )
-		objects[p].type->clear(objects+p);
 	    delete [] objects;
+
 	    return ret ? S_OK : DISP_E_MEMBERNOTFOUND;
 	} else {
 	    return S_OK;
@@ -319,7 +319,7 @@ public:
 
 	    // emit the "changed" signal
 	    combase->qt_emit( index, o );
-	    o[1].type->clear(o+1);
+	    clearQUObject( o+1, signal->method->parameters );
 	}
 	return S_OK;
     }

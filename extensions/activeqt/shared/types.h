@@ -94,4 +94,6 @@ extern bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUPara
 extern bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param );
 extern bool QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
 
+extern void clearQUObject( QUObject *obj, const QUParameter *param );
+
 #endif //TYPES_H
