@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#71 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#70 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#71 $")
 
 
 /*****************************************************************************
@@ -63,9 +63,9 @@ bool qt_create_mitshm_buffer( int w, int h )
     static int major, minor;
     static Bool pixmaps_ok;
     Display *dpy = qt_xdisplay();
-    int scr 	 = qt_xscreen();
+    int scr	 = qt_xscreen();
     int dd	 = DefaultDepth(dpy,scr);
-    Visual *vis  = DefaultVisual(dpy,scr);
+    Visual *vis	 = DefaultVisual(dpy,scr);
 
     if ( xshminit ) {
 	qt_cleanup_mitshm();
@@ -100,7 +100,6 @@ bool qt_create_mitshm_buffer( int w, int h )
 	if ( xshminfo.shmid != -1 )
 	    shmctl( xshminfo.shmid, IPC_RMID, 0 );
 	return FALSE;
-	    
     }
     if ( pixmaps_ok )
 	xshmpm = XShmCreatePixmap( dpy, DefaultRootWindow(dpy), xshmimg->data,
@@ -243,7 +242,7 @@ QPixmap::QPixmap( const QSize &size, int depth )
   This constructor is protected and used by the QBitmap class.
  ----------------------------------------------------------------------------*/
 
-QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
+QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
     init( 0, 0, 0 );
@@ -256,10 +255,11 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     if ( isXbitmap )
 	flipped_bits = 0;
     else {					// not X bitmap -> flip bits
-	flipped_bits = flip_bits( (uchar *)bits, ((w+7)/8)*h );
-	bits = (const char *)flipped_bits;
+	flipped_bits = flip_bits( bits, ((w+7)/8)*h );
+	bits = flipped_bits;
     }
-    hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
+    hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy),
+				(char *)bits, w, h );
     delete [] flipped_bits;
 }
 
@@ -270,10 +270,15 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
 QPixmap::QPixmap( const QPixmap &pixmap )
     : QPaintDevice( PDT_PIXMAP )
 {
-    data = pixmap.data;
-    data->ref();
-    devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    hd = pixmap.hd;				// copy QPaintDevice drawable
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	data = 0;
+	operator=( pixmap );
+    } else {
+	data = pixmap.data;
+	data->ref();
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+	hd = pixmap.hd;				// copy QPaintDevice drawable
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -301,8 +306,14 @@ QPixmap::~QPixmap()
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
+    if ( paintingActive() ) {
+#if defined(CHECK_STATE)
+	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
+#endif
+	return;
+    }
     pixmap.data->ref();				// avoid 'x = x'
-    if ( data->deref() ) {			// last reference lost
+    if ( data && data->deref() ) {		// last reference lost
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->ximage )
@@ -311,9 +322,24 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	    XFreePixmap( dpy, hd );
 	delete data;
     }
-    data = pixmap.data;
-    devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    hd = pixmap.hd;				// copy QPaintDevice drawable
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	init( pixmap.width(), pixmap.height(), pixmap.depth() );
+	data->dirty  = FALSE;
+	data->uninit = FALSE;
+	data->optim  = pixmap.data->optim;	// copy optim flag
+	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
+	if ( !isNull() ) {
+	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
+		    CopyROP, TRUE );
+	    if ( pixmap.mask() )
+		setMask( *pixmap.mask() );
+	}
+	pixmap.data->deref();
+    } else {
+	data = pixmap.data;
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+	hd = pixmap.hd;				// copy QPaintDevice drawable
+    }
     return *this;
 }
 
@@ -334,6 +360,8 @@ int QPixmap::defaultDepth()
 
 
 /*----------------------------------------------------------------------------
+  \fn bool QPixmap::isOptimized() const
+
   Returns the optimization flag for the pixmap.
 
   The optimization flag is initially set to the global pixmap optimization
@@ -341,11 +369,6 @@ int QPixmap::defaultDepth()
 
   \sa optimize(), optimizeGlobally(), isGloballyOptimized()
  ----------------------------------------------------------------------------*/
-
-bool QPixmap::isOptimized() const
-{
-    return data->optim;
-}
 
 /*----------------------------------------------------------------------------
   Enables pixmap optimization if \e enable is TRUE, or disables
@@ -940,11 +963,11 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<image.numColors(); i++ ) {	// compute number of colors
+	for ( i=0; i<image.numColors(); i++ ) { // compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
-	for ( i=image.numColors(); i<256; i++ )	// ignore out-of-range pixels
+	for ( i=image.numColors(); i<256; i++ ) // ignore out-of-range pixels
 	    pop[i] = 0;
 
 	PIX *pixarr	   = new PIX[ncols];	// pixel array

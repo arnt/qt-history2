@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#25 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#25 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -103,10 +103,10 @@ QPixmap::QPixmap( const QSize &size, int depth )
     init( size.width(), size.height(), depth );
 }
 
-QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
+QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
-    extern char *qt_get_bitflip_array();	// defined in qimage.cpp
+    extern uchar *qt_get_bitflip_array();	// defined in qimage.cpp
     init( 0, 0, 0 );
     if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
@@ -115,39 +115,26 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     data->w = w;  data->h = h;	data->d = 1;
 
     int bitsbpl = (w+7)/8;			// original # bytes per line
-    int bpl	= ((w+15)/16)*2;		// 16-bit aligned bpl
-    int nbytes	= bpl*h;
-    char *newbits = new char[nbytes];
-    char *p	= newbits;
+    int bpl	= ((w+15)/16)*2;		// bytes per scanline
+    uchar *newbits = new uchar[bpl*h];
+    uchar *p	= newbits;
     int x, y, pad;
     pad = bpl - bitsbpl;
     if ( isXbitmap ) {				// flip and invert
-	char *f = qt_get_bitflip_array();
-	if ( pad == 0 ) {
-	    while ( nbytes-- )
+	uchar *f = qt_get_bitflip_array();
+	for ( y=0; y<h; y++ ) {
+	    for ( x=0; x<bitsbpl; x++ )
 		*p++ = ~f[*bits++];
-	}
-	else {
-	    for ( y=0; y<h; y++ ) {
-		for ( x=0; x<bitsbpl; x++ )
-		    *p++ = ~f[*bits++];
-		for ( x=0; x<pad; x++ )
-		    *p++ = 0;
-	    }
+	    for ( x=0; x<pad; x++ )
+		*p++ = 0;
 	}
     }
     else {					// invert all bits
-	if ( pad == 0 ) {
-	    while ( nbytes-- )
+	for ( y=0; y<h; y++ ) {
+	    for ( x=0; x<bitsbpl; x++ )
 		*p++ = ~(*bits++);
-	}
-	else {
-	    for ( y=0; y<h; y++ ) {
-		for ( x=0; x<bitsbpl; x++ )
-		    *p++ = ~(*bits++);
-		for ( x=0; x<pad; x++ )
-		    *p++ = 0;
-	    }
+	    for ( x=0; x<pad; x++ )
+		*p++ = 0;
 	}
     }
     data->hbm = CreateBitmap( w, h, 1, 1, newbits );
@@ -159,10 +146,15 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
 QPixmap::QPixmap( const QPixmap &pixmap )
     : QPaintDevice( PDT_PIXMAP )
 {
-    data = pixmap.data;
-    data->ref();
-    devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    hdc = pixmap.hdc;				// copy QPaintDevice hdc
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	data = 0;
+	operator=( pixmap );
+    } else {
+	data = pixmap.data;
+	data->ref();
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+	hdc = pixmap.hdc;			// copy QPaintDevice hdc
+    }
 }
 
 QPixmap::~QPixmap()
@@ -204,8 +196,14 @@ void QPixmap::freeMemDC()
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
+    if ( paintingActive() ) {
+#if defined(CHECK_STATE)
+	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
+#endif
+	return;
+    }
     pixmap.data->ref();				// avoid 'x = x'
-    if ( data->deref() ) {			// last reference lost
+    if ( data && data->deref() ) {		// last reference lost
 	freeMemDC();
 	if ( data->mask )
 	    delete data->mask;
@@ -213,9 +211,24 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	    DeleteObject( data->hbm );
 	delete data;
     }
-    data = pixmap.data;
-    devFlags = pixmap.devFlags;			// copy QPaintDevice flags
-    hdc = pixmap.hdc;				// copy QPaintDevice drawable
+    if ( pixmap.paintingActive() ) {		// make a deep copy
+	init( pixmap.width(), pixmap.height(), pixmap.depth() );
+	data->dirty  = FALSE;
+	data->uninit = FALSE;
+	data->optim  = pixmap.data->optim;	// copy optim flag
+	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
+	if ( !isNull() ) {
+	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
+		    CopyROP, TRUE );
+	    if ( pixmap.mask() )
+		setMask( *pixmap.mask() );
+	}
+	pixmap.data->deref();
+    } else {
+	data = pixmap.data;
+	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
+	hdc = pixmap.hdc;			// copy QPaintDevice drawable
+    }
     return *this;
 }
 
@@ -231,11 +244,6 @@ int QPixmap::defaultDepth()
     return dd;
 }
 
-
-bool QPixmap::isOptimized() const
-{
-    return data->optim;
-}
 
 void QPixmap::optimize( bool enable )
 {
@@ -382,7 +390,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-extern bool qt_image_did_turn_scanlines();	// defined in qpixmap.cpp
+extern bool qt_image_did_native_bmp();		// defined in qpixmap.cpp
 
 
 bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
@@ -433,7 +441,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     if ( pm.data->optim )
 	tmp_dc = FALSE;				// don't do pm.freeMemDC()
 
-    bool turn = qt_image_did_turn_scanlines();
+    bool native = qt_image_did_native_bmp();
 
     int	  ncols	   = image.numColors();
     char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(ulong)*ncols];
@@ -441,7 +449,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    bmh->biHeight	  = turn ? h : -h;
+    bmh->biHeight	  = native ? -h : h;
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
@@ -460,8 +468,30 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	r->rgbReserved = 0;
     }
 
+    uchar *bits = image.bits();
+    if ( image.depth() == 24 && !native ) {
+	ASSERT( ncols == 0 );
+	bits = new uchar[image.numBytes()];
+	int bpl = image.bytesPerLine();
+	for ( int y=0; y<image.height(); y++ ) {
+	    uchar *b = image.scanLine( y );
+	    uchar *p = bits + y*bpl;
+	    uchar *end = p + image.width()*3;
+	    while ( p < end ) {
+		*p++ = b[2];
+		*p++ = b[1];
+		*p++ = b[0];
+		b += 3;
+	    }
+
+	}
+    }
+
     SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
-		       image.bits(), bmi, DIB_RGB_COLORS );
+		       bits, bmi, DIB_RGB_COLORS );
+
+    if ( bits != image.bits() )
+	delete [] bits;
     delete [] bmi_data;
 
     pm.data->uninit = FALSE;
