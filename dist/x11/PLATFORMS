@@ -6,7 +6,7 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   linux-g++
-  freebsd-g++ 
+  freebsd-g++
 
 Compilation problems:
 
@@ -23,3 +23,14 @@ Customization:
   You can create your own custom configuration by adding new files
   to the mkspecs directory.  Use existing similar configurations
   as a starting point.
+
+
+Note regarding accelerated XRender support:
+
+Users that have an accelerated XRender extension should add the
+following section to their ~/.settings/trolltech.com/Qt.conf file:
+
+[General]
+hasAcceleratedXrender=true
+
+This should improve the accelerated XRender performance noticeably.
