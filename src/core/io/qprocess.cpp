@@ -35,40 +35,44 @@
     \ingroup misc
     \mainclass
 
-    The QProcess API allows you to treat a process as a sequential I/O
-    device.  You can write to and read from the process, just as you
-    would access a network connection. Because it inherits QIODevice,
-    QProcess can also be used as an input source for QXmlReader or for
-    generating data to be uploaded using QFtp.
-
     To start a process, pass the name and command line arguments of
     the program you want to run as arguments to start(). QProcess then
-    enters the Starting state, and when the program has started,
-    QProcess enters the Running state and emits started(). You can
-    then write to the process' standard input by calling write(), and
+    enters the \l Starting state, and when the program has started,
+    QProcess enters the \l Running state and emits started().
+
+    QProcess allows you to treat a process as a sequential I/O
+    device. You can write to and read from the process just as you
+    would access a network connection using QTcpSocket. You can then
+    write to the process's standard input by calling write(), and
     read the standard output by calling read(), readLine() and
-    getChar(). Just before the process exits, QProcess enters the
-    Finishing state and emits finishing(), allowing you to read any
-    pending output from the process before the process dies. Finally,
-    QProcess reenters the initial NotRunning state and emits
-    finished(). The finished() signal provides the exit code of the
-    process as an argument, and you can also call exitCode(), which
-    returns the exit code of the last process that finished. At an
-    error occurs at any point in time, QProcess will emit the error()
-    signal. You can also call processError() to find the type of error
-    that occurred last, and processState() to find the current process
+    getChar(). Because it inherits QIODevice, QProcess can also be
+    used as an input source for QXmlReader or for generating data to
+    be uploaded using QFtp.
+
+    Just before the process exits, QProcess enters the \l Finishing
+    state and emits finishing(), allowing you to read any pending
+    output from the process before the process dies. Finally,
+    QProcess reenters the NotRunning state (the initial state) and
+    emits finished().
+
+    The finished() signal provides the exit code of the process as an
+    argument, and you can also call exitCode(), which returns the
+    exit code of the last process that finished. At an error occurs
+    at any point in time, QProcess will emit the error() signal. You
+    can also call processError() to find the type of error that
+    occurred last, and processState() to find the current process
     state.
 
-    All processes have two output channels: the standard output
-    channel, for regular console output, and the standard error
-    channel, where errors are usually printed. These channels
-    represent two separate streams of data. You can toggle between the
-    two channels by calling setInputChannel(). QProcess emits
+    Processes have two predefined output channels: the standard
+    output channel (for regular console output) and the standard
+    error channel (where errors are usually printed). These channels
+    represent two separate streams of data. You can toggle between
+    the two channels by calling setInputChannel(). QProcess emits
     readyRead() when data is available on the current input channel.
     It also emits readyReadStandardOutput() when new standard output
     data is available, and when new standard error data is available,
     readyReadStandardError() is emitted. Instead of calling read(),
-    readLine() or readChar(), you can explicitly read all data from
+    readLine(), or readChar(), you can explicitly read all data from
     either of the two channels by calling readAllStandardOutput() or
     readAllStandardError().
 
@@ -78,44 +82,47 @@
     setWorkingDirectory(). By default, processes are run in the
     current working directory of the calling process.
 
-    In addition to the standard API, QIODevice provides special
-    functions which allow it to be used without an event loop, by
-    suspending the calling thread until certain signals are emitted:
+    The QIODevice base class provides a set of functions which allow
+    it to be used without an event loop, by suspending the calling
+    thread until certain signals are emitted:
 
     \list
-    \o waitForStarted() - This function suspends operation in the calling
-    thread until the process has started.
+    \o waitForStarted() blocks until the process has started.
 
-    \o waitForReadyRead() - This function suspends operation in the
-    calling thread until new data is available for reading on the
-    current input channel.
+    \o waitForReadyRead() blocks until new data is
+    available for reading on the current input channel.
 
-    \o waitForBytesWritten() - This function suspends operation in the
-    calling thread until one payload of data has been written to the
-    process.
+    \o waitForBytesWritten() blocks until one payload of
+    data has been written to the process.
 
-    \o waitForFinished() - This function suspends operation in the calling
-    thread until the process has finished.
+    \o waitForFinished() blocks until the process has finished.
     \endlist
 
-    Calling these functions from the main, GUI thread, may cause your
-    user interface to freeze. Example:
+    Calling these functions from the main thread (the thread that
+    calls QApplication::exec()) may cause your user interface to
+    freeze.
 
+    The following example runs \c gzip to compress the string "Qt
+    rocks!", without an event loop:
+
+    \omit
+    This code doesn't work
     \code
         QProcess gzip;
         gzip.start("gzip", QStringList() << "-c");
         if (!gzip.waitForStarted())
             return false;
 
-        gzip.write("uncompressed data");
+        gzip.write("Qt rocks!");
         gzip.flush();
 
-        QByteArray compressed;
+        QByteArray result;
         while (gzip.waitForReadyRead())
-            compressed += gzip.readAll();
+            result += gzip.readAll();
     \endcode
+    \endomit
 
-    \sa QBuffer QFile QTcpSocket
+    \sa QBuffer, QFile, QTcpSocket
 */
 
 /*! \internal
@@ -427,7 +434,7 @@ Q_PID QProcess::pid() const
     return d->pid;
 }
 
-/*! \reimpl
+/*! \reimp
 
     This function operates on the current input channel.
 
@@ -452,7 +459,7 @@ void QProcess::close()
     // ### unimplemented
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QProcess::flush()
 {
@@ -466,14 +473,14 @@ bool QProcess::flush()
     return true;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QProcess::isSequential() const
 {
     return true;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 Q_LONGLONG QProcess::bytesAvailable() const
 {
@@ -491,7 +498,7 @@ Q_LONGLONG QProcess::bytesAvailable() const
 /*!
     Returns the type of error that occurred last.
 
-    \sa error(), ProcessError
+    \sa error()
 */
 QProcess::ProcessError QProcess::processError() const
 {
@@ -502,7 +509,7 @@ QProcess::ProcessError QProcess::processError() const
 /*!
     Returns the current state of the process.
 
-    \sa stateChanged(), ProcessState
+    \sa stateChanged()
 */
 QProcess::ProcessState QProcess::processState() const
 {
@@ -512,7 +519,9 @@ QProcess::ProcessState QProcess::processState() const
 
 /*!
     Sets the environment that QProcess will use when starting a
-    process.
+    process to \a environment.
+
+    \sa environment()
 */
 void QProcess::setEnvironment(const QStringList &environment)
 {
@@ -525,6 +534,8 @@ void QProcess::setEnvironment(const QStringList &environment)
     process, or an empty QStringList if no environment has been set.
     It no environment has been set, the environment of the calling
     process will be used.
+
+    \sa setEnvironment()
 */
 QStringList QProcess::environment() const
 {
@@ -562,7 +573,7 @@ bool QProcess::waitForStarted(int msecs)
     return true;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QProcess::waitForReadyRead(int msecs)
 {
@@ -599,7 +610,7 @@ bool QProcess::waitForReadyRead(int msecs)
     return false;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 bool QProcess::waitForBytesWritten(int msecs)
 {
@@ -640,7 +651,7 @@ bool QProcess::waitForFinished(int msecs)
     return d->waitForFinished(msecs);
 }
 
-/*! \reimpl
+/*! \reimp
 */
 Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
 {
@@ -671,7 +682,7 @@ Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
     return readSoFar;
 }
 
-/*! \reimpl
+/*! \reimp
 */
 Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
 {
