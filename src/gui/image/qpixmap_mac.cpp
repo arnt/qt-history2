@@ -445,11 +445,12 @@ int QPixmap::metric(int m) const
         case QPaintDeviceMetrics::PdmPhysicalDpiX:
         case QPaintDeviceMetrics::PdmDpiY:
         case QPaintDeviceMetrics::PdmPhysicalDpiY: {
-            GDHandle gd = GetGWorldDevice(static_cast<GWorldPtr>(handle()));
-            if (m == QPaintDeviceMetrics::PdmDpiX || m == QPaintDeviceMetrics::PdmPhysicalDpiX)
-                val = Fix2Long((**(**gd).gdPMap).hRes);
-            else
-                val = Fix2Long((**(**gd).gdPMap).vRes);
+            if(GDHandle gd = GetGWorldDevice(static_cast<GWorldPtr>(handle()))) {
+                if (m == QPaintDeviceMetrics::PdmDpiX || m == QPaintDeviceMetrics::PdmPhysicalDpiX)
+                    val = Fix2Long((**(**gd).gdPMap).hRes);
+                else
+                    val = Fix2Long((**(**gd).gdPMap).vRes);
+            }
             break; }
         case QPaintDeviceMetrics::PdmDepth:
             val = depth();
