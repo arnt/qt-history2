@@ -665,7 +665,7 @@ typedef int QNoImplicitIntegralCast;
 #    define QT_COMPAT_CONSTRUCTOR explicit __attribute__ ((__deprecated__))
 #  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_COMPAT __declspec(deprecated)
-#    define QT_COMPAT_CONSTRUCTOR
+#    define QT_COMPAT_CONSTRUCTOR __declspec(deprecated)
 #  else
 #    define QT_COMPAT
 #    define QT_COMPAT_CONSTRUCTOR
