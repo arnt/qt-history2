@@ -117,6 +117,11 @@ extern "C" {
 // #define QT_NO_XRENDER
 #ifndef QT_NO_XRENDER
 #  include <X11/extensions/Xrender.h>
+#if defined(RENDER_MAJOR) && RENDER_MAJOR == 0
+# if RENDER_MINOR < 5
+#  define QT_NO_XRENDER
+# endif
+#endif
 #endif // QT_NO_XRENDER
 
 // #define QT_NO_XKB
