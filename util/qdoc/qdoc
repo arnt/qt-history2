@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#51 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#52 $
 #
 # this is a massive hack, written very quickly
 #
@@ -174,14 +174,11 @@ sub processdocs {
 	$doc =~ s/\\</&lt;/gs;
 	$doc =~ s/\\>/&gt;/gs;
 
-	$contrib{$url} = $1
-	    if ($doc =~ s/\\contrib\s+(.*?)
-		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
 	$classes{$1.".html"} .= $class
-	    if ($doc =~ s/\\ingroup\s+(.*?)
+	    if ($doc =~ s/\s*\\ingroup\s+(.*?)
 		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
 	$capt{$url} = $1 
-	    if ($doc =~ s/\\capt\s+(.*?)
+	    if ($doc =~ s/\s*\\capt\s+(.*?)
 		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
 	$name{$url} = $1
 	    if ($doc =~ s/\s*\\name\s+(.*?)
@@ -271,6 +268,16 @@ sub processdocs {
 		sprintf("%s", $3);
 	    }
 	-egsx;
+
+	$doc =~ s@\bSee also:\s+(.*)\.?\n@
+	{
+	    my ($seealso);
+	    $seealso = $1;
+	    $seealso =~ s/,?\s+/, /g;
+	    $seealso =~ s/, (\S+)$/ and $1/;
+	    sprintf( "See also: %s.\n", $seealso );
+	}@es;
+	    
 
 	$brief{$url} = $1
 	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
@@ -369,7 +376,7 @@ sub manglefn {
 		(?:union\s+)|
 		(?:class\s+)|
 		(?:enum\s+)
-		)*\w+[\s\*\&]*?)\s*\b\w+\s*(?:=.*?\s*)?$/$1/gsx;
+		)*\w+[\s\*\&]*?)\s*\b[\w<>_]+\s*(?:=.*?\s*)?$/$1/gsx;
 # strip spaces around & and *
 	s/\s*([\*\&])\s*/$1/;
 # kill default and change spaces into -
@@ -441,15 +448,18 @@ sub storeclass {
 
 sub getfile {
     local($filename) = @_;
-    local($ifdef);
+    local($ifdef, @defines);
 
     open(F, "expand < $filename |") || die "can't open $filename for reading";
     $ifdef = 0;
     while(<F>) {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
-	$ifdef++ if (/^\#if/ && ($ifdef || !/_H$/)); # medium awful
+	if ( /^#if/ ) {
+	    push @defines, $ifdef;
+	    $ifdef = 1 if ( !/_H$/ && !/\bUSE_TEMPLATECLASS\)?$/ );
+	}
 	push @_,$_ unless ($ifdef);
-	$ifdef-- if ($ifdef && /^\#endif\b/); # hm, hm, *_H
+	$ifdef = pop @defines if ( /^\#endif\b/ );
     }
     close(F);
     join("", @_);
@@ -510,9 +520,10 @@ remains with Troll Tech.
     foreach $filename ( keys %examples ) {
 	my (%a, $a);
 
-	open(F, "expand < $filename |")
+	open(F, "expand < /local/qt/examples/$filename |")
 	    || die "can't open $filename for reading";
 	$htmlfilename = $filename;
+	$htmlfilename =~ s@.*/@@;
 	$htmlfilename =~ s/\.cpp/-cpp.html/;
 	open(H, "> $outputdir/$htmlfilename") 
 	    || die "can't open $outputdir/$htmlfilename for writing";
@@ -523,7 +534,6 @@ remains with Troll Tech.
 
 	while ( $h =~ m@<a href=(.*?)>(.*?)</a>@gs ) {
 	    $a{$1} = $2;
-print $htmlfilename, " X ", $1, " X ", $2, "\n";
 	}
 
 	foreach ( keys %a ) {
@@ -574,17 +584,58 @@ sub readh {
     $h =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
 
 # { is \x7b and } is \x7d
-    while ($h =~ m-\nclass\s+
-	   ([^\n]*?)\s+
+    while ($h =~ m-\n(?:template\s*<\s*class\s+(.+?)\s*>\s*)?
+	   class\s+([^\n]*?)\s+
 	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
-	&storeclass($filename, $1, $2);
+	if ( $1 eq "" ) {
+	    &storeclass($filename, $2, $3);
+	} else {
+	    my ($sig, $def, $cookie);
+	    $cookie = $1;
+	    $sig = $2;
+	    $def = $3;
+	    $sig =~ s/^(\w+)T\b/$1/s;
+	    $_ = $sig;
+	    s/[:\s].*//;
+	    $def =~ s/\b$_(?:)T\b/$_/gs;
+	    $templatecookie{&mangleclass($sig)} = $cookie;
+	    &storeclass( $filename, $sig, $def );
+	}
     }
+
+    while ($h =~ /\bdeclare\s*\(\s*(\S+?)\s*,\s*(\S+?)\s*\)\s*;
+	   \s+\#define\s+(\S+)\s+(\S+)\s*\(\s*(\S+)\s*\)\s/gsx ) {
+	   next if ( ($1 ne $4) || ($2 ne $5) );
+	   $declared{$3} = $1 . " " . $2 . " " . $filename;
+       }
+    
     $headerfiles{$filename} = $filename;
     $headerfiles{$filename} =~ s/\./-/;
     $headerfiles{$filename} =~ s/$/.html/;
 }
 
+
+
+sub templates {
+    local ($url, $_, $n, $t, $f, $i, $c);
+
+    foreach $n ( sort keys %declared ) {
+	($t, $i, $f) = split(/\s+/, $declared{$n});
+	$t =~ s/M$//; # oh no... oh well
+	$url = &mangleclass($t);
+	if (defined($templatecookie{$url}) && defined($members{$url})) {
+	    $c = $templatecookie{$url};
+	    $_ = $members{$url};
+	    s/\b$t\s*<\s*$c\s*>/$n/gs;
+	    s/\b$t(\s*\()/$n$1/gs;
+	    s/\b$c\b/$i/gs;
+	    &storeclass( $f, $n, $_ );
+	} else {
+	    print "declared $n as $t<$i> but $t is unknown\n";
+	}
+    }
+}
     
 
 
@@ -621,7 +672,7 @@ sub readc {
 	    $cfiles{$hfile} .= " " . $filename;
 	    $url = &mangleclass($class);
 	    print $class, " not in ", $hfile, "\n" 
-		unless (defined($members{$url}));
+		unless (defined($members{$url}) || defined($declared{$class}));
 	    $doc{$url} = $doc;
 	    $includefile{$url} = $hfile;
 	    $includefile{$url} =~ s/\.doc/.h/;
@@ -635,7 +686,7 @@ sub readc {
             # it's a \page
 	    $pages{$1} = $2;
 	    $anchor{$1} = $1;
-	} elsif ($doc =~ m@^\\example\s+([\w\.]+)\s+(.*?)\s*$@s) {
+	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
 	    # it's an example file
 	    $examples{$1} = $2;
 	} else {
@@ -766,6 +817,7 @@ sub makenames {
     foreach ( keys %examples ) {
 	next if (defined($anchor{$_}));
 	$dum = $_;
+	s@.*/@@;
 	s/\.cpp$/-cpp.html/;
 	$anchor{$_} = $dum;
     }
@@ -915,14 +967,9 @@ sub printout {
 	    close(O);
 	    open(O, "> $outputdir/$file") 
 		|| die "can't open $outputdir/$file ($url) for writing";
-	    print "output html file: ", $file, "\n";
 	    $cfile = $file;
 
-	    if (defined($contrib{$url})) {
-		$tail = "<hr><p>\nThis code was contributed by " . $contrib{$url} . " and neither the original code and documentation nor any subsequent modifications are covered by the normal Qt copyright statement.";
-	    } else {
-		$tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
-	    }
+	    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
 	    if (defined ($cfiles{$includefile{$url}})) {
 		my(%files);
 		$files{$includefile{$url}}++;
@@ -1243,13 +1290,20 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - example index</title></head><body>\n<h1>Qt example index</h1>\n<p>Here are the examples that are included with Qt:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit - example index</title></head><body>\n<h1>Qt example index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
+	s@.*/@@;
 	s/\.cpp$/-cpp.html/;
 	print O "<li><a href=", $_, ">", $filename, "</a>\n";
     }
-    print O "</ul>\n", $address;
+    print O 
+"</ul>
+<p>
+These paths are relative to the examples subdirectory in the Qt
+distribution. You will find Makefiles, header files and so on there.
+Only the most relevant code is here.
+", $address;
 
     close(O);
 }
@@ -1360,9 +1414,6 @@ problem, and we'll fix it before 1.0.
 	    $member = $_;
 	    $member =~ s/.*:://;
 	    print O "<li>enum <a href=", $anchor{$_}, ">", $member, "</a>\n";
-	} else {
-	    print "skipped ", $_, " -> ", $anchor{$_}, "\n"
-		unless (/-h.html$/);
 	}
     }
     close O;
@@ -1402,7 +1453,7 @@ sub makepsindex {
 umask 0111;
 $cfile = "VOLD";
 #$debug = 1;
-$internal = 1;
+# $internal = 1;
 
 $outputdir = "/local/qt/doc/html";
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
@@ -1410,6 +1461,7 @@ $address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the 
 $doctype = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
+    $hdir = ".";
     foreach $arg ( 0..$#ARGV ) {
 	&readc($ARGV[$arg]);
     }
@@ -1435,6 +1487,7 @@ if ($#ARGV > -1) {
     closedir(D);
 }
 
+&templates();
 &preprocessdocs();
 &makenames();
 &makearglinks();
