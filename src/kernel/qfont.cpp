@@ -1323,6 +1323,7 @@ QString QFont::toString() const
     QStringList l;
     l.append(family());
     l.append(QString::number(pointSize()));
+    l.append(QString::number(pixelSize()));
     l.append(QString::number((int)styleHint()));
     l.append(QString::number(weight()));
     l.append(QString::number((int)italic()));
@@ -1345,7 +1346,7 @@ bool QFont::fromString(const QString &descrip)
 {
     QStringList l(QStringList::split(',', descrip));
 
-    if (l.count() != 9) {
+    if (l.count() != 10) {
 
 #ifdef QT_CHECK_STATE
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
@@ -1356,13 +1357,14 @@ bool QFont::fromString(const QString &descrip)
 
     setFamily(l[0]);
     setPointSize(l[1].toInt());
-    setStyleHint((StyleHint) l[2].toInt());
-    setWeight(l[3].toInt());
-    setItalic(l[4].toInt());
-    setUnderline(l[5].toInt());
-    setStrikeOut(l[6].toInt());
-    setFixedPitch(l[7].toInt());
-    setRawMode(l[8].toInt());
+    setPointSize(l[2].toInt());
+    setStyleHint((StyleHint) l[3].toInt());
+    setWeight(l[4].toInt());
+    setItalic(l[5].toInt());
+    setUnderline(l[6].toInt());
+    setStrikeOut(l[7].toInt());
+    setFixedPitch(l[8].toInt());
+    setRawMode(l[9].toInt());
 
     return TRUE;
 }
@@ -1423,8 +1425,17 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	s << font.d->request.family;
     }
 
-    return s << (Q_INT16) font.d->request.pointSize
-	     << (Q_UINT8) font.d->request.styleHint
+    if ( s.version() <= 3 ) {
+	Q_INT16 pointSize = (Q_INT16) font.d->request.pointSize;
+	if ( pointSize == -1 )
+	    pointSize = (Q_INT16)QFontInfo( font ).pointSize();
+	s << pointSize;
+    } else {
+	s << (Q_INT16) font.d->request.pointSize;
+	s << (Q_INT16) font.d->request.pixelSize;
+    }
+    
+    return s << (Q_UINT8) font.d->request.styleHint
 	     << (Q_UINT8) 0
 	     << (Q_UINT8) font.d->request.weight
 	     << get_font_bits(font.d->request);
@@ -1443,7 +1454,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 
     font.d = new QFontPrivate;
 
-    Q_INT16 pointSize;
+    Q_INT16 pointSize, pixelSize = -1;
     Q_UINT8 styleHint, charSet, weight, bits;
 
     if ( s.version() == 1 ) {
@@ -1455,13 +1466,15 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     }
 
     s >> pointSize;
+    if ( s.version() >= 4 )
+	s >> pixelSize;
     s >> styleHint;
     s >> charSet;
     s >> weight;
     s >> bits;
 
     font.d->request.pointSize = pointSize;
-    font.d->request.pixelSize = font.pixelSize();
+    font.d->request.pixelSize = pixelSize;
     font.d->request.styleHint = styleHint;
     font.d->request.weight = weight;
     font.d->request.dirty = TRUE;
