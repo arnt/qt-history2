@@ -1224,7 +1224,7 @@ QVNCScreen::QVNCScreen( int display_id ) : VNCSCREEN_BASE( display_id )
 
 QVNCScreen::~QVNCScreen()
 {
-    shm->destroy();
+  //shm->destroy();
     delete shm;
 }
 
