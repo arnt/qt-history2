@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#27 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#27 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.21 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.22 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -517,14 +517,14 @@ void QTipManager::hideTip()
 
   To add a tip to a fixed rectangle within a widget, call the static
   function QToolTip::add() with the widget, rectangle and tip as
-  arguments.  (See the tellme.cpp example.)  Again, you can supply a
+  arguments.  (See the tellme/tellme.cpp example.)  Again, you can supply a
   QToolTipGroup * and another text if you want.
 
   Both of the above are one-liners and cover the vast majority of
   cases.  The third and most general API uses a pure virtual function
-  to decide whether to pop up a tool tip.  The tellme.cpp example
-  demonstrates this too.  This mode can be used to implement e.g. tips
-  for text that can move as the user scrolls.
+  to decide whether to pop up a tool tip.  The tellme/tellme.cpp
+  example demonstrates this too.  This mode can be used to implement
+  e.g. tips for text that can move as the user scrolls.
 
   To use this API, you need to subclass QToolTip and reimplement
   maybeTip().  maybeTip() will be called when there's a chance that a
