@@ -1407,6 +1407,16 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             file = file.right(file.length() - slsh - 1);
         }
         return QDir(dirstr).entryList(QStringList(file)).count();
+    } else if(func == "unset") {
+        if(args.count() != 1) {
+            fprintf(stderr, "%s:%d: unset(variable) requires one argument.\n", parser.file.latin1(),
+                    parser.line_no);
+            return false;
+        }
+        if(!place.contains(args[0]))
+            return false;
+        place.remove(args[0]);
+        return true;
     } else if(func == "eval") {
         if(args.count() < 1) {
             fprintf(stderr, "%s:%d: eval(project) requires one argument.\n", parser.file.latin1(),
