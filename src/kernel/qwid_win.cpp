@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#72 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#72 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -387,6 +387,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::setCaption( const char *caption )
 {
+    if ( caption && extra && extra->caption && 
+	 !strcmp( extra->caption, caption ) )
+	return; // for less flicker
     if ( extra )
 	delete [] extra->caption;
     else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#188 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#187 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#188 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -635,6 +635,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::setCaption( const char *caption )
 {
+    if ( caption && extra && extra->caption &&
+	 !strcmp( extra->caption, caption ) )
+	return; // for less flicker
     if ( extra )
 	delete [] extra->caption;
     else
