@@ -422,8 +422,16 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 
     bool ok = QVariantToVARIANT( variant, res, vartypename );
     bool byref = param && ( param->inOut & QUParameter::Out );
-    if ( byref )
-	makeReference( res );
+    if ( byref ) {
+	if ( !ok && !qstrcmp(vartypename, "QVariant" ) ) {
+	    res.vt = VT_VARIANT|VT_BYREF;
+	    VARIANT *variant = new VARIANT;
+	    VariantInit( variant );
+	    res.pvarVal = variant;
+	} else {
+	    makeReference( res );
+	}
+    }
     return ok;
 }
 
@@ -927,7 +935,8 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	break;
     case VT_VARIANT:
     case VT_VARIANT|VT_BYREF:
-	var = VARIANTToQVariant( *arg.pvarVal, hint );
+	if ( arg.pvarVal )
+	    var = VARIANTToQVariant( *arg.pvarVal, hint );
 	break;
 
     case VT_DISPATCH:
@@ -1440,6 +1449,9 @@ void clearVARIANT( VARIANT *var )
 	case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	    SafeArrayDestroy( *var->pparray );
 	    delete var->pparray;
+	    break;
+	case VT_VARIANT|VT_BYREF:
+	    delete var->pvarVal;
 	    break;
 	}
 	VariantInit( var );
