@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "profile.h"
 #include <qxml.h>
 #include <qtextcodec.h>
@@ -28,7 +29,7 @@ Profile *Profile::createDefaultProfile()
 {
     QString path = QFile::decodeName( qInstallPathDocs() ) + QLatin1String("/html/");
     Profile *profile = new Profile;
-    profile->valid = TRUE;
+    profile->valid = true;
     profile->type = DefaultProfile;
     profile->props[QLatin1String("name")] = QLatin1String("default");
     profile->props[QLatin1String("applicationicon")] = QLatin1String("appicon.png");
@@ -66,7 +67,7 @@ Profile *Profile::createDefaultProfile()
 
 
 Profile::Profile()
-    : valid( TRUE ), dparser( 0 )
+    : valid( true ), dparser( 0 )
 {
 }
 

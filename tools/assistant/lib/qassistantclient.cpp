@@ -27,7 +27,7 @@ class QAssistantClientPrivate
 
 static QMap<const QAssistantClient*,QAssistantClientPrivate*> *dpointers = 0;
 
-static QAssistantClientPrivate *data( const QAssistantClient *client, bool create=FALSE )
+static QAssistantClientPrivate *data( const QAssistantClient *client, bool create=false )
 {
     if( !dpointers )
         dpointers = new QMap<const QAssistantClient*,QAssistantClientPrivate*>;
@@ -137,7 +137,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
             SLOT( socketConnectionClosed() ) );
     connect( socket, SIGNAL( error( int ) ),
             SLOT( socketError( int ) ) );
-    opened = FALSE;
+    opened = false;
     proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
@@ -276,7 +276,7 @@ bool QAssistantClient::isOpen() const
 
 void QAssistantClient::socketConnected()
 {
-    opened = TRUE;
+    opened = true;
     if ( !pageBuffer.isEmpty() )
         showPage( pageBuffer );
     emit assistantOpened();
@@ -284,7 +284,7 @@ void QAssistantClient::socketConnected()
 
 void QAssistantClient::socketConnectionClosed()
 {
-    opened = FALSE;
+    opened = false;
     emit assistantClosed();
 }
 
@@ -314,6 +314,6 @@ void QAssistantClient::readStdError()
 */
 void QAssistantClient::setArguments( const QStringList &args )
 {
-    QAssistantClientPrivate *d = data( this, TRUE );
+    QAssistantClientPrivate *d = data( this, true );
     d->arguments = args;
 }

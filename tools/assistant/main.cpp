@@ -120,7 +120,7 @@ void AssistantServer::newConnection( int socket )
 
 int main( int argc, char ** argv )
 {
-    bool withGUI = TRUE;
+    bool withGUI = true;
     if ( argc > 1 ) {
         QString arg = QString::fromAscii(argv[1]);
         arg = arg.toLower();
@@ -130,7 +130,7 @@ int main( int argc, char ** argv )
             || arg == QLatin1String("-help")
 #endif
             )
-            withGUI = FALSE;
+            withGUI = false;
     }
     QApplication a(argc, argv, withGUI);
 
@@ -138,8 +138,8 @@ int main( int argc, char ** argv )
     AssistantServer *as = 0;
     QStringList catlist;
     QString file, profileName, aDocPath;
-    bool server = FALSE;
-    bool hideSidebar = FALSE;
+    bool server = false;
+    bool hideSidebar = false;
     if ( argc == 2 ) {
         if ( (argv[1])[0] != '-' )
             file = QString::fromUtf8(argv[1]);
@@ -152,7 +152,7 @@ int main( int argc, char ** argv )
                 i++;
                 file = QFile::decodeName(argv[i]);
             } else if ( opt == QLatin1String("-server") ) {
-                server = TRUE;
+                server = true;
             } else if ( opt == QLatin1String("-profile") ) {
                 INDEX_CHECK( "Missing profile argument!" );
                 profileName = QFile::decodeName(argv[++i]);
@@ -176,7 +176,7 @@ int main( int argc, char ** argv )
                         return 1;
                     }
                     parser->addTo( c->profile() );
-                    c->setDocRebuild( TRUE );
+                    c->setDocRebuild( true );
                     c->save();
                 }
                 return 0;
@@ -204,12 +204,12 @@ int main( int argc, char ** argv )
                         return 1;
                     }
                     profile->removeDocFileEntry( file.absoluteFilePath() );
-                    c->setDocRebuild( TRUE );
+                    c->setDocRebuild( true );
                     c->save();
                 }
                 return 0;
             } else if ( opt == QLatin1String("-hidesidebar") ) {
-                hideSidebar = TRUE;
+                hideSidebar = true;
             } else if ( opt == QLatin1String("-help") ) {
                 QString helpText = QLatin1String( "Usage: assistant [option]\n"
                                   "Options:\n"

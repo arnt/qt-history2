@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-
 #include "mainwindow.h"
 #include "tabbedbrowser.h"
 #include "helpdialog.h"
@@ -20,7 +19,6 @@
 #include "config.h"
 
 #include <qdockwindow.h>
-
 #include <qdir.h>
 #include <qtimer.h>
 #include <qstatusbar.h>
@@ -34,7 +32,6 @@
 #include <qfontdatabase.h>
 #include <qwhatsthis.h>
 #include <qtextdocumentfragment.h>
-
 #include <qprinter.h>
 #include <qprintdialog.h>
 
@@ -53,7 +50,7 @@ MainWindow::MainWindow()
     // certain user configs. See task: 34372
     qt_ntfs_permission_lookup = 0;
 #endif
-    setupCompleted = FALSE;
+    setupCompleted = false;
 
     goActions = QList<QAction*>();
     goActionDocFiles = new QMap<QAction*,QString>;
@@ -675,4 +672,3 @@ void MainWindow::on_actionHelpWhatsThis_triggered()
 {
     QWhatsThis::enterWhatsThisMode();
 }
-
