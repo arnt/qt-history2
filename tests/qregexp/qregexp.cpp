@@ -2843,7 +2843,10 @@ int QRegExp::match( const QString& str, int index, int *len,
     return pos;
 }
 
-/*!  Attempts to find a match in \a str, starting from position \a start.
+/*!  Attempts to find a match in \a str from position \a start (0 by default).
+  If \a start is -1 (the default), the search starts at the last character; if
+  -2, at the next to last character; etc.
+
   Returns the position of the first match, or -1 if there was no match.
 
   Example:
@@ -2870,8 +2873,9 @@ int QRegExp::find( const QString& str, int start )
     return priv->captured[0];
 }
 
-/*!  Attempts to find a match backwards in \a str, starting at position
-  \a start.
+/*!  Attempts to find a match backwards in \a str from position \a start.  If
+  \a start is -1 (the default), the search starts at the last character; if -2,
+  at the next to last character; etc.
 
   Returns the position of the first match, or -1 if there was no match.
 
@@ -2887,7 +2891,7 @@ int QRegExp::findRev( const QString& str, int start )
     priv->t = str;
     priv->capturedCache.clear();
 #endif
-    if ( start < 0 ) {
+    if ( start < 0 || start > str.length() ) {
 	priv->captured.fill( -1 );
 	return -1;
     }
