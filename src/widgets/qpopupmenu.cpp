@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#180 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#181 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -75,6 +75,8 @@ static int motion;
 
 // used to provide ONE single-shot timer
 static QTimer * singleSingleShot = 0;
+
+static bool supressAboutToShow = FALSE;
 
 static void popupSubMenuLater( int msec, QObject * receiver ) {
     if ( !singleSingleShot )
@@ -906,7 +908,14 @@ void QPopupMenu::setFont( const QFont &font )
 
 void QPopupMenu::show()
 {
-    emit aboutToShow();
+    if ( testWFlags(WState_Visible) ){
+	supressAboutToShow = FALSE;
+	return;
+    }
+    if (!supressAboutToShow)
+	emit aboutToShow();
+    else
+	supressAboutToShow = FALSE;
     if ( badSize )
 	updateSize();
     QWidget::show();
@@ -1540,6 +1549,8 @@ void QPopupMenu::subMenuTimer() {
     QPopupMenu *popup = mi->popup();
     if ( !popup || !popup->isEnabled() )
 	return;
+    emit popup->aboutToShow();
+    supressAboutToShow = TRUE;
 
     QPoint p( width() - motifArrowHMargin, frameWidth() + motifArrowVMargin );
     for ( int i=0; i<actItem; i++ )
