@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#3 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -503,16 +503,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create an label and a message in the status bar
     // The message is updated when buttons are clicked etc.
-#if 0
-    QLabel *msgLabel = new QLabel( statusBar(), "msgLabel" );
-    msgLabel->setText( "Message:" );
-    msgLabel->setAlignment( AlignHCenter|AlignVCenter );
-    ///    msgLabel->setFixedSize( msgLabel->sizeHint() );
-    statusBar()->addWidget( msgLabel, 0 );
-    QToolTip::add( msgLabel, "label 1" );
-#endif
     msg = new QLabel( statusBar(), "message" );
-    msg->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     msg->setAlignment( AlignCenter );
     msg->setFont( QFont("times",12,QFont::Bold) );
     msg->setText( "Message" );
