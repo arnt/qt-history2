@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#6 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,19 +14,35 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#6 $";
 #endif
 
 
+/*!
+\class QGroupBox qgrpbox.h
+\brief The QGroupBox widget provides a group box frame with a title.
+*/
+
+
+/*!
+Constructs a group box widget with no title.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
-	: QFrame( parent, name )
+    : QFrame( parent, name )
 {
     initMetaObject();
-    align = AlignCenter;
-    setFrame( QFrame::Box | QFrame::Plain );
-    setFrameWidth( 1 );
+    align = AlignHCenter;
+    setFrameStyle( QFrame::Box | QFrame::Plain );
+    setLineWidth( 1 );
 }
 
+
+/*!
+Sets the group box title text to \e title.
+*/
 
 void QGroupBox::setTitle( const char *title )
 {
@@ -37,12 +53,41 @@ void QGroupBox::setTitle( const char *title )
 }
 
 
+/*!
+\fn int QGroupBox::alignment() const
+Returns the alignment of the group box title.
+
+The default alignment is \c AlignHCenter.
+
+\sa setAlignment().
+*/
+
+/*!
+Sets the alignment of the group box title.
+
+The title is always placed on the upper frame line, but the horizontal
+alignment can be specified by the \e alignment parameter.
+
+The \e alignment is the bitwise OR of the following flags:
+<ul>
+<li> \c AlignLeft draws the text to the left.
+<li> \c AlignRight draws the text to the right.
+<li> \c AlignHCenter draws the text centered.
+</ul>
+
+\sa alignment().
+*/
+
 void QGroupBox::setAlignment( int alignment )
 {
     align = alignment;
     repaint();
 }
 
+
+/*!
+Internal; paints the group box.
+*/
 
 void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 {
@@ -69,7 +114,7 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 	    r.setTop( h/2 );			// frame rect should be
 	    setFrameRect( r );			//   smaller than client rect
 	    int x;
-	    if ( align & AlignCenter )		// center alignment
+	    if ( align & AlignHCenter )		// center alignment
 		x = r.width()/2;
 	    else if ( align & AlignRight )	// right alignment
 		x = r.width() - tw - 8;
