@@ -2465,7 +2465,7 @@ EOF
     [ -f .projects.1 ] && cat .projects.1 >>.projects
     [ -f .projects.2 ] && cat .projects.2 >>.projects
     rm -f .projects.1 .projects.2
-    if [ -f .projects.3 ] && [ "CONFIG_FAST" = "no" ]; then
+    if [ -f .projects.3 ] && [ "$CONFIG_FAST" = "no" ]; then
   cat .projects.3 >>.projects
   rm -f .projects.3
     fi
