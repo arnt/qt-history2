@@ -588,8 +588,12 @@ void QAction::setChecked(bool b)
 {
     d->checked = b;
     d->sendDataChanged();
-    if(isCheckable())
+    if(isCheckable()) {
+        emit checked(b);
+#ifdef QT_COMPAT
         emit toggled(b);
+#endif
+    }
 }
 
 bool QAction::isChecked() const
@@ -717,10 +721,20 @@ void QAction::activate(ActionEvent event)
     for example, when the user clicks a menu option, toolbar button,
     or presses an action's shortcut key combination.
 
-    Connect to this signal for command actions. Connect to the
-    toggled() signal for checkable actions.
+    Connect to this signal for command actions. 
 
-    \sa QAction::activate()
+    \sa QAction::activate(), QAction::checked()
+*/
+
+/*!
+    \fn void QAction::checked()
+
+    This signal is emitted when an action is activated by the user
+    which causes the isChecked() status to change.
+
+    Connect to this signal for checkable actions.
+
+    \sa QAction::activate(), QAction::triggered(), QAction::setChecked()
 */
 
 /*!

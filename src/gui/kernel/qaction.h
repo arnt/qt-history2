@@ -142,8 +142,9 @@ signals:
     void dataChanged();
     void triggered();
     void hovered();
-    void toggled(bool);
+    void checked(bool);
 #ifdef QT_COMPAT
+    QT_MOC_COMPAT void toggled(bool);
     QT_MOC_COMPAT void activated();
 #endif
 
