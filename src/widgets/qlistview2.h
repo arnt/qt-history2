@@ -511,12 +511,15 @@ protected:
 private:
     void init();
     ToggleState internalState() const;
-    void setStoredState( ToggleState );
+    void setStoredState( ToggleState newState, void *key );
+    ToggleState storedState( void *key ) const;
+//     void setStoredState( ToggleState );
     void stateChange( ToggleState s );
-    void restoreState();
-    void updateController( bool store = TRUE );
-    void updateStoredState();
-    void setState( ToggleState s, bool update );
+    void restoreState( void *key, int depth = 0 );
+    void updateController( bool update = TRUE );
+//     void updateStoredState();
+    void updateStoredState( void *key );
+    void setState( ToggleState s, bool update, bool store );
 
     Type myType;
     bool unused; // ### remove in ver4

@@ -5578,12 +5578,12 @@ struct QCheckListItemPrivate
     QCheckListItemPrivate():
 	exclusive( 0 ),
 	currentState( QCheckListItem::Off ),
-	storedState( QCheckListItem::Off ),
+	statesDict( 101 ),
 	tristate( FALSE ) {}
 
     QCheckListItem *exclusive;
     QCheckListItem::ToggleState currentState;
-    QCheckListItem::ToggleState storedState;
+    QPtrDict<QCheckListItem::ToggleState> statesDict;
     bool tristate;
 };
 
@@ -5852,13 +5852,11 @@ QCheckListItem::ToggleState QCheckListItem::internalState() const
 */
 void QCheckListItem::setState( ToggleState s )
 {
-    setState( s, TRUE );
+    setState( s, TRUE, FALSE);
 }
 
-void QCheckListItem::setState( ToggleState s, bool update)
+void QCheckListItem::setState( ToggleState s, bool update, bool store )
 {
-//     if ( !isTristate() && ( s == NoChange ) )
-// 	return;
 
     if ( s == internalState() )
 	return;
@@ -5871,30 +5869,24 @@ void QCheckListItem::setState( ToggleState s, bool update)
  	    ((QCheckListItem*)parent())->updateController();
     } else if ( myType == CheckBoxController ) {
 	if ( s == NoChange) {
-	    restoreState();
+	    restoreState( (void*) this );
  	    if ( internalState() != NoChange )
  		setState( On );
 	} else {
+	    if ( s == On && store )
+		updateStoredState( (void *) this );
 	    QListViewItem *item = firstChild();
 	    while( item ) {
 		if ( item->rtti() == 1 &&
 		     ( ((QCheckListItem*)item)->type() == CheckBox ||
 		       ((QCheckListItem*)item)->type() == CheckBoxController ) ) {
 		    QCheckListItem *checkItem = (QCheckListItem*)item;
-		    checkItem->setState( s, FALSE );
-// 		    if ( checkItem->type() == CheckBox ) {
-//  			checkItem->d->currentState = s;
-//  			checkItem->stateChange( checkItem->d->currentState );
-//  			checkItem->repaint();
-// 		    } else {
-// 			checkItem->setState( s , FALSE );
-// 		    }
+		    checkItem->setState( s, FALSE , FALSE );
 		}
 		item = item->nextSibling();
 	    }
 	    if ( update ) {
-		// update but don't store
-		updateController( FALSE );
+		updateController();
 	    } else {
 		d->currentState = s;
 		stateChange( state() );
@@ -5919,15 +5911,29 @@ void QCheckListItem::setState( ToggleState s, bool update)
 }
 
 /* IGNORE!
-  updates the internally stored state
+  updates the internally stored state of this item for the parent (key)
 */
-void QCheckListItem::setStoredState( ToggleState newState )
+void QCheckListItem::setStoredState( ToggleState newState, void *key )
 {
     if ( myType == CheckBox ) {
-	d->storedState = newState;
-	qDebug( "stored " + text() + " state: " + QString::number( internalState() ) );
+	d->statesDict.replace( key, new ToggleState(newState) );
+//	qDebug( "stored " + text() + " state: " + QString::number( internalState() ) );
     }
 }
+
+/*
+  Returns the stored state for this item for the given key.
+  If the key is not found it returns Off.
+*/
+QCheckListItem::ToggleState QCheckListItem::storedState( void *key ) const
+{
+    ToggleState *foundState = d->statesDict.find( key );
+    if ( foundState )
+	return ToggleState( *foundState );
+    else
+	return Off;
+}
+
 
 /* IGNORE!
     \fn QString QCheckListItem::text() const
@@ -5985,13 +5991,13 @@ void QCheckListItem::activate()
 		setState( NoChange );
 		break;
 	    case NoChange:
-		setState( On );
+		setState( On, TRUE, TRUE );
 		break;
 	    }
 	} else {
 	    setOn( internalState() != On );
 	}
-	setStoredState( internalState() );
+// 	setStoredState( internalState() );
 	ignoreDoubleClick();
     } else if ( myType == RadioButton ) {
 	setOn( TRUE );
@@ -6031,12 +6037,11 @@ void QCheckListItem::stateChange( ToggleState s )
     stateChange( s == On );
 }
 
-void QCheckListItem::restoreState()
+void QCheckListItem::restoreState( void *key, int depth )
 {
     switch ( type() ) {
     case CheckBox:
-	qDebug( "restoreState() : " + text() + " state: " + QString::number( d->storedState ) );
-	d->currentState = d->storedState;
+	d->currentState = storedState( key );
 	stateChange( state() );
 	repaint();
 	break;
@@ -6047,10 +6052,14 @@ void QCheckListItem::restoreState()
 	    if ( item->rtti() == 1 &&
 		 ( ((QCheckListItem*)item)->type() == CheckBox ||
 		   ((QCheckListItem*)item)->type() == CheckBoxController ) )
-		((QCheckListItem*)item)->restoreState();
+		((QCheckListItem*)item)->restoreState( key , depth++ );
 	    item = item->nextSibling();
 	}
-	updateController( FALSE );
+	qDebug( "restoreState() : " + text() );
+	if ( depth == 0 )
+	    updateController( TRUE );
+	else
+	    updateController( FALSE );
     }
 	break;
     default:
@@ -6059,7 +6068,12 @@ void QCheckListItem::restoreState()
 }
 
 
-void QCheckListItem::updateController( bool store )
+/*
+  Checks the childrens state and updates the controllers state
+  if necessary. If the controllers state change, then his parent again is
+  called to update itself.
+*/
+void QCheckListItem::updateController( bool update )
 {
     if ( myType != CheckBoxController )
 	return;
@@ -6071,10 +6085,10 @@ void QCheckListItem::updateController( bool store )
 	 && ((QCheckListItem*)parent())->type() == CheckBoxController )
 	controller = (QCheckListItem*)parent();
 
-    QListViewItem *item = firstChild();
     ToggleState theState = Off;
     bool first = TRUE;
-    while( item ) {
+    QListViewItem *item = firstChild();
+    while( item && theState != NoChange ) {
 	if ( item->rtti() == 1 &&
 	     ( ((QCheckListItem*)item)->type() == CheckBox ||
 	       ((QCheckListItem*)item)->type() == CheckBoxController ) ) {
@@ -6083,30 +6097,11 @@ void QCheckListItem::updateController( bool store )
 		theState = checkItem->internalState();
 		first = FALSE;
 	    } else {
-		if ( theState != checkItem->internalState() ) {
-		    // if any of the states of the CheckBoxes differ, we set the CheckBoxController state to NoChange
-//		    if ( isTristate() ) {
-		    if ( internalState() != NoChange ) {
-			if ( store )
-			    updateStoredState();
-			d->currentState = NoChange;
-			stateChange( state() );
-			if ( controller )
-			    controller->updateController( store );
-			repaint();
-			}
-			// if tristate is not enabled we set it to off
-// 		    } else {
-// 			if ( state() != Off ) {
-// 			    d->currentState = Off;
-// 			    stateChange( state() );
-// 			    if ( controller )
-// 				controller->updateController();
-// 			    repaint();
-// 			}
-// 		    }
-		    return;
-		}
+		if ( checkItem->internalState() == NoChange ||
+		     theState != checkItem->internalState() )
+		    theState = NoChange;
+		else
+		    theState = checkItem->internalState();
 	    }
 	}
 	item = item->nextSibling();
@@ -6114,8 +6109,8 @@ void QCheckListItem::updateController( bool store )
     if ( internalState() != theState ) {
 	d->currentState = theState;
 	stateChange( state() );
-	if ( controller )
-	    controller->updateController( store );
+	if ( update && controller )
+	    controller->updateController( update );
 	repaint();
     }
 }
@@ -6124,7 +6119,7 @@ void QCheckListItem::updateController( bool store )
 /*
   Makes all the children CheckBoxes update their storedState
 */
-void QCheckListItem::updateStoredState()
+void QCheckListItem::updateStoredState( void *key )
 {
     if ( myType != CheckBoxController )
 	return;
@@ -6134,13 +6129,13 @@ void QCheckListItem::updateStoredState()
 	if ( item->rtti() == 1 ) {
 	    QCheckListItem *checkItem = (QCheckListItem*)item;
 	    if ( checkItem->type() == CheckBox )
-		checkItem->setStoredState( checkItem->internalState() );
+		checkItem->setStoredState( checkItem->internalState(), key );
 	    else if (checkItem->type() == CheckBoxController )
-		checkItem->updateStoredState();
+		checkItem->updateStoredState( key );
 	}
 	item = item->nextSibling();
     }
-    qDebug( "updated stored state for: " + text() );
+    qDebug( "updated stored state for: " + text() + " key: %p" ,key );
 }
 
 
