@@ -12,8 +12,8 @@ class QAxWidget2 : public QWidget
 
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
 public:
-    QAxWidget2( QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
-	: QWidget( parent, name, f ), line_width( 1 )
+    QAxWidget2(QWidget *parent = 0)
+	: QWidget(parent), line_width( 1 )
     {
     }
 

@@ -8,10 +8,10 @@ class QAxWidget1 : public QWidget
     Q_CLASSINFO("InterfaceID", "{99F6860E-2C5A-42ec-87F2-43396F4BE389}")
     Q_CLASSINFO("EventsID", "{0A3E9F27-E4F1-45bb-9E47-63099BCCD0E3}")
 
-    Q_PROPERTY( QColor fillColor READ fillColor WRITE setFillColor )
+    Q_PROPERTY(QColor fillColor READ fillColor WRITE setFillColor)
 public:
-    QAxWidget1( QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
-	: QWidget( parent, name, f ), fill_color( red )
+    QAxWidget1(QWidget *parent = 0)
+        : QWidget(parent), fill_color(Qt::red)
     {
     }
 
@@ -19,19 +19,19 @@ public:
     { 
 	return fill_color; 
     }
-    void setFillColor( const QColor &fc ) 
+    void setFillColor(const QColor &fc) 
     { 
 	fill_color = fc; 
 	repaint(); 
     }
 
 protected:
-    void paintEvent( QPaintEvent *e )
+    void paintEvent(QPaintEvent *e)
     {
-	QPainter paint( this );
+	QPainter paint(this);
 	QRect r = rect();
-	r.addCoords( 10, 10, -10, -10 );
-	paint.fillRect( r, fill_color );
+	r.addCoords(10, 10, -10, -10);
+	paint.fillRect(r, fill_color);
     }
 
 private:
