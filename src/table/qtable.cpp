@@ -4290,6 +4290,12 @@ void QTable::paintEvent( QPaintEvent *e )
     QRect topLeftCorner = QStyle::visualRect( QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin() ), rect() );
     erase( topLeftCorner ); // erase instead of widget on top
     QScrollView::paintEvent( e );
+
+#ifdef Q_OS_TEMP
+    QPainter p( this );
+    p.drawLine( topLeftCorner.bottomLeft(), topLeftCorner.bottomRight() );
+    p.drawLine( topLeftCorner.bottomRight(), topLeftCorner.topRight() );
+#endif
 }
 
 static bool inUpdateCell = FALSE;
