@@ -163,7 +163,7 @@ void SqlFormWizard::accept()
     QString conn = editConnection->text();
     QString table = editTable->text();
     QStringList lst;
-    lst << conn << table << "";
+    lst << conn << table;
 
     if ( !conn.isEmpty() && !table.isEmpty() ) {
 	mdbIface->setFakeProperty( widget, "database", lst );
@@ -211,6 +211,11 @@ void SqlFormWizard::accept()
 	mdbIface->setPropertyChanged( editor, "geometry", TRUE );
 	fIface->addWidget( editor );
 
+	QStringList lst;
+	lst << conn << table << field->name();
+	mdbIface->setFakeProperty( editor, "database", lst );
+	mdbIface->setPropertyChanged( editor, "database", TRUE );
+	
 	row += 25;
 
     }
