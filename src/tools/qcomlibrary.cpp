@@ -2,14 +2,29 @@
 #include "qapplication.h"
 
 QComLibrary::QComLibrary( const QString &filename, QLibrary::Policy pol )
-: QLibrary( filename, pol ), entry( 0 )
+: QLibrary( filename, pol ), entry( 0 ), libiface( 0 )
 {
+}
+
+QComLibrary::~QComLibrary()
+{
+    if ( policy() != Manual )
+	unload();
 }
 
 bool QComLibrary::unload()
 {
-    if ( entry )
-	entry->release();
+    if ( libiface ) {
+	libiface->cleanup();
+	if ( !libiface->canUnload() )
+	    return FALSE;
+	libiface->release();
+	libiface = 0;
+    }
+    int refs = entry ? entry->release() : 0;
+    if ( refs )
+	return FALSE;
+
     entry = 0;
 
     return QLibrary::unload();
@@ -91,7 +106,16 @@ void QComLibrary::createInstanceInternal()
 #endif
 	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 
-	if ( !entry ) {
+	if ( entry ) {
+	    if ( entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) == QS_OK ) {
+		if ( !libiface->init() ) {
+		    libiface->release();
+		    libiface = 0;
+		    unload();
+		    return;
+		}
+	    }
+	} else {
 #if defined(QT_DEBUG_COMPONENT)
 	    qWarning( "%s: No exported component provided.", library().latin1() );
 #endif

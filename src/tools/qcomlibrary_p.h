@@ -22,6 +22,7 @@ class Q_EXPORT QComLibrary : public QLibrary
 {
 public:
     QComLibrary( const QString &filename, QLibrary::Policy pol = QLibrary::Delayed );
+    ~QComLibrary();
 
     bool unload();
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
@@ -30,6 +31,7 @@ private:
     void createInstanceInternal();
 
     QUnknownInterface *entry;
+    QLibraryInterface *libiface;
 
 };
 
