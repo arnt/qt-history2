@@ -1653,6 +1653,23 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
     }
 }
 
+QMakeProject 
+*MakefileGenerator::processBuild(const QString &build)
+{
+    if(project) {
+        //it is ugly how I just use this, but almost better than adding a weird parameter (IMHO)
+        const QStringList old_user_config = Option::user_configs;
+        if(!project->isEmpty(build + ".CONFIG"))
+            Option::user_configs.prepend(project->values(build + ".CONFIG").join(" "));
+        Option::user_configs.prepend(build);
+        QMakeProject *ret = new QMakeProject(project->properities());
+        ret->read(project->projectFile(), QDir::currentDirPath());
+        Option::user_configs = old_user_config; 
+        return ret;
+    }
+    return 0;
+}
+
 QMakeLocalFileName
 MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
 {

@@ -75,6 +75,7 @@ public:
 
     QString projectFile();
     QString configFile();
+    inline QMakeProperty *properities() { return prop; }
 
     bool isEmpty(const QString &v);
     QStringList &values(const QString &v);
