@@ -259,18 +259,18 @@ void QAlphaWidget::alphaBlend()
     const double ia = 1-alpha;
     const int sw = front.width();
     const int sh = front.height();
-    UINT32** md = (UINT32**)mixed.jumpTable();
-    UINT32** bd = (UINT32**)back.jumpTable();
-    UINT32** fd = (UINT32**)front.jumpTable();
+    Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
+    Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
+    Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
 
     for (int sy = 0; sy < sh; sy++ ) {
-	UINT32* bl = ((UINT32*)bd[sy]);
-	UINT32* fl = ((UINT32*)fd[sy]);
+	Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
+	Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
 	for (int sx = 0; sx < sw; sx++ ) {
-	    UINT32 bp = bl[sx];
-	    UINT32 fp = fl[sx];
+	    Q_UINT32 bp = bl[sx];
+	    Q_UINT32 fp = fl[sx];
 
-	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
+	    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
 					    int (qGreen(bp)*ia + qGreen(fp)*alpha),
 					    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
 	}
