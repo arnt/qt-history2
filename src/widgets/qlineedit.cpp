@@ -951,6 +951,8 @@ static bool inSelection( int x, QTextParag *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
+    if ( e->button() == RightButton )
+	return;
     bool oldHST = hasSelectedText();
 
     d->undoRedoInfo.clear();
@@ -1025,6 +1027,8 @@ void QLineEdit::doDrag()
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( e->button() == RightButton )
+	return;
 #ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled() ) {
@@ -1078,6 +1082,8 @@ void QLineEdit::dragSlot()
 */
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
+    if ( e->button() == RightButton )
+	return;
     d->dnd_primed = FALSE;
     d->dragTimer.stop();
     if ( d->dndTimer.isActive() ) {
