@@ -2697,7 +2697,7 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 */
 void QPainter::drawText( int x, int y, const QString &s, int from, int len)
 {
-    drawText(x, y, str.mid(from, len) );
+    drawText(x, y, s.mid(from, len) );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int len )
