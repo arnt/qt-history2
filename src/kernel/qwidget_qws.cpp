@@ -27,6 +27,7 @@
 #include "qtextcodec.h"
 #include "qcursor.h"
 #include "qinputcontext_p.h"
+#include "qdesktopwidget.h"
 
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
@@ -273,7 +274,13 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    d->extra->topextra->fright = br.right()-crect.right();
 	    d->extra->topextra->fbottom = br.bottom()-crect.bottom();
 	    d->topData()->qwsManager = new QWSManager(this);
-	}
+	} else if ( d->topData()->qwsManager ) {
+	    delete d->topData()->qwsManager;
+	    d->topData()->qwsManager = 0;
+	    crect.moveBy( -d->extra->topextra->fleft, -d->extra->topextra->ftop );
+	    d->extra->topextra->fleft = d->extra->topextra->ftop = 
+		d->extra->topextra->fright = d->extra->topextra->fbottom = 0;
+	}	    
 #endif
 	// declare the widget's object name as window role
 
@@ -770,24 +777,22 @@ void QWidget::hideWindow()
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 }
 
+
+static uint effectiveState(uint state)
+{
+    if ( state & Qt::WState_Minimized )
+	return Qt::WState_Minimized;
+    else if ( state & Qt::WState_FullScreen )
+	return Qt::WState_FullScreen;
+    if ( state & Qt::WState_Maximized )
+	return Qt::WState_Maximized;
+    
+    return 0;
+}
+
 void QWidget::setWindowState(uint newstate)
 {
-    uint oldstate = windowState();
-
-    bool needShow = FALSE;
-    if (isTopLevel()) {
-	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
-	    // ### change maximized state
-	}
-
-	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
-	    // ### change fullscreen state
-	}
-
-	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
-	    // ### change minimized state
-	}
-    }
+    uint oldstate = effectiveState(widget_state);
 
     widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
     if (newstate & WindowMinimized)
@@ -797,6 +802,53 @@ void QWidget::setWindowState(uint newstate)
     if (newstate & WindowFullScreen)
 	widget_state |= WState_FullScreen;
 
+    uint state = effectiveState(widget_state);
+
+    bool needShow = FALSE;
+    if (isTopLevel() && state != oldstate) {
+	d->createTLExtra();
+	if ( oldstate == 0 ) { //normal
+	    d->topData()->normalGeometry = geometry();
+	} else if ( oldstate == WState_FullScreen ) {
+	    reparent( 0, d->topData()->savedFlags, QPoint(0,0) );
+	    needShow = TRUE;
+	} else if ( oldstate == WState_Minimized ) {
+	    needShow = TRUE;
+	}
+
+	if ( state == WState_Minimized ) {
+	    //### not ideal...
+	    hide();
+	    needShow = FALSE;
+	} else if ( state == WState_FullScreen ) {
+	    d->topData()->savedFlags = getWFlags();
+	    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+		      // preserve some widget flags
+		      (getWFlags() & 0xffff0000),
+		      QPoint( 0, 0));
+	    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
+	    move( screen.topLeft() );
+	    resize( screen.size() );
+	    raise();
+	    needShow = TRUE;
+	} else if ( state == WState_Maximized ) {
+	    in_show_maximized = 1;
+#ifndef QT_NO_QWS_MANAGER
+	    if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager )
+		d->extra->topextra->qwsManager->maximize();
+	    else
+#endif
+		setGeometry( qt_maxWindowRect );
+	    in_show_maximized = 0;
+	} else { //normal
+	    QRect r = d->topData()->normalGeometry;
+	    if ( r.width() >= 0 ) {
+		d->topData()->normalGeometry = QRect(0,0,-1,-1);
+		setGeometry( r );
+	    }
+	}
+    }
+    
     if (needShow)
 	show();
 
@@ -806,62 +858,6 @@ void QWidget::setWindowState(uint newstate)
     QEvent e(QEvent::WindowStateChange);
     QApplication::sendEvent(this, &e);
 }
-
-#if 0
-void QWidget::showMinimized()
-{
-    /* XXX
-    if ( testWFlags(WType_TopLevel) )
-	XIconifyWindow( x11Display(), winId(), x11Screen() );
-    */
-    //### if the window is mapped (i.e. not WState_Withdrawn) we have
-    // to show it with initial state Iconic! Right now the function only
-    // works for widgets that are already visible.
-    hide();
-    //parentWidget()->repaint(geometry());
-    clearWState( WState_Maximized );
-    setWState( WState_Minimized );
-}
-
-void QWidget::showMaximized()
-{
-    in_show_maximized = 1;
-    clearWState( WState_Minimized );
-    setWState(WState_Maximized);
-    if ( testWFlags(WType_TopLevel) ) {
-	d->createTLExtra();
-	if ( d->topData()->normalGeometry.width() < 0 )
-	    d->topData()->normalGeometry = geometry();
-#ifndef QT_NO_QWS_MANAGER
-	if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager )
-	    d->extra->topextra->qwsManager->maximize();
-	else
-#endif
-	    setGeometry( qt_maxWindowRect );
-    }
-    show();
-    QEvent e( QEvent::ShowMaximized );
-    QApplication::sendEvent( this, &e );
-    in_show_maximized = 0;
-}
-
-void QWidget::showNormal()
-{
-    if ( isTopLevel() ) {
-	if ( d->topData()->fullscreen )
-	    reparent( 0, WType_TopLevel, QPoint(0,0) );
-	QRect r = d->topData()->normalGeometry;
-	if ( r.width() >= 0 ) {
-	    d->topData()->normalGeometry = QRect(0,0,-1,-1);
-	    setGeometry( r );
-	}
-    }
-    if ( d->extra && d->extra->topextra )
-	d->extra->topextra->fullscreen = 0;
-    show();
-    clearWState( WState_Minimized | WState_Maximized );
-}
-#endif // 0
 
 void QWidget::raise()
 {
