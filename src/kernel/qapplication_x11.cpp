@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#340 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#341 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2409,6 +2409,7 @@ void QApplication::closePopup( QWidget *popup )
 	    }
 	    XFlush( popup->x11Display() );
 	}
+	active_window = 0;
     }
      else {
  	// popups are not focus-handled by the window system (the
@@ -2947,7 +2948,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
   	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
   		popup = this;
   	    else				// send to last popup
- 		pos = popup->mapFromGlobal( mapToGlobal(globalPos) );
+ 		pos = popup->mapFromGlobal( globalPos );
   	}
 	bool releaseAfter = FALSE;
 	QWidget *popupChild  = findChildWidget( popup, pos );
@@ -2975,10 +2976,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 
 	if ( popupButtonFocus ) {
-	    QMouseEvent e( type, popupButtonFocus->
-			   mapFromGlobal(popup->mapToGlobal(pos)),
-			   globalPos,
-			   button, state );
+	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
+			   globalPos, button, state );
 	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;

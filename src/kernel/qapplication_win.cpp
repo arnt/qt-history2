@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#169 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1442,6 +1442,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
+	active_window = 0;
     }
      else {
  	// popups are not focus-handled by the window system (the
@@ -1847,7 +1848,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
 	    else				// send to last popup
-		pos = popup->mapFromGlobal( mapToGlobal(pos) );
+		pos = popup->mapFromGlobal( globalPos );
 	}
 	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
