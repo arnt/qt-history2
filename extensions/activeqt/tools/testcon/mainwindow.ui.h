@@ -315,7 +315,7 @@ void MainWindow::runMacro()
 	return;
 
     // If we have only one script loaded we can use the cool dialog
-    QStringList scripts = script->scripts();
+    QStringList scripts = script->scriptNames();
     if (scripts.count() == 1) {
 	InvokeMethod scriptInvoke( this, 0, TRUE );
 	scriptInvoke.setCaption("Execute Script Function");
