@@ -2334,6 +2334,29 @@ bool QTextDocument::removeSelection( int id )
 
     QTextDocumentSelection &sel = *it;
 
+    if ( sel.startCursor == sel.endCursor ) {
+	selections.remove( id );
+	return TRUE;
+    }
+
+    if ( customItems.isEmpty() ) {
+	QTextCursor start = sel.startCursor;
+	QTextCursor end = sel.endCursor;
+	if ( sel.swapped ) {
+	    start = sel.endCursor;
+	    end = sel.startCursor;
+	}
+
+	for ( QTextParag *p = start.parag(); p; p = p->next() ) {
+	    p->removeSelection( id );
+	    if ( p == end.parag() )
+		break;
+	}
+	
+	selections.remove( id );
+	return TRUE;
+    }
+
     QTextCursor c( this );
     QTextCursor tmp = sel.startCursor;
     if ( sel.swapped )
