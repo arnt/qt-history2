@@ -196,7 +196,7 @@ static bool qt_accel_no_shortcuts = TRUE;
 #else
 static bool qt_accel_no_shortcuts = FALSE;
 #endif
-void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
+void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = !b; }
 
 /*
     \internal
