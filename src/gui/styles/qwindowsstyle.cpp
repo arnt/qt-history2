@@ -1248,7 +1248,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_ScrollBarAddPage:
     case PE_ScrollBarSubPage: {
             QBrush br;
-            QColor c = p->background().color();
+            QBrush bg = p->background();
+            Qt::BGMode bg_mode = p->backgroundMode();
             p->setPen(Qt::NoPen);
             p->setBackgroundMode(Qt::OpaqueMode);
 
@@ -1258,18 +1259,19 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
             } else {
                 br = opt->palette.brush(QPalette::Light).pixmap()
-                     ? QBrush(opt->palette.light().color(), Qt::Dense4Pattern)
-                     : opt->palette.brush(QPalette::Light);
+                     ? opt->palette.brush(QPalette::Light)
+                     : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
                 p->setBrush(br);
             }
             p->drawRect(opt->rect);
-            p->setBackground(c);
+            p->setBackground(bg);
+            p->setBackgroundMode(bg_mode);
             break; }
     case PE_ScrollBarSlider:
         if (!(opt->state & Style_Enabled)) {
             QBrush br = opt->palette.brush(QPalette::Light).pixmap()
-                        ? QBrush(opt->palette.light().color(), Qt::Dense4Pattern)
-                        : opt->palette.brush(QPalette::Light);
+                        ? opt->palette.brush(QPalette::Light)
+                        : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
             p->setPen(Qt::NoPen);
             p->setBrush(br);
             p->setBackgroundMode(Qt::OpaqueMode);
