@@ -148,7 +148,6 @@ QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition,
     } else if ( definition == "Class Variables" ) {
 	lst = fw->variables();
     }
-    delete fw;
     iface->release();
     return lst;
 }
@@ -170,6 +169,5 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
     } else if ( definition == "Class Variables" ) {
 	fw->setVariables( entries );
     }
-    delete fw;
     iface->release();
 }

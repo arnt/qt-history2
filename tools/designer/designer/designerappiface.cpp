@@ -164,10 +164,8 @@ QList<DesignerDatabase> DesignerProjectImpl::databaseConnections() const
 {
     QList<DesignerDatabase> lst;
     QList<Project::DatabaseConnection> conns = project->databaseConnections();
-    for ( Project::DatabaseConnection *d = conns.first(); d; d = conns.next() ) {
-	DesignerDatabaseImpl *db = new DesignerDatabaseImpl( d );
-	lst.append( db );
-    };
+    for ( Project::DatabaseConnection *d = conns.first(); d; d = conns.next() )
+	lst.append( d->iFace() );
     return lst;
 }
 

@@ -26,7 +26,7 @@ class CommonInterface : public QUnknownInterface
 {
 public:
     CommonInterface();
-    ~CommonInterface();
+    virtual ~CommonInterface();
 
     QUnknownInterface *queryInterface( const QUuid& );
     unsigned long addRef();

@@ -128,6 +128,7 @@ FormWindow::FormWindow( QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    iface = 0;
     proj = 0;
     propertyWidget = 0;
     toolFixed = FALSE;
@@ -184,6 +185,7 @@ void FormWindow::setMainWindow( MainWindow *w )
 FormWindow::~FormWindow()
 {
     MetaDataBase::clear( this );
+    delete iface;
 }
 
 void FormWindow::closeEvent( QCloseEvent *e )
@@ -2370,5 +2372,7 @@ void FormWindow::killAccels( QObject *top )
 
 DesignerFormWindow *FormWindow::iFace()
 {
-    return new DesignerFormWindowImpl( this );
+    if ( !iface )
+	iface = new DesignerFormWindowImpl( this );
+    return iface;
 }

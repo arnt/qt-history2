@@ -92,12 +92,10 @@ void SqlFormWizard::connectionSelected( const QString &c )
     listBoxTable->clear();
     editTable->clear();
     QList<DesignerDatabase> databases = proIface->databaseConnections();
-    databases.setAutoDelete( TRUE );
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == c  || ( d->name() == "(default)" || d->name().isEmpty() ) && c == "(default)")
 	    listBoxTable->insertStringList( d->tables() );
     }
-    delete proIface;
 }
 
 void SqlFormWizard::tableSelected( const QString & )
@@ -115,7 +113,6 @@ void SqlFormWizard::autoPopulate( bool populate )
     listBoxSortField->clear();
     listBoxSelectedField->clear();
     if ( populate ) {
-	databases.setAutoDelete( TRUE );
 	for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	    if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
 		QStringList lst = *d->fields().find( editTable->text() );
@@ -134,7 +131,6 @@ void SqlFormWizard::autoPopulate( bool populate )
 		listBoxSortField->insertStringList( lst );
 	    }
 	}
-	delete proIface;
     }
 }
 
@@ -251,7 +247,6 @@ void SqlFormWizard::setupDatabaseConnections()
 	return;
     proIface->setupDatabases();
     setupPage1();
-    delete proIface;
 }
 
 void SqlFormWizard::setupPage1()
@@ -268,14 +263,12 @@ void SqlFormWizard::setupPage1()
     editTable->clear();
     editConnection->clear();
     QList<DesignerDatabase> databases = proIface->databaseConnections();
-    databases.setAutoDelete( TRUE );
     QStringList lst;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
 	lst << d->name();
     listBoxConnection->insertStringList( lst );
     if ( lst.count() )
 	listBoxConnection->setCurrentItem( 0 );
-    delete proIface;
 }
 
 static QPushButton *create_widget( QWidget *parent, const char *name,
@@ -325,7 +318,6 @@ void SqlFormWizard::accept()
     }
 
     QList<DesignerDatabase> databases = proIface->databaseConnections();
-    databases.setAutoDelete( TRUE );
     DesignerDatabase *database = 0;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
@@ -567,6 +559,4 @@ void SqlFormWizard::accept()
 #endif
 
     SqlFormWizardBase::accept();
-    delete formWindow;
-    delete proIface;
 }

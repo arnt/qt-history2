@@ -35,6 +35,7 @@
 class FormWindow;
 class QObjectList;
 struct DesignerProject;
+struct DesignerDatabase;
 
 class Project
 {
@@ -45,7 +46,9 @@ public:
 #ifndef QT_NO_SQL
 	    connection( 0 ),
 #endif
-	    project( p ), loaded( FALSE ) {}
+	    project( p ), loaded( FALSE ), iface( 0 ) {}
+	~DatabaseConnection();
+	
 	QString name;
 	QString driver, dbName, username, password, hostname;
 	QStringList tables;
@@ -54,16 +57,19 @@ public:
 	bool refreshCatalog();
 	bool open();
 	void close();
+	DesignerDatabase *iFace();
     private:
 #ifndef QT_NO_SQL
 	QSqlDatabase *connection;
 #endif
 	Project *project;
 	bool loaded;
+	DesignerDatabase *iface;
     };
 
 
     Project( const QString &fn, const QString &pName = QString::null );
+    ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
     QString fileName() const;
@@ -128,6 +134,7 @@ private:
     QString dbFile;
     QList<DatabaseConnection> dbConnections;
     QString lang;
+    DesignerProject *iface;
 
 };
 

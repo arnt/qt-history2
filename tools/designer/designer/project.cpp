@@ -37,10 +37,16 @@
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
 {
+    iface = 0;
     lang = "C++";
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
+}
+
+Project::~Project()
+{
+    delete iface;
 }
 
 void Project::setFileName( const QString &fn, bool doClear )
@@ -356,6 +362,11 @@ void Project::addDatabaseConnection( Project::DatabaseConnection *conn )
     saveConnections();
 }
 
+Project::DatabaseConnection::~DatabaseConnection()
+{
+    delete iface;
+}
+
 Project::DatabaseConnection *Project::databaseConnection( const QString &name )
 {
     for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
@@ -422,6 +433,13 @@ void Project::DatabaseConnection::close()
     if ( connection )
 	connection->close();
 #endif
+}
+
+DesignerDatabase *Project::DatabaseConnection::iFace()
+{
+    if ( !iface )
+	iface = new DesignerDatabaseImpl( this );
+    return iface;
 }
 
 QStringList Project::databaseConnectionList()
@@ -550,7 +568,9 @@ QObjectList *Project::formList() const
 
 DesignerProject *Project::iFace()
 {
-    return new DesignerProjectImpl( this );
+    if ( !iface )
+	iface = new DesignerProjectImpl( this );
+    return iface;
 }
 
 void Project::setLanguage( const QString &l )

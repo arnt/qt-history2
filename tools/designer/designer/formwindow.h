@@ -277,6 +277,7 @@ private:
     bool toolFixed;
     QList<QAction> actions;
     Project *proj;
+    DesignerFormWindow *iface;
 
 };
 
