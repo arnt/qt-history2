@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#8 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#9 $
 
 #$quiet=1;
 
@@ -83,9 +83,21 @@ open( SH, "| sh" );
 find( \&copy, "/local/lib/cvs/qt" );
 
 print SH "cd $base/cvs/qt
+
+# Move-around CVS files
 mv dist/free/LICENSE,v .
-co -u LICENSE
-rm -f LICENSE,v
+
+# WWA: Eh?
+#co -u LICENSE
+#rm -f LICENSE,v
+
+# Remove GMAKE and NMAKE makefiles
+find . -name GNUmakefile,v | xargs rm
+find . -name Makefile,v | xargs rm
+rm GNUmakefile.inc,v
+rm Makefile.inc,v
+rm make.help,v
+
 cd ..
 mkdir $base/head
 cd $base/head
@@ -112,7 +124,7 @@ done
 
 # Generate and check-in X11 Makefiles
 cd $base/head/qt
-for B in Makefile `util/scripts/makeunixmake -p`
+for B in `util/scripts/makeunixmake -p`
 do
   ci -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
 done

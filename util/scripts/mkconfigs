@@ -1,5 +1,17 @@
 #!/bin/sh
 
+VERBOSE=
+LIST=
+while [ -n "$1" ]
+do
+    case "$1" in
+       -v) VERBOSE=1
+    ;; -p) LIST=1
+	    $SUBARGS="$SUBARGS $1"
+    esac
+    shift
+done
+
 if [ ! -d $QTDIR/configs ]
 then
     mkdir $QTDIR/configs
@@ -23,8 +35,10 @@ function mk {
     sysconf=$QTDIR/configs/$platform-$config
     TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
 	tmake -t $config /dev/null >$sysconf
-    if [ ! -s $sysconf  ]
+    if [ -s $sysconf  ]
     then
+	if [ -n "$LIST" ] ; then echo configs/$sysconf ; fi
+    else
 	rm $sysconf
     fi
 }

@@ -3,9 +3,23 @@
 # Copyright 1997 Troll Tech AS.  All rights reserved.
 #
 
+VERBOSE=
+LIST=
+while [ -n "$1" ]
+do
+    case "$1" in
+       -v) VERBOSE=1
+    ;; -p) LIST=1
+	    $SUBARGS="$SUBARGS $1"
+    esac
+    shift
+done
+
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
 QT_VERSION=`perl -n -e 'if (/#define\s+QT_VERSION\s+(\d)(\d+)/) { $maj=$1; $min=$2; $min =~ s/00/0/; print "$maj.$min\n";}' src/tools/qglobal.h`
+
+if [ -n "$LIST" ] ; then echo Makefile ; fi
 
 exec > Makefile
 
