@@ -546,6 +546,7 @@ int QAbstractItemView::selectionBehavior() const
 
 /*!
     Sets the current item to be the item at \a index.
+    Note: Selections stays unmodified.
 
     \sa currentIndex()
 */
@@ -709,7 +710,7 @@ bool QAbstractItemView::hasKeyTracking() const
 /*!
   \property QAbstractItemView::alternatingRowColors
   \brief whether to draw the background using alternating colors
-  
+
   If this property is true, the item background will be drawn using
   alternating colors, otherwise the background will be drawn using the QPalette::Base color.
 */

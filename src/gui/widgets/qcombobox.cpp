@@ -138,7 +138,7 @@ void ListViewContainer::setCurrentIndex(const QModelIndex &index, Qt::ButtonStat
     if (bstate & Qt::LeftButton)
         return;
 
-    list->setCurrentIndex(index);
+    list->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
 
 /*
