@@ -1745,7 +1745,7 @@ static QString winIso639LangName()
     if (!lang_code.isEmpty()) {
         const char *endptr;
         bool ok;
-        int i = qstrtoull(lang_code.latin1(), &endptr, 16, &ok);
+        int i = qstrtoull(lang_code.toLatin1(), &endptr, 16, &ok);
         if (ok && *endptr == '\0') {
             switch (i) {
                 case 0x814:
@@ -1818,10 +1818,10 @@ const char* QLocalePrivate::systemLocaleName()
     } else {
         QString language = winIso639LangName();
         QString country = winIso3116CtryName();
-        lang += language.latin1();
+        lang += language.toLatin1();
         if (!country.isEmpty()) {
             lang += '_';
-            lang += country.latin1();
+            lang += country.toLatin1();
         }
     }
 #endif
