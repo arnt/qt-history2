@@ -1,4 +1,3 @@
-
 /****************************************************************************
 **
 ** Implementation of QWidget and QWindow classes for mac.
@@ -206,13 +205,20 @@ void qt_mac_update_metal_style(QWidget *w)
     }
 }
 
-static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr, const Rect *geo, WindowPtr *w)
+static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
+				     const Rect *geo, WindowPtr *w)
 {
-    Rect null_rct;
-    SetRect(&null_rct, 0, 0, 0, 0);
-    OSStatus ret = CreateNewWindow(wclass, wattr, &null_rct, w);
-    if(ret == noErr)
-	SetWindowBounds(*w, kWindowContentRgn, geo);
+    OSStatus ret;
+
+    if (wclass != kModalWindowClass) {
+	ret = CreateNewWindow(wclass, wattr, geo, w);
+    } else {
+	Rect null_rect;
+	SetRect(&null_rect, 0, 0, 0, 0);
+	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
+	if (ret == noErr)
+	    SetWindowBounds(*w, kWindowContentRgn, geo);
+    }
     return ret;
 }
 
@@ -226,7 +232,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     {
 	WindowClass wclass;
 	GetWindowClass((WindowPtr)w->handle(), &wclass);
-	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute)) 
+	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
 	    return TRUE;
     }
     bool remove_grip = (w->d->extraData()->topextra->resizer ||
@@ -241,14 +247,14 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 				    kWindowResizableAttribute);
 	    w->dirtyClippedRegion(true);
 	    ReshapeCustomWindow((WindowPtr)w->handle());
-	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect()); 
+	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect());
 	}
     } else if(!(attr & kWindowResizableAttribute)) {
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute,
 			       kWindowNoAttributes);
 	w->dirtyClippedRegion(true);
 	ReshapeCustomWindow((WindowPtr)w->handle());
-	qt_dirty_wndw_rgn("Add size grip", w, w->rect()); 
+	qt_dirty_wndw_rgn("Add size grip", w, w->rect());
     }
     return true;
 }
@@ -366,7 +372,7 @@ static bool qt_create_root_win() {
 	h = qMax(h, (*g)->gdRect.bottom);
     }
     SetRect(&r, 0, 0, w, h);
-    qt_mac_create_window(kOverlayWindowClass, kWindowResizableAttribute, &r, &qt_root_win);
+    qt_mac_create_window(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
     if(!qt_root_win)
 	return false;
     qAddPostRoutine(qt_clean_root_win);
@@ -728,7 +734,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if(dialog && !testWFlags(WShowModal) && parentWidget() && parentWidget()->testWFlags(WShowModal))
 	setWFlags(WShowModal);
-    if(!testWFlags(WStyle_Customize) && !(desktop || popup) && !testWFlags(WShowModal)) 
+    if(!testWFlags(WStyle_Customize) && !(desktop || popup) && !testWFlags(WShowModal))
 	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
     if(desktop) {                            // desktop widget
@@ -1504,7 +1510,7 @@ void QWidget::showWindow()
     fstrut_dirty = true;
     dirtyClippedRegion(true);
     if(isTopLevel()) {
-	SizeWindow((WindowPtr)hd, width(), height(), 1);
+	SizeWindow((WindowPtr)hd, width(), height(), true);
 	if(qt_mac_is_macsheet(this))
 	    qt_event_request_showsheet(this);
 #if QT_MACOSX_VERSION >= 0x1020
@@ -1512,7 +1518,7 @@ void QWidget::showWindow()
 	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
 #endif
 	else
-	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
+	    ShowHide((WindowPtr)hd, true);	//now actually show it
 	qt_event_request_activate(this);
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
 	qt_dirty_wndw_rgn("show",this, mac_rect(posInWindow(this), geometry().size()));
@@ -1534,8 +1540,8 @@ void QWidget::hideWindow()
        if(qt_mac_is_macsheet(this))
            HideSheetWindow((WindowPtr)hd);
 	else
-	    ShowHide((WindowPtr)hd, 0); //now we hide
-	SizeWindow((WindowPtr)hd, 0, 0, 1);
+	    ShowHide((WindowPtr)hd, false); //now we hide
+	SizeWindow((WindowPtr)hd, 0, 0, true);
 	if(isActiveWindow()) {
 	    QWidget *w = 0;
 	    if(parentWidget())
@@ -1794,7 +1800,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 	    clearWState(WState_Maximized);
 	if (qMacVersion() > Qt::MV_10_DOT_2) {
 	    if (isResize)
-		SizeWindow((WindowPtr)hd, w, h, 1);
+		SizeWindow((WindowPtr)hd, w, h, true);
 	    if (isMove)
 		MoveWindowStructure((WindowPtr)hd, x, y);
 	} else {
@@ -2159,7 +2165,7 @@ void QWidget::setMask(const QRegion &region)
 	clp ^= clippedRegion(false);
 	qt_dirty_wndw_rgn("setMask", this, clp);
     }
-    if(isTopLevel()) 
+    if(isTopLevel())
 	ReshapeCustomWindow((WindowPtr)hd); //now let the wdef take it
 }
 
@@ -2372,8 +2378,8 @@ QRegion QWidget::clippedRegion(bool do_children)
     if(!isTopLevel() && no_children) { //short-circuit case
 	int px = x(), py = y();
 	for(QWidget *par = parentWidget(true); par; par = par->parentWidget(true)) {
- 	    if((px + width() < 0) || (py + height() < 0) ||
- 	       px > par->width() || py > par->height()) {
+	    if((px + width() < 0) || (py + height() < 0) ||
+	       px > par->width() || py > par->height()) {
 		extra->child_dirty = (extra->clip_dirty = false);
 		return extra->clip_saved = extra->clip_children = extra->clip_sibs = QRegion();
 	    }
