@@ -1542,7 +1542,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
             if (sub & SC_SpinBoxUp) {
                 theme.rec = visualRect(querySubControlMetrics(CC_SpinBox, w, SC_SpinBoxUp, opt),w);
                 partId = SPNP_UP;
-                if (!spin->isUpEnabled())
+                if (!spin->isUpEnabled() || (!flags & Style_Enabled))
                     stateId = UPS_DISABLED;
                 else if (subActive == SC_SpinBoxUp)
                     stateId = UPS_PRESSED;
@@ -1555,7 +1555,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
             if (sub & SC_SpinBoxDown) {
                 theme.rec = visualRect(querySubControlMetrics(CC_SpinBox, w, SC_SpinBoxDown, opt),w);
                 partId = SPNP_DOWN;
-                if (!spin->isDownEnabled())
+                if (!spin->isDownEnabled() || (!flags & Style_Enabled))
                     stateId = DNS_DISABLED;
                 else if (subActive == SC_SpinBoxDown)
                     stateId = DNS_PRESSED;
