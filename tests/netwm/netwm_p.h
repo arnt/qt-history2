@@ -26,18 +26,50 @@
 #ifndef   __net_wm_p_h
 #define   __net_wm_p_h
 
+/**
+   Resizable array class.
+
+   This resizable array is used to simplify the implementation.  The existance of
+   this class is to keep the implementation from depending on a separate
+   framework/library.
+**/
+
 template <class Z> class RArray {
 public:
+    /**
+       Constructs an empty (size == 0) array.
+    **/
+
     RArray();
+
+    /**
+       Resizable array destructor.
+    **/
+
     ~RArray();
 
+    /**
+       The [] operator does the work.  If the index is larger than the current
+       size of the array, it is resized.
+     **/
+
     Z &operator[](int);
+
+    /**
+       Returns the size of the array.
+     **/
+
     int size() const { return sz; }
 
 private:
     int sz;
     Z *d;
 };
+
+
+/**
+   Private data for the NETRootInfo class.
+ **/
 
 struct NETRootInfoPrivate {
     // information about the X server
@@ -50,9 +82,9 @@ struct NETRootInfoPrivate {
 
     // data that changes (either by the window manager or by a client)
     // and requires updates
-    NETPoint viewport;
+    RArray<NETPoint> viewport;
     RArray<NETRect> workarea;
-    NETSize geometry;
+    RArray<NETSize> geometry;
     Window active;
     Window *clients, *stacking, *virtual_roots, *kde_docking_windows;
     RArray<const char *> desktop_names;
@@ -69,6 +101,10 @@ struct NETRootInfoPrivate {
     int ref;
 };
 
+
+/**
+   Private data for the NETWinInfo class.
+**/
 
 struct NETWinInfoPrivate {
     Display *display;
