@@ -65,7 +65,10 @@
 #include <qaccel.h>
 #include <qworkspace.h>
 #include <qtimer.h>
+
+#ifdef QT_MODULE_SQL
 #include <qdatetimeedit.h>
+#endif
 
 #include "../pics/arrow.xbm"
 #include "../pics/uparrow.xbm"
@@ -668,6 +671,7 @@ void PropertyTextItem::getText()
     }
 }
 
+#ifdef QT_MODULE_SQL
 // --------------------------------------------------------------
 
 PropertyDateItem::PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
@@ -894,6 +898,7 @@ void PropertyDateTimeItem::setValue()
 }
 
 // --------------------------------------------------------------
+#endif
 
 PropertyBoolItem::PropertyBoolItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
     : PropertyItem( l, after, prop, propName )
@@ -2427,6 +2432,7 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
+#ifdef QT_MODULE_SQL
     if ( ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
 	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) &&
 	 !editor->widget()->inherits( "QSqlTable" ) ) {
@@ -2435,6 +2441,7 @@ void PropertyList::setupProperties()
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
+#endif
 
     if ( editor->widget()->inherits( "QSqlTable" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
@@ -2517,6 +2524,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::Cursor:
 	item = new PropertyCursorItem( this, item, 0, name );
 	break;
+#ifdef QT_MODULE_SQL
     case QVariant::Date:
 	item = new PropertyDateItem( this, item, 0, name );
 	break;
@@ -2526,6 +2534,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::DateTime:
 	item = new PropertyDateTimeItem( this, item, 0, name );
 	break;
+#endif
     default:
 	return FALSE;
     }

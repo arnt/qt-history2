@@ -19,6 +19,8 @@
 **********************************************************************/
 
 #include "database.h"
+
+#ifdef QT_MODULE_SQL
 #include "formwindow.h"
 #include "mainwindow.h"
 
@@ -147,3 +149,5 @@ QSqlForm* DatabaseSupport::defForm()
 {
     return form;
 }
+
+#endif

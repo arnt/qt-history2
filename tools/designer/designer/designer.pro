@@ -43,10 +43,8 @@ HEADERS	= command.h \
 		  actiondnd.h \
 		  project.h \
 		  projectsettingsimpl.h \
-		  dbconnectionsimpl.h \
 		  tableeditorimpl.h \
-		  sourceeditor.h \
-		  database.h
+		  sourceeditor.h 
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -88,10 +86,9 @@ SOURCES	= command.cpp \
 		  actiondnd.cpp \
 		  project.cpp \
 		  projectsettingsimpl.cpp \
-		  dbconnectionsimpl.cpp \
 		  tableeditorimpl.cpp \
-		  sourceeditor.cpp \
-		  database.cpp
+		  sourceeditor.cpp 
+
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
@@ -100,5 +97,11 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
 DEFINES	+= DESIGNER
 DESTDIR	= $(QTDIR)/bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui dbconnections.ui tableeditor.ui
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui tableeditor.ui
 PROJECTNAME	= Designer
+
+sql {
+	SOURCE  +=		  database.cpp		  dbconnectionsimpl.cpp
+	HEADERS += 		  database.h		  dbconnectionsimpl.h   propertyeditorsql.h
+	INTERFACES +=             dbconnections.ui 
+}

@@ -25,9 +25,12 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qurl.h>
+#include <qobjectlist.h>
+
+#ifdef QT_MODULE_SQL
 #include <qsqlrecord.h>
 #include <qsqltable.h>
-#include <qobjectlist.h>
+#endif
 
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
@@ -360,6 +363,7 @@ Project::DatabaseConnection *Project::databaseConnection( const QString &name )
 
 bool Project::DatabaseConnection::refreshCatalog()
 {
+#ifdef QT_MODULE_SQL
     if ( loaded )
 	return TRUE;
     if ( !open() )
@@ -376,10 +380,14 @@ bool Project::DatabaseConnection::refreshCatalog()
     loaded = TRUE;
     connection->close();
     return loaded;
+#else
+    return FALSE;
+#endif
 }
 
 bool Project::DatabaseConnection::open()
 {
+#ifdef QT_MODULE_SQL
     // register our name, if nec
     if ( name == "(default)" ) {
 	if ( !QSqlDatabase::contains() ) // default doesn't exists?
@@ -397,14 +405,19 @@ bool Project::DatabaseConnection::open()
     connection->setPassword( password );
     connection->setHostName( hostname );
     return connection->open();
+#else
+    return FALSE;
+#endif
 }
 
 void Project::DatabaseConnection::close()
 {
     if ( !loaded )
 	return;
+#ifdef QT_MODULE_SQL
     if ( connection )
 	connection->close();
+#endif
 }
 
 QStringList Project::databaseConnectionList()
@@ -430,6 +443,7 @@ QStringList Project::databaseFieldList( const QString &connection, const QString
     if ( !conn )
 	return QStringList();
     return conn->fields[ table ];
+    return QStringList();
 }
 
 static bool inSaveConnections = FALSE;

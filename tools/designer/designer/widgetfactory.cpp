@@ -46,6 +46,7 @@
 #endif
 #if defined(QT_MODULE_SQL)
 #include <qsqltable.h>
+#include <qdatetimeedit.h>
 #endif
 #include <qlineedit.h>
 #include <qspinbox.h>
@@ -75,9 +76,10 @@
 #include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qapplication.h>
-#include <qdatetimeedit.h>
 #include <qsplitter.h>
+#ifdef QT_MODULE_SQL
 #include "database.h"
+#endif
 
 #include <globaldefs.h>
 
@@ -516,31 +518,19 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #else
 	return 0;
 #endif
-    } else if ( className == "QSqlTable" ) {
-#if defined(QT_MODULE_SQL)
+    } 
+#ifdef QT_MODULE_SQL
+    else if ( className == "QSqlTable" ) {
 	return new QSqlTable( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QDateEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDateEdit( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QTimeEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QTimeEdit( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QDateTimeEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDateTimeEdit( parent, name );
-#else
-	return 0;
+    }
 #endif
-    } else if ( className == "QListBox" ) {
+    else if ( className == "QListBox" ) {
 	QListBox* lb = new QListBox( parent, name );
 	if ( init ) {
 	    lb->insertItem( MainWindow::tr( "New Item" ) );
@@ -701,7 +691,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	mw->setCentralWidget( dw );
 	dw->show();
 	return mw;
-    } else if ( className == "QSqlWidget" ) {
+    } 
+#ifdef QT_MODULE_SQL
+    else if ( className == "QSqlWidget" ) {
 	QWidget *w = new QDesignerSqlWidget( parent, name );
 	if ( parent )
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
@@ -712,6 +704,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
     }
+#endif
 
     QWidget *w = qt_create_kde_widget( className, parent, name, init );
     if ( w )

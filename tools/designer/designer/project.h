@@ -21,20 +21,28 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#ifdef QT_MODULE_SQL
 #include <qsqldatabase.h>
+#endif
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qlist.h>
 #include <qmap.h>
 
 class FormWindow;
+class QObjectList;
 
 class Project
 {
 public:
     struct DatabaseConnection
     {
-	DatabaseConnection( Project *p ) : connection( 0 ), project( p ), loaded( FALSE ) {}
+	DatabaseConnection( Project *p ) : 
+#ifdef QT_MODULE_SQL
+	    connection( 0 ), 
+#endif
+	    project( p ), loaded( FALSE ) {}
 	QString name;
 	QString driver, dbName, username, password, hostname;
 	QStringList tables;
@@ -44,10 +52,13 @@ public:
 	bool open();
 	void close();
     private:
+#ifdef QT_MODULE_SQL
 	QSqlDatabase *connection;
+#endif
 	Project *project;
 	bool loaded;
     };
+
 
     Project( const QString &fn, const QString &pName = QString::null );
 
@@ -102,11 +113,11 @@ private:
 private:
     QString filename;
     QStringList uifiles;
-    QString dbFile;
     QString proName;
     QStringList loadedForms;
     QString desc;
     QMap<FormWindow*, QString> formWindows;
+    QString dbFile;
     QList<DatabaseConnection> dbConnections;
 
 };

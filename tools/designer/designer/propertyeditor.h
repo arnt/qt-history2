@@ -40,9 +40,6 @@ class QLabel;
 class FormWindow;
 class QCloseEvent;
 class QResizeEvent;
-class QDateEdit;
-class QTimeEdit;
-class QDateTimeEdit;
 
 class PropertyItem : public QListViewItem
 {
@@ -154,74 +151,6 @@ private:
 
 };
 
-class PropertyDateItem : public QObject,
-			 public PropertyItem
-{
-    Q_OBJECT
-
-public:
-    PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
-    ~PropertyDateItem();
-
-    virtual void showEditor();
-    virtual void hideEditor();
-
-    virtual void setValue( const QVariant &v );
-
-private slots:
-    void setValue();
-
-private:
-    QDateEdit *lined();
-    QGuardedPtr<QDateEdit> lin;
-
-};
-
-class PropertyTimeItem : public QObject,
-			 public PropertyItem
-{
-    Q_OBJECT
-
-public:
-    PropertyTimeItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
-    ~PropertyTimeItem();
-
-    virtual void showEditor();
-    virtual void hideEditor();
-
-    virtual void setValue( const QVariant &v );
-
-private slots:
-    void setValue();
-
-private:
-    QTimeEdit *lined();
-    QGuardedPtr<QTimeEdit> lin;
-
-};
-
-class PropertyDateTimeItem : public QObject,
-			 public PropertyItem
-{
-    Q_OBJECT
-
-public:
-    PropertyDateTimeItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName );
-    ~PropertyDateTimeItem();
-
-    virtual void showEditor();
-    virtual void hideEditor();
-
-    virtual void setValue( const QVariant &v );
-
-private slots:
-    void setValue();
-
-private:
-    QDateTimeEdit *lined();
-    QGuardedPtr<QDateTimeEdit> lin;
-
-};
 
 class PropertyBoolItem : public QObject,
 			 public PropertyItem
@@ -630,5 +559,9 @@ private:
     FormWindow *formwindow;
 
 };
+
+#ifdef QT_MODULE_SQL
+#include "propertyeditorsql.h"
+#endif
 
 #endif

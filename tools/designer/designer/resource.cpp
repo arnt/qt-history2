@@ -32,7 +32,9 @@
 #include <domtool.h>
 #include "command.h"
 #include "pixmapchooser.h"
+#ifdef QT_MODULE_SQL
 #include "database.h"
+#endif
 #include "actiondnd.h"
 
 #include <qfile.h>

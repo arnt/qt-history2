@@ -370,12 +370,14 @@ void MainWindow::setupEditActions()
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
 
+#ifdef QT_MODULE_SQL
     actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
 						 tr( "&Database Connections..." ), 0, this, 0 );
     actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
     actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
 					     "<p>####TODO</p>") );
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
+#endif
 
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
 					 tr( "P&references..." ), 0, this, 0 );
@@ -429,7 +431,9 @@ void MainWindow::setupEditActions()
     actionEditFormSettings->addTo( menu );
     menu->insertSeparator();
     actionEditProjectSettings->addTo( menu );
+#ifdef QT_MODULE_SQL
     actionEditDatabaseConnections->addTo( menu );
+#endif
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
 }
@@ -1747,8 +1751,10 @@ void MainWindow::editProjectSettings()
 
 void MainWindow::editDatabaseConnections()
 {
+#ifdef QT_MODULE_SQL
     DatabaseConnection dia( currentProject, this, 0, TRUE );
     dia.exec();
+#endif
 }
 
 void MainWindow::editPreferences()

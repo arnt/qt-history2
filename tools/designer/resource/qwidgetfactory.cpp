@@ -17,9 +17,14 @@
 #include <qwhatsthis.h>
 #include <zlib.h>
 #include <qobjectlist.h>
+#include <stdlib.h>
+
+#ifdef QT_MODULE_SQL
 #include <qsqlrecord.h>
 #include <qsqldatabase.h>
-#include <stdlib.h>
+#include <qsqltable.h>
+#include <qdatetimeedit.h>
+#endif
 
 // include all Qt widgets we support
 #include <qpushbutton.h>
@@ -52,8 +57,6 @@
 #include <qtextedit.h>
 #include <qscrollbar.h>
 #include <qmainwindow.h>
-#include <qdatetimeedit.h>
-#include <qsqltable.h>
 #include <qsplitter.h>
 #include <qaction.h>
 #include <qpopupmenu.h>
@@ -195,6 +198,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadFunctions( functions );
 
     if ( widgetFactory->toplevel ) {
+#ifdef QT_MODULE_SQL
 	if ( widgetFactory->toplevel->inherits( "QDesignerSqlWidget" ) )
 	    ( (QDesignerSqlWidget*)widgetFactory->toplevel )->
 		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
@@ -227,6 +231,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
 	    table->refresh();
 	}
+#endif
 
 	if ( !eventInterfaceManager ) {
 	    QString dir = getenv( "QTDIR" );
@@ -282,6 +287,7 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
 
 bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
 {
+#if defined(QT_MODULE_SQL)
     if ( !QFile::exists( dbFileName ) )
 	return FALSE;
 
@@ -323,6 +329,9 @@ bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
     }
 
     return TRUE;
+#else
+    return FALSE;
+#endif
 }
 
 
@@ -434,43 +443,25 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	mw->setCentralWidget( new QWidget( mw, "qt_central_widget" ) );
 	mw->centralWidget()->show();
 	return mw;
-    } else if ( className == "QSqlTable" ) {
+
+    } 
 #if defined(QT_MODULE_SQL)
+    else if ( className == "QSqlTable" ) {
+
 	return new QSqlTable( parent, name );
-#else
-	return 0;
-#endif
+
     } else if ( className == "QDateEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDateEdit( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QTimeEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QTimeEdit( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QDateTimeEdit" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDateTimeEdit( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QSqlWidget" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDesignerSqlWidget( parent, name );
-#else
-	return 0;
-#endif
     } else if ( className == "QSqlDialog" ) {
-#if defined(QT_MODULE_SQL)
 	return new QDesignerSqlDialog( parent, name );
-#else
-	return 0;
-#endif
     }
+#endif
 
     // maybe it is a KDE widget we support
     QWidget *w = qt_create_kde_widget( className, parent, name, FALSE );
@@ -1123,7 +1114,11 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setResizeEnabled( resizeable, i );
     } else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
+#ifdef QT_MODULE_SQL
 	bool isAlterable = (!widget->inherits( "QSqlTable" )); // sql table columns added in create()
+#else
+	bool isAlterable = TRUE;
+#endif
 	bool isRow;
 	if ( ( isRow = e.tagName() == "row" ) ) {
 	    if ( isAlterable )

@@ -21,6 +21,9 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "qmodules.h"
+
+#ifdef QT_MODULE_SQL
 #include <qsqlwidget.h>
 #include <qsqldialog.h>
 #include <qsqlcursor.h>
@@ -83,5 +86,6 @@ protected:
     void paintEvent( QPaintEvent *e );
 
 };
+#endif
 
 #endif
