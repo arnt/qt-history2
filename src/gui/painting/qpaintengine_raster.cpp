@@ -505,6 +505,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->matrix = QMatrix();
     d->txop = QPainterPrivate::TxNone;
     d->brushMatrix = QMatrix();
+    d->outlineMapper->setMatrix(d->matrix, d->txop);
 
     if (device->depth() == 1) {
         d->pen = QPen(Qt::color1);
