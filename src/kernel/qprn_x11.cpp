@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#18 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#18 $")
 
 
 /*****************************************************************************
@@ -214,16 +214,16 @@ int QPrinter::metric( int m ) const
     static int heightsMM[] = { 297, 257, 279, 356, 254 };
     switch ( m ) {
 	case PDM_WIDTH:
-	    val = widths[ s ];
+	    val = orient == Portrait ? widths[ s ] :  heights[ s ];
 	    break;
 	case PDM_HEIGHT:
-	    val = heights[ s ];
+	    val = orient == Portrait ? heights[ s ] :  widths[ s ];
 	    break;
 	case PDM_WIDTHMM:
-	    val = widthsMM[ s ];
+	    val = orient == Portrait ? widthsMM[ s ] :  heightsMM[ s ];
 	    break;
 	case PDM_HEIGHTMM:
-	    val = heightsMM[ s ];
+	    val = orient == Portrait ? heightsMM[ s ] :  widthsMM[ s ];
 	    break;
 	case PDM_NUMCOLORS:
 	    val = 16777216;
