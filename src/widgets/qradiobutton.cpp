@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#39 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -326,7 +326,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
 	static QCOORD bottom_pts[] =		// bottom (V) of diamond
 	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
-	bool showUp = isDown() ^ isOn();
+	bool showUp = !(isDown() ^ isOn());
 	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
 	p->eraseRect( x, y, w, h );
 	p->setPen( NoPen );
