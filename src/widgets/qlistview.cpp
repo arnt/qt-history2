@@ -5882,11 +5882,14 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int x = 0;
 	if(!parentControl)
 	    x += 3;
-	lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
+	if ( !pixmap( 0 ) ) {
+	    lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
 				  QRect(x, 0, boxsize,
 					fm.height() + 2 + marg),
 				  cg, styleflags, QStyleOption(this));
-	r += boxsize + 4;
+	    r += boxsize + 4;
+	}
+	
     } else {
 	Q_ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );
