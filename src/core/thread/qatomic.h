@@ -14,7 +14,7 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
-#include <QtCore/arch/qatomic.h>
+#include <arch/qatomic.h>
 
 #ifndef Q_SPECIALIZED_QATOMIC
 
