@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#18 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -118,7 +118,7 @@ void qt_np_remove_timeoutcb( SameAsXtTimerCallbackProc cb )
 
 int qt_event_handler( XEvent* event )
 {
-    qt_x11SendPostedEvents();
+    QApplication::sendPostedEvents();
     if ( qApp->x11ProcessEvent( event ) == -1
 	 && !QApplication::activePopupWidget()
 	 && !QApplication::activeModalWidget()
@@ -144,7 +144,7 @@ int qt_event_handler( XEvent* event )
 	    }
 	}
 	qt_reset_color_avail();
-	qt_x11SendPostedEvents();
+	QApplication::sendPostedEvents();
 	// send the event to Xt in any case (think about XGrabPointer with ownerEvents TRUE
 	(void) qt_np_cascade_event_handler[event->type]( event );
 	return True;
