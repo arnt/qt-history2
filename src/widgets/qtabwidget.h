@@ -61,6 +61,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
     Q_PROPERTY( int count READ count )
+    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
@@ -89,7 +90,7 @@ public:
 
     QIconSet tabIconSet( QWidget * w ) const;
     void setTabIconSet( QWidget * w, const QIconSet & iconset );
-    
+
     void removeTabToolTip( QWidget * w );
     void setTabToolTip( QWidget * w, const QString & tip );
     QString tabToolTip( QWidget * w ) const;
@@ -120,7 +121,7 @@ public slots:
     void setCurrentPage( int );
     virtual void showPage( QWidget * );
     virtual void removePage( QWidget * );
-    
+
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );

@@ -380,31 +380,6 @@ void QDial::repaintScreen( const QRect *cr )
     p.end();
 }
 
-/*!
-  \reimp
-*/
-void QDial::updateMask()
-{
-    QBitmap bm(width(),height());
-    bm.fill(color0);
-
-    QPainter p( &bm );
-    p.setPen( color1 );
-    p.setBrush( color1 );
-    QRect te = calcDial();
-    te.setWidth(te.width()+2);
-    te.setHeight(te.height()+2);
-    // erase background of dial
-    p.drawEllipse( te );
-
-    if ( d->showNotches ) {
-	calcLines();
-	p.drawLineSegments( d->lines );
-    }
-
-    setMask( bm );
-}
-
 
 /*!
   \reimp

@@ -125,8 +125,6 @@ protected:
 
     virtual void repaintScreen( const QRect *cr = 0 );
 
-    void updateMask();
-
 private:
     QDialPrivate * d;
 

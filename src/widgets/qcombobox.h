@@ -66,6 +66,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy )
     Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
+    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QComboBox( QWidget* Q_PARENT, const char* Q_NAME );

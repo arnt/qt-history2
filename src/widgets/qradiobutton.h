@@ -48,6 +48,7 @@ class Q_EXPORT QRadioButton : public QButton
 {
     Q_OBJECT
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
+    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QRadioButton( QWidget *parent, const char* Q_NAME );

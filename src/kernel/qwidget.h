@@ -123,7 +123,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
-    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
+    Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:

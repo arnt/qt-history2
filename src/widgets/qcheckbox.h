@@ -49,6 +49,7 @@ class Q_EXPORT QCheckBox : public QButton
     Q_OBJECT
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
     Q_PROPERTY( bool tristate READ isTristate WRITE setTristate )
+    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QCheckBox( QWidget *parent, const char* Q_NAME );

@@ -54,10 +54,10 @@ class Q_EXPORT QPushButton : public QButton
     Q_PROPERTY( bool default READ isDefault WRITE setDefault )
     Q_PROPERTY( bool menuButton READ isMenuButton )
     Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
-
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
     Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
+    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QPushButton( QWidget *parent, const char* Q_NAME );
