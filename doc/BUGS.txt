@@ -65,9 +65,6 @@ QPrintDialog
 QFileDialog
     QFileDialog::getOpenFileName( "*" ) gets confused.
 
-QEffects
-    Submenus are not on top of parent while fading
-
 QMainWindow/QToolBar
     Hiding a second toolbar produces debug output (support/arc-08/16011)
     Toolbar dragging produces rubbish qt-bugs/arc-07/15183
