@@ -254,10 +254,11 @@ QDragManager::~QDragManager()
 
 
 /*!
-    Constructs a drag object called \a name, which is a child of \a
-    dragSource.
+    \fn QDragObject::QDragObject(QWidget *source, const char *name)
 
-    Note that the drag object will be deleted when \a dragSource is
+    Constructs a drag object called \a name with a parent \a source.
+
+    Note that the drag object will be deleted when the \a source is
     deleted.
 */
 
@@ -286,7 +287,7 @@ QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
 
 /*!
     Destroys the drag object, canceling any drag and drop operation in
-    which it is involved, and frees up the storage used.
+    which it is involved.
 */
 
 QDragObject::~QDragObject()
@@ -304,7 +305,9 @@ QDragObject::~QDragObject()
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
-    Set the pixmap \a pm to display while dragging the object. The
+    \fn void QDragObject::setPixmap(QPixmap pixmap, const QPoint &hotspot)
+
+    Set the \a pixmap to display while dragging the object. The
     platform-specific implementation will use this where it can - so
     provide a small masked pixmap, and do not assume that the user
     will actually see it. For example, cursors on Windows 95 are of
@@ -331,7 +334,7 @@ void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
     \overload
     Uses a hotspot that positions the pixmap below and to the right of
     the mouse pointer. This allows the user to clearly see the point
-    on the window which they are dragging the data onto.
+    on the window where they are dragging the data.
 */
 void QDragObject::setPixmap(QPixmap pm)
 {
@@ -339,8 +342,9 @@ void QDragObject::setPixmap(QPixmap pm)
 }
 
 /*!
-    Returns the currently set pixmap (which \link QPixmap::isNull()
-    isNull()\endlink if none is set).
+    Returns the currently set pixmap, or a null pixmap if none is set.
+
+    \sa QPixmap::isNull()
 */
 QPixmap QDragObject::pixmap() const
 {
@@ -349,6 +353,8 @@ QPixmap QDragObject::pixmap() const
 
 /*!
     Returns the currently set pixmap hotspot.
+
+    \sa setPixmap()
 */
 QPoint QDragObject::pixmapHotSpot() const
 {
@@ -359,7 +365,9 @@ QPoint QDragObject::pixmapHotSpot() const
 
 // ## reevaluate for Qt 4
 /*!
-    Set the \a cursor used when dragging in mode \a m.
+    \fn void QDragObject::setCursor(DragMode mode, const QPixmap &cursor)
+
+    Set the \a cursor used when dragging in the given \a mode.
     Note: X11 only allow bitmaps for cursors.
 */
 void QDragObject::setCursor(DragMode m, const QPixmap &cursor)
@@ -390,8 +398,10 @@ void QDragObject::setCursor(DragMode m, const QPixmap &cursor)
 }
 
 /*!
-    Returns the cursor used when dragging in mode \a m, or null if no cursor
-    has been set for that mode.
+    \fn QPixmap *QDragObject::cursor(DragMode mode) const
+
+    Returns the cursor used when dragging in the \a mode, or 0 if
+    no cursor has been set for that mode.
 */
 QPixmap *QDragObject::cursor(DragMode m) const
 {
@@ -426,13 +436,13 @@ QPixmap *QDragObject::cursor(DragMode m) const
 
     If the drag contains \e references to information (e.g. file names
     in a QUriDrag are references) then the return value should always
-    be ignored, as the target is expected to manipulate the
-    referred-to content directly. On X11 the return value should
+    be ignored, as the target is expected to directly manipulate the
+    content referred to by the drag object. On X11 the return value should
     always be correct anyway, but on Windows this is not necessarily
-    the case (e.g. the file manager starts a background process to
-    move files, so the source \e{must not} delete the files!)
+    the case; e.g. the file manager starts a background process to
+    move files, so the source \e{must not} delete the files!
 
-    Note that on Windows the drag operation will spin a blocking modal
+    Note that on Windows the drag operation will start a blocking modal
     event loop that will not dispatch any QTimers.
 */
 bool QDragObject::drag()
@@ -484,10 +494,10 @@ void QDragObject::dragLink()
 
     This enum describes the possible drag modes.
 
-    \value DragDefault  The mode is determined heuristically.
-    \value DragCopy  The data is copied, never moved.
-    \value DragMove  The data is moved, if dragged at all.
-    \value DragLink  The data is linked, if dragged at all.
+    \value DragDefault     The mode is determined heuristically.
+    \value DragCopy        The data is copied.
+    \value DragMove        The data is moved.
+    \value DragLink        The data is linked.
     \value DragCopyOrMove  The user chooses the mode by using a
                            control key to switch from the default.
 */
@@ -524,7 +534,8 @@ bool QDragObject::drag(DragMode mode)
 
 
 /*!
-    Returns a pointer to the drag source where this object originated.
+    Returns a pointer to the widget where this object originated (the drag
+    source).
 */
 
 QWidget * QDragObject::source()
@@ -548,15 +559,15 @@ QWidget * QDragObject::source()
     transferred between and within applications, both for drag and
     drop and for the \link qclipboard.html clipboard\endlink.
 
-    See the \link dnd.html Drag-and-drop documentation\endlink for an
+    See the \link dnd.html Drag and drop documentation\endlink for an
     overview of how to provide drag and drop in your application.
 
     See the QClipboard documentation for an overview of how to provide
-    cut-and-paste in your application.
+    cut and paste in your application.
 
     The drag() function is used to start a drag operation. You can
     specify the \l DragMode in the call or use one of the convenience
-    functions dragCopy(), dragMove() or dragLink(). The drag source
+    functions dragCopy(), dragMove(), or dragLink(). The drag source
     where the data originated is retrieved with source(). If the data
     was dropped on a widget within the application, target() will
     return a pointer to that widget. Specify the pixmap to display
@@ -614,10 +625,12 @@ void QTextDragPrivate::setSubType(const QString & st)
 }
 
 /*!
-    Sets the MIME subtype of the text being dragged to \a st. The
-    default subtype is "plain", so the default MIME type of the text
-    is "text/plain". You might use this to declare that the text is
-    "text/html" by calling setSubtype("html").
+    \fn void QTextDrag::setSubtype(const QString &subtype)
+
+    Sets the MIME \a subtype of the text being dragged. The default subtype
+    is "plain", so the default MIME type of the text is "text/plain".
+    You might use this to declare that the text is "text/html" by calling
+    setSubtype("html").
 */
 void QTextDrag::setSubtype(const QString & st)
 {
@@ -645,8 +658,11 @@ void QTextDrag::setSubtype(const QString & st)
 
 
 /*!
-    Constructs a text drag object and sets its data to \a text. \a
-    dragSource must be the drag source; \a name is the object name.
+    \fn QTextDrag::QTextDrag(const QString &text, QWidget *source, const char *name)
+
+    Constructs a text drag object with the given \a name, and sets its data
+    to \a text. The \a source is the widget that the drag operation started
+    from.
 */
 
 QTextDrag::QTextDrag(const QString &text,
@@ -659,8 +675,10 @@ QTextDrag::QTextDrag(const QString &text,
 
 
 /*!
-    Constructs a default text drag object. \a dragSource must be the
-    drag source; \a name is the object name.
+    \fn QTextDrag::QTextDrag(QWidget *source, const char *name)
+
+    Constructs a default text drag object with the given \a name.
+    The \a source is the widget that the drag operation started from.
 */
 
 QTextDrag::QTextDrag(QWidget * dragSource, const char * name)
@@ -678,8 +696,7 @@ QTextDrag::QTextDrag(QTextDragPrivate &dd, QWidget *dragSource)
 }
 
 /*!
-    Destroys the text drag object and frees up all allocated
-    resources.
+    Destroys the text drag object.
 */
 QTextDrag::~QTextDrag()
 {
@@ -688,8 +705,8 @@ QTextDrag::~QTextDrag()
 
 
 /*!
-    Sets the text to be dragged to \a text. You will need to call this
-    if you did not pass the text during construction.
+    Sets the \a text to be dragged. You will need to call this if you did
+    not pass the text during construction.
 */
 void QTextDrag::setText(const QString &text)
 {
@@ -824,8 +841,10 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 }
 
 /*!
-    Returns true if the information in \a e can be decoded into a
-    QString; otherwise returns false.
+    \fn bool QTextDrag::canDecode(const QMimeSource *source)
+
+    Returns true if the information in the MIME \a source can be decoded
+    into a QString; otherwise returns false.
 
     \sa decode()
 */
@@ -841,9 +860,12 @@ bool QTextDrag::canDecode(const QMimeSource* e)
 }
 
 /*!
+    \fn bool QTextDrag::decode(const QMimeSource *source, QString &string, QString &subtype)
+
     \overload
 
-    Attempts to decode the dropped information in \a e into \a str.
+    Attempts to decode the dropped information in the MIME \a source into
+    the \a string given.
     Returns true if successful; otherwise returns false. If \a subtype
     is null, any text subtype is accepted; otherwise only the
     specified \a subtype is accepted.
@@ -914,7 +936,10 @@ bool QTextDrag::decode(const QMimeSource* e, QString& str, QString& subtype)
 }
 
 /*!
-    Attempts to decode the dropped information in \a e into \a str.
+    \fn bool QTextDrag::decode(const QMimeSource *source, QString &string)
+
+    Attempts to decode the dropped information in the MIME \a source into
+    the \a string given.
     Returns true if successful; otherwise returns false.
 
     \sa canDecode()
@@ -949,8 +974,11 @@ bool QTextDrag::decode(const QMimeSource* e, QString& str)
 */
 
 /*!
-    Constructs an image drag object and sets its data to \a image. \a
-    dragSource must be the drag source; \a name is the object name.
+    \fn QImageDrag::QImageDrag(QImage image, QWidget *source, const char *name)
+
+    Constructs an image drag object with the given \a name, and sets its
+    data to \a image. The \a source is the widget that the drag operation
+    started from.
 */
 
 QImageDrag::QImageDrag(QImage image,
@@ -962,8 +990,10 @@ QImageDrag::QImageDrag(QImage image,
 }
 
 /*!
-    Constructs a default image drag object. \a dragSource must be the
-    drag source; \a name is the object name.
+    \fn QImageDrag::QImageDrag(QWidget *source, const char *name)
+
+    Constructs a default image drag object with the given \a name.
+    The \a source is the widget that the drag operation started from.
 */
 
 QImageDrag::QImageDrag(QWidget * dragSource, const char * name)
@@ -979,8 +1009,7 @@ QImageDrag::QImageDrag(QImageDragPrivate &dd, QWidget *dragSource)
 }
 
 /*!
-    Destroys the image drag object and frees up all allocated
-    resources.
+    Destroys the image drag object.
 */
 
 QImageDrag::~QImageDrag()
@@ -990,8 +1019,8 @@ QImageDrag::~QImageDrag()
 
 
 /*!
-    Sets the image to be dragged to \a image. You will need to call
-    this if you did not pass the image during construction.
+    Sets the \a image to be dragged. You will need to call this if you did
+    not pass the image during construction.
 */
 void QImageDrag::setImage(QImage image)
 {
@@ -1054,7 +1083,9 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 }
 
 /*!
-    Returns true if the information in mime source \a e can be decoded
+    \fn bool QImageDrag::canDecode(const QMimeSource *source)
+
+    Returns true if the information in the MIME \a source can be decoded
     into an image; otherwise returns false.
 
     \sa decode()
@@ -1073,8 +1104,10 @@ bool QImageDrag::canDecode(const QMimeSource* e)
 }
 
 /*!
-    Attempts to decode the dropped information in mime source \a e
-    into \a img. Returns true if successful; otherwise returns false.
+    \fn bool QImageDrag::decode(const QMimeSource *source, QImage &image)
+
+    Decode the dropped information in the MIME \a source into the \a image.
+    Returns true if successful; otherwise returns false.
 
     \sa canDecode()
 */
@@ -1116,14 +1149,15 @@ bool QImageDrag::decode(const QMimeSource* e, QImage& img)
 }
 
 /*!
+    \fn bool QImageDrag::decode(const QMimeSource *source, QPixmap &pixmap)
+
     \overload
 
-    Attempts to decode the dropped information in mime source \a e
-    into pixmap \a pm. Returns true if successful; otherwise returns
-    false.
+    Decodes the dropped information in the MIME \a source into the \a pixmap.
+    Returns true if successful; otherwise returns false.
 
-    This is a convenience function that converts to a QPixmap via a
-    QImage.
+    This is a convenience function that converts the information to a QPixmap
+    via a QImage.
 
     \sa canDecode()
 */
@@ -1168,7 +1202,9 @@ bool QImageDrag::decode(const QMimeSource* e, QPixmap& pm)
 */
 
 /*!
-    Constructs a QStoredDrag. The \a dragSource and \a name are passed
+    \fn QStoredDrag::QStoredDrag(const char *mimeType, QWidget *source, const char *name)
+
+    Constructs a QStoredDrag. The drag \a source and \a name are passed
     to the QDragObject constructor, and the format is set to \a
     mimeType.
 
@@ -1189,7 +1225,7 @@ QStoredDrag::QStoredDrag(QStoredDragPrivate &dd,  const char* mimeType, QWidget 
 }
 
 /*!
-    Destroys the drag object and frees up all allocated resources.
+    Destroys the drag object.
 */
 QStoredDrag::~QStoredDrag()
 {
@@ -1209,9 +1245,11 @@ const char * QStoredDrag::format(int i) const
 
 
 /*!
-    Sets the encoded data of this drag object to \a encodedData. The
-    encoded data is what's delivered to the drop sites. It must be in
-    a strictly defined and portable format.
+    \fn void QStoredDrag::setEncodedData(const QByteArray &data)
+
+    Sets the encoded \a data of this drag object. The encoded data is
+    delivered to drop sites; it must be in a strictly defined and portable
+    format.
 
     The drag object can't be dropped (by the user) until this function
     has been called.
@@ -1223,7 +1261,9 @@ void QStoredDrag::setEncodedData(const QByteArray & encodedData)
 }
 
 /*!
-    Returns the stored data. \a m contains the data's format.
+    \fn QByteArray QStoredDrag::encodedData(const char *format) const
+
+    Returns the stored data in the \a format given.
 
     \sa setEncodedData()
 */
@@ -1253,18 +1293,21 @@ QByteArray QStoredDrag::encodedData(const char* m) const
     escaped ASCII form.
 
     You can convert a list of file names to file URIs using
-    setFileNames(), or into human-readble form with setUnicodeUris().
+    setFileNames(), or into human-readable form with setUnicodeUris().
 
     Static functions are provided to convert between filenames and
-    URIs, e.g. uriToLocalFile() and localFileToUri(), and to and from
-    human-readable form, e.g. uriToUnicodeUri(), unicodeUriToUri().
-    You can also decode URIs from a mimesource into a list with
+    URIs; e.g. uriToLocalFile() and localFileToUri(). Static functions
+    are also provided to convert URIs to and from human-readable form;
+    e.g. uriToUnicodeUri() and unicodeUriToUri().
+    You can also decode URIs from a MIME source into a list with
     decodeLocalFiles() and decodeToUnicodeUris().
 */
 
 /*!
-    Constructs an object to drag the list of URIs in \a uris. The \a
-    dragSource and \a name arguments are passed on to QStoredDrag.
+    \fn QUriDrag::QUriDrag(const QList<QByteArray> &uris, QWidget *source, const char *name)
+
+    Constructs an object to drag the \a list of URIs given.
+    The \a source and \a name are passed to the QStoredDrag constructor.
 
     Note that URIs are always in escaped UTF8 encoding.
 */
@@ -1276,9 +1319,12 @@ QUriDrag::QUriDrag(const QList<QByteArray> &uris,
 }
 
 /*!
-    Constructs an object to drag. You must call setUris() before you
-    start the drag(). Passes \a dragSource and \a name to the
-    QStoredDrag constructor.
+    \fn QUriDrag::QUriDrag(QWidget *source, const char *name)
+
+    Constructs an object to drag with the given \a name.
+    You must call setUris() before you start the drag().
+    Both the \a source and the \a name are passed to the QStoredDrag
+    constructor.
 */
 QUriDrag::QUriDrag(QWidget * dragSource, const char * name) :
     QStoredDrag("text/uri-list", dragSource, name)
@@ -1286,14 +1332,16 @@ QUriDrag::QUriDrag(QWidget * dragSource, const char * name) :
 }
 
 /*!
-    Destroys the object.
+    Destroys the URI drag object.
 */
 QUriDrag::~QUriDrag()
 {
 }
 
 /*!
-    Changes the list of \a uris to be dragged.
+    \fn void QUriDrag::setUris(const QList<QByteArray> &list)
+
+    Changes the \a list of URIs to be dragged.
 
     Note that URIs are always in escaped UTF8 encoding.
 */
@@ -1316,7 +1364,9 @@ void QUriDrag::setUris(const QList<QByteArray> &uris)
 
 
 /*!
-    Returns true if decode() would be able to decode \a e; otherwise
+    \fn bool QUriDrag::canDecode(const QMimeSource *source)
+
+    Returns true if decode() can decode the MIME \a source; otherwise
     returns false.
 */
 bool QUriDrag::canDecode(const QMimeSource* e)
@@ -1325,11 +1375,13 @@ bool QUriDrag::canDecode(const QMimeSource* e)
 }
 
 /*!
-    Decodes URIs from \a e, placing the result in \a l (which is first
-    cleared).
+    \fn bool QUriDrag::decode(const QMimeSource *source, QList<QByteArray> &list)
 
-    Returns true if \a e contained a valid list of URIs; otherwise
-    returns false.
+    Decodes URIs from the MIME \a source, placing the result in the \a list.
+    The list is cleared before any items are inserted.
+
+    Returns true if the MIME \a source contained a valid list of URIs;
+    otherwise returns false.
 */
 bool QUriDrag::decode(const QMimeSource* e, QList<QByteArray>& l)
 {
@@ -1368,14 +1420,16 @@ static uint htod(int h)
 }
 
 /*!
-  \fn QUriDrag::setFilenames(const QStringList &)
+  \fn QUriDrag::setFilenames(const QStringList &list)
   \obsolete
 
-  Use setFileNames() instead (notice the N).
+  Use setFileNames() instead.
 */
 
 /*!
-    Sets the URIs to be the local-file URIs equivalent to \a fnames.
+    \fn void QUriDrag::setFileNames(const QStringList &filenames)
+
+    Sets the URIs to be local file URIs equivalent to the \a filenames.
 
     \sa localFileToUri(), setUris()
 */
@@ -1393,7 +1447,9 @@ void QUriDrag::setFileNames(const QStringList & fnames)
 }
 
 /*!
-    Sets the URIs in \a uuris to be the Unicode URIs (only useful for
+    \fn void QUriDrag::setUnicodeUris(const QStringList &list)
+
+    Sets the URIs in the \a list to be Unicode URIs (only useful for
     displaying to humans).
 
     \sa localFileToUri(), setUris()
@@ -1407,7 +1463,9 @@ void QUriDrag::setUnicodeUris(const QStringList & uuris)
 }
 
 /*!
-    Returns the URI equivalent of the Unicode URI given in \a uuri
+    \fn QByteArray QUriDrag::unicodeUriToUri(const QString &string)
+
+    Returns the URI equivalent of the Unicode URI given in the \a string
     (only useful for displaying to humans).
 
     \sa uriToLocalFile()
@@ -1450,7 +1508,7 @@ QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
 }
 
 /*!
-    Returns the URI equivalent to the absolute local file \a filename.
+    Returns the URI equivalent to the absolute local \a filename.
 
     \sa uriToLocalFile()
 */
@@ -1496,8 +1554,10 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
 }
 
 /*!
+    \fn QString QUriDrag::uriToUnicodeUri(const char *string)
+
     Returns the Unicode URI (only useful for displaying to humans)
-    equivalent of \a uri.
+    equivalent of the URI given in the \a string.
 
     Note that URIs are always in escaped UTF8 encoding.
 
@@ -1528,8 +1588,10 @@ QString QUriDrag::uriToUnicodeUri(const char* uri)
 }
 
 /*!
-    Returns the name of a local file equivalent to \a uri or a null
-    string if \a uri is not a local file.
+    \fn QString QUriDrag::uriToLocalFile(const char *string)
+
+    Returns the name of a local file equivalent to the URI given in the
+    \a string, or a null string if it does not refer to a local file.
 
     Note that URIs are always in escaped UTF8 encoding.
 
@@ -1593,12 +1655,14 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 }
 
 /*!
-    Decodes URIs from the mime source event \a e, converts them to
-    local files if they refer to local files, and places them in \a l
-    (which is first cleared).
+    \fn bool QUriDrag::decodeLocalFiles(const QMimeSource *source, QStringList &list)
 
-    Returns true if \e contained a valid list of URIs; otherwise
-    returns false. The list will be empty if no URIs were local files.
+    Decodes URIs from the MIME \a source, converting them to local filenames
+    where possible, and places them in the \a list (which is first cleared).
+
+    Returns true if the MIME \a source contained a valid list of URIs;
+    otherwise returns false. The list will be empty if no URIs referred to
+    local files.
 */
 bool QUriDrag::decodeLocalFiles(const QMimeSource* e, QStringList& l)
 {
@@ -1616,12 +1680,14 @@ bool QUriDrag::decodeLocalFiles(const QMimeSource* e, QStringList& l)
 }
 
 /*!
-    Decodes URIs from the mime source event \a e, converts them to
-    Unicode URIs (only useful for displaying to humans), placing them
-    in \a l (which is first cleared).
+    \fn bool QUriDrag::decodeToUnicodeUris(const QMimeSource *source, QStringList &list)
 
-    Returns true if \e contained a valid list of URIs; otherwise
-    returns false.
+    Decodes URIs from the MIME \a source, converting them to Unicode URIs
+    (only useful for displaying to humans), and places them in the \a list
+    (which is first cleared).
+
+    Returns true if the MIME \a source contained a valid list of URIs;
+    otherwise returns false.
 */
 bool QUriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 {
@@ -1645,7 +1711,7 @@ bool QUriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
     drag object subclasses.
 
     This is useful if your widget needs special behavior when dragging
-    to itself, etc.
+    to itself.
 
     See QDragObject::QDragObject() and subclasses.
 */
@@ -1659,7 +1725,7 @@ QWidget* QDropEvent::source() const
     \class QColorDrag qdragobject.h
 
     \brief The QColorDrag class provides a drag and drop object for
-    transferring colors.
+    transferring colors between widgets.
 
     \ingroup draganddrop
 
@@ -1675,7 +1741,9 @@ QWidget* QDropEvent::source() const
 */
 
 /*!
-    Constructs a color drag object with the color \a col. Passes \a
+    \fn QColorDrag::QColorDrag(const QColor &color, QWidget *dragsource, const char *name)
+
+    Constructs a color drag object with the given \a color. Passes \a
     dragsource and \a name to the QStoredDrag constructor.
 */
 
@@ -1697,7 +1765,9 @@ QColorDrag::QColorDrag(QWidget *dragsource, const char *name)
 }
 
 /*!
-    Sets the color of the color drag to \a col.
+    \fn void QColorDrag::setColor(const QColor &color)
+
+    Sets the \a color of the color drag.
 */
 
 void QColorDrag::setColor(const QColor &col)
@@ -1722,8 +1792,10 @@ void QColorDrag::setColor(const QColor &col)
 }
 
 /*!
-    Returns true if the color drag object can decode the mime source
-    \a e; otherwise returns false.
+    \fn bool QColorDrag::canDecode(QMimeSource *source)
+
+    Returns true if the color drag object can decode the MIME \a source;
+    otherwise returns false.
 */
 
 bool QColorDrag::canDecode(QMimeSource *e)
@@ -1732,8 +1804,10 @@ bool QColorDrag::canDecode(QMimeSource *e)
 }
 
 /*!
-    Decodes the mime source \a e and sets the decoded values to \a
-    col.
+    \fn bool QColorDrag::decode(QMimeSource *source, QColor &color)
+
+    Decodes the MIME \a source, and sets the decoded values to the
+    given \a color.
 */
 
 bool QColorDrag::decode(QMimeSource *e, QColor &col)
