@@ -403,7 +403,7 @@ void HelpDialog::loadIndexFile()
 	    if ( indexout.open( IO_WriteOnly ) ) {
 		QDataStream s( &indexout );
 		s << QFileInfo( f ).lastModified();
-		s << f.size();
+		s << (Q_ULONG)f.size(); // ### needs I/O for QIODevice::Offset
 		s << *lst;
 	    }
 	    indexout.close();
@@ -527,7 +527,7 @@ void HelpDialog::setupTitleMap()
 	if ( titleout.open( IO_WriteOnly ) ) {
 	    QDataStream s( &titleout );
 	    s << QFileInfo( f2 ).lastModified();
-	    s << f2.size();
+	    s << (Q_ULONG)f2.size(); // ### needs I/O for QIODevice::Offset
 	    s << titleMap;
 	}
 	titleout.close();
