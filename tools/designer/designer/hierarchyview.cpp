@@ -1187,11 +1187,16 @@ HierarchyView::HierarchyView( QWidget *parent )
     formwindow = 0;
     editor = 0;
     listview = new HierarchyList( this, formWindow() );
-    addTab( listview, tr( "Objects" ) );
-    setTabToolTip( listview, tr( "List of all widgets and objects of the current form in hierarchical order" ) );
     fView = new FormDefinitionView( this, formWindow() );
-    addTab( fView, tr( "Members" ) );
-    setTabToolTip( fView, tr( "List of all members of the current form" ) );
+    if ( !MainWindow::self->singleProjectMode() ) {
+	addTab( listview, tr( "Objects" ) );
+	setTabToolTip( listview, tr( "List of all widgets and objects of the current form in hierarchical order" ) );
+	addTab( fView, tr( "Members" ) );
+	setTabToolTip( fView, tr( "List of all members of the current form" ) );
+    } else {
+	listview->hide();
+	fView->hide();
+    }
 
     if ( !classBrowserInterfaceManager ) {
 	classBrowserInterfaceManager =
