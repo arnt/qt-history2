@@ -45,15 +45,18 @@ The table module provides a flexible and editable table widget dubbed \l QTable.
 It consists of the following classes:
 <ul>
 <li> \l QTable is the abstract widget of choice whenever you need to present
-spreadsheet data to the user or let the user edit such data.
+  spreadsheet data to the user or let the user edit such data.
 <li> \l QTableItem objects are used to populate a QTable with data: 
-       each of them contains the content for one cell. 
+  each of them contains the content for one cell. 
 <li> The \l QComboTableItem class provides a convenient way to
-  put combobox items in a QTable. 
+  put combo box items in a QTable. 
 <li> \l QCheckTableItem implements a convenient class to
-  integrate checkbox items into a QTable. 
+  integrate check box items into a QTable. 
 <li> \l QTableSelection provides access to selected areas in a
   QTable.  
+<li> With the \l QTableHeader class it is possible to create table header objects. 
+  As each QTable already comes with a header column and row
+  it is quite likely that you'll never use this class.
 </ul>
 
 

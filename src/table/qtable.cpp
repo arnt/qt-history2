@@ -3797,8 +3797,30 @@ void QTable::startDrag()
 
 
 
+/*! \class QTableHeader qtable.h
+  \module table
 
+  \brief The QTableHeader class allows for creation and manipulation of spreadsheet
+  headers.
 
+  As \l QTable objects are already outfitted with a horizontal and a vertical
+  header you will rarely use this class. You can access them via QTable::horizontalHeader()
+  and QTable::verticalHeader().
+*/
+
+/*! \enum QTableHeader::SectionState 
+
+  This enum type denotes the state of a spreadsheet header.
+
+  \value Normal    The section title appears in roman letters.
+  \value Bold      The section title appears in bold letters.
+  \value Selected  The section itself appears in a sunken fashion
+                   ("pressed").
+*/                                 
+
+/*! Creates a new table header object \a name with \a i sections as a child of 
+  the widget \a parent and attached to the table \a t.
+*/
 
 QTableHeader::QTableHeader( int i, QTable *t,
 			    QWidget *parent, const char *name )
@@ -3836,6 +3858,14 @@ QTableHeader::QTableHeader( int i, QTable *t,
 	     this, SLOT( updateWidgetStretches() ) );
 }
 
+/*! Adds a new section with the section title \a s to \e this
+  QTableHeader. 
+
+  If \a size is non-negative this value is used
+  as the section width. With a negative value the section width
+  depends on the length of the string \a s.
+*/
+
 void QTableHeader::addLabel( const QString &s , int size )
 {
     states.resize( states.count() + 1 );
@@ -3844,6 +3874,11 @@ void QTableHeader::addLabel( const QString &s , int size )
     stretchable[ (int)stretchable.count() - 1 ] = FALSE;
     QHeader::addLabel( s , size );
 }
+
+/*! Defines a new SectionState \a astate for section \a s.
+
+  \sa sectionState()
+*/
 
 void QTableHeader::setSectionState( int s, SectionState astate )
 {
@@ -3861,10 +3896,18 @@ void QTableHeader::setSectionState( int s, SectionState astate )
     }
 }
 
+/*! Returns the SectionState of section \a s.
+
+  \sa setSectionState()
+*/
+
 QTableHeader::SectionState QTableHeader::sectionState( int s ) const
 {
     return (QTableHeader::SectionState)states[ s ];
 }
+
+/*! \reimp
+*/
 
 void QTableHeader::paintEvent( QPaintEvent *e )
 {
@@ -3895,6 +3938,12 @@ void QTableHeader::paintEvent( QPaintEvent *e )
     }
 }
 
+/*! \reimp
+
+  Paints the header section with the index \a index into the
+  rectangular region \a fr on the painter \a p.
+*/
+
 void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
@@ -3917,6 +3966,9 @@ static int real_pos( const QPoint &p, Qt::Orientation o )
     return p.y();
 }
 
+/*! \reimp
+*/
+
 void QTableHeader::mousePressEvent( QMouseEvent *e )
 {
     QHeader::mousePressEvent( e );
@@ -3933,6 +3985,9 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 	doSelection( e );
 #endif
 }
+
+/*! \reimp
+*/
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
@@ -3998,6 +4053,9 @@ bool QTableHeader::doSelection( QMouseEvent *e )
     return FALSE;
 }
 
+/*! \reimp
+*/
+
 void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 {
     autoScrollTimer->stop();
@@ -4012,6 +4070,9 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 	updateStretches();
     }
 }
+
+/*! \reimp
+*/
 
 void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -4038,6 +4099,9 @@ void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 	}
     }
 }
+
+/*! \reimp
+*/
 
 void QTableHeader::resizeEvent( QResizeEvent *e )
 {
@@ -4190,6 +4254,12 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
     }
 }
 
+/*! \reimp
+
+  Returns the size of section \a section in pixels and \e -1
+  when there is no such \a section.
+*/
+
 int QTableHeader::sectionSize( int section ) const
 {
     if ( count() <= 0 || section < 0 )
@@ -4199,6 +4269,14 @@ int QTableHeader::sectionSize( int section ) const
     return QHeader::sectionSize( section );
 }
 
+/*! \reimp
+
+  Returns the start position of section \a section in pixels
+  and \e -1 when there is no such section.
+
+  \sa sectionAt()
+*/
+
 int QTableHeader::sectionPos( int section ) const
 {
     if ( count() <= 0 || section < 0 )
@@ -4207,6 +4285,14 @@ int QTableHeader::sectionPos( int section ) const
 	return sectionPoses[ section ];
     return QHeader::sectionPos( section );
 }
+
+/*! \reimp
+
+  Returns the section that contains position \a pos
+  (in pixels) and \e -1 otherwise.
+
+  \sa sectionPos()
+*/
 
 int QTableHeader::sectionAt( int pos ) const
 {
@@ -4245,6 +4331,13 @@ void QTableHeader::setCaching( bool b )
     }
 }
 
+/*! Makes section \a s stretcheable if \a b is TRUE
+  and prevents resizing of \e this section if \a b
+  is FALSE.
+
+  \sa isSectionStretchable()  
+*/
+
 void QTableHeader::setSectionStretchable( int s, bool b )
 {
     if ( stretchable[ s ] == b )
@@ -4255,6 +4348,11 @@ void QTableHeader::setSectionStretchable( int s, bool b )
     else
 	numStretches--;
 }
+
+/*! Returns whether section \a s is stretcheable or not.
+
+  \sa setSectionStretchable()
+*/
 
 bool QTableHeader::isSectionStretchable( int s ) const
 {
