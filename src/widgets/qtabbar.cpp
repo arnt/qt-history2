@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#92 $
 **
 ** Implementation of QTabBar class
 **
@@ -881,7 +881,8 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = lstatic->last()->r.right() > width() ;
+    bool b = lstatic->last() ? 
+	lstatic->last()->r.right() > width() : FALSE;
     if ( d->scrolls == b )
 	return;
     d->scrolls = b;
