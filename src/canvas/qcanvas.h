@@ -53,6 +53,7 @@
 #define QM_EXPORT_CANVAS
 #else
 #define QM_EXPORT_CANVAS Q_EXPORT
+#endif
 
 #ifndef QT_NO_CANVAS
 
