@@ -1850,7 +1850,7 @@ void VCFilter::addMOCstage( QTextStream &strm, QString filename )
 	strm << _Name5;
 	strm << (*Config)[i].Name;
 	strm << "\">";
-	strm << tool;
+	strm << CustomBuildTool;
 	strm << _endFileConfiguration;
     }
 }
@@ -1955,7 +1955,7 @@ void VCFilter::addPCHstage( QTextStream &strm, QString str )
 	strm << _Name5;
 	strm << (*Config)[i].Name;
 	strm << "\">";
-	strm << tool;
+	strm << CompilerTool;
 	strm << _endFileConfiguration;
     }
 }
