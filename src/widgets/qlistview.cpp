@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#302 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#303 $
 **
 ** Implementation of QListView widget class
 **
@@ -2257,7 +2257,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
 	viewport()->repaint( FALSE );
 	return;
     }
-    
+
     int actual = d->h->mapToActual( section );
     int dx = ns - os;
     int left = d->h->cellPos( actual ) - contentsX() + d->h->cellSize( actual );
@@ -3388,6 +3388,20 @@ void QListView::changeSortColumn( int column )
 {
     int lcol = d->h->mapToLogical( column );
     setSorting( lcol, d->sortcolumn == lcol ? !d->ascending : TRUE);
+}
+
+/*!
+  Resorts the listview using the last sorting configuration (sort column
+  und ascending/descending)
+*/
+
+void QListView::refreshSorting()
+{
+    if ( d->r ) {
+	d->r->lsc = 9999; // ### some stupid value
+	d->r->sortChildItems( d->sortcolumn, d->ascending );
+	triggerUpdate();
+    }
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.
