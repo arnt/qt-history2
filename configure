@@ -1559,29 +1559,16 @@ fi
 
 case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
 IRIX*:*:*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-        echo "    IRIX on SGI hardware..."
-    fi
     ARCH=`uname -p`
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+        echo "    SGI ($ARCH)"
+    fi
     ;;
 SunOS:5*:sun4*)
     if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    Solaris on Sun hardware..."
+	echo "    Sun SPARC (sparc)"
     fi
-    case "$XPLATFORM" in
-    solaris-*-64)
-	if [ "$OPT_VERBOSE" = "yes" ]; then
-	    echo "    64-bit SPARC V9 (sparc64)"
-	fi
-	ARCH=sparc64
-	;;
-    *)
-	if [ "$OPT_VERBOSE" = "yes" ]; then
-	    echo "    32-bit SPARC V7 (sparc)"
-	fi
-	ARCH=sparc
-	;;
-    esac
+    ARCH=sparc
     ;;
 Darwin:*:Power?Macintosh)
     if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -1627,7 +1614,7 @@ else
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    '$ARCH' is unsupported, using 'generic'"
     fi
-    ARCH="generic"
+    ARCH=generic
 fi
 
 if [ "$OPT_VERBOSE" = "yes" ]; then

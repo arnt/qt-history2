@@ -44,9 +44,9 @@ struct QSpinLock
     { lock = 0; }
 
     inline void acquire()
-    { while (q_cas_32(&lock, 0, ~0) != 0); }
+    { while (!q_atomic_test_and_set_int(&lock, 0, ~0)); }
     inline void release()
-    { (void) q_cas_32(&lock, ~0, 0); }
+    { (void) q_atomic_test_and_set_int(&lock, ~0, 0); }
 };
 
 #define Q_SPINLOCK_INITIALIZER {0}

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of q_cas_* functions.
+** Definition of q_atomic_test_and_set_* functions.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -19,54 +19,74 @@
 #  include <qglobal.h>
 #endif // QT_H
 
+extern "C" {
+
 #if defined(Q_CC_GNU)
 
-inline int q_cas_32(volatile int *ptr, int expected, int newval)
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
+    register int tmp;
     register int ret;
-    asm volatile ("      lwarx %0,0,%1\n"
-         "      cmpw %0,%2\n"
-         "      bne- $+12\n"
-         "      stwcx. %3,0,%1\n"
-         "      bne- $-16\n"
-         : "=&r" (ret)
-         : "r" (ptr), "r" (expected), "r" (newval)
-         : "cc", "memory");
+    asm volatile("lwarx  %0,0,%2\n"
+                 "cmpw   %0,%3\n"
+                 "bne-   $+20\n"
+                 "stwcx. %4,0,%2\n"
+                 "bne-   $+12\n"
+                 "li     %1,1\n"
+                 "b      $+8\n"
+                 "li     %1,0\n"
+                 : "=&r" (tmp), "=&r" (ret)
+                 : "r" (ptr), "r" (expected), "r" (newval)
+                 : "cc", "memory");
     return ret;
 }
 
-inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
 {
-    register void *ret;
-    asm volatile (
+    register void *tmp;
+    register int ret;
+
 #ifdef __64BIT__
-         "      ldarx %0,0,%1\n"
-         "      cmpd %0,%2\n"
-         "      bne- $+12\n"
-         "      stdcx. %3,0,%1\n"
-         "      bne- $-16\n"
+#  define LPARX "ldarx"
+#  define CMPP  "cmpd"
+#  define STPCX "stdcx."
 #else
-         "      lwarx %0,0,%1\n"
-         "      cmpw %0,%2\n"
-         "      bne- $+12\n"
-         "      stwcx. %3,0,%1\n"
-         "      bne- $-16\n"
+#  define LPARX "lwarx"
+#  define CMPP  "cmpw"
+#  define STPCX "stwcx."
 #endif
-         : "=&r" (ret)
-         : "r" (ptr), "r" (expected), "r" (newval)
-         : "cc", "memory");
+
+    asm volatile(LPARX"  %0,0,%2\n"
+		 CMPP"   %0,%3\n"
+                 "bne-   $+20\n"
+		 STPCX"  %4,0,%2\n"
+                 "bne-   $+12\n"
+                 "li     %1,1\n"
+                 "b      $+8\n"
+                 "li     %1,0\n"
+                 : "=&r" (tmp), "=&r" (ret)
+                 : "r" (ptr), "r" (expected), "r" (newval)
+                 : "cc", "memory");
+
+#undef LPARX
+#undef CMPP
+#undef STPCX
+
     return ret;
 }
 
 #else
 
 // compiler doesn't support inline assembly
-extern "C" {
-    int q_cas_32(volatile int *ptr, int expected, int newval);
-    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
-}
+
+Q_CORE_EXPORT
+int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+
+Q_CORE_EXPORT
+void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
 
 #endif
 
-#endif // QATOMIC_P_H
+} // extern "C"
 
+#endif // QATOMIC_P_H

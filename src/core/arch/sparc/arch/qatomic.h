@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of q_cas_* functions.
+** Definition of q_atomic_test_and_set_* functions.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -16,8 +16,13 @@
 #define QATOMIC_P_H
 
 extern "C" {
-    int q_cas_32(volatile int *ptr, int expected, int newval);
-    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
-}
+
+Q_CORE_EXPORT
+int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+
+Q_CORE_EXPORT
+void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+
+} // extern "C"
 
 #endif // QATOMIC_P_H

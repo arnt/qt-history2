@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition/Implementation of q_cas_* functions.
+** Definition/Implementation of q_atomic_* functions.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -19,54 +19,59 @@
 #  include <qglobal.h>
 #endif // QT_H
 
+extern "C" {
+
 #if defined(Q_CC_GNU)
 
-inline int q_cas_32(volatile int *ptr, int expected, int newval)
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
     register int tmp, ret;
     asm volatile(
-        "1:  ldl_l %0,%2\n"    /* ret=*ptr;                               */
-        "    cmpeq %0,%3,%1\n" /* if (ret==expected) tmp=0; else tmp=1;   */ 
-        "    beq %1,4f\n"      /* if (tmp==0) goto 4;                     */
-        "    mov %4,%1\n"      /* tmp=newval;                             */
-        "    stl_c %1,%2\n"    /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
-        "    beq %1,3f\n"      /* if (tmp==0) goto 3;                     */
-        "2:  br 4f\n"          /* goto 4;                                 */
-        "3:  br 1b\n"          /* goto 1;                                 */
-        "4:\n"
-        : "=&r" (ret), "=&r" (tmp), "+m" (*ptr)
-        : "r" (expected), "r" (newval)
-        : "memory");
+		 "1:  ldl_l %0,%2\n"    /* ret=*ptr;                               */
+		 "    cmpeq %0,%3,%1\n" /* if (ret==expected) tmp=0; else tmp=1;   */
+		 "    beq   %1,4f\n"    /* if (tmp==0) goto 4;                     */
+		 "    mov   %4,%1\n"    /* tmp=newval;                             */
+		 "    stl_c %1,%2\n"    /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
+		 "    beq   %1,3f\n"    /* if (tmp==0) goto 3;                     */
+		 "2:  br    4f\n"       /* goto 4;                                 */
+		 "3:  br    1b\n"       /* goto 1;                                 */
+		 "4:\n"
+		 : "=&r" (ret), "=&r" (tmp), "+m" (*ptr)
+		 : "r" (expected), "r" (newval)
+		 : "memory");
     return ret;
 }
 
-inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+inline void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
 {
     register void *tmp, *ret;
     asm volatile(
-        "1:  ldq_l %0,%2\n"    /* ret=*ptr;                               */
-        "    cmpeq %0,%3,%1\n" /* if (ret==expected) tmp=0; else tmp=1;   */
-        "    beq %1,4f\n"      /* if (tmp==0) goto 4;                     */
-        "    mov %4,%1\n"      /* tmp=newval;                             */
-        "    stq_c %1,%2\n"    /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
-        "    beq %1,3f\n"      /* if (tmp==0) goto 3;                     */
-        "2:  br 4f\n"          /* goto 4;                                 */
-        "3:  br 1b\n"          /* goto 1;                                 */
-        "4:\n"
-        : "=&r" (ret), "=&r" (tmp), "+m" (*ptr)
-        : "r" (expected), "r" (newval)
-        : "memory");
+		 "1:  ldq_l %0,%2\n"    /* ret=*ptr;                               */
+		 "    cmpeq %0,%3,%1\n" /* if (ret==expected) tmp=0; else tmp=1;   */
+		 "    beq   %1,4f\n"    /* if (tmp==0) goto 4;                     */
+		 "    mov   %4,%1\n"    /* tmp=newval;                             */
+		 "    stq_c %1,%2\n"    /* if ((*ptr=tmp)!=tmp) tmp=0; else tmp=1; */
+		 "    beq   %1,3f\n"    /* if (tmp==0) goto 3;                     */
+		 "2:  br    4f\n"       /* goto 4;                                 */
+		 "3:  br    1b\n"       /* goto 1;                                 */
+		 "4:\n"
+		 : "=&r" (ret), "=&r" (tmp), "+m" (*ptr)
+		 : "r" (expected), "r" (newval)
+		 : "memory");
     return ret;
 }
 
-#else
+#else // !Q_CC_GNU
 
-extern "C" {
-    int q_cas_32(volatile int *ptr, int expected, int newval);
-    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
-}
+Q_CORE_EXPORT
+int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
-#endif
+Q_CORE_EXPORT
+void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+
+#endif // Q_CC_GNU
+
+} // extern "C"
 
 #endif // QATOMIC_P_H
 

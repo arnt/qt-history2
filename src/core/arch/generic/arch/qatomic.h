@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition/Implementation of q_cas_* functions.
+** Definition/Implementation of q_atomic_* functions.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -15,25 +15,26 @@
 #ifndef QATOMIC_P_H
 #define QATOMIC_P_H
 
-inline int q_cas_32(volatile int *ptr, int expected, int newval)
+extern "C" {
+
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
-    int p = *ptr;
-    if (p == expected) {
-        *ptr = newval;
-        return expected;
+    if (*ptr == expected) {
+	*ptr = newval;
+	return 1;
     }
-    return p;
+    return 0;
 }
 
-inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
 {
-    void *p = *ptr;
-    if (p == expected) {
-        *ptr = newval;
-        return expected;
+    if (*ptr == expected) {
+	*ptr = newval;
+	return 1;
     }
-    return p;
+    return 0;
 }
+
+} // extern "C"
 
 #endif // QATOMIC_P_H
-

@@ -21,50 +21,56 @@
 #include <arch/qatomic.h>
 
 #ifndef Q_HAVE_ATOMIC_INCDEC
-inline bool q_atomic_increment(volatile int * const p)
-{
-    register int expected = *p, newval, result;
-    for (;;) {
-	newval = expected + 1;
-	result = q_cas_32((int *)p, expected, newval);
-	if (result == expected) break;
 
-	expected = result;
+inline int q_atomic_increment(volatile int * const ptr)
+{
+    register int expected;
+    for (;;) {
+	expected = *ptr;
+	if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
     }
-    return result != 0;
+    return expected != -1;
 }
 
-inline bool q_atomic_decrement(volatile int * const p)
+inline bool q_atomic_decrement(volatile int * const ptr)
 {
-    register int expected = *p, newval, result;
+    register int expected;
     for (;;) {
-	newval = expected - 1;
-	result = q_cas_32((int *)p, expected, newval);
-	if (result == expected) break;
-
-	expected = result;
+	expected = *ptr;
+	if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
     }
-    return result != 1;
+    return expected != 1;
 }
-#endif
 
-#ifndef Q_HAVE_ATOMIC_SETPOINTER
-inline void *q_atomic_set_pointer(void * volatile *ptr, void *newval)
+#endif // Q_HAVE_ATOMIC_INCDEC
+
+#ifndef Q_HAVE_ATOMIC_SET
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
 {
-    void *expected = static_cast<void *>(*ptr), *result;
+    register int expected;
     for (;;) {
-        result = q_cas_ptr(ptr, expected, newval);
-        if (result == expected) break;
-
-        expected = result;
+	expected = *ptr;
+	if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
     }
-    return result;
+    return expected;
 }
-#endif
+
+inline void *q_atomic_set_ptr(void * volatile *ptr, void *newval)
+{
+    register void *expected;
+    for (;;) {
+	expected = static_cast<void *>(*ptr);
+        if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+    }
+    return expected;
+}
+
+#endif // Q_HAVE_ATOMIC_SET
 
 template <typename T>
 inline T qAtomicSetPtr(volatile T *ptr, T newval)
-{ return static_cast<T>(q_atomic_set_pointer(reinterpret_cast<void * volatile *>(ptr), newval)); }
+{ return static_cast<T>(q_atomic_set_ptr(reinterpret_cast<void * volatile *>(ptr), newval)); }
 
 struct QAtomic {
     int atomic;
@@ -88,10 +94,7 @@ struct QAtomic {
     }
 
     inline void operator=(int x)
-    {
-	volatile int * const ptr = &atomic;
-	*ptr = x;
-    }
+    { q_atomic_set_int(&atomic, x); }
 };
 
 #define Q_ATOMIC_INIT(a) { (a) }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of q_cas_* functions.
+** Implementation of q_atomic_test_and_set_* functions.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -16,56 +16,33 @@
 
 extern "C" {
 
-    /*
-     * \fn int q_cas_32(volatile int *ptr, int expected, int newval);
-     * \internal
-     *
-     * Atomic compare-and-set for 32-bit integers.
-     *
-     * This function atomically compares the contents of \a ptr with \a
-     * expected.  If they are equal, the contents of \a ptr and \a newval
-     * are swapped and \a newval (which now contains the previous contents
-     * of \a ptr) is returned; otherwise nothing happens and the current
-     * contents of \a ptr is returned.
-     *
-     * \sa q_cas_ptr()
-     */
-    int q_cas_32(volatile int *pointer, int expected, int newval)
-    {
-	__asm {
-	    mov EBX,pointer
-	    mov EAX,expected
-	    mov ECX,newval
-	    lock cmpxchg dword ptr[EBX],ECX
-	    mov newval,EAX
-	}
-	return newval;
+int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{
+    __asm {
+	mov EBX,ptr
+	mov EAX,expected
+	mov ECX,newval
+        lock cmpxchg dword ptr[EBX],ECX
+        mov EAX,0
+	sete AL
+        mov newval,EAX
     }
+    return newval;
+}
 
-    /*
-     * \fn void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
-     * \internal
-     *
-     * Atomic compare-and-set for pointers.
-     *
-     * This function atomically compares the contents of \a ptr with \a
-     * expected.  If they are equal, the contents of \a ptr and \a newval
-     * are swapped and \a newval (which now contains the previous contents
-     * of \a ptr) is returned; otherwise nothing happens and the current
-     * contents of \a ptr is returned.
-     *
-     * \sa q_cas_32()
-     */
-    void *q_cas_ptr(void * volatile *pointer, void *expected, void *newval)
-    {
-	__asm {
-	    mov EBX,pointer
-	    mov EAX,expected
-	    mov ECX,newval
-	    lock cmpxchg dword ptr[EBX],ECX
-	    mov newval,EAX
-	}
-	return newval;
+int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
+{
+    unsigned int ret;
+    __asm {
+	mov EBX,ptr
+	mov EAX,expected
+	mov ECX,newval
+        lock cmpxchg dword ptr[EBX],ECX
+	mov EAX,0
+	sete AL
+        mov ret,EAX
     }
+    return ret;
+}
 
 } // extern "C"
