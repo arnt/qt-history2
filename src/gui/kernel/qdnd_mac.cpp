@@ -496,12 +496,10 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(true), boundsPoint, 0);
     }
 
-    //initialize
-    accept_action = QDrag::CopyAction;
     { //do the drag
         qt_mac_in_drag = true;
         QMacBlockingFunction block;
-        updateDragMode(theDrag, o->possible_actions);
+        updateDragMode(theDrag, o->d->possible_actions);
         result = TrackDrag(theDrag, &fakeEvent, dragRegion.handle(true));
         qt_mac_in_drag = false;
     }
