@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#31 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#32 $
 **
 ** Definition of QComboBox class
 **
@@ -57,7 +57,7 @@ public:
     void	setFont( const QFont & );
 
     void	setSizeLimit( int );
-    uint	sizeLimit() const;
+    int		sizeLimit() const;
 
     enum	Policy { NoInsertion, AtBeginning,
 			 AtCurrent, AtEnd };

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#59 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#59 $");
 
 
 /*!
@@ -49,8 +49,14 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#58 $");
   syndrome.  In Motif 2.0, OSF introduced an improved combo box and
   named that XmComboBox.  QComboBox provides both.
 
-  A combo box emits two signals, activated() and highlighted(), when
-  a new item has been activated (selected) or highlighted (set to current).
+
+
+  A combo box emits two signals, activated() and highlighted(), when a
+  new item has been activated (selected) or highlighted (set to
+  current).
+
+  
+
 */
 
 
@@ -85,7 +91,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#58 $");
 struct QComboData
 {
     int		current;
-    uint	maxCount;
+    int		maxCount;
     QLineEdit * ed;  // /bin/ed rules!
     QComboBox::Policy p;
     bool	edEmpty;
@@ -183,7 +189,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->edEmpty               = TRUE;
     d->ed                    = 0;
     d->current               = 0;
-    d->maxCount              = UINT_MAX;
+    d->maxCount              = INT_MAX;
     d->p = AtEnd;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
@@ -224,7 +230,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
     d->edEmpty = TRUE;
     d->current = 0;
-    d->maxCount = UINT_MAX;
+    d->maxCount = INT_MAX;
     d->p = AtEnd;
     d->autoresize = FALSE;
     d->poppedUp = FALSE;
@@ -1227,9 +1233,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
   \sa setSizeLimit() count()
 */
 
-uint QComboBox::sizeLimit() const
+int QComboBox::sizeLimit() const
 {
-    return d ? d->maxCount : UINT_MAX;
+    return d ? d->maxCount : INT_MAX;
 }
 
 
@@ -1301,11 +1307,13 @@ void QComboBox::returnPressed()
 	    }
 	    break;
 	case AtBeginning:
-	    insertItem( s, 0 );
+	    if ( count() < d->maxCount )
+		insertItem( s, 0 );
 	    emit activated( s );
 	    break;
 	case AtEnd:
-	    insertItem( s );
+	    if ( count() < d->maxCount )
+		insertItem( s );
 	    emit activated( s );
 	    break;
 	case NoInsertion:
