@@ -286,14 +286,14 @@ int QEucJpCodec::heuristicNameMatch(const char* hint) const
 	p = hint;
     }
     if (p) {
-	if ((stricmp(p, "AJEC") == 0) ||
-	    (stricmp(p, "eucJP") == 0) ||
-	    (stricmp(p, "ujis") == 0)) {
+	if ((qstricmp(p, "AJEC") == 0) ||
+	    (qstricmp(p, "eucJP") == 0) ||
+	    (qstricmp(p, "ujis") == 0)) {
 	    return score + 4;
 	}
 	// there exists ja_JP.EUC, ko_KR.EUC, zh_CN.EUC and zh_TW.EUC
 	// so "euc" may or may not be Japanese EUC.
-	if (stricmp(p, "euc") == 0) {
+	if (qstricmp(p, "euc") == 0) {
 	    return ja ? score + 4 : 1;
 	}
     }
