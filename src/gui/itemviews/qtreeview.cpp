@@ -247,6 +247,26 @@ void QTreeView::setUniformRowHeights(bool uniform)
 }
 
 /*!
+  \property QTreeView::itemsExpandable
+  \brief whether the items are expandable by the user.
+
+  This property holds whether the user can expand and collapse items
+  interactively.
+  
+*/
+bool QTreeView::itemsExpandable() const
+{
+    Q_D(const QTreeView);
+    return d->itemsExpandable;
+}
+
+void QTreeView::setItemsExpandable(bool enable)
+{
+    Q_D(QTreeView);
+    d->itemsExpandable = enable;
+}
+
+/*!
   Returns the horizontal position of the \a column in the viewport.
 */
 int QTreeView::columnViewportPosition(int column) const
@@ -753,7 +773,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
     if (i == -1) {
         QAbstractItemView::mouseDoubleClickEvent(e);
         i = d->item(e->y());
-        if (i == -1 || state() != NoState)
+        if (i == -1 || state() != NoState || !d->itemsExpandable)
             return; // the double click triggered editing or we clicked outside the items
         if (model()->hasChildren(d->viewItems.at(i).index)) {
             if (d->viewItems.at(i).expanded) {
@@ -884,13 +904,13 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MoveUp:
         return d->modelIndex(d->above(vi));
     case MoveLeft:
-        if (d->viewItems.at(vi).expanded)
+        if (d->viewItems.at(vi).expanded && d->itemsExpandable)
             d->collapse(vi);
         updateGeometries();
         viewport()->update();
         break;
     case MoveRight:
-        if (!d->viewItems.at(vi).expanded)
+        if (!d->viewItems.at(vi).expanded && d->itemsExpandable)
             d->expand(vi);
         updateGeometries();
         viewport()->update();
@@ -1414,7 +1434,7 @@ int QTreeViewPrivate::indentation(int i) const
         return 0;
     int level = viewItems.at(i).level;
     if (rootDecoration)
-        level++;
+        ++level;
     return level * indent;
 }
 

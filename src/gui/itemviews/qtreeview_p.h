@@ -45,7 +45,7 @@ public:
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
           header(0), indent(20), itemHeight(-1),
-          uniformRowHeights(false), rootDecoration(true), reexpand(-1) { }
+          uniformRowHeights(false), rootDecoration(true), itemsExpandable(true), reexpand(-1) { }
 
     ~QTreeViewPrivate() {}
     void initialize();
@@ -97,6 +97,7 @@ public:
     int itemHeight; // this is just a number; contentsHeight() / numItems
     bool uniformRowHeights; // used when all rows have the same height
     bool rootDecoration;
+    bool itemsExpandable;
 
     // used for drawing
     int left;
