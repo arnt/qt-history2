@@ -1483,8 +1483,11 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
                 else if(QFile::exists(Option::fixPathToLocalOS(specdir()+QDir::separator()+"tmake.conf")))
                     t << specdir() << Option::dir_sep << "tmake.conf" << " ";
             }
-            t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-              << qmake <<endl;
+            const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
+            t << included.join(" \\\n\t\t") << "\n\t"
+              << qmake << endl;
+            for(QStringList::ConstIterator it = included.begin(); it != included.end(); ++it) 
+                t << (*it) << ":" << endl;
         }
         if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
             t << "qmake: " <<
