@@ -10,6 +10,16 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 
+static UInt8 *str_buffer = NULL;
+static void cleanup_str_buffer()
+{
+    if(str_buffer) {
+	free(str_buffer);
+	str_buffer = NULL;
+    }
+}
+
+
 // Returns the wildcard part of a filter.
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 static QString extractFilter( const QString& rawFilter )
@@ -123,7 +133,6 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 					      const QString& caption )
 {
     OSErr err;
-    AliasInfoType x = 0;
     QString tmpstr;
     QStringList retstrl;
     NavDialogOptions options;
@@ -179,22 +188,19 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 	if(err != noErr)
 	    goto get_name_out;
 
-	AliasHandle alias;
-	Str63 str;
-	char tmp[sizeof(Str63)+2];
-	tmp[0] = '/';
-	tmpstr = "";
-
-	if(NewAlias( NULL, &FSSpec, &alias ) != noErr)
-	    goto get_name_out;
-	while(1) {
-	    GetAliasInfo(alias, (AliasInfoType)x++, str);
-	    if(!str[0])
-		break;
-	    strncpy((char *)tmp+1, (const char *)str+1, str[0]);
-	    tmp[str[0]+1] = '\0';
-	    tmpstr.prepend((char *)tmp);
+	//we must *try* to create a file, and remove it if successfull
+	//to actually get a path, bogus? I think so.
+	err = FSpCreate(&FSSpec, 'CUTE', 'TEXT', smSystemScript);
+	FSRef ref;
+	FSpMakeFSRef(&FSSpec, &ref);
+	if(!str_buffer) {
+	    qAddPostRoutine( cleanup_str_buffer );
+	    str_buffer = (UInt8 *)malloc(1024);
 	}
+	FSRefMakePath(&ref, str_buffer, 1024);
+	if(err == noErr) 
+	    FSpDelete(&FSSpec);
+	tmpstr = QString::fromUtf8((const char *)str_buffer);
 	retstrl.append(tmpstr);
     }
 
@@ -212,7 +218,6 @@ QString QFileDialog::macGetSaveFileName( const QString &,
 					 const QString& caption )
 {
     OSErr err;
-    AliasInfoType x = 0;
     QString retstr;
     NavDialogOptions options;
     NavGetDefaultDialogOptions( &options );
@@ -266,31 +271,24 @@ QString QFileDialog::macGetSaveFileName( const QString &,
     if(err != noErr)
 	goto put_name_out;
 
-    AliasHandle alias;
-    Str63 str;
-    char tmp[sizeof(Str63)+2];
-    tmp[0] = '/';
-
-    if((err = NewAliasMinimal( &FSSpec, &alias )) != noErr) {
-	qDebug("%d", err);
-	goto put_name_out;
+    //we must *try* to create a file, and remove it if successfull
+    //to actually get a path, bogus? I think so.
+    err = FSpCreate(&FSSpec, 'CUTE', 'TEXT', smSystemScript);
+    FSRef ref;
+    FSpMakeFSRef(&FSSpec, &ref);
+    if(!str_buffer) {
+	qAddPostRoutine( cleanup_str_buffer );
+	str_buffer = (UInt8 *)malloc(1024);
     }
-
-
-    while(1) {
-	GetAliasInfo(alias, (AliasInfoType)x++, str);
-	if(!str[0])
-	    break;
-	strncpy((char *)tmp+1, (const char *)str+1, str[0]);
-	tmp[str[0]+1] = '\0';
-	retstr.prepend((char *)tmp);
-    }
+    FSRefMakePath(&ref, str_buffer, 1024);
+    if(err == noErr) 
+	FSpDelete(&FSSpec);
+    retstr = QString::fromUtf8((const char *)str_buffer);
 
  put_name_out:
     if(use_initial)
 	AEDisposeDesc(&initial);
     NavDisposeReply(&ret);
-    qDebug("%s", retstr.latin1());
     return retstr;
 }
 
