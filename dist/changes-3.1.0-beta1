@@ -20,16 +20,21 @@ can easily be added to Qt-based applications. QSA consists of a script
 engine, a script IDE, and script bindings to the Qt API.
 
 The visual GUI builder, Qt Designer, has improved usability in several
-aspects. The earlier, somewhat cluttered toolbars have been cleaned
-up. The property editor can operate on multiple widgets
-simultaneously. Designer now also offers proper WYSIWYG support for
-using QWidgetStacks in the created GUIs.
-##### more!
+aspects. The user interface for setting up signals and slots
+connections was redesigned to be more intuitive. The earlier, somewhat
+cluttered toolbars have been cleaned up to provide a clear structured
+user interface.  Unlike in former versions, the property editor
+handles common properties in multiple widgets simultaneously.  The
+highly requested WYSIWYG support for QWidgetStack has been added. The
+property editor got a specialised rich text editor for rich text
+content. Code editing in Qt Designer also allows for editing ordinary
+member functions in additions to slots.
 
 Qt Assistant, the Qt help documentation browser, got support for
-adding custom documentation sets. This makes it easy to use it as the
-help browser for customer applications. Additionally Qt Assistant
-supports full text search in the documentation now.
+adding custom documentation sets. This and a new class
+QAssistantClient allow it to be used as the help browser for customer
+applications. Additionally Qt Assistant supports full text search in
+the documentation now, via a fast builtin full text search engine.
 
 As the industry is phasing out Motif, more and more companies are
 finding themselves in a situation where they need a gradual migration
