@@ -1356,7 +1356,7 @@ void qt_get_net_virtual_roots()
 	// compute nitems
 	QByteArray buffer(ts.buffer());
 	nitems = buffer.size() / sizeof(Window);
-	qt_net_supported_list = new Window[nitems + 1];
+	qt_net_virtual_root_list = new Window[nitems + 1];
 	Window *a = (Window *) buffer.data();
 	uint i;
 	for (i = 0; i < nitems; i++)
