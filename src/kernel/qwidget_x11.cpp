@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#287 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#288 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1093,12 +1093,13 @@ void QWidget::showMinimized()
 void QWidget::showMaximized()
 {
     if ( testWFlags(WType_TopLevel) ) {
+	int scr = qt_xscreen();
 	int sw = DisplayWidth(dpy,scr);
 	int sh = DisplayHeight(dpy,scr);
 	createTLExtra();
-	if ( extra->topextra->normalGeometry,width() < 0 ) {
-	    extra->topextra->saveNormal = geometry();
-	    setGeomtry( 0, 0, DisplayWidth(dpy,scr), DisplayHeight(dpy,scr) );
+	if ( extra->topextra->normalGeometry.width() < 0 ) {
+	    extra->topextra->normalGeometry = geometry();
+	    setGeometry( 0, 0, sw, sh );
 	}
 	show();
     }
