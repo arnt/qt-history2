@@ -84,7 +84,6 @@ QSocketDevice::QSocketDevice( Type type )
 	// leave fd at -1 but set the type
 	t = type;
 	switch( WSAGetLastError() ) {
-	    // rms
 	    case WSANOTINITIALISED:
 		e = Impossible;
 		break;
@@ -177,7 +176,6 @@ int QSocketDevice::option( Option opt ) const
 	if ( !e ) {
             QSocketDevice *that = (QSocketDevice*)this; // mutable function
  	    switch( WSAGetLastError() ) {
-		// rms
 		case WSANOTINITIALISED:
 		    that->e = Impossible;
 		    break;
@@ -230,7 +228,6 @@ void QSocketDevice::setOption( Option opt, int v )
     int r = ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v) );
     if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
-	    // rms
 	    case WSANOTINITIALISED:
 		e = Impossible;
 		break;
@@ -280,7 +277,6 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
     if ( r == SOCKET_ERROR )
     {
 	switch( WSAGetLastError() ) {
-	    // rms
 	    case WSANOTINITIALISED:
 		e = Impossible;
 		break;
@@ -357,7 +353,6 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
     if ( r == SOCKET_ERROR ) {
 	switch( WSAGetLastError() ) {
-	    // rms
 	    case WSANOTINITIALISED:
 		e = Impossible;
 		break;
@@ -417,7 +412,6 @@ int QSocketDevice::accept()
     // we'll blithely throw away the stuff accept() wrote to a
     if ( s == INVALID_SOCKET && e == NoError ) {
 	switch( WSAGetLastError() ) {
-	    // rms
 	    case WSANOTINITIALISED:
 		e = Impossible;
 		break;
@@ -518,7 +512,6 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 #endif
 	if ( r == SOCKET_ERROR && e == NoError ) {
 	    switch( WSAGetLastError() ) {
-		// rms
 		case WSANOTINITIALISED:
 		    e = Impossible;
 		    break;
@@ -599,7 +592,6 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( WSAGetLastError() ) {
-		// rms
 		case WSANOTINITIALISED:
 		    e = Impossible;
 		    break;
@@ -700,7 +692,6 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& e != EAGAIN ) {
 	    switch( WSAGetLastError() ) {
-		// rms
 		case WSANOTINITIALISED:
 		    e = Impossible;
 		    break;
@@ -760,4 +751,5 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress();
 	return;
     }
+    // ### don't we need a fetch here?
 }
