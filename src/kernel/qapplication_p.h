@@ -70,7 +70,7 @@ extern int qt_ncols_option;
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
 extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
-struct QApplicationPrivate : public QKernelApplicationPrivate
+class QApplicationPrivate : public QKernelApplicationPrivate
 {
     Q_DECL_PUBLIC(QApplication);
 

@@ -1338,7 +1338,7 @@ extern void qt_sn_activate_fd( int sockfd, int type );
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
-bool qt_sendSpontaneousEvent( QObject *receiver, QEvent *event )
+inline bool qt_sendSpontaneousEvent( QObject *receiver, QEvent *event )
 {
     return QKernelApplication::sendSpontaneousEvent( receiver, event );
 }
