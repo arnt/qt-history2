@@ -13608,13 +13608,12 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     \sa QStringList::split()
 */
 
-QString QString::section( const QString &sep, int start, int end, int flags ) const
+QString QString::section( const QString &in_sep, int start, int end, int flags ) const
 {
     const QChar *uc = unicode();
     if ( !uc )
 	return QString();
-    if(flags & SectionCaseInsensitiveSeps)
-	sep = sep.lower();
+    QString sep = (flags & SectionCaseInsensitiveSeps) ? in_sep.lower() : in_sep;
     const QChar *uc_sep = sep.unicode();
     if(!uc_sep)
 	return QString();
