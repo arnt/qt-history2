@@ -216,6 +216,32 @@ private:
 
 };
 
+class QtFamilyNamesList : public QStringList
+{
+public:
+    void sort();
+};
+
+void QtFamilyNamesList::sort()
+{
+    // temporarily replace '[' with '#', so that 'Arial [Xft]' isn't placed
+    // after 'Arial Black [Xft]' ( '[' is after 'B', but '#' is before 'B' )
+    for( Iterator it = begin();
+         it != end();
+         ++it ) {
+        int pos = (*it).find( '[' );
+        if( pos >= 0 )
+            (*it)[ pos ] = '#';
+    }
+    qHeapSort( *this );
+    for( Iterator it = begin();
+         it != end();
+         ++it ) {
+        int pos = (*it).find( '#' );
+        if( pos >= 0 )
+            (*it)[ pos ] = '[';
+    }
+}
 
 class QtFontFoundry
 {
@@ -234,7 +260,7 @@ public:
 private:
     QString nm;
 
-    QStringList familyNames;
+    QtFamilyNamesList familyNames;
     QDict<QtFontFamily> familyDict;
 
     bool namesDirty;
@@ -271,7 +297,7 @@ private:
     QStringList foundryNames;
     QDict<QtFontFoundry> foundryDict;
 
-    QStringList familyNames;
+    QtFamilyNamesList familyNames;
     QDict<QtFontFamily> bestFamilyDict;
 
     bool namesDirty;
@@ -873,8 +899,7 @@ QFontDatabase::QFontDatabase()
 }
 
 
-/*!
-    Returns a list of the names of the available font families.
+/*! Returns a sorted list of the names of the available font families.
 
   If a family exists in several foundries, the returned name for that font
   is in the form "family [foundry]". Examples: "Times [Adobe]", "Times
