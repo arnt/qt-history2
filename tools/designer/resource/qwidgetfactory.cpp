@@ -1488,9 +1488,7 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 		    funcs = *fit;
 		}
 		QString body = n.firstChild().toText().data();
-		QString s = "with (Application." + QString( toplevel->name() );
-		s += ") { Application." + QString( toplevel->name() ) + "." + ident;
-		s += " = function " + name.mid( pos ) + '\n' + body + "}\n\n";
+		QString s = "function " + name + "\n" + body + "\n\n";
 		funcs->functions += s;
 		if ( qwf_language && *qwf_language == *it ) {
 		    if ( !qwf_functions )
