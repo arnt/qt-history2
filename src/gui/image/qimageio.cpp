@@ -312,7 +312,7 @@ void qt_init_image_handlers()                // initialize image handlers
                                read_pbm_image, write_pbm_image);
 #endif
 #ifndef QT_NO_IMAGEIO_XBM
-    QImageIO::defineIOHandler("XBM", "^#define", "T",
+    QImageIO::defineIOHandler("XBM",  "^((/\\*(?!.XPM.\\*/))|#define)", "T",
                                read_xbm_image, write_xbm_image);
 #endif
 #ifndef QT_NO_IMAGEIO_XPM
@@ -1937,6 +1937,10 @@ static void read_xbm_image(QImageIO *iio)
     QImage image;
 
     d->readLine(buf, buflen);                        // "#define .._width <num>"
+
+    while (buf[0] != '#' && d->readLine( buf, buflen ) > 0) //skip initial comment, if any
+        ;
+
     QString sbuf;
     sbuf = QString::fromLatin1(buf);
 
