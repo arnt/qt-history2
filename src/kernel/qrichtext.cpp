@@ -2826,6 +2826,8 @@ bool QTextDocument::focusNextPrevChild( bool next )
     } else {
 	QTextParag *p = focusIndicator.parag;
 	int index = focusIndicator.start - 1;
+	if ( focusIndicator.len == 0 && index < focusIndicator.parag->length() - 1 )
+	    index++;
 	while ( p ) {
 	    for ( int i = index; i >= 0; --i ) {
 		if ( p->at( i )->format()->isAnchor() ) {
