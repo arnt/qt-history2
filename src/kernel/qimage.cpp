@@ -3945,6 +3945,8 @@ static QImageHandler *get_image_handler( const char *format )
     converted to 1 bytes. This is done because when Qt was
     ASCII-based, QRegExp could not handle 0 bytes in strings.
 
+    The regexp is only applied on the first 14 bytes of the file.
+
     (Note that if one handlerIO supports writing a format and another
     supports reading it, Qt supports both reading and writing. If two
     handlers support the same operation, Qt chooses one arbitrarily.)
@@ -4217,7 +4219,9 @@ const char* QImageIO::imageFormat( const QString &fileName )
 
 const char *QImageIO::imageFormat( QIODevice *d )
 {
+    // if you change this change the documentation for defineIOHandler()
     const int buflen = 14;
+
     char buf[buflen];
     char buf2[buflen];
     qt_init_image_handlers();
