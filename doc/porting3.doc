@@ -446,6 +446,13 @@ QToolButton::setIconSet(), you should make the signature of the
 reimplementation agree with the new \l QToolButton::setIconSet(),
 a virtual function.
 
+\section1 QTextStream
+
+The global QTextStream manipulators setw(), setfill() and setprecison()
+were renamed to qSetW(), qSetFill() and qSetPrecision() to avoid conflicts
+with the std libs. If you used them, you have to rename the occurences to
+the new name.
+
 \section1 QTranslator
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
