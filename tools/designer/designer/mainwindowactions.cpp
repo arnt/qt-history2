@@ -736,7 +736,7 @@ void MainWindow::setupPreviewActions()
 
     QSignalMapper *mapper = new QSignalMapper( this );
     connect( mapper, SIGNAL(mapped(const QString&)), this, SLOT(previewForm(const QString&)) );
-    QStringList styles = QStyleFactory::styles();
+    QStringList styles = QStyleFactory::keys();
     for ( QStringList::Iterator it = styles.begin(); it != styles.end(); ++it ) {
 	QString info;
 	if ( *it == "Motif" )
