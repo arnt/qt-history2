@@ -1554,9 +1554,9 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	return;
     //make a region of it
     PolyHandle poly = OpenPoly();
-    MoveTo(a[0].x()+d->offx-1, a[0].y()+d->offy-1);
-    for(uint x = 1; x < a.size(); x++)
-	LineTo(a[x].x()+d->offx-1, a[x].y()+d->offy-1);
+    MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
+    for(uint x = 1; x < pa.size(); x++)
+	LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
     ClosePoly();
     //now draw it
     updatePen();
