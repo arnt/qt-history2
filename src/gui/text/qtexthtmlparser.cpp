@@ -1018,7 +1018,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             fontFamily = QString::fromLatin1("Courier New,courier");
             break;
         case Html_br:
-            text = QChar::LineSeparator;
+            text = QChar(QChar::LineSeparator);
             break;
         // ##### sub / sup
         case Html_pre:
