@@ -3335,15 +3335,28 @@ bool QImage::operator==(const QImage & i) const
     if (i.data == data)
         return true;
     // obviously different stuff?
-    if (i.data->h != data->h || i.data->w != data->w)
+    if (i.data->h != data->h || i.data->w != data->w || i.data->alpha != data->alpha)
         return false;
     // that was the fast bit...
     QImage i1 = convertDepth(32);
     QImage i2 = i.convertDepth(32);
     int l;
-    for(l=0; l < data->h; l++)
-        if (memcmp(i1.scanLine(l), i2.scanLine(l), 4*data->w))
-            return false;
+    if (data->alpha) {
+        for(l=0; l < data->h; l++)
+            if (memcmp(i1.scanLine(l), i2.scanLine(l), 4*data->w))
+                return false;
+    } else {
+        //alpha channel undefined, so we must mask it out
+        for(l=0; l < data->h; l++) {
+            int w = data->w;
+            const uint *p1 = reinterpret_cast<const uint*>(i1.scanLine(l));
+            const uint *p2 = reinterpret_cast<uint*>(i2.scanLine(l));
+            while (w--) {
+                if ((*p1++ & 0x00ffffff) != (*p2++ & 0x00ffffff))
+                    return false;
+            }
+        }
+    }
     return true;
 }
 
