@@ -177,10 +177,10 @@ float it.
 
 The documentation window offers a feature for viewing documentation by
 enabling you to create tabs for each documentation page that you view.
-Click the \Button {Add Page} button and a new tab will appear with the
+Click the \Button {Add Tab} button and a new tab will appear with the
 page name as the tab's caption. This makes it convenient to switch
 between pages when you are working with different documentation. You
-can delete a tab by clicking the \Button {Close Page} button located
+can delete a tab by clicking the \Button {Close Tab} button located
 on the right side of the documentation window.
 
 \section1 The Toolbar
