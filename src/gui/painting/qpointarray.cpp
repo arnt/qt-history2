@@ -390,8 +390,13 @@ QRect QPointArray::boundingRect() const
 #ifndef QT_NO_WMATRIX
 void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 {
-    QMatrix unit;
-    makeArc(x, y, w, h, a1, a2, unit);
+    QRectF r(x, y, w, h);
+    QPointF startPoint;
+    qt_find_ellipse_coords(r, a1, a2, &startPoint, 0);
+
+    QPainterPath path(startPoint);
+    path.arcTo(r, a1, a2);
+    *this = path.toSubpathPolygons().at(0).toPointArray();
 }
 #endif
 
