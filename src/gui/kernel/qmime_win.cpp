@@ -17,7 +17,6 @@
 
 #include "qimageio.h"
 #include "qdatastream.h"
-#include "qdragobject.h"
 #include "qbuffer.h"
 #include "qt_windows.h"
 #include "qapplication_p.h"

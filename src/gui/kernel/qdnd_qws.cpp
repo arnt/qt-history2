@@ -17,7 +17,6 @@
 
 #include "qwidget.h"
 #include "qdatetime.h"
-#include "qdragobject.h"
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qevent.h"

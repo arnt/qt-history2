@@ -18,7 +18,6 @@
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
-#include "qdragobject.h"
 #include "qevent.h"
 #include "qimage.h"
 #include "qlayout.h"

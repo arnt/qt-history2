@@ -20,7 +20,6 @@
 #include "qimage.h"
 #include "qhash.h"
 #include "qstack.h"
-#include "qdragobject.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"

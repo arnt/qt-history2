@@ -16,7 +16,6 @@
 #ifndef QT_NO_DRAGANDDROP
 #include "qwidget.h"
 #include "qdatetime.h"
-#include "qdragobject.h"
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qcursor.h"

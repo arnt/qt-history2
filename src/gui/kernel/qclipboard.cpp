@@ -31,7 +31,7 @@
     The clipboard offers a simple mechanism to copy and paste data
     between applications.
 
-    QClipboard supports the same data types that QDragObject does, and
+    QClipboard supports the same data types that QDrag does, and
     uses similar mechanisms. For advanced clipboard usage
     read \link dnd.html the drag-and-drop documentation\endlink.
 

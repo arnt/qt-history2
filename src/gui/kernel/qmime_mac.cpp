@@ -31,7 +31,6 @@
 #include "qimageio.h"
 #include "qpixmap.h"
 #include "qdatastream.h"
-#include "qdragobject.h"
 #include "qbuffer.h"
 #include "qdatetime.h"
 #include "qapplication_p.h"
@@ -457,7 +456,7 @@ int QMacMimeText::flavorFor(const QString &mime)
             cs = cs.left(i);
         if(cs == QLatin1String("system"))
             return kScrapFlavorTypeText;
-        else if(cs == QLatin1String("ISO-10646-UCS-2") || 
+        else if(cs == QLatin1String("ISO-10646-UCS-2") ||
                 cs == QLatin1String("utf16"))
             return kScrapFlavorTypeUnicode;
     }
@@ -855,7 +854,7 @@ QString QMacMime::flavorToMime(QMacMimeType t, int flav)
         if((*it)->type & t) {
             QString mimeType = (*it)->mimeFor(flav);
             if(!mimeType.isNull())
-                return mimeType; 
+                return mimeType;
         }
     }
     return QString();

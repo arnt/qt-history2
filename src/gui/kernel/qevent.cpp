@@ -890,8 +890,7 @@ QCloseEvent::QCloseEvent()
    It is normal to begin using drag and drop in response to this
    event.
 
-   \sa \link dnd.html Drag-and-drop documentation\endlink QImageDrag
-   QDragObject
+   \sa \link dnd.html Drag-and-drop documentation\endlink QMimeData QDrag
 */
 
 /*!
@@ -1584,12 +1583,12 @@ bool QDropEvent::provides(const char *mimeType) const
     If the source of the drag operation is a widget in this
     application, this function returns that source; otherwise it
     returns 0. The source of the operation is the first parameter to
-    drag object subclasses.
+    the QDrag object used instantiate the drag.
 
     This is useful if your widget needs special behavior when dragging
     to itself.
 
-    See QDragObject::QDragObject() and subclasses.
+    \sa QDrag::QDrag()
 */
 QWidget* QDropEvent::source() const
 {
@@ -1624,11 +1623,9 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
     Call this function to indicate whether the event provided data
     that your widget processed. Set \a y to true (the default) if
     your widget could process the data, otherwise set \a y to false.
-    To get the data, use encodedData(), or preferably, the decode()
-    methods of existing QDragObject subclasses, such as
-    QTextDrag::decode(), or your own subclasses.
+    To get the data, use mimeData().
 
-    \sa acceptAction()
+    \sa acceptAction() QMimeData
 */
 
 /*!
