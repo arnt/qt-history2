@@ -67,13 +67,13 @@ public:
     QTabWidget( QWidget *parent=0, const char *name=0);
    ~QTabWidget();
 
-    void addTab( QWidget *, const QString &);
-    void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
-    void addTab( QWidget *, QTab* );
+    virtual void addTab( QWidget *, const QString &);
+    virtual void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    virtual void addTab( QWidget *, QTab* );
 
-    void insertTab( QWidget *, const QString &, int index = -1);
-    void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
-    void insertTab( QWidget *, QTab*, int index = -1 );
+    virtual void insertTab( QWidget *, const QString &, int index = -1);
+    virtual void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
+    virtual void insertTab( QWidget *, QTab*, int index = -1 );
 
     void changeTab( QWidget *, const QString &);
     void changeTab( QWidget *child, const QIconSet& iconset, const QString &label);
@@ -81,8 +81,8 @@ public:
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
 
-    void showPage( QWidget * );
-    void removePage( QWidget * );
+    virtual void showPage( QWidget * );
+    virtual void removePage( QWidget * );
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
     
