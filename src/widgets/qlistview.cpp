@@ -2654,6 +2654,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->save();
 		p->translate( r.left(), r.top() );
 		int ac = d->h->mapToLogical( c );
+		// map to Left currently. This should change once we
+		// can really reverse the listview.
+		int align = columnAlignment( ac );
+		if ( align == AlignAuto ) align = AlignLeft;
 		if ( d->useDoubleBuffer ) {
 		    QSharedDoubleBuffer buffer( TRUE, FALSE );
 		    QRect a( QPoint( 0, 0 ), QSize( r.width(), current->i->height() ) );
@@ -2664,10 +2668,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    buffer.painter()->setPen( p->pen() );
 		    buffer.painter()->setBrush( p->brush() );
 		    current->i->paintCell( buffer.painter(), cg, ac, r.width(),
-					   columnAlignment( ac ) );
+					   align );
 		} else {
 		    current->i->paintCell( p, cg, ac, r.width(),
-					   columnAlignment( ac ) );
+					   align );
 		}
 		p->restore();
 		x += cs;
@@ -3346,8 +3350,10 @@ void QListView::handleSizeChange( int section, int os, int ns )
     viewport()->repaint( left - 4 - d->ellipsisWidth, 0, 4 + d->ellipsisWidth,
 			 visibleHeight(), FALSE ); // border between the items and ellipses width
 
-    // (lars) need to fix alignment here?
+    // map auto to left for now. Need to fix this once we support
+    // reverse layout on the listview.
     int align = columnAlignment( section );
+    if ( align == AlignAuto ) align = AlignLeft;
     if ( align != AlignAuto && align != AlignLeft )
 	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
 			     d->h->cellSize( actual ), visibleHeight() );
