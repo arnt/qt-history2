@@ -96,10 +96,9 @@
   The two constructors create identical-looking combos in Windows
   style.
 
-  Read-only combo boxes can contain pixmaps as well as texts; the
-  insert() and changeItem() functions are suitably overloaded.  If you
-  try to insert a pixmap in a read-write combo box, QComboBox simply
-  ignores you.  For read-write combo boxes, the function clearEdit()
+  Combo boxes can contain pixmaps as well as texts; the
+  insert() and changeItem() functions are suitably overloaded.  For 
+  read-write combo boxes, the function clearEdit()
   is provided, to clear the displayed string without changing the
   combo box' contents.
 
@@ -810,7 +809,7 @@ void QComboBox::changeItem( const QString &t, int index )
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
-    if ( d->ed != 0 || !checkIndex( "changeItem", name(), count(), index ) )
+    if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox() )
 	d->listBox()->changeItem( im, index );
@@ -822,17 +821,12 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 
 /*!
   Replaces the item at position \e index with a pixmap plus text.
-  If the combo box is writable, the pixmap is ignored.
-
+  
   \sa insertItem()
 */
 
 void QComboBox::changeItem( const QPixmap &im, const QString &t, int index )
 {
-    if ( d->ed != 0 ) {
-	changeItem( t, index );
-	return;
-    }
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox() )
