@@ -2,15 +2,14 @@
 #include <qtextcodec.h>
 #include <qptrlist.h>
 
-#include <qgbkcodec.h>
 #include "../../qfontcodecs_p.h"
 
 
-class CNTextCodecs : public QTextCodecInterface
+class ARTextCodecs : public QTextCodecInterface
 {
 public:
-    CNTextCodecs();
-    virtual ~CNTextCodecs();
+    ARTextCodecs();
+    virtual ~ARTextCodecs();
 
     // unknown interface
     void queryInterface(const QUuid &, QUnknownInterface **);
@@ -32,18 +31,18 @@ private:
 };
 
 
-CNTextCodecs::CNTextCodecs()
+ARTextCodecs::ARTextCodecs()
     : ref(0)
 {
 }
 
 
-CNTextCodecs::~CNTextCodecs()
+ARTextCodecs::~ARTextCodecs()
 {
 }
 
 
-void CNTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
+void ARTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 {
     if (uuid == IID_QUnknownInterface)
 	*iface = (QUnknownInterface *) this;
@@ -57,13 +56,13 @@ void CNTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 }
 
 
-unsigned long CNTextCodecs::addRef()
+unsigned long ARTextCodecs::addRef()
 {
     return ref++;
 }
 
 
-unsigned long CNTextCodecs::release()
+unsigned long ARTextCodecs::release()
 {
     if (! --ref) {
 	delete this;
@@ -74,50 +73,21 @@ unsigned long CNTextCodecs::release()
 }
 
 
-QStringList CNTextCodecs::featureList() const
+QStringList ARTextCodecs::featureList() const
 {
     QStringList list;
-    list << "GBK" << "gb2312.1980-0";
-    list << "MIB-2027" << "MIB-57";
+    list << "iso8859-6.8x";
     return list;
 }
 
 
-QTextCodec *CNTextCodecs::createForMib( int mib )
+QTextCodec *ARTextCodecs::createForMib( int )
 {
-    QTextCodec *codec = 0;
-
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->mibEnum() == mib)
-	    break;
-    }
-
-    if (! codec ) {
-	switch (mib) {
-	case 57:
-	    codec = new QFontGB2312Codec;
-	    break;
-
-	case 2027:
-	    codec = new QGbkCodec;
-	    break;
-
-	default:
-	    ;
-	}
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
-QTextCodec *CNTextCodecs::createForName( const QString &name )
+QTextCodec *ARTextCodecs::createForName( const QString &name )
 {
     QTextCodec *codec = 0;
 
@@ -130,10 +100,8 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
     }
 
     if (! codec) {
-	if (name == "GBK")
-	    codec = new QGbkCodec;
-	else if (name == "gb2312.1980-0")
-	    codec = new QFontGB2312Codec;
+	if (name == "iso8859-6.8x")
+	    codec = new QFontArabic68Codec;
 
 	if (codec)
 	    codecs.append(codec);
@@ -145,7 +113,7 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new CNTextCodecs;
+    QUnknownInterface *iface = (QUnknownInterface *) new ARTextCodecs;
     iface->addRef();
     return iface;
 }

@@ -1,2 +1,2 @@
 TEMPLATE	= subdirs
-SUBDIRS		= cn jp kr tw
+SUBDIRS		= ar cn jp kr tw
