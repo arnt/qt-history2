@@ -819,7 +819,7 @@ Q_ULONG QSocket::waitForMore( int msecs ) const
 	return 0;
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->waitForMore( msecs ) > 0 )
-	(void)that->sn_read();
+	(void)that->sn_read( TRUE );
     return that->d->rsize;
 }
 
@@ -1044,14 +1044,20 @@ QString QSocket::readLine()
 
 /*!
   Internal slot for handling socket read notifications.
+
+  This function has can usually be only entered once (i.e. no recursive calls).
+  If the argument \a force is TRUE, the function is executed, but no
+  readyRead() signals are emitted. This behaviour is useful for the
+  waitForMore() function, so that it is possible to call waitForMore() in a
+  slot connected to the readyRead() signal.
 */
 
-void QSocket::sn_read()
+void QSocket::sn_read( bool force )
 {
     // Use QSocketPrivate::sn_read_alreadyCalled to avoid recursive calls of
     // sn_read() (and as a result avoid emitting the readyRead() signal in a
     // slot for readyRead(), if you use bytesAvailable()).
-    if ( QSocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
+    if ( !force && QSocketPrivate::sn_read_alreadyCalled.findRef(this) != -1 )
 	return;
     QSocketPrivate::sn_read_alreadyCalled.append( this );
 
@@ -1160,7 +1166,8 @@ void QSocket::sn_read()
     }
     d->rba.append( a );
     d->rsize += nread;
-    emit readyRead();
+    if ( !force )
+	emit readyRead();
 
     QSocketPrivate::sn_read_alreadyCalled.removeRef( this );
 }

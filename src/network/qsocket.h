@@ -123,7 +123,7 @@ signals:
     void	 error( int );
 
 protected slots:
-    virtual void sn_read();
+    virtual void sn_read( bool force=FALSE );
     virtual void sn_write();
 
 private slots:
