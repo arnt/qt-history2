@@ -14,7 +14,6 @@
 #include <qapplication.h>
 #include <qaccel.h>
 
-const unsigned char * p_str(const char *); //qglobal.cpp
 static MenuRef createPopup(QPopupMenu *d, bool);
 static bool syncPopup(MenuRef ret, QPopupMenu *d);
 
@@ -29,11 +28,10 @@ public:
 };
 static QIntDict<MacPopupBinding> *pdict = NULL;
 
-static const unsigned char *no_ampersands(QString i) {
-    int w=0;
-    while((w=i.find('&', w)) != -1) 
+static const CFStringRef no_ampersands(QString i) {
+    for(int w = 0; (w=i.find('&', w)) != -1; )
 	i.remove(w, 1);
-    return p_str(i);
+    return CFStringCreateWithCharacters(NULL, (UniChar *)i.unicode(), i.length());
 }
 
 #if 0
@@ -88,9 +86,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		}
 	    }
 
-	    InsertMenuItemText(ret, no_ampersands(text), id);
-	    SetMenuItemCommandID(ret, id, item->id());
-
+	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id, 0, item->id());
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
@@ -169,7 +165,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 	    continue;
 
 	MenuRef mp = createPopup(item->popup(), FALSE);
-	SetMenuTitle(mp, no_ampersands(item->text()));
+	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 666);
     }
     InvalMenuBar();

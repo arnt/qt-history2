@@ -13,7 +13,6 @@
 #include <qdict.h>
 
 /* utility functions */
-extern const unsigned char * p_str(const char * c);
 static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
 {
     UnicodeMapping mapping;

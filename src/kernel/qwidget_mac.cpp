@@ -53,10 +53,6 @@
 #include "qtextcodec.h"
 #include <qcursor.h>
 
-const unsigned char * p_str(const char *); //qglobal.cpp
-
-// NOT REVISED
-
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -76,7 +72,7 @@ QPoint posInWindow(QWidget *w)
 
 static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_erase=TRUE)
 {
-    if(!p || r.isEmpty() || !p->isVisible())
+    if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
 	return;
 
     QRegion pa(p->clippedRegion());
@@ -86,7 +82,6 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
     if(!pa.isEmpty()) {
 	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
 	if(now) {
-	    /* this is stupid, probably should just post, I need to ask mathias! FIXME */
 	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
 		p->repaint(pa, erase);
@@ -593,8 +588,10 @@ void QWidget::setCaption( const QString &cap )
 	return; // for less flicker
     createTLExtra();
     extra->topextra->caption = cap;
-    if(isTopLevel())
-	SetWTitle((WindowPtr)hd, p_str(cap.latin1()));
+    if(isTopLevel()) {
+	CFStringRef str = CFStringCreateWithCharacters(NULL, (UniChar *)cap.unicode(), cap.length());
+	SetWindowTitleWithCFString((WindowPtr)hd, str);
+    }
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
@@ -1362,6 +1359,9 @@ void QWidget::propagateUpdates()
 
 void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
+    if(qApp->closingDown() || qApp->startingUp())
+	return;
+
     if(dirty_myself) {
 	//dirty myself
 	if(extra) 
@@ -1421,6 +1421,9 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 
 bool QWidget::isClippedRegionDirty()
 {
+    if(qApp->closingDown() || qApp->startingUp())
+	return FALSE;
+
     if(!extra || extra->clip_dirty)
 	return TRUE;
     if(/*!isTopLevel() && */(parentWidget() && parentWidget()->isClippedRegionDirty()))
@@ -1430,7 +1433,7 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(!isVisible())
+    if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp()))
 	return QRegion();
 
     createExtra();
