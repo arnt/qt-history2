@@ -5,7 +5,6 @@
 \row \o QFile::PermissionSpec \o QFile::Permission
 \row \o QFile::SortSpec \o QFile::SortFlags
 \row \o QFile::Status \o QFile::Error
-\row \o QFileDialog::Mode \o QFileDialog::FileMode
 \row \o QFileInfo::PermissionSpec \o QFile::Permission
 \row \o QGrid::Direction \o Qt::Orientation
 \row \o QGridWidget::Direction \o Qt::Orientation
