@@ -11,7 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validEditions = ["opensource", "commercial", "preview", "beta"];
-const validSwitches = ["gzip", "bzip", "zip"]; // these are either true or false, set by -do-foo/-no-foo
+const validSwitches = ["gzip", "bzip", "zip", "binaries"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
@@ -20,6 +20,10 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "icns", "qpf", "bdf", "pfb", "pfa",
 			  "ttf"];
 
+var binaryHosts = new Array();
+binaryHosts["win"] = "innsikt";
+binaryHosts["mac"] = "zoidberg";
+		     
 const user = System.getenv("USER");
 
 var options = [];	 // list of all package options
@@ -192,7 +196,7 @@ moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
 print("Initializing...");
 parseArgc();
 initialize();
-print("Checking tools...");
+print("Checking tools and hosts...");
 checkTools();
 print("Building qdoc...");
 buildQdoc();
@@ -242,6 +246,9 @@ for (var p in validPlatforms) {
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
 	    replaceTags(platDir, getFileList(platDir), platform, edition, platName);
+
+	    // create binaries
+	    compile(platDir, platform, edition);
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
@@ -358,17 +365,26 @@ function initialize()
 }
 
 /************************************************************
- * Verify that the necesary tools are available.
+ * Verify that the necessary tools and hosts are available.
  */
 function checkTools()
 {
     try {
-	execute([qmakeCommand, "-help"]);
+	execute(["which", qmakeCommand]);
 	execute("zip -help");
 	execute("tar --help");
 	execute("gzip -h");
  	execute("bzip2 -h");
 	execute("cp --help");
+	execute("which scp");
+	execute("ssh -V");
+	for (var p in binaryHosts) {
+	    if (options["binaries"] && options[p]) {
+		var host = binaryHosts[p];
+		if (execute(["ssh", "period@" + host, "true"]))
+		    throw "Host " + host + " failed...";
+	    }
+	}
 	execute(p4Command);
     } catch (e) {
 	throw "Tool failed: %1".arg(e);
@@ -539,6 +555,15 @@ function compress(packageDir, platform, edition)
 }
 
 
+/************************************************************
+ * copies qt to binary host, and makes it compile
+ */
+function compile(packageDir, platform, edition)
+{
+    if (!options["binaries"] || !binaryHosts[platform])
+	return;
+
+}
 
 /************************************************************
  * gets a list of all files and subdirectories relative to the specified directory (not absolutePath)
@@ -789,8 +814,8 @@ function execute(command, stdin) {
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
 	print("...took %1 second(s)".arg(runTime));
-    if (error > 0 || (Process.stderr.length > 0 &&
-		      Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1))
+    if (error != 0 || (Process.stderr.length > 0 &&
+		       Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1))
 	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(80)));
     return error;
 }
