@@ -102,6 +102,49 @@ const TokenAttributes *TokenContainer::tokenAttributes() const
     return d->tokenAttributes;
 }
 
+/*
+    Returns the line number for the given index.
+*/
+int TokenContainer::line(int index) const
+{
+    //This algorithm is a bit more complicated than it should be,
+    //since we have to search for newlines inside comments. 
+    //(Comments are tokenized as one token)
+    QByteArray contents = fullText();
+    int pos=0;
+    int lines=0;
+    for(int t=0; t < index; ++t) {
+        int tokenLength = d->tokens.at(t).length;
+        if((tokenLength == 1) && (text(t) == "\n")) {
+            ++lines;
+        } else if(tokenLength > 2) {// 3 is the minimum size for a comment (// + newline) 
+            int newpos = d->tokens.at(t).length;
+            for(int p = pos; p < newpos; ++p) {
+                if(contents[p] == '\n')
+                    ++lines;
+            }
+        }
+        pos += d->tokens.at(t).length;
+    }
+    return lines;
+}
+
+/*
+    Returns the column number for the given index.
+*/
+int TokenContainer::column(int index) const
+{
+    //Scan backwards, find \n.
+    int chars = 0;
+    int t = index;
+    while (t>0) {
+        if((d->tokens.at(t).length == 1) && (text(t) == "\n"))
+            break;
+        chars += d->tokens.at(t).length;
+        --t;
+    }
+    return chars;
+}
 
 QByteArray TokenSection::fullText() const
 {

@@ -31,7 +31,7 @@ SourcePointLogEntry::SourcePointLogEntry(QString type, QString location, QString
 QString SourcePointLogEntry::description() const
 {
     return "In file "  + file +
-           " at line " + QString("%1").arg(line +1) +
+           " at line " + QString("%1").arg(line + 1) + //line count is zero based, adjust here.
            " column "  + QString("%1").arg(column) +
            ": " + text ;
 }

@@ -23,9 +23,8 @@ void TokenReplacement::addLogSourceEntry(const QString &text, const TokenContain
     Q_UNUSED(tokenContainer);
     Q_UNUSED(index);
      Logger *logger = Logger::instance();
-    //TODO: figue ut how to get line/col from a tokenContainer
-    int line = 0;
-    int col = 0;;
+    int line = tokenContainer.line(index);
+    int col = tokenContainer.column(index);
     SourcePointLogEntry *logEntry =
                 new SourcePointLogEntry("Info", "Porting",
                                         logger->globalState.value("currentFileName"),
