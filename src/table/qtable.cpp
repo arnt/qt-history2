@@ -27,7 +27,6 @@
 #include <qcursor.h>
 #include <qapplication.h>
 #include <qtimer.h>
-#include <qobjectlist.h>
 #include <qiconset.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
