@@ -15,12 +15,18 @@
 
 /*!
     \class QButtonGroup qbuttongroup.h
-    \brief The QButtonGroup widget organizes QButton widgets in a group.
+    \brief The QButtonGroup class provides a container to organize groups of
+    button widgets.
 
     \ingroup organizers
     \ingroup geomanagement
     \ingroup appearance
     \mainclass
+
+    QButtonGroup provides an abstract container into which button widgets can
+    be placed. It does not provide a visual representation of this container
+    (see QGroupBox for a container widget), but instead manages the states of
+    each of the buttons in the group.
 
     An \l exclusive button group switches off all checkable (toggle)
     buttons except the one that was clicked. By default, a button
@@ -37,7 +43,7 @@
     \inlineimage qbttngrp-m.png Screenshot in Motif style
     \inlineimage qbttngrp-w.png Screenshot in Windows style
 
-    \sa QPushButton, QCheckBox, QRadioButton
+    \sa QGroupBox QPushButton, QCheckBox, QRadioButton
 */
 
 /*!
