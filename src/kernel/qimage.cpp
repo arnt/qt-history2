@@ -4962,7 +4962,10 @@ bool qt_write_dib( QDataStream& s, QImage image )
 		p++;
 	    }
 	}
-	d->writeBlock( (char*)buf, bpl_bmp );
+	if ( bpl_bmp != (uint)d->writeBlock( (char*)buf, bpl_bmp ) ) {
+	    delete[] buf;
+	    return FALSE;
+	}
     }
     delete[] buf;
     return TRUE;
@@ -4995,7 +4998,9 @@ static void write_bmp_image( QImageIO *iio )
     bf.bfSize	   = bf.bfOffBits + bpl_bmp*image.height();
     s << bf;					// write file header
 
-    qt_write_dib( s, image );
+    if ( !qt_write_dib( s, image ) )
+	iio->setStatus( 1 );
+    
 }
 
 #endif // QT_NO_IMAGEIO_BMP
@@ -5514,14 +5519,18 @@ static void write_xbm_image( QImageIO *iio )
 		*p++ = '\n';
 		*p++ = ' ';
 		*p   = '\0';
-		d->writeBlock( buf, qstrlen(buf) );
+		if ( qstrlen(buf) != (uint)d->writeBlock( buf, qstrlen(buf) ) ) {
+		    iio->setStatus( 1 );
+		    return;
+		}
 		p = buf;
 		bcnt = 0;
 	    }
 	}
     }
     strcpy( p, " };\n" );
-    d->writeBlock( buf, qstrlen(buf) );
+    if ( qstrlen(buf) != (uint)d->writeBlock( buf, qstrlen(buf) ) )
+	iio->setStatus( 1 );
 }
 
 #endif // QT_NO_IMAGEIO_XBM
