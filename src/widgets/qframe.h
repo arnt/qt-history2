@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#15 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#16 $
 **
 ** Definition of QFrame widget class
 **
@@ -69,7 +69,7 @@ private:
     short	fwidth;
     short	lineok;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QFrame( const QFrame & ) {}
     QFrame &operator=( const QFrame & ) { return *this; }
 };

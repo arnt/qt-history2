@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#12 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#13 $
 **
 ** Definition of QIODevice class
 **
@@ -117,7 +117,7 @@ private:
     int		 ioMode;
     int		 ioSt;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QIODevice( const QIODevice & ) {}
     QIODevice &operator=( const QIODevice & ) { return *this; }
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#35 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#36 $
 **
 ** Definition of QButton widget class
 **
@@ -84,7 +84,7 @@ public:
 #endif
 
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QButton( const QButton & ) {}
     QButton &operator=( const QButton & ) { return *this; }
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#34 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#35 $
 **
 ** Definition of QMenuData class
 **
@@ -57,7 +57,7 @@ private:
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QMenuItem( const QMenuItem & ) {}
     QMenuItem &operator=( const QMenuItem & ) { return *this; }
 };

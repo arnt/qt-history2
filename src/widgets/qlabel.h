@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#22 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#23 $
 **
 ** Definition of QLabel widget class
 **
@@ -54,7 +54,7 @@ private:
     int		align;
     bool	autoresize;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QLabel( const QLabel & ) {}
     QLabel &operator=( const QLabel & ) { return *this; }
 };

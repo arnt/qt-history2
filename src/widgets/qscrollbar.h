@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#23 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#24 $
 **
 ** Definition of QScrollBar class
 **
@@ -79,7 +79,7 @@ private:
     QCOORD	sliderPos;
     QCOORD	clickOffset;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QScrollBar( const QScrollBar & ) {}
     QScrollBar &operator=( const QScrollBar & ) { return *this; }
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#14 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#15 $
 **
 ** Definition of QMenuBar class
 **
@@ -70,7 +70,7 @@ private:
     QAccel     *autoaccel;
     QRect      *irects;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QMenuBar( const QMenuBar & ) {}
     QMenuBar &operator=( const QMenuBar & ) { return *this; }
 };

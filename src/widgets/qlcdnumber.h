@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#19 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#20 $
 **
 ** Definition of QLCDNumber class
 **
@@ -78,7 +78,7 @@ public:
     long    longValue() const;
 #endif
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QLCDNumber( const QLCDNumber & ) {}
     QLCDNumber &operator=( const QLCDNumber & ) { return *this; }
 };

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#18 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#19 $
 **
 ** Definition of QComboBox class
 **
@@ -88,7 +88,7 @@ public:
 #endif
 
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QComboBox( const QComboBox & ) {}
     QComboBox &operator=( const QComboBox & ) { return *this; }
 };

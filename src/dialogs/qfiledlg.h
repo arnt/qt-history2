@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#6 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#7 $
 **
 ** Definition of QFileDialog class
 **
@@ -84,7 +84,7 @@ private:
     QPushButton *filterB;
     QPushButton *cancelB;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QFileDialog( const QFileDialog & ) {}
     QFileDialog &operator=( const QFileDialog & ) { return *this; }
 };

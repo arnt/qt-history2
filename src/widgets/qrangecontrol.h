@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#9 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#10 $
 **
 ** Definition of QRangeControl class
 **
@@ -51,7 +51,7 @@ private:
     int		line, page;
     int		val, prevVal;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QRangeControl( const QRangeControl & ) {}
     QRangeControl &operator=( const QRangeControl & ) { return *this; }
 };

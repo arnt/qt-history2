@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#8 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#9 $
 **
 ** Definition of QBuffer class
 **
@@ -50,7 +50,7 @@ private:
     uint  a_len;
     uint  a_inc;
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
     QBuffer( const QBuffer & ) {}
     QBuffer &operator=( const QBuffer & ) { return *this; }
 };
