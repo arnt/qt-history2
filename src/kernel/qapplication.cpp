@@ -1504,7 +1504,8 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	qdevel->addTopLevelWidget( (QWidget*)receiver );
 #endif
 
-    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
+    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved &&
+	 postedEvents ) {
 	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert and return.
 	QPostEventList * l = postedEvents;
@@ -2066,7 +2067,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 	debug( "QApplication::removePostedEvent: %p %d is, impossibly, posted",
 	       event, event->type() );
 	return;
-#endif	
+#endif
     }
 
     QPostEventListIt it( *postedEvents );
