@@ -3300,6 +3300,21 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             data->crect = cr;
         if (isTopLevel()) {                        // update title/icon text
             d->createTLExtra();
+            // Capture SIZE_MINIMIZED without preceding WM_SYSCOMMAND
+            // (like Windows+M)
+            if (msg.wParam == SIZE_MINIMIZED && !testWState(Qt::WState_Minimized)) {
+                setWState(Qt::WState_Minimized);
+                if (isVisible()) {
+                    QHideEvent e;
+                    QApplication::sendSpontaneousEvent(this, &e);
+                    hideChildren(true);
+                }
+            } else if (msg.wParam != SIZE_MINIMIZED && testWState(Qt::WState_Minimized)) {
+                clearWState(Qt::WState_Minimized);
+                showChildren(true);
+                QShowEvent e;
+                QApplication::sendSpontaneousEvent(this, &e);
+            }
             QString txt;
 #ifndef Q_OS_TEMP
             if (IsIconic(winId()) && windowIconText().size())
