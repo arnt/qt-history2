@@ -9,12 +9,12 @@
 #include <qvector.h>
 #endif
 
-class Q_GUI_EXPORT QListView_Item
+class Q_GUI_EXPORT QListViewItem
 {
 
 public:
-    QListView_Item()  : edit(true), select(true) {}
-    ~QListView_Item() {}
+    QListViewItem()  : edit(true), select(true) {}
+    ~QListViewItem() {}
 
     inline QString text() const { return data(QAbstractItemModel::Display).toString(); }
     inline QIconSet iconSet() const { return data(QAbstractItemModel::Decoration).toIconSet(); }
@@ -28,8 +28,8 @@ public:
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
-    bool operator ==(const QListView_Item &other) const;
-    inline bool operator !=(const QListView_Item &other) const { return !operator==(other); }
+    bool operator ==(const QListViewItem &other) const;
+    inline bool operator !=(const QListViewItem &other) const { return !operator==(other); }
 
     QVariant data(int role) const;
     void setData(int role, const QVariant &value);
@@ -50,25 +50,25 @@ private:
     uint select : 1;
 };
 
-class QListView_Private;
+class QListViewPrivate;
 
-class Q_GUI_EXPORT QListView_ : public QGenericListView
+class Q_GUI_EXPORT QListView : public QGenericListView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QListView_)
+    Q_DECLARE_PRIVATE(QListView)
 
 public:
-    QListView_(QWidget *parent = 0);
-    ~QListView_();
+    QListView(QWidget *parent = 0);
+    ~QListView();
 
     void setText(int row, const QString &text);
     void setIconSet(int row, const QIconSet &iconSet);
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
-    QListView_Item item(int row) const;
-    void setItem(int row, const QListView_Item &item);
-    void appendItem(const QListView_Item &item);
+    QListViewItem item(int row) const;
+    void setItem(int row, const QListViewItem &item);
+    void appendItem(const QListViewItem &item);
 };
 
 #endif
