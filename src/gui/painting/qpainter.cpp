@@ -215,6 +215,7 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
 
     \sa clipRegion()
 */
+
 /*!
     \enum QPainter::TextDirection
     \value Auto
@@ -222,209 +223,6 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
     \value LTR left to right
 
     \sa drawText()
-*/
-
-/*!
-    \enum Qt::PaintUnit
-    \value PixelUnit
-    \value LoMetricUnit \e obsolete
-    \value HiMetricUnit \e obsolete
-    \value LoEnglishUnit \e obsolete
-    \value HiEnglishUnit \e obsolete
-    \value TwipsUnit \e obsolete
-*/
-
-/*!
-    \enum Qt::BrushStyle
-
-    \value NoBrush
-    \value SolidPattern
-    \value Dense1Pattern
-    \value Dense2Pattern
-    \value Dense3Pattern
-    \value Dense4Pattern
-    \value Dense5Pattern
-    \value Dense6Pattern
-    \value Dense7Pattern
-    \value HorPattern
-    \value VerPattern
-    \value CrossPattern
-    \value BDiagPattern
-    \value FDiagPattern
-    \value DiagCrossPattern
-    \value CustomPattern
-
-    \img brush-styles.png Brush Styles
-
-*/
-
-/*!
-    \enum Qt::RasterOp
-
-    \keyword raster operation
-    \keyword raster op
-
-    This enum type is used to describe the way things are written to
-    the paint device. Each bit of the \e src (what you write)
-    interacts with the corresponding bit of the \e dst pixel.
-
-    \value CopyROP  dst = src
-    \value OrROP   dst = src OR dst
-    \value XorROP   dst = src XOR dst
-    \value NotAndROP  dst = (NOT src) AND dst
-    \value EraseROP  an alias for \c NotAndROP
-    \value NotCopyROP  dst = NOT src
-    \value NotOrROP  dst = (NOT src) OR dst
-    \value NotXorROP  dst = (NOT src) XOR dst
-    \value AndROP  dst = src AND dst
-    \value NotEraseROP  an alias for \c AndROP
-    \value NotROP  dst = NOT dst
-    \value ClearROP  dst = 0
-    \value SetROP  dst = 1
-    \value NopROP  dst = dst
-    \value AndNotROP  dst = src AND (NOT dst)
-    \value OrNotROP  dst = src OR (NOT dst)
-    \value NandROP  dst = NOT (src AND dst)
-    \value NorROP  dst = NOT (src OR dst)
-
-    By far the most useful ones are \c CopyROP and \c XorROP.
-
-    On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
-    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
-    supported.
-
-    On Qt/Embedded, only \c CopyROP, \c XorROP, and \c NotROP are supported.
-*/
-
-/*!
-    \enum Qt::AlignmentFlags
-
-    This enum type is used to describe alignment. It contains
-    horizontal and vertical flags.
-
-    The horizontal flags are:
-
-    \value AlignAuto Aligns according to the language. Left for most,
-	right for Arabic and Hebrew.
-    \value AlignLeft Aligns with the left edge.
-    \value AlignRight Aligns with the right edge.
-    \value AlignHCenter Centers horizontally in the available space.
-    \value AlignJustify Justifies the text in the available space.
-	Does not work for everything and may be interpreted as
-	AlignAuto in some cases.
-
-    The vertical flags are:
-
-    \value AlignTop Aligns with the top.
-    \value AlignBottom Aligns with the bottom.
-    \value AlignVCenter Centers vertically in the available space.
-
-    You can use only one of the horizontal flags at a time. There is
-    one two-dimensional flag:
-
-    \value AlignCenter Centers in both dimensions.
-
-    You can use at most one horizontal and one vertical flag at a time. \c
-    AlignCenter counts as both horizontal and vertical.
-
-    Masks:
-
-    \value AlignHorizontal_Mask
-    \value AlignVertical_Mask
-
-    Conflicting combinations of flags have undefined meanings.
-*/
-
-/*!
-    \enum Qt::TextFlags
-
-    This enum type is used to define some modifier flags. Some of
-    these flags only make sense in the context of printing:
-
-    \value SingleLine Treats all whitespace as spaces and prints just
-	one line.
-    \value DontClip If it's impossible to stay within the given bounds,
-	it prints outside.
-    \value ExpandTabs Makes the U+0009 (ASCII tab) character move to
-	the next tab stop.
-    \value ShowPrefix Displays the string "\&P" as <u>P</u>
-	(see QButton for an example). For an ampersand, use "\&\&".
-    \value WordBreak Breaks lines at appropriate points, e.g. at word
-	boundaries.
-    \value BreakAnywhere Breaks lines anywhere, even within words.
-    \value NoAccel Same as ShowPrefix but doesn't draw the underlines.
-
-    You can use as many modifier flags as you want, except that \c
-    SingleLine and \c WordBreak cannot be combined.
-
-    Flags that are inappropriate for a given use (e.g. ShowPrefix to
-    QGridLayout::addWidget()) are generally ignored.
-
-*/
-
-/*!
-    \enum Qt::PenStyle
-
-    This enum type defines the pen styles that can be drawn using
-    QPainter. The styles are
-
-    \value NoPen  no line at all. For example, QPainter::drawRect()
-    fills but does not draw any boundary line.
-
-    \value SolidLine  a simple line.
-
-    \value DashLine  dashes separated by a few pixels.
-
-    \value DotLine  dots separated by a few pixels.
-
-    \value DashDotLine  alternate dots and dashes.
-
-    \value DashDotDotLine  one dash, two dots, one dash, two dots.
-
-    \value MPenStyle mask of the pen styles.
-
-    \img pen-styles.png Pen Styles
-*/
-
-/*!
-    \enum Qt::PenCapStyle
-
-    This enum type defines the pen cap styles supported by Qt, i.e.
-    the line end caps that can be drawn using QPainter.
-
-    \value FlatCap  a square line end that does not cover the end
-	point of the line.
-    \value SquareCap  a square line end that covers the end point and
-	extends beyond it with half the line width.
-    \value RoundCap  a rounded line end.
-    \value MPenCapStyle mask of the pen cap styles.
-
-    \img pen-cap-styles.png Pen Cap Styles
-*/
-
-/*!
-    \enum Qt::PenJoinStyle
-
-    This enum type defines the pen join styles supported by Qt, i.e.
-    which joins between two connected lines can be drawn using
-    QPainter.
-
-    \value MiterJoin  The outer edges of the lines are extended to
-	meet at an angle, and this area is filled.
-    \value BevelJoin  The triangular notch between the two lines is filled.
-    \value RoundJoin  A circular arc between the two lines is filled.
-    \value MPenJoinStyle mask of the pen join styles.
-
-    \img pen-join-styles.png Pen Join Styles
-*/
-
-/*!
-    \enum Qt::BGMode
-
-    Background mode
-
-    \value TransparentMode
-    \value OpaqueMode
 */
 
 /*!
@@ -598,7 +396,7 @@ void QPainter::restore()
     \warning A paint device can only be painted by one painter at a
     time.
 
-    \sa end(), flush()
+    \sa end()
 */
 
 bool QPainter::begin(QPaintDevice *pd, bool unclipped)
@@ -758,7 +556,6 @@ QFontInfo QPainter::fontInfo() const
     return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
-
 /*!
     Returns the brush origin currently set.
 
@@ -769,6 +566,14 @@ QPoint QPainter::brushOrigin() const
 {
     return d->state->bgOrigin + d->redirection_offset;
 }
+
+/*!
+    \fn void QPainter::setBrushOrigin(const QPoint &p)
+
+    \overload
+
+    Sets the brush's origin to point \a p.
+*/
 
 /*!
     Sets the brush origin to \a (x, y).
@@ -852,15 +657,15 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 }
 
 /*!
-    \fn void QPainter::setClipRect( int x, int y, int w, int h, CoordinateMode m)
+    \fn void QPainter::setClipRect( int x, int y, int w, int h, CoordinateMode mode)
 
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
-    enables clipping. The clip mode is set to \a m.
+    enables clipping. The clip mode is set to \a mode.
 
-    If \a m is \c CoordDevice (the default), the coordinates given for
+    If \a mode is \c CoordDevice (the default), the coordinates given for
     the clip region are taken to be physical device coordinates and
     are \e not subject to any \link coordsys.html coordinate
-    transformations\endlink. If \a m is \c CoordPainter, the
+    transformations\endlink. If \a mode is \c CoordPainter, the
     coordinates given for the clip region are taken to be model
     coordinates.
 
@@ -868,7 +673,9 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 */
 
 /*!
-  \overload
+    \overload
+
+    Sets the clip region of the rectange \a rect.
 */
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
 {
@@ -935,6 +742,14 @@ bool QPainter::hasWorldXForm() const
 }
 
 /*!
+    \fn void QPainter::setWindow(const QRect &r)
+
+    \overload
+
+    Sets the painter's window to the rectangle \a r.
+*/
+
+/*!
     Sets the window rectangle view transformation for the painter and
     enables view transformation.
 
@@ -976,6 +791,13 @@ QRect QPainter::window() const
     return QRect(d->state->wx, d->state->wy, d->state->ww, d->state->wh);
 }
 
+/*!
+    \fn void QPainter::setViewport(const QRect &r)
+
+    \overload
+
+    Sets the painter's viewport rectangle to \a r.
+*/
 
 /*!
     Sets the viewport rectangle view transformation for the painter
@@ -1038,14 +860,14 @@ void QPainter::setViewXForm(bool enable)
 }
 
 /*!
-    Sets the world transformation matrix to \a m and enables world
+    Sets the world transformation matrix to \a wm and enables world
     transformation.
 
-    If \a combine is TRUE, then \a m is combined with the current
-    transformation matrix, otherwise \a m replaces the current
+    If \a combine is TRUE, then \a wm is combined with the current
+    transformation matrix; otherwise \a wm replaces the current
     transformation matrix.
 
-    If \a m is the identity matrix and \a combine is FALSE, this
+    If \a wm is the identity matrix and \a combine is FALSE, this
     function calls setWorldXForm(FALSE). (The identity matrix is the
     matrix where QWMatrix::m11() and QWMatrix::m22() are 1.0 and the
     rest are 0.0.)
@@ -1235,10 +1057,6 @@ void QPainter::translate(double dx, double dy)
 #endif
 }
 
-/*!
-    \internal
-*/
-
 double QPainter::translationX() const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1248,9 +1066,6 @@ double QPainter::translationX() const
 #endif
 }
 
-/*!
-    \internal
-*/
 double QPainter::translationY() const
 {
 #ifndef QT_NO_TRANSFORMATIONS
@@ -1381,6 +1196,15 @@ void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
     d->engine->drawPoints(pa, index, npoints);
 }
 
+/*!
+    \fn void QPainter::drawWinFocusRect(int x, int y, int w, int h)
+
+    \overload
+
+    Draws a Windows focus rectangle with upper left corner at (\a x,
+    \a y) and with width \a w and height \a h.
+*/
+
 /*! \fn void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgColor )
 
     \overload
@@ -1445,9 +1269,8 @@ void QPainter::drawWinFocusRect(const QRect &r)
 }
 
 /*!
-    Draws a Windows focus rectangle with upper left corner at (\a x,
-    \a y) and with width \a w and height \a h using a pen color that
-    contrasts with \a bgColor.
+    Draws a Windows focus rectangle with the dimensions of \a r,
+    using a pen color that contrasts with \a bgColor.
 
     This function draws a stippled rectangle (XOR is not used) that is
     used to indicate keyboard focus (when the QApplication::style() is
@@ -1489,7 +1312,7 @@ void QPainter::drawWinFocusRect(const QRect &r, const QColor &bgColor)
 
 
 /*!
-    Sets the background mode of the painter to \a m, which must be
+    Sets the background mode of the painter to \a mode, which must be
     either \c TransparentMode (the default) or \c OpaqueMode.
 
     Transparent mode draws stippled lines and text without setting the
@@ -1639,7 +1462,7 @@ const QBrush &QPainter::brush() const
     opaque text, stippled lines and bitmaps. The background brush has
     no effect in transparent background mode (which is the default).
 
-    \sa background() setBackgroundMode() BackgroundMode
+    \sa background() setBackgroundMode() BGMode
 */
 
 void QPainter::setBackground(const QBrush &bg)
@@ -1650,7 +1473,7 @@ void QPainter::setBackground(const QBrush &bg)
 }
 
 /*!
-    Sets the raster operation to \a r. The default is \c CopyROP.
+    Sets the raster operation to \a op. The default is \c CopyROP.
 
     \sa rasterOp() Qt::RasterOp
 */
@@ -2078,8 +1901,8 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 }
 
 /*!
-    Draws the convex polygon defined by the \a npoints points in \a pa
-    starting at \a pa[index] (\a index defaults to 0).
+    Draws the convex polygon defined by the \a npoints points in \a a
+    starting at \a a[index] (\a index defaults to 0).
 
     If the supplied polygon is not convex, the results are undefined.
 
@@ -2137,6 +1960,17 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     d->engine->drawCubicBezier(a, index);
 }
 
+/*!
+    \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
+				  int sx, int sy, int sw, int sh)
+
+    \overload
+
+    Draws the rectangular portion with the origin \a(sx, sy), width \a
+    sw and height \a sh, of the pixmap \a pm, at the point \a(x, y),
+    with a width of \a w and a height of \a h.
+*/
+
 /*! \fn void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
 
     \overload
@@ -2172,7 +2006,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 */
 
 /*!
-   ### needs document'n
+    Draws the rectanglular portion \a sr, of pixmap \a pm, into
+    rectangle \a r in the paint device.
 */
 void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
@@ -2262,6 +2097,32 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 }
 
 /*!
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &i,
+				 const QRect &sr, int conversionFlags)
+
+    \overload
+
+    Draws the rectangular portion specified by \a sr, of image \a i,
+    at point \a p. The \a conversionFlags signify how the drawing is
+    to be done.
+
+    \sa Qt::ImageConversionFlags
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &i,
+				 int conversionFlags)
+
+    \overload
+
+    Draws the image \a i, at point \a p. The \a conversionFlags
+    signify how the drawing is to be done.
+
+    \sa Qt::ImageConversionFlags
+*/
+
+/*!
+  \internal
   ### remove when combining QImage/QPixmap
 */
 
@@ -2278,6 +2139,7 @@ void QPainter::drawImage(int x, int y, const QImage &,
 
 
 /*!
+  \internal
   ### remove when combining QImage/QPixmap
 */
 void QPainter::drawImage(const QRect &, const QImage &)
@@ -2289,10 +2151,37 @@ void QPainter::drawImage(const QRect &, const QImage &)
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
 
-/*! \overload
+/*!
+    \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
+			        const QString &str, int len, QRect *br)
 
-    Draws the given text at position \a x, \a y. The text's direction
-    is given by \a dir.
+    \overload
+
+    Draws the string \a str within the rectangle with origin \a(x, y),
+    width \a w and height \a h. If \a len is -1 (the default) all the
+    text is drawn, otherwise only the first \a len characters are
+    drawn. The flags that are given in the \a flags parameter are
+    \l{Qt::AlignmentFlags} and \l{Qt::TextFlags} OR'd together. \a br
+    (if not null) is set to the actual bounding rectangle of the
+    output.
+*/
+
+/*!
+
+    \fn void QPainter::drawText(const QPoint &p, const QString &str,
+				TextDirection dir)
+
+    \overload
+
+    Draws the string \a str at point \a p. The text's
+    direction is given by \a dir.
+
+    \sa QPainter::TextDirection
+*/
+
+/*!
+    Draws the string \a str at position \a x, \a y. The text's
+    direction is given by \a dir.
 
     \sa QPainter::TextDirection
 */
@@ -2338,11 +2227,11 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 /*!
     \overload
 
-    Draws the given text within the rectangle \a r. If \a len is -1
-    (the default) all the text is drawn, otherwise the first \a len
-    characters are drawn. The text's flags that are given in the \a
-    flags parameter are \l{Qt::AlignmentFlags} and \l{Qt::TextFlags}
-    OR'd together. \a br (if not null) is set to the actual bounding
+    Draws the string \a str within the rectangle \a r. If \a len is -1
+    (the default) all the text is drawn, otherwise only the first \a
+    len characters are drawn. The flags that are given in the \a flags
+    parameter are \l{Qt::AlignmentFlags} and \l{Qt::TextFlags} OR'd
+    together. \a br (if not null) is set to the actual bounding
     rectangle of the output.
 */
 void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, QRect *br)
@@ -2358,6 +2247,14 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
 
     qt_format_text(font(), r, flags, str, len, br, 0, 0, 0, this);
 }
+
+/*!
+    \fn void QPainter::drawTextItem(int x, int y, const QTextItem &ti,
+				    int textflags)
+
+    \internal
+    \overload
+*/
 
 /*! \internal
     Draws the text item \a ti at position \a p.
@@ -2436,14 +2333,33 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 }
 
 /*!
-    \fn QRect QPainter::boundingRect( int x, int y, int w, int h, int flags, const QString&, int len = -1 );
+    \fn void QPainter::map(int x, int y, int *rx, int *ry) const
+
+    \internal
+
+    Sets \a(rx, ry) to the point that results from applying the
+    painter's current transformation on the point \a(x, y).
+*/
+
+/*!
+    \fn QRect QPainter::boundingRect(const QRect &r, int flags,
+				     const QString &str, int len)
+
+    \overload
+
+    Returns the bounding rectangle constrained by rectangle \a r.
+*/
+
+/*!
+    \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
+				     const QString &str, int len = -1 );
 
     Returns the bounding rectangle of the aligned text that would be
     printed with the corresponding drawText() function using the first
-    \a len characters of the string if \a len is > -1, or the whole of
-    the string if \a len is -1. The drawing, and hence the bounding
-    rectangle, is constrained to the rectangle that begins at point \a
-    (x, y) with width \a w and hight \a h, or to the
+    \a len characters of the string \a str, if \a len is > -1, or the
+    whole of the string if \a len is -1. The drawing, and hence the
+    bounding rectangle, is constrained to the rectangle that begins at
+    point \a (x, y) with width \a w and height \a h, or to the
     rectangle required to draw the text, whichever is the larger.
 
     The \a flags argument is
@@ -2469,8 +2385,6 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 
     If several of the horizontal or several of the vertical alignment flags
     are set, the resulting alignment is undefined.
-
-    The \a intern parameter should not be used.
 
     \sa Qt::TextFlags
 */
@@ -2581,7 +2495,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 */
 
 /*!
-    Replays the picture \a pic translated by (\a x, \a y).
+    Replays the picture \a p translated by (\a x, \a y).
 
     This function does exactly the same as QPicture::play() when
     called with (\a x, \a y) = (0, 0).
@@ -2886,7 +2800,7 @@ QPoint QPainter::xFormDev( const QPoint &p ) const
 }
 
 /*!
-    Returns the rectangle \a rd transformed from device coordinates to
+    Returns the rectangle \a r transformed from device coordinates to
     model coordinates.
 
     If world transformation is enabled and rotation or shearing is
@@ -2987,8 +2901,10 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index, int npoints ) 
 }
 
 #if defined Q_WS_WIN
+/*! \internal */
 HDC QPainter::handle() const
 #else
+/*! \internal */
 Qt::HANDLE QPainter::handle() const
 #endif
 {

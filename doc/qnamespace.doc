@@ -85,15 +85,25 @@
 /*!
     \enum Qt::PenStyle
 
-    \value NoPen
-    \value SolidLine
-    \value DashLine
-    \value DotLine
-    \value DashDotLine
-    \value DashDotDotLine
-    \value MPenStyle Mask
+    This enum type defines the pen styles that can be drawn using
+    QPainter. The styles are
 
-    \img pen-styles.png Pen styles
+    \value NoPen  no line at all. For example, QPainter::drawRect()
+    fills but does not draw any boundary line.
+
+    \value SolidLine  a plain line.
+
+    \value DashLine  dashes separated by a few pixels.
+
+    \value DotLine  dots separated by a few pixels.
+
+    \value DashDotLine  alternate dots and dashes.
+
+    \value DashDotDotLine  one dash, two dots, one dash, two dots.
+
+    \value MPenStyle mask of the pen styles.
+
+    \img pen-styles.png Pen Styles
 
     \sa QPen
 */
@@ -101,10 +111,15 @@
 /*!
     \enum Qt::PenCapStyle
 
-    \value FlatCap
-    \value SquareCap
-    \value RoundCap
-    \value MPenCapStyle
+    This enum type defines the pen cap styles supported by Qt, i.e.
+    the line end caps that can be drawn using QPainter.
+
+    \value FlatCap  a square line end that does not cover the end
+	point of the line.
+    \value SquareCap  a square line end that covers the end point and
+	extends beyond it by half the line width.
+    \value RoundCap  a rounded line end.
+    \value MPenCapStyle mask of the pen cap styles.
 
     \img pen-cap-styles.png Pen Cap Styles
 
@@ -114,10 +129,15 @@
 /*!
     \enum Qt::PenJoinStyle
 
-    \value MiterJoin
-    \value BevelJoin
-    \value RoundJoin
-    \value MPenJoinStyle
+    This enum type defines the pen join styles supported by Qt, i.e.
+    which joins between two connected lines can be drawn using
+    QPainter.
+
+    \value MiterJoin  The outer edges of the lines are extended to
+	meet at an angle, and this area is filled.
+    \value BevelJoin  The triangular notch between the two lines is filled.
+    \value RoundJoin  A circular arc between the two lines is filled.
+    \value MPenJoinStyle mask of the pen join styles.
 
     \img pen-join-styles.png Pen Join Styles
 
@@ -177,19 +197,33 @@
 /*!
     \enum Qt::TextFlags
 
-    \value SingleLine
-    \value DontClip
-    \value ExpandTabs
-    \value ShowPrefix
-    \value WordBreak
-    \value BreakAnywhere
-    \value NoAccel
+    This enum type is used to define some modifier flags. Some of
+    these flags only make sense in the context of printing:
+
+    \value SingleLine Treats all whitespace as spaces and prints just
+	one line.
+    \value DontClip If it's impossible to stay within the given bounds,
+	it prints outside.
+    \value ExpandTabs Makes the U+0009 (ASCII tab) character move to
+	the next tab stop.
+    \value ShowPrefix Displays the string "\&P" as <u>P</u>
+	(see QButton for an example). For an ampersand, use "\&\&".
+    \value WordBreak Breaks lines at appropriate points, e.g. at word
+	boundaries.
+    \value BreakAnywhere Breaks lines anywhere, even within words.
+    \value NoAccel Same as ShowPrefix but doesn't draw the underlines.
+
+    You can use as many modifier flags as you want, except that \c
+    SingleLine and \c WordBreak cannot be combined.
+
+    Flags that are inappropriate for a given use (e.g. ShowPrefix to
+    QGridLayout::addWidget()) are generally ignored.
 */
 
 /*!
     \enum Qt::BGMode
 
-    \internal
+    Background mode
 
     \value TransparentMode
     \value OpaqueMode
@@ -198,22 +232,39 @@
 /*!
     \enum Qt::RasterOp
 
-    \value CopyROP
-    \value OrROP
-    \value XorROP
-    \value NotAndROP Synonym: EraseROP
-    \value NotCopyROP
-    \value NotOrROP
-    \value NotXorROP
-    \value AndROP Synonym: NotEraseROP
-    \value NotROP
-    \value ClearROP
-    \value SetROP
-    \value NopROP
-    \value AndNotROP
-    \value OrNotROP
-    \value NandROP
-    \value NorROP Synonym: LastROP
+    \keyword raster operation
+    \keyword raster op
+
+    This enum type is used to describe the way things are written to
+    the paint device. Each bit of the \e src (what you write)
+    interacts with the corresponding bit of the \e dst pixel.
+
+    \value CopyROP  dst = src
+    \value OrROP   dst = src OR dst
+    \value XorROP   dst = src XOR dst
+    \value NotAndROP  dst = (NOT src) AND dst
+    \value EraseROP  an alias for \c NotAndROP
+    \value NotCopyROP  dst = NOT src
+    \value NotOrROP  dst = (NOT src) OR dst
+    \value NotXorROP  dst = (NOT src) XOR dst
+    \value AndROP  dst = src AND dst
+    \value NotEraseROP  an alias for \c AndROP
+    \value NotROP  dst = NOT dst
+    \value ClearROP  dst = 0
+    \value SetROP  dst = 1
+    \value NopROP  dst = dst
+    \value AndNotROP  dst = src AND (NOT dst)
+    \value OrNotROP  dst = src OR (NOT dst)
+    \value NandROP  dst = NOT (src AND dst)
+    \value NorROP  dst = NOT (src OR dst)
+
+    By far the most useful ones are \c CopyROP and \c XorROP.
+
+    On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
+    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are
+    supported.
+
+    On Qt/Embedded, only \c CopyROP, \c XorROP, and \c NotROP are supported.
 */
 
 /*!

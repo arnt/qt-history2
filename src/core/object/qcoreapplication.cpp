@@ -202,7 +202,7 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
     visualize these changes immediately (e.g. Splash Screens), call
     this function.
 
-    \sa sendPostedEvents() QPainter::flush()
+    \sa sendPostedEvents()
 */
 void QCoreApplication::flush()
 {
