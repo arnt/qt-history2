@@ -532,10 +532,8 @@ void QPainterPath::addLine(const QPoint &p)
 void QPainterPath::addRect(const QRect &rect)
 {
     QPainterSubpath subpath;
-    int offset = QRect::rectangleMode();
-    subpath.addLine(rect.topLeft(), rect.topRight() - QPoint(offset, 0));
-    subpath.addLine(rect.bottomRight() - QPoint(offset, offset),
-                    rect.bottomLeft() - QPoint(0, offset));
+    subpath.addLine(rect.topLeft(), rect.topRight());
+    subpath.addLine(rect.bottomRight(), rect.bottomLeft());
     subpath.close();
     d->subpaths.prepend(subpath);
 }

@@ -3487,8 +3487,8 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 QRect QWidget::contentsRect() const
 {
     return QRect(QPoint(d->leftmargin, d->topmargin),
-                 QPoint(data->crect.width() - QRect::rectangleMode() - d->rightmargin,
-                        data->crect.height() - QRect::rectangleMode() - d->bottommargin));
+                 QPoint(data->crect.width() - 1 - d->rightmargin,
+                        data->crect.height() - 1 - d->bottommargin));
 
  }
 

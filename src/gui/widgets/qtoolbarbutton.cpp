@@ -104,7 +104,7 @@ QMenu *QToolBarButton::menu() const
 void QToolBarButton::showMenu()
 {
     update();
-    d->menu->exec(mapToGlobal(q->rect().bottomLeft() + QPoint(0, QRect::rectangleMode())));
+    d->menu->exec(mapToGlobal(q->rect().bottomLeft() + QPoint(0, 1)));
     update();
 }
 

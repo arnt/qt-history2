@@ -386,7 +386,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                   .expandedTo(statusbar->minimumSize()));
         sbr.moveBottom(r.bottom());
         statusbar->setGeometry(sbr);
-        r.setBottom(sbr.top() - QRect::rectangleMode());
+        r.setBottom(sbr.top() - 1);
     }
 
     // layout toolbars
@@ -439,25 +439,25 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	switch (tb_layout_info.at(k).at(0).where) {
 	case TOP:
 	    tb_sz = rest_sz[k];
-	    tb_rect[k].setBottom(tb_rect[k].top() + tb_sz.height() - QRect::rectangleMode());
-	    r.setTop(tb_rect[k].bottom() + QRect::rectangleMode());
+	    tb_rect[k].setBottom(tb_rect[k].top() + tb_sz.height() - 1);
+	    r.setTop(tb_rect[k].bottom() + 1);
 	    break;
 	case LEFT:
 	    tb_sz = rest_sz[k];
-	    tb_rect[k].setRight(tb_rect[k].x() + tb_sz.width() - QRect::rectangleMode());
-	    r.setLeft(tb_rect[k].right() + QRect::rectangleMode());
+	    tb_rect[k].setRight(tb_rect[k].x() + tb_sz.width() - 1);
+	    r.setLeft(tb_rect[k].right() + 1);
 	    break;
 	case BOTTOM:
  	    tb_sz = bottom_sz.pop();
-	    tb_rect[k].setTop(tb_rect[k].bottom() - tb_sz.height() + QRect::rectangleMode());
+	    tb_rect[k].setTop(tb_rect[k].bottom() - tb_sz.height() + 1);
 	    bottom_rect.push(tb_rect[k]);
-	    r.setBottom(tb_rect[k].top() - QRect::rectangleMode());
+	    r.setBottom(tb_rect[k].top() - 1);
 	    break;
 	case RIGHT:
  	    tb_sz = right_sz.pop();
-	    tb_rect[k].setLeft(tb_rect[k].right() - tb_sz.width() + QRect::rectangleMode());
+	    tb_rect[k].setLeft(tb_rect[k].right() - tb_sz.width() + 1);
 	    right_rect.push(tb_rect[k]);
-	    r.setRight(tb_rect[k].left() - QRect::rectangleMode());
+	    r.setRight(tb_rect[k].left() - 1);
 	    break;
 	default:
 	    Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
@@ -617,10 +617,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		set_perp(where, info.size, pick_perp(where, tb_rect[k].size()));
 		if (where == LEFT || where == RIGHT) {
 		    info.size.setHeight(tb_rect[k].bottom() - info.pos.y()
-                                        + QRect::rectangleMode());
+                                        + 1);
                 } else {
 		    info.size.setWidth(tb_rect[k].right() - info.pos.x()
-                                       + QRect::rectangleMode());
+                                       + 1);
                 }
 		if (pick_perp(where, info.size) < 1)
 		    set_perp(where, info.size, pick_perp(where, get_min_item_sz(info.item->widget()->layout())) + tb_fill);
@@ -747,11 +747,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     switch (corners[Qt::TopLeftCorner]) {
     case Qt::DockWindowAreaTop:
         top.setLeft(r.left());
-        left.setTop(top.bottom() + QRect::rectangleMode());
+        left.setTop(top.bottom() + 1);
         break;
     case Qt::DockWindowAreaLeft:
         left.setTop(r.top());
-        top.setLeft(left.right() + QRect::rectangleMode());
+        top.setLeft(left.right() + 1);
         break;
     default:
         Q_ASSERT(false);
@@ -760,11 +760,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     switch (corners[Qt::BottomLeftCorner]) {
     case Qt::DockWindowAreaBottom:
         bottom.setLeft(r.left());
-        left.setBottom(bottom.top() - QRect::rectangleMode());
+        left.setBottom(bottom.top() - 1);
         break;
     case Qt::DockWindowAreaLeft:
         left.setBottom(r.bottom());
-        bottom.setLeft(left.right() + QRect::rectangleMode());
+        bottom.setLeft(left.right() + 1);
         break;
     default:
         Q_ASSERT(false);
@@ -773,11 +773,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     switch (corners[Qt::TopRightCorner]) {
     case Qt::DockWindowAreaTop:
         top.setRight(r.right());
-        right.setTop(top.bottom() + QRect::rectangleMode());
+        right.setTop(top.bottom() + 1);
         break;
     case Qt::DockWindowAreaRight:
         right.setTop(r.top());
-        top.setRight(right.left() - QRect::rectangleMode());
+        top.setRight(right.left() - 1);
         break;
     default:
         Q_ASSERT(false);
@@ -786,11 +786,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     switch (corners[Qt::BottomRightCorner]) {
     case Qt::DockWindowAreaBottom:
         bottom.setRight(r.right());
-        right.setBottom(bottom.top() - QRect::rectangleMode());
+        right.setBottom(bottom.top() - 1);
         break;
     case Qt::DockWindowAreaRight:
         right.setBottom(r.bottom());
-        bottom.setRight(right.left() - QRect::rectangleMode());
+        bottom.setRight(right.left() - 1);
         break;
     default:
         Q_ASSERT(false);
@@ -807,7 +807,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                         rect[i].top(),
                         rect[i].right() - ext,
                         rect[i].bottom());
-            s.setCoords(x.right() + QRect::rectangleMode(),
+            s.setCoords(x.right() + 1,
                         rect[i].top(),
                         rect[i].right(),
                         rect[i].bottom());
@@ -819,7 +819,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                         rect[i].bottom());
             s.setCoords(rect[i].left(),
                         rect[i].top(),
-                        x.left() - QRect::rectangleMode(),
+                        x.left() - 1,
                         rect[i].bottom());
             break;
         case TOP:
@@ -828,7 +828,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                         rect[i].right(),
                         rect[i].bottom() - ext);
             s.setCoords(rect[i].left(),
-                        x.bottom() + QRect::rectangleMode(),
+                        x.bottom() + 1,
                         rect[i].right(),
                         rect[i].bottom());
             break;
@@ -840,7 +840,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
             s.setCoords(rect[i].left(),
                         rect[i].top(),
                         rect[i].right(),
-                        x.top() - QRect::rectangleMode());
+                        x.top() - 1);
             break;
         default:
             Q_ASSERT(false);
@@ -854,10 +854,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     if (layout_info[CENTER].item) {
         QRect c;
-        c.setCoords(left.right() + QRect::rectangleMode(),
-                    top.bottom() + QRect::rectangleMode(),
-                    right.left() - QRect::rectangleMode(),
-                    bottom.top() - QRect::rectangleMode());
+        c.setCoords(left.right() + 1,
+                    top.bottom() + 1,
+                    right.left() - 1,
+                    bottom.top() - 1);
         layout_info[CENTER].size = c.size();
         if (relayout_type == QInternal::RelayoutNormal)
             layout_info[CENTER].item->setGeometry(c);
