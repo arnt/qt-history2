@@ -56,6 +56,7 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 	  << "@echo \"Some of the required modules ("
 	  << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
+	writeMakeQmake(t);
 	return TRUE;
     }
 
