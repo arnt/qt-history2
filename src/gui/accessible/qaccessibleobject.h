@@ -29,9 +29,6 @@ class Q_GUI_EXPORT QAccessibleObject : public Qt, public QAccessibleInterface
 public:
     QAccessibleObject(QObject *object);
 
-    QRESULT queryInterface(const QUuid &, QUnknownInterface**);
-    Q_REFCOUNT
-
     bool isValid() const;
     QObject *object() const;
 

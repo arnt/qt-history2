@@ -71,9 +71,6 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
     should use this class as their base class.
 */
 
-extern void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface);
-extern void qRemoveAccessibleObject(QObject *object);
-
 /*!
     Creates a QAccessibleObject for \a object.
 */
@@ -81,8 +78,6 @@ QAccessibleObject::QAccessibleObject(QObject *object)
 {
     d = new QAccessibleObjectPrivate;
     d->object = object;
-
-    qInsertAccessibleObject(object, this);
 }
 
 /*!
@@ -93,26 +88,7 @@ QAccessibleObject::QAccessibleObject(QObject *object)
 */
 QAccessibleObject::~QAccessibleObject()
 {
-    qRemoveAccessibleObject(d->object);
-
     delete d;
-}
-
-/*!
-    \reimp
-*/
-QRESULT QAccessibleObject::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-    if (uuid == IID_QAccessible)
-        *iface = (QAccessibleInterface*)this;
-    else if (uuid == IID_QUnknown)
-        *iface = (QUnknownInterface*)this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
 }
 
 /*!
@@ -276,13 +252,16 @@ int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *ot
 /*! \reimp */
 int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
+    if (!target)
+        return -1;
+
     *target = 0;
     QObject *targetObject = 0;
 
     switch (relation) {
     case Self:
-        const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
-        return 0;
+        targetObject = object();
+        break;
     case Child:
         if (entry > 0 && entry <= childCount()) {
             const QWidgetList tlw(topLevelWidgets());
@@ -298,7 +277,7 @@ int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleIn
     default:
         break;
     }
-    QAccessible::queryAccessibleInterface(targetObject, target);
+    *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
 }
 

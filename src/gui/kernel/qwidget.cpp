@@ -4800,25 +4800,7 @@ bool QWidget::event(QEvent *e)
             return false;
         break;
 #endif
-#ifndef QT_NO_ACCESSIBILITY
-    case QEvent::AccessibleQueryHelp: {
-        QAccessibleInterface *iface = 0;
-        if (d->whatsThis.size() && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
-            iface->setText(QAccessible::Help, 0, d->whatsThis);
-            iface->release();
-            return true;
-        }
-        break; }
-    case QEvent::AccessibleQueryDescription: {
-        QAccessibleInterface *iface = 0;
-        if (d->toolTip.size() && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
-            iface->setText(QAccessible::Description, 0, d->toolTip);
-            iface->release();
-            return true;
-        }
-        break; }
-#endif
-    case QEvent::EmbeddingControl:
+   case QEvent::EmbeddingControl:
         clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
         d->topData()->ftop = 0;
         d->topData()->fright = 0;

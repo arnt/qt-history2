@@ -16,25 +16,34 @@
 #define QACCESSIBLEPLUGIN_H
 
 #ifndef QT_H
-#include "qgplugin.h"
+#include "qaccessible.h"
 #include "qstringlist.h"
+#include "qfactoryinterface.h"
 #endif // QT_H
+
 #ifndef QT_NO_ACCESSIBLEPLUGIN
 
-class QAccessiblePluginPrivate;
 struct QAccessibleInterface;
 
-class Q_GUI_EXPORT QAccessiblePlugin : public QGPlugin
+struct Q_GUI_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFactoryInterface
 {
+    virtual QAccessibleInterface* create(const QString &key, QObject *object) = 0;
+};
+
+Q_DECLARE_INTERFACE(QAccessibleFactoryInterface, "http://trolltech.com/Qt/QAccessibleFactoryInterface")
+
+class QAccessiblePluginPrivate;
+
+class Q_GUI_EXPORT QAccessiblePlugin : public QObject, public QAccessibleFactoryInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QAccessibleFactoryInterface:QFactoryInterface)
 public:
-    QAccessiblePlugin();
+    QAccessiblePlugin(QObject *parent = 0);
     ~QAccessiblePlugin();
 
-    virtual QStringList keys() = 0;
+    virtual QStringList keys() const = 0;
     virtual QAccessibleInterface *create(const QString &key, QObject *object) = 0;
-
-private:
-    QAccessiblePluginPrivate *d;
 };
 
 #endif // QT_NO_ACCESSIBLEPLUGIN

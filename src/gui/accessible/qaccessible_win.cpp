@@ -261,12 +261,11 @@ public:
     QWindowsAccessible(QAccessibleInterface *a)
         : ref(0), accessible(a)
     {
-        accessible->addRef();
     }
 
     ~QWindowsAccessible()
     {
-        accessible->release();
+        delete accessible;
     }
 
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID, LPVOID *);
@@ -624,7 +623,6 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest(long xLeft, long yTop, 
     }
 
     QWindowsAccessible* wacc = new QWindowsAccessible(acc);
-    acc->release();
     IDispatch *iface = 0;
     wacc->QueryInterface(IID_IDispatch, (void**)&iface);
     if (iface) {
@@ -683,7 +681,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate(long navDir, VARIANT v
                 index += (navDir == NAVDIR_NEXT) ? 1 : -1;
                 if (index > 0 && index <= parent->childCount())
                     control = parent->navigate(Child, index, &acc);
-                parent->release();
+                delete parent;
             }
         } else {
             int index = varStart.lVal;
@@ -718,7 +716,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate(long navDir, VARIANT v
     }
 
     QWindowsAccessible* wacc = new QWindowsAccessible(acc);
-    acc->release();
+
     IDispatch *iface = 0;
     wacc->QueryInterface(IID_IDispatch, (void**)&iface);
     if (iface) {
@@ -742,16 +740,11 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild(VARIANT varChildID, I
         return E_INVALIDARG;
 
     QAccessibleInterface *acc = 0;
-    if (!varChildID.lVal) {
-        acc = accessible;
-        acc->addRef();
-    } else {
-        accessible->navigate(Child, varChildID.lVal, &acc);
-    }
+    Relation rel = varChildID.lVal ? Child : Self;
+    accessible->navigate(rel, varChildID.lVal, &acc);
 
     if (acc) {
         QWindowsAccessible* wacc = new QWindowsAccessible(acc);
-        acc->release();
         wacc->QueryInterface(IID_IDispatch, (void**)ppdispChild);
         return S_OK;
     }
@@ -778,7 +771,6 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent(IDispatch** ppdispPa
     accessible->navigate(Ancestor, 1, &acc);
     if (acc) {
         QWindowsAccessible* wacc = new QWindowsAccessible(acc);
-        acc->release();
         wacc->QueryInterface(IID_IDispatch, (void**)ppdispParent);
 
         if (*ppdispParent)
@@ -964,16 +956,13 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus(VARIANT *pvarID)
         (*pvarID).vt = VT_EMPTY;
         return S_FALSE;
     }
-    if (control)
-        accessible->navigate(Child, control, &acc);
     if (!acc) {
         (*pvarID).vt = VT_I4;
-        (*pvarID).lVal = control;
+        (*pvarID).lVal = control ? control : CHILDID_SELF;
         return S_OK;
     }
 
     QWindowsAccessible* wacc = new QWindowsAccessible(acc);
-    acc->release();
     IDispatch *iface = 0;
     wacc->QueryInterface(IID_IDispatch, (void**)&iface);
     if (iface) {
@@ -1002,7 +991,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection(VARIANT *pvarChil
         bool isSelected = false;
         if (child) {
             isSelected = child->state(0) & Selected;
-            child->release();
+            delete child;
             child = 0;
         } else {
             isSelected = accessible->state(i2) & Selected;

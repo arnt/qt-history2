@@ -372,8 +372,7 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 
     if (o->parent() == parent) {
         relation |= Sibling;
-        QAccessibleInterface *sibIface = 0;
-        QAccessible::queryAccessibleInterface(o, &sibIface);
+        QAccessibleInterface *sibIface = QAccessible::queryAccessibleInterface(o);
         Q_ASSERT(sibIface);
         QRect wg = rect(0);
         QRect sg = sibIface->rect(0);
@@ -388,8 +387,8 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
                     relation |= QAccessible::Covers;
                 else
                     relation |= QAccessible::Covered;
-                pIface->release();
             }
+            delete pIface;
         } else {
             QPoint wc = wg.center();
             QPoint sc = sg.center();
@@ -402,7 +401,7 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
             else if (wc.y() > sc.y())
                 relation |= QAccessible::Down;
         }
-        sibIface->release();
+        delete sibIface;
 
         return relation;
     }
@@ -418,6 +417,9 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 /*! \reimp */
 int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
+    if (!target)
+        return -1;
+
     *target = 0;
     QObject *targetObject = 0;
 
@@ -427,8 +429,8 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     switch (relation) {
     // Hierarchical
     case Self:
-        const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
-        return 0;
+        targetObject = object();
+        break;
     case Child:
         if (complexWidget) {
             if (entry > 0 && entry <= childCount())
@@ -453,14 +455,12 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
         break;
     case Sibling:
         {
-            QObject *parent = parentObject();
-            QAccessibleInterface *iface = 0;
-            QAccessible::queryAccessibleInterface(parent, &iface);
+            QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(parentObject());
             if (!iface)
                 return -1;
 
             iface->navigate(Child, entry, target);
-            iface->release();
+            delete iface;
             if (*target)
                 return 0;
         }
@@ -494,9 +494,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
                 return - 1;
             return entry + 1;
         } else {
-            QObject *parent = parentObject();
-            QAccessibleInterface *pIface = 0;
-            QAccessible::queryAccessibleInterface(parent, &pIface);
+            QAccessibleInterface *pIface = QAccessible::queryAccessibleInterface(parentObject());
             if (!pIface)
                 return -1;
 
@@ -509,9 +507,11 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
                 QAccessibleInterface *sibling = 0;
                 pIface->navigate(Child, i+1, &sibling);
                 Q_ASSERT(sibling);
-                if ((relationTo(0, sibling, 0) & Self) || (sibling->state(0) & QAccessible::Invisible))
+                if ((relationTo(0, sibling, 0) & Self) || (sibling->state(0) & QAccessible::Invisible)) {
                     //ignore ourself and invisible siblings
+                    delete sibling;
                     continue;
+                }
 
                 QRect sibg = sibling->rect(0);
                 QPoint sibc = sibg.center();
@@ -553,15 +553,14 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 
                 int dist = (int)sqrt((double)distp.x() * distp.x() + distp.y() * distp.y());
                 if (dist < mindist) {
-                    if (candidate)
-                        candidate->release();
+                    delete candidate;
                     candidate = sibling;
-                    candidate->addRef();
                     mindist = dist;
+                } else {
+                    delete sibling;
                 }
-                sibling->release();
             }
-            pIface->release();
+            delete pIface;
             *target = candidate;
             if (*target)
                 return 0;
@@ -569,9 +568,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
         break;
     case Covers:
         if (entry > 0) {
-            QObject *parent = parentObject();
-            QAccessibleInterface *pIface = 0;
-            QAccessible::queryAccessibleInterface(parent, &pIface);
+            QAccessibleInterface *pIface = QAccessible::queryAccessibleInterface(parentObject());
             if (!pIface)
                 return -1;
 
@@ -581,27 +578,27 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
             for (int i = pIface->indexOfChild(this) + 1; i <= sibCount && entry; ++i) {
                 pIface->navigate(Child, i, &sibling);
                 Q_ASSERT(sibling);
-                if (!sibling || (sibling->state(0) & Invisible))
+                if (!sibling || (sibling->state(0) & Invisible)) {
+                    delete sibling;
+                    sibling = 0;
                     continue;
+                }
                 if (sibling->rect(0).intersects(r))
                     --entry;
                 if (!entry)
                     break;
-                sibling->release();
+                delete sibling;
                 sibling = 0;
             }
-            pIface->release();
-            if (sibling) {
-                *target = sibling;
+            delete pIface;
+            *target = sibling;
+            if (*target)
                 return 0;
-            }
         }
         break;
     case Covered:
         if (entry > 0) {
-            QObject *parent = parentObject();
-            QAccessibleInterface *pIface = 0;
-            QAccessible::queryAccessibleInterface(parent, &pIface);
+            QAccessibleInterface *pIface = QAccessible::queryAccessibleInterface(parentObject());
             if (!pIface)
                 return -1;
 
@@ -611,20 +608,22 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
             for (int i = 1; i < index && entry; ++i) {
                 pIface->navigate(Child, i, &sibling);
                 Q_ASSERT(sibling);
-                if (!sibling || (sibling->state(0) & Invisible))
+                if (!sibling || (sibling->state(0) & Invisible)) {
+                    delete sibling;
+                    sibling = 0;
                     continue;
+                }
                 if (sibling->rect(0).intersects(r))
                     --entry;
                 if (!entry)
                     break;
-                sibling->release();
+                delete sibling;
                 sibling = 0;
             }
-            pIface->release();
-            if (sibling) {
-                *target = sibling;
+            delete pIface;
+            *target = sibling;
+            if (*target)
                 return 0;
-            }
         }
         break;
 
@@ -638,21 +637,24 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
             if (!fw)
                 return -1;
 
+            if (widget()->isAncestorOf(fw))
+                targetObject = fw;
+            /* ###
             QWidget *parent = fw;
             while (parent && !targetObject) {
                 parent = parent->parentWidget();
                 if (parent == widget())
                     targetObject = fw;
             }
+            */
         }
         break;
     case Label:
         if (entry > 0) {
-            QObject *parent = parentObject();
-            QAccessibleInterface *pIface = 0;
-            QAccessible::queryAccessibleInterface(parent, &pIface);
+            QAccessibleInterface *pIface = QAccessible::queryAccessibleInterface(parentObject());
             if (!pIface)
                 return -1;
+
             // first check for all siblings that are labels to us
             // ideally we would go through all objects and check, but that
             // will be too expensive
@@ -665,7 +667,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
                     --entry;
                 if (!entry)
                     break;
-                candidate->release();
+                delete candidate;
                 candidate = 0;
             }
             if (!candidate) {
@@ -675,11 +677,11 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
                     candidate = pIface;
             }
             if (pIface != candidate)
-                pIface->release();
-            if (candidate) {
-                *target = candidate;
+                delete pIface;
+
+            *target = candidate;
+            if (*target)
                 return 0;
-            }
         }
         break;
     case Labelled: // only implemented in subclasses
@@ -692,14 +694,13 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
             QList<QObject*> allSenders = connectionObject->senders();
             QList<QObject*> senders;
             for (int s = 0; s < allSenders.size(); ++s) {
-                QAccessibleInterface *test = 0;
                 QObject *sender = allSenders.at(s);
-                QAccessible::queryAccessibleInterface(sender, &test);
-                if (!test)
+                QAccessibleInterface *candidate = QAccessible::queryAccessibleInterface(sender);
+                if (!candidate)
                     continue;
-                if (test->relationTo(0, this, 0)&Controller)
+                if (candidate->relationTo(0, this, 0)&Controller)
                     senders << sender;
-                test->release();
+                delete candidate;
             }
             if (entry <= senders.size())
                 targetObject = senders.at(entry-1);
@@ -720,7 +721,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     default:
         break;
     }
-    QAccessible::queryAccessibleInterface(targetObject, target);
+    *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
 }
 

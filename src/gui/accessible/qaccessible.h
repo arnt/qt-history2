@@ -24,7 +24,6 @@
 #ifndef QT_H
 #include "qrect.h"
 #include "qvector.h"
-#include <private/qcom_p.h>
 #include "qvariant.h"
 #endif // QT_H
 
@@ -242,7 +241,7 @@ public:
     static UpdateHandler installUpdateHandler(UpdateHandler);
     static RootObjectHandler installRootObjectHandler(RootObjectHandler);
 
-    static bool queryAccessibleInterface(QObject *, QAccessibleInterface **);
+    static QAccessibleInterface *queryAccessibleInterface(QObject *);
     static void updateAccessibility(QObject *, int who, Event reason);
     static bool isActive();
     static void setRootObject(QObject*);
@@ -255,10 +254,7 @@ private:
     static RootObjectHandler rootObjectHandler;
 };
 
-// {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}
-#define IID_QAccessible QUuid(0xec86cb9c, 0x5da0, 0x4c43, 0xa7, 0x39, 0x13, 0xeb, 0xdf, 0x1c, 0x6b, 0x14)
-
-struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterface
+struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 {
     // check for valid pointers
     virtual bool isValid() const = 0;
@@ -288,15 +284,7 @@ struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible, public QUnknownIn
     virtual bool doAction(int action, int child, const QVariantList &params = QVariantList()) = 0;
 };
 
-// {49F4C6A7-412F-41DE-9E24-648843421FD3}
-#ifndef IID_QAccessibleFactory
-#define IID_QAccessibleFactory QUuid(0x49f4c6a7, 0x412f, 0x41de, 0x9e, 0x24, 0x64, 0x88, 0x43, 0x42, 0x1f, 0xd3)
-#endif
-
-struct Q_GUI_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFeatureListInterface
-{
-    virtual QRESULT createAccessibleInterface(const QString &, QObject *, QAccessibleInterface**) = 0;
-};
+Q_DECLARE_INTERFACE(QAccessibleInterface, "http://trolltech.com/Qt/QAccessibleInterface")
 
 #endif //QT_NO_ACCESSIBILITY
 

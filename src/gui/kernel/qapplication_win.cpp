@@ -1751,8 +1751,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                     ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve("oleacc.dll", "LresultFromObject");
                 }
                 if (ptrLresultFromObject) {
-                    QAccessibleInterface *acc = 0;
-                    QAccessible::queryAccessibleInterface(widget, &acc);
+                    QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
                     if (!acc) {
                         result = false;
                         break;
@@ -1760,7 +1759,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 
                     // and get an instance of the IAccessibile implementation
                     IAccessible *iface = qt_createWindowsAccessible(acc);
-                    acc->release();
                     LRESULT res = ptrLresultFromObject(IID_IAccessible, wParam, iface);  // ref == 2
                     iface->Release(); // the client will release the object again, and then it will destroy itself
 

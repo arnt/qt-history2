@@ -27,73 +27,12 @@
     \ingroup accessibility
 */
 
-class QAccessiblePluginPrivate : public QAccessibleFactoryInterface
-{
-public:
-    QAccessiblePluginPrivate(QAccessiblePlugin *p)
-        : plugin(p)
-    {
-    }
-
-    virtual ~QAccessiblePluginPrivate();
-
-    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-    QRESULT createAccessibleInterface(const QString &, QObject *, QAccessibleInterface**);
-
-private:
-    QAccessiblePlugin *plugin;
-};
-
-QAccessiblePluginPrivate::~QAccessiblePluginPrivate()
-{
-    delete plugin;
-}
-
-QRESULT QAccessiblePluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (iid == IID_QUnknown)
-        *iface = (QAccessibleFactoryInterface*)this;
-    else if (iid == IID_QFeatureList)
-        *iface = (QFeatureListInterface*)this;
-    else if (iid == IID_QAccessibleFactory)
-        *iface = (QAccessibleFactoryInterface*)this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-
-QStringList QAccessiblePluginPrivate::featureList() const
-{
-    return plugin->keys();
-}
-
-QRESULT QAccessiblePluginPrivate::createAccessibleInterface(const QString &key,
-    QObject *object, QAccessibleInterface **iface)
-{
-    *iface = 0;
-    QAccessibleInterface *aif = plugin->create(key, object);
-    if (!aif)
-        return QE_NOINTERFACE;
-
-    *iface = aif;
-    aif->addRef();
-    return QS_OK;
-}
-
 /*!
     Constructs an accessibility plugin. This is invoked automatically by the
     \c Q_EXPORT_PLUGIN macro.
 */
-QAccessiblePlugin::QAccessiblePlugin()
-: QGPlugin((QAccessibleFactoryInterface*)(d = new QAccessiblePluginPrivate(this)))
+QAccessiblePlugin::QAccessiblePlugin(QObject *parent)
+: QObject(parent)
 {
 }
 

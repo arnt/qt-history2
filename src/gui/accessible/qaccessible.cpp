@@ -16,12 +16,13 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
+#include "qaccessibleplugin.h"
 #include "qaccessiblewidget.h"
 #include "qapplication.h"
 #include "qhash.h"
 #include "qmetaobject.h"
-#include <private/qpluginmanager_p.h>
-#include <stdlib.h>
+#include "qmutex.h"
+#include <private/qfactoryloader_p.h>
 
 #include "qwidget.h"
 
@@ -296,84 +297,19 @@
     avoid unnecessary computations.
 */
 
-static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
-class InterfaceCache : public QObject, public QHash<QObject*,QAccessibleInterface*>
-{
-    Q_OBJECT
-public:
-    InterfaceCache() {}
+Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
+                                 (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
 
-    void insert(QObject *object, QAccessibleInterface *iface);
-    void remove(QObject *object);
-
-private slots:
-    void objectDestroyed(QObject *object)
-    {
-        QHash<QObject*, QAccessibleInterface*>::remove(object);
-    }
-
-};
-
-inline void InterfaceCache::insert(QObject *object, QAccessibleInterface *iface)
-{
-    if (!object || !iface)
-        return;
-    connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-    QHash<QObject*, QAccessibleInterface*>::insert(object, iface);
-}
-
-inline void InterfaceCache::remove(QObject *object)
-{
-    if(object) {
-        object->disconnect(this);
-        QHash<QObject*, QAccessibleInterface*>::remove(object);
-    }
-}
-
-#include "qaccessible.moc"
-
-static InterfaceCache *qInterfaceCache = 0;
-static QList<QAccessible::InterfaceFactory> qAccessibleFactories;
-static bool cleanupAdded = false;
+Q_GLOBAL_STATIC(QList<QAccessible::InterfaceFactory>, qAccessibleFactories);
 
 QAccessible::UpdateHandler QAccessible::updateHandler = 0;
 QAccessible::RootObjectHandler QAccessible::rootObjectHandler = 0;
 
+static bool accessibility_active = false;
+static bool cleanupAdded = false;
 static void qAccessibleCleanup()
 {
-    if (qInterfaceCache && qInterfaceCache->count() && qAccessibleManager)
-        qAccessibleManager->setAutoUnload(false);
-
-    delete qInterfaceCache;
-    qInterfaceCache = 0;
-    delete qAccessibleManager;
-    qAccessibleManager = 0;
-    qAccessibleFactories.clear();
-}
-
-void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
-{
-    if (!qInterfaceCache) {
-        qInterfaceCache = new InterfaceCache();
-        if (!cleanupAdded) {
-            qAddPostRoutine(qAccessibleCleanup);
-            cleanupAdded = true;
-        }
-    }
-
-    qInterfaceCache->insert(object, iface);
-}
-
-void qRemoveAccessibleObject(QObject *object)
-{
-    if (qInterfaceCache) {
-        qInterfaceCache->remove(object);
-        Q_ASSERT(!qInterfaceCache->value(object));
-        if (!qInterfaceCache->count()) {
-            delete qInterfaceCache;
-            qInterfaceCache = 0;
-        }
-    }
+    qAccessibleFactories()->clear();
 }
 
 /*!
@@ -418,14 +354,13 @@ void QAccessible::installFactory(InterfaceFactory factory)
     if (!factory)
         return;
 
-    qAccessibleFactories.ensure_constructed();
     if (!cleanupAdded) {
         qAddPostRoutine(qAccessibleCleanup);
         cleanupAdded = true;
     }
-    if (qAccessibleFactories.contains(factory))
+    if (qAccessibleFactories()->contains(factory))
         return;
-    qAccessibleFactories.append(factory);
+    qAccessibleFactories()->append(factory);
 }
 
 /*!
@@ -433,8 +368,7 @@ void QAccessible::installFactory(InterfaceFactory factory)
 */
 void QAccessible::removeFactory(InterfaceFactory factory)
 {
-    qAccessibleFactories.ensure_constructed();
-    qAccessibleFactories.removeAll(factory);
+    qAccessibleFactories()->removeAll(factory);
 }
 
 /*!
@@ -479,69 +413,43 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
     \warning
     The caller must call release() on the interface returned in \a iface.
 */
-bool QAccessible::queryAccessibleInterface(QObject *object, QAccessibleInterface **iface)
+QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
 {
-    *iface = 0;
+    accessibility_active = true;
+    QAccessibleInterface *iface = 0;
     if (!object)
-        return false;
+        return 0;
 
     QEvent e(QEvent::Accessibility);
     QApplication::sendEvent(object, &e);
 
-    if (qInterfaceCache) {
-        *iface = qInterfaceCache->value(object);
-        if (*iface) {
-            if ((*iface)->isValid()) {
-                (*iface)->addRef();
-                return true;
-            } else {
-                (*iface)->release();
-                qRemoveAccessibleObject(object);
-            }
-        }
-    }
-
-    QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
+    QAccessibleFactoryInterface *factory = 0;
     const QMetaObject *mo = object->metaObject();
     while (mo) {
-        const QString cn(mo->className());
-        for (int i = qAccessibleFactories.count(); i > 0; --i) {
-            InterfaceFactory factory = qAccessibleFactories.at(i - 1);
-            QAccessibleInterface *aiface = factory(cn, object);
-            if (aiface) {
-                aiface->addRef();
-                *iface = aiface;
-                qInsertAccessibleObject(object, *iface);
-                return true;
-            }
+        const QLatin1String cn(mo->className());
+        for (int i = qAccessibleFactories()->count(); i > 0; --i) {
+            InterfaceFactory factory = qAccessibleFactories()->at(i - 1);
+            iface = factory(cn, object);
+            if (iface)
+                return iface;
         }
-        if (!qAccessibleManager) {
-            qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>
-                (IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible");
-            if (!cleanupAdded) {
-                qAddPostRoutine(qAccessibleCleanup);
-                cleanupAdded = true;
-            }
-        }
-        qAccessibleManager->queryInterface(mo->className(), &factory);
+
+        QAccessibleFactoryInterface *factory = qt_cast<QAccessibleFactoryInterface*>(loader()->instance(cn));
         if (factory) {
-            factory->createAccessibleInterface(cn, object, iface);
-            if (*iface)
-                return true;
+            iface = factory->create(cn, object);
+            if (iface)
+                return iface;
         }
         mo = mo->superClass();
     }
 
     QWidget *widget = qt_cast<QWidget*>(object);
     if (widget)
-        *iface = new QAccessibleWidget(widget);
+        return new QAccessibleWidget(widget);
     else if (object == qApp)
-        *iface = new QAccessibleApplication();
-    else
-        return false;
+        return new QAccessibleApplication();
 
-    (*iface)->addRef();
-    return true;
+    return 0;
 }
 
 /*!
@@ -558,7 +466,7 @@ bool QAccessible::queryAccessibleInterface(QObject *object, QAccessibleInterface
 */
 bool QAccessible::isActive()
 {
-    return qAccessibleManager != 0;
+    return accessibility_active;
 }
 
 /*!
