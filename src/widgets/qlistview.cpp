@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#75 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#75 $");
 
 
 const int Unsorted = 32767;
@@ -1459,7 +1459,7 @@ void QListView::setColumn( const char * label, int size, int column )
   Adds a new column at the right end of the
   widget, with the header \a label.
   If \a width is negative, the new column will have
-  WidthMode Maximum, otherwise it will be Fixed at
+  WidthMode Maximum, otherwise it will be Manual at
   \a width pixels wide.
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
@@ -1469,7 +1469,7 @@ void QListView::addColumn( const char * label, int width )
     int c = d->h->addLabel( label, width );
     d->column.resize( c+1 );
     d->column.insert( c, new QListViewPrivate::Column );
-    d->column[c]->wmode = width >=0 ? Fixed : Maximum;
+    d->column[c]->wmode = width >=0 ? Manual : Maximum;
 }
 
 /*!
@@ -1483,7 +1483,7 @@ void QListView::setColumnText( int column, const char * label )
 
 /*!
   Sets the width of column \a column to \a w pixels.  Note that
-  if the column has a WidthMode other than Fixed, this width
+  if the column has a WidthMode other than Manual, this width
   setting may be subsequently overridden.
 */
 void QListView::setColumnWidth( int column, int w )
@@ -1515,7 +1515,7 @@ int QListView::columnWidth( int c ) const
 \define QListView::WidthMode
 
   <ul>
-   <li> \c Fixed - the column width does not change automatically
+   <li> \c Manual - the column width does not change automatically
    <li> \c Maximum - the column is automatically sized according to the
 	    widths of all items in the column.
 	    ##### doesn't shrink back yet when items shrink or close
@@ -2549,10 +2549,10 @@ void QListView::widthChanged(const QListViewItem* item, int c)
     if ( c < 0 ) {
 	// Can we stop early?
 	int col = 0;
-	while ( col < d->h->count() && d->column[col]->wmode == Fixed )
+	while ( col < d->h->count() && d->column[col]->wmode == Manual )
 	    col++;
 	if ( col == d->h->count() )
-	    return; // All have mode Fixed
+	    return; // All have mode Manual
     }
 
     if ( c < 0 || d->column[c]->wmode == Maximum ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#35 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#36 $
 **
 ** Definition of QListView widget class
 **
@@ -139,7 +139,7 @@ public:
     const char* columnText( int column ) const;
     virtual void setColumnWidth( int column, int width );
     int columnWidth( int column ) const;
-    enum WidthMode { Fixed, Maximum };
+    enum WidthMode { Manual, Maximum };
     virtual void setColumnWidthMode( int column, WidthMode );
     WidthMode columnWidthMode( int column ) const;
 
