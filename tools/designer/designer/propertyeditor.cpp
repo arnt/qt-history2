@@ -1490,6 +1490,8 @@ PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after
 void PropertyDatabaseItem::createChildren()
 {
     PropertyItem *i = this;
+    i = new PropertyListItem( listview, i, this, tr( "Connection" ), TRUE );
+    addChild( i );
     i = new PropertyListItem( listview, i, this, tr( "Table" ), TRUE );
     addChild( i );
     i = new PropertyListItem( listview, i, this, tr( "Field" ), TRUE );
@@ -1502,15 +1504,26 @@ void PropertyDatabaseItem::initChildren()
     QStringList lst = value().toStringList();
     for ( int i = 0; i < childCount(); ++i ) {
 	item = PropertyItem::child( i );
-	if ( item->name() == tr( "Table" ) ) {
+	if ( item->name() == tr( "Connection" ) ) {
 	    // ##### insert all tables here
-	    if ( lst.count() > 0 )
+	    if ( !lst.count() )
+		item->setValue( QVariant( QStringList( "default" ) ) );
+	    else
 		item->setValue( QVariant( QStringList( lst[ 0 ] ) ) );
+	    item->setCurrentItem( 0 );
+	} else if ( item->name() == tr( "Table" ) ) {
+	    // ##### insert all tables here
+	    if ( !lst.count() )
+		item->setValue( QVariant( QStringList( "" ) ) );
+	    else
+		item->setValue( QVariant( QStringList( lst[ 1 ] ) ) );
 	    item->setCurrentItem( 0 );
 	} else if ( item->name() == tr( "Field" ) ) {
 	    // ##### insert all fields here
-	    if ( lst.count() > 1 )
-		item->setValue( QVariant( QStringList( lst[ 1 ] ) ) );
+	    if ( !lst.count() )
+		item->setValue( QVariant( QStringList( "" ) ) );
+	    else
+		item->setValue( QVariant( QStringList( lst[ 2 ] ) ) );
 	    item->setCurrentItem( 0 );
 	}
     }
@@ -1544,9 +1557,9 @@ void PropertyDatabaseItem::setValue( const QVariant &v )
 
     QStringList lst = v.toStringList();
     if ( lst.count() ) {
-	QString s = lst[ 0 ];
-	if ( lst.count() > 1 )
-	    s += "." + lst[ 1 ];
+	QString s = "(" + lst[ 0 ] + ")";
+	if ( lst.count() > 2 )
+	    s.prepend( lst[ 1 ] + "." + lst[ 2 ] + " " );
 	setText( 1, s );
 	lined->setText( s );
     }
@@ -1561,10 +1574,14 @@ bool PropertyDatabaseItem::hasSubItems() const
 void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 {
     QStringList lst;
-    lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem() << ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
+    lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem() 
+	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem() 
+	<< ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
     setValue( lst );
-    if ( c == PropertyItem::child( 0 ) ) { // if the table changed
-	// ### updates fields combo and make first or so the current one
+    if ( c == PropertyItem::child( 0 ) ) { // if the connection changed
+	// ### updates table and fields combo 
+    } else if ( c == PropertyItem::child( 1 ) ) { // if the table changed
+	// ### updates fields combo 
     }
     notifyValueChange();
 }
