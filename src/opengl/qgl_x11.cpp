@@ -16,6 +16,7 @@
 
 #if defined(Q_WS_X11)
 
+#include "qmap.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
@@ -74,14 +75,20 @@ CMapEntry::~CMapEntry()
 
 static QIntDict<CMapEntry> *cmap_dict = 0;
 static bool		    mesa_gl   = FALSE;
+static QIntDict< QMap<int, QRgb> > *qglcmap_dict = 0;
 
 static void cleanup_cmaps()
 {
-    if ( !cmap_dict )
-	return;
-    cmap_dict->setAutoDelete( TRUE );
-    delete cmap_dict;
-    cmap_dict = 0;
+    if (cmap_dict) {
+	cmap_dict->setAutoDelete(TRUE);
+	delete cmap_dict;
+	cmap_dict = 0;
+    }
+    if (qglcmap_dict) {
+	qglcmap_dict->setAutoDelete(TRUE);
+	delete qglcmap_dict;
+	qglcmap_dict = 0;
+    }
 }
 
 static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
@@ -588,6 +595,8 @@ QColor QGLContext::overlayTransparentColor() const
 		col.red = col.green = col.blue = 0;
 		col.flags = 0;
 		Display *dpy = d->paintDevice->x11Display();
+		if (col.pixel > (uint) ((XVisualInfo *)vi)->colormap_size - 1)
+		    col.pixel = ((XVisualInfo *)vi)->colormap_size - 1;
 		XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) vi), &col);
 		uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
 		uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
@@ -622,9 +631,41 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		     + ( gf * x->scmap.green_mult )
 		     + ( bf * x->scmap.blue_mult );
 	    return p;
-	}
-	else {
-	    return c.pixel( screen ); // ### wrong; should really ask QColor to alloc
+	} else {
+	    if (!qglcmap_dict) {
+		qglcmap_dict = new QIntDict< QMap<int, QRgb> >;
+	    }
+	    QMap<int, QRgb> *cmap;
+	    if ((cmap = qglcmap_dict->find((long) info->visualid)) == 0) {
+		cmap = new QMap<int, QRgb>;
+		qglcmap_dict->insert((long) info->visualid, cmap);
+	    }
+	    
+	    // already in the map?
+	    QRgb target = c.rgb();
+	    QMap<int, QRgb>::Iterator it = cmap->begin();
+	    for (; it != cmap->end(); ++it) {
+		if ((*it) == target)
+		    return it.key();
+	    }		
+	    
+	    // need to alloc color
+	    unsigned long plane_mask[2];
+	    unsigned long color_map_entry;
+	    if (!XAllocColorCells (QPaintDevice::x11AppDisplay(), x->cmap, true, plane_mask, 0,
+				   &color_map_entry, 1))
+		return c.pixel(screen);
+
+	    XColor col;
+	    col.flags = DoRed | DoGreen | DoBlue;
+	    col.pixel = color_map_entry;
+	    col.red   = (ushort)((qRed(c.rgb()) / 255.0) * 65535.0 + 0.5);
+	    col.green = (ushort)((qGreen(c.rgb()) / 255.0) * 65535.0 + 0.5);
+	    col.blue  = (ushort)((qBlue(c.rgb()) / 255.0) * 65535.0 + 0.5);
+	    XStoreColor(QPaintDevice::x11AppDisplay(), x->cmap, &col);
+
+	    cmap->insert(color_map_entry, target);
+	    return color_map_entry;
 	}
     }
     return 0;
