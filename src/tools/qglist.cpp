@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#18 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#18 $")
 
 
 // --------------------------------------------------------------------------
@@ -135,6 +135,7 @@ QLNode *QGList::locate( uint index )		// get node at i'th position
     return curNode = node;
 }
 
+
 void QGList::inSort( GCI d )			// add sorted in list
 {
     int index = 0;
@@ -146,11 +147,27 @@ void QGList::inSort( GCI d )			// add sorted in list
     insertAt( index, d );
 }
 
+
+
+void QGList::prepend( GCI d )			// add at list head
+{
+    register QLNode *n = new QLNode( newItem( d ) );
+    CHECK_PTR( n );
+    n->prev = 0;
+    if ( (n->next = firstNode) )		// list is not empty
+	firstNode->prev = n;
+    else					// initialize list
+	lastNode = n;
+    firstNode = curNode = n;			// curNode affected
+    numNodes++;
+    curIndex = 0;
+}
+
+
 void QGList::append( GCI d )			// add at list tail
 {
     register QLNode *n = new QLNode( newItem( d ) );
     CHECK_PTR( n );
-    CHECK_PTR( n->data );
     n->next = 0;
     if ( (n->prev = lastNode) )			// list is not empty
 	lastNode->next = n;
@@ -160,6 +177,7 @@ void QGList::append( GCI d )			// add at list tail
     curIndex = numNodes;
     numNodes++;
 }
+
 
 bool QGList::insertAt( uint index, GCI d )	// add at i'th position
 {
@@ -177,7 +195,6 @@ bool QGList::insertAt( uint index, GCI d )	// add at i'th position
     QLNode *prevNode = nextNode->prev;
     register QLNode *n = new QLNode( newItem( d ) );
     CHECK_PTR( n );
-    CHECK_PTR( n->data );
     nextNode->prev = n;
     prevNode->next = n;
     n->prev = prevNode;				// link new node into list
@@ -185,6 +202,23 @@ bool QGList::insertAt( uint index, GCI d )	// add at i'th position
     curNode = n;
     numNodes++;
     return TRUE;
+}
+
+
+void QGList::relinkNode( QLNode *n )		// relink as first item
+{
+    if ( n == firstNode )			// already first
+	return;
+    curNode = n;
+    unlink();
+    n->prev = 0;
+    if ( (n->next = firstNode) )		// list is not empty
+	firstNode->prev = n;
+    else					// initialize list
+	lastNode = n;
+    firstNode = curNode = n;			// curNode affected
+    numNodes++;
+    curIndex = 0;
 }
 
 
@@ -274,6 +308,7 @@ bool QGList::removeAt( uint index )		// remove at i'th position
     delete n;
     return TRUE;
 }
+
 
 GCI QGList::takeNode( QLNode *n )		// take current node out
 {
@@ -607,19 +642,4 @@ GCI QGListIterator::operator-=( uint jumps )	// move n positions backward
     while ( curNode && jumps-- )
 	curNode = curNode->prev;
     return curNode ? curNode->getData() : 0;
-}
-
-void QGList::prepend( GCI d )			// add at list head
-{
-    register QLNode *n = new QLNode( newItem( d ) );
-    CHECK_PTR( n );
-    CHECK_PTR( n->data );
-    n->prev = 0;
-    if ( (n->next = firstNode) )		// list is not empty
-	firstNode->prev = n;
-    else					// initialize list
-	lastNode = n;
-    firstNode = curNode = n;			// curNode affected
-    numNodes++;
-    curIndex = 0;
 }
