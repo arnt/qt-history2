@@ -54,7 +54,7 @@ class Q_EXPORT QInterfaceManager
 {
 public:
     QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
-	: interfaceId( id ), defPol( pol ), casesens( cs )
+	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -91,21 +91,16 @@ public:
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
-		QString feat;
-		if ( casesens )
-		    feat = *f;
-		else
-		    feat = (*f).lower();
 #ifdef QT_CHECK_RANGE
 #ifdef QT_DEBUG_COMPONENT
-		qDebug("Adding feature %s", feat.latin1() );
+		qDebug("Adding feature %s", (*f).latin1() );
 #endif
-		if ( !plugDict[feat] )
-		    plugDict.replace( feat, plugin );
+		if ( !plugDict[*f] )
+		    plugDict.replace( *f, plugin );
 		else
-		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), feat.latin1() );
+		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*f).latin1() );
 #else
-		plugDict.replace( feat, plugin );
+		plugDict.replace( *f, plugin );
 #endif
 	    }
 	    iFace->release();
@@ -134,12 +129,9 @@ public:
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
-	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-		if( casesens )
-		    plugDict.remove( *f );
-		else
-		    plugDict.remove( (*f).lower() );
-	    }
+	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ )
+		plugDict.remove( *f );
+
 	    iFace->release();
 	}
 	bool unloaded = plugin->unload();
@@ -166,7 +158,7 @@ public:
     {
 	if ( feature.isEmpty() )
 	    return 0;
-	return casesens ? plugDict[feature] : plugDict[feature.lower()];
+	return plugDict[feature];
     }
 
     Type *queryInterface(const QString& feature) const
