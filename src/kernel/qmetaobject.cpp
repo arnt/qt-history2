@@ -36,10 +36,7 @@
 **********************************************************************/
 
 #include "qmetaobject.h"
-#include "qobjectlist.h"
 #include "qobjectdict.h"
-#include "qstrlist.h"
-#include "qtl.h"
 
 // NOT REVISED
 
@@ -1068,12 +1065,3 @@ bool QMetaProperty::stored( QObject* o ) const
 */
 
 #endif // QT_NO_PROPERTIES
-
-QMetaObjectInit::QMetaObjectInit(void(*)()) // ### remove 3.0
-{
-}
-
-int QMetaObjectInit::init() // ### remove 3.0
-{
-    return 0;
-}

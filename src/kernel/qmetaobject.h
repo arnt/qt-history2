@@ -50,9 +50,7 @@ struct QMetaData				// - member function meta data
     const char *name;				// - member name
     QMember ptr;				// - member pointer
     enum Access { Private, Protected, Public };
-    /* ### add this in 3.0
-       Access access;				// - access permission
-    */
+    Access access;				// - access permission
 };
 
 
@@ -252,12 +250,5 @@ inline void QMetaProperty::setFlags( uint f )
 inline void QMetaProperty::clearFlags( uint f )
 { flags &= ~(uint)f; }
 #endif
-
-// ### remove 3.0 (binary compatibility with Qt-2.0.2)
-class Q_EXPORT QMetaObjectInit {
-public:
-    QMetaObjectInit(void(*)());
-    static int init();
-};
 
 #endif // QMETAOBJECT_H
