@@ -793,7 +793,7 @@ fi
 #now look at the configs and figure out what platform we are config'd for
 [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && X11_PLATFORM=yes
 [ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
-[ -d $relpath/mkspecs/qws ] && QWS_PLATFORM=yes
+echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
 
 # Find default thread option for target
 if grep >/dev/null '^QMAKE_LIBS_THREAD' $XQMAKESPEC/qmake.conf
