@@ -706,11 +706,12 @@ void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
 	d->lastAt = at();
-	uint i = 0;
+	uint i = 0, j = 0;
 	for ( ; i < count(); ++i ){
-	    if ( !field(i)->isCalculated() ){
-		QSqlRecord::setValue( i, QSqlQuery::value(i) );
-		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( i ) );
+	    if ( !field( i )->isCalculated() ){
+		QSqlRecord::setValue( i, QSqlQuery::value( j ) );
+		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
+		j++;
 	    }
 	}
 	i = 0;
