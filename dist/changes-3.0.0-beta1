@@ -491,7 +491,7 @@ QDateTime / QDate / QTime
 -------------------------
 
 More sophisticated toString() function that takes a DateFormat, where
-DateFormat can be either TextDate (the default), ISODate (IDO 8601) or
+DateFormat can be either TextDate (the default), ISODate (ISO 8601) or
 LocalDate (locale dependent).
 
 All new functions:
