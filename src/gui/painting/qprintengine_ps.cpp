@@ -1868,7 +1868,7 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
                 glyph = glyphs[i].glyph;
             else
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
-	    stream << toHex(mapUnicode(glyph));
+            stream << toHex(mapUnicode(glyph));
             if (i != len-1) {
                 xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i+1].advance.x());
                 xyarray += " ";
@@ -1886,7 +1886,7 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
                 glyph = glyphs[i].glyph;
             else
                 glyph = glyph_for_unicode(useGlyphAsUnicode ? glyphs[i].glyph : ti.chars[i].unicode());
-	    stream << toHex(mapUnicode(glyph));
+            stream << toHex(mapUnicode(glyph));
             if (i) {
                 xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i-1].advance.x());
                 xyarray += " ";
@@ -5564,7 +5564,7 @@ void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int tex
 }
 
 void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
-				     Qt::PixmapDrawingMode mode)
+                                     Qt::PixmapDrawingMode mode)
 {
     // ### Optimise implementation!
     float yPos = r.y();
@@ -5595,7 +5595,7 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
 
 void QPSPrintEngine::drawPath(const QPainterPath &p)
 {
-    bool winding = (p.fillMode() == QPainterPath::Winding);
+    bool winding = (p.fillRule() == Qt::WindingFill);
 
     if (winding)
         d->pageStream << "/WFi true d\n";
