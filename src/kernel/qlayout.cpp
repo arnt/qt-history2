@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#77 $
 **
 ** Implementation of layout classes
 **
@@ -1428,23 +1428,6 @@ void QBoxLayout::addStrut( int size )
   If the stretch factor is 0 and nothing else in the QBoxLayout can
   grow at all, the widget may still grow up to its \link
   QWidget::setMaximumSize() maximum size. \endlink
-
-  Alignment is perpendicular to direction(), alignment in the
-  serial direction is done with addStretch().
-
-  For horizontal boxes,	 the possible alignments are
-  <ul>
-  <li> \c AlignCenter centers vertically in the box.
-  <li> \c AlignTop aligns to the top border of the box.
-  <li> \c AlignBottom aligns to the bottom border of the box.
-  </ul>
-
-  For vertical boxes, the possible alignments are
-  <ul>
-  <li> \c AlignCenter centers horizontally in the box.
-  <li> \c AlignLeft aligns to the left border of the box.
-  <li> \c AlignRight aligns to the right border of the box.
-  </ul>
 
   Alignment only has effect if the size of the box is greater than the
   widget's maximum size.
