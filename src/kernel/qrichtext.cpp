@@ -5251,7 +5251,6 @@ QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString 
     if( string->isBidi() )
 	return bidiReorderLine( parag, string, line, startChar, lastChar, align, space );
 #endif
-    space = QMAX( space, 0 ); // #### with nested tables this gets negative because of a bug I didn't find yet, so workaround for now. This also means non-left aligned nested tables do not work at the moment
     int start = (startChar - &string->at(0));
     int last = (lastChar - &string->at(0) );
     // do alignment Auto == Left in this case
@@ -5541,6 +5540,8 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 {
 }
 
+#define SPACE(s) doc?(s>0?s:0):s
+
 int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 					int start, const QMap<int, QTextParagLineStart*> & )
 {
@@ -5624,7 +5625,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = formatLine( parag, parag->string(), lineStart, firstChar, c-1 );
+	    lineStart = formatLine( parag, parag->string(), lineStart, firstChar, SPACE(c-1) );
 	    lineStart->y = y;
 	    insertLineStart( parag, i, lineStart );
 	    lineStart->baseLine = c->ascent();
@@ -5762,7 +5763,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->isCustom() && ci->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
-	    QTextParagLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
+	    QTextParagLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x) );
 	    ci->resize( w - x);
 	    if ( ci->width < w - x ) {
 		if ( align & Qt::AlignHCenter )
@@ -5837,7 +5838,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    lineStart->h = h;
   		    DO_FLOW( lineStart );
 		}
-		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x) );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
@@ -5865,7 +5866,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    } else { // ... otherwise if we had a breakable char, break there
   		DO_FLOW( lineStart );
 		i = lastBreak;
-		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),align, w - string->at( i ).x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),align, SPACE(w - string->at( i ).x) );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
@@ -5932,7 +5933,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( align == Qt::AlignJustify || lastChr == QChar_linesep )
 	    align = Qt::AlignAuto;
  	DO_FLOW( lineStart );
-	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
+	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, SPACE(w - x) );
 	delete lineStart;
     }
 
