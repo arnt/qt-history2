@@ -317,7 +317,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
 	const char* d = data.data();
 	const int s = qstrlen(d);
 	QByteArray r(data.size()+1);
-	char* o = r.detach();
+	char* o = r.data();
 	int j=0;
 	for (int i=0; i<s; i++) {
 	    char c = d[i];
@@ -339,7 +339,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     QByteArray r(s+2);
     r[0]=uchar(0xff); // BOM
     r[1]=uchar(0xfe);
-    memcpy(r.detach()+2,data.data(),s);
+    memcpy(r.data()+2,data.constData(),s);
     return r;
 }
 
@@ -351,7 +351,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	// Anticipate required space for CRLFs at 1/40
 	int maxsize=data.size()+data.size()/40+3;
 	QByteArray r(maxsize);
-	char* o = r.detach();
+	char* o = r.data();
 	const char* d = data.data();
 	const int s = data.size();
 	bool cr=FALSE;
@@ -371,7 +371,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	    if ( j+3 >= maxsize ) {
 		maxsize += maxsize/4;
 		r.resize(maxsize);
-		o = r.detach();
+		o = r.data();
 	    }
 	}
 	o[j]=0;
@@ -404,7 +404,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	res.truncate( ri );
 	const int byteLength = res.length()*2;
 	QByteArray r( byteLength + 2 );
-	memcpy( r.detach(), res.unicode(), byteLength );
+	memcpy( r.data(), res.unicode(), byteLength );
 	r[byteLength] = 0;
 	r[byteLength+1] = 0;
 	return r;
@@ -418,7 +418,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
     {
 	// Right way - but skip header and add nul
 	QByteArray r(data.size());
-	memcpy(r.detach(),data.data()+2,data.size()-2);
+	memcpy(r.data(),data.constData()+2,data.size()-2);
 	r[(int)data.size()-2] = 0;
 	r[(int)data.size()-1] = 0;
 	return r;
@@ -429,13 +429,13 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	    // Odd byte - drop last
 	    s--;
 	}
-	char* i = data.detach();
+	char* i = data.data();
 	if ( (uchar)i[0] == uchar(0xfe) && (uchar)i[1] == uchar(0xff) ) {
 	    i += 2;
 	    s -= 2;
 	}
 	QByteArray r(s+2);
-	char* o = r.detach();
+	char* o = r.data();
 	while (s) {
 	    o[0] = i[1];
 	    o[1] = i[0];
@@ -561,13 +561,13 @@ QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime
 
     // set the correct number for EndHTML
     QByteArray pos = QString::number( result.size() ).latin1();
-    memcpy( (char *)(result.data() + 53 - pos.length()), pos.data(), pos.length() );
+    memcpy( (char *)(result.data() + 53 - pos.length()), pos.constData(), pos.length() );
 
     // set correct numbers for StartFragment and EndFragment
     pos = QString::number( result.find( "<!--StartFragment-->" ) + 20 ).latin1();
-    memcpy( (char *)(result.data() + 79 - pos.length()), pos.data(), pos.length() );
+    memcpy( (char *)(result.data() + 79 - pos.length()), pos.constData(), pos.length() );
     pos = QString::number( result.find( "<!--EndFragment-->" ) ).latin1();
-    memcpy( (char *)(result.data() + 103 - pos.length()), pos.data(), pos.length() );
+    memcpy( (char *)(result.data() + 103 - pos.length()), pos.constData(), pos.length() );
     qDebug("text is:\n%s\n", result.data() );
     return result;
 }
@@ -807,7 +807,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
 	    QByteArray c = (*i).toLocal8Bit();
 	    int l = c.length();
-	    memcpy(f, c.data(), l);
+	    memcpy(f, c.constData(), l);
 	    for (int j = 0; j<l; j++)
 		if ( f[j] == '/' )
 		    f[j] = '\\';

@@ -768,7 +768,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
     QByteArray pName = printerName.toLocal8Bit();
-    if ( !OpenPrinterA( pName.detach(), &hPrinter,NULL ) ) {
+    if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
 	qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
 	return;
     }

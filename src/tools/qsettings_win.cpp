@@ -370,9 +370,9 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, bool *ok )
 
     QByteArray result(size, '\0');
     QT_WA( {
-	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, (uchar *)result.detach(), &size );
+	RegQueryValueExW( handle, e.isEmpty() ? 0 : (TCHAR*)e.ucs2(), NULL, NULL, (uchar *)result.data(), &size );
     } , {
-	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, (uchar *)result.detach(), &size );
+	RegQueryValueExA( handle, e.isEmpty() ? (const char*)0 : (const char*)e.local8Bit(), NULL, NULL, (uchar *)result.data(), &size );
     } );
 
     RegCloseKey( handle );

@@ -205,8 +205,8 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     ofn->lStructSize	= sizeof(OPENFILENAMEA);
 #endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
-    ofn->lpstrFilter	= aFilter.data();
-    ofn->lpstrFile	= aInitSel.detach();
+    ofn->lpstrFilter	= aFilter;
+    ofn->lpstrFile	= aInitSel.data();
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
     ofn->lpstrTitle	= aTitle.data();
