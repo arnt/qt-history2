@@ -27,7 +27,7 @@ showdirs:
 	$text = "targets:\n";
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
-	    $text = $text . "\tcd $d\n\t\$(MAKE) -f $d.mak\n\tcd ..\n";
+	    $text = $text . "\tcd $d\n\t\$(MAKE)\n\tcd ..\n";
 	}
 	chop $text;
     }
@@ -53,7 +53,7 @@ tmake:
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
-	    $text = $text . "\tcd $d\n\t\$(TMAKE) $d.pro -o $d.mak\n\tcd ..\n";
+	    $text = $text . "\tcd $d\n\t\$(TMAKE) $d.pro -o Makefile\n\tcd ..\n";
 	}
 	chop $text;
     }
@@ -66,7 +66,7 @@ clean:
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
-	    $text = $text . "\tcd $d\n\t\$(MAKE) -f $d.mak clean\n\tcd ..\n";
+	    $text = $text . "\tcd $d\n\t\$(MAKE) clean\n\tcd ..\n";
 	}
     }
 #$}
