@@ -3503,11 +3503,11 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# save configuration into .qt.config
+# save configuration into qconfig.pri
 #-------------------------------------------------------------------------------
 
-[ -f "$outpath/mkspecs/.qt.config" ] && rm -f "$outpath/mkspecs/.qt.config"
-QTCONFIG=$outpath/mkspecs/.qt.config
+[ -f "$outpath/mkspecs/qconfig.pri" ] && rm -f "$outpath/mkspecs/qconfig.pri"
+QTCONFIG=$outpath/mkspecs/qconfig.pri
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
 QTCONFIG_CONFIG=
 if [ "$CFG_DEBUG" = "yes" ]; then
@@ -3527,7 +3527,7 @@ QT_INSTALL_QTCONFIG = $QT_INSTALL_QTCONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
-# replace .qt.config if it differs from the newly created temp file
+# replace qconfig.pri if it differs from the newly created temp file
 if cmp -s $QTCONFIG.tmp $QTCONFIG; then
     rm -f $QTCONFIG.tmp
 else
