@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#257 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#258 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11927,7 +11927,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     int index = 0;
     int slen  = str.length();
     int len;
-    while ( index < (int)length()-1 ) {
+    while ( index < (int)length() ) {
 	index = rx.match( *this, index, &len, FALSE );
 	if ( index >= 0 ) {
 	    replace( index, len, str );
