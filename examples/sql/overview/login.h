@@ -10,13 +10,13 @@
 
 #define DB_SALES_DRIVER	    "QPSQL7"
 #define DB_SALES_DBNAME	    "testdb"
-#define DB_SALES_USER	    "db"
-#define DB_SALES_PASSWD	    "db"
-#define DB_SALES_HOST	    "silverfish"
+#define DB_SALES_USER	    "troll"
+#define DB_SALES_PASSWD	    "trond"
+#define DB_SALES_HOST	    "iceblink.troll.no"
 
 #define DB_ORDERS_DRIVER    "QPSQL7"
-#define DB_ORDERS_DBNAME    "pingpong"
-#define DB_ORDERS_USER	    "db"
-#define DB_ORDERS_PASSWD    "db"
-#define DB_ORDERS_HOST	    "silverfish"
+#define DB_ORDERS_DBNAME    "testdb"
+#define DB_ORDERS_USER	    "troll"
+#define DB_ORDERS_PASSWD    "trond"
+#define DB_ORDERS_HOST	    "iceblink.troll.no"
 
