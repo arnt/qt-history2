@@ -530,9 +530,10 @@ inline int QString::grow(int size)
     \internal
 */
 
-/*! \fn QString::QString()
+/*! 
+    \fn QString::QString()
 
-    Constructs an empty string.
+    Constructs a null string. Null strings are also empty.
 
     \sa isEmpty()
 */
