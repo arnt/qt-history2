@@ -87,7 +87,7 @@ QString QSqlIndex::name() const
 
 */
 
-void QSqlIndex::append( const QSqlField& field )
+void QSqlIndex::append( const QSqlField* field )
 {
     append( field, FALSE );
 }
@@ -98,7 +98,7 @@ void QSqlIndex::append( const QSqlField& field )
 
 */
 
-void QSqlIndex::append( const QSqlField& field, bool desc )
+void QSqlIndex::append( const QSqlField* field, bool desc )
 {
     sorts.append( desc );
     QSqlFieldList::append( field );
@@ -106,10 +106,10 @@ void QSqlIndex::append( const QSqlField& field, bool desc )
 
 
 /*!
-  
+
   Returns true if field \a i in the index is sorted in descending
   order, otherwise FALSE is returned.
- 
+
 */
 
 bool QSqlIndex::isDescending( int i ) const
@@ -120,7 +120,7 @@ bool QSqlIndex::isDescending( int i ) const
 }
 
 /*!
-  
+
   If \a desc is TRUE, field \a i is sorted in descending order.
   Otherwise, field \a i is sorted in ascending order (the default).
   If the field does not exist, nothing happens.
@@ -140,7 +140,7 @@ QString QSqlIndex::toString( const QString& prefix ) const
     for ( uint i = 0; i < count(); ++i ) {
 	if ( !prefix.isNull() )
 	    s += prefix + ".";
-	s += field( i ).name();
+	s += field( i )->name();
 	if ( isDescending( i ) )
 	    s += " desc";
     }

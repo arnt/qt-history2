@@ -4,6 +4,9 @@
 #ifdef QT_SQL_POSTGRES
 #include "src/psql/qsql_psql.h"
 #endif
+#ifdef QT_SQL_MYSQL
+#include "src/mysql/qsql_mysql.h"
+#endif
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
@@ -113,12 +116,18 @@ QSqlDatabase::QSqlDatabase( const QString& type,
 void QSqlDatabase::init( const QString& type )
 {
     d = new QSqlDatabasePrivate();
+#ifndef QT_NO_PLUGIN
     //    d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
     //    d->driver = d->plugIns->create( type );
+#endif
     if ( !d->driver ) {
 #ifdef QT_SQL_POSTGRES
 	if ( type == "QPSQL" )
 	    d->driver = new QPSQLDriver();
+#endif
+#ifdef QT_SQL_MYSQL
+	if ( type == "MYSQL" )
+	    d->driver = new QMySQLDriver();
 #endif
     }
     if ( !d->driver ) {

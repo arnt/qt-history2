@@ -208,7 +208,7 @@ QSqlFieldList QMySQLResult::fields()
 		    break;
 		count++;
 	    }
-	} 
+	}
     }
     mysql_field_seek( d->result, 0 );
     return fil;
@@ -317,7 +317,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
 	    QSqlFieldList fil = fields( tablename );
-	    idx.append( fil.field( i.value(3).toInt()-1 ) );
+	    idx.append( *(fil.field( i.value(3).toInt()-1 )) );
 	    break;
 	}
     }

@@ -1,5 +1,4 @@
 #include "qapplication.h"
-#include "qsql_p.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
 #include "qsqlpropertymanager.h"
@@ -7,14 +6,20 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlTablePrivate : public QSqlPrivate
+class QSqlTablePrivate
 {
 public:
-    QSqlTablePrivate() : QSqlPrivate(), data(0) {}
+    QSqlTablePrivate() : view(0) {}
+    
+    QString      nullTxt;
+    typedef      QValueList< uint > ColIndex;
+    ColIndex     colIndex;
+    bool         haveAllRows;
+    
     QSqlEditorFactory* editorFactory;
     QString trueTxt;
     QString falseTxt;
-    QSql* data;
+    QSqlView* view;
 };
 
 
@@ -24,9 +29,7 @@ public:
 
   \brief A flexible and editable SQL table widget.
 
-  QSqlTable supports various methods for presenting SQL data.  General SQL
-  queries (QSql), read-only rowsets (QSqlRowset) and updatable SQL tables or
-  views (QSqlView) can all be displayed.
+  QSqlTable supports various methods for presenting SQL data.
 
   When displaying data, QSqlTable only retrieves data for visible
   rows.  If drivers do not support the 'query size' property, rows are
@@ -84,13 +87,13 @@ QSqlTable::~QSqlTable()
 
 */
 
-void QSqlTable::addColumn( const QSqlField& field )
+void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( field.isVisible() && !field.isPrimaryIndex() ) {
+    if ( field->isVisible() && !field->isPrimaryIndex() ) {
 	setNumCols( numCols() + 1 );
-	d->colIndex.append( field.fieldNumber() );
+	d->colIndex.append( field->fieldNumber() );
 	QHeader* h = horizontalHeader();
-	h->setLabel( numCols()-1, field.displayLabel() );
+	h->setLabel( numCols()-1, field->displayLabel() );
     }
 }
 
@@ -111,7 +114,7 @@ void QSqlTable::removeColumn( uint col )
     for ( uint i = col; i < (uint)numCols()-1; ++i )
 	h->setLabel( i, h->label(i+1) );
     setNumCols( numCols()-1 );
-    QSqlPrivate::ColIndex::Iterator it = d->colIndex.at( col );
+    QSqlTablePrivate::ColIndex::Iterator it = d->colIndex.at( col );
     if ( it != d->colIndex.end() )
 	d->colIndex.remove( it );
 }
@@ -126,14 +129,14 @@ void QSqlTable::removeColumn( uint col )
 
 */
 
-void QSqlTable::setColumn( uint col, const QSqlField& field )
+void QSqlTable::setColumn( uint col, const QSqlField* field )
 {
     if ( col >= (uint)numCols() )
 	return;
-    if ( field.isVisible() && !field.isPrimaryIndex() ) {
-	d->colIndex[ col ] = field.fieldNumber();
+    if ( field->isVisible() && !field->isPrimaryIndex() ) {
+	d->colIndex[ col ] = field->fieldNumber();
 	QHeader* h = horizontalHeader();
-	h->setLabel( col, field.name() );
+	h->setLabel( col, field->name() );
     } else {
 	removeColumn( col );
     }
@@ -147,7 +150,7 @@ void QSqlTable::setColumn( uint col, const QSqlField& field )
 
 QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 {
-    QSqlRowset* vw = d->view();
+    QSqlView* vw = d->view;
     if ( !vw )
 	return 0;
     QSqlPropertyManager m;
@@ -169,7 +172,7 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
 void QSqlTable::setCellContentFromEditor( int row, int col )
 {
-    QSqlRowset* vw = d->view();
+    QSqlView* vw = d->view;
     if ( !vw )
 	return;
     QSqlPropertyManager m;
@@ -193,7 +196,9 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
     // ### Searching backwards is not implemented yet.
     Q_UNUSED( backwards );
 
-    QSqlRowset * rset = d->rowset();
+    QSqlView * rset = d->view;
+    if ( !rset )
+	return;
     unsigned int  row = currentRow(), startRow = row,
 		  col = currentColumn() + 1;
     bool  wrap = TRUE,
@@ -242,7 +247,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
   Resets the table so that it displays no data.  This is called
   internally before displaying a new query.
 
-  \sa setSql() setRowset() setView()
+  \sa setSql() setView()
 
 */
 
@@ -252,7 +257,7 @@ void QSqlTable::reset()
     verticalScrollBar()->setValue(0);
     setNumRows(0);
     setNumCols(0);
-    d->data = 0;
+    d->view = 0;
     d->haveAllRows = FALSE;
     d->colIndex.clear();
     if ( sorting() ) {
@@ -270,7 +275,7 @@ void QSqlTable::reset()
 
 int QSqlTable::indexOf( uint i ) const
 {
-    QSqlPrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
+    QSqlTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
     if ( it != d->colIndex.end() )
 	return *it;
     return -1;
@@ -383,7 +388,7 @@ void QSqlTable::setNumCols ( int r )
 
 QString QSqlTable::text ( int row, int col ) const
 {
-    QSql* sql = d->sql();
+    QSql* sql = d->view;
     if ( !sql )
 	return QString::null;
     if ( sql->seek( row ) )
@@ -400,7 +405,7 @@ QString QSqlTable::text ( int row, int col ) const
 
 QVariant QSqlTable::value ( int row, int col ) const
 {
-    QSql* sql = d->sql();
+    QSql* sql = d->view;
     if ( !sql )
 	return QVariant();
     if ( sql->seek( row ) )
@@ -419,7 +424,7 @@ void QSqlTable::loadNextPage()
 {
     if ( d->haveAllRows )
 	return;
-    QSql* sql = d->sql();
+    QSql* sql = d->view;
     if ( !sql )
 	return;
     int pageSize = 0;
@@ -462,7 +467,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
-	QSqlRowset* rset = d->rowset();
+	QSqlView* rset = d->view;
 	if ( !rset )
 	    return;
 	QSqlIndex lastSort = rset->sort();
@@ -484,12 +489,12 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 void QSqlTable::columnClicked ( int col )
 {
     if ( sorting() ) {
-	QSqlRowset* rset = d->rowset();
+	QSqlView* rset = d->view;
 	if ( !rset )
 	    return;
 	QSqlIndex lastSort = rset->sort();
 	bool asc = TRUE;
-	if ( lastSort.count() && lastSort.field( 0 ).name() == rset->field( indexOf( col ) ).name() )
+	if ( lastSort.count() && lastSort.field( 0 )->name() == rset->field( indexOf( col ) )->name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
     }
@@ -506,7 +511,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 {
     // ###
     QTable::paintCell(p,row,col,cr,selected);
-    QSql* sql = d->data;
+    QSql* sql = d->view;
     if ( !sql )
 	return;
     if ( sql->seek( row ) ) {
@@ -559,123 +564,22 @@ void QSqlTable::setSize( const QSql* sql )
 
 /*!
 
-  Displays the SQL \a query in the table.  By default, SQL queries
-  cannot be sorted.  If autopoulate is TRUE, columns are automatically
-  created based upon the fields in the \a query.
+  Displays the \a view in the table.  If autopoulate is TRUE, columns
+  are automatically created based upon the fields in the \a view.
 
 */
 
-void QSqlTable::setQuery( QSql* query, bool autoPopulate )
+void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
     setSorting( FALSE );
-    reset();    
-    d->data = query;    
+    reset();
+    d->view = view;
     if ( autoPopulate )
-	addColumns( d->data->fields() );
-    setSize( d->data );
+	addColumns( *d->view );
+    setSize( d->view );
     setUpdatesEnabled( TRUE );
 }
-
-/*!
-
-  Displays the SQL \a query in the table.  By default, SQL queries
-  cannot be sorted.  If a \a databaseName is not specified, the
-  default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the fields in the \a query.
-
-*/
-
-// void QSqlTable::setQuery( const QString& query, const QString& databaseName, bool autoPopulate )
-// {
-//     QSql s( query, databaseName );
-//     setQuery( s, autoPopulate );
-// }
-
-/*
-
-  \overload
-
-*/
-
-// void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
-// {
-//     setUpdatesEnabled( FALSE );
-//     setSorting( FALSE );
-//     reset();
-//     d->resetMode( QSqlPrivate::Sql );
-//     QSql* sql = d->sql();
-//     (*sql) = query;
-//     if ( autoPopulate )
-// 	addColumns( sql->fields() );
-//     setSize( sql );
-//     setUpdatesEnabled( TRUE );
-// }
-/*!
-
-  Displays the rowset \a name in the table.  By default, the rowset
-  can be sorted.  If a \a databaseName is not specified, the
-  default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the fields in the rowset.
-
-*/
-
-// void QSqlTable::setRowset( const QString& name, const QString& databaseName, bool autoPopulate )
-// {
-//     QSqlRowset r( name, databaseName );
-//     setRowset( r, autoPopulate );
-// }
-
-/*
-
-  \overload
-
-*/
-
-// void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
-// {
-//     setUpdatesEnabled( FALSE );
-//     reset();
-//     setSorting( TRUE );
-//     d->resetMode( QSqlPrivate::Rowset );
-//     QSqlRowset* rset = d->rowset();
-//     (*rset) = rowset;
-//     rset->select( rowset.sort(), rowset.filter() );
-//     if ( autoPopulate )
-// 	addColumns( (*rset) );
-//     setSize( rset );
-//     setUpdatesEnabled( TRUE );
-// }
-
-/*!
-
-  Displays the view \a name in the table.  By default, the view
-  can be sorted and edited.  If a \a databaseName is not specified, the
-  default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the fields in the view.
-
-*/
-
-// void QSqlTable::setView( const QString& name, const QString& databaseName, bool autoPopulate )
-// {
-//     QSqlView v( name, databaseName );
-//     setView( v, autoPopulate );
-// }
-
-// void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
-// {
-//     setUpdatesEnabled( FALSE );
-//     reset();
-//     setSorting( TRUE );
-//     d->resetMode( QSqlPrivate::View );
-//     QSqlView* vw = d->view();
-//     (*vw) = view;
-//     vw->select( view.filter(), view.sort() );
-//     if ( autoPopulate )
-// 	addColumns( (*vw) );
-//     setSize( vw );
-//     setUpdatesEnabled( TRUE );
-// }
 
 /*!
 
@@ -769,7 +673,7 @@ void QSqlTable::setEditorFactory( QSqlEditorFactory * f )
 
 void QSqlTable::setCurrentSelection( int row, int )
 {
-    QSql* sql = d->sql();
+    QSql* sql = d->view;
     if ( !sql )
 	return;
     if ( sql->seek( row ) ) {
@@ -787,7 +691,7 @@ void QSqlTable::setCurrentSelection( int row, int )
 QSqlFieldList QSqlTable::currentFieldSelection() const
 {
     QSqlFieldList fil;
-    QSql* sql = d->sql();
+    QSql* sql = d->view;
     if ( !sql || currentRow() < 0 )
 	return fil;
     if ( sql->seek( currentRow() ) )

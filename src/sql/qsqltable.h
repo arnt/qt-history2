@@ -8,7 +8,6 @@
 #include "qpainter.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "qsqlrowset.h"
 #include "qsqlview.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
@@ -32,20 +31,13 @@ public:
     void         setFalseText( const QString& falseText );
     QString      falseText() const;
 
-    void         addColumn( const QSqlField& field );
+    void         addColumn( const QSqlField* field );
     void         removeColumn( uint col );
-    void         setColumn( uint col, const QSqlField& field );
+    void         setColumn( uint col, const QSqlField* field );
     void         addColumns( const QSqlFieldList& fieldList );
 
-    void         setQuery( QSql* query, bool autoPopulate = TRUE );
-    
-//     void         setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-//     void         setQuery( const QSql& query, bool autoPopulate = TRUE );
-//     void         setRowset( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-//     void         setRowset( const QSqlRowset& rowset, bool autoPopulate = TRUE );
-//     void         setView( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-//     void         setView( const QSqlView& view, bool autoPopulate = TRUE );
-    
+    void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );    
+
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;

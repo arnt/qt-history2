@@ -1,10 +1,10 @@
 #ifndef QSQL_MYSQL_H
 #define QSQL_MYSQL_H
 
-#include <qsqldriver.h>
-#include <qsqlresult.h>
-#include <qsqlfield.h>
-#include <qsqlindex.h>
+#include "../../qsqldriver.h"
+#include "../../qsqlresult.h"
+#include "../../qsqlfield.h"
+#include "../../qsqlindex.h"
 
 class QMySQLPrivate;
 class QMySQLDriver;

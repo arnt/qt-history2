@@ -1,9 +1,9 @@
 #ifndef QSQL_PSQL_H
 #define QSQL_PSQL_H
 
-#include <qsqlresult.h>
-#include <qsqlfield.h>
-#include <qsqldriver.h>
+#include "../../qsqlresult.h"
+#include "../../qsqlfield.h"
+#include "../../qsqldriver.h"
 
 class QPSQLPrivate;
 class QPSQLDriver;

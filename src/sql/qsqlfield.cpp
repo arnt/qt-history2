@@ -4,99 +4,6 @@
 #ifndef QT_NO_SQL
 
 /*!
-    \class QSqlResultField qsqlfield.h
-    \brief Base class for manipulating SQL field information.
-
-    \module database
-*/
-
-
-/*!
-  Constructs an empty SQL field using the field name \a fieldName
-  and field number \a fieldNumber.
-
-*/
-
-QSqlResultField::QSqlResultField( const QString& fieldName, int fieldNumber, QVariant::Type type )
-    : nm(fieldName), num(fieldNumber)
-{
-    val.cast( type );
-}
-
-QSqlResultField::QSqlResultField( const QSqlResultField& other )
-    : nm( other.nm ), num( other.num ), val( other.val )
-{
-}
-
-QSqlResultField& QSqlResultField::operator=( const QSqlResultField& other )
-{
-    nm = other.nm;
-    num = other.num;
-    val = other.val;
-    return *this;
-}
-
-bool QSqlResultField::operator==( const QSqlResultField& other )
-{
-    return nm == other.nm &&
-	num == other.num &&
-	val == other.val;
-}
-
-
-/*!
-  Destroys the object and frees any allocated resources.
-
-*/
-
-QSqlResultField::~QSqlResultField()
-{
-
-}
-
-/*!
-  Returns the internal value of the field.
-
-*/
-
-QVariant QSqlResultField::value() const
-{
-    return val;
-}
-
-/*!
-  Sets the internal value of the field to \a value.
-
-*/
-void QSqlResultField::setValue( const QVariant& value )
-{
-    val = value;
-}
-
-/*! \fn void QSqlResultField::setName( const QString& name )
-  Sets the name of the field to \a name,
-*/
-
-/*! \fn QString QSqlResultField::name() const
-  Returns the name of the field.
-*/
-
-/*! \fn void QSqlResultField::setFieldNumber( int fieldNumber )
-  Sets the field number of the field to \a fieldNumber.
-*/
-
-/*! \fn int QSqlResultField::fieldNumber() const
-  Returns the field number of the field.
-*/
-
-/*! \fn QVariant::Type QSqlResultField::type() const
-  Returns the field type.
-*/
-
-/////////////////////////
-
-
-/*!
     \class QSqlField qsqlfield.h
     \brief Class used for manipulating SQL database fields
 
@@ -114,19 +21,21 @@ void QSqlResultField::setValue( const QVariant& value )
 */
 
 QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
-    : QSqlResultField( fieldName, fieldNumber, type ), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
+    : nm(fieldName), num(fieldNumber), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
 {
-
+    val.cast( type );
 }
 
 QSqlField::QSqlField( const QSqlField& other )
-    : QSqlResultField( other ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
+    : nm( other.nm ), num( other.num ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
 {
 }
 
 QSqlField& QSqlField::operator=( const QSqlField& other )
 {
-    QSqlResultField::operator=( other );
+    nm = other.nm;
+    num = other.num;
+    val = other.val;
     label = other.label;
     ro = other.ro;
     nul = other.nul;
@@ -138,13 +47,15 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 
 bool QSqlField::operator==(const QSqlField& other) const
 {
-    return (QSqlResultField)*this == (QSqlResultField)other &&
-	label == other.label &&
-	ro == other.ro &&
-	nul == other.nul &&
-	pIdx == other.pIdx &&
-	iv == other.iv &&
-	cf == other.cf;
+    return ( nm == other.nm &&
+	     num == other.num &&
+	     val == other.val &&
+	     label == other.label &&
+	     ro == other.ro &&
+	     nul == other.nul &&
+	     pIdx == other.pIdx &&
+	     iv == other.iv &&
+	     cf == other.cf );
 }
 
 
@@ -157,6 +68,45 @@ QSqlField::~QSqlField()
 {
 }
 
+
+/*!
+  Returns the internal value of the field.
+
+*/
+
+QVariant QSqlField::value() const
+{
+    return val;
+}
+
+/*!
+  Sets the internal value of the field to \a value.
+
+*/
+void QSqlField::setValue( const QVariant& value )
+{
+    val = value;
+}
+
+/*! \fn void QSqlField::setName( const QString& name )
+  Sets the name of the field to \a name,
+*/
+
+/*! \fn QString QSqlField::name() const
+  Returns the name of the field.
+*/
+
+/*! \fn void QSqlField::setFieldNumber( int fieldNumber )
+  Sets the field number of the field to \a fieldNumber.
+*/
+
+/*! \fn int QSqlField::fieldNumber() const
+  Returns the field number of the field.
+*/
+
+/*! \fn QVariant::Type QSqlField::type() const
+  Returns the field type.
+*/
 
 /*! \fn void QSqlField::setDisplayLabel( const QString& l )
   Sets the display label text of the field to \a l.
@@ -219,10 +169,10 @@ QSqlFieldList::QSqlFieldList( const QSqlFieldList& other )
 
 }
 
-QSqlFieldList::QSqlFieldList( const QSqlField& t )
-{
-    append( t );
-}
+//QSqlFieldList::QSqlFieldList( const QSqlField& t )
+//{
+//    append( t );
+//}
 
 QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
 {
@@ -251,7 +201,7 @@ QSqlFieldList::~QSqlFieldList()
 
 QVariant& QSqlFieldList::operator[]( int i )
 {
-    return findField(i).val;
+    return findField(i)->val;
 }
 
 /*!
@@ -262,7 +212,7 @@ QVariant& QSqlFieldList::operator[]( int i )
 
 QVariant& QSqlFieldList::operator[]( const QString& name )
 {
-    return findField( name ).val;
+    return findField( name )->val;
 }
 
 /*!
@@ -273,7 +223,7 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 
 QVariant  QSqlFieldList::value( int i )
 {
-    return findField(i).val;
+    return findField(i)->val;
 }
 
 /*!
@@ -284,7 +234,7 @@ QVariant  QSqlFieldList::value( int i )
 
 QVariant  QSqlFieldList::value( const QString& name )
 {
-    return findField( name ).val;
+    return findField( name )->val;
 }
 
 
@@ -303,46 +253,40 @@ int QSqlFieldList::position( const QString& name ) const
     return -1;
 }
 
-QSqlField& QSqlFieldList::field( int i )
+QSqlField* QSqlFieldList::field( int i )
 {
-    qDebug("QSqlFieldList::field( int i )");
-    qDebug("returning field:" + fieldList[i].name() );
-    qDebug("of type:" + QString(fieldList[i].value().typeName()));
-    return fieldList[ i ];
+    return &fieldList[ i ];
 }
 
-const QSqlField& QSqlFieldList::field( int i ) const
+const QSqlField* QSqlFieldList::field( int i ) const
 {
-    qDebug("const QSqlFieldList::field( int i )");
-    qDebug("const returning field:" + fieldList[i].name() );
-    qDebug("const of type:" + QString(fieldList[i].value().typeName()));
-    return fieldList[ i ];
+    return &fieldList[ i ];
 }
 
-QSqlField& QSqlFieldList::field( const QString& name )
+QSqlField* QSqlFieldList::field( const QString& name )
 {
-    return fieldList[ position( name ) ];
+    return &fieldList[ position( name ) ];
 }
 
-const QSqlField& QSqlFieldList::field( const QString& name ) const
+const QSqlField* QSqlFieldList::field( const QString& name ) const
 {
-    return fieldList[ position( name ) ];
+    return &fieldList[ position( name ) ];
 }
 
 
 /*!
-  Appends the field \a field to the end of the list of fields.
+  Appends a copy of the field \a field to the end of the list of fields.
 
 */
 
-void QSqlFieldList::append( const QSqlField& field )
+void QSqlFieldList::append( const QSqlField* field )
 {
     if ( fieldListStr.isNull() )
-	fieldListStr = field.name();
+	fieldListStr = field->name();
     else
-	fieldListStr += ", " + field.name();
-    posMap[ field.name() ] = fieldList.count();
-    fieldList.append( field );
+	fieldListStr += ", " + field->name();
+    posMap[ field->name() ] = fieldList.count();
+    fieldList.append( *field );
 }
 
 /*!
@@ -390,16 +334,16 @@ uint QSqlFieldList::count() const
 
 */
 
-QSqlField& QSqlFieldList::findField( int i )
+QSqlField* QSqlFieldList::findField( int i )
 {
 #ifdef CHECK_RANGE
     static QSqlField dbg;
     if( (unsigned int) i > fieldList.count() ){
 	qWarning( "QSqlFields warning: index out of range" );
-	return dbg;
+	return &dbg;
     }
 #endif // CHECK_RANGE
-    return fieldList[ i ];
+    return &fieldList[ i ];
 }
 
 /*!
@@ -407,16 +351,16 @@ QSqlField& QSqlFieldList::findField( int i )
 
 */
 
-QSqlField& QSqlFieldList::findField( const QString& name )
+QSqlField* QSqlFieldList::findField( const QString& name )
 {
 #ifdef CHECK_RANGE
     static QSqlField dbg;
     if( (unsigned int) position( name ) > fieldList.count() ){
 	qWarning( "QSqlFields warning: index out of range" );
-	return dbg;
+	return &dbg;
     }
 #endif // CHECK_RANGE
-    return fieldList[ position( name ) ];
+    return &fieldList[ position( name ) ];
 }
 
 #endif
