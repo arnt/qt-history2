@@ -344,7 +344,7 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         if (!style()->styleHint(QStyle::SH_UnderlineAccelerator, &opt, this))
             va |= Qt::NoAccel;
         style()->drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
-                          isEnabled(), QPixmap(), str, -1,
+                          isEnabled(), QPixmap(), str,
                           testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {

@@ -257,7 +257,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
         style()->drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
-                          isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
+                          isEnabled(), d->title, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
         QRect cbClip = d->checkbox->geometry();

@@ -860,7 +860,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             } else {
                 tf |= Qt::AlignHCenter;
             }
-            drawItem(p, ir, tf, btn->palette, (btn->state & Style_Enabled), QPixmap(), btn->text, -1,
+            drawItem(p, ir, tf, btn->palette, (btn->state & Style_Enabled), QPixmap(), btn->text,
                      &(btn->palette.buttonText().color()));
         }
         break;
@@ -918,7 +918,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
-                     pix, mbi->text, -1, &mbi->palette.buttonText().color());
+                     pix, mbi->text, &mbi->palette.buttonText().color());
         }
         break;
     case CE_MenuBarEmptyArea:
@@ -949,7 +949,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible && pb->progress * 2 >= pb->maximum)
                 pColor = &penColor;
             drawItem(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
-                     pb->state & Style_Enabled, pb->text, -1, pColor);
+                     pb->state & Style_Enabled, pb->text, pColor);
         }
         break;
     case CE_ProgressBarContents:
@@ -1039,7 +1039,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             }
 
             drawItem(p, rect, header->textAlignment, header->palette, header->state & Style_Enabled,
-                     header->text, -1, &(header->palette.buttonText().color()));
+                     header->text, &(header->palette.buttonText().color()));
         }
         break;
 
@@ -1093,7 +1093,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         alignment |= Qt::TextHideMnemonic;
                     rect.translate(shiftX, shiftY);
                     drawItem(p, rect, alignment, toolbutton->palette,
-                             opt->state & Style_Enabled, toolbutton->text, -1, &btext);
+                             opt->state & Style_Enabled, toolbutton->text, &btext);
                 } else {
                     QPixmap pm;
                     Qt::IconSize size = toolbutton->iconSize;
@@ -1136,8 +1136,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         }
                         tr.translate(shiftX, shiftY);
                         drawItem(p, tr, alignment, toolbutton->palette,
-                                  toolbutton->state & Style_Enabled, QPixmap(), toolbutton->text,
-                                  toolbutton->text.length(), &btext);
+                                 toolbutton->state & Style_Enabled, QPixmap(), toolbutton->text, &btext);
                     } else {
                         rect.translate(shiftX, shiftY);
                         drawItem(p, rect, Qt::AlignCenter, toolbutton->palette,

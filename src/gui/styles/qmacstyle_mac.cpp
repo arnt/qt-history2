@@ -1880,7 +1880,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
                         mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
-                        mi->text, -1, &mi->palette.buttonText().color());
+                        mi->text, &mi->palette.buttonText().color());
         }
         break;
     case QStyle::CE_MenuBarEmptyArea:
@@ -3468,7 +3468,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
                         mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
-                        mi->text, -1, &mi->palette.buttonText().color());
+                        mi->text, &mi->palette.buttonText().color());
         }
         break;
     case QStyle::CE_MenuBarEmptyArea:
@@ -4918,7 +4918,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                     penColor = header->palette.color(QPalette::BrightText);
             }
             drawItem(p, textr, Qt::AlignVCenter, header->palette,
-                     header->state & QStyle::Style_Enabled, header->text, -1, &penColor);
+                     header->state & QStyle::Style_Enabled, header->text, &penColor);
         }
     case CE_ToolButtonLabel:
         if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt)) {
@@ -5196,10 +5196,9 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     \reimp
 */
 void QMacStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled,
-                         const QString &text, int len, const QColor *penColor) const
+                         const QString &text, const QColor *penColor) const
 {
-    QWindowsStyle::drawItem(p, r, flags | Qt::TextHideMnemonic,
-                            pal, enabled, text, len, penColor);
+    QWindowsStyle::drawItem(p, r, flags | Qt::TextHideMnemonic, pal, enabled, text, penColor);
 }
 
 #endif

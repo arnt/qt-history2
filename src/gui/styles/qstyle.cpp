@@ -338,13 +338,13 @@ void QStyle::polish(QPalette & /* pal */)
     \sa Qt::Alignment
 */
 QRect QStyle::itemRect(const QFontMetrics &metrics, const QRect &rect, int alignment, bool enabled,
-                       const QString &text, int len) const
+                       const QString &text) const
 {
     QRect result;
     int x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
     if (!text.isEmpty()) {
-        result = metrics.boundingRect(x, y, w, h, alignment, text, len);
+        result = metrics.boundingRect(x, y, w, h, alignment, text);
         if (!enabled && styleHint(SH_EtchDisabledText)) {
             result.setWidth(result.width()+1);
             result.setHeight(result.height()+1);
@@ -388,10 +388,11 @@ QRect QStyle::itemRect(const QRect &rect, int alignment, const QPixmap &pixmap) 
     parameter determine the \a pixmap's alignment.
 */
 QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool enabled,
-                       const QPixmap &pixmap, const QString &text, int len) const
+                       const QPixmap &pixmap, const QString &text) const
 {
-    return !pixmap.isNull() ? itemRect(rect, alignment, pixmap)
-                            : itemRect(painter->fontMetrics(), rect, alignment, enabled, text, len);
+    return !pixmap.isNull()
+        ? itemRect(rect, alignment, pixmap)
+        : itemRect(painter->fontMetrics(), rect, alignment, enabled, text);
 }
 
 /*!
@@ -411,7 +412,7 @@ QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool
     \sa Qt::Alignment
 */
 void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
-                      bool enabled, const QString& text, int len, const QColor *penColor) const
+                      bool enabled, const QString& text, const QColor *penColor) const
 {
     int x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
@@ -420,10 +421,10 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     if (!text.isEmpty()) {
         if (!enabled && styleHint(SH_EtchDisabledText)) {
             painter->setPen(pal.light().color());
-            painter->drawText(x+1, y+1, w, h, alignment, text, len);
+            painter->drawText(x+1, y+1, w, h, alignment, text);
             painter->setPen(pal.text().color());
         }
-        painter->drawText(x, y, w, h, alignment, text, len);
+        painter->drawText(x, y, w, h, alignment, text);
     }
 }
 

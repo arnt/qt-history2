@@ -47,17 +47,16 @@ public:
 
     virtual QRect itemRect(const QFontMetrics &fm, const QRect &r,
                            int flags, bool enabled,
-                           const QString &text, int len = -1) const;
+                           const QString &text) const;
 
     virtual QRect itemRect(const QRect &r, int flags, const QPixmap &pixmap) const;
 
     QRect itemRect(QPainter *p, const QRect &r, int flags, bool enabled,
-                   const QPixmap &pixmap, const QString &text, int len = -1) const;
+                   const QPixmap &pixmap, const QString &text) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
-                          const QString &text, int len = -1,
-                          const QColor *penColor = 0) const;
+                          const QString &text, const QColor *penColor = 0) const;
 
     virtual void drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
@@ -65,14 +64,13 @@ public:
                           const QColor *penColor = 0) const;
 
     inline void drawItem(QPainter *p, const QRect &r,
-                  int flags, const QPalette &pal, bool enabled,
-                  const QPixmap &pixmap,
-                  const QString &text, int len = -1,
-                  const QColor *penColor = 0) const {
+                         int flags, const QPalette &pal, bool enabled,
+                         const QPixmap &pixmap, const QString &text,
+                         const QColor *penColor = 0) const {
         if (!pixmap.isNull())
             drawItem(p, r, flags, pal, enabled, pixmap, penColor);
         else
-            drawItem(p, r, flags, pal, enabled, text, len, penColor);
+            drawItem(p, r, flags, pal, enabled, text, penColor);
     }
 
     enum StyleFlag {
@@ -107,7 +105,7 @@ public:
     Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
 
 #ifdef QT_COMPAT
-    typedef StyleFlags SFlags;
+        typedef StyleFlags SFlags;
 #endif
 
     enum PrimitiveElement {
@@ -332,7 +330,7 @@ public:
     };
     Q_DECLARE_FLAGS(SubControls, SubControl)
 #ifdef QT_COMPAT
-    typedef SubControls SCFlags;
+        typedef SubControls SCFlags;
 #endif
 
     virtual void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
@@ -722,23 +720,23 @@ public:
 private:
     Q_DISABLE_COPY(QStyle)
 
-protected:
+        protected:
 #if defined(QT_COMPAT) && !defined(QT_NO_UNRESOLVED_EXTERNALS)
     // Cause a compile error when trying to use style functions that
     // accept QColorGroup arguments. Remove in Qt 5.x.
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                   int flags, const QColorGroup &colorgroup, bool enabled,
-                   const QString &text, int len = -1,
-                   const QColor *penColor = 0) const;
+                            int flags, const QColorGroup &colorgroup, bool enabled,
+                            const QString &text, int len = -1,
+                            const QColor *penColor = 0) const;
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                   int flags, const QColorGroup colorgroup, bool enabled,
-                   const QPixmap &pixmap,
-                   const QColor *penColor = 0) const;
+                            int flags, const QColorGroup colorgroup, bool enabled,
+                            const QPixmap &pixmap,
+                            const QColor *penColor = 0) const;
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
-                   int flags, const QColorGroup colorgroup, bool enabled,
-                   const QPixmap *pixmap,
-                   const QString &text, int len = -1,
-                   const QColor *penColor = 0) const;
+                            int flags, const QColorGroup colorgroup, bool enabled,
+                            const QPixmap *pixmap,
+                            const QString &text, int len = -1,
+                            const QColor *penColor = 0) const;
 #endif
 };
 

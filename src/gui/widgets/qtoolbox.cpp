@@ -225,7 +225,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
     style()->drawItem(p, tr, alignment, pal,
-                      isEnabled(), QPixmap(), txt, -1, fill);
+                      isEnabled(), QPixmap(), txt, fill);
 
     if (!txt.isEmpty() && hasFocus()) {
         QStyleOptionFocusRect opt;
