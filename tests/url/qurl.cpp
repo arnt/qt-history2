@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#28 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#29 $
 **
 ** Implementation of QFileDialog class
 **
@@ -865,8 +865,12 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	d->dir.setMatchAllDirs( TRUE );
 	
 	const QFileInfoList *filist = d->dir.entryInfoList( filterSpec, sortSpec );
-	if ( !filist )
+	if ( !filist ) {
+	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
+	    emit error( ReadDir, msg );
 	    return;
+	}
+	
 	QFileInfoListIterator it( *filist );
 	QFileInfo *fi;
 	while ( ( fi = it.current()) != 0 ) {
@@ -892,6 +896,9 @@ void QUrl::mkdir( const QString &dirname )
 			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
 	    emit entry( inf );
 	    emit createdDirectory( inf );
+	} else {
+	    QString msg = QUrl::tr( "Could not create directory\n" + dirname );
+	    emit error( CreateDir, msg );
 	}
     }
 }

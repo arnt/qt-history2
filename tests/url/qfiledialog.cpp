@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#25 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#26 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1974,13 +1974,15 @@ void QFileDialog::setDir( const QString & pathstr )
     }
 #endif
 
-    if ( !QFileInfo( dr ).isDir() && QFileInfo( dr ).fileName() != ".." )
-	dr = QFileInfo( dr ).dirPath();
-    d->url = dr;
-    QUrlInfo i( d->url, nameEdit->text() );
-    trySetSelection( i, d->url, FALSE );
-    rereadDir();
-    emit dirEntered( d->url.path() );
+    setUrl( dr );
+    
+//     if ( !QFileInfo( dr ).isDir() && QFileInfo( dr ).fileName() != ".." )
+// 	dr = QFileInfo( dr ).dirPath();
+//     d->url = dr;
+//     QUrlInfo i( d->url, nameEdit->text() );
+//     trySetSelection( i, d->url, FALSE );
+//     rereadDir();
+//     emit dirEntered( d->url.path() );
 }
 
 /*!
