@@ -356,7 +356,7 @@ Change to a Linux console and select an example to run, e.g. examples/compact.
 Make sure $QTDIR is set to the directory where you installed Qt/Embedded
 and add the $QTDIR/lib directory to $LD_LIBRARY_PATH, e.g.:
 <pre>
-export QTDIR=$HOME/qt-embedded
+export QTDIR=$HOME/qt-<i>version</i>
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 </pre>
 Run the application with the <i>-qws</i> option:
