@@ -178,6 +178,9 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 
     A valid rectangle has a left() \<= right() and top() \<= bottom().
 
+    Note that non-trivial operations like intersections are not defined
+    for invalid rectangles.
+
     \c{isValid() == !isEmpty()}
 
     \sa isNull(), isEmpty(), normalize()
