@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#37 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -518,3 +518,68 @@ QByteArray QStoredDrag::encodedData(const char* m) const
     else
 	return QByteArray();
 }
+
+
+QUrlDrag::QUrlDrag( QStrList urls,
+	    QWidget * dragSource, const char * name ) :
+    QStoredDrag( "url/url", dragSource, name )
+{
+    setUrls(urls);
+}
+
+QUrlDrag::QUrlDrag( QWidget * dragSource, const char * name ) :
+    QStoredDrag( "url/url", dragSource, name )
+{
+}
+
+QUrlDrag::~QUrlDrag()
+{
+}
+
+
+void QUrlDrag::setUrls( QStrList urls )
+{
+    QByteArray a;
+    int c=0;
+    for (const char* s = urls.first(); s; s = urls.next() ) {
+	int l = strlen(s)+1;
+	a.resize(c+l);
+	memcpy(a.data(),s,l);
+	c+=l;
+    }
+    a.resize(c-1); // chop off last nul
+    setEncodedData(a);
+}
+
+
+bool QUrlDrag::canDecode( QDragMoveEvent* e )
+{
+    return e->provides( "url/url" );
+}
+
+bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
+{
+    QByteArray payload = e->data( "url/url" );
+    if ( payload.size() ) {
+	e->accept();
+	uint c=0;
+	char* d = payload.data();
+	while (c < payload.size()) {
+	    uint f = c;
+	    while (c < payload.size() && d[c])
+		c++;
+	    char* s;
+	    if ( c < payload.size() ) {
+	        s = qstrdup(d+f);
+	    } else {
+		s = new char[c-f+1];
+		memcpy(s,d+f,c-f);
+		s[c-f]='\0';
+	    }
+	    l.append( s );
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
+

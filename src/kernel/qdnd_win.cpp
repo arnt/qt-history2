@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#22 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -266,7 +266,7 @@ public:
 
     bool canConvert( const char* mime, int cf )
     {
-	return cf == CF_TEXT && qstrncmp(mime,"text/",5)==0;
+	return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
     }
 
     QByteArray convertToMime( QByteArray data, const char*, int )
@@ -318,7 +318,7 @@ public:
 
     bool canConvert( const char* mime, int cf )
     {
-	if ( cf == CF_DIB && qstrncmp(mime,"image/",5)==0 ) {
+	if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
 	    QStrList ofmts = QImage::outputFormats();
 	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
 		if ( qstricmp(fmt,mime+6)==0 )
@@ -329,7 +329,7 @@ public:
 
     QByteArray convertToMime( QByteArray data, const char* mime, int cf )
     {
-	if ( qstrncmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
+	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
 	    return QByteArray();
 
 	QImage img;  // Convert from DIB to chosen image format
@@ -356,7 +356,7 @@ public:
 
     QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
     {
-	if ( qstrncmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
+	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
 	    return QByteArray();
 
 	QImage img;
@@ -374,6 +374,58 @@ public:
 	} else {
 	    return QByteArray();
 	}
+    }
+};
+
+class QWindowsMimeUrl : public QWindowsMime {
+public:
+    int countCf()
+    {
+	return 1;
+    }
+
+    const char* convertorName()
+    {
+	return "Urls";
+    }
+
+    int cf(int index)
+    {
+	return CF_HDROP;
+    }
+
+    int cfFor(const char* mime)
+    {
+	return qstricmp(mime,"url/url")==0;
+    }
+
+    const char* mimeFor(int cf)
+    {
+	if ( cf == CF_HDROP )
+	    return "url/url";
+	else
+	    return 0;
+    }
+
+    bool canConvert( const char* mime, int cf )
+    {
+	return cf == CF_DHDROP && qstricmp(mime,"url/url");
+    }
+
+    QByteArray convertToMime( QByteArray data, const char* mime, int cf )
+    {
+	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+	    return QByteArray();
+
+	// XXX
+    }
+
+    QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
+    {
+	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+	    return QByteArray();
+
+	// XXX
     }
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#21 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#22 $
 **
 ** Definition of QDragObject
 **
@@ -107,6 +107,22 @@ public:
     static bool canDecode( QDragMoveEvent* e );
     static bool decode( QDropEvent* e, QImage& i );
     static bool decode( QDropEvent* e, QPixmap& i );
+};
+
+
+class QUrlDrag: public QStoredDrag {
+    Q_OBJECT
+
+public:
+    QUrlDrag( QStrList urls,
+		QWidget * dragSource = 0, const char * name = 0 );
+    QUrlDrag( QWidget * dragSource = 0, const char * name = 0 );
+    ~QUrlDrag();
+
+    void setUrls( QStrList urls );
+
+    static bool canDecode( QDragMoveEvent* e );
+    static bool decode( QDropEvent* e, QStrList& i );
 };
 
 
