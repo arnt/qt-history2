@@ -356,8 +356,8 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 QRect QRegion::boundingRect() const
 {
-    qDebug("Need to do this %s:%d", __FILE__, __LINE__);
-    return QRect();
+//    qDebug("Need to do this %s:%d", __FILE__, __LINE__);
+    return QRect(0, 0, 1024, 768); //take that!!! for now I return as much as I can..
 }
 
 
