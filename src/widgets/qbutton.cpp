@@ -418,7 +418,7 @@ QButton::~QButton()
   The QButtonGroup::clicked() signal does the same job, if you want to
   connect several buttons to the same slot.
 
-  \sa pressed(), released(), toggled() \l autoRepeat \l down
+  \sa pressed(), released(), toggled() autoRepeat down
 */
 
 /*!

@@ -89,13 +89,6 @@
 */
 
 /*!
-    \fn const QSize &QWidgetItem::widgetSizeHint() const
-
-    Implemented in subclasses to return the preferred size of this
-    item.
-*/
-
-/*!
     \fn QLayoutItem::QLayoutItem( int alignment )
 
     Constructs a layout item with an \a alignment that is a bitwise OR
