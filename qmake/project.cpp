@@ -387,12 +387,16 @@ QMakeProject::isActiveConfig(const QString &x)
 {
     if(x.isEmpty())
 	return TRUE;
-    if(Option::mode == Option::UNIX_MODE && x == "unix")
+	
+    if((Option::mode == Option::MACX_MODE || Option::Option::mode == Option::UNIX_MODE) && x == "unix")
+	return TRUE;
+    else if((Option::mode == Option::MAC9_MODE || Option::mode == Option::MACX_MODE) && x == "mac")
 	return TRUE;
     else if(Option::mode == Option::WIN_MODE && x == "win32")
 	return TRUE;
     else if(Option::qmakepath.right(x.length()) == x)
 	return TRUE;
+
     return ( vars["CONFIG"].findIndex(x) != -1 );
 }
 

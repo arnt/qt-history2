@@ -53,6 +53,10 @@ QString Option::yacc_mod;
 QString Option::lex_mod;
 #if defined(Q_OS_WIN32)
 Option::QMODE Option::mode = Option::WIN_MODE;
+#elif defined(Q_OS_MAC9)
+Option::QMODE Option::mode = Option::MAC9_MODE;
+#elif defined(Q_OS_MACX)
+Option::QMODE Option::mode = Option::MACX_MODE;
 #else
 Option::QMODE Option::mode = Option::UNIX_MODE;
 #endif
@@ -106,6 +110,10 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::user_template = argv[++x];
 	    } else if(opt == "o" || opt == "output") {
 		Option::output.setName(argv[++x]);
+	    } else if(opt == "mac9") {
+		Option::mode = MAC9_MODE;
+	    } else if(opt == "macx") {
+		Option::mode = MACX_MODE;
 	    } else if(opt == "unix") {
 		Option::mode = UNIX_MODE;
 	    } else if(opt == "win32") {
@@ -141,7 +149,10 @@ Option::parseCommandLine(int argc, char **argv)
 	Option::dir_sep = "\\";
 	Option::obj_ext =  ".obj";
     } else {
-	Option::dir_sep = "/";
+	if(Option::mode == Option::MAC9_MODE)
+	    Option::dir_sep = ":";
+	else
+	    Option::dir_sep = "/";
 	Option::obj_ext = ".o";
     }
     return TRUE;
@@ -161,7 +172,14 @@ Option::fixPathToTargetOS(QString in, bool fix_env)
     if(fix_env)
 	fixEnvVariables(in);
     in = QDir::cleanDirPath(in);
-    return in.replace(QRegExp(Option::mode == UNIX_MODE ? "\\" : "/"), Option::dir_sep);
+    QString rep;
+    if(Option::mode == UNIX_MODE || Option::mode == MACX_MODE)
+	rep = "[\\\\:]";
+    else if(Option::mode == MAC9_MODE)
+	rep = "[/\\\\]";
+    else if(Option::mode == WIN_MODE)
+	rep = "[:/]";
+    return in.replace(QRegExp(rep), Option::dir_sep);
 }
 
 QString

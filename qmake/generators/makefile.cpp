@@ -250,13 +250,16 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	    QString fqn;
 	    if(!stat(fndir + inc, &fst))
 		fqn = fndir + inc;
-	    else if((Option::mode == Option::WIN_MODE && inc[1] != ':') ||
-		    (Option::mode == Option::UNIX_MODE && inc[0] != '/')) {
-		bool found = FALSE;
-		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-		    QString dep = (*it) + QDir::separator() + inc;
-		    if((found = QFile::exists(dep)))
-			fqn = dep;
+	    else {
+		if((Option::mode == Option::MAC9_MODE && inc.find(':')) ||
+		   (Option::mode == Option::WIN_MODE && inc[1] != ':') ||
+		   ((Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) && inc[0] != '/')) {
+		    bool found = FALSE;
+		    for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
+			QString dep = (*it) + QDir::separator() + inc;
+			if((found = QFile::exists(dep)))
+			    fqn = dep;
+		    }
 		}
 	    }
 	    if(fqn.isEmpty()) {
@@ -817,8 +820,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	//masks
 	tmp = project->variables()[(*it) + ".files"];
 	if(!tmp.isEmpty()) {
-	    if(Option::mode == Option::WIN_MODE) {
-	    } else if(Option::mode == Option::UNIX_MODE) {
+	    if(Option::mode == Option::WIN_MODE || Option::mode == Option::MAC9_MODE) {
+	    } else if(Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) {
 		target += QString("$(COPY) -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
 	    }
 	}

@@ -58,7 +58,7 @@ struct Option
     static QString dir_sep;
 
     static int debug_level;
-    enum QMODE { UNIX_MODE, WIN_MODE };
+    enum QMODE { UNIX_MODE, WIN_MODE, MACX_MODE, MAC9_MODE };
     static QMODE mode;
     static bool do_cache;
     static bool do_deps;

@@ -66,7 +66,7 @@ unix {
 	STYLES_H	= $$STYLES_CPP
 
 	DEFINES    += QT_FATAL_ASSERT
-	!macx-g++ { #macx is a unix, but doesn't need this
+	!mac { #macx is a unix, but doesn't need this
 		!freebsd-g++:LIBS += -ldl
 		CONFIG	   += x11 x11inc
 	}
@@ -91,7 +91,7 @@ include($$KERNEL_CPP/qt_compat.pri)
 
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
-macx-g++:include($$KERNEL_CPP/qt_mac.pri)
+mac:include($$KERNEL_CPP/qt_mac.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules

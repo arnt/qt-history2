@@ -708,8 +708,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     ret = QString("$(COPY) ") + Option::fixPathToTargetOS(destdir + target, FALSE) + " " + targetdir;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
-	    if(Option::mode == Option::WIN_MODE) {
-	    } else if(Option::mode == Option::UNIX_MODE) {
+	    if(Option::mode == Option::WIN_MODE || Option::mode == Option::MAC9_MODE) {
+	    } else if(Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) {
 		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)

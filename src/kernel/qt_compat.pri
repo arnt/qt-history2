@@ -24,7 +24,7 @@ internal {
 ##########################################################
 
 # mac hac fu
-macx-g++ {
+mac {
      #we always use these
      CONFIG += tools kernel widgets dialogs iconview workspace \
                network canvas table xml zlib png styles sql mac
