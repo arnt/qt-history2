@@ -48,21 +48,14 @@ public:
     ~QAuServerMac();
 
     void play(const QString& filename);
-    void play(QAuBucket* id);
-    QAuBucket* newBucket(const QString& filename);
-    void deleteBucket(QAuBucket* id);
+    void play(QSound*);
+    void stop(QSound*);
     bool okay();
 
 private:
     QPixmap *offscreen;
     Movie aMovie;
     Fixed volume;
-};
-
-class QAuBucket {
-public:
-    QAuBucket( const QString& s ) : filename(s) { }
-    QString filename;
 };
 
 static int servers = 0;
@@ -187,19 +180,14 @@ QAuServerMac::playLoop(const QString &filename)
 }
 */
 
-void QAuServerMac::play(QAuBucket* id)
+void QAuServerMac::play(QSound* s)
 {
-    play( id->filename );
+    play( s->fileName() );
 }
 
-QAuBucket* QAuServerMac::newBucket(const QString& filename)
+void QAuServerMac::stop(QSound*)
 {
-    return new QAuBucket( filename );
-}
-
-void QAuServerMac::deleteBucket(QAuBucket* id)
-{
-    delete id;
+    // ####
 }
 
 bool QAuServerMac::okay()

@@ -38,29 +38,21 @@
 #include "qpaintdevice.h"
 #include "qwsdisplay_qws.h"
 
-class QAuBucket {
-public:
-    QAuBucket(const QString& s) : name(s) { }
-    QString name;
-};
-
 class QAuServerQWS : public QAuServer {
 public:
     QAuServerQWS(QObject* parent);
 
-    void play(QAuBucket* b)
+    void play(const QString& filename)
     {
-	QPaintDevice::qwsDisplay()->playSoundFile(b->name);
+	QPaintDevice::qwsDisplay()->playSoundFile(filename);
     }
-
-    QAuBucket* newBucket(const QString& s)
+    void play(QSound* s)
     {
-	return new QAuBucket(s);
+	QPaintDevice::qwsDisplay()->playSoundFile(s->fileName());
     }
-
-    void deleteBucket(QAuBucket* b)
+    void stop(QSound*)
     {
-	delete b;
+	// ####
     }
 
     bool okay() { return TRUE; }

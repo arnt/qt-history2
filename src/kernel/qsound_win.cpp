@@ -46,16 +46,9 @@ public:
     ~QAuServerWindows();
 
     void play(const QString& filename);
-    void play(QAuBucket* id);
-    QAuBucket* newBucket(const QString& filename);
-    void deleteBucket(QAuBucket* id);
+    void play(QSound*);
+    void stop(QSound*);
     bool okay();
-};
-
-class QAuBucket {
-public:
-    QAuBucket( const QString& s ) : filename(s) { }
-    QString filename;
 };
 
 QAuServerWindows::QAuServerWindows(QObject* parent) :
@@ -87,19 +80,9 @@ void QAuServerWindows::play(const QString& filename)
 #endif
 }
 
-void QAuServerWindows::play(QAuBucket* id)
+void QAuServerWindows::play(QSound* s)
 {
-    play(id->filename);
-}
-
-QAuBucket* QAuServerWindows::newBucket(const QString& filename)
-{
-    return new QAuBucket(filename);
-}
-
-void QAuServerWindows::deleteBucket(QAuBucket* id)
-{
-    delete id;
+    play(s->fileName());
 }
 
 bool QAuServerWindows::okay()

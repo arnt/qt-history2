@@ -64,42 +64,34 @@ QAuServer::~QAuServer()
 
 void QAuServer::play(const QString& filename)
 {
-    QAuBucket* b = newBucket(filename);
-    play(b);
-    deleteBucket(b);
+    QSound s(filename);
+    play(&s);
 }
 
 extern QAuServer* qt_new_audio_server();
 
+static QAuServer& server()
+{
+    if (!servers) qt_new_audio_server();
+    return *servers->first();
+}
+
 class QSoundData {
 public:
-    static QAuServer& server()
-    {
-	if (!servers) qt_new_audio_server();
-	return *servers->first();
-    }
-
     QSoundData(const QString& fname) :
-	filename(fname), bucket(0)
+	filename(fname), bucket(0), looprem(0), looptotal(1)
     {
     }
 
     ~QSoundData()
     {
-	if ( bucket )
-	    server().deleteBucket(bucket);
-    }
-
-    void play()
-    {
-	if ( !bucket )
-	    bucket = server().newBucket(filename);
-	server().play(bucket);
+	delete bucket;
     }
 
     QString filename;
-
     QAuBucket* bucket;
+    int looprem;
+    int looptotal;
 };
 
 /*!
@@ -134,11 +126,9 @@ public:
   supports WAVE and AU files.
 
   On Qt/Embedded, a built-in mixing sound server is used, which accesses
-  \c /dev/dsp directly. Only a single WAVE format is supported, though
-  that support can be configured when building Qt. The default is 11.025
-  kHz 8-bit mono PCM.
+  \c /dev/dsp directly. Only the WAVE format is supported.
 
-  The availability of sound can be tested with QSound::available().
+  The availability of sound can be tested with QSound::isAvailable().
 */
 
 /*!
@@ -146,7 +136,7 @@ public:
 */
 void QSound::play(const QString& filename)
 {
-    QSoundData::server().play(filename);
+    server().play(filename);
 }
 
 /*!
@@ -162,6 +152,7 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
     QObject(parent,name),
     d(new QSoundData(filename))
 {
+    server().init(this);
 }
 
 /*!
@@ -170,6 +161,11 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 QSound::~QSound()
 {
     delete d;
+}
+
+bool QSound::isFinished() const
+{
+    return d->looprem == 0;
 }
 
 /*!
@@ -184,8 +180,55 @@ QSound::~QSound()
 */
 void QSound::play()
 {
-    d->play();
+    d->looprem = d->looptotal;
+    server().play(this);
 }
+
+/*!
+  Returns the number of times the sound will play.
+*/
+int QSound::loops() const
+{
+    return d->looptotal;
+}
+
+/*!
+  Returns the number of times the sound will loop. This value decreases
+  each time the sound loops.
+*/
+int QSound::loopsRemaining() const
+{
+    return d->looprem;
+}
+
+/*!
+  Sets the sound to repeat \a l times when it is played.
+  Passing the value -1 will cause the sound to loop indefinitely.
+  \sa loops()
+*/
+void QSound::setLoops(int l)
+{
+    d->looptotal = l;
+}
+
+/*!
+  Returns the filename associated with the sound.
+*/
+QString QSound::fileName() const
+{
+    return d->filename;
+}
+
+/*!
+  Stops the sound playing.
+
+  \sa play()
+*/
+void QSound::stop()
+{
+    server().stop(this);
+}
+
 
 /*!
   Returns TRUE if sound facilities exist on the platform; otherwise
@@ -196,9 +239,49 @@ void QSound::play()
   If no sound is available, all QSound operations work silently
   and quickly.
 */
-bool QSound::available()
+bool QSound::isAvailable()
 {
-    return QSoundData::server().okay();
+    return server().okay();
+}
+
+/*!
+  Sets the internal bucket record of sound \a s to \a b, deleting
+  any previous setting.
+*/
+void QAuServer::setBucket(QSound* s, QAuBucket* b)
+{
+    delete s->d->bucket;
+    s->d->bucket = b;
+}
+
+/*!
+  Returns the internal bucket record of sound \a s.
+*/
+QAuBucket* QAuServer::bucket(QSound* s)
+{
+    return s->d->bucket;
+}
+
+/*!
+  Decrements the QSound::loopRemaining() value for sound \a s,
+  returning the result.
+*/
+int QAuServer::decLoop(QSound* s)
+{
+    if ( s->d->looprem > 0 )
+	--s->d->looprem;
+    return s->d->looprem;
+}
+
+/*!
+  Initializes the sound. The default implementation does nothing.
+*/
+void QAuServer::init(QSound*)
+{
+}
+
+QAuBucket::~QAuBucket()
+{
 }
 
 #endif // QT_NO_SOUND

@@ -41,6 +41,7 @@
 
 #ifndef QT_NO_SOUND
 
+#include "qptrdict.h"
 #include "qsocknot.h"
 #include "qapplication.h"
 
@@ -50,27 +51,45 @@
 #include <audio/audiolib.h>
 #include <audio/soundlib.h>
 
+static AuServer *nas=0;
+
+class QAuBucketNAS : public QAuBucket {
+public:
+    QAuBucketNAS(int i) : id(i) {}
+
+    ~QAuBucketNAS()
+    {
+	if ( nas )
+	    AuDestroyBucket( nas, (AuBucketID)id, NULL );
+    }
+
+    AuBucketID id;
+};
+
 class QAuServerNAS : public QAuServer {
     Q_OBJECT
 
-    AuServer *nas;
     QSocketNotifier* sn;
 
 public:
     QAuServerNAS(QObject* parent);
     ~QAuServerNAS();
 
+    void init(QSound*);
     void play(const QString& filename);
-    void play(QAuBucket* id);
-    QAuBucket* newBucket(const QString& filename);
-    void deleteBucket(QAuBucket* id);
+    void play(QSound*);
+    void stop(QSound*);
     bool okay();
 
 public slots:
     void dataReceived();
-};
 
-class QAuBucket { }; // Just an ID - we cast to and from AuBucketID
+private:
+    QAuBucketNAS* bucket(QSound* s)
+    {
+	return (QAuBucketNAS*)QAuServer::bucket(s);
+    }
+};
 
 QAuServerNAS::QAuServerNAS(QObject* parent) :
     QAuServer(parent,"Network Audio System")
@@ -92,6 +111,7 @@ QAuServerNAS::~QAuServerNAS()
     if ( nas )
 	AuCloseServer( nas );
     delete sn;
+    nas = 0;
 }
 
 void QAuServerNAS::play(const QString& filename)
@@ -107,12 +127,31 @@ void QAuServerNAS::play(const QString& filename)
     }
 }
 
-void QAuServerNAS::play(QAuBucket* id)
+static QPtrDict<void> *inprogress=0;
+
+static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
+{
+qDebug("Event %d",e->type);
+    if ( inprogress->find(p) && e ) {
+	QSound* s = (QSound*)p;
+	if (e->type==AuEventTypeElementNotify &&
+		    e->auelementnotify.kind==AuElementNotifyKindState) {
+	    if ( e->auelementnotify.cur_state == AuStateStop )
+		qDebug("DONE");
+	}
+    }
+}
+
+void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
+	if ( !inprogress )
+	    inprogress = new QPtrDict<void>;
+	inprogress->insert(s,(void*)1);
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
-	AuSoundPlayFromBucket(nas, (AuBucketID)id, AuNone, volume, NULL, NULL, 0, NULL, NULL, NULL, NULL);
+	AuSoundPlayFromBucket(nas, bucket(s)->id, AuNone, volume,
+		callback, s, 0, NULL, NULL, NULL, NULL);
 	AuFlush(nas);
 	dataReceived();
 	AuFlush(nas);
@@ -120,16 +159,21 @@ void QAuServerNAS::play(QAuBucket* id)
     }
 }
 
-QAuBucket* QAuServerNAS::newBucket(const QString& filename)
+void QAuServerNAS::stop(QSound* s)
 {
-    return nas ? (QAuBucket*)AuSoundCreateBucketFromFile(nas, filename,
-		0 /*AuAccessAllMasks*/, NULL, NULL) : 0;
+    if (nas) {
+	inprogress->remove(s);
+
+	// #######
+    }
 }
 
-void QAuServerNAS::deleteBucket(QAuBucket* id)
+void QAuServerNAS::init(QSound* s)
 {
     if ( nas )
-	AuDestroyBucket( nas, (AuBucketID)id, NULL );
+	setBucket(s,
+	    new QAuBucketNAS(AuSoundCreateBucketFromFile(nas, s->fileName(),
+		0 /*AuAccessAllMasks*/, NULL, NULL)));
 }
 
 bool QAuServerNAS::okay()
@@ -152,9 +196,8 @@ public:
     QAuServerNull(QObject* parent);
 
     void play(const QString&) { }
-    void play(QAuBucket*) { }
-    QAuBucket* newBucket(const QString&) { return 0; }
-    void deleteBucket(QAuBucket*) { }
+    void play(QSound*) { }
+    void stop(QSound*) { }
     bool okay() { return FALSE; }
 };
 

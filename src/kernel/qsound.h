@@ -48,7 +48,7 @@ class QSoundData;
 class Q_EXPORT QSound : public QObject {
     Q_OBJECT
 public:
-    static bool available();
+    static bool isAvailable();
     static void play(const QString& filename);
 
     QSound(const QString& filename, QObject* parent=0, const char* name=0);
@@ -59,16 +59,28 @@ public:
     QSound(int hertz, Type type=Mono);
     int play(const ushort* data, int samples);
     bool full();
-    bool done();
     signal void notFull();
 	?
     */
 
+#ifndef QT_NO_COMPAT
+    static bool available() { return isAvailable(); }
+#endif
+
+    int loops() const;
+    int loopsRemaining() const;
+    void setLoops(int);
+    QString fileName() const;
+
+    bool isFinished() const;
+
 public slots:
     void play();
+    void stop();
 
 private:
     QSoundData* d;
+    friend class QAuServer;
 };
 
 
@@ -81,7 +93,10 @@ private:
   QAuBucket is whatever you want.
 */
 
-class QAuBucket;
+class QAuBucket {
+public:
+    virtual ~QAuBucket();
+};
 
 class QAuServer : public QObject {
     Q_OBJECT
@@ -90,11 +105,16 @@ public:
     QAuServer(QObject* parent, const char* name);
     ~QAuServer();
 
+    virtual void init(QSound*);
     virtual void play(const QString& filename);
-    virtual void play(QAuBucket* id)=0;
-    virtual QAuBucket* newBucket(const QString& filename)=0;
-    virtual void deleteBucket(QAuBucket* id)=0;
+    virtual void play(QSound*)=0;
+    virtual void stop(QSound*)=0;
     virtual bool okay()=0;
+
+protected:
+    void setBucket(QSound*, QAuBucket*);
+    QAuBucket* bucket(QSound*);
+    int decLoop(QSound*);
 };
 
 #endif // QT_NO_SOUND
