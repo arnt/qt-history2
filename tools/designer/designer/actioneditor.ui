@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>226</width>
-            <height>273</height>
+            <width>222</width>
+            <height>271</height>
         </rect>
     </property>
     <property stdset="1">
@@ -157,18 +157,6 @@
 </images>
 <connections>
     <connection>
-        <sender>listActions</sender>
-        <signal>currentChanged(QListViewItem*)</signal>
-        <receiver>ActionEditorBase</receiver>
-        <slot>currentActionChanged( QListViewItem * )</slot>
-    </connection>
-    <connection>
-        <sender>listActions</sender>
-        <signal>selectionChanged(QListViewItem*)</signal>
-        <receiver>ActionEditorBase</receiver>
-        <slot>currentActionChanged( QListViewItem * )</slot>
-    </connection>
-    <connection>
         <sender>buttonNewAction</sender>
         <signal>clicked()</signal>
         <receiver>ActionEditorBase</receiver>
@@ -179,6 +167,24 @@
         <signal>clicked()</signal>
         <receiver>ActionEditorBase</receiver>
         <slot>deleteAction()</slot>
+    </connection>
+    <connection>
+        <sender>listActions</sender>
+        <signal>clicked(QListViewItem*)</signal>
+        <receiver>ActionEditorBase</receiver>
+        <slot>currentActionChanged( QListViewItem * )</slot>
+    </connection>
+    <connection>
+        <sender>listActions</sender>
+        <signal>currentChanged(QListViewItem*)</signal>
+        <receiver>ActionEditorBase</receiver>
+        <slot>currentActionChanged( QListViewItem * )</slot>
+    </connection>
+    <connection>
+        <sender>listActions</sender>
+        <signal>selectionChanged(QListViewItem*)</signal>
+        <receiver>ActionEditorBase</receiver>
+        <slot>currentActionChanged( QListViewItem * )</slot>
     </connection>
     <slot access="protected">accelChanged( const QString &amp; )</slot>
     <slot access="protected">connectionsClicked()</slot>
