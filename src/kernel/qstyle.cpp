@@ -1477,6 +1477,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_ItemView_ChangeHighlightOnFocus  gray out selected items
     when losing focus.
 
+    \value SH_Widget_ShareActivation turn on sharing activation with
+    floating modeless dialogs.
+
   \sa styleHint()
 */
 
