@@ -705,8 +705,8 @@ bool QApplication::x11_apply_settings()
     Atom type;
     int format;
     long offset = 0;
-    unsigned long nitems, after;
-    unsigned char *data;
+    unsigned long nitems, after = 1;
+    unsigned char *data = 0;
     bool read_settings = FALSE,
 	       success = FALSE,
 	   prop_exists = read_settings_cache_only;
@@ -939,9 +939,11 @@ bool QApplication::x11_apply_settings()
 	while (it != fontsubs.end())
 	    d << QFont::substitutes(*it++);
 
+	prop.close();
+
 	ignore_settings_change = TRUE;
 	XChangeProperty(appDpy, appRootWin, qt_settings_cache,
-			qt_desktop_properties, 8, PropModeReplace,
+			qt_settings_cache, 8, PropModeReplace,
 			(unsigned char *) prop.buffer().data(),
 			prop.buffer().size());
 
@@ -972,11 +974,29 @@ bool QApplication::x11_apply_settings()
 	    XFree(data);
 	}
 
+	prop.close();
+
 	QDataStream d(prop.buffer(), IO_ReadOnly);
 
 	QPalette pal;
 	QFont font;
-	d >> pal >> font;
+	QString stylename, colorspec, defaultcodec;
+	QStringList pathlist, effects, fontsubs;
+	int dci, cft, wsl;
+	QSize globalstrut;
+
+	d >> pal;
+	d >> font;
+	d >> pathlist;
+	d >> stylename;
+	d >> dci;
+	d >> cft;
+	d >> wsl;
+	d >> colorspec;
+	d >> defaultcodec;
+	d >> globalstrut;
+	d >> effects;
+	d >> fontsubs;
 
 	// check the palette to see if the disabled foreground and background color
 	// are the same, if they are, we are going to do a hack and set the disabled
@@ -1007,82 +1027,38 @@ bool QApplication::x11_apply_settings()
 	if (font != QApplication::font())
 	    QApplication::setFont(font, TRUE);
 
-	if (! d.atEnd()) {
-	    QStringList pathlist;
-	    d >> pathlist;
+	QStringList::ConstIterator it = pathlist.begin();
+	while (it != pathlist.end())
+	    QApplication::addLibraryPath(*it++);
 
-	    QStringList::ConstIterator it = pathlist.begin();
-	    while (it != pathlist.end())
-		QApplication::addLibraryPath(*it++);
+	QStyle *style = QStyleFactory::create(stylename);
+	if (style)
+	    QApplication::setStyle(style);
+
+	QApplication::setDoubleClickInterval(dci);
+	QApplication::setCursorFlashTime(cft);
+	QApplication::setWheelScrollLines(wsl);
+
+	if (colorspec == "normal")
+	    QApplication::setColorSpec(QApplication::NormalColor);
+	else if (colorspec == "custom")
+	    QApplication::setColorSpec(QApplication::CustomColor);
+	else if (colorspec == "many")
+	    QApplication::setColorSpec(QApplication::ManyColor);
+
+	if (! defaultcodec.isNull() &&
+	    ! defaultcodec.isEmpty() &&
+	    defaultcodec != "none") {
+	    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+	    if (codec)
+		qApp->setDefaultCodec(codec);
 	}
 
-	if (! d.atEnd()) {
-	    QString stylename;
-	    d >> stylename;
+	if (globalstrut.isValid())
+	    QApplication::setGlobalStrut(globalstrut);
 
-	    QStyle *style = QStyleFactory::create(stylename);
-	    if (style)
-		QApplication::setStyle(style);
-	}
-
-	if (! d.atEnd()) {
-	    int dci;
-	    d >> dci;
-
-	    QApplication::setDoubleClickInterval(dci);
-	}
-
-	if (! d.atEnd()) {
-	    int cft;
-	    d >> cft;
-
-	    QApplication::setCursorFlashTime(cft);
-	}
-
-	if (! d.atEnd()) {
-	    int wsl;
-	    d >> wsl;
-
-	    QApplication::setWheelScrollLines(wsl);
-	}
-
-	if (! d.atEnd()) {
-	    QString cs;
-	    d >> cs;
-
-	    if (cs == "normal")
-		QApplication::setColorSpec(QApplication::NormalColor);
-	    else if (cs == "custom")
-		QApplication::setColorSpec(QApplication::CustomColor);
-	    else if (cs == "many")
-		QApplication::setColorSpec(QApplication::ManyColor);
-	}
-
-	if (! d.atEnd()) {
-	    QString dc;
-	    d >> dc;
-
-	    if (! dc.isNull() && ! dc.isEmpty() && dc != "none") {
-		QTextCodec *codec = QTextCodec::codecForName(dc);
-		if (codec)
-		    qApp->setDefaultCodec(codec);
-	    }
-	}
-
-	if (! d.atEnd()) {
-	    QSize sz;
-	    d >> sz;
-
-	    if (sz.isValid())
-		QApplication::setGlobalStrut(sz);
-	}
-
-	if (! d.atEnd()) {
-	    QStringList effects;
-	    d >> effects;
-
-	    if ( effects.contains("general") )
-		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
+	if ( effects.contains("general") ) {
+	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
 	    if ( effects.contains("animatemenu") )
 		QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
 	    if ( effects.contains("fademenu") )
@@ -1093,18 +1069,14 @@ bool QApplication::x11_apply_settings()
 		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
 	    if ( effects.contains("fadetooltip") )
 		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
-	}
+	} else
+	    QApplication::setEffectEnabled(Qt::UI_General, FALSE);
 
-	if (! d.atEnd()) {
-	    QStringList famsubs;
-	    d >> famsubs;
-
-	    QStringList subs;
-	    QStringList::Iterator it = famsubs.begin();
-	    while (it != famsubs.end()) {
-		d >> subs;
-		QFont::insertSubstitutions(*it++, subs);
-	    }
+	QStringList subs;
+	it = fontsubs.begin();
+	while (it != fontsubs.end()) {
+	    d >> subs;
+	    QFont::insertSubstitutions(*it++, subs);
 	}
 
 	success = TRUE;
