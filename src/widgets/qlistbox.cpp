@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#19 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#19 $";
 #endif
 
 
@@ -128,6 +128,7 @@ void QListBox::setStrList( const QStrList *l )
 	++iter;
     }
     updateNumRows();
+    updateCellWidth();
     setTopCell( 0 );
     if ( wasAuto ) {
         setAutoUpdate( TRUE );
@@ -155,6 +156,7 @@ void QListBox::setStrList( const char **strs,int numStrings )
 	itemList->append( newAny( strs[i], 0 ) );
 
     updateNumRows();
+    updateCellWidth();
     setTopCell( 0 );
     if ( wasAuto ) {
         setAutoUpdate( TRUE );
@@ -704,8 +706,10 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
+    clearTableFlags( Tbl_autoHScrollBar ); // wait until cell width is known
     QTableWidget::resizeEvent( e );
     updateCellWidth();
+    setTableFlags( Tbl_autoHScrollBar );  // new cell width set, do auto scrBar
 }
 
 void QListBox::timerEvent( QTimerEvent *e )
