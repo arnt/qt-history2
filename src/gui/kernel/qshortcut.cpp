@@ -32,11 +32,11 @@ public:
     \a parent. Since no shortcut key is specified, the
     shortcut will not emit any signals.
 */
-QShortcut::QShortcut(QWidget *parent, const char *name)
+QShortcut::QShortcut(QWidget *parent)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
-    init(parent, name);
+    parent->installEventFilter(this);
 }
 
 /*!
@@ -48,24 +48,15 @@ QShortcut::QShortcut(QWidget *parent, const char *name)
     function.
 */
 QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
-                     const char *member, const char *ambiguousMember,
-                     const char *name)
+                     const char *member, const char *ambiguousMember)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
-    init(parent, name);
+    parent->installEventFilter(this);
     d->sc_sequence = key;
     d->sc_id = parent->grabShortcut(key);
     connect(this, SIGNAL(activated()), parent, member);
     connect(this, SIGNAL(activatedAmbiguously()), parent, ambiguousMember);
-}
-
-/*!
-    \internal
-*/
-QShortcut::QShortcut(QShortcutPrivate &dd, QWidget *parent)
-    : QObject(dd, parent)
-{
 }
 
 /*!
@@ -74,19 +65,8 @@ QShortcut::QShortcut(QShortcutPrivate &dd, QWidget *parent)
 QShortcut::~QShortcut()
 {
     QWidget *parent = parentWidget();
-    parent->releaseShortcut(d->sc_sequence, d->sc_id);
+    parent->releaseShortcut(d->sc_id);
     parent->removeEventFilter(this);
-}
-
-/*!
-    \internal
-    Initializes the object, and hooks into the eventloop of
-    the parent.
-*/
-void QShortcut::init(QWidget *parent, const char *name)
-{
-    setObjectName(name);
-    parent->installEventFilter(this);
 }
 
 /*!
@@ -110,9 +90,11 @@ void QShortcut::init(QWidget *parent, const char *name)
 void QShortcut::setKey(const QKeySequence &key)
 {
     QWidget *parent = parentWidget();
-    parent->releaseShortcut(d->sc_sequence, d->sc_id);
+    parent->releaseShortcut(d->sc_id);
     d->sc_sequence = key;
     d->sc_id = parent->grabShortcut(key);
+    if (!d->sc_enabled)
+        parent->setShortcutEnabled(d->sc_id, false);
 }
 
 /*!
@@ -139,7 +121,7 @@ QKeySequence QShortcut::key() const
 void QShortcut::setEnabled(bool enable)
 {
     d->sc_enabled = enable;
-    parentWidget()->enableShortcut(enable, d->sc_sequence, d->sc_id);
+    parentWidget()->setShortcutEnabled(d->sc_id, enable);
 }
 
 /*!

@@ -330,8 +330,8 @@ public:
     void grabKeyboard();
     void releaseKeyboard();
     int grabShortcut(const QKeySequence &key);
-    int releaseShortcut(const QKeySequence &key, int id = 0);
-    int enableShortcut(bool enable, const QKeySequence &key, int id = 0);
+    void releaseShortcut(int id);
+    void setShortcutEnabled(int id, bool enable = true);
     static QWidget *mouseGrabber();
     static QWidget *keyboardGrabber();
 

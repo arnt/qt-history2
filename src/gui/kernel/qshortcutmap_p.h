@@ -20,8 +20,8 @@ public:
     ~QShortcutMap();
 
     int addShortcut(const QWidget *owner, const QKeySequence &key);
-    int removeShortcut(const QWidget *owner, const QKeySequence &key, int id = 0);
-    int setShortcutEnabled(bool enable, const QWidget *owner, const QKeySequence &key, int id = 0);
+    int removeShortcut(const QWidget *owner, int id, const QKeySequence &key = QKeySequence());
+    int setShortcutEnabled(const QWidget *owner, int id, bool enable, const QKeySequence &key = QKeySequence());
 
     void resetState();
     Qt::SequenceMatch nextState(QKeyEvent *e);

@@ -6177,17 +6177,17 @@ int QWidget::grabShortcut(const QKeySequence &key)
 /*!
   \brief
 */
-int QWidget::releaseShortcut(const QKeySequence &key, int id)
+void QWidget::releaseShortcut(int id)
 {
     Q_ASSERT(qApp);
-    return qApp->d->shortcutMap.removeShortcut(this, key, id);
+    qApp->d->shortcutMap.removeShortcut(this, id);
 }
 
 /*!
   \brief
 */
-int QWidget::enableShortcut(bool enable, const QKeySequence &key, int id)
+void QWidget::setShortcutEnabled(int id, bool enable)
 {
     Q_ASSERT(qApp);
-    return qApp->d->shortcutMap.setShortcutEnabled(enable, this, key, id);
+    qApp->d->shortcutMap.setShortcutEnabled(this, id, enable);
 }

@@ -14,10 +14,9 @@ class Q_GUI_EXPORT QShortcut : public QObject
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 public:
-    QShortcut(QWidget *parent, const char *name = 0);
+    QShortcut(QWidget *parent);
     QShortcut(const QKeySequence& key, QWidget *parent,
-              const char *member = 0, const char *ambiguousMember = 0,
-              const char *name = 0);
+              const char *member = 0, const char *ambiguousMember = 0);
     ~QShortcut();
 
     void setKey(const QKeySequence& key);
@@ -39,8 +38,6 @@ signals:
     void activatedAmbiguously();
 
 protected:
-    QShortcut(QShortcutPrivate &d, QWidget *parent);
-    void init(QWidget *parent, const char *name);
     bool eventFilter(QObject *o, QEvent *e);
 };
 

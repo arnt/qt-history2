@@ -123,7 +123,7 @@ QShortcutMap::~QShortcutMap()
     are removed.
     Returns the number of sequences removed from the map.
 */
-int QShortcutMap::removeShortcut(const QWidget *owner, const QKeySequence &key, int id)
+int QShortcutMap::removeShortcut(const QWidget *owner, int id, const QKeySequence &key)
 {
     int itemsRemoved = 0;
     bool allOwners = (owner == 0);
@@ -164,8 +164,8 @@ int QShortcutMap::removeShortcut(const QWidget *owner, const QKeySequence &key, 
     are changed.
     Returns the number of sequences which are matched in the map.
 */
-int QShortcutMap::setShortcutEnabled(bool enable, const QWidget *owner, const QKeySequence &key,
-                                     int id)
+int QShortcutMap::setShortcutEnabled(const QWidget *owner, int id, bool enable,
+                                     const QKeySequence &key)
 {
     int itemsChanged = 0;
     bool allOwners = (owner == 0);
