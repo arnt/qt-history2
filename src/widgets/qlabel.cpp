@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#30 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#30 $")
 
 
 /*----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#29 $")
   rectangle. See setAlignment() for a description of the alignment flags.
 
   Enabling auto-resizing will make a label resize itself whenever the
-  contents change.
+  contents change.  The top left corner is kept unchanged.
 
   Example of use:
   \code
@@ -260,7 +260,7 @@ void QLabel::setAlignment( int alignment )
   enable is FALSE.
 
   When auto-resizing is enabled, the label will resize itself whenever the
-  contents change.
+  contents change.  The top left corner is not moved.
 
   \sa autoResize(), adjustSize()
  ----------------------------------------------------------------------------*/
@@ -275,8 +275,9 @@ void QLabel::setAutoResize( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
-  Adjusts the size of the label to fit the contents.
+/*!
+  Adjusts the size of the label to fit the contents.  The top left
+  corner is not moved.
 
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
@@ -284,7 +285,8 @@ void QLabel::setAutoResize( bool enable )
   \bug Does not work well with the WordBreak flag
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+
+  */
 
 void QLabel::adjustSize()
 {
