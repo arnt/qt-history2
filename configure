@@ -2879,7 +2879,6 @@ if [ "$VSTYLE" = "yes" ]; then
 	if [ "$VNO" = "yes" ]; then
 		NOSTYLE=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
 		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STYLE_$NOSTYLE"
-		echo "kill" >>$outpath/include/qconfig.h.new
 		VSTYLE=no
 		VNO=no
     	else
