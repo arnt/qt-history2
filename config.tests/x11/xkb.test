@@ -16,6 +16,7 @@ fi
 
 # check for headers
 
+XKBLIB_H=
 if [ "$XKB" = "yes" ]
 then
     INC="X11/XKBlib.h"
@@ -27,6 +28,7 @@ then
 	if [ -f $INCDIR/$INC ]
 	then
 	    F=yes
+	    XKBLIB_H=$INCDIR/$INC
 	    if [ "$VERBOSE" = "yes" ]
 	    then
 		echo "  Found $INC in $INCDIR"
@@ -40,6 +42,24 @@ then
 	if [ "$VERBOSE" = "yes" ]
 	then
 	    echo "  Could not find $INC anywhere in $INCDIRS"
+	fi
+    fi
+fi
+
+# check for XkbSetPerClientControls in X11/XKBlib.h
+# if it is not found, we disable xkb support
+
+if [ "$XKB" = "yes" ] && [ -f "$XKBLIB_H" ]
+then
+    grep XkbSetPerClientControls $XKBLIB_H >/dev/null || XKB=no
+    
+    if [ "$VERBOSE" = "yes" ]
+    then
+	if [ "$XKB" = "yes" ]
+	then
+	    echo "  XkbSetPerClientControls found."
+	else
+	    echo "  XkbSetPerClientControls not found."
 	fi
     fi
 fi
