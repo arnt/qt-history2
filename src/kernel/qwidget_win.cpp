@@ -469,11 +469,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
     if ( text ) {
 	// Translate x,y to be relative to the TLW
 	QPoint p(x,y);
-	QWidget* w = this;
-	while ( !w->isTopLevel() ) {
-	    p = w->mapToParent(p);
-	    w = w->parentWidget();
-	}
+	mapTo( topLevelWidget(), p );
 
 	COMPOSITIONFORM cf;
 	// ### need X-like inputStyle config settings
