@@ -4109,7 +4109,7 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 		p += QPoint( width() / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
 	    else
 		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
-	    emit contextMenuRequested( item, mapToGlobal( p ), -1 );
+	    emit contextMenuRequested( item, viewport()->mapToGlobal( p ), -1 );
 	}
     } else {
 	QPoint vp = contentsToViewport( e->pos() );

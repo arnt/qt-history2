@@ -4407,7 +4407,7 @@ void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
 	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );
-	emit contextMenuRequested( item, mapToGlobal( contentsToViewport( r.center() ) ) );
+	emit contextMenuRequested( item, viewport()->mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	d->mousePressed = FALSE;
 	QIconViewItem *item = findItem( e->pos() );

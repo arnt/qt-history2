@@ -3656,8 +3656,7 @@ void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 	e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QRect r = cellGeometry( curRow, curCol );
-	r.moveBy( -contentsX(), -contentsY() );
-	emit contextMenuRequested( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
+	emit contextMenuRequested( curRow, curCol, viewport()->mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
 	int tmpRow = rowAt( e->pos().y() );
 	int tmpCol = columnAt( e->pos().x() );
