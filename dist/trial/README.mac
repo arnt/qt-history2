@@ -21,13 +21,29 @@ a static or dynamic library with single-threaded mode turned on or
 off. You may also build it with or without debugging information
 included included as an assistance during application development.
 
-* Database drivers are not included.
+
+The Qt Reference Manual
+-----------------------
+
+The full Qt reference documentation in HTML format is included with this
+evaluation version. You can read it using the Qt Assistant tool. You can 
+also read it by opening the file QTDIR/doc/html/index.html with any web 
+browser.
+
+If you are new to Qt programming, we recommend that you check out the
+tutorial section and the Qt Designer manual. We also suggest that you
+obtain a copy of one of the many books about Qt programming that are
+available. For further information, see:
+
+http://www.trolltech.com/developer/documentation/literature.html
 
 
-Before using the evaluation version you must:
----------------------------------------------
+Building Qt programs
+--------------------
 
-1. Set some environment variables in the file .profile (or .login,
+In order to compile the example programs from source you should:
+
+   Set some environment variables in the file .profile (or .login,
    depending on your shell) in your home directory. (Create the
    file if it is not there already.)
 
@@ -57,45 +73,6 @@ Before using the evaluation version you must:
    the profile before continuing, so that $QTDIR is at least set.  
    The installation will give an error message and not proceed otherwise.
 
-2.  Copy Qt to a system library path. This is necesary if you plan
-    to double-click on applications in the finder. To copy Qt, do the
-    following:
-
-    ln -s $QTDIR/lib/libqt-mt.dylib.3.0.2/usr/lib
-
-    Qt/Designer requires the following libraries:
-
-    ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
-    ln -s $QTDIR/lib/libeditor.dylib.1.0.0 /usr/lib
-
-    You will need to do this as an administrator. The easiest way to do this
-    is to prefix the previous commands with sudo (ie. sudo ln -s ...) 
-    and type in your administration password when prompted.
-
-3.  You should be able to run any of the programs in $QTDIR/examples/ or
-    $QTDIR/bin/ at this point.  To link your own apps against Qt/Mac you
-    will want to include files from $QTDIR/include and link against
-    $QTDIR/lib/libqt-mt.dylib.
-
-
-The Qt Reference Manual
------------------------
-
-The full Qt reference documentation in HTML format is included with this
-evaluation version. You can read it using the Qt Assistant tool, which is
-available from the Qt submenu on the Start menu. You can also read it by
-opening the file QTDIR/doc/html/index.html with any web browser.
-
-If you are new to Qt programming, we recommend that you check out the
-tutorial section and the Qt Designer manual. We also suggest that you
-obtain a copy of one of the many books about Qt programming that are
-available. For further information, see:
-
-http://www.trolltech.com/developer/documentation/literature.html
-
-
-Building Qt programs
---------------------
 
 Qt programs may be built from the command line (i.e. in a terminal window). 
 When working from the command line, the qmake tool is invaluable. It builds 
