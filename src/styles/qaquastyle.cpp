@@ -8824,10 +8824,12 @@ static const char * const aqua_progress_xpm[] = {
 #include "qtoolbar.h"
 #include "qobjcoll.h"
 #include "qlayout.h"
+#include "qlist.h"
 #include "qbuttongroup.h"
 #include "qtabwidget.h"
 #include "qslider.h"
 #include "qwmatrix.h"
+#include "qprogressbar.h"
 #include <limits.h>
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
@@ -8844,7 +8846,10 @@ public:
 
     QPushButton * defaultButton;
     buttonState   buttonState;
-    int timerId;
+    int buttonTimerId;
+
+    QList<QProgressBar> progressBars;
+    int progressTimerId;
 };
 
 // NOT REVISED
@@ -8880,9 +8885,9 @@ static int qAquaGetNum( const QString & s )
  */
 static bool qAquaActive( const QColorGroup & g )
 {
-    if( g.buttonText() == QColor( 148,148,148 ) )
+    if( g.buttonText() == QColor( 148,148,148 ) ) 
         return FALSE;
-    else
+    else 
         return TRUE;
 }
 
@@ -9246,10 +9251,16 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Sliders
     if( s.contains("_pty_") ) {
-        QPixmap act_down( (const char **) aqua_sldr_act_pty_xpm );
-        QPixmap dis_down( (const char **) aqua_sldr_dis_pty_xpm );
         size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
+	QBitmap mask( aqua_sldr_pty_mask_width, aqua_sldr_pty_mask_height,
+		      (const uchar *) aqua_sldr_pty_mask_bits, TRUE );
+	mask.convertFromImage(mask.convertToImage().smoothScale(im.width(), size));
+
+        QPixmap act_down( (const char **) aqua_sldr_act_pty_xpm );
+	act_down.setMask(mask);
+        QPixmap dis_down( (const char **) aqua_sldr_dis_pty_xpm );
+	dis_down.setMask(mask);
 
 	// Down
         QPixmapCache::insert( "$qt_aqua_sldr_act_pty_down", act_down );
@@ -9545,7 +9556,7 @@ QAquaStyle::QAquaStyle()
 {
     d = new Private;
     d->defaultButton = 0;
-    d->timerId = -1;
+    d->progressTimerId = d->buttonTimerId = -1;
 }
 
 /*!\reimp
@@ -9605,8 +9616,8 @@ void QAquaStyle::polish( QWidget * w )
         QPushButton * btn = (QPushButton *) w;
         if( btn->isDefault() || btn->autoDefault() ){
             btn->installEventFilter( this );
-            if( d->timerId == -1 ){
-                d->timerId = startTimer( 50 );
+            if( d->buttonTimerId == -1 ){
+                d->buttonTimerId = startTimer( 50 );
             }
         }
     }
@@ -9627,6 +9638,13 @@ void QAquaStyle::polish( QWidget * w )
          layout->setMargin( 0 );
      }
 
+     if( w->inherits("QProgressBar") ){
+	 d->progressBars.append((QProgressBar*)w);
+	 if( d->progressTimerId == -1 ){
+	     d->progressTimerId = startTimer( 100 );
+	 }
+     }
+
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && !w->inherits("QWorkspaceChild") && w->backgroundPixmap() &&
             (w->backgroundMode() == QWidget::PaletteBackground) )
@@ -9643,11 +9661,20 @@ void QAquaStyle::unPolish( QWidget * w )
         if( btn == d->defaultButton )
 	    d->defaultButton = 0;
 
-        if( d->timerId != -1 ){
-            killTimer( d->timerId );
-            d->timerId = -1;
+        if( d->buttonTimerId != -1 ){
+            killTimer( d->buttonTimerId );
+            d->buttonTimerId = -1;
         }
     }
+
+    if( w->inherits("QProgressBar") ) {
+	d->progressBars.remove((QProgressBar *) w);
+	if(d->progressBars.isEmpty() && d->progressTimerId != -1) {
+	    killTimer( d->progressTimerId );
+	    d->progressTimerId = -1;
+	}
+    }
+	    
 
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
@@ -9667,10 +9694,15 @@ void QAquaStyle::unPolish( QWidget * w )
 */
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
-    if( te->timerId() == d->timerId ){
+    if( te->timerId() == d->buttonTimerId ){
 	if( d->defaultButton != 0 && (d->defaultButton->isDefault() || 
 				      d->defaultButton->autoDefault()) )
 	    d->defaultButton->repaint( FALSE );
+    } else if( te->timerId() == d->progressTimerId ) {
+	if( !d->progressBars.isEmpty() ) {
+	    for( QListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
+		(*it)->repaint( FALSE );
+	}
     }
 }
 
@@ -11117,10 +11149,12 @@ int QAquaStyle::progressChunkWidth() const
 void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup & )
 {
+    static int off = 0;
     QPixmap px;
     qAquaPixmap( "progress_" + QString::number(h), px );
     
-    p->drawTiledPixmap( x, y, w, h, px, x % px.width(), 0 ); 
+    p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) + off, 0 ); 
+    off++;
 }
 
 void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
