@@ -18,7 +18,7 @@
 #include "stringset.h"
 #include "tokenizer.h"
 
-/* tmake ignore Q_OBJECT */
+/* qmake ignore Q_OBJECT */
 
 /*
   What is parsing? Even though source files and header files are

@@ -40,12 +40,14 @@
 
 // BEING REVISED: ettrich
 /*!
-  \class QCache qcache.h
+  \class QCache
 
-  \brief The QCache class is a template class that provides a cache based on \c QString keys.
+  \brief The QCache class is a template class that provides a cache based on QString keys.
 
   \ingroup collection
   \ingroup tools
+
+  \important autoDelete setAutoDelete
 
   A cache is a least recently used (LRU) list of cache items.  Each
   cache item has a key and a certain cost. The sum of item costs,

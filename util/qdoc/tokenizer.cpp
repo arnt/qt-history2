@@ -12,7 +12,7 @@
 #include "messages.h"
 #include "tokenizer.h"
 
-/* make ignore Q_OBJECT */
+/* qmake ignore Q_OBJECT */
 
 /*
   If you change this, make sure to change tokenizer.h as well.
@@ -387,8 +387,9 @@ int Tokenizer::getTokenAfterPreprocessor()
     static QRegExp *versionX = 0;
 
     /*
-      Build our regular expressions for matching C or C++ style comment, and for
-      matching the symbol that gives the text for \version.
+      Build our regular expressions for matching C or C++ style
+      comment, and for matching the symbol that gives the text for
+      \version.
     */
     if ( comment == 0 ) {
 	comment = new QRegExp( QString("/(?:\\*.*\\*/|/.*\n)") );
@@ -414,65 +415,71 @@ int Tokenizer::getTokenAfterPreprocessor()
 	directive += QChar( yyCh );
 	yyCh = getChar();
     }
-    if ( directive.isEmpty() )
-	return getToken();
-
-    while ( yyCh != EOF && yyCh != '\n' ) {
-	if ( yyCh == '\\' )
+    if ( !directive.isEmpty() ) {
+	while ( yyCh != EOF && yyCh != '\n' ) {
+	    if ( yyCh == '\\' )
+		yyCh = getChar();
+	    condition += yyCh;
 	    yyCh = getChar();
-	condition += yyCh;
-	yyCh = getChar();
-    }
-    condition.replace( *comment, QString::null );
-    condition = condition.simplifyWhiteSpace();
-
-    /*
-      The #if, #ifdef, #ifndef, #elif, #else, and #endif directives have an
-      effect on the skipping stack.  For instance, if the code processed so far
-      is
-
-	  #if 1
-	  #if 0
-	  #if 1
-	  // ...
-	  #else
-
-      the skipping stack contains, from bottom to top, FALSE TRUE TRUE (assuming
-      0 is false and 1 is true).  If at least one entry of the stack is TRUE,
-      the tokens are skipped.
-
-      This mechanism is simple and unreadable.
-    */
-    if ( directive[0] == QChar('i') ) {
-	if ( directive == QString("if") )
-	    pushSkipping( !isTrue(condition) );
-	else if ( directive == QString("ifdef") )
-	    pushSkipping( !config->isDef(condition) );
-	else if ( directive == QString("ifndef") )
-	    pushSkipping( config->isDef(condition) );
-    } else if ( directive[0] == QChar('e') ) {
-	if ( directive == QString("elif") ) {
-	    bool old = popSkipping();
-	    if ( old )
-		pushSkipping( !isTrue(condition) );
-	    else
-		pushSkipping( TRUE );
-	} else if ( directive == QString("else") ) {
-	    pushSkipping( !popSkipping() );
-	} else if ( directive == QString("endif") ) {
-	    popSkipping();
 	}
-    } else if ( directive == QString("define") ) {
-	if ( versionX->exactMatch(condition) )
-	    config->setVersion( versionX->cap(1) );
+	condition.replace( *comment, QString::null );
+	condition = condition.simplifyWhiteSpace();
+
+	/*
+	  The #if, #ifdef, #ifndef, #elif, #else, and #endif
+	  directives have an effect on the skipping stack.  For
+	  instance, if the code processed so far is
+
+	      #if 1
+	      #if 0
+	      #if 1
+	      // ...
+	      #else
+
+	  the skipping stack contains, from bottom to top, FALSE TRUE
+	  TRUE (assuming 0 is false and 1 is true).  If at least one
+	  entry of the stack is TRUE, the tokens are skipped.
+
+	  This mechanism is simple and unreadable.
+	*/
+	if ( directive[0] == QChar('i') ) {
+	    if ( directive == QString("if") )
+		pushSkipping( !isTrue(condition) );
+	    else if ( directive == QString("ifdef") )
+		pushSkipping( !config->isDef(condition) );
+	    else if ( directive == QString("ifndef") )
+		pushSkipping( config->isDef(condition) );
+	} else if ( directive[0] == QChar('e') ) {
+	    if ( directive == QString("elif") ) {
+		bool old = popSkipping();
+		if ( old )
+		    pushSkipping( !isTrue(condition) );
+		else
+		    pushSkipping( TRUE );
+	    } else if ( directive == QString("else") ) {
+		pushSkipping( !popSkipping() );
+	    } else if ( directive == QString("endif") ) {
+		popSkipping();
+	    }
+	} else if ( directive == QString("define") ) {
+	    if ( versionX->exactMatch(condition) )
+		config->setVersion( versionX->cap(1) );
+	}
     }
 
     int tok;
     do {
 	/*
-	  This is subtle.  If getToken() meets another #, it will call
-	  getTokenAfterPreprocessor() once again, which could in turn call
-	  getToken() again, etc.
+	  We set yyLex now, and after getToken() this will be
+	  yyPrevLex.  This way, we skip over the preprocessor
+	  directive.
+	*/
+	qstrcpy( yyLex, yyPrevLex );
+
+	/*
+	  This is subtle.  If getToken() meets another #, it will
+	  call getTokenAfterPreprocessor() once again, which
+	  could in turn call getToken() again, etc.
 	*/
 	tok = getToken();
     } while ( yyNumPreprocessorSkipping > 0 );

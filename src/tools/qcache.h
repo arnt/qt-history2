@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#26 $
+** $Id: //depot/qt/main/src/tools/qcache.h#27 $
 **
 ** Definition of QCache template class
 **
@@ -42,8 +42,13 @@
 #include "qgcache.h"
 #endif // QT_H
 
-
-template<class type> class Q_EXPORT QCache : public QGCache
+template<class type>
+class Q_EXPORT QCache
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGCache
+#endif
 {
 public:
     QCache( const QCache<type> &c ) : QGCache(c) {}
@@ -74,9 +79,8 @@ private:
     void  deleteItem( Item d )	      { if ( del_item ) delete (type *)d; }
 };
 
-
-
-template<class type> class Q_EXPORT QCacheIterator : public QGCacheIterator
+template<class type>
+class Q_EXPORT QCacheIterator : public QGCacheIterator
 {
 public:
     QCacheIterator( const QCache<type> &c ):QGCacheIterator((QGCache &)c) {}
@@ -99,6 +103,5 @@ public:
     type *operator--()	      { return (type *)QGCacheIterator::operator--(); }
     type *operator-=(uint j)  { return (type *)QGCacheIterator::operator-=(j);}
 };
-
 
 #endif // QCACHE_H
