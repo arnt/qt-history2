@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#26 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#26 $";
 #endif
 
 // #define DEBUG_FONT
@@ -111,7 +111,7 @@ char **getXFontNames( const char *pattern, int *count )
     static int  maxFonts = 256;
     char **tmp;
     while( 1 ) {
-        tmp = XListFonts( qXDisplay(), (char*) pattern, maxFonts, count );
+        tmp = XListFonts( qt_xdisplay(), (char*) pattern, maxFonts, count );
         if ( *count != maxFonts || maxFonts >= 32768 )
             return tmp;
         XFreeFontNames( tmp );
@@ -178,7 +178,7 @@ struct QXFontData {
                       debug("+++ Deleting [%s]",name.data());
 #endif
                       if( f ) {
-                          XFreeFont( qXDisplay(), f );
+                          XFreeFont( qt_xdisplay(), f );
 #if defined (DEBUG_FONT)
                           debug("+++ XFreeFont [%s]",name.data());
 #endif
@@ -206,7 +206,7 @@ void QFontCache::deleteItem( GCI d )
 { 
     QXFontData *xfd = (QXFontData *)d;
     if ( !xfd->dirty() )
-        XFreeFont( qXDisplay(), xfd->f );
+        XFreeFont( qt_xdisplay(), xfd->f );
 #if defined(DEBUG)
     else
         debug("QFontCache::deleteItem: dirty delete!!!!");
@@ -808,7 +808,7 @@ QXFontData *loadXFont( const QString &fontName, bool *newFont )
         return xfd;
                                                 // font is not cached
     QXFontStruct  *tmp;
-    tmp = XLoadQueryFont( qXDisplay(), fontName );
+    tmp = XLoadQueryFont( qt_xdisplay(), fontName );
     if ( !tmp )
         return 0;                               // could not load font
 
