@@ -22,10 +22,6 @@
 #include <QtCore/qstringlist.h>
 #endif
 
-#ifdef Q_WS_WIN32
-# include <QtCore/qt_windows.h>
-#endif
-
 class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
