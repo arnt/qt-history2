@@ -14,11 +14,15 @@ public:
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
 	      bool isWritable, bool isReadable, bool isExecutable );
+    QUrlInfo( const QUrl &url, int permissions, const QString &owner,
+	      const QString &group, uint size, const QDateTime &lastModified,
+	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+	      bool isWritable, bool isReadable, bool isExecutable );
     QUrlInfo( const QUrl &path, const QString &file );
     QUrlInfo( const QUrlInfo &ui );
     QUrlInfo &operator=( const QUrlInfo &ui );
     ~QUrlInfo();
-    
+
     QString name() const;
     int permissions() const;
     QString owner() const;
@@ -34,10 +38,10 @@ public:
     bool isExecutable() const;
 
     QString makeUrl( const QUrl &path, bool withProtocolWhenLocal = FALSE );
-    
+
 private:
     QUrlInfoPrivate *d;
-    
+
 };
 
 #endif

@@ -801,3 +801,14 @@ QString QUrl::nameFilter() const
 {
     return d->nameFilter;
 }
+
+QUrlInfo QUrl::makeInfo() const
+{
+    if ( d->protocol == "file" ) {
+	QFileInfo fi( d->path );
+	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
+			  fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
+			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
+	return inf;
+    }
+}

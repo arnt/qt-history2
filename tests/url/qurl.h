@@ -11,14 +11,14 @@ class QUrlInfo;
 class QUrl : public QObject
 {
     Q_OBJECT
-    
+
 public:
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
     QUrl( const QUrl& url, const QString& relUrl_ );
     ~QUrl();
-    
+
     QString protocol() const;
     void setProtocol( const QString& protocol );
 
@@ -80,15 +80,17 @@ public:
 		      int sortSpec   = QDir::DefaultSort );
     void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 		      int sortSpec   = QDir::DefaultSort );
-    
+
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
+
+    QUrlInfo makeInfo() const;
     
 signals:
     void entry( const QUrlInfo & );
     void error( int, const QString & );
     void finished();
-    
+
 protected:
     void reset();
     void parse( const QString& url );

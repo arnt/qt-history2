@@ -39,6 +39,27 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
     d->isExecutable = isExecutable;
 }
 
+QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
+		    const QString &group, uint size, const QDateTime &lastModified,
+		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
+		    bool isWritable, bool isReadable, bool isExecutable )
+{
+    d = new QUrlInfoPrivate;
+    d->name = QFileInfo( url.path() ).fileName();
+    d->permissions = permissions;
+    d->owner = owner;
+    d->group = group;
+    d->size = size;
+    d->lastModified = lastModified;
+    d->lastRead = lastRead;
+    d->isDir = isDir;
+    d->isFile = isFile;
+    d->isSymLink = isSymLink;
+    d->isWritable = isWritable;
+    d->isReadable = isReadable;
+    d->isExecutable = isExecutable;
+}
+
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
     // ### todo
