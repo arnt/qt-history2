@@ -1,10 +1,6 @@
 TEMPLATE = subdirs
 
-shared {
-	SUBDIRS	*= accessible codecs imageformats sqldrivers styles
-	embedded:SUBDIRS *=  gfxdrivers
-}
-dll {
+dll|shared {
 	SUBDIRS	*= accessible codecs imageformats sqldrivers styles
 	embedded:SUBDIRS *=  gfxdrivers
 }
