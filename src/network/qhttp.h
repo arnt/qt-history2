@@ -109,7 +109,7 @@ public:
     QHttpResponseHeader( const QHttpResponseHeader& header );
     QHttpResponseHeader( const QString& str );
 
-    void setResponse( int code, const QString& text = QString::null, int version = 10 );
+    void setStatusLine( int code, const QString& text = QString::null, int version = 10 );
     int statusCode() const;
     QString reasonPhrase() const;
     int version() const;

@@ -493,7 +493,7 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 
   \sa statusCode() reasonPhrase() version()
 */
-void QHttpResponseHeader::setResponse( int code, const QString& text, int version )
+void QHttpResponseHeader::setStatusLine( int code, const QString& text, int version )
 {
     m_code = code;
     m_text = text;
@@ -503,7 +503,7 @@ void QHttpResponseHeader::setResponse( int code, const QString& text, int versio
 /*!
   Returns the status code of the HTTP response header.
 
-  \sa setResponse() reasonPhrase() version()
+  \sa setStatusLine() reasonPhrase() version()
 */
 int QHttpResponseHeader::statusCode() const
 {
@@ -513,7 +513,7 @@ int QHttpResponseHeader::statusCode() const
 /*!
   Returns the reason phrase of the HTTP response header.
 
-  \sa setResponse() statusCode() version()
+  \sa setStatusLine() statusCode() version()
 */
 QString QHttpResponseHeader::reasonPhrase() const
 {
@@ -523,7 +523,7 @@ QString QHttpResponseHeader::reasonPhrase() const
 /*!
   Returns the protocol-version of the HTTP response header.
 
-  \sa setResponse() statusCode() reasonPhrase()
+  \sa setStatusLine() statusCode() reasonPhrase()
 */
 int QHttpResponseHeader::version() const
 {
