@@ -157,6 +157,10 @@ The \l QRegExp class has been rewritten to support most of the features of Perl
 regular expressions.  Both the regular expression syntax and the QRegExp
 interface were modified.
 
+Be also aware that <code>&lt;qregexp.h&gt;</code> is no longer included
+automatically when you include <code>&lt;qstringlist.h&gt;</code>. See
+<a href="#Headers">above</a> for details.
+
 <dl>
 <p><dt><b>New special characters</b></dt>
 <dd> There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
@@ -242,8 +246,8 @@ This function was removed.  Use
 <p><dt><b>bool QRegExp::match ( const QString & str, int index = 0,
     int * len = 0, bool indexIsStart = TRUE ) const</b></dt>
 <dd>
-This function has an unwieldy parameter list and the wrong name.  If you see
-code like
+This function has an unwieldy parameter list and a bad name.  If you see code
+like
 
 \code
     QString bigText = getBigText();
@@ -251,7 +255,7 @@ code like
     int index = rx.match( bigText );
 \endcode
 
-(where match() takes only one argument), change it to
+(where match() takes one argument), change it to use QRegexp::search():
 
 \code
     QString bigText = getBigText();
@@ -265,17 +269,15 @@ accomplishes something more fit for that name.
 For ease of porting, the old QRegExp::match( const QString&, int, int *, bool )
 is still available for those case where QRegExp::search() won't do.  Read its
 documentation for how to implement the same functionality with the new
-interface. </dd>
+interface.
+</dd>
 
 <p><dt><b>int QRegExp::find ( const QString & str, int index )</b></dt>
-<dd> This function was removed, after a brief appearance in Qt 2.2.  Use
+<dd>
+This function was removed, after a brief appearance in Qt 2.2.  Use
 \l QRegExp::search() or \l QString::find() instead.
 </dd>
 </dl>
-
-Be also aware that <code>&lt;qregexp.h&gt;</code> is no longer included
-automatically when you include <code>&lt;qstringlist.h&gt;</code>. See
-<a href="#Headers">above</a> for details.
 
 <h3><a name="QTranslator">QTranslator</a></h3>
 
@@ -294,11 +296,10 @@ However, the following function is no longer virtual:
 If you have a class that inherits QTranslator and that reimplements
 QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
 In fact, find() is defined in terms of QTranslator::findMessage().  By doing the
-conversion, you will gain support for translator comments and for any future
-extension.
+conversion, you will also gain support for translator comments and for any
+future extension.
 </dd>
 </dl>
-
 */
 
 // I split this to work around limitations in perl's regexp parser. --Arnt
