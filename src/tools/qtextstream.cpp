@@ -178,6 +178,18 @@ const int QTextStream::adjustfield = ( QTextStream::left |
 const int QTextStream::floatfield  = ( QTextStream::scientific |
 				       QTextStream::fixed );
 
+
+class QTextStreamPrivate {
+public:
+    QTextStreamPrivate(): decoder( 0 ) {}
+
+    QTextDecoder *decoder;		//???
+    QString ungetcBuf;
+
+};
+
+
+// skips whitespace and returns the first nonwhitespace character
 QChar QTextStream::eat_ws()
 {
     QChar c;
@@ -187,13 +199,13 @@ QChar QTextStream::eat_ws()
 
 void QTextStream::init()
 {
-    ungetcBuf = QEOF;
+    // ### ungetcBuf = QEOF;
     dev = 0;					// no device set
     fstrm = owndev = FALSE;
     mapper = 0;
-    decoder = 0;
-    doUnicodeHeader = TRUE;		//default to autodetect
-    latin1 = TRUE; //### mapper = QTextCodec::local
+    d = new QTextStreamPrivate;
+    doUnicodeHeader = TRUE;	 //default to autodetect
+    latin1 = TRUE;		 // ### should use local?
     internalOrder = QChar::networkOrdered(); //default to network order
 }
 
@@ -224,190 +236,19 @@ QTextStream::QTextStream( QIODevice *d )
 //	 simplify this class to only deal with QChar or QString data.
 class QStringBuffer : public QIODevice {
 public:
-    QStringBuffer( QString* str ) :
-	s(str)
-    {
-    }
-
-   ~QStringBuffer()
-    {
-    }
-
-
-    bool  open( int m )
-    {
-	if ( !s ) {
-#if defined(CHECK_STATE)
-	    qWarning( "QStringBuffer::open: No string" );
-#endif
-	    return FALSE;
-	}
-	if ( isOpen() ) {                           // buffer already open
-#if defined(CHECK_STATE)
-	    qWarning( "QStringBuffer::open: Buffer already open" );
-#endif
-	    return FALSE;
-	}
-	setMode( m );
-	if ( m & IO_Truncate ) {                    // truncate buffer
-	    s->truncate( 0 );
-	}
-	if ( m & IO_Append ) {                      // append to end of buffer
-	    ioIndex = s->length()*sizeof(QChar);
-	} else {
-	    ioIndex = 0;
-	}
-	setState( IO_Open );
-	setStatus( 0 );
-	return TRUE;
-    }
-
-    void  close()
-    {
-	if ( isOpen() ) {
-	    setFlags( IO_Direct );
-	    ioIndex = 0;
-	}
-    }
-
-    void  flush()
-    {
-    }
-
-    uint  size() const
-    {
-	return s ? s->length()*sizeof(QChar) : 0;
-    }
-
-    int   at()   const
-    {
-	return ioIndex;
-    }
-
-    bool  at( int pos )
-    {
-#if defined(CHECK_STATE)
-	if ( !isOpen() ) {
-	    qWarning( "QStringBuffer::at: Buffer is not open" );
-	    return FALSE;
-	}
-#endif
-	if ( (uint)pos >= s->length()*2 ) {
-#if defined(CHECK_RANGE)
-	    qWarning( "QStringBuffer::at: Index %d out of range", pos );
-#endif
-	    return FALSE;
-	}
-	ioIndex = pos;
-	return TRUE;
-    }
-
-
-    int   readBlock( char *p, uint len )
-    {
-#if defined(CHECK_STATE)
-	CHECK_PTR( p );
-	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QStringBuffer::readBlock: Buffer not open" );
-	    return -1;
-	}
-	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QStringBuffer::readBlock: Read operation not permitted" );
-	    return -1;
-	}
-#endif
-	if ( (uint)ioIndex + len > s->length()*sizeof(QChar) ) {
-					     	    // overflow
-	    if ( (uint)ioIndex >= s->length()*sizeof(QChar) ) {
-		setStatus( IO_ReadError );
-		return -1;
-	    } else {
-		len = s->length()*2 - (uint)ioIndex;
-	    }
-	}
-	memcpy( p, ((const char*)(s->unicode()))+ioIndex, len );
-	ioIndex += len;
-	return len;
-    }
-
-    int writeBlock( const char *p, uint len )
-    {
-#if defined(CHECK_NULL)
-	if ( p == 0 && len != 0 )
-	    qWarning( "QStringBuffer::writeBlock: Null pointer error" );
-#endif
-#if defined(CHECK_STATE)
-	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QStringBuffer::writeBlock: Buffer not open" );
-	    return -1;
-	}
-	if ( !isWritable() ) {                      // writing not permitted
-	    qWarning( "QStringBuffer::writeBlock: Write operation not permitted" );
-	    return -1;
-	}
-	if ( ioIndex&1 ) {
-	    qWarning( "QStringBuffer::writeBlock: non-even index - non Unicode" );
-	    return -1;
-	}
-	if ( len&1 ) {
-	    qWarning( "QStringBuffer::writeBlock: non-even length - non Unicode" );
-	    return -1;
-	}
-#endif
-	s->replace(ioIndex/2, len/2, (QChar*)p, len/2);
-	ioIndex += len;
-	return len;
-    }
-
-    int   getch()
-    {
-#if defined(CHECK_STATE)
-	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QStringBuffer::getch: Buffer not open" );
-	    return -1;
-	}
-	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QStringBuffer::getch: Read operation not permitted" );
-	    return -1;
-	}
-#endif
-	if ( (uint)ioIndex >= s->length()*2 ) {           // overflow
-	    setStatus( IO_ReadError );
-	    return -1;
-	}
-	return *((char*)s->unicode() + ioIndex++);
-    }
-
-    int   putch( int ch )
-    {
-	char c = ch;
-	if ( writeBlock(&c,1) < 0 )
-	    return -1;
-	else
-	    return ch;
-    }
-
-    int   ungetch( int ch )
-    {
-#if defined(CHECK_STATE)
-	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QStringBuffer::ungetch: Buffer not open" );
-	    return -1;
-	}
-	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QStringBuffer::ungetch: Read operation not permitted" );
-	    return -1;
-	}
-#endif
-	if ( ch != -1 ) {
-	    if ( ioIndex )
-		ioIndex--;
-	    else
-		ch = -1;
-	}
-	return ch;
-    }
-
+    QStringBuffer( QString* str );
+    ~QStringBuffer();
+    bool  open( int m );
+    void  close();
+    void  flush();
+    uint  size() const;
+    int   at()   const;
+    bool  at( int pos );
+    int   readBlock( char *p, uint len );
+    int writeBlock( const char *p, uint len );
+    int   getch();
+    int   putch( int ch );
+    int   ungetch( int ch );
 protected:
     QString* s;
 
@@ -415,6 +256,192 @@ private:        // Disabled copy constructor and operator=
     QStringBuffer( const QStringBuffer & );
     QStringBuffer &operator=( const QStringBuffer & );
 };
+
+
+QStringBuffer::QStringBuffer( QString* str )
+{
+    s = str;
+}
+
+QStringBuffer::~QStringBuffer()
+{
+}
+
+
+bool QStringBuffer::open( int m )
+{
+    if ( !s ) {
+#if defined(CHECK_STATE)
+	qWarning( "QStringBuffer::open: No string" );
+#endif
+	return FALSE;
+    }
+    if ( isOpen() ) {                           // buffer already open
+#if defined(CHECK_STATE)
+	qWarning( "QStringBuffer::open: Buffer already open" );
+#endif
+	return FALSE;
+    }
+    setMode( m );
+    if ( m & IO_Truncate ) {                    // truncate buffer
+	s->truncate( 0 );
+    }
+    if ( m & IO_Append ) {                      // append to end of buffer
+	ioIndex = s->length()*sizeof(QChar);
+    } else {
+	ioIndex = 0;
+    }
+    setState( IO_Open );
+    setStatus( 0 );
+    return TRUE;
+}
+
+void QStringBuffer::close()
+{
+    if ( isOpen() ) {
+	setFlags( IO_Direct );
+	ioIndex = 0;
+    }
+}
+
+void QStringBuffer::flush()
+{
+}
+
+uint QStringBuffer::size() const
+{
+    return s ? s->length()*sizeof(QChar) : 0;
+}
+
+int  QStringBuffer::at()   const
+{
+    return ioIndex;
+}
+
+bool QStringBuffer::at( int pos )
+{
+#if defined(CHECK_STATE)
+    if ( !isOpen() ) {
+	qWarning( "QStringBuffer::at: Buffer is not open" );
+	return FALSE;
+    }
+#endif
+    if ( (uint)pos >= s->length()*2 ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QStringBuffer::at: Index %d out of range", pos );
+#endif
+	return FALSE;
+    }
+    ioIndex = pos;
+    return TRUE;
+}
+
+
+int  QStringBuffer::readBlock( char *p, uint len )
+{
+#if defined(CHECK_STATE)
+    CHECK_PTR( p );
+    if ( !isOpen() ) {                          // buffer not open
+	qWarning( "QStringBuffer::readBlock: Buffer not open" );
+	return -1;
+    }
+    if ( !isReadable() ) {                      // reading not permitted
+	qWarning( "QStringBuffer::readBlock: Read operation not permitted" );
+	return -1;
+    }
+#endif
+    if ( (uint)ioIndex + len > s->length()*sizeof(QChar) ) {
+	// overflow
+	if ( (uint)ioIndex >= s->length()*sizeof(QChar) ) {
+	    setStatus( IO_ReadError );
+	    return -1;
+	} else {
+	    len = s->length()*2 - (uint)ioIndex;
+	}
+    }
+    memcpy( p, ((const char*)(s->unicode()))+ioIndex, len );
+    ioIndex += len;
+    return len;
+}
+
+int QStringBuffer::writeBlock( const char *p, uint len )
+{
+#if defined(CHECK_NULL)
+    if ( p == 0 && len != 0 )
+	qWarning( "QStringBuffer::writeBlock: Null pointer error" );
+#endif
+#if defined(CHECK_STATE)
+    if ( !isOpen() ) {                          // buffer not open
+	qWarning( "QStringBuffer::writeBlock: Buffer not open" );
+	return -1;
+    }
+    if ( !isWritable() ) {                      // writing not permitted
+	qWarning( "QStringBuffer::writeBlock: Write operation not permitted" );
+	return -1;
+    }
+    if ( ioIndex&1 ) {
+	qWarning( "QStringBuffer::writeBlock: non-even index - non Unicode" );
+	return -1;
+    }
+    if ( len&1 ) {
+	qWarning( "QStringBuffer::writeBlock: non-even length - non Unicode" );
+	return -1;
+    }
+#endif
+    s->replace(ioIndex/2, len/2, (QChar*)p, len/2);
+    ioIndex += len;
+    return len;
+}
+
+int QStringBuffer::getch()
+{
+#if defined(CHECK_STATE)
+    if ( !isOpen() ) {                          // buffer not open
+	qWarning( "QStringBuffer::getch: Buffer not open" );
+	return -1;
+    }
+    if ( !isReadable() ) {                      // reading not permitted
+	qWarning( "QStringBuffer::getch: Read operation not permitted" );
+	return -1;
+    }
+#endif
+    if ( (uint)ioIndex >= s->length()*2 ) {           // overflow
+	setStatus( IO_ReadError );
+	return -1;
+    }
+    return *((char*)s->unicode() + ioIndex++);
+}
+
+int QStringBuffer::putch( int ch )
+{
+    char c = ch;
+    if ( writeBlock(&c,1) < 0 )
+	return -1;
+    else
+	return ch;
+}
+
+int QStringBuffer::ungetch( int ch )
+{
+#if defined(CHECK_STATE)
+    if ( !isOpen() ) {                          // buffer not open
+	qWarning( "QStringBuffer::ungetch: Buffer not open" );
+	return -1;
+    }
+    if ( !isReadable() ) {                      // reading not permitted
+	qWarning( "QStringBuffer::ungetch: Read operation not permitted" );
+	return -1;
+    }
+#endif
+    if ( ch != -1 ) { // something to do with eof
+	if ( ioIndex )
+	    ioIndex--;
+	else
+	    ch = -1;
+    }
+    return ch;
+}
+
 
 /*!
   Constructs a text stream that operates on a Unicode QString through an
@@ -435,8 +462,6 @@ private:        // Disabled copy constructor and operator=
     QTextStream ts( &str, IO_WriteOnly );
     ts <<  "2+2 = " << 2+2; 		// str == "2+2 = 414"
   \endcode
-  
-  
 
   Note that since QString is Unicode, you should not use readRawBytes()
   or writeRawBytes() on such a stream.
@@ -538,11 +563,11 @@ QTextStream::~QTextStream()
 {
     if ( owndev )
 	delete dev;
-    delete decoder;
+    delete d;
 }
 
 /*!
-  Equivalent to *this << ws.
+  Positions the read pointer at the first nonwhitespace character.
 */
 void QTextStream::skipWhiteSpace()
 {
@@ -566,17 +591,30 @@ void QTextStream::skipWhiteSpace()
 */
 uint QTextStream::ts_getbuf( QChar* buf, uint len )
 {
-    uint rnum=len;   // the number of QChars really read
-    int ungetcLocalBuf = EOF;
-
     if( len<1 )
 	return 0;
+
+    uint rnum=0;   // the number of QChars really read
+
+    if ( d && d->ungetcBuf.length() ) {
+	while( rnum < len && rnum < d->ungetcBuf.length() ) {
+	    buf[rnum] = d->ungetcBuf.constref(rnum);
+	    rnum++;
+	}
+	d->ungetcBuf = d->ungetcBuf.mid( rnum );
+	if ( rnum >= len )
+	    return rnum;
+    }
+
+    // we use dev->ungetch() for one of the bytes of the unicode
+    // byte-order mark, but a local unget hack for the other byte:
+    int ungetHack = EOF;
+
     if ( doUnicodeHeader ) {
 	doUnicodeHeader = FALSE; //only at the top
 	int c1 = dev->getch();
-	if ( c1 == EOF ) {
-	    return 0;
-	}
+	if ( c1 == EOF )
+	    return rnum;
 	int c2 = dev->getch();
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
@@ -588,105 +626,96 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    internalOrder = !QChar::networkOrdered();   //reverse network order
 	} else {
 	    if ( c2 != EOF ) {
-		dev->ungetch( c2 );
-		ungetcLocalBuf = c1; // it is not safe to make two ungetc()
+	 	dev->ungetch( c2 );
+		ungetHack = c1;
 	    } else {
-    		dev->ungetch( c1 );
+	 	dev->ungetch( c1 );
+		// note that a small possible bug might hide here
+		// here, if only the first byte of a file has made it
+		// so far, and that first byte is half of the
+		// byte-order mark, then the utfness will not be
+		// detected.  whether or not this is a bug depends on
+		// taste.  I can't really decide.
 	    }
 	}
     }
+
     if ( mapper ) {
-	if ( !decoder )
-	    decoder = mapper->makeDecoder();
+	if ( !d->decoder )
+	    d->decoder = mapper->makeDecoder();
 	QString s;
-	for ( uint i=0; i<len; i++ ) {
-	    if ( ungetcBuf != QEOF ) {
-		buf[i] = ungetcBuf;
-		ungetcBuf = QEOF;
-	    } else {
-		do {
-		    // TODO: can this getch() call be optimized to read
-		    // more than one character after another?
-		    int c;
-		    if ( ungetcLocalBuf == EOF ) {
-			c = dev->getch();
-		    } else {
-			c = ungetcLocalBuf;
-			ungetcLocalBuf = EOF;
-		    }
-		    if ( c == EOF ) {
-			return i;
-		    }
-		    char b = c;
-		    s  = decoder->toUnicode( &b, 1 );
-		} while ( s.isEmpty() );
-		buf[i] = s.constref(0);
+	while( rnum < len ) {
+	    while ( s.isEmpty() ) {
+		// TODO: can this getch() call be optimized to read
+		// more than one character after another?  YES!
+		int c = (ungetHack == EOF) ? dev->getch() : ungetHack;
+		if ( c == EOF )
+		    return rnum;
+		char b = c;
+		s  = d->decoder->toUnicode( &b, 1 );
 	    }
+	    uint i = 0;
+	    while( rnum < len && i < s.length() )
+		buf[rnum++] = s.constref(i++);
+	    if ( s.length() > i )
+		// could be = but append is clearer
+		d->ungetcBuf.append( s.mid( i ) );
 	}
     } else if ( latin1 ) {
-	if ( len==1 ) {
-	    // choose this method for one character because it is more efficient
-	    int c;
-	    if ( ungetcLocalBuf == EOF ) {
-		c = dev->getch();
-	    } else {
-		c = ungetcLocalBuf;
-		ungetcLocalBuf = EOF;
-	    }
-	    if ( c == EOF ) {
-		return 0;
-	    } else {
-		buf[0] = (char)c;
-		return 1;
-	    }
+	if ( len == 1+rnum ) {
+	    // use this method for one character because it is more efficient
+	    // (arnt doubts whether it makes a difference, but lets it stand)
+	    int c = (ungetHack == EOF) ? dev->getch() : ungetHack;
+	    if ( c != EOF )
+		buf[rnum++] = (char)c;
 	} else {
-	    char *cbuf = new char[len];
-	    if ( ungetcLocalBuf == EOF ) {
-		rnum = dev->readBlock( cbuf, len );
-	    } else {
-		rnum = dev->readBlock( cbuf+1, len-1 );
-		cbuf[0] = ungetcLocalBuf;
-		rnum++;
-		ungetcLocalBuf = EOF;
-	    }
-	    for ( uint i=0; i<rnum; i++ ) {
-		buf[i] = cbuf[i];
-	    }
+	    if ( ungetHack != QEOF )
+		buf[rnum++] = (char)ungetHack;
+	    uint rlen = len - rnum;
+	    char *cbuf = new char[rlen];
+	    rlen = dev->readBlock( cbuf, rlen );
+	    uint i = 0;
+	    while( i < rlen )
+		buf[rnum++] = cbuf[i++];
 	    delete[] cbuf;
 	}
-    } else { //Unicode
-	if ( len==1 ) {
-	    int c1;
-	    if ( ungetcLocalBuf == EOF ) {
-		c1 = dev->getch();
-	    } else {
-		c1 = ungetcLocalBuf;
-		ungetcLocalBuf = EOF;
-	    }
-	    if ( c1 == EOF ) {
-		return 0;
-	    }
+    } else { // UCS-2 or UTF-16
+	if ( len == 1+rnum ) {
+	    int c1 = (ungetHack == EOF) ? dev->getch() : ungetHack;
+	    if ( c1 == EOF )
+		return rnum;
 	    int c2 = dev->getch();
+	    if ( c2 == EOF )
+		return rnum;
 	    if ( isNetworkOrder() )
-		buf[0] = QChar( c2, c1 );
+		buf[rnum++] = QChar( c2, c1 );
 	    else
-		buf[0] = QChar( c1, c2 );
+		buf[rnum++] = QChar( c1, c2 );
 	} else {
-	    char *cbuf = new char[2*len]; // for paranoids: overflow possible
-	    if ( ungetcLocalBuf == EOF ) {
-		rnum = dev->readBlock( cbuf, 2*len );
+	    uint rlen = 2 * ( len-rnum );
+	    char *cbuf = new char[rlen]; // for paranoids: overflow possible
+	    if ( ungetHack != QEOF ) {
+		rlen = 1+dev->readBlock( cbuf+1, rlen-1 );
+		cbuf[0] = (char)ungetHack;
 	    } else {
-		rnum = dev->readBlock( cbuf+1, 2*len-1 );
-		cbuf[0] = ungetcLocalBuf;
-		rnum++;
-		ungetcLocalBuf = EOF;
+		rlen = dev->readBlock( cbuf, rlen );
 	    }
-	    rnum/=2;
-	    for ( uint i=0; i<rnum; i++ ) {
-		if ( isNetworkOrder() )
-		    buf[i] = QChar( cbuf[2*i+1], cbuf[2*i] );
-		else
-		    buf[i] = QChar( cbuf[2*i] , cbuf[2*i+1] );
+	    // is this right? we can't use an odd number of bytes, but
+	    // if there -is- an odd number, with this code we'll never
+	    // get to EOF.
+	    if ( (rlen & 1) == 1 )
+		dev->ungetch( cbuf[--rlen] );
+	    uint i = 0;
+	    if ( isNetworkOrder() ) {
+		while( i < rlen ) {
+		    buf[rnum++] = QChar( cbuf[i+1], cbuf[i] );
+		    i+=2;
+		}
+	    } else {
+		while( i < rlen ) {
+		    buf[rnum++] = QChar( cbuf[i], cbuf[i+1] );
+		    i+=2;
+		}
 	    }
 	    delete[] cbuf;
 	}
@@ -747,24 +776,10 @@ bool QTextStream::ts_isspace( QChar c )
 
 void QTextStream::ts_ungetc( QChar c )
 {
-    if ( c.unicode() != 0xffff ) {
-	if ( mapper ) {
-	    ungetcBuf = c;
-	} else if ( latin1 ) {
-		dev->ungetch( c );
-	} else {
-	    if ( isNetworkOrder() ) {
-		//stream is network ordered
-	    // Reverse of put
-		dev->ungetch(c.cell());
-		dev->ungetch(c.row());
-	    } else {
-	    // Reverse of put
-		dev->ungetch(c.row());
-		dev->ungetch( c.cell() );
-	    }
-	}
-    }
+    if ( c.unicode() == 0xffff )
+	return;
+
+    d->ungetcBuf.prepend( c );
 }
 
 
@@ -1372,7 +1387,7 @@ QTextStream &QTextStream::operator>>( QCString &str )
 
   On EOF you will get a QString that is null. On reading an empty line the
   returned QString is empty but not null.
-  
+
   \sa QIODevice::readLine()
 */
 

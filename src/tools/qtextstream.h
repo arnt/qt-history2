@@ -36,6 +36,8 @@
 class QTextCodec;
 class QTextDecoder;
 
+class QTextStreamPrivate;
+
 class Q_EXPORT QTextStream				// text stream class
 {
 public:
@@ -146,7 +148,7 @@ private:
     bool	 fstrm;
     bool	 owndev;
     QTextCodec 	*mapper;
-    QTextDecoder *decoder;		//???
+    QTextStreamPrivate * d;
     QChar	ungetcBuf;
     bool	latin1;
     bool 	internalOrder;
