@@ -109,6 +109,9 @@ QObjectCleanupHandler::~QObjectCleanupHandler()
 */
 QObject* QObjectCleanupHandler::add( QObject* object )
 {
+    if ( !object )
+	return 0;
+
     if ( !cleanupObjects ) {
 	cleanupObjects = new QObjectList;
  	cleanupObjects->setAutoDelete( TRUE );
