@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#4 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#5 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -33,8 +33,8 @@ public:
     int current() const { return c; }
     virtual int count() const;
 
-    void setWrapping( bool wrap );
-    bool wrapping() const { return w; }
+    void setWrapping( bool w );
+    bool wrapping() const { return wrap; }
 
     QSize sizeHint() const;
 
@@ -60,7 +60,7 @@ private:
     int c;
     QStrList * l;
     struct QSpinBoxData * d;
-    bool w;
+    bool wrap;
     QPushButton * up;
     QPushButton * down;
 };

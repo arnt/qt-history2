@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#4 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -33,7 +33,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
     : QFrame( parent, name )
 {
     d = 0; // not used
-    w = FALSE;
+    wrap = FALSE;
     c = 0;
     l = 0;
     setFocusPolicy( TabFocus );
@@ -128,14 +128,14 @@ const char * QSpinBox::text( int index ) const
 
 
 /*!  Makes the spin box wrap around from the last to the first item of
-  \a wrap is TRUE, or not if not.
+  \a w is TRUE, or not if not.
 
   \sa wrapping() setCurrent()
 */
 
-void QSpinBox::setWrapping( bool wrap )
+void QSpinBox::setWrapping( bool w )
 {
-    w = wrap;
+    wrap = w;
     enableButtons();
 }
 
