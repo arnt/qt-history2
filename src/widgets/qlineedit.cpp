@@ -53,7 +53,7 @@
 #include "qwhatsthis.h"
 #include "../kernel/qinternal_p.h"
 #include "private/qtextlayout_p.h"
-#include "qvaluevector.h"
+#include "qvector.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -147,7 +147,7 @@ struct QLineEditPrivate : public Qt
 	int pos;
     };
     int undoState;
-    QValueVector<Command> history;
+    QVector<Command> history;
     void addCommand( const Command& cmd );
     void insert( const QString& s );
     void del( bool wasBackspace = FALSE );
