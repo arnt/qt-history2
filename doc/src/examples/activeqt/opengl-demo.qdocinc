@@ -1,5 +1,5 @@
 \raw HTML
-<SCRIPT LANGUAGE=JavaScript>
+<SCRIPT LANGUAGE="JavaScript">
 function setRot( form )
 {
     GLBox.setXRotation( form.XEdit.value );
@@ -11,7 +11,7 @@ function setRot( form )
 <p>
 An OpenGL scene:<br>
 <object ID="GLBox" CLASSID="CLSID:5fd9c22e-ed45-43fa-ba13-1530bb6b03e0"
-CODEBASE=http://www.trolltech.com/demos/openglax.cab>
+CODEBASE="http://www.trolltech.com/demos/openglax.cab">
 [Object not available! Did you forget to build and register the server?]
 </object><br>
 

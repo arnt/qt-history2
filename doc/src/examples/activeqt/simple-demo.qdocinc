@@ -1,6 +1,6 @@
 \raw html
 <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669"
-CODEBASE=http://www.trolltech.com/demos/simpleax.cab>
+CODEBASE="http://www.trolltech.com/demos/simpleax.cab">
     <PARAM NAME="text" VALUE="A simple control">
     <PARAM NAME="value" VALUE="1">
 [Object not available! Did you forget to build and register the server?]
@@ -19,7 +19,7 @@ CODEBASE=http://www.trolltech.com/demos/simpleax.cab>
     <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
 </FORM>
 
-<SCRIPT LANGUAGE=VBScript>
+<SCRIPT LANGUAGE="VBScript">
 Sub Calendar_Click()
     MsgBox( "Calendar Clicked!" )
 End Sub
@@ -29,7 +29,7 @@ Sub QSimpleAX_TextChanged( str )
 End Sub
 </SCRIPT>
 
-<SCRIPT LANGUAGE=JavaScript>
+<SCRIPT LANGUAGE="JavaScript">
 function QSimpleAX::ValueChanged( Newvalue )
 {
     Calendar.Day = Newvalue;
