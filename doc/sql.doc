@@ -50,6 +50,8 @@
 /*! \example sql/overview/table2/main.cpp */
 /*! \example sql/overview/table3/main.h */
 /*! \example sql/overview/table3/main.cpp */
+/*! \example sql/overview/table4/main.h */
+/*! \example sql/overview/table4/main.cpp */
 /*! \example sql/overview/form1/main.cpp */
 /*! \example sql/overview/form2/main.h */
 /*! \example sql/overview/custom1/main.h */
@@ -937,8 +939,7 @@ function since that is the only function we need to reimplement.
 \printuntil index2id
 \printline
 \printline
-<h5 align="center">From \l sql/overview/table3/main.cpp
-</h5>
+<h5 align="center">From \l sql/overview/table3/main.cpp </h5>
 
 In the StatusPicker's constructor we create a cursor over the status
 table indexed by the name field. We then iterate over each record in the
@@ -969,9 +970,33 @@ loop.
 
 When the user edits the status field in the QSqlTable they will be
 presented with a combobox of valid status names taken from the status
-table. However the status displayed is still the raw statusid. The next
-section, <a href=#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>,
-shows us how to display the looked up values of foreign keys. 
+table. However the status displayed is still the raw statusid. To
+display the status name when the field isn't being edited requires us to
+subclass QSqlTable and reimplement the paintField() function.
+
+\dontinclude sql/overview/table4/main.h
+\skipto CustomTable
+\printline CustomTable
+\printuntil };
+<h5 align="center">From \l sql/overview/table4/main.h </h5>
+
+We simply call the original QSqlTable constructor without changing
+anything. We also declare the paintField function.
+
+\dontinclude sql/overview/table4/main.cpp
+\skipto CustomTable
+\printline CustomTable
+\printuntil drawText 
+\printline 
+<h5 align="center">From \l sql/overview/table4/main.cpp </h5>
+
+The paintField code is simply copied from QSqlTable's source code. We
+need to make three changes. Firstly replace the <tt>d-&gt;trueTxt</tt>
+with <tt>this-&gt;trueText()</tt> and the same for false. Secondly we
+add in an additional if clause <tt>field-&gt;name() == "statusid"</tt>
+and look up the textual value for the id with a straighforward
+QSqlQuery. Thirdly we change staffTable in the main function from being
+a QSqlTable to being a CustomTable.
 
 <h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
 
