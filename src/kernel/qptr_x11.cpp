@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#155 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#154 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#155 $")
 
 
 /*****************************************************************************
@@ -1368,7 +1368,7 @@ void QPainter::setClipping( bool enable )
 /*----------------------------------------------------------------------------
   Overloaded setClipRect; takes a QRect instead of \e (x,y,w,h).
 
-  Note that the clip region is \e not subject to \link setWorldMatrix
+  Note that the clip region is \e not subject to \link setWorldMatrix()
   coordinate transformation. \endlink
  ----------------------------------------------------------------------------*/
 
@@ -1381,7 +1381,7 @@ void QPainter::setClipRect( const QRect &r )
 /*----------------------------------------------------------------------------
   Sets the clip region to \e rgn and enables clipping.
 
-  Note that the clip region is \e not subject to \link setWorldMatrix
+  Note that the clip region is \e not subject to \link setWorldMatrix()
   coordinate transformation. \endlink
 
   \sa setClipRect(), setClipping()
@@ -2028,12 +2028,12 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 /*----------------------------------------------------------------------------
   Draws \e nlines separate lines from points defined in \e a, starting at
   a[\e index]. If \e nlines is -1 all points until the end of the array
-  will be used (i.e. (a.size()-index)/2 lines will be drawn).
+  are used (i.e. (a.size()-index)/2 lines will be drawn).
 
   Draws the 1st line from \e a[index] to \e a[index+1].
   Draws the 2nd line from \e a[index+2] to \e a[index+3] etc.
 
-  \sa drawPolyline(), drawPolygon()
+  \sa drawPolyline(), drawPolygon() QPointArray
  ----------------------------------------------------------------------------*/
 
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
@@ -2077,10 +2077,10 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
   Draws the polyline defined by the \e npoints points in \e a starting
   at \e a[index].
 
-  If \e npoints is -1 all points until the end of the
-  array will be used (i.e. a.size()-index-1 line segments will be drawn).
+  If \e npoints is -1 all points until the end of the array are used
+  (i.e. a.size()-index-1 line segments will be drawn).
 
-  \sa drawLineSegments(), drawPolygon()
+  \sa drawLineSegments(), drawPolygon() QPointArray
  ----------------------------------------------------------------------------*/
 
 void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
@@ -2125,17 +2125,16 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
   Draws the polygon defined by the \e npoints points in \e a starting at
   \e a[index].
 
-  If \e npoints is -1 all points until the end of the array will be used
-  (i.e. a.size()-index line segments will define the polygon).
+  If \e npoints is -1 all points until the end of the array are
+  (i.e. a.size()-index line segments define the polygon).
 
   The first point is always connected to the last point.
 
-  The polygon is filled with the current \link setBrush() brush\endlink.
+  The polygon is filled with the current \link setBrush() brush. \endlink
   If \e winding is TRUE, the polygon is filled using the winding
-  fill algorithm, otherwise the alternative (even-odd) filling will be
-  used.
+  fill algorithm, if it is FALSE even-odd filling is used.
 
-  \sa drawLineSegments(), drawPolygon()
+  \sa drawLineSegments(), drawPolygon() QPointArray
  ----------------------------------------------------------------------------*/
 
 void QPainter::drawPolygon( const QPointArray &a, bool winding,
