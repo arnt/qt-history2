@@ -4556,7 +4556,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	//if something (format, etc.) changed, draw what we have so far
-	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
+	if ( ( ( paintEnd != -1 && ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
 	       lastDirection != (bool)chr->rightToLeft ||
 	       chr->startOfRun ||
 	       lastY != cy || chr->format() != formatChar->format() || chr->isAnchor() != formatChar->isAnchor() ||
@@ -5918,7 +5918,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
 	bool lastWasTable = lastBreak == -2;
 	bool hadBreakableChar = lastBreak != -1;
-
+	bool lastWasHardBreak = lastChr == QChar_linesep;
+	
 	// we break if wrapping is enabled and
 	// 1. the last character was a hard break (QChar_linesep) or
 	// 2. the last charater was a table or
@@ -5927,19 +5928,19 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// - either we break at w pixels and the current char would exceed that or
 	// - we break at a column and the current character would exceed that.
 	if ( wrapEnabled &&
- 	     (lastChr == QChar_linesep || lastWasTable ||
+ 	     (lastWasHardBreak || lastWasTable ||
 	     (!c->c.isSpace() && (hadBreakableChar || allowBreakInWords()) &&
 	      ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
-	    if ( lastBreak < 0 || lastChr == QChar_linesep ) {
+	    if ( !hadBreakableChar || lastWasHardBreak ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
   		    DO_FLOW( lineStart );
 		}
-		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, lastWasHardBreak ? Qt::AlignAuto : align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
@@ -5967,7 +5968,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    } else {
   		DO_FLOW( lineStart );
 		i = lastBreak;
-		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
+		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),
+					lastWasHardBreak ? Qt::AlignAuto : align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
@@ -6031,7 +6033,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	h = QMAX( h, tmph );
 	lineStart->h = h;
 	// last line in a paragraph is not justified
-	if ( align == Qt::AlignJustify )
+	if ( align == Qt::AlignJustify || lastChr == QChar_linesep )
 	    align = Qt::AlignAuto;
  	DO_FLOW( lineStart );
 	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
