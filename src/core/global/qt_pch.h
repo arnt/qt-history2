@@ -20,6 +20,7 @@
 #  include <stdlib.h>
 #endif
 
+#if defined __cplusplus
 #include <qcoreapplication.h>
 #include <qglobal.h>
 #include <qlist.h>
