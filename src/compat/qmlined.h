@@ -1,4 +1,4 @@
 #ifndef QMLINED_H
 #define QMLINED_H
-#include "qmultilined.h"
+#include "qmultilinedit.h"
 #endif
