@@ -42,7 +42,7 @@
     \o guarded pointers, \l QPointer, that are automatically
        set to 0 when the referenced object is destroyed, unlike normal C++
        pointers which become "dangling pointers" when their objects are destroyed
-    \o a \l{metaobject.html#qtcast}{dynamic cast} that works across
+    \o a \l{metaobjects.html#qobjectcast}{dynamic cast} that works across
        library boundaries.
     \endlist
 
