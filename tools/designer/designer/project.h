@@ -33,8 +33,8 @@
 #include "formfile.h"
 #include <qobjectlist.h>
 #include <qptrdict.h>
+#include "formwindow.h"
 
-class FormWindow;
 class QObjectList;
 struct DesignerProject;
 struct DesignerDatabase;
