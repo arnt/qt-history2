@@ -4,32 +4,34 @@ DEFINES	       += QT_MOC QT_NO_CODECS QT_NO_TEXTCODEC \
 		  QT_LITE_UNICODE QT_NO_COMPONENT \
 		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM
 win32:DEFINES  += QT_NODLL
-INCLUDEPATH	+= $$QT_SOURCE_TREE/include ../tools .
-DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
+INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . $$QT_SOURCE_TREE/arch/$$ARCH
+DEPENDPATH	= $$QT_SOURCE_TREE/include ../tools .
 LIBS		=
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
-SOURCES		= ../compat/qptrcollection.cpp  \
-		  ../tools/qbitarray.cpp	    \
-		  ../tools/qbytearray.cpp	    \
-		  ../tools/qdatetime.cpp    \
-		  ../tools/qfile.cpp	    \
-		  ../tools/qdir.cpp	    \
-		  ../tools/qfileinfo.cpp    \
-		  ../compat/qgdict.cpp	    \
-		  ../compat/qglist.cpp	    \
-		  ../compat/qgvector.cpp	    \
-		  ../tools/qglobal.cpp	    \
-		  ../tools/qhash.cpp	    \
-		  ../tools/qiodevice.cpp    \
-		  ../tools/qlist.cpp	    \
-		  ../tools/qregexp.cpp	    \
-		  ../tools/qchar.cpp	    \
-		  ../tools/qstring.cpp	    \
-                  ../tools/qunicodetables.cpp \
-		  ../tools/qstringlist.cpp  \
-		  ../tools/qmap.cpp        \ 
-		  ../tools/qvector.cpp     
+SOURCES		= ../compat/qptrcollection.cpp	\
+		  ../tools/qbitarray.cpp	\
+		  ../tools/qbytearray.cpp	\
+		  ../tools/qdatetime.cpp	\
+		  ../tools/qfile.cpp		\
+		  ../tools/qdir.cpp		\
+		  ../tools/qfileinfo.cpp	\
+		  ../compat/qgdict.cpp		\
+		  ../compat/qglist.cpp		\
+		  ../compat/qgvector.cpp	\
+		  ../tools/qglobal.cpp		\
+		  ../tools/qhash.cpp		\
+		  ../tools/qiodevice.cpp	\
+		  ../tools/qlist.cpp		\
+		  ../tools/qregexp.cpp		\
+		  ../tools/qchar.cpp		\
+		  ../tools/qstring.cpp		\
+                  ../tools/qunicodetables.cpp	\
+		  ../tools/qstringlist.cpp	\
+		  ../tools/qmap.cpp		\ 
+		  ../tools/qvector.cpp
+
+include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
 
 isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
     LEXSOURCES  = moc.l

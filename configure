@@ -1327,6 +1327,9 @@ if [ -z "$PLATFORM" ]; then
 	;;
      FreeBSD:*)
 	PLATFORM=freebsd-g++
+	PLATFORM_NOTES="
+	    - Also available for FreeBSD: freebsd-icc
+	"
 	;;
      OpenBSD:*)
 	PLATFORM=openbsd-g++
@@ -1501,6 +1504,24 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
     echo
     exit 2
 fi
+
+# determine the system architecture
+ARCH=$UNAME_MACHINE
+case $ARCH in
+sun4u)
+    ARCH=sparc64
+    ;;
+sun4m)
+    ARCH=sparc
+    ;;
+esac
+if ! test -d "$relpath/arch/$ARCH"; then
+    ARCH="generic"
+fi
+
+# symlink the arch/$ARCH/arch/ include directory to include/arch/
+rm -f "$outpath/include/arch"
+ln -s "$relpath/arch/$ARCH" "$outpath/include/arch"
 
 # now look at the configs and figure out what platform we are config'd for
 [ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
@@ -3047,6 +3068,8 @@ QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
+ARCH = $ARCH
+INCLUDEPATH += \$\$QT_SOURCE_TREE/arch/\$\$ARCH
 EOF
 # cmdline args
 quoted=no
@@ -3482,6 +3505,20 @@ if [ "$SUPPORTED" = "no" ]; then
     echo
 fi
 
+#-------------------------------------------------------------------------------
+# check for platforms that we don't yet know about
+#-------------------------------------------------------------------------------
+if [ "$ARCH" = "generic" ]; then
+cat <<EOF
+
+	NOTICE: Atomic operations are not yet supported for this
+	architecture ($UNAME_MACHINE).
+
+	Qt will use the 'generic' architecture instead, which will use
+	non-atomic operations instead.  Applications that rely atomic
+	operation support will NOT work with this library!
+EOF
+fi
 
 #-------------------------------------------------------------------------------
 # finally save the executed command to another script

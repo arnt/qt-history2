@@ -18,6 +18,21 @@
 #include <qatomic.h>
 #include "qmutex_p.h"
 
+#if defined(Q_CC_BOR)
+static bool compare_and_set(long * volatile ptr, long expected, long newval)
+#else
+inline bool compare_and_set(long * volatile ptr, long expected, long newval)
+#endif
+{
+    __asm {
+	mov EBX,ptr
+	mov EAX,expected
+	mov EDX,newval
+	lock cmpxchg dword ECX,ptr[EBX]
+	sete newval
+    }
+    return (newval != 0);
+}
 
 QMutex::QMutex(bool recursive)
 {
@@ -41,7 +56,7 @@ void QMutex::lock()
     const unsigned long none = 0;
 
     ++d->waiters;
-    while (! qAtomicCompareAndSetPtr(&d->owner, none, self)) {
+    while (!compare_and_set(&d->owner, none, self)) {
 	if (d->recursive && d->owner == self) {
 	    break;
 	} else if (d->owner == self) {
@@ -59,8 +74,8 @@ bool QMutex::tryLock()
     const unsigned long self = GetCurrentThreadId();
     const unsigned long none = 0;
 
-    if (! qAtomicCompareAndSetPtr(&d->owner, none, self)) {
-	if (! d->recursive || d->owner != self)
+    if (!compare_and_set(&d->owner, none, self)) {
+	if (!d->recursive || d->owner != self)
 	    return false;
     }
     ++d->count;
@@ -74,8 +89,9 @@ void QMutex::unlock()
 
     Q_ASSERT(d->owner == self);
 
-    if (! --d->count) {
-	qAtomicCompareAndSetPtr(&d->owner, self, none);
+    if (!--d->count) {
+	Q_ASSERT_X(compare_and_set(&d->owner, self, none),
+		   "QMutex::unlock", "failed to reset owner");
 	if (d->waiters != 0)
 	    SetEvent(d->event);
     }
@@ -83,7 +99,7 @@ void QMutex::unlock()
 
 bool QMutex::isLocked()
 {
-    if (! tryLock())
+    if (!tryLock())
 	return false;
     unlock();
     return true;

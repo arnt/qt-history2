@@ -149,6 +149,7 @@ largefile {
 include($$COMPAT_CPP/qt_compat.pri)
 
 #platforms
+include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
 x11:include($$KERNEL_CPP/qt_x11.pri)
 mac:include($$KERNEL_CPP/qt_mac.pri)
 embedded:include($$KERNEL_CPP/qt_qws.pri)
