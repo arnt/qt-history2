@@ -46,7 +46,7 @@ public:
     int columnAt(int x) const;
 
     bool isColumnHidden(int column) const;
-    bool isOpen(const QModelIndex &item) const;
+    bool isOpen(const QModelIndex &index) const;
 
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
@@ -54,7 +54,7 @@ public:
 
     void doItemsLayout();
 
- signals:
+signals:
     void expanded(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
 
