@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QRICHTEXT_P_H
-#define QRICHTEXT_P_H
+#ifndef Q3RICHTEXT_P_H
+#define Q3RICHTEXT_P_H
 
 //
 //  W A R N I N G
@@ -2050,4 +2050,4 @@ inline int Q3TextStringChar::descent() const
 
 #endif // QT_NO_RICHTEXT
 
-#endif // QRICHTEXT_P_H
+#endif // Q3RICHTEXT_P_H
