@@ -50,5 +50,5 @@ QImage qFromMimeSource_helper( const QString &abs_name )
 
 #if defined(Q_WS_X11)
 QImage::Endian qX11BitmapBitOrder()
-{ return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian; }
+{ return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian; }
 #endif
