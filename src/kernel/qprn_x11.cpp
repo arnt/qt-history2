@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#26 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -20,7 +20,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#26 $");
 
 
 /*****************************************************************************
@@ -145,17 +145,16 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		return TRUE;
 	    }
 	    ps->device = output;
-	    if ( ps->cmd( c, paint, p ) )	// successful
+	    if ( ps->cmd( c, paint, p ) ) {	// successful
 		state = PST_ACTIVE;
-	    else {				// could not start printing
+	    } else {				// could not start printing
 		ps->device = 0;
 		delete output;
 		state = PST_ERROR;
 	    }
 	    return TRUE;
 	}
-    }
-    else if ( c == PDC_END ) {			// end; printing done
+    } else if ( c == PDC_END ) {		// end; printing done
 	if ( ps && state != PST_ERROR ) {
 	    ps->cmd( c, paint, p );
 	    QFile *output = (QFile*)ps->device;
@@ -188,8 +187,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	}
 	state = PST_IDLE;
 	return TRUE;
-    }
-    else {
+    } else {
 	if ( state == PST_ACTIVE ) {
 	    return ps->cmd( c, paint, p );
 	}
@@ -211,8 +209,9 @@ int QPrinter::metric( int m ) const
 {
     int val;
     PageSize s = pageSize();
-    // on the next line is a TRULY EVIL workaround for a stupid warning
-    ASSERT( (int)s >= (int)A4 && s <= Executive );
+#if defined(CHECK_RANGE)
+    ASSERT( (uint)s <= (uint)Executive );
+#endif
     static int widths[]	 = { 559, 480, 576, 576, 504 };
     static int heights[] = { 806, 693, 756, 972, 684 };
     static int widthsMM[]  = { 210, 182, 216, 216, 191 };
