@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#22 $
 **
 ** Implementation of QRangeControl class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#include "qrangect.h"
+#include "qrangecontrol.h"
 #include "qglobal.h"
 
 /*!
-  \class QRangeControl qrangect.h
+  \class QRangeControl qrangecontrol.h
   \brief The QRangeControl class provides an integer value within a range.
 
   \ingroup misc

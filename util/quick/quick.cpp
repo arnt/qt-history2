@@ -2,25 +2,25 @@
 #include "quicked.h"
 #include "quickpad.h"
 
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <qframe.h>
 #include <qpainter.h>
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qslider.h>
 #include <qlayout.h>
 #include <qobjcoll.h>
 #include <stdlib.h>
 #include <qscrollview.h>
 #include <qlabel.h>
-#include <qradiobt.h>
-#include <qlined.h>
-#include <qcombo.h>
+#include <qradiobutton.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
 #include <qptrdict.h>
 #include <qlayout.h>
 #include <qmenubar.h>
-#include <qmsgbox.h>
-#include <qfiledlg.h>
+#include <qmessagebox.h>
+#include <qfiledialog.h>
 #include <qfile.h>
 #include <qtabbar.h>
 

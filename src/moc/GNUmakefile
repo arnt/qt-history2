@@ -37,15 +37,15 @@ YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
 TMPCPP	=	mocgen.cpp
 TOOLOBJ =	qbuffer.o	\
-		qcollect.o	\
-		qdatetm.o	\
-		qdstream.o	\
+		qcollection.o	\
+		qdatetime.o	\
+		qdatastream.o	\
 		qgarray.o	\
 		qgdict.o	\
 		qglist.o	\
 		qglobal.o	\
 		qgvector.o	\
-		qiodev.o	\
+		qiodevice.o	\
 		qstring.o
 OBJECTS =	mocgen.o
 TARGET	=	moc
@@ -89,14 +89,14 @@ mocgen.o: mocgen.cpp
 qbuffer.o: ../tools/qbuffer.cpp
 	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qbuffer.cpp -o qbuffer.o
 
-qcollect.o: ../tools/qcollect.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qcollect.cpp -o qcollect.o
+qcollection.o: ../tools/qcollection.cpp
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qcollection.cpp -o qcollection.o
 
-qdatetm.o: ../tools/qdatetm.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdatetm.cpp -o qdatetm.o
+qdatetime.o: ../tools/qdatetime.cpp
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdatetime.cpp -o qdatetime.o
 
-qdstream.o: ../tools/qdstream.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdstream.cpp -o qdstream.o
+qdatastream.o: ../tools/qdatastream.cpp
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qdatastream.cpp -o qdatastream.o
 
 qgarray.o: ../tools/qgarray.cpp
 	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qgarray.cpp -o qgarray.o
@@ -113,8 +113,8 @@ qglobal.o: ../tools/qglobal.cpp
 qgvector.o: ../tools/qgvector.cpp
 	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qgvector.cpp -o qgvector.o
 
-qiodev.o: ../tools/qiodev.cpp
-	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qiodev.cpp -o qiodev.o
+qiodevice.o: ../tools/qiodevice.cpp
+	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qiodevice.cpp -o qiodevice.o
 
 qstring.o: ../tools/qstring.cpp
 	$(CC) -c $(CFLAGS) $(INCPATH) ../tools/qstring.cpp -o qstring.o

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#43 $
 **
 ** Implementation of QRect class
 **
@@ -11,7 +11,7 @@
 
 #define	 QRECT_C
 #include "qrect.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 
 /*!
   \class QRect qrect.h
@@ -23,7 +23,7 @@
   bottom right corner, but it is normally expressed as an upper left
   corner and a size.
 
-  The coordinate type is QCOORD (defined in qwindefs.h as \c short).
+  The coordinate type is QCOORD (defined in qwindowdefs.h as \c short).
   The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
   value is  QCOORD_MAX (32767).
 

@@ -4,10 +4,10 @@
 **
 ****************************************************************/
 
-#include <qapp.h>
-#include <qpushbt.h>
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qapplication.h>
+#include <qpushbutton.h>
+#include <qscrollbar.h>
+#include <qlcdnumber.h>
 #include <qfont.h>
 
 

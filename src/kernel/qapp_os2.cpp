@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#20 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -9,10 +9,11 @@
 **
 *****************************************************************************/
 
-#include "qapp.h"
+#include "qapplication.h"
 #include "qevent.h"
 #include "qview.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qwininfo.h"
 #include <ctype.h>
 #define	 INCL_DOSNMPIPES			// for debug output

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#20 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#21 $
 **
 ** Definition of QButtonGroup class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QBTTNGRP_H
-#define QBTTNGRP_H
+#ifndef QBUTTONGROUP_H
+#define QBUTTONGROUP_H
 
 #ifndef QT_H
-#include "qgrpbox.h"
+#include "qgroupbox.h"
 #endif // QT_H
 
 
@@ -60,4 +60,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QBTTNGRP_H
+#endif // QBUTTONGROUP_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#156 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -10,14 +10,14 @@
 *****************************************************************************/
 
 #define	 INCLUDE_MENUITEM_DEF
-#include "qpopmenu.h"
+#include "qpopupmenu.h"
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qapp.h"
+#include "qdrawutil.h"
+#include "qapplication.h"
 #include "qbitmap.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include "qtimer.h"
 #include <ctype.h>
 
@@ -127,7 +127,7 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
 
 
 /*!
-  \class QPopupMenu qpopmenu.h
+  \class QPopupMenu qpopupmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
 
   \ingroup realwidgets

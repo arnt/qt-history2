@@ -7,14 +7,14 @@ OBJECTS_DIR =	.
 MOCGEN	    =	mocgen.cpp
 SOURCES     =	$$MOCGEN		\
 		../tools/qbuffer.cpp	\
-		../tools/qcollect.cpp	\
-		../tools/qdatetm.cpp	\
-		../tools/qdstream.cpp	\
+		../tools/qcollection.cpp	\
+		../tools/qdatetime.cpp	\
+		../tools/qdatastream.cpp	\
 		../tools/qgarray.cpp	\
 		../tools/qgdict.cpp	\
 		../tools/qglist.cpp	\
 		../tools/qglobal.cpp	\
 		../tools/qgvector.cpp	\
-		../tools/qiodev.cpp	\
+		../tools/qiodevice.cpp	\
 		../tools/qstring.cpp
 TARGET	    =	moc

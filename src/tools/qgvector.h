@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#14 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#15 $
 **
 ** Definition of QGVector class
 **
@@ -13,7 +13,7 @@
 #define QGVECTOR_H
 
 #ifndef QT_H
-#include "qcollect.h"
+#include "qcollection.h"
 #endif // QT_H
 
 

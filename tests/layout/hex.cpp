@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#3 $
+** $Id: //depot/qt/main/tests/layout/hex.cpp#4 $
 **
 ** Geometry management example: Putting a QBoxLayout inside a 
 ** QGridLayout
@@ -7,12 +7,12 @@
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
-#include <qmlined.h>
+#include <qmultilined.h>
 #include <qcolor.h>
-#include <qgrpbox.h> 
-#include <qpushbt.h>
+#include <qgroupbox.h> 
+#include <qpushbutton.h>
 #include <qlayout.h>
 
 #include <qwidget.h>
@@ -27,7 +27,7 @@ protected:
 };
 
 #include <qevent.h>
-#include <qapp.h>
+#include <qapplication.h>
 
 void Kill::mouseReleaseEvent( QMouseEvent *m )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#96 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#97 $
 **
 ** Implementation of QFileDialog class
 **
@@ -9,21 +9,21 @@
 **
 *****************************************************************************/
 
-#include "qfiledlg.h"
-#include "qlined.h"
-#include "qcombo.h"
+#include "qfiledialog.h"
+#include "qlineedit.h"
+#include "qcombobox.h"
 #include "qlabel.h"
-#include "qpushbt.h"
-#include "qmsgbox.h"
+#include "qpushbutton.h"
+#include "qmessagebox.h"
 #include "qlistview.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qlayout.h"
 #include "qlistview.h"
 #include "qpixmap.h"
 #include "qbitmap.h"
-#include "qpopmenu.h"
+#include "qpopupmenu.h"
 #include "qwidgetstack.h"
-#include "qbttngrp.h"
+#include "qbuttongroup.h"
 #include "qvector.h"
 #include "qkeycode.h"
 #include "qregexp.h"
@@ -636,7 +636,7 @@ void QFileDialogPrivate::MCList::focusOutEvent( QFocusEvent * )
 }
 
 /*!
-  \class QFileDialog qfiledlg.h
+  \class QFileDialog qfiledialog.h
   \brief The QFileDialog provides a dialog widget for inputting file names.
   \ingroup dialogs
 
@@ -1092,7 +1092,7 @@ void QFileDialog::rereadDir()
 
 static QString filedlg_dir;
 
-// Defined in qapp.cpp:
+// Defined in qapplication.cpp:
 void qt_enter_modal( QWidget* );
 void qt_leave_modal( QWidget* );
 
@@ -1782,7 +1782,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 }
 
 
-/*! \class QFileIconProvider qfiledlg.h
+/*! \class QFileIconProvider qfiledialog.h
 
   \brief The QFileIconProvider class provides icons for QFileDialog to
   use.

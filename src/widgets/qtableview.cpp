@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#81 $
 **
 ** Implementation of QTableView class
 **
@@ -14,10 +14,10 @@
 **	 might happen.
 ***********************************************************************/
 
-#include "qtablevw.h"
-#include "qscrbar.h"
+#include "qtableview.h"
+#include "qscrollbar.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include <limits.h>
 
 const int sbDim = 16;
@@ -54,7 +54,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
 
 
 /*!
-  \class QTableView qtablevw.h
+  \class QTableView qtableview.h
   \brief This is the abstract base class of all the table views.
 
   \ingroup abstractwidgets

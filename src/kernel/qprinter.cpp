@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#35 $
 **
 ** Implementation of QPrinter class
 **
@@ -50,10 +50,10 @@
   Example (a complete application):
 
   \code
-    #include <qapp.h>
+    #include <qapplication.h>
     #include <qpainter.h>
     #include <qprinter.h>
-    #include <qprndlg.h>
+    #include <qprintdialog.h>
 
     int main( int argc, char **argv )
     {

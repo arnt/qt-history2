@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#157 $
 **
 ** Implementation of QObject class
 **
@@ -10,11 +10,12 @@
 *****************************************************************************/
 
 #include "qobject.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qregexp.h"
 #include <ctype.h>
 #if defined(DEBUG)
-#include "qapp.h"
+#include "qapplication.h"
 #endif
 
 /*!
@@ -240,7 +241,7 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
   Returns 0 if there is no such child.
 
-  The CHILD macro (defined in qwindefs.h) does all this, and also
+  The CHILD macro (defined in qwindowdefs.h) does all this, and also
   casts the returt type to \a type *.
 
   Examples:

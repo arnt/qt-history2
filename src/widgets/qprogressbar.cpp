@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#19 $
 **
 ** Implementation of QProgressBar class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#include "qprogbar.h"
+#include "qprogressbar.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qapp.h"
+#include "qdrawutil.h"
+#include "qapplication.h"
 
 /*!
-  \class QProgressBar qprogbar.h
+  \class QProgressBar qprogressbar.h
   \brief The QProgressBar widget provides a horizontal progress bar.
   \ingroup realwidgets
 

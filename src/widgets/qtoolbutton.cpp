@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#28 $
 **
 ** Implementation of QToolButton class
 **
@@ -11,11 +11,11 @@
 
 #include "qtoolbutton.h"
 
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qwmatrix.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qtooltip.h"
 #include "qtoolbar.h"
 #include "qimage.h"

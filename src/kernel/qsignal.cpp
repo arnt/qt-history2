@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#22 $
 **
 ** Implementation of QSignal class
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qsignal.h"
-#include "qmetaobj.h"
+#include "qmetaobject.h"
 #include <ctype.h>
 
 /*!

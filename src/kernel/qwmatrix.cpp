@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#21 $
 **
 ** Implementation of QWMatrix class
 **
@@ -10,9 +10,9 @@
 *****************************************************************************/
 
 #include "qwmatrix.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #if defined(_WS_X11_)
-double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
+double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #else
 #include <math.h>
 #endif

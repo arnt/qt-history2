@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#105 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#106 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -10,11 +10,11 @@
 **
 *****************************************************************************/
 
-#ifndef QWINDEFS_H
-#define QWINDEFS_H
+#ifndef QWINDOWDEFS_H
+#define QWINDOWDEFS_H
 
 #ifndef QT_H
-#include "qobjdefs.h"
+#include "qobjectdefs.h"
 #endif // QT_H
 
 
@@ -313,4 +313,4 @@ const int PreferDither           = 0x00000040;
 const int AvoidDither            = 0x00000080;
 
 
-#endif // QWINDEFS_H
+#endif // QWINDOWDEFS_H

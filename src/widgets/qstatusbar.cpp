@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#14 $
 **
 ** Implementation of QStatusBar class
 **
@@ -15,8 +15,8 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qtimer.h"
-#include "qdrawutl.h"
-#include "qapp.h"
+#include "qdrawutil.h"
+#include "qapplication.h"
 
 /*! \class QStatusBar qstatusbar.h
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#31 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#32 $
 **
 ** Definition of QScrollBar class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#ifndef QSCRBAR_H
-#define QSCRBAR_H
+#ifndef QSCROLLBAR_H
+#define QSCROLLBAR_H
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qrangect.h"
-#include "qdrawutl.h"
+#include "qrangecontrol.h"
+#include "qdrawutil.h"
 #endif // QT_H
 
 class QScrollBar : public QWidget, public QRangeControl
@@ -114,4 +114,4 @@ void qDrawArrow( QPainter *, ArrowType type, GUIStyle style, bool down,
 		 int x, int y, int w, int h, const QColorGroup & );
 
 
-#endif // QSCRBAR_H
+#endif // QSCROLLBAR_H

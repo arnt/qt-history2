@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#67 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#68 $
 **
 ** Implementation of QMessageBox class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#include "qmsgbox.h"
+#include "qmessagebox.h"
 #include "qlabel.h"
-#include "qpushbt.h"
+#include "qpushbutton.h"
 #include "qimage.h"
 #include "qkeycode.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -80,7 +80,7 @@ static const unsigned char critical_gif_data[] = {
 
 
 /*!
-  \class QMessageBox qmsgbox.h
+  \class QMessageBox qmessagebox.h
   \brief Displays a brief message, an icon, and some buttons.
   \ingroup dialogs
 

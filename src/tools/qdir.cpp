@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#51 $
 **
 ** Implementation of QDir class
 **
@@ -10,8 +10,8 @@
 *****************************************************************************/
 
 #include "qdir.h"
-#include "qfileinf.h"
-#include "qfiledef.h"
+#include "qfileinfo.h"
+#include "qfiledefs.h"
 #include "qregexp.h"
 #include <stdlib.h>
 #include <ctype.h>

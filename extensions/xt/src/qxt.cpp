@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#2 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#3 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <qobjcoll.h>
 #include <qwidcoll.h>
@@ -40,10 +40,10 @@ typedef void (*ForeignEventProc)(XEvent*);
 
 extern XtEventDispatchProc
  qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
-void            qt_reset_color_avail();       // defined in qcol_x11.cpp
-void            qt_activate_timers();         // defined in qapp_x11.cpp
-timeval        *qt_wait_timer();              // defined in qapp_x11.cpp
-void		qt_x11SendPostedEvents();     // defined in qapp_x11.cpp
+void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
+void            qt_activate_timers();         // defined in qapplication_x11.cpp
+timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
+void		qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
 Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp
 extern int      qt_np_count;                  // defined in qnpsupport.cpp
 void qt_np_timeout( void* p, void* id );      // defined in qnpsupport.cpp

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#46 $
 **
 ** Implementation of QScrollView class
 **
@@ -10,14 +10,15 @@
 *****************************************************************************/
 
 #include "qwidget.h"
-#include "qscrbar.h"
-#include "qobjcoll.h"
+#include "qscrollbar.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qfocusdata.h"
 #include "qscrollview.h"
 #include "qptrdict.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 const int sbDim = 16;
 

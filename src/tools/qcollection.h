@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#9 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#10 $
 **
 ** Definition of base class for all collection classes
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QCOLLECT_H
-#define QCOLLECT_H
+#ifndef QCOLLECTION_H
+#define QCOLLECTION_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -45,4 +45,4 @@ protected:
 };
 
 
-#endif // QCOLLECT_H
+#endif // QCOLLECTION_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#10 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#11 $
 **
 ** Definition of QClipboard class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QCLIPBRD_H
-#define QCLIPBRD_H
+#ifndef QCLIPBOARD_H
+#define QCLIPBOARD_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -54,4 +54,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QCLIPBRD_H
+#endif // QCLIPBOARD_H

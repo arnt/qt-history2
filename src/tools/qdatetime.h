@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#26 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#27 $
 **
 ** Definition of date and time classes
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QDATETM_H
-#define QDATETM_H
+#ifndef QDATETIME_H
+#define QDATETIME_H
 
 #ifndef QT_H
 #include "qstring.h"
@@ -179,4 +179,4 @@ QDataStream &operator<<( QDataStream &, const QDateTime & );
 QDataStream &operator>>( QDataStream &, QDateTime & );
 
 
-#endif // QDATETM_H
+#endif // QDATETIME_H

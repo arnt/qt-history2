@@ -1,5 +1,5 @@
-#include <qdatetm.h>
-#include <qtstream.h>
+#include <qdatetime.h>
+#include <qtextstream.h>
 #include <stdio.h>
 #include <stdlib.h>
 

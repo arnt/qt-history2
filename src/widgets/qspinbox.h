@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#19 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#20 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -14,7 +14,7 @@
 
 #ifndef QT_H
 #include "qframe.h"
-#include "qrangect.h"
+#include "qrangecontrol.h"
 #endif // QT_H
 
 class QPushButton;

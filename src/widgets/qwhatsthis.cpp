@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#15 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -9,8 +9,8 @@
 
 #include "qwhatsthis.h"
 
-#include "qapp.h"
-#include "qpdevmet.h"
+#include "qapplication.h"
+#include "qpaintdevicemetrics.h"
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qtimer.h"

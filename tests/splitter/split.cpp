@@ -1,4 +1,4 @@
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
 #include <qsplitter.h>
 

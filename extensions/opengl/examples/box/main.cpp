@@ -9,7 +9,7 @@
 // 
 
 #include "globjwin.h"
-#include <qapp.h>
+#include <qapplication.h>
 
 /*
   The main program is here. 

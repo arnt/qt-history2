@@ -4,7 +4,7 @@
 // Demonstrates Qt widgets.
 //
 
-#include <qapp.h>
+#include <qapplication.h>
 
 #include <qlistview.h>
 

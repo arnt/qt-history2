@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#21 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#22 $
 **
 ** Definition of QPrinter class
 **
@@ -13,7 +13,7 @@
 #define QPRINTER_H
 
 #ifndef QT_H
-#include "qpaintd.h"
+#include "qpaintdevice.h"
 #include "qstring.h"
 #endif // QT_H
 

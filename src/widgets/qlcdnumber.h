@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#30 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#31 $
 **
 ** Definition of QLCDNumber class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#ifndef QLCDNUM_H
-#define QLCDNUM_H
+#ifndef QLCDNUMBER_H
+#define QLCDNUMBER_H
 
 #ifndef QT_H
 #include "qframe.h"
-#include "qbitarry.h"
+#include "qbitarray.h"
 #endif // QT_H
 
 
@@ -94,4 +94,4 @@ inline int QLCDNumber::numDigits() const
 { return ndigits; }
 
 
-#endif // QLCDNUM_H
+#endif // QLCDNUMBER_H

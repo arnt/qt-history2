@@ -1,11 +1,11 @@
 # Special files that are only for Qt/X11
-X11ONLY	    =	dialogs/qprndlg.h \
-		dialogs/qprndlg.cpp \
-		kernel/qpsprn.h	\
-		kernel/qpsprn.cpp \
+X11ONLY	    =	dialogs/qprintdialog.h \
+		dialogs/qprintdialog.cpp \
+		kernel/qpsprinter.h	\
+		kernel/qpsprinter.cpp \
 		kernel/qnpsupport.cpp \
 		kernel/qdnd_x11.cpp \
-		kernel/qt_x11.cpp
+		kernel/qwidgetcreate_x11.cpp
 
 # Non-public Qt files which we use internally in our Qt library
 INT_HEADERS =	dialogs/qfontdialog.h

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#35 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#36 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -9,11 +9,11 @@
 **
 ***********************************************************************/
 
-#ifndef QMLINED_H
-#define QMLINED_H
+#ifndef QMULTILINED_H
+#define QMULTILINED_H
 
 #ifndef QT_H
-#include "qtablevw.h"
+#include "qtableview.h"
 #include "qstring.h"
 #include "qlist.h"
 #endif // QT_H
@@ -188,4 +188,4 @@ inline int QMultiLineEdit::numLines() const
 {
     return contents->count();
 }
-#endif // QMLINED_H
+#endif // QMULTILINED_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#81 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#82 $
 **
 ** Definition of QPixmap class
 **
@@ -13,7 +13,7 @@
 #define QPIXMAP_H
 
 #ifndef QT_H
-#include "qpaintd.h"
+#include "qpaintdevice.h"
 #include "qcolor.h"
 #include "qshared.h"
 #endif // QT_H

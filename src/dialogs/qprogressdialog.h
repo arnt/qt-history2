@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#13 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#14 $
 **
 ** Definition of QProgressDialog class
 **
@@ -9,14 +9,14 @@
 **
 *****************************************************************************/
 
-#ifndef QPROGDLG_H
-#define QPROGDLG_H
+#ifndef QPROGRESSDIALOG_H
+#define QPROGRESSDIALOG_H
 
 #ifndef QT_H
 #include "qsemimodal.h"
-#include "qpushbt.h"
+#include "qpushbutton.h"
 #include "qlabel.h"
-#include "qprogbar.h"
+#include "qprogressbar.h"
 #endif // QT_H
 
 struct QProgressData;
@@ -74,4 +74,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QPROGDLG_H
+#endif // QPROGRESSDIALOG_H

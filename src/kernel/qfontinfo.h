@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#23 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#24 $
 **
 ** Definition of QFontInfo class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QFONTINF_H
-#define QFONTINF_H
+#ifndef QFONTINFO_H
+#define QFONTINFO_H
 
 #ifndef QT_H
 #include "qfont.h"
@@ -79,4 +79,4 @@ inline bool QFontInfo::bold() const
 { return weight() > QFont::Normal; }
 
 
-#endif // QFONTINF_H
+#endif // QFONTINFO_H

@@ -1,8 +1,8 @@
 #include "quickpad.h"
 #include <qtabbar.h>
 #include <qbitmap.h>
-#include <qpushbt.h>
-#include <qbttngrp.h>
+#include <qpushbutton.h>
+#include <qbuttongroup.h>
 #include "qdolistbox.h"
 
 static const int PMT_GAP = 1;

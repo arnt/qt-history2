@@ -1,5 +1,5 @@
 #include "quick.h"
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlist.h>
 
 class WindowSet : public QObject {

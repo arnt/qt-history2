@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#243 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -10,12 +10,14 @@
 *****************************************************************************/
 
 #include "qwindow.h"
-#include "qapp.h"
-#include "qpaintdc.h"
+#include "qapplication.h"
+#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidcoll.h"
-#include "qobjcoll.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
@@ -31,7 +33,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
+void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---
 bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
@@ -56,7 +58,7 @@ static QWidget *keyboardGrb = 0;
 #error "Make create and destroy virtual, remove the old functions."
 #endif
 
-extern Atom qt_wm_delete_window;		// defined in qapp_x11.cpp
+extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -72,7 +74,7 @@ const uint stdWidgetEventMask =			// X event mask
 
 
 /*
-  The qt_ functions below are implemented in qt_x11.cpp.
+  The qt_ functions below are implemented in qwidgetcreate_x11.cpp.
 */
 
 Window qt_XCreateWindow( const QWidget *creator,

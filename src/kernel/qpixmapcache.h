@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#9 $
 **
 ** Definition of QPixmapCache class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QPMCACHE_H
-#define QPMCACHE_H
+#ifndef QPIXMAPCACHE_H
+#define QPIXMAPCACHE_H
 
 #ifndef QT_H
 #include "qpixmap.h"
@@ -30,4 +30,4 @@ public:
 };
 
 
-#endif // QPMCACHE_H
+#endif // QPIXMAPCACHE_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#15 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#16 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -13,7 +13,7 @@
 #define QGCACHE_H
 
 #ifndef QT_H
-#include "qcollect.h"
+#include "qcollection.h"
 #include "qglist.h"
 #include "qgdict.h"
 #endif // QT_H

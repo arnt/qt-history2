@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#19 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#20 $
 **
 ** Definition of QCheckBox class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QCHKBOX_H
-#define QCHKBOX_H
+#ifndef QCHECKBOX_H
+#define QCHECKBOX_H
 
 #ifndef QT_H
 #include "qbutton.h"
@@ -46,4 +46,4 @@ inline void QCheckBox::setChecked( bool check )
 { setOn( check ); }
 
 
-#endif // QCHKBOX_H
+#endif // QCHECKBOX_H

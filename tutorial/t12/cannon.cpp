@@ -7,7 +7,7 @@
 #include "cannon.h"
 #include <qpainter.h>
 #include <qpixmap.h>
-#include <qdatetm.h>
+#include <qdatetime.h>
 
 #include <math.h>
 #include <stdlib.h>

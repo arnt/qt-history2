@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#53 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -10,9 +10,9 @@
 *****************************************************************************/
 
 #include "qfont.h"
-#include "qfontdta.h"
-#include "qfontmet.h"
-#include "qfontinf.h"
+#include "qfontdata.h"
+#include "qfontmetrics.h"
+#include "qfontinfo.h"
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qcache.h"
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
+extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 static HANDLE stock_sysfont = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#107 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#108 $
 **
 ** Definition of QPainter class
 **
@@ -14,14 +14,14 @@
 
 
 #ifndef QT_H
-#include "qpaintd.h"
+#include "qpaintdevice.h"
 #include "qcolor.h"
-#include "qfontmet.h"
-#include "qfontinf.h"
+#include "qfontmetrics.h"
+#include "qfontinfo.h"
 #include "qregion.h"
 #include "qpen.h"
 #include "qbrush.h"
-#include "qpntarry.h"
+#include "qpointarray.h"
 #include "qwmatrix.h"
 #endif // QT_H
 

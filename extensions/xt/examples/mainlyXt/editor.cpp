@@ -1,7 +1,7 @@
 #include "qxt.h"
-#include <qmlined.h>
+#include <qmultilined.h>
 #include <qpainter.h>
-#include <qmsgbox.h>
+#include <qmessagebox.h>
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
 #include <X11/Xaw/Form.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#40 $
 **
 ** Implementation of QDataStream class
 **
@@ -9,14 +9,14 @@
 **
 *****************************************************************************/
 
-#include "qdstream.h"
+#include "qdatastream.h"
 #include "qbuffer.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
 /*!
-  \class QDataStream qdstream.h
+  \class QDataStream qdatastream.h
 
   \brief The QDataStream class provides basic functions for serialization of
   binary data to a QIODevice.

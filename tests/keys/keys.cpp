@@ -4,9 +4,9 @@
 // Demonstrates Qt key events.
 //
 
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
-#include <qmlined.h>
+#include <qmultilined.h>
 
 class Main : public QWidget {
 public:

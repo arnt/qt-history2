@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#41 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -10,12 +10,12 @@
 *****************************************************************************/
 
 #define	 QButtonList QListM_QButtonItem
-#include "qbttngrp.h"
+#include "qbuttongroup.h"
 #include "qbutton.h"
 #include "qlist.h"
 
 /*!
-  \class QButtonGroup qbttngrp.h
+  \class QButtonGroup qbuttongroup.h
   \brief The QButtonGroup widget organizes QButton widgets in a group.
 
   \ingroup realwidgets

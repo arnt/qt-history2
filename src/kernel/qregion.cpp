@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#27 $
 **
 ** Implementation of QRegion class
 **
@@ -10,9 +10,9 @@
 *****************************************************************************/
 
 #include "qregion.h"
-#include "qpntarry.h"
+#include "qpointarray.h"
 #include "qbuffer.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 
 /*!
   \class QRegion qregion.h

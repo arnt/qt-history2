@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#162 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -13,8 +13,8 @@
 #include "qimage.h"
 #include "qregexp.h"
 #include "qfile.h"
-#include "qdstream.h"
-#include "qtstream.h"
+#include "qdatastream.h"
+#include "qtextstream.h"
 #include "qbuffer.h"
 #include "qlist.h"
 #include "qdict.h"

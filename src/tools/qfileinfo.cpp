@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#36 $
 **
 ** Implementation of QFileInfo class
 **
@@ -14,9 +14,9 @@
 #define readlink _qt_hide_readlink
 #endif
 
-#include "qfileinf.h"
-#include "qfiledef.h"
-#include "qdatetm.h"
+#include "qfileinfo.h"
+#include "qfiledefs.h"
+#include "qdatetime.h"
 #include "qdir.h"
 #if defined(UNIX)
 #include <pwd.h>
@@ -59,7 +59,7 @@ struct QFileInfoCache
 
 
 /*!
-  \class QFileInfo qfileinf.h
+  \class QFileInfo qfileinfo.h
   \brief The QFileInfo class provides system-independent file information.
 
   \ingroup io
@@ -207,7 +207,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 
   Example:
   \code
-    #include <qfileinf.h>
+    #include <qfileinfo.h>
     #include <qdir.h>
 
     void test()

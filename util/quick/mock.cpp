@@ -10,7 +10,7 @@
 
 #include "mock.h"
 
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qslider.h>
 #include "qdesigner.h"
 /* etc. */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#120 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#121 $
 **
 ** Global type declarations and definitions
 **
@@ -299,7 +299,7 @@ typedef unsigned int	Q_UINT32;		// 32 bit unsigned
 
 
 //
-// Data stream functions is provided by many classes (defined in qdstream.h)
+// Data stream functions is provided by many classes (defined in qdatastream.h)
 //
 
 class QDataStream;

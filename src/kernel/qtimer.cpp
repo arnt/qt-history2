@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#32 $
 **
 ** Implementation of QTimer class
 **
@@ -11,7 +11,8 @@
 
 #include "qtimer.h"
 #include "qsignal.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 
 /*!
   \class QTimer qtimer.h
@@ -242,7 +243,7 @@ bool QSingleShotTimer::event( QEvent * )
 
   Example:
   \code
-    #include <qapp.h>
+    #include <qapplication.h>
     #include <qtimer.h>
 
     int main( int argc, char **argv )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#7 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -11,7 +11,8 @@
 
 #include "qwidgetstack.h"
 
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qlayout.h"
 
 class QWidgetStackPrivate {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#73 $
 **
 ** Implementation of QCheckBox class
 **
@@ -9,14 +9,14 @@
 **
 *****************************************************************************/
 
-#include "qchkbox.h"
+#include "qcheckbox.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qpixmap.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 
 /*!
-  \class QCheckBox qchkbox.h
+  \class QCheckBox qcheckbox.h
   \brief The QCheckBox widget provides a check box with a text label.
 
   \ingroup realwidgets

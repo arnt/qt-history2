@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#15 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -14,12 +14,12 @@
 **
 ***********************************************************************/
 
-#ifndef QPSPRN_H
-#define QPSPRN_H
+#ifndef QPSPRINTER_H
+#define QPSPRINTER_H
 
 #ifndef QT_H
 #include "qprinter.h"
-#include "qtstream.h"
+#include "qtextstream.h"
 #endif // QT_H
 
 
@@ -69,4 +69,4 @@ private:
 #define PDC_PRT_ABORT	101
 
 
-#endif // QPSPRN_H
+#endif // QPSPRINTER_H

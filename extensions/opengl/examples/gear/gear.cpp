@@ -6,7 +6,7 @@
 //
 
 #include <qgl.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <math.h>
 
 /*

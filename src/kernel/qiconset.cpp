@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#10 $
 **
 ** Implementation of QIconSet class
 **
@@ -12,7 +12,7 @@
 #include "qiconset.h"
 #include "qimage.h"
 #include "qbitmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qpainter.h"
 
 struct QIconSetPrivate: public QShared

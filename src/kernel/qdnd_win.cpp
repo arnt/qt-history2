@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#6 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidget.h"
 #include "qdragobject.h"
 

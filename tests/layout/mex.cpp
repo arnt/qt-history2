@@ -1,15 +1,15 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/mex.cpp#2 $
+** $Id: //depot/qt/main/tests/layout/mex.cpp#3 $
 **
 ** QBoxLayout example with a QMenuBar
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
 #include <qmenubar.h>
-#include <qpushbt.h>
+#include <qpushbutton.h>
 
 #include <qlayout.h>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#25 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#26 $
 **
 ** Definition of QDataStream class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QDSTREAM_H
-#define QDSTREAM_H
+#ifndef QDATASTREAM_H
+#define QDATASTREAM_H
 
 #ifndef QT_H
-#include "qiodev.h"
+#include "qiodevice.h"
 #include "qstring.h"
 #endif // QT_H
 
@@ -116,4 +116,4 @@ inline QDataStream &QDataStream::operator<<( Q_UINT32 i )
 { return *this << (Q_INT32)i; }
 
 
-#endif // QDSTREAM_H
+#endif // QDATASTREAM_H

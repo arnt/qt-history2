@@ -13,7 +13,7 @@
 #include <qkeycode.h>
 #include <qprinter.h>
 #include <qheader.h>
-#include <qscrbar.h>
+#include <qscrollbar.h>
 
 /*
   Constructs a Table widget.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#33 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#34 $
 **
 ** Definition of QPushButton class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QPUSHBT_H
-#define QPUSHBT_H
+#ifndef QPUSHBUTTON_H
+#define QPUSHBUTTON_H
 
 #ifndef QT_H
 #include "qbutton.h"
@@ -69,4 +69,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QPUSHBT_H
+#endif // QPUSHBUTTON_H

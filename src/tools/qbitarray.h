@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#23 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#24 $
 **
 ** Definition of QBitArray class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QBITARRY_H
-#define QBITARRY_H
+#ifndef QBITARRAY_H
+#define QBITARRAY_H
 
 #ifndef QT_H
 #include "qstring.h"
@@ -133,4 +133,4 @@ QDataStream &operator<<( QDataStream &, const QBitArray & );
 QDataStream &operator>>( QDataStream &, QBitArray & );
 
 
-#endif // QBITARRY_H
+#endif // QBITARRAY_H

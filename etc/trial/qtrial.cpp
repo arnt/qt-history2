@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qtrial.cpp#2 $
+** $Id: //depot/qt/main/etc/trial/qtrial.cpp#3 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -14,14 +14,14 @@
 *****************************************************************************/
 
 #include <qfile.h>
-#include <qdatetm.h>
+#include <qdatetime.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 
 /*****************************************************************************
   General encryption/decryption routines.
-  The code below has been copied from qapp_trial.cpp
+  The code below has been copied from qapplication_trial.cpp
  *****************************************************************************/
 
 static long randomSeed = 13579;
@@ -67,7 +67,7 @@ static QString unscrambleString( int seed, const uchar *data, int len )
  *****************************************************************************/
 
 /*
-  This function has been copied from qapp_trial.cpp
+  This function has been copied from qapplication_trial.cpp
 */
 
 static QString simplifyUserString( const char* str )

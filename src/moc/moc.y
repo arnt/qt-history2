@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#88 $
+** $Id: //depot/qt/main/src/moc/moc.y#89 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -32,12 +32,12 @@ void yyerror( char *msg );
 
 #include "qlist.h"
 #include "qstring.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#88 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#89 $");
 
 static QString rmWS( const char * );
 
@@ -1256,7 +1256,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.22 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.23 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1304,7 +1304,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#endif\n\n" );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
-	fprintf( out, "#include <%sqmetaobj.h>\n", (const char*)qtPath );
+	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)qtPath );
 	fprintf( out, "\n\n" );
     } else {
 	fprintf( out, "\n\n" );

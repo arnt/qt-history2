@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#2 $
 **
 ** Implementation of GLObjectWindow widget class
 **
 ****************************************************************************/
 
 
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qslider.h>
 #include <qlayout.h>
 #include <qframe.h>
 #include <qmenubar.h>
-#include <qpopmenu.h>
-#include <qapp.h>
+#include <qpopupmenu.h>
+#include <qapplication.h>
 #include <qkeycode.h>
 #include "globjwin.h"
 #include "glbox.h"

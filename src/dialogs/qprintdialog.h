@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#17 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#18 $
 **
 ** Definition of print dialog.
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QPRNDLG_H
-#define QPRNDLG_H
+#ifndef QPRINTDIALOG_H
+#define QPRINTDIALOG_H
 
 #ifndef QT_H
 #include "qdialog.h"
@@ -62,4 +62,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QPRNDLG_H
+#endif // QPRINTDIALOG_H

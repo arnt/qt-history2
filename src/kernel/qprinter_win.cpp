@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#27 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qprinter.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"

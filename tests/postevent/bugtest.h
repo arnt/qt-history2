@@ -1,6 +1,6 @@
-#include "qpushbt.h"
-#include "qapp.h"
-#include "qmsgbox.h"
+#include "qpushbutton.h"
+#include "qapplication.h"
+#include "qmessagebox.h"
 
 class SimpleManager
 : public QObject

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#18 $
 **
 ** Definition of QPoint class
 **
@@ -13,7 +13,7 @@
 #define QPOINT_H
 
 #ifndef QT_H
-#include "qwindefs.h"
+#include "qwindowdefs.h"
 #endif // QT_H
 
 #if defined(QPOINT_C) || defined(DEBUG)

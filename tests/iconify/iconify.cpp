@@ -1,9 +1,9 @@
 #include "iconify.h"
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qtimer.h>
 
-#include <qmsgbox.h>
+#include <qmessagebox.h>
 
 #ifdef WIN_SOMETHING
 #include <windows.h>

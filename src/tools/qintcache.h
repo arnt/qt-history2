@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#12 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#13 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QINTCACH_H
-#define QINTCACH_H
+#ifndef QINTCACHE_H
+#define QINTCACHE_H
 
 #ifndef QT_H
 #include "qgcache.h"
@@ -168,4 +168,4 @@ public:
 #endif // USE_TEMPLATECLASS
 
 
-#endif // QINTCACH_H
+#endif // QINTCACHE_H

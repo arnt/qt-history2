@@ -1,5 +1,5 @@
 #include <qprinter.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qpainter.h>
 
 #include <qpixmap.h>

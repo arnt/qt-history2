@@ -1,4 +1,4 @@
-#include <qapp.h>
+#include <qapplication.h>
 
 #include "mdlg.h"
 int main( int argc, char ** argv )

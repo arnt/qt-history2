@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#42 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#43 $
 **
 ** Definition of QColor class
 **
@@ -13,7 +13,7 @@
 #define QCOLOR_H
 
 #ifndef QT_H
-#include "qwindefs.h"
+#include "qwindowdefs.h"
 #endif // QT_H
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#17 $
 **
 ** Implementation of QClipboard class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#include "qclipbrd.h"
-#include "qapp.h"
+#include "qclipboard.h"
+#include "qapplication.h"
 #include "qpixmap.h"
 
 /*!
-  \class QClipboard qclipbrd.h
+  \class QClipboard qclipboard.h
   \brief The QClipboard class provides access to the window system clipboard.
 
   \ingroup kernel

@@ -9,8 +9,8 @@
 // 
 
 #include "table.h"
-#include <qpushbt.h>
-#include <qapp.h>
+#include <qpushbutton.h>
+#include <qapplication.h>
 #include <qlayout.h>
 #include <qheader.h>
 

@@ -18,48 +18,48 @@ unix:WIDGETS_H	= widgets
 win:DEPENDPATH	= $(QTDIR)/include
 unix:DEPENDPATH	= $(QTDIR)/src/$$DIALOGS_H:$(QTDIR)/src/$$KERNEL_H:$(QTDIR)/src/$$TOOLS_H:$(QTDIR)/src/$$WIDGETS_H
 
-HEADERS		= $$DIALOGS_H/qfiledlg.h \
-		  $$DIALOGS_H/qmsgbox.h \
-		  $$DIALOGS_H/qprogdlg.h \
-		  $$DIALOGS_H/qtabdlg.h \
+HEADERS		= $$DIALOGS_H/qfiledialog.h \
+		  $$DIALOGS_H/qmessagebox.h \
+		  $$DIALOGS_H/qprogressdialog.h \
+		  $$DIALOGS_H/qtabdialog.h \
 		  $$KERNEL_H/qaccel.h \
-		  $$KERNEL_H/qapp.h \
+		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_H/qasyncimageio.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
-		  $$KERNEL_H/qclipbrd.h \
+		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
-		  $$KERNEL_H/qconnect.h \
+		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdialog.h \
 		  $$KERNEL_H/qdragobject.h \
-		  $$KERNEL_H/qdrawutl.h \
+		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qfont.h \
-		  $$KERNEL_H/qfontdta.h \
-		  $$KERNEL_H/qfontinf.h \
-		  $$KERNEL_H/qfontmet.h \
-		  $$KERNEL_H/qgmanagr.h \
+		  $$KERNEL_H/qfontdata.h \
+		  $$KERNEL_H/qfontinfo.h \
+		  $$KERNEL_H/qfontmetrics.h \
+		  $$KERNEL_H/qgmanager.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
-		  $$KERNEL_H/qmetaobj.h \
+		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qobjcoll.h \
-		  $$KERNEL_H/qobjdefs.h \
+		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobject.h \
-		  $$KERNEL_H/qpaintd.h \
-		  $$KERNEL_H/qpaintdc.h \
+		  $$KERNEL_H/qpaintdevice.h \
+		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpainter.h \
 		  $$KERNEL_H/qpalette.h \
-		  $$KERNEL_H/qpdevmet.h \
+		  $$KERNEL_H/qpaintdevicemetrics.h \
 		  $$KERNEL_H/qpen.h \
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
-		  $$KERNEL_H/qpmcache.h \
-		  $$KERNEL_H/qpntarry.h \
+		  $$KERNEL_H/qpixmapcache.h \
+		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qprinter.h \
 		  $$KERNEL_H/qrect.h \
@@ -68,25 +68,25 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsize.h \
-		  $$KERNEL_H/qsocknot.h \
+		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qwidcoll.h \
 		  $$KERNEL_H/qwidget.h \
-		  $$KERNEL_H/qwindefs.h \
+		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwindow.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$TOOLS_H/qarray.h \
-		  $$TOOLS_H/qbitarry.h \
+		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
-		  $$TOOLS_H/qcollect.h \
-		  $$TOOLS_H/qdatetm.h \
+		  $$TOOLS_H/qcollection.h \
+		  $$TOOLS_H/qdatetime.h \
 		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
-		  $$TOOLS_H/qdstream.h \
+		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qfile.h \
-		  $$TOOLS_H/qfiledef.h \
-		  $$TOOLS_H/qfileinf.h \
+		  $$TOOLS_H/qfiledefs.h \
+		  $$TOOLS_H/qfileinfo.h \
 		  $$TOOLS_H/qgarray.h \
 		  $$TOOLS_H/qgcache.h \
 		  $$TOOLS_H/qgdict.h \
@@ -94,9 +94,9 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
 		  $$TOOLS_H/qgvector.h \
-		  $$TOOLS_H/qintcach.h \
+		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
-		  $$TOOLS_H/qiodev.h \
+		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
@@ -106,37 +106,37 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
-		  $$TOOLS_H/qtstream.h \
+		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qvector.h \
-		  $$WIDGETS_H/qbttngrp.h \
+		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_H/qchkbox.h \
-		  $$WIDGETS_H/qcombo.h \
+		  $$WIDGETS_H/qcheckbox.h \
+		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qframe.h \
-		  $$WIDGETS_H/qgrpbox.h \
+		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qlabel.h \
-		  $$WIDGETS_H/qlcdnum.h \
-		  $$WIDGETS_H/qlined.h \
+		  $$WIDGETS_H/qlcdnumber.h \
+		  $$WIDGETS_H/qlineedit.h \
 		  $$WIDGETS_H/qlistbox.h \
 		  $$WIDGETS_H/qlistview.h \
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
-		  $$WIDGETS_H/qmenudta.h \
-		  $$WIDGETS_H/qmlined.h \
-		  $$WIDGETS_H/qpopmenu.h \
-		  $$WIDGETS_H/qprogbar.h \
-		  $$WIDGETS_H/qpushbt.h \
-		  $$WIDGETS_H/qradiobt.h \
-		  $$WIDGETS_H/qrangect.h \
-		  $$WIDGETS_H/qscrbar.h \
+		  $$WIDGETS_H/qmenudata.h \
+		  $$WIDGETS_H/qmultilined.h \
+		  $$WIDGETS_H/qpopupmenu.h \
+		  $$WIDGETS_H/qprogressbar.h \
+		  $$WIDGETS_H/qpushbutton.h \
+		  $$WIDGETS_H/qradiobutton.h \
+		  $$WIDGETS_H/qrangecontrol.h \
+		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
 		  $$WIDGETS_H/qstatusbar.h \
 		  $$WIDGETS_H/qtabbar.h \
-		  $$WIDGETS_H/qtablevw.h \
+		  $$WIDGETS_H/qtableview.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
@@ -145,38 +145,38 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h
 
-SOURCES		= dialogs/qfiledlg.cpp \
-		  dialogs/qmsgbox.cpp \
-		  dialogs/qprogdlg.cpp \
-		  dialogs/qtabdlg.cpp \
+SOURCES		= dialogs/qfiledialog.cpp \
+		  dialogs/qmessagebox.cpp \
+		  dialogs/qprogressdialog.cpp \
+		  dialogs/qtabdialog.cpp \
 		  kernel/qaccel.cpp \
-		  kernel/qapp.cpp \
+		  kernel/qapplication.cpp \
 		  kernel/qasyncimageio.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
-		  kernel/qclipbrd.cpp \
+		  kernel/qclipboard.cpp \
 		  kernel/qcolor.cpp \
-		  kernel/qconnect.cpp \
+		  kernel/qconnection.cpp \
 		  kernel/qcursor.cpp \
 		  kernel/qdialog.cpp \
 		  kernel/qdragobject.cpp \
-		  kernel/qdrawutl.cpp \
+		  kernel/qdrawutil.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfont.cpp \
-		  kernel/qgmanagr.cpp \
+		  kernel/qgmanager.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
-		  kernel/qmetaobj.cpp \
+		  kernel/qmetaobject.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qobject.cpp \
 		  kernel/qpainter.cpp \
 		  kernel/qpalette.cpp \
-		  kernel/qpdevmet.cpp \
+		  kernel/qpaintdevicemetrics.cpp \
 		  kernel/qpicture.cpp \
 		  kernel/qpixmap.cpp \
-		  kernel/qpmcache.cpp \
-		  kernel/qpntarry.cpp \
+		  kernel/qpixmapcache.cpp \
+		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qprinter.cpp \
 		  kernel/qrect.cpp \
@@ -185,58 +185,58 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
 		  kernel/qsize.cpp \
-		  kernel/qsocknot.cpp \
+		  kernel/qsocketnotifier.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindow.cpp \
 		  kernel/qwmatrix.cpp \
-		  tools/qbitarry.cpp \
+		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
-		  tools/qcollect.cpp \
-		  tools/qdatetm.cpp \
+		  tools/qcollection.cpp \
+		  tools/qdatetime.cpp \
 		  tools/qdir.cpp \
-		  tools/qdstream.cpp \
+		  tools/qdatastream.cpp \
 		  tools/qfile.cpp \
-		  tools/qfileinf.cpp \
+		  tools/qfileinfo.cpp \
 		  tools/qgarray.cpp \
 		  tools/qgcache.cpp \
 		  tools/qgdict.cpp \
 		  tools/qglist.cpp \
 		  tools/qglobal.cpp \
 		  tools/qgvector.cpp \
-		  tools/qiodev.cpp \
+		  tools/qiodevice.cpp \
 		  tools/qregexp.cpp \
 		  tools/qstring.cpp \
-		  tools/qtstream.cpp \
-		  widgets/qbttngrp.cpp \
+		  tools/qtextstream.cpp \
+		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
-		  widgets/qchkbox.cpp \
-		  widgets/qcombo.cpp \
+		  widgets/qcheckbox.cpp \
+		  widgets/qcombobox.cpp \
 		  widgets/qframe.cpp \
-		  widgets/qgrpbox.cpp \
+		  widgets/qgroupbox.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qlabel.cpp \
-		  widgets/qlcdnum.cpp \
-		  widgets/qlined.cpp \
+		  widgets/qlcdnumber.cpp \
+		  widgets/qlineedit.cpp \
 		  widgets/qlistbox.cpp \
 		  widgets/qlistview.cpp \
 		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
-		  widgets/qmenudta.cpp \
-		  widgets/qmlined.cpp \
-		  widgets/qpopmenu.cpp \
-		  widgets/qprogbar.cpp \
-		  widgets/qpushbt.cpp \
-		  widgets/qradiobt.cpp \
-		  widgets/qrangect.cpp \
-		  widgets/qscrbar.cpp \
+		  widgets/qmenudata.cpp \
+		  widgets/qmultilined.cpp \
+		  widgets/qpopupmenu.cpp \
+		  widgets/qprogressbar.cpp \
+		  widgets/qpushbutton.cpp \
+		  widgets/qradiobutton.cpp \
+		  widgets/qrangecontrol.cpp \
+		  widgets/qscrollbar.cpp \
 		  widgets/qscrollview.cpp \
 		  widgets/qslider.cpp \
 		  widgets/qspinbox.cpp \
 		  widgets/qsplitter.cpp \
 		  widgets/qstatusbar.cpp \
 		  widgets/qtabbar.cpp \
-		  widgets/qtablevw.cpp \
+		  widgets/qtableview.cpp \
 		  widgets/qtoolbar.cpp \
 		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \
@@ -245,40 +245,40 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp
 
-win32:SOURCES  += kernel/qapp_win.cpp \
-		  kernel/qclb_win.cpp \
-		  kernel/qcol_win.cpp \
-		  kernel/qcur_win.cpp \
-		  kernel/qfnt_win.cpp \
-		  kernel/qpic_win.cpp \
-		  kernel/qpm_win.cpp \
-		  kernel/qprn_win.cpp \
-		  kernel/qptd_win.cpp \
-		  kernel/qptr_win.cpp \
-		  kernel/qrgn_win.cpp \
-		  kernel/qwid_win.cpp \
+win32:SOURCES  += kernel/qapplication_win.cpp \
+		  kernel/qclipboard_win.cpp \
+		  kernel/qcolor_win.cpp \
+		  kernel/qcursor_win.cpp \
+		  kernel/qfont_win.cpp \
+		  kernel/qpicture_win.cpp \
+		  kernel/qpixmap_win.cpp \
+		  kernel/qprinter_win.cpp \
+		  kernel/qpaintdevice_win.cpp \
+		  kernel/qpainter_win.cpp \
+		  kernel/qregion_win.cpp \
+		  kernel/qwidget_win.cpp \
 		  kernel/qdnd_win.cpp
 
-unix:HEADERS   += $$DIALOGS_H/qprndlg.h \
-		  $$KERNEL_H/qpsprn.h
+unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
+		  $$KERNEL_H/qpsprinter.h
 
-unix:SOURCES   += kernel/qapp_x11.cpp \
-		  kernel/qclb_x11.cpp \
-		  kernel/qcol_x11.cpp \
-		  kernel/qcur_x11.cpp \
-		  kernel/qfnt_x11.cpp \
-		  kernel/qpic_x11.cpp \
-		  kernel/qpm_x11.cpp \
-		  kernel/qprn_x11.cpp \
-		  kernel/qptd_x11.cpp \
-		  kernel/qptr_x11.cpp \
-		  kernel/qrgn_x11.cpp \
-		  kernel/qwid_x11.cpp
+unix:SOURCES   += kernel/qapplication_x11.cpp \
+		  kernel/qclipboard_x11.cpp \
+		  kernel/qcolor_x11.cpp \
+		  kernel/qcursor_x11.cpp \
+		  kernel/qfont_x11.cpp \
+		  kernel/qpicture_x11.cpp \
+		  kernel/qpixmap_x11.cpp \
+		  kernel/qprinter_x11.cpp \
+		  kernel/qpaintdevice_x11.cpp \
+		  kernel/qpainter_x11.cpp \
+		  kernel/qregion_x11.cpp \
+		  kernel/qwidget_x11.cpp
 
-unix:SOURCES   += dialogs/qprndlg.cpp \
-		  kernel/qpsprn.cpp \
+unix:SOURCES   += dialogs/qprintdialog.cpp \
+		  kernel/qpsprinter.cpp \
 		  kernel/qnpsupport.cpp \
-		  kernel/qt_x11.cpp \
+		  kernel/qwidgetcreate_x11.cpp \
 		  kernel/qdnd_x11.cpp
 
 TARGET		= qt

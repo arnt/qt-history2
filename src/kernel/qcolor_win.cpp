@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#43 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qcolor.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#36 $
 **
 ** Implementation of QGGeometry class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#include "qgmanagr.h"
+#include "qgmanager.h"
 #include "qlist.h"
 #include "qmenubar.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 /*!
-  \class QGManager qgmanagr.h
+  \class QGManager qgmanager.h
   \brief The QGManager class provides one-dimensional geometry management.
 
   \ingroup geomanagement
@@ -82,7 +82,7 @@ static void setWinfo( QWidget * w, wDict &dict, QGManager::Direction d, int p, i
 }
 
 /*
-  \class QChain qgmanagr.cpp
+  \class QChain qgmanager.cpp
 
   \brief internal class for the QGManager.
 

@@ -3,13 +3,13 @@
 
 // Include other Qt classes.
 #include <qpainter.h>
-#include <qtstream.h>
+#include <qtextstream.h>
 #include <qbuffer.h>
 #include <qpixmap.h>
 #include <qmenubar.h>
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qlist.h>
-#include <qmsgbox.h>
+#include <qmessagebox.h>
 
 // Include some C library functions.
 #include <math.h>

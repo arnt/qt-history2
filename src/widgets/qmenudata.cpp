@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#62 $
 **
 ** Implementation of QMenuData class
 **
@@ -10,12 +10,12 @@
 *****************************************************************************/
 
 #define	 INCLUDE_MENUITEM_DEF
-#include "qmenudta.h"
-#include "qpopmenu.h"
-#include "qapp.h"
+#include "qmenudata.h"
+#include "qpopupmenu.h"
+#include "qapplication.h"
 
 /*!
-  \class QMenuData qmenudta.h
+  \class QMenuData qmenudata.h
   \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
   \ingroup misc

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#23 $
 **
 ** Implementation of QToolBar class
 **
@@ -12,13 +12,14 @@
 #include "qtoolbar.h"
 
 #include "qmainwindow.h"
-#include "qpushbt.h"
+#include "qpushbutton.h"
 #include "qtooltip.h"
 #include "qlayout.h"
 #include "qframe.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 
 /*! \class QToolBar qtoolbar.h
 

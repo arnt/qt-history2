@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#12 $
 **
 ** Implementation of QRegion class for OS/2 PM
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qregion.h"
-#include "qpntarry.h"
+#include "qpointarray.h"
 #define	 INCL_PM
 #include <os2.h>
 

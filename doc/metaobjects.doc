@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.8 1998/03/31 09:05:36 aavit Exp $
+** $Id: metaobjects.doc,v 2.9 1998/06/16 11:39:30 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -220,11 +220,11 @@ QObject::className() class name\endlink. You can also check if an object
 
 <h2>A Real Example</h2>
 
-Here is a simple commented example (code fragments from \l qlcdnum.h ).
+Here is a simple commented example (code fragments from \l qlcdnumber.h ).
 
 \code
     #include "qframe.h"
-    #include "qbitarry.h"
+    #include "qbitarray.h"
 
     class QLCDNumber : public QFrame
 \endcode

@@ -1,7 +1,7 @@
 #include "widgetstack.h"
 #include <qlayout.h>
-#include <qapp.h>
-#include <qpushbt.h>
+#include <qapplication.h>
+#include <qpushbutton.h>
 #include <qwidgetstack.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :

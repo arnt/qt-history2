@@ -85,8 +85,8 @@ main.o: main.cpp \
 		main.moc \
 		quick.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -98,23 +98,23 @@ main.o: main.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
-		$(QTDIR)/include/qapp.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
+		$(QTDIR)/include/qapplication.h \
 		$(QTDIR)/include/qlist.h \
 		$(QTDIR)/include/qglist.h \
-		$(QTDIR)/include/qcollect.h
+		$(QTDIR)/include/qcollection.h
 
 quick.o: quick.cpp \
 		quick.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -126,70 +126,70 @@ quick.o: quick.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		quicked.h \
 		$(QTDIR)/include/qptrdict.h \
 		$(QTDIR)/include/qgdict.h \
-		$(QTDIR)/include/qcollect.h \
+		$(QTDIR)/include/qcollection.h \
 		$(QTDIR)/include/qlist.h \
 		$(QTDIR)/include/qglist.h \
 		quickpad.h \
-		$(QTDIR)/include/qtabdlg.h \
+		$(QTDIR)/include/qtabdialog.h \
 		$(QTDIR)/include/qdialog.h \
-		$(QTDIR)/include/qapp.h \
+		$(QTDIR)/include/qapplication.h \
 		$(QTDIR)/include/qframe.h \
 		$(QTDIR)/include/qpainter.h \
 		$(QTDIR)/include/qregion.h \
 		$(QTDIR)/include/qpen.h \
 		$(QTDIR)/include/qbrush.h \
-		$(QTDIR)/include/qpntarry.h \
+		$(QTDIR)/include/qpointarray.h \
 		$(QTDIR)/include/qwmatrix.h \
-		$(QTDIR)/include/qpushbt.h \
+		$(QTDIR)/include/qpushbutton.h \
 		$(QTDIR)/include/qbutton.h \
 		$(QTDIR)/include/qslider.h \
-		$(QTDIR)/include/qrangect.h \
+		$(QTDIR)/include/qrangecontrol.h \
 		$(QTDIR)/include/qlayout.h \
-		$(QTDIR)/include/qgmanagr.h \
+		$(QTDIR)/include/qgmanager.h \
 		$(QTDIR)/include/qintdict.h \
 		$(QTDIR)/include/qobjcoll.h \
-		$(QTDIR)/include/qmetaobj.h \
-		$(QTDIR)/include/qconnect.h \
+		$(QTDIR)/include/qmetaobject.h \
+		$(QTDIR)/include/qconnection.h \
 		$(QTDIR)/include/qdict.h \
 		$(QTDIR)/include/qscrollview.h \
-		$(QTDIR)/include/qscrbar.h \
-		$(QTDIR)/include/qdrawutl.h \
+		$(QTDIR)/include/qscrollbar.h \
+		$(QTDIR)/include/qdrawutil.h \
 		$(QTDIR)/include/qlabel.h \
-		$(QTDIR)/include/qradiobt.h \
-		$(QTDIR)/include/qlined.h \
-		$(QTDIR)/include/qcombo.h \
+		$(QTDIR)/include/qradiobutton.h \
+		$(QTDIR)/include/qlineedit.h \
+		$(QTDIR)/include/qcombobox.h \
 		$(QTDIR)/include/qmenubar.h \
-		$(QTDIR)/include/qpopmenu.h \
-		$(QTDIR)/include/qtablevw.h \
-		$(QTDIR)/include/qmenudta.h \
+		$(QTDIR)/include/qpopupmenu.h \
+		$(QTDIR)/include/qtableview.h \
+		$(QTDIR)/include/qmenudata.h \
 		$(QTDIR)/include/qpixmap.h \
 		$(QTDIR)/include/qsignal.h \
-		$(QTDIR)/include/qmsgbox.h \
-		$(QTDIR)/include/qfiledlg.h \
+		$(QTDIR)/include/qmessagebox.h \
+		$(QTDIR)/include/qfiledialog.h \
 		$(QTDIR)/include/qdir.h \
 		$(QTDIR)/include/qstrlist.h \
-		$(QTDIR)/include/qdstream.h \
-		$(QTDIR)/include/qiodev.h \
-		$(QTDIR)/include/qfileinf.h \
+		$(QTDIR)/include/qdatastream.h \
+		$(QTDIR)/include/qiodevice.h \
+		$(QTDIR)/include/qfileinfo.h \
 		$(QTDIR)/include/qfile.h \
-		$(QTDIR)/include/qdatetm.h \
+		$(QTDIR)/include/qdatetime.h \
 		$(QTDIR)/include/qtabbar.h
 
 quicked.o: quicked.cpp \
 		quicked.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -201,69 +201,69 @@ quicked.o: quicked.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		$(QTDIR)/include/qptrdict.h \
 		$(QTDIR)/include/qgdict.h \
-		$(QTDIR)/include/qcollect.h \
+		$(QTDIR)/include/qcollection.h \
 		$(QTDIR)/include/qlist.h \
 		$(QTDIR)/include/qglist.h \
-		$(QTDIR)/include/qapp.h \
+		$(QTDIR)/include/qapplication.h \
 		$(QTDIR)/include/qframe.h \
 		$(QTDIR)/include/qpainter.h \
 		$(QTDIR)/include/qregion.h \
 		$(QTDIR)/include/qpen.h \
 		$(QTDIR)/include/qbrush.h \
-		$(QTDIR)/include/qpntarry.h \
+		$(QTDIR)/include/qpointarray.h \
 		$(QTDIR)/include/qwmatrix.h \
-		$(QTDIR)/include/qpushbt.h \
+		$(QTDIR)/include/qpushbutton.h \
 		$(QTDIR)/include/qbutton.h \
 		$(QTDIR)/include/qslider.h \
-		$(QTDIR)/include/qrangect.h \
+		$(QTDIR)/include/qrangecontrol.h \
 		$(QTDIR)/include/qlayout.h \
-		$(QTDIR)/include/qgmanagr.h \
+		$(QTDIR)/include/qgmanager.h \
 		$(QTDIR)/include/qintdict.h \
 		$(QTDIR)/include/qobjcoll.h \
-		$(QTDIR)/include/qmetaobj.h \
-		$(QTDIR)/include/qconnect.h \
+		$(QTDIR)/include/qmetaobject.h \
+		$(QTDIR)/include/qconnection.h \
 		$(QTDIR)/include/qdict.h \
 		$(QTDIR)/include/qscrollview.h \
-		$(QTDIR)/include/qscrbar.h \
-		$(QTDIR)/include/qdrawutl.h \
+		$(QTDIR)/include/qscrollbar.h \
+		$(QTDIR)/include/qdrawutil.h \
 		$(QTDIR)/include/qlabel.h \
-		$(QTDIR)/include/qradiobt.h \
-		$(QTDIR)/include/qlined.h \
-		$(QTDIR)/include/qcombo.h \
+		$(QTDIR)/include/qradiobutton.h \
+		$(QTDIR)/include/qlineedit.h \
+		$(QTDIR)/include/qcombobox.h \
 		$(QTDIR)/include/qlistbox.h \
-		$(QTDIR)/include/qtablevw.h \
+		$(QTDIR)/include/qtableview.h \
 		$(QTDIR)/include/qpixmap.h \
 		$(QTDIR)/include/qmenubar.h \
-		$(QTDIR)/include/qpopmenu.h \
-		$(QTDIR)/include/qmenudta.h \
+		$(QTDIR)/include/qpopupmenu.h \
+		$(QTDIR)/include/qmenudata.h \
 		$(QTDIR)/include/qsignal.h \
-		$(QTDIR)/include/qmsgbox.h \
+		$(QTDIR)/include/qmessagebox.h \
 		$(QTDIR)/include/qdialog.h \
-		$(QTDIR)/include/qfiledlg.h \
+		$(QTDIR)/include/qfiledialog.h \
 		$(QTDIR)/include/qdir.h \
 		$(QTDIR)/include/qstrlist.h \
-		$(QTDIR)/include/qdstream.h \
-		$(QTDIR)/include/qiodev.h \
-		$(QTDIR)/include/qfileinf.h \
+		$(QTDIR)/include/qdatastream.h \
+		$(QTDIR)/include/qiodevice.h \
+		$(QTDIR)/include/qfileinfo.h \
 		$(QTDIR)/include/qfile.h \
-		$(QTDIR)/include/qdatetm.h
+		$(QTDIR)/include/qdatetime.h
 
 quickpad.o: quickpad.cpp \
 		quickpad.h \
-		$(QTDIR)/include/qtabdlg.h \
+		$(QTDIR)/include/qtabdialog.h \
 		$(QTDIR)/include/qdialog.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -275,38 +275,38 @@ quickpad.o: quickpad.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		$(QTDIR)/include/qtabbar.h \
 		$(QTDIR)/include/qpainter.h \
 		$(QTDIR)/include/qregion.h \
 		$(QTDIR)/include/qpen.h \
 		$(QTDIR)/include/qbrush.h \
-		$(QTDIR)/include/qpntarry.h \
+		$(QTDIR)/include/qpointarray.h \
 		$(QTDIR)/include/qwmatrix.h \
 		$(QTDIR)/include/qlist.h \
 		$(QTDIR)/include/qglist.h \
-		$(QTDIR)/include/qcollect.h \
+		$(QTDIR)/include/qcollection.h \
 		$(QTDIR)/include/qbitmap.h \
 		$(QTDIR)/include/qpixmap.h \
 		qdolistbox.h \
 		$(QTDIR)/include/qlistbox.h \
-		$(QTDIR)/include/qtablevw.h \
+		$(QTDIR)/include/qtableview.h \
 		$(QTDIR)/include/qframe.h
 
 qdolistbox.o: qdolistbox.cpp \
 		qdolistbox.h \
 		$(QTDIR)/include/qlistbox.h \
-		$(QTDIR)/include/qtablevw.h \
+		$(QTDIR)/include/qtableview.h \
 		$(QTDIR)/include/qframe.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -318,20 +318,20 @@ qdolistbox.o: qdolistbox.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		$(QTDIR)/include/qpixmap.h
 
 moc_quick.o: moc_quick.cpp \
 		quick.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -343,19 +343,19 @@ moc_quick.o: moc_quick.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h
 
 moc_quicked.o: moc_quicked.cpp \
 		quicked.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -367,26 +367,26 @@ moc_quicked.o: moc_quicked.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		$(QTDIR)/include/qptrdict.h \
 		$(QTDIR)/include/qgdict.h \
-		$(QTDIR)/include/qcollect.h \
+		$(QTDIR)/include/qcollection.h \
 		$(QTDIR)/include/qlist.h \
 		$(QTDIR)/include/qglist.h
 
 moc_quickpad.o: moc_quickpad.cpp \
 		quickpad.h \
-		$(QTDIR)/include/qtabdlg.h \
+		$(QTDIR)/include/qtabdialog.h \
 		$(QTDIR)/include/qdialog.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -398,22 +398,22 @@ moc_quickpad.o: moc_quickpad.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h
 
 moc_qdolistbox.o: moc_qdolistbox.cpp \
 		qdolistbox.h \
 		$(QTDIR)/include/qlistbox.h \
-		$(QTDIR)/include/qtablevw.h \
+		$(QTDIR)/include/qtableview.h \
 		$(QTDIR)/include/qframe.h \
 		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
+		$(QTDIR)/include/qwindowdefs.h \
+		$(QTDIR)/include/qobjectdefs.h \
 		$(QTDIR)/include/qglobal.h \
 		$(QTDIR)/include/qobject.h \
 		$(QTDIR)/include/qstring.h \
@@ -425,13 +425,13 @@ moc_qdolistbox.o: moc_qdolistbox.cpp \
 		$(QTDIR)/include/qrect.h \
 		$(QTDIR)/include/qsize.h \
 		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
+		$(QTDIR)/include/qpaintdevice.h \
 		$(QTDIR)/include/qpalette.h \
 		$(QTDIR)/include/qcolor.h \
 		$(QTDIR)/include/qcursor.h \
 		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h \
+		$(QTDIR)/include/qfontmetrics.h \
+		$(QTDIR)/include/qfontinfo.h \
 		$(QTDIR)/include/qpixmap.h
 
 moc_quick.cpp: quick.h

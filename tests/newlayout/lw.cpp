@@ -1,17 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#5 $
+** $Id: //depot/qt/main/tests/newlayout/lw.cpp#6 $
 **
 ** QGridLayout example
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
-#include <qmlined.h>
+#include <qmultilined.h>
 #include <qcolor.h>
-#include <qgrpbox.h> 
-#include <qpushbt.h>
+#include <qgroupbox.h> 
+#include <qpushbutton.h>
 #include <qlayout.h>
 
 #include <qgrid.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#8 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#9 $
 **
 ** Definition of QProgressBar class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QPROGBAR_H
-#define QPROGBAR_H
+#ifndef QPROGRESSBAR_H
+#define QPROGRESSBAR_H
 
 #ifndef QT_H
 #include "qframe.h"
@@ -64,4 +64,4 @@ inline int QProgressBar::progress() const
 }
 
 
-#endif // QPROGBAR_H
+#endif // QPROGRESSBAR_H

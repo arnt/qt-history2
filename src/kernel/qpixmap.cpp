@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#82 $
 **
 ** Implementation of QPixmap class
 **
@@ -13,7 +13,7 @@
 #include "qimage.h"
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #include "qbuffer.h"
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#24 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#25 $
 **
 ** Definition of QTextStream class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QTSTREAM_H
-#define QTSTREAM_H
+#ifndef QTEXTSTREAM_H
+#define QTEXTSTREAM_H
 
 #ifndef QT_H
-#include "qiodev.h"
+#include "qiodevice.h"
 #include "qstring.h"
 #include <stdio.h>
 #endif // QT_H
@@ -215,4 +215,4 @@ inline QTSManip setprecision( int p )
 }
 
 
-#endif // QTSTREAM_H
+#endif // QTEXTSTREAM_H

@@ -1,15 +1,15 @@
-#include <qapp.h>
+#include <qapplication.h>
 
-#include <qfiledlg.h>
-#include <qpushbt.h>
-#include <qpopmenu.h>
-#include <qmlined.h>
+#include <qfiledialog.h>
+#include <qpushbutton.h>
+#include <qpopupmenu.h>
+#include <qmultilined.h>
 #include <qpainter.h>
-#include <qdrawutl.h>
+#include <qdrawutil.h>
 
 #include <qlayout.h>
-#include <qbttngrp.h>
-#include <qradiobt.h>
+#include <qbuttongroup.h>
+#include <qradiobutton.h>
 #include <qpixmap.h>
 
 /* XPM */

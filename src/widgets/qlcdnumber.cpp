@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#53 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#include "qlcdnum.h"
-#include "qbitarry.h"
+#include "qlcdnumber.h"
+#include "qbitarray.h"
 #include "qpainter.h"
 #include <stdio.h>
 
 /*!
-  \class QLCDNumber qlcdnum.h
+  \class QLCDNumber qlcdnumber.h
 
   \brief The QLCDNumber widget displays a number with LCD-like digits.
 

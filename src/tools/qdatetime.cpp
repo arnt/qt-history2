@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#64 $
 **
 ** Implementation of date and time classes
 **
@@ -10,8 +10,8 @@
 *****************************************************************************/
 
 #define gettimeofday	__hide_gettimeofday
-#include "qdatetm.h"
-#include "qdstream.h"
+#include "qdatetime.h"
+#include "qdatastream.h"
 #include <stdio.h>
 #include <time.h>
 #if defined(_OS_WIN32_)
@@ -57,7 +57,7 @@ const char *QDate::weekdayNames[] ={
  *****************************************************************************/
 
 /*!
-  \class QDate qdatetm.h
+  \class QDate qdatetime.h
   \brief The QDate class provides date functions.
 
   \ingroup time
@@ -429,7 +429,7 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
  *****************************************************************************/
 
 /*!
-  \class QTime qdatetm.h
+  \class QTime qdatetime.h
 
   \brief The QTime class provides time functions 24 hours a day.
 
@@ -772,7 +772,7 @@ int QTime::elapsed()
  *****************************************************************************/
 
 /*!
-  \class QDateTime qdatetm.h
+  \class QDateTime qdatetime.h
   \brief The QDateTime class combines QDate and QTime into a single class.
 
   \ingroup time

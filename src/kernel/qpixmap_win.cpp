@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#68 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -11,9 +11,9 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qwmatrix.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool

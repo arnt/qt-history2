@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#7 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#8 $
 **
 ** Definition of QWMatrix class
 **
@@ -13,8 +13,8 @@
 #define QWMATRIX_H
 
 #ifndef QT_H
-#include "qwindefs.h"
-#include "qpntarry.h"
+#include "qwindowdefs.h"
+#include "qpointarray.h"
 #include "qrect.h"
 #endif // QT_H
 

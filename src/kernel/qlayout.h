@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#17 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#18 $
 **
 ** Definition of layout classes
 **
@@ -13,7 +13,7 @@
 #define QLAYOUT_H
 
 #ifndef QT_H
-#include "qgmanagr.h"
+#include "qgmanager.h"
 #include "qlist.h"
 #endif // QT_H
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#93 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -9,18 +9,18 @@
 **
 ***********************************************************************/
 
-#include "qmlined.h"
+#include "qmultilined.h"
 #include "qpainter.h"
-#include "qscrbar.h"
+#include "qscrollbar.h"
 #include "qkeycode.h"
-#include "qclipbrd.h"
+#include "qclipboard.h"
 #include "qpixmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include <ctype.h>
 
 
 /*!
-  \class QMultiLineEdit qmlined.h
+  \class QMultiLineEdit qmultilined.h
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 

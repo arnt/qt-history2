@@ -4,8 +4,8 @@
 **
 ****************************************************************/
 
-#include <qapp.h>
-#include <qpushbt.h>
+#include <qapplication.h>
+#include <qpushbutton.h>
 
 
 int main( int argc, char **argv )

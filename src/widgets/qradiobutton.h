@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#24 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#25 $
 **
 ** Definition of QRadioButton class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QRADIOBT_H
-#define QRADIOBT_H
+#ifndef QRADIOBUTTON_H
+#define QRADIOBUTTON_H
 
 #ifndef QT_H
 #include "qbutton.h"
@@ -54,4 +54,4 @@ inline void QRadioButton::setChecked( bool check )
 { setOn( check ); }
 
 
-#endif // QRADIOBT_H
+#endif // QRADIOBUTTON_H

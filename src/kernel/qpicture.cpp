@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#49 $
 **
 ** Implementation of QPicture class
 **
@@ -10,12 +10,12 @@
 *****************************************************************************/
 
 #include "qpicture.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qfile.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 
 /*!
   \class QPicture qpicture.h

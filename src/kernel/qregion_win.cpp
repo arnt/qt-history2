@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#33 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qregion.h"
-#include "qpntarry.h"
+#include "qpointarray.h"
 #include "qbuffer.h"
 
 #if defined(_CC_BOOL_DEF_)

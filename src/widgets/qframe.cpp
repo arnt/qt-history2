@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#59 $
 **
 ** Implementation of QFrame widget class
 **
@@ -11,7 +11,7 @@
 
 #include "qframe.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qframe.h"
 
 /*!

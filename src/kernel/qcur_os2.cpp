@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#12 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qcursor.h"
-#include "qapp.h"
+#include "qapplication.h"
 #define	 INCL_WIN
 #include <os2.h>
 

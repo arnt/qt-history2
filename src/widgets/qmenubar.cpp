@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#114 $
 **
 ** Implementation of QMenuBar class
 **
@@ -13,8 +13,8 @@
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qapp.h"
+#include "qdrawutil.h"
+#include "qapplication.h"
 #include <ctype.h>
 
 /*!

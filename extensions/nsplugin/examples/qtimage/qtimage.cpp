@@ -3,8 +3,8 @@
 #include <qpainter.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qmsgbox.h>
-#include <qpopmenu.h>
+#include <qmessagebox.h>
+#include <qpopupmenu.h>
 #include "qpngio.h"
 
 #include <math.h>

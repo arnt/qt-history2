@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#92 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -10,10 +10,10 @@
 *****************************************************************************/
 
 #include "qpainter.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qwidget.h"
 #include "qbitmap.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
+extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 /*
   QWinFont holds extra font settings for the painter.
@@ -101,7 +101,7 @@ static void init_cache()
 
 //  #define CACHE_STAT
 #if defined(CACHE_STAT)
-#include "qtstream.h"
+#include "qtextstream.h"
 
 static int c_numhits	= 0;
 static int c_numcreates = 0;

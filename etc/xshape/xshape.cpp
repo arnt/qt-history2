@@ -10,7 +10,7 @@
 // NOTE: This program only works with X-Windows.
 //
 
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qbitmap.h>

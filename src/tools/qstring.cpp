@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#105 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#106 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -12,7 +12,7 @@
 
 #define	 QSTRING_C
 #include "qstring.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>

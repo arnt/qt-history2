@@ -1,6 +1,6 @@
 #include <qfile.h>
-#include <qtstream.h>
-#include <qdstream.h>
+#include <qtextstream.h>
+#include <qdatastream.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <qbuffer.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#29 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#30 $
 **
 ** Definition of QTabDialog class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QTABDLG_H
-#define QTABDLG_H
+#ifndef QTABDIALOG_H
+#define QTABDIALOG_H
 
 #ifndef QT_H
 #include "qdialog.h"
@@ -84,4 +84,4 @@ private:
 };
 
 
-#endif // QTABDLG_H
+#endif // QTABDIALOG_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#21 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#22 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -13,7 +13,7 @@
 #define QGDICT_H
 
 #ifndef QT_H
-#include "qcollect.h"
+#include "qcollection.h"
 #endif // QT_H
 
 

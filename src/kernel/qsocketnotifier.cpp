@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#18 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-#include "qsocknot.h"
+#include "qsocketnotifier.h"
 #include "qevent.h"
 
 
@@ -17,7 +17,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
 
 /*!
-  \class QSocketNotifier qsocknot.h
+  \class QSocketNotifier qsocketnotifier.h
   \brief The QSocketNotifer class provides support for socket callbacks.
 
   \ingroup kernel

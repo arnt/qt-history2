@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#11 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#12 $
 **
 ** Definition of QMetaObject class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QMETAOBJ_H
-#define QMETAOBJ_H
+#ifndef QMETAOBJECT_H
+#define QMETAOBJECT_H
 
 #ifndef QT_H
-#include "qconnect.h"
+#include "qconnection.h"
 #endif // QT_H
 
 
@@ -65,4 +65,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QMETAOBJ_H
+#endif // QMETAOBJECT_H

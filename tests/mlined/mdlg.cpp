@@ -1,10 +1,10 @@
 #include "mdlg.h"
 
-#include <qpushbt.h>
-#include <qapp.h>
+#include <qpushbutton.h>
+#include <qapplication.h>
 #include <qlayout.h>
 #include <qfont.h>
-#include <qlcdnum.h>
+#include <qlcdnumber.h>
 
 MDialog::MDialog()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#316 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#317 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -17,14 +17,16 @@
 #include <windows.h>
 #define HANDLE QT_HANDLE
 #endif
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidget.h"
-#include "qobjcoll.h"
-#include "qwidcoll.h"
-#include "qbitarry.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
+#include "qbitarray.h"
 #include "qpainter.h"
-#include "qpmcache.h"
-#include "qdatetm.h"
+#include "qpixmapcache.h"
+#include "qdatetime.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -169,9 +171,9 @@ Time		qt_x_clipboardtime = CurrentTime;
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
-void		qt_reset_color_avail();		// defined in qcol_x11.cpp
+void		qt_reset_color_avail();		// defined in qcolor_x11.cpp
 
-int		qt_ncols_option  = 216;		// used in qcol_x11.cpp
+int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
@@ -882,7 +884,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    extern int qwidget_tlw_gravity;		// in qwid_x11.cpp
+    extern int qwidget_tlw_gravity;		// in qwidget_x11.cpp
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
@@ -1524,7 +1526,7 @@ QETWidget *qPRFindWidget( Window oldwin )
 /*****************************************************************************
   Socket notifier (type: 0=read, 1=write, 2=exception)
 
-  The QSocketNotifier class (qsocknot.h) provides installable callbacks
+  The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
   for select() throught the internal function qt_set_socket_handler().
  *****************************************************************************/
 

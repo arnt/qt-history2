@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#27 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#28 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -13,7 +13,7 @@
 #define QPALETTE_H
 
 #ifndef QT_H
-#include "qwindefs.h"
+#include "qwindowdefs.h"
 #include "qcolor.h"
 #include "qshared.h"
 #endif // QT_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#6 $
 **
 ** Implementation of QSemiModal class
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qsemimodal.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 /*!
   \class QSemiModal qsemimodal.h

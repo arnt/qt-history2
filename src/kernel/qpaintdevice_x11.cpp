@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#82 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -9,18 +9,18 @@
 **
 *****************************************************************************/
 
-#include "qpaintd.h"
-#include "qpaintdc.h"
+#include "qpaintdevice.h"
+#include "qpaintdevicedefs.h"
 #include "qwidget.h"
 #include "qbitmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 /*!
-  \class QPaintDevice qpaintd.h
+  \class QPaintDevice qpaintdevice.h
   \brief The base class of objects that can be painted.
 
   \ingroup drawing
@@ -133,7 +133,7 @@ QPaintDevice::~QPaintDevice()
   Returns the window system handle of the paint device, for low-level
   access.  <em>Using this function is not portable.</em>
 
-  The HANDLE type varies with platform; see qpaintd.h and qwindefs.h
+  The HANDLE type varies with platform; see qpaintdevice.h and qwindowdefs.h
   for details.
 
   \sa x11Display()

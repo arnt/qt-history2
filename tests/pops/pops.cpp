@@ -1,7 +1,7 @@
 #include "pops.h"
 #include <qpainter.h>
-#include <qapp.h>
-#include <qpopmenu.h>
+#include <qapplication.h>
+#include <qpopupmenu.h>
 #include <qmenubar.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/bex.cpp#2 $
+** $Id: //depot/qt/main/tests/layout/bex.cpp#3 $
 **
 ** QBoxLayout example: boxes that go "backwards" (i.e. RightToLeft or 
 ** BottomToTop)
@@ -7,11 +7,11 @@
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
 #include <qcolor.h>
-#include <qgrpbox.h> 
-#include <qpushbt.h>
+#include <qgroupbox.h> 
+#include <qpushbutton.h>
 #include <qlayout.h>
 
 int main( int argc, char **argv )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#27 $
 **
 ** Implementation of QMainWindow class
 **
@@ -15,8 +15,9 @@
 
 #include "qtimer.h"
 #include "qlayout.h"
-#include "qobjcoll.h"
-#include "qapp.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
+#include "qapplication.h"
 
 #include "qpainter.h"
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#52 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -11,8 +11,8 @@
 
 #include "qcursor.h"
 #include "qbitmap.h"
-#include "qapp.h"
-#include "qdstream.h"
+#include "qapplication.h"
+#include "qdatastream.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>

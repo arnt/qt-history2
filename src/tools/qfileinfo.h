@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#15 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#16 $
 **
 ** Definition of QFileInfo class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#ifndef QFILEINF_H
-#define QFILEINF_H
+#ifndef QFILEINFO_H
+#define QFILEINFO_H
 
 #ifndef QT_H
 #include "qfile.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 #endif // QT_H
 
 class QDir;
@@ -95,4 +95,4 @@ inline bool QFileInfo::caching() const
 }
 
 
-#endif // QFILEINF_H
+#endif // QFILEINFO_H

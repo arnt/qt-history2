@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#37 $
 **
 ** Implementation of QIODevice class
 **
@@ -9,10 +9,10 @@
 **
 *****************************************************************************/
 
-#include "qiodev.h"
+#include "qiodevice.h"
 
 /*!
-  \class QIODevice qiodev.h
+  \class QIODevice qiodevice.h
 
   \brief The QIODevice class is the base class of I/O devices.
 

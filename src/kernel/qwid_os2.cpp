@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#18 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -10,7 +10,8 @@
 *****************************************************************************/
 
 #include "qview.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qcolor.h"
 #define	 INCL_PM
 #include <os2.h>

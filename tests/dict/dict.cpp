@@ -1,7 +1,7 @@
 #include "dict.h"
 #include <qdict.h>
 #include <qstring.h>
-#include <qdatetm.h>
+#include <qdatetime.h>
 #include <stdlib.h>
 
 QString keyFor( int i )

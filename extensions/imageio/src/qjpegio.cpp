@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#4 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#5 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -17,7 +17,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 #include <qimage.h>
-#include <qiodev.h>
+#include <qiodevice.h>
 
 struct my_error_mgr : public jpeg_error_mgr {
     jmp_buf setjmp_buffer;

@@ -1,7 +1,7 @@
 // Qt stuff
 #include "qnp.h"
 #include <qpainter.h>
-#include <qmsgbox.h>
+#include <qmessagebox.h>
 
 class Trivial : public QNPWidget {
     Q_OBJECT

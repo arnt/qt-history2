@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#105 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -11,7 +11,7 @@
 
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qfontdta.h"
+#include "qfontdata.h"
 #include "qcache.h"
 #include "qdict.h"
 #include <ctype.h>

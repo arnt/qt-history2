@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#48 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#49 $
 **
 ** Definition of QMenuData class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QMENUDTA_H
-#define QMENUDTA_H
+#ifndef QMENUDATA_H
+#define QMENUDATA_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -182,4 +182,4 @@ private:	//Disabled copy constructor and operator=
 };
 
 
-#endif // QMENUDTA_H
+#endif // QMENUDATA_H

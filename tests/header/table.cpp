@@ -1,7 +1,7 @@
 #include "table.h"
 
 #include <qheader.h>
-#include <qdrawutl.h>
+#include <qdrawutil.h>
 
 Table::Table( QHeader *b, int rows, QWidget *parent,
 			  int flags, const char *name )

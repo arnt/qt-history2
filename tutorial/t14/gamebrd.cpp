@@ -7,11 +7,11 @@
 #include "gamebrd.h"
 
 #include <qfont.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qlabel.h>
 #include <qaccel.h>
-#include <qpushbt.h>
-#include <qlcdnum.h>
+#include <qpushbutton.h>
+#include <qlcdnumber.h>
 
 #include "lcdrange.h"
 #include "cannon.h"

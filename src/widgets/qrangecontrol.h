@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#14 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#15 $
 **
 ** Definition of QRangeControl class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QRANGECT_H
-#define QRANGECT_H
+#ifndef QRANGECONTROL_H
+#define QRANGECONTROL_H
 
 
 class QRangeControl
@@ -75,4 +75,4 @@ inline int QRangeControl::pageStep() const
 { return page; }
 
 
-#endif // QRANGECT_H
+#endif // QRANGECONTROL_H

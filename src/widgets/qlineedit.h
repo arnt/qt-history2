@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#52 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#53 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -9,8 +9,8 @@
 **
 ***********************************************************************/
 
-#ifndef QLINED_H
-#define QLINED_H
+#ifndef QLINEEDIT_H
+#define QLINEEDIT_H
 
 struct QLineEditPrivate;
 
@@ -137,4 +137,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QLINED_H
+#endif // QLINEEDIT_H

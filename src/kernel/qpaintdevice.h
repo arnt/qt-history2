@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#50 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#51 $
 **
 ** Definition of QPaintDevice class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QPAINTD_H
-#define QPAINTD_H
+#ifndef QPAINTDEVICE_H
+#define QPAINTDEVICE_H
 
 #ifndef QT_H
-#include "qwindefs.h"
+#include "qwindowdefs.h"
 #include "qrect.h"
 #endif // QT_H
 
@@ -34,7 +34,7 @@
 #define PDF_PAINTACTIVE 0x20
 
 
-// Painter device command param (defined in qpaintdc.h)
+// Painter device command param (defined in qpaintdevicedefs.h)
 
 union QPDevCmdParam;
 
@@ -170,4 +170,4 @@ inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
 }
 
 
-#endif // QPAINTD_H
+#endif // QPAINTDEVICE_H

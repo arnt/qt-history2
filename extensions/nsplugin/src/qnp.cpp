@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#18 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#19 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -39,16 +39,16 @@
 //   - Provide the "reason" parameter to streamDestroyed
 
 // Qt stuff
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <qobjcoll.h>
 #include <qwidcoll.h>
 
 #include <qprinter.h>
-#include <qpsprn.h>
+#include <qpsprinter.h>
 #include <qfile.h>
 #include <qpainter.h>
-#include <qpaintdc.h>
+#include <qpaintdevicedefs.h>
 
 #include "qnp.h"
 
@@ -151,7 +151,7 @@ static int qnps_no_call_back = 0;
 static QNPWidget* focussedWidget=0;
 
 #ifdef _WS_WIN_
-// defined in qapp_win.cpp
+// defined in qapplication_win.cpp
 extern bool qt_win_use_simple_timers;
 #endif
 
@@ -164,10 +164,10 @@ typedef void (*ForeignEventProc)(XEvent*);
 
 extern XtEventDispatchProc
  qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
-void            qt_reset_color_avail();       // defined in qcol_x11.cpp
-void            qt_activate_timers();         // defined in qapp_x11.cpp
-timeval        *qt_wait_timer();              // defined in qapp_x11.cpp
-void		qt_x11SendPostedEvents();     // defined in qapp_x11.cpp
+void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
+void            qt_activate_timers();         // defined in qapplication_x11.cpp
+timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
+void		qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
 Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp
 extern int      qt_np_count;                  // defined in qnpsupport.cpp
 void qt_np_timeout( void* p, void* id );      // defined in qnpsupport.cpp

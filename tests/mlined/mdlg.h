@@ -1,4 +1,4 @@
-#include <qmlined.h>
+#include <qmultilined.h>
 
 class QMultiLineEdit;
 class FontSelect;
@@ -27,13 +27,13 @@ private:
 
 #include <qdialog.h>
 #include <qlabel.h>
-#include <qchkbox.h>
-#include <qscrbar.h>
-#include <qradiobt.h>
-#include <qbttngrp.h>
-#include <qgrpbox.h>
-#include <qpopmenu.h>
-#include <qlined.h>
+#include <qcheckbox.h>
+#include <qscrollbar.h>
+#include <qradiobutton.h>
+#include <qbuttongroup.h>
+#include <qgroupbox.h>
+#include <qpopupmenu.h>
+#include <qlineedit.h>
 #include <qmenubar.h>
 #include <stdlib.h>
 

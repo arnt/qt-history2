@@ -1,13 +1,14 @@
 #include <qwellarray.h>
 
-#include <qpushbt.h>
-//#include <qlined.h>
-#include <qapp.h>
+#include <qpushbutton.h>
+//#include <qlineedit.h>
+#include <qapplication.h>
 #include <qlayout.h>
-#include <qdrawutl.h>
+#include <qdrawutil.h>
 #include <qlabel.h>
 //#include <qevent.h>
-//#include "qobjcoll.h"
+//#include "qobjectlist.h"
+#include "qobjectdict.h"
 
 class Pop : public QWellArray
 {

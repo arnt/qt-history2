@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#56 $
 **
 ** Implementation of QPointArray class
 **
@@ -9,14 +9,14 @@
 **
 *****************************************************************************/
 
-#include "qpntarry.h"
+#include "qpointarray.h"
 #include "qrect.h"
-#include "qbitarry.h"
-#include "qdstream.h"
+#include "qbitarray.h"
+#include "qdatastream.h"
 #include <stdarg.h>
 
 /*!
-  \class QPointVal qpntarry.h
+  \class QPointVal qpointarray.h
   \brief The QPointVal class is an internal class, used with QPointArray.
 
   The QPointVal is required by the indexing [] operator on point arrays.
@@ -55,7 +55,7 @@
 
 
 /*!
-  \class QPointArray qpntarry.h
+  \class QPointArray qpointarray.h
   \brief The QPointArray class provides an array of points.
 
   \ingroup drawing

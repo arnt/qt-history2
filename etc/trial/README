@@ -1,8 +1,8 @@
 The important source code:
 	qtrial			- Puts reginfo in a Qt library
-	qapp_trial.cpp		- Included by qapp_win.cpp
-	qapp_win.cpp.patch	- Patch for qapp_win.cpp
-	qapp.cpp.patch		- Patch for qapp.cpp
+	qapplication_trial.cpp		- Included by qapplication_win.cpp
+	qapplication_win.cpp.patch	- Patch for qapplication_win.cpp
+	qapplication.cpp.patch		- Patch for qapplication.cpp
 
 Test programs:
 	code			- Encodes a key string

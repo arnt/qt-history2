@@ -1,16 +1,16 @@
-Index: qapp_x11.cpp
+Index: qapplication_x11.cpp
 ===================================================================
-RCS file: /local/lib/cvs/qt/src/kernel/qapp_x11.cpp,v
+RCS file: /local/lib/cvs/qt/src/kernel/qapplication_x11.cpp,v
 retrieving revision 2.35
-diff -u -r2.35 qapp_x11.cpp
---- qapp_x11.cpp	1997/05/01 09:54:51	2.35
-+++ qapp_x11.cpp	1997/05/02 14:46:15
+diff -u -r2.35 qapplication_x11.cpp
+--- qapplication_x11.cpp	1997/05/01 09:54:51	2.35
++++ qapplication_x11.cpp	1997/05/02 14:46:15
 @@ -156,6 +156,11 @@
  };
  
  
 +#if defined(QT_TRIAL)
-+#include "qapp_trial.cpp"
++#include "qapplication_trial.cpp"
 +#endif // QT_TRIAL
 +
 +

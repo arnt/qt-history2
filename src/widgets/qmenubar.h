@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#28 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#29 $
 **
 ** Definition of QMenuBar class
 **
@@ -13,7 +13,7 @@
 #define QMENUBAR_H
 
 #ifndef QT_H
-#include "qpopmenu.h"
+#include "qpopupmenu.h"
 #endif // QT_H
 
 

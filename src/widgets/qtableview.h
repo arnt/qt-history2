@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#20 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#21 $
 **
 ** Definition of QTableView class
 **
@@ -9,8 +9,8 @@
 **
 ***********************************************************************/
 
-#ifndef QTABLEVW_H
-#define QTABLEVW_H
+#ifndef QTABLEVIEW_H
+#define QTABLEVIEW_H
 
 #ifndef QT_H
 #include "qframe.h"
@@ -240,4 +240,4 @@ inline void QTableView::updateScrollBars()
 { updateScrollBars( 0 ); }
 
 
-#endif // QTABLEVW_H
+#endif // QTABLEVIEW_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#246 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#247 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -10,10 +10,10 @@
 *****************************************************************************/
 
 #include "qpainter.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qwidget.h"
 #include "qbitmap.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include "qlist.h"
 #include "qintdict.h"
 #include <ctype.h>
@@ -248,7 +248,7 @@ static void init_gc_cache()
 
 // #define GC_CACHE_STAT
 #if defined(GC_CACHE_STAT)
-#include "qtstream.h"
+#include "qtextstream.h"
 #include "qbuffer.h"
 
 static int g_numhits	= 0;

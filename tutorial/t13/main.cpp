@@ -4,7 +4,7 @@
 **
 ****************************************************************/
 
-#include <qapp.h>
+#include <qapplication.h>
 
 #include "gamebrd.h"
 

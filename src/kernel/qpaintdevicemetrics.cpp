@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#17 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -9,10 +9,10 @@
 **
 *****************************************************************************/
 
-#include "qpdevmet.h"
+#include "qpaintdevicemetrics.h"
 
 /*!
-  \class QPaintDeviceMetrics qpdevmet.h
+  \class QPaintDeviceMetrics qpaintdevicemetrics.h
   \brief The QPaintDeviceMetrics class provides information about a
   paint device.
 

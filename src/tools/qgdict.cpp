@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#57 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -12,7 +12,7 @@
 #include "qgdict.h"
 #include "qlist.h"
 #include "qstring.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #include <ctype.h>
 
 /*!

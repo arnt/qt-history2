@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#62 $
 **
 ** Implementation of QFile class
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qfile.h"
-#include "qfiledef.h"
+#include "qfiledefs.h"
 
 /*!
   \class QFile qfile.h

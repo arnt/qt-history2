@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#25 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -9,10 +9,10 @@
 **
 *****************************************************************************/
 
-#include "qclipbrd.h"
-#include "qapp.h"
+#include "qclipboard.h"
+#include "qapplication.h"
 #include "qpixmap.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -23,7 +23,7 @@
   Internal QClipboard functions for X11.
  *****************************************************************************/
 
-extern Time qt_x_clipboardtime;			// def. in qapp_x11.cpp
+extern Time qt_x_clipboardtime;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
 
 

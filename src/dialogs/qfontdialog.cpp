@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#13 $
 **
 ** Implementation of QFontDialog
 **
@@ -11,16 +11,16 @@
 
 #include "qfontdialog.h"
 
-#include "qlined.h"
+#include "qlineedit.h"
 #include "qlistbox.h"
-#include "qpushbt.h"
-#include "qchkbox.h"
-#include "qcombo.h"
+#include "qpushbutton.h"
+#include "qcheckbox.h"
+#include "qcombobox.h"
 #include "qlayout.h"
-#include "qgrpbox.h"
+#include "qgroupbox.h"
 #include "qlabel.h"
 #include "qkeycode.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 /*notready
   \class QFontDialog qfontdialog.h

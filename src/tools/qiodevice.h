@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#19 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#20 $
 **
 ** Definition of QIODevice class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QIODEV_H
-#define QIODEV_H
+#ifndef QIODEVICE_H
+#define QIODEVICE_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -127,4 +127,4 @@ private:	// Disabled copy constructor and operator=
 #undef	TB
 
 
-#endif // QIODEV_H
+#endif // QIODEVICE_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#26 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#27 $
 **
 ** Definition of QFileDialog class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QFILEDLG_H
-#define QFILEDLG_H
+#ifndef QFILEDIALOG_H
+#define QFILEDIALOG_H
 
 struct QFileDialogPrivate;
 class QLineEdit;
@@ -145,4 +145,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QFILEDLG_H
+#endif // QFILEDIALOG_H

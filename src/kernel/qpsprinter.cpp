@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#53 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -9,11 +9,11 @@
 **
 ***********************************************************************/
 
-#include "qpsprn.h"
+#include "qpsprinter.h"
 #include "qpainter.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qimage.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 
 #include "qstring.h"
 #include "qdict.h"

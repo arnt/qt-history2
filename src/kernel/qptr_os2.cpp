@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#17 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -11,7 +11,7 @@
 
 #include "qpainter.h"
 #include "qwidget.h"
-#include "qpntarry.h"
+#include "qpointarray.h"
 #include "qpixmap.h"
 #include <math.h>
 #define	 INCL_PM

@@ -1,6 +1,6 @@
 #include "fontextent.h"
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qkeycode.h>
 #include <qlabel.h>
 #include <qprinter.h>

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#6 $
+** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#7 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
 **	    This file is NOT a part of the official Qt source code!
 **
 ** Implementation of Windows trial routines.
-** This file is included by qapp_win.cpp if QT_TRIAL is defined.
+** This file is included by qapplication_win.cpp if QT_TRIAL is defined.
 **
 ** IMPORTANT: Change FINAL_TRIALDATE before March 15th 1997.
 **
@@ -193,7 +193,7 @@ static bool getTrialData( const char* keyString, int* y, int* m, int* d,
 
 
 /*****************************************************************************
-  Date routines, taken from qdatetm.cpp
+  Date routines, taken from qdatetime.cpp
  *****************************************************************************/
 
 static uint julianDay( int y, int m, int d )

@@ -13,10 +13,10 @@
 *****************************************************************************/
 
 #include "nurb.h"
-#include <qapp.h>
+#include <qapplication.h>
 #include <qkeycode.h>
 #include <qaccel.h>
-#include <qpushbt.h>
+#include <qpushbutton.h>
 
 
 class NurbSample : public QWidget {

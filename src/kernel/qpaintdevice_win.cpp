@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#37 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#include "qpaintd.h"
-#include "qpaintdc.h"
+#include "qpaintdevice.h"
+#include "qpaintdevicedefs.h"
 #include "qwidget.h"
 #include "qbitmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
+extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 QPaintDevice::QPaintDevice( uint devflags )
 {

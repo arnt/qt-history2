@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#136 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -9,14 +9,14 @@
 **
 ***********************************************************************/
 
-#include "qlined.h"
+#include "qlineedit.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qfontmet.h"
+#include "qdrawutil.h"
+#include "qfontmetrics.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
-#include "qclipbrd.h"
-#include "qapp.h"
+#include "qclipboard.h"
+#include "qapplication.h"
 #include "qvalidator.h"
 #include "qdragobject.h"
 #include "qtimer.h"
@@ -42,7 +42,7 @@ struct QLineEditPrivate {
 
 
 /*!
-  \class QLineEdit qlined.h
+  \class QLineEdit qlineedit.h
 
   \brief The QLineEdit widget is a simple line editor for inputting text.
 

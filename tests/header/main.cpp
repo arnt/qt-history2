@@ -1,7 +1,7 @@
-#include <qapp.h>
-#include <qscrbar.h>
+#include <qapplication.h>
+#include <qscrollbar.h>
 #include <qlayout.h>
-#include <qlcdnum.h>
+#include <qlcdnumber.h>
 #include <qheader.h>
 
 

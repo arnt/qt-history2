@@ -1,5 +1,5 @@
-#include <qapp.h>
-#include <qdatetm.h>
+#include <qapplication.h>
+#include <qdatetime.h>
 
 int main( int, char ** )
 {

@@ -1,13 +1,13 @@
 #include <qwidget.h>
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qspinbox.h>
 #include <qdialog.h>
-#include <qchkbox.h>
+#include <qcheckbox.h>
 #include <qlabel.h>
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qlayout.h>
-#include <qlined.h>
+#include <qlineedit.h>
 
 class Main : public QDialog {
     Q_OBJECT

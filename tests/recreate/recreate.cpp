@@ -1,7 +1,7 @@
 #include "recreate.h"
-#include <qpushbt.h>
+#include <qpushbutton.h>
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QLabel("Press key to recreate", parent, name, f)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#140 $
 **
 ** Implementation of QApplication class
 **
@@ -9,14 +9,16 @@
 **
 *****************************************************************************/
 
-#include "qapp.h"
-#include "qobjcoll.h"
+#include "qapplication.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qwidget.h"
-#include "qwidcoll.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
 
 
 /*!
-  \class QApplication qapp.h
+  \class QApplication qapplication.h
   \brief The QApplication class manages the application event queue.
 
   \ingroup kernel
@@ -33,8 +35,8 @@
 
   Example (a complete Qt application):
   \code
-    #include <qapp.h>				// defines QApplication
-    #include <qpushbt.h>			// defines QPushButton
+    #include <qapplication.h>				// defines QApplication
+    #include <qpushbutton.h>			// defines QPushButton
 
     int main( int argc, char **argv )
     {
@@ -63,7 +65,7 @@
   wish to share code between a non-GUI server and a GUI client.
 
   \header qkeycode.h
-  \header qwindefs.h
+  \header qwindowdefs.h
   \header qglobal.h
 */
 
@@ -71,7 +73,7 @@
 void qt_init( int *, char ** );			// defined in qapp_xyz.cpp
 void qt_cleanup();
 #if defined(_WS_X11_)
-void qt_init( Display* dpy );			// defined in qapp_x11.cpp
+void qt_init( Display* dpy );			// defined in qapplication_x11.cpp
 #endif
 
 QApplication *qApp = 0;				// global application object
@@ -292,7 +294,7 @@ QApplication::~QApplication()
   \code
     // showargs.cpp - displays program arguments in a list box
 
-    #include <qapp.h>
+    #include <qapplication.h>
     #include <qlistbox.h>
 
     int main( int argc, char **argv )
@@ -817,7 +819,7 @@ void QApplication::processOneEvent()
 
 #if !defined(_WS_X11_)
 
-// The doc and X implementation of these functions is in qapp_x11.cpp
+// The doc and X implementation of these functions is in qapplication_x11.cpp
 
 void QApplication::flushX()	{}		// do nothing
 

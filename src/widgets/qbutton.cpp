@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#112 $
 **
 ** Implementation of QButton widget class
 **
@@ -10,13 +10,13 @@
 *****************************************************************************/
 
 #include "qbutton.h"
-#include "qbttngrp.h"
+#include "qbuttongroup.h"
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qkeycode.h"
 #include "qtimer.h"
 #include "qaccel.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;

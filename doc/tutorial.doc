@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.12 1998/03/31 09:05:36 aavit Exp $
+** $Id: tutorial.doc,v 2.13 1998/06/16 11:39:30 warwick Exp $
 **
 ** Tutorial
 **
@@ -291,7 +291,7 @@ and a lone child.
 \skipline QWidget
 
 Here we simply create a widget.  Note that we did not have to
-include \c qwidget.h, because we have included qpushbt.h and
+include \c qwidget.h, because we have included qpushbutton.h and
 QPushButton is a subclass of QWidget (see <a href="hierarchy.html">
 Class Hierarchy</a>).
 
@@ -493,7 +493,7 @@ using signals and slots, and how to handle resize events.
 \skip qapp
 \until qfont
 
-Two new include files here, qscrbar.h and qlcdnum.h, because we use two
+Two new include files here, qscrollbar.h and qlcdnumber.h, because we use two
 new classes; QScrollBar and QLCDNumber.
 
 \skip MyWidget
@@ -822,7 +822,7 @@ header file.
 \c qwidget.h is included.  LCDRange inherits QWidget, and the header
 file of a parent class must always be included.  Until now, \c
 qwidget.h has been included indirectly via other header files like \c
-qpushbt.h.
+qpushbutton.h.
 
 Since the class declaration only uses pointers to QScrollBar and
 QLCDNumber it does not need their definitions, so we merely declare

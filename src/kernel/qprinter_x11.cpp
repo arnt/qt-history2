@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#40 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -10,13 +10,13 @@
 *****************************************************************************/
 
 #include "qprinter.h"
-#include "qfileinf.h"
+#include "qfileinfo.h"
 #include "qdir.h"
-#include "qpaintdc.h"
-#include "qpsprn.h"
-#include "qprndlg.h"
+#include "qpaintdevicedefs.h"
+#include "qpsprinter.h"
+#include "qprintdialog.h"
 #include "qfile.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include <stdlib.h>
 #if !defined(_OS_WIN32_)
 #include <unistd.h>

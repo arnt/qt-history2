@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#18 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -14,20 +14,21 @@
 // this code is bad bad bad.  we need to rethink and clean up in 2.0,
 // when we've had some real experience with use of all this.
 
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidget.h"
 #include "qintdict.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 #include "qdict.h"
 #include "qdragobject.h"
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 
 
 #include <X11/X.h> // for Atom
 #include <X11/Xlib.h> // for XEvent
 #include <X11/Xatom.h> // for XA_STRING and friends
 
-// this stuff is copied from qapp_x11.cpp
+// this stuff is copied from qapplication_x11.cpp
 
 extern void qt_x11_intern_atom( const char *, Atom * );
 
@@ -35,7 +36,7 @@ extern Window qt_x11_findClientWindow( Window, Atom, bool );
 extern Atom qt_wm_state;
 extern Time qt_x_clipboardtime;
 
-// this stuff is copied from qclb_x11.cpp
+// this stuff is copied from qclipboard_x11.cpp
 
 extern bool qt_xclb_wait_for_event( Display *dpy, Window win, int type,
 				    XEvent *event, int timeout );
@@ -46,7 +47,7 @@ extern bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 extern QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 						     Atom property,
 						     int nbytes );
-// and all this stuff is copied -into- qapp_x11.cpp
+// and all this stuff is copied -into- qapplication_x11.cpp
 
 void qt_xdnd_setup();
 void qt_handle_xdnd_enter( QWidget *, const XEvent * );

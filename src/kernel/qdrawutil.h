@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#11 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#12 $
 **
 ** Definition of draw utilities
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QDRAWUTL_H
-#define QDRAWUTL_H
+#ifndef QDRAWUTIL_H
+#define QDRAWUTIL_H
 
 #ifndef QT_H
 #include "qpainter.h"
@@ -90,4 +90,4 @@ void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
 		 int x, int y, int w, int h,
 		 const QColorGroup &g, bool enabled );
 
-#endif // QDRAWUTL_H
+#endif // QDRAWUTIL_H

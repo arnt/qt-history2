@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#6 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#7 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 **
@@ -16,8 +16,8 @@
 #include <qstring.h>
 #include <qfile.h>
 #include <qlist.h>
-#include <qtstream.h>
-#include <qdatetm.h>
+#include <qtextstream.h>
+#include <qdatetime.h>
 #include <ctype.h>
 
 void    embedData( const QByteArray &input, QFile *output );

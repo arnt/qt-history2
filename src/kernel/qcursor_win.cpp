@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#24 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -11,9 +11,9 @@
 
 #include "qcursor.h"
 #include "qbitmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qimage.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool

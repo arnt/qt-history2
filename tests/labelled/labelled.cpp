@@ -1,11 +1,11 @@
 #include "labelled.h"
 #include <qlabelled.h>
 #include <qlabel.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qgrid.h>
 #include <qvbox.h>
-#include <qchkbox.h>
-#include <qpushbt.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
 #include <qbuttonrow.h>
 
 

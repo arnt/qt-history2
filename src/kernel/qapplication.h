@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#77 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#78 $
 **
 ** Definition of QApplication class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QAPP_H
-#define QAPP_H
+#ifndef QAPPLICATION_H
+#define QAPPLICATION_H
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -19,7 +19,7 @@
 
 #if defined(TrueColor)
 // X11/X.h #defines TrueColor, so it can't be used in any class or enum
-#error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapp.h"
+#error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapplication.h"
 #endif
 
 extern QApplication *qApp;			// global application object
@@ -205,4 +205,4 @@ inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 }
 
 
-#endif // QAPP_H
+#endif // QAPPLICATION_H

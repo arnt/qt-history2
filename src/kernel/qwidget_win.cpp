@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#106 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -10,12 +10,14 @@
 *****************************************************************************/
 
 #include "qwindow.h"
-#include "qapp.h"
-#include "qpaintdc.h"
+#include "qapplication.h"
+#include "qpaintdevicedefs.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidcoll.h"
-#include "qobjcoll.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qaccel.h"
 #include "qimage.h"
 #include "qfocusdata.h"
@@ -32,7 +34,7 @@
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif
 
-const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
+const char *qt_reg_winclass( int type );	// defined in qapplication_win.cpp
 void	    qt_enter_modal( QWidget * );
 void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
@@ -156,7 +158,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	title = qAppName();
 
 	// The WState_Creates flag is checked by translateConfigEvent()
-        // in qapp_win.cpp. We switch it off temporarily to avoid move
+        // in qapplication_win.cpp. We switch it off temporarily to avoid move
         // and resize events during creation
     clearWFlags( WState_Created );
 
@@ -443,7 +445,7 @@ void QWidget::setBackgroundEmpty()
 }
 
 
-extern void qt_set_cursor( QWidget *, QCursor * ); // qapp_win.cpp
+extern void qt_set_cursor( QWidget *, QCursor * ); // qapplication_win.cpp
 
 void QWidget::setCursor( const QCursor &cursor )
 {
@@ -735,7 +737,7 @@ void QWidget::lower()
 
 
 //
-// The internal qWinRequestConfig, defined in qapp_win.cpp, stores move,
+// The internal qWinRequestConfig, defined in qapplication_win.cpp, stores move,
 // resize and setGeometry requests for a widget that is already
 // processing a config event. The purpose is to avoid recursion.
 //

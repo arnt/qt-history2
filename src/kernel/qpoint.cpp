@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#27 $
 **
 ** Implementation of QPoint class
 **
@@ -11,7 +11,7 @@
 
 #define QPOINT_C
 #include "qpoint.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 
 /*!
   \class QPoint qpoint.h
@@ -21,7 +21,7 @@
 
   A point is specified by an x coordinate and a y coordinate.
 
-  The coordinate type is QCOORD (defined in qwindefs.h as \c short).
+  The coordinate type is QCOORD (defined in qwindowdefs.h as \c short).
   The minimum value of QCOORD is QCOORD_MIN (-32768) and the maximum
   value is  QCOORD_MAX (32767).
 

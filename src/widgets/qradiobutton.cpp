@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#76 $
 **
 ** Implementation of QRadioButton class
 **
@@ -9,17 +9,17 @@
 **
 *****************************************************************************/
 
-#include "qradiobt.h"
-#include "qbttngrp.h"
+#include "qradiobutton.h"
+#include "qbuttongroup.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qpixmap.h"
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
 
 /*!
-  \class QRadioButton qradiobt.h
+  \class QRadioButton qradiobutton.h
   \brief The QRadioButton widget provides a radio button with a text label.
 
   \ingroup realwidgets

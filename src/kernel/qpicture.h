@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#20 $
 **
 ** Definition of QPicture class
 **
@@ -13,7 +13,7 @@
 #define QPICTURE_H
 
 #ifndef QT_H
-#include "qpaintd.h"
+#include "qpaintdevice.h"
 #include "qbuffer.h"
 #endif // QT_H
 

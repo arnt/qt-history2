@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#16 $
 **
 **  Splitter widget
 **
@@ -10,7 +10,7 @@
 #include "qsplitter.h"
 
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qbitmap.h"
 
 

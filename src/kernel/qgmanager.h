@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#12 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#13 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QGMANAGR_H
-#define QGMANAGR_H
+#ifndef QGMANAGER_H
+#define QGMANAGER_H
 
 #ifndef QT_H
 #include "qintdict.h"
@@ -83,4 +83,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QGMANAGR_H
+#endif // QGMANAGER_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#13 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#14 $
 **
 ** Definition of QObject and QMetaObject collections
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#55 $
 **
 ** Global functions
 **
@@ -405,7 +405,7 @@ void qObsolete(	 const char *message )
 
   Example:
   \code
-    #include <qapp.h>
+    #include <qapplication.h>
     #include <stdio.h>
     #include <stdlib.h>
 

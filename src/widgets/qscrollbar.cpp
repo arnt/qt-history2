@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#94 $
 **
 ** Implementation of QScrollBar class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#include "qscrbar.h"
+#include "qscrollbar.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
 
 /*!
-  \class QScrollBar qscrbar.h
+  \class QScrollBar qscrollbar.h
 
   \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 

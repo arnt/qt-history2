@@ -1,17 +1,17 @@
 //#define NO_MENUS
 //#define NO_FONT_SELECTION
 
-#include <qapp.h>
+#include <qapplication.h>
 
 #include <qdialog.h>
-#include <qlined.h>
-#include <qchkbox.h>
-#include <qbttngrp.h>
-#include <qpushbt.h>
+#include <qlineedit.h>
+#include <qcheckbox.h>
+#include <qbuttongroup.h>
+#include <qpushbutton.h>
 
 #include <qpainter.h>
 #include <qbitmap.h>
-#include <qpmcache.h>
+#include <qpixmapcache.h>
 #include <qimage.h>
 #include <qbuffer.h>
 #include <qlabel.h>

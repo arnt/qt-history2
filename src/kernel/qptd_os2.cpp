@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#12 $
 **
 ** Implementation of QPaintDevice class for OS/2 PM
 **
@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-#include "qpaintd.h"
+#include "qpaintdevice.h"
 #include "qwidget.h"
 #include "qpixmap.h"
 #define	 INCL_PM

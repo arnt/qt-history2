@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#40 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#41 $
 **
 ** Definition of QPopupMenu class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#ifndef QPOPMENU_H
-#define QPOPMENU_H
+#ifndef QPOPUPMENU_H
+#define QPOPUPMENU_H
 
 #ifndef QT_H
-#include "qtablevw.h"
-#include "qmenudta.h"
+#include "qtableview.h"
+#include "qmenudata.h"
 #endif // QT_H
 
 
@@ -109,4 +109,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QPOPMENU_H
+#endif // QPOPUPMENU_H

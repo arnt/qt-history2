@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#1 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.h#2 $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **
@@ -12,7 +12,7 @@
 #ifndef QXT_H
 #define QXT_H
 
-#include <qapp.h>
+#include <qapplication.h>
 #include <qwidget.h>
 #include <X11/Intrinsic.h>
 

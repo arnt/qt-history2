@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#12 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#13 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -9,8 +9,8 @@
 **
 ***********************************************************************/
 
-#ifndef QGRPBOX_H
-#define QGRPBOX_H
+#ifndef QGROUPBOX_H
+#define QGROUPBOX_H
 
 #ifndef QT_H
 #include "qframe.h"
@@ -45,4 +45,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QGRPBOX_H
+#endif // QGROUPBOX_H

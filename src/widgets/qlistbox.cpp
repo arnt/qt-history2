@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#146 $
 **
 ** Implementation of QListBox widget class
 **
@@ -10,13 +10,13 @@
 ***********************************************************************/
 
 #include "qlistbox.h"
-#include "qfontmet.h"
+#include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qstrlist.h"
 #include "qkeycode.h"
-#include "qscrbar.h"
+#include "qscrollbar.h"
 #include "qpixmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 Q_DECLARE(QListM, QListBoxItem);
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#9 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include "qasyncio.h"
-#include "qiodev.h"
+#include "qiodevice.h"
 #include "qtimer.h"
 #include <stdlib.h>
 

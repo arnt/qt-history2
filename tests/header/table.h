@@ -1,7 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <qtablevw.h>
+#include <qtableview.h>
 #include <qarray.h>
 
 class QHeader;

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <qdatetm.h>
+#include <qdatetime.h>
 
 class D : public QDate
 {

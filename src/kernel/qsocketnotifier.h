@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#14 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#15 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QSOCKNOT_H
-#define QSOCKNOT_H
+#ifndef QSOCKETNOTIFIER_H
+#define QSOCKETNOTIFIER_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -59,4 +59,4 @@ inline bool QSocketNotifier::isEnabled() const
 { return snenabled; }
 
 
-#endif // QSOCKNOT_H
+#endif // QSOCKETNOTIFIER_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#26 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#ifndef QPAINTDC_H
-#define QPAINTDC_H
+#ifndef QPAINTDEVICEDEFS_H
+#define QPAINTDEVICEDEFS_H
 
 #ifndef QT_H
-#include "qwindefs.h"
+#include "qwindowdefs.h"
 #endif // QT_H
 
 
@@ -96,4 +96,4 @@ union QPDevCmdParam {
 #define PDM_DEPTH		6
 
 
-#endif // QPAINTDC_H
+#endif // QPAINTDEVICEDEFS_H

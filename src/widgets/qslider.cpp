@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#52 $
 **
 ** Implementation of QSlider class
 **
@@ -11,7 +11,7 @@
 
 #include "qslider.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qtimer.h"
 #include "qkeycode.h"
 

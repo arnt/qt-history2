@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#34 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#35 $
 **
 ** Definition of QMessageBox class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QMSGBOX_H
-#define QMSGBOX_H
+#ifndef QMESSAGEBOX_H
+#define QMESSAGEBOX_H
 
 #ifndef QT_H
 #include "qdialog.h"
@@ -132,4 +132,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QMSGBOX_H
+#endif // QMESSAGEBOX_H

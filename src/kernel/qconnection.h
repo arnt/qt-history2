@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#15 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#16 $
 **
 ** Definition of QConnection class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QCONNECT_H
-#define QCONNECT_H
+#ifndef QCONNECTION_H
+#define QCONNECTION_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -45,4 +45,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QCONNECT_H
+#endif // QCONNECTION_H

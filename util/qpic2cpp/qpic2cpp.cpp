@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#4 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#5 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
@@ -20,12 +20,12 @@
 
 #include <qmetafil.h>
 #include <qrect.h>
-#include <qpntarry.h>
+#include <qpointarray.h>
 #include <qwxfmat.h>
 #include <qcolor.h>
 #include <qfile.h>
 #include <qbuffer.h>
-#include <qdstream.h>
+#include <qdatastream.h>
 
 
 static const Q_UINT32 mfhdr_tag = 0x11140d06;	// header tag

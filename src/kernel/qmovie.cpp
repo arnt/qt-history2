@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#33 $
 **
 ** Implementation of movie classes
 **
@@ -825,7 +825,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.32 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.33 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -836,7 +836,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 #error Moc format conflict - please regenerate all moc files
 #endif
 
-#include <qmetaobj.h>
+#include <qmetaobject.h>
 
 
 const char *QMoviePrivate::className() const

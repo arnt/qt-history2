@@ -1,11 +1,11 @@
---- orig\qapp_win.cpp	Mon Oct 13 21:20:31 1997
-+++ qapp_win.cpp	Mon Oct 13 21:54:27 1997
+--- orig\qapplication_win.cpp	Mon Oct 13 21:20:31 1997
++++ qapplication_win.cpp	Mon Oct 13 21:54:27 1997
 @@ -115,6 +115,11 @@
  typedef Q_DECLARE(QArrayM,pchar) ArgV;
  
  
 +#if defined(QT_TRIAL)
-+#include "../../etc/trial/qapp_trial.cpp"
++#include "../../etc/trial/qapplication_trial.cpp"
 +#endif // QT_TRIAL
 +
 +

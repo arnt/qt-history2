@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#29 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#30 $
 **
 ** Definition of QPointArray class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QPNTARRY_H
-#define QPNTARRY_H
+#ifndef QPOINTARRAY_H
+#define QPOINTARRAY_H
 
 #ifndef QT_H
 #include "qarray.h"
@@ -155,4 +155,4 @@ inline QPointVal &QPointVal::operator-=( const QPoint &point )
 }
 
 
-#endif // QPNTARRY_H
+#endif // QPOINTARRAY_H

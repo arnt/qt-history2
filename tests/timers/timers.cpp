@@ -1,6 +1,6 @@
 #include "timers.h"
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 #include <qtimer.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :

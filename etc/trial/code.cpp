@@ -1,7 +1,7 @@
 
 
 #include <qstring.h>
-#include <qdatetm.h>
+#include <qdatetime.h>
 #include <stdio.h>
 
 static const int keyLen = 7;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#138 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -14,10 +14,10 @@
 *****************************************************************************/
 
 #include "qpainter.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qbitmap.h"
 #include "qstack.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
 #include <stdlib.h>
@@ -97,7 +97,7 @@
   values, from the device, thus setting fonts, brushes, etc, before
   begin() will have \e no effect.
 
-  \header qdrawutl.h
+  \header qdrawutil.h
 
   \sa QPaintDevice, QWidget, QPixmap
 */
@@ -1558,7 +1558,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 
 
 #if !defined(_WS_X11_)
-// The doc and X implementation of this functions is in qptr_x11.cpp
+// The doc and X implementation of this functions is in qpainter_x11.cpp
 void QPainter::drawWinFocusRect( int, int, int, int,
 				 bool, const QColor & )
 {
@@ -1801,7 +1801,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   \a brect (if non-null) is set to the actual bounding rectangle of
   the output.  \a internal is, yes, internal.
 
-  These flags are defined in qwindefs.h.
+  These flags are defined in qwindowdefs.h.
 
   \sa boundingRect()
 */
@@ -2294,7 +2294,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
-  These flags are defined in qwindefs.h.
+  These flags are defined in qwindowdefs.h.
 
   \sa drawText(), fontMetrics()
 */

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#53 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#54 $
 **
 ** Definition of QComboBox class
 **
@@ -9,8 +9,8 @@
 **
 ***********************************************************************/
 
-#ifndef QCOMBO_H
-#define QCOMBO_H
+#ifndef QCOMBOBOX_H
+#define QCOMBOBOX_H
 
 #ifndef QT_H
 #include "qwidget.h"

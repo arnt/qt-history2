@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#4 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -9,9 +9,10 @@
 **
 ***********************************************************************/
 //#include <qlayout.h>
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 //#include <qevent.h>
-//#include "qobjcoll.h"
+//#include "qobjectlist.h"
+#include "qobjectdict.h"
 
 #include "qkeycode.h"
 #include "qwellarray.h"

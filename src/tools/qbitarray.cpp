@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#42 $
 **
 ** Implementation of QBitArray class
 **
@@ -9,14 +9,14 @@
 **
 *****************************************************************************/
 
-#include "qbitarry.h"
-#include "qdstream.h"
+#include "qbitarray.h"
+#include "qdatastream.h"
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
 
 
 /*!
-  \class QBitVal qbitarry.h
+  \class QBitVal qbitarray.h
   \brief The QBitVal class is an internal class, used with QBitArray.
 
   The QBitVal is required by the indexing [] operator on bit arrays.
@@ -51,7 +51,7 @@
 
 
 /*!
-  \class QBitArray qbitarry.h
+  \class QBitArray qbitarray.h
   \brief The QBitArray class provides an array of bits.
 
   \ingroup tools

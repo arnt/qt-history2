@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#248 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#249 $
 **
 ** Implementation of QWidget class
 **
@@ -12,14 +12,16 @@
 ** function, otherwise widget mapping will not work.
 *****************************************************************************/
 
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qwidget.h"
-#include "qwidcoll.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
 #include "qptrdict.h"
 #include "qfocusdata.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qbrush.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
@@ -584,7 +586,7 @@ void QWidget::sendDeferredEvents()
 				  WStyle_Tool );
   \endcode
 
-  The widget flags are defined in qwindefs.h (which is included by
+  The widget flags are defined in qwindowdefs.h (which is included by
   qwidget.h).
 */
 
@@ -857,7 +859,7 @@ void QWidget::deleteExtra()
   Returns a pointer to the widget with window identifer/handle \e id.
 
   The window identifier type depends by the underlying window system,
-  see qwindefs.h for the actual definition.
+  see qwindowdefs.h for the actual definition.
   If there is no widget with this identifier, a null pointer is returned.
 
   \sa wmapper(), id()
@@ -931,7 +933,7 @@ GUIStyle QWidget::style() const
 
 /*!
   Sets the GUI style for this widget.  The valid values are listed
-  in qwindefs.h.
+  in qwindowdefs.h.
 
   \sa style(), styleChange(), QApplication::setStyle()
 */
@@ -2695,7 +2697,7 @@ QSize QWidget::sizeHint() const
   \fn bool QWidget::testWFlags( WFlags n ) const
 
   Returns non-zero if any of the widget flags in \e n are set. The
-  widget flags are listed in qwindefs.h, and are strictly for
+  widget flags are listed in qwindowdefs.h, and are strictly for
   internal use.
 
   \internal

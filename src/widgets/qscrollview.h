@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#20 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#21 $
 **
 ** Definition of QScrollView class
 **
@@ -13,7 +13,7 @@
 
 #ifndef QT_H
 #include "qframe.h"
-#include "qscrbar.h"
+#include "qscrollbar.h"
 #endif // QT_H
 
 struct QScrollViewData;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#128 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -14,9 +14,9 @@
 
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qpaintdc.h"
+#include "qpaintdevicedefs.h"
 #include "qwmatrix.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include <stdlib.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#23 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#24 $
 **
 ** Macros and definitions related to QObject
 **
@@ -12,8 +12,8 @@
 ** the QObjects work.
 *****************************************************************************/
 
-#ifndef QOBJDEFS_H
-#define QOBJDEFS_H
+#ifndef QOBJECTDEFS_H
+#define QOBJECTDEFS_H
 
 #ifndef QT_H
 #include "qglobal.h"
@@ -78,4 +78,4 @@ class QDictM_QMetaData;				// meta object dictionaries
 #define QMemberDict QDictM_QMetaData
 
 
-#endif // QOBJDEFS_H
+#endif // QOBJECTDEFS_H

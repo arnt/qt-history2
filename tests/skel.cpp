@@ -1,6 +1,6 @@
 #include "???.h"
 #include <qpainter.h>
-#include <qapp.h>
+#include <qapplication.h>
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)

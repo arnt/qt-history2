@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#75 $
 **
 ** Implementation of QLabel widget class
 **
@@ -12,7 +12,7 @@
 #include "qlabel.h"
 #include "qpixmap.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qaccel.h"
 #include "qkeycode.h"
 #include "qmovie.h"

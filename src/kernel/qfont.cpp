@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#91 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -10,14 +10,14 @@
 *****************************************************************************/
 
 #include "qfont.h"
-#include "qfontdta.h"
-#include "qfontmet.h"
-#include "qfontinf.h"
+#include "qfontdata.h"
+#include "qfontmetrics.h"
+#include "qfontinfo.h"
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qdict.h"
 #include "qstrlist.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #include <ctype.h>
 #include <limits.h>
 
@@ -601,8 +601,8 @@ QFont::StyleHint QFont::styleHint() const
   is available, if not it will display its text label with another
   serif font:
   \code
-    #include <qapp.h>
-    #include <qpushbt.h>
+    #include <qapplication.h>
+    #include <qpushbutton.h>
     #include <qfont.h>
 
     int main( int argc, char **argv )
@@ -1141,7 +1141,7 @@ void QFontMetrics::reset( const QPainter *p )
 
 
 /*!
-  \class QFontMetrics qfontmet.h
+  \class QFontMetrics qfontmetrics.h
   \brief The QFontMetrics class provides font metrics information about fonts.
 
   \ingroup fonts
@@ -1402,7 +1402,7 @@ void QFontInfo::reset( const QPainter *p )
 
 
 /*!
-  \class QFontInfo qfontinf.h
+  \class QFontInfo qfontinfo.h
 
   \brief The QFontInfo class provides general information about fonts.
 
@@ -1784,7 +1784,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
-  These flags are defined in qwindefs.h.
+  These flags are defined in qwindowdefs.h.
 
   If \c ExpandTabs is set in \a flags, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
@@ -1844,7 +1844,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
   <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
-  These flags are defined in qwindefs.h.
+  These flags are defined in qwindowdefs.h.
 
   If \c ExpandTabs is set in \a flags, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence

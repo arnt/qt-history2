@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#41 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#42 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -9,24 +9,24 @@
 **
 *****************************************************************************/
 
-#include "qprndlg.h"
+#include "qprintdialog.h"
 
-#include "qfiledlg.h"
+#include "qfiledialog.h"
 
 #include "qfile.h"
 
-#include "qcombo.h"
+#include "qcombobox.h"
 #include "qframe.h"
 #include "qlabel.h"
-#include "qlined.h"
-#include "qpushbt.h"
+#include "qlineedit.h"
+#include "qpushbutton.h"
 #include "qprinter.h"
 #include "qlistview.h"
 #include "qlayout.h"
-#include "qbttngrp.h"
-#include "qradiobt.h"
+#include "qbuttongroup.h"
+#include "qradiobutton.h"
 #include "qspinbox.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -424,7 +424,7 @@ static void parseSpoolInterface( QListView * printers )
 static QPrintDialog * globalPrintDialog = 0;
 
 
-/*! \class QPrintDialog qprndlg.h
+/*! \class QPrintDialog qprintdialog.h
 
   \brief The QPrintDialog class provides a dialog for specifying
   print-out details.

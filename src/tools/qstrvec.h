@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#12 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#13 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -17,7 +17,7 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qvector.h"
-#include "qdstream.h"
+#include "qdatastream.h"
 #endif // QT_H
 
 

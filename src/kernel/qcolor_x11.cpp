@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#75 $
 **
 ** Implementation of QColor class for X11
 **
@@ -11,8 +11,8 @@
 
 #include "qcolor.h"
 #include "string.h"
-#include "qpaintd.h"
-#include "qapp.h"
+#include "qpaintdevice.h"
+#include "qapplication.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -57,7 +57,7 @@ static int	col_div_r;
 static int	col_div_g;
 static int	col_div_b;
 
-extern int	qt_ncols_option;		// defined in qapp_x11.cpp
+extern int	qt_ncols_option;		// defined in qapplication_x11.cpp
 extern int	qt_visual_option;
 extern bool	qt_cmap_option;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#148 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -9,13 +9,15 @@
 **
 *****************************************************************************/
 
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidget.h"
-#include "qwidcoll.h"
-#include "qobjcoll.h"
+#include "qwidgetlist.h"
+#include "qwidgetintdict.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qpainter.h"
-#include "qpmcache.h"
-#include "qdatetm.h"
+#include "qpixmapcache.h"
+#include "qdatetime.h"
 #include <ctype.h>
 
 #if defined(_CC_BOOL_DEF_)
@@ -801,7 +803,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 /*****************************************************************************
   Socket notifier (type: 0=read, 1=write, 2=exception)
 
-  The QSocketNotifier class (qsocknot.h) provides installable callbacks
+  The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
   for select() throught the internal function qt_set_socket_handler().
  *****************************************************************************/
 

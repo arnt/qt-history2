@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#45 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -11,9 +11,9 @@
 
 #include "qheader.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
+#include "qdrawutil.h"
 #include "qbitmap.h"
-#include "qbitarry.h"
+#include "qbitarray.h"
 
 static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;

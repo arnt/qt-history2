@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#11 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -9,17 +9,17 @@
 **
 *****************************************************************************/
 
-#include "qapp.h"
+#include "qapplication.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <limits.h>
 
-void            qt_reset_color_avail();       // defined in qcol_x11.cpp
-void            qt_activate_timers();         // defined in qapp_x11.cpp
-timeval        *qt_wait_timer();              // defined in qapp_x11.cpp
-void            qt_x11SendPostedEvents();     // defined in qapp_x11.cpp
+void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
+void            qt_activate_timers();         // defined in qapplication_x11.cpp
+timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
+void            qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
 
 typedef int (*SameAsXtEventDispatchProc)(XEvent*);
 SameAsXtEventDispatchProc qt_np_cascade_event_handler[LASTEvent];

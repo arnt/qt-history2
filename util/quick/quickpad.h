@@ -1,7 +1,7 @@
 #ifndef QUICKPAD_H
 #define QUICKPAD_H
 
-#include <qtabdlg.h>
+#include <qtabdialog.h>
 
 class QWidgetFactory {
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#57 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#58 $
 **
 ** Implementation of QTabDialog class
 **
@@ -9,19 +9,20 @@
 **
 *****************************************************************************/
 
-#include "qtabdlg.h"
+#include "qtabdialog.h"
 
-#include "qobjcoll.h"
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #include "qtabbar.h"
-#include "qpushbt.h"
+#include "qpushbutton.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidgetstack.h"
 #include "qlayout.h"
 
 /*!
-  \class QTabDialog qtabdlg.h
+  \class QTabDialog qtabdialog.h
 
   \brief The QTabDialog class provides a stack of tabbed widgets.
 

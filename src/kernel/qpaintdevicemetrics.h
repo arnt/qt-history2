@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#12 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
@@ -9,13 +9,13 @@
 **
 *****************************************************************************/
 
-#ifndef QPDEVMET_H
-#define QPDEVMET_H
+#ifndef QPAINTDEVICEMETRICS_H
+#define QPAINTDEVICEMETRICS_H
 
 #ifndef QT_H
-#include "qwindefs.h"
-#include "qpaintd.h"
-#include "qpaintdc.h"
+#include "qwindowdefs.h"
+#include "qpaintdevice.h"
+#include "qpaintdevicedefs.h"
 #endif // QT_H
 
 
@@ -36,4 +36,4 @@ private:
 };
 
 
-#endif // QPDEVMET_H
+#endif // QPAINTDEVICEMETRICS_H

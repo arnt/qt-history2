@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#37 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#38 $
 **
 ** Definition of QFontMetrics class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QFONTMET_H
-#define QFONTMET_H
+#ifndef QFONTMETRICS_H
+#define QFONTMETRICS_H
 
 #ifndef QT_H
 #include "qfont.h"
@@ -95,4 +95,4 @@ private:
 };
 
 
-#endif // QFONTMET_H
+#endif // QFONTMETRICS_H

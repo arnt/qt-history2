@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#117 $
 **
 ** Implementation of QListView widget class
 **
@@ -16,10 +16,10 @@
 #include "qstack.h"
 #include "qlist.h"
 #include "qstrlist.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
-#include "qdatetm.h"
+#include "qdatetime.h"
 #include "qptrdict.h"
 #include "qvector.h"
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#18 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -9,11 +9,11 @@
 **
 *****************************************************************************/
 
-#include "qpmcache.h"
+#include "qpixmapcache.h"
 #include "qcache.h"
 
 /*!
-  \class QPixmapCache qpmcache.h
+  \class QPixmapCache qpixmapcache.h
 
   \brief The QPixmapCache class provides an application-global cache for
   pixmaps.

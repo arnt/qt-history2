@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#48 $
 **
 ** Implementation of QTextStream class
 **
@@ -9,7 +9,7 @@
 **
 *****************************************************************************/
 
-#include "qtstream.h"
+#include "qtextstream.h"
 #include "qbuffer.h"
 #include "qfile.h"
 #include <stdio.h>
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 /*!
-  \class QTextStream qtstream.h
+  \class QTextStream qtextstream.h
 
   \brief The QTextStream class provides basic functions for reading and
   writing text using a QIODevice.
@@ -58,7 +58,7 @@
 */
 
 /*
-  \class QTSManip qtstream.h
+  \class QTSManip qtextstream.h
 
   \brief The QTSManip class is an internal helper class for the
   QTextStream.

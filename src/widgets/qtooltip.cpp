@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#52 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -10,7 +10,7 @@
 #include "qtooltip.h"
 #include "qlabel.h"
 #include "qptrdict.h"
-#include "qapp.h"
+#include "qapplication.h"
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -81,7 +81,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.46 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.47 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -92,7 +92,7 @@ private:
 #error Moc format conflict - please regenerate all moc files
 #endif
 
-#include <qmetaobj.h>
+#include <qmetaobject.h>
 
 
 const char *QTipManager::className() const

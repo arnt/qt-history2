@@ -6,8 +6,8 @@
 
 #include "lcdrange.h"
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qscrollbar.h>
+#include <qlcdnumber.h>
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
         : QWidget( parent, name )

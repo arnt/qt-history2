@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#136 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -9,22 +9,22 @@
 **
 ***********************************************************************/
 
-#include "qcombo.h"
-#include "qpopmenu.h"
+#include "qcombobox.h"
+#include "qpopupmenu.h"
 #include "qlistbox.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qscrbar.h"   // we need the qDrawArrow function
+#include "qdrawutil.h"
+#include "qscrollbar.h"   // we need the qDrawArrow function
 #include "qkeycode.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"
-#include "qapp.h"
-#include "qlined.h"
+#include "qapplication.h"
+#include "qlineedit.h"
 #include <limits.h>
 
 /*!
-  \class QComboBox qcombo.h
+  \class QComboBox qcombobox.h
   \brief The QComboBox widget is a combined button and popup list.
 
   \ingroup realwidgets

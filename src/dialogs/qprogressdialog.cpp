@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#27 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -9,12 +9,12 @@
 **
 *****************************************************************************/
 
-#include "qprogdlg.h"
+#include "qprogressdialog.h"
 #include "qaccel.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
-#include "qdatetm.h"
-#include "qapp.h"
+#include "qdrawutil.h"
+#include "qdatetime.h"
+#include "qapplication.h"
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -56,7 +56,7 @@ struct QProgressData
 
 
 /*!
-  \class QProgressDialog qprogdlg.h
+  \class QProgressDialog qprogressdialog.h
   \brief Provides feedback on the progress of a slow operation.
   \ingroup dialogs
   \ingroup realwidgets

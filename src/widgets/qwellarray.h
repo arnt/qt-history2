@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#4 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#5 $
 **
 ** Definition of QWellArray widget class
 **
@@ -13,7 +13,7 @@
 #define QWELLARRAY_H
 
 #ifndef QT_H
-#include "qtablevw.h"
+#include "qtableview.h"
 #endif // QT_H
 
 struct QWellArrayData;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#45 $
 **
 ** Implementation of QAccel class
 **
@@ -11,7 +11,7 @@
 
 #define QAccelList QListM_QAccelItem
 #include "qaccel.h"
-#include "qapp.h"
+#include "qapplication.h"
 #include "qwidget.h"
 #include "qlist.h"
 #include "qsignal.h"

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#23 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#24 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
 **		This file is NOT a part of the Qt interface!
 **
 ** Common macros and system include files for QFile, QFileInfo and QDir.
-** This file is included by qfile.cpp, qfileinf.cpp and qdir.cpp
+** This file is included by qfile.cpp, qfileinfo.cpp and qdir.cpp
 **
 ** Created : 930812
 **
