@@ -2,11 +2,7 @@
 #define PINGPONGAPP_H
 
 #include <qmainwindow.h>
-#include <qcombobox.h>
-#include <qmap.h>
-#include <qsqlcursor.h>
 #include <qsqltable.h>
-#include <qsqleditorfactory.h>
 
 #include "cursors.h"
 
@@ -16,6 +12,8 @@ class QAction;
 class QTabWidget;
 
 class TeamEditorWidget;
+class TeamPicker;
+class Statistics;
 
 class MatchTable : public QSqlTable
 {
@@ -25,13 +23,30 @@ public:
 			      bool wholeRows = FALSE );
 };
 
-class Statistics : public QFrame
+class Statistics : public QWidget
 {
+    Q_OBJECT
 public:
     Statistics( QWidget * parent = 0, const char * name = 0 );
-    void refresh();
+
+protected slots:
+    void updateStats();
+    
 private:
     QListView* list;
+    TeamCursor teamCr;
+    QLabel * setsWon;
+    QLabel * setsLost;
+    QLabel * matchesWon;
+    QLabel * matchesLost;
+    QLabel * winPercentage;
+    QLabel * lossPercentage;
+    QLabel * totalSets;
+    QLabel * totalMatches;
+    QLabel * hate;
+    QLabel * love;
+    QLabel * topTeam;
+    TeamPicker * teamPicker;
 };
 
 class PingPongApp : public QMainWindow
@@ -57,6 +72,7 @@ private:
     
     QTabWidget * tab;
     TeamEditorWidget * teamEditor;
+    Statistics * statWidget;
     QSqlTable * matchTable;
     MatchCursor matchCr;
 };

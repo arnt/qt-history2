@@ -14,7 +14,6 @@
 TeamPicker::TeamPicker( QWidget * parent = 0, const char * name = 0 )
     : QComboBox( parent, name )
 {
-    //    setFocusPolicy( StrongFocus );
     QSqlCursor team( "team" );
     team.select( team.index("name") );
     int idx = 0;
@@ -186,16 +185,14 @@ MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     formLayout->addWidget( flabel, 1, 0 );
     formLayout->addWidget( wins, 1, 1 );
     form->associate( wins, buf->field("winnerwins") );
-    connect( wins, SIGNAL( valueChanged(int) ),
-	     SLOT( updateSets() ) );
+    connect( wins, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
     flabel = new QLabel( buf->field("loserwins")->displayLabel(), w );
     losses = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 2 );
     formLayout->addWidget( losses, 1, 3 );
     form->associate( losses, buf->field("loserwins") );
-    connect( losses, SIGNAL( valueChanged(int) ),
-	     SLOT( updateSets() ) );
+    connect( losses, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
     flabel = new QLabel( buf->field("date")->displayLabel(), w );
     editor = ef->createEditor( w, buf->value("date") );
