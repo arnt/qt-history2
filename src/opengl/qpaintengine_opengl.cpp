@@ -22,7 +22,11 @@
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
 
-#include <GL/glu.h>
+#ifdef Q_OS_MAC
+# include <OpenGL/glu.h>
+#else
+# include <GL/glu.h>
+#endif
 
 #ifndef CALLBACK // for Windows
 #define CALLBACK
