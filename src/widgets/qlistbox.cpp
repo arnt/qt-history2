@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#304 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#305 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1335,8 +1335,10 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	break;
     }
     if ( i ) {
-	if ( selectionMode() == Single )
+	if ( selectionMode() == Single && !i->s ) {
 	    i->s = TRUE;
+	    updateItem( i );
+	}
 	setCurrentItem( i );
     }
     // for sanity, in case people are event-filtering or whatnot
@@ -2442,12 +2444,12 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
     while ( row < numRows() &&
 	   y > d->rowPos[row] )
 	row++;
-    
+
     int nr = numRows();
-    if ( nr > 0 && 
+    if ( nr > 0 &&
 	 y > d->rowPos[ nr - 1 ] + d->rowPos[ nr ] - d->rowPos[ nr - 1 ] )
 	return 0;
-    
+
     if ( row && y < d->rowPos[row] )
 	row--;
 
