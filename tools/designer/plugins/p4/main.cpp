@@ -30,11 +30,12 @@ public:
 private slots:
     void p4Edit();
     void p4Submit();
+    void p4MightEdit( bool b, const QString &fn );
 
 private:
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
-    
+
 };
 
 P4Interface::P4Interface()
@@ -53,6 +54,13 @@ bool P4Interface::connectNotify( QApplication* theApp )
     appInterface = theApp->requestApplicationInterface();
     if ( !appInterface )
 	return FALSE;
+
+    DesignerMainWindowInterface *mwIface = 0;
+    DesignerFormWindowInterface *fwIface = 0;
+    if ( ( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) &&
+	 ( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
+	fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
+				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
 
     return TRUE;
 }
@@ -95,8 +103,8 @@ void P4Interface::p4Edit()
     if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) ||
 	 !( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
 	return;
- 
-    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface );
+
+    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface, FALSE );
     edit->edit();
 }
 
@@ -110,6 +118,17 @@ void P4Interface::p4Submit()
 	 !( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
 	return;
     qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "dileName" ).toString().latin1() );
+}
+
+void P4Interface::p4MightEdit( bool b, const QString &s )
+{
+    if ( !b || !appInterface )
+	return;
+    DesignerMainWindowInterface *mwIface = 0;
+    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) )
+	return;
+    P4Edit *edit = new P4Edit( s, mwIface, TRUE );
+    edit->edit();
 }
 
 #include "main.moc"

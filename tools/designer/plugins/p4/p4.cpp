@@ -6,20 +6,20 @@
 
 #include "../../designer/designerappiface.h"
 
-P4Edit::P4Edit( const QString &filename, DesignerMainWindowInterface *iface )
-    : QObject( iface ), fileName( filename ), process( 0 ), mwIface( iface )
+P4Edit::P4Edit( const QString &filename, DesignerMainWindowInterface *iface, bool s )
+    : QObject( iface ), fileName( filename ), process( 0 ), mwIface( iface ), silent( s )
 {
     state = Done;
     DesignerStatusBarInterface *sbIface = 0;
     if ( ( sbIface = (DesignerStatusBarInterface*)mwIface->requestInterface( "DesignerStatusBarInterface" ) ) ) {
-	sbIface->requestConnect( this, SIGNAL( showStatusBarMessage( const QString &, int ) ), 
+	sbIface->requestConnect( this, SIGNAL( showStatusBarMessage( const QString &, int ) ),
 				 SLOT( message( const QString &, int ) ) );
     }
 }
 
-P4Edit::~P4Edit() 
+P4Edit::~P4Edit()
 {
-    delete process; 
+    delete process;
 }
 
 void P4Edit::edit()
@@ -48,11 +48,22 @@ void P4Edit::processExited()
     if ( state == FStat ) {
 	state = Edit;
 	if ( fstatData.find( "clientFile" ) == -1 ) {
-	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file\n%1\nfor edit failed!" ).arg( fileName ) );
+	    if ( !silent )
+		QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file\n%1\nfor edit failed!" ).arg( fileName ) );
 	    state = Done;
 	    return;
 	}
 	if ( fstatData.find( "... action edit" ) == -1 ) {
+	    if ( silent ) {
+		if ( QMessageBox::information( 0, tr( "P4 Edir" ), tr( "The file\n%1\nis under Perforce Source Control and not " 
+								       "opened for edit.\n"
+								       "Do you want to open it for edit?" ).
+					       arg( fileName ),
+					       tr( "&Yes" ), tr( "&No" ) ) == 1 ) {
+		    state = Done;
+		    return;
+		}
+	    }
 	    QStringList args;
 	    args << "p4" << "edit" << fileName;
 	    process->setArguments( args );
