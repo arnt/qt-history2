@@ -62,14 +62,14 @@ double qt_pointSize(double pixelSize, int dpi)
 static inline double pixelSize(const QFontDef &request, int dpi)
 {
     return ((request.pointSize != -1)
-            ? qt_pixelSize(request.pointSize / 10., dpi)
+            ? qt_pixelSize(request.pointSize, dpi)
             : (double)request.pixelSize);
 }
 
 static inline double pointSize(const QFontDef &request, int dpi)
 {
     return ((request.pixelSize != -1)
-            ? qt_pointSize(request.pixelSize, dpi) * 10.
+            ? qt_pointSize(request.pixelSize, dpi)
             : (double)request.pointSize);
 }
 

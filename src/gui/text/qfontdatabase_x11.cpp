@@ -490,10 +490,10 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     // not "0" or "*", or required DPI
     if (r && fd->pixelSize && r != dpi) {
         // calculate actual pointsize for display DPI
-        fd->pointSize = qRound(qt_pointSize(fd->pixelSize, dpi) * 10.);
+        fd->pointSize = qt_pointSize(fd->pixelSize, dpi);
     } else if (fd->pixelSize == 0 && fd->pointSize) {
         // calculate pixel size from pointsize/dpi
-        fd->pixelSize = qRound(qt_pixelSize(fd->pointSize / 10., dpi));
+        fd->pixelSize = qRound(qt_pixelSize(fd->pointSize, dpi));
     }
 
     return true;
@@ -713,7 +713,7 @@ QFontDef FcPatternToQFontDef(FcPattern *pattern)
     else
         fontDef.pixelSize = 12;
 
-    fontDef.pointSize = int(qt_pointSize(fontDef.pixelSize, qRound(dpi)) * 10.0);
+    fontDef.pointSize = qt_pointSize(fontDef.pixelSize, qRound(dpi));
 
     /* ###
        fontDef.styleStrategy

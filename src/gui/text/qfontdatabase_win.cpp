@@ -555,22 +555,22 @@ void QFontPrivate::initFontInfo()
         actual.family = QString::fromLocal8Bit(an);
         actual.fixedPitch = !(fin->tm.a.tmPitchAndFamily & TMPF_FIXED_PITCH);
     });
-    if (actual.pointSize == -1) {
+    if (actual.pointSize < 0) {
         if (paintdevice)
-            actual.pointSize = actual.pixelSize * 720 / paintdevice->logicalDpiY();
+            actual.pointSize = actual.pixelSize * 72. / paintdevice->logicalDpiY();
         else {
-            actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps(fin->dc(), LOGPIXELSY);
+            actual.pointSize = actual.pixelSize * 72. / GetDeviceCaps(fin->dc(), LOGPIXELSY);
         }
     } else if (actual.pixelSize == -1) {
         if (paintdevice)
-            actual.pixelSize = actual.pointSize * paintdevice->logicalDpiY() / 720;
+            actual.pixelSize = actual.pointSize * paintdevice->logicalDpiY() / 72.;
         else
-            actual.pixelSize = actual.pointSize * GetDeviceCaps(fin->dc(), LOGPIXELSY) / 720;
+            actual.pixelSize = actual.pointSize * GetDeviceCaps(fin->dc(), LOGPIXELSY) / 72.;
     }
 
     actual.dirty = false;
     exactMatch = (actual.family == request.family &&
-                   (request.pointSize == -1 || (actual.pointSize == request.pointSize)) &&
+                   (request.pointSize < 0 || (actual.pointSize == request.pointSize)) &&
                    (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize)) &&
                    actual.fixedPitch == request.fixedPitch);
 }

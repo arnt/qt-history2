@@ -65,9 +65,7 @@ bool QFontDef::exactMatch(const QFontDef &other) const
         if (pixelSize != other.pixelSize)
             return false;
     } else if (pointSize != -1 && other.pointSize != -1) {
-        if (pointSize != other.pointSize
-            && (qAbs(pointSize - other.pointSize) >= 5
-                || qRound(pointSize/10.) != qRound(other.pointSize/10.)))
+        if (pointSize != other.pointSize)
             return false;
     } else {
         return false;
@@ -497,7 +495,7 @@ QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
     }
 
     d->request.family = family;
-    d->request.pointSize = pointSize * 10;
+    d->request.pointSize = qreal(pointSize);
     d->request.pixelSize = -1;
     d->request.weight = weight;
     d->request.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
@@ -577,7 +575,7 @@ void QFont::setFamily(const QString &family)
 */
 int QFont::pointSize() const
 {
-    return d->request.pointSize == -1 ? -1 : (d->request.pointSize + 5) / 10;
+    return qRound(d->request.pointSize);
 }
 
 /*!
@@ -592,7 +590,7 @@ void QFont::setPointSize(int pointSize)
 
     detach();
 
-    d->request.pointSize = pointSize * 10;
+    d->request.pointSize = qreal(pointSize);
     d->request.pixelSize = -1;
 
     resolve_mask |= QFontPrivate::Size;
@@ -611,7 +609,7 @@ void QFont::setPointSizeF(qreal pointSize)
 
     detach();
 
-    d->request.pointSize = qRound(pointSize * 10.0);
+    d->request.pointSize = pointSize;
     d->request.pixelSize = -1;
 
     resolve_mask |= QFontPrivate::Size;
@@ -625,7 +623,7 @@ void QFont::setPointSizeF(qreal pointSize)
 */
 qreal QFont::pointSizeF() const
 {
-    return qreal(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
+    return d->request.pointSize;
 }
 
 /*!
@@ -1151,13 +1149,13 @@ bool QFont::exactMatch() const
 */
 bool QFont::operator==(const QFont &f) const
 {
-    return f.d == d || (f.d->request   == d->request   &&
-                        f.d->request.pointSize == d->request.pointSize &&
-                         f.d->underline == d->underline &&
-                         f.d->overline  == d->overline  &&
-                         f.d->strikeOut == d->strikeOut &&
-                         f.d->kerning == d->kerning
-       );
+    return (f.d == d
+            || (f.d->request   == d->request
+                && f.d->request.pointSize == d->request.pointSize
+                && f.d->underline == d->underline
+                && f.d->overline  == d->overline
+                && f.d->strikeOut == d->strikeOut
+                && f.d->kerning == d->kerning));
 }
 
 
@@ -1648,9 +1646,15 @@ QDataStream &operator<<(QDataStream &s, const QFont &font)
         s << font.d->request.family;
     }
 
-    if (s.version() <= 3) {
-        qint16 pointSize = (qint16) font.d->request.pointSize;
-        if (pointSize == -1) {
+    if (s.version() >= QDataStream::Qt_4_0) {
+        // 4.0
+        double pointSize = font.d->request.pointSize;
+        qint32 pixelSize = font.d->request.pixelSize;
+        s << pointSize;
+        s << pixelSize;
+    } else if (s.version() <= 3) {
+        qint16 pointSize = (qint16) (font.d->request.pointSize * 10);
+        if (pointSize < 0) {
 #ifdef Q_WS_X11
             pointSize = (qint16)(font.d->request.pixelSize*720/QX11Info::appDpiY());
 #else
@@ -1659,7 +1663,7 @@ QDataStream &operator<<(QDataStream &s, const QFont &font)
         }
         s << pointSize;
     } else {
-        s << (qint16) font.d->request.pointSize;
+        s << (qint16) (font.d->request.pointSize * 10);
         s << (qint16) font.d->request.pixelSize;
     }
 
@@ -1688,7 +1692,6 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     font.d = new QFontPrivate;
     font.resolve_mask = QFontPrivate::Complete;
 
-    qint16 pointSize, pixelSize = -1;
     quint8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;
 
     if (s.version() == 1) {
@@ -1699,9 +1702,22 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
         s >> font.d->request.family;
     }
 
-    s >> pointSize;
-    if (s.version() >= 4)
+    if (s.version() >= QDataStream::Qt_4_0) {
+        // 4.0
+        double pointSize;
+        qint32 pixelSize;
+        s >> pointSize;
         s >> pixelSize;
+        font.d->request.pointSize = qreal(pointSize);
+        font.d->request.pixelSize = pixelSize;
+    } else {
+        qint16 pointSize, pixelSize = -1;
+        s >> pointSize;
+        if (s.version() >= 4)
+            s >> pixelSize;
+        font.d->request.pointSize = qreal(pointSize / 10.);
+        font.d->request.pixelSize = pixelSize;
+    }
     s >> styleHint;
     if (s.version() >= 5)
         s >> styleStrategy;
@@ -1709,8 +1725,6 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     s >> weight;
     s >> bits;
 
-    font.d->request.pointSize = pointSize;
-    font.d->request.pixelSize = pixelSize;
     font.d->request.styleHint = styleHint;
     font.d->request.styleStrategy = styleStrategy;
     font.d->request.weight = weight;
@@ -1836,7 +1850,7 @@ int QFontInfo::pointSize() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return (engine->fontDef.pointSize + 5) / 10;
+    return qRound(engine->fontDef.pointSize);
 }
 
 /*!
@@ -1848,7 +1862,7 @@ qreal QFontInfo::pointSizeF() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return qreal(engine->fontDef.pointSize) / 10.0;
+    return engine->fontDef.pointSize;
 }
 
 /*!
@@ -2065,7 +2079,7 @@ QFontCache::~QFontCache()
     while (it != end) {
         if (it.value().data->ref == 0) {
             if (--it.value().data->cache_count == 0) {
-                FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+                FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %g %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
                          it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);
@@ -2101,7 +2115,7 @@ void QFontCache::clear()
     while (it != end) {
         if (it.value().data->ref == 0) {
             if (--it.value().data->cache_count == 0) {
-                FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+                FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %g %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
                          it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);

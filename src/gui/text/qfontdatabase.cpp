@@ -1046,15 +1046,14 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
     if (fp) {
 #if defined(Q_WS_X11)
-        fe->fontDef.pointSize =
-            int(qt_pointSize(fe->fontDef.pixelSize, fp->dpi) * 10.);
+        fe->fontDef.pointSize = qt_pointSize(fe->fontDef.pixelSize, fp->dpi);
 #elif defined(Q_WS_WIN)
-        fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
-                                        GetDeviceCaps(shared_dc,LOGPIXELSY));
+        fe->fontDef.pointSize = qreal(fe->fontDef.pixelSize) * 72.0
+                                / GetDeviceCaps(shared_dc,LOGPIXELSY);
 #elif defined(Q_WS_MAC)
         fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->dpi);
 #else
-        fe->fontDef.pointSize     = fe->fontDef.pixelSize*10; //####int(double(fe->fontDef.pixelSize) * 720.0 / 96.0);
+        fe->fontDef.pointSize = qreal(fe->fontDef.pixelSize); //####int(double(fe->fontDef.pixelSize) * 72.0 / 96.0);
 #endif
     } else {
         fe->fontDef.pointSize = request.pointSize;

@@ -36,7 +36,7 @@ class QFontEngine;
 struct QFontDef
 {
     inline QFontDef()
-        : pointSize(-1), pixelSize(-1),
+        : pointSize(-1.0), pixelSize(-1),
           styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle),
           weight(50), fixedPitch(false), style(QFont::StyleNormal), stretch(100),
           ignorePitch(true)
@@ -52,7 +52,7 @@ struct QFontDef
     QString addStyle;
 #endif // Q_WS_X11
 
-    int pointSize;
+    qreal pointSize;
     int pixelSize;
 
     uint styleStrategy : 16;

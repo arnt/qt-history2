@@ -71,7 +71,7 @@ static inline float pixelSize(const QFontDef &request, int dpi)
 {
     float pSize;
     if (request.pointSize != -1)
-        pSize = request.pointSize * dpi/ 720.;
+        pSize = request.pointSize * dpi/ 72.;
     else
         pSize = request.pixelSize;
     return pSize;
@@ -80,8 +80,8 @@ static inline float pixelSize(const QFontDef &request, int dpi)
 static inline float pointSize(const QFontDef &fd, int dpi)
 {
     float pSize;
-    if (fd.pointSize == -1)
-        pSize = fd.pixelSize * 720. / ((float)dpi);
+    if (fd.pointSize < 0)
+        pSize = fd.pixelSize * 72. / ((float)dpi);
     else
         pSize = fd.pointSize;
     return pSize;

@@ -31,7 +31,7 @@ int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
     if(def.pixelSize == -1)
-        ret = def.pointSize *  dpi / 720.;
+        ret = def.pointSize *  dpi / 72.;
     else
         ret = def.pixelSize;
     return qRound(ret);
@@ -39,8 +39,8 @@ int qt_mac_pixelsize(const QFontDef &def, int dpi)
 int qt_mac_pointsize(const QFontDef &def, int dpi)
 {
     float ret;
-    if(def.pointSize == -1)
-        ret = def.pixelSize * 720. / float(dpi);
+    if(def.pointSize < 0)
+        ret = def.pixelSize * 72. / float(dpi);
     else
         ret = def.pointSize;
     return qRound(ret);
@@ -168,7 +168,7 @@ void QFontPrivate::load(int script)
     }
     { //fill in the engine's font definition
         engine->fontDef = request; //copy..
-        if(engine->fontDef.pointSize == -1)
+        if(engine->fontDef.pointSize < 0)
             engine->fontDef.pointSize = qt_mac_pointsize(engine->fontDef, dpi);
         else
             engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, dpi);
