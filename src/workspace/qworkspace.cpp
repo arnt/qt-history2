@@ -243,6 +243,16 @@ public:
     QPtrList<QDockWindow> dockwindows, newdocks;
 };
 
+static bool isChildOf( QWidget * child, QWidget * parent )
+{
+    if ( !parent || !child )
+	return FALSE;
+    QWidget * w = child;
+    while( w && w != parent )
+	w = w->parentWidget();
+    return w != 0;
+}
+
 /*!
   Constructs a workspace with a \a parent and a \a name.
  */
@@ -479,8 +489,11 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
     }
 
-    if ( d->active && d->active->windowWidget() == w )
+    if ( d->active && d->active->windowWidget() == w ) {
+	if ( !isChildOf( focusWidget(), w ) ) // child window does not have focus
+	    d->active->setActive( TRUE );
 	return;
+    }
 
     QPtrListIterator<QWorkspaceChild> it( d->windows );
     while ( it.current () ) {
@@ -2402,23 +2415,13 @@ void QWorkspaceChild::styleChange( QStyle & )
     }
 }
 
-static bool isChildOf( QWidget * child, QWidget * parent )
-{
-    if ( !parent || !child )
-	return FALSE;
-    QWidget * w = child;
-    while( w && w != parent )
-	w = w->parentWidget();
-    return w != 0;
-}
-
-
 void QWorkspaceChild::setActive( bool b )
 {
     if ( !childWidget )
 	return;
 
-    if ( act == b )
+    bool hasFocus = isChildOf( focusWidget(), childWidget );
+    if ( act == b && hasFocus )
 	return;
 
     act = b;
@@ -2434,7 +2437,6 @@ void QWorkspaceChild::setActive( bool b )
 	QObject *o;
 	for ( o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
-	bool hasFocus = isChildOf( focusWidget(), childWidget );
 	if ( !hasFocus ) {
 	    if ( lastfocusw && ol->contains( lastfocusw ) &&
 		 lastfocusw->focusPolicy() != NoFocus ) {
