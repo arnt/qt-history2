@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#106 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#105 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#106 $")
 
 
 /*----------------------------------------------------------------------------
@@ -397,30 +397,27 @@ void QWidget::setStyle( GUIStyle style )
     GUIStyle old = this->style();
     createExtra();
     extra->guistyle = style;
-    if ( styleChange(old) )
-	repaint();
+    styleChange( old );
 }
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::styleChange( GUIStyle oldStyle )
+  \fn void QWidget::styleChange( GUIStyle oldStyle )
 
-  This virtual function is called from setStyle().  The \e oldStyle
-  argument is the previous widget style. The new style is already set for
-  this widget when styleChange() is called.
+  This virtual function is called from setStyle().  \e oldStyle is the
+  previous style; you can get the new style from style().
 
-  Reimplement this function in a subclass if you need to know when the
-  widget's GUI style changes. Return TRUE to make the widget \link
-  repaint() repaint\endlink itself, or return FALSE if you do your own
-  update.
+  Reimplement this function if your widget needs to know when its GUI
+  style changes.  You will almost certainly need to update the widget
+  using either repaint(TRUE) or update().
 
-  The default implementation does nothing and returns TRUE.
+  The default implementation calls update().
 
-  \sa setStyle(), style(), repaint()
+  \sa setStyle(), style(), repaint(), update()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::styleChange( GUIStyle )
+void QWidget::styleChange( GUIStyle )
 {
-    return TRUE;
+    update();
 }
 
 
@@ -691,26 +688,25 @@ const QColor &QWidget::foregroundColor() const
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::backgroundColorChange( const QColor &oldBackgroundColor )
+  \fn void QWidget::backgroundColorChange( const QColor &oldBackgroundColor )
 
-  This virtual function is called from setBackgroundColor().  The \e
-  oldBackgroundColor argument is the previous widget background color. The
-  new background color is already set for this widget when
-  backgroundColorChange() is called.
+  This virtual function is called from setBackgroundColor().
+  \e oldBackgroundColor is the previous background color; you can get the new
+  background color from backgroundColor().
 
-  Reimplement this function in a subclass if you need to know when the
-  widget's background color changes. Return TRUE to make the widget \link
-  repaint() repaint\endlink itself, or return FALSE if you do your own
-  update.
+  Reimplement this function if your widget needs to know when its
+  background color changes.  You will almost certainly need to update the
+  widget using either repaint(TRUE) or update().
 
-  The default implementation does nothing and returns TRUE.
+  The default implementation calls update().
 
-  \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint()
+  \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
+  update()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::backgroundColorChange( const QColor & )
+void QWidget::backgroundColorChange( const QColor & )
 {
-    return TRUE;
+    update();
 }
 
 
@@ -728,26 +724,24 @@ const QPixmap *QWidget::backgroundPixmap() const
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::backgroundPixmapChange( const QColor &oldBackgroundPixmap )
+  \fn void QWidget::backgroundPixmapChange( const QColor &oldBackgroundPixmap )
 
-  This virtual function is called from setBackgroundPixmap().  The \e
-  oldBackgroundPixmap argument is the previous widget background
-  pixmap. The new background pixmap is already set for this widget when
-  backgroundPixmapChange() is called.
+  This virtual function is called from setBackgroundPixmap().
+  \e oldBackgroundPixmap is the previous background pixmap; you can get the
+  new background pixmap from backgroundPixmap().
 
-  Reimplement this function in a subclass if you need to know when the
-  widget's background pixmap changes. Return TRUE to make the widget \link
-  repaint() repaint\endlink itself, or return FALSE if you do your own
-  update.
+  Reimplement this function if your widget needs to know when its
+  background pixmap changes.  You will almost certainly need to update the
+  widget using either repaint(TRUE) or update().
 
-  The default implementation does nothing and returns TRUE.
+  The default implementation calls update().
 
-  \sa setBackgroundPixmap(), backgroundPixmap(), repaint()
+  \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::backgroundPixmapChange( const QPixmap & )
+void QWidget::backgroundPixmapChange( const QPixmap & )
 {
-    return TRUE;
+    update();
 }
 
 
@@ -791,29 +785,27 @@ void QWidget::setPalette( const QPalette &p )
     QPalette old = pal;
     pal = p;
     setBackgroundColor( colorGroup().background() );
-    if ( paletteChange(old) )
-	repaint();
+    paletteChange( old );
 }
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::paletteChange( const QPalette &oldPalette )
+  \fn void QWidget::paletteChange( const QPalette &oldPalette )
 
-  This virtual function is called from setPalette().  The \e oldPalette
-  argument is the previous widget palette. The new palette is already set
-  for this widget when paletteChange() is called.
+  This virtual function is called from setPalette().  \e oldPalette is the
+  previous palette; you can get the new palette from palette().
 
-  Reimplement this function in a subclass if you need to know when the
-  widget's palette changes. Return TRUE to make the widget \link repaint()
-  repaint\endlink itself, or return FALSE if you do your own update.
+  Reimplement this function if your widget needs to know when its palette
+  changes.  You will almost certainly need to update the widget using
+  either repaint(TRUE) or update().
 
-  The default implementation does nothing and returns TRUE.
+  The default implementation calls update().
 
-  \sa setPalette(), palette(), repaint()
+  \sa setPalette(), palette(), repaint(), update()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::paletteChange( const QPalette & )
+void QWidget::paletteChange( const QPalette & )
 {
-    return TRUE;
+    update();
 }
 
 
@@ -847,30 +839,28 @@ void QWidget::setFont( const QFont &font )
     QFont old = fnt;
     fnt = font;
     fnt.handle();				// force load font
-    if ( fontChange(old) )
-	repaint();
+    fontChange( old );
 }
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QWidget::fontChange( const QFont &oldFont )
+  \fn void QWidget::fontChange( const QFont &oldFont )
 
-  This virtual function is called from setFont().  The \e oldFont argument
-  is the previous widget font. The new font is already set for this widget
-  when fontChange() is called.
+  This virtual function is called from setFont().  \e oldFont is the
+  previous font; you can get the new font from font().
 
-  Reimplement this function in a subclass if you need to know when the
-  widget's font changes. Return TRUE to make the widget \link repaint()
-  repaint\endlink itself, or return FALSE if you do your own update.
+  Reimplement this function if your widget needs to know when its font
+  changes.  You will almost certainly need to update the widget using
+  either repaint(TRUE) or update().
 
-  The default implementation does nothing and returns TRUE.
+  The default implementation calls update().
 
-  \sa setFont(), font(), repaint()
+  \sa setFont(), font(), repaint(), update()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::fontChange( const QFont & )
+void QWidget::fontChange( const QFont & )
 {
-    return TRUE;
+    update();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#69 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#70 $
 **
 ** Definition of QWidget class
 **
@@ -202,11 +202,11 @@ protected:
   // Misc. protected functions
 
 protected:
-    virtual bool styleChange( GUIStyle );
-    virtual bool backgroundColorChange( const QColor & );
-    virtual bool backgroundPixmapChange( const QPixmap & );
-    virtual bool paletteChange( const QPalette & );
-    virtual bool fontChange( const QFont & );
+    virtual void styleChange( GUIStyle );
+    virtual void backgroundColorChange( const QColor & );
+    virtual void backgroundPixmapChange( const QPixmap & );
+    virtual void paletteChange( const QPalette & );
+    virtual void fontChange( const QFont & );
 
     bool	 acceptFocus()	const;
     void	 setAcceptFocus( bool );
