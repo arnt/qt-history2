@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#185 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#184 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#185 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -521,6 +521,11 @@ void QWidget::setBackgroundColor( const QColor &color )
     backgroundColorChange( old );
 }
 
+#if QT_VERSION == 200
+#error "Consider making setBackgroundEmpty virtual"
+#endif
+static int allow_null_pixmaps = 0;
+
 
 /*!
   Sets the background pixmap of the widget to \e pixmap.
@@ -536,7 +541,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
     QPixmap old;
     if ( extra && extra->bg_pix )
 	old = *extra->bg_pix;
-    if ( pixmap.isNull() ) {
+    if ( !allow_null_pixmaps && pixmap.isNull() ) {
 	XSetWindowBackground( dpy, winid, bg_col.pixel() );
 	if ( extra && extra->bg_pix ) {
 	    delete extra->bg_pix;
@@ -544,9 +549,11 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	}
     } else {
 	QPixmap pm = pixmap;
-	if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
-	    pm = QPixmap( pixmap.size() );
-	    bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
+	if (!pm.isNull()) {
+	    if ( pm.depth() == 1 && QPixmap::defaultDepth() > 1 ) {
+		pm = QPixmap( pixmap.size() );
+		bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
+	    }
 	}
 	if ( extra && extra->bg_pix )
 	    delete extra->bg_pix;
@@ -558,6 +565,29 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    qt_updated_rootinfo();
     }
     backgroundPixmapChange( old );
+}
+
+
+/*!
+  Sets the window-system background of the widget to nothing.
+
+  If the paintEvent() function of the widget \e always paints the
+  entire clip area of the event, calling this function will improve
+  the smoothness of display update as the window-system will
+  not draw any background prior to sending the paint event.
+
+  Note that `nothing' is actually a pixmap that isNull(), but
+  QWidget::setBackgroundPixmap() will not accept null pixmaps unless called
+  from within this function.
+
+  \sa setBackgroundPixmap(), setBackgroundColor()
+*/
+
+void QWidget::setBackgroundEmpty()
+{
+    allow_null_pixmaps++;
+    setBackgroundPixmap(QPixmap());
+    allow_null_pixmaps--;
 }
 
 

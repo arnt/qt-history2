@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#71 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#71 $");
 
 
 /*!
@@ -264,26 +264,31 @@ QPixmap &QPixmap::operator=( const QImage &image )
 /*!
   \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
   Fills the pixmap with the widget's background color or pixmap.
+  If the background is empty, nothing is done.
 
   The \e ofs point is an offset in the widget.
 */
 
 /*!
   Fills the pixmap with the widget's background color or pixmap.
+  If the background is empty, nothing is done.
 
   The \e xofs and \e yofs is an offset in the widget.
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 {
-    if ( widget->backgroundPixmap() ) {
-	QPainter p;
-	p.begin( this );
-	p.setPen( NoPen );
-	p.setBrush( QBrush( black,*widget->backgroundPixmap() ) );
-	p.setBrushOrigin( -xofs, -yofs );
-	p.drawRect( 0, 0, width(), height() );
-	p.end();
+    const QPixmap* bgpm = widget->backgroundPixmap();
+    if ( bgpm ) {
+	if ( !bgpm->isNull() ) {
+	    QPainter p;
+	    p.begin( this );
+	    p.setPen( NoPen );
+	    p.setBrush( QBrush( black,*widget->backgroundPixmap() ) );
+	    p.setBrushOrigin( -xofs, -yofs );
+	    p.drawRect( 0, 0, width(), height() );
+	    p.end();
+	}
     } else {
 	fill( widget->backgroundColor() );
     }

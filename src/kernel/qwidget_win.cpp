@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#68 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#68 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -351,12 +351,17 @@ void QWidget::setBackgroundColor( const QColor &color )
     backgroundColorChange( old );
 }
 
+#if QT_VERSION == 200
+#error "Consider making setBackgroundEmpty virtual"
+#endif
+static int allow_null_pixmaps = 0;
+
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
     QPixmap old;
     if ( extra && extra->bg_pix )
 	old = *extra->bg_pix;
-    if ( pixmap.isNull() ) {
+    if ( !allow_null_pixmaps && pixmap.isNull() ) {
 	if ( extra && extra->bg_pix ) {
 	    delete extra->bg_pix;
 	    extra->bg_pix = 0;
@@ -370,6 +375,14 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
     }
     backgroundPixmapChange( old );
 }
+
+void QWidget::setBackgroundEmpty()
+{
+    allow_null_pixmaps++;
+    setBackgroundPixmap(QPixmap());
+    allow_null_pixmaps--;
+}
+
 
 
 extern void qt_set_cursor( QWidget *, QCursor * ); // qapp_win.cpp

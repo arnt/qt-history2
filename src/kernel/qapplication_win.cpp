@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#95 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#95 $");
 
 
 /*****************************************************************************
@@ -991,13 +991,17 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    const QPixmap *bgpm = widget->backgroundPixmap();
 	    if ( bgpm )
-		brush = CreatePatternBrush( bgpm->hbm() );
+		if ( !bgpm.isNull() )
+		    brush = CreatePatternBrush( bgpm->hbm() );
 	    else
 		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
-	    HBRUSH oldBrush = SelectObject( hdc, brush );
-	    PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
-	    SelectObject( hdc, oldBrush );
-	    DeleteObject( brush );
+
+	    if ( !bgpm.isNull() ) {
+		HBRUSH oldBrush = SelectObject( hdc, brush );
+		PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
+		SelectObject( hdc, oldBrush );
+		DeleteObject( brush );
+	    }
 	    if ( QColor::hPal() ) {
 		SelectPalette( hdc, oldPal, TRUE );
 		RealizePalette( hdc );

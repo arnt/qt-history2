@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#104 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#104 $");
 
 
 /*****************************************************************************
@@ -182,6 +182,7 @@ void QPixmap::init( int w, int h, int d )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	data->w = data->h = 0;
 	data->d = 0;
+	hd = None;
 #if defined(CHECK_RANGE)
 	if ( !make_null )
 	    warning( "QPixmap: Invalid pixmap parameters" );

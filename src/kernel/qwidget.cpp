@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#177 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#176 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#177 $");
 
 
 /*!
@@ -1294,9 +1294,10 @@ void QWidget::backgroundColorChange( const QColor & )
 
 /*!
   Returns the background pixmap, or null if no background pixmap has not
-  been set.
+  been set.  If the widget has been made empty, this function will return
+  a pixmap which isNull() rather than a null pointer.
 
-  \sa setBackgroundPixmap()
+  \sa setBackgroundPixmap(), setBackgroundEmpty()
 */
 
 const QPixmap *QWidget::backgroundPixmap() const
