@@ -11,8 +11,9 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
+#include <qstring.h>
+#include <qhash.h>
 
-#include "qasciidict.h"
 #include <limits.h>
 #include <stdio.h>
 #include <limits.h>
@@ -675,9 +676,9 @@ void qt_assert_x(const char *where, const char *what, const char *file, int line
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
-    static QAsciiDict<int> *obsoleteDict = 0;
+    static QHash<QString,int*> *obsoleteDict = 0;
     if ( !obsoleteDict ) {			// first time func is called
-	obsoleteDict = new QAsciiDict<int>;
+	obsoleteDict = new QHash<QString,int*>;
 #if defined(QT_DEBUG)
 	qDebug(
       "You are using obsolete functions in the Qt library. Call the function\n"
