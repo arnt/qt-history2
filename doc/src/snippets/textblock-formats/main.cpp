@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
     QTextBlockFormat paragraphFormat = blockFormat;
     paragraphFormat.setAlignment(Qt::AlignJustify);
-    paragraphFormat.setFirstLineMargin(32);
+    paragraphFormat.setTextIndent(32);
 
     cursor.setBlockFormat(paragraphFormat);
     cursor.insertText(QObject::tr("Text can be formatted so that the first "
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
     QTextBlockFormat reverseFormat = blockFormat;
     reverseFormat.setAlignment(Qt::AlignJustify);
-    reverseFormat.setFirstLineMargin(32);
+    reverseFormat.setTextIndent(32);
 
     cursor.setBlockFormat(reverseFormat);
     cursor.insertText(QObject::tr("The direction of the text can be reversed. "

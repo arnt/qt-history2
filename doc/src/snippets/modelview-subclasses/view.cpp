@@ -240,14 +240,14 @@ void LinearView::paintEvent(QPaintEvent *event)
 
     int row = firstItem.row();
     QModelIndex index = model()->index(row, 0, QModelIndex());
-    int value = model()->data(index, QAbstractItemModel::DisplayRole).toInt();
+    int value = model()->data(index, Qt::DisplayRole).toInt();
     int midPoint = viewport()->height()/2;
     int y2 = midPoint - int(value * midPoint/255.0);
 
     while (row <= lastItem.row()) {
 
         QModelIndex index = model()->index(row, 0, QModelIndex());
-        int value = model()->data(index, QAbstractItemModel::DisplayRole).toInt();
+        int value = model()->data(index, Qt::DisplayRole).toInt();
 
         int y1 = y2;
         y2 = midPoint - int(value * midPoint/255.0);

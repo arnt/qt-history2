@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 
     TableModel *model = new TableModel(4, 2, &app);
 
-    QTableView *firstTableView = new QTableView(0);
-    QTableView *secondTableView = new QTableView(0);
+    QTableView *firstTableView = new QTableView;
+    QTableView *secondTableView = new QTableView;
 
     firstTableView->setModel(model);
     secondTableView->setModel(model);

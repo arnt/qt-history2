@@ -72,7 +72,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == DisplayRole)
+    if (role == Qt::DisplayRole)
         return rowList[index.row()][index.column()];
     else
         return QVariant();
@@ -87,7 +87,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 QVariant TableModel::headerData(int section, Qt::Orientation orientation,
                                 int role) const
 {
-    if (role != DisplayRole)
+    if (role != Qt::DisplayRole)
         return QVariant();
 
     if (orientation == Qt::Horizontal)
@@ -101,12 +101,12 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
     enabled, selectable, and editable.
 */
 
-QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags TableModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return ItemIsEnabled;
+        return Qt::ItemIsEnabled;
 
-    return ItemIsEnabled | ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 /*!
@@ -122,7 +122,7 @@ QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
 bool TableModel::setData(const QModelIndex &index,
                          const QVariant &value, int role)
 {
-    if (!index.isValid() || role != EditRole)
+    if (!index.isValid() || role != Qt::EditRole)
         return false;
 
     rowList[index.row()][index.column()] = value.toString();

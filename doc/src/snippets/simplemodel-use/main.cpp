@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     for (int row = 0; row < numRows; ++row) {
         QModelIndex index = model->index(row, 0, parentIndex);
 
-        QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+        QString text = model->data(index, Qt::DisplayRole).toString();
         // Display the text in a widget.
 
         QLabel *label = new QLabel(text, window);

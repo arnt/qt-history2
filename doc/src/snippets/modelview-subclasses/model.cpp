@@ -65,13 +65,13 @@ QVariant LinearModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-    Returns ItemIsEditable so that all items in the vector can be edited.
+    Returns Qt::ItemIsEditable so that all items in the vector can be edited.
 */
 
-QAbstractItemModel::ItemFlags LinearModel::flags(const QModelIndex &index) const
+Qt::ItemFlags LinearModel::flags(const QModelIndex &index) const
 {
     // all items in the model are editable
-    return QAbstractListModel::flags(index)|QAbstractListModel::ItemIsEditable;
+    return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
 }
 
 /*!
@@ -88,7 +88,7 @@ QAbstractItemModel::ItemFlags LinearModel::flags(const QModelIndex &index) const
 bool LinearModel::setData(const QModelIndex &index,
                           const QVariant &value, int role)
 {
-    if (!index.isValid() || role != EditRole)
+    if (!index.isValid() || role != Qt::EditRole)
         return false;
     values.replace(index.row(), value.toInt());
     emit dataChanged(index, index);
