@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include "qfontengine_p.h"
+#include "qtextengine_p.h"
 #include <qglobal.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
