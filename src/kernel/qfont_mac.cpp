@@ -405,7 +405,11 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading | kATSLineFractDisable;
 
 #ifdef MACOSX_102
-    layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+    if(qMacVersion() == Qt::MV_10_DOT_1) 
+	layopts |= kATSLineIsDisplayOnly;
+    else 
+	layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | 
+		   kATSLineUseDeviceMetrics;
 #else
     layopts |= kATSLineIsDisplayOnly;
 #endif

@@ -244,6 +244,8 @@ public:
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
     static WindowsVersion winVersion();
+#elif defined(Q_OS_MAC)
+    static MacintoshVersion macVersion();
 #endif
 #if defined(Q_WS_WIN)
     void	     winFocus( QWidget *, bool );

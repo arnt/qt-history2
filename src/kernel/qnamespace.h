@@ -658,6 +658,20 @@ public:
 	CustomPattern=24
     };
 
+    // documented in qapplication_mac.cpp
+    enum MacintoshVersion {
+	//Unknown
+	MV_Unknown      = 0x0000,
+
+	//Version numbers
+	MV_9            = 0x0001,
+	MV_10_DOT_1     = 0x0002,
+	MV_10_DOT_2     = 0x0003,
+
+	//Code names
+	MV_JAGUAR       = MV_10_DOT_2
+    };
+
     // documented in qapplication_win.cpp
     enum WindowsVersion {
 	WV_32s 		= 0x0001,

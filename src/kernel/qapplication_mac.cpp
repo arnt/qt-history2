@@ -541,6 +541,12 @@ void QApplication::setMainWidget(QWidget *mainWidget)
     main_widget = mainWidget;
 }
 
+
+Qt::MacintoshVersion QApplication::macVersion()
+{
+    return qt_macver;
+}
+
 #ifndef QT_NO_CURSOR
 
 /*****************************************************************************
@@ -2398,3 +2404,14 @@ bool QApplication::qt_mac_apply_settings()
     }
     return TRUE;
 }
+
+/*!
+    \enum Qt::MacintoshVersion
+
+    \value MV_Unknown Version cannot be detected
+    \value MV_9 Mac OS 9
+    \value MV_10_DOT_2 Mac OS X 10.2
+    \value MV_10_DOT_1 Mac OS X 10.1
+    \value MV_JAGUAR 10.2 Codename
+*/
+

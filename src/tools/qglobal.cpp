@@ -149,7 +149,28 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     return TRUE;
 }
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_MAC)
+
+#include "qt_mac.h"
+
+int qMacVersion()
+{
+    static int macver = Qt::MV_Unknown;
+    static bool first = TRUE;
+    if(!first) {
+	first = FALSE;
+	long gestalt_version;
+	if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
+	    if(gestalt_version > 0x1020 && gestalt_version < 0x1030)
+		macver = Qt::MV_10_DOT_2;
+	    else if(gestalt_version > 0x1010 && gestalt_version < 0x1020)
+		macver = Qt::MV_10_DOT_1;
+	}
+    }
+    return macver;
+}
+Qt::MacintoshVersion qt_macver = (Qt::MacintoshVersion)qMacVersion();
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 bool qt_winunicode;
 
 #include "qt_windows.h"

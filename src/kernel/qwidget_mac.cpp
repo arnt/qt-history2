@@ -65,7 +65,6 @@ static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
-static long mac_os_version=0;
 
 /*****************************************************************************
   Externals
@@ -307,125 +306,122 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find((WId)id);
-    if (!mac_os_version)
-      Gestalt(gestaltSystemVersion, &mac_os_version);
-    if (mac_os_version < 0x1020) {
-    switch(wcode) {
-    case kWindowOpaqueRgn:
-    case kWindowStructureRgn: {
-	QRegion cr;
-	if(widget) {
-
-	    if(widget->extra && !widget->extra->mask.isNull()) {
-		QRegion rin;
-		CopyRgn(rgn, rin.handle(TRUE));
-		QPoint g(widget->x(), widget->y());
-		int offx = 0, offy = 0;
-		QRegion rpm = widget->extra->mask;
-		if(widget->testWFlags(Qt::WStyle_Customize) &&
-		    widget->testWFlags(Qt::WStyle_NoBorder)) {
-      	    	    QPoint rpm_tl = rpm.boundingRect().topLeft();
-		    offx = rpm_tl.x();
-		    offy = rpm_tl.y();
-		} else {
-		    Rect title_r;
-		    RgnHandle rgn = qt_mac_get_rgn();
-		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-		    GetRegionBounds(rgn, &title_r);
-		    qt_mac_dispose_rgn(rgn);
-		    g.setY(g.y() + (title_r.bottom - title_r.top));
+    if (qMacVersion() == Qt::MV_Jaguar) {
+	switch(wcode) {
+	case kWindowOpaqueRgn:
+	case kWindowStructureRgn: {
+	    if(widget) {
+		int x, y;
+		{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
+		    Point px = { 0, 0 };
+		    QMacSavedPortInfo si(widget);
+		    LocalToGlobal(&px);
+		    x = px.h;
+		    y = px.v;
 		}
-		rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
-		rpm.translate(g.x(), g.y());
-		rin += rpm;
-		CopyRgn(rin.handle(TRUE), rgn);
-	    } else if(force) {
-		QRegion cr(widget->geometry());
-		CopyRgn(cr.handle(TRUE), rgn);
-	    }
-	}
-	return TRUE; }
-    case kWindowContentRgn: {
-	if(widget) {
-	    if(widget->extra && !widget->extra->mask.isNull()) {
-		QRegion cr = widget->extra->mask;
-		QPoint g(widget->x(), widget->y());
-		if(!widget->testWFlags(Qt::WStyle_Customize) ||
-		   !widget->testWFlags(Qt::WStyle_NoBorder)) {
-		    Rect title_r;
-		    RgnHandle rgn = qt_mac_get_rgn();
-		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-		    GetRegionBounds(rgn, &title_r);
-		    qt_mac_dispose_rgn(rgn);
-		    g.setY(g.y() + (title_r.bottom - title_r.top));
-		}
-	    cr.translate(g.x(), g.y());
-	    CopyRgn(cr.handle(TRUE), rgn);
 
-	    } else if(force) {
-		QRegion cr(widget->geometry());
-		CopyRgn(cr.handle(TRUE), rgn);
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion titlebar;
+		    {
+			RgnHandle rgn = qt_mac_get_rgn();
+			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+			CopyRgn(rgn, titlebar.handle(TRUE));
+			qt_mac_dispose_rgn(rgn);
+		    }
+		    QRegion rpm = widget->extra->mask;
+		    rpm.translate(x, (y + titlebar.boundingRect().height()));
+		    titlebar += rpm;
+		    CopyRgn(titlebar.handle(TRUE), rgn);
+		} else if(force) {
+		    QRegion cr(x, y, widget->width(), widget->height());
+		    CopyRgn(cr.handle(TRUE), rgn);
+		}
 	    }
+	    return TRUE; }
+	case kWindowContentRgn: {
+	    if(widget) {
+		int x, y;
+		{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
+		    Point px = { 0, 0 };
+		    QMacSavedPortInfo si(widget);
+		    LocalToGlobal(&px);
+		    x = px.h;
+		    y = px.v;
+		}
+
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion rpm = widget->extra->mask;
+		    rpm.translate(x, y);
+		    CopyRgn(rpm.handle(TRUE), rgn);
+		} else if(force) {
+		    QRegion cr(x, y, widget->width(), widget->height());
+		    CopyRgn(cr.handle(TRUE), rgn);
+		}
+	    }
+	    return TRUE; }
+	default: break;
 	}
-	return TRUE; }
-    default: break;
-    }
-    return FALSE;
     } else {
-    switch(wcode) {
-    case kWindowOpaqueRgn:
-    case kWindowStructureRgn: {
-	if(widget) {
-	    int x, y;
-	    { //lookup the x and y, don't use qwidget because this callback can be called before its updated
-		Point px = { 0, 0 };
-		QMacSavedPortInfo si(widget);
-		LocalToGlobal(&px);
-		x = px.h;
-		y = px.v;
-	    }
+	switch(wcode) {
+	case kWindowOpaqueRgn:
+	case kWindowStructureRgn: {
+	    QRegion cr;
+	    if(widget) {
 
-	    if(widget->extra && !widget->extra->mask.isNull()) {
-		QRegion titlebar;
-		{
-		    RgnHandle rgn = qt_mac_get_rgn();
-		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-		    CopyRgn(rgn, titlebar.handle(TRUE));
-		    qt_mac_dispose_rgn(rgn);
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion rin;
+		    CopyRgn(rgn, rin.handle(TRUE));
+		    QPoint g(widget->x(), widget->y());
+		    int offx = 0, offy = 0;
+		    QRegion rpm = widget->extra->mask;
+		    if(widget->testWFlags(Qt::WStyle_Customize) &&
+		       widget->testWFlags(Qt::WStyle_NoBorder)) {
+			QPoint rpm_tl = rpm.boundingRect().topLeft();
+			offx = rpm_tl.x();
+			offy = rpm_tl.y();
+		    } else {
+			Rect title_r;
+			RgnHandle rgn = qt_mac_get_rgn();
+			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+			GetRegionBounds(rgn, &title_r);
+			qt_mac_dispose_rgn(rgn);
+			g.setY(g.y() + (title_r.bottom - title_r.top));
+		    }
+		    rin -= QRegion(g.x() + offx, g.y() + offy, widget->width(), widget->height());
+		    rpm.translate(g.x(), g.y());
+		    rin += rpm;
+		    CopyRgn(rin.handle(TRUE), rgn);
+		} else if(force) {
+		    QRegion cr(widget->geometry());
+		    CopyRgn(cr.handle(TRUE), rgn);
 		}
-		QRegion rpm = widget->extra->mask;
-		rpm.translate(x, (y + titlebar.boundingRect().height()));
-		titlebar += rpm;
-		CopyRgn(titlebar.handle(TRUE), rgn);
-	    } else if(force) {
-		QRegion cr(x, y, widget->width(), widget->height());
-		CopyRgn(cr.handle(TRUE), rgn);
 	    }
-	}
-	return TRUE; }
-    case kWindowContentRgn: {
-	if(widget) {
-	    int x, y;
-	    { //lookup the x and y, don't use qwidget because this callback can be called before its updated
-		Point px = { 0, 0 };
-		QMacSavedPortInfo si(widget);
-		LocalToGlobal(&px);
-		x = px.h;
-		y = px.v;
-	    }
+	    return TRUE; }
+	case kWindowContentRgn: {
+	    if(widget) {
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion cr = widget->extra->mask;
+		    QPoint g(widget->x(), widget->y());
+		    if(!widget->testWFlags(Qt::WStyle_Customize) ||
+		       !widget->testWFlags(Qt::WStyle_NoBorder)) {
+			Rect title_r;
+			RgnHandle rgn = qt_mac_get_rgn();
+			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
+			GetRegionBounds(rgn, &title_r);
+			qt_mac_dispose_rgn(rgn);
+			g.setY(g.y() + (title_r.bottom - title_r.top));
+		    }
+		    cr.translate(g.x(), g.y());
+		    CopyRgn(cr.handle(TRUE), rgn);
 
-	    if(widget->extra && !widget->extra->mask.isNull()) {
-		QRegion rpm = widget->extra->mask;
-		rpm.translate(x, y);
-		CopyRgn(rpm.handle(TRUE), rgn);
-	    } else if(force) {
-		QRegion cr(x, y, widget->width(), widget->height());
-		CopyRgn(cr.handle(TRUE), rgn);
+		} else if(force) {
+		    QRegion cr(widget->geometry());
+		    CopyRgn(cr.handle(TRUE), rgn);
+		}
 	    }
+	    return TRUE; }
+	default: break;
 	}
-	return TRUE; }
-    default: break;
-    }
     }
     return FALSE;
 }
@@ -684,11 +680,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    }
 	}
 	
-#if 0
-	long macos_version=0;
-	Gestalt(gestaltSystemVersion, &macos_version);
-	qDebug("%ld", macos_version);
-#endif
 	wattr |= kWindowLiveResizeAttribute;
 #if 0 //we use share activation instead now..
 	if(popup || testWFlags(WStyle_Tool) ||
@@ -1960,11 +1951,9 @@ void QWidget::setMask(const QRegion &region)
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
-    if (isTopLevel()) {
-    if (!mac_os_version)
-      Gestalt(gestaltSystemVersion, &mac_os_version);
-    if (mac_os_version < 0x1020 &&
-	testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
+    if(isTopLevel()) {
+	if(qMacVersion() == Qt::MV_10_DOT_1 &&
+	   testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
 	    /* We do this because the X/Y seems to move to the first paintable point
 	       (ie the bounding rect of the mask). We must offset everything or else
 	       we have big problems. */

@@ -73,6 +73,8 @@ extern QClipboard *qt_clipboard;
 
 #if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 extern Qt::WindowsVersion qt_winver;
+#elif defined (Q_OS_MAC)
+extern Qt::MacintoshVersion qt_macver;
 #endif
 
 #if defined (Q_WS_X11)
