@@ -30,19 +30,25 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
     lcd  = new QLCDNumber( 2, this, "lcd" );
     lcd->move( 10, 50 );
-    sBar = new QScrollBar( 0, 99, 1, 10, 0, QScrollBar::Horizontal, 
+
+    sBar = new QScrollBar( 0, 99,		       	// range
+			   1, 10, 			// line/page steps
+			   0, 				// inital value
+			   QScrollBar::Horizontal, 	// direction
                            this, "scrollbar" );
+
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
 void MyWidget::resizeEvent( QResizeEvent *e )
 {
-    lcd->resize( width() - 20, height() - 81 );
-    sBar->setGeometry( 10, lcd->y() + lcd->height() + 5, width() - 20, 16 );
+    sBar->setGeometry( 10, height() - 10 - 16, width() - 20, 16 );
+    lcd->resize( sBar->width(), sBar->y() - lcd->y() - 5 );
 }
 
 int main( int argc, char **argv )

@@ -10,12 +10,15 @@
 #include <qscrbar.h>
 #include <qlcdnum.h>
 
-LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
+LCDRange::LCDRange( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     lcd  = new QLCDNumber( 2, this, "lcd"  );
     lcd->move( 0, 0 );
-    sBar = new QScrollBar( 0, 99, 1, 10, 0, QScrollBar::Horizontal, 
+    sBar = new QScrollBar( 0, 99,		       	// range
+			   1, 10, 			// line/page steps
+			   0, 				// inital value
+			   QScrollBar::Horizontal, 	// direction
                            this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
     connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );

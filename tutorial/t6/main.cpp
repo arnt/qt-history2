@@ -26,15 +26,18 @@ LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
 {
     lcd  = new QLCDNumber( 2, this, "lcd"  );
     lcd->move( 0, 0 );
-    sBar = new QScrollBar( 0, 99, 1, 10, 0, QScrollBar::Horizontal, 
+    sBar = new QScrollBar( 0, 99,		       	// range
+			   1, 10, 			// line/page steps
+			   0, 				// inital value
+			   QScrollBar::Horizontal, 	// direction
                            this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
 void LCDRange::resizeEvent( QResizeEvent *e )
 {
-    lcd->resize( width(), height() - 16 - 5 );
-    sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );
+    sBar->setGeometry( 0, height() - 16, width(), 16 );
+    lcd->resize( width(), sBar->y() - 5 );
 }
 
 
@@ -58,6 +61,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
     for( int i = 0 ; i < 16 ; i++ )
@@ -66,11 +70,14 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
 void MyWidget::resizeEvent( QResizeEvent *e )
 {
-    int valueWidth = (width() - 20)/4;
-    int valueHeight = (height() - 65)/4;
+    int startx      = 10;
+    int starty      = quit->y() + quit->height() + 10;
+    int valueWidth  = (width() - startx - 10 - 3*5)/4;
+    int valueHeight = (height() - starty - 10 - 3*5)/4;
     for( int i = 0 ; i < 16 ; i++ )
-	value[i]->setGeometry( 10 + (i%4)*valueWidth,  55 + (i/4)*valueHeight,
-                               valueWidth - 5, valueHeight - 5 );
+	value[i]->setGeometry( startx + (i%4)*(5+valueWidth),
+			       starty + (i/4)*(5+valueHeight),
+                               valueWidth, valueHeight );
 }
 
 int main( int argc, char **argv )

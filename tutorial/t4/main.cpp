@@ -22,8 +22,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     setMaximumSize( 200, 120 );
 
     QPushButton *quit = new QPushButton( "Quit", this, "quit" );
-    quit->move( 62, 40 );
-    quit->resize( 75, 30 );
+    quit->setGeometry( 62, 40, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
@@ -36,7 +35,6 @@ int main( int argc, char **argv )
 
     MyWidget w;
     w.setGeometry( 100, 100, 200, 120 );
-
     a.setMainWidget( &w );
     w.show();
     return a.exec();
