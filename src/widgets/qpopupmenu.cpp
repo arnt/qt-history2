@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#84 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#84 $");
 
 
 // Motif style parameters
@@ -714,16 +714,26 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
+	    if ( gs == WindowsStyle && dis ) {
+		p->setPen( white );
+		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags,
+			     s, (int)((long)t-(long)s) );
+		p->setPen( discol );
+	    }
 	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
 			 s, (int)((long)t-(long)s) );
 	    s = t + 1;
 	    x = tabMark;
 	}
+	if ( gs == WindowsStyle && dis ) {
+	    p->setPen( white );
+	    p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags, s );
+	    p->setPen( discol );
+	}
 	p->drawText( x, m, cellw, cellh-2*m, text_flags, s );
     }
     if ( mi->popup() ) {			// draw sub menu arrow
 	int dim = (cellh-2*motifItemFrame) / 2;
-	dim /= 2;
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
 		discol = white;
