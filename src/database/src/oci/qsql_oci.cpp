@@ -112,7 +112,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( qOraWarn( p ) );
+	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -122,7 +122,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( qOraWarn( p ) );
+	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -132,7 +132,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( qOraWarn( p ) );
+	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
 	r = OCIAttrGet((dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -142,7 +142,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( qOraWarn( p ) );
+	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
 	r = OCIAttrGet( (dvoid*)param,
 			OCI_DTYPE_PARAM,
@@ -152,7 +152,7 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 			p->err);
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( qOraWarn( p ) );
+	    qWarning( "qMakeField: " + qOraWarn( p ) );
 #endif
 	type = qDecodeOCIType( colType );
 	if ( type == QVariant::DateTime )
@@ -185,7 +185,7 @@ void QOCIDriver::init()
 			    (void**)NULL);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to create environment - " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: Unable to create environment: " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->err,
@@ -194,7 +194,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to alloc error handle - " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: Unable to alloc error handle: " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->svc,
@@ -203,7 +203,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to alloc service context - " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: Unable to alloc service context: " + qOraWarn( d ) );
 #endif
     if ( r != 0 )
     	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
@@ -367,7 +367,7 @@ public:
 	    }
 #ifdef CHECK_RANGE
 	    if ( r != 0 )
-	    	qWarning( qOraWarn( d ) );
+	    	qWarning( "QOCIResultPrivate: " +  qOraWarn( d ) );
 #endif
 	}
     }
@@ -425,7 +425,7 @@ QOCIResult::~QOCIResult()
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "Unable to free statement handle - " + qOraWarn( d ) );
+	    qWarning( "QOCIResult: Unable to free statement handle: " + qOraWarn( d ) );
 #endif
     }
     delete d;
@@ -440,7 +440,7 @@ bool QOCIResult::reset ( const QString& query )
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "Unable to free statement handle - " + qOraWarn( d ) );
+	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
 #endif
     }
     if ( cols ) {
@@ -455,7 +455,7 @@ bool QOCIResult::reset ( const QString& query )
 			0);
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( "Unable to alloc statement - " + qOraWarn( d ) );
+	qWarning( "QOCIResult::reset: Unable to alloc statement: " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -472,7 +472,7 @@ bool QOCIResult::reset ( const QString& query )
 			OCI_DEFAULT );
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( "Unable to prepare statement - " + qOraWarn( d ) );
+	qWarning( "QOCIResult::reset: Unable to prepare statement: " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -521,7 +521,7 @@ bool QOCIResult::reset ( const QString& query )
     }
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( qOraWarn( d ) );
+	qWarning( "QOCIResult::reset: " + qOraWarn( d ) );
 #endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -610,18 +610,6 @@ QVariant QOCIResult::data( int field )
     return rowCache[at()][field];
 }
 
-//QString QOCIResult::string( int field )
-//{
-//    if ( cols )
-//    	return QString(cols->at(field));
-//    return QString::null;
-//}
-
-//QByteArray QOCIResult::binary( int field )
-//{
-//    return string( field ).local8Bit();
-//}
-
 bool QOCIResult::isNull( int field ) const
 {
     return cols->isNull( field );
@@ -639,7 +627,7 @@ QSqlFieldList QOCIResult::fields() const
 				d->err);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( qOraWarn( d ) );
+	qWarning( "QOCIResult::fields: " + qOraWarn( d ) );
 #endif
     for ( ub4 i = 0; i < numCols; ++i )
 	fil.append( qMakeField( d, i ) );
