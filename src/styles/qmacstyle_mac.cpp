@@ -17,9 +17,15 @@
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 //hack, but usefull
-#include <qpainter.h>
-#include <private/q4painter_p.h>
-#include <qgc_mac.h>
+#ifdef Q_Q4PAINTER
+# include <qpainter.h>
+# include <private/q4painter_p.h>
+# include <qgc_mac.h>
+#else
+# define private protected //I don't much like doing this.. but I need updateFont(), sorry. -Sam
+# include <qpainter.h>
+# undef private
+#endif
 #include <qmap.h>
 #include <qt_mac.h>
 class QMacStylePainter : public QPainter

@@ -13,8 +13,10 @@
 #include <qglobal.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
-#include <qgc_mac.h>
-#include <private/q4painter_p.h>
+#ifdef Q_Q4PAINTER
+# include <qgc_mac.h>
+# include <private/q4painter_p.h>
+#endif
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>

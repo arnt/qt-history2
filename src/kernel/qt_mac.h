@@ -187,9 +187,13 @@ public:
 
 #include "qptrlist.h"
 #include "qpaintdevice.h"
-class QAbstractGC;
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
+#ifdef Q_Q4PAINTER
+class QAbstractGC;
 extern QAbstractGC *qt_mac_current_gc; //qgc_mac.cpp
+#else
+extern QPainter* qt_mac_current_painter; //qpainter_mac.cpp
+#endif
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -198,9 +202,13 @@ class QMacSavedPortInfo
     PenState pen; //go pennstate
     RGBColor back, fore;
     QMacSavedFontInfo *fi;
-    QAbstractGC *gc;
     bool valid_gworld;
     void init();
+#ifdef Q_Q4PAINTER
+    QAbstractGC *gc;
+#else
+    QPainter *painter;
+#endif
     
 public:
     inline QMacSavedPortInfo() { init(); }
@@ -270,7 +278,11 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
+#ifdef Q_Q4PAINTER
     qt_mac_current_gc = NULL;
+#else
+    qt_mac_current_painter = NULL;
+#endif
     ClipRect(&r);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
@@ -290,7 +302,11 @@ QMacSavedPortInfo::setClipRegion(const QRegion &r)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
+#ifdef Q_Q4PAINTER
     qt_mac_current_gc = NULL;
+#else
+    qt_mac_current_painter = NULL;
+#endif
     SetClip(r.handle());
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
@@ -316,17 +332,16 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
     if(!pd)
 	return FALSE;
-#if 0
-    if(qt_mac_current_gc && qt_mac_current_gc->handle() == pd->handle())
-	return TRUE;
-#endif
     bool ret = TRUE;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-//    if(qt_mac_current_gc && qt_mac_current_gc->handle() != pd->handle())
-	qt_mac_current_gc = NULL;
+#ifdef Q_Q4PAINTER
+    qt_mac_current_gc = NULL;
+#else
+    qt_mac_current_painter = NULL;
+#endif
     if(pd->devType() == QInternal::Widget)
 	SetPortWindowPort((WindowPtr)pd->handle());
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
@@ -349,7 +364,11 @@ QMacSavedPortInfo::init()
 	qt_mac_port_mutex->lock();
 #endif
     fi = NULL;
+#ifdef Q_Q4PAINTER
     gc = qt_mac_current_gc;
+#else
+    painter = qt_mac_current_painter;
+#endif
     if(mac_window_count) {
    	GetBackColor(&back);
 	GetForeColor(&fore);
@@ -377,7 +396,11 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     }
     if(fi)
 	delete fi;
+#ifdef Q_Q4PAINTER
     qt_mac_current_gc = gc;
+#else
+    qt_mac_current_painter = painter;
+#endif
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();

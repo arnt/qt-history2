@@ -18,8 +18,11 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qgc_mac.h"
 #include "qt_mac.h"
+
+#ifdef Q_Q4PAINTER
+# include "qgc_mac.h"
+#endif
 
 QPaintDevice *g_cur_paintdev = 0;
 
