@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#215 $
+** $Id: //depot/qt/main/src/moc/moc.y#216 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2021,7 +2021,7 @@ int generateEnums()
     int i = 0;
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    enum_tbl[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
-	fprintf( out, "    enum_tbl[%i].count = %i;\n", i, (const char*)it.current()->count() );
+	fprintf( out, "    enum_tbl[%i].count = %u;\n", i, it.current()->count() );
 	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %i );\n",
 		 i,(const char*)it.current()->count() );
 
@@ -2563,7 +2563,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#215 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#216 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
