@@ -909,7 +909,11 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         image = pixmap.toImage();
         image = *d->colorizeBitmap(&image, d->pen.color());
     } else {
-        image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        image = pixmap.toImage();
+        if (image.format() != QImage::Format_RGB32
+            && image.format() != QImage::Format_ARGB32_Premultiplied)
+            image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
     }
 
     TextureFillData textureData = {
