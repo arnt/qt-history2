@@ -60,6 +60,9 @@
 static const char * const ps_header[] = {
 "/d  /def load def",
 "/D  {bind d} bind d",
+"/d2 {dup dup} D",
+"/B  {0 d2} D",
+"/W  {255 d2} D",
 "/ED {exch d} D",
 "/D0 {0 ED} D",
 "/LT {lineto} D",
@@ -452,7 +455,7 @@ static const char * const ps_header[] = {
 "    BkCol astore pop",
 "} D",
 "",
-"/B {",					// PdcSetBrush [style R G B]
+"/BR {",				// PdcSetBrush [style R G B]
 "    CRGB",
 "    BCol astore pop",
 "    /BSt ED",
@@ -464,6 +467,10 @@ static const char * const ps_header[] = {
 "    /LWi ED",
 "    /PSt ED",
 "    LWi 0 eq { 0.3 /LWi ED } if",
+"} D",
+"",
+"/P1 {",				// PdcSetPen [R G B]
+"    1 0 5 2 roll PE",
 "} D",
 "",
 "/ST {",				// SET TRANSFORM [matrix]
@@ -1899,7 +1906,8 @@ static void makeFixedStrings()
 
 struct QPSPrinterPrivate {
     QPSPrinterPrivate( int filedes )
-	: buffer( 0 ), realDevice( 0 ), fd( filedes ), savedImage( 0 )
+	: buffer( 0 ), realDevice( 0 ), fd( filedes ), savedImage( 0 ),
+	  dirtypen( FALSE ), dirtybrush( FALSE )
     {
 	headerFontNames.setAutoDelete( TRUE );
 	pageFontNames.setAutoDelete( TRUE );
@@ -1923,6 +1931,10 @@ struct QPSPrinterPrivate {
     bool firstClipOnPage;
     QRect boundingBox;
     QImage * savedImage;
+    QPen cpen;
+    QBrush cbrush;
+    bool dirtypen;
+    bool dirtybrush;
 };
 
 
@@ -2211,7 +2223,6 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 #undef POINT
 #undef RECT
 #undef INT_ARG
-#undef COLOR
 
 #define XCOORD(x)	(float)(x)
 #define YCOORD(y)	(float)(y)
@@ -2225,9 +2236,21 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			WIDTH (p[index].rect->normalize().width()) << ' ' <<  \
 			HEIGHT(p[index].rect->normalize().height()) << ' '
 #define INT_ARG(index)	p[index].ival << ' '
-#define COLOR(x)	(x).red()   << ' ' <<	\
-			(x).green() << ' ' <<	\
-			(x).blue()  << ' '
+
+static char returnbuffer[13];
+static const char * color( const QColor &c ) 
+{
+    if ( c == Qt::black )
+	qstrcpy( returnbuffer, "B " );
+    else if ( c == Qt::white )
+	qstrcpy( returnbuffer, "W " );
+    else if ( c.red() == c.green() && c.red() == c.blue() )
+	sprintf( returnbuffer, "%d d2 ", c.red() );
+    else 
+	sprintf( returnbuffer, "%d %d %d ",
+		 c.red(), c.green(), c.blue() );
+    return returnbuffer;
+}
 
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
@@ -2284,6 +2307,14 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    newPageSetup( paint );
 	if ( d->dirtyClipping )	// Must be after matrixSetup and newPageSetup
 	    clippingSetup( paint );
+	if ( d->dirtypen ) {
+	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 )
+		stream << color( d->cpen.color() ) << "P1\n";
+	    else
+		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
+		       << ' ' << color( d->cpen.color() ) << "PE\n";
+	    d->dirtypen = FALSE;
+	}
     }
 
     switch( c ) {
@@ -2423,7 +2454,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	break;
     }
     case PdcSetBkColor:
-	stream << COLOR(*(p[0].color)) << "BC\n";
+	stream << color( *(p[0].color) ) << "BC\n";
 	break;
     case PdcSetBkMode:
 	if ( p[0].ival == Qt::TransparentMode )
@@ -2443,8 +2474,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	setFont( *(p[0].font) );
 	break;
     case PdcSetPen:
+	d->dirtypen = TRUE;
+	d->cpen = *(p[0].pen);
+#if 0
 	stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
-	       << ' ' << COLOR(p[0].pen->color()) << "PE\n";
+	       << ' ' << color( p[0].pen->color() ) << "PE\n";
+#endif
 	break;
     case PdcSetBrush:
 	if ( p[0].brush->style() == Qt::CustomPattern ) {
@@ -2454,7 +2489,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    return FALSE;
 	}
 	stream << (int)p[0].brush->style()	 << ' '
-	       << COLOR(p[0].brush->color()) << "B\n";
+	       << color( p[0].brush->color() ) << "BR\n";
 	break;
     case PdcSetTabStops:
     case PdcSetTabArray:
@@ -2870,7 +2905,9 @@ void QPSPrinter::emitHeader( bool finished )
 
 void QPSPrinter::newPageSetup( QPainter *paint )
 {
-    if ( d->buffer && d->pagesInBuffer++ > 4 )
+    if ( d->buffer && 
+	 ( d->pagesInBuffer++ > 32 ||
+	   ( d->pagesInBuffer > 4 && d->buffer->size() > 131072 ) ) )
 	emitHeader( FALSE );
 
     if ( !d->buffer ) {
