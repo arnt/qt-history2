@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#345 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#346 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2967,7 +2967,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & ( QMouseEvent::LeftButton | 
+	    if ( (state & ( QMouseEvent::LeftButton |
 			    QMouseEvent::MidButton |
 			    QMouseEvent::RightButton)) == 0 ) {
 		qt_button_down = 0;
@@ -3165,8 +3165,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	qAddPostRoutine( deleteKeyDicts );
     }
 
-    type = (event->type == QEvent::KeyPress) 
-	   ? QEvent::KeyPress : QEvent::KeyRelease;
+    type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
 
 #if defined(NO_XIM)
 
@@ -3278,9 +3277,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QKeyEvent a( QEvent::Accel, code, count > 0 ? ascii[0] : 0, state );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
-	if ( a.isAccepted() ){
+	if ( a.isAccepted() )
 	    return TRUE;
-	}
     }
     return QApplication::sendEvent( this, &e );
 }
