@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#29 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -726,6 +726,13 @@ QWhatsThis::~QWhatsThis()
 }
 
 
+/*!  This virtual functions returns the text for position \e p in the
+  widget this What's This object documents.  If there is no What's
+  This text for a position, QString::null may be returned.
+
+  The default implementation returns QString::null.
+*/
+
 QString QWhatsThis::text( const QPoint & )
 {
     return QString::null; //####
@@ -765,7 +772,6 @@ void QWhatsThis::enterWhatsThisMode()
   \code
     QPopupMenu * help = new QPopupMenu();
     help->insertItem( "What's &This", new QWhatsThis(this), SLOT(whatsThis()), SHIFT+Key_F1);
-
   \endcode
   \sa enterWhatsThisMode()
 

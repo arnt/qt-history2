@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#10 $
 **
 ** Localization database support.
 **
@@ -580,7 +580,7 @@ void QMessageFile::remove( uint h )
 
   Normally not needed, and still not documented.
 */
-  
+
 /*!  Constructs a QMessageFileIterator that operates on \a m */
 
 QMessageFileIterator::QMessageFileIterator( QMessageFile & m )
@@ -641,7 +641,7 @@ QString * QMessageFileIterator::current() const
 }
 
 
-/* Returns the key for the current iterator item. */
+/*! Returns the key for the current iterator item. */
 
 uint QMessageFileIterator::currentKey() const
 {
