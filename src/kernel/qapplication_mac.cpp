@@ -1884,21 +1884,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			    bool is_cmd = FALSE;
 			    MenuCommand cmd;
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
-			    if(GetMenuItemCommandID(menu, idx, &cmd) == noErr) {
-				if(cmd == kHICommandQuit || cmd == kHICommandPreferences ||
-				   cmd == kHICommandAbout) {
-				    is_cmd = TRUE;
-				    QMenuBar::activateCommand(cmd);
-				}
-			    }
+			    if(GetMenuItemCommandID(menu, idx, &cmd) == noErr) 
+				is_cmd = QMenuBar::activateCommand(cmd);
 			    if(!is_cmd)
-				QMenuBar::activate(menu, idx);
-#else
-			    if(cmd == kHICommandQuit)
-				qApp->closeAllWindows();
-			    else if(cmd == kHICommandAbout)
-				QMessageBox::aboutQt(NULL);
 #endif
+				QMenuBar::activate(menu, idx);
 			    isAccel = TRUE;
 			}
 		    }
@@ -1976,7 +1966,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
+		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog())) 
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -1987,8 +1977,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
-	    if(active_window && widget == active_window)
-		app->setActiveWindow(NULL);
+	    app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
 	}
