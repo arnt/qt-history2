@@ -132,7 +132,7 @@
   999, you can use the regular expression <b>[1-9][0-9][0-9]</b>, like this:
 
   \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // match "100", "101", ..., "999"
+    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
     rx.match( "476" );                  // returns TRUE
     rx.match( "1492" );                 // returns FALSE
   \endcode
@@ -141,7 +141,7 @@
   the the appropriate choices:
 
   \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // match "100", "101", ..., "999"
+    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
     rx.search( "503 1511" );            // returns 0 (the position of "503")
     rx.searchRev( "503 1511" );         // returns 5 (the position of "511")
   \endcode
@@ -183,7 +183,7 @@
   \endcode
 
   Oops!  It changed <tt>McDonald</tt> into <tt>McDon</tt>.  We can fix that by
-  using word-boundary anchors: <b>\bDonald\b(?!\sDuck)</b>.
+  using word-boundary anchors: <b>\bDonald\b(?!\sDuck\b)</b>.
 
   Sometimes, you might have to match many occurrences in a row of an atom
   <b><em>A</em></b>.  The following \e quantifiers do just that:
@@ -204,7 +204,7 @@
 
   The Donald Duck example above fails miserably if <tt>Donald</tt> and
   <tt>Duck</tt> are separated by more than one space.  With quantifiers, we can
-  now write <b>\bDonald\b(?!\s+Duck)</b>, where <b>\s+</b> means 1 or more
+  now write <b>\bDonald\b(?!\s+Duck\b)</b>, where <b>\s+</b> means 1 or more
   white-space characters.
 
   One problem we have so far is that there's no way to apply a quantifier to,
@@ -3044,8 +3044,8 @@ int QRegExp::match( const QString& str, int index, int *len,
   Example:
   \code
     QRegExp rx( "[0-9]*\\.[0-9]+" );    // matches floating point
-    int pos = r.search( "pi = 3.14" );  // pos == 5
-    int len = r.matchedLength();        // len == 4
+    int pos = rx.search( "pi = 3.14" ); // pos == 5
+    int len = rx.matchedLength();       // len == 4
   \endcode
 
   \sa searchRev() match() matchedLength() capturedTexts()
@@ -3166,7 +3166,7 @@ QStringList QRegExp::capturedTexts()
 
   Example 1:
   \code
-    QRegExp rx( "([a-z])+" );           // match a lower-case word
+    QRegExp rx( "([a-z])+" );           // matches a lower-case word
     int pos = rx.search( "X pizza Y" ); // pos == 2
     QString t0 = rx.cap( 0 );           // pizza
     QString t1 = rx.cap( 1 );           // a
