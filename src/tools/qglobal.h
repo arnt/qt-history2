@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#9 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#10 $
 **
 ** Global type declarations and definitions
 **
@@ -162,6 +162,7 @@ class QDataStream;
 
 // System information
 
+const char *qVersion();
 bool qSysInfo( int *wordSize, bool *bigEndian );
 
 
