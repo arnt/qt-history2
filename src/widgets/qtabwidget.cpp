@@ -672,7 +672,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	return; // we'll do it later
     }
 
-    QSize t = d->tabs->sizeHint();
+    QSize t( 0, d->stack->frameWidth() );
+    if ( d->tabs->isVisibleTo(this) )
+	t = d->tabs->sizeHint();
     int lcw = 0;
     if ( d->leftCornerWidget && d->leftCornerWidget->isVisible()  ) {
 	lcw = d->leftCornerWidget->width();
