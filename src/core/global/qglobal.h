@@ -619,7 +619,7 @@ typedef const char *pcchar;
 #    define QT_COMPAT_CONSTRUCTOR QT_COMPAT_CONSTRUCTOR
 #  elif defined(Q_NO_COMPAT_CONSTRUCTORS)
 #    define QT_COMPAT_CONSTRUCTOR explicit
-#  else
+#  elif defined(QT_COMPAT)
 #    define QT_COMPAT_CONSTRUCTOR explicit QT_COMPAT
 #  endif
 #endif
