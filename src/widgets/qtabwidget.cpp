@@ -53,7 +53,7 @@
 
   A tabbed widget is one in which several "pages" are available and
   the user selects which page to see and use by clicking on its tab
-  or by pressing the indicated Alt-letter key combination.
+  or by pressing the indicated Alt+\e letter key combination.
 
   QTabWidget does not provide more than one row of tabs and does not
   provide tabs along the sides or bottom of the pages.
@@ -202,6 +202,7 @@ void QTabWidget::init()
     d->stack = new QWidgetStack( this, "tab pages" );
     d->stack->installEventFilter( this );
     d->tabBase = new QTabBarBase( this, "tab base" );
+    d->tabBase->resize( 1, 1 );
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -229,15 +230,15 @@ QTabWidget::~QTabWidget()
   label is shown on-screen and may vary according to language, for example.
 
   \a label is written in the QButton style, in which &P makes Qt create
-  an accelerator key on Alt-P for this page.  For example:
+  an accelerator key on Alt+P for this page.  For example:
 
   \code
     td->addTab( graphicsPane, "&Graphics" );
     td->addTab( soundPane, "&Sound" );
   \endcode
 
-  If the user presses Alt-S the sound page of the tab dialog is shown;
-  if the user presses Alt-P the graphics page is shown.
+  If the user presses Alt+S the sound page of the tab dialog is shown;
+  if the user presses Alt+P the graphics page is shown.
 
   If you call addTab() after show(), the screen will flicker and the
   user will be confused.
@@ -258,7 +259,7 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
   This function is the same as addTab(), but with an additional
   \a iconset.
  */
-void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
+void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label )
 {
     QTab * t = new QTab();
     Q_CHECK_PTR( t );
@@ -267,16 +268,14 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
     addTab( child, t );
 }
 
-/*!
-    \overload
-  This is a lower-level method for adding tabs, similar to the other
-  addTab() method.  It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() routine for a
-  subclass of QTab.
-  The \a child is the new page and \a tab is the tab to put the \a child
-  on.
+/*! \overload
+
+  This is a low-level function for adding tabs. It is useful if you
+  are using setTabBar() to set a QTabBar subclass with an overridden
+  QTabBar::paint() routine for a subclass of QTab. The \a child is
+  the new page and \a tab is the tab to put the \a child on.
 */
-void QTabWidget::addTab( QWidget *child, QTab* tab)
+void QTabWidget::addTab( QWidget *child, QTab* tab )
 {
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
@@ -297,8 +296,8 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
   label. The name is internal to the program and invariant, whereas the
   label is shown on-screen and may vary according to language, for example.
 
-  \a label is written in the QButton style, in which &P makes Qt create
-  an accelerator key on Alt-P for this page.  For example:
+  \a label is written in the QButton style, in which \&P makes Qt create
+  an accelerator key on Alt+P for this page.  For example:
 
   \code
     td->insertTab( graphicsPane, "&Graphics" );
@@ -308,8 +307,8 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
   If \a index is not specified, the tab is simply added. Otherwise
   it is inserted at the specified position.
 
-  If the user presses Alt-S the sound page of the tab dialog is shown;
-  if the user presses Alt-P the graphics page is shown.
+  If the user presses Alt+S the sound page of the tab dialog is shown;
+  if the user presses Alt+P the graphics page is shown.
 
   If you call insertTab() after show(), the screen will flicker and the
   user will be confused.
@@ -365,7 +364,6 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
-
     //#### accelerators
     int id = d->stack->id( w );
     if ( id < 0 )
@@ -614,6 +612,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	d->dirty = TRUE;
 	return; // we'll do it later
     }
+
     QSize t( d->tabs->sizeHint() );
     if ( t.width() > width() )
 	t.setWidth( width() );
@@ -641,7 +640,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 
     // do alignment
     int alignment = style().styleHint( QStyle::SH_TabBar_Alignment, this );
-    if (  alignment != AlignLeft && d->tabs->width() < width() ) {
+    if ( alignment != AlignLeft && d->tabs->width() < width() ) {
 	if ( alignment == AlignHCenter )
 	    tabx += width()/2 - d->tabs->width()/2;
 	else if ( alignment == AlignRight )
@@ -669,18 +668,20 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 */
 QSize QTabWidget::sizeHint() const
 {
+    setUpLayout( TRUE );
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
-		  s.height() + t.height() + d->tabBase->height());
+		  s.height() + t.height() + d->tabBase->height() );
 }
 
 
-/*!
+/*! \reimp
   Returns a suitable minimum size for the tab widget.
 */
 QSize QTabWidget::minimumSizeHint() const
 {
+    setUpLayout( TRUE );
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
