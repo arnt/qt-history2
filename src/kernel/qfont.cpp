@@ -2594,12 +2594,13 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #endif
 
     case 0x2f:
-	if (cell <= 0xd5)
+	if (cell <= 0xd5) {
 #ifdef Q_WS_X11
 	    return hanHack( c );
 #else
-	return QFont::Han;
+	    return QFont::Han;
 #endif
+	}
 	if (cell <= 0xef)
 	    break;
 #ifdef Q_WS_X11
@@ -2609,18 +2610,18 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #endif
 
     case 0x30:
-	if (cell <= 0x3f)
-	    break;
+	if (cell <= 0x3f) {
+	    // Unified Han Symbols and Punctuation
+#ifdef Q_WS_X11
+	    return hanHack( c );
+#else
+	    return QFont::Han;
+#endif
+	}
 	if (cell <= 0x9f)
 	    return QFont::Hiragana;
 	return QFont::Katakana;
 
-	// Unified Han Symbols and Punctuation
-#ifdef Q_WS_X11
-	return hanHack( c );
-#else
-	return QFont::Han;
-#endif
     case 0x31:
 	if (cell <= 0x2f)
 	    return QFont::Bopomofo;
@@ -2628,12 +2629,13 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 	// Hangul Compatibility Jamo
 	if (cell <= 0x8f)
 	    return QFont::Hangul;
-	if (cell <= 0x9f)
+	if (cell <= 0x9f) {
 #ifdef Q_WS_X11
 	    return hanHack( c );
 #else
-	return QFont::Han;
+	    return QFont::Han;
 #endif
+	}
 	break;
 
     case 0x32:
