@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#85 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#84 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#85 $";
 #endif
 
 
@@ -1507,13 +1507,20 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
     }
     else {
+	QWidget *widget = this;
+	QWidget *mg = QWidget::mouseGrabber();
+	if ( mg && mg != this ) {
+	    widget = mg;
+	    pos = mapToGlobal( pos );
+	    pos = mg->mapFromGlobal( pos );
+	}
 	QMouseEvent e( type, pos, button, state );
 	if ( popupCloseDownMode ) {
 	    popupCloseDownMode = FALSE;
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-	QApplication::sendEvent( this, &e );
+	QApplication::sendEvent( widget, &e );
     }
     return TRUE;
 }

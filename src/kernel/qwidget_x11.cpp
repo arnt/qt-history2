@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#79 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#78 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#79 $";
 #endif
 
 
@@ -350,6 +350,9 @@ void QWidget::setCursor( const QCursor &cursor )
 
 extern bool qt_nograb();
 
+static QWidget *mouseGrb    = 0;
+static QWidget *keyboardGrb = 0;
+
 /*!
   Grabs the mouse input.
 
@@ -370,12 +373,14 @@ void QWidget::grabMouse()
 {
     if ( !testWFlags(WState_MGrab) ) {
 	setWFlags( WState_MGrab );
-	if ( !qt_nograb() )
+	if ( !qt_nograb() ) {
 	    XGrabPointer( dpy, ident, TRUE,
 			  ButtonPressMask | ButtonReleaseMask |
 			  ButtonMotionMask | EnterWindowMask | LeaveWindowMask,
 			  GrabModeAsync, GrabModeAsync,
 			  None, None, CurrentTime );
+	    mouseGrb = this;
+	}
     }
 }
 
@@ -395,13 +400,15 @@ void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( !testWFlags(WState_MGrab) ) {
 	setWFlags( WState_MGrab );
-	if ( !qt_nograb() )
+	if ( !qt_nograb() ) {
 	    XGrabPointer( dpy, ident, TRUE,
 			  ButtonPressMask | ButtonReleaseMask |
 			  ButtonMotionMask |
 			  EnterWindowMask | LeaveWindowMask,
 			  GrabModeAsync, GrabModeAsync,
 			  None, cursor.handle(), CurrentTime );
+	    mouseGrb = this;
+	}
     }
 }
 
@@ -418,6 +425,7 @@ void QWidget::releaseMouse()
 	if ( !qt_nograb() ) {
 	    XUngrabPointer( dpy, CurrentTime );
 	    XFlush( dpy );
+	    mouseGrb = 0;
 	}
     }
 }
@@ -437,9 +445,11 @@ void QWidget::grabKeyboard()
 {
     if ( !testWFlags(WState_KGrab) ) {
 	setWFlags( WState_KGrab );
-	if ( !qt_nograb() )
+	if ( !qt_nograb() ) {
 	    XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
 			   CurrentTime );
+	    keyboardGrb = this;
+	}
     }
 }
 
@@ -453,9 +463,33 @@ void QWidget::releaseKeyboard()
 {
     if ( testWFlags(WState_KGrab) ) {
 	clearWFlags( WState_KGrab );
-	if ( !qt_nograb() )
+	if ( !qt_nograb() ) {
 	    XUngrabKeyboard( dpy, CurrentTime );
+	    keyboardGrb = 0;
+	}
     }
+}
+
+
+/*!
+  Returns a pointer to the widget that is currently grabbing the mouse input.
+  \sa grabMouse(), keyboardGrabber()
+*/
+
+QWidget *QWidget::mouseGrabber()
+{
+    return mouseGrb;
+}
+
+/*!
+  Returns a pointer to the widget that is currently grabbing the keyboard
+  input.
+  \sa grabMouse(), mouseGrabber()
+*/
+
+QWidget *QWidget::keyboardGrabber()
+{
+    return keyboardGrb;
 }
 
 
