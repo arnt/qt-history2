@@ -979,7 +979,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 	    } else if(w->inherits("QStatusBar")) {
 		if(activeWindow()) {
 		    QWorkspaceChild *c;
-		    if ( c = findChild(activeWindow()) ) 
+		    if ( ( c = findChild(activeWindow()) ) )
 			c->setStatusBar((QStatusBar*)w);
 		}
 	    } else if(w->inherits("QWorkspaceChild")) {
