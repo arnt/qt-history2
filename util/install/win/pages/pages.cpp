@@ -91,7 +91,6 @@ FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
 	folderGroups->setEnabled( true );
     else
 	folderGroups->setDisabled( true );
-    qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 #elif defined(Q_OS_UNIX)
     folderGroups->setDisabled( true );
 #endif
