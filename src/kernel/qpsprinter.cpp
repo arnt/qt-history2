@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#31 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#31 $");
 
 
 #if !defined(QT_HEADER_PS)
@@ -427,17 +427,19 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_DRAWTEXT:
 	    if ( p[1].str && strlen( p[1].str ) ) {
 		char * tmp = new char[ strlen( p[1].str ) * 2 + 2 ];
-		// assert tmp?
+#if defined(CHECK_NULL)
+		CHECK_PTR( tmp );
+#endif
 		const char * from = p[1].str;
 		char * to = tmp;
-		while( *from ) {
+		while ( *from ) {
 		    if ( *from == '\\' || *from == '(' || *from == ')' )
-			*to++ = '\\';
+			*to++ = '\\';		// escape special chars
 		    *to++ = *from++;
 		}
 		*to = '\0';
 		stream << POINT(0) << "(" << tmp << ") T\n";
-		delete tmp;
+		delete [] tmp;
 	    }
 	    break;
 	case PDC_DRAWTEXTFRMT:;
