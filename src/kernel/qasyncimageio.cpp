@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#48 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -197,7 +197,6 @@ private:
     void nextY(QImage& img, QImageConsumer* consumer);
     void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
-#endif
 
 class Q_EXPORT QGIFFormatType : public QImageFormatType
 {
@@ -205,6 +204,7 @@ class Q_EXPORT QGIFFormatType : public QImageFormatType
     const char* formatName() const;
 };
 
+#endif
 
 
 struct QImageDecoderPrivate {
