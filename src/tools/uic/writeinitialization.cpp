@@ -414,6 +414,10 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
                     && p->elementStringList()) {
             // Sql support
             continue;
+        } else if (propertyName == QLatin1String("frameworkCode")
+                    && p->kind() == DomProperty::Bool) {
+            // Sql support
+            continue;
         }
 
         bool stdset = m_stdsetdef;
