@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.21 1999/06/14 12:31:35 warwick Exp $
+** $Id: i18n.doc,v 1.22 1999/06/15 21:22:33 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -95,25 +95,12 @@ in the following stages:
 	    QLabel *label = new QLabel( qApp->translate("LoginWidget", "Password:"), logwid );
 	}
 	\endcode
-	<p>
-	If you disable the const char* to QString automatic conversion by
-	compiling your software with the macro QT_NO_CAST_ASCII defined,
-	you'll be very likely to catch any strings you are missing. See
-	QString::fromLatin1() for more details. Doing this can make
-        programming uncomfortable though.
-	</p>
- <li><b>Use QTranslator to load translated text.</b>
-	<p>
-	Once you are using tr() sufficiently, you can start producing
-	translations of the user-visible text in your program.
-	<p>
-	Provided with Qt is a utility program,
-	<tt>findtr</tt>,
-	that will extract
-	information about text to be translated.  It recognizes the constructs
-	above, plus two additions: QT_TR_NOOP() and QT_TRANSLATE_NOOP(),
-       	for use in code where it is convenient to put the strings
-	outside the tr() parameters:
+
+	Finally, if you need to have translatable text completely
+	outside a funciton, 
+	two macros assist this: QT_TR_NOOP() and QT_TRANSLATE_NOOP(),
+	as in the code below.
+
 	\code
 	QString FriendlyConversation::greeting(int greet_type)
 	{
@@ -133,10 +120,12 @@ in the following stages:
 	    return tr(greeting_strings[greet_type]);
 	}
 	\endcode
-	<i>The current version is a simple Perl script that produces a
-	    <tt>.po</tt> file, which can be converted to a .qm file
-	    that QTranslator can load (using the <tt>msg2qm</tt>
-	    utility).</i>
+	<p>
+	If you disable the const char* to QString automatic conversion by
+	compiling your software with the macro QT_NO_CAST_ASCII defined,
+	you'll be very likely to catch any strings you are missing. See
+	QString::fromLatin1() for more details. Doing this can make
+        programming uncomfortable though.
 	</p>
  <li><b>Use QString::arg() for simple arguments.</b>
 	<p>
@@ -158,6 +147,68 @@ in the following stages:
 			 );
 	}
 	\endcode
+	</p>
+ <li><b>Produce translation.</b>
+	<p>
+	Once you are using tr() sufficiently, you can start producing
+	translations of the user-visible text in your program.
+	<p>
+	Provided with Qt are three utility programs that assist
+	in the management of translations:
+	<dl>
+	  <dt><tt>findtr</tt>
+	  <dd>Extracts information about text to be translated.
+	    It recognizes the tr() constructs described above and
+	    produces a file in ".po" format, a simple text format
+	    that translation team will copy and edit, such that
+	    the <em>base</em> .po file will be say <tt>myapp.po</tt> and
+	    translated versions of the file will be <tt>myapp_de.po</tt>,
+	    <tt>myapp_fr.po</tt>, and <tt>myapp_ja.po</tt> for German,
+	    French and Japanese respectively.
+	    \code
+		findtr *.cpp *.h >myapp.po
+		copy myapp.po myapp_de.po
+		edit myapp_de.po
+	    \endcode
+	  <dt><tt>msg2qm</tt>
+	  <dd>Convert translated .po files to the Qt-specific
+	    Qt Message (".qm") binary format.  The Qt Message
+	    files are platform and locale independent, containing
+	    translations in Unicode and various hash tables to
+	    provide fast look-up.  In that application, use
+	    \link QTranslator::load() QTranslator::load()\endlink
+	    to load a translation file appropriate for the user's
+	    language.
+	    \code
+		msg2qm myapp_de.po myapp_de.qm
+		msg2qm myapp_fr.po myapp_fr.qm
+		msg2qm myapp_ja.po myapp_ja.qm
+	    \endcode
+	  <dt><tt>mergetr</tt>
+	  <dd>When the original literal texts change as your application
+	    is enhanced, a the <em>base</em> .po file can be regenerated
+	    using <tt>findtr</tt>, then <tt>mergetr</tt> cn be used to
+	    merge the changes to the <em>base</em> .po file into the
+	    other .po files:
+	    \code
+		mergetr myapp_de.po myapp.po
+		mergetr myapp_fr.po myapp.po
+		mergetr myapp_ja.po myapp.po
+	    \endcode
+	    The translation team then edits the new .po files to translate
+	    the new or changed texts.  When texts change, the old text
+	    is included in the .po file as a comment to guide the new
+	    translation (no "fuzzy" matching is done).
+	</dl>
+	<p>
+	<em>
+	Note that Qt itself contains a small number of strings that will
+	also need to be translated to the languages which you are targetting.
+	In the near future Qt will ship with translations for some languages.
+	We recommend that if you need to translate the Qt strings now
+	that you put the translations in separate .po and .pm files.  This
+	will simplify transition to the official Qt translations.
+	</em>
 	</p>
  <li><b>Support encodings.</b>
 	<p>
