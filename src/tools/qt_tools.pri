@@ -29,6 +29,7 @@ tools {
 		  $$TOOLS_H/qgeneric.h \
 		  $$TOOLS_H/qglist.h \
 		  $$TOOLS_H/qglobal.h \
+		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_P/qgpluginmanager_p.h \
 		  $$TOOLS_H/qgvector.h \
 		  $$TOOLS_H/qintcache.h \
@@ -106,6 +107,7 @@ tools {
 		  $$TOOLS_CPP/qgdict.cpp \
 		  $$TOOLS_CPP/qglist.cpp \
 		  $$TOOLS_CPP/qglobal.cpp \
+		  $$TOOLS_CPP/qlist.cpp \
 		  $$TOOLS_CPP/qgpluginmanager.cpp \
 		  $$TOOLS_CPP/qgvector.cpp \
 		  $$TOOLS_CPP/qiodevice.cpp \
