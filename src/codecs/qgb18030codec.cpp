@@ -9287,7 +9287,7 @@ int qt_UnicodeToGbk(uint uni, uchar *gbchar) {
     else if (uni <= 0xD7FF || InRange(uni, 0xE766, 0xFFFF)) {
 	u2g = ucs_to_gb18030_index[uni >> 8];
 
-	if ((uni & 0xFF) >= u2g.tblBegin && (uni & 0xFF) <= u2g.tblEnd) {
+	if ( (Q_UINT8)(uni & 0xFF) >= u2g.tblBegin && (Q_UINT8)(uni & 0xFF) <= u2g.tblEnd ) {
 	    // Use mapping table (2-byte GBK or 4-byte GB18030)
 	    uint tblEntry;
 

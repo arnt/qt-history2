@@ -25,7 +25,7 @@ int QAccessiblePopup::childCount() const
     return popupMenu()->count();
 }
 
-QRESULT QAccessiblePopup::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT QAccessiblePopup::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -189,7 +189,7 @@ int QAccessibleMenuBar::childCount() const
     return menuBar()->count();
 }
 
-QRESULT QAccessibleMenuBar::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT QAccessibleMenuBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;

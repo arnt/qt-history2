@@ -340,7 +340,7 @@ QString QAccessibleWidget::text( Text t, int control ) const
 }
 
 /*! \reimp */
-void QAccessibleWidget::setText( Text t, int control, const QString &text )
+void QAccessibleWidget::setText( Text t, int /*control*/, const QString &text )
 {
     switch ( t ) {
     case DefaultAction:
