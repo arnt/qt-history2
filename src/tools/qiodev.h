@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#2 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#3 $
 **
 ** Definition of QIODevice class
 **
@@ -98,6 +98,7 @@ public:
 
     virtual int  readBlock( char *data, uint len ) = 0;
     virtual int  writeBlock( const char *data, uint len ) = 0;
+    virtual int  readLine( char *data, uint maxlen );
 
     virtual int	 getch() = 0;			// get next char
     virtual int	 putch( int ) = 0;		// put char

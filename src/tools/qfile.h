@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#2 $
+** $Id: //depot/qt/main/src/tools/qfile.h#3 $
 **
 ** Definition of QFile class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -48,6 +48,7 @@ public:
 
     int   readBlock( char *data, uint len );
     int   writeBlock( const char *data, uint len );
+    int	  readLine( char *data, uint maxlen );
 
     int	  getch();				// get next char
     int	  putch( int );				// put char
