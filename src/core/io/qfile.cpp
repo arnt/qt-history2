@@ -846,7 +846,7 @@ QFile::readLine(QString &s, Q_LLONG maxlen)
     QByteArray ba;
     ba.resize(maxlen);
     Q_LLONG l = readLine(ba.data(), maxlen);
-    if (l >= 0)
+    if (l > 0)
         s = QString::fromLatin1(ba);
     return l;
 }
