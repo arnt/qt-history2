@@ -175,7 +175,6 @@
      \i Event handling:
 	exec(),
 	processEvents(),
-	processOneEvent(),
 	enter_loop(),
 	exit_loop(),
 	exit(),
@@ -1858,10 +1857,10 @@ void QApplication::closeAllWindows()
 */
 
 /*!
-  Sends event \a e to \a receiver: <code>receiver->event( event )</code>
+  Sends event \a e to \a receiver: \a {receiver}->event(\a event).
   Returns the value that is returned from the receiver's event handler.
 
-  If the receiver is not interested in the event (i.e. it returns FALSE)
+  If the receiver is not interested in the event (i.e., it returns FALSE)
   the event will be propagated to the receiver's parent and so on up to
   the top level widget. All events are propagated in this way including
   mouse, wheel and key events.
@@ -1904,7 +1903,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     }
 #endif
 
-    // no events are delivered after ~QApplication has started
+    // no events are delivered after ~QApplication() has started
     if ( is_app_closing )
 	return FALSE;
 
@@ -1914,7 +1913,6 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 #endif
 	return FALSE;
     }
-
 
     if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
 	// if this is a child remove event and the child insert hasn't been
@@ -1960,7 +1958,6 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
-
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
@@ -1979,13 +1976,12 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		if ( t != mouse )
 		    delete t;
 		w = w->parentWidget();
-
 		if ( w && w->testWFlags( WNoMousePropagation ) ) {
 		    res = TRUE;
 		    break;
 		}
 	    }
-	    if ( ev != e ) {
+	    if ( ev != mouse ) {
 		if ( res )
 		    mouse->accept();
 		else
@@ -1998,7 +1994,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     case QEvent::Wheel:
 	{
 	    QWidget* w = (QWidget*)receiver;
-	    QWheelEvent* wheel = ( QWheelEvent*) e;
+	    QWheelEvent* wheel = (QWheelEvent*) e;
 	    QWheelEvent* t, *ev = wheel;
 	    while ( w ) {
 		ev->accept();
@@ -2015,7 +2011,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    break;
 		}
 	    }
-	    if ( e != wheel ) {
+	    if ( ev != wheel ) {
 		if ( res )
 		    wheel->accept();
 		else
