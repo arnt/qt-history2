@@ -758,7 +758,6 @@ void QButton::drawButtonLabel( QPainter * )
 }
 
 
-static bool got_a_release = FALSE; // ### binary compatibility trick, keyReleaseEvent is new
 /*!\reimp
 */
 
@@ -774,12 +773,11 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Space:
 	if ( !e->isAutoRepeat() ) {
-	    if ( got_a_release )
-		setDown( TRUE );
-	    else {
-		buttonDown = TRUE;
-		repaint( FALSE );
-	    }
+	    setDown( TRUE );
+	    if ( inherits("QPushButton") )
+		emit pressed();
+	    else
+		e->ignore();
 	}
 	break;
     case Key_Up:
@@ -817,7 +815,6 @@ void QButton::keyPressEvent( QKeyEvent *e )
  */
 void QButton::keyReleaseEvent( QKeyEvent * e)
 {
-    got_a_release = TRUE;
     switch ( e->key() ) {
     case Key_Space:
 	if ( buttonDown && !e->isAutoRepeat() ) {
@@ -1076,27 +1073,27 @@ bool QButton::isExclusiveToggle() const
 #ifndef QT_NO_ACCESSIBILITY
 
 /*! \reimp */
-QString	QButton::contentsDescription() const 
-{ 
-    return text(); 
+QString	QButton::contentsDescription() const
+{
+    return text();
 }
 
 /*! \reimp */
 QString	QButton::stateDescription() const
-{ 
-    return isToggleButton() ? ( isOn() ? tr("On") : tr("Off") ) : QString::null; 
+{
+    return isToggleButton() ? ( isOn() ? tr("On") : tr("Off") ) : QString::null;
 }
 
 /*! \reimp */
 QString	QButton::useDescription() const
-{ 
-    return tr("To press, use space bar"); 
+{
+    return tr("To press, use space bar");
 }
 
 /*! \reimp */
 QString	QButton::typeDescription() const
-{ 
-    return tr("button"); 
+{
+    return tr("button");
 }
 
 #endif
