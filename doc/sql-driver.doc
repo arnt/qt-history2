@@ -215,11 +215,13 @@ qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/dem
 make
 \endcode
 
-Note that some versions of the OCI 8 client libraries contain a bug
+Note that some versions of the OCI client libraries contain a bug
 that makes programs linked to these libraries segfault on exit. This
 only happens if the QOCI8 driver is compiled as a plugin. To work
 around this problem, either compile the driver into the Qt libray
 itself, or configure Qt with the option '-DQT_NO_LIBRARY_UNLOAD'.
+For Oracle 9, it is possible to link to the static OCI library by
+using "LIBS+=$ORACLE_HOME/lib/libclntst9.a".
 
 \section3 How to build the plugin on Windows
 
