@@ -169,10 +169,10 @@ private:
     void	*reserved_ptr;
 
     QChar	eat_ws();
+    uint 	ts_getline( QChar*, uint );
     void	ts_ungetc( QChar );
     QChar	ts_getc();
     uint	ts_getbuf( QChar*, uint );
-    uint	ts_getline( QChar*, uint );
     void	ts_putc(int);
     void	ts_putc(QChar);
     bool	ts_isspace(QChar);
