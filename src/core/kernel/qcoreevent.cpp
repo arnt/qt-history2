@@ -233,7 +233,7 @@ QEvent::~QEvent()
     timer is started with QObject::startTimer().
 
     The QTimer class provides a high-level programming interface that
-    uses signals instead of events. It also provides one-shot timers.
+    uses signals instead of events. It also provides single-shot timers.
 
     The event handler QObject::timerEvent() receives timer events.
 
