@@ -17,40 +17,7 @@
 #include <qtreeview.h>
 #include <qlist.h>
 
-class QTreeModel;
-class QTreeWidgetPrivate;
-
-class Q_GUI_EXPORT QTreeWidget : public QTreeView
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QTreeWidget)
-
-    friend class QTreeWidgetItem;
-public:
-    QTreeWidget(QWidget *parent = 0);
-
-    int columnCount() const;
-    void setColumnCount(int columns);
-
-    QTreeWidgetItem *headerItem();
-    void setHeaderItem(QTreeWidgetItem *item);
-
-    QTreeWidgetItem *currentTreeItem() const;
-    void setCurrentTreeItem(QTreeWidgetItem *item);
-
-signals:
-    void clicked(QTreeWidgetItem *item, int column, int button);
-    void doubleClicked(QTreeWidgetItem *item, int column, int button);
-
-protected:
-    void appendItem(QTreeWidgetItem *item);
-    void removeItem(QTreeWidgetItem *item);
-    bool isSelected(QTreeWidgetItem *item) const;
-    void setModel(QAbstractItemModel *model);
-private:
-    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
-    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
-};
+class QTreeWidget;
 
 class Q_GUI_EXPORT QTreeWidgetItem
 {
@@ -115,7 +82,7 @@ public:
     inline QTreeWidgetItem *parent() { return par; }
     inline QTreeWidgetItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
-    inline bool isSelected() { return view->isSelected(this); }
+//    inline bool isSelected() { return view->isSelected(this); }
     inline int columnCount() const { return values.count(); }
 
 protected:
@@ -135,6 +102,41 @@ private:
     QVector< QVector<Data> > values;
     QAbstractItemModel::ItemFlags itemFlags;
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
+};
+
+class QTreeWidgetPrivate;
+
+class Q_GUI_EXPORT QTreeWidget : public QTreeView
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QTreeWidget)
+
+public:
+    QTreeWidget(QWidget *parent = 0);
+
+    int columnCount() const;
+    void setColumnCount(int columns);
+
+    QTreeWidgetItem *headerItem();
+    void setHeaderItem(QTreeWidgetItem *item);
+
+    QTreeWidgetItem *currentTreeItem() const;
+    void setCurrentTreeItem(QTreeWidgetItem *item);
+
+    bool isSelected(QTreeWidgetItem *item) const;
+    
+signals:
+    void clicked(QTreeWidgetItem *item, int column, int button);
+    void doubleClicked(QTreeWidgetItem *item, int column, int button);
+
+protected:
+    void appendItem(QTreeWidgetItem *item);
+    void removeItem(QTreeWidgetItem *item);
+    void setModel(QAbstractItemModel *model);
+
+private:
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
 };
 
 #endif

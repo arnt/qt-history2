@@ -447,8 +447,11 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
                                     |QAbstractItemModel::ItemIsCheckable
                                     |QAbstractItemModel::ItemIsEnabled)
 {
-    if (view)
-        view->appendItem(this);
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        if (model)
+            model->append(this);
+    }
 }
 
 /*!
@@ -480,10 +483,16 @@ QTreeWidgetItem::~QTreeWidgetItem()
         delete children.at(i);
     }
 
-    if (par)
+    if (par) {
         par->children.removeAll(this);
-    else if (view)
-        view->removeItem(this);
+        return;
+    }
+
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        if (model)
+            model->remove(this);
+    }
 }
 
 /*!
@@ -667,6 +676,16 @@ void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
 }
 
 /*!
+  Returns true if the \a item is selected, otherwise returns false.
+*/
+
+bool QTreeWidget::isSelected(QTreeWidgetItem *item) const
+{
+    QModelIndex index = d->model()->index(item);
+    return selectionModel()->isSelected(index);
+}
+
+/*!
   Appends a tree view \a item to the tree view.
 */
 
@@ -682,16 +701,6 @@ void QTreeWidget::appendItem(QTreeWidgetItem *item)
 void QTreeWidget::removeItem(QTreeWidgetItem *item)
 {
     d->model()->remove(item);
-}
-
-/*!
-  Returns true if the \a item is selected, otherwise returns false.
-*/
-
-bool QTreeWidget::isSelected(QTreeWidgetItem *item) const
-{
-    QModelIndex index = d->model()->index(item);
-    return selectionModel()->isSelected(index);
 }
 
 void QTreeWidget::setModel(QAbstractItemModel *model)
