@@ -121,17 +121,6 @@ QTextDocument::~QTextDocument()
 }
 
 /*!
-  Returns the plain text contained in the document. If you want
-  formatting information use a QTextCursor instead.
-*/
-QString QTextDocument::plainText() const
-{
-    QString txt = d->plainText();
-    txt.replace(QChar::ParagraphSeparator, '\n');
-    return txt;
-}
-
-/*!
     Returns true if the document is empty; otherwise returns false.
 */
 bool QTextDocument::isEmpty() const
@@ -255,6 +244,35 @@ QString QTextDocument::documentTitle() const
 }
 
 /*!
+  Returns the plain text contained in the document. If you want
+  formatting information use a QTextCursor instead.
+*/
+QString QTextDocument::plainText() const
+{
+    QString txt = d->plainText();
+    txt.replace(QChar::ParagraphSeparator, '\n');
+    return txt;
+}
+
+void QTextDocument::setPlainText(const QString &text)
+{
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
+    QTextCursor cursor(this);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    q->setUndoRedoEnabled(false);
+    cursor.insertFragment(fragment);
+    q->setUndoRedoEnabled(true);
+}
+
+
+QString QTextDocument::html() const
+{
+    // ###########
+    qWarning("QTextDocument::html() not implemented, returning plain text");
+    return plainText();
+}
+
+/*!
     Clears the text and replaces it with the arbitrary piece of HTML
     formatted text in the \a html string.
 
@@ -267,7 +285,9 @@ void QTextDocument::setHtml(const QString &html)
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(html);
     QTextCursor cursor(this);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    q->setUndoRedoEnabled(false);
     cursor.insertFragment(fragment);
+    q->setUndoRedoEnabled(true);
 }
 
 /*!
