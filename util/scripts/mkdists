@@ -665,9 +665,9 @@ copy_platform_files() {
 	    sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 		-e "s,%DISTNAME%,$platname,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
-		sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$o_dir/$o_file
+	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%/$1/g; s =~ s/%STABLEONLY[^%]*%//g; print $crap' >$o_dir/$o_file
 	    else
-		sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" ${TMP_FILE} >$o_dir/$o_file
+	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%//g; s =~ s/%STABLEONLY[^%]*%/$1/g; print $crap' >$o_dir/$o_file
 	    fi
 	else
 	    cp -ar "$dir/$a_file" "$o_dir/$o_file"
