@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+	<file>images/questionmark.png</file>
+	<file>images/mmonsen.png</file>
+	<file>images/espenr.png</file>	
+</qresource>
+</RCC>
