@@ -196,6 +196,11 @@ inline void QAxScriptManager::addObject(QObject *object)
 {
     extern QAxBase *qax_create_object_wrapper(QObject*);
     QAxBase *wrapper = qax_create_object_wrapper(object);
+    if (!wrapper) {
+        qWarning("QAxScriptMananger::addObject: Class %s not exposed through the QAxFactory", 
+            object->metaObject()->className());
+        Q_ASSERT(wrapper);
+    }
     addObject(wrapper);
 }
 

@@ -23,7 +23,7 @@ QAxBase *qax_create_object_wrapper(QObject *object)
     qAxFactory()->createObjectWrapper(object, &dispatch);
     if (dispatch) {
         wrapper = new QAxObject(dispatch, object);
-        wrapper->setObjectName(object->objectName() + "_ScriptWrapper");
+        wrapper->setObjectName(object->objectName());
         dispatch->Release();
     }
     return wrapper;
