@@ -1,4 +1,32 @@
 #include "utypes.h"
+// {F1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
+const UUid TID_UType_ptr = { 0xf1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+static UType_ptr static_UType_ptr;
+UType_ptr *pUType_ptr = &static_UType_ptr;
+const UUid *UType_ptr::uuid() const  { return &TID_UType_ptr; }
+const char *UType_ptr::desc() const { return "ptr"; }
+
+void UType_ptr::set( UObject *o, void* v )
+{
+    o->payload.ptr = v;
+    o->type = this;
+}
+
+void* &UType_ptr::get( UObject *o, bool *ok )
+{
+    UTYPE_INIT( o, 0, ok )
+    return o->payload.ptr;
+}
+
+bool UType_ptr::convertFrom( UObject *o, UType *t )
+{
+    return t->convertTo( o, this );
+}
+
+bool UType_ptr::convertTo( UObject *, UType * )
+{
+    return false;
+}
 
 // {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
 const UUid TID_UType_int = { 0xe1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
@@ -9,27 +37,22 @@ const char *UType_int::desc() const { return "int"; }
 
 void UType_int::set( UObject *o, int v )
 {
-    o->payload.l = v;
+    o->payload.i = v;
     o->type = this;
 }
 
-int UType_int::get( UObject *o, bool *ok )
+int &UType_int::get( UObject *o, bool *ok )
 {
-    if ( !isEqual( o->type, this ) && !convertFrom( o, o->type ) ) {
-	if ( ok )
-	    *ok = false;
-	return 0;
-    }
-    return o->payload.l;
+    UTYPE_INIT( o, 0, ok )
+    return o->payload.i;
 }
 
 bool UType_int::convertFrom( UObject *o, UType *t )
 {
-    if ( isEqual( t, pUType_double ) ) {
-	o->payload.l = (long)o->payload.d;
-    } else {
+    if ( isEqual( t, pUType_double ) )
+	o->payload.i = (long)o->payload.d;
+    else
 	return t->convertTo( o, this );
-    }
 
     o->type = this;
     return true;
@@ -38,7 +61,7 @@ bool UType_int::convertFrom( UObject *o, UType *t )
 bool UType_int::convertTo( UObject *o, UType *t )
 {
     if ( isEqual( t,  pUType_double ) ) {
-	o->payload.d = (double)o->payload.l;
+	o->payload.d = (double)o->payload.i;
 	o->type = pUType_double;
 	return true;
     }
@@ -59,23 +82,18 @@ void UType_double::set( UObject *o, double v )
     o->type = this;
 }
 
-double UType_double::get( UObject *o, bool *ok )
+double &UType_double::get( UObject *o, bool *ok )
 {
-    if ( !isEqual( o->type, this ) && !convertFrom( o, o->type ) ) {
-	if ( ok )
-	    *ok = false;
-	return 0;
-    }
+    UTYPE_INIT( o, 0, ok )
     return o->payload.d;
 }
 
 bool UType_double::convertFrom( UObject *o, UType *t )
 {
-    if ( isEqual( t, pUType_int ) ) {
-	o->payload.d = (double)o->payload.l;
-    } else {
+    if ( isEqual( t, pUType_int ) )
+	o->payload.d = (double)o->payload.i;
+    else
 	return t->convertTo( o, this );
-    }
 
     o->type = this;
     return true;
@@ -84,7 +102,7 @@ bool UType_double::convertFrom( UObject *o, UType *t )
 bool UType_double::convertTo( UObject *o, UType *t )
 {
     if ( isEqual( t,  pUType_int ) ) {
-	o->payload.l = (long)o->payload.d;
+	o->payload.i = (int) o->payload.d;
 	o->type = pUType_int;
 	return true;
     }
@@ -93,46 +111,49 @@ bool UType_double::convertTo( UObject *o, UType *t )
 }
 
 // {C1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-const UUid TID_UType_CharStar = { 0xc1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
-static UType_CharStar static_UType_CharStar;
-UType_CharStar *pUType_CharStar = &static_UType_CharStar;
-const UUid *UType_CharStar::uuid() const { return &TID_UType_CharStar; }
-const char *UType_CharStar::desc() const { return "char*"; }
+const UUid TID_UType_charstar = { 0xc1d3be80, 0x2f2f, 0x44f7, { 0xab, 0x11, 0xe8, 0xa0, 0xce, 0xc8, 0x4b, 0x82 } };
+static UType_charstar static_UType_charstar;
+UType_charstar *pUType_charstar = &static_UType_charstar;
+const UUid *UType_charstar::uuid() const { return &TID_UType_charstar; }
+const char *UType_charstar::desc() const { return "char*"; }
 
-void UType_CharStar::set( UObject *o, const char* v )
+void UType_charstar::set( UObject *o, const char* v )
 {
     if ( v ) {
-	o->payload.ptr = new char[ strlen(v) + 1 ];
-	strcpy( (char*)o->payload.ptr, v );
+	o->payload.charstar = new char[ strlen(v) + 1 ];
+	strcpy( o->payload.charstar, v );
     } else {
-	o->payload.ptr = 0;
+	o->payload.charstar = 0;
     }
     o->type = this;
 }
 
-char* UType_CharStar::get( UObject *o, bool *ok )
+char* UType_charstar::get( UObject *o, bool *ok )
 {
-    if ( !isEqual( o->type, this ) && !convertFrom( o, o->type ) ) {
-	if ( ok )
-	    *ok = false;
-	return 0;
-    }
-    return (char*)o->payload.ptr;
+    UTYPE_INIT( o, 0, ok )
+    return o->payload.charstar;
 }
 
-bool UType_CharStar::convertFrom( UObject *o, UType *t )
+bool UType_charstar::convertFrom( UObject *o, UType *t )
 {
     return t->convertTo( o, this );
 }
 
-bool UType_CharStar::convertTo( UObject *, UType * )
+bool UType_charstar::convertTo( UObject *, UType * )
 {
     return false;
 }
 
-void UType_CharStar::clear( UObject *o )
+void UType_charstar::clear( UObject *o )
 {
-    delete [](char*)o->payload.ptr;
+    delete [] o->payload.charstar;
     o->payload.ptr = 0;
 }
 
+
+static UParameter param = {
+    "nase",
+    pUType_ptr,
+    pUType_ptr->desc(),
+    UParameter::In
+} ;

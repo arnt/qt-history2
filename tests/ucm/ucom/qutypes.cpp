@@ -13,32 +13,26 @@ void UType_QString::set( UObject *o, const QString& v )
     o->type = this;
 }
 
-QString UType_QString::get( UObject *o, bool *ok )
+QString &UType_QString::get( UObject *o, bool *ok )
 {
-    if ( !isEqual( o->type, this ) && !convertFrom( o, o->type ) ) {
-	if ( ok )
-	    *ok = false;
-	return QString::null;
-    }
+    UTYPE_INIT( o, QString::null, ok )
     return *(QString*)o->payload.ptr;
 }
 
 bool UType_QString::convertFrom( UObject *o, UType *t )
 {
-    if ( isEqual( t, pUType_CharStar ) ) {
-	QString *tmp = new QString( (char*)o->payload.ptr );
-	o->payload.ptr = tmp;
-    } else if ( isEqual( t, pUType_double ) ) {
-	QString *tmp = new QString;
-	*tmp = QString::number( o->payload.d );
-	o->payload.ptr = tmp;
-    } else if ( isEqual( t, pUType_int ) ) {
-	QString *tmp = new QString;
-	*tmp = QString::number( o->payload.l );
-	o->payload.ptr = tmp;
-    } else {
+    QString *str = 0;
+    if ( isEqual( t, pUType_charstar ) ) 
+	str = new QString( o->payload.charstar );
+    else if ( isEqual( t, pUType_double ) )
+	str = new QString( QString::number( o->payload.d ) );
+    else if ( isEqual( t, pUType_int ) )
+	str = new QString( QString::number( o->payload.i ) );
+    else
 	return t->convertTo( o, this );
-    }
+    
+    o->type->clear( o );
+    o->payload.ptr = str; 
     o->type = this;
     return true;
 }
@@ -46,9 +40,9 @@ bool UType_QString::convertFrom( UObject *o, UType *t )
 bool UType_QString::convertTo( UObject *o, UType *t )
 {
     QString *str = (QString *)o->payload.ptr;
-    if ( isEqual( t, pUType_CharStar ) ) {
+    if ( isEqual( t, pUType_charstar ) ) {
 	o->payload.ptr = qstrdup( str->local8Bit().data() );
-	o->type = pUType_CharStar;
+	o->type = pUType_charstar;
     } else if ( isEqual( t,  pUType_int ) ) {
 	o->payload.l = str->toLong();
 	o->type = pUType_int;
@@ -67,3 +61,4 @@ void UType_QString::clear( UObject *o )
     delete (QString*)o->payload.ptr;
     o->payload.ptr = 0;
 }
+

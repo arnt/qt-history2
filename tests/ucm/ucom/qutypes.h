@@ -11,7 +11,7 @@ struct UType_QString : public UType
     const char *desc() const;
 
     void set( UObject *, const QString & );
-    QString get( UObject *, bool * = 0 );
+    QString &get( UObject *, bool * = 0 );
 
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
@@ -19,6 +19,8 @@ struct UType_QString : public UType
     void clear( UObject * );
 };
 extern UType_QString * pUType_QString;
+
+
 
 #endif //QUTYPES_H
 

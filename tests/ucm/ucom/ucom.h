@@ -78,9 +78,11 @@ struct UType
     }
 };
 
+
 // {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
 extern const UUid TID_UType_Null;
 extern UType *pUType_Null;
+
 
 
 // The magic UObject
@@ -88,22 +90,41 @@ struct UObject
 {
     UObject();
     ~UObject();
-
+ 
     UType *type;
 
     // the unavoidable union
     union
     {
-	char b[16];
+	bool b;
+	
+	char c;
+	short s;
+	int i;
 	long l;
+	
+	unsigned char uc;
+	unsigned short us;
+	unsigned int ui;
 	unsigned long ul;
+	
+	float f;
 	double d;
-	void *ptr;
+	
+	char byte[16];
 	struct {
 	   unsigned long size;
-	   void* ptr;
-	} data;
+	   char* data;
+	} bytearray;
+	
+	void *ptr;
+	char* charstar;
+	char* utf8;
+	char* local8bit;
+	
 	UUnknownInterface* iface;
+	UDispatchInterface* idisp;
+	
     } payload;
 };
 
@@ -115,6 +136,7 @@ struct UParameter
 {
     const char* name;
     UType *type;
+    const char* desc; // most often type->desc() but may be different for generic types like UType_ptr
     enum { In = 1, Out = 2, InOut = In | Out };
     int inOut;
 };
@@ -136,7 +158,7 @@ struct UProperty
     UType* type;
     int set; // -1 undefined
     int get; // -1 undefined
-    
+
     int designable; // -1 FALSE, -2 TRUE, else method
     int stored; // -1 FALSE, -2 TRUE, else method
 };
@@ -150,5 +172,34 @@ struct UInterfaceDescription
     int propertyCount;
     const UProperty* properties;
 };
+
+
+struct UKeyValueItem
+{
+     // #### cannot we just embed this as UEnumType::Item ? Mangling issue?
+    const char* key;
+    int value;
+};
+
+struct UEnumType : public UType
+{
+    const UUid *uuid() const;
+    const char *desc() const;
+
+    void set( UObject *, int );
+    int &get( UObject *, bool * = 0 );
+    bool convertFrom( UObject *, UType * );
+    bool convertTo( UObject *, UType * );
+
+    void clear( UObject * );
+    void copy( UObject *, const UObject * );
+    
+    const char *scope() const; 				// - enumerator scope
+    const char *name() const;				// - enumerator name
+    
+    unsigned int count() const;					// - number of values
+    const UKeyValueItem *items() const;				// - the name/value pairs
+};
+
 
 #endif // UCOM_H
