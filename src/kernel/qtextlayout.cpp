@@ -578,6 +578,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels, visualOrder);
 
+    QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
 	int item = visualOrder[i]+firstItem;
 	QScriptItem &si = eng->items[item];
@@ -612,15 +613,17 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	    ge = si.num_glyphs;
 	}
 
-	QFontEngine *fe = eng->fontEngine(si);
-	Q_ASSERT( fe );
 	if (eng->formats) {
-	    QTextFormat f = eng->formats->format(si.format);
-	    Q_ASSERT(f.isCharFormat());
-	    QTextCharFormat chf = f.toCharFormat();
+	    QTextFormat fmt = eng->formats->format(si.format);
+	    Q_ASSERT(fmt.isCharFormat());
+	    QTextCharFormat chf = fmt.toCharFormat();
 	    QColor c = chf.color();
 	    p->setPen(c);
+	    f = chf.font();
 	}
+	QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
+	Q_ASSERT( fe );
+
 	QGlyphFragment gf;
 	gf.analysis = si.analysis;
 	gf.hasPositioning = si.hasPositioning;
@@ -629,6 +632,10 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
 	gf.font = fe;
+	int textFlags = 0;
+	if (f.d->underline) textFlags |= Qt::Underline;
+	if (f.d->overline) textFlags |= Qt::Overline;
+	if (f.d->strikeOut) textFlags |= Qt::StrikeOut;
 
 	int *ul = eng->underlinePositions;
 	if (ul)
@@ -647,7 +654,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		++gs;
 	    }
 	    gf.width = w;
-	    p->drawGlyphs(QPoint(x, y), gf);
+	    p->drawGlyphs(QPoint(x, y), gf, textFlags);
 	    x += w;
 	    if (ul && *ul != -1 && *ul < end) {
 		// draw underline
@@ -660,7 +667,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		    ++gs;
 		}
 		gf.width = w;
-		p->drawGlyphs(QPoint(x, y), gf, Qt::Underline);
+		p->drawGlyphs(QPoint(x, y), gf, (textFlags ^ Qt::Underline));
 		x += w;
 		++ul;
 	    }

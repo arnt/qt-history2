@@ -41,7 +41,7 @@ void QTextEngine::shapeText( int item ) const
 
     QGlyphLayout *g = glyphs(&si);
 #ifndef QT_NO_XFTFREETYPE
-    if ( 0  && fontPrivate(si)->kerning && font->type() == QFontEngine::Xft) {
+    if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
 	FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
 	if (FT_HAS_KERNING(face)) {
 	    FT_Vector kerning;

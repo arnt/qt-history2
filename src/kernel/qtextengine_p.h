@@ -255,7 +255,7 @@ class QPalette;
 class QTextEngine {
 public:
     QTextEngine()
-	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0), 
+	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0),
 	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
 	{}
     QTextEngine(const QString &str, QFontPrivate *f )
@@ -304,7 +304,8 @@ public:
     }
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
-    QFontPrivate *fontPrivate(const QScriptItem &si) const;
+    QFont font(const QScriptItem &si) const;
+    QFont font() const { if (fnt) return QFont(fnt, 0); return QFont(); }
 
     void splitItem( int item, int pos );
 
