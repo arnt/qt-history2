@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#31 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#31 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.25 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.26 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -739,7 +739,7 @@ void QToolTip::clear()
   into natural groups.
 
   Tool tips can display \e two texts, the one in the tip and
-  optionally another one, typically in a status bar.  QTooTipGroup
+  optionally another one, typically in a status bar.  QToolTipGroup
   provides a way to link tool tips to this status bar.
 
   QToolTipGroup has practically no API, it is only used as an argument

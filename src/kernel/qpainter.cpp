@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#94 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#94 $");
 
 
 /*!
@@ -585,7 +585,23 @@ QRect QPainter::window() const
   to \e (0,0,width,height), where \e (width,height) is the pixel size of the
   paint device.
 
-  Example:
+  You can use this method to normalize the coordinate system of the
+  painter. The following example will draw a vertical line, from top to
+  bottom, at the center of a pixmap, independent of the size of the pixmap:
+
+  \code
+      int width, height;
+      ...
+      QPixmap icon( width, height );
+      QPainter p;
+      p.begin( icon );
+      p.setWindow( 0, 0, 100, 100 );
+      p.drawLine( 50, 0, 50, 100 );		// draw center line 
+  \endcode
+
+  The setWindow() method is often used in conjunction with
+  setViewport(), as in this example:
+
   \code
       QPainter p;
       p.begin( myWidget );
@@ -641,13 +657,30 @@ QRect QPainter::viewport() const		// get viewport
   enables view transformation.
 
   The viewport rectangle is part of the view transformation. The viewport
-  specifies the device coordinate system.
+  specifies the device coordinate system. 
 
   The viewport and the \link setWindow() window\endlink are initially set
   to \e (0,0,width,height), where \e (width,height) is the pixel size of
-  the paint device.
+  the paint device. 
 
-  Example:
+  You can use this method to normalize the coordinate system of the
+  painter when drawing on a part of a paint device. The following example
+  will draw a line from the top left to the bottom right corner of a page,
+  excluding margins:
+
+  \code
+      QPrinter page;
+      int margin, pageWidth, pageHeight; 
+      ...
+      QPainter p;
+      p.begin( page );
+      p.setViewPort( margin, margin, pageWidth - margin, pageHeight - margin );
+      p.drawLine( 0, 0, pageWidth - 2*margin, pageHeight - 2*margin );
+  \endcode
+
+  The setViewPort() method is often used in conjunction with
+  setWindow(), as in this example:
+
   \code
       QPainter p;
       p.begin( myWidget );
@@ -663,8 +696,7 @@ QRect QPainter::viewport() const		// get viewport
   World transformations are applied after the view transformations.
 
   \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm(), xForm()
-*/
+  setWorldXForm(), xForm() */
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
