@@ -3994,7 +3994,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	XEvent ev;
 	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
 		&& !qt_x11EventFilter( &ev ) ) {
-	    if ( ev.type == LeaveNotify ) {
+	    if ( ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal ){
+		if ( !enter )
+		    enter = QWidget::find( ev.xcrossing.window );
 		XPutBackEvent( widget->x11Display(), &ev );
 		break;
 	    }
@@ -4008,6 +4010,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	if ( !curWin )
 	    qt_dispatchEnterLeave( widget, 0 );
+	
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
     }
