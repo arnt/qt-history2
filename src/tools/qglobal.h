@@ -149,6 +149,11 @@
 
 
 // Should be sorted most-authorative to least-authorative
+
+#ifdef _OS_MAC_
+#define _CC_MWERKS_
+#endif
+
 #if defined(__SC__)
 #define _CC_SYM_
 #elif defined(applec)
