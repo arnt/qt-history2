@@ -18,6 +18,7 @@ public slots:
     void editorFinished();
     void finished();
 private:
+    QVBoxLayout* vb;
     QListView* classList;
     QProcess* proc;
     QProcess* procper;
