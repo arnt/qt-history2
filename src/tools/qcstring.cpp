@@ -569,17 +569,13 @@ QCString::QCString( const char *str, uint maxsize )
 bool QCString::resize( uint len )
 {
     detach();
-    int oldlen = length();
+    uint wasNull = isNull();
     if ( !QByteArray::resize(len) )
 	return FALSE;
     if ( len )
-	*(data()+len-1) = '\0';
-
-    // if we are resized > 0, and the old length was zero, we make sure that it
-    // doesn't change
-    if (len > 0 && oldlen == 0)
-	*(data()) = '\0';
-
+	data()[len - 1] = '\0';
+    if ( len > 0 && wasNull )
+	data()[0] = '\0';
     return TRUE;
 }
 
