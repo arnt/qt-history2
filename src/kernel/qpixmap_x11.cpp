@@ -971,6 +971,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    XFreePixmap( data->xinfo->display(), hd );
 	}
 
+	// make sure image.color(0) == color0 (white) and
+	// image.color(1) == color1 (black)
+	if (image.color(0) == Qt::black.rgb() && image.color(1) == Qt::white.rgb())
+	    image.invertPixels();
+
 	char  *bits;
 	uchar *tmp_bits;
 	int    bpl = (w+7)/8;
