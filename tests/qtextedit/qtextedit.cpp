@@ -1081,9 +1081,16 @@ void QTextEdit::indent()
     emit textChanged();
 }
 
-bool QTextEdit::focusNextPrevChild( bool )
+bool QTextEdit::focusNextPrevChild( bool n )
 {
-    return FALSE;
+    if ( !isReadOnly() || !linksEnabled() )
+	return TRUE;
+    bool b = doc->focusNextPrevChild( n );
+    if ( b ) {
+	repaintChanged();
+	makeFocusVisible();
+    }
+    return b;
 }
 
 void QTextEdit::setFormat( QTextFormat *f, int flags )
@@ -1647,6 +1654,14 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_End:
 	setContentsPos( contentsX(), contentsHeight() - visibleHeight() );
 	break;
+    case Key_Return:
+    case Key_Enter:
+    case Key_Space: {
+	if ( !doc->focusIndicator.href.isEmpty() ) {
+	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
+	    emit linkClicked( u.toString() );
+	}
+    } break;
     default:
 	break;
     }
@@ -1660,4 +1675,10 @@ QString QTextEdit::context() const
 QString QTextEdit::documentTitle() const
 {
     return QString::null;
+}
+
+void QTextEdit::makeFocusVisible()
+{
+    int h = doc->focusIndicator.parag->rect().height();
+    ensureVisible( 0, doc->focusIndicator.parag->rect().y() + h / 2, 0, h / 2 );
 }

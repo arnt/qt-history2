@@ -92,7 +92,7 @@ public:
     QString context() const;
 
     QString documentTitle() const;
-    
+
 public slots:
     virtual void undo();
     virtual void redo();
@@ -218,7 +218,8 @@ private:
     void repaintChanged();
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
-
+    void makeFocusVisible();
+    
 private:
     QTextDocument *doc;
     QTextCursor *cursor;

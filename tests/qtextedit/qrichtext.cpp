@@ -897,7 +897,8 @@ QTextDocument::QTextDocument( QTextDocument *p )
     preferRichText = FALSE;
     filename = QString::null;
     pages = FALSE;
-
+    focusIndicator.parag = 0;
+    
     sheet_ = QStyleSheet::defaultSheet();
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
@@ -1209,6 +1210,7 @@ void QTextDocument::load( const QString &fn, bool tabify )
 
 void QTextDocument::setText( const QString &text, const QString &context, bool tabify )
 {
+    focusIndicator.parag = 0;
     removeSelection( Standard );
     if ( txtFormat == Qt::AutoText && QStyleSheet::mightBeRichText( text ) ||
 	 txtFormat == Qt::RichText )
@@ -2103,6 +2105,78 @@ void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParag *p )
     delete i;
 }
 
+bool QTextDocument::focusNextPrevChild( bool next )
+{
+    if ( !focusIndicator.parag ) {
+	if ( next ) {
+	    focusIndicator.parag = fParag;
+	    focusIndicator.start = 0;
+	    focusIndicator.len = 0;
+	} else {
+	    focusIndicator.parag = lParag;
+	    focusIndicator.start = lParag->length();
+	    focusIndicator.len = 0;
+	}
+    } else {
+	focusIndicator.parag->setChanged( TRUE );
+    }
+    focusIndicator.href = QString::null;
+    
+    if ( next ) {
+	QTextParag *p = focusIndicator.parag;
+	int index = focusIndicator.start + focusIndicator.len;
+	while ( p ) {
+	    for ( int i = index; i < p->length(); ++i ) {
+		if ( p->at( i )->format()->isAnchor() ) {
+		    p->setChanged( TRUE );
+		    focusIndicator.parag = p;
+		    focusIndicator.start = i;
+		    focusIndicator.len = 0;
+		    focusIndicator.href = p->at( i )->format()->anchorHref();
+		    while ( i < p->length() ) {
+			if ( !p->at( i )->format()->isAnchor() )
+			    return TRUE;
+			focusIndicator.len++;
+			i++;
+		    }
+		}
+	    }
+	    index = 0;
+	    p = p->next();
+	}
+    } else {
+	QTextParag *p = focusIndicator.parag;
+	int index = focusIndicator.start - 1;
+	while ( p ) {
+	    for ( int i = index; i >= 0; --i ) {
+		if ( p->at( i )->format()->isAnchor() ) {
+		    p->setChanged( TRUE );
+		    focusIndicator.parag = p;
+		    focusIndicator.start = i;
+		    focusIndicator.len = 0;
+		    focusIndicator.href = p->at( i )->format()->anchorHref();
+		    while ( i >= -1 ) {
+			if ( i < 0 || !p->at( i )->format()->isAnchor() ) {
+			    focusIndicator.start++;
+			    return TRUE;
+			}
+			if ( i < 0 )
+			    break;
+			focusIndicator.len++;
+			focusIndicator.start--;
+			i--;
+		    }
+		}
+	    }
+	    p = p->prev();
+	    if ( p )
+		index = p->length() - 1;
+	}
+    }
+    
+    return FALSE;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextString::QTextString()
@@ -2703,6 +2777,15 @@ void QTextParag::drawParagBuffer( QPainter &painter, const QString &buffer, int 
 	painter.drawLine( startX, lastY + baseLine + 1, startX + bw, lastY + baseLine + 1 );
 	painter.restore();
     }
+    
+    i -= buffer.length();
+    if ( lastFormat->isAnchor() &&
+	 doc->focusIndicator.parag == this &&
+ 	 doc->focusIndicator.start >= i &&
+  	 doc->focusIndicator.start + doc->focusIndicator.len <= i + (int)buffer.length() ) {
+	painter.drawWinFocusRect( QRect( startX, lastY, bw, h ) );
+    }
+    
 }
 
 void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg )

@@ -196,12 +196,14 @@ protected:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class QTextTableCell;
+class QTextParag;
 class QTextDocument
 {
     friend class QTextTableCell;
     friend class QTextCursor;
     friend class QTextEdit;
-
+    friend class QTextParag;
+    
 public:
     enum SelectionIds {
 	Standard = 0,
@@ -345,9 +347,22 @@ public:
     QString richText( QTextParag *p = 0, bool formatted = FALSE ) const;
     QString plainText( QTextParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
 
+    bool focusNextPrevChild( bool next );
+    
 private:
     void clear();
     QPixmap *bufferPixmap( const QSize &s );
+    // HTML parser
+    bool hasPrefix(const QString& doc, int pos, QChar c);
+    bool hasPrefix(const QString& doc, int pos, const QString& s);
+    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos );
+    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
+    bool eat(const QString& doc, int& pos, QChar c);
+    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
+    QString parseCloseTag( const QString& doc, int& pos );
+    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
+    QString parseWord(const QString& doc, int& pos, bool lower = TRUE);
+    QChar parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
 
 private:
     struct Selection {
@@ -355,6 +370,12 @@ private:
 	int startIndex;
     };
 
+    struct Focus {
+	QTextParag *parag;
+	int start, len;
+	QString href;
+    };
+    
     int cx, cy, cw;
     QTextParag *fParag, *lParag;
     QTextSyntaxHighlighter *syntaxHighlighte;
@@ -382,18 +403,8 @@ private:
     const QBrush *backBrush;
     QPixmap *buf_pixmap;
     bool nextDoubleBuffered;
-
-    // HTML parser
-    bool hasPrefix(const QString& doc, int pos, QChar c);
-    bool hasPrefix(const QString& doc, int pos, const QString& s);
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos );
-    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
-    bool eat(const QString& doc, int& pos, QChar c);
-    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
-    QString parseCloseTag( const QString& doc, int& pos );
-    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
-    QString parseWord(const QString& doc, int& pos, bool lower = TRUE);
-    QChar parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
+    Focus focusIndicator;
+    
     const QStyleSheet* sheet_;
     const QMimeSourceFactory* factory_;
     QString contxt;
@@ -701,7 +712,7 @@ protected:
 class QTextFormat
 {
     friend class QTextFormatCollection;
-
+    
 public:
     enum Flags {
 	Bold = 1,

@@ -385,10 +385,10 @@ int main( int argc, char ** argv )
     t.show();
 
     QTextBrowser b;
-    b.mimeSourceFactory()->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
+    ( (QMimeSourceFactory*)b.mimeSourceFactory() )->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
     b.setSource( "qcheckbox.html" );
     b.show();
-    
+
     return a.exec();
 }
 
