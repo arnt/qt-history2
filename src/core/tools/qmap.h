@@ -133,8 +133,8 @@ public:
 #endif
         inline T &operator*() const { return concrete(i)->value; }
         inline T *operator->() const { return &concrete(i)->value; }
-        inline bool operator==(const iterator &o) { return i == o.i; }
-        inline bool operator!=(const iterator &o) { return i != o.i; }
+        inline bool operator==(const iterator &o) const { return i == o.i; }
+        inline bool operator!=(const iterator &o) const { return i != o.i; }
 
         inline iterator &operator++() {
             i = i->forward[0];
@@ -185,8 +185,8 @@ public:
 #endif
         inline const T &operator*() const { return concrete(i)->value; }
         inline const T *operator->() const { return &concrete(i)->value; }
-        inline bool operator==(const const_iterator &o) { return i == o.i; }
-        inline bool operator!=(const const_iterator &o) { return i != o.i; }
+        inline bool operator==(const const_iterator &o) const { return i == o.i; }
+        inline bool operator!=(const const_iterator &o) const { return i != o.i; }
 
         inline const_iterator &operator++() {
             i = i->forward[0];

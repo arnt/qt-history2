@@ -1135,7 +1135,7 @@ void QHashData::free()
     \sa value()
 */
 
-/*! \fn bool QHash::iterator::operator==(const iterator &other)
+/*! \fn bool QHash::iterator::operator==(const iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1143,7 +1143,7 @@ void QHashData::free()
     \sa operator!=()
 */
 
-/*! \fn bool QHash::iterator::operator!=(const iterator &other)
+/*! \fn bool QHash::iterator::operator!=(const iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -1335,7 +1335,7 @@ void QHashData::free()
     \sa value()
 */
 
-/*! \fn bool QHash::const_iterator::operator==(const const_iterator &other)
+/*! \fn bool QHash::const_iterator::operator==(const const_iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1343,7 +1343,7 @@ void QHashData::free()
     \sa operator!=()
 */
 
-/*! \fn bool QHash::const_iterator::operator!=(const const_iterator &other)
+/*! \fn bool QHash::const_iterator::operator!=(const const_iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.

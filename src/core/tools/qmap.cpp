@@ -1025,7 +1025,7 @@ void QMapData::dump()
     \sa value()
 */
 
-/*! \fn bool QMap::iterator::operator==(const iterator &other)
+/*! \fn bool QMap::iterator::operator==(const iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1033,7 +1033,7 @@ void QMapData::dump()
     \sa operator!=()
 */
 
-/*! \fn bool QMap::iterator::operator!=(const iterator &other)
+/*! \fn bool QMap::iterator::operator!=(const iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -1248,7 +1248,7 @@ void QMapData::dump()
     \sa value()
 */
 
-/*! \fn bool QMap::const_iterator::operator==(const const_iterator &other)
+/*! \fn bool QMap::const_iterator::operator==(const const_iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1256,7 +1256,7 @@ void QMapData::dump()
     \sa operator!=()
 */
 
-/*! \fn bool QMap::const_iterator::operator!=(const const_iterator &other)
+/*! \fn bool QMap::const_iterator::operator!=(const const_iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.

@@ -209,8 +209,8 @@ public:
         inline T &value() const { return concrete(i)->value; }
         inline T &operator*() const { return concrete(i)->value; }
         inline T *operator->() const { return &concrete(i)->value; }
-        inline bool operator==(const iterator &o) { return i == o.i; }
-        inline bool operator!=(const iterator &o) { return i != o.i; }
+        inline bool operator==(const iterator &o) const { return i == o.i; }
+        inline bool operator!=(const iterator &o) const { return i != o.i; }
 
         inline iterator operator++() {
             i = QHashData::nextNode(i);
@@ -259,8 +259,8 @@ public:
         inline const T &value() const { return concrete(i)->value; }
         inline const T &operator*() const { return concrete(i)->value; }
         inline const T *operator->() const { return &concrete(i)->value; }
-        inline bool operator==(const const_iterator &o) { return i == o.i; }
-        inline bool operator!=(const const_iterator &o) { return i != o.i; }
+        inline bool operator==(const const_iterator &o) const { return i == o.i; }
+        inline bool operator!=(const const_iterator &o) const { return i != o.i; }
 
         inline const_iterator operator++() {
             i = QHashData::nextNode(i);
