@@ -236,10 +236,11 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
     if ( advances ) {
 	HDC hdc = dc();
+	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
 	for( int i = 0; i < len; i++ ) {
 	    SIZE  size;
 	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-	    *advances = size.cx;
+	    *advances = size.cx - overhang;
 	    advances++;
 	    str++;
 	}
@@ -254,12 +255,11 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
-    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
+    bool nat_xf = (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale;
 
     bool force_bitmap = p->rop != QPainter::CopyROP;
-    if ( force_bitmap ) {
-	force_bitmap = QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE);
-    }
+    force_bitmap |= p->txop >= QPainter::TxScale 
+		    && !(QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE));
 
     double scale = 1.;
     int angle = 0;
@@ -271,7 +271,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
 	// the hard part is only shearing
 
-	if ( p->m11() != p->m22() || p->m12() != -p->m21() ) {
+	if ( force_bitmap || p->m11() != p->m22() || p->m12() != -p->m21() ) {
 	    // shearing transformation, have to do the work by hand
             QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
@@ -283,29 +283,20 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    double rx = (double)w / (double)aw;
 	    double ry = (double)h / (double)ah;
             QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-	    QBitmap *wx_bm;
-#if 0
-            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
-            wx_bm = get_text_bitmap( bm_key );
-            bool create_new_bm = wx_bm == 0;
-            if ( create_new_bm )
-#endif
-	    { 	        // no such cached bitmap
-                QBitmap bm( aw, ah, TRUE );     // create bitmap
-                QPainter paint;
-                paint.begin( &bm );             // draw text in bitmap
-		HDC oldDC = hdc;
-		hdc = paint.handle();
-		SelectObject( hdc, hfont );
-		draw( &paint, 0, si->ascent, engine, si, textFlags );
-		hdc = oldDC;
-                paint.end();
-                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-                if ( wx_bm->isNull() ) {
-                    delete wx_bm;               // nothing to draw
-                    return;
-                }
-            }
+
+	    QBitmap bm( aw, ah, TRUE );
+	    QPainter paint;
+	    paint.begin( &bm );             // draw text in bitmap
+	    HDC oldDC = hdc;
+	    hdc = paint.handle();
+	    SelectObject( hdc, hfont );
+	    draw( &paint, 0, si->ascent, engine, si, textFlags );
+	    hdc = oldDC;
+	    paint.end();
+	    QBitmap wx_bm = bm.xForm(mat2); // transform bitmap
+	    if (wx_bm.isNull())
+		return;
+
             double fx=x, fy = y - si->ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
@@ -349,25 +340,19 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		bc = SetBkColor( hdc, COLOR_VALUE(Qt::white) );
 		HDC wx_dc;
 		int wx_sy;
-		if ( wx_bm->isMultiCellPixmap() ) {
-		    wx_dc = wx_bm->multiCellHandle();
-		    wx_sy = wx_bm->multiCellOffset();
+		if ( wx_bm.isMultiCellPixmap() ) {
+		    wx_dc = wx_bm.multiCellHandle();
+		    wx_sy = wx_bm.multiCellOffset();
 		} else {
-		    wx_dc = wx_bm->handle();
+		    wx_dc = wx_bm.handle();
 		    wx_sy = 0;
 		}
-		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
+		BitBlt( hdc, x, y, wx_bm.width(), wx_bm.height(),
 			wx_dc, 0, wx_sy, ropCodes[p->rop] );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );
 	    }
-#if 0
-	    if ( create_new_bm )
-                ins_text_bitmap( bm_key, wx_bm );
-#else
-	    delete wx_bm;
-#endif
             return;
 	}
 
@@ -401,7 +386,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
 	SelectObject( hdc, hf );
-    }
+    }    
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
@@ -518,7 +503,8 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	WCHAR ch = glyph;
 	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
 	Q_UNUSED( res );
-	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx, 0 );
+	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0 );
     } else {
 	DWORD res = 0;
 	MAT2 mat;
