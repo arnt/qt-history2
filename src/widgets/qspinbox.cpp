@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#62 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -359,7 +359,7 @@ bool QSpinBox::wrapping() const
 
 QSize QSpinBox::sizeHint() const
 {
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     int h = fm.height();
     if ( h < 12 ) 	// ensure enough space for the button pixmaps
 	h = 12;

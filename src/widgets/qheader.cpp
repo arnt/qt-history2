@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#79 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -646,7 +646,7 @@ int QHeader::addLabel( const QString &s, int size )
     data->labels[n-1] = new QString( s );
     data->sizes.resize( n + 1 );
     if ( size < 0 ) {
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
         if ( orient == Horizontal )
             size = -fm.minLeftBearing()
                    +fm.width( s )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#138 $
 **
 ** Implementation of QMenuBar class
 **
@@ -135,7 +135,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	    tlw->installEventFilter( this );
     }
 
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     int gs = style();
     int h;
     if ( gs == WindowsStyle ) {
@@ -554,7 +554,7 @@ int QMenuBar::calculateRects( int max_width )
 	CHECK_PTR( irects );
 	max_width = width();
     }
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     int max_height = 0;
     int nlitems = 0;				// number on items on cur line
     int gs = style();

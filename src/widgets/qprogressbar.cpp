@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#37 $
 **
 ** Implementation of QProgressBar class
 **
@@ -173,7 +173,7 @@ void QProgressBar::setProgress( int progress )
 
 QSize QProgressBar::sizeHint() const
 {
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     return QSize( fm.height()*4, fm.height()+8);
 }
 
@@ -321,7 +321,7 @@ void QProgressBar::drawContents( QPainter *p )
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.
 
-	QFontMetrics fm = p->fontMetrics();
+	const QFontMetrics & fm = p->fontMetrics();
 	int textw = fm.width("100%");
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
@@ -389,7 +389,7 @@ void QProgressBar::drawContentsMask( QPainter *p )
 
     if ( style() == WindowsStyle ) {
 	// ### This part doesn't actually change.
-	QFontMetrics fm = p->fontMetrics();
+	const QFontMetrics & fm = p->fontMetrics();
 	int textw = fm.width("100%");
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;

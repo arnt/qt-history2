@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#211 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#212 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -769,7 +769,7 @@ void QPopupMenu::updateSize()
     int height	     = 0;
     int max_width    = 10;
     GUIStyle gs	  = style();
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
 #if 0
     QFontMetrics fm( font() );
 #endif
@@ -1029,14 +1029,14 @@ int QPopupMenu::internalCellHeight( QMenuItem* mi)
     } else if ( mi->pixmap() ) {		// pixmap height
 	h = mi->pixmap()->height() + 2*motifItemFrame;
     } else {					// text height
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     }
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
 	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
 	if ( style() == MotifStyle )
  	    h += 2;				// Room for check rectangle
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
 	if ( h2 > h )
 	    h = h2;
@@ -1125,8 +1125,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		}
 		else				// incognito frame
 		    p->fillRect(0,0,rw, cellh, g.brush( QColorGroup::Button ));
-// 		    qDrawPlainRect( p, 0, 0, rw, cellh, g.button(),
-// 				    motifItemFrame, &g.fillButton() );
+		// 		    qDrawPlainRect( p, 0, 0, rw, cellh, g.button(),
+		// 				    motifItemFrame, &g.fillButton() );
 	    } else {
 		if ( act && !dis ) {
 		    if ( !mi->isChecked() )
@@ -1140,7 +1140,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->drawPixmap( pmr.topLeft(), pixmap );
 	    if ( gs == WindowsStyle ) {
 		QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-      			           g.brush( QColorGroup::Button );
+			      g.brush( QColorGroup::Button );
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    }
 	    return;
@@ -1151,7 +1151,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
 	    QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			       g.brush( QColorGroup::Button );
+			  g.brush( QColorGroup::Button );
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, fill);
 	    else
@@ -1226,18 +1226,26 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
 		discol = white;
-	    g = QColorGroup( discol, g.highlight(),
-			     white, white,
-			     dis ? discol : white,
-			     discol, white );
+	    QColorGroup g2( discol, g.highlight(),
+			    white, white,
+			    dis ? discol : white,
+			    discol, white );
+	    style().drawArrow( p, RightArrow, FALSE,
+			       cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
+			       dim, dim, g2, TRUE );
+	} else if ( row == actItem ) {
+	    style().drawArrow( p, RightArrow,
+			       gs == MotifStyle && mi->isEnabled(),
+			       cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
+			       dim, dim, g,
+			       gs == MotifStyle && mi->isEnabled() ||
+			       gs == WindowsStyle );
+	} else {
+	    style().drawArrow( p, RightArrow,
+			       FALSE,
+			       cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
+			       dim, dim, g, mi->isEnabled() );
 	}
-	
-	style().drawArrow(p, RightArrow,
-		    row == actItem && gs == MotifStyle && mi->isEnabled(),
-		    cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
-		    dim, dim, g,
-		    gs == MotifStyle && mi->isEnabled() ||
-		    gs == WindowsStyle && (mi->isEnabled() || row == actItem));
     }
     mi->setDirty( FALSE );
 }

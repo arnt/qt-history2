@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#191 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#192 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -544,7 +544,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
 	const QColorGroup & g = colorGroup();
 	QColor bg = isEnabled() ? g.base() : g.background();
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	int markBegin = minMark();
 	int markEnd = maxMark();
 	int margin = frame() ? 2 : 0;
@@ -695,7 +695,7 @@ void QLineEdit::resizeEvent( QResizeEvent * )
     d->pm = 0;
     int max = lastCharVisible();
     if ( cursorPos > max ) {
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	int w = width() - (frame() ? 8 : 4);
 	int i = cursorPos;
 	while ( w > 0 && i > 0 ) {
@@ -1482,7 +1482,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    tbuf = t;
 	    ed = TRUE;
 	    d->pmDirty = TRUE;
-	    QFontMetrics fm = fontMetrics();
+	    const QFontMetrics & fm = fontMetrics();
 	    int x = fm.width( t.mid( offset, cursorPos - offset ) );
 	    int margin = frame() ? 2 : 0;
 	    if ( x >= width() - margin ) {
@@ -1566,7 +1566,7 @@ void QLineEdit::repaintArea( int from, int to )
     if ( b > (int)tbuf.length() )
 	b = tbuf.length();
 
-    QFontMetrics fm( fontMetrics() );
+    const QFontMetrics & fm = fontMetrics();
 
     int margin = frame() ? 2 : 0;
     int x3 = fm.width( tbuf.mid( offset, cursorPos - offset ) ) + 2*margin;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#89 $
 **
 ** Implementation of QScrollView class
 **
@@ -219,19 +219,19 @@ struct QScrollViewData {
 \brief The QScrollView widget provides a scrolling area with on-demand scrollbars.
 
 The QScrollView is a large canvas - potentially larger than the
-coordinate system normally supported by the underlying window system. 
+coordinate system normally supported by the underlying window system.
 This is important, as is is quite easy to go beyond such limitations
 (eg. many web pages are more than 32000 pixels high).  Additionally,
 the QScrollView can have QWidgets positioned on it that scroll around
 with the drawn content.  These subwidgets can also have positions
 outside the normal coordinate range (but they are still limited in
-size).  
+size).
 
 To provide content for the widget, inherit from QScrollView and
 override drawContentsOffset(), and use resizeContents() to set the size
 of the viewed area.  Use addChild() / moveChild() to position widgets
 on the view.  For large numbers of such child widgets, consider using
-packChildWidgets() to improve performance.  
+packChildWidgets() to improve performance.
 
 To use QScrollView effectively, it is important to understand its
 widget structure in the three styles of usage: a single large child widget,

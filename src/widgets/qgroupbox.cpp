@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#57 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -212,7 +212,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     paint.setClipRegion( event->region() );
 
     if ( lenvisible ) {					// draw title
-	QFontMetrics fm = paint.fontMetrics();
+	const QFontMetrics & fm = paint.fontMetrics();
 	int h = fm.height();
 	int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	int x;
@@ -244,7 +244,7 @@ void QGroupBox::updateMask(){
      bm.fill( color0 );
      {
  	QPainter p( &bm, this );
-	QFontMetrics fm = p.fontMetrics();
+	const QFontMetrics & fm = p.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
 	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
@@ -293,7 +293,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     vbox = new QVBoxLayout( this, 8, 0 );
 
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     vbox->addSpacing( fm.lineSpacing() );
 
     dir = direction;
@@ -405,7 +405,7 @@ void QGroupBox::calculateFrame()
     lenvisible = str.length();
 
     if ( lenvisible ) { // do we have a label?
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	int h = fm.height();
 	int tw  = 0;
 	while ( lenvisible ) {

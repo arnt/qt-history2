@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#60 $
 **
 ** Implementation of QTabBar class
 **
@@ -152,7 +152,7 @@ QTabBar::~QTabBar()
 
 int QTabBar::addTab( QTab * newTab )
 {
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     QTab  *t = l->first();
     int lw = fm.width( newTab->label );
     int iw = 0;

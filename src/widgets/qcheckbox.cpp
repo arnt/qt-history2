@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#93 $
 **
 ** Implementation of QCheckBox class
 **
@@ -160,7 +160,7 @@ void QCheckBox::drawButton( QPainter *paint )
     const QColorGroup & g = colorGroup();
     int		 x, y;
 
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     QSize lsz = fm.size(ShowPrefix, text());
     QSize sz = style().indicatorSize();
     x = gs == MotifStyle ? 1 : 0;
@@ -277,7 +277,7 @@ void QCheckBox::updateMask()
 	QPainter p(&bm);
 
 	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1, color0);
-	QFontMetrics fm = fontMetrics();
+	const QFontMetrics & fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
 	QSize sz = style().indicatorSize();
 	x = gs == MotifStyle ? 1 : 0;

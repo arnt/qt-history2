@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#66 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -235,7 +235,7 @@ int QButtonGroup::insert( QButton *button, int id )
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
     connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
-    if ( button->inherits("QRadioButton") )
+    if ( button->inherits( "QRadioButton" ) )
 	setRadioButtonExclusive( TRUE );
     return bi->id;
 }
@@ -533,15 +533,15 @@ QButton * QButtonGroup::selected()
     return i ? i->button : 0;
 }
 
- 
+
 /*! Returns the id of \a button, or -1 if \a button is not a member of
   this group.
 */
- 
+
 int QButtonGroup::id( QButton * button ) const
 {
     QButtonItem *i = buttons->first();
     while ( i && i->button != button )
-        i = buttons->next();
+	i = buttons->next();
     return i ? i->id : -1;
 }

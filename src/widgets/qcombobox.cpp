@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#189 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#190 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -775,7 +775,7 @@ QSize QComboBox::sizeHint() const
 {
     int i, w, h;
     QString tmp;
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
 
     int extraW = 20;
     int maxW = count() ? 18 : 7 * fm.width(QChar('x')) + 18;

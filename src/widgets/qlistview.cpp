@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#213 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#214 $
 **
 ** Implementation of QListView widget class
 **
@@ -1025,7 +1025,7 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	l = new QListViewPrivate::ItemColumnInfo;
 	columns = (void*)l;
     }
-    
+
     for( int c=0; c<column; c++ ) {
 	if ( !l->next )
 	    l->next = new QListViewPrivate::ItemColumnInfo;
@@ -3209,7 +3209,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     if ( c >= d->h->count() )
 	return;
 
-    QFontMetrics fm = fontMetrics();
+    const QFontMetrics & fm = fontMetrics();
     int col = c < 0 ? 0 : c;
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {
