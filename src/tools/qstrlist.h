@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#4 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#5 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -53,7 +53,7 @@ private:
 };
 
 
-typedef QListIteratorM(char) QStrListIterator;	// iterator for QStrList
+typedef QListIteratorM(char) QStrListIt;	// iterator for QStrList
 						// and QStrIList
 
 #endif // QSTRLIST_H
