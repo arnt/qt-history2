@@ -15,15 +15,16 @@ int main( int argc, char ** argv )
 	fn = "qtextedit.cpp";
 #if 1 // change this to #if 0 if you want to have a C++ editor (syntax-highlighte, etc.)
     QTextEditDocument *d = new QTextEditDocument( fn, FALSE );
-#else 
+    QTextEdit ed( 0, d );
+#else
     QTextEditDocument *d = new QTextEditDocument( fn, TRUE );
-    d->setFormatter( new QTextEditFormatterBreakInWords( d ) );
     d->setSyntaxHighlighter( new QCppSyntaxHighlighter( d ) );
     d->setIndent( new QCppIndent( d ) );
     d->setParenCheckingEnabled( TRUE );
     d->setCompletionEnabled( TRUE );
-#endif
     QTextEdit ed( 0, d );
+    d->setFormatter( new QTextEditFormatterBreakInWords( d ) );
+#endif
 
     a.setMainWidget( &ed );
     ed.resize( 600, 800 );
