@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#110 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#111 $
 **
 ** Implementation of QDir class
 **
@@ -609,7 +609,7 @@ void QDir::setNameFilter( const QString &nameFilter )
   under unix)
   <li> \c  Hidden - List hidden files (on unix, files starting with a .)
   <li> \c  System - List system files (does nothing under unix)
-  </ul>  
+  </ul>
 
   If you do not set any of \c Readable, \c Writable or \c Executable,
   QDir will set all three of them.  This makes the default easy to
@@ -659,7 +659,7 @@ void QDir::setFilter( int filterSpec )
   <li> \c DirsFirst - put all directories first in the list
   <li> \c Reversed - reverse the sort order
   <li> \c IgnoreCase - sort case-insensitively
-  
+
   </ul>
 
   You can only specify one of the first four.  If you specify both \c
@@ -1339,7 +1339,11 @@ QString QDir::currentDirPath()
 QString QDir::homeDirPath()
 {
     QString d;
+#ifdef _WS_WIN_
+    d = getenv("HOME");
+#else
     d = QFile::decodeName(getenv("HOME"));
+#endif
     slashify( d );
     if ( d.isNull() )
 	d = rootDirPath();
