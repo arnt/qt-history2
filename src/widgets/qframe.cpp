@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#5 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#5 $";
 #endif
 
 
@@ -32,8 +32,6 @@ QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
     mwidth = 0;
     setForegroundColor( black );
     setBackgroundColor( lightGray );
-    if ( !frect.isNull() )
-	debug("OIOIOI");
 }
 
 
@@ -92,8 +90,7 @@ void QFrame::drawFrame( QPainter *p )
 	case Box:
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadeRect( r, fgcol, fgcol, fwidth, 
-					  fgcol, mwidth );
+		    paint->drawShadePanel( r, fgcol, fgcol, fwidth );
 		    break;
 		case Raised:
 		    paint->drawShadeRect( r, lightColor, darkColor, fwidth,
