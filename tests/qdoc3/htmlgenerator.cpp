@@ -18,6 +18,38 @@ HtmlGenerator::~HtmlGenerator()
 {
 }
 
+void HtmlGenerator::initializeGenerator( const Config& config )
+{
+    static const struct {
+	const char *key;
+	const char *left;
+	const char *right;
+    } defaults[] = {
+	{ ATOM_FORMATTING_BOLD, "<b>", "</b>" },
+	{ ATOM_FORMATTING_INDEX, "<--", "-->" },
+	{ ATOM_FORMATTING_ITALIC, "<i>", "</i>" },
+	{ ATOM_FORMATTING_LINK, "<b>", "</b>" },
+	{ ATOM_FORMATTING_PARAMETER, "<i>", "</i>" },
+	{ ATOM_FORMATTING_SUBSCRIPT, "<sub>", "</sub>" },
+	{ ATOM_FORMATTING_SUPERSCRIPT, "<sup>", "</sup>" },
+	{ ATOM_FORMATTING_TELETYPE, "<tt>", "</tt>" },
+	{ ATOM_FORMATTING_UNDERLINE, "<u>", "</u>" },
+	{ 0, 0, 0 }
+    };
+
+    int i = 0;
+    while ( defaults[i].key != 0 ) {
+	formattingLeftMap().insert( defaults[i].key, defaults[i].left );
+	formattingRightMap().insert( defaults[i].key, defaults[i].right );
+	i++;
+    }
+    Generator::initializeGenerator( config );
+}
+
+void HtmlGenerator::terminateGenerator()
+{
+}
+
 QString HtmlGenerator::format()
 {
     return "HTML";
@@ -68,57 +100,10 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::FormatIf:
 	break;
     case Atom::FormattingLeft:
-	if ( atom->string() == ATOM_FORMATTING_BOLD ) {
-	    out() << "<b>";
-	} else if ( atom->string() == ATOM_FORMATTING_INDEX ) {
-	    out() << "<!--";
-	} else if ( atom->string() == ATOM_FORMATTING_ITALIC ) {
-	    out() << "<i>";
-	} else if ( atom->string() == ATOM_FORMATTING_LINK ) {
-	    if ( link.isEmpty() ) {
-		out() << "<font color=\"red\">";
-	    } else {
-		out() << "<a href=\"" << link << "\">";
-	    }
-	    inLink = TRUE;
-	} else if ( atom->string() == ATOM_FORMATTING_PARAMETER ) {
-	    // out() << "<u>";
-	} else if ( atom->string() == ATOM_FORMATTING_SUBSCRIPT ) {
-	    out() << "<sub>";
-	} else if ( atom->string() == ATOM_FORMATTING_SUPERSCRIPT ) {
-	    out() << "<sup>";
-	} else if ( atom->string() == ATOM_FORMATTING_TELETYPE ) {
-	    out() << "<tt>";
-	} else if ( atom->string() == ATOM_FORMATTING_UNDERLINE ) {
-	    out() << "<u>";
-	}
+	out() << formattingLeftMap()[atom->string()];
 	break;
     case Atom::FormattingRight:
-	if ( atom->string() == ATOM_FORMATTING_BOLD ) {
-	    out() << "</b>";
-	} else if ( atom->string() == ATOM_FORMATTING_INDEX ) {
-	    out() << "-->";
-	} else if ( atom->string() == ATOM_FORMATTING_ITALIC ) {
-	    out() << "</i>";
-	} else if ( atom->string() == ATOM_FORMATTING_LINK ) {
-	    if ( inLink ) {
-		if ( link.isEmpty() ) {
-		    out() << "</font>";
-		} else {
-		    out() << "</a>";
-		}
-	    }
-	} else if ( atom->string() == ATOM_FORMATTING_PARAMETER ) {
-	    // out() << "</u>";
-	} else if ( atom->string() == ATOM_FORMATTING_SUBSCRIPT ) {
-	    out() << "</sub>";
-	} else if ( atom->string() == ATOM_FORMATTING_SUPERSCRIPT ) {
-	    out() << "</sup>";
-	} else if ( atom->string() == ATOM_FORMATTING_TELETYPE ) {
-	    out() << "</tt>";
-	} else if ( atom->string() == ATOM_FORMATTING_UNDERLINE ) {
-	    out() << "</u>";
-	}
+	out() << formattingRightMap()[atom->string()];
 	break;
     case Atom::GeneratedList:
 	if ( atom->string() == "annotatedclasses" ) {

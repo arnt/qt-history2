@@ -43,7 +43,6 @@ public:
     static void terminate();
     static QString alias( const QString& english );
     static void trimCStyleComment( Location& location, QString& str );
-    static int numParams( const QString& str );
 
 private:
     DocPrivate *priv;

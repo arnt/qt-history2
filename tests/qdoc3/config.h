@@ -35,6 +35,7 @@ public:
     static QString findFile( const QStringList& files,
 			     const QStringList& dirsVar,
 			     const QString& fileName );
+    static int numParams( const QString& value );
 
     QT_STATIC_CONST QString dot;
 
@@ -59,6 +60,7 @@ private:
 #define CONFIG_EXAMPLEDIRS          "exampledirs"
 #define CONFIG_EXAMPLES             "examples"
 #define CONFIG_FALSEHOODS           "falsehoods"
+#define CONFIG_FORMATTING           "formatting"
 #define CONFIG_HEADERDIRS           "headerdirs"
 #define CONFIG_HEADERS              "headers"
 #define CONFIG_IMAGEDIRS            "imagedirs"

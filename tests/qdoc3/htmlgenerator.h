@@ -25,6 +25,8 @@ public:
     HtmlGenerator();
     ~HtmlGenerator();
 
+    virtual void initializeGenerator( const Config& config );
+    virtual void terminateGenerator();
     virtual QString format();
 
 protected:

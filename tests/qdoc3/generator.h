@@ -5,6 +5,7 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+#include <qmap.h>
 #include <qregexp.h>
 #include <qstring.h>
 
@@ -60,6 +61,8 @@ protected:
     QString typeString( const Node *node );
     Text sectionHeading( const Atom *sectionBegin );
     void unknownAtom( const Atom *atom );
+    QMap<QString, QString>& formattingLeftMap();
+    QMap<QString, QString>& formattingRightMap();
 
 private:
     const Atom *generateAtomList( const Atom *atom, const Node *relative,
@@ -79,6 +82,8 @@ private:
     QRegExp tag;
 
     static QValueList<Generator *> generators;
+    static QMap<QString, QMap<QString, QString> > fmtLeftMaps;
+    static QMap<QString, QMap<QString, QString> > fmtRightMaps;
     static QString outDir;
 };
 

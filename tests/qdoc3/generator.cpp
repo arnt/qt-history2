@@ -42,6 +42,8 @@ static bool removeDirContents( const QString& dir )
 }
 
 QValueList<Generator *> Generator::generators;
+QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
+QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
 QString Generator::outDir;
 
 Generator::Generator()
@@ -89,6 +91,44 @@ void Generator::initialize( const Config& config )
 	(*g)->initializeGenerator( config );
 	++g;
     }
+
+    QRegExp secondParamAndAbove( "[\2-\7]" );
+
+    Set<QString> formattingNames = config.subVars( CONFIG_FORMATTING );
+    Set<QString>::ConstIterator n = formattingNames.begin();
+    while ( n != formattingNames.end() ) {
+	QString formattingDotName = CONFIG_FORMATTING + Config::dot + *n;
+
+	Set<QString> formats = config.subVars( formattingDotName );
+	Set<QString>::ConstIterator f = formats.begin();
+	while ( f != formats.end() ) {
+	    QString def = config.getString( formattingDotName + Config::dot +
+					    *f );
+	    if ( !def.isEmpty() ) {
+		int numParams = Config::numParams( def );
+		int numOccs = def.contains( "\1" );
+
+		if ( numParams != 1 ) {
+		    config.lastLocation().warning( tr("Formatting '%1' must have"
+						    " exactly one parameter"
+						    " (found %2)")
+						 .arg(*n).arg(numParams) );
+		} else if ( numOccs > 1 ) {
+		    config.lastLocation().fatal( tr("Formatting '%1' must"
+						    " contain exactly one"
+						    " occurrence of '\\1'"
+						    " (found %2)")
+						 .arg(*n).arg(numOccs) );
+		} else {
+		    int paramPos = def.find( "\1" );
+		    fmtLeftMaps[*f].insert( *n, def.left(paramPos) );
+		    fmtRightMaps[*f].insert( *n, def.mid(paramPos + 1) );
+		}
+	    }
+	    ++f;
+	}
+	++n;
+    }
 }
 
 void Generator::terminate()
@@ -98,6 +138,9 @@ void Generator::terminate()
 	(*g)->terminateGenerator();
 	++g;
     }
+    fmtLeftMaps.clear();
+    fmtRightMaps.clear();
+    outDir = "";
 }
 
 Generator *Generator::generatorForFormat( const QString& format )
@@ -332,6 +375,16 @@ void Generator::unknownAtom( const Atom *atom )
 {
     Location::internalError( tr("Unknown atom type '%1' in %2 generator")
 			     .arg(atom->typeString()).arg(format()) );
+}
+
+QMap<QString, QString>& Generator::formattingLeftMap()
+{
+    return fmtLeftMaps[format()];
+}
+
+QMap<QString, QString>& Generator::formattingRightMap()
+{
+    return fmtRightMaps[format()];
 }
 
 void Generator::generateStatus( const Node *node, CodeMarker *marker )

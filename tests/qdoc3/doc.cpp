@@ -1804,17 +1804,16 @@ void Doc::initialize( const Config& config )
 	macro->numParams = -1;
 	macro->defaultDef = config.getString( macroDotName );
 	if ( !macro->defaultDef.isEmpty() )
-	    macro->numParams = numParams( macro->defaultDef );
+	    macro->numParams = Config::numParams( macro->defaultDef );
 	bool silent = FALSE;
 
 	Set<QString> formats = config.subVars( macroDotName );
 	Set<QString>::ConstIterator f = formats.begin();
-
 	while ( f != formats.end() ) {
 	    QString def = config.getString( macroDotName + Config::dot + *f );
 	    if ( !def.isEmpty() ) {
 		macro->otherDefs.insert( *f, def );
-		int m = numParams( macro->defaultDef );
+		int m = Config::numParams( macro->defaultDef );
 		if ( macro->numParams == -1 ) {
 		    macro->numParams = m;
 		} else if ( macro->numParams != m ) {
@@ -1899,14 +1898,4 @@ void Doc::trimCStyleComment( Location& location, QString& str )
     for ( int i = 0; i < 3; i++ )
 	location.advance( str[i] );
     str = str.mid( 3, str.length() - 5 );
-}
-
-int Doc::numParams( const QString& str )
-{
-    int max = 0;
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i].unicode() > 0 && str[i].unicode() < 8 )
-	    max = QMAX( max, str[i].unicode() );
-    }
-    return max;
 }

@@ -258,6 +258,16 @@ QString Config::findFile( const QStringList& files, const QStringList& dirs,
     return "";
 }
 
+int Config::numParams( const QString& value )
+{
+    int max = 0;
+    for ( int i = 0; i < (int) value.length(); i++ ) {
+	if ( value[i].unicode() > 0 && value[i].unicode() < 8 )
+	    max = QMAX( max, value[i].unicode() );
+    }
+    return max;
+}
+
 bool Config::isMetaKeyChar( QChar ch )
 {
     return ch.isLetterOrNumber() || ch == '_' || ch == '.' || ch == '{'
@@ -354,6 +364,10 @@ void Config::load( Location location, const QString& fileName )
 		    if ( text[i] == '\\' ) {
 			SKIP_CHAR();
 			if ( text[i] == '\n' ) {
+			    SKIP_CHAR();
+			} else if ( text[i].unicode() > '0' &&
+				    text[i].unicode() < '8' ) {
+			    word += QChar( text[i].digitValue() );
 			    SKIP_CHAR();
 			} else {
 			    PUT_CHAR();
