@@ -1,7 +1,7 @@
 #ifndef QTSERVICE_H
 #define QTSERVICE_H
 
-#include <qstringlist.h>
+#include <qstring.h>
 
 class QtServicePrivate;
 
