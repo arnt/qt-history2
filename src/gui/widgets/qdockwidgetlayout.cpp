@@ -1119,6 +1119,29 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     Qt::DockWidgetAreas allowedAreas =
         getAllowedAreas(info.item->geometry(), sz1, sz2, separatorExtent);
 
+    /*
+      we do in-place reordering if the dock widget is in this layout.
+
+      we allow splitting into adjacent items by delaying the
+      reordering until the mouse is closer to the center of the
+      adjacent item then the current one
+    */
+    int which = -1;
+    for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
+        const QDockWidgetLayoutInfo &info = layout_info.at(i);
+        if (info.is_sep)
+            continue;
+        if (dockwidget == info.item->widget())
+            which = i;
+    }
+    if (which != -1) {
+        DEBUG() << "  drop after in-place reorder, only allowing perpendicular splits";
+        if (horizontal)
+            allowedAreas &= ~(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        else
+            allowedAreas &= ~(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    }
+
     DEBUG() << "  trySplit:" << orientation << location.area
             << info.item->geometry() << p << sz1 << sz2 << separatorExtent;
     QRect target = ::trySplit(orientation, location.area, allowedAreas,
