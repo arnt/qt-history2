@@ -113,13 +113,13 @@ parsing events. The following handler classes are available:
 <li>\l QXmlLexicalHandler
     reports events related to the lexical structure of the document (e.g.
     the beginning of the DTD, comments, etc.) There might be rare occasions
-    you are intrested in these.
+    you are interested in these.
 </ul>
 
 These classes are all abstract classes describing the interface. SAX2
 provides a default implementation of all these handler classes (\l
 QXmlDefaultHandler). So a user has only to implement the functions he is
-really intrested in. The default implementation is "do nothing".
+really interested in. The default implementation is "do nothing".
 
 The input XML data is read through a special class, \l QXmlInputSource.
 
