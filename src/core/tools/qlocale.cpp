@@ -2866,7 +2866,7 @@ double QLocale::toDouble(const QString &s, bool *ok) const
 
 QString QLocale::toString(qint64 i) const
 {
-    return d->longLongToString(i, -1, 10, QLocalePrivate::ThousandsGroup);
+    return d->longLongToString(i, -1, 10, -1, QLocalePrivate::ThousandsGroup);
 }
 
 /*!
@@ -2877,7 +2877,7 @@ QString QLocale::toString(qint64 i) const
 
 QString QLocale::toString(quint64 i) const
 {
-    return d->unsLongLongToString(i, -1, 10, QLocalePrivate::ThousandsGroup);
+    return d->unsLongLongToString(i, -1, 10, -1, QLocalePrivate::ThousandsGroup);
 }
 
 static bool qIsUpper(char c)
