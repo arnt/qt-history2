@@ -678,7 +678,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 					      sub, subActive, data );
 	    break;
 	case SC_SpinWidgetFrame:
-	    qDrawShadePanel( p, r, cg, TRUE, 
+	    qDrawShadePanel( p, r, cg, TRUE,
 			     pixelMetric( PM_DefaultFrameWidth) );
 	    break;
 	}
@@ -711,7 +711,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 CFlags flags,
 				 SCFlags subActive, void *data ) const
 {
-    switch( subCtrl ) {    
+    switch( subCtrl ) {
     case SC_SliderGroove:
 	qDrawShadePanel( p, r, cg, TRUE, 1, &cg.brush( QColorGroup::Mid ) );
 	break;
@@ -733,6 +733,8 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_ButtonShiftVertical:
 	ret = 0;
 	break;
+    case PM_SplitterWidth:
+	ret = QMAX( 10, QApplication::globalStrut().width() );
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -782,8 +784,6 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 //     case
     default:
 	ret =  QCommonStyle::pixelMetric( metric, widget );
-	if ( metric == PM_DefaultFrameWidth )
-	    qDebug( "ret is %d", ret );
 	break;
     }
     return ret;
