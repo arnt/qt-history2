@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#22 $
 **
 ** Implementation of QTextCodec class
 **
@@ -922,7 +922,6 @@ const char* QTextCodec::locale()
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
-    debug( "l <%s>", lang.data() );
     return lang;
 }
 
@@ -934,7 +933,7 @@ public:
     QSimpleTextCodec( int );
     ~QSimpleTextCodec();
 
-    QString toUnicode(const char* chars, int& len) const;
+    QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     const char* name() const;
@@ -1155,7 +1154,7 @@ QSimpleTextCodec::~QSimpleTextCodec()
 }
 
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
-QString QSimpleTextCodec::toUnicode(const char* chars, int& len) const
+QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 {
     QString r( len );
     const unsigned char * c = (const unsigned char *)chars;
