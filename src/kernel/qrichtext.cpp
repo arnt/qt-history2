@@ -1626,24 +1626,25 @@ void QTextDocument::setRichTextInternal( const QString &text )
     Tag curtag = initag;
     bool space = TRUE;
 
-    QString doc = text;
+    const QChar* doc = text.unicode();
+    int length = text.length();
     bool hasNewPar = curpar->length() <= 1;
     QString lastClose;
-    while ( pos < int( doc.length() ) ) {
-	if ( hasPrefix(doc, pos, '<' ) ){
-	    if ( !hasPrefix( doc, pos+1, QChar('/') ) ) {
+    while ( pos < length ) {
+	if ( hasPrefix(doc, length, pos, '<' ) ){
+	    if ( !hasPrefix( doc, length, pos+1, QChar('/') ) ) {
 		// open tag
 		QMap<QString, QString> attr;
 		bool emptyTag = FALSE;
-		QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
+		QString tagname = parseOpenTag(doc, length, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
 
 		if ( tagname == "title" ) {
 		    QString title;
-		    while ( TRUE ) {
-			if ( hasPrefix( doc, pos, '<' ) && hasPrefix( doc, pos+1, QChar('/') ) &&
-			     parseCloseTag( doc, pos ) == "title" )
+		    while ( pos < length ) {
+			if ( hasPrefix( doc, length, pos, '<' ) && hasPrefix( doc, length, pos+1, QChar('/') ) &&
+			     parseCloseTag( doc, length, pos ) == "title" )
 			    break;
 			title += doc[ pos ];
 			++pos;
@@ -1737,8 +1738,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		} else if ( tagname == "table" ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
 		    curpar->setAlignment( curtag.alignment );
-		    custom = parseTable( attr, format, doc, pos, curpar );
-		    (void)eatSpace( doc, pos );
+		    custom = parseTable( attr, format, doc, length, pos, curpar );
+		    (void)eatSpace( doc, length, pos );
 		    emptyTag = TRUE;
 		} else {
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -1770,7 +1771,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    // ignore whitespace for inline elements if there was already one
 		    if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
 			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
-			eatSpace( doc, pos );
+			eatSpace( doc, length, pos );
 
 		    // if we do nesting, push curtag on the stack,
 		    // otherwise reinint curag.
@@ -1861,7 +1862,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->setDirection( (QChar::Direction)curtag.direction );
 		}
 	    } else {
-		QString tagname = parseCloseTag( doc, pos );
+		QString tagname = parseCloseTag( doc, length, pos );
 		lastClose = tagname;
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
@@ -1908,8 +1909,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    // normal contents
 	    QString s;
 	    QChar c;
-	    while ( pos < int( doc.length() ) && !hasPrefix(doc, pos, '<' ) ){
-		c = parseChar( doc, pos, curtag.wsm );
+	    while ( pos < length && !hasPrefix(doc, length, pos, '<' ) ){
+		c = parseChar( doc, length, pos, curtag.wsm );
 
 		if ( c == '\n' ) // happens only in whitespacepre-mode.
 		    break;  // we want a new line in this case
@@ -4139,7 +4140,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     // fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
-    for ( i = 0; i < qstr.length(); i++ ) {
+    for ( i = 0; i < (int) qstr.length(); i++ ) {
 	if ( uc[i]== '\n' )
 	    uc[i] = 0x20;
     }
@@ -5701,7 +5702,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	m = 0;
     y += h + m;
 
-    if ( !wrapEnabled )
+    if ( !wrapEnabled || wrapAtColumn() != -1 )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
     wused += rm;
     return y;
@@ -6505,19 +6506,19 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
 // Small set of utility functions to make the parser a bit simpler
 //
 
-bool QTextDocument::hasPrefix(const QString& doc, int pos, QChar c)
+bool QTextDocument::hasPrefix(const QChar* doc, int length, int pos, QChar c)
 {
-    if ( pos >= (int)doc.length() )
+    if ( pos >= length )
 	return FALSE;
-    return ( doc.unicode() )[ pos ].lower() == c.lower();
+    return doc[ pos ].lower() == c.lower();
 }
 
-bool QTextDocument::hasPrefix( const QString& doc, int pos, const QString& s )
+bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QString& s )
 {
-    if ( pos + s.length() >= doc.length() )
+    if ( pos + (int) s.length() >= length )
 	return FALSE;
     for ( int i = 0; i < (int)s.length(); i++ ) {
-	if ( ( doc.unicode() )[ pos + i ].lower() != s[ i ].lower() )
+	if ( doc[ pos + i ].lower() != s[ i ].lower() )
 	    return FALSE;
     }
     return TRUE;
@@ -6535,7 +6536,7 @@ static bool qt_is_cell_in_use( QPtrList<QTextTableCell>& cells, int row, int col
 }
 
 QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt,
-					    const QString &doc, int& pos, QTextParag *curpar )
+					    const QChar* doc, int length, int& pos, QTextParag *curpar )
 {
 
     QTextTable* table = new QTextTable( this, attr );
@@ -6549,11 +6550,11 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
     QPtrList<QTextTableCell> multicells;
 
     QString tagname;
-    (void) eatSpace(doc, pos);
-    while ( pos < int(doc.length() )) {
-	if (hasPrefix(doc, pos, QChar('<')) ){
-	    if (hasPrefix(doc, pos+1, QChar('/'))) {
-		tagname = parseCloseTag( doc, pos );
+    (void) eatSpace(doc, length, pos);
+    while ( pos < length) {
+	if (hasPrefix(doc, length, pos, QChar('<')) ){
+	    if (hasPrefix(doc, length, pos+1, QChar('/'))) {
+		tagname = parseCloseTag( doc, length, pos );
 		if ( tagname == "table" ) {
 #if defined(PARSER_DEBUG)
 		    debug_indent.remove( debug_indent.length() - 3, 2 );
@@ -6563,7 +6564,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 	    } else {
 		QMap<QString, QString> attr2;
 		bool emptyTag = FALSE;
-		tagname = parseOpenTag( doc, pos, attr2, emptyTag );
+		tagname = parseOpenTag( doc, length, pos, attr2, emptyTag );
 		if ( tagname == "tr" ) {
 		    rowbgcolor = attr2["bgcolor"];
 		    rowalign = attr2["align"];
@@ -6591,22 +6592,22 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 
 			// extract the cell contents
 			int end = pos;
-			while ( end < (int) doc.length()
-				&& !hasPrefix( doc, end, "</td")
-				&& !hasPrefix( doc, end, "<td")
-				&& !hasPrefix( doc, end, "</th")
-				&& !hasPrefix( doc, end, "<th")
-				&& !hasPrefix( doc, end, "<td")
-				&& !hasPrefix( doc, end, "</tr")
-				&& !hasPrefix( doc, end, "<tr")
-				&& !hasPrefix( doc, end, "</table") ) {
-			    if ( hasPrefix( doc, end, "<table" ) ) { // nested table
+			while ( end < length
+				&& !hasPrefix( doc, length, end, "</td")
+				&& !hasPrefix( doc, length, end, "<td")
+				&& !hasPrefix( doc, length, end, "</th")
+				&& !hasPrefix( doc, length, end, "<th")
+				&& !hasPrefix( doc, length, end, "<td")
+				&& !hasPrefix( doc, length, end, "</tr")
+				&& !hasPrefix( doc, length, end, "<tr")
+				&& !hasPrefix( doc, length, end, "</table") ) {
+			    if ( hasPrefix( doc, length, end, "<table" ) ) { // nested table
 				int nested = 1;
 				++end;
-				while ( end < (int)doc.length() && nested != 0 ) {
-				    if ( hasPrefix( doc, end, "</table" ) )
+				while ( end < length && nested != 0 ) {
+				    if ( hasPrefix( doc, length, end, "</table" ) )
 					nested--;
-				    if ( hasPrefix( doc, end, "<table" ) )
+				    if ( hasPrefix( doc, length, end, "<table" ) )
 					nested++;
 				    end++;
 				}
@@ -6615,7 +6616,8 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 			}
 			QTextTableCell* cell  = new QTextTableCell( table, row, col,
 								    attr2, s, fmt.makeTextFormat( s, attr2 ),
-								    contxt, *factory_, sheet_, doc.mid( pos, end - pos ) );
+								    contxt, *factory_, sheet_,
+								    QConstString( doc + pos, end - pos ).string() );
 			cell->richText()->parParag = curpar;
 			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
 			    multicells.append( cell );
@@ -6636,17 +6638,17 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
 }
 #endif // QT_NO_TEXTCUSTOMITEM
 
-bool QTextDocument::eatSpace(const QString& doc, int& pos, bool includeNbsp )
+bool QTextDocument::eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp )
 {
     int old_pos = pos;
-    while (pos < int(doc.length()) && (doc.unicode())[pos].isSpace() && ( includeNbsp || (doc.unicode())[pos] != QChar::nbsp ) )
+    while (pos < length && doc[pos].isSpace() && ( includeNbsp || (doc[pos] != QChar::nbsp ) ) )
 	pos++;
     return old_pos < pos;
 }
 
-bool QTextDocument::eat(const QString& doc, int& pos, QChar c)
+bool QTextDocument::eat(const QChar* doc, int length, int& pos, QChar c)
 {
-    bool ok = pos < int(doc.length()) && ((doc.unicode())[pos] == c);
+    bool ok = pos < length && doc[pos] == c;
     if ( ok )
 	pos++;
     return ok;
@@ -6946,16 +6948,16 @@ static QMap<QCString, QChar> *htmlMap()
     return html_map;
 }
 
-QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
+QChar QTextDocument::parseHTMLSpecialChar(const QChar* doc, int length, int& pos)
 {
     QCString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < int(doc.length()) && (doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() && pos < recoverpos + 6) {
-	s += (doc.unicode())[pos];
+    while ( pos < length && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 6) {
+	s += doc[pos];
 	pos++;
     }
-    if ((doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() ) {
+    if (doc[pos] != ';' && !doc[pos].isSpace() ) {
 	pos = recoverpos;
 	return '&';
     }
@@ -6977,29 +6979,29 @@ QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
     return '&';
 }
 
-QString QTextDocument::parseWord(const QString& doc, int& pos, bool lower)
+QString QTextDocument::parseWord(const QChar* doc, int length, int& pos, bool lower)
 {
     QString s;
 
-    if ((doc.unicode())[pos] == '"') {
+    if (doc[pos] == '"') {
 	pos++;
-	while ( pos < int(doc.length()) && (doc.unicode())[pos] != '"' ) {
-	    s += (doc.unicode())[pos];
+	while ( pos < length  && doc[pos] != '"' ) {
+	    s += doc[pos];
 	    pos++;
 	}
-	eat(doc, pos, '"');
+	eat(doc, length, pos, '"');
     } else {
 	static QString term = QString::fromLatin1("/>");
-	while( pos < int(doc.length()) &&
-	       ((doc.unicode())[pos] != '>' && !hasPrefix( doc, pos, term))
-	       && (doc.unicode())[pos] != '<'
-	       && (doc.unicode())[pos] != '='
-	       && !(doc.unicode())[pos].isSpace())
+	while( pos < length &&
+	       (doc[pos] != '>' && !hasPrefix( doc, length, pos, term))
+	       && doc[pos] != '<'
+	       && doc[pos] != '='
+	       && !doc[pos].isSpace())
 	{
-	    if ( (doc.unicode())[pos] == '&')
-		s += parseHTMLSpecialChar( doc, pos );
+	    if ( doc[pos] == '&')
+		s += parseHTMLSpecialChar( doc, length, pos );
 	    else {
-		s += (doc.unicode())[pos];
+		s += doc[pos];
 		pos++;
 	    }
 	}
@@ -7009,12 +7011,12 @@ QString QTextDocument::parseWord(const QString& doc, int& pos, bool lower)
     return s;
 }
 
-QChar QTextDocument::parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm )
+QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm )
 {
-    if ( pos >=  int(doc.length() ) )
+    if ( pos >=  length )
 	return QChar::null;
 
-    QChar c = (doc.unicode())[pos++];
+    QChar c = doc[pos++];
 
     if (c == '<' )
 	return QChar::null;
@@ -7028,8 +7030,8 @@ QChar QTextDocument::parseChar(const QString& doc, int& pos, QStyleSheetItem::Wh
 	} else if ( wsm ==  QStyleSheetItem_WhiteSpaceNoCompression ) {
 	    return c;
 	} else { // non-pre mode: collapse whitespace except nbsp
-	    while ( pos< int(doc.length() ) &&
-		    (doc.unicode())[pos].isSpace()  && (doc.unicode())[pos] != QChar::nbsp )
+	    while ( pos< length &&
+		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp )
 		pos++;
 	    if ( wsm == QStyleSheetItem::WhiteSpaceNoWrap )
 		return QChar::nbsp;
@@ -7038,85 +7040,85 @@ QChar QTextDocument::parseChar(const QString& doc, int& pos, QStyleSheetItem::Wh
 	}
     }
     else if ( c == '&' )
-	return parseHTMLSpecialChar( doc, --pos );
+	return parseHTMLSpecialChar( doc, length, --pos );
     else
 	return c;
 }
 
-QString QTextDocument::parseOpenTag(const QString& doc, int& pos,
+QString QTextDocument::parseOpenTag(const QChar* doc, int length, int& pos,
 				  QMap<QString, QString> &attr, bool& emptyTag)
 {
     emptyTag = FALSE;
     pos++;
-    if ( hasPrefix(doc, pos, '!') ) {
-	if ( hasPrefix( doc, pos+1, "--")) {
+    if ( hasPrefix(doc, length, pos, '!') ) {
+	if ( hasPrefix( doc, length, pos+1, "--")) {
 	    pos += 3;
 	    // eat comments
 	    QString pref = QString::fromLatin1("-->");
-	    while ( !hasPrefix(doc, pos, pref ) && pos < int(doc.length()) )
+	    while ( !hasPrefix(doc, length, pos, pref ) && pos < length )
 		pos++;
-	    if ( hasPrefix(doc, pos, pref ) ) {
+	    if ( hasPrefix(doc, length, pos, pref ) ) {
 		pos += 3;
-		eatSpace(doc, pos, TRUE);
+		eatSpace(doc, length, pos, TRUE);
 	    }
 	    emptyTag = TRUE;
 	    return QString::null;
 	}
 	else {
 	    // eat strange internal tags
-	    while ( !hasPrefix(doc, pos, '>') && pos < int(doc.length()) )
+	    while ( !hasPrefix(doc, length, pos, '>') && pos < length )
 		pos++;
-	    if ( hasPrefix(doc, pos, '>') ) {
+	    if ( hasPrefix(doc, length, pos, '>') ) {
 		pos++;
-		eatSpace(doc, pos, TRUE);
+		eatSpace(doc, length, pos, TRUE);
 	    }
 	    return QString::null;
 	}
     }
 
-    QString tag = parseWord(doc, pos );
-    eatSpace(doc, pos, TRUE);
+    QString tag = parseWord(doc, length, pos );
+    eatSpace(doc, length, pos, TRUE);
     static QString term = QString::fromLatin1("/>");
     static QString s_TRUE = QString::fromLatin1("TRUE");
 
-    while ((doc.unicode())[pos] != '>' && ! (emptyTag = hasPrefix(doc, pos, term) )) {
-	QString key = parseWord(doc, pos );
-	eatSpace(doc, pos, TRUE);
+    while (doc[pos] != '>' && ! (emptyTag = hasPrefix(doc, length, pos, term) )) {
+	QString key = parseWord(doc, length, pos );
+	eatSpace(doc, length, pos, TRUE);
 	if ( key.isEmpty()) {
 	    // error recovery
-	    while ( pos < int(doc.length()) && (doc.unicode())[pos] != '>' )
+	    while ( pos < length && doc[pos] != '>' )
 		pos++;
 	    break;
 	}
 	QString value;
-	if (hasPrefix(doc, pos, '=') ){
+	if (hasPrefix(doc, length, pos, '=') ){
 	    pos++;
-	    eatSpace(doc, pos);
-	    value = parseWord(doc, pos, FALSE);
+	    eatSpace(doc, length, pos);
+	    value = parseWord(doc, length, pos, FALSE);
 	}
 	else
 	    value = s_TRUE;
 	attr.insert(key.lower(), value );
-	eatSpace(doc, pos, TRUE);
+	eatSpace(doc, length, pos, TRUE);
     }
 
     if (emptyTag) {
-	eat(doc, pos, '/');
-	eat(doc, pos, '>');
+	eat(doc, length, pos, '/');
+	eat(doc, length, pos, '>');
     }
     else
-	eat(doc, pos, '>');
+	eat(doc, length, pos, '>');
 
     return tag;
 }
 
-QString QTextDocument::parseCloseTag( const QString& doc, int& pos )
+QString QTextDocument::parseCloseTag( const QChar* doc, int length, int& pos )
 {
     pos++;
     pos++;
-    QString tag = parseWord(doc, pos );
-    eatSpace(doc, pos, TRUE);
-    eat(doc, pos, '>');
+    QString tag = parseWord(doc, length, pos );
+    eatSpace(doc, length, pos, TRUE);
+    eat(doc, length, pos, '>');
     return tag;
 }
 

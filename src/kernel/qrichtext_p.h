@@ -396,8 +396,8 @@ private:
 };
 
 inline QTextCommandHistory::~QTextCommandHistory()
-{ 
-    clear(); 
+{
+    clear();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -912,18 +912,19 @@ private:
     void init();
     QPixmap *bufferPixmap( const QSize &s );
     // HTML parser
-    bool hasPrefix(const QString& doc, int pos, QChar c);
-    bool hasPrefix(const QString& doc, int pos, const QString& s);
+    bool hasPrefix(const QChar* doc, int length, int pos, QChar c);
+    bool hasPrefix(const QChar* doc, int length, int pos, const QString& s);
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt, const QString &doc, int& pos, QTextParag *curpar );
+    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextFormat &fmt,
+				 const QChar* doc, int length, int& pos, QTextParag *curpar );
 #endif
-    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
-    bool eat(const QString& doc, int& pos, QChar c);
-    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
-    QString parseCloseTag( const QString& doc, int& pos );
-    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
-    QString parseWord(const QString& doc, int& pos, bool lower = TRUE);
-    QChar parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
+    bool eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp = FALSE );
+    bool eat(const QChar* doc, int length, int& pos, QChar c);
+    QString parseOpenTag(const QChar* doc, int length, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
+    QString parseCloseTag( const QChar* doc, int length, int& pos );
+    QChar parseHTMLSpecialChar(const QChar* doc, int length, int& pos);
+    QString parseWord(const QChar* doc, int length, int& pos, bool lower = TRUE);
+    QChar parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
     void setRichTextInternal( const QString &text );
 
 private:
@@ -2090,14 +2091,14 @@ inline QTextParagPseudoDocument *QTextParag::pseudoDocument() const
 }
 
 
-inline QTextTableCell *QTextParag::tableCell() const 
-{ 
-    return hasdoc ? document()->tableCell () : 0; 
+inline QTextTableCell *QTextParag::tableCell() const
+{
+    return hasdoc ? document()->tableCell () : 0;
 }
 
-inline QTextCommandHistory *QTextParag::commands() const 
-{ 
-    return hasdoc ? document()->commands() : pseudoDocument()->commandHistory; 
+inline QTextCommandHistory *QTextParag::commands() const
+{
+    return hasdoc ? document()->commands() : pseudoDocument()->commandHistory;
 }
 
 
@@ -2140,7 +2141,7 @@ inline void QTextParag::unregisterFloatingItem( QTextCustomItem *i )
 
 inline QBrush *QTextParag::background() const
 {
-#ifndef QT_NO_TEXTCUSTOMITEM    
+#ifndef QT_NO_TEXTCUSTOMITEM
     return tableCell() ? tableCell()->backGround() : 0;
 #else
     return 0;
