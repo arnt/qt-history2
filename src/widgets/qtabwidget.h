@@ -62,7 +62,6 @@ public:
     void setTabEnabled( QWidget *, bool );
 
     void setCornerWidget( QWidget * w, Qt::Corner corner = Qt::TopRight );
-    QWidget * cornerWidget( Qt::Corner corner = Qt::TopRight ); // ### merge in 4.0
     QWidget * cornerWidget( Qt::Corner corner = Qt::TopRight ) const;
 
     QString tabLabel( QWidget * ) const;

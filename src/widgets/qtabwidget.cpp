@@ -474,14 +474,6 @@ QWidget * QTabWidget::cornerWidget( Qt::Corner corner ) const
     return d->leftCornerWidget;
 }
 
-/*! \internal */
-QWidget * QTabWidget::cornerWidget( Qt::Corner corner )
-{
-    if ( (uint)corner & 1 )
-	return d->rightCornerWidget;
-    return d->leftCornerWidget;
-}
-
 /*!
     Ensures that page \a w is shown. This is useful mainly for
     accelerators.
