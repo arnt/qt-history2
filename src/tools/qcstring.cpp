@@ -541,6 +541,14 @@ QCString::QCString( const char *str, uint maxsize )
 }
 
 /*!
+  \reimp
+ */
+
+QCString::~QCString()
+{
+}
+
+/*!
   \fn QCString &QCString::operator=( const QCString &s )
   Assigns a shallow copy of \a s to this string and returns a reference to
   this string.

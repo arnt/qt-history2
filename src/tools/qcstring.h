@@ -144,6 +144,7 @@ public:
     QCString( const QCString &s ) : QByteArray( s ) {}
     QCString( const char *str );		// deep copy
     QCString( const char *str, uint maxlen );	// deep copy, max length
+    ~QCString();
 
     QCString    &operator=( const QCString &s );// shallow copy
     QCString    &operator=( const char *str );	// deep copy
