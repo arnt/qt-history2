@@ -1257,18 +1257,12 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 }
 
 
-/*!\obsolete
+/*!
+  \fn bool QWidget::isEnabledToTLW() const
+  \obsolete
 
   This function is deprecated. It is equivalent to isEnabled()
-
-  \sa setEnabled() isEnabled()
 */
-
-bool QWidget::isEnabledToTLW() const
-{
-    return isEnabled();
-}
-
 
 /*!
   Enables widget input events if \a enable is TRUE, otherwise disables
@@ -2217,6 +2211,7 @@ void QWidget::setPalette( const QPalette &palette )
     pal = palette;
     setBackgroundFromMode();
     paletteChange( old );
+    QApplication::sendEvent( this, &QEvent( QEvent::PaletteChange ) );
     if ( children() ) {
 	QEvent e( QEvent::ParentPaletteChange );
 	QObjectListIt it( *children() );
@@ -2248,15 +2243,12 @@ void QWidget::unsetPalette()
     }
 }
 
-/*!\obsolete
+/*!
+  \fn void QWidget::setPalette( const QPalette&, bool )
+  \obsolete
 
   Use setPalette( const QPalette& p ) instead.
 */
-
-void QWidget::setPalette( const QPalette &p, bool )
-{
-    setPalette( p );
-}
 
 /*!
   \fn void QWidget::paletteChange( const QPalette &oldPalette )
@@ -2349,15 +2341,12 @@ void QWidget::unsetFont()
     }
 }
 
-/*!\obsolete
+/*!
+  \fn void QWidget::setFont( const QFont&, bool )
+  \obsolete
 
   Use setFont( const QFont& font) instead.
 */
-
-void QWidget::setFont( const QFont &font, bool )
-{
-    setFont( font );
-}
 
 /*!
   \fn void QWidget::fontChange( const QFont &oldFont )
@@ -3693,18 +3682,12 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 }
 
 
-/*!\obsolete
+/*!
+  \fn bool QWidget::isVisibleToTLW() const
+  \obsolete
 
   This function is deprecated. It is equivalent to isVisible()
-
-  \sa show(), hide(), isVisible()
 */
-
-bool QWidget::isVisibleToTLW() const
-{
-    return isVisible();
-}
-
 
 /*!
   \fn bool QWidget::isHidden() const

@@ -143,7 +143,7 @@ public:
 
     bool	 isEnabled()	const;
     bool	 isEnabledTo(QWidget*) const;
-    bool	 isEnabledToTLW() const;
+    bool	 isEnabledToTLW() const { return isEnabled(); }
 
 public slots:
     virtual void setEnabled( bool );
@@ -342,7 +342,7 @@ public:
     virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
-    bool		isVisibleToTLW() const; // obsolete
+    bool		isVisibleToTLW() const { return isVisible(); } // obsolete
     QRect		visibleRect() const;
     bool 		isHidden() const;
     bool		isMinimized() const;
@@ -610,9 +610,9 @@ private:	// Disabled copy constructor and operator=
 
 public: // obsolete functions to dissappear or to become inline in 3.0
 #ifndef QT_NO_PALETTE
-    void setPalette( const QPalette &, bool iReallyMeanIt );
+    void setPalette( const QPalette &p, bool ) { setPalette( p ); }
 #endif
-    void setFont( const QFont &, bool iReallyMeanIt );
+    void setFont( const QFont &f, bool ) { setFont( f ); }
 };
 
 
