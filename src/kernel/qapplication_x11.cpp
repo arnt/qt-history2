@@ -224,7 +224,8 @@ static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
-static short	mouseXPos, mouseYPos;		// mouse position in act window
+static short	mouseXPos, mouseYPos;		// mouse pres position in act window
+static short	mouseGlobalXPos, mouseGlobalYPos; // global mouse press position
 
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static QWidget     *popupButtonFocus = 0;
@@ -2909,9 +2910,11 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() && popupGrabOk ) {	// grabbing not disabled
 	    XUngrabKeyboard( popup->x11Display(), CurrentTime );
-	    if ( mouseButtonState != 0 ) {	// mouse release event
-		XAllowEvents( popup->x11Display(), AsyncPointer,
-			      CurrentTime );
+	    if ( mouseButtonState != 0 
+		 || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos) ) )
+		{	// mouse release event or inside
+		    XAllowEvents( popup->x11Display(), AsyncPointer,
+				  CurrentTime );
 	    } else {				// mouse press event
 		mouseButtonPressTime -= 10000;	// avoid double click
 		XAllowEvents( popup->x11Display(), ReplayPointer,CurrentTime );
@@ -3473,6 +3476,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    mouseButtonPressed = button; 	// save event params for
 	    mouseXPos = pos.x();		// future double click tests
 	    mouseYPos = pos.y();
+	    mouseGlobalXPos = globalPos.x();
+	    mouseGlobalYPos = globalPos.y();
 	} else {				// mouse button released
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
