@@ -81,7 +81,7 @@ void MainWindow::init()
 	dw->hide();
 
     setObjectsEnabled( FALSE );
-    setup();
+    QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
 
 void MainWindow::setup()
@@ -144,9 +144,9 @@ void MainWindow::setup()
 
 void MainWindow::setupGoActions()
 {
-    Config * config = Config::configuration();
+    Config *config = Config::configuration();
     QStringList docFiles = config->docFiles();
-    QAction * action = 0;
+    QAction *action = 0;
 
     static bool separatorInserted = FALSE;
 
@@ -211,6 +211,11 @@ void MainWindow::setObjectsEnabled( bool b )
         ((QAction*)obj)->setEnabled( b );
     }
     delete l;
+    QPtrListIterator<QAction> ait( *goActions );
+    while ( ait.current() != 0 ) {
+	(*ait)->setEnabled( b );
+        ++ait;
+    }
     menubar->setEnabled( b );
     helpDock->setEnabled( b );
 }
