@@ -61,7 +61,7 @@ QLabel *DesignerApplication::showSplash()
     QSettings config;
     QRect mainRect;
     QString keybase = settingsKey();
-    bool show = config.readBoolEntry( keybase + "General/SplashScreen", TRUE );
+    bool show = config.readBoolEntry( keybase + "SplashScreen", TRUE );
     mainRect.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", 0 ) );
     mainRect.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", 0 ) );
     mainRect.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", 500 ) );

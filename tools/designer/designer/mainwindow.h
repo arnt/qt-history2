@@ -271,6 +271,7 @@ private:
 
     void writeConfig();
     void readConfig();
+    void readOldConfig();
 
     void setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &props, QWidget *w );
     void handleRMBProperties( int id, QMap<QString, int> &props, QWidget *w );
