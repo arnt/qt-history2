@@ -1068,16 +1068,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 		    complexWxf = m.m12() != 0 || m.m21() != 0;
 		    if ( complexWxf ) {
-//			qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
 			if ( image.isNull() ) {
 			    image = pixmap;
-//			    qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
 			    pixmap = QPixmap();
 			}
 			image.setAlphaBuffer( TRUE );
-
-//			QRgb bla = image.pixel( 0, 0 );
-//			qDebug( "%d %d %d %d", qRed(bla), qGreen(bla), qBlue(bla), qAlpha(bla) );
 
 			image = image.xForm( m );
 			int origW = w;
@@ -1087,9 +1082,18 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			rect.setWidth( rect.width() * w / origW );
 			rect.setHeight( rect.height() * h / origH );
 
-//			bla = image.pixel( 0, 0 );
-//			qDebug( "%d %d %d %d", qRed(bla), qGreen(bla), qBlue(bla), qAlpha(bla) );
-//			qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+			// Qt does not support printing images with
+			// transparency, so convert it at least to white.
+			if ( image.depth() == 32 ) {
+			    for( int y=0; y < image.height(); y++ ) {
+				QRgb *s = (QRgb*)(image.scanLine( y ));
+				for( int x=0; x < image.width(); x++ ) {
+				    if ( qAlpha( *s ) < 0x40 ) // 25% alpha, convert to white
+					*s = qRgb( 0xff, 0xff, 0xff );
+				    s++;
+				}
+			    }
+			}
 
 			// The image is already transformed. For the transformation
 			// of pos, we need a modified world matrix:
