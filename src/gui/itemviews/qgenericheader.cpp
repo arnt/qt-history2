@@ -123,7 +123,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
     QModelIndex::Type type = orientation() == Horizontal ?
 			     QModelIndex::HorizontalHeader :
 			     QModelIndex::VerticalHeader;
-    QModelIndex header(row, col, 0, type);
+    QModelIndex header = model()->index(row, col, 0, type);
     if (orientation() == Vertical)
 	hint = delegate->sizeHint(fontMetrics(), options, header).height();
     else
@@ -184,12 +184,12 @@ void QGenericHeader::drawContents(QPainter *painter, int cx, int cy, int cw, int
 	if (sections[i].hidden)
 	    continue;
 	if (orientation() == Horizontal) {
-	    item = QModelIndex(0, sections[i].section, 0, QModelIndex::HorizontalHeader);
+	    item = model()->index(0, sections[i].section, 0, QModelIndex::HorizontalHeader);
 	    options.itemRect.setRect(0, 0, sectionSize(sections[i].section), height());
 	    x = sections[i].position;
 	    y = 0;
 	} else {
-	    item = QModelIndex(sections[i].section, 0, 0, QModelIndex::VerticalHeader);
+	    item = model()->index(sections[i].section, 0, 0, QModelIndex::VerticalHeader);
 	    options.itemRect.setRect(0, 0, width(), sectionSize(sections[i].section));
 	    x = 0;
 	    y = sections[i].position;
@@ -373,8 +373,8 @@ void QGenericHeader::contentsChanged(const QModelIndex &topLeft, const QModelInd
     for (int idx = from; idx < to; ++idx) {
 	int sec = section(idx);
 	QModelIndex item = (orientation() == Vertical ?
-			    QModelIndex(sec, 0, 0, type) :
-			    QModelIndex(0, sec, 0, type));
+			    model()->index(sec, 0, 0, type) :
+			    model()->index(0, sec, 0, type));
 	if (d->sections.at(idx).mode == Content) { // resize the section to fit the new content
 	    QItemOptions options;
 	    getViewOptions(&options);
@@ -633,8 +633,8 @@ void QGenericHeader::resizeEvent(QResizeEvent *e)
 QModelIndex QGenericHeader::itemAt(int x, int y) const
 {
     return (orientation() == Horizontal ?
-	    QModelIndex(0, sectionAt(x), 0, QModelIndex::HorizontalHeader) :
-	    QModelIndex(sectionAt(y), 0, 0, QModelIndex::VerticalHeader));
+	    model()->index(0, sectionAt(x), 0, QModelIndex::HorizontalHeader) :
+	    model()->index(sectionAt(y), 0, 0, QModelIndex::VerticalHeader));
 }
 
 QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, ButtonState)
@@ -654,8 +654,8 @@ QRect QGenericHeader::itemRect(const QModelIndex &item) const
 QModelIndex QGenericHeader::item(int section) const
 {
     if (orientation() == Horizontal)
-	return QModelIndex(0, section, 0, QModelIndex::HorizontalHeader);
-    return QModelIndex(section, 0, 0, QModelIndex::VerticalHeader);
+	return model()->index(0, section, 0, QModelIndex::HorizontalHeader);
+    return model()->index(section, 0, 0, QModelIndex::VerticalHeader);
 }
 
 QRect QGenericHeader::selectionRect(const QItemSelection *selection) const
