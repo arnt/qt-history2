@@ -42,6 +42,10 @@
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 
+#if defined(QT_NON_COMMERCIAL)
+#include "qmessagebox.h"
+#define IDM_ABOUTQT	1
+#endif
 #if defined(__MINGW32__)
 #include <imm.h>
 #endif
@@ -342,7 +346,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
-
 	if ( topLevel ){
 	    // one cannot trust cr.left and cr.top, use a correction POINT instead
 	    POINT pt;
@@ -375,6 +378,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	else
 	    clearWState( WState_Visible );
     }
+
+#if defined(QT_NON_COMMERCIAL)
+    HMENU menu = GetSystemMenu( winId(), FALSE );
+    AppendMenuA( menu, MF_SEPARATOR, NULL, NULL );
+    AppendMenuA( menu, MF_STRING, IDM_ABOUTQT, "About Qt" );
+#endif
 
     if ( destroyw ) {
 	DestroyWindow( destroyw );
@@ -664,22 +673,57 @@ void QWidget::unsetCursor()
     }
 }
 
+#if defined(QT_NON_COMMERCIAL)
+static char* ForK( const char *f ) {
+    char *res = new char[strlen(f)+1];
+    int i = 0;
+    while ( f[i] ) {
+	res[i] = f[i] ^ 5;
+	i++;
+    }
+    res[i] = '\0';
+    return res;
+}
+#endif
 
 void QWidget::setCaption( const QString &caption )
 {
     if ( QWidget::caption() == caption )
 	return; // for less flicker
     topData()->caption = caption;
+
 #ifdef Q_OS_TEMP
-	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+    SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
 #else
+#if defined(QT_NON_COMMERCIAL)
+    QString cap;
+    char* t = ForK("Qwjiiq`fm");
+    char* q = ForK("Tq");
+    char* f = ForK("^Cw``rdw`X%(%");
+    if ( caption.find( QString(t) ) != -1 && caption.find( QString(q) ) != -1 )
+	cap = caption;
+    else if ( caption.find( QString(q) + " Example" ) != -1 )
+	cap = caption;
+    else if ( parentWidget() && parentWidget()->caption().find( QString(t) ) != -1 && parentWidget()->caption().find( QString(q) ) != -1 )
+	cap = caption;
+    else if ( inherits("QFileDialog") || inherits("QMessageBox") || inherits("QFontDialog") || inherits("QColorDialog") )
+	cap = caption;
+
+    delete[] t;
+    delete[] q;
+    delete[] f;
+#else 
+    QString cap = caption;
+#endif
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based )
-	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
+	SetWindowText( winId(), (TCHAR*)qt_winTchar(cap,TRUE) );
     else
 #endif
-	SetWindowTextA( winId(), caption.local8Bit() );
+	SetWindowTextA( winId(), cap.local8Bit() );
+
 #endif
+
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
@@ -911,7 +955,6 @@ void QWidget::repaint( const QRegion& reg, bool erase )
     }
 }
 
-
 /*
   \internal
   Platform-specific part of QWidget::show().
@@ -926,6 +969,15 @@ void QWidget::showWindow()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     }
     else {
+#if defined(QT_NON_COMMERCIAL)
+	if ( isTopLevel() && caption() == QString::null 
+	    && ! ( inherits("QFileDialog") || inherits("QMessageBox") 
+	    || inherits("QFontDialog") || inherits("QColorDialog") ) ) {
+	    char* f = ForK("^Cw``rdw`X%(%");
+	    setCaption( QString(f) + QString(qApp->name()) );
+	    delete[] f;
+	}
+#endif
 	int sm = SW_SHOW;
 	if ( isTopLevel() ) {
 	    switch ( topData()->showMode ) {

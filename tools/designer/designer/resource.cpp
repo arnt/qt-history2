@@ -260,9 +260,17 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     if ( !customWidgets.isNull() )
 	loadCustomWidgets( customWidgets, this );
 
+#if defined (QT_NON_COMMERCIAL)    
+    QWidget *w = (QWidget*)createObject( firstWidget, !previewMode ? (QWidget*)formwindow : MainWindow::self, 0);
+    if ( !w )
+	return FALSE;
+    if ( previewMode )
+	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), TRUE );	    
+#else
     if ( !createObject( firstWidget, formwindow, 0,
 			firstWidget.attribute("class", "QWidget") ) )
 	return FALSE;
+#endif
 
     if ( !actions.isNull() )
 	loadActions( actions );

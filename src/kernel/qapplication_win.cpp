@@ -28,6 +28,9 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#if defined(QT_NON_COMMERCIAL)
+#include "qmessagebox.h"
+#endif
 #include "qapplication_p.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
@@ -50,6 +53,10 @@
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
+#endif
+
+#if defined(QT_NON_COMMERCIAL)
+#define IDM_ABOUTQT	    1
 #endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -390,12 +397,7 @@ static void qt_show_system_menu( QWidget* tlw)
 #ifdef Q_OS_TEMP
 	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 #else
-#if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based )
-	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
-	else
-#endif
-	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+	QtWndProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 #endif
 }
 
@@ -1584,6 +1586,18 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
     }
 }
 
+#if defined(QT_NON_COMMERCIAL)
+static char* ForKAPP( const char *f ) {
+    char *res = new char[strlen(f)+1];
+    int i = 0;
+    while ( f[i] ) {
+	res[i] = f[i] ^ 5;
+	i++;
+    }
+    res[i] = '\0';
+    return res;
+}
+#endif
 
 static
 QString imestring_to_unicode(char *s, int len)
@@ -1660,6 +1674,38 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.message = message;			// time and pt fields ignored
     msg.wParam = wParam;
     msg.lParam = lParam;
+
+#if defined(QT_NON_COMMERCIAL)
+    if ( msg.message == WM_SETTEXT )
+    {
+	QString qstr;
+	if ( qt_winver & Qt::WV_NT_based ) {
+	    LPCTSTR *str = (LPCTSTR *)msg.lParam;
+	    qstr = qt_winQString( str );
+	} else {
+	    qstr = QString::fromLocal8Bit( (const char*)msg.lParam );
+	}
+	char* q = ForKAPP("Tq");
+	char* t = ForKAPP("Qwjiiq`fm");
+	char* f = ForKAPP("^Cw``rdw`X%(%");
+	if ( qstr.find( QString(f) ) == -1 && qstr.find( QString(t) ) == -1 && qstr.find( QString(q) ) == -1 ) {
+	    widget = (QETWidget*)QWidget::find( hwnd );
+	    if ( ! (widget->parentWidget() && widget->parentWidget()->caption().find( QString(t) ) != -1 
+		&& widget->parentWidget()->caption().find( QString(q) ) != -1 ) ) {
+		if ( widget->caption().find( QString(q) + QString("Example") ) == -1 ) {
+		    if ( ! ( widget->inherits("QFileDialog") || widget->inherits("QMessageBox") 
+			|| widget->inherits("QFontDialog") || widget->inherits("QColorDialog") ) ) {
+			widget->setCaption( qstr );
+			return NULL;
+		    }
+		}
+	    }
+	}
+	delete[] q;
+	delete[] t;
+	delete[] f;
+    }
+#endif
 
     if ( qt_winEventFilter(&msg) )		// send through app filter
 	RETURN(0);
@@ -1828,6 +1874,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    else
 #endif
 			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
+#if defined(QT_NON_COMMERCIAL)
+		} else if ( wParam == IDM_ABOUTQT ) {
+		    QMessageBox::aboutQt( widget->topLevelWidget(), "About Qt" );
+		}
+#endif
 		    break;
 		case SC_MAXIMIZE:
 		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );

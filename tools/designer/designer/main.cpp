@@ -199,8 +199,12 @@ int main( int argc, char *argv[] )
     QLabel *splash = a.showSplash();
 
     MainWindow *mw = new MainWindow( creatPid );
+    a.setMainWidget( mw );
+#if defined(QT_NON_COMMERCIAL)
+    mw->setCaption( "Qt Designer by Trolltech for non-commercial use" );
+#else
     mw->setCaption( "Qt Designer by Trolltech" );
-
+#endif
     mw->show();
 #if defined(Q_WS_X11)
     qt_wait_for_window_manager( mw );

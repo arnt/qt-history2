@@ -722,12 +722,20 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    dia = new QDesignerDialog( (FormWindow*)parent, parent, name );
 	else
 	    dia = new QDialog( parent, name );
+#if defined(QT_NON_COMMERCIAL)
+	if ( parent && !parent->inherits("MainWindow") )
+#else
 	if ( parent )
+#endif
 	    dia->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return dia;
     } else if ( className == "QWizard" ) {
 	QWizard *wiz = new QDesignerWizard( parent, name );
+#if defined(QT_NON_COMMERCIAL)
+	if ( parent && !parent->inherits("MainWindow") )
+#else
 	if ( parent )
+#endif
 	    wiz->reparent( parent, QPoint( 0, 0 ), TRUE );
 	if ( init && parent && parent->inherits( "FormWindow" ) ) {
 	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, wiz, "page" );
