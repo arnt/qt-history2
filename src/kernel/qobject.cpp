@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#141 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#141 $");
 
 
 /*!
@@ -1339,6 +1339,10 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
 */
+
+#if (QT_VERSION >= 200)
+#error "disconnect const foo"
+#endif
 
 /*!
   Disconnects \e signal in object \e sender from \e member in object \e

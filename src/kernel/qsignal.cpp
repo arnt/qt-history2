@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#19 $
 **
 ** Implementation of QSignal class
 **
@@ -13,7 +13,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#19 $");
 
 /*!
   \class QSignal qsignal.h
@@ -125,6 +125,10 @@ bool QSignal::connect( const QObject *receiver, const char *member )
     return QObject::connect( (QObject *)this, SIGNAL(x()),
 			     receiver, member );
 }
+
+#if (QT_VERSION >= 200)
+#error "disconnect const foo"
+#endif
 
 /*!
   Disonnects the signal from \e member in object \e receiver.
