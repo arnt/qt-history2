@@ -21,7 +21,7 @@ class ReadOnlyNumber : public QTableItem
 {
 public:
     ReadOnlyNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ), QPixmap() ) { setTypeChangeAllowed( FALSE ); }
+	QTableItem( t, QString::number( num ) ) { setTypeChangeAllowed( FALSE ); }
     QWidget *editor() const { return 0; }
 };
 
@@ -29,8 +29,8 @@ class ReadWriteNumber : public QTableItem
 {
 public:
     ReadWriteNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ), QPixmap() ) { setTypeChangeAllowed( FALSE ); }
-    QWidget *editor() const { 
+	QTableItem( t, QString::number( num ) ) { setTypeChangeAllowed( FALSE ); }
+    QWidget *editor() const {
 	QLineEdit *le = (QLineEdit*)QTableItem::editor();
 	le->setValidator( new QIntValidator( le ) );
 	le->setAlignment( AlignRight );
@@ -42,9 +42,9 @@ class SexChooser : public QTableItem
 {
 public:
     SexChooser( QTable *t )
-	: QTableItem( t, "female", QPixmap() ) { setTypeChangeAllowed( FALSE ); setEditType( Always ); }
-    QWidget *editor() const { 
-	QComboBox *cb = new QComboBox( table()->viewport() );
+	: QTableItem( t, "female" ) { setTypeChangeAllowed( FALSE ); setEditType( Always ); }
+    QWidget *editor() const {
+	( (SexChooser*)this )->cb = new QComboBox( table()->viewport() );
 	cb->insertItem( "female" );
 	cb->insertItem( "male" );
 	return cb;
@@ -55,14 +55,24 @@ public:
 	else
 	    QTableItem::setContentFromEditor( w );
     }
+    void setText( const QString &s ) {
+	if ( s == "male" )
+	    cb->setCurrentItem( 1 );
+	else
+	    cb->setCurrentItem( 0 );
+	QTableItem::setText( s );
+    }
+    
+private:
+    QComboBox *cb;
     
 };
 
 class CheckItem : public QTableItem
 {
 public:
-    CheckItem( QTable *t ) : QTableItem( t, "No", QPixmap() ) { setTypeChangeAllowed( FALSE ); setEditType( OnCurrent ); }
-    QWidget *editor() const { 
+    CheckItem( QTable *t ) : QTableItem( t, "No" ) { setTypeChangeAllowed( FALSE ); setEditType( OnCurrent ); }
+    QWidget *editor() const {
 	QCheckBox *cb = new QCheckBox( "Yes", table()->viewport() );
 	cb->setChecked( text() == "Yes" );
 	return cb;
@@ -78,10 +88,10 @@ public:
 class RecordManager : public QObject
 {
     Q_OBJECT
-    
+
 public:
     RecordManager( QTable *t ) : table( t ) {}
-    
+
 public slots:
     void addRecord() {
     	table->setRows( table->rows() + 1 );
@@ -91,7 +101,7 @@ public slots:
 	table->setCellContent( row, 4, new ReadWriteNumber( table, row + 500 ) );
  	table->setCellContent( row, 5, new CheckItem( table ) );
     }
-    
+
 private:
     QTable *table;
 };
@@ -102,12 +112,16 @@ int main( int argc, char **argv )
 
     QVBox vbox( 0 );
     QTable *t = new QTable( 0, 6, &vbox );
+    t->setSorting( FALSE );
     QPushButton *b = new QPushButton( "Add &Record", &vbox );
     b->setFixedWidth( b->sizeHint().width() );
     RecordManager *r = new RecordManager( t );
     QObject::connect( b, SIGNAL( clicked() ),
 		      r, SLOT( addRecord() ) );
     r->addRecord();
+    t->setCellText( 0, 1, "Mustermann" );
+    t->setCellText( 0, 2, "Max" );
+    ( (SexChooser*)t->cellContent( 0, 3 ) )->setText( "male" );
     
     t->horizontalHeader()->setLabel( 0, "Number" );
     t->horizontalHeader()->setLabel( 1, "Last Name" );
