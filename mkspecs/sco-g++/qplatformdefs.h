@@ -7,6 +7,11 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
+// This is to have PATH_MAX defined in <limits.h>
+#ifndef _IBCS2
+#  define _IBCS2
+#endif
+
 #include <unistd.h>
 
 
