@@ -756,12 +756,13 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         bg = pal->highlight().color();
         text = pal->highlightedText().color();
         break;
-    case QTextLayout::ImText:
+    case QTextLayout::ImText: {
         int h1, s1, v1, h2, s2, v2;
         pal->color(QPalette::Base).getHsv(&h1, &s1, &v1);
         pal->color(QPalette::Background).getHsv(&h2, &s2, &v2);
         bg.setHsv(h1, s1, (v1 + v2) / 2);
         break;
+    }
     case QTextLayout::ImSelection:
         bg = pal->text().color();
         text = pal->background().color();
@@ -772,7 +773,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     }
     p->fillRect(rect.toRect(), bg);
     if (type == QTextLayout::ImText)
-        p->drawLine(int(rect.x()), int(rect.y()), int(rect.x() + rect.width()), int(rect.y() + rect.height()));
+        p->drawLine(QPointF(rect.x(), rect.y() + rect.height()),
+                    QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
     if (text.isValid())
         p->setPen(text);
     line.draw(p, pos, selectionIdx);
