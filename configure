@@ -2637,6 +2637,7 @@ if [ "$CFG_PNG" = "no" ]; then
 else
     echo "PNG support ......... $CFG_PNG ($CFG_LIBPNG)"
 fi
+echo "zlib support ........ $CFG_ZLIB"
 if [ "$PLATFORM_QWS" != "yes" ]; then
     if echo $MODULES | grep opengl >/dev/null; then
 	opengl=yes
