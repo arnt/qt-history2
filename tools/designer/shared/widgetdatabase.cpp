@@ -216,6 +216,15 @@ void WidgetDatabase::setupDataBase()
     append( r );
 #endif
 
+#if defined(QT_MODULE_SQL)
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "table.xpm";
+    r->name = "QSqlTable";
+    r->group = widgetGroup( "Views" );
+    r->toolTip = "SQL Table";
+
+    append( r );
+#endif
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "lineedit.xpm";

@@ -43,6 +43,9 @@
 #if defined(QT_MODULE_TABLE)
 #include <qtable.h>
 #endif
+#if defined(QT_MODULE_SQL)
+#include <qsqltable.h>
+#endif
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmultilineedit.h>
@@ -502,6 +505,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #else
 	return 0;
 #endif
+    } else if ( className == "QSqlTable" ) {
+#if defined(QT_MODULE_SQL)
+	return new QSqlTable( parent, name );
+#else
+	return 0;
+#endif
     } else if ( className == "QListBox" ) {
 	QListBox* lb = new QListBox( parent, name );
 	if ( init ) {
@@ -823,7 +832,7 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	return TRUE;
     else if ( o->inherits( "QDockWindowHandle" ) )
 	return TRUE;
-    
+
     return FALSE;
 }
 
