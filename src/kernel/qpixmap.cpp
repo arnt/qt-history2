@@ -676,6 +676,9 @@ void QPixmap::resize( int w, int h )
 	d = isQBitmap() ? 1 : -1;
     // Create new pixmap
     QPixmap pm( w, h, d, data->bitmap, data->optim );
+#ifdef Q_WS_X11
+    pm.x11SetScreen( x11Screen() );
+#endif // Q_WS_X11
     if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
