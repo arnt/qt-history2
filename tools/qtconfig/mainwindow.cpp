@@ -479,7 +479,8 @@ void MainWindow::fileSave()
     }
 
 #if defined(Q_WS_X11)
-    QApplication::x11_apply_settings();
+    // ###### use _QT_SETTINGS_TIMESTAMP_
+//    QApplication::x11_apply_settings();
 #endif // Q_WS_X11
 
     setModified(false);
