@@ -29,9 +29,6 @@
 #include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>
-#ifndef QMAC_NO_QUARTZ
-# include <ApplicationServices/ApplicationServices.h>
-#endif
 #include <string.h>
 
 class paintevent_item;
@@ -49,13 +46,6 @@ public:
 	uint crgn_dirty : 1,  clip_serial : 15;
 	paintevent_item *paintevent;
     } cache;
-
-#ifndef QMAC_NO_QUARTZ
-    struct {
-	CGContextRef context;
-	int off_w, off_h;
-    } cg;
-#endif
 };
 
 /*****************************************************************************
@@ -85,6 +75,7 @@ class paintevent_item
 public:
     paintevent_item(QPaintDevice *d, QRegion r, QWidget *c) : clippedTo(c), dev(d), clipRegion(r) { }
     inline bool operator==(QPaintDevice *rhs) const { return rhs == dev; }
+    inline bool operator!=(QPaintDevice *rhs) const { return !(this->operator==(rhs)); }
     inline QWidget *clip() const { return clippedTo; }
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
@@ -115,7 +106,6 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
     }
     delete paintevents.pop();
 }
-
 
 void QPainter::initialize()
 {
@@ -153,10 +143,6 @@ void QPainter::init()
     d->cache.clip_serial = 0;
     d->brush_style_pix = 0;
     d->cache.crgn_dirty = d->locked = d->unclipped = FALSE;
-#ifndef QMAC_NO_QUARTZ
-    d->cg.context = 0;
-    d->cg.off_w = d->cg.off_h = 0;
-#endif
     d->cache.clippedreg = d->cache.paintreg = QRegion();
     d->offx = d->offy = 0;
 }
@@ -411,9 +397,6 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     d->cache.clip_serial = 0;
     d->cache.paintevent = 0;
     d->cache.crgn_dirty = FALSE;
-#ifndef QMAC_NO_QUARTZ
-    d->cg.off_w = d->cg.off_h = 0;
-#endif
     d->offx = d->offy = wx = wy = vx = vy = 0;                      // default view origins
 
     d->unclipped = unclipp;
@@ -457,9 +440,6 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 	ww = vw = pm->width();                  // default view size
 	wh = vh = pm->height();
     }
-#ifndef QMAC_NO_QUARTZ
-    d->cg.context = pdev->macCGContext(!d->unclipped);
-#endif
     initPaintDevice(TRUE); //force setting paint device, this does unclipped fu
 
     if(testf(ExtDev)) {               // external device
@@ -514,10 +494,6 @@ bool QPainter::end()				// end painting
     if(pdev->painters == 1 &&
        pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
 	HideWindow((WindowPtr)pdev->handle());
-#endif
-#ifndef QMAC_NO_QUARTZ
-    if(d->cg.context)
-	CGContextFlush(d->cg.context);
 #endif
     if(pfont) {
 	delete pfont;
@@ -854,11 +830,6 @@ void QPainter::moveTo(int x, int y)
 
   initPaintDevice();
   MoveTo(x+d->offx, y+d->offy);
-#ifndef QMAC_NO_QUARTZ
-  if(d->cg.context)
-      CGContextMoveToPoint(d->cg.context, d->cg.off_w - (x+d->offx),
-			   d->cg.off_h - (y+d->offy));
-#endif
 }
 
 void QPainter::lineTo(int x, int y)
@@ -880,16 +851,8 @@ void QPainter::lineTo(int x, int y)
   if(d->cache.paintreg.isEmpty())
       return;
 
-#ifndef QMAC_NO_QUARTZ
-  if(d->cg.context) {
-      CGContextAddLineToPoint(d->cg.context, d->cg.off_w - (d->offx+x),
-			      d->cg.off_h - (d->offy+y));
-  } else
-#endif
-  {
-      updatePen();
-      LineTo(x+d->offx,y+d->offy);
-  }
+  updatePen();
+  LineTo(x+d->offx,y+d->offy);
 }
 
 void QPainter::drawLine(int x1, int y1, int x2, int y2)
@@ -1754,16 +1717,12 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
     if(pdev->devType() == QInternal::Printer) {
 	if(force && pdev->handle()) {
 	    remade_clip = TRUE;
-#ifndef QMAC_NO_QUARTZ
-	    d->cg.off_w = pdev->metric(QPaintDeviceMetrics::PdmWidth);
-	    d->cg.off_h = pdev->metric(QPaintDeviceMetrics::PdmHeight);
-#endif
 	    d->cache.clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth),
 					  pdev->metric(QPaintDeviceMetrics::PdmHeight));
 	}
     } else if(pdev->devType() == QInternal::Widget) {                    // device is a widget
 	paintevent_item *pevent = paintevents.current();
-	if(pevent && !((*pevent) == pdev))
+	if(pevent && (*pevent) != pdev)
 	    pevent = 0;
 	QWidget *w = (QWidget*)pdev, *clip = w;
 	if(pevent && pevent->clip())
@@ -1771,7 +1730,7 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 	if(!(remade_clip = force)) {
 	    if(pevent != d->cache.paintevent)
 		remade_clip = TRUE;
-	    else if(!w->isVisible())
+	    else if(!clip->isVisible())
 		remade_clip = d->cache.clip_serial;
 	    else
 		remade_clip = (d->cache.clip_serial != clip->clippedSerial(!d->unclipped));
@@ -1781,20 +1740,15 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 	    QPoint wp(posInWindow(w));
 	    d->offx = wp.x();
 	    d->offy = wp.y();
-#ifndef QMAC_NO_QUARTZ
-	    QWidget *tlw = w->topLevelWidget();
-	    d->cg.off_w = tlw->width();
-	    d->cg.off_h = tlw->height();
-#endif
 
-	    if(!w->isVisible()) {
+	    if(!clip->isVisible()) {
 		d->cache.clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if not visible!!!
 		d->cache.clip_serial = 0;
 	    } else {
 		d->cache.clippedreg = clip->clippedRegion(!d->unclipped);
 		d->cache.clip_serial = clip->clippedSerial(!d->unclipped);
 	    }
-	    if(pevent)
+	    if(pevent) 
 		d->cache.clippedreg &= pevent->region();
 	    d->cache.paintevent = pevent;
 	}
@@ -1802,10 +1756,6 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 	QPixmap *pm = (QPixmap*)pdev;
 	if(force) {//clip out my bounding rect
 	    remade_clip = TRUE;
-#ifndef QMAC_NO_QUARTZ
-	    d->cg.off_w = pm->width();
-	    d->cg.off_h = pm->height();
-#endif
 	    d->cache.clippedreg = QRegion(0, 0, pm->width(), pm->height());
 	}
     }
@@ -1824,8 +1774,8 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 	    ptr = GetWindowPort((WindowPtr)pdev->handle());
 	else
 	    ptr = (GWorldPtr)pdev->handle();
-	if(d->cache.paintreg.handle()) {
-	    QDAddRegionToDirtyRegion(ptr, d->cache.paintreg.handle());
+	if(RgnHandle rgn = d->cache.paintreg.handle()) {
+	    QDAddRegionToDirtyRegion(ptr, rgn);
 	} else {
 	    QRect qr = d->cache.paintreg.boundingRect();
 	    Rect mr; SetRect(&mr, qr.x(), qr.y(), qr.right(), qr.bottom());

@@ -702,9 +702,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    bkind = kThemeSmallRadioButton;
 	if(pe == PE_ExclusiveIndicatorMask) {
 	    p->save();
-	    QRegion rgn;
-	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn.handle(TRUE));
-	    p->setClipRegion(rgn);
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn);
+	    p->setClipRegion(qt_mac_convert_mac_region(rgn));
+	    qt_mac_dispose_rgn(rgn);
 	    p->fillRect(r, color1);
 	    p->restore();
 	} else {
@@ -730,10 +731,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    bkind = kThemeSmallCheckBox;
 	if(pe == PE_IndicatorMask) {
 	    p->save();
-	    QRegion rgn;
-	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind,
-				 &info, rgn.handle(TRUE));
-	    p->setClipRegion(rgn);
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind, &info, rgn);
+	    p->setClipRegion(qt_mac_convert_mac_region(rgn));
+	    qt_mac_dispose_rgn(rgn);
 	    p->fillRect(r, color1);
 	    p->restore();
 	} else {
@@ -1337,18 +1338,23 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	QString dblbuf_key;
 
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
-	QRegion treg;
-	GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r),
-			     tds, &twm, twa, kWindowTitleBarRgn, treg.handle(TRUE));
-	QRect br = treg.boundingRect(), newr = r;
-	newr.moveBy(newr.x() - br.x(), newr.y() - br.y());
+	QRect newr = r;
+	{
+	    Rect br;
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), tds, &twm, twa, kWindowTitleBarRgn, rgn);
+	    GetRegionBounds(rgn, &br);
+	    newr.moveBy(newr.x() - br.left, newr.y() - br.top);
+	    qt_mac_dispose_rgn(rgn);
+	}
 	if(sub & SC_TitleBarLabel) {
 	    int iw = 0;
 	    if(tbar->icon()) {
-		GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr),
-				     tds, &twm, twa, kWindowTitleProxyIconRgn, treg.handle(TRUE));
-		if(!treg.isEmpty())
+		RgnHandle rgn = qt_mac_get_rgn();
+		GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleProxyIconRgn, rgn);
+		if(!EmptyRgn(rgn))
 		    iw = tbar->icon()->width();
+		qt_mac_dispose_rgn(rgn);
 	    }
 	    if(!tbar->visibleText().isEmpty()) {
 		QString pmkey;
@@ -1366,12 +1372,14 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 					 &twm, twa, NULL, 0);
 
 		    pixp.save();
-		    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr),
-					 tds, &twm, twa, kWindowTitleTextRgn, treg.handle(TRUE));
-		    pixp.setClipRegion(treg);
-		    QRect br = treg.boundingRect();
-		    int x = br.x(),
-			y = br.y() + ((tbar->height() / 2) - (p->fontMetrics().height() / 2));
+		    {
+			RgnHandle rgn = qt_mac_get_rgn();
+			GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleTextRgn, rgn);
+			pixp.setClipRegion(qt_mac_convert_mac_region(rgn));
+			qt_mac_dispose_rgn(rgn);
+		    }
+		    QRect br = pixp.clipRegion().boundingRect();
+		    int x = br.x(), y = br.y() + ((tbar->height() / 2) - (p->fontMetrics().height() / 2));
 		    if(br.width() <= (p->fontMetrics().width(tbar->caption())+iw*2))
 			x += iw;
 		    else
@@ -1626,10 +1634,13 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags(WStyle_SysMenu))
 	    twa |= kThemeWindowHasCloseBox;
-	QRegion treg;
-	GetThemeWindowRegion(macWinType, qt_glb_mac_rect(tbar->rect()), kThemeStateActive,
-			     &twm, twa, kWindowTitleBarRgn, treg.handle(TRUE));
-	ret = treg.boundingRect().height();
+
+	Rect r;
+	RgnHandle rgn = qt_mac_get_rgn();
+	GetThemeWindowRegion(macWinType, qt_glb_mac_rect(tbar->rect()), kThemeStateActive, &twm, twa, kWindowTitleBarRgn, rgn);
+	GetRegionBounds(rgn, &r);
+	ret = (r.bottom - r.top);
+	qt_mac_dispose_rgn(rgn);
 	break; }
     case PM_TabBarTabOverlap:
 	GetThemeMetric(kThemeMetricTabOverlap, &ret);
@@ -1729,15 +1740,16 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    return QRect(-666, -666, 10, pixelMetric(PM_TitleBarHeight)); //ugh
 	if(wrc != kWindowGlobalPortRgn) {
 	    //AppMan paints outside the given rectangle, so I have to adjust for the height properly!
-	    QRegion treg;
+	    Rect br;
 	    QRect r = w->rect();
-	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r),
-				 kThemeStateActive, &twm, twa, kWindowTitleBarRgn, treg.handle(TRUE));
-	    QRect br = treg.boundingRect();
-	    r.moveBy(r.x() - br.x(), r.y() - br.y());
-	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r),
-				 kThemeStateActive, &twm, twa, wrc, treg.handle(TRUE));
-	    return treg.boundingRect();
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa, kWindowTitleBarRgn, rgn);
+	    GetRegionBounds(rgn, &br);
+	    r.moveBy(r.x() - br.left, r.y() - br.top);
+	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa, wrc, rgn);
+	    QRect ret = QRect(br.left, br.top, (br.right - br.left), (br.bottom - br.top));
+	    qt_mac_dispose_rgn(rgn);
+	    return ret;
 	}
 	break; }
     case CC_ComboBox: {
@@ -1775,13 +1787,15 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	case SC_ScrollBarGroove: {
 	    Rect mrect;
 	    GetThemeTrackBounds(&ttdi, &mrect);
-	    return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top);
-	    break; }
+	    return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top); }
 	case SC_ScrollBarSlider: {
-	    QRegion rgn;
-	    GetThemeTrackThumbRgn(&ttdi, rgn.handle(TRUE));
-	    return rgn.boundingRect();
-	    break; }
+	    Rect r;
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeTrackThumbRgn(&ttdi, rgn);
+	    GetRegionBounds(rgn, &r);
+	    QRect ret = QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top));
+	    qt_mac_dispose_rgn(rgn);
+	    return ret; }
 	default:
 	    break;
 	}
@@ -1828,11 +1842,12 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    return QRect(mrect.left, mrect.top,
 			 mrect.right - mrect.left, mrect.bottom - mrect.top); }
 	case SC_SliderHandle: {
-	    QRegion rgn;
-	    GetThemeTrackThumbRgn(&ttdi, rgn.handle(TRUE));
-	    QRect ret = rgn.boundingRect();
-	    ret.setWidth(ret.width() + 1);
-	    ret.setHeight(ret.height() + 1);
+	    Rect r;
+	    RgnHandle rgn = qt_mac_get_rgn();
+	    GetThemeTrackThumbRgn(&ttdi, rgn);
+	    GetRegionBounds(rgn, &r);
+	    QRect ret = QRect(r.left, r.top, (r.right - r.left) + 1, (r.bottom - r.top) + 1);
+	    qt_mac_dispose_rgn(rgn);
 	    return ret; }
 	default:
 	    break;

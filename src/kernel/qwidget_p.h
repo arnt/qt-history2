@@ -105,9 +105,6 @@ struct QWExtra {
     QRegion dirty_area;
     uint clip_dirty : 1, clip_serial : 15;
     uint child_dirty : 1, child_serial : 15;
-#ifndef QMAC_NO_QUARTZ
-    uint ctx_children_clipped:1;
-#endif // QMAC_NO_QUARTZ
     uint has_dirty_area:1;
 #endif // Q_WS_MAC
 #if defined(Q_WS_X11)

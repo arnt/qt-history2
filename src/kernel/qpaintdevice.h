@@ -199,9 +199,6 @@ protected:
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
 #elif defined(Q_WS_MAC)
-#if !defined( QMAC_NO_QUARTZ )
-    CGContextRef ctx;
-#endif
     void * hd;
 #elif defined(Q_WS_QWS)
     Qt::HANDLE hd;
@@ -218,9 +215,6 @@ protected:
     friend class QPainter;
     friend class QPaintDeviceMetrics;
 #if defined(Q_WS_MAC)
-#ifndef QMAC_NO_QUARTZ
-    virtual CGContextRef macCGContext(bool clipped=TRUE) const;
-#endif
     friend Q_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
 						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool, bool );
 #else

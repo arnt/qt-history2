@@ -115,13 +115,13 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     QRect wrect(mp.x(), mp.y(), w->width(), w->height());
     qDebug("Qt: internal: %s %s %s (%s) [ %d %d %d %d ]", where, clean ? "clean" : "dirty",
 	   w->className(), w->name(), wrect.x(), wrect.y(), wrect.width(), wrect.height());
-    QMemArray<QRect> rs = r.rects();
+    QVector<QRect> rs = r.rects();
     int offx = 0, offy = 0;
     if(translate) {
 	offx = mp.x();
 	offy = mp.y();
     }
-    for(uint i = 0; i < rs.count(); i++) {
+    for(int i = 0; i < rs.count(); i++) {
 	QRect srect(rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 	// * == Completely inside the widget, - == intersects, ? == completely unrelated
 	qDebug("Qt: internal: %c(%c) %d %d %d %d",
@@ -343,7 +343,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    {
 			RgnHandle rgn = qt_mac_get_rgn();
 			GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
-			CopyRgn(rgn, titlebar.handle(TRUE));
+			titlebar = qt_mac_convert_mac_region(rgn);
 			qt_mac_dispose_rgn(rgn);
 		    }
 		    QRegion rpm = extra->mask;
@@ -394,8 +394,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    if(widget) {
 		QWExtra *extra = widget->d->extraData();
 		if(extra && !extra->mask.isEmpty()) {
-		    QRegion rin;
-		    CopyRgn(rgn, rin.handle(TRUE));
+		    QRegion rin = qt_mac_convert_mac_region(rgn);
 		    QPoint g(widget->x(), widget->y());
 		    int offx = 0, offy = 0;
 		    QRegion rpm = extra->mask;
@@ -553,8 +552,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     if(!widget)
 	widget = QWidget::find((WId)window);
     if(widget) {
-	QRegion reg;
-	CopyRgn(rgn, reg.handle(TRUE));
+	QRegion reg = qt_mac_convert_mac_region(rgn);
 	{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
@@ -938,11 +936,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	DisposeWindow((WindowPtr)destroyw);
     }
     qt_mac_unicode_init(this);
-#ifndef QMAC_NO_QUARTZ
-    if(ctx)
-	CGContextRelease(ctx);
-    ctx = NULL;
-#endif
 }
 
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
@@ -973,11 +966,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             qt_leave_modal(this);
         else if(testWFlags(WType_Popup))
             qApp->closePopup(this);
-#ifndef QMAC_NO_QUARTZ
-	if(ctx)
-	    CGContextRelease(ctx);
-	ctx = NULL;
-#endif
 	if(destroyWindow && isTopLevel() && hd && own_id) {
 	    mac_window_count--;
 	    if(window_event) {
@@ -1683,16 +1671,9 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(isTopLevel() && winid && own_id) {
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
-	if(isResize && isMove && visible) {
-	    Rect r;
-	    SetRect(&r, x, y, x + w, y + h);
-	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
-	} else {
-	    if(isResize && visible)
-		SizeWindow((WindowPtr)hd, w, h, 1);
-	    if(isMove)
-		MoveWindow((WindowPtr)hd, x, y, 0);
-	}
+	Rect r;
+	SetRect(&r, x, y, x + w, y + h);
+	SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
     }
 
     if(isMove || isResize) {
@@ -1714,8 +1695,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 		    RgnHandle r = qt_mac_get_rgn();
 		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 		    if(!EmptyRgn(r)) {
-			QRegion dirty; //the dirty region
-			CopyRgn(r, dirty.handle(TRUE));
+			QRegion dirty = qt_mac_convert_mac_region(r); //the dirty region
 			dirty.translate(-topLevelWidget()->geometry().x(),
 					-topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
@@ -2119,10 +2099,15 @@ void QWidget::propagateUpdates(bool update_rgn)
     if(update_rgn) {
 	widg = topLevelWidget();
 	QMacSavedPortInfo savedInfo(this);
-	GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
-	if(rgn.isEmpty())
+	RgnHandle mac_rgn = qt_mac_get_rgn();
+	GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, mac_rgn);
+	if(EmptyRgn(mac_rgn)) {
+	    qt_mac_dispose_rgn(mac_rgn);
 	    return;
+	}
+	rgn = qt_mac_convert_mac_region(mac_rgn);
 	rgn.translate(-widg->geometry().x(), -widg->geometry().y());
+	qt_mac_dispose_rgn(mac_rgn);
 	BeginUpdate((WindowPtr)hd);
     } else {
 	rgn = QRegion(rect());
@@ -2240,31 +2225,6 @@ bool QWidget::isClippedRegionDirty()
 	return TRUE;
     return FALSE;
 }
-
-#ifndef QMAC_NO_QUARTZ
-/*!
-    \internal
-*/
-CGContextRef QWidget::macCGContext(bool do_children) const
-{
-    QWidget *that = (QWidget*)this;
-    if(!extra)
-	that->d->createExtra();
-    bool dirty = !ctx ||
-		 d->extraData()->clip_dirty || (do_children && d->extraData()->child_dirty) ||
-		 (do_children && !d->extraData()->ctx_children_clipped);
-    if(!ctx)
-	CreateCGContextForPort(GetWindowPort((WindowPtr)hd), &that->ctx);
-    if(dirty) {
-	Rect r;
-	ValidWindowRect((WindowPtr)hd, &r);
-	d->extraData()->ctx_children_clipped = do_children;
-	QRegion reg = that->clippedRegion(do_children);
-	ClipCGContextToRegion(ctx, &r, reg.handle(TRUE));
-    }
-    return ctx;
-}
-#endif
 
 /*!
     \internal
@@ -2424,7 +2384,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
 	    if(!EmptyRgn(r)) {
-		CopyRgn(r, contents.handle(TRUE));
+		contents = qt_mac_convert_mac_region(r);
 		contents.translate(-geometry().x(), -geometry().y());
 	    }
 	    qt_mac_dispose_rgn(r);

@@ -156,7 +156,7 @@ kernel {
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
 			  $$KERNEL_CPP/qpainter_mac.cpp \
-			  $$KERNEL_CPP/qregion_mac.cpp \
+			  $$KERNEL_CPP/qregion_unix.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qeventloop_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp \

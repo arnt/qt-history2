@@ -739,18 +739,11 @@ class QDataStream;
 #  ifndef QMAC_QMENUBAR_NO_MERGE
 #    define QMAC_QMENUBAR_NO_MERGE
 #  endif
-//Mac9 does not use quartz
-#  ifndef QMAC_NO_QUARTZ
-#    define QMAC_NO_QUARTZ
-#  endif
 #  ifndef QMAC_QMENUBAR_NO_EVENT
 #    define QMAC_QMENUBAR_NO_EVENT
 #  endif
 #endif
-#if defined(Q_WS_MACX) //for no nobody uses quartz, just putting in first level hooks
-#  ifndef QMAC_NO_QUARTZ
-#    define QMAC_NO_QUARTZ
-#  endif
+#if defined(Q_WS_MACX)
 #  ifndef QMAC_QMENUBAR_NO_EVENT
 #    define QMAC_QMENUBAR_NO_EVENT
 #  endif

@@ -407,9 +407,6 @@ public:
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
     uint clippedSerial(bool do_children=TRUE);
-#ifndef QMAC_NO_QUARTZ
-    CGContextRef macCGContext(bool clipped=TRUE) const;
-#endif
 #endif
 
     enum WidgetAttribute {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QRegion class for X11 and FB.
+** Implementation of QRegion class for X11/Mac/QWS.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -17,10 +17,6 @@
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
-#ifndef Q_WS_QWS
-#include "qt_x11_p.h"
-#endif
-
 #include <stdlib.h>
 
 /*
@@ -52,6 +48,15 @@ struct QRegionPrivate {
         return *this;
     }
 };
+
+#if defined(Q_WS_X11)
+# include "qregion_x11.cpp"
+#elif defined(Q_WS_MAC)
+# include "qregion_mac.cpp"
+#elif defined(Q_WS_QWS)
+static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
+QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
+#endif
 
 static bool isEmpty(QRegionPrivate *preg)
 {
@@ -2153,12 +2158,6 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
     return region;
 }
 
-#ifndef Q_WS_QWS
-QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
-#else
-static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
-QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), &qrp};
-#endif
 /*!
     Constructs a null region.
 
@@ -2189,16 +2188,18 @@ QRegion::QRegion(const QRect &r, RegionType t)
     } else {
         d = new QRegionData;
         d->ref = 1;
-#ifndef Q_WS_QWS
+#if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
+#elif defined(Q_WS_MAC)
+	d->rgn = 0;
 #endif
         if (t == Rectangle) {
-            d->region = new QRegionPrivate(r);
+            d->qt_rgn = new QRegionPrivate(r);
         } else if (t == Ellipse) {
             QPointArray a;
             a.makeEllipse(r.x(), r.y(), r.width(), r.height());
-            d->region = PolygonRegion(a.constData(), a.size(), EvenOddRule);
+            d->qt_rgn = PolygonRegion(a.constData(), a.size(), EvenOddRule);
         }
     }
 }
@@ -2219,11 +2220,13 @@ QRegion::QRegion(const QPointArray &a, bool winding)
     if (!a.isEmpty()) {
         d =  new QRegionData;
         d->ref = 1;
-#ifndef Q_WS_QWS
+#if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
+#elif defined(Q_WS_MAC)
+        d->rgn = 0;
 #endif
-        d->region = PolygonRegion(a.constData(), a.size(), winding ? WindingRule : EvenOddRule);
+        d->qt_rgn = PolygonRegion(a.constData(), a.size(), winding ? WindingRule : EvenOddRule);
     } else {
         d = &shared_empty;
         ++d->ref;
@@ -2260,22 +2263,27 @@ QRegion::QRegion(const QBitmap &bm)
     } else {
         d = new QRegionData;
         d->ref = 1;
-#ifndef Q_WS_QWS
+#if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
+#elif defined(Q_WS_MAC)
+        d->rgn = 0;
 #endif
-        d->region = qt_bitmapToRegion(bm);
+        d->qt_rgn = qt_bitmapToRegion(bm);
     }
 }
 
 void QRegion::cleanUp(QRegion::QRegionData *x)
 {
-    delete x->region;
-#ifndef Q_WS_QWS
+    delete x->qt_rgn;
+#if defined(Q_WS_X11)
     if (x->rgn)
         XDestroyRegion(x->rgn);
     if (x->xrectangles)
         free(x->xrectangles);
+#elif defined(Q_WS_MAC)
+    if (x->rgn)
+	qt_mac_dispose_rgn(x->rgn);
 #endif
     delete x;
 }
@@ -2317,14 +2325,16 @@ QRegion QRegion::copy() const
     QRegion r;
     QRegionData *x = new QRegionData;
     x->ref = 1;
-#ifndef Q_WS_QWS
+#if defined(Q_WS_X11)
     x->rgn = 0;
     x->xrectangles = 0;
+#elif defined(Q_WS_MAC)
+    x->rgn = 0;
 #endif
-    if (d->region)
-        x->region = new QRegionPrivate(*d->region);
+    if (d->qt_rgn)
+        x->qt_rgn = new QRegionPrivate(*d->qt_rgn);
     else
-        x->region = new QRegionPrivate;
+        x->qt_rgn = new QRegionPrivate;
     x = qAtomicSetPtr(&r.d, x);
     if (!--x->ref)
         cleanUp(x);
@@ -2368,7 +2378,7 @@ QRegion QRegion::copy() const
 
 bool QRegion::isEmpty() const
 {
-    return d == &shared_empty || d->region->numRects == 0;
+    return d == &shared_empty || d->qt_rgn->numRects == 0;
 }
 
 
@@ -2379,7 +2389,7 @@ bool QRegion::isEmpty() const
 
 bool QRegion::contains(const QPoint &p) const
 {
-    return PointInRegion(d->region, p.x(), p.y());
+    return PointInRegion(d->qt_rgn, p.x(), p.y());
 }
 
 /*!
@@ -2391,7 +2401,7 @@ bool QRegion::contains(const QPoint &p) const
 
 bool QRegion::contains(const QRect &r) const
 {
-    return RectInRegion(d->region, r.left(), r.top(), r.width(), r.height()) != RectangleOut;
+    return RectInRegion(d->qt_rgn, r.left(), r.top(), r.width(), r.height()) != RectangleOut;
 }
 
 
@@ -2412,11 +2422,16 @@ bool QRegion::contains(const QRect &r) const
 void QRegion::translate(int dx, int dy)
 {
     detach();
-    OffsetRegion(*d->region, dx, dy);
-#ifndef Q_WS_QWS
+    OffsetRegion(*d->qt_rgn, dx, dy);
+#if defined(Q_WS_X11)
     if (d->xrectangles) {
         free(d->xrectangles);
         d->xrectangles = 0;
+    }
+#elif defined(Q_WS_MAC)
+    if(d->rgn) {
+	qt_mac_dispose_rgn(d->rgn);
+	d->rgn = 0;
     }
 #endif
 }
@@ -2434,7 +2449,7 @@ QRegion QRegion::unite(const QRegion &r) const
 {
     QRegion result;
     result.detach();
-    UnionRegion(d->region, r.d->region, *result.d->region);
+    UnionRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
     return result;
 }
 
@@ -2450,7 +2465,7 @@ QRegion QRegion::intersect(const QRegion &r) const
 {
     QRegion result;
     result.detach();
-    IntersectRegion(d->region, r.d->region, *result.d->region);
+    IntersectRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
     return result;
 }
 
@@ -2467,7 +2482,7 @@ QRegion QRegion::subtract(const QRegion &r) const
 {
     QRegion result;
     result.detach();
-    SubtractRegion(d->region, r.d->region, *result.d->region);
+    SubtractRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
     return result;
 }
 
@@ -2484,7 +2499,7 @@ QRegion QRegion::eor(const QRegion &r) const
 {
     QRegion result;
     result.detach();
-    XorRegion(d->region, r.d->region, *result.d->region);
+    XorRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
     return result;
 }
 
@@ -2497,7 +2512,7 @@ QRect QRegion::boundingRect() const
 {
     if (isEmpty())
         return QRect();
-    return d->region->extents;
+    return d->qt_rgn->extents;
 }
 
 
@@ -2512,9 +2527,9 @@ QVector<QRect> QRegion::rects() const
     //### QVector has the concept of an allocated size which
     // is different from the actual size. We should use that
     // instead of storing the size separately.
-    if (d->region) {
-        d->region->rects.resize( d->region->numRects );
-        return d->region->rects;
+    if (d->qt_rgn) {
+        d->qt_rgn->rects.resize( d->qt_rgn->numRects );
+        return d->qt_rgn->rects;
     } else {
         return QVector<QRect>();
     }
@@ -2532,7 +2547,7 @@ QVector<QRect> QRegion::rects() const
                 and X as the minor sort key.
    </ul>
   \internal
-  Only some platforms have that restriction (QWS and X11).
+  Only some platforms have that restriction (QWS and X11 and Mac OS X).
 */
 void QRegion::setRects(const QRect *rects, int num)
 {
@@ -2541,10 +2556,10 @@ void QRegion::setRects(const QRect *rects, int num)
     if (!rects || (num == 1 && rects->isEmpty()))
         num = 0;
 
-    d->region->rects.resize(num);
-    d->region->numRects = num;
+    d->qt_rgn->rects.resize(num);
+    d->qt_rgn->numRects = num;
     if (num == 0) {
-        d->region->extents = QRect();
+        d->qt_rgn->extents = QRect();
     } else {
         int left = INT_MAX,
             right = INT_MIN,
@@ -2552,13 +2567,13 @@ void QRegion::setRects(const QRect *rects, int num)
             bottom = INT_MIN;
         for (int i = 0; i < num; ++i) {
             const QRect &rect = rects[i];
-            d->region->rects[i] = rect;
+            d->qt_rgn->rects[i] = rect;
             left = QMIN(rect.left(), left);
             right = QMAX(rect.right(), right);
             top = QMIN(rect.top(), top);
             bottom = QMAX(rect.bottom(), bottom);
         }
-        d->region->extents = QRect(QPoint(left, top), QPoint(right, bottom));
+        d->qt_rgn->extents = QRect(QPoint(left, top), QPoint(right, bottom));
     }
 }
 
@@ -2569,14 +2584,13 @@ void QRegion::setRects(const QRect *rects, int num)
 
 bool QRegion::operator==(const QRegion &r) const
 {
-    if (!d->region || !r.d->region)
-        return r.d->region == d->region; //###yuck
+    if (!d->qt_rgn || !r.d->qt_rgn)
+        return r.d->qt_rgn == d->qt_rgn; //###yuck
 
-    if (d == r.d) {
+    if (d == r.d)
         return true;
-    } else {
-        return EqualRegion(d->region, r.d->region);
-    }
+    else
+        return EqualRegion(d->qt_rgn, r.d->qt_rgn);
 }
 
 /*!
@@ -2586,56 +2600,3 @@ bool QRegion::operator==(const QRegion &r) const
     returns false.
 */
 
-#ifndef Q_WS_QWS
-/*
-  This is how X represents regions internally.
-*/
-
-struct BOX {
-    short x1, x2, y1, y2;
-};
-
-struct _XRegion {
-    long size;
-    long numRects;
-    BOX *rects;
-    BOX  extents;
-};
-
-
-void QRegion::updateX11Region() const
-{
-    d->rgn = XCreateRegion();
-
-    for(int i = 0; i < d->region->numRects; ++i) {
-        XRectangle r;
-        const QRect &rect = d->region->rects[i];
-        r.x = QMAX(SHRT_MIN, rect.x());
-        r.y = QMAX(SHRT_MIN, rect.y());
-        r.width = QMIN(USHRT_MAX, rect.width());
-        r.height = QMIN(USHRT_MAX, rect.height());
-        XUnionRectWithRegion(&r, d->rgn, d->rgn);
-    }
-}
-
-void *QRegion::clipRectangles(int &num) const
-{
-    if (!d->xrectangles && !isNull()) {
-        XRectangle *r = static_cast<XRectangle*>(malloc(d->region->numRects * sizeof(XRectangle)));
-        d->xrectangles = r;
-        for(int i = 0; i < d->region->numRects; ++i) {
-            const QRect &rect = d->region->rects[i];
-            r->x = QMAX(SHRT_MIN, rect.x());
-            r->y = QMAX(SHRT_MIN, rect.y());
-            r->width = QMIN(USHRT_MAX, rect.width());
-            r->height = QMIN(USHRT_MAX, rect.height());
-            ++r;
-        }
-    }
-    if (isNull())
-        num = 0;
-    else
-        num = d->region->numRects;
-    return d->xrectangles;
-}
-#endif

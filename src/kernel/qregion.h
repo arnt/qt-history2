@@ -21,7 +21,7 @@
 #include "qvector.h"
 #endif // QT_H
 
-#if defined(Q_WS_QWS) || defined(Q_WS_X11)
+#if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
 struct QRegionPrivate;
 #endif
 
@@ -78,10 +78,11 @@ public:
 #elif defined(Q_WS_X11)
     inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
 #elif defined(Q_WS_MAC)
-    RgnHandle handle(bool require_rgn=FALSE) const;
+    inline RgnHandle handle() const { return handle(FALSE); }
+    RgnHandle handle(bool require_rgn) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
-    inline void *handle() const { return d->region; }
+    inline void *handle() const { return d->qt_rgn; }
 #endif
 
 #ifndef QT_NO_DATASTREAM
@@ -93,11 +94,12 @@ private:
     void detach();
 #if defined(Q_WS_WIN)
     QRegion winCombine(const QRegion &r, int num) const;
-#endif
-#if defined(Q_WS_X11)
+#elif defined(Q_WS_X11)
     void updateX11Region() const;
     void *clipRectangles(int &num) const;
     friend void *qt_getClipRects(const QRegion &r, int &num);
+#elif defined(Q_WS_MAC)
+    friend QRegion qt_mac_convert_mac_region(RgnHandle rgn);
 #endif
     void exec(const QByteArray &ba, int ver = 0);
     struct QRegionData {
@@ -108,19 +110,12 @@ private:
 	Region rgn;
 	void *xrectangles;
 #elif defined(Q_WS_MAC)
-	QRect *rect;
-	RgnHandle rgn;
+	mutable RgnHandle rgn;
 #endif
-#if defined(Q_WS_QWS) || defined(Q_WS_X11)
-	QRegionPrivate *region;
+#if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
+	QRegionPrivate *qt_rgn;
 #endif
     };
-#if defined(Q_WS_MAC)
-    friend struct qt_mac_rgn_data_cache;
-    friend QRegionData *qt_mac_get_rgn_data();
-    friend void qt_mac_free_rgn_data(QRegionData *);
-    void rectifyRegion();
-#endif
     struct QRegionData *d;
     static struct QRegionData shared_empty;
     static void cleanUp(QRegionData *x);

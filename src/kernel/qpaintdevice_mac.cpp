@@ -32,9 +32,6 @@ QPaintDevice::QPaintDevice(uint devflags)
     devFlags = devflags;
     painters = 0;
     hd=0;
-#ifndef QMAC_NO_QUARTZ
-    ctx = 0;
-#endif
 }
 
 QPaintDevice::~QPaintDevice()
@@ -372,17 +369,3 @@ int QPaintDevice::resolution() const
     return metric(QPaintDeviceMetrics::PdmDpiY);
 }
 
-#ifndef QMAC_NO_QUARTZ
-/*!
-    \internal
-*/
-CGContextRef QPaintDevice::macCGContext(bool) const
-{
-#if 0
-    QPaintDevice *that = (QPaintDevice *)this;
-    if(!that->ctx)
-	CreateCGContextForPort((GWorldPtr)hd, &that->ctx);
-#endif
-    return ctx;
-}
-#endif
