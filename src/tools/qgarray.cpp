@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#23 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#23 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -78,8 +78,6 @@ QGArray::QGArray()
 
   This constructor does not initialize any array data so subclasses
   must do it. The intention is to make the code more efficient.
-
-  \sa QArray
  ----------------------------------------------------------------------------*/
 
 QGArray::QGArray( int, int )
@@ -88,7 +86,7 @@ QGArray::QGArray( int, int )
 
 /*----------------------------------------------------------------------------
   \internal
-  Creates an array with size \e size bytes.
+  Constructs an array with room for \e size bytes.
  ----------------------------------------------------------------------------*/
 
 QGArray::QGArray( int size )
@@ -110,10 +108,10 @@ QGArray::QGArray( int size )
 
 /*----------------------------------------------------------------------------
   \internal
-  Creates a shallow copy of \e a.
+  Constructs a shallow copy of \e a.
  ----------------------------------------------------------------------------*/
 
-QGArray::QGArray( const QGArray &a )		// shallow copy
+QGArray::QGArray( const QGArray &a )
 {
     shd = a.shd;
     shd->ref();
@@ -121,8 +119,8 @@ QGArray::QGArray( const QGArray &a )		// shallow copy
 
 /*----------------------------------------------------------------------------
   \internal
-  Deletes the array, and the data too unless there are other QGArrays
-  around that reference the same data.
+  Dereferences the array data and deletes it if this was the last
+  reference.
  ----------------------------------------------------------------------------*/
 
 QGArray::~QGArray()
@@ -134,12 +132,44 @@ QGArray::~QGArray()
     }
 }
 
+
 /*----------------------------------------------------------------------------
+  \fn QGArray &QGArray::operator=( const QGArray &a )
   \internal
-  Returns TRUE if this array and \e a are equal, otherwise FALSE.
-  The comparison is bitwise, of course.
+  Assigns a shallow copy of \e a to this array and returns a reference to
+  this array.  Equivalent to assign().
  ----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------
+  \fn void QGArray::detach()
+  \internal
+  Detaches this array from shared array data.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn char *QGArray::data() const
+  \internal
+  Returns a pointer to the actual array data.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn uint QGArray::nrefs() const
+  \internal
+  Returns the reference count.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn uint QGArray::size() const
+  \internal
+  Returns the size of the array, in bytes.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \internal
+  Returns TRUE if this array is equal to \e a, otherwise FALSE.
+  The comparison is bitwise, of course.
+ ----------------------------------------------------------------------------*/
 
 bool QGArray::isEqual( const QGArray &a ) const
 {
@@ -149,6 +179,7 @@ bool QGArray::isEqual( const QGArray &a ) const
 	return TRUE;
     return (size() ? memcmp( data(), a.data(), size() ) : 0) == 0;
 }
+
 
 /*----------------------------------------------------------------------------
   \internal
@@ -184,21 +215,19 @@ bool QGArray::resize( uint newsize )
 
 /*----------------------------------------------------------------------------
   \internal
-  Resizes the array and fills it with repeated occurences of \e d,
-  which is \e sz bytes long.
+  Fills the array with the repeated occurrences of \e d, which is
+  \e sz bytes long.
+  If \e len is specified as different from -1, then the array will be
+  resized to \e len*sz before it is filled.
 
-  If \e len is zero or positive, the array is resized to \e len*sz
-  bytes.  If \e len is negative, the array is resized to the greatest
-  multiple of sz which is not greater than \e len.
-
-  Returns TRUE if the operation succeeds, FALSE if it runs out of
-  memory.
+  Returns TRUE if successful, or FALSE if the memory cannot be allocated
+  (only when \e len != -1).
 
   \sa resize()
  ----------------------------------------------------------------------------*/
 
 bool QGArray::fill( const char *d, int len, uint sz )
-{						// resize and fill array
+{
     if ( len < 0 )
 	len = shd->len/sz;			// default: use array length
     else if ( !resize( len*sz ) )
@@ -229,8 +258,9 @@ bool QGArray::fill( const char *d, int len, uint sz )
 
 /*----------------------------------------------------------------------------
   \internal
-  Makes this array into a shallow copy of \e a.
-  \sa duplicate(), operator=()
+  Shallow copy. Dereference the current array and references the data
+  contained in \e a instead. Returns a reference to this array.
+  \sa operator=()
  ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::assign( const QGArray &a )
@@ -247,13 +277,15 @@ QGArray &QGArray::assign( const QGArray &a )
 
 /*----------------------------------------------------------------------------
   \internal
-  Makes this array into a shallow copy of the \e len bytes at
-  address \e d.
-  \sa duplicate(), operator=()
+  Shallow copy. Dereference the current array and references the
+  array data \e d, which contains \e len bytes.
+  Returns a reference to this array.
+
+  Do not delete \e d later, because QGArray takes care of that.
  ----------------------------------------------------------------------------*/
 
 QGArray &QGArray::assign( const char *d, uint len )
-{						// shallow copy
+{
     if ( shd->count > 1 ) {			// disconnect this
 	shd->count--;
 	shd = newData();
@@ -270,7 +302,8 @@ QGArray &QGArray::assign( const char *d, uint len )
 
 /*----------------------------------------------------------------------------
   \internal
-  Makes this array into a deep copy of \e a.
+  Deep copy. Dereference the current array and obtains a copy of the data
+  contained in \e a instead. Returns a reference to this array.
   \sa assign(), operator=()
  ----------------------------------------------------------------------------*/
 
@@ -317,9 +350,8 @@ QGArray &QGArray::duplicate( const QGArray &a )
 
 /*----------------------------------------------------------------------------
   \internal
-  Makes this array into a deep copy of the \e len bytes at
-  address \e d.
-
+  Deep copy. Dereference the current array and obtains a copy of the
+  array data \e d instead.  Returns a reference to this array.
   \sa assign(), operator=()
  ----------------------------------------------------------------------------*/
 
@@ -382,13 +414,26 @@ void QGArray::store( const char *d, uint len )
 }
 
 
-/*
+/*----------------------------------------------------------------------------
+  \fn array_data *sharedBlock() const
+  \internal
+  Returns a pointer to the shared array block.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void sharedBlock( array_data *p ) const
+  \internal
+  Sets the shared array block to \e p.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
   \internal
   Sets raw data and returns a reference to the array.
 
-  Deletes the current data and sets the new array data to \e d and
-  the new array length to \e len.  Do not attempt to resize or
-  re-assign the array data when raw data has been set.
+  Dereferences the current array and sets the new array data to \e d and
+  the new array size to \e len.  Do not attempt to resize or re-assign the
+  array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
   Setting raw data is useful because it set QArray data without allocating
@@ -430,7 +475,7 @@ QGArray &QGArray::setRawData( const char *d, uint len )
     return *this;
 }
 
-/*
+/*----------------------------------------------------------------------------
   \internal
   Resets raw data.
 
@@ -453,15 +498,12 @@ void QGArray::resetRawData( const char *d, uint len )
 
 /*----------------------------------------------------------------------------
   \internal
-  Searches for and returns the address of the first occurence of the
-  \e sz bytes at \e d at or after position \e index of this array.
+  Finds the first occurrence of \e d in the array from position \e index,
+  where \e sz is the size of the \e d element.
 
   Note that \e index is given in units of \e sz, not bytes.
 
-  This function only compares whole cells, not bytes.  It is not like
-  strstr.  If sz is 4, the raw contents of the array is "bananana",
-  and you search for "nana", you will get a match at position 1, which
-  translates to byte 4.
+  This function only compares whole cells, not bytes.
  ----------------------------------------------------------------------------*/
 
 int QGArray::find( const char *d, uint index, uint sz ) const
@@ -475,102 +517,108 @@ int QGArray::find( const char *d, uint index, uint sz ) const
     }
     register uint i;
     uint ii;
-    if ( sz == 1 ) {				// 8 bit elements
-	register char *x = data();
-	char v = *d;
-	for ( i=index; i<shd->len; i++ ) {
-	    if ( *x++ == v )
-		break;
-	}
-	ii = i;
-    }
-    else
-    if ( sz == 4 ) {				// 32 bit elements
-	register INT32 *x = (INT32*)(data() + index);
-	INT32 v = *((INT32*)d);
-	for ( i=index; i<shd->len; i+=4 ) {
-	    if ( *x++ == v )
-		break;
-	}
-	ii = i/4;
-    }
-    else
-    if ( sz == 2 ) {				// 16 bit elements
-	register INT16 *x = (INT16*)(data() + index);
-	INT16 v = *((INT16*)d);
-	for ( i=index; i<shd->len; i+=2 ) {
-	    if ( *x++ == v )
-		break;
-	}
-	ii = i/2;
-    }
-    else {					// any size elements
-	for ( i=index; i<shd->len; i+=sz ) {
-	    if ( memcmp( d, &shd->data[i], sz ) == 0 )
-		break;
-	}
-	ii = i/sz;
+    switch ( sz ) {
+	case 1: {				// 8 bit elements
+	    register char *x = data();
+	    char v = *d;
+	    for ( i=index; i<shd->len; i++ ) {
+		if ( *x++ == v )
+		    break;
+	    }
+	    ii = i;
+	    }
+	    break;
+	case 2: {				// 16 bit elements
+	    register INT16 *x = (INT16*)(data() + index);
+	    INT16 v = *((INT16*)d);
+	    for ( i=index; i<shd->len; i+=2 ) {
+		if ( *x++ == v )
+		    break;
+	    }
+	    ii = i/2;
+	    }
+	    break;
+	case 4: {				// 32 bit elements
+	    register INT32 *x = (INT32*)(data() + index);
+	    INT32 v = *((INT32*)d);
+	    for ( i=index; i<shd->len; i+=4 ) {
+		if ( *x++ == v )
+		    break;
+	    }
+	    ii = i/4;
+            }
+	    break;
+	default: {				// any size elements
+	    for ( i=index; i<shd->len; i+=sz ) {
+		if ( memcmp( d, &shd->data[i], sz ) == 0 )
+		    break;
+	    }
+	    ii = i/sz;
+	    }
+	    break;
     }
     return i<shd->len ? (int)ii : -1;
 }
 
 /*----------------------------------------------------------------------------
   \internal
-  Returns the number of occurences of the \e sz bytes at \e d in
-  this array.
+  Returns the number of occurrences of \e d in the array, where \e sz is
+  the size of the \e d element.
 
-  If you have an 144-byte array containing only null bytes and ask for
-  the number of occurences of the 32-bit word 0 (ie. \e d points to 4
-  null bytes and \e sz is 4) you will get 36.
+  This function only compares whole cells, not bytes.
  ----------------------------------------------------------------------------*/
 
 int QGArray::contains( const char *d, uint sz ) const
 {
     register uint i = shd->len;
     int count = 0;
-    if ( sz == 1 ) {				// 8 bit elements
-	register char *x = data();
-	char v = *d;
-	while ( i-- ) {
-	    if ( *x++ == v )
-		count++;
-	}
+    switch ( sz ) {
+	case 1: {				// 8 bit elements
+	    register char *x = data();
+	    char v = *d;
+	    while ( i-- ) {
+		if ( *x++ == v )
+		    count++;
+	    }
+	    }
+	    break;
+	case 2: {				// 16 bit elements
+	    register INT16 *x = (INT16*)data();
+	    INT16 v = *((INT16*)d);
+	    i /= 2;
+	    while ( i-- ) {
+		if ( *x++ == v )
+		    count++;
+	    }
+	    }
+	    break;
+	case 4: {				// 32 bit elements
+	    register INT32 *x = (INT32*)data();
+	    INT32 v = *((INT32*)d);
+	    i /= 4;
+	    while ( i-- ) {
+		if ( *x++ == v )
+		    count++;
+	    }
+	    }
+	    break;
+	default: {				// any size elements
+	    for ( i=0; i<shd->len; i+=sz ) {
+		if ( memcmp(d, &shd->data[i], sz) == 0 )
+		    count++;
+	    }
+	    }
+	    break;
     }
-    else
-    if ( sz == 4 ) {				// 32 bit elements
-	register INT32 *x = (INT32*)data();
-	INT32 v = *((INT32*)d);
-	i /= 4;
-	while ( i-- ) {
-	    if ( *x++ == v )
-		count++;
-	}
-    }
-    else
-    if ( sz == 2 ) {				// 16 bit elements
-	register INT16 *x = (INT16*)data();
-	INT16 v = *((INT16*)d);
-	i /= 2;
-	while ( i-- ) {
-	    if ( *x++ == v )
-		count++;
-	}
-    }
-    else {					// any size elements
-	for ( i=0; i<shd->len; i+=sz ) {
-	    if ( memcmp( d, &shd->data[i], sz ) == 0 )
-		count++;
-	}
-    }
-    return count;				// number of identical objects
+    return count;
 }
 
 /*----------------------------------------------------------------------------
   \internal
-  Returns a pointer to the byte at offset \e index of this array.
+  Returns a pointer to the byte at offset \e index in the array.
  ----------------------------------------------------------------------------*/
 
-char *QGArray::at( uint index ) const		// checked indexing
+char *QGArray::at( uint index ) const
 {
     if ( index >= shd->len ) {
 #if defined(CHECK_RANGE)
@@ -594,7 +642,7 @@ char *QGArray::at( uint index ) const		// checked indexing
  ----------------------------------------------------------------------------*/
 
 bool QGArray::setExpand( uint index, const char *d, uint sz )
-{						// set and expand if necessary
+{
     index *= sz;
     if ( index >= shd->len ) {
 	if ( !resize( index+sz ) )		// no memory
@@ -603,3 +651,16 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
     memcpy( data() + index, d, sz );
     return TRUE;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn array_data *QGArray::newData()
+  \internal
+  Returns a new shared array block.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void QGArray::deleteData( array_data *p )
+  \internal
+  Deletes the shared array block.
+ ----------------------------------------------------------------------------*/
