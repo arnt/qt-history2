@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#4 $
 **
 ** Implementation of QMessageBox class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#4 $";
 #endif
 
 
@@ -164,7 +164,8 @@ int QMessageBox::message( const char *caption,
     CHECK_PTR( mb );
     mb->setCaption( caption );
     mb->setText( text );
-    mb->setButtonText( buttonText );
+    if ( buttonText )
+	mb->setButtonText( buttonText );
     int retcode = mb->exec();
     delete mb;
     return retcode;
