@@ -143,7 +143,7 @@ search_keys::search_keys(QString path, QString key, const char *where)
     while(qi.startsWith("/"))
 	qi = qi.mid(1);
     if(qi.isEmpty()) {
-	int slsh = qk.find('/');
+	int slsh = qk.indexOf('/');
 	if(slsh != -1) {
 	    qi += qk.left(slsh);
 	    qk = qk.mid(slsh+1);
@@ -207,7 +207,7 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
 	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesAnyHost);
 	    if(TRUE) { //hmmm..
-		if(!syncKeys.findIndex(k.qtId()) != -1)
+		if(!syncKeys.indexOf(k.qtId()) != -1)
 		    syncKeys.append(k.qtId());
 		ret = TRUE;
 		break;
@@ -256,12 +256,12 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
 			s = s.mid(qk.length());
 			while(s[0] == MACKEY_SEP)
 			    s = s.mid(1);
-			int sep = s.find(MACKEY_SEP);
+			int sep = s.indexOf(MACKEY_SEP);
 			if(sep != -1) {
 			    if(subkey) {
 				QString fix_s = s.left(sep);
 				qt_mac_unfix_key(fix_s);
-				if(!fix_s.isEmpty() && ret.findIndex(fix_s) == -1)
+				if(!fix_s.isEmpty() && ret.indexOf(fix_s) == -1)
 				    ret << fix_s;
 			    }
 			} else if(!subkey) {
