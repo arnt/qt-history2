@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#187 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#188 $
 **
 ** Implementation of QListView widget class
 **
@@ -530,6 +530,11 @@ void QListViewItem::removeItem( QListViewItem * tbg )
     invalidateHeight();
 
     QListView * lv = listView();
+    if ( lv && lv->d && lv->d->drawables ) {
+	delete lv->d->drawables;
+	lv->d->drawables = 0;
+    }
+
     if ( lv->d->dirtyItems )
 	lv->d->dirtyItems->take( (void *)tbg );
 
