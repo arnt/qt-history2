@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#15 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#15 $";
 #endif
 
 
@@ -40,7 +40,7 @@ void QPixmap::detach()				// detach shared pixmap
 }
 
 /*!
-Returns a deep copy of the pixmap. All pixels are copied using bitBlt.
+Returns a deep copy of the pixmap.  All pixels are copied using bitBlt().
 
 \sa operator=().
 */
