@@ -49,7 +49,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
 
     floatingAction = new QAction(tr("Floating"), this);
     floatingAction->setCheckable(true);
-    connect(floatingAction, SIGNAL(checked(bool)), SLOT(changeTopLevel(bool)));
+    connect(floatingAction, SIGNAL(checked(bool)), SLOT(changeFloating(bool)));
 
     allowedAreasActions = new QActionGroup(this);
     allowedAreasActions->setExclusive(false);
