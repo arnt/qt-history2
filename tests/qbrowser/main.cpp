@@ -13,6 +13,7 @@ int main( int argc, char ** argv ) {
 
     QMLStyle* style = new QMLStyle( QMLStyleSheet::defaultSheet(), "head" );
     style->setDisplayMode(QMLStyle::DisplayNone);
+    QMLStyleSheet::defaultSheet()->style("p")->setSelfNesting( FALSE );
 
 
     QString qt = getenv("QTDIR");
