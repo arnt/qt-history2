@@ -265,33 +265,33 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x061F, 0 }, // 0x061F
 
     { 0x0620, 0 }, // 0x0620
-    { 0xFE80, 0 }, // 0x0621            HAMZA 
-    { 0xFE81, 1 }, // 0x0622    R       ALEF WITH MADDA ABOVE 
-    { 0xFE83, 1 }, // 0x0623    R       ALEF WITH HAMZA ABOVE 
-    { 0xFE85, 1 }, // 0x0624    R       WAW WITH HAMZA ABOVE 
-    { 0xFE87, 1 }, // 0x0625    R       ALEF WITH HAMZA BELOW 
-    { 0xFE89, 3 }, // 0x0626    D       YEH WITH HAMZA ABOVE 
-    { 0xFE8D, 1 }, // 0x0627    R       ALEF 
-    { 0xFE8F, 3 }, // 0x0628    D       BEH 
-    { 0xFE93, 1 }, // 0x0629    R       TEH MARBUTA 
-    { 0xFE95, 3 }, // 0x062A    D       TEH 
-    { 0xFE99, 3 }, // 0x062B    D       THEH 
-    { 0xFE9D, 3 }, // 0x062C    D       JEEM 
-    { 0xFEA1, 3 }, // 0x062D    D       HAH 
-    { 0xFEA5, 3 }, // 0x062E    D       KHAH 
-    { 0xFEA9, 1 }, // 0x062F    R       DAL 
+    { 0xFE80, 0 }, // 0x0621            HAMZA
+    { 0xFE81, 1 }, // 0x0622    R       ALEF WITH MADDA ABOVE
+    { 0xFE83, 1 }, // 0x0623    R       ALEF WITH HAMZA ABOVE
+    { 0xFE85, 1 }, // 0x0624    R       WAW WITH HAMZA ABOVE
+    { 0xFE87, 1 }, // 0x0625    R       ALEF WITH HAMZA BELOW
+    { 0xFE89, 3 }, // 0x0626    D       YEH WITH HAMZA ABOVE
+    { 0xFE8D, 1 }, // 0x0627    R       ALEF
+    { 0xFE8F, 3 }, // 0x0628    D       BEH
+    { 0xFE93, 1 }, // 0x0629    R       TEH MARBUTA
+    { 0xFE95, 3 }, // 0x062A    D       TEH
+    { 0xFE99, 3 }, // 0x062B    D       THEH
+    { 0xFE9D, 3 }, // 0x062C    D       JEEM
+    { 0xFEA1, 3 }, // 0x062D    D       HAH
+    { 0xFEA5, 3 }, // 0x062E    D       KHAH
+    { 0xFEA9, 1 }, // 0x062F    R       DAL
 
-    { 0xFEAB, 1 }, // 0x0630    R       THAL 
-    { 0xFEAD, 1 }, // 0x0631    R       REH 
-    { 0xFEAF, 1 }, // 0x0632    R       ZAIN 
-    { 0xFEB1, 3 }, // 0x0633    D       SEEN 
-    { 0xFEB5, 3 }, // 0x0634    D       SHEEN 
-    { 0xFEB9, 3 }, // 0x0635    D       SAD 
-    { 0xFEBD, 3 }, // 0x0636    D       DAD 
-    { 0xFEC1, 3 }, // 0x0637    D       TAH 
-    { 0xFEC5, 3 }, // 0x0638    D       ZAH 
-    { 0xFEC9, 3 }, // 0x0639    D       AIN 
-    { 0xFECD, 3 }, // 0x063A    D       GHAIN 
+    { 0xFEAB, 1 }, // 0x0630    R       THAL
+    { 0xFEAD, 1 }, // 0x0631    R       REH
+    { 0xFEAF, 1 }, // 0x0632    R       ZAIN
+    { 0xFEB1, 3 }, // 0x0633    D       SEEN
+    { 0xFEB5, 3 }, // 0x0634    D       SHEEN
+    { 0xFEB9, 3 }, // 0x0635    D       SAD
+    { 0xFEBD, 3 }, // 0x0636    D       DAD
+    { 0xFEC1, 3 }, // 0x0637    D       TAH
+    { 0xFEC5, 3 }, // 0x0638    D       ZAH
+    { 0xFEC9, 3 }, // 0x0639    D       AIN
+    { 0xFECD, 3 }, // 0x063A    D       GHAIN
     { 0x063B, 0 }, // 0x063B
     { 0x063C, 0 }, // 0x063C
     { 0x063D, 0 }, // 0x063D
@@ -299,16 +299,16 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x063F, 0 }, // 0x063F
 
     { 0x0640, 0 }, // 0x0640    C       TATWEEL // ### Join Causing, only one glyph
-    { 0xFED1, 3 }, // 0x0641    D       FEH 
-    { 0xFED5, 3 }, // 0x0642    D       QAF 
-    { 0xFED9, 3 }, // 0x0643    D       KAF 
-    { 0xFEDD, 3 }, // 0x0644    D       LAM 
-    { 0xFEE1, 3 }, // 0x0645    D       MEEM 
-    { 0xFEE5, 3 }, // 0x0646    D       NOON 
-    { 0xFEE9, 3 }, // 0x0647    D       HEH 
-    { 0xFEED, 1 }, // 0x0648    R       WAW 
+    { 0xFED1, 3 }, // 0x0641    D       FEH
+    { 0xFED5, 3 }, // 0x0642    D       QAF
+    { 0xFED9, 3 }, // 0x0643    D       KAF
+    { 0xFEDD, 3 }, // 0x0644    D       LAM
+    { 0xFEE1, 3 }, // 0x0645    D       MEEM
+    { 0xFEE5, 3 }, // 0x0646    D       NOON
+    { 0xFEE9, 3 }, // 0x0647    D       HEH
+    { 0xFEED, 1 }, // 0x0648    R       WAW
     { 0x0649, 0 }, // 0x0649            ALEF MAKSURA // ### Dual, glyphs not consecutive, handle in code.
-    { 0xFEF1, 3 }, // 0x064A    D       YEH 
+    { 0xFEF1, 3 }, // 0x064A    D       YEH
     { 0x064B, 0 }, // 0x064B
     { 0x064C, 0 }, // 0x064C
     { 0x064D, 0 }, // 0x064D
@@ -350,7 +350,7 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x066F, 0 }, // 0x066F
 
     { 0x0670, 0 }, // 0x0670
-    { 0xFB50, 1 }, // 0x0671    R       ALEF WASLA 
+    { 0xFB50, 1 }, // 0x0671    R       ALEF WASLA
     { 0x0672, 0 }, // 0x0672
     { 0x0673, 0 }, // 0x0673
     { 0x0674, 0 }, // 0x0674
@@ -358,40 +358,40 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x0676, 0 }, // 0x0676
     { 0x0677, 0 }, // 0x0677
     { 0x0678, 0 }, // 0x0678
-    { 0xFB66, 3 }, // 0x0679    D       TTEH 
-    { 0xFB5E, 3 }, // 0x067A    D       TTEHEH 
-    { 0xFB52, 3 }, // 0x067B    D       BEEH 
+    { 0xFB66, 3 }, // 0x0679    D       TTEH
+    { 0xFB5E, 3 }, // 0x067A    D       TTEHEH
+    { 0xFB52, 3 }, // 0x067B    D       BEEH
     { 0x067C, 0 }, // 0x067C
     { 0x067D, 0 }, // 0x067D
-    { 0xFB56, 3 }, // 0x067E    D       PEH 
-    { 0xFB62, 3 }, // 0x067F    D       TEHEH 
+    { 0xFB56, 3 }, // 0x067E    D       PEH
+    { 0xFB62, 3 }, // 0x067F    D       TEHEH
 
-    { 0xFB5A, 3 }, // 0x0680    D       BEHEH 
+    { 0xFB5A, 3 }, // 0x0680    D       BEHEH
     { 0x0681, 0 }, // 0x0681
     { 0x0682, 0 }, // 0x0682
-    { 0xFB76, 3 }, // 0x0683    D       NYEH 
-    { 0xFB72, 3 }, // 0x0684    D       DYEH 
+    { 0xFB76, 3 }, // 0x0683    D       NYEH
+    { 0xFB72, 3 }, // 0x0684    D       DYEH
     { 0x0685, 0 }, // 0x0685
-    { 0xFB7A, 3 }, // 0x0686    D       TCHEH 
-    { 0xFB7E, 3 }, // 0x0687    D       TCHEHEH 
-    { 0xFB88, 1 }, // 0x0688    R       DDAL 
+    { 0xFB7A, 3 }, // 0x0686    D       TCHEH
+    { 0xFB7E, 3 }, // 0x0687    D       TCHEHEH
+    { 0xFB88, 1 }, // 0x0688    R       DDAL
     { 0x0689, 0 }, // 0x0689
     { 0x068A, 0 }, // 0x068A
     { 0x068B, 0 }, // 0x068B
-    { 0xFB84, 1 }, // 0x068C    R       DAHAL 
-    { 0xFB82, 1 }, // 0x068D    R       DDAHAL 
-    { 0xFB86, 1 }, // 0x068E    R       DUL 
+    { 0xFB84, 1 }, // 0x068C    R       DAHAL
+    { 0xFB82, 1 }, // 0x068D    R       DDAHAL
+    { 0xFB86, 1 }, // 0x068E    R       DUL
     { 0x068F, 0 }, // 0x068F
 
     { 0x0690, 0 }, // 0x0690
-    { 0xFB8C, 1 }, // 0x0691    R       RREH 
+    { 0xFB8C, 1 }, // 0x0691    R       RREH
     { 0x0692, 0 }, // 0x0692
     { 0x0693, 0 }, // 0x0693
     { 0x0694, 0 }, // 0x0694
     { 0x0695, 0 }, // 0x0695
     { 0x0696, 0 }, // 0x0696
     { 0x0697, 0 }, // 0x0697
-    { 0xFB8A, 1 }, // 0x0698    R       JEH 
+    { 0xFB8A, 1 }, // 0x0698    R       JEH
     { 0x0699, 0 }, // 0x0699
     { 0x069A, 0 }, // 0x069A
     { 0x069B, 0 }, // 0x069B
@@ -404,23 +404,23 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x06A1, 0 }, // 0x06A1
     { 0x06A2, 0 }, // 0x06A2
     { 0x06A3, 0 }, // 0x06A3
-    { 0xFB6A, 3 }, // 0x06A4    D       VEH 
+    { 0xFB6A, 3 }, // 0x06A4    D       VEH
     { 0x06A5, 0 }, // 0x06A5
-    { 0xFB6E, 3 }, // 0x06A6    D       PEHEH 
+    { 0xFB6E, 3 }, // 0x06A6    D       PEHEH
     { 0x06A7, 0 }, // 0x06A7
     { 0x06A8, 0 }, // 0x06A8
-    { 0xFB8E, 3 }, // 0x06A9    D       KEHEH 
+    { 0xFB8E, 3 }, // 0x06A9    D       KEHEH
     { 0x06AA, 0 }, // 0x06AA
     { 0x06AB, 0 }, // 0x06AB
     { 0x06AC, 0 }, // 0x06AC
-    { 0xFBD3, 3 }, // 0x06AD    D       NG 
+    { 0xFBD3, 3 }, // 0x06AD    D       NG
     { 0x06AE, 0 }, // 0x06AE
-    { 0xFB92, 3 }, // 0x06AF    D       GAF 
+    { 0xFB92, 3 }, // 0x06AF    D       GAF
 
     { 0x06B0, 0 }, // 0x06B0
-    { 0xFB9A, 3 }, // 0x06B1    D       NGOEH 
+    { 0xFB9A, 3 }, // 0x06B1    D       NGOEH
     { 0x06B2, 0 }, // 0x06B2
-    { 0xFB96, 3 }, // 0x06B3    D       GUEH 
+    { 0xFB96, 3 }, // 0x06B3    D       GUEH
     { 0x06B4, 0 }, // 0x06B4
     { 0x06B5, 0 }, // 0x06B5
     { 0x06B6, 0 }, // 0x06B6
@@ -428,33 +428,33 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x06B8, 0 }, // 0x06B8
     { 0x06B9, 0 }, // 0x06B9
     { 0x06BA, 0 }, // 0x06BA
-    { 0xFBA0, 3 }, // 0x06BB    D       RNOON 
+    { 0xFBA0, 3 }, // 0x06BB    D       RNOON
     { 0x06BC, 0 }, // 0x06BC
     { 0x06BD, 0 }, // 0x06BD
-    { 0xFBAA, 3 }, // 0x06BE    D       HEH DOACHASHMEE 
+    { 0xFBAA, 3 }, // 0x06BE    D       HEH DOACHASHMEE
     { 0x06BF, 0 }, // 0x06BF
 
-    { 0xFBA4, 1 }, // 0x06C0    R       HEH WITH YEH ABOVE 
-    { 0xFBA6, 3 }, // 0x06C1    D       HEH GOAL 
+    { 0xFBA4, 1 }, // 0x06C0    R       HEH WITH YEH ABOVE
+    { 0xFBA6, 3 }, // 0x06C1    D       HEH GOAL
     { 0x06C2, 0 }, // 0x06C2
     { 0x06C3, 0 }, // 0x06C3
     { 0x06C4, 0 }, // 0x06C4
-    { 0xFBE0, 1 }, // 0x06C5    R       KIRGHIZ OE 
-    { 0xFBD9, 1 }, // 0x06C6    R       OE 
-    { 0xFBD7, 1 }, // 0x06C7    R       U 
-    { 0xFBDB, 1 }, // 0x06C8    R       YU 
-    { 0xFBE2, 1 }, // 0x06C9    R       KIRGHIZ YU 
+    { 0xFBE0, 1 }, // 0x06C5    R       KIRGHIZ OE
+    { 0xFBD9, 1 }, // 0x06C6    R       OE
+    { 0xFBD7, 1 }, // 0x06C7    R       U
+    { 0xFBDB, 1 }, // 0x06C8    R       YU
+    { 0xFBE2, 1 }, // 0x06C9    R       KIRGHIZ YU
     { 0x06CA, 0 }, // 0x06CA
-    { 0xFBDE, 1 }, // 0x06CB    R       VE 
-    { 0xFBFC, 3 }, // 0x06CC    D       FARSI YEH 
+    { 0xFBDE, 1 }, // 0x06CB    R       VE
+    { 0xFBFC, 3 }, // 0x06CC    D       FARSI YEH
     { 0x06CD, 0 }, // 0x06CD
     { 0x06CE, 0 }, // 0x06CE
     { 0x06CF, 0 }, // 0x06CF
 
-    { 0xFBE4, 3 }, // 0x06D0    D       E 
+    { 0xFBE4, 3 }, // 0x06D0    D       E
     { 0x06D1, 0 }, // 0x06D1
-    { 0xFBAE, 1 }, // 0x06D2    R       YEH BARREE 
-    { 0xFBB0, 1 }, // 0x06D3    R       YEH BARREE WITH HAMZA ABOVE 
+    { 0xFBAE, 1 }, // 0x06D2    R       YEH BARREE
+    { 0xFBB0, 1 }, // 0x06D3    R       YEH BARREE WITH HAMZA ABOVE
     { 0x06D4, 0 }, // 0x06D4
     { 0x06D5, 0 }, // 0x06D5
     { 0x06D6, 0 }, // 0x06D6
@@ -864,9 +864,15 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     return pa;
 }
 
-#define BIDI_DEBUG 0 // 2
+#define BIDI_DEBUG 0//2
 #if (BIDI_DEBUG >= 1)
 #include <iostream>
+
+static const char *directions[] = {
+    "DirL", "DirR", "DirEN", "DirES", "DirET", "DirAN", "DirCS", "DirB", "DirS", "DirWS", "DirON",
+    "DirLRE", "DirLRO", "DirAL", "DirRLE", "DirRLO", "DirPDF", "DirNSM", "DirBN"
+};
+
 #endif
 
 static QChar::Direction basicDirection(const QString &str, int start = 0)
@@ -916,11 +922,16 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	if( basicDir == QChar::DirR || (basicDir == QChar::DirON && text.isRightToLeft() ) ) {
 	    context = new QBidiContext( 1, QChar::DirR );
 	    control->status.last = QChar::DirR;
+	    control->status.lastStrong = QChar::DirR;
 	} else {
 	    context = new QBidiContext( 0, QChar::DirL );
 	    control->status.last = QChar::DirL;
+	    control->status.lastStrong = QChar::DirL;
 	}
     }
+#if (BIDI_DEBUG >= 2)
+    qDebug("basicDir = %s", directions[basicDir] );
+#endif
 
     QBidiStatus status = control->status;
     QChar::Direction dir = QChar::DirON;
@@ -929,10 +940,13 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
     int eor = start;
     bool first = TRUE;
 
+    int length = text.length();
+    const QChar *unicode = text.unicode();
+
     int current = start;
     while(current <= last) {
 	QChar::Direction dirCurrent;
-	if(current == (int)text.length()) {
+	if(current == (int)length) {
 	    QBidiContext *c = context;
 	    while ( c->parent )
 		c = c->parent;
@@ -940,11 +954,16 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	} else if ( current == last ) {
 	    dirCurrent = ( basicDir != QChar::DirON ? basicDir : basicDirection( text, current ) );
 	} else
-	    dirCurrent = text.at(current).direction();
+	    dirCurrent = unicode[current].direction();
 
 
 #if (BIDI_DEBUG >= 2)
-	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << eor << "/" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
+	cout << "pos=" << current << " dir=" << directions[dir]
+	     << " current=" << directions[dirCurrent] << " last=" << directions[status.last]
+	     << " eor=" << eor << "/" << directions[status.eor] << " lastStrong="
+	     << directions[status.lastStrong]
+	     << " embedding=" << directions[context->dir]
+	     << " level=" << (int)context->level << endl;
 #endif
 
 	switch(dirCurrent) {
@@ -960,8 +979,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		if(level < 61) {
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirR, context);
@@ -980,8 +999,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		if(level < 61) {
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context);
@@ -1000,8 +1019,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		if(level < 61) {
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirON;
@@ -1022,8 +1041,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		if(level < 61) {
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    context = new QBidiContext(level, QChar::DirL, context, TRUE);
@@ -1039,8 +1058,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		if(c) {
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    status.last = context->dir;
@@ -1069,10 +1088,10 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		case QChar::DirAN:
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
+			dir = unicode[eor].direction(); status.eor = dir;
 		    }
-		    dir = QChar::DirON; status.eor = QChar::DirON;
 		    break;
 		case QChar::DirES:
 		case QChar::DirET:
@@ -1088,17 +1107,17 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 			    if(status.eor != QChar::DirR) {
 				// AN or EN
 				runs->append( new QTextRun(sor, eor, context, dir) );
-				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				++eor; sor = eor; status.eor = QChar::DirON;
 				dir = QChar::DirR;
 			    }
 			    else
 				eor = current - 1;
 			    runs->append( new QTextRun(sor, eor, context, dir) );
-			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    ++eor; sor = eor; dir = unicode[eor].direction(); status.eor = dir;
 			} else {
 			    if(status.eor != QChar::DirL) {
 				runs->append( new QTextRun(sor, eor, context, dir) );
-				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				++eor; sor = eor; status.eor = QChar::DirON;
 				dir = QChar::DirL;
 			    } else {
 				eor = current; status.eor = QChar::DirL; break;
@@ -1117,19 +1136,19 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    if(dir == QChar::DirON) dir = QChar::DirR;
 	    switch(status.last)
 		{
-		case QChar::DirR:
-		case QChar::DirAL:
-		    eor = current; status.eor = QChar::DirR; break;
 		case QChar::DirL:
 		case QChar::DirEN:
 		case QChar::DirAN:
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
+			dir = QChar::DirON; status.eor = QChar::DirON;
+			break;
 		    }
-		    dir = QChar::DirON; status.eor = QChar::DirON;
-		    break;
+		case QChar::DirR:
+		case QChar::DirAL:
+		    eor = current; status.eor = QChar::DirR; break;
 		case QChar::DirES:
 		case QChar::DirET:
 		case QChar::DirCS:
@@ -1166,13 +1185,13 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    // ### if @sor, set dir to dirSor
 	    break;
 	case QChar::DirEN:
+	    // if last strong was AL change EN to AL
 	    if(status.lastStrong != QChar::DirAL) {
-		// if last strong was AL change EN to AL
 		if(dir == QChar::DirON) {
 		    if(status.lastStrong == QChar::DirL)
 			dir = QChar::DirL;
 		    else
-			dir = QChar::DirAN;
+			dir = QChar::DirEN;
 		}
 		switch(status.last)
 		    {
@@ -1193,8 +1212,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		    case QChar::DirAN:
 			if ( !first ) {
 			    runs->append( new QTextRun(sor, eor, context, dir) );
-			    ++eor; 
-			    sor = eor; 
+			    ++eor;
+			    sor = eor;
 			}
 			status.eor = QChar::DirEN;
 			dir = QChar::DirAN; break;
@@ -1250,8 +1269,8 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 		case QChar::DirEN:
 		    if ( !first ) {
 			runs->append( new QTextRun(sor, eor, context, dir) );
-			++eor; 
-			sor = eor; 
+			++eor;
+			sor = eor;
 		    }
 		    dir = QChar::DirON; status.eor = QChar::DirAN;
 		    break;
@@ -1323,7 +1342,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 
 	//cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << endl;
 
-	if(current >= (int)text.length()) break;
+	if(current >= (int)length) break;
 
 	// set status.last as needed.
 	switch(dirCurrent)
@@ -1351,6 +1370,12 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 	    case QChar::DirBN:
 		// ignore these
 		break;
+	    case QChar::DirEN:
+		if ( status.last == QChar::DirL ) {
+		    status.last = QChar::DirL;
+		    break;
+		}
+		// fall through
 	    default:
 		status.last = dirCurrent;
 	    }
@@ -1444,7 +1469,7 @@ QPtrList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const 
 }
 
 
-QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*basicDir*/ )
+QString QComplexText::bidiReorderString( const QString &str, QChar::Direction basicDir )
 {
 
 // ### fix basic direction
@@ -1464,7 +1489,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 	    lineEnd++;
 	}
 	lineEnd++;
-	QPtrList<QTextRun> *runs = bidiReorderLine( &control, str, lineStart, lineEnd - lineStart );
+	QPtrList<QTextRun> *runs = bidiReorderLine( &control, str, lineStart, lineEnd - lineStart, basicDir );
 
 	// reorder the content of the line, and output to visual
 	QTextRun *r = runs->first();
@@ -1508,16 +1533,16 @@ QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Directio
 
     // add level of run (cases I1 & I2)
     if( level % 2 ) {
-	if(dir == QChar::DirL || dir == QChar::DirAN)
+	if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN )
 	    level++;
     } else {
 	if( dir == QChar::DirR )
 	    level++;
-	else if( dir == QChar::DirAN )
+	else if( dir == QChar::DirAN || dir == QChar::DirEN )
 	    level += 2;
     }
 #if (BIDI_DEBUG >= 1)
-    printf("new run: dir=%d from %d, to %d level = %d\n", dir, _start, _stop, level);
+    printf("new run: dir=%s from %d, to %d level = %d\n", directions[dir], _start, _stop, level);
 #endif
 }
 
