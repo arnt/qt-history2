@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#185 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#184 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#185 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1241,7 +1241,12 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    case GraphicsExpose:
 	    case Expose:			// paint event
-		widget->translatePaintEvent( &event );
+		if ( widget->testWFlags( WState_DoHide ) ) {
+		     widget->setWFlags( WState_Visible );
+		     widget->hide();
+		} else {
+		    widget->translatePaintEvent( &event );
+		}
 		break;
 
 	    case ConfigureNotify:		// window move/resize event
