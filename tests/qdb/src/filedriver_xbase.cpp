@@ -967,7 +967,7 @@ bool FileDriver::saveResult( const List* cols, LocalSQLResultSet* result )
     env->output() << "FileDriver::saveResult..." << flush;
 #endif
     if ( !cols || !result ) {
-	ERROR_RETURN( "Internal error: Unable to save result, no columss or no result" );
+	ERROR_RETURN( "Internal error: Unable to save result, no columns or no result" );
     }
     /* build a Record from cols, which may be a field desc
        or a literal value
