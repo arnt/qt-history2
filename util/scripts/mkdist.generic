@@ -28,8 +28,8 @@ DISTDIR=$3
 
 unset LANG
 
-x11onlysrc="qpsprn.cpp qprndlg.cpp mprndlg.cpp"
-x11onlyhdr="qpsprn.h   qprndlg.h"
+x11onlysrc="kernel/qpsprn.cpp dialog/qprndlg.cpp"
+x11onlyhdr="kernel/qpsprn.h dialogs/qprndlg.h"
 
 unset goodparam1
 unset goodparam2
@@ -74,7 +74,7 @@ if [ "$local" = "yes" ]; then
     tar cfT - - | (cd ${DISTDIR} ; tar xf - )
 else
   echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -r branch-for-11 qt
+  cvs -Q export -Dnow qt
 fi
 
 VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
@@ -133,32 +133,18 @@ make moc_gen.cpp
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
-  mv -f makefile.win Makefile
   echo "Moving include files..." >&2
-  cd ${DISTDIR}/qt/src
-  echo "Generating moc output..." >&2
-  cd kernel
-  # hardkodete moc-regler i Makefile er et herk
-  make -k moc || /bin/true
-  cd ../widgets
-  make -k moc || /bin/true
-  cd ../dialogs
-  make -k moc || /bin/true
-  cd ..
+  cd ${DISTDIR}/qt
   echo "Moving source and include files..." >&2
   rm -f ../include/*
-  mv tools/q*.h kernel/q*.h widgets/q*.h dialogs/q*.h ../include
-  mkdir win
-  mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
+  mv */q*.h ../include
   echo "Removing X11-only files..." >&2
-  rm -rf tools kernel widgets dialogs Makefile*
-  cd win
   rm ${x11onlysrc}
   cd ${DISTDIR}/qt/include
   rm ${x11onlyhdr}
   cd ${DISTDIR}/qt
   rm -rf makefiles
-  find . -name Makefile | xargs rm -vf
+  find . -name 'Makefile*' -o -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
   find qt -type f -print | fmt -1 | \
@@ -166,8 +152,8 @@ if [ "${platform}" = "win" ]; then
 fi
 
 if [ "${platform}" = "x11" ]; then
-  cd ${DISTDIR}
-  find . -name \*.mak -type f -print | xargs -n3 rm -fv
+  cd ${DISTDIR}/qt
+  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -vf
   echo "Creating arch directory" >&2
   cd ${DISTDIR}/qt/src
   if [ "$disttype" = "beta" ]; then
