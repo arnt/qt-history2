@@ -10,6 +10,7 @@ HEADERS += \
 	codecs/qgb18030codec_p.h \
 	codecs/qjiscodec_p.h \
 	codecs/qjpunicode.h \
+	codecs/qpunycodecodec_p.h \
 	codecs/qsjiscodec_p.h \
 	codecs/qtextcodec.h \
 	codecs/qtsciicodec_p.h \
@@ -26,6 +27,7 @@ SOURCES += \
 	codecs/qgb18030codec.cpp \
 	codecs/qjiscodec.cpp \
 	codecs/qjpunicode.cpp \
+	codecs/qpunycodecodec.cpp \
 	codecs/qsjiscodec.cpp \
 	codecs/qtextcodec.cpp \
 	codecs/qtsciicodec.cpp \
@@ -36,10 +38,10 @@ SOURCES += \
 unix {
 	SOURCES += \
 		codecs/qfontcncodec.cpp \
-		codecs/qfontjpcodec.cpp \  
+		codecs/qfontjpcodec.cpp \
 		codecs/qfonttwcodec.cpp \
 		codecs/qfontkrcodec.cpp \
-		codecs/qfonthkcodec.cpp \ 
+		codecs/qfonthkcodec.cpp \
 		codecs/qfontlaocodec.cpp
 
 }
