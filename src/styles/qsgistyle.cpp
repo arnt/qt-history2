@@ -350,7 +350,7 @@ int QSGIStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     case PM_IndicatorWidth:
     case PM_IndicatorHeight:
-	return 12;
+	return 14;
 
     case PM_ExclusiveIndicatorWidth:
     case PM_ExclusiveIndicatorHeight:
@@ -600,7 +600,9 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_Indicator:
 	{
-	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, data );
+	    QRect er = r;
+	    er.addCoords( 1, 1, -1, -1 );
+	    drawPrimitive( PE_ButtonBevel, p, er, cg, flags, data );
 	    if ( !(flags & QStyle::Style_Off) )
 		drawPrimitive( PE_CheckMark, p, r, cg, flags, data );
 	}
@@ -962,16 +964,16 @@ void QSGIStyle::drawControl( ControlElement element,
 		p->drawPixmap( pmr.topLeft(), pixmap );
 	    } else {
 		if ( checkable ) {
-/*
 		    int mw = checkcol;
 		    int mh = h - 2*sgiItemFrame;
+		    SFlags cflags = Style_Default;
+		    if (! dis)
+			cflags |= Style_Enabled;
+		    if (act)
+			cflags |= Style_On;
 
-		    if ( act && !dis )
-			cg.setColor( QColorGroup::Background, cg.light() );
 		    if ( mi->isChecked() )
-			drawIndicator( p, x+sgiItemFrame, y+sgiItemFrame, mw, mh, citemg,
-					QButton::On, act, enabled );
-*/
+			drawPrimitive( PE_CheckMark, p, QRect( x+sgiItemFrame+1,y+sgiItemFrame+3, mw,mh-3 ), cg, cflags );
 		}
 	    }
 
