@@ -78,13 +78,14 @@ SYSCONF_LINK_LIB_SHARED	= #${
 #   - Build the $(TARGET) library, eg. lib$(TARGET).a
 #   - Place target in $(DESTDIR) - which has a trailing /
 #
+SYSCONF_AR		= #$ Expand('TMAKE_AR');
 SYSCONF_LINK_LIB_STATIC	= #${
 	$targ = 'lib$(TARGET).a';
         if ( $project{"TMAKE_AR_CMD"} ) {
-            $project{"TMAKE_AR_CMD"} =~ s/TARGETA/$(DESTDIR)'.$targ.'/g;
+            $project{"TMAKE_AR_CMD"} =~ s/\$\(TARGETA\)/\$(DESTDIR)$targ/g;
         } else {
             $project{"TMAKE_AR_CMD"} =
-                '$(AR) $(DESTDIR)'.$targ.' $(OBJECTS) $(OBJMOC)';
+                '$(SYSCONF_AR) $(DESTDIR)'.$targ.' $(OBJECTS) $(OBJMOC)';
         }
 	$text .= 'rm -f $(DESTDIR)'.$targ.'; ';
 	if ( $project{"TMAKE_AR_CMD"} ) {
