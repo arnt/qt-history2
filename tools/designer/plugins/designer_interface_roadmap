@@ -130,21 +130,28 @@ Comments
 
   Represents the currently active form window, and can provide
   a DesignerWidgetInterface.
+  Properties (*=faked):
+    - caption (*)
+    - modified (*)
+
   Functions:
-    - 
+    - save
+    - close
+    - undo
+    - redo
 
 - DesignerWidgetInterface
 
   Represents the currently selected widget.
   Functions:
-    -
+    - 
 
 - DesignerPropertyEditorInterface
 
   Represents the Property Editor in the Qt Designer and can provide a
   DesignerWidgetInterface.
   Functions:
-    -
+    - 
 
 - DesignerFormListInterface
 
