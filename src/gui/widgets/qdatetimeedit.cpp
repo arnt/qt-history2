@@ -502,7 +502,7 @@ QString QDateTimeEdit::sectionText(Section s) const
     \table
     \header \i Format \i Result
     \row \i dd.MM.yyyy    \i 20.07.1969
-    \row \i ddd MMMM d yy \i Sun July 20 69
+    \row \i MMMM d yy \i July 20 69
     \endtable
 
     If you specify an invalid format the format will not be set.
@@ -1280,6 +1280,8 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
     if (index < separators.front().size()) {
         return (index == 0 ? FirstSection : NoSection);
     } else if (format.size() - index < separators.back().size() + 1) {
+        if (separators.back().size() == 0)
+            return sections.back().section;
         return (index == last.pos ? LastSection : NoSection);
     }
     for (int i=0; i<sections.size(); ++i) {
