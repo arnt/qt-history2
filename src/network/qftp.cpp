@@ -2193,7 +2193,14 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 
 void QFtp::npListInfo( const QUrlInfo & i )
 {
-    emit newChild( i, operationInProgress() );
+    if ( url() ) {
+	QRegExp filt( url()->nameFilter(), FALSE, TRUE );
+	if ( i.isDir() || filt.search( i.name() ) != -1 ) {
+	    emit newChild( i, operationInProgress() );
+	}
+    } else {
+	emit newChild( i, operationInProgress() );
+    }
 }
 
 void QFtp::npDone( bool err )
