@@ -1421,7 +1421,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	    && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY()) {
 	    double px;
 	    XftPatternGetDouble(result, XFT_PIXEL_SIZE, 0, &px);
-	    scale = request.pixelSize/px;
+	    scale = (double)request.pixelSize/px;
 	}
 	fe->setScale( scale );
 	return fe;
@@ -1457,7 +1457,7 @@ QFontEngine *loadEngine( QFont::Script script,
     }
     if (fp && fp->paintdevice
 	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY())
-	scale = request.pixelSize/px;
+	scale = (double)request.pixelSize/(double)px;
 
     xlfd += QString::number( px ).latin1();
     xlfd += "-";
