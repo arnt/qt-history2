@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#4 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#5 $
 **
 ** Macros and definitions related to QObject
 **
@@ -54,6 +54,7 @@ private:								      \
 
 // Forward declarations so you don't have to include files you don't need
 
+class QSignal;
 class QObject;
 class QMetaObject;
 class QConnection;
