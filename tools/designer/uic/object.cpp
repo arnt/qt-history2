@@ -290,6 +290,14 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		out << indent << objName << "->addWidget( " << page << ", " << id << " );" << endl;
 	    }
 	}
+    } else if ( objClass == "QToolBox" ) {
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( tags.contains( n.tagName()  ) ) {
+		QString page = createObjectImpl( n, objClass, objName );
+		QString label = DomTool::readAttribute( n, "label", "" ).toString();
+		out << indent << objName << "->addPage( \"" << label << "\", " << page << " );" << endl;
+	    }
+	}
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
 	 WidgetInterface *iface = 0;
 	 widgetManager()->queryInterface( objClass, &iface );
