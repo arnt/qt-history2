@@ -108,7 +108,7 @@ QDragApplication::~QDragApplication()
 bool QDragApplication::notify( QObject *o, QEvent *e )
 {
     if ( dragger && !dragger->notify( o, e ) )
-	return o->event( e );
+	return QApplication::notify( o, e );
     else
 	return FALSE;
 }
