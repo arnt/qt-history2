@@ -77,9 +77,6 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 #include <locale.h>
 #endif
 
-#include <qfileengine.h>
-#include <private/qbufferedfsfileengine_p.h>
-
 // for strtod()
 #include <stdlib.h>
 
@@ -113,12 +110,6 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     return out;
 }
 #endif
-
-static bool isBufferedFSFileEngine(QIODevice *device)
-{
-    QFile *file = qt_cast<QFile *>(device);
-    return file && file->fileEngine()->type() == QFileEngine::Type(QBufferedFSFileEngine::BufferedFSFileEngine);
-}
 
 // A precondition macro
 #define Q_VOID
@@ -219,7 +210,7 @@ public:
     inline bool putString(const QString &ch);
 
     // buffers
-    bool fillReadBuffer(bool toEndOfLine);
+    bool fillReadBuffer();
     bool flushWriteBuffer();
     QString writeBuffer;
     QString readBuffer;
@@ -283,7 +274,7 @@ void QTextStreamPrivate::reset()
 #endif
 }
 
-bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
+bool QTextStreamPrivate::fillReadBuffer()
 {
     // no buffer next to the QString itself; this function should only
     // be called internally, for devices.
@@ -297,22 +288,7 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
 
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
-    qint64 bytesRead = 0;
-    if (toEndOfLine && isBufferedFSFileEngine(device)) {
-        while (bytesRead < QTEXTSTREAM_BUFFERSIZE) {
-            char c;
-            qint64 ret = device->read(&c, 1);
-            if (ret == -1 && bytesRead == 0) {
-                bytesRead = -1;
-                break;
-            }
-            buf[bytesRead++] = c;
-            if (c == '\n')
-                break;
-        }
-    } else {
-        bytesRead = device->read(buf, sizeof(buf));
-    }
+    qint64 bytesRead = device->read(buf, sizeof(buf));
 #if defined (QTEXTSTREAM_DEBUG)
     qDebug("QTextStreamPrivate::fillReadBuffer(), device->read(\"%s\", %d) == %d",
            qt_prettyDebug(buf, qMin(32,int(bytesRead)) , int(bytesRead)).constData(), sizeof(buf), int(bytesRead));
@@ -468,9 +444,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
 
             lastChar = ch;
         }
-    } while (!foundToken
-             && (!maxlen || totalSize < maxlen)
-             && (device && fillReadBuffer(delimiter == EndOfLine)));
+    } while (!foundToken && (!maxlen || totalSize < maxlen) && (device && fillReadBuffer()));
 
     // if the token was not found, but we reached the end of input,
     // then we accept what we got. if we are not at the end of input,
@@ -560,8 +534,7 @@ inline bool QTextStreamPrivate::write(const QString &data)
 
 inline bool QTextStreamPrivate::getChar(QChar *ch)
 {
-    if ((string && stringOffset == string->size())
-        || (device && readBuffer.isEmpty() && !fillReadBuffer(false))) {
+    if ((string && stringOffset == string->size()) || (device && readBuffer.isEmpty() && !fillReadBuffer())) {
         if (ch)
             *ch = 0;
         return false;
