@@ -108,15 +108,19 @@ void QAuServerNAS::play(const QString& filename)
     }
 }
 
-static QHash<void*,void*> *inprogress=0;
+typedef QHash<void*,QAuServerNAS*> AuServerHash;
+static AuServerHash *inprogress=0;
 
 static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
     if ( inprogress->find(p) && e ) {
 	if (e->type==AuEventTypeElementNotify &&
 		    e->auelementnotify.kind==AuElementNotifyKindState) {
-	    if ( e->auelementnotify.cur_state == AuStateStop )
-                ((QAuServerNAS*)inprogress->find(p))->setDone((QSound*)p);
+	    if (e->auelementnotify.cur_state == AuStateStop) {
+		AuServerHash::Iterator it = inprogress->find(p);
+		if (it != inprogress->end())
+		    (*it)->setDone((QSound*)p);
+	    }
 	}
     }
 }
