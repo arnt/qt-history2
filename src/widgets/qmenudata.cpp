@@ -270,6 +270,8 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     } else if ( custom != 0 ) {
 	mi->extra()->custom_item = custom;
 	mi->is_separator = custom->isSeparator();
+	if ( iconset )
+	    mi->iconset_data = new QIconSet( *iconset );
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
     } else {
