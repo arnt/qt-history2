@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#23 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -57,6 +57,9 @@
 
   Constructs a copy of \a source with autoDelete() set to FALSE. The
   constructor is protected because QCollection is an abstract class.
+
+  Note that if \a source has autoDelete turned on, copying it is a
+  good way to get memory leaks, reading freed memory, or both.
 */
 
 /*!
@@ -77,8 +80,11 @@
   Sets the auto-delete option of the collection.
 
   Enabling auto-delete (\e enable is TRUE) will delete objects that
-  are removed from the collection.  This can be useful if the collection
-  has the only reference to the objects.
+  are removed from the collection.  This can be useful if the
+  collection has the only reference to the objects.  (Note that the
+  object can still be copied using the copy constructor - copying such
+  objects is a good way to get memory leaks, reading freed memory or
+  both.)
 
   Disabling auto-delete (\e enable is FALSE) will \e not delete objects
   that are removed from the collection.	 This is useful if the objects
