@@ -23,7 +23,7 @@
 
 class QGridViewPrivate;
 
-class Q_GUI_EXPORT QGridView : public QScrollView
+class Q_COMPAT_EXPORT QGridView : public QScrollView
 {
     Q_OBJECT
     Q_PROPERTY(int numRows READ numRows WRITE setNumRows)
