@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#5 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -703,7 +703,7 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("i") );
     style->setFontItalic( TRUE );
 
-    style = new QStyleSheetItem( this, QString::fromLatin1("large") );
+    style = new QStyleSheetItem( this, QString::fromLatin1("big") );
     style->setFontSizeRelative( 120 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("small") );
