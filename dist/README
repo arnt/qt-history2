@@ -62,6 +62,9 @@ hpux-g++
 openunix-cc
 openunix-g++
 
+macx-g++
+macx-pbuilder
+
 If you want to try and use Qt 3 on an unsupported version of Unix, please
 contact us at qt-bugs@trolltech.com so that we can assist you.
 

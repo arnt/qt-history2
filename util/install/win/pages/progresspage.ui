@@ -43,6 +43,9 @@
                     <property name="name">
                         <cstring>filesDisplay</cstring>
                     </property>
+                    <property name="wordWrap">
+                        <enum>NoWrap</enum>
+                    </property>
                     <property name="undoDepth">
                         <number>0</number>
                     </property>

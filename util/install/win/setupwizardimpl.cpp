@@ -999,7 +999,6 @@ void SetupWizardImpl::saveSet( QListView* list )
     }
 }
 
-#if defined(Q_OS_UNIX)
 static bool copyFile( const QString& src, const QString& dest )
 {
     int len;
@@ -1024,7 +1023,6 @@ static bool copyFile( const QString& src, const QString& dest )
     destFile.flush();
     return true;
 }
-#endif
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
@@ -1233,24 +1231,37 @@ void SetupWizardImpl::showPageProgress()
 	    }
 #endif
 #if defined(EVAL)
-	    // patch qt-mt.lib (or qtmt.lib under Borland)
-	    QString qtLib;
-	    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
-		qtLib = "\\lib\\qt-mt.lib";
-	    } else {
-		qtLib = "\\lib\\qtmt.lib";
-	    }
-	    int ret = trDoIt( optionsPage->installPath->text() + qtLib,
-		    licensePage->evalName->text().latin1(),
-		    licensePage->evalCompany->text().latin1(),
-		    licensePage->evalSerialNumber->text().latin1() );
-	    if ( ret != 0 ) {
+	    // patch qt*.dll
+	    QDir lib( optionsPage->installPath->text() );
+	    QStringList::Iterator it;
+	    lib.cd( "lib" );
+	    QStringList qtDlls = lib.entryList( "qt*.dll" );
+	    if ( qtDlls.count() == 0 ) {
 		copySuccessful = FALSE;
 		QMessageBox::critical( this,
 			tr( "Error patching Qt library" ),
 			tr( "Could not patch the Qt library with the evaluation\n"
-			    "license information. You will not be able to execute\n"
-			    "any program linked against qt-mt.lib." ) );
+			    "license information - no Qt DLL was found." ) );
+	    }
+	    for ( it=qtDlls.begin(); it!=qtDlls.end(); ++it ) {
+		logFiles( tr("Patching the Qt library %1.").arg(*it) );
+		int ret = trDoIt( lib.absFilePath(*it),
+			licensePage->evalName->text().latin1(),
+			licensePage->evalCompany->text().latin1(),
+			licensePage->evalSerialNumber->text().latin1() );
+		if ( ret != 0 ) {
+		    copySuccessful = FALSE;
+		    QMessageBox::critical( this,
+			    tr( "Error patching Qt library" ),
+			    tr( "Could not patch the Qt library with the evaluation\n"
+				"license information. You will not be able to execute\n"
+				"any program linked against %1." ).arg( *it ) );
+		}
+	    }
+	    // copy lib/*.dll bin/
+	    QStringList dlls = lib.entryList( "*.dll" );
+	    for ( it=dlls.begin(); it!=dlls.end(); ++it ) {
+		copyFile( lib.absFilePath(*it), QDir::cleanDirPath(lib.absFilePath("../bin/"+*it)) );
 	    }
 #endif
 	    logFiles( tr("All files have been installed.\n"
