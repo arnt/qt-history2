@@ -3733,7 +3733,7 @@ fi
 if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
-    $outpath/bin/qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
+    $outpath/bin/qmake -spec "$XQMAKESPEC" "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
 fi
 
 # .projects      -> projects to process
