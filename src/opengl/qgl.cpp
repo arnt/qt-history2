@@ -2648,7 +2648,7 @@ GLuint QGLWidget::bindTexture(const QString &fname)
 */
 void QGLWidget::deleteTexture(GLuint id)
 {
-    return d->glcx->deleteTexture(id);
+    d->glcx->deleteTexture(id);
 }
 
 static QSingleCleanupHandler<QOpenGLPaintEngine> qt_paintengine_cleanup_handler;
