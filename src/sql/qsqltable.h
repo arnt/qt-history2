@@ -69,7 +69,7 @@ class Q_EXPORT QSqlTable : public QTable
 
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
-    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 );
+    QSqlTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
     virtual void addColumn( const QSqlField* field );

@@ -184,10 +184,11 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 }
 
 /*!  Constructs a table using the data from \a cursor.  If
-  autopopulate is TRUE, columns are automatically created based upon
-  the fields in the \a cursor record.  If the \a cursor is read only,
-  the table becomes read only.  The table adopts the cursor's driver's
-  definition representing NULL values as strings.
+  autopopulate is TRUE (the default is FALSE), columns are
+  automatically created based upon the fields in the \a cursor record.
+  If the \a cursor is read only, the table becomes read only.  The
+  table adopts the cursor's driver's definition representing NULL
+  values as strings.
 */
 
 QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
