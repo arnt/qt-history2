@@ -70,7 +70,7 @@ public:
     bool isOverwriteMode() const;
     int undoDepth() const;
     virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
-    virtual bool getFormat( int parag, int index, QFont &font, QColor &color );
+    virtual bool getFormat( int para, int index, QFont &font, QColor &color );
 
 public slots:
     virtual void setOverwriteMode( bool b );

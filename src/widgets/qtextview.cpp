@@ -160,17 +160,17 @@ static bool block_set_alignment = FALSE;
     shortcuts are also supported:
 
     <ul>
-    <li><i> Up Arrow </i> Move one line up
-    <li><i> Down Arrow </i> Move one line down
-    <li><i> Left Arrow </i> Move one column left
-    <li><i> Right Arrow </i> Move one column right
-    <li><i> Page Up </i> Move one (viewport) page up
-    <li><i> Page Down </i> Move one (viewport) page down
-    <li><i> Home </i> Move to the beginning of the text
-    <li><i> End </i> Move to the end of the text
-    <li><i> Shift+Wheel</i> Scroll the page horizontally (the Wheel is
+    <li><i> Up Arrow </i> -- Move one line up
+    <li><i> Down Arrow </i> -- Move one line down
+    <li><i> Left Arrow </i> -- Move one column left
+    <li><i> Right Arrow </i> -- Move one column right
+    <li><i> Page Up </i> -- Move one (viewport) page up
+    <li><i> Page Down </i> -- Move one (viewport) page down
+    <li><i> Home </i> -- Move to the beginning of the text
+    <li><i> End </i> -- Move to the end of the text
+    <li><i> Shift+Wheel</i> -- Scroll the page horizontally (the Wheel is
     the mouse wheel)
-    <li><i> Ctrl+Wheel</i> Zoom the text
+    <li><i> Ctrl+Wheel</i> -- Zoom the text
     </ul>
 
     The text view may be able to provide some meta-information. The

@@ -223,8 +223,8 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
   \value DisplayInline  elements are displayed in a horizontally flowing
      sequence (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
 
-  \value DisplayListItem  elements are displayed in a vertically sequence
-    (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
+  \value DisplayListItem  elements are displayed in a vertical sequence
+    (e.g., &lt;LI&gt; ... &lt;/LI&gt;).
 
   \value DisplayNone  elements are not displayed at all.
 */
