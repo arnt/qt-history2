@@ -512,10 +512,12 @@ void QDockWindowHandle::updateGui()
 	return;
 
     if ( dockWindow->area()->orientation() == Horizontal ) {
-	closeButton->move( 2, 2 );
+	int off = ( width() - closeButton->width() - 1 ) / 2;
+	closeButton->move( off, 2 );
     } else {
+	int off = ( height() - closeButton->height() - 1 ) / 2;
 	int x = QApplication::reverseLayout() ? 2 : width() - closeButton->width() - 2;
-	closeButton->move( x, 2 );
+	closeButton->move( x, off );
     }
 }
 
