@@ -73,7 +73,6 @@ public:
     QAction( Type t, QObject* parent, const char* name = 0 );
     ~QAction();
 
-#if !defined(QT_CLEAN_NAMESPACE)
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
     QAction( const QString& text, const QIconSet& icon,
 	     const QString& menuText, int accel,
@@ -81,7 +80,6 @@ public:
     QAction( const QString& text, const QString& menuText,
 	     int accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE );
-#endif
 
     virtual void setType( Type t );
     Type type() const;

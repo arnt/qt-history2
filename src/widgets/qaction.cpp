@@ -1022,7 +1022,7 @@ bool QAction::addTo( QWidget* w )
     bool ok = TRUE;
     while ( (a=it.current()) != 0 ) {
 	++it;
-	ok = it.current()->addTo( addChildrenTo ) && ok; // && ok must be last!
+	ok = a->addTo( addChildrenTo ) && ok; // && ok must be last!
     }
     if ( needUpdate )
 	updateVectors();
