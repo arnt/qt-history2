@@ -177,9 +177,9 @@ protected:
     virtual QMenu *createContextMenu(const QPoint &pos);
 
 private:
-    Q_PRIVATE_SLOT(void update(const QRect &r))
-    Q_PRIVATE_SLOT(void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(void adjustScrollbars());
+    Q_PRIVATE_SLOT(d, void update(const QRect &r))
+    Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d, void adjustScrollbars());
 #if defined(Q_DISABLE_COPY)
     QTextEdit(const QTextEdit &);
     QTextEdit &operator=(const QTextEdit &);

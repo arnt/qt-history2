@@ -69,8 +69,8 @@ protected:
 
 private:
 
-    Q_PRIVATE_SLOT(void fixFocus())
-    Q_PRIVATE_SLOT(void setChildrenEnabled(bool b))
+    Q_PRIVATE_SLOT(d, void fixFocus())
+    Q_PRIVATE_SLOT(d, void setChildrenEnabled(bool b))
 
 private:
 

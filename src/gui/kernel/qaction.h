@@ -22,12 +22,9 @@
 #include "qkeysequence.h"
 #endif // QT_H
 
-#ifndef QT_NO_ACTION
-
 class QMenu;
 class QActionGroup;
 class QActionPrivate;
-class QActionGroupPrivate;
 
 class Q_GUI_EXPORT QAction : public QObject
 {
@@ -162,64 +159,5 @@ private:
 #endif
 };
 
-class Q_GUI_EXPORT QActionGroup : public QObject
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QActionGroup)
-
-    Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-    Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
-
-public:
-    QActionGroup(QObject* parent);
-    ~QActionGroup();
-
-    QAction *addAction(QAction* a);
-    QAction *addAction(const QString &text);
-    QAction *addAction(const QIconSet &icon, const QString &text);
-    void removeAction(QAction *a);
-    QList<QAction*> actions() const;
-
-    QAction *checkedAction() const;
-    bool isExclusive() const;
-    bool isEnabled() const;
-    bool isVisible() const;
-
-#ifdef QT_COMPAT
-    inline QT_COMPAT void add(QAction* a) { addAction(a); }
-    inline QT_COMPAT void addSeparator()
-    { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
-    inline QT_COMPAT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
-#endif
-
-public slots:
-    void setEnabled(bool);
-    inline void setDisabled(bool b) { setEnabled(!b); }
-    void setVisible(bool);
-    void setExclusive(bool);
-
-protected:
-    void childEvent(QChildEvent*);
-
-signals:
-    void triggered(QAction *);
-    QT_MOC_COMPAT void selected(QAction *);
-    void hovered(QAction *);
-
-private:
-    Q_PRIVATE_SLOT(void actionTriggered());
-    Q_PRIVATE_SLOT(void actionChanged());
-    Q_PRIVATE_SLOT(void actionHovered());
-    Q_PRIVATE_SLOT(void actionDeleted());
-
-private:
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QActionGroup(const QActionGroup &);
-    QActionGroup &operator=(const QActionGroup &);
-#endif
-};
-
-#endif
-
+#include "qactiongroup.h" // ### remove after tech-preview 1
 #endif

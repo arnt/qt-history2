@@ -40,22 +40,4 @@ public:
     void sendDataChanged();
 };
 
-class QActionGroupPrivate : public QObjectPrivate
-{
-    Q_DECLARE_PUBLIC(QActionGroup)
-public:
-    QActionGroupPrivate() : exclusive(1), enabled(1), visible(1)  { }
-    QList<QAction *> actions;
-    QPointer<QAction> current;
-    uint exclusive : 1;
-    uint enabled : 1;
-    uint visible : 1;
-
-private:
-    void actionTriggered();  //private slot
-    void actionChanged();    //private slot
-    void actionHovered();    //private slot
-    void actionDeleted();    //private slot
-};
-
 #endif // QACTION_P_H

@@ -88,7 +88,7 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    Q_PRIVATE_SLOT(void popupPressed())
+    Q_PRIVATE_SLOT(d, void popupPressed())
 
 #ifdef QT_COMPAT
 public:

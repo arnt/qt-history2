@@ -726,8 +726,8 @@ private:
 #endif
 
 private:
-    Q_PRIVATE_SLOT(void actionChanged());
-    Q_PRIVATE_SLOT(void actionDeleted());
+    Q_PRIVATE_SLOT(d, void actionChanged());
+    Q_PRIVATE_SLOT(d, void actionDeleted());
 
 protected:
 #ifndef QT_NO_STYLE

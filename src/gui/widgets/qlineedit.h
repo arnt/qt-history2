@@ -180,7 +180,7 @@ public:
     QChar passwordChar() const; // obsolete internal
 
 private:
-    Q_PRIVATE_SLOT(void clipboardChanged())
+    Q_PRIVATE_SLOT(d, void clipboardChanged())
 
 #if defined(Q_DISABLE_COPY)
     QLineEdit(const QLineEdit &);

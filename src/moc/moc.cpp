@@ -369,7 +369,7 @@ void Moc::parseFunction(FunctionDef *def)
         next(RPAREN);
     }
     def->isConst = test(CONST);
-    if (def->inPrivateClass) {
+    if (def->inPrivateClass.size()) {
         next(RPAREN);
     } else {
         if (test(SEMIC))
@@ -778,7 +778,9 @@ void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
 {
     next(LPAREN);
     FunctionDef funcDef;
-    funcDef.inPrivateClass = true;
+    next(IDENTIFIER);
+    funcDef.inPrivateClass = lexem();
+    next(COMMA);
     funcDef.access = access;
     parseFunction(&funcDef);
     def->slotList += funcDef;

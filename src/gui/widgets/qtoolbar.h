@@ -98,7 +98,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    Q_PRIVATE_SLOT(void actionTriggered());
+    Q_PRIVATE_SLOT(d, void actionTriggered());
 };
 
 #endif // QTOOLBAR_H

@@ -518,8 +518,8 @@ void Generator::generateMetacall()
             fprintf(out, "        case %d: ", slotindex);
             if (f.normalizedType.size())
                 fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
-            if (f.inPrivateClass)
-                fprintf(out, "d->");
+            if (f.inPrivateClass.size())
+                fprintf(out, "%s->", f.inPrivateClass.constData());
             fprintf(out, "%s(", f.name.constData());
             int offset = 1;
             for (int j = 0; j < f.arguments.count(); ++j) {

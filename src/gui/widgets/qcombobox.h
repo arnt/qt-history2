@@ -150,11 +150,11 @@ protected:
     void keyPressEvent(QKeyEvent *e);
 
 private:
-    Q_PRIVATE_SLOT(void itemSelected(const QModelIndex &item))
-    Q_PRIVATE_SLOT(void emitHighlighted(const QModelIndex&))
-    Q_PRIVATE_SLOT(void returnPressed())
-    Q_PRIVATE_SLOT(void complete())
-    Q_PRIVATE_SLOT(void resetButton())
+    Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))
+    Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex&))
+    Q_PRIVATE_SLOT(d, void returnPressed())
+    Q_PRIVATE_SLOT(d, void complete())
+    Q_PRIVATE_SLOT(d, void resetButton())
 };
 
 #endif // QCOMBOBOX_H

@@ -113,8 +113,8 @@ private:
 #endif
 
     Q_DECLARE_PRIVATE(QSocket)
-    Q_PRIVATE_SLOT(void tryConnecting(const QDnsHostInfo &))
-    Q_PRIVATE_SLOT(void connectToNextAddress())
+    Q_PRIVATE_SLOT(d, void tryConnecting(const QDnsHostInfo &))
+    Q_PRIVATE_SLOT(d, void connectToNextAddress())
 
     QIODevicePrivate *d_ptr;
     friend class QSocketEngine;

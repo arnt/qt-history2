@@ -77,13 +77,13 @@ protected:
 
 private:
     friend class QWorkspaceChild;
-    Q_PRIVATE_SLOT(void normalizeActiveWindow());
-    Q_PRIVATE_SLOT(void minimizeActiveWindow());
-    Q_PRIVATE_SLOT(void showOperationMenu());
-    Q_PRIVATE_SLOT(void popupOperationMenu(const QPoint&));
-    Q_PRIVATE_SLOT(void operationMenuActivated(QAction *));
-    Q_PRIVATE_SLOT(void updateActions());
-    Q_PRIVATE_SLOT(void scrollBarChanged());
+    Q_PRIVATE_SLOT(d, void normalizeActiveWindow());
+    Q_PRIVATE_SLOT(d, void minimizeActiveWindow());
+    Q_PRIVATE_SLOT(d, void showOperationMenu());
+    Q_PRIVATE_SLOT(d, void popupOperationMenu(const QPoint&));
+    Q_PRIVATE_SLOT(d, void operationMenuActivated(QAction *));
+    Q_PRIVATE_SLOT(d, void updateActions());
+    Q_PRIVATE_SLOT(d, void scrollBarChanged());
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

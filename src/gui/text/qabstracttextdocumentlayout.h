@@ -67,7 +67,7 @@ signals:
     void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
 
 private:
-    Q_PRIVATE_SLOT(void handlerDestroyed(QObject *obj));
+    Q_PRIVATE_SLOT(d, void handlerDestroyed(QObject *obj));
 };
 
 class QTextObjectInterface

@@ -62,7 +62,7 @@ protected:
     void focusOutEvent(QFocusEvent *);
     void updateMask();
 private:
-    Q_PRIVATE_SLOT(void popupPressed())
+    Q_PRIVATE_SLOT(d, void popupPressed())
 
 public:
 #ifdef QT_COMPAT

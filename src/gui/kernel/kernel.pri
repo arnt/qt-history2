@@ -8,6 +8,7 @@ KERNEL_P= kernel
 HEADERS += \
 	kernel/qabstractlayout.h \
 	kernel/qaction.h \
+	kernel/qactiongroup.h \
 	kernel/qapplication.h \
 	kernel/qapplication_p.h \
 	kernel/qclipboard.h \
@@ -37,6 +38,7 @@ HEADERS += \
 SOURCES += \
 	kernel/qabstractlayout.cpp \
 	kernel/qaction.cpp \
+	kernel/qactiongroup.cpp \
 	kernel/qapplication.cpp \
 	kernel/qclipboard.cpp \
 	kernel/qcursor.cpp \
