@@ -1602,12 +1602,13 @@ bool QColor::operator!=(const QColor &color) const
 
 /*! \internal
 
-    Marks the color as invalid and sets all components to zero.
+    Marks the color as invalid and sets all components to zero (alpha
+    is set to fully opaque for compatibility with Qt 3).
 */
 void QColor::invalidate()
 {
     cspec = Invalid;
-    ct.argb.alpha = 0;
+    ct.argb.alpha = USHRT_MAX;
     ct.argb.red = 0;
     ct.argb.green = 0;
     ct.argb.blue = 0;
