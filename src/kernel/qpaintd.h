@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#6 $
 **
 ** Definition of QPaintDevice class
 **
@@ -33,11 +33,12 @@
 #define PDF_PAINTACTIVE	0x20
 
 
-// Painter device commands (for unsupported devices)
+// Painter device commands (for programmable, extended devices)
 
-#define PDC_RESERVED_START      0		// codes 0-999 are reserved
-#define PDC_RESERVED_STOP	999		//   for internal use
+#define PDC_RESERVED_START      0		// codes 0-99 are reserved
+#define PDC_RESERVED_STOP	99		//   for Troll Tech
 
+#define PDC_NOP			0		// void
 #define PDC_DRAWPOINT		1		// p
 #define PDC_MOVETO		2		// p
 #define PDC_LINETO		3		// p
@@ -53,16 +54,24 @@
 #define PDC_DRAWPOLYGON		13		// a,i
 #define PDC_DRAWTEXT		14		// p,s
 #define PDC_DRAWTEXTALIGN	15		// NI
-#define PDC_BEGIN		20
-#define PDC_END			21
+#define PDC_DRAWPIXMAP		16		// NI
+#define PDC_BEGIN		20		// void
+#define PDC_END			21		// void
+#define PDC_SAVE		22		// void
+#define PDC_RESTORE		23		// void
 #define PDC_SETBKCOLOR		30		// l
 #define PDC_SETBKMODE		31		// i
 #define PDC_SETROP		32		// i
-#define PDC_SETPEN		33		// i,i,ul
-#define PDC_SETBRUSH		34		// i,ul
-#define PDC_SETXFORM		40		// i
-#define PDC_SETSOURCEVIEW	41		// r
-#define PDC_SETTARGETVIEW	42		// r
+#define PDC_SETBRUSHORIGIN	33		// p
+#define PDC_SETFONT		35		// s	NOTE!!! more details
+#define PDC_SETPEN		36		// i,i,ul
+#define PDC_SETBRUSH		37		// i,ul	NOTE!!! bitmap support
+#define PDC_SETUNIT		40		// i
+#define PDC_SETVXFORM		41		// i
+#define PDC_SETSOURCEVIEW	42		// r
+#define PDC_SETTARGETVIEW	43		// r
+#define PDC_SETWXFORM		44		// i
+#define PDC_SETWXFMATRIX	45		// m,i
 #define PDC_SETCLIP		50		// i
 #define PDC_SETCLIPRGN		51		// NI
 
@@ -73,6 +82,7 @@ union QPDevCmdParam {
     QPoint	*p;
     QRect	*r;
     QPointArray *a;
+    QWXFMatrix  *m;
 };
 
 
@@ -84,7 +94,6 @@ public:
     virtual ~QPaintDevice();
 
     int	     devType()	      const { return devFlags & PDT_MASK; }
-
     bool     paintingActive() const { return (devFlags & PDF_PAINTACTIVE) ==
 					     PDF_PAINTACTIVE; }
 
