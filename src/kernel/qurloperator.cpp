@@ -739,6 +739,11 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
     if ( !u.isValid() )
 	return 0;
 
+    if ( !d->networkProtocol ) {
+	setProtocol( u.protocol() );
+	getNetworkProtocol();
+    }
+
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet, u, QString::null, QString::null );
     return startOperation( res );
 }
@@ -790,6 +795,11 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
 
     if ( !u.isValid() )
 	return 0;
+
+    if ( !d->networkProtocol ) {
+	setProtocol( u.protocol() );
+	getNetworkProtocol();
+    }
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut, u, QString::null, QString::null );
     res->setRawArg( 1, data );
@@ -922,10 +932,8 @@ void QUrlOperator::reset()
 
 bool QUrlOperator::parse( const QString &url )
 {
-    // ######
     bool b = QUrl::parse( url );
     if ( !b ) {
-//	emit error( ErrParse, tr( "Error in parsing `%1'" ).arg( url ) );
 	return b;
     }
 
