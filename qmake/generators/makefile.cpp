@@ -306,6 +306,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
     int pos;
     int end;
     int l;
+    const QString stringInc( "#include" );
     QChar term;
     QStringList &fndeps = depends[fn];
     if(!fndeps.isEmpty())
@@ -318,7 +319,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	QString s, inc;
 	while ( !t.eof() ) {
 	    s = t.readLine();
-	    pos = s.find( "#include" );
+	    pos = s.find( stringInc );
 	    if ( pos == -1 )
 		continue;
 
