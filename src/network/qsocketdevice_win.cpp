@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#8 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#9 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -81,36 +81,36 @@ int QSocketDevice::createNewSocket( )
 {
     int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s == INVALID_SOCKET ) {
-		switch( WSAGetLastError() ) {
+	switch( WSAGetLastError() ) {
 	    case WSANOTINITIALISED:
-			e = Impossible;
-			break;
+		e = Impossible;
+		break;
 	    case WSAENETDOWN:
-			// ### what to use here?
-			e = NetworkFailure;
-			//e = Inaccessible;
-			break;
+		// ### what to use here?
+		e = NetworkFailure;
+		//e = Inaccessible;
+		break;
 	    case WSAEMFILE:
-			e = NoFiles; // special case for this
-			break;
+		e = NoFiles; // special case for this
+		break;
 	    case WSAEINPROGRESS:
 	    case WSAENOBUFS:
-			e = NoResources;
-			break;
+		e = NoResources;
+		break;
 	    case WSAEAFNOSUPPORT:
 	    case WSAEPROTOTYPE:
 	    case WSAEPROTONOSUPPORT:
 	    case WSAESOCKTNOSUPPORT:
-			e = Bug;
-			break;
+		e = Bug;
+		break;
 	    default:
-			e = UnknownError;
-			break;
-		}
+		e = UnknownError;
+		break;
+	}
     } else {
-		return s;
+	return s;
     }
-	return -1;
+    return -1;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#6 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#7 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -153,7 +153,7 @@ QSocketDevice::QSocketDevice( Type type )
 	    this, type );
 #endif
     init();
-	setSocket( createNewSocket(), type );
+    setSocket( createNewSocket(), type );
 }
 
 /*!
