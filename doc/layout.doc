@@ -195,9 +195,8 @@ into.
 \section1 Custom Layouts
 
 If the built-in layout classes are not sufficient, you can define your
-own. You must make a subclass of \l QLayout that handles resizing and
-size calculations, as well as a subclass of \l QGLayoutIterator to
-iterate over your layout class.
+own. Just make a subclass of \l QLayout that handles resizing and
+size calculations.
 
 See the \link customlayout.html Custom Layout \endlink page for an
 in-depth description.
@@ -262,15 +261,17 @@ To write your own layout class, you must define the following:
 \list
 \i A data structure to store the items handled by the layout. Each
 item is a \link QLayoutItem QLayoutItem\endlink. We will use a
-QPtrList in this example.
+QList in this example.
 \i \link QLayout::addItem() addItem() \endlink, how to add items to
 the layout.
 \i \link QLayout::setGeometry() setGeometry() \endlink, how to perform
 the layout.
 \i \link QLayout::sizeHint() sizeHint() \endlink, the preferred size
 of the layout.
-\i \link QLayout::iterator() iterator() \endlink, how to iterate over
+\i \link QLayout::itemAt() itemAt() \endlink, how to iterate over
 the layout.
+\i \link QLayout::takeAt() takeAt() \endlink, how to remove items
+ from the layout.
 \endlist
 
 In most cases, you will also implement \link QLayout::minimumSize()
@@ -283,30 +284,31 @@ minimumSize\endlink().
 #define CARD_H
 
 #include <qlayout.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 class CardLayout : public QLayout
 {
 public:
-    CardLayout( QWidget *parent, int dist )
-	: QLayout( parent, 0, dist ) {}
-    CardLayout( QLayout* parent, int dist)
-	: QLayout( parent, dist ) { }
-    CardLayout( int dist )
-	: QLayout( dist ) {}
+    CardLayout(QWidget *parent, int dist)
+	: QLayout(parent, 0, dist) {}
+    CardLayout(QLayout* parent, int dist)
+	: QLayout(parent, dist) {}
+    CardLayout(int dist)
+	: QLayout(dist) {}
     ~CardLayout();
 
     void addItem(QLayoutItem *item);
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutIterator iterator();
+    QLayoutItem *itemAt(int) const;
+    QLayoutItem *takeAt(int);
     void setGeometry(const QRect &rect);
 
 private:
-    QPtrList<QLayoutItem> list;
+    QList<QLayoutItem*> list;
 };
-
 #endif
+
 \endcode
 
 \section2 card.cpp
@@ -315,55 +317,32 @@ private:
 #include "card.h"
 \endcode
 
-First we define an iterator over the layout. Layout iterators are used
-internally by the layout system to handle deletion of widgets. They
-are also available for application programmers.
+First we define two functions that iterate over the layout: 
+itemAt() and takeAt(). These functions are used internally by the
+layout system to handle deletion of widgets. They are also available
+for application programmers. 
 
-There are two different classes involved: QLayoutIterator is the class
-that is visible to application programmers, it is explicitly shared.
-The QLayoutIterator contains a QGLayoutIterator that does all the
-work. We must create a subclass of QGLayoutIterator that knows how to
-iterate over our layout class.
+ItemAt() returns the item at the given index. takeAt() removes the
+item at the given index, and returns it. In this case we use the list
+index as the layout index. In other cases where we have a more complex
+data structure, we may have to spend more effort defining a linear
+order for the items.
 
-In this case, we choose a simple implementation: we store an integer
-index into the list and a pointer to the list. Every \l
-QGLayoutIterator subclass must implement \link
-QGLayoutIterator::current() current\endlink(), \link
-QGLayoutIterator::next() next\endlink() and \link
-QGLayoutIterator::takeCurrent() takeCurrent\endlink(), as well as a
-constructor. In our example we do not need a destructor.
-
-\code
-class CardLayoutIterator : public QGLayoutIterator
+/code
+QLayoutItem *CardLayout::itemAt(int idx) const
 {
-public:
-    CardLayoutIterator( QPtrList<QLayoutItem> *l )
-	: idx( 0 ), list( l ) {}
+    // QList::value() performs index checking, and returns 0 if we are
+    // outside the valid range
+    return list.value(idx);
+}
 
-    QLayoutItem *current()
-    { return idx < int(list->count()) ? list->at(idx) : 0;  }
-
-    QLayoutItem *next()
-    { idx++; return current(); }
-
-    QLayoutItem *takeCurrent()
-    { return list->take( idx ); }
-
-private:
-    int idx;
-    QPtrList<QLayoutItem> *list;
-};
-\endcode
-
-We must implement QLayout:iterator() to return a QLayoutIterator over
-this layout.
-
-\code
-QLayoutIterator CardLayout::iterator()
-{	
-    return QLayoutIterator( new CardLayoutIterator(&list) );
+QLayoutItem *CardLayout::takeAt(int idx)
+{
+    // QList::take does not do index checking
+    return idx >= 0 && idx < list.size() ? list.takeAt(idx) : 0;
 }
 \endcode
+
 
 addItem() implements the default placement strategy for layout items.
 It must be implemented. It is used by QLayout::add(), by the QLayout
@@ -373,15 +352,15 @@ provide extra access functions such as the row and column spanning
 overloads of \l QGridLayout::addItem(), addWidget(), and addLayout().
 
 \code
-void CardLayout::addItem( QLayoutItem *item )
+void CardLayout::addItem(QLayoutItem *item)
 {
-    list.append( item );
+    list.append(item);
 }
 \endcode
 
 The layout takes over responsibility of the items added. Since
 QLayoutItem does not inherit QObject, we must delete the items
-manually. The function QLayout::deleteAllItems() uses the iterator we
+manually. The function QLayout::deleteAllItems() uses takeAt()
 defined above to delete all the items in the layout.
 
 \code
@@ -396,27 +375,21 @@ supplied as an argument does not include margin(). If relevant, use
 spacing() as the distance between items.
 
 \code
-void CardLayout::setGeometry( const QRect &rect )
+void CardLayout::setGeometry(const QRect &r)
 {
-    QLayout::setGeometry( rect );
+    QLayout::setGeometry(r);
 
-    QPtrListIterator<QLayoutItem> it( list );
-    if (it.count() == 0)
-	return;
+    if (list.size() == 0)
+        return;
 
-    QLayoutItem *item;
-
+    int w = r.width() - (list.count() - 1) * spacing();
+    int h = r.height() - (list.count() - 1) * spacing();
     int i = 0;
-
-    int w = rect.width() - ( list.count() - 1 ) * spacing();
-    int h = rect.height() - ( list.count() - 1 ) * spacing();
-
-    while ( (item = it.current()) != 0 ) {
-	++it;
-	QRect geom( rect.x() + i * spacing(), rect.y() + i * spacing(),
-		    w, h );
-	item->setGeometry( geom );
-	++i;
+    while (i < list.size()) {
+        QLayoutItem *o = list.at(i);
+        QRect geom(r.x() + i * spacing(), r.y() + i * spacing(), w, h);
+        o->setGeometry(geom);
+        ++i;
     }
 }
 \endcode
@@ -428,30 +401,30 @@ spacing(), but not margin().
 \code
 QSize CardLayout::sizeHint() const
 {
-    QSize s( 0, 0 );
+    QSize s(0,0);
     int n = list.count();
-    if ( n > 0 )
-	s = QSize( 100, 70 ); // start with a nice default size
-    QPtrListIterator<QLayoutItem> it( list );
-    QLayoutItem *item;
-    while ( (item = it.current()) != 0 ) {
-	++it;
-	s = s.expandedTo( item->minimumSize() );
+    if (n > 0)
+        s = QSize(100,70); //start with a nice default size
+    int i = 0;
+    while (i < n) {
+        QLayoutItem *o = list.at(i);
+        s = s.expandedTo(o->sizeHint());
+        ++i;
     }
-    return s + n * QSize( spacing(), spacing() );
+    return s + n*QSize(spacing(), spacing());
 }
 
 QSize CardLayout::minimumSize() const
 {
-    QSize s( 0, 0 );
+    QSize s(0,0);
     int n = list.count();
-    QPtrListIterator<QLayoutItem> it( list );
-    QLayoutItem *item;
-    while ( (item = it.current()) != 0 ) {
-	++it;
-	s = s.expandedTo( item->minimumSize() );
+    int i = 0;
+    while (i < n) {
+        QLayoutItem *o = list.at(i);
+        s = s.expandedTo(o->minimumSize());
+        ++i;
     }
-    return s + n * QSize( spacing(), spacing() );
+    return s + n*QSize(spacing(), spacing());
 }
 \endcode
 

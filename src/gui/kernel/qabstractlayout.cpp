@@ -1513,7 +1513,7 @@ bool QLayout::activate()
 */
 
 /*!
-  \fn QLayoutItem *QLayout::itemAt(int index)
+  \fn QLayoutItem *QLayout::itemAt(int index) const
 
   Must be implemented in subclasses to return the layout item at \a
   index. If there is no such item, the function must return 0.
@@ -1542,6 +1542,8 @@ bool QLayout::activate()
             paintLayout(&p, layout());
     }
     \endcode
+
+    \sa QLayout::takeAt()
 */
 
 /*!
@@ -1562,6 +1564,7 @@ bool QLayout::activate()
   }
   \endcode
   
+    \sa QLayout::itemAt()
 */
 
 
