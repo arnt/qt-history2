@@ -156,6 +156,12 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	return TRUE;
     fn = Option::fixPathToLocalOS(fn);
 
+    QString fndir;
+    int dl = fn.findRev(Option::dir_sep);
+    if(dl != -1)
+	fndir = fn.left(dl+1);
+    printf("Got dir of: %s\n", fndir.latin1());
+
     int file = open(fn.latin1(), O_RDONLY);
     if(file == -1)
 	return FALSE;
@@ -191,6 +197,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		QString fqn, inc = big_buffer + x;
 		if(!stat(inc, &fst))
 		    fqn = inc;
+		else if(!stat(fndir + inc, &fst))
+		    fqn = fndir + inc;
 		else if((Option::mode == Option::WIN_MODE && inc[1] != ':') || 
 			(Option::mode == Option::UNIX_MODE && inc[0] != '/')) {
 		    bool found = FALSE;
