@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#248 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#249 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#248 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#249 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -265,7 +265,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		else if ( s == "motif" )
 		    QApplication::setStyle( MotifStyle );
 #if defined(DEBUG)
-	    } else if ( arg == "-qtdebug" ) {
+	    } else if ( arg == "-qdebug" ) {
 		debug_level++;
 #endif
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
@@ -2598,7 +2598,14 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
       && (state&ControlButton)
       && (state&AltButton) )
     {
-	QObject::dumpObjectTree();
+	QWidgetList *list   = qApp->topLevelWidgets();
+	QWidget     *widget = list->first();
+	while ( widget ) {
+	    debug("Top-level widget %p", widget);
+	    widget->dumpObjectTree();
+	    widget = list->next();
+	}
+	delete list;
 	return TRUE;
     }
 #endif
