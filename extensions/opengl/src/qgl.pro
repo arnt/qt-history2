@@ -1,6 +1,6 @@
 TEMPLATE    =	lib
 CONFIG      =   qt release opengl
-HEADERS     =	qgl.h
+HEADERS     =	../../../include/qgl.h
 SOURCES     =	qgl.cpp
 MOC_DIR     =   .
 TARGET      =	qgl
