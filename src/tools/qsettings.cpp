@@ -146,7 +146,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \endlist
 
     These limitations are not enforced on Unix or Mac OS X.
-    
+
     \warning Creating multiple instances of QSettings writing to a text
     file may lead to data loss! Changing one instance will not affect other
     instances.
@@ -154,7 +154,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \section1 Notes for Mac OS X Applications
 
     The location where settings are stored is not formally defined by
-    the CFPreferences API (for the sake of Mac OS 9 support).
+    the CFPreferences API.
 
     At the time of writing settings are stored (either on a global or
     user basis, preferring locally) into a plist file in \c
@@ -163,7 +163,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     out of the full path to a key.
 
     For further information on CFPreferences see
-    \link http://developer.apple.com/techpubs/macosx/CoreFoundation/PreferenceServices/preferenceservices_carbon.html
+    \link http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFPreferences/index.html
     Apple's Specifications\endlink
 
     \section1 Notes for Unix Applications
