@@ -17,8 +17,6 @@
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qcleanuphandler.h"
-#include "qmap.h"
-#include "qhash.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -1219,50 +1217,6 @@ bool QGLContext::create( const QGLContext* shareContext )
     United States and other countries.
 */
 
-// ### BCI - fix in 4.0
-
-// the display list cache can't be global because display lists are
-// tied to the GL contexts for each individual widget
-
-class QGLWidgetPrivate
-{
-public:
-    QMap<QString, int> displayListCache;
-};
-
-static QHash<const QGLWidget*, QGLWidgetPrivate*> * qgl_d_ptr = 0;
-static QSingleCleanupHandler< QHash<const QGLWidget*, QGLWidgetPrivate*> > qgl_cleanup_d_ptr;
-
-static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
-{
-    if ( !qgl_d_ptr ) {
-	qgl_d_ptr = new QHash<const QGLWidget*, QGLWidgetPrivate*>;
-	qgl_cleanup_d_ptr.set( &qgl_d_ptr );
-	qgl_d_ptr->setAutoDelete( TRUE );
-    }
-    QGLWidgetPrivate *ret = qgl_d_ptr->value(w);
-    if ( !ret ) {
-	ret = new QGLWidgetPrivate;
-	qgl_d_ptr->insert(w, ret);
-    }
-    return ret;
-}
-
-void qgl_delete_d( const QGLWidget * w )
-{
-    if ( qgl_d_ptr ) {
-	QGLWidgetPrivate * d = qgl_d_ptr->value(w);
-	((QGLWidget*) w)->makeCurrent();
-	if ( d ) {
-	    QMap<QString, int>::Iterator it;
-	    for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
-		glDeleteLists( it.value(), 256 );
-	    }
-	}
-	qgl_d_ptr->remove(w);
-    }
-}
-
 /*!
     Constructs an OpenGL widget with a \a parent widget and a \a name.
 
@@ -1373,7 +1327,6 @@ QGLWidget::~QGLWidget()
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     bool doRelease = ( glcx && glcx->windowCreated() );
 #endif
-    qgl_delete_d( this );
     delete glcx;
 #if defined(Q_WGL)
     delete olcx;
@@ -2082,8 +2035,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 {
     int base;
 
-    QGLWidgetPrivate * d = qgl_d( this );
-    if ( !d || !glcx ) { // this can't happen unless we run out of mem
+    if ( !glcx ) { // this can't happen unless we run out of mem
 	return 0;
     }
 
@@ -2091,19 +2043,19 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     // contexts can't handle this otherwise
     bool regenerate = glcx->deviceIsPixmap();
     QString key = fnt.key() + QString::number( (int)regenerate );
-    if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
-	base = d->displayListCache[ key ];
+    if ( !regenerate && (displayListCache.find( key ) != displayListCache.end()) ) {
+	base = displayListCache[ key ];
     } else {
 	int maxBase = listBase - 256;
 	QMap<QString,int>::ConstIterator it;
-	for ( it = d->displayListCache.constBegin(); it != d->displayListCache.constEnd(); ++it ) {
+	for ( it = displayListCache.constBegin(); it != displayListCache.constEnd(); ++it ) {
 	    if ( maxBase < it.value() ) {
 		maxBase = it.value();
 	    }
 	}
 	maxBase += 256;
 	glcx->generateFontDisplayLists( fnt, maxBase );
-	d->displayListCache[ key ] = maxBase;
+	displayListCache[ key ] = maxBase;
 	base = maxBase;
     }
     return base;

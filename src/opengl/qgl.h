@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qglcolormap.h"
+#include "qmap.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -330,6 +331,7 @@ private:
     bool autoSwap;
 
     QGLColormap cmap;
+    QMap<QString, int> displayListCache;
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
     QGLContext* olcx;
