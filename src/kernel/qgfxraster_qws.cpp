@@ -3656,7 +3656,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %x",finfo.smem_start);
+	    qDebug("Physical framebuffer address %lx",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can

@@ -153,10 +153,8 @@ QScreen * qt_probe_bus()
 	hardcoded_slot=0;
     } else {
 	int r=fread(config,256,1,f);
-	if(r<1) {
-	    qDebug("Error reading config information, %d",r);
+	if(r<1)
 	    hardcoded_slot=0;
-	}
 
 	fclose(f);
     }
