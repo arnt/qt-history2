@@ -532,26 +532,13 @@ bool QChar::isSymbol() const
     return c >= Symbol_Math && c <= Symbol_Other;
 }
 
-extern const Q_INT8 qt_decimal_info[];
-
 /*!
     Returns the numeric value of the digit, or -1 if the character is
     not a digit.
 */
 int QChar::digitValue() const
 {
-#ifndef QT_NO_UNICODETABLES
-    register int pos = qt_decimal_info[row()];
-    if(!pos)
-        return -1;
-    return qt_decimal_info[(pos<<8) + cell()];
-#else
-    // ##### just latin1
-    if (ucs < '0' || ucs > '9')
-        return -1;
-    else
-        return ucs - '0';
-#endif
+    return QUnicodeTables::digitValue(ucs);
 }
 
 /*!

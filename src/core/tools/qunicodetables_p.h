@@ -48,15 +48,16 @@ namespace QUnicodeTables {
         LineBreak_CB, LineBreak_SP
     };
 
-    Q_CORE_EXPORT QChar::Category category(int ucs4) FASTCALL;
-    Q_CORE_EXPORT unsigned char combiningClass(int ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::Direction direction(int ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::UnicodeVersion unicodeVersion(int ucs4) FASTCALL;
-    Q_CORE_EXPORT QChar::Joining joining(int ucs4) FASTCALL;
-    Q_CORE_EXPORT bool mirrored(int ucs4) FASTCALL;
-    Q_CORE_EXPORT int mirroredChar(int ucs4) FASTCALL;
-    Q_CORE_EXPORT int upper(int ucs4) FASTCALL;
-    Q_CORE_EXPORT int lower(int ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Category category(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT unsigned char combiningClass(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Direction direction(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::UnicodeVersion unicodeVersion(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT QChar::Joining joining(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT bool mirrored(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT int mirroredChar(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT int upper(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT int lower(uint ucs4) FASTCALL;
+    Q_CORE_EXPORT int QUnicodeTables::digitValue(uint ucs4) FASTCALL;
 };
 
 
