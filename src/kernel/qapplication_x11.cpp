@@ -5534,29 +5534,31 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( isVisible() )
 	    QApplication::syncX();
 
-	// ConfigureNotify compression for faster opaque resizing
-	XEvent otherEvent;
-	while ( XCheckTypedWindowEvent( x11Display(), winId(), ConfigureNotify,
-					&otherEvent ) ) {
-	    if ( qt_x11EventFilter( &otherEvent ) )
-		continue;
+        if (! extra || extra->compress_events) {
+            // ConfigureNotify compression for faster opaque resizing
+            XEvent otherEvent;
+            while ( XCheckTypedWindowEvent( x11Display(), winId(), ConfigureNotify,
+                                            &otherEvent ) ) {
+                if ( qt_x11EventFilter( &otherEvent ) )
+                    continue;
 
-	    if (x11Event( &otherEvent ) )
-		continue;
+                if (x11Event( &otherEvent ) )
+                    continue;
 
-	    if ( otherEvent.xconfigure.event != otherEvent.xconfigure.window )
-		continue;
+                if ( otherEvent.xconfigure.event != otherEvent.xconfigure.window )
+                    continue;
 
-	    newSize.setWidth( otherEvent.xconfigure.width );
-	    newSize.setHeight( otherEvent.xconfigure.height );
+                newSize.setWidth( otherEvent.xconfigure.width );
+                newSize.setHeight( otherEvent.xconfigure.height );
 
-	    if ( otherEvent.xconfigure.send_event || trust ) {
-		newCPos.rx() = otherEvent.xconfigure.x +
-			       otherEvent.xconfigure.border_width;
-		newCPos.ry() = otherEvent.xconfigure.y +
-			       otherEvent.xconfigure.border_width;
-	    }
-	}
+                if ( otherEvent.xconfigure.send_event || trust ) {
+                    newCPos.rx() = otherEvent.xconfigure.x +
+                                   otherEvent.xconfigure.border_width;
+                    newCPos.ry() = otherEvent.xconfigure.y +
+                                   otherEvent.xconfigure.border_width;
+                }
+            }
+        }
 
 	QRect cr ( geometry() );
 	if ( newSize != cr.size() ) { // size changed

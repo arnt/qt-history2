@@ -2279,6 +2279,7 @@ void QWidget::createSysExtra()
 {
     extra->xDndProxy = 0;
     extra->children_use_dnd = FALSE;
+    extra->compress_events = TRUE;
 }
 
 void QWidget::deleteSysExtra()

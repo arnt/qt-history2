@@ -261,6 +261,8 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	d->widget = d->shell;
     else
 	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
+
+    extraData()->compress_events = FALSE;
 }
 
 /*!

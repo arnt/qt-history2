@@ -989,12 +989,13 @@ struct Q_EXPORT QWExtra {
     uint child_dirty : 1, child_serial : 15;
 #ifndef QMAC_NO_QUARTZ
     uint ctx_children_clipped:1;
-#endif
+#endif // QMAC_NO_QUARTZ
     uint has_dirty_area:1;
-#endif
+#endif // Q_WS_MAC
     uint bg_origin : 2;
 #if defined(Q_WS_X11)
     uint children_use_dnd : 1;
+    uint compress_events : 1;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
