@@ -159,7 +159,7 @@ static int getToken()
 		    }
 		}
 		return Tok_Something;
-	    case Tok_Ampersand:
+	    case '&':
 		readChar();
 		if ( yyCh == '&' ) {
 		    readChar();
