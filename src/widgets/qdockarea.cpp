@@ -394,11 +394,21 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
     QDockWidget *dockWidget = 0;
     int dockWidgetIndex = findDockWidget( w );
     QList<QDockWidget> lineStarts = layout->lineStarts();
+    QValueList<QRect> lines = layout->lineList();
+    bool wasAloneInLine = FALSE;
+    QPoint pos = mapFromGlobal( p );
+    QRect lr = *lines.at( lineOf( dockWidgetIndex ) );
     if ( dockWidgetIndex != -1 ) {
+	if ( lineStarts.find( w ) != -1 && 
+	     ( dockWidgetIndex < (int)dockWidgets->count() - 1 && lineStarts.find( dockWidgets->at( dockWidgetIndex + 1 ) ) != -1 ||
+	       dockWidgetIndex == (int)dockWidgets->count() - 1 ) )
+	    wasAloneInLine = TRUE;
 	dockWidget = dockWidgets->take( dockWidgetIndex );
-	if ( lineStarts.findRef( dockWidget ) != -1 && dockWidgetIndex < (int)dockWidgets->count() )
-	    dockWidgets->at( dockWidgetIndex )->setNewLine( TRUE );
-	layout->layoutItems( QRect( 0, 0, width(), height() ), TRUE );
+	if ( !wasAloneInLine ) { // only do the pre-layout if the widget isn't the only one in its line
+	    if ( lineStarts.findRef( dockWidget ) != -1 && dockWidgetIndex < (int)dockWidgets->count() )
+		dockWidgets->at( dockWidgetIndex )->setNewLine( TRUE );
+	    layout->layoutItems( QRect( 0, 0, width(), height() ), TRUE );
+	}
     } else {
 	dockWidget = w;
 	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
@@ -407,13 +417,14 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	w->installEventFilter( this );
     }
 
-    QPoint pos = mapFromGlobal( p );
+    lineStarts = layout->lineStarts();
+    lines = layout->lineList();
+
     QRect rect = QRect( mapFromGlobal( r.topLeft() ), r.size() );
     dockWidget->setOffset( point_pos( rect.topLeft(), orientation() ) );
     if ( dockWidgets->isEmpty() ) {
 	dockWidgets->append( dockWidget );
     } else {
-	QValueList<QRect> lines = layout->lineList();
 	int dockLine = -1;
 	bool insertLine = FALSE;
 	int i = 0;
@@ -444,18 +455,22 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		dockLine++;
 	    }
 	}
+	
+	if ( !insertLine && wasAloneInLine && lr.contains( pos ) ) // if we are alone in a line and just moved in there, re-insert it
+	    insertLine = TRUE;
+	
 #if defined(QDOCKAREA_DEBUG)
 	qDebug( "insert in line %d, and insert that line: %d", dockLine, insertLine );
 	qDebug( "     (btw, we have %d lines)", lines.count() );
 #endif
 	QDockWidget *dw = 0;
-	if ( dockLine >= (int)lines.count() ) { // insert before first line
+	if ( dockLine >= (int)lines.count() ) { // insert after last line
 	    dockWidgets->append( dockWidget );
 	    dockWidget->setNewLine( TRUE );
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "insert at the end" );
 #endif
-	} else if ( dockLine == 0 && insertLine ) { // insert after last line
+	} else if ( dockLine == 0 && insertLine ) { // insert before first line
 	    dockWidgets->insert( 0, dockWidget );
 	    dockWidgets->at( 1 )->setNewLine( TRUE );
 #if defined(QDOCKAREA_DEBUG)
@@ -471,15 +486,20 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "search line start of %d", searchLine );
 #endif
-	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
-	    if ( index == -1 ) {
-		index = 0;
-		(void)dockWidgets->at( index ); // move current to index
+	    QDockWidget *lsw = lineStarts.at( searchLine );
+	    int index = dockWidgets->find( lsw );
+	    if ( index == -1 ) { // the linestart widget hasn't been found, try to find it harder
+		if ( lsw == w && dockWidgetIndex <= (int)dockWidgets->count())
+		    index = dockWidgetIndex;
+		else
+		    index = 0;
+		if ( index < (int)dockWidgets->count() )
+		    (void)dockWidgets->at( index ); // move current to index
 	    }
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "     which starts at %d", index );
 #endif
-	    if ( !insertLine ) { // if we only insert the docking widget in the existing line
+	    if ( !insertLine ) { // if we insert the docking widget in the existing line
 		// find the index for the widget
 		bool inc = TRUE;
 		bool firstTime = TRUE;
@@ -502,20 +522,35 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		qDebug( "insert at index: %d", index );
 #endif
 		// if we insert it just before a widget which has a new line, transfer the newline to the docking widget
-		if ( index >= 0 && index < (int)dockWidgets->count() &&
+		// but not if we didn't only mave a widget in its line which was alone in the line before
+		if ( !( wasAloneInLine && lr.contains( pos ) ) 
+		     && index >= 0 && index < (int)dockWidgets->count() &&
 		     dockWidgets->at( index )->newLine() && lineOf( index ) == dockLine ) {
 #if defined(QDOCKAREA_DEBUG)
 		    qDebug( "get rid of the old newline and get me one" );
 #endif
 		    dockWidgets->at( index )->setNewLine( FALSE );
 		    dockWidget->setNewLine( TRUE );
+		} else if ( wasAloneInLine && lr.contains( pos ) ) {
+		    dockWidget->setNewLine( TRUE );
 		} else { // if we are somewhere in a line, get rid of the newline
 		    dockWidget->setNewLine( FALSE );
 		}
 	    } else { // insert in a new line, so make sure the dock widget and the widget which will be after it have a newline
-		QDockWidget* nldw = dockWidgets->at( index );
-		if ( nldw )
-		    nldw->setNewLine( TRUE );
+#if defined(QDOCKAREA_DEBUG)
+		qDebug( "insert a new line" );
+#endif
+		if ( index < (int)dockWidgets->count() ) {
+#if defined(QDOCKAREA_DEBUG)
+		    qDebug( "give the widget at %d a newline", index );
+#endif
+		    QDockWidget* nldw = dockWidgets->at( index );
+		    if ( nldw )
+			nldw->setNewLine( TRUE );
+		}
+#if defined(QDOCKAREA_DEBUG)
+		qDebug( "give me a newline" );
+#endif
 		dockWidget->setNewLine( TRUE );
 	    }
 	    // finally insert the widget
