@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#17 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#17 $")
 
 
 /*----------------------------------------------------------------------------
@@ -304,7 +304,7 @@ void QIODevice::setStatus( int s )		// set status
   <li>\c IO_Translate enables carriage returns and linefeed translation
   for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
   combined with \c IO_Raw.
-  <\ul>
+  </ul>
 
   This virtual function must be reimplemented by subclasses.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#50 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#50 $")
 
 
 /*!
@@ -286,7 +286,7 @@ QImage QImage::copy() const
 */
 
 /*!
-  \fn int QImage::bitOrder() const
+  \fn QImage::Endian QImage::bitOrder() const
   Returns the bit order for the image.
 
   If it is a 1-bit image, this function returns either QImage::BigEndian or
@@ -1141,7 +1141,7 @@ void QImageIO::defineIOHandler( const char *format,
 //
 
 /*!
-  \fn QImage QImageIO::image() const
+  \fn const QImage& QImageIO::image() const
   Returns the image currently set.
   \sa setImage()
 */

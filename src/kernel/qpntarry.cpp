@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#26 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 
 /*----------------------------------------------------------------------------
-  \fn QPointArray &QArray::operator=( const QPointArray &a )
+  \fn QPointArray &QPointArray::operator=( const QPointArray &a )
   Assigns a shallow copy of \e a to this point array and returns a reference
   to this point array.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#27 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -23,8 +23,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#26 $")
   \ingroup tools
   \ingroup files
 
-  A file is an \link QIODevice I/O device\endlink that can read and write
-  binary and text files.
+  A file is an I/O device you can use to read and write binary and
+  text files, by itself or more conveniently using QDataStream or
+  QTextStream.  Most of its behavior is inherited from QIODevice.
 
   The QFileInfo class holds detailed information about a file, such as
   access permissions, file dates and file types.
@@ -85,9 +86,9 @@ void QFile::init()				// initialize internal data
 
   Do not call this function if the file has already been opened.
 
-  Note that if the name is relative it will not be associated with the
-  current directory, thus changing the current directory before calling
-  open() will change the location of the QFile.
+  Note that if the name is relative QFile does not it associated with
+  the current directory.  If you change directory before calling
+  open(), open uses the new current directory.
 
   Example:
   \code
@@ -95,7 +96,7 @@ void QFile::init()				// initialize internal data
      QDir::setCurrent( "/tmp" );
      f.setName( "readme.txt" );
      QDir::setCurrent( "/home" );
-     f.open( IO_ReadOnly );	   // will open "/home/readme.txt" under UNIX
+     f.open( IO_ReadOnly );	   // opens "/home/readme.txt" under UNIX
   \endcode
 
   \sa name(), QFileInfo, QDir
@@ -167,7 +168,7 @@ bool QFile::exists( const char *fileName )
   </ul>
 
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
-  specified, it will be created.
+  specified, it is created.
 
   Example:
   \code
@@ -358,8 +359,9 @@ bool QFile::open( int m, int f )		// open file, using file descr
 /*----------------------------------------------------------------------------
   Closes an open file.
 
-  The file will be closed even if it was opened with an existing file handle
-  or a file descriptor and it is not stdin, stdout or stderr.
+  The file is closed even if it was opened with an existing file
+  handle or a file descriptor, \e except that stdin, stdout and stderr
+  are never closed.
 
   \sa open(), flush()
  ----------------------------------------------------------------------------*/
@@ -386,7 +388,7 @@ void QFile::close()				// close file
 /*----------------------------------------------------------------------------
   Flushes the file buffer to the disk.
 
-  Calling close() will also flush.
+  Calling close() implicitly flushes the file buffer.
  ----------------------------------------------------------------------------*/
 
 void QFile::flush()				// flush file
@@ -477,7 +479,7 @@ bool QFile::at( long n )
 
   Returns -1 if a serious error occurred.
 
-  \sa writeBlock()
+  \sa writeBlock() QDataStream
  ----------------------------------------------------------------------------*/
 
 int QFile::readBlock( char *p, uint len )
@@ -508,7 +510,7 @@ int QFile::readBlock( char *p, uint len )
 
   Returns -1 if a serious error occurred.
 
-  \sa readBlock()
+  \sa readBlock() QDataStream
  ----------------------------------------------------------------------------*/
 
 int QFile::writeBlock( const char *p, uint len )
@@ -559,7 +561,7 @@ int QFile::writeBlock( const char *p, uint len )
   readLine() for files that have been opened with the \c IO_Raw
   flag.
 
-  \sa readBlock()
+  \sa readBlock() QTextStream
  ----------------------------------------------------------------------------*/
 
 int QFile::readLine( char *p, uint maxlen )
