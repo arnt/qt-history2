@@ -126,13 +126,11 @@ class Q_EXPORT QCanvas : public QObject
     Q_OBJECT
 public:
     QCanvas();
-    QCanvas(int w, int h, int chunksize=16, int maxclusters=100);
-    QCanvas(const QString& imagefile, int w, int h, int chunksize=16, int maxclusters=100);
-    QCanvas(QPixmap p, int w, int h, int chunksize=16, int maxclusters=100);
-    QCanvas(QPixmap tiles, int htiles, int vtiles,
-			int tilewidth, int tileheight,
-		        int chunksize=-1, int maxclusters=100	);
+    QCanvas(int w, int h);
+    QCanvas( QPixmap p, int h, int v, int tilewidth, int tileheight );
 
+    void setBackgroundPixmap( const QPixmap& p );
+    void setBackgroundColor( const QColor& c );
     void setTile( int x, int y, int tilenum );
     int tile( int x, int y ) const { return grid[x+y*htiles]; }
 
@@ -150,12 +148,14 @@ public:
     QSize size() const { return QSize(awidth,aheight); }
 
     int chunkSize() const { return chunksize; }
-    void retune(int chunksize, int maxclusters);
+    void retune(int chunksize, int maxclusters=100);
 
     bool sameChunk(int x1, int y1, int x2, int y2) const
 	{ return x1/chunksize==x2/chunksize && y1/chunksize==y2/chunksize; }
     void setChangedChunk(int i, int j);
     void setChangedChunkContaining(int x, int y);
+    void setAllChanged();
+    void setChanged(const QRect& inarea);
 
     // These call setChangedChunk
     void addItemToChunk(QCanvasItem*, int i, int j);
@@ -180,6 +180,7 @@ public:
     virtual void removeAnimation(QCanvasItem*);
 
     void setAdvancePeriod(int ms);
+    void setUpdatePeriod(int ms);
 
 public slots:
     virtual void advance();
@@ -189,10 +190,8 @@ protected:
     virtual void drawBackground(QPainter&, const QRect& area);
     virtual void drawForeground(QPainter&, const QRect& area);
 
-    void forceRedraw(const QRect&);
-
 private:
-    void init(int w, int h, int chunksze, int maxclust);
+    void init(int w, int h, int chunksze=16, int maxclust=100);
 
     QCanvasChunk& chunk(int i, int j) const;
     QCanvasChunk& chunkContaining(int x, int y) const;
@@ -223,6 +222,7 @@ private:
     bool oneone;
     QPixmap pm;
     QTimer* update_timer;
+    QColor bgcolor;
 };
 
 class Q_EXPORT QCanvasView : public QScrollView
