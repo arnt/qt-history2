@@ -26,45 +26,6 @@
 
 #include <qevent.h>
 
-class PluginDelegate : public QItemDelegate
-{
-public:
-    PluginDelegate(QObject *parent);
-    ~PluginDelegate();
-
-    enum Roles {
-        CheckedRole = QAbstractItemModel::DecorationRole
-    };
-
-    bool editorEvent(QEvent *event, const QStyleOptionViewItem &option, const QModelIndex &index);
-};
-
-PluginDelegate::PluginDelegate(QObject *parent)
-    : QItemDelegate(parent)
-{
-}
-
-PluginDelegate::~PluginDelegate()
-{
-}
-
-bool PluginDelegate::editorEvent(QEvent *event, const QStyleOptionViewItem &option,
-                                 const QModelIndex &index)
-{
-    bool typeOk = event && (event->type() == QEvent::MouseButtonPress
-                            || event->type() == QEvent::MouseButtonDblClick);
-    if (!typeOk || index.column() != 0)
-        return QItemDelegate::editorEvent(event, option, index);
-
-    if ((static_cast<QMouseEvent*>(event)->x() - option.rect.x()) < 20) {
-        const QAbstractItemModel *model = index.model();
-        bool checked = model->data(index, CheckedRole).toBool();
-        const_cast<QAbstractItemModel*>(model)->setData(index, !checked, CheckedRole);
-        return true;
-    }
-    return false;
-}
-
 class PluginPreferenceWidget : public QWidget
 {
     Q_OBJECT
@@ -98,7 +59,6 @@ PluginPreferenceWidget::PluginPreferenceWidget(QWidget *parent)
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     m_tree = new QTreeWidget(this);
-    m_tree->setItemDelegate(new PluginDelegate(m_tree));
     m_tree->setColumnCount(2);
     m_tree->setHeaderLabels(QStringList() << tr("Enabled") << tr("Plugin") << tr("Path"));
     m_tree->header()->setResizeMode(QHeaderView::Custom, 2);
@@ -138,7 +98,7 @@ void PluginPreferenceWidget::addThisPath()
 void PluginPreferenceWidget::addItem(const QString &path)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(m_tree);
-    item->setData(0, PluginDelegate::CheckedRole, true);
+    item->setData(0, QAbstractItemModel::CheckStateRole, true);
     int lastSlash = path.lastIndexOf('/');
     QString realPath = path;
     if (lastSlash != -1) {
