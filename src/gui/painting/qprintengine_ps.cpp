@@ -144,12 +144,12 @@ static const char *const ps_header =
 "exch NP ARC QS}D/PIE{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y\n"
 "h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch\n"
 "16 div exch NP ARC CP BF QS}D/BZ{curveto QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt\n"
-"ED}D/WB{1[1 1 1]BR}D/NB{0[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi\n"
-"ED/PSt ED LWi 0 eq{0.25/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM\n"
-"SM concat}D/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont\n"
-"dup/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
-"/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false\n"
-"eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
+"ED}D/NB{0[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0\n"
+"eq{0.25/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{\n"
+"true exch true exch{exch pop exch pop dup 0 get dup findfont dup/FontName\n"
+"get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED\n"
+"exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
+"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
 "fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
 "dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
 "definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
@@ -5226,8 +5226,8 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     uint mleft = pageRect.left() - paperRect.left();
     uint mbottom = paperRect.bottom() - pageRect.bottom();
     uint mright = paperRect.right() - pageRect.right();
-    int width = pageRect.width(); // #################### m.width();
-    int height = pageRect.height(); // ##########3 m.height();
+    int width = pageRect.width();
+    int height = pageRect.height();
     if (finished && pageCount == 1 && copies == 1 &&
          ((fullPage && qt_gen_epsf) ||
            (outputToFile && outputFileName.endsWith(".eps")))
@@ -5611,14 +5611,16 @@ void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
 #endif
         return;
     }
+    if (brush.style() == Qt::LinearGradientPattern) {
+#if defined(CHECK_RANGE)
+        qWarning("QPrinter: LinearGradient brush not supported");
+#endif
+        return;
+    }
     d->cbrush = brush;
-    // we special-case for nobrush and solid white, since
-    // those are the two most common brushes
+    // we special-case for nobrush since this is a very common case
     if (d->cbrush.style() == Qt::NoBrush)
         d->pageStream << "NB\n";
-    else if (d->cbrush.style() == Qt::SolidPattern &&
-             d->cbrush.color() == Qt::white)
-        d->pageStream << "WB\n";
     else
         d->pageStream << (int)d->cbrush.style() << ' '
                       << color(d->cbrush.color()) << "BR\n";
@@ -5626,6 +5628,7 @@ void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
 
 void QPSPrintEngine::updateFont(const QFont &)
 {
+    // no need to do anything here, as we use the font engines.
 }
 
 void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
@@ -5785,9 +5788,9 @@ void QPSPrintEngine::drawPolygon(const QPointArray &a, bool winding, int index, 
         d->pageStream << "/WFi false d\n";
 }
 
-void QPSPrintEngine::drawConvexPolygon(const QPointArray &, int index, int npoints)
+void QPSPrintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
-    // ### Implement me
+    drawPolygon(pa, false, index, npoints);
 }
 
 void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
