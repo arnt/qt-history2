@@ -1164,7 +1164,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                     t << targ;
                 }
             }
-            t << "\n\t";
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t <<  " FORCE";
             const QStringList &dirs = project->variables()[pvar];
             for(QStringList::ConstIterator pit = dirs.begin(); pit != dirs.end(); ++pit) {
                 QString tmp_dst = fileFixify((*pit), FileFixifyAbsolute, false);
@@ -1174,7 +1175,10 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
             }
             t << target << endl << endl;
             if(!uninst.isEmpty()) {
-                t << "uninstall_" << (*it) << ": " << "\n\t"
+                t << "uninstall_" << (*it) << ": ";
+                if(project->isEmpty("QMAKE_NOFORCE"))
+                    t <<  " FORCE";
+                t << "\n\t"
                   << uninst.join("") << "\n\t"
                   << "-$(DEL_DIR) \"" << filePrefixRoot(root, dst) << "\"" << endl << endl;
             }
@@ -1189,8 +1193,14 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
             debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
         }
     }
-    t << "install: " << all_installs << " " << var("INSTALLDEPS")   << "\n\n";
-    t << "uninstall: " << all_uninstalls << " " << var("UNINSTALLDEPS") << "\n\n";
+    t << "install: " << all_installs << " " << var("INSTALLDEPS");
+    if(project->isEmpty("QMAKE_NOFORCE"))
+        t <<  " FORCE";
+    t << "\n\n";
+    t << "uninstall: " << all_uninstalls << " " << var("UNINSTALLDEPS");
+    if(project->isEmpty("QMAKE_NOFORCE"))
+        t <<  " FORCE";
+    t << "\n\n";
 }
 
 QString
@@ -1750,11 +1760,14 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
               << cdin
               << "$(QMAKE) " << in << buildArgs() << out
               << cdout << endl;
-            t << subtarget->target << "-qmake_all: " << "\n\t"
-              << mkdir_p_asstring(subtarget->directory)
-              << cdin
-              << "$(QMAKE) " << in << buildArgs() << out
-              << cdout << endl;
+            t << subtarget->target << "-qmake_all: ";
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t <<  " FORCE";
+              t << "\n\t"
+                << mkdir_p_asstring(subtarget->directory)
+                << cdin
+                << "$(QMAKE) " << in << buildArgs() << out
+                << cdout << endl;
         }
 
         //don't need the makefile arg if it isn't changed
@@ -1804,16 +1817,16 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     writeMakeQmake(t);
 
     t << "qmake_all:";
-    if(project->isEmpty("QMAKE_NOFORCE"))
-        t <<  " FORCE";
     if(!targets.isEmpty()) {
         for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) {
             if(!(*it)->profile.isEmpty())
                 t << " " << (*it)->target << "-" << "qmake_all";
         }
-        if(project->isActiveConfig("no_empty_targets"))
-            t << "\t" << "@cd .";
     }
+    if(project->isEmpty("QMAKE_NOFORCE"))
+        t <<  " FORCE";
+    if(project->isActiveConfig("no_empty_targets"))
+        t << "\t" << "@cd .";
     t << endl << endl;
 
     for(int s = 0; s < targetSuffixes.size(); ++s) {
