@@ -709,8 +709,9 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 
 void P4Interface::statusMessage( const QString &text )
 {
-    appInterface->showStatusMessage( text );
-    outputView->append( text );
+    QString txt = text.left( text.length() - 2 );
+    appInterface->showStatusMessage( txt );
+    outputView->append( txt );
 }
 
 QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
