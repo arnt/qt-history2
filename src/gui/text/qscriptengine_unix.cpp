@@ -1497,7 +1497,8 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
 
-        where[0] = true;
+ 	where[0] = (item->from == 0
+                    || !(item->string->unicode()[item->from-1].isLetter() ||  item->string->unicode()[item->from-1].isMark()));
         openType->applyGSUBFeature(FT_MAKE_TAG('i', 'n', 'i', 't'), where.data());
         openType->applyGSUBFeature(FT_MAKE_TAG('n', 'u', 'k', 't'));
 
@@ -1648,8 +1649,8 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
         switch(newState) {
         case Control:
             newState = state;
-            if (state == Halant)
-                break;
+ 	    if (state == Halant && uc[pos].unicode() == 0x200d /* ZWJ */)
+  		break;
             goto finish;
         case Consonant:
             if (state == Halant)
@@ -2177,8 +2178,8 @@ static int khmer_nextSyllableBoundary(const QString &s, int start, int end, bool
     KHDEBUG("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode());
     pos++;
 
-    if (state != Khmer_Cons) {
-        if (state != Khmer_IndV && state != Khmer_Other)
+    if (state != Khmer_Cons && state != Khmer_IndV) {
+         if (state != Khmer_Other)
             *invalid = true;
         goto finish;
     }
