@@ -317,21 +317,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << "    ~" << bareNameOfClass << "();" << endl;
     out << endl;
 
-    bool needPolish = false;
-
-    // children
-    nl = e.parentNode().toElement().elementsByTagName("widget");
-    for (i = 1; i < (int) nl.length(); i++) { // start at 1, 0 is the toplevel widget
-        n = nl.item(i).toElement();
-        QString s = getClassName(n);
-        if (s == "QDataTable" || s == "QDataBrowser") {
-            if (isFrameworkCodeGenerated(n))
-                 needPolish = true;
-        }
-    }
-
-    out << endl;
-
     // database connections
     dbConnections = unique(dbConnections);
     bool hadOutput = FALSE;
@@ -440,12 +425,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     if (!publicFuncts.isEmpty())
         writeFunctionsDecl(publicFuncts, publicFunctRetTyp, publicFunctSpec);
 
-    if (needPolish || !publicSlots.isEmpty()) {
+    if (!publicSlots.isEmpty()) {
         out << "public slots:" << endl;
-        if (needPolish) {
-            out << indent << "virtual void polish();" << endl;
-            out << endl;
-        }
         if (!publicSlots.isEmpty())
             writeFunctionsDecl(publicSlots, publicSlotTypes, publicSlotSpecifier);
     }
@@ -924,74 +905,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         }
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
             break;
-    }
-
-    if (needSqlTableEventHandler || needSqlDataBrowserEventHandler) {
-        out << "/*" << endl;
-        out << " *  Widget polish.  Reimplemented to handle" << endl;
-        if (needSqlTableEventHandler)
-            out << " *  default data table initialization" << endl;
-        if (needSqlDataBrowserEventHandler)
-            out << " *  default data browser initialization" << endl;
-        out << " */" << endl;
-        out << "void " << nameOfClass  << "::polish()" << endl;
-        out << "{" << endl;
-        if (needSqlTableEventHandler) {
-            for (i = 0; i < (int) nl.length(); i++) {
-                QString s = getClassName(nl.item(i).toElement());
-                if (s == "QDataTable") {
-                    n = nl.item(i).toElement();
-                    QString c = getObjectName(n);
-                    QString conn = getDatabaseInfo(n, "connection");
-                    QString tab = getDatabaseInfo(n, "table");
-                    if (!(conn.isEmpty() || tab.isEmpty() || !isFrameworkCodeGenerated(nl.item(i).toElement()))) {
-                        out << indent << "if (" << c << ") {" << endl;
-                        out << indent << indent << "QSqlCursor* cursor = " << c << "->sqlCursor();" << endl;
-                        out << indent << indent << "if (!cursor) {" << endl;
-                        if (conn == "(default)")
-                            out << indent << indent << indent << "cursor = new QSqlCursor(\"" << tab << "\");" << endl;
-                        else
-                            out << indent << indent << indent << "cursor = new QSqlCursor(\"" << tab << "\", TRUE, " << conn << "Connection);" << endl;
-                        out << indent << indent << indent << "if (" << c << "->isReadOnly()) " << endl;
-                        out << indent << indent << indent << indent << "cursor->setMode(QSqlCursor::ReadOnly);" << endl;
-                        out << indent << indent << indent << c << "->setSqlCursor(cursor, FALSE, TRUE);" << endl;
-                        out << indent << indent << "}" << endl;
-                        out << indent << indent << "if (!cursor->isActive())" << endl;
-                        out << indent << indent << indent << c << "->refresh(QDataTable::RefreshAll);" << endl;
-                        out << indent << "}" << endl;
-                    }
-                }
-            }
-        }
-        if (needSqlDataBrowserEventHandler) {
-            nl = e.elementsByTagName("widget");
-            for (i = 0; i < (int) nl.length(); i++) {
-                QString s = getClassName(nl.item(i).toElement());
-                if (s == "QDataBrowser") {
-                    QString obj = getObjectName(nl.item(i).toElement());
-                    QString tab = getDatabaseInfo(nl.item(i).toElement(),
-                                                   "table");
-                    QString conn = getDatabaseInfo(nl.item(i).toElement(),
-                                                    "connection");
-                    if (!(tab.isEmpty() || !isFrameworkCodeGenerated(nl.item(i).toElement()))) {
-                        out << indent << "if (" << obj << ") {" << endl;
-                        out << indent << indent << "if (!" << obj << "->sqlCursor()) {" << endl;
-                        if (conn == "(default)")
-                            out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor(\"" << tab << "\");" << endl;
-                        else
-                            out << indent << indent << indent << "QSqlCursor* cursor = new QSqlCursor(\"" << tab << "\", TRUE, " << conn << "Connection);" << endl;
-                        out << indent << indent << indent << obj << "->setSqlCursor(cursor, TRUE);" << endl;
-                        out << indent << indent << indent << obj << "->refresh();" << endl;
-                        out << indent << indent << indent << obj << "->first();" << endl;
-                        out << indent << indent << "}" << endl;
-                        out << indent << "}" << endl;
-                    }
-                }
-            }
-        }
-        out << indent << " // ### fixme: " << objClass << "::polish();" << endl;
-        out << "}" << endl;
-        out << endl;
     }
 
     out << "/*" << endl;
