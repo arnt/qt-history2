@@ -33,6 +33,13 @@
 #include "qevent.h"
 #endif
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_GUI_EXPORT QFlags<Qt::WidgetState>;
+template class Q_GUI_EXPORT QFlags<Qt::WindowFlags>;
+// MOC_SKIP_END
+#endif
+
 class QLayout;
 class QWSRegionManager;
 class QStyle;

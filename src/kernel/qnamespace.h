@@ -921,12 +921,6 @@ public:
 	CompatibilityMode = 0x20
     };
 };
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QFlags<Qt::WidgetState>;
-Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QFlags<Qt::WindowFlags>;
-// MOC_SKIP_END
-#endif
 
 
 #endif // QNAMESPACE_H
