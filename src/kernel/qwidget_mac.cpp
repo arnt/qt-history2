@@ -680,7 +680,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(ptl && ptl->testWFlags(WStyle_StaysOnTop))
 	    setWFlags(WStyle_StaysOnTop);
     }
-    if(!testWFlags(WStyle_Customize) && !(desktop || popup))
+    if(!testWFlags(WStyle_Customize) && !(desktop || popup)) 
 	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
     if(dialog && !testWFlags(WShowModal) && parentWidget() && parentWidget()->testWFlags(WShowModal))
 	setWFlags(WShowModal);
@@ -738,12 +738,15 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    if(qt_mac_is_macsheet(this)) {
 		grp = GetWindowGroupOfClass(kMovableModalWindowClass);
 		wclass = kSheetWindowClass;
-	    } else if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
-		if(wclass == kToolbarWindowClass)
-		    wclass = kFloatingWindowClass;
-		if(wclass == kDocumentWindowClass)
-		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
+		if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
+		    if(wclass == kToolbarWindowClass)
+			wclass = kFloatingWindowClass;
+		    if(wclass == kDocumentWindowClass)
+			wattr |= kWindowStandardDocumentAttributes;
+		    if(wclass == kFloatingWindowClass)
+			wattr |= kWindowStandardFloatingAttributes;
+		}
 		grp = GetWindowGroupOfClass(wclass);
 		if(testWFlags(WStyle_NoBorder)) {
 		    if(wclass == kDocumentWindowClass)
