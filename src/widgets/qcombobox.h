@@ -105,8 +105,8 @@ public:
 
     bool	eventFilter( QObject *object, QEvent *event );
 
-    void setEnableMultipleInsertion( bool enable );
-    bool enableMultipleInsertion() const;
+    void 	setEnableMultipleInsertion( bool enable );
+    bool 	enableMultipleInsertion() const;
 
 public slots:
     void	clearValidator();
