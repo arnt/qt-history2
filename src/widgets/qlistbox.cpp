@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#275 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#276 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1109,7 +1109,7 @@ bool QListBox::itemVisible( int index )
 /*!  Returns TRUE if \a item is at least partly visible, or else FALSE.
 */
 
-bool QListBox::itemVisible( QListBoxItem * item )
+bool QListBox::itemVisible( const QListBoxItem * item )
 {
     int i = index( item );
     int col = i/numRows();
@@ -1745,7 +1745,7 @@ bool QListBox::isSelected( int i ) const
   selected or if there is an error.
 */
 
-bool QListBox::isSelected( QListBoxItem * i ) const
+bool QListBox::isSelected( const QListBoxItem * i ) const
 {
     if ( !i )
 	return FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#265 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#266 $
 **
 ** Implementation of QListView widget class
 **
@@ -1761,7 +1761,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int x = -contentsX();
         int w = header()->cellPos( header()->count() - 1 ) +
                 header()->cellSize( header()->count() - 1 );
-	 
+	
 	    r.setRect( x, current->y - oy, w, ih );
 	    //WINDOWSBUG### should use this
 	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
@@ -3175,7 +3175,7 @@ void QListView::clearSelection()
   are neat creatures and like neat, orthogonal interfaces.
 */
 
-bool QListView::isSelected( QListViewItem * i ) const
+bool QListView::isSelected( const QListViewItem * i ) const
 {
     return i ? i->isSelected() : FALSE;
 }
@@ -3982,7 +3982,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
   \sa setOpen()
 */
 
-bool QListView::isOpen( QListViewItem * item ) const
+bool QListView::isOpen( const QListViewItem * item ) const
 {
     return item->isOpen();
 }

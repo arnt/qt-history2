@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#93 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#94 $
 **
 ** Definition of QListBox widget class
 **
@@ -95,7 +95,7 @@ public:
     virtual void setSelected( QListBoxItem *, bool );
     void setSelected( int, bool );
     bool isSelected( int ) const;
-    bool isSelected( QListBoxItem * ) const;
+    bool isSelected( const QListBoxItem * ) const;
 
     QSize sizeHint() const;
 
@@ -105,7 +105,7 @@ public:
     void triggerUpdate( bool doLayout );
 
     bool itemVisible( int index );
-    bool itemVisible( QListBoxItem * );
+    bool itemVisible( const QListBoxItem * );
 
     enum LayoutMode { FixedNumber,
 		      FitToWidth, FitToHeight = FitToWidth,
