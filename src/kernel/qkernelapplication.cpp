@@ -4,6 +4,10 @@
 #include <qevent.h>
 #include <qvector.h>
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+# include <qaccessible.h>
+#endif
+
 // ########### get rid of the following includes
 #include <qwidget.h>
 
