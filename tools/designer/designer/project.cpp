@@ -37,6 +37,7 @@
 #include <qdom.h>
 #include <qmessagebox.h>
 #include <qapplication.h>
+#include "mainwindow.h"
 
 #ifndef QT_NO_SQL
 #include <qsqldatabase.h>
@@ -127,7 +128,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 	conn->setPort( prt );
 	success = conn->open();
 	if ( !success ) {
-	    switch( QMessageBox::warning( 0, QApplication::tr( "Connection" ),
+	    switch( QMessageBox::warning( MainWindow::self, QApplication::tr( "Connection" ),
 					  QApplication::tr( "Could not connect to the database.\n"
 							    "Press 'OK' to continue or 'Cancel' to "
 							    "specify different\nconnection information.\n" )

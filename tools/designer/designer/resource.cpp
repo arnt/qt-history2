@@ -321,7 +321,8 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		    if ( n.attribute( "impldecl" ) == "in implementation" )
 			inc.implDecl = "in implementation";
 		    inc.header = n.firstChild().toText().data();
-		    metaIncludes.append( inc );
+		    if ( inc.header.right( 5 ) != ".ui.h" )
+			metaIncludes.append( inc );
 		}
 	    }
     }

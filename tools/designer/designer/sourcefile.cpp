@@ -162,7 +162,7 @@ bool SourceFile::closeEvent()
     if ( ed )
 	ed->save();
 
-    switch ( QMessageBox::warning( 0, tr( "Save Code" ),
+    switch ( QMessageBox::warning( MainWindow::self, tr( "Save Code" ),
 				   tr( "Save changes to '%1'?" ).arg( filename ),
 				   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
     case 0: // save
@@ -203,7 +203,7 @@ void SourceFile::checkTimeStamp()
     if ( timeStamp.isUpToDate() )
 	return;
     timeStamp.update();
-    if ( QMessageBox::information( 0, tr( "Qt Designer" ),
+    if ( QMessageBox::information( MainWindow::self, tr( "Qt Designer" ),
 				   tr( "The file %1 has been changed outside Qt Designer.\n"
 				       "Do you want to reload it?" ).arg( filename ),
 				   tr( "&Yes" ), tr( "&No" ) ) == 0 ) {

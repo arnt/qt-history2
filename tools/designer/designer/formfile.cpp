@@ -503,7 +503,7 @@ void FormFile::checkTimeStamp()
 	return;
     timeStamp.update();
     if ( codeEdited ) {
-	if ( QMessageBox::information( 0, tr( "Qt Designer" ),
+	if ( QMessageBox::information( MainWindow::self, tr( "Qt Designer" ),
 				       tr( "The file %1 has been changed outside Qt Designer.\n"
 					   "Do you want to reload it?" ).arg( timeStamp.fileName() ),
 				       tr( "&Yes" ), tr( "&No" ) ) == 0 ) {

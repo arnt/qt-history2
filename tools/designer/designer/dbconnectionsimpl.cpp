@@ -116,7 +116,7 @@ void DatabaseConnectionsEditor::doConnect()
 	    listConnections->setCurrentItem( listConnections->count() - 1 );
 	    project->saveConnections();
 	} else {
-	    QMessageBox::warning( 0, QApplication::tr( "Connection" ),
+	    QMessageBox::warning( MainWindow::self, QApplication::tr( "Connection" ),
 				     QApplication::tr( "Could not connect to the database.\n"
 						       "Please check whether the server is running and if you typed in all information correctly.\n"
 							    "[ " + conn->lastError() + " ]" ) );

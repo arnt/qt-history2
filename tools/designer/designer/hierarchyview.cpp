@@ -30,6 +30,7 @@
 #include "sourceeditor.h"
 #include "propertyeditor.h"
 #include "editslotsimpl.h"
+#include "listeditor.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -780,11 +781,16 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
+    const int EDIT_ITEM = 3;
     menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
+    if ( i->rtti() == HierarchyItem::Definition || i->rtti() == HierarchyItem::DefinitionParent )
+	menu.insertItem( tr( "Edit..." ), EDIT_ITEM );
     if ( i->parent() && i->rtti() != HierarchyItem::Public &&
 	 i->rtti() != HierarchyItem::Protected &&
-	 i->rtti() != HierarchyItem::Private )
+	 i->rtti() != HierarchyItem::Private ) {
+	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), DEL_ITEM );
+    }
     popupOpen = TRUE;
     int res = menu.exec( pos );
     popupOpen = FALSE;
@@ -811,6 +817,20 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	QListViewItem *p = i->parent();
 	delete i;
 	save( p, 0 );
+    } else if ( res == EDIT_ITEM ) {
+	LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
+	if ( !lIface )
+	    return;
+	if ( i->rtti() == HierarchyItem::Definition )
+	    i = i->parent();
+	ListEditor dia( this, 0, TRUE );
+	dia.setCaption( tr( "Edit %1" ).arg( i->text( 0 ) ) );
+	QStringList entries = lIface->definitionEntries( i->text( 0 ), MainWindow::self->designerInterface() );
+	dia.setList( entries );
+	dia.exec();
+	lIface->setDefinitionEntries( i->text( 0 ), dia.items(), MainWindow::self->designerInterface() );
+	refresh( TRUE );
+	formWindow->commandHistory()->setModified( TRUE );
     }
 }
 
