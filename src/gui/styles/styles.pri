@@ -4,6 +4,7 @@ HEADERS += \
 	styles/qstyle.h \
 	styles/qstylefactory.h \
 	styles/qstyleinterface_p.h \
+	styles/qstyleoption.h \
 	styles/qstyleplugin.h \
 	styles/qcommonstyle.h
 SOURCES += \
@@ -13,7 +14,7 @@ SOURCES += \
 	styles/qcommonstyle.cpp
 
 contains( styles, all ) {
-	styles += mac cde motifplus sgi platinum compact interlace windows motif
+	styles = mac windows
 }
 
 x11|embedded|!macx-*:styles -= mac

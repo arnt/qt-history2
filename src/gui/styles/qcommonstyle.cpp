@@ -648,6 +648,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     activePainter = 0;
 }
 
+void QCommonStyle::drawPrimitive(PrimitiveElement, const Q4StyleOption &, QPainter *, QWidget *) const
+{
+}
+
 /*! \reimp */
 void QCommonStyle::drawControl(ControlElement element,
                                 QPainter *p,
@@ -1171,6 +1175,14 @@ void QCommonStyle::drawControl(ControlElement element,
     activePainter = 0;
 }
 
+
+void QCommonStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *, QWidget *) const
+{
+}
+void QCommonStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *, QWidget *) const
+{
+}
+
 /*! \reimp */
 void QCommonStyle::drawControlMask(ControlElement control,
                                     QPainter *p,
@@ -1508,6 +1520,33 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     }
 
     return rect;
+}
+
+QRect QCommonStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+{
+    return QRect();
+}
+
+void QCommonStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+                                    const QWidget *) const
+{
+}
+
+void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &,
+                                          QPainter *, const QWidget *) const
+{
+}
+
+QStyle::SubControl QCommonStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+                                                   const QPoint &, const QWidget *) const
+{
+    return SC_None;
+}
+
+QRect QCommonStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+                                         const QWidget *) const
+{
+    return QRect();
 }
 
 /*! \reimp */
@@ -2741,6 +2780,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     }
 
     return sz;
+}
+
+QSize QCommonStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
+                                   const QFontMetrics &) const
+{
+    return QSize();
 }
 
 

@@ -219,7 +219,8 @@ fi
 
 # licensed modules depend on type of commercial license
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
-QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
+#QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
+QMAKE_VARS="$QMAKE_VARS \"styles += windows mac\""  # Temporary until all the styles are ported over.
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 
 

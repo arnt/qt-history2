@@ -2011,7 +2011,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
                            &pal.brush(QPalette::Background));
 
             QRect ar =
-                QStyle::visualRect(querySubControlMetrics(CC_ComboBox, widget,
+                QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, widget,
                                                             SC_ComboBoxArrow), widget);
             if (subActive == SC_ComboBoxArrow) {
                 p->setPen(pal.dark());
@@ -2034,7 +2034,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
         if (sub & SC_ComboBoxEditField) {
             const QComboBox * cb = (const QComboBox *) widget;
             QRect re =
-                QStyle::visualRect(querySubControlMetrics(CC_ComboBox, widget,
+                QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, widget,
                                                             SC_ComboBoxEditField), widget);
             if (cb->hasFocus() && !cb->editable())
                 p->fillRect(re.x(), re.y(), re.width(), re.height(),
@@ -2067,9 +2067,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
             int len        = pixelMetric(PM_SliderLength, widget);
             int ticks = sl->tickmarks();
 
-            QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+            QRect groove = QCommonStyle::querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
                                                   opt),
-                  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+                  handle = QCommonStyle::querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
                                                   opt);
 
             if ((sub & SC_SliderGroove) && groove.isValid()) {
@@ -2393,6 +2393,52 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
     }
 
     return rect;
+}
+
+void QWindowsStyle::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
+                           const QWidget *) const
+{
+}
+void QWindowsStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
+                         const QWidget *) const
+{
+}
+
+void QWindowsStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
+                             const QWidget *) const
+{
+}
+
+QRect QWindowsStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+{
+    return QRect();
+}
+
+void QWindowsStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+                                const QWidget *) const
+{
+}
+
+void QWindowsStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
+{
+}
+
+QStyle::SubControl QWindowsStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+                                   const QPoint &, const QWidget *) const
+{
+    return SC_None;
+}
+
+QRect QWindowsStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+                                     const QWidget *) const
+{
+    return QRect();
+}
+
+QSize QWindowsStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
+                                   const QFontMetrics &) const
+{
+    return QSize();
 }
 
 #endif

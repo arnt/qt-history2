@@ -107,6 +107,8 @@ private:
 
 class QStyleHintReturn; // not defined yet
 
+class Q4StyleOption;
+class Q4StyleOptionComplex;
 class Q_GUI_EXPORT QStyle: public QObject
 {
     Q_OBJECT
@@ -273,6 +275,10 @@ public:
                                 const QPalette &pal, SFlags flags = Style_Default,
                                 const QStyleOption& = QStyleOption::Default) const = 0;
 
+
+    // Qt 4...
+    virtual void drawPrimitive(PrimitiveElement pe, const Q4StyleOption &opt, QPainter *p,
+                               const QWidget *w = 0) const = 0;
     enum ControlElement {
         CE_PushButton,
         CE_PushButtonLabel,
@@ -331,6 +337,11 @@ public:
                                   const QWidget *widget,
                                   const QRect &r,
                                   const QStyleOption& = QStyleOption::Default) const = 0;
+    // Qt 4, drawControl...
+    virtual void drawControl(ControlElement element, const Q4StyleOption &opt, QPainter *p,
+                             const QWidget *w = 0) const = 0;
+    virtual void drawControlMask(ControlElement element, const Q4StyleOption &opt, QPainter *p,
+                                 const QWidget *w) const = 0;
 
     enum SubRect {
         SR_PushButtonContents,
@@ -373,6 +384,8 @@ public:
     };
 
     virtual QRect subRect(SubRect r, const QWidget *widget) const = 0;
+    // Qt 4...
+    virtual QRect subRect(SubRect r, const Q4StyleOption &opt, const QWidget *widget = 0) const = 0;
 
 
     enum ComplexControl{
@@ -459,8 +472,14 @@ public:
                                         const QWidget *widget,
                                         const QPoint &pos,
                                         const QStyleOption& = QStyleOption::Default) const = 0;
-
-
+    // Qt 4...
+    virtual void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex &opt, QPainter *p,
+                                    const QWidget *w = 0) const = 0;
+    virtual void drawComplexControlMask(ComplexControl cc, const Q4StyleOptionComplex &opt, QPainter *p, const QWidget *w = 0) const = 0;
+    virtual SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex &opt,
+                                       const QPoint &pt, const QWidget *w = 0) const = 0;
+    virtual QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex &opt,
+                                         const QWidget *w) const = 0;
     enum PixelMetric {
         PM_ButtonMargin,
         PM_ButtonDefaultIndicator,
@@ -542,9 +561,7 @@ public:
         PM_CustomBase =                0xf0000000
     };
 
-    virtual int pixelMetric(PixelMetric metric,
-                             const QWidget *widget = 0) const = 0;
-
+    virtual int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const = 0;
 
     enum ContentsType {
         CT_PushButton,
@@ -581,6 +598,10 @@ public:
                                     const QWidget *widget,
                                     const QSize &contentsSize,
                                     const QStyleOption& = QStyleOption::Default) const = 0;
+
+    // Qt 4
+    virtual QSize sizeFromContents(ContentsType ct, const Q4StyleOption &opt, const QSize &contentsSize,
+                                   const QFontMetrics &fm) const = 0;
 
     enum StyleHint  {
         // ...
@@ -751,6 +772,7 @@ public:
         SH_CustomBase =                0xf0000000
     };
 
+    // Perhaps this needs Q4StyleOption too?
     virtual int styleHint(StyleHint stylehint,
                            const QWidget *widget = 0,
                            const QStyleOption& = QStyleOption::Default,

@@ -869,7 +869,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
         if (sub & SC_SliderTickmarks) {
-	    int numTicks = (slider->maxValue() - slider->minValue() + 1) / slider->pageStep();
+	    int numTicks = (slider->maximum() - slider->minimum() + 1) / slider->pageStep();
             if (control == QStyle::CC_Slider) {
                 const QSlider *s = static_cast<const QSlider *>(slider);
                 if(s->tickInterval())
@@ -1383,7 +1383,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
         }
         // Fall through to the default case.
     default:
-        rect = QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
+        rect = QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
     }
     return rect;
 }
@@ -1461,7 +1461,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
         }
         break; }
     default:
-        sc = QWindowsStyle::querySubControl(control, widget, pos, opt);
+        sc = QCommonStyle::querySubControl(control, widget, pos, opt);
     }
     return sc;
 }
@@ -1587,5 +1587,53 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 {
     return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
 }
+
+
+void QMacStyleCG::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
+                           const QWidget *) const
+{
+}
+void QMacStyleCG::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
+                         const QWidget *) const
+{
+}
+
+void QMacStyleCG::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
+                             const QWidget *) const
+{
+}
+
+QRect QMacStyleCG::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+{
+    return QRect();
+}
+
+void QMacStyleCG::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+                                const QWidget *) const
+{
+}
+
+void QMacStyleCG::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
+{
+}
+
+QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+                                   const QPoint &, const QWidget *) const
+{
+    return SC_None;
+}
+
+QRect QMacStyleCG::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+                                          const QWidget *) const
+{
+    return QRect();
+}
+
+QSize QMacStyleCG::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
+                                   const QFontMetrics &) const
+{
+    return QSize();
+}
+
 
 #endif

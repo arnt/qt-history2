@@ -126,7 +126,7 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 /*!
     Constructs a QMacStyle object.
 */
-QMacStyle::QMacStyle()  : QWindowsStyle()
+QMacStyle::QMacStyle() : QWindowsStyle()
 {
     qd_style = 0;
     cg_style = 0;
@@ -368,6 +368,52 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
         return qd_style;
     }
     return 0;
+}
+
+void QMacStyle::drawPrimitive(PrimitiveElement , const Q4StyleOption &, QPainter *,
+                               const QWidget *) const
+{
+}
+void QMacStyle::drawControl(ControlElement , const Q4StyleOption &, QPainter *,
+                         const QWidget *) const
+{
+}
+
+void QMacStyle::drawControlMask(ControlElement , const Q4StyleOption &, QPainter *,
+                             const QWidget *) const
+{
+}
+
+QRect QMacStyle::subRect(SubRect , const Q4StyleOption &, const QWidget *) const
+{
+    return QRect();
+}
+
+void QMacStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex &, QPainter *,
+                                const QWidget *) const
+{
+}
+
+void QMacStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex &, QPainter *, const QWidget *) const
+{
+}
+
+QStyle::SubControl QMacStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex &,
+                                   const QPoint &, const QWidget *) const
+{
+    return SC_None;
+}
+
+QRect QMacStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex &,
+                                     const QWidget *) const
+{
+    return QRect();
+}
+
+QSize QMacStyle::sizeFromContents(ContentsType , const Q4StyleOption &, const QSize &,
+                                   const QFontMetrics &) const
+{
+    return QSize();
 }
 
 #endif
