@@ -61,7 +61,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
   */
 void
 QWindowsStyle::drawFocusRect( QPainter* p,
-			      const QRect& r, const QColorGroup &g, const QColor* bg)
+			      const QRect& r, const QColorGroup &, const QColor* bg)
 {
     if (!bg)
 	p->drawWinFocusRect( r );
@@ -341,7 +341,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	    x2--; y2--;
 	}
 	if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
-	    QBrush fill(white, Dense4Pattern );
+	    QBrush fill(g.light(), Dense4Pattern );
 	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
 	    clearButton = FALSE;
 	} else {
@@ -409,7 +409,7 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
   */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool sunken ,
-				     bool editable , 
+				     bool /* editable */, 
 				     bool enabled,
 				     const QBrush *fill )
 {
@@ -550,7 +550,7 @@ void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, in
 		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
-    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
+    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(g.light(), Dense4Pattern) );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
     if ( maxedOut ) {
@@ -573,9 +573,9 @@ void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, in
     }
     // ### perhaps this should not be able to accept focus if maxedOut?
     if ( sb->hasFocus() && (controls & SLIDER) )
-	p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-			     sliderR.width()-5, sliderR.height()-5,
-			     sb->backgroundColor() );
+	drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
+			       sliderR.width()-5, sliderR.height()-5), g,
+		      &sb->backgroundColor());
 
 }
 
