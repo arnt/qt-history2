@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#25 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#25 $");
 
 
 
@@ -496,6 +496,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
 {
     main = parent;
     border = 0;
+    frozen = FALSE:
 
     xC = new QParChain( LeftToRight );
     yC = new QParChain( Down );
