@@ -160,7 +160,7 @@ public:
     inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
                                            int modifiers, const QString& text = QString::null,
                                            bool autorep = false, ushort count = 1)
-        : QInputEvent(type, (Qt::KeyboardModifiers)modifiers), txt(text), k(key),
+        : QInputEvent(type, (Qt::KeyboardModifiers)(modifiers & Qt::KeyButtonMask)), txt(text), k(key),
           c(count), autor(autorep)
     {
         if (key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
