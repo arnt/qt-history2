@@ -93,8 +93,9 @@ public:
     void handleReparent();
     QWidget *oldParent;
     QWidget *oldWindow;
+#ifdef QT3_SUPPORT
     bool doAutoResize;
-
+#endif
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {

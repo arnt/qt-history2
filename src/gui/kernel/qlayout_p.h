@@ -33,6 +33,8 @@ class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate
 public:
     QLayoutPrivate();
 
+    void doResize(const QSize &);
+
     int insideSpacing;
     int outsideBorder;
     uint topLevel : 1;

@@ -444,6 +444,21 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w)
     return false;
 }
 
+
+void QLayoutPrivate::doResize(const QSize &r)
+{
+    int mbh = menuBarHeightForWidth(menubar, r.width());
+    QWidget *mw = q->parentWidget();
+    QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect) ? mw->rect() : mw->contentsRect();
+    rect.setTop(rect.top() + mbh);
+    q->setGeometry(rect);
+#ifndef QT_NO_MENUBAR
+    if (menubar)
+        menubar->setGeometry(0,0,r.width(), mbh);
+#endif
+}
+
+
 /*!
     \internal
     Performs child widget layout when the parent widget is
@@ -459,11 +474,7 @@ void QLayout::widgetEvent(QEvent *e)
     case QEvent::Resize:
         if (d->activated) {
             QResizeEvent *r = (QResizeEvent *)e;
-            int mbh = menuBarHeightForWidth(d->menubar, r->size().width());
-            QWidget *mw = parentWidget();
-            QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-            rect.setTop(rect.top() + mbh); //goes away when menubar isn't magic anymore
-            setGeometry(rect);
+            d->doResize(r->size());
         } else {
             activate();
         }
@@ -871,15 +882,7 @@ bool QLayout::activate()
         return false;
     }
     activateRecursiveHelper(this);
-    QSize s = mw->size();
-    QSize ms;
-    int mbh = 0;
-#ifndef QT_NO_MENUBAR
-    mbh = menuBarHeightForWidth(d->menubar, s.width());
-#endif
-    QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-    rect.setTop(rect.top() + mbh);
-    setGeometry(rect);
+    d->doResize(mw->size());
 
     switch (d->constraint) {
     case SetFixedSize:

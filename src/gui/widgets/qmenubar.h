@@ -235,6 +235,9 @@ public:
     inline QT3_SUPPORT Separator separator() const { return InWindowsStyle; }
     inline QT3_SUPPORT void setSeparator(Separator) { }
 
+    QT3_SUPPORT void setAutoGeometry(bool);
+    QT3_SUPPORT bool autoGeometry() const;
+
 signals:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);

@@ -438,6 +438,9 @@ void QMenuBarPrivate::init()
 #endif
     q->setBackgroundRole(QPalette::Button);
     oldWindow = oldParent = 0;
+#ifdef QT3_SUPPORT
+    doAutoResize = false;
+#endif
     handleReparent();
     q->setMouseTracking(q->style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, q));
 }
@@ -947,18 +950,21 @@ void QMenuBarPrivate::handleReparent()
 
     oldParent = newParent;
     oldWindow = newWindow;
-
-#ifndef QT_NO_TOOLBAR
-    doAutoResize = newParent && !qobject_cast<QToolBar*>(newParent)
-# ifdef QT3_SUPPORT
-                                    && !newParent->inherits("Q3ToolBar")
-# endif
-        ;
-#else
-    doAutoResize = true;
-#endif
 }
 
+#ifdef QT3_SUPPORT
+void QMenuBar::setAutoGeometry(bool b)
+{
+    Q_D(QMenuBar);
+    d->doAutoResize = b;
+}
+
+bool QMenuBar::autoGeometry() const
+{
+    Q_D(const QMenuBar);
+    return d->doAutoResize;
+}
+#endif
 
 /*!
   \reimp
@@ -1027,12 +1033,14 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
 {
     Q_D(QMenuBar);
     if (object == parent() && object) {
+#ifdef QT3_SUPPORT
         if (d->doAutoResize && event->type() == QEvent::Resize) {
             QResizeEvent *e = (QResizeEvent *)event;
             int w = e->size().width();
             setGeometry(0, y(), w, heightForWidth(w));
             return false;
         }
+#endif
         if (event->type() == QEvent::ParentChange) //GrandparentChange
             d->handleReparent();
     }
