@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMIC_P_H
-#define QATOMIC_P_H
+#ifndef MIPS_QATOMIC_H
+#define MIPS_QATOMIC_H
 
 #ifndef QT_H
 #  include <qglobal.h>
@@ -21,13 +21,12 @@
 
 extern "C" {
 
-Q_CORE_EXPORT
-int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
-Q_CORE_EXPORT
-void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+    Q_CORE_EXPORT
+    void *q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 
 } // extern "C"
 
-#endif // QATOMIC_P_H
-
+#endif // MIPS_QATOMIC_H

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMIC_P_H
-#define QATOMIC_P_H
+#ifndef SPARC_QATOMIC_H
+#define SPARC_QATOMIC_H
 
 #ifndef QT_H
 #  include <qglobal.h>
@@ -21,29 +21,28 @@
 
 extern "C" {
 
-Q_CORE_EXPORT
-int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
-Q_CORE_EXPORT
-int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+    Q_CORE_EXPORT
+    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 
 #define Q_HAVE_ATOMIC_INCDEC
 
-Q_CORE_EXPORT
-int q_atomic_increment(volatile int *ptr);
+    Q_CORE_EXPORT
+    int q_atomic_increment(volatile int *ptr);
 
-Q_CORE_EXPORT
-int q_atomic_decrement(volatile int *ptr);
+    Q_CORE_EXPORT
+    int q_atomic_decrement(volatile int *ptr);
 
 #define Q_HAVE_ATOMIC_SET
 
-Q_CORE_EXPORT
-int q_atomic_set_int(volatile int *ptr, int newval);
+    Q_CORE_EXPORT
+    int q_atomic_set_int(volatile int *ptr, int newval);
 
-Q_CORE_EXPORT
-void *q_atomic_set_ptr(void * volatile *ptr, void *newval);
+    Q_CORE_EXPORT
+    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
 
 } // extern "C"
 
-#endif // QATOMIC_P_H
-
+#endif // SPARC_QATOMIC_H

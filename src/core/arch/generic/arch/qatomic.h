@@ -17,23 +17,47 @@
 
 extern "C" {
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{
-    if (*ptr == expected) {
-	*ptr = newval;
-	return 1;
+    inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+    {
+	if (*ptr == expected) {
+	    *ptr = newval;
+	    return 1;
+	}
+	return 0;
     }
-    return 0;
-}
 
-inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
-{
-    if (*ptr == expected) {
-	*ptr = newval;
-	return 1;
+    inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+    {
+	if (*reinterpret_cast<void * volatile *>(ptr) == expected) {
+	    *reinterpret_cast<void * volatile *>(ptr) = newval;
+	    return 1;
+	}
+	return 0;
     }
-    return 0;
-}
+
+#define Q_HAVE_ATOMIC_INCDEC
+
+    inline int q_atomic_increment(volatile int *ptr)
+    { return ++(*ptr); }
+
+    inline int q_atomic_decrement(volatile int *ptr)
+    { return --(*ptr); }
+
+#define Q_HAVE_ATOMIC_SET
+
+    inline int q_atomic_set_int(volatile int *ptr, int newval)
+    {
+	register int ret = *ptr;
+	*ptr = newval;
+	return ret;
+    }
+
+    inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+    {
+       	register void *ret = *reinterpret_cast<void * volatile *>(ptr);
+	*reinterpret_cast<void * volatile *>(ptr) = newval;
+	return ret;
+    }
 
 } // extern "C"
 

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMIC_P_H
-#define QATOMIC_P_H
+#ifndef POWERPC_QATOMIC_H
+#define POWERPC_QATOMIC_H
 
 #ifndef QT_H
 #  include <qglobal.h>
@@ -23,28 +23,28 @@ extern "C" {
 
 #if defined(Q_CC_GNU)
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{
-    register int tmp;
-    register int ret;
-    asm volatile("lwarx  %0,0,%2\n"
-                 "cmpw   %0,%3\n"
-                 "bne-   $+20\n"
-                 "stwcx. %4,0,%2\n"
-                 "bne-   $+12\n"
-                 "li     %1,1\n"
-                 "b      $+8\n"
-                 "li     %1,0\n"
-                 : "=&r" (tmp), "=&r" (ret)
-                 : "r" (ptr), "r" (expected), "r" (newval)
-                 : "cc", "memory");
-    return ret;
-}
+    inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+    {
+	register int tmp;
+	register int ret;
+	asm volatile("lwarx  %0,0,%2\n"
+		     "cmpw   %0,%3\n"
+		     "bne-   $+20\n"
+		     "stwcx. %4,0,%2\n"
+		     "bne-   $+12\n"
+		     "li     %1,1\n"
+		     "b      $+8\n"
+		     "li     %1,0\n"
+		     : "=&r" (tmp), "=&r" (ret)
+		     : "r" (ptr), "r" (expected), "r" (newval)
+		     : "cc", "memory");
+	return ret;
+    }
 
-inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval)
-{
-    register void *tmp;
-    register int ret;
+    inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+    {
+	register void *tmp;
+	register int ret;
 
 #ifdef __64BIT__
 #  define LPARX "ldarx"
@@ -56,37 +56,37 @@ inline int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void 
 #  define STPCX "stwcx."
 #endif
 
-    asm volatile(LPARX"  %0,0,%2\n"
-		 CMPP"   %0,%3\n"
-                 "bne-   $+20\n"
-		 STPCX"  %4,0,%2\n"
-                 "bne-   $+12\n"
-                 "li     %1,1\n"
-                 "b      $+8\n"
-                 "li     %1,0\n"
-                 : "=&r" (tmp), "=&r" (ret)
-                 : "r" (ptr), "r" (expected), "r" (newval)
-                 : "cc", "memory");
+	asm volatile(LPARX"  %0,0,%2\n"
+		     CMPP"   %0,%3\n"
+		     "bne-   $+20\n"
+		     STPCX"  %4,0,%2\n"
+		     "bne-   $+12\n"
+		     "li     %1,1\n"
+		     "b      $+8\n"
+		     "li     %1,0\n"
+		     : "=&r" (tmp), "=&r" (ret)
+		     : "r" (&ptr), "r" (expected), "r" (newval)
+		     : "cc", "memory");
 
 #undef LPARX
 #undef CMPP
 #undef STPCX
 
-    return ret;
-}
+	return ret;
+    }
 
 #else
 
-// compiler doesn't support inline assembly
+    // compiler doesn't support inline assembly
 
-Q_CORE_EXPORT
-int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
-Q_CORE_EXPORT
-void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+    Q_CORE_EXPORT
+    void *q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 
 #endif
 
 } // extern "C"
 
-#endif // QATOMIC_P_H
+#endif // POWERPC_QATOMIC_H

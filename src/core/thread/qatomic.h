@@ -18,59 +18,76 @@
 #ifndef QT_H
 #endif // QT_H
 
+extern "C" {
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_ptr(volatile void *, void *, void *);
+    int q_atomic_increment(volatile int *);
+    int q_atomic_decrement(volatile int *);
+    int q_atomic_set_int(volatile int *, int);
+    void *q_atomic_set_ptr(volatile void *, void *);
+} // extern "C"
+
 #include <arch/qatomic.h>
 
 #ifndef Q_HAVE_ATOMIC_INCDEC
 
-inline int q_atomic_increment(volatile int * const ptr)
-{
-    register int expected;
-    for (;;) {
-	expected = *ptr;
-	if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
-    }
-    return expected != -1;
-}
+extern "C" {
 
-inline int q_atomic_decrement(volatile int * const ptr)
-{
-    register int expected;
-    for (;;) {
-	expected = *ptr;
-	if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+    inline int q_atomic_increment(volatile int * const ptr)
+    {
+	register int expected;
+	for (;;) {
+	    expected = *ptr;
+	    if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
+	}
+	return expected != -1;
     }
-    return expected != 1;
-}
+
+    inline int q_atomic_decrement(volatile int * const ptr)
+    {
+	register int expected;
+	for (;;) {
+	    expected = *ptr;
+	    if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+	}
+	return expected != 1;
+    }
+
+} // extern "C"
 
 #endif // Q_HAVE_ATOMIC_INCDEC
 
 #ifndef Q_HAVE_ATOMIC_SET
 
-inline int q_atomic_set_int(volatile int *ptr, int newval)
-{
-    register int expected;
-    for (;;) {
-	expected = *ptr;
-	if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
-    }
-    return expected;
-}
+extern "C" {
 
-inline void *q_atomic_set_ptr(void * volatile *ptr, void *newval)
-{
-    register void *expected;
-    for (;;) {
-	expected = static_cast<void *>(*ptr);
-        if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+    inline int q_atomic_set_int(volatile int *ptr, int newval)
+    {
+	register int expected;
+	for (;;) {
+	    expected = *ptr;
+	    if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
+	}
+	return expected;
     }
-    return expected;
-}
+
+    inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+    {
+	register void *expected;
+	for (;;) {
+	    expected = *reinterpret_cast<void * volatile *>(ptr);
+	    if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+	}
+	return expected;
+    }
+
+} // extern "C"
 
 #endif // Q_HAVE_ATOMIC_SET
 
 template <typename T>
 inline T qAtomicSetPtr(volatile T *ptr, T newval)
-{ return static_cast<T>(q_atomic_set_ptr(reinterpret_cast<void * volatile *>(ptr), newval)); }
+{ return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
 
 struct QAtomic {
     int atomic;
