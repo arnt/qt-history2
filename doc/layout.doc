@@ -207,6 +207,8 @@ a parameter in the constructor.
 \endcode
 If you are not satisfied with the default placement, you can create
 the layout without a parent and then insert it with addLayout().
+The inner layout then becomes a child of the layout it is inserted
+into.
 
 \section1 Custom Layouts
 
