@@ -1,9 +1,8 @@
-REQUIRES = !qt_one_lib
-TARGET = QtNetwork
-
+TARGET   = QtNetwork
+QPRO_PWD = $$PWD
 DEFINES += QT_BUILD_NETWORK_LIB
-
 include(../qbase.pri)
+
 QT = core 
 
 # Qt network module
