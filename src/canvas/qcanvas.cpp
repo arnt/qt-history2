@@ -412,16 +412,22 @@ static int scm(int a, int b)
 \brief The QCanvas class provides a 2D graphic area containing QCanvasItem objects.
 
 \ingroup abstractwidgets
+\module canvas
 
-The QCanvas class manages these items and is displayed on the screen
-through QCanvasView widgets.
+The QCanvas class manages its 2D graphic area and all the canvas items
+the area contains. The canvas is displayed on screen with a QCanvasView
+widget. Multiple QCanvasView widgets may be associated with the a
+canvas to provide multiple views of the same canvas.
 
-It is optimized for a large number of items, and Qt provides a rich
-set of item classes, including QCanvasText, QCanvasPixmap,
-QCanvasSprite, QCanvasEllipse, QCanvasLine and quite a few more.
+The canvas is optimized for large numbers of items. Qt provides a rich
+set of canvas item classes, e.g. QCanvasEllipse, QCanvasLine,
+QCanvasPolygon, QCanvasPolygonalItem, QCanvasRectangle, QCanvasSpline,
+QCanvasSprite and QCanvasText. You can subclass to create your own
+canvas items; QCanvasPolygonalItem is the most common base class used
+for this purpose. 
 
-A canvas may in principle look similar to a widget with child widgets,
-but there are several notable differences:
+Although a canvas may appear to be similar to a widget with child
+widgets, there are several notable differences:
 
 <ul>
 
@@ -429,83 +435,95 @@ but there are several notable differences:
 items or nonrectangular items. Sometimes they can also be much more
 memory efficient.
 
-<li> It's easy to detect item overlapping (collision detection).
+<li> It's easy to detect overlapping items (collision detection).
 
-<li> The canvas can be larger than a widget. A million-by-million
-canvas is very reasonable. Whereas a widget might be very inefficient
-at this size and some window systems might not support it at all,
-QCanvas scales. Even with a billion pixels and a million items, it's
-still fast to find a single canvas item, detect collisions, etc.
+<li> The canvas can be larger than a widget. A million-by-million canvas
+is perfectly possible. Although a widget might be very inefficient at
+this size and some window systems might not support it at all, QCanvas
+scales well. Even with a billion pixels and a million items finding a
+particular canvas item, detecting collisions, etc. is still fast.
 
 <li> Two or more QCanvasView objects can view the same canvas.
 
 <li> An arbitrary transformation matrix can be set on each QCanvasView
-allowing for easy zooming, rotating or sheering of the viewed canvas.
+which makes it easy to zoom, rotate or sheer the viewed canvas.
 
-<li> Widgets offer a lot more functionality, such as input (QKeyEvent,
+<li> Widgets provide a lot more functionality, such as input (QKeyEvent,
 QMouseEvent etc.) and layout management (QGridLayout etc.).
 
 </ul>
 
-The canvas is made up from a background, a number of items organized
-by x, y and z coordinates, and a foreground. The items z coordinate
-may be viewed as a layer number - items with higher z coordinate will
-appear in front of items with smaller z coordinate.
+A canvas consists of a background, a number of canvas items organized by
+x, y and z coordinates, and a foreground. A canvas item's z coordinate
+may be treated as a layer number - canvas items with higher z coordinate
+will appear in front of canvas items with lower z coordinate.
 
-The background is white by default, but can be set to a different
-color using setBackgroundColor(), a repeated pixmap using
+The background is white by default, but can be set to a different color
+using setBackgroundColor(), or to a repeated pixmap using
 setBackgroundPixmap() or to a mosaic of smaller pixmaps using
-setTiles(). As usual, there are corresponding getters like
-backgroundColor().
+setTiles(). Individual tiles can be set with setTile(). As usual, there
+are corresponding get functions like backgroundColor().
 
-Note that QCanvas does not inherit from QWidget, even though it
-provides some functions that are expose the same functionality as the
-ones provided in QWidget. One of them is setBackgroundPixmap(), some
-others are resize(), size(), width() and height(). \l QCanvasView is
-the widget used to show a view of the canvas.
+Note that QCanvas does not inherit from QWidget, even though it has some
+functions which provide the same functionality as those in QWidget. One
+of these is setBackgroundPixmap(); some others are resize(), size(),
+width() and height(). \l QCanvasView is the widget used to display a
+canvas on the screen.
 
-The items are the movable objects that inherit QCanvasItem.  Each item
-has a position on the canvas and a height, both of which are given as
-floating-point numbers. It's possible for an item to be outside the
-canvas (for example QCanvasItem::x() is greater than width()).  When
-an item is off the canvas, onCanvas() returns FALSE and the canvas
-disregards the item.  (Items off the canvas do not slow down any
+Canvas items are movable objects that inherit QCanvasItem. Each canvas
+item has a position on the canvas and a height, both of which are given
+as floating-point numbers. It's possible for a canvas item to be outside
+the canvas (for example QCanvasItem::x() is greater than width()).  When
+a canvas item is off the canvas, onCanvas() returns FALSE and the canvas
+disregards the item.  (Canvas items off the canvas do not slow down any
 common opererations on the canvas.)
 
-Items can be animated or moved; advance() moves all animated Items and
-setAdvancePeriod() makes QCanvas move them by itself on a periodic
-basis.
+Canvas items can be moved with QCanvasItem::move(). The advance()
+function moves all animated canvas items and setAdvancePeriod() makes
+QCanvas move them by itself on a periodic basis. To detect collisions
+use one of the collisions() functions.
 
 The changed parts of the canvas are redrawn (if they are visible in a
-canvas view) whenever update() is called. You can either call update
+canvas view) whenever update() is called. You can either call update()
 manually after having changed the contents of the canvas, or force
-periodic updates using setUpdatePeriod(). In case you have moving
-objects on the canvas, you need to call advance() everytime the
-objects should move one step further. Periodic calls to advance can be
-forced using setAdvancePeriod(). advance() will call
+periodic updates using setUpdatePeriod(). If you have moving objects on
+the canvas, you need to call advance() every time the objects should
+move one step further. Periodic calls to advance() can be forced using
+setAdvancePeriod(). The advance() function will call
 QCanvasItem::advance() on every item that is flagged as \link
 QCanvasItem::animated animated \endlink and trigger an update of the
-changed areas afterwards.
+affected areas afterwards.
 
-QCanvas organizes these items into \e chunks - areas on the canvas
-that are used for speeding up most operations.  Many operations start
-by eliminating most chunks, and then process only the items that are
-in the few interesting chunks.
+QCanvas organizes its canvas items into \e chunks - areas on the canvas
+that are used to speed up most operations.  Many operations start by
+eliminating most chunks (i.e. those which haven't changed) and then
+process only the canvas items that are in the few interesting (i.e.
+changed) chunks. A valid chunk, validChunk(), is one
+which is on the canvas.
 
-The chunk size is thus the key factor to QCanvas' speed: If there are
-too many chunks, QCanvas needs to process too many chunks. If they're
-too large, it takes too long to process each chunk.  The QCanvas
-constructor picks a hopefully suitable size, but you can call retune()
-to change it at any time.  chunkSize() returns the current chunk size.
+The chunk size is a key factor to QCanvas's speed: if there are too many
+chunks, the speed benefit of grouping canvas items into chunks is
+reduced. If the chunks are too large, it takes too long to process each
+one.  The QCanvas constructor picks a hopefully suitable size, but you
+can call retune() to change it at any time. The chunkSize() function
+returns the current chunk size. 
 
-The items always make sure they're in the right chunks; all you need to
-ake sure is that the canvas has about the right chunk size.  A good rule
-of thumb is that the size should be a bit smaller than the average item
-size. If you have moving objects, it should be a bit smaller than the
-average size of the moving items.
+The canvas items always make sure they're in the right chunks; all you
+need to make sure of is that the canvas uses the right chunk size.  A
+good rule of thumb is that the size should be a bit smaller than the
+average canvas item size. If you have moving objects, the chunk size
+should be a bit smaller than the average size of the moving items.
 
 The foreground is normally nothing, but if you reimplement
 drawForeground(), you can draw things in front of all canvas items.
+
+Areas can be set as changed with setChanged() and set unchanged with
+setUnchanged(). The entire canvas can be set as changed with
+setAllChanged().
+
+An area can be copied (painted) to a QPainter with drawArea().
+
+If the canvas is resized it emits the resized() signal.
 
 \sa QCanvasView QCanvasItem
 */

@@ -37,65 +37,71 @@
 
 \title Qt Canvas Module
 
-The canvas module provides a highly optimized 2D graphic area called \l QCanvas.
-The canvas can contain an arbitrary number of \link QCanvasItem QCanvasItems \endlink.
-Items can have an arbitrary shape, size and content, can be freely moved around in the canvas,
-and can be checked for collisions.
+The canvas module provides a highly optimized 2D graphic area called \l
+QCanvas. The canvas can contain an arbitrary number of \link QCanvasItem
+QCanvasItems \endlink. Items can have an arbitrary shape, size and
+content, can be freely moved around in the canvas, and can be checked
+for collisions. (If you're interested in 3D graphics see Qt's 
+<a href="opengl.html">OpenGL module</a>.)
 
-The canvas module uses a document/view model. The \l QCanvasView class is used to
-show a certain view of a canvas. Multiple views can operate on the same canvas at the same time.
-Every view can use an arbitrary transformation matrix on the canvas allowing to easily implement
-features as zooming into and out of the canvas.
+The canvas module uses a document/view model. The \l QCanvasView class
+is used to show a particular view of a canvas. Multiple views can operate
+on the same canvas at the same time. Every view can use an arbitrary
+transformation matrix on the canvas which makes it easy to implement
+features such as zooming.
 
-<center><a href="qcanvas.html"><img src="qcanvas.png" alt="Screenshot of QCanvas"></a></center>
+<center><a href="qcanvas.html">
+<img src="qcanvas.png" alt="Screenshot of a canvas"></a></center>
 
-Qt provides a number of predefined Items, as listed below. 
+Qt provides a number of predefined \l QCanvas items as listed below. 
 <table>
 <tr>
-<td>\l QCanvasItem </td>
-<td>An abstract base class for all Items on the canvas.</td>
+<td valign="top">\l QCanvasItem </td>
+<td valign="top">An abstract base class for all canvas items.</td>
 </tr>
 <tr>
-<td>\l QCanvasEllipse </td>
-<td>An ellipse or "pie segment".</td>
+<td valign="top">\l QCanvasEllipse </td>
+<td valign="top">An ellipse or "pie segment".</td>
 </tr>
 <tr>
-<td>\l QCanvasLine </td>
-<td>A simple line segment.</td>
+<td valign="top">\l QCanvasLine </td>
+<td valign="top">A line segment.</td>
 </tr>
 <tr>
-<td>\l QCanvasPolygon </td>
-<td>A polygon.</td>
+<td valign="top">\l QCanvasPolygon </td>
+<td valign="top">A polygon.</td>
 </tr>
 <tr>
-<td>\l QCanvasPolygonalItem </td>
-<td>A base class for items that have a non rectangular shape. Most canvas items derive from this
-class.</td>
+<td valign="top">\l QCanvasPolygonalItem </td>
+<td valign="top">A base class for items that have a non-rectangular
+shape. Most canvas items derive from this class.</td>
 </tr>
 <tr>
-<td>\l QCanvasRectangle </td>
-<td>A rectangle. The rectangle may not be tilted or rotated. Rotated rectangles can be drawn using
-\l QCanvasPolygon.</td>
+<td valign="top">\l QCanvasRectangle </td>
+<td valign="top">A rectangle. The rectangle cannot be tilted or rotated.
+Rotated rectangles can be drawn using \l QCanvasPolygon.</td>
 </tr>
 <tr>
-<td>\l QCanvasSpline </td>
-<td>A multi bezier spline.</td>
+<td valign="top">\l QCanvasSpline </td>
+<td valign="top">A multi-bezier spline.</td>
 </tr>
 <tr>
-<td>\l QCanvasSprite </td>
-<td>An animated pixmap.</td>
+<td valign="top">\l QCanvasSprite </td>
+<td valign="top">An animated pixmap.</td>
 </tr>
 <tr>
-<td>\l QCanvasText </td>
-<td>Some text.</td>
+<td valign="top">\l QCanvasText </td>
+<td valign="top">A text string.</td>
 </tr>
 </table>
 
- Additionally the two classes \l QCanvasPixmap and \l QCanvasPixmapArray are used by 
-\l QCanvasSprite to show animated and moving pixmaps on the canvas.
+ Additionally, the two classes, \l QCanvasPixmap and \l
+ QCanvasPixmapArray are used by \l QCanvasSprite to show animated and
+ moving pixmaps on the canvas.
 
-More specialized items can be created by inheriting from one of the available Item classes.
-It is usually easier not to inherit from QCanvasItem directly, but to use one of the derived
-classes; in most cases \l QCanvasPolygonalItem.
+More specialized items can be created by inheriting from one of the
+canvas item classes. It is easiest to inherit from one of
+QCanvasItem's derived classes (usually \l QCanvasPolygonalItem) rather
+than inherit QCanvasItem directly.
 
 */

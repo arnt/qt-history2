@@ -130,19 +130,19 @@ public:
   \value Unknown  the boundary cannot be determined (usually because
   there is no default cursor, or the default cursor is not active).
 
-  \value None  the browser is not positioned on a boundary.
+  \value None  the browser is not positioned on a boundary, but it is
+  positioned on a record somewhere in the middle.
 
   \value BeforeBeginning  the browser is positioned before the
-  beginning of the available records.
+  first available record.
 
-  \value Beginning  the browser is positioned at the beginning of
-  the available records.
+  \value Beginning  the browser is positioned at the first record.
 
-  \value End  the browser is positioned at the end of
-  the available records.
+  \value End  the browser is positioned at the last
+  record.
 
-  \value AfterEnd  the browser is positioned after the end of the
-  available records.
+  \value AfterEnd  the browser is positioned after the last
+  available record.
 */
 
 /*! Constructs a data browser which is a child of \a parent, with the
@@ -171,7 +171,7 @@ QDataBrowser::~QDataBrowser()
   This is achieved by moving the default cursor and checking the
   position, however the current default form values will not be altered.
   After checking for the boundary, the cursor is moved back to its
-  former position.
+  former position. See \l QDataBrowser::Boundary.
 
   \sa Boundary
 */
@@ -226,12 +226,12 @@ bool QDataBrowser::boundaryChecking() const
 
 /*! \property QDataBrowser::sort
 
-  \brief the browser sort
+  \brief the data browser's sort
 
-  The browser sort affects the order in which data records are viewed
-  in the browser.  To actually apply the new sort, use refresh().
+  The data browser's sort affects the order in which records are
+  viewed in the browser.  Call refresh() to apply the new sort.
 
-  When examining the sort property, a stringlist is returned in the
+  When retrieving the sort property, a string list is returned in the
   form 'fieldname order', e.g.  'id ASC', 'surname DESC'.
 
   \sa filter() refresh()
@@ -245,8 +245,8 @@ void QDataBrowser::setSort( const QStringList& sort )
 
 /*! \overload
 
-  Sets the browser's sort to the string list \a sort.  To apply the new
-  sort, use refresh().
+  Sets the data browser's sort to the QSqlIndex \a sort.  To apply the
+  new sort, use refresh().
 
 */
 void QDataBrowser::setSort( const QSqlIndex& sort )
@@ -262,11 +262,11 @@ QStringList QDataBrowser::sort() const
 
 /*! \property QDataBrowser::filter
 
-  \brief the data filter for the browser
+  \brief the data browser's filter
 
-  The filter applies to the data shown in the browser. To actually
-  apply the new filter, use refresh(). A filter string is an SQL WHERE
-  clause without the WHERE keyword.
+  The filter applies to the data shown in the browser. Call refresh() to
+  apply the new filter. A filter is a string containing a SQL WHERE
+  clause without the WHERE keyword, e.g. "id>1000", "name LIKE 'A%'".
 
   \sa sort()
 
@@ -284,12 +284,12 @@ QString QDataBrowser::filter() const
 }
 
 
-/*! Sets the default cursor used by the browser to \a cursor.  If \a
-  autoDelete is TRUE (the default is FALSE), the browser takes
+/*! Sets the default cursor used by the data browser to \a cursor.  If \a
+  autoDelete is TRUE (the default is FALSE), the data browser takes
   ownership of the \a cursor pointer, which will be deleted when the
   browser is destroyed, or when setCursor() is called again. To
   activate the \a cursor use refresh().  The cursor's edit buffer is
-  used in the default form to edit/browse records.
+  used in the default form to browse and edit records.
 
   \sa cursor() form() setForm()
 
@@ -306,7 +306,7 @@ void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 }
 
 
-/*! Sets the default cursor used by the browser to \a cursor. If \a
+/*! Sets the default cursor used by the data browser to \a cursor. If \a
    autoDelete is TRUE, the browser will take ownership of the \a
    cursor and delete it when appropriate.  This function is a wrapper
    for setCursor() and is provided purely for consistency with
@@ -333,7 +333,7 @@ QSqlCursor* QDataBrowser::sqlCursor() const
 }
 
 
-/*!  Sets the borwser's default form to \a form.  The cursor and all
+/*!  Sets the browser's default form to \a form.  The cursor and all
   navigation and data manipulation functions that the browser provides
   become available to the \a form.
 
@@ -345,7 +345,7 @@ void QDataBrowser::setForm( QSqlForm* form )
 }
 
 
-/*! Returns a pointer to the browser's default form or 0 if no form
+/*! Returns a pointer to the data browser's default form or 0 if no form
    has been set.
 
 */
@@ -359,7 +359,7 @@ QSqlForm* QDataBrowser::form()
 
   \brief whether the browser is read-only
 
-  If the browse is read-only, no database edits will be allowed.
+  If the data browser is read-only, no database edits will be allowed.
 
 */
 
@@ -380,12 +380,12 @@ void QDataBrowser::setConfirmEdits( bool confirm )
 
 /*! \property QDataBrowser::confirmInsert
 
-  \brief whether the browser confirms insert operations
+  \brief whether the data browser confirms insertions
 
-  If the confirmInsert property is active, the browser confirms all
-  insert operations, otherwise all insert operations happen immediately.
+  If this property is TRUE, the browser confirms insertions,
+  otherwise insertions happen immediately.
 
-  \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete() confirmEdit()
 */
 
 void QDataBrowser::setConfirmInsert( bool confirm )
@@ -395,12 +395,12 @@ void QDataBrowser::setConfirmInsert( bool confirm )
 
 /*! \property QDataBrowser::confirmUpdate
 
-  \brief whether the browser confirms update operations
+  \brief whether the browser confirms updates
 
-  If the confirmUpdate property is active, the browser confirms all
-  update operations, otherwise all update operations happen immediately.
+  If this property is TRUE, the browser confirms updates,
+  otherwise updates happen immediately.
 
-  \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
+  \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete() confirmEdit()
 */
 
 void QDataBrowser::setConfirmUpdate( bool confirm )
@@ -410,12 +410,12 @@ void QDataBrowser::setConfirmUpdate( bool confirm )
 
 /*! \property QDataBrowser::confirmDelete
 
-  \brief whether the browser confirms delete operations
+  \brief whether the browser confirms deletions
 
-  If the confirmDelete property is active, the browser confirms all
-  delete operations, otherwise all delete operations happen immediately.
+  If this property is TRUE, the browser confirms deletions,
+  otherwise deletions happen immediately.
 
-  \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert() confirmEdit()
 */
 
 void QDataBrowser::setConfirmDelete( bool confirm )
@@ -427,10 +427,11 @@ void QDataBrowser::setConfirmDelete( bool confirm )
 
   \brief whether the browser confirms edit operations
 
-  If the confirmEdits property is active, the browser confirms all
-  edit operations (inserts, updates and deletes) with the user (this
-  behavior can be changed by reimplementing the confirmEdit() function),
-  otherwise all edit operations happen immediately.
+  If this property is TRUE, the browser confirms all edit operations
+  (insertions, updates and deletions), otherwise all edit operations
+  happen immediately. Confirmation is achieved by presenting the user
+  with a message box -- this behavior can be changed by reimplementing
+  the confirmEdit() function,
 
   \sa confirmEdit() confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
@@ -459,7 +460,7 @@ bool QDataBrowser::confirmDelete() const
 
   \brief whether the browser confirms cancel operations
 
-  If the confirmCancel property is active, all cancels must be
+  If this property is TRUE, all cancels must be
   confirmed by the user through a message box (this behavior can be
   changed by overriding the confirmCancel() function), otherwise all
   cancels occur immediately.
@@ -482,12 +483,12 @@ bool QDataBrowser::confirmCancels() const
   \brief whether the browser automatically applies edits
 
   The default value for this property is TRUE. When the user begins an
-  insert or update on a form there are two possible outcomes when they
-  navigate to another record:
+  insertion or an update on a form there are two possible outcomes when
+  they navigate to another record:
 
-  \list 1
+  \list 
   \i the insert or update is is performed -- this occurs if autoEdit is TRUE
-  \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
+  \i the insert or update is discarded -- this occurs if autoEdit is FALSE
   \endlist
 */
 
@@ -530,23 +531,23 @@ bool QDataBrowser::autoEdit() const
 
   This signal is emitted whenever the position of the cursor
   changes.  The \a available parameter indicates whether or not the
-  next record in the default cursor is available.
+  previous record in the default cursor is available.
 
 */
 
 
 /*! \fn void QDataBrowser::currentChanged( const QSqlRecord* record )
 
-  This signal is emitted whenever the current cursor position has
-  changed.  The \a record parameter points to the contents of the
-  current cursor's record.
+  This signal is emitted whenever the current cursor position changes.
+  The \a record parameter points to the contents of the current cursor's
+  record.
 
 */
 
 
 /*! \fn void QDataBrowser::primeInsert( QSqlRecord* buf )
 
-  This signal is emitted when the QDataBrowser enters insertion mode.
+  This signal is emitted when the data browser enters insertion mode.
   The \a buf parameter points to the record buffer that is to be
   inserted. Connect to this signal to, for example, prime the record
   buffer with default data values, auto-numbered fields etc. (Note that
@@ -560,15 +561,14 @@ bool QDataBrowser::autoEdit() const
 
 /*! \fn void QDataBrowser::primeUpdate( QSqlRecord* buf )
 
-  This signal is emitted before the edit buffer is updated in the
-  database by the browser.  Note that during naviagtion ( first(),
-  last(), next(), prev()), each record that is shown in the default
-  form is primed for update.  The \a buf parameter points to the
-  record buffer being updated. (Note that QSqlCursor::primeUpdate() is
-  \e not called on the default cursor, as this would corrupt values in
-  the form.) Connect to this signal in order to, for example, keep
-  track of which records have been updated, perhaps for auditing
-  purposes.
+  This signal is emitted when the data browser enters update mode. Note
+  that during naviagtion (first(), last(), next(), prev()), each record
+  that is shown in the default form is primed for update.  The \a buf
+  parameter points to the record buffer being updated. (Note that
+  QSqlCursor::primeUpdate() is \e not called on the default cursor, as
+  this would corrupt values in the form.) Connect to this signal in
+  order to, for example, keep track of which records have been updated,
+  perhaps for auditing purposes.
 
   \sa update()
 
@@ -576,14 +576,14 @@ bool QDataBrowser::autoEdit() const
 
 /*! \fn void QDataBrowser::primeDelete( QSqlRecord* buf )
 
-  This signal is emitted before the edit buffer is deleted from the
-  database by the browser.  The \a buf parameter points to the record
-  buffer being deleted. (Note that QSqlCursor::primeDelete() is \e
-  not called on the default cursor, as this would corrupt values in
-  the form.)  Connect to this signal in order to, for example, save a
-  copy of the deleted record for auditing purposes.
+  This signal is emitted when the data browser enters deletion mode.
+  The \a buf parameter points to the record buffer being deleted. (Note
+  that QSqlCursor::primeDelete() is \e not called on the default cursor,
+  as this would corrupt values in the form.)  Connect to this signal in
+  order to, for example, save a copy of the deleted record for auditing
+  purposes.
 
-  \sa delete()
+  \sa del()
 
 */
 
@@ -597,8 +597,8 @@ bool QDataBrowser::autoEdit() const
 */
 
 
-/*! Refreshes the browser's data using the default cursor.  The browser's
-  current filter and sort are applied if they have been set.
+/*! Refreshes the data browser's data using the default cursor.  The
+ browser's current filter and sort are applied if they have been set.
 
   \sa setFilter() setSort()
 
@@ -610,8 +610,8 @@ void QDataBrowser::refresh()
 }
 
 
-/*! Performs an insert action on the browser's cursor. If there is no
-   default cursor or no default form, nothing happens.
+/*! Performs an insert operation on the data browser's cursor. If there
+ is no default cursor or no default form, nothing happens.
 
   If auto-editing is on (see setAutoEdit()), the following happens:
 
@@ -626,15 +626,15 @@ void QDataBrowser::refresh()
   If there is an error handling any of the above auto-edit actions,
   handleError() is called and no insert or update is performed.
 
-  If no error occurred, or auto-editing is not enabled, the browser
-  begins actively inserting a record into the database by performing
-  the following actions:
+  If no error occurred, or auto-editing is not enabled, the data browser
+  begins actively inserting a record into the database by performing the
+  following actions:
 
   <ul>
-  <li> The default cursor is primed for insert using QSqlCursor::primeInsert()
-  <li> The primeInsert() signal is emitted
-  <li> The form is updated with the values of the default cursor's
-  edit buffer so that the user can fill in the values to be inserted
+  <li> The default cursor is primed for insert using QSqlCursor::primeInsert().
+  <li> The primeInsert() signal is emitted.
+  <li> The form is updated with the values in the default cursor's.
+  edit buffer so that the user can fill in the values to be inserted.
   </ul>
 
 */
@@ -690,15 +690,16 @@ void QDataBrowser::insert()
 }
 
 
-/*! Performs an update action on the browser's cursor.
+/*! Performs an update operation on the data browser's cursor.
 
   If there is no default cursor or no default form, nothing happens.
   Otherwise, the following happens:
 
-  If the browser is actively inserting a record (see insert()), that
-  record is inserted into the database using insertCurrent().
-  Otherwise, the database is updated with the current form's data. If
-  there is an error handling either action, handleError() is called.
+  If the data browser is actively inserting a record (see insert()),
+  that record is inserted into the database using insertCurrent().
+  Otherwise, the database is updated with the current form's data using
+  updateCurrent(). If there is an error handling either action,
+  handleError() is called.
 
 */
 
@@ -747,15 +748,16 @@ void QDataBrowser::update()
 }
 
 
-/*! Performs a delete action on the browser's cursor. If there is no
-   default cursor or no default form, nothing happens.
+/*! Performs a delete operation on the data browser's cursor. If there
+ is no default cursor or no default form, nothing happens.
 
   Otherwise, the following happens:
 
-  If the browser is actively inserting a record (see insert()), the
-  insert action is cancelled, and the browser returns to the last
-  valid record.  Otherwise, the current form record is deleted from
-  the database. If there is an error, handleError() is called.
+  The current form's record is deleted from the database, providing that
+  the data browser is not in insert mode. If the data browser is
+  actively inserting a record (see insert()), the insert action is
+  cancelled, and the browser navigates to the last valid record that was
+  current.  If there is an error, handleError() is called.
 
 */
 
@@ -794,12 +796,12 @@ void QDataBrowser::del()
 }
 
 /*!  Moves the default cursor to the record specified by the index \a
-  i and refreshes the default form. If there is no default form or no
-  default cursor, nothing happens.  If \a relative is TRUE (the
-  default is FALSE), the cursor is moved relative to its current
-  position.  If the browser successfully moved to the desired record,
-  the default cursor is primed for update and the primeUpdate() signal
-  is emitted.
+  i and refreshes the default form to display this record. If there is
+  no default form or no default cursor, nothing happens.  If \a relative
+  is TRUE (the default is FALSE), the cursor is moved relative to its
+  current position.  If the data browser successfully navigated to the
+  desired record, the default cursor is primed for update and the
+  primeUpdate() signal is emitted.
 
   If the browser is already positioned on the desired record nothing
   happens.
@@ -819,10 +821,10 @@ bool QDataBrowser::seek( int i, bool relative )
 }
 
 /*!  Moves the default cursor to the first record and refreshes the
-  default form. If there is no default form or no default cursor,
-  nothing happens.  If the browser successfully moved to the first
-  record, the default cursor is primed for update and the
-  primeUpdate() signal is emitted.
+  default form to display this record. If there is no default form or no
+  default cursor, nothing happens.  If the data browser successfully
+  navigated to the first record, the default cursor is primed for update
+  and the primeUpdate() signal is emitted.
 
   If the browser is already positioned on the first record nothing
   happens.
@@ -836,10 +838,10 @@ void QDataBrowser::first()
 
 
 /*!  Moves the default cursor to the last record and refreshes the
-  default form. If there is no default form or no default cursor,
-  nothing happens.  If the browser successfully moved to the last
-  record, the default cursor is primed for update and the
-  primeUpdate() signal is emitted.
+  default form to display this record. If there is no default form or no
+  default cursor, nothing happens.  If the data browser successfully
+  navigated to the last record, the default cursor is primed for update
+  and the primeUpdate() signal is emitted.
 
   If the browser is already positioned on the last record nothing
   happens.
@@ -852,10 +854,10 @@ void QDataBrowser::last()
 
 
 /*!  Moves the default cursor to the next record and refreshes the
-  default form. If there is no default form or no default cursor,
-  nothing happens.  If the browser successfully moved to the next
-  record, the default cursor is primed for update and the
-  primeUpdate() signal is emitted.
+  default form to display this record. If there is no default form or no
+  default cursor, nothing happens.  If the data browser successfully
+  navigated to the next record, the default cursor is primed for update
+  and the primeUpdate() signal is emitted.
 
   If the browser is positioned on the last record nothing happens.
 */
@@ -867,10 +869,10 @@ void QDataBrowser::next()
 
 
 /*!  Moves the default cursor to the previous record and refreshes the
-  default form. If there is no default form or no default cursor,
-  nothing happens.  If the browser successfully moved to the previous
-  record, the default cursor is primed for update and the
-  primeUpdate() signal is emitted.
+  default form to display this record. If there is no default form or no
+  default cursor, nothing happens.  If the data browser successfully
+  navigated to the previous record, the default cursor is primed for
+  update and the primeUpdate() signal is emitted.
 
   If the browser is positioned on the first record nothing happens.
 */
@@ -906,11 +908,11 @@ void QDataBrowser::writeFields()
 /*! Clears all the values in the form.
 
     All the edit buffer field values are set to their 'zero state', e.g.
-    0 for numeric fields, "" for string fields. Then the widgets are
-    updated using the property map. A combobox that is property-mapped
-    to ints would scroll to the first item for example. See the \l
-    QSqlPropertyMap constructor for the default mappings of widgets to
-    properties.
+    0 for numeric fields and "" for string fields. Then the widgets are
+    updated using the property map. For example, a combobox that is
+    property-mapped to integers would scroll to the first item. See the
+    \l QSqlPropertyMap constructor for the default mappings of widgets
+    to properties.
 
 */
 
@@ -921,7 +923,7 @@ void QDataBrowser::clearValues()
 
 /*!  Reads the fields from the default form into the default cursor
   and performs an insert on the default cursor.  If there is no
-  default form or default cursor, nothing happens.  If an error
+  default form or no default cursor, nothing happens.  If an error
   occurred during the insert into the database, handleError() is
   called and FALSE is returned. If the insert was successfull, the
   cursor is refreshed and relocated to the newly inserted record, the
@@ -959,7 +961,7 @@ bool QDataBrowser::insertCurrent()
 
 /*!  Reads the fields from the default form into the default cursor
   and performs an update on the default cursor. If there is no default
-  form or default cursor, nothing happens.  If an error occurred during
+  form or no default cursor, nothing happens.  If an error occurred during
   the update on the database, handleError() is called and FALSE is
   returned.  If the update was successfull, the cursor is refreshed and
   relocated to the updated record, the cursorChanged() signal is
@@ -999,12 +1001,12 @@ bool QDataBrowser::updateCurrent()
 
 /*!  Performs a delete on the default cursor using the values from the
   default form and updates the default form. If there is no default
-  form or default cursor, nothing happens.  If the delete was
+  form or no default cursor, nothing happens.  If the deletion was
   successful, the cursor is repositioned to the nearest record and TRUE
   is returned. The nearest record is the next record if there is one
   otherwise the previous record if there is one. If an error occurred
-  during the delete from the database, handleError() is called and FALSE
-  is returned.
+  during the deletion from the database, handleError() is called and
+  FALSE is returned.
 
   \sa cursor() form() handleError()
 
@@ -1236,18 +1238,25 @@ QSql::Confirm  QDataBrowser::confirmCancel( QSql::Op m )
 }
 
 /*! \fn void QDataBrowser::beforeInsert( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer is inserted into the database.
-  The \a buf parameter points to the edit buffer being inserted.
+  This signal is emitted just before the cursor's edit buffer is
+  inserted into the database. The \a buf parameter points to the edit
+  buffer being inserted. You might connect to this signal to populate a
+  generated primary key for example.
 */
 
 /*! \fn void QDataBrowser::beforeUpdate( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer is updated in the database.
-  The \a buf parameter points to the edit buffer being updated.
+  This signal is emitted just before the cursor's edit buffer is updated
+  in the database. The \a buf parameter points to the edit buffer being
+  updated. You might connect to this signal to capture some auditing
+  information about the update.
 */
 
 /*! \fn void QDataBrowser::beforeDelete( QSqlRecord* buf )
-  This signal is emitted just before the cursor's edit buffer  is deleted from the database.
-  The \a buf parameter points to the edit buffer being deleted.
+  This signal is emitted just before the cursor's edit buffer  is
+  deleted from the database. The \a buf parameter points to the edit
+  buffer being deleted. You might connect to this signal to capture some
+  auditing information about the deletion.
+
 */
 
 #endif
