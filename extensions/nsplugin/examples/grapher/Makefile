@@ -44,9 +44,6 @@ all: $(TARGETD)
 install: $(TARGETD)
 	cp -f $(TARGETD) $(HOME)/.netscape/plugins/$(TARGETD)
 
-test: $(TARGETD)
-	gcc $(TARGETD) harness.cpp $(LIBS)
-
 $(TARGETD): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGETD)
 	$(LINK) $(LFLAGS) -o $(TARGETD) $(OBJECTS) $(OBJMOC) $(LIBS)
