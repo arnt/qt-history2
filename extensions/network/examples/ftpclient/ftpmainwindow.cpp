@@ -221,6 +221,8 @@ void FtpMainWindow::slotConnect()
     remoteOperator = s;
     if ( !remotePathCombo->currentText().isEmpty() )
 	remoteOperator.setPath( remotePathCombo->currentText() );
+    else
+	remoteOperator.setPath( "/" );
     if ( !userCombo->currentText().isEmpty() &&
 	 userCombo->currentText().lower() != "anonymous" &&
 	 userCombo->currentText().lower() != "ftp" ) {
@@ -363,7 +365,7 @@ void FtpMainWindow::slotLocalDataTransferProgress( int bytesDone, int bytesTotal
 
     if ( progressBar1->totalSteps() == bytesTotal )
 	progressBar1->setTotalSteps( bytesTotal );
-    
+
     if ( op->operation() == QNetworkProtocol::OpGet )
 	progressLabel1->setText( tr( "Read: %1" ).arg( op->arg1() ) );
     else if ( op->operation() == QNetworkProtocol::OpPut )
