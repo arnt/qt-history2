@@ -2632,6 +2632,7 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
   Saves the image to the file \e fileName, using the image file format
   \e format.  Returns TRUE if successful, or FALSE if the image could not
   be saved.
+
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
 
@@ -2643,9 +2644,10 @@ bool QImage::save( const QString &fileName, const char* format ) const
 /*!
   Saves the image to the file \e fileName, using the image file format
   \e format and a quality factor \e quality.  \e quality must be in the
-  range [0,100] and is not taken into account if the file format does
-  not support compression.  Returns TRUE if successful, or FALSE if the
-  image could not be saved.
+  range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
+  for large uncompressed files and -1 to use the default settings.
+  Returns TRUE if successful, or FALSE if the image could not be saved.
+
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
 
