@@ -457,7 +457,7 @@ void Q3SocketDevice::setSendBufferSize( uint size )
     Note that Qt always uses native byte order, i.e. 67 is 67 in Qt;
     there is no need to call htons().
 */
-Q_UINT16 Q3SocketDevice::port() const
+quint16 Q3SocketDevice::port() const
 {
     return p;
 }

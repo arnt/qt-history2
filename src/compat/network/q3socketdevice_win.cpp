@@ -81,7 +81,7 @@ static void cleanupWinSock() // post-routine
 }
 
 static inline void qt_socket_getportaddr( struct sockaddr *sa,
-					  Q_UINT16 *port, QHostAddress *addr )
+					  quint16 *port, QHostAddress *addr )
 {
 #if !defined (QT_NO_IPV6)
     if (sa->sa_family == AF_INET6) {
@@ -359,7 +359,7 @@ void Q3SocketDevice::setOption( Option opt, int v )
 }
 
 
-bool Q3SocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
+bool Q3SocketDevice::connect( const QHostAddress &addr, quint16 port )
 {
     if ( !isValid() )
 	return false;
@@ -462,7 +462,7 @@ successful:
 }
 
 
-bool Q3SocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
+bool Q3SocketDevice::bind( const QHostAddress &address, quint16 port )
 {
     if ( !isValid() )
 	return false;
@@ -598,7 +598,7 @@ int Q3SocketDevice::accept()
 }
 
 
-Q_LONGLONG Q3SocketDevice::bytesAvailable() const
+qint64 Q3SocketDevice::bytesAvailable() const
 {
     if ( !isValid() )
 	return -1;
@@ -621,7 +621,7 @@ Q_LONGLONG Q3SocketDevice::bytesAvailable() const
 }
 
 
-Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
+qint64 Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -652,7 +652,7 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 }
 
 
-Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
+qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
@@ -673,7 +673,7 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 	return -1;
     }
 #endif
-    Q_LONG r = 0;
+    qint64 r = 0;
     if ( t == Datagram ) {
 #if !defined(QT_NO_IPV6)
 	// With IPv6 support, we must be prepared to receive both IPv4
@@ -757,7 +757,7 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 }
 
 
-Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
+qint64 Q3SocketDevice::writeData( const char *data, qint64 len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
@@ -784,7 +784,7 @@ Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 	return -1;
     }
     bool done = false;
-    Q_LONG r = 0;
+    qint64 r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
 	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
@@ -842,8 +842,8 @@ Q_LONGLONG Q3SocketDevice::writeData( const char *data, Q_LONGLONG len )
 }
 
 
-Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
-			       const QHostAddress & host, Q_UINT16 port )
+qint64 Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
+			       const QHostAddress & host, quint16 port )
 {
     if ( t != Datagram ) {
 #if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
@@ -908,7 +908,7 @@ Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
     bool done = false;
-    Q_LONG r = 0;
+    qint64 r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0, aa, slen );
 	done = true;
@@ -1004,7 +1004,7 @@ void Q3SocketDevice::fetchPeerConnectionParameters()
 	qt_socket_getportaddr( (struct sockaddr *)(&sa), &pp, &pa );
 }
 
-Q_UINT16 Q3SocketDevice::peerPort() const
+quint16 Q3SocketDevice::peerPort() const
 {
     if ( pp==0 && isValid() ) {
 	Q3SocketDevice *that = (Q3SocketDevice*)this; // mutable
