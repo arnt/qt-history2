@@ -114,7 +114,8 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
     } else if (action->isSeparator()) {
         item.widget = new QToolBarSeparator(q);
     } else {
-        QToolBarButton *button = new QToolBarButton(q);
+        QToolButton *button = new QToolButton(q);
+        button->setAutoRaise(true);
         QObject::connect(q, SIGNAL(iconSizeChanged(Qt::IconSize)),
                          button, SLOT(setIconSize(Qt::IconSize)));
         QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
@@ -774,7 +775,6 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	if (!pop) {
 	    pop = new QMenu(this);
 	    d->extension->setMenu(pop);
-	    d->extension->setPopupDelay(-1);
 	}
 	pop->clear();
 	for(int i = 0; i < d->items.size(); ++i) {

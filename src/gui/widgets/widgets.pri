@@ -29,7 +29,7 @@ HEADERS += \
         widgets/qlineedit.h \
         widgets/qlineedit_p.h \
         widgets/qmainwindow.h \
-        widgets/qmainwindowlayout_p.h \        
+        widgets/qmainwindowlayout_p.h \
         widgets/qmenu.h \
         widgets/qmenubar.h \
         widgets/qprogressbar.h \
@@ -51,7 +51,6 @@ HEADERS += \
         widgets/qtextbrowser.h \
         widgets/qtoolbar.h \
 	widgets/qtoolbar_p.h \
-        widgets/qtoolbarbutton_p.h \
 	widgets/qtoolbarextension_p.h \
 	widgets/qtoolbarhandle_p.h \
 	widgets/qtoolbarseparator_p.h \
@@ -109,7 +108,6 @@ SOURCES += \
         widgets/qtextedit.cpp \
         widgets/qtextbrowser.cpp \
         widgets/qtoolbar.cpp \
-        widgets/qtoolbarbutton.cpp \
 	widgets/qtoolbarextension.cpp \
 	widgets/qtoolbarhandle.cpp \
 	widgets/qtoolbarseparator.cpp \

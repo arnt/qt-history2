@@ -38,12 +38,12 @@ public:
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrow;
+    Qt::IconSize iconSize;
+    Qt::ToolButtonStyle toolButtonStyle;
+    QToolButton::ToolButtonPopupMode popupMode;
     uint instantPopup          : 1;
     uint autoRaise             : 1;
     uint repeat                : 1;
-    uint usesTextLabel         : 1;
-    uint usesBigPixmap         : 1;
     uint hasArrow              : 1;
     uint discardNextMouseEvent : 1;
-    QToolButton::TextPosition textPos;
 };

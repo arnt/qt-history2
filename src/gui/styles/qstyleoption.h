@@ -473,9 +473,10 @@ public:
     QIcon icon;
     QString text;
     Qt::ArrowType arrowType;
+    Qt::IconSize iconSize;
+    Qt::ToolButtonStyle toolButtonStyle;
     QPoint pos;
     QFont font;
-    QToolButton::TextPosition textPosition;
 
     QStyleOptionToolButton();
 
@@ -485,7 +486,6 @@ public:
     QDOC_PROPERTY(Qt::ArrowType arrowType)
     QDOC_PROPERTY(QPoint pos)
     QDOC_PROPERTY(QFont font)
-    QDOC_PROPERTY(QToolButton::TextPosition textPosition)
 
 protected:
     QStyleOptionToolButton(int version);

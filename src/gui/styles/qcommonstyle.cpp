@@ -1022,7 +1022,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         if (!styleHint(SH_UnderlineShortcut, opt, widget))
                             alignment |= Qt::TextHideMnemonic;
 
-                        if (tb->textPosition == QToolButton::Under) {
+                        if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                             int fh = p->fontMetrics().height();
                             pr.addCoords(0, 1, 0, -fh - 3);
                             tr.addCoords(0, pr.bottom(), 0, -3);

@@ -194,16 +194,16 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
 
 void QToolButtonPrivate::init()
 {
-    textPos = QToolButton::Under;
     delay = 600;
     menu = 0;
     autoRaise = false;
     arrow = Qt::LeftArrow;
     instantPopup = false;
     discardNextMouseEvent = false;
+    popupMode = QToolButton::DelayedPopupMode;
 
-    usesTextLabel = false;
-    usesBigPixmap = false;
+    toolButtonStyle = Qt::ToolButtonIconOnly;
+    iconSize = Qt::SmallIconSize;
     hasArrow = false;
 
     q->setFocusPolicy(Qt::NoFocus);
@@ -247,7 +247,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
     }
     opt.features = QStyleOptionToolButton::None;
-    if (usesTextLabel)
+    if (q->toolButtonStyle() != Qt::ToolButtonIconOnly)
         opt.features |= QStyleOptionToolButton::TextLabel;
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
@@ -255,9 +255,9 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionToolButton::Menu;
     if (delay)
         opt.features |= QStyleOptionToolButton::PopupDelay;
-    if (usesBigPixmap)
+    if (q->iconSize() == Qt::LargeIconSize)
         opt.features |= QStyleOptionToolButton::BigPixmap;
-    opt.textPosition = textPos;
+    opt.toolButtonStyle = q->toolButtonStyle();
     opt.pos = q->pos();
     opt.font = q->font();
     return opt;
@@ -289,37 +289,29 @@ QSize QToolButton::sizeHint() const
 
     int w = 0, h = 0;
     QFontMetrics fm = fontMetrics();
-    if (icon().isNull() && !text().isNull() && !usesTextLabel()) {
+    if (icon().isNull() && !text().isNull() && toolButtonStyle() == Qt::ToolButtonIconOnly) {
         w = fm.width(text());
         h = fm.height(); // boundingRect()?
-    } else if (usesBigPixmap()) {
+    } else if (iconSize() == Qt::LargeIconSize) {
         QPixmap pm = icon().pixmap(Qt::LargeIconSize, QIcon::Normal);
-        w = pm.width();
-        h = pm.height();
         QSize iconSize = QIcon::pixmapSize(Qt::LargeIconSize);
-        if (w < iconSize.width())
-            w = iconSize.width();
-        if (h < iconSize.height())
-            h = iconSize.height();
+        w = qMax(pm.width(), iconSize.width());
+        h = qMax(pm.height(), iconSize.height());
     } else if (!icon().isNull()) {
         // ### in 3.1, use QIcon::iconSize(Qt::SmallIconSize);
         QPixmap pm = icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
-        w = pm.width();
-        h = pm.height();
-        if (w < 16)
-            w = 16;
-        if (h < 16)
-            h = 16;
+        w = qMax(pm.width(), 16);
+        h = qMax(pm.height(), 16);
     }
 
-    if (usesTextLabel()) {
+    if (toolButtonStyle() != Qt::ToolButtonIconOnly) {
         QSize textSize = fm.size(Qt::TextShowMnemonic, text());
         textSize.setWidth(textSize.width() + fm.width(' ')*2);
-        if (d->textPos == Under) {
+        if (d->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
             h += 4 + textSize.height();
             if (textSize.width() > w)
                 w = textSize.width();
-        } else { // Right
+        } else { // BesideIcon
             w += 4 + textSize.width();
             if (textSize.height() > h)
                 h = textSize.height();
@@ -327,7 +319,7 @@ QSize QToolButton::sizeHint() const
     }
 
     QStyleOptionToolButton opt = d->getStyleOption();
-    if ((d->menu || !actions().isEmpty()) && ! popupDelay())
+    if ((d->menu || actions().size() > 1) && ! popupDelay())
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
@@ -357,28 +349,6 @@ QSize QToolButton::minimumSizeHint() const
     the geometry right.
 */
 
-void QToolButton::setUsesBigPixmap(bool enable)
-{
-    if (d->usesBigPixmap == enable)
-        return;
-
-    d->usesBigPixmap = enable;
-    if (isVisible()) {
-        update();
-        updateGeometry();
-    }
-}
-
-bool QToolButton::usesBigPixmap() const
-{
-    return d->usesBigPixmap;
-}
-
-bool QToolButton::usesTextLabel() const
-{
-    return d->usesTextLabel;
-}
-
 /*!
     \property QToolButton::usesTextLabel
     \brief whether the toolbutton displays a text label below the button pixmap.
@@ -389,15 +359,37 @@ bool QToolButton::usesTextLabel() const
     signal in the QMainWindow in which is resides.
 */
 
-void QToolButton::setUsesTextLabel(bool enable)
+Qt::IconSize QToolButton::iconSize() const
 {
-    if (d->usesTextLabel == enable)
+    return d->iconSize;
+}
+
+Qt::ToolButtonStyle QToolButton::toolButtonStyle() const
+{
+    return d->toolButtonStyle;
+}
+
+void QToolButton::setIconSize(Qt::IconSize size)
+{
+    if (d->iconSize == size)
         return;
 
-    d->usesTextLabel = enable;
+    d->iconSize = size;
+    updateGeometry();
     if (isVisible()) {
         update();
-        updateGeometry();
+    }
+}
+
+void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
+{
+    if (d->toolButtonStyle == style)
+        return;
+
+    d->toolButtonStyle = style;
+    updateGeometry();
+    if (isVisible()) {
+        update();
     }
 }
 
@@ -450,9 +442,34 @@ void QToolButton::paintEvent(QPaintEvent *)
 /*!
     \reimp
  */
-void QToolButton::actionEvent(QActionEvent *)
+void QToolButton::actionEvent(QActionEvent *event)
 {
-    update();
+    QAction *action = event->action();
+
+    switch (event->type()) {
+    case QEvent::ActionAdded:
+        Q_ASSERT(actions().size() == 1);
+        action->connect(q, SIGNAL(clicked()), SLOT(trigger()));
+        // fall through intended
+
+    case QEvent::ActionChanged:
+        setText(action->iconText());
+        setIcon(action->icon());
+        setToolTip(action->toolTip());
+        setStatusTip(action->statusTip());
+        setWhatsThis(action->whatsThis());
+        setMenu(action->menu());
+        setCheckable(action->isCheckable());
+        setChecked(action->isChecked());
+        setEnabled(action->isEnabled());
+        setFont(actions().at(0)->font());
+        break;
+
+    default:
+        break;
+    }
+
+    QAbstractButton::actionEvent(event);
 }
 
 /*!
@@ -508,7 +525,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         return;
     }
     if (e->button() == Qt::LeftButton && d->delay <= 0 && d->instantPopup && !d->actualMenu
-        && (d->menu || !actions().isEmpty())) {
+        && (d->menu || actions().size() > 1)) {
         showMenu();
         return;
     }
@@ -677,7 +694,7 @@ void QToolButtonPrivate::popupPressed()
 void QToolButtonPrivate::popupTimerDone()
 {
     popupTimer.stop();
-    if ((!q->isDown() && delay > 0) || (!menu && q->actions().isEmpty()))
+    if ((!q->isDown() && delay > 0) || (!menu && q->actions().size() <= 1))
         return;
 
     if(menu) {
@@ -769,6 +786,16 @@ int QToolButton::popupDelay() const
     return d->delay;
 }
 
+void QToolButton::setPopupMode(QToolButton::ToolButtonPopupMode mode)
+{
+    d->popupMode = mode;
+}
+
+QToolButton::ToolButtonPopupMode QToolButton::popupMode()
+{
+    return d->popupMode;
+}
+
 
 /*!
     \property QToolButton::autoRaise
@@ -792,18 +819,6 @@ bool QToolButton::autoRaise() const
     \property QToolButton::textPosition
     \brief the position of the text label of this button.
 */
-
-QToolButton::TextPosition QToolButton::textPosition() const
-{
-    return d->textPos;
-}
-
-void QToolButton::setTextPosition(TextPosition pos)
-{
-    d->textPos = pos;
-    updateGeometry();
-    update();
-}
 
 /*! \internal
  */

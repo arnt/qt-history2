@@ -25,24 +25,22 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QToolButton)
-    Q_ENUMS(TextPosition)
+    Q_ENUMS(Qt::ToolButtonStyle)
+    Q_ENUMS(Qt::IconSize)
 
-    Q_PROPERTY(bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap)
-    Q_PROPERTY(bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel)
+    Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
+    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(int popupDelay READ popupDelay WRITE setPopupDelay)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
-    Q_PROPERTY(TextPosition textPosition READ textPosition WRITE setTextPosition)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
-    enum TextPosition {
-        BesideIcon,
-        BelowIcon
-#ifdef QT_COMPAT
-        , Right = BesideIcon,
-        Under = BelowIcon
-#endif
+    enum ToolButtonPopupMode {
+        InstantPopupMode,
+        MenuButtonPopupMode,
+        DelayedPopupMode
     };
+
     QToolButton(QWidget * parent=0);
 
     QToolButton(Qt::ArrowType type, QWidget *parent=0);
@@ -51,25 +49,25 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-
-    bool usesBigPixmap() const;
-    bool usesTextLabel() const;
+    Qt::IconSize iconSize() const;
+    Qt::ToolButtonStyle toolButtonStyle() const;
 
     void setMenu(QMenu* menu);
     QMenu* menu() const;
     void showMenu();
+
+    void setPopupMode(QToolButton::ToolButtonPopupMode mode);
+    QToolButton::ToolButtonPopupMode popupMode();
 
     void setPopupDelay(int delay);
     int popupDelay() const;
 
     void setAutoRaise(bool enable);
     bool autoRaise() const;
-    TextPosition textPosition() const;
 
 public slots:
-    void setUsesBigPixmap(bool enable);
-    void setUsesTextLabel(bool enable);
-    void setTextPosition(TextPosition pos);
+    void setIconSize(Qt::IconSize size);
+    void setToolButtonStyle(Qt::ToolButtonStyle style);
 
 protected:
     QToolButton(QToolButtonPrivate &, QWidget* parent);
@@ -91,6 +89,13 @@ private:
 
 #ifdef QT_COMPAT
 public:
+    enum TextPosition {
+        BesideIcon,
+        BelowIcon
+        , Right = BesideIcon,
+        Under = BelowIcon
+    };
+
     QT_COMPAT_CONSTRUCTOR QToolButton(QWidget * parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QToolButton(Qt::ArrowType type, QWidget *parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QToolButton( const QIcon& s, const QString &textLabel,
@@ -111,6 +116,18 @@ public:
     inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
+    inline QT_COMPAT bool usesBigPixmap() const { return iconSize() == Qt::LargeIconSize; }
+    inline QT_COMPAT bool usesTextLabel() const { return toolButtonStyle() != Qt::ToolButtonIconOnly; }
+    inline QT_COMPAT TextPosition textPosition() const
+    { return toolButtonStyle() == Qt::ToolButtonTextUnderIcon ? BelowIcon : BesideIcon; }
+
+public slots:
+    QT_MOC_COMPAT void setUsesBigPixmap(bool enable) { enable ? setIconSize(Qt::LargeIconSize) : setIconSize(Qt::SmallIconSize); }
+    QT_MOC_COMPAT void setUsesTextLabel(bool enable) { enable ? setToolButtonStyle(Qt::ToolButtonTextUnderIcon)
+                                                              : setToolButtonStyle(Qt::ToolButtonIconOnly); }
+    QT_MOC_COMPAT void setTextPosition(TextPosition pos) { pos == BesideIcon ? setToolButtonStyle(Qt::ToolButtonTextBesideIcon)
+                                                                             : setToolButtonStyle(Qt::ToolButtonTextUnderIcon); }
+
 #endif
 };
 
