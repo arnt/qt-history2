@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#245 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#246 $
 **
 ** Implementation of QListBox widget class
 **
@@ -890,12 +890,13 @@ void QListBox::clear()
     QListBoxItem * i = d->head;
     d->head = 0;
     while ( i ) {
-	QListBoxItem * n = i->n;
-	i->n = i->p = 0;
-	delete i;
-	i = n;
+        QListBoxItem * n = i->n;
+        i->n = i->p = 0;
+        delete i;
+        i = n;
     }
     triggerUpdate( TRUE );
+    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 }
 
 
