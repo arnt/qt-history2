@@ -39,7 +39,7 @@ void ConfigToolboxDialog::init()
 	QObject::connect( commonDnd, SIGNAL( added( QListViewItem * ) ),
 			  this, SLOT( addDroppedTool( QListViewItem * ) ) );
 	QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
-			  commonDnd, SLOT( confirm( QListViewItem * ) ) );
+			  commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 	QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
 			  commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 	
