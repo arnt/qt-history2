@@ -180,7 +180,7 @@ struct QListViewPrivate
     QTimer *scrollTimer;
 
     bool clearing;
-    
+
     int minLeftBearing, minRightBearing;
 };
 
@@ -1242,7 +1242,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
 {
-    int w = fm.width( text( c ) ) + lv->itemMargin() * 2 
+    int w = fm.width( text( c ) ) + lv->itemMargin() * 2
 	    - lv->d->minLeftBearing - lv->d->minRightBearing;
     const QPixmap * pm = pixmap( c );
     if ( pm )
@@ -1677,8 +1677,9 @@ QListView::QListView( QWidget * parent, const char *name )
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
-    d->minLeftBearing = d->minRightBearing = 0;
-    
+    d->minLeftBearing = fontMetrics().minLeftBearing();
+    d->minRightBearing = fontMetrics().minRightBearing();
+
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -3824,6 +3825,8 @@ void QListView::setPalette( const QPalette & p )
 void QListView::reconfigureItems()
 {
     d->fontMetricsHeight = fontMetrics().height();
+    d->minLeftBearing = fontMetrics().minLeftBearing();
+    d->minRightBearing = fontMetrics().minRightBearing();
     d->r->setOpen( FALSE );
     d->r->setOpen( TRUE );
 }
@@ -3838,10 +3841,8 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     if ( c >= d->h->count() )
 	return;
 
-    
+
     QFontMetrics fm = fontMetrics();
-    d->minLeftBearing = fm.minLeftBearing();
-    d->minRightBearing = fm.minRightBearing();
     int col = c < 0 ? 0 : c;
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {
