@@ -1382,7 +1382,8 @@ QString Doc::htmlExtensionList()
 }
 
 Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
-    : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE )
+    : ki( kind ), lo( loc ), html( htmlText ), inter( FALSE ), obs( FALSE ),
+      changed( FALSE )
 {
 }
 
@@ -1486,7 +1487,8 @@ void Doc::printHtml( HtmlWriter& out ) const
 	    fileName.truncate( k );
 
 	if ( fileName == out.fileName() )
-	    resolver()->compare( location(), lnk, t );
+	    ((Doc *) this)->changed
+		    = resolver()->changedSinceLastRun( location(), lnk, t );
     }
 }
 

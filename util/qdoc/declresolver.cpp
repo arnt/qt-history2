@@ -51,18 +51,23 @@ QString DeclResolver::resolvefn( const QString& name ) const
     }
 }
 
-void DeclResolver::compare( const Location& loc, const QString& link,
-			    const QString& html ) const
+bool DeclResolver::changedSinceLastRun( const Location& loc,
+					const QString& link,
+					const QString& html ) const
 {
     QMap<QString, HtmlChunk>::ConstIterator chk = chkmap.find( link );
     if ( chk == chkmap.end() ) {
 	warning( 0, loc, "New documentation at %s%s (%d byte%s)",
 		 config->base().latin1(), link.latin1(), html.length(),
 		 html.length() == 1 ? "" : "s" );
+	return TRUE;
     } else if ( !(*chk).isSame(html) ) {
 	int delta = html.length() - (*chk).length();
 	warning( 0, loc, "Modified documentation at %s%s (%+d byte%s)",
 		 config->base().latin1(), link.latin1(), delta,
 		 (delta == 1 || delta == -1) ? "" : "s" );
+	return TRUE;
+    } else {
+	return FALSE;
     }
 }

@@ -13,6 +13,8 @@
 
 #include "location.h"
 
+static bool paranoia = FALSE;
+
 static QMap<QString, int> *msgMap = 0;
 static int warningLevel = INT_MAX;
 static int numAll = 0;
@@ -43,6 +45,11 @@ static bool omit( const char *message )
     return FALSE;
 }
 
+void setParanoiaEnabled( bool on )
+{
+    paranoia = on;
+}
+
 void setMaxSimilarMessages( int n )
 {
     maxSame = n;
@@ -70,7 +77,7 @@ void warning( int level, const Location& loc, const char *message, ... )
 {
     if ( warningLevel < level )
 	return;
-    if ( level > 0 && omit(message) )
+    if ( !paranoia && level > 0 && omit(message) )
 	return;
 
     QString filename = loc.shortFilePath();

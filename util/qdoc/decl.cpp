@@ -801,6 +801,29 @@ void ClassDecl::fillInDeclsThis()
     }
 }
 
+/*
+  Reports undocumented parameters.
+*/
+static void checkParams( const FnDoc *fn, const StringSet& declared )
+{
+    if ( fn == 0 )
+	return;
+
+    StringSet diff;
+    StringSet::ConstIterator s;
+
+    setParanoiaEnabled( fn->changedSinceLastRun() );
+
+    diff = difference( declared, fn->parameterNames() );
+    s = diff.begin();
+    while ( s != diff.end() ) {
+	warning( 4, fn->location(), "Undocumented parameter '%s'",
+		 (*s).latin1() );
+	++s;
+    }
+    setParanoiaEnabled( FALSE );
+}
+
 void ClassDecl::fillInDocsThis()
 {
     QValueList<Decl *> importantChildren;
@@ -813,6 +836,9 @@ void ClassDecl::fillInDocsThis()
     fillInImportantChildren( this, &importantChildren );
     setImportantChildren( importantChildren );
 
+    /*
+      Build fmap to map a function name to its associated functions.
+    */
     child = children().begin();
     while ( child != children().end() ) {
 	if ( (*child)->kind() == Function )
@@ -837,6 +863,9 @@ void ClassDecl::fillInDocsThis()
 			 "Suspicious '\\overload' in doc for constructor" );
 		(*g)->fnDoc()->setOverloads( FALSE );
 	    }
+
+	    // a great place to do something wholy unrelated
+	    checkParams( (*g)->fnDoc(), (*g)->parameterNames() );
 	    ++g;
 	}
 
@@ -861,7 +890,7 @@ void ClassDecl::fillInDocsThis()
     */
     f = fmap.begin();
     while ( f != fmap.end() ) {
-	static const int NumCandidateLists = 3;
+	const int NumCandidateLists = 3;
 	QValueList<FunctionDecl *> candidates[NumCandidateLists];
 
 	FnDoc *scapeGoat = 0;
@@ -920,7 +949,7 @@ void ClassDecl::fillInDocsThis()
 	    badness++;
 
 	/*
-	  No candidate at all?
+	  No candidates at all?
 	*/
 	FunctionDecl *canonical = 0;
 	if ( badness == NumCandidateLists ) {
@@ -979,6 +1008,18 @@ void ClassDecl::fillInDocsThis()
 		if ( canonical->obsolete() )
 		    (*g)->fnDoc()->setObsolete( TRUE );
 	    }
+
+	    /*
+	      Here is another great place to do something unrelated to assigning
+	      overload numbers.  Parameters inherited from the canonical
+	      function need no documentation.
+	    */
+	    if ( canonical == 0 || (*g) == canonical )
+		checkParams( (*g)->fnDoc(), (*g)->parameterNames() );
+	    else
+		checkParams( (*g)->fnDoc(),
+			     difference((*g)->parameterNames(),
+					canonical->parameterNames()) );
 	    ++g;
 	}
 	++f;

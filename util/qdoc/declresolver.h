@@ -25,8 +25,9 @@ public:
 
     virtual QString resolve( const QString& name ) const;
     virtual QString resolvefn( const QString& name ) const;
-    virtual void compare( const Location& location, const QString& link,
-			  const QString& html ) const;
+    virtual bool changedSinceLastRun( const Location& location,
+				      const QString& link,
+				      const QString& html ) const;
 
     void setCurrentClass( const ClassDecl *classDecl ) { c = classDecl; }
     void setHeaderFileList( const StringSet& headerFiles ) { h = headerFiles; }

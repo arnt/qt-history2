@@ -58,6 +58,7 @@ public:
     const Location& location() const { return lo; }
     bool internal() const { return inter; }
     bool obsolete() const { return obs; }
+    bool changedSinceLastRun() const { return changed; }
     QString htmlSeeAlso() const;
 
     void printHtml( HtmlWriter& out ) const;
@@ -79,6 +80,7 @@ private:
     QStringList sa;
     bool inter;
     bool obs;
+    bool changed;
     QString q;
     StringSet idx;
     QString lnk;

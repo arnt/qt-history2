@@ -32,9 +32,11 @@ QString Resolver::resolvefn( const QString& name ) const
     return resolve( name );
 }
 
-void Resolver::compare( const Location& /* loc */, const QString& /* link */,
-			const QString& /* html */ ) const
+bool Resolver::changedSinceLastRun( const Location& /* loc */,
+				    const QString& /* link */,
+				    const QString& /* html */ ) const
 {
+    return FALSE;
 }
 
 QString Resolver::href( const QString& name, const QString& text ) const

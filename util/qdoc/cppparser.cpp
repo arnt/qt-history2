@@ -21,7 +21,6 @@
 /* tmake ignore Q_OBJECT */
 
 /*
-
   What is parsing?  Even though source files and header files are
   written in the same language (C++), qdoc distinguishes them.  It
   first reads the header files using a parser that looks for
@@ -43,8 +42,8 @@
 */
 
 /*
-  Sets the address of a Doc.  That information is used by the steering to emit
-  some index file, and by the Doc itself to know who it is.
+  Sets the address of a Doc.  That information is used by the steering
+  to emit some index file, and by the Doc itself to know who it is.
 */
 static void setLink( Steering *steering, Doc *doc, const QString& link,
 		     const QString& text )
@@ -714,28 +713,18 @@ static void matchDocsAndStuff( Steering *steering )
 			    ((FunctionDecl *) yyLastDecl)->parameterBegin() );
 
 			/*
-			  Check consistency of '\a' and parameter names.
+			  Check unexisting parameters now.  Check undocumented
+			  parameters elsewhere, when we know who overloads who.
 			*/
-			StringSet docp = fn->parameterNames();
-			StringSet declp 
-			    = ((FunctionDecl *) decl)->parameterNames();
 			StringSet diff;
 			StringSet::ConstIterator s;
 
-			diff = difference( docp, declp );
+			diff = difference( fn->parameterNames(),
+				((FunctionDecl *) decl)->parameterNames() );
 			s = diff.begin();
 			while ( s != diff.end() ) {
 			    warning( 3, fn->location(),
 				     "No such parameter '%s'", (*s).latin1() );
-			    ++s;
-			}
-
-			diff = difference( declp, docp );
-			s = diff.begin();
-			while ( s != diff.end() ) {
-			    warning( 4, fn->location(),
-				     "Undocumented parameter '%s'",
-				     (*s).latin1() );
 			    ++s;
 			}
 		    } else if ( !fn->prototype().isEmpty() ) {
