@@ -744,6 +744,8 @@ void QScrollView::updateScrollBars()
     int hsbExt = horizontalScrollBar()->sizeHint().height();
     int vsbExt = verticalScrollBar()->sizeHint().width();
 
+    QSize oldVisibleSize( visibleWidth(), visibleHeight() );
+
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
         // Do we definitely need the scrollbar?
         needh = w-lmarg-rmarg < contentsWidth();
@@ -921,6 +923,12 @@ void QScrollView::updateScrollBars()
     d->vbar->setValue( contentsY() );
     d->hbar->setValue( contentsX() );
     d->signal_choke=FALSE;
+
+    QSize newVisibleSize( visibleWidth(), visibleHeight() );
+    if ( d->clipped_viewport && oldVisibleSize != newVisibleSize ) {
+	QResizeEvent e( oldVisibleSize, newVisibleSize );
+	viewportResizeEvent( &e );
+    }	
 }
 
 
