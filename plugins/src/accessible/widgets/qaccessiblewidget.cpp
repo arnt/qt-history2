@@ -87,7 +87,7 @@ QString hotKey( const QString &text )
 	}
     }
     if ( fa != -1 && ac )
-	return n.at(fa + 1);
+	return QString( n.at(fa + 1) );
 
     return QString::null;
 }
@@ -677,7 +677,7 @@ int QAccessibleSpinWidget::childCount() const
 }
 
 /*! \reimp */
-QRESULT QAccessibleSpinWidget::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT QAccessibleSpinWidget::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -886,7 +886,7 @@ int QAccessibleScrollBar::childCount() const
 }
 
 /*! \reimp */
-QRESULT	QAccessibleScrollBar::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT	QAccessibleScrollBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -1071,7 +1071,7 @@ int QAccessibleSlider::childCount() const
 }
 
 /*! \reimp */
-QRESULT	QAccessibleSlider::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT	QAccessibleSlider::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;    
@@ -1345,7 +1345,7 @@ int QAccessibleHeader::childCount() const
 }
 
 /*! \reimp */
-QRESULT QAccessibleHeader::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT QAccessibleHeader::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -1368,7 +1368,7 @@ QString QAccessibleHeader::text( Text t, int control ) const
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleHeader::role( int control ) const
+QAccessible::Role QAccessibleHeader::role( int /*control*/ ) const
 {
     if ( header()->orientation() == Qt::Horizontal )
 	return ColumnHeader;
@@ -1440,7 +1440,7 @@ QRect QAccessibleTabBar::rect( int control ) const
 }
 
 /*! \reimp */
-QRESULT	QAccessibleTabBar::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT	QAccessibleTabBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -1696,7 +1696,7 @@ int QAccessibleComboBox::childCount() const
 }
 
 /*! \reimp */
-QRESULT	QAccessibleComboBox::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT	QAccessibleComboBox::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -1756,7 +1756,7 @@ QAccessible::Role QAccessibleComboBox::role( int control ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleComboBox::state( int control ) const
+QAccessible::State QAccessibleComboBox::state( int /*control*/ ) const
 {
     return QAccessibleWidget::state( 0 );
 }
@@ -1879,7 +1879,7 @@ int QAccessibleTitleBar::childCount() const
 }
 
 /*! \reimp */
-QRESULT QAccessibleTitleBar::queryChild( int control, QAccessibleInterface **iface ) const
+QRESULT QAccessibleTitleBar::queryChild( int /*control*/, QAccessibleInterface **iface ) const
 {
     *iface = 0;
     return QS_FALSE;
@@ -2136,7 +2136,7 @@ QString QAccessibleScrollView::text( Text t, int control ) const
 /*!
   Returns the ID of the item at viewport position \a x, \a y.
 */
-int QAccessibleScrollView::itemAt( int x, int y ) const
+int QAccessibleScrollView::itemAt( int /*x*/, int /*y*/ ) const
 {
     return 0;
 }
@@ -2144,7 +2144,7 @@ int QAccessibleScrollView::itemAt( int x, int y ) const
 /*!
   Returns the location of the item with ID \a item in viewport coordinates.
 */
-QRect QAccessibleScrollView::itemRect( int item ) const
+QRect QAccessibleScrollView::itemRect( int /*item*/ ) const
 {
     return QRect();
 }
