@@ -346,7 +346,7 @@ void QFtpDTP::abortConnection()
 
 bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo *info)
 {
-    QStringList lst = buffer.simplifyWhiteSpace().split(" ");
+    QStringList lst = buffer.simplified().split(" ");
 
     if (lst.count() < 9)
         return false;
