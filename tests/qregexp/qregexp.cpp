@@ -15,7 +15,7 @@
 
 /*
   WARNING!  Be sure to read qregexp.tex before changing any of this.  And drop
-  an email to jasmin@trolltech.com.
+  an email to Jasmin Blanchette (jasmin@trolltech.com).
 */
 
 /*!
@@ -28,7 +28,7 @@
   \ingroup misc
   \ingroup shared
 
-  In normal mode, you can use one of these atoms to match a single character:
+  In normal mode, you can use any of these atoms to match a single character:
 
   <ul plain>
   <li><b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
@@ -63,10 +63,10 @@
   The following atoms make an assertion without consuming any input:
 
   <ul plain>
-  <li><b>\b</b> matches a word boundary
+  <li><b>\b</b> matches at a word boundary
   <li><b>\B</b> matches wherever <b>\b</b> doesn't match
-  <li><b>^</b> matches the beginning of input
-  <li><b>$</b> matches the end of input
+  <li><b>^</b> matches at the beginning of input
+  <li><b>$</b> matches at the end of input
   <li><b>(?=<em>E</em>)</b> matches if the next characters of input match the
   regular expression <b><em>E</em></b> (positive lookahead)
   <li><b>(?!<em>E</em>)</b> matches if the next characters of input do not
@@ -95,10 +95,17 @@
 
   <ul plain>
   <li><b>(<em>E</em>)</b> matches the sub-expression <b><em>E</em></b> and
-  captures the matched text (see capturedText() for details)
+  captures the matched text, making it available through back-references and
+  capturedText()
   <li><b>(?:<em>E</em>)</b> matches the sub-expression <b><em>E</em></b>
   without capturing anything.
   </ul>
+
+  Back references are expressions of the form <b>&#92;<em>N</em></b> that stand
+  for the <em>N</em>th substring matched by the <em>N</em>th parenthesized
+  sub-expression.  For example, <b>(.)(.)\2\1</b> matches all palindromes of
+  length 4 (e.g., <tt>anna</tt>), and <b>(a\1*)</b> a power of 2 of
+  <tt>a</tt>'s (e.g., <tt>aaaaaaaa</tt>).
 
   If <b><em>E</em></b> and <b><em>F</em></b> are two regular expressions, you
   can also write <b><em>E</em>|<em>F</em></b> to match either <b><em>E</em></b>
@@ -117,7 +124,7 @@
   matched.
 
   When writing regular expressions in C++ code, remember that C++ processes
-  <tt>&#92</tt> characters.  To match a <tt>$</tt> character, you should write
+  <tt>&#92;</tt> characters.  To match a <tt>$</tt> character, you should write
   <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.
 
   A character set matches a defined set of characters.  For example,
@@ -126,9 +133,7 @@
   following characters are treated specially:
 
   <ul plain>
-  <li><b>&#92</b> behaves essentially the same way as outside character sets,
-  except that <b>\b</b> means ASCII backspace (BS 0x08) (this is for normal mode
-  only)
+  <li><b>&#92</b> behaves the same way as outside character sets
   <li><b>^</b> negates the caracter set so that it matches any character not in
   the set, when it is placed first in the list
   <li><b>-</b> defines a range of characters
@@ -142,7 +147,7 @@
   \sa QRegExpValidator
 */
 
-static const int NumBadChars = 128;
+static const int NumBadChars = 256;
 static const int NoOccurrence = INT_MAX;
 static const int InftyRep = 1000;
 static const int EmptyCapture = INT_MAX;
@@ -185,7 +190,7 @@ static void mergeInto( QArray<int> *a, const QArray<int>& b )
 	    }
 	}
 	c.resize( csize );
-	if ( j != bsize )
+	if ( j < bsize )
 	    memcpy( c.data() + k, b.data() + j, (bsize - j) * sizeof(int) );
 	*a = c;
     }
@@ -208,7 +213,11 @@ static void reunionInto( QMap<int, int> *a, const QMap<int, int>& b )
 */
 static int at( const QMap<int, int>& m, int k )
 {
-    return m.contains( k ) ? m[k] : 0;
+    QMap<int, int>::ConstIterator it = m.find( k );
+    if ( it == m.end() )
+	return 0;
+    else
+	return *it;
 }
 
 /*
@@ -318,7 +327,7 @@ public:
     bool isValid() const { return valid; }
     bool caseSensitive() const { return cs; }
     int numCaptures() const { return realncap; }
-    QArray<int> match( const QString& str, int pos, bool minimal,
+    QArray<int> match( const QChar *in, int len, int pos, bool minimal,
 		       bool oneTest );
     int matchedLength() const { return mmMatchedLen; }
 
@@ -341,7 +350,8 @@ private:
 
     /*
       The struct State represents one state in a modified NFA.  The input
-      characters matched are stored in the state instead of on the transitions.
+      characters matched are stored in the state instead of on the transitions,
+      something possible for automata constructed from a regular expression.
     */
     struct State {
 	int atom;
@@ -357,8 +367,7 @@ private:
 
     /*
       The struct Lookahead represents a lookahead a la Perl (e.g., (?=foo) and
-      (?!bar)).  The embedded regular expression is represented by an NFA that
-      matches it.
+      (?!bar)).  The embedded regular expression is represented by an NFA.
     */
     struct Lookahead {
 	QRegExpEngine *eng;
@@ -370,7 +379,7 @@ private:
     };
 
     /*
-      The struct Atom represent one node in the hierarchy of regular expression
+      The struct Atom represents one node in the hierarchy of regular expression
       atoms.
     */
     struct Atom {
@@ -379,7 +388,7 @@ private:
     };
 
     /*
-      The struct AnchorAlternation represent a pair of anchors with OR
+      The struct AnchorAlternation represents a pair of anchors with OR
       semantics.
     */
     struct AnchorAlternation {
@@ -391,15 +400,18 @@ private:
     void setup( bool caseSensitive );
     int setupState( int match );
     /*
-      Let's hope that 12 lookaheads and 15 back-references are enough.
+      Let's hope that 13 lookaheads and 14 back-references are enough.
      */
-    enum { MaxLookaheads = 12, MaxBackRefs = 15 };
+    enum { MaxLookaheads = 13, MaxBackRefs = 14 };
     enum { Anchor_Dollar = 0x00000001, Anchor_Caret = 0x00000002,
 	   Anchor_Word = 0x00000004, Anchor_NonWord = 0x00000008,
 	   Anchor_FirstLookahead = 0x00000010,
 	   Anchor_BackRef1Empty = Anchor_FirstLookahead << MaxLookaheads,
 	   Anchor_BackRef0Empty = Anchor_BackRef1Empty >> 1,
-	   Anchor_Alternation = Anchor_BackRef1Empty << MaxBackRefs };
+	   Anchor_Alternation = Anchor_BackRef1Empty << MaxBackRefs,
+
+	   Anchor_LookaheadMask = ( Anchor_FirstLookahead - 1 ) ^
+		   ( (Anchor_FirstLookahead << MaxLookaheads) - 1 ) };
     int startAtom( bool capture );
     void finishAtom( int atom );
     int addLookahead( QRegExpEngine *eng, bool negative );
@@ -439,8 +451,9 @@ private:
 
 	Box& operator=( const Box& b );
 
+	void clear() { operator=(Box(eng)); }
 	void cat( const Box& b );
-	void or( const Box& b );
+	void orx( const Box& b );
 	void plus( int atom );
 	void opt();
 	void catAnchor( int a );
@@ -505,7 +518,10 @@ private:
     int mmStartPos;
     int mmPos;
     int mmLen;
-    QArray<int> mmOneForAll;
+    QArray<int> mmCaptured;
+    QArray<int> mmCapturedNoMatch;
+    QArray<int> mmSlideTab;
+    QArray<int> mmSuetelane;
     int *mmInNextStack;
     int *mmCurStack;
     int *mmNextStack;
@@ -538,42 +554,28 @@ QRegExpEngine::~QRegExpEngine()
     }
 }
 
-QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
-				  bool oneTest )
+/*
+  Tries to match in str and returns an array of (begin, length) pairs for
+  captured text (including the whole text).  If it did not match, all pairs are
+  (-1, -1).
+*/
+QArray<int> QRegExpEngine::match( const QChar *in, int len, int pos,
+				  bool minimal, bool oneTest )
 {
-    QArray<int> captured( 2 + 2 * realncap );
-    mmIn = str.unicode();
+    mmIn = in;
     mmStartPos = pos;
     mmPos = pos;
-    mmLen = str.length();
+    mmLen = len;
     if ( mmIn == 0 )
 	mmIn = &QChar::null;
 
-    /*
-      We use one QArray<int> for all the big data used in testMatch().  This is
-      more efficient than a dozen QArray<int> (it has been tried), and obviously
-      much more efficient than creating these in tryMatch().
-    */
-    mmOneForAll.resize( (3 + 4 * ncap) * ns + 4 * ncap );
-    mmInNextStack = mmOneForAll.data();
-    mmCurStack = mmInNextStack + ns;
-    mmNextStack = mmInNextStack + 2 * ns;
-    mmCurCapBegin = mmInNextStack + 3 * ns;
-    mmNextCapBegin = mmCurCapBegin + ncap * ns;
-    mmCurCapEnd = mmCurCapBegin + 2 * ncap * ns;
-    mmNextCapEnd = mmCurCapBegin + 3 * ncap * ns;
-    mmTempCapBegin = mmCurCapBegin + 4 * ncap * ns;
-    mmTempCapEnd = mmTempCapBegin + ncap;
-    mmCapBegin = mmTempCapBegin + 2 * ncap;
-    mmCapEnd = mmTempCapBegin + 3 * ncap;
     mmMatchedLen = -1;
 
-    QArray<int> slideTab( minl + 1 );
     int slideHead = 0;
     int slideNext;
     int i;
     int lastPos;
-    slideTab.fill( 0 );
+    memset( mmSlideTab.data(), 0, (minl + 1) * sizeof(int) );
     for ( i = 0; i < ns; i++ )
 	mmInNextStack[i] = -1;
 
@@ -585,7 +587,10 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 #endif
 	lastPos = mmPos - 1;
     } else if ( caretAnchored || oneTest ) {
-	lastPos = mmPos;
+	if ( mmPos <= mmLen - minl )
+	    lastPos = mmPos;
+	else
+	    lastPos = mmPos - 1;
     } else {
 	lastPos = mmLen - minl;
 
@@ -604,46 +609,46 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 			sk = i + 1;
 			k = 0;
 		    }
-		    if ( sk > slideTab[k] )
-			slideTab[k] = sk;
+		    if ( sk > mmSlideTab[k] )
+			mmSlideTab[k] = sk;
 		}
 	    }
 	}
     }
     while ( mmPos <= lastPos ) {
-	slideNext = ( slideHead + 1 ) % slideTab.size();
-	if ( slideTab[slideHead] > 0 ) {
-	    if ( slideTab[slideHead] - 1 > slideTab[slideNext] )
-		slideTab[slideNext] = slideTab[slideHead] - 1;
-	    slideTab[slideHead] = 0;
+	slideNext = ( slideHead + 1 ) % mmSlideTab.size();
+	if ( mmSlideTab[slideHead] > 0 ) {
+	    if ( mmSlideTab[slideHead] - 1 > mmSlideTab[slideNext] )
+		mmSlideTab[slideNext] = mmSlideTab[slideHead] - 1;
+	    mmSlideTab[slideHead] = 0;
 	} else {
 	    if ( testMatch(minimal) ) {
-		captured.fill( 0 );
-		captured[0] = mmPos;
-		captured[1] = mmMatchedLen;
+		mmCaptured[0] = mmPos;
+		mmCaptured[1] = mmMatchedLen;
 		for ( int j = 0; j < realncap; j++ ) {
 		    int len = mmCapEnd[j] - mmCapBegin[j];
-		    if ( len > 0 ) {
-			captured[2 + 2 * j] = mmPos + mmCapBegin[j];
-			captured[2 + 2 * j + 1] = len;
-		    }
+		    mmCaptured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
+		    mmCaptured[2 + 2 * j + 1] = len;
 		}
-		return captured;
+		return mmCaptured;
 	    }
 	}
+	/*
+	  Update the slide table.  This code has much in common with the
+	  initialization code.
+	*/
 	int sk = occ1[mmIn[mmPos + minl].unicode() % NumBadChars];
 	if ( sk == NoOccurrence )
 	    sk = minl;
 	if ( sk > 0 ) {
 	    int k = ( slideNext + minl - sk ) % ( minl + 1 );
-	    if ( sk > slideTab[k] )
-		slideTab[k] = sk;
+	    if ( sk > mmSlideTab[k] )
+		mmSlideTab[k] = sk;
 	}
 	slideHead = slideNext;
 	mmPos++;
     }
-    captured.fill( -1 );
-    return captured;
+    return mmCapturedNoMatch;
 }
 
 int QRegExpEngine::createState( QChar ch )
@@ -738,7 +743,7 @@ void QRegExpEngine::addAnchors( int from, int to, int a )
     if ( st->anchors == 0 )
 	st->anchors = new QMap<int, int>;
     if ( st->anchors->contains(to) )
-	a = anchorAlternation( at(*st->anchors, to), a );
+	a = anchorAlternation( (*st->anchors)[to], a );
     st->anchors->insert( to, a );
 }
 
@@ -785,7 +790,8 @@ void QRegExpEngine::dump() const
 	    qDebug( "  %6d  %6d  %6d", i, f[i].parent, f[i].capture );
     }
     for ( i = 0; i < (int) aa.size(); i++ )
-	qDebug( "  Anchor alternation 0x%x: 0x%x 0x%x", i, aa[i].a, aa[i].b );
+	qDebug( "  Anchor alternation 0x%.8x: 0x%.8x 0x%.9x", i, aa[i].a,
+		aa[i].b );
 }
 #endif
 
@@ -802,6 +808,7 @@ void QRegExpEngine::setup( bool caseSensitive )
     f.resize( 0 );
     nf = 0;
     cf = -1;
+    realncap = 0;
     ncap = 0;
     cl.setAutoDelete( TRUE );
     ahead.setAutoDelete( TRUE );
@@ -860,14 +867,13 @@ int QRegExpEngine::addLookahead( QRegExpEngine *eng, bool negative )
 /*
   We want the first longest captures.
 */
-
 bool QRegExpEngine::isBetterCapture( const int *begin1, const int *end1,
 				     const int *begin2, const int *end2 )
 {
     for ( int i = 0; i < ncap; i++ ) {
-	int delta = begin2[i] - begin1[i]; // it has to start early
+	int delta = begin2[i] - begin1[i]; // it has to start early...
 	if ( delta == 0 )
-	    delta = end1[i] - end2[i]; // and end late
+	    delta = end1[i] - end2[i]; // ...and end late (like a party)
 
 	if ( delta != 0 )
 	    return delta > 0;
@@ -877,7 +883,7 @@ bool QRegExpEngine::isBetterCapture( const int *begin1, const int *end1,
 
 bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 {
-    bool catchh = TRUE;
+    bool catchx = TRUE;
     int j;
 
     if ( (a & Anchor_Alternation) == 0 ) {
@@ -900,13 +906,15 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 	    if ( (a & Anchor_NonWord) != 0 && (before != after) )
 		return FALSE;
 	}
-	for ( j = 0; j < (int) ahead.size(); j++ ) {
-	    if ( (a & (Anchor_FirstLookahead << j)) != 0 ) {
-		catchh = ( ahead[j]->eng->match(QString(mmIn + mmPos + i,
-							mmLen - mmPos - i),
-						0, TRUE, TRUE)[0] == 0 );
-		if ( catchh == ahead[j]->neg )
-		    return FALSE;
+	if ( (a & Anchor_LookaheadMask) != 0 ) {
+	    for ( j = 0; j < (int) ahead.size(); j++ ) {
+		if ( (a & (Anchor_FirstLookahead << j)) != 0 ) {
+		    catchx = ( ahead[j]->eng->match(mmIn + mmPos + i,
+						    mmLen - mmPos - i,
+						    0, TRUE, TRUE)[0] == 0 );
+		    if ( catchx == ahead[j]->neg )
+			return FALSE;
+		}
 	    }
 	}
 	for ( j = 0; j < nbrefs; j++ ) {
@@ -926,7 +934,6 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
   This function is just like a cricket test match:  It's very long.  (It doesn't
   beat tcp_output(), though.)
 */
-
 bool QRegExpEngine::testMatch( bool minimal )
 {
     int ncur = 1, nnext = 0;
@@ -969,17 +976,12 @@ bool QRegExpEngine::testMatch( bool minimal )
 		  for this transition.
 		*/
 		if ( in ) {
-		    /*
-		      We assume that at least one of c.lower() and c.upper()
-		      equals c, for any QChar c.
-		    */
 		    m = snext->match;
 		    if ( (m & (CharClassBit | BackRefBit)) == 0 ) {
 			if ( cs )
 			    in = ( m == ch );
 			else
-			    in = ( m == QChar(ch).lower() ||
-				   m == QChar(ch).upper() );
+			    in = ( QChar(m).lower() == QChar(ch).lower() );
 		    } else if ( next == FinalState ) {
 			mmMatchedLen = i;
 			match = minimal;
@@ -1003,8 +1005,8 @@ bool QRegExpEngine::testMatch( bool minimal )
 			    if ( cs )
 				in = ( mmIn[mmPos + mmCurCapBegin[ell]] == ch );
 			    else
-				in = ( QChar(mmIn[mmPos + mmCurCapBegin[ell]])
-				       .lower() == QChar(ch).lower() );
+				in = ( mmIn[mmPos + mmCurCapBegin[ell]].lower()
+				       == QChar(ch).lower() );
 			}
 
 			if ( in ) {
@@ -1045,12 +1047,21 @@ bool QRegExpEngine::testMatch( bool minimal )
 		if ( in ) {
 		    int *capBegin, *capEnd;
 
+		    /*
+		      If the next state was not encountered yet, all is fine.
+		    */
 		    if ( (m = mmInNextStack[next]) == -1 ) {
 			m = nnext++;
 			mmNextStack[m] = next;
 			mmInNextStack[next] = m;
 			capBegin = mmNextCapBegin + m * ncap;
 			capEnd = mmNextCapEnd + m * ncap;
+
+		    /*
+		      Otherwise, we'll first maintain captures in temporary
+		      arrays, and decide at the end whether it's best to keep
+		      the previous capture zones or the new ones.
+		    */
 		    } else {
 			capBegin = mmTempCapBegin;
 			capEnd = mmTempCapEnd;
@@ -1078,7 +1089,7 @@ bool QRegExpEngine::testMatch( bool minimal )
 			*/
 
 			/*
-			  If we are re-entering a atom, we empty all capture
+			  If we are re-entering an atom, we empty all capture
 			  zones inside it.
 			*/
 			if ( scur->reenter != 0 &&
@@ -1102,7 +1113,7 @@ bool QRegExpEngine::testMatch( bool minimal )
 			  Otherwise, close the capture zones we are leaving.
 			  We are leaving f[c].capture, f[f[c].parent].capture,
 			  f[f[f[c].parent].parent].capture, ..., until
-			  f[x].capture, where x is such that f[x].parent is the
+			  f[x].capture, with x such that f[x].parent is the
 			  youngest common ancestor for c and n.
 
 			  We go up along c's and n's ancestry until we find x.
@@ -1184,7 +1195,7 @@ bool QRegExpEngine::testMatch( bool minimal )
 	}
 
 	/*
-	  It's time to wake up the sleepers!
+	  It's time to wake up the sleepers.
 	*/
 	if ( mmSleeping.count() > 0 ) {
 	    while ( (zzZ = mmSleeping.take(i)) != 0 ) {
@@ -1275,15 +1286,8 @@ void QRegExpEngine::CharClass::addCategories( int cats )
 void QRegExpEngine::CharClass::addRange( ushort from, ushort to )
 {
     int i;
-    if ( from > to ) {
-	/*
-	  According to Arnt Gulbrandsen, the following idiom is evil since
-	  around 1985.
-	*/
-	from ^= to;
-	to ^= from;
-	from ^= to;
-    }
+    if ( from > to )
+	qSwap( from, to );
     int n = r.size();
     r.resize( n + 1 );
     r[n].from = from;
@@ -1426,7 +1430,7 @@ void QRegExpEngine::Box::cat( const Box& b )
 
     occ1.detach();
     for ( int i = 0; i < NumBadChars; i++ ) {
-	if ( occ1[i] == NoOccurrence && b.occ1[i] != NoOccurrence )
+	if ( b.occ1[i] != NoOccurrence && minl + b.occ1[i] < occ1[i] )
 	    occ1[i] = minl + b.occ1[i];
     }
     minl += b.minl;
@@ -1437,7 +1441,7 @@ void QRegExpEngine::Box::cat( const Box& b )
 	skipanchors = 0;
 }
 
-void QRegExpEngine::Box::or( const Box& b )
+void QRegExpEngine::Box::orx( const Box& b )
 {
     mergeInto( &ls, b.ls );
     reunionInto( &lanchors, b.lanchors );
@@ -1484,8 +1488,9 @@ void QRegExpEngine::Box::setupBadCharHeuristic()
       point.  An entry of occ1 has to be below minl or infinity for the rest of
       the algorithm to go well.
 
-      We normalize these cases here instead of in Box::or() because sometimes
-      things improve by themselves; consider (112|1)34.
+      We waited until here before normalizing these cases (instead of doing it
+      in Box::orx()) because sometimes things improve by themselves; consider
+      (112|1)34.
     */
     for ( int i = 0; i < NumBadChars; i++ ) {
 	if ( occ1[i] != NoOccurrence && occ1[i] >= minl )
@@ -1563,7 +1568,7 @@ int QRegExpEngine::getEscape()
 	    }
 	    if ( (val & ~0377) != 0 )
 		yyError = TRUE;
-	    return Tok_Char | (val & 0377);
+	    return Tok_Char | val;
 	case 'B':
 	    return Tok_NonWord;
 	case 'D':
@@ -1817,13 +1822,36 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     box.cat( rightBox );
     delete yyCharClass;
     yyCharClass = 0;
-    realncap = 0;
-    if ( yyError )
-	return -1;
 
     realncap = ncap;
     if ( nbrefs > ncap )
 	ncap = nbrefs;
+
+    mmCaptured.resize( 2 + 2 * realncap );
+    mmCapturedNoMatch.fill( -1, 2 + 2 * realncap );
+    mmSlideTab.resize( minl + 1 );
+
+    /*
+      We use one QArray<int> for all the big data used in testMatch().
+    */
+    mmSuetelane.resize( (3 + 4 * ncap) * ns + 4 * ncap );
+
+    mmInNextStack = mmSuetelane.data();
+    mmCurStack = mmInNextStack + ns;
+    mmNextStack = mmInNextStack + 2 * ns;
+
+    mmCurCapBegin = mmInNextStack + 3 * ns;
+    mmNextCapBegin = mmCurCapBegin + ncap * ns;
+    mmCurCapEnd = mmCurCapBegin + 2 * ncap * ns;
+    mmNextCapEnd = mmCurCapBegin + 3 * ncap * ns;
+
+    mmTempCapBegin = mmCurCapBegin + 4 * ncap * ns;
+    mmTempCapEnd = mmTempCapBegin + ncap;
+    mmCapBegin = mmTempCapBegin + 2 * ncap;
+    mmCapEnd = mmTempCapBegin + 3 * ncap;
+
+    if ( yyError )
+	return -1;
 
     State *sinit = s[InitialState];
     caretAnchored = ( sinit->anchors != 0 );
@@ -1831,7 +1859,9 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
 	QMap<int, int>& anchors = *sinit->anchors;
 	QMap<int, int>::ConstIterator a;
 	for ( a = anchors.begin(); a != anchors.end(); ++a ) {
-	    if ( (*a & (Anchor_Alternation | Anchor_Caret)) == 0 ) {
+	    if ( (*a & Anchor_Alternation) != 0 )
+		break;
+	    if ( (*a & Anchor_Caret) == 0 ) {
 		caretAnchored = FALSE;
 		break;
 	    }
@@ -1899,25 +1929,30 @@ QRegExpEngine::Box QRegExpEngine::parseAtom()
 QRegExpEngine::Box QRegExpEngine::parseFactor()
 {
 #define YYREDO() \
-	yyIn = in0, yyPos = pos0, yyLen = len0, yyCh = ch0, yyTok = tok0, \
-	*yyCharClass = charClass0
+	yyIn = in, yyPos0 = pos0, yyPos = pos, yyLen = len, yyCh = ch, \
+	*yyCharClass = charClass, yyMinRep = minRep, yyMaxRep = maxRep, \
+	yyTok = tok
+
     Box leftBox( this ), rightBox( this ), box( this );
     int i;
     int atom = startAtom( yyMayCapture && yyTok == Tok_LeftParen );
-    const QChar *in0 = yyIn;
-    int pos0 = yyPos;
-    int len0 = yyLen;
-    int ch0 = yyCh;
-    CharClass charClass0 = *yyCharClass;
-    int tok0 = yyTok;
-    bool mayCapture0 = yyMayCapture;
+    const QChar *in = yyIn;
+    int pos0 = yyPos0;
+    int pos = yyPos;
+    int len = yyLen;
+    int ch = yyCh;
+    CharClass charClass = *yyCharClass;
+    int minRep = yyMinRep;
+    int maxRep = yyMaxRep;
+    int tok = yyTok;
+    bool mayCapture = yyMayCapture;
 
     box = parseAtom();
     finishAtom( atom );
 
     if ( yyTok == Tok_Quantifier ) {
 	if ( yyMaxRep == 0 )
-	    box = Box( this );
+	    box.clear();
 	else if ( yyMaxRep == InftyRep )
 	    box.plus( atom );
 
@@ -1928,11 +1963,7 @@ QRegExpEngine::Box QRegExpEngine::parseFactor()
 	int alpha = ( yyMinRep == 0 ) ? 0 : yyMinRep - 1;
 	int beta = ( yyMaxRep == InftyRep ) ? 0 : yyMaxRep - ( alpha + 1 );
 
-qDebug( "alpha = %d, beta = %d", alpha, beta );
-
 	for ( i = 0; i < beta; i++ ) {
-if ( i % 40 == 0 )
-qDebug( "beta %d", i );
 	    YYREDO();
 	    leftBox = parseAtom();
 	    leftBox.cat( rightBox );
@@ -1940,8 +1971,6 @@ qDebug( "beta %d", i );
 	    rightBox = leftBox;
 	}
 	for ( i = 0; i < alpha; i++ ) {
-if ( i % 40 == 0 )
-qDebug( "alpha %d", i );
 	    YYREDO();
 	    leftBox = parseAtom();
 	    leftBox.cat( rightBox );
@@ -1950,7 +1979,7 @@ qDebug( "alpha %d", i );
 	rightBox.cat( box );
 	box = rightBox;
 	yyTok = getToken();
-	yyMayCapture = mayCapture0;
+	yyMayCapture = mayCapture;
     }
     return box;
 #undef YYREDO
@@ -1958,12 +1987,10 @@ qDebug( "alpha %d", i );
 
 QRegExpEngine::Box QRegExpEngine::parseTerm()
 {
-    Box leftBox( this ), rightBox( this );
-    while ( yyTok != Tok_Eos && yyTok != Tok_RightParen && yyTok != Tok_Bar ) {
-	rightBox = parseFactor();
-	leftBox.cat( rightBox );
-    }
-    return leftBox;
+    Box box( this );
+    while ( yyTok != Tok_Eos && yyTok != Tok_RightParen && yyTok != Tok_Bar )
+	box.cat( parseFactor() );
+    return box;
 }
 
 QRegExpEngine::Box QRegExpEngine::parseExpression()
@@ -1971,7 +1998,7 @@ QRegExpEngine::Box QRegExpEngine::parseExpression()
     Box box = parseTerm();
     while ( yyTok == Tok_Bar ) {
 	yyTok = getToken();
-	box.or( parseTerm() );
+	box.orx( parseTerm() );
     }
     return box;
 }
@@ -2006,7 +2033,7 @@ QRegExp::QRegExp()
 }
 
 /*!  Constructs a regular expression object for a given \a pattern string and
-  sets the case sensitivity, wildcard, and minimal matching options.
+  sets the case sensitivity, wildcard and minimal matching options.
 
   \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
 */
@@ -2044,8 +2071,9 @@ QRegExp::~QRegExp()
     delete priv;
 }
 
-/*!  Copies the regexp \a rx and returns a reference to this regexp.  The case
-  sensitivity, wildcard and minimal matching options are copied as well.
+/*!  Copies the regular expression \a rx and returns a reference to this
+  QRegExp.  The case sensitivity, wildcard and minimal matching options are
+  copied as well.
 */
 
 QRegExp& QRegExp::operator=( const QRegExp& rx )
@@ -2063,10 +2091,10 @@ QRegExp& QRegExp::operator=( const QRegExp& rx )
     return *this;
 }
 
-/*!  Returns TRUE if this regexp is equal to \a rx, otherwise FALSE.
+/*!  Returns TRUE if this regular expression is equal to \a rx, otherwise FALSE.
 
-  Two regexp objects are equal if they have equal pattern strings, and if
-  case sensitivity, wildcard and minimal matching options are identical.
+  Two QRegExp objects are equal if they have equal pattern strings, and if case
+  sensitivity, wildcard and minimal matching options are identical.
 */
 
 bool QRegExp::operator==( const QRegExp& rx ) const
@@ -2079,7 +2107,8 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 
 /*!  \fn bool QRegExp::operator!=( const QRegExp& rx ) const
 
-  Returns TRUE if this regexp is not equal to \a rx, otherwise FALSE.
+  Returns TRUE if this regular expression is not equal to \a rx, otherwise
+  FALSE.
 
   \sa operator==()
 */
@@ -2109,8 +2138,8 @@ QString QRegExp::pattern() const
 }
 
 /*!  Sets the pattern string to \a pattern and returns a reference to this
-  regexp.  The case sensitivity, wildcard and minimal matching options are left
-  alone.
+  regular expression.  The case sensitivity, wildcard and minimal matching
+  options are left alone.
 
   \sa pattern()
 */
@@ -2189,7 +2218,7 @@ bool QRegExp::minimal() const
 /*!  Enables or disables minimal matching.  The default is disabled, i.e.,
   \e maximal matching.
 
-  For example, if the regular expression is <b>\{.*\}</b> and the input is
+  For example, for regular expression <b>\{.*\}</b> and input string
   <b>a{b}c{d}e</b>, the minimal match is <b>{b}</b> and the maximal match is
   <b>{b}c{d}</b>.
 
@@ -2221,13 +2250,16 @@ int QRegExp::match( const QString& str, int start )
 {
     priv->t = str;
     priv->capturedCache.clear();
-    priv->captured = eng->match( str, start, priv->min, FALSE );
+    priv->captured = eng->match( str.unicode(), str.length(), start, priv->min,
+				 FALSE );
     return priv->captured[0];
 }
 
 /*!  Attempts to match backwards in \a str, starting at position \a start.
 
   Returns the position of the first match, or -1 if there was no match.
+
+  You might prefer to use QString::findRev().
 
   \sa match() partialMatch() matchedLength() capturedText()
 */
@@ -2236,8 +2268,14 @@ int QRegExp::matchRev( const QString& str, int start )
 {
     priv->t = str;
     priv->capturedCache.clear();
+    if ( start < 0 ) {
+	priv->captured.fill( -1 );
+	return -1;
+    }
+
     while ( start >= 0 ) {
-	priv->captured = eng->match( str, start, priv->min, TRUE );
+	priv->captured = eng->match( str.unicode(), str.length(), start,
+				     priv->min, TRUE );
 	if ( priv->captured[0] == start )
 	    return start;
 	start--;
@@ -2261,7 +2299,7 @@ bool QRegExp::partialMatch( const QString& str ) const
     priv->captured.detach();
     priv->captured.fill( -1 );
 
-    eng->match( str, 0, priv->min, TRUE );
+    eng->match( str.unicode(), str.length(), 0, priv->min, TRUE );
     return eng->matchedLength() == (int) str.length();
 }
 
