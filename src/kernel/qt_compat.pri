@@ -26,8 +26,7 @@ internal {
 # mac hac fu
 mac {
      #we always use these
-     CONFIG += tools kernel widgets dialogs iconview workspace \
-               network canvas table xml zlib png styles sql mac
+     CONFIG += zlib png styles sql
      #never
      CONFIG -= nas mng x11 x11sm
      
