@@ -130,7 +130,7 @@ QString QDesignerTabWidget::pageTitle() const
 
 void QDesignerTabWidget::setPageTitle( const QString& title )
 {
-    changeTab( QTabWidget::currentPage(), title  );
+    changeTab( QTabWidget::currentPage(), title );
 }
 
 void QDesignerTabWidget::setPageName( const QCString& name )
@@ -156,122 +156,122 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     if ( o != tabBar() ) return FALSE;
 
     switch ( e->type() ) {
-        case QEvent::MouseButtonPress:
-        {
-            mousePressed = true;
-            QMouseEvent *me = (QMouseEvent*)e;
-            pressPoint = me->pos();
-        }
-        break;
-        case QEvent::MouseMove:
-        {
-            QMouseEvent *me = (QMouseEvent*)e;
-            if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
-                QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
-                mousePressed = false;
-                dragPage = QTabWidget::currentPage();
-                dragLabel = QTabWidget::tabLabel( dragPage );
+	case QEvent::MouseButtonPress:
+	{
+	    mousePressed = true;
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    pressPoint = me->pos();
+	}
+	break;
+	case QEvent::MouseMove:
+	{
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
+		QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
+		mousePressed = false;
+		dragPage = QTabWidget::currentPage();
+		dragLabel = QTabWidget::tabLabel( dragPage );
 
-                int index = indexOf( dragPage );
+		int index = indexOf( dragPage );
 
-                removePage( dragPage );
-                if ( !drg->dragMove() ) {
-                    insertTab( dragPage, dragLabel, index );
-                    showPage( dragPage );
-                }
-                if ( dropIndicator )
-                    dropIndicator->hide();
-            }
-        }
-        break;
-        case QEvent::DragLeave:
-        {
-            if ( dropIndicator )
-                dropIndicator->hide();
-        }
-        break;
-        case QEvent::DragMove:
-        {
-            QDragEnterEvent *de = (QDragEnterEvent*) e;
-            if ( QTextDrag::canDecode( de ) ) {
-                QString text;
-                QTextDrag::decode( de, text );
-                if ( text == QString::number( (long)this ) )
-                    de->accept();
-                else
-                    return FALSE;
-            }
+		removePage( dragPage );
+		if ( !drg->dragMove() ) {
+		    insertTab( dragPage, dragLabel, index );
+		    showPage( dragPage );
+		}
+		if ( dropIndicator )
+		    dropIndicator->hide();
+	    }
+	}
+	break;
+	case QEvent::DragLeave:
+	{
+	    if ( dropIndicator )
+		dropIndicator->hide();
+	}
+	break;
+	case QEvent::DragMove:
+	{
+	    QDragEnterEvent *de = (QDragEnterEvent*) e;
+	    if ( QTextDrag::canDecode( de ) ) {
+		QString text;
+		QTextDrag::decode( de, text );
+		if ( text == QString::number( (long)this ) )
+		    de->accept();
+		else
+		    return FALSE;
+	    }
 
-            int index = 0;
-            QRect rect;
-            for ( ; index < tabBar()->count(); index++ ) {
-                if ( tabBar()->tabAt( index )->r.contains( de->pos() ) ) {
-                    rect = tabBar()->tabAt( index )->r;
-                    break;
-                }
-            }
+	    int index = 0;
+	    QRect rect;
+	    for ( ; index < tabBar()->count(); index++ ) {
+		if ( tabBar()->tabAt( index )->r.contains( de->pos() ) ) {
+		    rect = tabBar()->tabAt( index )->r;
+		    break;
+		}
+	    }
 
-            if ( index == tabBar()->count() -1 ) {
-                QRect rect2 = rect;
-                rect2.setLeft( rect2.left() + rect2.width() / 2 );
-                if ( rect2.contains( de->pos() ) )
-                    index++;
-            }
+	    if ( index == tabBar()->count() -1 ) {
+		QRect rect2 = rect;
+		rect2.setLeft( rect2.left() + rect2.width() / 2 );
+		if ( rect2.contains( de->pos() ) )
+		    index++;
+	    }
 
-            if ( ! dropIndicator ) {
-                dropIndicator = new QWidget( this );
-                dropIndicator->setBackgroundColor( colorGroup().highlight() );
-            }
+	    if ( ! dropIndicator ) {
+		dropIndicator = new QWidget( this );
+		dropIndicator->setBackgroundColor( colorGroup().highlight() );
+	    }
 
-            QPoint pos;
-            if ( index == tabBar()->count() )
-                pos = tabBar()->mapToParent( QPoint( rect.x() + rect.width(), rect.y() ) );
-            else
-                pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
+	    QPoint pos;
+	    if ( index == tabBar()->count() )
+		pos = tabBar()->mapToParent( QPoint( rect.x() + rect.width(), rect.y() ) );
+	    else
+		pos = tabBar()->mapToParent( QPoint( rect.x(), rect.y() ) );
 
-            dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
-            dropIndicator->show();
-        }
-        break;
-        case QEvent::Drop:
-        {
-            QDragEnterEvent *de = (QDragEnterEvent*) e;
-            if ( QTextDrag::canDecode( de ) ) {
-                QString text;
-                QTextDrag::decode( de, text );
-                if ( text == QString::number( (long)this ) ) {
+	    dropIndicator->setGeometry( pos.x(), pos.y() , 3, rect.height() );
+	    dropIndicator->show();
+	}
+	break;
+	case QEvent::Drop:
+	{
+	    QDragEnterEvent *de = (QDragEnterEvent*) e;
+	    if ( QTextDrag::canDecode( de ) ) {
+		QString text;
+		QTextDrag::decode( de, text );
+		if ( text == QString::number( (long)this ) ) {
 
-                    int newIndex = 0;
-                    for ( ; newIndex < tabBar()->count(); newIndex++ ) {
-                        if ( tabBar()->tabAt( newIndex )->r.contains( de->pos() ) )
-                            break;
-                    }
+		    int newIndex = 0;
+		    for ( ; newIndex < tabBar()->count(); newIndex++ ) {
+			if ( tabBar()->tabAt( newIndex )->r.contains( de->pos() ) )
+			    break;
+		    }
 
-                    if ( newIndex == tabBar()->count() -1 ) {
-                        QRect rect2 = tabBar()->tabAt( newIndex )->r;
-                        rect2.setLeft( rect2.left() + rect2.width() / 2 );
-                        if ( rect2.contains( de->pos() ) )
-                            newIndex++;
-                    }
+		    if ( newIndex == tabBar()->count() -1 ) {
+			QRect rect2 = tabBar()->tabAt( newIndex )->r;
+			rect2.setLeft( rect2.left() + rect2.width() / 2 );
+			if ( rect2.contains( de->pos() ) )
+			    newIndex++;
+		    }
 
-                    int oldIndex = 0;
-                    for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
-                        if ( tabBar()->tabAt( oldIndex )->r.contains( pressPoint ) )
-                            break;
-                    }
+		    int oldIndex = 0;
+		    for ( ; oldIndex < tabBar()->count(); oldIndex++ ) {
+			if ( tabBar()->tabAt( oldIndex )->r.contains( pressPoint ) )
+			    break;
+		    }
 
-                    FormWindow *fw = find_formwindow( this );
-                    MoveTabPageCommand *cmd = new MoveTabPageCommand( "Move Tab Page",fw, this,
-                                                                      dragPage, dragLabel, newIndex, oldIndex );
-                    fw->commandHistory()->addCommand( cmd );
-                    cmd->execute();
-                    de->accept();
-                }
-            }
-        }
-        break;
-        default:
-            break;
+		    FormWindow *fw = find_formwindow( this );
+		    MoveTabPageCommand *cmd = new MoveTabPageCommand( "Move Tab Page",fw, this,
+								      dragPage, dragLabel, newIndex, oldIndex );
+		    fw->commandHistory()->addCommand( cmd );
+		    cmd->execute();
+		    de->accept();
+		}
+	    }
+	}
+	break;
+	default:
+	    break;
     }
     return FALSE;
 }
@@ -424,7 +424,7 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
   which can be \c HBox, \c VBox or \c Grid.
 */
 
-QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutType type )
+QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutType type )
 {
     int spacing = BOXLAYOUT_DEFAULT_SPACING;
     int margin = 0;
