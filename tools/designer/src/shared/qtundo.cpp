@@ -926,7 +926,7 @@ QStringList QtUndoStack::redoList() const
 QAction *QtUndoStack::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
-    connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
+    connect(undo_action, SIGNAL(triggered()), this, SLOT(undo()));
     connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
                         undo_action, SLOT(setTextSlot(const QString&)));
     connect(this, SIGNAL(canUndoChanged(bool)),
@@ -961,7 +961,7 @@ QAction *QtUndoStack::createUndoAction(QObject *parent) const
 QAction *QtUndoStack::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
-    connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));
+    connect(redo_action, SIGNAL(triggered()), this, SLOT(redo()));
     connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
                         redo_action, SLOT(setTextSlot(const QString&)));
     connect(this, SIGNAL(canRedoChanged(bool)),
@@ -1136,7 +1136,7 @@ QtUndoManager::QtUndoManager()
 QAction *QtUndoManager::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
-    connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
+    connect(undo_action, SIGNAL(triggered()), this, SLOT(undo()));
     connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
                         undo_action, SLOT(setTextSlot(const QString&)));
     connect(this, SIGNAL(canUndoChanged(bool)),
@@ -1167,7 +1167,7 @@ QAction *QtUndoManager::createUndoAction(QObject *parent) const
 QAction *QtUndoManager::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
-    connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));
+    connect(redo_action, SIGNAL(triggered()), this, SLOT(redo()));
     connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
                         redo_action, SLOT(setTextSlot(const QString&)));
     connect(this, SIGNAL(canRedoChanged(bool)),
