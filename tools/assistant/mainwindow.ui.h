@@ -53,7 +53,7 @@ void MainWindow::init()
     addDockWindow( dw, DockLeft );
     dw->setWidget( helpDock );
     dw->setCaption( "Sidebar" );
-    dw->setFixedExtentWidth( 250 );
+    dw->setFixedExtentWidth( 320 );
 
     setObjectsEnabled( FALSE );
 
