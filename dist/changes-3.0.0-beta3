@@ -33,12 +33,14 @@ Fixes for Windows to solve the problem of creating a context for every
 widget and the problem of opening the dialog and losing the ability to use
 the tablet afterwards.
 
-
 Qt Designer
 ========================================
 
- - Add option "-nofwd" to uic which supresses the generation of forward
-   declarations for custom classes in the generated output.
+ - Added the possibility to sort in the property editor either categorized
+   (default and old behaviour) or alphabetically.
+
+ - Added the option "-nofwd" to uic which supresses the generation of
+   forward declarations for custom classes in the generated output.
 
 Qt Functions
 ========================================
