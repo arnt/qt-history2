@@ -33,16 +33,13 @@
 
     When you develop custom widgets, you can create custom subclasses
     of \l QAccessibleInterface and distribute them as plugins (using
-    \l QAccessibePlugin) or compile them into the application.
+    \l QAccessiblePlugin) or compile them into the application.
     Likewise, Qt's predefined accessibility support can be built as
     plugin (the default) or directly into the Qt library. The main
     advantage of using plugins is that the accessibility classes are
     only loaded into memory if they are actually used; they don't
     slow down the common case where no assistive technology is being
     used.
-
-    Qt 3 had no generic support for backends. This is addressed in Qt
-    4, through the \l QAccesssibleBridge class.
 
     In addition to QAccessibleInterface, Qt includes two convenience
     classes, \l QAccessibleObject and \l QAccessibleWidget, that
