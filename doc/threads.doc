@@ -106,7 +106,7 @@ function references unique data.  Calling a reentrant function
 simultaneously with the same data is not safe, and such invocations
 should be serialized.
 \i \e thread-safe - Describes a function which can be called
-simultaneously my multiple threads when each invocation references
+simultaneously by multiple threads when each invocation references
 shared data.  Calling a thread-safe function simultaneously with the
 same data is safe, since all access to the shared data are serialized.
 \endlist

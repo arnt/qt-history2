@@ -244,15 +244,26 @@
   \fn bool QPtrList::insert( uint index, const type *item )
   Inserts the \a item at the position \a index in the list.
 
-  Returns TRUE if successful or FALSE if \a index is out of range.
-  The valid range is 0 to count() (inclusively).
-  The item is appended if \a index == count().
+  Returns TRUE if successful, i.e. \a index is in the range 0 to
+  count(); otherwise returns FALSE. The item is appended if \a index
+  == count().
 
   The inserted item becomes the current list item.
 
   The \a item must not be a null pointer.
 
-  \sa append(), current()
+  \sa append(), current(), replace()
+*/
+
+/*!
+    \fn bool QPtrList::replace( uint index, const type *item )
+
+    Replaces the item at position \a index with the new \a item. 
+
+    Returns TRUE if successful, i.e. \a index is in the range 0 to
+    count()-1.
+
+    \sa append(), current(), insert()
 */
 
 /*!

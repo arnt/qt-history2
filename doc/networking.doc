@@ -260,7 +260,8 @@ It is not mandatory, of course, but it's good programming practice to cover erro
 
 It is time to illustrate how to use QNetworkProtocol, QNetworkOperation and QUrlOperator to register our communication protocol and make it on par to already implemented protocols, like QFtp, QHttp and QLocalFs. This will give us much larger flexibility in use and let us use Qt class that supports Network Protocols, e.g. QFileDialog.
 
-First, here is the header file in which Qip (our custom Network Protocol) is declared (\l network/infoprotocol/infourlclient/qip.h):
+First, here is the header file in which Qip (our custom Network
+Protocol) is declared (\c network/infoprotocol/infourlclient/qip.h):
 
 \quotefile network/infoprotocol/infourlclient/qip.h
 
@@ -269,7 +270,8 @@ First, here is the header file in which Qip (our custom Network Protocol) is dec
 
 QNetworkProtocol is the base class for every Network Protocol class. Because this protocol uses network, we embedded one QSocket* member variable to which we'll delegate network communication. Protocols that doesn't require to use network will do it on their own way - e.g. QLocalFs uses QDir, some data acquisition protocol may use serial or USB connection, only requirement is that protocol uses hierarchical structure and can be accessed using URLs (to have addressable nodes).
 
-Let us go to the Qip implementation (\l network/infoprotocol/infourlclient/qip.cpp):
+Let us go to the Qip implementation (\c
+network/infoprotocol/infourlclient/qip.cpp):
 
 \quotefile network/infoprotocol/infourlclient/qip.cpp
 
@@ -318,7 +320,7 @@ But, before we can use our new protocol, we have to register it first, so QUrlOp
 
 This registers Qip protocol and bonds it to prefix "qip". You can use qInitNetworkProtocols() which registers pre coded Ftp (for "ftp") and Http ("http") protocols. Local file system (QLocalFs) is always registered.
 
-Client implementation (\l network/infoprotocol/infourlclient/client.cpp):
+Client implementation (\c network/infoprotocol/infourlclient/client.cpp):
 
 \quotefile network/infoprotocol/infourlclient/client.cpp
 \skipto ::ClientInfo
