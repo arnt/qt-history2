@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#8 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#8 $";
 #endif
 
 
@@ -251,20 +251,20 @@ Qdnode *QGList::unlink()			// unlink current node
     return n;
 }
 
-bool QGList::remove( Qdnode *d )		// remove one item
+bool QGList::remove( Qdnode *n )		// remove one item
 {
-    CHECK_PTR(d);
-    if ( d->prev && d->prev->next != d ||
-         d->next && d->next->prev != d ) {
+    CHECK_PTR( n );
+    if ( n->prev && n->prev->next != n ||
+	 n->next && n->next->prev != n ) {
 #if defined(CHECK_NULL)
 	warning( "QGList::remove(Qdnode): Attempt to remove invalid node." );
 #endif
-        return FALSE;
+	return FALSE;
     }
-    curNode = d;
+    curNode = n;
     unlink();					// unlink node
-    deleteItem( d->getData() );			// deallocate this node
-    delete d;
+    deleteItem( n->getData() );			// deallocate this node
+    delete n;
     curNode  = firstNode;
     curIndex = 0;
     return TRUE;
