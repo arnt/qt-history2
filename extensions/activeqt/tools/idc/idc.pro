@@ -30,7 +30,8 @@ SOURCES		+= $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
                    $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp \
                    $$QT_SOURCE_TREE/src/core/io/qfileengine.cpp \
                    $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp \
-                   $$QT_SOURCE_TREE/src/core/io/qioengine.cpp
+                   $$QT_SOURCE_TREE/src/core/io/qioengine.cpp \
+                   $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.cpp
 
 win32:SOURCES   += $$QT_SOURCE_TREE/src/core/io/qfileengine_win.cpp \
 
