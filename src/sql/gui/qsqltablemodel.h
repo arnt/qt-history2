@@ -70,7 +70,7 @@ public:
 
 #ifdef Q_NO_USING_KEYWORD
     inline int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parnet); }
+        { return QAbstractItemModel::rowCount(parent); }
 #else
     using QAbstractItemModel::rowCount;
 #endif
@@ -104,7 +104,7 @@ public:
 #else
     using QAbstractTableModel::sort;
 #endif
-    
+
     bool insertRecord(int row, const QSqlRecord &record);
     bool setRecord(int row, const QSqlRecord &record);
 
