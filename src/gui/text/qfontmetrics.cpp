@@ -133,26 +133,7 @@ extern int qt_defaultDpi();
     metrics that are compatible with a certain paint device.
 */
 QFontMetrics::QFontMetrics(const QFont &font)
-    : d(font.d), fscript(QFont::NoScript)
-{
-    int dpi = qt_defaultDpi();
-    if (font.d->dpi != dpi) {
-        d = new QFontPrivate(*font.d);
-        d->dpi = dpi;
-        d->screen = 0;
-    } else {
-        ++d->ref;
-    }
-}
-
-/*!
-    \overload
-
-    Constructs a font metrics object for \a font using the given \a
-    script.
-*/
-QFontMetrics::QFontMetrics(const QFont &font, QFont::Script script)
-    : d(font.d), fscript(script)
+    : d(font.d)
 {
     int dpi = qt_defaultDpi();
     if (font.d->dpi != dpi) {
@@ -178,7 +159,6 @@ QFontMetrics::QFontMetrics(const QFont &font, QFont::Script script)
     updated if the font's attributes are changed later.
 */
 QFontMetrics::QFontMetrics(const QFont &font, QPaintDevice *paintdevice)
-    : fscript(QFont::NoScript)
 {
     int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
 #ifdef Q_WS_X11
@@ -202,10 +182,8 @@ QFontMetrics::QFontMetrics(const QFont &font, QPaintDevice *paintdevice)
     Constructs a copy of \a fm.
 */
 QFontMetrics::QFontMetrics(const QFontMetrics &fm)
-    : d(fm.d),  fscript(fm.fscript)
-{
-    ++d->ref;
-}
+    : d(fm.d)
+{ ++d->ref; }
 
 /*!
     Destroys the font metrics object and frees all allocated
@@ -267,12 +245,9 @@ bool QFontMetrics::operator ==(const QFontMetrics &other)
 */
 int QFontMetrics::ascent() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMax(engine->ascent(), latin_engine->ascent()));
+    return qRound(engine->ascent());
 }
 
 
@@ -289,12 +264,9 @@ int QFontMetrics::ascent() const
 */
 int QFontMetrics::descent() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMax(engine->descent(), latin_engine->descent()));
+    return qRound(engine->descent());
 }
 
 /*!
@@ -307,13 +279,9 @@ int QFontMetrics::descent() const
 */
 int QFontMetrics::height() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMax(engine->ascent(), latin_engine->ascent()) +
-            qMax(engine->descent(), latin_engine->descent())) + 1;
+    return qRound(engine->ascent() + engine->descent()) + 1;
 }
 
 /*!
@@ -325,12 +293,9 @@ int QFontMetrics::height() const
 */
 int QFontMetrics::leading() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMax(engine->leading(), latin_engine->leading()));
+    return qRound(engine->leading());
 }
 
 /*!
@@ -342,14 +307,9 @@ int QFontMetrics::leading() const
 */
 int QFontMetrics::lineSpacing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMax(engine->leading(), latin_engine->leading()) +
-            qMax(engine->ascent(), latin_engine->ascent()) +
-            qMax(engine->descent(), latin_engine->descent())) + 1;
+    return qRound(engine->leading() + engine->ascent() + engine->descent()) + 1;
 }
 
 /*!
@@ -364,12 +324,9 @@ int QFontMetrics::lineSpacing() const
 */
 int QFontMetrics::minLeftBearing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMin(engine->minLeftBearing(), latin_engine->minLeftBearing()));
+    return qRound(engine->minLeftBearing());
 }
 
 /*!
@@ -384,12 +341,9 @@ int QFontMetrics::minLeftBearing() const
 */
 int QFontMetrics::minRightBearing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qRound(qMin(engine->minRightBearing(), latin_engine->minRightBearing()));
+    return qRound(engine->minRightBearing());
 }
 
 /*!
@@ -397,12 +351,9 @@ int QFontMetrics::minRightBearing() const
 */
 int QFontMetrics::maxWidth() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *lengine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(lengine != 0);
-
-    return qRound(qMax(engine->maxCharWidth(), lengine->maxCharWidth()));
+    return qRound(engine->maxCharWidth());
 }
 
 /*!
@@ -411,13 +362,11 @@ int QFontMetrics::maxWidth() const
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return false;
+    if (engine->type() == QFontEngine::Box)
+        return false;
     return engine->canRender(&ch, 1);
 }
 
@@ -435,13 +384,11 @@ bool QFontMetrics::inFont(QChar ch) const
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return 0;
+    if (engine->type() == QFontEngine::Box)
+        return 0;
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
@@ -465,13 +412,11 @@ int QFontMetrics::leftBearing(QChar ch) const
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return 0;
+    if (engine->type() == QFontEngine::Box)
+        return 0;
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
@@ -537,9 +482,7 @@ int QFontMetrics::width(QChar ch) const
     if (::category(ch) == QChar::Mark_NonSpacing)
         return 0;
 
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
 
@@ -549,7 +492,7 @@ int QFontMetrics::width(QChar ch) const
     return qRound(glyphs[0].advance.x());
 }
 
-/*! \fn int QFontMetrics::charWidth(const QString &str, int pos) const
+/*!
     Returns the width of the character at position \a pos in the
     string \a str.
 
@@ -560,6 +503,37 @@ int QFontMetrics::width(QChar ch) const
     This function also takes non spacing marks and ligatures into
     account.
 */
+int QFontMetrics::charWidth(const QString &str, int pos) const
+{
+    if (pos < 0 || pos > (int)str.length())
+        return 0;
+
+    const QChar &ch = str.unicode()[pos];
+    const int script = QUnicodeTables::script(ch);
+    int width;
+
+    if (script != QUnicodeTables::Common) {
+        // complex script shaping. Have to do some hard work
+        int from = qMax(0,  pos - 8);
+        int to = qMin((int)str.length(), pos + 8);
+        QString cstr = QString::fromRawData(str.unicode()+from, to-from);
+        QTextEngine layout(cstr, d);
+        layout.setMode(QTextEngine::WidthOnly);
+        layout.itemize();
+        width = qRound(layout.width(pos-from, 1));
+    } else if (::category(ch) == QChar::Mark_NonSpacing) {
+        width = 0;
+    } else {
+        QFontEngine *engine = d->engineForScript(script);
+        Q_ASSERT(engine != 0);
+
+        QGlyphLayout glyphs[8];
+        int nglyphs = 7;
+        engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
+        width = qRound(glyphs[0].advance.x());
+    }
+    return width;
+}
 
 /*!
     Returns the bounding rectangle of the characters in the string
@@ -605,9 +579,7 @@ QRect QFontMetrics::boundingRect(const QString &str) const
 */
 QRect QFontMetrics::boundingRect(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
 
@@ -728,7 +700,7 @@ QSize QFontMetrics::size(int flgs, const QString &text, int tabstops, int *tabar
 */
 int QFontMetrics::underlinePos() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 
     return qRound(engine->underlinePosition());
@@ -765,9 +737,8 @@ int QFontMetrics::strikeOutPos() const
 */
 int QFontMetrics::lineWidth() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
     return qRound(engine->lineThickness());
 }
 
@@ -875,26 +846,7 @@ int QFontMetrics::lineWidth() const
     metrics that are compatible with a certain paint device.
 */
 QFontMetricsF::QFontMetricsF(const QFont &font)
-    : d(font.d), fscript(QFont::NoScript)
-{
-    int dpi = qt_defaultDpi();
-    if (font.d->dpi != dpi) {
-        d = new QFontPrivate(*font.d);
-        d->dpi = dpi;
-        d->screen = 0;
-    } else {
-        ++d->ref;
-    }
-}
-
-/*!
-    \overload
-
-    Constructs a font metrics object for \a font using the given \a
-    script.
-*/
-QFontMetricsF::QFontMetricsF(const QFont &font, QFont::Script script)
-    : d(font.d), fscript(script)
+    : d(font.d)
 {
     int dpi = qt_defaultDpi();
     if (font.d->dpi != dpi) {
@@ -920,7 +872,6 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QFont::Script script)
     updated if the font's attributes are changed later.
 */
 QFontMetricsF::QFontMetricsF(const QFont &font, QPaintDevice *paintdevice)
-    : fscript(QFont::NoScript)
 {
     int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
 #ifdef Q_WS_X11
@@ -943,10 +894,8 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QPaintDevice *paintdevice)
     Constructs a copy of \a fm.
 */
 QFontMetricsF::QFontMetricsF(const QFontMetricsF &fm)
-    : d(fm.d),  fscript(fm.fscript)
-{
-    ++d->ref;
-}
+    : d(fm.d)
+{ ++d->ref; }
 
 /*!
     Destroys the font metrics object and frees all allocated
@@ -1003,12 +952,9 @@ bool QFontMetricsF::operator ==(const QFontMetricsF &other)
 */
 qreal QFontMetricsF::ascent() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMax(engine->ascent(), latin_engine->ascent());
+    return engine->ascent();
 }
 
 
@@ -1025,12 +971,9 @@ qreal QFontMetricsF::ascent() const
 */
 qreal QFontMetricsF::descent() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMax(engine->descent(), latin_engine->descent());
+    return engine->descent();
 }
 
 /*!
@@ -1043,13 +986,10 @@ qreal QFontMetricsF::descent() const
 */
 qreal QFontMetricsF::height() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
 
-    return qMax(engine->ascent(), latin_engine->ascent()) +
-        qMax(engine->descent(), latin_engine->descent()) + 1;
+    return engine->ascent() + engine->descent() + 1.0;
 }
 
 /*!
@@ -1061,12 +1001,9 @@ qreal QFontMetricsF::height() const
 */
 qreal QFontMetricsF::leading() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMax(engine->leading(), latin_engine->leading());
+    return engine->leading();
 }
 
 /*!
@@ -1078,14 +1015,9 @@ qreal QFontMetricsF::leading() const
 */
 qreal QFontMetricsF::lineSpacing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMax(engine->leading(), latin_engine->leading()) +
-            qMax(engine->ascent(), latin_engine->ascent()) +
-            qMax(engine->descent(), latin_engine->descent()) + 1;
+    return engine->leading() + engine->ascent() + engine->descent() + 1.0;
 }
 
 /*!
@@ -1100,12 +1032,9 @@ qreal QFontMetricsF::lineSpacing() const
 */
 qreal QFontMetricsF::minLeftBearing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMin(engine->minLeftBearing(), latin_engine->minLeftBearing());
+    return engine->minLeftBearing();
 }
 
 /*!
@@ -1120,12 +1049,9 @@ qreal QFontMetricsF::minLeftBearing() const
 */
 qreal QFontMetricsF::minRightBearing() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *latin_engine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(latin_engine != 0);
-
-    return qMin(engine->minRightBearing(), latin_engine->minRightBearing());
+    return engine->minRightBearing();
 }
 
 /*!
@@ -1133,12 +1059,9 @@ qreal QFontMetricsF::minRightBearing() const
 */
 qreal QFontMetricsF::maxWidth() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
-    QFontEngine *lengine = d->engineForScript(QFont::Latin);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    Q_ASSERT(lengine != 0);
-
-    return qMax(engine->maxCharWidth(), lengine->maxCharWidth());
+    return engine->maxCharWidth();
 }
 
 /*!
@@ -1147,13 +1070,11 @@ qreal QFontMetricsF::maxWidth() const
 */
 bool QFontMetricsF::inFont(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return false;
+    if (engine->type() == QFontEngine::Box)
+        return false;
     return engine->canRender(&ch, 1);
 }
 
@@ -1171,13 +1092,11 @@ bool QFontMetricsF::inFont(QChar ch) const
 */
 qreal QFontMetricsF::leftBearing(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return 0;
+    if (engine->type() == QFontEngine::Box)
+        return 0;
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
@@ -1201,13 +1120,11 @@ qreal QFontMetricsF::leftBearing(QChar ch) const
 */
 qreal QFontMetricsF::rightBearing(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
-
-    if (engine->type() == QFontEngine::Box) return 0;
+    if (engine->type() == QFontEngine::Box)
+        return 0;
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
@@ -1268,9 +1185,7 @@ qreal QFontMetricsF::width(QChar ch) const
     if (::category(ch) == QChar::Mark_NonSpacing)
         return 0.;
 
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
 
@@ -1327,9 +1242,7 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
 */
 QRectF QFontMetricsF::boundingRect(QChar ch) const
 {
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
+    const int script = QUnicodeTables::script(ch);
     QFontEngine *engine = d->engineForScript(script);
     Q_ASSERT(engine != 0);
 
@@ -1457,9 +1370,8 @@ QSizeF QFontMetricsF::size(int flgs, const QString &str, int tabstops, int *taba
 */
 qreal QFontMetricsF::underlinePos() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
     return engine->underlinePosition();
 }
 
@@ -1493,9 +1405,8 @@ qreal QFontMetricsF::strikeOutPos() const
 */
 qreal QFontMetricsF::lineWidth() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
     return engine->lineThickness();
 }
 

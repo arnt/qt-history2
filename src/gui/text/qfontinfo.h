@@ -21,7 +21,6 @@ class Q_GUI_EXPORT QFontInfo
 {
 public:
     QFontInfo(const QFont &);
-    QFontInfo(const QFont &, QFont::Script);
     QFontInfo(const QFontInfo &);
     ~QFontInfo();
 
@@ -46,7 +45,6 @@ public:
 
 private:
     QFontPrivate *d;
-    int fscript;
 };
 
 #endif // QFONTINFO_H

@@ -54,11 +54,15 @@ static inline void capitalize (char *s)
 }
 
 
+/*
+  To regenerate the scripts_for_xlfd_encoding table, run
+  util/unicode/x11/makeencodings.
+*/
 // ----- begin of generated code -----
 
-#define make_tag(c1, c2, c3, c4) \
-((((unsigned int)c1)<<24) | (((unsigned int)c2)<<16) | \
-(((unsigned int)c3)<<8) | ((unsigned int)c4))
+#define make_tag( c1, c2, c3, c4 )                         \
+    ((((unsigned int)c1)<<24) | (((unsigned int)c2)<<16) | \
+    (((unsigned int)c3)<<8) | ((unsigned int)c4))
 
 struct XlfdEncoding {
     const char *name;
@@ -79,30 +83,29 @@ static const XlfdEncoding xlfd_encoding[] = {
     { "iso8859-14", 7, 110, make_tag('i','s','o','8'), make_tag('9','-','1','4') },
     { "iso8859-15", 8, 111, make_tag('i','s','o','8'), make_tag('9','-','1','5') },
     { "hp-roman8", 9, 2004, make_tag('h','p','-','r'), make_tag('m','a','n','8') },
-#define LAST_LATIN_ENCODING 9
     { "iso8859-5", 10, 8, make_tag('i','s','o','8'), make_tag('5','9','-','5') },
     { "*-cp1251", 11, 2251, 0, make_tag('1','2','5','1') },
     { "koi8-ru", 12, 2084, make_tag('k','o','i','8'), make_tag('8','-','r','u') },
     { "koi8-u", 13, 2088, make_tag('k','o','i','8'), make_tag('i','8','-','u') },
     { "koi8-r", 14, 2084, make_tag('k','o','i','8'), make_tag('i','8','-','r') },
     { "iso8859-7", 15, 10, make_tag('i','s','o','8'), make_tag('5','9','-','7') },
-    { "iso10646-1", 16, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
-    { "iso8859-8", 17, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
-    { "gb18030-0", 18, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
-    { "gb18030.2000-0", 19, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
-    { "gbk-0", 20, -113, make_tag('g','b','k','-'), make_tag('b','k','-','0') },
-    { "gb2312.*-0", 21, 57, make_tag('g','b','2','3'), 0 },
-    { "jisx0201*-0", 22, 15, make_tag('j','i','s','x'), 0 },
-    { "jisx0208*-0", 23, 63, make_tag('j','i','s','x'), 0 },
-    { "ksc5601*-*", 24, 36, make_tag('k','s','c','5'), 0 },
-    { "big5hkscs-0", 25, -2101, make_tag('b','i','g','5'), make_tag('c','s','-','0') },
-    { "hkscs-1", 26, -2101, make_tag('h','k','s','c'), make_tag('c','s','-','1') },
-    { "big5*-*", 27, -2026, make_tag('b','i','g','5'), 0 },
-    { "tscii-*", 28, 2028, make_tag('t','s','c','i'), 0 },
-    { "tis620*-*", 29, 2259, make_tag('t','i','s','6'), 0 },
-    { "iso8859-11", 30, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
-    { "mulelao-1", 31, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
-    { "ethiopic-unicode", 32, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
+    { "iso8859-8", 16, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
+    { "gb18030-0", 17, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
+    { "gb18030.2000-0", 18, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
+    { "gbk-0", 19, -113, make_tag('g','b','k','-'), make_tag('b','k','-','0') },
+    { "gb2312.*-0", 20, 57, make_tag('g','b','2','3'), 0 },
+    { "jisx0201*-0", 21, 15, make_tag('j','i','s','x'), 0 },
+    { "jisx0208*-0", 22, 63, make_tag('j','i','s','x'), 0 },
+    { "ksc5601*-*", 23, 36, make_tag('k','s','c','5'), 0 },
+    { "big5hkscs-0", 24, -2101, make_tag('b','i','g','5'), make_tag('c','s','-','0') },
+    { "hkscs-1", 25, -2101, make_tag('h','k','s','c'), make_tag('c','s','-','1') },
+    { "big5*-*", 26, -2026, make_tag('b','i','g','5'), 0 },
+    { "tscii-*", 27, 2028, make_tag('t','s','c','i'), 0 },
+    { "tis620*-*", 28, 2259, make_tag('t','i','s','6'), 0 },
+    { "iso8859-11", 29, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
+    { "mulelao-1", 30, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
+    { "ethiopic-unicode", 31, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
+    { "iso10646-1", 32, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
     { "unicode-*", 33, 0, make_tag('u','n','i','c'), 0 },
     { "*-symbol", 34, 0, 0, make_tag('m','b','o','l') },
     { "*-fontspecific", 35, 0, 0, make_tag('i','f','i','c') },
@@ -110,302 +113,154 @@ static const XlfdEncoding xlfd_encoding[] = {
     { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[37][61] = {
+static const char scripts_for_xlfd_encoding[37][21] = {
     // iso8859-1
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-2
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-3
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-4
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-9
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-10
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-13
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-14
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-15
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // hp-roman8
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-5
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // *-cp1251
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // koi8-ru
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // koi8-u
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // koi8-r
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-7
-    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
-    // iso10646-1
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // iso8859-8
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // gb18030-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0 },
     // gb18030.2000-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0 },
     // gbk-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0 },
     // gb2312.*-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
       0 },
     // jisx0201*-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // jisx0208*-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
       0 },
     // ksc5601*-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      1 },
-    // big5hkscs-0
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0 },
+    // big5hkscs-0
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // hkscs-1
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
       0 },
     // big5*-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
       0 },
     // tscii-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0 },
     // tis620*-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0 },
     // iso8859-11
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0 },
     // mulelao-1
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
       0 },
     // ethiopic-unicode
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0 },
+    // iso10646-1
+    { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 1,
       0 },
     // unicode-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 0, 1,
       0 },
     // *-symbol
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0 },
     // *-fontspecific
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0 },
     // fontspecific-*
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0 }
 
 };
@@ -768,11 +623,11 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
         enc->pitch = *tokens[Spacing];
         if (!enc->pitch) enc->pitch = '*';
 
-        for (int script = 0; script < QFont::LastPrivateScript; ++script) {
+        for (int script = 0; script < QUnicodeTables::ScriptCount; ++script) {
             if (scripts_for_xlfd_encoding[encoding_id][script])
                 family->scripts[script] = QtFontFamily::Supported;
             else
-                family->scripts[script] |= QtFontFamily::UnSupported_Xlfd;
+                family->scripts[script] |= QtFontFamily::UnsupportedXLFD;
         }
         if (encoding_id == -1)
             family->xlfdLoaded = true;
@@ -805,10 +660,123 @@ static int getFCWeight(int fc_weight)
     return qtweight;
 }
 
+QFontDef FcPatternToQFontDef(FcPattern *pattern)
+{
+    QFontDef fontDef;
+
+    FcChar8 *value = 0;
+    if (FcPatternGetString(pattern, FC_FAMILY, 0, &value) == FcResultMatch) {
+        fontDef.family = QString::fromUtf8(reinterpret_cast<const char *>(value));
+        fontDef.family.replace('-', ' ');
+        fontDef.family.replace("/", "");
+    }
+
+    double dpi;
+    if (FcPatternGetDouble(pattern, FC_DPI, 0, &dpi) != FcResultMatch)
+        dpi = QX11Info::appDpiY();
+
+    double size;
+    if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &size) == FcResultMatch)
+        fontDef.pixelSize = qRound(size);
+    else
+        fontDef.pixelSize = 12;
+
+    fontDef.pointSize = int(qt_pointSize(fontDef.pixelSize, qRound(dpi)) * 10.0);
+
+    /* ###
+       fontDef.styleStrategy
+       fontDef.styleHint
+    */
+
+    int weight;
+    if (FcPatternGetInteger(pattern, FC_WEIGHT, 0, &weight) != FcResultMatch)
+        weight = FC_WEIGHT_MEDIUM;
+    fontDef.weight = getFCWeight(weight);
+
+    int slant;
+    if (FcPatternGetInteger(pattern, FC_SLANT, 0, &slant) != FcResultMatch)
+        slant = FC_SLANT_ROMAN;
+    fontDef.style = (slant == FC_SLANT_ITALIC)
+                    ? QFont::StyleItalic
+                    : ((slant == FC_SLANT_OBLIQUE)
+                       ? QFont::StyleOblique
+                       : QFont::StyleNormal);
+
+    FcBool scalable;
+    if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &scalable) != FcResultMatch)
+        scalable = false;
+    if (scalable) {
+        FcMatrix identity;
+        FcMatrix *matrix;
+        if (FcPatternGetMatrix(pattern, FC_MATRIX, 0, &matrix) != FcResultMatch) {
+            FcMatrixInit(&identity);
+            matrix = &identity;
+        }
+        if (matrix->yx == 0.0 && matrix->yy == 1.0) {
+            // get the stretch
+            fontDef.stretch = qRound(matrix->xx * 100.0);
+            // shear?
+            if (matrix->xy != 0.0) {
+                // yup... we're using our "fake oblique" trick
+                fontDef.style = QFont::StyleOblique;
+            }
+        } else {
+            // ###
+            fontDef.stretch = 100;
+        }
+    } else {
+#if FC_VERSION >= 20193
+        int width;
+        if (FcPatternGetInteger(pattern, FC_WIDTH, 0, &width) == FcResultMatch)
+            fontDef.stretch = width;
+        else
+#endif
+            fontDef.stretch = 100;
+    }
+
+    int spacing;
+    if (FcPatternGetInteger(pattern, FC_SPACING, 0, &spacing) == FcResultMatch) {
+        fontDef.fixedPitch = (spacing >= FC_MONO);
+        fontDef.ignorePitch = false;
+    } else {
+        fontDef.ignorePitch = true;
+    }
+
+    return fontDef;
+}
+
+static const FcChar8 *specialLanguages[] = {
+    "en",
+    "he",
+    "ar",
+    "syr",
+    "div",
+    "hi",
+    "bn",
+    "pa",
+    "gu",
+    "or",
+    "ta",
+    "te",
+    "kn",
+    "ml",
+    "si",
+    "th",
+    "lo",
+    "bo",
+    "my",
+    "ko",
+    "km"
+};
+enum { SpecialLanguageCount = sizeof(specialLanguages) / sizeof(const char *) };
+
 static void loadXft()
 {
     if (!X11->has_xft)
         return;
+
+    Q_ASSERT_X(QUnicodeTables::ScriptCount == SpecialLanguageCount, "QFontDatabase",
+               "New scripts have been added, the special language array needs updating");
 
     FcFontSet  *fonts;
 
@@ -829,7 +797,7 @@ static void loadXft()
                      (const char *)0,
                      FC_FAMILY, FC_WEIGHT, FC_SLANT,
                      FC_SPACING, FC_FILE, FC_INDEX,
-                     FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
+                     FC_LANG, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
 #if FC_VERSION >= 20193
                      FC_WIDTH,
 #endif
@@ -867,40 +835,40 @@ static void loadXft()
         family->rawName = rawName;
         family->hasXft = true;
 
-        FcCharSet *charset = 0;
-        FcResult res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &charset);
-	if (res == FcResultMatch && FcCharSetCount(charset) > 1) {
-            for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-                QChar ch = sampleCharacter((QFont::Script) i);
-
-                if (ch.unicode() != 0 &&
-                    FcCharSetHasChar(charset, ch.unicode())) {
+        FcLangSet *langset = 0;
+        FcResult res = FcPatternGetLangSet(fonts->fonts[i], FC_LANG, 0, &langset);
+        if (res == FcResultMatch) {
+            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+                FcLangResult langRes = FcLangSetHasLang(langset, specialLanguages[i]);
+                if (langRes != FcLangDifferentLang)
                     family->scripts[i] = QtFontFamily::Supported;
-                } else {
-                    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
-                }
+                else
+                    family->scripts[i] |= QtFontFamily::UnsupportedXft;
+                family->xftScriptCheck = true;
             }
-            family->xftScriptCheck = true;
- 	} else {
- 	    // we set UnknownScript to supported for symbol fonts. It makes no sense to merge these
- 	    // with other ones, as they are special in a way.
- 	    for ( int i = 0; i < QFont::LastPrivateScript; ++i )
- 		family->scripts[i] |= QtFontFamily::UnSupported_Xft;
- 	    family->scripts[QFont::UnknownScript] = QtFontFamily::Supported;
- 	}
+        } else {
+            // we set UnknownScript to supported for symbol fonts. It makes no sense to merge these
+            // with other ones, as they are special in a way.
+            family->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
+            for (int i = 1; i < QUnicodeTables::ScriptCount; ++i)
+                family->scripts[i] |= QtFontFamily::UnsupportedXft;
+        }
 
         QByteArray file((const char *)file_value);
         family->fontFilename = file;
         family->fontFileIndex = index_value;
 
         QtFontStyle::Key styleKey;
-        styleKey.style = (slant_value == FC_SLANT_ITALIC) ? QFont::StyleItalic
-                         : ((slant_value == FC_SLANT_OBLIQUE) ? QFont::StyleOblique : QFont::StyleNormal);
+        styleKey.style = (slant_value == FC_SLANT_ITALIC)
+                         ? QFont::StyleItalic
+                         : ((slant_value == FC_SLANT_OBLIQUE)
+                            ? QFont::StyleOblique
+                            : QFont::StyleNormal);
         styleKey.weight = getFCWeight(weight_value);
         if (!scalable) {
             int width = 100;
 #if FC_VERSION >= 20193
-	    FcPatternGetInteger (fonts->fonts[i], FC_WIDTH, 0, &width);
+            FcPatternGetInteger (fonts->fonts[i], FC_WIDTH, 0, &width);
 #endif
             styleKey.stretch = width;
         }
@@ -923,7 +891,7 @@ static void loadXft()
         }
         QtFontEncoding *enc = size->encodingID(-1, 0, 0, 0, 0, true);
         enc->pitch = (spacing_value >= FC_CHARCELL ? 'c' :
-                       (spacing_value >= FC_MONO ? 'm' : 'p'));
+                      (spacing_value >= FC_MONO ? 'm' : 'p'));
     }
 
     FcFontSetDestroy (fonts);
@@ -947,11 +915,10 @@ static void loadXft()
         family->synthetic = true;
         QtFontFoundry *foundry = family->foundry(QString::null,  true);
 
-        for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-            if (i == QFont::UnknownScript)
-                continue;
-            family->scripts[i] = QtFontFamily::Supported;
-        }
+        // aliases only make sense for 'common', not for any of the specials
+        family->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
+        for (int i = 1; i < QUnicodeTables::ScriptCount; ++i)
+            family->scripts[i] = QtFontFamily::UnsupportedXft;
 
         QtFontStyle::Key styleKey;
         for (int i = 0; i < 4; ++i) {
@@ -994,7 +961,7 @@ static void load(const QString &family = QString::null, int script = -1)
             // would need to remember the encodings loaded for the family.
             if ((script == -1 && !f->xlfdLoaded) ||
                  (!f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
-                   !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd))) {
+                   !(f->scripts[script] & QtFontFamily::UnsupportedXLFD))) {
                 loadXlfds(family.toLatin1(), -1);
                 f->fullyLoaded = true;
             }
@@ -1006,10 +973,10 @@ static void load(const QString &family = QString::null, int script = -1)
 #endif
 }
 
-
 static void initializeDb()
 {
-    if (db) return;
+    if (db)
+        return;
     db = new QFontDatabasePrivate;
     qfontdatabase_cleanup.set(&db);
 
@@ -1078,11 +1045,11 @@ static void initializeDb()
         QtFontFamily *family = db->families[f];
         FD_DEBUG("'%s' %s  hasXft=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
                  (family->hasXft ? "yes" : "no"));
-        for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-            FD_DEBUG("\t%s: %s", QFontDatabase::scriptName((QFont::Script) i).latin1(),
+        for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+            FD_DEBUG("\t%s: %s", QFontDatabase::scriptName(i).toLatin1().constData(),
                      ((family->scripts[i] & QtFontFamily::Supported) ? "Supported" :
-                      (family->scripts[i] & QtFontFamily::UnSupported) == QtFontFamily::UnSupported ?
-                      "UnSupported" : "Unknown"));
+                      (family->scripts[i] & QtFontFamily::Unsupported) == QtFontFamily::Unsupported ?
+                      "Unsupported" : "Unknown"));
         }
 
         for (int fd = 0; fd < family->count; fd++) {
@@ -1117,14 +1084,19 @@ static void initializeDb()
 #endif // QFONTDATABASE_DEBUG
 }
 
+
 // --------------------------------------------------------------------------------------
 // font loader
 // --------------------------------------------------------------------------------------
+
 #define MAXFONTSIZE_XFT 256
 #define MAXFONTSIZE_XLFD 128
+
 #ifndef QT_NO_XFT
-static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique, bool smoothScalable,
-                              const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
+
+static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
+                              bool fakeOblique, bool smoothScalable,
+                              const QFontPrivate *fp, const QFontDef &request, int script)
 {
     int weight_value = FC_WEIGHT_BLACK;
     if (key.weight == 0)
@@ -1146,25 +1118,13 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
         slant_value = FC_SLANT_OBLIQUE;
     FcPatternAddInteger(pattern, FC_SLANT, slant_value);
 
-    /*
-      ##### do we still need this as we ignore Xft1 now?
-      Xft1 doesn't obey user settings for turning off anti-aliasing using
-      the following:
-
-      match any size > 6 size < 12 edit antialias = false;
-
-      ... if we request pixel sizes.  so, work around this limitiation and
-      convert the pixel size to a point size and request that.
-    */
     double size_value = request.pixelSize;
     double scale = 1.;
     if (size_value > MAXFONTSIZE_XFT) {
         scale = (double)size_value/(double)MAXFONTSIZE_XFT;
         size_value = MAXFONTSIZE_XFT;
     }
-
-    size_value = size_value*72./QX11Info::appDpiY(fp->screen);
-    FcPatternAddDouble(pattern, FC_SIZE, size_value);
+    FcPatternAddDouble(pattern, FC_PIXEL_SIZE, size_value);
 
     if (!smoothScalable) {
 #if FC_VERSION >= 20193
@@ -1173,17 +1133,22 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
             stretch = 100;
 	FcPatternAddInteger(pattern, FC_WIDTH, stretch);
 #endif
-    } else if ((request.stretch > 0 && request.stretch != 100) ||
-               (key.style == QFont::StyleOblique && fakeOblique)) {
-        FcMatrix matrix;
-        FcMatrixInit(&matrix);
+    } else {
+        FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
-        if (request.stretch > 0 && request.stretch != 100)
-            FcMatrixScale(&matrix, double(request.stretch) / 100.0, 1.0);
-        if (key.style == QFont::StyleOblique && fakeOblique)
-            FcMatrixShear(&matrix, 0.20, 0.0);
+        if ((request.stretch > 0 && request.stretch != 100) ||
+            (key.style == QFont::StyleOblique && fakeOblique)) {
 
-        FcPatternAddMatrix(pattern, FC_MATRIX, &matrix);
+            FcMatrix matrix;
+            FcMatrixInit(&matrix);
+
+            if (request.stretch > 0 && request.stretch != 100)
+                FcMatrixScale(&matrix, double(request.stretch) / 100.0, 1.0);
+            if (key.style == QFont::StyleOblique && fakeOblique)
+                FcMatrixShear(&matrix, 0.20, 0.0);
+
+            FcPatternAddMatrix(pattern, FC_MATRIX, &matrix);
+        }
     }
 
     if (QX11Info::appDepth(fp->screen) <= 8) {
@@ -1194,26 +1159,156 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
                          !(request.styleStrategy & QFont::NoAntialias));
     }
 
-    if (script != QFont::Unicode) {
-        FcCharSet *cs = FcCharSetCreate();
-        QChar sample = sampleCharacter(script);
-        FcCharSetAddChar(cs, sample.unicode());
-        if (script == QFont::Latin)
-            // add Euro character
-            FcCharSetAddChar(cs, 0x20ac);
-        FcPatternAddCharSet(pattern, FC_CHARSET, cs);
-        FcCharSetDestroy(cs);
+    if (script != QUnicodeTables::Common) {
+        Q_ASSERT(script < QUnicodeTables::ScriptCount);
+        FcLangSet *ls = FcLangSetCreate();
+        FcLangSetAdd(ls, specialLanguages[script]);
+        FcPatternAddLangSet(pattern, FC_LANG, ls);
+        FcLangSetDestroy(ls);
     }
+
     return scale;
 }
+
+static void FcFontSetRemove(FcFontSet *fs, int at)
+{
+    Q_ASSERT(at < fs->nfont);
+    FcPatternDestroy(fs->fonts[at]);
+    int len = (--fs->nfont - at) * sizeof(FcPattern *);;
+    if (len > 0)
+        memmove(fs->fonts + at, fs->fonts + at + 1, len);
+}
+
+static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPrivate *fp,
+                                            const QFontDef &request, int script)
+{
+    FcBool forceScalable = true;
+    FcPatternGetBool(pattern, FC_SCALABLE, 0, &forceScalable);
+
+    FcDefaultSubstitute(pattern);
+    FcConfigSubstitute(0, pattern, FcMatchPattern);
+    FcConfigSubstitute(0, pattern, FcMatchFont);
+
+#ifdef FONT_MATCH_DEBUG
+    printf("final FcPattern contains:\n");
+    FcPatternPrint(pattern);
+#endif
+
+    FcResult result;
+    FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
+    FcPatternDestroy(pattern);
+    if (!fs)
+        return 0;
+
+    double size_value = request.pixelSize;
+    if (size_value > MAXFONTSIZE_XFT)
+        size_value = MAXFONTSIZE_XFT;
+
+    // remove fonts if their size isn't close enough, or if they are
+    // not scalable (and should be)
+    for (int i = 0; i < fs->nfont; ++i) {
+        FcPattern *font = fs->fonts[i];
+        FcResult res;
+        FcBool scalable;
+        res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
+        if (res != FcResultMatch || !scalable) {
+            if (forceScalable) {
+                FcFontSetRemove(fs, i);
+                --i; // go back one
+            } else {
+                double pixelSize;
+                res = FcPatternGetDouble(font, FC_PIXEL_SIZE, 0, &pixelSize);
+                if (res != FcResultMatch || qAbs((size_value-pixelSize)/size_value) > 0.2) {
+                    FcFontSetRemove(fs, i);
+                    --i; // go back one
+                }
+            }
+        }
+    }
+
+    QtFontStyle::Key key;
+    key.style = request.style;
+    key.weight = request.weight;
+    key.stretch = request.stretch;
+
+    QFontEngine *fe = 0;
+    if (script != QUnicodeTables::Common) {
+        // load a single font for the script
+
+        for (int i = 0; !fe && i < fs->nfont; ++i) {
+            // skip font if it doesn't support the language we want
+            FcLangSet *langSet = 0;
+            if (FcPatternGetLangSet(fs->fonts[i], FC_LANG, 0, &langSet) != FcResultMatch)
+                continue;
+            if (FcLangSetHasLang(langSet, specialLanguages[script]) != FcLangEqual)
+                continue;
+
+            FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
+            // add properties back in as the font selected from the
+            // list doesn't contain them.
+            addPatternProps(pattern, key, false, true, fp, request, script);
+            FcResult res;
+            FcPattern *result = XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
+            FcPatternDestroy(pattern);
+
+            // the pattern 'result' will be owned the XftFont, no need
+            // to destroy it later
+            XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), result);
+            if (!xftfs) {
+                // Xft couldn't find a font?
+                continue;
+            }
+
+            fe = new QFontEngineXft(xftfs);
+            double scale = 1.0;
+            if (fp->dpi != QX11Info::appDpiY()) {
+                double px;
+                FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
+                scale = request.pixelSize / px;
+            }
+            fe->setScale(scale);
+            fe->fontDef = request;
+        }
+    } else {
+        // create a multi engine for the fontset fontconfig gave us
+        FcFontSet *fontSet = FcFontSetCreate();
+        for (int i = 0; i < fs->nfont; ++i) {
+            FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
+            // add properties back in as the font selected from the
+            // list doesn't contain them.
+            addPatternProps(pattern, key, false, true, fp, request, script);
+            FcResult res;
+            FcFontSetAdd(fontSet, XftFontMatch(QX11Info::display(), fp->screen, pattern, &res));
+            FcPatternDestroy(pattern);
+        }
+
+        fe = new QFontEngineMultiXft(fontSet, fp->screen);
+        // ###
+#if 0
+        if (fp->dpi != QX11Info::appDpiY()) {
+            double px;
+            FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
+            scale = request.pixelSize/px;
+        }
+#else
+        double scale = request.pixelSize / size_value;
+#endif
+        fe->setScale(scale);
+        fe->fontDef = request;
+    }
+
+    FcFontSetDestroy(fs);
+    return fe;
+}
+
 #endif // QT_NO_XFT
 
 static
-QFontEngine *loadEngine(QFont::Script script,
-                         const QFontPrivate *fp, const QFontDef &request,
-                         QtFontFamily *family, QtFontFoundry *foundry,
-                         QtFontStyle *style, QtFontSize *size,
-                         QtFontEncoding *encoding, bool forced_encoding)
+QFontEngine *loadEngine(int script,
+                        const QFontPrivate *fp, const QFontDef &request,
+                        QtFontFamily *family, QtFontFoundry *foundry,
+                        QtFontStyle *style, QtFontSize *size,
+                        QtFontEncoding *encoding, bool forced_encoding)
 {
     Q_UNUSED(script);
 
@@ -1227,7 +1322,7 @@ QFontEngine *loadEngine(QFont::Script script,
 
         QFontEngine *fe = new QFontEngineXLFD(xfs, xlfd.data(), 0);
         if (! qt_fillFontDef(xfs, &fe->fontDef, fp->dpi) &&
-             ! qt_fillFontDef(xlfd, &fe->fontDef, fp->dpi))
+            ! qt_fillFontDef(xlfd, &fe->fontDef, fp->dpi))
             fe->fontDef = QFontDef();
 
         return fe;
@@ -1239,74 +1334,80 @@ QFontEngine *loadEngine(QFont::Script script,
         FM_DEBUG("    using Xft");
 
         FcPattern *pattern = FcPatternCreate();
-        if (!pattern) return 0;
-
-        bool symbol = (family->scripts[QFont::UnknownScript] == QtFontFamily::Supported);
-
-        if (!foundry->name.isEmpty())
-            FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry->name.toUtf8().constData());
-
-        if (!family->rawName.isEmpty())
-            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family->rawName.toUtf8().constData());
-
-        char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
-                             (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
-        FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
-
-        double scale = addPatternProps(pattern, style->key, style->fakeOblique, style->smoothScalable, fp, request, script);
-
- 	if (!symbol) {
- 	    FcCharSet *cs = FcCharSetCreate();
-	    QChar sample = sampleCharacter(script);
- 	    FcCharSetAddChar(cs, sample.unicode());
- 	    if (script == QFont::Latin)
- 		// add Euro character
- 		FcCharSetAddChar(cs, 0x20ac);
- 	    FcPatternAddCharSet(pattern, FC_CHARSET, cs);
- 	    FcCharSetDestroy(cs);
- 	}
-
-        FcResult res;
-        FcPattern *result =
-            XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
-
- 	if (result && script == QFont::Latin) {
- 	    // since we added the Euro char on top, check we actually got the family
- 	    // we requested. If we didn't get it correctly, remove the Euro from the pattern
-	    // and try again.
- 	    FcChar8 *f;
- 	    res = FcPatternGetString(result, FC_FAMILY, 0, &f);
- 	    if (res == FcResultMatch && QString::fromUtf8((char *)f) != family->rawName) {
- 		FcPatternDel(pattern, FC_CHARSET);
- 		FcCharSet *cs = FcCharSetCreate();
- 		QChar sample = sampleCharacter(script);
- 		FcCharSetAddChar(cs, sample.unicode());
- 		FcPatternAddCharSet(pattern, FC_CHARSET, cs);
- 		FcCharSetDestroy(cs);
- 		result = XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
- 	    }
- 	}
-	FcPatternDestroy(pattern);
-	if (!result)
-	    return 0;
-
-        // We pass a duplicate to XftFontOpenPattern because either xft font
-        // will own the pattern after the call or the pattern will be
-        // destroyed.
-        FcPattern *dup = FcPatternDuplicate(result);
-        XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), dup);
-
-        if (! xftfs) // Xft couldn't find a font?
+        if (!pattern)
             return 0;
 
-        QFontEngine *fe = new QFontEngineXft(xftfs, result, symbol ? 1 : 0);
-        if (fp->dpi != QX11Info::appDpiY(fp->screen)) {
-            double px;
-            FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
-            scale = (double)request.pixelSize/px;
+        if (!foundry->name.isEmpty()) {
+            FcPatternAddString(pattern, FC_FOUNDRY,
+                               (const FcChar8 *)foundry->name.toUtf8().constData());
         }
-        fe->setScale(scale);
-        return fe;
+
+        QStringList familyList;
+        if (!family->rawName.isEmpty()) {
+            FcPatternAddString(pattern, FC_FAMILY,
+                               (const FcChar8 *)family->rawName.toUtf8().constData());
+            familyList << family->name;
+        }
+
+        QString stylehint;
+        switch (request.styleHint) {
+        case QFont::SansSerif:
+            stylehint = "sans-serif";
+            break;
+        case QFont::Serif:
+            stylehint = "serif";
+            break;
+        case QFont::TypeWriter:
+            stylehint = "monospace";
+            break;
+        default:
+            if (request.fixedPitch)
+                stylehint = "monospace";
+            break;
+        }
+        if (!stylehint.isEmpty()) {
+            FcPatternAddString(pattern, FC_FAMILY,
+                               (const FcChar8 *)stylehint.toUtf8().constData());
+            familyList << family->name;
+        }
+
+        FcValue value;
+        value.type = FcTypeString;
+
+        // these should only get added to the pattern _after_ substitution
+        // append the default fallback font for the specified script
+        extern QString qt_fallback_font_family(int);
+        QString fallback = qt_fallback_font_family(script);
+        if (!fallback.isEmpty() && !familyList.contains(fallback)) {
+            QByteArray cs = fallback.toUtf8();
+            value.u.s = (const FcChar8 *)cs.data();
+            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+        }
+
+        // add the default family
+        QString defaultFamily = QApplication::font().family();
+        if (!familyList.contains(defaultFamily)) {
+            QByteArray cs = defaultFamily.toUtf8();
+            value.u.s = (const FcChar8 *)cs.data();
+            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+        }
+
+        // add QFont::defaultFamily() to the list, for compatibility with
+        // previous versions
+        defaultFamily = QApplication::font().defaultFamily();
+        if (!familyList.contains(defaultFamily)) {
+            QByteArray cs = defaultFamily.toUtf8();
+            value.u.s = (const FcChar8 *)cs.data();
+            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+        }
+
+        char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
+                            (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
+        FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
+
+        addPatternProps(pattern, style->key, style->fakeOblique, style->smoothScalable,
+                        fp, request, script);
+        return loadFcEngineFromPattern(pattern, fp, request, script);
     }
 #endif // QT_NO_XFT
 
@@ -1320,8 +1421,9 @@ QFontEngine *loadEngine(QFont::Script script,
     xlfd += "-";
     xlfd += style->weightName ? style->weightName : "*";
     xlfd += "-";
-    xlfd += (style->key.style == QFont::StyleItalic ? "i" : (style->key.style == QFont::StyleOblique ? "o" : "r"));
-
+    xlfd += (style->key.style == QFont::StyleItalic
+             ? "i"
+             : (style->key.style == QFont::StyleOblique ? "o" : "r"));
     xlfd += "-";
     xlfd += style->setwidthName ? style->setwidthName : "*";
     // ### handle add-style
@@ -1364,215 +1466,17 @@ QFontEngine *loadEngine(QFont::Script script,
 
     QFontEngine *fe = 0;
     const int mib = xlfd_encoding[encoding->encoding].mib;
+    // ### need to 1) create a real font engine, 2) create a "merging"
+    // ### engine, and then 3) add the real one to the merging one
+#if 0
+
     if (encoding->encoding <= LAST_LATIN_ENCODING && !forced_encoding) {
         fe = new QFontEngineLatinXLFD(xfs, xlfd, mib);
     } else {
         fe = new QFontEngineXLFD(xfs, xlfd, mib);
     }
-
     fe->setScale(scale);
+#endif
 
     return fe;
 }
-
-#ifndef QT_NO_XFT
-static void parseFontName(const QString &name, QString &foundry, QString &family)
-{
-    if (name.contains('[') && name.contains(']')) {
-        int i = name.indexOf('[');
-        int li = name.lastIndexOf(']');
-
-        if (i < li) {
-            foundry = name.mid(i + 1, li - i - 1);
-            if (name[i - 1] == ' ')
-                i--;
-            family = name.left(i);
-        }
-    } else {
-        foundry = QString::null;
-        family = name;
-    }
-}
-
-static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
-{
-    if (!X11->has_xft)
-	return 0;
-
-    QStringList family_list;
-    if (request.family.isEmpty()) {
-	family_list = fp->request.family.split(QChar(','));
-
-        QString stylehint;
-        switch (request.styleHint) {
-        case QFont::SansSerif:
-            stylehint = "sans-serif";
-            break;
-        case QFont::Serif:
-            stylehint = "serif";
-            break;
-        case QFont::TypeWriter:
-            stylehint = "monospace";
-            break;
-        default:
-            if (request.fixedPitch)
-                stylehint = "monospace";
-            break;
-        }
-        if (!stylehint.isEmpty())
-            family_list << stylehint;
-    } else {
-        family_list << request.family;
-    }
-
-    FcPattern *pattern = FcPatternCreate();
-
-    {
-        QString family, foundry;
-        for (QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it) {
-            parseFontName(*it, foundry, family);
-            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.toUtf8().constData());
-        }
-    }
-
-    QtFontStyle::Key key;
-    key.style = request.style;
-    key.weight = request.weight;
-    key.stretch = request.stretch;
-
-    double scale = addPatternProps(pattern, key, false, true, fp, request, script);
-#ifdef FONT_MATCH_DEBUG
-    qDebug("original pattern contains:");
-    FcPatternPrint(pattern);
-#endif
-
-    FcConfigSubstitute(0, pattern, FcMatchPattern);
-//     qDebug("1: pattern contains:");
-//     FcPatternPrint(pattern);
-
-    {
-        FcValue value;
-        value.type = FcTypeString;
-
-        // these should only get added to the pattern _after_ substitution
-        // append the default fallback font for the specified script
-        extern QString qt_fallback_font_family(QFont::Script);
-        QString fallback = qt_fallback_font_family(script);
-        if (! fallback.isEmpty() && ! family_list.contains(fallback)) {
-            QByteArray cs = fallback.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-
-        // add the default family
-        QString defaultFamily = QApplication::font().family();
-        if (! family_list.contains(defaultFamily)) {
-            QByteArray cs = defaultFamily.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-
-        // add QFont::defaultFamily() to the list, for compatibility with
-        // previous versions
-        defaultFamily = QApplication::font().defaultFamily();
-        if (! family_list.contains(defaultFamily)) {
-            QByteArray cs = defaultFamily.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-#ifdef FONT_MATCH_DEBUG
-        printf("final pattern contains:\n");
-        FcPatternPrint(pattern);
-#endif
-    }
-
-    if (script != QFont::Unicode) {
-        FcCharSet *cs = FcCharSetCreate();
-        QChar sample = sampleCharacter(script);
-        FcCharSetAddChar(cs, sample.unicode());
-        if (script == QFont::Latin)
-            // add Euro character
-            FcCharSetAddChar(cs, 0x20ac);
-        FcPatternAddCharSet(pattern, FC_CHARSET, cs);
-        FcCharSetDestroy(cs);
-    }
-
-    FcDefaultSubstitute(pattern);
-
-    FcResult result;
-    FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
-    FcPatternDestroy(pattern);
-    if (!fs)
-	return 0;
-#ifdef FONT_MATCH_DEBUG
-    printf("fontset contains:\n");
-    for (int i = 0; i < fs->nfont; ++i) {
-        FcPattern *test = fs->fonts[i];
-        FcChar8 *fam;
-        FcPatternGetString(test, FC_FAMILY, 0, &fam);
-        printf("    %s\n", fam);
-    }
-#endif
-
-    int ch = sampleCharacter(script).unicode();
-    double size_value = request.pixelSize;
-    if (size_value > MAXFONTSIZE_XFT)
-        size_value = MAXFONTSIZE_XFT;
-
-    QFontEngine *fe = 0;
-
-    for (int i = 0; i < fs->nfont; ++i) {
-        FcPattern *font = fs->fonts[i];
-        FcCharSet *cs;
-        FcResult res = FcPatternGetCharSet(font, FC_CHARSET, 0, &cs);
-        if (res != FcResultMatch)
-            continue;
-        if (!FcCharSetHasChar(cs, ch))
-            continue;
-        FcBool scalable;
-        res = FcPatternGetBool(font, FC_SCALABLE, 0, &scalable);
-        if (res != FcResultMatch || !scalable) {
-            int pixelSize;
-            res = FcPatternGetInteger(font, FC_PIXEL_SIZE, 0, &pixelSize);
-            if (res != FcResultMatch || qAbs((size_value-pixelSize)/size_value) > 0.2)
-                continue;
-        }
-
-        FcPattern *pattern = FcPatternDuplicate(font);
-        // add properties back in as the font selected from the list doesn't contain them.
-        addPatternProps(pattern, key, false, true, fp, request, script);
-
-        FcPattern *result = XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
-        FcPatternDestroy(pattern);
-
-        // We pass a duplicate to XftFontOpenPattern because either xft font
-        // will own the pattern after the call or the pattern will be
-        // destroyed.
-        FcPattern *dup = FcPatternDuplicate(result);
-        XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), dup);
-
-        if (!xftfs) {
-            // Xft couldn't find a font?
-            qDebug("couldn't open fontconfigs chosen font with Xft!!!");
-        } else {
-            fe = new QFontEngineXft(xftfs, result, 0);
-            if (fp->dpi != QX11Info::appDpiY()) {
-                double px;
-                FcPatternGetDouble(result, FC_PIXEL_SIZE, 0, &px);
-                scale = request.pixelSize/px;
-            }
-            fe->setScale(scale);
-            fe->fontDef = request;
-            if (script != QFont::Unicode && !canRender(fe, script)) {
-                FM_DEBUG("  WARN: font loaded cannot render sample 0x%04x", ch);
-                delete fe;
-                fe = 0;
-            }
-        }
-        if (fe)
-            break;
-    }
-    FcFontSetDestroy(fs);
-    return fe;
-}
-#endif // QT_NO_XFT

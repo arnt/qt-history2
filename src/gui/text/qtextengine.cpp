@@ -141,7 +141,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 #if (BIDI_DEBUG >= 1)
     qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
 #endif
-    QFont::Script script = QFont::NoScript;
+    int script = -1;
     QScriptItem item;
     item.position = start;
     item.analysis.script = script;
@@ -150,25 +150,21 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
     item.analysis.reserved = 0;
 
     for (int i = start; i <= stop; i++) {
-
         unsigned short uc = text[i].unicode();
-        QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
-        if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
-            s = script;
-
+        int s = QUnicodeTables::script(text[i]);
         QChar::Category category = ::category(uc);
         if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
             item.analysis.bidiLevel = level % 2 ? level-1 : level;
-            item.analysis.script = QFont::Latin;
+            item.analysis.script = QUnicodeTables::Common;
             item.isObject = true;
-            s = QFont::NoScript;
+            s = -1;
         } else if (uc == 9) {
-            item.analysis.script = QFont::Latin;
+            item.analysis.script = QUnicodeTables::Common;
             item.isSpace = true;
             item.isTab = true;
             item.analysis.bidiLevel = control.baseLevel();
-            s = QFont::NoScript;
-        } else if (s != script && (category != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
+            s = -1;
+        } else if (s != script && (category != QChar::Mark_NonSpacing || script == -1)) {
             item.analysis.script = s;
             item.analysis.bidiLevel = level;
         } else {
@@ -870,10 +866,10 @@ const QCharAttributes *QTextEngine::attributes()
         int script = si.analysis.script;
 #ifdef Q_WS_WIN
         if(hasUsp10) {
-            script = (QFont::Script)qt_scriptForChar(layoutData->string.at(si.position).unicode());
+            script = QUnicodeTables::script(layoutData->string.at(si.position));
         }
 #endif
-        Q_ASSERT(script < QFont::NScripts);
+        Q_ASSERT(script < QUnicodeTables::ScriptCount);
         qt_scriptEngines[script].charAttributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
     }
 
@@ -1085,9 +1081,9 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 {
     if (!fnt) {
         QFont font = this->font(si);
-        return font.d->engineForScript((QFont::Script)si.analysis.script);
+        return font.d->engineForScript(si.analysis.script);
     }
-    return fnt->engineForScript((QFont::Script)si.analysis.script);
+    return fnt->engineForScript(si.analysis.script);
 }
 
 struct JustificationPoint {
@@ -1299,11 +1295,11 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
     QFontEngine *e;
 
     if (eng->fnt) {
-        e = eng->fnt->engineForScript(QFont::Latin);
+        e = eng->fnt->engineForScript(QUnicodeTables::Common);
     } else {
         f = eng->block.charFormat().font();
         f = f.resolve(eng->docLayout()->defaultFont());
-        e = f.d->engineForScript(QFont::Latin);
+        e = f.d->engineForScript(QUnicodeTables::Common);
     }
 
     ascent = e->ascent();

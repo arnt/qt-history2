@@ -37,121 +37,51 @@ static inline char *tag_to_string(FT_ULong tag)
 #define DefaultLangSys 0xffff
 #define DefaultScript FT_MAKE_TAG('D', 'F', 'L', 'T')
 
+
 static const unsigned int supported_scripts [] = {
-//         // European Alphabetic Scripts
-//         Latin,
-    FT_MAKE_TAG('l', 'a', 't', 'n'),
-//         Greek,
-    FT_MAKE_TAG('g', 'r', 'e', 'k'),
-//         Cyrillic,
-    FT_MAKE_TAG('c', 'y', 'r', 'l'),
-//         Armenian,
-        FT_MAKE_TAG('a', 'r', 'm', 'n'),
-//         Georgian,
-    FT_MAKE_TAG('g', 'e', 'o', 'r'),
-//         Runic,
-    FT_MAKE_TAG('r', 'u', 'n', 'r'),
-//         Ogham,
-    FT_MAKE_TAG('o', 'g', 'a', 'm'),
-//         SpacingModifiers,
+    // Common
     FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         CombiningMarks,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-
-//         // Middle Eastern Scripts
-//         Hebrew,
+    // Hebrew
     FT_MAKE_TAG('h', 'e', 'b', 'r'),
-//         Arabic,
+    // Arabic
     FT_MAKE_TAG('a', 'r', 'a', 'b'),
-//         Syriac,
+    // Syriac
     FT_MAKE_TAG('s', 'y', 'r', 'c'),
-//         Thaana,
+    // Thaana
     FT_MAKE_TAG('t', 'h', 'a', 'a'),
-
-//         // South and Southeast Asian Scripts
-//         Devanagari,
+    // Devanagari
     FT_MAKE_TAG('d', 'e', 'v', 'a'),
-//         Bengali,
+    // Bengali
     FT_MAKE_TAG('b', 'e', 'n', 'g'),
-//         Gurmukhi,
+    // Gurmukhi
     FT_MAKE_TAG('g', 'u', 'r', 'u'),
-//         Gujarati,
+    // Gujarati
     FT_MAKE_TAG('g', 'u', 'j', 'r'),
-//         Oriya,
+    // Oriya
     FT_MAKE_TAG('o', 'r', 'y', 'a'),
-//         Tamil,
+    // Tamil
     FT_MAKE_TAG('t', 'a', 'm', 'l'),
-//         Telugu,
+    // Telugu
     FT_MAKE_TAG('t', 'e', 'l', 'u'),
-//         Kannada,
+    // Kannada
     FT_MAKE_TAG('k', 'n', 'd', 'a'),
-//         Malayalam,
+    // Malayalam
     FT_MAKE_TAG('m', 'l', 'y', 'm'),
-//         Sinhala,
+    // Sinhala
     // ### could not find any OT specs on this
     FT_MAKE_TAG('s', 'i', 'n', 'h'),
-//         Thai,
+    // Thai
     FT_MAKE_TAG('t', 'h', 'a', 'i'),
-//         Lao,
+    // Lao
     FT_MAKE_TAG('l', 'a', 'o', ' '),
-//         Tibetan,
+    // Tibetan
     FT_MAKE_TAG('t', 'i', 'b', 't'),
-//         Myanmar,
+    // Myanmar
     FT_MAKE_TAG('m', 'y', 'm', 'r'),
-//         Khmer,
-    FT_MAKE_TAG('k', 'h', 'm', 'r'),
-
-//         // East Asian Scripts
-//         Han,
-    FT_MAKE_TAG('h', 'a', 'n', 'i'),
-//         Hiragana,
-    FT_MAKE_TAG('k', 'a', 'n', 'a'),
-//         Katakana,
-    FT_MAKE_TAG('k', 'a', 'n', 'a'),
-//         Hangul,
+    // Hangul
     FT_MAKE_TAG('h', 'a', 'n', 'g'),
-//         Bopomofo,
-    FT_MAKE_TAG('b', 'o', 'p', 'o'),
-//         Yi,
-    FT_MAKE_TAG('y', 'i', ' ', ' '),
-
-//         // Additional Scripts
-//         Ethiopic,
-    FT_MAKE_TAG('e', 't', 'h', 'i'),
-//         Cherokee,
-    FT_MAKE_TAG('c', 'h', 'e', 'r'),
-//         CanadianAboriginal,
-    FT_MAKE_TAG('c', 'a', 'n', 's'),
-//         Mongolian,
-    FT_MAKE_TAG('m', 'o', 'n', 'g'),
-
-//         // Symbols
-//         CurrencySymbols,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         LetterlikeSymbols,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         NumberForms,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         MathematicalOperators,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         TechnicalSymbols,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         GeometricSymbols,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         MiscellaneousSymbols,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         EnclosedAndSquare,
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
-//         Braille,
-    FT_MAKE_TAG('b', 'r', 'a', 'i'),
-
-//                Unicode, should be used
-    FT_MAKE_TAG('D', 'F', 'L', 'T')
-    // ### where are these?
-//         FT_MAKE_TAG('b', 'y', 'z', 'm'),
-//     FT_MAKE_TAG('D', 'F', 'L', 'T'),
-    // ### Hangul Jamo
-//     FT_MAKE_TAG('j', 'a', 'm', 'o'),
+    // Khmer
+    FT_MAKE_TAG('k', 'h', 'm', 'r'),
 };
 
 QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
@@ -186,6 +116,8 @@ QOpenType::~QOpenType()
 
 bool QOpenType::supportsScript(unsigned int script)
 {
+    assert(script < QUnicodeTables::ScriptCount);
+
     if (current_script == supported_scripts[script])
         return true;
 
@@ -196,7 +128,7 @@ bool QOpenType::supportsScript(unsigned int script)
     FT_Error error;
     if (!gdef) {
         if ((error = TT_Load_GDEF_Table(face, &gdef))) {
-//               qDebug("error loading gdef table: %d", error);
+//            qDebug("error loading gdef table: %d", error);
             hasGDef = false;
         }
     }
@@ -228,7 +160,7 @@ bool QOpenType::supportsScript(unsigned int script)
 
 bool QOpenType::loadTables(FT_ULong script)
 {
-    assert(script < QFont::Unicode);
+    assert(script < QUnicodeTables::ScriptCount);
     // find script in our list of supported scripts.
     unsigned int stag = supported_scripts[script];
 
@@ -427,10 +359,9 @@ void QOpenType::applyGPOSFeatures()
             str->pos = 0;
 #ifdef Q_WS_X11
             Q_ASSERT(fontEngine->type() == QFontEngine::Xft);
-            face = XftLockFace(static_cast<QFontEngineXft *>(fontEngine)->_font);
+            face = static_cast<QFontEngineXft *>(fontEngine)->freetypeFace();
             TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
                                    str, &positions, false, false);
-            XftUnlockFace(static_cast<QFontEngineXft *>(fontEngine)->_font);
 #else
             TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
                                    str, &positions, false, false);
@@ -544,8 +475,8 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
         qDebug("   glyph=%4x char_index=%d mark: %d cmp: %d, clusterStart: %d advance=%d/%d offset=%d/%d",
                glyphs[i].glyph, str->character_index[i], glyphs[i].attributes.mark,
                glyphs[i].attributes.combiningClass, glyphs[i].attributes.clusterStart,
-               glyphs[i].advance.x.value(), glyphs[i].advance.y.value(),
-               glyphs[i].offset.x.value(), glyphs[i].offset.y.value());
+               glyphs[i].advance.x(), glyphs[i].advance.y(),
+               glyphs[i].offset.x(), glyphs[i].offset.y());
     qDebug("-----------------------------------------");
 #endif
     return true;

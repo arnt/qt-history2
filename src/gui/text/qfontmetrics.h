@@ -32,7 +32,6 @@ class Q_GUI_EXPORT QFontMetrics
 public:
     QFontMetrics(const QFont &);
     QFontMetrics(const QFont &, QPaintDevice *pd);
-    QFontMetrics(const QFont &, QFont::Script);
     QFontMetrics(const QFontMetrics &);
     ~QFontMetrics();
 
@@ -88,7 +87,6 @@ private:
 #endif
 
     QFontPrivate *d;
-    int fscript;
 };
 
 
@@ -97,7 +95,6 @@ class Q_GUI_EXPORT QFontMetricsF
 public:
     QFontMetricsF(const QFont &);
     QFontMetricsF(const QFont &, QPaintDevice *pd);
-    QFontMetricsF(const QFont &, QFont::Script);
     QFontMetricsF(const QFontMetrics &);
     QFontMetricsF(const QFontMetricsF &);
     ~QFontMetricsF();
@@ -137,7 +134,6 @@ public:
 
 private:
     QFontPrivate *d;
-    int fscript;
 };
 
 #endif // QFONTMETRICS_H

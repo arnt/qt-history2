@@ -12,125 +12,53 @@
 ****************************************************************************/
 
 const q_scriptEngine qt_scriptEngines[] = {
-        // Latin,
+    // Common
     { basic_shape, basic_attributes },
-        // Greek,
+    // Hebrew
     { basic_shape, basic_attributes },
-        // Cyrillic,
-    { basic_shape, basic_attributes },
-        // Armenian,
-    { basic_shape, basic_attributes },
-        // Georgian,
-    { basic_shape, basic_attributes },
-        // Runic,
-    { basic_shape, basic_attributes },
-        // Ogham,
-    { basic_shape, basic_attributes },
-        // SpacingModifiers,
-    { basic_shape, basic_attributes },
-        // CombiningMarks,
-    { basic_shape, basic_attributes },
-
-        // // Middle Eastern Scripts
-        // Hebrew,
-    { basic_shape, basic_attributes },
-        // Arabic,
+    // Arabic
     { arabic_shape, arabic_attributes },
-        // Syriac,
+    // Syriac
     { basic_shape, basic_attributes },
-        // Thaana,
+    // Thaana
     { basic_shape, basic_attributes },
-
-        // // South and Southeast Asian Scripts
-        // Devanagari,
+    // Devanagari
     { basic_shape, basic_attributes },
-        // Bengali,
+    // Bengali
     { basic_shape, basic_attributes },
-        // Gurmukhi,
+    // Gurmukhi
     { basic_shape, basic_attributes },
-        // Gujarati,
+    // Gujarati
     { basic_shape, basic_attributes },
-        // Oriya,
+    // Oriya
     { basic_shape, basic_attributes },
-        // Tamil,
+    // Tamil
     { basic_shape, basic_attributes },
-        // Telugu,
+    // Telugu
     { basic_shape, basic_attributes },
-        // Kannada,
+    // Kannada
     { basic_shape, basic_attributes },
-        // Malayalam,
+    // Malayalam
     { basic_shape, basic_attributes },
-        // Sinhala,
+    // Sinhala
     { basic_shape, basic_attributes },
-        // Thai,
+    // Thai
     { basic_shape, basic_attributes },
-        // Lao,
+    // Lao
     { basic_shape, basic_attributes },
-        // Tibetan,
+    // Tibetan
     { basic_shape, basic_attributes },
-        // Myanmar,
+    // Myanmar
     { basic_shape, basic_attributes },
-        // Khmer,
+    // Hangul
     { basic_shape, basic_attributes },
-
-        // // East Asian Scripts
-        // Han,
-    { basic_shape, basic_attributes },
-        // Hiragana,
-    { basic_shape, basic_attributes },
-        // Katakana,
-    { basic_shape, basic_attributes },
-        // Hangul,
-    { basic_shape, basic_attributes },
-        // Bopomofo,
-    { basic_shape, basic_attributes },
-        // Yi,
-    { basic_shape, basic_attributes },
-
-        // // Additional Scripts
-        // Ethiopic,
-    { basic_shape, basic_attributes },
-        // Cherokee,
-    { basic_shape, basic_attributes },
-        // CanadianAboriginal,
-    { basic_shape, basic_attributes },
-        // Mongolian,
-    { basic_shape, basic_attributes },
-
-        // // Symbols
-        // CurrencySymbols,
-    { basic_shape, basic_attributes },
-        // LetterlikeSymbols,
-    { basic_shape, basic_attributes },
-        // NumberForms,
-    { basic_shape, basic_attributes },
-        // MathematicalOperators,
-    { basic_shape, basic_attributes },
-        // TechnicalSymbols,
-    { basic_shape, basic_attributes },
-        // GeometricSymbols,
-    { basic_shape, basic_attributes },
-        // MiscellaneousSymbols,
-    { basic_shape, basic_attributes },
-        // EnclosedAndSquare,
-    { basic_shape, basic_attributes },
-        // Braille,
-    { basic_shape, basic_attributes },
-
-        // Unicode,
-    { basic_shape, basic_attributes },
-    //Tagalog,
-    { basic_shape, basic_attributes },
-    //Hanunoo,
-    { basic_shape, basic_attributes },
-    //Buhid,
-    { basic_shape, basic_attributes },
-    //Tagbanwa,
-    { basic_shape, basic_attributes },
-    // KatakanaHalfWidth
-    { basic_shape, basic_attributes },
-    // Limbu
-    { basic_shape, basic_attributes },
-    // TaiLe
+    // Khmer
     { basic_shape, basic_attributes }
+
+#if 0
+    // ### What about this one?
+    // Unicode
+    { unicode_shape, basic_attributes }
+#endif
+
 };

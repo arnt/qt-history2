@@ -945,10 +945,8 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 
         if (!si.isTab && !si.isObject) {
             QGlyphLayout *glyphs = eng->glyphs(&si);
-
-            QFontEngine *fe = f.d->engineForScript((QFont::Script)si.analysis.script);
+            QFontEngine *fe = f.d->engineForScript(si.analysis.script);
             Q_ASSERT(fe);
-
             fe->addOutlineToPath(x, y, glyphs, si.num_glyphs, this);
         }
         x += si.width;

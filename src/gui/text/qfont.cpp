@@ -202,7 +202,7 @@ QFontEngineData::QFontEngineData()
 {
     ref = 1;
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-    memset(engines, 0, QFont::LastPrivateScript * sizeof(QFontEngine *));
+    memset(engines, 0, QUnicodeTables::ScriptCount * sizeof(QFontEngine *));
 #else
     engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
@@ -214,7 +214,7 @@ QFontEngineData::QFontEngineData()
 QFontEngineData::~QFontEngineData()
 {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-    for (int i = 0; i < QFont::LastPrivateScript; i++) {
+    for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
         if (engines[i])
             --engines[i]->ref;
         engines[i] = 0;
@@ -385,143 +385,6 @@ QFontEngineData::~QFontEngineData()
     \sa QFontMetrics QFontInfo QFontDatabase QApplication::setFont()
     QWidget::setFont() QPainter::setFont() QFont::StyleHint
     QFont::Weight
-*/
-
-/*!
-    \enum QFont::Script
-
-    This enum represents \link unicode.html Unicode \endlink allocated
-    scripts. For exhaustive coverage see \link
-    http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t The
-    Unicode Standard Version 3.0 \endlink. The following scripts are
-    supported:
-
-    Modern European alphabetic scripts (left to right):
-
-    \value Latin most alphabets based on the original Latin alphabet
-    \value Greek ancient and modern Greek and Coptic
-    \value Cyrillic Slavic and non-Slavic languages using Cyrillic alphabets
-    \value Armenian the Armenian alphabet used with the Armenian language
-    \value Georgian the Georgian language
-    \value Runic the known constituents of the Runic alphabets used
-           by the early and medieval societies in the Germanic,
-           Scandinavian, and Anglo-Saxon areas
-    \value Ogham an alphabetical script used to write a very early
-           form of Irish
-    \value SpacingModifiers small signs indicating modifications
-           to the preceding letter
-    \value CombiningMarks diacritical marks not specific to
-           a particular alphabet, diacritical marks used in
-           combination with mathematical and technical symbols, and
-           glyph encodings applied to multiple letterforms
-
-    Middle Eastern scripts (right to left):
-
-    \value Hebrew Hebrew, Yiddish, and some other languages
-    \value Arabic the Arabic language, as well as Persian, Urdu,
-           Kurdish, and some others
-    \value Syriac the active liturgical languages and dialects of several
-           Middle Eastern and Southeast Indian communities
-    \value Thaana the Maledivian Dhivehi language
-
-    South and Southeast Asian scripts (left to right with few historical exceptions):
-
-    \value Devanagari classical Sanskrit, modern Hindi, and several other
-           languages
-    \value Bengali a relative to Devanagari employed to write the
-           Bengali language, used in West Bengal/India, Bangladesh, and
-           in several minority languages
-    \value Gurmukhi another Devanagari relative used to write Punjabi
-    \value Gujarati closely related to Devanagari and used to write
-           the Gujarati language of the Gujarat state in India
-    \value Oriya the Oriya language of Orissa state/India.
-    \value Tamil the Tamil language of Tamil Nadu state/India, Sri Lanka,
-           Singapore, parts of Malaysia, and used by some minority
-           languages
-    \value Telugu the Telugu language of Andhra Pradesh state/India, and
-           used in some minority languages
-    \value Kannada another South Indian script used to write the
-           Kannada language of Karnataka state/India, and some minority
-           languages
-    \value Malayalam the Malayalam language of Kerala state/India
-    \value Sinhala Sri Lanka's majority language, and also employed to write
-           Pali, Sanskrit, and Tamil
-    \value Thai Thai and other Southeast Asian languages.
-    \value Lao a language and script quite similar to Thai
-    \value Tibetan the script used to write Tibetan in several
-           countries like Tibet, the bordering Indian regions, Nepal, and
-           also used in the Buddist philosophy and liturgy of the Mongolian
-           cultural area
-    \value Myanmar mainly used to write the Burmese language of Myanmar
-           (former Burma)
-    \value Khmer the official language of Kampuchea
-
-    East Asian scripts (traditionally top-down, right to left, modern
-    often horizontal left to right):
-
-    \value Han consists of the CJK (Chinese, Japanese, Korean)
-           idiographic characters
-    \value Hiragana a cursive syllabary used to indicate phonetics
-           and pronounciation of Japanese words
-    \value Katakana a non-cursive syllabic script used to write
-           Japanese words with visual emphasis and non-Japanese words
-           in a phonetical manner
-    \value Hangul a Korean script consisting of alphabetic components
-    \value Bopomofo a phonetic alphabet for Chinese (mainly Mandarin)
-    \value Yi (also called Cuan or Wei) a syllabary used to write
-           the Yi language of Southwestern China, Myanmar, Laos, and Vietnam
-
-    Additional scripts that do not fit well into the script categories above:
-
-    \value Ethiopic a syllabary used by several Central East African languages
-    \value Cherokee a left-to-right syllabic script used to write
-           the Cherokee language
-    \value CanadianAboriginal consists of the syllabics used by some
-           Canadian aboriginal societies
-    \value Mongolian the traditional (and recently reintroduced)
-           script used to write Mongolian
-
-    Symbols:
-
-    \value CurrencySymbols currency symbols not encoded in other scripts
-    \value LetterlikeSymbols symbols derived from ordinary letters of an
-           alphabetical script
-    \value NumberForms provided for compatibility with other existing
-           character sets
-    \value MathematicalOperators encodings for operators, relations and
-           other symbols (like arrows) used in a mathematical context
-    \value TechnicalSymbols representations for control codes, the space
-           symbol, APL symbols, and other symbols, mainly used in the
-           context of electronic data processing
-    \value GeometricSymbols block elements and geometric shapes
-    \value MiscellaneousSymbols a heterogeneous collection of symbols that
-           do not fit any other Unicode character block; e.g. Dingbats
-    \value EnclosedAndSquare provided for compatibility with some
-           East Asian standards
-    \value Braille an international writing system used by blind
-           people that encodes the standard 256 eight-dot patterns with
-           the 64 six-dot patterns as a subset
-
-    \value Tagalog
-    \value Hanunoo
-    \value Buhid
-    \value Tagbanwa
-
-    \value Limbu (Unicode 4.0)
-    \value TaiLe (Unicode 4.0)
-
-    \value KatakanaHalfWidth
-
-    \value Unicode includes all the above scripts.
-
-    \omitvalue NScripts
-    \omitvalue UnknownScript
-    \omitvalue NoScript
-    \omitvalue Han_Japanese
-    \omitvalue Han_SimplifiedChinese
-    \omitvalue Han_TraditionalChinese
-    \omitvalue Han_Korean
-    \omitvalue LastPrivateScript
 */
 
 /*!
@@ -1268,11 +1131,11 @@ void QFont::setRawMode(bool enable)
 */
 bool QFont::exactMatch() const
 {
-    QFontEngine *engine = d->engineForScript(QFont::NoScript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
-    return d->rawMode ? engine->type() != QFontEngine::Box
-                                          : d->request.exactMatch(engine->fontDef);
+    return (d->rawMode
+            ? engine->type() != QFontEngine::Box
+            : d->request.exactMatch(engine->fontDef));
 }
 
 /*!
@@ -1912,29 +1775,15 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     that is not screen-compatible.
 */
 QFontInfo::QFontInfo(const QFont &font)
-    : d(font.d), fscript(QFont::NoScript)
-{
-    ++d->ref;
-}
-
-/*!
-    Constructs a font info object for \a font using the specified \a
-    script.
-*/
-QFontInfo::QFontInfo(const QFont &font, QFont::Script script)
-    : d(font.d), fscript(script)
-{
-    ++d->ref;
-}
+    : d(font.d)
+{ ++d->ref; }
 
 /*!
     Constructs a copy of \a fi.
 */
 QFontInfo::QFontInfo(const QFontInfo &fi)
-    : d(fi.d), fscript(fi.fscript)
-{
-    ++d->ref;
-}
+    : d(fi.d)
+{ ++d->ref; }
 
 /*!
     Destroys the font info object.
@@ -1951,7 +1800,6 @@ QFontInfo::~QFontInfo()
 QFontInfo &QFontInfo::operator=(const QFontInfo &fi)
 {
     qAtomicAssign(d, fi.d);
-    fscript = fi.fscript;
     return *this;
 }
 
@@ -1962,7 +1810,7 @@ QFontInfo &QFontInfo::operator=(const QFontInfo &fi)
 */
 QString QFontInfo::family() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->fontDef.family;
 }
@@ -1974,7 +1822,7 @@ QString QFontInfo::family() const
 */
 int QFontInfo::pointSize() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return (engine->fontDef.pointSize + 5) / 10;
 }
@@ -1986,7 +1834,7 @@ int QFontInfo::pointSize() const
 */
 float QFontInfo::pointSizeF() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return float(engine->fontDef.pointSize) / 10.0;
 }
@@ -1998,7 +1846,7 @@ float QFontInfo::pointSizeF() const
 */
 int QFontInfo::pixelSize() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->fontDef.pixelSize;
 }
@@ -2010,7 +1858,7 @@ int QFontInfo::pixelSize() const
 */
 bool QFontInfo::italic() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->fontDef.style != QFont::StyleNormal;
 }
@@ -2022,7 +1870,7 @@ bool QFontInfo::italic() const
 */
 QFont::Style QFontInfo::style() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return (QFont::Style)engine->fontDef.style;
 }
@@ -2034,7 +1882,7 @@ QFont::Style QFontInfo::style() const
 */
 int QFontInfo::weight() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->fontDef.weight;
 
@@ -2099,7 +1947,7 @@ bool QFontInfo::strikeOut() const
 */
 bool QFontInfo::fixedPitch() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 #ifdef Q_OS_MAC
     if (!engine->fontDef.fixedPitchComputed) {
@@ -2123,7 +1971,7 @@ bool QFontInfo::fixedPitch() const
 */
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return (QFont::StyleHint) engine->fontDef.styleHint;
 }
@@ -2151,11 +1999,11 @@ bool QFontInfo::rawMode() const
 */
 bool QFontInfo::exactMatch() const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-
-    return d->rawMode ? engine->type() != QFontEngine::Box
-                                          : d->request.exactMatch(engine->fontDef);
+    return (d->rawMode
+            ? engine->type() != QFontEngine::Box
+            : d->request.exactMatch(engine->fontDef));
 }
 
 
@@ -2446,8 +2294,9 @@ void QFontCache::timerEvent(QTimerEvent *)
 
 #  if defined(Q_WS_X11) || defined(Q_WS_WIN)
             // print out all engines
-            for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-                if (! it.value()->engines[i]) continue;
+            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+                if (! it.value()->engines[i])
+                    continue;
                 FC_DEBUG("      contains %p", it.value()->engines[i]);
             }
 #  endif // Q_WS_X11 || Q_WS_WIN

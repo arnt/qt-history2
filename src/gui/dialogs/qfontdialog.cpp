@@ -148,7 +148,8 @@ class QFontDialogPrivate : public QDialogPrivate
 {
     Q_DECLARE_PUBLIC(QFontDialog)
 public:
-    QFontDialogPrivate() : script(QFontPrivate::defaultScript) {};
+    // ###
+    // QFontDialogPrivate() : script(QFontPrivate::defaultScript) {};
 
     void sizeChanged(const QString &);
     void familyHighlighted(int);
@@ -191,7 +192,8 @@ public:
     QFontDatabase fdb;
 
     QString       family;
-    QFont::Script script;
+    // ###
+    // QFont::Script script;
     QString       style;
     int           size;
 
@@ -291,11 +293,14 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     connect(d->underline, SIGNAL(clicked()),
              SLOT(updateSample()));
 
+    // ###
+#if 0
     for (int i = 0; i < QFont::NScripts; i++) {
         QString scriptname = QFontDatabase::scriptName((QFont::Script) i);
         if (!scriptname.isEmpty())
             d->scriptCombo->addItem(scriptname);
     }
+#endif
 
     updateFamilies();
     if (d->familyList->count() != 0)
@@ -528,6 +533,8 @@ void QFontDialog::updateFamilies()
 
     enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_APP=2, MATCH_FALLBACK, MATCH_FAMILY=3 };
 
+    // ###
+#if 0
     QStringList familyNames = d->fdb.families(d->script);
     {
         // merge the unicode/unknown family list with the above list.
@@ -539,6 +546,9 @@ void QFontDialog::updateFamilies()
                 familyNames << *it;
         }
     }
+#else
+    QStringList familyNames = d->fdb.families();
+#endif
 
     familyNames.sort();
 
@@ -713,8 +723,9 @@ void QFontDialogPrivate::updateSample()
 void QFontDialogPrivate::scriptHighlighted(int index)
 {
     Q_Q(QFontDialog);
-    script = (QFont::Script)index;
-    sampleEdit->setText(fdb.scriptSample(script));
+    // ###
+    // script = index;
+    // sampleEdit->setText(fdb.scriptSample(script));
     q->updateFamilies();
 }
 

@@ -65,6 +65,8 @@ wince-* {
 }
 
 unix:x11 {
+	HEADRES += \
+		text/qfontengine_x11_p.h
 	SOURCES += \
 		text/qfont_x11.cpp \
 		text/qfontengine_x11.cpp

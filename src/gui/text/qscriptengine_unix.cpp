@@ -20,7 +20,7 @@
 // #### stil missing: identify invalid character combinations
 static bool hebrew_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Hebrew);
+    Q_ASSERT(item->script == QUnicodeTables::Hebrew);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -47,11 +47,11 @@ static bool hebrew_shape(QShaperItem *item)
 // #### stil missing: identify invalid character combinations
 static bool syriac_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Syriac);
+    Q_ASSERT(item->script == QUnicodeTables::Syriac);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
-    if (openType && openType->supportsScript(QFont::Syriac)) {
+    if (openType && openType->supportsScript(QUnicodeTables::Syriac)) {
         return arabicSyriacOpenTypeShape(openType, item);
     }
 #endif
@@ -61,7 +61,7 @@ static bool syriac_shape(QShaperItem *item)
 
 static bool thaana_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Thaana);
+    Q_ASSERT(item->script == QUnicodeTables::Thaana);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -1159,8 +1159,8 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 {
     Q_UNUSED(openType)
     int script = item->script;
-    Q_ASSERT(script >= QFont::Devanagari && script <= QFont::Sinhala);
-    const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
+    Q_ASSERT(script >= QUnicodeTables::Devanagari && script <= QUnicodeTables::Sinhala);
+    const unsigned short script_base = 0x0900 + 0x80*(script-QUnicodeTables::Devanagari);
     const unsigned short ra = script_base + 0x30;
     const unsigned short halant = script_base + 0x4d;
     const unsigned short nukta = script_base + 0x3c;
@@ -1176,7 +1176,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     QVarLengthArray<unsigned short> reordered(len+4);
     QVarLengthArray<unsigned char> position(len+4);
 
-    unsigned char properties = scriptProperties[script-QFont::Devanagari];
+    unsigned char properties = scriptProperties[script-QUnicodeTables::Devanagari];
 
     if (invalid) {
         *reordered.data() = 0x25cc;
@@ -1220,7 +1220,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         // * In Kannada and Telugu, the base consonant cannot be
         //   farther than 3 consonants from the end of the syllable.
         // #### replace the HasReph property by testing if the feature exists in the font!
-        if (form(*uc) == Consonant || (script == QFont::Bengali && form(*uc) == IndependentVowel)) {
+        if (form(*uc) == Consonant || (script == QUnicodeTables::Bengali && form(*uc) == IndependentVowel)) {
             beginsWithRa = (properties & HasReph) && ((len > 2) && *uc == ra && *(uc+1) == halant);
 
             if (beginsWithRa && form(*(uc+2)) == Control)
@@ -1239,7 +1239,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
             // figure out possible base glyphs
             memset(position.data(), 0, len);
-            if (script == QFont::Devanagari || script == QFont::Gujarati) {
+            if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati) {
                 bool vattu = false;
                 for (i = base; i < len; ++i) {
                     position[i] = form(uc[i]);
@@ -1265,22 +1265,22 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             }
             for (i = len-1; i > base; i--) {
                 if (position[i] != Consonant
-                    && (position[i] != Control || script == QFont::Kannada))
+                    && (position[i] != Control || script == QUnicodeTables::Kannada))
                     continue;
 
                 Position charPosition = indic_position(uc[i]);
                 if (pos == Post && charPosition == Post) {
                     pos = Below;
                 } else if ((pos == Post || pos == Below) && charPosition == Below) {
-                    if (script != QFont::Kannada && script != QFont::Telugu)
+                    if (script != QUnicodeTables::Kannada && script != QUnicodeTables::Telugu)
                         pos = None;
-                    if (script == QFont::Devanagari || script == QFont::Gujarati)
+                    if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati)
                         base = i;
                 } else {
                     base = i;
                     break;
                 }
-                if (skipped == 2 && (script == QFont::Kannada || script == QFont::Telugu)) {
+                if (skipped == 2 && (script == QUnicodeTables::Kannada || script == QUnicodeTables::Telugu)) {
                     base = i;
                     break;
                 }
@@ -1328,12 +1328,12 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                     toPos++;
                 if (toPos < len-1 && uc[toPos] == ra && uc[toPos+1] == halant)
                     toPos += 2;
-                if (script == QFont::Devanagari || script == QFont::Gujarati || script == QFont::Bengali) {
+                if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati || script == QUnicodeTables::Bengali) {
                     if (matra_position == Post || matra_position == Split) {
                         toPos = matra+1;
                         matra -= 2;
                     }
-                } else if (script == QFont::Kannada) {
+                } else if (script == QUnicodeTables::Kannada) {
                     toPos = len;
                     matra -= 2;
                 }
@@ -1412,7 +1412,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 #endif
         // we continuosly position the matras and vowel marks and increase the fixed
         // until we reached the end.
-        const IndicOrdering *finalOrder = indic_order[script-QFont::Devanagari];
+        const IndicOrdering *finalOrder = indic_order[script-QUnicodeTables::Devanagari];
 
         IDEBUG("    reordering pass:");
         //IDEBUG("        base=%d fixed=%d", base, fixed);
@@ -1524,7 +1524,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         for (i = base+1; i < len; ++i)
             where[i] = true;
-        if (script == QFont::Devanagari || script == QFont::Gujarati) {
+        if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati) {
             // vattu glyphs need this aswell
             bool vattu = false;
             for (i = base-2; i > 1; --i) {
@@ -1570,9 +1570,9 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         }
 
         // halant forms
-        if (base < len-1 && reordered[base+1] == halant || script == QFont::Malayalam) {
+        if (base < len-1 && reordered[base+1] == halant || script == QUnicodeTables::Malayalam) {
             // The hlnt feature needs to get always applied for malayalam according to the MS docs.
-//             memset(where, script == QFont::Malayalam ? 1 : 0, len*sizeof(bool));
+//             memset(where, script == QUnicodeTables::Malayalam ? 1 : 0, len*sizeof(bool));
 //             where[base] = where[base+1] = true;
             openType->applyGSUBFeature(FT_MAKE_TAG('h', 'a', 'l', 'n'));
         }
@@ -1581,7 +1581,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         const int *char_map = openType->mapping(newLen);
 
         // move the left matra back to it's correct position in malayalam and tamil
-        if ((script == QFont::Malayalam || script == QFont::Tamil) && (form(reordered[0]) == Matra)) {
+        if ((script == QUnicodeTables::Malayalam || script == QUnicodeTables::Tamil) && (form(reordered[0]) == Matra)) {
             // need to find the base in the shaped string and move the matra there
             int basePos = 0;
             while (basePos < newLen && char_map[basePos] <= base)
@@ -1662,14 +1662,14 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
   		break;
             goto finish;
         case Consonant:
-	    if (state == Halant && (script != QFont::Sinhala || uc[pos-1].unicode() == 0x200d /* ZWJ */))
+	    if (state == Halant && (script != QUnicodeTables::Sinhala || uc[pos-1].unicode() == 0x200d /* ZWJ */))
                 break;
             goto finish;
         case Halant:
             if (state == Nukta || state == Consonant)
                 break;
             // Bengali has a special exception allowing the combination Vowel_A/E + Halant + Ya
-            if (script == QFont::Bengali && pos == 1 &&
+            if (script == QUnicodeTables::Bengali && pos == 1 &&
                  (uc[0].unicode() == 0x0985 || uc[0].unicode() == 0x098f))
                 break;
             goto finish;
@@ -1691,9 +1691,9 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
             // ### not sure if this is correct. If it is, does it apply only to Bengali or should
             // it work for all Indic languages?
             // the combination Independent_A + Vowel Sign AA is allowed.
-            if (script == QFont::Bengali && uc[pos].unicode() == 0x9be && uc[pos-1].unicode() == 0x985)
+            if (script == QUnicodeTables::Bengali && uc[pos].unicode() == 0x9be && uc[pos-1].unicode() == 0x985)
                 break;
-            if (script == QFont::Tamil && state == Matra) {
+            if (script == QUnicodeTables::Tamil && state == Matra) {
                 if (uc[pos-1].unicode() == 0x0bc6 &&
                      (uc[pos].unicode() == 0xbbe || uc[pos].unicode() == 0xbd7))
                     break;
@@ -1717,7 +1717,7 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
 
 static bool indic_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script >= QFont::Devanagari && item->script <= QFont::Sinhala);
+    Q_ASSERT(item->script >= QUnicodeTables::Devanagari && item->script <= QUnicodeTables::Sinhala);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -1865,7 +1865,7 @@ static void thai_attributes( int script, const QString &text, int from, int len,
 	++a;
     }
 
-    if (script == QFont::Thai)
+    if (script == QUnicodeTables::Thai)
         thaiWordBreaks(text.unicode() + from, len, attributes);
 }
 
@@ -2048,7 +2048,7 @@ finish:
 
 static bool tibetan_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Tibetan);
+    Q_ASSERT(item->script == QUnicodeTables::Tibetan);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -2488,7 +2488,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
 static bool khmer_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Khmer);
+    Q_ASSERT(item->script == QUnicodeTables::Khmer);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -2745,7 +2745,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
 
 static bool hangul_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Hangul);
+    Q_ASSERT(item->script == QUnicodeTables::Hangul);
 
     const QChar *uc = item->string->unicode() + item->from;
 
@@ -2829,132 +2829,60 @@ static void hangul_attributes(int script, const QString &text, int from, int len
     }
 }
 
-// --------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------
 //
 // The script engine jump table
 //
-// --------------------------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------
 
 const q_scriptEngine qt_scriptEngines[] = {
-        // Latin,
+    // Common
     { basic_shape, basic_attributes },
-        // Greek,
-    { basic_shape, basic_attributes },
-        // Cyrillic,
-    { basic_shape, basic_attributes },
-        // Armenian,
-    { basic_shape, basic_attributes },
-        // Georgian,
-    { basic_shape, basic_attributes },
-        // Runic,
-    { basic_shape, basic_attributes },
-        // Ogham,
-    { basic_shape, basic_attributes },
-        // SpacingModifiers,
-    { basic_shape, basic_attributes },
-        // CombiningMarks,
-    { basic_shape, basic_attributes },
-
-        // // Middle Eastern Scripts
-        // Hebrew,
+    // Hebrew
     { hebrew_shape, basic_attributes },
-        // Arabic,
+    // Arabic
     { arabic_shape, arabic_attributes },
-        // Syriac,
+    // Syriac
     { syriac_shape, arabic_attributes },
-        // Thaana,
+    // Thaana
     { thaana_shape, basic_attributes },
-
-        // // South and Southeast Asian Scripts
-        // Devanagari,
+    // Devanagari
     { indic_shape, indic_attributes },
-        // Bengali,
+    // Bengali
     { indic_shape, indic_attributes },
-        // Gurmukhi,
+    // Gurmukhi
     { indic_shape, indic_attributes },
-        // Gujarati,
+    // Gujarati
     { indic_shape, indic_attributes },
-        // Oriya,
+    // Oriya
     { indic_shape, indic_attributes },
-        // Tamil,
+    // Tamil
     { indic_shape, indic_attributes },
-        // Telugu,
+    // Telugu
     { indic_shape, indic_attributes },
-        // Kannada,
+    // Kannada
     { indic_shape, indic_attributes },
-        // Malayalam,
+    // Malayalam
     { indic_shape, indic_attributes },
-        // Sinhala,
+    // Sinhala
     { indic_shape, indic_attributes },
-        // Thai,
+    // Thai
     { basic_shape, thai_attributes },
-        // Lao,
+    // Lao
     { basic_shape, thai_attributes },
-        // Tibetan,
+    // Tibetan
     { tibetan_shape, tibetan_attributes },
-        // Myanmar,
+    // Myanmar
     { basic_shape, basic_attributes },
-        // Khmer,
-    { khmer_shape, khmer_attributes },
-
-        // // East Asian Scripts
-        // Han,
-    { basic_shape, basic_attributes },
-        // Hiragana,
-    { basic_shape, basic_attributes },
-        // Katakana,
-    { basic_shape, basic_attributes },
-        // Hangul,
+    // Hangul
     { hangul_shape, hangul_attributes },
-        // Bopomofo,
-    { basic_shape, basic_attributes },
-        // Yi,
-    { basic_shape, basic_attributes },
+    // Khmer
+    { khmer_shape, khmer_attributes }
 
-        // // Additional Scripts
-        // Ethiopic,
-    { basic_shape, basic_attributes },
-        // Cherokee,
-    { basic_shape, basic_attributes },
-        // CanadianAboriginal,
-    { basic_shape, basic_attributes },
-        // Mongolian,
-    { basic_shape, basic_attributes },
+#if 0
+    // ### What about this one?
+    // Unicode
+    { unicode_shape, basic_attributes }
+#endif
 
-        // // Symbols
-        // CurrencySymbols,
-    { basic_shape, basic_attributes },
-        // LetterlikeSymbols,
-    { basic_shape, basic_attributes },
-        // NumberForms,
-    { basic_shape, basic_attributes },
-        // MathematicalOperators,
-    { basic_shape, basic_attributes },
-        // TechnicalSymbols,
-    { basic_shape, basic_attributes },
-        // GeometricSymbols,
-    { basic_shape, basic_attributes },
-        // MiscellaneousSymbols,
-    { basic_shape, basic_attributes },
-        // EnclosedAndSquare,
-    { basic_shape, basic_attributes },
-        // Braille,
-    { basic_shape, basic_attributes },
-
-        // Unicode,
-    { unicode_shape, basic_attributes },
-    //Tagalog,
-    { basic_shape, basic_attributes },
-    //Hanunoo,
-    { basic_shape, basic_attributes },
-    //Buhid,
-    { basic_shape, basic_attributes },
-    //Tagbanwa,
-    { basic_shape, basic_attributes },
-    // KatakanaHalfWidth
-    { basic_shape, basic_attributes },
-    // Limbu
-    { basic_shape, basic_attributes },
-    // TaiLe
-    { basic_shape, basic_attributes }
 };

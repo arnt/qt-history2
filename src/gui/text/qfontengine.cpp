@@ -16,8 +16,10 @@
 #include "qbitmap.h"
 #include "qpainter.h"
 #include "qpainterpath.h"
+#include "qvarlengtharray.h"
 
 #include <math.h>
+
 
 void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
 {
@@ -51,6 +53,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     region.translate(qRound(x), qRound(y - ascent()));
     path->addRegion(region);
 }
+
 
 // ------------------------------------------------------------------
 // The box font engine
@@ -172,4 +175,207 @@ bool QFontEngineBox::canRender(const QChar *, int)
 QFontEngine::Type QFontEngineBox::type() const
 {
     return Box;
+}
+
+
+// ------------------------------------------------------------------
+// Multi engine
+// ------------------------------------------------------------------
+
+uchar highByte(glyph_t glyph)
+{ return glyph >> 24; }
+
+// strip high byte from glyph
+glyph_t stripped(glyph_t glyph)
+{ return glyph & 0x00ffffff; }
+
+QFontEngineMulti::QFontEngineMulti(int engineCount)
+{
+    engines.fill(0, engineCount);
+    cache_cost = 0;
+}
+
+QFontEngineMulti::~QFontEngineMulti()
+{
+    for (int i = 0; i < engines.size(); ++i) {
+        QFontEngine *fontEngine = engines.at(i);
+        if (fontEngine)
+            --fontEngine->ref;
+    }
+}
+
+QFontEngine::FECaps QFontEngineMulti::capabilites() const
+{ return engine(0)->capabilites(); }
+
+bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
+                                    QGlyphLayout *glyphs, int *nglyphs,
+                                    QTextEngine::ShaperFlags flags) const
+{
+    if (!engine(0)->stringToCMap(str, len, glyphs, nglyphs, flags))
+        return false;
+
+    for (int i = 0; i < len; ++i) {
+        if (glyphs[i].glyph != 0)
+            continue;
+
+        for (int x = 0; x < engines.size(); ++x) {
+            QFontEngine *engine = engines.at(x);
+            if (!engine) {
+                const_cast<QFontEngineMulti *>(this)->loadEngine(x);
+                engine = engines.at(x);
+                engine->setScale(scale());
+            }
+            Q_ASSERT(engine != 0);
+            if (engine->canRender(str + i, 1)) {
+                glyphs[i].advance = glyphs[i].offset = QPointF();
+                engine->stringToCMap(str + i, 1, glyphs + i, nglyphs, flags);
+                // set the high byte to indicate which engine the glyph came from
+                glyphs[i].glyph |= (x << 24);
+                break;
+            }
+        }
+    }
+
+    *nglyphs = len;
+    return true;
+}
+
+glyph_metrics_t QFontEngineMulti::boundingBox(const QGlyphLayout *glyphs_const, int numGlyphs)
+{
+    if (numGlyphs <= 0)
+        return glyph_metrics_t();
+
+    glyph_metrics_t overall;
+
+    QGlyphLayout *glyphs = const_cast<QGlyphLayout *>(glyphs_const);
+    int which = highByte(glyphs[0].glyph);
+    int start = 0;
+    int end, i;
+    for (end = 0; end < numGlyphs; ++end) {
+        const int e = highByte(glyphs[end].glyph);
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = stripped(glyphs[i].glyph);
+
+        // merge the bounding box for this run
+        const glyph_metrics_t gm = engine(which)->boundingBox(glyphs + start, end - start);
+
+        overall.x = qMin(overall.x, gm.x);
+        overall.y = qMin(overall.y, gm.y);
+        overall.width = overall.xoff + gm.width;
+        overall.height = qMax(overall.height + overall.y, gm.height + gm.y) -
+                         qMin(overall.y, gm.y);
+        overall.xoff += gm.xoff;
+        overall.yoff += gm.yoff;
+
+        // reset the high byte for all glyphs
+        const int hi = which << 24;
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = stripped(glyphs[i].glyph);
+
+    // merge the bounding box for this run
+    const glyph_metrics_t gm = engine(which)->boundingBox(glyphs + start, end - start);
+
+    overall.x = qMin(overall.x, gm.x);
+    overall.y = qMin(overall.y, gm.y);
+    overall.width = overall.xoff + gm.width;
+    overall.height = qMax(overall.height + overall.y, gm.height + gm.y) -
+                     qMin(overall.y, gm.y);
+    overall.xoff += gm.xoff;
+    overall.yoff += gm.yoff;
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
+
+    return overall;
+}
+
+glyph_metrics_t QFontEngineMulti::boundingBox(glyph_t glyph)
+{
+    const int which = highByte(glyph);
+    Q_ASSERT(which < engines.size());
+    return engine(which)->boundingBox(stripped(glyph));
+}
+
+qreal QFontEngineMulti::ascent() const
+{ return engine(0)->ascent(); }
+
+qreal QFontEngineMulti::descent() const
+{ return engine(0)->descent(); }
+
+qreal QFontEngineMulti::leading() const
+{
+    return engine(0)->leading();
+}
+
+qreal QFontEngineMulti::maxCharWidth() const
+{
+    return engine(0)->maxCharWidth();
+}
+
+qreal QFontEngineMulti::minLeftBearing() const
+{
+    return engine(0)->minLeftBearing();
+}
+
+qreal QFontEngineMulti::minRightBearing() const
+{
+    return engine(0)->minRightBearing();
+}
+
+bool QFontEngineMulti::canRender(const QChar *string, int len)
+{
+    if (engine(0)->canRender(string, len))
+        return true;
+
+    QVarLengthArray<QGlyphLayout, 256> glyphs(len);
+    int nglyphs = len;
+    if (stringToCMap(string, len, glyphs.data(), &nglyphs, 0) == false) {
+        glyphs.resize(nglyphs);
+        stringToCMap(string, len, glyphs.data(), &nglyphs, 0);
+    }
+
+    bool allExist = true;
+    for (int i = 0; i < nglyphs; i++) {
+        if (!glyphs[i].glyph) {
+            allExist = false;
+            break;
+        }
+    }
+
+    return allExist;
+}
+
+void QFontEngineMulti::setScale(qreal scale)
+{
+    QFontEngine::setScale(scale);
+    int i;
+    for (i = 0; i < engines.size(); ++i) {
+        QFontEngine *fontEngine = engine(i);
+        if (fontEngine)
+            fontEngine->setScale(scale);
+    }
+}
+
+qreal QFontEngineMulti::scale() const
+{ return engine(0)->scale(); }
+
+QFontEngine *QFontEngineMulti::engine(int at) const
+{
+    Q_ASSERT(at < engines.size());
+    return engines.at(at);
 }

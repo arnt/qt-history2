@@ -49,7 +49,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 
     glyph_metrics_t baseInfo = f->boundingBox(glyphs[gfrom].glyph);
 
-    if (item->script == QFont::Hebrew)
+    if (item->script == QUnicodeTables::Hebrew)
         // we need to attach below the baseline, because of the hebrew iud.
         baseInfo.height = qMax(baseInfo.height, -baseInfo.y);
 
@@ -318,7 +318,7 @@ static void basic_attributes(int /*script*/, const QString &text, int from, int 
     }
 }
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(Q_WS_QWS)
 static bool unicode_shape(QShaperItem *item)
 {
     QString s = item->string->mid(item->from, item->length);
@@ -1297,7 +1297,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
     openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
 
-    if (item->script == QFont::Arabic) {
+    if (item->script == QUnicodeTables::Arabic) {
         const struct {
             int tag;
             int shape;
@@ -1341,7 +1341,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     for (int j = 0; j < 4; ++j)
         openType->applyGSUBFeature(commonFeatures[j]);
 
-    if (item->script == QFont::Arabic) {
+    if (item->script == QUnicodeTables::Arabic) {
         const int features[] = {
             FT_MAKE_TAG('c', 's', 'w', 'h'),
             // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
@@ -1380,12 +1380,12 @@ static void arabic_attributes(int /*script*/, const QString &text, int from, int
 // #### stil missing: identify invalid character combinations
 static bool arabic_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QFont::Arabic);
+    Q_ASSERT(item->script == QUnicodeTables::Arabic);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
 
-    if (openType && openType->supportsScript(QFont::Arabic))
+    if (openType && openType->supportsScript(QUnicodeTables::Arabic))
         return arabicSyriacOpenTypeShape(openType, item);
 #endif
 

@@ -23,10 +23,10 @@
 #include "qpainter.h"
 #include "qvarlengtharray.h"
 #include "qwidget.h"
-#include "qcolormap.h"
 
 #include <private/qpaintengine_x11_p.h>
 #include "qfont.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qopentype_p.h"
 
@@ -41,9 +41,6 @@
 #define d d_func()
 #define q q_func()
 
-// defined in qfontdatbase_x11.cpp
-extern int qt_mib_for_xlfd_encoding(const char *encoding);
-extern int qt_xlfd_encoding_id(const char *encoding);
 
 QFontEngine::~QFontEngine()
 {
@@ -68,10 +65,13 @@ qreal QFontEngine::underlinePosition() const
 }
 
 
-
 // ------------------------------------------------------------------
 // Xlfd cont engine
 // ------------------------------------------------------------------
+
+// defined in qfontdatbase_x11.cpp
+extern int qt_mib_for_xlfd_encoding(const char *encoding);
+extern int qt_xlfd_encoding_id(const char *encoding);
 
 static inline XCharStruct *charStruct(XFontStruct *xfs, uint ch)
 {
@@ -391,392 +391,50 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
 }
 
 
-QFontEngine::Type QFontEngineXLFD::type() const
-{
-    return XLFD;
-}
-
+#ifndef QT_NO_XFT
 
 // ------------------------------------------------------------------
-// LatinXLFD engine
+// Multi Xft engine
 // ------------------------------------------------------------------
 
-static const int engine_array_inc = 4;
+QFontEngineMultiXft::QFontEngineMultiXft(FcFontSet *fs, int s)
+    : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
+{ loadEngine(0); }
 
-QFontEngineLatinXLFD::QFontEngineLatinXLFD(XFontStruct *xfs, const char *name,
-                                            int mib)
+QFontEngineMultiXft::~QFontEngineMultiXft()
+{ FcFontSetDestroy(fontSet); }
+
+void QFontEngineMultiXft::loadEngine(int at)
 {
-    _engines = new QFontEngine*[engine_array_inc];
-    _engines[0] = new QFontEngineXLFD(xfs, name, mib);
-    _count = 1;
-
-    cache_cost = _engines[0]->cache_cost;
-
-    memset(glyphIndices, 0, sizeof(glyphIndices));
-    memset(glyphAdvances, 0, sizeof(glyphAdvances));
-    euroIndex = 0;
-    euroAdvance = 0;
-}
-
-QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
-{
-    for (int i = 0; i < _count; ++i) {
-        delete _engines[i];
-        _engines[i] = 0;
+    Q_ASSERT(at < engines.size());
+    Q_ASSERT(engines.at(at) == 0);
+    FcPattern *pattern = fontSet->fonts[at];
+    extern QFontDef FcPatternToQFontDef(FcPattern *pattern);
+    QFontDef fontDef = FcPatternToQFontDef(fontSet->fonts[at]);
+    // note: we use -1 for the script to make sure that we keep real
+    // Xft engines separate from Multi engines in the font cache
+    QFontCache::Key key(fontDef, -1, screen);
+    QFontEngine *fontEngine = QFontCache::instance->findEngine(key);
+    if (!fontEngine) {
+        XftFont *f = XftFontOpenPattern(QX11Info::display(), FcPatternDuplicate(pattern));
+        fontEngine = new QFontEngineXft(f);
+        fontEngine->fontDef = fontDef;
+        QFontCache::instance->insertEngine(key, fontEngine);
     }
-    delete [] _engines;
-    _engines = 0;
-}
-
-QFontEngine::FECaps QFontEngineLatinXLFD::capabilites() const
-{
-    return FullTransformations;
-}
-
-void QFontEngineLatinXLFD::findEngine(const QChar &ch)
-{
-    if (ch.unicode() == 0) return;
-
-    static const char *alternate_encodings[] = {
-        "iso8859-1",
-        "iso8859-2",
-        "iso8859-3",
-        "iso8859-4",
-        "iso8859-9",
-        "iso8859-10",
-        "iso8859-13",
-        "iso8859-14",
-        "iso8859-15",
-        "hp-roman8"
-    };
-    static const int mib_count = sizeof(alternate_encodings) / sizeof(const char *);
-
-    // see if one of the above mibs can map the char we want
-    QTextCodec *codec = 0;
-    int which = -1;
-    int i;
-    for (i = 0; i < mib_count; ++i) {
-        const int mib = qt_mib_for_xlfd_encoding(alternate_encodings[i]);
-        bool skip = false;
-        for (int e = 0; e < _count; ++e) {
-            if (_engines[e]->cmap() == mib) {
-                skip = true;
-                break;
-            }
-        }
-        if (skip) continue;
-
-        codec = QTextCodec::codecForMib(mib);
-        if (codec && codec->canEncode(ch)) {
-            which = i;
-            break;
-        }
-    }
-
-    if (! codec || which == -1)
-        return;
-
-    const int enc_id = qt_xlfd_encoding_id(alternate_encodings[which]);
-    QFontDef req = fontDef;
-    QFontEngine *engine = QFontDatabase::findFont(QFont::Latin, 0, req, enc_id);
-    if (! engine) {
-        req.family = QString::null;
-        engine = QFontDatabase::findFont(QFont::Latin, 0, req, enc_id);
-        if (! engine) return;
-    }
-    engine->setScale(scale());
-
-    if (! (_count % engine_array_inc)) {
-        // grow the engines array
-        QFontEngine **old = _engines;
-        int new_size =
-            (((_count+engine_array_inc) / engine_array_inc) * engine_array_inc);
-        _engines = new QFontEngine*[new_size];
-        for (i = 0; i < _count; ++i)
-            _engines[i] = old[i];
-        delete [] old;
-    }
-
-    _engines[_count] = engine;
-    const int hi = _count << 8;
-    ++_count;
-
-    unsigned short chars[0x201];
-    QGlyphLayout glyphs[0x201];
-    for (i = 0; i < 0x200; ++i)
-        chars[i] = i;
-    chars[0x200] = 0x20ac;
-    int glyphCount = 0x201;
-    engine->stringToCMap((const QChar *) chars, 0x201, glyphs, &glyphCount, 0);
-
-    // merge member data with the above
-    for (i = 0; i < 0x200; ++i) {
-        if (glyphIndices[i] != 0 || glyphs[i].glyph == 0) continue;
-        glyphIndices[i] = hi | glyphs[i].glyph;
-        glyphAdvances[i] = glyphs[i].advance.x();
-    }
-    if (!euroIndex && glyphs[0x200].glyph) {
-        euroIndex = hi | glyphs[0x200].glyph;
-        euroAdvance = glyphs[0x200].advance.x();
-    }
-}
-
-bool
-QFontEngineLatinXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
-{
-    if (*nglyphs < len) {
-        *nglyphs = len;
-        return false;
-    }
-
-    bool mirrored = flags & QTextEngine::RightToLeft;
-    int i;
-    bool missing = false;
-    const QChar *c = str+len;
-    QGlyphLayout *g = glyphs+len;
-    qreal asc = ascent();
-    if (mirrored) {
-        while (c != str) {
-            --c;
-            --g;
-            g->advance.ry() = 0;
-            if (c->unicode() < 0x200) {
-                unsigned short ch = ::mirroredChar(*c).unicode();
-                g->glyph = glyphIndices[ch];
-                g->advance.rx() = glyphAdvances[ch];
-            } else {
-                if (c->unicode() == 0x20ac) {
-                    g->glyph = euroIndex;
-                    g->advance.rx() = euroAdvance;
-                } else {
-                    g->glyph = 0;
-                    g->advance.rx() = asc;
-                }
-            }
-            missing = (missing || (g->glyph == 0));
-        }
-    } else {
-        while (c != str) {
-            --c;
-            --g;
-            g->advance.ry() = 0;
-            if (c->unicode() < 0x200) {
-                g->glyph = glyphIndices[c->unicode()];
-                g->advance.rx() = glyphAdvances[c->unicode()];
-            } else {
-                if (c->unicode() == 0x20ac) {
-                    g->glyph = euroIndex;
-                    g->advance.rx() = euroAdvance;
-                } else {
-                    g->glyph = 0;
-                    g->advance.rx() = asc;
-                }
-            }
-            missing = (missing || (g->glyph == 0));
-        }
-    }
-
-    if (missing) {
-        for (i = 0; i < len; ++i) {
-            unsigned short uc = str[i].unicode();
-            if (glyphs[i].glyph != 0 || (uc >= 0x200 && uc != 0x20ac))
-                continue;
-
-            QFontEngineLatinXLFD *that = (QFontEngineLatinXLFD *) this;
-            that->findEngine(str[i]);
-            glyphs[i].glyph = (uc == 0x20ac ? euroIndex : that->glyphIndices[uc]);
-            glyphs[i].advance.rx() = (uc == 0x20ac ? euroAdvance : glyphAdvances[uc]);
-            glyphs[i].advance.ry() = 0;
-        }
-    }
-
-    *nglyphs = len;
-    return true;
-}
-
-glyph_metrics_t QFontEngineLatinXLFD::boundingBox(const QGlyphLayout *glyphs_const, int numGlyphs)
-{
-    if (numGlyphs <= 0) return glyph_metrics_t();
-
-    glyph_metrics_t overall;
-
-    QGlyphLayout *glyphs = const_cast<QGlyphLayout *>(glyphs_const);
-    int which = glyphs[0].glyph >> 8;
-
-    int start = 0;
-    int end, i;
-    for (end = 0; end < numGlyphs; ++end) {
-        const int e = glyphs[end].glyph >> 8;
-        if (e == which) continue;
-
-        // set the high byte to zero
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = glyphs[i].glyph & 0xff;
-
-        // merge the bounding box for this run
-        const glyph_metrics_t gm =
-            _engines[which]->boundingBox(glyphs + start, end - start);
-
-        overall.x = qMin(overall.x, gm.x);
-        overall.y = qMin(overall.y, gm.y);
-        overall.width = overall.xoff + gm.width;
-        overall.height = qMax(overall.height + overall.y, gm.height + gm.y) -
-                         qMin(overall.y, gm.y);
-        overall.xoff += gm.xoff;
-        overall.yoff += gm.yoff;
-
-        // reset the high byte for all glyphs
-        const int hi = which << 8;
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = hi | glyphs[i].glyph;
-
-        // change engine
-        start = end;
-        which = e;
-    }
-
-    // set the high byte to zero
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = glyphs[i].glyph & 0xff;
-
-    // merge the bounding box for this run
-    const glyph_metrics_t gm = _engines[which]->boundingBox(glyphs + start, end - start);
-
-    overall.x = qMin(overall.x, gm.x);
-    overall.y = qMin(overall.y, gm.y);
-    overall.width = overall.xoff + gm.width;
-    overall.height = qMax(overall.height + overall.y, gm.height + gm.y) -
-                     qMin(overall.y, gm.y);
-    overall.xoff += gm.xoff;
-    overall.yoff += gm.yoff;
-
-    // reset the high byte for all glyphs
-    const int hi = which << 8;
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = hi | glyphs[i].glyph;
-
-    return overall;
-}
-
-glyph_metrics_t QFontEngineLatinXLFD::boundingBox(glyph_t glyph)
-{
-    const int engine = glyph >> 8;
-    Q_ASSERT(engine < _count);
-    return _engines[engine]->boundingBox(glyph & 0xff);
-}
-
-qreal QFontEngineLatinXLFD::ascent() const
-{
-    return _engines[0]->ascent();
-}
-
-qreal QFontEngineLatinXLFD::descent() const
-{
-    return _engines[0]->descent();
-}
-
-qreal QFontEngineLatinXLFD::leading() const
-{
-    return _engines[0]->leading();
-}
-
-qreal QFontEngineLatinXLFD::maxCharWidth() const
-{
-    return _engines[0]->maxCharWidth();
-}
-
-qreal QFontEngineLatinXLFD::minLeftBearing() const
-{
-    return _engines[0]->minLeftBearing();
-}
-
-qreal QFontEngineLatinXLFD::minRightBearing() const
-{
-    return _engines[0]->minRightBearing();
-}
-
-const char *QFontEngineLatinXLFD::name() const
-{
-    return _engines[0]->name();
-}
-
-bool QFontEngineLatinXLFD::canRender(const QChar *string, int len)
-{
-    bool all = true;
-    int i;
-    for (i = 0; i < len; ++i) {
-        if (string[i].unicode() >= 0x200 ||
-             glyphIndices[string[i].unicode()] == 0) {
-            if (string[i].unicode() != 0x20ac || euroIndex == 0)
-                all = false;
-            break;
-        }
-    }
-
-    if (all)
-        return true;
-
-    all = true;
-    for (i = 0; i < len; ++i) {
-        if (string[i].unicode() >= 0x200) {
-            if (string[i].unicode() == 0x20ac) {
-                if (euroIndex)
-                    continue;
-
-                findEngine(string[i]);
-                if (euroIndex)
-                    continue;
-            }
-            all = false;
-            break;
-        }
-        if (glyphIndices[string[i].unicode()] != 0) continue;
-
-        findEngine(string[i]);
-        if (glyphIndices[string[i].unicode()] == 0) {
-            all = false;
-            break;
-        }
-    }
-
-    return all;
-}
-
-void QFontEngineLatinXLFD::setScale(qreal scale)
-{
-    QFontEngine::setScale(scale);
-    int i;
-    for (i = 0; i < _count; ++i)
-        _engines[i]->setScale(scale);
-    unsigned short chars[0x201];
-    for (i = 0; i < 0x200; ++i)
-        chars[i] = i;
-    chars[0x200] = 0x20ac;
-    int glyphCount = 0x201;
-    QGlyphLayout glyphs[0x201];
-    _engines[0]->stringToCMap((const QChar *)chars, 0x200, glyphs, &glyphCount, 0);
-    for (int i = 0; i < 0x200; ++i) {
-        glyphIndices[i] = glyphs[i].glyph;
-        glyphAdvances[i] = glyphs[i].advance.x();
-    }
-    euroIndex = glyphs[0x200].glyph;
-    euroAdvance = glyphs[0x200].advance.x();
+    ++fontEngine->ref;
+    engines[at] = fontEngine;
 }
 
 
 // ------------------------------------------------------------------
 // Xft cont engine
 // ------------------------------------------------------------------
-// #define FONTENGINE_DEBUG
 
-#ifndef QT_NO_XFT
-
-QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
-    : _font(font), _pattern(pattern), _openType(0), _cmap(cmap), transformed_fonts(0)
+QFontEngineXft::QFontEngineXft(XftFont *font)
+    : _font(font), _openType(0), _cmap(-1), transformed_fonts(0)
 {
     _face = XftLockFace(_font);
 
-    _cmap = -1;
     // Xft maps Unicode and adobe roman for us.
     for (int i = 0; i < _face->num_charmaps; ++i) {
         FT_CharMap cm = _face->charmaps[i];
@@ -795,7 +453,7 @@ QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
     // if the Xft font is not antialiased, it uses bitmaps instead of
     // 8-bit alpha maps... adjust the cache_cost to reflect this
     Bool antialiased = true;
-    if (XftPatternGetBool(pattern, XFT_ANTIALIAS,
+    if (XftPatternGetBool(_font->pattern, XFT_ANTIALIAS,
 			  0, &antialiased) == XftResultMatch &&
 	! antialiased) {
         cache_cost /= 8;
@@ -813,9 +471,7 @@ QFontEngineXft::~QFontEngineXft()
     XftUnlockFace(_font);
 
     XftFontClose(QX11Info::display(),_font);
-    XftPatternDestroy(_pattern);
     _font = 0;
-    _pattern = 0;
     TransformedFont *trf = transformed_fonts;
     while (trf) {
         XftFontClose(QX11Info::display(), trf->xft_font);
@@ -941,7 +597,7 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
 
     XftFont *fnt = 0;
     XftMatrix *mat = 0;
-    XftPatternGetMatrix(_pattern, XFT_MATRIX, 0, &mat);
+    XftPatternGetMatrix(_font->pattern, XFT_MATRIX, 0, &mat);
     XftMatrix m2;
     qreal scale = matrix.det();
     scale = sqrt(qAbs(scale));
@@ -996,11 +652,11 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
             XftMatrixScale(&m2, 1/scale, 1/scale);
 #endif
         }
-        XftPattern *pattern = XftPatternDuplicate(_pattern);
+        XftPattern *pattern = XftPatternDuplicate(_font->pattern);
         XftPatternDel(pattern, XFT_MATRIX);
         XftPatternAddMatrix(pattern, XFT_MATRIX, &m2);
         double size;
-        XftPatternGetDouble(_pattern, XFT_PIXEL_SIZE, 0, &size);
+        XftPatternGetDouble(_font->pattern, XFT_PIXEL_SIZE, 0, &size);
         XftPatternDel(pattern, XFT_SIZE);
         XftPatternDel(pattern, XFT_PIXEL_SIZE);
 //             qDebug("setting new size: orig=%f, scale=%f, new=%f", size, scale, size*scale);
@@ -1185,16 +841,12 @@ qreal QFontEngineXft::lineThickness() const
     int lw = score / 700;
 
     // looks better with thicker line for small pointsizes
-    if (lw < 2 && score >= 1050) lw = 2;
-    if (lw == 0) lw = 1;
+    if (lw < 2 && score >= 1050)
+        lw = 2;
+    if (lw == 0)
+        lw = 1;
 
     return lw;
-}
-
-// #### use Freetype to determine this
-qreal QFontEngineXft::underlinePosition() const
-{
-    return ((lineThickness() * 2) + 3) / 6;
 }
 
 qreal QFontEngineXft::maxCharWidth() const
@@ -1229,8 +881,7 @@ static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
 qreal QFontEngineXft::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
-        minRightBearing(); // calculates both
-
+        (void) minRightBearing(); // calculates both
     return lbearing;
 }
 
@@ -1251,24 +902,12 @@ qreal QFontEngineXft::minRightBearing() const
             }
         }
     }
-
     return rbearing;
-}
-
-int QFontEngineXft::cmap() const
-{
-    return _cmap;
-}
-
-const char *QFontEngineXft::name() const
-{
-    return "xft";
 }
 
 bool QFontEngineXft::canRender(const QChar *string, int len)
 {
     bool allExist = true;
-
     if (_cmap != -1) {
         for ( int i = 0; i < len; i++ ) {
             if (!XftCharExists(0, _font, string[i].unicode())
@@ -1285,7 +924,6 @@ bool QFontEngineXft::canRender(const QChar *string, int len)
             }
         }
     }
-
     return allExist;
 }
 
@@ -1303,10 +941,4 @@ QOpenType *QFontEngineXft::openType() const
     return _openType;
 }
 
-QFontEngine::Type QFontEngineXft::type() const
-{
-    return Xft;
-}
-
 #endif // QT_NO_XFT
-

@@ -18,8 +18,8 @@
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qt API.  It exists for the convenience
-// of other Qt classes.  This header file may change from version to
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
 // version without notice, or even be removed.
 //
 // We mean it.
@@ -46,12 +46,12 @@ struct QGlyphLayout;
 class QFontEngine
 {
 public:
-
     enum Type {
-        // X11 types
         Box,
+        Multi,
+
+        // X11 types
         XLFD,
-        LatinXLFD,
         Xft,
 
         // MS Windows types
@@ -81,7 +81,6 @@ public:
         cache_count = 0;
         _scale = 1;
     }
-
     virtual ~QFontEngine();
 
     virtual FECaps capabilites() const = 0;
@@ -129,6 +128,7 @@ public:
     QFontDef fontDef;
     uint cache_cost; // amount of mem used in kb by the font
     int cache_count;
+    qreal _scale;
 
 #ifdef Q_WS_WIN
     void getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
@@ -151,7 +151,6 @@ public:
     qreal lbearing;
     qreal rbearing;
 #endif // Q_WS_WIN
-    qreal _scale;
 };
 
 
@@ -282,173 +281,7 @@ private:
     int _size;
 };
 
-#ifdef Q_WS_X11
-#include <private/qt_x11_p.h>
-
-class QTextCodec;
-
-#ifndef QT_NO_XFT
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-struct TransformedFont
-{
-    qreal xx;
-    qreal xy;
-    qreal yx;
-    qreal yy;
-    union {
-        XftFont *xft_font;
-    };
-    TransformedFont *next;
-};
-
-class QFontEngineXft : public QFontEngine
-{
-public:
-    QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap);
-    ~QFontEngineXft();
-
-    FECaps capabilites() const;
-
-    QOpenType *openType() const;
-
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-
-    virtual void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
-    qreal lineThickness() const;
-    qreal underlinePosition() const;
-    qreal maxCharWidth() const;
-    qreal minLeftBearing() const;
-    qreal minRightBearing() const;
-
-    int cmap() const;
-    const char *name() const;
-
-    bool canRender(const QChar *string,  int len);
-
-    Type type() const;
-    XftPattern *pattern() const { return _pattern; }
-
-    void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
-
-    FT_Face freetypeFace() const { return _face; }
-    XftFont *xftFont() const { return _font; }
-    XftFont *transformedFont(const QMatrix &matrix);
-private:
-    friend class QFontPrivate;
-    friend class QOpenType;
-    XftFont *_font;
-    XftPattern *_pattern;
-    FT_Face _face;
-    QOpenType *_openType;
-    int _cmap;
-    qreal lbearing;
-    qreal rbearing;
-    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable struct { qreal x; qreal y; } widthCache[widthCacheSize];
-    glyph_t cmapCache[cmapCacheSize];
-
-    TransformedFont *transformed_fonts;
-};
-#endif
-
-class QFontEngineLatinXLFD;
-
-class QFontEngineXLFD : public QFontEngine
-{
-public:
-    QFontEngineXLFD(XFontStruct *fs, const char *name, int cmap);
-    ~QFontEngineXLFD();
-
-    FECaps capabilites() const;
-
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
-    qreal maxCharWidth() const;
-    qreal minLeftBearing() const;
-    qreal minRightBearing() const;
-
-    int cmap() const;
-    const char *name() const;
-
-    bool canRender(const QChar *string,  int len);
-
-    Type type() const;
-
-    Qt::HANDLE handle() const { return (Qt::HANDLE) _fs->fid; }
-
-private:
-    friend class QFontPrivate;
-    XFontStruct *_fs;
-    QByteArray _name;
-    QTextCodec *_codec;
-    int _cmap;
-    qreal lbearing;
-    qreal rbearing;
-
-    friend class QFontEngineLatinXLFD;
-};
-
-class QFontEngineLatinXLFD : public QFontEngine
-{
-public:
-    QFontEngineLatinXLFD(XFontStruct *xfs, const char *name, int cmap);
-    ~QFontEngineLatinXLFD();
-
-    FECaps capabilites() const;
-
-    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
-
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
-    glyph_metrics_t boundingBox(glyph_t glyph);
-
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
-    qreal maxCharWidth() const;
-    qreal minLeftBearing() const;
-    qreal minRightBearing() const;
-
-    int cmap() const { return -1; } // ###
-    const char *name() const;
-
-    bool canRender(const QChar *string,  int len);
-
-    void setScale(qreal scale);
-    qreal scale() const { return _engines[0]->scale(); }
-    Type type() const { return LatinXLFD; }
-
-    Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
-    QFontEngine *engine(int i) { return _engines[i]; }
-
-private:
-    void findEngine(const QChar &ch);
-
-    QFontEngine **_engines;
-    int _count;
-
-    glyph_t   glyphIndices [0x200];
-    qreal glyphAdvances[0x200];
-    glyph_t euroIndex;
-    qreal euroAdvance;
-};
-
-
-#elif defined(Q_WS_MAC)
+#if defined(Q_WS_MAC)
 #include <private/qt_mac_p.h>
 #include <qmap.h>
 #include <qcache.h>
@@ -530,6 +363,50 @@ public:
 };
 
 #endif // Q_WS_WIN
+
+
+class QFontEngineMulti : public QFontEngine
+{
+public:
+    explicit QFontEngineMulti(int engineCount);
+    ~QFontEngineMulti();
+
+    FECaps capabilites() const;
+
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
+                      QTextEngine::ShaperFlags flags) const;
+
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
+
+    qreal ascent() const;
+    qreal descent() const;
+    qreal leading() const;
+    qreal maxCharWidth() const;
+    qreal minLeftBearing() const;
+    qreal minRightBearing() const;
+
+    inline Type type() const
+    { return QFontEngine::Multi; }
+
+    bool canRender(const QChar *string,  int len);
+    inline const char *name() const
+    { return "Multi"; }
+
+    void setScale(qreal s);
+    qreal scale() const;
+
+    QFontEngine *engine(int at) const;
+
+protected:
+    virtual void loadEngine(int at) = 0;
+    QVector<QFontEngine *> engines;
+};
+
+
+#if defined(Q_WS_X11)
+#  include "qfontengine_x11_p.h"
+#endif
 
 class QTestFontEngine : public QFontEngineBox
 {

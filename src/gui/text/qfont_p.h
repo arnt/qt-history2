@@ -28,6 +28,7 @@
 #include "qfont.h"
 #include "qmap.h"
 #include "qobject.h"
+#include <private/qunicodetables_p.h>
 
 // forwards
 class QFontEngine;
@@ -109,7 +110,7 @@ public:
     uint lineWidth;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-    QFontEngine *engines[QFont::LastPrivateScript];
+    QFontEngine *engines[QUnicodeTables::ScriptCount];
 #else
     QFontEngine *engine;
 #endif // Q_WS_X11 || Q_WS_WIN
@@ -123,7 +124,6 @@ public:
 class Q_GUI_EXPORT QFontPrivate
 {
 public:
-    static QFont::Script defaultScript;
 #ifdef Q_WS_X11
     static int defaultEncodingID;
 #endif // Q_WS_X11
@@ -132,20 +132,23 @@ public:
     QFontPrivate(const QFontPrivate &other);
     ~QFontPrivate();
 
-    void load(QFont::Script script);
-    QFontEngine *engineForScript(QFont::Script script) const {
-        if (script == QFont::NoScript)
-            script = QFontPrivate::defaultScript;
+    void load(int script);
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-        if (! engineData || ! engineData->engines[script])
+    inline QFontEngine *engineForScript(int script) const
+    {
+        if (!engineData || !engineData->engines[script])
             const_cast<QFontPrivate *>(this)->load(script);
         return engineData->engines[script];
+    }
 #else
-        if (! engineData || ! engineData->engine)
+    inline QFontEngine *engineForScript(int script) const
+    {
+        if (!engineData || !engineData->engine)
             const_cast<QFontPrivate *>(this)->load(script);
         return engineData->engine;
-#endif // Q_WS_X11 || Q_WS_WIN
     }
+#endif // Q_WS_X11 || Q_WS_WIN
+
     QAtomic ref;
     QFontDef request;
     QFontEngineData *engineData;
@@ -194,7 +197,7 @@ public:
     // the same keys
     struct Key {
         Key() : script(0), screen(0) { }
-        Key(const QFontDef &d, QFont::Script c, int s = 0)
+        Key(const QFontDef &d, int c, int s = 0)
             : def(d), script(c), screen(s) { }
 
         QFontDef def;

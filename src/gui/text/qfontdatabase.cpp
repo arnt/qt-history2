@@ -303,8 +303,13 @@ QtFontStyle *QtFontFoundry::style(const QtFontStyle::Key &key, bool create)
 
 struct QtFontFamily
 {
-    enum ScriptStatus { Unknown = 0, Supported = 1,
-                        UnSupported_Xft= 2, UnSupported_Xlfd = 4, UnSupported = 6 };
+    enum ScriptStatus {
+        Unknown         = 0,
+        Supported       = 1,
+        UnsupportedXft  = 2,
+        UnsupportedXLFD = 4,
+        Unsupported     = UnsupportedXft | UnsupportedXLFD
+    };
 
     QtFontFamily(const QString &n)
         :
@@ -320,7 +325,7 @@ struct QtFontFamily
         fixedPitchComputed(false),
 #endif
         fullyLoaded(false),
-          name(n), count(0), foundries(0) {
+        name(n), count(0), foundries(0) {
         memset(scripts, 0, sizeof(scripts));
     }
     ~QtFontFamily() {
@@ -355,7 +360,7 @@ struct QtFontFamily
     int count;
     QtFontFoundry **foundries;
 
-    unsigned char scripts[QFont::LastPrivateScript];
+    unsigned char scripts[QUnicodeTables::ScriptCount];
 
     QtFontFoundry *foundry(const QString &f, bool = false);
 };
@@ -442,186 +447,6 @@ QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
     return families[pos];
 }
 
-static const unsigned short sample_chars[QFont::LastPrivateScript] =
-{
-    // European Alphabetic Scripts
-    // Latin,
-    0x0041,
-    // Greek,
-    0x0391,
-    // Cyrillic,
-    0x0410,
-    // Armenian,
-    0x0540,
-    // Georgian,
-    0x10d0,
-    // Runic,
-    0x16a0,
-    // Ogham,
-    0x1680,
-    // SpacingModifiers,
-    0x02c6,
-    // CombiningMarks,
-    0x0300,
-
-    // Middle Eastern Scripts
-    // Hebrew,
-    0x05d0,
-    // Arabic,
-    0x0630,
-    // Syriac,
-    0x0710,
-    // Thaana,
-    0x0780,
-
-    // South and Southeast Asian Scripts
-    // Devanagari,
-    0x0910,
-    // Bengali,
-    0x0990,
-    // Gurmukhi,
-    0x0a10,
-    // Gujarati,
-    0x0a90,
-    // Oriya,
-    0x0b10,
-    // Tamil,
-    0x0b90,
-    // Telugu,
-    0x0c10,
-    // Kannada,
-    0x0c90,
-    // Malayalam,
-    0x0d10,
-    // Sinhala,
-    0x0d90,
-    // Thai,
-    0x0e10,
-    // Lao,
-    0x0e81,
-    // Tibetan,
-    0x0f00,
-    // Myanmar,
-    0x1000,
-    // Khmer,
-    0x1780,
-
-    // East Asian Scripts
-    // Han,
-    0x4e00,
-    // Hiragana,
-    0x3050,
-    // Katakana,
-    0x30b0,
-    // Hangul,
-    0xac00,
-    // Bopomofo,
-    0x3110,
-    // Yi,
-    0xa000,
-
-    // Additional Scripts
-    // Ethiopic,
-    0x1200,
-    // Cherokee,
-    0x13a0,
-    // CanadianAboriginal,
-    0x1410,
-    // Mongolian,
-    0x1800,
-
-    // Symbols
-    // CurrencySymbols,
-    0x20aa,
-    // LetterlikeSymbols,
-    0x2122,
-    // NumberForms,
-    0x2160,
-    // MathematicalOperators,
-    0x222b,
-    // TechnicalSymbols,
-    0x2312,
-    // GeometricSymbols,
-    0x2500,
-    // MiscellaneousSymbols,
-    0x2640,
-    // EnclosedAndSquare,
-    0x2460,
-    // Braille,
-    0x2800,
-
-    // Unicode,
-    0xfffd,
-
-    // some scripts added in Unicode 3.2
-    // Tagalog,
-    0x1700,
-    // Hanunoo,
-    0x1720,
-    // Buhid,
-    0x1740,
-    // Tagbanwa,
-    0x1770,
-
-    // KatakanaHalfWidth
-    0xff65,
-
-    // Limbu
-    0x1901,
-    // TaiLe
-    0x1950,
-
-    // NScripts
-    0x0000,
-    // NoScript
-    0x0000,
-
-    // Han_Japanese
-    0x4e00,
-    // Han_SimplifiedChinese,
-    0x4e00,
-    // Han_TraditionalChinese,
-    0x4e00,
-    // Han_Korean
-    0x4e00
-};
-
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
-static inline bool requiresOpenType(QFont::Script s)
-{
-    return (s >= QFont::Syriac && s <= QFont::Sinhala)
-                 || (s >= QFont::Myanmar && s <= QFont::Khmer);
-}
-#endif
-
-// returns a sample unicode character for the specified script
-static QChar sampleCharacter(QFont::Script script)
-{
-    return QChar(sample_chars[script]);
-}
-
-static inline bool canRender(QFontEngine *fe, QFont::Script script)
-{
-    if (!fe) return false;
-
-    QChar sample = sampleCharacter(script);
-    bool hasChar = fe->canRender(&sample, 1);
-
-#ifdef FONT_MATCH_DEBUG
-    if (hasChar)
-        FM_DEBUG("    font has char 0x%04x", sample.unicode());
-#endif
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
-    if (hasChar && requiresOpenType(script)) {
-        QOpenType *ot = fe->openType();
-        if (!ot || !ot->supportsScript(script))
-            return false;
-    }
-#endif
-
-    return hasChar;
-}
-
 
 static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
 static QFontDatabasePrivate *db=0;
@@ -670,7 +495,7 @@ static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &st
 }
 
 #if defined(Q_WS_X11)
-static QtFontEncoding *findEncoding(QFont::Script script, int styleStrategy,
+static QtFontEncoding *findEncoding(int script, int styleStrategy,
                                     QtFontSize *size, int force_encoding_id)
 {
     QtFontEncoding *encoding = 0;
@@ -709,7 +534,7 @@ static QtFontEncoding *findEncoding(QFont::Script script, int styleStrategy,
 #endif // Q_WS_X11
 
 static
-unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStrategy,
+unsigned int bestFoundry(int script, unsigned int score, int styleStrategy,
                          const QtFontFamily *family, const QString &foundry_name,
                          QtFontStyle::Key styleKey, int pixelSize, char pitch,
                          QtFontFoundry **best_foundry, QtFontStyle **best_style,
@@ -890,7 +715,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
     \internal
 */
 QFontEngine *
-QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
+QFontDatabase::findFont(int script, const QFontPrivate *fp,
                         const QFontDef &request, int
 #ifdef Q_WS_X11
                         force_encoding_id
@@ -940,25 +765,6 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
     parseFontName(request.family, foundry_name, family_name);
 
-#ifdef Q_WS_X11
-    if (family_name.isEmpty() && script == QFont::Han) {
-        // modify script according to locale
-        static QFont::Script defaultHan = QFont::UnknownScript;
-        if (defaultHan == QFont::UnknownScript) {
-            QByteArray locale = setlocale(LC_ALL, NULL);
-            if (locale.contains("ko"))
-                defaultHan = QFont::Han_Korean;
-            else if (locale.contains("zh_TW"))
-                defaultHan = QFont::Han_TraditionalChinese;
-            else if (locale.contains("zh"))
-                defaultHan = QFont::Han_SimplifiedChinese;
-            else
-                defaultHan = QFont::Han_Japanese;
-        }
-        script = defaultHan;
-    }
-#endif
-
     FM_DEBUG("QFontDatabase::findFont\n"
              "  request:\n"
              "    family: %s [%s], script: %d (%s)\n"
@@ -976,16 +782,6 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
         fe->fontDef = request;
     }
 
-    bool usesFontConfigFont = false;
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
-    if (family_name.isEmpty()
-        || family_name == "Sans Serif"
-        || family_name == "Serif"
-        || family_name == "Monospace") {
-        fe = loadFontConfigFont(fp, request, script);
-        usesFontConfigFont = (fe != 0);
-    }
-#endif
     if (!fe)
     {
         QtFontFamily *best_family = 0;
@@ -1003,11 +799,6 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
         for (int x = 0; x < db->count; ++x) {
             QtFontFamily *try_family = db->families[x];
 
-#ifdef Q_WS_X11
-            if (try_family->synthetic)
-                continue;
-#endif
-
             if (!family_name.isEmpty()
                 && ucstricmp(try_family->name, family_name) != 0
 #ifdef Q_WS_WIN
@@ -1020,41 +811,11 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 load(try_family->name, script);
 
             uint score_adjust = 0;
-            QFont::Script override_script = script;
-            if (!(try_family->scripts[script] & QtFontFamily::Supported) && script != QFont::Unicode) {
+            int override_script = script;
+
+            if (!(try_family->scripts[script] & QtFontFamily::Supported)) {
                 // family not supported in the script we want
-#ifdef Q_WS_X11
-                if (script >= QFont::Han_Japanese && script <= QFont::Han_Korean
-                    && try_family->scripts[QFont::Han] == QtFontFamily::Supported) {
-                    // try with the han script instead, give it a penalty
-                    if (override_script == QFont::Han_TraditionalChinese
-                        && (try_family->scripts[QFont::Han_SimplifiedChinese] & QtFontFamily::Supported)) {
-                        override_script = QFont::Han_SimplifiedChinese;
-                        score_adjust = 200;
-                    } else if (override_script == QFont::Han_SimplifiedChinese
-                               && (try_family->scripts[QFont::Han_TraditionalChinese] & QtFontFamily::Supported)) {
-                        override_script = QFont::Han_TraditionalChinese;
-                        score_adjust = 200;
-                    } else {
-                        override_script = QFont::Han;
-                        score_adjust = 400;
-                    }
-                } else
-#endif
-                    if (family_name.isEmpty()) {
-                        continue;
-                    } else if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
-                        // try with the unknown script (for a symbol font)
-                        override_script = QFont::UnknownScript;
-#ifndef QT_NO_XFT
-                    } else if (try_family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
-                        // try with the unicode script instead
-                        override_script = QFont::Unicode;
-#endif
-                    } else {
-                        // family not supported by unicode/unknown scripts
-                        continue;
-                    }
+                continue;
             }
 
             QtFontFoundry *try_foundry = 0;
@@ -1132,6 +893,8 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                             , best_size
 #endif
                 );
+        } else {
+            FM_DEBUG("  NO MATCH FOUND\n");
         }
         if (fe) {
             fe->fontDef.family = best_family->name;
@@ -1161,12 +924,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
 
     if (fe) {
-        if (script != QFont::Unicode && !canRender(fe, script)) {
-            FM_DEBUG("  WARN: font loaded cannot render sample 0x%04x",
-                     sampleCharacter(script).unicode());
-            delete fe;
-            fe = 0;
-        } else if (fp) {
+        if (fp) {
             QFontDef def = request;
             if (def.family.isEmpty()) {
                 def.family = fp->request.family;
@@ -1178,18 +936,6 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 #endif
                 );
             QFontCache::instance->insertEngine(key, fe);
-
-            if (!usesFontConfigFont) {
-                for (int i = 0; i < QFont::NScripts; ++i) {
-                    if (i == script) continue;
-
-                    if (!canRender(fe, (QFont::Script) i))
-                        continue;
-
-                    key.script = i;
-                    QFontCache::instance->insertEngine(key, fe);
-                }
-            }
         }
     }
     if (!fe) {
@@ -1298,9 +1044,8 @@ QString QFontDatabase::styleString(const QFont &f)
 
     The QFontDatabase class also supports some static functions, for
     example, standardSizes(). You can retrieve the Unicode 3.0
-    description of a \link QFont::Script script\endlink using
-    scriptName(), and a sample of characters in a script with
-    scriptSample().
+    description of a script using scriptName(), and a sample of
+    characters in a script with scriptSample().
 
     Example:
 \code
@@ -1380,6 +1125,7 @@ QStringList QFontDatabase::families() const
     return flist;
 }
 
+#if 0
 /*!
     \overload
 
@@ -1390,7 +1136,7 @@ QStringList QFontDatabase::families() const
     that font is in the form "family [foundry]". Examples: "Times
     [Adobe]", "Times [Cronyx]", "Palatino".
 */
-QStringList QFontDatabase::families(QFont::Script script) const
+QStringList QFontDatabase::families(int script) const
 {
     load();
 
@@ -1418,6 +1164,7 @@ QStringList QFontDatabase::families(QFont::Script script) const
     }
     return flist;
 }
+#endif
 
 /*!
     Returns a list of the styles available for the font family \a
@@ -1854,223 +1601,90 @@ int QFontDatabase::weight(const QString &family,
     Returns a string that gives a default description of the \a script
     (e.g. for displaying to the user in a dialog).  The name matches
     the name of the script as defined by the Unicode 3.0 standard.
-
-    \sa QFont::Script
 */
-QString QFontDatabase::scriptName(QFont::Script script)
+QString QFontDatabase::scriptName(int script)
 {
+    Q_ASSERT_X(script >= 0 && script < QUnicodeTables::ScriptCount, "QFontDatabase::scriptName",
+               "argument out of range");
     const char *name = 0;
-
     switch (script) {
-    case QFont::Latin:
-        name = QT_TRANSLATE_NOOP("QFont",  "Latin");
+    case QUnicodeTables::Latin:
+        name = "Latin";
         break;
-    case QFont::Greek:
-        name = QT_TRANSLATE_NOOP("QFont",  "Greek");
+    case QUnicodeTables::Hebrew:
+        name = "Hebrew";
         break;
-    case QFont::Cyrillic:
-        name = QT_TRANSLATE_NOOP("QFont",  "Cyrillic");
+    case QUnicodeTables::Arabic:
+        name = "Arabic";
         break;
-    case QFont::Armenian:
-        name = QT_TRANSLATE_NOOP("QFont",  "Armenian");
+    case QUnicodeTables::Syriac:
+        name = "Syriac";
         break;
-    case QFont::Georgian:
-        name = QT_TRANSLATE_NOOP("QFont",  "Georgian");
+    case QUnicodeTables::Thaana:
+        name = "Thaana";
         break;
-    case QFont::Runic:
-        name = QT_TRANSLATE_NOOP("QFont",  "Runic");
+    case QUnicodeTables::Devanagari:
+        name = "Devanagari";
         break;
-    case QFont::Ogham:
-        name = QT_TRANSLATE_NOOP("QFont",  "Ogham");
+    case QUnicodeTables::Bengali:
+        name = "Bengali";
         break;
-    case QFont::SpacingModifiers:
-        name = QT_TRANSLATE_NOOP("QFont",  "SpacingModifiers");
+    case QUnicodeTables::Gurmukhi:
+        name = "Gurmukhi";
         break;
-    case QFont::CombiningMarks:
-        name = QT_TRANSLATE_NOOP("QFont",  "CombiningMarks");
+    case QUnicodeTables::Gujarati:
+        name = "Gujarati";
         break;
-    case QFont::Hebrew:
-        name = QT_TRANSLATE_NOOP("QFont",  "Hebrew");
+    case QUnicodeTables::Oriya:
+        name = "Oriya";
         break;
-    case QFont::Arabic:
-        name = QT_TRANSLATE_NOOP("QFont",  "Arabic");
+    case QUnicodeTables::Tamil:
+        name = "Tamil";
         break;
-    case QFont::Syriac:
-        name = QT_TRANSLATE_NOOP("QFont",  "Syriac");
+    case QUnicodeTables::Telugu:
+        name = "Telugu";
         break;
-    case QFont::Thaana:
-        name = QT_TRANSLATE_NOOP("QFont",  "Thaana");
+    case QUnicodeTables::Kannada:
+        name = "Kannada";
         break;
-    case QFont::Devanagari:
-        name = QT_TRANSLATE_NOOP("QFont",  "Devanagari");
+    case QUnicodeTables::Malayalam:
+        name = "Malayalam";
         break;
-    case QFont::Bengali:
-        name = QT_TRANSLATE_NOOP("QFont",  "Bengali");
+    case QUnicodeTables::Sinhala:
+        name = "Sinhala";
         break;
-    case QFont::Gurmukhi:
-        name = QT_TRANSLATE_NOOP("QFont",  "Gurmukhi");
+    case QUnicodeTables::Thai:
+        name = "Thai";
         break;
-    case QFont::Gujarati:
-        name = QT_TRANSLATE_NOOP("QFont",  "Gujarati");
+    case QUnicodeTables::Lao:
+        name = "Lao";
         break;
-    case QFont::Oriya:
-        name = QT_TRANSLATE_NOOP("QFont",  "Oriya");
+    case QUnicodeTables::Tibetan:
+        name = "Tibetan";
         break;
-    case QFont::Tamil:
-        name = QT_TRANSLATE_NOOP("QFont",  "Tamil");
+    case QUnicodeTables::Myanmar:
+        name = "Myanmar";
         break;
-    case QFont::Telugu:
-        name = QT_TRANSLATE_NOOP("QFont",  "Telugu");
+    case QUnicodeTables::Hangul:
+        name = "Hangul";
         break;
-    case QFont::Kannada:
-        name = QT_TRANSLATE_NOOP("QFont",  "Kannada");
-        break;
-    case QFont::Malayalam:
-        name = QT_TRANSLATE_NOOP("QFont",  "Malayalam");
-        break;
-    case QFont::Sinhala:
-        name = QT_TRANSLATE_NOOP("QFont",  "Sinhala");
-        break;
-    case QFont::Thai:
-        name = QT_TRANSLATE_NOOP("QFont",  "Thai");
-        break;
-    case QFont::Lao:
-        name = QT_TRANSLATE_NOOP("QFont",  "Lao");
-        break;
-    case QFont::Tibetan:
-        name = QT_TRANSLATE_NOOP("QFont",  "Tibetan");
-        break;
-    case QFont::Myanmar:
-        name = QT_TRANSLATE_NOOP("QFont",  "Myanmar");
-        break;
-    case QFont::Khmer:
-        name = QT_TRANSLATE_NOOP("QFont",  "Khmer");
-        break;
-    case QFont::Han:
-        name = QT_TRANSLATE_NOOP("QFont",  "Han");
-        break;
-    case QFont::Hiragana:
-        name = QT_TRANSLATE_NOOP("QFont",  "Hiragana");
-        break;
-    case QFont::Katakana:
-        name = QT_TRANSLATE_NOOP("QFont",  "Katakana");
-        break;
-    case QFont::Hangul:
-        name = QT_TRANSLATE_NOOP("QFont",  "Hangul");
-        break;
-    case QFont::Bopomofo:
-        name = QT_TRANSLATE_NOOP("QFont",  "Bopomofo");
-        break;
-    case QFont::Yi:
-        name = QT_TRANSLATE_NOOP("QFont",  "Yi");
-        break;
-    case QFont::Ethiopic:
-        name = QT_TRANSLATE_NOOP("QFont",  "Ethiopic");
-        break;
-    case QFont::Cherokee:
-        name = QT_TRANSLATE_NOOP("QFont",  "Cherokee");
-        break;
-    case QFont::CanadianAboriginal:
-        name = QT_TRANSLATE_NOOP("QFont",  "Canadian Aboriginal");
-        break;
-    case QFont::Mongolian:
-        name = QT_TRANSLATE_NOOP("QFont",  "Mongolian");
-        break;
-
-    case QFont::CurrencySymbols:
-        name = QT_TRANSLATE_NOOP("QFont",  "Currency Symbols");
-        break;
-
-    case QFont::LetterlikeSymbols:
-        name = QT_TRANSLATE_NOOP("QFont",  "Letterlike Symbols");
-        break;
-
-    case QFont::NumberForms:
-        name = QT_TRANSLATE_NOOP("QFont",  "Number Forms");
-        break;
-
-    case QFont::MathematicalOperators:
-        name = QT_TRANSLATE_NOOP("QFont",  "Mathematical Operators");
-        break;
-
-    case QFont::TechnicalSymbols:
-        name = QT_TRANSLATE_NOOP("QFont",  "Technical Symbols");
-        break;
-
-    case QFont::GeometricSymbols:
-        name = QT_TRANSLATE_NOOP("QFont",  "Geometric Symbols");
-        break;
-
-    case QFont::MiscellaneousSymbols:
-        name = QT_TRANSLATE_NOOP("QFont",  "Miscellaneous Symbols");
-        break;
-
-    case QFont::EnclosedAndSquare:
-        name = QT_TRANSLATE_NOOP("QFont",  "Enclosed and Square");
-        break;
-
-    case QFont::Braille:
-        name = QT_TRANSLATE_NOOP("QFont",  "Braille");
-        break;
-
-    case QFont::Unicode:
-        name = QT_TRANSLATE_NOOP("QFont",  "Unicode");
-        break;
-
-    case QFont::Tagalog:
-        name = QT_TRANSLATE_NOOP("QFont", "Tagalog");
-        break;
-
-    case QFont::Hanunoo:
-        name = QT_TRANSLATE_NOOP("QFont", "Hanunoo");
-        break;
-
-    case QFont::Buhid:
-        name = QT_TRANSLATE_NOOP("QFont", "Buhid");
-        break;
-
-    case QFont::Tagbanwa:
-        name = QT_TRANSLATE_NOOP("QFont", "Tagbanwa");
-        break;
-
-    case QFont::KatakanaHalfWidth:
-        name = QT_TRANSLATE_NOOP("QFont", "Katakana Half-Width Forms");
-        break;
-
-    case QFont::Han_Japanese:
-        name = QT_TRANSLATE_NOOP("QFont", "Han (Japanese)");
-        break;
-
-    case QFont::Han_SimplifiedChinese:
-        name = QT_TRANSLATE_NOOP("QFont", "Han (Simplified Chinese)");
-        break;
-
-    case QFont::Han_TraditionalChinese:
-        name = QT_TRANSLATE_NOOP("QFont", "Han (Traditional Chinese)");
-        break;
-
-    case QFont::Han_Korean:
-        name = QT_TRANSLATE_NOOP("QFont", "Han (Korean)");
-        break;
-
-    default:
-        name = QT_TRANSLATE_NOOP("QFont", "Unknown Script");
+    case QUnicodeTables::Khmer:
+        name = "Khmer";
         break;
     }
-
     return qApp ? qApp->translate("QFont", name) : QString::fromLatin1(name);
 }
 
 
 /*!
     Returns a string with sample characters from \a script.
-
-    \sa QFont::Script
 */
-QString QFontDatabase::scriptSample(QFont::Script script)
+QString QFontDatabase::scriptSample(int script)
 {
     QString sample = "AaBb";
 
+    // ###
+#if 0
     switch (script) {
     case QFont::Latin:
         // This is cheating... we only show latin-1 characters so that we don't
@@ -2334,6 +1948,7 @@ QString QFontDatabase::scriptSample(QFont::Script script)
         sample += QChar(0xfffd);
         break;
     }
+#endif
 
     return sample;
 }

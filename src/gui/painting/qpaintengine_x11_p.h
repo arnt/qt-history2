@@ -152,12 +152,13 @@ public:
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
+    void drawMulti(const QPointF &p, const QTextItem &si);
     void drawBox(const QPointF &p, const QTextItem &si);
     void drawXLFD(const QPointF &p, const QTextItem &si);
-    void drawLatinXLFD(const QPointF &p, const QTextItem &si);
 #ifndef QT_NO_XFT
     void drawXft(const QPointF &p, const QTextItem &si);
 #endif
+
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
     friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w,  int h);

@@ -2170,14 +2170,14 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
         return;
 
     switch(ti.fontEngine->type()) {
+    case QFontEngine::Multi:
+        drawMulti(p, ti);
+        break;
     case QFontEngine::Box:
         drawBox(p, ti);
         break;
     case QFontEngine::XLFD:
         drawXLFD(p, ti);
-        break;
-    case QFontEngine::LatinXLFD:
-        drawLatinXLFD(p, ti);
         break;
 #ifndef QT_NO_XFT
     case QFontEngine::Xft:
@@ -2187,6 +2187,62 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     default:
         Q_ASSERT(false);
     }
+}
+
+void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItem &ti)
+{
+    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+    QGlyphLayout *glyphs = ti.glyphs;
+    int which = glyphs[0].glyph >> 24;
+
+    qreal x = p.x();
+    qreal y = p.y();
+
+    int start = 0;
+    int end, i;
+    for (end = 0; end < ti.num_glyphs; ++end) {
+        const int e = glyphs[end].glyph >> 24;
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+        // draw the text
+        QTextItem ti2 = ti;
+        ti2.glyphs = ti.glyphs + start;
+        ti2.num_glyphs = end - start;
+        ti2.fontEngine = multi->engine(which);
+        drawTextItem(QPointF(x, y), ti2);
+
+        // reset the high byte for all glyphs and advance to the next sub-string
+        const int hi = which << 24;
+        for (i = start; i < end; ++i) {
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+            x += glyphs[i].advance.x();
+        }
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+    // draw the text
+    QTextItem ti2 = ti;
+    ti2.glyphs = ti.glyphs + start;
+    ti2.num_glyphs = end - start;
+    ti2.fontEngine = multi->engine(which);
+    drawTextItem(QPointF(x,y), ti2);
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
 }
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti)
@@ -2234,7 +2290,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
 {
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
-    Qt::HANDLE font_id = xlfd->handle();
+    Qt::HANDLE font_id = xlfd->fontStruct()->fid;
     qreal scale = si.fontEngine->scale();
     if ( d->txop > QPainterPrivate::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
         // XServer or font don't support server side transformations, need to do it by hand
@@ -2341,64 +2397,6 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si)
     p->restore();
 #endif
 }
-
-
-void QX11PaintEngine::drawLatinXLFD(const QPointF &p, const QTextItem &si)
-{
-
-    QFontEngineLatinXLFD *lxlfd = static_cast<QFontEngineLatinXLFD *>(si.fontEngine);
-    QGlyphLayout *glyphs = si.glyphs;
-    int which = glyphs[0].glyph >> 8;
-
-    qreal x = p.x();
-    qreal y = p.y();
-
-    int start = 0;
-    int end, i;
-    for (end = 0; end < si.num_glyphs; ++end) {
-        const int e = glyphs[end].glyph >> 8;
-        if (e == which) continue;
-
-        // set the high byte to zero
-        for (i = start; i < end; ++i)
-            glyphs[i].glyph = glyphs[i].glyph & 0xff;
-
-        // draw the text
-        QTextItem si2 = si;
-        si2.glyphs = si.glyphs + start;
-        si2.num_glyphs = end - start;
-        si2.fontEngine = lxlfd->engine(which);
-        drawXLFD(QPointF(x, y), si2);
-
-        // reset the high byte for all glyphs and advance to the next sub-string
-        const int hi = which << 8;
-        for (i = start; i < end; ++i) {
-            glyphs[i].glyph = hi | glyphs[i].glyph;
-            x += glyphs[i].advance.x();
-        }
-
-        // change engine
-        start = end;
-        which = e;
-    }
-
-    // set the high byte to zero
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = glyphs[i].glyph & 0xff;
-
-    // draw the text
-    QTextItem si2 = si;
-    si2.glyphs = si.glyphs + start;
-    si2.num_glyphs = end - start;
-    si2.fontEngine = lxlfd->engine(which);
-    drawXLFD(QPointF(x,y), si2);
-
-    // reset the high byte for all glyphs
-    const int hi = which << 8;
-    for (i = start; i < end; ++i)
-        glyphs[i].glyph = hi | glyphs[i].glyph;
-}
-
 
 #ifndef QT_NO_XFT
 void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si)

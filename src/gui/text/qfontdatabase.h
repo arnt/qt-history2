@@ -40,7 +40,8 @@ public:
     QFontDatabase();
 
     QStringList families() const;
-    QStringList families(QFont::Script) const;
+    // ###
+    // QStringList families(QFont::Script) const;
     QStringList styles(const QString &) const;
     QList<int> pointSizes(const QString &, const QString & = QString::null);
     QList<int> smoothSizes(const QString &, const QString &);
@@ -57,8 +58,8 @@ public:
     bool bold(const QString &, const QString &) const;
     int weight(const QString &, const QString &) const;
 
-    static QString scriptName(QFont::Script);
-    static QString scriptSample(QFont::Script);
+    static QString scriptName(int script);
+    static QString scriptSample(int script);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList families(bool) const;
@@ -79,8 +80,8 @@ public:
 #endif // QT_COMPAT
 
 private:
-    static QFontEngine *findFont(QFont::Script script, const QFontPrivate *fp,
-                                  const QFontDef &request, int force_encoding_id = -1);
+    static QFontEngine *findFont(int script, const QFontPrivate *fp,
+                                 const QFontDef &request, int force_encoding_id = -1);
 
     static void createDatabase();
 

@@ -782,7 +782,7 @@ static void qgl_use_font(QFontEngineXft *engine, int first, int count, int listB
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
     QFont f(fnt);
-    QFontEngine *engine = f.d->engineForScript(QFont::Latin);
+    QFontEngine *engine = f.d->engineForScript(QUnicodeTables::Common);
 
 #ifndef QT_NO_XFT
     if(engine->type() == QFontEngine::Xft) {
