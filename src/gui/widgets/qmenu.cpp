@@ -1575,7 +1575,10 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 d->popupAction(d->currentAction, 20, true);
             } else {
                 d->hideUpToMenuBar();
-                d->activateAction(d->currentAction->action, QAction::Trigger);
+                if ( d->currentAction)
+                    d->activateAction(d->currentAction->action, QAction::Trigger);
+                else
+                    qWarning("QMenu::keyPressEvent(): no current action.");
             }
             key_consumed = true;
             break; }
