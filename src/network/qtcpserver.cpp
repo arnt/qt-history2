@@ -276,11 +276,11 @@ void QTcpServer::close()
     delete d->readSocketNotifier;
     d->readSocketNotifier = 0;
 
-    if (d->socketLayer.isValid())
-        d->socketLayer.close();
-
     qDeleteAll(d->pendingConnections);
     d->pendingConnections.clear();
+
+    if (d->socketLayer.isValid())
+        d->socketLayer.close();
 
     d->state = Qt::UnconnectedState;
 }
