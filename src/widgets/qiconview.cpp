@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#128 $
 **
 ** Definition of QIconView widget class
 **
@@ -1576,11 +1576,17 @@ void QIconViewItem::setIconRect( const QRect &r )
   left to right (East). The text can be either displayed at the bottom of the icons
   or the the right of the icons.
 
-  There can be specified different selection modes, which describe if more that one item
-  can be selected and under which conditions.
+  There is a variety of selection modes, described in the
+  QIconView::SelectionMode documentation. The default is
+  single-selection, and you can change it using setSelectionMode().
+    
+  Since QIconView offers multiple selection it has to display keyboard
+  focus and selection state separately.  Therefore there are functions
+  both to set the selection state of an item, setSelected(), and to
+  select which item displays keyboard focus, setCurrentItem().
 
-  Items can of course be selected. When multiple items may be selected, the iconview
-  provides a rubberband too.
+  When multiple items may be selected, the iconview provides a 
+  rubberband too.
 
   Items can also be in-place renamed.
 
@@ -1588,7 +1594,6 @@ void QIconViewItem::setIconRect( const QRect &r )
   the iconview itself using DnD. So the QIconView provides some methods for
   extended DnD too. To use DnD correctly in the iconview, please read following
   instructions:
-
 
 
 */
@@ -1609,14 +1614,38 @@ void QIconViewItem::setIconRect( const QRect &r )
 
 /*! \enum QIconView::SelectionMode
 
-  This enum type specifies the different selection modes of the
-  iconview.
-  <ul>
-  <li>\c Single (only one item can be selected)
-  <li>\c Multi (multiple items can be selected)
-  <li>\c Extended (multiple items can be selected, but only if the user pressed CTRL while selecting them)
-  <li>\c NoSelection (no items can be selected)
+  This enumerated type is used by QIconView to indicate how it reacts
+  to selection by the user.  It has four values: <ul>
+
+  <li> \c Single - When the user selects an item, any already-selected
+  item becomes unselected, and the user cannot unselect the selected
+  item. This means that the user can never clear the selection, even
+  though the selection may be cleared by the application programmer
+  using QIconView::clearSelection().
+
+  <li> \c Multi - When the user selects an item in the most ordinary
+  way, the selection status of that item is toggled and the other
+  items are left alone.
+
+  <li> \c Extended - When the user selects an item in the most
+  ordinary way, the selection is cleared and the new item selected.
+  However, if the user presses the CTRL key when clicking on an item,
+  the clicked item gets toggled and all other items are left untouched. And
+  if the user presses the SHIFT key while clicking on an item, all items
+  between the current item and the clicked item get selected or unselected
+  depending on the state of the clicked item.
+  Also multiple items can be selected by dragging the mouse while the
+  left mouse button stayes pressed.
+
+  <li> \c NoSelection - Items cannot be selected.
+
   </ul>
+
+  In other words, \c Single is a real single-selection iconview, \c
+  Multi a real multi-selection iconview, and \c Extended iconview
+  where users can select multiple items but usually want to select
+  either just one or a range of contiguous items, and \c NoSelection
+  is for a iconview where the user can look but not touch.
 */
 
 /*! \enum QIconView::AlignMode
@@ -2087,6 +2116,26 @@ void QIconView::setCurrentItem( QIconViewItem *item )
 }
 
 /*!
+  Selects / Unselects the \a item depending on the selectionMode of the iconview.
+
+  If \a s is FALSE, the item gets unselected. If \a s is TRUE
+  <li> and QIconView::selectionMode is Single, the item gets selected and the
+  item which was selected, gets unselected
+  <li> and QIconView::selectionMode is Extended and \a cb is TRUE, the
+  item gets selected
+  <li> and QIconView::selectionMode is Multi the item gets selected.
+
+  The item redraws itself if the selection changed.
+*/
+
+void QIconView::setSelected( QIconViewItem *item, bool s, bool cb )
+{
+    if ( !item )
+	return;
+    item->setSelected( s, cb );
+}
+
+/*!
   Returns the number of inserted items.
 */
 
@@ -2458,6 +2507,15 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
 	    return item;
 
     return 0;
+}
+
+/*!
+  Unselects all items.
+*/
+
+void QIconView::clearSelection()
+{
+    selectAll( FALSE );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#57 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#58 $
 **
 ** Definition of QIconView widget class
 **
@@ -289,7 +289,8 @@ public:
     QIconViewItem *selectedItem() const;
     QIconViewItem *currentItem() const;
     virtual void setCurrentItem( QIconViewItem *item );
-
+    virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
+    
     unsigned int count() const;
 
     virtual void setViewMode( QIconSet::Size mode );
@@ -312,6 +313,7 @@ public:
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     void selectAll( bool select );
+    void clearSelection();
 
     virtual void repaintItem( QIconViewItem *item );
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#311 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#312 $
 **
 ** Implementation of QListBox widget class
 **
@@ -586,6 +586,17 @@ int QListBoxPixmap::width( const QListBox* ) const
   There is a variety of selection modes, described in the
   QListBox::SelectionMode documentation. The default is
   single-selection, and you can change it using setSelectionMode().
+  For compatibility with previous Qt versions there is still the
+  setMultiSelection() methode. Calling setMultiSelection( TRUE )
+  is equivalent to setSelectionMode( Multi ), and setMultiSelection( FALSE )
+  is equivalent to setSelectionMode( Single ). It's suggested not to 
+  use setMultiSelection() anymore, but to use setSelectionMode()
+  instead.
+    
+  Since QListBox offers multiple selection it has to display keyboard
+  focus and selection state separately.  Therefore there are functions
+  both to set the selection state of an item, setSelected(), and to
+  select which item displays keyboard focus, setCurrentItem().
 
   The list box normally arranges its items in a single column with a
   vertical scroll bar if necessary, but it is also possible to have a
@@ -674,19 +685,23 @@ int QListBoxPixmap::width( const QListBox* ) const
 
   <li> \c Single - When the user selects an item, any already-selected
   item becomes unselected, and the user cannot unselect the selected
-  item.	 This means that the user can never clear the selection, even
+  item. This means that the user can never clear the selection, even
   though the selection may be cleared by the application programmer
-  using QListBox::clear().
-
-  <li> \c Extended - When the user selects an item in the most
-  ordinary way, the selection is cleared and the new item selected.
-  However, if the user then selects more items <em>in the same
-  operation</em> (by dragging the mouse), these other items are also
-  selected.  There may also be other ways to select multiple items.
+  using QListBox::clearSelection().
 
   <li> \c Multi - When the user selects an item in the most ordinary
   way, the selection status of that item is toggled and the other
   items are left alone.
+
+  <li> \c Extended - When the user selects an item in the most
+  ordinary way, the selection is cleared and the new item selected.
+  However, if the user presses the CTRL key when clicking on an item,
+  the clicked item gets toggled and all other items are left untouched. And
+  if the user presses the SHIFT key while clicking on an item, all items
+  between the current item and the clicked item get selected or unselected
+  depending on the state of the clicked item.
+  Also multiple items can be selected by dragging the mouse while the
+  left mouse button stayes pressed.
 
   <li> \c NoSelection - Items cannot be selected.
 
@@ -695,7 +710,7 @@ int QListBoxPixmap::width( const QListBox* ) const
   In other words, \c Single is a real single-selection list box, \c
   Multi a real multi-selection list box, and \c Extended list box
   where users can select multiple items but usually want to select
-  either just one or a range of contiguous items, and \c NoESelection
+  either just one or a range of contiguous items, and \c NoSelection
   is for a list box where the user can look but not touch.
 */
 
@@ -3273,6 +3288,6 @@ void QListBox::takeItem( const QListBoxItem * item)
 	    emit highlighted( tmp );
 	emit highlighted( tmp2 );
     }
-    
+
     triggerUpdate( TRUE );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#337 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#338 $
 **
 ** Implementation of QListView widget class
 **
@@ -1482,14 +1482,38 @@ void QListViewPrivate::Root::setup()
 
 /*! \enum QListView::SelectionMode
 
-  This enum type specifies the different selection modes of the
-  iconview.
-  <ul>
-  <li>\c Single (only one item can be selected)
-  <li>\c Multi (multiple items can be selected)
-  <li>\c Extended (multiple items can be selected, but only if the user pressed CTRL while selecting them)
-  <li>\c NoSelection (no items can be selected)
+  This enumerated type is used by QListView to indicate how it reacts
+  to selection by the user.  It has four values: <ul>
+
+  <li> \c Single - When the user selects an item, any already-selected
+  item becomes unselected, and the user cannot unselect the selected
+  item. This means that the user can never clear the selection, even
+  though the selection may be cleared by the application programmer
+  using QListView::clearSelection().
+
+  <li> \c Multi - When the user selects an item in the most ordinary
+  way, the selection status of that item is toggled and the other
+  items are left alone.
+
+  <li> \c Extended - When the user selects an item in the most
+  ordinary way, the selection is cleared and the new item selected.
+  However, if the user presses the CTRL key when clicking on an item,
+  the clicked item gets toggled and all other items are left untouched. And
+  if the user presses the SHIFT key while clicking on an item, all items
+  between the current item and the clicked item get selected or unselected
+  depending on the state of the clicked item.
+  Also multiple items can be selected by dragging the mouse while the
+  left mouse button stayes pressed.
+
+  <li> \c NoSelection - Items cannot be selected.
+
   </ul>
+
+  In other words, \c Single is a real single-selection listview, \c
+  Multi a real multi-selection listview, and \c Extended listview
+  where users can select multiple items but usually want to select
+  either just one or a range of contiguous items, and \c NoSelection
+  is for a listview where the user can look but not touch.
 */
 
 /*!
@@ -1513,10 +1537,6 @@ void QListViewPrivate::Root::setup()
 
   <li>setColumnWidthMode() - sets the column to be resized
   automatically or not.
-
-  <li>setMultiSelection() - decides whether one can select one or many
-  objects in this list view.  The default is FALSE (selecting one item
-  unselects any other selected item).
 
   <li>setAllColumnsShowFocus() - decides whether items should show
   keyboard focus using all columns, or just column 0.  The default is
@@ -1559,6 +1579,16 @@ void QListViewPrivate::Root::setup()
   explicit insertItem() for when QListViewItem's default insertion
   won't do.
 
+  There is a variety of selection modes, described in the
+  QListView::SelectionMode documentation. The default is
+  single-selection, and you can change it using setSelectionMode().
+  For compatibility with previous Qt versions there is still the
+  setMultiSelection() methode. Calling setMultiSelection( TRUE )
+  is equivalent to setSelectionMode( Multi ), and setMultiSelection( FALSE )
+  is equivalent to setSelectionMode( Single ). It's suggested not to 
+  use setMultiSelection() anymore, but to use setSelectionMode()
+  instead.
+    
   Since QListView offers multiple selection it has to display keyboard
   focus and selection state separately.  Therefore there are functions
   both to set the selection state of an item, setSelected(), and to
@@ -1571,7 +1601,7 @@ void QListViewPrivate::Root::setup()
   single-selection list view, and currentChanged( QListViewItem * ).
   The second group consists of doubleClicked( QListViewItem * ),
   returnPressed( QListViewItem * ) and rightButtonClicked(
-  QListViewItem *, const QPoint&, int ).
+  QListViewItem *, const QPoint&, int ), etc.
 
   In Motif style, QListView deviates fairly strongly from the look and
   feel of the Motif hierarchical tree view.  This is done mostly to
