@@ -246,7 +246,6 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
 	    return FALSE;
 	state = PST_ACTIVE;
     } else if ( c == PdcEnd ) {
-	qDebug("Done.. %d %d", hd, state);
 	if(hd && state != PST_IDLE) {
 	    PMSessionEndPage(psession);
 	    PMSessionEndDocument(psession);
