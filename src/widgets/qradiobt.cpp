@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#40 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -197,18 +197,18 @@ void QRadioButton::drawButton( QPainter *paint )
 	static QCOORD pts3[] =	{		// check mark
 	    5,3, 7,3, 9,5, 9,7, 7,9, 5,9, 3,7, 3,5 };
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->eraseRect( x, y, w, h );
 	p->setPen( g.foreground() );
 	p->drawPolyline( a );
 	if ( isDown() ) {			// draw fat circle
 	    a.setPoints( QCOORDARRLEN(pts2), pts2 );
-	    a.move( x, y );
+	    a.translate( x, y );
 	    p->drawPolyline( a );
 	}
 	if ( isOn() ) {				// draw check mark
 	    a.setPoints( QCOORDARRLEN(pts3), pts3 );
-	    a.move( x, y );
+	    a.translate( x, y );
 	    p->setBrush( g.foreground() );
 	    p->drawPolygon( a );
 	}
@@ -227,23 +227,23 @@ void QRadioButton::drawButton( QPainter *paint )
 	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 	p->eraseRect( x, y, w, h );
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->setPen( g.dark() );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts2), pts2 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->setPen( black );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts3), pts3 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->setPen( g.background() );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts4), pts4 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->setPen( white );
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->setPen( NoPen );
 	p->setBrush( isDown() ? g.background() : g.base() );
 	p->drawPolygon( a );
@@ -275,7 +275,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	    4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
 	p->setPen( g.dark() );
 	QPointArray a( QCOORDARRLEN(pts1), pts1 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->eraseRect( x, y, w, h );
 	p->drawPolyline( a );			// draw normal circle
 	QColor tc, bc;
@@ -295,11 +295,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	}
 	p->setPen( tc );
 	a.setPoints( QCOORDARRLEN(pts2), pts2 );
-	a.move( x, y );
+	a.translate( x, y );
 	p->drawLineSegments( a );		// draw top shadow
 	p->setPen( bc );
 	a.setPoints( bl, bp );
-	a.move( x, y );
+	a.translate( x, y );
 	p->drawLineSegments( a );
 	if ( isOn() ) {				// draw check mark
 	    int x1=x, y1=y;
@@ -310,12 +310,12 @@ void QRadioButton::drawButton( QPainter *paint )
 	    p->setBrush( g.foreground() );
 	    p->setPen( g.foreground() );
 	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
-	    a.move( x1, y1 );
+	    a.translate( x1, y1 );
 	    p->drawPolygon( a );
 	    p->setBrush( NoBrush );
 	    p->setPen( g.dark() );
 	    a.setPoints( QCOORDARRLEN(pts6), pts6 );
-	    a.move( x1, y1 );
+	    a.translate( x1, y1 );
 	    p->drawLineSegments( a );
 	}
     }
@@ -331,16 +331,16 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->eraseRect( x, y, w, h );
 	p->setPen( NoPen );
 	p->setBrush( showUp ? g.background() : g.mid() );
-	a.move( x, y );
+	a.translate( x, y );
 	p->drawPolygon( a );			// clear inner area
 	p->setPen( showUp ? g.light() : g.dark() );
 	p->setBrush( NoBrush );
 	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
-	a.move( x, y );
+	a.translate( x, y );
 	p->drawPolyline( a );			// draw top part
 	p->setPen( showUp ? g.dark() : g.light() );
 	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
-	a.move( x, y );
+	a.translate( x, y );
 	p->drawPolyline( a );			// draw bottom part
     }
 

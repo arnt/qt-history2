@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#52 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#52 $")
 
 
 /*----------------------------------------------------------------------------
@@ -709,7 +709,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 	x++;
 	y++;
     }
-    a.move( x+w/2, y+h/2 );
+    a.translate( x+w/2, y+h/2 );
 
     QPen savePen = p->pen();			// save current pen
     p->fillRect( x, y, w, h, g.background() );

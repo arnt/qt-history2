@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#64 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#64 $")
 
 
 // Mac style parameters
@@ -765,7 +765,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == MacStyle ) {
 	    QPointArray a;
 	    a.setPoints( 3, 0,-dim/2, 0,dim/2, dim/2,0 );
-	    a.move( cellw - motifArrowHMargin - dim, cellh/2-dim/2 );
+	    a.translate( cellw - motifArrowHMargin - dim, cellh/2-dim/2 );
 	    p->setBrush( g.foreground() );
 	    p->setPen( NoPen );
 	    p->drawPolygon( a );

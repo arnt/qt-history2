@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#42 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -248,7 +248,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	    }
 	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOORD)*2),
 			       check_mark );
-	    amark.move( x1, y1 );
+	    amark.translate( x1, y1 );
 	    p->setPen( g.foreground() );
 	    p->drawLineSegments( amark );
 	    p->setPen( g.dark() );
