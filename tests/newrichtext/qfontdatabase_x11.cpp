@@ -40,8 +40,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#define QT_NO_XFTFREETYPE
-
 #define QFONTDATABASE_DEBUG
 
 // ----- begin of generated code -----
@@ -557,6 +555,61 @@ static void loadXlfdEncoding( int encoding_id )
 
 
 }
+
+#ifndef QT_NO_XFTFREETYPE
+static void loadXft()
+{
+    if (!qt_has_xft)
+	return;
+
+    XftFontSet  *fonts;
+
+    QString familyName;
+    char *value;
+    int weight_value;
+    int slant_value;
+    int spacing_value;
+
+    fonts =
+	XftListFonts(QPaintDevice::x11AppDisplay(),
+		     QPaintDevice::x11AppScreen(),
+		     (const char *)0,
+		     XFT_FAMILY, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
+		     (const char *)0);
+
+    for (int i = 0; i < fonts->nfont; i++) {
+	if (XftPatternGetString(fonts->fonts[i],
+				XFT_FAMILY, 0, &value) != XftResultMatch )
+	    continue;
+	familyName = value;
+
+	slant_value = XFT_SLANT_ROMAN;
+	weight_value = XFT_WEIGHT_MEDIUM;
+	spacing_value = XFT_PROPORTIONAL;
+	XftPatternGetInteger (fonts->fonts[i], XFT_SLANT, 0, &slant_value);
+	XftPatternGetInteger (fonts->fonts[i], XFT_WEIGHT, 0, &weight_value);
+	XftPatternGetInteger (fonts->fonts[i], XFT_SPACING, 0, &spacing_value);
+
+	const int script = QFont::Unicode;
+
+	QtFontStyle::Key styleKey;
+	styleKey.italic = (slant_value == XFT_SLANT_ITALIC);
+	styleKey.oblique = (slant_value == XFT_SLANT_OBLIQUE);
+	styleKey.weight = getXftWeight( weight_value );
+
+	QtFontFamily *family = db->scripts[script].family( familyName.lower(), TRUE );
+	QtFontFoundry *foundry = family->foundry( QString( QChar(0xfffd) ),  TRUE );
+	QtFontStyle *style = foundry->style( styleKey,  TRUE );
+
+	style->smoothScalable = TRUE;
+	family->fixedPitch = ( spacing_value < XFT_MONO );
+    }
+
+    XftFontSetDestroy (fonts);
+}
+#endif
+
+
 #include <qdatetime.h>
 
 
@@ -573,150 +626,9 @@ void QFontDatabase::createDatabase()
     qDebug("loading took %d ms",  t.elapsed() );
 
 #ifndef QT_NO_XFTFREETYPE
-
-    if (qt_has_xft) {
-	XftFontSet  *foundries;
-	XftFontSet  *families;
-	XftFontSet  *styles;
-
-	QCString foundryName, familyName;
-	bool hasFoundries;
-    	char *value;
-	int weight_value;
-	int slant_value;
-	int spacing_value;
-	bool created_foundry = FALSE;
-	bool created_family = FALSE;
-
-	foundries = XftListFonts (QPaintDevice::x11AppDisplay(),
-				  QPaintDevice::x11AppScreen(),
-				  (const char *)0,
-				  XFT_FOUNDRY,
-				  (const char *)0);
-
-	for (int d = 0; d < foundries->nfont; d++) {
-	    created_foundry = FALSE;
-
-	    if (XftPatternGetString(foundries->fonts[d],
-				    XFT_FOUNDRY, 0, &value) == XftResultMatch) {
-		foundryName = value;
-		hasFoundries = TRUE;
-	    } else {
-		hasFoundries = FALSE;
-		foundryName = "xft";
-	    }
-
-	    QtFontFoundry *foundry = db->foundryDict.find( foundryName.lower() );
-	    if ( ! foundry ) {
-		foundry = new QtFontFoundry(foundryName.lower());
-		Q_CHECK_PTR(foundry);
-		created_foundry = TRUE;
-	    }
-
-	    if (hasFoundries)
-		families =
-		    XftListFonts(QPaintDevice::x11AppDisplay(),
-				 QPaintDevice::x11AppScreen(),
-				 XFT_FOUNDRY, XftTypeString, foundryName.data(), (const char *)0,
-				 XFT_FAMILY, (const char *)0);
-	    else
-		families =
-		    XftListFonts(QPaintDevice::x11AppDisplay(),
-				 QPaintDevice::x11AppScreen(),
-				 (const char *)0,
-				 XFT_FAMILY, (const char *)0);
-
-	    for (int f = 0; f < families->nfont; f++) {
-		created_family = FALSE;
-
-		if (XftPatternGetString(families->fonts[f],
-					XFT_FAMILY, 0, &value) == XftResultMatch) {
-		    familyName = value;
-
-		    QtFontFamily *family =
-			foundry->familyDict.find( familyName.lower() );
-		    if ( ! family ) {
-			family = new QtFontFamily ( foundry, familyName.lower() );
-			Q_CHECK_PTR (family);
-			created_family = TRUE;
-		    }
-
-		    if (hasFoundries)
-			styles =
-			    XftListFonts (QPaintDevice::x11AppDisplay(),
-					  QPaintDevice::x11AppScreen(),
-					  XFT_FOUNDRY, XftTypeString, foundryName.data(),
-					  XFT_FAMILY, XftTypeString, familyName.data(),
-					  (const char *)0,
-					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
-					  (const char *)0);
-		    else
-			styles =
-			    XftListFonts (QPaintDevice::x11AppDisplay(),
-					  QPaintDevice::x11AppScreen(),
-					  XFT_FAMILY, XftTypeString, familyName.data(),
-					  (const char *)0,
-					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
-					  (const char *)0);
-
-		    for (int s = 0; s < styles->nfont; s++) {
-			if (XftPatternGetString (styles->fonts[s],
-						 XFT_STYLE, 0, &value) ==
-			    XftResultMatch) {
-			    QString styleName = QString::fromLatin1( value );
-			    if (styleName.lower() == "regular")
-				styleName = "Normal";
-			    QtFontStyle *style = new QtFontStyle (family, styleName);
-			    Q_CHECK_PTR (style);
-
-			    slant_value = XFT_SLANT_ROMAN;
-			    weight_value = XFT_WEIGHT_MEDIUM;
-			    spacing_value = XFT_PROPORTIONAL;
-			    XftPatternGetInteger (styles->fonts[s],
-						  XFT_SLANT, 0, &slant_value);
-			    XftPatternGetInteger (styles->fonts[s],
-						  XFT_WEIGHT, 0, &weight_value);
-			    XftPatternGetInteger (styles->fonts[s],
-						  XFT_SPACING, 0, &spacing_value);
-			    style->ital = slant_value != XFT_SLANT_ROMAN;
-			    style->lesserItal = FALSE;
-			    style->weightString = getXftWeightString(weight_value);
-			    if (spacing_value >= XFT_MONO)
-				style->setFixedPitch();
-			    style->setSmoothlyScalable();
-			    family->addStyle (style);
-			}
-		    }
-
-		    if ( created_family ) {
-			if ( created_foundry ) {
-			    if ( ! db->family( familyName ) )
-				foundry->addFamily( family );
-			    else
-				delete family;
-			} else {
-			    foundry->addFamily( family );
-			}
-		    }
-
-		    XftFontSetDestroy (styles);
-		}
-	    }
-
-
-	    if ( created_foundry ) {
-		if ( foundry->familyDict.count() )
-		    db->addFoundry( foundry );
-		else
-		    delete foundry;
-	    }
-
-	    XftFontSetDestroy(families);
-	}
-
-	XftFontSetDestroy (foundries);
-    }
+    loadXft();
 #endif
+    qDebug("xft loading took %d ms",  t.elapsed() );
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
