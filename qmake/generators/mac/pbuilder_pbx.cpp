@@ -1053,7 +1053,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(ideType() == MAC_XCODE)
                 t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
             else
-                t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
+                t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n";
             t << "\t\t\t" << "productSettingsXML = \"";
             bool read_plist = false;
             if(QFile::exists("Info.plist")) {
