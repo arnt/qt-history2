@@ -20,6 +20,10 @@
 #include <qstringlist.h>
 #endif // QT_H
 
+#ifdef Q_WS_WIN32
+# include <qwindowdefs_win.h>
+#endif
+
 class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
