@@ -3932,17 +3932,21 @@ QPopupMenu *QTextEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
-    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo" ) );
-    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo" ) );
+    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCTRL+Z" ) );
+    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo\tCTRL+Y" ) );
     popup->insertSeparator();
 #ifndef QT_NO_CLIPBOARD
-    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t" ) );
-    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy" ) );
-    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste" ) );
+    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t\tCTRL+X" ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy\tCTRL+C" ) );
+    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste\tCTRL+V" ) );
 #endif
     d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
     popup->insertSeparator();
+#if defined(Q_WS_X11)
     d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
+#else
+    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All\tCTRL+A" ) );
+#endif
     popup->setItemEnabled( d->id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
     popup->setItemEnabled( d->id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );
 #ifndef QT_NO_CLIPBOARD
