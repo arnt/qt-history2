@@ -523,6 +523,7 @@ private:
     uint mousePressed : 1;
     uint hadDblClick : 1;
     uint opaque : 1;
+    uint ctrlDown : 1;
     QGuardedPtr<QWidget> oldFocus;
 
 };
@@ -538,6 +539,7 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 {
+    ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     oldFocus = qApp->focusWidget();
     setFocus();
     e->ignore();
@@ -560,7 +562,7 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     e->accept();
     dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
-    if ( opaque )
+    if ( opaque && !ctrlDown )
 	dockWindow->updatePosition( e->globalPos() );
 }
 
@@ -934,6 +936,8 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     }
     currRect = QRect( realWidgetPos( this ), size() );
     QWidget *w = areaAt( gp );
+    if ( titleBar->ctrlDown )
+	w = 0;
     QPoint offset( mapFromGlobal( pos ) );
     currRect.moveBy( offset.x(), offset.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
