@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/drawdemo/drawdemo.cpp#4 $
+** $Id: //depot/qt/main/examples/drawdemo/drawdemo.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -122,7 +122,7 @@ void drawPathText( QPainter *p )
     p->setFont( QFont( "Times", 24 ) );		// set fast font
     p->setPen( Qt::black );			// set black pen
 
-    const char *text = "Troll Tech AS";
+    const char *text = "Troll Tech";
 
     int len = strlen(text);
     if ( len == 0 )
@@ -282,7 +282,7 @@ void DrawView::drawIt( QPainter *p )
 void DrawView::printIt()
 {
     if ( printer->setup( this ) ) {
-        QPainter paint( printer );	
+        QPainter paint( printer );
         drawIt( &paint );
     }
 }
