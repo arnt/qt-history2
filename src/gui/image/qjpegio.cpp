@@ -215,7 +215,7 @@ void read_jpeg_image(QImageIO* iio)
 
         } else if (params.contains("Scale")) {
             sscanf(params.latin1(), "Scale(%i, %i, %1023s)",
-                    &sWidth, &sHeight, sModeStr);
+                   &sWidth, &sHeight, sModeStr);
 
             QString sModeQStr(sModeStr);
             if (sModeQStr == "ScaleFree") {
@@ -233,15 +233,18 @@ void read_jpeg_image(QImageIO* iio)
             scaleSize(sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode);
 //            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 
+            bool created = false;
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image.create(sWidth, sHeight, 32);
+                created = image.create(sWidth, sHeight, 32);
             } else if (cinfo.output_components == 1) {
-                image.create(sWidth, sHeight, 8, 256);
+                created = image.create(sWidth, sHeight, 8, 256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
+            if (!created)
+                image = QImage();
 
             if (!image.isNull()) {
                 QImage tmpImage(cinfo.output_width, 1, 32);
@@ -279,49 +282,51 @@ void read_jpeg_image(QImageIO* iio)
 
         } else {
 
+            bool created = false;
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image.create(cinfo.output_width, cinfo.output_height, 32);
+                created = image.create(cinfo.output_width, cinfo.output_height, 32);
             } else if (cinfo.output_components == 1) {
-                image.create(cinfo.output_width, cinfo.output_height, 8, 256);
+                created = image.create(cinfo.output_width, cinfo.output_height, 8, 256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
                 // Unsupported format
             }
+            if (!created)
+                image = QImage();
 
             if (!image.isNull()) {
                 uchar** lines = image.jumpTable();
                 while (cinfo.output_scanline < cinfo.output_height)
                     (void) jpeg_read_scanlines(&cinfo,
-                                lines + cinfo.output_scanline,
-                                cinfo.output_height);
+                                               lines + cinfo.output_scanline,
+                                               cinfo.output_height);
                 (void) jpeg_finish_decompress(&cinfo);
-            }
 
-            if (cinfo.output_components == 3) {
-                // Expand 24->32 bpp.
-                for (uint j=0; j<cinfo.output_height; j++) {
-                    uchar *in = image.scanLine(j) + cinfo.output_width * 3;
-                    QRgb *out = (QRgb*)image.scanLine(j);
+                if (cinfo.output_components == 3) {
+                    // Expand 24->32 bpp.
+                    for (uint j=0; j<cinfo.output_height; j++) {
+                        uchar *in = image.scanLine(j) + cinfo.output_width * 3;
+                        QRgb *out = (QRgb*)image.scanLine(j);
 
-                    for (uint i=cinfo.output_width; i--;) {
-                        in-=3;
-                        out[i] = qRgb(in[0], in[1], in[2]);
+                        for (uint i=cinfo.output_width; i--;) {
+                            in-=3;
+                            out[i] = qRgb(in[0], in[1], in[2]);
+                        }
                     }
+                }
+                if (cinfo.density_unit == 1) {
+                    image.setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
+                    image.setDotsPerMeterY(int(100. * cinfo.Y_density / 2.54));
+                } else if (cinfo.density_unit == 2) {
+                    image.setDotsPerMeterX(int(100. * cinfo.X_density));
+                    image.setDotsPerMeterY(int(100. * cinfo.Y_density));
                 }
             }
         }
 
-        if (cinfo.density_unit == 1) {
-            image.setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
-            image.setDotsPerMeterY(int(100. * cinfo.Y_density / 2.54));
-        } else if (cinfo.density_unit == 2) {
-            image.setDotsPerMeterX(int(100. * cinfo.X_density));
-            image.setDotsPerMeterY(int(100. * cinfo.Y_density));
-        }
-
         iio->setImage(image);
-        iio->setStatus(0);
+	iio->setStatus(image.isNull());
     }
 
     jpeg_destroy_decompress(&cinfo);
@@ -437,24 +442,40 @@ void write_jpeg_image(QImageIO* iio)
         QRgb* cmap=0;
         bool gray=false;
         switch (image.depth()) {
-          case 1:
-          case 8:
+        case 1:
+        case 8:
             cmap = image.colorTable();
             gray = true;
             int i;
             for (i=image.numColors(); gray && i--;) {
                 gray = gray & (qRed(cmap[i]) == qGreen(cmap[i]) &&
-                                qRed(cmap[i]) == qBlue(cmap[i]));
+                               qRed(cmap[i]) == qBlue(cmap[i]));
             }
             cinfo.input_components = gray ? 1 : 3;
             cinfo.in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;
             break;
-          case 32:
+        case 32:
             cinfo.input_components = 3;
             cinfo.in_color_space = JCS_RGB;
         }
 
         jpeg_set_defaults(&cinfo);
+
+        float diffInch = QABS(image.dotsPerMeterX()*2.54/100. - qRound(image.dotsPerMeterX()*2.54/100.))
+                         + QABS(image.dotsPerMeterY()*2.54/100. - qRound(image.dotsPerMeterY()*2.54/100.));
+        float diffCm = (QABS(image.dotsPerMeterX()/100. - qRound(image.dotsPerMeterX()/100.))
+                        + QABS(image.dotsPerMeterY()/100. - qRound(image.dotsPerMeterY()/100.)))*2.54;
+        if (diffInch < diffCm) {
+            cinfo.density_unit = 1; // dots/inch
+            cinfo.X_density = qRound(image.dotsPerMeterX()*2.54/100.);
+            cinfo.Y_density = qRound(image.dotsPerMeterY()*2.54/100.);
+        } else {
+            cinfo.density_unit = 2; // dots/cm
+            cinfo.X_density = (image.dotsPerMeterX()+50) / 100;
+            cinfo.Y_density = (image.dotsPerMeterY()+50) / 100;
+        }
+
+
         int quality = iio->quality() >= 0 ? qMin(iio->quality(),100) : 75;
 #if defined(Q_OS_UNIXWARE)
         jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
@@ -469,7 +490,7 @@ void write_jpeg_image(QImageIO* iio)
         while (cinfo.next_scanline < cinfo.image_height) {
             uchar *row = row_pointer[0];
             switch (image.depth()) {
-              case 1:
+            case 1:
                 if (gray) {
                     uchar* data = image.scanLine(cinfo.next_scanline);
                     if (image.bitOrder() == QImage::LittleEndian) {
@@ -502,7 +523,7 @@ void write_jpeg_image(QImageIO* iio)
                     }
                 }
                 break;
-              case 8:
+            case 8:
                 if (gray) {
                     uchar* pix = image.scanLine(cinfo.next_scanline);
                     for (int i=0; i<w; i++) {
@@ -519,7 +540,7 @@ void write_jpeg_image(QImageIO* iio)
                     }
                 }
                 break;
-              case 32: {
+            case 32: {
                 QRgb* rgb = (QRgb*)image.scanLine(cinfo.next_scanline);
                 for (int i=0; i<w; i++) {
                     *row++ = qRed(*rgb);
@@ -527,7 +548,7 @@ void write_jpeg_image(QImageIO* iio)
                     *row++ = qBlue(*rgb);
                     ++rgb;
                 }
-              }
+            }
             }
             jpeg_write_scanlines(&cinfo, row_pointer, 1);
         }
