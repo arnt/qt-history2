@@ -547,7 +547,7 @@ QImage QPixmap::toImage() const
     int            d  = depth();
     bool    mono = d == 1;
     Visual *visual = (Visual *) data->xinfo.visual();
-    bool    trucol = (visual->c_class == TrueColor) && !mono && d > 8;
+    bool    trucol = (visual->c_class >= TrueColor) && !mono && d > 8;
 
     if (d > 1 && d <= 8)                        // set to nearest valid depth
         d = 8;                                        //   2..8 ==> 8
@@ -987,7 +987,7 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     Display *dpy   = data->xinfo.display();
     Visual *visual = (Visual *) data->xinfo.visual();
     XImage *xi           = 0;
-    bool    trucol = (visual->c_class == TrueColor);
+    bool    trucol = (visual->c_class >= TrueColor);
     uint    nbytes = image.numBytes();
     uchar  *newbits= 0;
 
