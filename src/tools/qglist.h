@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#19 $
+** $Id: //depot/qt/main/src/tools/qglist.h#20 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -180,6 +180,8 @@ class QGListIterator				// QGList iterator
 friend class QGList;
 protected:
     QGListIterator( const QGList & );
+    QGListIterator( const QGListIterator & );
+    QGListIterator &operator=( const QGListIterator & );
    ~QGListIterator();
 
     bool  atFirst() const;			// test if at first item

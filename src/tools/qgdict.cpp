@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#31 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------
@@ -532,6 +532,39 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     dict->iterators->append( this );		// notify dict about iterator
 }
 
+
+/*----------------------------------------------------------------------------
+  \internal
+  Constructs a copy of the iterator \e it.
+ ----------------------------------------------------------------------------*/
+
+QGDictIterator::QGDictIterator( const QGDictIterator &it )
+{
+    dict = it.dict;
+    curNode = it.curNode;
+    curIndex = it.curIndex;
+    if ( dict )
+	dict->iterators->append( this );	// notify dict about iterator
+}
+
+/*----------------------------------------------------------------------------
+  \internal
+  Assigns a copy of the iterator \e it and returns a reference to this 
+  iterator.
+ ----------------------------------------------------------------------------*/
+
+QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
+{
+    if ( dict )
+	dict->iterators->removeRef( this );      // remove old iterator from dict
+    dict = it.dict;
+    curNode = it.curNode;
+    curIndex = it.curIndex;
+    if ( dict )
+	dict->iterators->append( this );      // notify dict about new iterator
+    return *this;
+}
+
 /*----------------------------------------------------------------------------
   \internal
   Destroys the iterator.
@@ -539,8 +572,17 @@ QGDictIterator::QGDictIterator( const QGDict &d )
 
 QGDictIterator::~QGDictIterator()
 {
-    if ( dict )
-	dict->iterators->remove( this );	// remove iterator from dict
+    if ( dict ) {				// decouple iterator from dict
+#if defined(DEBUG)	
+	ASSERT( dict->iterators );
+#endif
+	if ( dict->iterators->removeRef(this) ) {
+	    if ( dict->iterators->count() == 0 ) {
+		delete dict->iterators;
+		dict->iterators = 0;
+	    }
+	}
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#35 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -934,14 +934,47 @@ QGListIterator::QGListIterator( const QGList &l )
 
 /*----------------------------------------------------------------------------
   \internal
+  Constructs a copy of the iterator \e it.
+ ----------------------------------------------------------------------------*/
+
+QGListIterator::QGListIterator( const QGListIterator &it )
+{
+    list = it.list;
+    curNode = it.curNode;
+    if ( list )
+	list->iterators->append( this );	// notify list about iterator
+}
+
+/*----------------------------------------------------------------------------
+  \internal
+  Assigns a copy of the iterator \e it and returns a reference to this 
+  iterator.
+ ----------------------------------------------------------------------------*/
+
+QGListIterator &QGListIterator::operator=( const QGListIterator &it )
+{
+    if ( list )
+	list->iterators->removeRef( this );   // remove old iterator from list
+    list = it.list;
+    curNode = it.curNode;
+
+    if ( list )
+	list->iterators->append( this );      // notify list about new iterator
+    return *this;
+}
+
+/*----------------------------------------------------------------------------
+  \internal
   Destroys the iterator.
  ----------------------------------------------------------------------------*/
 
 QGListIterator::~QGListIterator()
 {
     if ( list ) {				// decouple iterator from list
-	if ( list->iterators->findRef(this) != -1 ) {
-	    list->iterators->remove( 0 );
+#if defined(DEBUG)	
+	ASSERT( list->iterators );
+#endif
+	if ( list->iterators->removeRef(this) ) {
 	    if ( list->iterators->count() == 0 ) {
 		delete list->iterators;
 		list->iterators = 0;

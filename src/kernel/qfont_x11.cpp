@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#60 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#60 $")
 
 
 static const int fontFields = 14;
@@ -141,6 +141,16 @@ QFontData::~QFontData()
 {
   // Font data is cleaned up by font cache and font dict
 }
+
+QFontData::QFontData( const QFontData &d )
+{
+    req = d.req;
+    act = d.act;
+    exactMatch = d.exactMatch;
+    lineW = d.lineW;
+    xfd = d.xfd;				// safe to copy
+}
+
 
 QFontData &QFontData::operator=( const QFontData &d )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#14 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#15 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -67,6 +67,8 @@ class QGDictIterator				// generic dictionary iterator
 friend class QGDict;
 public:
     QGDictIterator( const QGDict & );
+    QGDictIterator( const QGDictIterator & );
+    QGDictIterator &operator=( const QGDictIterator & );
    ~QGDictIterator();
 
     GCI	  	toFirst();
