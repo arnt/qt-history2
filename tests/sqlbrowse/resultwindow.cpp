@@ -16,8 +16,8 @@ public:
 	r = new QSqlRowset( db, "sheet1" );
 	QSqlIndex sort( "sheet1", "sheetSort" );
 	sort.append( r->field("d") );
-	r->select( sort );	
-	take( r, FALSE );	
+	r->select( sort );
+	take( r, FALSE );
 	addColumn( r->field("r") );
 	addColumn( r->field("d") );
     }
@@ -30,16 +30,16 @@ private:
 };
 
 
-ResultWindow::ResultWindow ( QSqlDatabase* database, QWidget * parent=0, const char * name=0, WFlags f=0 )
+ResultWindow::ResultWindow ( QWidget * parent=0, const char * name=0, WFlags f=0 )
     : SqlBrowseWindowBase(parent, name, f),
-      db(database),
       view(0)
 {
+    db = QSqlConnection::database();
     QStringList fil = db->tables();
     tableList->insertStringList( fil );
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
     //    dg = new MyDataGrid( db, this );
-    
+
 }
 ResultWindow::~ResultWindow()
 {

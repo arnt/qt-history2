@@ -22,7 +22,7 @@ class ResultWindow : public SqlBrowseWindowBase
 {
     Q_OBJECT
 public:
-    ResultWindow ( QSqlDatabase* database, QWidget * parent=0, const char * name=0, WFlags f=0 );
+    ResultWindow ( QWidget * parent=0, const char * name=0, WFlags f=0 );
     ~ResultWindow();
 public slots:
     void slotExec();
