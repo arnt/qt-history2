@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#69 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#70 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1507,7 +1507,7 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
   d.setContent( someXML );
   QDomNode n = d.firstChild();
   while ( !n.isNull() ) {
-      if ( n.isElement ) {
+      if ( n.isElement() ) {
           QDomElement e = n.toElement();
           cout << "The name of the element is " << e.tagName() << endl;
 	  return;
