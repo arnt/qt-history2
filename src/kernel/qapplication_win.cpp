@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#544 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#545 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -63,15 +63,34 @@
 #include <pktdef.h>
 #include <math.h>
 
-const int NPACKETQSIZE = 32;	// minimum size of queue.
-const double PI = 3.14159265359;
+typedef HCTX	( API *PtrWTOpen )(HWND, LPLOGCONTEXT, BOOL);
+typedef BOOL	( API *PtrWTClose )(HCTX);
+typedef UINT	( API *PtrWTInfo )(UINT, UINT, LPVOID);
+typedef BOOL	( API *PtrWTEnable )(HCTX, BOOL);
+typedef BOOL	( API *PtrWTOverlap )(HCTX, BOOL);
+typedef int	( API *PtrWTPacketsGet )(HCTX, int, LPVOID);
+typedef BOOL	( API *PtrWTGet )(HCTX, LPLOGCONTEXT);
 
-PACKET localPacketBuf[NPACKETQSIZE];  // our own tablet packet queue.
-LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
-HCTX hTab;  // the hardware context for the tablet ( like a window handle )
-bool tilt_support;
-void prsInit(HCTX hTab);
-UINT prsAdjust(PACKET p, HCTX hTab);
+static PtrWTOpen	ptrWTOpen = 0;
+static PtrWTClose	ptrWTClose = 0;
+static PtrWTInfo	ptrWTInfo = 0;
+static PtrWTEnable	ptrWTEnable = 0;
+static PtrWTOverlap	ptrWTOverlap = 0;
+static PtrWTPacketsGet	ptrWTPacketsGet = 0;
+static PtrWTGet		ptrWTGet = 0;
+
+
+
+static const int NPACKETQSIZE = 32;	// minimum size of queue.
+static const double PI = 3.14159265359;
+
+static PACKET localPacketBuf[NPACKETQSIZE];  // our own tablet packet queue.
+static LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
+static HCTX hTab;  // the hardware context for the tablet ( like a window handle )
+static bool tilt_support;
+static void prsInit(HCTX hTab);
+static UINT prsAdjust(PACKET p, HCTX hTab);
+static void initWinTabFunctions();	// resolve the WINTAB api functions
 #endif
 
 #if defined(__CYGWIN32__)
@@ -732,8 +751,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #if defined(QT_TABLET_SUPPORT)
 
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
-    typedef UINT (API *PtrWTInfo)(UINT, UINT, LPVOID);
-    
+    // get the WinTab Functions
+    initWinTabFunctions();
     int max_pressure;
     struct tagAXIS tpOri[3];
     struct tagAXIS pressureAxis;
@@ -741,20 +760,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
  	   aziFactor = 1,
  	   altFactor = 1,
  	   altAdjust = 1;
-
-    static bool dllWintabChecked = FALSE;
-    static PtrWTInfo ptrWTInfo = 0;
-
-    if ( !dllWintabChecked ) {
-	dllWintabChecked = TRUE;
-#if defined (UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoW" );
-	else
-#endif
-	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoA" );
-
-    }
 
     if ( ptrWTInfo ) {
 	// make sure we have WinTab
@@ -843,15 +848,6 @@ void qt_cleanup()
 #endif
 
 #if defined(QT_TABLET_SUPPORT)
-    typedef BOOL ( API *PtrWTClose )(HCTX);
-
-    static bool dllWintabChecked = FALSE;
-    static PtrWTClose ptrWTClose = 0;
-
-    if ( !dllWintabChecked ) {
-	dllWintabChecked = TRUE;
-	ptrWTClose = (PtrWTClose)QLibrary::resolve( "wintab32.dll", "WTClose" );
-    }
     if ( ptrWTClose )
 	ptrWTClose( hTab );
 #endif
@@ -1080,18 +1076,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
 #if defined (QT_TABLET_SUPPORT)
-    typedef HCTX ( API *PtrWTOpen )(HWND, LPLOGCONTEXTW, BOOL);
-    static bool dllWinTabChecked = FALSE;
-    static PtrWTOpen ptrWTOpen = 0;
-    if ( !dllWinTabChecked ) {
-	dllWinTabChecked = TRUE;
-#if defined(UNICODE)
-	if ( qWinVersion() & WV_NT_based )
-	    ptrWTOpen = (PtrWTOpen)QLibrary::resolve( "wintab32.dll", "WTOpenW" );
-	else
-#endif
-	    ptrWTOpen = (PtrWTOpen)QLibrary::resolve( "wintab32.dll", "WTOpenA" );
-    }
     if ( ptrWTOpen ) {
 	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
 	if ( hTab == NULL )
@@ -2102,43 +2086,29 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 
 	    case WM_ACTIVATE:
-		{
 #if defined (QT_TABLET_SUPPORT)
-		    typedef BOOL (API *PtrWTEnable)(HCTX, BOOL);
-		    typedef BOOL (API *PtrWTOverlap)(HCTX, BOOL);
-		    static bool dllWinTabChecked = FALSE;
-		    static PtrWTEnable ptrWTEnable = 0;
-		    static PtrWTOverlap ptrWTOverlap = 0;
-
-		    if ( !dllWinTabChecked ) {
-			dllWinTabChecked = TRUE;
-			ptrWTEnable = (PtrWTEnable)QLibrary::resolve( "wintab32.dll", "WTEnable" );
-			ptrWTOverlap = (PtrWTOverlap)QLibrary::resolve( "wintab32.dll", "WTOverlap" );
+		if ( ptrWTOverlap && ptrWTEnable ) {
+		    // cooperate with other tablet applications, but when
+		    // we get focus, I want to use the tablet...
+		    if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
+			if ( ptrWTEnable(hTab, TRUE) )
+			    if ( !ptrWTOverlap(hTab, TRUE) )
+				qWarning( "Failed to re-enable tablet context" );
 		    }
-		    if ( ptrWTOverlap && ptrWTEnable ) {
-			// cooperate with other tablet applications, but when
-			// we get focus, I want to use the tablet...
-			if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-			    if ( ptrWTEnable(hTab, TRUE) )
-				if ( !ptrWTOverlap(hTab, TRUE) )
-				    qWarning( "Failed to re-enable tablet context" );
-			}
-		    }
-#endif
-		    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
-			 QWidget::find((HWND)lParam) == 0 ) {
-			// Another application was activated while our popups are open,
-			// then close all popups.  In case some popup refuses to close,
-			// we give up after 1024 attempts (to avoid an infinite loop).
-			int maxiter = 1024;
-			QWidget *popup;
-			while ( (popup=QApplication::activePopupWidget()) &&
-			        maxiter-- )
-			    popup->hide();
-		    }
-		    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
-		    break;
 		}
+#endif
+		if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
+		    QWidget::find((HWND)lParam) == 0 ) {
+		    // Another application was activated while our popups are open,
+		    // then close all popups.  In case some popup refuses to close,
+		    // we give up after 1024 attempts (to avoid an infinite loop).
+		    int maxiter = 1024;
+		    QWidget *popup;
+		    while ( (popup=QApplication::activePopupWidget()) && maxiter-- )
+			popup->hide();
+		}
+		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+		break;
 
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )
@@ -2311,37 +2281,18 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 #if defined (QT_TABLET_SUPPORT)
 	case WT_PACKET:
-	    {
-		// Get the packets and also don't link against the actual library...
-		typedef int (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
-		static PtrWTPacketsGet ptrWTPacketsGet = 0;
-		static bool dllWinTabChecked = FALSE;
-		if ( !dllWinTabChecked ) {
-		    dllWinTabChecked = TRUE;
-		    ptrWTPacketsGet = (PtrWTPacketsGet)QLibrary::resolve( "wintab32.dll", "WTPacketsGet" );
+	    // Get the packets and also don't link against the actual library...
+	    if ( ptrWTPacketsGet ) {
+		if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+		    result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
 		}
-		if ( ptrWTPacketsGet ) {
-		    if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
-			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
-		    }
-		}
-		break;
 	    }
-
+	    break;
 	case WT_PROXIMITY: 
-	    {
-		// flush the QUEUE
-		typedef int (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
-		static PtrWTPacketsGet ptrWTPacketsGet = 0;
-		static bool dllWinTabChecked = FALSE;
-		if ( !dllWinTabChecked ) {
-		    dllWinTabChecked = TRUE;
-		    ptrWTPacketsGet = (PtrWTPacketsGet)QLibrary::resolve( "wintab32.dll", "WTPacketsGet" );
-		}
-		if ( ptrWTPacketsGet )
-		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-		break;
-	    }
+	    // flush the QUEUE
+	    if ( ptrWTPacketsGet )
+		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+	    break;
 #endif
 
 	default:
@@ -3608,30 +3559,9 @@ static UINT wActiveCsr = 0,  wOldCsr = (UINT)-1;
 static BYTE wPrsBtn;
 static UINT prsYesBtnOrg, prsYesBtnExt, prsNoBtnOrg, prsNoBtnExt;
 /* -------------------------------------------------------------------------- */
-void prsInit( HCTX hTab)
+static void prsInit( HCTX hTab)
 {
     /* browse WinTab's many info items to discover pressure handling. */
-
-    typedef UINT ( API *PtrWTInfo )(UINT, UINT, LPVOID);
-    typedef BOOL ( API *PtrWTGet )(HCTX, LPLOGCONTEXT);
-    static bool dllWinTabChecked = FALSE;
-    static PtrWTInfo ptrWTInfo = 0;
-    static PtrWTGet ptrWTGet = 0;
-
-    if ( !dllWinTabChecked ) {
-	dllWinTabChecked = TRUE;
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoW" );
-	    ptrWTGet = (PtrWTGet)QLibrary::resolve( "wintab32.dll", "WTGetW" );
-	} else {
-#endif
-	    ptrWTInfo = (PtrWTInfo)QLibrary::resolve( "wintab32.dll", "WTInfoA" );
-	    ptrWTGet = (PtrWTGet)QLibrary::resolve( "wintab32.dll", "WTGetA" );
-#if defined(UNICODE)
-	}
-#endif	    
-    }
     if ( ptrWTInfo && ptrWTGet ) {
 	AXIS np;
 	LOGCONTEXT lc;
@@ -3665,7 +3595,7 @@ void prsInit( HCTX hTab)
     }
 }
 /* -------------------------------------------------------------------------- */
-UINT prsAdjust(PACKET p, HCTX hTab)
+static UINT prsAdjust(PACKET p, HCTX hTab)
 {
     UINT wResult;
 
@@ -4131,6 +4061,29 @@ void QApplication::flush()
 }
 
 
+#if defined (QT_TABLET_SUPPORT)
+static void initWinTabFunctions()
+{
+    QLibrary library( "wintab32", QLibrary::Manual );
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );
+	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
+	ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
+    } else {
+#endif
+	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
+	ptrWTInfo = (PtrWTInfo)library.resolve( "WTOInfoA" );
+	ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
+#if defined(UNICODE)
+    }
+#endif
+    ptrWTClose = (PtrWTClose)library.resolve( "WTClose" );
+    ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
+    ptrWTOverlap = (PtrWTEnable)library.resolve( "WTOverlap" );
+    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+}
+#endif
 /*!
     \enum Qt::WindowsVersion
 
