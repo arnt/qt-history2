@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qaquastyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class AquaStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 AquaStyle::AquaStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList AquaStyle::featureList() const
 
 QStyle* AquaStyle::create( const QString& s )
 {
-    if ( s.lower() == "aqua" )
-        return style = new QAquaStyle();
+    if ( s.lower() == "aqua" ) {
+        QStyle *style = new QAquaStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool AquaStyle::init()
 
 void AquaStyle::cleanup()
 {
-    delete style;
+    styles.clear();;
 }
 
 bool AquaStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE()
