@@ -25,9 +25,7 @@
 **
 **********************************************************************/
 
-#include <atlbase.h>
-
-#include <math.h>
+#include <olectl.h>
 
 #include "types.h"
 
@@ -311,10 +309,11 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	{
 	    IDispatch *disp = arg.pdispVal;
 	    if ( disp ) {
-		CComPtr<IFont> ifont;
+		IFont *ifont = 0;
 		disp->QueryInterface( IID_IFont, (void**)&ifont );
 		if ( ifont ) {
 		    var = IFontToQFont( ifont );
+		    ifont->Release();
 		}
 	    }
 	}
