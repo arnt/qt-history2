@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#37 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#38 $
 **
 ** Definition of QPointArray class
 **
@@ -64,6 +64,9 @@ class Q_EXPORT QPointVal
 {
 public:
     QPointVal( QPointData *ptr ) : p(ptr) {}
+    bool operator==( const QPointVal &point ) const;
+    bool operator!=( const QPointVal &point ) const;
+    QPointVal &operator=( const QPointVal &point );
     QPointVal &operator=( const QPoint &point );
     QPointVal &operator+=( const QPoint &point );
     QPointVal &operator-=( const QPoint &point );
@@ -146,6 +149,23 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPointArray & );
 inline void QPointArray::setPoint( uint i, const QPoint &p )
 {
     setPoint( i, p.x(), p.y() );
+}
+
+inline bool QPointVal::operator==( const QPointVal &pointval ) const
+{
+    return p->x == pointval.p->x && p->y == pointval.p->y;
+}
+
+inline bool QPointVal::operator!=( const QPointVal &pointval ) const
+{
+    return p->x != pointval.p->x && p->y != pointval.p->y;
+}
+
+inline QPointVal &QPointVal::operator=( const QPointVal &pointval )
+{
+    p->x = pointval.p->x;
+    p->y = pointval.p->y;
+    return *this;
 }
 
 inline QPointVal &QPointVal::operator=( const QPoint &point )
