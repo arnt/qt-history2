@@ -298,6 +298,59 @@ static const char * const ps_header[] = {
 "  pop",
 "} D",
 
+// uncompresses grayscale from currentfile until the string on the
+// stack is full; leaves the string there.  assumes that nothing could
+// conceivably go wrong.
+"/rG {",
+"  /rL 0 d",
+"  0",
+"  {", // string pos
+"    dup 2 index length ge { exit } if",
+"    1 rB",
+"    1 eq {", // compressed
+"      3 rB", // string pos bits
+"      dup 4 ge {",
+"        dup rB", // string pos bits extra
+"        1 index 5 ge {",
+"          1 index 6 ge {",
+"            1 index 7 ge {",
+"              64 add",
+"            } if",
+"            32 add",
+"          } if",
+"          16 add",
+"        } if",
+"        4 add",
+"	exch pop",
+"      } if",
+"      1 add",
+"      ", // string pos length
+"      exch 10 rB 1 add",
+"      ", // string length pos dist
+"      {",
+"	dup 3 index lt {",
+"	  dup",
+"	} {",
+"	  2 index",
+"	} ifelse", // string length pos dist length-this-time
+"	4 index 3 index 3 index sub 2 index getinterval",
+"	5 index 4 index 3 -1 roll putinterval",
+"	dup 4 -1 roll add 3 1 roll",
+"	4 -1 roll exch sub ",
+"	dup 0 eq { exit } if",
+"	3 1 roll",
+"      } loop", // string pos dist length
+"      pop pop",
+"    } {", // uncompressed
+"      3 rB 1 add",
+"      {",
+"	2 copy 8 rB put 1 add",
+"      } repeat",
+"    } ifelse",
+"  } loop",
+"  pop",
+"} D",
+
 "/sl D0", // ## What is this supposed to do?
 "/QCIgray D0 /QCIcolor D0 /QCIindex D0",
 "/QCI {", // as colorimage but without the last two arguments
@@ -5182,7 +5235,7 @@ static void emitBits( QByteArray & out, int & byte, int & bit,
 }
 
 
-QByteArray compress( const QImage & image ) {
+QByteArray compress( const QImage & image, bool gray ) {
     int size = image.width()*image.height();
     int pastPixel[tableSize];
     int mostRecentPixel[hashSize];
@@ -5382,12 +5435,17 @@ QByteArray compress( const QImage & image ) {
 		emitBits( out, outOffset, outBit,
 			  quoteSize, l-1 );
 		while( l-- ) {
-		    emitBits( out, outOffset, outBit,
-			      8, qRed( pixel[emittedUntil] ) );
-		    emitBits( out, outOffset, outBit,
-			      8, qGreen( pixel[emittedUntil] ) );
-		    emitBits( out, outOffset, outBit,
-			      8, qBlue( pixel[emittedUntil] ) );
+		    if ( gray ) {
+			emitBits( out, outOffset, outBit,
+				  8, qGray( pixel[emittedUntil] ) );
+		    } else {
+			emitBits( out, outOffset, outBit,
+				  8, qRed( pixel[emittedUntil] ) );
+			emitBits( out, outOffset, outBit,
+				  8, qGreen( pixel[emittedUntil] ) );
+			emitBits( out, outOffset, outBit,
+				  8, qBlue( pixel[emittedUntil] ) );
+		    }
 		    emittedUntil++;
 		}
 	    }
@@ -5838,20 +5896,33 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 	    y += subheight;
 	}
     } else {
+	bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
+		    img.allGray();
+
 	if ( pnt.x() || pnt.y() )
 	    stream << pnt.x() << " " << pnt.y() << " TR\n";
-	stream << "/sl " << width*3*height << " string d\n";
-	stream << "sl rC\n";
-	QByteArray out;
-	if ( img.depth() < 8 )
-	    out = compress( img.convertDepth( 8 ) );
-	else if ( img.depth() > 8 && img.depth() < 24 )
-	    out = compress( img.convertDepth( 24 ) );
-	else
-	    out = compress( img );
-	ps_r7( stream, out, out.size() );
-	stream << "pop\n";
-	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
+	if ( gray ) {
+	    stream << "/sl " << width*height << " string d\n";
+	    stream << "sl rG\n";
+	    QByteArray out;
+	    out = ::compress( img.convertDepth( 8 ), TRUE );
+	    ps_r7( stream, out, out.size() );
+	    stream << "pop\n";
+	    stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}image\n";
+	} else {
+	    stream << "/sl " << width*3*height << " string d\n";
+	    stream << "sl rC\n";
+	    QByteArray out;
+	    if ( img.depth() < 8 )
+		out = ::compress( img.convertDepth( 8 ), FALSE );
+	    else if ( img.depth() > 8 && img.depth() < 24 )
+		out = ::compress( img.convertDepth( 24 ), FALSE );
+	    else
+		out = ::compress( img, FALSE );
+	    ps_r7( stream, out, out.size() );
+	    stream << "pop\n";
+	    stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
+	}
 	if ( pnt.x() || pnt.y() )
 	    stream << -pnt.x() << " " << -pnt.y() << " TR\n";
     }

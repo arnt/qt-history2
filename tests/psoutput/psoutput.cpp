@@ -446,13 +446,16 @@ main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
-    test( "/tmp/portrait-1.ps", QPrinter::Portrait, QPrinter::GrayScale,
+    test( "/tmp/portrait-1.ps", QPrinter::Portrait, QPrinter::Color,
 	  1, FALSE, 0 );
-    test( "/tmp/landscape-1.ps", QPrinter::Landscape, QPrinter::GrayScale,
+    test( "/tmp/landscape-1.ps", QPrinter::Landscape, QPrinter::Color,
 	  1, FALSE, 0 );
 
-    test( "/tmp/portrait-2.ps", QPrinter::Portrait, QPrinter::GrayScale,
+    test( "/tmp/portrait-2.ps", QPrinter::Portrait, QPrinter::Color,
 	  1, TRUE, 0 );
-    test( "/tmp/landscape-2.ps", QPrinter::Landscape, QPrinter::GrayScale,
+    test( "/tmp/landscape-2.ps", QPrinter::Landscape, QPrinter::Color,
+	  1, TRUE, 0 );
+
+    test( "/tmp/portrait-mono.ps", QPrinter::Portrait, QPrinter::GrayScale,
 	  1, TRUE, 0 );
 }
