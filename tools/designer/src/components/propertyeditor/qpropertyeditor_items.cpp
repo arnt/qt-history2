@@ -234,7 +234,8 @@ QWidget *StringProperty::createEditor(QWidget *parent, QObject *target, const ch
 void StringProperty::updateEditorContents(QWidget *editor)
 {
     if (QLineEdit *lineEdit = qt_cast<QLineEdit*>(editor)) {
-        lineEdit->setText(m_value);
+        if (lineEdit->text() != m_value)
+            lineEdit->setText(m_value);
     }
 }
 
