@@ -102,7 +102,6 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
 
     QPainterState *pState = p->painterState();
     int txop = pState->txop;
-    QMatrix xmat = pState->matrix;
 
     if(!p->hasFeature(QPaintEngine::CoordTransform)) {
         if(txop >= QPainterPrivate::TxScale) {
@@ -631,6 +630,41 @@ void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
     e = ATSUSetRunStyle(mTextLayout, st->style, 0, (UniCharCount)numGlyphs);
     if (e != noErr) {
         qWarning("Qt: internal: %ld: Error ATSUSetRunStyle %s: %d", e, __FILE__, __LINE__);
+        return;
+    }
+
+    const int arr_guess = 5;
+    int arr = 0;
+    ATSUAttributeTag tags[arr_guess];
+    ByteCount valueSizes[arr_guess];
+    ATSUAttributeValuePtr values[arr_guess];
+
+    tags[arr] = kATSULineLayoutOptionsTag;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
+                                   | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
+                                   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+    if(fontDef.styleStrategy & QFont::NoAntialias)
+        layopts |= kATSLineNoAntiAliasing;
+    valueSizes[arr] = sizeof(layopts);
+    values[arr] = &layopts;
+    arr++;
+
+    if(QSysInfo::MacintoshVersion <= QSysInfo::MV_10_2) {
+        tags[arr] = kATSUCGContextTag;
+        static QPixmap *pixmap = 0;
+        if(!pixmap)
+            pixmap = new QPixmap(1, 1, 32);
+        QMacCGContext q_ctx = QMacCGContext(pixmap);
+        CGContextRef ctx = static_cast<CGContextRef>(q_ctx);
+        valueSizes[arr] = sizeof(ctx);
+        values[arr] = &ctx;
+        arr++;
+    }
+
+    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+        qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
+    if(OSStatus e = ATSUSetLayoutControls(mTextLayout, arr, tags, valueSizes, values)) {
+        qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
         return;
     }
 
