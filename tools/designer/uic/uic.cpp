@@ -452,7 +452,10 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    out << indent << itemName << " = new QPopupMenu( this );" << endl;
 	    createPopupMenuImpl( c, parentClass, itemName );
 	    out << indent << objName << "->insertItem( QString(\"\"), " << itemName << ", " << i << " );" << endl;
-	    trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( c.attribute( "text" ) ) << " );" << endl;
+	    QString findItem(objName + "->findItem(%1)");
+	    findItem = findItem.arg(i);
+	    trout << indent << "if (" << findItem << ")" << endl;
+	    trout << indent << indent << findItem << "->setText( " << trcall( c.attribute( "text" ) ) << " );" << endl;
 	} else if ( c.tagName() == "separator" ) {
 	    out << endl;
 	    out << indent << objName << "->insertSeparator( " << i << " );" << endl;
