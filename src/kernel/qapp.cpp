@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#78 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#78 $");
 
 
 /*!
@@ -323,6 +323,8 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 
 /*!
   Changes the default application font to \e font.
+
+  The default font depends on the X server in use.
 
   If \e updateAllWidgets is TRUE, then the font of all existing
   widgets is set to \e font.
