@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#22 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#22 $")
 
 
 /*----------------------------------------------------------------------------
@@ -25,14 +25,13 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#21 $")
 
   QGDict is a strictly internal class that acts as a base class for the
   \link collectionclasses.html collection classes\endlink QDict and QIntDict.
-  QStack.
 
   QGDict has some virtual functions that can be reimplemented to customize
   the subclasses.
   <ul>
   <li> hashKey() implements the hashing function for the dictionary.
-  <li> read() reads a collection/list item from a QDataStream.
-  <li> write() writes a collection/list item to a QDataStream.
+  <li> read() reads a collection/dictionary item from a QDataStream.
+  <li> write() writes a collection/dictionary item to a QDataStream.
   </ul>
   Normally, you do not have to reimplement any of these functions.
  ----------------------------------------------------------------------------*/
@@ -213,6 +212,19 @@ QGDict &QGDict::operator=( const QGDict &dict )
     }
     return *this;
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn uint QGList::count() const
+  \internal
+  Returns the number of items in the dictionary.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn uint QGList::size() const
+  \internal
+  Returns the size of the hash array.
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
