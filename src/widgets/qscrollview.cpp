@@ -48,6 +48,9 @@
 #include "qapplication.h"
 #include "qtimer.h"
 #include "qstyle.h"
+#ifdef Q_WS_MAC
+# include "qt_mac.h"
+#endif
 
 static const int coord_limit = 4000;
 static const int autoscroll_margin = 16;
@@ -817,11 +820,15 @@ void QScrollView::updateScrollBars()
 		mac_need_scroll = TRUE;
 	}
 	if(mac_need_scroll) {
-	    showc = TRUE;
-	    if(d->vMode == Auto)
-		showv = TRUE;
-	    if(d->hMode == Auto)
-		showh = TRUE;
+	    WindowAttributes attr;
+	    GetWindowAttributes((WindowPtr)handle(), &attr);
+	    if(attr & kWindowResizableAttribute) {
+		showc = TRUE;
+		if(d->vMode == Auto)
+		    showv = TRUE;
+		if(d->hMode == Auto)
+		    showh = TRUE;
+	    }
 	}
 #endif
 
