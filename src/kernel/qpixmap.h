@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#23 $
 **
 ** Definition of QPixmap class
 **
@@ -83,7 +83,7 @@ private:
         short  d;
         uint   dirty  : 1;
         uint   optim  : 1;
-        uint   virgin : 1;
+        uint   uninit : 1;
 #if defined(_WS_WIN_)
         HANDLE allocMemDC();
         void   freeMemDC();
