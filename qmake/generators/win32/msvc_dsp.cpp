@@ -319,9 +319,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\"" + fname + Option::cpp_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t" + yaccpath + (*it) + "\\\n"
 			"\tdel " + fname + Option::h_ext + "\\\n"
-			"\trename y.tab.h " + fname + Option::h_ext + "\n\n" +
+			"\tmove y.tab.h " + fname + Option::h_ext + "\n\n" +
 			"\tdel " + fname + Option::cpp_ext + "\\\n"
-			"\trename y.tab.c " + fname + Option::cpp_ext + "\n\n" +
+			"\tmove y.tab.c " + fname + Option::cpp_ext + "\n\n" +
 			"# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
