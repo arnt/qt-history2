@@ -200,6 +200,10 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
 	tabOrder = tabOrder.nextSibling().toElement();
 
+    QDomElement actions = firstWidget;
+    while ( actions.tagName() != "actions" && !actions.isNull() )
+	actions = actions.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
     if ( !customWidgets.isNull() )
@@ -208,6 +212,9 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     if ( !createObject( firstWidget, formwindow, 0,
 			firstWidget.attribute("class", "QWidget") ) )
 	return FALSE;
+
+    if ( !actions.isNull() )
+	loadActions( actions );
 
     if ( !connections.isNull() )
 	loadConnections( connections );
@@ -256,6 +263,8 @@ bool Resource::save( QIODevice* dev )
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
 	saveCustomWidgets( ts, 0 );
+    if ( formwindow->mainContainer()->inherits( "QMainWindow" ) )
+	saveActions( formwindow->actionList(), ts, 0 );
     if ( !images.isEmpty() )
 	saveImageCollection( ts, 0 );
     if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
@@ -473,6 +482,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
 	delete tmpl;
+    } else if ( obj->inherits( "QMainWindow" ) ) {
+	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
 	saveChildrenOf( obj, ts, indent );
     }
@@ -714,8 +725,8 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 {
     QStringList changed;
+    changed = MetaDataBase::changedProperties( w );
     if ( w->isWidgetType() ) {
-	changed = MetaDataBase::changedProperties( w );
 	if ( w->inherits( "Spacer" ) ) {
 	    if ( changed.find( "sizeHint" ) == changed.end() )
 		changed << "sizeHint";
@@ -1081,6 +1092,9 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
 		MetaDataBase::addEntry( w );
 	}
+	
+	if ( w->inherits( "QMainWindow" ) )
+	    w = ( (QMainWindow*)w )->centralWidget();
     }
 
     while ( !n.isNull() ) {
@@ -1898,7 +1912,6 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<pixmapfunction>" << formwindow->pixmapLoaderFunction() << "</pixmapfunction>" << endl;
 }
 
-
 QColorGroup Resource::loadColorGroup( const QDomElement &e )
 {
     QColorGroup cg;
@@ -1917,4 +1930,43 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
 	n = n.nextSibling().toElement();
     }
     return cg;
+}
+
+void Resource::saveActions( const QList<QAction> &actions, QTextStream &ts, int indent )
+{
+    if ( actions.isEmpty() )
+	return;
+    ts << makeIndent( indent ) << "<actions>" << endl;
+    indent++;
+    QListIterator<QAction> it( actions );
+    while ( it.current() ) {
+	ts << makeIndent( indent ) << "<action>" << endl;
+	indent++;
+	saveObjectProperties( it.current(), ts, indent );
+	indent--;
+	ts << makeIndent( indent ) << "</action>" << endl;
+	++it;
+    }
+    indent--;
+    ts << makeIndent( indent ) << "</actions>" << endl;
+}
+
+void Resource::loadActions( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QAction *a = 0;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "action" ) {
+	    a = new QAction( formwindow );
+	    MetaDataBase::addEntry( a );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "property" )
+		    setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		n2 = n2.nextSibling().toElement();
+	    }
+	    formwindow->actionList().append( a );
+	}
+	n = n.nextSibling().toElement();
+    }
 }

@@ -26,6 +26,7 @@
 #include <qvariant.h>
 #include <qvaluelist.h>
 #include <qimage.h>
+#include <qaction.h>
 
 #include "metadatabase.h"
 
@@ -87,6 +88,7 @@ private:
     void saveColor( QTextStream &ts, int indent, const QColor &c );
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
+    void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
@@ -101,6 +103,7 @@ private:
     void loadConnections( const QDomElement &e );
     void loadTabOrder( const QDomElement &e );
     void loadItem( const QDomElement &n, QPixmap &pix, QString &txt, bool &hasPixmap );
+    void loadActions( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e );
 

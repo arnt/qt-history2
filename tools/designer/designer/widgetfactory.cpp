@@ -690,12 +690,10 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return l;
     } else if ( className == "QMainWindow" ) {
 	QMainWindow *mw = new QMainWindow( parent, name, 0 );
-	if ( init ) {
-	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
-	    MetaDataBase::addEntry( dw );
-	    mw->setCentralWidget( dw );
-	    dw->show();
-	}
+	QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
+	MetaDataBase::addEntry( dw );
+	mw->setCentralWidget( dw );
+	dw->show();
 	return mw;
     } else if ( className == "QSqlWidget" ) {
 	QWidget *w = new QDesignerSqlWidget( parent, name );
