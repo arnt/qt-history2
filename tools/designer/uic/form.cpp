@@ -1037,7 +1037,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // database support
     dbConnections = unique( dbConnections );
     if ( dbConnections.count() )
-	out << endl << indent << "// database support" << endl;
+	out << endl;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() && (*it) != "(default)") {
 	    out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
