@@ -123,7 +123,7 @@ public:
     inline QT_COMPAT void setMenuText(const QString &s) { setText(s); }
     inline QT_COMPAT QString menuText() { return text(); }
     inline QT_COMPAT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }
-    inline QT_COMPAT QKeySequence accel() { return shortcut(); }
+    inline QT_COMPAT QKeySequence accel() const { return shortcut(); }
 #endif
 
     QWidget *parentWidget() const;
