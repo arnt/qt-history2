@@ -2030,13 +2030,24 @@ Text Doc::briefText() const
 
 Text Doc::trimmedBriefText(const QString &className) const
 {
-    Text text = briefText();
-    Atom *atom = text.firstAtom();
-    if (atom && atom->type() == Atom::String) {
+    Text originalText = briefText();
+    Text resultText;
+    const Atom *atom = originalText.firstAtom();
+    if (atom) {
+        QString briefStr;
         QString whats;
         bool standardWording = true;
 
-        QStringList w = atom->string().split(" ");
+        /*
+            This code is really ugly. The entire \brief business
+            should be rethought.
+        */
+        while (atom && (atom->type() == Atom::AutoLink || atom->type() == Atom::String)) {
+            briefStr += atom->string();
+            atom = atom->next();
+        }
+
+        QStringList w = briefStr.split(" ");
         if (!w.isEmpty() && w.first() == "The")
 	    w.removeFirst();
         else
@@ -2073,10 +2084,10 @@ Text Doc::trimmedBriefText(const QString &className) const
 	    location().warning(tr("Nonstandard wording in '\\%1' text for '%2'")
 			       .arg(COMMAND_BRIEF).arg(className));
 	} else {
-	    atom->setString(whats);
+            resultText << whats;
         }
     }
-    return text;
+    return resultText;
 }
 
 Text Doc::legaleseText() const
