@@ -69,9 +69,15 @@ void BrowserWidget::exec()
 {
     QSqlQueryModel *model = new QSqlQueryModel(view);
     model->setQuery(QSqlQuery(edit->plainText(), dbc->currentDatabase()));
+    view->setModel(model);
+
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
-    view->setModel(model);
+    else if (model->query().isSelect())
+        emit statusMessage(tr("Query OK."));
+    else
+        emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
+                    model->query().numRowsAffected()));
 }
 
 void BrowserWidget::addConnection()
