@@ -662,13 +662,17 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	t = d->tabs->sizeHint();
     int lcw = 0;
     if ( d->leftCornerWidget && d->leftCornerWidget->isVisible()  ) {
-	lcw = d->leftCornerWidget->width();
+	QSize sz = d->leftCornerWidget->sizeHint();
+	d->leftCornerWidget->resize(sz);
+	lcw = sz.width();
 	if ( t.height() > lcw )
 	    lcw = t.height();
      }
     int rcw = 0;
     if ( d->rightCornerWidget && d->rightCornerWidget->isVisible() ) {
-	rcw = d->rightCornerWidget->width();
+	QSize sz = d->rightCornerWidget->sizeHint();
+	d->rightCornerWidget->resize(sz);
+	rcw = sz.width();
 	if ( t.height() > rcw )
 	    rcw = t.height();
     }
@@ -682,11 +686,10 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     exth = style().pixelMetric( QStyle::PM_TabBarBaseHeight, this );
     overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
 
-    if ( reverse ) {
+    if ( reverse )
 	tabx = qMin( width() - t.width(), width() - t.width() - lw + 2 ) - lcw;
-    } else {
+    else
 	tabx = qMax( 0, lw - 2 ) + lcw;
-    }
     if ( d->pos == Bottom ) {
 	taby = height() - t.height() - lw;
 	stacky = 0;
@@ -701,9 +704,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     int alignment = style().styleHint( QStyle::SH_TabBar_Alignment, this );
     if ( alignment != AlignLeft && t.width() < width() ) {
 	if ( alignment == AlignHCenter )
-	    tabx += width()/2 - t.width()/2;
+	    tabx += (width()-lcw-rcw)/2 - t.width()/2;
 	else if ( alignment == AlignRight )
-	    tabx += width() - t.width();
+	    tabx += width() - t.width() - rcw;
     }
 
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
@@ -717,10 +720,6 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 			   t.height()+qMax(0, lw-2));
 
     d->dirty = FALSE;
-    if ( !onlyCheck )
-	update();
-    if ( autoMask() )
-	updateMask();
 
     // move cornerwidgets
     if ( d->leftCornerWidget ) {
@@ -730,6 +729,12 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
     if ( d->rightCornerWidget ) {
 	int y = ( t.height() / 2 ) - ( d->rightCornerWidget->height() / 2 );
+
+    if ( !onlyCheck ) 
+	update();
+    updateGeometry();
+    if ( autoMask() )
+	updateMask();
 	int x = ( reverse ? y : width() - rcw + y );
 	d->rightCornerWidget->move( x, y + taby );
     }
@@ -741,14 +746,21 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 QSize QTabWidget::sizeHint() const
 {
     if ( !d->dirty ) {
+    QSize lc(0, 0), rc(0, 0);
+    if(d->leftCornerWidget)
+	lc = d->leftCornerWidget->sizeHint();
+    if(d->rightCornerWidget)
+	rc = d->rightCornerWidget->sizeHint();
 	QTabWidget *that = (QTabWidget*)this;
 	that->setUpLayout( TRUE );
     }
     QSize s( d->stack->sizeHint() );
-    QSize t( d->tabs->sizeHint().boundedTo( QSize(200,200) ) );
+    QSize t( d->tabs->sizeHint() );
+    if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, d->tabs))
+	t = t.boundedTo( QSize(200,200) );
 
-    QSize sz( qMax( s.width(), t.width() ), s.height() + t.height() +
-	      ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
+    QSize sz( qMax( s.width(), t.width() + rc.width() + lc.width() ), 
+	      s.height() + (qMax( rc.height(), qMax(lc.height(), t.height()))) + ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }
 
@@ -761,13 +773,19 @@ QSize QTabWidget::sizeHint() const
 QSize QTabWidget::minimumSizeHint() const
 {
     if ( !d->dirty ) {
+    QSize lc(0, 0), rc(0, 0);
+    if(d->leftCornerWidget)
+	lc = d->leftCornerWidget->minimumSizeHint();
+    if(d->rightCornerWidget)
+	rc = d->rightCornerWidget->minimumSizeHint();
 	QTabWidget *that = (QTabWidget*)this;
 	that->setUpLayout( TRUE );
     }
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
-    QSize sz( qMax( s.width(), t.width() ), s.height() + t.height() +
-	      ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
+
+    QSize sz( qMax( s.width(), t.width() + rc.width() + lc.width() ), 
+	      s.height() + (qMax( rc.height(), qMax(lc.height(), t.height()))) + ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }
 
