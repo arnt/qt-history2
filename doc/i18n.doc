@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.1 1998/11/03 10:29:23 warwick Exp $
+** $Id: i18n.doc,v 1.2 1998/11/04 20:00:47 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -54,6 +54,14 @@ in the following stages:
 	<p>
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
+ <li><b>Support encodings.</b>
+	<p>
+	The QTextCodec class makes it easy to support many input and
+	output encodings for your users' data.  Ideally, we recommend
+	that Unicode I/O be used as this maximizes the portability
+	of documents between users around the world, but in reality
+	it is useful to support all the appropriate formats that
+	your users' will need to process existing documents.
  <li><b>Localization.</b>
 	<p>
 	Localization is the process of adapting to local conventions
