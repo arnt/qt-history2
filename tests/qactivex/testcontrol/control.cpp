@@ -178,6 +178,7 @@ public slots:
     Alpha emitBetaRefSignal() { EMIT_REF(beta, Alpha) }
 
     IDispatch *getDispatchSlot() const { GET_PROP_SLOT(disp) }
+    IDispatch *getDispatchSlotRef( IDispatch **d ) const { *d = m_disp; return m_disp; }
     void setDispatchSlot( IDispatch *disp ) { SET_PROP_SLOT(disp) }
 
     void unicodePointerSlot( QString *unicode ) { PROP_POINTER(unicode) }
@@ -301,7 +302,7 @@ public:
     }
     bool hasStockEvents( const QString &key ) const
     {
-	return TRUE;
+	return FALSE;
     }
 };
 
