@@ -1,7 +1,6 @@
 TEMPLATE	= app
-CONFIG		+= qt warn_on debug thread
-HEADERS		= 
+CONFIG		+= qt warn_on
 SOURCES		= prodcons.cpp
-INTERFACES	= 
 TARGET		= prodcons
 CLEAN_FILES	= prodcons.out
+REQUIRES	= thread
