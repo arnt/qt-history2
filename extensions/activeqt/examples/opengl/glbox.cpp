@@ -21,6 +21,8 @@
 
 #include "glbox.h"
 
+#include <qaxaggregated.h>
+#include <quuid.h>
 #include <objsafe.h>
 
 #if defined(Q_CC_MSVC)

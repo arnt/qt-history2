@@ -34,7 +34,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     m->addMenu("&File", file );
 
     // Create a nice frame to put around the OpenGL widget
-    QFrame* f = new QFrame( this, "frame" );
+    QFrame* f = new QFrame(this);
     f->setFrameStyle( QFrame::Sunken | QFrame::Panel );
     f->setLineWidth( 2 );
 
