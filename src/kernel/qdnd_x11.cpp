@@ -1171,7 +1171,10 @@ void QDragManager::move( const QPoint & globalPos )
 
 	qt_xdnd_current_target = target;
 	qt_xdnd_current_proxy_target = proxy_target;
-	if ( target ) {
+	if ( target && object ) {
+	    // check for object shouldn't be necessary,
+	    // since a drag can't start without an object
+
 	    QArray<Atom> type;
 	    int flags = target_version << 24;
 	    const char* fmt;
