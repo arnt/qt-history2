@@ -275,7 +275,7 @@ bool QDesignerTabWidget::canMove(QMouseEvent *e) const
 
 void QDesignerTabWidget::slotCurrentChanged(int index)
 {
-    if (QWidget *page = widget(index)) {
+    if (widget(index)) {
         if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
             fw->clearSelection();
             fw->selectWidget(this, true);
