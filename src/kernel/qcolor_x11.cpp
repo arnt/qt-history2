@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#86 $
 **
 ** Implementation of QColor class for X11
 **
@@ -238,7 +238,7 @@ void QColor::initialize()
 	cmap = DefaultColormap(dpy,scr);
     } else {
 #if defined(_CC_GNU_)
-#warning "Haavard promised to add qt_create_colormap similar to the code in qgl"
+#warning "Haavard to add qt_create_colormap similar to the code in qgl"
 #endif
 	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone);
     }
