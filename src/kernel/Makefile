@@ -62,7 +62,10 @@ TARGET	=	$(LIBDIR)/libqkernel.a
 
 ####### Implicit rules
 
-.SUFFIXES: .cpp
+.SUFFIXES: .cpp .i
+
+.cpp.i:
+	$(CC) -E -o $*.i $(CFLAGS) -I$(INCDIR) $<
 
 .cpp.o:
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $<

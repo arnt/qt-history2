@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#61 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#62 $
 **
 ** Definition of QApplication class
 **
@@ -43,8 +43,8 @@ public:
     static void      setColorMode( QApplication::ColorMode );
 #endif
 
-    enum ColorSpec { NormalColor=0, CustomColor=1, PrivateColor=3,
-		     TrueColor=4 };
+    enum ColorSpec { NormalColor=0, CustomColor=1, PrivateColor=4,
+		     ManyColor=4, TrueColor=4 };
     static int	     colorSpec();
     static void      setColorSpec( int );
 

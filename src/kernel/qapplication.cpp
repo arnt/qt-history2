@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#96 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#96 $");
 
 
 /*!
@@ -152,6 +152,13 @@ static void destroy_palettes()
   <li> \c -title \e title, sets the application title (caption).
   <li> \c -style= \e style, sets the application GUI style. Possible values
        are \c motif and \c windows 
+  <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
+       on an 8-bit display.
+  <li> \c -ncols \e count, limits the number of colors allocated in the
+       color cube on a 8-bit display, if the application is using the
+       \c QApplication::ManyColor color specification.
+  <li> \c -cmap, causes the application to install a private color map
+       on an 8-bit display.
   </ul>
 
   \sa argc(), argv()
@@ -309,51 +316,51 @@ int QApplication::colorSpec()
 
   The choices are:
   <ul>
-  <li> \c QApplication::NormalColor. This is the default color allocation
-  strategy. The application allocates system global colors. This work fine
-  for most applications under X11, but Windows dithers to the 20 standard
-  colors unless the display has true color support (more than 256 colors).
+  <li> \c QApplication::NormalColor.
+    This is the default color allocation strategy.
+    Use this choice if your application uses buttons, menus,
+    texts and pixmaps with few colors.
+    With this choice, the application allocates system global colors.
+    This work fine for most applications under X11, but Windows dithers to
+    the 20 standard colors unless the display has true color support (more
+    than 256 colors).
 
-  <li> \c QApplication::CustomColor. Under X11 this is the same as \c
-  NormalColor. Under Windows, Qt creates a Windows palette if the display
-  supports 256 colors.
+  <li> \c QApplication::CustomColor.
+    Use this choice if your application needs a small number of
+    custom colors.  This choice only makes a difference on Windows
+    - the application gets more colors when it is active, but the
+    background windows look less good.
+    Under X11 this is the same as \c
+    NormalColor. Under Windows, Qt creates a Windows palette if the display
+    supports 256 colors.
 
-  <li> \c QApplication::PrivateColor. Under Windows this is the same as \c
-  CustomColor. Under X11, Qt uses a private colormap for the application.
-
-  <li> \c QApplication::TrueColor. Under Windows, this is equal to
-  \c NormalColor. Under X11, this option makes the application use
-  a true color visual if one exists but is not the default visual.
-  Silicon Graphics X servers have this feature. They provide an 8
-  bit visual as default but can deliver true color when asked.
+  <li> \c QApplication::ManyColor.
+    Use this choice if your application is very color hungry
+    (e.g. it wants thousands of colors).
+    Under Windows, this is equal to \c CustomColor.
+    Under X11 the effect is:
+    <ul>
+      <li> For 256-color displays which have at best a 256 color true color
+	    visual, the default visual is used, and a color cube is
+	    preallocated. The number of colors in the cube is as many
+	    as possible, but can be forced lower by the \e -ncols option.
+	    The user can force the application to use the true color
+	    visual by the \e -visual option.
+      <li> For 256-color displays which have a true color visual with more
+	    than 256 colors, use that visual.  Silicon Graphics X servers
+	    have this feature. They provide an 8 bit visual as default but
+	    can deliver true color when asked. The user can force the
+	    application to use the pseudo color visual by the \e -visual
+	    option. ### Final sentence not true yet.
+    </ul>
   </ul>
 
-  The settings are bit-coded and can be combined using | or +.
-
-  If you have an application that uses buttons, menus, texts and
-  pixmaps with few colors, you can probably use the \c NormalColor
-  specification (i.e. keep the default setting).
-
-  If your application needs some custom colors you should specify \c
-  CustomColor.  This only makes a difference on Windows - the application
-  gets more colors when it is active, but the background windows look
-  less good.
-
-  If the application is color hungry (e.g. it wants 200 colors), \c
-  PrivateColor is best.  On Windows, it is the same as \c CustomColor.
-  Under X, you get a private colormap.
-
-  If your application is very color hungry (e.g. it wants thousands of
-  colors), you can specify a combination such as \c
-  (TrueColor+PrivateColor) or \c (TrueColor+CustomColor).  These
-  combinations mean to use 24-bit color if that is available, and fall
-  back to \c PrivateColor or \c CustomColor respectively if not.
   
   Example:
   \code
   int main( int argc, char **argv )
   {
-      QApplication::setColorSpec( QApplication::PrivateColor );
+      QApplication::setColorSpec( QApplication::ManyColor );
       QApplication a( argc, argv );
       ...
   }
@@ -365,12 +372,7 @@ int QApplication::colorSpec()
 
   To see what mode you end up with, you can call QColor::numBitPlanes()
   once the QApplication object exists.  A value greater than 8 (typically
-  16,24 or 32) means true color.
-
-  \warning The X.h header file for X11 contains <code>#define TrueColor
-  </code>. If you include the X headers files (which is necessary only
-  when you bypass Qt and write Xlib-specific code), you must <code>#undef
-  TrueColor</code> to be able to specify \c QApplication::TrueColor.
+  16, 24 or 32) means true color.
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
 */

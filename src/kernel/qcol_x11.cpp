@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#55 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#55 $");
 
 
 /*****************************************************************************
@@ -44,6 +44,7 @@ static QColorDict *colorDict  = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
 static bool	color_init = FALSE;		// module was initialized
+static bool	colors_frozen = FALSE;		// allocating disabled
 static int	current_alloc_context = 0;	// current color alloc context
 static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
@@ -52,6 +53,9 @@ static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
 
+extern int	qt_ncols_option;		// defined in qapp_x11.cpp
+extern int	qt_visual_option;
+extern bool	qt_cmap_option;
 
 /*
   This function is called from the event loop. It resets the colorAvail
@@ -75,16 +79,17 @@ void qt_reset_color_avail()
 
 
 /*
-  Returns a truecolor visual (if there is one). The SGI X server usually
-  has an 8 bit default visual, but the application can also ask for a
-  truecolor visual. This is what we do if QApplication::colorSpec() includes
-  QApplication::TrueColor.
+  Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
+  are ignored, unless the user has explicitly requested -visual TrueColor.
+  The SGI X server usually has an 8 bit default visual, but the application
+  can also ask for a truecolor visual. This is what we do if
+  QApplication::colorSpec() is QApplication::ManyColor.
 */
 
 static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 {
     XVisualInfo *vi, rvi;
-    int best=-1, n, i;
+    int best=0, n, i;
     int scr = DefaultScreen(dpy);
     rvi.c_class = TrueColor;
     rvi.screen  = scr;
@@ -92,12 +97,14 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 			 &rvi, &n );
     if ( vi ) {
 	for ( i=0; i<n; i++ ) {
-	    if ( (vi[i].depth == 24) || (vi[i].depth > 24 && best<0) )
+	    if ( vi[i].depth > vi[best].depth )
 		best = i;
 	}
     }
     Visual *v = DefaultVisual(dpy,scr);
-    if ( best < 0 || (vi[best].visualid == XVisualIDFromVisual(v)) ) {
+    if ( !vi || (vi[best].visualid == XVisualIDFromVisual(v))
+       || (vi[best].depth <= 8 && qt_visual_option != TrueColor) )
+    {
 	*depth = DefaultDepth(dpy,scr);
 	*ncols = DisplayCells(dpy,scr);	
     } else {
@@ -171,9 +178,13 @@ void QColor::initialize()
     int	     depth, ncols;
     Colormap cmap;    
     const int tc = TrueColor;
-#undef  TrueColor				// defined in X.h
 
-    if ( spec & (int)QApplication::TrueColor ) {
+#if QT_VERSION == 200
+#error "Remove old colorspecs"
+    if ( spec == (int)QApplication::ManyColor ) {
+#else /* } bracket match */
+    if ( spec & ((int)QApplication::ManyColor | 2) ) {
+#endif
 	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
     } else {
 	g_vis = DefaultVisual(dpy,scr);
@@ -188,8 +199,7 @@ void QColor::initialize()
     if ( g_truecolor )
 	defCmap = defVis;
     else
-	defCmap = (spec & QApplication::PrivateColor)
-	    != QApplication::PrivateColor;
+	defCmap = !qt_cmap_option;
 
     if ( defCmap )
 	cmap = DefaultColormap(dpy,scr);
@@ -231,6 +241,82 @@ void QColor::initialize()
     } else {
 	((QColor*)(&black))->alloc();
 	((QColor*)(&white))->alloc();
+    }
+
+#if QT_VERSION == 200
+#error "Remove old colorspecs"
+    if ( spec == (int)QApplication::ManyColor && !g_truecolor ) {
+#else /* } bracket match */
+    if ( (spec & ((int)QApplication::ManyColor | 2)) && !g_truecolor ) {
+#endif
+	// Allocate a color cube, starting from the most common and extreme
+	// colours in the cube, then each most-distant color.
+	static QRgb cmap[216] = {
+	    0x000000, 0xffffff, 0x0000ff, 0x00ff00,
+	    0xff0000, 0x00ffff, 0xffff00, 0xff00ff,
+	    0x00ff99, 0xff0099, 0xcccc00, 0x6699ff,
+	    0x666666, 0x33ff00, 0xff3300, 0xff66ff,
+	    0x9900ff, 0x99ff99, 0xff9966, 0x009933,
+	    0x990033, 0x33ffff, 0x0099cc, 0x003399,
+	    0x660099, 0x669900, 0x99ffff, 0xff00ff,
+	    0xffff99, 0xcccccc, 0x9966cc, 0x66cc66,
+	    0xcc3366, 0xffff33, 0x99ff33, 0x333333,
+	    0x00ccff, 0xcc99ff, 0x3366ff, 0xcc33ff,
+	    0x6633ff, 0x66ffcc, 0x33cccc, 0xff99cc,
+	    0xff33cc, 0x3333cc, 0xcc00cc, 0xcc9999,
+	    0x669999, 0xff6699, 0x336699, 0x993399,
+	    0xccff66, 0x33ff66, 0x00cc66, 0x999966,
+	    0x339966, 0x006666, 0x330066, 0x00ff33,
+	    0x33cc33, 0xcc9933, 0xff6633, 0x996633,
+	    0xff0033, 0x00cc00, 0xff9900, 0xcc6600,
+	    0x336600, 0x993300, 0xcc0000, 0x660000,
+	    0xccffff, 0x66ffff, 0x00ffff, 0xffccff,
+	    0xccccff, 0x99ccff, 0x66ccff, 0x33ccff,
+	    0xff99ff, 0x9999ff, 0x3399ff, 0x0099ff,
+	    0xcc66ff, 0x9966ff, 0x6666ff, 0x0066ff,
+	    0xff33ff, 0x9933ff, 0x3333ff, 0x0033ff,
+	    0xcc00ff, 0x6600ff, 0x3300ff, 0xffffcc,
+	    0xccffcc, 0x99ffcc, 0x33ffcc, 0x00ffcc,
+	    0xffcccc, 0x99cccc, 0x66cccc, 0x00cccc,
+	    0xcc99cc, 0x9999cc, 0x6699cc, 0x3399cc,
+	    0xff66cc, 0xcc66cc, 0x6666cc, 0x3366cc,
+	    0x0066cc, 0xcc33cc, 0x9933cc, 0x6633cc,
+	    0x0033cc, 0xff00cc, 0x9900cc, 0x6600cc,
+	    0x3300cc, 0x0000cc, 0xccff99, 0x66ff99,
+	    0x33ff99, 0xffcc99, 0xcccc99, 0x99cc99,
+	    0x66cc99, 0x33cc99, 0x00cc99, 0xff9999,
+	    0x999999, 0x339999, 0x009999, 0xcc6699,
+	    0x996699, 0x666699, 0x006699, 0xff3399,
+	    0xcc3399, 0x663399, 0x333399, 0xcc0099,
+	    0x990099, 0x330099, 0x000099, 0xffff66,
+	    0x99ff66, 0x66ff66, 0x00ff66, 0xffcc66,
+	    0xcccc66, 0x99cc66, 0x33cc66, 0xcc9966,
+	    0x669966, 0x009966, 0xff6666, 0xcc6666,
+	    0x996666, 0x336666, 0xff3366, 0x993366,
+	    0x663366, 0x333366, 0x003366, 0xff0066,
+	    0xcc0066, 0x990066, 0x660066, 0x000066,
+	    0xccff33, 0x66ff33, 0x33ff33, 0xffcc33,
+	    0xcccc33, 0x99cc33, 0x66cc33, 0x00cc33,
+	    0xff9933, 0x999933, 0x669933, 0x339933,
+	    0xcc6633, 0x666633, 0x336633, 0x006633,
+	    0xff3333, 0xcc3333, 0x993333, 0x663333,
+	    0x003333, 0xcc0033, 0x660033, 0x330033,
+	    0x000033, 0xffff00, 0xccff00, 0x99ff00,
+	    0x66ff00, 0x00ff00, 0xffcc00, 0x99cc00,
+	    0x66cc00, 0x33cc00, 0xcc9900, 0x999900,
+	    0x339900, 0x009900, 0xff6600, 0x996600,
+	    0x666600, 0x006600, 0xcc3300, 0x663300,
+	};
+
+	if (qt_ncols_option>216) qt_ncols_option=216;
+
+	for ( int i = 0; i < qt_ncols_option; i++ ) {
+            QColor *c=new QColor(cmap[i]);
+	    c->alloc();
+        }
+
+	// No more custom allocations: user has set limit
+	colors_frozen = TRUE;
     }
 
 #if 0 /* 0 == allocate colors on demand */
@@ -351,7 +437,8 @@ uint QColor::alloc()
     col.red   = r << 8;
     col.green = g << 8;
     col.blue  = b << 8;
-    if ( colorAvail && XAllocColor(dpy, QPaintDevice::x11Colormap(), &col) ) {
+    if ( !colors_frozen
+    && colorAvail && XAllocColor(dpy, QPaintDevice::x11Colormap(), &col) ) {
 	pix = (uint)col.pixel;			// allocated X11 color
 	rgbVal &= RGB_MASK;
     } else {					// get closest color
@@ -372,8 +459,9 @@ uint QColor::alloc()
 	    XQueryColors( dpy, QPaintDevice::x11Colormap(), g_carr, maxi );
 	    g_our_alloc = new bool[maxi];
 	    CHECK_PTR( g_our_alloc );
-	    memset( g_our_alloc, FALSE, sizeof(g_our_alloc) );
+	    memset( g_our_alloc, FALSE, maxi*sizeof(*g_our_alloc) );
 	}
+
 	xc = &g_carr[0];
 	for ( i=0; i<maxi; i++ ) {		// find closest color
 	    rx = r - (xc->red >> 8);

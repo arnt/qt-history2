@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#212 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#211 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#212 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -142,6 +142,9 @@ static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
 void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
+int		qt_ncols_option = 256;		// used in qcol_x11.cpp
+int		qt_visual_option = -1;
+bool		qt_cmap_option = FALSE;
 
 class QETWidget : public QWidget		// event translator widget
 {
@@ -247,6 +250,20 @@ void qt_init( int *argcptr, char **argv )
 		QApplication::setStyle( WindowsStyle );
 	    else if ( s == "motif" )
 		QApplication::setStyle( MotifStyle );
+	} else if ( arg == "-ncols" ) {   // xv and netscape use this name
+	    if ( ++i < argc )
+		qt_ncols_option = QMAX(0,atoi(argv[i]));
+	} else if ( arg == "-visual" ) {  // xv and netscape use this name
+	    if ( ++i < argc ) {
+		QString s = QString(argv[i]).lower();
+		if ( s == "truecolor" ) {
+		    qt_visual_option = TrueColor;
+		} else {
+		    // ### Should we honor any others?
+		}
+	    }
+	} else if ( arg == "-cmap" ) {    // xv uses this name
+	    qt_cmap_option = TRUE;
 	}
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
