@@ -49,10 +49,8 @@ void QTextEngine::shapeText( int item ) const
 	    bool kern = false;
 	    for (int i = 0; i < si.num_glyphs-1; ++i) {
 		FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
-		kerning.x >>= 6;
-		g[i].advance.x += kerning.x;
-		kerning.y >>= 6;
-		g[i].advance.y += kerning.y;
+		g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
+		g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
 		kern |= (kerning.x != 0);
 		kern |= (kerning.y != 0);
 	    }

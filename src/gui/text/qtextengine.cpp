@@ -955,7 +955,7 @@ void QTextEngine::splitItem( int item, int pos )
 	for (int i = 0; i < newItem.num_glyphs; i++)
 	    logClusters(&newItem)[i] -= breakGlyph;
 
-	int w = 0;
+	Q26Dot6 w;
 	const QGlyphLayout *g = glyphs(&oldItem);
 	for(int j = 0; j < breakGlyph; ++j)
 	    w += (g++)->advance.x;
@@ -1000,9 +1000,9 @@ int QTextEngine::findItem(int strPos) const
     return item;
 }
 
-int QTextEngine::width( int from, int len ) const
+Q26Dot6 QTextEngine::width( int from, int len ) const
 {
-    int w = 0;
+    Q26Dot6 w;
 
 //     qDebug("QTextEngine::width( from = %d, len = %d ), numItems=%d, strleng=%d", from,  len, items.size(), string.length() );
     for ( int i = 0; i < items.size(); i++ ) {

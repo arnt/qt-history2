@@ -25,22 +25,22 @@
 QRect QTextObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
-    return QRect( 0, - si.ascent, si.width, si.ascent+si.descent );
+    return QRect( 0, -si.ascent.toInt(), si.width.toInt(), (si.ascent+si.descent).toInt() );
 }
 
 int QTextObject::width() const
 {
-    return eng->items[itm].width;
+    return eng->items[itm].width.toInt();
 }
 
 int QTextObject::ascent() const
 {
-    return eng->items[itm].ascent;
+    return eng->items[itm].ascent.toInt();
 }
 
 int QTextObject::descent() const
 {
-    return eng->items[itm].descent;
+    return eng->items[itm].descent.toInt();
 }
 
 void QTextObject::setWidth( int w )
@@ -214,9 +214,6 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     line.y = y;
     line.from = from;
     line.length = 0;
-    line.textWidth = 0;
-    line.ascent = 0;
-    line.descent = 0;
 
     if (!d->items.size()) {
 	// ##### use block font
@@ -244,10 +241,10 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     const QCharAttributes *attributes = d->attributes();
 
-    int minw = 0;
+    Q26Dot6 minw;
 
 //     qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
-    int spacew = 0;
+    Q26Dot6 spacew;
     while (item < d->items.size()) {
 	d->shape(item);
 	const QScriptItem &current = d->items[item];
@@ -292,14 +289,14 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	    int gs = lastNonSpace < pos ? -1 : logClusters[lastNonSpace];
 	    int ge = logClusters[next];
 
-	    int tmpw = 0;
+	    Q26Dot6 tmpw;
 	    while (gp <= gs) {
 		tmpw += glyphs[gp].advance.x;
 		++gp;
 	    }
 	    minw = qMax(tmpw, minw);
 
-	    int nextspacew = 0;
+	    Q26Dot6 nextspacew;
 	    while (gp <= ge) {
 		nextspacew += glyphs[gp].advance.x;
 		++gp;
@@ -354,12 +351,16 @@ QTextLine QTextLayout::findLine(int pos) const
 
 QRect QTextLayout::boundingRect() const
 {
-    QRect r;
+    Q26Dot6 xmin, xmax, ymin, ymax;
     for (int i = 0; i < d->lines.size(); ++i) {
 	const QScriptLine &si = d->lines[i];
-	r |= QRect(si.x, si.y, si.width, si.ascent + si.descent);
+	xmin = qMin(xmin, si.x);
+	ymin = qMin(ymin, si.y);
+	xmax = qMin(xmax, si.x+si.width);
+	// ### shouldn't the ascent be used in ymin???
+	ymax = qMin(ymax, si.y+si.ascent+si.descent);
     }
-    return r;
+    return QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
 }
 
 QRegion QTextLayout::region() const
@@ -370,7 +371,7 @@ QRegion QTextLayout::region() const
 
 int QTextLayout::minimumWidth() const
 {
-    return d->minWidth;
+    return d->minWidth.toInt();
 }
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
@@ -427,7 +428,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 	QTextLine l(i, d);
 	const QScriptLine &sl = d->lines[i];
 
-	if (sl.y > clipe || sl.y + sl.ascent + sl.descent < clipy)
+	if (sl.y.toInt() > clipe || (sl.y + sl.ascent + sl.descent).toInt() < clipy)
 	    continue;
 
 	int from = sl.from;
@@ -444,16 +445,16 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
 		if (s.from() + s.length() > from && s.from() < from+length) {
 		    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from(), from)),
-						   pos.y() + sl.y),
+						   pos.y() + sl.y.toInt()),
 					    QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
-						   pos.y() + sl.y + sl.ascent + sl.descent));
+						   pos.y() + (sl.y + sl.ascent + sl.descent).toInt()));
 		    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos, j);
 		}
 	    }
 	}
 	if (sl.from <= cursorPos && sl.from + sl.length > cursorPos) {
 	    int x = l.cursorToX(cursorPos);
-	    p->drawLine(pos.x() + x, pos.y() + sl.y, pos.x() + x, pos.y() + sl.y + sl.ascent + sl.descent );
+	    p->drawLine(pos.x() + x, pos.y() + sl.y.toInt(), pos.x() + x, pos.y() + (sl.y + sl.ascent + sl.descent).toInt() );
 	}
     }
 
@@ -466,37 +467,37 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 QRect QTextLine::rect() const
 {
     const QScriptLine& si = eng->lines[i];
-    return QRect( si.x, si.y, si.width, si.ascent+si.descent );
+    return QRect( si.x.toInt(), si.y.toInt(), si.width.toInt(), (si.ascent + si.descent).toInt() );
 }
 
 int QTextLine::x() const
 {
-    return eng->lines[i].x;
+    return eng->lines[i].x.toInt();
 }
 
 int QTextLine::y() const
 {
-    return eng->lines[i].y;
+    return eng->lines[i].y.toInt();
 }
 
 int QTextLine::width() const
 {
-    return eng->lines[i].width;
+    return eng->lines[i].width.toInt();
 }
 
 int QTextLine::ascent() const
 {
-    return eng->lines[i].ascent;
+    return eng->lines[i].ascent.toInt();
 }
 
 int QTextLine::descent() const
 {
-    return eng->lines[i].descent;
+    return eng->lines[i].descent.toInt();
 }
 
 int QTextLine::textWidth() const
 {
-    return eng->lines[i].textWidth;
+    return eng->lines[i].textWidth.toInt();
 }
 
 void QTextLine::adjust(int y, int x1, int x2)
@@ -514,7 +515,7 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
+void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -531,6 +532,8 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
     int lastItem = eng->findItem(lineEnd - 1);
     int nItems = lastItem-firstItem+1;
 
+    Q26Dot6 x(xpos);
+    Q26Dot6 y(ypos);
     x += line.x;
     y += line.y + line.ascent;
 
@@ -559,7 +562,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		// ###
 		selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-	    eng->inlineObjectIface->drawObject(p, QPoint(x, y), QTextObject(item, eng), format, selType);
+	    eng->inlineObjectIface->drawObject(p, QPoint(x.toInt(), y.toInt()), QTextObject(item, eng), format, selType);
 	}
 
 	if ( si.isTab || si.isObject ) {
@@ -595,8 +598,8 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	QTextItem gf;
 	gf.right_to_left = (si.analysis.bidiLevel % 2);
 	gf.hasPositioning = si.hasPositioning;
-	gf.ascent = si.ascent;
-	gf.descent = si.descent;
+	gf.ascent = si.ascent.toInt();
+	gf.descent = si.descent.toInt();
 	gf.num_glyphs = ge - gs + 1;
 	gf.glyphs = glyphs + gs;
 	gf.fontEngine = fe;
@@ -618,13 +621,13 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 
 	    gf.num_glyphs = gtmp - gs;
 	    gf.glyphs = glyphs + gs;
-	    int w = 0;
+	    Q26Dot6 w;
 	    while (gs < gtmp) {
 		w += glyphs[gs].advance.x;
 		++gs;
 	    }
-	    gf.width = w;
-	    p->drawTextItem(QPoint(x, y), gf, textFlags);
+	    gf.width = w.toInt();
+	    p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, textFlags);
 	    x += w;
 	    if (ul && *ul != -1 && *ul < end) {
 		// draw underline
@@ -636,8 +639,8 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		    w += glyphs[gs].advance.x;
 		    ++gs;
 		}
-		gf.width = w;
-		p->drawTextItem(QPoint(x, y), gf, (textFlags ^ Qt::Underline));
+		gf.width = w.toInt();
+		p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, (textFlags ^ Qt::Underline));
 		x += w;
 		++ul;
 	    }
@@ -652,7 +655,7 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 {
     if (!i && !eng->items.size()) {
 	*cPos = 0;
-	return eng->lines[0].x;
+	return eng->lines[0].x.toInt();
     }
 
     int pos = *cPos;
@@ -678,7 +681,7 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 	    glyph_pos++;
     }
 
-    int x = 0;
+    Q26Dot6 x;
     bool reverse = eng->items[itm].analysis.bidiLevel % 2;
 
     if ( reverse ) {
@@ -743,15 +746,17 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
     }
 
     *cPos = pos + si->position;
-    return x;
+    return x.toInt();
 }
 
-int QTextLine::xToCursor( int x, CursorPosition cpos ) const
+int QTextLine::xToCursor( int xpos, CursorPosition cpos ) const
 {
     const QScriptLine &line = eng->lines[i];
 
     if (!line.length)
 	return line.from;
+
+    Q26Dot6 x(xpos);
 
     int lineEnd = line.from + line.length;
     // don't draw trailing spaces or take them into the layout.
@@ -781,8 +786,8 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
     int gl_after = 0;
     int it_before = 0;
     int it_after = 0;
-    int x_before = 0xffff;
-    int x_after = 0xffff;
+    Q26Dot6 x_before(0xffff);
+    Q26Dot6 x_after(0xffff);
 
 
     for (int i = 0; i < nItems; ++i) {
@@ -809,8 +814,7 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
 		    gl_before = gs;
 		    it_before = item;
 		    x_before = x;
-		}
-		if (x <= 0) {
+		} else {
 		    gl_after = gs;
 		    it_after = item;
 		    x_after = -x;

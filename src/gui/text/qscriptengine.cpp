@@ -51,14 +51,14 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 
     if ( si->analysis.script == QFont::Hebrew ) {
 	// we need to attach below the baseline, because of the hebrew iud.
-	baseInfo.height= qMax( baseInfo.height, -baseInfo.y );
+	baseInfo.height = qMax( baseInfo.height, -baseInfo.y );
     }
-    QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
+    QRect baseRect( baseInfo.x.value(), baseInfo.y.value(), baseInfo.width.value(), baseInfo.height.value() );
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
 //     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
 
-    int size = f->ascent()/10;
+    int size = f->ascent().value()/10;
     int offsetBase = (size - 4) / 4 + qMin( size, 4 ) + 1;
 //     qDebug("offset = %d", offsetBase );
 
@@ -72,7 +72,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 	glyph_t mark = glyphs[gfrom+i].glyph;
 	QPoint p;
 	glyph_metrics_t markInfo = f->boundingBox( mark );
-	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
+	QRect markRect( markInfo.x.value(), markInfo.y.value(), markInfo.width.value(), markInfo.height.value() );
 
 	int offset = offsetBase;
 	unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
@@ -171,11 +171,11 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
 	attachmentRect |= markRect;
 	lastCmb = cmb;
 	if ( rightToLeft ) {
-	    glyphs[gfrom+i].offset.x = p.x();
-	    glyphs[gfrom+i].offset.y = p.y() - baseInfo.yoff;
+	    glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6);
+	    glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
 	} else {
-	    glyphs[gfrom+i].offset.x = p.x() - baseInfo.xoff;
-	    glyphs[gfrom+i].offset.y = p.y() - baseInfo.yoff;
+	    glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6) - baseInfo.xoff;
+	    glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
 	}
     }
 }

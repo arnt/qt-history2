@@ -71,9 +71,7 @@ public:
 
     QFontEngine() {
 	count = 0; cache_count = 0;
-#ifdef Q_WS_QWS
 	_scale = 1;
-#endif
     }
 
     enum FlagsEnum {
@@ -96,35 +94,30 @@ public:
 #endif
 
     virtual QOpenType *openType() const { return 0; }
-    virtual void recalcAdvances(int , QGlyphLayout *, Flags flags) const {}
+    virtual void recalcAdvances(int , QGlyphLayout *, Flags) const {}
 
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
-    virtual int ascent() const = 0;
-    virtual int descent() const = 0;
-    virtual int leading() const = 0;
+    virtual Q26Dot6 ascent() const = 0;
+    virtual Q26Dot6 descent() const = 0;
+    virtual Q26Dot6 leading() const = 0;
 
-    virtual int lineThickness() const;
-    virtual int underlinePosition() const;
+    virtual Q26Dot6 lineThickness() const;
+    virtual Q26Dot6 underlinePosition() const;
 
-    virtual int maxCharWidth() const = 0;
-    virtual int minLeftBearing() const { return 0; }
-    virtual int minRightBearing() const { return 0; }
+    virtual Q26Dot6 maxCharWidth() const = 0;
+    virtual Q26Dot6 minLeftBearing() const { return Q26Dot6(); }
+    virtual Q26Dot6 minRightBearing() const { return Q26Dot6(); }
 
     virtual const char *name() const = 0;
 
     virtual bool canRender(const QChar *string,  int len) = 0;
 
-#ifdef Q_WS_QWS
-    void setScale(double s) { _scale = (int)(s*256); }
-    double scale() const { return ((double)_scale)/256.; }
-#else
-    virtual void setScale(double) {}
-    virtual double scale() const { return 1.; }
-#endif
+    virtual void setScale(double s) { _scale = Q26Dot6(s); }
+    virtual double scale() const { return _scale.toDouble(); }
 
     virtual Type type() const = 0;
 
@@ -156,9 +149,7 @@ public:
     short lbearing;
     short rbearing;
 #endif // Q_WS_WIN
-#ifdef Q_WS_QWS
-    int _scale;
-#endif
+    Q26Dot6 _scale;
 };
 
 #if defined(Q_WS_QWS)
@@ -188,14 +179,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
-    int underlinePosition() const;
-    int lineThickness() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const;
+    Q26Dot6 minRightBearing() const;
+    Q26Dot6 underlinePosition() const;
+    Q26Dot6 lineThickness() const;
 
     Type type() const;
 
@@ -228,12 +219,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const { return 0; }
-    int minRightBearing() const { return 0; }
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const { return 0; }
+    Q26Dot6 minRightBearing() const { return 0; }
 
 #ifdef Q_WS_X11
     int cmap() const;
@@ -288,20 +279,17 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int lineThickness() const;
-    int underlinePosition() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 lineThickness() const;
+    Q26Dot6 underlinePosition() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const;
+    Q26Dot6 minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
-
-    void setScale(double scale);
-    double scale() const { return _scale; }
 
     bool canRender(const QChar *string,  int len);
 
@@ -320,9 +308,8 @@ private:
     int _cmap;
     short lbearing;
     short rbearing;
-    float _scale;
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
-    mutable unsigned char widthCache[widthCacheSize];
+    mutable struct { Q26Dot6 x; Q26Dot6 y; } widthCache[widthCacheSize];
     glyph_t cmapCache[cmapCacheSize];
 
     TransformedFont *transformed_fonts;
@@ -346,20 +333,18 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const;
+    Q26Dot6 minRightBearing() const;
 
     int cmap() const;
     const char *name() const;
 
     bool canRender(const QChar *string,  int len);
 
-    void setScale(double scale);
-    double scale() const { return _scale; }
     Type type() const;
 
     Qt::HANDLE handle() const { return (Qt::HANDLE) _fs->fid; }
@@ -369,7 +354,6 @@ private:
     XFontStruct *_fs;
     QByteArray _name;
     QTextCodec *_codec;
-    float _scale; // needed for printing, to correctly scale font metrics for bitmap fonts
     int _cmap;
     short lbearing;
     short rbearing;
@@ -392,12 +376,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const;
+    Q26Dot6 minRightBearing() const;
 
     int cmap() const { return -1; } // ###
     const char *name() const;
@@ -417,9 +401,9 @@ private:
     int _count;
 
     glyph_t   glyphIndices [0x200];
-    short glyphAdvances[0x200];
+    Q26Dot6 glyphAdvances[0x200];
     glyph_t euroIndex;
-    short euroAdvance;
+    Q26Dot6 euroAdvance;
 };
 
 
@@ -449,10 +433,10 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
 
     const char *name() const { return "ATSUI"; }
 
@@ -485,12 +469,12 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
+    Q26Dot6 ascent() const;
+    Q26Dot6 descent() const;
+    Q26Dot6 leading() const;
+    Q26Dot6 maxCharWidth() const;
+    Q26Dot6 minLeftBearing() const;
+    Q26Dot6 minRightBearing() const;
 
     const char *name() const;
 

@@ -1982,7 +1982,8 @@ int QFontMetrics::ascent() const
     QFontEngine *latin_engine = d->engineForScript( QFont::Latin );
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
-    return qMax(engine->ascent(), latin_engine->ascent());
+
+    return qMax(engine->ascent(), latin_engine->ascent()).toInt();
 }
 
 
@@ -2004,7 +2005,7 @@ int QFontMetrics::descent() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return qMax(engine->descent(), latin_engine->descent());
+    return qMax(engine->descent(), latin_engine->descent()).toInt();
 }
 
 /*!
@@ -2023,7 +2024,7 @@ int QFontMetrics::height() const
     Q_ASSERT( latin_engine != 0 );
 
     return (qMax(engine->ascent(), latin_engine->ascent()) +
-	    qMax(engine->descent(), latin_engine->descent()) + 1);
+	    qMax(engine->descent(), latin_engine->descent())).toInt() + 1;
 }
 
 /*!
@@ -2040,7 +2041,7 @@ int QFontMetrics::leading() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return qMax(engine->leading(), latin_engine->leading());
+    return qMax(engine->leading(), latin_engine->leading()).toInt();
 }
 
 /*!
@@ -2059,7 +2060,7 @@ int QFontMetrics::lineSpacing() const
 
     return (qMax(engine->leading(), latin_engine->leading()) +
 	    qMax(engine->ascent(), latin_engine->ascent()) +
-	    qMax(engine->descent(), latin_engine->descent()) + 1);
+	    qMax(engine->descent(), latin_engine->descent())).toInt() + 1;
 }
 
 /*!
@@ -2079,7 +2080,7 @@ int QFontMetrics::minLeftBearing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return qMin(engine->minLeftBearing(), latin_engine->minLeftBearing());
+    return qMin(engine->minLeftBearing(), latin_engine->minLeftBearing()).toInt();
 }
 
 /*!
@@ -2099,7 +2100,7 @@ int QFontMetrics::minRightBearing() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( latin_engine != 0 );
 
-    return qMin(engine->minRightBearing(), latin_engine->minRightBearing());
+    return qMin(engine->minRightBearing(), latin_engine->minRightBearing()).toInt();
 }
 
 /*!
@@ -2112,7 +2113,7 @@ int QFontMetrics::maxWidth() const
     Q_ASSERT( engine != 0 );
     Q_ASSERT( lengine != 0 );
 
-    return qMax(engine->maxCharWidth(), lengine->maxCharWidth());
+    return qMax(engine->maxCharWidth(), lengine->maxCharWidth()).toInt();
 }
 
 /*!
@@ -2159,7 +2160,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
-    return gi.x;
+    return gi.x.toInt();
 }
 #endif // !Q_WS_WIN
 
@@ -2191,7 +2192,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
-    return gi.xoff - gi.x - gi.width;
+    return (gi.xoff - gi.x - gi.width).toInt();
 }
 #endif // !Q_WS_WIN
 
@@ -2214,46 +2215,9 @@ int QFontMetrics::width( const QString &str, int len ) const
     if (len == 0)
 	return 0;
 
-    int pos = 0;
-    int width = 0;
-#ifndef Q_WS_MAC
-    const QChar *ch = str.unicode();
-
-    while (pos < len) {
-	unsigned short uc = ch->unicode();
-	if (uc < QFontEngineData::widthCacheSize && d->engineData && d->engineData->widthCache[uc])
-	    width += d->engineData->widthCache[uc];
-	else if ( ::category( *ch ) != QChar::Mark_NonSpacing ) {
-	    QFont::Script script;
-	    SCRIPT_FOR_CHAR( script, *ch );
-
-	    if (script >= QFont::Arabic && script <= QFont::Khmer)
-		break;
-
-	    QFontEngine *engine = d->engineForScript( script );
-	    Q_ASSERT( engine != 0 );
-
-	    QGlyphLayout glyphs[8];
-	    int nglyphs = 7;
-	    engine->stringToCMap( ch, 1, glyphs, &nglyphs, 0 );
-
-	    // ### can nglyphs != 1 happen at all? Not currently I think
-	    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance.x < 0x100 )
-		d->engineData->widthCache[ uc ] = glyphs[0].advance.x;
-	    width += glyphs[0].advance.x;
-	}
-	++pos;
-	++ch;
-    }
-    if ( pos < len ) {
-#endif
-	QTextEngine layout( str, d );
-	layout.itemize( QTextEngine::WidthOnly );
-	width += layout.width( pos, len-pos );
-#ifndef Q_WS_MAC
-    }
-#endif
-    return width;
+    QTextEngine layout( str, d );
+    layout.itemize( QTextEngine::WidthOnly );
+    return layout.width(0, len).toInt();
 }
 
 /*! \fn int QFontMetrics::width( QChar ch ) const
@@ -2325,7 +2289,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     QTextEngine layout( str, d );
     layout.itemize( QTextEngine::NoBidi|QTextEngine::SingleLine );
     glyph_metrics_t gm = layout.boundingBox( 0, len );
-    return QRect( gm.x, gm.y, gm.width, gm.height );
+    return QRect(gm.x.toInt(), gm.y.toInt(), gm.width.toInt(), gm.height.toInt());
 }
 #endif
 
@@ -2353,8 +2317,8 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
-    glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
-    return QRect( gi.x, gi.y, gi.width, gi.height );
+    glyph_metrics_t gm = engine->boundingBox( glyphs[0].glyph );
+    return QRect(gm.x.toInt(), gm.y.toInt(), gm.width.toInt(), gm.height.toInt());
 }
 
 /*!
@@ -2483,7 +2447,7 @@ int QFontMetrics::underlinePos() const
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
 
-    return engine->underlinePosition();
+    return engine->underlinePosition().toInt();
 }
 
 /*!
@@ -2494,8 +2458,7 @@ int QFontMetrics::underlinePos() const
 */
 int QFontMetrics::overlinePos() const
 {
-    int pos = ascent() + 1;
-    return pos > 0 ? pos : 1;
+    return ascent() + 1;
 }
 
 /*!
@@ -2521,7 +2484,7 @@ int QFontMetrics::lineWidth() const
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
 
-    return engine->lineThickness();
+    return engine->lineThickness().toInt();
 }
 
 

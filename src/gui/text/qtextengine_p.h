@@ -36,6 +36,88 @@ class QPainter;
 
 class QTextInlineObjectInterface;
 
+enum q26Dot6 { F26Dot6 };
+
+class Q26Dot6 {
+public:
+    Q26Dot6() : val(0) {}
+    Q26Dot6(int f26d6, q26Dot6) : val(f26d6) {}
+    Q26Dot6(int i) : val(i<<6) {}
+    Q26Dot6(long i) : val(i<<6) {}
+    Q26Dot6(double d) { val = (int)(d*64.); }
+    Q26Dot6(const Q26Dot6 &other) : val(other.val) {}
+    Q26Dot6 & operator=(const Q26Dot6 &other) { val = other.val; return *this; }
+
+    inline int value() const { return val; }
+    inline Q26Dot6 &setValue(int value) { val = value; return *this; }
+
+    inline int toInt() const { return (((val)+32) & -64)>>6; }
+    inline double toDouble() const { return ((double)val)/64.; }
+
+    inline int truncate() const { return val>>6; }
+    inline Q26Dot6 round() const { return Q26Dot6(((val)+32) & -64, F26Dot6); }
+    inline Q26Dot6 floor() const { return Q26Dot6((val) & -64, F26Dot6); }
+    inline Q26Dot6 ceil() const { return Q26Dot6((val+63) & -64, F26Dot6); }
+
+    inline Q26Dot6 operator+(const Q26Dot6 &other) const { return Q26Dot6(val + other.val, F26Dot6); }
+    inline Q26Dot6 &operator+=(const Q26Dot6 &other) { val += other.val; return *this; }
+    inline Q26Dot6 operator-(const Q26Dot6 &other) const { return Q26Dot6(val - other.val, F26Dot6); }
+    inline Q26Dot6 &operator-=(const Q26Dot6 &other) { val -= other.val; return *this; }
+    inline Q26Dot6 operator-() const { return Q26Dot6(-val, F26Dot6); }
+
+    inline bool operator==(const Q26Dot6 &other) const { return val == other.val; }
+    inline bool operator!=(const Q26Dot6 &other) const { return val != other.val; }
+    inline bool operator<(const Q26Dot6 &other) const { return val < other.val; }
+    inline bool operator>(const Q26Dot6 &other) const { return val > other.val; }
+    inline bool operator<=(const Q26Dot6 &other) const { return val <= other.val; }
+    inline bool operator>=(const Q26Dot6 &other) const { return val >= other.val; }
+    inline bool operator!() const { return !val; }
+
+    inline Q26Dot6 &operator/=(int d) { val /= d; return *this; }
+    inline Q26Dot6 &operator/=(double d) { val = (int)(val/d); return *this; }
+    inline Q26Dot6 &operator/=(const Q26Dot6 &o) {
+	if ( o == Q26Dot6() ) {
+	    val =0x7FFFFFFFL;
+	} else {
+	    bool neg = false;
+	    Q_INT64 a = val;
+	    Q_INT64 b = o.val;
+	    if ( a < 0 ) { a = -a; neg = true; }
+	    if ( b < 0 ) { b = -b; neg = !neg; }
+
+	    int res = (int)(((a << 6) + (b >> 1)) / b);
+
+	    val = (neg ? -res : res);
+	}
+	return *this;
+    }
+    inline Q26Dot6 operator/(int d) const { return Q26Dot6(val/d, F26Dot6); }
+    inline Q26Dot6 operator/(double d) const { return Q26Dot6((int)(val/d), F26Dot6); }
+    inline Q26Dot6 operator/(const Q26Dot6 &b) const { Q26Dot6 v = *this; return (v /= b); }
+    inline Q26Dot6 &operator*=(int i) { val *= i; return *this; }
+    inline Q26Dot6 &operator*=(double d) { val = (int) (val*d); return *this; }
+    inline Q26Dot6 &operator*=(const Q26Dot6 &o) {
+	bool neg = false;
+	Q_INT64 a = val;
+	Q_INT64 b = o.val;
+	if ( a < 0 ) { a = -a; neg = true; }
+	if ( b < 0 ) { b = -b; neg = !neg; }
+
+	int res = (int)((a * b + 0x20L) >> 6);
+	val = neg ? -res : res;
+	return *this;
+    }
+    inline Q26Dot6 operator*(int i) const { return Q26Dot6(val*i, F26Dot6); }
+    inline Q26Dot6 operator*(double d) const { return Q26Dot6((int)(val*d), F26Dot6); }
+    inline Q26Dot6 operator*(const Q26Dot6 &o) const { Q26Dot6 v = *this; return (v *= o); }
+
+private:
+    int val;
+};
+
+inline Q26Dot6 operator*(int i, const Q26Dot6 &d) { return d*i; }
+inline Q26Dot6 operator*(double d, const Q26Dot6 &d2) { return d2*d; }
+
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
 // * negative yoff means the following stuff is drawn higher up.
@@ -43,28 +125,24 @@ class QTextInlineObjectInterface;
 // xoo and yoff
 struct glyph_metrics_t
 {
-    inline glyph_metrics_t() {
-	x = 100000;
-	y = 100000;
-	width = 0;
-	height = 0;
-	xoff = 0;
-	yoff = 0;
-    }
-    inline glyph_metrics_t( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
-	x = _x;
-	y = _y;
-	width = _width;
-	height = _height;
-	xoff = _xoff;
-	yoff = _yoff;
-    }
-    int x;
-    int y;
-    int width;
-    int height;
-    int xoff;
-    int yoff;
+    inline glyph_metrics_t()
+	: x(100000),
+	  y(100000)
+	{}
+    inline glyph_metrics_t(Q26Dot6 _x, Q26Dot6 _y, Q26Dot6 _width, Q26Dot6 _height, Q26Dot6 _xoff, Q26Dot6 _yoff)
+	: x(_x),
+	  y(_y),
+	  width(_width),
+	  height(_height),
+	  xoff(_xoff),
+	  yoff(_yoff)
+	{}
+    Q26Dot6 x;
+    Q26Dot6 y;
+    Q26Dot6 width;
+    Q26Dot6 height;
+    Q26Dot6 xoff;
+    Q26Dot6 yoff;
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
@@ -91,15 +169,6 @@ struct QScriptAnalysis
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
 #elif defined( Q_WS_WIN )
-
-// do not change the definitions below unless you know what you are doing!
-// it is designed to be compatible with the types found in uniscribe.
-
-struct qoffset_t {
-    int x;
-    int y;
-};
-Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
 
 struct QScriptAnalysis {
     unsigned short script         :10;
@@ -164,8 +233,8 @@ struct QGlyphLayout
 	unsigned short combiningClass  :8;
     };
     Attributes attributes;
-    struct {short x; short y; } advance;
-    struct { short x; short y; } offset;
+    struct { Q26Dot6 x; Q26Dot6 y; } advance;
+    struct { Q26Dot6 x; Q26Dot6 y; } offset;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
@@ -186,8 +255,8 @@ struct QScriptItem
 {
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
 			   isObject( FALSE ), hasPositioning( FALSE ),
-			   descent( -1 ), ascent( -1 ), width( -1 ),
-			   num_glyphs( 0 ), glyph_data_offset( 0 ),
+			   num_glyphs( 0 ), descent( -1 ), ascent( -1 ), width( -1 ),
+			   glyph_data_offset( 0 ),
 			   format(-1) { }
 
     int position;
@@ -196,11 +265,10 @@ struct QScriptItem
     unsigned short isTab    : 1;
     unsigned short isObject : 1;
     unsigned short hasPositioning : 1;
-    unsigned short reserved : 12;
-    short descent;
-    int ascent;
-    int width;
     int num_glyphs;
+    Q26Dot6 descent;
+    Q26Dot6 ascent;
+    Q26Dot6 width;
     int glyph_data_offset;
     int format;
 };
@@ -212,14 +280,14 @@ typedef QVector<QScriptItem> QScriptItemArray;
 
 struct QScriptLine
 {
-    short descent;
-    short ascent;
-    short x;
-    int width;
-    int y;
+    Q26Dot6 descent;
+    Q26Dot6 ascent;
+    Q26Dot6 x;
+    Q26Dot6 y;
+    Q26Dot6 width;
+    Q26Dot6 textWidth;
     int from;
     int length;
-    int textWidth;
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
@@ -271,7 +339,7 @@ public:
 	Trailing
     };
 
-    int width( int charFrom, int numChars ) const;
+    Q26Dot6 width( int charFrom, int numChars ) const;
     glyph_metrics_t boundingBox( int from,  int len ) const;
 
     int length( int item ) const {
@@ -322,7 +390,7 @@ public:
     void **memory;
     int num_glyphs;
     int used;
-    int minWidth;
+    Q26Dot6 minWidth;
 
     int cursorPos;
     const QTextLayout::Selection *selections;

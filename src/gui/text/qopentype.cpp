@@ -467,8 +467,9 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 
     // positioning code:
     if ( hasGPos && positioned) {
-	float scale = font->scale();
 // 	qDebug("positioned glyphs:" );
+	// ### use Q26Dot6
+	float scale = font->scale();
 	for ( int i = 0; i < (int)str->length; i++) {
 // 	    qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 // 		   glyphs[i].advance.x, glyphs[i].advance.y,
@@ -477,18 +478,16 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		glyphs[i].advance.x = si->analysis.bidiLevel % 2
-				      ? -qRound((positions[i].x_advance >> 6)*scale)
-				      : qRound((positions[i].x_advance >> 6)*scale);
-		glyphs[i].advance.y = qRound((-positions[i].y_advance >> 6)*scale);
+		glyphs[i].advance.x = Q26Dot6((si->analysis.bidiLevel % 2
+					       ? -positions[i].x_advance : positions[i].x_advance), F26Dot6);
+		glyphs[i].advance.y = Q26Dot6(-positions[i].y_advance, F26Dot6);
 	    } else {
-		glyphs[i].advance.x += si->analysis.bidiLevel % 2
-				      ? -qRound((positions[i].x_advance >> 6)*scale)
-				      : qRound((positions[i].x_advance >> 6)*scale);
-		glyphs[i].advance.y -= qRound((positions[i].y_advance >> 6)*scale);
+		glyphs[i].advance.x += Q26Dot6(si->analysis.bidiLevel % 2
+					       ? -positions[i].x_advance : positions[i].x_advance, F26Dot6);
+		glyphs[i].advance.y -= Q26Dot6(positions[i].y_advance, F26Dot6);
 	    }
-	    glyphs[i].offset.x = qRound((positions[i].x_pos >> 6)*scale);
-	    glyphs[i].offset.y = -qRound((positions[i].y_pos >> 6)*scale);
+	    glyphs[i].offset.x = Q26Dot6(positions[i].x_pos, F26Dot6);
+	    glyphs[i].offset.y = Q26Dot6(-positions[i].y_pos, F26Dot6);
 	    int back = positions[i].back;
 	    if ( si->analysis.bidiLevel % 2 ) {
 		while ( back-- ) {

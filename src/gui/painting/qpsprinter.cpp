@@ -1158,7 +1158,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
     }
     stream << ">";
 
-    stream << si.width << " " << x;
+    stream << si.width.toDouble() << " " << x;
 
     if ( ps->font.underline() )
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
@@ -1825,8 +1825,8 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     d->textY = y;
 
     QByteArray xyarray;
-    int xo = 0;
-    int yo = 0;
+    Q26Dot6 xo;
+    Q26Dot6 yo;
 
     QGlyphLayout *glyphs = engine->glyphs( &si );
     bool glyphIndices = engine->fontEngine(si)->type() == QFontEngine::Xft;
@@ -1837,9 +1837,9 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i != len-1 ) {
-		xyarray += toInt( xo + glyphs[i].offset.x + glyphs[i+1].advance.x );
+		xyarray += (xo + glyphs[i].offset.x + glyphs[i+1].advance.x).toDouble();
 		xyarray += " ";
-		xyarray += toInt( yo + glyphs[i].offset.y );
+		xyarray += (yo + glyphs[i].offset.y).toDouble();
 		xyarray += " ";
 		xo = -glyphs[i].offset.x;
 		yo = -glyphs[i].offset.y;
@@ -1850,9 +1850,9 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i ) {
-		xyarray += toInt( xo - glyphs[i].offset.x + glyphs[i-1].advance.x );
+		xyarray += (xo - glyphs[i].offset.x + glyphs[i-1].advance.x).toDouble();
 		xyarray += " ";
-		xyarray += toInt( yo + glyphs[i].offset.y );
+		xyarray += (yo + glyphs[i].offset.y).toDouble();
 		xyarray += " ";
 		xo = glyphs[i].offset.x;
 		yo = -glyphs[i].offset.y;
@@ -1862,7 +1862,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     stream << ">";
 
     stream << "[" << xyarray << "0 0]";
-    stream << si.width << " " << x;
+    stream << si.width.toDouble() << " " << x;
 
     if ( ps->font.underline() )
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
@@ -3779,7 +3779,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 	    }
 	}
     }
-    stream << "(" << out << ")" << si.width << " " << x << mdf << " AT\n";
+    stream << "(" << out << ")" << si.width.toDouble() << " " << x << mdf << " AT\n";
 }
 
 // ----------- Japanese --------------

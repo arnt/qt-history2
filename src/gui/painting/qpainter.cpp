@@ -30,7 +30,6 @@
 #include <private/qtextengine_p.h>
 #include <private/qtextlayout_p.h>
 
-
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
 		    QPainter* painter);
@@ -1127,10 +1126,10 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 #if defined(Q_WS_X11)
     extern void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h );
     if (backgroundMode() == OpaqueMode)
- 	qt_draw_background(d->engine, x, y-sl.ascent, sl.textWidth, sl.ascent+sl.descent+1);
+ 	qt_draw_background(d->engine, x, y-sl.ascent.toInt(), sl.textWidth.toInt(), (sl.ascent+sl.descent).toInt() + 1);
 #endif
 
-    line.draw(this, x, y-sl.ascent);
+    line.draw(this, x, y - sl.ascent.toInt());
 }
 
 void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
@@ -1183,7 +1182,7 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 
     // Fallback: rasterize into a pixmap and draw the pixmap
 
-    QPixmap pm(ti.width, ti.ascent+ti.descent);
+    QPixmap pm(ti.width, ti.ascent + ti.descent);
     pm.fill(white);
 
     QPainter painter;
@@ -1775,9 +1774,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	xoff = r.width() - width;
     else if ( tf & Qt::AlignHCenter )
 	xoff = (r.width() - width)/2;
-    if ( brect ) {
+    if ( brect )
 	*brect = QRect( r.x() + xoff, r.y() + yoff, width, height );
-    }
 
     if (!(tf & QPainter::DontPrint)) {
 	bool restoreClipping = false;
