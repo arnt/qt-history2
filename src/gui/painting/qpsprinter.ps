@@ -547,31 +547,6 @@
 /xr D0 /yr D0
 /rx D0 /ry D0 /rx2 D0 /ry2 D0
 
-/RR {                                % PdcDrawRoundRect [x y w h xr yr]
-  /yr ED /xr ED /h ED /w ED /y ED /x ED
-  xr 0 le yr 0 le or
-  {x y w h R}                  % Do rect if one of rounding values is less than 0.
-  {xr 100 ge yr 100 ge or
-    {x y w h E}                    % Do ellipse if both rounding values are larger than 100
-    {
-      /rx xr w mul 200 div d
-      /ry yr h mul 200 div d
-      /rx2 rx 2 mul d
-      /ry2 ry 2 mul d
-      NP
-      x rx add y MT
-      x               y               rx2 ry2 180 -90
-      x               y h add ry2 sub rx2 ry2 270 -90
-      x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90
-      x w add rx2 sub y               rx2 ry2 90  -90
-      ARC ARC ARC ARC
-      CP
-      BF
-      QS
-    } ifelse
-  } ifelse
-} D
-
 /E {                         % PdcDrawEllipse [x y w h]
   /h ED /w ED /y ED /x ED
   mat CM pop
@@ -581,37 +556,6 @@
   0 0 w 2 div 0 360 arc
   mat SM
   BF
-  QS
-} D
-
-/A {                         % PdcDrawArc [x y w h ang1 ang2]
-  16 div exch 16 div exch
-  NP
-  ARC
-  QS
-} D
-
-/PIE {                               % PdcDrawPie [x y w h ang1 ang2]
-  /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED
-  NP
-  x w 2 div add y h 2 div add MT
-  x y w h ang1 16 div ang2 16 div ARC
-  CP
-  BF
-  QS
-} D
-
-/CH {                                % PdcDrawChord [x y w h ang1 ang2]
-  16 div exch 16 div exch
-  NP
-  ARC
-  CP
-  BF
-  QS
-} D
-
-/BZ {                                % PdcDrawCubicBezier [4 points]
-  curveto
   QS
 } D
 
