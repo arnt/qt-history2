@@ -1700,6 +1700,8 @@ bool QDateTimeEditPrivate::addSection(QList<SectionNode> &list, Section ds, int 
 
 void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 {
+    if (s == NoSection)
+	return;
     if (forward) {
         edit->setSelection(sectionPos(s), sectionSize(s));
     } else {
