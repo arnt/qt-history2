@@ -8,7 +8,7 @@
   the rights to use, copy, modify, merge, publish, distribute, sublicense,
   and/or sell copies of the Software, and to permit persons to whom the
   Software is furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in
   all copies or substantial portions of the Software.
 
@@ -43,9 +43,9 @@ public:
     NETRootInfo(Display *, unsigned long, int = -1);
     NETRootInfo(const NETRootInfo &);
     virtual ~NETRootInfo();
-    
+
     void activate();
-    
+
     inline Display *x11Display() const;
     inline Window rootWindow() const;
     inline Window supportWindow() const;
@@ -72,7 +72,7 @@ public:
     inline const Window *clientListStacking() const;
     inline int clientListStackingCount() const;
     inline const Window *kdeDockingWindows() const;
-    inline int kdeDockingWindowsCount() const;    
+    inline int kdeDockingWindowsCount() const;
     inline NETSize desktopGeometry() const;
     inline NETPoint desktopViewport() const;
     inline NETRect workArea(CARD32) const;
@@ -93,7 +93,7 @@ protected:
     // Notify a NETClient that a window has been added/removed.
     virtual void addClient(Window) { }
     virtual void removeClient(Window) { }
-    
+
     // NOT STANDARD - KDE 2.0 EXTENSIONS
     virtual void addDockWin(Window) { }
     virtual void removeDockWin(Window) { }
@@ -122,7 +122,7 @@ public:
     NETWinInfo(Display *, Window, Window, unsigned long, Role = Client);
     NETWinInfo(const NETWinInfo &);
     virtual ~NETWinInfo();
-    
+
     inline unsigned long properties() const;
 
     void setIcon(NETIcon, Bool = true);
@@ -134,6 +134,7 @@ public:
     void setDesktop(CARD32);
     void setPid(CARD32);
     void setHandledIcons(Bool);
+    void setKDEDockWinFor(Window);
 
     NETIcon icon(int = -1, int = -1) const;
 
@@ -145,18 +146,19 @@ public:
     inline CARD32 desktop() const;
     inline CARD32 pid() const;
     inline Bool handledIcons() const;
+    inline Window kdeDockWinFor() const;
 
     // This function takes the pass XEvent and returns an ORed list of NETWinInfo
     // properties that have changed.  The new information will be read
     // immediately by the class.
     unsigned long event(XEvent *);
 
-    
+
 protected:
     virtual void changeDesktop(CARD32) { }
-    virtual void changeState(CARD32) { }    
-    
-    
+    virtual void changeState(CARD32) { }
+
+
 private:
     void update(unsigned long);
     void setProperties();
@@ -244,6 +246,8 @@ inline CARD32 NETWinInfo::desktop() const { return p->desktop; }
 inline CARD32 NETWinInfo::pid() const { return p->pid; }
 
 inline Bool NETWinInfo::handledIcons() const { return p->handled_icons; }
+
+inline Window NETWinInfo::kdeDockWinFor() const { return p->kde_dockwin_for; }
 
 inline unsigned long NETWinInfo::properties() const { return p->properties; }
 

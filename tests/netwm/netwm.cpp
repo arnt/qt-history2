@@ -22,6 +22,8 @@
 
 */
 
+#define DEBUG
+
 #include "netwm.h"
 
 #include <string.h>
@@ -113,7 +115,7 @@ static void refdec_nri(NETRootInfoPrivate *p) {
 	if (p->stacking) delete [] p->stacking;
 	if (p->clients) delete [] p->clients;
 	if (p->virtual_roots) delete [] p->virtual_roots;
-    
+
 	int i;
 	for (i = 0; i < p->desktop_names.size(); i++)
 	    if (p->desktop_names[i]) delete [] p->desktop_names[i];
@@ -128,7 +130,7 @@ static void refdec_nwi(NETWinInfoPrivate *p) {
 
     if (! --p->ref) {
 	if (p->name) delete [] p->name;
-	
+
 	int i;
 	for (i = 0; i < p->icons.size(); i++)
 	    if (p->icons[i].data) delete [] p->icons[i].data;
@@ -287,12 +289,12 @@ static void readIcon(NETWinInfoPrivate *p) {
     int format_ret;
     unsigned long nitems_ret, after_ret;
     unsigned char *data_ret;
-    
+
     int ret =
 	XGetWindowProperty(p->display, p->window, net_wm_icon, 0l, 1l, False,
 			   XA_CARDINAL, &type_ret, &format_ret, &nitems_ret,
 			   &after_ret, &data_ret);
-        
+
     if (data_ret) XFree(data_ret);
 
     if (ret != Success || nitems_ret < 3 || type_ret != XA_CARDINAL ||
@@ -302,13 +304,13 @@ static void readIcon(NETWinInfoPrivate *p) {
 	// NOTE: 3 is the ABSOLUTE minimum:
 	//     width = 1, height = 1, length(data) = 1 (width * height)
 	return;
-    
+
     // allocate space after_ret (bytes remaining in property) + 4
     // (the single 32bit quantity we just read)
     unsigned long proplen = after_ret + 4;
     unsigned char *buffer = new unsigned char[proplen];
     unsigned long offset = 0, buffer_offset = 0;
-    
+
     while (after_ret >0) {
 	XGetWindowProperty(p->display, p->window, net_wm_icon, offset,
 			   (long) BUFSIZE, False, XA_CARDINAL, &type_ret,
@@ -318,13 +320,13 @@ static void readIcon(NETWinInfoPrivate *p) {
  	offset += nitems_ret;
 	XFree(data_ret);
     }
-    
+
     unsigned long i, j;
     CARD32 *d = (CARD32 *) buffer;
     for (i = 0, j = 0; i < proplen - 3; i++) {
 	p->icons[j].size.width = *d++;
 	p->icons[j].size.height = *d++;
-	
+
 	unsigned long s = (p->icons[j].size.width *
 			   p->icons[j].size.height * 4);
 	if (p->icons[j].data) delete [] p->icons[j].data;
@@ -1298,26 +1300,9 @@ void NETWinInfo::setState(unsigned long st, unsigned long msk) {
 void NETWinInfo::setWindowType(WindowType type) {
     if (role != Client) return;
 
-    if (p->managed) {
-	XEvent e;
-
-	e.xclient.type = ClientMessage;
-	e.xclient.message_type = net_wm_window_type;
-	e.xclient.display = p->display;
-	e.xclient.window = p->window;
-	e.xclient.format = 32;
-	e.xclient.data.l[0] = type;
-	e.xclient.data.l[1] = 0l;
-	e.xclient.data.l[2] = 0l;
-	e.xclient.data.l[3] = 0l;
-	e.xclient.data.l[4] = 0l;
-
-	XSendEvent(p->display, p->root, False, NoEventMask, &e);
-    } else {
-	CARD32 data= type;
-	XChangeProperty(p->display, p->window, net_wm_window_type, XA_CARDINAL, 32,
-			PropModeReplace, (unsigned char *) &data, 1);
-    }
+    CARD32 data= type;
+    XChangeProperty(p->display, p->window, net_wm_window_type, XA_CARDINAL, 32,
+		    PropModeReplace, (unsigned char *) &data, 1);
 }
 
 
@@ -1374,6 +1359,16 @@ void NETWinInfo::setHandledIcons(Bool handled) {
     CARD32 d = handled;
     XChangeProperty(p->display, p->window, net_wm_handled_icons, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &d, 1);
+}
+
+
+void NETWinInfo::setKDEDockWinFor(Window win) {
+    if (role != Client) return;
+
+    p->kde_dockwin_for = win;
+    XChangeProperty(p->display, p->window, net_wm_kde_docking_window_for,
+		    XA_CARDINAL, 32, PropModeReplace,
+		    (unsigned char *) &(p->kde_dockwin_for), 1);
 }
 
 
@@ -1609,4 +1604,16 @@ void NETWinInfo::update(unsigned long dirty) {
 
     if (dirty & WMIcon)
 	readIcon(p);
+    
+    if (dirty & WMKDEDockWinFor)
+	if (XGetWindowProperty(p->display, p->window, net_wm_kde_docking_window_for,
+			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
+			       &nitems_ret, &unused, &data_ret))
+	    if (data_ret) {
+		if (type_ret == XA_CARDINAL && format_ret == 32 &&
+		    nitems_ret == 1)
+		    p->kde_dockwin_for = *((CARD32 *) data_ret);
+		
+		XFree(data_ret);
+	    }
 }

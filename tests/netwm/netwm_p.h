@@ -84,6 +84,7 @@ struct NETWinInfoPrivate {
     CARD32 desktop;
     CARD32 pid;
     CARD32 handled_icons;
+    Window kde_dockwin_for;
 
     Bool managed;
 
