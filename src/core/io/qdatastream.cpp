@@ -453,7 +453,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
 
     \table
     \header \i Qt Version   \i QDataStream Version
-    \row \i Qt 4.0              \i11 ###
+    \row \i Qt 4.0              \i11 7
     \row \i Qt 3.3              \i11 6
     \row \i Qt 3.1, 3.2         \i11 5
     \row \i Qt 3.0              \i11 4
