@@ -37,7 +37,7 @@ private slots:
     void on_listbox_returnPressed(QListBoxItem *item);
 
 private:
-    Ui::TopicChooser gui;
+    Ui::TopicChooser ui;
     QString theLink;
     QStringList links, linkNames;
 };

@@ -55,7 +55,7 @@ public slots:
     void sourceChanged();
 
 private:
-    Ui::TabbedBrowser gui;
+    Ui::TabbedBrowser ui;
     QStyleSheet *tabStyleSheet;
     bool tabLinkUnderline;
     QMimeSourceFactory *mimeSourceFactory;

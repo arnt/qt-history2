@@ -69,7 +69,7 @@ private:
     bool insertActionSeparator();
 
 private:
-    Ui::MainWindow gui;
+    Ui::MainWindow ui;
 
     QList<QAction*> goActions;
     int setupCompleted:1;

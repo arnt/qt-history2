@@ -11,7 +11,7 @@
 FindDialog::FindDialog(MainWindow *parent)
     : QDialog(parent)
 {
-    gui.setupUI(this);
+    ui.setupUi(this);
 
     lastBrowser = 0;
     onceFound = false;
@@ -30,7 +30,7 @@ FindDialog::~FindDialog()
 
 void FindDialog::on_findButton_clicked()
 {
-    doFind(gui.radioForward->isChecked());
+    doFind(ui.radioForward->isChecked());
 }
 
 void FindDialog::on_closeButton_clicked()
@@ -43,18 +43,18 @@ void FindDialog::doFind(bool forward)
     QTextBrowser *browser = static_cast<QTextBrowser*>(mainWindow()->browsers()->currentBrowser());
     sb->clear();
 
-    if (gui.comboFind->currentText() != findExpr || lastBrowser != browser)
+    if (ui.comboFind->currentText() != findExpr || lastBrowser != browser)
         onceFound = false;
-    findExpr = gui.comboFind->currentText();
+    findExpr = ui.comboFind->currentText();
 
     bool found;
     if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
-        found = browser->find(findExpr, gui.checkCase->isChecked(), gui.checkWords->isChecked(),
+        found = browser->find(findExpr, ui.checkCase->isChecked(), ui.checkWords->isChecked(),
                               forward);
     } else {
         int para = forward ? 0 : INT_MAX;
         int index = forward ? 0 : INT_MAX;
-        found = browser->find(findExpr, gui.checkCase->isChecked(), gui.checkWords->isChecked(),
+        found = browser->find(findExpr, ui.checkCase->isChecked(), ui.checkWords->isChecked(),
                               forward, &para, &index);
     }
 
@@ -92,8 +92,8 @@ MainWindow *FindDialog::mainWindow() const
 
 void FindDialog::reset()
 {
-    gui.comboFind->setFocus();
-    gui.comboFind->lineEdit()->setSelection(
-        0, gui.comboFind->lineEdit()->text().length());
+    ui.comboFind->setFocus();
+    ui.comboFind->lineEdit()->setSelection(
+        0, ui.comboFind->lineEdit()->text().length());
 }
 

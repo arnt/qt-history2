@@ -154,65 +154,65 @@ QString HelpNavigationContentsItem::link() const
 HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     : QWidget(parent), lwClosed(false), help(h)
 {
-    gui.setupUI(this);
+    ui.setupUi(this);
 }
 
 void HelpDialog::initialize()
 {
-    connect(gui.tabWidget, SIGNAL(currentChanged(int)),
+    connect(ui.tabWidget, SIGNAL(currentChanged(int)),
              this, SLOT(currentTabChanged(int)));
-    connect(gui.listContents, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint &, int)),
+    connect(ui.listContents, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint &, int)),
              this, SLOT(showTopic(int,QListViewItem*, const QPoint &)));
-    connect(gui.listContents, SIGNAL(currentChanged(QListViewItem*)),
+    connect(ui.listContents, SIGNAL(currentChanged(QListViewItem*)),
              this, SLOT(currentContentsChanged(QListViewItem*)));
-    connect(gui.listContents, SIGNAL(selectionChanged(QListViewItem*)),
+    connect(ui.listContents, SIGNAL(selectionChanged(QListViewItem*)),
              this, SLOT(currentContentsChanged(QListViewItem*)));
-    connect(gui.listContents, SIGNAL(doubleClicked(QListViewItem*)),
+    connect(ui.listContents, SIGNAL(doubleClicked(QListViewItem*)),
              this, SLOT(showTopic(QListViewItem*)));
-    connect(gui.listContents, SIGNAL(returnPressed(QListViewItem*)),
+    connect(ui.listContents, SIGNAL(returnPressed(QListViewItem*)),
              this, SLOT(showTopic(QListViewItem*)));
-    connect(gui.listContents, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
+    connect(ui.listContents, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
              this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
-    connect(gui.editIndex, SIGNAL(returnPressed()),
+    connect(ui.editIndex, SIGNAL(returnPressed()),
              this, SLOT(showTopic()));
-    connect(gui.editIndex, SIGNAL(textChanged(const QString&)),
+    connect(ui.editIndex, SIGNAL(textChanged(const QString&)),
              this, SLOT(searchInIndex(const QString&)));
 
-    connect(gui.listIndex, SIGNAL(selectionChanged(QListBoxItem*)),
+    connect(ui.listIndex, SIGNAL(selectionChanged(QListBoxItem*)),
              this, SLOT(currentIndexChanged(QListBoxItem*)));
-    connect(gui.listIndex, SIGNAL(returnPressed(QListBoxItem*)),
+    connect(ui.listIndex, SIGNAL(returnPressed(QListBoxItem*)),
              this, SLOT(showTopic()));
-    connect(gui.listIndex, SIGNAL(mouseButtonClicked(int, QListBoxItem*, const QPoint &)),
+    connect(ui.listIndex, SIGNAL(mouseButtonClicked(int, QListBoxItem*, const QPoint &)),
              this, SLOT(showTopic(int, QListBoxItem *, const QPoint &)));
-    connect(gui.listIndex, SIGNAL(currentChanged(QListBoxItem*)),
+    connect(ui.listIndex, SIGNAL(currentChanged(QListBoxItem*)),
              this, SLOT(currentIndexChanged(QListBoxItem*)));
-    connect(gui.listIndex, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
+    connect(ui.listIndex, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
-    connect(gui.listBookmarks, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint&, int)),
+    connect(ui.listBookmarks, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint&, int)),
              this, SLOT(showTopic(int, QListViewItem*, const QPoint &)));
-    connect(gui.listBookmarks, SIGNAL(returnPressed(QListViewItem*)),
+    connect(ui.listBookmarks, SIGNAL(returnPressed(QListViewItem*)),
              this, SLOT(showTopic(QListViewItem*)));
-    connect(gui.listBookmarks, SIGNAL(selectionChanged(QListViewItem*)),
+    connect(ui.listBookmarks, SIGNAL(selectionChanged(QListViewItem*)),
              this, SLOT(currentBookmarkChanged(QListViewItem*)));
-    connect(gui.listBookmarks, SIGNAL(currentChanged(QListViewItem*)),
+    connect(ui.listBookmarks, SIGNAL(currentChanged(QListViewItem*)),
              this, SLOT(currentBookmarkChanged(QListViewItem*)));
-    connect(gui.listBookmarks, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
+    connect(ui.listBookmarks, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
              this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
-    connect(gui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
+    connect(ui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
     cacheFilesPath = QDir::homeDirPath() + "/.assistant/"; //### Find a better location for the dbs
 
-    gui.editIndex->installEventFilter(this);
-    gui.listBookmarks->header()->hide();
-    gui.listBookmarks->header()->setStretchEnabled(true);
-    gui.listContents->header()->hide();
-    gui.listContents->header()->setStretchEnabled(true);
-    gui.framePrepare->hide();
+    ui.editIndex->installEventFilter(this);
+    ui.listBookmarks->header()->hide();
+    ui.listBookmarks->header()->setStretchEnabled(true);
+    ui.listContents->header()->hide();
+    ui.listContents->header()->setStretchEnabled(true);
+    ui.framePrepare->hide();
     connect(qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()));
 
-    gui.termsEdit->setValidator(new SearchValidator(gui.termsEdit));
+    ui.termsEdit->setValidator(new SearchValidator(ui.termsEdit));
 
     actionOpenCurrentTab = new QAction(this);
     actionOpenCurrentTab->setText(tr("Open Link in Current Tab"));
@@ -288,11 +288,11 @@ void HelpDialog::loadIndexFile()
 
     setCursor(waitCursor);
     indexDone = true;
-    gui.labelPrepare->setText(tr("Prepare..."));
-    gui.framePrepare->show();
+    ui.labelPrepare->setText(tr("Prepare..."));
+    ui.framePrepare->show();
     processEvents();
 
-    QProgressBar *bar = gui.progressPrepare;
+    QProgressBar *bar = ui.progressPrepare;
     bar->setTotalSteps(100);
     bar->setProgress(0);
 
@@ -335,17 +335,17 @@ void HelpDialog::loadIndexFile()
     bar->setProgress(bar->totalSteps());
     processEvents();
 
-    gui.listIndex->clear();
+    ui.listIndex->clear();
     HelpNavigationListItem *lastItem = 0;
     QString lastKeyword = QString::null;
     QList<IndexKeyword>::ConstIterator it = lst.begin();
     for (; it != lst.end(); ++it) {
         if (lastKeyword.toLower() != (*it).keyword.toLower())
-            lastItem = new HelpNavigationListItem(gui.listIndex, (*it).keyword);
+            lastItem = new HelpNavigationListItem(ui.listIndex, (*it).keyword);
         lastItem->addLink((*it).link);
         lastKeyword = (*it).keyword;
     }
-    gui.framePrepare->hide();
+    ui.framePrepare->hide();
     showInitDoneMessage();
     setCursor(arrowCursor);
 }
@@ -374,9 +374,9 @@ void HelpDialog::buildKeywordDB()
     for(; i != addDocuFiles.end(); i++)
         steps += QFileInfo(*i).size();
 
-    gui.labelPrepare->setText(tr("Prepare..."));
-    gui.progressPrepare->setTotalSteps(steps);
-    gui.progressPrepare->setProgress(0);
+    ui.labelPrepare->setText(tr("Prepare..."));
+    ui.progressPrepare->setTotalSteps(steps);
+    ui.progressPrepare->setProgress(0);
     processEvents();
 
     QList<IndexKeyword> lst;
@@ -407,8 +407,8 @@ void HelpDialog::buildKeywordDB()
         foreach (IndexItem *indItem, indLst) {
             QFileInfo fi(indItem->reference);
             lst.append(IndexKeyword(indItem->keyword, fi.absFilePath()));
-            if (gui.progressPrepare)
-                gui.progressPrepare->setProgress(gui.progressPrepare->progress() +
+            if (ui.progressPrepare)
+                ui.progressPrepare->setProgress(ui.progressPrepare->progress() +
                                               int(fi.absFilePath().length() * 1.6));
 
             if(++counter%100 == 0) {
@@ -534,7 +534,7 @@ void HelpDialog::buildContentDict()
 
 void HelpDialog::currentTabChanged(int index)
 {
-    QString s = gui.tabWidget->tabText(index);
+    QString s = ui.tabWidget->tabText(index);
     if (stripAmpersand(s).contains(tr("Index")))
         QTimer::singleShot(0, this, SLOT(loadIndexFile()));
     else if (stripAmpersand(s).contains(tr("Bookmarks")))
@@ -580,7 +580,7 @@ void HelpDialog::showTopic(QListViewItem *item)
 
 void HelpDialog::showTopic()
 {
-    QString text = gui.tabWidget->tabText(gui.tabWidget->currentIndex());
+    QString text = ui.tabWidget->tabText(ui.tabWidget->currentIndex());
 
     if (stripAmpersand(text).contains(tr("Index")))
         showIndexTopic();
@@ -592,13 +592,13 @@ void HelpDialog::showTopic()
 
 void HelpDialog::showIndexTopic()
 {
-    QListBoxItem *i = gui.listIndex->item(gui.listIndex->currentItem());
+    QListBoxItem *i = ui.listIndex->item(ui.listIndex->currentItem());
     if (!i)
         return;
 
-    gui.editIndex->blockSignals(true);
-    gui.editIndex->setText(i->text());
-    gui.editIndex->blockSignals(false);
+    ui.editIndex->blockSignals(true);
+    ui.editIndex->setText(i->text());
+    ui.editIndex->blockSignals(false);
 
     HelpNavigationListItem *item = (HelpNavigationListItem*)i;
 
@@ -622,14 +622,14 @@ void HelpDialog::showIndexTopic()
 
 void HelpDialog::searchInIndex(const QString &s)
 {
-    QListBoxItem *i = gui.listIndex->firstItem();
+    QListBoxItem *i = ui.listIndex->firstItem();
     QString sl = s.toLower();
     while (i) {
         QString t = i->text();
         if (t.length() >= sl.length() &&
              i->text().left(s.length()).toLower() == sl) {
-            gui.listIndex->setCurrentItem(i);
-            gui.listIndex->setTopItem(gui.listIndex->index(i));
+            ui.listIndex->setCurrentItem(i);
+            ui.listIndex->setTopItem(ui.listIndex->index(i));
             break;
         }
         i = i->next();
@@ -651,31 +651,31 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
     if (!o || !e)
         return true;
 
-    if (o == gui.editIndex && e->type() == QEvent::KeyPress) {
+    if (o == ui.editIndex && e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
         if (ke->key() == Key_Up) {
-            int i = gui.listIndex->currentItem();
+            int i = ui.listIndex->currentItem();
             if (--i >= 0) {
-                gui.listIndex->setCurrentItem(i);
-                gui.editIndex->blockSignals(true);
-                gui.editIndex->setText(gui.listIndex->currentText());
-                gui.editIndex->blockSignals(false);
+                ui.listIndex->setCurrentItem(i);
+                ui.editIndex->blockSignals(true);
+                ui.editIndex->setText(ui.listIndex->currentText());
+                ui.editIndex->blockSignals(false);
             }
             return true;
         } else if (ke->key() == Key_Down) {
-            int i = gui.listIndex->currentItem();
-            if (++i < int(gui.listIndex->count())) {
-                gui.listIndex->setCurrentItem(i);
-                gui.editIndex->blockSignals(true);
-                gui.editIndex->setText(gui.listIndex->currentText());
-                gui.editIndex->blockSignals(false);
+            int i = ui.listIndex->currentItem();
+            if (++i < int(ui.listIndex->count())) {
+                ui.listIndex->setCurrentItem(i);
+                ui.editIndex->blockSignals(true);
+                ui.editIndex->setText(ui.listIndex->currentText());
+                ui.editIndex->blockSignals(false);
             }
             return true;
         } else if (ke->key() == Key_Next || ke->key() == Key_Prior) {
-            QApplication::sendEvent(gui.listIndex, e);
-            gui.editIndex->blockSignals(true);
-            gui.editIndex->setText(gui.listIndex->currentText());
-            gui.editIndex->blockSignals(false);
+            QApplication::sendEvent(ui.listIndex, e);
+            ui.editIndex->blockSignals(true);
+            ui.editIndex->setText(ui.listIndex->currentText());
+            ui.editIndex->blockSignals(false);
         }
     }
 
@@ -691,7 +691,7 @@ void HelpDialog::addBookmark()
     QString title = help->browsers()->currentBrowser()->documentTitle();
     if (title.isEmpty())
         title = titleOfLink(link);
-    HelpNavigationContentsItem *i = new HelpNavigationContentsItem(gui.listBookmarks, 0);
+    HelpNavigationContentsItem *i = new HelpNavigationContentsItem(ui.listBookmarks, 0);
     i->setText(0, title);
     i->setLink(link);
     saveBookmarks();
@@ -705,13 +705,13 @@ void HelpDialog::on_buttonAdd_clicked()
 
 void HelpDialog::on_buttonRemove_clicked()
 {
-    if (!gui.listBookmarks->currentItem())
+    if (!ui.listBookmarks->currentItem())
         return;
 
-    delete gui.listBookmarks->currentItem();
+    delete ui.listBookmarks->currentItem();
     saveBookmarks();
-    if (gui.listBookmarks->firstChild()) {
-        gui.listBookmarks->setSelected(gui.listBookmarks->firstChild(), true);
+    if (ui.listBookmarks->firstChild()) {
+        ui.listBookmarks->setSelected(ui.listBookmarks->firstChild(), true);
     }
     help->updateBookmarkMenu();
 }
@@ -721,13 +721,13 @@ void HelpDialog::insertBookmarks()
     if (bookmarksInserted)
         return;
     bookmarksInserted = true;
-    gui.listBookmarks->clear();
+    ui.listBookmarks->clear();
     QFile f(cacheFilesPath + "bookmarks." + Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
     QTextStream ts(&f);
     while (!ts.atEnd()) {
-        HelpNavigationContentsItem *i = new HelpNavigationContentsItem(gui.listBookmarks, 0);
+        HelpNavigationContentsItem *i = new HelpNavigationContentsItem(ui.listBookmarks, 0);
         i->setText(0, ts.readLine());
         i->setLink(ts.readLine());
     }
@@ -741,10 +741,10 @@ void HelpDialog::currentBookmarkChanged(QListViewItem *)
 
 void HelpDialog::showBookmarkTopic()
 {
-    if (!gui.listBookmarks->currentItem())
+    if (!ui.listBookmarks->currentItem())
         return;
 
-    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)gui.listBookmarks->currentItem();
+    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listBookmarks->currentItem();
     QString absPath = "";
     if (QFileInfo(i->link()).isRelative())
         absPath = documentationPath + "/";
@@ -757,7 +757,7 @@ void HelpDialog::saveBookmarks()
     if (!f.open(IO_WriteOnly))
         return;
     QTextStream ts(&f);
-    QListViewItemIterator it(gui.listBookmarks);
+    QListViewItemIterator it(ui.listBookmarks);
     for (; it.current(); ++it) {
         HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)it.current();
         ts << i->text(0) << endl;
@@ -775,12 +775,12 @@ void HelpDialog::insertContents()
         getAllContents();
 
     contentsInserted = true;
-    gui.listContents->clear();
+    ui.listContents->clear();
     setCursor(waitCursor);
     if (!titleMapDone)
         setupTitleMap();
 
-    gui.listContents->setSorting(-1);
+    ui.listContents->setSorting(-1);
 
     for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         HelpNavigationContentsItem *newEntry;
@@ -799,7 +799,7 @@ void HelpDialog::insertContents()
         for (ContentList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
             ContentItem item = *it;
             if (item.depth == 0) {
-                newEntry = new HelpNavigationContentsItem(gui.listContents, 0);
+                newEntry = new HelpNavigationContentsItem(ui.listContents, 0);
                 newEntry->setPixmap(0, QPixmap::fromMimeSource("book.png"));
                 newEntry->setText(0, item.title);
                 newEntry->setLink(item.reference);
@@ -837,7 +837,7 @@ void HelpDialog::currentContentsChanged(QListViewItem *)
 
 void HelpDialog::showContentsTopic()
 {
-    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)gui.listContents->currentItem();
+    HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)ui.listContents->currentItem();
     if (!i)
         return;
     emit showLink(i->link());
@@ -845,8 +845,8 @@ void HelpDialog::showContentsTopic()
 
 void HelpDialog::toggleContents()
 {
-    if (!isVisible() || gui.tabWidget->currentIndex() != 0) {
-        gui.tabWidget->setCurrentPage(0);
+    if (!isVisible() || ui.tabWidget->currentIndex() != 0) {
+        ui.tabWidget->setCurrentPage(0);
         parentWidget()->show();
     }
     else
@@ -855,10 +855,10 @@ void HelpDialog::toggleContents()
 
 void HelpDialog::toggleIndex()
 {
-    if (!isVisible() || gui.tabWidget->currentIndex() != 1 || !gui.editIndex->hasFocus()) {
-        gui.tabWidget->setCurrentPage(1);
+    if (!isVisible() || ui.tabWidget->currentIndex() != 1 || !ui.editIndex->hasFocus()) {
+        ui.tabWidget->setCurrentPage(1);
         parentWidget()->show();
-        gui.editIndex->setFocus();
+        ui.editIndex->setFocus();
     }
     else
         parentWidget()->hide();
@@ -866,8 +866,8 @@ void HelpDialog::toggleIndex()
 
 void HelpDialog::toggleBookmarks()
 {
-    if (!isVisible() || gui.tabWidget->currentIndex() != 2) {
-        gui.tabWidget->setCurrentPage(2);
+    if (!isVisible() || ui.tabWidget->currentIndex() != 2) {
+        ui.tabWidget->setCurrentPage(2);
         parentWidget()->show();
     }
     else
@@ -876,8 +876,8 @@ void HelpDialog::toggleBookmarks()
 
 void HelpDialog::toggleSearch()
 {
-    if (!isVisible() || gui.tabWidget->currentIndex() != 3) {
-        gui.tabWidget->setCurrentPage(3);
+    if (!isVisible() || ui.tabWidget->currentIndex() != 3) {
+        ui.tabWidget->setCurrentPage(3);
         parentWidget()->show();
     }
     else
@@ -912,17 +912,17 @@ void HelpDialog::setupFullTextIndex()
     if (!f.exists()) {
         help->statusBar()->clear();
         setCursor(waitCursor);
-        gui.labelPrepare->setText(tr("Indexing files..."));
-        gui.progressPrepare->setTotalSteps(100);
-        gui.progressPrepare->reset();
-        gui.progressPrepare->show();
-        gui.framePrepare->show();
+        ui.labelPrepare->setText(tr("Indexing files..."));
+        ui.progressPrepare->setTotalSteps(100);
+        ui.progressPrepare->reset();
+        ui.progressPrepare->show();
+        ui.framePrepare->show();
         processEvents();
         if (fullTextIndex->makeIndex() == -1)
             return;
         fullTextIndex->writeDict();
-        gui.progressPrepare->setProgress(100);
-        gui.framePrepare->hide();
+        ui.progressPrepare->setProgress(100);
+        ui.framePrepare->hide();
         setCursor(arrowCursor);
         showInitDoneMessage();
     } else {
@@ -937,13 +937,13 @@ void HelpDialog::setupFullTextIndex()
 
 void HelpDialog::setIndexingProgress(int prog)
 {
-    gui.progressPrepare->setProgress(prog);
+    ui.progressPrepare->setProgress(prog);
     processEvents();
 }
 
 void HelpDialog::startSearch()
 {
-    QString str = gui.termsEdit->text();
+    QString str = ui.termsEdit->text();
     str = str.replace("\'", "\"");
     str = str.replace("`", "\"");
     QString buf = str;
@@ -990,9 +990,9 @@ void HelpDialog::startSearch()
     foundDocs = fullTextIndex->query(terms, termSeq, seqWords);
     QString msg(QString("%1 documents found.").arg(foundDocs.count()));
     help->statusBar()->message(tr(msg), 3000);
-    gui.resultBox->clear();
+    ui.resultBox->clear();
     for (it = foundDocs.begin(); it != foundDocs.end(); ++it)
-        gui.resultBox->insertItem(fullTextIndex->getDocumentTitle(*it));
+        ui.resultBox->insertItem(fullTextIndex->getDocumentTitle(*it));
 
     terms.clear();
     bool isPhrase = false;
@@ -1038,7 +1038,7 @@ void HelpDialog::on_resultBox_returnPressed(QListBoxItem *item)
 void HelpDialog::showResultPage(QListBoxItem *item)
 {
     if (item)
-        emit showSearchLink(foundDocs[gui.resultBox->index(item)], terms);
+        emit showSearchLink(foundDocs[ui.resultBox->index(item)], terms);
 }
 
 
@@ -1046,7 +1046,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
 {
     if (!item)
         return;
-    QString currentTabText = gui.tabWidget->tabText(gui.tabWidget->currentIndex());
+    QString currentTabText = ui.tabWidget->tabText(ui.tabWidget->currentIndex());
 
     QAction *action = itemPopup->exec(pos);
     if (action == actionOpenCurrentTab) {
@@ -1058,9 +1058,9 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
     } else if (action) {
         HelpWindow *hw = help->browsers()->currentBrowser();
         if (stripAmpersand(currentTabText).contains(tr("Index"))) {
-            gui.editIndex->blockSignals(true);
-            gui.editIndex->setText(item->text());
-            gui.editIndex->blockSignals(false);
+            ui.editIndex->blockSignals(true);
+            ui.editIndex->setText(item->text());
+            ui.editIndex->blockSignals(false);
 
             HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
 
@@ -1087,7 +1087,7 @@ void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
                 }
             }
         } else {
-            QString link = foundDocs[ gui.resultBox->index(item) ];
+            QString link = foundDocs[ ui.resultBox->index(item) ];
             if (action == actionOpenLinkInNewWindow)
                 hw->openLinkInNewWindow(link);
             else
@@ -1102,7 +1102,7 @@ void HelpDialog::showItemMenu(QListViewItem *item, const QPoint &pos)
         return;
     QAction *action = itemPopup->exec(pos);
     if (action == actionOpenCurrentTab) {
-        if (stripAmpersand(gui.tabWidget->tabText(gui.tabWidget->currentIndex())).contains(tr("Contents")))
+        if (stripAmpersand(ui.tabWidget->tabText(ui.tabWidget->currentIndex())).contains(tr("Contents")))
             showContentsTopic();
         else
             showBookmarkTopic();

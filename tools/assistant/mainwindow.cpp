@@ -26,7 +26,7 @@ extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 
 MainWindow::MainWindow()
 {
-    gui.setupUI(this);
+    ui.setupUi(this);
 
 #if defined(Q_WS_WIN)
     // Workaround for QMimeSourceFactory failing in QFileInfo::isReadable() for
@@ -81,8 +81,8 @@ MainWindow::MainWindow()
     // Use the same forward and backward browser shortcuts as Safari and Internet Explorer do
     // on the Mac. This means that if you have access to one of those cool Intellimice, the thing
     // works just fine, since that's how Microsoft hacked it.
-    gui.actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
-    gui.actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
+    ui.actionGoPrevious->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Left));
+    ui.actionGoNext->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Right));
 #endif
 }
 
@@ -101,32 +101,32 @@ void MainWindow::setup()
     statusBar()->message(tr("Initializing Qt Assistant..."));
     setupCompleted = true;
     helpDock->initialize();
-    connect(gui.actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));
-    connect(gui.actionGoNext, SIGNAL(triggered()), tabs, SLOT(forward()));
-    connect(gui.actionEditCopy, SIGNAL(triggered()), tabs, SLOT(copy()));
-    connect(gui.actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-    connect(gui.actionAddBookmark, SIGNAL(triggered()),
+    connect(ui.actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));
+    connect(ui.actionGoNext, SIGNAL(triggered()), tabs, SLOT(forward()));
+    connect(ui.actionEditCopy, SIGNAL(triggered()), tabs, SLOT(copy()));
+    connect(ui.actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+    connect(ui.actionAddBookmark, SIGNAL(triggered()),
              helpDock, SLOT(addBookmark()));
     connect(helpDock, SIGNAL(showLink(const QString&)),
              this, SLOT(showLink(const QString&)));
     connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
              this, SLOT(showSearchLink(const QString&, const QStringList&)));
 
-    connect(gui.bookmarkMenu, SIGNAL(activated(QAction*)),
+    connect(ui.bookmarkMenu, SIGNAL(activated(QAction*)),
              this, SLOT(showBookmark(QAction*)));
-    connect(gui.actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
-    connect(gui.actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
+    connect(ui.actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
+    connect(ui.actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
 
-    connect(gui.actionOpenPage, SIGNAL(triggered()), tabs, SLOT(newTab()));
-    connect(gui.actionClosePage, SIGNAL(triggered()), tabs, SLOT(closeTab()));
-    connect(gui.actionNextPage, SIGNAL(triggered()), tabs, SLOT(nextTab()));
-    connect(gui.actionPrevPage, SIGNAL(triggered()), tabs, SLOT(previousTab()));
+    connect(ui.actionOpenPage, SIGNAL(triggered()), tabs, SLOT(newTab()));
+    connect(ui.actionClosePage, SIGNAL(triggered()), tabs, SLOT(closeTab()));
+    connect(ui.actionNextPage, SIGNAL(triggered()), tabs, SLOT(nextTab()));
+    connect(ui.actionPrevPage, SIGNAL(triggered()), tabs, SLOT(previousTab()));
 
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     QAccel *acc = new QAccel(this);
 //     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
-    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), gui.actionZoomIn, SIGNAL(triggered()));
+    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), ui.actionZoomIn, SIGNAL(triggered()));
 #endif
 
     QAccel *a = new QAccel(this, dw);
@@ -142,12 +142,12 @@ void MainWindow::setup()
     Config *config = Config::configuration();
 
     setupBookmarkMenu();
-    gui.PopupMenu->addMenu(tr("Vie&ws"), createDockWindowMenu());
+    ui.PopupMenu->addMenu(tr("Vie&ws"), createDockWindowMenu());
     helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
-    gui.actionGoPrevious->setEnabled(false);
-    gui.actionGoNext->setEnabled(false);
+    ui.actionGoPrevious->setEnabled(false);
+    ui.actionGoNext->setEnabled(false);
 }
 
 void MainWindow::setupGoActions()
@@ -159,8 +159,8 @@ void MainWindow::setupGoActions()
     static bool separatorInserted = false;
 
     foreach (QAction *a, goActions) {
-        gui.goMenu->removeAction(a);
-        gui.goActionToolbar->removeAction(a);
+        ui.goMenu->removeAction(a);
+        ui.goActionToolbar->removeAction(a);
     }
     qDeleteAll(goActions);
     goActionDocFiles->clear();
@@ -171,14 +171,14 @@ void MainWindow::setupGoActions()
         QPixmap pix = config->docIcon(title);
         if(!pix.isNull()) {
             if(!separatorInserted) {
-                gui.goMenu->addSeparator();
+                ui.goMenu->addSeparator();
                 separatorInserted = true;
             }
             action = new QAction(this);
             action->setText(title);
             action->setIcon(QIconSet(pix));
-            gui.goMenu->addAction(action);
-            gui.goActionToolbar->addAction(action);
+            ui.goMenu->addAction(action);
+            ui.goActionToolbar->addAction(action);
             goActions.append(action);
             goActionDocFiles->insert(action, config->indexPage(title));
             connect(action, SIGNAL(triggered()),
@@ -187,16 +187,16 @@ void MainWindow::setupGoActions()
         }
     }
     if(!addCount)
-        gui.goActionToolbar->hide();
+        ui.goActionToolbar->hide();
     else
-        gui.goActionToolbar->show();
+        ui.goActionToolbar->show();
 
 }
 
 bool MainWindow::insertActionSeparator()
 {
-    gui.goMenu->addSeparator();
-    gui.Toolbar->addSeparator();
+    ui.goMenu->addSeparator();
+    ui.Toolbar->addSeparator();
     return true;
 }
 
@@ -334,20 +334,20 @@ void MainWindow::updateBookmarkMenu()
 
 void MainWindow::setupBookmarkMenu()
 {
-    gui.bookmarkMenu->clear();
+    ui.bookmarkMenu->clear();
     bookmarks.clear();
-    gui.bookmarkMenu->addAction(gui.actionAddBookmark);
+    ui.bookmarkMenu->addAction(ui.actionAddBookmark);
 
     QFile f(QDir::homeDirPath() + "/.assistant/bookmarks." +
         Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
     QTextStream ts(&f);
-    gui.bookmarkMenu->addSeparator();
+    ui.bookmarkMenu->addSeparator();
     while (!ts.atEnd()) {
         QString title = ts.readLine();
         QString link = ts.readLine();
-        bookmarks.insert(gui.bookmarkMenu->addAction(title), link);
+        bookmarks.insert(ui.bookmarkMenu->addAction(title), link);
     }
 }
 
@@ -479,7 +479,7 @@ void MainWindow::showSettingsDialog(int page)
     if (ret != QDialog::Accepted)
         return;
 
-    QObjectList lst = gui.Toolbar->children();
+    QObjectList lst = ui.Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
         QObject *obj = lst.at(i);
         if (qstrcmp(obj->metaObject()->className(), "QToolBarSeparator") == 0) {
@@ -625,12 +625,12 @@ HelpDialog* MainWindow::helpDialog() const
 
 void MainWindow::backwardAvailable(bool enable)
 {
-    gui.actionGoPrevious->setEnabled(enable);
+    ui.actionGoPrevious->setEnabled(enable);
 }
 
 void MainWindow::forwardAvailable(bool enable)
 {
-    gui.actionGoNext->setEnabled(enable);
+    ui.actionGoNext->setEnabled(enable);
 }
 
 void MainWindow::updateProfileSettings()
@@ -639,16 +639,16 @@ void MainWindow::updateProfileSettings()
 #ifndef Q_WS_MAC
     setWindowIcon(config->applicationIcon());
 #endif
-    gui.helpMenu->clear();
-    gui.helpMenu->addAction(gui.actionHelpAssistant);
-    gui.helpMenu->addSeparator();
-    gui.helpMenu->addAction(gui.helpAbout_Qt_AssistantAction);
+    ui.helpMenu->clear();
+    ui.helpMenu->addAction(ui.actionHelpAssistant);
+    ui.helpMenu->addSeparator();
+    ui.helpMenu->addAction(ui.helpAbout_Qt_AssistantAction);
     if (!config->aboutApplicationMenuText().isEmpty())
-        gui.helpMenu->addAction(gui.actionAboutApplication);
-    gui.helpMenu->addSeparator();
-    gui.helpMenu->addAction(gui.actionHelpWhatsThis);
+        ui.helpMenu->addAction(ui.actionAboutApplication);
+    ui.helpMenu->addSeparator();
+    ui.helpMenu->addAction(ui.actionHelpWhatsThis);
 
-    gui.actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
+    ui.actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
 
     if(!config->title().isNull())
         setWindowTitle(config->title());
@@ -656,19 +656,19 @@ void MainWindow::updateProfileSettings()
 
 void MainWindow::setupPopupMenu(QPopupMenu *m)
 {
-    m->addAction(gui.actionNewWindow);
-    m->addAction(gui.actionOpenPage);
-    m->addAction(gui.actionClosePage);
+    m->addAction(ui.actionNewWindow);
+    m->addAction(ui.actionOpenPage);
+    m->addAction(ui.actionClosePage);
     m->addSeparator();
-    m->addAction(gui.actionGoPrevious);
-    m->addAction(gui.actionGoNext);
-    m->addAction(gui.actionGoHome);
+    m->addAction(ui.actionGoPrevious);
+    m->addAction(ui.actionGoNext);
+    m->addAction(ui.actionGoHome);
     m->addSeparator();
-    m->addAction(gui.actionZoomIn);
-    m->addAction(gui.actionZoomOut);
+    m->addAction(ui.actionZoomIn);
+    m->addAction(ui.actionZoomOut);
     m->addSeparator();
-    m->addAction(gui.actionEditCopy);
-    m->addAction(gui.actionEditFind);
+    m->addAction(ui.actionEditCopy);
+    m->addAction(ui.actionEditFind);
 }
 
 void MainWindow::on_actionClose_triggered()

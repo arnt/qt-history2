@@ -35,7 +35,7 @@
 SettingsDialog::SettingsDialog(QWidget *parent, const char* name)
     : QDialog(parent, name)
 {
-    gui.setupUI(this);
+    ui.setupUi(this);
     init();
 }
 
@@ -43,33 +43,33 @@ void SettingsDialog::init()
 {
     Config *config = Config::configuration();
 
-    gui.browserApp->setText(config->webBrowser());
-    gui.homePage->setText(config->homePage());
-    gui.pdfApp->setText(config->pdfReader());
+    ui.browserApp->setText(config->webBrowser());
+    ui.homePage->setText(config->homePage());
+    ui.pdfApp->setText(config->pdfReader());
 }
 
 
 void SettingsDialog::on_colorButton_clicked()
 {
-    QPalette pal = gui.colorButton->palette();
+    QPalette pal = ui.colorButton->palette();
     QColor c = QColorDialog::getColor(pal.color(backgroundRole()), this);
     pal.setColor(backgroundRole(), c);
-    gui.colorButton->setPalette(pal);
+    ui.colorButton->setPalette(pal);
 }
 
 void SettingsDialog::on_buttonBrowse_clicked()
 {
-    setFile(gui.browserApp, tr("Qt Assistant - Set Web Browser"));
+    setFile(ui.browserApp, tr("Qt Assistant - Set Web Browser"));
 }
 
 void SettingsDialog::on_buttonPDF_clicked()
 {
-    setFile(gui.pdfApp, tr("Qt Assistant - Set PDF Browser"));
+    setFile(ui.pdfApp, tr("Qt Assistant - Set PDF Browser"));
 }
 
 void SettingsDialog::on_buttonHome_clicked()
 {
-    setFile(gui.homePage, tr("Qt Assistant - Set Homepage"));
+    setFile(ui.homePage, tr("Qt Assistant - Set Homepage"));
 }
 
 void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
@@ -89,9 +89,9 @@ void SettingsDialog::accept()
 {
     Config *config = Config::configuration();
 
-    config->setWebBrowser(gui.browserApp->text());
-    config->setHomePage(gui.homePage->text());
-    config->setPdfReader(gui.pdfApp->text());
+    config->setWebBrowser(ui.browserApp->text());
+    config->setHomePage(ui.homePage->text());
+    config->setPdfReader(ui.pdfApp->text());
 
     hide();
     done(Accepted);

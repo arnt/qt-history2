@@ -27,7 +27,7 @@ private slots:
     void on_closeButton_clicked();
 
 private:
-    Ui::FindDialog gui;
+    Ui::FindDialog ui;
 
     QStatusBar *sb;
     bool onceFound;

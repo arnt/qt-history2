@@ -72,7 +72,7 @@ public:
     HelpDialog(QWidget *parent, MainWindow *h);
 
     inline QTabWidget *tabWidget() const
-    { return gui.tabWidget; }
+    { return ui.tabWidget; }
 
     QString titleOfLink(const QString &link);
     bool eventFilter(QObject *, QEvent *);
@@ -136,7 +136,8 @@ private:
     void showInitDoneMessage();
     void buildContentDict();
 
-    Ui::HelpDialog gui;
+private:
+    Ui::HelpDialog ui;
 
     QMap<QString, QString> titleMap;
     bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;

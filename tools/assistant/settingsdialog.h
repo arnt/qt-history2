@@ -26,19 +26,19 @@ public:
     SettingsDialog(QWidget *parent, const char* name = 0);
 
     inline QComboBox *fontCombo() const
-    { return gui.fontCombo; }
+    { return ui.fontCombo; }
 
     inline QComboBox *fixedFontCombo() const
-    { return gui.fixedfontCombo; }
+    { return ui.fixedfontCombo; }
 
     inline QCheckBox *linkUnderlineCB() const
-    { return gui.linkUnderlineCB; }
+    { return ui.linkUnderlineCB; }
 
     inline QToolButton *colorButton() const
-    { return gui.colorButton; }
+    { return ui.colorButton; }
 
     inline QTabWidget *settingsTab() const
-    { return gui.settingsTab; }
+    { return ui.settingsTab; }
 
 
 private slots:
@@ -57,7 +57,7 @@ private:
     void setFile(QLineEdit *le, const QString &caption);
 
 private:
-    Ui::SettingsDialog gui;
+    Ui::SettingsDialog ui;
 };
 
 #endif

@@ -15,7 +15,7 @@
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)
 {
-    gui.setupUI(this);
+    ui.setupUi(this);
 
     init();
 }
@@ -70,20 +70,20 @@ void TabbedBrowser::home()
 
 HelpWindow *TabbedBrowser::currentBrowser() const
 {
-    return static_cast<HelpWindow*>(gui.tab->currentWidget());
+    return static_cast<HelpWindow*>(ui.tab->currentWidget());
 }
 
 void TabbedBrowser::nextTab()
 {
-    if(gui.tab->currentIndex()<=gui.tab->count()-1)
-        gui.tab->setCurrentPage(gui.tab->currentIndex()+1);
+    if(ui.tab->currentIndex()<=ui.tab->count()-1)
+        ui.tab->setCurrentPage(ui.tab->currentIndex()+1);
 }
 
 void TabbedBrowser::previousTab()
 {
-    int idx = gui.tab->currentIndex()-1;
+    int idx = ui.tab->currentIndex()-1;
     if(idx>=0)
-        gui.tab->setCurrentPage(idx);
+        ui.tab->setCurrentPage(idx);
 }
 
 HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
@@ -95,7 +95,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     win->setLinkUnderline(tabLinkUnderline);
     win->setStyleSheet(tabStyleSheet);
     win->setMimeSourceFactory(mimeSourceFactory);
-    gui.tab->addTab(win, reduceLabelLength(title));
+    ui.tab->addTab(win, reduceLabelLength(title));
     connect(win, SIGNAL(highlighted(const QString &)),
              (const QObject*) (mainWin->statusBar()), SLOT(message(const QString &)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
@@ -105,7 +105,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
              mainWin, SLOT(forwardAvailable(bool)));
     connect(win, SIGNAL(sourceChanged(const QString &)), this, SLOT(sourceChanged()));
 
-    gui.tab->cornerWidget(Qt::TopRight)->setEnabled(gui.tab->count() > 1);
+    ui.tab->cornerWidget(Qt::TopRight)->setEnabled(ui.tab->count() > 1);
     return win;
 }
 
@@ -124,7 +124,7 @@ void TabbedBrowser::newTab(const QString &lnk)
             link = w->source();
     }
     HelpWindow *win = createHelpWindow(link);
-    gui.tab->showPage(win);
+    ui.tab->showPage(win);
     if(!link.isNull()) {
          win->setSource(link);
     }
@@ -145,9 +145,9 @@ void TabbedBrowser::init()
     tabLinkUnderline = false;
     tabStyleSheet = new QStyleSheet(QStyleSheet::defaultSheet());
     lastCurrentTab = 0;
-    while(gui.tab->count()) {
-        QWidget *page = gui.tab->widget(0);
-        gui.tab->removeTab(0);
+    while(ui.tab->count()) {
+        QWidget *page = ui.tab->widget(0);
+        ui.tab->removeTab(0);
         delete page;
     }
 
@@ -159,13 +159,13 @@ void TabbedBrowser::init()
     mimeSourceFactory->setExtensionType("jpeg", "image/jpeg");
     setMimePath(Config::configuration()->mimePaths());
 
-    connect(gui.tab, SIGNAL(currentChanged(QWidget*)),
+    connect(ui.tab, SIGNAL(currentChanged(QWidget*)),
              this, SLOT(transferFocus()));
 
-    QTabBar *tabBar = (QTabBar*)gui.tab->child(0, "QTabBar", false);
+    QTabBar *tabBar = (QTabBar*)ui.tab->child(0, "QTabBar", false);
     int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace, (QWidget*)tabBar)
               + style().pixelMetric(QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar) : 0);
-    int s = gui.tab->height() - m;
+    int s = ui.tab->height() - m;
 
     // workaround for sgi style
     QPalette pal = palette();
@@ -174,7 +174,7 @@ void TabbedBrowser::init()
     pal.setColor(QPalette::Inactive, QPalette::Button, pal.color(QPalette::Inactive, QPalette::Background));
 
     QToolButton *newTabButton = new QToolButton(this);
-    gui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
+    ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
     newTabButton->setCursor(arrowCursor);
     newTabButton->setAutoRaise(true);
     newTabButton->setIcon(QPixmap::fromMimeSource("addtab.png"));
@@ -184,7 +184,7 @@ void TabbedBrowser::init()
 
     QToolButton *closeTabButton = new QToolButton(this);
     closeTabButton->setPalette(pal);
-    gui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
+    ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(arrowCursor);
     closeTabButton->setAutoRaise(true);
     QIconSet is(QPixmap::fromMimeSource("closetab.png"));
@@ -210,7 +210,7 @@ void TabbedBrowser::setMimeExtension(const QString &ext)
 
 void TabbedBrowser::updateTitle(const QString &title)
 {
-    gui.tab->setTabText(gui.tab->indexOf(currentBrowser()), title);
+    ui.tab->setTabText(ui.tab->indexOf(currentBrowser()), title);
 }
 
 void TabbedBrowser::newTab()
@@ -263,9 +263,9 @@ void TabbedBrowser::setLinkUnderline(bool uline)
     if(uline==tabLinkUnderline)
         return;
     tabLinkUnderline = uline;
-    int cnt = gui.tab->count();
+    int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++)
-        ((QTextBrowser*) gui.tab->widget(i))->setLinkUnderline(tabLinkUnderline);
+        ((QTextBrowser*) ui.tab->widget(i))->setLinkUnderline(tabLinkUnderline);
 }
 
 QFont TabbedBrowser::browserFont() const
@@ -278,9 +278,9 @@ void TabbedBrowser::setBrowserFont(const QFont &fnt)
     if(tabFont == fnt)
         return;
     tabFont = fnt;
-    int cnt = gui.tab->count();
+    int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++)
-        ((QTextBrowser*) gui.tab->widget(i))->setFont(fnt);
+        ((QTextBrowser*) ui.tab->widget(i))->setFont(fnt);
 }
 
 void TabbedBrowser::setPalette(const QPalette &pal)
@@ -288,9 +288,9 @@ void TabbedBrowser::setPalette(const QPalette &pal)
     if(palette()==pal)
         return;
     QWidget::setPalette(pal);
-    int cnt = gui.tab->count();
+    int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++)
-        ((QTextBrowser*) gui.tab->widget(i))->setPalette(pal);
+        ((QTextBrowser*) ui.tab->widget(i))->setPalette(pal);
 }
 
 QStyleSheet* TabbedBrowser::styleSheet() const
@@ -310,20 +310,20 @@ void TabbedBrowser::copy()
 
 void TabbedBrowser::closeTab()
 {
-    if(gui.tab->count()==1)
+    if(ui.tab->count()==1)
         return;
     HelpWindow *win = currentBrowser();
-    gui.tab->removePage(win);
+    ui.tab->removePage(win);
     QTimer::singleShot(0, win, SLOT(deleteLater()));
-    gui.tab->cornerWidget(Qt::TopRight)->setEnabled(gui.tab->count() > 1);
+    ui.tab->cornerWidget(Qt::TopRight)->setEnabled(ui.tab->count() > 1);
 }
 
 QStringList TabbedBrowser::sources() const
 {
     QStringList lst;
-    int cnt = gui.tab->count();
+    int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++) {
-        lst.append(((QTextBrowser*) gui.tab->widget(i))->source());
+        lst.append(((QTextBrowser*) ui.tab->widget(i))->source());
     }
     return lst;
 }
@@ -331,9 +331,9 @@ QStringList TabbedBrowser::sources() const
 QList<HelpWindow*> TabbedBrowser::browsers() const
 {
     QList<HelpWindow*> list;
-    for (int i=0; i<gui.tab->count(); ++i) {
-        Q_ASSERT(::qt_cast<HelpWindow*>(gui.tab->widget(i)));
-        list.append(static_cast<HelpWindow*>(gui.tab->widget(i)));
+    for (int i=0; i<ui.tab->count(); ++i) {
+        Q_ASSERT(::qt_cast<HelpWindow*>(ui.tab->widget(i)));
+        list.append(static_cast<HelpWindow*>(ui.tab->widget(i)));
     }
     return list;
 }
@@ -350,7 +350,7 @@ void TabbedBrowser::sourceChanged()
 
 void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
 {
-    gui.tab->setTabText(gui.tab->indexOf(win), reduceLabelLength(title));
+    ui.tab->setTabText(ui.tab->indexOf(win), reduceLabelLength(title));
     if (win == currentBrowser())
         mainWindow()->setWindowTitle(Config::configuration()->title() + " - " + title);
 }
