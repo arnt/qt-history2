@@ -30,6 +30,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
+#include "qpushbutton.h"
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -47,6 +48,7 @@ const char * filePrintText = "Click this button to print the file you "
 "You can also select the Print command from the File menu.";
 
 QPopupMenu* sbmenu;
+QPopupMenu* msg;
 
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
@@ -105,14 +107,21 @@ ApplicationWindow::ApplicationWindow()
     sbmenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Status Bar", sbmenu );
     sbmenu->setCheckable( TRUE );
-    sbmenu->insertItem( "Normal Item 1", this, SLOT(doItem(int)), 0, 0 );
-    sbmenu->insertItem( "Normal Item 2", this, SLOT(doItem(int)), 0, 1 );
-    sbmenu->insertItem( "Normal Item 3", this, SLOT(doItem(int)), 0, 2 );
-    sbmenu->insertItem( "Permanent Item 1", this, SLOT(doItem(int)), 0, 10 );
-    sbmenu->insertItem( "Permanent Item 2", this, SLOT(doItem(int)), 0, 11 );
-    sbmenu->insertItem( "Permanent Item 3", this, SLOT(doItem(int)), 0, 12 );
+    sbmenu->insertItem( "Normal Item 0", this, SLOT(doItem(int)), 0, 0 );
+    sbmenu->insertItem( "Normal Item 1", this, SLOT(doItem(int)), 0, 1 );
+    sbmenu->insertItem( "Normal Item 2", this, SLOT(doItem(int)), 0, 2 );
+    sbmenu->insertItem( "Permanent Item 10", this, SLOT(doItem(int)), 0, 10 );
+    sbmenu->insertItem( "Permanent Item 11", this, SLOT(doItem(int)), 0, 11 );
+    sbmenu->insertItem( "Permanent Item 12", this, SLOT(doItem(int)), 0, 12 );
+    sbmenu->insertItem( "Push Button", this, SLOT(doItem(int)), 0, 3 );
 
-
+    msg = new QPopupMenu( this );
+    menuBar()->insertItem( "&Messages", msg );
+    msg->setCheckable( TRUE );
+    msg->insertItem( "temp message", this, SLOT(doMsg(int)), 0, 0 );
+    msg->insertItem( "perm message", this, SLOT(doMsg(int)), 0, 1 );
+    msg->insertItem( "clear message", this, SLOT(doMsg(int)), 0, 2 );
+    
 
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
@@ -127,19 +136,7 @@ ApplicationWindow::ApplicationWindow()
     e->setFocus();
     setCentralWidget( e );
 
-    //QLabel* lb = new QLabel( "Heisan hoppsan", statusBar(), "lb" );
-    //lb->setFont( QFont("Times", 16, QFont::Bold, TRUE) );
-    //QLabel* lb2 = new QLabel( "Neisan Noppsan", statusBar(), "lb2" );
-    //lb2->setFont( QFont("Times", 16, QFont::Bold, TRUE) );
-    //    QLabel* lb3 = new QLabel( "Tjopp!", statusBar(), "lb3" );
-    //lb3->setFont( QFont("Times", 16, QFont::Bold, TRUE) );
-    //lb3->setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
-    //statusBar()->addWidget( lb, 0 );
-    //statusBar()->addWidget( lb2, 0 );
-    //statusBar()->addWidget( lb3, 1, TRUE );
-
     statusBar()->message( "Ready", 2000 );
-
 
     resize( 450, 600 );
 }
@@ -151,16 +148,40 @@ ApplicationWindow::~ApplicationWindow()
 }
 
 
+void ApplicationWindow::doMsg( int i )
+{
+    qDebug( "DoMsg: %i", i );
+    
+    switch( i ) {
+    case 0:
+	statusBar()->message( "This is a temporary message", 1000 );
+	break;
+    case 1:
+	statusBar()->message( "This is a permanent message" );
+	break;
+    case 2:
+	statusBar()->clear();
+	break;
+    default:
+	qDebug( "Error in test program!" );
+    }	
+}
+
 
 void ApplicationWindow::doItem( int i )
 {
     qDebug( "DoItem: %i", i );
-    static QLabel* sbItems[20];
+    static QWidget* sbItems[20];
     if ( !sbmenu->isItemChecked( i ) ) {
-	QString lbs = QString( "Item " ) + QString().setNum( i );
-	QLabel* lb = new QLabel( lbs, statusBar(), "auto-label" );
-	statusBar()->addWidget( lb, 1, (i >= 10) );
+	QString lbs = QString( "Real Long Item " ) + QString().setNum( i );
+	QWidget* lb;
+	if ( i != 3 )
+	    lb = new QLabel( lbs, statusBar(), "auto-label" );
+	else
+	    lb = new QPushButton( "Push me!", statusBar(), "auto-buton" );
 	lb->show();
+	statusBar()->addWidget( lb, 0, (i >= 10) );
+	
 	sbItems[i] = lb;
 	sbmenu->setItemChecked( i, TRUE );
     }
@@ -170,7 +191,6 @@ void ApplicationWindow::doItem( int i )
 	sbItems[i] = 0;
 	sbmenu->setItemChecked( i, FALSE );
     }
-
 }
 
 

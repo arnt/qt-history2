@@ -35,6 +35,7 @@ private slots:
     void saveAs();
     void print();
     void doItem( int i );
+    void doMsg( int i );
 
     void about();
     void aboutQt();

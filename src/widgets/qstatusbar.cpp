@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#46 $
 **
 ** Implementation of QStatusBar class
 **
@@ -87,18 +87,16 @@ class QStatusBarPrivate
 public:
     QStatusBarPrivate() {}
 
-    struct StatusBarPrivateItem {
-	StatusBarPrivateItem( QWidget * widget, int stretch, bool permanent )
-	    : s( stretch ), w( widget ), p(permanent) {}
+    struct SBItem {
+	SBItem( QWidget* widget, int stretch, bool permanent )
+	    : s( stretch ), w( widget ), p( permanent ) {}
 	int s;
 	QWidget * w;
 	bool p;
     };
 
-    QList<StatusBarPrivateItem> items;
-    StatusBarPrivateItem * firstPermanent;
-
-    QString temporary;
+    QList<SBItem> items;
+    QString tempItem;
 
     QBoxLayout * box;
     QTimer * timer;
@@ -115,7 +113,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
-    d->resizer = new QSizeGrip( this );
+    d->resizer = new QSizeGrip( this, "QStatusBar::resizer" );
     d->timer = 0;
     reformat();
 }
@@ -151,15 +149,24 @@ QStatusBar::~QStatusBar()
 
 void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 {
-    QStatusBarPrivate::StatusBarPrivateItem * item
-	= new QStatusBarPrivate::StatusBarPrivateItem( widget, stretch,
-						       permanent );
+    if ( !widget ) {
+#if defined(CHECK_NULL)
+	qWarning( "QStatusBar::addWidget(): Cannot add null widget" );
+#endif
+	return;
+    }
+
+    QStatusBarPrivate::SBItem* item
+	= new QStatusBarPrivate::SBItem( widget, stretch, permanent );
 
     d->items.last();
     while( !permanent && d->items.current() && d->items.current()->p )
 	d->items.prev();
 
     d->items.insert( d->items.at() >= 0 ? d->items.at()+1 : 0, item );
+
+    if ( !d->tempItem.isEmpty() && !permanent )
+	widget->hide();
 
     reformat();
 }
@@ -174,17 +181,24 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
   \sa addWidget()
 */
 
-void QStatusBar::removeWidget( QWidget * widget )
+void QStatusBar::removeWidget( QWidget* widget )
 {
-    d->items.first();
-    do {
-	if ( d->items.current() &&
-	     d->items.current()->w == widget ) {
+    bool found = FALSE;
+    QStatusBarPrivate::SBItem* item = d->items.first();
+    while ( item && !found ) {
+	if ( item->w == widget ) {
 	    d->items.remove();
-	    reformat();
-	    return;
+	    found = TRUE;
 	}
-    } while( d->items.next() );
+	item = d->items.next();
+    }
+    
+    if ( found )
+	reformat();
+#if defined(DEBUG)
+    else
+	qDebug( "QStatusBar::removeWidget(): Widget not found." );
+#endif
 }
 
 
@@ -193,35 +207,43 @@ void QStatusBar::removeWidget( QWidget * widget )
 
 void QStatusBar::reformat()
 {
-    if ( d->box ) {
+    if ( d->box )
 	delete d->box;
-	d->box = 0;
-    }
-
     d->box = new QVBoxLayout( this );
     d->box->addSpacing( 3 );
-    QBoxLayout * l = new QHBoxLayout( d->box );
 
-    QStatusBarPrivate::StatusBarPrivateItem * i;
-    d->items.first();
-    int space = 1;
-    int h = 0;
-    while( (i=d->items.current()) != 0 ) {
-	d->items.next();
-	l->addSpacing( space );
-	space = 4;
-	l->addWidget( i->w, i->s );
-	h = QMAX( h, i->w->sizeHint().height() );
+    QBoxLayout* l = new QHBoxLayout( d->box );
+    l->addSpacing( 3 );
+
+    int maxH = fontMetrics().height();
+    
+    QStatusBarPrivate::SBItem* item = d->items.first();
+    while ( item && !item->p ) {
+	l->addWidget( item->w, item->s );
+	l->addSpacing( 4 );
+	int itemH = item->w->sizeHint().height();
+	maxH = QMAX( maxH, itemH );
+	item = d->items.next();
     }
-    if ( space == 1 ) {
-	l->addStretch( 1 );
-	h = QMAX( h,  3 + fontMetrics().height() + 3 );
+
+    l->addStretch( 10 );
+
+    while ( item ) {
+	l->addWidget( item->w, item->s );
+	l->addSpacing( 4 );
+	int itemH = item->w->sizeHint().height();
+	maxH = QMAX( maxH, itemH );
+	item = d->items.next();
     }
-    l->addStrut( h );
+
+    maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+    l->addStrut( maxH );
     l->addSpacing( 2 );
     l->addWidget( d->resizer, 0, AlignBottom );
+    l->addSpacing( 2 );
     d->box->addSpacing( 2 );
     d->box->activate();
+    update();
 }
 
 
@@ -235,9 +257,9 @@ void QStatusBar::reformat()
 
 void QStatusBar::message( const QString &message )
 {
-    if ( d->temporary == message )
+    if ( d->tempItem == message )
 	return;
-    d->temporary = message; // ### clip and add ellipsis if necessary
+    d->tempItem = message; 
     if ( d->timer ) {
 	delete d->timer;
 	d->timer = 0;
@@ -253,7 +275,7 @@ void QStatusBar::message( const QString &message )
 
 void QStatusBar::message( const QString &message, int ms )
 {
-    d->temporary = message; // ### clip and add ellipsis if necessary
+    d->tempItem = message;
 
     if ( !d->timer ) {
 	d->timer = new QTimer( this );
@@ -272,13 +294,13 @@ void QStatusBar::message( const QString &message, int ms )
 
 void QStatusBar::clear()
 {
-    if ( d->temporary.isEmpty() )
+    if ( d->tempItem.isEmpty() )
 	return;
     if ( d->timer ) {
 	delete d->timer;
 	d->timer = 0;
     }
-    d->temporary = QString::fromLatin1("");
+    d->tempItem = QString::null;
     hideOrShow();
 }
 
@@ -289,18 +311,19 @@ void QStatusBar::clear()
 
 void QStatusBar::hideOrShow()
 {
-    QStatusBarPrivate::StatusBarPrivateItem * i;
-    bool b = (d->temporary.length() == 0);
+    bool haveMessage = !d->tempItem.isEmpty();
 
-    d->items.first();
-    update();
-    while( (i=d->items.current()) != 0 ) {
-	d->items.next();
-	if ( b || i->p )
-	    i->w->show();
+    QStatusBarPrivate::SBItem* item = d->items.first();
+
+    while( item && !item->p ) {
+	if ( haveMessage )
+	    item->w->hide();
 	else
-	    i->w->hide();
+	    item->w->show();
+	item = d->items.next();
     }
+
+    update();
 }
 
 
@@ -308,21 +331,21 @@ void QStatusBar::hideOrShow()
 
 void QStatusBar::paintEvent( QPaintEvent * )
 {
-    QStatusBarPrivate::StatusBarPrivateItem * i;
-    bool b = (d->temporary.length() == 0);
+    bool haveMessage = !d->tempItem.isEmpty();
+
     QPainter p( this );
-    d->items.first();
-    while( (i=d->items.current()) != 0 ) {
-	d->items.next();
-	if ( b || i->p )
-	    qDrawShadeRect( &p,
-			    i->w->x()-1, i->w->y()-1,
-			    i->w->width()+2, i->w->height()+2,
+    QStatusBarPrivate::SBItem* item = d->items.first();
+    while ( item ) {
+	if ( !haveMessage || item->p )
+	    qDrawShadeRect( &p, item->w->x()-1, item->w->y()-1,
+			    item->w->width()+2, item->w->height()+2,
 			    colorGroup(), TRUE, 1, 0, 0 );
+	item = d->items.next();
     }
-    if ( !b ) {
+    if ( haveMessage ) {
 	p.setPen( colorGroup().text() );
+	// ### clip and add ellipsis if necessary
 	p.drawText( 6, 0, width() - 12, height(), AlignVCenter + SingleLine,
-		    d->temporary );
+		    d->tempItem );
     }
 }
