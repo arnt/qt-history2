@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#14 $
 **
 ** Definition of QIconView widget class
 **
@@ -720,11 +720,9 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
-    setFocusPolicy( QWidget::StrongFocus );
-    viewport()->setFocusPolicy( QWidget::StrongFocus );
-
     viewport()->setBackgroundMode( NoBackground );
     viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( QWidget::WheelFocus );
 }
 
 QIconView::~QIconView()
@@ -939,7 +937,8 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
         if ( item->rect().intersects( QRect( cx, cy, cw, ch ) ) )
             item->paintItem( p );
 
-    if ( d->currentItem && d->currentItem->rect().intersects( QRect( cx, cy, cw, ch ) ) )
+    if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem && 
+         d->currentItem->rect().intersects( QRect( cx, cy, cw, ch ) ) )
         d->currentItem->paintFocus( p );
 }
 
@@ -1339,7 +1338,6 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 void QIconView::resizeEvent( QResizeEvent* e )
 {
     QScrollView::resizeEvent( e );
-#if 0
     if ( d->resizeMode == Adjust ) {
         if ( d->alignMode == East && d->mostOuter > e->size().width() ||
              d->alignMode == South && d->mostOuter > e->size().height() ) {
@@ -1352,7 +1350,6 @@ void QIconView::resizeEvent( QResizeEvent* e )
             viewport()->repaint( FALSE );
         }
     }
-#endif
 }
 
 void QIconView::keyPressEvent( QKeyEvent *e )
@@ -1518,6 +1515,18 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     }
 
     ensureItemVisible( d->currentItem );
+}
+
+void QIconView::focusInEvent( QFocusEvent * )
+{
+    if ( d->currentItem )
+        repaintItem( d->currentItem );
+}
+
+void QIconView::focusOutEvent( QFocusEvent * )
+{
+    if ( d->currentItem )
+        repaintItem( d->currentItem );
 }
 
 void QIconView::selectByRubber( QRect oldRubber )
@@ -1777,4 +1786,26 @@ int QIconView::dragItems( QDropEvent *e )
 void QIconView::drawBackground( QPainter *p, const QRect &r )
 {
     p->fillRect( r, QBrush( colorGroup().base() ) );
+}
+
+bool QIconView::eventFilter( QObject * o, QEvent * e )
+{
+    if ( !o || !e )
+	return FALSE;
+
+    QFocusEvent * fe = (QFocusEvent *)e;
+
+    switch( e->type() ) {
+    case QEvent::FocusIn:
+        focusInEvent( fe );
+        return TRUE;
+    case QEvent::FocusOut:
+        focusOutEvent( fe );
+        return TRUE;
+    default:
+        // nothing
+        break;
+    }
+        
+    return QScrollView::eventFilter( o, e );
 }

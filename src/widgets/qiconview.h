@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#8 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#9 $
 **
 ** Definition of QIconView widget class
 **
@@ -48,6 +48,7 @@ class QDragEnterEvent;
 class QDragMoveEvent;
 class QDragLeaveEvent;
 class QKeyEvent;
+class QFocusEvent;
 
 struct QIconViewPrivate;
 class QIconViewItem;
@@ -286,6 +287,8 @@ public:
     virtual void setResizeMode( ResizeMode am );
     virtual ResizeMode resizeMode() const;
 
+    bool eventFilter( QObject * o, QEvent * );
+
 signals:
     void dropped( QDropEvent *e );
     void moved();
@@ -312,7 +315,9 @@ protected:
     virtual void contentsDropEvent( QDropEvent *e );
     virtual void resizeEvent( QResizeEvent* e );
     virtual void keyPressEvent( QKeyEvent *e );
-
+    virtual void focusInEvent( QFocusEvent *e );
+    virtual void focusOutEvent( QFocusEvent *e );
+    
     virtual void selectByRubber( QRect oldRubber );
     virtual void drawRubber( QPainter *p );
     virtual QDragObject *dragObject();
@@ -321,7 +326,7 @@ protected:
     virtual void drawDragShape( const QPoint &pnt );
     virtual int dragItems( QDropEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
-    
+
     void emitSelectionChanged();
     void emitNewSelectionNumber();
 
