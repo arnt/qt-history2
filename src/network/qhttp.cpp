@@ -25,7 +25,6 @@
 #include "qtimer.h"
 #include "private/qinternal_p.h"
 #include "qcoreevent.h"
-#include "private/qspinlock_p.h"
 #include "qurl.h"
 
 //#define QHTTP_DEBUG
@@ -34,10 +33,7 @@ class QHttpRequest
 {
 public:
     QHttpRequest()
-    {
-        QSpinLockLocker locker(idCounterSpinLock);
-        id = ++idCounter;
-    }
+    { id = nextId(); }
     virtual ~QHttpRequest()
     { }
 
@@ -51,8 +47,8 @@ public:
     int id;
 
 private:
-    static QStaticSpinLock idCounterSpinLock;
     static int idCounter;
+    static int nextId();
 };
 
 class QHttpPrivate
@@ -111,7 +107,16 @@ public:
 };
 
 int QHttpRequest::idCounter = 0;
-QStaticSpinLock QHttpRequest::idCounterSpinLock = 0;
+int QHttpRequest::nextId()
+{
+    register int id;
+    for (;;) {
+        id = idCounter;
+        if (q_atomic_test_and_set_int(&idCounter, id, id + 1))
+            break;
+    }
+    return id;
+}
 
 bool QHttpRequest::hasRequestHeader()
 {
@@ -1948,7 +1953,7 @@ void QHttp::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (d->socket->peerName() != d->hostname || d->socket->peerPort() != d->port 
+    if (d->socket->peerName() != d->hostname || d->socket->peerPort() != d->port
         || d->socket->socketState() != Qt::ConnectedState) {
         setState(QHttp::Connecting);
         if (d->proxyHost.isEmpty())

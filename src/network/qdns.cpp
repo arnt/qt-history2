@@ -14,7 +14,6 @@
 #include "qdns.h"
 #include "qdns_p.h"
 
-#include <private/qspinlock_p.h>
 #include <private/qunicodetables_p.h>
 #include <qcoreapplication.h>
 #include <qmetaobject.h>

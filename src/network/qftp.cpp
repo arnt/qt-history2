@@ -24,7 +24,6 @@
 #include "qtimer.h"
 #include "qfileinfo.h"
 #include "qhash.h"
-#include "private/qspinlock_p.h"
 #include "qtcpserver.h"
 #include "qsignal.h"
 
@@ -214,26 +213,33 @@ public:
     } data;
     bool is_ba;
 
-    static QStaticSpinLock idCounterSpinLock;
     static int idCounter;
+    static int nextId();
 };
 
-QStaticSpinLock QFtpCommand::idCounterSpinLock = 0;
-int QFtpCommand::idCounter = 0;
+int QFtpCommand::idCounter = 1;
+int QFtpCommand::nextId()
+{
+    register int id;
+    for (;;) {
+        id = idCounter;
+        if (q_atomic_test_and_set_int(&idCounter, id, id + 1))
+            break;
+    }
+    return id;
+}
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, const QByteArray &ba)
     : command(cmd), rawCmds(raw), is_ba(true)
 {
-    QSpinLockLocker locker(idCounterSpinLock);
-    id = ++idCounter;
+    id = nextId();
     data.ba = new QByteArray(ba);
 }
 
 QFtpCommand::QFtpCommand(QFtp::Command cmd, QStringList raw, QIODevice *dev)
     : command(cmd), rawCmds(raw), is_ba(false)
 {
-    QSpinLockLocker locker(idCounterSpinLock);
-    id = ++idCounter;
+    id = nextId();
     data.dev = dev;
 }
 
