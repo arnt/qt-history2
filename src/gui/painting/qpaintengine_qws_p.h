@@ -23,14 +23,7 @@ class QApplicationPrivate;
 class QScreen;
 class QGfx;
 
-class QWSPaintEnginePrivate : public QPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QWSPaintEngine)
-public:
-    QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
-    QGfx *gfx;
-    bool clipChildren;
-};
+class QWSPaintEnginePrivate;
 
 class QWSPaintEngine : public QPaintEngine
 {
@@ -112,6 +105,16 @@ private:
 
 private:
     Q_DISABLE_COPY(QWSPaintEngine)
+};
+
+
+class QWSPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QWSPaintEngine)
+public:
+    QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
+    QGfx *gfx;
+    bool clipChildren;
 };
 
 #endif
