@@ -2274,8 +2274,12 @@ struct FileInfoCacheKey
         return hash;
     }
     inline bool isRelativePath(const QString &file) {
+        int length = file.length();
+        if (!length)
+            return true;
+
         const QChar c0 = file.at(0);
-        const QChar c1 = file.length() >= 2 ? file.at(1) : QChar(0);
+        const QChar c1 = length >= 2 ? file.at(1) : QChar(0);
         return !(c0 == QLatin1Char('/')
                 || c0 == QLatin1Char('\\')
                 || (c0.isLetter() && c1 == QLatin1Char(':'))
