@@ -109,7 +109,7 @@ public:
     void fillForBrush(const QBrush &brush, FillData *data, const QPainterPath *path);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
-    QImage *colorizeBitmap(const QImage *image);
+    QImage *colorizeBitmap(const QImage *image, const QColor &color);
 
     qreal *gradientStopPoints(const QGradient *gradient);
     ARGB *gradientStopColors(const QGradient *gradient);

@@ -822,7 +822,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
 
     QImage *image = qt_image_for_pixmap(pixmap);
     if (pixmap.depth() == 1)
-        image = d->colorizeBitmap(image);
+        image = d->colorizeBitmap(image, d->pen.color());
     drawImage(r, *image, sr);
 }
 
@@ -884,7 +884,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     QImage *image = qt_image_for_pixmap(pixmap);
 
     if (pixmap.depth() == 1)
-        image = d->colorizeBitmap(image);
+        image = d->colorizeBitmap(image, d->pen.color());
 
     TextureFillData textureData = {
         d->rasterBuffer,
@@ -1267,6 +1267,36 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
         }
         break;
 
+    case Qt::Dense1Pattern:
+    case Qt::Dense2Pattern:
+    case Qt::Dense3Pattern:
+    case Qt::Dense4Pattern:
+    case Qt::Dense5Pattern:
+    case Qt::Dense6Pattern:
+    case Qt::Dense7Pattern:
+    case Qt::HorPattern:
+    case Qt::VerPattern:
+    case Qt::CrossPattern:
+    case Qt::BDiagPattern:
+    case Qt::FDiagPattern:
+    case Qt::DiagCrossPattern:
+        {
+            extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
+            QPixmap pixmap = qt_pixmapForBrush(brush.style(), true);
+            QImage *image = qt_image_for_pixmap(pixmap);
+            image = colorizeBitmap(image, brush.color());
+            fillData->data = textureFillData;
+            fillData->callback = txop > QPainterPrivate::TxTranslate
+                                 ? qt_span_texturefill_xform
+                                 : qt_span_texturefill;
+            textureFillData->init(rasterBuffer, image, brushMatrix,
+                                  bilinear
+                                  ? qDrawHelper.blendTransformedBilinearTiled
+                                  : qDrawHelper.blendTransformedTiled);
+        }
+        break;
+
+
     default:
         break;
     }
@@ -1345,7 +1375,7 @@ ARGB QRasterPaintEnginePrivate::mapColor(const QColor &c) const
     return c;
 }
 
-QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image)
+QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QColor &color)
 {
     tempImage = QImage(image->size(), 32);
     Q_ASSERT(image->depth() == 32);
@@ -1356,7 +1386,7 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image)
 //     QRgb color0 = 0xffffffff;
     QRgb color1 = 0xffffffff;
 #endif
-    QRgb fg = pen.color().rgba();
+    QRgb fg = color.rgba();
     QRgb bg = opaqueBackground ? bgBrush.color().rgba() : 0;
     for (int y=0; y<image->height(); ++y) {
         const QRgb *source = reinterpret_cast<const QRgb *>(image->scanLine(y));
