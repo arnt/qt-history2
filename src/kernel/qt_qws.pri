@@ -1,7 +1,6 @@
 # Qt/Embedded 
 
 embedded {
-	DEFINES += QWS
 	CONFIG -= opengl
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
