@@ -76,7 +76,7 @@ QReadWriteLock::QReadWriteLock(const int maxReaders)
 */
 QReadWriteLock::~QReadWriteLock()
 {
-    report_error(pthread_cond_init(&d->writerWait, NULL), "QReadWriteLock", "cv init");
+    report_error(pthread_cond_destroy(&d->writerWait), "QReadWriteLock", "cv destroy");
     report_error(pthread_cond_destroy(&d->readerWait), "QReadWriteLock", "cv destroy");
     report_error(pthread_mutex_destroy(&d->mutex), "QReadWriteLock", "mutex destroy");
     delete d;
