@@ -247,12 +247,6 @@ static inline Qt::CursorShape regionToShape(int region)
         { QDecoration::BottomLeft,  Qt::SizeBDiagCursor},
         { QDecoration::Bottom,      Qt::SizeVerCursor},
         { QDecoration::BottomRight, Qt::SizeFDiagCursor},
-        { QDecoration::Menu,        Qt::ArrowCursor},
-        { QDecoration::Title,       Qt::ArrowCursor},
-        { QDecoration::Help,        Qt::ArrowCursor},
-        { QDecoration::Minimize,    Qt::ArrowCursor},
-        { QDecoration::Maximize,    Qt::ArrowCursor},
-        { QDecoration::Close,       Qt::ArrowCursor},
         { QDecoration::None,        Qt::ArrowCursor}
     };
 
