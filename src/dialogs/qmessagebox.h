@@ -37,6 +37,10 @@ struct QMBData;
 class Q_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
+    Q_PROPERTY( QString, "text", text, setText )
+    Q_PROPERTY( Icon, "icon", icon, setIcon )
+    Q_PROPERTY( QPixmap, "iconPixmap", iconPixmap, setIconPixmap )
+
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
 

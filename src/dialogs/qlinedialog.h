@@ -54,6 +54,8 @@ class QComboBox;
 class Q_EXPORT QLineDialog : public QDialog
 {
     Q_OBJECT
+    Q_PROPERTY( Type, "type", type, setType )
+	
 public:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
