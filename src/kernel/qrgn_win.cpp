@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#24 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#24 $");
 
 
 static QRegion *empty_region = 0;
@@ -241,8 +241,11 @@ QRegion QRegion::eor( const QRegion &r ) const
 QRect QRegion::boundingRect() const
 {
     RECT r;
-    GetRgnBox( data->rgn, &r );
-    return QRect( r.left, r.top, r.right-r.left+1, r.bottom-r.top+1 );
+    int result = GetRgnBox(data->rgn, &r);
+    if ( result == 0 || result == NULLREGION )
+	return QRect(0,0,0,0);
+    else
+	return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
 }
 
 
@@ -264,11 +267,10 @@ QArray<QRect> QRegion::getRects() const
 	return a;
     }
 
-    a = QArray<QRect>( rd.rdh.nCount );
-    int i;
-    RECT *r = (Rect*)rd->Buffer;
-    for ( i=0; i<a.size(); i++ ) {
-	a[i] = QRect( r->left, r->top, r->right-r->left+1, r->bottom-r->top+1);
+    a = QArray<QRect>( rd->rdh.nCount );
+    RECT *r = (RECT*)rd->Buffer;
+    for ( int i=0; i<(int)a.size(); i++ ) {
+	a[i] = QRect( r->left, r->top, r->right-r->left, r->bottom-r->top);
 	r++;
     }
 
