@@ -753,7 +753,7 @@ this point the cursor is no longer positioned at a valid record so we
 reissue the select() call using our \l QSqlIndex and move to the first
 record.
 
-<em>Listing of \l form2/main.cpp </em>
+Listing of \l sql/overview/form2/main.cpp
 
 <h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2> 
 
