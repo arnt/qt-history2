@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#171 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#170 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#171 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -378,17 +378,17 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-/*!
-  Sets the background color of this widget.
+/*!  Tells the window system what color to clear this widget to when
+  sending a paint event.
 
-  The background color is semi-independent of the widget color group.
-  Setting a new palette overwrites the background color, but setting
-  the background color does not change the palette in any way.
+  To minimize flicker, this should be the most common color in the
+  widget.  For most widgets the default (colorGroup().background(),
+  normally gray) suffices, but some need to use colorGroup().base()
+  (the background color for text output, normally white) and a few
+  need other colors.
 
-  The window system clears the widget to the background color just before
-  sending a paint event. This generally causes flicker if the widget does
-  not use colorGroup().background() as background color.  A widget which
-  uses colorGroup().base() as background color can avoid flicker by doing:
+  QListBox, which is "sunken" and uses the base color to contrast with
+  its envirment, does this:
 
   \code
     setBackgroundColor( colorGroup().base() );
@@ -406,6 +406,10 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   You can also use QApplication::setPalette() if you want to change
   the color scheme of your entire application, or of all new widgets.
   
+  The background color is semi-independent of the widget palette.
+  Setting a new palette overwrites the background color, but setting
+  the background color does not change the palette in any way.
+
   \sa backgroundColor(), backgroundColorChange(), setPalette(),
   setBackgroundPixmap(), QApplication::setPalette()
 */
