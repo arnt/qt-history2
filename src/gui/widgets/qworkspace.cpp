@@ -2164,7 +2164,7 @@ void QWorkspaceChild::showShaded()
 	clearWState( WState_Minimized );
 
 	shademode = FALSE;
-	resize( shadeRestore );
+	resize(shadeRestore.expandedTo(minimumSizeHint()));
 	setMinimumSize( shadeRestoreMin );
 	style().polish(this);
     } else {
