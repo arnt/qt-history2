@@ -192,10 +192,14 @@ QWidget *QDesktopWidget::screen( int screen )
 */
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->primaryScreen;
+    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
+	if ( screen < 0 || screen >= d->screenCount )
+	    screen = d->primaryScreen;
 
-    return d->rects[ screen ];
+	return d->rects[ screen ];
+    } else {
+	return rect();
+    }
 }
 
 /*!
@@ -206,24 +210,28 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 */
 int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
-    if ( !widget )
-	return d->primaryScreen;
-    QRect frame = widget->frameGeometry();
-    if ( !widget->isTopLevel() )
-	frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
+    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
+	if ( !widget )
+	    return d->primaryScreen;
+	QRect frame = widget->frameGeometry();
+	if ( !widget->isTopLevel() )
+	    frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
-    int maxSize = -1;
-    int maxScreen = d->primaryScreen;
+	int maxSize = -1;
+	int maxScreen = d->primaryScreen;
 
-    for ( int i = 0; i < d->screenCount; ++i ) {
-	QRect sect = d->rects[i].intersect( frame );
-	int size = sect.width() * sect.height();
-	if ( size > maxSize && sect.width() > 0 && sect.height() > 0 ) {
-	    maxSize = size;
-	    maxScreen = i;
+	for ( int i = 0; i < d->screenCount; ++i ) {
+	    QRect sect = d->rects[i].intersect( frame );
+	    int size = sect.width() * sect.height();
+	    if ( size > maxSize && sect.width() > 0 && sect.height() > 0 ) {
+		maxSize = size;
+		maxScreen = i;
+	    }
 	}
+	return maxScreen;
+    } else {
+	return 0;
     }
-    return maxScreen;
 }
 
 /*!
@@ -233,9 +241,13 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 */
 int QDesktopWidget::screenNumber( const QPoint &point ) const
 {
-    for ( int i = 0; i < d->screenCount; ++i ) {
-	if ( d->rects[i].contains( point ) )
-	    return i;
+    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
+	for ( int i = 0; i < d->screenCount; ++i ) {
+	    if ( d->rects[i].contains( point ) )
+		return i;
+	}
+	return d->primaryScreen;
+    } else {
+	return 0;
     }
-    return d->primaryScreen;
 }
