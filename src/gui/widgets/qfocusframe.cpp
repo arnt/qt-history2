@@ -79,14 +79,13 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 
 
 QFocusFrame::QFocusFrame(QWidget *widget)
-    : QWidget(*new QFocusFramePrivate, widget ? widget->parentWidget() : 0, 0)
+    : QWidget(*new QFocusFramePrivate, widget, 0)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAutoMask(true);
     setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_NoChildEventsForParent, true);
-    setWidget(widget);
 }
 
 
