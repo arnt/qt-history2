@@ -168,6 +168,7 @@ static uint elfHash( const char * name )
     return h;
 }
 
+extern bool qt_detectRTLLanguage();
 
 class QTranslatorPrivate {
 public:
@@ -533,11 +534,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     }
 
     tmpArray.resetRawData( d->unmapPointer, d->unmapLength );
-    if ( qApp ) {
-	qApp->setReverseLayout( qApp->tr( "QT_LAYOUT_DIRECTION",
-		"Translate this string to the string 'LTR' in left-to-right"
-		" languages or to 'RTL' in right-to-left languages (such as Hebrew"
-		" and Arabic) to get proper widget layout." ) == "RTL" );
+    if ( qApp && qApp->translators && qApp->translators->contains(this) ) {
+	qApp->setReverseLayout( qt_detectRTLLanguage() );
     }
     return TRUE;
 }
@@ -624,11 +622,8 @@ void QTranslator::clear()
     d->messages = 0;
 #endif
 
-    if ( qApp ) {
-	qApp->setReverseLayout( qApp->tr( "QT_LAYOUT_DIRECTION",
-		"Translate this string to the string 'LTR' in left-to-right"
-		" languages or to 'RTL' in right-to-left languages (such as Hebrew"
-		" and Arabic) to get proper widget layout." ) == "RTL" );
+    if ( qApp && qApp->translators && qApp->translators->contains(this) ) {
+	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = QApplication::topLevelWidgets();
 	QWidgetListIt it( *list );

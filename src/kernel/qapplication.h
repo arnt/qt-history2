@@ -366,7 +366,8 @@ private:
     friend class QWidget;
     friend class QETWidget;
     friend class QEvent;
-    friend Q_EXPORT void qt_ucm_initialize( QApplication * );
+    friend class QTranslator;
+    friend Q_EXPORT void qt_ucm_initialize( QApplication * );    
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif

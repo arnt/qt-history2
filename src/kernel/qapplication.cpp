@@ -2250,6 +2250,14 @@ void QApplication::syncX()	{}		// do nothing
   \sa removeTranslator() translate() QTranslator::load()
 */
 
+bool qt_detectRTLLanguage()
+{
+    return qApp->tr( "QT_LAYOUT_DIRECTION",
+	    "Translate this string to the string 'LTR' in left-to-right"
+	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+	    " and Arabic) to get proper widget layout." ) == "RTL";
+}
+
 void QApplication::installTranslator( QTranslator * mf )
 {
     if ( !mf )
@@ -2260,10 +2268,7 @@ void QApplication::installTranslator( QTranslator * mf )
     translators->insert( 0, mf );
 
     // hook to set the layout direction of dialogs
-    setReverseLayout( tr( "QT_LAYOUT_DIRECTION",
-	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL" );
+    setReverseLayout( qt_detectRTLLanguage() );
 
     QWidgetList *list = topLevelWidgets();
     QWidgetListIt it( *list );
@@ -2291,10 +2296,7 @@ void QApplication::removeTranslator( QTranslator * mf )
 	translators->next();
     translators->take();
 
-    setReverseLayout( tr( "QT_LAYOUT_DIRECTION",
-	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL" );
+    setReverseLayout( qt_detectRTLLanguage() );
 
     QWidgetList *list = topLevelWidgets();
     QWidgetListIt it( *list );

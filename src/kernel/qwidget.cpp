@@ -4312,9 +4312,6 @@ bool QWidget::event( QEvent *e )
 		if ( index >= 0 )
 		    qt_invoke( index, 0 );
 
-		update();
-
-		QLayoutIterator *it = 0;
 		if ( layout() ) {
 		    layout()->activate();
 		} else {
@@ -4327,6 +4324,8 @@ bool QWidget::event( QEvent *e )
 		    }
 		    delete llist;
 		}
+
+		update();
 	    }
 	    break;
 
