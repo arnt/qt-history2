@@ -525,9 +525,17 @@ void QTabWidget::removePage( QWidget * w )
 {
     int id = d->stack->id( w );
     if ( id >= 0 ) {
+	int oldId = d->stack->id(currentPage());
+	bool fixCurrentTab = oldId == id;
+	//switches to the next enabled tab
 	d->tabs->setTabEnabled( id, FALSE );
+	//if no next enabled page we fix the current page
+	fixCurrentTab = fixCurrentTab && oldId == d->stack->id(currentPage());
+
 	d->stack->removeWidget( w );
 	d->tabs->removeTab( d->tabs->tab(id) );
+	if ( fixCurrentTab )
+	    showTab( d->tabs->currentTab() );
 	setUpLayout();
 
 	if ( d->tabs->count() == 0 )
