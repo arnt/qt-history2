@@ -1,0 +1,542 @@
+/*
+$Id$
+*/
+
+/*! \page wineorder2-walkthrough.html
+
+\ingroup walkthroughs
+
+\title Walkthrough: A wine order list using QTable and custom cell editors
+
+The following example shows how to use cell editors other than the default
+left aligning QLineEdit. It implements a spreadsheet used as a product order
+form for a not extremely sophisticated wine shop. 
+
+For each wine on the list the user might choose how many bottles
+he or she wants to order. Instead of using the default cell editor
+we present the user with a spin box where he or she might choose
+between 0 and 250 bottles.
+
+Additionally we provide a cell where the shop owner might substract
+a discount from the bill.
+
+Whenever the user changes one of the editable cells all sums are
+updated at once.
+
+We implement two custom classes: the order spreadsheet, \e ProductList,
+and a special table item class that uses a QSpinBox as the cell editor.
+The latter one is named \e SpinBoxItem.
+
+You might wish to get an overview over the \link wineorder2-example.html
+entire code \endlink first. 
+
+
+<h3><a name="spinboxitem.h">The API of the SpinBoxItem class</a></h3>
+
+Usually \l{QTable}s are filled with \l{QTableItem}s or objects of the
+more specialized classes QComboTableItem and QCheckTableItem. 
+A QTableItem looks quite right for our purposes. It has only one
+minor disadvantage: As we want to
+restrict the user input when it comes to the number of bottles
+we must exchange the default QLineEdit. 
+
+\walkthrough table/wineorder2/spinboxitem.h
+\skipto include
+\printline include
+\printline include
+
+\printline SpinBoxItem
+\printline {
+
+This is easily done by subclassing QTableItem.
+
+\printuntil SpinBoxItem
+
+The only SpinBoxItem function that can be called from outside
+a SpinBoxItem object is the \link #SpinBoxItem() constructor \endlink . 
+It requires three arguments:
+the QTable that should parent the new item, the initial numerical value of
+the item (i.e. the number of bottles) and a suffix denoting the "unit" 
+of the value, e.g. " btls".
+
+\printuntil createEditor
+
+To use another cell editor than the default QLineEdit we have to reimplement
+QTableItem::createEditor().
+
+\printline setContentFromEditor
+
+When the user is done with editing, the value stored in the editor has to
+be transfered to the SpinBoxItem itself. As we use a custom cell editor we have
+to care about this ourselves by reimplementing QTableItem::setContentFromEditor(). 
+
+\printline getValue
+
+\link #getValue() getValue() \endlink is a private helper function that 
+returns the numerical value currently stored in the item.
+
+\printline table
+\printuntil };
+
+And last but not least we define two helper variables to store
+the parent QTable and a string that holds the unit
+to be shown in the cell.
+
+
+<h3><a name="spinboxitem.cpp">A table item with a custom cell editor</a></h3>
+
+Now let's have a look at the implementation of our custom table item.
+
+\walkthrough table/wineorder2/spinboxitem.cpp
+\skipto include
+\printline spinboxitem.h
+
+First we include the API of the new class ...
+
+\printuntil qregexp
+
+... and two helper classes that we need during the implementation.
+
+<a name="SpinBoxItem()"></a>
+\printline SpinBoxItem
+\printuntil { 
+
+We derive the SpinBoxItem class from QTableItem. Each object has the \l QTableItem::EditType
+WhenCurrent, will say that the cell editor appears only when
+the user activates the cell.
+
+\printline myTable
+\printline suffix
+
+In the constructor we don't really have much to do: First of all
+the two class variables must be initialized. To remind you \e table holds 
+the parent QTable of the item object, and \e suffix takes care of
+the last \e SpinBoxItem argument that denotes the "unit" to be shown
+in the cell.
+
+\printline setText
+\printline }
+
+Both, the initial numerical \e value and the \e suffix are shown
+as the cell text, for example "0 btls" as long as the user does not want to order.
+
+To achieve this we have to convert the integer \e value to a string
+using QString::number() and merge it with the text in \e suffix.
+Using QTableItem::setText() we promote the resulting string to serve as the item
+content.
+
+<a name="createEditor()"></a>
+
+\printline createEditor
+\printuntil quantities
+
+Now we create the cell editor of a SpinBoxItem.
+First we make a spin box object, \e quantities.
+It is a child of the current \e{view port} of the parent QTable.
+The view port is the area that the item is supposed to fill in the table.
+
+\printline setSuffix
+
+\e suffix is used as the unit displayed in the spin box.
+
+\printline 250
+
+We don't allow the user to order more than 250 bottles of one wine
+and therefore restrict the editor spin box to ignore values greater 250.
+As QSpinBoxes by default have their minimal value set to 0 we don't
+have to care about this.
+
+\printline setValue
+
+To initialize the editor spin box with the value stored in \e this 
+SpinBoxItem we use \link #getValue() getValue() \endlink to obtain
+exactly this integer value.
+
+\printline return
+\printline }
+
+Now that we created the cell editor we return it to the SpinBoxItem. 
+
+
+<a name="getValue()"></a>
+
+\printline getValue()
+\printline {
+
+Our helper function \e getValue() does not change anything in a
+SpinBoxItem and is therefore defined a \e const function.
+
+\printline value
+
+First we obtain the content of the current spin box item, i.e.
+the item text.
+
+\printline replace
+
+As this text consists of the numerical (integer) value and a \e suffix
+("0 btls"), we simply chop off the latter one...
+
+\printuntil toInt
+
+... and convert the remains to a decimal integer value.
+
+\printline ok
+\printline return
+
+If the conversion resulted in a proper integer we return it.
+
+\printuntil }
+
+Otherwise we simply return 0.
+
+
+<a name="setContentFromEditor()"></a>
+
+\printline setContentFromEditor
+\printline {
+
+We have so far taken care of that a spin box pops up when the user
+wants to change the value of a SpinBoxItem. What we still need to do is
+to make sure that the content of the editor is properly transfered
+to and stored in the item.
+
+\printline setText
+\printline }
+
+To achieve this we gather the text from the \e spinbox and 
+make it the content of the item using QTableItem::setText(). The cast from \e{QWidget *}
+to \e{QSpinBox *} is necessary because text() is a QSpinBox and
+not a QWidget function.
+
+
+
+<h3><a name="productlist.h">The API of the ProductList class</a></h3>
+
+Now that we have our custom table item ready we can think about the API
+of the (main) application window, an order list in a spreadsheet.
+
+\walkthrough table/wineorder2/productlist.h
+\skipto include
+\printuntil qstring.h
+
+\printline ProductList
+\printline {
+
+We call the new class \e ProductList and derive it from QTable.
+
+\printline Q_OBJECT
+
+Contrary to the \link #spinboxitem.h SpinBoxItem \endlink class
+we want to implement a slot here and therefore add the macro \e Q_OBJECT.
+
+\printuntil ProductList()
+
+Again, the only public function is the constructor, this time with no arguments.
+
+\printuntil processValueChanged
+
+When the user changes a value in the spreadsheet we use the slot
+\link #processValueChanged() processValueChanged() \endlink
+to react to it.
+This reaction consists of two parts:
+
+\printuntil calcPrice
+
+The price of the actual number of bottles is calculated, and ...
+
+\printline sumUp
+
+... the total number of bottles and the total price are computed.
+
+\printline discountRow
+
+The variable \e discountRow stores the row where the sales person can
+subtract a discount.
+
+\printline totalRow
+
+This variable is used to store the number of the row where the total
+values are shown.
+
+\printline suffix
+\printline };
+
+\e suffix holds the unit for cells with numerical content.
+
+
+<h3><a name="productlist.cpp">The Implementation of the order list</a></h3>
+
+ 
+\walkthrough table/wineorder2/productlist.cpp
+\skipto include
+\printuntil qstring
+
+Apart from the includes...
+
+\printline struct
+\printuntil winelist
+
+... we define a structure to store the product name, \e product,
+and the \e price of our range of wines ...
+
+\printuntil };
+
+... and fill this "database" named \e winelist[] with
+some example values (prices in \link euroconvert-example.html EURO \endlink).
+
+\printline numwines
+
+To make an extension of our product range as simple as possible
+we better calculate the number of products to be shown in the list
+at run-time instead of defining a fixed numerical value.
+
+
+<a name="ProductList()"></a>
+
+\printline ProductList::ProductList
+\printuntil {
+
+The \e ProductList class itself we derive from QTable. The spreadsheet size
+depends on how many products we want to list. Plus one additional row
+for the discount and one for the total sums we have \e{numwines + 2}
+rows and four columns.
+
+As we use this class as the main widget the parent of a ProductList
+object named \e productlist is zero.
+
+\printline discountRow
+\printuntil btls
+
+First we set the class variables. The discount should appear in the
+second last row of the table, the total sums on the last row. QTable::numRows()
+returns the number of rows of \e this table.
+
+As a suffix we use \e btls because finally we deal with bottles.
+
+\printline horizontalHeader
+\printuntil Sum
+
+Then we change the section titles of the top most table header to something
+that explains the column contents. The first column holds the number of bottles
+of each type, the second one the name of the wine, the third one the price
+per bottle in EURO, and last but not least we have the fourth column
+for the price of \e n bottles.
+
+\printline < numwines
+
+Next we fill the spreadsheet with the products.
+
+\printline SpinBoxItem 
+
+We create a SpinBoxItem that will be initialized with the text "0 btls".
+
+\printline setItem
+
+This item we make the content of the first column in the current (i-th) row.
+
+\printline winelist[i].product
+
+The product description for column no. 1 (i.e. the second column) we
+take from the \e winelist array.
+
+\printline number
+
+To fill the third column with the appropriate price per bottle
+we have to convert the \e double struct member \e price to a string using
+QString::number().
+
+\printline 3
+\printline }
+
+As the price of zero bottles is \e 0 this is the value we initialize
+the last column with.
+
+\printline discountRow
+
+Next we fill the second column of the second-last row (the \e discountRow
+following the product listings) with the description \e Discount.
+
+\printline discount
+\printline -0.00
+
+In the last cell of this row the sales person may substract a discount (for
+simplicity reasons this is a fixed not a percental amount, and we won't even
+check whether it actually is a negative value).
+
+Initially the discount is zero (\e -0.00 EUR), and we use a standard QTableItem
+to store this value. The cell should be \e Always editable, i.e. the
+user will always see the item's QLineEdit editor.
+
+As the line editor aligns everything including numerical values to the left
+this cell is notably different from the rest of the column where numerical
+values are right-aligned.
+
+\printline setItem
+
+Finally we make the \e discount item the content of the fourth cell in the
+\e discountRow.
+
+\printline processValueChanged
+
+To fill the last row with the total amount of bottles and the final price 
+we simply call the 
+\link #processValueChanged() processValueChanged() \endlink function.
+The argument cell \e 0,0 is choosen arbitrarily but must be one from the
+first column.
+
+\printline setColumnReadOnly
+\printuntil 3
+
+After we have filled the initial spreadsheet form so far we want to prevent
+the user from manipulating things like product names, prices and sums. Therefore
+we simply make every but the first column read-only. 
+
+Note that the only way to cheat here and make the discount cell editable
+for the user was to give this cell the edit type \e Always. With any other
+edit type we would not be able to get up an editor because the entire
+column is read-only. 
+
+\printline connect
+\printline SLOT
+
+Whenever the user has changed a value in the first column or the discount cell
+the signal QTable::valueChanged() is emitted. As arguments it carries the coordinates
+of the manipulated cell. When this happens we want to update the sums and totals,
+and therefore connect valueChanged() to the 
+\link #processValueChanged() processValueChanged() \endlink
+slot.
+
+\printline adjustColumn
+\printline adjustColumn
+
+As we want the user to see all product titles and the longish section header
+of column no. 2 in full we apply some cosmetics and adjust the second and the
+third column to fit their contents.
+
+\printline viewport()
+\printline }
+
+Finally we set the keyboard focus to the part of the spreadsheet where
+the active cell is located, i.e. the view port. Initially this is the cell
+with the coordinates 0,0.
+
+
+<a name="processValueChanged()"></a>
+
+\printline ProductList::processValueChanged
+\printline {
+
+Now we define what happens when a table cell changes its value. As soon as the
+user stops editing we of course want to update the sums and totals.
+
+\printline total
+
+First we define a helper variable.
+
+\printline discountRow
+
+When the user changed the number of bottles...
+
+\printline calcPrice
+
+... we generate the total price of the bottles in this row  
+with a little help of the \link #calcPrice() calcPrice() \endlink function.
+As we want to make this the cell content we have to convert the returned \e double
+value into a string using QString::number().
+
+\printline setText
+
+We update the cell content in the last cell of the edited row ...
+
+\printline sumUp
+
+... and sum up the number of total bottles in column no. 0.
+
+\printline setText
+
+The cell content of the last cell in the first row is updated
+to the new value followed by the suffix \e btls. 
+
+\printuntil clearCell
+\printline }
+
+In the discount row the user can change the discount value but also
+the empty writable cell in the first column. We could make this cell unwritable
+but for simplicity reasons we simply wipe it out when the user 
+changed something in this row.
+
+\printline total
+
+Whether the user changed a quantity or the discount does not matter
+when it comes to the total sum of the last row -- we have to calculate
+it in each case.
+
+\printline setText
+\printline }
+
+Finally we present the user with the total price in the lower right corner
+of the spreadsheet.
+
+<a name="calcPrice()"></a>
+
+\printline calcPrice
+\printline {
+
+This function multiplies the price per bottle with the number of bottles
+in the particular \e row.
+
+\printline text
+
+To do this it gathers the cell content of the first cell in this row (which should
+read for example \e{0 btls} etc.)
+and converts it to a \e double. This is possible because QString::toDouble()
+ignores the trailing string \e btls.
+
+\printline return
+\printline }
+
+Multiplied with the price from the third column this is the result we return.
+
+
+<a name="sumUp()"></a>
+
+\printline sumUp
+\printline {
+
+This function on the other hand is responsible for summing up the values
+of an entire column.
+
+
+\printline sum
+
+We start calculating with a zero.
+
+\printline for
+
+Then we work ourselves through each row from the first one to the one with the 
+discount ...
+
+\printline sum +=
+
+..., convert the content of the relevant cell to \e double and add it to
+the subtotal stored in \e sum.
+
+\printline return
+\printline }
+
+Finally we return the total sum.
+
+
+<h3><a name="wineorder.cpp">The main program</a></h3>
+
+Same procedure as everytime. Therefore we simply leave you with the
+code that makes a \link #ProductList() ProductList \endlink object
+the main widget of the application, shows it and enters the application's
+event loop.
+
+\walkthrough table/wineorder2/wineorder.cpp
+\skipto include
+
+\printuntil }
+
+*/

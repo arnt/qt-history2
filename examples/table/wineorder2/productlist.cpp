@@ -5,15 +5,14 @@ $Id$
 #include "productlist.h"
 #include "spinboxitem.h"
 #include <qstring.h>
-#include <qregexp.h>
 
 
 struct {
-    QString product;
+    const char * product;
     double price;
 } winelist[] = {
     { "Wynns Coonawarra Shiraz 1998", 15.00 },
-    { "Meiﬂner Kapitelberg Riesling Kabinett trocken 1999", 8.94 },
+    { "Meissner Kapitelberg Riesling Kabinett trocken 1999", 8.94 },
     { "Perdera Monica di Sardegna 1997", 7.69 }
 };
 
@@ -61,11 +60,17 @@ ProductList::ProductList()
 
 void ProductList::processValueChanged( int row, int )
 {
-    QString total = QString::number( calcPrice( row ) );
-    setText( row, 3, total );
+    QString total;
 
-    total = QString::number( sumUp( 0 ) );
-    setText( totalRow, 0, total + suffix );
+    if ( row != discountRow ){ 
+	total = QString::number( calcPrice( row ) );
+	setText( row, 3, total );
+
+        total = QString::number( sumUp( 0 ) );
+	setText( totalRow, 0, total + suffix );
+    } else {
+	clearCell( discountRow, 0 );
+    }	
 
     total = QString::number( sumUp( 3 ) );
     setText( totalRow, 3, total );
@@ -73,10 +78,7 @@ void ProductList::processValueChanged( int row, int )
 
 double ProductList::calcPrice( int row )
 {
-    QString value = text( row, 0 );
-    value.replace( QRegExp( suffix ), "" );
-
-    double price = value.toDouble();
+    double price = text( row, 0 ).toDouble();
 
     return price * text( row, 2 ).toDouble();
 }
@@ -85,7 +87,7 @@ double ProductList::sumUp( int col )
 {
     double sum = 0;
 
-    for ( int i = 0; i <= numwines; i++ )
+    for ( int i = 0; i <= discountRow; i++ )
 	sum += text( i, col ).toDouble();
 
     return sum;

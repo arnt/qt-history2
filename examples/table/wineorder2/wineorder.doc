@@ -15,6 +15,10 @@ $Id$
   where the user can choose the amount of
   bottles via \l{QSpinBox}es.
 
+  For a line-by-line explanation of the following code
+  please refer to the \link wineorder2-walkthrough.html
+  walkthrough. \endlink
+
   <hr>
 
   The API of the SpinBoxItem class (spinboxitem.h): 
