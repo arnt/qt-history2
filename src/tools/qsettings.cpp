@@ -339,7 +339,7 @@ public:
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, bool *ok );
 
-    HKEY openKey( const QString &key, bool write );
+    HKEY openKey( const QString &key, bool write, bool remove = FALSE );
 
     QStringList paths;
 
@@ -1310,7 +1310,7 @@ bool QSettings::removeEntry(const QString &key)
 	HKEY handle = 0;
 	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
 	    QString k = (*it).isEmpty() ? key : *it + "/" + key;
-	    handle = d->win->openKey( k, FALSE );
+	    handle = d->win->openKey( k, FALSE, TRUE );
 	    e = d->win->entry( k );
 	    if ( handle )
 		break;

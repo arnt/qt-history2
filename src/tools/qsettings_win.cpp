@@ -72,7 +72,7 @@ public:
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
     QByteArray readKey( const QString &key, bool *ok );
 
-    HKEY openKey( const QString &key, bool write );
+    HKEY openKey( const QString &key, bool write, bool remove = FALSE );
 
     QStringList paths;
 
@@ -215,7 +215,7 @@ QString QSettingsWinPrivate::entry( const QString &key )
     return k.right( k.length() - k.findRev( "\\" ) - 1 );
 }
 
-HKEY QSettingsWinPrivate::openKey( const QString &key, bool write )
+HKEY QSettingsWinPrivate::openKey( const QString &key, bool write, bool remove )
 {
     QString f = folder( key );
 
@@ -243,7 +243,7 @@ HKEY QSettingsWinPrivate::openKey( const QString &key, bool write )
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
-	    if ( write )
+	    if ( write && !remove )
 		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
@@ -253,7 +253,7 @@ HKEY QSettingsWinPrivate::openKey( const QString &key, bool write )
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    if ( write )
+	    if ( write && !remove )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
@@ -265,7 +265,7 @@ HKEY QSettingsWinPrivate::openKey( const QString &key, bool write )
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 #endif
-	    if ( write )
+	    if ( write && !remove )
 		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
@@ -275,7 +275,7 @@ HKEY QSettingsWinPrivate::openKey( const QString &key, bool write )
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    if ( write )
+	    if ( write && !remove )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
