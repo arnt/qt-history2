@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.22 1999/06/15 21:22:33 warwick Exp $
+** $Id: i18n.doc,v 1.23 1999/06/15 21:24:41 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -209,6 +209,9 @@ in the following stages:
 	that you put the translations in separate .po and .pm files.  This
 	will simplify transition to the official Qt translations.
 	</em>
+	<p>
+	The <tt>findtr</tt> ships in <tt>qt/bin</tt>, while the other
+	utilities are under the <tt>qt/src/util</tt> and must be compiled.
 	</p>
  <li><b>Support encodings.</b>
 	<p>
