@@ -2,7 +2,11 @@
 
   caching of more information (speed ups)
   $$list() added to be used as a lambda function in qmake
-  equal() test added to test for equality
+  $$files() added to allow regular expression matching
+  $$fromfile() added to grab one single variable value from a parsed file
+  $$prompt() added to allow querying for user input from qmake
+  include() modified to support specifying which variables to import
+  equals() test added to test for equality
   MSVC.net generator added [partial solution files in vcsubdirs]
 
 1.04a -

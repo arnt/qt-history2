@@ -106,9 +106,6 @@ protected:
     virtual void processPrlFiles();
     virtual void writePrlFile(QTextStream &);
 
-    // for libtool
-    virtual void writeLibtoolFile(const QString &target);
-
     //make sure libraries are found
     virtual bool findLibraries();
 

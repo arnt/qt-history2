@@ -58,6 +58,14 @@ UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerato
 bool
 UnixMakefileGenerator::writeMakefile(QTextStream &t)
 {
+    if(project->isActiveConfig("create_libtool") && project->first("TEMPLATE") == "lib") { //write .la
+	if(project->isActiveConfig("compile_libtool"))
+	    warn_msg(WarnLogic, "create_libtool specified with compile_libtool can lead to conflicting .la\n"
+		     "formats, create_libtool has been disabled\n");
+	else
+	    writeLibtoolFile(var("TARGET"));
+    }
+
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "all clean:" << "\n\t"
@@ -142,7 +150,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "QMAKE    = "	<< (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "TAR      = "	<< var("QMAKE_TAR") << endl;
     t << "GZIP     = " << var("QMAKE_GZIP") << endl;
-    if(project->isActiveConfig("libtool"))
+    if(project->isActiveConfig("compile_libtool"))
 	t << "LIBTOOL	= " << var("QMAKE_LIBTOOL") << endl;
     t << "COPY     = " << var("QMAKE_COPY") << endl;
     t << "COPY_FILE= " << var("QMAKE_COPY_FILE") << endl;
@@ -245,7 +253,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "DIST	   = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
     t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "DESTDIR  = " << var("DESTDIR") << endl;
-    if(project->isActiveConfig("libtool")) 
+    if(project->isActiveConfig("compile_libtool")) 
 	t << "TARGETL	= " << var("TARGET_la") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
     if(project->isActiveConfig("plugin") ) {
@@ -506,7 +514,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(!project->isEmpty("QMAKE_PRE_LINK"))
 	    t << "\n\t" << var("QMAKE_PRE_LINK");
 
-	if(project->isActiveConfig("libtool")) {
+	if(project->isActiveConfig("compile_libtool")) {
 	    t << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD");
 	} else if(project->isActiveConfig("plugin")) {
@@ -772,7 +780,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "clean:" << clean_targets << "\n\t";
     if(!project->isEmpty("OBJECTS")) {
-	if(project->isActiveConfig("libtool")) 
+	if(project->isActiveConfig("compile_libtool")) 
 	    t << "-$(LIBTOOL) --mode=clean $(DEL_FILE) $(OBJECTS)" << "\n\t";
 	else
 	    t << "-$(DEL_FILE) $(OBJECTS)" << "\n\t";
@@ -802,12 +810,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(project->first("TEMPLATE") == "app" &&
        project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 	t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << "\n";
-    else if(project->isActiveConfig("libtool")) 
+    else if(project->isActiveConfig("compile_libtool")) 
 	t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << "\n";
     else
 	t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
-       !project->isActiveConfig("plugin") && !project->isActiveConfig("libtool"))
+       !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
 	t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
 	  << destdir << "$(TARGET2) $(TARGETA)" << "\n";
     t << endl << endl;
@@ -1065,14 +1073,14 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)");
     } else {
 	project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
-	if( project->isActiveConfig("libtool") )
+	if( project->isActiveConfig("compile_libtool") )
 	    project->variables()["TARGET_la"] = project->first("DESTDIR") + "lib" + project->first("TARGET") + ".la";
 
 	if ( !project->variables()["QMAKE_AR_CMD"].isEmpty() )
 	    project->variables()["QMAKE_AR_CMD"].first().replace("(TARGET)","(TARGETA)");
 	else
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
-	if( project->isActiveConfig("libtool") ) {
+	if( project->isActiveConfig("compile_libtool") ) {
 	    project->variables()["TARGET"] = project->variables()["TARGET_la"];
 	} else if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
@@ -1189,11 +1197,11 @@ void UnixMakefileGenerator::init2()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
 	if ( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
-	    if( !project->isActiveConfig("plugin_no_soname") && !project->isActiveConfig("libtool"))
+	    if( !project->isActiveConfig("plugin_no_soname") && !project->isActiveConfig("compile_libtool"))
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
-	    if(!project->isActiveConfig("libtool"))
+	    if(!project->isActiveConfig("compile_libtool"))
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
 	QString destdir = project->first("DESTDIR");
@@ -1229,4 +1237,78 @@ void UnixMakefileGenerator::init2()
 	    }
 	}
     }
+}
+
+void
+UnixMakefileGenerator::writeLibtoolFile(const QString &target)
+{
+    QString lname = target;
+    int slsh = target.findRev(Option::dir_sep);
+    if(slsh != -1)
+	lname = lname.right(lname.length() - slsh);
+    int dot = lname.find('.');
+    if(dot != -1)
+	lname = lname.left(dot);
+    QString fname = lname + ".la";
+    if(!project->isEmpty("DESTDIR"))
+	fname.prepend(var("DESTDIR"));
+    QString local_lt = Option::fixPathToLocalOS(fileFixify(fname, QDir::currentDirPath(), Option::output_dir));
+    QFile ft(fname);
+    if(!ft.open(IO_WriteOnly))
+	return;
+
+    QTextStream t(&ft);
+    t << "# " << lname << ".la - a libtool library file\n";
+    time_t now = time(NULL);
+    t << "# Generated by qmake/libtool (" << qmake_version() << ") (Qt "
+      << QT_VERSION_STR << ") on: " << ctime(&now) << "\n";
+
+    t << "# The name that we can dlopen(3).\n"
+      << "dlname='" << var(project->isActiveConfig("plugin") ? "TARGET" : "TARGET_x")
+      << "'\n\n";
+
+    t << "# Names of this library.\n";
+    t << "library_names='";
+    if(project->isActiveConfig("plugin")) {
+	t << var("TARGET");
+    } else {
+    	if (project->isEmpty("QMAKE_HPUX_SHLIB"))
+	    t << var("TARGET_x.y.z") << " ";
+    	t << var("TARGET_x") << " " << var("TARGET_");
+    }
+    t << "'\n\n";
+
+    // ### t << "# The name of the static archive.\n";
+
+    t << "# Libraries that this one depends upon.\n";
+    QStringList libs;
+    if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
+    else
+	libs << "QMAKE_LIBS"; //obvious one
+    t << "dependency_libs = ";
+    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
+	t << project->variables()[(*it)].join(" ") << " ";
+    t << "\n\n";
+
+    t << "# Version information for " << lname << "\n";
+    int maj = project->first("VER_MAJ").toInt();
+    int min = project->first("VER_MIN").toInt();
+    int pat = project->first("VER_PAT").toInt();
+    t << "current=" << (10*maj + min) << "\n" // best I can think of
+      << "age=0\n"
+      << "revision=" << pat << "\n\n";
+
+    t << "# Is this an already installed library.\n"
+	"installed=yes\n\n"; // ###
+
+    t << "# Files to dlopen/dlpreopen.\n"
+	"dlopen=''\n"
+	"dlpreopen=''\n\n";
+
+    QString install_dir = project->first("target.path");
+    if(install_dir.isEmpty())
+	install_dir = project->first("DESTDIR");
+    t << "# Directory that this library needs to be installed in:\n"
+	"libdir='" << Option::fixPathToTargetOS(install_dir, FALSE) << "'\n";
 }

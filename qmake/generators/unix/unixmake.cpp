@@ -241,7 +241,7 @@ UnixMakefileGenerator::init()
     }
     if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
 	include_deps = TRUE; //do not generate deps
-    if(project->isActiveConfig("libtool"))
+    if(project->isActiveConfig("compile_libtool"))
 	Option::obj_ext = ".lo"; //override the .o
 
     MakefileGenerator::init();
@@ -298,7 +298,7 @@ UnixMakefileGenerator::init()
 	}
     }
 
-    if(project->isActiveConfig("libtool")) {
+    if(project->isActiveConfig("compile_libtool")) {
 	const QString libtoolify[] = { "QMAKE_RUN_CC", "QMAKE_RUN_CC_IMP", 
 				       "QMAKE_RUN_CXX", "QMAKE_RUN_CXX_IMP", 
 				       "QMAKE_LINK_THREAD", "QMAKE_LINK", "QMAKE_AR_CMD", "QMAKE_LINK_SHLIB_CMD",
@@ -510,7 +510,7 @@ UnixMakefileGenerator::findLibraries()
 			    }
 			}
 		    }
-		    if(!found && project->isActiveConfig("libtool")) {
+		    if(!found && project->isActiveConfig("compile_libtool")) {
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    if(QFile::exists(mdd->local_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la")) {
 				(*it) = mdd->real_dir + Option::dir_sep + "lib" + stub + modifs[modif] + ".la";
@@ -552,7 +552,7 @@ UnixMakefileGenerator::processPrlFiles()
 		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2);
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
- 			    if(!project->isActiveConfig("libtool")) { //give them the .libs..
+ 			    if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
  				QString la = mdd->local_dir + Option::dir_sep + "lib" + lib + ".la";
  				if(QFile::exists(la) && QFile::exists(mdd->local_dir + Option::dir_sep + ".libs")) {
  				    l_out.append("-L" + mdd->real_dir + Option::dir_sep + ".libs");
@@ -657,7 +657,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}
     }
 
-    if(!resource && project->isActiveConfig("libtool")) {
+    if(!resource && project->isActiveConfig("compile_libtool")) {
 	QString src_targ = target;
 	if(src_targ == "$(TARGET)")
 	    src_targ = "$(TARGETL)";
