@@ -1716,7 +1716,9 @@ MetaObjectGenerator::~MetaObjectGenerator()
     if (typelib) typelib->Release();
 }
 
-bool axc_dispatchEqualsIDispatch = true;
+bool qax_dispatchEqualsIDispatch = true;
+QList<QByteArray> qax_qualified_usertypes;
+QByteArray qax_current_typelib;
 
 QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
@@ -1732,6 +1734,12 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
         UINT index;
         usertypeinfo->GetContainingTypeLib(&usertypelib, &index);
         if (usertypelib) {
+            // get type library name
+            BSTR typelibname = 0;
+            usertypelib->GetDocumentation(-1, &typelibname, 0, 0, 0);
+            QByteArray typeLibName = BSTRToQString(typelibname).latin1();
+            SysFreeString(typelibname);
+
             // get type name
             BSTR usertypename = 0;
             usertypelib->GetDocumentation(index, &usertypename, 0, 0, 0);
@@ -1751,10 +1759,18 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                 TYPEATTR *typeattr = 0;
                 usertypeinfo->GetTypeAttr(&typeattr);
                 if (typeattr) {
-                    if (typeattr->typekind == TKIND_ALIAS)
+                    if (typeattr->typekind == TKIND_ALIAS) {
                         userTypeName = guessTypes(typeattr->tdescAlias, usertypeinfo, function);
-                    else if (axc_dispatchEqualsIDispatch && (typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS))
-                        userTypeName = "IDispatch";
+                    } else if (typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS) {
+                        if (qax_dispatchEqualsIDispatch) {
+                            userTypeName = "IDispatch";
+                        } else {
+                            if (typeLibName != qax_current_typelib)
+                                userTypeName = typeLibName + "::" + userTypeName;
+                            if (!qax_qualified_usertypes.contains(userTypeName))
+                                qax_qualified_usertypes << userTypeName;
+                        }                                
+                    }
                 }
 
                 usertypeinfo->ReleaseTypeAttr(typeattr);
