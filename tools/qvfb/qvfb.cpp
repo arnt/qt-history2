@@ -289,7 +289,7 @@ void QVFb::about()
     QString qt("Mac");
 #elif defined( Q_WS_WIN )
     QString platform("Windows");
-    QString qt("Win");
+    QString qt("Windows");
 #else
     QString platform("X11");
     QString qt("X11");
