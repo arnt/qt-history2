@@ -10,7 +10,13 @@ $Id$
   \title A Complete Application Window with Actions
  
   This example program is just like the application example,
-  but it uses QAction to build the menu and the toolbar.
+  but uses QAction to build the menu and the toolbar.
+
+  The QAction related part of the program is covered in
+  detail by the <a href="simple-application-action.html">
+  QAction application walkthrough</a> whilst the 
+  <a href="simple-application.html">Simple application walkthrough</a>
+  deals with the rest.
  
   <hr>
  
