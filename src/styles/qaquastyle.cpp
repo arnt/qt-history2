@@ -12149,9 +12149,9 @@ QRect QAquaStyle::buttonRect( int x, int y, int w, int h) const
 {
     QRect r = QCommonStyle::buttonRect(x,y,w,h);
     r.setTop( r.top()+1);
-    r.setLeft( r.left()+1);
+    r.setLeft( r.left()+8);
     r.setBottom( r.bottom()-1);
-    r.setRight( r.right()-1);
+    r.setRight( r.right()-8);
     return r;
 }
 
