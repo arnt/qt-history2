@@ -2057,7 +2057,7 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
   QString foundry, family;
   QFontDatabase::parseFontName( familyName, foundry, family );
   family = family.lower();
-  
+
 
   // try to make a "good" postscript name
   ps = family.simplifyWhiteSpace();
@@ -2299,7 +2299,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
         stream << y << " Y";
     d->textY = y;
 
-    float w = d->fm.width( text ); 
+    float w = d->fm.width( text );
     stream << "<";
     QString s;
     int i;
@@ -2553,7 +2553,7 @@ static float f2dot14( ushort s )
     f += (s & 0x8000) ? ( (s & 0x4000) ? -1 : -2 ) : ( (s & 0x4000) ? 1 : 0 );
     return f;
 }
-    
+
 typedef struct {
   int*    epts_ctr;                     /* array of contour endpoints */
   int     num_pts, num_ctr;             /* number of points, number of coutours */
@@ -4279,7 +4279,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
       /* Debugging */
 #ifdef DEBUG_TRUETYPE
       s << "% flags=" << flags << ", arg1=" << arg1 << ", arg2=" << arg2 << ", xscale=" << xscale << ", yscale=" << yscale <<
-	  ", scale01=" << scale01 << ", scale10=" << scale10 << endl; 
+	  ", scale01=" << scale01 << ", scale10=" << scale10 << endl;
 #endif
 
 
@@ -4287,7 +4287,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 	  s << "% unimplemented shift, arg1=" << arg1;
 	  s << ", arg2=" << arg2 << "\n";
 	  arg1 = arg2 = 0;
-      }	
+      }
 
       /* If we have an (X,Y) shif and it is non-zero, */
       /* translate the coordinate system. */
@@ -5119,7 +5119,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    XFreeFontPath(font_path);
 
 	    // append qsettings fontpath
-	    QStringList fontpath = settings.readListEntry( "/qt/fontPath" );
+	    QStringList fontpath = settings.readListEntry( "/qt/fontPath", ':' );
 	    if ( !fontpath.isEmpty() )
 		priv->fontpath += fontpath;
 	}
@@ -5387,7 +5387,7 @@ QByteArray compress( const QImage & image, bool gray ) {
             for( int x=0; x < image.width(); x++ ) {
                 pixel[i] = image.color( s[x] );
 		// commented out, as it doesn't seem to work correctly with 8bit images.
-#if 0		
+#if 0
                if ( qAlpha( pixel[i] )< 0x40 ) // 25% alpha, convert to white
                    pixel[i] = qRgb( 0xff, 0xff, 0xff );
                else
@@ -5733,7 +5733,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
     } else {
         bool gray = (printer->colorMode() == QPrinter::GrayScale) ||
                     img.allGray();
-	
+
         if ( x || y )
             pageStream << x << " " << y << " TR\n";
         if ( gray ) {
@@ -5863,7 +5863,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
         outStream << "\n%%Pages: (atend)"
                << "\n%%DocumentFonts: (atend)";
     outStream << "\n%%EndComments\n";
-    
+
     if ( !fixed_ps_header )
         makeFixedStrings();
 
@@ -5886,10 +5886,10 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     lineStyles.replace( QRegExp( "w" ), QString::number( 10./scale ) );
     lineStyles.replace( QRegExp( "m" ), QString::number( 5./scale ) );
     lineStyles.replace( QRegExp( "s" ), QString::number( 3./scale ) );
-    
+
     outStream << lineStyles;
-    
-    
+
+
     outStream << "/pageinit {\n";
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )

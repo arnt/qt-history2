@@ -567,7 +567,7 @@ MainWindow::MainWindow()
 #endif
 
     fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
-    fontpaths = settings.readListEntry("/qt/fontPath");
+    fontpaths = settings.readListEntry("/qt/fontPath", ':');
     fontpathlistbox->insertStringList(fontpaths);
 
     setModified(FALSE);
