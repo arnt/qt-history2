@@ -65,7 +65,9 @@
 #include "formsettings.h"
 #include "preferences.h"
 #include "pixmapcollectioneditor.h"
+#ifndef QT_NO_SQL
 #include "dbconnectionimpl.h"
+#endif
 //#include "connectioneditor.h"
 #include "customwidgeteditorimpl.h"
 #include "paletteeditorimpl.h"
@@ -935,7 +937,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	} else if ( e->type() == QEvent::MouseButtonPress && ::qt_cast<PopupMenuEditor*>(o) ) {
 	    PopupMenuEditor *m = ::qt_cast<PopupMenuEditor*>(o);
 	    PopupMenuEditorItem *i = m->at( ((QMouseEvent*)e)->pos() );
-	    if ( m->find( i->action() ) != -1 && !i->isSeparator() ) 
+	    if ( m->find( i->action() ) != -1 && !i->isSeparator() )
 		showProperties( i->action() );
 	}
 	return QMainWindow::eventFilter( o, e );
@@ -2928,7 +2930,7 @@ void MainWindow::editFunction( const QString &func, bool rereadSource )
     if ( formWindow()->formFile()->codeFileState() != FormFile::Ok )
 	if ( !formWindow()->formFile()->setupUihFile(FALSE) )
 	    return;
-    
+
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
@@ -2936,7 +2938,7 @@ void MainWindow::editFunction( const QString &func, bool rereadSource )
 				      "Note: Plugins are not available in static Qt configurations." ) );
 	return;
     }
- 
+
     createSourceEditor( formWindow(), formWindow()->project(), lang, func, rereadSource );
 }
 
