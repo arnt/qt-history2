@@ -439,7 +439,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1), tableColConstraint(QTextTableFormat::VariableLength), tableColConstraintValue(0), 
-      wsm(WhiteSpaceModeUndefined)
+      tableBorder(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -1033,7 +1033,7 @@ void QTextHtmlParser::parseAttributes()
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
         } else if (node->isTableCell) {
-            if (key == "width") {
+            if (key == QLatin1String("width")) {
                 bool ok = false;
                 int val = value.toInt(&ok);
                 if (ok) {
@@ -1050,6 +1050,13 @@ void QTextHtmlParser::parseAttributes()
                         }
                     }
                 }
+            }
+        } else if (node->id == Html_table) {
+            if (key == QLatin1String("border")) {
+                bool ok = false;
+                int width = value.toInt(&ok);
+                if (ok)
+                    node->tableBorder = width;
             }
         }
 

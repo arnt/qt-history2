@@ -449,7 +449,7 @@ void QTextHTMLImporter::import()
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->id == Html_table) {
             QTextTableFormat fmt;
-            fmt.setBorder(1);
+            fmt.setBorder(node->tableBorder);
             Table t;
             t.tableIndex = d->formatCollection.createObjectIndex(fmt);
             tables.append(t);
