@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#291 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#292 $
 **
 ** Implementation of QWidget class
 **
@@ -2651,18 +2651,13 @@ bool QWidget::close( bool forceKill )
 
 
 /*!
+  \fn bool QWidget::close()
   Closes the widget.
-  
-  This version of close is usable as a slot. It calls close( TRUE ) 
+
+  This version of close is usable as a slot. It calls close( FALSE )
 
   \sa close(bool)
 */
-
-void QWidget::close()
-{
-    (void) close( FALSE );
-}
-
 
 /*!
   \fn bool QWidget::isVisible() const
