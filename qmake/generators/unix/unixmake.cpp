@@ -54,7 +54,6 @@ UnixMakefileGenerator::init()
 	return;
 
     QStringList &configs = project->variables()["CONFIG"];
-
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
 	project->variables()["QMAKE_APP_FLAG"].append("1");
@@ -66,7 +65,6 @@ UnixMakefileGenerator::init()
 	    project->variables()["MAKEFILE"].append("Makefile");
 	if(project->variables()["QMAKE"].isEmpty())
 	    project->variables()["QMAKE"].append("qmake");
-
 	return; /* subdirs is done */
     }
 
@@ -114,18 +112,19 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR"));
     }
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
-	if(configs.findIndex("x11lib") == -1) configs.append("x11lib");
-	if ( project->isActiveConfig("opengl") ) {
-	    if(configs.findIndex("x11inc") == -1) configs.append("x11inc");
-	}
+	if(configs.findIndex("x11lib") == -1) 
+	    configs.append("x11lib");
+	if ( project->isActiveConfig("opengl") && configs.findIndex("x11inc") == -1 )
+	    configs.append("x11inc");
     }
     if ( project->isActiveConfig("x11") ) {
-	if(configs.findIndex("x11lib") == -1) configs.append("x11lib");
-	if(configs.findIndex("x11inc") == -1) configs.append("x11inc");
+	if(configs.findIndex("x11lib") == -1) 
+	    configs.append("x11lib");
+	if(configs.findIndex("x11inc") == -1) 
+	    configs.append("x11inc");
     }
-    if ( project->isActiveConfig("accessibility" ) ) {
+    if ( project->isActiveConfig("accessibility" ) ) 
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-    }
     if ( project->isActiveConfig("tablet") )
 	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
     if ( project->isActiveConfig("qt") ) {
@@ -139,11 +138,10 @@ UnixMakefileGenerator::init()
 	    if(!project->variables()["QMAKE_LIBDIR_QT"].isEmpty())
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->first("QMAKE_LIBDIR_QT"));
-	    if (project->isActiveConfig("thread") && !project->variables()["QMAKE_LIBS_QT_THREAD"].isEmpty()) {
+	    if (project->isActiveConfig("thread") && !project->variables()["QMAKE_LIBS_QT_THREAD"].isEmpty()) 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    } else {
+	    else 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
-	    }
 	}
     }
     if ( project->isActiveConfig("thread") ) {
@@ -163,11 +161,10 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_OPENGL"));
 	}
 	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-	     (project->first("TARGET") == "qt-mt") ) {
+	     (project->first("TARGET") == "qt-mt") )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
-	} else {
+	else 
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
-	}
     }
     if ( project->isActiveConfig("x11sm") )
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
@@ -176,9 +173,8 @@ UnixMakefileGenerator::init()
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
-	if(!project->variables()["QMAKE_LIBDIR_X11"].isEmpty()) {
+	if(!project->variables()["QMAKE_LIBDIR_X11"].isEmpty()) 
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_X11"));
-	}
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
     if ( project->isActiveConfig("moc") )
@@ -199,7 +195,6 @@ UnixMakefileGenerator::init()
 	    allmoc += Option::dir_sep;
 	if(QDir::isRelativePath(allmoc) && !project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
 	    allmoc.prepend(Option::output_dir + Option::dir_sep);
-
 	allmoc += "/allmoc.cpp";
 	project->variables()["SOURCES"].prepend(allmoc);
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
@@ -320,15 +315,11 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
-
 	QString destdir = project->first("DESTDIR");
 	if(!destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty())
 	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + destdir;
     }
 }
-
-
-
 
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
