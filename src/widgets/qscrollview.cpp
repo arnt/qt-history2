@@ -204,6 +204,15 @@ struct QScrollViewData {
 	    sv->resizeContents(r->child->width(),r->child->height());
 	}
     }
+    void autoResizeHint()
+    {
+	if ( policy == QScrollView::AutoOne ) {
+	    QSVChildRec* r = children.first();
+	    QSize s = r->child->sizeHint();
+	    if ( s.isValid() )
+		r->child->resize(s);
+	}
+    }
 
     QScrollBar	hbar;
     QScrollBar	vbar;
@@ -990,6 +999,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	if (r) {
 	    r->moveTo(this,x,y,d->clipped_viewport);
 	    if ( d->policy > Manual ) {
+		d->autoResizeHint();
 		d->autoResize(this); // #### better to just deal with this one widget!
 	    }
 	    return;
@@ -1008,6 +1018,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
     d->addChildRec(child,x,y)->hideOrShow(this, d->clipped_viewport);
 
     if ( d->policy > Manual ) {
+	d->autoResizeHint();
 	d->autoResize(this); // #### better to just deal with this one widget!
     }
 }
@@ -1127,6 +1138,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
+	    break;
+	case QEvent::LayoutHint:
+	    d->autoResizeHint();
 	    break;
 	default:
 	    break;
@@ -1704,6 +1718,8 @@ void QScrollView::resizeContents( int w, int h )
 	    h = visibleHeight();
 	clipper()->update( 0, contentsY()+oh, visibleWidth(), h-oh);
     }
+
+    updateGeometry();
 }
 
 /*!
@@ -2124,7 +2140,36 @@ void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 */
 QSizePolicy QScrollView::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+}
+
+
+/*!
+  \reimp
+*/
+QSize	QScrollView::sizeHint() const
+{
+/*
+    QScrollView* that = (QScrollView*)this;
+    d->autoResizeHint();
+    d->autoResize(that); // since Resize will be deferred
+    QApplication::sendPostedEvents( viewport(), QEvent::LayoutHint );
+    return QSize(that->contentsWidth()+frameWidth()*2,
+		 that->contentsHeight()+frameWidth()*2);
+*/
+
+    QSize result = QSize(frameWidth()*2, frameWidth()*2);
+    if ( d->policy == QScrollView::AutoOne ) {
+	QSVChildRec* r = d->children.first();
+	QSize cs = r->child->sizeHint();
+	if ( cs.isValid() )
+	    result += cs;
+	else
+	    result += r->child->size();
+    } else {
+	result += QSize(contentsWidth(),contentsHeight());
+    }
+    return result;
 }
 
 
@@ -2133,8 +2178,8 @@ QSizePolicy QScrollView::sizePolicy() const
 */
 QSize	QScrollView::minimumSizeHint() const
 {
-    //so we can implement it later
-    return QWidget::minimumSizeHint();
+    return QSize(100+frameWidth()*2,
+		 100+frameWidth()*2);
 }
 
 

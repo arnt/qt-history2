@@ -92,6 +92,7 @@ public:
 
     QSize	viewportSize( int, int ) const;
     QSizePolicy sizePolicy() const;
+    QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
     void	removeChild(QObject* child);
