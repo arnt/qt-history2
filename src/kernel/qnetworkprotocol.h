@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#31 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#32 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -118,13 +118,6 @@ public:
 
     virtual void setAutoDelete( bool b, int i = 10000 );
     bool autoDelete() const;
-
-    virtual const QNetworkOperation *listChildren();
-    virtual const QNetworkOperation *mkdir( const QString &dirname );
-    virtual const QNetworkOperation *remove( const QString &filename );
-    virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
-    virtual const QNetworkOperation *get();
-    virtual const QNetworkOperation *put( const QByteArray &data );
 
     static void registerNetworkProtocol( const QString &protocol,
 					 QNetworkProtocolFactoryBase *protocolFactory );
