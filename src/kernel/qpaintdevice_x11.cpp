@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#103 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -222,48 +222,71 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
   \sa handle()
 */
 
+static int dpiX=0,dpiY=0;
+
+/*!
+  Sets the value returned by x11AppDpiX().  The default is determined
+  by the display configuration.  Changing this value will alter the
+  scaling of fonts and many other metrics and is not recommended.
+
+  \sa x11SetAppDpiY()
+*/
+void QPaintDevice::x11SetAppDpiX(int dpi)
+{
+    dpiX = dpi;
+}
+
+/*!
+  Sets the value returned by x11AppDpiY().  The default is determined
+  by the display configuration.  Changing this value will alter the
+  scaling of fonts and many other metrics and is not recommended.
+
+  \sa x11SetAppDpiX()
+*/
+void QPaintDevice::x11SetAppDpiY(int dpi)
+{
+    dpiY = dpi;
+}
 
 /*!
   Returns the horizontal DPI of the X display (X11 only).
   <em>Using this function is not portable.</em> See QPaintDeviceMetrics
   for portable access to related information.
 
-  \sa QPaintDeviceMetrics::logicalDpiX();
+  \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
 */
 int QPaintDevice::x11AppDpiX()
 {
-    static int remember = 0;
-    if ( !remember ) {
+    if ( !dpiX ) {
 	Display *dpy = x11AppDisplay();
 	int scr = x11AppScreen();
 	if ( dpy ) {
-	    remember =
+	    dpiX =
 		(DisplayWidth(dpy,scr) * 254 + DisplayWidthMM(dpy,scr)*5)
 		       / (DisplayWidthMM(dpy,scr)*10);
 	}
     }
-    return remember;
+    return dpiX;
 }
 
 /*!
-  Returns the vertical DPI of the X display (X11 only).
+  Returns the vertical DPI of the X11 display (X11 only).
   <em>Using this function is not portable.</em> See QPaintDeviceMetrics
   for portable access to related information.
 
-  \sa QPaintDeviceMetrics::logicalDpiY();
+  \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
 */
 int QPaintDevice::x11AppDpiY()
 {
-    static int remember = 0;
-    if ( !remember ) {
+    if ( !dpiY ) {
 	Display *dpy = x11AppDisplay();
 	int scr = x11AppScreen();
 	if ( dpy )
-	    remember =
+	    dpiY =
 		(DisplayHeight(dpy,scr) * 254 + DisplayHeightMM(dpy,scr)*5)
 		       / (DisplayHeightMM(dpy,scr)*10);
     }
-    return remember;
+    return dpiY;
 }
 
 

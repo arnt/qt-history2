@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#71 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#72 $
 **
 ** Definition of QPaintDevice class
 **
@@ -97,6 +97,8 @@ public:
     static bool     x11AppDefaultColormap();
     static void    *x11AppVisual();
     static bool	    x11AppDefaultVisual();
+    static void	    x11SetAppDpiX(int);
+    static void	    x11SetAppDpiY(int);
 #endif
 
     enum PDevCmd {
