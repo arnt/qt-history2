@@ -1807,16 +1807,18 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (widget->xtra()) {
                 MINMAXINFO *mmi = (MINMAXINFO *)lParam;
                 QWExtra           *x = widget->xtra();
-                QRect           f  = widget->frameGeometry();
-                QSize           s  = widget->size();
-                if (x->minw > 0)
-                    mmi->ptMinTrackSize.x = x->minw + f.width()         - s.width();
-                if (x->minh > 0)
-                    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
-                if (x->maxw < QWIDGETSIZE_MAX)
-                    mmi->ptMaxTrackSize.x = x->maxw + f.width()         - s.width();
-                if (x->maxh < QWIDGETSIZE_MAX)
-                    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
+		if ( x->minw > 0 )
+		    mmi->ptMinTrackSize.x = x->minw + x->topextra->fright + x->topextra->fleft;
+		if ( x->minh > 0 )
+		    mmi->ptMinTrackSize.y = x->minh + x->topextra->ftop + x->topextra->fbottom;
+                if ( x->maxw < QWIDGETSIZE_MAX ) {
+		    mmi->ptMaxTrackSize.x = x->maxw + x->topextra->fright + x->topextra->fleft;
+                    // windows with titlebar have an implicit sizelimit of 112 pixels
+                    if (widget->testWFlags(Qt::WStyle_Title))
+                        mmi->ptMaxTrackSize.x = QMAX(mmi->ptMaxTrackSize.x, 112);
+                }
+		if ( x->maxh < QWIDGETSIZE_MAX )
+		    mmi->ptMaxTrackSize.y = x->maxh + x->topextra->ftop + x->topextra->fbottom;
                 RETURN(0);
             }
             break;
