@@ -432,17 +432,16 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         setWinId(id);                                // set widget id/handle + hd
     }
 
-#ifndef QT_NO_XFT
-    if (xft_hd) {
-        XftDrawDestroy((XftDraw *) xft_hd);
-        xft_hd = 0;
+#ifndef QT_NO_XRENDER
+    if (picture) {
+        XRenderFreePicture(X11->display, picture);
+        picture = 0;
     }
 
-    if (X11->has_xft) {
-        xft_hd = (Qt::HANDLE)
-                 XftDrawCreate(dpy, id, (Visual *) xinfo.visual(), xinfo.colormap());
+    if (X11->use_xrender) {
+        picture = XRenderCreatePicture(dpy, id, XRenderFindVisualFormat (dpy, (Visual *) xinfo.visual()), 0, 0);
     }
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 
     // NET window types
     long net_wintypes[7] = { 0, 0, 0, 0, 0, 0, 0 };
@@ -718,15 +717,13 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         else if ((windowType() == Qt::Popup))
             qApp->closePopup(this);
 
-#ifndef QT_NO_XFT
-        if (d->xft_hd) {
+#ifndef QT_NO_XRENDER
+        if (d->picture) {
             if (destroyWindow)
-                XftDrawDestroy((XftDraw *) d->xft_hd);
-            else
-                free((void*) d->xft_hd);
-            d->xft_hd = 0;
+                XRenderFreePicture(X11->display, d->picture);
+            d->picture = 0;
         }
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 
         if ((windowType() == Qt::Desktop)) {
             if (acceptDrops())
@@ -1347,7 +1344,7 @@ struct QX11DoubleBuffer
         MaxHeight = SHRT_MAX
     };
 
-    Qt::HANDLE hd, xft_hd;
+    Qt::HANDLE hd, picture;
     int screen, depth;
     int width, height;
 };
@@ -1360,9 +1357,9 @@ static void qt_discard_double_buffer(QX11DoubleBuffer **db)
     if (!*db) return;
 
     XFreePixmap(X11->display, (*db)->hd);
-#ifndef QT_NO_XFT
-    if (X11->has_xft)
-        XftDrawDestroy((XftDraw *) (*db)->xft_hd);
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender)
+        XRenderFreePicture(X11->display, (*db)->picture);
 #endif
     delete *db;
     *db = 0;
@@ -1388,15 +1385,11 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 {
     QX11DoubleBuffer *db = new QX11DoubleBuffer;
     db->hd = XCreatePixmap(X11->display, hd, width, height, depth);
-    db->xft_hd = 0;
-#ifndef QT_NO_XFT
-    if (X11->has_xft) {
-        db->xft_hd =
-            (Qt::HANDLE) XftDrawCreate(X11->display,
-                                       db->hd,
-                                       (Visual *) QX11Info::appVisual(),
-                                       QX11Info::appColormap());
-    }
+    db->picture = 0;
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender)
+        db->picture = XRenderCreatePicture(X11->display, db->hd,
+                                           XRenderFindVisualFormat(X11->display, (Visual *) QX11Info::appVisual()), 0, 0);
 #endif
     db->screen = screen;
     db->depth = depth;
@@ -1466,7 +1459,7 @@ void QWidget::repaint(const QRegion& rgn)
 
 
     Qt::HANDLE old_hd = d->hd;
-    Qt::HANDLE old_xft_hd = d->xft_hd;
+    Qt::HANDLE old_picture = d->picture;
 
     QPoint redirectionOffset;
     QX11DoubleBuffer *qDoubleBuffer = 0;
@@ -1475,7 +1468,7 @@ void QWidget::repaint(const QRegion& rgn)
                                  br.width(), br.height());
 
 	d->hd = qDoubleBuffer->hd;
-	d->xft_hd = qDoubleBuffer->xft_hd;
+	d->picture = qDoubleBuffer->picture;
         redirectionOffset = br.topLeft();
     } else {
         redirectionOffset = data->wrect.topLeft();
@@ -1521,7 +1514,7 @@ void QWidget::repaint(const QRegion& rgn)
         XFreeGC(d->xinfo.display(), gc);
 
         d->hd = old_hd;
-        d->xft_hd = old_xft_hd;
+        d->picture = old_picture;
 
 	qt_x11_release_double_buffer(&qDoubleBuffer);
 
@@ -2694,31 +2687,18 @@ QPaintEngine *QWidget::paintEngine() const
 }
 
 /*!
-    Returns the Xft picture handle of the widget for XRender
+    Returns the X11 Picture handle of the widget for XRender
     support. Use of this function is not portable. This function will
     return 0 if XRender support is not compiled into Qt, if the
     XRender extension is not supported on the X11 display, or if the
     handle could not be created.
 */
-Qt::HANDLE QWidget::xftPictureHandle() const
+Qt::HANDLE QWidget::x11PictureHandle() const
 {
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     Q_D(const QWidget);
-    return d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+    return d->picture;
 #else
     return 0;
-#endif // QT_NO_XFT
-}
-
-/*!
-    Returns the Xft draw handle of the widget for XRender
-    support. Use of this function is not portable. This function will
-    return 0 if XRender support is not compiled into Qt, if the
-    XRender extension is not supported on the X11 display, or if the
-    handle could not be created.
-*/
-Qt::HANDLE QWidget::xftDrawHandle() const
-{
-    Q_D(const QWidget);
-    return d->xft_hd;
+#endif // QT_NO_XRENDER
 }

@@ -278,7 +278,7 @@ public:
     Qt::HANDLE hd;
 #if defined(Q_WS_X11)
     QX11Info xinfo;
-    Qt::HANDLE xft_hd;
+    Qt::HANDLE picture;
 #endif
 #if defined(Q_WS_MAC)
     enum PaintChildrenOPs {

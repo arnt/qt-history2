@@ -127,8 +127,7 @@ public:
     static int x11SetDefaultScreen(int screen);
     void x11SetScreen(int screen);
     const QX11Info &x11Info() const;
-    Qt::HANDLE xftPictureHandle() const;
-    Qt::HANDLE xftDrawHandle() const;
+    Qt::HANDLE x11PictureHandle() const;
 #endif
 
 #if !defined(Q_WS_WIN) && !defined(Q_WS_MAC)
@@ -195,7 +194,6 @@ private:
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEngine;
     friend class QWSPaintEngine;
-    friend class QFontEngineXft;
     friend class QwsPixmap;
     friend class QWidgetPrivate;
     friend class QRasterPaintEngine;

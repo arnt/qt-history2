@@ -1,6 +1,6 @@
 #!/bin/sh
 
-XFT=yes
+FONTCONFIG=yes
 XCONFIG=$1/qmake.conf
 VERBOSE=$2
 SRCDIR=$3
@@ -25,12 +25,12 @@ for PARAM in $PARAMS; do
 done
 
 # debuggery
-[ "$VERBOSE" = "yes" ] && echo "Xft auto-detection... ($*)"
+[ "$VERBOSE" = "yes" ] && echo "FontConfig auto-detection... ($*)"
 
 # cleanup...
-rm -f $OUTDIR/config.tests/x11/xft.cfg
-rm -f $OUTDIR/config.tests/x11/xft.inc
-rm -f $OUTDIR/config.tests/x11/xft.lib
+rm -f $OUTDIR/config.tests/x11/fontconfig.cfg
+rm -f $OUTDIR/config.tests/x11/fontconfig.inc
+rm -f $OUTDIR/config.tests/x11/fontconfig.lib
 
 XLIBDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS=`sed -n -e '/^QMAKE_LIBDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
@@ -40,44 +40,9 @@ XINCDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }'
 INCDIRS=`sed -n -e '/^QMAKE_INCDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 INCDIRS="$IN_INCDIRS $XINCDIRS $INCDIRS /usr/include /include"
 
-# check for X11/Xft/Xft.h
-XFT_H=
-if [ "$XFT" = "yes" ]; then
-    F=
-    for INCDIR in $INCDIRS; do
-	INCS="X11/Xft/Xft2.h X11/Xft/Xft.h"
-	for INC in $INCS; do
-	    if [ -f $INCDIR/$INC ]; then
-		F=yes
-		[ "$INC" = "X11/Xft/Xft2.h" ] && XFT2_HEADER=yes
-		XFT_H=$INCDIR/$INC
-		[ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
-		break
-	    fi
-	done
-        [ -n "$F" ] && break
-    done
-    if [ -z "$F" ]; then
-	XFT=no
-	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
-    fi
-fi
-
-# verify that we are using Xft 2
-if [ "$XFT" = "yes" ]; then
-    XFT_MAJOR=`grep XFT_MAJOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
-    XFT_MINOR=`grep XFT_MINOR $XFT_H | head -n 1 | awk '{ print \$3 }'`
-    XFT_REVISION=`grep XFT_REVISION $XFT_H | head -n 1 | awk '{ print \$3 }'`
-    [ "$VERBOSE" = "yes" ] && echo "  Found Xft version $XFT_MAJOR.$XFT_MINOR.$XFT_REVISION"
-    if [ -z "$XFT_MAJOR" ] || [ "$XFT_MAJOR" -ne "2" ]; then
-        XFT=no
-        [ "$VERBOSE" = "yes" ] && echo "  Version >= 2.0.0 required."
-    fi
-fi
-
 # check for freetype2 headers
 FREETYPE2_INCDIR=
-if [ "$XFT" = "yes" ]; then
+if [ "$FONTCONFIG" = "yes" ]; then
     INC="freetype2/freetype/freetype.h"
     F=
     for INCDIR in $INCDIRS; do
@@ -89,13 +54,13 @@ if [ "$XFT" = "yes" ]; then
 	fi
     done
     if [ -z "$F" ]; then
-	XFT=no
+	FONTCONFIG=no
 	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
     fi
 fi
 
 # verify that we are using freetype2 >= 2.0.9
-if [ "$XFT" = "yes" ]; then
+if [ "$FONTCONFIG" = "yes" ]; then
     FREETYPE_MAJOR=`grep "#define FREETYPE_MAJOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
     FREETYPE_MINOR=`grep "#define FREETYPE_MINOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
     FREETYPE_PATCH=`grep "#define FREETYPE_PATCH" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
@@ -106,13 +71,13 @@ if [ "$XFT" = "yes" ]; then
         [ "$VERBOSE" = "yes" ] && \
             echo "  Found Freetype version $FREETYPE_MAJOR.$FREETYPE_MINOR.$FREETYPE_PATCH"
     else
-        XFT=no
-        [ "$VERBOSE" = "yes" ] && echo "  Version >= 2.0.9 required."
+        FONTCONFIG=no
+        [ "$VERBOSE" = "yes" ] && echo "  Freetype Version >= 2.0.9 required."
     fi
 fi
 
 # check for fontconfig headers
-if [ "$XFT" = "yes" ]; then
+if [ "$FONTCONFIG" = "yes" ]; then
     INC="fontconfig/fontconfig.h"
     F=
     for INCDIR in $INCDIRS; do
@@ -123,16 +88,16 @@ if [ "$XFT" = "yes" ]; then
 	fi
     done
     if [ -z "$F" ]; then
-	XFT=no
+	FONTCONFIG=no
 	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
     fi
 fi
 
-# check for the Xft library
-LIBXFT=
-if [ "$XFT" = "yes" ]; then
+# check for the Fontconfig library
+LIBFONTCONFIG=
+if [ "$FONTCONFIG" = "yes" ]; then
     F=
-    LIBS="Xft2 Xft"
+    LIBS="fontconfig"
     for LIB in $LIBS; do
         for LIBDIR in $LIBDIRS; do
             EXTENSIONS="sl so a"
@@ -140,7 +105,7 @@ if [ "$XFT" = "yes" ]; then
                 if [ -f "$LIBDIR/lib$LIB.$E" ]; then
                     F=yes
                     [ "$VERBOSE" = "yes" ] && echo "  Found lib$LIB.$E in $LIBDIR"
-                    LIBXFT="-l$LIB -lfreetype -lfontconfig"
+                    LIBFONTCONFIG="-lfreetype -l$LIB"
                     break
                 fi
             done
@@ -148,20 +113,18 @@ if [ "$XFT" = "yes" ]; then
         [ -n "$F" ] && break
     done
     if [ -z "$F" ]; then
-        XFT=no
-        [ "$VERBOSE" = "yes" ] && echo "  Could not find Xft lib anywhere in $LIBDIRS"
+        FONTCONFIG=no
+        [ "$VERBOSE" = "yes" ] && echo "  Could not find FontConfig lib anywhere in $LIBDIRS"
     fi
 fi
 
 # done
-if [ "$XFT" != "yes" ]; then
-    [ "$VERBOSE" = "yes" ] && echo "Xft disabled."
+if [ "$FONTCONFIG" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "FontConfig disabled."
     exit 0
 else
-    [ "$VERBOSE" = "yes" ] && echo "Xft enabled."
-    [ "$XFT2_HEADER" = "yes" ] && \
-	echo "xft2header" > $OUTDIR/config.tests/x11/xft.cfg
-    echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/xft.inc
-    echo "$LIBXFT" > $OUTDIR/config.tests/x11/xft.lib
+    [ "$VERBOSE" = "yes" ] && echo "FontConfig enabled."
+    echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/fontconfig.inc
+    echo "$LIBFONTCONFIG" > $OUTDIR/config.tests/x11/fontconfig.lib
     exit 1
 fi

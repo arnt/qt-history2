@@ -358,10 +358,11 @@ void QOpenType::applyGPOSFeatures()
 #endif
             str->pos = 0;
 #ifdef Q_WS_X11
-            Q_ASSERT(fontEngine->type() == QFontEngine::Xft);
-            face = static_cast<QFontEngineXft *>(fontEngine)->freetypeFace();
+            Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
+            face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
             TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
                                    str, &positions, false, false);
+            static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
 #else
             TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
                                    str, &positions, false, false);

@@ -232,9 +232,9 @@ void QCursorData::update()
     Window rootwin = QX11Info::appRootWindow();
 
     if (cshape == Qt::BitmapCursor) {
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
         if (!pixmap.isNull() && X11->use_xrender) {
-            hcurs = XRenderCreateCursor (X11->display, pixmap.xftPictureHandle(), hx, hy);
+            hcurs = XRenderCreateCursor (X11->display, pixmap.x11PictureHandle(), hx, hy);
         } else
 #endif
         {

@@ -35,7 +35,6 @@
 
 class QX11PaintEnginePrivate;
 
-typedef struct _XftDraw XftDraw;
 typedef unsigned long Picture;
 #include "qx11info_x11.h"
 
@@ -107,8 +106,8 @@ protected:
     void drawMulti(const QPointF &p, const QTextItemInt &si);
     void drawBox(const QPointF &p, const QTextItemInt &si);
     void drawXLFD(const QPointF &p, const QTextItemInt &si);
-#ifndef QT_NO_XFT
-    void drawXft(const QPointF &p, const QTextItemInt &si);
+#ifndef QT_NO_FONTCONFIG
+    void drawFreetype(const QPointF &p, const QTextItemInt &si);
 #endif
 
     friend void qt_cleanup();
@@ -116,8 +115,6 @@ protected:
     friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w,  int h);
     friend class QPixmap;
     friend class QFontEngineBox;
-    friend class QFontEngineXft;
-    friend class QFontEngineXLFD;
 
 private:
     Q_DISABLE_COPY(QX11PaintEngine)
@@ -132,7 +129,7 @@ public:
         dpy = 0;
         scrn = -1;
         hd = 0;
-        xft_hd = 0;
+        picture = 0;
         bg_col = Qt::white;                             // default background color
         bg_mode = Qt::TransparentMode;                  // default background mode
         gc = gc_brush = 0;
@@ -140,6 +137,7 @@ public:
         xinfo = 0;
         txop = QPainterPrivate::TxNone;
         has_clipping = false;
+        render_hints = 0;
     }
     enum GCMode {
         PenGC,
@@ -156,11 +154,9 @@ public:
     Display *dpy;
     int scrn;
     Qt::HANDLE hd;
-#if !defined (QT_NO_XFT)
-    XftDraw *xft_hd;
-    Picture picture;
+#if !defined (QT_NO_XRENDER)
+    Qt::HANDLE picture;
 #else
-    Qt::HANDLE xft_hd;
     Qt::HANDLE picture;
 #endif
     GC gc;
@@ -178,6 +174,7 @@ public:
     uint has_clipping : 1;
     uint adapted_brush_origin : 1;
     uint adapted_pen_origin : 1;
+    uint render_hints;
 
     const QX11Info *xinfo;
     QPointF bg_origin;

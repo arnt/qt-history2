@@ -52,7 +52,6 @@ public:
 
         // X11 types
         XLFD,
-        Xft,
 
         // MS Windows types
         Win,

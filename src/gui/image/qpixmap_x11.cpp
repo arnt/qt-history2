@@ -47,11 +47,6 @@
 #  define for if(0){}else for
 #endif
 
-
-#if !defined(QT_NO_XFT)
-static void qt_XftDrawPrepare(_XftDraw *d);
-#endif
-
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.
 
@@ -289,7 +284,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
     data->uninit = true;
     data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
-    data->xft_hd = 0;
+    data->picture = 0;
     data->x11_mask = 0;
 
     if (defaultScreen >= 0 && defaultScreen != data->xinfo.screen()) {
@@ -304,7 +299,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
         data->xinfo.setX11Data(xd);
     }
 
-    int dd = ((X11->has_xft && X11->use_xrender) ? 32 : data->xinfo.depth());
+    int dd = ((X11->use_xrender) ? 32 : data->xinfo.depth());
 
     bool make_null = w == 0 || h == 0;                // create null pixmap
     if (d == 1)                                // monocrome pixmap
@@ -313,7 +308,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
         data->d = dd;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
         data->hd = 0;
-        data->xft_hd = 0;
+        data->picture = 0;
         if (!make_null)
             qWarning("QPixmap: Invalid pixmap parameters");
         return;
@@ -325,19 +320,12 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
                                                     data->xinfo.screen()),
                                          w, h, data->d);
 
-#ifndef QT_NO_XFT
-    if (X11->has_xft) {
-        if (data->d == 1) {
-            data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(data->xinfo.display(), data->hd);
-        } else {
-            data->xft_hd = (Qt::HANDLE) XftDrawCreate(data->xinfo.display(), data->hd,
-                                                      (Visual *) data->xinfo.visual(),
-                                                      data->xinfo.colormap());
-            if (X11->use_xrender && data->xft_hd)
-                qt_XftDrawPrepare((XftDraw *) data->xft_hd);
-        }
-    }
-#endif // QT_NO_XFT
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender)
+        data->picture = XRenderCreatePicture(X11->display, data->hd,
+                                             XRenderFindStandardFormat(X11->display, data->d == 1
+                                                                       ? PictStandardA1 : PictStandardARGB32), 0, 0);
+#endif // QT_NO_XRENDER
 }
 
 QPixmapData::~QPixmapData()
@@ -350,12 +338,12 @@ QPixmapData::~QPixmapData()
     }
     if (hd) {
 
-#ifndef QT_NO_XFT
-        if (xft_hd) {
-            XftDrawDestroy((XftDraw *) xft_hd);
-            xft_hd = 0;
+#ifndef QT_NO_XRENDER
+        if (picture) {
+            XRenderFreePicture(X11->display, picture);
+            picture = 0;
         }
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 
         if (hd2) {
             XFreePixmap(xinfo.display(), hd2);
@@ -396,10 +384,11 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 					     RootWindow(data->xinfo.display(), data->xinfo.screen()),
 					     (char *)bits, w, h);
 
-#ifndef QT_NO_XFT
-    if (X11->has_xft)
-        data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap (data->xinfo.display (), data->hd);
-#endif // QT_NO_XFT
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender)
+        data->picture = (Qt::HANDLE) XRenderCreatePicture(X11->display, data->hd,
+                                                          XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
+#endif // QT_NO_XRENDER
 
     if (flipped_bits)                                // Avoid purify complaint
         delete [] flipped_bits;
@@ -474,7 +463,7 @@ void QPixmap::fill(const QColor &fillColor)
     GC gc = XCreateGC(data->xinfo.display(), data->hd, 0, 0);
     if (depth() == 1) {
         XSetForeground(data->xinfo.display(), gc, qGray(fillColor.rgb()) > 127 ? 0 : 1);
-    } else if (X11->has_xft && X11->use_xrender) {
+    } else if (X11->use_xrender) {
         XSetForeground(data->xinfo.display(), gc, fillColor.rgba());
     } else {
         XSetForeground(data->xinfo.display(), gc,
@@ -518,7 +507,7 @@ void QPixmap::setAlphaChannel(const QPixmap &alpha)
 QBitmap QPixmap::mask() const
 {
     QBitmap mask;
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
         // #### slow - there must be a better way..
         mask = QBitmap::fromImage(toImage().createAlphaMask());
@@ -565,12 +554,11 @@ void QPixmap::setMask(const QBitmap &newmask)
 
     detach();
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
-        ::Picture src_pic = XftDrawPicture((XftDraw *) data->xft_hd);
         XRenderComposite(X11->display, PictOpSrc,
-                         src_pic, newmask.xftPictureHandle(),
-                         src_pic, 0, 0, 0, 0, 0, 0, data->w, data->h);
+                         data->picture, newmask.x11PictureHandle(),
+                         data->picture, 0, 0, 0, 0, 0, 0, data->w, data->h);
     } else
 #endif
     {
@@ -669,7 +657,7 @@ QImage QPixmap::toImage() const
     if (!xi)
         return image;
 
-    if (X11->has_xft && X11->use_xrender && data->d == 32) {
+    if (X11->use_xrender && data->d == 32) {
         image.create(data->w, data->h, data->d);
         image.setAlphaBuffer(data->alpha);
         memcpy(image.bits(), xi->data, xi->bytes_per_line * xi->height);
@@ -952,7 +940,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     const int         w   = image.width();
     const int         h   = image.height();
     int         d   = image.depth();
-    const int         dd  = ((X11->has_xft && X11->use_xrender) ? 32 : pixmap.data->xinfo.depth());
+    const int         dd  = ((X11->use_xrender) ? 32 : pixmap.data->xinfo.depth());
     bool force_mono = (dd == 1 || (flags & Qt::ColorMode_Mask) == Qt::MonoOnly);
 
     // must be monochrome
@@ -1040,10 +1028,11 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                                                             RootWindow(pixmap.data->xinfo.display(), pixmap.data->xinfo.screen()),
                                                             bits, w, h);
 
-#ifndef QT_NO_XFT
-        if (X11->has_xft && X11->use_xrender)
-            pixmap.data->xft_hd = (Qt::HANDLE) XftDrawCreateBitmap(pixmap.data->xinfo.display(), pixmap.data->hd);
-#endif // QT_NO_XFT
+#ifndef QT_NO_XRENDER
+        if (X11->use_xrender)
+            pixmap.data->picture = XRenderCreatePicture(X11->display, pixmap.data->hd,
+                                                        XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
+#endif // QT_NO_XRENDER
 
         if (tmp_bits)                                // Avoid purify complaint
             delete [] tmp_bits;
@@ -1063,8 +1052,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int     nbytes = image.numBytes();
     uchar  *newbits= 0;
 
-#ifndef QT_NO_XFT
-    if (X11->has_xft && X11->use_xrender) {
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender) {
         const QImage &cimage = image;
 
         pixmap.data->w = w;
@@ -1077,12 +1066,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                                       RootWindow(pixmap.data->xinfo.display(), pixmap.data->xinfo.screen()),
                                       w, h, pixmap.data->d);
 
-        pixmap.data->xft_hd =
-            (Qt::HANDLE) XftDrawCreate(pixmap.data->xinfo.display(), pixmap.data->hd,
-                                       (Visual *) pixmap.data->xinfo.visual(),
-                                       pixmap.data->xinfo.colormap());
-        if (X11->use_xrender && pixmap.data->xft_hd)
-            qt_XftDrawPrepare((XftDraw *) pixmap.data->xft_hd);
+        pixmap.data->picture = XRenderCreatePicture(X11->display, pixmap.data->hd,
+                                                    XRenderFindStandardFormat(X11->display, PictStandardARGB32), 0, 0);
 
         xi = XCreateImage(dpy, visual, pixmap.data->d, ZPixmap, 0, 0, w, h, 32, 0);
         Q_CHECK_PTR(xi);
@@ -1175,7 +1160,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 
         return pixmap;
     }
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 
     if (trucol) {                                // truecolor display
         const QImage &cimage = image;
@@ -1779,12 +1764,12 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     pm.x11SetScreen(scr);
 
 #ifndef QT_NO_XRENDER
-    if (X11->has_xft && X11->use_xrender) {
+    if (X11->use_xrender) {
         XRenderPictFormat *format = XRenderFindVisualFormat(dpy, window_attr.visual);
         XRenderPictureAttributes pattr;
         pattr.subwindow_mode = IncludeInferiors;
         Picture src_pict = XRenderCreatePicture(dpy, window, format, CPSubwindowMode, &pattr);
-        Picture dst_pict = pm.xftPictureHandle();
+        Picture dst_pict = pm.x11PictureHandle();
         XRenderComposite(dpy, PictOpSrc, src_pict, 0, dst_pict, x, y, x, y, 0, 0, w, h);
         XRenderFreePicture(dpy, src_pict);
     } else
@@ -1971,7 +1956,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     } else {                                        // color pixmap
         QPixmap pm(w, h);
         pm.data->uninit = false;
-        pm.data->alpha = (X11->has_xft && X11->use_xrender && data->d == 32);
+        pm.data->alpha = (X11->use_xrender && data->d == 32);
         pm.x11SetScreen(data->xinfo.screen());
         GC gc = XCreateGC(pm.data->xinfo.display(), pm.handle(), 0, 0);
 #if defined(QT_MITSHM)
@@ -2093,39 +2078,25 @@ QPaintEngine *QPixmap::paintEngine() const
 }
 
 /*!
-    Returns the Xft picture handle of the pixmap for XRender
+    Returns the X11 Picture handle of the pixmap for XRender
     support. Use of this function is not portable. This function will
     return 0 if XRender support is not compiled into Qt, if the
     XRender extension is not supported on the X11 display, or if the
     handle could not be created.
 */
 
-Qt::HANDLE QPixmap::xftPictureHandle() const
+Qt::HANDLE QPixmap::x11PictureHandle() const
 {
-#ifndef QT_NO_XFT
-    return data->xft_hd ? XftDrawPicture((XftDraw *) data->xft_hd) : 0;
+#ifndef QT_NO_XRENDER
+    return data->picture;
 #else
     return 0;
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 }
-
-/*!
-    Returns the Xft draw handle of the pixmap for XRender support. Use
-    of this function is not portable. This function will return 0 if
-    XRender support is not compiled into Qt, if the XRender extension
-    is not supported on the X11 display, or if the handle could not be
-    created.
-*/
-
-Qt::HANDLE QPixmap::xftDrawHandle() const
-{
-    return data->xft_hd;
-}
-
 
 Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 {
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (d == xinfo.depth())
         return hd;
     if (!hd2) {
@@ -2133,7 +2104,7 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
         XRenderPictFormat *format = XRenderFindVisualFormat(xinfo.display(),
                                                             (Visual*) xinfo.visual());
         Picture picture = XRenderCreatePicture(xinfo.display(), hd2, format, 0, 0);
-        XRenderComposite(xinfo.display(), PictOpSrc, XftDrawPicture((XftDraw *) xft_hd),
+        XRenderComposite(xinfo.display(), PictOpSrc, picture,
                          XNone, picture, 0, 0, 0, 0, 0, 0, w, h);
         XRenderFreePicture(xinfo.display(), picture);
     }
@@ -2143,61 +2114,3 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 #endif
 }
 
-
-
-
-#ifndef QT_NO_XFT
-/*
-  the following is copied from Xft, as we need to create a RENDER
-  Picture with PictStandardARGB32 format, not the visual format
-*/
-enum XftClipType {
-    XftClipTypeNone,
-    XftClipTypeRegion,
-    XftClipTypeRectangles
-} ;
-
-struct XftClipRect
-{
-    int xOrigin;
-    int yOrigin;
-    int n;
-};
-
-union XftClip {
-    XftClipRect *rect;
-    Region region;
-};
-
-struct _XftDraw {
-    Display *dpy;
-    int screen;
-    unsigned int bits_per_pixel;
-    unsigned int depth;
-    Drawable drawable;
-    Visual *visual;        /* NULL for bitmaps */
-    Colormap colormap;
-    XftClipType clip_type;
-    XftClip clip;
-    int subwindow_mode;
-    struct {
-        Picture pict;
-    } render;
-    struct {
-        GC gc;
-        int use_pixmap;
-    } core;
-};
-
-static void qt_XftDrawPrepare(_XftDraw *draw)
-{
-    if (draw->render.pict)
-        return;
-    XRenderPictFormat *format = XRenderFindStandardFormat(draw->dpy, PictStandardARGB32);
-    if (!format)
-        return;
-    draw->render.pict = XRenderCreatePicture (draw->dpy, draw->drawable, format, 0, 0);
-    if (!draw->render.pict)
-        return;
-}
-#endif

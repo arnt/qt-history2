@@ -255,7 +255,7 @@ CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
 CFG_OPENGL=auto
-CFG_XFT=auto
+CFG_FONTCONFIG=auto
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_ON=
@@ -378,7 +378,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -853,9 +853,9 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    xft)
+    fontconfig)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_XFT="$VAL"
+	    CFG_FONTCONFIG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1893,38 +1893,33 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    CFG_XRENDER=yes
 	fi
     fi
-    # auto-detect Xft support
-    if [ "$CFG_XFT" != "no" ]; then
+    # auto-detect FontConfig support
+    if [ "$CFG_FONTCONFIG" != "no" ]; then
 	mkdir -p $outpath/config.tests/x11
-	if $x11tests/xft.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
-	    if [ "$CFG_XFT" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-		echo "Xft support cannot be enabled due to functionality tests!"
+	if $x11tests/fontconfig.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_FONTCONFIG" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "FontConfig support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
 		echo " If you believe this message is in error you may use the continue"
 		echo " switch (-continue) to $0 to continue."
 		exit 101
 	    else
-		CFG_XFT=no
+		CFG_FONTCONFIG=no
 	    fi
 	else
-	    CFG_XFT=yes
+	    CFG_FONTCONFIG=yes
 	fi
     fi
     # add freetype2 include path
-    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.inc ];then
-	QMAKE_VARS="$QMAKE_VARS \"FREETYPE2_INCDIR=`cat $outpath/config.tests/x11/xft.inc`\""
+    if [ "$CFG_FONTCONFIG" = "yes" ] && [ -f $outpath/config.tests/x11/fontconfig.inc ];then
+	QMAKE_VARS="$QMAKE_VARS \"FREETYPE2_INCDIR=`cat $outpath/config.tests/x11/fontconfig.inc`\""
     fi
-    rm -f $outpath/config.tests/x11/xft.inc
-    # add Xft specific libraries
-    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.lib ]; then
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=`cat $outpath/config.tests/x11/xft.lib` \$\$QMAKE_LIBS_X11\""
+    rm -f $outpath/config.tests/x11/fontconfig.inc
+    # add FontConfig specific libraries
+    if [ "$CFG_FONTCONFIG" = "yes" ] && [ -f $outpath/config.tests/x11/fontconfig.lib ]; then
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=`cat $outpath/config.tests/x11/fontconfig.lib` \$\$QMAKE_LIBS_X11\""
     fi
-    rm -f $outpath/config.tests/x11/xft.lib
-    # add Xft specific config options
-    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
-	QT_LIBXFT=`cat $outpath/config.tests/x11/xft.cfg`
-    fi
-    rm -f $outpath/config.tests/x11/xft.cfg
+    rm -f $outpath/config.tests/x11/fontconfig.lib
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	if $x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
@@ -2266,12 +2261,12 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	XRY="*"
 	XRN=" "
     fi
-    if [ "$CFG_XFT" = "no" ]; then
-	XFTY=" "
-	XFTN="*"
+    if [ "$CFG_FONTCONFIG" = "no" ]; then
+	FCGY=" "
+	FCGN="*"
     else
-	XFTY="*"
-	XFTN=" "
+	FCGY="*"
+	FCGN=" "
     fi
     if [ "$CFG_XCURSOR" = "no" ]; then
         XCY=" "
@@ -2344,12 +2339,12 @@ Qt/X11 only:
 
  $XRN  -no-xrender ........ Do not compile XRender support.
  $XRY  -xrender ........... Compile XRender support.
-			 Requires Xft support (see -xft below),
-			 X11/extensions/Xrender.h and libXrender
+			 Requires X11/extensions/Xrender.h and libXrender
 
- $XFTN  -no-xft ............ Do not compile Xft (anti-aliased font) support.
- $XFTY  -xft ............... Compile Xft support.
-			 Requires X11/Xft/Xft.h and libXft.
+ $FCGN  -no-fontconfig ..... Do not compile FontConfig (anti-aliased font) support.
+ $FCGY  -fontconfig ........ Compile FontConfig support.
+			 Requires fontconfig/fontconfig.h, libfontconfig,
+			 freetype.h and libfreetype.
 
  $XIN  -no-tablet ......... Do not compile Tablet support.
  $XIY  -tablet ............ Compile Tablet support.
@@ -3103,8 +3098,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG xrender"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrender \$\$QMAKE_LIBS_X11\""
     fi
-    if [ "$CFG_XFT" = "yes" ]; then
-	QT_CONFIG="$QT_CONFIG xft"
+    if [ "$CFG_FONTCONFIG" = "yes" ]; then
+	QT_CONFIG="$QT_CONFIG fontconfig"
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG tablet"
@@ -3231,7 +3226,7 @@ esac
 #     tablet
 #     ipv6
 #
-#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
+#     X11     : x11sm xinerama xcursor xrandr xrender fontconfig xkb
 #     Embedded: embedded ft
 #
 ALL_OPTIONS="stl"
@@ -3457,7 +3452,7 @@ done
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
 [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SM_SUPPORT"
 [ "$CFG_XCURSOR" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XCURSOR"
-[ "$CFG_XFT" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XFT"
+[ "$CFG_FONTCONFIG" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_FONTCONFIG"
 [ "$CFG_XINERAMA" = "no" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XINERAMA"
 [ "$CFG_XKB" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XKB"
 [ "$CFG_XRANDR" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XRANDR"
@@ -3734,7 +3729,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Xcursor support ..... $CFG_XCURSOR"
     echo "XRandR support ...... $CFG_XRANDR"
     echo "XRender support ..... $CFG_XRENDER"
-    echo "Xft support ......... $CFG_XFT"
+    echo "FontConfig support .. $CFG_FONTCONFIG"
     echo "XKB Support ......... $CFG_XKB"
     echo "immodule support .... $CFG_IM"
 fi

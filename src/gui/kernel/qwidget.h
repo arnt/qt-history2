@@ -464,8 +464,7 @@ public:
 
 #if defined(Q_WS_X11)
     const QX11Info &x11Info() const;
-    Qt::HANDLE xftPictureHandle() const;
-    Qt::HANDLE xftDrawHandle() const;
+    Qt::HANDLE x11PictureHandle() const;
 #endif
 
 #if defined(Q_WS_WIN)
@@ -573,7 +572,6 @@ private:
     friend class QLayout;
     friend class QWidgetItem;
     friend class QGLContext;
-    friend class QFontEngineXft;
     friend class QX11PaintEngine;
     friend class QWin32PaintEngine;
     friend class QShortcutPrivate;

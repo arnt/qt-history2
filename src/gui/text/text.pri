@@ -71,7 +71,7 @@ unix:x11 {
 	SOURCES += \
 		text/qfont_x11.cpp \
 		text/qfontengine_x11.cpp
-        contains(QT_CONFIG,xft):CONFIG += have_freetype
+        contains(QT_CONFIG,fontconfig):CONFIG += have_freetype
 }
 
 !embedded:!x11:mac {

@@ -118,22 +118,6 @@ extern "C" {
 #  include <X11/extensions/Xrender.h>
 #endif // QT_NO_XRENDER
 
-// #define QT_NO_XFT
-#ifndef QT_NO_XFT
-//   This hacks around the freetype poeple putting an #error into freetype.h in 2.1.7, making
-//   it impossible to use an updated freetype with older Xft header files.
-#  include <ft2build.h>
-#  ifdef XFT2_H
-#    include <X11/Xft/Xft2.h>
-#  else
-#    include <X11/Xft/Xft.h>
-#  endif // XFT2_H
-// we require Xft >= 2.0.0
-#  if defined(XFT_VERSION) && XFT_VERSION < 20000
-#    define QT_NO_XFT
-#  endif // XFT_VERSION
-#endif // QT_NO_XFT
-
 // #define QT_NO_XKB
 #ifndef QT_NO_XKB
 #  include <X11/XKBlib.h>
@@ -209,6 +193,10 @@ extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 #endif
 
+#ifndef QT_NO_FONTCONFIG
+#include <fontconfig/fontconfig.h>
+#endif
+
 #ifndef QT_NO_XIM
 // some platforms (eg. Solaris 2.51) don't have these defines in Xlib.h
 #ifndef XNResetState
@@ -243,6 +231,7 @@ struct QX11InfoData {
     Visual *visual;
     bool defaultColormap;
     bool defaultVisual;
+    int subpixel;
 };
 
 
@@ -310,8 +299,6 @@ struct QX11Data
     int xinput_eventbase;
     int xinput_errorbase;
 
-    bool has_xft;
-    bool xftDone;
     QList<QWidget *> deferred_map;
     struct ScrollInProgress {
         long id;
@@ -370,6 +357,10 @@ struct QX11Data
         Picture picture;
     } solid_fills[solid_fill_count];
 #endif
+
+    bool has_fontconfig;
+    qreal fc_scale;
+    bool fc_antialias;
 
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
@@ -522,8 +513,8 @@ enum {
 Q_DECLARE_TYPEINFO(XPoint, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(XRectangle, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(XChar2b, Q_PRIMITIVE_TYPE);
-#ifndef QT_NO_XFT
-Q_DECLARE_TYPEINFO(XftGlyphSpec, Q_PRIMITIVE_TYPE);
+#ifndef QT_NO_XRENDER
+Q_DECLARE_TYPEINFO(XGlyphElt32, Q_PRIMITIVE_TYPE);
 #endif
 
 #endif // QT_X11_P_H

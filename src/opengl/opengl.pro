@@ -20,7 +20,7 @@ SOURCES	+= qgl.cpp \
 	   qpaintengine_opengl.cpp
 x11 {
     SOURCES += qgl_x11.cpp
-    contains(QT_CONFIG, xft):INCLUDEPATH += $$FREETYPE2_INCDIR
+    contains(QT_CONFIG, fontconfig):INCLUDEPATH += $$FREETYPE2_INCDIR
 }
 
 mac {

@@ -699,14 +699,14 @@ uint QGLContext::colorIndex(const QColor& c) const
     return 0;
 }
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
 /*! \internal
     This is basically a substitute for glxUseXFont() which can only
-    handle XLFD fonts. This version relies on XFT v2 to render the
-    glyphs, but it works with all fonts that XFT2 provides - both
+    handle XLFD fonts. This version relies on freetype to render the
+    glyphs, but it works with all fonts that fontconfig provides - both
     antialiased and aliased bitmap and outline fonts.
 */
-static void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
+static void qgl_use_font(QFontEngineFT *engine, int first, int count, int listBase)
 {
     GLfloat color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
@@ -727,9 +727,9 @@ static void qgl_use_font(QFontEngineXft *engine, int first, int count, int listB
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    Bool antialiased = False;
-    XftPatternGetBool(engine->pattern(), XFT_ANTIALIAS, 0, &antialiased);
-    FT_Face face = engine->freetypeFace();
+    FcBool antialiased = False;
+    FcPatternGetBool(engine->pattern(), FC_ANTIALIAS, 0, &antialiased);
+    FT_Face face = engine->lockFace();
 
     // start generating font glyphs
     for (int i = first; i < count; ++i) {
@@ -793,6 +793,8 @@ static void qgl_use_font(QFontEngineXft *engine, int first, int count, int listB
         antialiased ? delete[] aa_glyph : delete[] ua_glyph;
     }
 
+    engine->unlockFace();
+
     // restore pixel unpack settings
     glPixelStorei(GL_UNPACK_SWAP_BYTES, gl_swapbytes);
     glPixelStorei(GL_UNPACK_LSB_FIRST, gl_lsbfirst);
@@ -811,9 +813,9 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
     if (engine->type() == QFontEngine::Multi)
         engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
-#ifndef QT_NO_XFT
-    if(engine->type() == QFontEngine::Xft) {
-        qgl_use_font(static_cast<QFontEngineXft *>(engine), 0, 256, listBase);
+#ifndef QT_NO_FONTCONFIG
+    if(engine->type() == QFontEngine::Freetype) {
+        qgl_use_font(static_cast<QFontEngineFT *>(engine), 0, 256, listBase);
         return;
     }
 #endif

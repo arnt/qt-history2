@@ -1482,9 +1482,9 @@ static FT_Face ft_face(QFontEngine *engine)
         engine = mf->engine(0);
     }
 #ifdef Q_WS_X11
-    if (engine->type() == QFontEngine::Xft) {
-        QFontEngineXft *xft = static_cast<QFontEngineXft *>(engine);
-        return xft->freetypeFace();
+    if (engine->type() == QFontEngine::Freetype) {
+        QFontEngineFT *ft = static_cast<QFontEngineFT *>(engine);
+        return ft->non_locked_face();
     }
 #endif
 #ifdef Q_WS_QWS
@@ -2546,7 +2546,7 @@ QString QPSPrintEngineFontSimplifiedChinese::extension() const
 
 // ================= END OF PS FONT METHODS ============
 
-#if defined(Q_WS_X11) && defined(QT_NO_XFT)
+#if defined(Q_WS_X11) && defined(QT_NO_FONTCONFIG)
 static QStringList fontPath()
 {
     // append qsettings fontpath
@@ -2685,8 +2685,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
     embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
-#if defined(Q_WS_X11) && defined(QT_NO_XFT)
-    if (embedFonts && !X11->has_xft)
+#if defined(Q_WS_X11) && defined(QT_NO_FONTCONFIG)
+    if (embedFonts && !X11->use_xrender)
         fontpath = ::fontPath();
 #endif
 }
@@ -2715,22 +2715,22 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
 #ifdef QT_HAVE_FREETYPE
     if (embedFonts) {
 #ifdef Q_WS_X11
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
         if (fontType == QFontEngine::Multi) {
             // ##### hack to get the multi engine sort of working
             QFontEngineMulti *mf = static_cast<QFontEngineMulti *>(fe);
             fe = mf->engine(0);
             fontType = fe->type();
         }
-        if (X11->has_xft && fontType == QFontEngine::Xft && FT_IS_SCALABLE(ft_face(fe))) {
-            FcPattern *pattern = static_cast<QFontEngineXft *>(fe)->pattern();
+        if (X11->use_xrender && fontType == QFontEngine::Freetype && FT_IS_SCALABLE(ft_face(fe))) {
+            FcPattern *pattern = static_cast<QFontEngineFT *>(fe)->pattern();
             FcChar8 *filename = 0;
             FcPatternGetString (pattern, FC_FILE, 0, &filename);
             //qDebug("filename for font is '%s'", filename);
             if (filename)
                 fontKey = QString::fromLocal8Bit((const char *)filename);
         }
-#else // QT_NO_XFT
+#else // QT_NO_FONTCONFIG
         if (fontType == QFontEngine::XLFD) {
             QString rawName = fe->name();
             int index = rawName.indexOf('-');

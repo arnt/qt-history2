@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("On the road", new Roads, "roads.cpp");
     viewer.addDemoWidget("Stretched Pixmap", new Warpix, "warpix.cpp");
     viewer.addDemoWidget("Items", new Items, "items.cpp");
-#if !(defined(QT_NO_XFT) && defined(Q_WS_X11))
+#if !(defined(QT_NO_FONTCONFIG) && defined(Q_WS_X11))
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
 #endif
 #ifndef QT_NO_OPENGL

@@ -802,9 +802,8 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
-	useFontEngine = true;
+	bool useFontEngine = true;
         if (state->txop > QPainterPrivate::TxTranslate) {
             useFontEngine = false;
             QFontEngine *fe = ti.fontEngine;
@@ -821,50 +820,47 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
         }
         if (useFontEngine) {
             ti.fontEngine->draw(this, qRound(p.x()),  qRound(p.y()), ti);
+            return;
         }
     }
-#else
-    const bool useFontEngine = false;
 #endif
 
-    if (!useFontEngine) {
-        QPainterPath path;
-        ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path);
-        if (!path.isEmpty()) {
-            painter()->save();
-            painter()->setBrush(state->pen.color());
-            painter()->setPen(Qt::NoPen);
-            painter()->drawPath(path);
-            painter()->restore();
-        } else {
-            // Fallback: rasterize into a pixmap and draw the pixmap
-            QPixmap pm(qRound(ti.width), qRound(ti.ascent + ti.descent));
-            pm.fill(Qt::white);
+    QPainterPath path;
+    ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path);
+    if (!path.isEmpty()) {
+        painter()->save();
+        painter()->setBrush(state->pen.brush());
+        painter()->setPen(Qt::NoPen);
+        painter()->drawPath(path);
+        painter()->restore();
+    } else {
+        // Fallback: rasterize into a pixmap and draw the pixmap
+        QPixmap pm(qRound(ti.width), qRound(ti.ascent + ti.descent));
+        pm.fill(Qt::white);
 
-            QPainter painter;
-            painter.begin(&pm);
-            painter.setPen(Qt::black);
-            painter.drawTextItem(QPointF(0., ti.ascent), ti);
-            painter.end();
+        QPainter painter;
+        painter.begin(&pm);
+        painter.setPen(Qt::black);
+        painter.drawTextItem(QPointF(0., ti.ascent), ti);
+        painter.end();
 
-            QImage img = pm.toImage();
-            if (img.depth() != 32)
-                img = img.convertDepth(32);
-            img.setAlphaBuffer(true);
-            int i = 0;
-            while (i < img.height()) {
-                uint *p = (uint *) img.scanLine(i);
-                uint *end = p + img.width();
-                while (p < end) {
-                    *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
-                    ++p;
-                }
-                ++i;
+        QImage img = pm.toImage();
+        if (img.depth() != 32)
+            img = img.convertDepth(32);
+        img.setAlphaBuffer(true);
+        int i = 0;
+        while (i < img.height()) {
+            uint *p = (uint *) img.scanLine(i);
+            uint *end = p + img.width();
+            while (p < end) {
+                *p = ((0xff - qGray(*p)) << 24) | (state->pen.color().rgb() & 0x00ffffff);
+                ++p;
             }
-
-            pm = QPixmap::fromImage(img);
-            state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
+            ++i;
         }
+
+        pm = QPixmap::fromImage(img);
+        state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
     }
 }
 

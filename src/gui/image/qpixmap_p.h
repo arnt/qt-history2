@@ -65,7 +65,7 @@ struct QPixmapData { // internal pixmap data
     bool alpha;
     QX11Info xinfo;
     Qt::HANDLE x11_mask;
-    Qt::HANDLE xft_hd;
+    Qt::HANDLE picture;
     Qt::HANDLE hd2; // sorted in the default display depth
     Qt::HANDLE x11ConvertToDefaultDepth();
 #elif defined(Q_WS_MAC)

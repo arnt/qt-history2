@@ -306,15 +306,15 @@ struct QtFontFamily
     enum WritingSystemStatus {
         Unknown         = 0,
         Supported       = 1,
-        UnsupportedXft  = 2,
+        UnsupportedFT  = 2,
         UnsupportedXLFD = 4,
-        Unsupported     = UnsupportedXft | UnsupportedXLFD
+        Unsupported     = UnsupportedFT | UnsupportedXLFD
     };
 
     QtFontFamily(const QString &n)
         :
 #ifdef Q_WS_X11
-        fixedPitch(true), hasXft(false), xftWritingSystemCheck(false),
+        fixedPitch(true), hasFT(false), ftWritingSystemCheck(false),
         xlfdLoaded(false), synthetic(false),
 #else
         fixedPitch(false),
@@ -336,8 +336,8 @@ struct QtFontFamily
 
     bool fixedPitch : 1;
 #ifdef Q_WS_X11
-    bool hasXft : 1;
-    bool xftWritingSystemCheck : 1;
+    bool hasFT : 1;
+    bool ftWritingSystemCheck : 1;
     bool xlfdLoaded : 1;
     bool synthetic : 1;
 #endif
@@ -490,7 +490,7 @@ static const int scriptForWritingSystem[] = {
 };
 
 
-#if defined Q_WS_QWS || (defined(Q_WS_X11) && !defined(QT_NO_XFT))
+#if defined Q_WS_QWS || (defined(Q_WS_X11) && !defined(QT_NO_FONTCONFIG))
 static inline bool requiresOpenType(int writingSystem)
 {
     return ((writingSystem >= QFontDatabase::Syriac && writingSystem <= QFontDatabase::Sinhala)
@@ -566,14 +566,14 @@ static QtFontEncoding *findEncoding(int script, int styleStrategy,
     }
 
     if (styleStrategy & (QFont::OpenGLCompatible | QFont::PreferBitmap)) {
-        FM_DEBUG("            PreferBitmap and/or OpenGL set, skipping Xft");
+        FM_DEBUG("            PreferBitmap and/or OpenGL set, skipping Freetype");
     } else {
-        encoding = size->encodingID(-1); // -1 == prefer Xft
+        encoding = size->encodingID(-1); // -1 == prefer Freetype
         if (encoding)
             return encoding;
     }
 
-    // Xft not available, find an XLFD font, trying the default encoding first
+    // FT not available, find an XLFD font, trying the default encoding first
     encoding = size->encodingID(QFontPrivate::defaultEncodingID);
     if (encoding) {
         // does it support the requested script?
@@ -936,7 +936,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 best_encoding = try_encoding;
 #endif // Q_WS_X11
             }
-            if (newscore < 10) // xlfd instead of xft... just accept it
+            if (newscore < 10) // xlfd instead of FT... just accept it
                 break;
         }
 
@@ -1015,7 +1015,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             QFontCache::instance->insertEngine(key, fe);
         }
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
+#if defined(Q_WS_X11) && !defined(QT_NO_FONTCONFIG)
         if (scriptRequiresOpenType(script)) {
             QOpenType *ot = fe->openType();
             if (!ot || !ot->supportsScript(script)) {

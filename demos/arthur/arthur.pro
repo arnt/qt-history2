@@ -37,7 +37,7 @@ contains(QT_CONFIG, opengl) {
 	QT += opengl
 }
 
-unix:!mac:!contains(QT_CONFIG, xft):DEFINES += QT_NO_XFT
+unix:!mac:!contains(QT_CONFIG, fontconfig):DEFINES += QT_NO_FONTCONFIG
 
 TARGET = arthur
 RESOURCES += arthur.qrc

@@ -105,8 +105,6 @@ protected:
     friend class QWidget;
     friend class QPixmap;
     friend class QFontEngineBox;
-    friend class QFontEngineXft;
-    friend class QFontEngineXLFD;
 
 private:
     friend class QWSServer;

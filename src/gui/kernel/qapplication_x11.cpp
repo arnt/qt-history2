@@ -1174,6 +1174,53 @@ static bool isXInputSupported(Display *dpy)
 #define XK_XKB_KEYS
 #include <X11/keysymdef.h>
 
+#if !defined(QT_NO_FONTCONFIG)
+static void getXDefault(const char *group, const char *key, int *val)
+{
+    char *str = XGetDefault(X11->display, group, key);
+    if (str) {
+        char *end = 0;
+        int v = strtol(str, &end, 0);
+        if (str != end)
+            *val = v;
+    }
+}
+
+static void getXDefault(const char *group, const char *key, double *val)
+{
+    char *str = XGetDefault(X11->display, group, key);
+    if (str) {
+        char *end = 0;
+        double v = strtod(str, &end);
+        if (str != end)
+            *val = v;
+    }
+}
+
+static void getXDefault(const char *group, const char *key, bool *val)
+{
+    char *str = XGetDefault(X11->display, group, key);
+    if (str) {
+        char c = str[0];
+        if (isupper((int)c))
+            c = tolower(c);
+        if (c == 't' || c == 'y' || c == '1')
+            *val = true;
+        else if (c == 'f' || c == 'n' || c == '0')
+            *val = false;
+        if (c == 'o') {
+            c = str[1];
+            if (isupper((int)c))
+                c = tolower(c);
+            if (c == 'n')
+                *val = true;
+            if (c == 'f')
+                *val = false;
+        }
+    }
+}
+#endif
+
 // ### This should be static but it isn't because of the friend declaration
 // ### in qpaintdevice.h which then should have a static too but can't have
 // ### it because "storage class specifiers invalid in friend function
@@ -1205,8 +1252,6 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->xinput_eventbase = 0;
     X11->xinput_errorbase = 0;
 
-    X11->has_xft = false;
-    X11->xftDone = false;
     X11->sip_serial = 0;
     X11->net_supported_list = 0;
     X11->net_virtual_root_list = 0;
@@ -1469,7 +1514,7 @@ void qt_init(QApplicationPrivate *priv, int,
             int major = 0;
             int minor = 0;
             XRenderQueryVersion(X11->display, &major, &minor);
-            X11->use_xrender = (major >= 0 && minor >= 4) && (format != 0);
+            X11->use_xrender = (major >= 0 && minor >= 5) && (format != 0);
         }
 #endif // QT_NO_XRENDER
 
@@ -1480,25 +1525,61 @@ void qt_init(QApplicationPrivate *priv, int,
         (void) XkbSetPerClientControls(X11->display, state, &state);
 #endif
 
-#if !defined(QT_NO_XFT)
-        X11->has_xft = XftInit(0) && XftInitFtLibrary();
+        X11->has_fontconfig = false;
+#if !defined(QT_NO_FONTCONFIG)
+        X11->has_fontconfig = FcInit();
 
-        if (X11->has_xft) {
-            char *dpi_str = XGetDefault(X11->display, "Xft", "dpi");
-            if (dpi_str) {
-                // use a custom DPI
-                char *end = 0;
-                int dpi = strtol(dpi_str, &end, 0);
-                if (dpi_str != end) {
+        int dpi = 0;
+        getXDefault("Xft", FC_DPI, &dpi);
+        if (dpi) {
                     for (int s = 0; s < ScreenCount(X11->display); ++s) {
                         QX11Info::setAppDpiX(dpi, s);
                         QX11Info::setAppDpiY(dpi, s);
                     }
                 }
+        X11->fc_scale = 1.;
+        getXDefault("Xft", FC_SCALE, &X11->fc_scale);
+        for (int s = 0; s < ScreenCount(X11->display); ++s) {
+            int subpixel = FC_RGBA_UNKNOWN;
+#if RENDER_MAJOR > 0 || RENDER_MINOR >= 6
+            int rsp = XRenderQuerySubpixelOrder(X11->display, s);
+            switch (rsp) {
+            default:
+            case SubPixelUnknown:
+                subpixel = FC_RGBA_UNKNOWN;
+                break;
+            case SubPixelHorizontalRGB:
+                subpixel = FC_RGBA_RGB;
+                break;
+            case SubPixelHorizontalBGR:
+                subpixel = FC_RGBA_BGR;
+                break;
+            case SubPixelVerticalRGB:
+                subpixel = FC_RGBA_VRGB;
+                break;
+            case SubPixelVerticalBGR:
+                subpixel = FC_RGBA_VBGR;
+            break;
+            case SubPixelNone:
+                subpixel = FC_RGBA_NONE;
+                break;
             }
+#endif
+            getXDefault("Xft", FC_RGBA, &subpixel);
+            X11->screens[s].subpixel = subpixel;
         }
-
-#endif // QT_NO_XFT
+        X11->fc_antialias = true;
+        getXDefault("Xft", FC_ANTIALIAS, &X11->fc_antialias);
+#if 0
+        // ###### these are implemented by Xft, not sure we need them
+        getXDefault("Xft", FC_AUTOHINT, &X11->fc_autohint);
+#ifdef FC_HINT_STYLE
+        getXDefault("Xft", FC_HINT_STYLE, &X11->fc_autohint);
+#endif
+        getXDefault("Xft", FC_HINTING, &X11->fc_autohint);
+        getXDefault("Xft", FC_MINSPACE, &X11->fc_autohint);
+#endif
+#endif // QT_NO_XRENDER
 
         // look at the modifier mapping, and get the correct masks for alt/meta
         // find the alt/meta masks
@@ -1592,13 +1673,13 @@ void qt_init(QApplicationPrivate *priv, int,
         //     75dpi (12 pixels) and 100dpi (17 pixels).
         // At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
         // pixel font is a closer match than a 12 pixel font
-        int ptsz = (X11->has_xft
+        int ptsz = (X11->use_xrender
                     ? 9
                     : (int) (((QX11Info::appDpiY() >= 95 ? 17. : 12.) *
                               72. / (float) QX11Info::appDpiY()) + 0.5));
 
         if (!qt_app_has_font) {
-            QFont f(X11->has_xft ? "Sans Serif" : "Helvetica", ptsz);
+            QFont f(X11->has_fontconfig ? "Sans Serif" : "Helvetica", ptsz);
             QApplication::setFont(f);
         }
 
@@ -1888,10 +1969,6 @@ void qt_cleanup()
         delete [] X11->net_virtual_root_list;
     X11->net_virtual_root_list = 0;
 
-#if !defined(QT_NO_XFT) && FC_VERSION >= 20291
-//     if (X11->has_xft)
-//         FcFini();
-#endif
     delete X11;
     X11 = 0;
 }

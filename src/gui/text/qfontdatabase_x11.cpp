@@ -27,7 +27,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #endif
@@ -676,7 +676,7 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
 }
 
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
 static int getFCWeight(int fc_weight)
 {
     int qtweight = QFont::Black;
@@ -838,9 +838,9 @@ static const char *languageForWritingSystem[] = {
 };
 enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
 
-static void loadXft()
+static void loadFontConfig()
 {
-    if (!X11->has_xft)
+    if (!X11->has_fontconfig)
         return;
 
     Q_ASSERT_X(int(QUnicodeTables::ScriptCount) == SpecialLanguageCount,
@@ -913,7 +913,7 @@ static void loadXft()
 	    foundry_value = 0;
         QtFontFamily *family = db->family(familyName, true);
         family->rawName = rawName;
-        family->hasXft = true;
+        family->hasFT = true;
 
         FcLangSet *langset = 0;
         FcResult res = FcPatternGetLangSet(fonts->fonts[i], FC_LANG, 0, &langset);
@@ -921,23 +921,23 @@ static void loadXft()
             for (int i = 1; i < LanguageCount; ++i) {
                 const FcChar8 *lang = (const FcChar8*) languageForWritingSystem[i];
                 if (!lang) {
-                    family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+                    family->writingSystems[i] |= QtFontFamily::UnsupportedFT;
                 } else {
                     FcLangResult langRes = FcLangSetHasLang(langset, lang);
                     if (langRes != FcLangDifferentLang)
                         family->writingSystems[i] = QtFontFamily::Supported;
                     else
-                        family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+                        family->writingSystems[i] |= QtFontFamily::UnsupportedFT;
                 }
             }
-            family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedXft;
-            family->xftWritingSystemCheck = true;
+            family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedFT;
+            family->ftWritingSystemCheck = true;
         } else {
             // we set Other to supported for symbol fonts. It makes no
             // sense to merge these with other ones, as they are
             // special in a way.
             for (int i = 1; i < LanguageCount; ++i)
-                family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+                family->writingSystems[i] |= QtFontFamily::UnsupportedFT;
             family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
         }
 
@@ -998,18 +998,18 @@ static void loadXft()
     while (f->qtname) {
         QtFontFamily *family = db->family(f->qtname, true);
         family->rawName = f->rawname;
-        family->hasXft = true;
+        family->hasFT = true;
         family->synthetic = true;
         QtFontFoundry *foundry = family->foundry(QString::null,  true);
 
         // aliases only make sense for 'common', not for any of the specials
         for (int i = 1; i < LanguageCount; ++i) {
             if (requiresOpenType(i))
-                family->writingSystems[i] = QtFontFamily::UnsupportedXft;
+                family->writingSystems[i] = QtFontFamily::UnsupportedFT;
             else
                 family->writingSystems[i] = QtFontFamily::Supported;
         }
-        family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedXft;
+        family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedFT;
 
         QtFontStyle::Key styleKey;
         for (int i = 0; i < 4; ++i) {
@@ -1024,11 +1024,11 @@ static void loadXft()
         ++f;
     }
 }
-#endif // QT_NO_XFT
+#endif // QT_NO_FONTCONFIG
 
 static void load(const QString &family = QString::null, int script = -1)
 {
-    if (X11->has_xft)
+    if (X11->has_fontconfig)
         return;
 
 #ifdef QFONTDATABASE_DEBUG
@@ -1074,16 +1074,15 @@ static void initializeDb()
     QTime t;
     t.start();
 
-#ifndef QT_NO_XFT
-    loadXft();
-    FD_DEBUG("QFontDatabase: loaded Xft: %d ms",  t.elapsed());
+#ifndef QT_NO_FONTCONFIG
+    loadFontConfig();
+    FD_DEBUG("QFontDatabase: loaded FontConfig: %d ms",  t.elapsed());
 #endif
 
     t.start();
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
     for (int i = 0; i < db->count; i++) {
-#ifdef XFT_MATRIX
         for (int j = 0; j < db->families[i]->count; ++j) {        // each foundry
             QtFontFoundry *foundry = db->families[i]->foundries[j];
             for (int k = 0; k < foundry->count; ++k) {
@@ -1119,14 +1118,13 @@ static void initializeDb()
                 equiv_enc->pitch = enc->pitch;
             }
         }
-#endif // XFT_MATRIX
     }
 #endif
 
 
 #ifdef QFONTDATABASE_DEBUG
-#ifndef QT_NO_XFT
-    if (!X11->has_xft)
+#ifndef QT_NO_FONTCONFIG
+    if (!X11->has_fontconfig)
 #endif
         // load everything at startup in debug mode.
         loadXlfds(0,  -1);
@@ -1134,8 +1132,8 @@ static void initializeDb()
     // print the database
     for (int f = 0; f < db->count; f++) {
         QtFontFamily *family = db->families[f];
-        FD_DEBUG("'%s' %s  hasXft=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
-                 (family->hasXft ? "yes" : "no"));
+        FD_DEBUG("'%s' %s  hasFT=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
+                 (family->hasFT ? "yes" : "no"));
         for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
             QFontDatabase::WritingSystem ws = QFontDatabase::WritingSystem(i);
             FD_DEBUG("\t%s: %s", QFontDatabase::writingSystemName(ws).toLatin1().constData(),
@@ -1181,7 +1179,7 @@ static void initializeDb()
 // font loader
 // --------------------------------------------------------------------------------------
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
 
 static void addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
                             bool fakeOblique, bool smoothScalable,
@@ -1236,7 +1234,7 @@ static void addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key,
     }
 
     if (QX11Info::appDepth(fp->screen) <= 8) {
-        // Xft can't do antialiasing on 8bpp
+        // can't do antialiasing on 8bpp
         FcPatternAddBool(pattern, FC_ANTIALIAS, false);
     } else if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
         FcPatternAddBool(pattern, FC_ANTIALIAS,
@@ -1272,6 +1270,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
     FcConfigSubstitute(0, pattern, FcMatchFont);
 
 #ifdef FONT_MATCH_DEBUG
+    printf("forceScalable=%d", forceScalable);
     printf("final FcPattern contains:\n");
     FcPatternPrint(pattern);
 #endif
@@ -1294,12 +1293,20 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
         if (res != FcResultMatch || !scalable) {
             if (forceScalable) {
                 FcFontSetRemove(fs, i);
+#ifdef FONT_MATCH_DEBUG
+                printf("removing pattern:");
+                FcPatternPrint(font);
+#endif
                 --i; // go back one
             } else {
                 double pixelSize;
                 res = FcPatternGetDouble(font, FC_PIXEL_SIZE, 0, &pixelSize);
                 if (res != FcResultMatch || qAbs((size_value-pixelSize)/size_value) > 0.2) {
                     FcFontSetRemove(fs, i);
+#ifdef FONT_MATCH_DEBUG
+                    printf("removing pattern:");
+                    FcPatternPrint(font);
+#endif
                     --i; // go back one
                 }
             }
@@ -1327,20 +1334,13 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             // add properties back in as the font selected from the
             // list doesn't contain them.
             addPatternProps(pattern, key, false, true, fp, request, script);
-            FcResult res;
-            FcPattern *result = XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
-            FcPatternDestroy(pattern);
 
-            // the pattern 'result' will be owned the XftFont, no need
-            // to destroy it later
-            XftFont *xftfs = XftFontOpenPattern(QX11Info::display(), result);
-            if (!xftfs) {
-                // Xft couldn't find a font?
-                continue;
-            }
-
-            fe = new QFontEngineXft(xftfs);
-            fe->fontDef = request;
+            FcConfigSubstitute (0, pattern, FcMatchPattern);
+            QFontEngineFT *engine = new QFontEngineFT(pattern, request, fp->screen);
+            if (engine->invalid())
+                delete engine;
+            else
+                fe = engine;
         }
     } else {
         // create a multi engine for the fontset fontconfig gave us
@@ -1353,7 +1353,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             FcFontSetAdd(fontSet, pattern);
         }
 
-        fe = new QFontEngineMultiXft(fontSet, fp->screen);
+        fe = new QFontEngineMultiFT(fontSet, fp->screen);
         fe->fontDef = request;
     }
 
@@ -1361,7 +1361,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
     return fe;
 }
 
-#endif // QT_NO_XFT
+#endif // QT_NO_FONTCONFIG
 
 static
 QFontEngine *loadEngine(int script,
@@ -1388,10 +1388,10 @@ QFontEngine *loadEngine(int script,
         return fe;
     }
 
-#ifndef QT_NO_XFT
-    if (X11->has_xft && encoding->encoding == -1) {
+#ifndef QT_NO_FONTCONFIG
+    if (X11->has_fontconfig && encoding->encoding == -1) {
 
-        FM_DEBUG("    using Xft");
+        FM_DEBUG("    using FontConfig");
 
         FcPattern *pattern = FcPatternCreate();
         if (!pattern)
@@ -1464,12 +1464,13 @@ QFontEngine *loadEngine(int script,
         char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
                             (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
+        FcPatternAddBool(pattern, FC_SCALABLE, style->smoothScalable);
 
         addPatternProps(pattern, style->key, style->fakeOblique, style->smoothScalable,
                         fp, request, script);
         return loadFcEngineFromPattern(pattern, fp, request, script);
     }
-#endif // QT_NO_XFT
+#endif // QT_NO_FONTCONFIG
 
     int px = size->pixelSize;
     if (style->smoothScalable && px == SMOOTH_SCALABLE)

@@ -79,13 +79,17 @@ private:
     int lbearing, rbearing;
 };
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_FONTCONFIG
 
-class QFontEngineMultiXft : public QFontEngineMulti
+#include <fontconfig/fontconfig.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+class Q_GUI_EXPORT QFontEngineMultiFT : public QFontEngineMulti
 {
 public:
-    QFontEngineMultiXft(FcFontSet *fs, int s);
-    ~QFontEngineMultiXft();
+    QFontEngineMultiFT(FcFontSet *fs, int s);
+    ~QFontEngineMultiFT();
 
     void loadEngine(int at);
 
@@ -94,25 +98,39 @@ private:
     int screen;
 };
 
-struct TransformedFont
-{
-    qreal xx;
-    qreal xy;
-    qreal yx;
-    qreal yy;
-    union {
-        XftFont *xft_font;
-    };
-    TransformedFont *next;
+struct QFreetypeFaceId {
+    QByteArray filename;
+    int index;
 };
 
-class QFontEngineXft : public QFontEngine
+struct QFreetypeFace {
+    QAtomic ref;
+    QAtomic lock;
+    FT_Face face;
+    int xsize; // 26.6
+    int ysize; // 26.6
+
+    enum { cmapCacheSize = 0x500 };
+    glyph_t cmapCache[cmapCacheSize];
+};
+
+inline bool operator ==(const QFreetypeFaceId &f1, const QFreetypeFaceId &f2)
+{
+    return f1.index == f2.index && f1.filename == f2.filename;
+}
+
+inline uint qHash(const QFreetypeFaceId &f)
+{
+    return qHash(f.index) + qHash(f.filename);
+}
+
+class Q_GUI_EXPORT QFontEngineFT : public QFontEngine
 {
 public:
-    explicit QFontEngineXft(XftFont *f);
-    ~QFontEngineXft();
+    explicit QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen);
+    ~QFontEngineFT();
 
-    FECaps capabilites() const;
+    FECaps capabilites() const { return 0; }
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
@@ -129,45 +147,65 @@ public:
     qreal lineThickness() const;
 
     inline Type type() const
-    { return QFontEngine::Xft; }
+    { return QFontEngine::Freetype; }
 
     bool canRender(const QChar *string,  int len);
     inline const char *name() const
-    { return "xft"; }
+    { return "freetype"; }
 
     void recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
-                          QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
 
-    inline FT_Face freetypeFace() const
-    { return _face; }
-    inline XftFont *xftFont() const
-    { return _font; }
-    inline FcPattern *pattern() const
-    { return _font->pattern; }
+    FcPattern *pattern() const { return _pattern; }
     QOpenType *openType() const;
-    inline int cmap() const
-    { return _cmap; }
-    XftFont *transformedFont(const QMatrix &matrix);
 
+    FT_Face lockFace() const;
+    void unlockFace() const;
+
+    FT_Face non_locked_face() const { return freetype->face; }
+    bool drawAsOutline() const { return outline_drawing; }
+    bool invalid() const { return xsize == 0 && ysize == 0; }
 private:
-    FT_Face _face;
-    XftFont *_font;
-    QOpenType *_openType;
-    int _cmap;
-    TransformedFont *transformed_fonts;
-    qreal lbearing;
-    qreal rbearing;
+    void computeSize();
 
-    enum { cmapCacheSize = 0x500 };
-    mutable uint advanceCacheSize;
-    mutable float *advanceCache;
-    mutable uint designAdvanceCacheSize;
-    mutable float *designAdvanceCache;
-    glyph_t cmapCache[cmapCacheSize];
+    static QHash<QFreetypeFaceId, QFreetypeFace *> *freetypeFaces;
+    QFreetypeFace *freetype;
+
+    mutable qreal lbearing;
+    mutable qreal rbearing;
+    qreal line_thickness;
+    qreal underline_position;
+    FcPattern *_pattern;
+    int load_flags;
+    int xsize;
+    int ysize;
+    bool antialias;
+    bool outline_drawing;
+    int subpixel;
+
+    /* we don't cache glyphs that are too large anyway, so we can make this struct rather small */
+    struct Glyph {
+        ~Glyph();
+        short linearAdvance;
+        unsigned char width;
+        unsigned char height;
+        char x;
+        char y;
+        char advance;
+        char format;
+        uchar *data;
+    };
+    Glyph *loadGlyph(uint glyph) const;
+
+public:
+    GlyphSet glyphSet;
+private:
+    mutable QOpenType *_openType;
+    FT_Size_Metrics metrics;
+    mutable QHash<int, Glyph *> glyph_data; // maps from glyph index to glyph data
 };
 
-#endif // QT_NO_XFT
+#endif // QT_NO_FONTCONFIG
 
 #endif // QFONTENGINE_X11_P_H

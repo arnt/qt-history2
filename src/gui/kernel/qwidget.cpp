@@ -70,7 +70,7 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,bg_role(QPalette::Background)
         ,hd(0)
 #if defined(Q_WS_X11)
-        ,xft_hd(0)
+        ,picture(0)
 #elif defined(Q_WS_MAC)
         ,cg_hd(0)
 #endif

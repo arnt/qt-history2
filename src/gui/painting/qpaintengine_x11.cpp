@@ -62,7 +62,7 @@ inline void *qt_getClipRects(const QRegion &r, int &num)
 }
 
 static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
                                     Picture picture,
 #else
                                     Qt::HANDLE picture,
@@ -77,14 +77,14 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
     if (gc2)
         XSetClipRectangles( dpy, gc2, 0, 0, rects, num, YXBanded );
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (picture)
         XRenderSetPictureClipRectangles(dpy, picture, 0, 0, rects, num);
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 }
 
 static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
                                     Picture picture
 #else
                                     Qt::HANDLE picture
@@ -96,13 +96,13 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
     if (gc2)
         XSetClipMask(dpy, gc2, XNone);
 
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (picture) {
         XRenderPictureAttributes attrs;
         attrs.clip_mask = XNone;
         XRenderChangePicture (dpy, picture, CPClipMask, &attrs);
     }
-#endif // QT_NO_XFT
+#endif // QT_NO_XRENDER
 }
 
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
@@ -174,7 +174,7 @@ static QPixmap qt_patternForAlpha(uchar alpha)
     return pm;
 }
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
 
 /*
  * Polygon tesselator - can probably be optimized a bit more
@@ -480,14 +480,14 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 // 	}
 //     }
 }
-#endif // !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#endif // !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
 
 void QX11PaintEnginePrivate::init()
 {
     dpy = 0;
     scrn = 0;
     hd = 0;
-    xft_hd = 0;
+    picture = 0;
     xinfo = 0;
     if (!X11->use_xrender) {
         q->gccaps &= ~(QPaintEngine::AlphaStroke
@@ -521,7 +521,7 @@ QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
                    | CoordTransform
                    | PainterPaths
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
                    | AlphaStroke
                    | AlphaFillPolygon
                    | AlphaFill
@@ -538,7 +538,7 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, UsesFontEngine
                    | CoordTransform
                    | PainterPaths
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
                    | AlphaStroke
                    | AlphaFillPolygon
                    | AlphaFill
@@ -560,16 +560,13 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
     if (pdev->devType() == QInternal::Widget) {
-        d->xft_hd = (XftDraw *)static_cast<const QWidget *>(pdev)->xftDrawHandle();
-        d->picture = (::Picture)static_cast<const QWidget *>(pdev)->xftPictureHandle();
+        d->picture = (::Picture)static_cast<const QWidget *>(pdev)->x11PictureHandle();
     } else if (pdev->devType() == QInternal::Pixmap) {
-        d->xft_hd = (XftDraw *)static_cast<const QPixmap *>(pdev)->xftDrawHandle();
-        d->picture = (::Picture)static_cast<const QPixmap *>(pdev)->xftPictureHandle();
+        d->picture = (::Picture)static_cast<const QPixmap *>(pdev)->x11PictureHandle();
     }
 #else
-    d->xft_hd = 0;
     d->picture = 0;
 #endif
     Q_ASSERT(d->xinfo != 0);
@@ -613,7 +610,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
  	updateBrush(QBrush(Qt::white), QPoint());
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
-#ifndef QT_NO_XFT
+#ifndef QT_NO_XRENDER
 	XRenderPictureAttributes attrs;
 	attrs.subwindow_mode = IncludeInferiors;
 	XRenderChangePicture(d->dpy, d->picture, CPSubwindowMode, &attrs);
@@ -638,7 +635,7 @@ bool QX11PaintEngine::end()
 {
     setActive(false);
 
-#if !defined(QT_NO_XFT)
+#if !defined(QT_NO_XRENDER)
     if (d->picture) {
         // reset clipping/subwindow mode on our render picture
 	XRenderPictureAttributes attrs;
@@ -694,7 +691,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         return;
     }
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && (d->pdev->depth() != 1) && pict && d->cbrush.style() != Qt::NoBrush
@@ -719,7 +716,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
         }
     } else
-#endif // !QT_NO_XFT && !QT_NO_XRENDER
+#endif // !QT_NO_XRENDER && !QT_NO_XRENDER
     {
         if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
             for (int i = 0; i < rectCount; ++i) {
@@ -766,7 +763,7 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
 
 QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 {
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
     if (X11->use_xrender)
         return QPainter::Antialiasing;
 #endif
@@ -775,20 +772,19 @@ QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 
 void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    d->render_hints = hints;
     if ((d->txop > QPainterPrivate::TxNone)
         || (renderHints() & QPainter::Antialiasing))
         d->use_path_fallback = true;
     else
         d->use_path_fallback = false;
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER)
     if (X11->use_xrender && d->picture) {
         XRenderPictureAttributes attrs;
         attrs.poly_edge = (hints & QPainter::Antialiasing) ? PolyEdgeSmooth : PolyEdgeSharp;
         XRenderChangePicture(d->dpy, d->picture, CPPolyEdge, &attrs);
     }
-#else
-    Q_UNUSED(hints);
 #endif
 }
 
@@ -886,7 +882,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         vals.foreground = qGray(pen.color().rgb()) > 127 ? 0 : 1;
         vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
     } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-        && X11->use_xrender && X11->has_xft) {
+        && X11->use_xrender) {
         vals.foreground = pen.color().rgba();
         vals.background = d->bg_col.rgba();
     } else {
@@ -938,7 +934,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         vals.foreground = qGray(d->cbrush.color().rgb()) > 127 ? 0 : 1;
         vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
     } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-        && X11->use_xrender && X11->has_xft) {
+        && X11->use_xrender) {
         vals.foreground = d->cbrush.color().rgba();
         vals.background = d->bg_col.rgba();
     } else {
@@ -1057,7 +1053,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         fill_gc = gc;
     }
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
     bool antialias = q->renderHints() & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (antialias || fill.color().alpha() != 255))
@@ -1215,9 +1211,9 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    ::Picture src_pict = pixmap.xftPictureHandle();
-    if (X11->use_xrender && X11->has_xft && src_pict && d->picture) {
+#if !defined(QT_NO_XRENDER)
+    ::Picture src_pict = pixmap.x11PictureHandle();
+    if (X11->use_xrender && src_pict && d->picture) {
         XRenderComposite(d->dpy, mode == Qt::ComposePixmap ? PictOpOver : PictOpSrc,
                          src_pict, 0, d->picture, sx, sy, sx, sy, x, y, sw, sh);
         if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
@@ -1226,7 +1222,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         }
         return;
     }
-#endif // !QT_NO_XFT && !QT_NO_XRENDER
+#endif
 
     bool mono_src = pixmap.depth() == 1;
     bool mono_dst = d->pdev->depth() == 1;
@@ -1262,7 +1258,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
             XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
         } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-                   && X11->use_xrender && X11->has_xft) {
+                   && X11->use_xrender) {
             XSetBackground(d->dpy, d->gc, d->bg_brush.color().rgba());
             XSetForeground(d->dpy, d->gc, d->cpen.color().rgba());
         } else {
@@ -1396,8 +1392,8 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate
         && pixmap.hasAlphaChannel() && !pixmap.data->x11_mask)
     {
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        if (d->picture && pixmap.xftPictureHandle()) {
+#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XRENDER)
+        if (d->picture && pixmap.x11PictureHandle()) {
             // this is essentially drawTile() from above, inlined for
             // the XRenderComposite call
             int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -1414,7 +1410,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                     if (xPos + drawW > x + w)    // Cropping last column
                         drawW = x + w - xPos;
                     XRenderComposite(d->dpy, (pixmap.data->alpha ? PictOpOver : PictOpSrc),
-                                     pixmap.xftPictureHandle(), XNone,
+                                     pixmap.x11PictureHandle(), XNone,
                                      d->picture, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
                     xPos += drawW;
                     xOff = 0;
@@ -1424,7 +1420,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
             }
             return;
         }
-#endif // !QT_NO_XFTQT_NO_XRENDER
+#endif // !QT_NO_XRENDER
 
         XSetTile(d->dpy, d->gc, pixmap.handle());
         XSetFillStyle(d->dpy, d->gc, FillTiled);
@@ -1473,9 +1469,9 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     case QFontEngine::XLFD:
         drawXLFD(p, ti);
         break;
-#ifndef QT_NO_XFT
-    case QFontEngine::Xft:
-        drawXft(p, ti);
+#ifndef QT_NO_FONTCONFIG
+    case QFontEngine::Freetype:
+        drawFreetype(p, ti);
         break;
 #endif
     default:
@@ -1693,16 +1689,23 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 #endif
 }
 
-#ifndef QT_NO_XFT
-void QX11PaintEngine::drawXft(const QPointF &p, const QTextItemInt &si)
+#ifndef QT_NO_FONTCONFIG
+void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 {
     qreal xpos = p.x();
     qreal ypos = p.y();
 
-    QFontEngineXft *xft = static_cast<QFontEngineXft *>(si.fontEngine);
-    XftFont *fnt = d->txop >= QPainterPrivate::TxScale ? xft->transformedFont(state->matrix) : xft->xftFont();
-    XftDraw *draw = d->xft_hd;
+    QFontEngineFT *ft = static_cast<QFontEngineFT *>(si.fontEngine);
+    if (!X11->use_xrender || ft->drawAsOutline() || d->txop > QPainterPrivate::TxScale) {
+        uint hints = d->render_hints;
+        updateRenderHints(QFlag(hints|QPainter::Antialiasing));
+        QPaintEngine::drawTextItem(p, si);
+        updateRenderHints(QFlag(hints));
+        return;
+    }
+
     int screen = d->scrn;
+    GlyphSet glyphSet = ft->glyphSet;
 
     bool transform = d->txop >= QPainterPrivate::TxScale;
 
@@ -1714,15 +1717,6 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItemInt &si)
     QPointF pos(xpos, ypos);
 
     QGlyphLayout *glyphs = si.glyphs;
-
-    const QColor &pen = d->cpen.color();
-    XftColor col;
-    col.color.red = pen.red () | pen.red() << 8;
-    col.color.green = pen.green () | pen.green() << 8;
-    col.color.blue = pen.blue () | pen.blue() << 8;
-    col.color.alpha = 0xffff;
-    // ###
-    col.pixel = QColormap::instance(screen).pixel(pen);
 
 #ifdef FONTENGINE_DEBUG
     qDebug("===== drawing %d glyphs reverse=%s ======", si.num_glyphs,
@@ -1741,106 +1735,127 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItemInt &si)
     if (si.flags)
         ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
 
-    QVarLengthArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
+    QVarLengthArray<XGlyphElt32, 256> glyphSpec(si.num_glyphs);
 
 #ifdef FONTENGINE_DEBUG
     p->painter()->save();
     p->painter()->setPen(Qt::red);
 #endif
 
-    int nGlyphs = 0;
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender) {
+        int nGlyphs = 0;
 
-    if (si.flags & QTextItem::RightToLeft) {
-        int i = si.num_glyphs;
-        while(i--) {
-            pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
-            pos.ry() += glyphs[i].advance.y();
-        }
-        i = 0;
-        while(i < si.num_glyphs) {
-            pos -= glyphs[i].advance;
-
-            QPointF gpos = pos + glyphs[i].offset;
-            if (transform)
-                gpos = gpos * state->matrix;
-            int xp = qRound(gpos.x());
-            int yp = qRound(gpos.y());
-            if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                glyphSpec[nGlyphs].x = xp;
-                glyphSpec[nGlyphs].y = yp;
-                glyphSpec[nGlyphs].glyph = glyphs[i].glyph;
-                ++nGlyphs;
+        if (si.flags & QTextItem::RightToLeft) {
+            int i = si.num_glyphs;
+            while(i--) {
+                pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+                pos.ry() += glyphs[i].advance.y();
             }
-            if (glyphs[i].nKashidas) {
-                glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
-                QChar ch(0x640); // Kashida character
-                QGlyphLayout g[8];
-                int nglyphs = 7;
-                si.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
-                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                    pos -= g[0].advance;
+            i = 0;
+            while(i < si.num_glyphs) {
+                pos -= glyphs[i].advance;
 
-                    QPointF gpos(pos);
-                    if (transform)
-                        gpos = gpos * state->matrix;
-                    int xp = qRound(gpos.x());
-                    int yp = qRound(gpos.y());
-                    if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                        glyphSpec[nGlyphs].x = xp;
-                        glyphSpec[nGlyphs].y = yp;
-                        glyphSpec[nGlyphs].glyph = g[0].glyph;
-                    }
+                QPointF gpos = pos + glyphs[i].offset;
+                if (transform)
+                    gpos = gpos * state->matrix;
+                int xp = qRound(gpos.x());
+                int yp = qRound(gpos.y());
+                if (xp > SHRT_MIN && xp < SHRT_MAX) {
+                    glyphSpec[nGlyphs].glyphset = glyphSet;
+                    glyphSpec[nGlyphs].chars = &glyphs[i].glyph;
+                    glyphSpec[nGlyphs].nchars = 1;
+                    glyphSpec[nGlyphs].xOff = xp;
+                    glyphSpec[nGlyphs].yOff = yp;
                     ++nGlyphs;
                 }
-            } else {
-                pos.rx() -= qreal(glyphs[i].space_18d6)/qreal(64);
-            }
+                if (glyphs[i].nKashidas) {
+                    glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
+                    QChar ch(0x640); // Kashida character
+                    QGlyphLayout g[8];
+                    int nglyphs = 7;
+                    si.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
+                    for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
+                        pos -= g[0].advance;
+
+                        QPointF gpos(pos);
+                        if (transform)
+                            gpos = gpos * state->matrix;
+                        int xp = qRound(gpos.x());
+                        int yp = qRound(gpos.y());
+                        if (xp > SHRT_MIN && xp < SHRT_MAX) {
+                            glyphSpec[nGlyphs].glyphset = glyphSet;
+                            glyphSpec[nGlyphs].chars = &g[0].glyph;
+                            glyphSpec[nGlyphs].nchars = 1;
+                            glyphSpec[nGlyphs].xOff = xp;
+                            glyphSpec[nGlyphs].yOff = yp;
+                        }
+                        ++nGlyphs;
+                    }
+                } else {
+                    pos.rx() -= qreal(glyphs[i].space_18d6)/qreal(64);
+                }
 #ifdef FONTENGINE_DEBUG
-            glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-            p->painter()->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
-            qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
-                   ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
+                glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
+                p->painter()->drawRect(x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height);
+                qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
+                       ci.xoff, ci.yoff, glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
 #endif
-            ++i;
+                ++i;
+            }
+        } else {
+            int i = 0;
+            while (i < si.num_glyphs) {
+                QPointF gpos = pos;
+                gpos += glyphs[i].offset;
+                if (transform)
+                    gpos = gpos * state->matrix;
+                int xp = qRound(gpos.x());
+                int yp = qRound(gpos.y());
+                if (xp > SHRT_MIN && xp < SHRT_MAX) {
+                    glyphSpec[i].glyphset = glyphSet;
+                    glyphSpec[i].chars = &glyphs[i].glyph;
+                    glyphSpec[i].nchars = 1;
+                    glyphSpec[i].xOff = xp;
+                    glyphSpec[i].yOff = yp;
+                    ++nGlyphs;
+                }
+#ifdef FONTENGINE_DEBUG
+                glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
+                qDebug("bounding %d ci[%x]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, glyphs[i].glyph,
+                       ci.x, ci.y, ci.width, ci.height, ci.xoff, ci.yoff,
+                       glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
+#endif
+
+                pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+                pos.ry() += glyphs[i].advance.y();
+                ++i;
+            }
         }
-    } else {
+
+#ifdef FONTENGINE_DEBUG
+        p->painter()->restore();
+#endif
+
+        const QColor &pen = d->cpen.color();
+        XRenderColor col;
+        col.red = pen.red () | pen.red() << 8;
+        col.green = pen.green () | pen.green() << 8;
+        col.blue = pen.blue () | pen.blue() << 8;
+        col.alpha = 0xffff;
+        ::Picture src = getSolidFill(screen, col);
+
         int i = 0;
-        while (i < si.num_glyphs) {
-            QPointF gpos = pos;
-            gpos += glyphs[i].offset;
-            if (transform)
-                gpos = gpos * state->matrix;
-            int xp = qRound(gpos.x());
-            int yp = qRound(gpos.y());
-            if (xp > SHRT_MIN && xp < SHRT_MAX) {
-                glyphSpec[i].x = xp;
-                glyphSpec[i].y = yp;
-                glyphSpec[i].glyph = glyphs[i].glyph;
-                ++nGlyphs;
-            }
-#ifdef FONTENGINE_DEBUG
-            glyph_metrics_t ci = boundingBox(glyphs[i].glyph);
-            qDebug("bounding %d ci[%x]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, glyphs[i].glyph,
-                   ci.x, ci.y, ci.width, ci.height, ci.xoff, ci.yoff,
-                   glyphs[i].offset.x, glyphs[i].offset.y, glyphs[i].advance.x, glyphs[i].advance.y);
-#endif
-
-            pos.rx() += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
-            pos.ry() += glyphs[i].advance.y();
-            ++i;
+        while (i < nGlyphs) {
+            // ############ inefficient
+            XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture, 0 /*mask format */,
+                                    0, 0, 0, 0, glyphSpec.data() + i, 1);
+            i++;
         }
     }
-
-#ifdef FONTENGINE_DEBUG
-    p->painter()->restore();
 #endif
-
-    int i = 0;
-    while (i < nGlyphs) {
-        int toDraw = qMin(64, nGlyphs-i);
-        XftDrawGlyphSpec(draw, &col, fnt, glyphSpec.data()+i, toDraw);
-        i += toDraw;
+    {
+        // ##### non render code, get rid of the hack above that goes through outlines for this case
     }
-
 }
-#endif // !QT_NO_XFT
+#endif // !QT_NO_XRENDER
