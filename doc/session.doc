@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.8 1999/06/24 13:09:04 ettrich Exp $
+** $Id: session.doc,v 1.9 1999/07/04 16:20:59 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -65,10 +65,10 @@ the machine!
 <h2> Protocols and support on different plattforms</h2>
 
 On MS-Windows, there is nothing like completele session management for
-application yet, i.e. no restoring of previous session.  Windows does,
+applications yet, i.e. no restoring of previous sessions.  Windows does,
 however, support graceful logouts where applications have the chance
 to cancel the process after getting confirmation from the user. This
-is the functionality that that corresponds to the
+is the functionality that corresponds to the
 \l QApplication::commitData() method.
 
 X11 on the other hand supports complete session management since
