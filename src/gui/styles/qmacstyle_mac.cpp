@@ -1653,14 +1653,19 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             QRect paneRect = twf->rect;
             tpdi.direction = getTabDirection(twf->shape);
             switch (tpdi.direction) {
-            default:
-                break;
             case kThemeTabSouth:
                 paneRect.setHeight(paneRect.height() + 7);
                 break;
             case kThemeTabNorth:
                 paneRect.setTop(paneRect.top() - 6);
                 paneRect.setHeight(paneRect.height() + 6);
+                break;
+            case kThemeTabWest:
+                paneRect.setLeft(paneRect.left() - 6);
+                paneRect.setWidth(paneRect.width());
+                break;
+            case kThemeTabEast:
+                paneRect.setWidth(paneRect.width() + 4);
                 break;
             }
             tpdi.size = kHIThemeTabSizeNormal;
