@@ -853,9 +853,13 @@ void QTextHtmlParser::resolveParent()
     int p = node->parent;
 
     // block elements close inline elements
+    // ... with the exception of the font element ... grmbl ...
     if (node->isBlock)
-        while (p && !at(p).isBlock)
+        while (p
+               && !at(p).isBlock
+               && !at(p).id == Html_font) {
             p = at(p).parent;
+        }
 
     // some elements are not self nesting
     if (node->tag == at(p).tag) {
