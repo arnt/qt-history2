@@ -486,8 +486,8 @@ void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h )
  * QX11PaintEngine members
  */
 
-QX11PaintEngine::QX11PaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *target)
-    : QPaintEngine(*(new QX11PaintEnginePrivate(this)), UsesFontEngine)
+QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
+    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
