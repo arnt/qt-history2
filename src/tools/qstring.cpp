@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#175 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#176 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -346,8 +346,9 @@ QString::QString( const QByteArray& ba )
 
 QString::QString( QChar* unicode, uint length )
 {
-    d = new Data(unicode,length,length);
-    memcpy(d->unicode, unicode, length*sizeof(QChar));
+    QChar* uc = new QChar[ length ];
+    memcpy(uc, unicode, length*sizeof(QChar));
+    d = new Data(uc,length,length);
 }
 
 
