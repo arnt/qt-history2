@@ -714,6 +714,7 @@ public:
     VcprojGenerator*	Project;
     QList<VCConfiguration> *Config;
     customBuildCheck	CustomBuild;
+    bool		flat_files;
 };
 
 class VCProject

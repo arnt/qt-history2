@@ -700,12 +700,88 @@ void VcprojGenerator::initPreLinkEventTools()
 {
 }
 
+
+// ------------------------------------------------------------------
+// Helper functions to do proper sorting of the
+// qstringlists, for both flat and non-flat modes.
+inline bool XLessThanY( QString &x, QString &y, bool flat_mode )
+{
+    if ( flat_mode ) {
+	QString subX = x.mid( x.findRev('\\')+1 );
+	QString subY = y.mid( y.findRev('\\')+1 );
+	return QString::compare(subX, subY) < 0;
+    }
+
+    int xPos = 0;
+    int yPos = 0;
+    int xSlashPos;
+    int ySlashPos;
+    for (;;) {
+	xSlashPos = x.find('\\', xPos);
+	ySlashPos = y.find('\\', yPos);
+
+	if (xSlashPos == -1 && ySlashPos != -1) {
+	    return false;
+	} else if (xSlashPos != -1 && ySlashPos == -1) {
+	    return true;
+	} else if (xSlashPos == -1 /* && yySlashPos == -1 */) {
+	    QString subX = x.mid(xPos);
+	    QString subY = y.mid(yPos);
+	    return QString::compare(subX, subY) < 0;
+	} else {
+	    QString subX = x.mid(xPos, xSlashPos - xPos);
+	    QString subY = y.mid(yPos, ySlashPos - yPos);
+	    int cmp = QString::compare(subX, subY);
+	    if (cmp != 0)
+		return cmp < 0;
+	}
+	xPos = xSlashPos + 1;
+	yPos = ySlashPos + 1;
+    }
+    return false;
+}
+void nonflatDir_BubbleSort( QStringList& list, bool flat_mode )
+{
+    QStringList::Iterator b = list.begin();
+    QStringList::Iterator e = list.end();
+    QStringList::Iterator last = e;
+    --last;		// goto last
+    if ( last == b )	// shortcut
+	return;
+    while( b != last ) {// sort them
+	bool swapped = FALSE;
+	QStringList::Iterator swap_pos = b;
+	QStringList::Iterator x = e;
+	QStringList::Iterator y = x;
+	--y;
+	QString swap_str;
+	do {
+	    --x;
+	    --y;
+	    if ( XLessThanY(*x,*y, flat_mode) ) {
+		swapped = TRUE;
+		swap_str = (*x); // Swap -------
+		(*x) = (*y);
+		(*y) = swap_str; // ------------
+		swap_pos = y;
+	    }
+	} while( y != b );
+	if ( !swapped )
+	    return;
+	b = swap_pos;
+	++b;
+    }
+}
+// ------------------------------------------------------------------
+
 void VcprojGenerator::initSourceFiles()
 {
+    vcProject.SourceFiles.flat_files = project->isActiveConfig("flat");
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
     vcProject.SourceFiles.Files += project->variables()["SOURCES"];
-    vcProject.SourceFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.SourceFiles.Files,
+			   vcProject.SourceFiles.flat_files );
     vcProject.SourceFiles.Project = this;
     vcProject.SourceFiles.Config = &(vcProject.Configuration);
     vcProject.SourceFiles.CustomBuild = none;
@@ -713,10 +789,12 @@ void VcprojGenerator::initSourceFiles()
 
 void VcprojGenerator::initHeaderFiles()
 {
+    vcProject.HeaderFiles.flat_files = project->isActiveConfig("flat");
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
     vcProject.HeaderFiles.Files += project->variables()["HEADERS"];
-    vcProject.HeaderFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.HeaderFiles.Files,
+			   vcProject.HeaderFiles.flat_files );
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
     vcProject.HeaderFiles.CustomBuild = moc;
@@ -724,10 +802,12 @@ void VcprojGenerator::initHeaderFiles()
 
 void VcprojGenerator::initMOCFiles()
 {
+    vcProject.MOCFiles.flat_files = project->isActiveConfig("flat");
     vcProject.MOCFiles.Name = "Generated MOC Files";
     vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
     vcProject.MOCFiles.Files += project->variables()["SRCMOC"];
-    vcProject.MOCFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.MOCFiles.Files,
+			   vcProject.MOCFiles.flat_files );
     vcProject.MOCFiles.Project = this;
     vcProject.MOCFiles.Config = &(vcProject.Configuration);
     vcProject.MOCFiles.CustomBuild = moc;
@@ -735,23 +815,27 @@ void VcprojGenerator::initMOCFiles()
 
 void VcprojGenerator::initUICFiles()
 {
+    vcProject.UICFiles.flat_files = project->isActiveConfig("flat");
     vcProject.UICFiles.Name = "Generated Form Files";
     vcProject.UICFiles.Filter = "cpp;c;cxx;h;hpp;hxx;";
     vcProject.UICFiles.Project = this;
     vcProject.UICFiles.Files += project->variables()["UICDECLS"];
     vcProject.UICFiles.Files += project->variables()["UICIMPLS"];
-    vcProject.UICFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.UICFiles.Files,
+			   vcProject.UICFiles.flat_files );
     vcProject.UICFiles.Config = &(vcProject.Configuration);
     vcProject.UICFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initFormsFiles()
 {
+    vcProject.FormFiles.flat_files = project->isActiveConfig("flat");
     vcProject.FormFiles.Name = "Forms";
     vcProject.FormFiles.ParseFiles = _False;
     vcProject.FormFiles.Filter = "ui";
     vcProject.FormFiles.Files += project->variables()["FORMS"];
-    vcProject.FormFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.FormFiles.Files,
+			   vcProject.FormFiles.flat_files );
     vcProject.FormFiles.Project = this;
     vcProject.FormFiles.Config = &(vcProject.Configuration);
     vcProject.FormFiles.CustomBuild = uic;
@@ -759,11 +843,13 @@ void VcprojGenerator::initFormsFiles()
 
 void VcprojGenerator::initTranslationFiles()
 {
+    vcProject.TranslationFiles.flat_files = project->isActiveConfig("flat");
     vcProject.TranslationFiles.Name = "Translations Files";
     vcProject.TranslationFiles.ParseFiles = _False;
     vcProject.TranslationFiles.Filter = "ts";
     vcProject.TranslationFiles.Files += project->variables()["TRANSLATIONS"];
-    vcProject.TranslationFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.TranslationFiles.Files,
+			   vcProject.TranslationFiles.flat_files );
     vcProject.TranslationFiles.Project = this;
     vcProject.TranslationFiles.Config = &(vcProject.Configuration);
     vcProject.TranslationFiles.CustomBuild = none;
@@ -771,12 +857,14 @@ void VcprojGenerator::initTranslationFiles()
 
 void VcprojGenerator::initLexYaccFiles()
 {
+    vcProject.LexYaccFiles.flat_files = project->isActiveConfig("flat");
     vcProject.LexYaccFiles.Name = "Lex / Yacc Files";
     vcProject.LexYaccFiles.ParseFiles = _False;
     vcProject.LexYaccFiles.Filter = "l;y";
     vcProject.LexYaccFiles.Files += project->variables()["LEXSOURCES"];
     vcProject.LexYaccFiles.Files += project->variables()["YACCSOURCES"];
-    vcProject.LexYaccFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.LexYaccFiles.Files,
+			   vcProject.LexYaccFiles.flat_files );
     vcProject.LexYaccFiles.Project = this;
     vcProject.LexYaccFiles.Config = &(vcProject.Configuration);
     vcProject.LexYaccFiles.CustomBuild = lexyacc;
@@ -784,6 +872,7 @@ void VcprojGenerator::initLexYaccFiles()
 
 void VcprojGenerator::initResourceFiles()
 {
+    vcProject.ResourceFiles.flat_files = project->isActiveConfig("flat");
     vcProject.ResourceFiles.Name = "Resources";
     vcProject.ResourceFiles.ParseFiles = _False;
     vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts";
@@ -791,7 +880,8 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Files += project->variables()["QMAKE_IMAGE_COLLECTION"];
     vcProject.ResourceFiles.Files += project->variables()["IMAGES"];
     vcProject.ResourceFiles.Files += project->variables()["IDLSOURCES"];
-    vcProject.ResourceFiles.Files.sort();
+    nonflatDir_BubbleSort( vcProject.ResourceFiles.Files,
+			   vcProject.ResourceFiles.flat_files );
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
     vcProject.ResourceFiles.CustomBuild = none;

@@ -1906,7 +1906,38 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
     strm << TPair( _ParseFiles, tool.ParseFiles );
     strm << SPair( _Filter, tool.Filter );
     strm << ">";
+
+    int currentLevels = 0;
+    QStringList currentDirs;
     for ( QStringList::ConstIterator it = tool.Files.begin(); it != tool.Files.end(); ++it ) {
+	if ( !tool.flat_files ) {
+	    QStringList newDirs = QStringList::split('\\',(*it));
+	    newDirs.pop_back(); // Skip the filename
+	    
+	    int newLevels = newDirs.count();
+	    int equalLevels = 0;
+	    for (int i = 0; i<currentLevels; i++, equalLevels++ )
+		if (currentDirs[i] != newDirs[i])
+		    break;
+	    int closeFilters = currentLevels - equalLevels;
+	    int openFilters  = newLevels - equalLevels;
+
+	    // close previous non-equal filter
+	    while ( closeFilters-- )
+		strm << _endFilter;
+
+	    // open new non-equal filters
+	    newLevels = 0;
+	    while ( openFilters-- ) {
+		strm << _begFilter;
+		strm << SPair( _Name3, newDirs[equalLevels + newLevels] );
+		strm << _Filter << "\">"; // Blank filter
+		++newLevels;
+	    }
+	    currentDirs = newDirs;
+	    currentLevels = newDirs.count();
+	}
+
 	strm << _begFile;
 	strm << SPair( _RelativePath, *it );
 	strm << ">";
@@ -1916,7 +1947,10 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 	    tool.generateUIC( strm, *it );
 	strm << _endFile;
     }
-
+    // close remaining open filters, in non-flat mode
+    while ( !tool.flat_files && currentLevels-- ) {
+	strm << _endFilter;
+    }
     strm << _endFilter;
     return strm;
 }
