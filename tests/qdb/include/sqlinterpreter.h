@@ -2,8 +2,9 @@
 #define SQLINTERPRETER_H
 
 #include "environment.h"
-#include <qstack.h>
+#include <qarray.h>
 #include <qlist.h>
+#include <qstack.h>
 #include <qtextstream.h>
 
 class FileDriver : public qdb::FileDriver
@@ -171,15 +172,17 @@ public:
     void remove( uint i );
     void clear();
     void setCounter( int i );
-    void setCounter( const QString& label );
     void resetCounter();
     int counter();
+    int getLabel();
+    void setLabel( int lab, int counter );
     qdb::Op* next();
     QStringList listing() const;
 
 private:
     QList< qdb::Op > ops;
     int pc;
+    QArray< int > counters;
     qdb::ColumnKey sortKey;
 
     Program( const Program& other );

@@ -89,7 +89,6 @@ namespace qdb {
     public:
 	virtual ~Op();
 	virtual QVariant& P( int i ) = 0;
-	virtual QString label() const = 0;
 	virtual int exec( Environment* env ) = 0;
 	virtual QString name() const = 0;
     };
@@ -100,9 +99,10 @@ namespace qdb {
 	virtual void remove( uint i ) = 0;
 	virtual void clear() = 0;
 	virtual void setCounter( int i ) = 0;
-	virtual void setCounter( const QString& label ) = 0;
 	virtual void resetCounter() = 0;
 	virtual int counter() = 0;
+	virtual int getLabel() = 0;
+	virtual void setLabel( int lab, int counter ) = 0;
 	virtual Op* next() = 0;
 	virtual QStringList listing() const = 0;
     };

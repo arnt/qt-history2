@@ -959,6 +959,7 @@ void Parser::matchCreateStatement()
 	}
 	yyProg->append( new MakeList(columns.count()) );
 	yyProg->append( new CreateIndex(0, (int) unique) );
+	yyProg->append( new Close(0) );
 	break;
     case Tok_table:
 	yyTok = getToken();
@@ -1043,6 +1044,7 @@ void Parser::matchInsertStatement()
     matchOrInsert( Tok_RightParen, "')'" );
 
     yyProg->append( new Insert(0) );
+    yyProg->append( new Close(0) );
 }
 
 void Parser::matchRollbackStatement()
@@ -1120,7 +1122,7 @@ void Parser::matchSelectStatement()
 void Parser::matchUpdateStatement()
 {
     yyTok = getToken();
-    matchName();
+    yyProg->append( new Open(0, matchName()) );
     matchOrInsert( Tok_set, "'set'" );
 
     while ( TRUE ) {
@@ -1139,6 +1141,8 @@ void Parser::matchUpdateStatement()
 
     if ( yyTok == Tok_where )
 	matchWhereClause();
+
+    yyProg->append( new Close(0) );
 }
 
 void Parser::matchManipulativeStatement()

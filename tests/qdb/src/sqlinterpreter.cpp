@@ -16,7 +16,7 @@ using namespace std;
 
 */
 
-Program::Program( )
+Program::Program()
 {
     ops.setAutoDelete( TRUE );
 }
@@ -29,7 +29,6 @@ Program::Program( )
 
 Program::~Program()
 {
-
 }
 
 
@@ -67,24 +66,16 @@ void Program::clear()
 
 
 /*! sets the program counter so that \a i is the next instruction to
-be executed.
+be executed. If \a i is negative, it is interpreted as a label. See
+getLabel().
 
 */
 
 void Program::setCounter( int i )
 {
+    if ( i < 0 )
+	i = counters[-(i + 1)];
     pc = i - 1;
-}
-
-
-/*! Sets the program counter to the instruction with label \a label.
-
-*/
-
-void Program::setCounter( const QString& /*label*/ )
-{
-    //## todo -- jasmin is this necessary?
-    qWarning("Program::setCounter( const QString& label ): not yet implemented");
 }
 
 
@@ -108,6 +99,29 @@ int Program::counter()
     return pc;
 }
 
+
+/*! Allocates a label.  A label is an alias for an instruction
+counter.  Labels are negative integers, to distinguish them from
+instruction counters.
+
+*/
+
+int Program::getLabel()
+{
+    int n = counters.size();
+    counters.resize( n + 1 );
+    counters[n] = 0;
+    return -( n + 1 );
+}
+
+/*! Sets the instruction counter for which a label stands.
+
+*/
+
+void Program::setLabel( int lab, int counter )
+{
+    counters[-(lab + 1)] = counter;
+}
 
 /*! Returns the next program instruction, or 0 if there is none.
 

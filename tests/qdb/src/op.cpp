@@ -4,6 +4,6 @@
 
 */
 
-Label::~Label()
+Op3::~Op3()
 {
 }

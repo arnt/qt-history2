@@ -8,25 +8,15 @@
 
 /* Base class for all ops.
 */
-class Label : public qdb::Op
+class Op3 : public qdb::Op
 {
 public:
-    Label( const QString& label = QString::null )
-	: lbl( label ) {}
-    Label( const QVariant& P1,
-	   const QString& label = QString::null )
-	: p1( P1 ), lbl( label ) {}
-    Label( const QVariant& P1,
-	   const QVariant& P2,
-	   const QString& label = QString::null )
-	: p1( P1 ), p2( P2 ), lbl( label ) {}
-    Label( const QVariant& P1,
-	   const QVariant& P2,
-	   const QVariant& P3,
-	   const QString& label = QString::null )
-	: p1( P1 ), p2( P2 ), p3( P3 ), lbl( label ) {}
+    Op3( const QVariant& P1 = QVariant(),
+	 const QVariant& P2 = QVariant(),
+	 const QVariant& P3 = QVariant() )
+	: p1( P1 ), p2( P2 ), p3( P3 ) {}
 
-    virtual ~Label();
+    virtual ~Op3();
     QVariant& P( int i )
     {
 	switch( i ) {
@@ -36,7 +26,6 @@ public:
 	case 2: return p3;
 	}
     }
-    QString label() const { return lbl; }
 
 protected:
     void error( qdb::Environment *env, const QString& msg )
@@ -55,22 +44,15 @@ protected:
     QVariant p1;
     QVariant p2;
     QVariant p3;
-
-private:
-    QString lbl;
-
 };
 
 /* No op.
 */
 
-class Noop : public Label
+class Noop : public Op3
 {
 public:
-    Noop( const QString& label = QString::null )
-	: Label( label )
-    {
-    }
+    Noop() {}
     ~Noop() {}
     QString name() const { return "noop"; }
     int exec( qdb::Environment* )
@@ -96,14 +78,13 @@ public:
   99
 */
 
-class Push : public Label
+class Push : public Op3
 {
 public:
     Push( const QVariant& P1,
 	  const QVariant& P2 = QVariant(),
-	  const QVariant& P3 = QVariant(),
-	  const QString& label = QString::null )
-	: Label( P1, P2, P3, label )
+	  const QVariant& P3 = QVariant() )
+	: Op3( P1, P2, P3 )
     {
     }
     ~Push() {}
@@ -124,11 +105,10 @@ public:
 /* Pop the top two elements from the stack, add them together, and
    push the result (which is of type double) back onto the stack.
 */
-class Add : public Label
+class Add : public Op3
 {
 public:
-    Add( const QString& label = QString::null )
-	: Label( label ) {}
+    Add() {}
     QString name() const { return "add"; }
     int exec( qdb::Environment* env )
     {
@@ -145,11 +125,10 @@ public:
    stack) from the second (the next on stack) and push the result
    (which is of type double) back onto the stack.
 */
-class Subtract : public Label
+class Subtract : public Op3
 {
 public:
-    Subtract( const QString& label = QString::null )
-	: Label( label ) {}
+    Subtract() {}
     QString name() const { return "subtract"; }
     int exec( qdb::Environment* env )
     {
@@ -165,11 +144,10 @@ public:
 /* Pop the top two elements from the stack, multiply them together,
  and push the result (which is of type double) back onto the stack.
 */
-class Multiply : public Label
+class Multiply : public Op3
 {
 public:
-    Multiply( const QString& label = QString::null )
-	: Label( label ) {}
+    Multiply() {}
     QString name() const { return "multiply"; }
     int exec( qdb::Environment* env )
     {
@@ -188,11 +166,10 @@ public:
  invalid variant back on the stack, will issue a warning, and most
  likely cause another error down the line.
 */
-class Divide : public Label
+class Divide : public Op3
 {
 public:
-    Divide( const QString& label = QString::null )
-	: Label( label ) {}
+    Divide() {}
     QString name() const { return "divide"; }
     int exec( qdb::Environment* env )
     {
@@ -212,11 +189,11 @@ public:
 /* Pop the top two elements from the stack.  If they are equal, then
  jump to instruction P1.  Otherwise, continue to the next instruction.
 */
-class Eq : public Label
+class Eq : public Op3
 {
 public:
-    Eq( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Eq( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "eq"; }
     int exec( qdb::Environment* env )
     {
@@ -224,12 +201,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v1 == v2 ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v1 == v2 )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -238,11 +211,11 @@ public:
  then jump to instruction P1.  Otherwise, continue to the next
  instruction.
 */
-class Ne : public Label
+class Ne : public Op3
 {
 public:
-    Ne( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Ne( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "ne"; }
     int exec( qdb::Environment* env )
     {
@@ -250,12 +223,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v1 != v2 ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v1 != v2 )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -265,11 +234,11 @@ public:
  instruction P1.  Otherwise, continue to the next instruction.  In
  other words, jump if NOS<TOS.
 */
-class Lt : public Label
+class Lt : public Op3
 {
 public:
-    Lt( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Lt( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "lt"; }
     int exec( qdb::Environment* env )
     {
@@ -277,12 +246,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() < v1.toDouble() ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v2.toDouble() < v1.toDouble() )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -291,11 +256,11 @@ public:
  on stack) is less than or equal to the first (top of stack), then
  jump to instruction P1. In other words, jump if NOS<=TOS.
 */
-class Le : public Label
+class Le : public Op3
 {
 public:
-    Le( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Le( const QVariant& P1  )
+	: Op3( P1 ) {}
     QString name() const { return "le"; }
     int exec( qdb::Environment* env )
     {
@@ -303,12 +268,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() <= v1.toDouble() ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v2.toDouble() <= v1.toDouble() )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -318,11 +279,11 @@ public:
  on stack) is greater than the first (top of stack), then jump to
  instruction P1. In other words, jump if NOS>TOS.
 */
-class Gt : public Label
+class Gt : public Op3
 {
 public:
-    Gt( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Gt( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "gt"; }
     int exec( qdb::Environment* env )
     {
@@ -330,12 +291,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() > v1.toDouble() ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v2.toDouble() > v1.toDouble() )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -344,11 +301,11 @@ public:
  on stack) is greater than or equal to the first (top of stack),
  then jump to instruction P1. In other words, jump if NOS>=TOS.
 */
-class Ge : public Label
+class Ge : public Op3
 {
 public:
-    Ge( const QVariant& P1, const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Ge( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "ge"; }
     int exec( qdb::Environment* env )
     {
@@ -356,12 +313,8 @@ public:
 	    return 0;
 	QVariant v1 = env->stack()->pop();
 	QVariant v2 = env->stack()->pop();
-	if ( v2.toDouble() >= v1.toDouble() ) {
-	    if ( p1.type() == QVariant::String )
-		env->program()->setCounter( p1.toString() );
-	    else
-		env->program()->setCounter( p1.toInt() );
-	}
+	if ( v2.toDouble() >= v1.toDouble() )
+	    env->program()->setCounter( p1.toInt() );
 	return 1;
     }
 };
@@ -389,12 +342,11 @@ public:
 
 */
 
-class MakeList : public Label
+class MakeList : public Op3
 {
 public:
-    MakeList( const QVariant& num,
-		const QString& label = QString::null )
-	: Label( num, label ) {}
+    MakeList( const QVariant& num )
+	: Op3( num ) {}
     QString name() const { return "makelist"; }
     int exec( qdb::Environment* env )
     {
@@ -426,12 +378,11 @@ public:
 
 */
 
-class Create : public Label
+class Create : public Op3
 {
 public:
-    Create( const QVariant& name,
-	    const QString& label = QString::null )
-	: Label( name, label ) {}
+    Create( const QVariant& name )
+	: Op3( name ) {}
     QString name() const { return "create"; }
     int exec( qdb::Environment* env )
     {
@@ -450,12 +401,11 @@ public:
 can be used later to refer to the file.
 */
 
-class Open : public Label
+class Open : public Op3
 {
 public:
-    Open( const QVariant& id, const QVariant& name,
-	      const QString& label = QString::null )
-	: Label( id, name, label ) {}
+    Open( const QVariant& id, const QVariant& name )
+	: Op3( id, name ) {}
     QString name() const { return "open"; }
     int exec( qdb::Environment* env )
     {
@@ -472,12 +422,11 @@ public:
 /* Closes the file specified by 'id'.
 */
 
-class Close : public Label
+class Close : public Op3
 {
 public:
-    Close( const QVariant& id,
-	   const QString& label = QString::null )
-	: Label( id, label ) {}
+    Close( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "close"; }
     int exec( qdb::Environment* env )
     {
@@ -509,12 +458,11 @@ public:
   field within the file.  The file must be open (see Open).
 
 */
-class Insert : public Label
+class Insert : public Op3
 {
 public:
-    Insert( const QVariant& id,
-	    const QString& label = QString::null )
-	: Label( id, label ) {}
+    Insert( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "insert"; }
     int exec( qdb::Environment* env )
     {
@@ -531,12 +479,11 @@ public:
 must be open and positioned on a valid record.
 */
 
-class Mark : public Label
+class Mark : public Op3
 {
 public:
-    Mark( const QVariant& id,
-	    const QString& label = QString::null )
-	: Label( id, label ) {}
+    Mark( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "mark"; }
     int exec( qdb::Environment* env )
     {
@@ -553,12 +500,11 @@ public:
 have been previously marked by Mark. All marks are then cleared.
 */
 
-class DeleteMarked : public Label
+class DeleteMarked : public Op3
 {
 public:
-    DeleteMarked( const QVariant& id,
-		  const QString& label = QString::null )
-	: Label( id, label ) {}
+    DeleteMarked( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "deletemarked"; }
     int exec( qdb::Environment* env )
     {
@@ -590,12 +536,11 @@ public:
   All marks are then cleared.
 */
 
-class UpdateMarked : public Label
+class UpdateMarked : public Op3
 {
 public:
-    UpdateMarked( const QVariant& id,
-		  const QString& label = QString::null )
-	: Label( id, label ) {}
+    UpdateMarked( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "updatemarked"; }
     int exec( qdb::Environment* env )
     {
@@ -614,13 +559,12 @@ public:
  failure goto P2.  The file must be open (see Open).
 */
 
-class Next : public Label
+class Next : public Op3
 {
 public:
     Next( const QVariant& id,
-	  const QVariant& P2,
-	  const QString& label = QString::null )
-	: Label( id, P2, label ) {}
+	  const QVariant& P2 )
+	: Op3( id, P2 ) {}
     QString name() const { return "next"; }
     int exec( qdb::Environment* env )
     {
@@ -629,12 +573,8 @@ public:
 	    error( env, "file not open" );
 	    return 0;
 	}
-	if ( !drv->next() ) {
-	    if ( p2.type() == QVariant::String )
-		env->program()->setCounter( p2.toString() );
-	    else
-		env->program()->setCounter( p2.toInt() );
-	}
+	if ( !drv->next() )
+	    env->program()->setCounter( p2.toInt() );
 	return TRUE;
     }
 };
@@ -642,19 +582,15 @@ public:
 /* Go to the instruction at P1.
 */
 
-class Goto : public Label
+class Goto : public Op3
 {
 public:
-    Goto( const QVariant& P1,
-	  const QString& label = QString::null )
-	: Label( P1, label ) {}
+    Goto( const QVariant& P1 )
+	: Op3( P1 ) {}
     QString name() const { return "goto"; }
     int exec( qdb::Environment* env )
     {
-	if ( p1.type() == QVariant::String )
-	    env->program()->setCounter( p1.toString() );
-	else
-	    env->program()->setCounter( p1.toInt() );
+	env->program()->setCounter( p1.toInt() );
 	return TRUE;
     }
 };
@@ -664,13 +600,12 @@ public:
  a valid record.
 */
 
-class PushFieldValue : public Label
+class PushFieldValue : public Op3
 {
 public:
     PushFieldValue( const QVariant& id,
-	       const QVariant& P2,
-	       const QString& label = QString::null )
-	: Label( id, P2, label ) {}
+	       const QVariant& P2 )
+	: Op3( id, P2 ) {}
     QString name() const { return "pushfieldvalue"; }
     int exec( qdb::Environment* env )
     {
@@ -703,13 +638,12 @@ public:
 
 */
 
-class PushFieldDesc : public Label
+class PushFieldDesc : public Op3
 {
 public:
     PushFieldDesc( const QVariant& id,
-		   const QVariant& nameOrNumber,
-		   const QString& label = QString::null )
-	: Label( id, nameOrNumber, label ) {}
+		   const QVariant& nameOrNumber )
+	: Op3( id, nameOrNumber ) {}
     QString name() const { return "pushfielddesc"; }
     int exec( qdb::Environment* env )
     {
@@ -748,12 +682,11 @@ public:
 
 */
 
-class SaveResult : public Label
+class SaveResult : public Op3
 {
 public:
-    SaveResult( const QVariant& id,
-		const QString& label = QString::null )
-	: Label( id, label ) {}
+    SaveResult( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "saveresult"; }
     int exec( qdb::Environment* env )
     {
@@ -788,12 +721,11 @@ public:
 
 */
 
-class CreateResult : public Label
+class CreateResult : public Op3
 {
 public:
-    CreateResult( const QVariant& id,
-		  const QString& label = QString::null )
-	: Label( id, label ) {}
+    CreateResult( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "createresult"; }
     int exec( qdb::Environment* env )
     {
@@ -808,12 +740,11 @@ public:
   need to be open.
 */
 
-class RewindMarked : public Label
+class RewindMarked : public Op3
 {
 public:
-    RewindMarked( const QVariant& id,
-	    const QString& label = QString::null )
-	: Label( id, label ) {}
+    RewindMarked( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "rewindmarked"; }
     int exec( qdb::Environment* env )
     {
@@ -827,13 +758,12 @@ public:
  failure goto P2.  The file must be open (see Open).
 */
 
-class NextMarked : public Label
+class NextMarked : public Op3
 {
 public:
     NextMarked( const QVariant& id,
-		const QVariant& P2,
-	    const QString& label = QString::null )
-	: Label( id, P2, label ) {}
+		const QVariant& P2 )
+	: Op3( id, P2 ) {}
     QString name() const { return "nextmarked"; }
     int exec( qdb::Environment* env )
     {
@@ -843,12 +773,8 @@ public:
 	    return 0;
 	}
 	bool b = drv->nextMarked();
-	if ( !b ) {
-	    if ( p2.type() == QVariant::String )
-		env->program()->setCounter( p2.toString() );
-	    else
-		env->program()->setCounter( p2.toInt() );
-	}
+	if ( !b )
+	    env->program()->setCounter( p2.toInt() );
 	return TRUE;
   }
 };
@@ -873,12 +799,11 @@ public:
 
 */
 
-class Update : public Label
+class Update : public Op3
 {
 public:
-    Update( const QVariant& id,
-	    const QString& label = QString::null )
-	: Label( id, label ) {}
+    Update( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "update"; }
     int exec( qdb::Environment* env )
     {
@@ -930,12 +855,11 @@ public:
 //save.
 
 */
-class RangeScan : public Label
+class RangeScan : public Op3
 {
 public:
-    RangeScan( const QVariant& id,
-	       const QString& label = QString::null )
-	: Label( id, label ) {}
+    RangeScan( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "rangescan"; }
     int exec( qdb::Environment* env )
     {
@@ -968,13 +892,12 @@ public:
    open (see Open).  See also PushFieldDesc.
 */
 
-class CreateIndex : public Label
+class CreateIndex : public Op3
 {
 public:
     CreateIndex( const QVariant& id,
-		 const QVariant& unique,
-		 const QString& label = QString::null )
-	: Label( id, unique, label ) {}
+		 const QVariant& unique )
+	: Op3( id, unique ) {}
     QString name() const { return "createindex"; }
     int exec( qdb::Environment* env )
     {
@@ -993,12 +916,11 @@ public:
     open, it is first closed.
 */
 
-class Drop : public Label
+class Drop : public Op3
 {
 public:
-    Drop( const QVariant& id, const QVariant& name,
-	      const QString& label = QString::null )
-	: Label( id, name, label ) {}
+    Drop( const QVariant& id, const QVariant& name )
+	: Op3( id, name ) {}
     QString name() const { return "drop"; }
     int exec( qdb::Environment* env )
     {
@@ -1036,12 +958,11 @@ public:
 
 */
 
-class Sort : public Label
+class Sort : public Op3
 {
 public:
-    Sort( const QVariant& id,
-	  const QString& label = QString::null )
-	: Label( id, label ) {}
+    Sort( const QVariant& id )
+	: Op3( id ) {}
     QString name() const { return "sort"; }
     int exec( qdb::Environment* env )
     {
@@ -1060,12 +981,11 @@ public:
 'id'.
 */
 
-class ClearMarked : public Label
+class ClearMarked : public Op3
 {
 public:
-    ClearMarked( const QVariant& id, const QVariant& name,
-	      const QString& label = QString::null )
-	: Label( id, name, label ) {}
+    ClearMarked( const QVariant& id, const QVariant& name )
+	: Op3( id, name ) {}
     QString name() const { return "clearmarked"; }
     int exec( qdb::Environment* env )
     {
