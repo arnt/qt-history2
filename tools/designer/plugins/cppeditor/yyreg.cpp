@@ -20,8 +20,8 @@
 enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_Equal, Tok_LeftBrace, Tok_RightBrace, Tok_Semicolon, Tok_Colon,
        Tok_LeftAngle, Tok_RightAngle, Tok_Comma, Tok_Ellipsis, Tok_Gulbrandsen,
-       Tok_LeftBracket, Tok_RightBracket, Tok_Tilde, Tok_SomeOperator,
-       Tok_Number, Tok_String, Tok_Comment, Tok_Ident,
+       Tok_LeftBracket, Tok_RightBracket, Tok_Tilde, Tok_Something, Tok_Comment,
+       Tok_Ident,
 
        Tok_char, Tok_const, Tok_double, Tok_int, Tok_long, Tok_operator,
        Tok_short, Tok_signed, Tok_unsigned };
@@ -129,7 +129,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '=' )
 		    readChar();
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case '"':
 		readChar();
 
@@ -139,7 +139,7 @@ static int getToken()
 		    readChar();
 		}
 		readChar();
-		return Tok_String;
+		return Tok_Something;
 		break;
 	    case '#':
 		while ( yyCh != EOF && yyCh != '\n' ) {
@@ -152,7 +152,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '&' || yyCh == '=' ) {
 		    readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else {
 		    return Tok_Ampersand;
 		}
@@ -165,7 +165,7 @@ static int getToken()
 		} while ( yyCh != EOF && yyCh != '\'' );
 
 		readChar();
-		return Tok_Number;
+		return Tok_Something;
 	    case '(':
 		readChar();
 		return Tok_LeftParen;
@@ -176,7 +176,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '=' ) {
 		    readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else {
 		    return Tok_Aster;
 		}
@@ -184,7 +184,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '+' || yyCh == '=' )
 		    readChar();
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case ',':
 		readChar();
 		return Tok_Comma;
@@ -197,7 +197,7 @@ static int getToken()
 		    if ( yyCh == '*' )
 			readChar();
 		}
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case '.':
 		readChar();
 		if ( yyCh == '*' ) {
@@ -212,9 +212,8 @@ static int getToken()
 			readChar();
 		    } while ( isalnum(yyCh) || yyCh == '.' || yyCh == '+' ||
 			      yyCh == '-' );
-		    return Tok_Number;
 		}
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case '/':
 		readChar();
 		if ( yyCh == '/' ) {
@@ -243,7 +242,7 @@ static int getToken()
 		} else {
 		    if ( yyCh == '=' )
 			readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		}
 		break;
 	    case ':':
@@ -263,10 +262,10 @@ static int getToken()
 		    readChar();
 		    if ( yyCh == '=' )
 			readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else if ( yyCh == '=' ) {
 		    readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else {
 		    return Tok_LeftAngle;
 		}
@@ -274,7 +273,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '=' ) {
 		    readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else {
 		    return Tok_Equal;
 		}
@@ -284,16 +283,16 @@ static int getToken()
 		    readChar();
 		    if ( yyCh == '=' )
 			readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else if ( yyCh == '=' ) {
 		    readChar();
-		    return Tok_SomeOperator;
+		    return Tok_Something;
 		} else {
 		    return Tok_RightAngle;
 		}
 	    case '?':
 		readChar();
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case '[':
 		readChar();
 		return Tok_LeftBracket;
@@ -314,7 +313,7 @@ static int getToken()
 		readChar();
 		if ( yyCh == '|' || yyCh == '=' )
 		    readChar();
-		return Tok_SomeOperator;
+		return Tok_Something;
 	    case '~':
 		readChar();
 		return Tok_Tilde;
@@ -539,8 +538,10 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
 	yyTok = getToken();
 
     returnType = matchDataType( DontParseVarNames );
-    if ( returnType.isEmpty() )
+    if ( returnType.isEmpty() ) {
+	yyTok = getToken();
 	return func;
+    }
 
     if ( isCtorOrDtor(returnType) ) {
 	scopedName = returnType;
@@ -555,15 +556,28 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
 	    scopedName += yyLex;
 	    yyTok = getToken();
 
-	    bool isOperator = ( yyTok == Tok_operator );
+	    bool isOperator = FALSE;
+
+	    switch ( yyTok ) {
+	    case Tok_operator:
+		isOperator = TRUE;
+		break;
+	    case Tok_Ident:
+		break;
+	    default:
+		return func;
+	    }
+
 	    scopedName += yyLex;
 	    yyTok = getToken();
 
 	    if ( isOperator ) {
-		while ( yyTok != Tok_Eoi && yyTok != Tok_LeftParen ) {
+		do {
 		    scopedName += yyLex;
 		    yyTok = getToken();
-		}
+		} while ( yyTok != Tok_Eoi && yyTok != Tok_LeftParen &&
+			  yyTok != Tok_LeftBrace && yyTok != Tok_RightBrace &&
+			  yyTok != Tok_Semicolon );
 	    }
 	}
     } else {
@@ -651,10 +665,12 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	    pendingFunc = func;
 	}
 
+#if 0
 	while ( yyTok != Tok_Eoi && yyTok != Tok_RightBrace &&
 		yyTok != Tok_Semicolon )
 	    yyTok = getToken();
 	yyTok = getToken();
+#endif
     }
     if ( startBody != -1 ) {
 	setBody( &pendingFunc, yyIn.mid(startBody) );
@@ -692,6 +708,7 @@ QString canonicalCppProto( const QString& proto )
 #include <errno.h>
 #include <stdlib.h>
 
+#if 0
 int main( int argc, char **argv )
 {
     const char * const tab[] = {
@@ -730,3 +747,4 @@ int main( int argc, char **argv )
     }
     return EXIT_SUCCESS;
 }
+#endif
