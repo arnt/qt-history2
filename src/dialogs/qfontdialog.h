@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#13 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#14 $
 **
 ** Definition of QFontDialog
 **
@@ -26,6 +26,7 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
+#include "qwindowdefs.h"
 #ifndef _WS_WIN_
 
 //

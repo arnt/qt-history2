@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#31 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#32 $
 **
 ** Implementation of QFontDialog
 **
@@ -22,7 +22,7 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-
+#include "qwindowdefs.h"
 #ifndef _WS_WIN_
 
 #include "qfontdialog.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#4 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#5 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -26,6 +26,7 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
+#include "qwindowdefs.h"
 #ifndef _WS_WIN_
 
 //
