@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#39 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -17,6 +17,7 @@
 #include "qpainter.h"
 #include "qcache.h"
 #include "qdict.h"
+#include <limits.h>
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -28,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#39 $");
 
 
 static HANDLE stock_sysfont = 0;
