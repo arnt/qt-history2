@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qfontcodecs_p.h"
+#include "../kernel/qcomplextext_p.h"
 
 #ifndef QT_NO_CODECS
 
@@ -460,9 +461,9 @@ QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len 
 
 ushort QFontArabic68Codec::characterFromUnicode( const QString &str, int pos ) const
 {
-    const QChar *ch = str.unicode() + pos;
-    uchar r = ch->row();
-    uchar c = ch->cell();
+    const QChar ch = QComplexText::shapedCharacter(str, pos);
+    uchar r = ch.row();
+    uchar c = ch.cell();
     ushort data;
     if ( r == 0 && c < 0x80 ) {
 	data = c;
