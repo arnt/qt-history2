@@ -655,6 +655,10 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
 	oldFocus->setFocus();
+
+    if ( dockWindow->place() == QDockWindow::OutsideDock )
+	dockWindow->raise();
+
     if(dockWindow->opaqueMoving())
 	releaseMouse();
     if ( !mousePressed )
