@@ -225,8 +225,6 @@ bool QSvgDevice::play( QPainter *painter )
 	    painter->scale( width/w, height/h );
 	}
     }
-    if ( attr.contains( "transform" ) )
-	setTransform( attr.namedItem( "transform" ).nodeValue() );
 
     const struct ElementTable {
 	const char *name;
@@ -689,10 +687,13 @@ bool QSvgDevice::play( const QDomNode &node )
 {
     saveAttributes();
 
+	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
+
 	QDomNamedNodeMap attr = node.attributes();
 	if ( attr.contains( "style" ) )
 	    setStyle( attr.namedItem( "style" ).nodeValue() );
-	if ( attr.contains( "transform" ) )
+	// ### might have to exclude more elements from transform
+	if ( t != SvgElement && attr.contains( "transform" ) )
 	    setTransform( attr.namedItem( "transform" ).nodeValue() );
 	uint i = attr.length();
 	if ( i > 0 ) {
@@ -709,7 +710,6 @@ bool QSvgDevice::play( const QDomNode &node )
 	}
 
 	int x1, y1, x2, y2, rx, ry, w, h;
-	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
 	switch ( t ) {
 	case CommentElement:
 	    // ignore
@@ -1233,6 +1233,10 @@ void QSvgDevice::drawPath( const QString &data )
 	    }
 	    // calculate points on curve
 	    bezier = quad.cubicBezier();
+	    // reserve more space if needed
+	    if ( bezier.size() > path.size() - pcount )
+		path.resize( path.size() - pcount + bezier.size() );
+	    // copy
 	    for ( int k = 0; k < (int)bezier.size(); k ++ )
 		path.setPoint( pcount++, bezier[ k ] );
 	    break;
@@ -1245,6 +1249,9 @@ void QSvgDevice::drawPath( const QString &data )
 	    break;
 	};
 	lastMode = mode;
+	// array almost full ? expand for next loop
+	if ( pcount >= path.size() - 4 )
+	    path.resize( 2 * path.size() );
     }
 
     subIndex.append( pcount );			// dummy marking the end
