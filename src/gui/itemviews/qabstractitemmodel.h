@@ -60,6 +60,7 @@ public:
     QPersistentModelIndex(const QPersistentModelIndex &other);
     ~QPersistentModelIndex();
     bool operator<(const QPersistentModelIndex &other) const;
+    bool operator==(const QPersistentModelIndex &other) const;
     void operator=(const QPersistentModelIndex &other);
     operator const QModelIndex&() const;
     int row() const;
@@ -71,7 +72,12 @@ public:
     bool operator!=(const QModelIndex &other) const;
 private:
     QPersistentModelIndexData *d;
+    friend QDebug operator<<(QDebug, const QPersistentModelIndex &);
 };
+
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
+#endif
 
 template<typename T>
 class QList;

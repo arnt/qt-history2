@@ -26,6 +26,7 @@
 #include <qwhatsthis.h>
 #include <qtooltip.h>
 #include <qrubberband.h>
+#include <qdebug.h>
 
 #include <private/qabstractitemview_p.h>
 #define d d_func()
@@ -1106,16 +1107,15 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
         return;
     }
 
-    QPointer<QWidget> editor = d->editor(index);
+    QPersistentModelIndex persistent(index, model());
+    QPointer<QWidget> editor = d->editors.value(persistent);
     if (editor) {
         itemDelegate()->releaseEditor(accept
                                       ? QAbstractItemDelegate::Accepted
                                       : QAbstractItemDelegate::Cancelled,
                                       editor, d->model, index);
-        if (!editor) {
-            QPersistentModelIndex persistent(index, model());
+        if (!editor)
             d->editors.remove(persistent);
-        }
     }
     setFocus();
 }
@@ -1423,9 +1423,10 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
-    QPersistentModelIndex persistent(old, model());
+    QModelIndex buddy = model()->buddy(old);
+    QPersistentModelIndex persistent(buddy.isValid() ? buddy : old, model());
     if (d->editors.contains(persistent))
-        endEdit(old, true);
+        endEdit(persistent, true);
 
     if (old.isValid()) {
         int behavior = selectionBehavior();
@@ -1732,7 +1733,9 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
 {
     if (delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return 0;
-    QWidget *editor = this->editor(index);
+
+    QPersistentModelIndex persistent = QPersistentModelIndex(index, model);
+    QPointer<QWidget> editor = editors.value(persistent);
 
     if (!editor) {
         QStyleOptionViewItem option = q->viewOptions();
@@ -1751,8 +1754,7 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
             QApplication::sendEvent(editor, event);
 
         // insert
-        QPersistentModelIndex idx = QPersistentModelIndex(index, model);
-        d->editors.insert(idx, QPointer<QWidget>(editor));
+        d->editors.insert(persistent, editor);
     }
     return editor;
 }
@@ -1760,10 +1762,11 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
 QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index) const
 {
     QPersistentModelIndex persistent(index, model);
-    QMap<QPersistentModelIndex, QPointer<QWidget> >::ConstIterator it = editors.find(persistent);
-    if (it != editors.end())
-        return *it;
-    return 0;
+//     QMap<QPersistentModelIndex, QPointer<QWidget> >::ConstIterator it = editors.find(persistent);
+//     if (it != editors.end())
+//         return *it;
+//     return 0;
+    
 }
 
 void QAbstractItemViewPrivate::setEditor(QWidget *editor, const QModelIndex &index)

@@ -229,6 +229,18 @@ QPersistentModelIndex::~QPersistentModelIndex()
 }
 
 /*!
+  \fn bool QPersistentModelIndex::operator(const QPersistentModelIndex &other) const
+
+  Returns true if this persistent model index is equal to the \a other
+  persistent model index, otherwist returns false.
+*/
+
+bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
+{
+    return d->index == other.d->index;
+}
+
+/*!
   \fn bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
   Returns true if this persistent model index is smaller than the \a other
@@ -350,6 +362,40 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 {
     return d->index != other;
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QModelIndex &idx)
+{
+#ifndef Q_NO_STREAMING_DEBUG
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ",";
+    switch (idx.type()) {
+    case QModelIndex::Null:
+        dbg.nospace() << "Null";
+        break;
+    case QModelIndex::View:
+        dbg.nospace() << "View";
+        break;
+    case QModelIndex::HorizontalHeader:
+        dbg.nospace() << "HorizontalHeader";
+        break;
+    case QModelIndex::VerticalHeader:
+        dbg.nospace() << "VerticalHeader";
+        break;
+    }
+    dbg.nospace() << ")";
+    return dbg.space();
+#else
+    qWarning("This compiler doesn't support the streaming of QDebug");
+    return dbg;
+    Q_UNUSED(idx);
+#endif
+}
+
+QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
+{
+    dbg << idx.d->index;
+}
+#endif
 
 /*!
     \class QModelIndex qabstractitemmodel.h
@@ -1100,35 +1146,6 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 {
     d->persistentIndexes[position]->index = index;
 }
-
-#ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug dbg, const QModelIndex &idx)
-{
-#ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ",";
-    switch (idx.type()) {
-    case QModelIndex::Null:
-        dbg.nospace() << "Null";
-        break;
-    case QModelIndex::View:
-        dbg.nospace() << "View";
-        break;
-    case QModelIndex::HorizontalHeader:
-        dbg.nospace() << "HorizontalHeader";
-        break;
-    case QModelIndex::VerticalHeader:
-        dbg.nospace() << "VerticalHeader";
-        break;
-    }
-    dbg.nospace() << ")";
-    return dbg.space();
-#else
-    qWarning("This compiler doesn't support the streaming of QDebug");
-    return dbg;
-    Q_UNUSED(idx);
-#endif
-}
-#endif
 
 /*!
     \class QAbstractTableModel
