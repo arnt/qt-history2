@@ -27,6 +27,8 @@
 
 #include "qaxscript.h"
 
+#ifndef QT_NO_QAXSCRIPT
+
 #include <qapplication.h>
 #include <qdict.h>
 #include <qfile.h>
@@ -35,17 +37,8 @@
 #include <qwidget.h>
 
 #include <qt_windows.h>
-#if !defined(Q_CC_BOR) && !defined(Q_CC_GNU)
 #include <initguid.h>
 #include <activscp.h>
-#else
-# if __BORLANC__ >= 0x560 // bcc 5.6 required
-#include <initguid.h>
-#include <activscp.h>
-# endif
-#endif
-
-#ifdef __activscp_h__
 
 #include "..\shared\types.h"
 
@@ -1243,4 +1236,4 @@ void QAxScriptManager::scriptError(int code, const QString &desc, int spos, cons
     emit error(source, code, desc, spos, stext);
 }
 
-#endif //__activscp_h__
+#endif //QT_NO_QAXSCRIPT
