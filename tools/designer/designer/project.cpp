@@ -643,7 +643,7 @@ void Project::save()
 	
 	for ( QMap<QString, QStringList>::Iterator skit = soureToKey.begin();
 	      skit != soureToKey.end(); ++skit ) {
-	    QString part = skit.key() + "\t= ";
+	    QString part = skit.key() + "\t+= ";
 	    QStringList lst = *skit;
 	    for ( QStringList::Iterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 		part += *sit;
