@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#5 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -180,7 +180,7 @@ void QTextImage::draw(QPainter* p, int x, int y,
 QTextHorizontalLine::QTextHorizontalLine(const QDict<QString>&, QMLProvider&)
 {
     height = 8;
-    width = 4000;
+    width = 200;
 }
 
 
@@ -245,6 +245,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     if ( first->isBox ) {
 	QTextBox* b = (QTextBox*)first;
 	b->setWidth(p, width );
+	width = QMAX( b->realWidth, width );
 	height = b->height;
 	base = height;
 	last = first;
@@ -283,7 +284,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    a = h;
 	    d = 0;
 	}
-	if (tx > width && *it != first && !it->isSpace() )
+	if (tx > width - fm.width(' ') && *it != first && !it->isSpace() )
 	    break;
 
 	rh = QMAX( rh, h );
@@ -329,6 +330,12 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	fill = 0;
 
     it = lastSpace;
+    
+    if ( lastWidth > width ) {
+	width = lastWidth;
+	fill = 0;
+    }
+	
     ++it;
 
 }
@@ -406,7 +413,10 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
     bool inFirst = TRUE;
 
-    int tx = x + fill;
+    int tx = x;
+
+    if ( fill > 0 )
+	tx += fill;
 
     static QString s;
 
@@ -577,7 +587,7 @@ QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 
 }
 
-bool QTextRow::locate(QTextContainer* box, QPainter* p, QTextNode* node, int &lx, int &ly, int &lh)
+bool QTextRow::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh)
 {
     if (first->isBox) { // a box row
 	if (node == first) {
@@ -594,7 +604,7 @@ bool QTextRow::locate(QTextContainer* box, QPainter* p, QTextNode* node, int &lx
 	;
     if ( *it != node )
 	return FALSE; // nothing found
-    
+
     lx = x + fill;
     QFontMetrics fm = p->fontMetrics();
     for ( it = begin(); *it != node; ++it ) {
@@ -876,7 +886,7 @@ QTextBox::QTextBox( const QStyleSheetItem *stl)
     rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
-    width = height = 0;
+    width = height = realWidth = 0;
 }
 
 QTextBox::QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr )
@@ -885,7 +895,7 @@ QTextBox::QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr )
     rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
-    width = height = 0;
+    width = height = realWidth = 0;
 }
 
 QTextContainer* QTextBox::copy() const
@@ -1010,6 +1020,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     rows.setAutoDelete( TRUE );
 
     width = newWidth;
+    realWidth = 0;
     height = 0;
 
     int label_offset = 0;
@@ -1042,10 +1053,18 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 	    row->x = marginleft + label_offset;
 	    row->y = h;
 	    h += row->height;
+	    realWidth = QMAX( realWidth , row->width + marginhorizontal + label_offset);
 	}
     }
 
     height = h;
+
+    // adapt colwidth in case some rows didn't fit
+    colwidth = QMAX( width, ncols * realWidth) / ncols;
+    if (colwidth < 10)
+	colwidth = 10;
+
+    realWidth = ncols * colwidth;
 
     if (!oldRows.isEmpty() || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
@@ -1146,7 +1165,7 @@ QTextRow* QTextBox::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &
 	
     QTextRow* row;
     for ( row = rows.first(); row; row = rows.next()) {
-	if (row->locate(this, p, node, lx, ly, lh) ) {
+	if (row->locate(p, node, lx, ly, lh) ) {
 	    lry = row->y;
 	    lrh = row->height;
 	    break;

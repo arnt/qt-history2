@@ -102,13 +102,13 @@ public:
     QTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
-    bool locate(QTextContainer* box, QPainter* p, QTextNode* node, int &lx, int &ly, int &lh);
+    bool locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh);
 
     bool dirty;
 
     QTextIterator begin() const;
     QTextIterator end() const;
-    
+
     QTextNode* first;
     QTextNode* last;
     QTextContainer* parent;
@@ -472,6 +472,7 @@ public:
     QList<QTextRow> rows;
 
     int width;
+    int realWidth;
     int height;
 
     //    QTextNode* locate(int x, int y);
