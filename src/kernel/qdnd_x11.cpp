@@ -23,6 +23,7 @@
 #include "qguardedptr.h"
 #include "qdragobject.h"
 #include "qcursor.h"
+#include "qwidget_p.h"
 
 #include "qt_x11_p.h"
 
