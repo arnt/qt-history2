@@ -214,6 +214,7 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
     }
 
     lst.prepend( "<No Sender>" );
+    lst.sort();
     setStringList( lst );
 }
 
@@ -285,6 +286,7 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
     }
 
     lst.prepend( "<No Receiver>" );
+    lst.sort();
     setStringList( lst );
 }
 
@@ -322,6 +324,7 @@ SignalItem::SignalItem( QTable *table, FormWindow *fw )
 {
     QStringList lst;
     lst << "<No Signal>";
+    lst.sort();
     setStringList( lst );
 }
 
@@ -350,6 +353,7 @@ void SignalItem::senderChanged( QObject *sender )
 
     lst.prepend( "<No Signal>" );
 
+    lst.sort();
     setStringList( lst );
 
     ConnectionItem::senderChanged( sender );
@@ -371,6 +375,7 @@ SlotItem::SlotItem( QTable *table, FormWindow *fw )
 {
     QStringList lst;
     lst << "<No Slot>";
+    lst.sort();
     setStringList( lst );
 
     lastReceiver = 0;
@@ -420,6 +425,7 @@ void SlotItem::updateSlotList()
     QStringList lst;
     if ( !lastReceiver || lastSignal == "<No Signal>" ) {
 	lst << "<No Slot>";
+	lst.sort();
 	setStringList( lst );
 	return;
     }
@@ -478,6 +484,7 @@ void SlotItem::updateSlotList()
     }
 
     lst.prepend( "<No Slot>" );
+    lst.sort();
     setStringList( lst );
 }
 
