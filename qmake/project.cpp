@@ -55,7 +55,6 @@ bool
 QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
-
     s.replace(QRegExp("#.*$"), ""); /* bye comments */
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
@@ -186,6 +185,9 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	}
     }
     vallist += QStringList::split(' ', vals);
+    if(!vallist.grep("=").isEmpty())
+	debug_msg(1, "****Warning*****: Detected possible line continuation: {%s} %s:%d",
+		  var.latin1(), file.latin1(), line_count);
 
     QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
     debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", file.latin1(), line_count,
@@ -223,8 +225,12 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    }
 	}
     } else {
-	if(op == "=")
+	if(op == "=") {
+	    if(!varlist.isEmpty()) 
+		debug_msg(1, "****Warning*****: Operator=(%s) clears variables previously set: %s:%d", 
+			  var.latin1(), file.latin1(), line_count);
 	    varlist.clear();
+	}
 	for(QStringList::Iterator valit = vallist.begin(); 
 	    valit != vallist.end(); ++valit) {
 	    if((*valit).isEmpty())
