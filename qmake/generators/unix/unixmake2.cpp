@@ -595,8 +595,21 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     fileFixify(ddir_c);
     t << "dist: " << "\n\t"
       << "@mkdir -p " << ddir_c << " && "
-      << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && "
-      << "( cd `dirname " << ddir_c << "` && "
+      << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && ";
+    if(!project->isEmpty("TRANSLATIONS"))
+	t << "$(COPY_FILE) --parents " << var("TRANSLATIONS") << " " << ddir_c << Option::dir_sep << " && ";
+    if(!project->isEmpty("FORMS")) {
+	QStringList &forms = project->variables()["FORMS"], ui_headers;
+	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
+	    QString ui_h = (*formit) + Option::h_ext.first();
+	    fileFixify(ui_h);
+	    if(QFile::exists(ui_h) ) 
+	       ui_headers << ui_h;
+	}
+	if(!ui_headers.isEmpty())
+	    t << "$(COPY_FILE) --parents " << val(ui_headers) << " " << ddir_c << Option::dir_sep << " && ";
+    }
+    t << "( cd `dirname " << ddir_c << "` && "
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
       << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar ) && "
       << "mv `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
