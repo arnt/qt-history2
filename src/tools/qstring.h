@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#1 $
+** $Id: //depot/qt/main/src/tools/qstring.h#2 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -42,9 +42,6 @@ extern "C" int strncasecmp( const char *, const char *, uint );
 #elif defined(_CC_MSC_)
 #define stricmp	 _stricmp
 #define strnicmp _strnicmp
-
-#elif defined(_CC_BOR_)
-#pragma warn -dup
 #endif
 
 
@@ -158,9 +155,9 @@ public:
 //		operator char *() const	      { return data(); }
 		operator const char *() const { return (pcchar)data(); }
     bool	operator !() const	      { return isNull(); }
-    QString&	operator+=( const QString &s ); // append s to this string
-    QString&	operator+=( const char *str );	// append str to this string
-    QString&	operator+=( char c );		// append c to this string
+    QString    &operator+=( const QString &s ); // append s to this string
+    QString    &operator+=( const char *str );	// append str to this string
+    QString    &operator+=( char c );		// append c to this string
 };
 
 
@@ -226,25 +223,23 @@ inline bool operator>=( const char* s1, const QString &s2 )
 inline QString operator+( const QString &s1, const QString &s2 )
 {
     QString tmp( s1.data() );
-    return tmp += s2;
+    tmp += s2;
+    return tmp;
 }
 
 inline QString operator+( const QString &s1, const char *s2 )
 {
     QString tmp( s1.data() );
-    return tmp += s2;
+    tmp += s2;
+    return tmp;
 }
 
 inline QString operator+( const char *s1, const QString &s2 )
 {
     QString tmp( s1 );
-    return tmp += s2;
+    tmp += s2;
+    return tmp;
 }
-
-
-#if defined(_CC_BOR_)
-#pragma warn .dup
-#endif
 
 
 #endif // QSTRING_H
