@@ -182,11 +182,6 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		    for(int i = 1; i < subLevels; i++ ) 
 			t << Option::dir_sep << "..";
 		}
-		
-		t << "$(MAKE) " << targs[x] << "\n\t"
-		    << "@cd ..";
-		for(int i = 1; i < subLevels; i++ )
-		    t << Option::dir_sep << "..";
 	    }
 	} else {
 	    // Borland make does not like empty an empty command section, so
