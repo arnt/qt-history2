@@ -108,11 +108,11 @@ public:
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
 
-enum Member { SignalMember, 
-	      SlotMember, 
-	      PropertyMember, 
-	      SignalPropertyMember, 
-	      SlotPropertyMember 
+enum Member { SignalMember,
+	      SlotMember,
+	      PropertyMember,
+	      SignalPropertyMember,
+	      SlotPropertyMember
 	    };
 
 void	 addMember( Member );			// add tmpFunc to current class
@@ -682,7 +682,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 				}
 			  opt_property	{ BEGIN IN_CLASS; }
 			| ENUM_IN_CLASS { BEGIN QT_DEF; }
-			  enum_tail ';' { BEGIN IN_CLASS;}
+			  enum_in_class_tail ';' { BEGIN IN_CLASS;}
 			| class_key_in_class { BEGIN QT_DEF; }
 			  IDENTIFIER { BEGIN IN_EAT; eatLevel=0;}
 			  ';' { BEGIN IN_CLASS; }
@@ -938,6 +938,10 @@ enum_tail:		  IDENTIFIER '{'   enum_list
 				}
 			| '{'   { BEGIN IN_FCT; fctLevel=1; }
 			  '}'   { BEGIN QT_DEF; }
+			;
+
+enum_in_class_tail:	  IDENTIFIER IDENTIFIER
+			| enum_tail
 			;
 
 enum_list:		  /* empty */
@@ -2236,7 +2240,7 @@ void addMember( Member m )
 		  tmpFunc->name.data() );
 	m = SignalMember;
     }
-    
+
     if ( m == SignalMember && tmpFunc->type != "void" ) {
 	moc_err( "Signals must have \"void\" as their return type" );
 	goto Failed;
