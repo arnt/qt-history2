@@ -2578,7 +2578,7 @@ int QFontMetrics::lineSpacing() const
   the characters.  Notice that the bearings of "f" in this particular
   font are both negative, while the bearings of "o" are both positive.
 
-  Warning: This function will produce incorrect results for arabic characters
+  \warning This function will produce incorrect results for arabic characters
   or non spacing marks in the middle of a string , as
   the glyph shaping  and positioning of marks  that happens when processing
   strings can not be taken into account.

@@ -927,18 +927,9 @@ QFont::CharSet QFont::charSet() const
 
 
 /*! \obsolete
-  Sets the character set encoding (e.g. \c Latin1).
+  Used to set the character set encoding (e.g. \c Latin1).
 
-  If the character set encoding is not available another will be used
-  for drawing.  For most non-trivial applications you will probably
-  not want this to happen since it can totally obscure the text shown
-  to the user.  This is why the font matching algorithm gives high
-  priority to finding the correct character set.
-
-  You can test that the character set is correct using the QFontInfo
-  class.
-
-  \sa charSet(), QFontInfo
+  Does nothing anymore in Qt-3, as Qt-3 is completely based on Unicode
 */
 void QFont::setCharSet( CharSet charset )
 {
@@ -948,10 +939,6 @@ void QFont::setCharSet( CharSet charset )
 
 /*! \obsolete
   For Qt 3.0 and higher, this method always returns Unicode.
-
-  Returns a guess at the character set most likely to be
-  appropriate for the locale the application is running in.  This is
-  the character sets fonts will use by default.
 */
 QFont::CharSet QFont::charSetForLocale()
 {
@@ -1078,7 +1065,7 @@ QString QFont::encodingName( CharSet cs )
 }
 
 
-/*!
+/*! \obsolete
   Returns the QApplication default font.
 
   This function will be removed in a future version of Qt. Please use
@@ -1611,14 +1598,6 @@ QFontMetrics::QFontMetrics( const QFont &font )
 
     d->load();
 
-    /*
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
-
     painter = 0;
     flags = 0;
 
@@ -1648,15 +1627,6 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d->ref();
 
     d->load();
-
-    /*
-
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
 
     flags = 0;
 
@@ -1956,14 +1926,6 @@ QFontInfo::QFontInfo( const QFont &font )
 
     d->load();
 
-    /*
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
-
     painter = 0;
     flags = 0;
 
@@ -2156,7 +2118,6 @@ QFont::StyleHint QFontInfo::styleHint() const
 */
 QFont::CharSet QFontInfo::charSet() const
 {
-    qObsolete( "QFontInfo", "charSet" );
     return d->charsetcompat;
 }
 
