@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#13 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#13 $";
 #endif
 
 
@@ -401,6 +401,55 @@ int qXEnterModal( QWidget *widget )
     }
     modalWidgets->push( widget );
     return qApp->exec( 0 );
+}
+
+
+// --------------------------------------------------------------------------
+// Popup widget mechanism
+//
+// qXOpenPopup()
+//	Adds a widget to the list of popup widgets
+//	Arguments:
+//	    QWidget *widget	The popup widget to be added
+//
+// qXClosePopup()
+//	Removes a widget from the list of popup widgets
+//	Arguments:
+//	    QWidget *widget	The popup widget to be removed
+//
+
+declare(QListM,QWidget) *popupWidgets = 0;	// list of popup widgets
+bool popupCloseDownMode = FALSE;
+
+void qXOpenPopup( QWidget *popup )		// add popup widget
+{
+    if ( !popupWidgets ) {			// create list
+	popupWidgets = new QListM(QWidget);
+	CHECK_PTR( popupWidgets );
+    }
+    popupWidgets->append( popup );		// add to end of list
+    if ( popupWidgets->count() == 1 ) {		// grab mouse
+	XGrabPointer( popup->display(), popup->id(), TRUE,
+		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
+		      EnterWindowMask | LeaveWindowMask,
+		      GrabModeSync, GrabModeAsync,
+		      None, None, CurrentTime );
+	XAllowEvents( popup->display(), SyncPointer, CurrentTime );
+    }
+}
+
+void qXClosePopup( QWidget *popup )		// remove popup widget
+{
+    if ( !popupWidgets )
+	return;
+    if ( popupWidgets->findRef(popup) != -1 )
+	popupWidgets->remove();
+    if ( popupWidgets->count() == 0 ) {		// this was the last popup
+	popupCloseDownMode = TRUE;		// control mouse events
+	delete popupWidgets;
+	popupWidgets = 0;
+	XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
+    }
 }
 
 
@@ -794,8 +843,35 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		buttonDown = FALSE;
 	}
     }
-    QMouseEvent evt( type, pos, button, state );
-    return SEND_EVENT( this, &evt );
+    bool result;
+    if ( popupWidgets ) {			// oops, in popup mode
+	QWidget *popup = popupWidgets->last();
+	if ( popup != this ) {
+	    if ( !testFlag(WType_Popup) ) {
+		Window child;
+		int x, y;
+		XTranslateCoordinates( display(), id(), popup->id(),
+				       pos.x(), pos.y(), &x, &y, &child );
+		pos = QPoint( x, y );
+	    }
+	    else
+		popup = this;
+	}
+	QMouseEvent evt( type, pos, button, state );
+	result = SEND_EVENT( popup, &evt );
+	if ( popupWidgets )			// still in popup mode
+	    XAllowEvents( appDpy, SyncPointer, CurrentTime );
+    }
+    else {
+	QMouseEvent evt( type, pos, button, state );
+	if ( popupCloseDownMode ) {
+	    popupCloseDownMode = FALSE;
+	    if ( testFlag(WType_Popup) )	// ignore replayed event
+		return TRUE;
+	}
+	result = SEND_EVENT( this, &evt );
+    }
+    return result;
 }
 
 

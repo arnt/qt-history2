@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#11 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#11 $";
 #endif
 
 
@@ -54,6 +54,7 @@ bool QWidget::create()				// create widget
     int	   screen = qXScreen();			// X11 screen
     QSize  dsz = QWinInfo::displaySize();	// size of display
     bool   overlap = testFlag( WType_Overlap );
+    bool   popup = testFlag( WType_Popup );
     Window parentwin;
     int	   border;
     WId	   id;
@@ -63,7 +64,7 @@ bool QWidget::create()				// create widget
 		    dsz.width()/2, 2*dsz.height()/5 );
     rect = ncrect;				// default client rect
 
-    if ( overlap ) {				// overlapping widget
+    if ( overlap || popup ) {			// overlapping widget
 	parentwin = RootWindow(dpy,screen);
 	border = 0;
     }
@@ -84,19 +85,26 @@ bool QWidget::create()				// create widget
     set_id( id );				// set widget id/handle + hd
     setDevType( PDT_WIDGET );
 
-    XSizeHints size_hints;
-    if ( overlap ) {				// only top level widgets
+    if ( popup ) {				// popup widget
+	XSetTransientForHint( dpy, parentwin, id );
+	XSetWindowAttributes v;
+	v.override_redirect = TRUE;
+	v.save_under = TRUE;
+	XChangeWindowAttributes( dpy, id,
+				 CWOverrideRedirect | CWSaveUnder,
+				 &v );
+    }
+    else if ( overlap ) {			// only top level widgets
+	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
 	size_hints.x = rect.left();
 	size_hints.y = rect.top();
 	size_hints.width = rect.width();
 	size_hints.height = rect.height();
 	size_hints.win_gravity = 1;		// NortWest
-    }
-    char *title = qAppName();
-    XSetStandardProperties( dpy, id, title, title, 0, 0, 0,
-			    overlap ? &size_hints : 0 );
-    if ( overlap ) {				// only top level widgets
+	char *title = qAppName();
+	XSetStandardProperties( dpy, id, title, title, 0, 0, 0,
+				overlap ? &size_hints : 0 );
 	XWMHints wm_hints;			// window manager hints
 	wm_hints.input = True;
 	wm_hints.initial_state = NormalState;
@@ -106,7 +114,7 @@ bool QWidget::create()				// create widget
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
-    setMouseMoveEvents( FALSE );
+    setMouseMoveEvents( FALSE );		// only when button is down
     gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
 		    fg_col.pixel() );
     setCursor( arrowCursor );			// default cursor
@@ -211,7 +219,7 @@ void QWidget::grabKeyboard()
 {
     if ( !testFlag(WState_KGrab) ) {
 	setFlag( WState_KGrab );
-	XGrabKeyboard( dpy, ident, TRUE, GrabModeAsync, GrabModeAsync,
+	XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
 		       CurrentTime );
     }
 }
@@ -229,7 +237,9 @@ void QWidget::grabMouse( bool exclusive )
 {
     if ( !testFlag(WState_MGrab) ) {
 	setFlag( WState_MGrab );
-	XGrabPointer( dpy, ident, TRUE, 0,
+	XGrabPointer( dpy, ident, TRUE,
+		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
+		      EnterWindowMask | LeaveWindowMask,
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, CurrentTime );
     }
@@ -282,6 +292,9 @@ void QWidget::update( int x, int y, int w, int h )
 }
 
 
+void qXOpenPopup( QWidget * );			// def in qapp_x11.cpp
+void qXClosePopup( QWidget * );			// def in qapp_x11.cpp
+
 void QWidget::show()				// show widget
 {
     if ( testFlag( WState_Visible ) )
@@ -289,21 +302,29 @@ void QWidget::show()				// show widget
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
+	QWidget *widget;
 	while ( it ) {				// show all widget children
-	    object = it.current();
-	    if ( object->isWidgetType() )
-		((QWidget*)object)->show();
+	    object = it.current();		//   (except popups)
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->testFlag(WType_Popup) )
+		    widget->show();
+	    }
 	    ++it;
 	}
     }
     XMapWindow( dpy, ident );
     setFlag( WState_Visible );
+    if ( testFlag(WType_Popup) )
+	qXOpenPopup( this );
 }
 
 void QWidget::hide()				// hide widget
 {
     if ( !testFlag( WState_Visible ) )
 	return;
+    if ( testFlag(WType_Popup) )
+	qXClosePopup( this );
     XUnmapWindow( dpy, ident );
     clearFlag( WState_Visible );
 }
