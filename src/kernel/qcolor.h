@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#81 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#82 $
 **
 ** Definition of QColor class
 **
@@ -156,7 +156,7 @@ private:
 	} d8;
 	struct D32 {
 	    QRgb argb;
-	    ulong pix;
+	    uint pix;
 	    bool invalid() const { return argb == QColor::Invalid && pix == QColor::Dirt; }
 	    bool probablyDirty() const { return pix == QColor::Dirt; }
 	} d32;
