@@ -104,7 +104,7 @@ QLock *QWSDisplay::lock = 0;
 //environment variables in
 
 bool qws_smoothfonts = TRUE;
-bool qws_savefonts = TRUE;
+bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
 
@@ -971,6 +971,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	    flags &= ~QWSServer::DisableMouse;
 	} else if ( arg == "-nomouse" ) {
 	    flags |= QWSServer::DisableMouse;
+	} else if ( arg == "-qws" ) {
+	    type = QApplication::GuiServer;
 	} else {
 	    argv[j++] = argv[i];
 	}
