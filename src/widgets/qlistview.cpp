@@ -3828,7 +3828,9 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	if ( d->pressedColumn == 0 )
 	    r.setLeft( r.left() + itemMargin() + ( currentItem()->depth() +
 						   ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() - 1 );
-	if ( r.contains( e->pos() ) )
+	if ( r.contains( e->pos() ) &&
+	     !( ( e->state() & ShiftButton ) == ShiftButton ) &&
+	     !( ( e->state() & ControlButton ) == ControlButton ) )
 	    d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     }
     QListViewItem *oldCurrent = currentItem();
