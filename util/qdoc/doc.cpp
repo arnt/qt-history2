@@ -696,10 +696,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		} else {
 		    consume( "overload" );
 		    overloads = TRUE;
-		    yyOut += QString( "This is an overloaded member function,"
-				      " provided for convenience.  It differs"
-				      " from the above function only in what"
-				      " arguments it accepts.\n" );
+		    yyOut += QString( "This is an overloaded member function, "
+				      "provided for convenience.  It behaves "
+				      "essentially like the above function.\n");
 		    metNL = TRUE;
 
 		    // see also \fn
