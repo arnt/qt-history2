@@ -1778,7 +1778,7 @@ void QLineEdit::drawContents( QPainter *p )
     }
 
     // horizontal scrolling
-    int widthUsed = d->textLayout.widthUsed();
+    int widthUsed = d->textLayout.widthUsed() + 1; //+1 for cursor
     if ( widthUsed <=  lineRect.width() ) {
 	switch ( d->visualAlignment() ) {
 	case AlignRight:
