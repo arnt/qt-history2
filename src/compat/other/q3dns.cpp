@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QDns class.
+** Implementation of Q3Dns class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -35,7 +35,7 @@
 # undef socket
 #endif
 
-#include "qdns.h"
+#include "q3dns.h"
 
 #ifndef QT_NO_DNS
 
@@ -97,9 +97,9 @@ static int qdns_res_init()
 }
 
 
-class QDnsPrivate {
+class Q3DnsPrivate {
 public:
-    QDnsPrivate() : queryTimer(0), noNames(false)
+    Q3DnsPrivate() : queryTimer(0), noNames(false)
     {
 #if defined(Q_DNS_SYNCHRONOUS)
 #if defined(Q_OS_UNIX)
@@ -109,7 +109,7 @@ public:
 #endif
 #endif
     }
-    ~QDnsPrivate()
+    ~Q3DnsPrivate()
     {
         delete queryTimer;
     }
@@ -120,30 +120,30 @@ private:
     bool noEventLoop;
 #endif
 
-    friend class QDns;
-    friend class QDnsAnswer;
+    friend class Q3Dns;
+    friend class Q3DnsAnswer;
 };
 
 
-class QDnsRR;
-class QDnsDomain;
+class Q3DnsRR;
+class Q3DnsDomain;
 
 
 
-// QDnsRR is the class used to store a single RR.  QDnsRR can store
-// all of the supported RR types.  a QDnsRR is always cached.
+// Q3DnsRR is the class used to store a single RR.  Q3DnsRR can store
+// all of the supported RR types.  a Q3DnsRR is always cached.
 
-// QDnsRR is mostly constructed from the outside.  a but hacky, but
+// Q3DnsRR is mostly constructed from the outside.  a but hacky, but
 // permissible since the entire class is internal.
 
-class QDnsRR {
+class Q3DnsRR {
 public:
-    QDnsRR(const QString & label);
-    ~QDnsRR();
+    Q3DnsRR(const QString & label);
+    ~Q3DnsRR();
 
 public:
-    QDnsDomain * domain;
-    QDns::RecordType t;
+    Q3DnsDomain * domain;
+    Q3Dns::RecordType t;
     bool nxdomain;
     bool current;
     Q_UINT32 expireTime;
@@ -165,15 +165,15 @@ private:
 };
 
 
-class QDnsDomain {
+class Q3DnsDomain {
 public:
-    QDnsDomain(const QString & label);
-    ~QDnsDomain();
+    Q3DnsDomain(const QString & label);
+    ~Q3DnsDomain();
 
-    static void add(const QString & label, QDnsRR *);
-    static QList<QDnsRR *> *cached(const QDns *);
+    static void add(const QString & label, Q3DnsRR *);
+    static QList<Q3DnsRR *> *cached(const Q3Dns *);
 
-    void take(QDnsRR *);
+    void take(Q3DnsRR *);
 
     void sweep(Q_UINT32 thisSweep);
 
@@ -183,31 +183,31 @@ public:
 
 public:
     QString l;
-    QList<QDnsRR *> rrs;
+    QList<Q3DnsRR *> rrs;
 };
 
 
-class QDnsQuery: public QTimer { // this inheritance is a very evil hack
+class Q3DnsQuery: public QTimer { // this inheritance is a very evil hack
 public:
-    QDnsQuery()
-        : id(0), t(QDns::None), step(0), started(0) { }
+    Q3DnsQuery()
+        : id(0), t(Q3Dns::None), step(0), started(0) { }
     Q_UINT16 id;
-    QDns::RecordType t;
+    Q3Dns::RecordType t;
     QString l;
 
     uint step;
     Q_UINT32 started;
 
-    QHash<const QDns *, const QDns *> dns;
+    QHash<const Q3Dns *, const Q3Dns *> dns;
 };
 
 
 
-class QDnsAnswer {
+class Q3DnsAnswer {
 public:
-    QDnsAnswer(QDnsQuery *);
-    QDnsAnswer(const QByteArray &, QDnsQuery *);
-    ~QDnsAnswer();
+    Q3DnsAnswer(Q3DnsQuery *);
+    Q3DnsAnswer(const QByteArray &, Q3DnsQuery *);
+    ~Q3DnsAnswer();
 
     void parse();
     void notify();
@@ -215,19 +215,19 @@ public:
     bool ok;
 
 private:
-    QDnsQuery * query;
+    Q3DnsQuery * query;
 
     Q_UINT8 * answer;
     int size;
     int pp;
 
-    QList<QDnsRR *> rrs;
+    QList<Q3DnsRR *> rrs;
 
     // convenience
     int next;
     int ttl;
     QString label;
-    QDnsRR * rr;
+    Q3DnsRR * rr;
 
     QString readString();
     void parseA();
@@ -241,25 +241,25 @@ private:
 };
 
 
-QDnsRR::QDnsRR(const QString & label)
-    : domain(0), t(QDns::None),
+Q3DnsRR::Q3DnsRR(const QString & label)
+    : domain(0), t(Q3Dns::None),
       nxdomain(false), current(false),
       expireTime(0), deleteTime(0),
       priority(0), weight(0), port(0)
 {
-    QDnsDomain::add(label, this);
+    Q3DnsDomain::add(label, this);
 }
 
 
-// not supposed to be deleted except by QDnsDomain
-QDnsRR::~QDnsRR()
+// not supposed to be deleted except by Q3DnsDomain
+Q3DnsRR::~Q3DnsRR()
 {
     // nothing is necessary
 }
 
 
 // this one just sticks in a NXDomain
-QDnsAnswer::QDnsAnswer(QDnsQuery * query_)
+Q3DnsAnswer::Q3DnsAnswer(Q3DnsQuery * query_)
 {
     ok = true;
 
@@ -272,7 +272,7 @@ QDnsAnswer::QDnsAnswer(QDnsQuery * query_)
     label = QString::null;
     rr = 0;
 
-    QDnsRR * newrr = new QDnsRR(query->l);
+    Q3DnsRR * newrr = new Q3DnsRR(query->l);
     newrr->t = query->t;
     newrr->deleteTime = query->started + 10;
     newrr->expireTime = query->started + 10;
@@ -282,7 +282,7 @@ QDnsAnswer::QDnsAnswer(QDnsQuery * query_)
 }
 
 
-QDnsAnswer::QDnsAnswer(const QByteArray& answer_, QDnsQuery * query_)
+Q3DnsAnswer::Q3DnsAnswer(const QByteArray& answer_, Q3DnsQuery * query_)
 {
     ok = true;
 
@@ -297,16 +297,16 @@ QDnsAnswer::QDnsAnswer(const QByteArray& answer_, QDnsQuery * query_)
 }
 
 
-QDnsAnswer::~QDnsAnswer()
+Q3DnsAnswer::~Q3DnsAnswer()
 {
     if (!ok) {
         for (int i = 0; i < rrs.count(); ++i)
-            rrs.at(i)->t = QDns::None; // will be deleted soonish
+            rrs.at(i)->t = Q3Dns::None; // will be deleted soonish
     }
 }
 
 
-QString QDnsAnswer::readString()
+QString Q3DnsAnswer::readString()
 {
     int p = pp;
     QString r;
@@ -347,89 +347,89 @@ not_ok:
 
 
 
-void QDnsAnswer::parseA()
+void Q3DnsAnswer::parseA()
 {
     if (next != pp + 4) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw %d bytes long IN A for %s",
+        qDebug("Q3Dns: saw %d bytes long IN A for %s",
                 next - pp, label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
-    rr->t = QDns::A;
+    rr = new Q3DnsRR(label);
+    rr->t = Q3Dns::A;
     rr->address = QHostAddress((answer[pp+0] << 24) +
                                 (answer[pp+1] << 16) +
                                 (answer[pp+2] <<  8) +
                                 (answer[pp+3]));
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN A %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN A %s (ttl %d)", label.ascii(),
             rr->address.toString().ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parseAaaa()
+void Q3DnsAnswer::parseAaaa()
 {
     if (next != pp + 16) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw %d bytes long IN Aaaa for %s",
+        qDebug("Q3Dns: saw %d bytes long IN Aaaa for %s",
                 next - pp, label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
-    rr->t = QDns::Aaaa;
+    rr = new Q3DnsRR(label);
+    rr->t = Q3Dns::Aaaa;
     rr->address = QHostAddress(answer+pp);
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN Aaaa %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN Aaaa %s (ttl %d)", label.ascii(),
             rr->address.toString().ascii(), ttl);
 #endif
 }
 
 
 
-void QDnsAnswer::parseMx()
+void Q3DnsAnswer::parseMx()
 {
     if (next < pp + 2) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw %d bytes long IN MX for %s",
+        qDebug("Q3Dns: saw %d bytes long IN MX for %s",
                 next - pp, label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
+    rr = new Q3DnsRR(label);
     rr->priority = (answer[pp] << 8) + answer[pp+1];
     pp += 2;
     rr->target = readString().toLower();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad string in MX for %s", label.ascii());
+        qDebug("Q3Dns: saw bad string in MX for %s", label.ascii());
 #endif
         return;
     }
-    rr->t = QDns::Mx;
+    rr->t = Q3Dns::Mx;
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN MX %d %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN MX %d %s (ttl %d)", label.ascii(),
             rr->priority, rr->target.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parseSrv()
+void Q3DnsAnswer::parseSrv()
 {
     if (next < pp + 6) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw %d bytes long IN SRV for %s",
+        qDebug("Q3Dns: saw %d bytes long IN SRV for %s",
                 next - pp, label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
+    rr = new Q3DnsRR(label);
     rr->priority = (answer[pp] << 8) + answer[pp+1];
     rr->weight = (answer[pp+2] << 8) + answer[pp+3];
     rr->port = (answer[pp+4] << 8) + answer[pp+5];
@@ -437,39 +437,39 @@ void QDnsAnswer::parseSrv()
     rr->target = readString().toLower();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad string in SRV for %s", label.ascii());
+        qDebug("Q3Dns: saw bad string in SRV for %s", label.ascii());
 #endif
         return;
     }
-    rr->t = QDns::Srv;
+    rr->t = Q3Dns::Srv;
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN SRV %d %d %d %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN SRV %d %d %d %s (ttl %d)", label.ascii(),
             rr->priority, rr->weight, rr->port, rr->target.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parseCname()
+void Q3DnsAnswer::parseCname()
 {
     QString target = readString().toLower();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad cname for for %s", label.ascii());
+        qDebug("Q3Dns: saw bad cname for for %s", label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
-    rr->t = QDns::Cname;
+    rr = new Q3DnsRR(label);
+    rr->t = Q3Dns::Cname;
     rr->target = target;
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN CNAME %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN CNAME %s (ttl %d)", label.ascii(),
             rr->target.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parseNs()
+void Q3DnsAnswer::parseNs()
 {
 #if defined(QDNS_DEBUG)
     QString target =
@@ -477,7 +477,7 @@ void QDnsAnswer::parseNs()
         readString().toLower();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad cname for for %s", label.ascii());
+        qDebug("Q3Dns: saw bad cname for for %s", label.ascii());
 #endif
         return;
     }
@@ -485,53 +485,53 @@ void QDnsAnswer::parseNs()
     // parse, but ignore
 
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN NS %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN NS %s (ttl %d)", label.ascii(),
             target.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parsePtr()
+void Q3DnsAnswer::parsePtr()
 {
     QString target = readString().toLower();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad PTR for for %s", label.ascii());
+        qDebug("Q3Dns: saw bad PTR for for %s", label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
-    rr->t = QDns::Ptr;
+    rr = new Q3DnsRR(label);
+    rr->t = Q3Dns::Ptr;
     rr->target = target;
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN PTR %s (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN PTR %s (ttl %d)", label.ascii(),
             rr->target.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parseTxt()
+void Q3DnsAnswer::parseTxt()
 {
     QString text = readString();
     if (!ok) {
 #if defined(QDNS_DEBUG)
-        qDebug("QDns: saw bad TXT for for %s", label.ascii());
+        qDebug("Q3Dns: saw bad TXT for for %s", label.ascii());
 #endif
         return;
     }
 
-    rr = new QDnsRR(label);
-    rr->t = QDns::Txt;
+    rr = new Q3DnsRR(label);
+    rr->t = Q3Dns::Txt;
     rr->text = text;
 #if defined(QDNS_DEBUG)
-    qDebug("QDns: saw %s IN TXT \"%s\" (ttl %d)", label.ascii(),
+    qDebug("Q3Dns: saw %s IN TXT \"%s\" (ttl %d)", label.ascii(),
             rr->text.ascii(), ttl);
 #endif
 }
 
 
-void QDnsAnswer::parse()
+void Q3DnsAnswer::parse()
 {
     // okay, do the work...
     if ((answer[2] & 0x78) != 0) {
@@ -563,7 +563,7 @@ void QDnsAnswer::parse()
         qDebug("DNS Manager: saw NXDomain for %s", query->l.ascii());
 #endif
         // NXDomain.  cache that for one minute.
-        rr = new QDnsRR(query->l);
+        rr = new Q3DnsRR(query->l);
         rr->t = query->t;
         rr->deleteTime = query->started + 60;
         rr->expireTime = query->started + 60;
@@ -706,7 +706,7 @@ void QDnsAnswer::parse()
         rr = rrs.at(i);
         if (rr->target.length() && rr->deleteTime > 0 && rr->current)
             used.insert(rr->target, 1);
-        if ((rr->t == QDns::A || rr->t == QDns::Aaaa) && used.contains(rr->domain->name()))
+        if ((rr->t == Q3Dns::A || rr->t == Q3Dns::Aaaa) && used.contains(rr->domain->name()))
             rr->deleteTime = rr->expireTime;
     }
 
@@ -715,7 +715,7 @@ void QDnsAnswer::parse()
         rr = rrs.at(i);
         if (rr && rr->domain) {
             for (int j = 0; j < rr->domain->rrs.count(); ++j) {
-                QDnsRR *older = rr->domain->rrs.at(j);
+                Q3DnsRR *older = rr->domain->rrs.at(j);
                 if (older != rr &&
                      older->t == rr->t &&
                      older->nxdomain == rr->nxdomain &&
@@ -732,7 +732,7 @@ void QDnsAnswer::parse()
                            older->t, older->domain->name().latin1(),
                            rr->expireTime);
 #endif
-                    older->t = QDns::None;
+                    older->t = Q3Dns::None;
                     rr->expireTime = qMax(older->expireTime, rr->expireTime);
                     rr->deleteTime = qMax(older->deleteTime, rr->deleteTime);
                     older->deleteTime = 0;
@@ -750,20 +750,20 @@ void QDnsAnswer::parse()
 }
 
 
-class QDnsUgleHack: public QDns {
+class Q3DnsUgleHack: public Q3Dns {
 public:
     void ugle(bool emitAnyway=false);
 };
 
 
-void QDnsAnswer::notify()
+void Q3DnsAnswer::notify()
 {
     if (!ok || !query || query->dns.size() == 0)
         return;
 
-    QHash<const QDns *, const QDns *> notified;
+    QHash<const Q3Dns *, const Q3Dns *> notified;
 
-    QHash<const QDns *, const QDns *>::Iterator it = query->dns.begin();
+    QHash<const Q3Dns *, const Q3Dns *>::Iterator it = query->dns.begin();
     while (it != query->dns.end()) {
         if (!notified.contains(*it)) {
             notified.insert(*it, *it);
@@ -772,11 +772,11 @@ void QDnsAnswer::notify()
                 qDebug("DNS Manager: found no answers!");
 #endif
                 (*it)->d->noNames = true;
-                ((QDnsUgleHack*)*it)->ugle(true);
+                ((Q3DnsUgleHack*)*it)->ugle(true);
             } else {
                 QStringList n = (*it)->qualifiedNames();
                 if (n.contains(query->l))
-                    ((QDnsUgleHack*)*it)->ugle();
+                    ((Q3DnsUgleHack*)*it)->ugle();
 #if defined(QDNS_DEBUG)
                 else
                     qDebug("DNS Manager: DNS thing %s not notified for %s",
@@ -791,22 +791,22 @@ void QDnsAnswer::notify()
 
 //
 //
-// QDnsManager
+// Q3DnsManager
 //
 //
 
 
-class QDnsManager: public QDnsSocket {
+class Q3DnsManager: public Q3DnsSocket {
 private:
 public: // just to silence the moronic g++.
-    QDnsManager();
-    ~QDnsManager();
+    Q3DnsManager();
+    ~Q3DnsManager();
 public:
-    static QDnsManager * manager();
+    static Q3DnsManager * manager();
 
-    QDnsDomain * domain(const QString &);
+    Q3DnsDomain * domain(const QString &);
 
-    void transmitQuery(QDnsQuery *);
+    void transmitQuery(Q3DnsQuery *);
     void transmitQuery(int);
 
     // reimplementation of the slots
@@ -815,8 +815,8 @@ public:
     void answer();
 
 public:
-    QList<QDnsQuery *> queries;
-    QHash<QString, QDnsDomain *> cache;
+    QList<Q3DnsQuery *> queries;
+    QHash<QString, Q3DnsDomain *> cache;
     QSocketDevice * ipv4Socket;
 #if !defined (QT_NO_IPV6)
     QSocketDevice * ipv6Socket;
@@ -825,7 +825,7 @@ public:
 
 
 
-static QDnsManager * globalManager = 0;
+static Q3DnsManager * globalManager = 0;
 
 static void cleanupDns()
 {
@@ -833,17 +833,17 @@ static void cleanupDns()
     globalManager = 0;
 }
 
-QDnsManager * QDnsManager::manager()
+Q3DnsManager * Q3DnsManager::manager()
 {
     if (!globalManager) {
         qAddPostRoutine(cleanupDns);
-        new QDnsManager();
+        new Q3DnsManager();
     }
     return globalManager;
 }
 
 
-void QDnsUgleHack::ugle(bool emitAnyway)
+void Q3DnsUgleHack::ugle(bool emitAnyway)
 {
     if (emitAnyway || !isWorking()) {
 #if defined(QDNS_DEBUG)
@@ -855,8 +855,8 @@ void QDnsUgleHack::ugle(bool emitAnyway)
 }
 
 
-QDnsManager::QDnsManager()
-    : QDnsSocket(qApp, "Internal DNS manager"),
+Q3DnsManager::Q3DnsManager()
+    : Q3DnsSocket(qApp, "Internal DNS manager"),
       ipv4Socket(new QSocketDevice(QSocketDevice::Datagram, QSocketDevice::IPv4, 0))
 #if !defined (QT_NO_IPV6)
       , ipv6Socket(new QSocketDevice(QSocketDevice::Datagram, QSocketDevice::IPv6, 0))
@@ -892,7 +892,7 @@ QDnsManager::QDnsManager()
 #endif
 
     if (!ns)
-        QDns::doResInit();
+        Q3Dns::doResInit();
 
     // O(n*n) stuff here.  but for 3 and 6, O(n*n) with a low k should
     // be perfect.  the point is to eliminate any duplicates that
@@ -941,13 +941,13 @@ QDnsManager::QDnsManager()
 }
 
 
-QDnsManager::~QDnsManager()
+Q3DnsManager::~Q3DnsManager()
 {
     if (globalManager)
         globalManager = 0;
     while (!queries.isEmpty())
         delete queries.takeFirst();
-    QHash<QString, QDnsDomain *>::ConstIterator it = cache.constBegin();
+    QHash<QString, Q3DnsDomain *>::ConstIterator it = cache.constBegin();
     while (it != cache.constEnd()) {
         delete it.value();
         ++it;
@@ -960,14 +960,14 @@ QDnsManager::~QDnsManager()
 
 static Q_UINT32 lastSweep = 0;
 
-void QDnsManager::cleanCache()
+void Q3DnsManager::cleanCache()
 {
     bool again = false;
-    QHash<QString, QDnsDomain *>::Iterator it = cache.begin();
-    QDnsDomain * d;
+    QHash<QString, Q3DnsDomain *>::Iterator it = cache.begin();
+    Q3DnsDomain * d;
     Q_UINT32 thisSweep = now();
 #if defined(QDNS_DEBUG)
-    qDebug("QDnsManager::cleanCache(: Called, time is %u, last was %u",
+    qDebug("Q3DnsManager::cleanCache(: Called, time is %u, last was %u",
            thisSweep, lastSweep);
 #endif
 
@@ -984,7 +984,7 @@ void QDnsManager::cleanCache()
 }
 
 
-void QDnsManager::retransmit()
+void Q3DnsManager::retransmit()
 {
     const QObject * o = sender();
     if (o == 0 || globalManager == 0 || this != globalManager)
@@ -997,7 +997,7 @@ void QDnsManager::retransmit()
 }
 
 
-void QDnsManager::answer()
+void Q3DnsManager::answer()
 {
     QByteArray a;
     a.resize(16383); // large enough for anything, one suspects
@@ -1048,8 +1048,8 @@ void QDnsManager::answer()
         return;
     }
 
-    QDnsQuery * q = queries[i];
-    QDnsAnswer answer(a, q);
+    Q3DnsQuery * q = queries[i];
+    Q3DnsAnswer answer(a, q);
     answer.parse();
     if (answer.ok) {
         queries.takeAt(i);
@@ -1059,7 +1059,7 @@ void QDnsManager::answer()
 }
 
 
-void QDnsManager::transmitQuery(QDnsQuery * query_)
+void Q3DnsManager::transmitQuery(Q3DnsQuery * query_)
 {
     if (!query_)
         return;
@@ -1073,16 +1073,16 @@ void QDnsManager::transmitQuery(QDnsQuery * query_)
 }
 
 
-void QDnsManager::transmitQuery(int i)
+void Q3DnsManager::transmitQuery(int i)
 {
     if (i < 0 || i >= queries.size())
         return;
-    QDnsQuery * q = queries[i];
+    Q3DnsQuery * q = queries[i];
 
     if (q && q->step > 8) {
         // okay, we've run out of retransmissions. we fake an NXDomain
         // with a very short life time...
-        QDnsAnswer answer(q);
+        Q3DnsAnswer answer(q);
         answer.notify();
         // and then get rid of the query
         queries.takeAt(i);
@@ -1090,7 +1090,7 @@ void QDnsManager::transmitQuery(int i)
         qDebug("DNS Manager: giving up on query 0x%04x", q->id);
 #endif
         delete q;
-        QTimer::singleShot(1000*10, QDnsManager::manager(), SLOT(cleanCache()));
+        QTimer::singleShot(1000*10, Q3DnsManager::manager(), SLOT(cleanCache()));
         // and don't process anything more
         return;
     }
@@ -1140,25 +1140,25 @@ void QDnsManager::transmitQuery(int i)
     // query type
     p[pp++] = 0;
     switch(q->t) {
-    case QDns::A:
+    case Q3Dns::A:
         p[pp++] = 1;
         break;
-    case QDns::Aaaa:
+    case Q3Dns::Aaaa:
         p[pp++] = 28;
         break;
-    case QDns::Mx:
+    case Q3Dns::Mx:
         p[pp++] = 15;
         break;
-    case QDns::Srv:
+    case Q3Dns::Srv:
         p[pp++] = 33;
         break;
-    case QDns::Cname:
+    case Q3Dns::Cname:
         p[pp++] = 5;
         break;
-    case QDns::Ptr:
+    case Q3Dns::Ptr:
         p[pp++] = 12;
         break;
-    case QDns::Txt:
+    case Q3Dns::Txt:
         p[pp++] = 16;
         break;
     default:
@@ -1172,7 +1172,7 @@ void QDnsManager::transmitQuery(int i)
     if (!ns || ns->isEmpty()) {
         // we don't find any name servers. We fake an NXDomain
         // with a very short life time...
-        QDnsAnswer answer(q);
+        Q3DnsAnswer answer(q);
         answer.notify();
         // and then get rid of the query
         queries.takeAt(i);
@@ -1180,7 +1180,7 @@ void QDnsManager::transmitQuery(int i)
         qDebug("DNS Manager: no DNS server found on query 0x%04x", q->id);
 #endif
         delete q;
-        QTimer::singleShot(1000*10, QDnsManager::manager(), SLOT(cleanCache()));
+        QTimer::singleShot(1000*10, Q3DnsManager::manager(), SLOT(cleanCache()));
         // and don't process anything more
         return;
     }
@@ -1226,11 +1226,11 @@ void QDnsManager::transmitQuery(int i)
 }
 
 
-QDnsDomain * QDnsManager::domain(const QString & label)
+Q3DnsDomain * Q3DnsManager::domain(const QString & label)
 {
-    QDnsDomain *d = cache.value(label.toLower());
+    Q3DnsDomain *d = cache.value(label.toLower());
     if (!d) {
-        d = new QDnsDomain(label);
+        d = new Q3DnsDomain(label);
         cache.insert(label.toLower(), d);
     }
     return d;
@@ -1239,47 +1239,47 @@ QDnsDomain * QDnsManager::domain(const QString & label)
 
 //
 //
-// the QDnsDomain class looks after and coordinates queries for QDnsRRs for
-// each domain, and the cached QDnsRRs.  (A domain, in DNS terminology, is
+// the Q3DnsDomain class looks after and coordinates queries for Q3DnsRRs for
+// each domain, and the cached Q3DnsRRs.  (A domain, in DNS terminology, is
 // a node in the DNS.  "no", "trolltech.com" and "lupinella.troll.no" are
 // all domains.)
 //
 //
 
 
-// this is ONLY to be called by QDnsManager::domain().  no one else.
-QDnsDomain::QDnsDomain(const QString & label)
+// this is ONLY to be called by Q3DnsManager::domain().  no one else.
+Q3DnsDomain::Q3DnsDomain(const QString & label)
 {
     l = label;
 }
 
-QDnsDomain::~QDnsDomain()
+Q3DnsDomain::~Q3DnsDomain()
 {
     while (!rrs.isEmpty())
         delete rrs.takeFirst();
 }
 
-void QDnsDomain::add(const QString & label, QDnsRR * rr)
+void Q3DnsDomain::add(const QString & label, Q3DnsRR * rr)
 {
-    QDnsDomain * d = QDnsManager::manager()->domain(label);
+    Q3DnsDomain * d = Q3DnsManager::manager()->domain(label);
     d->rrs.append(rr);
     rr->domain = d;
 }
 
-QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
+QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
 {
     // this is a tempoary list of resource records which will
     // eventually be returned as the result of this function.
-    QList<QDnsRR *> *l = new QList<QDnsRR *>;
+    QList<Q3DnsRR *> *l = new QList<Q3DnsRR *>;
 
     // test at first if you have to start a query at all
-    if (r->recordType() == QDns::A) {
+    if (r->recordType() == Q3Dns::A) {
         if (r->label().toLower() == "localhost") {
             // undocumented hack. ipv4-specific. also, may be a memory
             // leak? not sure. would be better to do this in doResInit(),
             // anyway.
-            QDnsRR *rrTmp = new QDnsRR(r->label());
-            rrTmp->t = QDns::A;
+            Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
+            rrTmp->t = Q3Dns::A;
             rrTmp->address = QHostAddress(0x7f000001);
             rrTmp->current = true;
             l->append(rrTmp);
@@ -1287,22 +1287,22 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
         }
         QHostAddress tmp;
         if (tmp.setAddress(r->label())) {
-            QDnsRR *rrTmp = new QDnsRR(r->label());
+            Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
             if (tmp.isIPv4Address())
-                rrTmp->t = QDns::A;
+                rrTmp->t = Q3Dns::A;
             else
-                rrTmp->t = QDns::Aaaa;
+                rrTmp->t = Q3Dns::Aaaa;
             rrTmp->address = tmp;
             rrTmp->current = true;
             l->append(rrTmp);
             return l;
         }
     }
-    if (r->recordType() == QDns::Aaaa) {
+    if (r->recordType() == Q3Dns::Aaaa) {
         QHostAddress tmp;
         if (tmp.setAddress(r->label()) && !tmp.isIp4Addr()) {
-            QDnsRR *rrTmp = new QDnsRR(r->label());
-            rrTmp->t = QDns::Aaaa;
+            Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
+            rrTmp->t = Q3Dns::Aaaa;
             rrTmp->address = tmp;
             rrTmp->current = true;
             l->append(rrTmp);
@@ -1311,7 +1311,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
     }
 
     // if you reach this point, you have to do the query
-    QDnsManager * m = QDnsManager::manager();
+    Q3DnsManager * m = Q3DnsManager::manager();
     QStringList n = r->qualifiedNames();
     QList<QString>::Iterator it = n.begin();
     QList<QString>::Iterator end = n.end();
@@ -1324,11 +1324,11 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
         qDebug("looking at cache for %s (%s %d)",
                 s.ascii(), r->label().ascii(), r->recordType());
 #endif
-        // get or create a QDnsDomain in QDnsManager's cache for the
-        // current qualified name in the QDns passed as argument. The
+        // get or create a Q3DnsDomain in Q3DnsManager's cache for the
+        // current qualified name in the Q3Dns passed as argument. The
         // d points either to such a cached domain object, which may
         // or may not have data in it already.
-        QDnsDomain * d = m->domain(s);
+        Q3DnsDomain * d = m->domain(s);
 #if defined(QDNS_DEBUG)
         qDebug(" - found %d RRs", d ? d->rrs.count() : 0);
 #endif
@@ -1337,16 +1337,16 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 
         // check any resource records in the cached domain object
         while (i < d->rrs.count()) {
-            QDnsRR *rr = d->rrs.at(i);
+            Q3DnsRR *rr = d->rrs.at(i);
             ++i;
 
-            // if we have a Cname in the cache and the user (QDns) is
+            // if we have a Cname in the cache and the user (Q3Dns) is
             // not explicitly looking for Cname records, then replace
             // our current query with this Cname. We eventually want
             // to reach the end of the chain, but will not check more
             // than 16 levels of Cname redirection.
-            if (rr->t == QDns::Cname
-                 && r->recordType() != QDns::Cname
+            if (rr->t == Q3Dns::Cname
+                 && r->recordType() != Q3Dns::Cname
                  && !rr->nxdomain && cnamecount < 16) {
                 // cname.  if the code is ugly, that may just
                 // possibly be because the concept is.
@@ -1392,7 +1392,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
                         // deleted soon.  we assume that if the client
                          // wanted it twice, it'll want it again, so we
                         // ask the name server again right now.
-                        QDnsQuery * query = new QDnsQuery;
+                        Q3DnsQuery * query = new Q3DnsQuery;
                         query->started = now();
                         query->id = ++::id;
                         query->t = rr->t;
@@ -1403,9 +1403,9 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
                         // and few tramsissions.
                         query->step = ns->count();
                         QObject::connect(query, SIGNAL(timeout()),
-                                         QDnsManager::manager(),
+                                         Q3DnsManager::manager(),
                                          SLOT(retransmit()));
-                        QDnsManager::manager()->transmitQuery(query);
+                        Q3DnsManager::manager()->transmitQuery(query);
                     }
                 }
             }
@@ -1419,7 +1419,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
                     l->count(), r->label().ascii());
 
             for (int i = 0; i < l->count(); ++i) {
-                QDnsRR *lcur = l->at(i);
+                Q3DnsRR *lcur = l->at(i);
                 qDebug("  type %d target %s address %s",
                        lcur->t,
                        lcur->target.latin1(),
@@ -1438,7 +1438,7 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
             
         if (!nxdomain) {
             // if we didn't, and not a negative result either, perhaps
-            // we need to transmit a query. check the QDnsManager's
+            // we need to transmit a query. check the Q3DnsManager's
             // list of existing queries to see if there is already
             // something in progress.
             uint q = 0;
@@ -1452,15 +1452,15 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
             // the other alternatives are exhausted.
             if (q == (uint) m->queries.size() && (s.indexOf('.') >= 0 ||
                                              (int)l->count() >= n.count()-1)) {
-                QDnsQuery * query = new QDnsQuery;
+                Q3DnsQuery * query = new Q3DnsQuery;
                 query->started = now();
                 query->id = ++::id;
                 query->t = r->recordType();
                 query->l = s;
                 query->dns.insert(r, r);
                 QObject::connect(query, SIGNAL(timeout()),
-                                  QDnsManager::manager(), SLOT(retransmit()));
-                QDnsManager::manager()->transmitQuery(query);
+                                  Q3DnsManager::manager(), SLOT(retransmit()));
+                Q3DnsManager::manager()->transmitQuery(query);
             } else if (q < (uint) m->queries.size()) {
                 // if we've found an earlier query for the same
                 // domain/type, subscribe to its answer
@@ -1473,22 +1473,22 @@ QList<QDnsRR *> *QDnsDomain::cached(const QDns *r)
 }
 
 
-void QDnsDomain::sweep(Q_UINT32 thisSweep)
+void Q3DnsDomain::sweep(Q_UINT32 thisSweep)
 {
-    QDnsRR * rr;
+    Q3DnsRR * rr;
     for (int i = 0; i < rrs.count(); ++i) {
         rr = rrs.at(i);
         if (!rr->deleteTime)
             rr->deleteTime = thisSweep; // will hit next time around
 
 #if defined(QDNS_DEBUG)
-        qDebug("QDns::sweep: %s type %d expires %u %u - %s / %s",
+        qDebug("Q3Dns::sweep: %s type %d expires %u %u - %s / %s",
                rr->domain->name().latin1(), rr->t,
                rr->expireTime, rr->deleteTime,
                rr->target.latin1(), rr->address.toString().latin1());
 #endif
         if (rr->current == false ||
-             rr->t == QDns::None ||
+             rr->t == Q3Dns::None ||
              rr->deleteTime <= thisSweep ||
              rr->expireTime <= thisSweep) {
             delete rrs.takeAt(i);
@@ -1503,40 +1503,40 @@ void QDnsDomain::sweep(Q_UINT32 thisSweep)
 // so I can subclass and reimplement the slots.
 
 
-QDnsSocket::QDnsSocket(QObject * parent, const char * name)
+Q3DnsSocket::Q3DnsSocket(QObject * parent, const char * name)
     : QObject(parent, name)
 {
     // nothing
 }
 
 
-QDnsSocket::~QDnsSocket()
+Q3DnsSocket::~Q3DnsSocket()
 {
     // nothing
 }
 
 
-void QDnsSocket::cleanCache()
+void Q3DnsSocket::cleanCache()
 {
     // nothing
 }
 
 
-void QDnsSocket::retransmit()
+void Q3DnsSocket::retransmit()
 {
     // nothing
 }
 
 
-void QDnsSocket::answer()
+void Q3DnsSocket::answer()
 {
     // nothing
 }
 
 
 /*!
-    \class QDns qdns.h
-    \brief The QDns class provides asynchronous DNS lookups.
+    \class Q3Dns qdns.h
+    \brief The Q3Dns class provides asynchronous DNS lookups.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -1549,13 +1549,13 @@ void QDnsSocket::answer()
     neither operating system provides asynchronous support for
     anything other than hostname-to-address mapping.
 
-    QDns rectifies this shortcoming, by providing asynchronous caching
+    Q3Dns rectifies this shortcoming, by providing asynchronous caching
     lookups for the record types that we expect modern GUI
     applications to need in the near future.
 
     The class is \e not straightforward to use (although it is much
     simpler than the native APIs); QSocket provides much easier to use
-    TCP connection facilities. The aim of QDns is to provide a correct
+    TCP connection facilities. The aim of Q3Dns is to provide a correct
     and small API to the DNS and nothing more. (We use "correctness"
     to mean that the DNS information is correctly cached, and
     correctly timed out.)
@@ -1563,7 +1563,7 @@ void QDnsSocket::answer()
     The API comprises a constructor, functions to set the DNS node
     (the domain in DNS terminology) and record type (setLabel() and
     setRecordType()), the corresponding get functions, an isWorking()
-    function to determine whether QDns is working or reading, a
+    function to determine whether Q3Dns is working or reading, a
     resultsReady() signal and query functions for the result.
 
     There is one query function for each RecordType, namely
@@ -1581,9 +1581,9 @@ void QDnsSocket::answer()
     label and the search type.
 */
 
-QDns::QDns()
+Q3Dns::Q3Dns()
 {
-    d = new QDnsPrivate;
+    d = new Q3DnsPrivate;
     t = None;
 }
 
@@ -1601,9 +1601,9 @@ QDns::QDns()
     \a rr defaults to \c A, IPv4 addresses.
 */
 
-QDns::QDns(const QString & label, RecordType rr)
+Q3Dns::Q3Dns(const QString & label, RecordType rr)
 {
-    d = new QDnsPrivate;
+    d = new Q3DnsPrivate;
     t = rr;
     setLabel(label);
     setStartQueryTimer(); // start query the next time we enter event loop
@@ -1625,9 +1625,9 @@ QDns::QDns(const QString & label, RecordType rr)
     \a rr defaults to \c Ptr, that maps addresses to hostnames.
 */
 
-QDns::QDns(const QHostAddress & address, RecordType rr)
+Q3Dns::Q3Dns(const QHostAddress & address, RecordType rr)
 {
-    d = new QDnsPrivate;
+    d = new Q3DnsPrivate;
     t = rr;
     setLabel(address);
     setStartQueryTimer(); // start query the next time we enter event loop
@@ -1638,13 +1638,13 @@ QDns::QDns(const QHostAddress & address, RecordType rr)
     Destroys the DNS query object and frees its allocated resources.
 */
 
-QDns::~QDns()
+Q3Dns::~Q3Dns()
 {
     if (globalManager) {
         uint q = 0;
-        QDnsManager * m = globalManager;
+        Q3DnsManager * m = globalManager;
         while(q < (uint) m->queries.size()) {
-            QDnsQuery *query = m->queries[q];
+            Q3DnsQuery *query = m->queries[q];
             if (query)
                 query->dns.remove(this);
             ++q;
@@ -1666,7 +1666,7 @@ QDns::~QDns()
     emitted.
 */
 
-void QDns::setLabel(const QString & label)
+void Q3Dns::setLabel(const QString & label)
 {
     l = label;
     d->noNames = false;
@@ -1684,7 +1684,7 @@ void QDns::setLabel(const QString & label)
                 dots++;
         }
         if (dots < maxDots) {
-            (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
+            (void)Q3DnsManager::manager(); // create a Q3DnsManager, if it is not already there
             for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it)
                 n.append(l.toLower().append(".").append((*it).data()));
         }
@@ -1701,10 +1701,10 @@ void QDns::setLabel(const QString & label)
     setStartQueryTimer(); // start query the next time we enter event loop
 #endif
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::setLabel: %d address(es) for %s", n.count(), l.ascii());
+    qDebug("Q3Dns::setLabel: %d address(es) for %s", n.count(), l.ascii());
     int i = 0;
     for(i = 0; i < (int)n.count(); i++)
-        qDebug("QDns::setLabel: %d: %s", i, n[i].ascii());
+        qDebug("Q3Dns::setLabel: %d: %s", i, n[i].ascii());
 #endif
 }
 
@@ -1718,14 +1718,14 @@ void QDns::setLabel(const QString & label)
     (e.g. if you want to look up a hostname for a given address).
 */
 
-void QDns::setLabel(const QHostAddress & address)
+void Q3Dns::setLabel(const QHostAddress & address)
 {
     setLabel(toInAddrArpaDomain(address));
 }
 
 
 /*!
-    \fn QStringList QDns::qualifiedNames() const
+    \fn QStringList Q3Dns::qualifiedNames() const
 
     Returns a list of the fully qualified names label() maps to.
 
@@ -1744,7 +1744,7 @@ void QDns::setLabel(const QHostAddress & address)
 
 
 /*!
-    \fn QString QDns::label() const
+    \fn QString Q3Dns::label() const
 
     Returns the domain name for which this object returns information.
 
@@ -1752,14 +1752,14 @@ void QDns::setLabel(const QHostAddress & address)
 */
 
 /*!
-    \enum QDns::RecordType
+    \enum Q3Dns::RecordType
 
-    This enum type defines the record types QDns can handle. The DNS
+    This enum type defines the record types Q3Dns can handle. The DNS
     provides many more; these are the ones we've judged to be in
     current use, useful for GUI programs and important enough to
     support right away:
 
-    \value None  No information. This exists only so that QDns can
+    \value None  No information. This exists only so that Q3Dns can
     have a default.
 
     \value A  IPv4 addresses. By far the most common type.
@@ -1793,7 +1793,7 @@ void QDns::setLabel(const QHostAddress & address)
     \sa RecordType
 */
 
-void QDns::setRecordType(RecordType rr)
+void Q3Dns::setRecordType(RecordType rr)
 {
     t = rr;
     d->noNames = false;
@@ -1805,7 +1805,7 @@ void QDns::setRecordType(RecordType rr)
 
   Private slot for starting the query.
 */
-void QDns::startQuery()
+void Q3Dns::startQuery()
 {
     // isWorking() starts the query (if necessary)
     if (!isWorking())
@@ -1813,11 +1813,11 @@ void QDns::startQuery()
 }
 
 /*!
-    The three functions QDns::QDns(QString, RecordType),
-    QDns::setLabel() and QDns::setRecordType() may start a DNS lookup.
+    The three functions Q3Dns::Q3Dns(QString, RecordType),
+    Q3Dns::setLabel() and Q3Dns::setRecordType() may start a DNS lookup.
     This function handles setting up the single shot timer.
 */
-void QDns::setStartQueryTimer()
+void Q3Dns::setStartQueryTimer()
 {
 #if defined(Q_DNS_SYNCHRONOUS)
     if (!d->queryTimer && !d->noEventLoop)
@@ -1839,7 +1839,7 @@ void QDns::setStartQueryTimer()
     naughty. This function has an IPv4-specific name, but works for
     IPv6 too.
 */
-QString QDns::toInAddrArpaDomain(const QHostAddress &address)
+QString Q3Dns::toInAddrArpaDomain(const QHostAddress &address)
 {
     QString s;
     if (address.isNull()) {
@@ -1866,7 +1866,7 @@ QString QDns::toInAddrArpaDomain(const QHostAddress &address)
 
 
 /*!
-    \fn QDns::RecordType QDns::recordType() const
+    \fn Q3Dns::RecordType Q3Dns::recordType() const
 
     Returns the record type of this DNS query object.
 
@@ -1874,24 +1874,24 @@ QString QDns::toInAddrArpaDomain(const QHostAddress &address)
 */
 
 /*!
-    \fn void QDns::resultsReady()
+    \fn void Q3Dns::resultsReady()
 
     This signal is emitted when results are available for one of the
     qualifiedNames().
 */
 
 /*!
-    Returns true if QDns is doing a lookup for this object (i.e. if it
+    Returns true if Q3Dns is doing a lookup for this object (i.e. if it
     does not already have the necessary information); otherwise
     returns false.
 
-    QDns emits the resultsReady() signal when the status changes to false.
+    Q3Dns emits the resultsReady() signal when the status changes to false.
 */
 
-bool QDns::isWorking() const
+bool Q3Dns::isWorking() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::isWorking (%s, %d)", l.ascii(), t);
+    qDebug("Q3Dns::isWorking (%s, %d)", l.ascii(), t);
 #endif
     if (t == None)
         return false;
@@ -1901,7 +1901,7 @@ bool QDns::isWorking() const
         return true;
 #endif
 
-    QList<QDnsRR *> *ll = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *ll = Q3DnsDomain::cached(this);
     Q_LONG queries = n.count();
 
     for (int i = 0; i < ll->count(); ++i) {
@@ -1923,8 +1923,8 @@ bool QDns::isWorking() const
 
 
 /*!
-    Returns a list of the addresses for this name if this QDns object
-    has a recordType() of \c QDns::A or \c QDns::Aaaa and the answer
+    Returns a list of the addresses for this name if this Q3Dns object
+    has a recordType() of \c Q3Dns::A or \c Q3Dns::Aaaa and the answer
     is available; otherwise returns an empty list.
 
     As a special case, if label() is a valid numeric IP address, this
@@ -1943,19 +1943,19 @@ bool QDns::isWorking() const
 
 */
 
-QList<QHostAddress> QDns::addresses() const
+QList<QHostAddress> Q3Dns::addresses() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::addresses (%s)", l.ascii());
+    qDebug("Q3Dns::addresses (%s)", l.ascii());
 #endif
     QList<QHostAddress> result;
     if (t != A && t != Aaaa)
         return result;
 
-    QList<QDnsRR *> *cached = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(this);
 
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain)
             result.append(rr->address);
     }
@@ -1965,8 +1965,8 @@ QList<QHostAddress> QDns::addresses() const
 
 
 /*!
-    \class QDns::MailServer
-    \brief The QDns::MailServer class is  described in QDns::mailServers().
+    \class Q3Dns::MailServer
+    \brief The Q3Dns::MailServer class is  described in Q3Dns::mailServers().
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -1978,17 +1978,17 @@ QList<QHostAddress> QDns::addresses() const
 
 /*!
     Returns a list of mail servers if the record type is \c Mx. The
-    class \c QDns::MailServer contains the following public variables:
+    class \c Q3Dns::MailServer contains the following public variables:
     \list
-    \i QString QDns::MailServer::name
-    \i Q_UINT16 QDns::MailServer::priority
+    \i QString Q3Dns::MailServer::name
+    \i Q_UINT16 Q3Dns::MailServer::priority
     \endlist
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QList<QDns::MailServer> list = myDns.mailServers();
-    QList<QDns::MailServer>::Iterator it = list.begin();
+    QList<Q3Dns::MailServer> list = myDns.mailServers();
+    QList<Q3Dns::MailServer>::Iterator it = list.begin();
     while(it != list.end()) {
         myProcessing(*it);
         ++it;
@@ -1996,18 +1996,18 @@ QList<QHostAddress> QDns::addresses() const
     \endcode
 
 */
-QList<QDns::MailServer> QDns::mailServers() const
+QList<Q3Dns::MailServer> Q3Dns::mailServers() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::mailServers (%s)", l.ascii());
+    qDebug("Q3Dns::mailServers (%s)", l.ascii());
 #endif
-    QList<QDns::MailServer> result;
+    QList<Q3Dns::MailServer> result;
     if (t != Mx)
         return result;
 
-    QList<QDnsRR *> *cached = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(this);
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain) {
             MailServer ms(rr->target, rr->priority);
             result.append(ms);
@@ -2019,8 +2019,8 @@ QList<QDns::MailServer> QDns::mailServers() const
 
 
 /*!
-    \class QDns::Server
-    \brief The QDns::Server class is described in QDns::servers().
+    \class Q3Dns::Server
+    \brief The Q3Dns::Server class is described in Q3Dns::servers().
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -2032,37 +2032,37 @@ QList<QDns::MailServer> QDns::mailServers() const
 
 /*!
     Returns a list of servers if the record type is \c Srv. The class
-    \c QDns::Server contains the following public variables:
+    \c Q3Dns::Server contains the following public variables:
     \list
-    \i QString QDns::Server::name
-    \i Q_UINT16 QDns::Server::priority
-    \i Q_UINT16 QDns::Server::weight
-    \i Q_UINT16 QDns::Server::port
+    \i QString Q3Dns::Server::name
+    \i Q_UINT16 Q3Dns::Server::priority
+    \i Q_UINT16 Q3Dns::Server::weight
+    \i Q_UINT16 Q3Dns::Server::port
     \endlist
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QList<QDns::Server> list = myDns.servers();
-    QList<QDns::Server>::Iterator it = list.begin();
+    QList<Q3Dns::Server> list = myDns.servers();
+    QList<Q3Dns::Server>::Iterator it = list.begin();
     while(it != list.end()) {
         myProcessing(*it);
         ++it;
     }
     \endcode
 */
-QList<QDns::Server> QDns::servers() const
+QList<Q3Dns::Server> Q3Dns::servers() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::servers (%s)", l.ascii());
+    qDebug("Q3Dns::servers (%s)", l.ascii());
 #endif
-    QList<QDns::Server> result;
+    QList<Q3Dns::Server> result;
     if (t != Srv)
         return result;
 
-    QList<QDnsRR *> *cached = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(this);
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain) {
             Server s(rr->target, rr->priority, rr->weight, rr->port);
             result.append(s);
@@ -2088,18 +2088,18 @@ QList<QDns::Server> QDns::servers() const
     \endcode
 
 */
-QStringList QDns::hostNames() const
+QStringList Q3Dns::hostNames() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::hostNames (%s)", l.ascii());
+    qDebug("Q3Dns::hostNames (%s)", l.ascii());
 #endif
     QStringList result;
     if (t != Ptr)
         return result;
 
-    QList<QDnsRR *> *cached = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(this);
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain) {
             QString str(rr->target);
             result.append(str);
@@ -2124,18 +2124,18 @@ QStringList QDns::hostNames() const
     }
     \endcode
 */
-QStringList QDns::texts() const
+QStringList Q3Dns::texts() const
 {
 #if defined(QDNS_DEBUG)
-    qDebug("QDns::texts (%s)", l.ascii());
+    qDebug("Q3Dns::texts (%s)", l.ascii());
 #endif
     QStringList result;
     if (t != Txt)
         return result;
 
-    QList<QDnsRR *> *cached = QDnsDomain::cached(this);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(this);
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain) {
             QString str(rr->text);
             result.append(str);
@@ -2155,25 +2155,25 @@ QStringList QDns::texts() const
 
     The canonical name of a DNS node is its full name, or the full
     name of the target of its CNAME. For example, if l.trolltech.com
-    is a CNAME to lillian.troll.no, and the search path for QDns is
+    is a CNAME to lillian.troll.no, and the search path for Q3Dns is
     "trolltech.com", then the canonical name for all of "lillian",
     "l", "lillian.troll.no." and "l.trolltech.com" is
     "lillian.troll.no.".
 */
 
-QString QDns::canonicalName() const
+QString Q3Dns::canonicalName() const
 {
     // the cname should work regardless of the recordType(), so set the record
     // type temporarily to cname when you look at the cache
-    QDns *that = (QDns*) this; // mutable function
+    Q3Dns *that = (Q3Dns*) this; // mutable function
     RecordType oldType = t;
     that->t = Cname;
-    QList<QDnsRR *> *cached = QDnsDomain::cached(that);
+    QList<Q3DnsRR *> *cached = Q3DnsDomain::cached(that);
 
     that->t = oldType;
 
     for (int i = 0; i < cached->count(); ++i) {
-        QDnsRR *rr = cached->at(i);
+        Q3DnsRR *rr = cached->at(i);
         if (rr->current && !rr->nxdomain && rr->domain) {
             delete cached;
             return rr->target;
@@ -2186,7 +2186,7 @@ QString QDns::canonicalName() const
 #if defined(Q_DNS_SYNCHRONOUS)
 /*! \reimp
 */
-void QDns::connectNotify(const char *signal)
+void Q3Dns::connectNotify(const char *signal)
 {
     if (d->noEventLoop && qstrcmp(signal,SIGNAL(resultsReady()))==0) {
         doSynchronousLookup();
@@ -2197,7 +2197,7 @@ void QDns::connectNotify(const char *signal)
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
 #if defined(Q_DNS_SYNCHRONOUS)
-void QDns::doSynchronousLookup()
+void Q3Dns::doSynchronousLookup()
 {
     // ### not implemented yet
 }
@@ -2295,7 +2295,7 @@ static bool getDnsParamsFromRegistry(const QString &path,
     return r == ERROR_SUCCESS;
 }
 
-void QDns::doResInit()
+void Q3Dns::doResInit()
 {
     char separator = 0;
 
@@ -2375,7 +2375,7 @@ void QDns::doResInit()
             last = nameServer.indexOf(separator, first);
             if (last < 0)
                 last = nameServer.length();
-            QDns tmp(nameServer.mid(first, last-first), QDns::A);
+            Q3Dns tmp(nameServer.mid(first, last-first), Q3Dns::A);
             QList<QHostAddress> address = tmp.addresses();
             Q_LONG i = address.count();
             while(i)
@@ -2399,32 +2399,32 @@ void QDns::doResInit()
 #elif defined(Q_OS_UNIX)
 
 #if defined(Q_DNS_SYNCHRONOUS)
-void QDns::doSynchronousLookup()
+void Q3Dns::doSynchronousLookup()
 {
     if (t!=None && !l.isEmpty()) {
         QListIterator<QString> it = n.begin();
         QListIterator<QString> end = n.end();
         int type;
         switch(t) {
-            case QDns::A:
+            case Q3Dns::A:
                 type = 1;
                 break;
-            case QDns::Aaaa:
+            case Q3Dns::Aaaa:
                 type = 28;
                 break;
-            case QDns::Mx:
+            case Q3Dns::Mx:
                 type = 15;
                 break;
-            case QDns::Srv:
+            case Q3Dns::Srv:
                 type = 33;
                 break;
-            case QDns::Cname:
+            case Q3Dns::Cname:
                 type = 5;
                 break;
-            case QDns::Ptr:
+            case Q3Dns::Ptr:
                 type = 12;
                 break;
-            case QDns::Txt:
+            case Q3Dns::Txt:
                 type = 16;
                 break;
             default:
@@ -2439,12 +2439,12 @@ void QDns::doSynchronousLookup()
             if (len > 0) {
                 ba.resize(len);
 
-                QDnsQuery * query = new QDnsQuery;
+                Q3DnsQuery * query = new Q3DnsQuery;
                 query->started = now();
                 query->id = ++::id;
                 query->t = t;
                 query->l = s;
-                QDnsAnswer a(ba, query);
+                Q3DnsAnswer a(ba, query);
                 a.parse();
             } else if (len == -1) {
                 // res_search error
@@ -2460,7 +2460,7 @@ void QDns::doSynchronousLookup()
 #else
 #endif
 
-void QDns::doResInit()
+void Q3Dns::doResInit()
 {
     if (ns)
         return;
@@ -2575,19 +2575,19 @@ void QDns::doResInit()
                 QString hostname = line.left(n);
                 // ### in case of bad syntax, hostname is invalid. do we care?
                 if (n) {
-                    QDnsRR * rr = new QDnsRR(hostname);
+                    Q3DnsRR * rr = new Q3DnsRR(hostname);
                     if (a.isIPv4Address())
-                        rr->t = QDns::A;
+                        rr->t = Q3Dns::A;
                     else
-                        rr->t = QDns::Aaaa;
+                        rr->t = Q3Dns::Aaaa;
                     rr->address = a;
                     rr->deleteTime = UINT_MAX;
                     rr->expireTime = UINT_MAX;
                     rr->current = true;
                     if (first) {
                         first = false;
-                        QDnsRR * ptr = new QDnsRR(QDns::toInAddrArpaDomain(a));
-                        ptr->t = QDns::Ptr;
+                        Q3DnsRR * ptr = new Q3DnsRR(Q3Dns::toInAddrArpaDomain(a));
+                        ptr->t = Q3Dns::Ptr;
                         ptr->target = hostname;
                         ptr->deleteTime = UINT_MAX;
                         ptr->expireTime = UINT_MAX;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QDns class.
+** Definition of Q3Dns class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDNS_H
-#define QDNS_H
+#ifndef Q3DNS_H
+#define Q3DNS_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -34,9 +34,9 @@
 
 template<typename T> class QList;
 
-class QDnsPrivate;
+class Q3DnsPrivate;
 
-class QM_EXPORT_DNS QDns: public QObject {
+class QM_EXPORT_DNS Q3Dns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
@@ -48,10 +48,10 @@ public:
         Txt
     };
 
-    QDns();
-    QDns(const QString & label, RecordType rr = A);
-    QDns(const QHostAddress & address, RecordType rr = Ptr);
-    virtual ~QDns();
+    Q3Dns();
+    Q3Dns(const QString & label, RecordType rr = A);
+    Q3Dns(const QHostAddress & address, RecordType rr = Ptr);
+    virtual ~Q3Dns();
 
     // to set/change the query
     virtual void setLabel(const QString & label);
@@ -119,21 +119,21 @@ private:
     QString l;
     QStringList n;
     RecordType t;
-    QDnsPrivate * d;
+    Q3DnsPrivate * d;
 
-    friend class QDnsAnswer;
-    friend class QDnsManager;
+    friend class Q3DnsAnswer;
+    friend class Q3DnsManager;
 };
 
 
-// QDnsSocket are sockets that are used for DNS lookup
+// Q3DnsSocket are sockets that are used for DNS lookup
 
-class QDnsSocket: public QObject {
+class Q3DnsSocket: public QObject {
     Q_OBJECT
     // note: Private not public.  This class contains NO public API.
 protected:
-    QDnsSocket(QObject *, const char *);
-    virtual ~QDnsSocket();
+    Q3DnsSocket(QObject *, const char *);
+    virtual ~Q3DnsSocket();
 
 private slots:
     virtual void cleanCache();
@@ -143,4 +143,4 @@ private slots:
 
 #endif // QT_NO_DNS
 
-#endif // QDNS_H
+#endif // Q3DNS_H
