@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
-
+    Q_PROPERTY(QString cleanText READ cleanText)
 public:
     explicit QSpinBox(QWidget *parent = 0);
 #ifdef QT_COMPAT
@@ -47,6 +47,8 @@ public:
 
     QString specialValueText() const;
     void setSpecialValueText(const QString &s);
+
+    QString cleanText() const;
 
     int singleStep() const;
     void setSingleStep(int val);
@@ -97,6 +99,8 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
+    Q_PROPERTY(QString cleanText READ cleanText)
+
 
 public:
     explicit QDoubleSpinBox(QWidget *parent = 0);
@@ -111,6 +115,8 @@ public:
 
     QString specialValueText() const;
     void setSpecialValueText(const QString &s);
+
+    QString cleanText() const;
 
     double singleStep() const;
     void setSingleStep(double val);

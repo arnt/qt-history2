@@ -59,9 +59,6 @@
 
     \i \l alignment: The alignment of the text in the QAbstractSpinBox.
 
-    \i \l cleanText: The text of the QAbstractSpinBox exluding any
-    prefix/suffix.
-
     \i \l wrapping: Whether the QAbstractSpinBox wraps from the
     minimum value to the maximum value and vica versa.
 
@@ -159,25 +156,6 @@ void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
 QString QAbstractSpinBox::text() const
 {
     return lineEdit()->displayText();
-}
-
-/*!
-    \property QAbstractSpinBox::cleanText
-
-    \brief the text of the spin box excluding any prefix, suffix,
-    or leading or trailing whitespace.
-
-    \sa text, QSpinBox::prefix, QSpinBox::suffix
-*/
-
-QString QAbstractSpinBox::cleanText() const
-{
-    if (d->dirty) // needed to make sure text() returns reasonable values if the spin box is not yet shown
-        d->updateEdit();
-
-    QString t = d->edit->displayText();
-    d->strip(&t);
-    return t;
 }
 
 /*!
@@ -934,7 +912,7 @@ void QAbstractSpinBoxPrivate::strip(QString *text) const
 	changed = true;
     }
     if (changed)
-    *text = text->mid(from, length);
+        *text = text->mid(from, length).simplified();
 }
 
 /*!

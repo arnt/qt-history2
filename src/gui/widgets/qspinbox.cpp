@@ -367,6 +367,24 @@ void QSpinBox::setSpecialValueText(const QString &s)
     d->specialvaluetext = s;
     d->update();
 }
+/*!
+    \property QSpinBox::cleanText
+
+    \brief the text of the spin box excluding any prefix, suffix,
+    or leading or trailing whitespace.
+
+    \sa text, QSpinBox::prefix, QSpinBox::suffix
+*/
+
+QString QSpinBox::cleanText() const
+{
+    if (d->dirty)
+        d->updateEdit();
+
+    QString t = d->edit->displayText();
+    d->strip(&t);
+    return t;
+}
 
 
 /*!
@@ -732,6 +750,25 @@ void QDoubleSpinBox::setSpecialValueText(const QString &s)
 {
     d->specialvaluetext = s;
     d->update();
+}
+
+/*!
+    \property QDoubleSpinBox::cleanText
+
+    \brief the text of the spin box excluding any prefix, suffix,
+    or leading or trailing whitespace.
+
+    \sa text, QDoubleSpinBox::prefix, QDoubleSpinBox::suffix
+*/
+
+QString QDoubleSpinBox::cleanText() const
+{
+    if (d->dirty)
+        d->updateEdit();
+
+    QString t = d->edit->displayText();
+    d->strip(&t);
+    return t;
 }
 
 /*!

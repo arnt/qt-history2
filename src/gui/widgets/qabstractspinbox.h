@@ -31,7 +31,6 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
     Q_PROPERTY(QString text READ text)
-    Q_PROPERTY(QString cleanText READ cleanText)
 
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
@@ -47,7 +46,6 @@ public:
     void setButtonSymbols(ButtonSymbols bs);
 
     QString text() const;
-    QString cleanText() const;
 
     bool wrapping() const;
     void setWrapping(bool w);
