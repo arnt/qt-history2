@@ -878,7 +878,7 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0xFEE5, 3 }, // 0x0646    D       NOON
     { 0xFEE9, 3 }, // 0x0647    D       HEH
     { 0xFEED, 1 }, // 0x0648    R       WAW
-    { 0x0649, 0 }, // 0x0649            ALEF MAKSURA // ### Dual, glyphs not consecutive, handle in code.
+    { 0x0649, 3 }, // 0x0649            ALEF MAKSURA // ### Dual, glyphs not consecutive, handle in code.
     { 0xFEF1, 3 }, // 0x064A    D       YEH
     { 0x064B, 0 }, // 0x064B
     { 0x064C, 0 }, // 0x064C
@@ -998,7 +998,7 @@ static const ushort arabicUnicodeMapping[256][2] = {
     { 0x06B7, 0 }, // 0x06B7
     { 0x06B8, 0 }, // 0x06B8
     { 0x06B9, 0 }, // 0x06B9
-    { 0x06BA, 0 }, // 0x06BA
+    { 0xFB9E, 1 }, // 0x06BA    R       NOON GHUNNA
     { 0xFBA0, 3 }, // 0x06BB    D       RNOON
     { 0x06BC, 0 }, // 0x06BC
     { 0x06BD, 0 }, // 0x06BD
