@@ -79,6 +79,80 @@ protected:
 
 /*****************************************************************************
  *
+ * Class QtFileIconView
+ *
+ *****************************************************************************/
+
+class QtFileIconView : public QIconView
+{
+    Q_OBJECT
+
+public:
+    QtFileIconView( const QString &dir, bool isdesktop = FALSE,
+                    QWidget *parent = 0, const char *name = 0 );
+
+    enum ViewMode { Large, Small };
+    
+    void setViewMode( ViewMode m );
+    ViewMode viewMode() const { return vm; }
+
+public slots:
+    void setDirectory( const QString &dir );
+    void setDirectory( const QDir &dir );
+    void newDirectory();
+    QDir currentDir();
+
+signals:
+    void directoryChanged( const QString & );
+    void startReadDir( int dirs );
+    void readNextDir();
+    void readDirDone();
+
+protected slots:
+    void itemDoubleClicked( QIconViewItem *i );
+    void slotDropped( QDropEvent *e );
+
+    void viewLarge();
+    void viewSmall();
+    void viewBottom();
+    void viewRight();
+    void flowEast();
+    void flowSouth();
+    void singleClick();
+    void doubleClick();
+    void sortAscending();
+    void sortDescending();
+    void alignItemsInGrid() {
+	QIconView::alignItemsInGrid( TRUE );
+    }
+
+    void slotItemRightClicked( QIconViewItem *item );
+    void slotViewportRightClicked();
+
+protected:
+    void readDir( const QDir &dir );
+    virtual QDragObject *dragObject();
+    void initDragEnter( QDropEvent *e );
+
+    virtual void keyPressEvent( QKeyEvent *e );
+    virtual void drawBackground( QPainter *p, const QRect &r );
+    static void makeGradient( QPixmap &pmCrop, const QColor &_color1,
+                              const QColor &_color2, int _xSize, int _ySize );
+
+    void resizeContents( int, int );
+
+    QDir viewDir;
+    int newFolderNum;
+    bool isDesktop;
+    QSize sz;
+    QPixmap pix;
+    bool makeNewGradient;
+    ViewMode vm;
+    
+};
+
+/*****************************************************************************
+ *
  * Class QtFileIconViewItem
  *
  *****************************************************************************/
@@ -109,6 +183,8 @@ public:
     virtual void dragEntered();
     virtual void dragLeft();
 
+    void viewModeChanged( QtFileIconView::ViewMode m );
+    
 protected:
     virtual void dropped( QDropEvent *e );
 
@@ -123,74 +199,5 @@ protected slots:
 
 };
 
-
-/*****************************************************************************
- *
- * Class QtFileIconView
- *
- *****************************************************************************/
-
-class QtFileIconView : public QIconView
-{
-    Q_OBJECT
-
-public:
-    QtFileIconView( const QString &dir, bool isdesktop = FALSE,
-                    QWidget *parent = 0, const char *name = 0 );
-
-public slots:
-    void setDirectory( const QString &dir );
-    void setDirectory( const QDir &dir );
-    void newDirectory();
-    QDir currentDir();
-
-signals:
-    void directoryChanged( const QString & );
-    void startReadDir( int dirs );
-    void readNextDir();
-    void readDirDone();
-
-protected slots:
-    void itemDoubleClicked( QIconViewItem *i );
-    void slotDropped( QDropEvent *e );
-
-    void viewLarge();
-    void viewNormal();
-    void viewSmall();
-    void viewBottom();
-    void viewRight();
-    void flowEast();
-    void flowSouth();
-    void singleClick();
-    void doubleClick();
-    void sortAscending();
-    void sortDescending();
-    void alignItemsInGrid() {
-	QIconView::alignItemsInGrid( TRUE );
-    }
-    
-    void slotItemRightClicked( QIconViewItem *item );
-    void slotViewportRightClicked();
-
-protected:
-    void readDir( const QDir &dir );
-    virtual QDragObject *dragObject();
-    void initDragEnter( QDropEvent *e );
-
-    virtual void keyPressEvent( QKeyEvent *e );
-    virtual void drawBackground( QPainter *p, const QRect &r );
-    static void makeGradient( QPixmap &pmCrop, const QColor &_color1,
-                              const QColor &_color2, int _xSize, int _ySize );
-
-    void resizeContents( int, int );
-
-    QDir viewDir;
-    int newFolderNum;
-    bool isDesktop;
-    QSize sz;
-    QPixmap pix;
-    bool makeNewGradient;
-
-};
 
 #endif

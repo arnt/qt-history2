@@ -87,7 +87,6 @@ void FileMainWindow::setup()
 
     fileview = new QtFileIconView( "/", FALSE, splitter );
     fileview->setSelectionMode( QIconView::Extended );
-    fileview->setViewMode( QIconSet::Large );
 
     setCentralWidget( splitter );
 

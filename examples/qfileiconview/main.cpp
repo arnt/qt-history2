@@ -25,7 +25,6 @@ int main( int argc, char **argv )
 	fiv.setCaption( "desktop" );
 	fiv.showMaximized();
 	fiv.setSelectionMode( QIconView::Extended );
-	fiv.setViewMode( QIconSet::Large );
 	fiv.setDirectory( "/" );
 	return a.exec();
     } else {

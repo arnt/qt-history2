@@ -20,6 +20,7 @@
 #include <qpopupmenu.h>
 #include <qcursor.h>
 #include <qapplication.h>
+#include <qwmatrix.h>
 
 #include <stdlib.h>
 
@@ -216,21 +217,33 @@ static const char * folder_locked_icon[]={
     "....................##d#b###....",
     "......................####......"};
 
-static QIconSet *iconFolderLocked = 0;
-static QIconSet *iconFolder = 0;
-static QIconSet *iconFile = 0;
-static QIconSet *iconLink = 0;
+static QPixmap *iconFolderLockedLarge = 0;
+static QPixmap *iconFolderLarge = 0;
+static QPixmap *iconFileLarge = 0;
+static QPixmap *iconLinkLarge = 0;
+static QPixmap *iconFolderLockedSmall = 0;
+static QPixmap *iconFolderSmall = 0;
+static QPixmap *iconFileSmall = 0;
+static QPixmap *iconLinkSmall = 0;
 
 static void cleanup()
 {
-    delete iconFolderLocked;
-    iconFolderLocked = 0;
-    delete iconFolder;
-    iconFolder = 0;
-    delete iconFile;
-    iconFile = 0;
-    delete iconLink;
-    iconLink = 0;
+    delete iconFolderLockedLarge;
+    iconFolderLockedLarge = 0;
+    delete iconFolderLarge;
+    iconFolderLarge = 0;
+    delete iconFileLarge;
+    iconFileLarge = 0;
+    delete iconLinkLarge;
+    iconLinkLarge = 0;
+    delete iconFolderLockedSmall;
+    iconFolderLockedSmall = 0;
+    delete iconFolderSmall;
+    iconFolderSmall = 0;
+    delete iconFileSmall;
+    iconFileSmall = 0;
+    delete iconLinkSmall;
+    iconLinkSmall = 0;
 }
 
 /*****************************************************************************
@@ -461,28 +474,11 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 	itemType = Dir;
     else if ( itemFileInfo->isFile() )
 	itemType = File;
-    else if ( itemFileInfo->isSymLink() )
+    if ( itemFileInfo->isSymLink() )
 	itemType = Link;
 
-    setDropEnabled( FALSE );
-
-    switch ( itemType )
-    {
-    case Dir:
-	if ( !QDir( itemFileName ).isReadable() )
-	    setIcon( *iconFolderLocked, FALSE );
-	else
-	    setIcon( *iconFolder, FALSE );
-	setDropEnabled( QDir( itemFileName ).isReadable() );
-	break;
-    case File:
-	setIcon( *iconFile, FALSE );
-	break;
-    case Link:
-	setIcon( *iconLink, FALSE );
-	break;
-    }
-
+    viewModeChanged( ( (QtFileIconView*)iconView() )->viewMode() );
+    
     if ( itemFileInfo->fileName() == "." ||
 	 itemFileInfo->fileName() == ".." )
 	setRenameEnabled( FALSE );
@@ -492,9 +488,42 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     connect( &timer, SIGNAL( timeout() ),
 	     this, SLOT( openFolder() ) );
 
-
     // now do init stuff, to align in grid and so on
     init();
+}
+
+void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
+{
+    switch ( itemType ) {
+    case Dir: {
+	if ( !QDir( itemFileName ).isReadable() ) {
+	    if ( m == QtFileIconView::Small )
+		setIcon( *iconFolderLockedSmall, TRUE, FALSE );
+	    else
+		setIcon( *iconFolderLockedLarge, TRUE, FALSE );
+	} else {
+	    if ( m == QtFileIconView::Small )
+		setIcon( *iconFolderSmall, TRUE, FALSE );
+	    else
+		setIcon( *iconFolderLarge, TRUE, FALSE );
+	}
+	setDropEnabled( QDir( itemFileName ).isReadable() );
+    } break;
+    case File: {
+	    if ( m == QtFileIconView::Small )
+		setIcon( *iconFileSmall, TRUE, FALSE );
+	    else
+		setIcon( *iconFileLarge, TRUE, FALSE );
+	    setDropEnabled( FALSE );
+    } break;
+    case Link: {
+	    if ( m == QtFileIconView::Small )
+		setIcon( *iconLinkSmall, TRUE, FALSE );
+	    else
+		setIcon( *iconLinkLarge, TRUE, FALSE );
+	    setDropEnabled( FALSE );
+    } break;
+    }
 }
 
 QtFileIconViewItem::~QtFileIconViewItem()
@@ -593,18 +622,30 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 ),
       isDesktop( isdesktop ), makeNewGradient( TRUE )
 {
-    if ( !iconFolderLocked ) {
+    if ( !iconFolderLockedLarge ) {
 	qAddPostRoutine( cleanup );
+	QWMatrix m;
+	m.scale( 0.6, 0.6 );
 	QPixmap pix( folder_locked_icon );
-	iconFolderLocked = new QIconSet( pix );
+	iconFolderLockedLarge = new QPixmap( pix );
+	pix = pix.xForm( m );
+	iconFolderLockedSmall = new QPixmap( pix );
 	pix = QPixmap( folder_icon );
-	iconFolder = new QIconSet( pix );
+	iconFolderLarge = new QPixmap( pix );
+	pix = pix.xForm( m );
+	iconFolderSmall = new QPixmap( pix );
 	pix = QPixmap( file_icon );
-	iconFile = new QIconSet( pix );
+	iconFileLarge = new QPixmap( pix );
+	pix = pix.xForm( m );
+	iconFileSmall = new QPixmap( pix );
 	pix = QPixmap( link_icon );
-	iconLink = new QIconSet( pix );
+	iconLinkLarge = new QPixmap( pix );
+	pix = pix.xForm( m );
+	iconLinkSmall = new QPixmap( pix );
     }
 
+    vm = Large;
+    
     setGridX( 100 );
     setResizeMode( Adjust );
     setWordWrapIconText( FALSE );
@@ -753,9 +794,10 @@ QDragObject *QtFileIconView::dragObject()
 
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
     QtFileIconDrag *drag = new QtFileIconDrag( viewport() );
-    drag->setPixmap( QPixmap( currentItem()->icon().pixmap( viewMode(), QIconSet::Normal ) ),
+    drag->setPixmap( QPixmap( currentItem()->icon() ),
  		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
-    for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; item = (QtFileIconViewItem*)item->nextItem() )
+    for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; 
+	  item = (QtFileIconViewItem*)item->nextItem() )
 	if ( item->isSelected() )
 	    drag->append( QtFileIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
 						     item->iconRect( FALSE ).y() - orig.y(),
@@ -807,17 +849,12 @@ void QtFileIconView::slotDropped( QDropEvent *e )
 
 void QtFileIconView::viewLarge()
 {
-    setViewMode( QIconSet::Large );
-}
-
-void QtFileIconView::viewNormal()
-{
-    setViewMode( QIconSet::Automatic );
+    setViewMode( Large );
 }
 
 void QtFileIconView::viewSmall()
 {
-    setViewMode( QIconSet::Small );
+    setViewMode( Small );
 }
 
 void QtFileIconView::viewBottom()
@@ -887,7 +924,6 @@ void QtFileIconView::slotViewportRightClicked()
     QPopupMenu *menu = new QPopupMenu( this );
 
     menu->insertItem( "&Large View", this, SLOT( viewLarge() ) );
-    menu->insertItem( "&Normal View", this, SLOT( viewNormal() ) );
     menu->insertItem( "&Small View", this, SLOT( viewSmall() ) );
     menu->insertSeparator();
     menu->insertItem( "Text at the &bottom", this, SLOT( viewBottom() ) );
@@ -990,4 +1026,17 @@ void QtFileIconView::resizeContents( int w, int h )
     h = QMAX( h, viewport()->height() );
     if ( makeNewGradient )
 	makeGradient( pix, Qt::blue, Qt::yellow, w, h );
+}
+
+void QtFileIconView::setViewMode( ViewMode m )
+{
+    if ( m == vm )
+	return;
+
+    vm = m;
+    QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem();
+    for ( ; item; item = (QtFileIconViewItem*)item->nextItem() )
+	item->viewModeChanged( vm );
+    
+    alignItemsInGrid();
 }

@@ -144,8 +144,8 @@ public:
     QIconViewItem( QIconView *parent, QIconViewItem *after );
     QIconViewItem( QIconView *parent, const QString &text );
     QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text );
-    QIconViewItem( QIconView *parent, const QString &text, const QIconSet &icon );
-    QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QIconSet &icon );
+    QIconViewItem( QIconView *parent, const QString &text, const QPixmap &icon );
+    QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPixmap &icon );
     virtual ~QIconViewItem();
 
     virtual void setRenameEnabled( bool allow );
@@ -153,7 +153,7 @@ public:
     virtual void setDropEnabled( bool allow );
 
     virtual QString text() const;
-    virtual QIconSet icon() const;
+    virtual QPixmap icon() const;
     virtual QString key() const;
 
     bool renameEnabled() const;
@@ -196,9 +196,6 @@ public:
     QFont font() const;
     QColor color() const;
 
-    virtual void setViewMode( QIconSet::Size mode );
-    QIconSet::Size viewMode() const;
-
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
     void rename();
@@ -211,9 +208,9 @@ signals:
 
 public slots:
     virtual void setText( const QString &text );
-    virtual void setIcon( const QIconSet &icon );
-    virtual void setText( const QString &text, bool recalc );
-    virtual void setIcon( const QIconSet &icon, bool recalc );
+    virtual void setIcon( const QPixmap &icon );
+    virtual void setText( const QString &text, bool recalc, bool redraw = TRUE );
+    virtual void setIcon( const QPixmap &icon, bool recalc, bool redraw = TRUE );
     virtual void setKey( const QString &k );
 
 protected slots:
@@ -239,7 +236,7 @@ private:
     QIconView *view;
     QString itemText, itemKey;
     QString tmpText;
-    QIconSet itemIcon;
+    QPixmap itemIcon;
     QIconViewItem *prev, *next;
     bool allow_rename, allow_drag, allow_drop;
     bool selected, selectable;
@@ -247,7 +244,6 @@ private:
     QFontMetrics *fm;
     QFont *f;
     QColor *c;
-    QIconSet::Size itemViewMode;
     QIconViewItemLineEdit *renameBox;
     bool isReady;
     QRect oldRect;
@@ -308,9 +304,6 @@ public:
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
 
     unsigned int count() const;
-
-    virtual void setViewMode( QIconSet::Size mode );
-    QIconSet::Size viewMode() const;
 
 public:
     virtual void showEvent( QShowEvent * );
