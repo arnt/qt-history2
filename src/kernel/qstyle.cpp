@@ -1015,6 +1015,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value SR_SliderFocusRect  area for the focus indicator.
+  \value SR_SliderHandleRect  area to draw the handle.
 
 
   \value SR_DockWindowHandleRect  area for the tear-off handle.

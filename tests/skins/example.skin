@@ -4,6 +4,13 @@
     <background><red>0</red><blue>0</blue><green>0</green></background>
     <text><red>190</red><blue>190</blue><green>240</green></text>
 </color>
+<background>
+    <source>th_buttons.png</source>
+    <rect>
+        <x>0</x><y>180</y>
+	<width>60</width><height>60</height>
+    </rect>
+</background>
 <widget type="QPushButton" name="push">
     <size><width>100</width><height>35</height></size>
     <image name="Up">
@@ -111,5 +118,21 @@
 	    <width>13</width><height>13</height>
 	</rect>
     </image>
+</widget>
+<widget type="QSlider" name="horizontal_s">
+    <size>
+        <width>400</width><height>20</height>
+    </size>
+    <imageset name="Base">
+        <source>th_range.png</source>
+	<rect>
+	    <x>0</x><y>0</y>
+	    <width>400</width><height>20</height>
+	</rect>
+	<offset>
+	    <x>0</x><y>5</y>
+	</offset>
+	<count>76</count>
+    </imageset>
 </widget>
 </skin>
