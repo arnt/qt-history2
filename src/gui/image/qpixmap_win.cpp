@@ -68,7 +68,7 @@ public:
         return n.offset == 0 && n.size == max_height;
     }
     QPixmap *sharedPixmap() const { return pixmap; }
-    HDC             handle()            const { return pixmap->handle(); }
+    HDC             handle()            const { return (HDC)pixmap->handle(); }
     HBITMAP  hbm()            const { return pixmap->hbm(); }
     int             allocCell(int height);
     void     freeCell(int offset, int height);
@@ -100,15 +100,15 @@ void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
 {
     if (data->mcp)
         freeCell(true);
-    if (!hdc)
-        hdc = alloc_mem_dc(0, &data->old_hbm);
+    if (!data->hd)
+        data->hd = alloc_mem_dc(0, &data->old_hbm);
 
-    HBITMAP hBitmap = CreateDIBSection(hdc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0);
+    HBITMAP hBitmap = CreateDIBSection((HDC)data->hd, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0);
     if (bytes)
         memcpy(data->realAlphaBits, bytes, length);
 
-    DeleteObject(SelectObject(hdc, data->old_hbm));
-    data->old_hbm = (HBITMAP)SelectObject(hdc, hBitmap);
+    DeleteObject(SelectObject((HDC)data->hd, data->old_hbm));
+    data->old_hbm = (HBITMAP)SelectObject((HDC)data->hd, hBitmap);
     DATA_HBM = hBitmap;
 }
 
@@ -141,7 +141,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     else if (d < 0 || d == dd)                // compatible pixmap
         data->d = dd;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
-        hdc = 0;
+        data->hd = 0;
         DATA_HBM = 0;
         data->old_hbm = 0;
         if (!make_null)                        // invalid parameters
@@ -151,7 +151,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->w = w;
     data->h = h;
     if (data->optim == MemoryOptim && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-        hdc = 0;
+        data->hd = 0;
         if (allocCell() >= 0)                        // successful
             return;
     }
@@ -225,11 +225,11 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     if (!DATA_HBM) {
         data->w = 0;
         data->h = 0;
-        hdc = 0;
+        data->hd = 0;
         qSystemWarning("QPixmap: Pixmap allocation failed");
         return;
     }
-    hdc = alloc_mem_dc(DATA_HBM, &data->old_hbm);
+    data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm);
 }
 
 
@@ -251,13 +251,13 @@ void QPixmap::deref()
         if (data->maskpm)
             delete data->maskpm;
         if (DATA_HBM) {
-            DeleteObject((hdc ? SelectObject(hdc, data->old_hbm) : (HGDIOBJ)DATA_HBM));
+            DeleteObject((data->hd ? SelectObject((HDC)data->hd, data->old_hbm) : (HGDIOBJ)DATA_HBM));
             DATA_HBM = 0;
             data->old_hbm = 0;
         }
-        if (hdc) {
-            DeleteDC(hdc);
-            hdc = 0;
+        if (data->hd) {
+            DeleteDC((HDC)data->hd);
+            data->hd = 0;
         }
         delete data->paintEngine;
         delete data;
@@ -341,7 +341,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     memcpy(data->ppvBits, newbits, bpl*h);
 #endif
 
-    hdc = alloc_mem_dc(DATA_HBM, &data->old_hbm );
+    data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm );
     delete [] newbits;
     if (defOptim != NormalOptim)
         setOptimization(defOptim);
@@ -402,7 +402,7 @@ void QPixmap::fill(const QColor &fillColor)
         dc = DATA_MCPI_MCP->handle();
         sy = DATA_MCPI_OFFSET;
     } else {
-        dc = hdc;
+        dc = (HDC)data->hd;
         sy = 0;
     }
     if (fillColor == black) {
@@ -430,10 +430,10 @@ int QPixmap::metric(int m) const
         QPixmap *spm;
         if (data->mcp) {
             spm = DATA_MCPI_MCP->sharedPixmap();
-            dc  = spm->handle();
+            dc  = (HDC)spm->handle();
         } else {
             spm = 0;
-            dc  = handle();
+            dc  = (HDC)handle();
         }
         switch (m) {
             case QPaintDeviceMetrics::PdmDpiX:
@@ -460,13 +460,13 @@ int QPixmap::metric(int m) const
                 if (GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE)
                     val = GetDeviceCaps(dc, SIZEPALETTE);
                 else {
-                    int bpp = GetDeviceCaps(hdc, BITSPIXEL);
+                    int bpp = GetDeviceCaps((HDC)data->hd, BITSPIXEL);
                     if(bpp==32)
                         val = INT_MAX;
                     else if(bpp<=8)
-                        val = GetDeviceCaps(hdc, NUMCOLORS);
+                        val = GetDeviceCaps((HDC)data->hd, NUMCOLORS);
                     else
-                        val = 1 << (bpp * GetDeviceCaps(hdc, PLANES));
+                        val = 1 << (bpp * GetDeviceCaps((HDC)data->hd, PLANES));
                 }
                 break;
             case QPaintDeviceMetrics::PdmDepth:
@@ -572,7 +572,7 @@ QImage QPixmap::convertToImage() const
         ((QPixmap*)this)->allocCell();
 #else
     memcpy(image.bits(), data->ppvBits, image.numBytes());
-    qt_GetDIBColorTable(hdc, &ds, 0, ncols, (RGBQUAD*)coltbl);
+    qt_GetDIBColorTable(data->hd, &ds, 0, ncols, (RGBQUAD*)coltbl);
 #endif
 
     for (int i=0; i<ncols; i++) {                // copy color table
@@ -835,7 +835,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         dc = DATA_MCPI_MCP->handle();
         sy = DATA_MCPI_OFFSET;
     } else {
-        dc = handle();
+        dc = (HDC)handle();
         sy = 0;
     }
 
@@ -923,7 +923,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         dc = pm.DATA_MCPI_MCP->handle();
         sy = pm.DATA_MCPI_OFFSET;
     } else {
-        dc = pm.handle();
+        dc = (HDC)pm.handle();
         sy = 0;
     }
     HDC src_dc = GetDC(window);
@@ -972,7 +972,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                 dc = DATA_MCPI_MCP->handle();
                 sy = DATA_MCPI_OFFSET;
             } else {
-                dc = handle();
+                dc = (HDC)handle();
                 sy = 0;
             }
             HDC pm_dc;
@@ -981,7 +981,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
                 pm_dc = pm.multiCellHandle();
                 pm_sy = pm.multiCellOffset();
             } else {
-                pm_dc = pm.handle();
+                pm_dc = (HDC)pm.handle();
                 pm_sy = 0;
             }
 #ifndef Q_OS_TEMP
@@ -1119,7 +1119,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
         pm_dc = pm.multiCellHandle();
         pm_sy = pm.multiCellOffset();
     } else {
-        pm_dc = pm.handle();
+        pm_dc = (HDC)pm.handle();
         pm_sy = 0;
     }
     pm.data->uninit = false;
@@ -1361,11 +1361,11 @@ int QPixmap::allocCell()
         }
         list->append(mcp);
     }
-    if (hdc) {                                // copy into multi cell pixmap
-        BitBlt(mcp->handle(), 0, offset, width(), height(), hdc,
-                0, 0, SRCCOPY);
-        DeleteDC(hdc);
-        hdc = 0;
+    if (data->hd) {                                // copy into multi cell pixmap
+        BitBlt(mcp->handle(), 0, offset, width(), height(), (HDC)data->hd,
+               0, 0, SRCCOPY);
+        DeleteDC((HDC)data->hd);
+        data->hd = 0;
         DeleteObject(DATA_HBM);
         DATA_HBM = 0;
     }
@@ -1389,7 +1389,7 @@ void QPixmap::freeCell(bool terminate)
     data->mcp = false;
     delete DATA_MCPI;
     DATA_MCPI = 0;
-    Q_ASSERT(hdc == 0);
+    Q_ASSERT(data->hd == 0);
     if (terminate) {                                // pixmap is being destroyed
         DATA_HBM = 0;
     } else {
@@ -1397,8 +1397,8 @@ void QPixmap::freeCell(bool terminate)
             DATA_HBM = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
         else
             DATA_HBM = CreateBitmap(data->w, data->h, 1, 1, 0);
-        hdc = alloc_mem_dc(DATA_HBM, &data->old_hbm);
-        BitBlt(hdc, 0, 0, data->w, data->h, mcp->handle(), 0, offset, SRCCOPY);
+        data->hd = alloc_mem_dc(DATA_HBM, &data->old_hbm);
+        BitBlt((HDC)data->hd, 0, 0, data->w, data->h, mcp->handle(), 0, offset, SRCCOPY);
     }
     mcp->freeCell(offset, data->h);
     if (mcp->isEmpty()) {                        // no more cells left

@@ -35,6 +35,11 @@ class QX11Info;
 class QX11PaintEngine;
 #endif
 
+
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                          const QPixmap *src, int sx = 0, int sy = 0,
+                          int sw = -1, int sh = -1);
+
 class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
 {
 public:
@@ -340,9 +345,5 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
-
-Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                       const QPixmap *src, int sx = 0, int sy = 0,
-                       int sw = -1, int sh = -1);
 
 #endif // QPIXMAP_H

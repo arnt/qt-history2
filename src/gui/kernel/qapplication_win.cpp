@@ -1004,12 +1004,12 @@ static void drawTile(HDC hdc, int x, int y, int w, int h,
                 drawW = x + w - xPos;
             if (pixmap->isMultiCellPixmap()) {
                 BitBlt(hdc, xPos, yPos,
-                        drawW, drawH, pixmap->multiCellHandle(),
-                        xOff, yOff+pixmap->multiCellOffset(), SRCCOPY);
+                       drawW, drawH, pixmap->multiCellHandle(),
+                       xOff, yOff+pixmap->multiCellOffset(), SRCCOPY);
             } else {
                 BitBlt(hdc, xPos, yPos,
-                        drawW, drawH, pixmap->handle(),
-                        xOff, yOff, SRCCOPY);
+                       drawW, drawH, (HDC)pixmap->handle(),
+                       xOff, yOff, SRCCOPY);
             }
             xPos += drawW;
             xOff = 0;
@@ -3177,18 +3177,18 @@ bool QETWidget::translatePaintEvent(const MSG &)
     if (!GetUpdateRect(winId(), 0, false)  // The update bounding rect is invalid
          || (res == ERROR)
          || (res == NULLREGION)) {
-        hdc = 0;
+        d->hd = 0;
         return false;
     }
 
     PAINTSTRUCT ps;
-    hdc = BeginPaint(winId(), &ps);
+    d->hd = BeginPaint(winId(), &ps);
 
     // Mapping region from system to qt (32 bit) coordinate system.
     rgn.translate(data->wrect.topLeft());
     repaint(rgn);
 
-    hdc = 0;
+    d->hd = 0;
     EndPaint(winId(), &ps);
     return true;
 }

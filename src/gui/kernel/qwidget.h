@@ -605,6 +605,7 @@ private:
     friend class QGLContext;
     friend class QFontEngineXft;
     friend class QX11PaintEngine;
+    friend class QWin32PaintEngine;
 
 #ifdef Q_WS_MAC
     friend class QMacSavedPortInfo;

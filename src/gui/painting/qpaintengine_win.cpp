@@ -31,6 +31,7 @@
 
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
+#include <private/qwidget_p.h>
 
 #include <qdebug.h>
 
@@ -322,9 +323,9 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     if (pdev->devType() == QInternal::Widget) {
         QWidget *w = (QWidget*)pdev;
-        d->usesWidgetDC = (w->hdc != 0);
+        d->usesWidgetDC = (w->handle() != 0);
         if (d->usesWidgetDC) {
-            d->hdc = w->hdc;                        // during paint event
+            d->hdc = (HDC)w->handle();                        // during paint event
         } else {
             if (w->testAttribute(Qt::WA_PaintUnclipped)) {
                 d->hdc = GetWindowDC(w->winId());
@@ -341,10 +342,10 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
             } else {
                 d->hdc = GetDC(w->isDesktop() ? 0 : w->winId());
             }
-            w->hdc = d->hdc;
+            const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
         }
     } else if (pdev->devType() == QInternal::Pixmap) {
-        d->hdc = static_cast<QPixmap *>(pdev)->handle();
+        d->hdc = (HDC)static_cast<QPixmap *>(pdev)->handle();
     }
     Q_ASSERT(d->hdc);
 
@@ -410,7 +411,7 @@ bool QWin32PaintEngine::end()
         if (!d->usesWidgetDC) {
             QWidget *w = (QWidget*)d->pdev;
             ReleaseDC(w->isDesktop() ? 0 : w->winId(), d->hdc);
-            w->hdc = 0;
+            const_cast<QWidgetPrivate*>(w->d)->hd = 0;
         }
     } else if (d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *pm = (QPixmap *)d->pdev;
@@ -1077,7 +1078,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         pm_dc = pm->multiCellHandle();
         pm_offset = pm->multiCellOffset();
     } else {
-        pm_dc = pm->handle();
+        pm_dc = (HDC)pm->handle();
         pm_offset = 0;
     }
 
@@ -1115,7 +1116,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             state->painter->setClipRegion(region);
             updateState(state);
             StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
-                       pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
+                       pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
                        SRCCOPY);
             state->painter->restore();
         } else {
@@ -1595,6 +1596,8 @@ void QWin32PaintEnginePrivate::beginGdiplus()
     SetGraphicsMode(hdc, GM_COMPATIBLE);
     SelectClipRgn(hdc, 0);
 
+    printf("QWin32PaintEnginePrivate::beginGdiplus()");
+
     if (!d->gdiplusEngine)
         d->gdiplusEngine = new QGdiplusPaintEngine(pdev);
     d->gdiplusEngine->begin(pdev);
@@ -1913,7 +1916,7 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
     d->pdev = pdev;
     // Verify the presence of an HDC
     if (pdev->devType() == QInternal::Widget) {
-        d->hdc = pdev->handle();
+        d->hdc = (HDC)pdev->handle();
         Q_ASSERT(d->hdc);
         //     d->graphics = new Graphis(hdc);
         GdipCreateFromHDC(d->hdc, &d->graphics);

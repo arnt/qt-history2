@@ -385,7 +385,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     setWState(Qt::WState_Created);                // accept move/resize events
-    hdc = 0;                                        // no display context
+    d->hd = 0;                                        // no display context
 
     if (window) {                                // got window from outside
         if (IsWindowVisible(window))
@@ -916,15 +916,16 @@ void QWidget::repaint(const QRegion& rgn)
     bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
                           && br.width()  <= QWinDoubleBuffer::MaxWidth
                           && br.height() <= QWinDoubleBuffer::MaxHeight);
-    bool tmphdc = !hdc;
+
+    bool tmphdc = !d->hd;
     if (tmphdc)
-        hdc = GetDC(winId());
-    HDC old_dc = hdc;
+        d->hd = GetDC(winId());
+    HDC old_dc = (HDC)d->hd;
 
     QPoint redirectionOffset;
 
     if (double_buffer) {
-        qt_win_get_double_buffer(&hdc, br.width(), br.height());
+        qt_win_get_double_buffer( (HDC*) &d->hd, br.width(), br.height());
         redirectionOffset = br.topLeft();
     } else {
         redirectionOffset = data->wrect.topLeft();
@@ -945,7 +946,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (testAttribute(Qt::WA_NoSystemBackground)) {
         if (double_buffer && !testAttribute(Qt::WA_NoBackground)) {
-            BitBlt(hdc, 0, 0, brWS.width(), brWS.height(),
+            BitBlt((HDC)d->hd, 0, 0, brWS.width(), brWS.height(),
                    old_dc, brWS.x(), brWS.y(), SRCCOPY);
         }
     } else if (!testAttribute(Qt::WA_NoBackground)) {
@@ -959,7 +960,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if (double_buffer) {
-            qt_erase_background(q->hdc, br.x()-redirectionOffset.x(), br.y()-redirectionOffset.y(),
+            qt_erase_background((HDC)d->hd, br.x()-redirectionOffset.x(), br.y()-redirectionOffset.y(),
                                 br.width(), br.height(),
                                 palette().brush(w->d->bg_role),
                                 br.x() + offset.x(), br.y() + offset.y(),
@@ -967,10 +968,10 @@ void QWidget::repaint(const QRegion& rgn)
         } else {
             QRegion mappedRegion(rgn);
             mappedRegion.translate(-data->wrect.topLeft());
-            SelectClipRgn(hdc, mappedRegion.handle());
+            SelectClipRgn((HDC)d->hd, mappedRegion.handle());
             QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
             // ### This triggers bitblt on entire area. Potentially a lot. Clip here too!
-            qt_erase_background(hdc, 0, 0, bgsize.width(), bgsize.height(),
+            qt_erase_background((HDC)d->hd, 0, 0, bgsize.width(), bgsize.height(),
                                 palette().brush(w->d->bg_role), offset.x(), offset.y(),
                                 this);
         }
@@ -999,7 +1000,7 @@ void QWidget::repaint(const QRegion& rgn)
                 offset -= w->pos();
             }
         }
-        SelectClipRgn(hdc, 0);
+        SelectClipRgn((HDC)d->hd, 0);
     }
 
     QPaintEvent e(rgn);
@@ -1020,12 +1021,12 @@ void QWidget::repaint(const QRegion& rgn)
             BitBlt(old_dc,
                    rr.x(), rr.y(),
                    rr.width(), rr.height(),
-                   hdc,
+                   (HDC)d->hd,
                    rr.x()-brWS.x(), rr.y()-brWS.y(),
                    SRCCOPY);
         }
 
-        hdc = old_dc;
+        d->hd = old_dc;
 
         if (!qApp->active_window) {
             extern int qt_double_buffer_timer;
@@ -1036,8 +1037,8 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (tmphdc) {
-        ReleaseDC(winId(), hdc);
-        hdc = 0;
+        ReleaseDC(winId(), (HDC)d->hd);
+        d->hd = 0;
     }
 
     clearWState(Qt::WState_InPaintEvent);
@@ -1684,13 +1685,13 @@ int QWidget::metric(int m) const
             if (GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE)
                 val = GetDeviceCaps(gdc, SIZEPALETTE);
             else {
-                int bpp = GetDeviceCaps(hdc, BITSPIXEL);
+                int bpp = GetDeviceCaps((HDC)d->hd, BITSPIXEL);
                 if(bpp==32)
                     val = INT_MAX;
                 else if(bpp<=8)
-                    val = GetDeviceCaps(hdc, NUMCOLORS);
+                    val = GetDeviceCaps((HDC)d->hd, NUMCOLORS);
                 else
-                    val = 1 << (bpp * GetDeviceCaps(hdc, PLANES));
+                    val = 1 << (bpp * GetDeviceCaps((HDC)d->hd, PLANES));
             }
             break;
         case QPaintDeviceMetrics::PdmDepth:
