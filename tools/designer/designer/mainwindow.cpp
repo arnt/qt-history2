@@ -3289,7 +3289,7 @@ QString MainWindow::whatsThisFrom( const QString &key )
 {
     if ( menuHelpFile.isEmpty() ) {
 	QString fn = getenv( "QTDIR" );
-	fn += "/doc/html/designer-manual-11.html";
+	fn += "/doc/html/designer-manual-10.html";
 	QFile f( fn );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );
