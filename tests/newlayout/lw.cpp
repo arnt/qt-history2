@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#6 $
+** $Id: //depot/qt/main/tests/newlayout/lw.cpp#7 $
 **
 ** QGridLayout example
 **
@@ -8,9 +8,9 @@
 *****************************************************************************/
 #include <qapplication.h>
 #include <qlabel.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 #include <qcolor.h>
-#include <qgroupbox.h> 
+#include <qgroupbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 
@@ -23,7 +23,7 @@
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-    QWidget *g = new QGrid( 3 ); 
+    QWidget *g = new QGrid( 3 );
 
 
 
@@ -48,10 +48,10 @@ int main( int argc, char **argv )
 
     for ( int i = 0; i < 3; i++ ) {
 	switch ( i ) {
-	case 0: 
+	case 0:
 	    f= new QHBox(g);
 	    break;
-	case 1: 
+	case 1:
 	    f = new QVBox(g);
 	    break;
 	default:
@@ -82,7 +82,7 @@ int main( int argc, char **argv )
 	l->setText("Even more label.");
 	l->setBackgroundColor( green );
     }
-    
+
     g->show();
     a.setMainWidget(g);
     a.exec();
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
     qb->setFixedSize( qb->size() );
     gm->addWidget( qb, 0, 2, AlignCenter );
-    
+
 
     QMultiLineEdit *ed = new QMultiLineEdit(f);
     ed->setText("This is supposed to be a large window\n you know.");

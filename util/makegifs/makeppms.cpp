@@ -3,11 +3,11 @@
 
 #include <qapplication.h>
 
-#include <qmainwindow.h> 
-#include <qtoolbutton.h> 
-#include <qtoolbar.h> 
-#include <qstatusbar.h> 
-#include <qcheckbox.h> 
+#include <qmainwindow.h>
+#include <qtoolbutton.h>
+#include <qtoolbar.h>
+#include <qstatusbar.h>
+#include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qcombobox.h>
@@ -23,7 +23,7 @@
 #include <qspinbox.h>
 #include <qtableview.h>
 #include <qlistbox.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 #include <qpopupmenu.h>
 #include <qheader.h>
 #include <qlineedit.h>

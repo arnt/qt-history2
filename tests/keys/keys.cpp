@@ -6,7 +6,7 @@
 
 #include <qapplication.h>
 #include <qwidget.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 
 class Main : public QWidget {
 public:
@@ -54,7 +54,7 @@ public:
     void dump(const char* type, QKeyEvent* e)
     {
 	QString line;
-	if (!type) 
+	if (!type)
 	    line.sprintf("%2s %6s %3s    %3s", "", "key", "asc", "sta");
 	else
 	    line.sprintf("%2s %6x %3x(%c) %3x", type, e->key(), e->ascii(),

@@ -3,7 +3,7 @@
 #include <qfiledialog.h>
 #include <qpushbutton.h>
 #include <qpopupmenu.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
 
@@ -111,7 +111,7 @@ public slots:
     void popup();
     void setMenu( int );
 protected:
-    void paintEvent( QPaintEvent * );    
+    void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent *e )
     {
 	pop->popup(mapToGlobal(e->pos()));
@@ -126,7 +126,7 @@ private:
     enum { pixId = 1, textId, bothId };
 };
 
-Urk::Urk()  : QWidget(0,0) 
+Urk::Urk()  : QWidget(0,0)
 {
 
     pix = new QPixmap( unix_pix );
@@ -225,5 +225,5 @@ int main( int argc, char ** argv )
     a.setMainWidget( &u );
     return a.exec();
 }
- 
+
 #include "pop.moc"

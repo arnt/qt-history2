@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#4 $
+** $Id: //depot/qt/main/tests/layout/hex.cpp#5 $
 **
-** Geometry management example: Putting a QBoxLayout inside a 
+** Geometry management example: Putting a QBoxLayout inside a
 ** QGridLayout
 **
 ** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
@@ -9,15 +9,15 @@
 *****************************************************************************/
 #include <qapplication.h>
 #include <qlabel.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 #include <qcolor.h>
-#include <qgroupbox.h> 
+#include <qgroupbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 
 #include <qwidget.h>
 
-class Kill : public QWidget 
+class Kill : public QWidget
 {
 public:
     Kill( QWidget *parent, const char *name=0 )
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
     qb->setFixedSize( qb->size() );
     gm->addWidget( qb, 0, 2, AlignCenter );
-    
+
 
     QMultiLineEdit *ed = new QMultiLineEdit(f);
     ed->setText("This is supposed to be a large window\n you know.");

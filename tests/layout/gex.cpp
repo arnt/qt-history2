@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/gex.cpp#4 $
+** $Id: //depot/qt/main/tests/layout/gex.cpp#5 $
 **
 ** QGridLayout example
 **
@@ -8,15 +8,15 @@
 *****************************************************************************/
 #include <qapplication.h>
 #include <qlabel.h>
-#include <qmultilined.h>
+#include <qmultilinedit.h>
 #include <qcolor.h>
-#include <qgroupbox.h> 
+#include <qgroupbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 
 #include <qwidget.h>
 
-class Kill : public QWidget 
+class Kill : public QWidget
 {
 public:
     Kill( QWidget *parent, const char *name=0 )
