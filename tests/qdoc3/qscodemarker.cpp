@@ -187,7 +187,7 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 		if ( property->setter().isEmpty() ) {
 		    insert( readOnlyProperties, *c );
 		} else {
-		    insert( readWriteProperties, *c );
+		    insert( writableProperties, *c );
 		}
 	    }
 	    ++c;
