@@ -292,6 +292,10 @@ private:
 /*!
     \class QCanvasItemList
     \brief The QCanvasItemList class is a list of QCanvasItems.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -399,6 +403,9 @@ static int scm(int a, int b)
 /*!
     \class QCanvas qcanvas.h
     \brief The QCanvas class provides a 2D area that can contain QCanvasItem objects.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup abstractwidgets
     \ingroup graphics
@@ -1804,6 +1811,9 @@ class QCanvasItemExtra {
 /*!
     \class QCanvasItem qcanvas.h
     \brief The QCanvasItem class provides an abstract graphic object on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module canvas
     \ingroup graphics
@@ -2432,6 +2442,10 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
 /*!
     \class QCanvasSprite qcanvas.h
     \brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -2745,6 +2759,9 @@ QRect QCanvasItem::boundingRectAdvanced() const
 /*!
     \class QCanvasPixmap qcanvas.h
     \brief The QCanvasPixmap class provides pixmaps for QCanvasSprites.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module canvas
     \ingroup graphics
@@ -2872,6 +2889,10 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
     \class QCanvasPixmapArray qcanvas.h
     \brief The QCanvasPixmapArray class provides an array of QCanvasPixmaps.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -3389,6 +3410,10 @@ void QCanvasSprite::draw(QPainter& painter)
 /*!
     \class QCanvasView qcanvas.h
     \brief The QCanvasView class provides an on-screen view of a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -3645,6 +3670,10 @@ QSize QCanvasView::sizeHint() const
     \class QCanvasPolygonalItem qcanvas.h
     \brief The QCanvasPolygonalItem class provides a polygonal canvas item
     on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4036,6 +4065,10 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 /*!
     \class QCanvasPolygon qcanvas.h
     \brief The QCanvasPolygon class provides a polygon on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4125,6 +4158,10 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 /*!
     \class QCanvasSpline qcanvas.h
     \brief The QCanvasSpline class provides multi-bezier splines on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4283,6 +4320,10 @@ QPointArray QCanvasPolygon::areaPoints() const
 /*!
     \class QCanvasLine qcanvas.h
     \brief The QCanvasLine class provides a line on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4413,6 +4454,10 @@ QPointArray QCanvasLine::areaPoints() const
 /*!
     \class QCanvasRectangle qcanvas.h
     \brief The QCanvasRectangle class provides a rectangle on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4547,6 +4592,10 @@ void QCanvasRectangle::drawShape(QPainter & p)
 /*!
     \class QCanvasEllipse qcanvas.h
     \brief The QCanvasEllipse class provides an ellipse or ellipse segment on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images
@@ -4730,6 +4779,10 @@ void QCanvasEllipse::drawShape(QPainter & p)
 /*!
     \class QCanvasText qcanvas.h
     \brief The QCanvasText class provides a text object on a QCanvas.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \module canvas
     \ingroup graphics
     \ingroup images

@@ -29,6 +29,9 @@
     \class QLocalFs qlocalfs.h
     \brief The QLocalFs class is an implementation of a
     QNetworkProtocol that works on the local file system.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module network
 

@@ -309,6 +309,9 @@ void QHttpCloseRequest::start( QHttp *http )
 /*!
     \class QHttpHeader qhttp.h
     \brief The QHttpHeader class contains header information for HTTP.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \module network
@@ -648,6 +651,9 @@ void QHttpHeader::setContentType( const QString& type )
 /*!
     \class QHttpResponseHeader qhttp.h
     \brief The QHttpResponseHeader class contains response header information for HTTP.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \module network
@@ -809,6 +815,9 @@ QString QHttpResponseHeader::toString() const
     \class QHttpRequestHeader qhttp.h
     \brief The QHttpRequestHeader class contains request header information for
     HTTP.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \module network
@@ -976,6 +985,9 @@ QString QHttpRequestHeader::toString() const
 /*!
     \class QHttp qhttp.h
     \brief The QHttp class provides an implementation of the HTTP protocol.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \module network

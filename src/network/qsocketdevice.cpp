@@ -32,6 +32,9 @@ public:
 /*!
     \class QSocketDevice qsocketdevice.h
     \brief The QSocketDevice class provides a platform-independent low-level socket API.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \module network

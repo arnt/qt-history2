@@ -66,6 +66,9 @@ public:
     \class QUrlOperator qurloperator.h
 
     \brief The QUrlOperator class provides common operations on URLs.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
     \ingroup misc

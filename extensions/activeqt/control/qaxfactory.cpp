@@ -19,6 +19,9 @@
 /*!
     \class QAxFactoryInterface qactiveqt.h
     \brief The QAxFactoryInterface class is an interface for the creation of ActiveX components.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \internal
 
@@ -53,6 +56,9 @@
 /*!
     \class QAxFactory qaxbindable.h
     \brief The QAxFactory class defines a factory for the creation of ActiveX components.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module QAxServer
     \extension ActiveQt

@@ -79,6 +79,10 @@ static int translateButtonState( int s, int type, int button )
 
 /*  \class QAxHostWidget qaxwidget.cpp
     \brief The QAxHostWindow class is the actual container widget.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \internal
 */
 class QAxHostWidget : public QWidget
@@ -128,6 +132,10 @@ QAxHostWidget::~QAxHostWidget()
 
 /*  \class QAxHostWindow qaxwidget.cpp
     \brief The QAxHostWindow class implements the client site interfaces.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
     \internal
 */
 class QAxHostWindow : public IDispatch,
@@ -1316,6 +1324,9 @@ void QAxHostWidget::paintEvent( QPaintEvent *e )
 /*!
     \class QAxWidget qaxwidget.h
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \extension ActiveQt
     \module QAxContainer

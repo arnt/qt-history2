@@ -70,6 +70,9 @@ static QMetaObjectCleanUp cleanUp_QAxBase;
 
     \brief The QAxEventSink class implements the event sink for all
 	   IConnectionPoints implemented in the COM object.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 */
 
 class QAxEventSink : public IDispatch,
@@ -536,6 +539,9 @@ public:
 
     \brief The QAxBase class is an abstract class that provides an API
     to initalize and access a COM object.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \module QAxContainer
     \extension ActiveQt

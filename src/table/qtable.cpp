@@ -160,6 +160,9 @@ static bool isRowSelection( QTable::SelectionMode selMode )
     \class QTableSelection
     \brief The QTableSelection class provides access to a selected area in a
     QTable.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup advanced
     \module table
@@ -374,6 +377,9 @@ int QTableSelection::numCols() const
 /*!
     \class QTableItem
     \brief The QTableItem class provides the cell content for QTable cells.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup advanced
     \module table
@@ -1120,6 +1126,9 @@ bool QTableItem::isEnabled() const
     \class QComboTableItem
     \brief The QComboTableItem class provides a means of using
     comboboxes in QTables.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup advanced
     \module table
@@ -1415,6 +1424,9 @@ QSize QComboTableItem::sizeHint() const
 /*!
     \class QCheckTableItem
     \brief The QCheckTableItem class provides checkboxes in QTables.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup advanced
     \module table
@@ -1603,6 +1615,9 @@ QSize QCheckTableItem::sizeHint() const
 /*!
     \class QTable
     \brief The QTable class provides a flexible editable table widget.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \mainclass
     \ingroup advanced
@@ -6207,13 +6222,17 @@ void QTable::setEnabled( bool b )
 }
 
 
-/* \class QTableHeader
-    \ingroup advanced
-  \mainclass
-  module table
+/*
+    \class QTableHeader
+    \brief The QTableHeader class allows for creation and manipulation
+    of table headers.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
-  \brief The QTableHeader class allows for creation and manipulation of
-  table headers.
+    \ingroup advanced
+    \module table
+
 
    QTable uses this subclass of QHeader for its headers. QTable has a
    horizontalHeader() for displaying column labels, and a

@@ -75,8 +75,12 @@ public:
 /*!
     \class QNetworkProtocol qnetworkprotocol.h
     \brief The QNetworkProtocol class provides a common API for network protocols.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
+    \module network
     \mainclass
 
     This is a base class which should be used for network protocols
@@ -950,6 +954,9 @@ public:
     \class QNetworkOperation
 
     \brief The QNetworkOperation class provides common operations for network protocols.
+\if defined(commercial_edition)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
 
     \ingroup io
 
