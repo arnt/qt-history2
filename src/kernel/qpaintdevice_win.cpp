@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#4 $
 **
 ** Implementation of QPaintDevice class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940801
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#4 $";
 #endif
 
 
