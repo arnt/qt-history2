@@ -4765,6 +4765,9 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	xTilt = 0,
 	yTilt = 0,
 	deviceType = QTabletEvent::NoDevice;
+//     long long llId;
+    QTabletDeviceId tId;
+
     const int PRESSURE_LEVELS = 255;
     // we got the maximum pressure at start time, since various tablets have
     // varying levels of distinguishing pressure changes, let's standardize and
@@ -4802,6 +4805,9 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 		    deviceType = QTabletEvent::Eraser;
 		    break;
 		}
+		// Get a Unique Id for the device, Wacom gives us this ability
+ 		tId.miType = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
+		tId.miPhyId = vs->valuators[WAC_SERIAL_NUM_I];
 	    } else
 		deviceType = QTabletEvent::NoDevice;
 	    // apparently Wacom needs a cast for the +/- values to make sense
@@ -4820,7 +4826,8 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 
     XDeviceMotionEvent *motion = (XDeviceMotionEvent*)ev;
     curr = QPoint( motion->x, motion->y );
-    QTabletEvent e( curr, global, deviceType, pressure, xTilt, yTilt );
+
+    QTabletEvent e( curr, global, deviceType, pressure, xTilt, yTilt, tId );
     QApplication::sendSpontaneousEvent( w, &e );
     XFreeDeviceState( s );
     return TRUE;
