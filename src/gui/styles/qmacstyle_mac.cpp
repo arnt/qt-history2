@@ -2666,25 +2666,27 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             HIRect macRect;
-            // Luckily, the slider and scrollbar subControls don't overlap,
-            // so we can do it in one go.
-            switch (sc) {
-            case QStyle::SC_SliderGroove:
-                HIThemeGetTrackBounds(&tdi, &macRect);
-                ret = qt_qrectForHIRect(macRect);
-                break;
-            case QStyle::SC_ScrollBarGroove:
-                HIThemeGetTrackDragRect(&tdi, &macRect);
-                ret = qt_qrectForHIRect(macRect);
-                break;
-            case QStyle::SC_SliderHandle:
-            case QStyle::SC_ScrollBarSlider:
-                QCFType<HIShapeRef> shape;
+            QCFType<HIShapeRef> shape;
+            bool scrollBar = cc == QStyle::CC_ScrollBar;
+            if ((scrollBar && sc == QStyle::SC_ScrollBarSlider)
+                    || (!scrollBar && sc == QStyle::SC_SliderHandle)) {
                 HIThemeGetTrackThumbShape(&tdi, &shape);
                 HIShapeGetBounds(shape, &macRect);
-                ret = qt_qrectForHIRect(macRect);
-                break;
+            } else if (!scrollBar && sc == QStyle::SC_SliderGroove) {
+                HIThemeGetTrackBounds(&tdi, &macRect);
+            } else if (sc == QStyle::SC_ScrollBarGroove) { // Only scrollbar parts available...
+                HIThemeGetTrackDragRect(&tdi, &macRect);
+            } else {
+                ControlPartCode cpc;
+                if (sc == QStyle::SC_ScrollBarSubPage || sc == QStyle::SC_ScrollBarAddPage)
+                    cpc = sc == QStyle::SC_ScrollBarSubPage ? kControlPageDownPart
+                                                            : kControlPageUpPart;
+                else
+                    cpc = sc == QStyle::SC_ScrollBarSubLine ? kControlUpButtonPart
+                                                            : kControlDownButtonPart;
+                HIThemeGetTrackPartBounds(&tdi, cpc, &macRect);
             }
+            ret = qt_qrectForHIRect(macRect);
         }
         break;
     case QStyle::CC_SpinBox:
@@ -4166,32 +4168,29 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc,
             GetThemeTrackBounds(&tdi, &macRect);
             tdi.bounds.left  += tdi.bounds.left  - macRect.left;
             tdi.bounds.right -= macRect.right - tdi.bounds.right;
-            switch (sc) {
-            case QStyle::SC_SliderGroove: {
-                Rect mrect;
-                GetThemeTrackBounds(&tdi, &mrect);
-                ret.setRect(mrect.left, mrect.top,
-                            mrect.right - mrect.left, mrect.bottom - mrect.top); }
-                break;
-            case QStyle::SC_ScrollBarGroove: {
-                Rect mrect;
-                GetThemeTrackDragRect(&tdi, &mrect);
-                ret.setRect(mrect.left, mrect.top, mrect.right - mrect.left,
-                        mrect.bottom - mrect.top);
-                break; }
-            case QStyle::SC_ScrollBarSlider:
-            case QStyle::SC_SliderHandle: {
-                Rect r;
+            bool scrollBar = cc == QStyle::CC_ScrollBar;
+            if (!scrollBar && sc == QStyle::SC_SliderGroove) {
+                GetThemeTrackBounds(&tdi, &macRect);
+                ret.setRect(macRect.left, macRect.top, macRect.right - macRect.left,
+                            macRect.bottom - macRect.top);
+            } else if ((scrollBar && sc == QStyle::SC_ScrollBarSlider)
+                        || (!scrollBar && sc == QStyle::SC_SliderHandle)) {
                 RgnHandle rgn = qt_mac_get_rgn();
                 GetThemeTrackThumbRgn(&tdi, rgn);
-                GetRegionBounds(rgn, &r);
-                ret.setRect(r.left, r.top, (r.right - r.left) + 1, (r.bottom - r.top) + 1);
+                GetRegionBounds(rgn, &macRect);
+                ret.setRect(macRect.left, macRect.top, (macRect.right - macRect.left) + 1,
+                            (macRect.bottom - macRect.top) + 1);
                 qt_mac_dispose_rgn(rgn);
-                return ret; }
-            default:
-                break;
+            } else if (scrollBar && sc == QStyle::SC_ScrollBarGroove) {
+                GetThemeTrackDragRect(&tdi, &macRect);
+                ret.setRect(macRect.left, macRect.top, macRect.right - macRect.left,
+                            macRect.bottom - macRect.top);
+            } else {
+                ret = slider->rect; // Give them everything, since I can't get the
+                                    // parts otherwise.
             }
         }
+        break;
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *spin = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             const int spinner_w = 10,
