@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#46 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#46 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -99,7 +99,7 @@ bool QWidget::create()
 	style = WS_POPUP;
 	exsty = WS_EX_TOOLWINDOW;
     } else if ( modal ) {
-	style = WS_POPUP | WS_CAPTION | WS_SYSMENU;
+	style = WS_POPUP | WS_CAPTION;
     } else if ( topLevel && !desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {

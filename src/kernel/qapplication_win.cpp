@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#56 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#56 $");
 
 
 /*****************************************************************************
@@ -871,6 +871,39 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    else
 		result = FALSE;
 	    break;
+
+#if 0
+	case WM_NCPAINT:
+	    if ( widget->isModal() ) {
+		// Its not possible to get a dialog frame for normal windows.
+		// Windows always add the system menu when you ask for a close box.
+		// The solution is then to draw the dialog frame ourselves.
+		HANDLE hdc;
+		int x, y;
+		RECT r;
+		DefWindowProc( hwnd, message, wParam, lParam );
+		hdc = GetWindowDC( hwnd );
+		GetWindowRect( hwnd, (LPRECT)&rc2 );
+		x = GetSystemMetrics(SM_CXSIZE)   +
+		    GetSystemMetrics(SM_CXBORDER) +
+		    GetSystemMetrics(SM_CXFRAME);
+		y = GetSystemMetrics(SM_CYFRAME);
+		rc1.left = x;
+		rc1.top = y;
+		rc1.right = rc2.right - rc2.left - 2*x -
+			     GetSystemMetrics( SM_CXFRAME );
+		rc1.bottom = GetSystemMetrics( SM_CYSIZE );
+ 
+		SetBkColor( hdc, GetSysColor(COLOR_ACTIVECAPTION) );
+		SetTextColor( hdc, GetSysColor(COLOR_CAPTIONTEXT) );
+		DrawText( hdc, "X", -1,(LPRECT)&rc1, DT_RIGHT );
+		ReleaseDC( hwnd, hdc );
+		return 0;
+            } else {
+	        result = FALSE;
+	    }
+            break;
+#endif
 
 	case WM_GETMINMAXINFO:
 	    if ( widget->xtra() ) {
