@@ -70,8 +70,8 @@ public:
 #endif
     };
 
-    QTextEdit(QWidget *parent);
-    QTextEdit(const QString &text, QWidget *parent);
+    QTextEdit(QWidget *parent = 0);
+    QTextEdit(const QString &text, QWidget *parent = 0);
     virtual ~QTextEdit();
 
     QTextDocument *document() const;

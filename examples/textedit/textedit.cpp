@@ -556,7 +556,7 @@ void TextEdit::editorChanged()
 
 QTextEdit *TextEdit::createNewEditor(const QString &title)
 {
-    QTextEdit *edit = new QTextEdit(tabWidget);
+    QTextEdit *edit = new QTextEdit;
     //edit->setTextFormat(RichText);
     connect(edit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
