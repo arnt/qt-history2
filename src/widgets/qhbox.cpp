@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#2 $
 **
 ** Implementation of hbox layout widget
 **
@@ -19,7 +19,9 @@
   All its children will be placed beside each other and sized
   according to their sizeHint()s.
   
-  \sa QVBox and QHBox */
+  \sa QVBox and QGrid 
+
+*/
 
 
 /*!
@@ -30,6 +32,25 @@ QHBox::QHBox( QWidget *parent, const char *name )
 {
     lay = new QHBoxLayout( this, 5, -1, name ); //### border
 }
+
+
+/*!
+  Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
+  constructs a vertical hbox (also known as a vbox). 
+
+  This function is provided for the QVBox class. You should never need
+  to use it.  
+*/
+
+ QHBox::QHBox( bool horizontal, QWidget *parent , const char *name )
+    :QWidget( parent, name )
+{
+    lay = new QBoxLayout( this, 
+			  horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
+			  5, -1, name ); //### border
+}
+
+
 
 /*!
   This function is called when the widget gets a new child or loses an old one.
@@ -60,3 +81,4 @@ bool QHBox::event( QEvent *e ) {
 	return QWidget::event( e );
     }
 }
+

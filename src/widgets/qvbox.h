@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.h#1 $
+** $Id: //depot/qt/main/src/widgets/qvbox.h#2 $
 **
 ** Definition of vbox layout widget
 **
@@ -12,20 +12,13 @@
 #ifndef QVBOX_H
 #define QVBOX_H
 
-#include "qwidget.h"
+#include "qhbox.h"
 
-class QVBoxLayout;
-
-class QVBox : public QWidget
+class QVBox : public QHBox
 {
     Q_OBJECT
 public:
     QVBox( QWidget *parent=0, const char *name=0 );
-    bool event( QEvent * );
-protected:
-    virtual void childEvent( QChildEvent * );
-private:
-    QVBoxLayout *lay;
 };
 
 #endif //QVBOX_H
