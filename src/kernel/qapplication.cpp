@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#12 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#12 $";
 #endif
 
 
@@ -23,6 +23,9 @@ QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
 QFont   *QApplication::appFont     = 0;		// default application font
 QCursor *QApplication::appCursor   = 0;		// default application cursor
+bool	 QApplication::starting_up = TRUE;	// app starting up
+bool	 QApplication::closing_down  = FALSE;	// app closing down
+
 
 #if defined(_WS_MAC_)
 GUIStyle QApplication::appStyle = MacStyle;	// default style for Mac
@@ -45,6 +48,7 @@ QApplication::QApplication()
     quit_code = 0;
     qApp = this;
     QWidget::createMapper();			// create widget mapper
+    starting_up = FALSE;			// no longer starting up
 }
 
 QApplication::~QApplication()
@@ -54,6 +58,7 @@ QApplication::~QApplication()
     if ( appCursor )
 	delete appCursor;
     qApp = 0;
+    closing_down = TRUE;
 }
 
 
@@ -92,6 +97,17 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	warning( "QApplication::notify: Unexpected NULL receiver" );
 #endif
     return receiver->event( event );
+}
+
+
+bool QApplication::startingUp()			// is application starting up?
+{
+    return starting_up;
+}
+
+bool QApplication::closingDown()		// is application closing down?
+{
+    return closing_down;
 }
 
 
