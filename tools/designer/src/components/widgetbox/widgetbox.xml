@@ -321,6 +321,34 @@
 
     <category name="Input Widgets">
 
+        <widget class="QTimeEdit" name="Time Edit" icon="widgets/datetimeedit.png">
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>28</y>
+                    <width>118</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">timeEdit</string>
+            </property>
+        </widget>
+
+        <widget class="QDateEdit" name="Date Edit" icon="widgets/datetimeedit.png">
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>28</y>
+                    <width>110</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">dateEdit</string>
+            </property>
+        </widget>
+
         <widget class="QDateTimeEdit" name="Date/Time Edit" icon="widgets/datetimeedit.png">
             <property name="geometry" >
                 <rect>

@@ -3,6 +3,8 @@
 DECLARE_WIDGET(QCheckBox, "text")
 DECLARE_WIDGET(QComboBox, "")
 DECLARE_WIDGET(QDateTimeEdit, "")
+DECLARE_WIDGET(QDateEdit, "")
+DECLARE_WIDGET(QTimeEdit, "")
 DECLARE_WIDGET(QDial, "")
 DECLARE_WIDGET(QDialog, "")
 DECLARE_WIDGET(QDockWidget, "")

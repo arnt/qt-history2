@@ -872,21 +872,21 @@ QString DateProperty::toString() const
 
 QWidget *DateProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
+    QDateEdit *lineEdit = new QDateEdit(parent);
     QObject::connect(lineEdit, SIGNAL(dateChanged(const QDate&)), target, receiver);
     return lineEdit;
 }
 
 void DateProperty::updateEditorContents(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
+    if (QDateEdit *lineEdit = qobject_cast<QDateEdit*>(editor)) {
         lineEdit->setDate(m_value);
     }
 }
 
 void DateProperty::updateValue(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
+    if (QDateEdit *lineEdit = qobject_cast<QDateEdit*>(editor)) {
         QDate newValue = lineEdit->date();
 
         if (newValue != m_value) {
@@ -915,21 +915,21 @@ QString TimeProperty::toString() const
 
 QWidget *TimeProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    QDateTimeEdit *lineEdit = new QDateTimeEdit(parent);
+    QTimeEdit *lineEdit = new QTimeEdit(parent);
     QObject::connect(lineEdit, SIGNAL(timeChanged(const QTime&)), target, receiver);
     return lineEdit;
 }
 
 void TimeProperty::updateEditorContents(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
+    if (QTimeEdit *lineEdit = qobject_cast<QTimeEdit*>(editor)) {
         lineEdit->setTime(m_value);
     }
 }
 
 void TimeProperty::updateValue(QWidget *editor)
 {
-    if (QDateTimeEdit *lineEdit = qobject_cast<QDateTimeEdit*>(editor)) {
+    if (QTimeEdit *lineEdit = qobject_cast<QTimeEdit*>(editor)) {
         QTime newValue = lineEdit->time();
 
         if (newValue != m_value) {
