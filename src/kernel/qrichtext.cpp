@@ -3754,12 +3754,12 @@ int QTextParag::leftGap() const
 	( (QTextParag*)this )->format();
 
     int line = 0;
-    int x = *(&str->at(0).x);  /* set x to x of first char */
+    int x = str->at(0).x;  /* set x to x of first char */
 
     QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while (line < (int)lineStarts.count()) {
 	int i = it.key(); /* char index */
-	x = QMIN(x, *(&str->at(i).x));
+	x = QMIN(x, str->at(i).x);
 	++it;
 	++line;
     }
