@@ -2071,7 +2071,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 if (verticalTabs)
                     tabRect.setHeight(tabRect.height() + 1);
                 else
-                    tabRect.setWidth(tabRect.width() + 1);                
+                    tabRect.setWidth(tabRect.width() + 1);
                 if (selected)
                     tdi.adornment |= kHIThemeTabAdornmentLeadingSeparator;
                 if (tabOpt->selectedPosition != QStyleOptionTab::NextIsSelected)  // Also when we're selected.
@@ -5610,7 +5610,9 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPalette &pal,
                              bool enabled, const QString &text, const QColor *penColor) const
 {
-    QWindowsStyle::drawItemText(p, r, flags | Qt::TextHideMnemonic, pal, enabled, text, penColor);
+    if(flags & Qt::TextShowMnemonic)
+        flags |= Qt::TextHideMnemonic;
+    QWindowsStyle::drawItemText(p, r, flags, pal, enabled, text, penColor);
 }
 
 #endif
