@@ -58,12 +58,27 @@ ShapedItem::ShapedItem()
     d = new ShapedItemPrivate();
 }
 
+ShapedItem::ShapedItem( const ShapedItem &other )
+{
+    other.d->ref();
+    d = other.d;
+}
+
 ShapedItem::~ShapedItem()
 {
-    if ( d )
+    if ( d->deref() )
 	delete d;
 }
 
+
+ShapedItem &ShapedItem::operator =( const ShapedItem &other )
+{
+    other.d->ref();
+    if ( d->deref() )
+	delete d;
+    d = other.d;
+    return *this;
+}
 
 const GlyphIndex *ShapedItem::glyphs() const
 {
@@ -113,7 +128,8 @@ public:
 
     int width( ShapedItem &shaped ) const;
     int width( ShapedItem &shaped, int charFrom, int numChars ) const;
-    bool split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const;
+    bool split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs,
+		int width, ShapedItem *splitoff ) const;
 
 private:
     // not in the interface
@@ -344,7 +360,7 @@ int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
     return width;
 }
 
-bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const
+bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width, ShapedItem *splitoff ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -354,6 +370,8 @@ bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, 
     ShapedItemPrivate *d = shaped.d;
 
     int lastBreak = 0;
+    int splitGlyph = 0;
+
     int lastWidth = 0;
     int w = 0;
     int lastCluster = 0;
@@ -372,6 +390,7 @@ bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, 
 	    clusterStart = i;
 	    if ( attrs[i].softBreak ) {
 		lastBreak = i;
+		splitGlyph = newCluster;
 		w += lastWidth;
 		lastWidth = 0;
 	    }
@@ -383,5 +402,38 @@ bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, 
 
     // we have the break position
     items.split( lastBreak + items[item].position );
+
+    if ( splitoff ) {
+	// split the shapedItem
+	ShapedItemPrivate *sd = splitoff->d;
+	sd->num_glyphs = d->num_glyphs - splitGlyph - 1;
+	sd->glyphs = (GlyphIndex *) realloc( sd->glyphs, sd->num_glyphs*sizeof(GlyphIndex) );
+	memcpy( sd->glyphs, d->glyphs + splitGlyph, sd->num_glyphs*sizeof(GlyphIndex) );
+	sd->offsets = (Offset *) realloc( sd->offsets, sd->num_glyphs*sizeof(Offset) );
+	sd->advances = (Offset *) realloc( sd->advances, sd->num_glyphs*sizeof(Offset) );
+	memcpy( sd->offsets, d->offsets + splitGlyph, sd->num_glyphs*sizeof(Offset) );
+	memcpy( sd->advances, d->advances + splitGlyph, sd->num_glyphs*sizeof(Offset) );
+	sd->glyphAttributes = (GlyphAttributes *) realloc( sd->glyphAttributes, sd->num_glyphs*sizeof(GlyphAttributes) );
+	memcpy( sd->glyphAttributes, d->glyphAttributes + splitGlyph, sd->num_glyphs*sizeof(GlyphAttributes) );
+	sd->from = d->from + lastBreak;
+	sd->length = d->length - lastBreak - 1;
+	sd->logClusters = (unsigned short *) realloc( sd->logClusters, sd->length*sizeof( unsigned short ) );
+	for ( int i = 0; i < sd->length; i++ )
+	    sd->logClusters[i] = d->logClusters[i+lastBreak]-splitGlyph;
+	sd->fontEngine = d->fontEngine;
+	sd->string = d->string;
+	sd->analysis = d->analysis;
+
+	// ### these are somewhat incorrect
+	sd->ascent = d->ascent;
+	sd->descent = d->descent;
+
+	sd->isShaped = TRUE;
+	sd->isPositioned = TRUE;
+    }
+
+    d->num_glyphs = splitGlyph;
+    d->length = lastBreak;
+
     return TRUE;
 }

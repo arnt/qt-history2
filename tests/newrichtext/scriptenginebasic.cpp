@@ -13,7 +13,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
     }
 
     FontEngineIface *f = shaped->d->fontEngine;
-    QGlyphInfo baseInfo = f->boundingBox( shaped->d->glyphs[gfrom] );
+    QGlyphMetrics baseInfo = f->boundingBox( shaped->d->glyphs[gfrom] );
     QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
@@ -67,7 +67,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	}
 
 	QPoint p;
-	QGlyphInfo markInfo = f->boundingBox( mark );
+	QGlyphMetrics markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:
@@ -237,7 +237,7 @@ void ScriptEngineBasic::calculateAdvances( ShapedItem *shaped )
     d->ascent = d->fontEngine->ascent();
     d->descent = d->fontEngine->descent();
     for ( int i = 0; i < d->num_glyphs; i++ ) {
-	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
+	QGlyphMetrics gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;
 	d->advances[i].y = gi.yoff;
 // 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );

@@ -340,6 +340,7 @@
        `MarkAttachClassDef_offset' is not zero (nevertheless, a build of
        a constructed mark attach table is not supported currently).       */
 
+#if 0
     if ( gdef &&
          gdef->MarkAttachClassDef_offset && !gdef->MarkAttachClassDef.loaded )
     {
@@ -373,7 +374,7 @@
         }
       }
     }
-
+#endif
     *retptr = gsub;
 
     return TT_Err_Ok;

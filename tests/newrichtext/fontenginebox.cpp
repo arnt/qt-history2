@@ -48,7 +48,7 @@ void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*
 #ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
-    QGlyphInfo ci = boundingBox( glyphs, offsets, numGlyphs );
+    QGlyphMetrics ci = boundingBox( glyphs, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
      qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
@@ -74,7 +74,7 @@ void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*
     p->save();
     p->setPen( Qt::red );
     for ( int i = 0; i < numGlyphs; i++ ) {
-	QGlyphInfo ci = boundingBox( glyphs[i] );
+	QGlyphMetrics ci = boundingBox( glyphs[i] );
 	x += offsets[i].x;
 	y += offsets[i].y;
 	p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
@@ -87,9 +87,9 @@ void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*
 #endif
 }
 
-QGlyphInfo FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
+QGlyphMetrics FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
 {
-    QGlyphInfo overall;
+    QGlyphMetrics overall;
     overall.x = overall.y = 0;
     overall.width = _size*numGlyphs;
     overall.height = _size;
@@ -98,9 +98,9 @@ QGlyphInfo FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const
     return overall;
 }
 
-QGlyphInfo FontEngineBox::boundingBox( GlyphIndex )
+QGlyphMetrics FontEngineBox::boundingBox( GlyphIndex )
 {
-    return QGlyphInfo( 0, _size, _size, _size, _size, 0 );
+    return QGlyphMetrics( 0, _size, _size, _size, _size, 0 );
 }
 
 

@@ -2348,7 +2348,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return gi.x;
 }
 
@@ -2379,7 +2379,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return gi.xoff - gi.x - gi.width;
 }
 
@@ -2526,7 +2526,7 @@ int QFontMetrics::width(QChar ch) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
-    QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
     return gi.xoff;
 }
 
@@ -2561,7 +2561,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	int nglyphs = 9;
 	fe->stringToCMap( str.unicode()+pos, 1, glyphs, &nglyphs );
 	// ### can nglyphs != 1 happen at all? Not currently I think
-	QGlyphInfo gi = fe->boundingBox( glyphs[0] );
+	QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
 	return gi.xoff;
     }
 

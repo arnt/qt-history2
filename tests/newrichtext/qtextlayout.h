@@ -33,9 +33,9 @@ class QString;
 // * negative yoff means the following stuff is drawn higher up.
 // the characters bounding rect is given by QRect( x,y,width,height), it's advance by
 // xoo and yoff
-struct QGlyphInfo
+struct QGlyphMetrics
 {
-    QGlyphInfo() {
+    QGlyphMetrics() {
 	x = 100000;
 	y = 100000;
 	width = 0;
@@ -43,7 +43,7 @@ struct QGlyphInfo
 	xoff = 0;
 	yoff = 0;
     }
-    QGlyphInfo( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
+    QGlyphMetrics( int _x, int _y, int _width, int _height, int _xoff, int _yoff ) {
 	x = _x;
 	y = _y;
 	width = _width;
@@ -159,7 +159,7 @@ struct GlyphAttributes {
 
 typedef unsigned short GlyphIndex;
 
-class ShapedItemPrivate
+class ShapedItemPrivate : public QShared
 {
 public:
     ShapedItemPrivate()
@@ -195,7 +195,11 @@ class ShapedItem
 {
 public:
     ShapedItem();
+    ShapedItem( const ShapedItem &other );
+
     ~ShapedItem();
+
+    ShapedItem &operator =( const ShapedItem &other );
 
     const GlyphIndex *glyphs() const;
     int count() const;
@@ -264,7 +268,8 @@ public:
 
     virtual int width( ShapedItem &shaped ) const = 0;
     virtual int width( ShapedItem &shaped, int charFrom, int numChars ) const = 0;
-    virtual bool split( ScriptItemArray &items, int item, ShapedItem &, CharAttributesArray &, int width ) const = 0;
+    virtual bool split( ScriptItemArray &items, int item, ShapedItem &, CharAttributesArray &,
+			int width, ShapedItem *splitoff = 0 ) const = 0;
 
 //    static ScriptProperties scriptProperties( int script );
 

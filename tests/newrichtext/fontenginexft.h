@@ -21,9 +21,9 @@ public:
     void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	       const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse );
 
-    virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs,
+    virtual QGlyphMetrics boundingBox( const GlyphIndex *glyphs,
 				    const Offset *advances, const Offset *offsets, int numGlyphs );
-    QGlyphInfo boundingBox( GlyphIndex glyph );
+    QGlyphMetrics boundingBox( GlyphIndex glyph );
 
     int ascent() const;
     int descent() const;

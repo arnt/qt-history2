@@ -101,7 +101,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	col.color.alpha = 0xffff;
 	col.pixel = bgcolor.pixel();
 	// ### not quite correct, should rather use the bounding box here.
-	QGlyphInfo bb = boundingBox( glyphs, advances, offsets, numGlyphs );
+	QGlyphMetrics bb = boundingBox( glyphs, advances, offsets, numGlyphs );
 	XftDrawRect(draw, &col, x+bb.x,  y + bb.y, bb.width, bb.height );
     }
 
@@ -114,7 +114,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
-    QGlyphInfo ci = boundingBox( glyphs, advances, offsets, numGlyphs );
+    QGlyphMetrics ci = boundingBox( glyphs, advances, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
 //     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
@@ -129,7 +129,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
-	    QGlyphInfo gi = boundingBox( glyphs[i] );
+	    QGlyphMetrics gi = boundingBox( glyphs[i] );
 	    XftDrawString16 (draw, &col, _font, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff,
 			     (XftChar16 *) (glyphs+i), 1);
 #ifdef FONTENGINE_DEBUG
@@ -157,7 +157,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	p->save();
 	p->setPen( Qt::red );
 	for ( int i = 0; i < numGlyphs; i++ ) {
-	    QGlyphInfo ci = boundingBox( glyphs[i] );
+	    QGlyphMetrics ci = boundingBox( glyphs[i] );
 	    p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
 	    qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
 		   ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
@@ -170,11 +170,11 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #endif
 }
 
-QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
+QGlyphMetrics FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
-    QGlyphInfo overall;
+    QGlyphMetrics overall;
     int ymax = 0;
     int xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
@@ -194,11 +194,11 @@ QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *a
     return overall;
 }
 
-QGlyphInfo FontEngineXft::boundingBox( GlyphIndex glyph )
+QGlyphMetrics FontEngineXft::boundingBox( GlyphIndex glyph )
 {
     XGlyphInfo xgi;
     getGlyphInfo( &xgi, _font, glyph );
-    return QGlyphInfo( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+    return QGlyphMetrics( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
 }
 
 

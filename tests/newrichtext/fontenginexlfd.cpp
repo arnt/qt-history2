@@ -126,7 +126,7 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #ifdef FONTENGINE_DEBUG
     p->save();
     p->setBrush( Qt::white );
-    QGlyphInfo ci = boundingBox( glyphs, advances, offsets, numGlyphs );
+    QGlyphMetrics ci = boundingBox( glyphs, advances, offsets, numGlyphs );
     p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
     p->drawRect( x + ci.x, y + 100 + ci.y, ci.width, ci.height );
      qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
@@ -152,7 +152,7 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
-	    QGlyphInfo gi = boundingBox( glyphs[i] );
+	    QGlyphMetrics gi = boundingBox( glyphs[i] );
 	    if (bgmode != Qt::TransparentMode)
 		XDrawImageString16(dpy, hd, gc, x-offsets[i].x-gi.xoff, y+offsets[i].y-gi.yoff, chars+i, 1 );
 	    else
@@ -183,7 +183,7 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
     p->save();
     p->setPen( Qt::red );
     for ( int i = 0; i < numGlyphs; i++ ) {
-	QGlyphInfo ci = boundingBox( glyphs[i] );
+	QGlyphMetrics ci = boundingBox( glyphs[i] );
 	p->drawRect( x + ci.x + offsets[i].x, y + 100 + ci.y + offsets[i].y, ci.width, ci.height );
 	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
 	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y,
@@ -195,11 +195,11 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #endif
 }
 
-QGlyphInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
+QGlyphMetrics FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
 {
     int i;
 
-    QGlyphInfo overall;
+    QGlyphMetrics overall;
     int ymax = 0;
     int xmax = 0;
     for (i = 0; i < numGlyphs; i++) {
@@ -234,15 +234,15 @@ QGlyphInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *
     return overall;
 }
 
-QGlyphInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
+QGlyphMetrics FontEngineXLFD::boundingBox( GlyphIndex glyph )
 {
     // ### scale missing!
     XCharStruct *xcs = charStruct( _fs, glyph );
     if (xcs) {
-	return QGlyphInfo( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+	return QGlyphMetrics( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
     }
     int size = ascent();
-    return QGlyphInfo( 0, size, size, size, size, 0 );
+    return QGlyphMetrics( 0, size, size, size, size, 0 );
 }
 
 
