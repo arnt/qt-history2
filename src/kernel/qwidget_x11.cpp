@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#96 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#95 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#96 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -635,7 +635,7 @@ bool QWidget::focusPrevChild()
   Enables widget updates if \e enable is TRUE, or  disables widget updates
   if \e enable is FALSE.
 
-  If updates are disabled, repaint events for the widget will be discarded.
+  If updates are disabled,  repaint events for the widget will be discarded.
   \sa update(), repaint(), paintEvent()
 */
 
@@ -650,7 +650,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 }
 
 /*!
-  Updates the widget if (and \e only if) updates are enabled.
+  Updates the widget unless updates are disabled.
 
   Updating the widget will erase the widget contents and generate a paint
   event from the window system.
@@ -730,12 +730,8 @@ void QWidget::repaint( const QRect &r, bool erase )
 
 /*!
   Makes the widget and its children visible on the screen.
-
-  Notes: If the widget is already visible, any currently hidden
-  children are not made visible.  Popup children are not made visible;
-  in a sense they are top-level widgets.
-
-  \sa hide(), isVisible() */
+  \sa hide(), isVisible()
+*/
 
 void QWidget::show()
 {
@@ -1057,8 +1053,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
-    QSize s = size();
-    int x1, y1, x2, y2, w=s.width(), h=s.height();
+    int x1, y1, x2, y2, w=crect.width(), h=crect.height();
     if ( dx > 0 ) {
 	x1 = 0;
 	x2 = dx;
@@ -1095,11 +1090,11 @@ void QWidget::scroll( int dx, int dy )
     }
     if ( dx ) {
 	x1 = x2 == 0 ? w : 0;
-	XClearArea( dpy, ident, x1, 0, s.width()-w, s.height(), TRUE );
+	XClearArea( dpy, ident, x1, 0, crect.width()-w, crect.height(), TRUE);
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
-	XClearArea( dpy, ident, 0, y1, s.width(), s.height()-h, TRUE );
+	XClearArea( dpy, ident, 0, y1, crect.width(), crect.height()-h, TRUE);
     }
 }
 
