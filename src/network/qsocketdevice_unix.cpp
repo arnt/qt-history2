@@ -71,14 +71,18 @@ static inline void qt_socket_getportaddr(struct sockaddr *sa, Q_UINT16 *port, QH
         struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)sa;
         Q_IPV6ADDR tmp;
         memcpy(&tmp, &sa6->sin6_addr.s6_addr, sizeof(tmp));
-        *addr = QHostAddress(tmp);
+        QHostAddress a;
+        a.setAddress(tmp);
+        *addr = a;
         *port = ntohs(sa6->sin6_port);
         return;
     }
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
     *port = ntohs(sa4->sin_port);
-    *addr = QHostAddress(ntohl(sa4->sin_addr.s_addr));
+    QHostAddress a;
+    a.setAddress(ntohl(sa4->sin_addr.s_addr));
+    *addr = a;
 }
 
 //#define QSOCKETDEVICE_DEBUG
@@ -842,7 +846,7 @@ Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
     This is used for \c QSocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
-Q_LLONG QSocketDevice::write(const char * data, Q_LLONG len, 
+Q_LLONG QSocketDevice::write(const char * data, Q_LLONG len,
                              const QHostAddress & host, Q_UINT16 port)
 {
     if (d->t != Datagram) {

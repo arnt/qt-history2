@@ -33,11 +33,13 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         addrinfo *node = res;
         while (node) {
             if (node->ai_family == AF_INET) {
-                QHostAddress addr(ntohl(((sockaddr_in *) node->ai_addr)->sin_addr.s_addr));
+                QHostAddress addr;
+                addr.setAddress(ntohl(((sockaddr_in *) node->ai_addr)->sin_addr.s_addr));
                 if (!results.d->addrs.contains(addr))
                     results.d->addrs.prepend(addr);
             } else if (node->ai_family == AF_INET6) {
-                QHostAddress addr(((sockaddr_in6 *) node->ai_addr)->sin6_addr.s6_addr);
+                QHostAddress addr;
+                addr.setAddress(((sockaddr_in6 *) node->ai_addr)->sin6_addr.s6_addr);
                 if (!results.d->addrs.contains(addr))
                     results.d->addrs.append(addr);
             } else {
