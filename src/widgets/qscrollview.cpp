@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#45 $
 **
 ** Implementation of QScrollView class
 **
@@ -64,10 +64,10 @@ struct ChildRec {
 };
 
 struct QScrollViewData {
-    QScrollViewData(QWidget* parent) :
+    QScrollViewData(QWidget* parent, int vpwflags) :
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
-	viewport( parent, "qt_viewport", WPaintClever ),
+	viewport( parent, "qt_viewport", vpwflags ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
@@ -181,12 +181,16 @@ Currently the scrollbars fail beyond about
 
 /*!
 Constructs a QScrollView.
+
+If you intend to add child widgets, you may see improved refresh
+if you include WPaintClever in the widgets flags, \a f.  WPaintClever
+will be propagated to the viewport() widget.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f, FALSE )
 {
-    d = new QScrollViewData(this);
+    d = new QScrollViewData(this,(f&WPaintClever));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
