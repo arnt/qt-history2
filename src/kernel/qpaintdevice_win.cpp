@@ -389,12 +389,31 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( src_pm->data->selfmask ) {
 	    uint   c = dst->paintingActive() ? qt_bitblt_foreground
 					     : Qt::black.pixel();
+	    // ### some exotic codes are still missing
+	    DWORD ropCodes[] = {
+		0x00b8074a, // PSDPxax,  CopyROP,
+		0x00BA0B09, // DPSnao,   OrROP,
+		0x009A0709, // DPSnax,   XorROP,
+		0x008A0E06, // DSPnoa,   EraseROP=NotAndROP,
+		0x00b8074a, //           NotCopyROP,
+		0x00b8074a, //           NotOrROP,
+		0x00b8074a, //           NotXorROP,
+		0x00A803A9, // DPSoa,    NotEraseROP=AndROP,
+		0x00A90189, // DPSoxn,   NotROP,
+		0x008800C6, // DSa,      ClearROP,
+		0x00BB0226, // DSno,     SetROP,
+		0x00b8074a, //           NopROP,
+		0x00b8074a, //           AndNotROP,
+		0x00b8074a, //           OrNotROP,
+		0x00b8074a, //           NandROP,
+		0x00b8074a  //           NorROP,
+	    };
 	    HBRUSH b = CreateSolidBrush( c );
 	    COLORREF tc, bc;
 	    b = (HBRUSH)SelectObject( dst_dc, b );
 	    tc = SetTextColor( dst_dc, Qt::black.pixel() );
 	    bc = SetBkColor( dst_dc, Qt::white.pixel() );
-	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
 	    DeleteObject( SelectObject(dst_dc, b) );

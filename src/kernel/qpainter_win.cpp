@@ -2392,6 +2392,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		drawPixmap( x, y, *wx_bm );
 		flags = oldf;
 	    } else {				// to screen/pixmap
+		// this code is also used in bitBlt() in qpaintdevice_win.cpp
+		// (for the case that you have a selfmask)
 		// ### some exotic codes are still missing
 		DWORD ropCodes[] = {
 		    0x00b8074a, // PSDPxax,  CopyROP,
