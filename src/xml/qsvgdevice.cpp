@@ -1302,9 +1302,9 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
     } else {
 	s += QString( "stroke:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
-	int pw = pt->pen().width();
+	double pw = pt->pen().width();
 	if ( pw == 0 && pt->pen().style() != Qt::NoPen )
-	    pw = 1;
+	    pw = 0.9;
 	s += QString( "stroke-width:%1;" ).arg( pw );
 	if ( pt->brush().style() != Qt::NoBrush ) {
 	    s += QString( "fill:rgb(%1,%2,%3);" )
