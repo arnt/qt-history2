@@ -758,8 +758,7 @@ void QPaintEngine::updateRenderHints(QPainter::RenderHints /*hints*/)
 */
 void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
-    Q_UNUSED(path);
-    Q_UNUSED(op);
+    updateClipRegion(QRegion(path.toFillPolygon().toPointArray(), path.fillRule()), op);
 }
 
 /*!

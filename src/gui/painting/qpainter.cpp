@@ -926,6 +926,16 @@ void QPainter::restore()
     d->states.pop_back();
     d->state = d->states.back();
     d->txinv = false;
+
+    // trigger clip update if the clip path/region has changed since
+    // last save
+    if (!d->state->clipInfo.isEmpty()
+        && (tmp->changeFlags & (QPaintEngine::DirtyClip | QPaintEngine::DirtyClipPath))) {
+        d->state->tmpClipRegion = clipRegion();
+        d->state->tmpClipOp = Qt::ReplaceClip;
+        d->engine->setDirty(QPaintEngine::DirtyClip);
+    }
+
     d->engine->updateState(d->state);
     delete tmp;
 }
@@ -1636,22 +1646,6 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
     if (!isActive()
         || (!hasClipping() && path.isEmpty()))
         return;
-
-    if (!d->engine->hasFeature(QPaintEngine::PainterPaths)) {
-        if (d->state->txop > QPainterPrivate::TxNone
-            && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-            QPainterPath xformed = path * d->state->matrix;
-            QPolygon p = xformed.toFillPolygon();
-            QMatrix oldMatrix = d->state->matrix;
-            d->state->matrix = QMatrix();
-            setClipRegion(QRegion(p.toPointArray(), path.fillRule()));
-            d->state->matrix = oldMatrix;
-            d->engine->setDirty(QPaintEngine::DirtyTransform);
-        } else {
-            setClipRegion(QRegion(path.toFillPolygon().toPointArray(), path.fillRule()));
-        }
-        return;
-    }
 
     d->state->tmpClipPath = path;
     d->state->tmpClipOp = op;

@@ -2020,30 +2020,45 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
 }
 
-void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation /*op*/)
+void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
-    bool clipEnabled = !clipRegion.isEmpty();
-    Q_ASSERT(isActive());
-
-    clearf(ClipOn);
-    d->crgn = clipRegion;
-
-    if (clipEnabled) {
-        setf(ClipOn);
-        if (d->pdev == paintEventDevice && paintEventClipRegion)
-            d->crgn = d->crgn.intersect(*paintEventClipRegion);
-        if (d->penRef)
-            updatePen(d->cpen);
-        if (d->brushRef)
-            updateBrush(d->cbrush, d->bg_origin);
-        x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, d->crgn);
-    } else {
+    if (op == Qt::NoClip) {
+        clearf(ClipOn);
+        d->crgn = QRegion();
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
             x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, *paintEventClipRegion);
         } else {
             x11ClearClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd);
         }
+        return;
     }
+
+    switch (op) {
+    case Qt::ReplaceClip:
+        if (d->pdev == paintEventDevice && paintEventClipRegion)
+            d->crgn = clipRegion.intersect(*paintEventClipRegion);
+        else
+            d->crgn = clipRegion;
+        break;
+    case Qt::IntersectClip:
+        if (testf(ClipOn))
+            d->crgn &= clipRegion;
+        else
+            d->crgn = clipRegion;
+        break;
+    case Qt::UniteClip:
+        d->crgn |= clipRegion;
+        break;
+    case Qt::NoClip:
+        break;
+    }
+
+    setf(ClipOn);
+    if (d->penRef)
+        updatePen(d->cpen);
+    if (d->brushRef)
+        updateBrush(d->cbrush, d->bg_origin);
+    x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, d->crgn);
 }
 
 void QX11PaintEngine::updateFont(const QFont &)
