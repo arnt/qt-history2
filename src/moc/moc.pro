@@ -40,7 +40,9 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/io/qdir.cpp		\
 		  ../core/io/qfileinfo.cpp	\
 		  ../core/global/qglobal.cpp		\
+		  ../core/io/qbuffer.cpp \
 		  ../core/io/qiodevice.cpp	\
+		  ../core/io/qtextstream.cpp \
 		  ../core/tools/qlist.cpp		\
 		  ../core/tools/qchar.cpp		\
 		  ../core/tools/qstring.cpp		\
