@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#170 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#171 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -583,17 +583,17 @@ QString QString::arg(const QString& a, int fieldwidth) const
 
     r.replace(pos,len,a);
     if ( fieldwidth < 0 ) {
-	QString s;
-	while ( -fieldwidth > len ) {
+	QString s = "";
+	while ( (uint)-fieldwidth > a.length() ) {
 	    s += ' ';
 	    fieldwidth++;
 	}
-	r.insert(pos+len,s);
+	r.insert(pos+a.length(),s);
     } else if ( fieldwidth ) {
 	QString s;
-	while ( fieldwidth > len ) {
+	while ( (uint)fieldwidth > a.length() ) {
 	    s += ' ';
-	    fieldwidth++;
+	    fieldwidth--;
 	}
 	r.insert(pos,s);
 
