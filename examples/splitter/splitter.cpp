@@ -21,14 +21,14 @@
 
 class Test : public QWidget {
 public:
-    Test(QWidget* parent=0, const char* name=0, int f=0);
+    Test(QWidget* parent=0, const char* name=0, WFlags f=0);
     void paintEvent(QPaintEvent* e);
 private:
 };
 
 
 
-Test::Test(QWidget* parent, const char* name, int f) :
+Test::Test(QWidget* parent, const char* name, WFlags f) :
     QWidget(parent, name, f)
 {
 
@@ -67,11 +67,11 @@ int main( int argc, char ** argv )
     QSplitter *s2 = new QSplitter( QSplitter::Horizontal, s1, "top" );
 
     Test *t1 = new Test( s2, "topLeft" );
-    t1->setBackgroundColor( Qt::blue.light( 180 ) );
+    t1->setBackgroundColor( QColor(Qt::blue).light( 180 ) );
     t1->setMinimumSize( 50, 0 );
 
     Test *t2 = new Test( s2, "topRight" );
-    t2->setBackgroundColor( Qt::green.light( 180 ) );
+    t2->setBackgroundColor( QColor(Qt::green).light( 180 ) );
     s2->setResizeMode( t2, QSplitter::KeepSize );
     s2->moveToFirst( t2 );
 
