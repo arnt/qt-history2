@@ -1266,7 +1266,7 @@ most common usage transparently.
   <dt><strong>Including the window frame:</strong>
   <dd>x(), y(), frameGeometry(), pos() and move()
   <dt><strong>Excluding the window frame:</strong>
-  <dd> geometry(), width(), height() and size()
+  <dd> geometry(), width(), height(), rect() and size()
 </dl>
 
 Note that the distinction only matters for decorated top-level
