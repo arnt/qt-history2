@@ -16,10 +16,12 @@ DEFINES += QT_TASKMENU_LIBRARY
 
 HEADERS += button_taskmenu.h \
   groupbox_taskmenu.h \
+  listwidget_taskmenu.h \
   taskmenu_component.h
 
 SOURCES += button_taskmenu.cpp \
   groupbox_taskmenu.cpp \
+  listwidget_taskmenu.cpp \
   taskmenu_component.cpp
 
 include(../../sharedcomponents.pri)
