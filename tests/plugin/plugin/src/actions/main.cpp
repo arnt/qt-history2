@@ -1,4 +1,5 @@
 #include "../../../qactioninterface.h"
+#include "../../../qcleanuphandler.h"
 
 #include <qaction.h>
 #include <qmainwindow.h>
@@ -19,30 +20,30 @@ class TestInterface : public QObject, public QActionInterface
 {
     Q_OBJECT
 public:
-    TestInterface() 
-	: iface(0) {}
-
-    ~TestInterface()
-    {
-	delete iface;
-	iface = 0;
-    }
-
+    TestInterface();
     QString name() { return "Test Actionplugin"; }
     QString description() { return "Test implementation of the QActionInterface"; }
     QString author() { return "vohi"; }
 
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
-    QApplicationInterface* appInterface() { return iface ? iface : ( iface = new QApplicationInterface() ); }
+
+    QCleanUpHandler<QAction>* actions;
 
 public slots:
     void onOpenModalDialog();
     void onOpenNonmodalDialog();
-
-protected:
-    QApplicationInterface* iface;
+    void openFile();
 };
+
+TestInterface* that;
+
+TestInterface::TestInterface()
+{
+    that = this;
+    actions = new QCleanUpHandler<QAction>();
+}
+
 
 QStringList TestInterface::featureList()
 {
@@ -60,14 +61,17 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
     if ( actionname == "Open Modal Dialog" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "Open &modal dialog", Qt::CTRL + Qt::Key_M, parent, actionname, FALSE );
 	connect( a, SIGNAL(activated()), this, SLOT(onOpenModalDialog()) );
+	actions->addCleanUp( a );
 	return a;
     } else if ( actionname == "Open non-Modal Dialog" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "Open &non-modal dialog", Qt::CTRL + Qt::Key_N, parent, actionname, FALSE );
 	connect( a, SIGNAL(activated()), this, SLOT(onOpenNonmodalDialog()) );
+	actions->addCleanUp( a );
 	return a;
     } else if ( actionname == "Open file Dialog" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "Open file-dialog", Qt::CTRL + Qt::Key_F, parent, actionname, FALSE );
-	connect( a, SIGNAL(activated()), appInterface(), SIGNAL( openFile() ) );
+	connect( a, SIGNAL(activated()), this, SLOT(openFile()) );
+	actions->addCleanUp( a );
 	return a;
     } else 
 	return 0;
@@ -85,6 +89,10 @@ void TestInterface::onOpenNonmodalDialog()
     dialog->show();
 }
 
+void TestInterface::openFile()
+{
+}
+
 #if defined(__cplusplus )
 extern "C"
 {
@@ -92,7 +100,7 @@ extern "C"
 
 LIBEXPORT QActionInterface* loadInterface()
 {
-    return new TestInterface();;
+    return new TestInterface();
 }
 
 LIBEXPORT bool onConnect( QApplication* myapp )
@@ -101,9 +109,14 @@ LIBEXPORT bool onConnect( QApplication* myapp )
     return TRUE;
 }
 
-LIBEXPORT bool onDisconnect()
+LIBEXPORT bool onDisconnect( QApplication* myapp )
 {
-    qDebug("I've been unloaded!");
+    if ( myapp ) {
+	delete that->actions;
+        qDebug("I've been unloaded by %p", myapp);
+    } else {
+	qDebug("I've been unloaded by operation system" );
+    }
     return TRUE;
 }
 
