@@ -39,17 +39,17 @@ class Q_EXPORT QLineDialog : public QDialog
 public:
     QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0, bool modal = TRUE );
     ~QLineDialog();
-
+qproperties:
     QString text() const;
     virtual void setText( const QString &text );
-
+public:
     static QString getText( const QString &label, const QString &text = QString::null,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
 
 private slots:
     void textChanged( const QString &s );
     void tryAccept();
-    
+
 private:
     QLineDialogPrivate *d;
 

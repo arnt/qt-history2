@@ -44,12 +44,12 @@ public:
     QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
 		int value, Orientation,
 		QWidget *parent, const char *name=0 );
-
+qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );
     bool	tracking() const;
-
+public:
     bool	draggingSlider() const;
 
     virtual void setPalette( const QPalette & );

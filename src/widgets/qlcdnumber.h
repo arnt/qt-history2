@@ -41,7 +41,7 @@ public:
     QLCDNumber( QWidget *parent=0, const char *name=0 );
     QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
    ~QLCDNumber();
-
+qproperties:
     enum Mode { Hex, HEX=Hex, Dec, DEC=Dec, Oct, OCT=Oct, Bin, BIN=Bin };
     enum SegmentStyle { Outline, Filled, Flat };
 
@@ -49,16 +49,16 @@ public:
 
     int	    numDigits() const;
     virtual void setNumDigits( int nDigits );
-
+public:
     bool    checkOverflow( double num ) const;
     bool    checkOverflow( int	  num ) const;
-
+qproperties:
     Mode mode() const;
     virtual void setMode( Mode );
 
     SegmentStyle segmentStyle() const;
     virtual void setSegmentStyle( SegmentStyle );
-
+public:
     double  value() const;
     int	    intValue() const;
 

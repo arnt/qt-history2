@@ -66,13 +66,13 @@ public:
 
     void setPopup( QPopupMenu* popup );
     QPopupMenu* popup() const;
-
+qproperties:
     void setPopupDelay( int delay );
     int popupDelay() const;
 
     void setAutoRaise( bool enable );
     bool autoRaise() const;
-	
+
 public slots:
     virtual void setUsesBigPixmap( bool enable );
     virtual void setUsesTextLabel( bool enable );

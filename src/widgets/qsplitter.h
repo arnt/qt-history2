@@ -43,15 +43,15 @@ public:
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
     ~QSplitter();
-
+qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
-
+public:
     virtual void setResizeMode( QWidget *w, ResizeMode );
-
+qproperties:
     virtual void setOpaqueResize( bool = TRUE );
     bool opaqueResize() const;
-
+public:
     void moveToFirst( QWidget * );
     void moveToLast( QWidget * );
 

@@ -49,11 +49,12 @@ public:
     virtual void setLabel( int, const QIconSet&, const QString &, int size = -1 );
     QString 	label( int ) const;
     QIconSet* 	iconSet( int ) const;
+qproperties:
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );
     bool	tracking() const;
-
+public:
     virtual void setClickEnabled( bool, int logIdx = -1 );
     virtual void setResizeEnabled( bool, int logIdx = -1 );
     virtual void setMovingEnabled( bool );
@@ -75,7 +76,7 @@ public:
     virtual void moveCell( int fromIdx, int toIdx );
 
     void setSortIndicator( int column, bool increasing = TRUE );
-    
+
 public slots:
     virtual void	setOffset( int );
 

@@ -72,7 +72,7 @@ public:
 
     virtual bool operator<( const QIconDragItem &icon )  const;
     virtual bool operator==( const QIconDragItem &icon ) const;
-	
+
     virtual QRect iconRect() const;
     virtual QRect textRect() const;
     virtual QString key() const;
@@ -85,7 +85,7 @@ protected:
 
     QRect iconRect_, textRect_;
     QString key_;
-	
+
 };
 
 /*****************************************************************************
@@ -307,37 +307,38 @@ public:
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
 
     unsigned int count() const;
-
+qproperties:
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
-
+public:
     virtual void showEvent( QShowEvent * );
-
+qproperties:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
-
+public:
     virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					      QFont *highlightedText, QColor *highlightedTextCol,
 					      QCursor *highlightedCursor, int setCurrentInterval );
     void singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 				   QFont *highlightedText, QColor *highlightedTextCol,
 				   QCursor *highlightedCursor, int &setCurrentInterval ) const;
+qproperties:
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
-
+public:
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
     virtual void clearSelection();
     virtual void invertSelection();
-    
+
     virtual void repaintItem( QIconViewItem *item );
 
     void ensureItemVisible( QIconViewItem *item );
     QIconViewItem* findFirstVisibleItem() const;
 
     virtual void clear();
-
+qproperties:
     virtual void setGridX( int rx );
     virtual void setGridY( int ry );
     int gridX() const;
@@ -360,12 +361,14 @@ public:
     bool aligning() const;
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
+public:
     bool sortDirection() const;
+qproperties:
     virtual void setEnableMoveItems( bool b );
     bool enableMoveItems() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
-
+public:
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
 

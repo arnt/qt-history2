@@ -90,14 +90,14 @@ public:
     virtual void setBottomItem( int index );
 
     long maxItemWidth() const;
-
+qproperties:
     enum SelectionMode { Single, Multi, Extended, NoSelection };
     virtual void setSelectionMode( SelectionMode );
     SelectionMode selectionMode() const;
 
     void setMultiSelection( bool multi );
     bool isMultiSelection() const;
-
+public:
     virtual void setSelected( QListBoxItem *, bool );
     void setSelected( int, bool );
     bool isSelected( int ) const;

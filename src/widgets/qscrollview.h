@@ -38,11 +38,11 @@ class Q_EXPORT QScrollView : public QFrame
 public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();
-
+qproperties:
     enum ResizePolicy { Default, Manual, AutoOne, ResizeOne };
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
-
+public:
     void removeChild(QWidget* child);
     virtual void addChild( QWidget* child, int x=0, int y=0 );
     virtual void moveChild( QWidget* child, int x, int y );
@@ -50,7 +50,7 @@ public:
     int childY(QWidget* child);
     bool childIsVisible(QWidget* child);
     void showChild(QWidget* child, bool yes=TRUE);
-
+qproperties:
     enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 
     ScrollBarMode vScrollBarMode() const;
@@ -58,7 +58,7 @@ public:
 
     ScrollBarMode hScrollBarMode() const;
     virtual void  setHScrollBarMode( ScrollBarMode );
-
+public:
     QWidget*     cornerWidget() const;
     virtual void setCornerWidget(QWidget*);
 

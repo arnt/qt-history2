@@ -47,18 +47,18 @@ public:
     QSlider( Orientation, QWidget *parent, const char *name=0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
 	     QWidget *parent, const char *name=0 );
-
+qproperties:
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;
     virtual void	setTracking( bool enable );
     bool	tracking() const;
-
+public:
     virtual void 	setPalette( const QPalette & );
     QRect	sliderRect() const;
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
     QSize	minimumSizeHint() const;
-    
+qproperties:
     virtual void setTickmarks( TickSetting );
     TickSetting tickmarks() const { return ticks; }
 
