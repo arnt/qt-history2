@@ -713,13 +713,13 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		bool returnValue = FALSE;
 
 #if QT_VERSION >= 0x030100
-		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
 		} else 
 #endif
-		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
 		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
@@ -820,13 +820,13 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		bool returnValue = FALSE;
 
 #if QT_VERSION >= 0x030100
-		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
 		} else 
 #endif
-		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
 		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
