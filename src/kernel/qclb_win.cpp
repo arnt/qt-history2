@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#11 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#11 $");
 
 
 /*****************************************************************************
@@ -91,7 +91,7 @@ void *QClipboard::data( const char *format ) const
     }
 
     static QString *text   = 0;
-    static QPixmap    *pixmap = 0;
+    static QPixmap *pixmap = 0;
 
     if ( !OpenClipboard(clipboardOwner()->winId()) )
 	return 0;

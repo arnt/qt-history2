@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#19 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#19 $");
 
 
 /*****************************************************************************
@@ -32,14 +32,14 @@ extern Atom qt_selection_property;
 
 static QWidget *clipboardOwner()
 {
-    static QWidget *fakeOwner = 0;
-    if ( fakeOwner )				// fakeOwner already created
-	return fakeOwner;
+    static QWidget *owner = 0;
+    if ( owner )				// owner already created
+	return owner;
     if ( qApp->mainWidget() )			// there's a main widget
-	fakeOwner = qApp->mainWidget();
+	owner = qApp->mainWidget();
     else					// otherwise create fake widget
-	fakeOwner = new QWidget( 0, "internalClipboardOwner" );
-    return fakeOwner;
+	owner = new QWidget( 0, "internalClipboardOwner" );
+    return owner;
 }
 
 
@@ -202,12 +202,19 @@ static bool waitForEvent( Display *dpy, Window win, int type, XEvent *event,
     return FALSE;
 }
 
+
+static inline int maxSelectionIncr( Display *dpy )
+{
+    return XMaxRequestSize(dpy) > 65536 ?
+	4*65536 : XMaxRequestSize(dpy)*4 - 100;
+}
+
 static bool readProperty( Display *dpy, Window win, Atom property,
 			  bool deleteProperty,
 			  QByteArray *buffer, int *size, Atom *type,
 			  int *format )
 {
-    int maxsize = XMaxRequestSize(dpy)*4 - 64;
+    int	   maxsize = maxSelectionIncr(dpy);
     ulong  bytes_left;
     ulong  length;
     uchar *data;
@@ -237,7 +244,7 @@ static bool readProperty( Display *dpy, Window win, Atom property,
 	buffer->at(bytes_left) = '\0';		// zero-terminate (for text)
 	while ( bytes_left ) {			// more to read...
 	    r = XGetWindowProperty( dpy, win, property, offset/4, maxsize/4,
-				    FALSE, AnyPropertyType,	type, format,
+				    FALSE, AnyPropertyType, type, format,
 				    &length, &bytes_left, &data );
 	    if ( r != Success )
 		break;
