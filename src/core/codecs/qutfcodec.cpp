@@ -102,7 +102,7 @@ QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
     rstr.resize(cursor - (const uchar*)rstr.constData());
     if (state) {
         state->invalidChars += invalid;
-        state->flags ^= WriteHeader;
+        state->flags &= (~WriteHeader);
         state->remainingChars = 0;
         if (surrogate_high >= 0) {
             state->remainingChars = 1;
@@ -216,7 +216,7 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 
     if (state) {
         state->remainingChars = 0;
-        state->flags ^= WriteHeader;
+        state->flags &= (~WriteHeader);
     }
     return d;
 };
