@@ -175,7 +175,7 @@ static bool qt_move_file(const QString &from, const QString &to)
     return QFile::remove(from);
 }
 
-Q4FileIconProvider::Q4FileIconProvider()
+QFileIconProvider::QFileIconProvider()
 {
     QPixmap filePixmap(file_xpm);
     file.setPixmap(filePixmap, QIconSet::Small);
@@ -192,19 +192,19 @@ Q4FileIconProvider::Q4FileIconProvider()
     linkDir.setPixmap(linkDirPixmap, QIconSet::Small);
 }
 
-Q4FileIconProvider::~Q4FileIconProvider()
+QFileIconProvider::~QFileIconProvider()
 {
 
 }
 
-QIconSet Q4FileIconProvider::icons(const QFileInfo &fileInfo) const
+QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
 {
     if (fileInfo.isDir())
         return fileInfo.isSymLink() ? linkDir : dir;
    return fileInfo.isSymLink() ? linkFile : file;
 }
 
-QString Q4FileIconProvider::type(const QFileInfo &info) const
+QString QFileIconProvider::type(const QFileInfo &info) const
 {
     return info.isDir() ? "Directory" : info.extension() + " File";
 }
@@ -231,8 +231,8 @@ public:
     QDir root;
     QVector<QDirNode> tree;
 
-    Q4FileIconProvider *iconProvider;
-    Q4FileIconProvider defaultProvider;
+    QFileIconProvider *iconProvider;
+    QFileIconProvider defaultProvider;
 };
 
 #define d d_func()
@@ -461,12 +461,61 @@ bool QDirModel::greater(const QModelIndex &left, const QModelIndex &right) const
     return QAbstractItemModel::greater(left, right);
 }
 
-void QDirModel::setIconProvider(Q4FileIconProvider *provider)
+bool QDirModel::canDecode(QMimeSource *src) const
+{
+    return QUriDrag::canDecode(src);
+}
+
+bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
+{
+    // FIXME: what about directories ?
+    QStringList files;
+    if (!QUriDrag::decodeLocalFiles(e, files))
+        return false;
+    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent)); // FIXME
+    bool success = true;
+    QString to = path(parent) + QDir::separator();
+    QStringList::const_iterator it = files.begin();
+    switch (e->action()) {
+    case QDropEvent::Copy:
+        for (; it != files.end(); ++it)
+            success = qt_copy_file(*it, to + QFileInfo(*it).fileName()) && success;
+        break;
+    case QDropEvent::Link:
+        for (; it != files.end(); ++it)
+            success = qt_link_file(*it, to + QFileInfo(*it).fileName()) && success;
+        break;
+    case QDropEvent::Move:
+        for (; it != files.end(); ++it)
+            success = qt_move_file(*it, to + QFileInfo(*it).fileName()) && success;
+        break;
+//     case default:
+//         return false;
+    }
+    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    if (p)
+        p->children = d->children(p);
+    else
+        d->tree = d->children(0);
+    emit contentsInserted(topLeft(parent), bottomRight(parent));
+    return success;
+}
+
+QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
+{
+    QList<QByteArray> uris;
+    QList<QModelIndex>::const_iterator it = indices.begin();
+    for (; it != indices.end(); ++it)
+        uris.append(QUriDrag::localFileToUri(path(*it)));
+    return new QUriDrag(uris, dragSource);
+}
+
+void QDirModel::setIconProvider(QFileIconProvider *provider)
 {
     d->iconProvider = provider;
 }
 
-Q4FileIconProvider *QDirModel::iconProvider() const
+QFileIconProvider *QDirModel::iconProvider() const
 {
     return d->iconProvider;
 }
@@ -637,55 +686,6 @@ bool QDirModel::remove(const QModelIndex &index)
         d->tree = d->children(0);
 
     return true;
-}
-
-bool QDirModel::canDecode(QMimeSource *src) const
-{
-    return QUriDrag::canDecode(src);
-}
-
-bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
-{
-    // FIXME: what about directories ?
-    QStringList files;
-    if (!QUriDrag::decodeLocalFiles(e, files))
-        return false;
-    emit contentsRemoved(parent, topLeft(parent), bottomRight(parent)); // FIXME
-    bool success = true;
-    QString to = path(parent) + QDir::separator();
-    QStringList::const_iterator it = files.begin();
-    switch (e->action()) {
-    case QDropEvent::Copy:
-        for (; it != files.end(); ++it)
-            success = qt_copy_file(*it, to + QFileInfo(*it).fileName()) && success;
-        break;
-    case QDropEvent::Link:
-        for (; it != files.end(); ++it)
-            success = qt_link_file(*it, to + QFileInfo(*it).fileName()) && success;
-        break;
-    case QDropEvent::Move:
-        for (; it != files.end(); ++it)
-            success = qt_move_file(*it, to + QFileInfo(*it).fileName()) && success;
-        break;
-//     case default:
-//         return false;
-    }
-    QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-    if (p)
-        p->children = d->children(p);
-    else
-        d->tree = d->children(0);
-    emit contentsInserted(topLeft(parent), bottomRight(parent));
-    return success;
-}
-
-QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
-{
-    QList<QByteArray> uris;
-    QList<QModelIndex>::const_iterator it = indices.begin();
-    for (; it != indices.end(); ++it)
-        uris.append(QUriDrag::localFileToUri(path(*it)));
-    return new QUriDrag(uris, dragSource);
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const

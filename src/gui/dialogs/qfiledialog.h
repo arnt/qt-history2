@@ -1,5 +1,5 @@
-#ifndef Q4FILEDIALOG_H
-#define Q4FILEDIALOG_H
+#ifndef QFILEDIALOG_H
+#define QFILEDIALOG_H
 
 #include <qdir.h>
 #include <qstring.h>
@@ -84,4 +84,4 @@ protected slots:
 
 };
 
-#endif // Q4FILEDIALOG_H
+#endif // QFILEDIALOG_H

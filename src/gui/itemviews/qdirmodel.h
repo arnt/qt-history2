@@ -7,11 +7,11 @@
 
 class QDirModelPrivate;
 
-class Q_GUI_EXPORT Q4FileIconProvider
+class Q_GUI_EXPORT QFileIconProvider
 {
 public:
-    Q4FileIconProvider();
-    virtual ~Q4FileIconProvider();
+    QFileIconProvider();
+    virtual ~QFileIconProvider();
     virtual QIconSet icons(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
 protected:
@@ -52,8 +52,14 @@ public:
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
     bool greater(const QModelIndex &left, const QModelIndex &right) const;
 
-    void setIconProvider(Q4FileIconProvider *provider);
-    Q4FileIconProvider *iconProvider() const;
+    bool canDecode(QMimeSource *src) const;
+    bool decode(QDropEvent *e, const QModelIndex &parent);
+    QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
+
+    // QDirModel specific API
+
+    void setIconProvider(QFileIconProvider *provider);
+    QFileIconProvider *iconProvider() const;
 
     void setNameFilters(const QStringList &filters);
     QStringList nameFilters() const;
@@ -73,10 +79,6 @@ public:
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);
     bool remove(const QModelIndex &index);
-
-    bool canDecode(QMimeSource *src) const;
-    bool decode(QDropEvent *e, const QModelIndex &parent);
-    QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);
