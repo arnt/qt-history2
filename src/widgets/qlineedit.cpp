@@ -684,7 +684,7 @@ void QLineEdit::paintEvent( QPaintEvent * )
 	fw = style().defaultFrameWidth();
     int xoff = -d->offset + 2 + fw;
     int yoff = (height() - parag->rect().height())/2;
-    if ( yoff < 0 ) 
+    if ( yoff < 0 )
 	yoff = 0;
     // Reggie: Strange, if we add fw the text is drawn too much at the
     // bottom, might be that parag->paint() does some translation
@@ -1003,7 +1003,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	    d->cursor->gotoLeft();
     if ( mark )
 	updateSelection();
-    repaint();
+    repaint( FALSE );
 }
 
 /*!
@@ -1053,7 +1053,7 @@ void QLineEdit::home( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint();
+    repaint( FALSE );
 }
 
 /*!
@@ -1070,7 +1070,7 @@ void QLineEdit::end( bool mark )
 	updateSelection();
     else
 	deselect();
-    repaint();
+    repaint( FALSE );
 }
 
 
@@ -1480,7 +1480,7 @@ void QLineEdit::insert( const QString &newText )
 	blinkOn();
 	validateAndSet( text, cp, cp, cp );
     }
-    repaint();
+    repaint( FALSE );
 }
 
 
