@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#217 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4037,10 +4037,14 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 )
 	return;					// < 4 numbers parsed
 
-    if ( ncols > 256 || cpp > 15 )
+    if ( cpp > 15 )
 	return;
 
-    image.create( w, h, 8, ncols );
+    if ( ncols > 256 ) {
+	image.create( w, h, 32 );
+    } else {
+	image.create( w, h, 8, ncols );
+    }
 
     QDict<void> colorMap( 569, TRUE );
     colorMap.setAutoDelete( FALSE );
@@ -4048,50 +4052,86 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     int currentColor;
 
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
-	if ( !read_xpm_string( buf, d, source, index ) )
+	if ( !read_xpm_string( buf, d, source, index ) ) {
+#if defined(DEBUG)
+	    warning( "QImage: XPM color specification missing");
 	    return;
+#endif
+	}
 	QString index;
 	index = buf.left( cpp );
-	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace().lower();
+	buf = buf.mid( cpp ).simplifyWhiteSpace().lower();
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
 	    i = buf.find( " c " );
-	    if ( i < 0 )
+	    if ( i < 0 ) {
+#if defined(DEBUG)
+		warning( "QImage: XPM color specification is missing");
+#endif
 		return;				// no c specification
+	    }
 	    buf = buf.mid( i+1, buf.length() );
 	}
 	if ( buf == "c none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
-	    image.setColor( transparentColor, RGB_MASK & qRgb(198,198,198) );
-	    colorMap.insert( index, (void*)(transparentColor+1) );
+	    if ( image.depth() == 8 ) {
+		image.setColor( transparentColor, RGB_MASK & qRgb(198,198,198) );
+		colorMap.insert( index, (void*)(transparentColor+1) );
+	    } else {
+		QRgb rgb = RGB_MASK & qRgb(198,198,198);
+		colorMap.insert( index, (void*)(rgb+1) );
+	    }
 	} else if ( buf[0] == 'c' ) {
 	    QColor c( buf.mid( 2, buf.length() ) );
-	    image.setColor( currentColor, 0xff000000 | c.rgb() );
-	    colorMap.insert( index, (void*)(currentColor+1) );
+	    if ( image.depth() == 8 ) {
+		image.setColor( currentColor, 0xff000000 | c.rgb() );
+		colorMap.insert( index, (void*)(currentColor+1) );
+	    } else {
+		QRgb rgb = 0xff000000 | c.rgb();
+		colorMap.insert( index, (void*)(rgb+1) );
+	    }
 	}
     }
 
     // Read pixels
     for( int y=0; y<h; y++ ) {
-	if ( !read_xpm_string( buf, d, source, index ) )
+	if ( !read_xpm_string( buf, d, source, index ) ) {
+#if defined(DEBUG)
+	    warning( "QImage: XPM pixels missing on image line %d", y);
+#endif
 	    return;
-	uchar *p = image.scanLine(y);
-	uchar *d = (uchar *)buf.data();
-	uchar *end = d + buf.length();
-	int x;
-	if ( cpp == 1 ) {
-	    char b[2];
-	    b[1] = '\0';
-	    for ( x=0; x<w && d<end; x++ ) {
-		b[0] = *d++;
-		*p++ = (uchar)((int)(long)colorMap[b] - 1);
+	}
+	if ( image.depth() == 8 ) {
+	    uchar *p = image.scanLine(y);
+	    uchar *d = (uchar *)buf.data();
+	    uchar *end = d + buf.length();
+	    int x;
+	    if ( cpp == 1 ) {
+		char b[2];
+		b[1] = '\0';
+		for ( x=0; x<w && d<end; x++ ) {
+		    b[0] = *d++;
+		    *p++ = (uchar)((int)(long)colorMap[b] - 1);
+		}
+	    } else {
+		char b[16];
+		b[cpp] = '\0';
+		for ( x=0; x<w && d<end; x++ ) {
+		    strncpy( b, (char *)d, cpp );
+		    *p++ = (uchar)((int)(long)colorMap[b] - 1);
+		    d += cpp;
+		}
 	    }
 	} else {
+	    QRgb *p = (QRgb*)image.scanLine(y);
+	    uchar *d = (uchar *)buf.data();
+	    uchar *end = d + buf.length();
+	    int x;
 	    char b[16];
 	    b[cpp] = '\0';
 	    for ( x=0; x<w && d<end; x++ ) {
 		strncpy( b, (char *)d, cpp );
-		*p++ = (uchar)((int)(long)colorMap[b] - 1);
+		*p++ = (QRgb)((int)(long)colorMap[b] - 1);
 		d += cpp;
 	    }
 	}
@@ -4141,6 +4181,7 @@ static void write_xpm_image( QImageIO * iio )
     else
 	return;
 
+    // ### 8-bit case could be made faster
     QImage image;
     if ( iio->image().depth() != 32 )
 	image = iio->image().convertDepth( 32 );
