@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#144 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#144 $");
 
 
 /*!
@@ -753,6 +753,8 @@ static void objSearch( QObjectList *result,
 /*!
   \fn const QObjectList *QObject::children() const
   Returns a list of child objects, or 0 if this object has no children.
+
+  The QObjectList class is defined in the qobjcoll.h header file.
 
   The latest child added is the \link QList::first() first\endlink object
   in the list and the first child is added is the \link QList::last()
