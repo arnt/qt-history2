@@ -17,6 +17,7 @@ SOURCES = \
 
 HEADERS = \
 	alphashade.h \
+	attributes.h \
 	clipping.h \
 	demoviewer.h \
 	demowidget.h \
