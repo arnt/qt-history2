@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#8 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#9 $
 **
 ** Definition of QFrame widget class
 **
@@ -33,8 +33,6 @@ public:
 	   Sunken   = 0x0030,			// sunken shadow effect
 	   MStyle   = 0x00f0 };
 
-    QRect	contentsRect()	const;		// get rect inside frame
-
     int		frameStyle()	const { return fstyle; }
     void	setFrameStyle( int );
 
@@ -46,12 +44,15 @@ public:
 
     int		frameWidth()	const { return fwidth; }
     QRect	frameRect()	const;
+    QRect	contentsRect()	const;		// get rectangle inside frame
 
 protected:
     void	setFrameRect( const QRect & );
     void	paintEvent( QPaintEvent * );
+    void	resizeEvent( QResizeEvent * );
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
+    virtual void frameChanged();
 
 private:
     void	updateFrameWidth();
