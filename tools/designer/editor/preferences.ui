@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>307</width>
-            <height>344</height>
+            <width>362</width>
+            <height>396</height>
         </rect>
     </property>
     <property name="caption">
@@ -151,7 +151,7 @@
                                 <cstring>TextLabel4</cstring>
                             </property>
                             <property name="text">
-                                <string>Co&amp;lor:</string>
+                                <string>Change co&amp;lor:</string>
                             </property>
                             <property name="buddy" stdset="0">
                                 <cstring>buttonColor</cstring>
@@ -243,6 +243,12 @@
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>0</height>
+                        </size>
                     </property>
                 </spacer>
             </grid>
@@ -459,22 +465,22 @@
     <variable>ConfigStyle currentStyle;</variable>
     <variable>QString currentElement;</variable>
 </variables>
-<slots>
-    <slot access="">init()</slot>
-    <slot access="">destroy()</slot>
-    <slot access="">colorClicked()</slot>
-    <slot access="">reInit()</slot>
-    <slot access="">save()</slot>
-    <slot access="">updatePreview()</slot>
-    <slot access="">boldChanged(bool b)</slot>
-    <slot access="">elementChanged(const QString &amp; element)</slot>
-    <slot access="">familyChanged(const QString &amp; f)</slot>
-    <slot access="">italicChanged(bool b)</slot>
-    <slot access="">setColorPixmap(const QColor &amp; c)</slot>
-    <slot access="">setPath(const QString &amp; p)</slot>
-    <slot access="">sizeChanged(int s)</slot>
-    <slot access="">underlineChanged(bool b)</slot>
-</slots>
+<functions>
+    <function type="slot">init()</function>
+    <function type="slot">destroy()</function>
+    <function type="slot">colorClicked()</function>
+    <function type="slot">reInit()</function>
+    <function type="slot">save()</function>
+    <function type="slot">updatePreview()</function>
+    <function type="slot">boldChanged( bool b )</function>
+    <function type="slot">elementChanged( const QString &amp; element )</function>
+    <function type="slot">familyChanged( const QString &amp; f )</function>
+    <function type="slot">italicChanged( bool b )</function>
+    <function type="slot">setColorPixmap( const QColor &amp; c )</function>
+    <function type="slot">setPath( const QString &amp; p )</function>
+    <function type="slot">sizeChanged( int s )</function>
+    <function type="slot">underlineChanged( bool b )</function>
+</functions>
 <exportmacro>EDITOR_EXPORT</exportmacro>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
