@@ -128,6 +128,7 @@ void Ui3Reader::embed(const char *project, const QStringList &images)
 
     out << "#include <qimage.h>\n";
     out << "#include <qmime.h>\n";
+    out << "#include <qmimefactory.h>\n";
     out << "#include <qdragobject.h>\n";
     out << "\n";
 
