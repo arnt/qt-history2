@@ -611,7 +611,7 @@ void QWidgetFactory::unpackVariant( const UibStrTable& strings, QDataStream& in,
 	break;
     case QVariant::Bool:
 	in >> bit;
-	value = QVariant( bit != 0, 0 );
+	value = QVariant(bit != 0);
 	break;
     case QVariant::Double:
 	in >> value.asDouble();
@@ -1798,7 +1798,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 	if ( prop == "geometry" && obj == toplevel ) {
 	    toplevel->resize( value.toRect().size() );
 	} else if ( prop == "accel" ) {
-	    obj->setProperty( prop, value.toKeySequence() );
+	    obj->setProperty( prop, QVariant(value.toKeySequence()) );
 	} else {
 	    if ( value.type() == QVariant::String ||
 		 value.type() == QVariant::CString ) {

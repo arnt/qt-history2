@@ -22,6 +22,7 @@
 #include <qmap.h>
 #include <qaction.h>
 #include <qcstring.h>
+#include <qvariant.h>
 #endif // QT_H
 
 class QDomDocument;
