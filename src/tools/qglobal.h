@@ -149,7 +149,7 @@
      SYM	- Digital Mars C/C++ (used to be Symantec C++)
      MPW	- MPW C++
      MWERKS	- Metrowerks CodeWarrior
-     MSVC	- Microsoft Visual C/C++
+     MSVC	- Microsoft Visual C/C++, Intel C++ for Windows
      BOR	- Borland/Turbo C++
      WAT	- Watcom C++
      GNU	- GNU C++
@@ -164,7 +164,7 @@
      USLC	- SCO OUDK, UDK, and UnixWare 2.X C++
      CDS	- Reliant C++
      KAI	- KAI C++
-     INTEL	- Intel C++
+     INTEL	- Intel C++ for Linux, Intel C++ for Windows
      HIGHC	- MetaWare High C/C++
      PGI	- Portland Group C++
      GHS	- Green Hills Optimizing C++ Compilers
@@ -211,7 +211,15 @@
 #      undef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 #    endif
 #  endif
-#  define Q_NO_USING_KEYWORD /* ### check "using" status */
+/* Intel C++ disguising as Visual C++: the `using' keyword avoids warnings */
+#  if defined(__INTEL_COMPILER)
+#    define Q_CC_INTEL
+#    if !defined(__EXCEPTIONS)
+#      define Q_NO_EXCEPTIONS
+#    endif
+#  else
+#    define Q_NO_USING_KEYWORD /* ### check "using" status */
+#  endif
 
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
@@ -348,7 +356,7 @@
 #    define Q_NO_BOOL_TYPE
 #  endif
 
-/* The Portland Group compiler is based on EDG and does define __EDG__ */
+/* The Comeau compiler is based on EDG and does define __EDG__ */
 #  if defined(__COMO__)
 #    define Q_CC_COMEAU
 #    define Q_C_CALLBACKS
@@ -364,7 +372,7 @@
 #    endif
 #    define Q_NO_USING_KEYWORD
 
-/* Using the `using' keyword avoids Intel C++ warnings */
+/* Using the `using' keyword avoids Intel C++ for Linux warnings */
 #  elif defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
 #    if !defined(__EXCEPTIONS)
