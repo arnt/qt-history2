@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#81 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -453,7 +453,7 @@ void QLCDNumber::display( int num )
     if ( of )
 	emit overflow();
     else
-	internalDisplay( s );
+	internalSetString( s );
 }
 
 
@@ -469,7 +469,7 @@ void QLCDNumber::display( double num )
     if ( of )
 	emit overflow();
     else
-	internalDisplay( s );
+	internalSetString( s );
 }
 
 
@@ -488,7 +488,7 @@ void QLCDNumber::display( double num )
 void QLCDNumber::display( const QString &s )
 {
     val = 0;
-    internalDisplay( s );
+    internalSetString( s );
 }
 
 /*!
@@ -600,39 +600,41 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
   QFrame::paintEvent().
 */
 
+
 void QLCDNumber::drawContents( QPainter *p )
 {
     if ( smallPoint )
-	drawString( digitStr, *p, &points );
+	drawString( digitStr, *p, &points, FALSE );
     else
-	drawString( digitStr, *p, 0 );
+	drawString( digitStr, *p, 0, FALSE );
 }
+
 
 /*!
   \internal
 */
 
-void QLCDNumber::internalDisplay( const QString &s )
+void QLCDNumber::internalDisplay( const QString & )
+{
+    ; // Not used anymore
+}
+
+void QLCDNumber::internalSetString( const QString& s )
 {
     QString buffer;
     int i;
     int len = s.length();
+    QPainter p( this );
+    QBitArray newPoints(ndigits);
 
     if ( !smallPoint ) {
-	if ( len >= ndigits ) {
-	    for( i=0; i<(int)ndigits; i++ )	// trunc too long string
-		buffer[i] = s[len - ndigits + i];
-	} else {
-	    for( i=0; i<ndigits-len; i++ )	// pad with spaces
-		buffer[i] = ' ';
-	    for( i=0; i<len; i++ )
-		buffer[ndigits - len + i] = s[i];
-	}
-	internalSetString(buffer,0);
-   } else {
+	if ( len == ndigits )
+	    buffer = s;
+	else
+	    buffer = s.right( ndigits ).rightJustify( ndigits, ' ' );
+    } else {
 	int  index = -1;
 	bool lastWasPoint = TRUE;
-	QBitArray newPoints(ndigits);
 	newPoints.clearBit(0);
 	for ( i=0; i<len; i++ ) {
 	    if ( s[i] == '.' ) {
@@ -664,8 +666,22 @@ void QLCDNumber::internalDisplay( const QString &s )
 		newPoints.clearBit(i);
 	    }
 	}
-	internalSetString(buffer,&newPoints);
     }
+
+    if ( buffer == digitStr )
+	return;
+
+    if ( backgroundMode() == FixedPixmap
+	 || colorGroup().brush( QColorGroup::Background ).pixmap() ) {
+	digitStr = buffer;
+	if ( smallPoint )
+	    points = newPoints;
+	repaint( contentsRect() );
+    }
+    else if ( !smallPoint )
+	drawString( buffer, p );
+    else
+	drawString( buffer, p, &newPoints );
 }
 
 /*!
@@ -673,7 +689,7 @@ void QLCDNumber::internalDisplay( const QString &s )
 */
 
 void QLCDNumber::drawString( const QString &s, QPainter &p,
-			     QBitArray *newPoints ) const
+			     QBitArray *newPoints, bool newString )
 {
     QPoint  pos;
 
@@ -687,28 +703,27 @@ void QLCDNumber::drawString( const QString &s, QPainter &p,
 
     for ( int i=0;  i<ndigits; i++ ) {
 	pos = QPoint( xOffset + xAdvance*i, yOffset );
-	drawDigit( pos, p, segLen, s[i]);
+	if ( newString )
+	    drawDigit( pos, p, segLen, s[i], digitStr[i].latin1() );
+	else
+	    drawDigit( pos, p, segLen, s[i]);
 	if ( newPoints ) {
 	    char newPoint = newPoints->testBit(i) ? '.' : ' ';
-	    drawDigit( pos, p, segLen, newPoint );
+	    if ( newString ) {
+		char oldPoint = points.testBit(i) ? '.' : ' ';
+		drawDigit( pos, p, segLen, newPoint, oldPoint );
+	    } else {
+		drawDigit( pos, p, segLen, newPoint );
+	    }
 	}
     }
-}
-
-void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints )
-{
-    QString t = s;
-
-    if ( (int)t.length() > ndigits )
-	t.truncate( ndigits );
-    if ( newPoints )
-	points = *newPoints;
-
-    if ( t == digitStr )
-	return;
-
-    digitStr = t;
-    repaint( contentsRect() );
+    if ( newString ) {
+	digitStr = s;
+	if ( (int)digitStr.length() > ndigits )
+	    digitStr.truncate( ndigits );
+	if ( newPoints )
+	    points = *newPoints;
+    }
 }
 
 
@@ -717,12 +732,46 @@ void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints
 */
 
 void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
-			    char ch ) const
+			    char newCh, char oldCh )
 {
-    // Draws segments to change display of a single digit newCh
-    const char* segs = getSegments(ch);
-    for(int i = 0 ; segs[i] != 99 ; i++) {
-	drawSegment( pos, segs[i], p, segLen );
+// Draws and/or erases segments to change display of a single digit
+// from oldCh to newCh
+
+    char updates[18][2];	// can hold 2 times number of segments, only
+				// first 9 used if segment table is correct
+    int	 nErases;
+    int	 nUpdates;
+    const char *segs;
+    int	 i,j;
+
+    const char erase	  = 0;
+    const char draw	  = 1;
+    const char leaveAlone = 2;
+
+    segs = getSegments(oldCh);
+    for ( nErases=0; segs[nErases] != 99; nErases++ ) {
+	updates[nErases][0] = erase;		// get segments to erase to
+	updates[nErases][1] = segs[nErases];	// remove old char
+    }
+    nUpdates = nErases;
+    segs = getSegments(newCh);
+    for(i = 0 ; segs[i] != 99 ; i++) {
+	for ( j=0;  j<nErases; j++ )
+	    if ( segs[i] == updates[j][1] ) {	// same segment ?
+		updates[j][0] = leaveAlone;	// yes, already on screen
+		break;
+	    }
+	if ( j == nErases ) {			// if not already on screen
+	    updates[nUpdates][0] = draw;
+	    updates[nUpdates][1] = segs[i];
+	    nUpdates++;
+	}
+    }
+    for ( i=0; i<nUpdates; i++ ) {
+	if ( updates[i][0] == draw )
+	    drawSegment( pos, updates[i][1], p, segLen );
+	if (updates[i][0] == erase)
+	    drawSegment( pos, updates[i][1], p, segLen, TRUE );
     }
 }
 
@@ -739,17 +788,22 @@ static void addPoint( QPointArray &a, const QPoint &p )
 */
 
 void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
-			      int segLen ) const
+			      int segLen, bool erase )
 {
     QPoint pt = pos;
     int width = segLen/5;
 
     const QColorGroup & g = colorGroup();
     QColor lightColor,darkColor,fgColor;
-
-    lightColor = g.light();
-    darkColor  = g.dark();
-    fgColor    = g.foreground();
+    if ( erase ){
+	lightColor = backgroundColor();
+	darkColor  = lightColor;
+	fgColor    = lightColor;
+    } else {
+	lightColor = g.light();
+	darkColor  = g.dark();
+	fgColor    = g.foreground();
+    }
 
 #define LINETO(X,Y) addPoint( a, QPoint(pt.x() + (X),pt.y() + (Y)))
 #define LIGHT
@@ -1019,6 +1073,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #undef LIGHT
 #undef DARK
 }
+
 
 
 /*!
