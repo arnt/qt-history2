@@ -7,9 +7,12 @@
 #include "qdir.h"
 #include "qsocketnotifier.h"
 #include "qqueue.h"
+#if defined( UNIX )
+#include "qlist.h"
+#endif
 #endif // QT_H
 
-#if defined(UNIX)
+#if defined( UNIX )
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -61,6 +64,12 @@ private:
 #else
     pid_t pid;
     ssize_t stdinBufRead;
+#endif
+#if defined ( UNIX )
+    QProcess *d;
+    static struct sigaction *oldact;
+    static QList<QProcess> *proclist;
+    static void sigchldHnd( int );
 #endif
     bool exitValuesCalculated;
     int  exitStat;
@@ -124,6 +133,9 @@ private slots:
     void socketRead( int fd );
     void socketWrite( int fd );
     void timeout();
+
+private:
+    friend class QProcessPrivate;
 };
 
 #endif // QPROCESS_H

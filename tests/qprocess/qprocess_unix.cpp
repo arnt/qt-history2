@@ -1,11 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #include "qapplication.h"
+#include "qlist.h"
 #include "qprocess.h"
 
 
-QProcessPrivate::QProcessPrivate( QProcess * )
+struct sigaction *QProcessPrivate::oldact;
+QList<QProcess> *QProcessPrivate::proclist = 0;
+
+QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
 {
     stdinBufRead = 0;
 
@@ -20,12 +26,38 @@ QProcessPrivate::QProcessPrivate( QProcess * )
     socketStderr[0] = 0;
     socketStderr[1] = 0;
 
+    exitValuesCalculated = FALSE;
     exitStat = 0;
     exitNormal = FALSE;
+
+    // install a SIGCHLD handler
+    if ( proclist == 0 ) {
+	proclist = new QList<QProcess>;
+
+	struct sigaction act;
+	act.sa_handler = sigchldHnd;
+	sigemptyset( &(act.sa_mask) );
+	sigaddset( &(act.sa_mask), SIGCHLD );
+	act.sa_flags = SA_NOCLDSTOP;
+#ifdef SA_RESTART
+	act.sa_flags |= SA_RESTART;
+#endif
+	if ( sigaction( SIGCHLD, &act, oldact ) != 0 )
+	    qWarning( "Error installing SIGCHLD handler" );
+    }
+    proclist->append( d );
 }
 
 QProcessPrivate::~QProcessPrivate()
 {
+    // restore SIGCHLD handler
+    proclist->remove( d );
+    if ( proclist->count() == 0 ) {
+	delete proclist;
+	if ( sigaction( SIGCHLD, oldact, 0 ) != 0 )
+	    qWarning( "Error restoring SIGCHLD handler" );
+    }
+
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
     }
@@ -49,9 +81,23 @@ QProcessPrivate::~QProcessPrivate()
 	close( socketStderr[0] );
 }
 
+void QProcessPrivate::sigchldHnd( int )
+{
+    QProcess *proc;
+    for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
+	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+	    emit proc->processExited();
+	}
+    }
+}
+
 
 bool QProcess::start()
 {
+    d->exitValuesCalculated = FALSE;
+    d->exitStat = 0;
+    d->exitNormal = FALSE;
+
     // cleanup the notifiers
     if ( d->notifierStdin ) {
 	d->notifierStdin->setEnabled( FALSE );
@@ -144,26 +190,32 @@ bool QProcess::start()
 
 bool QProcess::hangUp()
 {
-    return TRUE;
+    return ::kill( d->pid, SIGHUP ) == 0;
 }
 
 bool QProcess::kill()
 {
-    return TRUE;
+    return ::kill( d->pid, SIGKILL ) == 0;
 }
 
 bool QProcess::isRunning()
 {
-    int status;
-    if ( waitpid( d->pid, &status, WNOHANG ) == -1 )
-	return FALSE;
-    if ( WIFEXITED(status) == -1 )
-	return FALSE;
-
-    if ( d->socketStderr[0] == 0 && d->socketStdout[0] == 0 ) {
+    if ( d->exitValuesCalculated ) {
 	return FALSE;
     } else {
-	return TRUE;
+	int status;
+	if ( waitpid( d->pid, &status, WNOHANG ) == d->pid )
+	{
+	    // compute the exit values
+	    d->exitNormal = WIFEXITED( status ) != 0;
+	    if ( d->exitNormal ) {
+		d->exitStat = WEXITSTATUS( status );
+	    }
+	    d->exitValuesCalculated = TRUE;
+	    return FALSE;
+	} else {
+	    return TRUE;
+	}
     }
 }
 
@@ -176,10 +228,12 @@ void QProcess::dataStdin( const QByteArray& buf )
 }
 
 
-void QProcess::closeStdin( )
+void QProcess::closeStdin()
 {
     if ( d->socketStdin[1] !=0 ) {
-	close( d->socketStdin[1] );
+	if ( close( d->socketStdin[1] ) != 0 ) {
+	    qWarning( "Could not close stdin of child process" );
+	}
 	d->socketStdin[1] =0 ;
     }
 }
@@ -209,7 +263,7 @@ void QProcess::socketRead( int fd )
 	}
 
 	if ( d->socketStderr[0] == 0 && d->socketStdout[0] == 0 ) {
-	    emit processExited();
+//	    emit processExited();
 	    return;
 	}
 

@@ -324,6 +324,7 @@ bool QProcess::isRunning()
 		    d->exitStat = exitCode;
 		}
 	    }
+	    d->exitValuesCalculated = TRUE;
 	}
 	return FALSE;
     } else {
@@ -476,6 +477,7 @@ void QProcess::timeout()
 
     // is process running?
     if ( !isRunning() ) {
+	// isRunning() gets the exit values
 	d->lookup->stop();
 	emit processExited();
     }
