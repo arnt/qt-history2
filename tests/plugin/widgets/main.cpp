@@ -103,7 +103,7 @@ bool ExtraWidgetsInterface::isContainer( const QString& )
     return FALSE;
 }
 
-class ExtraWidgetsPlugIn : public QPlugInInterface
+class ExtraWidgetsPlugIn : public QComponentInterface
 {
 public:
     ExtraWidgetsPlugIn();
@@ -114,7 +114,7 @@ public:
 };
 
 ExtraWidgetsPlugIn::ExtraWidgetsPlugIn()
-: QPlugInInterface( "ExtraWidgetsPlugIn" )
+: QComponentInterface( "ExtraWidgetsPlugIn" )
 {
     new ExtraWidgetsInterface( this, "ExtraWidgetsInterface" );
 }

@@ -207,7 +207,7 @@ void TestThread::run()
 
 #include "main.moc"
 
-class TestPlugIn : public QPlugInInterface
+class TestPlugIn : public QComponentInterface
 {
 public:
     TestPlugIn();
@@ -219,7 +219,7 @@ public:
 };
 
 TestPlugIn::TestPlugIn()
-: QPlugInInterface( "Test PlugIn" )
+: QComponentInterface( "Test PlugIn" )
 {
     new TestInterface( this );
 }

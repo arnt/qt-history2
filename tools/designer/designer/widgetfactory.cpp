@@ -21,7 +21,6 @@
 #include <qvariant.h> // HP-UX compiler need this here
 
 #include "widgetfactory.h"
-#include <widgetplugin.h>
 #include <widgetdatabase.h>
 #include "metadatabase.h"
 #include "mainwindow.h"
@@ -34,6 +33,7 @@
 #include "formwindow.h"
 #include "multilineeditorimpl.h"
 #include "../integration/kdevelop/kdewidgets.h"
+#include "widgetinterface.h"
 
 #include <qmodules.h>
 

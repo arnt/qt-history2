@@ -49,7 +49,7 @@ QStringList RCInterface::import( const QString &, const QString& filename )
     return c.targetFiles;
 }
 
-class RCPlugIn : public QPlugInInterface
+class RCPlugIn : public QComponentInterface
 {
 public:
     RCPlugIn();
@@ -61,7 +61,7 @@ public:
 };
 
 RCPlugIn::RCPlugIn()
-: QPlugInInterface( "RCPlugIn" )
+: QComponentInterface( "RCPlugIn" )
 {
     new RCInterface( this, "RC Interface" );
 }

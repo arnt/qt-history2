@@ -108,7 +108,7 @@ bool OpenGLWidgetInterface::isContainer( const QString& )
     return FALSE;
 }
 
-class OpenGLPlugIn : public QPlugInInterface
+class OpenGLPlugIn : public QComponentInterface
 {
 public:
     OpenGLPlugIn();
@@ -120,7 +120,7 @@ public:
 };
 
 OpenGLPlugIn::OpenGLPlugIn()
-: QPlugInInterface( "OpenGL PlugIn" )
+: QComponentInterface( "OpenGL PlugIn" )
 {
     new OpenGLWidgetInterface( this, "OpenGL Widget Interface" );
 }
