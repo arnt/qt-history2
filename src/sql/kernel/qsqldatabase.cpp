@@ -131,6 +131,7 @@ static bool qDriverDictInit = false;
 static void cleanDriverDict()
 {
     qDeleteAll(QSqlDatabasePrivate::driverDict());
+    QSqlDatabasePrivate::driverDict().clear();
     QSqlDatabasePrivate::cleanConnections();
     qDriverDictInit = false;
 }
