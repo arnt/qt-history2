@@ -444,9 +444,17 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 }
 
 /*!
-  0 = none
-  1..3 = rotates 90..270
-  4..7 = mirrored 0..3
+    \table
+    \header \i Transformation \i Rotation \i Mirrored
+    \row \i 0 \i 0	\i No
+    \row \i 1 \i 90	\i No
+    \row \i 2 \i 180	\i No
+    \row \i 3 \i 270	\i No
+    \row \i 4 \i 0	\i Yes
+    \row \i 5 \i 90	\i Yes
+    \row \i 6 \i 180	\i Yes
+    \row \i 7 \i 270	\i Yes
+    \endtable
 */
 int QTransformedScreen::transformOrientation() const
 {

@@ -37,26 +37,29 @@
 #include "qmousedriverinterface_p.h"
 #include "qmouse_qws.h"
 
-/*!   \class QMouseDriverPlugin qmousedriverplugin_qws.h
-  \brief The QMouseDriverPlugin class provides an abstract base for
-  mouse driver plugins.
-  \ingroup plugins
+/*!
+    \class QMouseDriverPlugin qmousedriverplugin_qws.h
+    \brief The QMouseDriverPlugin class provides an abstract base for
+    mouse driver plugins.
 
-  The mouse driver plugin is a simple plugin interface that makes it easy
-  to create custom mouse drivers.
+    \ingroup plugins
 
-  Writing a mouse driver plugin is achieved by subclassing this
-  base class, reimplementing the pure virtual functions keys() and
-  create(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins-howto.html Plugins
-  documentation\endlink for details.
+    The mouse driver plugin is a simple plugin interface that makes it
+    easy to create custom mouse drivers.
+
+    Writing a mouse driver plugin is achieved by subclassing this base
+    class, reimplementing the pure virtual functions keys() and
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN
+    macro. See the \link plugins-howto.html Plugins
+    documentation\endlink for details.
 */
 
-/*! \fn QStringList QMouseDriverPlugin::keys() const
+/*!
+    \fn QStringList QMouseDriverPlugin::keys() const
 
-  Returns the list of mouse drivers this plugin supports.
+    Returns the list of mouse drivers this plugin supports.
 
-  \sa create()
+    \sa create()
 */
 
 
@@ -118,8 +121,8 @@ QWSMouseHandler* QMouseDriverPluginPrivate::create( const QString& driver, const
 }
 
 /*!
-  Constructs a mouse driver plugin. This is invoked automatically by
-  the Q_EXPORT_PLUGIN macro.
+    Constructs a mouse driver plugin. This is invoked automatically by
+    the \c Q_EXPORT_PLUGIN macro.
 */
 QMouseDriverPlugin::QMouseDriverPlugin()
     : QGPlugin( d = new QMouseDriverPluginPrivate( this ) )
@@ -127,11 +130,10 @@ QMouseDriverPlugin::QMouseDriverPlugin()
 }
 
 /*!
-  Destroys the mouse driver plugin.
+    Destroys the mouse driver plugin.
 
-  You never have to call this explicitly. Qt destroys a plugin
-  automatically when it is no longer used.
-
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QMouseDriverPlugin::~QMouseDriverPlugin()
 {

@@ -38,7 +38,7 @@
 #include "qgfxdriverfactory_qws.h"
 
 #include "qapplication.h"
-#include "qgfxlinuxfb_qws.h" 
+#include "qgfxlinuxfb_qws.h"
 #include "qgfxtransformed_qws.h"
 #include "qgfxmach64_qws.h"
 #include "qgfxvoodoo_qws.h"
@@ -86,24 +86,25 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 #endif //QT_MAKEDLL
 
 /*!
-  \class QGfxDriverFactory qgfxdriverfactory.h
-  \brief The QGfxDriverFactory class creates QScreen objects.
+    \class QGfxDriverFactory qgfxdriverfactory.h
+    \brief The QGfxDriverFactory class creates QScreen objects.
 
-  The graphics driver factory creates a QScreen object for a given key with
-  QGfxDriverFactory::create(key).
+    The graphics driver factory creates a QScreen object for a given
+    key with QGfxDriverFactory::create(key).
 
-  The drivers are either built-in or dynamically loaded from a driver
-  plugin (see \l QGfxDriverPlugin).
+    The drivers are either built-in or dynamically loaded from a
+    driver plugin (see \l QGfxDriverPlugin).
 
-  QGfxDriverFactory::keys() returns a list of valid keys. Qt currently
-  ships with "LinuxFb"
-
+    QGfxDriverFactory::keys() returns a list of valid keys. Qt
+    currently ships with "LinuxFb".
 */
 
-/*!  Creates a QScreen object that matches \a key. This is either a
-  built-in driver, or a driver from a driver plugin.
+/*!
+    Creates a QScreen object of a type that matches \a key, and with
+    the ID, \a displayId. The QScreen object returned may be from a
+    built-in driver, or from a driver plugin.
 
-  \sa keys()
+    \sa keys()
 */
 QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 {
@@ -152,7 +153,7 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     if ( driver == "repeater" )
 	return new QRepeaterScreen( displayId );
 #endif
-    
+
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
@@ -170,10 +171,9 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns the list of keys  this factory can create
-  drivers for.
+    Returns the list of keys this factory can create drivers for.
 
-  \sa create()
+    \sa create()
 */
 QStringList QGfxDriverFactory::keys()
 {
@@ -221,9 +221,9 @@ QStringList QGfxDriverFactory::keys()
 #endif
 #ifndef QT_NO_QWS_REPEATER
      if ( !list.contains( "Repeater" ) )
-	list << "Repeater";   
+	list << "Repeater";
 #endif
-     
+
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )

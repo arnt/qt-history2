@@ -37,26 +37,29 @@
 #include "qgfxdriverinterface_p.h"
 #include "qgfx_qws.h"
 
-/*!   \class QGfxDriverPlugin qgfxdriverplugin_qws.h
-  \brief The QGfxDriverPlugin class provides an abstract base for
-  graphics driver plugins.
-  \ingroup plugins
+/*!
+    \class QGfxDriverPlugin qgfxdriverplugin_qws.h
+    \brief The QGfxDriverPlugin class provides an abstract base for
+    graphics driver plugins.
 
-  The graphics driver plugin is a simple plugin interface that makes it easy to
-  create custom graphics drivers.
+    \ingroup plugins
 
-  Writing a graphics driver plugin is achieved by subclassing this
-  base class, reimplementing the pure virtual functions keys() and
-  create(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins-howto.html Plugins
-  documentation\endlink for details.
+    The graphics driver plugin is a simple plugin interface that makes
+    it easy to create custom graphics drivers.
+
+    Writing a graphics driver plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys() and
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN
+    macro. See the \link plugins-howto.html Plugins
+    documentation\endlink for details.
 */
 
-/*! \fn QStringList QGfxDriverPlugin::keys() const
+/*!
+    \fn QStringList QGfxDriverPlugin::keys() const
 
-  Returns the list of graphics drivers this plugin supports.
+    Returns the list of graphics drivers this plugin supports.
 
-  \sa create()
+    \sa create()
 */
 
 
@@ -118,8 +121,8 @@ QScreen* QGfxDriverPluginPrivate::create( const QString& driver, int displayId )
 }
 
 /*!
-  Constructs a graphics driver plugin. This is invoked automatically by
-  the Q_EXPORT_PLUGIN macro.
+    Constructs a graphics driver plugin. This is invoked automatically
+    by the \c Q_EXPORT_PLUGIN macro.
 */
 QGfxDriverPlugin::QGfxDriverPlugin()
     : QGPlugin( d = new QGfxDriverPluginPrivate( this ) )
@@ -127,11 +130,10 @@ QGfxDriverPlugin::QGfxDriverPlugin()
 }
 
 /*!
-  Destroys the graphics driver plugin.
+    Destroys the graphics driver plugin.
 
-  You never have to call this explicitly. Qt destroys a plugin
-  automatically when it is no longer used.
-
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QGfxDriverPlugin::~QGfxDriverPlugin()
 {

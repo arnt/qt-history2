@@ -38,17 +38,18 @@
 #include "qfile.h"
 
 /*!
-  \class QWSMouseHandler qwsmouse_qws.h
-  \ingroup qws
-  \brief The QWSMouseHandler class is a mouse driver/handler for Qt/Embedded.
+    \class QWSMouseHandler qwsmouse_qws.h
+    \brief The QWSMouseHandler class is a mouse driver for Qt/Embedded.
 
-  The mouse driver/handler handles events from system devices and
-  generates mouse events.
+    \ingroup qws
 
-  A QWSMouseHandler will usually open some system device in its
-  constructor, create a QSocketNotifier on that opened device and when
-  it receives data, it will call mouseChanged() to send the event
-  to Qt/Embedded for relaying to clients.
+    The mouse driver handles events from system devices and generates
+    mouse events.
+
+    A QWSMouseHandler will usually open some system device in its
+    constructor, create a QSocketNotifier on that opened device and
+    when it receives data, it will call mouseChanged() to send the
+    event to Qt/Embedded for relaying to clients.
 */
 
 /*!
@@ -80,7 +81,7 @@ QWSMouseHandler::QWSMouseHandler( const QString &, const QString & )
 }
 
 /*!
-  Destroys the mouse handler. You should not call this directly.
+    Destroys the mouse handler. You should not call this directly.
 */
 QWSMouseHandler::~QWSMouseHandler()
 {
@@ -106,8 +107,8 @@ void QWSMouseHandler::limitToScreen( QPoint &pt )
 
 
 /*!
-   When a mouse event occurs this function is called with the mouse's
-   position in \a pos, and the state of its buttons in \a bstate.
+    When a mouse event occurs this function is called with the mouse's
+    position in \a pos, and the state of its buttons in \a bstate.
 */
 void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 {
@@ -116,17 +117,18 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 }
 
 /*!
-  \fn QWSMouseHandler::clearCalibration()
-  This method is reimplemented in the calibrated mouse handler
-  to clear calibration information. This version does nothing.
+    \fn QWSMouseHandler::clearCalibration()
+
+    This method is reimplemented in the calibrated mouse handler to
+    clear calibration information. This version does nothing.
 */
 
 /*!
-  \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
+    \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
 
-  This method is reimplemented in the calibrated mouse handler
-  to set calibration information (from, for instance, the QPE
-  calibration screen). This version does nothing.
+    This method is reimplemented in the calibrated mouse handler to
+    set calibration information (from, for instance, the QPE
+    calibration screen). This version does nothing.
 */
 
 

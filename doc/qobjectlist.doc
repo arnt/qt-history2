@@ -12,7 +12,7 @@
 
     See \l QObject::queryList() for an example of use.
 
-    \sa QObject
+    \sa QObjectListIt QObject 
 */
 
 /*!

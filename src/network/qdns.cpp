@@ -1555,7 +1555,9 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 
 
 
-/*! Destroys the DNS query object and frees its allocated resources. */
+/*!
+    Destroys the DNS query object and frees its allocated resources.
+*/
 
 QDns::~QDns()
 {
@@ -1876,13 +1878,14 @@ QValueList<QHostAddress> QDns::addresses() const
 
 
 /*!
-  \class QDns::MailServer
+    \class QDns::MailServer
+    \brief The QDns::MailServer class is  described in QDns::mailServers().
+
     \ingroup io
 
-  \brief The QDns::MailServer class is  described in QDns::mailServers().
-
-  \internal
+    \internal
 */
+
 /*!
     Returns a list of mail servers if the record type is \c Mx. The
     class \c QDns::MailServer contains the following public variables:
@@ -1928,13 +1931,14 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 
 
 /*!
-  \class QDns::Server
+    \class QDns::Server
+    \brief The QDns::Server class is described in QDns::servers().
+
     \ingroup io
 
-  \brief The QDns::Server class is described in QDns::servers().
-
-  \internal
+    \internal
 */
+
 /*!
     Returns a list of servers if the record type is \c Srv. The class
     \c QDns::Server contains the following public variables:

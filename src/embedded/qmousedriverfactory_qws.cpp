@@ -78,17 +78,17 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
 #endif //QT_MAKEDLL
 
 /*!
-  \class QMouseDriverFactory qmousedriverfactory.h
-  \brief The QMouseDriverFactory class creates QWSMouseHandler objects.
+    \class QMouseDriverFactory qmousedriverfactory.h
+    \brief The QMouseDriverFactory class creates QWSMouseHandler
+    objects.
 
-  The graphics driver factory creates a QWSMouseHandler object for a given
-  key with QMouseDriverFactory::create(key).
+    The graphics driver factory creates a QWSMouseHandler object for a
+    given key with QMouseDriverFactory::create(key).
 
-  The drivers are either built-in or dynamically loaded from a driver
-  plugin (see \l QMouseDriverPlugin).
+    The drivers are either built-in or dynamically loaded from a
+    driver plugin (see \l QMouseDriverPlugin).
 
-  QMouseDriverFactory::keys() returns a list of valid keys.
-
+    QMouseDriverFactory::keys() returns a list of valid keys.
 */
 
 /*!
@@ -147,10 +147,9 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns the list of keys  this factory can create
-  drivers for.
+    Returns the list of keys this factory can create drivers for.
 
-  \sa create()
+    \sa create()
 */
 QStringList QMouseDriverFactory::keys()
 {

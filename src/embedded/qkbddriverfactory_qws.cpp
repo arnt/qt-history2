@@ -78,23 +78,23 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
 #endif //QT_MAKEDLL
 
 /*!
-  \class QKbdDriverFactory qkbddriverfactory.h
-  \brief The QKbdDriverFactory class creates QWSKeyboardHandler objects.
+    \class QKbdDriverFactory qkbddriverfactory.h
+    \brief The QKbdDriverFactory class creates QWSKeyboardHandler objects.
 
-  The graphics driver factory creates a QWSKeyboardHandler object for a given
-  key with QKbdDriverFactory::create(key).
+    The graphics driver factory creates a QWSKeyboardHandler object
+    for a given key with QKbdDriverFactory::create(key).
 
-  The drivers are either built-in or dynamically loaded from a driver
-  plugin (see \l QKbdDriverPlugin).
+    The drivers are either built-in or dynamically loaded from a
+    driver plugin (see \l QKbdDriverPlugin).
 
-  QKbdDriverFactory::keys() returns a list of valid keys.
-
+    QKbdDriverFactory::keys() returns a list of valid keys.
 */
 
-/*!  Creates a QWSKeyboardHandler object that matches \a key. This is either a
-  built-in driver, or a driver from a driver plugin.
+/*!
+    Creates a QWSKeyboardHandler object that matches \a key. This is
+    either a built-in driver, or a driver from a driver plugin.
 
-  \sa keys()
+    \sa keys()
 */
 QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
 {
@@ -143,10 +143,9 @@ QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns the list of keys  this factory can create
-  drivers for.
+    Returns the list of keys this factory can create drivers for.
 
-  \sa create()
+    \sa create()
 */
 QStringList QKbdDriverFactory::keys()
 {

@@ -37,26 +37,29 @@
 #include "qkbddriverinterface_p.h"
 #include "qkbd_qws.h"
 
-/*!   \class QKbdDriverPlugin qkbddriverplugin_qws.h
-  \brief The QKbdDriverPlugin class provides an abstract base for
-  keyboard driver plugins.
-  \ingroup plugins
+/*!
+    \class QKbdDriverPlugin qkbddriverplugin_qws.h
+    \brief The QKbdDriverPlugin class provides an abstract base for
+    keyboard driver plugins.
 
-  The keyboard driver plugin is a simple plugin interface that makes it easy
-  to create custom keyboard drivers.
+    \ingroup plugins
 
-  Writing a keyboard driver plugin is achieved by subclassing this
-  base class, reimplementing the pure virtual functions keys() and
-  create(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins-howto.html Plugins
-  documentation\endlink for details.
+    The keyboard driver plugin is a simple plugin interface that makes
+    it easy to create custom keyboard drivers.
+
+    Writing a keyboard driver plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys() and
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN
+    macro. See the \link plugins-howto.html Plugins
+    documentation\endlink for details.
 */
 
-/*! \fn QStringList QKbdDriverPlugin::keys() const
+/*!
+    \fn QStringList QKbdDriverPlugin::keys() const
 
-  Returns the list of keyboard drivers this plugin supports.
+    Returns the list of keyboard drivers this plugin supports.
 
-  \sa create()
+    \sa create()
 */
 
 
@@ -118,8 +121,8 @@ QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver )
 }
 
 /*!
-  Constructs a keyboard driver plugin. This is invoked automatically by
-  the Q_EXPORT_PLUGIN macro.
+    Constructs a keyboard driver plugin. This is invoked automatically
+    by the \c Q_EXPORT_PLUGIN macro.
 */
 QKbdDriverPlugin::QKbdDriverPlugin()
     : QGPlugin( d = new QKbdDriverPluginPrivate( this ) )
@@ -127,11 +130,10 @@ QKbdDriverPlugin::QKbdDriverPlugin()
 }
 
 /*!
-  Destroys the keyboard driver plugin.
+    Destroys the keyboard driver plugin.
 
-  You never have to call this explicitly. Qt destroys a plugin
-  automatically when it is no longer used.
-
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QKbdDriverPlugin::~QKbdDriverPlugin()
 {
