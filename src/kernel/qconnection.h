@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#4 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#5 $
 **
 ** Definition of QConnection class
 **
@@ -28,12 +28,7 @@ public:
     bool     isConnected() const { return obj != 0; }
 
     QObject *object() const { return obj; }	// get object/member pointer
-#if defined(_CC_SUN_)
-    QMember *member() const			// avoid warning
-			{ QConnection *c=(QConnection*)this; return &c->mbr; }
-#else
-    QMember *member() const { return (QMember*)&mbr; }
-#endif
+    QMember *member() const;
     const char *memberName() const { return mbr_name; }
 
 private:
@@ -42,5 +37,13 @@ private:
     const char *mbr_name;
 };
 
+inline QMember *QConnection::member() const {
+#if defined(_CC_SUN_)
+    QConnection *c=(QConnection*)this;		// avoid warning
+    return &c->mbr;
+#else
+    return (QMember*)&mbr;
+#endif
+}
 
 #endif // QCONNECT_H
