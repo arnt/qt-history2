@@ -557,7 +557,7 @@ void QDialog::show()
       actually catches most cases... If not, then they simply have to use
       [widget*]->setFocus() them selfs...
     */
-    if ( !fw ) {
+    if ( !fw || fw->focusPolicy() == NoFocus ) {
 	fd->home(); // Skip main form
 	QWidget *first = fd->next(); // Get first main widget
 	if ( d->mainDef &&
@@ -568,26 +568,26 @@ void QDialog::show()
     // -- [End special case block] --
 
     if ( !d->mainDef && isTopLevel() ) {
-	if ( !fw ) {
+	if ( !fw || fw->focusPolicy() == NoFocus ) {
 	    focusNextPrevChild( TRUE );
 	    fw = focusWidget();
 	}
-        if ( fw ) {
+	if ( fw ) {
 	    fd = focusData();
 	    QWidget *home = fd->home();
 	    QWidget *candidate = home;
 	    Q_ASSERT( candidate == fw );
 	    do {
-                if ( candidate->inherits("QPushButton") ) {
+		if ( candidate->inherits("QPushButton") ) {
 		    QPushButton *pb = (QPushButton *)candidate;
 		    if ( pb->autoDefault() ) {
-                        pb->setDefault( TRUE );
-                        break;
+			pb->setDefault( TRUE );
+			break;
 		    }
-                }
-                candidate = fd->next();
+		}
+		candidate = fd->next();
 	    } while ( candidate != home );
-        }
+	}
     }
     if ( fw ) {
 	QFocusEvent e( QEvent::FocusIn );
