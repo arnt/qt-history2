@@ -94,6 +94,26 @@ void TeamCursor::primeInsert( QSqlRecord* buf )
 	buf->setValue( "id", q.value(0) );
 }
 
+MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
+    : QSqlTable( parent, name )
+{
+}
+
+void MatchTable::sortColumn ( int col, bool ascending,
+			      bool wholeRows )
+{
+    if ( cursor()->field(indexOf(col))->name() == "winner" ) {
+	cursor()->select( cursor()->filter(), cursor()->index( "winnerid" )  );
+	viewport()->repaint( FALSE );
+	return;
+    } else if ( cursor()->field(indexOf(col))->name() == "loser" ) {
+	cursor()->select( cursor()->filter(), cursor()->index( "loserid" )  );
+	viewport()->repaint( FALSE );	
+	return;
+    }
+    QSqlTable::sortColumn( col, ascending, wholeRows );
+}
+
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
     : QMainWindow( parent, name )
 {
@@ -103,6 +123,8 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 void PingPongApp::init()
 {
     setCaption( "Trolltech PingPong Statistics" );
+    QPixmap ppicon( "pingpong.xpm" );
+    setIcon( ppicon );
 
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
@@ -133,7 +155,7 @@ void PingPongApp::init()
 
     vb1->addWidget( label );
 
-    matchTable = new QSqlTable( f1 );
+    matchTable = new MatchTable( f1 );
     vb1->addWidget( matchTable );
 
     // insert/update/delete buttons
@@ -160,15 +182,18 @@ void PingPongApp::init()
 
     setCentralWidget( f1 );
 
-    //
-    // Set up the initial tables
-    //
-    matchCr.select( matchCr.primaryIndex() );
-
     // match table
+    matchCr.select( matchCr.index( "date" ) );    
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
-    matchTable->setCursor( &matchCr );
+    matchTable->setCursor( &matchCr, FALSE );
+    matchTable->addColumn( matchCr.field( "date" ) );
+    matchTable->addColumn( matchCr.field( "winner" ) );
+    matchTable->addColumn( matchCr.field( "wins" ) );
+    matchTable->addColumn( matchCr.field( "loser" ) );
+    matchTable->addColumn( matchCr.field( "losses" ) );
+    matchTable->addColumn( matchCr.field( "sets" ) );
+    matchTable->setSorting( TRUE );
     matchTable->setReadOnly( TRUE );
 }
 

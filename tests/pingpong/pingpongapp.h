@@ -39,6 +39,14 @@ protected:
     void     primeInsert( QSqlRecord* buf );
 };
 
+class MatchTable : public QSqlTable
+{
+public:
+    MatchTable( QWidget * parent = 0, const char * name = 0 );
+    void         sortColumn ( int col, bool ascending = TRUE,
+			      bool wholeRows = FALSE );
+};
+
 class PingPongApp : public QMainWindow
 {
     Q_OBJECT
