@@ -357,7 +357,7 @@ void MainWindow::setupBookmarkMenu()
     bookmarks.clear();
     ui.bookmarkMenu->addAction(ui.actionAddBookmark);
 
-    QFile f(QDir::homeDirPath() + "/.assistant/bookmarks." +
+    QFile f(QDir::homePath() + "/.assistant/bookmarks." +
         Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
         return;
@@ -399,9 +399,9 @@ void MainWindow::showLink(const QString &link)
     QFileInfo fi(name);
     if (fi.isRelative()) {
         if (find >= 0)
-            absLink = fi.absFilePath() + link.right(link.length() - find);
+            absLink = fi.absoluteFilePath() + link.right(link.length() - find);
         else
-            absLink = fi.absFilePath();
+            absLink = fi.absoluteFilePath();
     }
     if(fi.exists()) {
         tabs->setSource(absLink);

@@ -202,7 +202,7 @@ void HelpDialog::initialize()
     connect(ui.resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
              this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
-    cacheFilesPath = QDir::homeDirPath() + "/.assistant/"; //### Find a better location for the dbs
+    cacheFilesPath = QDir::homePath() + "/.assistant/"; //### Find a better location for the dbs
 
     ui.editIndex->installEventFilter(this);
     ui.listBookmarks->header()->hide();
@@ -323,7 +323,7 @@ void HelpDialog::loadIndexFile()
         buildKeywordDB();
         if (!indexFile.open(IO_ReadOnly)) {
             QMessageBox::warning(help, tr("Qt Assistant"),
-                tr("Cannot open the index file %1").arg(QFileInfo(indexFile).absFilePath()));
+                tr("Cannot open the index file %1").arg(QFileInfo(indexFile).absoluteFilePath()));
             return;
         }
         ds.setDevice(&indexFile);
@@ -386,7 +386,7 @@ void HelpDialog::buildKeywordDB()
         if (!file.exists()) {
             QMessageBox::warning(this, tr("Warning"),
                 tr("Documentation file %1 does not exist!\n"
-                    "Skipping file.").arg(QFileInfo(file).absFilePath()));
+                    "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
         }
         fileAges += QFileInfo(file).lastModified().toTime_t();
@@ -395,7 +395,7 @@ void HelpDialog::buildKeywordDB()
         file.close();
         if(!ok){
             QString msg = QString("In file %1:\n%2")
-                          .arg(QFileInfo(file).absFilePath())
+                          .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
             QMessageBox::critical(this, tr("Parse Error"), tr(msg));
             delete handler;
@@ -406,10 +406,10 @@ void HelpDialog::buildKeywordDB()
         int counter = 0;
         foreach (IndexItem *indItem, indLst) {
             QFileInfo fi(indItem->reference);
-            lst.append(IndexKeyword(indItem->keyword, fi.absFilePath()));
+            lst.append(IndexKeyword(indItem->keyword, fi.absoluteFilePath()));
             if (ui.progressPrepare)
                 ui.progressPrepare->setProgress(ui.progressPrepare->progress() +
-                                              int(fi.absFilePath().length() * 1.6));
+                                              int(fi.absoluteFilePath().length() * 1.6));
 
             if(++counter%100 == 0) {
                 processEvents();
@@ -450,7 +450,7 @@ void HelpDialog::setupTitleMap()
         ContentList lst = it.value();
         foreach (ContentItem item, lst) {
             QFileInfo link(item.reference.simplified());
-            titleMap[link.absFilePath()] = item.title.trimmed();
+            titleMap[link.absoluteFilePath()] = item.title.trimmed();
         }
     }
     processEvents();
@@ -495,7 +495,7 @@ void HelpDialog::buildContentDict()
         if (!file.exists()) {
             QMessageBox::warning(this, tr("Warning"),
             tr("Documentation file %1 does not exist!\n"
-                "Skipping file.").arg(QFileInfo(file).absFilePath()));
+                "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
         }
         fileAges += QFileInfo(file).lastModified().toTime_t();
@@ -503,7 +503,7 @@ void HelpDialog::buildContentDict()
         if(!handler) {
             QMessageBox::warning(this, tr("Warning"),
             tr("Documentation file %1 is not compatible!\n"
-                "Skipping file.").arg(QFileInfo(file).absFilePath()));
+                "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
         }
         bool ok = handler->parse(&file);
@@ -513,7 +513,7 @@ void HelpDialog::buildContentDict()
             delete handler;
         } else {
             QString msg = QString("In file %1:\n%2")
-                          .arg(QFileInfo(file).absFilePath())
+                          .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
             QMessageBox::critical(this, tr("Parse Error"), tr(msg));
             continue;
@@ -894,7 +894,7 @@ void HelpDialog::setupFullTextIndex()
         documentList << it.key();
 
     QString pname = Config::configuration()->profileName();
-    fullTextIndex = new Index(documentList, QDir::homeDirPath()); // ### Is this correct ?
+    fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
         QMessageBox::warning(help, tr("Qt Assistant"),
                              tr("Failed to save fulltext search index\n"

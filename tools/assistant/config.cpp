@@ -266,7 +266,7 @@ QStringList Config::mimePaths()
 
         // Mime source for .dcf file path
         QFileInfo info( *it );
-        QString dcfPath = info.dirPath(TRUE);
+        QString dcfPath = info.absolutePath();
         if (lst.contains(dcfPath) == 0)
             lst << dcfPath;
 

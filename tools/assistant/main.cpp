@@ -160,16 +160,16 @@ int main( int argc, char ** argv )
                 QFileInfo file( argv[i+1] );
                 if( !file.exists() ) {
                     fprintf( stderr, "Could not locate content file: '%s'\n",
-                             file.absFilePath().latin1() );
+                             file.absoluteFilePath().latin1() );
                     fflush( stderr );
                     return 1;
                 }
-                DocuParser *parser = DocuParser::createParser( file.absFilePath() );
+                DocuParser *parser = DocuParser::createParser( file.absoluteFilePath() );
                 if( parser ) {
                     QFile f( argv[i+1] );
                     if( !parser->parse( &f ) ) {
                         fprintf( stderr, "Failed to parse file: '%s'\n, ",
-                                 file.absFilePath().latin1() );
+                                 file.absoluteFilePath().latin1() );
                         fflush( stderr );
                         return 1;
                     }
@@ -197,11 +197,11 @@ int main( int argc, char ** argv )
                     QFileInfo file(entries[0]);
                     if( !file.exists() ) {
                         fprintf( stderr, "Could not locate content file: '%s'\n",
-                            file.absFilePath().latin1() );
+                            file.absoluteFilePath().latin1() );
                         fflush( stderr );
                         return 1;
                     }
-                    profile->removeDocFileEntry( file.absFilePath() );
+                    profile->removeDocFileEntry( file.absoluteFilePath() );
                     c->setDocRebuild( TRUE );
                     c->save();
                 }

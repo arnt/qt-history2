@@ -65,7 +65,7 @@ inline bool Profile::isValid() const
 
 inline void Profile::addDCFTitle(const QString &dcf, const QString &title)
 {
-    QString absdcf = QFileInfo(dcf).absFilePath();
+    QString absdcf = QFileInfo(dcf).absoluteFilePath();
     dcfTitles[title] = absdcf;
     if (docs.contains(absdcf) == 0)
         docs << absdcf;

@@ -74,7 +74,7 @@ bool DocuParser::parse(QFile *file)
     QXmlSimpleReader reader;
     reader.setContentHandler(this);
     reader.setErrorHandler(this);
-    setFileName(QFileInfo(*file).absFilePath());
+    setFileName(QFileInfo(*file).absoluteFilePath());
     return reader.parse(source);
 }
 
@@ -100,7 +100,7 @@ QString DocuParser::absolutify(const QString &name) const
 {
     QFileInfo orgPath(name);
     if(orgPath.isRelative())
-        return QFileInfo(fname).dirPath() + QDir::separator() + name;
+        return QFileInfo(fname).path() + QDir::separator() + name;
     return name;
 }
 
