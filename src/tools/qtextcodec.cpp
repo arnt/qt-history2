@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#75 $
 **
 ** Implementation of QTextCodec class
 **
@@ -31,6 +31,7 @@
 #include "qjiscodec.h"
 #include "qsjiscodec.h"
 #include "qeuckrcodec.h"
+#include "qbig5codec.h"
 #include "qrtlcodec.h"
 #endif
 
@@ -1578,6 +1579,7 @@ static void setupBuiltinCodecs()
     (void)new QSjisCodec;
     (void)new QJisCodec;
     (void)new QEucKrCodec;
+    (void)new QBig5Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
     (void)new QHebrewCodec;
