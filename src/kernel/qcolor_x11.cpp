@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#18 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#18 $";
 #endif
 
 
@@ -47,7 +47,7 @@ static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
 
 
-void qResetColorAvailFlag()			// OOPS: called from event loop
+void qt_reset_color_avail()			// OOPS: called from event loop
 {
     colorAvail = TRUE;
     if ( g_carr ) {				// color array was allocated
@@ -113,7 +113,7 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
 
 #if 0 /* 0 == allocate colors on demand */
-    aalloc = TRUE;				// allocate global colors
+    setLazyAlloc( FALSE );			// allocate global colors
     ((QColor*)(&darkGray))->   	alloc();
     ((QColor*)(&gray))->       	alloc();
     ((QColor*)(&lightGray))->  	alloc();
@@ -129,7 +129,7 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&darkCyan))->   	alloc();
     ((QColor*)(&darkMagenta))->	alloc();
     ((QColor*)(&darkYellow))-> 	alloc();
-    aalloc = FALSE;
+    setLazyAlloc( TRUE );
 #endif
 }
 
@@ -153,12 +153,6 @@ QColor::QColor()				// default RGB=0,0,0
     pix = 0;
 }
 
-QColor::QColor( const QColor &c )		// copy color
-{
-    rgb = c.rgb;
-    pix = c.pix;
-}
-
 QColor::QColor( int r, int g, int b )		// specify RGB
 {
     setRGB( r, g, b );
@@ -179,17 +173,19 @@ QColor::QColor( const char *name )		// load color from database
     setNamedColor( name );
 }
 
-QColor::~QColor()
+QColor::QColor( const QColor &c )		// copy color
 {
+    rgb = c.rgb;
+    pix = c.pix;
 }
 
 
-bool QColor::alloc()				// allocate color
+void QColor::alloc()				// allocate color
 {
     if ( (rgb & RGB_INVALID) || !colorDict ) {	// invalid color or state
 	rgb = _RGB( 0, 0, 0 );
 	pix = 0;
-	return TRUE;
+	return;
     }
     int r, g, b;
     if ( g_truecolor ) {			// truecolor: map to pixel
@@ -201,13 +197,13 @@ bool QColor::alloc()				// allocate color
 	b = blue_shift  > 0 ? b << blue_shift  : b >> -blue_shift;
 	pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
 	rgb &= RGB_MASK;
-	return TRUE;
+	return;
     }
     register QColor *c = colorDict->find( (long)(rgb&RGB_MASK) );
     if ( c ) {					// found color in dictionary
 	rgb &= RGB_MASK;			// color ok
 	pix = c->pix;				// use same pixel value
-	return TRUE;
+	return;
     }
     XColor col;
     Display *dpy = qt_xdisplay();
@@ -253,7 +249,7 @@ bool QColor::alloc()				// allocate color
 	if ( mincol == -1 ) {			// there are no colors, yuck
 	    rgb |= RGB_INVALID;
 	    pix = BlackPixel( dpy, DefaultScreen(dpy) );
-	    return FALSE;
+	    return;
 	}
 	XAllocColor( dpy, g_cmap, &g_carr[mincol] );
 	pix = g_carr[mincol].pixel;		// allocated X11 color
@@ -266,38 +262,37 @@ bool QColor::alloc()				// allocate color
 	c->pix = pix;
 	colorDict->insert( (long)rgb, c );	// store color in dict
     }
-    return TRUE;
 }
 
 
-bool QColor::setNamedColor( const char *name )	// load color from database
+void QColor::setNamedColor( const char *name )	// load color from database
 {
     bool ok = FALSE;
     if ( g_cmap  ) {				// initialized
 	XColor col, hw_col;
-	if ( XLookupColor( qt_xdisplay(), g_cmap, name, &col, &hw_col ) )
-	    ok = setRGB( col.red>>8, col.green>>8, col.blue>>8 );
+	if ( XLookupColor( qt_xdisplay(), g_cmap, name, &col, &hw_col ) ) {
+	    ok = TRUE;
+	    setRGB( col.red>>8, col.green>>8, col.blue>>8 );
+	}
     }
-    else {
+    if ( !ok ) {
 	rgb = RGB_INVALID;
 	pix = 0;
     }
-    return ok;
 }
 
 
-bool QColor::setRGB( int r, int g, int b )	// set RGB value
+void QColor::setRGB( int r, int g, int b )	// set RGB value
 {
 #if defined(CHECK_RANGE)
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
 	warning( "QColor::setRGB:  RGB parameters out of range" );
-	return FALSE;
+	return;
     }
 #endif
     rgb = _RGB(r,g,b);
-    if ( !autoAlloc() || !g_cmap ) {
+    if ( lazyAlloc() || !g_cmap )
 	rgb |= RGB_DIRTY;			// alloc later
-	return TRUE;
-    }
-    return alloc();
+    else
+	alloc();				// alloc now
 }
