@@ -27,13 +27,8 @@ public:
     virtual int mibEnum() const;
     const char* name() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 class QBig5hkscsCodec : public QTextCodec {
@@ -41,13 +36,8 @@ public:
     virtual int mibEnum() const;
     const char* name() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 #endif

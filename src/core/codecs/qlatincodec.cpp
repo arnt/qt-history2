@@ -13,7 +13,7 @@
 
 #include "qlatincodec_p.h"
 
-QString QLatin1Codec::toUnicode(const char* chars, int len) const
+QString QLatin1Codec::convertToUnicode(const char *chars, int len, ConverterState *) const
 {
     if (chars == 0)
         return QString::null;
@@ -22,40 +22,26 @@ QString QLatin1Codec::toUnicode(const char* chars, int len) const
 }
 
 
-QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len) const
+QByteArray QLatin1Codec::convertFromUnicode(const QChar *ch, int len, ConverterState *state) const
 {
-    if (len <0 || len > (int)uc.length())
-        len = uc.length();
+    const char replacement = (state && state->flags & ConvertInvalidToNull) ? 0 : '?';
     QByteArray r;
     r.resize(len);
     char *d = r.data();
-    int i = 0;
-    const QChar *ch = uc.unicode();
-    while (i < len) {
-        d[i] = ch->row() ? '?' : ch->cell();
-        i++;
-        ch++;
+    int invalid = 0;
+    for (int i = 0; i < len; ++i) {
+        if (ch[i] > 0xff) {
+            d[i] = replacement;
+            ++invalid;
+        } else {
+            d[i] = (char)ch[i].cell();
+        }
+    }
+    if (state) {
+        state->invalidChars += invalid;
     }
     return r;
 }
-
-void QLatin1Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
-{
-    while (length--) {
-        *out = in->row() ? 0 : in->cell();
-        ++in;
-        ++out;
-    }
-}
-
-unsigned short QLatin1Codec::characterFromUnicode(const QString &str, int pos) const
-{
-    const QChar *ch = str.unicode() + pos;
-    if (ch->row())
-        return 0;
-    return (unsigned short) ch->cell();
-}
-
 
 const char* QLatin1Codec::name() const
 {
@@ -75,13 +61,13 @@ int QLatin1Codec::mibEnum() const
 
 
 
-QString QLatin15Codec::toUnicode(const char* chars, int len) const
+QString QLatin15Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
     if (chars == 0)
         return QString::null;
 
     QString str = QString::fromLatin1(chars, len);
-    QChar *uc = (QChar *)str.unicode();
+    QChar *uc = str.data();
     while(len--) {
         switch(uc->unicode()) {
             case 0xa4:
@@ -116,98 +102,81 @@ QString QLatin15Codec::toUnicode(const char* chars, int len) const
     return str;
 }
 
-static inline unsigned char
-latin15CharFromUnicode(unsigned short uc, bool replacement = true)
+QByteArray QLatin15Codec::convertFromUnicode(const QChar *in, int length, ConverterState *state) const
 {
-    uchar c;
-    if (uc < 0x0100) {
-        if (uc > 0xa3 && uc < 0xbf) {
-            switch(uc) {
-            case 0xa4:
-            case 0xa6:
-            case 0xa8:
-            case 0xb4:
-            case 0xb8:
-            case 0xbc:
-            case 0xbd:
-            case 0xbe:
-                c = replacement ? '?' : 0;
-                break;
-            default:
-                c = (unsigned char) uc;
-                break;
-            }
-        } else {
-            c = (unsigned char) uc;
-        }
-    } else {
-        if (uc == 0x20ac)
-            c = 0xa4;
-        else if ((uc & 0xff00) == 0x0100) {
-            switch(uc) {
-            case 0x0160:
-                c = 0xa6;
-                break;
-            case 0x0161:
-                c = 0xa8;
-                break;
-            case 0x017d:
-                c = 0xb4;
-                break;
-            case 0x017e:
-                c = 0xb8;
-                break;
-            case 0x0152:
-                c = 0xbc;
-                break;
-            case 0x0153:
-                c = 0xbd;
-                break;
-            case 0x0178:
-                c = 0xbe;
-                break;
-            default:
-                c = replacement ? '?' : 0;
-            }
-        } else {
-            c = replacement ? '?' : 0;
-        }
-    }
-    return c;
-}
-
-
-void QLatin15Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
-{
-    while (length--) {
-        *out = latin15CharFromUnicode(in->unicode(), false);
-        ++in;
-        ++out;
-    }
-}
-
-
-QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len) const
-{
-    if (len <0 || len > (int)uc.length())
-        len = uc.length();
+    const char replacement = (state && state->flags & ConvertInvalidToNull) ? 0 : '?';
     QByteArray r;
-    r.resize(len);
+    r.resize(length);
     char *d = r.data();
-    int i = 0;
-    const QChar *ch = uc.unicode();
-    while (i < len) {
-        d[i] = latin15CharFromUnicode(ch->unicode());
-        i++;
-        ch++;
+    int invalid = 0;
+    for (int i = 0; i < length; ++i) {
+        uchar c;
+        ushort uc = in[i].unicode();
+        if (uc < 0x0100) {
+            if (uc > 0xa3) {
+                switch(uc) {
+                case 0xa4:
+                case 0xa6:
+                case 0xa8:
+                case 0xb4:
+                case 0xb8:
+                case 0xbc:
+                case 0xbd:
+                case 0xbe:
+                    c = replacement;
+                    ++invalid;
+                    break;
+                default:
+                    c = (unsigned char) uc;
+                    break;
+                }
+            } else {
+                c = (unsigned char) uc;
+            }
+        } else {
+            if (uc == 0x20ac)
+                c = 0xa4;
+            else if ((uc & 0xff00) == 0x0100) {
+                switch(uc) {
+                case 0x0160:
+                    c = 0xa6;
+                    break;
+                case 0x0161:
+                    c = 0xa8;
+                    break;
+                case 0x017d:
+                    c = 0xb4;
+                    break;
+                case 0x017e:
+                    c = 0xb8;
+                    break;
+                case 0x0152:
+                    c = 0xbc;
+                    break;
+                case 0x0153:
+                    c = 0xbd;
+                    break;
+                case 0x0178:
+                    c = 0xbe;
+                    break;
+                default:
+                    c = replacement;
+                    ++invalid;
+                }
+            } else {
+                c = replacement;
+                ++invalid;
+            }
+            d[i] = (char)c;
+        }
+    }
+    if (state) {
+        state->remainingChars = 0;
+        state->invalidChars += invalid;
     }
     return r;
 }
 
-unsigned short QLatin15Codec::characterFromUnicode(const QString &str, int pos) const
-{
-    return latin15CharFromUnicode(str.unicode()[pos].unicode(), false);
-}
 
 
 const char* QLatin15Codec::name() const

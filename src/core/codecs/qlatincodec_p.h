@@ -18,14 +18,8 @@
 class QLatin1Codec : public QTextCodec
 {
 public:
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-    using QTextCodec::toUnicode;
-#endif
-    QString toUnicode(const char* chars, int len) const;
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
-    unsigned short characterFromUnicode(const QString &str, int pos) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
     const char* name() const;
     const char* mimeName() const;
@@ -37,13 +31,8 @@ public:
 class QLatin15Codec: public QLatin1Codec
 {
 public:
-    QString toUnicode(const char* chars, int len) const;
-#if !defined(Q_NO_USING_KEYWORD)
-    using QLatin1Codec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
-    unsigned short characterFromUnicode(const QString &str, int pos) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
     const char* name() const;
     const char* mimeName() const;

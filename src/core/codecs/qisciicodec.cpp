@@ -15,8 +15,6 @@
 
 #ifndef QT_NO_CODECS
 
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
-
 /*!
     \class QIsciiCodec
     \brief The QIsciiCodec class provides conversion to and from the ISCII encoding.
@@ -150,22 +148,26 @@ static const uchar uni_to_iscii_pairs[] = {
 };
 
 
-QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QByteArray QIsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = uc.length();
-    if (len_in_out > 0)
-        l = qMin(l, len_in_out);
-    QByteArray result;
-    result.reserve(2*l); //worst case
+    char replacement = '?';
+    bool halant = false;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+        halant = state->state_data[0];
+    }
+    int invalid = 0;
 
-    const QChar *data = uc.unicode();
+    QByteArray result;
+    result.resize(2*len); //worst case
+
     uchar *ch = (uchar *)result.data();
 
     int base = codecs[idx].base;
 
-    bool halant = false;
-    for (int i =0; i < l; ++i) {
-        int pos = data[i].unicode() - base;
+    for (int i =0; i < len; ++i) {
+        int pos = uc[i].unicode() - base;
         if (pos > 0 && pos < 0x80) {
             uchar iscii = uni_to_iscii_table[pos];
             if (iscii > 0x80) {
@@ -175,42 +177,51 @@ QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
                 *ch++ = *pair++;
                 *ch++ = *pair++;
             } else {
-                *ch++ = '?';
+                *ch++ = replacement;
+                ++invalid;
             }
         } else {
-            if (data[i].unicode() == 0x200c) { // ZWNJ
+            if (uc[i].unicode() == 0x200c) { // ZWNJ
                 if (halant)
                     // Consonant Halant ZWNJ -> Consonant Halant Halant
                     *ch++ = 0xe8;
-            } else if (data[i].unicode() == 0x200d) { // ZWJ
+            } else if (uc[i].unicode() == 0x200d) { // ZWJ
                 if (halant)
                     // Consonant Halant ZWJ -> Consonant Halant Nukta
                     *ch++ = 0xe9;
             } else {
-                *ch++ = '?';
+                *ch++ = replacement;
+                ++invalid;
             }
         }
         halant = (pos == 0x4d);
     }
-    len_in_out = ch - (uchar *)result.data();
-    result.truncate(len_in_out);
+    result.truncate(ch - (uchar *)result.data());
+
+    if (state) {
+        state->invalidChars += invalid;
+        state->state_data[0] = halant;
+    }
     return result;
 }
 
-QString QIsciiCodec::toUnicode(const char* chars, int len_in) const
+QString QIsciiCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    QString result;
-    result.resize(len_in);
+    bool halant = false;
+    if (state) {
+        halant = state->state_data[0];
+    }
 
+    QString result;
+    result.resize(len);
     QChar *uc = (QChar *)result.unicode();
 
     int base = codecs[idx].base;
 
-    bool halant = false;
-    for (int i = 0; i < len_in; ++i) {
+    for (int i = 0; i < len; ++i) {
         ushort ch = (uchar) chars[i];
         if (ch < 0xa0)
-            *uc++ = QValidChar(ch);
+            *uc++ = ch;
         else {
             ushort c = iscii_to_uni_table[ch - 0xa0];
             if (halant && (c == INV || c == 0xe9)) {
@@ -225,6 +236,11 @@ QString QIsciiCodec::toUnicode(const char* chars, int len_in) const
             }
         }
         halant = ((uchar)chars[i] == 0xe8);
+    }
+    result.resize(uc - result.unicode());
+
+    if (state) {
+        state->state_data[0] = halant;
     }
     return result;
 }

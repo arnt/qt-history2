@@ -95,65 +95,97 @@ int QEucKrCodec::mibEnum() const
   \reimp
 */
 
-QByteArray QEucKrCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QEucKrCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-  int l = qMin((int)uc.length(),lenInOut);
-  int rlen = l*3+1;
-  QByteArray rstr;
-  rstr.resize(rlen);
-  uchar* cursor = (uchar*)rstr.data();
-  for (int i=0; i<l; i++) {
-    QChar ch = uc[i];
-    uint j;
-    if (ch.row() == 0x00 && ch.cell() < 0x80) {
-      // ASCII
-      *cursor++ = ch.cell();
-    } else if ((j = qt_UnicodeToKsc5601((ch.row() << 8) | ch.cell()))) {
-      // KSC 5601
-      *cursor++ = (j >> 8)   | 0x80;
-      *cursor++ = (j & 0xff) | 0x80;
-    } else {
-      // Error
-      *cursor++ = '?';        // unknown char
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
     }
-  }
-  lenInOut = cursor - (uchar*)rstr.constData();
-  rstr.resize(lenInOut);
-  return rstr;
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
+    QByteArray rstr;
+    rstr.resize(rlen);
+    uchar* cursor = (uchar*)rstr.data();
+    for (int i = 0; i < len; i++) {
+        unsigned short ch = uc[i].unicode();
+        uint j;
+        if (ch < 0x80) {
+            // ASCII
+            *cursor++ = ch;
+        } else if ((j = qt_UnicodeToKsc5601(ch))) {
+            // KSC 5601
+            *cursor++ = (j >> 8)   | 0x80;
+            *cursor++ = (j & 0xff) | 0x80;
+        } else {
+            // Error
+            *cursor++ = replacement;
+            ++invalid;
+        }
+    }
+    rstr.resize(cursor - (uchar*)rstr.constData());
+
+    if (state) {
+        state->invalidChars += invalid;
+    }
+    return rstr;
 }
 
-/*!
-  \reimp
-*/
-
-QString QEucKrCodec::toUnicode(const char* chars, int len) const
+QString QEucKrCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
+    uchar buf[2];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+        buf[1] = state->state_data[1];
+    }
+    int invalid = 0;
+
     QString result;
     for (int i=0; i<len; i++) {
         uchar ch = chars[i];
         if (ch == 0)
             break;
-        if (ch < 0x80) {
-            // ASCII
-            result += QLatin1Char(ch);
-        } else if (IsEucChar(ch)) {
-            // KSC 5601
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if (IsEucChar(c2)) {
-                    uint u = qt_Ksc5601ToUnicode((ch << 8) | c2);
-                    result += QValidChar(u);
-                } else {
-                    i--;
-                    result += QChar::ReplacementCharacter;
-                }
+        switch (nbuf) {
+        case 0:
+            if (ch < 0x80) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (IsEucChar(ch)) {
+                // KSC 5601
+                buf[0] = ch;
+                nbuf = 1;
             } else {
-                result += QChar::ReplacementCharacter;
+                // Invalid
+                result += replacement;
+                ++invalid;
             }
-        } else {
-            // Invalid
-            result += QChar::ReplacementCharacter;
+            break;
+        case 1:
+            // KSC 5601
+            if (IsEucChar(ch)) {
+                uint u = qt_Ksc5601ToUnicode((buf[0] << 8) |  ch);
+                result += QValidChar(u);
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+            }
+            nbuf = 0;
+            break;
         }
+    }
+
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->state_data[1] = buf[1];
+        state->invalidChars += invalid;
     }
     return result;
 }
@@ -175,60 +207,6 @@ const char* QEucKrCodec::mimeName() const
   return "EUC-KR";
 }
 
-class QEucKrDecoder : public QTextDecoder {
-    uchar buf[2];
-    int nbuf;
-public:
-    QEucKrDecoder() : nbuf(0)
-    {
-    }
-
-    QString toUnicode(const char* chars, int len)
-    {
-        QString result;
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            if (ch == 0)
-                break;
-            switch (nbuf) {
-            case 0:
-                if (ch < 0x80) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (IsEucChar(ch)) {
-                    // KSC 5601
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-            case 1:
-                // KSC 5601
-                if (IsEucChar(ch)) {
-                    uint u = qt_Ksc5601ToUnicode((buf[0] << 8) |  ch);
-                    result += QValidChar(u);
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                }
-                nbuf = 0;
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-/*!
-  \reimp
-*/
-
-QTextDecoder* QEucKrCodec::makeDecoder() const
-{
-  return new QEucKrDecoder;
-}
 
 // code converter wrapper
 

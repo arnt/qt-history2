@@ -83,14 +83,19 @@ int QTsciiCodec::mibEnum() const
   return 2028;
 }
 
-/*! \reimp */
-QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QTsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = qMin((int)uc.length(), lenInOut);
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+    int invalid = 0;
+
     QByteArray rstr;
-    rstr.resize(l);
+    rstr.resize(len);
     uchar* cursor = (uchar*)rstr.data();
-    for (int i = 0; i < l; i++) {
+    for (int i = 0; i < len; i++) {
         QChar ch = uc[i];
         uchar j;
         if (ch.row() == 0x00 && ch.cell() < 0x80) {
@@ -107,18 +112,28 @@ QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
         } else if ((j = qt_UnicodeToTSCII(uc[i].unicode(), 0, 0))) {
         } else {
             // Error
-            j = '?';        // unknown char
+            j = replacement;
+            ++invalid;
         }
         *cursor++ = j;
     }
-    lenInOut = cursor - (const uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    rstr.resize(cursor - (const uchar*)rstr.constData());
+
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
 }
 
-/*! \reimp */
-QString QTsciiCodec::toUnicode(const char* chars, int len) const
+QString QTsciiCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+    }
+    int invalid = 0;
+
     QString result;
     for (int i = 0; i < len; i++) {
         uchar ch = chars[i];
@@ -132,14 +147,23 @@ QString QTsciiCodec::toUnicode(const char* chars, int len) const
             uint *p = s;
             while (u--) {
                 uint c = *p++;
-                result += c ? QChar(c) : QChar(QChar::ReplacementCharacter);
+                if (c)
+                    result += QChar(c);
+                else {
+                    result += replacement;
+                    ++invalid;
+                }
             }
         } else {
             // Invalid
-            result += QChar(QChar::ReplacementCharacter);
+            result += replacement;
+            ++invalid;
         }
     }
 
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return result;
 }
 

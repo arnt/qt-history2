@@ -76,7 +76,7 @@
 #ifndef QT_NO_BIG_CODECS
 
 static int qt_Big5hkscsToUnicode(const uchar *s, uint *pwc);
-int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
+static int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)        ((c) < 0x80)
@@ -105,135 +105,110 @@ const char* QBig5Codec::name() const
 }
 
 
-class QBig5Decoder : public QTextDecoder {
-    uchar buf[2];
-    int nbuf;
-public:
-    QBig5Decoder() : nbuf(0)
-    {
-    }
-
-    QString toUnicode(const char* chars, int len)
-    {
-        //qDebug("QBig5Decoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-        QString result;
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-            case 0:
-                if (IsLatin(ch)) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (IsFirstByte(ch)) {
-                    // Big5-ETen
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-            case 1:
-                if (IsSecondByte(ch)) {
-                    // Big5-ETen
-                    uint u;
-                    buf[1] = ch;
-                    if (qt_Big5hkscsToUnicode(buf, &u) == 2)
-                        result += QValidChar(u);
-                    else {
-                        // Error
-                        result += QChar::ReplacementCharacter;
-                    }
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                }
-                nbuf = 0;
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-
-/*! \reimp */
-QTextDecoder* QBig5Codec::makeDecoder() const
+QString QBig5Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    //qDebug("QBig5Codec::makeDecoder()");
-    return new QBig5Decoder();
+    QChar replacement = QChar::ReplacementCharacter;
+    uchar buf[2];
+    int nbuf = 0;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+        buf[1] = state->state_data[1];
+    }
+    int invalid = 0;
+
+    //qDebug("QBig5Codec::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+    QString result;
+    for (int i=0; i<len; i++) {
+        uchar ch = chars[i];
+        switch (nbuf) {
+        case 0:
+            if (IsLatin(ch)) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (IsFirstByte(ch)) {
+                // Big5-ETen
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
+            }
+            break;
+        case 1:
+            if (IsSecondByte(ch)) {
+                // Big5-ETen
+                uint u;
+                buf[1] = ch;
+                if (qt_Big5hkscsToUnicode(buf, &u) == 2)
+                    result += QValidChar(u);
+                else {
+                    // Error
+                    result += replacement;
+                    ++invalid;
+                }
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+            }
+            nbuf = 0;
+            break;
+        }
+    }
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->state_data[1] = buf[1];
+        state->invalidChars += invalid;
+    }
+    return result;
 }
 
-
-/*! \reimp */
-QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    //qDebug("QBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    int l = qMin((int)uc.length(),lenInOut);
-    int rlen = l*3+1;
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
+
     uchar* cursor = (uchar*)rstr.data();
-    for (int i=0; i<l; i++) {
-        QChar ch = uc[i];
+    for (int i=0; i<len; i++) {
+        ushort ch = uc[i].unicode();
         uchar c[2];
-        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+        if (ch < 0x80) {
             // ASCII
-            *cursor++ = ch.cell();
-        } else if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2
-                    && c[0] >= 0xa1 && c[0] <= 0xf9) {
+            *cursor++ = ch;
+        } else if (qt_UnicodeToBig5hkscs(ch, c) == 2 && c[0] >= 0xa1 && c[0] <= 0xf9) {
             // Note to self: This needs better fine-tuning so it is
             // identical to the orthodox Big5-ETen.  (Anthony)
             // Big5-ETen
             *cursor++ = c[0];
             *cursor++ = c[1];
         } else {
-            // Error
-            *cursor++ = '?';  // unknown char
+            *cursor++ = replacement;
+            ++invalid;
         }
     }
-    lenInOut = cursor - (uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    rstr.resize(cursor - (uchar*)rstr.constData());
+
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
 }
 
 
-/*! \reimp */
-QString QBig5Codec::toUnicode(const char* chars, int len) const
-{
-    //qDebug("QBig5Codec::toUnicode(const char* chars \"%s\", int len = %d)", chars, len);
-    QString result;
-    for (int i=0; i<len; i++) {
-        uchar ch = chars[i];
-        if (IsLatin(ch)) {
-            // ASCII
-            result += QLatin1Char(ch);
-        } else if (IsFirstByte(ch)) {
-            // Big5-ETen
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if (IsSecondByte(c2)) {
-                    uint u;
-                    if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
-                        result += QValidChar(u);
-                    else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                } else {
-                    i--;
-                    result += QChar::ReplacementCharacter;
-                }
-            } else {
-                // Bad String
-                result += QChar::ReplacementCharacter;
-            }
-        } else {
-            // Invalid
-            result += QChar::ReplacementCharacter;
-        }
-    }
-    return result;
-}
 
 /*!
     \class QBig5hkscsCodec
@@ -321,133 +296,106 @@ const char* QBig5hkscsCodec::name() const
 }
 
 
-class QBig5hkscsDecoder : public QTextDecoder {
-    uchar buf[2];
-    int nbuf;
-public:
-    QBig5hkscsDecoder() : nbuf(0)
-    {
-    }
-
-    QString toUnicode(const char* chars, int len)
-    {
-        //qDebug("QBig5hkscsDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-        QString result;
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-            case 0:
-                if (IsLatin(ch)) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (IsFirstByte(ch)) {
-                    // Big5-HKSCS
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-            case 1:
-                if (IsSecondByte(ch)) {
-                    // Big5-HKSCS
-                    uint u;
-                    buf[1] = ch;
-                    if (qt_Big5hkscsToUnicode(buf, &u) == 2)
-                        result += QValidChar(u);
-                    else {
-                        // Error
-                        result += QChar::ReplacementCharacter;
-                    }
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                }
-                nbuf = 0;
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-
-/*! \reimp */
-QTextDecoder* QBig5hkscsCodec::makeDecoder() const
+QString QBig5hkscsCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    //qDebug("QBig5hkscsCodec::makeDecoder()");
-    return new QBig5hkscsDecoder();
+    uchar buf[2];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+        buf[1] = state->state_data[1];
+    }
+    int invalid = 0;
+
+    //qDebug("QBig5hkscsCodec::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+    QString result;
+    for (int i=0; i<len; i++) {
+        uchar ch = chars[i];
+        switch (nbuf) {
+        case 0:
+            if (IsLatin(ch)) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (IsFirstByte(ch)) {
+                // Big5-HKSCS
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
+            }
+            break;
+        case 1:
+            if (IsSecondByte(ch)) {
+                // Big5-HKSCS
+                uint u;
+                buf[1] = ch;
+                if (qt_Big5hkscsToUnicode(buf, &u) == 2)
+                    result += QValidChar(u);
+                else {
+                    // Error
+                    result += replacement;
+                    ++invalid;
+                }
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+            }
+            nbuf = 0;
+            break;
+        }
+    }
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->state_data[1] = buf[1];
+        state->invalidChars += invalid;
+    }
+    return result;
 }
 
 
-/*! \reimp */
-QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QBig5hkscsCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    //qDebug("QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    int l = qMin((int)uc.length(),lenInOut);
-    int rlen = l*3+1;
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
-    for (int i=0; i<l; i++) {
-        QChar ch = uc[i];
+    for (int i = 0; i < len; i++) {
+        unsigned short ch = uc[i].unicode();
         uchar c[2];
-        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+        if (ch < 0x80) {
             // ASCII
-            *cursor++ = ch.cell();
-        } else if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2) {
+            *cursor++ = ch;
+        } else if (qt_UnicodeToBig5hkscs(ch, c) == 2) {
             // Big5-HKSCS
             *cursor++ = c[0];
             *cursor++ = c[1];
         } else {
             // Error
-            *cursor++ = '?';  // unknown char
+            *cursor++ = replacement;
         }
     }
-    lenInOut = cursor - (uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    rstr.resize(cursor - (uchar*)rstr.constData());
+
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
 }
-
-
-/*! \reimp */
-QString QBig5hkscsCodec::toUnicode(const char* chars, int len) const
-{
-    //qDebug("QBig5hkscsCodec::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-    QString result;
-    for (int i=0; i<len; i++) {
-        uchar ch = chars[i];
-        if (IsLatin(ch)) {
-            // ASCII
-            result += QLatin1Char(ch);
-        } else if (IsFirstByte(ch)) {
-            // Big5-HKSCS
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if (IsSecondByte(c2)) {
-                    uint u;
-                    if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
-                        result += QValidChar(u);
-                    else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                } else {
-                    i--;
-                    result += QChar::ReplacementCharacter;
-                }
-            } else {
-                // Bad String
-                result += QChar::ReplacementCharacter;
-            }
-        } else {
-            // Invalid
-            result += QChar::ReplacementCharacter;
-        }
-    }
-    return result;
-}
-
 
 
 

@@ -144,191 +144,174 @@ int QGb18030Codec::mibEnum() const
 }
 
 /*! \reimp */
-QByteArray QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QGb18030Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
-    int rlen = l*4+1;
+    char replacement = '?';
+    int high = -1;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+        if (state->remainingChars)
+            high = state->state_data[0];
+    }
+    int invalid = 0;
+
+    int rlen = 4 *len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    for (int i=0; i<l; i++) {
-        QChar ch = uc[i];
+    for (int i = 0; i < len; i++) {
+        unsigned short ch = uc[i].unicode();
         int len;
         uchar buf[4];
+        if (high >= 0) {
+            if (ch >= 0xdc00 && ch < 0xe000) {
+                // valid surrogate pair
+                ++i;
+                uint u = (high-0xd800)*0x400+(ch-0xdc00)+0x10000;
+                len = qt_UnicodeToGb18030(u, buf);
+                if (len >= 2) {
+                    for (int j=0; j<len; j++)
+                        *cursor++ = buf[j];
+                } else {
+                    *cursor++ = replacement;
+                    ++invalid;
+                }
+                high = -1;
+                continue;
+            } else {
+                *cursor++ = replacement;
+                ++invalid;
+                high = -1;
+            }
+        }
 
-        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+        if (ch < 0x80) {
             // ASCII
-            *cursor++ = ch.cell();
-        } else if ((ch.unicode() & 0xd8) == 0xd8) {
-            unsigned short high = ch.unicode();
+            *cursor++ = ch;
+        } else if ((ch >= 0xd800 && ch < 0xdc00)) {
             // surrogates area. check for correct encoding
             // we need at least one more character, first the high surrogate, then the low one
-            if (i == l-1 || high >= 0xdc00)
-                *cursor++ = '?';
-            else {
-                unsigned short low = uc[i+1].unicode();
-                if (low >= 0xdc00 && low <= 0xdfff) {
-                    // valid surrogate pair
-                    ++i;
-                    uint u = (high-0xd800)*0x400+(low-0xdc00)+0x10000;
-                    len = qt_UnicodeToGb18030(u, buf);
-                    if (len >= 2) {
-                        for (int j=0; j<len; j++)
-                            *cursor++ = buf[j];
-                    } else {
-                        *cursor++ = '?';
-                    }
-                } else {
-                    *cursor++ = '?';
-                }
-            }
-        } else if ((len = qt_UnicodeToGb18030(ch.unicode(), buf)) >= 2) {
+            high = ch;
+        } else if ((len = qt_UnicodeToGb18030(ch, buf)) >= 2) {
             for (int j=0; j<len; j++)
                 *cursor++ = buf[j];
         } else {
             // Error
-            *cursor++ = '?';        // unknown char
+            *cursor++ = replacement;
+            ++invalid;
         }
     }
+    rstr.resize(cursor - (uchar*)rstr.constData());
 
-    lenInOut = cursor - (uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    if (state) {
+        state->invalidChars += invalid;
+        state->state_data[0] = high;
+        if (high)
+            state->remainingChars = 1;
+    }
     return rstr;
 }
 
-/*! \reimp */
-QString QGb18030Codec::toUnicode(const char* chars, int len) const
+QString QGb18030Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
+    uchar buf[4];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = (state->state_data[0] >> 24) & 0xff;
+        buf[1] = (state->state_data[0] >> 16) & 0xff;
+        buf[2] = (state->state_data[0] >>  8) & 0xff;
+        buf[3] = (state->state_data[0] >>  0) & 0xff;
+    }
+    int invalid = 0;
+
     QString result;
-    int clen;
-
-    //qDebug("QGb18030Codec::toUnicode(const char* chars, int len = %d)", len);
-    for (int i=0; i<len;) {
+    //qDebug("QGb18030Decoder::toUnicode(const char* chars, int len = %d)", len);
+    for (int i = 0; i < len; i++) {
         uchar ch = chars[i];
-
-        if (IsLatin(ch)) {
-            // ASCII
-            result += QLatin1Char(ch);
-            i++;
-        } else if (Is1stByte(ch)) {
-            // GB18030 ?
-            clen = len - i;
-            uint u = qt_Gb18030ToUnicode((const uchar*)(chars + i), clen);
-
-            if (clen == 2 || clen == 4) {
-                if (u < 0x10000)
-                    result += QValidChar(u);
-                else {
-                    // encode into surrogate pair
-                    u -= 0x10000;
-                    unsigned short high = u/0x400 + 0xd800;
-                    unsigned short low = u%0x400 + 0xdc00;
-                    result += QChar(high);
-                    result += QChar(low);
-                }
-                i += clen;
-            } else if (i < len) {
-                result += QChar::ReplacementCharacter;
-                i++;
+        switch (nbuf) {
+        case 0:
+            if (ch < 0x80) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (Is1stByte(ch)) {
+                // GB18030?
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
             }
-        } else {
-            // Invalid or undefined
-            result += QChar::ReplacementCharacter;
-            i++;
+            break;
+        case 1:
+            // GB18030 2 bytes
+            if (Is2ndByteIn2Bytes(ch)) {
+                buf[1] = ch;
+                int clen = 2;
+                uint u = qt_Gb18030ToUnicode(buf, clen);
+                if (clen == 2) {
+                    result += QValidChar(u);
+                } else {
+                    result += replacement;
+                    ++invalid;
+                }
+                nbuf = 0;
+            } else if (Is2ndByteIn4Bytes(ch)) {
+                buf[1] = ch;
+                nbuf = 2;
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+                nbuf = 0;
+            }
+            break;
+        case 2:
+            // GB18030 3 bytes
+            if (Is3rdByte(ch)) {
+                buf[2] = ch;
+                nbuf = 3;
+            } else {
+                result += replacement;
+                ++invalid;
+                nbuf = 0;
+            }
+            break;
+        case 3:
+            // GB18030 4 bytes
+            if (Is4thByte(ch)) {
+                buf[3] = ch;
+                int clen = 4;
+                uint u = qt_Gb18030ToUnicode(buf, clen);
+                if (clen == 4) {
+                    result += QValidChar(u);
+                } else {
+                    result += replacement;
+                    ++invalid;
+                }
+            } else {
+                result += replacement;
+                ++invalid;
+            }
+            nbuf = 0;
+            break;
         }
+    }
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
+        state->invalidChars += invalid;
     }
     return result;
 }
 
-
-class QGb18030Decoder : public QTextDecoder {
-    uchar buf[4];
-    int nbuf;
-public:
-    QGb18030Decoder() : nbuf(0)
-    {
-    }
-    QString toUnicode(const char* chars, int len)
-    {
-        QString result;
-        //qDebug("QGb18030Decoder::toUnicode(const char* chars, int len = %d)", len);
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-              case 0:
-                if (ch < 0x80) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (Is1stByte(ch)) {
-                    // GB18030?
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-              case 1:
-                // GB18030 2 bytes
-                if (Is2ndByteIn2Bytes(ch)) {
-                    buf[1] = ch;
-                    int clen = 2;
-                    uint u = qt_Gb18030ToUnicode(buf, clen);
-                    if (clen == 2) {
-                        result += QValidChar(u);
-                    } else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                    nbuf = 0;
-                } else if (Is2ndByteIn4Bytes(ch)) {
-                    buf[1] = ch;
-                    nbuf = 2;
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                    nbuf = 0;
-                }
-                break;
-              case 2:
-                // GB18030 3 bytes
-                if (Is3rdByte(ch)) {
-                    buf[2] = ch;
-                    nbuf = 3;
-                } else {
-                    result += QChar::ReplacementCharacter;
-                    nbuf = 0;
-                }
-                break;
-              case 3:
-                // GB18030 4 bytes
-                if (Is4thByte(ch)) {
-                    buf[3] = ch;
-                    int clen = 4;
-                    uint u = qt_Gb18030ToUnicode(buf, clen);
-                    if (clen == 4) {
-                        result += QValidChar(u);
-                    } else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                } else {
-                    result += QChar::ReplacementCharacter;
-                }
-                nbuf = 0;
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-/*! \reimp */
-QTextDecoder* QGb18030Codec::makeDecoder() const
-{
-    //qDebug("QGb18030Codec::makeDecoder()");
-    return new QGb18030Decoder();
-}
 
 /*! \class QGbkCodec
     \reentrant
@@ -371,76 +354,88 @@ const char* QGbkCodec::name() const
 }
 
 
-class QGbkDecoder : public QTextDecoder {
-    uchar buf[2];
-    int nbuf;
-public:
-    QGbkDecoder() : nbuf(0)
-    {
-    }
-    QString toUnicode(const char* chars, int len)
-    {
-        QString result;
-
-        //qDebug("QGbkDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-              case 0:
-                if (ch < 0x80) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (Is1stByte(ch)) {
-                    // GBK 1st byte?
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-              case 1:
-                // GBK 2nd byte
-                if (Is2ndByteIn2Bytes(ch)) {
-                    buf[1] = ch;
-                    int clen = 2;
-                    uint u = qt_Gb18030ToUnicode(buf, clen);
-                    if (clen == 2) {
-                        result += QValidChar(u);
-                    } else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                    nbuf = 0;
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                    nbuf = 0;
-                }
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-/*! \reimp */
-QTextDecoder* QGbkCodec::makeDecoder() const
+QString QGbkCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    //qDebug("QGbkCodec::makeDecoder()");
-    return new QGbkDecoder();
+    uchar buf[2];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+        buf[1] = state->state_data[1];
+    }
+    int invalid = 0;
+
+    QString result;
+
+    //qDebug("QGbkDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+    for (int i=0; i<len; i++) {
+        uchar ch = chars[i];
+        switch (nbuf) {
+        case 0:
+            if (ch < 0x80) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (Is1stByte(ch)) {
+                // GBK 1st byte?
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
+            }
+            break;
+        case 1:
+            // GBK 2nd byte
+            if (Is2ndByteIn2Bytes(ch)) {
+                buf[1] = ch;
+                int clen = 2;
+                uint u = qt_Gb18030ToUnicode(buf, clen);
+                if (clen == 2) {
+                    result += QValidChar(u);
+                } else {
+                    result += replacement;
+                    ++invalid;
+                }
+                nbuf = 0;
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+                nbuf = 0;
+            }
+            break;
+        }
+    }
+
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->state_data[1] = buf[1];
+        state->invalidChars += invalid;
+    }
+    return result;
 }
 
-/*! \reimp */
-QByteArray QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QGbkCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
-    int rlen = l*2+1;
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGbkCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    for (int i=0; i<l; i++) {
+    for (int i = 0; i < len; i++) {
         QChar ch = uc[i];
         uchar buf[2];
 
@@ -452,51 +447,16 @@ QByteArray QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
             *cursor++ = buf[1];
         } else {
             // Error
-            *cursor++ = '?';        // unknown char
+            *cursor += replacement;
+            ++invalid;
         }
     }
+    rstr.resize(cursor - (uchar*)rstr.constData());
 
-    lenInOut = cursor - (uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
-}
-
-/*! \reimp */
-QString QGbkCodec::toUnicode(const char* chars, int len) const
-{
-    QString result;
-    int clen;
-
-    //qDebug("QGbkCodec::toUnicode(const char* chars, int len = %d)", len);
-    for (int i=0; i<len;) {
-        uchar ch = chars[i];
-
-        if (IsLatin(ch)) {
-            // ASCII
-            result += QLatin1Char(ch);
-            i++;
-        } else if (Is1stByte(ch)) {
-            // GBK ?
-            clen = len - i;
-            uint u = qt_Gb18030ToUnicode((const uchar*)(chars + i), clen);
-
-            if (clen == 2) {
-                result += QValidChar(u);
-                i += 2;
-            } else if (clen == 4) {
-                result += QChar::ReplacementCharacter;
-                i += 4;
-            } else if (i < len) {
-                result += QChar::ReplacementCharacter;
-                i++;
-            }
-        } else {
-            // Invalid or undefined
-            result += QChar::ReplacementCharacter;
-            i++;
-        }
-    }
-    return result;
 }
 
 
@@ -536,75 +496,88 @@ const char* QGb2312Codec::name() const
 }
 
 
-class QGb2312Decoder : public QTextDecoder {
-    uchar buf[2];
-    int nbuf;
-public:
-    QGb2312Decoder() : nbuf(0)
-    {
-    }
-    QString toUnicode(const char* chars, int len)
-    {
-        QString result;
-        //qDebug("QGb2312Decoder::toUnicode(const char* chars, int len = %d)", len);
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-              case 0:
-                if (ch < 0x80) {
-                    // ASCII
-                    result += QLatin1Char(ch);
-                } else if (IsByteInGb2312(ch)) {
-                    // GB2312 1st byte?
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-              case 1:
-                // GB2312 2nd byte
-                if (IsByteInGb2312(ch)) {
-                    buf[1] = ch;
-                    int clen = 2;
-                    uint u = qt_Gb18030ToUnicode(buf, clen);
-                    if (clen == 2) {
-                        result += QValidChar(u);
-                    } else {
-                        result += QChar::ReplacementCharacter;
-                    }
-                    nbuf = 0;
-                } else {
-                    // Error
-                    result += QChar::ReplacementCharacter;
-                    nbuf = 0;
-                }
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-/*! \reimp */
-QTextDecoder* QGb2312Codec::makeDecoder() const
+QString QGb2312Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    //qDebug("QGb2312Codec::makeDecoder()");
-    return new QGb2312Decoder();
+    uchar buf[2];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+        buf[1] = state->state_data[1];
+    }
+    int invalid = 0;
+
+    QString result;
+    //qDebug("QGb2312Decoder::toUnicode(const char* chars, int len = %d)", len);
+    for (int i=0; i<len; i++) {
+        uchar ch = chars[i];
+        switch (nbuf) {
+        case 0:
+            if (ch < 0x80) {
+                // ASCII
+                result += QLatin1Char(ch);
+            } else if (IsByteInGb2312(ch)) {
+                // GB2312 1st byte?
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
+            }
+            break;
+        case 1:
+            // GB2312 2nd byte
+            if (IsByteInGb2312(ch)) {
+                buf[1] = ch;
+                int clen = 2;
+                uint u = qt_Gb18030ToUnicode(buf, clen);
+                if (clen == 2) {
+                    result += QValidChar(u);
+                } else {
+                    result += replacement;
+                    ++invalid;
+                }
+                nbuf = 0;
+            } else {
+                // Error
+                result += replacement;
+                ++invalid;
+                nbuf = 0;
+            }
+            break;
+        }
+    }
+
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->state_data[1] = buf[1];
+        state->invalidChars += invalid;
+    }
+    return result;
 }
 
-/*! \reimp */
-QByteArray QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
+
+QByteArray QGb2312Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
-    int rlen = l*2+1;
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut = %d) const", lenInOut);
-    for (int i=0; i<l; i++) {
+    for (int i = 0; i < len; i++) {
         QChar ch = uc[i];
         uchar buf[2];
 
@@ -617,52 +590,16 @@ QByteArray QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
             *cursor++ = buf[1];
         } else {
             // Error
-            *cursor++ = '?';        // unknown char
+            *cursor++ = replacement;
+            ++invalid;
         }
     }
+    rstr.resize(cursor - (uchar*)rstr.constData());
 
-    lenInOut = cursor - (uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
-}
-
-/*! \reimp */
-QString QGb2312Codec::toUnicode(const char* chars, int len) const
-{
-    QString result;
-    int clen;
-
-    //qDebug("QGb2312Codec::toUnicode(const char* chars, int len = %d)", len);
-    for (int i=0; i<len;) {
-        uchar ch = chars[i];
-
-        if (IsLatin(ch)) {
-            // ASCII
-            result += QLatin1Char(ch);
-            i++;
-        } else if (Is1stByte(ch)) {
-            // GB2312 ?
-
-            clen = len - i;
-            uint u = qt_Gb18030ToUnicode((const uchar*)(chars + i), clen);
-
-            if (clen == 2 || clen == 4) {
-                if (clen == 2 && IsByteInGb2312(ch) && IsByteInGb2312((uchar)(chars[i+1])))
-                    result += QValidChar(u);
-                else
-                    result += QChar::ReplacementCharacter;
-                i += clen;
-            } else if (i < len) {
-                result += QChar::ReplacementCharacter;
-                i++;
-            }
-        } else {
-            // Invalid or undefined
-            result += QChar::ReplacementCharacter;
-            i++;
-        }
-    }
-    return result;
 }
 
 

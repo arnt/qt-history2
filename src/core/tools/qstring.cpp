@@ -3008,16 +3008,21 @@ QByteArray qt_winQString2MB(const QString& s, int uclen)
         return QByteArray();
     if (uclen == 0)
         return QByteArray("");
+    return qt_winQString2MB(s.constData(), uclen);
+}
+
+QByteArray qt_winQString2MB(const QChar *ch, int uclen)
+{
     BOOL used_def;
     QByteArray mb(4096, 0);
     int len;
-    while (!(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
+    while (!(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)ch, uclen,
                 mb.data(), mb.size()-1, 0, &used_def)))
     {
         int r = GetLastError();
         if (r == ERROR_INSUFFICIENT_BUFFER) {
             mb.resize(1+WideCharToMultiByte(CP_ACP, 0,
-                                (const WCHAR*)s.unicode(), uclen,
+                                (const WCHAR*)ch, uclen,
                                 0, 0, 0, &used_def));
                 // and try again...
         } else {

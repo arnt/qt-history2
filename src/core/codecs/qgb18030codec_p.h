@@ -34,14 +34,8 @@ public:
     int mibEnum() const;
     const char* name() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
-
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 class Q_EXPORT_CODECS_CN QGbkCodec : public QGb18030Codec {
@@ -51,14 +45,8 @@ public:
     int mibEnum() const;
     const char* name() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QGb18030Codec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
-
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 class Q_EXPORT_CODECS_CN QGb2312Codec : public QGb18030Codec {
@@ -68,14 +56,8 @@ public:
     int mibEnum() const;
     const char* name() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QGb18030Codec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
-
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
 #endif

@@ -191,9 +191,9 @@ public:
 
     enum SplitBehavior { KeepEmptyParts, SkipEmptyParts };
 
-    QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts, 
+    QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts,
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
-    QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts, 
+    QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts,
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const;
 
@@ -780,6 +780,7 @@ Q_DECLARE_SHARED(QString);
 
 #if defined(Q_OS_WIN32)
 extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QString& s, int len=-1);
+extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QChar *ch, int len);
 extern Q_CORE_EXPORT QString qt_winMB2QString(const char* mb, int len=-1);
 #endif
 

@@ -60,13 +60,8 @@ public:
     const char* name() const;
     const char* mimeName() const;
 
-    QTextDecoder* makeDecoder() const;
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
     QEucJpCodec();
     ~QEucJpCodec();

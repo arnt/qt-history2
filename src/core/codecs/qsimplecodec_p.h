@@ -22,26 +22,15 @@ public:
     QSimpleTextCodec(int);
     ~QSimpleTextCodec();
 
-    QString toUnicode(const char* chars, int len) const;
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    unsigned short characterFromUnicode(const QString &str, int pos) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
     const char* name() const;
     const char* mimeName() const;
     int mibEnum() const;
 
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::canEncode;
-#endif
-    bool canEncode(QChar ch) const;
-
-    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
-
 private:
-    void buildReverseMap();
+    void buildReverseMap() const;
 
     int forwardIndex;
 #ifndef Q_WS_QWS

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsimplecodecs_p.h"
+#include "qsimplecodec_p.h"
 
 
 #ifdef Q_WS_QWS
@@ -583,7 +583,7 @@ QSimpleTextCodec::~QSimpleTextCodec()
 #endif
 }
 
-void QSimpleTextCodec::buildReverseMap()
+void QSimpleTextCodec::buildReverseMap() const
 {
 #ifdef Q_WS_QWS
     if (reverseOwner != this) {
@@ -632,25 +632,18 @@ void QSimpleTextCodec::buildReverseMap()
 #endif
 }
 
-QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
+QString QSimpleTextCodec::convertToUnicode(const char* chars, int len, ConverterState *) const
 {
     if (len <= 0 || chars == 0)
         return QString::null;
 
     const unsigned char * c = (const unsigned char *)chars;
-    int i;
-
-    for (i = 0; i < len; i++)
-        if (c[i] == '\0') {
-            len = i;
-            break;
-        }
 
     QString r;
-    r.setUnicode(0, len);
-    QChar* uc = (QChar*)r.unicode(); // const_cast
+    r.resize(len);
+    QChar* uc = r.data();
 
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         if (c[i] > 127)
             uc[i] = unicodevalues[forwardIndex].values[c[i]-128];
         else
@@ -660,83 +653,42 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 }
 
 
-QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len) const
+QByteArray QSimpleTextCodec::convertFromUnicode(const QChar *in, int length, ConverterState *state) const
 {
+    const char replacement = (state && state->flags & ConvertInvalidToNull) ? 0 : '?';
+    int invalid = 0;
+
 #ifdef Q_WS_QWS
     if (this != reverseOwner)
 #else
     if (reverseMap.size() == 0)
 #endif
-        ((QSimpleTextCodec *)this)->buildReverseMap();
+        this->buildReverseMap();
 
-    if (len <0 || len > (int)uc.length())
-        len = uc.length();
     QByteArray r;
-    r.resize(len);
-    int i = len;
+    r.resize(length);
+    int i = length;
     int u;
-    const QChar* ucp = uc.unicode();
+    const QChar* ucp = in;
     unsigned char* rp = (unsigned char *)r.data();
-    unsigned char* rmp = (unsigned char *)reverseMap.data();
+    const unsigned char* rmp = (const unsigned char *)reverseMap.data();
     int rmsize = (int) reverseMap.size();
     while(i--)
     {
         u = ucp->unicode();
         *rp = u < 128 ? u : ((u < rmsize) ? (*(rmp+u)) : '?');
-        if (*rp == 0) *rp = '?';
+        if (*rp == 0) {
+            *rp = replacement;
+            ++invalid;
+        }
         rp++;
         ucp++;
     }
-    return r;
-}
 
-void QSimpleTextCodec::fromUnicode(const QChar *in, unsigned short *out, int length) const
-{
-#ifdef Q_WS_QWS
-    if (this != reverseOwner)
-#else
-    if (reverseMap.size() == 0)
-#endif
-        ((QSimpleTextCodec *)this)->buildReverseMap();
-
-    unsigned char* rmp = (unsigned char *)reverseMap.data();
-    int rmsize = (int) reverseMap.size();
-    while (length--) {
-        unsigned short u = in->unicode();
-        *out = u < 128 ? u : ((u < rmsize) ? (*(rmp+u)) : 0);
-        ++in;
-        ++out;
+    if (state) {
+        state->invalidChars += invalid;
     }
-}
-
-unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int pos) const
-{
-#ifdef Q_WS_QWS
-    if (this != reverseOwner)
-#else
-    if (reverseMap.size() == 0)
-#endif
-        ((QSimpleTextCodec *)this)->buildReverseMap();
-
-    unsigned short u = str[pos].unicode();
-    unsigned char* rmp = (unsigned char *)reverseMap.data();
-    int rmsize = (int) reverseMap.size();
-    return u < 128 ? u : ((u < rmsize) ? (*(rmp+u)) : 0);
-}
-
-bool QSimpleTextCodec::canEncode(QChar ch) const
-{
-#ifdef Q_WS_QWS
-    if (this != reverseOwner)
-#else
-    if (reverseMap.size() == 0)
-#endif
-        ((QSimpleTextCodec *)this)->buildReverseMap();
-
-    unsigned short u = ch.unicode();
-    unsigned char* rmp = (unsigned char *)reverseMap.data();
-    int rmsize = (int) reverseMap.size();
-    return u < 128 ? true : ((u < rmsize) ? (*(rmp+u) != 0) : false);
+    return r;
 }
 
 const char* QSimpleTextCodec::name() const

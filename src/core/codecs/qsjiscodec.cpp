@@ -115,17 +115,20 @@ int QSjisCodec::mibEnum() const
     return 17;
 }
 
-/*!
-  \reimp
-*/
-QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QSjisCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
-    int l = qMin((int)uc.length(),lenInOut);
-    int rlen = l*2+1;
+    char replacement = '?';
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = 0;
+    }
+    int invalid = 0;
+
+    int rlen = 2*len + 1;
     QByteArray rstr;
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
-    for (int i=0; i<l; i++) {
+    for (int i = 0; i < len; i++) {
         QChar ch = uc[i];
         uint j;
         if (ch.row() == 0x00 && ch.cell() < 0x80) {
@@ -144,50 +147,77 @@ QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
             *cursor++ = 0xa0;        // white square
         } else {
             // Error
-            *cursor++ = '?';        // unknown char
+            *cursor++ = replacement;
+            ++invalid;
         }
     }
-    lenInOut = cursor - (const uchar*)rstr.constData();
-    rstr.resize(lenInOut);
+    rstr.resize(cursor - (const uchar*)rstr.constData());
+
+    if (state) {
+        state->invalidChars += invalid;
+    }
     return rstr;
 }
 
-/*!
-  \reimp
-*/
-QString QSjisCodec::toUnicode(const char* chars, int len) const
+QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
+    uchar buf[1];
+    int nbuf = 0;
+    QChar replacement = QChar::ReplacementCharacter;
+    if (state) {
+        if (state->flags & ConvertInvalidToNull)
+            replacement = QChar::Null;
+        nbuf = state->remainingChars;
+        buf[0] = state->state_data[0];
+    }
+    int invalid = 0;
+
     QString result;
     for (int i=0; i<len; i++) {
         uchar ch = chars[i];
-        if (ch < 0x80 || IsKana(ch)) {
-            // JIS X 0201 Latin or JIS X 0201 Kana
-            uint u = conv->jisx0201ToUnicode(ch);
-            result += QValidChar(u);
-        } else if (IsSjisChar1(ch)) {
+        switch (nbuf) {
+        case 0:
+            if (ch < 0x80 || IsKana(ch)) {
+                // JIS X 0201 Latin or JIS X 0201 Kana
+                uint u = conv->jisx0201ToUnicode(ch);
+                result += QValidChar(u);
+            } else if (IsSjisChar1(ch)) {
+                // JIS X 0208
+                buf[0] = ch;
+                nbuf = 1;
+            } else {
+                // Invalid
+                result += replacement;
+                ++invalid;
+            }
+            break;
+        case 1:
             // JIS X 0208
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if (IsSjisChar2(c2)) {
-                    if (IsUserDefinedChar1(ch)) {
-                        result += QChar::ReplacementCharacter;
-                    } else {
-                        uint u = conv->sjisToUnicode(ch, c2);
-                        result += QValidChar(u);
-                    }
-                } else {
-                    i--;
+            if (IsSjisChar2(ch)) {
+                if (IsUserDefinedChar1(buf[0])) {
                     result += QChar::ReplacementCharacter;
+                } else {
+                    uint u = conv->sjisToUnicode(buf[0], ch);
+                    result += QValidChar(u);
                 }
             } else {
-                result += QChar::ReplacementCharacter;
+                // Invalid
+                result += replacement;
+                ++invalid;
             }
-        } else {
-            result += QChar::ReplacementCharacter;
+            nbuf = 0;
+            break;
         }
+    }
+
+    if (state) {
+        state->remainingChars = nbuf;
+        state->state_data[0] = buf[0];
+        state->invalidChars += invalid;
     }
     return result;
 }
+
 
 /*!
   \reimp
@@ -203,65 +233,6 @@ const char* QSjisCodec::name() const
 const char* QSjisCodec::mimeName() const
 {
     return "Shift_JIS";
-}
-
-
-class QSjisDecoder : public QTextDecoder {
-    uchar buf[1];
-    int nbuf;
-    const QJpUnicodeConv * const conv;
-public:
-    QSjisDecoder(const QJpUnicodeConv *c) : nbuf(0), conv(c)
-    {
-    }
-
-    QString toUnicode(const char* chars, int len)
-    {
-        QString result;
-        for (int i=0; i<len; i++) {
-            uchar ch = chars[i];
-            switch (nbuf) {
-              case 0:
-                if (ch < 0x80 || IsKana(ch)) {
-                    // JIS X 0201 Latin or JIS X 0201 Kana
-                    uint u = conv->jisx0201ToUnicode(ch);
-                    result += QValidChar(u);
-                } else if (IsSjisChar1(ch)) {
-                    // JIS X 0208
-                    buf[0] = ch;
-                    nbuf = 1;
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                break;
-              case 1:
-                // JIS X 0208
-                if (IsSjisChar2(ch)) {
-                    if (IsUserDefinedChar1(buf[0])) {
-                        result += QChar::ReplacementCharacter;
-                    } else {
-                        uint u = conv->sjisToUnicode(buf[0], ch);
-                        result += QValidChar(u);
-                    }
-                } else {
-                    // Invalid
-                    result += QChar::ReplacementCharacter;
-                }
-                nbuf = 0;
-                break;
-            }
-        }
-        return result;
-    }
-};
-
-/*!
-  \reimp
-*/
-QTextDecoder* QSjisCodec::makeDecoder() const
-{
-    return new QSjisDecoder(conv);
 }
 
 #endif

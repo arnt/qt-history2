@@ -21,8 +21,8 @@
 #include "qlist.h"
 #include "qfile.h"
 #include "qtextcodecfactory.h"
+
 #include "qutfcodec_p.h"
-#include "qnamespace.h"
 #include "qsimplecodec_p.h"
 #include "qlatincodec_p.h"
 #ifndef QT_NO_CODECS
@@ -37,6 +37,7 @@
 #include "qjiscodec_p.h"
 #include "qsjiscodec_p.h"
 #endif // QT_NO_BIG_CODECS
+
 #include <private/qlocale_p.h>
 #include <private/qmutexpool_p.h>
 #include <stdlib.h>
@@ -108,46 +109,6 @@ static inline void setup()
 
     realSetup();
 }
-
-
-class QTextStatelessEncoder: public QTextEncoder {
-    const QTextCodec* codec;
-public:
-    QTextStatelessEncoder(const QTextCodec*);
-    QByteArray fromUnicode(const QString& uc, int& lenInOut);
-};
-
-
-class QTextStatelessDecoder : public QTextDecoder {
-    const QTextCodec* codec;
-public:
-    QTextStatelessDecoder(const QTextCodec*);
-    QString toUnicode(const char* chars, int len);
-};
-
-QTextStatelessEncoder::QTextStatelessEncoder(const QTextCodec* c) :
-    codec(c)
-{
-}
-
-
-QByteArray QTextStatelessEncoder::fromUnicode(const QString& uc, int& lenInOut)
-{
-    return codec->fromUnicode(uc,lenInOut);
-}
-
-
-QTextStatelessDecoder::QTextStatelessDecoder(const QTextCodec* c) :
-    codec(c)
-{
-}
-
-
-QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
-{
-    return codec->toUnicode(chars,len);
-}
-
 
 
 /*!
@@ -454,8 +415,8 @@ public:
     QWindowsLocalCodec();
     ~QWindowsLocalCodec();
 
-    QString toUnicode(const char* chars, int len) const;
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -471,25 +432,14 @@ QWindowsLocalCodec::~QWindowsLocalCodec()
 }
 
 
-QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
+QString QWindowsLocalCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    if (len == 1 && chars) {          // Optimization; avoids allocation
-        char c[2];
-        c[0] = *chars;
-        c[1] = 0;
-        return qt_winMB2QString(c, 2);
-    }
-    if (len < 0)
-        return qt_winMB2QString(chars);
-    QByteArray s(chars,len);
-    return qt_winMB2QString(s);
+    return qt_winMB2QString(chars, len);
 }
 
-QByteArray QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QWindowsLocalCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
 {
-    QByteArray r = qt_winQString2MB(uc, lenInOut);
-    lenInOut = r.length();
-    return r;
+    return qt_winQString2MB(uc, len);
 }
 
 
@@ -700,7 +650,7 @@ const char* QTextCodec::mimeName() const
     return name();
 }
 
-
+#ifdef QT_COMPAT
 /*!
     Creates a QTextDecoder which stores enough state to decode chunks
     of char* data to create chunks of Unicode data. The default
@@ -712,7 +662,7 @@ const char* QTextCodec::mimeName() const
 */
 QTextDecoder* QTextCodec::makeDecoder() const
 {
-    return new QTextStatelessDecoder(this);
+    return new QTextDecoder(this);
 }
 
 
@@ -727,31 +677,17 @@ QTextDecoder* QTextCodec::makeDecoder() const
 */
 QTextEncoder* QTextCodec::makeEncoder() const
 {
-    return new QTextStatelessEncoder(this);
+    return new QTextEncoder(this);
 }
-
 
 /*!
-    QTextCodec subclasses must reimplement this function or
-    makeDecoder(). It converts the first \a len characters of \a chars
-    to Unicode.
-
-    The default implementation makes a decoder with makeDecoder() and
-    converts the input with that. Note that the default makeDecoder()
-    implementation makes a decoder that simply calls
-    this function, hence subclasses \e must reimplement one function or
-    the other to avoid infinite recursion.
+    Returns a string representing the current language and
+    sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
 */
-QString QTextCodec::toUnicode(const char* chars, int len) const
+const char* QTextCodec::locale()
 {
-    if (chars == 0)
-        return QString::null;
-    QTextDecoder* i = makeDecoder();
-    QString result = i->toUnicode(chars,len);
-    delete i;
-    return result;
+    return QLocalePrivate::systemLocaleName();
 }
-
 
 /*!
     QTextCodec subclasses must reimplement either this function or
@@ -772,33 +708,9 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
 
 QByteArray QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    QTextEncoder* i = makeEncoder();
-    QByteArray result = i->fromUnicode(uc, lenInOut);
-    delete i;
+    QByteArray result = convertFromUnicode(uc.constData(), lenInOut, 0);
+    lenInOut = result.length();
     return result;
-}
-
-/*!
-  \overload
-  \internal
-*/
-QByteArray QTextCodec::fromUnicode(const QString &str, int pos, int len) const
-{
-    QByteArray a;
-    if(len < 0)
-        len = str.length() - pos;
-    return fromUnicode(str.mid(pos, len));
-}
-
-/*!
-    \overload
-
-    \a uc is the unicode source string.
-*/
-QByteArray QTextCodec::fromUnicode(const QString& uc) const
-{
-    int l = uc.length();
-    return fromUnicode(uc,l);
 }
 
 /*!
@@ -809,20 +721,8 @@ QByteArray QTextCodec::fromUnicode(const QString& uc) const
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
-    int l = a.size();
-    l = qMin(l, len);
-    return toUnicode(a.constData(), l);
-}
-
-/*!
-    \overload
-
-    \a a contains the source characters.
-*/
-// #### move to header
-QString QTextCodec::toUnicode(const QByteArray& a) const
-{
-    return toUnicode(a.constData(), a.size());
+    len = qMin(a.size(), len);
+    return convertToUnicode(a.constData(), len, 0);
 }
 
 /*!
@@ -832,23 +732,32 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {
-    return toUnicode(chars,qstrlen(chars));
+    int len = qstrlen(chars);
+    return convertToUnicode(chars, len, 0);
 }
+#endif
 
 /*!
-  \internal
+    \overload
+
+    \a str is the unicode source string.
 */
-unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) const
+QByteArray QTextCodec::fromUnicode(const QString& str) const
 {
-    QByteArray result = QTextCodec::fromUnicode(QString(str[pos]));
-    uchar *ch = (uchar *) result.data();
-    ushort retval = 0;
-    if (result.size() > 2) {
-        retval = (ushort) *ch << 8;
-        ch++;
-    }
-    return retval + *ch;
+    return convertFromUnicode(str.constData(), str.length(), 0);
 }
+
+
+/*!
+    \overload
+
+    \a a contains the source characters.
+*/
+QString QTextCodec::toUnicode(const QByteArray& a) const
+{
+    return convertToUnicode(a.constData(), a.length(), 0);
+}
+
 
 /*!
     Returns true if the Unicode character \a ch can be fully encoded
@@ -859,7 +768,10 @@ unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) con
 */
 bool QTextCodec::canEncode(QChar ch) const
 {
-    return toUnicode(fromUnicode(QString(ch))) == QString(ch);
+    ConverterState state;
+    state.flags = ConvertInvalidToNull;
+    convertFromUnicode(&ch, 1, &state);
+    return (state.invalidChars == 0);
 }
 
 /*!
@@ -869,13 +781,13 @@ bool QTextCodec::canEncode(QChar ch) const
 */
 bool QTextCodec::canEncode(const QString& s) const
 {
-    if (s.isEmpty())
-        return true;
-    return toUnicode(fromUnicode(s)) == s;
+    ConverterState state;
+    state.flags = ConvertInvalidToNull;
+    convertFromUnicode(s.constData(), s.length(), &state);
+    return (state.invalidChars == 0);
 }
 
-
-
+#ifdef QT_COMPAT
 /*!
     \class QTextEncoder qtextcodec.h
     \brief The QTextEncoder class provides a state-based encoder.
@@ -907,6 +819,12 @@ QTextEncoder::~QTextEncoder()
     escape sequences if needed during the encoding of one string, then
     assume that mode applies when a subsequent call begins).
 */
+QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
+{
+    QByteArray result = c->fromUnicode(uc.constData(), lenInOut, &state);
+    lenInOut = result.length();
+    return result;
+}
 
 /*!
     \class QTextDecoder qtextcodec.h
@@ -938,401 +856,12 @@ QTextDecoder::~QTextDecoder()
     encoding is at the end of the characters), the decoder remembers
     enough state to continue with the next call to this function.
 */
-
-#if 0
-#define CHAINED 0xffff
-
-struct QMultiByteUnicodeTable {
-    // If multiByte, ignore unicode and index into multiByte
-    //  with the next character.
-    QMultiByteUnicodeTable() : unicode(0xfffd), multiByte(0) { }
-
-    ~QMultiByteUnicodeTable()
-    {
-        if (multiByte)
-            delete [] multiByte;
-    }
-
-    ushort unicode;
-    QMultiByteUnicodeTable* multiByte;
-};
-
-static int getByte(char* &cursor)
+QString QTextDecoder::toUnicode(const char* chars, int len)
 {
-    int byte = 0;
-    if (*cursor) {
-        if (cursor[1] == 'x')
-            byte = strtol(cursor+2,&cursor,16);
-        else if (cursor[1] == 'd')
-            byte = strtol(cursor+2,&cursor,10);
-        else
-            byte = strtol(cursor+2,&cursor,8);
-    }
-    return byte&0xff;
+    return c->toUnicode(chars, len, &state);
 }
 
-class QTextCodecFromIOD;
-
-class QTextCodecFromIODDecoder : public QTextDecoder {
-    const QTextCodecFromIOD* codec;
-    QMultiByteUnicodeTable* mb;
-public:
-    QTextCodecFromIODDecoder(const QTextCodecFromIOD* c);
-    QString toUnicode(const char* chars, int len);
-};
-
-class QTextCodecFromIOD : public QTextCodec {
-    friend class QTextCodecFromIODDecoder;
-
-    QByteArray n;
-
-    // If from_unicode_page[row()][cell()] is 0 and from_unicode_page_multiByte,
-    //  use from_unicode_page_multiByte[row()][cell()] as string.
-    char** from_unicode_page;
-    char*** from_unicode_page_multiByte;
-    char unkn;
-
-    // Only one of these is used
-    ushort* to_unicode;
-    QMultiByteUnicodeTable* to_unicode_multiByte;
-    int max_bytes_per_char;
-    QStrList aliases;
-
-    bool stateless() const { return !to_unicode_multiByte; }
-
-public:
-    QTextCodecFromIOD(QIODevice* iod)
-    {
-        from_unicode_page = 0;
-        to_unicode_multiByte = 0;
-        to_unicode = 0;
-        from_unicode_page_multiByte = 0;
-        max_bytes_per_char = 1;
-
-        const int maxlen=100;
-        char line[maxlen];
-        char esc='\\';
-        char comm='%';
-        bool incmap = false;
-        while (iod->readLine(line,maxlen) > 0) {
-            if (0==qstrnicmp(line,"<code_set_name>",15))
-                n = line+15;
-            else if (0==qstrnicmp(line,"<escape_char> ",14))
-                esc = line[14];
-            else if (0==qstrnicmp(line,"<comment_char> ",15))
-                comm = line[15];
-            else if (line[0]==comm && 0==qstrnicmp(line+1," alias ",7)) {
-                aliases.append(line+8);
-            } else if (0==qstrnicmp(line,"CHARMAP",7)) {
-                if (!from_unicode_page) {
-                    from_unicode_page = new char*[256];
-                    for (int i=0; i<256; i++)
-                        from_unicode_page[i]=0;
-                }
-                if (!to_unicode) {
-                    to_unicode = new ushort[256];
-                }
-                incmap = true;
-            } else if (0==qstrnicmp(line,"END CHARMAP",11))
-                break;
-            else if (incmap) {
-                char* cursor = line;
-                int byte=-1,unicode=-1;
-                ushort* mb_unicode=0;
-                const int maxmb=8; // more -> we'll need to improve datastructures
-                char mb[maxmb+1];
-                int nmb=0;
-
-                while (*cursor) {
-                    if (cursor[0]=='<' && cursor[1]=='U' &&
-                        cursor[2]>='0' && cursor[2]<='9' &&
-                        cursor[3]>='0' && cursor[3]<='9') {
-
-                        unicode = strtol(cursor+2,&cursor,16);
-
-                    } else if (*cursor==esc) {
-
-                        byte = getByte(cursor);
-
-                        if (*cursor == esc) {
-                            if (!to_unicode_multiByte) {
-                                to_unicode_multiByte =
-                                    new QMultiByteUnicodeTable[256];
-                                for (int i=0; i<256; i++) {
-                                    to_unicode_multiByte[i].unicode =
-                                        to_unicode[i];
-                                    to_unicode_multiByte[i].multiByte = 0;
-                                }
-                                delete [] to_unicode;
-                                to_unicode = 0;
-                            }
-                            QMultiByteUnicodeTable* mbut =
-                                to_unicode_multiByte+byte;
-                            mb[nmb++] = byte;
-                            while (nmb < maxmb && *cursor == esc) {
-                                // Always at least once
-
-                                mbut->unicode = CHAINED;
-                                byte = getByte(cursor);
-                                mb[nmb++] = byte;
-                                if (!mbut->multiByte) {
-                                    mbut->multiByte =
-                                        new QMultiByteUnicodeTable[256];
-                                }
-                                mbut = mbut->multiByte+byte;
-                                mb_unicode = & mbut->unicode;
-                            }
-
-                            if (nmb > max_bytes_per_char)
-                                max_bytes_per_char = nmb;
-                        }
-                    } else {
-                        cursor++;
-                    }
-                }
-
-                if (unicode >= 0 && unicode <= 0xffff)
-                {
-                    QChar ch((ushort)unicode);
-                    if (!from_unicode_page[ch.row()]) {
-                        from_unicode_page[ch.row()] = new char[256];
-                        for (int i=0; i<256; i++)
-                            from_unicode_page[ch.row()][i]=0;
-                    }
-                    if (mb_unicode) {
-                        from_unicode_page[ch.row()][ch.cell()] = 0;
-                        if (!from_unicode_page_multiByte) {
-                            from_unicode_page_multiByte = new char**[256];
-                            for (int i=0; i<256; i++)
-                                from_unicode_page_multiByte[i]=0;
-                        }
-                        if (!from_unicode_page_multiByte[ch.row()]) {
-                            from_unicode_page_multiByte[ch.row()] = new char*[256];
-                            for (int i=0; i<256; i++)
-                                from_unicode_page_multiByte[ch.row()][i] = 0;
-                        }
-                        mb[nmb++] = 0;
-                        from_unicode_page_multiByte[ch.row()][ch.cell()]
-                            = qstrdup(mb);
-                        *mb_unicode = unicode;
-                    } else {
-                        from_unicode_page[ch.row()][ch.cell()] = (char)byte;
-                        if (to_unicode)
-                            to_unicode[byte] = unicode;
-                        else
-                            to_unicode_multiByte[byte].unicode = unicode;
-                    }
-                } else {
-                }
-            }
-        }
-        n = n.stripWhiteSpace();
-
-        unkn = '?'; // ##### Might be a bad choice.
-    }
-
-    ~QTextCodecFromIOD()
-    {
-        if (from_unicode_page) {
-            for (int i=0; i<256; i++)
-                if (from_unicode_page[i])
-                    delete [] from_unicode_page[i];
-        }
-        if (from_unicode_page_multiByte) {
-            for (int i=0; i<256; i++)
-                if (from_unicode_page_multiByte[i])
-                    for (int j=0; j<256; j++)
-                        if (from_unicode_page_multiByte[i][j])
-                            delete [] from_unicode_page_multiByte[i][j];
-        }
-        if (to_unicode)
-            delete [] to_unicode;
-        if (to_unicode_multiByte)
-            delete [] to_unicode_multiByte;
-    }
-
-    bool ok() const
-    {
-        return !!from_unicode_page;
-    }
-
-    QTextDecoder* makeDecoder() const
-    {
-        if (stateless())
-            return QTextCodec::makeDecoder();
-        else
-            return new QTextCodecFromIODDecoder(this);
-    }
-
-    const char* name() const
-    {
-        return n;
-    }
-
-    int mibEnum() const
-    {
-        return 0; // #### Unknown.
-    }
-
-    QString toUnicode(const char* chars, int len) const
-    {
-        const uchar* uchars = (const uchar*)chars;
-        QString result;
-        QMultiByteUnicodeTable* multiByte=to_unicode_multiByte;
-        if (multiByte) {
-            while (len--) {
-                QMultiByteUnicodeTable& mb = multiByte[*uchars];
-                if (mb.multiByte) {
-                    // Chained multi-byte
-                    multiByte = mb.multiByte;
-                } else {
-                    result += QChar(mb.unicode);
-                    multiByte=to_unicode_multiByte;
-                }
-                uchars++;
-            }
-        } else {
-            while (len--)
-                result += QChar(to_unicode[*uchars++]);
-        }
-        return result;
-    }
-
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const
-    {
-        if (lenInOut > (int)uc.length())
-            lenInOut = uc.length();
-        int rlen = lenInOut*max_bytes_per_char;
-        QByteArray rstr;
-        rstr.reserve(rlen);
-        char* cursor = rstr.data();
-        char* s=0;
-        int l = lenInOut;
-        int lout = 0;
-        for (int i=0; i<l; i++) {
-            QChar ch = uc[i];
-            if (ch == QChar::null) {
-                // special
-                *cursor++ = 0;
-            } else if (from_unicode_page[ch.row()] &&
-                from_unicode_page[ch.row()][ch.cell()])
-            {
-                *cursor++ = from_unicode_page[ch.row()][ch.cell()];
-                lout++;
-            } else if (from_unicode_page_multiByte &&
-                      from_unicode_page_multiByte[ch.row()] &&
-                      (s=from_unicode_page_multiByte[ch.row()][ch.cell()]))
-            {
-                while (*s) {
-                    *cursor++ = *s++;
-                    lout++;
-                }
-            } else {
-                *cursor++ = unkn;
-                lout++;
-            }
-        }
-        lenInOut = lout;
-        rstr.resize(cursor - rstr.data());
-        return rstr;
-    }
-};
-
-QTextCodecFromIODDecoder::QTextCodecFromIODDecoder(const QTextCodecFromIOD* c) :
-    codec(c)
-{
-    mb = codec->to_unicode_multiByte;
-}
-
-QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
-{
-    const uchar* uchars = (const uchar*)chars;
-    QString result;
-    while (len--) {
-        QMultiByteUnicodeTable& t = mb[*uchars];
-        if (t.multiByte) {
-            // Chained multi-byte
-            mb = t.multiByte;
-        } else {
-            if (t.unicode)
-                result += QChar(t.unicode);
-            mb=codec->to_unicode_multiByte;
-        }
-        uchars++;
-    }
-    return result;
-}
-
-// Cannot use <pre> or \code
-/*!
-    Reads a POSIX2 charmap definition from \a iod.
-    The parser recognizes the following lines:
-
-<font name="sans">
-&nbsp;&nbsp;&lt;code_set_name&gt; <i>name</i></br>
-&nbsp;&nbsp;&lt;escape_char&gt; <i>character</i></br>
-&nbsp;&nbsp;% alias <i>alias</i></br>
-&nbsp;&nbsp;CHARMAP</br>
-&nbsp;&nbsp;&lt;<i>token</i>&gt; /x<i>hexbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
-&nbsp;&nbsp;&lt;<i>token</i>&gt; /d<i>decbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
-&nbsp;&nbsp;&lt;<i>token</i>&gt; /<i>octbyte</i> &lt;U<i>unicode</i>&gt; ...</br>
-&nbsp;&nbsp;&lt;<i>token</i>&gt; /<i>any</i>/<i>any</i>... &lt;U<i>unicode</i>&gt; ...</br>
-&nbsp;&nbsp;END CHARMAP</br>
-</font>
-
-    The resulting QTextCodec is returned (and also added to the global
-    list of codecs). The name() of the result is taken from the
-    code_set_name.
-
-    Note that a codec constructed in this way uses much more memory
-    and is slower than a hand-written QTextCodec subclass, since
-    tables in code are kept in memory shared by all Qt applications.
-
-    \sa loadCharmapFile()
-*/
-QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
-{
-    QTextCodecFromIOD* r = new QTextCodecFromIOD(iod);
-    if (!r->ok()) {
-        delete r;
-        r = 0;
-    }
-    return r;
-}
-
-/*!
-    A convenience function for loadCharmap() that loads the charmap
-    definition from the file \a filename.
-*/
-QTextCodec* QTextCodec::loadCharmapFile(const QString& filename)
-{
-    QFile f(filename);
-    if (f.open(QIODevice::ReadOnly)) {
-        QTextCodecFromIOD* r = new QTextCodecFromIOD(&f);
-        if (!r->ok())
-            delete r;
-        else
-            return r;
-    }
-}
-
-#endif //QT_NO_CODECS
-
-#ifdef QT_COMPAT
-/*!
-    Returns a string representing the current language and
-    sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
-*/
-const char* QTextCodec::locale()
-{
-    return QLocalePrivate::systemLocaleName();
-}
-#endif
-
-
 
 /* the next two functions are implicitely thread safe,
    as they are only called by setup() which uses a mutex.
@@ -1496,17 +1025,6 @@ static void realSetup()
 
     if (!localeMapper)
         setupLocaleMapper();
-}
-
-/*!
-    \internal
-    \overload
-*/
-void QTextCodec::fromUnicode(const QChar *in, unsigned short *out, int length)
-{
-    QString str(in, length);
-    for (int i = 0; i < length; i++)
-        out[i] = characterFromUnicode(str, i);
 }
 
 
