@@ -1534,11 +1534,6 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled
 
 void QWin32PaintEngine::updateFont(const QFont &font)
 {
-    if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateFont(font);
-        return;
-    }
-
     if (state->pfont)
         delete state->pfont;
 #undef d
