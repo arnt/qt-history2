@@ -3791,7 +3791,7 @@ void QWidgetPrivate::show_helper()
     // showevent
 #if defined(Q_WS_WIN)
     if ((q->windowType() == Qt::Popup))
-        qApp->d->openPopup(q);
+        qApp->d_func()->openPopup(q);
 #endif
 
     // send the show event before showing the window
