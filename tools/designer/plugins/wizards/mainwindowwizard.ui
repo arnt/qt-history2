@@ -1385,24 +1385,24 @@
     setFinishEnabled( finishPage, TRUE );
 }</function>
     <function name="destroy()" >{
-    
+
 }</function>
     <function name="currentSettingChanged()" >{
     bool appr = checkFileToolbar-&gt;isChecked() || checkEditToolbar-&gt;isChecked() || checkHelpToolbar-&gt;isChecked();
     setAppropriate( toolbarsPage, appr );
 }</function>
     <function name="setupToolbarPage()" >{
-    if ( checkFileToolbar-&gt;isChecked() )  
-	comboToolbar-&gt;insertItem( tr( "File" ) );  
-    if ( checkEditToolbar-&gt;isChecked() )   
-	comboToolbar-&gt;insertItem( tr( "Edit" ) );   
-    if ( checkHelpToolbar-&gt;isChecked() )   
-	comboToolbar-&gt;insertItem( tr( "Help" ) );   
+    if ( checkFileToolbar-&gt;isChecked() )
+	comboToolbar-&gt;insertItem( tr( "File" ) );
+    if ( checkEditToolbar-&gt;isChecked() )
+	comboToolbar-&gt;insertItem( tr( "Edit" ) );
+    if ( checkHelpToolbar-&gt;isChecked() )
+	comboToolbar-&gt;insertItem( tr( "Help" ) );
 }</function>
     <function name="toolbarActionDown()" >{
     if ( listToolbar-&gt;currentItem() &lt; 0 || listToolbar-&gt;currentItem() &gt;= (int)listToolbar-&gt;count() - 1 )
 	return;
-    
+
     int next = listToolbar-&gt;currentItem() + 1;
     QString tmp = listToolbar-&gt;text( next );
     listToolbar-&gt;changeItem( listToolbar-&gt;text( next - 1 ), next );
@@ -1410,14 +1410,14 @@
     listToolbar-&gt;setCurrentItem( next );
 }</function>
     <function name="toolbarActionUp()" >{
-    if ( listToolbar-&gt;currentItem() &lt; 1 || listToolbar-&gt;currentItem() &gt; (int)listToolbar-&gt;count() - 1 ) 
-	return; 
-     
-    int prev = listToolbar-&gt;currentItem() - 1; 
-    QString tmp = listToolbar-&gt;text( prev ); 
-    listToolbar-&gt;changeItem( listToolbar-&gt;text( prev + 1 ), prev ); 
-    listToolbar-&gt;changeItem( tmp, prev + 1 ); 
-    listToolbar-&gt;setCurrentItem( prev ); 
+    if ( listToolbar-&gt;currentItem() &lt; 1 || listToolbar-&gt;currentItem() &gt; (int)listToolbar-&gt;count() - 1 )
+	return;
+
+    int prev = listToolbar-&gt;currentItem() - 1;
+    QString tmp = listToolbar-&gt;text( prev );
+    listToolbar-&gt;changeItem( listToolbar-&gt;text( prev + 1 ), prev );
+    listToolbar-&gt;changeItem( tmp, prev + 1 );
+    listToolbar-&gt;setCurrentItem( prev );
 }</function>
     <function name="toolbarAddAction()" >{
     if ( listToolbarActions-&gt;text( listToolbarActions-&gt;currentItem() ).isEmpty() )
@@ -1434,119 +1434,119 @@
 	QWizard::accept();
 	return;
     }
-    
+
     setFinishEnabled( finishPage, FALSE );
-    
+
     QPixmap pix;
-    
+
     QDict&lt;QAction&gt; actions;
     QList&lt;QAction&gt; usedActions;
-    
+
     getPixmap( "filenew", pix );
     QAction *fileNewAction = dfw-&gt;createAction( tr( "New" ), pix, tr( "&amp;New" ), CTRL + Key_N, 0, "fileNewAction" );
     actions.insert( tr( "New" ), fileNewAction );
-    getPixmap( "fileopen", pix ); 
+    getPixmap( "fileopen", pix );
     QAction *fileOpenAction = dfw-&gt;createAction( tr( "Open" ), pix, tr( "&amp;Open..." ), CTRL + Key_O, 0, "fileOpenAction" );
-    actions.insert( tr( "Open" ), fileOpenAction ); 
-    getPixmap( "filesave", pix ); 
+    actions.insert( tr( "Open" ), fileOpenAction );
+    getPixmap( "filesave", pix );
     QAction *fileSaveAction = dfw-&gt;createAction( tr( "Save" ), pix, tr( "&amp;Save" ), CTRL + Key_S, 0, "fileSaveAction" );
-    actions.insert( tr( "Save" ), fileSaveAction ); 
+    actions.insert( tr( "Save" ), fileSaveAction );
     QAction *fileSaveAsAction = dfw-&gt;createAction( tr( "Save As" ), QIconSet(), tr( "Save &amp;As..." ), 0, 0, "fileSaveAsAction" );
-    actions.insert( tr( "Save As" ), fileSaveAsAction ); 
-    getPixmap( "print", pix ); 
+    actions.insert( tr( "Save As" ), fileSaveAsAction );
+    getPixmap( "print", pix );
     QAction *filePrintAction = dfw-&gt;createAction( tr( "Print" ), pix, tr( "&amp;Print..." ), CTRL + Key_P, 0, "filePrintAction" );
-    actions.insert( tr( "Print" ), filePrintAction ); 
-    QAction *fileExitAction = dfw-&gt;createAction( tr( "Exit" ), QIconSet(), tr( "E&amp;xit" ), 0, 0, "fileExitAction" ); 
-    actions.insert( tr( "Exit" ), fileExitAction ); 
- 
-    getPixmap( "undo", pix ); 
-    QAction *editUndoAction = dfw-&gt;createAction( tr( "Undo" ), pix, tr( "&amp;Undo" ), CTRL + Key_Z, 0, "editUndoAction" ); 
-    actions.insert( tr( "Undo" ), editUndoAction ); 
-    getPixmap( "redo", pix );  
-    QAction *editRedoAction = dfw-&gt;createAction( tr( "Redo" ), pix, tr( "&amp;Redo" ), CTRL + Key_Y, 0, "editRedoAction" );  
-    actions.insert( tr( "Redo" ), editRedoAction );  
-    getPixmap( "editcut", pix );  
-    QAction *editCutAction = dfw-&gt;createAction( tr( "Cut" ), pix, tr( "&amp;Cut" ), CTRL + Key_X, 0, "editCutAction" );  
-    actions.insert( tr( "Cut" ), editCutAction );  
-    getPixmap( "editcopy", pix );  
-    QAction *editCopyAction = dfw-&gt;createAction( tr( "Copy" ), pix, tr( "C&amp;opy" ), CTRL + Key_C, 0, "editCopyAction" );  
-    actions.insert( tr( "Copy" ), editCopyAction );  
-    getPixmap( "editpaste", pix );  
-    QAction *editPasteAction = dfw-&gt;createAction( tr( "Paste" ), pix, tr( "&amp;Paste" ), CTRL + Key_V, 0, "editPasteAction" );  
-    actions.insert( tr( "Paste" ), editPasteAction );  
-    getPixmap( "searchfind", pix );  
-    QAction *editFindAction = dfw-&gt;createAction( tr( "Find" ), pix, tr( "&amp;Find..." ), CTRL + Key_F, 0, "editFindAction" );  
-    actions.insert( tr( "Find" ), editFindAction );  
-    
-    QAction *helpAboutAction = dfw-&gt;createAction( tr( "About" ), QIconSet(), tr( "&amp;About..." ), 0, 0, "helpAboutAction" );  
-    actions.insert( tr( "About" ), helpAboutAction );  
-    QAction *helpContentsAction = dfw-&gt;createAction( tr( "Contents" ), QIconSet(), tr( "&amp;Contents..." ), 0, 0, "helpContentsAction" );   
-    actions.insert( tr( "Contents" ), helpContentsAction );   
-    QAction *helpIndexAction = dfw-&gt;createAction( tr( "Index" ), QIconSet(), tr( "&amp;Index..." ), 0, 0, "helpIndexAction" );   
-    actions.insert( tr( "Index" ), helpIndexAction );   
-    
+    actions.insert( tr( "Print" ), filePrintAction );
+    QAction *fileExitAction = dfw-&gt;createAction( tr( "Exit" ), QIconSet(), tr( "E&amp;xit" ), 0, 0, "fileExitAction" );
+    actions.insert( tr( "Exit" ), fileExitAction );
+
+    getPixmap( "undo", pix );
+    QAction *editUndoAction = dfw-&gt;createAction( tr( "Undo" ), pix, tr( "&amp;Undo" ), CTRL + Key_Z, 0, "editUndoAction" );
+    actions.insert( tr( "Undo" ), editUndoAction );
+    getPixmap( "redo", pix );
+    QAction *editRedoAction = dfw-&gt;createAction( tr( "Redo" ), pix, tr( "&amp;Redo" ), CTRL + Key_Y, 0, "editRedoAction" );
+    actions.insert( tr( "Redo" ), editRedoAction );
+    getPixmap( "editcut", pix );
+    QAction *editCutAction = dfw-&gt;createAction( tr( "Cut" ), pix, tr( "&amp;Cut" ), CTRL + Key_X, 0, "editCutAction" );
+    actions.insert( tr( "Cut" ), editCutAction );
+    getPixmap( "editcopy", pix );
+    QAction *editCopyAction = dfw-&gt;createAction( tr( "Copy" ), pix, tr( "C&amp;opy" ), CTRL + Key_C, 0, "editCopyAction" );
+    actions.insert( tr( "Copy" ), editCopyAction );
+    getPixmap( "editpaste", pix );
+    QAction *editPasteAction = dfw-&gt;createAction( tr( "Paste" ), pix, tr( "&amp;Paste" ), CTRL + Key_V, 0, "editPasteAction" );
+    actions.insert( tr( "Paste" ), editPasteAction );
+    getPixmap( "searchfind", pix );
+    QAction *editFindAction = dfw-&gt;createAction( tr( "Find" ), pix, tr( "&amp;Find..." ), CTRL + Key_F, 0, "editFindAction" );
+    actions.insert( tr( "Find" ), editFindAction );
+
+    QAction *helpAboutAction = dfw-&gt;createAction( tr( "About" ), QIconSet(), tr( "&amp;About..." ), 0, 0, "helpAboutAction" );
+    actions.insert( tr( "About" ), helpAboutAction );
+    QAction *helpContentsAction = dfw-&gt;createAction( tr( "Contents" ), QIconSet(), tr( "&amp;Contents..." ), 0, 0, "helpContentsAction" );
+    actions.insert( tr( "Contents" ), helpContentsAction );
+    QAction *helpIndexAction = dfw-&gt;createAction( tr( "Index" ), QIconSet(), tr( "&amp;Index..." ), 0, 0, "helpIndexAction" );
+    actions.insert( tr( "Index" ), helpIndexAction );
+
     if ( checkFileMenu-&gt;isChecked() ) {
 	dfw-&gt;addMenu( "&amp;File", "fileMenu" );
 	dfw-&gt;addMenuAction( "fileMenu", fileNewAction );
-	dfw-&gt;addMenuAction( "fileMenu", fileOpenAction ); 
-	dfw-&gt;addMenuAction( "fileMenu", fileSaveAction ); 
+	dfw-&gt;addMenuAction( "fileMenu", fileOpenAction );
+	dfw-&gt;addMenuAction( "fileMenu", fileSaveAction );
 	dfw-&gt;addMenuAction( "fileMenu", fileSaveAsAction );
 	dfw-&gt;addMenuSeparator( "fileMenu" );
-	dfw-&gt;addMenuAction( "fileMenu", filePrintAction ); 
-	dfw-&gt;addMenuSeparator( "fileMenu" ); 
+	dfw-&gt;addMenuAction( "fileMenu", filePrintAction );
+	dfw-&gt;addMenuSeparator( "fileMenu" );
 	dfw-&gt;addMenuAction( "fileMenu", fileExitAction );
 	dfw-&gt;addAction( fileNewAction );
-	dfw-&gt;addAction( fileOpenAction ); 
-	dfw-&gt;addAction( fileSaveAction ); 
-	dfw-&gt;addAction( fileSaveAsAction ); 
-	dfw-&gt;addAction( filePrintAction ); 
-	dfw-&gt;addAction( fileExitAction ); 
+	dfw-&gt;addAction( fileOpenAction );
+	dfw-&gt;addAction( fileSaveAction );
+	dfw-&gt;addAction( fileSaveAsAction );
+	dfw-&gt;addAction( filePrintAction );
+	dfw-&gt;addAction( fileExitAction );
 	usedActions.append( fileNewAction );
-	usedActions.append( fileOpenAction ); 
-	usedActions.append( fileSaveAction ); 
-	usedActions.append( fileSaveAsAction ); 
-	usedActions.append( filePrintAction ); 
-	usedActions.append( fileExitAction ); 
+	usedActions.append( fileOpenAction );
+	usedActions.append( fileSaveAction );
+	usedActions.append( fileSaveAsAction );
+	usedActions.append( filePrintAction );
+	usedActions.append( fileExitAction );
     }
- 
+
     if ( checkEditMenu-&gt;isChecked() ) {
-	dfw-&gt;addMenu( "&amp;Edit", "editMenu" ); 
-	dfw-&gt;addMenuAction( "editMenu", editUndoAction ); 
-	dfw-&gt;addMenuAction( "editMenu", editRedoAction );  
+	dfw-&gt;addMenu( "&amp;Edit", "editMenu" );
+	dfw-&gt;addMenuAction( "editMenu", editUndoAction );
+	dfw-&gt;addMenuAction( "editMenu", editRedoAction );
 	dfw-&gt;addMenuSeparator( "editMenu" );
-	dfw-&gt;addMenuAction( "editMenu", editCutAction );  
-	dfw-&gt;addMenuAction( "editMenu", editCopyAction );  
-	dfw-&gt;addMenuAction( "editMenu", editPasteAction );  
-	dfw-&gt;addMenuSeparator( "editMenu" ); 
-	dfw-&gt;addMenuAction( "editMenu", editFindAction );  
-	dfw-&gt;addAction( editUndoAction ); 
-	dfw-&gt;addAction( editRedoAction );  
-	dfw-&gt;addAction( editCutAction );  
-	dfw-&gt;addAction( editCopyAction );  
-	dfw-&gt;addAction( editPasteAction );  
-	dfw-&gt;addAction( editFindAction );  
-	usedActions.append( editUndoAction ); 
-	usedActions.append( editRedoAction );  
-	usedActions.append( editCutAction );  
-	usedActions.append( editCopyAction );  
-	usedActions.append( editPasteAction );  
-	usedActions.append( editFindAction );  
+	dfw-&gt;addMenuAction( "editMenu", editCutAction );
+	dfw-&gt;addMenuAction( "editMenu", editCopyAction );
+	dfw-&gt;addMenuAction( "editMenu", editPasteAction );
+	dfw-&gt;addMenuSeparator( "editMenu" );
+	dfw-&gt;addMenuAction( "editMenu", editFindAction );
+	dfw-&gt;addAction( editUndoAction );
+	dfw-&gt;addAction( editRedoAction );
+	dfw-&gt;addAction( editCutAction );
+	dfw-&gt;addAction( editCopyAction );
+	dfw-&gt;addAction( editPasteAction );
+	dfw-&gt;addAction( editFindAction );
+	usedActions.append( editUndoAction );
+	usedActions.append( editRedoAction );
+	usedActions.append( editCutAction );
+	usedActions.append( editCopyAction );
+	usedActions.append( editPasteAction );
+	usedActions.append( editFindAction );
     }
-    
+
     if ( checkHelpMenu-&gt;isChecked() ) {
-	dfw-&gt;addMenu( "&amp;Help", "helpMenu" );  
-	dfw-&gt;addMenuAction( "helpMenu", helpContentsAction );  
-	dfw-&gt;addMenuAction( "helpMenu", helpIndexAction );   
+	dfw-&gt;addMenu( "&amp;Help", "helpMenu" );
+	dfw-&gt;addMenuAction( "helpMenu", helpContentsAction );
+	dfw-&gt;addMenuAction( "helpMenu", helpIndexAction );
 	dfw-&gt;addMenuSeparator( "helpMenu" );
-	dfw-&gt;addMenuAction( "helpMenu", helpAboutAction );   
+	dfw-&gt;addMenuAction( "helpMenu", helpAboutAction );
 	dfw-&gt;addAction( helpContentsAction );
-	dfw-&gt;addAction( helpIndexAction ); 
-	dfw-&gt;addAction( helpAboutAction ); 
-	usedActions.append( helpIndexAction );  
-	usedActions.append( helpContentsAction );   
-	usedActions.append( helpAboutAction );   
+	dfw-&gt;addAction( helpIndexAction );
+	dfw-&gt;addAction( helpAboutAction );
+	usedActions.append( helpIndexAction );
+	usedActions.append( helpContentsAction );
+	usedActions.append( helpAboutAction );
     }
-    
+
     if ( listToolbar-&gt;count() &gt; 0 &amp;&amp; appropriate( toolbarsPage ) ) {
 	dfw-&gt;addToolBar( "Tools", "toolBar" );
 	for ( int i = 0; i &lt; (int)listToolbar-&gt;count(); ++i ) {
@@ -1574,31 +1574,31 @@
 		dfw-&gt;addConnection( ac, "activated()", widget, slot );
 	}
     }
-    
+
     QWizard::accept();
 }</function>
     <function name="currentToolbarChanged(const QString&amp;)" >{
     if ( s == tr( "File" ) ) {
 	listToolbarActions-&gt;clear();
 	listToolbarActions-&gt;insertItem( tr( "New" ) );
-	listToolbarActions-&gt;insertItem( tr( "Open" ) ); 
-	listToolbarActions-&gt;insertItem( tr( "Save" ) ); 
-	listToolbarActions-&gt;insertItem( tr( "Save As" ) ); 
-	listToolbarActions-&gt;insertItem( tr( "Print" ) ); 
-	listToolbarActions-&gt;insertItem( tr( "Exit" ) ); 
+	listToolbarActions-&gt;insertItem( tr( "Open" ) );
+	listToolbarActions-&gt;insertItem( tr( "Save" ) );
+	listToolbarActions-&gt;insertItem( tr( "Save As" ) );
+	listToolbarActions-&gt;insertItem( tr( "Print" ) );
+	listToolbarActions-&gt;insertItem( tr( "Exit" ) );
     } else if ( s == tr( "Edit" ) ) {
-	listToolbarActions-&gt;clear(); 
-	listToolbarActions-&gt;insertItem( tr( "Undo" ) ); 
-	listToolbarActions-&gt;insertItem( tr( "Redo" ) );  
-	listToolbarActions-&gt;insertItem( tr( "Cut" ) );  
-	listToolbarActions-&gt;insertItem( tr( "Copy" ) );  
-	listToolbarActions-&gt;insertItem( tr( "Paste" ) );  
-	listToolbarActions-&gt;insertItem( tr( "Find" ) );  
+	listToolbarActions-&gt;clear();
+	listToolbarActions-&gt;insertItem( tr( "Undo" ) );
+	listToolbarActions-&gt;insertItem( tr( "Redo" ) );
+	listToolbarActions-&gt;insertItem( tr( "Cut" ) );
+	listToolbarActions-&gt;insertItem( tr( "Copy" ) );
+	listToolbarActions-&gt;insertItem( tr( "Paste" ) );
+	listToolbarActions-&gt;insertItem( tr( "Find" ) );
     } else if ( s == tr( "Help" ) ) {
 	listToolbarActions-&gt;clear();	
-	listToolbarActions-&gt;insertItem( tr( "Contents" ) );  
-	listToolbarActions-&gt;insertItem( tr( "Index" ) );  
-	listToolbarActions-&gt;insertItem( tr( "About" ) );  
+	listToolbarActions-&gt;insertItem( tr( "Contents" ) );
+	listToolbarActions-&gt;insertItem( tr( "Index" ) );
+	listToolbarActions-&gt;insertItem( tr( "About" ) );
     }
     listToolbarActions-&gt;insertItem( "&lt;Seperator&gt;" );
     listToolbarActions-&gt;setCurrentItem( 0 );
@@ -1609,7 +1609,7 @@
     QByteArray ba = qembed_findData( name );
     img.loadFromData( (const uchar*)ba.data(), ba.size() );
     pix.convertFromImage( img );
-    
+
     DesignerProject *pro = dIface-&gt;currentProject();
     if ( !pro || pro-&gt;projectName() == "&lt;No Project&gt;" )
 	return;
@@ -1624,7 +1624,8 @@
     }
 }</function>
     <function name="setAppInterface(QUnknownInterface*,DesignerFormWindow*,QWidget*)" >{
-    DesignerInterface *d = (DesignerInterface*)iface-&gt;queryInterface(  IID_DesignerInterface );
+    DesignerInterface *d = 0;
+    iface-&gt;queryInterface(  IID_DesignerInterface, (QUnknownInterface**)&amp;d );
     dIface = d;
     dfw = fw;
     widget = w;
