@@ -341,8 +341,8 @@ typedef QMap<QString, QLibraryPrivate*> LibraryMap;
 Q_GLOBAL_STATIC(LibraryMap, libraryMap)
 
 QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
-    :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0), pluginState(MightBeAPlugin),
-     libraryRefCount(1), libraryUnloadCount(1)
+    :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0),
+     libraryRefCount(1), libraryUnloadCount(1), pluginState(MightBeAPlugin)
 { libraryMap()->insert(canonicalFileName, this); }
 
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
