@@ -57,7 +57,7 @@ void QThread::postEvent(QObject *,QEvent *)
 {
 }
 
-extern "C" static void start_thread(QThread * t)
+extern "C" static unsigned long start_thread(QThread * t)
 {
   t->run();
 }
@@ -73,7 +73,12 @@ QThread::~QThread()
 void QThread::start()
 {
   // Error checking would be good
-  _beginthread(start_thread,0,(void *)this);
+  //_beginthread(start_thread,0,(void *)this);
+  long threadid;
+  if( CreateThread(0,0, (LPTHREAD_START_ROUTINE) start_thread, (void *) this,
+		   0,&threadid) = 0 ) {
+    qFatal("Eek! Couldn't make thread!");
+  }
 }
 
 void QThread::run()
