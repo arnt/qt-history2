@@ -8,7 +8,7 @@ CONFIG -= opengl qt shared
 DESTDIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
               generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/qmake
-INCLUDEPATH += $$DEPENDPATH
+INCLUDEPATH += $$DEPENDPATH .
 DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
 
 #qmake code
