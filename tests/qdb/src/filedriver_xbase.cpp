@@ -153,30 +153,42 @@ public:
     xbShort putField( int i, const QVariant& v )
     {
 	xbShort rc;
-
+	bool nullify = FALSE;
 	if ( v.type() == QVariant::Invalid ) {
-	    QString n = "NULL";
-	    rc = file.PutField( i, n.latin1() );
-	    return rc;
+	    nullify = TRUE;
 	}
 	switch ( xbaseTypeToVariant( file.GetFieldType(i) ) ) {
 	case QVariant::String:
 	case QVariant::CString: {
-	    QCString data = v.toString().utf8();
+	    QCString data;
+	    if ( nullify )
+		data = "\0";
+	    else
+		data = v.toString().utf8();
 	    rc = file.PutField( i, data.data() );
 	    break;
 	}
 	case QVariant::Date: {
 	    QDate d = v.toDate();
-	    QString val = QString( QString::number( d.year() ) +
+	    QString val;
+	    if ( nullify )
+		val = "17521113"; /* an invalid QDate */
+	    else
+		val = QString( QString::number( d.year() ) +
 				   QString::number( d.month() ).rightJustify( 2, '0' ) +
 				   QString::number( d.day() ).rightJustify( 2, '0' ) );
 	    rc = file.PutField( i, val.latin1() );
 	    break;
 	}
-	default:
-	    rc = file.PutField( i, v.toString().latin1() );
+	default: {
+	    QCString data;
+	    if ( nullify )
+		data = "\0";
+	    else
+		data = v.toString().utf8();
+	    rc = file.PutField( i, data.data() );
 	    break;
+	}
 	}
 	return rc;
     }
@@ -546,9 +558,11 @@ bool FileDriver::insert( const List& data )
 	    ERROR_RETURN("Unable to insert NULL value in NOT NULL field: " + name );
 	}
 	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
-	    QDate d = val.toDate();
-	    if ( !d.isValid() ) {
-		ERROR_RETURN( "Unable to insert, invalid date '" + val.toString() + "'" );
+	    if ( val.type() != QVariant::Invalid ) { /* which would indicate a NULL date */
+		QDate d = val.toDate();
+		if ( !d.isValid() ) {
+		    ERROR_RETURN( "Unable to insert, invalid date '" + val.toString() + "'" );
+		}
 	    }
 	}
 	xbShort rc = d->putField( pos, val );
