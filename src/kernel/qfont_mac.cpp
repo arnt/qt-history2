@@ -285,31 +285,6 @@ void QFont::macSetFont(QPaintDevice *v)
     QMacSetFontInfo::setMacFont(d, NULL, v);
 }
 
-#if 0
-// this will most likely go into either the font engine itself, or
-// into the font engine data construction...
-
-// Computes the line width (underline,strikeout)
-void QFontPrivate::computeLineWidth()
-{
-    int weight = actual.weight;
-    int pSize  = actual.pixelSize;
-
-    // ad hoc algorithm
-    int score = pSize * weight;
-    int nlw = (score) / 700;
-
-    // looks better with thicker line for small pointsizes
-    if(nlw < 2 && score >= 1050)
-	nlw = 2;
-    if(nlw == 0)
-	nlw = 1;
-
-    if(nlw > lineWidth)
-	lineWidth = nlw;
-}
-#endif
-
 void QFontPrivate::load(QFont::Script script)
 {
 #if defined(QT_CHECK_STATE)
