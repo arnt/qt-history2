@@ -20,11 +20,13 @@
 #include <termios.h>
 #include <sys/kd.h>
 
+#include "qwsaccel.h"
+
 static const char *mouseDev = "/dev/mouse";
 static const int mouseBufSize = 100;
 
 /*
-  
+
   int xf86KbdOn()
 {
 	struct termios nTty;
@@ -53,6 +55,77 @@ static const int mouseBufSize = 100;
 
 
 
+
+
+//### should use gfx!!!!
+
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+
+
+static struct fb_var_screeninfo fb_vinfo;
+static struct fb_fix_screeninfo fb_finfo;
+static struct {
+  int fbfd;
+  long int screensize;
+  uchar *fbp;
+  int width;
+  int height;
+} qfb;
+
+static bool fb_open = FALSE;
+
+static void open_fb()
+{
+  fb_open = TRUE;
+  qfb.fbp=0;
+ /* Open the file for reading and writing */
+  qfb.fbfd = open("/dev/fb0", O_RDWR);
+  if (!qfb.fbfd) {
+    printf("Error: cannot open framebuffer device.\n");
+    exit(1);
+  }
+  printf("The framebuffer device was opened successfully.\n");
+
+  /* Get fixed screen information */
+  if (ioctl(qfb.fbfd, FBIOGET_FSCREENINFO, &fb_finfo)) {
+    printf("Error reading fixed information.\n");
+    exit(2);
+  }
+
+  /* Get variable screen information */
+  if (ioctl(qfb.fbfd, FBIOGET_VSCREENINFO, &fb_vinfo)) {
+    printf("Error reading variable information.\n");
+    exit(3);
+  }
+
+  /* Figure out the size of the screen in bytes */
+  qfb.screensize = fb_vinfo.xres * fb_vinfo.yres * fb_vinfo.bits_per_pixel / 8;
+
+  qfb.width = fb_vinfo.xres;
+  qfb.height = fb_vinfo.yres;
+  /* Map the device to memory */
+  qfb.fbp = (uchar *)mmap(0, qfb.screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
+		     qfb.fbfd, 0);
+  if ((int)qfb.fbp == -1) {
+    printf("Error: failed to map framebuffer device to
+memory.\n");
+    exit(4);
+  }
+  printf("The framebuffer device was mapped to memory successfully.\n");
+
+}
+
+
+static void close_fb()
+{
+  munmap(qfb.fbp, qfb.screensize);
+  close(qfb.fbfd);
+}
+
+
+
 void QWSServer::initIO()
 {
     //mouse:
@@ -61,6 +134,13 @@ void QWSServer::initIO()
 		strerror(errno));
 	exit(1);
     }
+
+    // Clear pending input
+    tcflush(mouseFD,TCIFLUSH);
+    // Some magic from xfree86/common/xf86_Mouse.c::xf86SetupMouse
+    write(mouseFD,"",1);
+    usleep(50000);
+    write(mouseFD,"@EeI!",5);
     mouseBuf = new uchar[mouseBufSize];
     mouseIdx = 0;
     mousePos = QPoint(500,300);
@@ -69,6 +149,15 @@ void QWSServer::initIO()
 					       this );
     connect( sn, SIGNAL(activated(int)),this, SLOT(readMouseData()) );
 
+
+    open_fb();
+    if ( swidth || sheight ) {
+	swidth = QMIN( swidth, qfb.width );
+	sheight = QMIN( sheight, qfb.height );
+    } else {
+	swidth = qfb.width;
+	sheight = qfb.height;
+    }
 #ifdef EXPERIMENTAL_LINUX_KBD
     //keyboard
 
@@ -82,9 +171,9 @@ void QWSServer::initIO()
     termdata.c_iflag &= ~ICRNL;
     termdata.c_lflag |= ISIG;
     termdata.c_cc[VMIN] = 1;
-    termdata.c_cc[VTIME] = 0;         
+    termdata.c_cc[VTIME] = 0;
 
-    tcsetattr( kbdFD, TCSANOW, &termdata );    
+    tcsetattr( kbdFD, TCSANOW, &termdata );
 #else
     // the X way, seriously screws up keyboard handling
 
@@ -170,7 +259,6 @@ void QWSServer::handleMouseData()
 
     //    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
 
-
     int idx = 0;
 
     while ( mouseIdx-idx >= 3 ) {
@@ -199,10 +287,14 @@ void QWSServer::handleMouseData()
 	    }
 	    int mx = mousePos.x() + dx;
 	    int my = mousePos.y() - dy; // swap coordinate system
-
+	
 	    mousePos.setX( QMIN( QMAX( mx, 0 ), swidth ) );
 	    mousePos.setY( QMIN( QMAX( my, 0 ), sheight ) );
 
+	    if(probed_card) {
+		probed_card->move_cursor(mousePos.x(),
+					 mousePos.y());
+	    }
 	    sendMouseEvent( mousePos, bstate );
 	}
 	idx += 3;
@@ -219,10 +311,10 @@ void QWSServer::handleMouseData()
 
 	if ( overflow )
 	    printf( "Overflow%d %s %s %s  (%4d,%4d)\n", overflow,
-		    b1, b2, b3, mouseX, mouseY );
+		    b1, b2, b3, mousePos.x(), mousePos.y() );
 	else
 	    printf( "%s %s %s (%+3d,%+3d)  (%4d,%4d)\n",
-		    b1, b2, b3, dx, dy, mouseX, mouseY );
+		    b1, b2, b3, dx, dy, mousePos.x(), mousePos.y() );
 #endif
     }
 
@@ -234,80 +326,18 @@ void QWSServer::handleMouseData()
 
     //printf( "exit handleMouseData mouseIdx=%d\n", mouseIdx );
 
-
+  if(getenv("QWS_NOACCEL")==0 && probed_card==0) {
+      probe_bus(fb_vinfo.xres,fb_vinfo.yres,fb_vinfo.bits_per_pixel);
+  }
 }
 
-
-#include <fcntl.h>
-#include <linux/fb.h>
-#include <sys/mman.h>
-
-
-static struct fb_var_screeninfo fb_vinfo;
-static struct fb_fix_screeninfo fb_finfo;
-static struct {
-  int fbfd;
-  long int screensize;
-  uchar *fbp;
-} qfb;
-
-static bool fb_open = FALSE;
-
-static void open_fb()
-{
-  fb_open = TRUE;
-  qfb.fbp=0;
- /* Open the file for reading and writing */
-  qfb.fbfd = open("/dev/fb0", O_RDWR);
-  if (!qfb.fbfd) {
-    printf("Error: cannot open framebuffer device.\n");
-    exit(1);
-  }
-  printf("The framebuffer device was opened successfully.\n");
-
-  /* Get fixed screen information */
-  if (ioctl(qfb.fbfd, FBIOGET_FSCREENINFO, &fb_finfo)) {
-    printf("Error reading fixed information.\n");
-    exit(2);
-  }
-
-  /* Get variable screen information */
-  if (ioctl(qfb.fbfd, FBIOGET_VSCREENINFO, &fb_vinfo)) {
-    printf("Error reading variable information.\n");
-    exit(3);
-  }
-
-  /* Figure out the size of the screen in bytes */
-  qfb.screensize = fb_vinfo.xres * fb_vinfo.yres * fb_vinfo.bits_per_pixel / 8;
-
-  /* Map the device to memory */
-  qfb.fbp = (uchar *)mmap(0, qfb.screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
-		     qfb.fbfd, 0);
-  if ((int)qfb.fbp == -1) {
-    printf("Error: failed to map framebuffer device to
-memory.\n");
-    exit(4);
-  }
-  printf("The framebuffer device was mapped to memory successfully.\n");
-
-}
-
-
-static void close_fb()
-{
-  munmap(qfb.fbp, qfb.screensize);
-  close(qfb.fbfd);
-}
 
 //### should use QGfx
 void QWSServer::paintServerRegion()
 {
 
     if ( shmid == -1 ) {
-    
-	if ( !fb_open )
-	    open_fb();
-
+	ASSERT( fb_open );
 	
 	QRegion sr = serverRegion.intersect( QRegion(0,0,fb_vinfo.xres,
 						     fb_vinfo.yres ));
@@ -322,7 +352,7 @@ void QWSServer::paintServerRegion()
 	    QRect r = reg[i];
 	    for ( int y = r.top(); y <= r.bottom() ; y++ )
 		for ( int x = r.left(); x <= r.right() ; x++ ) {
-		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) 
+		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8)
 			    + (y+fb_vinfo.yoffset) * fb_finfo.line_length;
 
 		    if ( fb_vinfo.bits_per_pixel == 16 ) {
@@ -344,10 +374,7 @@ void QWSServer::paintServerRegion()
 void QWSServer::paintBackground( QRegion r )
 {
     if ( shmid == -1 ) {
-    
-	if ( !fb_open )
-	    open_fb();
-
+	ASSERT ( fb_open );
 	
 	//### testcode - should paint properly
 	uint col = fb_vinfo.bits_per_pixel == 32 ? 0x0030e0 : 0x0118;
@@ -358,7 +385,7 @@ void QWSServer::paintBackground( QRegion r )
 	    QRect r = reg[i];
 	    for ( int y = r.top(); y <= r.bottom() ; y++ )
 		for ( int x = r.left(); x <= r.right() ; x++ ) {
-		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8) 
+		    int l = (x+fb_vinfo.xoffset) * (fb_vinfo.bits_per_pixel/8)
 			    + (y+fb_vinfo.yoffset) * fb_finfo.line_length;
 
 		    if ( fb_vinfo.bits_per_pixel == 16 ) {
@@ -371,5 +398,5 @@ void QWSServer::paintBackground( QRegion r )
 		}
 	}
     }
-    
+
 }

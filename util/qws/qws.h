@@ -25,6 +25,7 @@
 #include <qmap.h>
 #include <qdatetime.h>
 #include <qqueue.h>
+#include <qlist.h>
 
 #include "qwsproperty.h"
 #include "qwscommand.h"
@@ -64,7 +65,7 @@ private:
 
 struct QWSCommandStruct;
 
-class QWSServer : public QServerSocket
+class QWSServer : private QServerSocket
 {
     Q_OBJECT
 
@@ -106,7 +107,7 @@ private:
     void showCursor();
     void paintServerRegion();
     void paintBackground( QRegion );
-    
+
 private slots:
     void clientClosed();
     void doClient();
@@ -177,10 +178,10 @@ private:
  *********************************************************************/
 class QWSMouseEvent;
 
-class QWSClient : public QSocket
+class QWSClient : private QSocket
 {
     Q_OBJECT
-    friend class QWSServer;
+    //  friend class QWSServer;
 public:
     QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 	       int ramid, int fblen, int offscreen, int offscreenlen);
@@ -188,6 +189,11 @@ public:
 
     int socket() const;
 
+    QObject* asQObject() { return (QObject*)this; } //### private inheritance 
+    
+    void sendSimpleEvent( void* event, uint size );
+    void sendRegionAddEvent( int winid, bool ack, QRegion );
+    void sendRegionRemoveEvent( int winid, int eventid, QRegion );
     void sendMouseEvent( const QWSMouseEvent& );
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
