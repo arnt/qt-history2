@@ -7,7 +7,7 @@
 #include "qatomic.h"
 #endif // QT_H
 
-struct QLinkedListData
+struct Q_EXPORT QLinkedListData
 {
     QLinkedListData *n, *p;
     QAtomic ref;

@@ -27,7 +27,7 @@ inline uint qHash(T *key) { return (uint) key; }
 template <class T>
 inline uint qHash(const T *key) { return (uint) key; }
 
-struct QHashData
+struct Q_EXPORT QHashData
 {
     struct Node {
 	Node *next;
