@@ -408,12 +408,7 @@ void QToolBar::addSeparator()
 
 void QToolBar::styleChange( QStyle &s )
 {
-    QObjectList childs = children();
-    for (int i = 0; i < childs.size(); ++i) {
-	QObject *o = childs.at(i);
-	if ( qt_cast<QToolButton*>(o) || qt_cast<QToolBarSeparator*>(o) )
-	    static_cast<QWidget *>(o)->setStyle(&s);
-    }
+    QWidget::styleChange(s);
 }
 
 /*!

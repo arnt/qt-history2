@@ -210,8 +210,6 @@ QSGIStyle::polish( QWidget* w )
     if ( qt_cast<QButton*>(w) || qt_cast<QSlider*>(w) || qt_cast<QScrollBar*>(w) ) {
         w->installEventFilter( this );
         w->setMouseTracking( TRUE );
-        if ( qt_cast<QToolButton*>(w) )
-            w->setBackgroundMode( QWidget::PaletteBackground );
 #ifndef QT_NO_SCROLLBAR
         if ( qt_cast<QScrollBar*>(w) )
             w->setBackgroundMode( QWidget::NoBackground );
@@ -224,7 +222,6 @@ QSGIStyle::polish( QWidget* w )
 #ifndef QT_NO_MENUBAR
     } else if ( qt_cast<QMenuBar*>(w) ) {
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-        w->setBackgroundMode( QWidget::PaletteBackground );
 	QFont f = QApplication::font();
 	f.setBold( TRUE );
 	f.setItalic( TRUE );
@@ -238,8 +235,6 @@ QSGIStyle::polish( QWidget* w )
 	f.setItalic( TRUE );
 	w->setFont( f );
 #endif
-    } else if ( qt_cast<QToolBar*>(w) || w->inherits("QToolBarSeparator") ) {
-        w->setBackgroundMode( QWidget::PaletteBackground );
     }
 }
 

@@ -1034,6 +1034,7 @@ void QDockWindow::init()
     connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
     connect( this, SIGNAL( orientationChanged( Orientation ) ),
 	     this, SLOT( setOrientation( Orientation ) ) );
+    clearWState(WState_Polished);
 }
 
 /*!
