@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#237 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#236 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#237 $");
 
 
 /*!
@@ -1634,7 +1634,7 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
-  
+
   If \a palettePropagation() is \c AllChildren or \c SamePalette,
   setPalette() calls setPalette() for children of the object, or those
   with whom the object shares the palette, respectively.  The default
@@ -2089,6 +2089,8 @@ QWidget *QWidget::focusWidget() const
 {
     QWidget *that = (QWidget *)this;		// mutable
     QFocusData *f = that->focusData( FALSE );
+    if ( f && f->count() && f->it.current() == 0 )
+	f->it.first();
     return f ? f->it.current() : 0;
 }
 
@@ -3246,7 +3248,7 @@ bool QWidget::x11Event( XEvent * )
 /*!  Returns the font propagation mode of this widget.  The default
   font propagation mode is \c NoChildren, but you can set it to \a
   SameFont or \a AllChildren.
-  
+
   \sa setFontPropagation()
 */
 
@@ -3257,7 +3259,7 @@ QWidget::PropagationMode QWidget::fontPropagation() const
 
 
 /*!  Sets the font propagation mode to \a m.
-  
+
   if \a m is \c NoChildren (the default), setFont() does not change
   any children's fonts.  If it is \c SameFont, setFont() changes the
   font of the children that have the exact same font as this widget
@@ -3277,7 +3279,7 @@ void QWidget::setFontPropagation( PropagationMode m )
 /*!  Returns the palette propagation mode of this widget.  The default
   palette propagation mode is \c NoChildren, but you can set it to \a
   SamePalette or \a AllChildren.
-  
+
   \sa setPalettePropagation()
 */
 
@@ -3288,7 +3290,7 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 
 
 /*!  Sets the palette propagation mode to \a m.
-  
+
   if \a m is \c NoChildren (the default), setPalette() does not change
   any children's palettes.  If it is \c SamePalette, setPalette()
   changes the palette of the children that have the exact same palette
