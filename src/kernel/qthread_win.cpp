@@ -106,7 +106,7 @@ private:
 class QMutexPrivate
 {
 public:
-    HANDLE handle;
+    Qt::HANDLE handle;
 
     QMutexPrivate();
     virtual ~QMutexPrivate();
@@ -351,8 +351,8 @@ public:
     ~QWaitConditionPrivate();
 
     int wait( unsigned long time = ULONG_MAX , bool countWaiter = TRUE);
-    HANDLE handle;
-    HANDLE single;
+    Qt::HANDLE handle;
+    Qt::HANDLE single;
     QCriticalSection s;
     int waitersCount;
 };
@@ -388,7 +388,7 @@ int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
     s.enter();
     if ( countWaiter )
         waitersCount++;
-    HANDLE hnds[2] = { handle, single };
+    Qt::HANDLE hnds[2] = { handle, single };
     s.leave();
     int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
     s.enter();
@@ -497,7 +497,7 @@ public:
     QThreadPrivate();
     ~QThreadPrivate();
 
-    HANDLE handle;
+    Qt::HANDLE handle;
     unsigned int id;
     bool finished  : 1;
     bool running   : 1;
@@ -543,7 +543,7 @@ QThreadPrivate::~QThreadPrivate()
   QThread static functions
 */
 
-HANDLE QThread::currentThread()
+Qt::HANDLE QThread::currentThread()
 {
     return GetCurrentThread();
 }
@@ -607,7 +607,7 @@ void QThread::start()
 
     d->running = TRUE;
     d->finished = FALSE;
-    d->handle = (HANDLE)_beginthreadex( NULL, NULL, start_thread,
+    d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
 
 #ifdef CHECK_RANGE
@@ -658,7 +658,7 @@ bool QThread::finished() const
 class QSemaphorePrivate
 {
 public:
-    HANDLE handle;
+    Qt::HANDLE handle;
     int count;
     int maxCount;
     QCriticalSection protect;
