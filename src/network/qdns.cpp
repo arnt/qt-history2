@@ -188,10 +188,6 @@ QDnsHostInfo QDns::getHostByName(const QString &name)
         return info;
     }
 
-#if defined Q_OS_WIN32
-    QSocketDevice bust; // makes sure WSAStartup was callled
-#endif
-
     // Support for IDNA by first splitting the name into labels, then
     // running the punycode decoder on each part, then merging
     // together before passing the name to the lookup agent.
