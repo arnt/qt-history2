@@ -81,6 +81,8 @@ class Q_EXPORT QThread : public Qt
 public:
     static Qt::HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
+    static void initialize();
+    static void cleanup();
 
     static void exit();
 

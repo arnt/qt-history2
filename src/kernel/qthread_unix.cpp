@@ -330,6 +330,26 @@ Qt::HANDLE QThread::currentThread()
 }
 
 
+/*! \internal
+  Initializes the QThread system.
+*/
+void QThread::initialize()
+{
+    if( !qthreadposteventprivate )
+	qthreadposteventprivate = new QThreadPostEventPrivate();
+}
+
+
+/*! \internal
+  Cleans up the QThread system.
+*/
+void QThread::cleanup()
+{
+    delete qthreadposteventprivate;
+    qthreadposteventprivate = 0;
+}
+
+
 /*!
   Provides a way of posting an event from a thread which is not the
   event thread to an object. The \a event is put into a queue, then the
@@ -338,13 +358,20 @@ Qt::HANDLE QThread::currentThread()
   will be called from the event thread and not from the thread calling
   QThread::postEvent().
 
+  Since QThread::postEvent() posts events into the event queue of QApplication,
+  you must create a QApplication object before calling QThread::postEvent().
+
   Just as with \l QApplication::postEvent(), \a event must be allocated on the
   heap, as it is deleted when the event has been posted.
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
 {
-    if( !qthreadposteventprivate )
-	qthreadposteventprivate = new QThreadPostEventPrivate();
+#if defined(QT_CHECK_STATE)
+    if (! qthreadposteventprivate) {
+	qWarning("QThread::postEvent: cannot post event - threads not initialized.");
+	return;
+    }
+#endif // QT_CHECK_STATE
 
     qthreadposteventprivate->eventmutex.lock();
     qthreadposteventprivate->events.append( new QThreadQtEvent(receiver, event) );

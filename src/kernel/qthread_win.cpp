@@ -408,7 +408,7 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif
 #endif
 #ifndef Q_OS_TEMP
@@ -612,10 +612,20 @@ Qt::HANDLE QThread::currentThread()
     return GetCurrentThread();
 }
 
+void QThread::initialize()
+{
+    if( !qthreadposteventprivate )
+	qthreadposteventprivate = new QThreadPostEventPrivate();
+}
+
+void QThread::cleanup()
+{
+    delete qthreadposteventprivate;
+    qthreadposteventprivate = 0;
+}
+
 void QThread::postEvent( QObject *o,QEvent *e )
 {
-    if( !qthreadEventsPrivate )
-	qthreadEventsPrivate = new QThreadEventsPrivate();
     qthreadEventsPrivate->protect.enter();
     qthreadEventsPrivate->add( new QThreadQtEvent(o,e)  );
     qthreadEventsPrivate->protect.leave();
@@ -739,7 +749,7 @@ QSemaphore::QSemaphore( int maxcount )
 #endif
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif
 #endif
 #ifndef Q_OS_TEMP

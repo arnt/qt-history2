@@ -1741,6 +1741,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
+	QThread::initialize();
     }
     gettimeofday( &watchtime, 0 );
 
@@ -1983,6 +1984,7 @@ void qt_cleanup()
 	QFont::cleanup();
 	QColor::cleanup();
     }
+    QThread::cleanup();
 
 #ifndef QT_NO_XINPUT
     if ( dev != NULL )

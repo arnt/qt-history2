@@ -269,7 +269,7 @@ public:
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
 #if defined (QT_WINTAB_SUPPORT)
-	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf, 
+	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		                          int numPackets );
 #endif
 
@@ -451,7 +451,7 @@ static void qt_set_windows_resources()
 	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
-    } else 
+    } else
 #endif
     {
 	// A version
@@ -664,6 +664,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
+    QThread::initialize();
     qApp->setName( appName );
 
     // default font
@@ -678,7 +679,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 	    if ( GetObject( hfont, sizeof(lf), &lf ) )
 		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
 #ifndef Q_OS_TEMP
-	} else 
+	} else
 #endif
 #endif
 #ifndef Q_OS_TEMP
@@ -739,8 +740,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
  		qWarning( "Wintab services not available" );
  		return;
  	}
-	
- 	// some tablets don't support tilt, check if its possible,		
+
+ 	// some tablets don't support tilt, check if its possible,
  	tilt_support = WTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
 
  	if ( tilt_support ) {
@@ -768,7 +769,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
  	lcMine.lcPktData = PACKETDATA;
  	lcMine.lcPktMode = PACKETMODE;
  	lcMine.lcMoveMask = PACKETDATA;
- 
+
  	// these are done in the syspress example, I don't know if we need them
  	lcMine.lcOutOrgX = 0;
  	lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
@@ -803,6 +804,7 @@ void qt_cleanup()
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
+    QThread::cleanup();
     if ( displayDC ) {
 	ReleaseDC( 0, displayDC );
 	displayDC = 0;
@@ -854,7 +856,7 @@ Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p )
 
 Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 {
-    if ( !postRList ) 
+    if ( !postRList )
 	return;
 
     QVFuncList::Iterator it = postRList->begin();
@@ -971,7 +973,7 @@ const QString qt_reg_winclass( int flags )	// register window class
 	wc.lpszClassName= (TCHAR*)qt_winTchar(cname,TRUE);
 	RegisterClass( &wc );
 #ifndef Q_OS_TEMP
-    } else 
+    } else
 #endif
 #endif
 #ifndef Q_OS_TEMP
@@ -1017,7 +1019,7 @@ static void unregWinClasses()
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    UnregisterClass( (TCHAR*)qt_winTchar(QString::fromLatin1(k),TRUE),
 			     (HINSTANCE)qWinAppInst() );
-	} else 
+	} else
 #endif
 	{
 	    UnregisterClassA( k, (HINSTANCE)qWinAppInst() );
@@ -1315,7 +1317,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	if ( !dict->remove(sockfd) )		// did not find sockfd
 	    return FALSE;
     }
-#ifndef Q_OS_TEMP // ### This probably needs fixing 
+#ifndef Q_OS_TEMP // ### This probably needs fixing
     int sn_event = 0;
     if ( sn_read && sn_read->find(sockfd) )
 	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
@@ -1778,10 +1780,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	char* f = ForKAPP("^Cw``rdw`X%(%");
 	if ( qstr.find( QString(f) ) == -1 && qstr.find( QString(t) ) == -1 && qstr.find( QString(q) ) == -1 ) {
 	    widget = (QETWidget*)QWidget::find( hwnd );
-	    if ( ! (widget->parentWidget() && widget->parentWidget()->caption().find( QString(t) ) != -1 
+	    if ( ! (widget->parentWidget() && widget->parentWidget()->caption().find( QString(t) ) != -1
 		&& widget->parentWidget()->caption().find( QString(q) ) != -1 ) ) {
 		if ( widget->caption().find( QString(q) + QString("Example") ) == -1 ) {
-		    if ( ! ( widget->inherits("QFileDialog") || widget->inherits("QMessageBox") 
+		    if ( ! ( widget->inherits("QFileDialog") || widget->inherits("QMessageBox")
 			|| widget->inherits("QFontDialog") || widget->inherits("QColorDialog") ) ) {
 			widget->setCaption( qstr );
 			return NULL;
@@ -1902,7 +1904,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    widget->translateMouseEvent( msg );	// mouse event
 	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg );
-	} else {		
+	} else {
 	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event
 	    case WM_KEYUP:
@@ -2218,7 +2220,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = FALSE;
 		break;
 #endif
-#if defined (QT_WINTAB_SUPPORT)	
+#if defined (QT_WINTAB_SUPPORT)
 //	case WM_ACTIVATE:
 //		qDebug( "ACTIVATE MESSAGE" );
 //		break;
@@ -2226,7 +2228,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 //		qDebug( "DESTROY MESSAGE" );
 	case WT_PACKET:
 //		widget = (QETWidget*)QWidget::find( hwnd );
-		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {			
+		if ( (nPackets = WTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
 			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
 		}
 		break;
@@ -2390,16 +2392,16 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
       //block_event = TRUE;
 	// QApplication::beep();
     } else
-#endif	
+#endif
 	if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
-	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) 
+	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST)
 #ifndef Q_OS_TEMP
-			|| type == WM_NCMOUSEMOVE 
+			|| type == WM_NCMOUSEMOVE
 #endif
 		) {
-      if ( type == WM_MOUSEMOVE 
+      if ( type == WM_MOUSEMOVE
 #ifndef Q_OS_TEMP
-			|| type == WM_NCMOUSEMOVE 
+			|| type == WM_NCMOUSEMOVE
 #endif
 		)
 	  SetCursor( Qt::arrowCursor.handle() );
@@ -3150,7 +3152,7 @@ QChar wmchar_to_unicode(DWORD c)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
-    } else 
+    } else
 #endif
     {
 	char mb[2];
@@ -3176,7 +3178,7 @@ QChar imechar_to_unicode(DWORD c)
     if ( qt_winver & Qt::WV_NT_based ) {
 	ushort uc = (ushort)c;
 	return QChar(uc&0xff,(uc>>8)&0xff);
-    } else 
+    } else
 #endif
     {
 	char mb[3];
@@ -3316,7 +3318,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 #if defined(UNICODE)
 			if ( qt_winver & Qt::WV_NT_based ) {
 			    map = MapVirtualKey( msg.wParam, 2 );
-			} else 
+			} else
 #endif
 			{
 			    map = MapVirtualKeyA( msg.wParam, 2 );
@@ -3510,7 +3512,7 @@ UINT prsAdjust(PACKET p)
 
     wActiveCsr = p.pkCursor;
     if (wActiveCsr != wOldCsr) {
-    
+
 	/* re-init on cursor change. */
 	prsInit();
 	wOldCsr = wActiveCsr;
@@ -3536,7 +3538,7 @@ UINT prsAdjust(PACKET p)
 
 bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 				      int numPackets )
-{	
+{
     static POINT ptOrg, ptOld, ptNew;
     static DWORD btnOld, btnNew;
     static UINT prsOld, prsNew;
@@ -3545,7 +3547,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     int dev;
     int tiltX, tiltY;
     bool sendEvent;
-	
+
     for ( i = 0; i < numPackets; i++ ) {
 	DWORD btnChange;
 	if ( localPacketBuf[i].pkCursor == 2 ) {
@@ -3575,7 +3577,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    prsNew = prsAdjust( localPacketBuf[i] );
 	}
 	QPoint globalPos( ptNew.x, ptNew.y );
-	
+
 	// make sure the tablet event get's sent to the proper widget...
 	QWidget *w = QApplication::widgetAt( globalPos, TRUE );
 	if ( w == NULL )
@@ -3589,7 +3591,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    double radAlt = abs(ortNew.orAltitude / 10) * ( PI / 180 );
 	    double tmpX = cos(radAzim) * sin(radAlt);
 	    double tmpY = cos(radAzim) * cos(radAlt);
-		
+
 	    double tmpZ = sin( radAlt );
 
 	    double degX = (radAlt - (PI / 2)) * sin(radAzim);
@@ -3600,7 +3602,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 
 	QTabletEvent e( globalPos, globalPos, dev, prsNew, tiltX, tiltY );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
-    }	
+    }
     return sendEvent;
 }
 #endif
@@ -3993,7 +3995,7 @@ void QApplication::flush()
     \value WV_NT
     \value WV_2000
     \value WV_XP
-    \value WV_NT_based	
+    \value WV_NT_based
 
 */
 
