@@ -1,3 +1,4 @@
+//depot/qt/main/src/kernel/qabstractlayout.cpp#175 - integrate change 65819 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -544,7 +545,7 @@ bool QWidgetItem::isEmpty() const
 
     For users of QLayout subclasses or of QMainWindow there is seldom
     any need to use the basic functions provided by QLayout, such as
-    \l setResizeMode() or setMenuBar(). See the \link layout.html layout
+    \l resizeMode or setMenuBar(). See the \link layout.html layout
     overview page \endlink for more information.
 
     To make your own layout manager, subclass QGLayoutIterator and
@@ -584,6 +585,8 @@ QLayout::QLayout( QWidget *parent, int margin, int spacing, const char *name )
 	    parent->removeChild( this );
 	} else {
 	    topLevel = TRUE;
+	    if ( parent->isTopLevel() )
+		autoMinimum = TRUE;
 	    parent->installEventFilter( this );
 	    setWidgetLayout( parent, this );
 	}
@@ -600,17 +603,16 @@ void QLayout::init()
     insideSpacing = 0;
     outsideBorder = 0;
     topLevel = FALSE;
-    enabled = TRUE;
+    autoMinimum = FALSE;
     autoNewChild = FALSE;
     frozen = FALSE;
     activated = FALSE;
     marginImpl = FALSE;
-    autoMinimum = FALSE;
-    defaultResizeMode = TRUE;
     extraData = 0;
 #ifndef QT_NO_MENUBAR
     menubar = 0;
 #endif
+    enabled = TRUE;
 }
 
 /*!
@@ -759,7 +761,7 @@ QWidget * QLayout::mainWidget()
 */
 bool QLayout::isEmpty() const
 {
-    return FALSE; //### should check
+    return FALSE; //### should check?
 }
 
 /*!
@@ -1169,7 +1171,7 @@ bool QLayout::activate()
     if ( mainWidget() == 0 ) {
 #if defined( QT_CHECK_NULL )
 	qWarning( "QLayout::activate(): %s \"%s\" does not have a main widget",
-		  QObject::className(), QObject::name() );
+		   QObject::className(), QObject::name() );
 #endif
 	return FALSE;
     }
@@ -1186,18 +1188,8 @@ bool QLayout::activate()
     if ( frozen ) {
 	// ### will trigger resize
 	mainWidget()->setFixedSize( totalSizeHint() ); 
-    } else if ( (defaultResizeMode && topLevel && mainWidget() &&
-		 mainWidget()->isTopLevel() && !hasHeightForWidth()) ||
-		autoMinimum ) {
+    } else if ( autoMinimum ) {
 	mainWidget()->setMinimumSize( totalMinimumSize() );
-
-#if 0
-	QSize max = totalMaximumSize();
-	if ( max.width() < QWIDGETSIZE_MAX )
-	    mainWidget()->setMaximumWidth( max.width() );
-	if ( max.height() < QWIDGETSIZE_MAX )
-	    mainWidget()->setMaximumHeight( max.height() );
-#endif
     }
 
     // ### ideally only if sizeHint() or sizePolicy() has changed
@@ -1221,13 +1213,15 @@ bool QLayout::activate()
     prefer when being laid out. Only \link #interesting one of the
     constructors\endlink is of interest in most applications.
 
-    QSizePolicy contains two independent SizeType objects; one describes
-    the widgets's horizontal size policy, and the other describes its
-    vertical size policy. It also contains a flag to indicate whether the
-    height and width of its preferred size are related.
+    QSizePolicy contains two independent \l SizeType objects; one
+    describes the widgets's horizontal size policy, and the other
+    describes its vertical size policy. It also contains a flag to
+    indicate whether the height and width of its preferred size are
+    related.
 
-    The horizontal and vertical \l{SizeType}s are set in the usual constructor
-    and can be queried using a variety of functions.
+    The horizontal and vertical \l SizeType objects are set in the
+    usual constructor and can be queried using a variety of
+    functions.
 
     The hasHeightForWidth() flag indicates whether the widget's sizeHint()
     is width-dependent (such as a word-wrapping label) or not.
@@ -1642,10 +1636,6 @@ QGLayoutIterator::~QGLayoutIterator()
 
     The possible values are:
 
-    \value Default  If the main widget is a top-level widget with no
-		    height-for-width (hasHeightForWidth()), this is
-		    the same as \c Minimium; otherwise, this is the
-		    same as \c FreeResize.
     \value Fixed  The main widget's size is set to sizeHint(); it
 		  cannot be resized at all.
     \value Minimum  The main widget's minimum size is set to
@@ -1657,7 +1647,8 @@ QGLayoutIterator::~QGLayoutIterator()
     \property QLayout::resizeMode
     \brief the resize mode of the layout
 
-    The default mode is \c Default.
+    The default mode is \c Minimum for top-level widgets and \c
+    FreeResize for all others.
 
     \sa QLayout::ResizeMode
 */
@@ -1666,35 +1657,25 @@ void QLayout::setResizeMode( ResizeMode mode )
 {
     if ( mode == resizeMode() )
 	return;
-
-    switch ( mode ) {
-    case Default:
-	frozen = FALSE;
-	autoMinimum = FALSE;
-	defaultResizeMode = TRUE;
-	break;
+    switch (mode) {
     case Fixed:
 	frozen = TRUE;
-	autoMinimum = FALSE;
-	defaultResizeMode = FALSE;
 	break;
     case FreeResize:
 	frozen = FALSE;
 	autoMinimum = FALSE;
-	defaultResizeMode = FALSE;
 	break;
     case Minimum:
 	frozen = FALSE;
 	autoMinimum = TRUE;
-	defaultResizeMode = FALSE;
+	break;
     }
     activate();
 }
 
 QLayout::ResizeMode QLayout::resizeMode() const
 {
-    return ( defaultResizeMode ? Default :
-	     (frozen ? Fixed : (autoMinimum ? Minimum : FreeResize)) );
+    return frozen ? Fixed : ( autoMinimum ? Minimum : FreeResize );
 }
 
 /*!
@@ -1763,12 +1744,10 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
     int a = alignment();
-    if ( (expanding() & QSizePolicy::Horizontally) ||
-	 !(a & Qt::AlignHorizontal_Mask ) ) {
+    if ( expanding() & QSizePolicy::Horizontally || !(a & Qt::AlignHorizontal_Mask ) ) {
 	s.setWidth( r.width() );
     }
-    if ( (expanding() & QSizePolicy::Vertically) ||
-	 !(a & Qt::AlignVertical_Mask) ) {
+    if ( expanding() & QSizePolicy::Vertically || !(a & Qt::AlignVertical_Mask) ) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
