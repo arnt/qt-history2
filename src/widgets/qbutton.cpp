@@ -917,10 +917,11 @@ void QButton::setToggleType( ToggleType type )
 {
     toggleTyp = type;
     if ( type != Tristate && stat == NoChange )
+	setState( On );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
+    else
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
-	setState( On );
 }
 
 bool QButton::isExclusiveToggle() const
