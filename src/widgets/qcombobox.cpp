@@ -1961,6 +1961,13 @@ void QComboBox::returnPressed()
 
 void QComboBox::setEnabled( bool enable )
 {
+    if ( d->usingListBox() ) {
+	popDownListBox();
+    } else {
+	d->popup()->removeEventFilter( this );
+	d->popup()->close();
+    }
+    d->poppedUp = FALSE;
     QWidget::setEnabled( enable );
 }
 
