@@ -978,6 +978,14 @@ void QScrollBar::setValue( int i )
     QRangeControl::setValue( i );
 }
 
+
+void QScrollBar::hideEvent( QHideEvent* )
+{
+    pressedControl = QStyle::SC_None;
+    clickedAt = FALSE;
+}
+
+
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
 #endif
