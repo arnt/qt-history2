@@ -284,7 +284,7 @@ void QThread::start(Priority priority)
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-#if _POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0
+#if defined(_POSIX_THREAD_PRIORITY_SCHEDULING) && (_POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0)
     switch (priority) {
     case InheritPriority:
 	{
@@ -339,7 +339,7 @@ void QThread::start(Priority priority)
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if (d->stacksize > 0) {
-#if _POSIX_THREAD_ATTR_STACKSIZE-0 > 0
+#if defined(_POSIX_THREAD_ATTR_STACKSIZE) && (_POSIX_THREAD_ATTR_STACKSIZE-0 > 0)
 	ret = pthread_attr_setstacksize(&attr, d->stacksize);
 #else
 	ret = ENOSYS; // stack size not supported, automatically fail
