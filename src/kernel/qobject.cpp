@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#117 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#117 $");
 
 
 /*!
@@ -836,14 +836,22 @@ QConnectionList *QObject::receivers( const char *signal ) const
 /*!
   Inserts an object \e obj into the list of child objects.
 
-  \warning
-  This function cannot be used to make a widget a child widget of
-  another.  Child widgets can only be created by setting the parent
-  widget in the constructor.
+  \warning This function cannot be used to make a widget a child
+  widget of another.  Child widgets can be created only by setting the
+  parent widget in the constructor or calling QWidget::recreate().
 */
 
 void QObject::insertChild( QObject *obj )	// add object object
 {
+    if ( obj->parentObj && obj->parentObj != this ) {
+	if ( obj->isWidgetType() ) {
+	    warning( "QObject::insertChild: cannot reparent widgets.  "
+		     "Use QWidget::recreate" );
+	    return;
+	}
+	obj->parentObj->removeChild( obj );
+    }
+
     if ( !childObjects ) {
 	childObjects = new QObjectList;
 	CHECK_PTR( childObjects );
