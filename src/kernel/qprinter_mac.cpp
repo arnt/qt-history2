@@ -189,17 +189,6 @@ bool QPrinter::setup( QWidget *  )
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) ) {
         Boolean ret;
 
-        //page format
-        if(!prepare(&pformat))
-            return FALSE;
-        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
-            return FALSE;
-
-        //get values
-        PMOrientation o;
-        if(PMGetOrientation(pformat, &o) == noErr)
-            setOrientation(o == kPMPortrait ? Portrait : Landscape);
-
         //setup
         if(!prepare(&psettings))
             return FALSE;
@@ -222,6 +211,17 @@ bool QPrinter::setup( QWidget *  )
         PMColorMode cm;
         if(PMGetColorMode(psettings, &cm) == noErr)
             setColorMode(cm == kPMGray ? GrayScale : Color);
+
+        //page format
+        if(!prepare(&pformat))
+            return FALSE;
+        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
+            return FALSE;
+
+        //get values
+        PMOrientation o;
+        if(PMGetOrientation(pformat, &o) == noErr)
+            setOrientation(o == kPMPortrait ? Portrait : Landscape);
 
         return TRUE;
     } else if ( QPrintDialog::getPrinterSetup( this ) ) {
