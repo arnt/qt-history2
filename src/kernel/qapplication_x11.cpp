@@ -792,7 +792,6 @@ void QApplication::create_xim()
 	XIMStyles *styles=0;
 	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
 	if ( styles ) {
-	    bool done = FALSE;
 	    int i;
 	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
 		if ( styles->supported_styles[i] == xim_preferred_style )
