@@ -214,9 +214,9 @@ int main( int argc, char ** argv )
 				  " -hideSidebar            assistant will hide the sidebar.\n"
 				  " -help                   shows this help.");
 #ifdef Q_WS_WIN
-		QMessageBox::information( 0, "Qt Assistant", "<pre>" + helpText + "</pre>" );				
+		QMessageBox::information( 0, "Qt Assistant", "<pre>" + helpText + "</pre>" );
 #else
-		printf( helpText.latin1() );
+		printf( "%s\n", helpText.latin1() );
 #endif
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
