@@ -73,7 +73,7 @@ public:
     bool showNotches;
     bool onlyOutside;
     bool mousePressed;
-    
+
     QPointArray lines;
 };
 
@@ -85,7 +85,7 @@ public:
 
   \ingroup basic
 
-  Q dial is used when the user needs to control a value within a
+  QDial is used when the user needs to control a value within a
   program-definable range, and the range either wraps around
   (typically, 0-359 degrees) or the dialog layout needs a square widget.
 
@@ -849,7 +849,7 @@ void QDial::calcLines()
 	    double angle = d->wrapping
 		? m_pi * 3 / 2 - i * 2 * m_pi / notches
 		: (m_pi * 8 - i * 10 * m_pi / notches) / 6;
-	
+
 	    double s = sin( angle ); // sin/cos aren't defined as const...
 	    double c = cos( angle );
 	    if ( i == 0 || ( ((ns * i ) % pageStep() ) == 0 ) ) {
