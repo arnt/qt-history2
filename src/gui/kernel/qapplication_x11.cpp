@@ -4876,8 +4876,8 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
                            xevent.xexpose.y,
                            xevent.xexpose.width,
                            xevent.xexpose.height);
-            if (translateBySips(this, exposure))
-                should_clip = true;
+            translateBySips(this, exposure);
+            should_clip = true;
             exposure = d->mapFromWS(exposure);
             paintRegion = paintRegion.unite(exposure);
         } else {
@@ -4886,7 +4886,7 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     }
 
     if (should_clip) {
-        paintRegion = paintRegion.intersect(rect());
+        paintRegion = paintRegion.intersect(d->clipRect());
         if (paintRegion.isEmpty())
             return true;
     }
