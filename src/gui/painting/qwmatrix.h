@@ -78,11 +78,6 @@ public:
 
     QWMatrix &operator=(const QWMatrix &);
 
-    enum TransformationMode {
-        Points, Areas
-    };
-    static void setTransformationMode(QWMatrix::TransformationMode m);
-    static TransformationMode transformationMode();
 private:
     double        _m11, _m12;
     double        _m21, _m22;
