@@ -175,7 +175,7 @@ void Config::loadDefaultProfile()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString key = "/Qt Assistant/" + getVersionString() + "/Profile";
+    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile";
     const QString profKey = key + "/default/";
 
     if( settings.entryList( key + "/default" ).count() == 0 ) {
@@ -223,7 +223,10 @@ void Config::saveProfile( Profile *profile )
 	return;
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString key = "/Qt Assistant/" + getVersionString() + "/";
+    QString versionString = (profile->props["name"] == "default")
+	? QString(QT_VERSION_STR)
+	: getVersionString();
+    const QString key = "/Qt Assistant/" + versionString + "/";
     const QString profKey = key + "Profile/" + profile->props["name"] + "/";
 
     QStringList indexes, icons, imgDirs, dcfs;
