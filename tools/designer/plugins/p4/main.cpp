@@ -7,13 +7,6 @@
 
 class QToolBar;
 
-#ifdef _WS_WIN_
-#undef LIBEXPORT
-#define LIBEXPORT __declspec(dllexport)
-#else
-#define LIBEXPORT
-#endif
-
 class P4Interface : public QObject, public ActionInterface
 {
     Q_OBJECT
@@ -111,18 +104,6 @@ void P4Interface::p4Submit()
     qDebug( "P4Interface::p4Submit %s", i->requestProperty( "currentFileName" ).toString().latin1() );
 }
 
-#if defined(__cplusplus )
-extern "C"
-{
-#endif
-
-LIBEXPORT ActionInterface* loadInterface()
-{
-    return new P4Interface();
-}
-
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
-
 #include "main.moc"
+
+QtExportInterface(ActionInterface, P4Interface)
