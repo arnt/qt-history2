@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#26 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#27 $
 #
 # this is a massive hack, written very quickly
 #
@@ -121,7 +121,7 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
-	$doc =~ s/\s*\\warning\s+/<p><strong>Warning: </strong>/gs;
+	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
 	$doc =~ s-\\link\s+(\S+)\s*(.+?)\s*\\endlink-
@@ -321,7 +321,7 @@ sub readh {
     local ($filename) = @_;
 
     $h = getfile($filename);
-    print "header file: ", $filename, "\n" if ($debug);
+    print "header file: ", $filename, "\n";# if ($debug);
 #   $h =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
 
 # { is \x7b and } is \x7d
@@ -340,7 +340,7 @@ sub readc {
     local ($filename) = @_;
 
     $c = getfile($filename);
-    print "code file: ", $filename, "\n" if ($debug);
+    print "code file: ", $filename, "\n";# if ($debug);
 
     study $c;
 
@@ -411,6 +411,7 @@ sub readc {
 	if (!defined($cfiles{$hfile})) {
 	    readh($hfile);
 	}
+	$filename =~ s-^.*/--;
 	$cfiles{$hfile} .= " " . $filename;
 	$url = &mangleclass($class);
 	print $class, " not in ", $hfile, "\n" 
@@ -585,6 +586,7 @@ sub printout {
 	    print O $fntail, $tail;
 	    close(O);
 	    open(O, "> $file") || die "can't open $file for writing";
+	    print "output html file: ", $file, "\n";
 	    $cfile = $file;
 
 	    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech AS</a>, all rights reserved.";
@@ -642,6 +644,7 @@ sub printout {
 		}
 	    }
 	    if ($i ne "") {
+		$i =~ s/^\,\s*//;
 		$i =~ s/\,([^,]+)$/and$1/;
 		print O "<p>\nInherits ", $i, ".\n";
 	    }
@@ -739,10 +742,38 @@ sub printout {
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
 	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
-	    print O "<p><dt>", $_, "\n<dd>", $doc{$url};
+	    print O "<dt>", $_, "\n<dd>", $doc{$url};
 	}
     }
     print O $fntail, $tail;
+    close(O);
+    open(O, "> index.html") || die "can't open index.html for writing";
+    print O <<EOHEAD
+<html>
+<head><title>Qt toolkit, main index page</title></head>
+<body>
+<h1>Qt Index</h1>
+<p>Here are the classes that make up Qt:
+<ul compact>
+EOHEAD
+    ;
+    foreach $url ( sort keys %type ) {
+	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
+	    if ($type{$url} eq "class");
+    }
+    print O "</ul>\n<p>Here are the defined enums:\n<ul compact>\n";
+    foreach $url ( sort keys %type ) {
+	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
+	    if ($type{$url} eq "enum");
+    }
+    print O <<EOTAIL
+</ul>
+<address>
+<a href=mailto:agulbra\@troll.no>Arnt Gulbrandsen</a>, <a href=mailto:all\@troll.no>Troll Tech AS</a>
+</address>
+</body></html>
+EOTAIL
+    ;
     close(O);
 }
 
