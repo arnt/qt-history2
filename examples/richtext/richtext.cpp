@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/richtext/richtext.cpp#2 $
+** $Id: //depot/qt/main/examples/richtext/richtext.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -71,9 +71,9 @@ static const QString sayings[] = {
     "what his grandson will be.</big><br><br>"
     "<center><i>-- Abraham Lincoln</i></center>",
 
-    QString::null
+    (const char*)0
 };
-            
+
 
 MyRichText::MyRichText( QWidget *parent, const char *name )
     : QVBox( parent, name )
