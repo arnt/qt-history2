@@ -135,6 +135,7 @@ private:
     QValueList<MetaDataBase::Include> metaIncludes;
     QStringList metaForwards;
     QStringList metaVariables;
+    QStringList metaSignals;
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;

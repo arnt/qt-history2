@@ -103,6 +103,12 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	    signalBox->insertItem( QString( *it ) );
     }
+    
+    if ( sender == fw->mainContainer() ) {
+	QStringList extra = MetaDataBase::signalList( fw );
+	if ( !extra.isEmpty() )
+	    signalBox->insertStringList( extra );
+    }
 
     labelSignal->setText( tr( "Signals (%1):" ).arg( sender->name() ) );
 

@@ -189,6 +189,9 @@ public:
     static void setVariables( QObject *o, const QStringList &vars );
     static QStringList variables( QObject *o );
 
+    static void setSignalList( QObject *o, const QStringList &sigs );
+    static QStringList signalList( QObject *o );
+
     static void setMetaInfo( QObject *o, MetaInfo mi );
     static MetaInfo metaInfo( QObject *o );
 

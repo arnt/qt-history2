@@ -212,6 +212,8 @@ struct DesignerFormWindow
     virtual void setForwardDeclarations( const QStringList &lst ) = 0;
     virtual QStringList variables() const = 0;
     virtual void setVariables( const QStringList &lst ) = 0;
+    virtual QStringList signalList() const = 0;
+    virtual void setSignalList( const QStringList &lst ) = 0;
     virtual void addMenu( const QString &text, const QString &name ) = 0;
     virtual void addMenuAction( const QString &menu, QAction *a ) = 0;
     virtual void addMenuSeparator( const QString &menu ) = 0;

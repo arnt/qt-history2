@@ -70,7 +70,7 @@ public:
     QValueList<MetaDataBase::Connection> connections;
     QValueList<MetaDataBase::Slot> slotList;
     QValueList<MetaDataBase::Include> includes;
-    QStringList forwards, variables;
+    QStringList forwards, variables, sigs;
     QWidgetList tabOrder;
     MetaDataBase::MetaInfo metaInfo;
     QCursor cursor;
@@ -865,6 +865,47 @@ QStringList MetaDataBase::variables( QObject *o )
     }
 
     return r->variables;
+}
+
+void MetaDataBase::setSignalList( QObject *o, const QStringList &sigs )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->sigs.clear();
+    
+    for ( QStringList::ConstIterator it = sigs.begin(); it != sigs.end(); ++it ) {
+	QString s = (*it).simplifyWhiteSpace();
+	int p = s.find( '(' );
+	if ( p < 0 )
+	    p = s.length();
+	int sp = s.find( ' ' );
+	if ( sp >= 0 && sp < p ) {
+	    s = s.mid( sp+1 );
+	    p -= sp + 1;
+	}
+	if ( p == (int) s.length() )
+	    s += "()";
+	r->sigs << s;
+    }
+}
+
+QStringList MetaDataBase::signalList( QObject *o )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QStringList();
+    }
+
+    return r->sigs;
 }
 
 void MetaDataBase::setMetaInfo( QObject *o, MetaInfo mi )

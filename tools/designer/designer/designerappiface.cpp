@@ -875,6 +875,17 @@ void DesignerFormWindowImpl::setVariables( const QStringList &lst )
     formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 
+QStringList DesignerFormWindowImpl::signalList() const
+{
+    return MetaDataBase::signalList( formWindow );
+}
+
+void DesignerFormWindowImpl::setSignalList( const QStringList &lst )
+{
+    MetaDataBase::setSignalList( formWindow, lst );
+    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
+}
+
 void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char *slot )
 {
     QObject::connect( formWindow, SIGNAL( modificationChanged( bool, FormWindow * ) ), receiver, slot );

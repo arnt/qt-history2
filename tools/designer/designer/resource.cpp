@@ -163,6 +163,7 @@ bool Resource::load( FormFile *ff )
     return b;
 }
 
+#undef signals
 #undef slots
 
 bool Resource::load( FormFile *ff, QIODevice* dev )
@@ -203,6 +204,10 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     while ( variables.tagName() != "variables" && !variables.isNull() )
 	variables = variables.nextSibling().toElement();
 
+    QDomElement signals = e;
+    while ( signals.tagName() != "signals" && !signals.isNull() )
+	signals = signals.nextSibling().toElement();
+    
     QDomElement slots = e;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
@@ -333,6 +338,11 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	    if ( n.tagName() == "variable" )
 		metaVariables << n.firstChild().toText().data();
     }
+    if ( !signals.isNull() ) {
+	for ( QDomElement n = signals.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "signal" )
+		metaSignals << n.firstChild().toText().data();
+    }
     if ( !slots.isNull() ) {
 	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    if ( n.tagName() == "slot" ) {
@@ -371,6 +381,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	MetaDataBase::setIncludes( formwindow, metaIncludes );
 	MetaDataBase::setForwards( formwindow, metaForwards );
 	MetaDataBase::setVariables( formwindow, metaVariables );
+	MetaDataBase::setSignalList( formwindow, metaSignals );
 	metaInfo.classNameChanged = metaInfo.className != QString( formwindow->name() );
 	MetaDataBase::setMetaInfo( formwindow, metaInfo );
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
@@ -2224,6 +2235,15 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 		ts << makeIndent( indent ) << "<variable>" << entitize( *it3 ) << "</variable>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</variables>" << endl;
+	}
+	QStringList sigs = MetaDataBase::signalList( formwindow );
+	if ( !sigs.isEmpty() ) {
+	    ts << makeIndent( indent ) << "<signals>" << endl;
+	    indent++;
+	    for ( QStringList::Iterator it3 = sigs.begin(); it3 != sigs.end(); ++it3 )
+		ts << makeIndent( indent ) << "<signal>" << entitize( *it3 ) << "</signal>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</signals>" << endl;
 	}
 	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
 	if ( !slotList.isEmpty() ) {

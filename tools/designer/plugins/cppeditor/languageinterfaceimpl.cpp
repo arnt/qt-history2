@@ -98,7 +98,7 @@ QString LanguageInterfaceImpl::createFunctionStart( const QString &className, co
 QStringList LanguageInterfaceImpl::definitions() const
 {
     QStringList lst;
-    lst << "Includes (in Implementation)" <<  "Class Variables" << "Includes (in Declaration)" << "Forward Declarations";
+    lst << "Includes (in Implementation)" <<  "Class Variables" << "Includes (in Declaration)" << "Forward Declarations" << "Signals";
     return lst;
 }
 
@@ -120,6 +120,8 @@ QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition,
 	lst = fw->forwardDeclarations();
     } else if ( definition == "Class Variables" ) {
 	lst = fw->variables();
+    } else if ( definition == "Signals" ) {
+	lst = fw->signalList();
     }
     iface->release();
     return lst;
@@ -142,6 +144,8 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
 	fw->setForwardDeclarations( entries );
     } else if ( definition == "Class Variables" ) {
 	fw->setVariables( entries );
+    } else if ( definition == "Signals" ) {
+	fw->setSignalList( entries );
     }
     iface->release();
 }

@@ -208,6 +208,8 @@ public:
     void setForwardDeclarations( const QStringList &lst );
     QStringList variables() const;
     void setVariables( const QStringList &lst );
+    QStringList signalList() const;
+    void setSignalList( const QStringList &lst );
     void addMenu( const QString &text, const QString &name );
     void addMenuAction( const QString &menu, QAction *a );
     void addMenuSeparator( const QString &menu );
