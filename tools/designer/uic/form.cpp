@@ -96,16 +96,20 @@ void Uic::createFormDecl( const QDomElement &e )
 		if ( n2.tagName() == "customwidget" ) {
 		    QDomElement n3 = n2.firstChild().toElement();
 		    QString cl;
+		    WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
 		    while ( !n3.isNull() ) {
 			if ( n3.tagName() == "class" ) {
 			    forwardDecl << n3.firstChild().toText().data();
 			    cl = n3.firstChild().toText().data();
+			    r->name = cl;
 			} else if ( n3.tagName() == "header" ) {
 			    CustomInclude ci;
 			    ci.header = n3.firstChild().toText().data();
 			    ci.location = n3.attribute( "location", "global" );
+			    r->includeFile = ci.header;
 			    customWidgetIncludes.insert( cl, ci );
 			}
+			WidgetDatabase::append( r );
 			n3 = n3.nextSibling().toElement();
 		    }
 		}
@@ -464,6 +468,23 @@ void Uic::createFormImpl( const QDomElement &e )
 		    fname = Parser::cleanArgs( fname );
 		    functionImpls.insert( fname, n2.firstChild().toText().data() );
 		}
+	    }
+	} else if ( n.tagName() == "customwidgets" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "customwidget" ) {
+		    QDomElement n3 = n2.firstChild().toElement();
+		    WidgetDatabaseRecord *r = new WidgetDatabaseRecord;
+		    while ( !n3.isNull() ) {
+			if ( n3.tagName() == "class" )
+			    r->name = n3.firstChild().toText().data();
+			else if ( n3.tagName() == "header" )
+			    r->includeFile = n3.firstChild().toText().data();
+			WidgetDatabase::append( r );
+			n3 = n3.nextSibling().toElement();
+		    }
+		}
+		n2 = n2.nextSibling().toElement();
 	    }
 	}
     }

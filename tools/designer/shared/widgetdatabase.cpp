@@ -49,6 +49,7 @@ static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
 static bool plugins_set_up = FALSE;
+static bool was_in_setup = FALSE;
 
 QCleanupHandler<QPluginManager<WidgetInterface> > cleanup_manager;
 
@@ -96,6 +97,7 @@ WidgetDatabase::WidgetDatabase()
 
 void WidgetDatabase::setupDataBase( int id )
 {
+    was_in_setup = TRUE;
 #ifndef UIC
     Q_UNUSED( id )
     if ( dbcount )
@@ -664,9 +666,6 @@ bool WidgetDatabase::isForm( int id )
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return FALSE;
-    if ( r->isForm ) {
-	qDebug("%s is form", r->name.latin1() );
-    }
     return r->isForm;
 }
 
@@ -747,6 +746,8 @@ void WidgetDatabase::insert( int index, WidgetDatabaseRecord *r )
 
 void WidgetDatabase::append( WidgetDatabaseRecord *r )
 {
+    if ( !was_in_setup )
+	setupDataBase( -1 );
     insert( dbcount++, r );
 }
 
