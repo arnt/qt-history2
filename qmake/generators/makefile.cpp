@@ -2017,6 +2017,5 @@ MakefileGenerator::openOutput(QFile &file) const
     int slsh = file.name().findRev(Option::dir_sep);
     if(slsh != -1)
 	createDir(file.name().left(slsh));
-    qDebug("Opening %s", file.name().latin1());
     return file.open(IO_WriteOnly | IO_Translate);
 }
