@@ -2554,8 +2554,8 @@ Q_VARIANT_AS(Pen)
 */
 int& QVariant::asInt()
 {
-    detach();
     if ( d->typ != Int ) {
+	detach();
 	int i = toInt();
 	d->clear();
  	d->value.i = i;
@@ -2569,8 +2569,8 @@ int& QVariant::asInt()
 */
 uint& QVariant::asUInt()
 {
-    detach();
     if ( d->typ != UInt ) {
+	detach();
 	uint u = toUInt();
 	d->clear();
 	d->value.u = u;
@@ -2584,8 +2584,8 @@ uint& QVariant::asUInt()
 */
 bool& QVariant::asBool()
 {
-    detach();
     if ( d->typ != Bool ) {
+	detach();
 	bool b = toBool();
 	d->clear();
 	d->value.b = b;
@@ -2600,6 +2600,7 @@ bool& QVariant::asBool()
 double& QVariant::asDouble()
 {
     if ( d->typ != Double ) {
+	detach();
 	double dbl = toDouble();
 	d->clear();
 	d->value.d = dbl;
