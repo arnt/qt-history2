@@ -13651,7 +13651,7 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 		return QString();
 	}
     }
-    if(match && !(flags & SectionIncludeTrailingSeps))
+    if(match && !(flags & SectionIncludeTrailingSep))
 	end--;
     if(end < uc || end > uc + n || begin >= end)
 	return QString();
@@ -13763,7 +13763,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 	if(begin > uc + n || begin < uc)
 	    return QString();
     }
-    if(match && !(flags & SectionIncludeLeadingSeps))
+    if(match && !(flags & SectionIncludeLeadingSep))
 	begin+=sep_len;
     if(begin > uc + n || begin < uc)
 	return QString();
@@ -13827,7 +13827,7 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 		return QString();
 	}
     }
-    if(match && !(flags & SectionIncludeTrailingSeps))
+    if(match && !(flags & SectionIncludeTrailingSep))
 	end -= sep_len;
     if(end < uc || end > uc + n || begin >= end)
 	return QString();
@@ -13908,7 +13908,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	    start++;
 	}
 	real_begin = begin;
-	if(match && !(flags & SectionIncludeLeadingSeps))
+	if(match && !(flags & SectionIncludeLeadingSep))
 	    	begin += sep.matchedLength();
     } else {
 	while(start) {
@@ -13919,7 +13919,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	    start--;
 	}
 	real_begin = begin;
-	if(match && (flags & SectionIncludeLeadingSeps))
+	if(match && (flags & SectionIncludeLeadingSep))
 	    	begin -= sep.matchedLength();
     }
     if(begin < 0 || begin > n)
@@ -13956,7 +13956,7 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 	    }
 	}
     }
-    if(match && !(flags & SectionIncludeTrailingSeps))
+    if(match && !(flags & SectionIncludeTrailingSep))
 	end -= sep.matchedLength();
     if(end <= begin || end < 0 || end > n)
 	return QString();
