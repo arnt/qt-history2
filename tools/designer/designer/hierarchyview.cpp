@@ -648,10 +648,12 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	return;
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
+    QListViewItem *it = i;
     if ( i->parent() && i->parent()->text( 0 ) == tr( "protected" ) ||
 	 i->parent() && i->parent()->text( 0 ) == tr( "public" ) )
-	return;
-    HierarchyItem *item = new HierarchyItem( i, QString::null, QString::null, QString::null );
+	it = i->parent();
+
+    HierarchyItem *item = new HierarchyItem( it, QString::null, QString::null, QString::null );
     item->setRenameEnabled( 0, TRUE );
     setCurrentItem( item );
     ensureItemVisible( item );
@@ -669,18 +671,30 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	return;
 
     if ( i->parent() && i->parent()->text( 0 ) == "protected" ||
-	 i->parent() && i->parent()->text( 0 ) == "public"  ) {
+	 i->parent() && i->parent()->text( 0 ) == "public" ) {
 	QPopupMenu menu;
 	const int PROPS = 1;
 	const int EDIT = 2;
 	const int REMOVE = 3;
-	menu.insertItem( tr( "Properties..." ), PROPS );
+	const int NEW_ITEM = 4;
+	menu.insertItem( tr( "New" ), NEW_ITEM );
+	if ( formWindow->project()->language() == "C++" )
+	    menu.insertItem( tr( "Properties..." ), PROPS );
 	menu.insertItem( tr( "Goto Implementation" ), EDIT );
+	menu.insertSeparator();
 	menu.insertItem( tr( "Delete" ), REMOVE );
 	popupOpen = TRUE;
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
-	if ( res == PROPS ) {
+	if ( res == NEW_ITEM ) {
+	    HierarchyItem *item = new HierarchyItem( i->parent(), QString::null, QString::null, QString::null );
+	    item->setRenameEnabled( 0, TRUE );
+	    setCurrentItem( item );
+	    ensureItemVisible( item );
+	    qApp->processEvents();
+	    newItem = item;
+	    item->startRename( 0 );
+	} else if ( res == PROPS ) {
 	    EditSlots dlg( this, formWindow );
 	    dlg.setCurrentSlot( MetaDataBase::normalizeSlot( i->text( 0 ) ) );
 	    dlg.exec();
@@ -700,10 +714,9 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int DEL_ITEM = 2;
     menu.insertItem( tr( "New" ), NEW_ITEM );
     bool forceChild = FALSE;
-    if ( i->parent() && i->parent()->text( 0 ) != tr( "protected" ) && i->parent()->text( 0 ) != tr( "public" ) ) {
+    if ( i->parent() && i->text( 0 ) != tr( "protected" ) && i->text( 0 ) != tr( "public" ) )
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
-	forceChild = TRUE;
-    }
+    forceChild = i->text( 0 ) != tr( "protected" ) || i->text( 0 ) != tr( "public" );
     popupOpen = TRUE;
     int res = menu.exec( pos );
     popupOpen = FALSE;
