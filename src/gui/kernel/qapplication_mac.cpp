@@ -2329,8 +2329,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
             if(widget && widget->topLevelWidget()->isVisible()) {
                 QWidget *tlw = widget->topLevelWidget();
-                if(tlw->isTopLevel() && !tlw->isPopup() && !qt_mac_is_macdrawer(tlw) &&
-                   (tlw->isModal() || !tlw->testWFlags(WStyle_Tool))) {
+                if(tlw->isTopLevel() && !tlw->isPopup() && !qt_mac_is_macdrawer(tlw)) {
                     bool just_send_event = false;
                     {
                         WindowActivationScope scope;
