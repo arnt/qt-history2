@@ -32,6 +32,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qintdict.h>
+#include <qptrdict.h>
 #include <qstring.h>
 #include <qapplication.h>
 #include <qaccel.h>
@@ -561,7 +562,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 }
 
 
-static QIntDict<QMenuBar> *menubars = 0;
+static QPtrDict<QMenuBar> *menubars = 0;
 /*!
   \internal
   Internal function that cleans up the menubar.
@@ -575,14 +576,14 @@ void QMenuBar::macCreateNativeMenubar()
 	mac_eaten_menubar = 1;
 	if(!mac_d)
 	    mac_d = new MacPrivate;
-    } else if(p && (!menubars || !menubars->find((int)topLevelWidget())) &&
+    } else if(p && (!menubars || !menubars->find(topLevelWidget())) &&
        (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) || 
 	p->inherits("QToolBar") || 
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
 	mac_eaten_menubar = 1;
 	if(!menubars)
-	    menubars = new QIntDict<QMenuBar>();
-	menubars->insert((int)topLevelWidget(), this);
+	    menubars = new QPtrDict<QMenuBar>();
+	menubars->insert(topLevelWidget(), this);
 	if(!mac_d)
 	    mac_d = new MacPrivate;
     } else {
@@ -592,9 +593,12 @@ void QMenuBar::macCreateNativeMenubar()
 void QMenuBar::macRemoveNativeMenubar()
 {
     if(mac_eaten_menubar && menubars) {
-	QMenuBar *mb = menubars->find((int)topLevelWidget());
-	if(mb == this)
-	    menubars->remove((int)topLevelWidget());
+	for(QPtrDictIterator<QMenuBar> it(*menubars); it.current(); ++it) {
+	    if(it.current() == this) {
+		menubars->remove(it.currentKey());
+		it.toFirst();
+	    }
+	}
     }
     mac_eaten_menubar = FALSE;
     if(this == activeMenuBar) {
@@ -607,6 +611,8 @@ void QMenuBar::macRemoveNativeMenubar()
 	mac_d = 0;
     }
 }
+
+/*!  \internal */
 void QMenuBar::macDirtyNativeMenubar()
 {
     if(mac_eaten_menubar && mac_d) {
@@ -615,9 +621,7 @@ void QMenuBar::macDirtyNativeMenubar()
     }
 }
 
-/*!
-    \internal
-*/
+/*!  \internal */
 void QMenuBar::initialize()
 {
 }
@@ -655,16 +659,16 @@ bool QMenuBar::macUpdateMenuBar()
 	if(!w) //last ditch effort
 	    w = qApp->mainWidget();
 	if(w) {
-	    mb = menubars->find((int)w);
+	    mb = menubars->find(w);
 	    if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
 		if(QWidget *area = ((QDockWindow*)w)->area()) {
 		    QWidget *areaTL = area->topLevelWidget();
-		    if((mb = menubars->find((int)areaTL))) 
+		    if((mb = menubars->find(areaTL))) 
 			w = areaTL;
 		}
 	    }
 	    while(w && !w->testWFlags(WShowModal) && !mb) 
-		mb = menubars->find((int)(w = w->parentWidget()));
+		mb = menubars->find((w = w->parentWidget()));
 	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
 		fall_back_to_empty = TRUE;
 	}
