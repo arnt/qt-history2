@@ -126,7 +126,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
-    QString srcs[] = { "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
+    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
@@ -198,10 +198,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		      << "\t\t" << "};" << "\n";
 		}
 		grp = "Sources";
+	    } else if(srcs[i] == "HEADERS") {
+		grp = "Headers";
 	    } else if(srcs[i] == "SRCMOC") {
-		grp = "Mocables";
+		grp = "Sources [moc]";
 	    } else if(srcs[i] == "UICIMPLS") {
-		grp = "UICables";
+		grp = "Sources [uic]";
 	    }
 	    QString grp_key = keyFor(grp);
 	    project->variables()["QMAKE_PBX_GROUPS"].append(grp_key);
@@ -210,7 +212,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << varGlue("QMAKE_PBX_" + srcs[i], "\t\t\t\t", ",\n\t\t\t\t", "\n")
 	      << "\t\t\t" << ");" << "\n"
 	      << "\t\t\t" << "isa = PBXGroup;" << "\n"
-	      << "\t\t\t" << "name = " << grp << ";" << "\n"
+	      << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	      << "\t\t\t" << "refType = 4;" << "\n"
 	      << "\t\t" << "};" << "\n";
 	}
@@ -699,7 +701,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
 	t << "\t\t\t\t" << "DYLIB_CURRENT_VERSION = \"" << project->first("VERSION") << "\";" << "\n";
     if(!project->isEmpty("OBJECTS_DIR"))
-	t << "\t\t\t\t" << "OBJECT_FILE_DIR = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
+	t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
