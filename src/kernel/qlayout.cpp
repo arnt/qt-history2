@@ -861,18 +861,21 @@ private:
 
   Each column has a minimum width and a stretch factor.  The minimum
   width is the greatest of that set using addColSpacing() and the
-  minimum width of each widget in that column.  The stretch factor is
+  minimum width of each widget in that column. The stretch factor is
   set using setColStretch() and determines how much of the available
   space the column will get over and above its necessary minimum.
 
   Normally, each managed widget or layout is put into a cell of its
-  own using addWidget(), addLayout(), or by the \link QLayout::setAutoAdd()
+  own using addWidget(), addLayout() or by the \link QLayout::setAutoAdd()
   auto-add facility\endlink; but you can also put widgets
-  into multiple cells using addMultiCellWidget().  If you do this,
+  into multiple cells using addMultiCellWidget(). If you do this,
   QGridLayout will guess how to distribute the size over the
-  columns/rows (based on the stretch factors). You can adjust the
-  minimum width of each column or row using addColSpacing() or
-  addRowSpacing().
+  columns/rows (based on the stretch factors).
+
+  To remove a widget from a layout, either delete it or reparent it
+  with QWidget::reparent(). Hiding a widget with QWidget::hide() also
+  effectively removes the widget from the layout, until
+  QWidget::show() is called.
 
   This illustration shows a fragment of a dialog with a five-column,
   three-row grid (the grid is shown overlaid in magenta):
@@ -886,32 +889,30 @@ private:
   We used placeholder columns (1 and 3) to get the right amount of space
   between the columns.
 
-  Note that the columns and rows are not equally wide or tall: if you
+  Note that the columns and rows are not equally wide or tall. If you
   want two columns to have the same width, you must set their
-  minimum widths and stretch factors to be the same yourself.  You do
-  this using addColSpacing() and setColStretch(). The addRowSpacing()
-  and setRowStretch() are the row equivalents.
+  minimum widths and stretch factors to be the same yourself. You do
+  this using addColSpacing() and setColStretch().
 
   If the QGridLayout is not the top-level layout (i.e. does not manage
   all of the widget's area and children), you must add it to its
-  parent layout when you create it - but before you do
+  parent layout when you create it, but before you do
   anything with it.  The normal way to add a layout is by calling
-  parentLayout->addLayout().
+  parentLayout-\>addLayout().
 
   Once you have added your layout you can start putting widgets and other
   layouts into the cells of your grid layout using addWidget(),
   addLayout() and addMultiCellWidget().
 
-  QGridLayout also includes two margin widths: the border width and
-  the inter-box width. The border width is the width of the reserved
-  space along each of the QGridLayout's four sides.  The intra-widget
-  width is the width of the automatically allocated spacing between
-  neighboring boxes.
+  QGridLayout also includes two margin widths: the border and the spacing.
+  The border is the width of the reserved space along each of the
+  QGridLayout's four sides. The spacing is the width of the automatically
+  allocated spacing between neighboring boxes.
 
-  Both the border width and the intra-widget width defaults to 0.
-  Both are set using arguments to the constructor.
+  Both the border and the spacing are parameters of the constructor and
+  default to 0.
 
-  See also the \link layout.html Layout Overview \endlink documentation.
+  \sa \link layout.html Layout Overview \endlink
 */
 
 /*!
@@ -945,8 +946,8 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
   Constructs a new grid that is placed inside \a parentLayout
   with \a nRows rows and \a nCols columns.
   If \a space is -1, this QGridLayout inherits its parent's
-  spacing(); otherwise \a space is used. The grid
-   layout is called \a name.
+  spacing(); otherwise \a space is used. The grid layout is called
+  \a name.
 
   This grid is placed according to \a parentLayout's default placement
   rules.
@@ -1491,7 +1492,7 @@ private:
   size. Any excess space is shared according to the stretch factors
   (more about that below).
 
-  If the QBoxLayou's orientationt is \c Vertical, the boxes are placed
+  If the QBoxLayout's orientation is \c Vertical, the boxes are placed
   in a column, again with suitable sizes.
 
   The easiest way to create a QBoxLayout is to use one of the
@@ -1503,7 +1504,7 @@ private:
   If the QBoxLayout is not the top-level layout (i.e. it is not managing
   all of the widget's area and children), you must add it to its
   parent layout before you can do anything with it.  The normal way to
-  add a layout is by calling parentLayout->addLayout().
+  add a layout is by calling parentLayout-\>addLayout().
 
   Once you have done this, you can add boxes to the QBoxLayout using
   one of four functions:
@@ -1530,22 +1531,24 @@ private:
 
   \list
   \i setMargin() sets the width of the outer border. This is the width
-  of the reserved space along each of the QBoxLayout's four sides.
-
-  \i setSpacing() sets the inter-box width. This is the width of the
-  automatically allocated spacing between neighboring boxes.  (You
-  can use addSpacing() to get more space at a.)
+     of the reserved space along each of the QBoxLayout's four sides.
+  \i setSpacing() sets the width between neighboring boxes.  (You
+     can use addSpacing() to get more space at a peculiar spot.)
   \endlist
 
-  The outer border width defaults to 0; the intra-widget width defaults
-  to the same as the border width for a top-level layout, or otherwise to the
-  same as the parent layout.  Both can be set using
-  arguments to the constructor.
+  The margin defaults to 0; the spacing defaults to the same as the
+  border width for a top-level layout, or otherwise to the same as
+  the parent layout.  Both are parameters to the constructor.
 
-  You will almost always want to use the convenience classes
-  QVBoxLayout and QHBoxLayout because of their simpler constructors.
+  To remove a widget from a layout, either delete it or reparent it
+  with QWidget::reparent(). Hiding a widget with QWidget::hide() also
+  effectively removes the widget from the layout, until
+  QWidget::show() is called.
 
-  See also \link layout.html the Layout overview \endlink.
+  You will almost always want to use QVBoxLayout and QHBoxLayout
+  rather than QBoxLayout because of their convenient constructors.
+
+  \sa \link layout.html Layout Overview \endlink
 */
 
 /*! \enum QBoxLayout::Direction
