@@ -5832,41 +5832,47 @@ QDomEntityReferencePrivate* QDomDocumentPrivate::createEntityReference( const QS
 
 QDomNodePrivate* QDomDocumentPrivate::importNode( const QDomNodePrivate* importedNode, bool deep )
 {
+    QDomNodePrivate *node = 0;
     switch ( importedNode->nodeType() ) {
 	case QDomNode::AttributeNode:
-	    return new QDomAttrPrivate(
-		    (QDomAttrPrivate*)importedNode, TRUE );
+	    node = new QDomAttrPrivate( (QDomAttrPrivate*)importedNode, TRUE );
+	    break;
 	case QDomNode::DocumentFragmentNode:
-	    return new QDomDocumentFragmentPrivate(
-		    (QDomDocumentFragmentPrivate*)importedNode, deep );
+	    node = new QDomDocumentFragmentPrivate( (QDomDocumentFragmentPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::ElementNode:
-	    // ### check if attributes are copied as documentation says (especially where specified()==TRUE)
-	    return new QDomElementPrivate(
-		    (QDomElementPrivate*)importedNode, deep );
+	    node = new QDomElementPrivate( (QDomElementPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::EntityNode:
-	    return new QDomEntityPrivate(
-		    (QDomEntityPrivate*)importedNode, deep );
+	    node = new QDomEntityPrivate( (QDomEntityPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::EntityReferenceNode:
-	    return new QDomEntityReferencePrivate(
-		    (QDomEntityReferencePrivate*)importedNode, FALSE );
+	    node = new QDomEntityReferencePrivate( (QDomEntityReferencePrivate*)importedNode, FALSE );
+	    break;
 	case QDomNode::NotationNode:
-	    return new QDomNotationPrivate(
-		    (QDomNotationPrivate*)importedNode, deep );
+	    node = new QDomNotationPrivate( (QDomNotationPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::ProcessingInstructionNode:
-	    return new QDomProcessingInstructionPrivate(
-		    (QDomProcessingInstructionPrivate*)importedNode, deep );
+	    node = new QDomProcessingInstructionPrivate( (QDomProcessingInstructionPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::TextNode:
-	    return new QDomTextPrivate(
-		    (QDomTextPrivate*)importedNode, deep );
+	    node = new QDomTextPrivate( (QDomTextPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::CDATASectionNode:
-	    return new QDomCDATASectionPrivate(
-		    (QDomCDATASectionPrivate*)importedNode, deep );
+	    node = new QDomCDATASectionPrivate( (QDomCDATASectionPrivate*)importedNode, deep );
+	    break;
 	case QDomNode::CommentNode:
-	    return new QDomCommentPrivate(
-		    (QDomCommentPrivate*)importedNode, deep );
+	    node = new QDomCommentPrivate( (QDomCommentPrivate*)importedNode, deep );
+	    break;
 	default:
-	    return 0;
+	    break;
     }
+    if ( node ) {
+	// The QDomNode constructor increases the refcount, so deref() first to
+	// keep refcount balanced.
+	node->deref();
+    }
+    return node;
 }
 
 void QDomDocumentPrivate::save( QTextStream& s, int, int indent ) const
