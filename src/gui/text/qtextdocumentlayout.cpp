@@ -11,6 +11,37 @@
 
 #include "qabstracttextdocumentlayout_p.h"
 
+/*
+
+Optimisation strategies:
+
+HTML layout:
+
+* Distinguish between normal and special flow. For normal flow the condition:
+  y1 > y2 holds for all blocks with b1.key() > b2.key().
+* Special flow is: floats, table cells
+
+* Normal flow within table cells. Tables (not cells) are part of the normal flow.
+
+
+* If blocks grows/shrinks in height and extends over whole page width at the end, move following blocks.
+* If height doesn't change, no need to do anything
+
+Table cells:
+
+* If minWidth of cell changes, recalculate table width, relayout if needed.
+* What about maxWidth when doing auto layout?
+
+Floats:
+* need fixed or proportional width, otherwise don't float!
+* On width/height change relayout surrounding paragraphs.
+
+Document width change:
+* full relayout needed
+
+
+*/
+
 enum {
     TextIndentValue = 40
 };
@@ -19,11 +50,21 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout);
 public:
+#if 0
+    struct Float {
+        // document position
+        int from;
+        int length;
+
+        QRect rect;
+    };
+
     struct Page {
         QTextBlockIterator first;
         QTextBlockIterator last;
     };
     QList<Page> pages;
+#endif
 
     QSize pageSize;
     bool pagedLayout;
@@ -34,10 +75,8 @@ public:
     int indent(QTextBlockIterator bl) const;
     int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
-    void recreateAllBlocks();
+    void relayoutDocument();
     void layoutBlock(const QTextBlockIterator block, const QPoint &p, int width);
-    QTextBlockIterator layoutCell(QTextBlockIterator block, QPoint *pos, int width);
-    QTextBlockIterator layoutTable(QTextBlockIterator block, QPoint *pos, int width);
 };
 
 #define d d_func()
@@ -208,98 +247,23 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
     tl->draw(painter, QPoint(0, 0), cursor, &s, nSel, painter->clipRegion().boundingRect());
 }
 
-void QTextDocumentLayoutPrivate::recreateAllBlocks()
+void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     QPoint pos(0, 0);
     QTextBlockIterator it = q->begin();
     int width = pageSize.width();
     while (!it.atEnd()) {
         // check if we are at a table
-        QTextTableFormat fmt = it.blockFormat().tableFormat();
-        if (fmt.isValid()) {
-            it = layoutTable(it, &pos, width);
-        } else {
+//         QTextTableFormat fmt = it.blockFormat().tableFormat();
+//         if (fmt.isValid()) {
+//             it = layoutTable(it, &pos, width);
+//         } else
+        {
             layoutBlock(it, pos, width);
             pos.setY(it.layout()->rect().bottom());
             ++it;
         }
     }
-}
-
-
-QTextBlockIterator QTextDocumentLayoutPrivate::layoutCell(QTextBlockIterator it, QPoint *pos, int width)
-{
-    QTextFormatGroup *group = it.blockFormat().group();
-
-    layoutBlock(it, *pos, width);
-    pos->setY(it.layout()->rect().bottom());
-    ++it;
-
-    while (1) {
-        Q_ASSERT(!it.atEnd());
-
-        // check if we are at a table
-        QTextBlockFormat fmt = it.blockFormat();
-        QTextFormatGroup *g = fmt.group();
-        if (g == group) {
-//             qDebug() << "end layoutCell";
-            return it;
-        }
-
-        if (g && g->commonFormat().toTableFormat().isValid()) {
-            it = layoutTable(it, pos, width);
-        } else {
-            layoutBlock(it, *pos, width);
-            pos->setY(it.layout()->rect().bottom());
-            ++it;
-        }
-    }
-}
-
-QTextBlockIterator QTextDocumentLayoutPrivate::layoutTable(QTextBlockIterator it, QPoint *pos, int width)
-{
-
-    QTextFormatGroup *group = it.blockFormat().group();
-    Q_ASSERT(group && group->commonFormat().toTableFormat().isValid());
-    QTextTable *table = qt_cast<QTextTable *>(group);
-    Q_ASSERT(table);
-
-    int rows = table->rows();
-    int cols = table->cols();
-    Q_ASSERT(rows > 0 && cols > 0); // also avoid division by zero later
-
-    QSize ps = pageSize;
-
-    int cellWidth = (width-5)/cols;
-    int y = 0;
-
-    for (int i = 0; i < rows; ++i) {
-        int rowHeight = 0;
-        for (int j = 0; j < cols; ++j) {
-            QTextBlockFormat fmt = it.blockFormat();
-            Q_ASSERT(fmt.group() == group);
-            Q_ASSERT(!fmt.tableCellEndOfRow());
-
-            QPoint point = QPoint(j*width, y) + *pos;
-            it = layoutCell(it, &point, cellWidth);
-
-            rowHeight = qMax(rowHeight, point.y() - pos->y() - y);
-            rowHeight = qMax(rowHeight, QFontMetrics(it.charFormat().font()).height());
-//             qDebug() << "rowHeight" << rowHeight;
-        }
-        Q_ASSERT(it.blockFormat().group() == group);
-        Q_ASSERT(it.blockFormat().tableCellEndOfRow());
-
-        QPoint point = QPoint(cols*width, y) + *pos;
-        layoutBlock(it, point, cellWidth);
-        ++it;
-
-        y += rowHeight;
-    }
-//     qDebug() << "end layoutTable";
-    pos->setY(pos->y() + y);
-
-    return it;
 }
 
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl, const QPoint &p, int width)
@@ -349,8 +313,37 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
-    qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
-    d->recreateAllBlocks();
+//     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
+    QTextBlockIterator it = findBlock(from);
+    QTextBlockIterator end = findBlock(from + length - 1);
+    ++end;
+    QPoint pos;
+
+    if (it != begin()) {
+        QTextBlockIterator prev = it;
+        --prev;
+        pos = prev.layout()->rect().bottomLeft();
+    }
+
+    bool move = false;
+    while (it != end) {
+//         qDebug("layouting block at pos %d", it.position());
+        int old_bottom = it.layout()->rect().bottom();
+        d->layoutBlock(it, pos, d->pageSize.width());
+        int bottom = it.layout()->rect().bottom();
+        pos.setY(bottom);
+        move = (old_bottom != bottom);
+        ++it;
+    }
+    if (move) {
+        end = this->end();
+        while (it != end) {
+//             qDebug("moving block at pos %d", it.position());
+            it.layout()->setPosition(pos);
+            pos.setY(it.layout()->rect().bottom());
+            ++it;
+        }
+    }
 }
 
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
@@ -385,15 +378,18 @@ int QTextDocumentLayout::totalHeight() const
 
 int QTextDocumentLayout::numPages() const
 {
+#if 0
     if (!d->pagedLayout)
         return 1;
     return d->pages.count();
+#endif
+    return 1;
 }
 
 void QTextDocumentLayout::setPageSize(const QSize &size)
 {
     d->pageSize = size;
-    d->recreateAllBlocks();
+    d->relayoutDocument();
 }
 
 QSize QTextDocumentLayout::pageSize() const

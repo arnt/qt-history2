@@ -396,8 +396,6 @@ QRect QTextLayout::boundingRect() const
 {
     if (!d->boundingRect.isValid()) {
         Q26Dot6 xmin, xmax, ymin, ymax;
-        if (!d->lines.size())
-            qDebug("trying to determin bounding rect without lines");
         for (int i = 0; i < d->lines.size(); ++i) {
             const QScriptLine &si = d->lines[i];
             xmin = qMin(xmin, si.x);
