@@ -740,9 +740,9 @@ static QString groupKey( const QString &group, const QString &key )
   two entries in the search path:
 
   \list 1
-  \i SYSCONF - where is \c SYSCONF is a directory specified when
-  configuring Qt, by default it is INSTALL/etc.
-  \i $HOME/.qt/ - where \c $HOME is the user's home directory.
+  \i \c SYSCONF - where \c SYSCONF is a directory specified when
+  configuring Qt; by default it is INSTALL/etc.
+  \i \c $HOME/.qt/ - where \c $HOME is the user's home directory.
   \endlist
 
   All insertions into the search path will go before $HOME/.qt/.
