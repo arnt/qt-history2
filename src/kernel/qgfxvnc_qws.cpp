@@ -566,6 +566,7 @@ void QVNCServer::frameBufferUpdateRequest()
 	    QWSDisplay::ungrab();
 	}
 	wantUpdate = TRUE;
+	checkUpdate();
 	handleMsg = FALSE;
     }
 }
