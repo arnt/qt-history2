@@ -601,7 +601,8 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
 		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
-		    if(curwidg->extra && !curwidg->extra->mask.isNull() &&
+		    if(!curwidg->testWFlags(Qt::WMouseNoMask) &&
+		       curwidg->extra && !curwidg->extra->mask.isNull() &&
 		       !curwidg->extra->mask.contains(QPoint(x-wx, y-wy)))
 			continue;
 		    return qt_recursive_match(curwidg,x-wx,y-wy);
