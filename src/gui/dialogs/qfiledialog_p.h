@@ -119,6 +119,7 @@ public:
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
     bool confirmOverwrite;
+    QString defaultSuffix;
 
     QList<QPersistentModelIndex> history;
 

@@ -455,8 +455,12 @@ QStringList QFileDialog::selectedFiles() const
     QStringList fileNames = d->fileName->text().split(' ', QString::SkipEmptyParts);
     for (int j = 0; j < fileNames.count(); ++j) {
         QString name = d->toInternal(fileNames.at(j));
-        if ((d->fileMode == AnyFile && files.count() <= 0)
-            ||(d->fileMode == ExistingFile && QFileInfo(name).exists())) { // a new filename
+        // if the filename has no suffix, add the default suffix
+        if (!d->defaultSuffix.isEmpty() && name.lastIndexOf('.') == -1)
+            name += "." + d->defaultSuffix;
+        // a new filename
+        if ((d->fileMode == AnyFile && files.isEmpty())
+            || (d->fileMode == ExistingFile && QFileInfo(name).exists())) {
             if (QFileInfo(name).isAbsolute())
                 files.append(name);
             else
@@ -686,6 +690,23 @@ bool QFileDialog::confirmOverwrite() const
     return d->confirmOverwrite;
 }
 
+/*
+  \property QFileDialog::defaultSuffix
+  \brief  Suffix added to the filename if no other suffix was specified.
+
+  This property specifies a string that will be added to the filename if it has no suffix already.
+  The suffix is typically used to indicate the file type (e.g. "txt" indicates a text file).
+*/
+void QFileDialog::setDefaultSuffix(const QString &suffix)
+{
+    d->defaultSuffix = suffix;
+}
+
+QString QFileDialog::defaultSuffix() const
+{
+    return d->defaultSuffix;
+}
+
 /*!
   \brief sets the browsing history of the filedialog to contain the given \a paths.
 */
@@ -780,7 +801,7 @@ void QFileDialog::accept()
     }
 
     // if we have no selected items, use the name in the lineedit
-    if (files.count() < 1)
+    if (files.isEmpty())
         files.append(fn);
 
     switch (d->fileMode) {
@@ -798,15 +819,13 @@ void QFileDialog::accept()
             setDirectory(info.absoluteFilePath());
             return;
         }
-        if (!info.exists()
-            || !confirmOverwrite()
-            || acceptMode() == AcceptOpen)
+        // check if we have to ask for permission to overwrite the file
+        if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen)
             QDialog::accept();
         else if (QMessageBox::warning(this, windowTitle(),
-                                      fn + tr(" already exists.\n"
-                                              "Do you want to replace it?"),
-                                      QMessageBox::Yes,
-                                      QMessageBox::No)
+                                      info.fileName()
+                                      + tr(" already exists.\nDo you want to replace it?"),
+                                      QMessageBox::Yes, QMessageBox::No)
                  == QMessageBox::Yes)
             QDialog::accept();
         return;}

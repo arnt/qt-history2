@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
     Q_PROPERTY(bool confirmOverwrite READ confirmOverwrite WRITE setConfirmOverwrite)
+    Q_PROPERTY(QString defaultSuffix READ defaultSuffix WRITE setDefaultSuffix)
     Q_ENUMS(ViewMode FileMode AcceptMode)
 
 public:
@@ -86,6 +87,9 @@ public:
 
     void setConfirmOverwrite(bool enabled);
     bool confirmOverwrite() const;
+
+    void setDefaultSuffix(const QString &suffix);
+    QString defaultSuffix() const;
 
     void setHistory(const QStringList &paths);
     QStringList history() const;
