@@ -27,6 +27,7 @@
 #include <qurl.h>
 #include <qsqlrecord.h>
 #include <qsqltable.h>
+#include <qobjectlist.h>
 
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
@@ -512,4 +513,12 @@ void Project::closeDatabase( const QString &connection )
 void Project::formClosed( FormWindow *fw )
 {
     formWindows.remove( fw );
+}
+
+QObjectList *Project::formList() const
+{
+    QObjectList *l = new QObjectList;
+    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
+	l->append( it.key() );
+    return l;
 }

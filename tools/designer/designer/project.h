@@ -93,6 +93,8 @@ public:
     void openDatabase( const QString &connection );
     void closeDatabase( const QString &connection );
 
+    QObjectList *formList() const;
+
 private:
     void parse();
     void clear();

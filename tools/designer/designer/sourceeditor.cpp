@@ -22,6 +22,7 @@
 
 #include "formwindow.h"
 #include "metadatabase.h"
+#include "project.h"
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface )
     : QVBox( parent ), iFace( iface ), formWindow( 0 )
@@ -41,6 +42,8 @@ void SourceEditor::setForm( FormWindow *fw )
 	txt += "\n{\n    \n}\n\n";
     }
     iFace->setText( txt );
+    if ( fw->project() )
+	iFace->setContext( fw->project()->formList(), fw );
 }
 
 void SourceEditor::setFunction( const QString &func )

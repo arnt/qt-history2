@@ -4,6 +4,8 @@
 #include <qcomponentinterface.h>
 
 class QWidget;
+class QObjectList;
+class QObject;
 
 class EditorInterface : public QUnknownInterface
 {
@@ -28,6 +30,7 @@ public:
     virtual void indent() = 0;
     virtual void scrollTo( const QString &txt ) = 0;
     virtual void splitView() = 0;
+    virtual void setContext( QObjectList *toplevels, QObject *this_ );
 
 };
 

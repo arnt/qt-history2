@@ -2443,9 +2443,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
-	    formList->setProject( ( (FormWindow*)w )->project() );
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 		if ( *it == ( (FormWindow*)w )->project() ) {
+		    projectSelected( it.key() );
 		    it.key()->setOn( TRUE );
 		    break;
 		}
