@@ -80,7 +80,7 @@ static const char *home[]={
     "..#aaa#.#aabb#..",
     "..#####.######.."
 };
-   
+
 // ****************************************************************************************************
 
 PixmapView::PixmapView( QWidget *parent )
@@ -185,14 +185,14 @@ CustomFileDialog::CustomFileDialog()
     :  QFileDialog( 0, 0, TRUE )
 {
     setDir( "/" );
-    
+
     dirView = new DirectoryView( this, 0, TRUE );
     dirView->addColumn( "" );
     dirView->header()->hide();
     class Directory *root = new class Directory( dirView, "/" );
     root->setOpen( TRUE );
     dirView->setFixedWidth( 150 );
-    
+
     addLeftWidget( dirView );
 
     QPushButton *p = new QPushButton( this );
@@ -203,7 +203,7 @@ CustomFileDialog::CustomFileDialog()
 	     this, SLOT( bookmarkChosen( int ) ) );
     addId = bookmarkMenu->insertItem( tr( "Add bookmark" ) );
     bookmarkMenu->insertSeparator();
-    
+
     QFile f( ".bookmarks" );
     if ( f.open( IO_ReadOnly ) ) {
 	QDataStream ds( &f );
@@ -217,9 +217,9 @@ CustomFileDialog::CustomFileDialog()
     }
 	
     p->setPopup( bookmarkMenu );
-    
+
     addToolButton( p, TRUE );
-    
+
     connect( dirView, SIGNAL( folderSelected( const QString & ) ),
 	     this, SLOT( setDir2( const QString & ) ) );
     connect( this, SIGNAL( dirEntered( const QString & ) ),
@@ -229,9 +229,9 @@ CustomFileDialog::CustomFileDialog()
     b->setPixmap( QPixmap( home ) );
     connect( b, SIGNAL( clicked() ),
 	     this, SLOT( goHome() ) );
-    
+
     addToolButton( b );
-    
+
     resize( width() + width() / 3, height() );
 }
 
@@ -239,7 +239,7 @@ CustomFileDialog::~CustomFileDialog()
 {
     if ( bookmarkList.isEmpty() )
 	return;
-    
+
     QFile f( ".bookmarks" );
     if ( !f.open( IO_WriteOnly ) )
 	return;
@@ -305,10 +305,12 @@ int main( int argc, char ** argv )
 	else if ( arg == "-custom" )
 	    custom = TRUE;
 	else if ( arg[0] == '-' ) {
-	    qDebug("Usage: qdir [-any | -dir] [ -preview] [-default f] {-filter f} [caption ...]\n"
+	    qDebug("Usage: qdir [-any | -dir | -custom] [-preview] [-default f] {-filter f} [caption ...]\n"
 		   "      -any         Get any filename, need not exist.\n"
 		   "      -dir         Return a directory rather than a file.\n"
-		   "      -preview  Show a preview widget.\n"
+		   "      -custom      Opens a customized QFileDialog with \n"
+		   "                   dir browser, bookmark menu, etc.\n"
+		   "      -preview     Show a preview widget.\n"
 		   "      -default f   Start from directory/file f.\n"
 		   "      -filter f    eg. '*.gif' '*.bmp'\n"
 		   "      caption ...  Caption for dialog.\n"
