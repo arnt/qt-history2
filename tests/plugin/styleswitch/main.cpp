@@ -206,7 +206,7 @@ bool TestComponent::unregisterComponents() const
     return QComponentFactory::unregisterComponent( TestComponent::cid );
 }
 
-QRESULT TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnknownInterface **iface, QUnknownInterface * )
+QRESULT TestComponent::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface * )
 {
     if ( cid == TestComponent::cid ) {
 	TestComponent *comp = new TestComponent();
