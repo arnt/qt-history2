@@ -2292,7 +2292,7 @@ static inline const char *toHex( uchar u )
 	if ( hex < 0x0a ) 
 	    hexVal[i] = '0'+hex;
 	else
-	    hexVal[i] = 'a'+(hex-0x0a);
+	    hexVal[i] = 'A'+(hex-0x0a);
 	u = u >> 4;
 	i--;
     }
@@ -2309,7 +2309,7 @@ static inline const char *toHex( ushort u )
 	if ( hex < 0x0a ) 
 	    hexVal[i] = '0'+hex;
 	else
-	    hexVal[i] = 'a'+(hex-0x0a);
+	    hexVal[i] = 'A'+(hex-0x0a);
 	u = u >> 4;
 	i--;
     }
@@ -2407,7 +2407,7 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
     int l = 0;
     unsigned short unicode = unicode_for_glyph( glyphindex );
     if ( !unicode && glyphindex ) {
-	glyphname = "G";
+	glyphname = "gl";
 	glyphname += toHex( glyphindex );
     } else {
 	while( unicodetoglyph[l].u < unicode )
@@ -2415,7 +2415,7 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
 	if ( unicodetoglyph[l].u == unicode )
 	    glyphname = unicodetoglyph[l].g;
 	else {
-	    glyphname = "U";
+	    glyphname = "uni";
 	    glyphname += toHex( unicode );
 	}
     }
@@ -3314,7 +3314,7 @@ QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
 	    name = "uni";
 	    name += toHex( u );
         } else {
-	    name = "glyph";
+	    name = "gl";
 	    name += toHex( charindex );
 	}
         return name;
