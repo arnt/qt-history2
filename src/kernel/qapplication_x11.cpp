@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#9 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -14,7 +14,6 @@
 #include "qevent.h"
 #include "qwidget.h"
 #include "qwininfo.h"
-#include "qstring.h"
 #include "qlist.h"
 #include <stdlib.h>
 #include <signal.h>
@@ -24,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#9 $";
 #endif
 
 

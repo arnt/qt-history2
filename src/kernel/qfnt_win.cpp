@@ -1,21 +1,20 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#2 $
 **
 ** Implementation of QFont and QFontMetrics classes for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940630
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qpainter.h"
-#include "qstring.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#2 $";
 #endif
 
 

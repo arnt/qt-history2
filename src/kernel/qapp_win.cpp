@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#6 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -14,12 +14,11 @@
 #include "qevent.h"
 #include "qview.h"
 #include "qwininfo.h"
-#include "qstring.h"
 #include <ctype.h>
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#6 $";
 #endif
 
 

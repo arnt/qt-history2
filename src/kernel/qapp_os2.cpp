@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#4 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -15,14 +15,13 @@
 #include "qview.h"
 #include "qobjcoll.h"
 #include "qwininfo.h"
-#include "qstring.h"
 #include <ctype.h>
 #define	 INCL_DOSNMPIPES			// for debug output
 #define	 INCL_PM
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#4 $";
 #endif
 
 
