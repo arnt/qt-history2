@@ -1844,7 +1844,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     QString uiDir = Project->var( "UI_DIR" );
     QString uiHeaders;
     QString uiSources;
-
+    
     // Determining the paths for the output files.
     int slash = str.findRev( '\\' );
     QString pname = ( slash != -1 ) ? str.left( slash+1 ) : QString( ".\\" );
@@ -1868,6 +1868,9 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     int dot = fname.findRev( '.' );
     if( dot != -1 )
 	fname.truncate( dot );
+
+    if ( mocDir.isEmpty() )
+	mocDir = pname;
 
     strm << _begFileConfiguration;
     strm << _Name5;
