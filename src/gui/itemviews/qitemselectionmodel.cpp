@@ -145,6 +145,14 @@
     range given; otherwise returns false.
 
 */
+bool QItemSelectionRange::intersects(const QItemSelectionRange &other) const
+{
+    return (parent() == other.parent()
+            && ((top() <= other.top() && bottom() >= other.top())
+                || (top() >= other.top() && top() <= other.bottom()))
+            && ((left() <= other.left() && right() >= other.left())
+                || (left() >= other.left() && left() <= other.right())));
+}
 
 /*!
     \fn QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
@@ -153,6 +161,20 @@
     both the selection range and the \a other selection range.
 
 */
+
+QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
+{
+    if (model()) {
+        QModelIndex topLeft = model()->index(qMax(top(), other.top()),
+                                             qMax(left(), other.left()),
+                                             other.parent());
+        QModelIndex bottomRight = model()->index(qMin(bottom(), other.bottom()),
+                                                 qMin(right(), other.right()),
+                                                 other.parent());
+        return QItemSelectionRange(topLeft, bottomRight);
+    }
+    return QItemSelectionRange();
+}
 
 /*!
     \fn bool QItemSelectionRange::operator==(const QItemSelectionRange &other) const
@@ -609,7 +631,7 @@ void QItemSelectionModel::clear()
     d->currentSelection.clear();
     emit selectionChanged(QItemSelection(), selection);
     QModelIndex previous = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex();
+    d->currentIndex = QModelIndex::Null;
     if (previous.isValid()) {
         emit currentChanged(d->currentIndex, previous);
         emit currentRowChanged(d->currentIndex, previous);
@@ -646,7 +668,7 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
         return;
     }
     QModelIndex previous = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex(index); // set current before emitting selection changed below
+    d->currentIndex = index; // set current before emitting selection changed below
     if (command != NoUpdate)
         select(index, command); // select item
     emit currentChanged(index, previous);

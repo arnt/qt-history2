@@ -46,41 +46,16 @@ public:
                 && br.row() >= index.row() && br.column() >= index.column());
     }
 
-    inline bool intersects(const QItemSelectionRange &other) const
-    {
-        return (parent() == other.parent()
-                && ((top() <= other.top() && bottom() >= other.top())
-                    || (top() >= other.top() && top() <= other.bottom()))
-                && ((left() <= other.left() && right() >= other.left())
-                    || (left() >= other.left() && left() <= other.right())));
-    }
-
-    inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
-    {
-        if (model()) {
-            QModelIndex topLeft = model()->index(qMax(top(), other.top()),
-                                                 qMax(left(), other.left()),
-                                                 other.parent());
-            QModelIndex bottomRight = model()->index(qMin(bottom(), other.bottom()),
-                                                     qMin(right(), other.right()),
-                                                     other.parent());
-            return QItemSelectionRange(topLeft, bottomRight);
-        }
-        return QItemSelectionRange();
-    }
+    bool intersects(const QItemSelectionRange &other) const;
+    QItemSelectionRange intersect(const QItemSelectionRange &other) const;
 
     inline bool operator==(const QItemSelectionRange &other) const
-    {
-        return (tl == other.tl && br == other.br);
-    }
+        { return (tl == other.tl && br == other.br); }
+    inline bool operator!=(const QItemSelectionRange &other) const
+        { return !operator==(other); }
 
-    inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
     inline bool isValid() const
-    {
-        return (tl.isValid() && br.isValid()
-                && top() <= bottom() && left() <= right()
-                && top() > -1 && left() > -1);
-    }
+        { return (tl.isValid() && br.isValid() && top() <= bottom() && left() <= right()); }
 
     QModelIndexList indexes() const;
 
