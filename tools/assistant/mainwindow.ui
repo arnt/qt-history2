@@ -585,7 +585,6 @@
     <slot>showLinkFromClient( const QString &amp; link )</slot>
     <slot>showLink( const QString &amp; link )</slot>
     <slot>showQtHelp()</slot>
-    <slot>setFamily( const QString &amp; f )</slot>
     <slot>showSettingsDialog()</slot>
     <slot>showWebBrowserSettings()</slot>
     <slot>showSettingsDialog( int page )</slot>

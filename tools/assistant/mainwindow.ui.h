@@ -138,7 +138,7 @@ void MainWindow::setup()
 void MainWindow::setupGoActions()
 {
     Config *config = Config::configuration();
-    QStringList titles = config->docTitles();   
+    QStringList titles = config->docTitles();
     QAction *action = 0;
 
     static bool separatorInserted = FALSE;
@@ -157,7 +157,7 @@ void MainWindow::setupGoActions()
     QStringList::ConstIterator it = titles.begin();
     for ( ; it != titles.end(); ++it ) {
 	QString title = *it;
-	QPixmap pix = config->docIcon( title );	
+	QPixmap pix = config->docIcon( title );
 	if( !pix.isNull() ) {
 	    if( !separatorInserted ) {
 		goMenu->insertSeparator();
@@ -305,9 +305,9 @@ void MainWindow::print()
 		    margin,
 		    metrics.width() - 2 * margin,
 		    metrics.height() - 2 * margin );
-	QSimpleRichText richText( browser->text(), browser->QWidget::font(), browser->context(), browser->styleSheet(),
-				  browser->mimeSourceFactory(), body.height(),
-				  Qt::black, FALSE );
+	QSimpleRichText richText( browser->text(), browser->QWidget::font(), browser->context(),
+				  browser->styleSheet(), browser->mimeSourceFactory(),
+				  body.height(), Qt::black, FALSE );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
 	int page = 1;
@@ -402,13 +402,6 @@ void MainWindow::showQtHelp()
     showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
 }
 
-void MainWindow::setFamily( const QString & f )
-{
-    QFont fnt( tabs->font() );
-    fnt.setFamily( f );
-    tabs->setFont( fnt );
-}
-
 void MainWindow::showSettingsDialog()
 {
     showSettingsDialog( -1 );
@@ -426,7 +419,7 @@ void MainWindow::showSettingsDialog( int page )
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
-    settingsDia->fontCombo->lineEdit()->setText( tabs->QWidget::font().family() );
+    settingsDia->fontCombo->lineEdit()->setText( tabs->browserFont().family() );
     settingsDia->fixedfontCombo->insertStringList( fonts.families() );
     settingsDia->fixedfontCombo->lineEdit()->setText( tabs->styleSheet()->item( "pre" )->fontFamily() );
     settingsDia->linkUnderlineCB->setChecked( tabs->linkUnderline() );
@@ -450,9 +443,9 @@ void MainWindow::showSettingsDialog( int page )
 
     setupGoActions();
 
-    QFont fnt( tabs->QWidget::font() );
+    QFont fnt( tabs->browserFont() );
     fnt.setFamily( settingsDia->fontCombo->currentText() );
-    tabs->setFont( fnt );
+    tabs->setBrowserFont( fnt );
     tabs->setLinkUnderline( settingsDia->linkUnderlineCB->isChecked() );
 
     QPalette pal = tabs->palette();
@@ -495,7 +488,7 @@ MainWindow* MainWindow::newWindow()
 void MainWindow::saveSettings()
 {
     Config *config = Config::configuration();
-    config->setFontFamily( tabs->font().family() );
+    config->setFontFamily( tabs->browserFont().family() );
     config->setFontSize( tabs->currentBrowser()->font().pointSize() );
     config->setFontFixedFamily( tabs->styleSheet()->item( "pre" )->fontFamily() );
     config->setLinkUnderline( tabs->linkUnderline() );
@@ -564,7 +557,7 @@ void MainWindow::showGoActionLink()
 	return;
 
     QAction *action = (QAction*) origin;
-    QString docfile = *( goActionDocFiles->find( action ) );    
+    QString docfile = *( goActionDocFiles->find( action ) );
     showLink( docfile );
 }
 

@@ -235,12 +235,12 @@ void TabbedBrowser::setLinkUnderline( bool uline )
 
 QFont TabbedBrowser::browserFont()
 {
-    return tabFont;  
+    return tabFont;
 }
 
 void TabbedBrowser::setBrowserFont( const QFont &fnt )
 {
-    if( font()==fnt )
+    if( tabFont == fnt )
 	return;
     tabFont = fnt;
     int cnt = tab->count();
