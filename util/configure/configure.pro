@@ -63,9 +63,8 @@ INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/tools/
 INTERFACES=
 TARGET=configure
 DESTDIR=../../dist/win/bin
-win32-g++ {
-	LIBS = libole32 libuuid
-} else :LIBS = ole32.lib
+win32-g++:LIBS += -luuid
+win32:LIBS += -lole32
 
 
 

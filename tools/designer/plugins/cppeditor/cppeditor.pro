@@ -10,13 +10,8 @@ DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 
 INCLUDEPATH	+= ../../interfaces ../../editor $$QT_BUILD_TREE/tools/designer/editor 
-win32{
-    win32-g++ {
-        LIBS	+= $$QT_BUILD_TREE/lib/libeditor.a
-    } else :LIBS += $$QT_BUILD_TREE/lib/editor.lib
-} else {
-    LIBS	+= -L$$QT_BUILD_TREE/lib $$QT_BUILD_TREE/lib/libeditor.a
-}
+
+LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
 
 target.path += $$plugins.path/designer
 INSTALLS 	+= target

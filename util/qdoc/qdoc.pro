@@ -89,9 +89,6 @@ win32 {
 	  	   $$QT_SOURCE_TREE/src/tools/qfile_win.cpp \
 		   $$QT_SOURCE_TREE/src/tools/qfileinfo_win.cpp \
 		   $$QT_SOURCE_TREE/src/tools/qlibrary_win.cpp
-   win32-g++ {
-	LIBS += -lole32
-   } else:!win32-borland:LIBS += ole32.lib
-
+   !win32-borland:LIBS += -lole32
 }
 TARGET		= qdoc

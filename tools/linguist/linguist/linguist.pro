@@ -29,12 +29,11 @@ include( ../../../src/qt_professional.pri )
 DESTDIR		= ../../../bin
 TARGET		= linguist
 
-win32 {
-    win32-g++ {
-	LIBS	+= $$QT_BUILD_TREE/lib/libqassistantclient.a
-    } else :LIBS	+= $$QT_BUILD_TREE/lib/qassistantclient.lib
-    RC_FILE	= linguist.rc
-}
+
+LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
+
+win32:RC_FILE	= linguist.rc
+
 mac {
     staticlib:CONFIG -= global_init_link_order #yuck
     RC_FILE = linguist.icns
@@ -101,5 +100,5 @@ IMAGES	= images/accelerator.png \
 TEMPLATE	=app
 CONFIG	+= qt warn_on
 INCLUDEPATH	+= ../shared
-unix:LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
+
 LANGUAGE	= C++
