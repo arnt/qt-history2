@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#224 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -306,6 +306,7 @@ static void qt_set_windows_resources()
     cg.setDark(QColor(GetSysColor(COLOR_BTNSHADOW) ));
     cg.setMid(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
     cg.setText(QColor(GetSysColor(COLOR_WINDOWTEXT) ));
+    cg.setButtonText(QColor(GetSysColor(COLOR_WINDOWTEXT) ));
     cg.setBrightText(QColor(GetSysColor(COLOR_BTNHIGHLIGHT) ));
     cg.setBase(QColor(GetSysColor(COLOR_WINDOW) ));
     cg.setBackground( QColor(GetSysColor(COLOR_BTNFACE)));
