@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#228 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#229 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1761,7 +1761,7 @@ QString QFileDialog::dirPath() const
 /*!  Sets the filter spec in use to \a newFilter.
 
   If \a newFilter matches the regular expression
-  <tt>([a-zA-Z0-9\.\*\?\ \+]*)$</tt> (ie. it ends with a normal wildcard
+  <tt>([a-zA-Z0-9\.\*\?\ \+\;]*)$</tt> (ie. it ends with a normal wildcard
   expression enclosed in parentheses), only the parenthesized is used.
   This means that these two calls are equivalent:
 
@@ -1776,7 +1776,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
         return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
