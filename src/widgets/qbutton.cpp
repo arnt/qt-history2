@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#39 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -93,27 +93,36 @@ QButton::~QButton()
 /*----------------------------------------------------------------------------
   \fn void QButton::pressed()
   This signal is emitted when the button is pressed down.
- ----------------------------------------------------------------------------*/
+
+  \sa released() clicked()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::released()
   This signal is emitted when the button is released.
- ----------------------------------------------------------------------------*/
+
+  \sa clicked() pressed() toggled()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::clicked()
-  This signal is emitted when the button is activated (i.e. first pressed down
-  and then released when the mouse cursor is inside the button).
- ----------------------------------------------------------------------------*/
+  This signal is emitted when the button is activated (i.e. first
+  pressed down and then released when the mouse cursor is inside the
+  button).
+
+  \sa pressed() released() toggled()
+  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn void QButton::toggled( bool on )
-  This signal is emitted whenever a toggle button changes status.
-  \e on is TRUE if the button is on, or FALSE if the button is off.
+  This signal is emitted whenever a toggle button changes status.  \e
+  on is TRUE if the button is on, or FALSE if the button is off.
 
   This may be the result of a user action, toggle() slot activation,
   or because setOn() was called.
- ----------------------------------------------------------------------------*/
+
+  \sa clicked()
+  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
