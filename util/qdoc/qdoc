@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#135 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#136 $
 #
 # this is a massive hack, written very quickly
 #
@@ -709,7 +709,7 @@ sub manglefn {
 
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
-    $type =~ s/-*([\*\&])-*/$1/g;
+    $type =~ s/-*([\*\&]+)-*/$1/g;
     $type =~ s/^-?virtual-?//;
     if ( ($type =~ /^[A-Z][^:]*$/ ) # class-local enum
 	&& defined( $type{&mangleclass( $class ) . "#" . $type} ) ) {
@@ -723,7 +723,8 @@ sub manglefn {
     foreach (split(/\s*,\s*/, $sig)) {
 # kill argument name
 	s/\s*=.*//s;
-	if ( !(s/([\&\*]).*/$1/) && (/((?:\w+\s+)*?)\s*([\w<>]*)\s+(\w+)$/s)) {
+	if ( !(s/([\&\*]+).*/$1/) &&
+	    (/((?:\w+\s+)*?)\s*([\w<>]*)\s+(\w+)$/s)) {
 	    if (($2 ne "class") && ($2 ne "enum") && ($2 ne "union") &&
 		($2 ne "struct") && ($2 ne "const") && ($2 ne "volatile") &&
 		($3 ne "int") && ($3 ne "float") && ($3 ne "char") &&
@@ -733,7 +734,7 @@ sub manglefn {
 	    }
 	}
 # strip spaces around & and *
-	s/\s*([\*\&])\s*/$1/g;
+	s/\s*([\*\&]+)\s*/$1/g;
 # kill default and change spaces into -
 	s/=.*//g;
 	s/\s+/-/g;
@@ -783,7 +784,7 @@ sub storeclass {
 	$enum = $url . "#" . $1;
 	$type{$enum} = "enum";
 	$name{$enum} = $name . "::" . $1;
-	$anchor{$name{$enum}} = $enum unless (defined($anchor{$name{$enum}}));
+#	$anchor{$name{$enum}} = $enum unless (defined($anchor{$name{$enum}}));
     }
 
     $def =~ s/\)\s*\{.*?\}\s*/\);\n/gs;
@@ -1261,6 +1262,7 @@ sub makenames {
     local($_, $dum, $ferdig, $anchor, %total);
 
     foreach ( sort keys %name ) {
+	next if /^globals.html/;
 	unless (defined($anchor{$name{$_}}) ||
 		defined($overload{$_}) ||
 		(!defined($doc{$_})) ||
@@ -2155,7 +2157,6 @@ foreach $c ( sort keys %doc ) {
 
 &inheritanceindex();
 &classindex();
-&enumindex();
 &headerindex();
 &exampleindex();
 &memberlists();
