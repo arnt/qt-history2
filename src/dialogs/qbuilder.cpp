@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#3 $
 **
 ** Implementation of QBuilder class
 **
@@ -29,6 +29,10 @@
 #include "qmetaobject.h"
 #include "qobjectdict.h"
 #include "qobjectlist.h"
+#include "qlabel.h"
+#include "qpushbutton.h"
+#include "qvbox.h"
+#include "qhbox.h"
 
 class QBuilderClassItem : public QListViewItem {
     QBuilderPrivate* d;
@@ -74,6 +78,8 @@ public:
 	splitter = new QSplitter(parent);
 	classes = new QListView(splitter);
 	objects = new QListView(splitter);
+	classes->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	objects->setFrameStyle(QFrame::Sunken|QFrame::Panel);
 
 	classes->addColumn("Class");
 	objects->addColumn("Object");
@@ -252,8 +258,13 @@ QBuilder::QBuilder() :
     QPopupMenu * options = new QPopupMenu();
     menuBar()->insertItem( "&Options", options );
 
-    d = new QBuilderPrivate(this);
-    setCentralWidget(d->splitter);
+    QVBox* vbox = new QVBox(this);
+    d = new QBuilderPrivate(vbox);
+    QHBox* hbox = new QHBox(vbox);
+    new QLabel("Class\nstuff\nhere",hbox);
+    new QLabel("Object\nstuff\nhere",hbox);
+
+    setCentralWidget(vbox);
 
     QString msg;
     int nclasses = QMetaObjectInit::init()+1; // +1 for QObject
@@ -268,8 +279,12 @@ QBuilder::QBuilder() :
     statusBar()->message(msg);
 
     connect( d->objects, SIGNAL(selectionChanged(QListViewItem*)),
-	     this, SLOT(objectSelected(QListViewItem*)) );
+	     this, SLOT(selectObject(QListViewItem*)) );
 
+    connect( d->classes, SIGNAL(selectionChanged(QListViewItem*)),
+	     this, SLOT(selectClass(QListViewItem*)) );
+
+    updateDetails(0,0);
 }
 
 QBuilder::~QBuilder()
@@ -285,10 +300,42 @@ void QBuilder::addTopLevelWidget(QWidget* tlw)
     }
 }
 
-void QBuilder::objectSelected( QListViewItem* lvi )
+void QBuilder::selectObject( QListViewItem* lvi )
 {
     if ( lvi->isSelected() ) {
 	QBuilderObjectItem* boi = (QBuilderObjectItem*)lvi;
 	d->selectClass(boi->at()->metaObject());
+	updateDetails(boi->at());
+    }
+}
+
+void QBuilder::selectClass( QListViewItem* lvi )
+{
+    if ( lvi->isSelected() ) {
+	QBuilderClassItem* bci = (QBuilderClassItem*)lvi;
+	d->selectClass(bci->at());
+
+	QBuilderObjectItem* boi = (QBuilderObjectItem*)
+				    d->objects->currentItem();
+	if ( boi && bci->at() != boi->at()->metaObject() ) {
+	    d->objects->setSelected(boi,FALSE);
+	    updateDetails(0,bci->at());
+	}
+    }
+}
+
+void QBuilder::updateDetails( QObject* object, QMetaObject* cls )
+{
+    if ( object ) {
+	cls = object->metaObject();
+	// Show detailed information
+    } else {
+	// Disable display
+    }
+
+    if ( cls ) {
+	// Show detailed information
+    } else {
+	// Disable display
     }
 }
