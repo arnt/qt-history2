@@ -25,7 +25,7 @@
 
 static QList<QTextCodec> *codecList = 0;
 
-enum { Uni = 0, MBug = 1, Lat1 = 2, Codec = 5 };
+enum { Uni = 0, MBug = 1, Lat1 = 2, Local = 3, Guess = 4, Codec = 5 };
 
 
 Editor::Editor( QWidget * parent , const char * name )
@@ -39,7 +39,9 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertItem( "&New",   this, SLOT(newDoc()),   ALT+Key_N );
     file->insertItem( "&Open",  this, SLOT(load()),     ALT+Key_O );
     file->insertItem( "&Save",  this, SLOT(save()),     ALT+Key_S );
-
+    file->insertSeparator();
+    open_as = new QPopupMenu();
+    file->insertItem( "Open &as",  open_as );
     save_as = new QPopupMenu();
     file->insertItem( "Save &as",  save_as );
     file->insertItem( "Add &encoding", this, SLOT(addEncoding()) );
@@ -50,12 +52,14 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertItem( "&Quit",  qApp, SLOT(closeAllWindows()),     ALT+Key_Q );
 
     connect( save_as, SIGNAL(activated(int)), this, SLOT(saveAsEncoding(int)) );
+    connect( open_as, SIGNAL(activated(int)), this, SLOT(openAsEncoding(int)) );
     rebuildCodecList();
 
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
-    e->setFont( QFont("Helvetica", 24) );
+    //e->setFont( QFont("Helvetica", 24) );
+    e->setFont( QFont("Unifont", 16, 50, FALSE, QFont::Unicode) );
 
     e->setFocus();
 }
@@ -73,12 +77,21 @@ void Editor::rebuildCodecList()
     for (i = 0; (codec = QTextCodec::codecForIndex(i)); i++)
 	codecList->append( codec );
     int n = codecList->count();
-    save_as->clear();
-    save_as->insertItem("Unicode", Uni );
-    save_as->insertItem("Latin1", Lat1 );
-    save_as->insertItem("Microsoft Unicode", MBug );
-    for ( i = 0; i < n; i++ )
-	save_as->insertItem( codecList->at(i)->name(), Codec + i );
+    for (int pm=0; pm<2; pm++) {
+	QPopupMenu* menu = pm ? open_as : save_as;
+	menu->clear();
+	QString local = "Local (";
+	local += QTextCodec::codecForLocale()->name();
+	local += ")";
+	menu->insertItem( local, Local );
+	menu->insertItem( "Unicode", Uni );
+	menu->insertItem( "Latin1", Lat1 );
+	menu->insertItem( "Microsoft Unicode", MBug );
+	if ( pm )
+	    menu->insertItem( "[guess]", Guess );
+	for ( i = 0; i < n; i++ )
+	    menu->insertItem( codecList->at(i)->name(), Codec + i );
+    }
 }
 
 void Editor::newDoc()
@@ -93,10 +106,10 @@ void Editor::load()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
-	load( fn );
+	load( fn, -1 );
 }
 
-void Editor::load( const QString& fileName )
+void Editor::load( const QString& fileName, int code )
 {
     QFile f( fileName );
     if ( !f.open( IO_ReadOnly ) )
@@ -105,6 +118,26 @@ void Editor::load( const QString& fileName )
     e->setAutoUpdate( FALSE );
 
     QTextStream t(&f);
+    if ( code >= Codec )
+	t.setCodec( codecList->at(code-Codec) );
+    else if ( code == Uni )
+	t.setEncoding( QTextStream::Unicode );
+    else if ( code == MBug )
+	t.setEncoding( QTextStream::UnicodeReverse );
+    else if ( code == Lat1 )
+	t.setEncoding( QTextStream::Latin1 );
+    else if ( code == Guess ) {
+	QFile f(fileName);
+	f.open(IO_ReadOnly);
+	char buffer[256];
+	int l = 256;
+	l=f.readBlock(buffer,l);
+	QTextCodec* codec = QTextCodec::codecForContent(buffer, l);
+	if ( codec ) {
+	    QMessageBox::information(this,"Encoding",QString("Codec: ")+codec->name());
+	    t.setCodec( codec );
+	}
+    }
     e->setText( t.read() );
     f.close();
 
@@ -113,6 +146,14 @@ void Editor::load( const QString& fileName )
     setCaption( fileName );
 
     changed = FALSE;
+}
+
+void Editor::openAsEncoding( int code )
+{
+    //storing filename (proper save) is left as an exercise...
+    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
+    if ( !fn.isEmpty() )
+	(void) load( fn, code );
 }
 
 bool Editor::save()

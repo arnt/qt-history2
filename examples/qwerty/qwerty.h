@@ -23,10 +23,11 @@ public:
     Editor( QWidget *parent=0, const char *name="qwerty" );
    ~Editor();
 
+    void load( const QString& fileName, int code=-1 );
+
 public slots:
     void newDoc();
     void load();
-    void load( const QString& fileName );
     bool save();
     void print();
     void addEncoding();
@@ -37,6 +38,7 @@ protected:
 
 private slots:
     void saveAsEncoding( int );
+    void openAsEncoding( int );
     void textChanged();
 
 private:
@@ -46,6 +48,7 @@ private:
     QMultiLineEdit *e;
     QPrinter        printer;
     QPopupMenu	   *save_as;
+    QPopupMenu	   *open_as;
     bool changed;
 };
 
