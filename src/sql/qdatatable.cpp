@@ -1752,9 +1752,9 @@ void QDataTable::setCurrentSelection( int row, int )
     emit currentChanged( sqlCursor() );
 }
 
-/*!  Returns a pointer to the currently selected record, or 0 if
-  there is no current selection.  The table owns the pointer, so do \e
-  not delete it.
+/*!  Returns a pointer to the currently selected record, or 0 if there
+  is no current selection.  The table owns the pointer, so do \e not
+  delete it or otherwise modify it or the cursor it points to.
 
 */
 
@@ -1762,7 +1762,8 @@ QSqlRecord* QDataTable::currentRecord() const
 {
     if ( !sqlCursor() || currentRow() < 0 )
 	return 0;
-    sqlCursor()->seek( currentRow() );
+    if ( !sqlCursor()->seek( currentRow() ) )
+	return 0;
     return sqlCursor();
 }
 
@@ -1889,19 +1890,19 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   default data values.
 */
 
-/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf ) 
-  This signal is emitted after the cursor is primed for update by the 
-  table, when an update action is beginning on the table.  The \a buf 
-  parameter points to the edit buffer being updated. Connect to this 
-  signal in order to, for example, provide some visual feedback that 
+/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf )
+  This signal is emitted after the cursor is primed for update by the
+  table, when an update action is beginning on the table.  The \a buf
+  parameter points to the edit buffer being updated. Connect to this
+  signal in order to, for example, provide some visual feedback that
   the user is in 'insert mode'.
 */
 
-/*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) 
-  This signal is emitted after the cursor is primed for delete by 
-  the table, when a delete action is beginning on the table.  The 
-  \a buf parameter points to the edit buffer being deleted. Connect 
-  to this signal in order to, for example, record auditing information 
+/*! \fn void QDataTable::primeDelete( QSqlRecord* buf )
+  This signal is emitted after the cursor is primed for delete by
+  the table, when a delete action is beginning on the table.  The
+  \a buf parameter points to the edit buffer being deleted. Connect
+  to this signal in order to, for example, record auditing information
   on deletions.
 */
 
