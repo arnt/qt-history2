@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#225 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#224 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#225 $");
 
 
 /*****************************************************************************
@@ -148,8 +148,10 @@ static void cleanup_gc_array( Display *dpy )
 static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
 {
 #if defined(DONT_USE_GC_ARRAY)
-    return XCreateGC( dpy, hd, 0, 0 );		// will be slow!
-#endif
+    GC gc = XCreateGC( dpy, hd, 0, 0 );		// will be slow!
+    XSetGraphicsExposures( dpy, gc, FALSE );
+    return gc;
+#else
     register QGC *p = gc_array;
     int i = gc_array_size;
     if ( !gc_array_init )			// not initialized
@@ -157,6 +159,7 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
     while ( i-- ) {
 	if ( !p->gc ) {				// create GC (once)
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
+	    XSetGraphicsExposures( dpy, p->gc, FALSE );
 	    p->in_use = FALSE;
 	    p->mono   = monochrome;
 	}
@@ -169,7 +172,10 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE )
 #if defined(CHECK_NULL)
     warning( "QPainter: Internal error; no available GC" );
 #endif
-    return XCreateGC( dpy, hd, 0, 0 );
+    GC gc = XCreateGC( dpy, hd, 0, 0 );
+    XSetGraphicsExposures( dpy, gc, FALSE );
+    return gc;
+#endif
 }
 
 static void free_gc( Display *dpy, GC gc )

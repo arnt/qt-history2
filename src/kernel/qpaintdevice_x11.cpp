@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#76 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#76 $");
 
 
 /*!
@@ -246,8 +246,10 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
     }
     mask_gc *p = &gc_vec[mask_no % max_mask_gcs];
     if ( !p->gc || p->mask_no != mask_no ) {	// not a perfect match
-	if ( !p->gc )				// no GC
+	if ( !p->gc ) {				// no GC
 	    p->gc = XCreateGC( dpy, hd, 0, 0 );
+	    XSetGraphicsExposures( dpy, p->gc, FALSE );
+	}
 	XSetClipMask( dpy, p->gc, mask );
 	p->mask_no = mask_no;
     }
@@ -395,6 +397,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool mono_src;
     bool mono_dst;
     bool include_inferiors = FALSE;
+    bool graphics_exposure = FALSE;
     QBitmap *mask;
 
     if ( ts == PDT_PIXMAP ) {
@@ -404,6 +407,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	mono_src = FALSE;
 	mask = 0;
 	include_inferiors = ((QWidget*)src)->testWFlags(WPaintUnclipped);
+	graphics_exposure = td == PDT_WIDGET;
     }
     if ( td == PDT_PIXMAP ) {
 	mono_dst = ((QPixmap*)dst)->depth() == 1;
@@ -505,6 +509,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     } else {					// src is pixmap/widget
 
+	if ( graphics_exposure )		// widget to widget
+	    XSetGraphicsExposures( dpy, gc, TRUE );
 	if ( include_inferiors ) {
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
 	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
@@ -514,6 +520,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
 		       dx, dy );
 	}
+	if ( graphics_exposure )		// reset graphics exposure
+	    XSetGraphicsExposures( dpy, gc, FALSE );
     }
 
     if ( rop != CopyROP )			// restore ROP

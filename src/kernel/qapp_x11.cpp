@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#280 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#279 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#280 $");
 
 
 /*****************************************************************************
@@ -667,6 +667,7 @@ static GC create_gc( bool monochrome )
 	    XDestroyWindow( appDpy, w );
 	}
     }
+    XSetGraphicsExposures( appDpy, gc, FALSE );
     return gc;
 }
 
