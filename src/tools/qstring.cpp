@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#40 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#40 $";
 #endif
 
 
@@ -28,17 +28,15 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#39 $";
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-
 /*----------------------------------------------------------------------------
+  \fn void *memmove( void *dst, const void *src, uint len )
   \relates QString
-  Some versions of memmove puke on your data if your source and
-  destination blocks overlap.
 
-  Not qmemmove.
+  This function is normally part of the C library. Qt implements
+  memmove() for platforms that do not have it.
 
-  \arg \e dst is the pointer to the destination address
-  \arg \e src is the pointer ot the source address
-  \arg \e len is the number of bytes to copy
+  memmove() copies \e len bytes from \e src into \e dst.  The data is
+  copied correctly even if \e src and \e dst overlap.
  ----------------------------------------------------------------------------*/
 
 void *qmemmove( void *dst, const void *src, uint len )
@@ -61,41 +59,146 @@ void *qmemmove( void *dst, const void *src, uint len )
 }
 
 /*----------------------------------------------------------------------------
+  \fn char *strdup( const char *str )
   \relates QString
-  Allocates space for a copy of the string, copies it, and returns
-  a pointer to the copy.
+
+  A safe strdup() function that overrides the one defined by the C library,
+  if the C library has one.
+
+  Allocates space for a copy of \e str, copies it, and returns a pointer to
+  the copy.
+  If \e src is null, it immediately returns 0.
  ----------------------------------------------------------------------------*/
 
-char *q_strdup( const char *src )		// safe duplicate string
+char *qstrdup( const char *str )
 {
-    if ( !src )
+    if ( !str )
 	return 0;
-    char *dst = new char[strlen(src)+1];
+    char *dst = new char[strlen(str)+1];
     CHECK_PTR( dst );
-    return strcpy( dst, src );
+    return strcpy( dst, str );
 }
 
 /*----------------------------------------------------------------------------
+  \fn uint strlen( const char *str )
   \relates QString
-  Compares two strings ignoring uppper/lower case.
-  If \e str1 and \e str2 are both non-null, qstricmp() returns
-  negative, 0 or positive, just like the C library's stricmp().	 If
-  either \e str1 or \e str2 but not both are null, qstricmp() returns
-  a random non-zero value.  If both are null, qstricmp() returns 0.
 
-  \sa qstrnicmp().
+  A safe strlen() function that overrides the one defined by the C library.
+  The original strlen() function has been renamed cstrlen().
+
+  Returns the number of characters in \e str, or 0 if \e str is null.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn char *strcpy( char *dst, const char *str )
+  \relates QString
+
+  A safe strcpy() function that overrides the one defined by the C library.
+  The original strcpy() function has been renamed cstrcpy().
+
+  Copies all characters (including \0) from \e str into \e dst and returns
+  a pointer to \e dst.
+  If \e src is null, it immediately returns 0.
+
+  \sa strncpy()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn char *strncpy( char *dst, const char *str, uint len )
+  \relates QString
+
+  A safe strncpy() function that overrides the one defined by the C library.
+  The original strncpy() function has been renamed cstrncpy().
+
+  Copies all characters up to \e len bytes from \e str into \e dst and returns
+  a pointer to \e dst.  Guarantees that \e dst is \0-terminated.
+  If \e src is null, it immediately returns 0.
+
+  \sa strcpy()
+ ----------------------------------------------------------------------------*/
+
+char *qstrncpy( char *dst, const char *src, uint len )
+{
+    if ( !src )
+	return 0;
+    strncpy( dst, src, len );
+    if ( len > 0 )
+	dst[len-1] = '\0';
+    return dst;
+}
+
+/*----------------------------------------------------------------------------
+  \fn int strcmp( const char *str1, const char *str2 )
+  \relates QString
+
+  A safe strcmp() function that overrides the one defined by the C library.
+  The original strcmp() function has been renamed cstrcmp().
+
+  Compares \e str1 and \e str2.  Returns a negative value if \e str1
+  is less than \e str2, 0 if \e str1 is equal to \e str2 or a positive
+  value if \e str1 is greater than \e str2.
+
+  Special case I: <br>
+  Returns 0 if \e str1 and \e str2 are both null.
+
+  Special case II: <br>
+  Returns a nonzero value if \e str1 is null or \e str2 is null (but not both).
+
+  \sa strncmp(), stricmp(), strnicmp()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int strncmp( const char *str1, const char *str2, uint len )
+  \relates QString
+
+  A safe strncmp() function that overrides the one defined by the C library.
+  The original strncmp() function has been renamed cstrncmp().
+
+  Compares \e str1 and \e str2 up to \e len bytes.
+
+  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
+  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  str2.
+
+  Special case I: <br>
+  Returns 0 if \e str1 and \e str2 are both null.
+
+  Special case II: <br>
+  Returns a nonzero value if \e str1 is null or \e str2 is null (but not both).
+
+  \sa strcmp(), stricmp(), strnicmp()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn int stricmp( const char *str1, const char *str2 )
+  \relates QString
+
+  A safe stricmp() function that overrides the one defined by the C library,
+  if the C library has one.
+
+  Compares \e str1 and \e str2 ignoring the case.
+
+  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
+  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  str2.
+
+  Special case I: <br>
+  Returns 0 if \e str1 and \e str2 are both null.
+
+  Special case II: <br>
+  Returns a nonzero value if \e str1 is null or \e str2 is null (but not both).
+
+  \sa strcmp(), strncmp(), strnicmp()
  ----------------------------------------------------------------------------*/
 
 int qstricmp( const char *str1, const char *str2 )
-{						// compare case-insensitive
+{
     register const uchar *s1 = (const uchar *)str1;
     register const uchar *s2 = (const uchar *)str2;
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return (int)((long)s2 - (long)s1);
-    if ( s1 == s2 )				// identical
-	return 0;
+	return s1 == s1 ? 0 : (int)((long)s2 - (long)s1);
     for ( ; !(res = (c=tolower(*s1)) - tolower(*s2)); s1++, s2++ )
 	if ( !c )				// strings are equal
 	    break;
@@ -103,27 +206,35 @@ int qstricmp( const char *str1, const char *str2 )
 }
 
 /*----------------------------------------------------------------------------
+  \fn int strnicmp( const char *str1, const char *str2, uint len )
   \relates QString
-  Compares \e len characters of two strings ignoring uppper/lower case.
-  If \e str1 and \e str2 are both non-null, qstrnicmp() returns
-  negative, 0 or positive, just like the C library's strnicmp() or
-  strncasecmp.	If either \e str1 or \e str2 but not both are null,
-  qstrnicmp() returns a random non-zero value.	If both are null,
-  qstrnicmp() returns 0.  Also see qstricmp().
 
-  \sa qstricmp().
+  A safe strnicmp() function that overrides the one defined by the C library,
+  if the C library has one.
+
+  Compares \e str1 and \e str2 up to \e len bytes ignoring the case.
+
+  Returns a negative value if \e str1 is less than \e str2, 0 if \e str1
+  is equal to \e str2 or a positive value if \e str1 is greater than \e
+  str2.
+
+  Special case I: <br>
+  Returns 0 if \e str1 and \e str2 are both null.
+
+  Special case II: <br>
+  Returns a nonzero value if \e str1 is null or \e str2 is null (but not both).
+
+  \sa strcmp(), strncmp() stricmp()
  ----------------------------------------------------------------------------*/
 
 int qstrnicmp( const char *str1, const char *str2, uint len )
-{						// compare case-insensitive/len
+{
     register const uchar *s1 = (const uchar *)str1;
     register const uchar *s2 = (const uchar *)str2;
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return (int)((long)s2 - (long)s1);
-    if ( s1 == s2 )				// identical
-	return 0;
+	return s1 == s1 ? 0 : (int)((long)s2 - (long)s1);
     for ( ; len--; s1++, s2++ ) {
 	if ( (res = (c=tolower(*s1)) - tolower(*s2)) )
 	    return res;
@@ -167,9 +278,10 @@ static void createCRC16Table()			// build CRC16 lookup table
 }
 
 /*----------------------------------------------------------------------------
-  \related QByteArray
+  \relates QByteArray
   Returns the CRC-16 checksum of \e len bytes starting at \e data.
-  The checksum is independent of byte order.
+
+  The checksum is independent of the byte order (endianness).
  ----------------------------------------------------------------------------*/
 
 UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
@@ -193,6 +305,18 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
     return ~crc;
 }
 
+
+/*****************************************************************************
+  QByteArray member functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QByteArray qstring.h
+  \ingroup tools
+  \brief The QByteArray class provides an array of bytes.
+
+  This class will be documented later.
+ ----------------------------------------------------------------------------*/
 
 /*****************************************************************************
   QByteArray stream functions
@@ -229,53 +353,38 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 }
 
 
-/*!
-  \class QByteArray qstring.h
-
-  \ingroup tools
-
-  \brief The QByteArray class provides an array of bytes.
-
-  Boring and ungreppable lack of documentation.
- ----------------------------------------------------------------------------*/
-
-
 /*****************************************************************************
   QString member functions
  *****************************************************************************/
 
-
-/*!
+/*----------------------------------------------------------------------------
   \class QString qstring.h
-
-  \ingroup tools
-
   \brief The QString class is a handle class that provides an
   abstraction of the C style zero-terminated char array.  QString
   inherits QByteArray, which is defined as QArray\<char\>.
+  \ingroup tools
 
   Note that for the QString methods that take a <var>const char *</var>
   parameter the results are undefined if the QString is not
-  zero-terminated.  It is legal for the <var>const char *</var>
-  parameter to be 0.
+  zero-terminated.  It is legal for the <var>const char *</var> parameter
+  to be 0.
 
-  A QString that has not been assigned to anything is <em>void</em>,
-  i.e.	both the length and data pointer is 0.	A QString that
-  references the empty string ("", a single '\0' char) is
-  <em>empty</em>.  Both <em>void</em> and <em>empty</em> QStrings are
-  legal parameters to the methods. Assigning <var>const char * 0</var>
-  to QString gives a <em>void</em> QString.
+  A QString that has not been assigned to anything is \e null, i.e. both
+  the length and data pointer is 0. A QString that references the empty
+  string ("", a single '\0' char) is \e empty.  Both void and empty
+  QStrings are legal parameters to the methods. Assigning <var>const char
+  * 0</var> to QString gives a null QString.
 
-  Since QString has both an internal length specifier (from QArray)
-  and a zero-terminator, there will be a conflict if somebody manually
-  inserts a '\0' into the string.
+  Since QString has both an internal length specifier (from QArray) and a
+  zero-terminator, there will be a conflict if somebody manually inserts a
+  '\0' into the string.
 
   \code
-  QString s = "networking is fun";
-  s[10] = 0;
-    \/ s will be "networking"
-    \/ strlen(s) will be 10
-    \/ s.length() is still 17
+    QString s = "Networking is fun";
+    s[10] = 0;
+    strcmp( s, "Networking" ) == 0;	// TRUE
+    strlen( s ) == 10;			// TRUE
+    s.length() == 17;			// Also TRUE
   \endcode
 
   See <a href=handleclasses.html>handle classes</a> for information
@@ -285,7 +394,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*----------------------------------------------------------------------------
   \fn QString::QString()
-  Constructs a \e void string.
+  Constructs a null string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -324,7 +433,7 @@ QString::QString( const char *str )		// deep copy
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::operator=( const char *str )
-  Assigns a deep copy of \e str and return a reference to this string.
+  Assigns a deep copy of \e str and return a reference to the string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -334,7 +443,8 @@ QString::QString( const char *str )		// deep copy
 
 /*----------------------------------------------------------------------------
   Returns the length of the string, excluding the '\0'-terminator.
-  \e Void strings (null pointers) and \e empty strings ("") have zero length.
+  Null strings (null pointers) and \e empty strings ("") have zero length.
+  \sa size()
  ----------------------------------------------------------------------------*/
 
 uint QString::length() const
@@ -344,9 +454,32 @@ uint QString::length() const
 }						// (if not empty)
 
 /*---------------------------------------------------------------------------
+  \fn bool QString::truncate( uint pos )
+  Truncates the string at position \e pos.
+
+  Equivalent to calling resize(pos+1).
+
+  Example:
+  \code
+    QString s = "truncate this string";
+    s.truncate( 5 );			// s == "trunc"
+  \endcode
+
+  \sa resize()
+ ----------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------
   Extends or shrinks the string to \e len bytes, including the
   '\0'-terminator.  A \0-terminator is set at position <var>len - 1</var>
   unless <var>len == 0</var>.
+
+  Example:
+  \code
+    QString s = "resize this string";
+    s.resize( 7 );			// s == "resize"
+  \endcode
+
+  \sa truncate()
  ----------------------------------------------------------------------------*/
 
 bool QString::resize( uint len )
@@ -379,7 +512,7 @@ bool QString::resize( uint len )
  ----------------------------------------------------------------------------*/
 
 QString &QString::sprintf( const char *format, ... )
-{						// make formatted string
+{
     va_list ap;
     va_start( ap, format );
     if ( size() < 256 )
@@ -387,78 +520,6 @@ QString &QString::sprintf( const char *format, ... )
     vsprintf( data(), format, ap );
     resize( strlen(data()) + 1 );		// truncate
     va_end( ap );
-    return *this;
-}
-
-
-/*----------------------------------------------------------------------------
-  Strips white space from the beginning and the end of the string.
-  \sa simplifyWhiteSpace().
- ----------------------------------------------------------------------------*/
-
-QString & QString::stripWhiteSpace()		// strip white space
-{
-    if ( isEmpty() )				// nothing to do
-	return *this;
-    register char *s = data();
-    if ( !isspace(s[0]) && !isspace(s[length()-1]) )
-	return *this;
-    int start = 0;
-    int end = length() - 1;
-    while ( isspace(s[start]) )			// skip white space from start
-	start++;
-    if ( s[start] == '\0' ) {			// only white space
-	resize( 1 );
-	return *this;
-    }
-    while ( end && isspace(s[end]) )		// skip white space from end
-	end--;
-    end -= start - 1;
-    memmove( data(), &s[start], end );
-    resize( end + 1 );
-    return *this;
-}
-
-
-/*----------------------------------------------------------------------------
-  Strips white space away from the start and end of the string, and
-  changes all internal white space (any sequence of ASCII codes 9, 10,
-  11, 12, 13 and 32) into a single space.
-
-  \code
-  QString a = "  lots\t of\nwhite    space ";
-  a.simplifyWhiteSpace();		// a: "lots of white space"
-  \endcode
-
-  \sa stripWhiteSpace().
- ----------------------------------------------------------------------------*/
-
-QString &QString::simplifyWhiteSpace()
-{
-    char *from;
-    char *to;
-    bool finalspace;
-
-    if ( isEmpty() )
-	return *this;
-    from = to = data();
-    finalspace = FALSE;
-
-    while ( *from ) {
-	while (*from && isspace(*from))
-	    from++;
-        if ( !*from )
-            break;
-	while (*from && !isspace(*from))
-	    *to++ = *from++;
-	*to++ = ' ';
-	finalspace = TRUE;
-    }
-    if (finalspace)
-	to--;
-
-    *to = '\0';
-    resize( (int)((long)to + 1 - (long)data()) );
     return *this;
 }
 
@@ -495,7 +556,7 @@ bool QString::fill( char c, int len )		// fill string with c
  ----------------------------------------------------------------------------*/
 
 int QString::find( char c, int index, bool cs ) const
-{						// find char
+{
     if ( (uint)index >= size() )		// index outside string
 	return -1;
     register char *d;
@@ -523,7 +584,7 @@ int QString::find( char c, int index, bool cs ) const
  ----------------------------------------------------------------------------*/
 
 int QString::find( const char *str, int index, bool cs ) const
-{						// find substring
+{
     if ( (uint)index >= size() )		// index outside string
 	return -1;
     register char *d;
@@ -587,7 +648,7 @@ int QString::findRev( char c, int index, bool cs ) const
  ----------------------------------------------------------------------------*/
 
 int QString::findRev( const char *str, int index, bool cs ) const
-{						// reverse find substring
+{
     int slen = strlen(str);
     if ( index < 0 )				// neg index ==> start from end
 	index = length()-slen;
@@ -620,7 +681,7 @@ int QString::findRev( const char *str, int index, bool cs ) const
   if FALSE.
  ----------------------------------------------------------------------------*/
 
-int QString::contains( char c, bool cs ) const	// get # c's
+int QString::contains( char c, bool cs ) const
 {
     int count = 0;
     char *d = data();
@@ -651,11 +712,11 @@ int QString::contains( char c, bool cs ) const	// get # c's
   This function counts overlapping substrings, for example, "banana"
   contains two occurrences of "ana".
 
-  \sa findRev().
+  \sa findRev()
  ----------------------------------------------------------------------------*/
 
 int QString::contains( const char *str, bool cs ) const
-{						// get # str substrings
+{
     int count = 0;
     char *d = data();
     if ( !d )
@@ -677,13 +738,20 @@ int QString::contains( const char *str, bool cs ) const
 
 /*----------------------------------------------------------------------------
   Returns a substring that contains the \e len leftmost characters
-  of this string.
+  of the string.
 
-  A deep copy of this string will be returned if \e len exceeds the length
-  of this string.
+  The whole string will be returned if \e len exceeds the length of the string.
+
+  Example:
+  \code
+    QString s = "Pineapple";
+    QString t = s.left( 4 );		// t == "Pine"
+  \endcode
+
+  \sa right(), mid()
  ----------------------------------------------------------------------------*/
 
-QString QString::left( uint len ) const		// get left substring
+QString QString::left( uint len ) const
 {
     if ( isEmpty() ) {
 	QString empty;
@@ -703,13 +771,20 @@ QString QString::left( uint len ) const		// get left substring
 
 /*----------------------------------------------------------------------------
   Returns a substring that contains the \e len rightmost characters
-  of this string.
+  of the string.
 
-  A deep copy of this string will be returned if \e len exceeds the length
-  of this string.
+  The whole string will be returned if \e len exceeds the length of the string.
+
+  Example:
+  \code
+    QString s = "Pineapple";
+    QString t = s.right( 5 );		// t == "apple"
+  \endcode
+
+  \sa left(), mid()
  ----------------------------------------------------------------------------*/
 
-QString QString::right( uint len ) const	// get right substring
+QString QString::right( uint len ) const
 {
     if ( isEmpty() ) {
 	QString empty;
@@ -727,8 +802,17 @@ QString QString::right( uint len ) const	// get right substring
   Returns a substring that contains the \e len characters of this
   string, starting at position \e index.
 
-  Returns a \e void string if this string is empty or \e index is out
-  of range.
+  Returns a null string if the string is empty or \e index is out
+  of range.  Returns the whole string from \e index if \e index+len exceeds
+  the length of the string.
+
+  Example:
+  \code
+    QString s = "Two pineapples";
+    QString t = s.mid( 4, 9 );		// t == "pineapple"
+  \endcode
+
+  \sa left(), right()
  ----------------------------------------------------------------------------*/
 
 QString QString::mid( uint index, uint len ) const
@@ -751,15 +835,16 @@ QString QString::mid( uint index, uint len ) const
   Returns a string of length \e width (plus '\0') that contains this
   string and padded by the \e fill character.
 
-  If the length of this string exceeds \e width, then the result
-  string will be a truncated copy of this string.
+  If the length of the string exceeds \e width, then the result
+  string will be a truncated copy of the string.
 
+  Example:
   \code
-  QString s("apple");
-  QString t = s.leftJustify(8, '.');	  \/ t == "apple..."
+    QString s("apple");
+    QString t = s.leftJustify(8, '.');	// t == "apple..."
   \endcode
 
-  \sa rightJustify().
+  \sa rightJustify()
  ----------------------------------------------------------------------------*/
 
 QString QString::leftJustify( uint width, char fill ) const
@@ -780,17 +865,18 @@ QString QString::leftJustify( uint width, char fill ) const
 
 /*----------------------------------------------------------------------------
   Returns a string of length \e width (plus '\0') that contains pad
-  characters followed by this string.
+  characters followed by the string.
 
-  If the length of this string exceeds \e width, then the result
-  string will be a truncated copy of this string.
+  If the length of the string exceeds \e width, then the returned string
+  will be a truncated copy of the string.
 
+  Example:
   \code
-  QString s("pie");
-  QString t = s.rightJustify(8, '.');	 \/ t == ".....pie"
+    QString s("pie");
+    QString t = s.rightJustify(8, '.');		// t == ".....pie"
   \endcode
 
-  \sa leftJustify().
+  \sa leftJustify()
  ----------------------------------------------------------------------------*/
 
 QString QString::rightJustify( uint width, char fill ) const
@@ -810,48 +896,152 @@ QString QString::rightJustify( uint width, char fill ) const
 }
 
 /*----------------------------------------------------------------------------
-  Converts the string to lower case and returns a reference to this
-  string.  At present it only handles 7-bit ASCII, or whatever the system
-  tolower() handles (if $LC_CTYPE is set, most unices do the Right Thing).
+  Returns a new string that is the string converted to lower case.
+
+  Presently it only handles 7-bit ASCII, or whatever tolower()
+  handles (if $LC_CTYPE is set, most UNIX systems do the Right Thing).
+
+  Example:
+  \code
+    QString s("TeX");
+    QString t = s.lower();		// t == "tex"
+  \endcode
 
   \todo Non-ASCII character set support
 
-  \sa upper().
+  \sa upper()
  ----------------------------------------------------------------------------*/
 
-QString &QString::lower()			// convert to lower case
+QString QString::lower() const
 {
-    if ( !isEmpty() ) {
-	register char *p = data();
+    QString s( data() );
+    register char *p = s.data();
+    if ( p ) {
 	while ( *p ) {
 	    *p = tolower(*p);
 	    p++;
 	}
     }
-    return *this;
+    return s;
 }
 
 /*----------------------------------------------------------------------------
-  Converts the string to upper case and returns a reference to the
-  string.  At present it only handles 7-bit ASCII, or whatever the
-  system toupper() handles (if $LC_CTYPE is set, most unices do the
-  Right Thing).
+  Returns a new string that is the string converted to upper case.
+
+  Presently it only handles 7-bit ASCII, or whatever toupper()
+  handles (if $LC_CTYPE is set, most UNIX systems do the Right Thing).
+
+  Example:
+  \code
+    QString s("TeX");
+    QString t = s.upper();		// t == "TEX"
+  \endcode
 
   \todo Non-ASCII character set support
 
-  \sa lower().
+  \sa lower()
  ----------------------------------------------------------------------------*/
 
-QString &QString::upper()			// convert to upper case
+QString QString::upper() const
 {
-    if ( !isEmpty() ) {
-	register char *p = data();
+    QString s( data() );
+    register char *p = s.data();
+    if ( p ) {
 	while ( *p ) {
 	    *p = toupper(*p);
 	    p++;
 	}
     }
-    return *this;
+    return s;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns a new string that has white space removed from the start and the end.
+
+  White space means any ASCII code 9, 10, 11, 12, 13 or 32.
+
+  Example:
+  \code
+    QString s = " space ";
+    QString t = s.stripWhiteSpace();	// t == "space"
+  \endcode
+
+  \sa simplifyWhiteSpace()
+ ----------------------------------------------------------------------------*/
+
+QString QString::stripWhiteSpace() const
+{
+    if ( isEmpty() )				// nothing to do
+	return copy();
+
+    register char *s = data();
+    QString result = s;
+    if ( !isspace(s[0]) && !isspace(s[length()-1]) )
+	return result;				// returns a copy
+
+    s = result.data();
+    int start = 0;
+    int end = result.length() - 1;
+    while ( isspace(s[start]) )			// skip white space from start
+	start++;
+    if ( s[start] == '\0' ) {			// only white space
+	result.resize( 1 );
+	return result;
+    }
+    while ( end && isspace(s[end]) )		// skip white space from end
+	end--;
+    end -= start - 1;
+    memmove( result.data(), &s[start], end );
+    result.resize( end + 1 );
+    return result;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns a new string that has white space removed from the start and the end,
+  plus any sequence of internal white space replaced with a single space
+  (ASCII 32).
+
+  White space means any ASCII code 9, 10, 11, 12, 13 or 32.
+
+  \code
+    QString s = "  lots\t of\nwhite    space ";
+    QString t = s.simplifyWhiteSpace();		// t == "lots of white space"
+  \endcode
+
+  \sa stripWhiteSpace()
+ ----------------------------------------------------------------------------*/
+
+QString QString::simplifyWhiteSpace() const
+{
+    if ( isEmpty() )				// nothing to do
+	return copy();
+
+    char *from;
+    char *to;
+    bool finalspace;
+
+    QString result( data() );
+    from = to = result.data();
+    finalspace = FALSE;
+
+    while ( *from ) {
+	while (*from && isspace(*from))
+	    from++;
+	if ( !*from )
+	    break;
+	while (*from && !isspace(*from))
+	    *to++ = *from++;
+	*to++ = ' ';
+	finalspace = TRUE;
+    }
+    if (finalspace)
+	to--;
+
+    *to = '\0';
+    result.resize( (int)((long)to + 1 - (long)result.data()) );
+    return result;
 }
 
 
@@ -860,13 +1050,13 @@ QString &QString::upper()			// convert to upper case
   too large, \e s is inserted at the end of the string.
 
   \code
-  QString a = "I like fish";
-  a.insert(a, 2, "don't ");		// becomes: "I don't like fish"
+    QString s = "I like fish";
+    s.insert( 2, "don't ");		// s == "I don't like fish"
   \endcode
  ----------------------------------------------------------------------------*/
 
 QString &QString::insert( uint index, const char *s )
-{						// insert s into string
+{
     int len = strlen(s);
     if ( len == 0 )
 	return *this;
@@ -886,15 +1076,18 @@ QString &QString::insert( uint index, const char *s )
 }
 
 /*----------------------------------------------------------------------------
-  Insert \e c into the string at (before) position \e index.  If \e
-  index is too large, \e c is inserted at the end of the string.
+  Insert \e c into the string at (before) position \e index and returns
+  a reference to the string.
 
+  If \e index is too large, \e c is inserted at the end of the string.
+
+  Example:
   \code
-  QString a = "Yes";
-  a.insert( 12528, '!');	\/ ok, becomes "Yes!"
+    QString s = "Yes";
+    s.insert( 12528, '!');	// s == "Yes!"
   \endcode
 
-  \sa remove(), replace().
+  \sa remove(), replace()
  ----------------------------------------------------------------------------*/
 
 QString &QString::insert( uint index, char c )	// insert char
@@ -907,20 +1100,20 @@ QString &QString::insert( uint index, char c )	// insert char
 
 /*----------------------------------------------------------------------------
   Removes \e len characters starting at position \e index from the
-  string.
+  string and returns a reference to the string.
 
   If \e index is too big, nothing happens.  If \e index is valid, but
   \e len is too large, the rest of the string is removed.
 
   \code
-  QString a = "It's a black rug";
-  a.remove( 8, 6 );			\/ becomes "It's a bug"
+    QString s = "It's a black rug";
+    s.remove( 8, 6 );			// s == "It's a bug"
   \endcode
 
-  \sa insert(), replace().
+  \sa insert(), replace()
  ----------------------------------------------------------------------------*/
 
-QString &QString::remove( uint index, uint len )// remove part of string
+QString &QString::remove( uint index, uint len )
 {
     uint olen = length();
     if ( index + len > olen ) {			// range problems
@@ -942,15 +1135,15 @@ QString &QString::remove( uint index, uint len )// remove part of string
   str replaces the rest of the string.
 
   \code
-  QString a = "Say yes!";
-  a.replace( 4, 3, "NO" );		\/ becomes "Say NO!"
+    QString s = "Say yes!";
+    s.replace( 4, 3, "NO" );		// s == "Say NO!"
   \endcode
 
-  \sa insert(), remove().
+  \sa insert(), remove()
  ----------------------------------------------------------------------------*/
 
 QString &QString::replace( uint index, uint len, const char *s )
-{						// replace part of string
+{
     remove( index, len );
     insert( index, s );
     return *this;
@@ -965,7 +1158,7 @@ QString &QString::replace( uint index, uint len, const char *s )
   it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
-long QString::toLong( bool *ok ) const		// convert string to long
+long QString::toLong( bool *ok ) const
 {
     char *end;
     long val = strtol( data(), &end, 0 );
@@ -987,7 +1180,7 @@ long QString::toLong( bool *ok ) const		// convert string to long
   or if it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
-ulong QString::toULong( bool *ok ) const	// convert string to ulong
+ulong QString::toULong( bool *ok ) const
 {
     char *end;
     ulong val = strtoul( data(), &end, 0 );
@@ -1045,7 +1238,7 @@ conceivable errors, and FALSE if the string is not a number at all, or
 if it has trailing garbage.
  ----------------------------------------------------------------------------*/
 
-double QString::toDouble( bool *ok ) const	// convert string to double
+double QString::toDouble( bool *ok ) const
 {
     char *end;
     double val = strtod( data(), &end );
@@ -1070,11 +1263,11 @@ double QString::toDouble( bool *ok ) const	// convert string to double
 
 /*----------------------------------------------------------------------------
   Makes a deep copy of \e str without dereferencing the current
-  string, i.e. all strings that share data will be modified.  Returns a
-  reference to this string.
+  string, i.e. all strings that share data will be modified.
+  Returns a reference to the string.
  ----------------------------------------------------------------------------*/
 
-QString &QString::setStr( const char *str )	// copy string, but not deref
+QString &QString::setStr( const char *str )
 {
     if ( str )					// valid string
 	store( str, strlen(str)+1 );
@@ -1084,8 +1277,8 @@ QString &QString::setStr( const char *str )	// copy string, but not deref
 }
 
 /*----------------------------------------------------------------------------
-  Sets the string to the numerical value of \e n.  Returns a
-  reference to this string.
+  Sets the string to the numerical value of \e n and returns a
+  reference to the string.
  ----------------------------------------------------------------------------*/
 
 QString &QString::setNum( long n )		// set string from long
@@ -1111,11 +1304,11 @@ QString &QString::setNum( long n )		// set string from long
 }
 
 /*----------------------------------------------------------------------------
-  Sets the string to the numerical unsigned value of \e n.
-  Returns a reference to this string.
+  Sets the string to the numerical unsigned value of \e n and
+  returns a reference to the string.
  ----------------------------------------------------------------------------*/
 
-QString &QString::setNum( ulong n )		// set string from ulong
+QString &QString::setNum( ulong n )
 {
     char buf[20];
     register char *p = &buf[19];
@@ -1130,25 +1323,25 @@ QString &QString::setNum( ulong n )		// set string from ulong
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::setNum( int n )
-  Sets the string to the numerical value of \e n.  Returns a reference
+  Sets the string to the numerical value of \e n and returns a reference
   to the string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::setNum( uint n )
-  Sets the string to the numerical unsigned value of \e n. Returns a
+  Sets the string to the numerical unsigned value of \e n and returns a
   reference to the string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::setNum( short n )
-  Sets the string to the numerical value of \e n. Returns a reference
+  Sets the string to the numerical value of \e n and returns a reference
   to the string.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QString &QString::setNum( ushort n )
-  Sets the string to the numerical unsigned value of \e n. Returns a
+  Sets the string to the numerical unsigned value of \e n and returns a
   reference to the string.
  ----------------------------------------------------------------------------*/
 
@@ -1204,7 +1397,7 @@ QString &QString::setNum( double n, char f, int prec )
   not be expanded, otherwise TRUE.
  ----------------------------------------------------------------------------*/
 
-bool QString::setExpand( uint index, char c )	// set and expand if necessary
+bool QString::setExpand( uint index, char c )
 {
     if ( index >= length() ) {
 	uint oldlen = length();
@@ -1235,10 +1428,10 @@ bool QString::setExpand( uint index, char c )	// set and expand if necessary
 
 
 /*----------------------------------------------------------------------------
-  Appends \e str to this string and returns a reference to the string.
+  Appends \e str to the string and returns a reference to the string.
  ----------------------------------------------------------------------------*/
 
-QString& QString::operator+=( const char *str ) // append char *str to this
+QString& QString::operator+=( const char *str )
 {
     if ( !str )
 	return *this;				// nothing to append
@@ -1254,10 +1447,10 @@ QString& QString::operator+=( const char *str ) // append char *str to this
 }
 
 /*----------------------------------------------------------------------------
-  Appends \e c to this string and returns a reference to the string.
+  Appends \e c to the string and returns a reference to the string.
  ----------------------------------------------------------------------------*/
 
-QString &QString::operator+=( char c )		// append c to this string
+QString &QString::operator+=( char c )
 {
     uint len = length();
     if ( !QByteArray::resize( len + 2 ) )
@@ -1267,4 +1460,108 @@ QString &QString::operator+=( char c )		// append c to this string
     *(data() + len+1) = '\0';
 
     return *this;
+}
+
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator==( const QString &s ) const
+  Returns TRUE if the string is equal to \e s, or FALSE if they are
+  different.
+  \sa operator!=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator!=( const QString &s ) const
+  Returns TRUE if the string is different from \e s, or FALSE if they are
+  equal.
+  \sa operator==()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator==( const char *s ) const
+  Returns TRUE if the string is equal to \e s, or FALSE if they are
+  different.
+  \sa operator!=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator!=( const char *s ) const
+  Returns TRUE if the string is different from \e s, or FALSE if they are
+  equal.
+  \sa operator==()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator==( char *s ) const
+  Returns TRUE if the string is equal to \e s, or FALSE if they are
+  different.
+  \sa operator!=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator!=( char *s ) const
+  Returns TRUE if the string is different from \e s, or FALSE if they are
+  equal.
+  \sa operator==()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator<( const char *s ) const
+  Returns TRUE if the string is less than \e s, otherwise FALSE.
+  \sa operator>(), operator<=(), operator>=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator>( const char *s ) const
+  Returns TRUE if the string is greater than \e s, otherwise FALSE.
+  \sa operator<(), operator<=(), operator>=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator<=( const char *s ) const
+  Returns TRUE if the string is less than or equal to \e s, otherwise FALSE.
+  \sa operator<(), operator>(), operator>=()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QString::operator>=( const char *s ) const
+  Returns TRUE if the string is greater than or equal to \e s, otherwise FALSE.
+  \sa operator<(), operator>(), operator<=()
+ ----------------------------------------------------------------------------*/
+
+
+/*****************************************************************************
+  QString stream functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \relates QString
+  Writes a string to the stream.
+
+  Output format: [length (UINT32) data...]
+ ----------------------------------------------------------------------------*/
+
+QDataStream &operator<<( QDataStream &s, const QString &str )
+{
+    return s.writeBytes( str.data(), str.size() );
+}
+
+/*----------------------------------------------------------------------------
+  \relates QString
+  Reads a string from the stream.
+ ----------------------------------------------------------------------------*/
+
+QDataStream &operator>>( QDataStream &s, QString &str )
+{
+    UINT32 len;
+    s >> len;					// read size of string
+    if ( !str.QByteArray::resize( (uint)len )) {// resize string
+#if defined(CHECK_NULL)
+	warning( "QDataStream: Not enough memory to read QString" );
+#endif
+	len = 0;
+    }
+    if ( len > 0 )				// not null array
+	s.readRawBytes( str.data(), (uint)len );
+    return s;
 }
