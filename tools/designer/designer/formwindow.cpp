@@ -651,8 +651,8 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	    for (int i = orderedWidgets.size(); i >= 0; ) {
 		--i;
 		QWidget *wid = orderedWidgets.at(i);
-		int i = stackedWidgets.indexOf( wid );
-		if ( i > 0 ) {
+		int j = stackedWidgets.indexOf( wid );
+		if ( j > 0 ) {
 		    stackedWidgets.remove( wid );
 		    stackedWidgets.insert( 0, wid );
 		}
@@ -698,8 +698,8 @@ void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 	    orderedWidgets.append( w );
 	    for (int i = orderedWidgets.size(); i >= 0; ) {
 		QWidget *wid = orderedWidgets.at(i);
-		int i = stackedWidgets.indexOf( wid );
-		if ( i > 0 ) {
+		int j = stackedWidgets.indexOf( wid );
+		if ( j > 0 ) {
 		    stackedWidgets.remove( wid );
 		    stackedWidgets.insert( 0, wid );
 		}
