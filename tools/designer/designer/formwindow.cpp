@@ -60,6 +60,7 @@
 #include <qaccel.h>
 #include <qpixmapcache.h>
 #include <qbitmap.h>
+#include <qregexp.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
