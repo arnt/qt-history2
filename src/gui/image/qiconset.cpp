@@ -373,8 +373,8 @@ QIconSet::~QIconSet()
 }
 
 /*!
-  Sets this icon set to use pixmap \a pixmap for the Normal pixmap,
-  assuming it to be of size \a size.
+  Sets this icon set to use the given \a pixmap for the \c Normal pixmap,
+  assuming it to be of the \a size specified.
 
   This is equivalent to assigning QIconSet(\a pixmap, \a size) to this
   icon set.
@@ -393,13 +393,13 @@ void QIconSet::reset(const QPixmap &pixmap, Size size)
 }
 
 /*!
-  Sets this icon set to provide pixmap \a pixmap for size \a size, mode \a
-  mode and state \a state. The icon set may also use \a pixmap for
-  generating other pixmaps if they are not explicitly set.
+  Sets the pixmap for this icon set to be the given \a pixmap for requests
+  of the same \a size, \a mode, and \a state. The icon set may also use
+  \a pixmap for generating other pixmaps if they are not explicitly set.
 
-  The \a size can be one of Automatic, Large or Small.  If Automatic is
-  used, QIconSet will determine if the pixmap is Small or Large from its
-  pixel size.
+  The \a size can be one of \c Automatic, \c Large or \c Small.
+  If \c Automatic is used, QIconSet will determine if the pixmap is \c Small
+  or \c Large from its pixel size.
 
   Pixmaps less than the width of a small generated icon are
   considered to be Small. You can use setIconSize() to set the preferred
@@ -455,8 +455,8 @@ void QIconSet::setPixmap(const QString &fileName, Size size, Mode mode, State st
 }
 
 /*!
-  Returns a pixmap with size \a size, mode \a mode and state \a
-  state, generating one if necessary. Generated pixmaps are cached.
+  Returns a pixmap with the required \a size, \a mode and \a state,
+  generating one if necessary. Generated pixmaps are cached.
 */
 QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
 {
@@ -565,10 +565,11 @@ QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
     return QPixmap();
 }
 
-/*! \overload
+/*! 
+    \overload
     \obsolete
 
-  This is the same as pixmap(\a size, \a enabled, \a state).
+    This is the same as pixmap(\a size, \a enabled, \a state).
 */
 QPixmap QIconSet::pixmap(Size size, bool enabled, State state) const
 {
