@@ -1185,6 +1185,7 @@ public:
     QTextDocument *document() const;
 
     QRect rect() const;
+    int widthUsed();
     void setHeight( int h ) { r.setHeight( h ); }
     void show();
     void hide();

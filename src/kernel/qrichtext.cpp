@@ -1426,6 +1426,8 @@ int QTextDocument::widthUsed() const
     QTextParag *p = fParag;
     int w = 0;
     while ( p ) {
+	w = QMAX( w, p->widthUsed() );
+#if 0
 	int a = p->alignment();
 	p->setAlignment( Qt::AlignLeft );
 	p->invalidate( 0 );
@@ -1433,6 +1435,7 @@ int QTextDocument::widthUsed() const
 	w = QMAX( w, p->rect().width() );
 	p->setAlignment( a );
 	p->invalidate( 0 );
+#endif	
 	p = p->next();
     }
     return w;
@@ -3427,7 +3430,7 @@ void QTextString::checkBidi() const
 	    }
 	}
 	uchar row = c->c.row();
-	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
+	if( (row > 0x04 && row < 0x09) || (row > 0xfa && row < 0xff) ) {
 	    ((QTextString *)this)->bidi = TRUE;
 	    return;
 	}
@@ -3873,17 +3876,13 @@ void QTextParag::format( int start, bool doMove )
 	int usedw = 0;
 	for ( ; it != lineStarts.end(); ++it )
 	    usedw = QMAX( usedw, (*it)->w );
-	// ##### Lars, for left-to-right the QMAX was wrong (message boxes suddenly took up the whole screen width)
 	if ( r.width() <= 0 ) {
 	    // if the user specifies an invalid rect, this means that the
 	    // bounding box should grow to the width that the text actually
 	    // needs
 	    r.setWidth( usedw );
 	} else {
-	    if ( !string()->isBidi() )
-		r.setWidth( QMIN( usedw, r.width() ) );
-	    else
-		r.setWidth( QMAX( usedw, r.width() ) );
+	    r.setWidth( QMIN( usedw, r.width() ) );
 	}
      }
 
@@ -3923,6 +3922,18 @@ void QTextParag::format( int start, bool doMove )
     invalid = -1;
     string()->setTextChanged( FALSE );
 }
+
+int QTextParag::widthUsed()
+{
+    if ( invalid != -1 ) format();
+    
+    QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
+    int usedw = 0;
+    for ( ; it != lineStarts.end(); ++it )
+	usedw = QMAX( usedw, (*it)->w );
+    return usedw;
+}
+
 
 int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
 {
