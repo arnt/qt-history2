@@ -1205,7 +1205,7 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
     case Invalid:
         break;
     }
-    return *this; // must be invalid
+    return QColor(); // must be invalid
 }
 
 
