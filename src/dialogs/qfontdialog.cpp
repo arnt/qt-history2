@@ -397,20 +397,27 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
 
 bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 {
-    if ( e->type() == QEvent::KeyPress && o == d->sizeEdit ) {
+    if ( e->type() == QEvent::KeyPress) {
 	QKeyEvent * k = (QKeyEvent *)e;
-	if ( k->key() == Key_Up ||
+	if ( o == d->sizeEdit && 
+        (k->key() == Key_Up ||
 	     k->key() == Key_Down ||
-	     k->key() == Key_Prior ||
-	     k->key() == Key_Next ) {
+         k->key() == Key_Prior ||
+         k->key() == Key_Next) ) {
+	    
 	    int ci = d->sizeList->currentItem();
 	    (void)QApplication::sendEvent( d->sizeList, k );
-
+	    
 	    if ( ci != d->sizeList->currentItem() &&
-		 style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this))
+		style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this))
 		d->sizeEdit->selectAll();
 	    return TRUE;
-	}
+	} else if ( ( o == d->familyList || o == d->styleList ) &&
+	            ( k->key() == Key_Return || k->key() == Key_Enter) ) {
+	    k->accept();
+        accept();
+	    return TRUE;
+	} 
     } else if ( e->type() == QEvent::FocusIn &&
 		style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) ) {
 	if ( o == d->familyList )
@@ -759,10 +766,10 @@ void QFontDialog::setFont( const QFont &f )
     d->family = f.family();
     d->style = d->fdb.styleString( f );
     d->size = f.pointSize();
-    // not quite correct but better than having the -1
-    if ( d->size == -1 )
-	d->size = f.pixelSize();
-
+    if ( d->size == -1 ) {
+	    QFontInfo fi( f );
+	    d->size = fi.pointSize();
+    }
     d->strikeout->setChecked( f.strikeOut() );
     d->underline->setChecked( f.underline() );
 
