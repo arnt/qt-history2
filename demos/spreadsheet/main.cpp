@@ -356,12 +356,14 @@ void SpreadSheet::sum()
     QTableWidgetItem *first = selected.first();
     QTableWidgetItem *last = selected.last();
     QTableWidgetItem *current = table->currentItem();
-    if (current)
-        current->setText(QString("sum %1%2 %3%4").
-                         arg(QChar('A' + (table->column(first)))).
-                         arg((table->row(first) + 1)).
-                         arg(QChar('A' + (table->column(last)))).
-                         arg((table->row(last) + 1)));
+    if (!current)
+        table->setItem(table->currentRow(), table->currentColumn(),
+                       current = new SpreadSheetItem());
+    current->setText(QString("sum %1%2 %3%4").
+                     arg(QChar('A' + (table->column(first)))).
+                     arg((table->row(first) + 1)).
+                     arg(QChar('A' + (table->column(last)))).
+                     arg((table->row(last) + 1)));
 }
 
 void SpreadSheet::clear()
