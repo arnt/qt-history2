@@ -10,11 +10,14 @@ int main( int argc, char** argv )
     Configure app( argc, argv );
 
     app.parseCmdLine();
+#if !defined(EVAL)
     app.validateArgs();
+#endif
     app.generateOutputVars();
     if( app.displayHelp() )
 	return 1;
     else {
+#if !defined(EVAL)
 	if( !app.isDone() )
 	    app.generateCachefile();
 	if( !app.isDone() )
@@ -23,6 +26,7 @@ int main( int argc, char** argv )
 	    app.displayConfig();
 	if( !app.isDone() )
 	    app.buildQmake();
+#endif
 	if( !app.isDone() )
 	    app.generateMakefiles();
 	if( !app.isDone() )

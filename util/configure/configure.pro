@@ -1,4 +1,4 @@
-CONFIG = console debug
+CONFIG += console release
 DEFINES = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS
 HEADERS	 = configureapp.h
 
@@ -43,3 +43,8 @@ win32-g++:LIBS += -luuid
 win32:LIBS += -lole32
 
 win32:CONFIG+=console
+
+eval {
+    DEFINES		+= EVAL
+    DESTDIR		= .
+}

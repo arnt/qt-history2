@@ -11,19 +11,27 @@ public:
     Configure( int& argc, char** argv );
 
     void parseCmdLine();
+#if !defined(EVAL)
     void buildModulesList();
     void validateArgs();
+#endif
     bool displayHelp();
     void generateOutputVars();
+#if !defined(EVAL)
     void generateCachefile();
     void displayConfig();
     void buildQmake();
+#endif
     void generateMakefiles();
+#if !defined(EVAL)
     void generateConfigfiles();
+#endif
     void showSummary();
     void findProjects( const QString& dirName );
 
+#if !defined(EVAL)
     void readLicense();
+#endif
 
     enum ProjectType {
 	App,
@@ -66,7 +74,9 @@ private:
     QMap<QString,QString> licenseInfo;
     QString outputLine;
 
+#if !defined(EVAL)
     void reloadCmdLine();
     void saveCmdLine();
+#endif
 
 };

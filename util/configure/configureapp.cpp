@@ -123,6 +123,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "QMAKESPEC" ] = tmp;
     qmakeConfig += "nocrosscompiler";
 
+#if !defined(EVAL)
     WCE( {
 	// WinCE has different defaults than the desktop version
 	dictionary[ "QMAKE_INTERNAL" ]	= "no";
@@ -147,8 +148,10 @@ Configure::Configure( int& argc, char** argv )
     readLicense();
 
     buildModulesList();
+#endif
 }
 
+#if !defined(EVAL)
 void Configure::buildModulesList()
 {
     QDir dir( dictionary[ "QT_SOURCE_TREE" ] + "/src" );
@@ -171,11 +174,13 @@ void Configure::buildModulesList()
 	++listIter;
     }
 }
+#endif
 
 void Configure::parseCmdLine()
 {
     QStringList::Iterator args = configCmdLine.begin();
 
+#if !defined(EVAL)
     if( (*args) == "-redo" ) {
 	configCmdLine.clear();
 	dictionary[ "REDO" ] = "yes";
@@ -190,6 +195,7 @@ void Configure::parseCmdLine()
 	reloadCmdLine();
 	args = configCmdLine.begin();
     }
+#endif
 
     for( ; args != configCmdLine.end(); ++args ) {
 	if( (*args) == "-help" )
@@ -197,6 +203,7 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-?" )
 	    dictionary[ "HELP" ] = "yes";
 
+#if !defined(EVAL)
 	else if( (*args) == "-qconfig" ) {
 	    ++args;
 	    if (args==configCmdLine.end())
@@ -218,6 +225,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "THREAD" ] = "no";
 	else if( (*args) == "-thread" )
 	    dictionary[ "THREAD" ] = "yes";
+#endif
 
 	else if( (*args) == "-spec" ) {
 	    ++args;
@@ -226,6 +234,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "QMAKESPEC" ] = (*args);
 	}
 
+#if !defined(EVAL)
 	else if( (*args) == "-no-gif" )
 	    dictionary[ "GIF" ] = "no";
 	else if( (*args) == "-qt-gif" )
@@ -400,6 +409,7 @@ void Configure::parseCmdLine()
 		break;
 	    qmakeLibs += (*args);
 	}
+#endif
 
 	else if( (*args) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
@@ -416,6 +426,7 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-vcproj" )
 	    dictionary[ "VCPROJFILES" ] = "yes";
 
+#if !defined(EVAL)
 	else if( (*args) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
 
@@ -544,6 +555,7 @@ void Configure::parseCmdLine()
 	    break;
 	}
 
+#endif
     }
 
     if( dictionary[ "QMAKESPEC" ].endsWith( "-msvc" ) ||
@@ -559,6 +571,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
 
+#if !defined(EVAL)
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
 	modules.remove( (*dis) );
     }
@@ -576,8 +589,10 @@ void Configure::parseCmdLine()
 
     if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
 	saveCmdLine();
+#endif
 }
 
+#if !defined(EVAL)
 void Configure::validateArgs()
 {
     QStringList configs;
@@ -598,6 +613,7 @@ void Configure::validateArgs()
     else
 	qmakeConfig += configs;
 }
+#endif
 
 bool Configure::displayHelp()
 {
@@ -606,6 +622,7 @@ bool Configure::displayHelp()
 	cout << "Command line arguments:  (* indicates default behaviour)" << endl << endl;
 	cout << "-help                Bring up this help text." << endl << endl;
 
+#if !defined(EVAL)
 	cout << "-debug             " << MARK_OPTION(DEBUG,yes)	    << " Enable debug information." << endl;
 	cout << "-release           " << MARK_OPTION(DEBUG,no)	    << " Disable debug information." << endl << endl;
 
@@ -614,8 +631,10 @@ bool Configure::displayHelp()
 
 	cout << "-thread            " << MARK_OPTION(THREAD,yes)    << " Configure Qt with thread support." << endl;
 	cout << "-no-thread         " << MARK_OPTION(THREAD,no)	    << " Configure Qt without thread support." << endl << endl;
+#endif
 
 	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
+#if !defined(EVAL)
 	cout << "-qconfig             Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
 	    cout << "                         " << (*config).latin1() << endl;
@@ -667,6 +686,7 @@ bool Configure::displayHelp()
 
 	cout << "-dsp               " << MARK_OPTION(DSPFILES,yes)   << " Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-no-dsp            " << MARK_OPTION(DSPFILES,no)  << " Disable the generation of VC++ .DSP-files." << endl << endl;
+#endif
 
 	// Only show the VCP generation options for CE users for now
 WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable the generation of eMbedded VC++ .VCP-files." << endl;
@@ -675,6 +695,7 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "-vcproj            " <<MARK_OPTION(VCPROJFILES,yes) << " Enable the generation of VC++ .VCPROJ-files." << endl;
 	cout << "-no-vcproj         " <<MARK_OPTION(VCPROJFILES,no)<< " Disable the generation of VC++ .VCPROJ-files." << endl << endl;
 
+#if !defined(EVAL)
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
 	cout << "                     (qt.pro, qtmain.pro)." << endl << endl;
@@ -728,6 +749,7 @@ WCE( {	cout << "                         pocketpc" << endl; } );
 	cout << "-redo                Run configure with the same parameters as last time." << endl;
 	cout << "-saveconfig <config> Run configure and save the parameters as <config>." << endl;
 	cout << "-loadconfig <config> Run configure with the parameters from <config>." << endl;
+#endif
 	return true;
     }
     return false;
@@ -939,6 +961,7 @@ void Configure::generateOutputVars()
     }
 }
 
+#if !defined(EVAL)
 void Configure::generateCachefile()
 {
     // Generate .qmake.cache
@@ -986,7 +1009,9 @@ void Configure::generateCachefile()
 	configFile.close();
     }
 }
+#endif
 
+#if !defined(EVAL)
 void Configure::generateConfigfiles()
 {
     QString outDir( dictionary[ "QT_INSTALL_HEADERS" ] );
@@ -1208,7 +1233,9 @@ void Configure::generateConfigfiles()
 	outStream << "/* End of Version info */" << endl << endl;
     }
 }
+#endif
 
+#if !defined(EVAL)
 void Configure::displayConfig()
 {
     // Give some feedback
@@ -1307,7 +1334,9 @@ WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] 
 	cout << "         Make sure you compile ALL needed modules into the library." << endl;
     }
 }
+#endif
 
+#if !defined(EVAL)
 void Configure::buildQmake()
 {
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
@@ -1327,6 +1356,7 @@ void Configure::buildQmake()
 	QDir::setCurrent( pwd );
     }
 }
+#endif
 
 void Configure::findProjects( const QString& dirName )
 {
@@ -1395,7 +1425,9 @@ void Configure::findProjects( const QString& dirName )
 void Configure::generateMakefiles()
 {
     if( dictionary[ "NOPROCESS" ] == "no" ) {
+#if !defined(EVAL)
 	cout << "Creating makefiles in src..." << endl;
+#endif
 
 	QString spec = dictionary[ "QMAKESPEC" ];
 	if( spec != "win32-msvc" )
@@ -1407,6 +1439,7 @@ void Configure::generateMakefiles()
 	if( spec != "win32-msvc.net" )
 	    dictionary[ "VCPROJFILES" ] = "no";
 
+#if !defined(EVAL)
 	makeList[0].append( new MakeItem(
 		    dictionary[ "QT_SOURCE_TREE" ] + "/src",
 		    "qt.pro",
@@ -1459,6 +1492,7 @@ void Configure::generateMakefiles()
 			"qtmain.vcproj",
 			Lib ) );
 	}
+#endif
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
 
@@ -1543,6 +1577,7 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
     return App;
 }
 
+#if !defined(EVAL)
 void Configure::readLicense()
 {
     QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
@@ -1575,7 +1610,9 @@ void Configure::readLicense()
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
         licenseInfo[ "PRODUCTS" ]= "qt-professional";
 }
+#endif
 
+#if !defined(EVAL)
 void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
@@ -1592,7 +1629,9 @@ void Configure::reloadCmdLine()
 	}
     }
 }
+#endif
 
+#if !defined(EVAL)
 void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
@@ -1606,6 +1645,7 @@ void Configure::saveCmdLine()
 	}
     }
 }
+#endif
 
 bool Configure::isDone()
 {
