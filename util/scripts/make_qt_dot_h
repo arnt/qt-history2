@@ -5,6 +5,7 @@ use File::Find;
 @IGNORE = qw {
     qfiledefs_p.h
     qaccessible.h
+    qaccessiblewidget.h
     qinputcontext_p.h
     ucom.h
     mwerks_mac.h
