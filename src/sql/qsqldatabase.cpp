@@ -209,7 +209,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
 
     The returned QSqlDatabase object is owned by the framework and
     must not be deleted. If you want to explicitly remove the connection,
-    use removeDatabase()
+    use removeDatabase().
 
     \sa QSqlDatabase database()
 */
@@ -321,10 +321,16 @@ public:
     The database connection is referred to by \a connectionName. The
     newly added database connection is returned. This pointer is owned
     by QSqlDatabase and will be deleted on program exit or when
-    removeDatabase() is called. If \a connectionName is not specified,
-    the newly added database connection becomes the default database
-    connection for the application, and subsequent calls to database()
-    (without a database name parameter) will return a pointer to it.
+    removeDatabase() is called. You should only call this once for
+    each database.
+
+    If \a connectionName is not specified, the newly added database
+    connection becomes the default database connection for the
+    application, and subsequent calls to database() (without a
+    database name parameter) will return a pointer to it. If \a
+    connectionName is given, use \link QSqlDatabase::database()
+    database(connectionName)\endlink to retrieve a pointer to the
+    database connection.
 
     If \a connectionName is not specified, the newly added database
     connection becomes the default database connection for the
@@ -499,10 +505,10 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
     \table
     \header \i Driver Type \i Description
-    \row \i QODBC3 \i ODBC (Open Database Connectivity) Driver
+    \row \i QODBC3 \i ODBC Driver (includes Microsoft SQL Server)
     \row \i QOCI8 \i Oracle Call Interface Driver
     \row \i QPSQL7 \i PostgreSQL v6.x and v7.x Driver
-    \row \i QTDS7 \i Sybase Adaptive Server and Microsoft SQL Server Driver
+    \row \i QTDS7 \i Sybase Adaptive Server
     \row \i QMYSQL3 \i MySQL Driver
     \row \i QDB2 \i IBM DB2, v7.1 and higher
     \row \i QSQLITE1 \i SQLite embedded database

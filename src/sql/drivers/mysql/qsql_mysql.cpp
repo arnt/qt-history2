@@ -441,7 +441,7 @@ bool QMYSQLDriver::open( const QString& db,
 				host,
 				user,
 				password,
-				db,
+				db.isNull() ? QString("") : db,
 				(port > -1) ? port : 0,
 				NULL,
 				optionFlags ) )
