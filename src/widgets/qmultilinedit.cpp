@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#43 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1017,6 +1017,8 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 	    repaint( FALSE );
     } else { //multiline
 	int from = 0;
+	bool hadAutoUpdate = autoUpdate();
+	setAutoUpdate( FALSE );
 	if ( line < 0 || line >= numLines() )
 	    line = numLines();
 	while ( to >= 0 ) {
@@ -1028,6 +1030,10 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 	insertLine( t.right( lastLen ), line );
 	setNumRows( contents->count() );
 	updateCellWidth();
+	if ( hadAutoUpdate ) {
+	    setAutoUpdate( TRUE );
+	    repaint(FALSE);
+	}
     }
     textDirty = TRUE;
     ASSERT( numLines() != 0 );
