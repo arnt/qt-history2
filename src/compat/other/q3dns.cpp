@@ -1288,23 +1288,28 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
         QHostAddress tmp;
         if (tmp.setAddress(r->label())) {
             Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
-            if (tmp.isIPv4Address())
+            if ( tmp.isIPv4Address() ) {
                 rrTmp->t = Q3Dns::A;
-            else
-                rrTmp->t = Q3Dns::Aaaa;
-            rrTmp->address = tmp;
-            rrTmp->current = true;
-            l->append(rrTmp);
+                rrTmp->address = tmp;
+                rrTmp->current = true;
+                l->append(rrTmp);
+            } else {
+                rrTmp->nxdomain = TRUE;                
+            }
             return l;
         }
     }
     if (r->recordType() == Q3Dns::Aaaa) {
         QHostAddress tmp;
-        if (tmp.setAddress(r->label()) && !tmp.isIp4Addr()) {
+        if ( tmp.setAddress(r->label()) ) {
             Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
-            rrTmp->t = Q3Dns::Aaaa;
-            rrTmp->address = tmp;
-            rrTmp->current = true;
+            if ( tmp.isIPv6Address() ) {
+                rrTmp->t = Q3Dns::Aaaa;
+                rrTmp->address = tmp;
+                rrTmp->current = true;
+            } else {
+                rrTmp->nxdomain = TRUE;                
+            }
             l->append(rrTmp);
             return l;
         }
