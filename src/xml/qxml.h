@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#43 $
+** $Id: //depot/qt/main/src/xml/qxml.h#44 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -49,9 +49,9 @@
 #include "qfeatures.h"
 
 #if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT
+#define QM_EXPORT_XML
 #else
-#define QM_EXPORT Q_EXPORT
+#define QM_EXPORT_XML Q_EXPORT
 #endif
 
 #ifndef QT_NO_XML
@@ -86,7 +86,7 @@ class QXmlDefaultHandlerPrivate;
 // SAX Namespace Support
 //
 
-class QM_EXPORT QXmlNamespaceSupport
+class QM_EXPORT_XML QXmlNamespaceSupport
 {
 public:
     QXmlNamespaceSupport();
@@ -114,7 +114,7 @@ private:
 // SAX Attributes
 //
 
-class QM_EXPORT QXmlAttributes
+class QM_EXPORT_XML QXmlAttributes
 {
 public:
     QXmlAttributes() {}
@@ -149,7 +149,7 @@ private:
 // SAX Input Source
 //
 
-class QM_EXPORT QXmlInputSource
+class QM_EXPORT_XML QXmlInputSource
 {
 public:
     QXmlInputSource();
@@ -190,7 +190,7 @@ private:
 // SAX Exception Classes
 //
 
-class QM_EXPORT QXmlParseException
+class QM_EXPORT_XML QXmlParseException
 {
 public:
     QXmlParseException( const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="" )
@@ -218,7 +218,7 @@ private:
 // XML Reader
 //
 
-class QM_EXPORT QXmlReader
+class QM_EXPORT_XML QXmlReader
 {
 public:
     virtual bool feature( const QString& name, bool *ok = 0 ) const = 0;
@@ -243,7 +243,7 @@ public:
     virtual bool parse( const QXmlInputSource* input ) = 0;
 };
 
-class QM_EXPORT QXmlSimpleReader : public QXmlReader
+class QM_EXPORT_XML QXmlSimpleReader : public QXmlReader
 {
 public:
     QXmlSimpleReader();
@@ -387,7 +387,7 @@ private:
 // SAX Locator
 //
 
-class QM_EXPORT QXmlLocator
+class QM_EXPORT_XML QXmlLocator
 {
 public:
     QXmlLocator();
@@ -403,7 +403,7 @@ public:
 // SAX handler classes
 //
 
-class QM_EXPORT QXmlContentHandler
+class QM_EXPORT_XML QXmlContentHandler
 {
 public:
     virtual void setDocumentLocator( QXmlLocator* locator ) = 0;
@@ -420,7 +420,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class QM_EXPORT QXmlErrorHandler
+class QM_EXPORT_XML QXmlErrorHandler
 {
 public:
     virtual bool warning( const QXmlParseException& exception ) = 0;
@@ -429,7 +429,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class QM_EXPORT QXmlDTDHandler
+class QM_EXPORT_XML QXmlDTDHandler
 {
 public:
     virtual bool notationDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
@@ -437,14 +437,14 @@ public:
     virtual QString errorString() = 0;
 };
 
-class QM_EXPORT QXmlEntityResolver
+class QM_EXPORT_XML QXmlEntityResolver
 {
 public:
     virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret ) = 0;
     virtual QString errorString() = 0;
 };
 
-class QM_EXPORT QXmlLexicalHandler
+class QM_EXPORT_XML QXmlLexicalHandler
 {
 public:
     virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId ) = 0;
@@ -457,7 +457,7 @@ public:
     virtual QString errorString() = 0;
 };
 
-class QM_EXPORT QXmlDeclHandler
+class QM_EXPORT_XML QXmlDeclHandler
 {
 public:
     virtual bool attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value ) = 0;
@@ -467,7 +467,7 @@ public:
 };
 
 
-class QM_EXPORT QXmlDefaultHandler : public QXmlContentHandler, public QXmlErrorHandler, public QXmlDTDHandler, public QXmlEntityResolver, public QXmlLexicalHandler, public QXmlDeclHandler
+class QM_EXPORT_XML QXmlDefaultHandler : public QXmlContentHandler, public QXmlErrorHandler, public QXmlDTDHandler, public QXmlEntityResolver, public QXmlLexicalHandler, public QXmlDeclHandler
 {
 public:
     QXmlDefaultHandler() { }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#10 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#11 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -44,16 +44,16 @@
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT
+#define QM_EXPORT_NETWORK
 #else
-#define QM_EXPORT Q_EXPORT
+#define QM_EXPORT_NETWORK Q_EXPORT
 #endif
 
 #ifndef QT_NO_NETWORK
 class QSocketDevicePrivate;
 
 
-class  QM_EXPORT QSocketDevice: public QIODevice
+class  QM_EXPORT_NETWORK QSocketDevice: public QIODevice
 {
 public:
     enum Type { Stream, Datagram };

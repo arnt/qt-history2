@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#6 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#7 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -59,9 +59,9 @@
 #include "qfeatures.h"
 
 #if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT
+#define QM_EXPORT_SVG
 #else
-#define QM_EXPORT Q_EXPORT
+#define QM_EXPORT_SVG Q_EXPORT
 #endif
 
 #ifndef QT_NO_SVG
@@ -71,7 +71,7 @@ class QDomNode;
 class QDomNamedNodeMap;
 class QSvgDevicePrivate;
 
-class QM_EXPORT QSvgDevice : public QPaintDevice
+class QM_EXPORT_SVG QSvgDevice : public QPaintDevice
 {
 public:
     QSvgDevice();

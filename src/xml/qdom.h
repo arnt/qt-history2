@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#24 $
+** $Id: //depot/qt/main/src/xml/qdom.h#25 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -46,9 +46,9 @@
 #include "qfeatures.h"
 
 #if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT
+#define QM_EXPORT_DOM
 #else
-#define QM_EXPORT Q_EXPORT
+#define QM_EXPORT_DOM Q_EXPORT
 #endif
 
 #ifndef QT_NO_DOM
@@ -94,7 +94,7 @@ class QDomEntity;
 class QDomNotation;
 class QDomCharacterData;
 
-class QM_EXPORT QDomImplementation
+class QM_EXPORT_DOM QDomImplementation
 {
 public:
     QDomImplementation();
@@ -119,7 +119,7 @@ private:
     friend class QDomDocument;
 };
 
-class QM_EXPORT QDomNode
+class QM_EXPORT_DOM QDomNode
 {
 public:
     enum NodeType {
@@ -229,7 +229,7 @@ private:
     friend class QDomNamedNodeMap;
 };
 
-class QM_EXPORT QDomNodeList
+class QM_EXPORT_DOM QDomNodeList
 {
 public:
     QDomNodeList();
@@ -255,7 +255,7 @@ private:
     friend class QDomDocument;
 };
 
-class QM_EXPORT QDomDocumentType : public QDomNode
+class QM_EXPORT_DOM QDomDocumentType : public QDomNode
 {
 public:
     QDomDocumentType();
@@ -283,7 +283,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomDocument : public QDomNode
+class QM_EXPORT_DOM QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
@@ -338,7 +338,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomNamedNodeMap
+class QM_EXPORT_DOM QDomNamedNodeMap
 {
 public:
     QDomNamedNodeMap();
@@ -372,7 +372,7 @@ private:
     friend class QDomElement;
 };
 
-class QM_EXPORT QDomDocumentFragment : public QDomNode
+class QM_EXPORT_DOM QDomDocumentFragment : public QDomNode
 {
 public:
     QDomDocumentFragment();
@@ -391,7 +391,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomCharacterData : public QDomNode
+class QM_EXPORT_DOM QDomCharacterData : public QDomNode
 {
 public:
     QDomCharacterData();
@@ -426,7 +426,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomAttr : public QDomNode
+class QM_EXPORT_DOM QDomAttr : public QDomNode
 {
 public:
     QDomAttr();
@@ -455,7 +455,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomElement : public QDomNode
+class QM_EXPORT_DOM QDomElement : public QDomNode
 {
 public:
     QDomElement();
@@ -506,7 +506,7 @@ private:
     friend class QDomAttr;
 };
 
-class QM_EXPORT QDomText : public QDomCharacterData
+class QM_EXPORT_DOM QDomText : public QDomCharacterData
 {
 public:
     QDomText();
@@ -529,7 +529,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomComment : public QDomCharacterData
+class QM_EXPORT_DOM QDomComment : public QDomCharacterData
 {
 public:
     QDomComment();
@@ -548,7 +548,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomCDATASection : public QDomText
+class QM_EXPORT_DOM QDomCDATASection : public QDomText
 {
 public:
     QDomCDATASection();
@@ -567,7 +567,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomNotation : public QDomNode
+class QM_EXPORT_DOM QDomNotation : public QDomNode
 {
 public:
     QDomNotation();
@@ -590,7 +590,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomEntity : public QDomNode
+class QM_EXPORT_DOM QDomEntity : public QDomNode
 {
 public:
     QDomEntity();
@@ -613,7 +613,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomEntityReference : public QDomNode
+class QM_EXPORT_DOM QDomEntityReference : public QDomNode
 {
 public:
     QDomEntityReference();
@@ -632,7 +632,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT QDomProcessingInstruction : public QDomNode
+class QM_EXPORT_DOM QDomProcessingInstruction : public QDomNode
 {
 public:
     QDomProcessingInstruction();
