@@ -14,7 +14,7 @@ windows by dragging them outside \QD's dock areas.
 
 General preferences can be set by clicking
 \Menu Edit|Preferences to invoke the \Dialog Preferences
-dialog. If you check the 'Restore last workspace on startup' checkbox
+dialog. If you check the 'Restore Last Workspace on Startup' checkbox
 then \QD will remember the sizes and positions of the toolbars and the
 dockable windows. You can change \QD's main window background either by
 selecting a color or a pixmap. You can also switch off the grid (uncheck

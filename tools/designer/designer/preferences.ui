@@ -349,7 +349,7 @@
                                     <cstring>checkBoxWorkspace</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Restore last workspace on startup</string>
+                                    <string>&amp;Restore Last Workspace on Startup</string>
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
@@ -366,7 +366,7 @@
                                     <cstring>checkBoxSplash</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>Show &amp;Splash Screen on startup</string>
+                                    <string>Show &amp;Splash Screen on Startup</string>
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>

@@ -254,8 +254,8 @@ right of the'Color' radiobutton to invoke the \Dialog{Select Color
 Dialog}.
 
 The 'General' section of the General tab has three checkboxes that are
-checked as a default. The first checkbox is 'Restore last workspace on
-startup'. The second checkbox is 'Show Splash Screen on startup'. And
+checked as a default. The first checkbox is 'Restore Last Workspace on
+Startup'. The second checkbox is 'Show Splash Screen on Startup'. And
 the third checkbox is 'Disable Database Auto-Edit in Preview.If you
 want to remove the check, clickthe checkbox. To #######, click the
 \Button {ellipsis...} button next to the listbox. This invoke the
