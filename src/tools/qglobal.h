@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#317 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#318 $
 **
 ** Global type declarations and definitions
 **
@@ -213,6 +213,9 @@
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #    define Q_SPURIOUS_NON_VOID_WARNING
+#  endif
+#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 95
+#    define Q_DELETING_VOID_UNDEFINED
 #  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))

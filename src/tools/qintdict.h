@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#32 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#33 $
 **
 ** Definition of QIntDict template class
 **
@@ -83,10 +83,15 @@ private:
     void  deleteItem( Item d );
 };
 
-template<class type>
-inline void QIntDict<type>::deleteItem( QPtrCollection::Item d )
+#if defined(Q_DELETING_VOID_UNDEFINED)
+template<> inline void QIntDict<void>::deleteItem( QPtrCollection::Item )
 {
-    if ( del_item ) operator delete( (type*)d );
+}
+#endif
+
+template<class type> inline void QIntDict<type>::deleteItem( QPtrCollection::Item d )
+{
+    if ( del_item ) delete (type*)d;
 }
 
 template<class type> class Q_EXPORT QIntDictIterator : public QGDictIterator
