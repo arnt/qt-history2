@@ -145,7 +145,7 @@ class StdInParser : public QSocket
 {
     Q_OBJECT
 public:
-    StdInParser( MainWindow *aWindow, QObject *parent=0, const char * name = 0 );
+    StdInParser( MainWindow *aWindow, QObject *parent=0, const char *name = 0 );
 
 public slots:
     void readIn();
@@ -154,7 +154,7 @@ private:
     MainWindow *mw;
 };
 
-StdInParser::StdInParser( MainWindow *aWindow, QObject *parent=0, const char * name = 0 )
+StdInParser::StdInParser( MainWindow *aWindow, QObject *parent, const char *name )
     :QSocket( parent, name )
 {
     mw = aWindow;
@@ -162,25 +162,42 @@ StdInParser::StdInParser( MainWindow *aWindow, QObject *parent=0, const char * n
     setSocket(0);
 }
 
-void StdInParser::readIn() {
+void StdInParser::readIn()
+{
     QString data = readLine().simplifyWhiteSpace();
-    if ( '/' != data[0] )
+    if ( '/' != data[0] ) {
 	mw->showLink( data, "" );
-    else {
-	if ( -1 != data.find("find") ) mw->find();
-	else if ( -1 != data.find("goHome") )             mw->goHome();
-	else if ( -1 != data.find("hide") ) {             mw->hide(); return; }
-	else if ( -1 != data.find("print") )              mw->print();
-	else if ( -1 != data.find("raise") )              mw->raise();
-	else if ( -1 != data.find("saveSettings") )       mw->saveSettings();
-	else if ( -1 != data.find("setupBookmarkMenu") )  mw->setupBookmarkMenu();
-	else if ( -1 != data.find("show") )               mw->show();
-	else if ( -1 != data.find("showBookmark") )       mw->showBookmark( data.remove(0, data.findRev(' ')).toInt() );
-	else if ( -1 != data.find("showDesignerHelp") )   mw->showDesignerHelp();
-	else if ( -1 != data.find("showLinguistHelp") )   mw->showLinguistHelp();
-	else if ( -1 != data.find("showQtHelp") )         mw->showQtHelp();
-	else if ( -1 != data.find("showSettingsDialog") ) mw->showSettingsDialog();
-	else if ( -1 != data.find("updateBookmarkMenu") ) mw->updateBookmarkMenu();
+    } else {
+	if ( -1 != data.find("find") ) {
+	    mw->find();
+	} else if ( -1 != data.find("goHome") ) {
+	    mw->goHome();
+	} else if ( -1 != data.find("hide") ) {
+	    mw->hide();
+	    return;
+	} else if ( -1 != data.find("print") ) {
+	    mw->print();
+	} else if ( -1 != data.find("raise") ) {
+	    mw->raise();
+	} else if ( -1 != data.find("saveSettings") ) {
+	    mw->saveSettings();
+	} else if ( -1 != data.find("setupBookmarkMenu") ) {
+	    mw->setupBookmarkMenu();
+	} else if ( -1 != data.find("show") ) {
+	    mw->show();
+	} else if ( -1 != data.find("showBookmark") ) {
+	    mw->showBookmark( data.remove(0, data.findRev(' ')).toInt() );
+	} else if ( -1 != data.find("showDesignerHelp") ) {
+	    mw->showDesignerHelp();
+	} else if ( -1 != data.find("showLinguistHelp") ) {
+	    mw->showLinguistHelp();
+	} else if ( -1 != data.find("showQtHelp") ) {
+	    mw->showQtHelp();
+	} else if ( -1 != data.find("showSettingsDialog") ) {
+	    mw->showSettingsDialog();
+	} else if ( -1 != data.find("updateBookmarkMenu") ) {
+	    mw->updateBookmarkMenu();
+	}
     }
     mw->show();
     mw->raise();

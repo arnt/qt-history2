@@ -799,18 +799,24 @@ void GridLayout::buildGrid()
     qHeapSort(y);
 
     // Remove duplicate x enteries (Remove next, if equal to current)
-    if ( !x.empty() )
+    if ( !x.empty() ) {
 	for (QValueVector<int>::iterator current = x.begin() ;
 	     (current != x.end()) && ((current+1) != x.end()) ; )
-	    if ( (*current == *(current+1)) ) x.erase(current+1);
-	    else current++;
+	    if ( (*current == *(current+1)) )
+		x.erase(current+1);
+	    else
+		current++;
+    }
 
     // Remove duplicate y enteries (Remove next, if equal to current)
-    if ( !y.empty() )
+    if ( !y.empty() ) {
 	for (QValueVector<int>::iterator current = y.begin() ;
 	     (current != y.end()) && ((current+1) != y.end()) ; )
-	    if ( (*current == *(current+1)) ) y.erase(current+1);
-	    else current++;
+	    if ( (*current == *(current+1)) )
+		y.erase(current+1);
+	    else
+		current++;
+    }
 
     // Create the smallest grid possible to represent the current layout
     // Since no widget will be placed in the last row and column, we'll
@@ -823,13 +829,17 @@ void GridLayout::buildGrid()
 	QRect c(0,0,0,0), widgetPos = w->geometry();
 	// From left til right (not including)
 	for (uint cw=0; cw<x.size(); cw++) {
-	    if ( x[cw] == widgetPos.left() ) c.setLeft(cw);
-	    if ( x[cw] <  widgetPos.right()) c.setRight(cw);
+	    if ( x[cw] == widgetPos.left() )
+		c.setLeft(cw);
+	    if ( x[cw] <  widgetPos.right())
+		c.setRight(cw);
 	}
 	// From top til bottom (not including)
 	for (uint ch=0; ch<y.size(); ch++) {
-	    if ( y[ch] == widgetPos.top()    ) c.setTop(ch);
-	    if ( y[ch] <  widgetPos.bottom() ) c.setBottom(ch);
+	    if ( y[ch] == widgetPos.top()    )
+		c.setTop(ch);
+	    if ( y[ch] <  widgetPos.bottom() )
+		c.setBottom(ch);
 	}
 	grid->setCells(c, w); // Mark cellblock
     }

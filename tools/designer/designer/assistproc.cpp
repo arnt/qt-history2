@@ -35,7 +35,8 @@ AssistProc::~AssistProc()
 
 bool AssistProc::run( const QString &path )
 {
-    if ( !path.isEmpty() ) assistantPath = path;
+    if ( !path.isEmpty() )
+	assistantPath = path;
 
     clearArguments();
     addArgument( assistantPath );
@@ -43,21 +44,22 @@ bool AssistProc::run( const QString &path )
 
     if ( !start() ) {
 	qWarning( QString("Assistant [exe]: Couldn't start \'%1\', please check path.").arg(assistantPath) );
-	return false;
+	return FALSE;
     }
-    return true;
+    return TRUE;
 }
 
 bool AssistProc::sendRequest( const QString &data )
 {
-    if ( isRunning() )
+    if ( isRunning() ) {
 	writeToStdin( data );
-    else
+    } else {
 	if ( run() )              // If not running, try to start
 	    writeToStdin( data ); // and display requested page.
 	else
-	    return false;
-    return true;
+	    return FALSE;
+    }
+    return TRUE;
 }
 
 void AssistProc::processOutput()
