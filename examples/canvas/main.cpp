@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     canvas.setAdvancePeriod(30);
     Main m(canvas);
     m.resize(m.sizeHint());
-    m.setCaption("Qt Example - Canvas");
+    m.setWindowTitle("Qt Example - Canvas");
     if ( QApplication::desktop()->width() > m.width() + 10
 	&& QApplication::desktop()->height() > m.height() +30 )
 	m.show();
