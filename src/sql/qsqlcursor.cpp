@@ -814,7 +814,7 @@ bool QSqlCursor::canUpdate() const
 
 bool QSqlCursor::canDelete() const
 {
-    return ( ( d->md & Update ) == Update ) ;
+    return ( ( d->md & Delete ) == Delete ) ;
 }
 
 /*! \overload
