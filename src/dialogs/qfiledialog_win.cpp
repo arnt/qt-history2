@@ -161,7 +161,17 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     OPENFILENAMEA* ofn = new OPENFILENAMEA;
     memset( ofn, 0, sizeof(OPENFILENAMEA) );
 
+#if defined(Q_CC_BOR) && (WINVER >= 0x0500) && (_WIN32_WINNT >= 0x0500)
+    // according to the MSDN, this should also be necessary for MSVC, but
+    // OPENFILENAME_SIZE_VERSION_400A is in not Microsoft header, as it seems
+    if ( QApplication::winVersion()==Qt::WV_NT || QApplication::winVersion()&Qt::WV_DOS_based ) {
+	ofn->lStructSize= OPENFILENAME_SIZE_VERSION_400A;
+    } else {
+	ofn->lStructSize= sizeof(OPENFILENAMEA);
+    }
+#else
     ofn->lStructSize	= sizeof(OPENFILENAMEA);
+#endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
     ofn->lpstrFilter	= aFilter.data();
     ofn->lpstrFile	= aInitSel.data();
@@ -222,7 +232,17 @@ OPENFILENAME* makeOFN( QWidget* parent,
     OPENFILENAME* ofn = new OPENFILENAME;
     memset( ofn, 0, sizeof(OPENFILENAME) );
 
+#if defined(Q_CC_BOR) && (WINVER >= 0x0500) && (_WIN32_WINNT >= 0x0500)
+    // according to the MSDN, this should also be necessary for MSVC, but
+    // OPENFILENAME_SIZE_VERSION_400 is in not Microsoft header, as it seems
+    if ( QApplication::winVersion()==Qt::WV_NT || QApplication::winVersion()&Qt::WV_DOS_based ) {
+	ofn->lStructSize= OPENFILENAME_SIZE_VERSION_400;
+    } else {
+	ofn->lStructSize	= sizeof(OPENFILENAME);
+    }
+#else
     ofn->lStructSize	= sizeof(OPENFILENAME);
+#endif
     ofn->hwndOwner	= parent ? parent->winId() : 0;
     ofn->lpstrFilter	= tFilter;
     ofn->lpstrFile	= tInitSel;
