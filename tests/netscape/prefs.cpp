@@ -6,6 +6,7 @@
 #include <qradiobt.h>
 #include <qlined.h>
 #include <qlistview.h>
+#include <qlistbox.h>
 #include <qcombo.h>
 #include <qwidgetstack.h>
 #include <qvbox.h>
@@ -71,7 +72,7 @@ static QWidget* advanced()
 
     return vbox;
 }
-
+/*
 class DummyCategory : public QLabel {
 public:
     DummyCategory( const char * s = 0 ) :
@@ -80,7 +81,7 @@ public:
 	setMinimumSize(100,100);
     }
 };
-
+*/
 
 
 static QWidget *fontPage()
@@ -119,7 +120,7 @@ static QWidget *fontPage()
     new QRadioButton( "Use document-specified fonts, but disable Dynamic Fonts", box );
     new QRadioButton( "Use document-specified fonts, including Dynamic Fonts", box );
 
-    //    page->addStretch();
+    page->addStretch();
     return page;
 }
 
@@ -160,7 +161,7 @@ static QWidget *colorPage()
     new QLabel( "Sometimes a document will provide its own colors and background", box );
     new QCheckBox( "Always use my colors, overriding document", box );    
 
-    //    page->addStretch();
+    page->addStretch();
     return page;
 }
 
@@ -200,7 +201,7 @@ static QWidget *appsPage()
     new QLineEdit( hbox );
     new QPushButton( "Choose...", hbox );
 
-    //    page->addStretch();
+    page->addStretch();
     return page;
 }
 
@@ -224,7 +225,7 @@ static QWidget *appearPage()
     new QRadioButton( "Pictures &Only", box );
     new QRadioButton( "&Text Only", box );
     
-    //    page->addStretch();
+    page->addStretch();
     return page;
 }
 
@@ -258,11 +259,129 @@ static QWidget *navigatorPage()
     new QLabel( "days", hbox );
     new QPushButton( "Clear History", hbox );
 
-    //    page->addStretch();
+    page->addStretch();
     return page;
 }
 
+static QWidget *cachePage()
+{
+    QVBox *page = new QVBox;
 
+    new StrongHeading( "Cache",   "Designate the size of the cache",
+			    page );
+    QLabelled *frame = new QLabelled( 0, page );
+    QVBox *box = new QVBox( frame );
+    
+    new QLabel( "The cache is used to keep local copies of frequently accessed docu-\n\
+ments and thus reduce time connected to the network. The Reload\n\
+button will always compare the cache document to the network\n\
+document and show the most recent one. To load pages and images\n\
+from the network instead of the cache, press the Shift key and click\n\
+the reload button.", box );
+
+    QHBox *hbox = new QHBox( box );
+    new QLabel( "Disk cache:", hbox );
+    new QLineEdit( hbox );
+    new QPushButton( "Clear Disk Cache", hbox );
+
+    hbox = new QHBox( box );
+    new QLabel( "Memory cache:", hbox );
+    new QLineEdit( hbox );
+    new QPushButton( "Clear Memory Cache", hbox );
+
+    hbox = new QHBox( box );
+    new QLabel( "Cache Folder:", hbox );
+    new QLineEdit( hbox );
+    new QPushButton( "Choose...", hbox );
+
+    new QLabel( "Document in cache is compared to document on network", box );
+
+    //    QVBox *box = new QVBox( frame );
+    new QRadioButton( "Every time", box );
+    new QRadioButton( "Once per session", box );
+    new QRadioButton( "Never", box );
+
+    page->addStretch();
+    return page;
+}
+
+static QWidget *proxyPage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Proxies",   "Configure proxies to access the Internet",
+			    page );
+    QLabelled *frame = new QLabelled( 0, page );
+    QVBox *box = new QVBox( frame );
+    
+    new QLabel( "A network proxy is used to provide additional security between your\n\
+computer and the Internet (usually along with a firewall) and/or to\n\
+increase performance between networks by reducing redundant traffic\n\
+via caching. Your system administrator can provide you with proper\n\
+proxy settings.", box );
+
+
+    new QRadioButton( "Direct connection to the internet", box );
+
+    QHBox *hbox = new QHBox( box );
+    new QRadioButton( "Manual proxy configuration", hbox );
+    new QPushButton( "View...", hbox );
+
+    new QRadioButton( "Automatic proxy configuration", box );
+
+    hbox = new QHBox( box );
+    new QLabel( "Configuration location (URL)", hbox );
+    new QLineEdit( hbox );
+    new QPushButton( "&Reload", box );
+
+    page->addStretch();
+    return page;
+}
+
+static QWidget *identityPage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Identity",   
+		       "Set your name, email address, and signature file",
+		       page );
+    QLabelled *frame = new QLabelled( 0, page );
+    QVBox *box = new QVBox( frame );
+    
+    new QLabel( "The information below is needed before you can send mail. If you do\n\
+not know the information requested, please contact your system\n\
+administrator or Internet Service Provider.", box );
+
+    new QLabel( "Your name:", box );
+    new QLineEdit(box);
+
+    new QLabel( "Email Address:", box );
+    new QLineEdit(box);
+
+    new QLabel( "Organization:", box );
+    new QLineEdit(box);
+
+    page->addStretch();
+    return page;
+}
+
+static QWidget *languagePage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Languages",   
+		       "View web pages in different languages",
+		       page );
+    QLabelled *frame = new QLabelled( 0, page );
+    QVBox *box = new QVBox( frame );
+    
+    new QLabel( "Choose in order of preference the language(s) in which you prefer to\n\
+view web pages. Web pages are sometimes available in serveral\n\
+languages. Navigator presents the pages in the available language\n\
+you most prefer.", box );
+
+    return page;
+}
 
 
 Preferences::Preferences(QWidget* parent, const char* name, int f) :
@@ -287,13 +406,7 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     QFontMetrics fm=fontMetrics();
     int w = fm.width("New Page Colors ")+selector->treeStepSize()*2;
     selector->addColumn( "Category", w );
-#define LISTVIEW_BUG_FIXED
-#ifdef LISTVIEW_BUG_FIXED
     selector->setMaximumWidth( w );
-#else
-    selector->setColumn( "Bug", 30 );
-    selector->setMaximumWidth( w+30 );
-#endif
     selector->setRootIsDecorated( TRUE );
     selector->setFocusPolicy( QWidget::StrongFocus );
 
@@ -304,24 +417,27 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     add(new PreferenceItem(group, "Font"), fontPage() );
     add(new PreferenceItem(group, "Colors"), colorPage() );
     add(group = new PreferenceItem(selector, "Navigator"), navigatorPage() );
-    add(new PreferenceItem(group, "Languages"), 
-	new DummyCategory("Languages"));
+    add(new PreferenceItem(group, "Languages"), languagePage() );
     add(new PreferenceItem(group, "Applications"), appsPage() );
-    add(group = new PreferenceItem(selector, "Mail & Groups"), new DummyCategory);
-    add(new PreferenceItem(group, "Identity"), new DummyCategory);
-    add(new PreferenceItem(group, "Messages"), new DummyCategory);
-    add(new PreferenceItem(group, "Mail Server"), new DummyCategory);
-    add(new PreferenceItem(group, "Groups Server"), new DummyCategory);
-    add(new PreferenceItem(group, "Directory"), new DummyCategory);
-    add(group = new PreferenceItem(selector, "Composer"), new DummyCategory);
-    add(new PreferenceItem(group, "New Page Colors"), new DummyCategory);
-    add(new PreferenceItem(group, "Publish"), new DummyCategory);
-    add(group = new PreferenceItem(selector, "Advanced"), advanced());
-    add(new PreferenceItem(group, "Cache"), new DummyCategory);
-    add(new PreferenceItem(group, "Proxies"), new DummyCategory);
-    add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
+    add(new PreferenceItem(selector, "Identity"), identityPage() );
 
-    setCaption("Netscape: Preferences");
+    add(group = new PreferenceItem(selector, "Advanced"), advanced());
+    add(new PreferenceItem(group, "Cache"), cachePage() );
+    add(new PreferenceItem(group, "Proxies"), proxyPage() );
+    //    add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
+
+//     add(group = new PreferenceItem(selector, "Mail & Groups"), new DummyCategory);
+//     add(new PreferenceItem(group, "Messages"), new DummyCategory);
+//     add(new PreferenceItem(group, "Mail Server"), new DummyCategory);
+//     add(new PreferenceItem(group, "Groups Server"), new DummyCategory);
+//     add(new PreferenceItem(group, "Directory"), new DummyCategory);
+//     add(group = new PreferenceItem(selector, "Composer"), new DummyCategory);
+//     add(new PreferenceItem(group, "New Page Colors"), new DummyCategory);
+//     add(new PreferenceItem(group, "Publish"), new DummyCategory);
+
+
+
+    setCaption("QtScape: Preferences");
 }
 
 
