@@ -75,6 +75,21 @@ MingwMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
     return FALSE;
+ }
+
+void createLdObjectScriptFile(const QString & fileName, QStringList & objList)
+{
+    QString filePath = Option::output_dir + QDir::separator() + fileName;
+    QFile file(filePath);
+    if (file.open(IO_WriteOnly | IO_Translate )) {
+	QTextStream t(&file);
+	t << "INPUT(" << endl;
+	for (QStringList::Iterator it = objList.begin(); it != objList.end(); ++it ) {
+	    t << *it << endl;
+	}
+	t << ");" << endl;
+	file.close();
+    }
 }
 
 void
@@ -149,14 +164,22 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << "####### Files" << endl << endl;
     t << "HEADERS =	" << varList("HEADERS") << endl;
     t << "SOURCES =	" << varList("SOURCES") << endl;
-//    t << "OBJECTS =	" << varList("OBJECTS").replace(QRegExp("\\.obj"),".o") << endl;
-    t << "OBJECTS =	" << varList("OBJECTS") << endl;
+    if ( project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJECT_SCRIPT"), project->variables()["OBJECTS"]); 
+	t << "OBJECTS =	" << var("QMAKE_LINK_OBJECT_SCRIPT") << endl;
+    } else {
+	t << "OBJECTS =	" << varList("OBJECTS") << endl;
+    }
     t << "FORMS =	" << varList("FORMS") << endl;
     t << "UICDECLS =	" << varList("UICDECLS") << endl;
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
-    t << "OBJMOC	=	" << varList("OBJMOC") << endl;
-//    t << "OBJMOC	=	" << varList("OBJMOC").replace(QRegExp("\\.obj"),".o") << endl;
+    if ( project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+	createLdObjectScriptFile(var("QMAKE_LINK_OBJMOC_SCRIPT"), project->variables()["OBJMOC"]); 
+	t << "OBJMOC =	" << var("QMAKE_LINK_OBJMOC_SCRIPT") << endl;
+    } else {
+	t << "OBJMOC	=	" << varList("OBJMOC") << endl;
+    }
     QString extraCompilerDeps;
     if(!project->isEmpty("QMAKE_EXTRA_WIN_COMPILERS")) {
 	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
