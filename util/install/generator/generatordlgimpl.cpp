@@ -44,12 +44,11 @@ void GeneratorDlgImpl::clickedGenerate()
     if( archive.open( IO_WriteOnly ) ) {
 	QStringList dirList;
 	dirList << sourcePath->text() + "/src" << sourcePath->text() + "/include" << sourcePath->text() + "/mkspecs" << sourcePath->text() + "/qmake";
-	dirList << sourcePath->text() + "/qtsh" << sourcePath->text() + "/tools" << sourcePath->text() + "/bin" << sourcePath->text() + "/lib";
-	dirList << sourcePath->text() + "/setup" << sourcePath->text() + "/config.tests" << sourcePath->text() + "/extensions";
+	dirList << sourcePath->text() + "/tools" << sourcePath->text() + "/bin" << sourcePath->text() + "/lib" << sourcePath->text() + "/extensions";
 	archive.writeDirList( dirList );
 	QStringList fileList;
-	fileList << sourcePath->text() + "/LICENSE" << sourcePath->text() + "/LICENSE.qws" << sourcePath->text() + "/LICENSE-US.qws";
-	fileList << sourcePath->text() + "/changes-3.0.0-beta1" << sourcePath->text() + "/INSTALL" << sourcePath->text() + "/Makefile";
+	fileList << sourcePath->text() + "/LICENSE";
+	fileList << sourcePath->text() + "/changes-3.0.0-beta3" << sourcePath->text() + "/INSTALL" << sourcePath->text() + "/Makefile";
 	fileList << sourcePath->text() + "/MANIFEST" << sourcePath->text() + "/PORTING" << sourcePath->text() + "/README";
 	archive.writeFileList( fileList );
 	archive.close();
@@ -57,7 +56,7 @@ void GeneratorDlgImpl::clickedGenerate()
     archive.setPath( destPath->text() + "/sys" );
     if( archive.open( IO_WriteOnly ) ) {
 	QStringList fileList;
-	fileList << sourcePath->text() + "/LICENSE" << sourcePath->text() + "/LICENSE.qws" << sourcePath->text() + "/LICENSE-US.gws";
+	fileList << sourcePath->text() + "/LICENSE";
 	archive.writeFileList( fileList );
 	archive.close();
     }
