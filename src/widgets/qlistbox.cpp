@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#293 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#294 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1187,6 +1187,12 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
 
+    if ( i ) {
+	emit clicked( index( i ) );
+	emit clicked( i );
+	emit clicked( i->text() );
+    }
+    
     if ( numColumns() > 1 && !i ) {
 	if ( d->selectionMode == Single ) {
 	    if ( d->current ) {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#97 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#98 $
 **
 ** Definition of QListBox widget class
 **
@@ -177,6 +177,10 @@ signals:
 
     void selectionChanged();
 
+    void clicked( int index );
+    void clicked( const QString & );
+    void clicked( QListBoxItem * );
+    
 protected:
     void viewportMousePressEvent( QMouseEvent * );
     void viewportMouseReleaseEvent( QMouseEvent * );
