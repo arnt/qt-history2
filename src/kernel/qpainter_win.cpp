@@ -2534,7 +2534,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	fe->hdc = hdc;
 	SelectObject( hdc, fe->hfont );
 	fe->draw( this, xpos,  ypos, engine->glyphs( &si ), engine->advances( &si ),
-		  engine->offsets( &si ), shaped->num_glyphs, rightToLeft );
+		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
 	fe->hdc = oldDC;
 	if ( rop != CopyROP ) {
 #ifndef Q_OS_TEMP

@@ -300,9 +300,9 @@ public:
 	{ return glyphAttributesPtr+si->glyph_data_offset; }
 
     void reallocate( int totalGlyphs );
-    inline void ensureSpace( int nGlyphs ) {
+    inline void ensureSpace( int nGlyphs ) const {
 	if ( used + num_glyphs < nGlyphs )
-	    reallocate( (nGlyphs + 16) >> 4 << 4 );
+	    ((QTextEngine *)this)->reallocate( (nGlyphs + 16) >> 4 << 4 );
     }
 
     int allocated;
