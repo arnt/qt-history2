@@ -15,8 +15,8 @@ classes:
 
   There is only one QApplicationInterface, and it is requested from 
 the QApplication derived class using the virtual 
-requestApplicationInterface method. A plugin can acquire this interface
-in it's connectNotify reimplementation.
+queryInterface method. A plugin can acquire this interface in it's 
+connectNotify reimplementation.
   Each QComponentInterface represents one instance of a QObject 
 derived class, e.g. a main window. The existing functionality provides 
 methods to use the read and write methods of the property system, 
