@@ -2013,22 +2013,20 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	    inSelection = TRUE;
 
 	bool noSelectionAnymore = hadOldStart && hadOldEnd && leftSelection && !inSelection && !c.parag()->hasSelection( id ) && c.atParagEnd();
-	if ( !c.parag()->hasChanged() ) {
-	    c.parag()->removeSelection( id );
-	    if ( inSelection ) {
-		if ( c.parag() == start.parag() && start.parag() == end.parag() ) {
-		    c.parag()->setSelection( id, QMIN( start.index(), end.index() ), QMAX( start.index(), end.index() ) );
-		} else if ( c.parag() == start.parag() && !hadEndParag ) {
-		    c.parag()->setSelection( id, start.index(), c.parag()->length() - 1 );
-		} else if ( c.parag() == end.parag() && !hadStartParag ) {
-		    c.parag()->setSelection( id, end.index(), c.parag()->length() - 1 );
-		} else if ( c.parag() == end.parag() && hadEndParag ) {
-		    c.parag()->setSelection( id, 0, end.index() );
-		} else if ( c.parag() == start.parag() && hadStartParag ) {
-		    c.parag()->setSelection( id, 0, start.index() );
-		} else {
-		    c.parag()->setSelection( id, 0, c.parag()->length() - 1 );
-		}
+	c.parag()->removeSelection( id );
+	if ( inSelection ) {
+	    if ( c.parag() == start.parag() && start.parag() == end.parag() ) {
+		c.parag()->setSelection( id, QMIN( start.index(), end.index() ), QMAX( start.index(), end.index() ) );
+	    } else if ( c.parag() == start.parag() && !hadEndParag ) {
+		c.parag()->setSelection( id, start.index(), c.parag()->length() - 1 );
+	    } else if ( c.parag() == end.parag() && !hadStartParag ) {
+		c.parag()->setSelection( id, end.index(), c.parag()->length() - 1 );
+	    } else if ( c.parag() == end.parag() && hadEndParag ) {
+		c.parag()->setSelection( id, 0, end.index() );
+	    } else if ( c.parag() == start.parag() && hadStartParag ) {
+		c.parag()->setSelection( id, 0, start.index() );
+	    } else {
+		c.parag()->setSelection( id, 0, c.parag()->length() - 1 );
 	    }
 	}
 
