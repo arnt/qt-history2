@@ -699,10 +699,19 @@ void QFontDialog::scriptHighlighted( int index )
 void QFontDialog::scriptHighlighted( const QString &s )
 {
     d->script = s;
+    QString currentStyle = d->styleList->currentText();
 
     updateStyles();
-    if ( d->styleList->count() != 0 )
-	d->styleList->setCurrentItem( 0 );  // Will call styleHighlighted
+    if ( d->styleList->count() != 0 ) {
+	for ( int i = 0 ; i < (int)d->styleList->count() ; i++ ) {
+	    if ( currentStyle == d->styleList->text(i) ) {
+		d->styleList->setCurrentItem( i ); // Will call styleHighlighted
+		break;
+	    }
+	}
+        if ( d->styleList->currentItem() == -1 )
+	    d->styleList->setCurrentItem( 0 ); // Will call styleHighlighted
+    }
 }
 
 /*!
