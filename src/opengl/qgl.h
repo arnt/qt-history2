@@ -183,6 +183,8 @@ protected:
 #elif defined(Q_WS_X11)
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
+#elif defined(Q_WS_MAC)
+    virtual void*	chooseMacVisual();
 #endif
 
     bool		deviceIsPixmap() const;
@@ -203,7 +205,9 @@ protected:
 #elif defined(Q_WS_X11)
     void*		vi;
     void*		cx;
-    Q_UINT32		gpm;
+    Q_UINT32		gpm
+#elif defined(Q_WS_MAC)
+    void*               vi;;
 #endif
 
     QGLFormat		glFormat;
