@@ -15,6 +15,7 @@
 #include "qdesktopwidget.h"
 #include "qt_windows.h"
 #include "qapplication_p.h"
+#include <qvector.h>
 #ifdef Q_OS_TEMP
 #include <sipapi.h>
 #endif

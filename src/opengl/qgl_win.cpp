@@ -18,6 +18,7 @@
 #include <qshared.h>
 #include <qmap.h>
 #include <qpixmap.h>
+#include <qevent.h>
 
 #include <windows.h>
 

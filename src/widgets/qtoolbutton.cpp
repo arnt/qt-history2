@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-#define QT_COMPAT
 #include "qtoolbutton.h"
 #ifndef QT_NO_TOOLBUTTON
 

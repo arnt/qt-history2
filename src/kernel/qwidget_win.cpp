@@ -1778,5 +1778,5 @@ void QWidget::setWindowOpacity(double level)
 
 double QWidget::windowOpacity() const
 {
-    return isTopLevel() ? (d->topData()->topData() / 255.0) : 0.0;
+    return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
 }
