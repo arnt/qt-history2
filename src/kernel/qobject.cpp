@@ -565,7 +565,7 @@ void QObject::setName( const char *name )
 /*!  Searches the children and optinally grandchildren of this object,
   and returns a child that is named \a objName that inherits \a
   inheritsClass.If \a inheritsClass is 0 (the default), all classes
-  match. If 
+  match.
 
   If \a recursiveSearch is TRUE (the default), child() searches
   nth-generation as well as first-generation children.
@@ -955,7 +955,7 @@ const QObjectList *QObject::objectTrees()
 	++it;
 	((QButton*)obj)->setEnabled( FALSE );
     }
-    delete list;			// delete the list, not the objects
+    delete l;				// delete the list, not the objects
   \endcode
 
   \warning Delete the list away as soon you have finished using it.
