@@ -233,7 +233,8 @@
     \sa QAbstractSocket::error()
 */
 
-/*! \enum QAbstractSocket::SocketState
+/*! 
+    \enum QAbstractSocket::SocketState
 
     This enum describes the different states in which a socket can be.
 
@@ -245,6 +246,12 @@
     \value ClosingState The socket is about to close (data may still
     be waiting to be written).
     \value ListeningState For internal use only.
+    \omitvalue Idle
+    \omitvalue HostLookup
+    \omitvalue Connecting
+    \omitvalue Connected
+    \omitvalue Closing
+    \omitvalue Connection
 
     \sa QAbstractSocket::state()
 */
