@@ -95,10 +95,11 @@ public:
     virtual void bindValue( const QString& holder, const QVariant& value, QSql::ParameterType = QSql::In );
     virtual void bindValue( int pos, const QVariant& value, QSql::ParameterType = QSql::In );
     virtual void addBindValue( const QVariant& value, QSql::ParameterType = QSql::In );
-    virtual QVariant parameterValue( const QString& holder ); // remove me in 4.0
-    virtual QVariant parameterValue( int pos ); // remove me in 4.0
+    virtual QVariant parameterValue( const QString& holder );
+    virtual QVariant parameterValue( int pos );
     QVariant boundValue( const QString& holder ) const;
     QVariant boundValue( int pos ) const;
+    void clear();
     void clearValues();
     void clearIndex();
     void resetBindCount();

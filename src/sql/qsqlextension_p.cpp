@@ -98,6 +98,12 @@ void QSqlExtension::clearIndex()
     holders.clear();
 }
 
+void QSqlExtension::clear()
+{
+    clearValues();
+    clearIndex();
+}
+
 QVariant QSqlExtension::parameterValue( const QString& holder )
 {
     return values[ holder ].value;

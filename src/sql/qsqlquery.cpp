@@ -291,6 +291,8 @@ bool QSqlQuery::exec ( const QString& query )
 {
     if ( !d->sqlResult )
 	return FALSE;
+    if ( d->sqlResult->extension() && driver()->hasFeature( QSqlDriver::PreparedQueries ) )
+	d->sqlResult->extension()->clear();    
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
@@ -857,6 +859,7 @@ bool QSqlQuery::prepare( const QString& query )
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setLastError( QSqlError() );
     d->sqlResult->setAt( QSql::BeforeFirst );
+    d->sqlResult->extension()->clear();
     if ( !driver() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlQuery::prepare: no driver" );
@@ -881,7 +884,6 @@ bool QSqlQuery::prepare( const QString& query )
 #ifdef QT_DEBUG_SQL
     qDebug( "\n QSqlQuery: " + query );
 #endif
-    d->sqlResult->extension()->clearIndex();
     QString q = query;
     static QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
