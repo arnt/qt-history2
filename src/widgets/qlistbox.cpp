@@ -4328,8 +4328,7 @@ void QListBox::drawRubber()
 	return;
     QPainter p( viewport() );
     p.setRasterOp( NotROP );
-    style().drawPrimitive( QStyle::PE_FocusRect, &p, d->rubber->normalize(),
-			   palette() );
+    style().drawPrimitive(QStyle::PE_RubberBand, &p, d->rubber->normalize(), palette());
     p.end();
 }
 

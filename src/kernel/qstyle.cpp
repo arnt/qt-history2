@@ -741,6 +741,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_CheckListController controller part of a listview item
     \value PE_CheckListIndicator checkbox part of a listview item
     \value PE_CheckListExclusiveIndicator radiobutton part of a listview item
+    \value PE_RubberBand rubber band used in such things as iconview
 
     \value PE_CustomBase  base value for custom PrimitiveElements.
 	All values above this are reserved for custom use. Custom

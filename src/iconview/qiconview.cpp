@@ -5304,11 +5304,9 @@ void QIconView::drawRubber( QPainter *p )
     QPoint pnt( d->rubber->x(), d->rubber->y() );
     pnt = contentsToViewport( pnt );
 
-    style().drawPrimitive(QStyle::PE_FocusRect, p,
-			  QRect( pnt.x(), pnt.y(),
-				 d->rubber->width(), d->rubber->height() ),
-			  palette(), QStyle::Style_Default,
-			  QStyleOption(palette().base()));
+    style().drawPrimitive(QStyle::PE_RubberBand, p,
+			  QRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height()),
+			  palette(), QStyle::Style_Default, QStyleOption(palette().base()));
 }
 
 /*!

@@ -562,6 +562,9 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	drawPrimitive( PE_Panel, p, r, pal, flags, opt );
 	break;
 
+    case PE_RubberBand:
+	drawPrimitive(PE_FocusRect, p, r, cg, flags, opt);
+	break;
     default:
 	break;
     }
