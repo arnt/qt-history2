@@ -347,16 +347,48 @@ TrueType and Type1 support.
 */
 
 /*! \page running-qws.html
-<title>Running Qt/Embedded applications<title>
+<title>Running Qt/Embedded applications</title>
 </head><body bgcolor="#ffffff">
 
 \postheader
 
 <h1>Running Qt/Embedded applications</h1>
 
-(not documented yet)
-Running with -qws.
-Running a server/master and clients.
+A Qt/Embedded application requires a master application to be running
+or to be a master application itself.  The
+master application is primarily responsible for managing top-level window
+regions, pointer and keyboard input.
+<p>
+Any Qt/Embedded application can be a
+master application by constructing the QApplication object with the
+<i>QApplication::GuiServer</i> type, or running the application with the
+<i>-qws</i> command line option.
+<p>
+This document assumes you have the Linux framebuffer configured correctly
+and no master process is running.  If you do not have a working Linux
+framebuffer you can use the
+<a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>.
+<p>
+Change to a Linux console and select an example to run, e.g. examples/compact.
+Make sure $LD_LIBRARY_PATH is set correctly and run the application
+with the <i>-qws</i> option:
+<pre>
+cd $QTDIR/examples/compact
+./compact -qws
+</pre>
+You should see the compact example appear.  If your mouse doesn't work
+correctly you need to specify the type of mouse to use.
+You can exit the master application at any time using ctrl+alt+backspace.
+<p>
+At the time of writing Qt/Embedded supports MouseMan (default), Microsoft and
+IntelliMouse.  To specify the mouse to use set the $QWS_MOUSE_PROTO environment
+variable:
+<pre>
+export QWS_MOUSE_PROTO=IntelliMouse
+</pre>
+If you wish to run additional applications you should run them as clients
+i.e. without the <i>-qws</i> option.
+
 */
 
 /*! \page porting-qws.html
