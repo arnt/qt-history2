@@ -3,23 +3,17 @@
     \title Application Example
 
     The Application example shows how to implement a standard GUI
-    application with menus, toolbars, and a status bar. The
-    application is a simple text editor built around QTextEdit.
+    application with menus, toolbars, and a status bar. The example
+    itself is a simple text editor program built around QTextEdit.
 
     \image application.png Screenshot of the Application example
-
-    This example can only load one file at a time. The \l
-    mainwindows/sdi and \l mainwindows/mdi examples show how to lift
-    these restrictions.
 
     Nearly all of the code for the Application example is in the \c
     MainWindow class, which inherits QMainWindow. QMainWindow
     provides the framework for windows that have menus, toolbars,
-    dock windows, and a status bar.
-
-    The application provides \menu{File}, \menu{Edit}, and
-    \menu{Help} entries in the menu bar, with the following popup
-    menus:
+    dock windows, and a status bar. The application provides
+    \menu{File}, \menu{Edit}, and \menu{Help} entries in the menu
+    bar, with the following popup menus:
 
     \image application-menus.png The Application example's menu system
 
@@ -28,7 +22,13 @@
     as well as a \gui{MOD} indicator that is visible when the file
     has unsaved changes.
 
-    ### recentfiles
+    To keep the example simple, recently opened files aren't shown in
+    the \menu{File} menu, even though this feature is desired in 90%
+    of applications. The \l{mainwindows/recentfiles}{Recent Files}
+    example shows how to implement this. Furthermore, this example
+    can only load one file at a time. The \l{mainwindows/sdi}{SDI}
+    and \l{mainwindows/mdi}{MDI} examples show how to lift these
+    restrictions.
 
     \section1 MainWindow Class Definition
 
@@ -276,29 +276,105 @@
 
     The \c maybeSave() function is called to save pending changes. If
     there are pending changes, it pops up a QMessageBox giving the
-    user to save the document.
+    user to save the document. The function returns \c true in all
+    cases, except when the user clicks \gui{Cancel}. The caller must
+    check the return value and stop whatever it was doing if the
+    return value is \c false.
 
     \printline ::loadFile(
     \printuntil /^\}/
 
+    In \c loadFile(), we use QFile and QTextStream to read in the
+    data. The QFile object provides access to the bytes stored in a
+    file.
+
+    We start by opening the file in read-only mode. The QFile::Text
+    flag indicates that the file is a text file, not a binary file.
+    On Unix and Mac OS X, this makes no difference, but on Windows,
+    it ensures that the "\\r\\n" end-of-line sequence is converted to
+    "\\n" when reading.
+
+    If we successfully opened the file, we use a QTextStream object
+    to read in the data. QTextStream automatically converts the 8-bit
+    data into a Unicode QString and supports various encodings. If no
+    encoding is specified, QTextStream assumes the file is written
+    using the system's default 8-bit encoding (for example, Latin-1;
+    see QTextCodec::codecForLocale() for details).
+
+    Since the call to QTextStream::read() might take some time, we
+    set the cursor to be Qt::WaitCursor for the entire application
+    while it goes on.
+
+    At the end, we call the private \c setCurrentFile() function,
+    which we'll cover in a moment, and we display the string "File
+    loaded" in the status bar for 2 seconds (2000 milliseconds).
+
     \printline ::saveFile(
     \printuntil /^\}/
 
+    Saving a file is very similar to loading one. Here, the
+    QFile::Text flag ensures that on Windows, "\\n" is converted into
+    "\\r\\n" to conform to the Windows convension.
+
     \printline ::setCurrentFile(
     \printuntil /^\}/
+
+    The \c setCurrentFile() function is called to reset the state of
+    a few variables when a file is loaded or saved, or when the user
+    starts editing a new file (in which case \c fileName is empty).
+    We update the \c curFile variable, clear the \gui{MOD} status
+    indicator and the associated QTextDocument::modified flag, and
+    update the window title to contain the new file name.
+
+    The \c strippedName() function call around \c curFile in the
+    QWidget::setWindowTitle() call shortens the file name to exclude
+    the path. Here's the function:
 
     \printline ::strippedName(
     \printuntil /^\}/
 
     \section1 The main() Function
 
+    The \c main() function for this application is typical of
+    applications that contain one main window:
+
     \include mainwindows/application/main.cpp
+
+    The QApplication::setMainWidget() call ensures that the
+    application will terminate when the user closes the main window.
+    Without this line, the application would continue running in the
+    background, unaccessible to the user.
 
     \section1 The Resource File
 
+    As you will probably recall, for some of the actions, we
+    specified icons with file names starting with \c{:} and mentioned
+    that such file names aren't ordinary file names, but path in the
+    executable's stored resources. These resources are compiled 
+
+    The resources associated with an application are specified in a
+    \c .qrc file, an XML-based file format that lists files on the
+    disk. Here's the \c application.qrc file that's used by the
+    Application example:
+
     \include mainwindows/application/application.qrc
+
+    The \c .png files listed in the \c application.qrc file are files
+    that are part of the Application example's source tree. Paths are
+    relative to the directory where the \c application.qrc file is
+    located (the \c mainwindows/application directory).
+
+    The resource file must be mentioned in the \c application.pro
+    file  so that \c qmake knows about it:
 
     \quotefromfile mainwindows/application/application.pro
     \skipto RESOURCES
     \printline RESOURCES
+
+    \c qmake will produce make rules to generate a file called \c
+    qrc_application.cpp that is linked into the application. This
+    file contains all the data for the images and other resources as
+    static C++ arrays of compressed binary data. See
+    \l{resources.html}{The Qt Resource System} for more information
+    about resources.
 */

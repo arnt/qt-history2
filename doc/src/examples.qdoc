@@ -49,7 +49,7 @@
     \section1 Main Window Examples
 
     \list
-    \o \l{mainwindows/application}{Application}
+    \o \l{mainwindows/application}{Application}\raisedaster
     \o \l{mainwindows/menus}{Menus}
     \o \l{mainwindows/recentfiles}{Recent Files}
     \o \l{mainwindows/sdi}{SDI}

@@ -30,7 +30,7 @@
     directory where the \c .qrc file is located.
 
     The \c .qrc file must be mentioned in the application's \c .pro
-    file, so that \c qmake knows about it. For example:
+    file so that \c qmake knows about it. For example:
 
     \quotefromfile mainwindows/application/application.pro
     \skipto RESOURCES
