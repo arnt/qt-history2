@@ -114,6 +114,10 @@ bool QSqlSelectCursor::exec( const QString& query )
     return ret;
 }
 
+/*! \fn bool QSqlSelectCursor::select()
+    \reimp
+*/
+
 /*! \reimp */
 bool QSqlSelectCursor::select( const QString&, const QSqlIndex& )
 {

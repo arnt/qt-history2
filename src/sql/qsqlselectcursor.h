@@ -58,7 +58,8 @@ public:
     QSqlSelectCursor( const QSqlSelectCursor& other );
     ~QSqlSelectCursor();
     bool exec( const QString& query );
-
+    bool select() { return QSqlCursor::select(); }
+    
 protected:
     QSqlIndex primaryIndex( bool = TRUE ) const { return QSqlIndex(); }
     QSqlIndex index( const QStringList& ) const { return QSqlIndex(); }
