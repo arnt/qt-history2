@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#286 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#285 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#286 $");
 
 
 /*****************************************************************************
@@ -593,7 +593,7 @@ void qt_save_rootinfo()				// save new root info
     unsigned long length, after;
     unsigned char *data;
 
-    if ( qt_xsetroot_id != None ) {			// kill old pixmap
+    if ( qt_xsetroot_id ) {			// kill old pixmap
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_xsetroot_id, 0, 1,
 				 TRUE, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success ) {
