@@ -87,18 +87,6 @@ QString QDir::homeDirPath()
     return QString::null;
 }
 
-/*!
-    Returns the canonical path, i.e. a path without symbolic links or
-    redundant "." or ".." elements.
-
-    On systems that do not have symbolic links this function will
-    always return the same string that absPath() returns. If the
-    canonical path does not exist (normally due to dangling symbolic
-    links) canonicalPath() returns QString::null.
-
-    \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
-	absFilePath(), QString::isNull()
-*/
 
 QString QDir::canonicalPath() const
 {
@@ -137,38 +125,12 @@ QString QDir::canonicalPath() const
     return aPath.prepend( '/' );
 }
 
-/*!
-    Creates a directory.
-
-    If \a acceptAbsPath is TRUE a path starting with a separator ('/')
-    will create the absolute directory; if \a acceptAbsPath is FALSE
-    any number of separators at the beginning of \a dirName will be
-    removed.
-
-    Returns TRUE if successful; otherwise returns FALSE.
-
-    \sa rmdir()
-*/
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
     return ::_wmkdir( (TCHAR*)filePath(dirName,acceptAbsPath).ucs2() ) == 0;
 }
 
-/*!
-    Removes a directory.
-
-    If \a acceptAbsPath is TRUE a path starting with a separator ('/')
-    will remove the absolute directory; if \a acceptAbsPath is FALSE
-    any number of separators at the beginning of \a dirName will be
-    removed.
-
-    The directory must be empty for rmdir() to succeed.
-
-    Returns TRUE if successful; otherwise returns FALSE.
-
-    \sa mkdir()
-*/
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
@@ -176,37 +138,11 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 }
 
 
-/*!
-    Returns TRUE if the directory is readable \e and we can open files
-    by name; otherwise returns FALSE.
-
-    \warning A FALSE value from this function is not a guarantee that
-    files in the directory are not accessible.
-
-    \sa QFileInfo::isReadable()
-*/
-
 bool QDir::isReadable() const
 {
     return ::_waccess( (TCHAR*)dPath.ucs2(), R_OK ) == 0;
 }
 
-/*!
-    Returns TRUE if the directory is the root directory; otherwise
-    returns FALSE.
-
-    Note: If the directory is a symbolic link to the root directory
-    this function returns FALSE. If you want to test for this use
-    canonicalPath(), e.g.
-    \code
-    QDir d( "/tmp/root_link" );
-    d = d.canonicalPath();
-    if ( d.isRoot() )
-	qWarning( "It is a root link" );
-    \endcode
-
-    \sa root(), rootDirPath()
-*/
 
 bool QDir::isRoot() const
 {
@@ -214,23 +150,6 @@ bool QDir::isRoot() const
 	(dPath[0].isLetter() && dPath.mid(1,dPath.length()) == ":/");
 }
 
-/*!
-    Renames a file or directory.
-
-    If \a acceptAbsPaths is TRUE a path starting with a separator
-    ('/') will rename the file with the absolute path; if \a
-    acceptAbsPaths is FALSE any number of separators at the beginning
-    of the names will be removed.
-
-    Returns TRUE if successful; otherwise returns FALSE.
-
-    On most file systems, rename() fails only if \a oldName does not
-    exist or if \a newName and \a oldName are not on the same
-    partition. On Windows, rename() will fail if \a newName already
-    exists. However, there are also other reasons why rename() can
-    fail. For example, on at least one file system rename() fails if
-    \a newName points to an open file.
-*/
 
 bool QDir::rename( const QString &oldName, const QString &newName,
 		   bool acceptAbsPaths	)
@@ -245,11 +164,6 @@ bool QDir::rename( const QString &oldName, const QString &newName,
     QString fn2 = filePath( newName, acceptAbsPaths );
     return ::_wrename( (TCHAR*)fn1.ucs2(), (TCHAR*)fn2.ucs2() ) == 0;
 }
-/*!
-    Sets the application's current working directory to \a path.
-    Returns TRUE if the directory was successfully changed; otherwise
-    returns FALSE.
-*/
 
 
 bool QDir::setCurrent( const QString &path )
@@ -271,11 +185,6 @@ bool QDir::setCurrent( const QString &path )
     return TRUE;
 }
 
-/*!
-    Returns the absolute path of the application's current directory.
-
-    \sa current()
-*/
 
 QString QDir::currentDirPath()
 {
@@ -289,15 +198,6 @@ QString QDir::currentDirPath()
     return *theCWD;
 }
 
-/*!
-    Returns the absolute path for the root directory.
-
-    For UNIX operating systems this returns "/". For Windows file
-    systems this normally returns "c:/".
-
-    \sa root() drives()
-*/
-
 
 QString QDir::rootDirPath()
 {
@@ -305,12 +205,6 @@ QString QDir::rootDirPath()
     return QString( "/" );
 }
 
-/*!
-    Returns TRUE if \a path is relative; returns FALSE if it is
-    absolute.
-
-    \sa isRelative()
-*/
 
 bool QDir::isRelativePath( const QString &path )
 {
@@ -320,10 +214,6 @@ bool QDir::isRelativePath( const QString &path )
     return path[0] != '/' && path[0] != '\\';
 }
 
-/*!
-  \internal
-  Reads directory entries.
-*/
 
 bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
@@ -500,16 +390,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
     return TRUE;
 }
 
-
-/*!
-    Returns a list of the root directories on this system. On Windows
-    this returns a number of QFileInfo objects containing "C:/", "D:/"
-    etc. On other operating systems, it returns a list containing just
-    one root directory (e.g. "/").
-
-    The returned pointer is owned by Qt. Callers should \e not delete
-    or modify it.
-*/
 
 const QFileInfoList * QDir::drives()
 {
