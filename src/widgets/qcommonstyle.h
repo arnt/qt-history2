@@ -105,6 +105,10 @@ public:
 
     // toolbars
     virtual void drawToolButton( QToolButton* btn, QPainter *p);
+    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
+
     void drawToolBarHandle( QPainter *p, const QRect &r,
 			    Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,

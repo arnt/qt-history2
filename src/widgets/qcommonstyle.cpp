@@ -359,6 +359,13 @@ void QCommonStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientati
     p->restore();
 }
 
+void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken,
+		     const QBrush *fill ) 
+{
+    QStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
+}
+
 
 void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
@@ -405,7 +412,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
     }
 #else
     if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-	QStyle::drawToolButton( p, x, y, w, h, g, sunken, &fill );
+	drawToolButton( p, x, y, w, h, g, sunken, &fill );
     } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
 	      !btn->parentWidget()->backgroundPixmap()->isNull() ) {
  	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
@@ -414,7 +421,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
     } else {
 	if ( btn->parentWidget() )
 	    fill = QBrush( btn->parentWidget()->backgroundColor() );
-	QStyle::drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
+	drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
     }
 #endif
 #endif
