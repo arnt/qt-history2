@@ -492,13 +492,14 @@ void QTipManager::showTip()
 	int h = label->heightForWidth( t->geometry.width() - 4 );
 	label->resize( label->width(), h );
     }
-    if ( p.x() + label->width() > QApplication::desktop()->width() )
-	p.setX( QApplication::desktop()->width() - label->width() );
-    if ( p.y() + label->height() > QApplication::desktop()->height() )
-	p.setY( p.y() - 20 - label->height() );
+    QRect screen = QApplication::desktop()->geometry( QApplication::desktop()->screenNumber( p ) );
+
+    if ( p.x() + label->width() > screen.x() + screen.width() )
+	p.setX( screen.x() + screen.width() - label->width() );
+    if ( p.y() + label->height() > screen.y() + screen.height() )
+	p.setY( screen.y() + screen.height() - label->height() );
     if ( label->text().length() ) {
 	label->move( p );
-
 
 	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
 	     previousTip || preventAnimation )
