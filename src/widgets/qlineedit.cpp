@@ -100,7 +100,8 @@ struct QLineEditPrivate {
 	undoRedoInfo( parag ),
 	dragEnabled( TRUE ),
 	preeditStart(-1),
-	preeditLength(-1)
+	preeditLength(-1),
+	txtBuffer( "" )
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
