@@ -93,7 +93,9 @@ public:
 */
 
 
-/*!  Constructs an empty widget stack. */
+/*!  Constructs an empty widget stack with parent \a parent and called
+    \a name. 
+*/
 
 QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     : QFrame( parent, name )
@@ -179,7 +181,10 @@ void QWidgetStack::raiseWidget( int id )
 }
 
 
-/*!  Raises \a w to the top of the widget stack. */
+/*!  
+    \overload
+    Raises \a w to the top of the widget stack. 
+*/
 
 void QWidgetStack::raiseWidget( QWidget * w )
 {
@@ -408,7 +413,7 @@ QWidget * QWidgetStack::visibleWidget() const
 */
 
 
-/*! \fn void QWidgetStack::aboutToShow( QWidget * )
+/*! \overload void QWidgetStack::aboutToShow( QWidget * )
 
   This signal is emitted just before a managed widget is shown.  The
   argument is a pointer to the widget.

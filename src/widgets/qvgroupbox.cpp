@@ -54,7 +54,7 @@
 /*!
   Constructs a vertical group box with no title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 QVGroupBox::QVGroupBox( QWidget *parent, const char *name )
     : QGroupBox( 1, Horizontal /* sic! */, parent, name )
@@ -62,9 +62,9 @@ QVGroupBox::QVGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a vertical group box with a title.
+  Constructs a vertical group box with the title \a title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QVGroupBox::QVGroupBox( const QString &title, QWidget *parent,

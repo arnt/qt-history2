@@ -116,7 +116,7 @@ public:
 
 
 /*!
-  Constructs an empty tool button.
+  Constructs an empty tool button with parent \a parent called \a name.
 */
 
 QToolButton::QToolButton( QWidget * parent, const char *name )

@@ -729,7 +729,7 @@ QToolTip::QToolTip( QWidget * widget, QToolTipGroup * group )
 
 
 /*!
-  Adds a tool tip to \e widget.  \e text is the text to be shown in
+  Adds a tool tip to \a widget.  \a text is the text to be shown in
   the tool tip.  QToolTip makes a deep copy of this string.
 
   This is the most common entry point to the QToolTip class; it is
@@ -746,9 +746,10 @@ void QToolTip::add( QWidget *widget, const QString &text )
 
 
 /*!
+    \overload
   Adds a tool tip to \a widget and to tool tip group \a group.
 
-  \e text is the text shown in the tool tip and \a longText is the
+  \a text is the text shown in the tool tip and \a longText is the
   text emitted from \a group.  QToolTip makes deep copies of both
   strings.
 
@@ -764,7 +765,7 @@ void QToolTip::add( QWidget *widget, const QString &text,
 
 
 /*!
-  Removes the tool tip from \e widget.
+  Removes the tool tip from \a widget.
 
   If there is more than one tool tip on \a widget, only the one
   covering the entire widget is removed.
@@ -777,9 +778,10 @@ void QToolTip::remove( QWidget * widget )
 }
 
 /*!
-  Adds a tool tip to a fixed rectangle within \a widget.  \a text is
-  the text shown in the tool tip.  QToolTip makes a deep copy of this
-  string.
+    \overload
+  Adds a tool tip to a fixed rectangle, \a rect, within \a widget.  \a
+  text is the text shown in the tool tip.  QToolTip makes a deep copy
+  of this string.
 */
 
 void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
@@ -790,10 +792,11 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
 
 
 /*!
+    \overload
   Adds a tool tip to an entire \a widget and to tool tip group \a
   group.
 
-  \e text is the text shown in the tool tip and \a groupText is the
+  \a text is the text shown in the tool tip and \a groupText is the
   text emitted from \a group.  QToolTip makes deep copies of both
   strings.
 
@@ -810,10 +813,11 @@ void QToolTip::add( QWidget *widget, const QRect &rect,
 
 
 /*!
-  Removes the tool tip for \e rect from \e widget.
+    \overload
+  Removes the tool tip for \a rect from \a widget.
 
   If there is more than one tool tip on \a widget, only the one
-  covering rectangle \e rect is removed.
+  covering rectangle \a rect is removed.
 */
 
 void QToolTip::remove( QWidget * widget, const QRect & rect )
@@ -901,8 +905,10 @@ void QToolTip::tip( const QRect &geometry, const QRect &rect, const QString &tex
 }
 
 /*!
+    \overload
   Immediately pops up a tip saying \a text and removes that tip once
-  the cursor moves out of rectangle \a rect.
+  the cursor moves out of rectangle \a rect. \a groupText is the
+  text emitted from the group.
 
   The tip will not reappear if the cursor moves back; your maybeTip()
   has to reinstate it each time.
@@ -1006,7 +1012,7 @@ void QToolTip::clear()
 
 
 /*!
-  Constructs a tool tip group.
+  Constructs a tool tip group with parent \a parent and called \a name.
 */
 
 QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
@@ -1064,8 +1070,9 @@ bool QToolTipGroup::enabled() const
 }
 
 /*!
-  Sets all tool tips to be enabled (shown when needed)
-  or disabled (never shown).
+    If \a enable is TRUE sets all tool tips to be enabled (shown when
+    needed); if \a enable is FALSE sets all tool tips to be disabled
+    (never shown).
 
   By default, tool tips are enabled. Note that this function
   affects all tool tips in the entire application.

@@ -99,7 +99,9 @@ QWidget * QSpinWidget::editWidget()
     return d->ed;
 }
 
-/*! */
+/*! 
+    Sets the editing widget to \a w.
+*/
 void QSpinWidget::setEditWidget( QWidget * w )
 {
     if ( w ) {
@@ -406,7 +408,7 @@ bool QSpinWidget::isUpEnabled() const
 }
 
 /*!
-
+    Sets down-enabled to \a on.
 */
 
 void QSpinWidget::setDownEnabled( bool on )

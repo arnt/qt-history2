@@ -392,7 +392,8 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 }
 
 /*!
-  Constructs a new, empty, QtMultiLineEdit.
+  Constructs a new, empty, QtMultiLineEdit with parent \a parent and
+  called \a name.
 */
 
 QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
@@ -615,7 +616,8 @@ static QPixmap *getCacheBuffer( QSize sz )
 }
 
 /*!
-  Implements the basic drawing logic.
+  Implements the basic drawing logic. Paints the line at row \a row
+  using painter \a painter. The \a col parameter is ignored.
 */
 void QtMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
@@ -738,6 +740,7 @@ void QtMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 
 /*!
+    \overload
   Returns the width in pixels of the string \a s.
   NOTE: only appropriate for whole lines.
 */
@@ -1028,62 +1031,62 @@ void QtMultiLineEdit::wheelEvent( QWheelEvent *e ){
 
 
 /*!
-  The key press event handler converts a key press to some line editor
-  action.
+  The key press event handler converts a key press in event \a e to
+  some line editor action.
 
   Here are the default key bindings when isReadOnly() is FALSE:
-  <ul>
-  <li><i> Left Arrow </i> Move the cursor one character leftwards
-  <li><i> Right Arrow </i> Move the cursor one character rightwards
-  <li><i> Up Arrow </i> Move the cursor one line upwards
-  <li><i> Down Arrow </i> Move the cursor one line downwards
-  <li><i> Page Up </i> Move the cursor one page upwards
-  <li><i> Page Down </i> Move the cursor one page downwards
-  <li><i> Backspace </i> Delete the character to the left of the cursor
-  <li><i> Home </i> Move the cursor to the beginning of the line
-  <li><i> End </i> Move the cursor to the end of the line
-  <li><i> Delete </i> Delete the character to the right of the cursor
-  <li><i> Shift - Left Arrow </i> Mark text one character leftwards
-  <li><i> Shift - Right Arrow </i> Mark text one character rightwards
-  <li><i> Control-A </i> Move the cursor to the beginning of the line
-  <li><i> Control-B </i> Move the cursor one character leftwards
-  <li><i> Control-C </i> Copy the marked text to the clipboard
-  <li><i> Control-D </i> Delete the character to the right of the cursor
-  <li><i> Control-E </i> Move the cursor to the end of the line
-  <li><i> Control-F </i> Move the cursor one character rightwards
-  <li><i> Control-H </i> Delete the character to the left of the cursor
-  <li><i> Control-K </i> Delete to end of line
-  <li><i> Control-N </i> Move the cursor one line downwards
-  <li><i> Control-P </i> Move the cursor one line upwards
-  <li><i> Control-V </i> Paste the clipboard text into line edit
-  <li><i> Control-X </i> Cut the marked text, copy to clipboard
-  <li><i> Control-Z </i> Undo the last operation
-  <li><i> Control-Y </i> Redo the last operation
-  <li><i> Control - Left Arrow </i> Move the cursor one word leftwards
-  <li><i> Control - Right Arrow </i> Move the cursor one word rightwards
-  <li><i> Control - Up Arrow </i> Move the cursor one word upwards
-  <li><i> Control - Down Arrow </i> Move the cursor one word downwards
-  <li><i> Control - Home Arrow </i> Move the cursor to the beginning of the text
-  <li><i> Control - End Arrow </i> Move the cursor to the end of the text
-  </ul>
+  \list
+  \i <i> Left Arrow </i> Move the cursor one character leftwards
+  \i <i> Right Arrow </i> Move the cursor one character rightwards
+  \i <i> Up Arrow </i> Move the cursor one line upwards
+  \i <i> Down Arrow </i> Move the cursor one line downwards
+  \i <i> Page Up </i> Move the cursor one page upwards
+  \i <i> Page Down </i> Move the cursor one page downwards
+  \i <i> Backspace </i> Delete the character to the left of the cursor
+  \i <i> Home </i> Move the cursor to the beginning of the line
+  \i <i> End </i> Move the cursor to the end of the line
+  \i <i> Delete </i> Delete the character to the right of the cursor
+  \i <i> Shift - Left Arrow </i> Mark text one character leftwards
+  \i <i> Shift - Right Arrow </i> Mark text one character rightwards
+  \i <i> Control-A </i> Move the cursor to the beginning of the line
+  \i <i> Control-B </i> Move the cursor one character leftwards
+  \i <i> Control-C </i> Copy the marked text to the clipboard
+  \i <i> Control-D </i> Delete the character to the right of the cursor
+  \i <i> Control-E </i> Move the cursor to the end of the line
+  \i <i> Control-F </i> Move the cursor one character rightwards
+  \i <i> Control-H </i> Delete the character to the left of the cursor
+  \i <i> Control-K </i> Delete to end of line
+  \i <i> Control-N </i> Move the cursor one line downwards
+  \i <i> Control-P </i> Move the cursor one line upwards
+  \i <i> Control-V </i> Paste the clipboard text into line edit
+  \i <i> Control-X </i> Cut the marked text, copy to clipboard
+  \i <i> Control-Z </i> Undo the last operation
+  \i <i> Control-Y </i> Redo the last operation
+  \i <i> Control - Left Arrow </i> Move the cursor one word leftwards
+  \i <i> Control - Right Arrow </i> Move the cursor one word rightwards
+  \i <i> Control - Up Arrow </i> Move the cursor one word upwards
+  \i <i> Control - Down Arrow </i> Move the cursor one word downwards
+  \i <i> Control - Home Arrow </i> Move the cursor to the beginning of the text
+  \i <i> Control - End Arrow </i> Move the cursor to the end of the text
+  \endlist
   In addition, the following key bindings are used on Windows:
-  <ul>
-  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
-  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
-  <li><i> Control - Insert </i> Copy the marked text to the clipboard
-  </ul>
+  \list
+  \i <i> Shift - Delete </i> Cut the marked text, copy to clipboard
+  \i <i> Shift - Insert </i> Paste the clipboard text into line edit
+  \i <i> Control - Insert </i> Copy the marked text to the clipboard
+  \endlist
   All other keys with valid ASCII codes insert themselves into the line.
 
   Here are the default key bindings when isReadOnly() is TRUE:
-  <ul>
-  <li><i> Left Arrow </i> Scrolls the table rightwards
-  <li><i> Right Arrow </i> Scrolls the table rightwards
-  <li><i> Up Arrow </i> Scrolls the table one line downwards
-  <li><i> Down Arrow </i> Scrolls the table one line upwards
-  <li><i> Page Up </i> Scrolls the table one page downwards
-  <li><i> Page Down </i> Scrolls the table one page upwards
-  <li><i> Control-C </i> Copy the marked text to the clipboard
-  </ul>
+  \list
+  \i <i> Left Arrow </i> Scrolls the table rightwards
+  \i <i> Right Arrow </i> Scrolls the table rightwards
+  \i <i> Up Arrow </i> Scrolls the table one line downwards
+  \i <i> Down Arrow </i> Scrolls the table one line upwards
+  \i <i> Page Up </i> Scrolls the table one page downwards
+  \i <i> Page Down </i> Scrolls the table one page upwards
+  \i <i> Control-C </i> Copy the marked text to the clipboard
+  \endlist
 
 */
 
@@ -1566,7 +1569,9 @@ void QtMultiLineEdit::insertChar( QChar c )
 }
 
 /*!
-  Inserts \a c at the current cursor position.
+    \overload
+  Inserts string \a str at the current cursor position. If \a mark is
+  TRUE the string is marked.
 */
 
 void QtMultiLineEdit::insert( const QString& str, bool mark )
@@ -1962,7 +1967,7 @@ void QtMultiLineEdit::home( bool mark )
 }
 
 /*!
-  Moves the text cursor to the right end of the line. If mark is TRUE
+  Moves the text cursor to the right end of the line. If \a mark is TRUE
   text is marked towards the last position.  If it is FALSE and the
   cursor is moved, all marked text is unmarked.
 
@@ -2905,13 +2910,13 @@ bool QtMultiLineEdit::autoUpdate() const
 
 
 /*!
-  Sets the auto-update option of multi-line editor to \e enable.
+  Sets the auto-update option of multi-line editor to \a enable.
 
-  If \e enable is TRUE (this is the default) then the editor updates
+  If \a enable is TRUE (this is the default) then the editor updates
   itself automatically whenever it has changed in some way (generally,
   when text has been inserted or deleted).
 
-  If \e enable is FALSE, the view does NOT repaint itself, or update
+  If \a enable is FALSE, the view does NOT repaint itself, or update
   its internal state variables itself when it is changed.  This can be
   useful to avoid flicker during large changes, and is singularly
   useless otherwise: Disable auto-update, do the changes, re-enable
@@ -2933,7 +2938,7 @@ void QtMultiLineEdit::setAutoUpdate( bool enable )
 }
 
 /*!
-  Sets the fixed height of the QtMultiLineEdit so that \e lines text lines
+  Sets the fixed height of the QtMultiLineEdit so that \a lines text lines
   are visible given the current font.
 
   \sa setMaxLines(), setFixedHeight()
@@ -3047,8 +3052,8 @@ void QtMultiLineEdit::resizeEvent( QResizeEvent *e )
 }
 
 /*!
-  Sets the alignment. Possible values are \c AlignLeft, \c Align(H)Center
-  and \c AlignRight.
+  Sets the alignment to \a flags. Possible values are \c AlignLeft, \c
+  Align(H)Center and \c AlignRight.
 
   \sa alignment(), Qt::AlignmentFlags
 */
@@ -3073,6 +3078,7 @@ int QtMultiLineEdit::alignment() const
 
 /*!
   Not supported at this time.
+  \a v is the validator to set.
 */
 void QtMultiLineEdit::setValidator( const QValidator *v )
 {
@@ -3122,17 +3128,17 @@ bool QtMultiLineEdit::edited() const
 /*! \enum QtMultiLineEdit::EchoMode
 
   This enum type describes the ways in which QLineEdit can display its
-  contents.  The currently defined values are: <ul>
+  contents.  The currently defined values are: \list
 
-  <li> \c Normal - display characters as they are entered.  This is
+  \i Normal - display characters as they are entered.  This is
   the default.
 
-  <li> \c NoEcho - do not display anything.
+  \i NoEcho - do not display anything.
 
-  <li> \c Password - display asterisks instead of the characters
+  \i Password - display asterisks instead of the characters
   actually entered.
 
-  </ul>
+  \endlist
 
   \sa setEchoMode() echoMode() QLineEdit::EchoMode
 */
@@ -3305,7 +3311,7 @@ int QtMultiLineEdit::maxLines() const
 }
 
 /*!
-  Sets the horizontal margin.
+  Sets the horizontal margin to \a m.
 
   \sa hMargin()
 */
@@ -3330,7 +3336,7 @@ int QtMultiLineEdit::hMargin() const
 
 /*!
   Marks the text starting at \a row_from, \a col_from and ending
-  at row_to, col_to.
+  at \a row_to, \a col_to.
 */
 void QtMultiLineEdit::setSelection( int row_from, int col_from,
 				   int row_to, int col_to )
@@ -3601,24 +3607,24 @@ void QtMultiLineEdit::rebreakAll()
   This enum describes the multiline edit's word wrap mode.
 
   The following values are valid:
-    <ul>
-    <li> \c NoWrap - no word wrap at all.
-    <li> \c WidgetWidth - word wrap depending on the current
+    \list
+    \i NoWrap - no word wrap at all.
+    \i WidgetWidth - word wrap depending on the current
      width of the editor widget
-    <li> \c FixedPixelWidth - wrap according to a fix amount
+    \i FixedPixelWidth - wrap according to a fix amount
      of pixels ( see wrapColumnOrWidth() )
-    <li> \c FixedColumnWidth - wrap according to a fix character
+    \i FixedColumnWidth - wrap according to a fix character
      column. This is useful whenever you need formatted text that
      can also be displayed gracefully on devices with monospaced
      fonts, for example a standard VT100 terminal. In that case
      wrapColumnOrWidth() should typically be set to 80.
-  </ul>
+  \endlist
 
  \sa setWordWrap()
 */
 
 /*!
-  Sets the word wrap mode.
+  Sets the word wrap mode to \a mode.
 
   Per default, wrapping keeps words intact. To allow breaking within
   words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
@@ -3659,7 +3665,8 @@ QtMultiLineEdit::WordWrap QtMultiLineEdit::wordWrap() const
 }
 
 /*!
-  Sets the wrap column or wrap width, depending on the word wrap mode.
+  Sets the wrap column or wrap width to \a value, depending on the
+  word wrap mode.
 
   \sa setWordWrap()
  */
@@ -3689,16 +3696,17 @@ int QtMultiLineEdit::wrapColumnOrWidth() const
   Defines where text can be wrapped in word wrap mode.
 
   The following values are valid:
-  <ul>
-  <li> \c AtWhiteSpace - break only after whitespace
-  <li> \c Anywhere - break anywhere
-   </ul>
+  \list
+  \i AtWhiteSpace - break only after whitespace
+  \i Anywhere - break anywhere
+   \endlist
 
    \sa setWrapPolicy()
 */
 
 /*!
-  Defines where text can be wrapped in word wrap mode.
+  Sets the wrap \a policy, i.e. where text can be wrapped in word wrap
+  mode.
 
    The default is \c AtWhiteSpace.
 
@@ -3898,6 +3906,7 @@ void QtMultiLineEdit::redo()
   Inserts \a s at line number \a line, after character number \a col
   in the line.
   If \a s contains newline characters, new lines are inserted.
+  If \a mark is TRUE the inserted text is selected.
 
   The cursor position is adjusted. If the insertion position is equal to
   the cursor position, the cursor is placed after the end of the new text.
@@ -4037,7 +4046,8 @@ bool QtMultiLineEdit::isUndoEnabled() const
 
 
 /*!
-  Sets the maximum number of operations that can be stored on the undo stack.
+  Sets the maximum number of operations that can be stored on the undo
+  stack to \a depth.
 
   \sa undoDepth()
  */

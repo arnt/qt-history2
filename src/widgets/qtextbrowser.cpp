@@ -113,7 +113,8 @@ public:
 };
 
 
-/*!  Constructs an empty QTextBrowser.
+/*!  Constructs an empty QTextBrowser with parent \a parent called \a
+    name.
 */
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextView( parent, name )
@@ -263,15 +264,15 @@ void QTextBrowser::setSource(const QString& name)
 /*!  \fn void QTextBrowser::backwardAvailable(bool available)
 
   This signal is emitted when the availability of the backward()
-  changes.  It becomes available when the user navigates forward, and
-  unavailable when the user is at home().
+  changes. \a available is FALSE when the user is at home(); otherwise
+  it is TRUE.
 */
 
 /*!  \fn void QTextBrowser::forwardAvailable(bool available)
 
   This signal is emitted when the availability of the forward() changes.
-  It becomes available after the user navigates backward() and
-  unavailable when the user navigates or goes forward().
+  \a available is TRUE after the user navigates backward() and
+  FALSE when the user navigates or goes forward().
 */
 
 /*!  \fn void QTextBrowser::highlighted (const QString &href)

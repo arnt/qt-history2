@@ -54,7 +54,8 @@
 
 
 /*!
-  Constructs a vbox widget with parent \a parent and name \a name
+  Constructs a vbox widget with parent \a parent, name \a name and
+  widget flags \a f.
  */
 QVBox::QVBox( QWidget *parent, const char *name, WFlags f )
     :QHBox( FALSE, parent, name, f )

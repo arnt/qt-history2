@@ -124,7 +124,8 @@
 
 /*!
   Sets up the internal data structures used by the validator.  At
-  the moment there aren't any.
+  the moment there aren't any. The \a parent and \a name parameters
+  are passed to the QObject constructor.
 */
 
 QValidator::QValidator( QWidget * parent, const char *name )
@@ -274,9 +275,9 @@ QIntValidator::~QIntValidator()
 
 
 /*!  
-  Returns \c Acceptable if the input is an integer within the valid range, 
-  \c Intermediate if the input is an integer outside the valid
-  range and \c Invalid if the input is not an integer.
+  Returns \c Acceptable if the \a input is an integer within the valid
+  range, \c Intermediate if the \a input is an integer outside the
+  valid range and \c Invalid if the \a input is not an integer.
 
   \code
     s = "35";

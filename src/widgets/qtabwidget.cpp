@@ -186,8 +186,7 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
 
 /*!
   \overload
-  Constructs a tabbed widget with parent \a parent, name \a name,
-  and widget flags \a f.
+  Constructs a tabbed widget with parent \a parent called \a name.
 */
 QTabWidget::QTabWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -268,10 +267,13 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
 }
 
 /*!
+    \overload
   This is a lower-level method for adding tabs, similar to the other
   addTab() method.  It is useful if you are using setTabBar() to set a
   QTabBar subclass with an overridden QTabBar::paint() routine for a
   subclass of QTab.
+  The \a child is the new page and \a tab is the tab to put the \a child
+  on.
 */
 void QTabWidget::addTab( QWidget *child, QTab* tab)
 {
@@ -824,7 +826,7 @@ QString QTabWidget::label( int index ) const
     return d->tabs->tabAt( index )->label;
 }
 
-/* ! \property QTabWidget::count
+/*! \property QTabWidget::count
      \brief the number of tabs in the tab bar
 */
 int QTabWidget::count() const

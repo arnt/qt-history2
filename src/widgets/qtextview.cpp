@@ -40,7 +40,7 @@
 #ifndef QT_NO_TEXTVIEW
 
 /*! \class QTextView
-    \brief The QTextView provides a rich-text viewer.
+    \brief The QTextView class provides a rich-text viewer.
 
   \obsolete
 
