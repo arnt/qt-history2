@@ -13442,7 +13442,7 @@ void QAquaStyle::drawRangeControlWidgetSymbol( QPainter *, int, int,
 {
 }
 
-void 
+void
 QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &titleW, int &titleH) const
 {
     titleH = 21;
@@ -13456,7 +13456,7 @@ QAquaStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, int &ti
     }
 }
 
-void 
+void
 QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 				  uint controls, uint )
 {
@@ -13477,13 +13477,13 @@ QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 				mid.height(), mid );
 	    p->drawPixmap(tb->width() - right.width(), 0, right);
 	    p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
-	    p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(), 
+	    p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(),
 			AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->cuttext );
 	}
     }
 }
 
-QStyle::TitleControl 
+QStyle::TitleControl
 QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
 {
     if(tb->window) {
@@ -13501,20 +13501,33 @@ QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
  \reimp
  */
 void
-QAquaStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup & cg,
-			       QListViewItem *child, uint ctrls)
+QAquaStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg,
+				    QListViewItem *item )
 {
-    if(ctrls & ListViewExpand) {
-	int bx = w / 2, linebot = y + child->height()/2;
-	p->setPen( cg.text() );
-	QPointArray a;
-	if ( child->isOpen() )
-	    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot-4, bx, linebot+4); //DownArrow
-	else
-	    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot, bx-4, linebot+4); //RightArrow
-	p->setBrush( cg.text() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
+    QListViewItem *child = item->firstChild();
+    while ( child && y + child->height() <= 0 ) {
+	y += child->totalHeight();
+	child = child->nextSibling();
+    }
+
+    int bx = w / 2, linebot;
+
+    // paint stuff in the magical area
+    while ( child && y < h ) {
+	linebot = y + child->height()/2;
+	if ( child->isExpandable() || child->childCount() ) {
+	    p->setPen( cg.text() );
+	    QPointArray a;
+	    if ( child->isOpen() )
+		a.setPoints( 3, bx-4, linebot-4, bx+4, linebot-4, bx, linebot+4); //DownArrow
+	    else
+		a.setPoints( 3, bx-4, linebot-4, bx+4, linebot, bx-4, linebot+4); //RightArrow
+	    p->setBrush( cg.text() );
+	    p->drawPolygon( a );
+	    p->setBrush( NoBrush );
+	}
+	y += child->totalHeight();
+	child = child->nextSibling();
     }
 }
 

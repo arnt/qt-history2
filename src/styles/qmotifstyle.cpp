@@ -1321,56 +1321,72 @@ void QMotifStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, co
  \reimp
  */
 void
-QMotifStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup & cg,
-			       QListViewItem *child, uint ctrls)
+QMotifStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup & cg, QListViewItem *item )
 {
-    int bx = w / 2, linebot = y + child->height()/2;
-    if(ctrls & ListViewExpand) {
-	// needs a box
-	p->setPen( cg.text() );
-	p->drawRect( bx-4, linebot-4, 9, 9 );
+    QListViewItem *child = item->firstChild();
+    int linetop = 0, linebot = 0;
 
-	QPointArray a;
-	if ( child->isOpen() )
-	    a.setPoints( 3, bx-2, linebot-2,
-			 bx, linebot+2,
-			 bx+2, linebot-2 ); //RightArrow
-	else
-	    a.setPoints( 3, bx-2, linebot-2,
-			 bx+2, linebot,
-			 bx-2, linebot+2 ); //DownArrow
-	p->setBrush( cg.text() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
+    // each branch needs at most two lines, ie. four end points
+    QPointArray dotlines( item->childCount() * 4 );
+    int c = 0;
+
+    // skip the stuff above the exposed rectangle
+    while ( child && y + child->height() <= 0 ) {
+	y += child->totalHeight();
+	child = child->nextSibling();
     }
-    if(ctrls & ListViewBranches) {
-	p->setPen( cg.text() );
 
-	//parents
-	if(child->depth() > 1) {
-	    QListView *lv = child->listView();
-	    QListViewItem *below = child->itemBelow();
-	    for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
-		if(below && count <= below->depth()) {
-		    p->drawLine( line, y, line, y+child->height());
-		}
-	    }
-	}
-	
-	//myself
-	int end = child->height();
-	QListViewItem *sib = child->nextSibling();
-	if(!sib)
-	    end /= 2;
-	if(child->childCount() || child->isExpandable()) {
-	    p->drawLine(bx, y, bx, linebot-4);
-	    if(sib) 
-		p->drawLine(bx, linebot+4, bx, linebot + child->height() / 2);
-	    p->drawLine(bx+4, linebot, bx + w, linebot);
+    int bx = w / 2;
+
+    // paint stuff in the magical area
+    while ( child && y < h ) {
+	linebot = y + child->height()/2;
+	if ( (child->isExpandable() || child->childCount()) &&
+	     (child->height() > 0) ) {
+	    // needs a box
+	    p->setPen( cg.text() );
+	    p->drawRect( bx-4, linebot-4, 9, 9 );
+	    QPointArray a;
+	    if ( child->isOpen() )
+		a.setPoints( 3, bx-2, linebot-2,
+			     bx, linebot+2,
+			     bx+2, linebot-2 ); //RightArrow
+	    else
+		a.setPoints( 3, bx-2, linebot-2,
+			     bx+2, linebot,
+			     bx-2, linebot+2 ); //DownArrow
+	    p->setBrush( cg.text() );
+	    p->drawPolygon( a );
+	    p->setBrush( NoBrush );
+	    // dotlinery
+	    dotlines[c++] = QPoint( bx, linetop );
+	    dotlines[c++] = QPoint( bx, linebot - 5 );
+	    dotlines[c++] = QPoint( bx + 5, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
+	    linetop = linebot + 5;
 	} else {
-	    p->drawLine(bx, y, bx, y + end);
-	    p->drawLine(bx, linebot, bx + w, linebot);
+	    // just dotlinery
+	    dotlines[c++] = QPoint( bx+1, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
 	}
+
+	y += child->totalHeight();
+	child = child->nextSibling();
+    }
+
+    if ( child ) // there's a child, so move linebot to edge of rectangle
+	linebot = h;
+
+    if ( linetop < linebot ) {
+	dotlines[c++] = QPoint( bx, linetop );
+	dotlines[c++] = QPoint( bx, linebot );
+    }
+
+    int line; // index into dotlines
+    p->setPen( cg.text() );
+    for( line = 0; line < c; line += 2 ) {
+	p->drawLine( dotlines[line].x(), dotlines[line].y(),
+		     dotlines[line+1].x(), dotlines[line+1].y() );
     }
 }
 

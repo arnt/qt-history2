@@ -194,8 +194,7 @@ public:
     virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
     // listview item
-    void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
-			   QListViewItem *, uint );
+    void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
 
 protected:
     bool eventFilter( QObject *, QEvent * );

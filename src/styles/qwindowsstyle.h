@@ -173,8 +173,7 @@ public:
     QPixmap titleBarPixmap( const QTitleBar *, TitleControl );
 
     // listview item
-    void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
-			   QListViewItem *, uint );
+    void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
 
 protected:
     void drawWinShades( QPainter *p,

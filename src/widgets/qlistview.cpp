@@ -1888,22 +1888,9 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
     if ( !visible )
 	return;
-    QListViewItem * child = firstChild();
-    // skip the stuff above the exposed rectangle
-    while ( child && y + child->height() <= 0 ) {
-	y += child->totalHeight();
-	child = child->nextSibling();
-    }
-
-    // paint stuff in the magical area
-    while ( child && y < h ) {
-	uint ctrls = QStyle::ListViewBranches;
-	if((child->expandable || child->childCount()) && child->height() > 0)
-	    ctrls |= QStyle::ListViewExpand;
-	listView()->style().drawListViewItem(p, 2, y, w, child->totalHeight(), cg, child, ctrls);
-	y += child->totalHeight();
-	child = child->nextSibling();
-    }
+    QListView *lv = listView();
+    if ( lv )
+	lv->style().drawListViewItemBranch( p, y, w, totalHeight(), cg, this );
 }
 
 

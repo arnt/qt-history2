@@ -301,9 +301,9 @@ public:
 
 
     // title bar
-    enum TitleControl { TitleNone = 0x00, 
+    enum TitleControl { TitleNone = 0x00,
 			TitleSysMenu = 0x1 , TitleMinButton  = 0x2 , TitleMaxButton = 0x4,
-			TitleCloseButton = 0x8 , TitleLabel = 0x10, TitleNormalButton = 0x20, 
+			TitleCloseButton = 0x8 , TitleLabel = 0x10, TitleNormalButton = 0x20,
 			TitleShadeButton=0x40, TitleUnshadeButton=0x80 };
     virtual QPixmap titleBarPixmap( const QTitleBar *, TitleControl ) = 0;
     virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const = 0;
@@ -315,8 +315,7 @@ public:
     enum ListViewItemControl { ListViewNone = 0x00,
 			       ListViewCheckBox = 0x1, ListViewController = 0x2, ListViewRadio = 0x4,
 			       ListViewBranches = 0x8, ListViewExpand =0x10 };
-    virtual void drawListViewItem( QPainter *, int, int, int, int, const QColorGroup & cg,
-				   QListViewItem *, uint ) = 0;
+    virtual void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * ) = 0;
     virtual ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & ) = 0;
 
     // header

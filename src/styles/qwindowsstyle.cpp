@@ -1599,7 +1599,7 @@ void QWindowsStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, 
  \reimp
 */
 void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-		 const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised,
+		 const QColorGroup &g, bool on, bool down, bool, bool autoRaised,
 		 const QBrush *fill )
 {
     QBrush onfill( g.light(), Dense4Pattern );
@@ -1688,77 +1688,125 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
 /*!
  \reimp
  */
-void
-QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup &cg,
-			       QListViewItem *child, uint ctrls )
+void QWindowsStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup &cg, QListViewItem *item )
 {
-    int bx = w / 2, linebot = y + child->height()/2;
-    if(ctrls & ListViewExpand) {
-	// needs a box
-	p->setPen( cg.text() );
-	p->drawRect( bx-4, linebot-4, 9, 9 );
+    QListViewItem *child = item->firstChild();
+    int linetop = 0, linebot = 0;
+    // each branch needs at most two lines, ie. four end points
+    int dotoffset = (item->itemPos() + item->height() - y) %2;
+    QPointArray dotlines( item->childCount() * 4 );
+    int c = 0;
 
-	// plus or minus
-	p->drawLine( bx - 2, linebot, bx + 2, linebot );
-	if ( !child->isOpen() )
-	    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+    // skip the stuff above the exposed rectangle
+    while ( child && y + child->height() <= 0 ) {
+	y += child->totalHeight();
+	child = child->nextSibling();
     }
-    if(ctrls & ListViewBranches) {
-	p->setPen( cg.text() );
 
-	static QBitmap *verticalLine = 0, *horizontalLine = 0;
-	static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-	if ( !verticalLine ) {
-	    // make 128*1 and 1*128 bitmaps that can be used for
-	    // drawing the right sort of lines.
-	    verticalLine = new QBitmap( 1, 129, TRUE );
-	    horizontalLine = new QBitmap( 128, 1, TRUE );
-	    QPointArray a( 64 );
-	    QPainter p;
-	    p.begin( verticalLine );
-	    int i;
-	    for( i=0; i<64; i++ )
-		a.setPoint( i, 0, i*2+1 );
-	    p.setPen( color1 );
-	    p.drawPoints( a );
-	    p.end();
-	    QApplication::flushX();
-	    verticalLine->setMask( *verticalLine );
-	    p.begin( horizontalLine );
-	    for( i=0; i<64; i++ )
-		a.setPoint( i, i*2+1, 0 );
-	    p.setPen( color1 );
-	    p.drawPoints( a );
-	    p.end();
-	    QApplication::flushX();
-	    horizontalLine->setMask( *horizontalLine );
-	    qlv_cleanup_bitmap.add( verticalLine );
-	    qlv_cleanup_bitmap.add( horizontalLine );
-	}
+    int bx = w / 2;
 
-	//parents
-	if(child->depth() > 1) {
-	    QListView *lv = child->listView();
-	    QListViewItem *below = child->itemBelow();
-	    for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
-		if(below && count <= below->depth())
-		    p->drawPixmap( line, y, *verticalLine, 0, 0, -1, child->height());
-	    }
-	}
-	
-	//myself
-	int end = child->height();
-	QListViewItem *sib = child->nextSibling();
-	if(!sib)
-	    end /= 2;
-	if(child->childCount() || child->isExpandable()) {
-	    p->drawPixmap( bx, y, *verticalLine, 0, 0, -1, (linebot-4)-y);
-	    if(sib)
-		p->drawPixmap(bx, linebot+5, *verticalLine, 0, 0, -1, (child->height() / 2) - 5);
-	    p->drawPixmap(bx+4, linebot, *horizontalLine, 0, 0, w - 4, -1);
+    // paint stuff in the magical area
+    while ( child && y < h ) {
+	linebot = y + child->height()/2;
+	if ( (child->isExpandable() || child->childCount()) &&
+	     (child->height() > 0) ) {
+	    // needs a box
+	    p->setPen( cg.text() );
+	    p->drawRect( bx-4, linebot-4, 9, 9 );
+	    // plus or minus
+	    p->drawLine( bx - 2, linebot, bx + 2, linebot );
+	    if ( !child->isOpen() )
+		p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+	    // dotlinery
+	    dotlines[c++] = QPoint( bx, linetop );
+	    dotlines[c++] = QPoint( bx, linebot - 5 );
+	    dotlines[c++] = QPoint( bx + 5, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
+	    linetop = linebot + 5;
 	} else {
-	    p->drawPixmap(bx, y, *verticalLine, 0, 0, -1, end);
-	    p->drawPixmap(bx, linebot, *horizontalLine, 0, 0, w, -1);
+	    // just dotlinery
+	    dotlines[c++] = QPoint( bx+1, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
+	}
+
+	y += child->totalHeight();
+	child = child->nextSibling();
+    }
+
+    if ( child ) // there's a child, so move linebot to edge of rectangle
+	linebot = h;
+
+    if ( linetop < linebot ) {
+	dotlines[c++] = QPoint( bx, linetop );
+	dotlines[c++] = QPoint( bx, linebot );
+    }
+	
+    p->setPen( cg.dark() );
+
+    static QBitmap *verticalLine = 0, *horizontalLine = 0;
+    static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+    if ( !verticalLine ) {
+	// make 128*1 and 1*128 bitmaps that can be used for
+	// drawing the right sort of lines.
+	verticalLine = new QBitmap( 1, 129, TRUE );
+	horizontalLine = new QBitmap( 128, 1, TRUE );
+	QPointArray a( 64 );
+	QPainter p;
+	p.begin( verticalLine );
+	int i;
+	for( i=0; i<64; i++ )
+	    a.setPoint( i, 0, i*2+1 );
+	p.setPen( color1 );
+	p.drawPoints( a );
+	p.end();
+	QApplication::flushX();
+	verticalLine->setMask( *verticalLine );
+	p.begin( horizontalLine );
+	for( i=0; i<64; i++ )
+	    a.setPoint( i, i*2+1, 0 );
+	p.setPen( color1 );
+	p.drawPoints( a );
+	p.end();
+	QApplication::flushX();
+	horizontalLine->setMask( *horizontalLine );
+	qlv_cleanup_bitmap.add( verticalLine );
+	qlv_cleanup_bitmap.add( horizontalLine );
+    }
+
+    int line; // index into dotlines
+    for( line = 0; line < c; line += 2 ) {
+	// assumptions here: lines are horizontal or vertical.
+	// lines always start with the numerically lowest
+	// coordinate.
+
+	// point ... relevant coordinate of current point
+	// end ..... same coordinate of the end of the current line
+	// other ... the other coordinate of the current point/line
+	if ( dotlines[line].y() == dotlines[line+1].y() ) {
+	    int end = dotlines[line+1].x();
+	    int point = dotlines[line].x();
+	    int other = dotlines[line].y();
+	    while( point < end ) {
+		int i = 128;
+		if ( i+point > end )
+		    i = end-point;
+		p->drawPixmap( point, other, *horizontalLine,
+			       0, 0, i, 1 );
+		point += i;
+	    }
+	} else {
+	    int end = dotlines[line+1].y();
+	    int point = dotlines[line].y();
+	    int other = dotlines[line].x();
+	    int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
+	    while( point < end ) {
+		int i = 128;
+		if ( i+point > end )
+		    i = end-point;
+		p->drawPixmap( other, point, *verticalLine,
+			       0, pixmapoffset, 1, i );
+		point += i;
+	    }
 	}
     }
 }
