@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#132 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#133 $
 **
 ** Definition of QObject class
 **
@@ -67,6 +67,13 @@ class Q_EXPORT QObject: public Qt
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
+
+#ifdef Q_QDOC
+    const char *className() const;
+    QString tr( const char *, const char * ) const;
+    QString trUtf8( const char *, const char * ) const;
+    QMetaObject *metaObject() const;
+#endif
 
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
