@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationwindows_qws.h"
 
-#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_WINDOWS
 
 #ifndef QT_NO_IMAGEIO_XPM
 
@@ -370,4 +370,4 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *w,
 #endif
 }
 
-#endif // QT_NO_QWS_WINDOWS_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_WINDOWS

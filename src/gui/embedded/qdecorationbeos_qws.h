@@ -19,7 +19,7 @@
 #endif // QT_H
 
 
-#ifndef QT_NO_QWS_BEOS_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_BEOS
 
 
 class QDecorationBeOS : public QDecorationDefault
@@ -38,6 +38,6 @@ protected:
 //    virtual const char **normalizePixmap();
 };
 
-#endif // QT_NO_QWS_BEOS_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_BEOS
 
 #endif // QDECORATIONBEOS_QWS_H

@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationbeos_qws.h"
 
-#ifndef QT_NO_QWS_BEOS_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_BEOS
 
 QDecorationBeOS::QDecorationBeOS()
     : QDecorationDefault()
@@ -229,4 +229,4 @@ void QDecorationBeOS::paintButton(QPainter *painter, const QWidget *w,
 #endif
 }
 
-#endif // QT_NO_QWS_BEOS_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_BEOS

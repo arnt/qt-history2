@@ -83,7 +83,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
         ret = new QDecorationBeOS;
     else
 #endif
-#ifndef QT_NO_QWS_DECORATION_HYDRO
+#if 0 // ndef QT_NO_QWS_DECORATION_HYDRO
     if (decoration == "hydro")
         ret = new QDecorationHydro;
     else
@@ -91,8 +91,9 @@ QDecoration *QDecorationFactory::create(const QString& key)
     { } // Keep these here - they make the #ifdefery above work
 #ifndef QT_NO_COMPONENT
     if (!ret) {
-        if (QDecorationFactoryInterface *factory = qt_cast<QDecorationFactoryInterface*>(loader()->instance(decoration)))
+        if (QDecorationFactoryInterface *factory = qt_cast<QDecorationFactoryInterface*>(loader()->instance(decoration))) {
             ret = factory->create(decoration);
+        }
     }
 #endif
     return ret;
@@ -130,7 +131,7 @@ QStringList QDecorationFactory::keys()
     if (!list.contains("BeOS"))
         list << "BeOS";
 #endif
-#ifndef QT_NO_QWS_DECORATION_HYDRO
+#if 0 // ndef QT_NO_QWS_DECORATION_HYDRO
     if (!list.contains("Hydro"))
         list << "Hydro";
 #endif

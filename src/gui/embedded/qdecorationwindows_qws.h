@@ -18,7 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_QWS_WINDOWS_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_WINDOWS
 
 
 class QDecorationWindows : public QDecorationDefault
@@ -40,6 +40,6 @@ protected:
     virtual const char **normalizePixmap();
 };
 
-#endif // QT_NO_QWS_WINDOWS_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_WINDOWS
 
 #endif // QDECORATIONWINDOWS_QWS_H

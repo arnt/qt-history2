@@ -18,7 +18,7 @@
 #include "qdecorationdefault_qws.h"
 #endif // QT_H
 
-#ifndef QT_NO_QWS_KDE_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_KDE
 
 
 class QDecorationKDE : public QDecorationDefault
@@ -42,6 +42,6 @@ protected:
 */
 };
 
-#endif // QT_NO_QWS_KDE_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_KDE
 
 #endif // QDECORATIONKDE_QWS_H

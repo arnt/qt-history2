@@ -19,7 +19,7 @@
 #endif // QT_H
 
 
-#ifndef QT_NO_QWS_HYDRO_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_HYDRO
 
 
 class QDecorationHydro : public QDecorationDefault
@@ -41,6 +41,6 @@ protected:
     virtual const char **normalizePixmap();
 };
 
-#endif // QT_NO_QWS_HYDRO_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_HYDRO
 
 #endif // QDECORATIONHYDRO_QWS_H

@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationkde_qws.h"
 
-#ifndef QT_NO_QWS_KDE_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_KDE
 
 QDecorationKDE::QDecorationKDE()
     : QDecorationDefault()
@@ -186,4 +186,4 @@ void QDecorationKDE::paintButton(QPainter *painter, const QWidget *w,
 
 }
 
-#endif // QT_NO_QWS_KDE_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_KDE

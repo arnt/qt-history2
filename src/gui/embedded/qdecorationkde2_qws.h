@@ -19,7 +19,7 @@
 #endif // QT_H
 
 
-#ifndef QT_NO_QWS_KDE2_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_KDE2
 
 
 class QDecorationKDE2 : public QDecorationDefault
@@ -43,6 +43,6 @@ protected:
 */
 };
 
-#endif // QT_NO_QWS_KDE2_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_KDE2
 
 #endif // QDECORATIONKDE2_QWS_H

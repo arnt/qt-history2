@@ -20,7 +20,7 @@
 #define QT_NO_STYLE // ##### this file uses old style API
 #endif
 
-#ifndef QT_NO_QWS_KDE2_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_KDE2
 
 QDecorationKDE2::QDecorationKDE2()
     : QDecorationDefault()
@@ -206,4 +206,4 @@ void QDecorationKDE2::paintButton(QPainter *painter, const QWidget *w,
 
 }
 
-#endif // QT_NO_QWS_KDE2_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_KDE2

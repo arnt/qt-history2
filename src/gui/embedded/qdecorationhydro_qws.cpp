@@ -16,7 +16,7 @@
 #include <qdrawutil.h>
 #include "qdecorationhydro_qws.h"
 
-#ifndef QT_NO_QWS_HYDRO_WM_STYLE
+#ifndef QT_NO_QWS_DECORATION_HYDRO
 
 #ifndef QT_NO_IMAGEIO_XPM
 
@@ -905,4 +905,4 @@ void QDecorationHydro::paintButton(QPainter *painter, const QWidget *w,
 
 }
 
-#endif // QT_NO_QWS_HYDRO_WM_STYLE
+#endif // QT_NO_QWS_DECORATION_HYDRO

@@ -239,8 +239,8 @@
 #endif
 
 // The "BeOS" style
-#if !defined(QT_NO_QWS_BEOS_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_BEOS_WM_STYLE
+#if !defined(QT_NO_QWS_DECORATION_BEOS) && (defined(QT_NO_QWS_MANAGER))
+#define QT_NO_QWS_DECORATION_BEOS
 #endif
 
 // Visible cursor
@@ -254,8 +254,8 @@
 #endif
 
 // The "Hydro" style
-#if !defined(QT_NO_QWS_HYDRO_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_HYDRO_WM_STYLE
+#if !defined(QT_NO_QWS_DECORATION_HYDRO) && (defined(QT_NO_QWS_MANAGER))
+#define QT_NO_QWS_DECORATION_HYDRO
 #endif
 
 // Keyboard for SHARP Zaurus SL5xxx devices
@@ -264,13 +264,13 @@
 #endif
 
 // The "KDE2" style
-#if !defined(QT_NO_QWS_KDE2_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_KDE2_WM_STYLE
+#if !defined(QT_NO_QWS_DECORATION_KDE2) && (defined(QT_NO_QWS_MANAGER))
+#define QT_NO_QWS_DECORATION_KDE2
 #endif
 
 // The "KDE" style
-#if !defined(QT_NO_QWS_KDE_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_KDE_WM_STYLE
+#if !defined(QT_NO_QWS_DECORATION_KDE) && (defined(QT_NO_QWS_MANAGER))
+#define QT_NO_QWS_DECORATION_KDE
 #endif
 
 // Multi-process architecture
@@ -289,8 +289,8 @@
 #endif
 
 // The "Windows" style
-#if !defined(QT_NO_QWS_WINDOWS_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_WINDOWS_WM_STYLE
+#if !defined(QT_NO_QWS_DECORATION_WINDOWS) && (defined(QT_NO_QWS_MANAGER))
+#define QT_NO_QWS_DECORATION_WINDOWS
 #endif
 
 // Regular expression anchors

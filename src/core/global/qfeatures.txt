@@ -594,31 +594,31 @@ Requires:
 Name: Window Manager
 SeeAlso: ???
 
-Feature: QWS_KDE2_WM_STYLE
+Feature: QWS_DECORATION_KDE2
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "KDE2" style
 SeeAlso: ???
 
-Feature: QWS_HYDRO_WM_STYLE
+Feature: QWS_DECORATION_HYDRO
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "Hydro" style
 SeeAlso: ???
 
-Feature: QWS_BEOS_WM_STYLE
+Feature: QWS_DECORATION_BEOS
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "BeOS" style
 SeeAlso: ???
 
-Feature: QWS_KDE_WM_STYLE
+Feature: QWS_DECORATION_KDE
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "KDE" style
 SeeAlso: ???
 
-Feature: QWS_WINDOWS_WM_STYLE
+Feature: QWS_DECORATION_WINDOWS
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "Windows" style
