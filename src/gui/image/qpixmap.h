@@ -72,7 +72,8 @@ public:
     QBitmap createHeuristicMask(bool clipTight = true) const;
 #endif
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
-    static QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
+    static QPixmap grabWidget(QWidget *widget, const QRect &rect);
+    static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     inline QPixmap scale(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
@@ -194,6 +195,11 @@ Q_DECLARE_SHARED(QPixmap)
 inline void QPixmap::fill(const QWidget *w, int x, int y)
 {
     fill(w, QPoint(x, y));
+}
+
+inline QPixmap QPixmap::grabWidget(QWidget *widget, int x, int y, int w, int h)
+{
+    return grabWidget(widget, QRect(x, y, w, h));
 }
 
 /*****************************************************************************

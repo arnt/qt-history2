@@ -1034,6 +1034,46 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 }
 
 /*!
+    \overload
+
+    Creates a pixmap and paints \a widget in it. If the \a widget
+    has any children, then they are also painted in the appropriate
+    positions.
+
+    If \a rect is a valid rectangle, only the rectangle you specify
+    is painted.
+
+    grabWidget(), QRect::isValid()
+*/
+
+QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
+{
+    QPixmap res, buf;
+
+    if (!widget)
+        return res;
+
+    QRect r(rect);
+    if (r.width() < 0)
+        r.setWidth(widget->width() - rect.x());
+    if (r.height() < 0)
+        r.setHeight(widget->height() - rect.y());
+
+    if (!r.intersects(widget->rect()))
+        return res;
+
+    res.resize(r.size());
+    buf.resize(r.size());
+    if(!res || !buf)
+        return res;
+
+    grabWidget_helper(widget, res, buf, r, QPoint());
+    return res;
+}
+
+/*!
+    \fn QPixmap QPixmap::grabWidget(QWidget *widget, int x, int y, int w, int h);
+
     Creates a pixmap and paints \a widget in it.
 
     If the \a widget has any children, then they are also painted in
@@ -1069,31 +1109,6 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
     \sa grabWindow() QWidget::paintEvent()
 */
-
-QPixmap QPixmap::grabWidget(QWidget * widget, int x, int y, int w, int h)
-{
-    QPixmap res, buf;
-
-    if (!widget)
-        return res;
-
-    if (w < 0)
-        w = widget->width() - x;
-    if (h < 0)
-        h = widget->height() - y;
-
-    QRect r(x, y, w, h);
-    if (!r.intersects(widget->rect()))
-        return res;
-
-    res.resize(r.size());
-    buf.resize(r.size());
-    if(!res || !buf)
-        return res;
-
-    grabWidget_helper(widget, res, buf, r, QPoint());
-    return res;
-}
 
 
 #ifndef Q_WS_WIN
