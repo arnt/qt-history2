@@ -17,7 +17,6 @@
 #include "qlist.h"
 #include "qtimer.h"
 #include "qsocketdevice.h"
-#include "qdns.h"
 #include "private/qinternal_p.h"
 #include "qlist.h"
 
@@ -123,10 +122,6 @@ public:
     QList<QHostAddress> addresses;                // alternatives looked up
     QIODevice::Offset        wsize;                        // write total buf size
     QIODevice::Offset        windex;                        // write index
-#ifndef QT_NO_DNS
-    QDns               *dns4;
-    QDns               *dns6;
-#endif
     static QList<QSocket *> sn_read_alreadyCalled; // used to avoid unwanted recursion
 };
 
@@ -136,20 +131,12 @@ QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), readBufferSize(0), wsize(0), windex(0)
 {
-#ifndef QT_NO_DNS
-    dns4 = 0;
-    dns6 = 0;
-#endif
 }
 
 QSocketPrivate::~QSocketPrivate()
 {
     close();
     delete socket;
-#ifndef QT_NO_DNS
-    delete dns4;
-    delete dns6;
-#endif
     while (!wba.isEmpty())
         delete wba.takeFirst();
 }
@@ -399,17 +386,17 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     d->state = HostLookup;
     d->host = host;
     d->port = port;
-    d->dns4 = new QDns(host, QDns::A);
-    d->dns6 = new QDns(host, QDns::Aaaa);
 
-    // try if the address is already available (for faster connecting...)
-    tryConnecting();
-    if (d->state == HostLookup) {
-        connect(d->dns4, SIGNAL(resultsReady()),
-                 this, SLOT(tryConnecting()));
-        connect(d->dns6, SIGNAL(resultsReady()),
-                 this, SLOT(tryConnecting()));
+    QHostAddress hostAddr;
+    if (hostAddr.setAddress(host)) {
+	// try if the address is already available (for faster connecting...)
+	QResolver::HostInfo h;
+	h.addresses.append(hostAddr);
+	tryConnecting(h);
     }
+
+    if (d->state == HostLookup)
+	QResolver::getHostByName(host, this, SLOT(tryConnecting(const QResolver::HostInfo &)));
 }
 
 #endif
@@ -420,7 +407,7 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     connectToHost() leaves off.
 */
 
-void QSocket::tryConnecting()
+void QSocket::tryConnecting(const QResolver::HostInfo &hostInfo)
 {
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::tryConnecting()", name());
@@ -428,45 +415,12 @@ void QSocket::tryConnecting()
     // ### this ifdef isn't correct - addresses() also does /etc/hosts and
     // numeric-address-as-string handling.
 #ifndef QT_NO_DNS
-    static QList<QHostAddress> l4;
-    static QList<QHostAddress> l6;
-
-    if (d->dns4) {
-        l4 = d->dns4->addresses();
-        if (!l4.isEmpty() || !d->dns4->isWorking()) {
-#if defined(QSOCKET_DEBUG)
-            qDebug("QSocket (%s)::tryConnecting: host %s, port %d: "
-                    "%d IPv4 addresses",
-                    name(), d->host.ascii(), d->port, l4.count());
-#endif
-            delete d->dns4;
-            d->dns4 = 0;
-        }
-    }
-
-    if (d->dns6) {
-        l6 = d->dns6->addresses();
-        if (!l6.isEmpty() || !d->dns6->isWorking()) {
-#if defined(QSOCKET_DEBUG)
-            qDebug("QSocket (%s)::tryConnecting: host %s, port %d: "
-                    "%d IPv6 addresses",
-                    name(), d->host.ascii(), d->port, l6.count());
-#endif
-            delete d->dns6;
-            d->dns6 = 0;
-        }
-    }
 
     if (d->state == HostLookup) {
-        if (l4.isEmpty() && l6.isEmpty() &&
-             !d->dns4 && !d->dns6) {
-            // no results and we're not still looking: give up
+        if (hostInfo.addresses.isEmpty()) {
+            // no results: give up
             d->state = Idle;
             emit error(ErrHostNotFound);
-            return;
-        }
-        if (l4.isEmpty() && l6.isEmpty()) {
-            // no results (yet): try again later
             return;
         }
 
@@ -477,8 +431,17 @@ void QSocket::tryConnecting()
     }
 
     if (d->state == Connecting) {
-        d->addresses += l4;
-        d->addresses += l6;
+	for (int i = 0; i < hostInfo.addresses.count(); ++i) {
+	    QHostAddress a = hostInfo.addresses.at(i);
+	    if (a.isIPv4Address())
+		d->addresses += a;
+	}
+
+	for (int i = 0; i < hostInfo.addresses.count(); ++i) {
+	    QHostAddress a = hostInfo.addresses.at(i);
+	    if (a.isIPv6Address())
+		d->addresses += a;
+	}
 
         // try one address at a time, falling back to the next one if
         // there is a connection failure. (should also support a timeout,
@@ -490,7 +453,7 @@ void QSocket::tryConnecting()
             stuck = false;
             if (d->socket &&
                  d->socket->connect(d->addr, d->port) == false) {
-                if (d->socket->error() == QSocketDevice::NoError) {
+		if (d->socket->error() == QSocketDevice::NoError) {
                     if (d->wsn)
                         d->wsn->setEnabled(true);
                     return; // not serious, try again later
@@ -1405,12 +1368,6 @@ void QSocket::setSocketIntern(int socket)
     // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
-#ifndef QT_NO_DNS
-    delete d->dns4;
-    d->dns4 = 0;
-    delete d->dns6;
-    d->dns6 = 0;
-#endif
 }
 
 

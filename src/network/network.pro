@@ -10,26 +10,27 @@ QCONFIG = core
 
 network {
 	PRECOMPILED_HEADER = ../core/global/qt_pch.h
-	HEADERS += qdns.h \
-		    qftp.h \
+	HEADERS += qftp.h \
 		    qhttp.h \
 		    qhostaddress.h \
 		    qserversocket.h \
 		    qsocket.h \
 		    qsocketdevice.h \
+		    qresolver.h \
+		    qresolver_p.h \
 		    qurlinfo.h
 
-	SOURCES	= qdns.cpp \
-		    qftp.cpp \
+	SOURCES	= qftp.cpp \
 		    qhttp.cpp \
 		    qhostaddress.cpp \
 		    qserversocket.cpp \
 		    qsocket.cpp \
 		    qsocketdevice.cpp \
+		    qresolver.cpp \
 		    qurlinfo.cpp
 
-	unix:SOURCES += qsocketdevice_unix.cpp
-	win32:SOURCES += qsocketdevice_win.cpp
+	unix:SOURCES += qsocketdevice_unix.cpp qresolver_unix.cpp
+	win32:SOURCES += qsocketdevice_win.cpp qresolver_win.cpp
 
 	mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 }

@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qiodevice.h"
+#include "qresolver.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
@@ -109,7 +110,7 @@ protected slots:
     virtual void sn_write();
 
 private slots:
-    void        tryConnecting();
+    void        tryConnecting(const QResolver::HostInfo &info);
     void        emitErrorConnectionRefused();
 
 private:
