@@ -254,15 +254,10 @@ public:
 private:
     ULONG m_refs;
     QWidget* widget;
-    QRect acceptRect;
+    QRect answerRect;
+    QPoint lastPoint;
     DWORD choosenEffect;
-
-        //////////////
-    BOOL acceptfmt;
-
-    POINTL last_pt;
-    DWORD last_effect;
-    DWORD last_keystate;
+    DWORD lastKeyState;
 };
 
 
@@ -550,10 +545,6 @@ QOleDropTarget::QOleDropTarget(QWidget* w) :
     widget(w)
 {
    m_refs = 1;
-   acceptfmt = false;
-   last_pt.x = last_pt.y = -100000;
-   last_effect = DROPEFFECT_NONE;
-   last_keystate = (DWORD)-1;
 }
 
 //---------------------------------------------------------------------
@@ -617,11 +608,15 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 
     QDragManager::self()->setCurrentTarget(widget);
 
+    lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
+    lastKeyState = grfKeyState;
+
     QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
-    QDragEnterEvent e(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
+    QDragEnterEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &e);
 
-    acceptRect = e.answerRect();
+     
+    answerRect = e.answerRect();
     if (e.isAccepted())
         choosenEffect = translateToWinDragEffects(e.dropAction());
     else
@@ -644,12 +639,21 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
         return NOERROR;
     }
     */
+    QPoint tmpPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y)); 
+    // see if we should compress this event
+    if ((tmpPoint == lastPoint || answerRect.contains(tmpPoint)) && lastKeyState == grfKeyState) {
+        *pdwEffect = choosenEffect; 
+        return NOERROR;
+    }
+
+    lastPoint = tmpPoint;
+    lastKeyState = grfKeyState;
 
     QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
-    QDragMoveEvent e(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
+    QDragMoveEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &e);
 
-    acceptRect = e.answerRect();
+    answerRect = e.answerRect();
     if (e.isAccepted())
         choosenEffect = translateToWinDragEffects(e.dropAction());
     else
@@ -691,8 +695,11 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
    //     return NOERROR;
    // }
 
+    lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
+    lastKeyState = grfKeyState;
+
     QMimeData * md = QDragManager::self()->source() ? QDragManager::self()->dragPrivate()->data : QDragManager::self()->dropData;
-    QDragMoveEvent e(widget->mapFromGlobal(QPoint(pt.x,pt.y)), translateToQDragDropActions(*pdwEffect), md);
+    QDropEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &e);
     
     if (e.isAccepted())
@@ -853,30 +860,34 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     for(int i = 0; i < fmts.size(); ++i)
         QWindowsMime::registerMimeType(fmts.at(i).latin1());
 
-    DWORD result_effect;
+    DWORD resultEffect;
     QOleDropSource *src = new QOleDropSource();
     QOleDataObject *obj = new QOleDataObject(o->mimeData());
-    DWORD allowed_effects = translateToWinDragEffects(dragPrivate()->possible_actions);
+    DWORD allowedEffects = translateToWinDragEffects(dragPrivate()->possible_actions);
     
 #ifdef Q_OS_TEMP
     HRESULT r = 0;
-    result_effect = 0;
+    resultEffect = 0;
 #else
-    HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
+    HRESULT r = DoDragDrop(obj, src, allowedEffects, &resultEffect);
 #endif
+    
+    QDrag::DropAction ret = QDrag::IgnoreAction;
+    if (r == DRAGDROP_S_DROP) {
+        dragPrivate()->target = currentTarget;
+        ret = translateToQDragDropAction(resultEffect);
+    }
 
+    // clean up                                     
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
+    object = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
 #endif
 
-    if (r == DRAGDROP_S_DROP) {
-        dragPrivate()->target = currentTarget;
-        return translateToQDragDropAction(result_effect);
-    }
-    return QDrag::IgnoreAction;
+    return ret;
 }
 
 void QDragManager::cancel(bool /* deleteSource */)
@@ -1038,3 +1049,24 @@ void QDragManager::drop()
 }
 
 #endif // QT_NO_DRAGANDDROP
+
+/*
+class QMimeConverter : QObject
+{
+protected:
+    DO getDataObject();
+
+};
+
+class QMimeData
+{
+
+public:
+    QMimeConverter * converterFor(QString format);
+
+protected:
+    static void registerConverter(QMimeConverter *);
+    
+    DO dataObject *
+}
+*/
