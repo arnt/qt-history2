@@ -5,5 +5,5 @@
 TEMPLATE = app
 
 # Input
-HEADERS += qrtformat.h qrtstring.h
-SOURCES += qrtformat.cpp qrtstring.cpp test.cpp
+HEADERS += qrtformat.h qrtstring.h qtextlayout.h
+SOURCES += qrtformat.cpp qrtstring.cpp test.cpp qtextlayout.cpp

@@ -78,6 +78,8 @@ public:
 
     QRTFormat operator [] (int pos) const;
 
+    int numFormats() const { return size; }
+
 private:
     struct FormatHint {
 	unsigned int length;
