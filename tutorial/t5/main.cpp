@@ -6,13 +6,13 @@
 
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qscrollbar.h>
+#include <qslider.h>
 #include <qlcdnumber.h>
 #include <qfont.h>
 
-#include <qlayout.h>
+#include <qvbox.h>
 
-class MyWidget : public QWidget
+class MyWidget : public QVBox
 {
 public:
     MyWidget( QWidget *parent=0, const char *name=0 );
@@ -20,7 +20,7 @@ public:
 
 
 MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
@@ -29,19 +29,13 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd" );
 
-    QScrollBar *sBar = new QScrollBar( 0, 99,		       	// range
-			   1, 10, 			// line/page steps
+    QSlider *sBar = new QSlider( 0, 99,		       	// range
+			   10,				// page steps
 			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// orientation
-                           this, "scrollbar" );
+			   Horizontal,		 	// orientation
+                           this, "slider" );
 
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-
-    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
-
-    vbox->addWidget( quit, 0, AlignLeft );
-    vbox->addWidget( lcd );
-    vbox->addWidget( sBar );
 }
 
 int main( int argc, char **argv )
@@ -49,7 +43,6 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     MyWidget w;
-    w.setGeometry( 100, 100, 200, 200 );
     a.setMainWidget( &w );
     w.show();
     return a.exec();

@@ -7,12 +7,12 @@
 #ifndef LCDRANGE_H
 #define LCDRANGE_H
 
-#include <qwidget.h>
+#include <qvbox.h>
 
-class QScrollBar;
+class QSlider;
 
 
-class LCDRange : public QWidget
+class LCDRange : public QVBox
 {
     Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public slots:
 signals:
     void valueChanged( int );
 private:
-    QScrollBar  *sBar;
+    QSlider  *slider;
 };
 
 #endif // LCDRANGE_H

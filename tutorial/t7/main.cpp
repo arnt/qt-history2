@@ -6,15 +6,15 @@
 
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qscrollbar.h>
 #include <qlcdnumber.h>
 #include <qfont.h>
-#include <qlayout.h>
+#include <qvbox.h>
+#include <qgrid.h>
 
 #include "lcdrange.h"
 
 
-class MyWidget : public QWidget
+class MyWidget : public QVBox
 {
 public:
     MyWidget( QWidget *parent=0, const char *name=0 );
@@ -22,27 +22,21 @@ public:
 
 
 MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     setMinimumSize( 200, 300 );
-
-    QVBoxLayout *vbox = new QVBoxLayout( this, 10 );
 
     QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
-    vbox->addWidget( quit, 0, Qt::AlignRight );
-
-    QGridLayout *grid = new QGridLayout( 4, 4, 1 );
-    vbox->addLayout( grid );
+    QGrid *grid = new QGrid( 4, this );
 
     LCDRange *previous = 0;
     for( int r = 0 ; r < 4 ; r++ ) {
 	for( int c = 0 ; c < 4 ; c++ ) {
-	    LCDRange* lr = new LCDRange( this );
-	    grid->addWidget( lr, r, c );
+	    LCDRange* lr = new LCDRange( grid );
 	    if ( previous )
 		connect( lr , SIGNAL(valueChanged(int)),
 			 previous , SLOT(setValue(int)) );
@@ -56,7 +50,6 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     MyWidget w;
-    w.setGeometry( 100, 100, 400, 400 );
     a.setMainWidget( &w );
     w.show();
     return a.exec();

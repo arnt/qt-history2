@@ -1,24 +1,23 @@
 /****************************************************************
 **
-** Implementation of LCDRange class, Qt tutorial 13
+** Implementation of LCDRange class, Qt tutorial 12
 **
 ****************************************************************/
 
 #include "lcdrange.h"
 
-#include <qlayout.h>
-#include <qscrollbar.h>
+#include <qslider.h>
 #include <qlcdnumber.h>
 #include <qlabel.h>
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     init();
 }
 
 LCDRange::LCDRange( const char *s, QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     init();
     setText( s );
@@ -27,27 +26,22 @@ LCDRange::LCDRange( const char *s, QWidget *parent, const char *name )
 void LCDRange::init()
 {
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    sBar = new QScrollBar( 0, 99,		       	// range
-			   1, 10, 			// line/page steps
-			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// orientation
-                           this, "scrollbar" );
-    label  = new QLabel( this, "label"  );
-    label->setAlignment( AlignCenter );
+    slider = new QSlider( 0, 99,       	// range
+			  10,		// page steps
+			  0, 		// inital value
+			  Horizontal, 	// orientation
+                          this, "slider" );
+    label  = new QLabel( " ", this, "label"  );
+    label->setAlignment( AlignHCenter );
+    label->setFixedHeight( label->sizeHint().height() );
 
-    QVBoxLayout *vbox = new QVBoxLayout( this, 0, 5 );
-    vbox->addWidget( lcd );
-    vbox->addWidget( sBar );
-    vbox->addWidget( label );
-    
-    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-    connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
-
+    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    connect( slider, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
 }
 
 int LCDRange::value() const
 {
-    return sBar->value();
+    return slider->value();
 }
 
 const char *LCDRange::text() const
@@ -57,7 +51,7 @@ const char *LCDRange::text() const
 
 void LCDRange::setValue( int value )
 {
-    sBar->setValue( value );
+    slider->setValue( value );
 }
 
 void LCDRange::setRange( int minVal, int maxVal )
@@ -69,7 +63,7 @@ void LCDRange::setRange( int minVal, int maxVal )
 		 minVal, maxVal );
 	return;
     }
-    sBar->setRange( minVal, maxVal );
+    slider->setRange( minVal, maxVal );
 }
 
 void LCDRange::setText( const char *s )

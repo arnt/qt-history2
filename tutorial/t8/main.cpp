@@ -33,11 +33,10 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     LCDRange *angle = new LCDRange( this, "angle" );
+    angle->setFixedHeight( 70 );
     angle->setRange( 5, 70 );
-    angle->setGeometry( 10, quit->y() + quit->height() + 10, 75, 130 );
 
     CannonField *cannonField = new CannonField( this, "cannonField" );
-    cannonField->move( angle->x() + angle->width() + 10, angle->y() );
     cannonField->setBackgroundColor( QColor( 250, 250, 200) );
 
     connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));

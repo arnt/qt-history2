@@ -6,34 +6,30 @@
 
 #include "lcdrange.h"
 
-#include <qscrollbar.h>
+#include <qslider.h>
 #include <qlcdnumber.h>
-#include <qlayout.h>
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    sBar = new QScrollBar( 0, 99, 	// range
-			   1, 10,	// line/page steps
-			   0,	// inital value
-			   QScrollBar::Horizontal, 	// orientation
-			   this, "scrollbar" );
-    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
-    vbox->addWidget( lcd );
-    vbox->addWidget( sBar );
+    slider = new QSlider( 0, 99,       // range
+			  10,          // page steps
+			  0,	       // inital value
+			  Horizontal,  // orientation
+			  this, "slider" );
 
-    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-    connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
+    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    connect( slider, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
 
 }
 
 int LCDRange::value() const
 {
-    return sBar->value();
+    return slider->value();
 }
 
 void LCDRange::setValue( int value )
 {
-    sBar->setValue( value );
+    slider->setValue( value );
 }
