@@ -40,6 +40,7 @@
 #include <qregexp.h>
 #include <qdatetime.h>
 #include <qpointarray.h>
+#undef DEBUG // the PostgreSQL headers redefines this
 #include <postgres.h>
 #include <libpq/libpq-fs.h>
 #if defined(Q_CC_MSVC)
@@ -100,6 +101,11 @@ QVariant::Type qDecodePSQLType( int t )
     // Postgres 6.x datetime workaround.
     // DATETIMEOID == TIMESTAMPOID (only the names have changed)
     case DATETIMEOID    :
+#endif
+#ifdef TIMESTAMPTZOID
+    // Postgres 7.2 workaround
+    // TIMESTAMPTZOID == TIMESTAMPOID == DATETIMEOID
+    case TIMESTAMPTZOID :
 #endif
 	type = QVariant::DateTime;
 	break;
