@@ -1557,16 +1557,16 @@ void QApplication::quit()
 
 
 /*!
-  A convenience function that closes all top level windows.
+  Conveniently closes all top-level windows.
 
-  The function is particularly useful for applications with many
-  top level windows. It could for example be connected to a "Quit"
+  This function is particularly useful for applications with many
+  top-level windows. It could for example be connected to a "Quit"
   entry in the file menu as shown in the following code example:
 
   \code
     // the "Quit" menu entry should try to close all windows
     QPopupMenu* file = new QPopupMenu( this );
-    file->insertItem( tr("&Quit"), qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
+    file->insertItem( "&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
 
     // when the last window was closed, the application should quit
     connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
@@ -1673,7 +1673,7 @@ void QApplication::closeAllWindows()
   tracking \endlink is enabled, mouse move events for all widgets.
 
   <li> Reimplementing QObject::event() (as QWidget does).  If you do
-  this you get tab key-presses, and you get to see the events before
+  this you get tab key presses, and you get to see the events before
   any widget-specific event filters.
 
   <li> Installing an event filter on the object.  Such an even filter
@@ -1957,10 +1957,12 @@ void QApplication::syncX()	{}		// do nothing
 
 /*!
   Adds \a mf to the list of message files to be used for
-  localization.  Message files are searched starting with the most
-  recently added file.
+  localization.
 
-  \sa removeTranslator() translate() QObject::tr()
+  Multiple messages files can be installed, given that they cover
+  distinct contexts.
+
+  \sa removeTranslator() translate() QTranslator::load()
 */
 
 void QApplication::installTranslator( QTranslator * mf )
@@ -1975,7 +1977,7 @@ void QApplication::installTranslator( QTranslator * mf )
 	    "are laid out from right to left as Hebrew and arabic. It has the effect to "
 	    "mirror the whole layout of the widgets, as required by these languages. "
 	    "Other languages should just return LTR." ) == "RTL" )
-	setReverseLayout( true );
+	setReverseLayout( TRUE );
 }
 
 /*!
@@ -2041,47 +2043,36 @@ QTextCodec* QApplication::defaultCodec() const
 }
 
 /*!
-  \overload
-  \obsolete
-
-  This version of the function uses "" as comment.
-*/
-
-QString QApplication::translate( const char * context, const char * key ) const
-{
-    return translate( context, key, "" );
-}
-
-/*!
-  Returns the translation text for \a key, by querying the installed
-  messages files.  The message file that was installed last is asked
-  first.
+  Returns the translation text for \a sourceText, by querying the
+  installed messages files.  The message file that was installed
+  last is asked first.
 
   QObject::tr() offers a more convenient way to use this functionality.
 
-  \a context is typically a class name (e.g. \c MyDialog) and \a key is
-  either English text or a short marker text, if the output text will
-  be very long (as for help texts).
+  \a context is typically a class name (e.g., "MyDialog") and
+  \a sourceText is either English text or a short marker text, if
+  the output text will be very long (as for help texts).
 
   \a comment is a disambiguating comment, for when the same text is
-  used in different roles within one context.
+  used in different roles within one context.  By default, it is
+  null.
 
-  See the QTranslator documentation for more information about keys,
-  contexts and comments.
+  See the \l QTranslator documentation for more information about
+  contexts, keys and comments.
 
-  If none of the message files contain a translation for \a key in \a
-  context, this function returns \a key.
+  If none of the message files contain a translation for \a sourceText
+  in \a context, this function returns \a sourceText.
 
-  This function is not virtual, but you can add alternative translation
+  This function is not virtual, but you can use alternative translation
   techniques by installing subclasses of QTranslator.
 
   \sa QObject::tr() installTranslator() removeTranslator() QTranslator
 */
 
-QString QApplication::translate( const char * context, const char * key,
+QString QApplication::translate( const char * context, const char * sourceText,
 				 const char * comment ) const
 {
-    if ( !key )
+    if ( !sourceText )
 	return QString::null;
     // context can be null, for global stuff
 
@@ -2089,17 +2080,17 @@ QString QApplication::translate( const char * context, const char * key,
 	QListIterator<QTranslator> it( *translators );
 	QTranslator * mf;
 	QString result;
-	while( (mf=it.current()) != 0 ) {
+	while( (mf = it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( context, key, comment );
+	    result = mf->find( context, sourceText, comment );
 	    if ( !result.isNull() )
 		return result;
 	}
     }
     if ( default_codec != 0 )
-	return default_codec->toUnicode(key);
+	return default_codec->toUnicode( sourceText );
     else
-	return QString::fromLatin1(key);
+	return QString::fromLatin1( sourceText );
 }
 
 #endif
@@ -2168,11 +2159,11 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 		} else if ( cur->event->type() == QEvent::LayoutHint ) {
 		    delete event;
 		    return;
-		} else if ( cur->event->type() ==  QEvent::Resize ) {
+		} else if ( cur->event->type() == QEvent::Resize ) {
 		    ((QResizeEvent *)(cur->event))->s = ((QResizeEvent *)event)->s;
 		    delete event;
 		    return;
-		} else if ( cur->event->type() ==  QEvent::Move ) {
+		} else if ( cur->event->type() == QEvent::Move ) {
 		    ((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
 		    delete event;
 		    return;
@@ -2730,11 +2721,11 @@ int QApplication::loopLevel() const
   Returns TRUE if the Qt library mutex is locked by a different thread,
   otherwise returns FALSE.
 
-  \e NOTE: Due to differing implementations of recursive mutexes on various
+  \note Due to differing implementations of recursive mutexes on supported
   platforms, calling this function from the same thread that previous locked
-  the mutex will return undefined results.
+  the mutex will give undefined results.
 
-  \sa lock(), unlock()
+  \sa lock() unlock()
 */
 
 
@@ -2895,7 +2886,7 @@ void QApplication::setStartDragTime( int ms )
 }
 
 /*!
-  If you support drag'n'drop in you application and a drag should
+  If you support drag-and-drop in you application and a drag should
   start after a mouse click and after a certain time elapsed, you
   should use the value which this method returns as delay (in ms).
 
@@ -2924,7 +2915,7 @@ void QApplication::setStartDragDistance( int l )
 }
 
 /*!
-  If you support drag'n'drop in you application and a drag should
+  If you support drag-n-drop in you application and a drag should
   start after a mouse click and after moving the mouse a certain
   distance, you should use the value which this method returns as the
   distance. So if the mouse position of the click is stored in \c
@@ -3081,15 +3072,15 @@ bool QApplication::reverseLayout()
 \code
 void MyApplication::commitData( QSessionManager& sm ) {
     if ( sm.allowsInteraction() ) {
-	switch ( QMessageBox::warning( yourMainWindow, "Application Name",
-					"Save changes to Document Foo?",
+	switch ( QMessageBox::warning( yourMainWindow, tr("Application Name"),
+					tr("Save changes to Document Foo?"),
 					tr("&Yes"),
 					tr("&No"),
 					tr("Cancel"),
 					0, 2) ) {
 	case 0: // yes
 	    sm.release();
-	    // save document here. If saving fails, call sm.cancel()
+	    // save document here; if saving fails, call sm.cancel()
 	    break;
 	case 1: // no
 	    break;
@@ -3099,7 +3090,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 	}
     } else {
 	// we did not get permission to interact, then
-	// do something reasonable instead.
+	// do something reasonable instead
     }
 }
 \endcode
@@ -3107,7 +3098,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   If an error occurred within the application while saving its data,
   you may want to try allowsErrorInteraction() instead.
 
-   \sa QApplication::commitData(), release(), cancel()
+  \sa QApplication::commitData(), release(), cancel()
 */
 
 
@@ -3216,14 +3207,16 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \overload void QSessionManager::setManagerProperty( const QString& name, const QString& value )
+  \overload void QSessionManager::setManagerProperty( const QString& name,
+						      const QString& value )
 
   Low-level write access to the application's identification and state
   records are kept in the session manager.
 */
 
 /*!
-  \fn void QSessionManager::setManagerProperty( const QString& name, const QStringList& value )
+  \fn void QSessionManager::setManagerProperty( const QString& name,
+						const QStringList& value )
 
   Low-level write access to the application's identification and state
   record are kept in the session manager.

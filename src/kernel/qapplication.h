@@ -163,14 +163,14 @@ public:
     static void	     beep();
 
 #ifndef QT_NO_TRANSLATION
-    void	     setDefaultCodec( QTextCodec* );
+    void	     setDefaultCodec( QTextCodec * );
     QTextCodec*	     defaultCodec() const;
     void	     installTranslator( QTranslator * );
     void	     removeTranslator( QTranslator * );
 #endif
-    QString	     translate( const char *, const char * ) const;
-    QString	     translate( const char *, const char *,
-				const char * ) const;
+    QString	     translate( const char * context,
+				const char * key,
+				const char * comment = 0 ) const;
 #ifndef QT_NO_PALETTE
     // obsolete functions
     static void      setWinStyleHighlightColor( const QColor &c ) {
