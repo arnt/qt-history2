@@ -5169,7 +5169,7 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
     : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
                    CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform
-                   | LinearGradients | DrawRects | AlphaFill | AlphaStroke | PixmapScale
+                   | LinearGradients | AlphaFill | AlphaStroke | PixmapScale
                    | ClipTransform | UsesFontEngine | PainterPaths )
 {
 }
