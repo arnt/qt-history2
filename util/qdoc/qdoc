@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#124 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#125 $
 #
 # this is a massive hack, written very quickly
 #
@@ -135,8 +135,8 @@ sub processcode {
     # look for variables
     while ( m@(?:(?:^)|(?:[\n:;\{\(]))(?:\s*//[^\n]*\n)*\s*([A-Za-z0-9_]+)(?:\s*&lt;[^;]*?&gt;)?\s*\*?\s*([A-Za-z0-9_]+)@gs ) {
 	if ($type{$anchor{$1}} eq "class") {
-	    print "Changing type of $2 from ", $types{$2}, " to $1\n"
-		if (defined($types{$2}) && ($1 ne $types{$2}));
+#	    print "Changing type of $2 from ", $types{$2}, " to $1\n"
+#		if (defined($types{$2}) && ($1 ne $types{$2}));
 	    $types{$2} = $1;
 	} elsif (defined($inheritedtypes{$1}) && 
 		 $type{$anchor{$inheritedtypes{$1}}} eq "class") {
@@ -246,7 +246,9 @@ sub processcode {
 sub findlink {
     local ($_, $class, $url, $ismethod) = @_;
 
-    if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
+    if ($type{$anchor{$_}} eq "example") {
+	sprintf("<a href=\"%s\">%s</a>", $anchor{$_}, &html($_));
+    } elsif (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
 	sprintf("<a href=\"%s\">%s</a>", $anchor{$_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
@@ -544,7 +546,7 @@ sub processdocs {
 # ...
 
 	$doc =~ s-(?:(?:\b((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
-			    |(?:[\w:]+(?:\.(?:h)|(?:cpp))?)))(\()?(?!</a>))
+			    |(?:[\w:/]+(?:\.(?:h|(?:cpp)))?)))(\()?(?!</a>))
 		   |((?:(?:<pre>.*?</pre>)|(?:<a [^>]+>[^<]*</a>)|(?:<.*?>))))-
 	    if ($3 eq "") {
 		if (!defined($word{$1})) {
@@ -1288,7 +1290,10 @@ sub makenames {
     }
 
     foreach ( keys %headerfiles ) {
-	$anchor{$_} = $headerfiles{$_} unless (defined($anchor{$_}));
+	unless (defined($anchor{$_})) {
+	    $anchor{$_} = $headerfiles{$_};
+	    $type{$anchor{$_}} = "header";
+	}
     }
 
     foreach ( keys %examples ) {
@@ -1297,6 +1302,7 @@ sub makenames {
 	s@/@-@;
 	s/\.cpp$/-cpp.html/;
 	$anchor{$dum} = $_;
+	$type{$_} = "example";
     }
 
 #   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
@@ -1460,7 +1466,7 @@ sub weirdly {
 
 sub printclass {
     local ( $url ) = @_;
-    local ( $class, $file, $tail, $fnheader, $fntail, %fndocs );
+    local ( $class, $file, $tail, $fnheader, %fndocs );
 
     $class = $name{$url};
 
@@ -1479,7 +1485,7 @@ sub printclass {
     $documented{$url}++;
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-    $tail = "<hr><p>\nThis file is part of the <a href=\"qt.html\">Qt toolkit</a>,\n<a href=\"license.html\">copyright &copy;</a> 1995-96\n<a href=\"troll.html\">Troll Tech</a>, all rights reserved.\n";
+    $tail = "<hr><p>\nThis file is part of the <a href=\"qt.html\">Qt toolkit</a>,\n<a href=\"license.html\">copyright &copy;</a> 1995-96\n<a href=\"troll.html\">Troll Tech</a>, all rights reserved.";
     if (defined ($cfiles{$includefile{$url}})) {
 	my(%files);
 	$files{$includefile{$url}}++;
@@ -1745,7 +1751,6 @@ sub printclass {
 	    $name =~ s/^[^\#]*\#//;
 	    print O $fnheader;
 	    $fnheader = "";
-	    $fntail = "\n";
 	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\"></a>$2;s;
 	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
@@ -1767,7 +1772,7 @@ sub printclass {
 	}
     }
 
-    print O $fntail, $tail;
+    print O $tail;
     close(O);
 }
 
@@ -1956,7 +1961,6 @@ sub memberlists {
     $file = "/dev/null";
     open(O, "> /dev/null") || die "cant open /dev/null";
     $tail = "";
-    $fntail = "";
 
     foreach ( sort keys %anchor ) {
 	if ( $type{$anchor{$_}} eq "class" ) {
@@ -2140,7 +2144,7 @@ example files:
 
 umask 0111;
 $cfile = "VOLD";
-$maxerr = 200;
+$maxerr = 5;
 #$debug = 1;
 if ($0 =~ /gendoc/) {
     $internal = 1;
@@ -2214,6 +2218,8 @@ foreach $c ( sort keys %doc ) {
 	} else {
 	    print "not printing $c\n";
 	}
+    } elsif ( $type{$c} eq "example" || $type{$c} eq "header" ) {
+	# nothing
     } else {
 	print $c, " is a ", $type{$c}, "\n" unless ( $c =~ /\x23/ );
     }
