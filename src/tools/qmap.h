@@ -627,6 +627,10 @@ public:
     }
 
 #ifndef QT_NO_STL
+#  ifdef Q_CC_HPACC    // HP-UX aCC does require typename in some place
+#    undef Q_TYPENAME  // but not accept them at others.
+#    define Q_TYPENAME // also doesn't like re-defines ...
+#  endif
     QMap( const Q_TYPENAME std::map<Key,T>& m )
     {
 	sh = new QMapPrivate<Key,T>;
@@ -662,6 +666,10 @@ public:
 	}
 	return *this;
     }
+#  ifdef Q_CC_HPACC    // undo the HP-UX aCC hackery done above
+#    undef Q_TYPENAME 
+#    define Q_TYPENAME typename
+#  endif
 #endif
 
     iterator begin() { detach(); return sh->begin(); }
