@@ -818,7 +818,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 		    unsigned char col = mark.cell();
 		    if ( col == 0x31 ) {
 			eCmb = QChar::Combining_AboveRight;
-			p += QPoint( markRect.width()/4., 0 );
+			p += QPoint( markRect.width()/4, 0 );
 		    } else if ( col == 0x34 ||
 				col == 0x35 ||
 				col == 0x36 ||
