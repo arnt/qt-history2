@@ -48,7 +48,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	    if ( cmb >= 27 && cmb <= 36 && offset < 3 )
 		offset +=1;
  	    // below
-	    else if ( (cmb >= 10 && cmb <= 18) ||
+	    if ( (cmb >= 10 && cmb <= 18) ||
 		 cmb == 20 || cmb == 22 ||
 		 cmb == 29 || cmb == 32 )
 		cmb = QChar::Combining_Below;
@@ -57,7 +57,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 		      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36 ) )
 		cmb = QChar::Combining_Above;
 	    //below-right
-	    else if ( cmb == 103 || cmb == 118 )
+	    else if ( cmb == 9 || cmb == 103 || cmb == 118 )
 		cmb = QChar::Combining_BelowRight;
 	    // above-right
 	    else if ( cmb == 24 || cmb == 107 || cmb == 122 )
@@ -197,23 +197,23 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 		    // thai or lao
 		    unsigned char col = uc[pos].cell();
 		    if ( col == 0x31 ||
+			 col == 0x34 ||
+			 col == 0x35 ||
+			 col == 0x36 ||
+			 col == 0x37 ||
 			 col == 0x47 ||
 			 col == 0x4c ||
 			 col == 0x4d ||
-			 col == 0x4e ||
-			 col == 0xcc ||
-			 col == 0xcd ) {
+			 col == 0x4e ) {
 			cmb = QChar::Combining_AboveRight;
-		    } else if ( col == 0x34 ||
-				col == 0x35 ||
-				col == 0x36 ||
-				col == 0x37 ||
-				col == 0xb1 ||
+		    } else if ( col == 0xb1 ||
 				col == 0xb4 ||
 				col == 0xb5 ||
 				col == 0xb6 ||
 				col == 0xb7 ||
-				col == 0xbb ) {
+				col == 0xbb ||
+				col == 0xcc ||
+				col == 0xcd ) {
 			cmb = QChar::Combining_Above;
 		    } else if ( col == 0xbc ) {
 			cmb = QChar::Combining_Below;
