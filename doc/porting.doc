@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.11 1998/11/11 14:00:55 warwick Exp $
+** $Id: porting.doc,v 1.12 1998/11/17 20:28:32 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -93,7 +93,7 @@ Some repaint problems problems might occur with subclasses on QFrame,
  \code
    resizeEvent(QResizeEvent* e)
    {
-       repaint( e->rect(), TRUE );
+       repaint( rect() );
    }
  \endcode
 
@@ -262,8 +262,16 @@ of another widget (as is the usual way to intercept foreign events).
 operator>>(QTextStream&, QChar&) does not skip whitespace.
 operator>>(QTextStream&, char&) does, as was the case with Qt 1.x.
 
-<h3>QEvent</h3>
 
+<h3>QPixmap</h3>
+
+QPixmap::convertToImage() with bitmaps now guarantees that color0 pixels
+become color(0) in the resulting QImage.  If you worked around the lack of
+this, you many need to simplify your code.  The symptom will be inverted
+bitmaps (eg. inside-out masks).
+
+
+<h3>QEvent</h3>
 
 <p> The global #define macros in qevent.h have been replaced by an
 enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint.
