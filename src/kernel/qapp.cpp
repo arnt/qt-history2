@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#100 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#100 $");
 
 
 /*!
@@ -67,7 +67,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#99 $");
 void qt_init( int *, char ** );			// defined in qapp_xyz.cpp
 void qt_cleanup();
 #if defined(_WS_X11_)
-void qt_init( void* dpy );			// defined in qapp_x11.cpp
+void qt_init( Display* dpy );			// defined in qapp_x11.cpp
 #endif
 
 QApplication *qApp = 0;				// global application object
@@ -176,6 +176,36 @@ QApplication::QApplication( int &argc, char **argv )
 #endif
     qApp = this;
     qt_init( &argc, argv );
+    initialize( argc, argv );
+}
+
+
+#if defined(_WS_X11_)
+
+/*!
+  Create an application, given an already open display.  X11 only.
+*/
+
+QApplication::QApplication( Display* dpy )
+{
+#if defined(CHECK_STATE)
+    if ( qApp )
+	warning( "QApplication: There should be only one application object" );
+#endif
+    qApp = this;
+    qt_init( dpy );
+    initialize( 0, 0 );
+}
+
+#endif // _WS_X11_
+
+
+/*!
+  Initializes the QApplication object, called from the constructors.
+*/
+
+void QApplication::initialize( int argc, char **argv )
+{
     initMetaObject();
     app_argc = argc;
     app_argv = argv;
@@ -194,39 +224,6 @@ QApplication::QApplication( int &argc, char **argv )
     is_app_running = TRUE;			// no longer starting up
 }
 
-
-#if defined(_WS_X11_)
-
-/*!
-  Create an application, given an already open display.  X11 only.
-*/
-QApplication::QApplication( void* dpy )
-{
-#if defined(CHECK_STATE)
-    if ( qApp )
-	warning( "QApplication: There should be only one application object" );
-#endif
-    qApp = this;
-    qt_init( dpy );
-    initMetaObject();
-    app_argc = 0;
-    app_argv = 0;
-    quit_now = FALSE;
-    quit_code = 0;
-    if ( !app_pal ) {				// palette not already set
-	create_palettes();
-	app_pal = new QPalette( *stdPalette );
-	CHECK_PTR( app_pal );
-    }
-    if ( !app_font ) {				// font not already set
-	app_font = new QFont;
-	CHECK_PTR( app_font );
-    }
-    QWidget::createMapper();			// create widget mapper
-    is_app_running = TRUE;			// no longer starting up
-}
-
-#endif
 
 /*!
   Closes all widgets and cleans up all window system resources.

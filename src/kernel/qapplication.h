@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#65 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#66 $
 **
 ** Definition of QApplication class
 **
@@ -29,6 +29,9 @@ class QApplication : public QObject		// application class
     Q_OBJECT
 public:
     QApplication( int &argc, char **argv );
+#if defined(_WS_X11_)
+    QApplication::QApplication( Display* dpy );
+#endif
     virtual ~QApplication();
 
     int		    argc()	const;
@@ -116,13 +119,9 @@ signals:
 public slots:
     void	     quit();
 
-protected:
-#if defined(_WS_X11_)
-    QApplication::QApplication( void* dpy );
-#endif
-
 private:
     bool	     processNextEvent( bool );
+    void	     initialize( int, char ** );
 
     int		     app_argc;
     char	   **app_argv;
