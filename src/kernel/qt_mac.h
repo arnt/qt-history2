@@ -60,6 +60,12 @@
 # define QMAC_NO_FAKECURSOR
 #endif
 
+/* We don't use the ApplicationEventLoop because it can causes bad behaviour in
+   multithreaded applications. I've left the code in however because using the
+   ApplicationEventLoop solved other problems (ages ago) - for example the gumdrop
+   "hover" effects. */
+//#define QMAC_USE_APPLICATION_EVENT_LOOP
+
 #undef DEBUG
 #ifdef OLD_DEBUG
 #define DEBUG OLD_DEBUG

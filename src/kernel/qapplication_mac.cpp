@@ -1213,9 +1213,6 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker(QApplication::qt_mutex);
-#endif
     QApplication *app = (QApplication *)data;
     if(app->macEventFilter(er, event)) //someone else ate it
 	return noErr;
@@ -2115,6 +2112,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
     if(!handled_event) //let the event go through
 	return eventNotHandledErr;
+#ifdef QMAC_USE_APPLICATION_EVENT_LOOP
+    QuitApplicationEventLoop();
+#endif
     return noErr; //we eat the event
 }
 
