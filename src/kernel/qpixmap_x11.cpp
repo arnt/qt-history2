@@ -328,7 +328,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 				w, h, data->d );
 
 #ifndef QT_NO_XFTFREETYPE
-    if ( X11->use_xrender && X11->has_xft ) {
+    if ( X11->has_xft ) {
 	if ( data->d == 1 ) {
 	    rendhd = (HANDLE) XftDrawCreateBitmap( x11Display(), hd );
 	} else {
@@ -404,7 +404,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap)
 					(char *)bits, w, h );
 
 #ifndef QT_NO_XFTFREETYPE
-    if ( X11->use_xrender && X11->has_xft )
+    if ( X11->has_xft )
 	rendhd = (HANDLE) XftDrawCreateBitmap (x11Display (), hd);
 #endif // QT_NO_XFTFREETYPE
 
@@ -1032,7 +1032,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 					    bits, w, h );
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( X11->use_xrender && X11->has_xft )
+	if ( X11->has_xft )
 	    rendhd = (HANDLE) XftDrawCreateBitmap( x11Display(), hd );
 #endif // QT_NO_XFTFREETYPE
 
@@ -1449,7 +1449,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				    w, h, dd );
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( X11->use_xrender && X11->has_xft ) {
+	if ( X11->has_xft ) {
 	    if ( data->d == 1 ) {
 		rendhd = (HANDLE) XftDrawCreateBitmap( x11Display (), hd );
 	    } else {

@@ -902,11 +902,13 @@ bool QApplication::x11_apply_settings()
     // we can only do this once at application startup, otherwise we'd
     // have Xft fonts trying to access non existing drawables.
     if ( !X11->xftDone ) {
-
 	X11->xftDone = TRUE;
 	X11->has_xft = FALSE;
 	X11->use_antialiasing = FALSE;
-	if (X11->use_xrender &&
+	if (
+#if !defined(QT_XFT2)
+	    X11->use_xrender &&
+#endif
 	    XftInit(0) && XftInitFtLibrary()) {
 	    X11->has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
 	    X11->use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );

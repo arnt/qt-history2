@@ -399,7 +399,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	rendhd = 0;
     }
 
-    if ( X11->use_xrender && X11->has_xft )
+    if ( X11->has_xft )
 	rendhd = (HANDLE) XftDrawCreate( dpy, id, (Visual *) x11Visual(),
 					 x11Colormap() );
 #endif // QT_NO_XFTFREETYPE
