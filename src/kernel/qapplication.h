@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#28 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#29 $
 **
 ** Definition of QApplication class
 **
@@ -52,7 +52,6 @@ public:
     int		    exec();
     int		    enter_loop();
     void	    exit_loop();
-    static void	    quit( int retcode = 0 );	// quit application
 
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
@@ -79,6 +78,9 @@ public:
 #if defined(_WS_WIN_)
     void	    winFocus( QWidget *, bool );
 #endif
+
+public slots:
+    void	    quit( int retcode = 0 );	// quit application
 
 private:
     int		    app_argc;
