@@ -1889,7 +1889,7 @@ bool qt_modal_state()
 }
 
 
-void qt_enter_modal( QWidget *widget )
+void Q_GUI_EXPORT qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
@@ -1909,7 +1909,7 @@ void qt_enter_modal( QWidget *widget )
 }
 
 
-void qt_leave_modal( QWidget *widget )
+void Q_GUI_EXPORT qt_leave_modal( QWidget *widget )
 {
     if ( qt_modal_stack && qt_modal_stack->remove(widget) ) {
 	if ( qt_modal_stack->isEmpty() ) {
