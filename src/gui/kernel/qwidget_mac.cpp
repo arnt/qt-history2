@@ -97,13 +97,13 @@ static QSize qt_initial_size(QWidget *w) {
     if (layout) {
         if (layout->hasHeightForWidth())
             s.setHeight(layout->totalHeightForWidth(s.width()));
-        exp = layout->expanding();
+        exp = layout->expandingDirections();
     } else
 #endif
     {
         if (w->sizePolicy().hasHeightForWidth())
             s.setHeight(w->heightForWidth(s.width()));
-        exp = w->sizePolicy().expanding();
+        exp = w->sizePolicy().expandingDirections();
     }
     if (exp & QSizePolicy::Horizontally)
         s.setWidth(qMax(s.width(), 200));

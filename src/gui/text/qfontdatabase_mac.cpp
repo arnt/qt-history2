@@ -60,7 +60,7 @@ static void initializeDb()
             QtFontFamily *family = db->family(fam_name, true);
             // ###
             for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
-                family->writingSystem[ws] = QtFontFamily::Supported;
+                family->writingSystems[ws] = QtFontFamily::Supported;
             QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
             FMFontFamilyInstanceIterator fit;
