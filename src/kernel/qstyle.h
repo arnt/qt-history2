@@ -98,6 +98,8 @@ public:
     virtual void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 ) = 0;
+    
+    //virtual void drawShade(...); // ### add 3.0
 
     virtual QRect buttonRect( int x, int y, int w, int h); // ### const 3.0
 
@@ -150,6 +152,7 @@ public:
     // concrete section depending on Qt's widget cluster ( The line is hard to draw sometimes)
 
     // "combo box"
+    // virtual void drawComboButton( QComboBox* cbx, QPainter* p ); // ### add, 3.0
     virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken = FALSE,
 				  bool editable = FALSE,
@@ -218,6 +221,7 @@ public:
 			     const QColorGroup &g,
 			     Orientation) = 0;
 
+    // popup menus
     virtual void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g,
 				bool act, bool dis ) = 0;
@@ -236,6 +240,8 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled,
 				    int x, int y, int w, int h) = 0;
+    
+    // menu bars
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h, //### virtual in 3.0
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled, bool active );
