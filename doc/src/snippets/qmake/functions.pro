@@ -10,9 +10,9 @@ macx {
     SOURCES = $$find(SOURCES, "_mac")
 }
 
-CONFIG = release
-CONFIG += $$OTHER_CONFIG_VALUES
-CONFIG = $$unique(CONFIG)
+HEADERS = model.h
+HEADERS += $$OTHER_HEADERS
+HEADERS = $$unique(HEADERS)
 
 CONFIG += debug
 options = $$find(CONFIG, "debug") $$find(CONFIG, "release")
