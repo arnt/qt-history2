@@ -451,13 +451,17 @@ QTextFormatGroup *QTextFormatCollection::createGroup(int index)
 
 QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 {
-    ref = 0;
+    // ref == 1 just during construction, to avoid the formats begin created
+    // in the loop below ref and then derefing this collection (and then
+    // deleting it)
+    ref = 1;
     pieceTable = 0;
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
         QTextFormatGroup *g = rhs.groups.at(i);
         groups.append(createGroup(g->d_func()->index));
     }
+    ref = 0;
 }
 QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
 {
