@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#38 $
 **
 ** Implementation of QToolButton class
 **
@@ -332,7 +332,7 @@ void QToolButton::drawButton( QPainter * p )
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
 	if ( isOn() && !isDown() && !uses3D() ) {
 	    if ( style() == WindowsStyle ) {
-		p->setBrush( QBrush(QColor::white,Dense4Pattern) );
+		p->setBrush( QBrush(white,Dense4Pattern) );
 		p->setPen( NoPen );
 		p->setBackgroundMode( OpaqueMode );
 		p->drawRect( 0,0, width(),height() );
@@ -360,7 +360,7 @@ void QToolButton::drawButton( QPainter * p )
             p->drawWinFocusRect( 3, 3, width()-6, height()-6,
                                  colorGroup().background() );
         } else {
-            p->setPen( QColor::black );
+            p->setPen( black );
             p->drawRect( 3, 3, width()-6, height()-6 );
         }
     }

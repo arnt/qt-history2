@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#92 $
 **
 ** Implementation of QLabel widget class
 **
@@ -570,15 +570,15 @@ void QLabel::drawContentsMask( QPainter *p )
 	// ### could resize movie frame at this point
 	QPixmap pm = mov->framePixmap();
 	if ( pm.mask() ) {
-	    p->setPen( QColor::color1);
+	    p->setPen( color1);
 	    p->drawPixmap(r.x(), r.y(), *pm.mask() );
 	}
 	else
-	    p->fillRect( r, QColor::color1 );
+	    p->fillRect( r, color1 );
 	return;
     }
 
-    QColorGroup g(QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color0);
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, g, isEnabled(), lpixmap, ltext );
 }

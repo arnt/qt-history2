@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#289 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#290 $
 **
 ** Implementation of QWidget class
 **
@@ -2896,7 +2896,7 @@ bool QWidget::event( QEvent *e )
 	    bool res = FALSE;
 	    if ( k->key() == Key_Backtab ||
 		 (k->key() == Key_Tab &&
-		  (k->state() & QMouseEvent::ShiftButton)) )
+		  (k->state() & ShiftButton)) )
 		res = focusNextPrevChild( FALSE );
 	    else if ( k->key() == Key_Tab )
 		res = focusNextPrevChild( TRUE );

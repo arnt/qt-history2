@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#178 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#179 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -170,7 +170,7 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	}
 	if ( dis && !act ) {
 	    uint pnt;
-	    p->setPen( QColor::white );
+	    p->setPen( Qt::white );
 	    QPoint offset(1,1);
 	    for ( pnt = 0; pnt < a.size(); pnt++ )
 		a[pnt] += offset;
@@ -1114,7 +1114,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( act ? QColor::white : g.text() );
+	p->setPen( act ? white : g.text() );
     else
 	p->setPen( g.text() );
 
@@ -1158,11 +1158,11 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	int dim = (cellh-2*motifItemFrame) / 2;
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
-		discol = QColor::white;
+		discol = white;
 	    g = QColorGroup( discol, QApplication::winStyleHighlightColor(),
-			     QColor::white, QColor::white,
-			     dis ? discol : QColor::white,
-			     discol, QColor::white );
+			     white, white,
+			     dis ? discol : white,
+			     discol, white );
 	}
 	qDrawArrow( p, RightArrow, gs,
 		    row == actItem && gs == MotifStyle && mi->isEnabled(),
@@ -1307,7 +1307,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    p->updateRow( p->actItem );
     }
 
-    if ( (e->state() & QMouseEvent::MouseButtonMask) == 0 &&
+    if ( (e->state() & Qt::MouseButtonMask) == 0 &&
 	 !hasMouseTracking() )
 	return;
 
@@ -1324,7 +1324,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    singleSingleShot->stop();
     } else {					// mouse on valid item
 	// but did not register mouse press
-	if ( (e->state() & QMouseEvent::MouseButtonMask) && !mouseBtDn )
+	if ( (e->state() & Qt::MouseButtonMask) && !mouseBtDn )
 	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
 
 	register QMenuItem *mi = mitems->at( item );

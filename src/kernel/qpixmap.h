@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#91 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#92 $
 **
 ** Definition of QPixmap class
 **
@@ -28,6 +28,7 @@
 #include "qpaintdevice.h"
 #include "qcolor.h"
 #include "qstring.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
@@ -59,7 +60,7 @@ public:
     int		depth()		const { return data->d; }
     static int	defaultDepth();
 
-    void	fill( const QColor &fillColor=QColor::white );
+    void	fill( const QColor &fillColor=Qt::white );
     void	fill( const QWidget *, int xofs, int yofs );
     void	fill( const QWidget *, const QPoint &ofs );
     void	resize( int width, int height );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#132 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1568,7 +1568,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( depth1 )				// fill with zeros
 	    memset( dptr, 0, dbytes );
 	else if ( bpp == 8 )			// fill with background color
-	    memset( dptr, QColor::white.pixel(), dbytes );
+	    memset( dptr, Qt::white.pixel(), dbytes );
 	else
 	    memset( dptr, 0xff, dbytes );
 #if defined(MITSHM)

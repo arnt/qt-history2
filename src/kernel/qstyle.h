@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#12 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#13 $
 **
 ** Definition of QStyle class
 **
@@ -20,7 +20,7 @@
 class QPushButton;
 class QScrollBar;
 
-class Q_EXPORT QStyle
+class Q_EXPORT QStyle: public QObject
 {
     GUIStyle gs;
 public:

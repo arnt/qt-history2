@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#92 $
 **
 ** Implementation of QPixmap class
 **
@@ -309,7 +309,7 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 	    QPainter p;
 	    p.begin( this );
 	    p.setPen( NoPen );
-	    p.setBrush( QBrush( QColor::black,*widget->backgroundPixmap() ) );
+	    p.setBrush( QBrush( Qt::black,*widget->backgroundPixmap() ) );
 	    p.setBrushOrigin( -xofs, -yofs );
 	    p.drawRect( 0, 0, width(), height() );
 	    p.end();

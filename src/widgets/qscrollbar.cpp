@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#106 $
 **
 ** Implementation of QScrollBar class
 **
@@ -481,7 +481,7 @@ void QScrollBar::paintEvent( QPaintEvent *event )
     qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
     if ( hasFocus() ) {
 	if ( style() != WindowsStyle ) {
-	    p.setPen( QColor::black );
+	    p.setPen( black );
 	    p.drawRect(  1, 1, width() - 2, height() - 2 );
 	}
     }
@@ -498,8 +498,8 @@ static QCOORD sliderStartPos = 0;
 
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( !(e->button() == QMouseEvent::LeftButton ||
-	   (style() == MotifStyle && e->button() == QMouseEvent::MidButton) ) )
+    if ( !(e->button() == LeftButton ||
+	   (style() == MotifStyle && e->button() == MidButton) ) )
 	return;
 
     if ( maxValue() == minValue() ) // nothing to be done
@@ -512,7 +512,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	  pressedControl == SUB_PAGE ||
 	  pressedControl == SLIDER ) &&
 	 style() == MotifStyle &&
-	 e->button() == QMouseEvent::MidButton ) {
+	 e->button() == MidButton ) {
 	int dummy1, dummy2, sliderLength;
 	PRIV->metrics( &dummy1, &dummy2, &sliderLength );
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
@@ -544,9 +544,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !clickedAt || !(e->button() == QMouseEvent::LeftButton ||
+    if ( !clickedAt || !(e->button() == LeftButton ||
 			 (style() == MotifStyle &&
-			  e->button() == QMouseEvent::MidButton)) )
+			  e->button() == MidButton)) )
 	return;
     ScrollControl tmp = (ScrollControl) pressedControl;
     clickedAt = FALSE;
@@ -582,8 +582,8 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	clickedAt = FALSE;
 	return;
     }
-    if ( !clickedAt || !(e->state() & QMouseEvent::LeftButton ||
-			 ((e->state() & QMouseEvent::MidButton) &&
+    if ( !clickedAt || !(e->state() & LeftButton ||
+			 ((e->state() & MidButton) &&
 			  style() == MotifStyle)) )
 	return;
     int newSliderPos;
@@ -872,7 +872,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 			WindowsStyle, SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			subB.width()-4, subB.height()-4, g, !maxedOut );
 	}
-	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(QColor::white,Dense4Pattern) );
+	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
 	p->setPen( NoPen );
 	p->setBackgroundMode( OpaqueMode );
 	if ( maxedOut ) {

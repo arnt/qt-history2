@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#153 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -483,7 +483,7 @@ void QPainter::setPen( PenStyle style )
     }
     d->style = style;
     d->width = 0;
-    d->color = QColor::black;
+    d->color = Qt::black;
     updatePen();
 }
 
@@ -551,7 +551,7 @@ void QPainter::setBrush( BrushStyle style )
 	d = cbrush.data;
     }
     d->style = style;
-    d->color = QColor::black;
+    d->color = Qt::black;
     if ( d->pixmap ) {
 	delete d->pixmap;
 	d->pixmap = 0;
@@ -2187,7 +2187,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
 
 	if ( pp )				// erase pixmap if gray text
-	    pp->fillRect( 0, 0, w, fheight, QColor::color0 );
+	    pp->fillRect( 0, 0, w, fheight, Qt::color0 );
 
 	int bxc = xc;				// base x position (chars)
 	while ( TRUE ) {
@@ -2198,7 +2198,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		    if ( pp )			// gray text
 			pp->fillRect( xc+xcpos, fascent+fm.underlinePos(),
 				      CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
-				      QColor::color1 );
+				      Qt::color1 );
 		    else
 			painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
 					   CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
@@ -2219,9 +2219,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    }
 	}
 	if ( pp ) {				// gray text
-	    pp->setPen(QColor::color0);
+	    pp->setPen(Qt::color0);
 	    pp->drawRect( mask->rect() );
-	    pp->setPen(QColor::color1);
+	    pp->setPen(Qt::color1);
 	    pm->fill( painter->cpen.color() );
 	    pp->end();
 	    pm->setMask( *mask );
@@ -2355,7 +2355,7 @@ void QPen::init( const QColor &color, uint width, PenStyle style )
 
 QPen::QPen()
 {
-    init( QColor::black, 0, SolidLine );		// default pen
+    init( Qt::black, 0, SolidLine );		// default pen
 }
 
 /*!
@@ -2365,7 +2365,7 @@ QPen::QPen()
 
 QPen::QPen( PenStyle style )
 {
-    init( QColor::black, 0, style );
+    init( Qt::black, 0, style );
 }
 
 /*!
@@ -2640,7 +2640,7 @@ void QBrush::init( const QColor &color, BrushStyle style )
 
 QBrush::QBrush()
 {
-    init( QColor::black, NoBrush );
+    init( Qt::black, NoBrush );
 }
 
 /*!
@@ -2650,7 +2650,7 @@ QBrush::QBrush()
 
 QBrush::QBrush( BrushStyle style )
 {
-    init( QColor::black, style );
+    init( Qt::black, style );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#24 $
 **
 ** Implementation of QStatusBar class
 **
@@ -156,7 +156,7 @@ void QStatusBarPrivate::ResizeLines::mousePressEvent( QMouseEvent * e )
 
 void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
 {
-    if ( e->state() != QMouseEvent::LeftButton )
+    if ( e->state() != LeftButton )
 	return;
 
     QPoint np( e->globalPos() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#65 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#66 $
 **
 ** Definition of event classes
 **
@@ -27,10 +27,11 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qregion.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
-class Q_EXPORT QEvent					// event base class
+class Q_EXPORT QEvent: public Qt		// event base class
 {
 public:
     enum Type {
@@ -96,18 +97,6 @@ protected:
 class Q_EXPORT QMouseEvent : public QEvent		// mouse event
 {
 public:
-    enum ButtonState {				// mouse/keyboard state values
-	NoButton	= 0x00,
-	LeftButton	= 0x01,
-	RightButton	= 0x02,
-	MidButton	= 0x04,
-	MouseButtonMask = 0x07,
-	ShiftButton	= 0x08,
-	ControlButton   = 0x10,
-	AltButton	= 0x20,
-	KeyButtonMask   = 0x38
-    };
-
     QMouseEvent( Type type, const QPoint &pos, int button, int state );
 
     QMouseEvent( Type type, const QPoint &pos, const QPoint&globalPos,

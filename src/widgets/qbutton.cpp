@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#124 $
 **
 ** Implementation of QButton widget class
 **
@@ -44,18 +44,22 @@ static const int drawingPixHeight = 100;
  */
 
 static QPixmap *drawpm = 0;
+
+
 static void cleanupButtonPm()
 {
     delete drawpm;
+    drawpm = 0;
 }
-static QPixmap *getDrawingPixmap()
+
+
+static inline void makeDrawingPixmap()
 {
     if ( !drawpm ) {
 	qAddPostRoutine( cleanupButtonPm );
 	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
 	CHECK_PTR( drawpm );
     }
-    return drawpm;
 }
 
 
@@ -175,10 +179,10 @@ static QChar shortcutChar( const QString &str )
   <li>toggled() is emitted when the state of a toggle button changes.
   </ul>
 
-  If the button is a text button with "&" in its text, QButton creates an
-  automatic accelerator key.  This code creates a push button labelled "Rock
-  & Roll" (where the c is underscored).  The button gets an automatic
-  accelerator key, Alt-C:
+  If the button is a text button with "&" in its text, QButton creates
+  an automatic accelerator key.  This code creates a push button
+  labelled "Rock & Roll" (where the c is underscored).  The button
+  gets an automatic accelerator key, Alt-C:
 
   \code
     QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
@@ -359,7 +363,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
     if ( bpixmap ) {
 	newSize = pixmap.width() != bpixmap->width() ||
 		  pixmap.height() != bpixmap->height();
-        *bpixmap = pixmap;
+	*bpixmap = pixmap;
     } else {
 	newSize = TRUE;
 	bpixmap = new QPixmap( pixmap );
@@ -666,7 +670,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 
 void QButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != QMouseEvent::LeftButton )
+    if ( e->button() != LeftButton )
 	return;
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse press on button
@@ -686,10 +690,10 @@ void QButton::mousePressEvent( QMouseEvent *e )
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
-    if ( e->button() != QMouseEvent::LeftButton )
+    if ( e->button() != LeftButton )
 	return;
     if ( d )
-        timer()->stop();
+	timer()->stop();
     mlbDown = FALSE;				// left mouse button up
     buttonDown = FALSE;
     if ( hitButton( e->pos() ) ) {		// mouse release on button
@@ -714,7 +718,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 
 void QButton::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !((e->state() & QMouseEvent::LeftButton) && mlbDown) )
+    if ( !((e->state() & LeftButton) && mlbDown) )
 	return;					// left mouse button is up
     if ( hitButton( e->pos() ) ) {		// mouse move in button
 	if ( !buttonDown ) {
@@ -740,35 +744,22 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 void QButton::paintEvent( QPaintEvent *event )
 {
-    QPainter paint;
-
     if ( event &&
 	 width() <= drawingPixWidth &&
 	 height() <= drawingPixHeight ) {
-	QPixmap *pm = getDrawingPixmap();
-	ASSERT( pm );
-	
-	pm->fill( this, 0, 0 );
-	paint.begin( pm, this );
+	makeDrawingPixmap(); // makes file-static drawpm variable
+	drawpm->fill( this, 0, 0 );
+	QPainter paint;
+	paint.begin( drawpm, this );
 	drawButton( &paint );
 	paint.end();
 	
-	bitBlt( this, event->rect().topLeft(), pm, event->rect() );
+	bitBlt( this, event->rect().topLeft(), drawpm, event->rect() );
     } else {
-	paint.begin( this );
-
-	// This optimization is worth it, since we often call repaint()
-	// to draw exactly the whole button.
-	if ( event && !event->rect().contains(rect()) )
-	    paint.setClipRegion( event->region() );
-
-	if ( event )
-	    erase( event->rect() );
-	else
-	    erase();
-
+	erase( event->rect() );
+	QPainter paint( this );
+	paint.setClipRegion( event->region() );
 	drawButton( &paint );
-	paint.end();
     }
 }
 

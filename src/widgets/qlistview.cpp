@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#156 $
 **
 ** Implementation of QListView widget class
 **
@@ -1018,7 +1018,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( listView()->style() == WindowsStyle ) {
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
 			 QApplication::winStyleHighlightColor() );
-	    p->setPen( QColor::white ); // ###
+	    p->setPen( white ); // ###
 	} else {
 	    p->fillRect( r - marg, 0, width - r + marg,
 			 height(), cg.text() );
@@ -1082,7 +1082,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
     if ( listView()->style() == WindowsStyle ) {
 	p->drawWinFocusRect( r );
     } else {
-	p->setPen( QColor::black );
+	p->setPen( black );
 	p->drawRect( r );
     }
 }
@@ -1189,7 +1189,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    int i;
 	    for( i=0; i<64; i++ )
 		a.setPoint( i, 0, i*2 );
-	    p.setPen( QColor::color1 );
+	    p.setPen( color1 );
 	    p.drawPoints( a );
 	    p.end();
 	    QApplication::flushX();
@@ -1197,7 +1197,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    p.begin( horizontalLine );
 	    for( i=0; i<64; i++ )
 		a.setPoint( i, i*2, 0 );
-	    p.setPen( QColor::color1 );
+	    p.setPen( color1 );
 	    p.drawPoints( a );
 	    p.end();
 	    QApplication::flushX();
@@ -2058,23 +2058,23 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 			 me->button(), me->state() );
 	switch( me2.type() ) {
 	case QEvent::MouseButtonPress:
-	    if ( me2.button() == QMouseEvent::RightButton ) {
+	    if ( me2.button() == RightButton ) {
 		mousePressEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
 	case QEvent::MouseButtonDblClick:
-	    if ( me2.button() == QMouseEvent::RightButton )
+	    if ( me2.button() == RightButton )
 		return TRUE;
 	    break;
 	case QEvent::MouseMove:
-	    if ( me2.state() & QMouseEvent::RightButton ) {
+	    if ( me2.state() & RightButton ) {
 		mouseMoveEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
 	case QEvent::MouseButtonRelease:
-	    if ( me2.button() == QMouseEvent::RightButton ) {
+	    if ( me2.button() == RightButton ) {
 		mouseReleaseEvent( &me2 );
 		return TRUE;
 	    }
@@ -2325,7 +2325,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( e->button() == QMouseEvent::RightButton ) {
+    if ( e->button() == RightButton ) {
 	QListViewItem * i;
 	if ( viewport()->rect().contains( e->pos() ) )
 	    i = itemAt( e->pos() );
@@ -2340,7 +2340,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	return;
     }
 
-    if ( e->button() != QMouseEvent::LeftButton )
+    if ( e->button() != LeftButton )
 	return;
 
     d->ignoreDoubleClick = FALSE;
@@ -2395,7 +2395,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( e->button() == QMouseEvent::RightButton ) {
+    if ( e->button() == RightButton ) {
 	QListViewItem * i;
 	if ( viewport()->rect().contains( e->pos() ) )
 	    i = itemAt( e->pos() );
@@ -2410,7 +2410,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
 	return;
     }
 
-    if ( e->button() != QMouseEvent::LeftButton || !d->buttonDown )
+    if ( e->button() != LeftButton || !d->buttonDown )
 	return;
 
     QListViewItem * i = itemAt( e->pos() );
@@ -2670,7 +2670,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	return;
 
     if ( i->isSelectable() &&
-	 ((e->state() & QMouseEvent::ShiftButton) || !isMultiSelection()) )
+	 ((e->state() & ShiftButton) || !isMultiSelection()) )
 	setSelected( i, d->currentSelected
 		     ? d->currentSelected->isSelected()
 		     : TRUE );
@@ -3400,7 +3400,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		    a.setPoint( 2*i+1, xx, yy+2 );
 		    xx++; yy--;
 		}
-		p->setPen( QColor::black );
+		p->setPen( black );
 		p->drawLineSegments( a );
 	    }
 	    ////////////////////////

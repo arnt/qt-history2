@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#26 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -316,19 +316,19 @@ QPalette::QPalette( const QColor &button )
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
-	fg   = QColor::black;
-	base = QColor::white;
-	disfg = QColor::darkGray;
+	fg   = Qt::black;
+	base = Qt::white;
+	disfg = Qt::darkGray;
     } else {					// dark background
-	fg   = QColor::white;
-	base = QColor::black;
-	disfg = QColor::darkGray;
+	fg   = Qt::white;
+	base = Qt::black;
+	disfg = Qt::darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, QColor::white, base, bg );
+				  btn.dark(150), fg, Qt::white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, QColor::white, base, bg );
+				  btn.dark(150), disfg, Qt::white, base, bg );
 }
 
 /*!
@@ -345,19 +345,19 @@ QPalette::QPalette( const QColor &button, const QColor &background )
     int h, s, v;
     bg.hsv( &h, &s, &v );
     if ( v > 128 ) {				// light background
-	fg   = QColor::black;
-	base = QColor::white;
-	disfg = QColor::darkGray;
+	fg   = Qt::black;
+	base = Qt::white;
+	disfg = Qt::darkGray;
     } else {					// dark background
-	fg   = QColor::white;
-	base = QColor::black;
-	disfg = QColor::darkGray;
+	fg   = Qt::white;
+	base = Qt::black;
+	disfg = Qt::darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, QColor::white, base, bg );
+				  btn.dark(150), fg, Qt::white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, QColor::white, base, bg );
+				  btn.dark(150), disfg, Qt::white, base, bg );
 }
 
 /*!

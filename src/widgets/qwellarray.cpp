@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#8 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -114,7 +114,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	b = 3; //#####
 
     QColorGroup g = colorGroup();
-    p->setPen( QPen( QColor::black, 0, SolidLine ) );
+    p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol && style() != MotifStyle ) {
 	int n = 2;
 	p->drawRect( n, n, w-2*n, h-2*n );	
@@ -142,9 +142,9 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 
     if ( (row == curRow) && (col == curCol) ) {
 	if ( smallStyle ) {
-	    p->setPen ( QColor::white );
+	    p->setPen ( white );
 	    p->drawRect( 1, 1, w-2, h-2 );	
-	    p->setPen ( QColor::black );
+	    p->setPen ( black );
 	    p->drawRect( 0, 0, w, h );	
 	    p->drawRect( 2, 2, w-4, h-4 );
 	    b = 3;
@@ -179,8 +179,8 @@ void QWellArray::drawContents( QPainter *p, int row, int col, const QRect &r )
     if ( d ) {
 	p->fillRect( r, d->brush[row*nCols+col] );
     } else {
-	p->fillRect( r, QColor::white );
-	p->setPen( QColor::black );
+	p->fillRect( r, white );
+	p->setPen( black );
 	p->drawLine( r.topLeft(), r.bottomRight() );
 	p->drawLine( r.topRight(), r.bottomLeft() );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#88 $
 **
 ** Implementation of QRadioButton class
 **
@@ -265,7 +265,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	if ( gs == WindowsStyle ) {
 	    p->drawWinFocusRect( br, backgroundColor() );
 	} else {
-	    p->setPen( QColor::black );
+	    p->setPen( black );
 	    p->drawRect( br );
 	}
     }
@@ -297,7 +297,7 @@ void QRadioButton::updateMask()
 {
     QBitmap bm(width(),height());
     {
-	bm.fill(QColor::color0);
+	bm.fill(color0);
 	QPainter p(&bm);
 	int x, y, w, h;
 	GUIStyle gs = style();
@@ -311,7 +311,7 @@ void QRadioButton::updateMask()
 	w = width() - x;
 	h = height();
 
-	QColorGroup cg(QColor::color1,QColor::color1, QColor::color1,QColor::color1,QColor::color1,QColor::color1,QColor::color1,QColor::color1, QColor::color0);
+	QColorGroup cg(color1,color1, color1,color1,color1,color1,color1,color1, color0);
 
 	qDrawItem( &p, gs, x, y, w, h,
 		   AlignLeft|AlignVCenter|ShowPrefix,
@@ -340,7 +340,7 @@ void QRadioButton::updateMask()
 	    if ( gs == WindowsStyle ) {
 		p.drawWinFocusRect( br );
 	    } else {
-		p.setPen( QColor::color1 );
+		p.setPen( color1 );
 		p.drawRect( br );
 	    }
 	}

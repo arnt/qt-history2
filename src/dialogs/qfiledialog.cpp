@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#130 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#131 $
 **
 ** Implementation of QFileDialog class
 **
@@ -164,7 +164,7 @@ static void makeVariables() {
 				      cdtoparent_gif_len );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
-	m.fill( QColor::color0 );
+	m.fill( Qt::color0 );
 	fifteenTransparentPixels->setMask( m );
     }
 }
@@ -192,7 +192,7 @@ struct QFileDialogPrivate {
     QString currentFileName;
 
     struct File: public QListViewItem {
-	File( QFileDialogPrivate * dlgp, 
+	File( QFileDialogPrivate * dlgp,
 	      const QFileInfo * fi, QListViewItem * parent, int h )
 	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setHeight( h ); }
 	File( QFileDialogPrivate * dlgp,
@@ -243,7 +243,7 @@ struct QFileDialogPrivate {
     QString ro;
     QString wo;
     QString inaccessible;
-       
+
     QString symLinkToFile;
     QString file;
     QString symLinkToDir;

@@ -49,7 +49,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	p->setPen( QColor::black );
+	p->setPen( black );
 	p->drawLineSegments( a );
     }
 }
@@ -223,7 +223,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolyline( a );
     a.setPoints( QCOORDARRLEN(pts2), pts2 );
     a.translate( x, y );
-    p->setPen( QColor::black );
+    p->setPen( black );
     p->drawPolyline( a );
     a.setPoints( QCOORDARRLEN(pts3), pts3 );
     a.translate( x, y );
@@ -270,10 +270,10 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
 	drawWinShades( p, x, y, w, h,
-		       QColor::black, g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
+		       black, g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
     else
 	drawWinShades( p, x, y, w, h,
-		       g.light(), QColor::black, g.midlight(), g.dark(), fill?fill:&g.fillButton() );
+		       g.light(), black, g.midlight(), g.dark(), fill?fill:&g.fillButton() );
 
 }
 
@@ -310,7 +310,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     bool clearButton = TRUE;
     if ( btn->isDown() ) {
 	if ( btn->isDefault() ) {
-	    p->setPen( QColor::black );
+	    p->setPen( black );
 	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	    p->setPen( g.dark() );
 	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
@@ -319,13 +319,13 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	}
     } else {
 	if ( btn->isDefault() ) {
-	    p->setPen( QColor::black );
+	    p->setPen( black );
 	    p->drawRect( x1, y1, w, h );
 	    x1++; y1++;
 	    x2--; y2--;
 	}
 	if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
-	    QBrush fill(QColor::white, Dense4Pattern );
+	    QBrush fill(white, Dense4Pattern );
 	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
 	    clearButton = FALSE;
 	} else {
@@ -522,7 +522,7 @@ void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, in
 		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
-    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(QColor::white,Dense4Pattern) );
+    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
     if ( maxedOut ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#37 $
 **
 ** Implementation of QBitmap class
 **
@@ -79,7 +79,7 @@ QBitmap::QBitmap( int w, int h, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-	fill( QColor::color0 );
+	fill( Qt::color0 );
 }
 
 /*!
@@ -91,7 +91,7 @@ QBitmap::QBitmap( const QSize &size, bool clear )
 {
     data->bitmap = TRUE;
     if ( clear )
-	fill( QColor::color0 );
+	fill( Qt::color0 );
 }
 
 /*!
@@ -134,7 +134,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 {
 }
 
-/*!  
+/*!
   Constructs a pixmap from the file \e fileName. If the file does not
   exist, or is of an unknown format, the pixmap becomes a null pixmap.
 

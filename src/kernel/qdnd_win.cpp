@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#31 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -1501,7 +1501,7 @@ void QDragManager::updatePixmap()
 		QPixmap colorbits(w,h);
 		{
 		    QPainter p(&colorbits);
-		    p.fillRect(0,0,w,h,QColor::color1);
+		    p.fillRect(0,0,w,h,color1);
 		    p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),pm);
 		    p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),cpm);
 		}
@@ -1516,7 +1516,7 @@ void QDragManager::updatePixmap()
 			p.drawPixmap(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),m);
 		    } else {
 			p.fillRect(QMAX(0,-pm_hot.x()),QMAX(0,-pm_hot.y()),
-			    pm.width(),pm.height(),QColor::color1);
+			    pm.width(),pm.height(),color1);
 		    }
 		    if ( cpm.mask() ) {
 			QBitmap m(*cpm.mask());
@@ -1525,7 +1525,7 @@ void QDragManager::updatePixmap()
 		    } else {
 			p.fillRect(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),
 			    cpm.width(),cpm.height(),
-			    QColor::color1);
+			    color1);
 		    }
 		}
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#104 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -328,7 +328,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 void QPainter::init()
 {
     flags = IsStartingUp;
-    bg_col = QColor::white;			// default background color
+    bg_col = white;			// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
@@ -677,7 +677,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    cfont  = defaultFont;		// set these drawing tools
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
-	    bg_col = QColor::white;			// default background color
+	    bg_col = white;			// default background color
 	}
     }
     wx = wy = vx = vy = 0;			// default view origins
@@ -719,8 +719,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	wh = vh = pm->height();
 	if ( pm->depth() == 1 ) {		// monochrome pixmap
 	    setf( MonoDev );
-	    bg_col = QColor::color0;
-	    cpen.setColor( QColor::color1 );
+	    bg_col = color0;
+	    cpen.setColor( color1 );
 	}
     } else if ( dt == PDT_PRINTER ) {		// device is a printer
 	if ( pdev->handle() )
@@ -1191,7 +1191,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	  && ((QPixmap*)pdev)->depth()==1
 	  && bg_mode == TransparentMode )
 	{
- 	    if ( cbrush.color() == QColor::color0 )
+ 	    if ( cbrush.color() == color0 )
 		// DPna  dest = dest AND NOT pattern
 		PatBlt( hdc, x, y, w, h, 0x000A0329 );
 	    else
@@ -1776,8 +1776,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 	    COLORREF tc, bc;
 	    b = SelectObject( hdc, b );
-	    tc = SetTextColor( hdc, COLOR_VALUE(QColor::black) );
-	    bc = SetBkColor( hdc, COLOR_VALUE(QColor::white) );
+	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
+	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
 	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
 	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
 	    SetBkColor( hdc, bc );
@@ -1821,7 +1821,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	QPixmap pmx = pixmap.xForm( mat );
 	if ( 0 && !pmx.mask() && txop == TxRotShear ) {
 	    QBitmap bm_clip( sw, sh, 1 );
-	    bm_clip.fill( QColor::color1 );
+	    bm_clip.fill( color1 );
 	    pmx.setMask( bm_clip.xForm(mat) );
 	}
 	map( x, y, &x, &y );			// compute position of pixmap

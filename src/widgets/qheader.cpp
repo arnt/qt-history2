@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#61 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -256,7 +256,7 @@ void QHeader::setOrientation( Orientation orientation )
 void QHeader::paintRect( int p, int s )
 {
     QPainter paint( this );
-    paint.setPen( QPen( QColor::black, 1, DotLine ) );
+    paint.setPen( QPen( black, 1, DotLine ) );
     if ( orient == Horizontal )
 	paint.drawRect( p, 3, s, height() - 5 );
     else	
@@ -269,7 +269,7 @@ void QHeader::paintRect( int p, int s )
 void QHeader::markLine( int idx )
 {
     QPainter paint( this );
-    paint.setPen( QPen( QColor::black, 1, DotLine ) );
+    paint.setPen( QPen( black, 1, DotLine ) );
     int p = pPos( idx );
 #if 0
     paint.drawLine(  p, 0, p, height() );
@@ -434,7 +434,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
-    if ( m->button() != QMouseEvent::LeftButton )
+    if ( m->button() != LeftButton )
 	return;
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
@@ -466,7 +466,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 
 void QHeader::mouseReleaseEvent( QMouseEvent *m )
 {
-    if ( m->button() != QMouseEvent::LeftButton )
+    if ( m->button() != LeftButton )
 	return;
     State oldState = state;
     state = Idle;

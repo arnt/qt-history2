@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#161 $
 **
 ** Implementation of QApplication class
 **
@@ -125,15 +125,15 @@ static void create_palettes()			// creates default palettes
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
-    QColorGroup std_nor( QColor::black, standardLightGray,
-			 light, dark, QColor::gray,
-			 QColor::black, QColor::white );
-    QColorGroup std_dis( QColor::darkGray, standardLightGray,
-			 light, dark, QColor::gray,
-			 QColor::darkGray, std_nor.background() );
-    QColorGroup std_act( QColor::black, standardLightGray,
-			 light, dark, QColor::gray,
-			 QColor::black, QColor::white );
+    QColorGroup std_nor( Qt::black, standardLightGray,
+			 light, dark, Qt::gray,
+			 Qt::black, Qt::white );
+    QColorGroup std_dis( Qt::darkGray, standardLightGray,
+			 light, dark, Qt::gray,
+			 Qt::darkGray, std_nor.background() );
+    QColorGroup std_act( Qt::black, standardLightGray,
+			 light, dark, Qt::gray,
+			 Qt::black, Qt::white );
     stdPalette = new QPalette( std_nor, std_dis, std_act );
 }
 
@@ -999,7 +999,7 @@ void QApplication::syncX()	{}		// do nothing
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
     if ( !winHighlightColor )
-	winHighlightColor = new QColor( QColor::darkBlue );
+	winHighlightColor = new QColor( darkBlue );
 
     if ( *winHighlightColor == c )
 	return;
@@ -1026,7 +1026,7 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 const QColor& QApplication::winStyleHighlightColor()
 {
     if ( !winHighlightColor )
-	winHighlightColor = new QColor( QColor::darkBlue );
+	winHighlightColor = new QColor( darkBlue );
 
     return *winHighlightColor;
 }
@@ -1090,7 +1090,7 @@ void QApplication::noteTopLevel( QWidget* tlw )
 /*!  Adds \a mf to the list of message files to be used for
   localization.  Message files are searched starting with the most
   recently added file.
-  
+
   \sa removeMessageFile() translate() QObject::tr()
 */
 
@@ -1123,16 +1123,16 @@ void QApplication::removeMessageFile( QMessageFile * mf )
 /*!  Returns the best available translation for \a key in \a scope, by
   querying the installed messages files.  The message file that was
   installed last is asked first.
-  
+
   QObject::tr() offers a more convenient way to use this functionality.
-  
+
   \a scope is typically a class name (e.g. \c MyDialog) and \a is
   either English text or a short marker text, if the output text will
   be very long (as for help texts).
 
   If none of the message files contain a translation for \a key in \a
   scope, this function returns \a key.
-  
+
   \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
 */
 
@@ -1160,7 +1160,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
 
 
 /*! \fn void QApplication::unknownTranslation( const char * scope, const char * key )
-  
+
   This signal is emitted whenever QApplication is unable to translate
   \a key in \a scope using the currently installed message files.
 

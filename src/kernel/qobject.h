@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#56 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#57 $
 **
 ** Definition of QObject class
 **
@@ -28,10 +28,11 @@
 #include "qobjectdefs.h"
 #include "qstring.h"
 #include "qevent.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
-class Q_EXPORT QObject					// base class for Q objects
+class Q_EXPORT QObject: public Qt
 {
 public:
     QObject( QObject *parent=0, const char *name=0 );

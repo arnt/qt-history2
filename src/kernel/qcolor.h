@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#48 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#49 $
 **
 ** Definition of QColor class
 **
@@ -58,26 +58,6 @@ class Q_EXPORT QColor
 {
 public:
     enum Spec { Rgb, Hsv };
-
-    static const QColor color0;
-    static const QColor color1;
-    static const QColor black;
-    static const QColor white;
-    static const QColor darkGray;
-    static const QColor gray;
-    static const QColor lightGray;
-    static const QColor red;
-    static const QColor green;
-    static const QColor blue;
-    static const QColor cyan;
-    static const QColor magenta;
-    static const QColor yellow;
-    static const QColor darkRed;
-    static const QColor darkGreen;
-    static const QColor darkBlue;
-    static const QColor darkCyan;
-    static const QColor darkMagenta;
-    static const QColor darkYellow;
 
     QColor();
     QColor( int r, int g, int b );

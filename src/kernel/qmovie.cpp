@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#46 $
 **
 ** Implementation of movie classes
 **
@@ -288,7 +288,7 @@ void QMoviePrivate::updatePixmapFromImage()
 	    // Resize to size of image
 	    if (mymask.isNull()) {
 		mymask.resize(gimg.width(), gimg.height());
-		mymask.fill( QColor::color1 );
+		mymask.fill( Qt::color1 );
 	    }
 	}
 	mypixmap.setMask(QBitmap()); // Remove reference to my mask
@@ -850,7 +850,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.45 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.46 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

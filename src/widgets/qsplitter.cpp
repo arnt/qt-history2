@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#33 $
 **
 **  Splitter widget
 **
@@ -85,14 +85,14 @@ void QInternalSplitter::mouseMoveEvent( QMouseEvent *e )
 }
 void QInternalSplitter::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == QMouseEvent::LeftButton ) {
+    if ( e->button() == LeftButton ) {
 	s->startMoving();
 	s->moveTo( mapToParent( e->pos() ));
     }
 }
 void QInternalSplitter::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() == QMouseEvent::LeftButton )
+    if ( e->button() == LeftButton )
 	s->stopMoving();
 }
 
@@ -432,8 +432,8 @@ int QSplitter::adjustPos( int p )
 void QSplitter::setRubberband( int p )
 {
     QPainter paint( this );
-    paint.setPen( QColor::gray );
-    paint.setBrush( QColor::gray );
+    paint.setPen( gray );
+    paint.setBrush( gray );
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
     const int rBord = 3; //###

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#61 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#62 $
 **
 ** Definition of QListView widget class
 **
@@ -38,7 +38,7 @@ struct QListViewPrivate;
 #endif // QT_H
 
 
-class Q_EXPORT QListViewItem
+class Q_EXPORT QListViewItem: public Qt
 {
 public:
     QListViewItem( QListView * parent );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#51 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -527,7 +527,7 @@ void QSpinBox::resizeEvent( QResizeEvent* e )
 		     bms.width()-1, bms.height()-2 );
 	QPainter p( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
-	p.setBrush( QColor::color1 );
+	p.setBrush( color1 );
 	p.drawPolygon( a );
 	p.end();
 	up->setPixmap( bm );
@@ -543,7 +543,7 @@ void QSpinBox::resizeEvent( QResizeEvent* e )
 		     bms.width()-1, 1 );
 	QPainter p( &bm );
 	p.eraseRect( 0, 0, bm.width(), bm.height() );
-	p.setBrush( QColor::color1 );
+	p.setBrush( color1 );
 	p.drawPolygon( a );
 	p.end();
 	down->setPixmap( bm );

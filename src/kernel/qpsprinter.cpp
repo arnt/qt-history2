@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#70 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2654,7 +2654,7 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
     QBrush defaultBrush;
 
     param[0].color = &paint->backgroundColor();
-    if ( *param[0].color != QColor::white )
+    if ( *param[0].color != Qt::white )
 	cmd( PDC_SETBKCOLOR, paint, param );
 
     param[0].ival = paint->backgroundMode();

@@ -54,6 +54,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qmessagefile.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmovie.h \
+		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qobject.h \
 		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobjectdict.h \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#353 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#354 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -535,22 +535,22 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	if ( !resBG.isEmpty() )
 	    bg = QColor(resBG);
 	else
-	    bg = QColor::lightGray;
+	    bg = Qt::lightGray;
 	if ( !resFG.isEmpty() )
 	    fg = QColor(resFG);
 	else
-	    fg = QColor::black;
+	    fg = Qt::black;
 	if (button)
 	    btn = QColor( button );
 	else
 	    btn = bg;
 	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, QColor::white, QColor::white, bg );
+			btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
 	QColor disabled( (fg.r()+btn.r())/2,
 			 (fg.g()+btn.g())/2,
 			 (fg.b()+btn.b())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			 disabled, QColor::white, QColor::white, bg );
+			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal, TRUE );
     }
@@ -917,8 +917,8 @@ static GC create_gc( bool monochrome )
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
-	    a.background_pixel = QColor::black.pixel();
-	    a.border_pixel = QColor::black.pixel();		
+	    a.background_pixel = Qt::black.pixel();
+	    a.border_pixel = Qt::black.pixel();		
 	    a.colormap = QPaintDevice::x11Colormap();
 	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
 			       0, QPaintDevice::x11Depth(), InputOutput,
@@ -2841,17 +2841,17 @@ int translateButtonState( int s )
 {
     int bst = 0;
     if ( s & Button1Mask )
-	bst |= QMouseEvent::LeftButton;
+	bst |= Qt::LeftButton;
     if ( s & Button2Mask )
-	bst |= QMouseEvent::MidButton;
+	bst |= Qt::MidButton;
     if ( s & Button3Mask )
-	bst |= QMouseEvent::RightButton;
+	bst |= Qt::RightButton;
     if ( s & ShiftMask )
-	bst |= QMouseEvent::ShiftButton;
+	bst |= Qt::ShiftButton;
     if ( s & ControlMask )
-	bst |= QMouseEvent::ControlButton;
+	bst |= Qt::ControlButton;
     if ( s & Mod1Mask )
-	bst |= QMouseEvent::AltButton;
+	bst |= Qt::AltButton;
     return bst;
 }
 
@@ -2875,9 +2875,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.ry() = xevent->xmotion.y_root;
 	state = translateButtonState( xevent->xmotion.state );
 	if ( !qt_button_down )
-	    state &= ~(QMouseEvent::LeftButton |
-		       QMouseEvent::MidButton |
-		       QMouseEvent::RightButton );
+	    state &= ~(LeftButton |
+		       MidButton |
+		       RightButton );
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
@@ -2885,15 +2885,15 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.ry() = event->xbutton.y_root;
 	state = translateButtonState( event->xbutton.state );
 	switch ( event->xbutton.button ) {
-	    case Button1: button = QMouseEvent::LeftButton;	
+	    case Button1: button = LeftButton;	
 		if ( isEnabled() &&
 		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
 		     : (focusPolicy() & ClickFocus ) ) {
 		    setFocus();
 		}
 		break;
-	    case Button2: button = QMouseEvent::MidButton;	break;
-	    case Button3: button = QMouseEvent::RightButton; break;
+	    case Button2: button = MidButton;	break;
+	    case Button3: button = RightButton; break;
 	    case Button4: case Button5:
 		// the fancy mouse wheel.
 		
@@ -2975,9 +2975,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & ( QMouseEvent::LeftButton |
-			    QMouseEvent::MidButton |
-			    QMouseEvent::RightButton)) == 0 ) {
+	    if ( (state & ( LeftButton |
+			    MidButton |
+			    RightButton)) == 0 ) {
 		qt_button_down = 0;
 		qt_window_for_button_down = 0;
 	    }
@@ -3251,7 +3251,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    i += 2;
 	}
 	if ( code == Key_Tab &&
-	     (state & QMouseEvent::ShiftButton) == QMouseEvent::ShiftButton ) {
+	     (state & ShiftButton) == Qt::ShiftButton ) {
 	    code = Key_Backtab;
 	    ascii[0] = 0;
 	}

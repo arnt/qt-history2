@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#22 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -357,7 +357,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	     ((QKeyEvent *)e)->key() == Key_F1 &&
 	     !o->parent() &&
 	     o->isWidgetType() &&
-	     ((QKeyEvent *)e)->state() == QMouseEvent::ShiftButton ) {
+	     ((QKeyEvent *)e)->state() == ShiftButton ) {
 	    ((QKeyEvent *)e)->accept();
 	    QWidget * w = ((QWidget *)o)->focusWidget();
 	    QWhatsThisPrivate::Item * i = 0;
@@ -483,7 +483,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     p.drawText( leftMargin, normalMargin, r.width(), r.height(),
 		AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		text );
-    p.setPen( QColor::black );
+    p.setPen( black );
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );

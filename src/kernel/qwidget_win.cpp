@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#135 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -104,7 +104,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// There's no way we can know the background color of the
 	// other window because it could be cleared using the WM_ERASEBKND
 	// message.  Therefore we assume white.
-	bg_col = QColor::white;
+	bg_col = white;
     } else {
 	bg_col = pal.normal().background();	// default background color
     }
@@ -492,13 +492,13 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	QBitmap mask;
 	if ( pixmap.mask() ) {
 	    pm.resize( pixmap.size() );
-	    pm.fill( QColor::black );
+	    pm.fill( black );
 	    bitBlt( &pm, 0, 0, &pixmap );	// make masked area black
 	    mask = *pixmap.mask();
 	} else  {
 	    pm = pixmap;
 	    mask.resize( pixmap.size() );
-	    mask.fill( QColor::color1 );
+	    mask.fill( color1 );
 	}
 	HANDLE im = createIconMask(mask);
 	ICONINFO ii;

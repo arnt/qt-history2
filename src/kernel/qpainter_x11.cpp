@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#259 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#260 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -453,7 +453,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 void QPainter::init()
 {
     flags = IsStartingUp;
-    bg_col = QColor::white;				// default background color
+    bg_col = Qt::white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
@@ -847,7 +847,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    cfont  = defaultFont;		// set these drawing tools
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
-	    bg_col = QColor::white;			// default background color
+	    bg_col = Qt::white;			// default background color
 	}
     }
     wx = wy = vx = vy = 0;			// default view origins
@@ -882,8 +882,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	if ( mono ) {
 	    setf( MonoDev );
-	    bg_col = QColor::color0;
-	    cpen.setColor( QColor::color1 );
+	    bg_col = Qt::color0;
+	    cpen.setColor( Qt::color1 );
 	}
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
@@ -1430,7 +1430,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
-    drawWinFocusRect( x, y, w, h, TRUE, QColor::color0 );
+    drawWinFocusRect( x, y, w, h, TRUE, Qt::color0 );
 }
 
 /*!
@@ -1473,15 +1473,15 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     if ( xorPaint ) {
 	if ( QColor::numBitPlanes() <= 8 )
-	    setPen( QColor::color1 );
+	    setPen( Qt::color1 );
 	else
-	    setPen( QColor::white );
+	    setPen( Qt::white );
 	setRasterOp( XorROP );
     } else {
 	if ( qGray( bgColor.rgb() ) < 128 )
-	    setPen( QColor::white );
+	    setPen( Qt::white );
 	else
-	    setPen( QColor::black );
+	    setPen( Qt::black );
     }
 
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -2191,7 +2191,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		QPixmap pm = pixmap.xForm( mat );
 		if ( !pm.mask() && txop == TxRotShear ) {
 		    QBitmap bm_clip( sw, sh, 1 );
-		    bm_clip.fill( QColor::color1 );
+		    bm_clip.fill( Qt::color1 );
 		    pm.setMask( bm_clip.xForm(mat) );
 		}
 		map( x, y, &x, &y );		// compute position of pixmap
@@ -2491,7 +2491,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
 		QPixmap bm( w, h, 1 );		// create bitmap
-		bm.fill( QColor::color0 );
+		bm.fill( Qt::color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( cfont );

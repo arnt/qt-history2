@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#66 $
 **
 ** Implementation of QSlider class
 **
@@ -493,7 +493,7 @@ void QSlider::paintEvent( QPaintEvent *e )
 	else
 	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
 	r = r.intersect( rect() );
-	if (style() == MotifStyle) 
+	if (style() == MotifStyle)
 	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
 	else
 	    style().drawFocusRect(&p, r, g);
@@ -520,13 +520,13 @@ void QSlider::paintEvent( QPaintEvent *e )
 void QSlider::updateMask()
 {
     QBitmap bm( size() );
-    bm.fill( QColor::color0 );
+    bm.fill( color0 );
 
     {
 	QPainter p( &bm, this );
 	QRect sliderR = sliderRect();
-	QColorGroup g(QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color0);
-	QBrush fill (QColor::color1);
+	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+	QBrush fill (color1);
 	switch ( style() ) {
 	case WindowsStyle:
 	    if ( hasFocus() ) {
@@ -565,7 +565,7 @@ void QSlider::updateMask()
 	    }
 
 	    if ( hasFocus() ) {
-		p.setPen( QColor::color1 );
+		p.setPen( color1 );
 		if ( orient == Horizontal )
 		    p.drawRect(  1, tickOffset + 1, width() - 2, thickness() - 2 );
 		else
@@ -605,13 +605,13 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     sliderStartVal = sliderVal;
     QRect r = sliderRect();
 
-    if ( e->button() == QMouseEvent::RightButton ) {
+    if ( e->button() == RightButton ) {
 	return;
     } else if ( r.contains( e->pos() ) ) {
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
-    } else if ( e->button() == QMouseEvent::MidButton ||
+    } else if ( e->button() == MidButton ||
 		(funnyWindowsStyle && style() == WindowsStyle) ) {
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength() / 2 );

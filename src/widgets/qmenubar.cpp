@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#123 $
 **
 ** Implementation of QMenuBar class
 **
@@ -741,8 +741,8 @@ void QMenuBar::drawContents( QPainter *p )
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != QMouseEvent::LeftButton &&
-	 e->button() != QMouseEvent::RightButton )
+    if ( e->button() != LeftButton &&
+	 e->button() != RightButton )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
@@ -778,8 +778,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != QMouseEvent::LeftButton &&
-	 e->button() != QMouseEvent::RightButton )
+    if ( e->button() != LeftButton &&
+	 e->button() != RightButton )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );

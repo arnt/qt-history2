@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#151 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1068,7 +1068,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	p.setClipRect( textR );
 
 	if ( hasFocus() ) {
-	    p.setPen( QColor::white );
+	    p.setPen( white );
 	    p.setBackgroundColor( QApplication::winStyleHighlightColor() );
 	} else {
 	    p.setPen( g.text() );
@@ -1271,12 +1271,12 @@ void QComboBox::popup()
 void QComboBox::updateMask()
 {
     QBitmap bm( size() );
-    bm.fill( QColor::color0 );
+    bm.fill( color0 );
 
     {
 	QPainter p( &bm, this );
-	p.setPen( QColor::color1 );
-	p.setBrush( QColor::color1 );
+	p.setPen( color1 );
+	p.setBrush( color1 );
 	style().drawButtonMask(&p, 0, 0, width(), height() );
     }
     setMask( bm );

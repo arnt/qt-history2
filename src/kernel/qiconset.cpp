@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#16 $
 **
 ** Implementation of QIconSet class
 **
@@ -315,7 +315,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    if ( !tmp.mask() )
 			tmp.setMask( tmp );
 		    QBitmap mask( d->largeDisabled.pm->size() );
-		    mask.fill( QColor::color0 );
+		    mask.fill( Qt::color0 );
 		    QPainter painter( &mask );
 		    painter.drawPixmap( 0, 0, tmp );
 		    painter.drawPixmap( 1, 1, tmp );
@@ -387,7 +387,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    if ( !tmp.mask() )
 			tmp.setMask( tmp );
 		    QBitmap mask( d->smallDisabled.pm->size() );
-		    mask.fill( QColor::color0 );
+		    mask.fill( Qt::color0 );
 		    QPainter painter( &mask );
 		    painter.drawPixmap( 0, 0, tmp );
 		    painter.drawPixmap( 1, 1, tmp );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#275 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -199,11 +199,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					 frect.left(), frect.top(),
 					 frect.width(), frect.height(),
 					 0,
-					 QColor::black.pixel(),
+					 black.pixel(),
 					 bg_col.pixel() );
 	} else {
 	    wsa.background_pixel = bg_col.pixel();
-	    wsa.border_pixel = QColor::black.pixel();		
+	    wsa.border_pixel = black.pixel();		
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
 				   frect.left(), frect.top(),

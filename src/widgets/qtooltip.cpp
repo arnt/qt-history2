@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#64 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -571,9 +571,9 @@ void QToolTip::initialize()
     qAddPostRoutine( cleanup );
     ttFont = new QFont;
     CHECK_PTR( ttFont );
-    QColorGroup cg( QColor::black, QColor(255,255,220),
-		    QColor(96,96,96), QColor::black, QColor::black,
-		    QColor::black, QColor(255,255,220) );
+    QColorGroup cg( black, QColor(255,255,220),
+		    QColor(96,96,96), black, black,
+		    black, QColor(255,255,220) );
     ttPalette = new QPalette( cg, cg, cg );
     CHECK_PTR( ttPalette );
 }
@@ -927,7 +927,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.58 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.59 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

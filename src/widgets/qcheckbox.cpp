@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#84 $
 **
 ** Implementation of QCheckBox class
 **
@@ -170,7 +170,7 @@ void QCheckBox::drawButton( QPainter *paint )
 #endif
 
     style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), isOn(), isDown(), isEnabled());
-    
+
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
@@ -246,10 +246,10 @@ void QCheckBox::updateMask()
     {
 	int x, y, w, h;
 	GUIStyle gs = style();
-	bm.fill(QColor::color0);
+	bm.fill(color0);
 	QPainter p(&bm);
 
-	QColorGroup cg(QColor::color1,QColor::color1,QColor::color1,QColor::color1,QColor::color1, QColor::color1, QColor::color1, QColor::color1, QColor::color0);
+	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1, color0);
 	QFontMetrics fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
 	QSize sz = style().indicatorSize();
@@ -282,7 +282,7 @@ void QCheckBox::updateMask()
 	    if ( gs == WindowsStyle ) {
 		p.drawWinFocusRect( br );
 	    } else {
-		p.setPen( QColor::color1 );
+		p.setPen( color1 );
 		p.drawRect( br );
 	    }
 	}

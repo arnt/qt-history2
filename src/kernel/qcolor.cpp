@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#77 $
 **
 ** Implementation of QColor class
 **
@@ -23,6 +23,7 @@
 
 #include "qcolor.h"
 #include "qpaintdevice.h"
+#include "qnamespace.h"
 #include "qdatastream.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -85,25 +86,25 @@
 #define COLOR1_PIX 1
 #endif
 
-const QColor QColor::color0	( 0x00ffffff, COLOR0_PIX );
-const QColor QColor::color1	( 0x00000000, COLOR1_PIX );
-const QColor QColor::black	(   0,	 0,   0 );
-const QColor QColor::white	( 255, 255, 255 );
-const QColor QColor::darkGray	( 128, 128, 128 );
-const QColor QColor::gray		( 160, 160, 164 );
-const QColor QColor::lightGray	( 192, 192, 192 );
-const QColor QColor::red		( 255,	 0,   0 );
-const QColor QColor::green	(   0, 255,   0 );
-const QColor QColor::blue		(   0,	 0, 255 );
-const QColor QColor::cyan		(   0, 255, 255 );
-const QColor QColor::magenta	( 255,	 0, 255 );
-const QColor QColor::yellow	( 255, 255,   0 );
-const QColor QColor::darkRed	( 128,	 0,   0 );
-const QColor QColor::darkGreen	(   0, 128,   0 );
-const QColor QColor::darkBlue	(   0,	 0, 128 );
-const QColor QColor::darkCyan	(   0, 128, 128 );
-const QColor QColor::darkMagenta	( 128,	 0, 128 );
-const QColor QColor::darkYellow	( 128, 128,   0 );
+QT_MAYBE_CONST QColor & Qt::color0 = QColor( 0x00ffffff, COLOR0_PIX );
+QT_MAYBE_CONST QColor & Qt::color1 = QColor ( 0x00000000, COLOR1_PIX );
+QT_MAYBE_CONST QColor & Qt::black = QColor (   0,	 0,   0 );
+QT_MAYBE_CONST QColor & Qt::white	= QColor ( 255, 255, 255 );
+QT_MAYBE_CONST QColor & Qt::darkGray = QColor ( 128, 128, 128 );
+QT_MAYBE_CONST QColor & Qt::gray	 = QColor ( 160, 160, 164 );
+QT_MAYBE_CONST QColor & Qt::lightGray = QColor ( 192, 192, 192 );
+QT_MAYBE_CONST QColor & Qt::red	 = QColor ( 255,	 0,   0 );
+QT_MAYBE_CONST QColor & Qt::green	 = QColor (   0, 255,   0 );
+QT_MAYBE_CONST QColor & Qt::blue	 = QColor (   0,	 0, 255 );
+QT_MAYBE_CONST QColor & Qt::cyan	 = QColor (   0, 255, 255 );
+QT_MAYBE_CONST QColor & Qt::magenta = QColor ( 255,	 0, 255 );
+QT_MAYBE_CONST QColor & Qt::yellow = QColor ( 255, 255,   0 );
+QT_MAYBE_CONST QColor & Qt::darkRed = QColor ( 128,	 0,   0 );
+QT_MAYBE_CONST QColor & Qt::darkGreen = QColor (   0, 128,   0 );
+QT_MAYBE_CONST QColor & Qt::darkBlue = QColor (   0,	 0, 128 );
+QT_MAYBE_CONST QColor & Qt::darkCyan = QColor (   0, 128, 128 );
+QT_MAYBE_CONST QColor & Qt::darkMagenta = QColor ( 128,	 0, 128 );
+QT_MAYBE_CONST QColor & Qt::darkYellow = QColor ( 128, 128,   0 );
 
 
 /*****************************************************************************
@@ -124,7 +125,7 @@ bool QColor::lazy_alloc = TRUE;			// lazy color allocation
   \code
      QColor myColor = red;			// will initialize red etc.
 
-     int main( int argc, char **argc )
+     int mai n( int argc, char **argc )
      {
      }
   \endcode
@@ -133,27 +134,27 @@ bool QColor::lazy_alloc = TRUE;			// lazy color allocation
 void QColor::initGlobalColors()
 {
     globals_init = TRUE;
-    ((QColor*)(&QColor::color0))->pix = COLOR0_PIX;
-    ((QColor*)(&QColor::color1))->pix = COLOR1_PIX;
-    ((QColor*)(&QColor::color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&QColor::color1))->rgbVal = 0;
-    ((QColor*)(&QColor::black))->setRgb(   0,	 0,   0 );
-    ((QColor*)(&QColor::white))->setRgb( 255, 255, 255 );
-    ((QColor*)(&QColor::darkGray))->setRgb( 128, 128, 128 );
-    ((QColor*)(&QColor::gray))->setRgb( 160, 160, 164 );
-    ((QColor*)(&QColor::lightGray))->setRgb( 192, 192, 192 );
-    ((QColor*)(&QColor::red))->setRgb( 255,	 0,   0 );
-    ((QColor*)(&QColor::green))->setRgb(   0, 255,   0 );
-    ((QColor*)(&QColor::blue))->setRgb(   0,	0,  255 );
-    ((QColor*)(&QColor::cyan))->setRgb(   0, 255, 255 );
-    ((QColor*)(&QColor::magenta))->setRgb( 255,	0,  255 );
-    ((QColor*)(&QColor::yellow))->setRgb( 255, 255,   0 );
-    ((QColor*)(&QColor::darkRed))->setRgb( 128,	0,    0 );
-    ((QColor*)(&QColor::darkGreen))->setRgb(   0, 128,   0 );
-    ((QColor*)(&QColor::darkBlue))->setRgb(   0,	0,  128 );
-    ((QColor*)(&QColor::darkCyan))->setRgb(   0, 128, 128 );
-    ((QColor*)(&QColor::darkMagenta))->setRgb( 128,	0,  128 );
-    ((QColor*)(&QColor::darkYellow))->setRgb( 128, 128,   0 );
+    ((QColor*)(&Qt::color0))->pix = COLOR0_PIX;
+    ((QColor*)(&Qt::color1))->pix = COLOR1_PIX;
+    ((QColor*)(&Qt::color0))->rgbVal = 0x00ffffff;
+    ((QColor*)(&Qt::color1))->rgbVal = 0;
+    ((QColor*)(&Qt::black))->setRgb(   0,	 0,   0 );
+    ((QColor*)(&Qt::white))->setRgb( 255, 255, 255 );
+    ((QColor*)(&Qt::darkGray))->setRgb( 128, 128, 128 );
+    ((QColor*)(&Qt::gray))->setRgb( 160, 160, 164 );
+    ((QColor*)(&Qt::lightGray))->setRgb( 192, 192, 192 );
+    ((QColor*)(&Qt::red))->setRgb( 255,	 0,   0 );
+    ((QColor*)(&Qt::green))->setRgb(   0, 255,   0 );
+    ((QColor*)(&Qt::blue))->setRgb(   0,	0,  255 );
+    ((QColor*)(&Qt::cyan))->setRgb(   0, 255, 255 );
+    ((QColor*)(&Qt::magenta))->setRgb( 255,	0,  255 );
+    ((QColor*)(&Qt::yellow))->setRgb( 255, 255,   0 );
+    ((QColor*)(&Qt::darkRed))->setRgb( 128,	0,    0 );
+    ((QColor*)(&Qt::darkGreen))->setRgb(   0, 128,   0 );
+    ((QColor*)(&Qt::darkBlue))->setRgb(   0,	0,  128 );
+    ((QColor*)(&Qt::darkCyan))->setRgb(   0, 128, 128 );
+    ((QColor*)(&Qt::darkMagenta))->setRgb( 128,	0,  128 );
+    ((QColor*)(&Qt::darkYellow))->setRgb( 128, 128,   0 );
 }
 
 
@@ -508,26 +509,19 @@ void QColor::setRgb( QRgb rgb )
 
 
 /*!
-  \fn int QColor::r() const
+  \fn int QColor::red() const
   Returns the R (red) component of the RGB value.
-  
-  This function has been renamed since Qt 1.41, since the formerly
-  global object red has been moved into the QColor class and seemed to
-  have greater claim on the name QColor::red.
 */
 
-#ifdef __GNUC__
-#warning "docs into r and b too --Arnt"
-#endif
 
 /*!
-  \fn int QColor::g() const
-  Returns the green component of the RGB value.
+  \fn int QColor::greeen() const
+  Returns the G (green) component of the RGB value.
 */
 
 /*!
-  \fn int QColor::b() const
-  Returns the blue component of the RGB value.
+  \fn int QColor::blue() const
+  Returns the B (blue) component of the RGB value.
 */
 
 

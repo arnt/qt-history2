@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#27 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#28 $
 **
 ** Definition of Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -48,7 +48,7 @@ private:
 };
 
 
-class Q_EXPORT QToolTip
+class Q_EXPORT QToolTip: public Qt
 {
 public:
     QToolTip( QWidget *, QToolTipGroup * = 0 );

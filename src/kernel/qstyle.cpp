@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#14 $
 **
 ** Implementation of QStyle class
 **
@@ -355,7 +355,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
 {
-    p->fillRect(x, y, w, h, QColor::color1);
+    p->fillRect(x, y, w, h, color1);
 }
 
 /*!
@@ -376,7 +376,7 @@ QStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, boo
 void
 QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
 {
-    p->fillRect(x, y, w, h, QColor::color1);
+    p->fillRect(x, y, w, h, color1);
 }
 
 /*!
@@ -411,7 +411,7 @@ QStyle::drawSliderMask( QPainter *p,
 			int x, int y, int w, int h,
 			SliderDirection )
 {
-    p->fillRect(x, y, w, h, QColor::color1);
+    p->fillRect(x, y, w, h, color1);
 }
 
 /*!
@@ -423,7 +423,7 @@ QStyle::drawSliderGrooveMask( QPainter *p,
 				   QCOORD /* c */,
 				   bool /* horizontal */ )
 {
-    p->fillRect(x, y, w, h, QColor::color1);
+    p->fillRect(x, y, w, h, color1);
 }
 
 
