@@ -812,7 +812,7 @@ bool QClipboard::event( QEvent *e )
 		   req->time, d->timestamp);
 #endif
 
-	    if (req->time < d->timestamp) {
+	    if (req->time != CurrentTime && req->time < d->timestamp) {
 #ifdef QCLIPBOARD_DEBUG
 		qDebug("QClipboard: SelectionRequest too old");
 #endif
