@@ -28,47 +28,48 @@
 
 #ifndef QT_NO_FILEDIALOG
 
-#include "qevent.h"
-#include "qdesktopwidget.h"
-#include "qlineedit.h"
-#include "qcombobox.h"
-#include "qlistview.h"
-#include "qlistbox.h"
-#include "qlabel.h"
-#include "qpushbutton.h"
-#include "qtoolbutton.h"
-#include "qmessagebox.h"
-#include "qapplication.h"
 #include "private/qapplication_p.h"
-#include "qlayout.h"
+#include "qapplication.h"
 #include "qbitmap.h"
-#include "qpopupmenu.h"
-#include "qwidgetstack.h"
 #include "qbuttongroup.h"
-#include "qptrvector.h"
-#include "qregexp.h"
-#include "qstrlist.h"
-#include "qtimer.h"
-#include "qvbox.h"
-#include "qhbox.h"
-#include "qtooltip.h"
-#include "qheader.h"
-#include "qdragobject.h"
-#include "qmime.h"
-#include "qprogressbar.h"
-#include "qfile.h"
-#include "qcstring.h"
 #include "qcheckbox.h"
-#include "qsplitter.h"
-#include "qmap.h"
-#include "qnetworkprotocol.h"
-#include "qsemimodal.h"
-#include "qpainter.h"
 #include "qcleanuphandler.h"
-#include "qstyle.h"
+#include "qcombobox.h"
+#include "qcstring.h"
 #include "qcursor.h"
+#include "qdragobject.h"
+#include "qfile.h"
 #include "qguardedptr.h"
+#include "qhbox.h"
+#include "qheader.h"
+#include "qlabel.h"
+#include "qlayout.h"
 #include "qlibrary.h"
+#include "qlineedit.h"
+#include "qlistbox.h"
+#include "qlistview.h"
+#include "qmap.h"
+#include "qmessagebox.h"
+#include "qmime.h"
+#include "qnetworkprotocol.h"
+#include "qobjectlist.h"
+#include "qpainter.h"
+#include "qplatinumstyle.h"
+#include "qpopupmenu.h"
+#include "qprogressbar.h"
+#include "qptrvector.h"
+#include "qpushbutton.h"
+#include "qregexp.h"
+#include "qsemimodal.h"
+#include "qsplitter.h"
+#include "qstrlist.h"
+#include "qstyle.h"
+#include "qtimer.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
+#include "qvbox.h"
+#include "qwidgetstack.h"
+#include "qwindowsstyle.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
@@ -2507,26 +2508,14 @@ void QFileDialog::init()
     d->fileL = new QLabel( nameEdit, tr("File &name:"), this, "qt_filename_lbl" );
     d->typeL = new QLabel( d->types, tr("File &type:"), this, "qt_filetype_lbl" );
 
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP )
-#endif
-    {
-	d->goBack = new QToolButton( this, "go back" );
-	d->goBack->setAutoRaise( TRUE );
-	d->goBack->setEnabled( FALSE );
-	d->goBack->setFocusPolicy( TabFocus );
-	connect( d->goBack, SIGNAL( clicked() ),
-		 this, SLOT( goBack() ) );
+    d->goBack = new QToolButton( this, "go back" );
+    d->goBack->setEnabled( FALSE );
+    d->goBack->setFocusPolicy( TabFocus );
+    connect( d->goBack, SIGNAL( clicked() ), this, SLOT( goBack() ) );
 #ifndef QT_NO_TOOLTIP
-	QToolTip::add( d->goBack, tr( "Back" ) );
+    QToolTip::add( d->goBack, tr( "Back" ) );
 #endif
-	d->goBack->setIconSet( *goBackIcon );
-    }
-#if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
-    else {
-	d->goBack = 0;
-    }
-#endif
+    d->goBack->setIconSet( *goBackIcon );
 
     d->cdToParent = new QToolButton( this, "cd to parent" );
     d->cdToParent->setFocusPolicy( TabFocus );
@@ -2584,8 +2573,11 @@ void QFileDialog::init()
     d->previewContents = new QToolButton( this, "preview info view" );
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP  )
+#else
+    if ( ::qt_cast<QWindowsStyle*>(&style()) && !::qt_cast<QPlatinumStyle*>(&style()) )
 #endif
     {
+	d->goBack->setAutoRaise( TRUE );
 	d->cdToParent->setAutoRaise( TRUE );
 	d->newFolder->setAutoRaise( TRUE );
 	d->mcView->setAutoRaise( TRUE );
