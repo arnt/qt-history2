@@ -57,6 +57,8 @@ class QWorkspacePrivate;
 class QPopupMenu;
 class QDockWindow;
 
+#define QT_WORKSPACE_WINDOWMODE
+
 class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
     Q_OBJECT
@@ -64,7 +66,6 @@ class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 
 #ifdef QT_WORKSPACE_WINDOWMODE
 public:
-    QWorkspace( WindowMode mode, QWidget* parent=0, const char* name=0 );
 #endif
     enum WindowMode { TopLevel, MDI, AutoDetect };
     WindowMode windowMode() const;
@@ -73,6 +74,9 @@ private:
 #endif
 
 public:
+#ifdef QT_WORKSPACE_WINDOWMODE
+    QWorkspace( WindowMode mode, QWidget* parent=0, const char* name=0 );
+#endif
     QWorkspace( QWidget* parent=0, const char* name=0 );
 
     ~QWorkspace();
