@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#173 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#174 $
 **
 ** Implementation of QFileDialog class
 **
@@ -41,6 +41,8 @@
 #include "qregexp.h"
 #include "qstrlist.h"
 #include "qtimer.h"
+#include "qvbox.h"
+#include "qhbox.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -410,7 +412,7 @@ int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
     if ( pixmap() )
         return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 4;
-    
+
     return lb->fontMetrics().height() + 4;
 }
 
@@ -432,7 +434,7 @@ void QFileDialogPrivate::MCItem::paint( QPainter * p )
     QFontMetrics fm = p->fontMetrics();
 
     int w, h;
-    
+
     if ( pixmap() )
         h = QMAX( fm.height(), pixmap()->height()) + 4;
     else
@@ -442,7 +444,7 @@ void QFileDialogPrivate::MCItem::paint( QPainter * p )
         w += pixmap()->width();
     w += fm.width( text() );
     w += 6;
-    
+
     const QPixmap * pm = pixmap();
     if ( pm )
         p->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
@@ -1458,8 +1460,8 @@ void QFileDialog::pathSelected( int )
 void QFileDialog::cdUpClicked()
 {
     if ( cwd.cdUp() ) {
-	cwd.convertToAbs();
-	rereadDir();
+        cwd.convertToAbs();
+        rereadDir();
     }
 }
 
@@ -1471,8 +1473,17 @@ public:
 
 	const QString dirname() { return nameEdit->text(); }
 
+protected:
+    void resizeEvent( QResizeEvent *e ) {
+        QDialog::resizeEvent( e );
+        if ( back )
+            back->resize( size() );
+    }
+    
 private:
+    QVBox *back;
 	QLineEdit *nameEdit;
+
 };
 
 
@@ -1482,22 +1493,30 @@ NewFolderDialog::NewFolderDialog(QWidget *parent, const char *name)
 {
 	setCaption(tr("New Folder"));
 
-	nameEdit = new QLineEdit(this);
-	QLabel *label = new QLabel(nameEdit, tr("&Folder name"), this);
-	label->setAutoResize(TRUE);
-	label->move(10, 15);
-	nameEdit->move(label->width() + 20, 10);
+    back = new QVBox( this );
+    back->setMargin( 10 );
+    back->setSpacing( 5 );
+    
+    QHBox *row1 = new QHBox( back ); 
+    row1->setSpacing( 5 );
+    QLabel *label = new QLabel( tr("&Folder Name"), row1);
+	nameEdit = new QLineEdit( row1 );
+    label->setBuddy( nameEdit );
+    label->setAutoResize(TRUE);
 
-	QPushButton *okButton = new QPushButton(tr("OK"), this);
+    QHBox *row2 = new QHBox( back );    
+    row2->setSpacing( 5 );
+    (void)new QWidget( row2 );
+	QPushButton *okButton = new QPushButton(tr("OK"), row2);
 	okButton->setDefault(TRUE);
-	okButton->setGeometry(10, 50, 75, 30);
 	connect(okButton, SIGNAL(clicked()), SLOT(accept()));
 
-	QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
-	cancelButton->setGeometry(okButton->width() + 20, 50, 75, 30);
+	QPushButton *cancelButton = new QPushButton(tr("Cancel"), row2);
 	connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
 
 	nameEdit->setFocus();
+
+    resize( 300, 100 );
 }
 
 NewFolderDialog::~NewFolderDialog()
@@ -1782,47 +1801,47 @@ QFileIconProvider * QFileDialog::iconProvider()
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
-	return TRUE;
+        return TRUE;
     if ( mode() == ExistingFiles &&
-	 e->type() == QEvent::MouseButtonDblClick &&
-	 ( o == files || o == d->moreFiles || o == files->viewport() ) ) {
-	QListViewItem * i = files->firstChild();
-	while( i && !i->isSelected() )
-	    i = i->nextSibling();
-	if ( i )
-	    return TRUE;
+         e->type() == QEvent::MouseButtonDblClick &&
+         ( o == files || o == d->moreFiles || o == files->viewport() ) ) {
+        QListViewItem * i = files->firstChild();
+        while( i && !i->isSelected() )
+            i = i->nextSibling();
+        if ( i )
+            return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
-		((QKeyEvent *)e)->key() == Key_Backspace &&
-		( o == files ||
-		  o == d->moreFiles ||
-		  o == files->viewport() ) ) {
-	cdUpClicked();
-	((QKeyEvent *)e)->accept();
-	return TRUE;
+                ((QKeyEvent *)e)->key() == Key_Backspace &&
+                ( o == files ||
+                  o == d->moreFiles ||
+                  o == files->viewport() ) ) {
+        cdUpClicked();
+        ((QKeyEvent *)e)->accept();
+        return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&
-	 files->currentItem() && mode() != ExistingFiles ) {
-      //files->setSelected( files->currentItem(), FALSE );
+                files->currentItem() && mode() != ExistingFiles ) {
+        //files->setSelected( files->currentItem(), FALSE );
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
-	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
+        QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
-	// ### hack.  after 1.40, we need to merge the completion code
-	// ### here, in QListView and QComboBox.
-	if ( isprint(((QKeyEvent *)e)->ascii()) ) {
-	    QString nt( nameEdit->text() );;
-	    nt.truncate( nameEdit->cursorPosition() );
-	    nt += (char)(((QKeyEvent *)e)->ascii());
-	    QListViewItem * i = files->firstChild();
-	    while( i && i->text( 0 ).left(nt.length()) != nt )
-		i = i->nextSibling();
-	    if ( i ) {
-		nt = i->text( 0 );
-		int cp = nameEdit->cursorPosition()+1;
-		nameEdit->validateAndSet( nt, cp, cp, nt.length() );
-		return TRUE;
-	    }
-	}
+        // ### hack.  after 1.40, we need to merge the completion code
+        // ### here, in QListView and QComboBox.
+        if ( isprint(((QKeyEvent *)e)->ascii()) ) {
+            QString nt( nameEdit->text() );;
+            nt.truncate( nameEdit->cursorPosition() );
+            nt += (char)(((QKeyEvent *)e)->ascii());
+            QListViewItem * i = files->firstChild();
+            while( i && i->text( 0 ).left(nt.length()) != nt )
+                i = i->nextSibling();
+            if ( i ) {
+                nt = i->text( 0 );
+                int cp = nameEdit->cursorPosition()+1;
+                nameEdit->validateAndSet( nt, cp, cp, nt.length() );
+                return TRUE;
+            }
+        }
     } else if ( o == nameEdit && e->type() == QEvent::FocusIn ) {
-	fileNameEditDone();
+        fileNameEditDone();
     }
     return FALSE;
 }
