@@ -2313,9 +2313,11 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    formatter->setAllowBreakInWords( TRUE );
 	parag->setFormatter( formatter );
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
-	if ( singleline ) {
+	if ( singleline )
 	    parStr.replace(QRegExp("[\n\r]"), " ");
-	}
+	else
+	    parStr.replace(QRegExp("\r"), " ");
+
 	if ( showprefix || noaccel ) {
 	    int idx = -1;
 	    int start = 0;
