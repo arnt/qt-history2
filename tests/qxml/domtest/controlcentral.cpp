@@ -40,6 +40,7 @@ ControlCentral::ControlCentral() : QVBox()
     connect( errorProt, SIGNAL(clicked()), this, SLOT(showErrorProtocol()) );
 #endif
     connect( tree, SIGNAL(clicked()), this, SLOT(showTree()) );
+    connect( lview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(showTree(QListViewItem*)) );
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 }
 
@@ -144,6 +145,14 @@ void ControlCentral::saveToFile()
 void ControlCentral::showTree()
 {
     XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
+    if ( fi != 0 ) {
+	fi->tree->show();
+    }
+}
+
+void ControlCentral::showTree( QListViewItem *dlvi )
+{
+    XMLFileItem *fi = (XMLFileItem*)(dlvi);
     if ( fi != 0 ) {
 	fi->tree->show();
     }

@@ -24,6 +24,7 @@ public slots:
     void showToString();
     void saveToFile();
     void showTree();
+    void showTree( QListViewItem* );
 
 private:
     void parse( const QString& filename );
