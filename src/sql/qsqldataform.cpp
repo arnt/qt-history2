@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QSqlDialog class
+** Implementation of QSqlDataForm class
 **
 ** Created : 2000-11-03
 **
@@ -34,28 +34,51 @@
 **
 **********************************************************************/
 
-#include "qsqldialog.h"
+#include "qsqldataform.h"
 
 #ifndef QT_NO_SQL
 
 #include "qsqlform.h"
 
-/* ATTENTION: this file must remain in sync with qsqlwidget.cpp */
+/*!
 
-QSqlDialog::QSqlDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl ), QSqlFormNavigator()
+  \class QSqlDataForm qsqldataform.h
+  \brief SQL cursor/form manipulation and navigation
+
+  \module sql
+
+  This class is used to manipulate and navigate data entry forms.  A
+  high-level API is provided to navigate through data records in a
+  cursor, insert, update and delete records, and refresh data in the
+  display.
+
+  Instances of this class cannot be created directly.  Derived classes
+  must reimplement certain functions (see
+  QSqlFormNavigator::defaultForm() and QSqlNavigator::defaultCursor())
+  which provide the form and cursor on which the navigator operates.
+
+  Convenient signals and slots are provided to navigate the cursor
+  (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
+  update records (see insertRecord(), updateRecord(), deleteRecord()),
+  and to update the display according to the cursor's current position
+  (see firstRecordAvailable(), lastRecordAvailable(),
+  nextRecordAvailable(), prevRecordAvailable()).
+
+*/
+
+QSqlDataForm::QSqlDataForm( QWidget *parent, const char *name, WFlags fl )
+    : QWidget( parent, name, fl ), QSqlFormNavigator()
 {
 }
 
 // implement forwarding funcs
-#define QT_SQLFORMNAV_CHILD QSqlDialog
+#define QT_SQLFORMNAV_CHILD QSqlDataForm
 #include "qsqlnavigator_p.h"
 
-void QSqlDialog::clearFormValues()
+void QSqlDataForm::clearFormValues()
 {
     if ( form() )
 	form()->clearValues();
 }
-
 
 #endif

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSqlDialog class
+** Definition of QSqlDataForm class
 **
 ** Created : 2000-11-03
 **
@@ -34,22 +34,21 @@
 **
 **********************************************************************/
 
-
-#ifndef QSQLDIALOG_H
-#define QSQLDialog_H
+#ifndef QSQLDATAFORM_H
+#define QSQLDATAFORM_H
 
 #include "qfeatures.h"
 
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
-#include "qdialog.h"
+#include "qwidget.h"
 #include "qsqlnavigator.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #endif // QT_H
 
-class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
+class Q_EXPORT QSqlDataForm : public QWidget, public QSqlFormNavigator
 {
     Q_OBJECT
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
@@ -57,7 +56,7 @@ class Q_EXPORT QSqlDialog : public QDialog, public QSqlFormNavigator
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
 
 public:
-    QSqlDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    QSqlDataForm( QWidget *parent = 0, const char *name = 0, WFlags fl = 0 );
 
     void setBoundryChecking( bool active );
     bool boundryChecking() const;
@@ -68,10 +67,12 @@ public:
     void setFilter( const QString& filter );
     QString filter() const;
 
-    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
-    void setCursor ( const QCursor & cursor ) { QDialog::setCursor( cursor ); }
-    const QCursor& cursor () const { return QDialog::cursor(); }
-    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
+    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
+    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
+    void setCursor ( const QCursor & cursor ) { QWidget::setCursor( cursor ); }
+    const QCursor& cursor () const { return QWidget::cursor(); }
+    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE )
+    { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
     QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
 
 signals:
@@ -100,8 +101,9 @@ public slots:
     virtual void readFormFields();
     virtual void writeFormFields();
     virtual void clearFormValues();
+
 };
 
-#endif // QT_NO_SQL
 
+#endif
 #endif

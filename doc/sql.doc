@@ -144,11 +144,11 @@ The SQL classes are divided into three layers:
 <em>User Interface Layer.</em> These classes provide data-aware
 widgets that can be connected to tables or views in the database. End
 users can interact directly with these widgets to browse or edit
-data. <em>Qt Designer</em> is fully integrated with the SQL classes and
-can be used to create data-aware forms. The data-aware widgets can also
-be programmed directly with your own C++ code. The classes that support
-this layer include \l QSqlDialog, \l QSqlEditorFactory, \l QSqlForm,
-\l QSqlPropertyMap, \l QSqlTable and \l QSqlWidget.
+data. <em>Qt Designer</em> is fully integrated with the SQL classes
+and can be used to create data-aware forms. The data-aware widgets can
+also be programmed directly with your own C++ code. The classes that
+support this layer include \l QSqlEditorFactory, \l QSqlForm, \l
+QSqlPropertyMap, \l QSqlTable and \l QSqlDataForm and \l QSqlDataView.
 
 <em>SQL API Layer.</em> These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
@@ -188,7 +188,7 @@ this section we introduce the \l QSqlTable, \l QSqlForm, \l
 QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to use
 custom data-aware widgets. <em>Qt Designer</em> provides an easy visual
 way of achieving the same thing.  See the <em>Qt Designer</em> manual,
-\l QSqlDialog and \l QSqlWidget for more information.
+\l QSqlDataForm and \l QSqlDataView for more information.
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
