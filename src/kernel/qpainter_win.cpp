@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#105 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -328,7 +328,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 void QPainter::init()
 {
     flags = IsStartingUp;
-    bg_col = white;			// default background color
+    bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
@@ -726,6 +726,14 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( pdev->handle() )
 	    hdc = pdev->handle();
 	flags |= (NoCache | RGBColor);
+    } else if ( dt == PDT_SYSTEM ) {		// system-dependent device
+	hdc = pdev->handle();
+	if ( hdc ) {
+	    SIZE s;
+	    GetWindowExtEx( hdc, &s );
+	    ww = vw = s.cx;
+	    wh = vh = s.cy;
+	}
     }
     if ( testf(ExtDev) ) {
 	ww = vw = pdev->metric( PDM_WIDTH );
@@ -1711,7 +1719,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 {
     if ( !isActive() || pixmap.isNull() )
 	return;
-    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear && 0;
     if ( sw < 0 )
 	sw = pixmap.width() - sx;
     if ( sh < 0 )
@@ -1761,9 +1768,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		    return;
 	    }
 	}
-	if ( nat_xf )
-	    nativeXForm( TRUE );
-	else if ( txop == TxTranslate )
+	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
     }
 
@@ -1816,24 +1821,28 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		      wm21/65536.0, wm22/65536.0,
 		      wdx/65536.0,  wdy/65536.0 );
 	mat = QPixmap::trueMatrix( mat, sw, sh );
-	mat.reset();	    // ##################test
-	mat.scale( 2,2);
-	QPixmap pmx = pixmap.xForm( mat );
-	if ( 0 && !pmx.mask() && txop == TxRotShear ) {
-	    QBitmap bm_clip( sw, sh, 1 );
+	QPixmap pmx;
+	if ( sx == 0 && sy == 0 &&
+	     sw == pixmap.width() && sh == pixmap.height() ) {
+	    pmx = pixmap;			// xform the whole pixmap
+	} else {
+	    pmx = QPixmap( sw, sh );		// xform subpixmap
+	    bitBlt( &pmx, 0, 0, pm, sx, sy, sw, sh );
+	}
+	pmx = pmx.xForm( mat );
+	if ( !pmx.mask() && txop == TxRotShear ) {
+	    QBitmap bm_clip( sw, sh, 1 );	// make full mask, xform it
 	    bm_clip.fill( color1 );
 	    pmx.setMask( bm_clip.xForm(mat) );
 	}
 	map( x, y, &x, &y );			// compute position of pixmap
 	int dx, dy;
 	mat.map( 0, 0, &dx, &dy );
-	bitBlt( pdev, x - dx, y - dy, &pixmap, sx, sy, sw, sh );
+	bitBlt( pdev, x - dx, y - dy, &pmx );
     }
 
     if ( tmp_dc )
 	pm->freeMemDC();
-    if ( nat_xf )
-	nativeXForm( FALSE );
 }
 
 
@@ -1864,22 +1873,11 @@ static void drawTile( QPainter *p, int x, int y, int w, int h,
     }
 }
 
-/* Internal, used by drawTiledPixmap */
 
-static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
-{
-    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, CopyROP, TRUE );
-    int x = pixmap.width();
-    while ( x < tile->width() ) {
-	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), CopyROP, TRUE );
-	x *= 2;
-    }
-    int y = pixmap.height();
-    while ( y < tile->height() ) {
-	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, CopyROP, TRUE );
-	y *= 2;
-    }
-}
+/* These functions are implemented in qtmain_win.cpp */
+void qt_fill_tile( QPixmap *, const QPixmap & );
+void qt_draw_tiled_pixmap( HANDLE, int, int, int, int,
+			   const QPixmap *, int, int );
 
 
 void QPainter::drawTiledPixmap( int x, int y, int w, int h,
@@ -1896,33 +1894,29 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     else
 	sy = sy % sh;
     /*
-      Requirements for optimizing tiled pixmaps::
+      Requirements for optimizing tiled pixmaps:
        - not an external device
        - not scale or rotshear
-       - not mono pixmap
        - no mask
     */
     QBitmap *mask = (QBitmap *)pixmap.mask();
-#if 0
-    if ( !testf(ExtDev) && txop <= TxTranslate && pixmap.depth() > 1 &&
-	 mask == 0 ) {
+    if ( !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
-	// optimizations go here
+	qt_draw_tiled_pixmap( hdc, x, y, w, h, &pixmap, sx, sy );
 	return;
     }
-#endif
-    if ( sw*sh < 8192 ) {
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	int tw = sw, th = sh;
 	while ( tw*th < 32678 && tw < w/2 )
 	    tw *= 2;
 	while ( tw*th < 32678 && th < h/2 )
 	    th *= 2;
 	QPixmap tile( tw, th, pixmap.depth() );
-	fillTile( &tile, pixmap );
+	qt_fill_tile( &tile, pixmap );
 	if ( mask ) {
 	    QBitmap tilemask( tw, th );
-	    fillTile( &tilemask, *mask );
+	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
 	tile.setOptimization( QPixmap::BestOptim );
@@ -1930,6 +1924,41 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     } else {
 	drawTile( this, x, y, w, h, pixmap, sx, sy );
     }
+}
+
+
+//
+// Generate a string that describes a transformed bitmap. This string is used
+// to insert and find bitmaps in the global pixmap cache.
+//
+static QString gen_xbm_key( const QWMatrix &m, const QFont &font,
+			    const char *str, int len )
+{
+    QString s = str;
+    s.truncate( len );
+    QString fd = font.key();
+    QString k( len + 100 + fd.length() );
+    k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s,
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
+	       (const char *)fd );
+    return k;
+}
+
+
+static QBitmap *get_text_bitmap( const QWMatrix &m, const QFont &font,
+				 const char *str, int len )
+{
+    QString k = gen_xbm_key( m, font, str, len );
+    return (QBitmap*)QPixmapCache::find( k );
+}
+
+
+static void ins_text_bitmap( const QWMatrix &m, const QFont &font,
+			     const char *str, int len, QBitmap *bm )
+{
+    QString k = gen_xbm_key( m, font, str, len );
+    if ( !QPixmapCache::insert(k,bm) )		// cannot insert pixmap
+	delete bm;
 }
 
 
@@ -1951,9 +1980,83 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QPoint p( x, y );
 	    QString newstr( str, len+1 );
 	    param[0].point = &p;
-	    param[1].str = new QString(newstr);
+	    param[1].str = &newstr;
 	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hdc )
 		return;
+	}
+	if ( txop >= TxScale && !nat_xf ) {
+	    // Draw scaled, rotated and shared text on Windows 95, 98
+	    QFontMetrics fm = fontMetrics();
+	    QFontInfo	 fi = fontInfo();
+	    QRect bbox = fm.boundingRect( str, len );
+	    int w=bbox.width(), h=bbox.height();
+	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
+	    bool empty = w == 0 || h == 0;
+	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
+			   wm21/65536.0, wm22/65536.0,
+			   wdx /65536.0, wdy /65536.0 );
+	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
+	    QBitmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
+	    bool create_new_bm = wx_bm == 0;
+	    if ( create_new_bm && !empty ) {	// no such cached bitmap
+		QBitmap bm( w, h );		// create bitmap
+		bm.fill( color0 );
+		QPainter paint;
+		paint.begin( &bm );		// draw text in bitmap
+		paint.setFont( cfont );
+		paint.drawText( tx, ty, str, len );
+		paint.end();
+		wx_bm = new QBitmap( bm.xForm(mat) ); // transform bitmap
+		if ( wx_bm->isNull() ) {
+		    delete wx_bm;		// nothing to draw
+		    return;
+		}
+		wx_bm->allocMemDC();
+	    }
+	    if ( bg_mode == OpaqueMode ) {	// opaque fill
+		int fx = x;
+		int fy = y - fm.ascent();
+		int fw = bbox.width();
+		int fh = bbox.height();
+		int m, n;
+		QPointArray a(5);
+		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
+						   a.setPoint( 4, m, n );
+		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
+		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
+		QPen oldPen = cpen;
+		QBrush oldBrush = cbrush;
+		setPen( NoPen );
+		updatePen();
+		setBrush( backgroundColor() );
+		updateBrush();
+		Polygon( hdc, (POINT*)a.data(), a.size() );
+		setPen( oldPen );
+		setBrush( oldBrush );
+	    }
+	    if ( empty )
+		return;
+	    float fx=x, fy=y, nfx, nfy;
+	    mat1.map( fx,fy, &nfx,&nfy );
+	    float tfx=tx, tfy=ty, dx, dy;
+	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
+	    x = qRound(nfx-dx);
+	    y = qRound(nfy-dy);
+	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
+	    COLORREF tc, bc;
+	    b = SelectObject( hdc, b );
+	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
+	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
+	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
+	    BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
+		    wx_bm->handle(), 0, 0, 0x00b8074a );
+	    SetBkColor( hdc, bc );
+	    SetTextColor( hdc, tc );
+	    DeleteObject( SelectObject(hdc, b) );
+	    if ( create_new_bm )
+		ins_text_bitmap( mat, cfont, str, len, wx_bm );
+	    return;
 	}
 	if ( nat_xf )
 	    nativeXForm( TRUE );

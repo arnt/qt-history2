@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#4 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#5 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -34,7 +34,7 @@ class QColor;
 
 #if defined(QT_MAYBE_CONST)
 #error "what happened?  I am dazed and confused."
-#elif defined(_CC_MSC_)
+#elif defined(_CC_MSVC_)
 #define QT_MAYBE_CONST
 #else
 #define QT_MAYBE_CONST const
@@ -364,4 +364,4 @@ public:
 };
 
 
-#endif
+#endif // QNAMESPACE_H

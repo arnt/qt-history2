@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#133 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#134 $
 **
 ** Global type declarations and definitions
 **
@@ -203,18 +203,20 @@
 //
 
 #if defined(_OS_WIN32_)
-#if defined(QT_DLL)
-#define Q_EXPORT __declspec(dllexport)
-#define Q_TEMPLATEDLL
-#undef  Q_DISABLE_COPY		/* otherwise we get unresolved externals */
-#else
 #if defined(QT_NODLL)
-#define Q_EXPORT
-#else
-#define Q_EXPORT __declspec(dllimport)
-#define Q_TEMPLATEDLL
+#undef QT_MAKEDLL
+#undef QT_DLL
 #endif
-#endif // QT_DLL
+#if defined(QT_MAKEDLL)		/* create a Qt DLL library */
+#define Q_EXPORT  __declspec(dllexport)
+#define Q_TEMPLATEDLL
+#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
+#endif
+#if defined(QT_DLL)		/* use a Qt DLL library */
+#define Q_EXPORT  __declspec(dllimport)
+#define Q_TEMPLATEDLL
+#undef  Q_DISABLE_COPY		/* avoid unresolved externals */
+#endif
 #endif // _OS_WIN32_
 
 #ifndef Q_EXPORT
@@ -344,6 +346,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
+#pragma warning(disable: 4275)
 #pragma warning(disable: 4800)
 #elif defined(_CC_BOR_)
 #pragma option -w-inl

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#261 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -453,7 +453,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 void QPainter::init()
 {
     flags = IsStartingUp;
-    bg_col = Qt::white;				// default background color
+    bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
@@ -847,7 +847,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    cfont  = defaultFont;		// set these drawing tools
 	    cpen   = defaultPen;
 	    cbrush = defaultBrush;
-	    bg_col = Qt::white;			// default background color
+	    bg_col = white;			// default background color
 	}
     }
     wx = wy = vx = vy = 0;			// default view origins
@@ -882,8 +882,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	if ( mono ) {
 	    setf( MonoDev );
-	    bg_col = Qt::color0;
-	    cpen.setColor( Qt::color1 );
+	    bg_col = color0;
+	    cpen.setColor( color1 );
 	}
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
@@ -1430,7 +1430,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
-    drawWinFocusRect( x, y, w, h, TRUE, Qt::color0 );
+    drawWinFocusRect( x, y, w, h, TRUE, color0 );
 }
 
 /*!
@@ -1473,15 +1473,15 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     if ( xorPaint ) {
 	if ( QColor::numBitPlanes() <= 8 )
-	    setPen( Qt::color1 );
+	    setPen( color1 );
 	else
-	    setPen( Qt::white );
+	    setPen( white );
 	setRasterOp( XorROP );
     } else {
 	if ( qGray( bgColor.rgb() ) < 128 )
-	    setPen( Qt::white );
+	    setPen( white );
 	else
-	    setPen( Qt::black );
+	    setPen( black );
     }
 
     if ( testf(ExtDev|VxF|WxF) ) {
@@ -2191,7 +2191,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		QPixmap pm = pixmap.xForm( mat );
 		if ( !pm.mask() && txop == TxRotShear ) {
 		    QBitmap bm_clip( sw, sh, 1 );
-		    bm_clip.fill( Qt::color1 );
+		    bm_clip.fill( color1 );
 		    pm.setMask( bm_clip.xForm(mat) );
 		}
 		map( x, y, &x, &y );		// compute position of pixmap
@@ -2356,7 +2356,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     else
 	sy = sy % sh;
     /*
-      Requirements for optimizing tiled pixmaps::
+      Requirements for optimizing tiled pixmaps:
        - not an external device
        - not scale or rotshear
        - not mono pixmap
@@ -2375,7 +2375,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	XSetFillStyle( dpy, gc, FillSolid );
 	return;
     }
-    if ( sw*sh < 8192 ) {
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	int tw = sw, th = sh;
 	while ( tw*th < 32678 && tw < w/2 )
 	    tw *= 2;
@@ -2400,29 +2400,13 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static Q1String gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
-			    const QString& str, int len )
+static QString gen_xbm_key( const QWMatrix &m, const QFont &font,
+			    const char *str, int len )
 {
-    // Only for ASCII, else we return null
-
-    Q1String s(len+1);
-    int i;
-    for (i=0; i<len; i++) {
-	QChar ch = str[i];
-	if ( ch.row ) return Q1String();
-        s[i] = ch.cell;
-    }
-    s[i]=0;
-    Q1String k;
-    Q1String fd;
-    if ( fi.rawMode() )
-	fd.sprintf( "&%s", fi.family() );
-    else
-	fd.sprintf( "x%s_%i_%i_%i_%i_%i_%i_%i",
-		    fi.family(), fi.pointSize(), fi.italic(), fi.weight(),
-		    fi.underline(), fi.strikeOut(), fi.fixedPitch(),
-		    fi.charSet() );
-    k.resize( len + 100 + fd.length() );
+    QString s = str;
+    s.truncate( len );
+    QString fd = font.key();
+    QString k( len + 100 + fd.length() );
     k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s,
 	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
 	       (const char *)fd );
@@ -2430,23 +2414,22 @@ static Q1String gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
 }
 
 
-static QPixmap *get_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
-				 QString str, int len )
+static QBitmap *get_text_bitmap( const QWMatrix &m, const QFont &font,
+				 const char *str, int len )
 {
-    Q1String k = gen_xbm_key( m, fi, str, len );
-    if ( k.isNull() )
-	return 0;
-    return QPixmapCache::find( k );
+    QString k = gen_xbm_key( m, font, str, len );
+    return (QBitmap*)QPixmapCache::find( k );
 }
 
 
-static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
-			     QString str, int len, QPixmap *pm )
+static void ins_text_bitmap( const QWMatrix &m, const QFont &font,
+			     const char *str, int len, QBitmap *bm )
 {
-    Q1String k = gen_xbm_key( m, fi, str, len );
-    if ( k.isNull() || !QPixmapCache::insert(k,pm) ) // cannot insert pixmap
-	delete pm;
+    QString k = gen_xbm_key( m, font, str, len );
+    if ( !QPixmapCache::insert(k,bm) )		// cannot insert pixmap
+	delete bm;
 }
+
 
 /*!
   Draws at most \e len characters from \e str at position \e (x,y).
@@ -2476,7 +2459,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hd )
 		return;
 	}
-	if ( txop == TxScale || txop == TxRotShear ) {
+	if ( txop >= TxScale ) {
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
@@ -2487,23 +2470,22 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 			   wm21/65536.0, wm22/65536.0,
 			   wdx /65536.0, wdy /65536.0 );
 	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
-	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
+	    QBitmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
-		QPixmap bm( w, h, 1 );		// create bitmap
-		bm.fill( Qt::color0 );
+		QBitmap bm( w, h );		// create bitmap
+		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( cfont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
-		wx_bm = new QPixmap( bm.xForm( mat ) ); // transform bitmap
+		wx_bm = new QBitmap( bm.xForm(mat) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
 		    delete wx_bm;		// nothing to draw
 		    return;
 		}
 	    }
-
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		extern XFontStruct *qt_get_xfontstruct( QFontData * );
 		XFontStruct *fs = qt_get_xfontstruct( cfont.d );
@@ -2548,7 +2530,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    XSetTSOrigin( dpy, gc, 0, 0 );
 	    XSetFillStyle( dpy, gc, FillSolid );
 	    if ( create_new_bm )
-		ins_text_bitmap( mat, fi, str, len, wx_bm );
+		ins_text_bitmap( mat, cfont, str, len, wx_bm );
 	    return;
 	}
 	if ( txop == TxTranslate )

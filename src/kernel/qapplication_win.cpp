@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#180 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -45,18 +45,25 @@
 #endif
 #include <ole2.h>
 
+#if !defined(QT_MAKEDLL)
+#define QAPPLICATION_WIN_CPP
+#include "qtmain_win.cpp"
+#endif
+
+
 #ifndef WM_MOUSEWHEEL
 #define WM_MOUSEWHEEL	0x020A
 #endif
+
 
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
 
 static char	appName[120];			// application name
-static HANDLE	appInst;			// handle to app instance
-static HANDLE	appPrevInst;			// handle to prev app instance
-static int	appCmdShow;			// main window show command
+static HANDLE	appInst		= 0;		// handle to app instance
+static HANDLE	appPrevInst	= 0;		// handle to prev app instance
+static int	appCmdShow	= 0;		// main window show command
 static int	numZeroTimers	= 0;		// number of full-speed timers
 static HWND	curWin		= 0;		// current window
 static HANDLE	displayDC	= 0;		// display device context
@@ -128,15 +135,12 @@ public:
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
-    bool	sendKeyEvent( QEvent::Type type, int code, int ascii, int state,
-			      bool grab );
+    bool	sendKeyEvent( QEvent::Type type, int code, int ascii,
+			      int state, bool grab );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
 };
-
-
-typedef QArray<pchar> ArgV;
 
 
 static void set_winapp_name()
@@ -267,9 +271,11 @@ void qt_init( int *argcptr, char **argv )
     *argcptr = j;
 #endif // DEBUG
 
-  // Get the application name if qWinMain() was not invoked
+  // Get the application name/instance if qWinMain() was not invoked
 
     set_winapp_name();
+    if ( appInst == 0 )
+	appInst = GetModuleHandle( 0 );
 
   // Detect the Windows version
 
@@ -291,16 +297,22 @@ void qt_init( int *argcptr, char **argv )
 	    qt_winver = WV_32s;
 	    break;
 	case VER_PLATFORM_WIN32_WINDOWS:
-	    qt_winver = WV_95;
+	    if ( osver.dwMinorVersion == 10 )
+		qt_winver = WV_98;
+	    else
+		qt_winver = WV_95;
 	    break;
 	default:
 	    qt_winver = WV_NT;
     }
 
   // Initialize OLE
-    if ( OleInitialize(0) != S_OK ) {
+  //   S_OK means success and S_FALSE means that it has already
+  //   been initialized
+    HRESULT r = OleInitialize(0);
+    if ( r != S_OK && r != S_FALSE ) {
 #if defined(CHECK_STATE)
-	warning( "Qt: Could not initialize OLE" );
+	warning( "Qt: Could not initialize OLE (error %x)", r );
 #endif
     }
 
@@ -368,15 +380,19 @@ void qt_cleanup()
 
 static void msgHandler( QtMsgType t, const char* str )
 {
-    QString s = str;
-    s += "\n";
-    OutputDebugString( str );
+    if ( !str )
+	str = "(null)";
+    int len = strlen(str);
+    char *s = new char[len+2];
+    strcpy(s+len,"\n");
+    OutputDebugString( s );
+    delete [] s;
     if ( t == QtFatalMsg )
 	ExitProcess( 1 );
 }
 
 
-void qAddPostRoutine( CleanUpFunction p )
+Q_EXPORT void qAddPostRoutine( CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
@@ -386,27 +402,28 @@ void qAddPostRoutine( CleanUpFunction p )
 }
 
 
-char *qAppName()				// get application name
+Q_EXPORT char *qAppName()			// get application name
 {
     return appName;
 }
 
-HANDLE qWinAppInst()				// get Windows app handle
+Q_EXPORT HANDLE qWinAppInst()			// get Windows app handle
 {
     return appInst;
 }
 
-HANDLE qWinAppPrevInst()			// get Windows prev app handle
+Q_EXPORT HANDLE qWinAppPrevInst()		// get Windows prev app handle
 {
     return appPrevInst;
 }
 
-int qWinAppCmdShow()				// get main window show command
+Q_EXPORT int qWinAppCmdShow()			// get main window show command
 {
     return appCmdShow;
 }
 
-HANDLE qt_display_dc()				// get display DC
+
+Q_EXPORT HANDLE qt_display_dc()			// get display DC
 {
     if ( !displayDC )
 	displayDC = GetDC( 0 );
@@ -978,6 +995,104 @@ static void sn_activate_fd( int sockfd, int type )
 
 
 /*****************************************************************************
+  Windows-specific drawing used here
+ *****************************************************************************/
+
+static void drawTile( HANDLE hdc, int x, int y, int w, int h,
+		      const QPixmap &pixmap, int xOffset, int yOffset )
+{
+    int yPos, xPos, drawH, drawW, yOff, xOff;
+    yPos = y;
+    yOff = yOffset;
+    while( yPos < y + h ) {
+	drawH = pixmap.height() - yOff;    // Cropping first row
+	if ( yPos + drawH > y + h )	   // Cropping last row
+	    drawH = y + h - yPos;
+	xPos = x;
+	xOff = xOffset;
+	while( xPos < x + w ) {
+	    drawW = pixmap.width() - xOff; // Cropping first column
+	    if ( xPos + drawW > x + w )	   // Cropping last column
+		drawW = x + w - xPos;
+	    BitBlt( hdc, xPos, yPos, drawW, drawH, pixmap.handle(),
+		    xOff, yOff, SRCCOPY );
+	    xPos += drawW;
+	    xOff = 0;
+	}
+	yPos += drawH;
+	yOff = 0;
+    }
+}
+
+Q_EXPORT
+void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
+{
+    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, CopyROP, TRUE );
+    int x = pixmap.width();
+    while ( x < tile->width() ) {
+	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), CopyROP, TRUE );
+	x *= 2;
+    }
+    int y = pixmap.height();
+    while ( y < tile->height() ) {
+	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, CopyROP, TRUE );
+	y *= 2;
+    }
+}
+
+Q_EXPORT
+void qt_draw_tiled_pixmap( HANDLE hdc, int x, int y, int w, int h,
+			   const QPixmap *bg_pixmap,
+			   int off_x, int off_y )
+{
+    if ( qt_winver == WV_NT ) {			// no brush size limitation
+	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
+	HBRUSH oldBrush = SelectObject( hdc, brush );
+	if ( off_x || off_y ) {
+	    POINT p;
+	    SetBrushOrgEx( hdc, -off_x, -off_y, &p );
+	    PatBlt( hdc, x, y, w, h, PATCOPY );
+	    SetBrushOrgEx( hdc, p.x, p.y, 0 );
+	} else {
+	    PatBlt( hdc, x, y, w, h, PATCOPY );
+	}
+	SelectObject( hdc, oldBrush );
+	DeleteObject( brush );
+    } else {					// Windows 95 & 98
+	QPixmap tile = *bg_pixmap;
+	int sw = tile.width(), sh = tile.height();
+	if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+	    int tw = sw, th = sh;
+	    while ( tw*th < 32678 && tw < w/2 )
+		tw *= 2;
+	    while ( tw*th < 32678 && th < h/2 )
+		th *= 2;
+	    tile.resize( tw, th );
+	    tile.setOptimization( QPixmap::BestOptim );
+	    qt_fill_tile( &tile, *bg_pixmap );
+	}
+	bool tmp_dc = tile.handle() == 0;
+	if ( tmp_dc )
+	    tile.allocMemDC();
+	drawTile( hdc, x, y, w, h, tile, off_x, off_y );
+	if ( tmp_dc )
+	    tile.freeMemDC();
+    }
+}
+
+
+typedef (*qt_ebg_fn)( HANDLE, int, int, int, int, const QColor &,
+		      const QPixmap *, int, int );
+
+static qt_ebg_fn qt_ebg_inst = 0;
+
+Q_EXPORT void qt_ebg( void *p )
+{
+    qt_ebg_inst = (qt_ebg_fn)p;
+}
+
+
+/*****************************************************************************
   Main event loop
  *****************************************************************************/
 
@@ -1177,35 +1292,22 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = TRUE;                      // consume event
 	    break;
 
+	case WM_MOUSEWHEEL:
+	    result = widget->translateWheelEvent( msg );
+	    break;
+
 	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
 	    break;
 
 	case WM_ERASEBKGND: {			// erase window background
-	    const QPixmap *bgpm = widget->backgroundPixmap();
-	    if ( bgpm && bgpm->isNull() )	// empty background
-		break;
-	    HDC	     hdc = (HDC)wParam;
-	    RECT     rect;
-	    HBRUSH   brush;
-	    HPALETTE oldPal;
-	    GetClientRect( hwnd, &rect );
-	    if ( QColor::hPal() ) {
-		oldPal = SelectPalette( hdc, QColor::hPal(), FALSE );
-		RealizePalette( hdc );
-	    }
-	    if ( bgpm )
-		brush = CreatePatternBrush( bgpm->hbm() );
-	    else
-		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
-	    HBRUSH oldBrush = SelectObject( hdc, brush );
-	    PatBlt( hdc, 0,0, rect.right, rect.bottom, PATCOPY );
-	    SelectObject( hdc, oldBrush );
-	    DeleteObject( brush );
-	    if ( QColor::hPal() ) {
-		SelectPalette( hdc, oldPal, TRUE );
-		RealizePalette( hdc );
-	    }
+	    RECT r;
+	    GetClientRect( hwnd, &r );
+	    if ( qt_ebg_inst )
+		(*qt_ebg_inst)( (HANDLE)wParam, r.left, r.top,
+				r.right-r.left, r.bottom-r.top,
+				widget->backgroundColor(),
+				widget->backgroundPixmap(), 0, 0 );
 	    }
 	    break;
 
@@ -1313,12 +1415,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QCustomEvent e( QEvent::Clipboard, &msg );
 		QApplication::sendEvent( qt_clipboard, &e );
 		return 0;
-	
 	    }
-	case WM_MOUSEWHEEL:
-	    result = widget->translateWheelEvent( msg );
-	    break;
-	
 						// NOTE: fall-through!
 	default:
 	    result = FALSE;			// event was not processed
@@ -1845,7 +1942,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	;
     if ( !mouseTbl[i] )
 	return FALSE;
-    type   = (QEvent::Type)mouseTbl[++i];			// event type
+    type   = (QEvent::Type)mouseTbl[++i];	// event type
     button = mouseTbl[++i];			// which button
     state  = translateButtonState( msg.wParam, type, button ); // button state
 
@@ -2180,8 +2277,8 @@ static bool isModifierKey(int code)
     return code >= Key_Shift && code <= Key_ScrollLock;
 }
 
-bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii, int state,
-			      bool grab )
+bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
+			      int state, bool grab )
 {
     if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
 	QKeyEvent a( QEvent::Accel, code, ascii, state );
@@ -2208,11 +2305,17 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii, int state,
 bool QETWidget::translatePaintEvent( const MSG & )
 {
     PAINTSTRUCT ps;
+    RECT rect;
+    GetUpdateRect( winId(), &rect, FALSE );
+    QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
+    QPaintEvent e( r );
+
+#if 0
+    // Use real update region later
     HRGN reg = CreateRectRgn(0,0,1,1); // empty would do
     GetUpdateRgn( winId(), reg, FALSE );
-    //QPaintEvent e( reg );
-//#warning broken
-    QPaintEvent e(rect());
+    QPaintEvent e( reg );
+#endif
 
     setWFlags( WState_PaintEvent );
     hdc = BeginPaint( winId(), &ps );

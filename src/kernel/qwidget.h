@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#175 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#176 $
 **
 ** Definition of QWidget class
 **
@@ -41,7 +41,7 @@
 class QLayout;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
-{						// base class for UI objects
+{
     Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );

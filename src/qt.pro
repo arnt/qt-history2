@@ -1,9 +1,6 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
-win32:CONFIG   += dll
-
-win32:DEFINES  += QT_DLL
 
 win32:INCLUDEPATH	= tmp
 win32:MOC_DIR		= tmp
@@ -27,6 +24,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
+		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_H/qasyncimageio.h \
@@ -50,11 +48,10 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
-		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qlayout.h \
-		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qmessagefile.h \
 		  $$KERNEL_H/qmetaobject.h \
+		  $$KERNEL_H/qmotifstyle.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qobject.h \
@@ -70,6 +67,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
+		  $$KERNEL_H/qplatinumstyle.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qprinter.h \
@@ -80,16 +78,15 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
 		  $$KERNEL_H/qsize.h \
+		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
-		  $$KERNEL_H/qwindowsstyle.h \
-		  $$KERNEL_H/qmotifstyle.h \
-		  $$KERNEL_H/qplatinumstyle.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
+		  $$KERNEL_H/qwindowsstyle.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qbitarray.h \
@@ -170,6 +167,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
+		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
 		  kernel/qasyncimageio.cpp \
@@ -188,10 +186,10 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
-		  kernel/qabstractlayout.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qmessagefile.cpp \
 		  kernel/qmetaobject.cpp \
+		  kernel/qmotifstyle.cpp \
 		  kernel/qmovie.cpp \
 		  kernel/qobject.cpp \
 		  kernel/qpainter.cpp \
@@ -200,6 +198,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qpicture.cpp \
 		  kernel/qpixmap.cpp \
 		  kernel/qpixmapcache.cpp \
+		  kernel/qplatinumstyle.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qprinter.cpp \
@@ -211,11 +210,9 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsocketnotifier.cpp \
 		  kernel/qstyle.cpp \
-		  kernel/qwindowsstyle.cpp \
-		  kernel/qmotifstyle.cpp \
-		  kernel/qplatinumstyle.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
+		  kernel/qwindowsstyle.cpp \
 		  kernel/qwmatrix.cpp \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
@@ -316,3 +313,4 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 TARGET		= qt
 VERSION		= 2.00
 DESTDIR		= ../lib
+DLLDESTDIR	= ../bin

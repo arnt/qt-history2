@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#121 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#122 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -91,7 +91,7 @@ class QWidgetListIt;
 #elif defined(_OS_WIN32_)
 #define _WS_WIN32_
 #elif defined(_OS_OS2_)
-#error "Qt does not work with Presentation Manager or Workplace Shell"
+#error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(UNIX)
 #define _WS_X11_
 #endif
@@ -109,16 +109,13 @@ class QWidgetListIt;
 
 #if defined(_WS_WIN_)
 
-#if defined(_WS_WIN32_)
 #define NO_STRICT
+
 typedef void *HANDLE;
-typedef void *WId;
 typedef void *HDC;
-#elif defined(_WS_WIN16_)
-typedef uint HANDLE;
-typedef uint WId;
-typedef uint HDC;
-#endif
+typedef void *HWND;
+typedef HWND  WId;
+
 typedef struct tagMSG MSG;
 
 
@@ -127,7 +124,7 @@ Q_EXPORT HANDLE qWinAppPrevInst();
 Q_EXPORT int    qWinAppCmdShow();
 Q_EXPORT HANDLE qt_display_dc();
 
-enum WindowsVersion { WV_NT, WV_95, WV_32s };
+enum WindowsVersion { WV_NT, WV_95, WV_98, WV_32s };
 
 #endif // _WS_WIN16_ or _WS_WIN32_
 

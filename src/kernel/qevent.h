@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#66 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#67 $
 **
 ** Definition of event classes
 **
@@ -35,41 +35,43 @@ class Q_EXPORT QEvent: public Qt		// event base class
 {
 public:
     enum Type {
-	None = 0, // invalid event
-	Timer = 1, // timer event
-	MouseButtonPress = 2, // mouse button pressed
-        MouseButtonRelease = 3, // mouse button released
-	MouseButtonDblClick= 4, // mouse button double click
-	MouseMove = 5, // mouse move
-	KeyPress = 6, // key pressed
-	KeyRelease = 7, // key released
-	FocusIn = 8, // keyboard focus received
-	FocusOut = 9, // keyboard focus lost
-	Enter = 10, // mouse enters widget
-	Leave = 11, // mouse leaves widget
-	Paint = 12, // paint widget
-	Move = 13, // move widget
-	Resize = 14, // resize widget
-	Create = 15, // after object creation
-	Destroy = 16, // during object destruction
-	Show = 17, // widget is shown
-	Hide = 18, // widget is hidden
-	Close = 19, // request to close widget
-	Quit = 20, // request to quit application
-	Accel = 30, // accelerator event
-	Wheel = 31, // wheel event
-	Clipboard = 40, // internal clipboard event
-	SockAct = 50, // socket activation
-	DragEnter = 60, // drag moves into widget
-	DragMove = 61, // drag moves in widget
-	DragLeave = 62, // drag leaves or is cancelled
-	Drop = 63, // actual drop
-	DragResponse = 64, // drag accepted/rejected
-	ChildInserted = 70, // new child widget
-	ChildRemoved = 71, // deleted child widget
-	LayoutHint = 72, // child min/max size changed
-	User = 1000
-    }; // first user event id
+	None = 0,				// invalid event
+	Timer = 1,				// timer event
+	MouseButtonPress = 2,			// mouse button pressed
+        MouseButtonRelease = 3,			// mouse button released
+	MouseButtonDblClick= 4,			// mouse button double click
+	MouseMove = 5,				// mouse move
+	KeyPress = 6,				// key pressed
+	KeyRelease = 7,				// key released
+	FocusIn = 8,				// keyboard focus received
+	FocusOut = 9,				// keyboard focus lost
+	Enter = 10,				// mouse enters widget
+	Leave = 11,				// mouse leaves widget
+	Paint = 12,				// paint widget
+	Move = 13,				// move widget
+	Resize = 14,				// resize widget
+	Create = 15,				// after object creation
+	Destroy = 16,				// during object destruction
+	Show = 17,				// widget is shown
+	Hide = 18,				// widget is hidden
+	Close = 19,				// request to close widget
+	Quit = 20,				// request to quit application
+	Accel = 30,				// accelerator event
+	Wheel = 31,				// wheel event
+	Clipboard = 40,				// internal clipboard event
+	SockAct = 50,				// socket activation
+	DragEnter = 60,				// drag moves into widget
+	DragMove = 61,				// drag moves in widget
+	DragLeave = 62,				// drag leaves or is cancelled
+	Drop = 63,				// actual drop
+	DragResponse = 64,			// drag accepted/rejected
+	ChildInserted = 70,			// new child widget
+	ChildRemoved = 71,			// deleted child widget
+	LayoutHint = 72,			// child min/max size changed
+	ActivateControl = 80,			// ActiveX activation
+	DeactivateControl = 81,			// ActiveX deactivation
+	User = 1000				// first user event id
+    };
 
     QEvent( Type type )
 	: t(type), posted(FALSE) {}
@@ -83,7 +85,7 @@ private:
 };
 
 
-class Q_EXPORT QTimerEvent : public QEvent		// timer event
+class Q_EXPORT QTimerEvent : public QEvent
 {
 public:
     QTimerEvent( int timerId )
@@ -94,7 +96,7 @@ protected:
 };
 
 
-class Q_EXPORT QMouseEvent : public QEvent		// mouse event
+class Q_EXPORT QMouseEvent : public QEvent
 {
 public:
     QMouseEvent( Type type, const QPoint &pos, int button, int state );
@@ -120,7 +122,7 @@ protected:
 
 
 
-class Q_EXPORT QWheelEvent : public QEvent		// wheel event
+class Q_EXPORT QWheelEvent : public QEvent
 {
 public:
     QWheelEvent( const QPoint &pos, int delta, int state )
@@ -142,7 +144,7 @@ protected:
 };
 
 
-class Q_EXPORT QKeyEvent : public QEvent			// keyboard event
+class Q_EXPORT QKeyEvent : public QEvent
 {
 public:
     QKeyEvent( Type type, int key, int ascii, int state )
@@ -161,7 +163,7 @@ protected:
 };
 
 
-class Q_EXPORT QFocusEvent : public QEvent		// widget focus event
+class Q_EXPORT QFocusEvent : public QEvent
 {
 public:
     QFocusEvent( Type type )
@@ -171,8 +173,7 @@ public:
 };
 
 
-
-class Q_EXPORT QPaintEvent : public QEvent		// widget paint event
+class Q_EXPORT QPaintEvent : public QEvent
 {
 public:
     QPaintEvent( const QRegion& paintRegion )
@@ -183,16 +184,15 @@ public:
 	: QEvent(Paint),
 	  rec(paintRect),
           reg(paintRect) {}
-    const QRect &rect() const	{ return rec; }
-    const QRegion &region() const	{ return reg; }
+    const QRect &rect() const	  { return rec; }
+    const QRegion &region() const { return reg; }
 protected:
     QRect rec;
     QRegion reg;
 };
 
 
-
-class Q_EXPORT QMoveEvent : public QEvent		// widget move event
+class Q_EXPORT QMoveEvent : public QEvent
 {
 public:
     QMoveEvent( const QPoint &pos, const QPoint &oldPos )
@@ -204,8 +204,7 @@ protected:
 };
 
 
-
-class Q_EXPORT QResizeEvent : public QEvent		// widget resize event
+class Q_EXPORT QResizeEvent : public QEvent
 {
 public:
     QResizeEvent( const QSize &size, const QSize &oldSize )
@@ -217,8 +216,7 @@ protected:
 };
 
 
-
-class Q_EXPORT QCloseEvent : public QEvent		// widget close event
+class Q_EXPORT QCloseEvent : public QEvent
 {
 public:
     QCloseEvent()
@@ -231,8 +229,7 @@ protected:
 };
 
 
-
-class Q_EXPORT QShowEvent : public QEvent		// widget show event
+class Q_EXPORT QShowEvent : public QEvent
 {
 public:
     QShowEvent(bool spontaneous)
@@ -243,8 +240,7 @@ protected:
 };
 
 
-
-class Q_EXPORT QHideEvent : public QEvent		// widget hide event
+class Q_EXPORT QHideEvent : public QEvent
 {
 public:
     QHideEvent(bool spontaneous)
@@ -255,10 +251,9 @@ protected:
 };
 
 
-
-// this class is rather closed at the moment.  if you need to create
-// your own QDragMoveEvent objects, write to qt-bugs@troll.no and
-// we'll try to find a way to extend it so it covers your needs.
+// This class is rather closed at the moment.  If you need to create your
+// own QDragMoveEvent objects, write to qt-bugs@troll.no and we'll try to
+// find a way to extend it so it covers your needs.
 
 class Q_EXPORT QDragMoveEvent : public QEvent
 {
@@ -343,7 +338,7 @@ protected:
 };
 
 
-class Q_EXPORT QCustomEvent : public QEvent		// user-defined event
+class Q_EXPORT QCustomEvent : public QEvent
 {
 public:
     QCustomEvent( Type type, void *data )
