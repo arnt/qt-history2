@@ -369,7 +369,7 @@ void QPixmap::fill(const QColor &fillColor)
     } else if (fillColor == Qt::white) {
         PatBlt(dc, 0, 0, data->w, data->h, WHITENESS);
     } else {
-        HBRUSH hbrush = CreateSolidBrush(fillColor.rgb());
+        HBRUSH hbrush = CreateSolidBrush(RGB(fillColor.red(), fillColor.green(), fillColor.blue()));
         HBRUSH hb_old = (HBRUSH)SelectObject(dc, hbrush);
         PatBlt(dc, 0, 0, data->w, data->h, PATCOPY);
         DeleteObject(SelectObject(dc, hb_old));
