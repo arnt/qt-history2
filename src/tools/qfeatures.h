@@ -249,6 +249,9 @@
     */
 # define QT_NO_CODECS
 #endif
+#if defined(QT_NO_CODECS)
+# define QT_NO_BIG_CODECS
+#endif
 #if defined(QT_LITE_UNICODE)
     /*!
 	Unicode property tables
@@ -273,7 +276,7 @@
 /*!
   XML
 */
-#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC)
+#if defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_CODECS)
 # ifndef QT_NO_XML
 #  define QT_NO_XML
 # endif

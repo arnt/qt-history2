@@ -43,7 +43,7 @@
 
 #include "qbig5codec.h"
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 unsigned int qt_UnicodeToBig5(unsigned int unicode);
 static unsigned int qt_Big5ToUnicode(unsigned int code);

@@ -72,7 +72,7 @@
 #include "qjpunicode.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 class Q_EXPORT QEucJpCodec : public QTextCodec {
 public:

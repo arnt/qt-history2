@@ -37,7 +37,7 @@
 
 #include "qutfcodec.h"
 
-#ifndef QT_NO_TEXTCODEC
+#ifndef QT_NO_CODECS
 
 int QUtf8Codec::mibEnum() const
 {
@@ -273,4 +273,4 @@ QTextEncoder* QUtf16Codec::makeEncoder() const
     return new QUtf16Encoder;
 }
 
-#endif // QT_NO_TEXTCODEC
+#endif // QT_NO_CODECS

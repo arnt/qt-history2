@@ -121,7 +121,7 @@
 
 #include "qcstring.h"
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 #include <stdlib.h>
 #include <ctype.h>

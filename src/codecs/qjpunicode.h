@@ -71,7 +71,7 @@
 #include "qglobal.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 class Q_EXPORT QJpUnicodeConv {
 public:
@@ -162,5 +162,5 @@ private:
     int rule;
 };
 
-#endif // QT_NO_CODECS
+#endif // QT_NO_BIG_CODECS
 #endif /* QJPUNICODE_H */

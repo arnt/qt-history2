@@ -5,7 +5,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 
 class QTextCodec;
 
@@ -17,6 +17,6 @@ public:
     static QStringList codecs();
 };
 
-#endif // QT_NO_CODECS
+#endif // QT_NO_TEXTCODEC
 
 #endif // QTEXTCODECFACTORY_H

@@ -85,7 +85,7 @@
 
 #include "qsjiscodec.h"
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 static const uchar Esc = 0x1b;
 

@@ -3,10 +3,9 @@
 
 #ifndef QT_H
 #include "qcomponentinterface.h"
-#include <qstringlist.h>
 #endif // QT_H
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_TEXTCODEC
 #ifndef QT_NO_COMPONENT
 
 class QTextCodec;
@@ -25,6 +24,6 @@ struct Q_EXPORT QTextCodecInterface : public QFeatureListInterface
 };
 
 #endif // QT_NO_COMPONENT
-#endif // QT_NO_CODECS
+#endif // QT_NO_TEXTCODEC
 
 #endif // QTEXTCODECINTERFACE_H

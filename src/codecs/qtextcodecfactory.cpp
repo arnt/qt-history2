@@ -37,10 +37,11 @@
 #include "qtextcodecinterface.h"
 #include "qtextcodecfactory.h"
 
-#ifndef QT_NO_CODEC
+#ifndef QT_NO_TEXTCODEC
 
 #include "qapplication.h"
 #include "qinterfacemanager.h"
+#include "qtextcodecinterface.h"
 
 #include <stdlib.h>
 
@@ -139,4 +140,4 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
 }
 
 
-#endif // QT_NO_CODEC
+#endif // QT_NO_TEXTCODEC

@@ -39,12 +39,21 @@
 #ifndef QT_NO_TEXTCODEC
 
 #include "qlist.h"
+#include "qtextcodecfactory.h"
 #ifndef QT_NO_CODECS
 #include "qutfcodec.h"
 #include "qrtlcodec.h"
 #include "qtsciicodec.h"
-#include "qtextcodecfactory.h"
-#endif
+#endif // QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
+#include "qbig5codec.h"
+#include "qeucjpcodec.h"
+#include "qeuckrcodec.h"
+#include "qgbkcodec.h"
+#include "qjiscodec.h"
+#include "qjpunicode.h"
+#include "qsjiscodec.h"
+#endif // QT_NO_BIG_CODECS
 
 #include "qfile.h"
 #include "qstrlist.h"
@@ -356,7 +365,6 @@ QTextCodec* QTextCodec::codecForMib(int mib)
             break;
     }
 
-#ifndef QT_NO_CODECS
 #ifndef QT_NO_COMPONENT
 
     if (result->mibEnum() != mib) {
@@ -367,7 +375,6 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     }
 
 #endif // QT_NO_COMPONENT
-#endif // QT_NO_CODECS
 
     return result;
 }
@@ -658,14 +665,12 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
         }
     }
 
-#ifndef QT_NO_CODECS
 #ifndef QT_NO_COMPONENT
 
     if (! result && localeMapper)
 	result = QTextCodecFactory::createForName(name);
 
 #endif // QT_NO_COMPONENT
-#endif // QT_NO_CODECS
 
     return result;
 }
@@ -1067,7 +1072,7 @@ public:
                 break;
             else if (incmap) {
                 char* cursor = line;
-                int byte,unicode=-1;
+                int byte=-1,unicode=-1;
                 ushort* mb_unicode=0;
                 const int maxmb=8; // more -> we'll need to improve datastructures
                 char mb[maxmb+1];
@@ -2210,6 +2215,15 @@ static void setupBuiltinCodecs()
     (void)new QHebrewCodec;
     (void)new QTsciiCodec;
 #endif // QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
+    (void)new QBig5Codec;
+    (void)new QEucJpCodec;    
+    (void)new QEucKrCodec;
+    (void)new QGbkCodec;
+    (void)new QJisCodec;
+    (void)new QJpUnicode;
+    (void)new QSjisCodec;
+#endif // QT_NO_BIG_CODECS
 }
 
 #endif // QT_NO_TEXTCODEC
