@@ -303,8 +303,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
 // IDL generator
 /////////////////////////////////////////////////////////////////////////////
 
-static QStringList *enums = 0;
-static QStringList *subtypes = 0;
+static QStringList enums = 0;
+static QStringList subtypes = 0;
 
 static const char* const type_map[][2] =
 {
@@ -364,11 +364,11 @@ static QString convertTypes(const QString &qtype, bool *ok)
         }
         ++i;
     }
-    if (enums && enums->contains(qtype)) {
+    if (enums.contains(qtype)) {
         *ok = true;
         return "enum " + qtype;
     }
-    if (subtypes && subtypes->contains(qtype)) {
+    if (subtypes.contains(qtype)) {
         *ok = true;
     }
     return qtype;
@@ -422,22 +422,19 @@ static QByteArray replaceKeyword(const QByteArray &name)
     return name;
 }
 
-static QMap<QByteArray, int> *mapping = 0;
+static QMap<QByteArray, int> mapping;
 
 static QByteArray renameOverloads(const QByteArray &name)
 {
     QByteArray newName = name;
     
-    if (!mapping)
-        mapping = new QMap<QByteArray, int>();
-    
-    int n = (*mapping)[name];
-    if (n) {
-        int n = (*mapping)[name];
+    int n = mapping.value(name);
+    if (mapping.contains(name)) {
+        int n = mapping.value(name);
         newName = name + "_" + QString::number(n);
-        (*mapping)[name] = n+1;
+        mapping.insert(name, n+1);
     } else {
-        (*mapping)[name] = 1;
+        mapping.insert(name, 1);
     }
     
     return newName;
@@ -547,7 +544,7 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
         } else if (type.endsWith("**")) {
             out = true;
             type.truncate(type.length() - 1);
-        } else if (type.endsWith("*") && (!subtypes || !subtypes->contains(type))) {
+        } else if (type.endsWith("*") && !subtypes.contains(type)) {
             type.truncate(type.length() - 1);
         }
         if (type.isEmpty()) {
@@ -642,14 +639,11 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     QString defSignal(mo->classInfo(mo->indexOfClassInfo("DefaultSignal")).value());
     
     for (i = 0; i < mo->enumeratorCount(); ++i) {
-        if (!enums)
-            enums = new QStringList;
-        
         const QMetaEnum enumerator = mo->enumerator(i);
-        if (enums->contains(enumerator.name()))
+        if (enums.contains(enumerator.name()))
             continue;
         
-        enums->append(enumerator.name());
+        enums.append(enumerator.name());
         
         out << "\tenum " << enumerator.name() << " {" << endl;
         
@@ -670,8 +664,8 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     }
 
     // mouse cursor enum for QCursor support
-    if (!enums->contains("MousePointer")) {
-        enums->append("MousePointer");
+    if (!enums.contains("MousePointer")) {
+        enums.append("MousePointer");
         out << "\tenum MousePointer {" << endl;
         out << "\t\tArrowCursor             = " << Qt::ArrowCursor << "," << endl;
         out << "\t\tUpArrowCursor           = " << Qt::UpArrowCursor << "," << endl;
@@ -793,9 +787,8 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         outBuffer = QString();
     }
     out << "\t};" << endl << endl;
-    
-    delete mapping;
-    mapping = 0;
+
+    mapping.clear();
     id = 1;
     
     if (hasEvents) {
@@ -1031,21 +1024,27 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
         if (mo) {
             out << "\tcoclass " << className << ";" << endl;
             QObject *o = qAxFactory()->createObject(className);
-            // It's not a control class, so it is actually a subtype. Define it.
-            if (!o) {
-                if (!subtypes)
-                    subtypes = new QStringList;
-                subtypes->append(className);
-                subtypes->append(className + "*");
-                qRegisterMetaType(className, (void**)0);
-                qRegisterMetaType(className + "*", (void**)0);
-                res = classIDL(0, mo, className, false, out);
-                if (res != S_OK)
-                    break;
-            }
+            subtypes.append(className);
+            subtypes.append(className + "*");
+            qRegisterMetaType(className, (void**)0);
+            qRegisterMetaType(className + "*", (void**)0);
             delete o;
         }
     }
+    out << endl;
+
+    for (key = keys.begin(); key != keys.end(); ++key) {
+        QString className = *key;
+        const QMetaObject *mo = qAxFactory()->metaObject(className);
+        // We have meta object information for this type. Define it.
+        if (mo) {
+            QObject *o = qAxFactory()->createObject(className);
+            // It's not a control class, so it is actually a subtype. Define it.
+            if (!o)
+                res = classIDL(0, mo, className, false, out);
+        }
+    }
+
     out << endl;
     if (res != S_OK)
         goto ErrorInClass;
@@ -1058,13 +1057,8 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
         QAxBindable *bind = (QAxBindable*)o->qt_metacast("QAxBindable");
         bool isBindable =  bind != 0;
         
-        delete mapping;
-        mapping = 0;
-        
-        if (!subtypes)
-            subtypes = new QStringList;
-        subtypes->append(className);
-        subtypes->append(className + "*");
+        subtypes.append(className);
+        subtypes.append(className + "*");
         res = classIDL(o, o->metaObject(), className, isBindable, out);
         delete o;
         if (res != S_OK)
@@ -1077,13 +1071,6 @@ ErrorInClass:
     if (delete_qApp)
         delete qApp;
 
-    delete mapping;
-    mapping = 0;
-    delete enums;
-    enums = 0;
-    delete subtypes;
-    subtypes = 0;
-    
     if (res != S_OK) {
         file.close();
         file.remove();
