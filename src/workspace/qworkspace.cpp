@@ -119,7 +119,6 @@ public:
     bool isActive() const;
 
     void adjustToFullscreen();
-    void adjustSize();
 
     QWidget* windowWidget() const;
     QWidget* iconWidget() const;
@@ -1740,7 +1739,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	titlebar->setGeometry( tbrect );
 
 	if ( style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
-	    th -= r.y();
+	    th -= frameWidth();
 	cr = QRect( r.x(), r.y() + th + (shademode ? (frameWidth() * 3) : 0),
 		    r.width(), r.height() - th );
     } else {
@@ -1758,10 +1757,8 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 QSize QWorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
-	th += frameWidth();
-    else
-	th -= contentsRect().y();
+    if ( style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
+	th -= frameWidth();
     return QSize( 2*frameWidth(), 2*frameWidth() + th );
 }
 
@@ -1769,7 +1766,12 @@ QSize QWorkspaceChild::sizeHint() const
 {
     if ( !childWidget )
 	return QFrame::sizeHint() + baseSize();
-    return childWidget->sizeHint().expandedTo( childWidget->minimumSizeHint() ) + baseSize();
+
+    QSize prefSize = windowWidget()->sizeHint().expandedTo( windowWidget()->minimumSizeHint() );
+    prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
+    prefSize += baseSize();
+
+    return prefSize;
 }
 
 QSize QWorkspaceChild::minimumSizeHint() const
