@@ -104,6 +104,8 @@ void Index::setupDocumentList()
 
 void Index::insertInDict( const char *str, int docNum )
 {
+    if ( strcmp( str, "amp" ) == 0 || strcmp( str, "nbsp" ) == 0 )
+	return;
     Entry *e = 0;
     if ( dict.count() )
 	e = dict[ str ];
