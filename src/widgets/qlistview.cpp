@@ -622,6 +622,7 @@ void QListViewItem::init()
     visible = TRUE;
     renameBox = 0;
     enabled = TRUE;
+    mlenabled = FALSE;
 }
 
 /*! If \a b is TRUE, the item is made visible, else it is hidden, so
@@ -820,6 +821,22 @@ QListViewItem::~QListViewItem()
     delete (QListViewPrivate::ItemColumnInfo *)columns;
 }
 
+
+/*! If you pass \a TRUE here, items can contain multiple lines of
+  text, else this is not supported.
+*/
+
+void QListViewItem::setMultiLinesEnabled( bool b )
+{
+    mlenabled = b;
+}
+
+/*! Returns whether the item can display multiple lines of text. */
+
+bool QListViewItem::multiLinesEnabled() const
+{
+    return mlenabled;
+}
 
 /*!  If \a allow is TRUE, the listview starts a drag (see
   QListView::dragObject()) when user presses and moves the mouse on this
@@ -1313,12 +1330,18 @@ void QListViewItem::setup()
 	if ( pixmap( i ) )
 	    ph = QMAX( ph, pixmap( i )->height() );
     }
-    int h = ph;
-    for ( int c = 0; c < v->columns(); ++c ) {
-	int tmph = v->fontMetrics().size( AlignVCenter, text( c ) ).height();
-	h = QMAX( h, tmph );
+    int h;
+    if ( mlenabled ) {
+	h = ph;
+	for ( int c = 0; c < v->columns(); ++c ) {
+	    int tmph = v->fontMetrics().size( AlignVCenter, text( c ) ).height();
+	    h = QMAX( h, tmph );
+	}
+	h += 2*v->itemMargin();
+    } else {
+	h = QMAX( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
     }
-    h += 2*v->itemMargin();
+
     h = QMAX( h, QApplication::globalStrut().height());
 
     if ( h % 2 > 0 )
@@ -1729,7 +1752,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    ci->truncated = FALSE;
 	    // if we have to do the ellipsis thingy calc the truncated text
 	    int pw = pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : lv->itemMargin();
-	    if ( fm.size( align | AlignVCenter, t ).width() + pw > width ) {
+	    if ( mlenabled && fm.size( align | AlignVCenter, t ).width() + pw > width ||
+		 !mlenabled && fm.width( t ) + pw > width ) {
 		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
@@ -1811,7 +1835,12 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
 {
-    int w = fm.size( AlignVCenter, text( c ) ).width() + lv->itemMargin() * 2
+    int w;
+    if ( mlenabled )
+	w = fm.size( AlignVCenter, text( c ) ).width() + lv->itemMargin() * 2
+	    - lv->d->minLeftBearing - lv->d->minRightBearing;
+    else
+	w = fm.width( text( c ) ) + lv->itemMargin() * 2
 	    - lv->d->minLeftBearing - lv->d->minRightBearing;
     const QPixmap * pm = pixmap( c );
     if ( pm )

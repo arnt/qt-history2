@@ -174,6 +174,9 @@ public:
 
     virtual int rtti() const;
 
+    virtual void setMultiLinesEnabled( bool b );
+    bool multiLinesEnabled() const;
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
@@ -207,7 +210,8 @@ private:
     uint allow_drag : 1;
     uint allow_drop : 1;
     uint visible : 1;
-    uint enabled;
+    uint enabled : 1;
+    uint mlenabled : 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
