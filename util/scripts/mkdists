@@ -838,7 +838,6 @@ for plat in mac win x11 qnx6 embedded; do
 
 	status "*** Packing $edition... *****" "1"
 	PLATNAME=qt-${plat}-${edition}-${VERSION_STR}
-	[ "$TYPE" = "snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
 	PLATDIR=$DISTDIR/$PLATNAME
 
 	#copy the tree
