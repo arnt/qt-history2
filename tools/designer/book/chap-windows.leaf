@@ -1,4 +1,4 @@
-chapter Reference: Windows
+\chapter Reference: Windows
 
 \section1 Introduction
 
@@ -8,13 +8,18 @@ and the \l{Property Editor/Signal Handlers Window}. This chapter
 explains each window in detail.
 
 \img qd-fileoverviewwindow.png
+\caption File Overview Window
 
 \section1 File Overview Window
 
-This window lists all the files associated with the project, including
-forms, source files and images. To open a form or file single click it
-in the Files list. To rapidly switch between forms and files, type the
-name of the file in the line edit above the files list.
+This window lists all the files associated with the project. To open a
+form or file single click it in the Files list. To rapidly switch
+between forms and files, type the name of the file in the line edit
+above the files list and \QD will perform an incremental search to show
+any matching files or forms.
+
+Right-click a file (or the project) to get a context menu of options,
+for example, 'Open form' or 'Remove form from project'.
 
 \section1 Object Explorer Window
 
@@ -33,10 +38,11 @@ to highlight it in the corresponding form.
 
 \section2 Source Tab
 
-Click the Source tab to view the current form's declared slots,
-forward declarations, includes, and class variables. To invoke menus
-with other options, right click any of the directories or
-subdirectories listed in the source tab.
+Click the Source tab to view the current form's slots, forward
+declarations, includes, and class variables. The Source tab uses a
+tree view to display its information. Items which have a '+' sign have
+sub-items which are revealed by clicking the '+'. Right click any
+item in the tree view to popup a context menu.
 
 To edit or add slots, right click the Slots folder and select 'Edit'
 to invoke the \Dialog{Edit Slots Dialog}. Right click the Public,
@@ -50,16 +56,16 @@ jump to the implementation of the selected slot, choose 'Goto
 Implementation'. To remove the selected slot, choose 'Delete'. 
 
 Right click 'Forward Declarations', 'Includes (in declaration)',
-'Class Variables', and 'Includes (in implementation)' to invoke a menu
-with the 'new' or 'edit' options. Choose 'New' to invoke a line edit
-for typing a declaration, variable, or include. Right click 'Forward
-Declarations' and choose 'Edit' to invoke the \Dialog {Edit Forward
-Declarations Dialog'. Right click 'Includes (in declaration)' and
-choose'Edit' to invoke the \Dialog {Edit Includes (in Declaration)
-Dialog}. Right click 'Class variables' and choose 'Edit' to invoke the
-\Dialog {Edit Class Variables Dialog}. Right click 'Includes (in
-Implementation)' and choose 'Edit' to invoke the \Dialog {Edit
-Includes (in Implementation) Dialog}. 
+'Class Variables', and 'Includes (in implementation)' to invoke a
+context menu with the 'new' or 'edit' options. Choose 'New' to invoke
+a line edit for typing a declaration, variable, or include. Right
+click 'Forward Declarations' and choose 'Edit' to invoke the \Dialog
+{Edit Forward Declarations Dialog'. Right click 'Includes (in
+declaration)' and choose'Edit' to invoke the \Dialog {Edit Includes
+(in Declaration) Dialog}. Right click 'Class variables' and choose
+'Edit' to invoke the \Dialog {Edit Class Variables Dialog}. Right
+click 'Includes (in Implementation)' and choose 'Edit' to invoke the
+\Dialog {Edit Includes (in Implementation) Dialog}. 
 
 \section1 Property Editor/Signal Handlers Window
 
@@ -117,7 +123,5 @@ also available from the Edit menu).
 
 Click the 'Signal Handlers' tab to view or create the connections
 between signals of widgets and slots of the form.  
-
-
 
 

@@ -282,6 +282,8 @@ public:
     For information on changing elements of an existing style or
     creating your own style see the \link customstyles.html Style
     overview\endlink.
+
+    Styles can also be created as \link plugins.html plugins\endlink.
 */
 
 /*!

@@ -369,6 +369,8 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
    int heuristicNameMatch(const char* hint) const
    \endcode
    Test if a possibly non-standard name is referring to the codec.
+
+    Codecs can also be created as \link plugins.html plugins\endlink.
 */
 
 
