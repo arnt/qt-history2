@@ -96,6 +96,7 @@ private:
     MainWindow *help;
     QTextBrowser *viewer;
     QString documentationPath;
+    QString linguistDocPath;
 
 };
 

@@ -124,6 +124,7 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v )
 {
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
+    linguistDocPath   = QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html";
     indexDone = FALSE;
     contentsDone = FALSE;
     contentsInserted = FALSE;
@@ -147,10 +148,12 @@ void HelpDialog::loadIndexFile()
     framePrepare->show();
     qApp->processEvents();
     QProgressBar *bar = progressPrepare;
-    bar->setTotalSteps( QFileInfo( documentationPath + "/index" ).size() );
+    bar->setTotalSteps( QFileInfo( documentationPath + "/index" ).size() + 
+	                QFileInfo( linguistDocPath + "/index" ).size() );
     bar->setProgress( 0 );
 
     QString indexFile = documentationPath + "/index";
+    QString linguistIndexFile = linguistDocPath + "/index";
 
     HelpNavigationListItem *lastItem = 0;
 
@@ -158,6 +161,7 @@ void HelpDialog::loadIndexFile()
     QValueList<MyString>* lst = new QValueList<MyString>;
     bool buildDb = TRUE;
     QFile f( indexFile );
+    QFile f2( linguistIndexFile );
     if ( QFile::exists( QDir::homeDirPath() + "/.indexdb" ) ) {
 	QFile indexin( QDir::homeDirPath() + "/.indexdb" );
 	if ( !indexin.open( IO_ReadOnly ) )
@@ -168,7 +172,7 @@ void HelpDialog::loadIndexFile()
 	uint size;
 	ds >> dt;
 	ds >> size;
-	if ( size != f.size() || dt != QFileInfo( f ).lastModified() )
+	if ( size != (f.size() + f2.size()) || (dt != QFileInfo( f ).lastModified()) )
 	    goto build_db;
 
 	ds >> *lst;
@@ -196,14 +200,35 @@ void HelpDialog::loadIndexFile()
 	    if ( bar )
 		bar->setProgress( bar->progress() + l.length() );
 	}
-	if ( ts.atEnd() ) {
+	
+	// Read the Linguist index as well
+	// ### This is a temp hack and should be removed when the
+	// ### Assistant becomes more generalised.
+	if ( !f2.open( IO_ReadOnly ) )
+	    return;
+	QTextStream ts2( &f2 );
+	while ( !ts2.atEnd() && isVisible() ) {
+	    qApp->processEvents();
+	    if ( !isVisible() )
+		break;
+	    QString l = ts2.readLine();
+	    if ( l.find( "::" ) != -1 ) {
+		int i = l.find( "\"" ) + 1;
+		l.remove( i, l.find( "::" ) + 2 - i );
+	    }
+	    lst->append( l );
+	    if ( bar )
+		bar->setProgress( bar->progress() + l.length() );
+	}
+
+	if ( ts.atEnd() || ts2.atEnd() ) {
 	    qHeapSort( *lst );
 
 	    QFile indexout( QDir::homeDirPath() + "/.indexdb" );
 	    if ( indexout.open( IO_WriteOnly ) ) {	
 		QDataStream s( &indexout );
 		s << QFileInfo( f ).lastModified();
-		s << f.size();
+		s << (f.size() + f2.size());
 		s << *lst;
 	    }
 	    indexout.close();
@@ -251,7 +276,7 @@ void HelpDialog::setupTitleMap()
     if ( contentsDone )
 	return;
     contentsDone = TRUE;
-    QString titleFile = documentationPath + "/titleindex";
+    QString titleFile  = documentationPath + "/titleindex";
     QFile f2( titleFile );
     bool buildDb = TRUE;
     if ( QFile::exists( QDir::homeDirPath() + "/.titlemapdb" ) ) {
@@ -495,14 +520,16 @@ void HelpDialog::insertContents()
 	setupTitleMap();
 
     listContents->setSorting( -1 );
-    QListViewItem *qtDocu, *handbook;
+    QListViewItem *qtDocu, *handbook, *linguistDocu;
     qtDocu = new QListViewItem( listContents, tr( "Qt Class Documentation" ) );
     //    qtDocu->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
     handbook = new QListViewItem( listContents, tr( "Designer Handbook" ) );
 //     handbook->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
+    linguistDocu = new QListViewItem( listContents, tr( "Qt Linguist Manual" ) );
+
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
-
+    
     QValueList<MyString>* lst = new QValueList<MyString>;
     for ( QMap<QString, QString>::Iterator it = titleMap.begin(); it != titleMap.end(); ++it ) {
 	QString s = *it + " | " + it.key();
@@ -657,6 +684,14 @@ void HelpDialog::insertContents()
 	lastItem->setText( 0, (*it2).title );
 	lastItem->setLink( (*it2).link );
     }
+
+    // Linguist contents
+    // I do this manually, because titleMap is only used for the
+    // Qt reference docs. This will be removed when the Assistant becomes
+    // more generalised.
+    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
+    lastItem->setText( 0, "A guide to the Qt Translation tools" );
+    lastItem->setLink( "Guide_to_the_Qt_Translation_Tools.html" );
 }
 
 void HelpDialog::currentContentsChanged( QListViewItem * )

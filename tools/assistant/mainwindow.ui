@@ -36,8 +36,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>918</width>
-            <height>766</height>
+            <width>914</width>
+            <height>764</height>
         </rect>
     </property>
     <property name="caption">
@@ -67,6 +67,7 @@
         <separator/>
         <action name="actionGoQt"/>
         <action name="actionGoDesigner"/>
+        <action name="actionGoLinguist"/>
     </item>
     <item text="&amp;Bookmarks" name="bookmarkMenu">
     </item>
@@ -91,6 +92,7 @@
         <separator/>
         <action name="actionGoQt"/>
         <action name="actionGoDesigner"/>
+        <action name="actionGoLinguist"/>
     </toolbar>
 </toolbars>
 <actions>
@@ -285,6 +287,17 @@
             <number>272629805</number>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoLinguist</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image6</iconset>
+        </property>
+        <property name="text">
+            <string>Qt Linguist Manual</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -361,20 +374,46 @@
         <receiver>MainWindow</receiver>
         <slot>showQtHelp()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">goHome()</slot>
+    <connection>
+        <sender>actionGoLinguist</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showLinguistHelp()</slot>
+    </connection>
     <slot access="public" language="C++" returnType="void">about()</slot>
     <slot access="public" language="C++" returnType="void">aboutQt()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">find()</slot>
+    <slot access="public" language="C++" returnType="void">goHome()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="public" language="C++" returnType="void">showLinguistHelp()</slot>
     <slot access="public" language="C++" returnType="void">print()</slot>
     <slot access="public" language="C++" returnType="void">setupBookmarkMenu()</slot>
-    <slot access="public" language="C++" returnType="void">showDesignerHelp()</slot>
-    <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
     <slot access="public" language="C++" returnType="void">showBookmark( int id )</slot>
+    <slot access="public" language="C++" returnType="void">showDesignerHelp()</slot>
     <slot access="public" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
 </connections>
 <functions>
+    <function name="about()" >{
+}</function>
+    <function name="aboutQt()" >{
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
+    <function name="find()" >{
+    if ( !findDialog ) {
+	findDialog = new FindDialog( this );
+	findDialog-&gt;setBrowser( browser );
+    }
+    findDialog-&gt;comboFind-&gt;setFocus();
+    findDialog-&gt;show();
+}</function>
+    <function name="goHome()" >{
+    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
+    showLink( "index.html", "Qt Reference Documentation" );
+}</function>
     <function name="init()" >{
     browser = new HelpWindow( this, "qt_assistant_helpwindow" );
     browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
@@ -383,6 +422,7 @@
     // #### hardcoded paths - probably should read the settings from somewhere
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
+    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html/" );
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
     
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
@@ -417,24 +457,9 @@
     a-&gt;insertItem( CTRL+Key_L, 100 );
     a-&gt;connectItem( 100, helpDock-&gt;editIndex, SLOT( setFocus() ) );
 }</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="goHome()" >{
-    // #### we need a general Qt fonrtpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
-    showLink( "index.html", "Qt Reference Documentation" );
-}</function>
-    <function name="about()" >{
-}</function>
-    <function name="aboutQt()" >{
-}</function>
-    <function name="find()" >{
-    if ( !findDialog ) {
-	findDialog = new FindDialog( this );
-	findDialog-&gt;setBrowser( browser );
-    }
-    findDialog-&gt;comboFind-&gt;setFocus();
-    findDialog-&gt;show();
+    <function name="showLinguistHelp()" >{
+    // ## Hmm.. I guess we'll have to change that name..
+    showLink( "Guide_to_the_Qt_Translation_Tools.html", tr( "Qt Linguist Manual" ) );  
 }</function>
     <function name="print()" >{
     QPrinter printer;
@@ -502,20 +527,20 @@
 	bookmarks.insert( bookmarkMenu-&gt;insertItem( title ), link );
     }
 }</function>
-    <function name="showDesignerHelp()" >{
-    showLink( "book1.html", tr( "Qt Designer Manual" ) );
-}</function>
-    <function name="showQtHelp()" >{
-    showLink( "index.html", tr( "Qt Reference Documentationl" ) ); 
-}</function>
     <function name="showBookmark(int)" >{
     if ( bookmarks.find( id ) != bookmarks.end() )
 	showLink( *bookmarks.find( id ), bookmarkMenu-&gt;text( id ) );
+}</function>
+    <function name="showDesignerHelp()" >{
+    showLink( "book1.html", tr( "Qt Designer Manual" ) );
 }</function>
     <function name="showLink(const QString&amp;,const QString&amp;)" >{
     browser-&gt;setCaption( title );
     browser-&gt;setSource( link );
     browser-&gt;setFocus();
+}</function>
+    <function name="showQtHelp()" >{
+    showLink( "index.html", tr( "Qt Reference Documentation" ) ); 
 }</function>
 </functions>
 </UI>
