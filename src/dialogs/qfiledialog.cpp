@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#357 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#358 $
 **
 ** Implementation of QFileDialog class
 **
@@ -410,7 +410,6 @@ struct QFileDialogPrivate {
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
 
 	QString text( int column ) const;
-	QString key( int column, bool ) const;
 	const QPixmap * pixmap( int ) const;
 
 	QUrlInfo info;
@@ -1381,29 +1380,6 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
     else
 	return fifteenTransparentPixels;
 }
-
-
-QString QFileDialogPrivate::File::key( int column, bool ascending ) const
-{
-    makeVariables();
-    QDateTime epoch( QDate( 1968, 6, 19 ) );
-
-    char majorkey = ascending == info.isDir() ? '0' : '1';
-
-    if ( info.name() == QString::fromLatin1("..") ) {
-	return QString::fromLatin1(ascending ? "0" : "a"); // a > 9
-    } else if ( column == 1 ) {
-	return QString().sprintf( "%c%08d", majorkey, info.size() );
-    } else if ( column == 3 ) {
-	return QString().sprintf( "%c%08d",
-				  majorkey, epoch.secsTo( info.lastModified() ) );
-    }
-
-    QString t = text( column );
-    t.insert( 0, majorkey );
-    return t;
-}
-
 
 QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
     : QListBoxItem(), selectable( TRUE )
