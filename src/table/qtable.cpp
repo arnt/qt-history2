@@ -4670,6 +4670,8 @@ void QTable::setRowHeight( int row, int h )
 void QTable::adjustColumn( int col )
 {
     int w = topHeader->fontMetrics().width( topHeader->label( col ) ) + 10;
+    if ( topHeader->iconSet( col ) )
+	w += topHeader->iconSet( col )->pixmap().width();
     w = QMAX( w, 20 );
     for ( int i = 0; i < numRows(); ++i ) {
 	QTableItem *itm = item( i, col );
@@ -4690,6 +4692,8 @@ void QTable::adjustRow( int row )
 {
     int h = 20;
     h = QMAX( h, leftHeader->fontMetrics().height() );
+    if ( leftHeader->iconSet( row ) )
+	h += leftHeader->iconSet( row )->pixmap().height();
     for ( int i = 0; i < numCols(); ++i ) {
 	QTableItem *itm = item( row, i );
 	if ( !itm )
