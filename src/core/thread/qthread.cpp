@@ -85,6 +85,8 @@ Q_GLOBAL_STATIC(QThreadIdHash, threadIdHash)
 QThread *QThreadPrivate::threadForId(int id)
 {
     QThreadIdHash *idHash = threadIdHash();
+    if (!idHash)
+        return 0;
     QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::ReadAccess);
     return idHash->table.value(id);
 }
