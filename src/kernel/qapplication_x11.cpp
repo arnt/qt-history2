@@ -3273,7 +3273,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
 	    }
-	} else if ( event->xproperty.window == widget->winId() ) { // widget properties
+	} else if ( widget && event->xproperty.window == widget->winId() ) { // widget properties
 	    if (event->xproperty.atom == qt_net_wm_frame_strut) {
 		Atom ret;
 		int format;
