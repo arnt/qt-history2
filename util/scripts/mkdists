@@ -996,6 +996,11 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
 	    rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 
+	    # remove generated moc files (that don't compile on windows anyway)
+	    rm -f "$PLATDIR/src/moc/moc_lex.cpp"
+	    rm -f "$PLATDIR/src/moc/moc_yacc.cpp"
+	    rm -f "$PLATDIR/src/moc/moc_yacc.h"
+
 	    # move the files into include
 	    status "Moving header files.."
 	    [ ! -d "$PLATDIR/include" ] && mkdir -p "$PLATDIR/include"
