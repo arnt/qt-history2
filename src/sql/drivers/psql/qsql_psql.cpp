@@ -44,11 +44,12 @@
 #undef DEBUG // the PostgreSQL headers redefines this
 #include <postgres.h>
 #include <libpq/libpq-fs.h>
+// PostgreSQL headers redefine errno wrongly and without any reason
+// in <catalog/pg_type.h>. We try to work around by undefining system
+// header macros and disabling compiler warnings.
 #if defined(Q_CC_MSVC)
-#pragma warning(disable: 4273) // '_errno' : inconsistent dll linkage.  dllexport assumed
+#pragma warning(disable: 4273)
 #endif
-// PostgreSQL 7.2.x headers redefine errno (wrongly) without reason.
-// We try to work around by undefining system header macros.
 #if defined(errno)
 #undef errno
 #endif
