@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#88 $
 **
 ** Implementation of QColor class for X11
 **
@@ -53,12 +53,12 @@ static QColorDict *colorDict  = 0;		// dict of allocated colors
 
 static bool	colors_avail  = TRUE;		// X colors available
 static int	current_alloc_context = 0;	// current color alloc context
+static bool	g_truecolor;			// truecolor visual
 static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
 static bool	g_carr_fetch = TRUE;		// perform XQueryColors?
 static int	g_cells = 0;			// number of entries in g_carr
 static bool    *g_our_alloc = 0;		// our allocated colors
-static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
 static const uint col_std_dict = 419;
@@ -69,9 +69,7 @@ static int	col_div_r;
 static int	col_div_g;
 static int	col_div_b;
 
-extern int	qt_ncols_option;		// defined in qapplication_x11.cpp
-extern int	qt_visual_option;
-extern bool	qt_cmap_option;
+extern int	qt_ncols_option;		// qapplication_x11.cpp
 
 
 /*
@@ -113,46 +111,6 @@ static int find_nearest_color( int r, int g, int b, int* mindist_out )
     }
     *mindist_out = mindist;
     return mincol;
-}
-
-
-/*
-  Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
-  are ignored, unless the user has explicitly requested -visual TrueColor.
-  The SGI X server usually has an 8 bit default visual, but the application
-  can also ask for a truecolor visual. This is what we do if
-  QApplication::colorSpec() is QApplication::ManyColor.
-*/
-
-static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
-{
-    XVisualInfo *vi, rvi;
-    int best=0, n, i;
-    int scr = DefaultScreen(dpy);
-    rvi.c_class = TrueColor;
-    rvi.screen  = scr;
-    vi = XGetVisualInfo( dpy, VisualClassMask | VisualScreenMask,
-			 &rvi, &n );
-    if ( vi ) {
-	for ( i=0; i<n; i++ ) {
-	    if ( vi[i].depth > vi[best].depth )
-		best = i;
-	}
-    }
-    Visual *v = DefaultVisual(dpy,scr);
-    if ( !vi || (vi[best].visualid == XVisualIDFromVisual(v)) ||
-	 (vi[best].depth <= 8 && qt_visual_option != TrueColor) )
-    {
-	*depth = DefaultDepth(dpy,scr);
-	*ncols = DisplayCells(dpy,scr);	
-    } else {
-	v = vi[best].visual;
-	*depth = vi[best].depth;
-	*ncols = vi[best].colormap_size;
-    }
-    if ( vi )
-	XFree( (char *)vi );
-    return v;
 }
 
 
@@ -210,38 +168,13 @@ void QColor::initialize()
 	return;
     color_init = TRUE;
 
-    Display *dpy  = qt_xdisplay();
-    int      scr  = DefaultScreen(dpy);
+    Display *dpy  = QPaintDevice::x11AppDisplay();
+    int      scr  = QPaintDevice::x11AppScreen();
+    int	     ncols= QPaintDevice::x11AppCells();
     int	     spec = QApplication::colorSpec();
-    int	     depth, ncols;
-    Colormap cmap;
-    const int tc = TrueColor;
 
-    if ( spec == (int)QApplication::ManyColor ||
-	 qt_visual_option == TrueColor ) {
-	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
-    } else {
-	g_vis = DefaultVisual(dpy,scr);
-	depth = DefaultDepth(dpy,scr);
-	ncols = DisplayCells(dpy,scr);
-    }
-    g_truecolor = g_vis->c_class == tc;
-    bool defVis = (XVisualIDFromVisual(g_vis) ==
-		   XVisualIDFromVisual(DefaultVisual(dpy,scr)));
-    bool defCmap;
-    if ( g_truecolor )
-	defCmap = defVis;
-    else
-	defCmap = !qt_cmap_option;
-
-    if ( defCmap ) {
-	cmap = DefaultColormap(dpy,scr);
-    } else {
-#if defined(_CC_GNU_)
-#warning "Haavard to add qt_create_colormap similar to the code in qgl"
-#endif
-	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone);
-    }
+    g_vis = (Visual *)QPaintDevice::x11AppVisual();
+    g_truecolor = g_vis->c_class == TrueColor;
 
     if ( !g_truecolor ) {
 	// Create the g_our_alloc array, which remembers which color pixels
@@ -260,15 +193,6 @@ void QColor::initialize()
 	    xc++;
 	}
     }
-
-    QPaintDevice::x_appdisplay     = dpy;
-    QPaintDevice::x_appscreen      = scr;
-    QPaintDevice::x_appdepth       = depth;
-    QPaintDevice::x_appcells       = ncols;
-    QPaintDevice::x_appcolormap    = (uint)cmap;
-    QPaintDevice::x_appdefcolormap = defCmap;
-    QPaintDevice::x_appvisual      = g_vis;
-    QPaintDevice::x_appdefvisual   = defVis;
 
     int dictsize;
     if ( g_truecolor ) {			// truecolor
@@ -289,7 +213,8 @@ void QColor::initialize()
 
     ((QColor*)(&Qt::black))->rgbVal = qRgb( 0, 0, 0 );
     ((QColor*)(&Qt::white))->rgbVal = qRgb( 255, 255, 255 );
-    if ( defVis && defCmap ) {
+    if ( QPaintDevice::x11AppDefaultVisual() &&
+	 QPaintDevice::x11AppDefaultColormap() ) {
 	((QColor*)(&Qt::black))->pix = (uint)BlackPixel( dpy, scr );
 	((QColor*)(&Qt::white))->pix = (uint)WhitePixel( dpy, scr );
     } else {
@@ -369,9 +294,6 @@ void QColor::cleanup()
 	delete [] g_carr;
     if ( g_our_alloc )				// Avoid purify complaint
 	delete [] g_our_alloc;
-    if ( !QPaintDevice::x_appdefcolormap )
-	XFreeColormap( QPaintDevice::x11AppDisplay(),
-		       QPaintDevice::x11AppColormap() );
     if ( colorDict ) {
 	colorDict->setAutoDelete( TRUE );
 	colorDict->clear();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#63 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#64 $
 **
 ** Definition of QPaintDevice class
 **
@@ -91,12 +91,14 @@ protected:
 
     uint	devFlags;			// device flags
 
-    friend class QColor;
     friend class QPainter;
     friend class QPaintDeviceMetrics;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
 				 int, int, int, int, Qt::RasterOp, bool );
+#if defined(_WS_X11_)
+    friend void qt_init_internal( int *, char **, Display * );
+#endif
 
 private:
 #if defined(_WS_X11_)

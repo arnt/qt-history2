@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#419 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#420 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -232,7 +232,7 @@ void		qt_reset_color_avail();		// defined in qcolor_x11.cpp
 int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
-QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
+QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 Window 	qt_window_for_button_down = 0; // the window which receives the mouse events
 
 // stuff in tq_xdnd.cpp
@@ -260,6 +260,7 @@ extern Atom qt_xdnd_selection;
 
 void qt_x11_intern_atom( const char *, Atom * );
 
+
 class QETWidget : public QWidget		// event translator widget
 {
 public:
@@ -274,6 +275,7 @@ public:
     bool translateScrollDoneEvent( const XEvent * );
 };
 
+
 static void close_xim()
 {
     if ( xim_fixed_fontset )
@@ -283,6 +285,7 @@ static void close_xim()
     // XCloseIM( xim );
     xim = 0;
 }
+
 
 /*****************************************************************************
   Default X error handlers
@@ -339,7 +342,7 @@ static int qt_xio_errhandler( Display * )
 #endif
 
 
-// memory leak: if the app exits before qt_init_internal(), this dict
+// Memory leak: if the app exits before qt_init_internal(), this dict
 // isn't released correctly.
 static QDict<Atom> * atoms_to_be_created = 0;
 static bool create_atoms_now = 0;
@@ -396,9 +399,9 @@ static void qt_x11_process_intern_atoms()
 	    if ( res[i] && resp[i] )
 		*(resp[i]) = res[i];
 	}
-	(void)free( res );
-	(void)free( resp );
-	(void)free( names );
+	free( res );
+	free( resp );
+	free( names );
 #else
 	QDictIterator<Atom> it( *atoms_to_be_created );
 	Atom * result;
@@ -414,7 +417,6 @@ static void qt_x11_process_intern_atoms()
 	create_atoms_now = TRUE;
     }
 }
-
 
 
 /*****************************************************************************
@@ -462,7 +464,6 @@ static void set_local_font()
     QFont::setDefaultFont( QFont( "Helvetica", 12,
 				  QFont::Normal, FALSE, QFont::Latin1 ) );
 }
-
 
 
 // set font, foreground and background from x11 resources. The
@@ -581,11 +582,52 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     }
 }
 
+
+/*
+  Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
+  are ignored, unless the user has explicitly requested -visual TrueColor.
+  The SGI X server usually has an 8 bit default visual, but the application
+  can also ask for a truecolor visual. This is what we do if
+  QApplication::colorSpec() is QApplication::ManyColor.
+*/
+
+static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
+{
+    XVisualInfo *vi, rvi;
+    int best=0, n, i;
+    int scr = DefaultScreen(dpy);
+    rvi.c_class = TrueColor;
+    rvi.screen  = scr;
+    vi = XGetVisualInfo( dpy, VisualClassMask | VisualScreenMask,
+			 &rvi, &n );
+    if ( vi ) {
+	for ( i=0; i<n; i++ ) {
+	    if ( vi[i].depth > vi[best].depth )
+		best = i;
+	}
+    }
+    Visual *v = DefaultVisual(dpy,scr);
+    if ( !vi || (vi[best].visualid == XVisualIDFromVisual(v)) ||
+	 (vi[best].depth <= 8 && qt_visual_option != TrueColor) )
+    {
+	*depth = DefaultDepth(dpy,scr);
+	*ncols = DisplayCells(dpy,scr);	
+    } else {
+	v = vi[best].visual;
+	*depth = vi[best].depth;
+	*ncols = vi[best].colormap_size;
+    }
+    if ( vi )
+	XFree( (char *)vi );
+    return v;
+}
+
+
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
 
-static void qt_init_internal( int *argcptr, char **argv, Display *display )
+void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
     if ( display ) {
       // Qt part of other application	
@@ -738,6 +780,39 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     appScreen  = DefaultScreen(appDpy);
     appRootWin = RootWindow(appDpy,appScreen);
+
+  // Set X paintdevice parameters
+
+    Visual *vis = DefaultVisual(appDpy,appScreen)
+;
+    QPaintDevice::x_appdisplay     = appDpy;
+    QPaintDevice::x_appscreen      = appScreen;
+    QPaintDevice::x_appdepth       = DefaultDepth(appDpy,appScreen);
+    QPaintDevice::x_appcells       = DisplayCells(appDpy,appScreen);
+    QPaintDevice::x_appvisual      = vis;
+    QPaintDevice::x_appdefvisual   = TRUE;
+
+    if ( qt_visual_option == TrueColor ||	// find custom visual
+	 QApplication::colorSpec() == QApplication::ManyColor ) {
+	vis = find_truecolor_visual( appDpy, &QPaintDevice::x_appdepth,
+				     &QPaintDevice::x_appcells );
+	QPaintDevice::x_appdefvisual =
+	    (XVisualIDFromVisual(vis) ==
+	     XVisualIDFromVisual(DefaultVisual(appDpy,appScreen)));
+	 QPaintDevice::x_appvisual = vis;
+    }
+
+    if ( vis->c_class == TrueColor ) {
+	QPaintDevice::x_appdefcolormap = QPaintDevice::x_appdefvisual;
+    } else {
+	QPaintDevice::x_appdefcolormap = !qt_cmap_option;
+    }
+    if ( QPaintDevice::x_appdefcolormap ) {
+	QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
+    } else {
+	QPaintDevice::x_appcolormap = XCreateColormap(appDpy, appRootWin,
+						      vis, AllocNone);
+    }
 
   // Support protocols
 
@@ -897,6 +972,10 @@ void qt_cleanup()
     }
 #endif
 
+    if ( !QPaintDevice::x11AppDefaultColormap() )
+	XFreeColormap( QPaintDevice::x11AppDisplay(),
+		       QPaintDevice::x11AppColormap() );
+
 #define CLEANUP_GC(g) if (g) XFreeGC(appDpy,g)
     CLEANUP_GC(app_gc_ro);
     CLEANUP_GC(app_gc_ro_m);
@@ -1027,8 +1106,7 @@ static GC create_gc( bool monochrome )
 	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
 			       0, QPaintDevice::x11AppDepth(), InputOutput,
 			       (Visual*)QPaintDevice::x11AppVisual(),
-			       CWBackPixel|CWBorderPixel|CWColormap,
-			       &a );
+			       CWBackPixel|CWBorderPixel|CWColormap, &a );
 	    gc = XCreateGC( appDpy, w, 0, 0 );
 	    XDestroyWindow( appDpy, w );
 	}

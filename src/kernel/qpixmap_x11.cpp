@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#146 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1089,6 +1089,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	xi = (XImage*)data->ximage;
 	if ( xi->depth == dd && xi->width == w && xi->height == h ) {
 	    newbits = (uchar *)xi->data;
+	    xi->data = 0;
 	} else {
 	    qSafeXDestroyImage( (XImage*)data->ximage );
 	    data->ximage = 0;
@@ -1106,7 +1107,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 	newbits = image.bits();
 	xi->data = (char *)newbits;
-	    
+
     } else if ( trucol ) {			// truecolor display
 	QRgb  pix[256];				// pixel translation table
 	bool  d8 = d == 8;
@@ -1196,7 +1197,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
 	    p	= (QRgb *)src;
-	    if ( 1 ) {
+	    if ( 0 ) {
 		// 24 bit image optimization
 		int n = w/4;
 		QRgb *b = (QRgb *)dst;
