@@ -1713,6 +1713,10 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 /*!
     Returns an image of the frame buffer. If \a withAlpha is TRUE the
     alpha channel is included.
+    
+    Depending on your hardware, you can explicitly select which color
+    buffer to grab with a glReadBuffer() call before calling this
+    function.
 */
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
