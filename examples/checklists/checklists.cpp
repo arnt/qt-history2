@@ -67,7 +67,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     tmp->setMargin( 5 );
 
     // create a pushbutton
-    QPushButton *copy1 = new QPushButton( "  ->	 ", this );
+    QPushButton *copy1 = new QPushButton( "  ->  ", this );
     tmp->addWidget( copy1 );
     copy1->setMaximumWidth( copy1->sizeHint().width() );
     // connect the SIGNAL clicked() of the pushbutton with the SLOT copy1to2()
@@ -91,7 +91,7 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     tmp->setMargin( 5 );
 
     // create another pushbutton...
-    QPushButton *copy2 = new QPushButton( "  ->	 ", this );
+    QPushButton *copy2 = new QPushButton( "  ->  ", this );
     lay->addWidget( copy2 );
     copy2->setMaximumWidth( copy2->sizeHint().width() );
     // ...and connect its clicked() SIGNAL to the copy2to3() SLOT
