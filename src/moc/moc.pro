@@ -9,7 +9,7 @@ win32:DEFINES  += QT_NODLL
 DESTDIR         = ../../bin
 
 
-INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . $$QT_SOURCE_TREE/arch/$$ARCH
+INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . ../core/arch/$$ARCH
 DEPENDPATH	+= $$QT_SOURCE_TREE/include ../core/base ../core/tools ../core/io .
 LIBS		=
 OBJECTS_DIR	= .
@@ -32,7 +32,7 @@ SOURCES		= ../core/tools/qbitarray.cpp	\
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp
 
-include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
+include(../core/arch/$$ARCH/arch.pri)
 
 isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
     LEXSOURCES  = moc.l
