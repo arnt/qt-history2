@@ -1271,7 +1271,6 @@ void MainWindow::setupActionEditor()
     actionEditor = new ActionEditor( dw );
     dw->setWidget( actionEditor );
     actionEditor->show();
-    dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Action Editor" ) );
     QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
     dw->hide();
