@@ -998,14 +998,20 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
 
     bool declaredPix = driver->containsPixmap(pix);
     if (s.isEmpty() || uic->hasExternalPixmap() || uic->pixmapFunction().size() || !declaredPix) {
+        QString pixFunc = uic->pixmapFunction();
+
+        if (pixFunc.isEmpty() && !s.isEmpty())
+            pixFunc = QLatin1String("QString::fromUtf8");
+
         if (uic->hasExternalPixmap() || !declaredPix)
             s = QLatin1String("\"") + s + QLatin1String("\"");
 
-        QString pixFunc = uic->pixmapFunction();
-        if (pixFunc.isEmpty())
-            pixFunc = QLatin1String("QString::fromUtf8");
+        if (pixFunc.isEmpty() && s == QLatin1String("\"\""))
+            s.clear();
 
-        s = pixFunc + QLatin1String("(") + s + QLatin1String(")");
+        if (!pixFunc.isEmpty())
+            s = pixFunc + QLatin1String("(") + s + QLatin1String(")");
+
         s = QLatin1String("QPixmap(") + s + QLatin1String(")");
 
         return s;
