@@ -34,6 +34,9 @@
     <property name="caption">
         <string>settings</string>
     </property>
+    <property name="icon">
+        <pixmap>logo.png</pixmap>
+    </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
@@ -653,5 +656,6 @@
     <function type="slot">deleteCategory()</function>
     <function type="slot">browseWebApp()</function>
 </functions>
+<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

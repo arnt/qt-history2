@@ -16,6 +16,7 @@ INSTALLS += target
 
 PROJECTNAME	= Assistant
 FORMS	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui settingsdialog.ui 
+IMAGES	= images/logo.png
 
 TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts
