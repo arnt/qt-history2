@@ -744,17 +744,8 @@ QStringList QDir::nameFilters() const
 }
 
 /*!
-    Sets the name filter used by entryList() and entryInfoList() to \a
-    nameFilters.
-
-    The \a nameFilters is a wildcard (globbing) filter that understands
-    "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
-    QRegExp wildcard matching\endlink.) You may specify several filter
-    entries, each separated by spaces " ", or by semicolons ";".
-
-    For example, if you want entryList() and entryInfoList() to list
-    all files ending with either ".cpp" or ".h", you would use either
-    dir.setNameFilters("*.cpp *.h") or dir.setNameFilters("*.cpp;*.h").
+    Sets the name filters used by entryList() and entryInfoList() to the
+    list of filters specified by \a nameFilters.
 
     \sa nameFilters(), setFilter()
 */
@@ -1756,6 +1747,15 @@ QString QDir::nameFilter() const
 /*!
     Use setNameFilters() instead.
 
+    The \a nameFilters is a wildcard (globbing) filter that understands
+    "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
+    QRegExp wildcard matching\endlink.) You may specify several filter
+    entries, each separated by spaces " ", or by semicolons ";".
+
+    For example, if you want entryList() and entryInfoList() to list
+    all files ending with either ".cpp" or ".h", you would use either
+    dir.setNameFilters("*.cpp *.h") or dir.setNameFilters("*.cpp;*.h").
+
     \oldcode
         QString filter = "*.cpp *.cxx *.cc";
         dir.setNameFilter(filter);
@@ -1763,8 +1763,6 @@ QString QDir::nameFilter() const
         QString filter = "*.cpp *.cxx *.cc";
         dir.setNameFilters(filter.split(' '));
     \endcode
-
-    \omit ### Explain the semicolon behavior \endomit
 */
 void QDir::setNameFilter(const QString &nameFilter)
 {
