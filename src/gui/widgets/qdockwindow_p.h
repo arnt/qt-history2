@@ -41,19 +41,16 @@ public:
           features(QDockWindow::DockWindowClosable
                    | QDockWindow::DockWindowMovable
                    | QDockWindow::DockWindowFloatable),
-          area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowArea_Mask),
-          top(0), box(0), title(0), resizer(0)
+          allowedAreas(Qt::AllDockWindowAreas), top(0), box(0), title(0), resizer(0)
     { }
 
     void init();
-    void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
     void toggleView(bool); // private slot
 
     QMainWindow *mainWindow;
     QWidget *widget;
 
     QDockWindow::DockWindowFeatures features;
-    Qt::DockWindowArea area;
     Qt::DockWindowAreas allowedAreas;
 
     QBoxLayout *top, *box;

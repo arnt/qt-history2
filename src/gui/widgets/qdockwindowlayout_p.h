@@ -97,8 +97,6 @@ public:
     void drop(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
 
     void extend(QDockWindow *dockwindow, Qt::Orientation direction);
-    void split(QDockWindow *dockwindow, Qt::Orientation direction);
-
     void split(QDockWindow *existing, QDockWindow *with, Qt::DockWindowArea area);
 
 signals:

@@ -474,22 +474,6 @@ void QDockWindowPrivate::init() {
     QObject::connect(d->toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
-void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
-{
-    QMainWindowLayout *mwl = qt_cast<QMainWindowLayout *>(d->mainWindow->layout());
-    Q_ASSERT(mwl != 0);
-    QDockWindowLayout *dwl = mwl->layoutForArea(area);
-    Q_ASSERT(dwl != 0);
-
-    mwl->removeRecursive(q);
-    if (extend)
-        dwl->extend(q, direction);
-    else
-        dwl->split(q, direction);
-    if (d->mainWindow->isVisible())
-        mwl->relayout();
-}
-
 void QDockWindowPrivate::toggleView(bool b)
 {
     if (b != q->isShown()) {
@@ -593,20 +577,6 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
 {
     Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
     d->init();
-    setArea(d->area);
-}
-
-/*!
-    Constructs a QDockWindow with parent \a parent, placed in \a area
-    and with widget flags \a flags.
-*/
-QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
-    : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
-{
-    Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
-    d->init();
-    setArea(area);
 }
 
 /*!
@@ -708,7 +678,7 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
         if (!pos.isNull())
             move(pos);
     } else if (!d->title->state) { // don't set the area if the user has moved the dock window
-        setArea(d->area);
+        // setArea(d->area);
     }
 
     d->resizer->setActive(floated);
@@ -738,104 +708,6 @@ Qt::DockWindowAreas QDockWindow::allowedAreas() const
     Returns true if this dock window can be placed in the given \a area;
     otherwise returns false.
 */
-
-/*! \property QDockWindow::area
-    \brief area where the dock window is current placed.
-
-    The default is \c Qt::DockWindowAreaLeft.
-
-    \sa QDockWindow::allowedAreas
-*/
-
-Qt::DockWindowArea QDockWindow::area() const
-{ return d->area; }
-
-void QDockWindow::setArea(Qt::DockWindowArea area)
-{
-    // add a window to an area using a hueristic to determine direction
-
-    Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setArea", "specified 'area' is not an allowed area");
-
-#ifdef Q_WS_MAC
-    extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
-    if (qt_mac_is_macdrawer(this)) {
-        if (d->area == area)
-            return;
-        d->area = area;
-
-        Qt::Dock x;
-        switch (d->area) {
-        default:
-            Q_ASSERT(false);
-        case Qt::DockWindowAreaLeft:
-            x = Qt::DockLeft;
-            break;
-        case Qt::DockWindowAreaRight:
-            x = Qt::DockRight;
-            break;
-        case Qt::DockWindowAreaTop:
-            x = Qt::DockTop;
-            break;
-        case Qt::DockWindowAreaBottom:
-            x = Qt::DockBottom;
-            break;
-        }
-        // from qwidget_mac.cpp
-        extern bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock edge);
-        qt_mac_set_drawer_preferred_edge(this, x);
-
-        if (isVisible()) {
-            hide();
-            show();
-        }
-        return;
-    }
-#endif
-
-    d->area = area;
-
-    if (!isTopLevel()) {
-        Qt::Orientation direction;
-        switch (area) {
-        case Qt::DockWindowAreaLeft:
-        case Qt::DockWindowAreaRight:
-            direction = Qt::Vertical;
-            break;
-        case Qt::DockWindowAreaTop:
-        case Qt::DockWindowAreaBottom:
-	default:
-            direction = Qt::Horizontal;
-        }
-        d->place(area, direction, true);
-    }
-}
-
-void QDockWindow::setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
-{
-    // add a window to an area, placing done relative to the previous
-    Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setArea", "specified 'area' is not an allowed area");
-
-    d->area = area;
-
-    if (!isTopLevel())
-        d->place(area, direction, extend);
-}
-
-void QDockWindow::setArea(QDockWindow *after, Qt::Orientation direction)
-{
-    // splits the specified dockwindow
-    Qt::DockWindowArea area = after->area();
-    Q_ASSERT_X(((d->allowedAreas & area) == area),
-               "QDockWindow::setArea", "specified 'area' is not an allowed area");
-
-    d->area = area;
-
-    Q_ASSERT_X(false, "QDockWindow::setArea",
-               "place after specified dock window is unimplemented");
-    Q_UNUSED(direction);
-}
 
 /*! \reimp */
 void QDockWindow::changeEvent(QEvent *event)

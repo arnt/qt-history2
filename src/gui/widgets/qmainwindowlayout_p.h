@@ -48,15 +48,18 @@ class QMainWindowLayout : public QLayout
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *cw);
 
-    QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
-
     void addToolBarBreak(Qt::ToolBarArea area);
     void insertToolBarBreak(QToolBar *before);
-
     void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
-
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
+
+    QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
+    void extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                              Qt::Orientation orientation);
+    void splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+                         Qt::Orientation orientation);
+    Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
 
     // QLayout interface
     void addItem(QLayoutItem *item);

@@ -30,7 +30,6 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_FLAGS(DockWindowFeatures)
     Q_PROPERTY(DockWindowFeatures features READ features WRITE setFeatures)
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
-    Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
 
 public:
     enum DockWindowFeature {
@@ -45,7 +44,6 @@ public:
     Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
 
     QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
-    QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags = 0);
     ~QDockWindow();
 
     QMainWindow *mainWindow() const;
@@ -66,12 +64,6 @@ public:
 
     inline bool isDockable(Qt::DockWindowArea area)
     { return (allowedAreas() & area) == area; }
-
-    Qt::DockWindowArea area() const;
-
-    void setArea(Qt::DockWindowArea area); // always extends
-    void setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);
-    void setArea(QDockWindow *after, Qt::Orientation direction); // always splits
 
     QAction *toggleViewAction() const;
 

@@ -177,36 +177,6 @@ void QMainWindowLayout::setCentralWidget(QWidget *cw)
     invalidate();
 }
 
-QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
-{
-    POSITION pos = positionForArea(area);
-    QMainWindowLayoutInfo &info = layout_info[pos];
-    QDockWindowLayout *l = 0;
-
-    if (!info.item) {
-        // create new dock window layout
-        static const Qt::Orientation orientations[] = {
-            Qt::Vertical,   // LEFT
-            Qt::Vertical,   // RIGHT
-            Qt::Horizontal, // TOP
-            Qt::Horizontal, // BOTTOM
-        };
-
-        l = new QDockWindowLayout(this, area, orientations[pos]);
-        l->setObjectName(objectName() + "_dockWindowLayout" + QString::number(area, 16));
-
-        info.item = l;
-
-        // create separator
-        Q_ASSERT(!info.sep);
-        info.sep = new QWidgetItem(new QDockSeparator(l, parentWidget()));
-    } else {
-        l = qt_cast<QDockWindowLayout *>(info.item->layout());
-        Q_ASSERT(l != 0);
-    }
-    return l;
-}
-
 void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
 {
     ToolBarLineInfo newLine;
@@ -326,12 +296,98 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
     return Qt::ToolBarAreaTop;
 }
 
+QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
+{
+    POSITION pos = positionForArea(area);
+    QMainWindowLayoutInfo &info = layout_info[pos];
+    QDockWindowLayout *l = 0;
+
+    if (!info.item) {
+        // create new dock window layout
+        static const Qt::Orientation orientations[] = {
+            Qt::Vertical,   // LEFT
+            Qt::Vertical,   // RIGHT
+            Qt::Horizontal, // TOP
+            Qt::Horizontal, // BOTTOM
+        };
+
+        l = new QDockWindowLayout(this, area, orientations[pos]);
+        l->setObjectName(objectName() + "_dockWindowLayout" + QString::number(area, 16));
+
+        info.item = l;
+
+        // create separator
+        Q_ASSERT(!info.sep);
+        info.sep = new QWidgetItem(new QDockSeparator(l, parentWidget()));
+    } else {
+        l = qt_cast<QDockWindowLayout *>(info.item->layout());
+        Q_ASSERT(l != 0);
+    }
+    return l;
+}
+
+void QMainWindowLayout::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                                             Qt::Orientation orientation)
+{
+    removeRecursive(dockwindow);
+
+    QDockWindowLayout * const layout = layoutForArea(area);
+    layout->extend(dockwindow, orientation);
+}
+
+void QMainWindowLayout::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+                                        Qt::Orientation orientation)
+{
+    removeRecursive(dockwindow);
+
+    const Qt::DockWindowArea area = dockWindowArea(after);
+    QDockWindowLayout * const layout = layoutForArea(area);
+    layout->split(after, dockwindow, (orientation == Qt::Horizontal
+                                      ? Qt::DockWindowAreaRight
+                                      : Qt::DockWindowAreaBottom));
+}
+
+static bool findWidgetRecursively(QLayoutItem *li, QWidget *w)
+{
+    QLayout *lay = li->layout();
+    if (!lay)
+        return false;
+    int i = 0;
+    QLayoutItem *child;
+    while ((child = lay->itemAt(i))) {
+        if (child->widget() == w) {
+            return true;
+        } else if (findWidgetRecursively(child, w)) {
+            return true;
+        } else {
+            ++i;
+        }
+    }
+    return false;
+}
+
+Qt::DockWindowArea QMainWindowLayout::dockWindowArea(QDockWindow *dockwindow) const
+{
+    for (int pos = 0; pos < NPOSITIONS; ++pos) {
+        if (!layout_info[pos].item)
+            continue;
+        if (findWidgetRecursively(layout_info[pos].item, dockwindow))
+            return static_cast<Qt::DockWindowArea>(areaForPosition(pos));
+    }
+    Q_ASSERT_X(false, "QMainWindow::dockWindowArea",
+               "'dockwindow' is not managed by this main window.");
+    return Qt::DockWindowAreaTop;
+
+}
+
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
 {
     int x = 0;
     for (int i = 0; i < NPOSITIONS; ++i) {
-        if (!layout_info[i].item) continue;
-        if (x++ == index) return layout_info[i].item;
+        if (!layout_info[i].item)
+            continue;
+        if (x++ == index)
+            return layout_info[i].item;
     }
     return 0;
 }

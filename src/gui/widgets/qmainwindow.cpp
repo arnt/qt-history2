@@ -345,6 +345,54 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d->layout->toolBarArea(toolbar); }
 
+void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow)
+{
+    Q_ASSERT_X(dockwindow->isDockable(area),
+               "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
+    Qt::Orientation orientation;
+    switch (area) {
+    case Qt::DockWindowAreaLeft:
+    case Qt::DockWindowAreaRight:
+        orientation = Qt::Vertical;
+        break;
+    case Qt::DockWindowAreaTop:
+    case Qt::DockWindowAreaBottom:
+        orientation = Qt::Horizontal;
+        break;
+    }
+    extendDockWindowArea(area, dockwindow, orientation);
+}
+
+void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
+                                       Qt::Orientation orientation)
+{
+    // add a window to an area, placing done relative to the previous
+    Q_ASSERT_X(dockwindow->isDockable(area),
+               "QMainWindow::extendDockWindowArea", "specified 'area' is not an allowed area");
+    d->layout->extendDockWindowArea(area, dockwindow, orientation);
+    if (isVisible())
+        d->layout->relayout();
+}
+
+void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+                                  Qt::Orientation orientation)
+{
+    Qt::DockWindowArea area = dockWindowArea(after);
+    Q_ASSERT_X(dockwindow->isDockable(area),
+               "QMainWindow::splitDockWindow", "specified 'area' is not an allowed area");
+    d->layout->splitDockWindow(after, dockwindow, orientation);
+    if (isVisible())
+        d->layout->relayout();
+}
+
+/*!
+    Returns the \c Qt::DockWindowArea for \a dockwindow.
+
+    \sa addDockWindow() extendDockWindowArea() splitDockWindow() Qt::DockWindowArea
+*/
+Qt::DockWindowArea QMainWindow::dockWindowArea(QDockWindow *dockwindow) const
+{ return d->layout->dockWindowArea(dockwindow); }
+
 /*!
     \internal
     Unimplemented: it should set the \a state for the dock window.

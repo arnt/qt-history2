@@ -1015,8 +1015,6 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
     relayout(QInternal::RelayoutDropped);
     info.is_dropped = false;
 
-    // let the dock window know that it is in a new area
-    dockwindow->d_func()->area = area;
     if (dockwindow->isTopLevel()) {
         // reparent the dock window into the main window
         dockwindow->setTopLevel(false);
@@ -1054,32 +1052,6 @@ void QDockWindowLayout::extend(QDockWindow *dockwindow, Qt::Orientation directio
 
         addItem(nestedLayout);
         addWidget(dockwindow);
-    }
-}
-
-void QDockWindowLayout::split(QDockWindow *dockwindow, Qt::Orientation direction)
-{
-    int last = layout_info.count() - 1;
-    if (last < 0) {
-        addWidget(dockwindow);
-    } else {
-        const QDockWindowLayoutInfo &info =layout_info.at(last);
-        if (info.item->widget() && direction == orientation) {
-            addWidget(dockwindow);
-        } else {
-            if (info.item->widget()) {
-                split(qt_cast<QDockWindow *>(info.item->widget()), dockwindow,
-                      (direction == Qt::Horizontal
-                       ? Qt::DockWindowAreaRight
-                       : Qt::DockWindowAreaBottom));
-            } else {
-                QDockWindowLayout *nestedLayout =
-                    qt_cast<QDockWindowLayout *>(info.item->layout());
-                nestedLayout->setObjectName(objectName() + QLatin1String("_nestedLayout"));
-                Q_ASSERT(nestedLayout != 0);
-                nestedLayout->split(dockwindow, direction);
-            }
-        }
     }
 }
 
