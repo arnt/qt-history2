@@ -1790,14 +1790,23 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     QGLFormat fmt = glcx->requestedFormat();
     fmt.setDirectRendering( FALSE );		// Direct is unlikely to work
     fmt.setDoubleBuffer( FALSE );		// We don't need dbl buf
-    QGLContext* pcx = new QGLContext( fmt, &pm );
-    QGLContext* ocx = (QGLContext*)context();
-    setContext( pcx, 0, FALSE );
-    if ( pcx->isValid() )
+
+    QGLContext* ocx = glcx;
+    bool wasCurrent = (QGLContext::currentContext() == ocx );
+    ocx->doneCurrent();
+    glcx = new QGLContext( fmt, &pm );
+    glcx->create( ocx );
+
+    if ( glcx->isValid() )
 	updateGL();
     else
 	success = FALSE;
-    setContext( ocx );				// Will delete pcx
+
+    delete glcx;
+    glcx = ocx;
+
+    if ( wasCurrent )
+	ocx->makeCurrent();
 
     if ( success )
 	return pm;
