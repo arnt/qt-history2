@@ -1226,10 +1226,33 @@ public:
 };
 
 /* Pop the top of the stack (which must be a list, see PushList) and
-use it as a list of fields (see Create) with which to sort the 'result
-set' which is identified by 'id' (see CreateResult).
+  use it as a list of fields (see Create) with which to sort the
+  'result set' which is identified by 'id' (see CreateResult).
 
-//## more: we should allow ASC/DESC sorting somehow
+   The 'list' which is popped from the top of the stack must be of the form:
+
+   TRUE (beginning of list)
+   list: field description (see PushFieldDesc)
+   FALSE
+   list: field description (see PushFieldDesc)
+
+   IOW, the list represents alternating 'descending flag'/'field
+   descriptions'.  The field descriptions are used to identify the
+   fields in the file, and the descending flags are used to indicate a
+   descending (rather than ascending) sort.  For example, the
+   following code snippet does a sort:
+
+   PushFieldDesc( 0, "id" )
+   Push( QVariant( TRUE, 0 )  )
+   PushFieldDesc( 0, "name" )
+   Push( QVariant( FALSE, 0 ) )
+   PushList( 4 )
+   Sort( 0 )
+
+
+   The above will sort the result set file by 'id' DESCending then
+   'name' ASCending.
+
 */
 
 class Sort : public Label
