@@ -301,7 +301,7 @@ void qt_vectorize_region(const QRegion &region, QPainterPath *path)
 
 }
 
-#ifdef QPP_STROKE_DEBUG
+#ifdef QT_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
@@ -786,11 +786,17 @@ QPointF QPainterPath::currentPosition() const
 */
 void QPainterPath::addRect(const QRectF &r)
 {
+    elements.reserve(elements.size() + 5);
+
     moveTo(r.x(), r.y());
-    lineTo(r.x() + r.width(), r.y());
-    lineTo(r.x() + r.width(), r.y() + r.height());
-    lineTo(r.x(), r.y() + r.height());
-    lineTo(r.x(), r.y());
+
+    Element l1 = { r.x() + r.width(), r.y(), LineToElement };
+    Element l2 = { r.x() + r.width(), r.y() + r.height(), LineToElement };
+    Element l3 = { r.x(), r.y() + r.height(), LineToElement };
+    Element l4 = { r.x(), r.y(), LineToElement };
+
+    elements << l1 << l2 << l3 << l4;
+
 }
 
 /*!
@@ -819,8 +825,44 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
-    moveTo(boundingRect.x() + boundingRect.width(), boundingRect.y() + boundingRect.height() / 2);
-    arcTo(boundingRect, 0, -360);
+    elements.reserve(elements.size() + 13);
+
+    qreal x = boundingRect.x();
+    qreal y = boundingRect.y();
+
+    qreal w = boundingRect.width();
+    qreal w2 = boundingRect.width() / 2;
+    qreal w2k = w2 * KAPPA;
+
+    qreal h = boundingRect.height();
+    qreal h2 = boundingRect.height() / 2;
+    qreal h2k = h2 * KAPPA;
+
+    moveTo(x + w, y + h2);
+
+    // 0 -> 270 degrees
+    Element cp11 = { x + w, y + h2 + h2k, CurveToElement };
+    Element cp21 = { x + w2 + w2k, y + h, CurveToDataElement };
+    Element end1 = { x + w2, y + h, CurveToDataElement };
+    elements << cp11 << cp21 << end1;
+
+    // 270 -> 180 degrees
+    Element cp12 = { x + w2 - w2k, y + h, CurveToElement };
+    Element cp22 = { x, y + h2 + h2k, CurveToDataElement };
+    Element end2 = { x, y + h2, CurveToDataElement };
+    elements << cp12 << cp22 << end2;
+
+    // 180 -> 90 degrees
+    Element cp13 = { x, y + h2 - h2k, CurveToElement };
+    Element cp23 = { x + w2 - w2k, y, CurveToDataElement };
+    Element end3 = { x + w2, y, CurveToDataElement };
+    elements << cp13 << cp23 << end3;
+
+    // 90 -> 0 degrees
+    Element cp14 = { x + w2 + w2k, y, CurveToElement };
+    Element cp24 = { x + w, y + h2 - h2k, CurveToDataElement };
+    Element end4 = { x + w, y + h2, CurveToDataElement };
+    elements << cp14 << cp24 << end4;
 }
 
 #undef d
