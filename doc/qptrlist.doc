@@ -205,6 +205,13 @@
 */
 
 /*!
+  \fn bool QPtrList::operator!=(const QPtrList<type> &list ) const
+
+  Compares this list with \a list. Returns TRUE if the lists
+  contain different data; otherwise returns FALSE.
+*/
+
+/*!
   \fn uint QPtrList::count() const
   Returns the number of items in the list.
   \sa isEmpty()

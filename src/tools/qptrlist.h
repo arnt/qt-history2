@@ -59,6 +59,8 @@ public:
 			{ return (QPtrList<type>&)QGList::operator=(l); }
     bool operator==( const QPtrList<type> &list ) const
     { return QGList::operator==( list ); }
+    bool operator!=( const QPtrList<type> &list ) const
+    { return !QGList::operator==( list ); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  insert( uint i, const type *d){ return QGList::insertAt(i,(QPtrCollection::Item)d); }
