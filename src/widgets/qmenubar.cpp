@@ -697,7 +697,7 @@ int QMenuBar::calculateRects( int max_width )
 	int w=0, h=0;
 	if ( mi->widget() ) {
 	    if ( mi->widget()->parentWidget() != this ) {
-		mi->widget()->reparent( this, QPoint(0,0), TRUE );
+		mi->widget()->reparent( this, QPoint(0,0) );
 	    }
 	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
 	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
@@ -771,6 +771,8 @@ int QMenuBar::calculateRects( int max_width )
 		QRect r ( QPoint(0,0), mi->widget()->sizeHint() );
 		r.moveCenter( irects[i].center() );
 		mi->widget()->setGeometry( r );
+		if( mi->widget()->isHidden() )
+		    mi->widget()->show();
 	    }
 	}
 	badSize = FALSE;
