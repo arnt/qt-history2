@@ -1,10 +1,9 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on staticlib
 CONFIG 		-= dll
-contains(QT_PRODUCT,qt-internal) {
+!win32:contains(QT_PRODUCT,qt-internal) {
    CONFIG          -= staticlib
    CONFIG          += dll 
-   DLLDESTDIR      = $$QT_BUILD_TREE/bin
 }
 
 TARGET	= designer
