@@ -18,7 +18,8 @@
 \title Deploying Qt Applications
 
 This document lists the platform-specific files needed to distribute
-Qt applications. (See also, \link winsystem.html Window
+Qt applications. We do not include any compiler-specific files that
+may also be required. (See also, \link winsystem.html Window
 System-specific Notes\endlink.)
 
 \section1 Static Qt Applications

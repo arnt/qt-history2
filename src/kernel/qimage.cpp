@@ -758,7 +758,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
     The image depth is the number of bits used to encode a single
     pixel, also called bits per pixel (bpp) or bit planes of an image.
 
-    The supported depths are 1, 8, 16 and 32.
+    The supported depths are 1, 8, 16 (Qt/Embedded only) and 32.
 
     \sa convertDepth()
 */
@@ -768,9 +768,9 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     Returns the size of the color table for the image.
 
-    Notice that numColors() returns 0 for 16-bpp and 32-bpp images
-    because these images do not use color tables, but instead encode
-    pixel values as RGB triplets.
+    Notice that numColors() returns 0 for 16-bpp (Qt/Embedded only)
+    and 32-bpp images because these images do not use color tables,
+    but instead encode pixel values as RGB triplets.
 
     \sa setNumColors() colorTable()
 */
@@ -867,7 +867,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
     qBlue()\endlink, etc. (qcolor.h) to access the pixels.
 
     \warning If you are accessing 16-bpp image data, you must handle
-    endianness yourself.
+    endianness yourself. (Qt/Embedded only)
 
     \sa bytesPerLine() bits() jumpTable()
 */
@@ -2029,7 +2029,7 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
     Converts the depth (bpp) of the image to \a depth and returns the
     converted image. The original image is not changed.
 
-    The \a depth argument must be 1, 8, 16 or 32.
+    The \a depth argument must be 1, 8, 16 (Qt/Embedded only) or 32.
 
     Returns \c *this if \a depth is equal to the image depth, or a
     \link isNull() null\endlink image if this image cannot be
@@ -2285,7 +2285,7 @@ bool isGray(QRgb c)
     (i.e. their red, green and blue components are equal); otherwise
     returns FALSE.
 
-    This function is slow for large 16-bit and 32-bit images.
+    This function is slow for large 16-bit (Qt/Embedded only) and 32-bit images.
 
     \sa isGrayscale()
 */
@@ -2318,8 +2318,8 @@ bool QImage::allGray() const
 }
 
 /*!
-    For 16-bit and 32-bit images, this function is equivalent to
-    allGray().
+    For 16-bit (Qt/Embedded only) and 32-bit images, this function is
+    equivalent to allGray().
 
     For 8-bpp images, this function returns TRUE if color(i) is
     QRgb(i,i,i) for all indices of the color table; otherwise returns

@@ -2979,7 +2979,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
     printed with the corresponding drawText() function using the first
     \a len characters from \a str if \a len is > -1, or the whole of
     \a str if \a len is -1. The drawing, and hence the bounding
-    rectangle, is constrained to the rectangle \a r.
+    rectangle, is constrained to the rectangle \a r, or to the
+    rectangle required to draw the text, whichever is the larger.
 
     The \a internal parameter should not be used.
 
@@ -3005,7 +3006,8 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
     \a len characters of the string if \a len is > -1, or the whole of
     the string if \a len is -1. The drawing, and hence the bounding
     rectangle, is constrained to the rectangle that begins at point \a
-    (x, y) with width \a w and hight \a h.
+    (x, y) with width \a w and hight \a h, or to the
+    rectangle required to draw the text, whichever is the larger.
 
     The \a flags argument is
     the bitwise OR of the following flags:
