@@ -1224,6 +1224,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    scope_block = sb;
 		    QDir::setCurrent(oldpwd);
 		}
+	    } else if(val.lower() == "eval") {
+		for(QStringList::ConstIterator arg_it = arg_list.begin();
+		    arg_it != arg_list.end(); ++arg_it) 
+		    replacement += place[(*arg_it)].join(" ");
 	    } else if(val.lower() == "list") {
 		static int x = 0;
 		replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
