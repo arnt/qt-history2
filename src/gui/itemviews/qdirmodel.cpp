@@ -384,7 +384,14 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     if (role == DisplayRole || role == EditRole) {
         QFileInfo info = node->info;
         switch (index.column()) {
-        case 0: return info.isRoot() ? info.absoluteFilePath() : info.fileName();
+	case 0:	if (info.isRoot()) {
+                    QString s = info.absoluteFilePath();
+#ifdef Q_OS_WIN
+                    s.chop(1);
+#endif
+                    return s;
+		}
+                return info.fileName();
         case 1: return info.size();
         case 2: return d->iconProvider->type(info);
         case 3: return info.lastModified();
