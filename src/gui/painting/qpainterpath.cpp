@@ -72,6 +72,189 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
+/* Helper class for qt_vectorize_region */
+class QVLineSets {
+
+public:
+    QList< QList<QPoint> > closedSets;
+    QList< QList<QPoint> > openSets;
+
+    // Adds the linesets to the specified path.
+    void addToPath(QPainterPath *path)
+    {
+        Q_ASSERT(openSets.isEmpty());
+
+        for (int iset=0; iset<closedSets.size(); ++iset) {
+            const QList<QPoint> &set = closedSets.at(iset);
+            Q_ASSERT(!set.isEmpty());
+            path->moveTo(set.at(0));
+            for (int elmi=1; elmi<closedSets.at(iset).size(); ++elmi)
+                path->lineTo(set.at(elmi));
+        }
+    }
+
+    // Adds the line to the sets. This is done by first checking of the line
+    // can be connected to any of the current sets, in which case the line
+    // is added to that. A new set is started if not.
+    void addLine(int x1, int y1, int x2, int y2, bool ordered)
+    {
+        if (x1 == x2 && y1 == y2)
+            return;
+        Q_ASSERT((ordered && x1 == x2) || (!ordered && y1 == y2));
+
+        int insert = -1;
+
+        // Find match
+        for (int iset=0; iset<openSets.size() && insert<0; ++iset) {
+            if (!openSets.at(iset).isEmpty()) {
+                int ilast = openSets.at(iset).size() - 1;
+
+                // Check if line is connectable to the front/end of the set
+                if (openSets.at(iset).at(0) == QPoint(x2, y2)) {
+                    openSets[iset].insert(0, QPoint(x1, y1));
+                    insert = iset;
+                } else if (openSets.at(iset).at(ilast) == QPoint(x1, y1)) {
+                    openSets[iset].append(QPoint(x2, y2));
+                    insert = iset;
+
+                // Check if the line is connectable if we reverse it.
+                } else if (!ordered) {
+                    if (openSets.at(iset).at(0) == QPoint(x1, y1)) {
+                        openSets[iset].insert(0, QPoint(x2, y2));
+                        insert = iset;
+                    } else if (openSets.at(iset).at(ilast) == QPoint(x2, y2)) {
+                        openSets[iset].append(QPoint(x1, y1));
+                        insert = iset;
+                    }
+                }
+            }
+        }
+
+        // If we inserted we want to check if the set is closeable
+        if (insert>=0) {
+            if (openSets.at(insert).first() == openSets.at(insert).last()) {
+                closedSets.append(openSets.at(insert));
+                openSets.removeAt(insert);
+            }
+
+        // Create a new set if no connection was found.
+        } else {
+            QList<QPoint> line;
+            line << QPoint(x1, y1);
+            line << QPoint(x2, y2);
+            openSets << line;
+        }
+    }
+
+};
+
+
+/*
+    Converts the region to sets of lines in the form of a path. The
+    approach is as follows: Rectangles are ordered from to bottom and
+    left to right on each line, so sorting is already done for us.
+
+    All vertical rectangle edges can be added directly to the
+    path. The left edge is swapped so that the lines follow a clock
+    wise pattern.
+
+    We find the horizontal lines by looking at where the vertical edges
+    above and below. By sorting them from left to right, we get pairs
+    which define the lines to use.
+
+    Naming:
+     - i for index
+     - c for current
+     - f for first
+     - l for last
+*/
+
+void qt_vectorize_region(const QRegion &region, QPainterPath *path)
+{
+    if (region.isEmpty())
+        return;
+
+    QVLineSets sets;
+
+    QVector<QRect> rects = region.rects();;
+
+    int rectCount = rects.size();
+
+    int ircf = 0;  // index to the first rect on current span
+    int ircl = -1; // index to the last rect on the current span
+    int irnf = -1; // index to the first rect on the next span
+    int irnl = -1; // index to the last rect on the next span
+
+    // The top of the first span.
+    int yc = rects.at(0).y();
+    for (int i=0; i<rectCount && rects.at(i).y() == yc; ++i) {
+        int right = rects.at(i).x() + rects.at(i).width();
+        int bottom = rects.at(i).y() + rects.at(i).height();
+        sets.addLine(rects.at(i).x(), yc, right, yc, false);
+    }
+
+    // The list of x intersections.
+    int xvals[1024];
+
+    while (ircf<rectCount) {
+
+        yc = rects.at(ircf).y(); // y pos of current span
+        int yn = rects.at(ircf).y() + rects.at(ircf).height(); // y pos of next span
+
+        // Locate last rect in current span
+        for (ircl = ircf; ircl+1<rectCount && rects.at(ircl+1).y() == yc; ++ircl);
+
+        // First rect in next span is the next after last in current.
+        irnf = ircl+1;
+
+        // Locate last rect in next span
+        for (irnl = irnf; irnl+1<rectCount && rects.at(irnl+1).y() == yn; ++irnl);
+
+        // Add the vertical lines.
+        for (int i=ircf; i<=ircl; ++i) {
+            int right = rects.at(i).x() + rects.at(i).width();
+            int bottom = rects.at(i).y() + rects.at(i).height();
+            sets.addLine(rects.at(i).x(), bottom, rects.at(i).x(), yc, true);
+            sets.addLine(right, yc, right, bottom, true);
+        }
+
+
+        int xpos = 0;
+
+        // add x positions of current span to list
+        for (int i=ircf; i<=ircl; ++i) {
+            xvals[xpos++] = rects.at(i).x();
+            xvals[xpos++] = rects.at(i).x() + rects.at(i).width();
+            Q_ASSERT(xpos<1024);
+        }
+
+        // add x positions of next span to list, except for last run
+        if (irnl < rectCount) {
+            for (int i=irnf; i<=irnl; ++i) {
+                xvals[xpos++] = rects.at(i).x();
+                xvals[xpos++] = rects.at(i).x() + rects.at(i).width();
+                Q_ASSERT(xpos<1024);
+            }
+        }
+
+        xvals[xpos] = INT_MAX;
+        qHeapSort(&xvals[0], &xvals[xpos]);
+
+        Q_ASSERT(xpos % 2 == 0);
+
+        // Add the horizontal lines.
+        for (int i=0; i<xpos; i+=2) {
+            sets.addLine(xvals[i], yn, xvals[i+1], yn, false);
+        }
+
+
+        ircf = ircl+1;
+    }
+
+    sets.addToPath(path);
+
+}
+
 #ifdef QPP_STROKE_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
@@ -682,6 +865,16 @@ void QPainterPath::addPath(const QPainterPath &other)
 
     d->cStart = cStart;
 }
+
+/*!
+    Adds the region \a region to the path. This is done by converting
+    the region into a set of lines which enclose it.
+*/
+void QPainterPath::addRegion(const QRegion &region)
+{
+    qt_vectorize_region(region, this);
+}
+
 
 /*!
     Returns the fill rule of the painter path. The default fill rule

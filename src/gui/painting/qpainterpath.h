@@ -65,18 +65,15 @@ public:
     inline void curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x, float ctrlPt2y,
                         float endPtx, float endPty);
 
-    void addPolygon(const QPolygon &polygon);
-
-    void addEllipse(const QRectF &rect);
-    inline void addEllipse(float x, float y, float w, float h);
-
     void addRect(const QRectF &rect);
     inline void addRect(float x, float y, float w, float h);
-
+    void addEllipse(const QRectF &rect);
+    inline void addEllipse(float x, float y, float w, float h);
+    void addPolygon(const QPolygon &polygon);
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(float x, float y, const QFont &f, const QString &text);
-
     void addPath(const QPainterPath &path);
+    void addRegion(const QRegion &region);
 
     bool contains(const QPointF &pt) const;
     bool contains(const QRectF &rect) const;
