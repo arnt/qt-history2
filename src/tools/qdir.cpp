@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#70 $
 **
 ** Implementation of QDir class
 **
@@ -1580,11 +1580,12 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		dirInSort( fList, fiList, file->d_name, fi, sortSpec );
 	}
     }
-    if ( closedir(dir) != 0 )
+    if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::readDirEntries: Cannot close the directory: %s",
 		 dPath.ascii() );
 #endif
+    }
 
 #endif // UNIX
 
