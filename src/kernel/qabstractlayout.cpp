@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#33 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -266,8 +266,10 @@ static QSize smartMinSize( QWidget *w )
 //returns the max size of a box containing \a w with alignment \a align.
 static QSize smartMaxSize( QWidget *w, int align = 0 )
 {
+    if ( align & HorAlign && align & VerAlign )
+	return QSize( QCOORD_MAX, QCOORD_MAX );
     QSize s = w->maximumSize();
-    if ( s.width() == QCOORD_MAX )
+    if ( s.width() == QCOORD_MAX)
 	if ( !w->sizePolicy().mayGrowHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
 
@@ -304,13 +306,13 @@ void QWidgetItem::setGeometry( const QRect &r )
     QSize s = r.size().boundedTo( smartMaxSize( wid ) );
     int x = r.x();
     int y = r.y();
-    QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
-	
-    if ( align & HorAlign )
-	s.setWidth( QMIN( s.width(), pref.width() ) );
-    if ( align & VerAlign )
-	s.setHeight( QMIN( s.height(), pref.height() ) );
-	
+    if ( align & (HorAlign|VerAlign) ) {
+	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
+	if ( align & HorAlign )
+	    s.setWidth( QMIN( s.width(), pref.width() ) );
+	if ( align & VerAlign )
+	    s.setHeight( QMIN( s.height(), pref.height() ) );
+    }
     if ( align & Qt::AlignRight )
 	x = x + ( r.width() - s.width() );
     else if ( !(align & Qt::AlignLeft) )
@@ -931,7 +933,7 @@ bool QLayout::activate()
 			s.height() - mbh - 2*outsideBorder ) );
 
 
-    //###if ( sizeHint or sizePolicy has changed ) 
+    //###if ( sizeHint or sizePolicy has changed )
     mainWidget()->updateGeometry();
     return TRUE;
 }
