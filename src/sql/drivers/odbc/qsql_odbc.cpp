@@ -806,8 +806,8 @@ QCoreVariant QODBCResult::data(int field)
     SQLRETURN r(0);
     SQLINTEGER lengthIndicator = 0;
 
-    const QSqlField *info = d->rInf.field(field);
-    switch (info->type()) {
+    const QSqlField info = d->rInf.field(field);
+    switch (info.type()) {
         case QCoreVariant::LongLong:
             d->fieldCache[field] = qGetBigIntData(d->hStmt, field);
         break;
@@ -857,20 +857,20 @@ QCoreVariant QODBCResult::data(int field)
             d->fieldCache[field] = qGetBinaryData(d->hStmt, field);
             break;
         case QCoreVariant::String:
-            d->fieldCache[field] = qGetStringData(d->hStmt, field, info->length(), true);
+            d->fieldCache[field] = qGetStringData(d->hStmt, field, info.length(), true);
             break;
         case QCoreVariant::Double:
-            if (info->typeID() == SQL_DECIMAL || info->typeID() == SQL_NUMERIC)
+            if (info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC)
                 // bind Double values as string to prevent loss of precision
                 d->fieldCache[field] = qGetStringData(d->hStmt, field,
-                                                       info->length() + 1, false); // length + 1 for the comma
+                                                       info.length() + 1, false); // length + 1 for the comma
             else
                 d->fieldCache[field] = qGetDoubleData(d->hStmt, field);
             break;
         // ###        case QCoreVariant::CString:
         default:
             d->fieldCache[field] = QCoreVariant(qGetStringData(d->hStmt, field,
-                                                              info->length(), false));
+                                                              info.length(), false));
             break;
     }
     return d->fieldCache[field];
@@ -1735,7 +1735,7 @@ QSqlIndex QODBCDriver::primaryIndex(const QString& tablename) const
             cName = qGetStringData(hStmt, 3, -1, d->unicode); // column name
             idxName = qGetStringData(hStmt, 5, -1, d->unicode); // pk index name
         }
-        index.append(*(rec.field(cName)));
+        index.append(rec.field(cName));
         index.setName(idxName);
         r = SQLFetchScroll(hStmt,
                             SQL_FETCH_NEXT,

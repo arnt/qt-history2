@@ -902,9 +902,9 @@ QCoreVariant QDB2Result::data(int field)
     SQLRETURN r = 0;
     SQLINTEGER lengthIndicator = 0;
     bool isNull = false;
-    const QSqlField* info = d->recInf.field(field);
+    const QSqlField info = d->recInf.field(field);
 
-    if (!info || field >= (int)d->valueCache.size())
+    if (!info.isValid() || field >= (int)d->valueCache.size())
         return QCoreVariant();
 
     if (d->valueCache[field])
@@ -912,7 +912,7 @@ QCoreVariant QDB2Result::data(int field)
 
 
     QCoreVariant* v = 0;
-    switch (info->type()) {
+    switch (info.type()) {
         case QCoreVariant::LongLong:
             v = new QCoreVariant((Q_LLONG) qGetBigIntData(d->hStmt, field, isNull));
             break;
@@ -969,19 +969,19 @@ QCoreVariant QDB2Result::data(int field)
             v = new QCoreVariant(qGetBinaryData(d->hStmt, field, lengthIndicator, isNull));
             break;
         case QCoreVariant::Double:
-            if (info->typeID() == SQL_DECIMAL || info->typeID() == SQL_NUMERIC)
+            if (info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC)
                 // length + 1 for the comma
-                v = new QCoreVariant(qGetStringData(d->hStmt, field, info->length() + 1, isNull));
+                v = new QCoreVariant(qGetStringData(d->hStmt, field, info.length() + 1, isNull));
             else
                 v = new QCoreVariant(qGetDoubleData(d->hStmt, field, isNull));
             break;
         case QCoreVariant::String:
         default:
-            v = new QCoreVariant(qGetStringData(d->hStmt, field, info->length(), isNull));
+            v = new QCoreVariant(qGetStringData(d->hStmt, field, info.length(), isNull));
             break;
     }
     if (isNull)
-        *v = QCoreVariant(info->type());
+        *v = QCoreVariant(info.type());
     d->valueCache.insert(field, v);
     return *v;
 }
@@ -1318,7 +1318,7 @@ QSqlIndex QDB2Driver::primaryIndex(const QString& tablename) const
     while (r == SQL_SUCCESS) {
         cName = qGetStringData(hStmt, 3, -1, isNull); // column name
         idxName = qGetStringData(hStmt, 5, -1, isNull); // pk index name
-        index.append(*(rec.field(cName)));
+        index.append(rec.field(cName));
         index.setName(idxName);
         r = SQLFetchScroll(hStmt,
                             SQL_FETCH_NEXT,

@@ -1654,7 +1654,7 @@ bool QOCIDriver::open(const QString & db,
         QString versionStr = d->utf16bind ? QString::fromUtf16((unsigned short*)vertxt)
                             : QString::fromUtf8((char*)vertxt, sizeof(vertxt));
         QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
-        if (vers.search(versionStr) >= 0)
+        if (vers.indexIn(versionStr) >= 0)
             d->serverVersion = vers.cap(1).toInt();
         if (d->serverVersion == 0)
             d->serverVersion = -1;

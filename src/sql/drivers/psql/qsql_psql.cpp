@@ -433,7 +433,7 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
         PQclear(result);
         QRegExp rx("(\\d+)\\.(\\d+)");
         rx.setMinimalMatching(true); // enforce non-greedy RegExp
-        if (rx.search(val) != -1) {
+        if (rx.indexIn(val) != -1) {
             int vMaj = rx.cap(1).toInt();
             int vMin = rx.cap(2).toInt();
             if (vMaj < 6) {

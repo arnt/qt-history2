@@ -300,7 +300,7 @@ bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
 
     for (int i = 0; i < d->rec.count(); ++i) {
         int idx = index + i;
-        switch (d->rec.field(i)->type()) {
+        switch (d->rec.field(i).type()) {
             case QCoreVariant::DateTime:
                 if ((DBINT)d->buffer.at(i * 2 + 1) == -1) {
                     values[idx] = QCoreVariant(QCoreVariant::DateTime);
@@ -731,8 +731,8 @@ QSqlIndex QTDSDriver::primaryIndex(const QString& tablename) const
         QStringList fNames = t.value(2).toString().simplified().split(',');
         QRegExp regx("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*");
         for(QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it) {
-            regx.search(*it);
-            QSqlField f(regx.cap(1), rec.field(regx.cap(1))->type());
+            regx.indexIn(*it);
+            QSqlField f(regx.cap(1), rec.field(regx.cap(1)).type());
             if (regx.cap(2).toLower() == "desc") {
                 idx.append(f, true);
             } else {
