@@ -405,7 +405,7 @@ int QPSQLResult::size()
 
 int QPSQLResult::numRowsAffected()
 {
-    return QString( PQcmdTuples( d->result ) ).toInt();
+    return isSelect() ? size() : QString( PQcmdTuples( d->result ) ).toInt();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -456,7 +456,7 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     int status =  PQresultStatus( result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	QString val( PQgetvalue( result, 0, 0 ) );
-	PQclear( result );	
+	PQclear( result );
 	QRegExp rx( "(\\d*)\\.(\\d*)" );
 	rx.setMinimal ( TRUE ); // enforce non-greedy RegExp
         if ( rx.search( val ) != -1 ) {
