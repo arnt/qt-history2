@@ -655,6 +655,78 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
     return qcoreVariantHandler()->canCast(d, t);
 }
 
+static void streamDebug(QDebug dbg, const QVariant &v)
+{
+#ifndef Q_NO_STREAMING_DEBUG
+    switch(v.type()) {
+    case QVariant::Cursor:
+#ifndef QT_NO_CURSOR
+//        dbg.nospace() << qVariant_to<QCursor>(v); //FIXME
+#endif
+        break;
+    case QVariant::Bitmap:
+//        dbg.nospace() << qVariant_to<QBitmap>(v); //FIXME
+        break;
+    case QVariant::Polygon:
+        dbg.nospace() << qVariant_to<QPolygon>(v);
+        break;
+    case QVariant::Region:
+        dbg.nospace() << qVariant_to<QRegion>(v);
+        break;
+    case QVariant::Font:
+//        dbg.nospace() << qVariant_to<QFont>(v);  //FIXME
+        break;
+    case QVariant::Pixmap:
+//        dbg.nospace() << qVariant_to<QPixmap>(v); //FIXME
+        break;
+    case QVariant::Image:
+//        dbg.nospace() << qVariant_to<QImage>(v); //FIXME
+        break;
+    case QVariant::Brush:
+        dbg.nospace() << qVariant_to<QBrush>(v);
+        break;
+    case QVariant::Point:
+        dbg.nospace() << qVariant_to<QPoint>(v);
+        break;
+    case QVariant::Rect:
+        dbg.nospace() << qVariant_to<QRect>(v);
+        break;
+    case QVariant::Size:
+        dbg.nospace() << qVariant_to<QSize>(v);
+        break;
+    case QVariant::Color:
+        dbg.nospace() << qVariant_to<QColor>(v);
+        break;
+#ifndef QT_NO_PALETTE
+    case QVariant::Palette:
+//        dbg.nospace() << qVariant_to<QPalette>(v); //FIXME
+        break;
+#endif
+#ifndef QT_NO_ICON
+    case QVariant::Icon:
+//        dbg.nospace() << qVariant_to<QIcon>(v); // FIXME
+        break;
+#endif
+    case QVariant::SizePolicy:
+//        dbg.nospace() << qVariant_to<QSizePolicy>(v); //FIXME
+        break;
+#ifndef QT_NO_ACCEL
+    case QVariant::KeySequence:
+        dbg.nospace() << qVariant_to<QKeySequence>(v);
+        break;
+#endif
+    case QVariant::Pen:
+//        dbg.nospace() << qVariant_to<QPen>(v); //FIXME
+        break;
+    default:
+        qcoreVariantHandler()->debugStream(dbg, v);
+        break;
+    }
+#else
+    Q_UNUSED(dbg)
+    Q_UNUSED(v)
+#endif
+}
 
 const QVariant::Handler qt_gui_variant_handler = {
     construct,
@@ -666,7 +738,8 @@ const QVariant::Handler qt_gui_variant_handler = {
 #endif
     compare,
     cast,
-    canCast
+    canCast,
+    streamDebug
 };
 
 
@@ -686,87 +759,4 @@ bool qRegisterGuiVariant()
     return true;
 }
 
-#if 0
-
-// ### TODO - add a debug handler
-
-#ifndef QT_NO_DEBUG_OUTPUT
-QDebug operator<<(QDebug dbg, const QVariant &v)
-{
-#ifndef Q_NO_STREAMING_DEBUG
-    switch(v.type()) {
-    case QVariant::Cursor:
-#ifndef QT_NO_CURSOR
-        dbg.nospace() << v.toCursor();
-#endif
-        break;
-    case QVariant::Bitmap:
-//        dbg.nospace() << v.toBitmap(); //FIXME
-        break;
-    case QVariant::Polygon:
-        dbg.nospace() << v.toPolygon();
-        break;
-    case QVariant::Region:
-        dbg.nospace() << v.toRegion();
-        break;
-    case QVariant::Font:
-//        dbg.nospace() << v.toFont();  //FIXME
-        break;
-    case QVariant::Pixmap:
-//        dbg.nospace() << v.toPixmap(); //FIXME
-        break;
-    case QVariant::Image:
-        dbg.nospace() << v.toImage();
-        break;
-    case QVariant::Brush:
-        dbg.nospace() << v.toBrush();
-        break;
-    case QVariant::Point:
-        dbg.nospace() << v.toPoint();
-        break;
-    case QVariant::Rect:
-        dbg.nospace() << v.toRect();
-        break;
-    case QVariant::Size:
-        dbg.nospace() << v.toSize();
-        break;
-    case QVariant::Color:
-        dbg.nospace() << v.toColor();
-        break;
-#ifndef QT_NO_PALETTE
-    case QVariant::Palette:
-        dbg.nospace() << v.toPalette();
-        break;
-#endif
-#ifndef QT_NO_ICON
-    case QVariant::Icon:
-        dbg.nospace() << v.toIcon();
-        break;
-#endif
-    case QVariant::SizePolicy:
-        dbg.nospace() << v.toSizePolicy();
-        break;
-#ifndef QT_NO_ACCEL
-    case QVariant::KeySequence:
-        dbg.nospace() << v.toKeySequence();
-        break;
-#endif
-    case QVariant::Pen:
-        dbg.nospace() << v.toPen();
-        break;
-    default:
-        dbg.nospace() << static_cast<QVariant>(v);
-        break;
-    }
-    return dbg.space();
-#else
-    qWarning("This compiler doesn't support the streaming of QDebug");
-    return dbg;
-    Q_UNUSED(v);
-#endif
-}
-
-#endif
-
-#endif
 

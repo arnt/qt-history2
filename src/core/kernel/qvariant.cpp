@@ -996,6 +996,69 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
     }
 }
 
+void streamDebug(QDebug dbg, const QVariant &v)
+{
+#ifndef Q_NO_STREAMING_DEBUG
+    switch(v.type()) {
+    case QVariant::Int:
+        dbg.nospace() << v.toInt();
+        break;
+    case QVariant::UInt:
+        dbg.nospace() << v.toUInt();
+        break;
+    case QVariant::LongLong:
+        dbg.nospace() << v.toLongLong();
+        break;
+    case QVariant::ULongLong:
+        dbg.nospace() << v.toULongLong();
+        break;
+    case QVariant::Double:
+        dbg.nospace() << v.toDouble();
+        break;
+    case QVariant::Bool:
+        dbg.nospace() << v.toBool();
+        break;
+    case QVariant::String:
+        dbg.nospace() << v.toString();
+        break;
+    case QVariant::Char:
+        dbg.nospace() << v.toChar();
+        break;
+    case QVariant::StringList:
+        dbg.nospace() << v.toStringList();
+        break;
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::Map:
+//         dbg.nospace() << v.toMap();
+        break;
+    case QVariant::List:
+        dbg.nospace() << v.toList();
+        break;
+#endif
+    case QVariant::Date:
+        dbg.nospace() << v.toDate();
+        break;
+    case QVariant::Time:
+        dbg.nospace() << v.toTime();
+        break;
+    case QVariant::DateTime:
+        dbg.nospace() << v.toDateTime();
+        break;
+    case QVariant::ByteArray:
+        dbg.nospace() << v.toByteArray();
+        break;
+    case QVariant::Url:
+        dbg.nospace() << v.toUrl();
+        break;
+    case QVariant::BitArray:
+        //dbg.nospace() << v.toBitArray();
+        break;
+    default:
+        break;
+    }
+#endif
+}
+
 const QVariant::Handler qt_kernel_variant_handler = {
     construct,
     clear,
@@ -1006,7 +1069,8 @@ const QVariant::Handler qt_kernel_variant_handler = {
 #endif
     compare,
     cast,
-    canCast
+    canCast,
+    streamDebug
 };
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler()
@@ -2240,64 +2304,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 {
 #ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QVariant(" << v.typeName() << ", ";
-    switch(v.type()) {
-    case QVariant::Int:
-        dbg.nospace() << v.toInt();
-        break;
-    case QVariant::UInt:
-        dbg.nospace() << v.toUInt();
-        break;
-    case QVariant::LongLong:
-        dbg.nospace() << v.toLongLong();
-        break;
-    case QVariant::ULongLong:
-        dbg.nospace() << v.toULongLong();
-        break;
-    case QVariant::Double:
-        dbg.nospace() << v.toDouble();
-        break;
-    case QVariant::Bool:
-        dbg.nospace() << v.toBool();
-        break;
-    case QVariant::String:
-        dbg.nospace() << v.toString();
-        break;
-    case QVariant::Char:
-        dbg.nospace() << v.toChar();
-        break;
-    case QVariant::StringList:
-        dbg.nospace() << v.toStringList();
-        break;
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case QVariant::Map:
-//         dbg.nospace() << v.toMap();
-        break;
-    case QVariant::List:
-        dbg.nospace() << v.toList();
-        break;
-#endif
-    case QVariant::Date:
-        dbg.nospace() << v.toDate();
-        break;
-    case QVariant::Time:
-        dbg.nospace() << v.toTime();
-        break;
-    case QVariant::DateTime:
-        dbg.nospace() << v.toDateTime();
-        break;
-    case QVariant::ByteArray:
-        dbg.nospace() << v.toByteArray();
-        break;
-    case QVariant::Url:
-        dbg.nospace() << v.toUrl();
-        break;
-    case QVariant::BitArray:
-        //dbg.nospace() << v.toBitArray();
-        break;
-    default:
-        break;
-    }
-
+    QVariant::handler->debugStream(dbg, v);
     dbg.nospace() << ')';
     return dbg.space();
 #else

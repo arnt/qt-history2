@@ -250,6 +250,7 @@ class Q_CORE_EXPORT QVariant
     typedef bool (*f_compare)(const Private *, const Private *);
     typedef bool (*f_cast)(const QVariant::Private *d, Type t, void *, bool *);
     typedef bool (*f_canCast)(const QVariant::Private *d, Type t);
+    typedef void (*f_debugStream)(QDebug, const QVariant &);
     struct Handler {
         f_construct construct;
         f_clear clear;
@@ -261,12 +262,14 @@ class Q_CORE_EXPORT QVariant
         f_compare compare;
         f_cast cast;
         f_canCast canCast;
+        f_debugStream debugStream;
     };
 #endif
 
 protected:
     friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
     friend bool qRegisterGuiVariant();
+    friend QDebug operator<<(QDebug, const QVariant &);
 
     Private d;
 
