@@ -48,6 +48,7 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
                   ../core/tools/qunicodetables.cpp	\
 		  ../core/tools/qstringlist.cpp	\
 		  ../core/tools/qmap.cpp		\
+		  ../core/tools/qhash.cpp		\
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp \
 		  ../core/kernel/qinternal.cpp
