@@ -1157,7 +1157,7 @@ QValueList<QHostAddress> QDns::addresses() const
 		if ( ok && byteValue < 256 ) {
 		    maybeIP4 = maybeIP4 * 256 + byteValue;
 		    bytes++;
-		    if ( bytes == 4 && left == "" ) {
+		    if ( bytes == 4 && !left.length() ) {
 			result.append( QHostAddress( maybeIP4 ) );
 			return result;
 		    }
@@ -1264,7 +1264,7 @@ static void doResInit( void )
 #if defined(DEBUG_QDNS)
 	qDebug( "using name server %s", h->ip4AddrString().latin1() );
 #endif
-    
+
 }
 
 #endif
