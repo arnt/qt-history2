@@ -15,7 +15,11 @@
 #include <qapplication.h>
 #include <qaction.h>
 #include <qlistview.h>
+#include <qtabwidget.h>
 
+//
+//  MatchTable class
+//
 MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
     : QSqlTable( parent, name )
 {
@@ -39,6 +43,10 @@ void MatchTable::sortColumn ( int col, bool ascending,
     QSqlTable::sortColumn( col, ascending, wholeRows );
 }
 
+
+//
+//  Statistics class
+//
 Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     : QFrame( parent, name )
 {
@@ -57,6 +65,10 @@ void Statistics::refresh()
     list->insertItem( lvi );
 }
 
+
+//
+//  PingpongApp class
+//
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
     : QMainWindow( parent, name )
 {
@@ -77,50 +89,37 @@ void PingPongApp::init()
     menuBar()->insertItem( "&File", menu );
 
     // Toolbar
-    QToolBar * tbar = new QToolBar( this );
-    QAction * a = new QAction( "Insert new result", QPixmap( "new.png" ),
-		     QString::null, 0, this, 0 );
-    connect( a, SIGNAL( activated() ), SLOT( insertMatch() ) );
-    a->addTo( tbar );
-    a = new QAction( "Update result", QPixmap( "edit.png" ), QString::null,
-		     0, this, 0 );
-    connect( a, SIGNAL( activated() ), SLOT( updateMatch() ) );
-    a->addTo( tbar );
-    a = new QAction( "Delete result", QPixmap( "delete.png" ), QString::null,
-		     0, this, 0 );
-    connect( a, SIGNAL( activated() ), SLOT( deleteMatch() ) );
-    a->addTo( tbar );
-
-    tbar = new QToolBar( this );
-    a = new QAction( "Edit teams", QPixmap( "teamedit.xpm" ), QString::null,
-		     0, this, 0 );
-    connect( a, SIGNAL( activated() ), SLOT( editTeams() ) );
-    a->addTo( tbar );
-
-    QFrame * f1       = new QFrame( this );
-    QVBoxLayout * vb1 = new QVBoxLayout( f1 );
-
-    vb1->setMargin( 5 );
-    vb1->setSpacing( 5 );
+    QToolBar * toolbar = new QToolBar( this );
+    insertResultAc = new QAction( "Insert new result", QPixmap( "new.png" ),
+				  QString::null, 0, this, 0 );
+    connect( insertResultAc, SIGNAL( activated() ), SLOT( insertMatch() ) );
+    insertResultAc->addTo( toolbar );
+    updateResultAc = new QAction( "Update result", QPixmap( "edit.png" ), 
+				  QString::null, 0, this, 0 );
+    connect( updateResultAc, SIGNAL( activated() ), SLOT( updateMatch() ) );
+    updateResultAc->addTo( toolbar );
+    deleteResultAc = new QAction( "Delete result", QPixmap( "delete.png" ),
+				  QString::null, 0, this, 0 );
+    connect( deleteResultAc, SIGNAL( activated() ), SLOT( deleteMatch() ) );
+    deleteResultAc->addTo( toolbar );
 
     // Layout the central widget
-    QFont f = font();
-    f.setBold( TRUE );
 
-    QLabel * label = new QLabel( f1 );
-    label->setText( "Matches" );
-    label->setFont( f );
-    QFontMetrics fm = label->fontMetrics();
+    tab = new QTabWidget( this );    
+    connect( tab, SIGNAL( currentChanged( QWidget * ) ), 
+	     SLOT( updateIcons( QWidget * ) ) );
+    
+    matchTable = new MatchTable( tab );
+    teamEditor = new TeamEditorWidget( tab );
 
-    vb1->addWidget( label );
-
-    matchTable = new MatchTable( f1 );
-    vb1->addWidget( matchTable );
-
-    setCentralWidget( f1 );
+    tab->addTab( matchTable, "Matches" );
+    tab->addTab( new QLabel( "Stats go here!", tab ), "Statistics" );
+    tab->addTab( teamEditor, "Team editor" );
+    
+    setCentralWidget( tab );
     resize( 700, 400 );
 
-    // Setup initial match table
+    // Setup the initial match table
     matchCr.select( matchCr.index( "date" ) );
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
@@ -168,9 +167,22 @@ void PingPongApp::deleteMatch()
      }
 }
 
+void PingPongApp::updateIcons( QWidget * w )
+{
+    if( w == matchTable ){ 
+	insertResultAc->setEnabled( TRUE );
+	updateResultAc->setEnabled( TRUE );
+	deleteResultAc->setEnabled( TRUE );
+    } else {
+	insertResultAc->setEnabled( FALSE );
+	updateResultAc->setEnabled( FALSE );
+	deleteResultAc->setEnabled( FALSE );
+    }
+}
+
 void PingPongApp::editTeams()
 {
-    EditTeamsDialog dlg( this );
-    dlg.resize( 400, 300 );
-    dlg.exec();
+    if( tab->currentPage() != teamEditor ){
+	tab->showPage( teamEditor );
+    }
 }

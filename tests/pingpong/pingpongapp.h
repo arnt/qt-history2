@@ -12,6 +12,10 @@
 
 class QLabel;
 class QListView;
+class QAction;
+class QTabWidget;
+
+class TeamEditorWidget;
 
 class MatchTable : public QSqlTable
 {
@@ -43,10 +47,16 @@ protected slots:
     void updateMatch();
     void insertMatch();
     void deleteMatch();
-
+    void updateIcons( QWidget * );
     void editTeams();
-
+    
 private:
+    QAction * insertResultAc;
+    QAction * updateResultAc;
+    QAction * deleteResultAc;
+    
+    QTabWidget * tab;
+    TeamEditorWidget * teamEditor;
     QSqlTable * matchTable;
     MatchCursor matchCr;
 };

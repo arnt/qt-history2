@@ -42,9 +42,90 @@ void TeamPicker::setTeamId( int id )
 }
 
 //
+// TeamEditorWidget class
+//
+TeamEditorWidget::TeamEditorWidget( QWidget * parent, const char * name )
+    : QWidget( parent, name )
+{
+    QGridLayout * g = new QGridLayout( this );
+
+    g->setMargin( 5 );
+    g->setSpacing( 5 );
+
+    QFont f = font();
+    f.setBold( TRUE );
+    QLabel * label = new QLabel( "All teams", this );
+    label->setFont( f );
+    g->addWidget( label, 0, 0 );
+    teamTable   = new QSqlTable( this );
+    teamTable->setCursor( &teamCursor );
+    g->addWidget( teamTable, 1, 0 );
+    connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
+	     SLOT( updateTeamMembers( const QSqlRecord * ) ) );
+
+    label = new QLabel( "All players", this );
+    label->setFont( f );
+    g->addWidget( label, 0, 1 );
+    playerTable = new QSqlTable( this );
+    playerTable->setCursor( &playerCursor );
+    g->addWidget( playerTable, 1, 1 );
+
+    player2teamLabel = new QLabel( "Players on ?", this );
+    player2teamLabel->setFont( f );
+    g->addMultiCellWidget( player2teamLabel, 2, 2, 0, 1 );
+    player2teamTable = new QSqlTable( this );
+    player2teamTable->setCursor( &player2teamCursor );
+    player2teamTable->setReadOnly( TRUE );
+    g->addWidget( player2teamTable, 3, 0 );
+    QFrame * buttonFrame = new QFrame( this );
+    QVBoxLayout * v = new QVBoxLayout( buttonFrame );
+
+    QPushButton * button = new QPushButton( "<< &Add",
+					    buttonFrame );
+    connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
+    v->addWidget( button );
+
+    button = new QPushButton( ">> &Remove", buttonFrame );
+    connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
+    v->addWidget( button );
+    v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				 QSizePolicy::Expanding ) );
+    g->addWidget( buttonFrame, 3, 1 );
+}
+
+void TeamEditorWidget::updateTeamMembers( const QSqlRecord * record )
+{
+    player2teamCursor.select( "teamid = " + record->value( "id" ).toString());
+    player2teamTable->refresh();
+    player2teamLabel->setText( "Players on " +
+			       teamCursor.value("name").toString() );
+}
+
+void TeamEditorWidget::addPlayer()
+{
+    QSqlQuery sql( "select count(*) from player2team where teamid = " +
+		   teamCursor.value("id").toString() + " and playerid = " +
+		   playerCursor.value("id").toString() + ";" );
+
+    if( sql.next() && (sql.value(0).toInt() == 0) ){
+	QSqlRecord * buf = player2teamCursor.insertBuffer();
+	buf->setValue( "teamid", teamCursor.value("id") );
+	buf->setValue( "playerid", playerCursor.value("id") );
+	player2teamCursor.insert();
+	player2teamTable->refresh();
+    }
+}
+
+void TeamEditorWidget::removePlayer()
+{
+    // ### Review this!
+    player2teamCursor.del();
+    player2teamTable->refresh();
+}
+
+//
 //  MatchDialog class
 //
-
 MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
 			  const char * name )
     : QDialog( parent, name, TRUE ),
@@ -173,102 +254,3 @@ void MatchDialog::updateSets()
     sets->setText( matchRecord->value( "sets" ).toString() );
 }
 
-
-
-//
-// EditTeamsDialog class
-//
-EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
-    : QDialog( parent, name, TRUE )
-{
-    setCaption( "Team Editor" );
-
-    QGridLayout * g = new QGridLayout( this );
-
-    g->setMargin( 5 );
-    g->setSpacing( 5 );
-
-    QFont f = font();
-    f.setBold( TRUE );
-    QLabel * label = new QLabel( "All teams", this );
-    label->setFont( f );
-    g->addWidget( label, 0, 0 );
-    teamTable   = new QSqlTable( this );
-    teamTable->setCursor( &teamCursor );
-    g->addWidget( teamTable, 1, 0 );
-    connect( teamTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
-	     SLOT( updateTeamMembers( const QSqlRecord * ) ) );
-
-    label = new QLabel( "All players", this );
-    label->setFont( f );
-    g->addWidget( label, 0, 1 );
-    playerTable = new QSqlTable( this );
-    playerTable->setCursor( &playerCursor );
-    g->addWidget( playerTable, 1, 1 );
-
-    player2teamLabel = new QLabel( "Players on ?", this );
-    player2teamLabel->setFont( f );
-    g->addMultiCellWidget( player2teamLabel, 2, 2, 0, 1 );
-    player2teamTable = new QSqlTable( this );
-    player2teamTable->setCursor( &player2teamCursor );
-    player2teamTable->setReadOnly( TRUE );
-    g->addWidget( player2teamTable, 3, 0 );
-    QFrame * buttonFrame = new QFrame( this );
-    QVBoxLayout * v = new QVBoxLayout( buttonFrame );
-
-    QPushButton * button = new QPushButton( "<< &Add",
-					    buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
-    v->addWidget( button );
-
-    button = new QPushButton( ">> &Remove", buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
-    v->addWidget( button );
-    v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Expanding ) );
-    g->addWidget( buttonFrame, 3, 1 );
-
-    buttonFrame = new QFrame( this );
-    QHBoxLayout * h = new QHBoxLayout( buttonFrame );
-    h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Minimum ) );
-
-    button = new QPushButton( "&Close", buttonFrame );
-    button->setDefault( TRUE );
-    connect( button, SIGNAL( clicked() ), SLOT( close() ) );
-    h->addWidget( button );
-    h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Minimum ) );
-
-    g->addMultiCellWidget( buttonFrame, 4, 4, 0, 1 );
-}
-
-void EditTeamsDialog::updateTeamMembers( const QSqlRecord * record )
-{
-    player2teamCursor.select( "teamid = " + record->value( "id" ).toString());
-    player2teamTable->refresh();
-    player2teamLabel->setText( "Players on " +
-			       teamCursor.value("name").toString() );
-}
-
-void EditTeamsDialog::addPlayer()
-{
-    QSqlQuery sql( "select count(*) from player2team where teamid = " +
-		   teamCursor.value("id").toString() + " and playerid = " +
-		   playerCursor.value("id").toString() + ";" );
-
-    if( sql.next() && (sql.value(0).toInt() == 0) ){
-	QSqlRecord * buf = player2teamCursor.insertBuffer();
-	buf->setValue( "teamid", teamCursor.value("id") );
-	buf->setValue( "playerid", playerCursor.value("id") );
-	player2teamCursor.insert();
-	player2teamTable->refresh();
-    }
-}
-
-void EditTeamsDialog::removePlayer()
-{
-    // ### Review this!
-    player2teamCursor.del();
-    player2teamTable->refresh();
-}

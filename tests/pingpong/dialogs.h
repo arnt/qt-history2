@@ -28,6 +28,29 @@ private:
     QMap< int, int > index2Id;
 };
 
+class TeamEditorWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    TeamEditorWidget( QWidget * parent = 0, const char * name = 0 );
+    
+protected slots:
+    void updateTeamMembers( const QSqlRecord * record );
+    void addPlayer();
+    void removePlayer();
+    
+private:
+    QSqlTable * teamTable;
+    QSqlTable * playerTable;
+    QSqlTable * player2teamTable;
+    
+    QLabel * player2teamLabel;
+    Player2TeamCursor player2teamCursor;
+    TeamCursor   teamCursor;
+    PlayerCursor playerCursor;
+};
+
 class MatchDialog : public QDialog
 {
     Q_OBJECT
@@ -45,37 +68,14 @@ private slots:
     void updateSets();
 
 private:
-    QSqlForm * form;
-    QSqlRecord* matchRecord;
+    QSqlForm   * form;
+    QSqlRecord * matchRecord;
     TeamPicker * wteam;
     TeamPicker * lteam;
-    QSpinBox * wins;
-    QSpinBox * losses;
-    QLineEdit * sets;
+    QSpinBox   * wins;
+    QSpinBox   * losses;
+    QLineEdit  * sets;
     Mode mMode;        
-};
-
-class EditTeamsDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    EditTeamsDialog( QWidget * parent = 0, const char * name = 0 );
-    
-protected slots:
-    void updateTeamMembers( const QSqlRecord * record );
-    void addPlayer();
-    void removePlayer();
-    
-private:
-    QSqlTable * teamTable;
-    QSqlTable * playerTable;
-    QSqlTable * player2teamTable;
-    
-    QLabel * player2teamLabel;
-    Player2TeamCursor player2teamCursor;
-    TeamCursor   teamCursor;
-    PlayerCursor playerCursor;
 };
 
 #endif // DIALOGS_H
