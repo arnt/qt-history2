@@ -442,6 +442,7 @@ QPixmap PixmapChooser::loadPixmap( const QString &name, Size size )
 	break;
     }
 
+    QString lookup_png = lookup + QFileInfo( name ).baseName() + ".png";
     lookup += name;
 
     Embed *e = &embed_vec[ 0 ];
@@ -451,6 +452,16 @@ QPixmap PixmapChooser::loadPixmap( const QString &name, Size size )
 	    img.loadFromData( (const uchar*)e->data, e->size );
 	    QPixmap pix;
 	    pix.convertFromImage( img );
+	    if ( !pix.mask() )
+		pix.setMask( pix.createHeuristicMask() );
+	    return pix;
+	} else if ( QString( e->name ) == lookup_png ) {
+	    QImage img;
+	    img.loadFromData( (const uchar*)e->data, e->size );
+	    QPixmap pix;
+	    pix.convertFromImage( img );
+	    if ( !pix.mask() )
+		pix.setMask( pix.createHeuristicMask() );
 	    return pix;
 	}
 	e++;
