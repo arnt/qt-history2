@@ -558,7 +558,7 @@ const QMetaProperty* QMetaObject::resolveProperty( const QMetaProperty* p ) cons
 
   \overload
 
-  The veresion of resolveProperty that is used by moc generated code
+  The version of resolveProperty that is used by moc generated code
 */
 
 int QMetaObject::resolveProperty( int index ) const
