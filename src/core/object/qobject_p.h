@@ -76,7 +76,9 @@ public:
 	blockSig = false;      			// not blocking signals
 	wasDeleted = false;       			// double-delete catcher
 	hasPostedEvents = false;
+#ifdef QT_COMPAT
 	hasPostedChildInsertedEvents = false;
+#endif
 #if defined(QT_THREAD_SUPPORT)
 	spinlock.initialize();
 #endif
