@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#7 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#7 $")
 
 
 const int sbDim = 16;
@@ -830,16 +830,19 @@ void QTableView::clearTableFlags( ulong f )
   automatically whenever it has changed in some way (for example when a
   \link setTableFlags() flag\endlink is changed).
 
-  If \e enable is FALSE, the view will NOT update itself when it is changed.
+  If \e enable is FALSE, the view will NOT update itself when it is
+  changed.  This can be used to avoid flicker during large changes,
+  and is singularly useless otherwise: Disable auto-update, do the
+  changes, re-enable auto-update, and call repaint().
 
-  \warning Do not leave the view in this state for a long time (i.e. between
-  events ). If the user interacts with the view when auto-update is off,
-  strange things can happen.
+  \warning Do not leave the view in this state for a long time
+  (i.e. between events ). If, for example, the user interacts with the
+  view when auto-update is off, strange things can happen.
 
   Setting auto-update to TRUE does not repaint the view, you must call
   repaint() to do this.
 
-  \sa autoUpdate()
+  \sa autoUpdate(), repaint()
  ----------------------------------------------------------------------------*/
 
 void QTableView::setAutoUpdate( bool enable )
