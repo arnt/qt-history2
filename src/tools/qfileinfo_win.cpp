@@ -131,7 +131,7 @@ QString QFileInfo::readLink() const
         IPersistFile *ppf;
         hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
         if (SUCCEEDED(hres))  {
-            hres = ppf->Load( (TCHAR*)qt_winTchar(fn, TRUE), STGM_READ);
+            hres = ppf->Load( (const unsigned short*)qt_winTchar(fn, TRUE), STGM_READ);
             if (SUCCEEDED(hres)) {        // Resolve the link.
 
                 hres = psl->Resolve(0, SLR_ANY_MATCH);
