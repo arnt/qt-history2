@@ -5,9 +5,12 @@
 #include <qchkbox.h>
 #include <qradiobt.h>
 #include <qlined.h>
+#include <qlistview.h>
+#include <qcombo.h>
 #include <qwidgetstack.h>
 #include <qvbox.h>
 #include <qhbox.h>
+#include <qgrid.h>
 #include <qpushbt.h>
 #include <qlabelled.h>
 #include <qbuttonrow.h>
@@ -43,7 +46,9 @@ public:
 static QWidget* advanced()
 {
     QVBox *vbox = new QVBox;
-    StrongHeading *l = new StrongHeading( "Advanced", "Change preferences that affect the entire product", vbox );
+    new StrongHeading( "Advanced", 
+		       "Change preferences that affect the entire product", 
+		       vbox );
 
     QVBox *box;
 
@@ -75,6 +80,189 @@ public:
 	setMinimumSize(100,100);
     }
 };
+
+
+
+static QWidget *fontPage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Fonts", "Change the fonts in your display" , page );
+    QLabelled *frame = new QLabelled( "Fonts and Encodings", page );
+    QVBox *box = new QVBox( frame );
+    QHBox *hbox = new QHBox( box );
+    new QLabel( "For the Encoding", hbox );
+    QComboBox *combo = new QComboBox( FALSE, hbox );
+    combo->insertItem( "Western (iso-8859-1)" );
+
+    hbox = new QHBox( box );
+    new QLabel( "Variable Width Font", hbox );
+    combo = new QComboBox( FALSE, hbox );
+    combo->insertItem( "Times (Adobe)" );
+    new QLabel( "Size:", hbox );
+    combo = new QComboBox( FALSE, hbox );
+    combo->insertItem( "12.0" );
+
+
+    hbox = new QHBox( box );
+    new QLabel( "Fixed Width Font", hbox );
+    combo = new QComboBox( FALSE, hbox );
+    combo->insertItem( "Courier (Adobe)" );
+    new QLabel( "Size:", hbox );
+    combo = new QComboBox( FALSE, hbox );
+    combo->insertItem( "10.0" );
+
+    frame = new QLabelled( page );
+    box = new QVBox( frame );
+    new QLabel( "Sometimes a document will provide its own fonts." );
+    new QRadioButton( "Use my default fonts, overriding document-specified fonts", box );
+    new QRadioButton( "Use document-specified fonts, but disable Dynamic Fonts", box );
+    new QRadioButton( "Use document-specified fonts, including Dynamic Fonts", box );
+
+    //    page->addStretch();
+    return page;
+}
+
+
+static QWidget *colorPage()
+{
+    QVBox *page = new QVBox;
+
+     new StrongHeading( "Colors", "Change the colors in your display" , page );
+
+    QHBox *topbox = new QHBox( page );
+
+    QLabelled *frame = new QLabelled( "Colors", topbox );
+    QGrid *grid = new QGrid( 3, frame );
+    new QLabel( "Text:", grid );
+    new QPushButton( "dummy", grid );
+    new QLabel(grid); //### grid->skip();
+    new QLabel( "Background:", grid );
+    new QPushButton( "dummy", grid );
+    new QLabel(grid); //### grid->skip();
+    new QPushButton( "Use Default", grid );
+
+    frame = new QLabelled( "Links", topbox );
+    QVBox *box = new QVBox( frame );
+    grid = new QGrid( 2, box );
+    new QLabel( "Unvisited Links:", grid );
+    new QPushButton( "dummy", grid );
+    new QLabel( "Visited Links:", grid );
+    new QPushButton( "dummy", grid );
+    new QCheckBox( "Underline links", box );
+
+
+    frame = new QLabelled( page );
+    box = new QVBox( frame );
+
+    new QLabel( "Sometimes a document will provide its own colors and background", box );
+    new QCheckBox( "Always use my colors, overriding document", box );    
+
+    //    page->addStretch();
+    return page;
+}
+
+static QWidget *appsPage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Applications",   
+		       "Specify helper applications for different file types",
+		       page );
+
+    QLabelled *frame = new QLabelled( page );
+    QVBox *box = new QVBox( frame );
+#if 1
+    QListView *lv = new QListView( box );
+    lv->setColumn( "Description", 250 );
+    lv->setColumn( "Handled By", 100 );
+    new QListViewItem( lv, "GIF Image", "Netscape" );
+    new QListViewItem( lv, "Hypertext Markup Language", "Netscape" );
+    new QListViewItem( lv, "Plain text", "Netscape" );
+    new QListViewItem( lv, "Perl Program", "Unknown:Prompt User" );
+    new QListViewItem( lv, "Lkjsfdlkdsjgf", "Unknown:Prompt User" );
+    new QListViewItem( lv, "Asdfafsafs", "Unknown:Prompt User" );
+    new QListViewItem( lv, "Xzcmnv", "Unknown:Prompt User" );
+    new QListViewItem( lv, "Aqwreqrpoierw", "Unknown:Prompt User" );
+    new QListViewItem( lv, "mnzxcewewq", "Unknown:Prompt User" );
+    new QListViewItem( lv, "Oiuycxsxc Xocuy", "Unknown:Prompt User" );
+    new QListViewItem( lv, "JPG Image", "Netscape" );
+    new QListViewItem( lv, "XBM Image", "Netscape" );
+#endif
+    QButtonRow *br = new QButtonRow( box );
+    new QPushButton( "New...", br );
+    new QPushButton( "Edit...", br );
+    new QPushButton( "Delete", br );
+    
+    QHBox *hbox = new QHBox( box );
+    new QLabel( "Download files to:", hbox );
+    new QLineEdit( hbox );
+    new QPushButton( "Choose...", hbox );
+
+    //    page->addStretch();
+    return page;
+}
+
+
+static QWidget *appearPage()
+{
+    QVBox *page = new QVBox;
+    
+    new StrongHeading( "Appearance",
+		       "Change the appearance of the display" , page );
+    QLabelled *frame = new QLabelled( "On startup, launch", page );
+    QVBox *box = new QVBox( frame );
+    new QCheckBox( "&Navigator", box );
+    new QCheckBox( "&Messenger Mailbox", box );
+    new QCheckBox( "Collabra &Discussions", box );
+    new QCheckBox( "Page &Composer", box );
+    new QCheckBox( "N&etcaster", box );
+    frame = new QLabelled( "Show Toolbar As", page );
+    box = new QVBox( frame );
+    new QRadioButton( "&Pictures and Text", box );
+    new QRadioButton( "Pictures &Only", box );
+    new QRadioButton( "&Text Only", box );
+    
+    //    page->addStretch();
+    return page;
+}
+
+static QWidget *navigatorPage()
+{
+    QVBox *page = new QVBox;
+
+    new StrongHeading( "Navigator",   "Specify the home page location",
+			    page );
+    QLabelled *frame = new QLabelled( "Browser starts with", page );
+    QVBox *box = new QVBox( frame );
+    new QRadioButton( "Blank page", box );
+    new QRadioButton( "Home page", box );
+    new QRadioButton( "Last page visited", box );
+
+    frame = new QLabelled( "Home Page", page );
+    box = new QVBox( frame );
+    new QLabel( "Clicking the Home button will take you to this page",
+		box );
+    QHBox *hbox = new QHBox( box );
+    new QLabel( "Location:", hbox );
+    new QLineEdit( hbox );
+    hbox = new QHBox( box );
+    new QPushButton( "Use Current Page" );
+    new QPushButton ( "Choose" );
+
+    frame = new QLabelled( "History", page );
+    hbox = new QHBox( frame );
+    new QLabel( "History expires after", hbox );
+    new QLineEdit( hbox );
+    new QLabel( "days", hbox );
+    new QPushButton( "Clear History", hbox );
+
+    //    page->addStretch();
+    return page;
+}
+
+
+
 
 Preferences::Preferences(QWidget* parent, const char* name, int f) :
     QDialog(parent, name, f)
@@ -110,60 +298,14 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
 
     PreferenceItem *group;
 
-    QVBox *appearance = new QVBox;
-    {
-	QLabel *l = new QLabel( "Appearance   Change the appearance of the display" , appearance );
-	QLabelled *frame = new QLabelled( "On startup, launch", appearance );
-	QVBox *box = new QVBox( frame );
-	new QCheckBox( "&Navigator", box );
-	new QCheckBox( "&Messenger Mailbox", box );
-	new QCheckBox( "Collabra &Discussions", box );
-	new QCheckBox( "Page &Composer", box );
-	new QCheckBox( "N&etcaster", box );
-	frame = new QLabelled( "Show Toolbar As", appearance );
-	box = new QVBox( frame );
-	new QRadioButton( "&Pictures and Text", box );
-	new QRadioButton( "Pictures &Only", box );
-	new QRadioButton( "&Text Only", box );
-    }
-    QVBox *navigator = new QVBox;
-    {
-	QLabel *l = new QLabel( "Navigator   Specify the home page location",
-				navigator );
-	QLabelled *frame = new QLabelled( "Browser starts with", navigator );
-	QVBox *box = new QVBox( frame );
-	new QRadioButton( "Blank page", box );
-	new QRadioButton( "Home page", box );
-	new QRadioButton( "Last page visited", box );
-
-	frame = new QLabelled( "Home Page", navigator );
-	box = new QVBox( frame );
-	new QLabel( "Clicking the Home button will take you to this page",
-		    box );
-	QHBox *hbox = new QHBox( box );
-	new QLabel( "Location:", hbox );
-	new QLineEdit( hbox );
-	hbox = new QHBox( box );
-	new QPushButton( "Use Current Page" );
-	new QPushButton ( "Choose" );
-
-	frame = new QLabelled( "History", navigator );
-	hbox = new QHBox( frame );
-	new QLabel( "History expires after", hbox );
-	new QLineEdit( hbox );
-	new QLabel( "days", hbox );
-	new QPushButton( "Clear History", hbox );
-
-    }
     add(group = new PreferenceItem(selector, "Appearance"), 
-	appearance );
-    add(new PreferenceItem(group, "Font"), new DummyCategory("Font"));
-    add(new PreferenceItem(group, "Colors"), new DummyCategory("Colors"));
-    add(group = new PreferenceItem(selector, "Navigator"), navigator);
+	appearPage() );
+    add(new PreferenceItem(group, "Font"), fontPage() );
+    add(new PreferenceItem(group, "Colors"), colorPage() );
+    add(group = new PreferenceItem(selector, "Navigator"), navigatorPage() );
     add(new PreferenceItem(group, "Languages"), 
 	new DummyCategory("Languages"));
-    add(new PreferenceItem(group, "Applications"), 
-	new DummyCategory("Applications"));
+    add(new PreferenceItem(group, "Applications"), appsPage() );
     add(group = new PreferenceItem(selector, "Mail & Groups"), new DummyCategory);
     add(new PreferenceItem(group, "Identity"), new DummyCategory);
     add(new PreferenceItem(group, "Messages"), new DummyCategory);
@@ -180,6 +322,8 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
 
     setCaption("Netscape: Preferences");
 }
+
+
 
 void Preferences::add( PreferenceItem* item, QWidget* stack_item)
 {
