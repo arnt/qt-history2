@@ -6,6 +6,12 @@ HEADERS		= ../../../../src/sql/drivers/odbc/qsql_odbc.h
 SOURCES		= main.cpp \
 		  ../../../../src/sql/drivers/odbc/qsql_odbc.cpp
 
+mac {
+        !contains( LIBS, .*odbc.* ) {
+            LIBS        *= -liodbc
+        }
+}
+
 unix {
 	OBJECTS_DIR	= .obj
 	!contains( LIBS, .*odbc.* ) {
