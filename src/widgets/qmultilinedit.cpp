@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#78 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -845,7 +845,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Return:
 	    newLine();
 	    emit returnPressed();
-	    e->ignore();
 	    break;
 	default:
 	    unknown++;
