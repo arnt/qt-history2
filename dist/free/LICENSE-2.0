@@ -80,34 +80,7 @@ license and that the entire package is distributed, including this notice.
 2. You may distribute machine-executable forms of the Software.
 
 <p>
-3. You may distribute machine-executable forms of modified versions
-of the Software, provided the patches used to make the machine-executable
-forms accompany it.
-
-<p>
-4. You may use the Software to compile, link and run application programs
-legally developed by third parties.
-
-<p>
-5. You may use the Software to create application programs, reusable
-components and other software items under the following restrictions: 
-
-<blockquote>
-<p>
-  a. You accept this license.
-<p>
-  b. You make your items available in machine-readable source code form
-      free of charge to all users of those items.  You may charge a
-      reasonable fee for the physical act of transferring a copy.
-<p>
-  c. You explicitly permit users of your items to freely modify the
-      source code (possibly with restrictions on copyright notices,
-      attributions and legal responsibility), and freely redistribute
-      original or modified versions of the software. 
-</blockquote>
-
-<p>
-6. You may make modifications to the Software.  In order to preserve the
+3. You may make modifications to the Software.  In order to preserve the
 integrity of the unmodified version of the Software, modifications must
 be distributed in the form of patches, and the following restrictions
 apply to each patch: 
@@ -132,6 +105,34 @@ apply to each patch:
 <p>
   c. The patch must include an accurate description
      of the modification and the date of the modification.
+</blockquote>
+
+<p>
+4. You may distribute machine-executable forms of modified versions
+of the Software, provided the patches used to make the machine-executable
+forms accompany it.
+
+<p>
+5. You may use the original or modified versions of the Software to compile,
+link and run application programs legally developed by third parties.
+
+<p>
+6. You may use the original or modified versions of the Software to create
+application programs, reusable components and other software items under the
+following restrictions: 
+
+<blockquote>
+<p>
+  a. You accept this license.
+<p>
+  b. You make your items available in machine-readable source code form
+      free of charge to all users of those items.  You may charge a
+      reasonable fee for the physical act of transferring a copy.
+<p>
+  c. You explicitly permit users of your items to freely modify the
+      source code (possibly with restrictions on copyright notices,
+      attributions and legal responsibility), and freely redistribute
+      original or modified versions of the software. 
 </blockquote>
 
 <h2 align=center>
