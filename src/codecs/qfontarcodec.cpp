@@ -449,9 +449,12 @@ QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len 
 	    if ( c >= 0x60 && c <= 0x69 )
 		// numbers
 		*data = 0xb0 + c - 0x60;
-	    else if ( c == 0x40 )
-		// tatweel
-		*data = 0xe0;
+	    else if ( c >= 0x1b && c <= 0x4a )
+		// letters
+		*data = c + 0xa0;
+	    else if ( c == 0x0c )
+		// arabic comma
+		*data = 0xba;
 	    else
 		*data = 0xff;
 	}
