@@ -401,6 +401,48 @@ void MainWindow::showLink( const QString &link )
     }
 }
 
+void MainWindow::showLinks( const QStringList &links )
+{
+    if ( links.size() == 0 ) {
+	qWarning( "MainWindow::showLinks() - Empty link" );
+	return;
+    }
+
+    if ( links.size() == 1 ) {
+	showLink( links.first() );
+	return;
+    }
+
+    pendingLinks = links;
+
+    QStringList::ConstIterator it = pendingLinks.begin();
+    // Initial showing, The tab is empty so update that without creating it first
+    if ( tabs->currentBrowser()->source().isEmpty() ) {
+	pendingBrowsers.append(tabs->currentBrowser());
+	tabs->tab->setTabLabel(tabs->currentBrowser(), pendingLinks.first());
+    }
+    ++it;
+
+    while( it != pendingLinks.end() ) {
+	pendingBrowsers.append( tabs->newBackgroundTab(*it) );
+	++it;
+    }
+
+    startTimer(50);
+    return;
+}
+
+void MainWindow::timerEvent(QTimerEvent *e)
+{
+    QString link = pendingLinks.first();
+    HelpWindow *win = pendingBrowsers.first();
+    pendingLinks.pop_front();
+    pendingBrowsers.removeFirst();
+    if (pendingLinks.size() == 0)
+	killTimer(e->timerId());
+    win->setSource(link);
+}
+
 void MainWindow::showQtHelp()
 {
     showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
@@ -497,10 +539,19 @@ void MainWindow::saveSettings()
     config->setFontFixedFamily( tabs->styleSheet()->item( "pre" )->fontFamily() );
     config->setLinkUnderline( tabs->linkUnderline() );
     config->setLinkColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ).name() );
-    config->setSource( tabs->currentBrowser()->source() );
     config->setSideBarPage( helpDock->tabWidget->currentPageIndex() );
     config->setGeometry( QRect( x(), y(), width(), height() ) );
     config->setMaximized( isMaximized() );
+
+    // Create list of the tab urls
+    QStringList lst;
+    QPtrList<HelpWindow> browsers = tabs->browsers();
+    HelpWindow *browser = browsers.first();
+    while (browser) {
+	lst << browser->source();
+	browser = browsers.next();
+    }
+    config->setSource(lst);
     config->save();
 }
 

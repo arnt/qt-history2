@@ -158,11 +158,6 @@ void HelpWindow::setSource( const QString &name )
     setCharacterEncoding( sect );
     setText("<body bgcolor=white>");
     QTextBrowser::setSource( name );
-
-    if( !documentTitle().isEmpty() )
-	mw->browsers()->updateTitle( documentTitle() );
-    else
-	mw->browsers()->updateTitle( tr( "Untitled" ) );
 }
 
 

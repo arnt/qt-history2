@@ -102,7 +102,7 @@ void Config::load()
     }
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
-    src = settings.readEntry( profkey + "Source" );
+    src = settings.readListEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
     geom.setRect( settings.readNumEntry( key + "GeometryX", QApplication::desktop()->availableGeometry().x() ),
 		  settings.readNumEntry( key + "GeometryY", QApplication::desktop()->availableGeometry().y() ),
@@ -290,9 +290,9 @@ QString Config::homePage() const
     return home.isEmpty() ? profil->props["startpage"] : home;
 }
 
-QString Config::source() const
+QStringList Config::source() const
 {
-    return src.isEmpty() ? profil->props["startpage"] : src;
+    return src.size() == 0 ? profil->props["startpage"] : src;
 }
 
 QStringList Config::docFiles() const

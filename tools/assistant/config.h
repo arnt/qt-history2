@@ -47,9 +47,9 @@ public:
     QStringList profiles() const;
     QString title() const;
     QString aboutApplicationMenuText() const;
-    QString aboutURL() const;        
+    QString aboutURL() const;
     QPixmap applicationIcon() const;
-    
+
     // From QSettings, read / write
     QString webBrowser() const { return webBrows; }
     void setWebBrowser( const QString &cmd ) { webBrows = cmd; }
@@ -72,8 +72,8 @@ public:
     QString linkColor() const { return linkCol; }
     void setLinkColor( const QString &col ) { linkCol = col; }
 
-    QString source() const;
-    void setSource( const QString &s ) { src = s; }
+    QStringList source() const;
+    void setSource( const QStringList &s ) { src = s; }
 
     int sideBarPage() const { return sideBar; }
     void setSideBarPage( int sbp ) { sideBar = sbp; }
@@ -117,7 +117,7 @@ private:
     QString fontFam;
     QString fontFix;
     QString linkCol;
-    QString src;
+    QStringList src;
     QString mainWinLayout;
     QRect geom;
     int sideBar;

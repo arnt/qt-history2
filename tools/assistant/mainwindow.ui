@@ -556,6 +556,7 @@
     <forward>class HelpWindow;</forward>
     <forward>class HelpDialog;</forward>
     <forward>class TabbedBrowser;</forward>
+    <forward>class QTimerEvent;</forward>
 </forwards>
 <variables>
     <variable>QList&lt;QAction*&gt; *goActions;</variable>
@@ -568,6 +569,8 @@
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
     <variable>static QList&lt;MainWindow*&gt; *windows;</variable>
     <variable>QMap&lt;QAction*,QString&gt; *goActionDocFiles;</variable>
+    <variable>QStringList pendingLinks;</variable>
+    <variable>QPtrList&lt;HelpWindow&gt; pendingBrowsers</variable>
 </variables>
 <slots>
     <slot>init()</slot>
@@ -584,6 +587,7 @@
     <slot>showBookmark( int id )</slot>
     <slot>showLinkFromClient( const QString &amp; link )</slot>
     <slot>showLink( const QString &amp; link )</slot>
+    <slot>showLinks( const QStringList &amp; links )</slot>
     <slot>showQtHelp()</slot>
     <slot>showSettingsDialog()</slot>
     <slot>showWebBrowserSettings()</slot>
@@ -605,6 +609,7 @@
     <function returnType="bool">close( bool alsoDelete )</function>
     <function specifier="non virtual" returnType="TabbedBrowser *">browsers()</function>
     <function returnType="HelpDialog*">helpDialog()</function>
+    <function>timerEvent(QTimerEvent *)</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

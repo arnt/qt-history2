@@ -264,7 +264,7 @@ int main( int argc, char ** argv )
     }
 
     bool max = conf->isMaximized();
-    QString link = conf->source();
+    QStringList links = conf->source();
     conf->hideSideBar( hideSidebar );
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant" );
@@ -285,7 +285,7 @@ int main( int argc, char ** argv )
     if ( !file.isEmpty() )
 	mw->showLink( file );
     else if ( file.isEmpty() )
-	mw->showLink( link );
+	mw->showLinks( links );
 
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 

@@ -70,25 +70,16 @@ void TabbedBrowser::previousTab()
 	tab->setCurrentPage( idx );
 }
 
-void TabbedBrowser::newTab( const QString &lnk )
+HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
 {
     MainWindow *mainWin = mainWindow();
-    QString link( lnk );
-    if( link.isNull() ) {
-	HelpWindow *w = currentBrowser();
-	if( w )
-	    link = w->source();
-    }
-
     HelpWindow *win = new HelpWindow( mainWin, this, "qt_assistant_helpwin" );
     win->setFont( browserFont() );
     win->setPalette( palette() );
     win->setLinkUnderline( tabLinkUnderline );
     win->setStyleSheet( tabStyleSheet );
     win->setMimeSourceFactory( mimeSourceFactory );
-
-    tab->addTab( win, "..." );
-    tab->showPage( win );
+    tab->addTab(win, reduceLabelLength(title));
     connect( win, SIGNAL( highlighted( const QString & ) ),
 	     (const QObject*) (mainWin->statusBar()), SLOT( message( const QString & ) ) );
     connect( win, SIGNAL( chooseWebBrowser() ), mainWin, SLOT( showWebBrowserSettings() ) );
@@ -96,10 +87,31 @@ void TabbedBrowser::newTab( const QString &lnk )
 	     mainWin, SLOT( backwardAvailable(bool) ) );
     connect( win, SIGNAL( forwardAvailable(bool) ),
 	     mainWin, SLOT( forwardAvailable(bool) ) );
-    if( !link.isNull() ) {
-	win->setSource( link );
-    }
+    connect( win, SIGNAL( sourceChanged(const QString &) ), this, SLOT( sourceChanged() ));
+
     tab->cornerWidget( Qt::TopRight )->setEnabled( tab->count() > 1 );
+    return win;
+}
+
+HelpWindow *TabbedBrowser::newBackgroundTab( const QString &url )
+{
+    HelpWindow *win = createHelpWindow(url);
+    return win;
+}
+
+void TabbedBrowser::newTab( const QString &lnk )
+{
+    QString link( lnk );
+    if( link.isNull() ) {
+	HelpWindow *w = currentBrowser();
+	if( w )
+	    link = w->source();
+    }
+    HelpWindow *win = createHelpWindow(link);
+    tab->showPage( win );
+    if( !link.isNull() ) {
+ 	win->setSource( link );
+    }
 }
 
 void TabbedBrowser::zoomIn()
@@ -299,6 +311,29 @@ void TabbedBrowser::displayEntireLabel( QWidget *w )
     if ( win )
 	tab->changeTab( lastCurrentTab, reduceLabelLength( win->documentTitle() ) );
     win = (HelpWindow*)(tab->currentPage());
-    tab->changeTab( w, win->documentTitle() );
+    if (!win->documentTitle().isEmpty())
+	tab->setTabLabel( w, win->documentTitle() );
     lastCurrentTab = w;
 }
+
+
+QPtrList<HelpWindow> TabbedBrowser::browsers() const
+{
+    QPtrList<HelpWindow> list;
+    for (int i=0; i<tab->count(); ++i) {
+	Q_ASSERT(::qt_cast<HelpWindow*>(tab->page(i)));
+	list.append(::qt_cast<HelpWindow*>(tab->page(i)));
+    }
+    return list;
+}
+
+void TabbedBrowser::sourceChanged()
+{
+    HelpWindow *win = ::qt_cast<HelpWindow *>( QObject::sender() );
+    Q_ASSERT( win );
+    QString docTitle(win->documentTitle());
+    if (docTitle.isEmpty())
+	docTitle = "...";
+    tab->setTabLabel(win, win == currentBrowser() ? docTitle : reduceLabelLength(docTitle));
+}
+
