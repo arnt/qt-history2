@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#30 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#31 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -16,7 +16,6 @@
 #include "qstring.h"
 
 class QComboBox;
-class QRegExp;
 
 
 class QLineEdit : public QWidget
@@ -36,14 +35,6 @@ public:
     enum	EchoMode { Normal, None, Password };
     void	setEchoMode( enum EchoMode );
     QLineEdit::EchoMode echoMode() const;
-
-    void	setPattern( const QRegExp & );
-    const QRegExp pattern() const;
-    bool	hasPattern() const;
-    void	disablePatternChecking();
-
-    void	setDigitsOnly( bool = FALSE );
-    void	setLegalCharacters( const char *, bool = TRUE );
 
 public slots:
     void	setText( const char * );

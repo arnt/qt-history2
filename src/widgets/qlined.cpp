@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#67 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,11 +17,10 @@
 #include "qkeycode.h"
 #include "qclipbrd.h"
 #include "qapp.h"
-#include "qregexp.h"
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#67 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 
@@ -29,7 +28,6 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#66 $");
 
 
 struct QLineEditExtra {
-    QRegExp re;
     bool frame;
     QLineEdit::EchoMode mode;
 };
@@ -88,11 +86,6 @@ static QLineEditExtra * lookInLEDict( const QLineEdit * that )
   \endlink \link QColorGroup::text() colorGroup().text() \endlink on
   \link QColorGroup::base() colorGroup().base(). \endlink  The cursor
   and frame use other colors from same color group, of course.
-
-  By default, the user can enter any character, and up to 32767 of
-  them.  You can restrict the maximum length using setMaxLength() and
-  the admissible characters using setPattern() or some simpler and
-  less powerful forms, setDigitsOnly() and setLegalCharacters().
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
@@ -344,16 +337,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
-	if ( hasPattern() ) { // do a slow, wasteful test first
-	    QString test( tbuf.copy() );
-	    if ( hasMarkedText() )
-		test.remove( minMark(), maxMark() - minMark() );
-	    if ( (int)test.length() < maxLen )
-		test.insert( cursorPos, e->ascii() );
-	    if ( !pattern().match( test ) )
-		return;
-	}
-
 	if ( hasMarkedText() ) {
 	    tbuf.remove( minMark(), maxMark() - minMark() );
 	    cursorPos = minMark();
@@ -410,21 +393,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		}
 		int tlen = t.length();
 		int blen;
-		if ( hasPattern() ) {
-		    // do a test run without hurting tbuf and stuf
-		    QString test( tbuf.copy() );
-		    if ( hasMarkedText() )
-			test.remove( minMark(), maxMark() - minMark() );
-		    blen = tbuf.length();
-		    if ( tlen+blen >= maxLen ) {
-			if ( blen >= maxLen )
-			    break;
-			t.truncate( maxLen-tlen );
-		    }
-		    test.insert( cursorPos, t );
-		    if ( !pattern().match( test ) )
-			break;
-		}
 		if ( hasMarkedText() ) {
 		    tbuf.remove( minMark(), maxMark() - minMark() );
 		    cursorPos = minMark();
@@ -916,8 +884,6 @@ void QLineEdit::del()
 
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
-	if ( hasPattern() && !pattern().match( test ) )
-	    return;
 	tbuf = test;
 	cursorPos  = minMark();
 	markAnchor = cursorPos;
@@ -929,8 +895,6 @@ void QLineEdit::del()
     } else {
 	if ( cursorPos != (int)strlen(tbuf) ) {
 	    test.remove( cursorPos, 1 );
-	    if ( hasPattern() && !pattern().match( test ) )
-		return;
 	    tbuf = test;
 	    repaint( !hasFocus() );
 	    emit textChanged( tbuf.data() );
@@ -1139,127 +1103,4 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 {
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->mode : Normal;
-}
-
-
-/*!
-
-  To disable pattern checking, call disablePatternChecking().
-  
-*/
-
-void QLineEdit::setPattern( const QRegExp & re )
-{
-    if ( !re.isValid() )
-	return;
-    else if ( re.isEmpty() && !qle_extraStuff )
-	return;
-
-    QLineEditExtra * x = makeLEDict( this );
-
-    x->re = re;
-}
-
-
-/*!
-  
-*/
-
-const QRegExp QLineEdit::pattern() const
-{
-    QRegExp p;
-    QLineEditExtra * x = lookInLEDict( this );
-    if ( x )
-	p = x->re;
-    return p;
-}
-
- 
-/*!  Returns TRUE if the line edit is currently doing pattern
-  checking.
-
-  Returns false if there is no patter, the pattern is empty or the
-  pattern is invalid.
-
-  \sa pattern() setPattern() disablePattern() setDigitsOnly()
-  setLegalCharacters()
-*/
-
-bool QLineEdit::hasPattern() const
-{
-    QLineEditExtra * x = lookInLEDict( this );
-    return x && !x->re.isEmpty() && x->re.isValid();
-}
-
-
-/*!  Sets the line edit to accept only digits.  The empty string is
-  valid, and there is no limitation except the length set by
-  setMaxLength().
-
-  If \a allowDecimalPoint is TRUE (the default is FALSE) the user may
-  enter a single \".\" as well as digits.  Strings like \".25\" and
-  \".\" are legal.  White space is rejected.
-
-  To disable pattern checking, call disablePatternChecking().
-
-  This function is a one-line wrapper around setPattern().
-
-  \sa setLegalCharacters() setMaxLength() setPattern()
-  disablePatternChecking()
-*/
-
-void QLineEdit::setDigitsOnly( bool allowDecimalPoint )
-{
-    setPattern( QRegExp( allowDecimalPoint
-			? "^[0-9]*\\.?[0-9]*$"
-			: "^[0-9]*$" ) );
-}
-
-
-/*! Sets the line edit to accept the characters in \a legalList, and
-  if \a caseSensitive is FALSE (the default is TRUE) their
-  case-switched equivalents.
-
-  No metacharacters exist:
-  \code
-    e->setLegalCharacters( "a-e", FALSE ); // -, A, E, a and e are legal
-    e->setLegalCharacters( "abc*" ); // *, a b and c are legal
-  \end
-
-  If the string is empty, nothing happens.  To disable pattern
-  checking, call disablePatternChecking().
-
-  This function is a short wrapper around setPattern().
-
-  \sa setDigitsOnly() setMaxLength() setPattern()
-  disablePatternChecking()
-*/
-
-void QLineEdit::setLegalCharacters( const char * legalList,
-				    bool caseSensitive )
-{
-    QString s( "[" );
-    const char * p = legalList;
-    while ( p && *p ) {
-	if ( !isalnum( *p ) )
-	    s += '\\';
-	s += *p;
-    }
-    s += ']';
-    setPattern( QRegExp( s, caseSensitive ) );
-}
-
-
-/*!  Disables pattern checking.  This function is equivalent to
-  setPattern( QRegExp() ) but sometimes a little more efficient.
-
-  \sa setPattern() hasPattern() pattern() setLegalCharacters()
-  setDigitsOnly()
-*/
-
-void QLineEdit::disablePatternChecking()
-{
-    QLineEditExtra * x = lookInLEDict( this );
-    if ( x )
-	x->re = QRegExp();
 }
