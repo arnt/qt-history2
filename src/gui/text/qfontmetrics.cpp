@@ -103,6 +103,21 @@ extern int qt_defaultDpi();
 */
 
 /*!
+    \fn QRect QFontMetrics::boundingRect(int x, int y, int width, int height,
+        int flags, const QString &text, int tabstops, int *tabarray) const
+    \overload
+
+    Returns the bounding rectangle for the given \a text within the
+    rectangle specified by the \a x and \a y coordinates, \a width, and 
+    \a height.
+
+    If \c Qt::TextExpandTabs is set in \a flags and \a tabarray is
+    non-null, it specifies a 0-terminated sequence of pixel-positions
+    for tabs; otherwise, if \a tabstops is non-zero, it is used as the
+    tab spacing (in pixels).
+*/
+
+/*!
     Constructs a font metrics object for \a font.
 
     The font metrics will be screen-compatible, i.e. the metrics you
@@ -547,11 +562,9 @@ int QFontMetrics::width(QChar ch) const
 */
 
 /*!
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0).
-
-    If \a len is negative (the default), the entire string is used.
+    Returns the bounding rectangle of the characters in the string
+    specified by \a str, which is the set of pixels the text would
+    cover if drawn at (0, 0).
 
     Note that the bounding rectangle may extend to the left of (0, 0),
     e.g. for italicized fonts, and that the text output may cover \e
@@ -608,13 +621,10 @@ QRect QFontMetrics::boundingRect(QChar ch) const
 /*!
     \overload
 
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0). The drawing, and hence the bounding rectangle, is
-    constrained to the rectangle \a r.
-
-    If \a len is negative (which is the default), the entire string is
-    used.
+    Returns the bounding rectangle of the characters in the string
+    specified by \a str, which is the set of pixels the text would
+    cover if drawn at (0, 0). The drawing, and hence the bounding
+    rectangle, is constrained to the rectangle \a r.
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
@@ -1489,4 +1499,19 @@ qreal QFontMetricsF::lineWidth() const
     return engine->lineThickness();
 }
 
+/*!
+    \fn QSize QFontMetrics::size(int flags, const QString &str, int len,
+                                 int tabstops, int *tabarray) const
+    \compat
+*/
 
+/*!
+    \fn QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flags,
+        const QString& str, int len, int tabstops, int *tabarray) const
+    \compat
+*/
+
+/*!
+    \fn QRect QFontMetrics::boundingRect(const QString &text, int len) const
+    \compat
+*/

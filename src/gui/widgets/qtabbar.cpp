@@ -205,23 +205,26 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     as hints as some styles may not render some of the shapes. However,
     position should be honored.
 
-    \value RoundedNorth  the normal rounded look above the pages
+    \value RoundedNorth  The normal rounded look above the pages
 
-    \value RoundedSouth  the normal rounded look below the pages
+    \value RoundedSouth  The normal rounded look below the pages
 
-    \value RoundedWest  the normal rounded look on the left side of the pages
+    \value RoundedWest  The normal rounded look on the left side of the pages
 
-    \value RoundedEast  the normal rounded look on the right side the pages
+    \value RoundedEast  The normal rounded look on the right side the pages
 
-    \value TriangularNorth  triangular tabs above the pages.
+    \value TriangularNorth  Triangular tabs above the pages.
 
-    \value TriangularBelow  triangular tabs similar to those used in
+    \value TriangularSouth  Triangular tabs similar to those used in
     the Excel spreadsheet, for example
 
-    \value TriangularWest  triangular tabs on the left of the pages.
+    \value TriangularWest  Triangular tabs on the left of the pages.
 
-    \value TriangularEast  triangular tabs on the right of the pages.
-
+    \value TriangularEast  Triangular tabs on the right of the pages.
+    \omitvalue RoundedAbove
+    \omitvalue RoundedBelow
+    \omitvalue TriangularAbove
+    \omitvalue TriangularBelow
 */
 
 /*!
