@@ -72,6 +72,10 @@ static const char * book_xpm[]={
 #include <qaccel.h>
 #include <qregexp.h>
 #include <qpixmap.h>
+#include <qmime.h>
+#ifdef QT_PALMTOPCENTER_DOCS
+#include <qsettings.h>
+#endif
 
 static QPixmap *bookPixmap = 0;
 
@@ -159,7 +163,19 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
 {
     bookPixmap = new QPixmap( book_xpm );
 #ifdef QT_PALMTOPCENTER_DOCS
-    documentationPath = QString( getenv( "PALMTOPCENTERDIR" ) ) + "/doc";
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Unix,
+			       FileSystemOperator::localCenterPath() );
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );    
+    QString basePath;
+    basePath = settings.readEntry( "/palmtopcenter/qtopiadir" );
+    documentationPath = basePath + "/doc";
+
+    QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
+    mime->addFilePath( basePath + "/pics" );
+    mime->addFilePath( basePath + "/pics/inline" );
+    mime->addFilePath( basePath + "/pics/large" );
+    mime->addFilePath( basePath + "/pics/small" );
 #else
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
 #endif
@@ -553,8 +569,8 @@ void HelpDialog::insertContents()
     HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu, *assistantDocu;
 #ifdef QT_PALMTOPCENTER_DOCS
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
-    qtDocu->setText( 0, tr( "Qt Palmtopcenter Documentation" ) );
-    qtDocu->setLink( "palmtopcenter.html" );
+    qtDocu->setText( 0, tr( "Qtopia Desktop Documentation" ) );
+    qtDocu->setLink( "qtopiadesktop.html" );
     qtDocu->setPixmap( 0, *bookPixmap );
 #else    
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
@@ -655,8 +671,14 @@ void HelpDialog::insertContents()
     }
     delete lst;
 #ifdef QT_PALMTOPCENTER_DOCS
-    QString manualdir = QString( getenv( "PALMTOPCENTERDIR" ) ) + "/book.html/palmtopcenter.html";
-    insertContents( manualdir, tr( "Qt Palmtopcenter Manual" ), lastItem, handbook );
+    settings.insertSearchPath( QSettings::Unix,
+			       FileSystemOperator::localCenterPath() );
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
+    QString basePath;
+    basePath = settings.readEntry( "/palmtopcenter/qtopiadir", QString::null, &okay );    
+    QString manualdir = basePath + "/book.html/qtopiadesktop.html";
+    insertContents( manualdir, tr( "Qtopia Desktop Manual" ), lastItem, handbook );
 #else    
     QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";
     insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );

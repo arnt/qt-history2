@@ -8,6 +8,7 @@
 #include <qdir.h>
 #include <qbuttongroup.h>
 #include <qpushbutton.h>
+#include <qradiobutton.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -118,6 +119,8 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
 #if defined(EVAL)
     installDocs->setEnabled( FALSE );
+    sysMsvc->setEnabled( FALSE );
+    sysBorland->setEnabled( FALSE );
 #endif
 }
 

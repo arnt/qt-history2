@@ -563,7 +563,7 @@ QProcess::~QProcess()
   convenience, there is a small exception to this rule: under Unix, if \a env
   does not contain any settings for the environment variable \c
   LD_LIBRARY_PATH, then this variable is inherited from the starting process;
-  under Windows the same applies for the enverionment varialbe \c PATH.
+  under Windows the same applies for the environment variable \c PATH.
 
   Returns TRUE if the process could be started, otherwise FALSE.
 

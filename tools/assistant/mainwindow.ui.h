@@ -20,7 +20,13 @@ void MainWindow::init()
     settings = 0L;
 
 #ifdef QT_PALMTOPCENTER_DOCS
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "PALMTOPCENTERDIR" ) ) + "/doc/" );
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Unix,
+			       FileSystemOperator::localCenterPath() );
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+   
+    QString dir = settings.readEntry( "/palmtopcenter/qtopiadir" );
+    browser->mimeSourceFactory()->addFilePath( dir + "/doc/" );
     actionGoLinguist->removeFrom( goMenu );
     actionGoLinguist->removeFrom( Toolbar );
     actionGoQt->removeFrom( goMenu );
@@ -170,7 +176,7 @@ void MainWindow::find()
 void MainWindow::goHome()
 {
 #ifdef QT_PALMTOPCENTER_DOCS
-    showLink( "palmtopcenter.html", "Qt Palmtopcenter Documentation" );
+    showLink( "qtopiadesktop.html", "Qtopia Desktop Documentation" );
 #else    
     // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
     showLink( "index.html", "Qt Reference Documentation" );

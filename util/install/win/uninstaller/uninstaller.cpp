@@ -20,6 +20,7 @@ void rmDirRecursive( const QDir &dir )
 	while( ( fi = it.current() ) ) {
 	    if( ( fi->fileName() != "." ) && ( fi->fileName() != ".." ) ){
 		progress->filesDisplay->append( fi->absFilePath() + "\n" );
+		progress->filesDisplay->scrollToBottom();
 		app->processEvents();
 		if( fi->isDir() )
 		    rmDirRecursive( QDir(fi->absFilePath()) );

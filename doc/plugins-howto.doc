@@ -1,7 +1,7 @@
 /*!
     \page plugins-howto.html
 
-\title Qt Plugins Documentation
+\title Qt Plugins HOWTO
 
 Qt provides a simple plugin interface which makes it easy to create
 custom database drivers, image formats, text codecs, styles and
@@ -100,4 +100,26 @@ to read when it runs. The application can then call QApplication::addLibraryPath
 with this path and your plugins will be available to the application. Note 
 that the final part of the path, i.e. \c styles, \c widgets, etc. cannot 
 be changed.
+
+\section1 Plugins and Threaded Applications
+
+If you want to build a plugin which you want to use with a threaded Qt
+library (whether or not the plugin itself uses threads) you must use a
+threaded environment. Specifically, you must use a threaded Qt
+library, and you must build \link designer-manual.book Qt
+Designer\endlink with that library. Your \c{.pro} file for your plugin
+must include the line:
+\code
+    CONFIG += thread
+\endcode
+
+\warning Do not mix the normal Qt library and the threaded Qt library in
+an application. If your application uses the threaded Qt library, you
+should not link with the normal Qt library. Nor should you dynamically
+load the normal Qt library or dynamically load another library, e.g. a
+plugin, that depends on the normal Qt library. On some systems, mixing
+threaded and non-threaded libraries or plugins will corrupt the static
+data used in the Qt library.
+
+
 */

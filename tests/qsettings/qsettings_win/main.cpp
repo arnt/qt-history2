@@ -21,8 +21,10 @@ int main ( int argc, char **argv )
     qDebug( "%d", settings.readNumEntry( "/Trolltech/QSettings/int" ) );
     qDebug( "%d", settings.readBoolEntry( "/Trolltech/QSettings/bool" ) );
     qDebug( "%g", settings.readDoubleEntry( "/Trolltech/QSettings/double" ) );
-    QString str = settings.readEntry( "/Trolltech/QSettings/foo" );
-    qDebug( "%s", str );
+    bool ok;
+    QString str = settings.readEntry( "/Trolltech/QSettings/foo", QString::null, &ok );
+    if ( ok )
+	qDebug( "%s", str );
 
     settings.removeEntry( "/Trolltech/QSettings/string" );
     settings.removeEntry( "/Trolltech/QSettings/bool" );
