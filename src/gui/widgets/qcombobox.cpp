@@ -1185,8 +1185,9 @@ void QComboBox::popup()
     if (d->model->rowCount(root()) <= 0)
         return;
 
-    // set current item
-    listView()->setCurrentIndex(d->currentIndex);
+    // set current item and select it
+    listView()->selectionModel()->setCurrentIndex(d->currentIndex,
+                                                  QItemSelectionModel::ClearAndSelect);
 
     // use top item as height for complete listView
     int itemHeight = listView()->itemSizeHint(model()->index(0, 0, root())).height()
