@@ -113,7 +113,7 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
 */
 
 QProgressBar::QProgressBar(QWidget *parent)
-    : QWidget(*(new QProgressBarPrivate), parent)
+    : QWidget(*(new QProgressBarPrivate), parent, 0)
 {
     d->init();
 }
@@ -135,7 +135,7 @@ QProgressBar::QProgressBar(QWidget *parent)
 */
 
 QProgressBar::QProgressBar(int minimum, int maximum, QWidget *parent)
-    : QWidget(*(new QProgressBarPrivate), parent)
+    : QWidget(*(new QProgressBarPrivate), parent, 0)
 {
     d->init();
     setMinimum(minimum);
