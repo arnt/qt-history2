@@ -2235,8 +2235,10 @@ void QWidget::setMinimumSize(int minw, int minh)
     d->extra->minh = minh;
     if (minw > width() || minh > height()) {
         bool resized = testAttribute(Qt::WA_Resized);
+        int maximized = testWState(Qt::WState_Maximized);
         resize(qMax(minw,width()), qMax(minh,height()));
         setAttribute(Qt::WA_Resized, resized); //not a user resize
+        setWState(QFlag(maximized));
     }
     if (testWFlags(Qt::WType_TopLevel))
         do_size_hints(this, d->extra);
