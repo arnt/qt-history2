@@ -1,0 +1,134 @@
+/*!
+    \page qt4-network.html
+    \title Qt 4: The Network Module
+
+    \tableofcontents
+
+        * internationalized domain names
+        * better IPv6 support
+        * better performance
+
+    \section1 General Overview
+
+    The network module in Qt 4 isn't radically different from what it
+    was in Qt 3. Still, by upgrading to Qt 4, you get the following
+    benefits:
+
+    \list
+    \i  The Qt 4 network classes have more intuitive names and APIs.
+        For example, QServerSocket has been renamed QTcpServer.
+    \i  The entire network module is \l{reentrant}, making it
+        possible to use them simultaneously from multiple threads.
+    \i  It is now possible to send and receive UDP datagrams and to
+        use synchronous (i.e., blocking) sockets, without having to
+        use a low-level API (QSocketDevice in Qt 3).
+    \i  QHostAddress and QDns support internationalized domain names
+        (RFC 3492).
+    \i  QUrl is more lightweight and fully supports the latest URI
+        specification draft.
+    \endlist
+
+    The Qt 4 network module provides fundamental classes for writing
+    TCP and UDP applications, as well as higher-level classes that
+    implement the client side of the HTTP and FTP protocols.
+
+    Here's an overview of the TCP and UDP classes:
+
+    \list
+    \i  QTcpSocket encapsulates a TCP socket. It inherits from
+        QIODevice, so you can use QTextStream and QDataStream to read
+        or write data. It is useful for writing both clients and
+        servers.
+    \i  QTcpServer allows you to listen on a certain port on a
+        server. It emits a
+        \l{QTcpServer::newConnection()}{newConnection()} signal every
+        time a client tries to connect to the server. Once the
+        connection is established, you can talk to the client using
+        QTcpSocket.
+    \i  QUdpSocket is an API for sending and receiving UDP datagrams.
+    \endlist
+    
+    QTcpSocket and QUdpSocket inherit most of their functionality
+    from QAbstractSocket. You can also use QAbstractSocket directly
+    as a wrapper around a native socket descriptor, or subclass
+    QAbstractSocket and implement your own socket type (e.g., for
+    Unix domain sockets or Windows named pipes).
+
+    By default, the socket classes work asynchronously (i.e., they
+    are non-blocking), emitting signals to notify when data has
+    arrived or when the peer has closed the connection. In
+    multithreaded applications and in non-GUI applications, you also
+    have the opportunity of setting the socket to blocking (using
+    QAbstractSocket::setBlocking()), which often results in a more
+    straightforward style of programming, with the networking logic
+    concentrated in one or two functions instead of spread across
+    multiple slots.
+
+    QFtp and QHttp use QTcpSocket internally to implement the FTP and
+    HTTP protocols. Both classes work asynchronously and can schedule
+    (i.e., queue) requests.
+
+    The network module contains four helper classes: QHostAddress,
+    QDns, QUrl, and QUrlInfo. QHostAddress stores an IPv4 or IPv6
+    address, QDns resolves host names into addresses, QUrl stores a
+    URL, and QUrlInfo stores information about a resource pointed to
+    by a URL, such as the file size and modification date.
+
+    \section1 Example Code
+
+    ###
+
+    \section1 Comparison with Qt 3
+
+    The main difference between Qt 3 and Qt 4 is that the very high
+    level QNetworkProtocol and QUrlOperator abstraction has been
+    eliminated. These classes attempted the impossible (unify FTP and
+    HTTP under one roof), and unsurprisingly failed at that. Qt 4
+    still provides QFtp and QHttp classes, but only with the more
+    mature API that appeared in Qt 3.1.
+
+    The QSocket class in Qt 3 has been renamed QTcpSocket. The new
+    class is reentrant and supports blocking. It's also easier to
+    handle closing than with Qt 3, where you had to connect to both
+    closed() and deferredClose().
+
+    The QServerSocket class in Qt 3 has been renamed QTcpServer. The
+    API has changed quite a bit. While in Qt 3 it was necessary to
+    subclass QServerSocket and reimplement the newConnection() pure
+    virtual function, QTcpServer now emits a
+    \l{QTcpServer::newConnection()}{newConnection()} signal that you
+    can connect to a slot.
+
+    The QDns class has been redesigned to use the operating system's
+    \c getaddrinfo() function instead of implementing the DNS
+    protocol. Internally, QDns simply starts a thread and calls \c
+    getaddrinfo() in that thread. This wasn't possible in Qt 3
+    because \c getaddrinfo() is a blocking call and Qt 3 could be
+    configured without multithreading support.
+
+    The QSocketDevice class in Qt 3 is no longer part of the public
+    Qt API. If you used QSocketDevice to send or receive UDP
+    datagrams, use QUdpSocket instead. If you used QSocketDevice
+    because it supported blocking sockets, use QTcpSocket or
+    QUdpSocket instead and call
+    \l{QAbstractSocket::setBlocking()}{setBlocking(true)}. If you
+    used QSocketDevice from a non-GUI thread because it was the only
+    reentrant networking class in Qt 3, use QTcpSocket, QTcpServer,
+    or QUdpSocket instead.
+
+    Internally, Qt 4 has a class called QSocketLayer that provides a
+    cross-platform low-level socket API. It resembles the old
+    QSocketDevice class; we might make it public in a later release
+    if users ask for it.
+
+    As an aid to porting to Qt 4, the \l{Qt 3 compatibility library}
+    includes Q3Dns, QServerSocket, QSocket, and QSocketDevice
+    classes.
+
+    \section1 Future Work
+
+    The network classes's API and implementation are mostly finished,
+    with the exception of QFtp and QHttp. We plan to add support for
+    proxies, user names and password, and FTP active mode transfer
+    before the first Qt 4.0 beta release.
+*/
