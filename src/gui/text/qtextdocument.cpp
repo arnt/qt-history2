@@ -40,19 +40,33 @@ bool QText::mightBeRichText(const QString& text)
         return false;
     int start = 0;
 
-    while (start < int(text.length()) && text.at(start).isSpace())
+    while (start < text.length() && text.at(start).isSpace())
         ++start;
+
+    // skip a leading <?xml ... ?> as for example with xhtml
+    if (text.mid(start, 5) == QLatin1String("<?xml")) {
+        while (start < text.length()) {
+            if (text.at(start) == QLatin1Char('?')
+                && start + 2 < text.length()
+                && text.at(start + 1) == QLatin1Char('>')) {
+                start += 2;
+                break;
+            }
+            ++start;
+        }
+    }
+
     if (text.mid(start, 5).toLower() == QLatin1String("<!doc"))
         return true;
     int open = start;
-    while (open < int(text.length()) && text.at(open) != '<'
+    while (open < text.length() && text.at(open) != '<'
             && text.at(open) != '\n') {
         if (text.at(open) == '&' &&  text.mid(open+1,3) == "lt;")
             return true; // support desperate attempt of user to see <...>
         ++open;
     }
-    if (open < (int)text.length() && text.at(open) == '<') {
-        int close = text.indexOf('>', open);
+    if (open < text.length() && text.at(open) == '<') {
+        const int close = text.indexOf('>', open);
         if (close > -1) {
             QString tag;
             for (int i = open+1; i < close; ++i) {
