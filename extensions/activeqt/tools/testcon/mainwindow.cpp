@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout(Workbase);
     workspace = new Q3Workspace(Workbase);
     layout->addWidget(workspace);
+    layout->setMargin(0);
 
     connect(workspace, SIGNAL(windowActivated(QWidget*)), this, SLOT(updateGUI()));
 }
