@@ -1813,7 +1813,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
     }
 #endif
 #ifdef Q_WS_WIN
-    QInputContext::enable(this, data->im_enabled && enable);
+    QInputContext::enable(q, data.im_enabled && enable);
 #endif
     QEvent e(QEvent::EnabledChange);
     QApplication::sendEvent(q, &e);
@@ -3925,8 +3925,8 @@ void QWidgetPrivate::hide_helper()
         qt_leave_modal(q);
 
 #if defined(Q_WS_WIN)
-    if (isTopLevel() && !isPopup() && parentWidget() && isActiveWindow())
-        parentWidget()->activateWindow();        // Activate parent
+    if (q->isTopLevel() && !q->isPopup() && q->parentWidget() && q->isActiveWindow())
+        q->parentWidget()->activateWindow();        // Activate parent
 #endif
 
     q->setAttribute(Qt::WA_Mapped, false);

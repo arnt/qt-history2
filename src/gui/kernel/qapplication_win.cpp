@@ -323,8 +323,8 @@ public:
     bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf, int numPackets);
     void        repolishStyle(QStyle &style) { setStyle(&style); }
     void eraseWindowBackground(HDC);
-    inline void showChildren(bool spontaneous) { QWidget::showChildren(spontaneous); }
-    inline void hideChildren(bool spontaneous) { QWidget::hideChildren(spontaneous); }
+    inline void showChildren(bool spontaneous) { d->showChildren(spontaneous); }
+    inline void hideChildren(bool spontaneous) { d->hideChildren(spontaneous); }
 };
 
 static void qt_show_system_menu(QWidget* tlw)
@@ -1935,7 +1935,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 break;
 
             if (widget->testWState(Qt::WState_Polished))
-                qApp->style()->unPolish(widget);
+                qApp->style()->unpolish(widget);
 
             if (widget->testWState(Qt::WState_Polished))
                 qApp->style()->polish(widget);
