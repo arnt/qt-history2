@@ -991,7 +991,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     if ( e->text().length() &&
-	 ! ( e->state() & ControlButton ) &&
 	 e->key() != Key_Return &&
 	 e->key() != Key_Enter &&
 	 e->key() != Key_Delete &&
