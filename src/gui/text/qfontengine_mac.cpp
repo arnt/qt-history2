@@ -353,8 +353,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     { //transformations
 	CGAffineTransform tf = CGAffineTransformIdentity;
-#ifdef USE_CORE_GRAPHICS
-	if(task & DRAW) { //we need to flip the translation here because we flip it internally
+	if((task & DRAW) && p && p->type() == QPaintEngine::CoreGraphics) { //flip text
 	    int height = 0;
             if(widget)
 		height = widget->topLevelWidget()->height();
@@ -363,7 +362,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	    tf = CGAffineTransformTranslate(tf, 0, height);
 	    tf = CGAffineTransformScale(tf, 1, -1);
 	}
-#endif
 	if(fontDef.stretch != 100)
 	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
 #if 0 //grr this just doesn't work, how frustrating..
@@ -444,54 +442,44 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     tags[arr] = kATSUCGContextTag;
     CGContextRef ctx = NULL;
-#ifdef USE_CORE_GRAPHICS
-    if(p && device) {
-	ctx = static_cast<CGContextRef>(p->handle());
+    CGrafPtr ctx_port = 0; //only set if the ctx is a ctx created from a port
+    if(p && p->type() == QPaintEngine::CoreGraphics) {
+        if(p && device) {
+            ctx = static_cast<CGContextRef>(p->handle());
+        } else {
+            static QPixmap *pixmap = NULL;
+            if(!pixmap)
+                pixmap = new QPixmap(1, 1, 32);
+            ctx = static_cast<CGContextRef>(pixmap->macCGHandle());
+        }
     } else {
-	static QPixmap *pixmap = NULL;
-	if(!pixmap)
-	    pixmap = new QPixmap(1, 1, 32);
-	ctx = static_cast<CGContextRef>(pixmap->macCGHandle());
-    }
-#else
-    CGrafPtr port = NULL;
-    if(p && device) {
-	if(widget)
-	    port = GetWindowPort(static_cast<WindowPtr>(widget->handle()));
-	else
-	    port = static_cast<CGrafPtr>(device->handle());
-    } else {
-	static QPixmap *pixmap = 0;
-	if(!pixmap)
-	    pixmap = new QPixmap(1, 1, 32);
-	port = static_cast<CGrafPtr>(pixmap->handle());
-    }
-    if(OSStatus err = QDBeginCGContext(port, &ctx)) {
-	qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
-	return 0;
-    }
+        QRegion rgn;
+        if(p && p->type() == QPaintEngine::QuickDraw) {
+            QPoint pt;
+            static_cast<QQuickDrawPaintEngine *>(p)->setupQDPort(false, &pt, &rgn);
+            x += pt.x();
+            y += pt.y();
+            ATSUFontID fond;
+            ATSUFONDtoFontID(fontref, NULL, &fond);
+            TextFont(fond);
+        } else {
+            static QPixmap *pixmap = 0;
+            if(!pixmap)
+                pixmap = new QPixmap(1, 1, 32);
+            QMacSavedPortInfo::setPaintDevice(pixmap);
+        }
 
-    if(p && p->type() == QPaintEngine::QuickDraw) {
-	QPoint pt;
-	QRegion rgn;
-	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
-	mgc->setupQDPort(false, &pt, &rgn);
-	x += pt.x();
-	y += pt.y();
-	if(task & DRAW) { //we need to flip the translation here because we flip it internally
-	    QVector<QRect> rs = rgn.rects();
-	    qDebug("draw (%s)", QString(s, use_len).latin1());
-	    for(int i = 0; i < rs.count(); i++)
-		qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
-//	    extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
-//	    qt_mac_clip_cg(ctx, rgn, 0);
-	}
-
-	ATSUFontID fond;
-	ATSUFONDtoFontID(fontref, NULL, &fond);
-	TextFont(fond);
+        GetGWorld(&ctx_port, 0);
+        if(OSStatus err = QDBeginCGContext(ctx_port, &ctx)) {
+            qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
+            return 0;
+        }
+        if(task & DRAW) { 
+            Rect clipr;
+            GetPortBounds(ctx_port, &clipr);
+            ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
+        }
     }
-#endif
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
     arr++;
@@ -500,9 +488,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(mTextLayout, arr, tags, valueSizes, values)) {
 	qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
-#ifndef USE_CORE_GRAPHICS
-	QDEndCGContext(port, &ctx);
-#endif
+        if(ctx_port)
+            QDEndCGContext(ctx_port, &ctx);
 	return 0;
     }
     ATSUSetTransientFontMatching(mTextLayout, true);
@@ -525,8 +512,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     }
     if(task & DRAW) {
 	int drawy = y;
-#ifndef USE_CORE_GRAPHICS
-	{
+	if(ctx_port) {
 	    int height = 0;
 	    if(widget)
 		height = widget->topLevelWidget()->height();
@@ -534,13 +520,11 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 		height = device->metric(QPaintDeviceMetrics::PdmHeight);
 	    drawy = height-drawy;
 	}
-#endif
 	ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
 		      FixRatio(drawy, 1));
     }
-#ifndef USE_CORE_GRAPHICS
-    QDEndCGContext(port, &ctx);
-#endif
+    if(ctx_port)
+        QDEndCGContext(ctx_port, &ctx);
     return ret;
 }
 
