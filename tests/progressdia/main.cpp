@@ -10,22 +10,22 @@
 class ProgressDiaTest : public QVBox
 {
     Q_OBJECT
-    
+
 public:
     ProgressDiaTest();
-    
+
 private slots:
     void normal();
     void backward();
     void multiple();
-       
+
 private:
-    QCheckBox *modal;
+    QCheckBox *modal, *autoclose;
     QProgressDialog *pd;
     QStringList files;
     QStringList::Iterator it;
     int xx;
-    
+
 };
 
 ProgressDiaTest::ProgressDiaTest()
@@ -41,6 +41,7 @@ ProgressDiaTest::ProgressDiaTest()
     connect( b, SIGNAL( clicked() ),
 	     this, SLOT( multiple() ) );
     modal = new QCheckBox( "Open Progressdia modally", this );
+    autoclose = new QCheckBox( "Autmatic Close", this );
 
     QDir dir( "/lib" );
     files = dir.entryList();
@@ -52,21 +53,24 @@ void ProgressDiaTest::normal()
 	pd = new QProgressDialog( this, "progress dia", modal->isChecked() );
 	pd->setTotalSteps( files.count() );
 	pd->setProgress( 0 );
+	if ( !autoclose->isChecked() ) {
+	    pd->setAutoClose( FALSE );
+	    pd->setAutoReset( FALSE );
+	}
 	it = files.begin();
 	pd->show();
     } else if ( it == files.end() ) {
-	pd->setProgress( pd->totalSteps() );
 	pd = 0;
 	return;
     } else if ( pd->wasCancelled() ) {
 	pd = 0;
 	return;
     }	
-    
+
     pd->setLabelText( *it );
     pd->setProgress( pd->progress() + 1 );
     ++it;
-    
+
     QTimer::singleShot( 100, this, SLOT( normal() ) );
 }
 
@@ -76,23 +80,27 @@ void ProgressDiaTest::backward()
 	pd = new QProgressDialog( this, "progress dia", modal->isChecked() );
 	pd->setTotalSteps( files.count() );
 	pd->setProgress( 0 );
+	if ( !autoclose->isChecked() ) {
+	    pd->setAutoClose( FALSE );
+	}
 	pd->setAutoReset( FALSE );
 	pd->setProgress( files.count() );
 	it = files.begin();
 	pd->show();
     } else if ( it == files.end() ) {
-	pd->reset();
+	if ( autoclose->isChecked() )
+	    pd->reset();
 	pd = 0;
 	return;
     } else if ( pd->wasCancelled() ) {
  	pd = 0;
 	return;
     }	
-    
+
     pd->setLabelText( *it );
     pd->setProgress( pd->progress() - 1 );
     ++it;
-    
+
     QTimer::singleShot( 100, this, SLOT( backward() ) );
 }
 
@@ -107,24 +115,26 @@ void ProgressDiaTest::multiple()
 	pd->show();
 	xx = 0;
     } else if ( it == files.end() ) {
-	pd->setProgress( pd->totalSteps() );
 	++xx;
-
-	if ( xx > 2 ) {
+	
+	if ( xx == 2 && !autoclose->isChecked() ) {
+	    pd->setAutoReset( FALSE );
+	} else if ( xx == 2 ) {
+	    pd->setAutoReset( TRUE );
 	    pd->setAutoClose( TRUE );
-	    pd->reset();
+	} else if ( xx == 3 ) {
 	    pd = 0;
 	    return;
-	}	
+	}
     } else if ( pd->wasCancelled() ) {
 	pd = 0;
 	return;
     }	
-    
+
     pd->setLabelText( *it );
     pd->setProgress( pd->progress() + 1 );
     ++it;
-    
+
     QTimer::singleShot( 100, this, SLOT( multiple() ) );
 }
 
@@ -133,7 +143,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
     ProgressDiaTest d;
-    
+
     a.setMainWidget( &d );
     d.show();
 
