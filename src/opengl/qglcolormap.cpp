@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#2 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#3 $
 **
 ** Implementation of QGLColormap class
 **
@@ -46,8 +46,8 @@
   color-index mode.
   
   Under X11 you will have to use an X server that supports either a
-  GrayScale, PseudoColor or DirectColor visual class.  If your X
-  server currently only provides a TrueColor, StaticColor or
+  PseudoColor or DirectColor visual class.  If your X
+  server currently only provides a TrueColor, GrayScale, StaticColor or
   StaticGray visual, you will not be able to allocate colorcells for
   writing. If your X server does not provide one of the needed
   visuals, try setting up your X server in 8 bit mode. It should then
@@ -55,8 +55,9 @@
   experience colormap flashing if your X server is running in 8 bit
   mode.
     
-  Under Windows the size of the colormap is always set to 256
-  colors.
+  Under Windows the size of the colormap is always set to 256 colors.
+  Note that under Windows you are allowed to install colormaps into
+  child widgets.
   
   This class uses explicit sharing (see \link shclass.html Shared
   Classes\endlink).
@@ -70,7 +71,7 @@
   {
       QApplication a( argc, argv );
       
-      MySuperGLWidget widget( 0 );
+      MySuperGLWidget widget( 0 ); // Creates a QGLWidget in color-index mode
       QGLColormap colormap;
       
       // This will fill the colormap with colors ranging from

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qgl_x11.cpp#25 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl_x11.cpp#2 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -931,18 +931,6 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
     return TRUE;
 }
 
-/*! Returns the colormap for this widget.
-    
-    Please note that only top-level widgets can have different
-    colormaps installed. Asking for the colormap of a child widget
-    will return the colormap for the child's top-level widget.
-    
-    If no colormap has been set for this widget, the QColormap
-    returned will be invalid.
-    
-    \sa setColormap()
-*/
-
 const QGLColormap & QGLWidget::colormap() const
 {
     return cmap;
@@ -991,11 +979,11 @@ static bool qCanAllocColors( QWidget * w )
 		case TrueColor:
 		case StaticColor:
 		case StaticGray:
+		case GrayScale:
 		    validVisual = FALSE;
 		    break;
 		case DirectColor:
 		case PseudoColor:
-		case GrayScale:
 		    validVisual = TRUE;
 		    break;
 	    }
@@ -1009,16 +997,6 @@ static bool qCanAllocColors( QWidget * w )
     return TRUE; 
 }
 
-/*! Set the colormap for this widget.
-    
-    Note that only top-level widgets can have colormaps installed. In
-    addition, under X11 only GreyScale, PseudoColor or DirectColor
-    visuals can have dynamic (read/write) colormaps installed. If the
-    widget is not created with one of these visual types, setting a
-    colormap for the widget will fail.
-    
-    \sa colormap()
-*/
 void QGLWidget::setColormap( const QGLColormap & c )
 {
     QWidget * tlw = topLevelWidget(); // must return a valid widget
@@ -1027,18 +1005,14 @@ void QGLWidget::setColormap( const QGLColormap & c )
     if ( !cmap.d )
 	return;
     
-    if ( cmap.d->cmapHandle ) { // already have an allocated cmap
-	qDebug( "Using an already allocated cmaphandle: %ld", 
-		cmap.d->cmapHandle );
+    if ( cmap.d->cmapHandle ) // already have an allocated cmap
 	qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-    } else if ( qCanAllocColors( this ) ) {
+    else if ( qCanAllocColors( this ) ) {
 	cmap.d->cmapHandle = XCreateColormap( x11Display(), winId(),
 					    (Visual *) x11Visual(), AllocAll );
  	qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
 	XSetWindowColormap( tlw->x11Display(), tlw->winId(),
 			    (Colormap) cmap.d->cmapHandle );
-	qDebug( "Created a new cmaphandle: %ld -- %ld", cmap.d->cmapHandle,
-		c.d->cmapHandle );
     } else
 	qWarning( "QGLWidget::setColormap: Cannot create a read/write "
 		  "colormap for this visual" );
@@ -1054,7 +1028,6 @@ void QGLWidget::cleanupColormaps()
 	return;
     
     if ( cmap.d->cmapHandle ) {
-	qDebug("Cleaning up colormaps %ld -- %p", cmap.d->cmapHandle, cmap.d );
 	XSetWindowColormap( topLevelWidget()->x11Display(),
 			    topLevelWidget()->winId(),
 			    DefaultColormap( x11Display(), x11Screen() ) );

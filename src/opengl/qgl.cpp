@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qgl.cpp#37 $
+** $Id$
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1780,6 +1780,31 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 }
 
 
+/*!
+  \fn QGLColormap & QGLWidget::colormap() const
+  
+  Returns the colormap for this widget.
+    
+  Please note that usually only top-level widgets can have different
+  colormaps installed. Asking for the colormap of a child widget will
+  return the colormap for the child's top-level widget.
+    
+  If no colormap has been set for this widget, the QColormap returned
+  will be empty.
+    
+  \sa setColormap()
+*/
+
+/*!
+  \fn void QGLWidget::setColormap( const QGLColormap & cmap )
+  
+  Set the colormap for this widget.
+  Note that usually only top-level widgets can have colormaps installed.
+    
+  \sa colormap()
+*/
+
+
 /*****************************************************************************
   QGL classes overview documentation.
  *****************************************************************************/
@@ -1843,6 +1868,8 @@ The OpenGL support classes in Qt are:
 <li> <strong>\link QGLContext QGLContext\endlink:</strong> Encapsulates an OpenGL rendering context.
 <li> <strong>\link QGLFormat QGLFormat\endlink:</strong> Specifies the
 display format of a rendering context.
+<li> <strong>\link QGLColormap QGLColormap\endlink:</strong> Handles indexed
+colormaps in GL-index mode.
 </ul>
 
 Many applications need only the high-level QGLWidget class. The other QGL
