@@ -432,9 +432,7 @@ QFileInfo::absolutePath() const
 /*!
     Returns the file's path.
 
-    If \a absPath is true an absolute path is returned.
-
-    \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
+y    \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
 */
 
 QString
