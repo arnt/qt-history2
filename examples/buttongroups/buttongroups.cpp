@@ -27,7 +27,7 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     // Create Widgets which allow easy layouting
-    QVBoxLayout *vbox = new QVBoxLayout( this );
+    QVBoxLayout *vbox = new QVBoxLayout( this, 11, 6 );
     QHBoxLayout *box1 = new QHBoxLayout( vbox );
     QHBoxLayout *box2 = new QHBoxLayout( vbox );
 
