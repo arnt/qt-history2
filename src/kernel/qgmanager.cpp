@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#25 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#25 $");
 
 
 
@@ -784,8 +784,6 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case Event_LayoutHint:
-	debug( "QGManager::eventFilter() Event_LayoutHint to %s/%s",
-	       o->name(), o->className() );
 	activate(); //######## ######@#!#@!$ should be optimized somehow...
 	break;
     }
@@ -945,7 +943,6 @@ void QGManager::setStretch( QChain *c, int s )
 
 void QGManager::remove( QWidget *w )
 {
-    debug( "QGManager::remove %p %s", w, w->name() );
     xC->removeWidget( w );
     yC->removeWidget( w );
 }
