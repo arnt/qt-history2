@@ -76,7 +76,7 @@ struct QProgressData
     {
 	label->setAlignment( that->style() != Qt::WindowsStyle
 			     ? Qt::AlignCenter
-			     : Qt::AlignLeft|Qt::AlignVCenter );
+			     : Qt::AlignAuto|Qt::AlignVCenter );
     }
 
     QWidget	 *creator;

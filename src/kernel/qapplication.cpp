@@ -3211,3 +3211,12 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa isPhase2()
 */
+
+/*!
+  \fn int QApplication::horizontalAlignment( int align )
+
+  Strips out vertical alignment flags and transforms an 
+  alignment \e align of AlignAuto into AlignLeft or
+  AlignRight according to the language used. The other horizontal
+  alignment flags are left untouched.
+*/

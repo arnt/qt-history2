@@ -997,10 +997,6 @@ QSize QGridLayout::minimumSize() const
 }
 
 
-static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
-static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
-
-
 /*!
   Returns the maximum size needed by this grid.
 */
@@ -1009,9 +1005,9 @@ QSize QGridLayout::maximumSize() const
 {
     QSize s =   array->maximumSize( spacing() ) + QSize(2*margin(),2*margin())
 	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    if ( alignment() & HorAlign )
+    if ( alignment() & Qt::AlignHorizontal )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if ( alignment() & VerAlign )
+    if ( alignment() & Qt::AlignVertical )
 	s.setHeight( QWIDGETSIZE_MAX );
 
     return s;
@@ -1694,9 +1690,9 @@ QSize QBoxLayout::maximumSize() const
     }
     QSize s =  (data->maxSize + QSize(2*margin(),2*margin()))
 	       .boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    if ( alignment() & HorAlign )
+    if ( alignment() & Qt::AlignHorizontal )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if ( alignment() & VerAlign )
+    if ( alignment() & Qt::AlignVertical )
 	s.setHeight( QWIDGETSIZE_MAX );
 
     return s;

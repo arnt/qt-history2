@@ -2758,7 +2758,7 @@ void QWorkspaceChildTitleLabel::drawLabel()
     QRect cr( 1, 1, width()-2, height()-2);
     p.drawText( cr.x() + leftm, cr.y(),
 	cr.width() - rightm, cr.height(),
-	AlignLeft | AlignVCenter | SingleLine, cuttext );
+	AlignAuto | AlignVCenter | SingleLine, cuttext );
 
     p.end();
 

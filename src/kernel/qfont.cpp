@@ -1619,8 +1619,10 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
   The \a flgs argument is
   the bitwise OR of the following flags:  <ul>
+  <li> \c AlignAuto aligns to the left border for all languages except hebrew and arabic where it aligns to the right..
   <li> \c AlignLeft aligns to the left border.
   <li> \c AlignRight aligns to the right border.
+  <li> \c AlignJustify produces justified text.
   <li> \c AlignHCenter aligns horizontally centered.
   <li> \c AlignTop aligns to the top border.
   <li> \c AlignBottom aligns to the bottom border.
@@ -1632,7 +1634,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
-  Horizontal alignment defaults to AlignLeft and vertical alignment
+  Horizontal alignment defaults to AlignAuto and vertical alignment
   defaults to AlignTop.
 
   If several of the horizontal or several of the vertical alignment flags

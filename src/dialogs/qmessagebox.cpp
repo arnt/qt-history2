@@ -656,7 +656,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
     }
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
-    label->setAlignment( AlignLeft );
+    label->setAlignment( AlignAuto );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)

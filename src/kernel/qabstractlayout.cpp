@@ -318,11 +318,6 @@ int QLayoutItem::heightForWidth( int ) const
     return -1;
 }
 
-
-
-static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
-static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
-
 static QSize smartMinSize( const QWidgetItem *i )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
@@ -356,22 +351,22 @@ static QSize smartMinSize( const QWidgetItem *i )
 static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
-    if ( align & HorAlign && align & VerAlign )
+    if ( align & Qt::AlignHorizontal && align & Qt::AlignVertical )
 	return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
     QSize s = w->maximumSize();
-    if ( s.width() == QWIDGETSIZE_MAX && !(align&HorAlign) )
+    if ( s.width() == QWIDGETSIZE_MAX && !(align&Qt::AlignHorizontal) )
 	if ( !w->sizePolicy().mayGrowHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
 
-    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&VerAlign) )
+    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&Qt::AlignVertical) )
 	if ( !w->sizePolicy().mayGrowVertically() )
 	    s.setHeight( w->sizeHint().height() );
 
     s = s.expandedTo( w->minimumSize() );
 
-    if (align & HorAlign )
+    if (align & Qt::AlignHorizontal )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if (align & VerAlign )
+    if (align & Qt::AlignVertical )
 	s.setHeight( QWIDGETSIZE_MAX );
     return s;
 }
@@ -396,20 +391,21 @@ void QWidgetItem::setGeometry( const QRect &r )
     QSize s = r.size().boundedTo( smartMaxSize( this ) );
     int x = r.x();
     int y = r.y();
-    if ( align & (HorAlign|VerAlign) ) {
+    if ( align & (Qt::AlignHorizontal|Qt::AlignVertical) ) {
 	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
-	if ( align & HorAlign )
+	if ( align & Qt::AlignHorizontal )
 	    s.setWidth( QMIN( s.width(), pref.width() ) );
-	if ( align & VerAlign ) {
+	if ( align & Qt::AlignVertical ) {
 	    if ( hasHeightForWidth() )
 		s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
 	    else
 		s.setHeight( QMIN( s.height(), pref.height() ) );
 	}
     }
-    if ( align & Qt::AlignRight )
+    int alignHoriz = QApplication::horizontalAlignment( align );
+    if ( alignHoriz & Qt::AlignRight )
 	x = x + ( r.width() - s.width() );
-    else if ( !(align & Qt::AlignLeft) )
+    else if ( !(alignHoriz & Qt::AlignLeft) )
 	x = x + ( r.width() - s.width() ) / 2;
 
     if ( align & Qt::AlignBottom )
@@ -494,13 +490,13 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    if ( isEmpty() || align&HorAlign && align&VerAlign )
+    if ( isEmpty() || align&Qt::AlignHorizontal && align&Qt::AlignVertical )
 	return QSizePolicy::NoDirection;
     int e =  wid->layout() ? wid->layout()->expanding()
 	     : wid->sizePolicy().expanding();
-    if ( align&HorAlign )
+    if ( align&Qt::AlignHorizontal )
 	e = e & ~QSizePolicy::Horizontal;
-    else if  ( align&VerAlign )
+    else if  ( align&Qt::AlignVertical )
 	e = e & ~QSizePolicy::Vertical;
 
     return (QSizePolicy::ExpandData)e;
@@ -1769,10 +1765,10 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
     int a = alignment();
-    if ( expanding() & QSizePolicy::Horizontal || !(a & HorAlign ) ) {
+    if ( expanding() & QSizePolicy::Horizontal || !(a & Qt::AlignHorizontal ) ) {
 	s.setWidth( r.width() );
     }
-    if ( expanding() & QSizePolicy::Vertical || !(a & VerAlign )) {
+    if ( expanding() & QSizePolicy::Vertical || !(a & Qt::AlignVertical )) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
@@ -1781,15 +1777,16 @@ QRect QLayout::alignmentRect( const QRect &r ) const
     int x = r.x();
     int y = r.y();
 
-    if ( a & Qt::AlignRight )
-	x = x + ( r.width() - s.width() );
-    else if ( !(a & Qt::AlignLeft) )
-	x = x + ( r.width() - s.width() ) / 2;
-
     if ( a & Qt::AlignBottom )
 	y = y + ( r.height() - s.height() );
     else if ( !(a & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
+
+    a = QApplication::horizontalAlignment( a );
+    if ( a & Qt::AlignRight )
+	x = x + ( r.width() - s.width() );
+    else if ( !(a & Qt::AlignLeft) )
+	x = x + ( r.width() - s.width() ) / 2;
 
     return QRect( x, y, s.width(), s.height() );
 

@@ -1727,7 +1727,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 	} else if ( view->d->itemTextBrush != NoBrush )
 	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
 
-	int align = AlignLeft;
+	int align = AlignAuto;
 	if ( view->d->wordWrapIconText )
 	    align |= WordBreak;
 	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );

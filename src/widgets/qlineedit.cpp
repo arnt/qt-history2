@@ -251,7 +251,7 @@ void QLineEdit::init()
 #endif
     setBackgroundMode( PaletteBase );
     setKeyCompression( TRUE );
-    alignmentFlag = Qt::AlignLeft;
+    alignmentFlag = Qt::AlignAuto;
     setAcceptDrops( TRUE );
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
@@ -1245,17 +1245,14 @@ void QLineEdit::cut()
 #endif
 
 /*!
-  Sets the alignment of the line edit. Possible Values are Qt::AlignLeft,
+  Sets the alignment of the line edit. Possible Values are Qt::AlignAuto, Qt::AlignLeft,
   Qt::AlignRight and Qt::Align(H)Center - see Qt::AlignmentFlags.
   \sa alignment()
 */
 void QLineEdit::setAlignment( int flag ){
     if ( flag == alignmentFlag )
 	return;
-    if ( flag == Qt::AlignRight ||
-	 flag == Qt::AlignCenter ||
-	 flag == Qt::AlignHCenter ||
-	 flag == Qt::AlignLeft ) {
+    if ( !(flag & Qt::AlignVertical ) ) { 
 	alignmentFlag = flag;
 	updateOffset();
 	update();
@@ -1264,7 +1261,7 @@ void QLineEdit::setAlignment( int flag ){
 
 /*!
   Returns the alignment of the line edit. Possible Values
-  are Qt::AlignLeft, Qt::AlignRight and Qt::Align(H)Center.
+  are Qt::AlignAuto, Qt::AlignLeft, Qt::AlignRight and Qt::Align(H)Center.
 
   \sa setAlignment(), Qt::AlignmentFlags
 */

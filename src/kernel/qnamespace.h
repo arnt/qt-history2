@@ -98,9 +98,11 @@ public:
 	AlignRight	= 0x0002,
 	AlignHCenter	= 0x0004,
 	AlignJustify              = 0x0008,
+	AlignHorizontal        = AlignLeft | AlignRight | AlignHCenter | AlignJustify,
 	AlignTop	= 0x0010,
 	AlignBottom	= 0x0020,
 	AlignVCenter	= 0x0040,
+	AlignVertical 	= AlignTop | AlignBottom | AlignVCenter,
 	AlignCenter	= AlignVCenter | AlignHCenter,
 
 	SingleLine	= 0x0080,		// misc. flags

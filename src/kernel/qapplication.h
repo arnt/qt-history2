@@ -189,6 +189,8 @@ public:
     static void setReverseLayout( bool b );
     static bool reverseLayout();
 
+    static int horizontalAlignment( int align );
+    
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
@@ -409,5 +411,17 @@ inline QString	QApplication::translate( const char *, const char *key,
     return key;
 }
 #endif
+
+inline int QApplication::horizontalAlignment( int align )
+{
+    align &= AlignHorizontal;
+    if ( align == AlignAuto ) {
+	if ( reverseLayout() )
+	    align = AlignRight;
+	else
+	    align = AlignLeft;
+    }
+    return align;
+}
 
 #endif // QAPPLICATION_H

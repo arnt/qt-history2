@@ -485,7 +485,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	    sw = 300;
 
 	r = whatsThat->fontMetrics().boundingRect( 0, 0, sw, 1000,
-			    AlignLeft + AlignTop + WordBreak + ExpandTabs,
+			    AlignAuto + AlignTop + WordBreak + ExpandTabs,
 			    currentText );
     }
 
@@ -562,7 +562,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 #endif
     {
 	p.drawText( hMargin, vMargin, r.width(), r.height(),
-		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
+		    AlignAuto + AlignTop + WordBreak + ExpandTabs,
 		    currentText );
     }
     p.setPen( whatsThat->colorGroup().shadow() );

@@ -70,7 +70,7 @@ public:
 	setAutoMask( FALSE );
 	setFrameStyle( QFrame::Plain | QFrame::Box );
 	setLineWidth( 1 );
-	setAlignment( AlignLeft | AlignTop );
+	setAlignment( AlignAuto | AlignTop );
 	polish();
 	setText(text);
 	adjustSize();

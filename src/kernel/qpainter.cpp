@@ -2166,7 +2166,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   This function draws formatted text.  The \a tf text formatting is
   really of type Qt::AlignmentFlags.
 
-  Horizontal alignment defaults to AlignLeft and vertical alignment
+  Horizontal alignment defaults to AlignAuto and vertical alignment
   defaults to AlignTop.
 
   \a brect (if non-null) is set to the actual bounding rectangle of

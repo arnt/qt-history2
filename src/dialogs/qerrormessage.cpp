@@ -112,7 +112,7 @@ QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     errors = new QTextView( this, "errors" );
     grid->addWidget( errors, 0, 1, AlignTop );
     again = new QCheckBox( tr( "&Show this message again" ), this, "again" );
-    grid->addWidget( again, 1, 1, AlignTop + AlignLeft );
+    grid->addWidget( again, 1, 1, AlignTop + AlignAuto );
     ok = new QPushButton( tr( "&Ok" ), this, "ok" );
     connect( ok, SIGNAL(clicked()),
 	     this, SLOT(accept()) );

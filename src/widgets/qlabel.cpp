@@ -201,7 +201,7 @@ void QLabel::init()
     accel = 0;
 #endif
     lpixmap = 0;
-    align = AlignLeft | AlignVCenter | ExpandTabs;
+    align = AlignAuto | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
     scaledcontents = FALSE;
@@ -376,9 +376,9 @@ void QLabel::setNum( double num )
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
 
-  The default alignment is <code>AlignLeft | AlignVCenter |
+  The default alignment is <code>AlignAuto | AlignVCenter |
   ExpandTabs</code> if the label doesn't have a buddy and
-  <code>AlignLeft | AlignVCenter | ExpandTabs | ShowPrefix </code> if
+  <code>AlignAuto | AlignVCenter | ExpandTabs | ShowPrefix </code> if
   the label has a buddy.
 
   \sa Qt::AlignmentFlags, alignment(), setBuddy(), setText()
@@ -529,7 +529,8 @@ QSize QLabel::sizeForWidth( int w ) const
 	int h = fm.lineSpacing();
 	br.setHeight( ((br.height() + h-1) / h)*h - fm.leading() );
 	if ( indent() > 0 ) {
-	    if ( (align & AlignLeft) || (align & AlignRight ) )
+	    int horizAlign = QApplication::horizontalAlignment( align );
+	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
 		br.setWidth( br.width() + indent() );
 	    else if ( (align & AlignTop) || (align & AlignBottom ) )
 		br.setHeight( br.height() + indent() );
@@ -661,9 +662,10 @@ void QLabel::drawContents( QPainter *p )
 	    m = 0;
     }
     if ( m > 0 ) {
-	if ( align & AlignLeft )
+	int hAlign = QApplication::horizontalAlignment( align );
+	if ( hAlign & AlignLeft )
 	    cr.setLeft( cr.left() + m );
-	if ( align & AlignRight )
+	if ( hAlign & AlignRight )
 	    cr.setRight( cr.right() - m );
 	if ( align & AlignTop )
 	    cr.setTop( cr.top() + m );
@@ -758,9 +760,10 @@ void QLabel::drawContentsMask( QPainter *p )
 	    m = 0;
     }
     if ( m > 0 ) {
-	if ( align & AlignLeft )
+	int hAlign = QApplication::horizontalAlignment( align );
+	if ( hAlign & AlignLeft )
 	    cr.setLeft( cr.left() + m );
-	if ( align & AlignRight )
+	if ( hAlign & AlignRight )
 	    cr.setRight( cr.right() - m );
 	if ( align & AlignTop )
 	    cr.setTop( cr.top() + m );

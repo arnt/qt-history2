@@ -1856,9 +1856,9 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].setFlags(QMetaProperty::StdSet);
     QMetaEnum* enum_tbl = QMetaObject::new_metaenum( 3 );
     enum_tbl[0].name = "Alignment";
-    enum_tbl[0].count = 8;
+    enum_tbl[0].count = 10;
     enum_tbl[0].set = TRUE;
-    enum_tbl[0].items = QMetaObject::new_metaenum_item( 8 );
+    enum_tbl[0].items = QMetaObject::new_metaenum_item( 10 );
     enum_tbl[0].items[0].key = "AlignLeft";
     enum_tbl[0].items[0].value = (int) Qt::AlignLeft;
     enum_tbl[0].items[1].key = "AlignRight";
@@ -1873,8 +1873,12 @@ QMetaObject* QObject::staticMetaObject()
     enum_tbl[0].items[5].value = (int) Qt::AlignVCenter;
     enum_tbl[0].items[6].key = "AlignCenter";
     enum_tbl[0].items[6].value = (int) Qt::AlignCenter;
-    enum_tbl[0].items[7].key = "WordBreak";
-    enum_tbl[0].items[7].value = (int) Qt::WordBreak;
+    enum_tbl[0].items[7].key = "AlignAuto";
+    enum_tbl[0].items[7].value = (int) Qt::AlignAuto;
+    enum_tbl[0].items[8].key = "AlignJustify";
+    enum_tbl[0].items[8].value = (int) Qt::AlignJustify;
+    enum_tbl[0].items[9].key = "WordBreak";
+    enum_tbl[0].items[9].value = (int) Qt::WordBreak;
     enum_tbl[1].name = "Orientation";
     enum_tbl[1].count = 2;
     enum_tbl[1].set = FALSE;

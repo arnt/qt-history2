@@ -245,8 +245,8 @@ void QStyleSheetItem::setDisplayMode(DisplayMode m)
 
 
 /*!
-  Returns the alignment of this style. Possible values are AlignLeft,
-  AlignRight and AlignCenter.
+  Returns the alignment of this style. Possible values are AlignAuto, AlignLeft,
+  AlignRight, AlignCenter and AlignJustify.
 
   \sa setAlignment(), Qt::AlignmentFlags
  */
@@ -258,8 +258,8 @@ int QStyleSheetItem::alignment() const
 /*!
   Sets the alignment. This only makes sense for styles with
   \link QStyleSheetItem::DisplayMode display mode\endlink
-  DisplayBlock. Possible values are AlignLeft, AlignRight and
-  AlignCenter.
+  DisplayBlock. Possible values are AlignAuto, AlignLeft, AlignRight,
+  AlignCenter and AlignJustify.
 
   \sa alignment(), displayMode(), Qt::AlignmentFlags
  */
