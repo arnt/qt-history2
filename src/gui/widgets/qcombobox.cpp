@@ -186,17 +186,18 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
         if (qt_cast<QComboBox*>(parentWidget())->autoHide())
             hide();
         emit itemSelected(list->currentIndex());
-        break;
+        return;
     case Qt::Key_Down:
         if (!(e->state() & Qt::AltButton))
             break;
     case Qt::Key_F4:
     case Qt::Key_Escape:
         hide();
-        break;
+        return;
     default:
         break;
     }
+    e->ignore();
 }
 
 
