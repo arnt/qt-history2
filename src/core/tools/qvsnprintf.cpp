@@ -51,7 +51,7 @@ static sigjmp_buf bail;
 #define EXTRABYTES	2	/* XXX: why 2? you don't want to know */
 
 static char *
-msetup(char *str, size_t n)
+msetup(char * /*str*/, size_t n)
 {
 	char *e;
 
