@@ -936,7 +936,11 @@ void QFtp::error( int code )
 	    dataSocket->close();
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {
-	    QString msg = tr( "Host not found or couldn't connect to: \n" + url()->host() );
+	    QString msg;
+	    if ( code == QSocket::ErrHostNotFound ) 
+		msg = tr( "Host %1 not found" ).arg( url()->host() );
+	    else
+		msg = tr( "Connection refused to host %1" ).arg( url()->host() );
 	    op->setState( StFailed );
 	    op->setProtocolDetail( msg );
 	    op->setErrorCode( (int)ErrHostNotFound );
