@@ -14,6 +14,7 @@
 class QWidget;
 class QLayout;
 class QIODevice;
+class QTextStream;
 
 class QDOM_DocumentPrivate;
 class QDOM_DocumentTypePrivate;
@@ -33,7 +34,6 @@ class QDOM_CommentPrivate;
 class QDOM_CDATASectionPrivate;
 class QDOM_NamedNodeMapPrivate;
 class QDOM_ImplementationPrivate;
-class QTextStream;
 
 class QDomNodeList;
 class QDomElement;
@@ -67,6 +67,8 @@ public:
 
     virtual bool hasFeature( const QString& feature, const QString& version );
 
+    bool isNull();
+    
 private:
     QDomImplementation( QDOM_ImplementationPrivate* );
 
