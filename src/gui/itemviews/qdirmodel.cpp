@@ -506,7 +506,8 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 */
 QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
 {
-    QAbstractItemModel::ItemFlags flags = QAbstractItemModel::ItemIsDragEnabled;
+    QAbstractItemModel::ItemFlags flags = QAbstractItemModel::flags(index);
+    flags |= QAbstractItemModel::ItemIsDragEnabled;
     if (isEditable(index))
         flags |= QAbstractItemModel::ItemIsEditable;
     if (isDir(index) && isEditable(index))
