@@ -1145,9 +1145,12 @@ void QCanvas::update()
 	}
     }
 
-    for (int i=0; i<clusterizer.clusters(); i++)
-	view->repaint(clusterizer[i]);
-
+    it.toFirst();
+    while( (view=it.current()) != 0 ) { //### inefficient??? (was painting outside paintevent)
+	++it;
+	for (int i=0; i<clusterizer.clusters(); i++)
+	    view->repaint(clusterizer[i]);
+    }
 #ifndef QT_NO_TRANSFORMATIONS
     for ( QRect* r=doneareas.first(); r != 0; r=doneareas.next() )
 	setUnchanged(*r);
