@@ -1515,43 +1515,40 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 #ifndef QT_NO_TITLEBAR
 	QTitleBar *titlebar = (QTitleBar *) w;
 
-	if(titlebar->window) {
-	    switch (sc) {
-	    case SC_TitleBarLabel:
-		rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
-			       titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						   TITLEBAR_SEPARATION) * 3),
-			       titlebar->height());
-		break;
+	switch (sc) {
+	case SC_TitleBarLabel:
+	    rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
+			   titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
+					       TITLEBAR_SEPARATION) * 3),
+			   titlebar->height());
+	    break;
 
-	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-						TITLEBAR_SEPARATION), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	case SC_TitleBarCloseButton:
+	    rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
+					    TITLEBAR_SEPARATION), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    break;
 
-	    case SC_TitleBarMaxButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 2), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	case SC_TitleBarMaxButton:
+	    rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+					     TITLEBAR_SEPARATION) * 2), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    break;
 
-	    case SC_TitleBarMinButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 3), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
+	case SC_TitleBarMinButton:
+	    rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+					     TITLEBAR_SEPARATION) * 3), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    break;
 
-	    case SC_TitleBarSysMenu:
-		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			     TITLEBAR_CONTROL_HEIGHT);
-		break;
+	case SC_TitleBarSysMenu:
+	    rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
+			 TITLEBAR_CONTROL_HEIGHT);
+	    break;
 
-	    default:
-		break;
-	    }
-	} else if (sc != SC_TitleBarLabel)
-	    rect = QRect();
+	default:
+	    break;
+	}
 #endif //QT_NO_TITLEBAR
 	break; }
 

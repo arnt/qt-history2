@@ -367,15 +367,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 void QTitleBar::resizeEvent( QResizeEvent *r)
 {
     QWidget::resizeEvent(r);
-
-    QString oldt = cuttext;
     cutText();
-    if(oldt != cuttext) {
-	QPainter painter(this);
-	style().drawComplexControl(QStyle::CC_TitleBar, &painter, this, rect(),
-				   colorGroup(), QStyle::CStyle_Default,
-				   QStyle::SC_TitleBarLabel, buttonDown);
-    }
 }
 
 void QTitleBar::paintEvent(QPaintEvent *)
@@ -437,10 +429,7 @@ void QTitleBar::setText( const QString& title )
 	return;
     text = title;
     cutText();
-
-    QPainter p(this);
-    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
-			       QStyle::CStyle_Default, QStyle::SC_TitleBarLabel);
+    repaint( FALSE );
 }
 
 
