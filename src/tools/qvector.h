@@ -274,7 +274,7 @@ void QVector<T>::realloc(int size, int alloc)
 }
 
 template<typename T>
-Q_OUTOFLINE_TEMPLATE const T QVector<T>::value(int i) const
+Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i) const
 {
     if(i < 0 || i >= p.size()) {
 	T t;
@@ -284,7 +284,7 @@ Q_OUTOFLINE_TEMPLATE const T QVector<T>::value(int i) const
     return d->array[i];
 }
 template<typename T>
-Q_OUTOFLINE_TEMPLATE const T QVector<T>::value(int i, const T& defaultValue) const
+Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T& defaultValue) const
 {
     return ((i < 0 || i >= p.size()) ? defaultValue : d->array[i]);
 }

@@ -580,7 +580,7 @@ Q_OUTOFLINE_TEMPLATE T & QMap<Key,T>::operator[] (const Key& k)
 }
 
 template<class Key, class T>
-Q_OUTOFLINE_TEMPLATE const T QMap<Key,T>::value(const Key& k) const
+Q_OUTOFLINE_TEMPLATE T QMap<Key,T>::value(const Key& k) const
 {
     Node *n = findNode(k);
     if ( n == &d->header) {
@@ -592,7 +592,7 @@ Q_OUTOFLINE_TEMPLATE const T QMap<Key,T>::value(const Key& k) const
 }
 
 template<class Key, class T>
-Q_OUTOFLINE_TEMPLATE const T QMap<Key,T>::value(const Key& k, const T& defaultValue) const
+Q_OUTOFLINE_TEMPLATE T QMap<Key,T>::value(const Key& k, const T& defaultValue) const
 {
     Node *n = findNode(k);
     return ((n == &d->header) ? defaultValue : n->data);

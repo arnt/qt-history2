@@ -356,7 +356,7 @@ Q_INLINE_TEMPLATE void QList<T>::setAutoDelete(bool enable)
 }
 
 template<typename T>
-Q_OUTOFLINE_TEMPLATE const T QList<T>::value(int i) const
+Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i) const
 {
     if(i < 0 || i >= p.size()) {
 	T t;
@@ -366,7 +366,7 @@ Q_OUTOFLINE_TEMPLATE const T QList<T>::value(int i) const
     return ((Node*) p.at(i))->t();
 }
 template<typename T>
-Q_OUTOFLINE_TEMPLATE const T QList<T>::value(int i, const T& defaultValue) const
+Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i, const T& defaultValue) const
 {
     return ((i < 0 || i >= p.size()) ? defaultValue : ((Node*) p.at(i))->t());
 }

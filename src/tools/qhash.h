@@ -328,7 +328,7 @@ inline QHash<Key, T> &QHash<Key, T>::operator=(const QHash &h)
 }
 
 template <class Key, class T>
-inline const T QHash<Key, T>::value(const Key &key) const
+inline T QHash<Key, T>::value(const Key &key) const
 {
     Node *node = node_find(key);
     if (node == e) {
@@ -341,7 +341,7 @@ inline const T QHash<Key, T>::value(const Key &key) const
 }
 
 template <class Key, class T>
-inline const T QHash<Key, T>::value(const Key &key,
+inline T QHash<Key, T>::value(const Key &key,
 				     const T &defaultValue) const
 {
     Node *node = node_find(key);
