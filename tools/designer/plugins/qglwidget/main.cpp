@@ -7,7 +7,7 @@
 class OpenGLWidgetInterface : public WidgetInterface
 {
 public:
-    OpenGLWidgetInterface( QUnknownInterface *parent );
+    OpenGLWidgetInterface( QUnknownInterface *parent, const char *name = 0 );
     ~OpenGLWidgetInterface();
 
     bool disconnectNotify();
@@ -27,8 +27,8 @@ private:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent )
-: WidgetInterface( parent )
+OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent, const char *name )
+: WidgetInterface( parent, name )
 {
 }
 
@@ -120,8 +120,9 @@ public:
 };
 
 OpenGLPlugIn::OpenGLPlugIn()
+: QPlugInInterface( "OpenGL PlugIn" )
 {
-    new OpenGLWidgetInterface( this );
+    new OpenGLWidgetInterface( this, "OpenGL Widget Interface" );
 }
 
 OpenGLPlugIn::~OpenGLPlugIn()
