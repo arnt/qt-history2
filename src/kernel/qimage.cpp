@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#57 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#56 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#57 $")
 
 
 /*----------------------------------------------------------------------------
@@ -788,13 +788,13 @@ static bool dither_image( const QImage *src, QImage *dst )
 		bit--;
 	    }
 	    if ( x < w )
-		*b1 += (err*7)/16;		// spread error to right pixel
+		*b1 += (err*7)>>4;		// spread error to right pixel
 	    if ( not_last_line ) {
-		b2[0] += (err*5)/16;		// pixel below
+		b2[0] += (err*5)>>4;		// pixel below
 		if ( x > 1 )
-		    b2[-1] += (err*3)/16;	// pixel below left
+		    b2[-1] += (err*3)>>4;	// pixel below left
 		if ( x < w )
-		    b2[1] += err/16;		// pixel below right
+		    b2[1] += err>>4;		// pixel below right
 	    }
 	    b2++;
 	}
