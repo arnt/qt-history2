@@ -1469,8 +1469,7 @@ void QObject::deleteLater()
     translators while performing translations is not supported. Doing
     so will probably result in crashes or other undesirable behavior.
 
-    \sa trUtf8() QApplication::translate()
-        \link i18n.html Internationalization with Qt\endlink
+    \sa trUtf8(), QApplication::translate(), {Internationalization with Qt}
 */
 
 /*!

@@ -14,7 +14,6 @@
 
 /*! 
     \page xml.html
-
     \title XML Module
 
     \tableofcontents
@@ -53,7 +52,7 @@
     The \l{qtxml.html}{QtXml module} provides the following SAX and DOM classes:
 
     \table
-    \header \i Class \i Short description
+    \header \i Class \i Description
     \row \i \l QDomAttr
          \i Represents one attribute of a QDomElement
     \row \i \l QDomCDATASection

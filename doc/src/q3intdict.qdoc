@@ -38,8 +38,7 @@
     See Q3Dict for full details, including the choice of dictionary
     size, and how deletions are handled. 
 
-    \sa Q3IntDictIterator, Q3Dict, Q3AsciiDict, Q3PtrDict,
-	\link collection.html Collection Classes\endlink
+    \sa Q3IntDictIterator, Q3Dict, Q3AsciiDict, Q3PtrDict
 */
 
 

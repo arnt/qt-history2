@@ -19,136 +19,135 @@ related classes together. Some classes may appear in more than one group.
 
 \table
 \header 
-\i Group
-\i Description
+\o Group
+\o Description
 
 \row 
-\i \link abstractwidgets.html   Abstract Widgets \endlink
-\i Abstract widget classes usable through subclassing.
+\o \l{Abstract Widgets}
+\o Abstract widget classes usable through subclassing.
 
 \row 
-\i \link accessibility.html   Accessibility \endlink
-\i Classes that provide support for accessibility.
+\o \l{Accessibility}
+\o Classes that provide support for accessibility.
 
 \row 
-\i \link advanced.html   Advanced Widgets \endlink
-\i Advanced GUI widgets such as listviews and progress bars.
+\o \l{Advanced Widgets}
+\o Advanced GUI widgets such as listviews and progress bars.
 
 \row 
-\i \link basic.html   Basic Widgets \endlink
-\i Basic GUI widgets such as buttons, comboboxes and scrollbars.
+\o \l{Basic Widgets}
+\o Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
 \omit
 \row 
-\i \link componentmodel.html   Component Model \endlink
-\i Interfaces and helper classes for the Qt Component Model.
+\o \l{Component Model}
+\o Interfaces and helper classes for the Qt Component Model.
 \endomit
 
 \row
-\i \link database.html Database\endlink
-\i Database related classes, e.g. for SQL databases.
+\o \l{Database}
+\o Database related classes, e.g. for SQL databases.
 
 \row 
-\i \link time.html   Date and Time \endlink
-\i Classes for handling date and time.
+\o \l{Date and Time}
+\o Classes for handling date and time.
 
 \row 
-\i \link draganddrop.html   Drag and Drop \endlink
-\i Classes dealing with drag and drop and mime type
+\o \l{Drag and Drop}
+\o Classes dealing with drag and drop and mime type
    encoding and decoding.
 
 \row 
-\i \link environment.html   Environment \endlink
-\i Classes providing various global services such as
+\o \l{Environment}
+\o Classes providing various global services such as
    event handling, access to system settings and internationalization.
 
 \row
-\i \link events.html Events\endlink
-\i Classes used to create and handle events.
+\o \link events.html Events\endlink
+\o Classes used to create and handle events.
 
 \row 
-\i \link tools.html  Utility Classes \endlink
-\i Collection classes such as list, queue, stack and string, along
+\o \l{Utility Classes}
+\o Collection classes such as list, queue, stack and string, along
 with other classes that can be used without needing QApplication.
 
 \row 
-\i \link multimedia.html   Multimedia, Graphics, and Printing \endlink
-\i Classes that provide support for graphics (2D, and with OpenGL, 3D),
+\o \l{Multimedia, Graphics, and Printing}
+\o Classes that provide support for graphics (2D, and with OpenGL, 3D),
 image encoding, decoding, and manipulation, sound, animation,
 printing, etc.
 
 \row 
-\i \link helpsystem.html   Help System \endlink
-\i Classes used to provide online-help for applications.
+\o \l{Help System}
+\o Classes used to provide online-help for applications.
 
 \row 
-\i \link geomanagement.html   Layout Management \endlink
-\i Classes handling automatic resizing and moving of widgets, for
+\o \l{Layout Management}
+\o Classes handling automatic resizing and moving of widgets, for
         composing complex dialogs.
 
 \row
-\i \link shared.html	Implicitly and Explicitly Shared
-Classes\endlink
-\i Classes that use reference counting for fast copying.
+\o \l{Shared Classes}
+\o Classes that use reference counting for fast copying.
 
 \row 
-\i \link io.html   Input/Output and Networking \endlink
-\i Classes providing file input and output along with directory and
+\o \l{Input/Output and Networking}
+\o Classes providing file input and output along with directory and
 network handling.
 
 \row 
-\i \link application.html   MainWindow and Related Classes \endlink
-\i Everything you need for a typical modern main application window,
+\o \l{MainWindow and Related Classes}
+\o Everything you need for a typical modern main application window,
 including menus, toolbars, workspace, etc.
 
 \row 
-\i \link misc.html   Miscellaneous \endlink
-\i Various other useful classes.
+\o \l{Miscellaneous}
+\o Various other useful classes.
 
 \row
-\i \link model-view.html Model/View Classes \endlink
-\i Classes that use the model/view design pattern.
+\o \l{Model/View Classes}
+\o Classes that use the model/view design pattern.
 
 \row 
-\i \link objectmodel.html   Object Model \endlink
-\i The Qt GUI toolkit's underlying object model.
+\o \l{Object Model}
+\o The Qt GUI toolkit's underlying object model.
 
 \row 
-\i \link organizers.html   Organizers \endlink
-\i User interface organizers such as splitters, tab bars, button groups, etc.
+\o \l{Organizers}
+\o User interface organizers such as splitters, tab bars, button groups, etc.
 
 \row
-\i \link plugins.html Plugin Classes\endlink
-\i Plugin related classes.
+\o \link plugins.html Plugin Classes\endlink
+\o Plugin related classes.
 
 \row 
-\i \link dialogs.html   Standard Dialogs \endlink
-\i Ready-made dialogs for file, font, color selection and more.
+\o \l{Standard Dialogs}
+\o Ready-made dialogs for file, font, color selection and more.
 
 \row
-\i \link containers.html Generic Containers\endlink
-\i Qt's template-based container classes.
+\o \l{Generic Containers}
+\o Qt's template-based container classes.
 
 \row
-\i \link text.html Text Related Classes\endlink 
-\i Classes for text
+\o \l{Text Related Classes}
+\o Classes for text
 processing. (See also \link xml-tools.html XML Classes\endlink.)
 
 \row
-\i \link thread.html Threading Classes\endlink
-\i Classes that provide threading support.
+\o \link thread.html Threading Classes\endlink
+\o Classes that provide threading support.
 
 \row 
-\i \link appearance.html   Widget Appearance \endlink
-\i Appearance customization with styles, fonts, colors etc.
+\o \l{Widget Appearance}
+\o Appearance customization with styles, fonts, colors etc.
 
 \row
-\i \link xml-tools.html XML Classes\endlink
-\i Classes that support XML, via, for example DOM and SAX.
+\o \link xml-tools.html XML Classes\endlink
+\o Classes that support XML, via, for example DOM and SAX.
 
 \row
-\i \link qws.html Qt/Embedded Classes\endlink
-\i Classes that are specific to Qt/Embedded.
+\o \link qws.html Qt/Embedded Classes\endlink
+\o Classes that are specific to Qt/Embedded.
 
 \endtable
 
@@ -180,7 +179,7 @@ devices, processes, files etc. as well as manipulating files and directories.
 \title Basic Widgets
 
 These basic controls (widgets) are designed for direct use.  There are
-also some \link abstractwidgets.html abstract widget classes, \endlink
+also some \l{abstract widget classes,}
 designed for subclassing, and some \link advanced.html more complex
 widgets. \endlink
 
@@ -218,7 +217,7 @@ accessible applications.
 
 \title Object Model
 
-These classes form the basis of the \link object.html Qt Object Model \endlink.
+These classes form the basis of the \l{Qt Object Model}.
 
 */
 
@@ -226,7 +225,7 @@ These classes form the basis of the \link object.html Qt Object Model \endlink.
 
 \title Component Model
 
-These classes and interfaces form the basis of the \link component.html Qt Component Model \endlink.
+These classes and interfaces form the basis of the \l{Qt Component Model}.
 
 */
 
@@ -349,12 +348,12 @@ These classes provide for all forms of online-help in your application,
 with three levels of detail:
 
 \list 1
-    \i Tool Tips and Status Bar message - flyweight help, extremely brief,
+    \o Tool Tips and Status Bar message - flyweight help, extremely brief,
 	entirely integrated in the user interface, requiring little
 	or no user interaction to invoke.
-    \i What's This? - lightweight, but can be
+    \o What's This? - lightweight, but can be
 	a three-paragraph explanation.
-    \i Online Help - can encompass any amount of information,
+    \o Online Help - can encompass any amount of information,
 	but is typically slower to call up, somewhat separated
 	from the user's work, and often users feel that using online
 	help is a digression from their real task.
@@ -439,7 +438,7 @@ These classes are relevant to Qt/Embedded users.
 
 These classes are relevant to text processing. See also the
 \l{richtext.html}{Rich Text Processing} overview and the
-\link xml.html XML classes \endlink.
+\l{XML classes}.
 */
 
 /*! \defgroup model-view

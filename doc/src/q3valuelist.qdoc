@@ -6,8 +6,7 @@
 
     Q3ValueList is a Qt implementation of an STL-like list container.
     It can be used in your application if the standard \c list is not
-    available for your target platform(s). Q3ValueList is part of the
-    \link qtl.html Qt Template Library\endlink.
+    available for your target platforms.
 
     Q3ValueList\<T\> defines a template instance to create a list of
     values that all have the class T. Note that Q3ValueList does not
@@ -105,17 +104,6 @@
     empty(), the iterator returned by begin() will equal the iterator
     returned by end().
 
-    Another way to find an item in the list is by using the \link
-    qtl.html#qFind qFind()\endlink algorithm. For example:
-
-    \code
-    Q3ValueList<int> list;
-    ...
-    Q3ValueList<int>::iterator it = qFind( list.begin(), list.end(), 3 );
-    if ( it != list.end() )
-	// it points to the found item
-    \endcode
-
     It is safe to have multiple iterators a the list at the same
     time. If some member of the list is removed, only iterators
     pointing to the removed member become invalid. Inserting into the
@@ -167,19 +155,6 @@
     are several variants of the remove() function, which removes a
     specific item from the list. The remove() function will find and
     remove items according to a specific item value.
-
-    Lists can also be sorted using the \link qtl.html Qt Template
-    Library\endlink. For example with qHeapSort():
-
-    Example:
-    \code
-    Q3ValueList<int> list;
-    list.append( 5 );
-    list.append( 8 );
-    list.append( 3 );
-    list.append( 4 );
-    qHeapSort( list );
-    \endcode
 
     \sa Q3ValueListIterator
 */

@@ -747,11 +747,8 @@ void QPainterPrivate::updateInvMatrix()
     coordinate limitations in the underlying window system. Some
     platforms may behave incorrectly with coordinates outside +/-4000.
 
-    \headerfile qdrawutil.h
-
-    \sa QPaintDevice QWidget QPixmap QPrinter QPicture
-        \link simple-application.html Application Walkthrough \endlink
-        \link coordsys.html Coordinate System Overview \endlink
+    \sa QPaintDevice QWidget QPixmap QPrinter QPicture,
+        {The Coordinate System}
 */
 
 /*!

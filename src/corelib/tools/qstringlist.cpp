@@ -376,8 +376,7 @@ void QtPrivate::QStringList_replaceInStrings(QStringList *that, const QString &b
         // list == ["olpha", "beta", "gamma", "epsilon"]
     \endcode
 
-    For regular expressions that contain \link
-    qregexp.html#capturing-text capturing parentheses \endlink,
+    For regular expressions that contain \l{capturing parentheses},
     occurrences of \bold{\\1}, \bold{\\2}, ..., in \a after are
     replaced with \a{rx}.cap(1), \a{rx}.cap(2), ...
 

@@ -5,8 +5,7 @@
 
     Q3ValueVector is a Qt implementation of an STL-like vector
     container. It can be used in your application if the standard \c
-    vector is not available for your target platforms. Q3ValueVector is
-    part of the \link qtl.html Qt Template Library\endlink.
+    vector is not available for your target platforms.
 
     Q3ValueVector\<T\> defines a template instance to create a vector
     of values that all have the class T. Q3ValueVector does not store
@@ -41,8 +40,7 @@
     cases this is sufficient.
 
     Q3ValueVector uses an STL-like syntax to manipulate and address the
-    objects it contains. See \link qtl.html this document\endlink for
-    more information.
+    objects it contains.
 
     Example:
     \code
@@ -147,18 +145,6 @@
     therefore you can use them with many generic algorithms, for
     example, algorithms provided by the STL.
 
-    Another way to find an element in the vector is by using the
-    std::find() or \link qtl.html#qFind qFind()\endlink algorithms.
-    For example:
-
-    \code
-    Q3ValueVector<int> vec;
-    ...
-    Q3ValueVector<int>::const_iterator it = qFind( vec.begin(), vec.end(), 3 );
-    if ( it != vector.end() )
-	// 'it' points to the found element
-    \endcode
-
     It is safe to have multiple iterators on the vector at the same
     time. Since Q3ValueVector manages memory dynamically, all iterators
     can become invalid if a memory reallocation occurs. For example,
@@ -225,20 +211,6 @@
     Items can be also be removed from the vector in several ways.
     There are several variants of the erase() function which removes a
     specific element, or range of elements, from the vector.
-
-    Vectors can be also sorted with various STL algorithms , or it can
-    be sorted using the \link qtl.html Qt Template Library\endlink.
-    For example with qHeapSort():
-
-    Example:
-    \code
-    Q3ValueVector<int> v( 4 );
-    v.push_back( 5 );
-    v.push_back( 8 );
-    v.push_back( 3 );
-    v.push_back( 4 );
-    qHeapSort( v );
-    \endcode
 
     Q3ValueVector stores its elements in contiguous memory. This means
     that you can use a Q3ValueVector in any situation that requires an

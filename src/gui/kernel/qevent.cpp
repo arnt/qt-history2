@@ -981,8 +981,8 @@ QResizeEvent::~QResizeEvent()
     special handing, you should reimplement the event handler and
     ignore() the event.
 
-    The \link simple-application.html#closeEvent closeEvent() in the
-    Application Walkthrough\endlink shows a close event handler that
+    The \l{mainwindows/application#close event handler}{closeEvent() in the
+    Application example} shows a close event handler that
     asks whether to save a document before closing.
 
     If you want the widget to be deleted when it is closed, create it

@@ -2095,8 +2095,7 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
         // str == "Boxoxa"
     \endcode
 
-    For regular expressions containing \link
-    qregexp.html#capturing-text capturing parentheses \endlink,
+    For regular expressions containing \l{capturing parentheses},
     occurrences of \bold{\\1}, \bold{\\2}, ..., in \a after are
     replaced with \a{rx}.cap(1), cap(2), ...
 

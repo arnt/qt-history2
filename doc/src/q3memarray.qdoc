@@ -13,10 +13,9 @@
     elements. 
 
     The Q3PtrVector collection class is also a kind of array. Like most
-    \link collection.html collection classes\endlink, it uses pointers
-    to the contained items.
+    old Qt collection classes, it uses pointers to the contained items.
 
-    Q3MemArray uses \bold{explicit sharing} with a
+    Q3MemArray uses explicit sharing with a
     reference count. If more than one array shares common data and one
     of the arrays is modified, all the arrays are modified.
 

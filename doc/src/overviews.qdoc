@@ -48,7 +48,7 @@
     \o \l{shclass.html}{Implicit Data Sharing}
     \o \l{installation.html}{Installation}
     \o \l{emb-install.html}{Installing Qt/Embedded}
-    \o \l{i18n.html}{Internationalization with Qt}
+    \o \l{Internationalization with Qt}
     \o \l{emb-porting.html}{Issues to be Aware of When Porting Qt/Embedded}
     \o \l{focus.html}{Keyboard Focus}
     \o \l{layout.html}{Layout Classes}

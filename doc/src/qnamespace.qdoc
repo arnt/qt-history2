@@ -1394,9 +1394,7 @@
     This enum type is used to specify various window-system properties
     for the widget. They are fairly unusual but necessary in a few
     cases. Some of these flags depend on whether the underlying window
-    manager supports them. (See the \link toplevel-example.html
-    top-level example\endlink for an explanation and example of their
-    use.)
+    manager supports them.
 
     The main types are
 

@@ -4,8 +4,7 @@
     \compat
 
     Define a template instance Q3ValueStack\<X\> to create a stack of
-    values that all have the class X. Q3ValueStack is part of the \link
-    qtl.html Qt Template Library\endlink.
+    values that all have the class X.
 
     Note that Q3ValueStack does not store pointers to the members of
     the stack; it holds a copy of every member. That is why these

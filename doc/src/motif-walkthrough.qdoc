@@ -1457,7 +1457,7 @@
 
     \section1 Using Unicode
 
-    Support for \link i18n.html internationalization\endlink is very easy
+    Support for \l internationalization is very easy
     with Qt. Using QString instead of \c {char*} for storing text gives
     us support for most of the written languages around the world. Our \c
     Page and \c Options structs look much simpler now.

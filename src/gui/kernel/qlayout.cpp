@@ -45,17 +45,17 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
 
     For users of QLayout subclasses or of QMainWindow there is seldom
     any need to use the basic functions provided by QLayout, such as
-    \l setResizeMode() or setMenuBar(). See the \link layout.html layout
-    overview page \endlink for more information.
+    setResizeMode() or setMenuBar(). See \l{Layout Classes}
+    for more information.
 
     To make your own layout manager, implement the functions
     addItem(), sizeHint(), setGeometry(), itemAt() and takeAt(). You
     should also implement minimumSize() to ensure your layout isn't
     resized to zero size if there is too little space. To support
     children whose heights depend on their widths, implement
-    hasHeightForWidth() and heightForWidth(). See the \link
-    customlayout.html custom layout page \endlink for an in-depth
-    description.
+    hasHeightForWidth() and heightForWidth(). See
+    \l{Border Layout} and \l{Flow Layout} for examples of custom
+    layout managers.
 
     Geometry management stops when the layout manager is deleted.
 */

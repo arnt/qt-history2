@@ -33,7 +33,7 @@
     \o queryable and designable \link properties.html object
        properties \endlink
     \o powerful \link eventsandfilters.html events and event filters \endlink
-    \o contextual \link i18n.html string translation for internationalization \endlink
+    \o contextual \l{i18n}{string translation for internationalization}
     \o sophisticated interval driven \link timers.html timers \endlink
        that make it possible to elegantly integrate many tasks in an
        event-driven GUI

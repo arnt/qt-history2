@@ -1,7 +1,6 @@
-  * Fix \l Recommended Reading in threads.qdoc
-  * implement \target and \keyword
-
+  * Fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * Provide a "List of all properties" page.
+  * Make automatic links in code work
 
   * Fix look of \value (consecutive \values)
   * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
@@ -9,11 +8,6 @@
   * qhboxwidget.html#sizeHint is broken (apparently)
 
   * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
-
-  * Show in which module/library each class is
-  * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
-  * make links within document work
-  * make links beyond document work
 
   * make \macro work (?)
   * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description
@@ -23,13 +17,13 @@
   * \center...\endcenter
 
 LINKS:
-  * make automatic links to function in text work
-  * make automatic links in code work
 
   * explanation following nonstandard wording warning
 
   * omit \overload in operator<< and operator>>
   * make operator-() unary and binary independent functions (no \overload)
+  * fix \overload
+  * fix \legalese
   * remove warning for undocumented enum item like QLocale::LastLanguage
   * improve the \a warnings for overloads; if one overload documents a para, fine
 

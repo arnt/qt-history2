@@ -98,7 +98,7 @@ QApplicationPrivate::~QApplicationPrivate()
 }
 
 /*!
-  \class QApplication qapplication.h
+  \class QApplication
   \brief The QApplication class manages the GUI application's control
   flow and main settings.
 
@@ -287,16 +287,6 @@ QApplicationPrivate::~QApplicationPrivate()
         closingDown(),
         type().
   \endtable
-
-  \e {Non-GUI programs:} While Qt is not optimized or
-  designed for writing non-GUI programs, it's possible to use
-  \link tools.html some of its classes \endlink without creating a
-  QApplication. This can be useful if you wish to share code between
-  a non-GUI server and a GUI client.
-
-  \headerfile qnamespace.h
-  \headerfile qwindowdefs.h
-  \headerfile qglobal.h
 */
 
 /*!

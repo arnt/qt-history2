@@ -110,10 +110,9 @@
 
   Once you start printing, calling newPage() is essential. You will
   probably also need to look at the device metrics for the
-  printer (see the \link simple-application.html#printersimple print
-  function\endlink in the Application walk-through). Note that the
-  paint device metrics are valid only after the QPrinter has been
-  set up, i.e. after setup() has returned successfully.
+  printer. Note that the paint device metrics are valid only after
+  the QPrinter has been set up, i.e. after setup() has returned
+  successfully.
 
   If you want to abort the print job, abort() will try its best to
   stop printing. It may cancel the entire job or just part of it.

@@ -1142,8 +1142,8 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     user has chosen. For example, to convert an application containing
     literal English strings to Korean, all that is needed is for the
     English strings to be passed through tr() and for translation
-    files to be loaded. For details of internationalization, see the
-    \link i18n.html Qt internationalization documentation\endlink.
+    files to be loaded. For details of internationalization, see
+    \l{Internationalization with Qt}.
 
     \sa codecForTr(), setCodecForTr(), setCodecForCStrings()
 */

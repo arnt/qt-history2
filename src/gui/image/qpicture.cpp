@@ -1207,8 +1207,8 @@ static QPictureHandler *get_picture_handler(const char *format)
 
 /*!
     Defines a picture I/O handler for the picture format called \a
-    format, which is recognized using the \link qregexp.html#details
-    regular expression\endlink \a header, read using \a readPicture and
+    format, which is recognized using the \l{QRegExp}{regular
+    expression} \a header, read using \a readPicture and
     written using \a writePicture.
 
     \a flags is a string of single-character flags for this format.

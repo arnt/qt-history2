@@ -160,8 +160,8 @@
     'email'. We will start by putting our regexp in parentheses,
     \bold{(mail|letter|correspondence)}. Parentheses have two effects,
     firstly they group expressions together and secondly they identify
-    parts of the regexp that we wish to \link #capturing-text capture
-    \endlink. Our regexp still matches any of the three words but now
+    parts of the regexp that we wish to \l{capturing text}{capture}.
+    Our regexp still matches any of the three words but now
     they are grouped together as a unit. This is useful for building
     up more complex regexps. It is also useful because it allows us to
     examine which of the words actually matched. We need to use
@@ -242,8 +242,7 @@
     \row \i \bold{\\W}
          \i This matches a non-word character.
     \row \i \bold{\\\e{n}}
-         \i The \e{n}-th \link #capturing-text backreference \endlink,
-         e.g. \\1, \\2, etc.
+         \i The \e{n}-th \l backreference, e.g. \\1, \\2, etc.
     \endtable
 
     \bold{Note:} The C++ compiler transforms backslashes in strings,
@@ -345,7 +344,8 @@
     can from the first zero it finds, e.g. '2.\underline{000}5'.
     Quantifiers can be made non-greedy, see setMinimal().
 
-    \target capturing-text
+    \target capturing parentheses
+    \target backreferences
     \section1 Capturing Text
 
     Parentheses allow us to group elements together so that we can
@@ -433,8 +433,8 @@
          when it is followed by 'char'.
     \endtable
 
-    \target wildcard-matching
-    \section1 Wildcard Matching (globbing)
+    \keyword QRegExp wildcard matching
+    \section1 Wildcard Matching
 
     Most command shells such as \e bash or \e cmd.exe support "file
     globbing", the ability to identify a group of files by using
@@ -500,8 +500,7 @@
     The equivalent of Perl's \c{/i} option is
     setCaseSensitivity(Qt::CaseInsensitive).
 
-    Perl's \c{/g} option can be emulated using a \link
-    #cap_in_a_loop loop \endlink.
+    Perl's \c{/g} option can be emulated using a \l{#cap_in_a_loop}{loop}.
 
     In QRegExp \bold{.} matches any character, therefore all QRegExp
     regexps have the equivalent of Perl's \c{/s} option. QRegExp
@@ -3247,7 +3246,7 @@ static void invalidateEngine(QRegExpPrivate *priv)
 
     \value Wildcard This provides a simple pattern matching syntax
     similar to that used by shells (command interpreters) for "file
-    globbing". See \link #wildcard-matching Wildcard Matching\endlink.
+    globbing". See \l{Wildcard Matching}.
 */
 
 /*!
@@ -3473,8 +3472,7 @@ QRegExp::PatternSyntax QRegExp::patternSyntax() const
     \c RegExp.
 
     Setting \a syntax to \c Wildcard enables simple shell-like
-    wildcard matching. (See \link #wildcard-matching wildcard
-    matching (globbing) \endlink.)
+    \l{wildcard matching}.
 
     For example, \bold{r*.txt} matches the string \c{readme.txt} in
     wildcard mode, but does not match \c{readme}.
@@ -3708,8 +3706,8 @@ int QRegExp::numCaptures() const
     all the numbers matched. However, after calling
     \c{rx.indexIn(str)}, capturedTexts() will return the list ("12",
     "12"), i.e. the entire match was "12" and the first subexpression
-    matched was "12". The correct approach is to use cap() in a \link
-    #cap_in_a_loop loop \endlink.
+    matched was "12". The correct approach is to use cap() in a
+    \l{#cap_in_a_loop}{loop}.
 
     The order of elements in the string list is as follows. The first
     element is the entire matching string. Each subsequent element
@@ -3758,6 +3756,7 @@ QStringList QRegExp::capturedTexts()
     is the text of the second, and so on.
 
     \target cap_in_a_loop
+
     Some patterns may lead to a number of matches that cannot be
     determined in advance, for example:
 

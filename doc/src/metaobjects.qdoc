@@ -56,7 +56,7 @@
 
     \i \link QObject::tr() tr() \endlink and
     \link QObject::trUtf8() trUtf8() \endlink translate strings
-    for \l{i18n.html}{internationalization}.
+    for \l{internationalization}.
 
     \i \link QObject::setProperty() setProperty() \endlink and \link
     QObject::property() property() \endlink dynamically

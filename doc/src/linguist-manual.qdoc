@@ -1713,9 +1713,8 @@
     \caption Tutorial 3 Screenshot, About box, Portuguese version
 
     If you choose \e {Ajuda|Sobre Qt}, (\e {Help|About Qt}), you'll get
-    an English dialog. Oops! Qt itself needs to be translated. See the
-    document \link i18n.html#qt-itself Internationalization with Qt
-    \endlink for details.
+    an English dialog. Oops! Qt itself needs to be translated. See
+    \l{Internationalization with Qt} for details.
 
     Now set \c LANG=en to get the original English version:
 

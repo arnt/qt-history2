@@ -1542,10 +1542,7 @@ QString QDir::rootPath()
     Returns true if the \a fileName matches any of the wildcard (glob)
     patterns in the list of \a filters; otherwise returns false.
 
-    (See \link qregexp.html#wildcard-matching QRegExp wildcard
-    matching.\endlink)
-
-    \sa QRegExp::exactMatch() entryList() entryInfoList()
+    \sa {QRegExp wildcard matching}, QRegExp::exactMatch() entryList() entryInfoList()
 */
 
 
@@ -1567,10 +1564,7 @@ bool QDir::match(const QStringList &filters, const QString &fileName)
     pattern \a filter; otherwise returns false. The \a filter may
     contain multiple patterns separated by spaces or semicolons.
 
-    (See \link qregexp.html#wildcard-matching QRegExp wildcard
-    matching.\endlink)
-
-    \sa QRegExp::exactMatch() entryList() entryInfoList()
+    \sa {QRegExp wildcard matching}, QRegExp::exactMatch() entryList() entryInfoList()
 */
 
 bool QDir::match(const QString &filter, const QString &fileName)
@@ -1755,9 +1749,9 @@ QString QDir::nameFilter() const
     Use setNameFilters() instead.
 
     The \a nameFilter is a wildcard (globbing) filter that understands
-    "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
-    QRegExp wildcard matching\endlink.) You may specify several filter
-    entries, each separated by spaces " ", or by semicolons ";".
+    "*" and "?" wildcards. (See \l{QRegExp wildcard matching}.) You may
+    specify several filter entries, each separated by spaces or by
+    semicolons.
 
     For example, if you want entryList() and entryInfoList() to list
     all files ending with either ".cpp" or ".h", you would use either

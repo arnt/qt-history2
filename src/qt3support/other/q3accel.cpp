@@ -914,12 +914,10 @@ QString Q3Accel::keyToString(QKeySequence k)
   Notice the \c "File|Open" translator comment. It is by no means
   necessary, but it provides some context for the human translator.
 
-
   The function is superfluous. Construct a QKeySequence from the
   string \a s for the same effect.
 
-  \sa QObject::tr()
-      \link i18n.html Internationalization with Qt \endlink
+  \sa QObject::tr(), {Internationalization with Qt}
 */
 QKeySequence Q3Accel::stringToKey(const QString & s)
 {
