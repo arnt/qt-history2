@@ -493,7 +493,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
 	if(wclass == kFloatingWindowClass)
-	    ChangeWindowAttributes((WindowRef)id, wattr, kWindowHideOnSuspendAttribute);
+	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
 #ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
