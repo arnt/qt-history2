@@ -1120,7 +1120,7 @@ bool QODBCResult::exec()
                                             i + 1,
                                             qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                             SQL_C_WCHAR,
-                                            SQL_WVARCHAR,
+                                            str.length() > 4000 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
                                             0, // god knows... don't change this!
                                             0,
                                             (void *)ba.constData(),
@@ -1134,7 +1134,7 @@ bool QODBCResult::exec()
                                           i + 1,
                                           qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                           SQL_C_WCHAR,
-                                          SQL_WVARCHAR,
+                                          str.length() > 4000 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
                                           0, // god knows... don't change this!
                                           0,
                                           (void *)str.constData(),
@@ -1152,7 +1152,7 @@ bool QODBCResult::exec()
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                       SQL_C_CHAR,
-                                      SQL_VARCHAR,
+                                      ba.length() > 4000 ? SQL_LONGVARCHAR : SQL_VARCHAR,
                                       ba.length() + 1,
                                       0,
                                       (void *) ba.constData(),
