@@ -138,8 +138,8 @@ bool QSqlDriver::isOpenError() const
 
 /*! \fn bool QSqlDriver::canEditBinaryFields() const
 
-  Returns TRUE if the database can save binary fields information to
-  the database, FALSE otherwise.
+  Returns TRUE if the database can save binary data to the database,
+  FALSE otherwise.
 
 */
 
@@ -312,6 +312,9 @@ QString QSqlDriver::nullText() const
 
   <li> If \a field is bytearray data, and the driver can edit binary
   fields, the value is formatted as a hexadecimal string.
+
+  <li> For any other field type toString() will be called on its value
+  and the result returned.
   
   </ul>
 
