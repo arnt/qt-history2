@@ -2047,29 +2047,25 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt, int listBase )
 {
     makeCurrent();
+    
     // save GL state
     glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT );
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
+    glOrtho( 0, width(), height(), 0, -1, 1 );
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glLoadIdentity();
-    // this neat little trick will make the raster pos valid when the
-    // string start pos is clipped - makes it possible to render
-    // partial strings
-    glDepthRange( 0.0, 0.0 );
-    glViewport( (int) x - 1, (int) (height() - 1) - y, 2, 2 );
     
-    glRasterPos4f( 0.0, 0.0, 0.0, 1.0 );
+    glRasterPos2i( x, y );
     glListBase( displayListBase( fnt, listBase ) );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
 
-    // restore the matrix stacks
+    // restore the matrix stacks and GL state
     glPopMatrix();
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
-    // restore GL state
     glPopAttrib();
 }
 
