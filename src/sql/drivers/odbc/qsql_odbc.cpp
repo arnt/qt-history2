@@ -21,7 +21,6 @@
 #endif
 #include <qdatetime.h>
 #include <qsqlfield.h>
-#include <qmap.h>
 #include <qvector.h>
 #include <private/qinternal_p.h>
 
@@ -437,120 +436,116 @@ static QSqlField qMakeFieldInfo( const QODBCPrivate* p, int i  )
 		      (int)colType );
 }
 
-bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
+bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
 {
     // Set any connection attributes
-    QStringList raw = connOpts.split(';');
-    QStringList opts;
+    const QStringList opts(connOpts.split(';'));
     SQLRETURN r = SQL_SUCCESS;
-    QMap<QString, QString> connMap;
-    for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
-	QString tmp( *it );
-	int idx;
-	if ( (idx = tmp.indexOf( '=' )) != -1 )
-	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplified();
-	else
-	    qWarning( "QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1() );
-    }
-    if ( connMap.size() ) {
-	QMap<QString, QString>::ConstIterator it;
-	QString opt, val;
-	SQLUINTEGER v = 0;
-	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
-	    opt = it.key().toUpper();
-	    val = it.value().toUpper();
-	    r = SQL_SUCCESS;
-	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
-		if ( val == "SQL_MODE_READ_ONLY" ) {
-		    v = SQL_MODE_READ_ONLY;
-		} else if ( val == "SQL_MODE_READ_WRITE" ) {
-		    v = SQL_MODE_READ_WRITE;
-		} else {
-		    qWarning("QODBCDriver::open: Unknown option value '%s'", it.value().local8Bit());
-		    continue;
-		}
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_CONNECTION_TIMEOUT" ) {
-		v = val.toUInt();
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
-		v = val.toUInt();
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_CURRENT_CATALOG" ) {
-		val.ucs2(); // 0 terminate
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_CURRENT_CATALOG,
+    for (int i = 0; i < opts.count(); ++i) {
+        QString tmp(opts.at(i));
+        int idx;
+        if ( (idx = tmp.indexOf( '=' )) == -1 ) {
+            qWarning("QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1());
+            continue;
+        }
+        const QString opt(tmp.left(idx));
+        const QString val(tmp.mid( idx + 1 ).simplified());
+        SQLUINTEGER v = 0;
+
+        r = SQL_SUCCESS;
+        if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
+            if ( val == "SQL_MODE_READ_ONLY" ) {
+                v = SQL_MODE_READ_ONLY;
+            } else if ( val == "SQL_MODE_READ_WRITE" ) {
+                v = SQL_MODE_READ_WRITE;
+            } else {
+                qWarning("QODBCDriver::open: Unknown option value '%s'",
+                         val.local8Bit());
+                continue;
+            }
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_CONNECTION_TIMEOUT" ) {
+            v = val.toUInt();
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_CONNECTION_TIMEOUT, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
+            v = val.toUInt();
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_CURRENT_CATALOG" ) {
+            val.ucs2(); // 0 terminate
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_CURRENT_CATALOG,
 #ifdef UNICODE
-				       (SQLWCHAR*) val.unicode(),
+                                    (SQLWCHAR*) val.unicode(),
 #else
-				       (SQLCHAR*) val.latin1(),
+                                    (SQLCHAR*) val.latin1(),
 #endif
-				       SQL_NTS );
-	    } else if ( opt == "SQL_ATTR_METADATA_ID" ) {
-		if ( val == "SQL_TRUE" ) {
-		    v = SQL_TRUE;
-		} else if ( val == "SQL_FALSE" ) {
-		    v = SQL_FALSE;
-		} else {
-		    qWarning("QODBCDriver::open: Unknown option value '%s'", it.value().local8Bit());
-		    continue;
-		}
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_PACKET_SIZE" ) {
-		v = val.toUInt();
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_PACKET_SIZE, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_TRACEFILE" ) {
-		val.ucs2(); // 0 terminate
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACEFILE,
+                                    SQL_NTS );
+        } else if ( opt == "SQL_ATTR_METADATA_ID" ) {
+            if ( val == "SQL_TRUE" ) {
+                v = SQL_TRUE;
+            } else if ( val == "SQL_FALSE" ) {
+                v = SQL_FALSE;
+            } else {
+                qWarning("QODBCDriver::open: Unknown option value '%s'",
+                         val.local8Bit());
+                continue;
+            }
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_METADATA_ID, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_PACKET_SIZE" ) {
+            v = val.toUInt();
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_PACKET_SIZE, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_TRACEFILE" ) {
+            val.ucs2(); // 0 terminate
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACEFILE,
 #ifdef UNICODE
-				       (SQLWCHAR*) val.unicode(),
+                                    (SQLWCHAR*) val.unicode(),
 #else
-				       (SQLCHAR*) val.latin1(),
+                                    (SQLCHAR*) val.latin1(),
 #endif
-				       SQL_NTS );
-	    } else if ( opt == "SQL_ATTR_TRACE" ) {
-		if ( val == "SQL_OPT_TRACE_OFF" ) {
-		    v = SQL_OPT_TRACE_OFF;
-		} else if ( val == "SQL_OPT_TRACE_ON" ) {
-		    v = SQL_OPT_TRACE_ON;
-		} else {
-		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
-		    continue;
-		}
-		r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
+                                    SQL_NTS );
+        } else if ( opt == "SQL_ATTR_TRACE" ) {
+            if ( val == "SQL_OPT_TRACE_OFF" ) {
+                v = SQL_OPT_TRACE_OFF;
+            } else if ( val == "SQL_OPT_TRACE_ON" ) {
+                v = SQL_OPT_TRACE_ON;
+            } else {
+                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                continue;
+            }
+            r = SQLSetConnectAttr( hDbc, SQL_ATTR_TRACE, (SQLPOINTER) v, 0 );
 #ifndef Q_ODBC_VERSION_2
-	    } else if (opt == "SQL_ATTR_CONNECTION_POOLING") {
-		if (val == "SQL_CP_OFF")
-		    v = SQL_CP_OFF;
-		else if (val == "SQL_CP_ONE_PER_DRIVER")
-		    v = SQL_CP_ONE_PER_DRIVER;
-		else if (val == "SQL_CP_ONE_PER_HENV")
-		    v = SQL_CP_ONE_PER_HENV;
-		else if (val == "SQL_CP_DEFAULT")
-		    v = SQL_CP_DEFAULT;
-		else {
-		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
-		    continue;
-		}
-		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
-	    } else if (opt == "SQL_ATTR_CP_MATCH") {
-		if (val == "SQL_CP_STRICT_MATCH")
-		    v = SQL_CP_STRICT_MATCH;
-		else if (val == "SQL_CP_RELAXED_MATCH")
-		    v = SQL_CP_RELAXED_MATCH;
-		else if (val == "SQL_CP_MATCH_DEFAULT")
-		    v = SQL_CP_MATCH_DEFAULT;
-		else {
-		    qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
-                    continue;
-		}
-		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CP_MATCH, (SQLPOINTER)v, 0);
+        } else if (opt == "SQL_ATTR_CONNECTION_POOLING") {
+            if (val == "SQL_CP_OFF")
+                v = SQL_CP_OFF;
+            else if (val == "SQL_CP_ONE_PER_DRIVER")
+                v = SQL_CP_ONE_PER_DRIVER;
+            else if (val == "SQL_CP_ONE_PER_HENV")
+                v = SQL_CP_ONE_PER_HENV;
+            else if (val == "SQL_CP_DEFAULT")
+                v = SQL_CP_DEFAULT;
+            else {
+                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                continue;
+            }
+            r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
+        } else if (opt == "SQL_ATTR_CP_MATCH") {
+            if (val == "SQL_CP_STRICT_MATCH")
+                v = SQL_CP_STRICT_MATCH;
+            else if (val == "SQL_CP_RELAXED_MATCH")
+                v = SQL_CP_RELAXED_MATCH;
+            else if (val == "SQL_CP_MATCH_DEFAULT")
+                v = SQL_CP_MATCH_DEFAULT;
+            else {
+                qWarning("QODBCDriver::open: Unknown option value '%s'", val.local8Bit());
+                continue;
+            }
+            r = SQLSetConnectAttr(hDbc, SQL_ATTR_CP_MATCH, (SQLPOINTER)v, 0);
 #endif
-	    } else {
-		  qWarning("QODBCDriver::open: Unknown connection attribute '%s'", opt.local8Bit());
-	    }
-	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
-		qSqlWarning( QString("QODBCDriver::open: Unable to set connection attribute '%1'").arg( opt ), this );
-	}
+        } else {
+                qWarning("QODBCDriver::open: Unknown connection attribute '%s'", opt.local8Bit());
+        }
+        if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
+            qSqlWarning(QString("QODBCDriver::open: Unable to set connection attribute'%1'").arg(
+                        opt ), this );
     }
     return TRUE;
 }
