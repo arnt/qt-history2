@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#10 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#11 $
 #
 # this is a massive hack, written very quickly
 #
@@ -54,7 +54,7 @@ sub processcode {
 
 #   print $_, "\n";
 
-    join($_, "<pre>\n", "</pre>\n");
+    join($_, "<blockquote><pre>\n", "</pre></blockquote>\n");
 }
 
 
@@ -95,26 +95,26 @@ sub processdocs {
 
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
-	$doc .= "<p><strong>Returns:</strong> " . $1
+	$doc .= "<p>Returns: " . $1
 	    if ($doc =~ s/\s*\\returns?\s+(.*?)
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
 
 	if ($doc =~ /\n\\arg\s+/s) {
 	    $doc =~ s-\n\\arg\s+-
-		<p><strong>Arguments:</strong>\n<ul>\n\\arg -sx;
+		<p>Arguments:\n<ul>\n\\arg -sx;
 	    $doc =~ s-\n\\arg\s+(.*?)(?=\n\s*\\arg\s+)-<li>$1-gs;
 	    $doc =~ s-\n\\arg\s+(.*?)
 		(?:(?:\n\s*?\n\s*)|(?:$ ))-<li>$1\n</ul><p>\n-sx;
 	}
 
-	$_ = "<strong>To do:</strong>\n<ul>\n";
+	$_ = "To do:\n<ul>\n";
 	$_ .= "<li>" . $1 . "\n" 
 	    while ($doc =~ s/\s*\\todo\s+(.*?)
 		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
 	$_ .= "</ul>\n";
 	$doc .= $_ if (/<li>/s);
 
-	$doc =~ s-\\internal\s-<p><strong>Internal comments:</strong><p>\n-s;
+	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
 	$doc =~ s!\\code\s*\{\{(.*?)\}\}!&processcode($1)!esg;
 
@@ -543,14 +543,19 @@ sub printout {
 		    $ic = $_;
 		    $im = "public";
 		}
-		if ($ic ne "" && im eq "public") {
-		    $i = join ("", $i, " <li>", $ic, " (", $capt{$ic}, ")");
+		if (($ic ne "") && ($im eq "public")) {
+		    if (defined($capt{$ic})) {
+			$i = join ("", $i, "<li>", &al($ic), 
+				   " (", $capt{$ic}, ")");
+		    } else {
+			$i = join ("", $i, "<li>", &al($ic));
+		    }
 		}
 	    }
 	    if ($i eq "") {
 		print O "<p>\nDoes not inherit anything.\n";
 	    } else {
-		print O "<p>\nInherits:\n<ul>\n", &al($i), "</ul>\n";
+		print O "<p>\nInherits:\n<ul>\n", $i, "</ul>\n";
 	    }
 
 	    print O "<p>\n<h2>Description</h2>\n", $doc{$url}, "\n";
@@ -633,8 +638,8 @@ sub printout {
 	    $_ = $def{$url};
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
-	    s;([^\(]*)\b(\w+);$1<strong>$2</strong>;s;
-	    s%\(%<a name=$name>\(</a>%s;
+	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+#	    s%\(%<a name=$name>\(</a>%s;
 	    print O "<p><dt>", $_, "\n<dd>", $doc{$url};
 	}
     }
