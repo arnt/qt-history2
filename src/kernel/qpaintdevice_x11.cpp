@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#24 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,22 +21,57 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#24 $";
 #endif
 
 
-QPaintDevice::QPaintDevice()
-{
-    if ( !qApp ) {				// global constructor
-#if defined(CHECK_STATE)
-	fatal( "QPaintDevice: Global paint device objects are not allowed" );
-#endif
-	return;
-    }    
-    devFlags = PDT_UNDEF;
-    dpy = qt_xdisplay();
-    hd  = 0;
-}
+/*!
+\class QPaintDevice qpaintd.h
+\brief The QPaintDevice is the base class of objects that can be painted.
+
+A paint device is an abstraction of a two-dimensional space that can be
+drawn into using a painter (see QPainter).
+The drawing capabilities are implemented by the subclasses: QWidget,
+QPixmap, QPicture and QPrinter.
+
+The default coordinate system of a paint device has its origin located
+at the top left position. X increases to the left and Y increases to the
+bottom. The unit is one pixel.
+A user-defined coordinate system can be specified to the painter (see
+Q2DMatrix).
+
+Here is an example how to draw on a paint device:
+\code
+  QPainter p;				\/ our painter
+  QWidget  w;				\/ out paint device
+  p.begin( &w );			\/ start painting
+  p.setPen( red );			\/ blue outline
+  p.setBrush( yellow );			\/ yellow fill
+  p.drawEllipse( 10,20, 100,100 );	\/ 100x100 ellipse at 10,20
+  p.end();				\/ painting done
+\endcode
+
+The bit block transfer is an extremely useful operation for copying pixels
+from one paint device to another (or to itself).
+It is implemented as the global function bitBlt().
+
+This code demonstrates how to scroll the contents of a widget 10 pixels
+to the right:
+\code
+    QWidget  w;
+    bitBlt( &w, 10, 0, &w, 0, 0, 0, 0 );
+\endcode
+
+\warning Qt requires that a QApplication object must exist before any paint
+devices can be created.  Paint devices access window system resources, and 
+these resources are not initialized before an application object is created.
+*/
+
+
+/*!
+Constructs a paint device with internal flags \e devflags.
+This constructor can only be invoked from subclasses of QPaintDevice.
+*/
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
@@ -51,15 +86,60 @@ QPaintDevice::QPaintDevice( uint devflags )
     hd  = 0;
 }
 
+/*!
+Destroys the paint device and frees window system resources.
+*/
+
 QPaintDevice::~QPaintDevice()
 {
 #if defined(CHECK_STATE)
-    if ( !qt_xdisplay() )			// this is a global object
-	warning( "QPaintDevice: Global paint device objects do not release "
-		 "window system resources" );
+    if ( !qt_xdisplay() )			// this is a static object
+	warning( "QPaintDevice: Static (local) paint device objects do not "
+		 "release window system resources" );
 #endif
 }
 
+
+/*!
+\fn int QPaintDevice::devType() const
+Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
+\c PDT_PRINTER or \c PDT_PICTURE.
+*/
+
+/*!
+\fn bool QPaintDevice::isExtDev() const
+Returns TRUE if the device is a so-called external paint device.
+
+External paint devices cannot be bitBlt'ed from.
+*/
+
+/*!
+\fn HDC QPaintDevice::handle() const
+Returns the window system handle of the paint device (Windows only).
+*/
+
+/*!
+\fn HPS QPaintDevice::handle() const
+Returns the window system handle of the paint device (OS/2 PM only).
+*/
+
+/*!
+\fn WId QPaintDevice::handle() const
+Returns the window system handle of the paint device (X-Windows only).
+*/
+
+/*!
+\fn Display *display() const
+Returns a pointer to the X display (X-Windows only).
+*/
+
+
+/*!
+Internal virtual function that interprets drawing commands from the painter.
+
+Implemented by subclasses that have no direct support for drawing graphics
+(for instance QPicture).
+*/
 
 bool QPaintDevice::cmd( int, QPDevCmdParam * )
 {
@@ -69,6 +149,12 @@ bool QPaintDevice::cmd( int, QPDevCmdParam * )
     return FALSE;
 }
 
+/*!
+Internal virtual function that returns paint device metrics.
+
+Implemented by all subclasses.
+*/
+
 long QPaintDevice::metric( int ) const
 {
 #if defined(CHECK_STATE)
@@ -77,6 +163,42 @@ long QPaintDevice::metric( int ) const
     return 0;
 }
 
+
+/*!
+\relates QPaintDevice
+This function copies a block of pixels from one paint device to another
+(bitBlt means bit block transfer).
+
+\arg \e dst is the paint device to copy to.
+\arg \e dx and \e dy is the position to copy to.
+\arg \e src is the paint device to copy from.
+\arg \e sx and \e sy is the position to copy from.
+\arg \e sw and \e sh is the width and height of the block to be copied.
+\arg \e rop defines the raster operation to be used when copying.
+
+If \e sw or \e sh are 0, then bitBlt will use the width/height of \e src.
+
+The \e e rop parameter can be on of:
+<ul>
+<li> \c CopyROP:     dst = src.
+<li> \c OrROP:       dst = dst OR src.
+<li> \c XorROP:      dst = dst XOR src.
+<li> \c EraseROP:    dst = (NOT src) AND dst
+<li> \c NotCopyROP:  dst = NOT src
+<li> \c NotOrROP:    dst = (NOT src) OR dst
+<li> \c NotXorROP:   dst = (NOT src) XOR dst
+<li> \c NotEraseROP: dst = src AND dst
+<li> \c NotROP:      dst = NOT dst
+</ul>
+
+There are a few restrictions:
+<ol>
+<li> The \e src device must be QWidget or QPixmap.  You cannot copy pixels
+from a picture or a printer (external device).
+<li> The \e src device may not have pixel depth greater than \e src.
+You cannot copy from an 8 bit pixmap to a 1 bit pixmap.
+</ol>
+*/
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -93,9 +215,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Display *dpy = src->display();
 
     if ( sw <= 0 )				// use device width
-	sw = src->metric( PDM_WIDTH );
+	sw = src->metric( PDM_WIDTH ) - sx;
     if ( sh <= 0 )				// use device height
-	sh = src->metric( PDM_HEIGHT );
+	sh = src->metric( PDM_HEIGHT ) - sy;
 
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
@@ -192,3 +314,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( rop != CopyROP )			// reset gc function
 	XSetFunction( dpy, gc, GXcopy );
 }
+
+
+/*!
+\relates QPaintDevice
+\fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop=CopyROP )
+Synonymous bitBlt with the destination point \e dp and source rectangle \e sr.
+*/
