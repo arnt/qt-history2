@@ -47,21 +47,21 @@ SLevel levels[MAX_LEVELS] =
     { 5, 1.0 }
 };
 
-const char *soundEvents[] = 
+const char *soundEvents[] =
 {
     "ShipDestroyed",
     "RockDestroyed",
     0
 };
 
-const char *soundDefaults[] = 
+const char *soundDefaults[] =
 {
     "Explosion.wav",
     "ploop.wav",
     0
 };
 
- 
+
 KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
@@ -71,7 +71,7 @@ KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
 
     QVBoxLayout *borderLayout = new QVBoxLayout( border );
     borderLayout->addStretch( 1 );
-    
+
     QWidget *mainWin = new QWidget( border );
     mainWin->setFixedSize(640, 480);
     borderLayout->addWidget( mainWin, 0, AlignHCenter );
@@ -79,6 +79,7 @@ KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
     borderLayout->addStretch( 1 );
 
     view = new KAsteroidsView( mainWin );
+    view->setFocusPolicy( StrongFocus );
     connect( view, SIGNAL( shipKilled() ), SLOT( slotShipKilled() ) );
     connect( view, SIGNAL( rockHit(int) ), SLOT( slotRockHit(int) ) );
     connect( view, SIGNAL( rocksRemoved() ), SLOT( slotRocksRemoved() ) );
@@ -247,8 +248,6 @@ KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
     actions.insert( Qt::Key_N, NewGame );
 
     view->showText( tr( "Press N to start playing" ), yellow );
-
-    setFocusPolicy( StrongFocus );
 }
 
 KAstTopLevel::~KAstTopLevel()
@@ -386,22 +385,13 @@ void KAstTopLevel::showEvent( QShowEvent *e )
 {
     QMainWindow::showEvent( e );
     view->pause( FALSE );
-    setFocus();
+    view->setFocus();
 }
 
 void KAstTopLevel::hideEvent( QHideEvent *e )
 {
     QMainWindow::hideEvent( e );
     view->pause( TRUE );
-}
-
-void KAstTopLevel::focusInEvent( QFocusEvent * )
-{
-    setFocus();
-}
-
-void KAstTopLevel::focusOutEvent( QFocusEvent * )
-{
 }
 
 void KAstTopLevel::slotNewGame()

@@ -34,8 +34,6 @@ protected:
     virtual void hideEvent( QHideEvent * );
     virtual void keyPressEvent( QKeyEvent *event );
     virtual void keyReleaseEvent( QKeyEvent *event );
-    virtual void focusInEvent( QFocusEvent *event );
-    virtual void focusOutEvent( QFocusEvent *event );
 
 private slots:
     void slotNewGame();

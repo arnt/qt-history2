@@ -71,6 +71,7 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
 {
     view.setVScrollBarMode( QScrollView::AlwaysOff );
     view.setHScrollBarMode( QScrollView::AlwaysOff );
+    view.viewport()->setFocusProxy( this );
     rocks.setAutoDelete( TRUE );
     missiles.setAutoDelete( TRUE );
     bits.setAutoDelete( TRUE );
@@ -867,7 +868,7 @@ void KAsteroidsView::showEvent( QShowEvent *e )
 
     if ( !wasThere ) {
 	wasThere = TRUE;
-	QMessageBox::information( this, tr("QCanvas demo"), 
+	QMessageBox::information( this, tr("QCanvas demo"),
 				  tr("This game has been implemented using the QCanvas class.\n"
 				     "The QCanvas class is not part of the Professional Edition. Please \n"
 				     "contact Trolltech if you want to upgrade to the Enterprise Edition.") );
