@@ -1307,6 +1307,7 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	if ( d->usingListBox() ) {
 	    listBox()->blockSignals( TRUE );
 	    qApp->sendEvent( listBox(), e ); // trigger the listbox's autoscroll
+	    listBox()->setCurrentItem(d->current);
 	    listBox()->blockSignals( FALSE );
 	    popup();
 	    if ( arrowRect.contains( e->pos() ) ) {
