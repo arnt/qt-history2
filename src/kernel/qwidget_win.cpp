@@ -919,7 +919,7 @@ void QWidget::stackUnder( QWidget* w)
 // resize and setGeometry requests for a widget that is already
 // processing a config event. The purpose is to avoid recursion.
 //
-void qWinRequestConfig( Qt::WId, int, int, int, int, int );
+void qWinRequestConfig( WId, int, int, int, int, int );
 
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )

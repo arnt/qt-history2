@@ -194,9 +194,9 @@ protected:
 #if defined(Q_WGL)
     HGLRC		rc;
     HDC			dc;
-    Qt::WId		win;
+    WId	win;
     int			pixelFormatId;
-    QGLColorMap*		cmap;
+    QGLColorMap*	cmap;
 #elif defined(Q_GLX)
     void*		vi;
     void*		cx;

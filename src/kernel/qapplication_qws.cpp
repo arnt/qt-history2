@@ -216,7 +216,7 @@ int	        qt_activate_timers();
 QObject	       *qt_clipboard = 0;
 
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
-static Qt::WId	qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
+static WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 
 class QWSMouseEvent;
 class QWSKeyEvent;
@@ -769,7 +769,7 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 	QWSServer::request_region( winId, r );
     } else {
 	//by sending the event, I promise not to paint outside the region
-	QETWidget *widget = (QETWidget*)QWidget::find( (Qt::WId)winId );
+	QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
 
 	QArray<QRect> ra = r.rects();
 

@@ -434,11 +434,11 @@ class QWidgetMapper : public QWidgetIntDict
 public:
     QWidgetMapper();
    ~QWidgetMapper();
-    QWidget *find( Qt::WId id );		// find widget
+    QWidget *find( WId id );		// find widget
     void     insert( const QWidget * );		// insert widget
-    bool     remove( Qt::WId id );		// remove widget
+    bool     remove( WId id );		// remove widget
 private:
-    Qt::WId	     cur_id;
+    WId	     cur_id;
     QWidget *cur_widget;
 };
 
@@ -456,7 +456,7 @@ QWidgetMapper::~QWidgetMapper()
     clear();
 }
 
-inline QWidget *QWidgetMapper::find( Qt::WId id )
+inline QWidget *QWidgetMapper::find( WId id )
 {
     if ( id != cur_id ) {			// need to lookup
 	cur_widget = QWidgetIntDict::find((long)id);
@@ -476,7 +476,7 @@ inline void QWidgetMapper::insert( const QWidget *widget )
     QWidgetIntDict::insert((long)widget->winId(),widget);
 }
 
-inline bool QWidgetMapper::remove( Qt::WId id )
+inline bool QWidgetMapper::remove( WId id )
 {
     if ( cur_id == id ) {			// reset current widget
 	cur_id = 0;

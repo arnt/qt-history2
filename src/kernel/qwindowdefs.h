@@ -94,9 +94,9 @@ class QWidgetListIt;
 #if defined(_WS_MAC_)
 
 typedef void * MSG;
+typedef int WId;
 
 #endif
-
 
 #if defined(_WS_WIN_)
 #include "qwindowdefs_win.h"
@@ -109,10 +109,11 @@ typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;
 typedef struct _XGC *GC;
 typedef struct _XRegion *Region;
+typedef unsigned long  WId;
 
 Q_EXPORT Display *qt_xdisplay();
 Q_EXPORT int	 qt_xscreen();
-Q_EXPORT Qt::WId qt_xrootwin();
+Q_EXPORT WId	 qt_xrootwin();
 Q_EXPORT GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
@@ -120,6 +121,7 @@ Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #if defined(_WS_QWS_)
 
+typedef unsigned long  WId;
 struct QWSEvent;
 class QGfx;
 

@@ -612,7 +612,7 @@ inline bool QWidget::testWFlags( WFlags f ) const
 { return (widget_flags & f) != 0; }
 
 
-inline Qt::WId QWidget::winId() const
+inline WId QWidget::winId() const
 { return winid; }
 
 inline bool QWidget::isTopLevel() const
@@ -817,7 +817,7 @@ struct QTLWExtra {
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
     short    basew, baseh;			// base sizes
 #if defined(_WS_X11_)
-    Qt::WId  parentWinId;			// parent window Id (valid after reparenting)
+    WId  parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     reserved: 2;			// reserved
     uint     dnd : 1; 				// DND properties installed
@@ -853,7 +853,7 @@ struct QWExtra {
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(_WS_X11_)
-    Qt::WId xDndProxy;				// XDND forwarding to embedded windows
+    WId xDndProxy;			// XDND forwarding to embedded windows
 #endif
 #if defined(_WS_QWS_)
     QRegion mask;				// widget mask

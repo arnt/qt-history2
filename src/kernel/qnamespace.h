@@ -644,18 +644,14 @@ public:
     // "handle" type for system objects.
 #if defined(_WS_MAC_)
     typedef void * HANDLE;
-    typedef int WId;
 #endif
 #if defined(_WS_WIN_)
-    typedef HWND WId;
     typedef void *HANDLE;
 #endif
 #if defined(_WS_X11_)
-    typedef unsigned long  WId;
     typedef unsigned long  HANDLE;
 #endif
 #if defined(_WS_QWS_)
-    typedef unsigned long  WId;
     typedef void* HANDLE;
 #endif
 };

@@ -289,11 +289,11 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 	    Atom type = None;
 	    int f;
 	    unsigned long n, a;
-	    Qt::WId *proxy_id_ptr;
+	    WId *proxy_id_ptr;
 	    XGetWindowProperty( w->x11Display(), w->winId(),
 		qt_xdnd_proxy, 0, 1, False,
 		XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr );
-	    Qt::WId proxy_id = 0;
+	    WId proxy_id = 0;
 	    if ( type == XA_WINDOW && proxy_id_ptr ) {
 		proxy_id = *proxy_id_ptr;
 		XFree(proxy_id_ptr);
