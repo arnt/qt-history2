@@ -454,7 +454,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
 
     Consonant, Consonant, Consonant, Consonant,
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Invalid, Unknown, Unknown,
+    Consonant, Consonant, Unknown, Unknown,
     Invalid, Invalid, Matra, Matra,
 
     Matra, Matra, Matra, Matra,
@@ -870,10 +870,10 @@ static const unsigned char indicPosition[0xe00-0x900] = {
     None, None, None, None,
     None, None, None, None,
     None, None, None, None,
-    None, None, None, Below,
+    None, None, None, None,
 
-    None, None, None, Below,
-    None, Below, Below, None,
+    None, None, None, None,
+    None, None, None, None,
     None, None, None, None,
     None, None, None, Post,
 
@@ -1221,9 +1221,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	//
  	// * In Kannada and Telugu, the base consonant cannot be
  	//   farther than 3 consonants from the end of the syllable.
+	// #### replace the HasReph property by testing if the feature exists in the font!
 	if (form(*uc) == Consonant || (script == QFont::Bengali && form(*uc) == IndependentVowel)) {
-	    beginsWithRa = ((len > 2) && *uc == ra && *(uc+1) == halant);
-	    base = (beginsWithRa && (properties & HasReph) ? 2 : 0);
+	    beginsWithRa = (properties & HasReph) && ((len > 2) && *uc == ra && *(uc+1) == halant);
+	    base = (beginsWithRa ? 2 : 0);
 	    IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base );
 
 	    int lastConsonant = 0;
@@ -1584,11 +1585,12 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    IDEBUG("found a control char in the syllable");
 	    int i = 0, j = 0;
 	    unsigned short *g = openType->glyphs();
-	    while (1) {
-		if (form(reordered[char_map[i]]) == Control)
+	    while (i < newLen) {
+		if (form(reordered[char_map[i]]) == Control) {
 		    ++i;
-		if (i >= newLen)
-		    break;
+		    if (i >= newLen)
+			break;
+		}
 		g[j] = g[i];
 		++i;
 		++j;
@@ -1648,12 +1650,12 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 static int indic_nextSyllableBoundary( int script, const QString &s, int start, int end, bool *invalid )
 {
     *invalid = FALSE;
-//     qDebug("indic_nextSyllableBoundary: start=%d, end=%d", start, end );
+    IDEBUG("indic_nextSyllableBoundary: start=%d, end=%d", start, end );
     const QChar *uc = s.unicode()+start;
 
     int pos = 0;
     Form state = form( uc[pos].unicode() );
-//     qDebug("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
+    IDEBUG("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode() );
     pos++;
 
     if ( state != Consonant && state != IndependentVowel ) {
@@ -1664,7 +1666,7 @@ static int indic_nextSyllableBoundary( int script, const QString &s, int start, 
 
     while ( pos < end - start ) {
 	Form newState = form( uc[pos].unicode() );
-// 	qDebug("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
+	IDEBUG("state[%d]=%d (uc=%4x)", pos, newState, uc[pos].unicode() );
 	switch( newState ) {
 	case Control:
 	    if (uc[pos].unicode() == 0x200d) // Zero width joiner
