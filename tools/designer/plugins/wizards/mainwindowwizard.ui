@@ -1550,7 +1550,7 @@
     if ( listToolbar-&gt;count() &gt; 0 &amp;&amp; appropriate( toolbarsPage ) ) {
 	dfw-&gt;addToolBar( "Tools", "toolBar" );
 	for ( int i = 0; i &lt; (int)listToolbar-&gt;count(); ++i ) {
-	    if ( listToolbar-&gt;text( i ) == tr( "&lt;Seperator&gt;" ) ) {
+	    if ( listToolbar-&gt;text( i ) == tr( "&lt;Separator&gt;" ) ) {
 		dfw-&gt;addToolBarSeparator( "toolBar" );
 		continue;
 	    }
@@ -1600,7 +1600,7 @@
 	listToolbarActions-&gt;insertItem( tr( "Index" ) );
 	listToolbarActions-&gt;insertItem( tr( "About" ) );
     }
-    listToolbarActions-&gt;insertItem( "&lt;Seperator&gt;" );
+    listToolbarActions-&gt;insertItem( "&lt;Separator&gt;" );
     listToolbarActions-&gt;setCurrentItem( 0 );
 }</function>
     <function name="getPixmap(const QString&amp;,QPixmap&amp;)" >{
