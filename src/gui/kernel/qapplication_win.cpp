@@ -2539,7 +2539,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 	QMouseEvent e(type, pos, globalPos,
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
+                      Qt::KeyboardModifiers(state & Qt::KeyButtonMask));
 	QApplication::sendSpontaneousEvent(popup, &e);
 
         if (releaseAfter) {
@@ -2594,7 +2594,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y),
                       Qt::MouseButton(button),
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
+                      Qt::KeyboardModifiers(state & Qt::KeyButtonMask));
         QApplication::sendSpontaneousEvent(widget, &e);
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
             QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
@@ -3076,7 +3076,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
             popup->close();
         QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
-                      Qt::KeyboardModifier(state & Qt::KeyboardModifierMask), orient);
+                      Qt::KeyboardModifier(state & Qt::KeyButtonMask), orient);
         if (QApplication::sendSpontaneousEvent(w, &e))
             return true;
     }
@@ -3295,7 +3295,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, 0, Qt::KeyboardModifierMask & state, text, autor,
+        QKeyEvent a(type, code, 0, Qt::KeyButtonMask & state, text, autor,
                     qMax(1, int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
@@ -3303,7 +3303,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 #endif
     if (!isEnabled())
         return false;
-    QKeyEvent e(type, code, 0, state & Qt::KeyboardModifierMask, text, autor,
+    QKeyEvent e(type, code, 0, state & Qt::KeyButtonMask, text, autor,
                 qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
     if (!isModifierKey(code) && state == Qt::AltButton
