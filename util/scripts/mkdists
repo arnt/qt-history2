@@ -696,6 +696,7 @@ for plat in mac win x11 embedded; do
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
 	if [ "$plat" = "x11" ] || [ "$plat" = "embedded" ] || [ "$plat" = "mac" ]; then
+	    ### Windows build system things
 	    #configure.bat is for windows only
 	    rm -f "$PLATDIR/configure.bat"
 	    rm -f "$PLATDIR/bin/configure.exe"
@@ -703,44 +704,42 @@ for plat in mac win x11 embedded; do
 	    rm -f "$PLATDIR/Makefile" "$PLATDIR/qmake/Makefile" "$PLATDIR/qmake/GNUmakefile"
 	    mv "$PLATDIR/GNUmakefile" "$PLATDIR/Makefile"
 
+	    #Some code is specific to platform though..
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    if [ "$plat" = "embedded" ]; then
-		rm -rf "$PLATDIR/examples/biff"
-		rm -rf "$PLATDIR/examples/desktop"
-		rm -rf "$PLATDIR/examples/overlay_x11"
+		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
 	    elif [ "$plat" = "x11" ]; then
-		rm -rf "$PLATDIR/examples/winmanager"
-		rm -rf "$PLATDIR/examples/compact"
-		rm -rf "$PLATDIR/examples/notepad"
-		rm -rf "$PLATDIR/examples/launcher"
+		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
+		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/extensions/imageio"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
-		rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
-		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    elif [ "$plat" = "mac" ]; then
-		rm -rf "$PLATDIR/examples/biff"
-		rm -rf "$PLATDIR/examples/desktop"
-		rm -rf "$PLATDIR/examples/overlay_x11"
-		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
-		rm -rf "$PLATDIR/examples/winmanager"
-		rm -rf "$PLATDIR/examples/compact"
-		rm -rf "$PLATDIR/examples/notepad"
-		rm -rf "$PLATDIR/examples/launcher"
-		rm -rf "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
+		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
+		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
-		rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
-		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    fi
 	elif [ "$plat" = "win" ]; then
+	    ### Unix build system things
 	    #configure is for unix only
 	    rm -f "$PLATDIR/configure"
 	    #GNUmakefile is for unix only
 	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile* "$PLATDIR/qmake/Makefile.unix"
-	    # delete the xt estension
-	    rm -rf "$PLATDIR/extensions/xt"
 	    # don't need config.tests
 	    rm -rf "$PLATDIR/config.tests"
+
+	    #Unix only code
+	    rm -rf "$PLATDIR/src/3rdparty/gsos"
+	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
+	    rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
+	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
+	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
+	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
+	    rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 
 	    # move the files into include
 	    status "Moving header files.."
