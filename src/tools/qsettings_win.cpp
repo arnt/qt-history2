@@ -523,7 +523,7 @@ bool QSettings::removeEntry( const QString &key )
     LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
     LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite ); 
     if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
-	RegDeleteKeyA( handle, NULL );
+	RegDeleteKeyA( handle, "" );
     else
 	RegCloseKey( handle );
     return TRUE;
