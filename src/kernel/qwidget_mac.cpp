@@ -622,9 +622,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	qDebug("%ld", macos_version);
 #endif
 	wattr |= kWindowLiveResizeAttribute;
+#if 0 //we use share activation instead now..
 	if(popup || testWFlags(WStyle_Tool) ||
 	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wattr |= kWindowNoActivatesAttribute;
+#endif
 #ifdef QMAC_USE_WDEF
 	if( (wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool) ) {
 	    WindowDefSpec wds;
