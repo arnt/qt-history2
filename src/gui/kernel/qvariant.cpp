@@ -964,7 +964,7 @@ QVariant::QVariant(const QColorGroup &val) { d = create(ColorGroup, &val); }
 #endif
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
-QVariant::QVariant(const QIconSet &val) { d = create(Icon, &val); }
+QVariant::QVariant(const QIconSet &val) { d = create(IconSet, &val); }
 #endif //QT_NO_ICONSET
 QVariant::QVariant(const QPointArray &val) { d = create(PointArray, &val); }
 QVariant::QVariant(const QRegion &val) { d = create(Region, &val); }
@@ -1225,7 +1225,7 @@ const QPointArray QVariant::toPointArray() const
 #ifndef QT_NO_ICONSET
 QIconSet QVariant::toIconSet() const
 {
-    if (d->type != Icon)
+    if (d->type != IconSet)
         return QIconSet();
 
     return *static_cast<QIconSet *>(d->value.ptr);
