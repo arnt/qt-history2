@@ -48,6 +48,7 @@
 //#define DEBUG_SETTINGS_KEYS
 
 static QString *qt_mac_settings_base = NULL;
+QString cfstring2qstring(CFStringRef); //qglobal.cpp
 
 /*****************************************************************************
   QSettings utility functions
@@ -69,18 +70,6 @@ static void qt_mac_fix_key(QString &k) {
 #define qt_mac_fix_key(k) 
 #define MACKEY_SEP '/'
 #endif
-
-static QString cfstring2qstring(CFStringRef str)
-{
-    CFIndex length = CFStringGetLength(str); 
-    if(const UniChar *chars = CFStringGetCharactersPtr(str)) 
-	return QString((QChar *)chars, length);
-    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar)); 
-    CFStringGetCharacters(str, CFRangeMake(0, length), buffer); 
-    QString ret((QChar *)buffer, length);
-    free(buffer); 
-    return ret;
-}
 
 static void cleanup_qsettings()
 {
