@@ -831,7 +831,7 @@ while [ "$#" -gt 0 ]; do
 	   QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
         fi
         if [ "$ERROR" = "yes" ]; then
-	   echo "$1: unknown argument"
+	   echo "$CURRENT_OPT: unknown argument"
 	   OPT_HELP=yes;
 	fi
 	;;
