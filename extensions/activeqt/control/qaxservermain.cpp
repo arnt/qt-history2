@@ -329,6 +329,8 @@ static const char* const type_map[][2] =
     { "OLE_COLOR",	"OLE_COLOR" },
     { "DATE",		"DATE" },
     { "VARIANT",	"VARIANT" },
+    { "IDispatch*",	"IDispatch*" },
+    { "IUnknown*",	"IUnknown*" },
     { 0,		0 }
 };
 
@@ -721,6 +723,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    if ( type.right(1) == "&" )
 			type = type.left( type.length()-1 );
 		    paramType = convertTypes( type, &ok );
+		    if ( !ok )
+			paramType = convertTypes( type+"*", &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
 		    if ( uenum )
@@ -826,6 +830,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    if ( type.right(1) == "&" )
 			type = type.left( type.length()-1 );
 		    paramType = convertTypes( type, &ok );
+		    if ( !ok )
+			paramType = convertTypes( type+"*", &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
 		    if ( uenum )

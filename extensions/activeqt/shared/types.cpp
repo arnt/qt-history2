@@ -608,8 +608,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    reference = new QPixmap( qpixmap );
 		static_QUType_varptr.set( obj, reference );
 	    } else {
-		disp->AddRef();
-		static_QUType_varptr.set( obj, disp );
+		static_QUType_ptr.set( obj, disp );
 	    }
 	}
 	break;
@@ -1079,6 +1078,8 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	void *ptrvalue = static_QUType_varptr.get( obj );
 	const char *vartype;
 	QVariant value;
+	VARIANT var;
+	VariantInit( &var );
 
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ||
 	    QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
@@ -1118,13 +1119,18 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    vartype = QVariant::typeToName( vart );
 	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 	    vartype = (const char*)param->typeExtra;
+	    if ( !qstrcmp( vartype, "IDispatch*" ) || !qstrcmp( vartype, "IDispatch" ) ) {
+		var.vt = VT_DISPATCH;
+		var.pdispVal = (IDispatch*)ptrvalue;
+	    } else if ( !qstrcmp( vartype, "IUnknown*" ) || !qstrcmp( vartype, "IUnknown" ) ) {
+		var.vt = VT_UNKNOWN;
+		var.punkVal = (IUnknown*)ptrvalue;
+	    }
 	} else {
 	    vartype = param->type->desc();
 	}
 
-	VARIANT var;
-	VariantInit( &var );
-	if( !QVariantToVARIANT( value, var, vartype ) )
+	if( var.vt == VT_EMPTY && !QVariantToVARIANT( value, var, vartype ) )
 	    return FALSE;
 
 	updateReference( arg, var, byref );
