@@ -889,7 +889,7 @@ static void objSearch( QObjectList *result,
   \fn const QObjectList *QObject::children() const
   Returns a list of child objects, or 0 if this object has no children.
 
-  The QObjectList class is defined in the qobjcoll.h header file.
+  The QObjectList class is defined in the qobjectlist.h header file.
 
   The latest child added is the \link QList::first() first\endlink object
   in the list and the first child added is the \link QList::last()
