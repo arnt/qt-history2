@@ -616,7 +616,7 @@ void QWidget::update(int x, int y, int w, int h)
     }
 }
 
-void QWidget::repaint( const QRegion& reg )
+void QWidget::repaint( const QRegion& rgn )
 {
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
