@@ -53,14 +53,15 @@ suggested by Apple's Aqua Style Guildelines. This support is limited to Mac
 OS X >10.1.4, when this version is not detected it will fallback to the old
 text rendering library.
 
-
 \title Library Support
-
 \section1 Bundle-based Libraries
 
-If you want to incorporate dynamic libraries as part of your MacOSX application bundle (the application directory), then you place these into a directory called Frameworks, a subdirectory of the application bundle.
+If you want to incorporate dynamic libraries as part of your MacOSX
+application bundle (the application directory), then you place these into a
+directory called Frameworks, a subdirectory of the application bundle.
 
-The application finds these dynamic libraries if the libraries have an install name of "@executable_path/../Frameworks/libname.dylib.
+The application finds these dynamic libraries if the libraries have an
+install name of "@executable_path/../Frameworks/libname.dylib.
 
 If you use qmake and Makefiles, use the QMAKE_LFFLAGS_SONAME setting:
 
@@ -68,13 +69,21 @@ If you use qmake and Makefiles, use the QMAKE_LFFLAGS_SONAME setting:
 QMAKE_LFLAGS_SONAME  = -Wl,-install_name,@executable_path/../Frameworks/
 \endcode
 
-In case of Project Builder, you set the Library targets to have their install path (in the Build Settings of the target) set to "@executable_path/.../Frameworks". You also need to add a custom build setting called "SKIP_INSTALL" and set this to YES. In the Application target you need to add a Copy Files build phase that will copy the library product into the applications wrapper's Framework sub-folder.
+In case of Project Builder, you set the Library targets to have their
+install path (in the Build Settings of the target) set to
+"@executable_path/.../Frameworks". You also need to add a custom build
+setting called "SKIP_INSTALL" and set this to YES. In the Application
+target you need to add a Copy Files build phase that will copy the library
+product into the applications wrapper's Framework sub-folder.
 
-Note that DYLD_LIBRARY_PATH environment variables will override these settings, same with any other default paths such as a lookup of dynamic libraries inside /usr/lib and similar default locations.
+Note that DYLD_LIBRARY_PATH environment variables will override these
+settings, same with any other default paths such as a lookup of dynamic
+libraries inside /usr/lib and similar default locations.
 
-We still strongly recommend to build static applications where the library code
-is incorporated into the MacOSX binary. However, in case you ship applications
-that require plugin support,then you need to use dynamic libraries as part of your application.
+We still strongly recommend to build static applications where the library
+code is incorporated into the MacOSX binary. However, in case you ship
+applications that require plugin support,then you need to use dynamic
+libraries as part of your application.
 
 
 \section1 Combining Libraries
@@ -99,14 +108,15 @@ flag, as in:
 #endif
 \endcode
 
-Note that when you build under MacOSX 10.2, then the MACOSX_102 flag is automatically included in the make builds.
+Note that when you build under MacOSX 10.2, then the MACOSX_102 flag is
+automatically included in the make builds.
 
 
-\Building and Configuring Qt/Mac
-
+\title Building and Configuring Qt/Mac
 \section1 Problems building a static configuration
 
-If a static build fails with the following error messages during the designer make phase:
+If a static build fails with the following error messages during the
+designer make phase:
 
 \code
 QWidget::sizeHint() const referenced from libqui expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
@@ -114,14 +124,18 @@ non-virtual thunk [nv:-40] to QWidget::metric(int) const referenced from libqui
  expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
 \endcode
 
-then ensure that your library path does not have libqui libraries or symbolic links. If you remove these, then the build will continue.
+then ensure that your library path does not have libqui libraries or
+symbolic links. If you remove these, then the build will continue.
 
 
 \title Macintosh Native API Access
-
 \section1 Accessing the Bundle Path
 
-The Macintosh application is actually a directory (ending with .app). This directory has various other sub-directories and sources. In case you want to place for example the plugin directory inside this bundle, then you need to find out where the bundle resides on the disk. The following code will do this:
+The Macintosh application is actually a directory (ending with .app). This
+directory has various other sub-directories and sources. In case you want
+to place for example the plugin directory inside this bundle, then you need
+to find out where the bundle resides on the disk. The following code will
+do this:
 
 \code
 	CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
@@ -136,13 +150,33 @@ Do not forget to enclosure this in an #if defined(Q_OS_MACX) macro statement.
 
 
 \title User Interface
-
-
 \section1 Right-Mouse Clicks
-<p>If you want to provide right-mouse click support for MacOSX, use the QContextMenuEvent class. This will map to a context menu event, in other words a menu that will display a popup selection. This is the most common use of right-mouse clicks, and maps to a control-click with the MacOSX one-button mouse support.
+<p>If you want to provide right-mouse click support for MacOSX, use the
+QContextMenuEvent class. This will map to a context menu event, in other
+words a menu that will display a popup selection. This is the most common
+use of right-mouse clicks, and maps to a control-click with the MacOSX
+one-button mouse support.
 
 
+\section1 Menubar
 
+<p>Qt/Mac will automatically detect your menubars for you and turn them
+into Mac native menubars. Fitting this into your existing Qt application
+will normally be automatic, however, if you have special needs the Qt/Mac
+implementation currently selects a menubar by starting at the active window
+(ie QApplication::activeWindow()), and applying:
+
+1) If the window has a QMenuBar then it is used.
+2) If the window is a modal then its menubar is used. If no menubar is
+   specified then a default menubar is used (as documented below)
+3) If the window has no parent then the default menubar is used (as documented below).
+
+The above 3 steps are applied all the way up the parent window chain until
+one of the above are satisifed. If all else fails a default menubar will be
+created, the default menubar on Qt/Mac is an empty menubar, however you can
+create a different default menubar by creating a parentless QMenuBar, the
+first one created will thus be designated the default menubar, and will be
+used whenever a default menubar is needed.
 
 
 */
