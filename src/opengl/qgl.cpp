@@ -609,8 +609,8 @@ int QGLFormat::depthBufferSize() const
 }
 
 /*!
-    Set the preferred alpha buffer size and turn on the alpha format
-    option.
+    Set the preferred alpha buffer to the given \a size, and turns on the
+    alpha format option.
 
     \sa alpha(), setAlpha(), alphaBufferSize()
 */
@@ -641,7 +641,7 @@ void QGLFormat::setAccumBufferSize(int size)
 }
 
 /*!
-    Returns the accumulation buffer size to \a size.
+    Returns the accumulation buffer size.
 
     \sa setAccumBufferSize(), accum(), setAccum()
 */

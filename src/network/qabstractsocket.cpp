@@ -908,12 +908,12 @@ bool QAbstractSocket::isValid() const
 }
 
 /*!
-    Attempts to make a connection to \a hostName on port \a port.
+    Attempts to make a connection to \a hostName on the given \a port.
 
-    QAbstractSocket first enters Qt::HostLookupState, then performs a
-    host name lookup of \a hostName. If the lookup succeeds,
-    hostFound() is emitted and QAbstractSocket enters
-    Qt::ConnectingState. It then attempts to connect to the address
+    The socket is opened in the given \a openMode and first enters
+    Qt::HostLookupState, then performs a host name lookup of \a hostName.
+    If the lookup succeeds, hostFound() is emitted and QAbstractSocket
+    enters Qt::ConnectingState. It then attempts to connect to the address
     or addresses returned by the lookup. Finally, if a connection is
     established, QAbstractSocket enters Qt::ConnectedState and
     emits connected().
@@ -1108,8 +1108,8 @@ int QAbstractSocket::socketDescriptor() const
     Initializes QAbstractSocket with the native socket descriptor \a
     socketDescriptor. Returns true if \a socketDescriptor is accepted
     as a valid socket descriptor; otherwise returns false.
-    QAbstractSocket enters the socket state specified by \a
-    socketState.
+    The socket is opened in the mode specified by \a openMode, and
+    enters the socket state specified by \a socketState.
 
     \sa socketDescriptor()
 */

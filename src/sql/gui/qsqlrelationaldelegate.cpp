@@ -18,8 +18,8 @@
 #include "qsqlrelationaltablemodel.h"
 
 /*! \class QSqlRelationalDelegate
-    \brief The QSqlRelationalDelegate is used to display and edit
-    data from a QSqlRelationalTableModel.
+    \brief The QSqlRelationalDelegate provides a delegate that is used to
+    display and edit data from a QSqlRelationalTableModel.
 
     Unlike the default delegate, QSqlRelationalDelegate provides a
     combobox for fields that are foreign keys into other tables. To

@@ -115,6 +115,17 @@ bool QToolButtonPrivate::hasMenu() const
 */
 
 /*!
+    \fn void QToolButton::triggered(QAction *action)
+
+    This signal is emitted when the given \a action is triggered.
+
+    The action may also be associated with other parts of the user interface,
+    such as menu items and keyboard shortcuts. Sharing actions in this
+    way helps make the user interface more consistent and is often less work
+    to implement.
+*/
+
+/*!
     Constructs an empty tool button with parent \a
     parent.
 */
@@ -342,6 +353,19 @@ QSize QToolButton::minimumSizeHint() const
     \value ToolButtonTextOnly Only display the text.
     \value ToolButtonTextBesideIcon The text appears beside the icon.
     \value ToolButtonTextUnderIcon The text appears under the icon.
+*/
+
+/*!
+    \enum QToolButton::TextPosition
+    \compat
+
+    This enum describes the position of the tool button's text label in
+    relation to the tool button's icon.
+
+    \value BesideIcon The text appears beside the icon.
+    \value BelowIcon The text appears below the icon.
+    \omitvalue Right
+    \omitvalue Under
 */
 
 /*!
@@ -768,8 +792,6 @@ void QToolButton::setPopupDelay(int delay)
 }
 
 /*!
-    \fn int QToolButton::popupDelay()
-
     Use the style hint QStyle::SH_ToolButton_PopupDelay instead.
 */
 int QToolButton::popupDelay() const
@@ -798,7 +820,11 @@ int QToolButton::popupDelay() const
 
     \value InstantPopup The menu is displayed, without delay, when
     the tool button is pressed. In this mode, the button's own action
+*/
 
+/*!
+    \property QToolButton::popupMode
+    \brief describes the way that popup menus are used with tool buttons
 */
 
 void QToolButton::setPopupMode(ToolButtonPopupMode mode)
@@ -868,7 +894,8 @@ QAction *QToolButton::defaultAction() const
 
 
 
-/*\reimp
+/*!
+  \reimp
  */
 void QToolButton::nextCheckState()
 {

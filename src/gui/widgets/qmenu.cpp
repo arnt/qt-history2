@@ -2072,7 +2072,7 @@ void QMenu::internalDelayedPopup()
     is the action that caused the signal to be emitted.
 
     Normally, you connect each menu action's triggered() signal to its
-    own custom  slot, but sometimes you will want to connect several
+    own custom slot, but sometimes you will want to connect several
     actions to a single slot, for example, when you have a group of
     closely related actions, such as "left justify", "center", "right
     justify".
