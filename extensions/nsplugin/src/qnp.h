@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#11 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#12 $
 **
 ** Definition of Qt extension classes for Netscape Plugin support.
 **
@@ -12,7 +12,9 @@
 #ifndef QNP_H
 #define QNP_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 
 struct _NPInstance;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#6 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#7 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -19,7 +19,10 @@
 const char *qGLVersion();
 
 
+#ifndef QT_H
 #include <qwidget.h>
+#endif // QT_H
+
 #if !(defined(Q_WGL) || defined(Q_GLX))
 #if defined(_OS_WIN32_)
 #define Q_WGL
