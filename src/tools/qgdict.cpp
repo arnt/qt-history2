@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#20 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#20 $")
 
 
 declare(QListM,QGDictIterator);			// list of iterators (Qditlst)
@@ -195,7 +195,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
     node->setData( newItem(d) );
 #if defined(CHECK_NULL)
     if ( node->getData() == 0 )
-	warning( "QGList::look: Attempt to insert null item" );
+	warning( "QGDict::look: Attempt to insert null item" );
 #endif
     node->setNext( vec[index] );		// link node into table
     vec[index] = node;
