@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#103 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#103 $");
 
 
 /*!
@@ -259,11 +259,11 @@ void QPushButton::setGeometry( const QRect &r )
 void QPushButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
-    GUIStyle gs = style();
-    QColorGroup g  = colorGroup();
-    bool updated = ( isDown() != (bool)lastDown ||
-		     lastDef != defButton ||
-		     isEnabled() != (bool)lastEnabled);
+    GUIStyle gs   = style();
+    QColorGroup g = colorGroup();
+    bool updated  = ( isDown() != (bool)lastDown ||
+		      lastDef != defButton ||
+		      isEnabled() != (bool)lastEnabled);
 
     int x1, y1, x2, y2;
 
@@ -370,7 +370,7 @@ void QPushButton::drawButton( QPainter *paint )
     if ( hasFocus() ) {
 	if ( style() == WindowsStyle ) {
 	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5, 
-				 backgroundColor() );
+				 g.background() );
 	} else {
 	    p->setPen( black );
 	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
