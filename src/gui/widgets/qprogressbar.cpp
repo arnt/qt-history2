@@ -341,7 +341,11 @@ QString QProgressBar::text() const
         progress /= 1000;
         totalSteps /= 1000;
     }
-    return QString::number(progress * 100 / totalSteps) + "%";
+    QString number =  QString::number(progress * 100 / totalSteps);
+    if(isRightToLeft())
+        return "%" + number;
+    else
+        return number + "%";
 }
 
 
