@@ -1133,7 +1133,7 @@ QSize QPopupMenu::updateSize(bool do_resize)
     }
     if(do_resize) {
 	setMaximumSize( calcSize );
-	resize( maximumSize() );
+	resize( calcSize );
 
 	bool hasWidgetItems = FALSE;
 	for(QMenuItemListIt it(*mitems); it.current(); ++it) {
