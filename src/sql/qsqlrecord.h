@@ -24,18 +24,7 @@
 
 #ifndef QT_NO_SQL
 
-template <typename T> class QList;
 class QSqlRecordPrivate;
-
-class QSqlRecordShared : public QShared
-{
-public:
-    QSqlRecordShared( QSqlRecordPrivate* sqlRecordPrivate )
-    : d( sqlRecordPrivate )
-    {}
-    virtual ~QSqlRecordShared();
-    QSqlRecordPrivate* d;
-};
 
 class Q_EXPORT QSqlRecord
 {
@@ -64,9 +53,14 @@ public:
     const QSqlField*     field( int i ) const;
     const QSqlField*     field( const QString& name ) const;
 
-    virtual void         append( const QSqlField& field );
-    virtual void         insert( int pos, const QSqlField& field );
-    virtual void         remove( int pos );
+    virtual void append(const QSqlField& field);
+    virtual void replace(int pos, const QSqlField& field);
+    virtual void remove(int pos);
+    
+#ifndef QT_NO_COMPAT
+    virtual void insert(int pos, const QSqlField& field) { replace(pos, field); }
+#endif    
+
 
     bool                 isEmpty() const;
     bool                 contains( const QString& name ) const;
@@ -76,12 +70,10 @@ public:
     virtual QString      toString( const QString& prefix = QString(),
 				   const QString& sep = "," ) const;
     virtual QStringList  toStringList( const QString& prefix = QString() ) const;
-
+    
 private:
-    QString              createField( int i, const QString& prefix ) const;
-    void                 deref();
-    bool                 checkDetach();
-    QSqlRecordShared*    sh;
+    void detach();
+    QSqlRecordPrivate* d;
 };
 
 /******************************************/

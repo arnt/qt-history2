@@ -20,6 +20,7 @@
 #include "qvaluevector.h"
 #include "qshared.h"
 #include "qnamespace.h"
+#include "qatomic.h"
 
 class QSqlRecordPrivate
 {
@@ -42,13 +43,17 @@ public:
 	{
 	    return !field.name().isEmpty();
 	}
-	Q_DUMMY_COMPARISON_OPERATOR(info)
+	bool operator==(const info &other) const {
+	    return other.nogen == nogen && other.field == field;
+	}
+	
 	QSqlField field;
 	bool    nogen;
     };
 
     QSqlRecordPrivate(): cnt(0)
     {
+	ref = 1;
     }
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
     {
@@ -70,6 +75,8 @@ public:
     }
     void insert( int pos, const QSqlField& field )
     {
+	if (pos < 0)
+	    return;
 	info i;
 	i.field = field;
 	if ( pos == (int)fi.size() )
@@ -82,6 +89,8 @@ public:
     }
     void remove( int i )
     {
+	if (i < 0)
+	    return;
 	info inf;
 	if ( i >= (int)fi.count() )
 	    return;
@@ -103,7 +112,7 @@ public:
     }
     info* fieldInfo( int i )
     {
-	if ( i < (int)fi.count() )
+	if ( i >= 0 && i < (int)fi.count() )
 	    return &fi[i];
 	return 0;
     }
@@ -115,16 +124,25 @@ public:
     {
 	return i >= 0 && i < (int)fi.count() && fi[ i ].isValid();
     }
+    
+    QString createField( int i, const QString& prefix ) const
+    {
+	if ( i < 0 || i >= (int)fi.count() )
+	    return QString();
+	QString f;
+	if ( !prefix.isEmpty() )
+	    f = prefix + ".";
+	f += fi.at(i).field.name();
+	return f;	
+    }
+    
+public:
+    QAtomic ref;
+    
 private:
-    QVector< info > fi;
-    int		 cnt;
+    QVector<info> fi;
+    int cnt;
 };
-
-QSqlRecordShared::~QSqlRecordShared()
-{
-    if ( d )
-	delete d;
-}
 
 /*!
     \class QSqlRecord qsqlfield.h
@@ -155,7 +173,7 @@ QSqlRecordShared::~QSqlRecordShared()
 
 QSqlRecord::QSqlRecord()
 {
-    sh = new QSqlRecordShared( new QSqlRecordPrivate() );
+    d = new QSqlRecordPrivate();
 }
 
 /*!
@@ -163,9 +181,9 @@ QSqlRecord::QSqlRecord()
 */
 
 QSqlRecord::QSqlRecord( const QSqlRecord& other )
-    : sh( other.sh )
 {
-    sh->ref();
+    d = other.d;
+    ++d->ref;
 }
 
 /*!
@@ -174,35 +192,14 @@ QSqlRecord::QSqlRecord( const QSqlRecord& other )
 
 QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
 {
-    other.sh->ref();
-    deref();
-    sh = other.sh;
+    QSqlRecordPrivate *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
     return *this;
 }
 
-/*! \internal
-*/
-
-void QSqlRecord::deref()
-{
-    if ( sh->deref() ) {
-	delete sh;
-	sh = 0;
-    }
-}
-
-/*! \internal
-*/
-
-bool QSqlRecord::checkDetach()
-{
-    if ( sh->count > 1 ) {
-	sh->deref();
-	sh = new QSqlRecordShared( new QSqlRecordPrivate( *sh->d ) );
-	return TRUE;
-    }
-    return FALSE;
-}
 
 /*!
     Destroys the object and frees any allocated resources.
@@ -210,7 +207,8 @@ bool QSqlRecord::checkDetach()
 
 QSqlRecord::~QSqlRecord()
 {
-    deref();
+    if (!--d->ref)
+	delete d;
 }
 
 /*!
@@ -286,12 +284,12 @@ int QSqlRecord::position( const QString& name ) const
 
 QSqlField* QSqlRecord::field( int i )
 {
-    checkDetach();
-    if ( !sh->d->contains( i ) ) {
+    if ( !d->contains( i ) ) {
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
 	return 0;
     }
-    return &sh->d->fieldInfo( i )->field;
+    detach();
+    return &d->fieldInfo( i )->field;
 }
 
 /*!
@@ -303,10 +301,7 @@ QSqlField* QSqlRecord::field( int i )
 
 QSqlField* QSqlRecord::field( const QString& name )
 {
-    checkDetach();
-    if ( !sh->d->contains( position( name ) ) )
-	return 0;
-    return &sh->d->fieldInfo( position( name ) )->field;
+    return field(position(name));
 }
 
 
@@ -316,11 +311,11 @@ QSqlField* QSqlRecord::field( const QString& name )
 
 const QSqlField* QSqlRecord::field( int i ) const
 {
-    if ( !sh->d->contains( i ) ) {
+    if (!d->contains(i)) {
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
 	return 0;
     }
-    return &sh->d->fieldInfo( i )->field;
+    return &d->fieldInfo( i )->field;
 }
 
 /*!
@@ -332,9 +327,9 @@ const QSqlField* QSqlRecord::field( int i ) const
 
 const QSqlField* QSqlRecord::field( const QString& name ) const
 {
-    if( !sh->d->contains( position( name ) ) )
+    if (!d->contains(position(name)))
 	return 0;
-    return &sh->d->fieldInfo( position( name ) )->field;
+    return &d->fieldInfo( position( name ) )->field;
 }
 
 /*!
@@ -343,18 +338,25 @@ const QSqlField* QSqlRecord::field( const QString& name ) const
 
 void QSqlRecord::append( const QSqlField& field )
 {
-    checkDetach();
-    sh->d->append( field );
+    detach();
+    d->append( field );
 }
+
+/*!
+    \fn QSqlRecord::insert(int pos, const QSqlField& field)
+
+    \obsolete use replace() instead
+*/
 
 /*!
     Insert a copy of \a field at position \a pos. If a field already
     exists at \a pos, it is removed.
 */
 
-void QSqlRecord::insert( int pos, const QSqlField& field ) // ### 4.0: rename to ::replace
+void QSqlRecord::replace(int pos, const QSqlField& field)
 {
-    sh->d->insert( pos, field );
+    detach();
+    d->insert(pos, field);
 }
 
 /*!
@@ -364,8 +366,8 @@ void QSqlRecord::insert( int pos, const QSqlField& field ) // ### 4.0: rename to
 
 void QSqlRecord::remove( int pos )
 {
-    checkDetach();
-    sh->d->remove( pos );
+    detach();
+    d->remove( pos );
 }
 
 /*!
@@ -376,8 +378,8 @@ void QSqlRecord::remove( int pos )
 
 void QSqlRecord::clear()
 {
-    checkDetach();
-    sh->d->clear();
+    detach();
+    d->clear();
 }
 
 /*!
@@ -387,7 +389,7 @@ void QSqlRecord::clear()
 
 bool QSqlRecord::isEmpty() const
 {
-    return sh->d->isEmpty();
+    return d->isEmpty();
 }
 
 
@@ -412,12 +414,11 @@ bool QSqlRecord::contains( const QString& name ) const
 
 void QSqlRecord::clearValues()
 {
-    checkDetach();
-    int cnt = (int)count();
+    detach();
+    int cnt = count();
     int i;
-    for ( i = 0; i < cnt; ++i ) {
+    for ( i = 0; i < cnt; ++i )
 	field( i )->clear();
-    }
 }
 
 /*!
@@ -444,10 +445,10 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
 
 void QSqlRecord::setGenerated( int i, bool generated )
 {
-    checkDetach();
-    if ( !field( i ) )
+    if (!d->contains(i))
 	return;
-    sh->d->fieldInfo( i )->nogen = !generated;
+    detach();
+    d->fieldInfo(i)->nogen = !generated;
 }
 
 /*!
@@ -483,10 +484,10 @@ bool QSqlRecord::isNull( const QString& name ) const
 */
 void QSqlRecord::setNull( int i )
 {
-    checkDetach();
-    QSqlField* f = field( i );
-    if ( f )
-	f->setNull();
+    if (!d->contains(i))
+	return;
+    detach();
+    d->fieldInfo(i)->field.setNull();
 }
 
 /*!
@@ -522,9 +523,12 @@ bool QSqlRecord::isGenerated( const QString& name ) const
 */
 bool QSqlRecord::isGenerated( int i ) const
 {
-    if ( !field( i ) )
-	return FALSE;
-    return !sh->d->fieldInfo( i )->nogen;
+    QSqlRecordPrivate::info* inf = d->fieldInfo(i);
+    if (!inf) {
+	qWarning("QSqlRecord::isGenerated: index %d out of range", i);
+	return false;
+    }
+    return !inf->nogen;
 }
 
 
@@ -548,7 +552,7 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 	if ( isGenerated( field(i)->name() ) ) {
 	    if( comma )
 		pflist += sep + " ";
-	    pflist += createField( i, prefix );
+	    pflist += d->createField( i, prefix );
 	    comma = TRUE;
 	}
     }
@@ -571,21 +575,9 @@ QStringList QSqlRecord::toStringList( const QString& prefix ) const
     QStringList s;
     for ( int i = 0; i < count(); ++i ) {
 	if ( isGenerated( field(i)->name() ) )
-	    s += createField( i, prefix );
+	    s += d->createField( i, prefix );
     }
     return s;
-}
-
-/*! \internal
-*/
-
-QString QSqlRecord::createField( int i, const QString& prefix ) const
-{
-    QString f;
-    if ( !prefix.isEmpty() )
-	f = prefix + ".";
-    f += field( i )->name();
-    return f;
 }
 
 /*!
@@ -594,7 +586,7 @@ QString QSqlRecord::createField( int i, const QString& prefix ) const
 
 int QSqlRecord::count() const
 {
-    return sh->d->count();
+    return d->count();
 }
 
 /*!
@@ -604,11 +596,10 @@ int QSqlRecord::count() const
 
 void QSqlRecord::setValue( int i, const QVariant& val )
 {
-    checkDetach();
-    QSqlField* f = field( i );
-    if ( f ) {
-	f->setValue( val );
-    }
+    if (!d->contains(i))
+	return;
+    detach();
+    d->fieldInfo(i)->field.setValue(val);    
 }
 
 
@@ -624,6 +615,19 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
     setValue( position( name ), val );
 }
 
+
+/*! \internal
+*/
+void QSqlRecord::detach()
+{
+    if (d->ref == 1)
+	return;
+
+    QSqlRecordPrivate *x = new QSqlRecordPrivate(*d);
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
+}
 
 /******************************************/
 /*******     QSqlRecordInfo Impl     ******/
