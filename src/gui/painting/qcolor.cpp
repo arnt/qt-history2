@@ -387,7 +387,7 @@ bool QColor::isDirty() const
 }
 
 /*!
-    Returns the name of the color in the format "#RRGGBB", i.e. a "#"
+    Returns the name of the color in the format "#AARRGGBB", i.e. a "#"
     character followed by three two-digit hexadecimal numbers.
 
     \sa setNamedColor()
@@ -397,11 +397,11 @@ QString QColor::name() const
 {
 #ifndef QT_NO_SPRINTF
     QString s;
-    s.sprintf("#%02x%02x%02x", red(), green(), blue());
+    s.sprintf("#%02x%02x%02x%02x", alpha(), red(), green(), blue());
     return s;
 #else
     char s[20];
-    sprintf(s, "#%02x%02x%02x", red(), green(), blue());
+    sprintf(s, "#%02x%02x%02x%02x", alpha(), red(), green(), blue());
     return QString(s);
 #endif
 }
