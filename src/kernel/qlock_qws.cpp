@@ -60,7 +60,8 @@ QLock::QLock( const QString &filename, char id, bool create )
 	semctl(data->id,0,SETVAL,arg);
     }
     if ( data->id == -1 ) {
-	qWarning( "Cannot get semaphore %s \'%c\'", filename.latin1(), id );
+	qWarning( "Cannot %s semaphore %s \'%c\'",
+	    create ? "create" : "get", filename.latin1(), id );
 	qDebug("Error %d %s\n",errno,strerror(errno));
     }
 }
