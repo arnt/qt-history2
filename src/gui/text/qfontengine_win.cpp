@@ -502,16 +502,28 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
     SelectObject(hdc, hfont);
     Q_ASSERT(hdc);
     GLYPHMETRICS gMetric;
-    uint glyphFormat = GGO_BEZIER | GGO_GLYPH_INDEX | GGO_UNHINTED;
+    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
 
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
-        int bufferSize = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+        int bufferSize;
+        QT_WA( {
+            bufferSize = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+        }, {
+            bufferSize = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
+        });
         if ((DWORD)bufferSize != GDI_ERROR) {
 
             void *dataBuffer = new char[bufferSize];
-            DWORD ret = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
-                                        dataBuffer, &mat);
+            DWORD ret;
+            QT_WA( {
+                ret = GetGlyphOutlineW(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
+                                 dataBuffer, &mat);
+            }, {
+                ret = GetGlyphOutlineA(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
+                                 dataBuffer, &mat);
+            } );
+
             if (ret == GDI_ERROR) {
                 qErrnoWarning("QFontEngineWin::addOutlineToPath: GetGlyphOutline(2) failed");
                 return;
@@ -539,6 +551,28 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
                         }
                         break;
                     }
+                    case TT_PRIM_QSPLINE: {
+                        const QPainterPath::Element &elm = path->elementAt(path->elementCount()-1);
+                        QPointF prev(elm.x, elm.y);
+                        QPointF endPoint;
+                        for (int i=0; i<curve->cpfx - 1; ++i) {
+                            QPointF p1 = qt_to_qpointf(curve->apfx[i]) + oset;
+                            QPointF p2 = qt_to_qpointf(curve->apfx[i+1]) + oset;
+                            if (i < curve->cpfx - 2) {
+                                endPoint = QPointF((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
+                            } else {
+                                endPoint = p2;
+                            }
+
+                            QPointF c1((prev.x() + 2*p1.x()) / 3, (prev.y() + 2*p1.y()) / 3);
+                            QPointF c2((endPoint.x() + 2*p1.x()) / 3, (endPoint.y() + 2*p1.y()) / 3);
+                            path->curveTo(c1, c2, endPoint);
+
+                            prev = endPoint;
+                        }
+
+                        break;
+                    }
                     case TT_PRIM_CSPLINE: {
                         for (int i=0; i<curve->cpfx; ) {
                             QPointF p2 = qt_to_qpointf(curve->apfx[i++]) + oset;
@@ -548,6 +582,8 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
                         }
                         break;
                     }
+                    default:
+                        qWarning("QFontEngineWin::addOutlineToPath, unhandled switch case");
                     }
                     offset += sizeof(TTPOLYCURVE) + (curve->cpfx-1) * sizeof(POINTFX);
                 }
