@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#15 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#15 $");
 
 
 /*!
@@ -829,6 +829,36 @@ void QGridLayout::setColStretch( int col, int stretch )
     basicManager()->setStretch( c, stretch );
 }
 
+
+/*!
+  Sets the minimum width of \a row to \a minsize pixels.
+ */
+void QGridLayout::addRowSpacing( int row, int minsize )
+{
+    if ( !basicManager() ) {
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+#endif
+	return;
+    }
+    QChain *c =	 (*rows)[ row ];
+    basicManager()->addSpacing( c, minsize );
+}
+
+/*!
+  Sets the minimum height of \a col to \a minsize pixels.
+ */
+void QGridLayout::addColSpacing( int col, int minsize )
+{
+    if ( !basicManager() ) {
+#if defined(CHECK_STATE)
+	warning( "QGridLayout::setColStretch: Grid must be inserted before use");
+#endif
+	return;
+    }
+    QChain *c =	 (*cols)[ col ];
+    basicManager()->addSpacing( c, minsize );
+}
 
 /*!
   \fn QChain *QGridLayout::mainVerticalChain()
