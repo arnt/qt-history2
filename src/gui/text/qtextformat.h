@@ -427,7 +427,7 @@ public:
     { return intProperty(ImageHeight); }
 
     inline void setFloatPosition(FloatPosition f)
-    { return setProperty(Float, (int)f); }
+    { setProperty(Float, (int)f); }
     inline FloatPosition floatPosition() const
     { return (FloatPosition)intProperty(Float, FloatNone); }
 };
