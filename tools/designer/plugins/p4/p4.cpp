@@ -11,7 +11,7 @@ P4Edit::P4Edit( const QString &filename, DesignerMainWindowInterface *iface, boo
 {
     state = Done;
     DesignerStatusBarInterface *sbIface = 0;
-    if ( ( sbIface = (DesignerStatusBarInterface*)mwIface->requestInterface( "DesignerStatusBarInterface" ) ) ) {
+    if ( ( sbIface = (DesignerStatusBarInterface*)mwIface->queryInterface( "DesignerStatusBarInterface" ) ) ) {
 	sbIface->requestConnect( this, SIGNAL( showStatusBarMessage( const QString &, int ) ),
 				 SLOT( message( const QString &, int ) ) );
     }
