@@ -51,10 +51,10 @@
 //
 //
 
-void qt_format_text( const QFont& f, const QRect &r,
-		     int tf, const QString& str, int len, QRect *brect,
-		     int tabstops, int* tabarray, int tabarraylen,
-		     QTextParag **internal, QPainter* painter );
+extern void qt_format_text( const QFont& f, const QRect &r,
+			    int tf, const QString& str, int len, QRect *brect,
+			    int tabstops, int* tabarray, int tabarraylen,
+			    QTextParag **internal, QPainter* painter );
 
 
 #endif
