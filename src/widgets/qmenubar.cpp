@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#104 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#104 $");
 
 
 /*!
@@ -195,7 +195,7 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
- //   repaint(); !!!hanord: avoid this until we get a better solution
+ //   repaint(); ########hanord: avoid this until we get a better solution
 }
 
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
