@@ -424,11 +424,6 @@ static char * parsePrintersConf( QListView * printers )
     return defaultPrinter;
 }
 
-// NIS only tested on Solaris
-#if !defined(Q_OS_SOLARIS) && !defined(QT_NO_NIS)
-#define QT_NO_NIS
-#endif
-
 #ifndef QT_NO_NIS
 
 #ifndef BOOL_DEFINED
@@ -445,8 +440,7 @@ extern "C" {
 static int foreach( int /* status */, char * /* key */, int /* keyLen */,
 		    char * val, int valLen, char * data )
 {
-    QCString safeVal( val, valLen + 1 );
-    parsePrinterDesc( QString::fromLatin1(safeVal), (QListView *) data );
+    parsePrinterDesc( QString::fromLatin1(val, valLen), (QListView *) data );
     return 0;
 }
 
@@ -462,7 +456,11 @@ static int retrieveNisPrinters( QListView * printers )
 
     err = yp_get_default_domain( &domain );
     if ( err == 0 ) {
-	ypall_callback cb = { (int (*)(...)) foreach, (char *) printers };
+	ypall_callback cb;
+	// wild cast to support K&R-style system headers
+	(int (*&)(int, char *, int, char *, int, char *)) cb.foreach =
+		foreach;
+	cb.data = (char *) printers;
 	err = yp_all( domain, printersConfByname, &cb );
     }
 
