@@ -592,11 +592,10 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
-    initialize( argc, argv );
-
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);
 #endif
+    initialize( argc, argv );
 }
 
 
@@ -3133,9 +3132,9 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   Returns an interface implementation that matches the \a request.
 
-  The plugin-loader will try to connect all QClientInterfaces that 
+  The plugin-loader will try to connect all QClientInterfaces that
   correspond to interfaces the application returns for matching requests.
-  Reimplement this function to provide interfaces plugins can use to 
+  Reimplement this function to provide interfaces plugins can use to
   access the application's components.
 
   The default implementation returns null for all requests.
@@ -3175,7 +3174,7 @@ QStrList QApplication::queryInterfaceList() const
   \fn QApplicationInterface::void requestProperty( const QCString& property, QVariant& value )
 
   A handler to handle request the plugin calls for the the value of \a property.
-  This function will be called each time a connected QClientInterface emits the 
+  This function will be called each time a connected QClientInterface emits the
   \link QDualInterface::readProperty readProperty signal. You have to reimplement this function
   for each compoent of your application you want to enable plugins to access, and handle the incoming
   request by providing the requested property in the passed QVariant object \a value.
@@ -3199,7 +3198,7 @@ QStrList QApplication::queryInterfaceList() const
   void QClientInterface::requestProperty( const QCString& property, QVariant& value )
 
   Call this function to send a readProperty request for \a property to the
-  QApplicationInterface corresponding with this QClientInterface. The application will 
+  QApplicationInterface corresponding with this QClientInterface. The application will
   write the result in \a value.
 */
 
@@ -3207,6 +3206,6 @@ QStrList QApplication::queryInterfaceList() const
   void QClientInterface::requestSetProperty( const QCString& property, QVariant& value )
 
   Call this function in your plugin to send a writeProperty request for \a property to the
-  QApplicationInterface corresponding with this QClientInterace. 
+  QApplicationInterface corresponding with this QClientInterace.
   The application will set the \a property of the object it represents to \a value.
 */
