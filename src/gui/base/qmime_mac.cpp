@@ -652,7 +652,7 @@ QByteArray QMacMimeFileUri::convertToMime(QList<QByteArray> data, const char* mi
     int done = 0;
     QByteArray ret;
     for(QList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
-	QByteArray tmp_str(QString::fromUtf8((*it).data(), (*it).size()));
+	QByteArray tmp_str(*it);
 	if(tmp_str.left(17) == "file://localhost/") //mac encodes a differently
 	    tmp_str = "file:///" + tmp_str.mid(17);
 	int l = tmp_str.length();
