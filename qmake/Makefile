@@ -40,7 +40,7 @@ ADDCLEAN    =	qmake.tds
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
 	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj \
-	makefiledeps.obj metamakefile.obj
+	makefiledeps.obj metamakefile.obj xmloutput.obj
 
 #qt code
 QTOBJS= \
@@ -271,3 +271,6 @@ makefiledeps.obj: generators/makefiledeps.cpp
 
 metamakefile.obj: generators/metamakefile.cpp
 	$(CXX) $(CXXFLAGS) generators/metamakefile.cpp
+
+xmloutput.obj: generators/xmloutput.cpp
+	$(CXX) $(CXXFLAGS) generators/xmloutput.cpp
