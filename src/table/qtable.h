@@ -458,6 +458,7 @@ private:
     bool shouldClearSelection : 1;
     bool dEnabled : 1;
     bool context_menu : 1;
+    bool drawActiveSelection : 1;
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;

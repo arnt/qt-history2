@@ -1646,6 +1646,7 @@ void QTable::init( int rows, int cols )
     edMode = NotEditing;
     editRow = editCol = -1;
 
+    drawActiveSelection = TRUE;
     context_menu = FALSE;
 
     installEventFilter( this );
@@ -2079,6 +2080,16 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
     widgets.setAutoDelete( TRUE );
 }
 
+static bool is_child_of( QWidget *child, QWidget *parent )
+{
+    while ( child ) {
+	if ( child == parent )
+	    return TRUE;
+	child = child->parentWidget();
+    }
+    return FALSE;
+}
+
 /*! Draws the table contents on the painter \a p. This function is
   optimized so that it only draws the cells inside the \a cw pixels wide
   and \a ch pixels high clipping rectangle at position \a cx, \a cy.
@@ -2097,6 +2108,13 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	paintEmptyArea( p, cx, cy, cw, ch );
 	return;
     }
+
+#if defined(Q_WS_WIN)
+    drawActiveSelection = hasFocus() || viewport()->hasFocus() ||
+			  is_child_of( qApp->focusWidget(), viewport() ) ||
+	       style() != WindowsStyle ||
+			  ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+#endif
 
     if ( rowlast == -1 )
 	rowlast = numRows() - 1;
@@ -2164,6 +2182,8 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
+
+    drawActiveSelection = TRUE;
 }
 
 /*! Paints the cell at \a row, \a col on the painter \a
@@ -2211,8 +2231,8 @@ void QTable::paintCell( QPainter* p, int row, int col,
 
     QColorGroup cg;
 #if defined(Q_WS_WIN)
-    bool drawActiveSelection = hasFocus() || style() != WindowsStyle || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+    if ( !drawActiveSelection &&
+	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
 	cg = palette().inactive();
     else
 #endif
