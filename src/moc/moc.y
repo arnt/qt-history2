@@ -130,7 +130,9 @@ QCString referencePlainUType( QCString ctype )
      if ( ctype.left(6) == "const " )
 	ctype = ctype.mid( 6, ctype.length() - 6 );
      if ( ctype.right(1) == "&" )
-	 ctype = ctype.left( ctype.length() - 1 );
+	ctype = ctype.left( ctype.length() - 1 );
+     if ( ctype.right(2) == "[]" )
+	ctype = ctype.left( ctype.length() - 2 ) + "*";
      return ctype;
 }
 
@@ -3271,7 +3273,7 @@ void generateClass()		      // generate C++ source code for a class
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
 		} else {
-		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType( type) .data(), offset+1 );
+		    fprintf( out, "*((%s*)static_QUType_ptr.get(_o+%d))", referencePlainUType(type).data(), offset+1 );
 		}
 		a = f->args->next();
 		if ( a )
