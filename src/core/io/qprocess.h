@@ -66,7 +66,7 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
 
-    void kill();
+    void terminate();
 
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();

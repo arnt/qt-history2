@@ -505,7 +505,7 @@ void QProcess::start(const QString &program, const QStringList &arguments)
     d->startProcess();
 }
 
-void QProcess::kill()
+void QProcess::terminate()
 {
     Q_D(QProcess);
     d->killProcess();
