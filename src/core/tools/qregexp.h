@@ -47,7 +47,7 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT bool caseSensitive() const { return caseSensitivity() == QString::CaseSensitive; }
     inline QT_COMPAT void setCaseSensitive(bool sensitive)
-    { setCaseSensitive(sensitive ? QString::CaseSensitive : QString::CaseInsensitive); }
+    { setCaseSensitivity(sensitive ? QString::CaseSensitive : QString::CaseInsensitive); }
 #endif
 #ifndef QT_NO_REGEXP_WILDCARD
     PatternSyntax patternSyntax() const;
