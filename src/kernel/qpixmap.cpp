@@ -433,6 +433,9 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
+#if defined Q_Q4PAINTER
+	deviceGC = pixmap.deviceGC;
+#endif
     }
     return *this;
 }
@@ -468,9 +471,9 @@ QPixmap &QPixmap::operator=( const QImage &image )
     \sa xForm(), QWMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-QWMatrix QPixmap::trueMatrix( const QWMatrix &m, int w, int h ) 
+QWMatrix QPixmap::trueMatrix( const QWMatrix &m, int w, int h )
 {
-    return QImage::trueMatrix(m, w, h); 
+    return QImage::trueMatrix(m, w, h);
 }
 #endif
 
