@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#408 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#409 $
 **
 ** Implementation of QWidget class
 **
@@ -3641,20 +3641,23 @@ void QWidget::leaveEvent( QEvent * )
 
 /*!
   This event handler can be reimplemented in a subclass to receive
-  widget paint events. Actually, it more or less \e must be
-  reimplemented.
+  widget paint events.
 
   The default implementation does nothing.
 
   When the paint event occurs, the update region QPaintEvent::region()
   normally has been cleared to the background color or pixmap. An
-  exception is repaint() with erase=FALSE.
+  exception is when repaint(FALSE) is called.
 
   For many widgets it is sufficient to redraw the entire widget each time,
-  but some need to consider the update rectangle to avoid flicker or slow
-  update.
+  but some need to consider the update
+  \link QPaintEvent::rect() rectangle\endlink
+  or
+  \link QPaintEvent::region() region\endlink
+  of the QPaintEvent to avoid slow update.
 
-  Pixmaps can also be used to implement flicker-free update.
+  During paintEvent(), any QPainter you create on the widget will be
+  clipped to at most the area covered by the update region.
 
   update() and repaint() can be used to force a paint event.
 
