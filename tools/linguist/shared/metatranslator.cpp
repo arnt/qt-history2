@@ -18,6 +18,7 @@
 #include <qcstring.h>
 #include <qfile.h>
 #include <qmessagebox.h>
+#include <qregexp.h>
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
@@ -103,6 +104,8 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 			    const QString& /* localName */,
 			    const QString& qName )
 {
+    accum.replace( QRegExp(QString("\r\n")), "\n" );
+
     if ( qName == QString("codec") ) {
 	tor->setCodec( accum );
     } else if ( qName == QString("name") ) {

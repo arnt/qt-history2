@@ -15,6 +15,7 @@
 **********************************************************************/
 
 #include <qfile.h>
+#include <qregexp.h>
 #include <qstring.h>
 #include <qtextstream.h>
 
@@ -596,6 +597,8 @@ bool UiHandler::endElement( const QString& /* namespaceURI */,
 			    const QString& /* localName */,
 			    const QString& qName )
 {
+    accum.replace( QRegExp(QString("\r\n")), "\n" );
+
     if ( qName == QString("class") ) {
 	if ( context.isEmpty() )
 	    context = accum;
