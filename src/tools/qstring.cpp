@@ -4292,8 +4292,8 @@ QString &QString::setNum( long n, int base )
 	if ( n == INT_MIN ) {
 	    // Cannot always negate this special case
 	    QString s1, s2;
-	    s1.setNum(n/base);
-	    s2.setNum((-(n+base))%base);
+	    s1.setNum(n/base, base );
+	    s2.setNum((-(n+base))%base, base );
 	    *this = s1 + s2;
 	    return *this;
 	}
