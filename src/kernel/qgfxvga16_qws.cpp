@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qgfxvga16_qws.cpp#16 $
 **
 ** Implementation of QGfxVga16 (graphics context) class for VGA cards
 **
@@ -60,16 +60,16 @@
 #define PROFILE_BLOCK(x)
 
 
-unsigned char *screen_double_buffer;
-unsigned char *vga_register_values;
-unsigned char *fb_line_ptrs[480]; //### probably want these in shared memory
-unsigned char *db_line_ptrs[480];
+static unsigned char *screen_double_buffer;
+static unsigned char *vga_register_values;
+static unsigned char *fb_line_ptrs[480]; //### probably want these in shared memory
+static unsigned char *db_line_ptrs[480];
 // ### Might want to put in shared memory
-unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
+static unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
 
-bool closestMatchLUTinitialised = false;
-bool set_back_buffer = true;
-bool force_set_pixel = false;
+static bool closestMatchLUTinitialised = false;
+static bool set_back_buffer = true;
+static bool force_set_pixel = false;
 
 
 #ifndef QT_NO_QWS_CURSOR
@@ -167,7 +167,7 @@ static QRect	Vga16DrawArea;
 
 
 
-inline unsigned int closestMatch(int r, int g, int b)
+static inline unsigned int closestMatch(int r, int g, int b)
 {
     QRgb *clut = qt_screen->clut();
     int clutcols = qt_screen->numCols();
@@ -195,7 +195,7 @@ inline unsigned int closestMatch(int r, int g, int b)
 }
 
 
-void initialiseColorLookupTable(void)
+static void initialiseColorLookupTable(void)
 {
     for (int _r = 0; _r < 256; _r += 16)
 	for (int _g = 0; _g < 256; _g += 16)
@@ -205,10 +205,10 @@ void initialiseColorLookupTable(void)
 }
 
 
-extern unsigned int closestMatchUsingTable(int r,int g,int b);
+// extern unsigned int closestMatchUsingTable(int r,int g,int b);
 
 
-unsigned int closestMatchUsingTable(int r,int g,int b)
+static unsigned int closestMatchUsingTable(int r,int g,int b)
 {
     if (closestMatchLUTinitialised == false) {
 	initialiseColorLookupTable();
@@ -250,7 +250,7 @@ class VGA16_CriticalSection    // Mutex for serialising VGA16 access
 // is set to is different.
 //
 #define MAKE_VGA16_FUNC(funcname, reg, port) \
-    inline void set_##funcname##_vga16(unsigned char value, bool force = true) \
+    static inline void set_##funcname##_vga16(unsigned char value, bool force = true) \
     { \
 	if ((1) || (force) || (vga_register_values[((port - 0x3C0) * 16) + reg] != value)) { \
 	outw((value << 8) | reg, port); \
@@ -503,7 +503,7 @@ void vga16_exposeDoubleBufferedRegion(int x1, int y1, int x2, int y2)
 }
 
 
-void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
+static void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
 {
     BEGIN_PROFILING
     
@@ -683,7 +683,7 @@ void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w, int h)
 }
 
 
-void vga16_blt16BitBufToScr(int dst_x, int dst_y, unsigned short *srcdata, int w, int h)
+static void vga16_blt16BitBufToScr(int dst_x, int dst_y, unsigned short *srcdata, int w, int h)
 {
     BEGIN_PROFILING
     
@@ -704,7 +704,7 @@ void vga16_blt16BitBufToScr(int dst_x, int dst_y, unsigned short *srcdata, int w
 }
 
 
-void vga16_blt8BitBufToScr(int dst_x, int dst_y, unsigned char *src_data, int w, int h)
+static void vga16_blt8BitBufToScr(int dst_x, int dst_y, unsigned char *src_data, int w, int h)
 {
     BEGIN_PROFILING
     

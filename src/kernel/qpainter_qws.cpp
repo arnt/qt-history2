@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_qws.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpainter_qws.cpp#47 $
 **
 ** Implementation of QPainter class for FB
 **
@@ -252,7 +252,7 @@ void QPainter::updateFont()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	if(!pdev->cmd( QPaintDevice::PdcSetFont, this, param ))
+	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !gfx )
 	    return;
     }
     gfx->setFont(cfont);
@@ -264,7 +264,8 @@ void QPainter::updatePen()
     if(testf(ExtDev)) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	pdev->cmd( QPaintDevice::PdcSetPen, this, param );
+	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) || !gfx )
+	    return;
     }
     gfx->setPen(cpen);
 }
@@ -320,7 +321,8 @@ static uchar *pat_tbl[] = {
    if(testf(ExtDev)) {
         QPDevCmdParam param[1];
         param[0].brush = &cbrush;
-        pdev->cmd( QPaintDevice::PdcSetBrush, this, param );
+        if ( !pdev->cmd( QPaintDevice::PdcSetBrush, this, param ) || !gfx ) 
+	    return;
    }
 
    uchar * pat=0;
@@ -376,10 +378,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
 
     gfx=((QPaintDevice *)pd)->graphicsContext();
-    if ( gfx == 0 ) {
-	qWarning( "Unable to get graphics context" );
-	return FALSE;
-    }
+//  if gfx == 0 then we are dealing with the printer.
+//    if ( gfx == 0 ) {
+//	qWarning( "Unable to get graphics context" );
+//	return FALSE;
+//    }
 
     QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
@@ -565,7 +568,8 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
-	pdev->cmd( QPaintDevice::PdcSetBkColor, this, param );
+	if ( !pdev->cmd( QPaintDevice::PdcSetBkColor, this, param ) || !gfx )
+	    return;
     }
     if ( !penRef )
 	updatePen();				// update pen setting
@@ -620,7 +624,8 @@ void QPainter::setRasterOp( RasterOp r )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	pdev->cmd( QPaintDevice::PdcSetROP, this, param );
+	if ( !pdev->cmd( QPaintDevice::PdcSetROP, this, param ) || !gfx )
+	    return;
     }
     if ( penRef )
 	updatePen();				// get non-cached pen GC
@@ -870,7 +875,14 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	return;
 
 #ifndef QT_NO_TRANSFORMATIONS
-    if ( testf(VxF|WxF) ) {
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) || !gfx )
+		return;
+	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a( QRect(x,y,w,h), TRUE );
 	    drawPolyInternal( xForm(a) );
@@ -1650,7 +1662,8 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 
-	    if ( memorymanager->fontSmooth(dfont.handle()) ) {
+	    if ( memorymanager->fontSmooth(dfont.handle()) &&
+		 QPaintDevice::qwsDisplay()->supportsDepth(32) ) {
 		gfx->setSource( tpm );
 		gfx->setAlphaType(QGfx::InlineAlpha);
 		gfx->blt(x, y, tpm->width(),tpm->height(), 0, 0);

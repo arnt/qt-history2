@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_qws.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qregion_qws.cpp#16 $
 **
 ** Implementation of QRegion class for FB
 **
@@ -1570,7 +1570,8 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 		pNextRect++;
 	    }
 	    r1++;
-	    x1 = r1->left();
+	    if ( r1 != r1End )
+		x1 = r1->left();
 	}
     }
 

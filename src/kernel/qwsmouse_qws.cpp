@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#54 $
 **
 ** Implementation of Qt/Embedded mouse drivers
 **
@@ -124,6 +124,7 @@ static const MouseConfig mouseConfig[] = {
     { "Microsoft",      Microsoft },
     { "QVFbMouse",      QVFBMouse },
     { "TPanel",         TPanel },
+    { "BusMouse",       BusMouse },
     { 0,		Unknown }
 };
 
@@ -295,7 +296,9 @@ protected:
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
 	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
+#if !defined(_OS_FREEBSD_)
 	tty.c_line      = 0;
+#endif
 	tty.c_cc[VTIME] = 0;
 	tty.c_cc[VMIN]  = 1;
 	tcsetattr(fd, TCSANOW, &tty);
@@ -603,9 +606,13 @@ typedef struct {
 } MouseData;
 
 static const MouseData mouseData[] = {
+    { 3 },  // dummy for auto protocal,  correction made by add by YYD
     { 3 },  // MouseMan
     { 4 },  // intelliMouse
-    { 3 }   // Microsoft
+    { 3 },  // Microsoft
+    { 0 },  // QVFBMouse, 
+    { 0 },  // TPanel, 
+    { 3 },  // BusMouse,
 };
 
 
@@ -613,11 +620,24 @@ static const MouseData mouseData[] = {
 void QWSMouseHandlerPrivate::readMouseData()
 {
     int n;
-    do {
-	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
-	if ( n > 0 )
-	    mouseIdx += n;
-    } while ( n > 0 );
+    if ( BusMouse == mouseProtocol ) {
+	// a workaround of linux busmouse driver interface.  
+	// It'll only read 3 bytes a time and return all other buffer zeroed, thus cause protocol errors
+	do {
+	    if ( mouseBufSize - mouseIdx < 3 )
+		break;
+	    n = read( mouseFD, mouseBuf+mouseIdx, 3 );
+	    if ( n != 3 )
+		break;
+	    mouseIdx += 3;
+	} while ( 1 );
+    } else {
+	do {
+	    n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	    if ( n > 0 )
+		mouseIdx += n;
+	} while ( n > 0 );
+    }
     handleMouseData();
 }
 
@@ -629,9 +649,7 @@ void QWSMouseHandlerPrivate::handleMouseData()
 {
     static const int accel_limit = 5;
     static const int accel = 2;
-#if 0 // debug
-    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
-#endif
+
     int idx = 0;
     int bstate = 0;
     int dx = 0, dy = 0;
@@ -701,6 +719,19 @@ void QWSMouseHandlerPrivate::handleMouseData()
 		sendEvent=true;
 
 		break;
+	    case BusMouse:
+	        if ( ((mb[0] & 0x4))  ) {
+		    bstate |= Qt::LeftButton;
+		}
+		if ( ((mb[0] & 0x01)) ) {
+		    bstate |= Qt::RightButton;
+		}
+
+		dx=(signed char)mb[1];
+		dy=(signed char)mb[2];
+		sendEvent=true;
+		break;
+
 	    default:
 		qWarning( "Unknown mouse protocol in QWSMouseHandlerPrivate" );
 		break;
@@ -746,6 +777,8 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 	mouseDev = "/dev/mouse";
 
     obstate = -1;
+    mouseFD = -1;
+
     mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY);
 
     if ( mouseFD < 0 ) {
@@ -787,11 +820,17 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 		tty.c_iflag = IGNBRK | IGNPAR;
 		tty.c_oflag = 0;
 		tty.c_lflag = 0;
+#if !defined(_OS_FREEBSD_)
 		tty.c_line = 0;
+#endif
 		tty.c_cc[VTIME] = 0;
 		tty.c_cc[VMIN] = 1;
 		tty.c_cflag = B1200 | CS7 | CREAD | CLOCAL | HUPCL;
 		tcsetattr(mouseFD, TCSAFLUSH, &tty); /* set parameters */
+		break;
+
+	    case BusMouse:
+		usleep(50000);
 		break;
 
 	    default:
@@ -807,9 +846,11 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
 	usleep(50000);
 	tcflush(mouseFD,TCIFLUSH);	    // ### doesn't seem to work.
+	usleep(50000);
+	tcflush(mouseFD,TCIFLUSH);	    // ### doesn't seem to work.
 
-	char buf[2];
-	while (read(mouseFD, buf, 1) > 0) { }  // eat unwanted replies
+	char buf[100];				// busmouse driver will not read if bufsize < 3,  YYD
+	while (read(mouseFD, buf, 100) > 0) { }  // eat unwanted replies
 
 	mouseIdx = 0;
 
@@ -821,8 +862,10 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
 QWSMouseHandlerPrivate::~QWSMouseHandlerPrivate()
 {
-    if (mouseFD >= 0)
+    if (mouseFD >= 0) {
+	tcflush(mouseFD,TCIFLUSH);	    // yyd.
 	close(mouseFD);
+    }
 }
 #endif //QT_NO_QWS_MOUSE_MANUAL
 
@@ -1316,6 +1359,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	idx++;
     }
 
+
     QWSMouseHandler *handler = 0;
 
 #ifdef QT_QWS_CUSTOMTOUCHPANEL
@@ -1338,6 +1382,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     case MouseMan:
     case IntelliMouse:
     case Microsoft:
+    case BusMouse:
 	handler = new QWSMouseHandlerPrivate( mouseProtocol, mouseDev );
 	break;
 #endif

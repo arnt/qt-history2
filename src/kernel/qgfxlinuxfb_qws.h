@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxlinuxfb_qws.h#9 $
+** $Id: //depot/qt/main/src/kernel/qgfxlinuxfb_qws.h#10 $
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -33,6 +33,7 @@
 #ifndef QGFXLINUXFB_H
 #define QGFXLINUXFB_H
 
+#ifndef QT_NO_QWS_LINUXFB
 #include "qgfx_qws.h"
 
 class QLinuxFbScreen : public QScreen
@@ -73,5 +74,6 @@ private:
     fb_cmap *startcmap;
 };
 
+#endif
 #endif
 

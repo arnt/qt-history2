@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_qws.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_qws.cpp#25 $
 **
 ** Implementation of QPaintDevice class for FB
 **
@@ -268,6 +268,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    mymask=( (QBitmap *)tmp->mask() );
 	}
     }
+    mygfx->setSource(src);
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
     if(mymask) {
 	if(!(mymask->isNull())) {
@@ -278,7 +279,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    mygfx->setAlphaSource(thebits,ls);
 	}
     }
-    mygfx->setSource(src);
     mygfx->blt(dx,dy,sw,sh,sx,sy);
 
     delete mygfx;
@@ -305,10 +305,11 @@ int QPaintDevice::bytesPerLine() const
 }
 
 // We should maybe return an extended-device Gfx by default here
+// at the moment, it appears to return 0.
 
 QGfx * QPaintDevice::graphicsContext(bool) const
 {
-    qFatal("QGfx requested for QPaintDevice");
+    //qFatal("QGfx requested for QPaintDevice");
     return 0;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#124 $
 **
 ** Implementation of Qt/FB startup routines and event handling
 **
@@ -942,7 +942,7 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed )
     cmd.simpleData.altitude = alt;
     cmd.simpleData.fixed = fixed;
     if ( d->directServerConnection() ) {
-	QWSServer::set_altitude( &cmd );
+	qwsServer->set_altitude( &cmd );
     } else {
 	d->sendCommand( cmd );
     }
@@ -957,11 +957,19 @@ void QWSDisplay::requestFocus(int winId, bool get)
     d->sendCommand( cmd );
 }
 
+void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
+{
+    QWSRegionNameCommand cmd;
+    cmd.simpleData.windowid = winId;
+    cmd.setName(n, c);
+    d->sendCommand( cmd );
+}
+
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
     r = qt_screen->mapToDevice( r, QSize(qt_screen->width(), qt_screen->height()) );
     if ( d->directServerConnection() ) {
-	QWSServer::request_region( winId, r );
+	qwsServer->request_region( winId, r );
     } else {
 	//by sending the event, I promise not to paint outside the region
 
@@ -999,7 +1007,7 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
     cmd.simpleData.dy = p2.y() - p1.y();
 
     if ( d->directServerConnection() ) {
-	QWSServer::move_region( &cmd );
+	qwsServer->move_region( &cmd );
     } else {
 	d->sendCommand( cmd );
     }
@@ -1120,9 +1128,12 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 #endif
 
 
-void QWSDisplay::setCaption( QWidget *w, const QString & )
+void QWSDisplay::setCaption( QWidget *w, const QString &c )
 {
-    ((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect());
+    if ( w->isTopLevel() ) {
+	nameRegion( w->winId(), w->name(), c );
+	((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect());
+    }
 }
 
 void QWSDisplay::selectCursor( QWidget *w, unsigned int cursId )
@@ -2371,6 +2382,31 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		QApplication::sendEvent( widget, &out );
 		*/
 	    }
+	}
+	break;
+
+    case QWSEvent::WindowOperation:
+	if ( (QWidget *)widget == desktop() )
+	    return TRUE;
+	switch ( ((QWSWindowOperationEvent *)event)->simpleData.op ) {
+	    case QWSWindowOperationEvent::Show:
+		widget->show();
+		break;
+	    case QWSWindowOperationEvent::Hide:
+		widget->hide();
+		break;
+	    case QWSWindowOperationEvent::ShowMaximized:
+		widget->showMaximized();
+		break;
+	    case QWSWindowOperationEvent::ShowMinimized:
+		widget->showMinimized();
+		break;
+	    case QWSWindowOperationEvent::ShowNormal:
+		widget->showNormal();
+		break;
+	    case QWSWindowOperationEvent::Close:
+		widget->close();
+		break;
 	}
 	break;
     default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsevent_qws.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwsevent_qws.cpp#11 $
 **
 ** Implementation of Qt/Embedded events
 **
@@ -79,6 +79,9 @@ QWSEvent *QWSEvent::factory( int type )
 	event = new QWSQCopMessageEvent;
 	break;
 #endif
+    case QWSEvent::WindowOperation:
+	event = new QWSWindowOperationEvent;
+	break;
     default:
 	qDebug( "QWSDisplayData::readMore() : Protocol error - got %08x!", type );
     }

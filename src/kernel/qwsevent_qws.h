@@ -27,6 +27,7 @@ struct QWSEvent : QWSProtocolItem {
 	SelectionNotify,
 	MaxWindowRect,
 	QCopMessage,
+	WindowOperation,
 	NEvent
     };
 
@@ -231,5 +232,16 @@ struct QWSQCopMessageEvent : QWSEvent {
 };
 
 #endif
+
+struct QWSWindowOperationEvent : QWSEvent {
+    QWSWindowOperationEvent()
+	: QWSEvent( WindowOperation, sizeof( simpleData ), (char*)&simpleData ) { }
+
+    enum Operation { Show, Hide, ShowMaximized, ShowNormal, ShowMinimized, Close };
+    struct SimpleData {
+	int window;
+	Operation op;
+    } simpleData;
+};
 
 #endif

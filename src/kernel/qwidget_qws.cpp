@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qwidget_qws.cpp#61 $
 **
 ** Implementation of QWidget and QWindow classes for FB
 **
@@ -240,6 +240,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     }
 
     if ( topLevel ) {
+	if ( name( 0 ) )
+	    qwsDisplay()->nameRegion( winId(), name(), caption() );
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WStyle_DialogBorder)
 	     || testWFlags(WStyle_NormalBorder))
@@ -1153,6 +1155,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	mygfx->scroll(x2,y2,w,h,x1,y1);
 	delete mygfx;
     }
+    QRegion copied = paintableRegion();
+    QPoint p = mapToGlobal( QPoint() );
+    copied.translate( -p.x(), -p.y() );
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());
@@ -1166,11 +1171,13 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	    ++it;
 	}
     }
-    QRegion copied = paintableRegion();
-    QPoint p = mapToGlobal( QPoint() );
-    copied.translate( -p.x(), -p.y() );
-    copied &= QRegion(sr);
-    copied.translate(dx,dy);
+    QRegion reg = sr;
+    QRegion tmp = paintableRegion();
+    reg.translate( dx, dy );
+    tmp.translate( -p.x(), -p.y() );
+    tmp.translate( dx, dy );
+    copied &= reg;
+    copied &= tmp;
     QRegion exposed = QRegion(sr) - copied;
     repaint( exposed, !testWFlags(WRepaintNoErase) );
 }

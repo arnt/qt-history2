@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.h#34 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.h#35 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -74,12 +74,27 @@ public:
     ~QWSWindow();
 
     int winId() const { return id; }
-    bool forClient(const QWSClient* cl) const { return cl==c; }
+    const QString &name() const { return rgnName; }
+    const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
+    QRegion requested() const { return requested_region; }
     QRegion allocation() const { return allocated_region; }
+    bool isVisible() const { return !requested_region.isEmpty(); }
+    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
+    bool isFullyObscured() const { return allocated_region.isEmpty(); }
+
+    void raise();
+    void lower();
+    void show();
+    void hide();
+    void setActiveWindow();
+
+private:
     bool hidden() const { return requested_region.isEmpty(); }
-    bool partiallyObscured() const { return requested_region!=allocated_region; }
-    bool fullyObscured() const { return allocated_region.isEmpty(); }
+    bool forClient(const QWSClient* cl) const { return cl==c; }
+
+    void setName( const QString &n );
+    void setCaption( const QString &c );
 
     void addAllocation( QWSRegionManager *, QRegion );
     void removeAllocation( QWSRegionManager *, QRegion );
@@ -92,10 +107,13 @@ public:
 
     void focus(bool get);
     int focusPriority() const { return last_focus_time; }
+    void operation( QWSWindowOperationEvent::Operation o );
     void shuttingDown() { last_focus_time=0; }
 
 private:
     int id;
+    QString rgnName;
+    QString rgnCaption;
     int alloc_region_idx;
     bool modified;
     bool needAck;
@@ -106,6 +124,7 @@ private:
     QRegion exposed;
     int last_focus_time;
 };
+
 #ifndef QT_NO_SOUND
 class QWSSoundServer;
 #ifdef QT_USE_OLD_QWS_SOUND
@@ -133,22 +152,22 @@ private:
 
 class QWSMouseHandler;
 struct QWSCommandStruct;
+
 #ifndef QT_NO_QWS_MULTIPROCESS
-class QWSServer : private QWSServerSocket
+class QWSServer : public QWSServerSocket
 #else
-class QWSServer : private QObject
+class QWSServer : public QObject
 #endif
 {
     friend class QCopChannel;
     friend class QWSMouseHandler;
+    friend class QWSWindow;
+    friend class QWSDisplay;
     Q_OBJECT
 
 public:
     QWSServer( int flags = 0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
-#ifndef QT_NO_QWS_MULTIPROCESS
-    void newConnection( int socket );
-#endif
     enum ServerFlags { DisableKeyboard = 0x01,
 		       DisableMouse = 0x02 };
 
@@ -182,7 +201,6 @@ public:
     static void setDefaultMouse( const char * );
     static void setDefaultKeyboard( const char * );
     static void setMaxWindowRect(const QRect&);
-    static void sendMaxWindowRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
 
     static void setDesktopBackground( const QImage &img );
@@ -193,24 +211,10 @@ public:
     static QWSKeyboardHandler* keyboardHandler();
     static void setKeyboardHandler(QWSKeyboardHandler* kh);
 #endif
-
-    static QPtrList<QWSInternalWindowInfo> * windowList();
-
-    void sendPropertyNotifyEvent( int property, int state );
-#ifndef QT_NO_QWS_PROPERTIES
-    QWSPropertyManager *manager() {
-	return &propertyManager;
-    }
-#endif
-#ifndef QT_NO_COP
-    static void sendQCopEvent( QWSClient *c, const QCString &ch,
-			       const QCString &msg, const QByteArray &data,
-			       bool response = FALSE );
-#endif
     QWSWindow *windowAt( const QPoint& pos );
 
     // For debugging only at this time
-    QPtrList<QWSWindow> clientWindows() { return windows; }
+    const QPtrList<QWSWindow> &clientWindows() { return windows; }
 
     void openMouse();
     void closeMouse();
@@ -218,32 +222,56 @@ public:
     void openKeyboard();
     void closeKeyboard();
 #endif
-    void refresh();
-    void enablePainting(bool);
 
-    static void processEventQueue();
     static void setScreenSaverInterval(int);
     static bool screenSaverActive();
     static void screenSaverActivate(bool);
 
-public:
-    static void move_region( const QWSRegionMoveCommand * );
-    static void set_altitude( const QWSChangeAltitudeCommand * );
-    static void request_region( int, QRegion );
+    // the following are internal.
+    void refresh();
+    void enablePainting(bool);
+    static void processEventQueue();
+    static QList<QWSInternalWindowInfo> * windowList();
+
+    void sendPropertyNotifyEvent( int property, int state );
+#ifndef QT_NO_QWS_PROPERTIES
+    QWSPropertyManager *manager() {
+	return &propertyManager;
+    }
+#endif
+    
+    static QPoint mousePosition;
+
     static void startup( int flags );
     static void closedown();
 
-    static void emergency_cleanup();
+    enum WindowEvent { Create=0x01, Destroy=0x02, Hide=0x04, Show=0x08,
+		       Raise=0x10, Lower=0x20, Geometry=0x40 };
 
-    static QPoint mousePosition;
+signals:
+    void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );
 
 private:
-    static QWSServer *qwsServer; //there can be only one
+#ifndef QT_NO_COP
+    static void sendQCopEvent( QWSClient *c, const QCString &ch,
+			       const QCString &msg, const QByteArray &data,
+			       bool response = FALSE );
+#endif
+    void move_region( const QWSRegionMoveCommand * );
+    void set_altitude( const QWSChangeAltitudeCommand * );
+    void request_region( int, QRegion );
+
+    static void emergency_cleanup();
+
     static QColor *bgColor;
     static QImage *bgImage;
 
-private:
+    void sendMaxWindowRectEvents();
+#ifndef QT_NO_QWS_MULTIPROCESS
+    void newConnection( int socket );
+#endif
     void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
+    void invokeRegionName( QWSRegionNameCommand *cmd, QWSClient *client );
     void invokeRegion( QWSRegionCommand *cmd, QWSClient *client );
     void invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client );
     void invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *client );
@@ -369,6 +397,7 @@ private:
 #endif
 };
 
+extern QWSServer *qwsServer; //there can be only one
 
 
 /*********************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsdisplay_qws.h#20 $
+** $Id: //depot/qt/main/src/kernel/qwsdisplay_qws.h#21 $
 **
 ** QWS display
 **
@@ -89,6 +89,7 @@ public:
 
     QPtrList<QWSWindowInfo> * windowList();
 
+    void nameRegion( int winId, const QString& n, const QString &c );
     void requestRegion( int winId, QRegion );
     void moveRegion( int winId, int dx, int dy );
     void destroyRegion( int winId );

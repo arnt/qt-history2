@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#75 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -64,6 +64,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <sys/param.h>
 #include <sys/mount.h>
 #endif
 #include <signal.h>
@@ -82,6 +83,8 @@
 
 #include <qgfx_qws.h>
 
+QWSServer *qwsServer=0;
+
 extern char *qws_display_spec;
 extern void qt_init_display(); //qapplication_qws.cpp
 extern QString qws_qtePipeFilename();
@@ -95,6 +98,7 @@ extern QQueue<QWSCommand> *qt_get_server_queue();
 static QRect maxwindow_rect;
 static const char *defaultMouse = "Auto";
 static const char *defaultKeyboard = "TTY";
+static int qws_keyModifiers = 0;
 
 static int get_object_id()
 {
@@ -104,6 +108,196 @@ static int get_object_id()
 
 
 //#define QWS_REGION_DEBUG
+
+/*!
+  \class QWSWindow qwindowsystem_qws.h
+  \brief Server-specific functionality in Qt/Embedded
+
+  When you run a Qt/Embedded application, it either runs as a server
+  or connects to an existing server. If it runs as a server, some additional
+  operations are provided via the QWSServer class.
+
+  This class maintains information about each window and allows operations
+  to be performed on the windows.
+*/
+
+/*!
+  \fn int QWSWindow::winId() const
+
+  Returns the Id of this window.
+*/
+
+/*!
+  \fn const QString &QWSWindow::name() const
+
+  Returns the name of this window.
+*/
+
+/*!
+  \fn const QString &QWSWindow::caption() const
+
+  Returns this windows caption.
+*/
+
+/*!
+  \fn QWSClient* QWSWindow::client() const
+
+  Returns the QWSClient that owns this window.
+*/
+
+/*!
+  \fn QRegion QWSWindow::requested() const
+
+  Returns the region that the window has requested to draw into including
+  any window decorations.
+
+  \sa allocation()
+*/
+
+/*!
+  \fn QRegion QWSWindow::allocation() const
+
+  Returns the region that the window is allowed to draw into including
+  any window decorations and excluding regions covered by other windows.
+
+  \sa requested()
+*/
+
+/*!
+  \fn bool QWSWindow::isVisible() const
+
+  Returns TRUE if the window is visible.
+*/
+
+/*!
+  \fn bool QWSWindow::isPartiallyObscured() const
+
+  Returns TRUE is the window is partially obsured by another window or
+  the bounds of the screen.
+*/
+
+/*!
+  \fn bool QWSWindow::isFullyObscured() const
+
+  Returns TRUE is the window is completely obsured by another window or
+  the bounds of the screen.
+*/
+
+/*!
+  Raises the window above all other windows except "Stay on top" windows.
+*/
+void QWSWindow::raise()
+{
+    qwsServer->raiseWindow( this );
+}
+
+/*!
+  Lowers the window below other windows.
+*/
+void QWSWindow::lower()
+{
+    qwsServer->lowerWindow( this );
+}
+
+/*!
+  Shows the window.
+*/
+void QWSWindow::show()
+{
+    operation( QWSWindowOperationEvent::Show );
+}
+
+/*!
+  Hides the window.
+*/
+void QWSWindow::hide()
+{
+    operation( QWSWindowOperationEvent::Hide );
+}
+
+/*!
+  Make this the active window (i.e. sets keyboard focus).
+*/
+void QWSWindow::setActiveWindow()
+{
+    qwsServer->setFocus( this, TRUE );
+}
+
+void QWSWindow::setName( const QString &n )
+{
+    rgnName = n;
+}
+
+void QWSWindow::setCaption( const QString &c )
+{
+    rgnCaption = c;
+}
+
+/*!
+  \internal
+  Adds \a r to the window's allocated region.
+*/
+void QWSWindow::addAllocation( QWSRegionManager *rm, QRegion r )
+{
+    QRegion added = r & requested_region;
+    if ( !added.isEmpty() ) {
+	allocated_region |= added;
+	exposed |= added;
+	rm->set( alloc_region_idx, allocated_region );
+	modified = TRUE;
+    }
+}
+
+/*!
+  \internal
+  Removes \a r from the window's allocated region
+*/
+void QWSWindow::removeAllocation(QWSRegionManager *rm, QRegion r)
+{
+    QRegion nr = allocated_region - r;
+    if ( nr != allocated_region ) {
+	allocated_region = nr;
+	rm->set( alloc_region_idx, allocated_region );
+	modified = TRUE;
+    } else if ( needAck ) {
+	// set our region dirty anyway
+	rm->markUpdated( alloc_region_idx );
+    }
+}
+
+void QWSWindow::updateAllocation()
+{
+    if ( modified || needAck) {
+	c->sendRegionModifyEvent( id, exposed, needAck );
+	exposed = QRegion();
+	modified = FALSE;
+	needAck = FALSE;
+    }
+}
+
+static int global_focus_time_counter=100;
+
+void QWSWindow::focus(bool get)
+{
+    if ( get )
+	last_focus_time = global_focus_time_counter++;
+    QWSFocusEvent event;
+    event.simpleData.window = id;
+    event.simpleData.get_focus = get;
+    c->sendEvent( &event );
+}
+
+void QWSWindow::operation( QWSWindowOperationEvent::Operation o )
+{
+    QWSWindowOperationEvent event;
+    event.simpleData.window = id;
+    event.simpleData.op = o;
+    c->sendEvent( &event );
+}
+
+QWSWindow::~QWSWindow()
+{
+}
 
 
 /*********************************************************************
@@ -576,10 +770,28 @@ static void ignoreSignal( int )
 
   When you run a Qt/Embedded application, it either runs as a server
   or connects to an existing server. If it runs as a server, some additional
-  operations are provided via static functions in the QWSServer class.
+  operations are provided via the QWSServer class.
+
+  This class is instantiated by QApplication for Qt/Embedded server processes.
+  You should never construct this class yourself.
+
+  A pointer to the QWSServer instance can be obtained via the global
+  qwsServer variable.
 */
 
-/*
+/*!
+  \fn const QList<QWSWindow> &QWSServer::clientWindows()
+
+  Returns the list of top-level windows.  This list will change as
+  applications add and remove wigdets so it should not be stored for future
+  use.  The windows are sorted in stacking order from top-most to lowest.
+*/
+
+/*!
+  Construct a QWSServer class.
+
+  This class is instantiated by QApplication for Qt/Embedded server processes.
+  You should never construct this class yourself.
 */
 
 QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
@@ -619,7 +831,11 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if ( !geteuid() ) {
+#if !defined(_OS_FREEBSD_)
 	if(mount(0,"/var/shm","shm",0,0)) {
+#else
+	if( mount("shm", "/var/shm", 0, 0) ) {
+#endif
 	    /* This just confuses people with 2.2 kernels
 	    if ( errno != EBUSY )
 		qDebug("Failed mounting shm fs on /var/shm: %s",strerror(errno));
@@ -662,6 +878,9 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #endif
 }
 
+/*!
+  Destruct QWSServer
+*/
 QWSServer::~QWSServer()
 {
     // destroy all clients
@@ -675,7 +894,11 @@ QWSServer::~QWSServer()
     closeKeyboard();
 #endif
 }
+
 #ifndef QT_NO_QWS_MULTIPROCESS
+/*!
+  \internal
+*/
 void QWSServer::newConnection( int socket )
 {
     client[socket] = new QWSClient(this,socket);
@@ -694,6 +917,9 @@ void QWSServer::newConnection( int socket )
 	invokeCreate(0,client[socket]);
 }
 
+/*!
+  \internal
+*/
 void QWSServer::clientClosed()
 {
     QWSClient* cl = (QWSClient*)sender();
@@ -749,6 +975,7 @@ void QWSServer::clientClosed()
 #ifndef QT_NO_QWS_PROPERTIES
 		manager()->removeProperties( w->winId() );
 #endif
+		emit windowEvent( w, Destroy );
 		delete w; //windows is not auto-delete
 	    }
 	}
@@ -795,7 +1022,9 @@ QWSCommand* QWSClient::readMoreCommand()
 }
 
 
-
+/*!
+  \internal
+*/
 void QWSServer::processEventQueue()
 {
     if ( qwsServer )
@@ -836,6 +1065,9 @@ void QWSServer::doClient( QWSClient *client )
 	switch ( cs->command->type ) {
 	case QWSCommand::Create:
 	    invokeCreate( (QWSCreateCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::RegionName:
+	    invokeRegionName( (QWSRegionNameCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::Region:
 	    invokeRegion( (QWSRegionCommand*)cs->command, cs->client );
@@ -920,9 +1152,12 @@ void QWSServer::hideCursor()
 #endif
 }
 
-// ### don't like this
+/*!
+  Disables all painting on the display.
+*/
 void QWSServer::enablePainting(bool e)
 {
+// ### don't like this
     if (e)
     {
 	disablePainting = false;
@@ -939,7 +1174,9 @@ void QWSServer::enablePainting(bool e)
     }
 }
 
-
+/*!
+  Refreshes the entire display.
+*/
 void QWSServer::refresh()
 {
     exposeRegion( QRegion(0,0,swidth,sheight) );
@@ -958,13 +1195,16 @@ void QWSServer::setMaxWindowRect(const QRect& r)
 	QSize(qt_screen->width(),qt_screen->height()));
     if ( maxwindow_rect != tr ) {
 	maxwindow_rect = tr;
-	sendMaxWindowRectEvents();
+	qwsServer->sendMaxWindowRectEvents();
     }
 }
 
+/*!
+  \internal
+*/
 void QWSServer::sendMaxWindowRectEvents()
 {
-    for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
+    for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	(*it)->sendMaxWindowRectEvent();
 }
 
@@ -986,6 +1226,9 @@ void QWSServer::setDefaultKeyboard( const char *k )
     defaultKeyboard = k;
 }
 
+/*!
+  Send a mouse event.
+*/
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     qwsServer->showCursor();
@@ -1019,7 +1262,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
-    event.simpleData.state=state;
+    event.simpleData.state=state | qws_keyModifiers;
     event.simpleData.time=qwsServer->timer.elapsed();
 
     for (ClientIterator it = qwsServer->client.begin(); it != qwsServer->client.end(); ++it )
@@ -1045,11 +1288,17 @@ QWSMouseHandler *QWSServer::mouseHandler()
 }
 
 // called by QWSMouseHandler constructor, not user code.
+/*!
+  \internal
+*/
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
     qwsServer->mousehandlers.prepend(mh);
 }
 
+/*!
+  \internal
+*/
 QPtrList<QWSInternalWindowInfo> * QWSServer::windowList()
 {
     QPtrList<QWSInternalWindowInfo> * ret=new QPtrList<QWSInternalWindowInfo>;
@@ -1085,6 +1334,9 @@ QPtrList<QWSInternalWindowInfo> * QWSServer::windowList()
 }
 
 #ifndef QT_NO_COP
+/*!
+  \internal
+*/
 void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 			       const QCString &msg, const QByteArray &data,
 			       bool response )
@@ -1114,6 +1366,10 @@ void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 }
 #endif
 
+/*!
+  Returns the window containing the point \c pos or 0 if there is no window
+  under the point.
+*/
 QWSWindow *QWSServer::windowAt( const QPoint& pos )
 {
     for (uint i=0; i<windows.count(); i++) {
@@ -1153,6 +1409,8 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
 	qwsServer->screenSaverWake();
     }
 
+    qws_keyModifiers = modifiers;
+
     QWSKeyEvent event;
     event.simpleData.window = qwsServer->focusw ? qwsServer->focusw->winId() : 0;
     event.simpleData.unicode = unicode < 0 ? keyUnicode(keycode) : unicode;
@@ -1166,6 +1424,9 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
     }
 }
 #ifndef QT_NO_QWS_PROPERTIES
+/*!
+  \internal
+*/
 void QWSServer::sendPropertyNotifyEvent( int property, int state )
 {
     for ( ClientIterator it = client.begin(); it != client.end(); ++it )
@@ -1177,6 +1438,13 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
     QWSCreationEvent event;
     event.simpleData.objectid = get_object_id();
     client->sendEvent( &event );
+}
+
+void QWSServer::invokeRegionName( QWSRegionNameCommand *cmd, QWSClient *client )
+{
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
+    changingw->setName( cmd->name );
+    changingw->setCaption( cmd->caption );
 }
 
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
@@ -1201,8 +1469,15 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 
     if ( !region.isEmpty() )
 	changingw->setNeedAck( TRUE );
+    bool isShow = !changingw->isVisible() && !region.isEmpty();
     setWindowRegion( changingw, region );
     syncRegions( changingw );
+    if ( isShow )
+	emit windowEvent( changingw, Show );
+    if ( !region.isEmpty() )
+	emit windowEvent( changingw, Geometry );
+    else
+	emit windowEvent( changingw, Hide );
     if ( focusw == changingw && region.isEmpty() )
 	setFocus(changingw,FALSE);
 }
@@ -1221,6 +1496,7 @@ void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *cl
 
     changingw->setNeedAck( TRUE );
     moveWindowRegion( changingw, cmd->simpleData.dx, cmd->simpleData.dy );
+    emit windowEvent( changingw, Geometry );
 }
 
 void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *client )
@@ -1253,6 +1529,7 @@ void QWSServer::invokeRegionDestroy( QWSRegionDestroyCommand *cmd, QWSClient *cl
 #ifndef QT_NO_QWS_PROPERTIES
     manager()->removeProperties( changingw->winId() );
 #endif
+    emit windowEvent( changingw, Destroy );
     delete changingw;
 }
 
@@ -1509,63 +1786,6 @@ void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
 }
 
 #endif
-
-/*!
-  Adds \a r to the window's allocated region.
-*/
-void QWSWindow::addAllocation( QWSRegionManager *rm, QRegion r )
-{
-    QRegion added = r & requested_region;
-    if ( !added.isEmpty() ) {
-	allocated_region |= added;
-	exposed |= added;
-	rm->set( alloc_region_idx, allocated_region );
-	modified = TRUE;
-    }
-}
-
-/*!
-  Removes \a r from the window's allocated region
-*/
-void QWSWindow::removeAllocation(QWSRegionManager *rm, QRegion r)
-{
-    QRegion nr = allocated_region - r;
-    if ( nr != allocated_region ) {
-	allocated_region = nr;
-	rm->set( alloc_region_idx, allocated_region );
-	modified = TRUE;
-    } else if ( needAck ) {
-	// set our region dirty anyway
-	rm->markUpdated( alloc_region_idx );
-    }
-}
-
-void QWSWindow::updateAllocation()
-{
-    if ( modified || needAck) {
-	c->sendRegionModifyEvent( id, exposed, needAck );
-	exposed = QRegion();
-	modified = FALSE;
-	needAck = FALSE;
-    }
-}
-
-static int global_focus_time_counter=100;
-
-void QWSWindow::focus(bool get)
-{
-    if ( get )
-	last_focus_time = global_focus_time_counter++;
-    QWSFocusEvent event;
-    event.simpleData.window = id;
-    event.simpleData.get_focus = get;
-    c->sendEvent( &event );
-}
-
-QWSWindow::~QWSWindow()
-{
-}
-
 QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.
@@ -1585,6 +1805,7 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
     }
     if ( !added )
 	windows.append( w );
+    emit windowEvent( w, Create );
     return w;
 }
 
@@ -1646,6 +1867,7 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int )
 	setWindowRegion( changingw, changingw->requested_region );
     }
     syncRegions( changingw );
+    emit windowEvent( changingw, Raise );
 }
 
 void QWSServer::lowerWindow( QWSWindow *changingw, int )
@@ -1682,6 +1904,7 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int )
     changingw->removeAllocation( rgnMan, exposed );
     exposeRegion( exposed, 0 );
     syncRegions( changingw );
+    emit windowEvent( changingw, Lower );
 }
 
 void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
@@ -1837,12 +2060,18 @@ void QWSServer::syncRegions( QWSWindow *active )
     dirtyBackground = QRegion();
 }
 
+/*!
+  Closes pointer device(s).
+*/
 void QWSServer::closeMouse()
 {
     mousehandlers.setAutoDelete(TRUE);
     mousehandlers.clear();
 }
 
+/*!
+  Opens the mouse device(s).
+*/
 void QWSServer::openMouse()
 {
     QString mice = getenv("QWS_MOUSE_PROTO");
@@ -1880,6 +2109,9 @@ QWSKeyboardHandler::~QWSKeyboardHandler()
 {
 }
 
+/*!
+  Closes keyboard device(s).
+*/
 void QWSServer::closeKeyboard()
 {
     keyboardhandlers.setAutoDelete(TRUE);
@@ -1902,6 +2134,9 @@ void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
     qwsServer->keyboardhandlers.prepend(kh);
 }
 
+/*!
+  Open keyboard device(s).
+*/
 void QWSServer::openKeyboard()
 {
     QString keyboards = getenv("QWS_KEYBOARD");
@@ -1934,34 +2169,40 @@ void QWSServer::openKeyboard()
 
 #endif //QT_NO_QWS_KEYBOARD
 
-QWSServer *QWSServer::qwsServer=0; //there can be only one
 QPoint QWSServer::mousePosition;
 QColor *QWSServer::bgColor = 0;
 QImage *QWSServer::bgImage = 0;
 
 void QWSServer::move_region( const QWSRegionMoveCommand *cmd )
 {
-    QWSClient *serverClient = qwsServer->client[-1];
-    qwsServer->invokeRegionMove( cmd, serverClient );
+    QWSClient *serverClient = client[-1];
+    invokeRegionMove( cmd, serverClient );
 }
 
 void QWSServer::set_altitude( const QWSChangeAltitudeCommand *cmd )
 {
-    QWSClient *serverClient = qwsServer->client[-1];
-    qwsServer->invokeSetAltitude( cmd, serverClient );
+    QWSClient *serverClient = client[-1];
+    invokeSetAltitude( cmd, serverClient );
 }
 
 
 void QWSServer::request_region( int wid, QRegion region )
 {
-    QWSClient *serverClient = qwsServer->client[-1];
-    QWSWindow* changingw = qwsServer->findWindow( wid, serverClient );
+    QWSClient *serverClient = client[-1];
+    QWSWindow* changingw = findWindow( wid, serverClient );
     if ( !region.isEmpty() )
 	changingw->setNeedAck( TRUE );
-    qwsServer->setWindowRegion( changingw, region );
-    qwsServer->syncRegions( changingw );
-    if ( qwsServer->focusw == changingw && region.isEmpty() )
-	qwsServer->setFocus(changingw,FALSE);
+    bool isShow = !changingw->isVisible() && !region.isEmpty();
+    setWindowRegion( changingw, region );
+    syncRegions( changingw );
+    if ( isShow )
+	emit windowEvent( changingw, Show );
+    if ( !region.isEmpty() )
+	emit windowEvent( changingw, Geometry );
+    else
+	emit windowEvent( changingw, Hide );
+    if ( focusw == changingw && region.isEmpty() )
+	setFocus(changingw,FALSE);
 }
 
 
@@ -2058,9 +2299,8 @@ void QWSServer::setDesktopBackground( const QColor &c )
 }
 
 /*!
-  Start the server
+  \internal
  */
-
 void QWSServer::startup(int flags)
 {
     if ( qwsServer )
@@ -2071,7 +2311,7 @@ void QWSServer::startup(int flags)
 
 
 /*!
-  Close down the server
+  \internal
 */
 
 void QWSServer::closedown()
@@ -2093,6 +2333,9 @@ void QWSServer::emergency_cleanup()
 #ifndef QT_NO_QWS_KEYBOARD
 static QWSServer::KeyboardFilter *keyFilter;
 
+/*!
+  \internal
+*/
 void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
@@ -2105,7 +2348,7 @@ void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool is
   Sets a filter to be invoked for all key events from physical keyboard
   drivers (events sent via processKeyEvent()).
   The filter is not invoked for keys generated by virtual keyboard
-  drivers (events send cia sendKeyEvent()).
+  drivers (events send via sendKeyEvent()).
 */
 void QWSServer::setKeyboardFilter( KeyboardFilter *f )
 {
@@ -2146,15 +2389,22 @@ void QWSServer::screenSaverSleep()
     qt_disable_lowpriority_timers=TRUE;
 }
 
+/*!
+  Returns TRUE if the screensaver is active (i.e. blanked).
+*/
 bool QWSServer::screenSaverActive()
 {
     return qwsServer->screensaverinterval
 	&& !qwsServer->screensavertimer->isActive();
 }
 
-void QWSServer::screenSaverActivate(bool y)
+/*!
+  Activates the screensaver immediately if \c activate is TRUE otherwise
+  deactivates the screensaver.
+*/
+void QWSServer::screenSaverActivate(bool activate)
 {
-    if ( y )
+    if ( activate )
 	qwsServer->screenSaverSleep();
     else
 	qwsServer->screenSaverWake();

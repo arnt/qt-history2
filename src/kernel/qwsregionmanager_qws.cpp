@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsregionmanager_qws.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwsregionmanager_qws.cpp#17 $
 **
 ** Implementation of Qt/Embedded region manager
 **
@@ -34,8 +34,8 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-#include <sys/ipc.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/shm.h>
 #endif
 

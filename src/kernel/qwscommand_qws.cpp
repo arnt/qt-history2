@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwscommand_qws.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwscommand_qws.cpp#16 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -192,6 +192,9 @@ QWSCommand *QWSCommand::factory( int type )
 	break;
     case QWSCommand::QCopSend:
 	command = new QWSQCopSendCommand;
+	break;
+    case QWSCommand::RegionName:
+	command = new QWSRegionNameCommand;
 	break;
 #endif
     default:

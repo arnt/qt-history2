@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#14 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#15 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -100,7 +100,7 @@ private:
 
 enum MouseProtocol { Unknown = -1, Auto = 0,
 		     MouseMan, IntelliMouse, Microsoft,
-		     QVFBMouse, TPanel,
+		     QVFBMouse, TPanel, BusMouse,
 		     FirstAuto = MouseMan,
 		     LastAuto = Microsoft };
 

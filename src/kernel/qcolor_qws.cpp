@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_qws.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qcolor_qws.cpp#34 $
 **
 ** Implementation of QColor class for FB
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwssocket_qws.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qwssocket_qws.cpp#12 $
 **
 ** Implementation of QWSSocket and related classes.
 **
@@ -47,10 +47,6 @@
 #include <netdb.h>
 #include <errno.h>
 
-#ifndef UNIX_PATH_MAX
-#define UNIX_PATH_MAX    108
-#endif
- 
 #ifdef __MIPSEL__
 # ifndef SOCK_DGRAM
 #  define SOCK_DGRAM 1
@@ -79,14 +75,14 @@ QWSSocket::~QWSSocket()
 void QWSSocket::connectToLocalFile( const QString &file )
 {
     // create socket
-    int s = ::socket( AF_UNIX, SOCK_STREAM, 0 );
+    int s = ::socket( PF_LOCAL, SOCK_STREAM, 0 );
 
     // connect to socket
     struct sockaddr_un a;
     memset( &a, 0, sizeof(a) );
-    a.sun_family = AF_UNIX;
-    strncpy( a.sun_path, file.local8Bit(), UNIX_PATH_MAX-1 );
-    int r = ::connect( s, (struct sockaddr*)&a, sizeof(struct sockaddr_un) );
+    a.sun_family = PF_LOCAL;
+    strncpy( a.sun_path, file.local8Bit(), sizeof(a.sun_path) - 1 );
+    int r = ::connect( s, (struct sockaddr*)&a, SUN_LEN(&a) );
     if ( r == 0 ) {
 	setSocket( s );
     } else {
@@ -105,14 +101,15 @@ QWSServerSocket::QWSServerSocket( const QString& file, int backlog, QObject *par
     : QServerSocket( parent, name )
 {
     // create socket
-    int s = ::socket( AF_UNIX, SOCK_STREAM, 0 );
+    int s = ::socket( PF_LOCAL, SOCK_STREAM, 0 );
+    unlink( file.local8Bit() ); // doesn't have to succeed
 
     // bind socket
     struct sockaddr_un a;
     memset( &a, 0, sizeof(a) );
-    a.sun_family = AF_UNIX;
-    strncpy( a.sun_path, file.local8Bit(), UNIX_PATH_MAX-1 );
-    int r = ::bind( s, (struct sockaddr*)&a, sizeof(struct sockaddr_un) );
+    a.sun_family = PF_LOCAL;
+    strncpy( a.sun_path, file.local8Bit(), sizeof(a.sun_path) - 1 );
+    int r = ::bind( s, (struct sockaddr*)&a, SUN_LEN(&a) );
     if ( r < 0 ) {
 	qWarning( "QWSServerSocket: could not bind to file %s", file.latin1() );
 	::close( s );

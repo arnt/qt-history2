@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlock_qws.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qlock_qws.cpp#15 $
 **
 ** Definition of QLock class. This manages interprocess locking
 **
@@ -37,7 +37,8 @@
 #include <sys/ipc.h>
 #include <errno.h>
 
-#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
+    || defined _OS_FREEBSD_
 /* union semun is defined by including <sys/sem.h> */
 #else
 /* according to X/OPEN we have to define it ourselves */

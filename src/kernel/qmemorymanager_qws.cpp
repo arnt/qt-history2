@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmemorymanager_qws.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qmemorymanager_qws.cpp#30 $
 **
 ** Implementation of Qt/Embedded memory management routines
 **
@@ -54,6 +54,8 @@
 #include "qgfx_qws.h"
 
 #define FM_SMOOTH 1
+
+//#define SMOOTH_HACK
 
 class QGlyphTree {
     /* Builds up a tree like this:
@@ -114,9 +116,12 @@ public:
 	for (int i=0; i<n; i++) {
 	    QChar ch(min.unicode()+i);
 	    QGlyph tmp = renderer->render(ch);
-	    QGlyph *tmp2 = &tmp;
 	    if ( tmp.metrics->width && tmp.metrics->height &&
-		 qt_screen->isTransformed() ) {
+		 (qt_screen->isTransformed()
+#ifdef SMOOTH_HACK
+		  ||renderer->smooth
+#endif
+		  ) ) {
 		int depth = 1;
 		int cols = 0;
 		QImage::Endian end = QImage::BigEndian;
@@ -128,13 +133,33 @@ public:
 		QImage img( tmp.data, tmp.metrics->width, tmp.metrics->height,
 			    depth, tmp.metrics->linestep, 0, cols, end );
 		img = qt_screen->mapToDevice( img );
-		tmp2 = new QGlyph( tmp.metrics, new uchar [img.numBytes()] );
-		//### memory leak: tmp2 is never deleted
-		memcpy( tmp2->data, img.bits(), img.numBytes() );
-		tmp2->metrics->linestep = img.bytesPerLine();
+		glyph[i].metrics = tmp.metrics;
+		glyph[i].data = new uchar [img.numBytes()];
+
+#ifdef SMOOTH_HACK
+		if ( renderer->smooth ) {
+		    uchar * p = glyph[i].data;
+		    uchar * s = img.bits();
+		    for ( int i = 0; i < img.numBytes(); i++ ) {
+			uchar d = *s++;
+			if ( d > 128 )
+			    d = 255;
+			else if ( d > 64 )
+			    d = 127;
+			else if ( d > 32 )
+			    d = 63;
+			else
+			    d = 0;
+			*p++ = d;
+		    }
+		} else
+#endif		
+		memcpy( glyph[i].data, img.bits(), img.numBytes() );
+		glyph[i].metrics->linestep = img.bytesPerLine();
 		delete [] tmp.data;
-	    } 
-	    glyph[i] = *tmp2;
+	    } else {
+		glyph[i] = tmp;
+	    }
 	}
     }
 

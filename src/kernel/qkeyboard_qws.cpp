@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeyboard_qws.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qkeyboard_qws.cpp#41 $
 **
 ** Implementation of Qt/Embedded keyboard drivers
 **
@@ -51,8 +51,10 @@
 #include <signal.h>
 
 #include <termios.h>
+#if !defined(_OS_FREEBSD_)
 #include <sys/kd.h>
 #include <sys/vt.h>
+#endif
 
 
 
@@ -66,8 +68,6 @@ static int xform_dirkey(int key)
 }
 
 #define VTSWITCHSIG SIGUSR2
-
-static QWSServer *server;
 
 static bool vtActive = true;
 static int  vtQws = 0;
@@ -104,7 +104,7 @@ static int  kbdFD = -1;
 void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, int modifiers,
 			bool isPress, bool autoRepeat)
 {
-    server->processKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
+    qwsServer->processKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
 }
 
 class QWSPC101KeyboardHandler : public QWSKeyboardHandler
@@ -217,29 +217,30 @@ private:
 
 static void vtSwitchHandler(int /*sig*/)
 {
+#if !defined(_OS_FREEBSD_)
     if (vtActive) {
-	server->enablePainting(false);
+	qwsServer->enablePainting(false);
 	qt_screen->save();
 	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
 	    vtActive = false;
-	    server->closeMouse();
+	    qwsServer->closeMouse();
 	}
 	else {
-	    server->enablePainting(true);
+	    qwsServer->enablePainting(true);
 	}
 	usleep(200000);
     }
     else {
 	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
-	    server->enablePainting(true);
+	    qwsServer->enablePainting(true);
 	    vtActive = true;
 	    qt_screen->restore();
-	    server->openMouse();
-	    server->refresh();
+	    qwsServer->openMouse();
+	    qwsServer->refresh();
 	}
     }
-
     signal(VTSWITCHSIG, vtSwitchHandler);
+#endif
 }
 
 //
@@ -331,7 +332,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    bool repeatable = TRUE;
 	    switch (code) {
 		case 0x7a: case 0x7b: case 0x7c: case 0x7d:
-		    keyCode = code - 0x7a + Key_F1;
+		    keyCode = code - 0x7a + Key_F9;
 		    repeatable = FALSE;
 		    break;
 		case 0x79:
@@ -404,7 +405,9 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     if (term && !release) {
 	ctrl = 0;
 	alt = 0;
+#if !defined(_OS_FREEBSD_)
 	ioctl(kbdFD, VT_ACTIVATE, term);
+#endif
 	return;
     }
 
@@ -480,7 +483,9 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
     struct termios termdata;
     tcgetattr( kbdFD, &termdata );
 
+#if !defined(_OS_FREEBSD_)
     ioctl(kbdFD, KDSKBMODE, K_RAW);
+#endif
 
     termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
     termdata.c_oflag = 0;
@@ -494,6 +499,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
 
     signal(VTSWITCHSIG, vtSwitchHandler);
 
+#if !defined(_OS_FREEBSD_)
     struct vt_mode vtMode;
     ioctl(kbdFD, VT_GETMODE, &vtMode);
 
@@ -506,13 +512,16 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
     struct vt_stat vtStat;
     ioctl(kbdFD, VT_GETSTATE, &vtStat);
     vtQws = vtStat.v_active;
+#endif
 }
 
 QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 {
     if (kbdFD >= 0)
     {
+#if !defined(_OS_FREEBSD_)
 	ioctl(kbdFD, KDSKBMODE, K_XLATE);
+#endif
 	tcsetattr(kbdFD, TCSANOW, &origTermData);
 	::close(kbdFD);
 	kbdFD = -1;
@@ -546,14 +555,37 @@ QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
     close(fd);
 }
 
+struct Myinputevent {
+
+    unsigned int dummy1;
+    unsigned int dummy2;
+    unsigned short type;
+    unsigned short code;
+    unsigned int value;
+
+};
 
 void QWSUsbKeyboardHandler::readKeyboardData()
 {
-    unsigned char buf[16];
-    int n = read(kbdFD, buf, 16 );
+    Myinputevent event;
+    int n = read(fd, &event, sizeof(Myinputevent) );
     if ( n != 16 )
 	return;
-    doKey(buf[10]);
+    int key=event.code;
+    if(key==103) {
+	processKeyEvent( 0, Qt::Key_Up, 0, event.value!=0, false );
+    } else if(key==106) {
+	processKeyEvent( 0, Qt::Key_Right, 0, event.value!=0, false  );
+    } else if(key==108) {
+	processKeyEvent( 0, Qt::Key_Down, 0, event.value!=0, false );
+    } else if(key==105) {
+	processKeyEvent( 0, Qt::Key_Left, 0, event.value!=0, false );
+    } else {
+	if(event.value==0) {
+	    key=key | 0x80;
+	}
+	doKey(key);
+    }
 }
 
 /*
@@ -627,18 +659,18 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 		keycode = Qt::Key_Down;
 		break;
 	    case 0x1:
-		keycode = Qt::Key_Backspace;
+		keycode = Qt::Key_Enter;
 		break;
 	    case 0x2:
-		keycode = Qt::Key_Escape;
+		keycode = Qt::Key_F4;
 		break;
 	    default:
 		qDebug("Unrecognised key sequence %d", (int)code );
 	}
-//	if ( (*code) & 0x8000 )
-	    processKeyEvent( 0, keycode, 0, TRUE, FALSE );
-//	else
+	if ( (*code) & 0x8000 )
 	    processKeyEvent( 0, keycode, 0, FALSE, FALSE );
+	else
+	    processKeyEvent( 0, keycode, 0, TRUE, FALSE );
 /*
 	unsigned short t = *code;
 	for ( int i = 0; i < 16; i++ ) {
@@ -649,8 +681,8 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 	    t <<= 1;
 	}
 	keycode = Qt::Key_Space;
-	processKeyEvent( ' ', keycode, 0, TRUE, FALSE );
-	processKeyEvent( ' ', keycode, 0, FALSE, FALSE );
+//	processKeyEvent( ' ', keycode, 0, TRUE, FALSE );
+//	processKeyEvent( ' ', keycode, 0, FALSE, FALSE );
 */
 	idx += 2;
     }
@@ -742,10 +774,8 @@ void QWSVFbKeyboardHandler::readKeyboardData()
 
 QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 {
-    server = this;
-
     QWSKeyboardHandler *handler = 0;
-    
+
     if ( spec == "Buttons" ) {
 	handler = new QWSVr41xxButtonsHandler();
     } else if ( spec == "QVFbKeyboard" ) {
