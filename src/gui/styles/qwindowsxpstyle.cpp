@@ -171,7 +171,7 @@ public:
 	if ( handleMap ) {
 	    QMap<QString, HTHEME>::Iterator it;
 	    for ( it = handleMap->begin(); it != handleMap->end(); ++it )
-		pCloseThemeData( it.data() );
+		pCloseThemeData( it.value() );
 	    delete handleMap;
 	    handleMap = 0;
 	}
@@ -336,7 +336,7 @@ struct XPThemeData
 	    if ( !flipped )
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else if ( name == "TREEVIEW" ) {
-	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	} else if ( (name == "EDIT" || name == "LISTVIEW") && ::qt_cast<QComboBox*>(widget) == 0 ) {
 	    // We assume upto 2px border on the lineedits and Styled Panels,
 	    // and clip the contents.
@@ -346,7 +346,7 @@ struct XPThemeData
 	    HRGN hr2 = CreateRectRgn( rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1 );
 	    CombineRgn( hr1, hr1, hr2, RGN_DIFF );
 	    SelectClipRgn( painter->handle(), hr1 );
-	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
 	    SelectClipRgn( painter->handle(), 0 );
 	    DeleteObject( hr1 );
 	    DeleteObject( hr2 );
@@ -362,9 +362,10 @@ struct XPThemeData
 		QPixmap pm(rec.size());
 		QPainter p(&pm);
 		if(widget)
-		    p.setBackgroundColor(widget->paletteBackgroundColor());
+		    p.setBackgroundColor(widget->palette().color(widget->backgroundRole()));
 		else
-		    p.setBackgroundColor(qApp->palette().active().background());
+		    //p.setBackgroundColor(qApp->palette().active().background());
+		    p.setBackgroundColor(qApp->palette().background());
 		p.eraseRect( 0, 0, rec.width(), rec.height() );
 		pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 		p.end();
@@ -493,14 +494,14 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	return;
     if ( qt_cast<QButton*>(widget) ) {
 	widget->installEventFilter( this );
-	widget->setBackgroundOrigin( QWidget::ParentOrigin );
-	if ( qt_cast<QToolButton*>(widget) && !QString::compare( "qt_close_button1", widget->name() ) ) {
+	//widget-setBackgroundOrigin( QWidget::ParentOrigin );
+	if ( qt_cast<QToolButton*>(widget) && !QString::compare( "qt_close_button1", widget->objectName() ) ) {
 	    QToolButton *tb = (QToolButton*)widget;
 	    tb->setPixmap( *(d->dockCloseActive) );
 	    tb->setAutoRaise( TRUE );
 	    // ugly hack, please look away
 	    tb->setFixedSize( 16, 16 );
-	    QDockWindow *dw = (QDockWindow *) tb->parentWidget()->parentWidget();
+	    QDockWindow *dw = static_cast<QDockWindow *>(tb->parent()->parent());
 	    if ( dw->area() && dw->area()->orientation() == Horizontal )
 		tb->move( 0, 2 );
 	    // ok, you can look again
@@ -539,13 +540,15 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
     } else if ( qt_cast<QWidgetStack*>(widget) &&
-		qt_cast<QTabWidget*>(widget->parentWidget()) ) {
-	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
+		qt_cast<QTabWidget*>(widget->parent()) ) {
+	QPalette p = widget->palette(); 
+	p.setBrush(widget->backgroundRole(), QBrush(*d->tabBody(widget))); 
+	widget->setPalette(p);
     }
-
-    if ( !widget->ownPalette() && widget->parentWidget(TRUE) && widget->parentWidget(TRUE)->paletteBackgroundPixmap() ) {
-	widget->setBackgroundOrigin( QWidget::AncestorOrigin );
-	if ( ::qt_cast<QWidgetStack*>(widget->parentWidget(TRUE)) ) {
+    QWidget *pW = static_cast<QWidget *>(widget->parent());
+    if ( !widget->testAttribute(QWidget::WA_SetPalette) && pW && !pW->palette().brush(pW->backgroundRole()).pixmap() ) {
+	//widget->setBackgroundOrigin( QWidget::AncestorOrigin );
+	if ( ::qt_cast<QWidgetStack*>(pW) ) {
 	    // Repolish all children of a tab page to get
 	    // gradient right. ### FIX properly in 4.0!
 	    QObjectList objList = widget->queryList( "QWidget" );
@@ -575,7 +578,7 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     // as we get the handles back when we need them.
 	QMap<QString, HTHEME>::Iterator it;
 	for ( it = handleMap->begin(); it != handleMap->end(); ++it )
-	    pCloseThemeData( it.data() );
+	    pCloseThemeData( it.value() );
 	delete handleMap;
 	handleMap = 0;
     }
@@ -584,25 +587,24 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 
     if ( qt_cast<QTitleBar*>(widget) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
-	if ( !QString::compare( widget->name(), "_workspacechild_icon_" ) )
+	if ( !QString::compare( widget->objectName(), "_workspacechild_icon_" ) )
 	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
     } else if ( qt_cast<QWidgetStack*>(widget) &&
 		qt_cast<QTabWidget*>(widget->parentWidget()) ) {
-	widget->setPaletteBackgroundPixmap( QPixmap() );
-	widget->unsetPalette();
+	widget->setPalette(QPalette());
     } else if ( qt_cast<QTabBar*>(widget) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     } else if ( widget->inherits( "QDockWindowHandle" ) ||
 		qt_cast<QMenuBar*>(widget) ||
 		( qt_cast<QToolButton*>(widget) &&
-		  !QString::compare( "qt_close_button1", widget->name() ) ) ) {
-	widget->unsetPalette();
+		  !QString::compare( "qt_close_button1", widget->objectName() ) ) ) {
+	widget->setPalette(QPalette());
     }
 
-    if ( !widget->ownPalette() )
-	 widget->setBackgroundOrigin( QWidget::WidgetOrigin );
+//    if ( !widget->testAttribute(WA_SetPalette) )
+//	 widget->setBackgroundOrigin( QWidget::WidgetOrigin );
 
     QWindowsStyle::unPolish( widget );
 }
@@ -616,7 +618,7 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
     if ( widget->inherits( "QDockWindowTitleBar" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
-    } else if ( qt_cast<QTitleBar*>(widget) && !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
+    } else if ( qt_cast<QTitleBar*>(widget) && !QString::compare( widget->objectName(), "_workspacechild_icon_" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
 	XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
@@ -1063,7 +1065,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     QString name;
     int partId = 0;
     int stateId = 0;
-    if ( widget->hasMouse() && widget->isActiveWindow() )
+    if ( widget->testAttribute(QWidget::WA_UnderMouse) && widget->isActiveWindow() )
 	flags |= Style_MouseOver;
 
     switch ( element ) {
@@ -1281,7 +1283,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    }
 	    QString s = mi->text();
 	    if ( !s.isNull() ) {                        // draw text
-		int t = s.find( '\t' );
+		int t = s.indexOf( '\t' );
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 		if (!styleHint(SH_UnderlineAccelerator, widget))
 		    text_flags |= NoAccel;
@@ -1471,10 +1473,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	return;
     }
 
-    LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
-    if ( w->hasMouse() && w->isActiveWindow() )
+    if ( w->testAttribute(QWidget::WA_UnderMouse) && w->isActiveWindow() )
 	flags |= Style_MouseOver;
 
     switch ( control ) {
@@ -1556,7 +1557,6 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		XPThemeData theme( w, p, "COMBOBOX" );
 		theme.rec = visualRect(querySubControlMetrics(CC_ComboBox, w, SC_ComboBoxArrow, opt), w);
 		partId = CP_DROPDOWNBUTTON;
-		QComboBox *cb = (QComboBox*)w;
 
 		if ( !(flags & Style_Enabled) )
 		    stateId = CBXS_DISABLED;
@@ -1576,7 +1576,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
         {
 	    XPThemeData theme( w, p, "SCROLLBAR" );
 	    QScrollBar *bar = (QScrollBar*)w;
-	    bool maxedOut = ( bar->maxValue() == bar->minValue() );
+	    bool maxedOut = ( bar->maximum() == bar->minimum() );
 	    if ( maxedOut )
 		flags &= ~Style_Enabled;
 
@@ -1859,6 +1859,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ToolButton ) {
 		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, opt );
+		QWidget *pW = static_cast<QWidget *>(tb->parent());
 		if ( !opt.isDefault() ) {
 		    Qt::ArrowType type = opt.arrowType();
 
@@ -1915,11 +1916,10 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			else
 			    drawPrimitive( PE_ButtonTool, p, theme.rec, pal, bflags, opt );
 		    }
-		} else if ( tb->parentWidget() &&
-			  tb->parentWidget()->backgroundPixmap() &&
-			  !tb->parentWidget()->backgroundPixmap()->isNull() ) {
-		    QPixmap pixmap = *(tb->parentWidget()->backgroundPixmap());
-
+		} else if ( pW &&
+			    pW->palette().brush(pW->backgroundRole()).pixmap() &&
+			   !pW->palette().brush(pW->backgroundRole()).pixmap()->isNull() ) {
+		    QPixmap pixmap = *(pW->palette().brush(pW->backgroundRole()).pixmap());
 		    p->drawTiledPixmap( r, pixmap, tb->pos() );
 		}
 	    }
@@ -2169,7 +2169,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    p.setPen( color1 );
 		    p.drawPoints( a );
 		    p.end();
-		    QApplication::flushX();
+		    QApplication::flush();
 		    verticalLine->setMask( *verticalLine );
 		    p.begin( horizontalLine );
 		    for( i=0; i<64; i++ )
@@ -2177,7 +2177,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    p.setPen( color1 );
 		    p.drawPoints( a );
 		    p.end();
-		    QApplication::flushX();
+		    QApplication::flush();
 		    horizontalLine->setMask( *horizontalLine );
 		    qlv_cleanup_bitmap.add( &verticalLine );
 		    qlv_cleanup_bitmap.add( &horizontalLine );
@@ -2496,7 +2496,7 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 			     2*windowsItemFrame);
 	    }
 
-	    if (! mi->text().isNull() && mi->text().find('\t') >= 0) {
+	    if (! mi->text().isNull() && mi->text().indexOf('\t') >= 0) {
 		w += 20;
 	    } else if (mi->popup()) {
 		w += 2*windowsArrowHMargin;
@@ -2608,11 +2608,11 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		SubControl sc = querySubControl( CC_TitleBar, titlebar, d->hotSpot );
 		if ( sc != clearHot || clearHot != SC_TitleBarLabel ) {
 		    QRect rect = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, clearHot ), titlebar );
-		    titlebar->repaint( rect, FALSE );
+		    titlebar->repaint( rect );
 
 		    clearHot = sc;
 		    rect = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, sc ), titlebar );
-		    titlebar->repaint( rect, FALSE );
+		    titlebar->repaint( rect );
 		}
 #endif
 #ifndef QT_NO_SLIDER
@@ -2623,7 +2623,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		const bool inSlider = rect.contains( d->hotSpot );
 		if ( ( inSlider && !clearSlider ) || ( !inSlider && clearSlider ) ) {
 		    clearSlider = inSlider;
-		    slider->repaint( rect, FALSE );
+		    slider->repaint( rect );
 		}
 #endif
 	    } else if ( ::qt_cast<QComboBox*>(o) ) {
@@ -2641,14 +2641,14 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
         break;
 
     case QEvent::WindowActivate:
-	if ( !widget->hasMouse() )
+	if ( !widget->testAttribute(QWidget::WA_UnderMouse) )
 	    break;
 	// FALL THROUGH
     case QEvent::Enter:
 	if (!widget->isActiveWindow() || !widget->isEnabled())
 	    break;
         d->hotWidget = widget;
-	widget->repaint( ::qt_cast<QSlider*>(widget) != 0 );
+	widget->repaint();
         break;
 
     case QEvent::Leave:
@@ -2660,7 +2660,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
             d->hotWidget = 0;
 	    d->hotHeader = QRect();
 	    d->hotTab = 0;
-	    widget->repaint( ::qt_cast<QSlider*>(widget) != 0 );
+	    widget->repaint();
         }
         break;
 
@@ -2674,9 +2674,9 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	break;
 
     case QEvent::Move:
-	if ( widget->paletteBackgroundPixmap() &&
-	     widget->backgroundOrigin() != QWidget::WidgetOrigin )
-	    widget->update();
+	//if ( widget->paletteBackgroundPixmap() &&
+	//     widget->backgroundOrigin() != QWidget::WidgetOrigin )
+	//    widget->update();
 	break;
 
     default:
