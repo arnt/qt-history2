@@ -7,47 +7,63 @@
 
     \section1 Introduction
 
-    In the following walkthrough we will show how Qt objects can be
-    used in a .NET environment using the ActiveQt framework as an
-    interoperability bridge between the .NET world and Qt.
+    In the following walkthrough we will show how Qt objects can be used
+    in a .NET environment, and how .NET objects can be used in a Qt
+    environment.
 
     \section2 Qt vs .NET
 
     Qt is a C++ library and is compiled into traditional, native
     binaries that make full use of the performance provided by the
-    runtime environment, and even though Qt provides mechanisms
-    to simplify memory management it does not provide any garbage
-    collection.
+    runtime environment.
 
-    One of the key concept of .NET is the idea of "managed code" - the 
-    source code is compiled into an intermediate bytecode, and that 
-    bytecode is run through a virtual machine - the \e {Common Language 
-    Runtime} (CLR). This virtual machine provides among other things 
-    garbage collection for allocated objects.
+    One of the key concepts of .NET is the idea of "intermediate language
+    code" - the source code is compiled into a bytecode format, and at
+    runtime, that bytecode is executed in a virtual machine - the \e
+    {Common Language Runtime} (CLR).
 
-    While it is possible to compile Qt application code into bytecode
-    for the CLR, and to use .NET framework classes in Qt code, it is 
-    impossible to go the other way round - bytecode can not directly 
-    call native code.
-    \footnote The .NET framework provides Platform Invocation Services -
-    P/Invoke - that enable .NET code to call C functions located in DLLs
-    directly, but there is no such functionality for C++ classes.
-    \endfootnote
+    Another key concept is that of \e {managed code}. This is essentially
+    intermediate language code written in such a way that the CLR can take
+    care of the memory management, i.e. the CLR will do automatic garbage
+    collection, so the application code does not need to explicitly free
+    the memory for unused objects.
 
-    \section1 Walkthrough
+    The MS compilers for C# and VB.NET will only produce managed
+    code. Such programs cannot directly call normal, native functions
+    or classes. \footnote The .NET framework provides Platform Invocation
+    Services - P/Invoke - that enable managed code to call native C (not
+    C++) functions located in DLLs directly. The resulting application
+    then becomes partially unmanaged.\endfootnote
 
-    We will now demonstrate how to use classes written with Qt in a .NET 
-    environment, both by implementing a manual wrapper class, and by 
-    utilizing the ActiveQt framework as a generic bridge.
+    The MS C++ compiler for .NET on the other hand, can produce both
+    normal and managed code. To write a C++ class that can be compiled
+    into managed code, the developer must flag the class as managed using
+    the \c __gc keyword, and restrict the code to only use the subset of
+    C++ known as "Managed Extensions for C++", or MC++ for short. The
+    advantage is that MC++ code can freely call and use normal C++
+    functions and classes. And it also works the other way around: normal
+    C++ code can call managed functions and use managed classes (e.g. the
+    entire .NET framework class library), including managed functions and
+    classes implemented in C# or VB.NET. This feature of mixing managed
+    and normal C++ code immensely eases the interoperability with .NET,
+    and is by Microsoft referred to as the "It Just Works" (IJW) feature.
 
-    In the second part of the walkthrough we will create a simple user 
-    interface in Visual Studio.NET, with the functionality implemented 
-    using C#. This interface will use the QPushButton class as well as 
-    the \link qaxserver-example-multiple.html QAxWidget2 \endlink class.
+    This document demonstrates two different ways of integrating normal
+    C++ code (that uses Qt) with managed .NET code. First, the manual way
+    is presented, which includes using a thin MC++ wrapper class around
+    the normal Qt/C++ class. Then, the automated way is presented, which
+    utilizes the ActiveQt framework as a generic bridge. The advantage of
+    the first method is that it gives the application developer full
+    control, while the second method requires less coding and relieves the
+    developer of dealing with the conversion between managed and normal
+    data objects.
 
-    The example directory of ActiveQt includes the result of this
-    walkthrough using both C# and VB.NET, created with Visual Studio.NET
-    (not 2003). Load \c {examples/dotnet/walkthrough/csharp.csproj}, 
+    The impatient reader, who right away wants to see a QPushButton and a
+    custom Qt widget (\link qaxserver-example-multiple.html QAxWidget2
+    \endlink) run in a .NET GUI application is referred to the example
+    directory of ActiveQt. It contains the result of this walkthrough
+    using both C# and VB.NET, created with Visual Studio.NET (not 2003).
+    Load \c {examples/dotnet/walkthrough/csharp.csproj}, 
     \c {examples/dotnet/walkthrough/vb.vbproj}
     \footnote
     You will notice that in the generated code the following line is
@@ -63,16 +79,16 @@
     or \c {examples/dotnet/wrapper/wrapper.sln} into the IDE and run 
     the solution.
 
-    \section2 It Just Works
 
-    To use native C++ classes from .NET bytecode you have to provide a 
-    wrapper for each of your classes. Those wrappers can be implemented
-    manually in the form of C++ classes. However, this is only possible 
-    in VC++.NET, thanks to extensions to the C++ language that Microsoft
-    introduced with the 7.x series of their C++ compiler.
-    \footnote Consequently, this code will not compile with any other 
-    compiler. \endfootnote Microsoft calls this the IJW approach - "It
-    Just Works".
+    \section1 Walkthrough: .NET interop with MC++ and IJW
+
+    Normal C++ classes and functions can be used from managed .NET code by
+    providing thin wrapper classes written in MC++. The wrapper class will
+    take care of forwarding the calls to the normal C++ functions or
+    methods, and converting parameter data as necessary. Since the wrapper
+    class is a managed class, it can be used without further ado in any
+    managed .NET application, whether written in C#, VB.NET, MC++ or other
+    managed programming language.
 
     \quotefile dotnet/wrapper/lib/worker.h
     \skipto class
@@ -87,18 +103,37 @@
     \skipto class
     \printuntil };
 
-    The .NET wrapper class uses keywords that are part of Microsoft's
-    C++ extension to indicate that the class is garbage collected
-    (\c {__gc}), and that \c StatusString should be accessible as a
-    property in languages that support this concept (\c {__property}).
-    We also  declare an event function \c statusStringChanged(String*)
-    (\c {__event}), the equivalent of the respective signal in the Qt
-    class.
+    The .NET wrapper class uses keywords that are part of MC++ to indicate
+    that the class is managed/garbage collected (\c {__gc}), and that \c
+    StatusString should be accessible as a property in languages that
+    support this concept (\c {__property}).  We also declare an event
+    function \c statusStringChanged(String*) (\c {__event}), the
+    equivalent of the respective signal in the Qt class.
 
     Before we can start implementing the wrapper class we need a way to
     convert Qt's datatypes (and potentionally your own) into .NET 
     datatypes, e.g. \c QString objects need to be converted into objects 
     of type \c {String*}.
+    
+    When operating on managed objects in normal C++ code, a little extra
+    care must be taken because of the CLR's garbage collection. A normal
+    pointer variable should not \footnote Indeed, the compiler will in
+    many cases disallow it. \endfootnote be used to refer to a managed
+    object. The reason is that the garbage collection can kick in at any
+    time and move the object to another place on the heap, leaving you
+    with an invalid pointer.
+
+    However, two methods are provided that solves this problem easily. The
+    first is to use a \e pinned pointer, i.e. declare the pointer variable
+    with the \c __pin keyword. This guarantees that the object pointed to
+    will not be moved by the garbage collector. It is recommended that
+    this method not be used to keep a references to managed objects for a
+    long time, since it will decrease the efficiency of the garbage
+    collector. The second way is to use the \c gcroot smartpointer
+    template type. This lets you create safe pointers to managed
+    objects. E.g. a variable of type \c gcroot<String> will always point
+    to the String object, even if it has been moved by the garbage
+    collector, and it can be used just like a normal pointer.
 
     \quotefile dotnet/wrapper/lib/tools.cpp
     \printuntil }
@@ -114,45 +149,22 @@
     \printuntil }
 
     The constructor and destructor simply create and destroy the Qt
-    object wrapped using the C++ operators \c new and \c delete. Note
-    that the constructor of the \c Worker class doesn't take any 
-    parameters, ie. it cannot be a child of another QObject. Supporting
-    this would make it necessary to reflect changes in the object 
-    hierarchy (ie. when objects are destroyed, or due to calls to 
-    QWidget::reparent()) in the .NET-copy of the object hierarchy.
-
-    Notifying the .NET wrapper of such changes from within Qt would 
-    require some native Qt object that can communicate to the
-    respective .NET object. Bytecode objects however cannot be 
-    referenced in native code (the garbage collector can after all
-    delete the object living in bytecode any moment), so there is no 
-    simple way to communicate in that direction.
-    \footnote
-    Visual Studio.NET includes a template class \c gcroot that allows
-    __gc-members in native classes.
-    \endfootnote
+    object wrapped using the C++ operators \c new and \c delete.
 
     \printuntil }
 
     The netWorker class delegates calls from the .NET code to the native
-    code. The transition between those two worlds implies a small
-    performance hit for each function call, in addition to the type
-    conversion.
+    code. Although the transition between those two worlds implies a small
+    performance hit for each function call, and for the type conversion,
+    this should be negligible since we are anyway going to run within the
+    CLR.
 
     \printuntil }
 
     The property setter calls the native Qt class before firing the 
-    event using the \c __raise keyword. This is necessary as Qt and 
-    .Net use incompatible signal and slot implementations, so we cannot 
-    just connect the Qt signal to the .Net event.
-    The solution provided here is not working as soon as the Qt class
-    emits signals based on internal status changes, which is of course
-    how signals usually work.
+    event using the \c __raise keyword.
 
-    The inability of .NET classes to live in native code makes it again
-    very difficult to provide a generic solution.
-
-    That wrapper can now be used in .NET code, e.g. using C++, C#, 
+    This wrapper class can now be used in .NET code, e.g. using C++, C#,
     Visual Basic or any other programming language available for .NET.
 
     \quotefile dotnet/wrapper/main.cs
@@ -161,17 +173,7 @@
     \printuntil }
     \printuntil }
 
-    This is clearly a big effort already for a simple class, and we
-    haven't even been able to completely model important Qt concepts
-    like parent/child relations or signals and slots in the .NET 
-    wrapper class.
-
-    And all this effort is necessary to be able to support your code
-    on a single additional platform - Microsoft .NET - and is useless for
-    any other environment, where the wrapper class will not even compile 
-    as it uses Microsoft specific C++ extensions.
-
-    \section2 .NET/COM Interop with ActiveQt
+    \section1 Walkthrough: .NET/COM Interop with ActiveQt
 
     Fortunately .NET provides a generic wrapper for COM objects, the 
     \e {Runtime Callable Wrapper} (RCW). This RCW is a proxy for the 
@@ -293,13 +295,9 @@
     http://www.trolltech.com/products/qsa QSA \endlink, the cross platform 
     scripting solution for Qt applications, and to COM clients in general.
 
-    When using the "IJW" method the only limitation is that it's error
-    prone as a lot of code is copied, and that it is very time consuming 
-    to do, especially if you have custom datatypes to support.
-    Additionally it is difficult to model concepts like signals and slots
-    in the .NET wrapper, and the parent/child hierarchies in Qt are
-    difficult to combine with the garbage collected world of CLR 
-    bytecode.
+    When using the "IJW" method, in priciple the only limitation is the
+    time required to write the wrapper classes and data type conversion
+    functions.
 
     \section2 Performance Considerations
 
@@ -310,17 +308,14 @@
     code should try to minimize the communication necessary between
     the different worlds.
 
-    As ActiveQt introduces three layers at once - the RCW, COM and
-    finally ActiveQt itself - the performance penalty when using
-    the generic Qt/ActiveQt/COM/RCW/.NET bridge as opposed to a 
-    hand-crafter IJW-wrapper class can be significant.
-    \footnote With ActiveQt string-based function calls are factor 50 
-    slower than with IJW, and IJW is factor 20 slower than calls 
-    without crossing from bytecode to native code. \endfootnote
-    The execution speed however is still sufficient for connecting to 
-    and modifying interactive elements in a user interface, and as 
-    soon as the benefit of using Qt and C++ to implement and compile
-    performance critical algorithms into native code kicks in ActiveQt
-    becomes a valid choice for making even non-visual parts of your 
-    application accessible to .NET.
+    As ActiveQt introduces three layers at once - the RCW, COM and finally
+    ActiveQt itself - the performance penalty when using the generic
+    Qt/ActiveQt/COM/RCW/.NET bridge is larger than when using a
+    hand-crafted IJW-wrapper class. The execution speed however is still
+    sufficient for connecting to and modifying interactive elements in a
+    user interface, and as soon as the benefit of using Qt and C++ to
+    implement and compile performance critical algorithms into native code
+    kicks in, ActiveQt becomes a valid choice for making even non-visual
+    parts of your application accessible to .NET.
+
 */
