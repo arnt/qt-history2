@@ -604,23 +604,23 @@ void FunctionList::refreshFunctions( bool doDelete )
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
-    if ( slotList.isEmpty() )
-	return;
     HierarchyItem *itemFunctions = new HierarchyItem( this, tr( "Functions" ), QString::null, QString::null );
     itemFunctions->setPixmap( 0, *folderPixmap );
     HierarchyItem *itemProtected = new HierarchyItem( itemFunctions, tr( "protected" ), QString::null, QString::null );
     HierarchyItem *itemPublic = new HierarchyItem( itemFunctions, tr( "public" ), QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
-    while ( TRUE ) {
-	QListViewItem *item = 0;
-	if ( (*it).access == "public" )
-	    item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
-	else
-	    item = new HierarchyItem( itemProtected, (*it).slot, QString::null, QString::null );
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-	if ( it == slotList.begin() )
-	    break;
-	--it;
+    if ( !slotList.isEmpty() ) {
+	while ( TRUE ) {
+	    QListViewItem *item = 0;
+	    if ( (*it).access == "public" )
+		item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
+	    else
+		item = new HierarchyItem( itemProtected, (*it).slot, QString::null, QString::null );
+	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    if ( it == slotList.begin() )
+		break;
+	    --it;
+	}
     }
     itemProtected->setOpen( TRUE );
     itemPublic->setOpen( TRUE );
