@@ -628,12 +628,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
             p->drawPolyline(pa);
             p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.height(), opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
+            p->drawLine(opt->rect.x(), opt->rect.height(),
+                        opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
         }
         p->setPen(oldPen);
         break; }
     case PE_FrameTabWidget:
-        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QPen oldPen = p->pen();
             p->setPen(opt->palette.light().color());
             switch (twf->shape) {
@@ -642,11 +644,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->drawLine(opt->rect.left(), opt->rect.top(),
                             opt->rect.left(), opt->rect.bottom() - 1);
                 p->setPen(opt->palette.shadow().color());
-                p->setPen(Qt::red);
                 p->drawLine(opt->rect.left(), opt->rect.bottom() + 1,
                             opt->rect.right(), opt->rect.bottom() + 1);
                 p->setPen(opt->palette.dark().color());
-                p->setPen(Qt::blue);
                 p->drawLine(opt->rect.left(), opt->rect.bottom(),
                             opt->rect.right() - 1, opt->rect.bottom());
                 p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
@@ -674,14 +674,23 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
-                // Implement...
+                p->drawLine(opt->rect.left() + 1, opt->rect.top(),
+                            opt->rect.right() - 2, opt->rect.top());
+                p->drawLine(opt->rect.left(), opt->rect.top(),
+                            opt->rect.left(), opt->rect.bottom() - 1);
+                p->drawLine(opt->rect.left(), opt->rect.bottom(),
+                            opt->rect.right() - 2, opt->rect.bottom());
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(opt->rect.left(), opt->rect.bottom() - 1,
+                            opt->rect.right() - 2, opt->rect.bottom() - 1);
                 break;
             }
             p->setPen(oldPen);
         }
         break;
     case PE_FrameTabBarBase:
-        if (const QStyleOptionTabWidgetFrame *twf = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QPen oldPen = p->pen();
             QRect r2 = opt->rect;
             switch (twf->shape) {
@@ -712,10 +721,11 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
-                p->setPen(opt->palette.light().color());
-                p->drawLine(r2.right() - 1, r2.bottom(), r2.right(), r2.bottom());
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(r2.left(), r2.bottom(), r2.right(), r2.bottom());
                 p->drawLine(r2.right(), r2.bottom(), r2.right(), r2.top());
-                p->drawLine(r2.right() - 1, r2.top(), r2.right(), r2.top());
+                p->setPen(opt->palette.light().color());
+                p->drawLine(r2.left(), r2.top(), r2.right(), r2.top());
                 break;
             }
             p->setPen(oldPen);
@@ -882,7 +892,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
-                fropt.rect = visualRect(opt->direction, opt->rect, subRect(SR_PushButtonFocusRect, btn, widget));
+                fropt.rect = visualRect(opt->direction, opt->rect,
+                                        subRect(SR_PushButtonFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -952,17 +963,21 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             bool isRadio = (ce == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonIndicator : SR_CheckBoxIndicator, btn, widget));
-            drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox, &subopt, p, widget);
+                                             subRect(isRadio ? QStyle::SR_RadioButtonIndicator
+                                                             : SR_CheckBoxIndicator, btn, widget));
+            drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
+                          &subopt, p, widget);
             subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subRect(isRadio ? QStyle::SR_RadioButtonContents : SR_CheckBoxContents, btn, widget));
+                                             subRect(isRadio ? QStyle::SR_RadioButtonContents
+                                                             : SR_CheckBoxContents, btn, widget));
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if (btn->state & Style_HasFocus) {
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(btn->direction, btn->rect,
-                                        subRect(isRadio ? QStyle::SR_RadioButtonFocusRect : SR_CheckBoxFocusRect, btn, widget));
+                                        subRect(isRadio ? QStyle::SR_RadioButtonFocusRect
+                                                        : SR_CheckBoxFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -976,8 +991,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             QPixmap pix;
             if (btn->icon.isNull())
                 pix = btn->icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
-            drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
-                     btn->state & Style_Enabled, pix, btn->text);
+            drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                     btn->palette, btn->state & Style_Enabled, pix, btn->text);
         }
         break;
     case CE_MenuTearoff:
@@ -995,7 +1010,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break;
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+            uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip
+                            | Qt::TextSingleLine;
             if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
@@ -1010,12 +1026,15 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_ProgressBar:
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QStyleOptionProgressBar subopt = *pb;
-            subopt.rect = QStyle::visualRect(pb->direction, pb->rect, subRect(SR_ProgressBarGroove, pb, widget));
+            subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
+                                             subRect(SR_ProgressBarGroove, pb, widget));
             drawControl(CE_ProgressBarGroove, &subopt, p, widget);
-            subopt.rect = QStyle::visualRect(pb->direction, pb->rect, subRect(SR_ProgressBarContents, pb, widget));
+            subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
+                                             subRect(SR_ProgressBarContents, pb, widget));
             drawControl(CE_ProgressBarContents, &subopt, p, widget);
             if (pb->textVisible) {
-                subopt.rect = QStyle::visualRect(pb->direction, pb->rect, subRect(SR_ProgressBarLabel, pb, widget));
+                subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
+                                                 subRect(SR_ProgressBarLabel, pb, widget));
                 drawControl(CE_ProgressBarLabel, &subopt, p, widget);
             }
         }
@@ -1028,7 +1047,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QColor penColor = pb->palette.highlightedText().color();
             QColor *pColor = 0;
-            if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible && pb->progress * 2 >= pb->maximum)
+            if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
+                && pb->progress * 2 >= pb->maximum)
                 pColor = &penColor;
             drawItem(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
                      pb->state & Style_Enabled, pb->text, pColor);
@@ -1218,7 +1238,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         }
                         tr.translate(shiftX, shiftY);
                         drawItem(p, tr, alignment, toolbutton->palette,
-                                 toolbutton->state & Style_Enabled, QPixmap(), toolbutton->text, &btext);
+                                 toolbutton->state & Style_Enabled, QPixmap(), toolbutton->text,
+                                 &btext);
                     } else {
                         rect.translate(shiftX, shiftY);
                         drawItem(p, rect, Qt::AlignCenter, toolbutton->palette,
@@ -1303,11 +1324,20 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             bool selected = tab->state & Style_Selected;
             if (verticalTabs) {
                 p->save();
-                int newY = tr.y() + tr.height();
+                int newX, newY, newRot;
+                if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::TriangularWest) {
+                    newX = tr.width();
+                    newY = tr.y();
+                    newRot = 90;
+                } else {
+                    newX = 0;
+                    newY = tr.y() + tr.height();
+                    newRot = -90;
+                }
                 tr.setRect(0, 0, tr.height(), tr.width());
                 QMatrix m;
-                m.translate(0, newY);
-                m.rotate(-90);
+                m.translate(newX, newY);
+                m.rotate(newRot);
                 p->setMatrix(m, true);
             }
             if (selected) {
@@ -1440,7 +1470,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
                                    const QWidget *w) const
 {
-    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color0);
+    QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,
+                 Qt::color1,Qt::color0);
     switch (ce) {
     case CE_PushButton:
     case CE_PushButtonBevel:
@@ -1531,8 +1562,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(Qt::SmallIconSize, QIcon::Normal));
             } else {
-                r = itemRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                             btn->state & Style_Enabled, btn->text);
+                r = itemRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter
+                             | Qt::TextShowMnemonic, btn->state & Style_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
@@ -1568,8 +1599,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(Qt::SmallIconSize, QIcon::Normal));
             } else {
-                r = itemRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                             btn->state & Style_Enabled, btn->text);
+                r = itemRect(opt->fontMetrics, cr, Qt::AlignLeft | Qt::AlignVCenter
+                             | Qt::TextShowMnemonic, btn->state & Style_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
@@ -1715,7 +1746,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (scrollbar->subControls & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSubLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSubLine)
@@ -1726,7 +1758,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddLine) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarAddLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarAddLine)
@@ -1737,7 +1770,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSubPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSubPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSubPage)
@@ -1748,7 +1782,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarAddPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarAddPage)
@@ -1759,7 +1794,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarFirst) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarFirst, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarFirst)
@@ -1770,7 +1806,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarLast) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarLast, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarLast)
@@ -1781,7 +1818,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSlider) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                newScrollbar.rect = visualRect(opt->direction, opt->rect,
+                                               querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSlider)
@@ -1791,7 +1829,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     if (scrollbar->state & Style_HasFocus) {
                         QStyleOptionFocusRect fropt;
                         fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
-                                           newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
+                                           newScrollbar.rect.width() - 5,
+                                           newScrollbar.rect.height() - 5);
                         fropt.palette = newScrollbar.palette;
                         fropt.state = Style_None;
                         drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
@@ -1829,9 +1868,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 } else {
                     copy.state |= Style_Raised;
                 }
-                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus : PE_IndicatorSpinUp);
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinPlus
+                                                                       : PE_IndicatorSpinUp);
 
-                copy.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget));
+                copy.rect = visualRect(opt->direction, opt->rect,
+                                       querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp,
+                                                              widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1851,10 +1893,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 } else {
                     copy.state |= Style_Raised;
                 }
-                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus : PE_IndicatorSpinDown);
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_IndicatorSpinMinus
+                                                                       : PE_IndicatorSpinDown);
 
                 copy.rect = sb->rect;
-                copy.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget));
+                copy.rect = visualRect(opt->direction, opt->rect,
+                                       querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown,
+                                                              widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1875,8 +1920,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionToolButton *toolbutton
                 = qt_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
-            button = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget));
-            menuarea = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget));
+            button = visualRect(opt->direction, opt->rect,
+                                querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget));
+            menuarea = visualRect(opt->direction, opt->rect,
+                                  querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu,
+                                                         widget));
 
             StyleFlags bflags = toolbutton->state;
 
@@ -2117,11 +2165,13 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
     switch (cc) {
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            QRect r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, slider, SC_SliderHandle, widget));
+            QRect r = visualRect(opt->direction, opt->rect,
+                                 querySubControlMetrics(cc, slider, SC_SliderHandle, widget));
             if (r.isValid() && r.contains(pt)) {
                 sc = SC_SliderHandle;
             } else {
-                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, slider, SC_SliderGroove ,widget));
+                r = visualRect(opt->direction, opt->rect,
+                               querySubControlMetrics(cc, slider, SC_SliderGroove ,widget));
                 if (r.isValid() && r.contains(pt))
                     sc = SC_SliderGroove;
             }
@@ -2132,7 +2182,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_ScrollBarAddLine;
             while (ctrl <= SC_ScrollBarGroove) {
-                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, scrollbar, QStyle::SubControl(ctrl),
+                r = visualRect(opt->direction, opt->rect,
+                               querySubControlMetrics(cc, scrollbar, QStyle::SubControl(ctrl),
                                                       widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
@@ -2153,7 +2204,9 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_SpinBoxUp;
             while (ctrl <= SC_SpinBoxSlider) {
-                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, spinbox, QStyle::SubControl(ctrl), widget));
+                r = visualRect(opt->direction, opt->rect,
+                               querySubControlMetrics(cc, spinbox, QStyle::SubControl(ctrl),
+                                                      widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2170,7 +2223,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
 
             while (ctrl <= SC_TitleBarUnshadeButton) {
-                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, tb, QStyle::SubControl(ctrl), widget));
+                r = visualRect(opt->direction, opt->rect,
+                               querySubControlMetrics(cc, tb, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2194,7 +2248,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_ComboBoxArrow;  // Start here and go down.
             while (ctrl > 0) {
-                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, cmb, QStyle::SubControl(ctrl), widget));
+                r = visualRect(opt->direction, opt->rect,
+                               querySubControlMetrics(cc, cmb, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2340,7 +2395,8 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             QSize bs;
 
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
-            bs.setWidth(qMax(14, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4))); // 1.6 -approximate golden mean
+            // 1.6 -approximate golden mean
+            bs.setWidth(qMax(14, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
             bs = bs.expandedTo(QApplication::globalStrut());
             int y = fw;
             int x, lx, rx;
@@ -2349,15 +2405,21 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             rx = x - fw;
             switch (sc) {
             case SC_SpinBoxUp:
-                ret = QRect(x, y, bs.width(), bs.height()); break;
+                ret = QRect(x, y, bs.width(), bs.height());
+                break;
             case SC_SpinBoxDown:
-                ret = QRect(x, y + bs.height(), bs.width(), bs.height()); break;
+                ret = QRect(x, y + bs.height(), bs.width(), bs.height());
+                break;
             case SC_SpinBoxButtonField:
-                ret = QRect(x, y, bs.width(), spinbox->rect.height() - 2*fw); break;
+                ret = QRect(x, y, bs.width(), spinbox->rect.height() - 2*fw);
+                break;
             case SC_SpinBoxEditField:
-                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw - slider); break;
+                ret = QRect(lx, fw, rx, spinbox->rect.height() - 2*fw - slider);
+                break;
             case SC_SpinBoxSlider:
-                ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider) : QRect()); break;
+                ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider)
+                                  : QRect());
+                break;
             case SC_SpinBoxFrame:
                 ret = spinbox->showFrame ? spinbox->rect : QRect();
             default:
@@ -2759,8 +2821,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_CheckBox:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ct == CT_RadioButton);
-            QRect irect = subRect(isRadio ? SR_RadioButtonIndicator : SR_CheckBoxIndicator, btn, widget);
-            int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, btn, widget);
+            QRect irect = subRect(isRadio ? SR_RadioButtonIndicator
+                                          : SR_CheckBoxIndicator, btn, widget);
+            int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight
+                                        : PM_IndicatorHeight, btn, widget);
             int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;
             sz += QSize(irect.right() + margins, 4);
             sz.setHeight(qMax(sz.height(), h));

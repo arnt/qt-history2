@@ -1704,9 +1704,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             default:
                 QCommonStyle::drawControl(ce, tab, p, widget);
                 break;
-            case QTabBar::RoundedEast:
-                p->drawRect(tab->rect);
-                break;
             case QTabBar::RoundedNorth: {
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
@@ -1847,6 +1844,40 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     ++y2;
                     p->drawLine(leftSide + 2, y2, rightSide + (selected ? 0 : -1), y2);
                 }
+                break; }
+            case QTabBar::RoundedEast: {
+                bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
+                if (selected) {
+                    p->fillRect(QRect(r2.left(), r2.top(), 2, r2.height()),
+                                tab->palette.brush(QPalette::Background));
+                    p->setPen(tab->palette.background().color());
+                    p->drawLine(r2.left(), r2.top(), r2.right() - 2, r2.top());
+                    p->setPen(tab->palette.dark().color());
+                } else {
+                    p->setPen(tab->palette.shadow().color());
+                    p->drawLine(r2.left() + 1, r2.top() + (rightAligned ? 0 : 1),
+                                r2.left() + 1, r2.bottom() - 2);
+                    p->drawLine(r2.left() + 1, r2.top() + (rightAligned && firstTab ? 0 : 1),
+                                r2.left() + 1, r2.bottom() - (lastTab ? 0 : 2));
+                    if (rightAligned && lastTab)
+                        p->drawPoint(r2.left(), r2.bottom());
+                    p->setPen(tab->palette.dark().color());
+                    p->drawLine(r2.left(), r2.top(), r2.left(), r2.bottom() - 1);
+                    r2.setRect(r2.left(), r2.top(), r2.width() - 2, r2.height());
+                }
+                p->drawLine(r2.left() + (selected ? 0 : 2),
+                            r2.bottom() - 1, r2.right() - 2, r2.bottom() - 1);
+                p->drawPoint(r2.right() - 2, r2.bottom() - 2);
+                p->drawLine(r2.right() - 1, r2.bottom() - 2, r2.right() - 1, r2.top() + 1);
+
+                p->setPen(tab->palette.shadow().color());
+                p->drawLine(r2.left() + (lastTab && rightAligned && selected) ? 0 : 1, r2.bottom(),
+                            r2.right() - 1, r2.bottom());
+                p->drawPoint(r2.right() - 1, r2.bottom() - 1);
+                p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.top() + 2);
+                
+                p->setPen(tab->palette.light().color());
+                p->drawLine(r2.left() + (selected ? 0 : 2), r2.top(), r2.right() - 2, r2.top());
                 break; }
             }
         }

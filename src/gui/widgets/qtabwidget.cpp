@@ -577,7 +577,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         tabx = qMin(availLength - t.width(), availLength - t.width() - lw + 2) - lcw;
     else
         tabx = qMax(0, lw - 2) + lcw;
-    if (d->pos == South) {
+    if (d->pos == South || d->pos == East) {
         taby = availThickness - t.height() - lw;
         stacky = 1;
         // exty = taby - (exth - overlap);
@@ -596,7 +596,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
             tabx += availLength - t.width() - rcw;
     }
     if (verticalTabs) {
-        d->tabs->setGeometry(taby, tabx, t.height(), t.width()); // no typo
+        // Reverse everything.
+        d->tabs->setGeometry(taby, tabx, t.height(), t.width());
         d->panelRect.setRect(stacky, 0, availThickness - (exth-overlap)
                              - t.height() + qMax(0, lw - 2), availLength);
     } else {
@@ -949,8 +950,8 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.rect.setWidth(tabBarBaseHeight + 1);
         break;
     case East:
-        opt.rect.setRight(opt.rect.right() + tabBarBaseHeight);
-        opt.rect.setWidth(tabBarBaseHeight);
+        opt.rect.setLeft(opt.rect.right() - tabBarBaseHeight);
+        opt.rect.setWidth(tabBarBaseHeight + 1);
         break;
     }
     p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);

@@ -1674,6 +1674,8 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
         }
         break;
+    case PE_FrameTabBarBase:
+        break;
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -3196,29 +3198,92 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
+    case QStyle::PE_FrameTabBarBase:
+        break;
     case QStyle::PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            // This tab pane with Appearance Manager is a real pain (no joke).
+            // First, it can't handle drawing tabs at different positions.
+            // Second, it draws outside my rectangle AND provides to function to return the area.
+            // Third, it connects with the base, so I need to draw everything.
+            // So, I must "guess" the size of the panel and do some transformations to make it work.
+
+
+            const int TabPaneShadowWidth = 2; // The offset where we really start drawing the pane.
+            const int TabPaneShadowHeight = 10; // The amount of pixels to for the drop shadow
             QRect wholePane = twf->rect;
             // we need to draw the whole thing, so add in the height.
             int baseHeight = q->pixelMetric(QStyle::PM_TabBarBaseHeight, twf, w);
             int overlap = q->pixelMetric(QStyle::PM_TabBarBaseOverlap, twf, w);
-            if (twf->shape == QTabBar::RoundedSouth
-                    || twf->shape == QTabBar::TriangularSouth) {
+            if (twf->shape != QTabBar::RoundedNorth
+                && twf->shape != QTabBar::TriangularNorth) {
                 p->save();
-                // Not great, but I can't seem to get Appearance Manager to flip for me.
-                wholePane.setHeight(baseHeight + wholePane.height() - overlap - 1);
-                QPixmap pix(wholePane.size(), 32);
+                int newX, newY, newRot;
+                if (twf->shape == QTabBar::RoundedWest || twf->shape == QTabBar::RoundedEast
+                    || twf->shape == QTabBar::TriangularWest
+                    || twf->shape == QTabBar::TriangularWest) {
+                    wholePane.setRect(wholePane.left() + overlap - baseHeight, wholePane.y(),
+                                      wholePane.height(), wholePane.width());
+                    wholePane.setWidth(baseHeight + wholePane.width());
+                } else {
+                    wholePane.setHeight(baseHeight + wholePane.height() - overlap - 1);
+                }
+                QRect finalRect = wholePane;
+                QSize pixSize;
+                switch (twf->shape) {
+                default:
+                    break;
+                case QTabBar::RoundedSouth:
+                case QTabBar::TriangularSouth:
+                    newX = wholePane.x() + wholePane.width();
+                    newY = wholePane.y() + wholePane.height();
+                    newRot = 180;
+                    wholePane.setRect(TabPaneShadowWidth, 0,
+                                      wholePane.width() - 2 * TabPaneShadowWidth,
+                                      wholePane.height());
+                    pixSize = wholePane.size();
+                    break;
+                case QTabBar::RoundedWest:
+                case QTabBar::TriangularWest:
+                    newX = wholePane.x();
+                    newY = wholePane.height();
+                    newRot = -90;
+                    wholePane.setRect(TabPaneShadowWidth, 0,
+                                      wholePane.height() - 2 * TabPaneShadowWidth,
+                                      wholePane.width());
+                    pixSize = wholePane.size();
+                    break;
+                case QTabBar::RoundedEast:
+                case QTabBar::TriangularEast:
+                    newX = wholePane.width();
+                    newY = wholePane.y();
+                    newRot = 90;
+                    wholePane.setRect(TabPaneShadowWidth, 0,
+                                      wholePane.height() - 2 * TabPaneShadowWidth,
+                                      wholePane.width());
+                    pixSize = wholePane.size();
+                    break;
+                }
+                QPixmap pix(pixSize, 32);
                 QPainter pixPainter(&pix);
                 qt_mac_set_port(&pixPainter);
+                Rect macRect;
+                SetRect(&macRect, 0, 0, pix.width(), pix.height());
+                ApplyThemeBackground(kThemeBackgroundTabPane, &macRect, tds, 32, true);
+                EraseRect(&macRect);
                 DrawThemeTabPane(qt_glb_mac_rect(wholePane, &pixPainter), tds);
-                p->scale(1, -1);
-                p->translate(0, -wholePane.height());
+                QMatrix m;
+                m.translate(newX, newY);
+                m.rotate(newRot);
+                p->setMatrix(m);
                 p->drawPixmap(wholePane, pix);
                 p->restore();
             } else {
-                wholePane.setTop(wholePane.top() + overlap - baseHeight );
-                wholePane.setHeight(baseHeight + wholePane.height());
+                wholePane.setTop(wholePane.top() + overlap - baseHeight);
+                wholePane.setLeft(wholePane.left() + TabPaneShadowWidth);
+                wholePane.setWidth(wholePane.width() - 2 * TabPaneShadowWidth);
+                wholePane.setHeight(baseHeight + wholePane.height() - TabPaneShadowHeight);
                 qt_mac_set_port(p);
                 DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
             }
@@ -4932,8 +4997,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                               const QWidget *w) const
 {
     switch (pe) {
-    case PE_FrameTabBarBase:
-        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
