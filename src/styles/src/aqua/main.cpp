@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* AquaStyle::create( const QString& s )
 bool AquaStyle::init()
 {
     return TRUE;
+}
+
+void AquaStyle::cleanup()
+{
+    delete style;
 }
 
 bool AquaStyle::canUnload() const
