@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#8 $
 **
 ** Definition of the QtTextView class
 **
@@ -43,7 +43,8 @@ public:
     QtTextCharFormat( const QtTextCharFormat &format );
     QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci = 0 );
     QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt );
-
+    bool operator==( const QtTextCharFormat &format );
+    
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *item );
 
     QColor color() const;
@@ -63,7 +64,7 @@ protected:
     int ref;
     QtTextCustomItem *customItem_;
     int logicalFontSize;
-    
+
 };
 
 class QtTextCustomItem
