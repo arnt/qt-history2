@@ -246,6 +246,7 @@ CFG_SHARED=yes
 CFG_GIF=no
 CFG_THREAD=auto
 CFG_SM=auto
+CFG_XSHAPE=auto
 CFG_XINERAMA=auto
 CFG_BIG_CODECS=yes
 CFG_ZLIB=yes
@@ -355,7 +356,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions|-singleqtlib)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-xshape|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions|-singleqtlib)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -690,6 +691,13 @@ while [ "$#" -gt 0 ]; do
     xinerama)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_XINERAMA="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    xshape)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_XSHAPE="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1829,6 +1837,22 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    CFG_SM=yes
 	fi
     fi
+    # auto-detect SHAPE support
+    if [ "$CFG_XSHAPE" != "no" ]; then
+	if $x11tests/xshape.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XSHAPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "XShape support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+            else
+                CFG_XSHAPE=no
+            fi
+	else
+	    CFG_XSHAPE=yes
+	fi
+    fi
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
 	if $x11tests/xinerama.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
@@ -1872,7 +1896,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
 	if $x11tests/xkb.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
-	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    if [ "$CFG_XKB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "XKB support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
 		echo " If you believe this message is in error you may use the continue"
@@ -2133,6 +2157,13 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	SMY="*"
 	SMN=" "
     fi
+    if [ "$CFG_XSHAPE" = "no" ]; then
+        SHY=" "
+        SHN="*"
+    else
+        SHY="*"
+        SHN=" "
+    fi
     if [ "$CFG_XINERAMA" = "no" ]; then
 	XRY=" "
 	XRN="*"
@@ -2192,6 +2223,10 @@ Qt/X11 only:
 
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
+
+ $SHN  -no-xshape ......... Do not compile XShape support.
+ $SHY  -xshape ............ Compile XShape support.
+                         Requires X11/extensions/shape.h.
 
  $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
  $XRY  -xinerama .......... Compile Xinerama support.
@@ -2813,6 +2848,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # for some reason, the following libraries are not always build shared,
     # so *every* program/lib (including Qt) has to link against them
+    if [ "$CFG_XSHAPE" = "yes" ]; then
+        QMAKE_CONFIG="$QMAKE_CONFIG xshape"
+    fi
     if [ "$CFG_XINERAMA" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXinerama \$\$QMAKE_LIBS_X11\""
@@ -3323,6 +3361,7 @@ fi
 if [ "$PLATFORM_X11" = "yes" ]; then
     echo "NAS sound support ... $CFG_NAS"
     echo "Session management .. $CFG_SM"
+    echo "XShape support ...... $CFG_XSHAPE"
     echo "Xinerama support .... $CFG_XINERAMA"
     echo "Tablet support ...... $CFG_TABLET"
     echo "Xcursor support ..... $CFG_XCURSOR"

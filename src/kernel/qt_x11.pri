@@ -1,5 +1,6 @@
 unix {
 	!xinerama:DEFINES += QT_NO_XINERAMA
+	!xshape:DEFINES += QT_NO_SHAPE
 	!xcursor:DEFINES += QT_NO_XCURSOR
 	!xrandr:DEFINES += QT_NO_XRANDR
 	!xrender:DEFINES += QT_NO_XRENDER
@@ -21,4 +22,3 @@ nas {
 }
 
 !x11sm:DEFINES += QT_NO_SM_SUPPORT
-
