@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    tableView->setWindowTitle("A delegate example");
+    tableView->setWindowTitle("Spin Box Delegate");
     tableView->show();
     app.setMainWidget(tableView);
 
