@@ -4,8 +4,14 @@ QPopupMenu updating of itmes on accelerators?
 
 QProgressBar colors not fixed anymore.
 
-Check that unreleased widgets are not in doc/html/*.gif 
+setEnabled( FALSE ) moves focus the right way
 
+make clean the right way
+
+don't insert 0x7f in QLineEdit/QMultiLineEdit even if the keyboard
+layout is unreasonable.
+
+Check that unreleased widgets are not in doc/html/*.gif 
 
 --- qbutton.cpp Tue Sep 30 17:22:15 1997
 +++ qbutton.cpp Thu Oct  2 12:27:54 1997
