@@ -38,14 +38,14 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#define Q_PROPERTY 				// property acess function
-#define Q_META_PROPERTY( name, value )		// meta property
+#define Q_PROPERTY( name, type, set, get )	// property
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT					\
 public:							\
-    QMetaObject *metaObject()const 			\
-       { return staticMetaObject(); }			\
+    QMetaObject *metaObject() const { 			\
+         return staticMetaObject();			\
+    }							\
     const char *className() const;			\
     static QMetaObject* staticMetaObject();		\
     static QString tr(const char*);			\

@@ -45,8 +45,7 @@ void yyerror( char *msg );
 #include "qlist.h"
 #include "qasciidict.h"
 #include "qdict.h"
-#include "qstringlist.h"
-#include "qstring.h"
+#include "qstrlist.h"
 #include "qdatetime.h"
 #include "qfile.h"
 #include <ctype.h>
@@ -73,7 +72,7 @@ struct Argument					// single arg meta data
 
 class ArgList : public QList<Argument> {	// member function arg list
 public:
-    ArgList() { setAutoDelete(TRUE); }
+    ArgList() { setAutoDelete( TRUE ); }
    ~ArgList() { clear(); }
 };
 
@@ -92,10 +91,20 @@ struct Function					// member function meta data
 
 class FuncList : public QList<Function> {	// list of member functions
 public:
-    FuncList() { setAutoDelete(TRUE); }
+    FuncList( bool autoDelete = FALSE ) { setAutoDelete( autoDelete ); }
+    
+    FuncList find( const char* name )
+    {
+	FuncList result;
+	for ( QListIterator<Function> it( *this); it.current(); ++it ) {
+	    if ( it.current()->name == name )
+		result.append( it.current() );
+	}
+	return result;
+    }
 };
 
-class Enum : public QStringList
+class Enum : public QStrList
 {
 public:
     QCString name;
@@ -106,13 +115,56 @@ public:
     EnumList() { setAutoDelete(TRUE); }
 };
 
+
+struct Property
+{
+    Property( int l, const char* n, const char* t, const char* s, const char* g) 
+	: lineNo(l), name(n), type(t), set(s), get(g), setfunc(0), getfunc(0), 
+	  sspec(Unspecified), gspec(Unspecified)
+    {}
+    
+    int lineNo;
+    QCString name;
+    QCString type;
+    QCString set;
+    QCString get;
+    
+    Function* setfunc;
+    Function* getfunc;
+
+    enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
+    Specification sspec;
+    Specification gspec;
+
+    static const char* specToString( Specification s )
+    {
+	switch ( s ) {
+	case Class:
+	    return "Class";
+	case Reference:
+	    return "Reference";
+	case Pointer:
+	    return "Pointer";
+	case ConstCharStar:
+	    return "ConstCharStar";
+	default:
+	    return "Unspecified";
+	}
+    }
+};
+
+class PropList : public QList<Property> {	// list of properties
+public:
+    PropList() { setAutoDelete( TRUE ); }
+};
+
+
+
 ArgList *addArg( Argument * );			// add arg to tmpArgList
 
 enum Member { SignalMember,
 	      SlotMember,
-	      PropertyMember,
-	      SignalPropertyMember,
-	      SlotPropertyMember
+	      PropertyCandidateMember,
 	    };
 
 void	 addMember( Member );			// add tmpFunc to current class
@@ -133,9 +185,11 @@ bool	   lexDebug	   = FALSE;
 int	   lineNo;				// current line number
 bool	   errorControl	   = FALSE;		// controlled errors
 bool	   displayWarnings = TRUE;
+bool	   doProperties	   = TRUE;
 bool	   skipClass;				// don't generate for class
 bool	   skipFunc;				// don't generate for func
 bool	   templateClass;			// class is a template
+bool	   templateClassOld;			// previous class is a template
 
 ArgList	  *tmpArgList;				// current argument list
 Function  *tmpFunc;				// current member function
@@ -144,11 +198,12 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-QAsciiDict<QString> tmpMetaProperties;		// Stores properties of the QMetaObject
 
+// some temporary values
 QCString   tmpExpression;
+int	   tmpYYStart;
 
-const int  formatRevision = 4;			// moc output format revision
+const int  formatRevision = 5;			// moc output format revision
 
 %}
 
@@ -192,11 +247,8 @@ const int  formatRevision = 4;			// moc output format revision
 %token			DOUBLE
 %token			VOID
 %token			ENUM
-%token			ENUM_IN_CLASS
 %token			CLASS
-%token			CLASS_IN_CLASS
 %token			STRUCT
-%token			STRUCT_IN_CLASS
 %token			UNION
 %token			ASM
 %token			PRIVATE
@@ -213,9 +265,7 @@ const int  formatRevision = 4;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
-%token			Q_META_PROPERTY
 %token			Q_PROPERTY
-%token			Q_PROPERTY_IN_CLASS
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -232,7 +282,6 @@ const int  formatRevision = 4;			// moc output format revision
 %type  <string>		simple_type_names
 %type  <string>		simple_type_name
 %type  <string>		class_key
-%type  <string>		class_key_in_class
 %type  <string>		complete_class_name
 %type  <string>		qualified_class_name
 %type  <string>		elaborated_type_specifier
@@ -255,6 +304,7 @@ const int  formatRevision = 4;			// moc output format revision
 %type  <string>		ptr_operator
 %type  <string>		ptr_operators
 %type  <string>		ptr_operators_opt
+%type  <string>		prop_access_function
 
 %%
 declaration_seq:	  /* empty */
@@ -413,12 +463,14 @@ template_spec:		  TEMPLATE '<' template_args '>'
 			;
 
 opt_template_spec:	  /* empty */
-			| template_spec		{ templateClass = TRUE; }
+			| template_spec		{ templateClassOld = templateClass;
+						  templateClass = TRUE; 
+						}
 			;
 
 
-class_key:		  opt_template_spec CLASS { $$ = "class"; }
-			| opt_template_spec STRUCT { $$ = "struct"; }
+class_key:		  opt_template_spec CLASS	{ $$ = "class"; }
+			| opt_template_spec STRUCT	{ $$ = "struct"; }
 			;
 
 complete_class_name:	  qualified_class_name	{ $$ = $1; }
@@ -463,23 +515,19 @@ arg_declaration_list:	  arg_declaration_list
 			| argument_declaration	{ $$ = addArg($1); }
 
 argument_declaration:	  decl_specifiers abstract_decl_opt
-				{ $$ = new Argument(straddSpc($1,$2),"");
-				  CHECK_PTR($$); }
+				{ $$ = new Argument(straddSpc($1,$2),""); }
 			| decl_specifiers abstract_decl_opt
 			  '=' { expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(straddSpc($1,$2),"");
-				  CHECK_PTR($$); }
+				{ $$ = new Argument(straddSpc($1,$2),""); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
-				{ $$ = new Argument(straddSpc($1,$2),$4);
-				  CHECK_PTR($$); }
+				{ $$ = new Argument(straddSpc($1,$2),$4); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
 			  '='	{ expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(straddSpc($1,$2),$4);
-				  CHECK_PTR($$); }
+				{ $$ = new Argument(straddSpc($1,$2),$4); }
 			;
 
 
@@ -622,6 +670,14 @@ full_class_head:	  class_head
 			  opt_base_spec		{ superclassName = $2; }
 			;
 
+nested_class_head:	  class_key
+			  qualified_class_name
+			  opt_base_spec		{ templateClass = templateClassOld; }
+			| class_key
+			  qualified_class_name
+			  opt_base_spec		{ templateClass = templateClassOld; }			;
+
+
 ctor_initializer_opt:		/* empty */
 			| ctor_initializer
 			;
@@ -669,28 +725,31 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
 			  }
-			| Q_META_PROPERTY { BEGIN IN_BUILDER; }
-			  '(' STRING ',' STRING ')'
-				  { tmpMetaProperties.insert( $4, new QString( $6 ) ); }
+			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			  '(' IDENTIFIER ',' IDENTIFIER ',' prop_access_function ',' prop_access_function ')'
+				  { 
+				        if ( doProperties )
+					    props.append( new Property( lineNo, $4,$6,$8,$10) );
+					else
+					    moc_warn("running with -np, but class contains "
+						"Q_PROPERTY macro") ;
+					BEGIN tmpYYStart;
+				  }
 
-			| Q_PROPERTY_IN_CLASS
-				{ if ( tmpAccessPerm == _PUBLIC )
-				    BEGIN QT_DEF;
-				  else
-				    moc_warn("Property declaration not in public"
-					     " section of class");
-				}
-			  opt_property	{ BEGIN IN_CLASS; }
-			| ENUM_IN_CLASS { BEGIN QT_DEF; }
-			  enum_in_class_tail { BEGIN IN_CLASS;}
-			| class_key_in_class { BEGIN IN_EAT; eatLevel=0;}
-			  ';' { BEGIN IN_CLASS; }
 			;
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		{ BEGIN IN_CLASS; }
-			  opt_slot_declarations
+			| ':'		{ if ( doProperties && tmpAccessPerm == _PUBLIC && Q_OBJECTdetected )
+                                                  BEGIN QT_DEF;
+                                              else
+                                                  BEGIN IN_CLASS;
+					  suppress_func_warn = TRUE;
+                                        }
+			  opt_property_candidates 
+					{
+					  suppress_func_warn = FALSE;
+					}
 			| IDENTIFIER	{ BEGIN IN_CLASS;
 					   if ( classPLevel != 1 )
 					       moc_warn( "unexpected access"
@@ -698,12 +757,16 @@ slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 					}
 			;
 
-opt_property:			/* empty */
-			| property
-				{ if ( !tmpFunc->name.isEmpty() )
-				    addMember( PropertyMember );
-				}
+opt_property_candidates:	  /*empty*/
+				| property_candidate_declarations
 			;
+
+property_candidate_declarations:	  property_candidate_declarations property_candidate_declaration
+					| property_candidate_declaration
+				;
+
+property_candidate_declaration:	signal_or_slot { addMember( PropertyCandidateMember ); }
+				;
 
 opt_signal_declarations:	/* empty */
 			| signal_declarations
@@ -715,7 +778,6 @@ signal_declarations:	  signal_declarations signal_declaration
 
 
 signal_declaration:	  signal_or_slot	{ addMember( SignalMember ); }
-			| Q_PROPERTY signal_or_slot	{ addMember( SignalPropertyMember ); }
 			;
 
 opt_slot_declarations:		/* empty */
@@ -727,7 +789,6 @@ slot_declarations:	  slot_declarations slot_declaration
 			;
 
 slot_declaration:	  signal_or_slot		{ addMember( SlotMember ); }
-			| Q_PROPERTY signal_or_slot	{ addMember( SlotPropertyMember ); }
 			;
 
 opt_semicolons:			/* empty */
@@ -862,21 +923,6 @@ type_and_name:		  type_name fct_name
 						{ operatorError();    }
 			;
 
-property:		type_and_name fct_decl
-			| type_and_name opt_bitfield ';'
-				{ func_warn("Variable as property access"
-					    " function."); }
-			| type_and_name opt_bitfield ','member_declarator_list
-			  ';'
-				{ func_warn("Variable as property access"
-					    " function."); }
-                        | USING complete_class_name ';'
-                                { func_warn("Using declaration as property."); }
-			| USING NAMESPACE complete_class_name ';'
-                                { func_warn("Using declaration as property."); }
-			| NAMESPACE IDENTIFIER '{'
-                                { classPLevel++;
-				  moc_err("Namespace declaration as property."); }
 
 signal_or_slot:		type_and_name fct_decl opt_semicolons
 			| type_and_name opt_bitfield ';' opt_semicolons
@@ -897,13 +943,14 @@ signal_or_slot:		type_and_name fct_decl opt_semicolons
                                 { classPLevel++;
 				  moc_err("Namespace declaration as signal or"
 					  " slot."); }
-			| class_key IDENTIFIER ';' opt_semicolons
-				{ moc_warn("Class declaration as signal or slot.");}
-			| class_key IDENTIFIER
-			  '{'   { BEGIN IN_FCT; fctLevel=1;}
-                          '}'   { BEGIN QT_DEF; }
+ 			| nested_class_head ';' opt_semicolons
+ 				{ func_warn("Class declaration as signal or slot.");}
+ 			| nested_class_head
+ 			  '{'   { func_warn("Class declaration as signal or slot.");
+				  BEGIN IN_FCT; fctLevel=1;
+				}
+                          '}'  { BEGIN QT_DEF; }
 			  ';' opt_semicolons
-				{ moc_warn("Class declaration as signal or slot.");}
 			;
 
 
@@ -938,10 +985,6 @@ enum_tail:		  IDENTIFIER '{'   enum_list
 			  '}'   { BEGIN QT_DEF; }
 			;
 
-enum_in_class_tail:	  IDENTIFIER IDENTIFIER
-			| enum_tail
-			;
-
 enum_list:		  /* empty */
 			| enumerator
 			| enum_list ',' enumerator
@@ -952,9 +995,8 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
 
 
-
-class_key_in_class:	  CLASS_IN_CLASS { $$ = "class"; }
-			| STRUCT_IN_CLASS { $$ = "struct"; }
+prop_access_function:	  IDENTIFIER 	{ $$ = $1; }
+			| '0'		{ $$ = ""; }
 			;
 
 %%
@@ -972,33 +1014,6 @@ extern "C" int hack_isatty( int )
 #endif
 
 #include "lex.yy.c"
-
-
-struct Property
-{
-    Property() { setfunc = 0; getfunc = 0; sspec = Unspecified, gspec = Unspecified; }
-    Function* setfunc;
-    Function* getfunc;
-    QCString type;
-
-    enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
-    Specification sspec;
-    Specification gspec;
-
-    static const char* specToString( Specification s )
-    {
-	switch ( s ) {
-	case Class:
-	    return "Class";
-	case Reference:
-	    return "Reference";
-	case Pointer:
-	    return "Pointer";
-	default:
-	    return "Unspecified";
-	}
-    }
-};
 
 void 	  init();				// initialize
 void 	  initClass();				// prepare for new class
@@ -1018,9 +1033,10 @@ QCString  className;				// name of parsed class
 QCString  superclassName;			// name of super class
 FuncList  signals;				// signal interface
 FuncList  slots;				// slots interface
-FuncList  props;				// properties interface
+FuncList  propfuncs;				// all possible property access functions
+FuncList  funcs( TRUE );			// all parsed functions, including signals
 EnumList  enums;				// enums used in properties
-QDict<Property> pdict;				// dict of all properties
+PropList  props;				// list of all properties
 
 FILE  *out;					// output file
 
@@ -1082,6 +1098,8 @@ int main( int argc, char **argv )
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
 		displayWarnings = FALSE;
+	    } else if ( opt == "np" ) {		// don't do properties
+		doProperties = FALSE;
 	    } else if ( opt == "ldbg" ) {	// lex debug output
 		lexDebug = TRUE;
 	    } else if ( opt == "ydbg" ) {	// yacc debug output
@@ -1129,6 +1147,7 @@ int main( int argc, char **argv )
 		 "\t-p path  Path prefix for included file\n"
 		 "\t-k       Do not stop on errors\n"
 		 "\t-nw      Do not display warnings\n"
+		 "\t-np      Do not scan for properties\n"
 		 );
 	return 1;
     } else {
@@ -1161,7 +1180,8 @@ int main( int argc, char **argv )
 
     slots.clear();
     signals.clear();
-    props.clear();
+    propfuncs.clear();
+    funcs.clear();
 
     return mocError ? 1 : 0;
 }
@@ -1231,17 +1251,9 @@ void init()					// initialize
     lineNo	 = 1;
     skipClass	 = FALSE;
     skipFunc	 = FALSE;
-    signals.setAutoDelete( TRUE );
-    slots.setAutoDelete( TRUE );
-    // The props list may contain elements which are in other lists
-    props.setAutoDelete( FALSE );
-
     tmpArgList	 = new ArgList;
-    CHECK_PTR( tmpArgList );
     tmpFunc	 = new Function;
-    CHECK_PTR( tmpFunc );
     tmpEnum	 = new Enum;
-    CHECK_PTR( tmpEnum );
 }
 
 void initClass()				 // prepare for new class
@@ -1251,10 +1263,9 @@ void initClass()				 // prepare for new class
     Q_OBJECTdetected = FALSE;
     skipClass	     = FALSE;
     templateClass    = FALSE;
-    tmpMetaProperties.clear();
     slots.clear();
     signals.clear();
-    props.clear();
+    propfuncs.clear();
     enums.clear();
 }
 
@@ -1456,15 +1467,18 @@ void moc_warn( char *s1, char *s2 )
 	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, tmp);
 }
 
+static bool suppress_func_warn = FALSE;
 void func_warn( char *msg )
 {
-    moc_warn( msg );
+    if ( !suppress_func_warn )
+	moc_warn( msg );
     skipFunc = TRUE;
 }
 
 void operatorError()
 {
-    moc_warn("Operator functions cannot be signals or slots.");
+    if ( !suppress_func_warn )
+	moc_warn("Operator functions cannot be signals or slots.");
     skipFunc = TRUE;
 }
 
@@ -1478,7 +1492,6 @@ int yywrap()					// more files?
 char *stradd( const char *s1, const char *s2 )	// adds two strings
 {
     char *n = new char[strlen(s1)+strlen(s2)+1];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, s2 );
     return n;
@@ -1487,7 +1500,6 @@ char *stradd( const char *s1, const char *s2 )	// adds two strings
 char *stradd( const char *s1, const char *s2, const char *s3 )// adds 3 strings
 {
     char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+1];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, s2 );
     strcat( n, s3 );
@@ -1498,7 +1510,6 @@ char *stradd( const char *s1, const char *s2,
 	      const char *s3, const char *s4 )// adds 4 strings
 {
     char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+1];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, s2 );
     strcat( n, s3 );
@@ -1510,7 +1521,6 @@ char *stradd( const char *s1, const char *s2,
 char *straddSpc( const char *s1, const char *s2 )
 {
     char *n = new char[strlen(s1)+strlen(s2)+2];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
@@ -1520,7 +1530,6 @@ char *straddSpc( const char *s1, const char *s2 )
 char *straddSpc( const char *s1, const char *s2, const char *s3 )
 {
     char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+3];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
@@ -1533,7 +1542,6 @@ char *straddSpc( const char *s1, const char *s2,
 	      const char *s3, const char *s4 )
 {
     char *n = new char[strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+4];
-    CHECK_PTR( n );
     strcpy( n, s1 );
     strcat( n, " " );
     strcat( n, s2 );
@@ -1601,7 +1609,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 		 (const char*)f->type, (const char*)qualifiedClassName(),
 		 num, list->at(),
 		 (const char*)typstr,  (const char*)f->qualifier );
-	f->type = f->name.copy();
+	f->type = f->name;
 	f->type += "(";
 	f->type += typstr;
 	f->type += ")";
@@ -1693,8 +1701,10 @@ bool isPropertyType( const char* type, bool test_enums = TRUE )
 void finishProps()
 {
     int entry = 0;
-    for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
-	if ( !isPropertyType( dit.current()->type ) || dit.current()->getfunc == 0 || dit.current()->setfunc == 0  )
+    for( QListIterator<Property> it( props ); it.current(); ++it ) {
+	if ( !isPropertyType( it.current()->type ) || 
+	     it.current()->getfunc == 0 || 
+	     it.current()->setfunc == 0  )
 	    fprintf( out, "    metaObj->resolveProperty( &props_tbl[%d] );\n", entry );
 	++entry;
     }
@@ -1711,133 +1721,183 @@ int generateEnums()
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    enums[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
 	fprintf( out, "    enums[%i].count = %i;\n", i, (const char*)it.current()->count() );
-	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n", i, (const char*)it.current()->count() );
-	Enum::Iterator eit = it.current()->begin();
-	for( int k = 0; eit != it.current()->end(); ++eit, ++k ) {
-	    fprintf( out, "    enums[%i].items[%i].name = \"%s\";\n", i, k, (*eit).ascii() );
-	    fprintf( out, "    enums[%i].items[%i].value = (int)%s::%s;\n", i, k, (const char*)className, (*eit).ascii() );
+	fprintf( out, "    enums[%i].items = new QMetaEnum::Item[%i];\n", 
+		 i,(const char*)it.current()->count() );
+	int k = 0;
+	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
+	    fprintf( out, "    enums[%i].items[%i].name = \"%s\";\n", i, k, eit.current() );
+	    fprintf( out, "    enums[%i].items[%i].value = (int)%s::%s;\n",
+		     i, k, (const char*)className, eit.current() );
 	}
     }
 
     return enums.count();
 }
 
-int generateMetaProps()
-{
-    if ( tmpMetaProperties.count() == 0 )
-	return 0;
-
-    fprintf( out, "    QMetaMetaProperty* meta_props_tbl = new QMetaMetaProperty[ %i ];\n", tmpMetaProperties.count() );
-	
-    int i = 0;
-    for( QAsciiDictIterator<QString> it( tmpMetaProperties ); it.current(); ++it ) {
-	fprintf( out, "    meta_props_tbl[%i].name = \"%s\";\n", i, it.currentKey() );
-	fprintf( out, "    meta_props_tbl[%i].value = \"%s\";\n", i++, it.current()->latin1() );
-    }
-
-    return tmpMetaProperties.count();
-}
-
 
 int generateProps()
 {
-    Function *f;
     //
-    // Make a list of all properties
+    // Resolve and verify property access functions
     //
-    pdict.clear();
-    for ( f=props.first(); f; f=props.next() ) {
+    for( QListIterator<Property> it( props ); it.current(); ) {
+	Property* p = it.current();
+	++it;
 	
-	bool setCandidate = FALSE;
-	QCString name = f->name.copy();
-	if ( name.left(5) == "setIs" && isupper( name[5] ) ) {
-	    name = name.mid( 5, name.length() - 5 );
-	    setCandidate = TRUE;
-	}
-	else if ( name.left(3) == "set" ) {
-	    name = name.mid( 3, name.length() - 3 );
-	    setCandidate = TRUE;
-	}
-	else if ( name.left(2) == "is" )
-	    name = name.mid( 2, name.length() - 2 );
-	else if ( name.left(3) == "has" )
-	    name = name.mid( 3, name.length() - 3 );
-	name[0] = tolower( name[0] );
-	
-	Property* p = pdict.find( name.data() );
-	if ( !p ) {
-	    if ( f->type == "void" && !setCandidate )
-		continue;
-	    p = new Property;
-	    pdict.insert( name.data(), p );
-	}
-
-	if ( f->type != "void" ) {  // get function
-
-	    if ( p->getfunc ) {
-		moc_warn("Property '%s' has get function defined twice.", name.data() );
-	    } else {
-		QCString tmp = f->type.copy();
+	// verify set function
+	if ( !p->set.isEmpty() ) {
+	    FuncList candidates = propfuncs.find( p->set );
+	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+		if ( !f->args || f->args->isEmpty() )
+		    continue;
+		QCString tmp = f->args->first()->leftType;
 		tmp = tmp.simplifyWhiteSpace();
-		if ( tmp.left(6) == "const " )
-		    tmp = tmp.mid( 6, tmp.length() - 6 );
+		Property::Specification spec = Property::Unspecified;
 		if ( tmp.right(1) == "&" ) {
 		    tmp = tmp.left( tmp.length() - 1 );
-		    p->gspec = Property::Reference;
-		} else if ( tmp.right(1) == "*" ) {
-		    tmp = tmp.left( tmp.length() - 1 );
-		    p->gspec = Property::Pointer;
-		} else {
-		    p->gspec = Property::Class;
-		}
-		tmp = tmp.simplifyWhiteSpace();
-		if ( !p->type.isEmpty() && p->type != tmp ) {
-		    moc_warn("Property '%s' has different types in get and set functions.", name.data() );
-		} else {
-		    p->type = tmp;
-		    p->getfunc = f;
-		}
-	    }
-	}
-	
-	else if ( setCandidate )  { // set function
-	
-	    if ( p->setfunc ) {
-		moc_warn("Property '%s' has set function defined twice.", name.data() );
-	    } else {
-
-		QCString tmp = f->args->first()->leftType.copy();
-		tmp = tmp.simplifyWhiteSpace();
-		if ( tmp.left(6) == "const " )
-		    tmp = tmp.mid( 6, tmp.length() - 6 );
-		if ( tmp.right(1) == "&" ) {
-		    tmp = tmp.left( tmp.length() - 1 );
-		    p->sspec = Property::Reference;
+		    spec = Property::Reference;
 		}
 		else {
-		    p->sspec = Property::Class;
+		    spec = Property::Class;
 		}
+		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
+		    tmp = "QCString";
+		    spec = Property::ConstCharStar;
+		}
+		if ( tmp.left(6) == "const " )
+		    tmp = tmp.mid( 6, tmp.length() - 6 );
 		tmp = tmp.simplifyWhiteSpace();
-		if ( !p->type.isEmpty() && p->type != tmp ) {
-		    moc_err("Property '%s' has different types in set and get functions.", name.data() );
-		    p->getfunc = 0;
+		
+		if ( p->type == tmp && f->args->count() == 1 ) {
+		    p->sspec = spec;
+		    p->setfunc = f;
+		    break;
 		}
-		p->type = tmp;
-		p->setfunc = f;
 	    }
-	}	
-    }
+	    if ( p->setfunc == 0 ) {
+		if ( displayWarnings ) {
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n", 
+			     fileName.data(), p->lineNo, (const char*) p->name );
+		    fprintf( stderr, "   Have been looking for public set functions \n" 
+			     "      void %s( %s )\n"
+			     "      void %s( %s& )\n"
+			     "      void %s( const %s& )\n", 
+			     (const char*) p->set, (const char*) p->type,
+			     (const char*) p->set, (const char*) p->type,
+			     (const char*) p->set, (const char*) p->type );
 
+		    if ( p->type == "QCString" )
+			fprintf( stderr, "      void %s( const char* ) const\n",
+				 (const char*) p->set );
+		    
+		    if ( !candidates.isEmpty() ) {
+			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
+			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+			    QCString typstr = "";
+			    Argument *a = f->args->first();
+			    int count = 0;
+			    while ( a ) {
+				if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+				    if ( count++ )
+					typstr += ",";
+				    typstr += a->leftType;
+				    typstr += a->rightType;
+				}
+				a = f->args->next();
+			    }
+			    fprintf( stderr, "      %s:%d: %s %s(%s)\n", fileName.data(), f->lineNo, 
+				     (const char*) f->type,(const char*) f->name, (const char*) typstr );
+			}
+		    }
+		}
+	    }
+	}
+	
+	// verify get function
+	if ( !p->get.isEmpty() ) {
+	    FuncList candidates = propfuncs.find( p->get );
+	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+		if ( f->qualifier != "const" ) // get functions must be const
+		    continue;
+		if ( f->args && !f->args->isEmpty() ) // and must not take any arguments
+		    continue;
+		QCString tmp = f->type;
+		tmp = tmp.simplifyWhiteSpace();
+		Property::Specification spec = Property::Unspecified;
+		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
+		    tmp = "QCString";
+		    spec = Property::ConstCharStar;
+		} else if ( tmp.right(1) == "&" ) {
+		    tmp = tmp.left( tmp.length() - 1 );
+		    spec = Property::Reference;
+		} else if ( tmp.right(1) == "*" ) {
+		    tmp = tmp.left( tmp.length() - 1 );
+		    spec = Property::Pointer;
+		} else {
+		    spec = Property::Class;
+		}
+		if ( tmp.left(6) == "const " )
+		    tmp = tmp.mid( 6, tmp.length() - 6 );
+		tmp = tmp.simplifyWhiteSpace();
+		
+		if ( p->type == tmp ) {
+		    p->gspec = spec;
+		    p->getfunc = f;
+		    break;
+		}
+	    }
+	    if ( p->getfunc == 0 ) {
+		if ( displayWarnings ) {
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n", 
+			     fileName.data(), p->lineNo, (const char*) p->name );
+		    fprintf( stderr, "   Have been looking for public get functions \n" 
+			     "      %s %s() const\n"
+			     "      %s& %s() const\n"
+			     "      %s* %s() const\n",		
+			     (const char*) p->type, (const char*) p->get,
+			     (const char*) p->type, (const char*) p->get,
+			     (const char*) p->type, (const char*) p->get );
+		    if ( p->type == "QCString" )
+			fprintf( stderr, "      const char* %s() const\n",
+				 (const char*)p->get );
+
+		    if ( candidates.isEmpty() ) {
+			fprintf( stderr, "   but found nothing.\n");
+		    } else {
+			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
+			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+			    QCString typstr = "";
+			    Argument *a = f->args->first();
+			    int count = 0;
+			    while ( a ) {
+				if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+				    if ( count++ )
+					typstr += ",";
+				    typstr += a->leftType;
+				    typstr += a->rightType;
+				}
+				a = f->args->next();
+			    }
+			    fprintf( stderr, "      %s:%d: %s %s(%s) %s\n", fileName.data(), f->lineNo, 
+				     (const char*) f->type,(const char*) f->name, (const char*) typstr, 
+				     f->qualifier.isNull()?"":(const char*) f->qualifier );
+			}
+		    }
+		}
+	    }
+	}
+    }
+    
     //
     // Generate all typedefs
     //
     {
 	int count = 0;
-	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
-	    if ( dit.current()->getfunc )
-		generateTypedef( dit.current()->getfunc, count );
-	    if ( dit.current()->setfunc )
-		generateTypedef( dit.current()->setfunc, count + 1 );
+	for( QListIterator<Property> it( props ); it.current(); ++it ) {
+	    if ( it.current()->getfunc )
+		generateTypedef( it.current()->getfunc, count );
+	    if ( it.current()->setfunc )
+		generateTypedef( it.current()->setfunc, count + 1 );
 	    count += 2;
 	}
     }
@@ -1847,13 +1907,13 @@ int generateProps()
     //
     {
 	int count = 0;
-	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
-	    if ( dit.current()->getfunc )
+	for( QListIterator<Property> it( props ); it.current(); ++it ) {
+	    if ( it.current()->getfunc )
 		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count,
-			 Prop_Num, count, (const char*)className,(const char*)dit.current()->getfunc->name);
-	    if ( dit.current()->setfunc )
+			 Prop_Num, count, (const char*)className,(const char*)it.current()->getfunc->name);
+	    if ( it.current()->setfunc )
 		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count + 1,
-			 Prop_Num, count + 1, (const char*)className,(const char*)dit.current()->setfunc->name);
+			 Prop_Num, count + 1, (const char*)className,(const char*)it.current()->setfunc->name);
 	    count += 2;
 	}
     }
@@ -1861,43 +1921,42 @@ int generateProps()
     //
     // Create meta data
     //
-    if ( pdict.count() )
-	fprintf( out, "    QMetaProperty *props_tbl = new QMetaProperty[%d];\n", pdict.count() );
+    if ( props.count() )
+	fprintf( out, "    QMetaProperty *props_tbl = new QMetaProperty[%d];\n", props.count() );
     {
 	int count = 0;
 	int entry = 0;
-	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ){
+	for( QListIterator<Property> it( props ); it.current(); ++it ){
 	
 	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
-		     entry, (const char*)dit.currentKey() );
+		     entry, (const char*) it.current()->name );
 	
-	    if ( dit.current()->getfunc )
+	    if ( it.current()->getfunc )
 		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count );
 	    else
 		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
 	
-	    if ( dit.current()->setfunc )
+	    if ( it.current()->setfunc )
 		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count + 1 );
 	    else
 		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
 	
-	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)dit.current()->type );
-	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->gspec ));
-	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->sspec ));
+	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)it.current()->type );
+	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(it.current()->gspec ));
+	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(it.current()->sspec ));
 
 	    int enumpos = -1;
 	    int k = 0;
-	    QListIterator<Enum> it( enums );
-	    for( ; it.current(); ++it, ++k ){
-		if ( it.current()->name == dit.current()->type )
+	    for( QListIterator<Enum> eit( enums ); eit.current(); ++eit, ++k ){
+		if ( eit.current()->name == it.current()->type )
 		    enumpos = k;
 	    }
 
 	    if ( enumpos != -1 )
 		fprintf( out, "    props_tbl[%d].enumType = &enums[%i];\n", entry, enumpos );
-	    else if (!isPropertyType( dit.current()->type ) )
+	    else if (!isPropertyType( it.current()->type ) )
 		fprintf( out, "    props_tbl[%d].setState(QMetaProperty::UnresolvedEnum);\n", entry );
 
 	    ++entry;
@@ -1905,7 +1964,7 @@ int generateProps()
 	}
     }
 
-    return pdict.count();
+    return props.count();
 }
 
 void generateClass()		      // generate C++ source code for a class
@@ -2018,17 +2077,12 @@ void generateClass()		      // generate C++ source code for a class
 // Build the enums array in staticMetaObject()
 // Enums HAVE to be generated BEFORE the properties
 //
-   int n_enums = generateEnums();
+   int n_enums = doProperties? generateEnums() : 0;
 
 //
 // Build property array in staticMetaObject()
 //
-   int n_props = generateProps();
-
-//
-// Build meta properties array in staticMetaObject()
-//
-   int n_meta_props = generateMetaProps();
+   int n_props = doProperties? generateProps() : 0;
 
 //
 // Build slots array in staticMetaObject()
@@ -2046,24 +2100,24 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "    metaObj = QMetaObject::new_metaobject(\n"
 		  "\t\"%s\", \"%s\",\n",
 	     (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
+    
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
 	fprintf( out, "\t0, 0,\n" );
+
     if ( signals.count() )
 	fprintf( out, "\tsignal_tbl, %d,\n", signals.count());
     else
 	fprintf( out, "\t0, 0,\n" );
+
     if ( n_props )
 	fprintf( out, "\tprops_tbl, %d,\n", n_props );
     else
 	fprintf( out, "\t0, 0,\n" );
+
     if ( n_enums )
-	fprintf( out, "\tenums, %d,\n", n_enums );
-    else
-	fprintf( out, "\t0, 0,\n" );
-    if ( n_meta_props )
-	fprintf( out, "\tmeta_props_tbl, %d );\n", n_meta_props );
+	fprintf( out, "\tenums, %d );\n", n_enums );
     else
 	fprintf( out, "\t0, 0 );\n" );
 
@@ -2072,7 +2126,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     finishProps();
 
-    fprintf( out, "\treturn metaObj;\n}\n" );
+    fprintf( out, "    return metaObj;\n}\n" );
 
 //
 // End of function staticMetaObject()
@@ -2224,134 +2278,34 @@ void addEnum()
 void addMember( Member m )
 {
     if ( skipFunc ) {
+	tmpFunc->args = tmpArgList; // just to be sure
+  	delete tmpFunc;
 	tmpArgList  = new ArgList;   // ugly but works!
-	CHECK_PTR( tmpArgList );
 	tmpFunc	    = new Function;
-	CHECK_PTR( tmpFunc );
 	skipFunc    = FALSE;
 	return;
     }
-
-    if ( m == SignalPropertyMember ) {
-	moc_warn( "Signal %s() declared as property.",
-		  tmpFunc->name.data() );
-	m = SignalMember;
-    }
-
-    if ( m == SignalMember && tmpFunc->type != "void" ) {
-	moc_err( "Signals must have \"void\" as their return type" );
-	goto Failed;
-    }
-
+    
     tmpFunc->accessPerm = tmpAccessPerm;
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
+
+    funcs.append( tmpFunc );
 
     switch( m ) {
     case SignalMember:
 	signals.append( tmpFunc );
 	break;
     case SlotMember:
-    case SlotPropertyMember:
 	slots.append( tmpFunc );
-	break;
-    default:
-	break;
+	// fall trough
+    case PropertyCandidateMember:
+	if ( doProperties && !tmpFunc->name.isEmpty() && tmpFunc->accessPerm == _PUBLIC )
+	    propfuncs.append( tmpFunc );
     }
-
-    // check for property set/get candidates
-    if ( m == PropertyMember || m == SlotPropertyMember ) {
-	
-	if ( tmpFunc->name.left(3) == "set") { //  set-function candidate
-
-	    if ( tmpFunc->args->count() != 1 ) {
-		moc_warn( "Property set function %s(...) takes more than one argument.",
-			  tmpFunc->name.data() );
-		goto Failed; // set functions have one parameter
-	    }
-	    if ( tmpFunc->type != "void" ) {
-		moc_warn( "Property set function %s(...) has non-void return type.",
-			  tmpFunc->name.data() );
-		goto Failed;  // set functions do not have a return type
-	    }
-
-	    // check wether the parameter is legal
-	    bool special = FALSE;
-	    QCString tmp = tmpFunc->args->first()->leftType.copy();
-	    tmp = tmp.simplifyWhiteSpace();
-	    if ( tmp.left(6) == "const " ) {
-		tmp = tmp.mid( 6, tmp.length() - 6 );
-		special = TRUE;
-	    }
-	    if ( tmp.right(1) == "&" ) {
-		special = TRUE;
-		tmp = tmp.left( tmp.length() - 1 );
-	    }
-	    tmp = tmp.simplifyWhiteSpace();
-	    // No []* etc. allowed here
-	    for( int i = 0; i < tmp.length(); ++i )
-		if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' ) {
-		    moc_warn( "Property set function %s(...) has illegal parameter type.",
-			      tmpFunc->name.data() );
-		    goto Failed;
-		}
-	    // pointers and refs are not allowed on enums
-	    if ( special && !isPropertyType( tmp, FALSE ) ) {
-		moc_warn( "Property set function %s(...) has illegal parameter type.",
-			  tmpFunc->name.data() );
-		goto Failed;
-	    }
-	} else { // get-function candidate
-	
-	    if ( tmpFunc->args->count() != 0 ) {
-		moc_warn( "Property get function %s(...) wants parameters.",
-			  tmpFunc->name.data() );
-		goto Failed; // get functions have no parameter
-	    }
-	    if ( tmpFunc->qualifier != "const" ) {
-		moc_warn( "Property get function %s(...) not declared const.",
-			  tmpFunc->name.data() );
-		goto Failed; // get functions have no parameter
-	    }
-	
-	    QCString tmp = tmpFunc->type;
-	    tmp = tmp.simplifyWhiteSpace();
-	    bool special = FALSE;
-	    if ( tmp.left(6) == "const " ) {
-		tmp = tmp.mid( 6, tmp.length() - 6 );
-		special = TRUE;
-	    }
-	    if ( tmp.right(1) == "&" ) {
-		special = TRUE;
-		tmp = tmp.left( tmp.length() - 1 );
-	    } else if ( tmp.right(1) == "*" ) {
-		special = TRUE;
-		tmp = tmp.left( tmp.length() - 1 );
-	    }
-	    tmp = tmp.simplifyWhiteSpace();
-	    // No []* etc. allowed here
-	    for( int i = 0; i < tmp.length(); ++i )
-		if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' ) {
-		    moc_warn( "Property get function %s() has illegal parameter type.",
-			      tmpFunc->name.data() );
-		    goto Failed;
-		}
-	    // pointers and refs are not allowed on enums
-	    if ( special && !isPropertyType( tmp, FALSE ) ) {
-		moc_warn( "Property get function %s() has illegal parameter type.",
-			  tmpFunc->name.data() );
-		goto Failed;
-	    }
-	}
-	
-	props.append( tmpFunc );
-    } // end property candidates
-
-
+    
  Failed:
     skipFunc = FALSE;
     tmpFunc  = new Function;
-    CHECK_PTR( tmpFunc );
     tmpArgList = new ArgList;
-    CHECK_PTR( tmpArgList );
 }

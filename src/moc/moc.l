@@ -48,7 +48,6 @@ int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS*/
 int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE*/
 int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
 int fctLevel         = 1;  /* Depth of nested parentheses in IN_FCT */
-int eatLevel         = 0;  /* Depth of nested parentheses in IN_EAT */
 int templLevel       = 1;  /* Depth of levels in IN_TEMPL_ARGS */
 
 int lastState        = 0;  /* Remembers the state when a
@@ -63,7 +62,7 @@ extern void addExpressionString( char * );
 extern void moc_warn( char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_EAT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_BUILDER
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -78,9 +77,9 @@ extern void moc_warn( char *msg );
 <OUTSIDE>"template"		{ X;
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
-<QT_DEF>"signals"		{ X;return SIGNALS; }
-<QT_DEF>"slots"			{ X;return SLOTS; }
-<QT_DEF>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
+<QT_DEF>"signals"		{ X; return SIGNALS; }
+<QT_DEF>"slots"			{ X; return SLOTS; }
+<QT_DEF>"Q_PROPERTY"		{ X; return Q_PROPERTY; }
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
@@ -93,11 +92,7 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"signals"		{ X;return SIGNALS; }
 <IN_CLASS>"slots"		{ X;return SLOTS; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<IN_CLASS>"Q_META_PROPERTY"	{ X;return Q_META_PROPERTY; }
-<IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY_IN_CLASS; }
-<IN_CLASS>"enum"		{ X;return ENUM_IN_CLASS; }
-<IN_CLASS>"class"		{ X;return CLASS_IN_CLASS; }
-<IN_CLASS>"struct"		{ X;return STRUCT_IN_CLASS; }
+<IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
@@ -115,11 +110,13 @@ extern void moc_warn( char *msg );
                                   BEGIN QT_DEF;
 				  return USING; }
 
-<QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<QT_DEF>"Q_META_PROPERTY"	{ X;return Q_META_PROPERTY; }
-<IN_BUILDER>"("			{ X;return '('; }
-<IN_BUILDER>","			{ X;return ','; }
-<IN_BUILDER>")"			{ X; BEGIN QT_DEF; return ')'; }
+<QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
+
+<IN_PROPERTY>"("		{ X; return '('; }
+<IN_PROPERTY>","		{ X; return ','; }
+<IN_PROPERTY>")"		{ X; return ')'; }
+<IN_PROPERTY>"0"		{ X; return '0'; }
+
 <IN_EXPR>"("			{ expLevel++;X; }
 <IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
@@ -192,11 +189,12 @@ extern void moc_warn( char *msg );
 			  return IDENTIFIER;
 			}
 
-<IN_BUILDER>[_a-zA-Z][_a-zA-Z0-9]* {
+<IN_PROPERTY>[_a-zA-Z][_a-zA-Z0-9]* {
 			  X;
 			  yylval.string = qstrdup(yytext);
 			  return IDENTIFIER;
 			}
+
 
 <OUTSIDE>[_a-zA-Z][_a-zA-Z0-9]*  ;
 <IN_CLASS>[_a-zA-Z][_a-zA-Z0-9]* ;
@@ -240,18 +238,6 @@ extern void moc_warn( char *msg );
 			    Z;
 			    addExpressionString(yytext);
 			    input();		/* discard the '"' */
-			  }
-			}
-
-<IN_BUILDER>\"[^"]*     {
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    X;
-			    yylval.string = qstrdup( yytext + 1 );
-			    input();		/* discard the '"' */
-			    return STRING;
 			  }
 			}
 
@@ -444,21 +430,6 @@ extern void moc_warn( char *msg );
 			  lineNo++;
 			}
 
-
-<IN_EAT>"{"			{ eatLevel++;X; }
-<IN_EAT>"}"			{ eatLevel--;X; }
-<IN_EAT>";"			{ if (eatLevel==0){X;return ';';} }
-<IN_EAT>\"[^"]*		{			/* discard strings */
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    Z;
-			    addExpressionString(yytext);
-			    input();		/* discard the '"' */
-			  }
-			}
-<IN_EAT>.		;
 
 %%
 

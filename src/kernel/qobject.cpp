@@ -1769,8 +1769,7 @@ QString QObject::tr( const char *text )
 
 /*!
   Initializes the \link metaObject() meta object\endlink of this
-  object. This method is automatically executed on demand from the
-  QObject constructor.
+  object. This method is automatically executed on demand.
   \sa metaObject()
 */
 void QObject::initMetaObject()
@@ -1805,7 +1804,7 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].name = "name";
     props_tbl[0].get = *((QMember*)&v3_0);
     props_tbl[0].set = *((QMember*)&v3_1);
-    props_tbl[0].type = "CString";
+    props_tbl[0].type = "QCString";
     props_tbl[0].enumType = 0;
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
@@ -1813,7 +1812,6 @@ QMetaObject* QObject::staticMetaObject()
 	slot_tbl, 1,
 	signal_tbl, 1,
 	props_tbl, 1,
-	0, 0,
 	0, 0 );
     return metaObj;
 }
@@ -2103,12 +2101,6 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	}
 	return FALSE;
     }
-
-    if ( value.typeName() != p->type ) {
-	qDebug("Trying to set attribute %s with wrong type", name );
-	return FALSE;
-    }
-
 
     switch ( value.type()  ) {
 
@@ -2739,22 +2731,4 @@ QVariant QObject::property( const char *name ) const
 	return value;
     }
     return value;
-}
-
-
-
-QPropertyInfoList QObject::properties() const
-{
-    QPropertyInfoList l;
-    QMetaObject* meta = queryMetaObject();
-    if ( meta ) {
-	QStrList names = meta->propertyNames(); // resolves overloaded
-	for ( const char* name = names.first(); names.current(); name = names.next() ) {
-	    QMetaProperty* p = meta->property( names.current(), TRUE );
-	    if ( p )
-		l.append( QPropertyInfo(p) );
-
-	}
-    }
-    return l;
 }

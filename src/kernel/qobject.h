@@ -33,7 +33,6 @@
 #include "qevent.h"
 #include "qnamespace.h"
 #include "qstringlist.h" // obsolete
-#include "qpropertyinfo.h"
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
@@ -103,7 +102,6 @@ public:
 
     bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
     QVariant property( const char *name ) const;    // virtual in Qt 3.0
-    QPropertyInfoList properties() const;  // virtual in Qt 3.0
 
 signals:
     void	 destroyed();

@@ -182,7 +182,7 @@ inline QVariant::Type QVariant::type() const
 
 inline bool QVariant::isValid() const
 {
-    return (typ == Invalid);
+    return (typ != Invalid);
 }
 
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );

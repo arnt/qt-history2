@@ -38,10 +38,6 @@ struct QMetaData				// member function meta data
     QMember ptr;				// - member pointer
 };
 
-class QPixmap;
-// Takes a pointer to the parent as parameter
-typedef QObject* (*QObjectFactory)( QObject* );
-
 
 struct QMetaEnum
 {
@@ -63,15 +59,19 @@ struct QMetaProperty
     {
     }
 
-    char        *name;
-    QMember      set;
-    QMember      get;
-    char        *type;
-    QMetaEnum   *enumType;
+    const char*	name;
+    QMember 	set;
+    QMember 	get;
+    const char 	*type;
+    QMetaEnum	*enumType;
+    
     bool readable() const { return get != 0; }
     bool writeable() const { return set != 0; }
     bool isValid() const { return !testState( UnresolvedEnum) ; }
 
+    bool isEnumType() const { return enumType != 0; }
+    QStrList enumNames() const;
+    
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
 
     Specification sspec;
@@ -92,13 +92,6 @@ private:
     uint state;
 };
 
-struct QMetaMetaProperty
-{
-    const char *name;
-    const char *value;
-};
-
-
 class QMetaObjectPrivate;
 
 class Q_EXPORT QMetaObject				// meta object class
@@ -111,8 +104,8 @@ public:
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 		 QMetaProperty *prop_data, int n_props,
-		 QMetaEnum *enum_data, int n_enums,
-		 QMetaMetaProperty* meta_prop_data, int n_meta_props );
+		 QMetaEnum *enum_data, int n_enums );
+
 
     virtual ~QMetaObject();
 
@@ -121,56 +114,48 @@ public:
 
     QMetaObject *superClass()		const { return superclass; }
 
-    int		 nSlots( bool=FALSE )	const;
-    int		 nSignals( bool=FALSE ) const;
+    bool 	inherits( const char* clname ) const;
 
-    QMetaData	*slot( const char *, bool=FALSE )   const;
-    QMetaData	*signal( const char *, bool=FALSE ) const;
+    int  	numSlots( bool super = FALSE ) const;
+    int		numSignals( bool super = FALSE ) const;
+    
+    QMetaData	*slot( int index, bool super = FALSE ) const;
+    QMetaData	*signal( int index, bool super = FALSE ) const;
 
-    QMetaData	*slot( int index, bool=FALSE )	    const;
-    QMetaData	*signal( int index, bool=FALSE )    const;
+    QMetaData	*slot( const char *, bool super = FALSE ) const;
+    QMetaData	*signal( const char *, bool super = FALSE ) const;
 
-    bool inherits( const char* clname ) const;
-
-    QMetaProperty *property( const char* name, bool super = FALSE ) const;
-    QStrList    propertyNames( bool super=TRUE ) const;
-    QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;
-
-    int		       numMetaProperties( bool=FALSE ) const;
-    QMetaMetaProperty *metaProperty( int index ) const;
-    const char        *metaProperty( const char* name, bool super = FALSE ) const;
-    QStrList        metaPropertyNames( bool=TRUE ) const;
-
-    void setFactory( QObjectFactory f );
-    QObjectFactory factory() const;
-    void resolveProperty( QMetaProperty* prop );
-
+    QMetaProperty	*property( const char* name, bool super = FALSE ) const;
+    QStrList		propertyNames( bool super = FALSE ) const;
+    QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
+    
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
 					QMetaProperty *prop_data, int n_props,
-					QMetaEnum *enum_data, int n_enums,
-					QMetaMetaProperty* meta_prop_data, int n_meta_props );
+					QMetaEnum *enum_data, int n_enums );
 
-    static QMetaObject *new_metaobject( const char *, const char *,
+    static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int );
-    static QMetaData   *new_metadata( int );
+    static QMetaData	*new_metadata( int );
+    
+    void		resolveProperty( QMetaProperty* prop );
 
 private:
-    QMemberDict *init( QMetaData *, int );
-    QMetaData	*mdata( int code, const char *, bool ) const;
-    QMetaData	*mdata( int code, int, bool ) const;
+    QMemberDict 	*init( QMetaData *, int );
+    QMetaData		*mdata( int code, const char *, bool ) const;
+    QMetaData		*mdata( int code, int index, bool super ) const;
 
-    char	*classname;			// class name
-    char	*superclassname;		// super class name
-    QMetaObject *superclass;			// super class meta object
-    QMetaObjectPrivate   *d;
-    void        *reserved;
-    QMetaData	*slotData;			// slot meta data
-    QMemberDict *slotDict;			// slot dictionary
-    QMetaData	*signalData;			// signal meta data
-    QMemberDict *signalDict;			// signal dictionary
+    char		*classname;			// class name
+    char		*superclassname;		// super class name
+    QMetaObject 	*superclass;			// super class meta object
+    QMetaObjectPrivate	*d;				// private data for...
+    void        	*reserved;			// ...binary compatibility
+    QMetaData		*slotData;			// slot meta data
+    QMemberDict 	*slotDict;			// slot dictionary
+    QMetaData		*signalData;			// signal meta data
+    QMemberDict 	*signalDict;			// signal dictionary
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

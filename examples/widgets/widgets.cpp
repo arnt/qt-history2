@@ -49,7 +49,7 @@
 #include <qwellarray.h>
 #include <qfiledialog.h>
 #include <qaccel.h>
-#include <qpropertyinfo.h>
+#include <qmetaobject.h>
 
 #include "widgets.h"
 
@@ -728,17 +728,17 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
-    QPropertyInfoList l = qApp->focusWidget()->properties();
+    QStrList properties = qApp->focusWidget()->metaObject()->propertyNames( TRUE );
     qDebug(" ");
     qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
-    int i = 1;
-    for ( QPropertyInfoList::Iterator it = l.begin(); it != l.end(); ++it ) {
+    for ( int i = 0; i < (int) properties.count(); i++ ) {
+	QMetaProperty* p = qApp->focusWidget()->metaObject()->property( properties.at(i), TRUE );
 	const char* s = "readwrite";
-	if (!(*it).writeable() )
+	if (!p->writeable() )
 	    s = "read-only";
-	else if (!(*it).readable() )
+	else if (!p->readable() )
 	    s = "write-only";
-	qDebug("%d: %s  (%s, %s )", i++, (*it).name(), s, (*it).type() );
+	qDebug("%d: %s  ( %s, %s )", ++i, p->name, s, p->type );
     }
 }
 
