@@ -1,5 +1,5 @@
-/****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#18 $
+#/****************************************************************************
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#19 $
 **
 ** Definition of draw utilities
 **
@@ -107,7 +107,7 @@ QRect qItemRect( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
 Q_EXPORT
 void qDrawItem( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
-		const QPixmap *pixmap, const QString& text, 
+		const QPixmap *pixmap, const QString& text,
 		int len=-1, bool bright_text = FALSE );
 
 enum ArrowType

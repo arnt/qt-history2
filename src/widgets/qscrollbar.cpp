@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#103 $
 **
 ** Implementation of QScrollBar class
 **
@@ -672,6 +672,10 @@ void QScrollBar_Private::sliderMinMax( int *sliderMin, int *sliderMax) const
 void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 				  int *sliderLength ) const
 {
+    
+    style().scrollbarMetrics( this, sliderMin, sliderMax, sliderLength);
+    return;
+
     int buttonDim, maxLength;
     int b = style() == MotifStyle ? MOTIF_BORDER : 0;
     int length = HORIZONTAL ? width()  : height();
@@ -794,6 +798,10 @@ void QScrollBar_Private::drawControls( uint controls,
 void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 				       QPainter *p ) const
 {
+    
+    style().drawScrollbarControls(p, this, sliderStart(), controls, activeControl);
+    return;
+    
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = colorGroup();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#278 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#279 $
 **
 ** Implementation of QWidget class
 **
@@ -3006,7 +3006,7 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
   underlying window system (or X11 window manager), the widgets'
   location and maybe more.
 
-  The default implementation implements the closing of popup widgets
+  The default implemenattion implements the closing of popup widgets
   when you click outside the window. For other widget types it does
   nothing.
 
@@ -3586,6 +3586,29 @@ void QWidget::updateResizedBorder( QResizeEvent* e, int bw )
     }
 }
 
+/*!
+  Transparent widgets use a \link setMask() mask \endlink to define
+  their visible region. QWidget has some built-in support to make the
+  task of recalculating the mask easier. When setting auto mask to
+  TRUE, updateMask() will be called whenever the widget is resized or
+  changes its focus state.
+  
+  Note: When you re-implement resizeEvent(), focusInEvent() or
+  focusOutEvent() in your custom widgets and still want to ensure that
+  the auto mask calculation works, you will have to add
+  
+    \code
+    if ( autoMask() )
+          updateMask();
+    \endcode
+
+    at the end of your event handlers. Same holds for all member
+    functions that change the appearance of the widget in a way that a
+    recalculation of the mask is necessary.
+
+  \sa autoMask(), updateMask(), setMask(), clearMask()
+*/
+
 void QWidget::setAutoMask(bool b)
 {
     automask = b;
@@ -3595,11 +3618,25 @@ void QWidget::setAutoMask(bool b)
 	updateMask();
 }
 
+/*!
+  Returns wether or not a widget has the auto mask feature enabled.
+
+  \sa setAutoMask(), updateMask(), setMask(), clearMask()
+*/
 bool QWidget::autoMask() const
 {
     return automask;
 }
 
+/*!
+  This function can be reimplemented in a subclass to support
+  transparent widgets. It is supposed to be called whenever a widget
+  changes state in a way that the shape mask has to be recalculated.
+
+  The default implementation does nothing.
+  
+  \sa setAutoMask(), updateMask(), setMask(), clearMask()
+  */
 void QWidget::updateMask()
 {
 }

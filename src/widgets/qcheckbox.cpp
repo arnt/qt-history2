@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#82 $
 **
 ** Implementation of QCheckBox class
 **
@@ -45,17 +45,6 @@
 */
 
 
-static QSize sizeOfBitmap( GUIStyle gs )
-{
-    switch ( gs ) {				// calculate coords
-	case WindowsStyle:
-	    return QSize( 13, 13 );
-	case MotifStyle:
-	    return QSize( 10, 10 );
-	default:
-	    return QSize( 10, 10 );
-    }
-}
 
 /*!
   Constructs a check box with no text.
@@ -121,7 +110,7 @@ QSize QCheckBox::sizeHint() const
 	sz = fontMetrics().size( ShowPrefix, text() );
     }
     GUIStyle gs = style();
-    QSize bmsz = sizeOfBitmap( gs );
+    QSize bmsz = style().indicatorSize();
     if ( sz.height() < bmsz.height() )
 	sz.setHeight( bmsz.height() );
 
@@ -145,7 +134,7 @@ void QCheckBox::drawButton( QPainter *paint )
 
     QFontMetrics fm = fontMetrics();
     QSize lsz = fm.size(ShowPrefix, text());
-    QSize sz = sizeOfBitmap( gs );
+    QSize sz = style().indicatorSize();
     x = gs == MotifStyle ? 1 : 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
@@ -180,39 +169,8 @@ void QCheckBox::drawButton( QPainter *paint )
     }
 #endif
 
-    if ( gs == WindowsStyle ) {			// Windows check box
-	QBrush fill;
-	if ( isDown() )
-	    fill = g.fillButton();
-	else
-	    fill = g.fillBase();
-	qDrawWinPanel( p, x, y, sz.width(), sz.height(), g, TRUE, &fill );
-	if ( isOn() ) {
-	    QPointArray a( 7*2 );
-	    int i, xx, yy;
-	    xx = x+3;
-	    yy = y+5;
-	    for ( i=0; i<3; i++ ) {
-		a.setPoint( 2*i,   xx, yy );
-		a.setPoint( 2*i+1, xx, yy+2 );
-		xx++; yy++;
-	    }
-	    yy -= 2;
-	    for ( i=3; i<7; i++ ) {
-		a.setPoint( 2*i,   xx, yy );
-		a.setPoint( 2*i+1, xx, yy+2 );
-		xx++; yy--;
-	    }
-	    p->setPen( black );
-	    p->drawLineSegments( a );
-	}
-    }
-    if ( gs == MotifStyle ) {			// Motif check box
-	bool showUp = !(isDown() ^ isOn());
-	QBrush fill =  showUp ? g.fillButton() : g.fillMid();
-	qDrawShadePanel( p, x, y, sz.width(), sz.height(), g, !showUp, 2, &fill );
-    }
-
+    style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), isOn(), isDown(), isEnabled());
+    
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
@@ -222,6 +180,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	    delete pm;
     }
 #endif
+
     drawButtonLabel( p );
 }
 
@@ -235,7 +194,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
     GUIStyle gs = style();
-    QSize sz = sizeOfBitmap( gs );
+    QSize sz = style().indicatorSize();
     y = 0;
     x = sz.width() + extraWidth( gs );
     w = width() - x;
@@ -257,12 +216,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	br.setBottom( br.bottom()+2);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
-	if ( gs == WindowsStyle ) {
-	    p->drawWinFocusRect( br, backgroundColor() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( br );
-	}
+	style().drawFocusRect(p, br, colorGroup());
     }
 }
 
@@ -270,7 +224,7 @@ void QCheckBox::resizeEvent( QResizeEvent* )
 {
     int x, w, h;
     GUIStyle gs = style();
-    QSize sz = sizeOfBitmap( gs );
+    QSize sz = style().indicatorSize();
     x = sz.width() + extraWidth( gs );
     w = width() - x;
     h = height();
@@ -298,18 +252,13 @@ void QCheckBox::updateMask()
 	QColorGroup cg(color1,color1,color1,color1,color1, color1, color1, color1, color0);
 	QFontMetrics fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
-	QSize sz = sizeOfBitmap( gs );
+	QSize sz = style().indicatorSize();
 	x = gs == MotifStyle ? 1 : 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
-	QBrush fill( color1 );
-	if ( gs == WindowsStyle ) {			// Windows check box
-	    qDrawWinPanel( &p, x, y, sz.width(), sz.height(), cg, TRUE, &fill );
-	}
-	if ( gs == MotifStyle ) {			// Motif check box
-	    qDrawShadePanel( &p, x, y, sz.width(), sz.height(), cg, TRUE , 2, &fill );
-	}
+	
+	style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), isOn() );
 
-	sz = sizeOfBitmap( gs );
+	sz = style().indicatorSize();
 	y = 0;
 	x = sz.width() + extraWidth( gs );
 	w = width() - x;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#24 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -163,6 +163,11 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
+  \fn const QColor & QColorGroup::brightText() const
+  Returns the bright text foreground color of the color group.
+*/
+
+/*!
   \fn const QColor & QColorGroup::base() const
   Returns the base color of the color group.
 */
@@ -170,6 +175,59 @@ QColorGroup::~QColorGroup()
 /*!
   \fn const QColor & QColorGroup::background() const
   Returns the background color of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillForeground() const
+  Returns the foreground brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillButton() const
+  Returns the button brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillLight() const
+  Returns the light brush of the color group.
+*/
+
+/*!
+  \fn QBrush QColorGroup::fillMidlight() const
+  Returns the midlight brush of the color group. Currently, this is
+  a lightened version of the button brush, but this may change
+  in the future, to return a <tt>const QBrush &</tt> from the
+  palette.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillDark() const
+  Returns the dark brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillMid() const
+  Returns the medium brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillText() const
+  Returns the text foreground brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillBrightText() const
+  Returns the bright text foreground brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillBase() const
+  Returns the base brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillBackground() const
+  Returns the background brush of the color group.
 */
 
 /*!
@@ -187,7 +245,7 @@ QColorGroup::~QColorGroup()
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
-    return foreground_brush    == g.foreground_brush    && 
+    return foreground_brush    == g.foreground_brush    &&
 	background_brush	== g.background_brush   &&
 	light_brush == g.light_brush && dark_brush == g.dark_brush &&
 	mid_brush   == g.mid_brush   && text_brush == g.text_brush &&

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#346 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#347 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -631,10 +631,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		qApp->setStyle( new QWindowsStyle );
 	    } else if ( stricmp(arg, "-style=motif") == 0 ) {
 		qApp->setStyle( new QMotifStyle );
-	    } else if ( stricmp(arg, "-style=hwindows") == 0 ) {
-		qApp->setStyle( new QHWindowsStyle() );
-	    } else if ( stricmp(arg, "-style=hmotif") == 0 ) {
-		qApp->setStyle( new QHMotifStyle() );
+ 	    } else if ( stricmp(arg, "-style=platinum") == 0 ) {
+ 		qApp->setStyle( new QPlatinumStyle() );
+// 	    } else if ( stricmp(arg, "-style=hwindows") == 0 ) {
+// 		qApp->setStyle( new QHWindowsStyle() );
+// 	    } else if ( stricmp(arg, "-style=hmotif") == 0 ) {
+// 		qApp->setStyle( new QHMotifStyle() );
 	    } else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 		Q1String s = argv[++i];
 		s = s.lower();

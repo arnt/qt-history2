@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#8 $
 **
 ** Implementation of QStyle class
 **
@@ -19,6 +19,10 @@
 #include "qlabel.h"
 #include "qimage.h"
 #include "qpushbutton.h"
+#include "qwidget.h"
+#include "qrangecontrol.h"
+#include "qscrollbar.h"
+#include <limits.h>
 
 /* XPM */
 static const char *polish_xpm[] = {
@@ -872,37 +876,65 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-  Draws a press-sensitive shape.
+  Draws a press-sensitive shape in the style of a full featured  push button
 */
 void QStyle::drawButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
 {
 }
 
+/*!
+  Draws a press-sensitive shape in the style of a bevel button.
+*/
 void QStyle::drawBevelButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool, const QBrush* )
 {
 }
 
+/*!
+  Draws a press-sensitive shape in the style of a toolbar button
+*/
 void QStyle::drawToolButton( QPainter *, int , int , int , int ,
 			     const QColorGroup &, bool , const QBrush*)
 {
 }
 
+/*!
+  Returns the rectangle available for contents in a push
+  button. Usually this is the entire rectangle but it may also be
+  smaller when you think about rounded buttons.
+*/
 QRect QStyle::buttonRect( int x, int y, int w, int h){
     return QRect(x, y, w, h);
 }
 
+/*!
+  Draw the mask of a pushbutton. Useful if a rounded pushbuttons needs
+  to be transparent because the style uses a fancy background pixmap.
+*/
 void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 {
 }
 
 
+/*!
+  Draws a pushbutton. This function will normally call drawButton()
+  with arguments according to the current state of the pushbutton.
+
+  \sa drawPushButtonLabel(), QPushButton::drawButton()
+*/
 void
 QStyle::drawPushButton( QPushButton* , QPainter *)
 {
 }
 
+/*!
+  Draws the label of a pushbutton. This function will normally call
+  drawItem() with arguments according to the current state of the
+  pushbutton.
+
+  \sa drawPushButton(), QPushButton::drawButtonLabel()
+*/
 void
 QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
 {
@@ -913,21 +945,76 @@ QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
   Draws a panel to separate parts of the visual interface.
 */
 void
-QStyle::drawPanel( QPainter *, int , int , int , int ,
-		const QColorGroup &, bool ,
-		int, const QBrush* )
+QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
+		const QColorGroup &g, bool sunken,
+		int lineWidth, const QBrush* fill)
 {
+        if ( w == 0 || h == 0 )
+	return;
+#if defined(CHECK_RANGE)
+    ASSERT( w > 0 && h > 0 && lineWidth >= 0 );
+#endif
+    QPen oldPen = p->pen();			// save pen
+    QPointArray a( 4*lineWidth );
+    if ( sunken )
+	p->setPen( g.dark() );
+    else
+	p->setPen( g.light() );
+    int x1, y1, x2, y2;
+    int i;
+    int n = 0;
+    x1 = x;
+    y1 = y2 = y;
+    x2 = x+w-2;
+    for ( i=0; i<lineWidth; i++ ) {		// top shadow
+	a.setPoint( n++, x1, y1++ );
+	a.setPoint( n++, x2--, y2++ );
+    }
+    x2 = x1;
+    y1 = y+h-2;
+    for ( i=0; i<lineWidth; i++ ) {		// left shadow
+	a.setPoint( n++, x1++, y1 );
+	a.setPoint( n++, x2++, y2-- );
+    }
+    p->drawLineSegments( a );
+    n = 0;
+    if ( sunken )
+	p->setPen( g.light() );
+    else
+	p->setPen( g.dark() );
+    x1 = x;
+    y1 = y2 = y+h-1;
+    x2 = x+w-1;
+    for ( i=0; i<lineWidth; i++ ) {		// bottom shadow
+	a.setPoint( n++, x1++, y1-- );
+	a.setPoint( n++, x2, y2-- );
+    }
+    x1 = x2;
+    y1 = y;
+    y2 = y+h-lineWidth-1;
+    for ( i=0; i<lineWidth; i++ ) {		// right shadow
+	a.setPoint( n++, x1--, y1++ );
+	a.setPoint( n++, x2--, y2 );
+    }
+    p->drawLineSegments( a );
+    if ( fill ) {				// fill with fill color
+	QBrush oldBrush = p->brush();
+	p->setPen( NoPen );
+	p->setBrush( *fill );
+	p->drawRect( x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2 );
+	p->setBrush( oldBrush );
+    }
+    p->setPen( oldPen );			// restore pen
 }
 
 /*!
   Draws a button indicating direction.
 */
 void
-QStyle::drawArrow( QPainter *p, ArrowType type, bool down,
-		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool enabled )
+QStyle::drawArrow( QPainter *, ArrowType , bool ,
+		 int , int , int , int ,
+		 const QColorGroup &, bool  )
 {
-    qDrawArrow( p, ::ArrowType(type), gs, down, x, y, w, h, g, enabled );
 }
 
 /*!
@@ -936,8 +1023,7 @@ QStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 QSize
 QStyle::exclusiveIndicatorSize() const
 {
-    // move code here ...
-    return QSize(5,5);
+    return QSize(10,10);
 }
 
 /*!
@@ -945,10 +1031,10 @@ QStyle::exclusiveIndicatorSize() const
 */
 void
 QStyle::drawExclusiveIndicator( QPainter* /*translated*/,
-		const QColorGroup &, bool on, bool down )
+		const QColorGroup &, bool on, bool down, bool enabled )
 {
     // move code here ...
-    on=down;
+    on=down=enabled;
 }
 
 /*!
@@ -958,18 +1044,26 @@ QSize
 QStyle::indicatorSize() const
 {
     // move code here ...
-    return QSize(5,5);
+    return QSize(10,10);
 }
 
 /*!
   Draws a mark indicating the state of a choice.
 */
 void
-QStyle::drawIndicator( QPainter* /*translated*/,
-		const QColorGroup &, bool on, bool down )
+QStyle::drawIndicator( QPainter* , int , int , int , int , const QColorGroup &, 
+		       bool , bool , bool  )
 {
     // move code here ...
-    on=down;
+}
+
+/*!
+  Draws the mask of a mark indicating the state of a choice.
+*/
+void 
+QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
+{
+    p->fillRect(x, y, w, h, color1);
 }
 
 /*!
@@ -994,6 +1088,51 @@ QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 }
 
 
+void QWindowsStyle::drawIndicator( QPainter* p,
+				   int x, int y, int w, int h, const QColorGroup &g, 
+				   bool on, bool down, bool /* enabled */ )
+{
+    QBrush fill;
+    if ( down )
+	fill = g.fillButton();
+    else
+	fill = g.fillBase();
+    qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
+    if ( on ) {
+	QPointArray a( 7*2 );
+	int i, xx, yy;
+	xx = x+3;
+	yy = y+5;
+	for ( i=0; i<3; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy++;
+	}
+	yy -= 2;
+	for ( i=3; i<7; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy--;
+	}
+	p->setPen( black );
+	p->drawLineSegments( a );
+    }
+}
+
+
+/*!
+  This function draws a rectangle with two pixel line width.
+  It is called from qDrawWinButton() and qDrawWinPanel().
+
+  c1..c4 and fill are used:
+
+    1 1 1 1 1 2
+    1 3 3 3 4 2
+    1 3 F F 4 2
+    1 3 F F 4 2
+    1 4 4 4 4 2
+    2 2 2 2 2 2
+*/
 void QWindowsStyle::drawWinShades( QPainter *p,
 				   int x, int y, int w, int h,
 				   const QColor &c1, const QColor &c2,
@@ -1035,6 +1174,67 @@ void QWindowsStyle::drawWinShades( QPainter *p,
     }
     p->setPen( oldPen );
 }
+
+
+void
+QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
+		 int x, int y, int w, int h,
+		 const QColorGroup &g, bool enabled )
+{
+    QPointArray a;				// arrow polygon
+    switch ( type ) {
+    case UpArrow:
+	a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
+	break;
+    case DownArrow:
+	a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
+	break;
+    case LeftArrow:
+	a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
+	break;
+    case RightArrow:
+	a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
+	break;
+    }
+    if ( a.isNull() )
+	return;
+
+    if ( down ) {
+	x++;
+	y++;
+    }
+
+    QPen savePen = p->pen();			// save current pen
+    if (down)
+	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+    p->fillRect( x, y, w, h, g.fillButton() );
+    if (down)
+	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+    if ( enabled ) {
+	a.translate( x+w/2, y+h/2 );
+	p->setPen( g.foreground() );
+	p->drawLineSegments( a, 0, 3 );		// draw arrow
+	p->drawPoint( a[6] );
+    } else {
+	a.translate( x+w/2+1, y+h/2+1 );
+	p->setPen( g.light() );
+	p->drawLineSegments( a, 0, 3 );		// draw arrow
+	p->drawPoint( a[6] );
+	a.translate( -1, -1 );
+	p->setPen( g.mid() );
+	p->drawLineSegments( a, 0, 3 );		// draw arrow
+	p->drawPoint( a[6] );
+    }
+    p->setPen( savePen );			// restore pen
+
+}
+
+QSize
+QWindowsStyle::indicatorSize() const
+{
+    return QSize(13,13);
+}
+
 
 
 /*!
@@ -1106,7 +1306,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     }
     if ( btn->isMenuButton() ) {
 	int dx = (y2-y1) / 3;
-	qDrawArrow( p, ::DownArrow, guiStyle(), FALSE,
+	drawArrow( p, DownArrow, FALSE,
 		    x2 - dx, y1, dx, y2 - y1,
 		    g, btn->isEnabled() );
     }
@@ -1146,10 +1346,281 @@ void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	p->translate( -dx, -dy );
 }
 
+#define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
+#define VERTICAL	!HORIZONTAL
+#define MOTIF_BORDER	2
+#define SLIDER_MIN	9 // ### motif says 6 but that's too small
+
+void QWindowsStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+{
+    int buttonDim, maxLength;
+    int b = 0;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( length > ( extent - b*2 - 1 )*2 + b*2 + SLIDER_MIN )
+	buttonDim = extent - b*2;
+    else
+	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
+
+    *sliderMin = b + buttonDim;
+    maxLength  = length - b*2 - buttonDim*2;
+
+    if ( sb->maxValue() == sb->minValue() ) {
+	*sliderLength = maxLength;
+    } else {
+	*sliderLength = (sb->pageStep()*maxLength)/
+			(sb->maxValue()-sb->minValue()+sb->pageStep());
+	if ( *sliderLength < SLIDER_MIN )
+	    *sliderLength = SLIDER_MIN;
+	if ( *sliderLength > maxLength )
+	    *sliderLength = maxLength;
+    }
+    *sliderMax = *sliderMin + maxLength - *sliderLength;
+
+}
+
+
+void QWindowsStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+{
+#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
+#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+    QColorGroup g  = sb->colorGroup();
+
+    int sliderMin, sliderMax, sliderLength;
+    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+
+    int b = 0;
+    int dimB = sliderMin - b;
+    QRect addB;
+    QRect subB;
+    QRect addPageR;
+    QRect subPageR;
+    QRect sliderR;
+    int addX, addY, subX, subY;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( HORIZONTAL ) {
+	subY = addY = ( extent - dimB ) / 2;
+	subX = b;
+	addX = length - dimB - b;
+    } else {
+	subX = addX = ( extent - dimB ) / 2;
+	subY = b;
+	addY = length - dimB - b;
+    }
+
+    subB.setRect( subX,subY,dimB,dimB );
+    addB.setRect( addX,addY,dimB,dimB );
+
+    int sliderEnd = sliderStart + sliderLength;
+    int sliderW = extent - b*2;
+    if ( HORIZONTAL ) {
+	subPageR.setRect( subB.right() + 1, b,
+			  sliderStart - subB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+    } else {
+	subPageR.setRect( b, subB.bottom() + 1, sliderW,
+			  sliderStart - subB.bottom() - 1 );
+	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+    }
+
+    bool maxedOut = (sb->maxValue() == sb->minValue());
+    if ( controls & ADD_LINE ) {
+	drawBevelButton( p, addB.x(), addB.y(),
+			 addB.width(), addB.height(), g,
+			 ADD_LINE_ACTIVE, &g.fillButton() );
+	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+		   addB.width()-4, addB.height()-4, g, !maxedOut );
+    }
+    if ( controls & SUB_LINE ) {
+	drawBevelButton( p, subB.x(), subB.y(),
+			 subB.width(), subB.height(), g,
+			 SUB_LINE_ACTIVE );
+	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+		   subB.width()-4, subB.height()-4, g, !maxedOut );
+    }
+    p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
+    p->setPen( NoPen );
+    p->setBackgroundMode( OpaqueMode );
+    if ( maxedOut ) {
+	p->drawRect( sliderR );
+    } else {
+	if ( controls & SUB_PAGE )
+	    p->drawRect( subPageR );
+	if ( controls & ADD_PAGE )
+	    p->drawRect( addPageR );
+	if ( controls & SLIDER ) {
+	    if ( !maxedOut ) {
+		QPoint bo = p->brushOrigin();
+		p->setBrushOrigin(sliderR.topLeft());
+		drawBevelButton( p, sliderR.x(), sliderR.y(),
+				 sliderR.width(), sliderR.height(), g,
+				 FALSE, &g.fillButton() );
+		p->setBrushOrigin(bo);
+	    }
+	}
+    }
+    // ### perhaps this should not be able to accept focus if maxedOut?
+    if ( sb->hasFocus() && (controls & SLIDER) )
+	p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
+			     sliderR.width()-5, sliderR.height()-5,
+			     sb->backgroundColor() );
+
+}
+
+
 
 QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 {
 }
+
+void QMotifStyle::drawIndicator( QPainter* p,
+				 int x, int y, int w, int h, const QColorGroup &g, 
+				 bool on, bool down, bool /* enabled */ )
+{
+    bool showUp = !(down ^ on);
+    QBrush fill =  showUp ? g.fillButton() : g.fillMid();
+    qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );
+}
+
+
+QSize
+QMotifStyle::indicatorSize() const
+{
+    return QSize(10,10);
+}
+
+
+void
+QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
+		 int x, int y, int w, int h,
+		 const QColorGroup &g, bool /* enabled */ )
+{
+    QPointArray bFill;				// fill polygon
+    QPointArray bTop;				// top shadow.
+    QPointArray bBot;				// bottom shadow.
+    QPointArray bLeft;				// left shadow.
+    QWMatrix	matrix;				// xform matrix
+    bool vertical = type == UpArrow || type == DownArrow;
+    bool horizontal = !vertical;
+    int	 dim = w < h ? w : h;
+    int	 colspec = 0x0000;			// color specification array
+
+    if ( dim < 2 )				// too small arrow
+	return;
+
+    if ( dim > 3 ) {
+	if ( dim > 6 )
+	    bFill.resize( dim & 1 ? 3 : 4 );
+	bTop.resize( (dim/2)*2 );
+	bBot.resize( dim & 1 ? dim + 1 : dim );
+	bLeft.resize( dim > 4 ? 4 : 2 );
+	bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
+	if ( dim > 4 )
+	    bLeft.putPoints( 2, 2, 1,2, 1,dim-3 );
+	bTop.putPoints( 0, 4, 1,0, 1,1, 2,1, 3,1 );
+	bBot.putPoints( 0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2 );
+
+	for( int i=0; i<dim/2-2 ; i++ ) {
+	    bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
+	    bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
+	}
+	if ( dim & 1 )				// odd number size: extra line
+	    bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
+	if ( dim > 6 ) {			// dim>6: must fill interior
+	    bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
+	    if ( dim & 1 )			// if size is an odd number
+		bFill.setPoint( 2, dim - 3, dim / 2 );
+	    else
+		bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );
+	}
+    }
+    else {
+	if ( dim == 3 ) {			// 3x3 arrow pattern
+	    bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
+	    bTop .setPoints( 2, 1,0, 1,0 );
+	    bBot .setPoints( 2, 1,2, 2,1 );
+	}
+	else {					// 2x2 arrow pattern
+	    bLeft.setPoints( 2, 0,0, 0,1 );
+	    bTop .setPoints( 2, 1,0, 1,0 );
+	    bBot .setPoints( 2, 1,1, 1,1 );
+	}
+    }
+
+    if ( type == UpArrow || type == LeftArrow ) {
+	matrix.translate( x, y );
+	if ( vertical ) {
+	    matrix.translate( 0, h - 1 );
+	    matrix.rotate( -90 );
+	} else {
+	    matrix.translate( w - 1, h - 1 );
+	    matrix.rotate( 180 );
+	}
+	if ( down )
+	    colspec = horizontal ? 0x2334 : 0x2343;
+	else
+	    colspec = horizontal ? 0x1443 : 0x1434;
+    }
+    else if ( type == DownArrow || type == RightArrow ) {
+	matrix.translate( x, y );
+	if ( vertical ) {
+	    matrix.translate( w-1, 0 );
+	    matrix.rotate( 90 );
+	}
+	if ( down )
+	    colspec = horizontal ? 0x2443 : 0x2434;
+	else
+	    colspec = horizontal ? 0x1334 : 0x1343;
+    }
+
+    QColor *cols[5];
+    cols[0] = 0;
+    cols[1] = (QColor *)&g.button();
+    cols[2] = (QColor *)&g.mid();
+    cols[3] = (QColor *)&g.light();
+    cols[4] = (QColor *)&g.dark();
+#define CMID	*cols[ (colspec>>12) & 0xf ]
+#define CLEFT	*cols[ (colspec>>8) & 0xf ]
+#define CTOP	*cols[ (colspec>>4) & 0xf ]
+#define CBOT	*cols[ colspec & 0xf ]
+
+    QPen     savePen   = p->pen();		// save current pen
+    QBrush   saveBrush = p->brush();		// save current brush
+    QWMatrix wxm = p->worldMatrix();
+    QPen     pen( NoPen );
+    QBrush brush = g.fillButton();
+
+    p->setPen( pen );
+    p->setBrush( brush );
+    p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
+    p->drawPolygon( bFill );			// fill arrow
+    p->setBrush( NoBrush );			// don't fill
+
+    p->setPen( CLEFT );
+    p->drawLineSegments( bLeft );
+    p->setPen( CTOP );
+    p->drawLineSegments( bTop );
+    p->setPen( CBOT );
+    p->drawLineSegments( bBot );
+
+    p->setWorldMatrix( wxm );
+    p->setBrush( saveBrush );			// restore brush
+    p->setPen( savePen );			// restore pen
+
+#undef CMID
+#undef CLEFT
+#undef CTOP
+#undef CBOT
+
+}
+
 
 /*!
   Draws a press-sensitive shape.
@@ -1170,7 +1641,6 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 void
 QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
-    GUIStyle gs   = guiStyle();
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
 
@@ -1206,13 +1676,119 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
     if ( btn->isMenuButton() ) {
 	int dx = (y1-y2-4)/3;
-	qDrawArrow( p, ::DownArrow, gs, FALSE,
-		    x2 - dx, dx, y1, y2 - y1,
-		    g, btn->isEnabled() );
+	drawArrow( p, DownArrow, FALSE,
+		   x2 - dx, dx, y1, y2 - y1,
+		   g, btn->isEnabled() );
     }
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
+}
+
+void QMotifStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+{
+    int buttonDim, maxLength;
+    int b = MOTIF_BORDER;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( length > ( extent - b*2 - 1 )*2 + b*2 + SLIDER_MIN )
+	buttonDim = extent - b*2;
+    else
+	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
+
+    *sliderMin = b + buttonDim;
+    maxLength  = length - b*2 - buttonDim*2;
+
+    if ( sb->maxValue() == sb->minValue() ) {
+	*sliderLength = maxLength;
+    } else {
+	*sliderLength = (sb->pageStep()*maxLength)/
+			(sb->maxValue()-sb->minValue()+sb->pageStep());
+	if ( *sliderLength < SLIDER_MIN )
+	    *sliderLength = SLIDER_MIN;
+	if ( *sliderLength > maxLength )
+	    *sliderLength = maxLength;
+    }
+    *sliderMax = *sliderMin + maxLength - *sliderLength;
+
+}
+
+
+void QMotifStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+{
+#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
+#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+    QColorGroup g  = sb->colorGroup();
+
+    int sliderMin, sliderMax, sliderLength;
+    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+
+    int b = MOTIF_BORDER;
+    int dimB = sliderMin - b;
+    QRect addB;
+    QRect subB;
+    QRect addPageR;
+    QRect subPageR;
+    QRect sliderR;
+    int addX, addY, subX, subY;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( HORIZONTAL ) {
+	subY = addY = ( extent - dimB ) / 2;
+	subX = b;
+	addX = length - dimB - b;
+    } else {
+	subX = addX = ( extent - dimB ) / 2;
+	subY = b;
+	addY = length - dimB - b;
+    }
+
+    subB.setRect( subX,subY,dimB,dimB );
+    addB.setRect( addX,addY,dimB,dimB );
+
+    int sliderEnd = sliderStart + sliderLength;
+    int sliderW = extent - b*2;
+    if ( HORIZONTAL ) {
+	subPageR.setRect( subB.right() + 1, b,
+			  sliderStart - subB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+    } else {
+	subPageR.setRect( b, subB.bottom() + 1, sliderW,
+			  sliderStart - subB.bottom() - 1 );
+	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+    }
+
+    if ( controls & ADD_LINE )
+	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+		   ADD_LINE_ACTIVE, addB.x(), addB.y(),
+		   addB.width(), addB.height(), g, sb->value()<sb->maxValue() );
+    if ( controls & SUB_LINE )
+	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+		   SUB_LINE_ACTIVE, subB.x(), subB.y(),
+		   subB.width(), subB.height(), g, sb->value()>sb->minValue() );
+
+    QBrush fill = g.fillMid();
+    if (sb->backgroundPixmap() ){
+	fill = QBrush( g.mid(), *sb->backgroundPixmap() );
+    }
+
+    if ( controls & SUB_PAGE )
+	p->fillRect( subPageR, fill );
+	
+    if ( controls & ADD_PAGE )
+	p->fillRect( addPageR, fill );
+
+    if ( controls & SLIDER ) {
+	QPoint bo = p->brushOrigin();
+	p->setBrushOrigin(sliderR.topLeft());
+	qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
+	p->setBrushOrigin(bo);
+    }
+
 }
 
 void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
@@ -1238,6 +1814,683 @@ void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
     if ( dx || dy )
 	p->translate( -dx, -dy );
 
+}
+
+QPlatinumStyle::QPlatinumStyle() 
+{
+}
+
+void QPlatinumStyle::initialize( QApplication* app)
+{
+    QColor standardLightGray( 222, 222, 222 );
+    QColor light( 255, 255, 255 );
+    QColor dark (98, 101, 98);
+    QColor mid (139, 137, 139);
+    QColorGroup nor( black, standardLightGray,
+			 light, dark, mid,
+			 black, white, white, standardLightGray );
+    QColorGroup dis( darkGray, standardLightGray,
+			 light, dark, mid,
+			 darkGray, white, white, nor.background() );
+    QColorGroup act( black, standardLightGray,
+			 light, dark, mid,
+			 black, white, white, nor.background() );
+
+    app->setPalette(QPalette(nor, dis, act), TRUE );
+
+}
+
+/*!
+  Draws a press-sensitive shape.
+*/
+void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+
+    QPen oldPen = p->pen();
+
+     if (!sunken) {
+	 p->fillRect(x+3, y+3, w-6, h-6,fill?*fill:g.fillButton());
+	 // the bright side
+	 p->setPen(black);
+	 p->drawLine(x, y, x+w-1, y);
+	 p->drawLine(x, y, x, y+h-1);
+
+	 p->setPen(g.button());
+	 p->drawLine(x+1, y+1, x+w-2, y+1);
+	 p->drawLine(x+1, y+1, x+1, y+h-2);
+
+	 p->setPen(g.light());
+	 p->drawLine(x+2, y+2, x+2, y+h-2);
+	 p->drawLine(x+2, y+2, x+w-2, y+2);
+
+
+	 // the dark side!
+
+	 p->setPen(g.mid());
+	 p->drawLine(x+3, y+h-3 ,x+w-3, y+h-3);
+	 p->drawLine(x+w-3, y+3, x+w-3, y+h-3);
+
+	 p->setPen(g.dark());
+	 p->drawLine(x+2, y+h-2 ,x+w-2, y+h-2);
+	 p->drawLine(x+w-2, y+2, x+w-2, y+h-2);
+
+	 p->setPen(black);
+	 p->drawLine(x+1, y+h-1,x+w-1, y+h-1);
+	 p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+
+ 	 // top left corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x, y);
+ 	 p->drawPoint(x+1, y);
+ 	 p->drawPoint(x, y+1);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+1, y+1);
+ 	 p->setPen(white);
+ 	 p->drawPoint(x+3, y+3);
+ 	 // bottom left corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x, y+h-1);
+ 	 p->drawPoint(x+1, y+h-1);
+ 	 p->drawPoint(x, y+h-2);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+1, y+h-2);
+ 	 // top right corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x+w-1, y);
+ 	 p->drawPoint(x+w-2, y);
+ 	 p->drawPoint(x+w-1, y+1);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+w-2, y+1);
+ 	 // bottom right corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x+w-1, y+h-1);
+ 	 p->drawPoint(x+w-2, y+h-1);
+ 	 p->drawPoint(x+w-1, y+h-2);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+w-2, y+h-2);
+ 	 p->setPen(g.dark());
+ 	 p->drawPoint(x+w-3, y+h-3);
+ 	 p->setPen(g.mid());
+ 	 p->drawPoint(x+w-4, y+h-4);
+
+     }
+     else {
+	 p->fillRect(x+2, y+2, w-4, h-4,fill?*fill:g.fillDark());
+
+	 // the dark side
+	 p->setPen(black);
+	 p->drawLine(x, y, x+w-1, y);
+	 p->drawLine(x, y, x, y+h-1);
+
+	 p->setPen(g.dark().dark());
+	 p->drawLine(x+1, y+1, x+w-2, y+1);
+	 p->drawLine(x+1, y+1, x+1, y+h-2);
+
+
+	 // the bright side!
+
+	 p->setPen(g.button());
+	 p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+	 p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+
+	 p->setPen(g.dark());
+	 p->drawLine(x, y+h-1,x+w-1, y+h-1);
+	 p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+ 	 // top left corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x, y);
+ 	 p->drawPoint(x+1, y);
+ 	 p->drawPoint(x, y+1);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+1, y+1);
+ 	 p->setPen(g.dark().dark());
+ 	 p->drawPoint(x+3, y+3);
+ 	 // bottom left corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x, y+h-1);
+ 	 p->drawPoint(x+1, y+h-1);
+ 	 p->drawPoint(x, y+h-2);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+1, y+h-2);
+ 	 // top right corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x+w-1, y);
+ 	 p->drawPoint(x+w-2, y);
+ 	 p->drawPoint(x+w-1, y+1);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+w-2, y+1);
+ 	 // bottom right corner:
+ 	 p->setPen(g.background());
+ 	 p->drawPoint(x+w-1, y+h-1);
+ 	 p->drawPoint(x+w-2, y+h-1);
+ 	 p->drawPoint(x+w-1, y+h-2);
+ 	 p->setPen(black);
+ 	 p->drawPoint(x+w-2, y+h-2);
+ 	 p->setPen(g.dark());
+ 	 p->drawPoint(x+w-3, y+h-3);
+ 	 p->setPen(g.mid());
+ 	 p->drawPoint(x+w-4, y+h-4);
+	
+
+     }
+
+     //     // top left corner:
+//     p->setPen(g.background());
+//     p->drawPoint(x, y);
+//     p->drawPoint(x, y);
+
+
+    p->setPen(oldPen);
+}
+
+QRect QPlatinumStyle::buttonRect( int x, int y, int w, int h){
+    return QRect(x+1, y+1, w-2, h-2);
+}
+
+QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2)
+{
+    int h1,s1,v1,h2,s2,v2;
+    c1.hsv(&h1,&s1,&v1);
+    c2.hsv(&h2,&s2,&v2);
+    return QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv );
+}
+
+void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    QPen oldPen = p->pen();
+
+    // small or non-square bevel buttons are drawn in a small style, others in a big style.
+    if ( w * h < 1600 || QABS(w-h) > 10) {
+	// small buttons
+	
+	if (!sunken) {
+	    p->fillRect(x+2, y+2, w-4, h-4,fill?*fill:g.fillButton());
+	    // the bright side
+	    p->setPen(g.dark());
+	    p->drawLine(x, y, x+w-1, y);
+	    p->drawLine(x, y, x, y+h-1);
+
+	    p->setPen(g.light());
+	    p->drawLine(x+1, y+1, x+w-2, y+1);
+	    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+	    // the dark side!
+
+	    p->setPen(g.mid());
+	    p->drawLine(x+2, y+h-2 ,x+w-2, y+h-2);
+	    p->drawLine(x+w-2, y+2, x+w-2, y+h-3);
+
+	    p->setPen(g.dark().dark());
+	    p->drawLine(x+1, y+h-1,x+w-1, y+h-1);
+	    p->drawLine(x+w-1, y+1, x+w-1, y+h-2);
+
+
+	}
+	else {
+	    p->fillRect(x+2, y+2, w-4, h-4,fill?*fill:g.fillMid());
+
+	    // the dark side
+	    p->setPen(g.dark().dark());
+	    p->drawLine(x, y, x+w-1, y);
+	    p->drawLine(x, y, x, y+h-1);
+
+	    p->setPen(g.mid().dark());
+	    p->drawLine(x+1, y+1, x+w-2, y+1);
+	    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+
+	    // the bright side!
+
+	    p->setPen(g.button());
+	    p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+	    p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+
+	    p->setPen(g.dark());
+	    p->drawLine(x, y+h-1,x+w-1, y+h-1);
+	    p->drawLine(x+w-1, y, x+w-1, y+h-1);
+	}
+    }
+    else {
+	// big ones
+	
+	if (!sunken) {
+	    p->fillRect(x+3, y+3, w-6, h-6,fill?*fill:g.fillButton());
+	    // the bright side
+	    p->setPen(g.button().dark());
+	    p->drawLine(x, y, x+w-1, y);
+	    p->drawLine(x, y, x, y+h-1);
+
+	    p->setPen(g.button());
+	    p->drawLine(x+1, y+1, x+w-2, y+1);
+	    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+	    p->setPen(g.light());
+	    p->drawLine(x+2, y+2, x+2, y+h-2);
+	    p->drawLine(x+2, y+2, x+w-2, y+2);
+
+
+	 // the dark side!
+
+	    p->setPen(g.mid());
+	    p->drawLine(x+3, y+h-3 ,x+w-3, y+h-3);
+	    p->drawLine(x+w-3, y+3, x+w-3, y+h-3);
+
+	    p->setPen(g.dark());
+	    p->drawLine(x+2, y+h-2 ,x+w-2, y+h-2);
+	    p->drawLine(x+w-2, y+2, x+w-2, y+h-2);
+
+	    p->setPen(g.dark().dark());
+	    p->drawLine(x+1, y+h-1,x+w-1, y+h-1);
+	    p->drawLine(x+w-1, y+1, x+w-1, y+h-1);
+
+
+	}
+	else {
+	    p->fillRect(x+3, y+3, w-6, h-6,fill?*fill:g.fillMid());
+
+	    // the dark side
+	    p->setPen(g.dark().dark().dark());
+	    p->drawLine(x, y, x+w-1, y);
+	    p->drawLine(x, y, x, y+h-1);
+
+	    p->setPen(g.dark().dark());
+	    p->drawLine(x+1, y+1, x+w-2, y+1);
+	    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+	    p->setPen(g.mid().dark());
+	    p->drawLine(x+2, y+2, x+2, y+w-2);
+	    p->drawLine(x+2, y+2, x+w-2, y+2);
+
+
+	    // the bright side!
+
+	    p->setPen(g.button());
+	    p->drawLine(x+2, y+h-3 ,x+w-3, y+h-3);
+	    p->drawLine(x+w-3, y+3, x+w-3, y+h-3);
+
+	    p->setPen(g.midlight());
+	    p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+	    p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+
+	    p->setPen(g.dark());
+	    p->drawLine(x, y+h-1,x+w-1, y+h-1);
+	    p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+
+	    // corners
+	    p->setPen( mixedColor(g.dark().dark().dark(), g.dark()) );
+	    p->drawPoint( x, y+h-1 );
+	    p->drawPoint( x+w-1, y);
+
+	    p->setPen( mixedColor(g.dark().dark(), g.midlight() ) );
+	    p->drawPoint( x+1, y+h-2 );
+	    p->drawPoint( x+w-2, y+1);
+
+	    p->setPen( mixedColor(g.mid().dark(), g.button() ) );
+	    p->drawPoint( x+2, y+h-3 );
+	    p->drawPoint( x+w-3, y+2);
+	}
+    }
+    p->setPen(oldPen);
+
+}
+
+void
+QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
+{
+    QColorGroup g = btn->colorGroup();
+    int x1, y1, x2, y2;
+
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+
+    p->setPen( g.foreground() );
+    p->setBrush( QBrush(g.button(),NoBrush) );
+
+    QBrush fill;
+    if ( btn->isDown() )
+	fill = g.fillDark();
+    else if ( btn->isOn() )
+	fill = QBrush( g.mid(), Dense4Pattern );
+    else
+	fill = g.fillButton();	
+
+    if ( btn->isDefault() ) {
+	QPointArray a;
+	a.setPoints( 9,
+		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	p->setPen( black );
+	p->drawPolyline( a );
+	x1 += 2;
+	y1 += 2;
+	x2 -= 2;
+	y2 -= 2;
+    }
+	
+    // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
+    if ( btn->isToggleButton()
+	 || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )
+	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+			 &fill );
+    else
+	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+		    &fill );
+	
+
+    if ( btn->isMenuButton() ) {
+	int dx = (y1-y2-4)/3;
+	drawArrow( p, DownArrow, FALSE,
+		   x2 - dx, dx, y1, y2 - y1,
+		   g, btn->isEnabled() );
+    }
+
+    if ( p->brush().style() != NoBrush )
+	p->setBrush( NoBrush );
+}
+
+void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+{
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() )
+	dx = (y2-y1) / 3;
+    if ( dx || dy )
+	p->translate( dx, dy );
+
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    drawItem( p, x, y, w, h,
+	      AlignCenter|ShowPrefix,
+	      btn->colorGroup(), btn->isEnabled(),
+	      btn->pixmap(), btn->text(), -1, btn->isDown() || btn->isOn());
+    if ( dx || dy )
+	p->translate( -dx, -dy );
+
+}
+
+void QPlatinumStyle::scrollbarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+{
+    int buttonDim, maxLength;
+    int b = 0;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( length > ( extent - b*2 - 1 )*2 + b*2 + SLIDER_MIN )
+	buttonDim = extent - b*2;
+    else
+	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
+
+    *sliderMin = b + buttonDim;
+    maxLength  = length - b*2 - buttonDim*2;
+
+     if ( sb->maxValue() == sb->minValue() ) {
+ 	*sliderLength = maxLength;
+     } else {
+ 	*sliderLength = (sb->pageStep()*maxLength)/
+ 			(sb->maxValue()-sb->minValue()+sb->pageStep());
+ 	if ( *sliderLength < SLIDER_MIN )
+ 	    *sliderLength = SLIDER_MIN;
+ 	if ( *sliderLength > maxLength )
+ 	    *sliderLength = maxLength;
+     }
+
+     if (maxLength >=  buttonDim)
+	 *sliderLength = buttonDim; // macintosh
+
+    *sliderMax = *sliderMin + maxLength - *sliderLength;
+
+}
+
+void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, int h,
+					      const QColorGroup &g, bool horizontal, const QBrush* fill)
+{
+    QPen oldPen = p->pen();
+
+    if (w < 3 || h < 3) {
+	p->fillRect(x, y, w, h, fill?*fill:g.fillMid());
+	p->setPen(black);
+	p->drawRect(x, y, w, h);
+	p->setPen(oldPen);
+	return;
+    }
+    
+
+    if (horizontal) {
+	p->fillRect(x+2, y+2, w-2, h-4,fill?*fill:g.fillMid());
+    
+	// the dark side
+	p->setPen(g.dark().dark());
+	p->drawLine(x, y, x+w-1, y);
+	p->setPen(black);
+	p->drawLine(x, y, x, y+h-1);
+
+	p->setPen(g.mid().dark());
+	p->drawLine(x+1, y+1, x+w-1, y+1);
+	p->drawLine(x+1, y+1, x+1, y+h-2);
+
+	// the bright side!
+
+	p->setPen(g.button());
+	p->drawLine(x+1, y+h-2 ,x+w-1, y+h-2);
+	//p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+	
+	p->setPen(black);
+	p->drawLine(x, y+h-1,x+w-1, y+h-1);
+	// p->drawLine(x+w-1, y, x+w-1, y+h-1);
+    }
+    else {
+	p->fillRect(x+2, y+2, w-4, h-2,fill?*fill:g.fillMid());
+
+	// the dark side
+	p->setPen(g.dark().dark());
+	p->drawLine(x, y, x+w-1, y);
+	p->setPen(black);
+	p->drawLine(x, y, x, y+h-1);
+
+	p->setPen(g.mid().dark());
+	p->drawLine(x+1, y+1, x+w-2, y+1);
+	p->drawLine(x+1, y+1, x+1, y+h-1);
+
+
+	// the bright side!
+
+	p->setPen(g.button());
+	//p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+	p->drawLine(x+w-2, y+1, x+w-2, y+h-1);
+
+	p->setPen(black);
+	//p->drawLine(x, y+h-1,x+w-1, y+h-1);
+	p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+    }
+    p->setPen(oldPen);
+
+}
+
+
+void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
+{
+#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
+#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+    QColorGroup g  = sb->colorGroup();
+
+    int sliderMin, sliderMax, sliderLength;
+    scrollbarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+
+    int b = 0;
+    int dimB = sliderMin - b;
+    QRect addB;
+    QRect subB;
+    QRect addPageR;
+    QRect subPageR;
+    QRect sliderR;
+    int addX, addY, subX, subY;
+    int length = HORIZONTAL ? sb->width()  : sb->height();
+    int extent = HORIZONTAL ? sb->height() : sb->width();
+
+    if ( HORIZONTAL ) {
+	subY = addY = ( extent - dimB ) / 2;
+	subX = b;
+	addX = length - dimB - b;
+    } else {
+	subX = addX = ( extent - dimB ) / 2;
+	subY = b;
+	addY = length - dimB - b;
+    }
+
+    subB.setRect( subX,subY,dimB,dimB );
+    addB.setRect( addX,addY,dimB,dimB );
+
+    int sliderEnd = sliderStart + sliderLength;
+    int sliderW = extent - b*2;
+    if ( HORIZONTAL ) {
+	subPageR.setRect( subB.right() + 1, b,
+			  sliderStart - subB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+    } else {
+	subPageR.setRect( b, subB.bottom() + 1, sliderW,
+			  sliderStart - subB.bottom() - 1 );
+	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+    }
+
+    bool maxedOut = (sb->maxValue() == sb->minValue());
+    if ( controls & ADD_LINE ) {
+	drawBevelButton( p, addB.x(), addB.y(),
+			 addB.width(), addB.height(), g,
+			 ADD_LINE_ACTIVE, &g.fillButton() );
+	p->setPen(black);
+	p->drawRect( addB );
+	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+		   addB.width()-4, addB.height()-4, g, !maxedOut );
+    }
+    if ( controls & SUB_LINE ) {
+	drawBevelButton( p, subB.x(), subB.y(),
+			 subB.width(), subB.height(), g,
+			 SUB_LINE_ACTIVE );
+	p->setPen(black);
+	p->drawRect( subB );
+	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+		    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+		   subB.width()-4, subB.height()-4, g, !maxedOut );
+    }
+
+
+    if ( controls & SUB_PAGE )
+	drawScrollbarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(), 
+				 subPageR.height(),
+				 g, HORIZONTAL );
+    if ( controls & ADD_PAGE )
+	drawScrollbarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(), 
+				 addPageR.height(),
+				 g, HORIZONTAL );
+    if ( controls & SLIDER ) {
+	QPoint bo = p->brushOrigin();
+	p->setBrushOrigin(sliderR.topLeft());
+	drawBevelButton( p, sliderR.x(), sliderR.y(),
+			 sliderR.width(), sliderR.height(), g,
+			 FALSE, &g.fillButton() );
+	p->setBrushOrigin(bo);
+	if (VERTICAL) {
+	    int n = dimB / 4;
+	    int mx = sliderR.x()+sliderR.width()/2-n-1;
+	    int my = sliderR.y()+sliderR.height()/2-n;
+	    int i ;
+	    p->setPen(g.light());
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i); 
+	    }
+	    p->setPen(g.dark());
+	    mx++;
+	    my++;
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i); 
+	    }
+	}
+	else {
+	    int n = dimB / 4;
+	    int mx = sliderR.x()+sliderR.width()/2-n;
+	    int my = sliderR.y()+sliderR.height()/2-n-1;
+	    int i ;
+	    p->setPen(g.light());
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1); 
+	    }
+	    p->setPen(g.dark());
+	    mx++;
+	    my++;
+	    for (i=0; i<n; i++) {
+		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1); 
+	    }
+	}
+	p->setPen(black);
+	p->drawRect( sliderR );
+    }
+    
+    // ### perhaps this should not be able to accept focus if maxedOut?
+    if ( sb->hasFocus() && (controls & SLIDER) )
+	p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
+			     sliderR.width()-5, sliderR.height()-5,
+			     sb->backgroundColor() );
+
+}
+
+
+void QPlatinumStyle::drawIndicator( QPainter* p,
+				    int x, int y, int w, int h, const QColorGroup &g, 
+				    bool on , bool down, bool /*enabled */ )
+{
+    QBrush fill;
+    if ( down )
+	fill = g.fillDark();
+    else
+	fill = g.fillButton();
+
+    drawBevelButton( p, x, y, w-2, h, g,
+		     down, &fill );
+    p->fillRect(x+w-2, y, 2, h, g.fillBackground() );
+    p->setPen( black );
+    p->drawRect( x, y, w-2, h );
+
+    if (on) {
+	QPen oldPen = p->pen();
+	p->setPen (QPen(g.text(), 2));
+	p->drawLine( x+2, y+h/2-1, x+w/2-1, y+h-4);
+	p->drawLine(x+w/2-1, y+h-4, x+w, 0);
+	p->setPen( oldPen );
+    }
+
+    
+}
+
+void 
+QPlatinumStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on)
+{
+    p->fillRect(x, y, w-2, h, color1);
+    if (on) {
+	QPen oldPen = p->pen();
+	p->setPen (QPen(color1, 2));
+	p->drawLine( x+2, y+h/2-1, x+w/2-1, y+h-4);
+	p->drawLine(x+w/2-1, y+h-4, x+w, 0);
+	p->setPen( oldPen );
+    }
+}
+
+QSize
+QPlatinumStyle::indicatorSize() const
+{
+    return QSize(15,13);
 }
 
 
@@ -1373,7 +2626,7 @@ void QHMotifStyle::polish( QWidget* w)
 }
 
 
-static void drawroundrect( QPainter *p, QCOORD x, QCOORD y, 
+static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
 			   QCOORD w, QCOORD h, QCOORD d )
 {
     int rx = (200*d)/w;
@@ -1400,11 +2653,11 @@ void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	img3 = new QImage;
 	*img3 = img.copy( ww-dd, 0, dd, hh );
     }
-    
+
     int w1 = img1->width();
     int w3 = img3->width();
     int w2 = w - w1 - w3;
-    
+
     QImage scaledImage = img1->smoothScale( w1, h );
     QPixmap pix;
     pix.convertFromImage( *img1 );//scaledImage );
@@ -1441,13 +2694,14 @@ void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
 	
     QBrush oldBrush = p->brush();
+    QPen oldPen = p->pen();
     p->setPen( NoPen );
     p->setBrush( fill?*fill:(sunken?g.fillMid():g.fillButton()));
     drawroundrect( p, x+3, y+3, w-6, h-6, 5 );
     p->setBrush( oldBrush );
-
     p->setPen( g.foreground() );
     drawroundrect( p, x, y, w, h, 8 );
+    p->setPen( oldPen );
 #endif
 }
 
@@ -1459,7 +2713,6 @@ void QHMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
-    GUIStyle gs   = guiStyle();
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
 
@@ -1497,9 +2750,9 @@ void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 
     if ( btn->isMenuButton() ) {
 	int dx = (y1-y2-4)/3;
-	qDrawArrow( p, ::DownArrow, gs, FALSE,
-		    x2 - dx, dx, y1, y2 - y1,
-		    g, btn->isEnabled() );
+	drawArrow( p, DownArrow, FALSE,
+		   x2 - dx, dx, y1, y2 - y1,
+		   g, btn->isEnabled() );
     }
 
     if ( p->brush().style() != NoBrush )
@@ -1545,27 +2798,5 @@ void QHMotifStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
 }
 
 
-
-QHWindowsStyle::QHWindowsStyle() : QWindowsStyle()
-{
-}
-
-void QHWindowsStyle::initialize( QApplication* app)
-{
-    proxy.initialize( app );
-}
-void QHWindowsStyle::polish( QWidget* w)
-{
-    proxy.polish( w );
-}
-
-QRect QHWindowsStyle::buttonRect( int x, int y, int w, int h){
-    return QRect(x, y, w, h );
-}
-
-void QHWindowsStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
-{
-    p->fillRect( x, y, w, h, color1 );
-}
 
 
