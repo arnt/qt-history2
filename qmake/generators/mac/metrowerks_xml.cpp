@@ -176,8 +176,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
 		    QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
 		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-			QString p = (*val_it);
-			if(!fixifyToMacPath(p))
+			QString p = (*val_it), v;
+			if(!fixifyToMacPath(p, v))
 			    continue;
 
 			t << "\t\t\t\t\t<SETTING>" << endl
@@ -204,19 +204,21 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString p = (*it);
-		    if(!fixifyToMacPath(p))
+		    QString p = (*it), v;
+		    if(!fixifyToMacPath(p, v))
 			continue;
 
-		    QString recursive = "false";
+		    QString recursive = "true";
+#if 0
 		    if(p.right(11) == ".framework:")
 			recursive = "true";
+#endif
 		    t << "\t\t\t\t\t<SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
 		      << "<VALUE>" << p << "</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << v << "</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t\t</SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
@@ -299,6 +301,8 @@ MetrowerksMakefileGenerator::init()
 	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	}
     }
+    if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
+	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "lib" );
 
     if ( project->isActiveConfig("moc") ) {
 	project->variables()["MOCS"].append(project->variables()["TARGET"].first() + ".mocs");
@@ -342,7 +346,8 @@ MetrowerksMakefileGenerator::init()
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);
 	} else if((*val_it).left(2) == "-l") {
-	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + ".lib");
+	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + "." + 
+			project->first("QMAKE_EXTENTION_SHLIB"));
 	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
 		project->variables()["LIBRARIES"].append(lib);
 	} else if((*val_it) == "-framework") {
@@ -380,7 +385,8 @@ MetrowerksMakefileGenerator::init()
     //finally set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
     if(project->first("TEMPLATE") == "lib") 
-	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".lib";
+	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + "." +
+						  project->first("QMAKE_EXTENTION_SHLIB");
 }
 
 
@@ -433,8 +439,9 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 }
 
 bool
-MetrowerksMakefileGenerator::fixifyToMacPath(QString &p)
+MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v)
 {
+    v = "Absolute";
     if(p.find(':') != -1) //guess its macish already
 	return TRUE;
 
@@ -474,8 +481,12 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p)
     p = QDir::cleanDirPath(p);
     if(!QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
 	return FALSE;
-    if(!volume.isEmpty())
-	p.prepend(volume); 
+    if(!volume.isEmpty()) {
+	if(!project->isActiveConfig("separate_volume")) 
+	   p.prepend(volume); 
+	else 
+	    v = volume;
+    }
     p.replace(QRegExp("/"), ":");
     if(p.right(1) != ":")
 	p += ':';

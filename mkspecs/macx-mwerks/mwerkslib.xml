@@ -473,7 +473,7 @@
                 <SETTING><NAME>MWFTP_Post_ShouldLog</NAME><VALUE>1</VALUE></SETTING>
 
                 <!-- Settings for "MacOS Merge Panel" panel -->
-                <SETTING><NAME>MWMerge_MacOS_projectType</NAME><VALUE>Shared Library</VALUE></SETTING>
+                <SETTING><NAME>MWMerge_MacOS_projectType</NAME><VALUE>SharedLibrary</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputName</NAME><VALUE>Merge Out</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputCreator</NAME><VALUE>????</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputType</NAME><VALUE>APPL</VALUE></SETTING>
@@ -481,7 +481,7 @@
                 <SETTING><NAME>MWMerge_MacOS_copyFragments</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyResources</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_flattenResource</NAME><VALUE>0</VALUE></SETTING>
-                <SETTING><NAME>MWMerge_MacOS_flatFileName</NAME><VALUE>a.rsrc</VALUE></SETTING>
+                <SETTING><NAME>MWMerge_MacOS_flatFileName</NAME><VALUE>$$TARGET_STEM.rsrc</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_flatFileOutputPath</NAME>
                     <SETTING><NAME>Path</NAME><VALUE>:</VALUE></SETTING>
                     <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
@@ -631,7 +631,7 @@
                 <SETTING><NAME>MWLinker_MachO_undefinedsymbols</NAME><VALUE>Errors</VALUE></SETTING>
 
                 <!-- Settings for "PPC Mach-O Target" panel -->
-                <SETTING><NAME>MWProject_MachO_type</NAME><VALUE>Executable</VALUE></SETTING>
+                <SETTING><NAME>MWProject_MachO_type</NAME><VALUE>SharedLibrary</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_filecreator</NAME><VALUE>????</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_filetype</NAME><VALUE>APPL</VALUE></SETTING>
@@ -658,7 +658,7 @@
                 <SETTING><NAME>MWPEF_collapsereloads</NAME><VALUE>1</VALUE></SETTING>
 
                 <!-- Settings for "PPC Project" panel -->
-                <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>Shared Library</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>SharedLibrary</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>????</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>APPL</VALUE></SETTING>
