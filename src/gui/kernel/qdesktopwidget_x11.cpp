@@ -282,11 +282,16 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
+    int closestScreen = -1;
+    QCOORD shortestDistance = QCOORD_MAX;
     for (int i = 0; i < d->screenCount; ++i) {
-        if (d->rects[i].contains(point))
-            return i;
+        QCOORD thisDistance = d->pointToRect(point, d->rects->at(i));
+        if (thisDistance < shortestDistance) {
+            shortestDistance = thisDistance;
+            closestScreen = i;
+        }
     }
-    return -1;
+    return closestScreen;
 }
 
 void QDesktopWidget::resizeEvent(QResizeEvent *event)

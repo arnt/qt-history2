@@ -3447,6 +3447,28 @@ void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
     }
 }
 
+/*!\internal
+
+  Measures the shortest distance from a point to a rect.
+
+  This function is called from QDesktopwidget::screen(QPoint) to find the
+  closest screen for a point.
+*/
+QCOORD QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
+{
+    QCOORD dx = 0;
+    QCOORD dy = 0;
+    if (p.x() < r.left())
+        dx = r.left() - p.x();
+    else if (p.x() > r.right())
+        dx = p.x() - r.right();
+    if (p.y() < r.top())
+        dy = r.top() - p.y();
+    else if (p.y() > r.bottom())
+        dy = p.y() - r.bottom();
+    return dx + dy;
+}
+
 /*!
     \property QWidget::frameSize
     \brief the size of the widget including any window frame

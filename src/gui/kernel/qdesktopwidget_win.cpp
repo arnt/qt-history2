@@ -19,6 +19,7 @@
 #include <sipapi.h>
 #endif
 #include "qwidget_p.h"
+#include "qdebug.h"
 
 class QDesktopWidgetPrivate : public QWidgetPrivate
 {
@@ -451,15 +452,21 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
     \sa primaryScreen()
 */
+
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
+    int closestScreen = -1;
     if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
+        QCOORD shortestDistance = QCOORD_MAX;
         for (int i = 0; i < d->screenCount; ++i) {
-            if (d->rects->at(i).contains(point))
-                return i;
+            QCOORD thisDistance = d->pointToRect(point, d->rects->at(i));
+            if (thisDistance < shortestDistance) {
+                shortestDistance = thisDistance;
+                closestScreen = i;
+            }
         }
     }
-    return -1;
+    return closestScreen;
 }
 
 /*!
