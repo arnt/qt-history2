@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#24 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -427,12 +427,17 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 }
 
 /*!
-  Copies the file \a from to \a to. If \a move is true,
+  Copies the file \a from to \a to. If \a move is TRUE,
   the file is moved (copied and removed). During the copy-process
   copyProgress( int, int, QNetworkOperation * ) is emitted.
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
+  
+  As a copy operation consists of multiple operations (get, put and maybe remove
+  (depending if you copy or move)) this methode doesn't return a single QNetworkOperation,
+  but a list of them. They are in the order get, put, remove. As discussed, the third one
+  (remove) is optional.
 */
 
 QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
@@ -513,6 +518,9 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
+  
+  Each single copy operation returns a list of network operations (see above for details)
+  So this method returns a value list of all lists of copy operations.
 */
 
 QValueList< QList<QNetworkOperation> > QUrlOperator::copy( const QStringList &files, const QString &dest,
