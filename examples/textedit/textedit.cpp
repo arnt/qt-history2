@@ -51,6 +51,7 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
 void TextEdit::setupFileActions()
 {
     QToolBar *tb = new QToolBar( this );
+    tb->setLabel( "File Actions" );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&File" ), menu );
 
@@ -79,7 +80,7 @@ void TextEdit::setupFileActions()
     a = new QAction( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this, "fileClose" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
-    a = new QAction( tr( "Exit" ), QPixmap(), tr( "E&xit..." ), 0, this, "fileExit" );
+    a = new QAction( tr( "Exit" ), QPixmap(), tr( "E&xit" ), 0, this, "fileExit" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileExit() ) );
     a->addTo( menu );
 }
@@ -87,6 +88,7 @@ void TextEdit::setupFileActions()
 void TextEdit::setupEditActions()
 {
     QToolBar *tb = new QToolBar( this );
+    tb->setLabel( "Edit Actions" );
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "&Edit" ), menu );
 
@@ -100,12 +102,12 @@ void TextEdit::setupEditActions()
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Cut" ), QPixmap( "editcut.xpm" ), tr( "&Cut" ), CTRL + Key_X, this, "editCut" );
-    connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
+    a = new QAction( tr( "Copy" ), QPixmap( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this, "editCopy" );
+    connect( a, SIGNAL( activated() ), this, SLOT( editCopy() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Copy" ), QPixmap( "editcopy.xpm" ), tr( "C&opy" ), CTRL + Key_C, this, "editCopy" );
-    connect( a, SIGNAL( activated() ), this, SLOT( editCopy() ) );
+    a = new QAction( tr( "Cut" ), QPixmap( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this, "editCut" );
+    connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
     a = new QAction( tr( "Paste" ), QPixmap( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
@@ -117,8 +119,9 @@ void TextEdit::setupEditActions()
 void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar( this );
+    tb->setLabel( "Format Actions" );
     QPopupMenu *menu = new QPopupMenu( this );
-    menuBar()->insertItem( tr( "&Format" ), menu );
+    menuBar()->insertItem( tr( "F&ormat" ), menu );
 
     comboStyle = new QComboBox( FALSE, tb );
     comboStyle->insertItem( "Standard" );
@@ -172,7 +175,7 @@ void TextEdit::setupTextActions()
     actionAlignLeft->addTo( tb );
     actionAlignLeft->addTo( menu );
     actionAlignLeft->setToggleAction( TRUE );
-    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textcenter.xpm" ), tr( "&Center" ), CTRL + Key_M, grp, "textCenter" );
+    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_E, grp, "textCenter" );
     actionAlignCenter->addTo( tb );
     actionAlignCenter->addTo( menu );
     actionAlignCenter->setToggleAction( TRUE );
