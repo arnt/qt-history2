@@ -8,7 +8,9 @@ Receiver::Receiver(QWidget *parent)
 {
     statusLabel = new QLabel(tr("Listening for broadcasted messages"), this);
     quitButton = new QPushButton(tr("&Quit"), this);
+
     udpSocket = new QUdpSocket(this);
+    udpSocket->bind(45454);
 
     connect(udpSocket, SIGNAL(readyRead()),
             this, SLOT(processPendingDatagrams()));
@@ -23,7 +25,6 @@ Receiver::Receiver(QWidget *parent)
     mainLayout->addLayout(buttonLayout);
 
     setWindowTitle(tr("Broadcast Receiver"));
-    udpSocket->bind(45454);
 }
 
 void Receiver::processPendingDatagrams()
