@@ -192,12 +192,12 @@
     </connection>
 </connections>
 <includes>
-    <include location="global" impldecl="in declaration">qptrlist.h</include>
+    <include location="global" impldecl="in declaration">qlist.h</include>
     <include location="local" impldecl="in declaration">connectionitems.h</include>
     <include location="local" impldecl="in implementation">connectiondialog.ui.h</include>
 </includes>
 <variables>
-    <variable>QPtrList&lt;ConnectionContainer&gt; connections;</variable>
+    <variable>QList&lt;ConnectionContainer*&gt; connections;</variable>
     <variable>QObject *defaultSender;</variable>
     <variable>QObject *defaultReceiver;</variable>
 </variables>
