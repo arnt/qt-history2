@@ -2611,7 +2611,7 @@ void QIconView::alignItemsInGrid( bool update )
     if ( !d->firstItem || !d->lastItem )
 	return;
 
-    d->containerUpdateLocked = FALSE; // ### should be TRUE;
+    d->containerUpdateLocked = TRUE;
 
     int w = 0, h = 0, y = d->spacing;
 
@@ -2652,7 +2652,7 @@ void QIconView::alignItemsInGrid( bool update )
     resizeContents( w, h );
     viewport()->setUpdatesEnabled( TRUE );
     d->dirty = FALSE;
-    //rebuildContainers(); #### enable again later when this method is optimized
+    rebuildContainers();
     if ( update )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
@@ -2669,7 +2669,7 @@ void QIconView::alignItemsInGrid( bool update )
 
 void QIconView::alignItemsInGrid( const QSize &grid, bool update )
 {
-    d->containerUpdateLocked = FALSE; // ### should be TRUE;
+    d->containerUpdateLocked = TRUE;
     QSize grid_( grid );
     if ( !grid_.isValid() ) {
 	int w = 0, h = 0;
@@ -2697,7 +2697,7 @@ void QIconView::alignItemsInGrid( const QSize &grid, bool update )
     d->containerUpdateLocked = FALSE;
 
     resizeContents( w, h );
-    //rebuildContainers(); // ##### enable again when this method is optimized
+    rebuildContainers();
     if ( update )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
@@ -3195,20 +3195,6 @@ void QIconView::setAlignMode( AlignMode am )
 {
     if ( d->alignMode == am )
 	return;
-
-    // #### should disappear ASA rebuildContainers() is used!!!!!
-    QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
-    while ( c ) {
-	tmpc = c->n;
-	delete c;
-	c = tmpc;
-    }
-    d->firstContainer = d->lastContainer = 0;
-    for ( QIconViewItem *i = d->firstItem; i; i = i->next ) {
-	i->d->container1 = 0;
-	i->d->container2 = 0;
-    };
-    // ####################
 
     d->alignMode = am;
     viewport()->setUpdatesEnabled( FALSE );
@@ -4917,6 +4903,12 @@ void QIconView::enterEvent( QEvent *e )
     emit onViewport();
 }
 
+/*!
+  \internal
+  This method is always called when the geometry of an item changes. This method
+  moves the item into the correct area in the internal data structure then.
+*/
+
 void QIconView::updateItemContainer( QIconViewItem *item )
 {
     if ( !item || d->containerUpdateLocked )
@@ -4970,6 +4962,11 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     }
 }
 
+/*!
+  \internal
+  Appends a new rect area to the internal data structure of the items
+*/
+
 void QIconView::appendItemContainer()
 {
     QSize s;
@@ -4990,9 +4987,15 @@ void QIconView::appendItemContainer()
 	    d->lastContainer = new QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.topRight(), s ) );
     }
-//     qDebug( "new container: %d %d %d %d", d->lastContainer->rect.x(), d->lastContainer->rect.y(),
-// 	    d->lastContainer->rect.width(), d->lastContainer->rect.height() );
 }
+
+/*!
+  \a internal
+  Rebuilds the whole internal data structure. This is done when
+  most certainly all items change their geometry (e.g. in alignItemsInGrid()), because
+  calling this is then more efiicient than calling updateItemContainer() for each
+  item
+*/
 
 void QIconView::rebuildContainers()
 {
@@ -5007,11 +5010,41 @@ void QIconView::rebuildContainers()
     QIconViewItem *item = d->firstItem;
     appendItemContainer();
     c = d->lastContainer;
-    while ( item ) { // ### bad! it's O( n^2 ) - improve that!!!!!!!!!
-	item->d->container1 = 0;
-	item->d->container2 = 0;
-	updateItemContainer( item );
-	item = item->next;
+    while ( item ) {
+	if ( c->rect.contains( item->rect() ) ) {
+	    item->d->container1 = c;
+	    item->d->container2 = 0;
+	    c->items.append( item );
+	    item = item->next;
+	} else if ( c->rect.intersects( item->rect() ) ) {
+	    item->d->container1 = c;
+	    c->items.append( item );
+	    c = c->n;
+	    if ( !c ) {
+		appendItemContainer();
+		c = d->lastContainer;
+	    }
+	    c->items.append( item );
+	    item->d->container2 = c;
+	    item = item->next;
+	} else {
+	    if ( d->alignMode == East ) {
+		if ( item->y() < c->rect.y() && c->p ) {
+		    c = c->p;
+		    continue;
+		}
+	    } else {
+		if ( item->x() < c->rect.x() && c->p ) {
+		    c = c->p;
+		    continue;
+		}
+	    }
+	    c = c->n;
+	    if ( !c ) {
+		appendItemContainer();
+		c = d->lastContainer;
+	    }
+	}
     }
 }
 
