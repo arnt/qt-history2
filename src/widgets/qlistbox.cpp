@@ -2792,7 +2792,6 @@ void QListBox::doLayout() const
     int h = d->rowPos[(int)d->rowPos.size()-1];
     QSize s( viewportSize( w, h ) );
     w = QMAX( w, s.width() );
-    h = QMAX( h, s.height() );
 
     d->columnPosOne = d->columnPos[1];
     // extend the column for simple single-column listboxes
@@ -2846,7 +2845,6 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	    c++;
 	}
     }
-
     // funky hack II: if not variable {width,height}, unvariablify it.
     if ( !variableWidth() ) {
 	int w = 0;
@@ -2864,7 +2862,6 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	for( r=0; r<rows; r++ )
 	    d->rowPos[r] = h;
     }
-
     // repair the hacking.
     int x = 0;
     for( c=0; c<=columns; c++ ) {
