@@ -652,7 +652,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    // additional includes (local or global ) and forward declaractions
+    // additional includes (local or global) and forward declaractions
     nl = e.parentNode().toElement().elementsByTagName( "include" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement n2 = nl.item(i).toElement();
@@ -894,6 +894,8 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // set the properties
+    QSize geometry( 0, 0 );
+
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
@@ -907,15 +909,13 @@ void Uic::createFormImpl( const QDomElement &e )
 
 	    if ( prop == "geometry" && n2.tagName() == "rect" ) {
 		QDomElement n3 = n2.firstChild().toElement();
-		int w = 0, h = 0;
 		while ( !n3.isNull() ) {
 		    if ( n3.tagName() == "width" )
-			w = n3.firstChild().toText().data().toInt();
+			geometry.setWidth( n3.firstChild().toText().data().toInt() );
 		    else if ( n3.tagName() == "height" )
-			h = n3.firstChild().toText().data().toInt();
+			geometry.setHeight( n3.firstChild().toText().data().toInt() );
 		    n3 = n3.nextSibling().toElement();
 		}
-		out << indent << "resize( " << w << ", " << h << " ); " << endl;
 	    } else {
 		QString call;
 		if ( stdset ) {
@@ -1029,6 +1029,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << endl;
 
     out << indent << "languageChange();" << endl;
+
+    // take sizeHint() into account, for height-for-width widgets
+    if ( !geometry.isNull() )
+	out << indent << "resize( QSize(" << geometry.width() << ", "
+	    << geometry.height() << ").boundedTo(sizeHint()) );" << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
