@@ -813,7 +813,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	qAquaPixmap( prefix + "sbr_back_fill_" + QString::number(
 	    flags & Style_Horizontal ? r.height() : r.width()), fill );
 	QRect fillr = r;
-	if( scrollbar_arrows_together) {
+	if( pe == PE_ScrollBarSubPage && scrollbar_arrows_together) {
 	    QPixmap cap;
 	    qAquaPixmap( prefix + "sbr_joined_back_cap_" + QString::number(
 		flags & Style_Horizontal ? r.height() : r.width()), cap );
@@ -1892,7 +1892,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		else
 		    rect.setY( rect.y() + 5 );
 		//fall through
-	    case SC_ScrollBarSubPage:
+	    case SC_ScrollBarSubPage: 
 		if(sc == SC_ScrollBarSubPage) {
 		    if(scr->orientation() == Horizontal)
 			rect.setWidth(rect.width() + 20);
@@ -1906,6 +1906,8 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		    rect.moveBy( -sbextent, 0 );
 		else
 		    rect.moveBy( 0, -sbextent );
+		if(sc == SC_ScrollBarAddPage) 
+		    rect.setTop(rect.top() + sbextent);
 		break; }
 	    default:
 		break;
