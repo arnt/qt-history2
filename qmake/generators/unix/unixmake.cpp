@@ -287,8 +287,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" <<
 		var("TARGETDEPS") << "\n\t"
 	      << "-rm -f $(TARGETA) " << "\n\t"
-	      << var("QMAKE_AR_CMD") << "\n\t"
-	      << varGlue("QMAKE_RANLIB",""," "," $(TARGETA)")
+	      << var("QMAKE_AR_CMD") << varGlue("QMAKE_RANLIB","\n\t"," "," $(TARGETA)")
 	      << endl << endl;
 	}
     } else {
