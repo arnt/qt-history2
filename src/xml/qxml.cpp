@@ -3014,8 +3014,10 @@ bool QXmlSimpleReader::parseProlog()
     const signed char Em               = 3; // '!' read
     const signed char DocType          = 4; // read doctype
     const signed char Comment          = 5; // read comment
-    const signed char PInstr           = 6; // read PI
-    const signed char Done             = 7;
+    const signed char CommentR         = 6; // same as Comment, but already reported
+    const signed char PInstr           = 7; // read PI
+    const signed char PInstrR          = 8; // same as PInstr, but already reported
+    const signed char Done             = 9;
 
     const signed char InpWs            = 0;
     const signed char InpLt            = 1; // <
@@ -3025,7 +3027,7 @@ bool QXmlSimpleReader::parseProlog()
     const signed char InpDash          = 5; // -
     const signed char InpUnknown       = 6;
 
-    static const signed char table[7][7] = {
+    static const signed char table[9][7] = {
      /*  InpWs   InpLt  InpQm  InpEm  InpD      InpDash  InpUnknown */
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Init
 	{ -1,     Lt,    -1,    -1,    -1,       -1,       -1      }, // EatWS
@@ -3033,7 +3035,9 @@ bool QXmlSimpleReader::parseProlog()
 	{ -1,     -1,    -1,    -1,    DocType,  Comment,  -1      }, // Em
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // DocType
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Comment
-	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }  // PInstr
+	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // CommentR
+	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // PInstr
+	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }  // PInstrR
     };
     signed char state;
     signed char input;
@@ -3080,6 +3084,7 @@ bool QXmlSimpleReader::parseProlog()
 			return FALSE;
 		    }
 		}
+		state = CommentR;
 		break;
 	    case PInstr:
 		// call the handler
@@ -3111,6 +3116,7 @@ bool QXmlSimpleReader::parseProlog()
 		}
 		// XML declaration only on first position possible
 		xmldecl_possible = FALSE;
+		state = PInstrR;
 		break;
 	    case Done:
 		return TRUE;
@@ -3164,12 +3170,14 @@ bool QXmlSimpleReader::parseProlog()
 		}
 		break;
 	    case Comment:
+	    case CommentR:
 		if ( !parseComment() ) {
 		    parseFailed( &QXmlSimpleReader::parseProlog, state );
 		    return FALSE;
 		}
 		break;
 	    case PInstr:
+	    case PInstrR:
 		d->parsePI_xmldecl = xmldecl_possible;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseProlog, state );
@@ -3524,14 +3532,16 @@ bool QXmlSimpleReader::parseContent()
     const signed char Ref              =  4; // Reference
     const signed char Lt               =  5; // '<' read
     const signed char PInstr           =  6; // PI
-    const signed char Elem             =  7; // Element
-    const signed char Em               =  8; // '!' read
-    const signed char Com              =  9; // Comment
-    const signed char CDS              = 10; // CDSect
-    const signed char CDS1             = 11; // read a CDSect
-    const signed char CDS2             = 12; // read a CDSect (help state)
-    const signed char CDS3             = 13; // read a CDSect (help state)
-    const signed char Done             = 14; // finished reading content
+    const signed char PInstrR          =  7; // same as PInstr, but already reported
+    const signed char Elem             =  8; // Element
+    const signed char Em               =  9; // '!' read
+    const signed char Com              = 10; // Comment
+    const signed char ComR             = 11; // same as Com, but already reported
+    const signed char CDS              = 12; // CDSect
+    const signed char CDS1             = 13; // read a CDSect
+    const signed char CDS2             = 14; // read a CDSect (help state)
+    const signed char CDS3             = 15; // read a CDSect (help state)
+    const signed char Done             = 16; // finished reading content
 
     const signed char InpLt            = 0; // <
     const signed char InpGt            = 1; // >
@@ -3562,7 +3572,7 @@ bool QXmlSimpleReader::parseContent()
 	InpUnknown  // unknown
     };
 
-    static const signed char table[14][10] = {
+    static const signed char table[16][10] = {
      /*  InpLt  InpGt  InpSlash  InpQMark  InpEMark  InpAmp  InpDash  InpOpenB  InpCloseB  InpUnknown */
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD1,      ChD  }, // Init
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD1,      ChD  }, // ChD
@@ -3571,9 +3581,11 @@ bool QXmlSimpleReader::parseContent()
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Ref (same as Init)
 	{ -1,    -1,    Done,     PInstr,   Em,       -1,     -1,      -1,       -1,        Elem }, // Lt
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // PInstr (same as Init)
+	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // PInstrR
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Elem (same as Init)
 	{ -1,    -1,    -1,       -1,       -1,       -1,     Com,     CDS,      -1,        -1   }, // Em
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // Com (same as Init)
+	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD,       ChD  }, // ComR
 	{ CDS1,  CDS1,  CDS1,     CDS1,     CDS1,     CDS1,   CDS1,    CDS1,     CDS2,      CDS1 }, // CDS
 	{ CDS1,  CDS1,  CDS1,     CDS1,     CDS1,     CDS1,   CDS1,    CDS1,     CDS2,      CDS1 }, // CDS1
 	{ CDS1,  CDS1,  CDS1,     CDS1,     CDS1,     CDS1,   CDS1,    CDS1,     CDS3,      CDS1 }, // CDS2
@@ -3615,6 +3627,7 @@ bool QXmlSimpleReader::parseContent()
 			return FALSE;
 		    }
 		}
+		state = PInstrR;
 		break;
 	    case Com:
 		if ( lexicalHnd ) {
@@ -3623,6 +3636,7 @@ bool QXmlSimpleReader::parseContent()
 			return FALSE;
 		    }
 		}
+		state = ComR;
 		break;
 	    case CDS:
 		stringClear();
@@ -3782,6 +3796,7 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	    case PInstr:
+	    case PInstrR:
 		d->parsePI_xmldecl = FALSE;
 		if ( !parsePI() ) {
 		    parseFailed( &QXmlSimpleReader::parseContent, state );
@@ -3798,6 +3813,7 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	    case Com:
+	    case ComR:
 		if ( !parseComment() ) {
 		    parseFailed( &QXmlSimpleReader::parseContent, state );
 		    return FALSE;
@@ -4227,11 +4243,12 @@ bool QXmlSimpleReader::parseDoctype()
     const signed char Sys              =  5; // read SYSTEM or PUBLIC
     const signed char Ws3              =  6; // eat_ws
     const signed char MP               =  7; // markupdecl or PEReference
-    const signed char PER              =  8; // PERReference
-    const signed char Mup              =  9; // markupdecl
-    const signed char Ws4              = 10; // eat_ws
-    const signed char MPE              = 11; // end of markupdecl or PEReference
-    const signed char Done             = 12;
+    const signed char MPR              =  8; // same as MP, but already reported
+    const signed char PER              =  9; // PERReference
+    const signed char Mup              = 10; // markupdecl
+    const signed char Ws4              = 11; // eat_ws
+    const signed char MPE              = 12; // end of markupdecl or PEReference
+    const signed char Done             = 13;
 
     const signed char InpWs            = 0;
     const signed char InpD             = 1; // 'D'
@@ -4242,7 +4259,7 @@ bool QXmlSimpleReader::parseDoctype()
     const signed char InpGt            = 6; // >
     const signed char InpUnknown       = 7;
 
-    static const signed char table[12][8] = {
+    static const signed char table[13][8] = {
      /*  InpWs,  InpD       InpS       InpOB  InpCB  InpPer InpGt  InpUnknown */
 	{ -1,     Doctype,   -1,        -1,    -1,    -1,    -1,    -1        }, // Init
 	{ Ws1,    -1,        -1,        -1,    -1,    -1,    -1,    -1        }, // Doctype
@@ -4252,6 +4269,7 @@ bool QXmlSimpleReader::parseDoctype()
 	{ Ws3,    -1,        -1,        MP,    -1,    -1,    Done,  -1        }, // Sys
 	{ -1,     -1,        -1,        MP,    -1,    -1,    Done,  -1        }, // Ws3
 	{ -1,     -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // MP
+	{ -1,     -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // MPR
 	{ Ws4,    -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // PER
 	{ Ws4,    -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // Mup
 	{ -1,     -1,        -1,        -1,    MPE,   PER,   -1,    Mup       }, // Ws4
@@ -4299,6 +4317,7 @@ bool QXmlSimpleReader::parseDoctype()
 			return FALSE;
 		    }
 		}
+		state = MPR;
 		break;
 	    case Done:
 		return TRUE;
@@ -4365,6 +4384,7 @@ bool QXmlSimpleReader::parseDoctype()
 		}
 		break;
 	    case MP:
+	    case MPR:
 		if ( !next_eat_ws() ) {
 		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
 		    return FALSE;
@@ -4767,17 +4787,19 @@ bool QXmlSimpleReader::parsePEReference()
     const signed char Init             = 0;
     const signed char Next             = 1;
     const signed char Name             = 2;
-    const signed char Done             = 3;
+    const signed char NameR            = 3; // same as Name, but already reported
+    const signed char Done             = 4;
 
     const signed char InpSemi          = 0; // ;
     const signed char InpPer           = 1; // %
     const signed char InpUnknown       = 2;
 
-    static const signed char table[3][3] = {
+    static const signed char table[4][3] = {
      /*  InpSemi  InpPer  InpUnknown */
 	{ -1,      Next,   -1    }, // Init
 	{ -1,      -1,     Name  }, // Next
-	{ Done,    -1,     -1    }  // Name
+	{ Done,    -1,     -1    }, // Name
+	{ Done,    -1,     -1    }  // NameR
     };
     signed char state;
     signed char input;
@@ -4858,6 +4880,7 @@ bool QXmlSimpleReader::parsePEReference()
 			}
 		    }
 		}
+		state = NameR;
 		break;
 	    case Done:
 		return TRUE;
@@ -4885,6 +4908,7 @@ bool QXmlSimpleReader::parsePEReference()
 		next();
 		break;
 	    case Name:
+	    case NameR:
 		d->parseName_useRef = TRUE;
 		if ( !parseName() ) {
 		    parseFailed( &QXmlSimpleReader::parsePEReference, state );
@@ -5718,15 +5742,16 @@ bool QXmlSimpleReader::parseNotationDecl()
     const signed char Nam              = 3; // read Name
     const signed char Ws2              = 4; // eat whitespaces
     const signed char ExtID            = 5; // parse ExternalID
-    const signed char Ws3              = 6; // eat whitespaces
-    const signed char Done             = 7;
+    const signed char ExtIDR           = 6; // same as ExtID, but already reported
+    const signed char Ws3              = 7; // eat whitespaces
+    const signed char Done             = 8;
 
     const signed char InpWs            = 0;
     const signed char InpGt            = 1; // >
     const signed char InpN             = 2; // N
     const signed char InpUnknown       = 3;
 
-    static const signed char table[7][4] = {
+    static const signed char table[8][4] = {
      /*  InpWs   InpGt  InpN    InpUnknown */
 	{ -1,     -1,    Not,    -1     }, // Init
 	{ Ws1,    -1,    -1,     -1     }, // Not
@@ -5734,6 +5759,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 	{ Ws2,    Done,  -1,     -1     }, // Nam
 	{ -1,     Done,  ExtID,  ExtID  }, // Ws2
 	{ Ws3,    Done,  -1,     -1     }, // ExtID
+	{ Ws3,    Done,  -1,     -1     }, // ExtIDR
 	{ -1,     Done,  -1,     -1     }  // Ws3
     };
     signed char state;
@@ -5772,6 +5798,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 			return FALSE;
 		    }
 		}
+		state = ExtIDR;
 		break;
 	    case Done:
 		return TRUE;
@@ -5824,6 +5851,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 		}
 		break;
 	    case ExtID:
+	    case ExtIDR:
 		d->parseExternalID_allowPublicID = TRUE;
 		if ( !parseExternalID() ) {
 		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
@@ -5992,20 +6020,24 @@ bool QXmlSimpleReader::parseEntityDecl()
     const signed char Name             =  3; // parse name
     const signed char Ws2              =  4; // white space read
     const signed char EValue           =  5; // parse entity value
-    const signed char ExtID            =  6; // parse ExternalID
-    const signed char Ws3              =  7; // white space read
-    const signed char Ndata            =  8; // parse "NDATA"
-    const signed char Ws4              =  9; // white space read
-    const signed char NNam             = 10; // parse name
-    const signed char PEDec            = 11; // parse PEDecl
-    const signed char Ws6              = 12; // white space read
-    const signed char PENam            = 13; // parse name
-    const signed char Ws7              = 14; // white space read
-    const signed char PEVal            = 15; // parse entity value
-    const signed char PEEID            = 16; // parse ExternalID
-    const signed char WsE              = 17; // white space read
-    const signed char EDDone           = 19; // done, but also report an external, unparsed entity decl
-    const signed char Done             = 18;
+    const signed char EValueR          =  6; // same as EValue, but already reported
+    const signed char ExtID            =  7; // parse ExternalID
+    const signed char Ws3              =  8; // white space read
+    const signed char Ndata            =  9; // parse "NDATA"
+    const signed char Ws4              = 10; // white space read
+    const signed char NNam             = 11; // parse name
+    const signed char NNamR            = 12; // same as NNam, but already reported
+    const signed char PEDec            = 13; // parse PEDecl
+    const signed char Ws6              = 14; // white space read
+    const signed char PENam            = 15; // parse name
+    const signed char Ws7              = 16; // white space read
+    const signed char PEVal            = 17; // parse entity value
+    const signed char PEValR           = 18; // same as PEVal, but already reported
+    const signed char PEEID            = 19; // parse ExternalID
+    const signed char PEEIDR           = 20; // same as PEEID, but already reported
+    const signed char WsE              = 21; // white space read
+    const signed char Done             = 22;
+    const signed char EDDone           = 23; // done, but also report an external, unparsed entity decl
 
     const signed char InpWs            = 0; // white space
     const signed char InpPer           = 1; // %
@@ -6014,7 +6046,7 @@ bool QXmlSimpleReader::parseEntityDecl()
     const signed char InpN             = 4; // N
     const signed char InpUnknown       = 5;
 
-    static const signed char table[18][6] = {
+    static const signed char table[22][6] = {
      /*  InpWs  InpPer  InpQuot  InpGt  InpN    InpUnknown */
 	{ -1,    -1,     -1,      -1,    Ent,    -1      }, // Init
 	{ Ws1,   -1,     -1,      -1,    -1,     -1      }, // Ent
@@ -6022,17 +6054,21 @@ bool QXmlSimpleReader::parseEntityDecl()
 	{ Ws2,   -1,     -1,      -1,    -1,     -1      }, // Name
 	{ -1,    -1,     EValue,  -1,    -1,     ExtID   }, // Ws2
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // EValue
+	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // EValueR
 	{ Ws3,   -1,     -1,      EDDone,-1,     -1      }, // ExtID
 	{ -1,    -1,     -1,      EDDone,Ndata,  -1      }, // Ws3
 	{ Ws4,   -1,     -1,      -1,    -1,     -1      }, // Ndata
 	{ -1,    -1,     -1,      -1,    NNam,   NNam    }, // Ws4
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // NNam
+	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // NNamR
 	{ Ws6,   -1,     -1,      -1,    -1,     -1      }, // PEDec
 	{ -1,    -1,     -1,      -1,    PENam,  PENam   }, // Ws6
 	{ Ws7,   -1,     -1,      -1,    -1,     -1      }, // PENam
 	{ -1,    -1,     PEVal,   -1,    -1,     PEEID   }, // Ws7
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // PEVal
+	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // PEValR
 	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // PEEID
+	{ WsE,   -1,     -1,      Done,  -1,     -1      }, // PEEIDR
 	{ -1,    -1,     -1,      Done,  -1,     -1      }  // WsE
     };
     signed char state;
@@ -6073,6 +6109,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 			}
 		    }
 		}
+		state = EValueR;
 		break;
 	    case NNam:
 		if (  !entityExist( name() ) ) {
@@ -6084,6 +6121,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 			}
 		    }
 		}
+		state = NNamR;
 		break;
 	    case PEVal:
 		if (  !entityExist( name() ) ) {
@@ -6095,6 +6133,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 			}
 		    }
 		}
+		state = PEValR;
 		break;
 	    case PEEID:
 		if (  !entityExist( name() ) ) {
@@ -6106,6 +6145,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 			}
 		    }
 		}
+		state = PEEIDR;
 		break;
 	    case EDDone:
 		if (  !entityExist( name() ) ) {
@@ -6173,6 +6213,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case EValue:
+	    case EValueR:
 		if ( !parseEntityValue() ) {
 		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
 		    return FALSE;
@@ -6205,6 +6246,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case NNam:
+	    case NNamR:
 		d->parseName_useRef = TRUE;
 		if ( !parseName() ) {
 		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
@@ -6234,12 +6276,14 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case PEVal:
+	    case PEValR:
 		if ( !parseEntityValue() ) {
 		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
 		    return FALSE;
 		}
 		break;
 	    case PEEID:
+	    case PEEIDR:
 		d->parseExternalID_allowPublicID = FALSE;
 		if ( !parseExternalID() ) {
 		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
