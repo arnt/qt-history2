@@ -44,6 +44,8 @@ public:
     virtual void registerClass( const QString &key, QSettings * ) const = 0;
     virtual void unregisterClass( const QString &key, QSettings * ) const = 0;
 
+    virtual bool validateLicenseKey( const QString &key, const QString &licenseKey) const = 0;
+
     virtual QString exposeToSuperClass( const QString &key ) const = 0;
     virtual bool stayTopLevel( const QString &key ) const = 0;
     virtual bool hasStockEvents( const QString &key ) const = 0;
@@ -77,6 +79,8 @@ public:
 
     virtual void registerClass( const QString &key, QSettings * ) const;
     virtual void unregisterClass( const QString &key, QSettings * ) const;
+
+    virtual bool validateLicenseKey( const QString &key, const QString &licenseKey) const;
 
     virtual QString exposeToSuperClass( const QString &key ) const;
     virtual bool stayTopLevel( const QString &key ) const;

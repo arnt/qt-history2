@@ -14,9 +14,12 @@
 
 #include "qaxfactory.h"
 
+#include <qfile.h>
 #include <qmetaobject.h>
 #include <qsettings.h>
 #include <qwidget.h>
+#include <qt_windows.h>
+
 
 /*!
     \class QAxFactoryInterface qaxfactory.h
@@ -379,6 +382,38 @@ void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) cons
 {
     Q_UNUSED(key);
     Q_UNUSED(settings)
+}
+
+/*!
+    Reimplement this function to return TRUE if \a licenseKey is a valid
+    license for the class \a key, or if the current machine is licensed.
+
+    The default implementation returns TRUE if the class \a key is not
+    licensed (ie. no Q_CLASSINFO attribute "LicenseKey"), or if 
+    \a licenseKey matches the value of the "LicenseKey" attribute, or
+    if the machine is licensed through a .LIC file with the same filename
+    as this COM server.
+*/
+bool QAxFactory::validateLicenseKey( const QString &key, const QString &licenseKey) const
+{
+    QMetaObject *mo = metaObject(key);
+    if (!mo)
+	return TRUE;
+    const char *classKey8Bit = mo->classInfo("LicenseKey", TRUE);
+    if (!classKey8Bit)
+	return TRUE;
+
+    QString classKey(QString::fromLatin1(classKey8Bit));
+    if (classKey.isEmpty() || licenseKey.isEmpty()) {
+	extern char qAxModuleFilename[MAX_PATH];
+	QString licFile(QFile::decodeName(qAxModuleFilename));
+	int lastDot = licFile.findRev('.');
+	licFile = licFile.left(lastDot) + ".lic";
+	if (QFile::exists(licFile))
+	    return TRUE;
+	return FALSE;
+    }
+    return licenseKey == classKey;
 }
 
 /*!

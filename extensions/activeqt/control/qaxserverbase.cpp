@@ -825,7 +825,7 @@ public:
     HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
     {
 	// class is licensed
-	if (!classKey.isEmpty())
+	if (licensed && !qAxFactory()->validateLicenseKey(className, QString()))
 	    return CLASS_E_NOTLICENSED;
 
 	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
@@ -840,24 +840,6 @@ public:
 	return S_OK;	
     }
 
-    // License helpers
-
-    // Return a license key for the current machine
-    QString machineLicense()
-    {
-	// ### this should be in that magic C function...
-	if (licFile.isEmpty()) {
-	    extern char qAxModuleFilename[MAX_PATH];
-	    QString licFile = QFile::decodeName(qAxModuleFilename);
-	    int ext = licFile.findRev('.');
-	    if (ext != -1)
-		licFile = licFile.left(ext) + ".LIC";
-	}
-	if (QFile::exists(licFile))
-	    return classKey;
-	return QString();
-    }
-
     // IClassFactory2
     HRESULT WINAPI RequestLicKey(DWORD, BSTR *pKey)
     {
@@ -866,11 +848,9 @@ public:
 	*pKey = 0;
 
 	// This of course works only on fully licensed machines
-	QString machineKey = machineLicense();
-	if (machineKey.isEmpty())
+	if (!qAxFactory()->validateLicenseKey(className, QString()))
 	    return CLASS_E_NOTLICENSED;
 
-	classKey = machineKey;
 	*pKey = QStringToBSTR(classKey);
 	return S_OK;
     }
@@ -887,16 +867,15 @@ public:
 	pLicInfo->fRuntimeKeyAvail = key && key[0];
 
 	// machine fully licensed?
-	pLicInfo->fLicVerified = !machineLicense().isEmpty();
+	pLicInfo->fLicVerified = qAxFactory()->validateLicenseKey(className, QString());
 
 	return S_OK;
     }
 
     HRESULT WINAPI CreateInstanceLic(IUnknown *pUnkOuter, IUnknown *pUnkReserved, REFIID iid, BSTR bKey, PVOID *ppObject)
     {
-	QString key(BSTRToQString(bKey));
-	if ( (!key.isEmpty() && key != classKey) ||
-	     (key.isEmpty() && machineLicense().isEmpty()) )
+	QString licenseKey(BSTRToQString(bKey));
+	if (!qAxFactory()->validateLicenseKey(className, licenseKey))
 	    return CLASS_E_NOTLICENSED;
 	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
     }
@@ -908,7 +887,6 @@ protected:
     unsigned long ref;
     bool licensed;
     QString classKey;
-    QString licFile;
 };
 
 // Create a QClassFactory object for class \a iid
