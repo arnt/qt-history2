@@ -20,7 +20,8 @@ ChangeProperties::ChangeProperties(QWidget *parent)
 
     listProperties->setColumnCount(2);
     listProperties->headerItem()->setText(0, "Name");
-    listProperties->headerItem()->setText(1, "Value");
+    listProperties->headerItem()->setText(1, "Type");
+    listProperties->headerItem()->setText(2, "Value");
 
     listEditRequests->setColumnCount(1);
     listEditRequests->headerItem()->setText(0, "Name");
