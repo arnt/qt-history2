@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#590 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#591 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2423,6 +2423,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    return TRUE;
 	}
 
+	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	QWidget *w = widget->focusWidget();
 	while ( w && w->focusProxy() )
 	    w = w->focusProxy();
@@ -2436,6 +2437,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    else
 		widget->topLevelWidget()->setFocus();
 	}
+	QFocusEvent::resetReason();
     }
     break;
 
@@ -2443,11 +2445,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
 	if ( focus_widget && !inPopupMode() && widget->topLevelWidget() == active_window ) {
+	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    active_window = 0;
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
 	    QApplication::sendEvent( widget, &out );
+	    QFocusEvent::resetReason();
 	}
 	break;
 
@@ -2802,11 +2806,13 @@ void QApplication::openPopup( QWidget *popup )
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
+    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
     active_window = popup;
     if (active_window->focusWidget())
 	active_window->focusWidget()->setFocus();
     else
 	active_window->setFocus();
+    QFocusEvent::resetReason();
 }
 
 void QApplication::closePopup( QWidget *popup )
@@ -2838,10 +2844,12 @@ void QApplication::closePopup( QWidget *popup )
 	// restore the former active window immediately, although
 	// we'll get a focusIn later from X
 	if ( active_window ) {
+	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    if (active_window->focusWidget())
 		active_window->focusWidget()->setFocus();
 	    else
 		active_window->setFocus();
+	    QFocusEvent::resetReason();
 	}
     }
      else {
@@ -2849,11 +2857,13 @@ void QApplication::closePopup( QWidget *popup )
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
+	 QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	 active_window = popupWidgets->getLast();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
 	 else
 	     active_window->setFocus();
+	 QFocusEvent::resetReason();
      }
 }
 
@@ -3333,7 +3343,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    while ( w->focusProxy() )
 			w = w->focusProxy();
 		    if ( w->focusPolicy() & QWidget::ClickFocus ) {
+			QFocusEvent::setReason( QFocusEvent::Mouse);
 			w->setFocus();
+			QFocusEvent::resetReason();
 			// inform parent in case we are an embedded window
 			QWidget* active_window = topLevelWidget();
 			if (active_window && active_window->topData()->embedded) {
@@ -3552,8 +3564,11 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus )
+    if ( w->focusPolicy() == QWidget::WheelFocus ) {
+	QFocusEvent::setReason( QFocusEvent::Mouse);
 	w->setFocus();
+	QFocusEvent::resetReason();
+    }
 
     // send the event to the widget that has the focus or its ancestors
     w = qApp->focusWidget();
@@ -4156,7 +4171,7 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
     clearWState(WState_ConfigPending);
-    
+
     if ( !testWFlags( WType_TopLevel )
 	 || testWFlags( WType_Popup )
 	 || (!testWFlags( WStyle_DialogBorder ) &&
@@ -4671,8 +4686,7 @@ static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData
 
 void QSmSocketReceiver::socketActivated(int)
 {
-    Bool reply_set;
-    IceProcessMessages( SmcGetIceConnection( smcConnection ), 0, &reply_set );
+    IceProcessMessages( SmcGetIceConnection( smcConnection ), 0, 0);
 }
 
 #include "qapplication_x11.moc"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#490 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#491 $
 **
 ** Implementation of QWidget class
 **
@@ -2361,7 +2361,7 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
-    
+
     f->it.toFirst();
     while ( f->it.current() != this && !f->it.atLast() )
 	++f->it;
@@ -2398,7 +2398,6 @@ void QWidget::setFocus()
 	}
     }
 }
-
 
 /*!
   Takes keyboard input focus from the widget.
@@ -3578,10 +3577,16 @@ bool QWidget::event( QEvent *e )
 	    bool res = FALSE;
 	    if ( k->key() == Key_Backtab ||
 		 (k->key() == Key_Tab &&
-		  (k->state() & ShiftButton)) )
+		  (k->state() & ShiftButton)) ) {
+		QFocusEvent::setReason( QFocusEvent::Tab );
 		res = focusNextPrevChild( FALSE );
-	    else if ( k->key() == Key_Tab )
+		QFocusEvent::resetReason();
+		
+	    } else if ( k->key() == Key_Tab ) {
+		QFocusEvent::setReason( QFocusEvent::Tab );
 		res = focusNextPrevChild( TRUE );
+		QFocusEvent::resetReason();
+	    }
 	    if ( res )
 		break;
 	    QWidget *w = this;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#242 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#243 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -458,7 +458,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #if defined (_WS_WIN_)
 	case Key_Insert:
 	    copy();
-#endif	    
+#endif	
 	default:
 	    unknown++;
 	}
@@ -485,7 +485,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		cut();
 		break;
 	    }
-#endif	    
+#endif	
 	    del();
 	    break;
 #if defined (_WS_WIN_)
@@ -495,7 +495,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
-#endif	    
+#endif	
 	default:
 	    unknown++;
 	}
@@ -512,11 +512,14 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
   Handles the cursor blinking.
 */
 
-void QLineEdit::focusInEvent( QFocusEvent * )
+void QLineEdit::focusInEvent( QFocusEvent * e)
 {
+    qDebug("focus in, reason %d", e->reason() );
     d->pmDirty = TRUE;
     cursorOn = FALSE;
     blinkOn();
+    if ( e->reason() == QFocusEvent::Tab )
+	selectAll();
 }
 
 
@@ -524,18 +527,17 @@ void QLineEdit::focusInEvent( QFocusEvent * )
   Handles the cursor blinking and selection copying.
 */
 
-void QLineEdit::focusOutEvent( QFocusEvent * )
+void QLineEdit::focusOutEvent( QFocusEvent * e )
 {
+    qDebug("focus out, reason %d", e->reason() );
     if ( style() == WindowsStyle ) {
 #if defined(_WS_X11_)
 	// X11 users are very accustomed to "auto-copy"
 	copy();
 #endif
-	if ( !d->popup->isVisible() &&
-	     ( focusWidget() != this || qApp->focusWidget() == 0 ||
-	       qApp->focusWidget()->topLevelWidget() != topLevelWidget() ) )
-	    deselect();
     }
+    if ( e->reason() != QFocusEvent::ActiveWindow )
+	deselect();
     d->dragTimer.stop();
     if ( cursorOn )
 	blinkSlot();

@@ -163,7 +163,7 @@ static int KeyTbl[]={
     149275, Qt::Key_NumLock,
     133796, Qt::Key_plusminus,
     0,0
-}; 
+};
 
 int get_key(int key)
 {
@@ -348,7 +348,7 @@ int QApplication::macProcessEvent(MSG * m)
     QApplication::sendEvent(widget,&ke);
   } else if(er->what==nullEvent) {
     short part;
-    part=FindWindow(er->where,&wp); 
+    part=FindWindow(er->where,&wp);
     GrafPort * gp;
     if(mywibble) {
       UnsignedWide xtime;
@@ -359,9 +359,9 @@ int QApplication::macProcessEvent(MSG * m)
         QApplication::sendEvent(mywibble,&qte);
         thesecs=xtime;
       }
-      
+
     }
-    if(part==inContent) { 
+    if(part==inContent) {
       //widget=QWidget::find(WId(wp));
       if(widget) {
         if(the_grabbed)
@@ -456,9 +456,9 @@ int QApplication::macProcessEvent(MSG * m)
     do_mouse_down(er);
   } else if(er->what==mouseUp) {
     short part;
-    part=FindWindow(er->where,&wp); 
+    part=FindWindow(er->where,&wp);
     GrafPort * gp;
-    if(part==inContent) { 
+    if(part==inContent) {
       //widget=QWidget::find(WId(wp));
       if(the_grabbed)
         widget=the_grabbed;
@@ -487,7 +487,7 @@ void QApplication::processEvents(int maxtime)
   UnsignedWide myStartTime;
   Microseconds(&myStartTime);
   UInt64 ui,ui2;
-  ui=UnsignedWideToUInt64(myStartTime); 
+  ui=UnsignedWideToUInt64(myStartTime);
   UnsignedWide myEndTime;
   EventRecord event;
   sendPostedEvents();
@@ -526,7 +526,7 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
       wx=frobnitz->x();
       wy=frobnitz->y();
       wx2=wx+frobnitz->width();
-      wy2=wy+frobnitz->height(); 
+      wy2=wy+frobnitz->height();
       if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
          printf("Recursive %s\n",frobnitz->name());
          return recursive_match(frobnitz,x-wx,y-wy);
@@ -581,10 +581,12 @@ void QApplication::openPopup(QWidget * popup)
     popupWidgets->append( popup );              // add to end of list
     // Should grab/ungrab keyboard and stuff
     active_window = popup;
+    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
     if (active_window->focusWidget())
         active_window->focusWidget()->setFocus();
     else
         active_window->setFocus();
+    QFocusEvent::resetReason();
 }
 
 void QApplication::closePopup(QWidget * popup)
@@ -604,15 +606,17 @@ void QApplication::closePopup(QWidget * popup)
         popupWidgets = 0;
         active_window = 0;
     } else {
-        // popups are not focus-handled by the window system (the
-        // first popup grabbed the keyboard), so we have to do that
-        // manually: A popup was closed, so the previous popup gets
-        // the focus.
-         active_window = popupWidgets->getLast();
-         if (active_window->focusWidget())
-             active_window->focusWidget()->setFocus();
-         else
-             active_window->setFocus();
+	// popups are not focus-handled by the window system (the
+	// first popup grabbed the keyboard), so we have to do that
+	// manually: A popup was closed, so the previous popup gets
+	// the focus.
+	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
+	active_window = popupWidgets->getLast();
+	if (active_window->focusWidget())
+	    active_window->focusWidget()->setFocus();
+	else
+	    active_window->setFocus();
+	QFocusEvent::resetReason();
     }
 }
 
@@ -642,7 +646,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
       //XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
         ++it;
     }
-    //XFlush( appDpy );                 
+    //XFlush( appDpy );
 }
 
 void QApplication::restoreOverrideCursor()
@@ -796,7 +800,7 @@ void qt_cleanup()
 }
 
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
-{ 
+{
   printf("%s %d\n",__FILE__,__LINE__);
   if(!thesocs) {
     thesocs=new SockList();

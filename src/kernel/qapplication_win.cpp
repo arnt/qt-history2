@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#338 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#339 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1287,6 +1287,7 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	    return;
 	active_window = widget->topLevelWidget();
 	QWidget *w = widget->focusWidget();
+	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	if ( w && w->isFocusEnabled() )
 	    w->setFocus();
 	else
@@ -1297,6 +1298,7 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	    else
 		widget->topLevelWidget()->setFocus();
 	}
+	QFocusEvent::resetReason();
 	if ( active_window->testWFlags( WStyle_Dialog ) ) {
 	  // raise the entire application, not just the dialog
 	  QWidget* mw = active_window;
@@ -1308,10 +1310,12 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
     } else {
 	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
+	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
 	    QApplication::sendEvent( widget, &out );
+	    QFocusEvent::resetReason();
 	}
     }
 }
@@ -1388,8 +1392,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    QWidget* w = widget;
 	    while ( w->focusProxy() )
 		w = w->focusProxy();
-	    if ( w->focusPolicy() & QWidget::ClickFocus )
+	    if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		QFocusEvent::setReason( QFocusEvent::Mouse);
 		w->setFocus();
+		QFocusEvent::resetReason();
+	    }
 	}
 	widget->translateMouseEvent( msg );	// mouse event
     } else
@@ -1749,10 +1756,12 @@ void QApplication::openPopup( QWidget *popup )
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
     active_window = popup;
+    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
     if (active_window->focusWidget())
 	active_window->focusWidget()->setFocus();
     else
 	active_window->setFocus();
+    QFocusEvent::resetReason();
 }
 
 void QApplication::closePopup( QWidget *popup )
@@ -1769,21 +1778,26 @@ void QApplication::closePopup( QWidget *popup )
 	active_window = (*activeBeforePopup);	// windows does not have
 	// A reasonable focus handling for ours popups => we have
 	// to restore the focus manually.
-	if ( active_window )
+	if ( active_window ) {
+	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    if (active_window->focusWidget())
 		active_window->focusWidget()->setFocus();
 	    else
 		active_window->setFocus();
+	    QFocusEvent::resetReason();
+	}
     } else {
 	// Popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
+	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	 active_window = popupWidgets->getLast();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
 	 else
 	     active_window->setFocus();
+	 QFocusEvent::resetReason();
     }
 }
 
@@ -2254,8 +2268,11 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		    QWidget* tw = w;
 		    while ( tw->focusProxy() )
 			tw = tw->focusProxy();
-		    if ( tw->focusPolicy() & QWidget::ClickFocus )
-			tw->setFocus();
+		    if ( tw->focusPolicy() & QWidget::ClickFocus ) {
+			QFocusEvent::setReason( QFocusEvent::Mouse);
+			w->setFocus();
+			QFocusEvent::resetReason();
+		    }
 		}
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
@@ -2649,8 +2666,11 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus )
+    if ( w->focusPolicy() == QWidget::WheelFocus ) {
+	QFocusEvent::setReason( QFocusEvent::Mouse);
 	w->setFocus();
+	QFocusEvent::resetReason();
+    }
 
     // send the event to the widget that has the focus or its ancestors
     w = qApp->focus_widget;

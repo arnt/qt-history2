@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#114 $
 **
 ** Implementation of event classes
 **
@@ -635,8 +635,11 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   \ingroup event
 
-
-  Focus events are sent to widgets when the keyboard input focus changes.
+  Focus events are sent to widgets when the keyboard input focus
+  changes.  This happens due to either a mouse action, the tab key,
+  the window system, a keyboard shortcut or some other application
+  specific issue. The actual reason for a specific event is obtained by
+  reason() in the appropriate event handler.
 
   The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
   receive focus events.
@@ -650,6 +653,59 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   The \a type parameter must be either \a QEvent::FocusIn or \a QEvent::FocusOut.
 */
+
+
+
+QFocusEvent::Reason QFocusEvent::m_reason = QFocusEvent::Other;
+QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
+
+
+/*! \enum QFocusEvent::Reason
+
+  <ul>
+  <li> \c Mouse - the focus change happened because of a mouse action
+  <li> \c Tab - the focus change happened because of a Tab press
+        (possibly including shift/control)
+  <li> \c ActiveWindow - the window system made this window (in)active
+  <li> \c Shortcut - the focus change happened because of a keyboard shortcut
+  <li> \c Other - any other reason, usually application-specific
+  </ul>
+
+   See focus.html for more about focus.
+
+*/
+
+/*!
+  Returns the reason for this focus event.
+  
+  \sa setReason()
+ */
+QFocusEvent::Reason QFocusEvent::reason()
+{
+    return m_reason;
+}
+
+/*!
+  Sets the reason for all future focus events to \a reason.
+  
+  \sa reason(), resetReason()
+ */
+void QFocusEvent::setReason( Reason reason )
+{
+    prev_reason = m_reason;
+    m_reason = reason;
+}
+
+/*!
+  Resets the reason for all future focus events to the value before
+  the last setReason() call.
+  
+  \sa reason(), resetReason()
+ */
+void QFocusEvent::resetReason()
+{
+    m_reason = prev_reason;
+}
 
 /*!
   \fn bool QFocusEvent::gotFocus() const

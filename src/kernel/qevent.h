@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#92 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#93 $
 **
 ** Definition of event classes
 **
@@ -203,10 +203,21 @@ protected:
 class Q_EXPORT QFocusEvent : public QEvent
 {
 public:
+    
     QFocusEvent( Type type )
 	: QEvent(type) {}
+    
     bool   gotFocus()	const { return type() == FocusIn; }
     bool   lostFocus()	const { return type() == FocusOut; }
+    
+    enum Reason { Mouse, Tab, ActiveWindow, Shortcut, Other };
+    static Reason reason();
+    static void setReason( Reason reason );
+    static void resetReason();
+    
+private:
+    static Reason m_reason;
+    static Reason prev_reason;
 };
 
 
@@ -425,7 +436,7 @@ public:
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    
+
 private:
     bool accpt;
 };
