@@ -54,12 +54,9 @@ public:
         { return QAbstractItemModel::rowCount(parent); }
     int columnCount(const QModelIndex &parent) const
         { return QAbstractItemModel::columnCount(parent); }
-    void sort(int column, const QModelIndex &parent, Qt::SortOrder order)
-        { QAbstractItemModel::sort(column, parent, order); }
 #else
     using QAbstractItemModel::rowCount;
     using QAbstractItemModel::columnCount;
-    using QAbstractItemModel::sort;
 #endif
     
     void setRowCount(int rows);
