@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#101 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#101 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -443,17 +443,38 @@ QListBox::~QListBox()
     delete itemList;
 }
 
-/*!
-  \fn void QListBox::highlighted( int index )
-  This signal is emitted when the user highlights a new current item.
+/*! \fn void QListBox::highlighted( int index )
 
-  \sa selected()
+  This signal is emitted when the user highlights a new current item.
+  The argument is the index of the new item, which is already current.
+
+  \sa selected() currentItem()
 */
 
-/*!
-  \fn void QListBox::selected( int index )
-  This signal is emitted when the user double-clicks on an item
-  or presses return when an item is highlighted.
+/*! \fn void QListBox::highlighted( const char * )
+
+  This signal is emitted when the user highlights a new current item
+  and the new item is a string.  The argument is the text of the
+  new current item.  
+
+  \sa selected() currentItem()
+*/
+
+/*! \fn void QListBox::selected( int index )
+
+  This signal is emitted when the user double-clicks on an item or
+  presses return when an item is highlighted.  The argument is the
+  index of the selected item.
+
+  \sa highlighted()
+*/
+
+/*! \fn void QListBox::selected( const char * )
+
+  This signal is emitted when the user double-clicks on an item or
+  presses return while an item is highlighted, and the selected item
+  is (or has) a string.  The argument is the text of the selected
+  item.
 
   \sa highlighted()
 */
@@ -858,6 +879,8 @@ void QListBox::setCurrentItem( int index )
     updateItem( oldCurrent );
     updateItem( current, FALSE ); // Do not clear, current marker covers item
     emit highlighted( current );
+    if ( item( currentItem() ) && item( currentItem() )->text() )
+	emit highlighted( item( currentItem() )->text() );
 }
 
 /*!
@@ -1240,8 +1263,11 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mouseReleaseEvent( e );
-    if ( currentItem() >= 0 )
+    if ( currentItem() >= 0 ) {
 	emit selected( currentItem());
+	if ( item( currentItem() )->text() )
+	    emit selected( item( currentItem() )->text() );
+    }
 }
 
 /*!
@@ -1327,8 +1353,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 	case Key_Return:
 	case Key_Enter:
-	    if ( currentItem() >= 0 )
+	    if ( currentItem() >= 0 ) {
 		emit selected( currentItem());
+		if ( item(currentItem()) && item(currentItem())->text() )
+		    emit selected( item(currentItem())->text() );
+	    }
 	    break;
 	default:
 	    break;
