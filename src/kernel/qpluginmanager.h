@@ -42,6 +42,8 @@ public:
 	    return 0;
 
 	Type* plugin = new Type( file, defPol, defFunction );
+	if ( defPol == QPlugIn::Manual )
+	    plugin->load();
 
 	bool useful = FALSE;
 	QStringList al = ((QPlugIn*)plugin)->featureList();
@@ -163,11 +165,15 @@ public:
 
     bool selectFeature( const QString& feat )
     {
-	Type* plugin = plugIn( feat );
+	Type* plugin = 0;
+	if ( !feat.isNull() )
+	    plugin = plugIn( feat );
 	QDictIterator<Type> it( libDict );
 
 	while ( it.current() ) {
-	    if ( it.current() != plugin && it.current()->loaded() )
+	    if ( it.current() == plugin && ! it.current()->loaded() )
+		it.current()->load();
+	    else if ( it.current() != plugin && it.current()->loaded() )
 		it.current()->unload();
 	    ++it;
 	}

@@ -516,6 +516,7 @@ QStringList QPlugIn::featureList()
 
   Unloads all plugins but the one that provides the feature \a feat and returns TRUE
   when the plugin providing the feature is available.
+  Naturally, passing QString::null will unload all plugins.
 
   \sa unloadFeature, featureList, plugInList
 */
