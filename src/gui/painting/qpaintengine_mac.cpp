@@ -1367,7 +1367,7 @@ QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
 void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
-    CGMutablePathRef path = qt_mac_compose_path(p, 0.5 /*d->penOffset()*/);
+    CGMutablePathRef path = qt_mac_compose_path(p, d->penOffset() ? .5 : 0);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillRule() == Qt::WindingFill)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
