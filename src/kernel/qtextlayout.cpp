@@ -384,6 +384,8 @@ QTextLine QTextLayout::findLine(int pos) const
 	if (line.from + line.length > pos)
 	    return QTextLine(i, d);
     }
+    if (pos == d->string.length() && d->lines.size())
+	return QTextLine(d->lines.size()-1, d);
     return QTextLine();
 }
 
