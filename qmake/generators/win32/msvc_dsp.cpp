@@ -344,10 +344,10 @@ DspMakefileGenerator::init()
 		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
+		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt\\.lib"), ver);
+			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
@@ -362,13 +362,15 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
 	if ( project->isActiveConfig("debug") ) {
-	    if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" ) {
+            if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
+                || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["MSVCDSP_MTDEF"].append("-MDd");
 	    } else {
 		project->variables()["MSVCDSP_MTDEF"].append("-MTd");
 	    }
 	} else {
-	    if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" ) {
+            if ( project->isActiveConfig("dll") || project->variables()["TARGET"].first() == "qtmain" 
+                || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	    } else {
 		project->variables()["MSVCDSP_MTDEF"].append("-MT");
