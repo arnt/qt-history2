@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#130 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -58,13 +58,16 @@ struct QMultiLineData
 {
     QMultiLineData() :isHandlingEvent(FALSE), maxLineWidth(0) {}
     bool isHandlingEvent;
-    int   maxLineWidth;
+    int  maxLineWidth;
+    int	 scrollTime;
+    int	 scrollAccel;
 };
 
 static const int BORDER = 3;
 
-static const int blinkTime  = 500;		// text cursor blink time
-static const int scrollTime = 50;		// mark text scroll time
+static const int blinkTime  = 500;	 // text cursor blink time
+static const int initialScrollTime = 50; // mark text scroll time
+static const int initialScrollAccel = 5; // mark text scroll accel (0=fastest)
 
 
 static int tabStopDist( const QFontMetrics &fm )
@@ -80,14 +83,19 @@ static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint nCh
 
     int dist = -fm.minLeftBearing();
     int i = 0;
-    int tabDist = tabStopDist(fm);
+    int tabDist = -1; // lazy eval
     while ( (uint)i < s.length() && (uint)i < nChars ) {
 	if ( s[i] == '\t') {
+	    if ( tabDist<0 )
+		tabDist = tabStopDist(fm);
 	    dist = ( dist/tabDist + 1 ) * tabDist;
+	    i++;
 	} else {
-	    dist += fm.width( s[i] );
+	    int ii = i;
+	    while ( (uint)i < s.length() && (uint)i < nChars && s[i] != '\t' )
+		i++;
+	    dist += fm.width( s.mid(ii,i-ii) );
 	}
-	i++;
     }
     return dist;
 }
@@ -182,6 +190,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     markDragY      = 0;
     blinkTimer     = 0;
     scrollTimer    = 0;
+    mlData->scrollTime = 0;
 }
 
 /*! \fn int QMultiLineEdit::numLines() const
@@ -456,6 +465,7 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 {
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	scrollTimer = 0;
 	dragScrolling = FALSE;
     }
     if ( !blinkTimer )
@@ -495,6 +505,7 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	scrollTimer = 0;
 	dragScrolling = FALSE;
     }
     killTimer( blinkTimer );
@@ -515,17 +526,28 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
 	updateCell( cursorY, 0, FALSE );
     } else if ( t->timerId() == scrollTimer ) {
 	QPoint p = mapFromGlobal( QCursor::pos() );
-	if ( p.y() < 0 ) {
-	    cursorUp( TRUE );
-	} else if ( p.y() > height() ) {
-	    cursorDown( TRUE );
-	} else if ( p.x() < 0 ) {
-	    cursorLeft( TRUE, FALSE );
-	} else if ( p.x() > width() ) {
-	    cursorRight( TRUE, FALSE );
-	} else {
-	    dragScrolling = FALSE;
+	if ( mlData->scrollAccel-- <= 0 && mlData->scrollTime ) {
+	    mlData->scrollAccel = initialScrollAccel;
+	    mlData->scrollTime--;
 	    killTimer( scrollTimer );
+	    scrollTimer = startTimer( mlData->scrollTime );
+	}
+	int l = QMAX(1,(initialScrollTime-mlData->scrollTime)/5);
+	for (int i=0; i<l; i++) {
+	    if ( p.y() < 0 ) {
+		cursorUp( TRUE );
+	    } else if ( p.y() > height() ) {
+		cursorDown( TRUE );
+	    } else if ( p.x() < 0 ) {
+		cursorLeft( TRUE, FALSE );
+	    } else if ( p.x() > width() ) {
+		cursorRight( TRUE, FALSE );
+	    } else {
+		dragScrolling = FALSE;
+		killTimer( scrollTimer );
+		scrollTimer = 0;
+		break;
+	    }
 	}
     }
 }
@@ -1008,18 +1030,18 @@ void QMultiLineEdit::pageUp( bool mark )
  */
 static QString getOneLine( const QString &txt, uint& offset )
 {
-    QString result;
     if ( txt.isEmpty() )
-	return result;
+	return QString::null;
 
     int i = offset;
+    int io = i;
     while ( (uint)i < txt.length() && txt[i] != '\n' )
-	result += txt[i++];
+	i++;
     if ( (uint)i == txt.length() )
 	offset = 0;
     else
 	offset = i+1;
-    return result;
+    return txt.mid(io,i-io);
 }
 
 
@@ -1109,7 +1131,8 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     do {
 	textLine = getOneLine( txt, i );
 	contents->insert( line++, new QString(textLine) );
-	w = QMAX( textWidth( textLine ), w );
+	int nw = textWidth( textLine );
+	if ( nw > w ) w = nw;
     } while ( i );
 
     setWidth( w );
@@ -1550,6 +1573,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     mlData->isHandlingEvent = TRUE;
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	scrollTimer = 0;
 	dragScrolling = FALSE;
     }
     wordMark = FALSE;
@@ -1596,10 +1620,13 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     if ( rect().contains( e->pos() ) ) {
 	if ( dragScrolling ) {
 	    killTimer( scrollTimer );
+	    scrollTimer = 0;
 	    dragScrolling = FALSE;
 	}
     } else if ( !dragScrolling ) {
-	scrollTimer = startTimer( scrollTime );
+	mlData->scrollTime = initialScrollTime;
+	mlData->scrollAccel = initialScrollAccel;
+	scrollTimer = startTimer( mlData->scrollTime );
 	dragScrolling = TRUE;
     }
 
@@ -1653,6 +1680,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
+	scrollTimer = 0;
 	dragScrolling = FALSE;
     }
     wordMark = FALSE;
@@ -1847,18 +1875,13 @@ void QMultiLineEdit::paste()
 
 void QMultiLineEdit::clear()
 {
-    bool u = autoUpdate();
-    setAutoUpdate( FALSE );
-    contents->first();
-    while ( contents->remove() )
-	;
+    contents->clear();
     cursorX = cursorY = 0;
     setWidth( 1 );
     insertLine( "", -1 );
     dummy = TRUE;
     markIsOn = FALSE;
-    setAutoUpdate( u );
-    if ( u )
+    if ( autoUpdate() )
 	repaint( TRUE );
     if ( !mlData->isHandlingEvent ) //# && not already empty
 	emit textChanged();
