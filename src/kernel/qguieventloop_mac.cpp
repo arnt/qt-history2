@@ -129,6 +129,7 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 {
     if(!d->macTimerList)				// not initialized
 	return FALSE;
+    MacTimerList removes;
     for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) { // check all timers
 	MacTimerInfo *t = (*it);
 	if(t->obj == obj) {			// object found
@@ -142,9 +143,11 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 	    } else {
 		d->zero_timer_count--;
 	    }
-	    d->macTimerList->remove(t);
+	    removes += (*it);
 	}
     }
+    for(MacTimerList::Iterator it = removes.begin(); it != removes.end(); ++it) // do removes
+	d->macTimerList->remove((*it));
     return TRUE;
 }
 
