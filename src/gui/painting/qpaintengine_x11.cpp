@@ -360,10 +360,12 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
  		--i;
 	    }
 	}
-
-        if ((aet.size()%2) != 0)
+        if (aet.size()%2 != 0) {
+#ifndef QT_NO_DEBUG
+            qWarning("QX11PaintEngine: aet out of sync - this should not happen.");
+#endif
             return;
-        Q_ASSERT(aet.size()%2 == 0);
+        }
 
 	// done?
 	if (!aet.size()) {
