@@ -214,7 +214,7 @@ QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
 		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
     :QTextParagraph( 0, new QTextFormatCollection(),
-		      QTextCharFormat( font, Qt::black ), (base = new QStyleSheetItem(0,"") ) )
+		      QTextCharFormat( font, QColor() ), (base = new QStyleSheetItem(0,"") ) )
 {
     contxt = context;
 
@@ -401,8 +401,11 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		ENSURE_ENDTOKEN
 		return FALSE;
 	    }
-	    if ( !nstyle )
+	    if ( !nstyle ) {
+		if ( emptyTag )
+		    continue;
 		nstyle = nullstyle;
+	    }
 
 	    QTextCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom || tagname == "br") {
@@ -1532,7 +1535,6 @@ void QRichTextFormatter::updateCharFormat( QPainter* p )
     QTextCharFormat* fmt = format();
     if ( p ) {
 	p->setFont( fmt->font() );
-	p->setPen( fmt->color() );
     }
     QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     currentasc = fm.ascent();
@@ -1673,6 +1675,11 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 		f.setUnderline( TRUE );
 		p->setFont( f );
 	    }
+	} else {
+	    if ( fmt->color().isValid() )
+		p->setPen( fmt->color() );
+	    else
+		p->setPen( cg.text() );
 	}
 	bool selected = !clipMode && to.inSelection( position() );
 	QRect highlight;
