@@ -73,7 +73,7 @@ struct QLineEditPrivate : public Qt
 	: q(q), cursor(0), cursorTimer(0), tripleClickTimer(0), frame(1),
 	  cursorVisible(0), separator(0), readOnly(0), modified(0),
 	  direction(QChar::DirON), dragEnabled(1), alignment(0),
-	  echoMode(0),  textDirty(0), selDirty(0), validInput(0),
+	  echoMode(0),  textDirty(0), selDirty(0), validInput(1),
 	  maxLength(32767), menuId(0),
 	  hscroll(0),  validator(0),  maskData(0),
 	  undoState(0), selstart(0), selend(0),
@@ -119,16 +119,15 @@ struct QLineEditPrivate : public Qt
     QString inputMask;
     QChar blank;
     MaskInputData *maskData;
-    bool inputSatisfiesMask() const;
-    inline void nextMaskBlank() {
-	int c = findInMask( cursor, TRUE, FALSE );
-	separator |= ( c != cursor );
-	cursor = ( c != -1 ?  c : maxLength );
+    inline int nextMaskBlank( int pos ) {
+	int c = findInMask( pos, TRUE, FALSE );
+	separator |= ( c != pos );
+	return ( c != -1 ?  c : maxLength );
     }
-    inline void prevMaskBlank() {
-	int c = findInMask( cursor, FALSE, FALSE );
-	separator |= ( c != cursor );
-	cursor = ( c != -1 ? c : 0 );
+    inline int prevMaskBlank( int pos ) {
+	int c = findInMask( pos, FALSE, FALSE );
+	separator |= ( c != pos );
+	return ( c != -1 ? c : 0 );
     }
 
     void setCursorVisible( bool visible );
@@ -179,7 +178,7 @@ struct QLineEditPrivate : public Qt
     QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
     QString clearString( uint pos, uint len ) const;
     QString stripString( const QString &str ) const;
-    int findInMask( int pos, bool forward, bool findSeparator, QChar sep = 0 ) const;
+    int findInMask( int pos, bool forward, bool findSeparator, QChar searchChar = QChar() ) const;
 
     // input methods
     int imstart, imend, imselstart, imselend;
@@ -404,7 +403,7 @@ QString QLineEdit::text() const
 void QLineEdit::setText( const QString& text)
 {
     resetInputContext();
-    d->setText( (int)text.length() > d->maxLength ? text.left( d->maxLength ) : text );
+    d->setText( text.left( d->maxLength ) );
     d->modified = FALSE;
     d->finishChange( -1, FALSE );
 }
@@ -429,7 +428,7 @@ QString QLineEdit::displayText() const
     QString res = d->text;
     if ( d->echoMode == Password )
 	res.fill( passwordChar() );
-    return res;
+    return ( res.isNull() ? QString::fromLatin1("") : res );
 }
 
 
@@ -459,8 +458,7 @@ void QLineEdit::setMaxLength( int maxLength )
     if ( d->maskData )
 	return;
     d->maxLength = maxLength;
-    d->text.truncate( maxLength );
-    d->setText( d->text );
+    setText( d->text );
 }
 
 
@@ -700,17 +698,11 @@ void QLineEdit::cursorForward( bool mark, int steps )
 {
     int cursor = d->cursor;
     if ( steps > 0 ) {
-	while( steps-- ) {
+	while( steps-- )
 	    cursor = d->textLayout.nextCursorPosition( cursor );
-	    if ( d->maskData )
-		d->nextMaskBlank();
-	}
     } else if ( steps < 0 ) {
-	while ( steps++ ) {
+	while ( steps++ )
 	    cursor = d->textLayout.previousCursorPosition( cursor );
-	    if ( d->maskData )
-		d->prevMaskBlank();
-	}
     }
     d->moveCursor( cursor, mark );
 }
@@ -769,7 +761,7 @@ void QLineEdit::backspace()
     } else if ( d->cursor ) {
 	    --d->cursor;
 	    if ( d->maskData )
-		d->prevMaskBlank();
+		d->cursor = d->prevMaskBlank( d->cursor );
 	    d->del( TRUE );
     }
     d->finishChange( priorState );
@@ -935,27 +927,6 @@ void QLineEdit::setDragEnabled( bool b )
     d->dragEnabled = b;
 }
 
-
-bool QLineEditPrivate::inputSatisfiesMask() const
-{
-    if ( !maskData )
-	return TRUE;
-
-    if ( text.length() != (uint)maxLength )
- 	return FALSE;
-
-    for ( uint i=0; i < (uint)maxLength; i++) {
-	if ( maskData[i].separator ) {
-	    if ( text[(int)i] != maskData[i].maskChar )
-		return FALSE;
-	} else {
-	    if ( !isValidInput( text[(int)i], maskData[i].maskChar ) )
-		return FALSE;
-	}
-    }
-    return TRUE;
-}
-
 /*! \property QLineEdit::acceptableInput
 
 \brief holds whether the input satisfies the inputMask and the
@@ -971,7 +942,23 @@ bool QLineEdit::hasAcceptableInput() const
     if ( d->validator && d->validator->validate( text, cursor ) != QValidator::Acceptable )
 	return FALSE;
 #endif
-    return d->inputSatisfiesMask();
+
+    if ( !d->maskData )
+	return TRUE;
+
+    if ( d->text.length() != (uint)d->maxLength )
+ 	return FALSE;
+
+    for ( uint i=0; i < (uint)d->maxLength; i++) {
+	if ( d->maskData[i].separator ) {
+	    if ( d->text[(int)i] != d->maskData[i].maskChar )
+		return FALSE;
+	} else {
+	    if ( !d->isValidInput( d->text[(int)i], d->maskData[i].maskChar ) )
+		return FALSE;
+	}
+    }
+    return TRUE;
 }
 
 
@@ -990,18 +977,20 @@ bool QLineEdit::hasAcceptableInput() const
     The mask format takes these mask characters:
     \table
     \header \i Character \i Meaning
-    \row \i \c L \i ASCII alphabetic character required. A-Z, a-z.
-    \row \i \c l \i ASCII alphabetic character permitted but not required.
-    \row \i \c A \i ASCII alphanumeric character required. A-Z, a-z, 0-9.
-    \row \i \c a \i ASCII alphanumeric character permitted but not required.
-    \row \i \c C \i Printable character required.
-    \row \i \c c \i Printable character permitted but not required.
-    \row \i \c 0 \i Numeric character required. 0-9.
-    \row \i \c 9 \i Numeric character permitted but not required.
+    \row \i \c A \i ASCII alphabetic character required. A-Z, a-z.
+    \row \i \c a \i ASCII alphabetic character permitted but not required.
+    \row \i \c N \i ASCII alphanumeric character required. A-Z, a-z, 0-9.
+    \row \i \c n \i ASCII alphanumeric character permitted but not required.
+    \row \i \c X \i Any character required.
+    \row \i \c x \i Any character permitted but not required.
+    \row \i \c 9 \i Numeric character required. 0-9.
+    \row \i \c 0 \i Numeric character permitted but not required.
+    \row \i \c D \i Numeric character required. 1-9.
+    \row \i \c d \i Numeric character permitted but not required.
     \row \i \c # \i Numeric character or plus/minus sign permitted but not required.
     \row \i \c > \i All following alphabetic characters are uppercased.
     \row \i \c < \i All following alphabetic characters are lowercased.
-    \row \i \c <> \i No case conversion.
+    \row \i \c ! \i No case conversion.
     \row \i <tt>\\</tt> \i Use <tt>\\</tt> to escape the special
 			   characters listed above to use them as
 			   separators.
@@ -2113,6 +2102,10 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 {
     if ( pos != cursor )
 	separate();
+    if ( maskData && pos > cursor )
+	pos = nextMaskBlank( pos );
+    else if ( maskData && pos < cursor )
+	pos = prevMaskBlank( pos );
     bool fullUpdate = mark || hasSelectedText();
     if ( mark ) {
 	int anchor;
@@ -2161,17 +2154,18 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 	    }
 	}
 #endif
-	validInput &= inputSatisfiesMask();
 	if ( validateFromState >= 0 && wasValidInput && !validInput ) {
 	    undo( validateFromState );
 	    history.resize( undoState );
 	    validInput = TRUE;
+	    textDirty = setModified = FALSE;
 	}
 	updateTextLayout();
 	updateMicroFocusHint();
 	if ( setModified )
 	    modified = TRUE;
-	emit q->textChanged( text );
+	if ( textDirty )
+	    emit q->textChanged( text );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( q, 0, QAccessible::ValueChanged );
 #endif
@@ -2186,6 +2180,7 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 void QLineEditPrivate::setText( const QString& txt )
 {
     deselect();
+    QString oldText = text;
     if ( maskData ) {
 	text = maskString( 0, txt );
 	text += clearString( text.length(), maxLength - text.length() );
@@ -2195,7 +2190,7 @@ void QLineEditPrivate::setText( const QString& txt )
     history.clear();
     undoState = 0;
     cursor = text.length();
-    textDirty = TRUE;
+    textDirty = ( oldText != text );
 }
 
 
@@ -2301,7 +2296,7 @@ void QLineEditPrivate::insert( const QString& s )
 	}
 	text.replace( cursor, ms.length(), ms );
 	cursor += ms.length();
-	nextMaskBlank();
+	cursor = nextMaskBlank( cursor );
     } else {
 	text.insert( cursor, s );
 	for ( int i = 0; i < (int) s.length(); ++i )
@@ -2445,7 +2440,7 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	    }
 	}
     }
-    q->setText( clearString( 0, maxLength ) );
+    q->setText( QString::null );
 }
 
 
@@ -2538,12 +2533,21 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 			s += str[(int)strIndex];
 		    }
 		} else {
+		    // search for separator first
 		    int n = findInMask( i, TRUE, TRUE, str[(int)strIndex] );
 		    if ( n != -1 ) {
 			s += fill.mid( i, n-i+1 );
 			i = n; // updates new pos since we might have advanced more then one char
 		    } else {
-			if ( str.length() > 1 ) s += blank; // only blanks if more then one char in str
+			// search for valid blank if not
+			n = findInMask( i, TRUE, FALSE, str[(int)strIndex] );
+			if ( n != -1 ) {
+			    s += fill.mid( i, n-i );
+			    s += str[(int)strIndex];
+			    i = n; // updates new pos since we might have advanced more then one char
+			} else if ( str.length() > 1 ) {
+			    s += blank; // only blanks if more then one char in str
+			}
 		    }
 		}
 		strIndex++;
@@ -2598,7 +2602,7 @@ QString QLineEditPrivate::stripString( const QString &str ) const
 }
 
 /* searches forward/backward in maskData for either a separator or a blank */
-int QLineEditPrivate::findInMask( int pos, bool forward, bool findSeparator, QChar sep ) const
+int QLineEditPrivate::findInMask( int pos, bool forward, bool findSeparator, QChar searchChar ) const
 {
     if ( pos >= maxLength || pos < 0 )
 	return -1;
@@ -2609,11 +2613,15 @@ int QLineEditPrivate::findInMask( int pos, bool forward, bool findSeparator, QCh
 
     while ( i != end ) {
 	if ( findSeparator ) {
-	    if ( maskData[ i ].separator && maskData[ i ].maskChar == sep )
+	    if ( maskData[ i ].separator && maskData[ i ].maskChar == searchChar )
 		return i;
 	} else {
-	    if ( !maskData[ i ].separator )
-		return i;
+	    if ( !maskData[ i ].separator ) {
+ 		if ( searchChar.isNull() )
+		    return i;
+ 		else if ( isValidInput( searchChar, maskData[ i ].maskChar ) )
+ 		    return i;
+	    }
 	}
 	i += step;
     }
