@@ -506,6 +506,7 @@ public:
 	CT_MenuBar,
 	CT_SpinBox,
 	CT_SizeGrip,
+	CT_TabWidget,
 	CT_DialogButtons,
 
 	// do not add any values below/greater than this
@@ -642,6 +643,9 @@ public:
 
 	// QToolBox - Boldness of the selected page title
 	SH_ToolBox_SelectedPageTitleBold,
+
+	//bool - if a tabbar prefers not to have scroller arrows
+	SH_TabBar_PreferNoArrows,
 
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000

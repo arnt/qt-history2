@@ -533,15 +533,14 @@ bool QTabBar::isTabEnabled( int id ) const
 */
 QSize QTabBar::sizeHint() const
 {
-    QTab * t = l->first();
-    if ( t ) {
+    QSize sz(0, 0);
+    if ( QTab * t = l->first() ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	return r.size().expandedTo( QApplication::globalStrut() );
-    } else {
-	return QSize( 0, 0 ).expandedTo( QApplication::globalStrut() );
+	sz = r.size();
     }
+    return sz.expandedTo(QApplication::globalStrut());
 }
 
 /*!
@@ -550,6 +549,8 @@ QSize QTabBar::sizeHint() const
 
 QSize QTabBar::minimumSizeHint() const
 {
+    if(style().styleHint( QStyle::SH_TabBar_PreferNoArrows, this ))
+	return sizeHint();
     return QSize( d->rightB->sizeHint().width() * 2 + 75, sizeHint().height() );
 }
 
@@ -1028,7 +1029,13 @@ void QTabBar::layoutTabs()
     if ( lstatic->isEmpty() )
 	return;
 
-    QSize oldSh = sizeHint();
+    QSize oldSh(0, 0);
+    if ( QTab * t = l->first() ) {
+	QRect r( t->r );
+	while ( (t = l->next()) != 0 )
+	    r = r.unite( t->r );
+	oldSh = r.size();
+    }
 
     int hframe, vframe, overlap;
     hframe  = style().pixelMetric( QStyle::PM_TabBarTabHSpace, this );

@@ -1872,6 +1872,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
+    case SH_TabBar_PreferNoArrows:
+	ret = TRUE;
+	break;
     case SH_PopupMenu_SloppySubMenus:
 	ret = TRUE;
 	break;

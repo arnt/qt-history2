@@ -1875,6 +1875,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_TabBar_PreferNoArrows:
+	ret = TRUE;
+	break;
     case SH_LineEdit_PasswordCharacter:
 	ret = 0x25AA;
 	break;
@@ -1994,6 +1997,9 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	break; }
     case CT_SpinBox: 
 	sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
+	break;
+    case CT_TabWidget:
+	sz.setWidth(sz.width() + 15); //leave a little bit of space around the tabs.. ###
 	break;
     case CT_TabBarTab: {
 	SInt32 lth = kThemeLargeTabHeightMax;

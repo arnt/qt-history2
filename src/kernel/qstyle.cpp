@@ -1536,6 +1536,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_MenuBar
     \value CT_SpinBox
     \value CT_SizeGrip
+    \value CT_TabWidget
     \value CT_DialogButtons
 
     \value CT_CustomBase  base value for custom ControlElements. All
@@ -1675,6 +1676,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_TabBar_SelectMouseType which type of mouse event should
 	cause a tab to be selected.
+
+    \value SH_TabBar_PreferNoArrows whether a tabbar should suggest a size
+        to prevent scoll arrows.
 
     \value SH_ComboBox_Popup allows popups as a combobox dropdown
 	menu.
