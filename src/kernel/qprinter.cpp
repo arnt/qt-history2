@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#48 $
 **
 ** Implementation of QPrinter class
 **
@@ -27,61 +27,142 @@
 
 /*!
   \class QPrinter qprinter.h
-  \brief The QPrinter class is a paint device that prints graphics on a
-  printer.
+  \brief The QPrinter class is a paint device that paint on a printer.
 
   \ingroup drawing
 
-  All window systems that Qt supports, except X11, have built-in
-  printer drivers.  For X11, Qt provides PostScript (tm) printing.
+  On Windows, it uses the built-in printer drivers.  On X11, it
+  generates postscript and sends that to lpr, lp or another print
+  command.
 
-  Drawing graphics on a printer is almost identical to drawing graphics
-  in a widget or a pixmap.  The only difference is that the programmer
-  must think about dividing the document into pages and handling abort
-  commands.
+  QPrinter is used much the same way that QWidget and QPixmap are
+  used.  The big difference is that you must keep track of the pages.
 
-  The default coordinate system of a printer has (0,0) at the upper
-  left corner, with increasing values to the right and downwards.  The
-  size of the coordinate system depends on the selected paper size and
-  the resolution (dots per inch) of the printer (on X11, the builtin
-  postscript driver always operates at 72 dpi.) You can obtain
-  detailed information about the device using the QPaintDeviceMetrics
-  class. You can easily change the coordinate system using
-  QPainter::setViewport(), QPainter::setWindow() and/or
-  QPainter::setWorldMatrix().
+  QPrinter supports a number of settable parameters, mostly related to
+  pages, and most can be changed by the end user in when the
+  application calls QPrinter::setup().
 
-  The newPage() function should be called to finish the current page and
-  start printing a new page.
+  The most important ones are: <ul>
+  <li> setOrientation() tells QPrinter to turn the page (virtual).
+  <li> setPageSize() tells QPrinter what page size to expect from the
+  printer.
+  <li> setFullPage() tells QPrinter whether you want to deal with the
+  full page (so you can have accurate margins etc.) or with jus with
+  the part the printer can draw on.  The default is FALSE: You can
+  probably paint on (0,0) but the document's margins are unknown.
+  <li> setNumCopies() tells QPrinter how many copies of the document
+  it should print.
+  <li> setMinMax() tells QPrinter and QPrintDialog what the allowed
+  range for fromPage() and toPage() are.
+  </ul>
 
-  If the user decides to abort printing, aborted() will return TRUE.
-  The QPrinter class handles abortion automatically, but the programmer
-  should from time to time check the aborted() flag and stop painting
-  if the print job has been aborted.
+  There are also some settings that the user sets (through
+  QPrintDialog) and that applications are expected to obey: <ul>
 
-  Example (a complete application):
+  <li> pageOrder() tells the application program whether to print
+  first-page-first or last-page-first.
 
-  \code
-    #include <qapplication.h>
-    #include <qpainter.h>
-    #include <qprinter.h>
-    #include <qprintdialog.h>
+  <li> colorMode() tells the application program whether to print
+  in color or grayscale.  (If you print in color and the printer does
+  not support color, Qt will try to approximate.  The document may
+  take longer to print, but the quality should not be made visibly
+  poorer.)
 
-    int main( int argc, char **argv )
-    {
-	QApplication a( argc, argv );
+  <li> fromPage() and toPage() indicate what pages the application
+  program should print.
+  </ul>
 
-	QPrinter prt;
-	if ( QPrintDialog::getPrinterSetup( &prt ) ) {
-	    QPainter p;
-	    p.begin( &prt );
-	    p.rotate( 55 );
-	    p.setFont( QFont("times", 144, QFont::Bold) );
-	    p.drawText( 80,30, "Hello, world!" );
-	    p.end();
-	}
-	return 0;
-    }
-  \endcode
+  You can of course call e.g. setPageOrder() to establish a default
+  before you ask the user through setup().
+
+  Once you've started printing, newPage() is essential.  You will
+  probably also need to look at the QPaintDeviceMetrics for the
+  printer (see the <a href="simple-application.html#printer">simple
+  print function</a> in the Application walk-through).  If you want
+  high-quality printing with accurate margins, setFullPage( TRUE ) is
+  a must.
+
+  If you want to abort the print job, abort() will make a best effort.
+  It may cancel the entire job, or just some of it.
+
+*/
+
+/*! \enum QPrinter::Orientation
+
+  This enum type (not to be confused with Qt::Orientation) is used to
+  decide how Qt should print on each sheet.  <ul>
+
+  <li> \c Portrait - (the default) means to print such that the page's
+  height is greater than its width.
+
+  <li> \c Landscape - means to print such that the page's width is
+  greater than its height.
+
+  </ul>
+
+  This type interacts with QPrinter::PageSize and QPrinter::setFullPage()
+  to determine the final size of the page available to the
+  application.
+*/
+
+
+/*! \enum QPrinter::PageSize
+
+  This enum type decides what paper size QPrinter is to use.  QPrinter
+  does not check that the paper size is available; it just uses this
+  information together with Orientation and QPrinter::setFullPage() to
+  determine the printable area (see QPaintDeviceMetrics).
+
+  The defined sizes (with setFullPage( TRUE )) are <ul>
+  <li>\c QPrinter::A0 (841 x 1189 mm)
+  <li>\c QPrinter::A1 (594 x 841 mm)
+  <li>\c QPrinter::A2 (420 x 594 mm)
+  <li>\c QPrinter::A3 (297 x 420 mm)
+  <li>\c QPrinter::A4 (210x297 mm, 8.26x11.7 inches)
+  <li>\c QPrinter::A5 (148 x 210 mm)
+  <li>\c QPrinter::A6 (105 x 148 mm)
+  <li>\c QPrinter::A7 (74 x 105 mm)
+  <li>\c QPrinter::A8 (52 x 74 mm)
+  <li>\c QPrinter::A9 (37 x 52 mm)
+  <li>\c QPrinter::B0 (1030 x 1456 mm)
+  <li>\c QPrinter::B1 (728 x 1030 mm)
+  <li>\c QPrinter::B10 (32 x 45 mm)
+  <li>\c QPrinter::B2 (515 x 728 mm)
+  <li>\c QPrinter::B3 (364 x 515 mm)
+  <li>\c QPrinter::B4 (257 x 364 mm)
+  <li>\c QPrinter::B5 (182x257 mm, 7.17x10.13 inches)
+  <li>\c QPrinter::B6 (128 x 182 mm)
+  <li>\c QPrinter::B7 (91 x 128 mm)
+  <li>\c QPrinter::B8 (64 x 91 mm)
+  <li>\c QPrinter::B9 (45 x 64 mm)
+  <li>\c QPrinter::C5E (163 x 229 mm)
+  <li>\c QPrinter::Comm10E (105 x 241 mm, US Common #10 Envelope)
+  <li>\c QPrinter::DLE (110 x 220 mm)
+  <li>\c QPrinter::Executive (7.5x10 inches, 191x254 mm)
+  <li>\c QPrinter::Folio (210 x 330 mm)
+  <li>\c QPrinter::Ledger (432 x 279 mm)
+  <li>\c QPrinter::Legal (8.5x14 inches, 216x356 mm)
+  <li>\c QPrinter::Letter (8.5x11 inches, 216x279 mm)
+  <li>\c QPrinter::Tabloid (279 x 432 mm)
+  </ul>
+
+  With setFullPage( FALSE ) (the default), the metrics will be a bit
+  smaller.  How much depends on the printer in use.
+*/
+
+
+/*! \enum QPrinter::PageOrder
+
+  This enum type is used by QPrinter/QPrintDialog to tell the
+  application program how to print.  The possible values are <ul>
+ 
+  <li> \c QPrinter::FirstPageFirst - the lowest-numbered page should
+  be printed first.
+
+  <li> \c QPrinter::LastPageFirst - the highest-numbered page should
+  be printed first.
+
+  </ul>
 */
 
 
@@ -164,7 +245,7 @@ void QPrinter::setOutputToFile( bool enable )
 
   Setting a null name (0 or "") disables output to a file, i.e.
   calls setOutputToFile(FALSE);
-  Setting non-null name enables output to a file, i.e. calls
+  Setting non-null name enables output to a file, i.e.  calls
   setOutputToFile(TRUE).
 
   This function is currently only supported under X11.
@@ -260,7 +341,7 @@ void QPrinter::setCreator( const QString &creator )
 /*!
   \fn Orientation QPrinter::orientation() const
 
-  Returns the orientation setting. The default value is \c
+  Returns the orientation setting.  The default value is \c
   QPrinter::Portrait.
   \sa setOrientation()
 */
@@ -285,7 +366,9 @@ void QPrinter::setOrientation( Orientation orientation )
 
 /*!
   \fn PageSize QPrinter::pageSize() const
-  Returns the printer page size. The default value is \c QPrinter::A4.
+
+  Returns the printer page size.  The default value is system-dependent.
+
   \sa setPageSize()
 */
 
@@ -301,47 +384,15 @@ static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
 
 
 
-//   <li>\c QPrinter::Executive (184 x 267 mm)
-
 /*!
   Sets the printer page size to \a newPageSize.
 
-  The page size can be one of
-  <ul>
-  <li>\c QPrinter::A0 (841 x 1189 mm)
-  <li>\c QPrinter::A1 (594 x 841 mm)
-  <li>\c QPrinter::A2 (420 x 594 mm)
-  <li>\c QPrinter::A3 (297 x 420 mm)
-  <li>\c QPrinter::A4 (210x297 mm, 8.26x11.7 inches)
-  <li>\c QPrinter::A5 (148 x 210 mm)
-  <li>\c QPrinter::A6 (105 x 148 mm)
-  <li>\c QPrinter::A7 (74 x 105 mm)
-  <li>\c QPrinter::A8 (52 x 74 mm)
-  <li>\c QPrinter::A9 (37 x 52 mm)
-  <li>\c QPrinter::B0 (1030 x 1456 mm)
-  <li>\c QPrinter::B1 (728 x 1030 mm)
-  <li>\c QPrinter::B10 (32 x 45 mm)
-  <li>\c QPrinter::B2 (515 x 728 mm)
-  <li>\c QPrinter::B3 (364 x 515 mm)
-  <li>\c QPrinter::B4 (257 x 364 mm)
-  <li>\c QPrinter::B5 (182x257 mm, 7.17x10.13 inches)
-  <li>\c QPrinter::B6 (128 x 182 mm)
-  <li>\c QPrinter::B7 (91 x 128 mm)
-  <li>\c QPrinter::B8 (64 x 91 mm)
-  <li>\c QPrinter::B9 (45 x 64 mm)
-  <li>\c QPrinter::C5E (163 x 229 mm)
-  <li>\c QPrinter::Comm10E (105 x 241 mm, US Common #10 Envelope)
-  <li>\c QPrinter::DLE (110 x 220 mm)
-  <li>\c QPrinter::Executive (7.5x10 inches, 191x254 mm)
-  <li>\c QPrinter::Folio (210 x 330 mm)
-  <li>\c QPrinter::Ledger (432 x 279 mm)
-  <li>\c QPrinter::Legal (8.5x14 inches, 216x356 mm)
-  <li>\c QPrinter::Letter (8.5x11 inches, 216x279 mm)
-  <li>\c QPrinter::Tabloid (279 x 432 mm)
+  The default page size is system-dependent.
 
-  </ul>
+  This function is useful mostly for setting a default value that the
+  user can override in the print dialog when you call setup().
 
-  \sa pageSize()
+  \sa pageSize() PageSize setFullPage()
 */
 
 void QPrinter::setPageSize( PageSize newPageSize )
@@ -355,6 +406,9 @@ void QPrinter::setPageSize( PageSize newPageSize )
   The page order can be \c QPrinter::FirstPageFirst or \c
   QPrinter::LastPageFirst.  The application programmer is responsible
   for reading the page order and printing accordingly.
+
+  This function is useful mostly for setting a default value that the
+  user can override in the print dialog when you call setup().
 */
 
 void QPrinter::setPageOrder( PageOrder newPageOrder )
@@ -411,7 +465,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
 /*!
   \fn int QPrinter::fromPage() const
-  Returns the from-page setting. The default value is 0.
+  Returns the from-page setting.  The default value is 0.
 
   The programmer is responsible for reading this setting and print
   accordingly.
@@ -421,7 +475,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
 /*!
   \fn int QPrinter::toPage() const
-  Returns the to-page setting. The default value is 0.
+  Returns the to-page setting.  The default value is 0.
 
   The programmer is responsible for reading this setting and print
   accordingly.
@@ -433,6 +487,9 @@ QPrinter::ColorMode QPrinter::colorMode() const
   Sets the from page and to page.
 
   The from-page and to-page settings specify what pages to print.
+
+  This function is useful mostly for setting a default value that the
+  user can override in the print dialog when you call setup().
 
   \sa fromPage(), toPage(), setMinMax(), setup()
 */
@@ -518,7 +575,7 @@ QString QPrinter::printerSelectionOption() const
 
 
 /*!  Sets the printer to use \a option to select printer.  \a option
-is null by default, meaning to be a little smart, but can be set to 
+is null by default, meaning to be a little smart, but can be set to
 other values to use a specific printer selection option.
 
 If the printer selection option is changed while the printer is
@@ -532,33 +589,20 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
 
 
 /*!
-  Sets whether the printer should print to the edge of the page or whether
-  it should print only in the printable area of the page.
 
-  The default is to print only in the printable area.
-
-  A QPainter opened on a QPrinter which has printToEdge set to TRUE will
-  have its (0,0) coordinate at the corner of the physical paper. If
-  printToEdge is FALSE, (0,0) will be at the corner of the printable area
-  of the paper.
-
-  \sa printToEdge(), margins() 
 */
 
-void QPrinter::setPrintToEdge( bool on )
+void QPrinter::setFullPage( bool fp )
 {
-    to_edge = on;
+    to_edge = fp;
 }
 
 
 /*!
-  Returns the value set by setPrintToEdge().
 
-  \sa setPrintToEdge(), margins() */
+*/
 
-bool QPrinter::printToEdge() const
+bool QPrinter::fullPage() const
 {
     return to_edge;
 }
-
-

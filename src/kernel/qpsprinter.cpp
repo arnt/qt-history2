@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#98 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -173,7 +173,7 @@ static const char *ps_header[] = {
 "",
 "/QI {",
 "    /C save d",
-"    /defM matrix CM d",		// default transformation matrix
+"    defM setmatrix",			// default transformation matrix
 "    /Cx  0 d",				// reset current x position
 "    /Cy  0 d",				// reset current y position
 "    255 255 255 BC",
@@ -2246,9 +2246,6 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
-    if ( !paint )
-	return FALSE; // just to avoid a segfault
-
     if ( c == PdcBegin ) {		// start painting
 	d->pagesInBuffer = 0;
 	d->buffer = new QBuffer();
@@ -2293,6 +2290,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
+	if ( !paint )
+	    return; // sanity
 	if ( dirtyMatrix )
 	    matrixSetup( paint );
 	if ( dirtyNewPage )
@@ -2396,7 +2395,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	break;
     case PdcDrawText2:
 	if ( !p[1].str->isEmpty() ) {
-	    qDebug( "string is %s", p[1].str->ascii() );
 	    // #### Unicode ignored
 
 	    char * tmp = new char[ p[1].str->length() * 2 + 2 ];
@@ -2487,7 +2485,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcSetClipRegion:
 	d->dirtyClipping = TRUE;
 	break;
-    case PDC_PRT_NEWPAGE:
+    case NewPage:
 	pageCount++;
 	stream << "QP\n%%Page: "
 	       << pageCount << ' ' << pageCount
@@ -2498,7 +2496,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	delete d->savedImage;
 	d->savedImage = 0;
 	break;
-    case PDC_PRT_ABORT:
+    case AbortPrinting:
 	break;
     default:
 	break;
@@ -2682,8 +2680,9 @@ static QString stripHeader( const QString & header, const char * data,
 
     // second pass: mark the identifiers used in the document
 
-    // we know GR and QP are used
-    used[(int)ids.take("GR")] = 0x10000000;
+    // we know CM, QI and QP are used
+    used[(int)ids.take("CM")] = 0x10000000;
+    used[(int)ids.take("QI")] = 0x10000000;
     used[(int)ids.take("QP")] = 0x10000000;
 
     // we speed this up a little by hand-hacking DF/MF/ND support
@@ -2810,13 +2809,13 @@ void QPSPrinter::emitHeader( bool finished )
     if ( printer->orientation() == QPrinter::Portrait ) {
 	QPaintDeviceMetrics m( printer );
 	header2.sprintf( "\n%% %d*%d mm (portrait)\n"
-			 "0 %d translate 1 -1 scale\n",
+			 "0 %d translate 1 -1 scale/defM matrix CM d\n",
 			 m.widthMM(), m.heightMM(),
 			 m.height() );
     } else {
 	QPaintDeviceMetrics m( printer );
 	header2.sprintf( "\n%% %d*%d mm (landscape)\n"
-			 "90 rotate 1 -1 scale\n",
+			 "90 rotate 1 -1 scale/defM matrix CM d\n",
 			 m.heightMM(), m.widthMM() );
     }
 			

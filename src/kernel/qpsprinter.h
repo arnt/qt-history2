@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#21 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#22 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -48,6 +48,8 @@ private:
 
     bool cmd ( int, QPainter *, QPDevCmdParam * );
 
+    enum { NewPage = 100, AbortPrinting };
+
     friend class QPrinter;
 private:
     // QPrinter does not use these
@@ -75,12 +77,6 @@ private:
     QPSPrinter( const QPSPrinter & );
     QPSPrinter &operator=( const QPSPrinter & );
 };
-
-
-// Additional commands for QPSPrinter
-
-#define PDC_PRT_NEWPAGE 100
-#define PDC_PRT_ABORT	101
 
 
 #endif // QPSPRINTER_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#66 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -114,7 +114,7 @@ QPrinter::~QPrinter()
 bool QPrinter::newPage()
 {
     if ( state == PST_ACTIVE && pdrv )
-	return ((QPSPrinter*)pdrv)->cmd( PDC_PRT_NEWPAGE, 0, 0 );
+	return ((QPSPrinter*)pdrv)->cmd( QPSPrinter::NewPage, 0, 0 );
     return FALSE;
 }
 
@@ -128,13 +128,13 @@ bool QPrinter::newPage()
 bool QPrinter::abort()
 {
     if ( state == PST_ACTIVE && pdrv ) {
-	((QPSPrinter*)pdrv)->cmd( PDC_PRT_ABORT, 0, 0 );
+	((QPSPrinter*)pdrv)->cmd( QPSPrinter::AbortPrinting, 0, 0 );
 	state = PST_ABORTED;
-    }
-    if ( pid ) {
-	(void)::kill( pid, 6 );
-	(void)::wait( 0 );
-	pid = 0;
+	if ( pid ) {
+	    (void)::kill( pid, 6 );
+	    (void)::wait( 0 );
+	    pid = 0;
+	}
     }
     return state == PST_ABORTED;
 }
@@ -385,18 +385,4 @@ int QPrinter::metric( int m ) const
 #endif
     }
     return val;
-}
-
-
-/*!
-   Returns the width and height of the unprintable margins around the edge
-   of the page.
-
-   \sa setPrintToEdge(), printToEdge()
-*/
-
-QSize QPrinter::margins() const
-{
-    // ### Not implemented
-    return QSize( 0, 0 );
 }

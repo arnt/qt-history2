@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#35 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#36 $
 **
 ** Definition of QPrinter class
 **
@@ -42,11 +42,14 @@ public:
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };
+
     enum PageSize    { A4, B5, Letter, Legal, Executive,
 		       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
 		       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
 		       DLE, Folio, Ledger, Tabloid, NPageSize };
+
     enum PageOrder   { FirstPageFirst, LastPageFirst };
+
     enum ColorMode   { GrayScale, Color };
 
     QString printerName() const;
@@ -62,34 +65,34 @@ public:
     QString printerSelectionOption() const;
     virtual void setPrinterSelectionOption( const QString & );
 
-    QString docName()	const;
-    virtual void	setDocName( const QString &);
-    QString creator()	const;
-    virtual void	setCreator( const QString &);
+    QString docName() const;
+    virtual void setDocName( const QString &);
+    QString creator() const;
+    virtual void setCreator( const QString &);
 
     Orientation orientation()	const;
-    virtual void	setOrientation( Orientation );
+    virtual void setOrientation( Orientation );
     PageSize	pageSize()	const;
-    virtual void	setPageSize( PageSize );
+    virtual void setPageSize( PageSize );
 
-    virtual void	setPageOrder( PageOrder );
+    virtual void setPageOrder( PageOrder );
     PageOrder	pageOrder() const;
 
-    virtual void	setColorMode( ColorMode );
+    virtual void setColorMode( ColorMode );
     ColorMode	colorMode() const;
 
-    virtual void	setPrintToEdge( bool );
-    bool		printToEdge() const;
+    virtual void	setFullPage( bool );
+    bool		fullPage() const;
     QSize	margins()	const;
 
     int		fromPage()	const;
     int		toPage()	const;
-    virtual void	setFromTo( int fromPage, int toPage );
+    virtual void setFromTo( int fromPage, int toPage );
     int		minPage()	const;
     int		maxPage()	const;
-    virtual void	setMinMax( int minPage, int maxPage );
+    virtual void setMinMax( int minPage, int maxPage );
     int		numCopies()	const;
-    virtual void	setNumCopies( int );
+    virtual void setNumCopies( int );
 
     bool	newPage();
     bool	abort();
