@@ -1724,7 +1724,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     specifying the Unix locale name.
 
     \code
-    QLocale hebrew("he");
+    QLocale korean("ko");
     QLocale swiss("de_CH");
     \endcode
 
