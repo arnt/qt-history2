@@ -184,9 +184,6 @@
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
 #  define Q_NO_USING_KEYWORD
-#  if !defined(_CPPUNWIND)
-#    define Q_NO_EXCEPTIONS
-#  endif
 
 #elif defined(applec)
 #  define Q_CC_MPW
@@ -218,9 +215,6 @@
 /* Intel C++ disguising as Visual C++: the `using' keyword avoids warnings */
 #  if defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
-#    if !defined(__EXCEPTIONS)
-#      define Q_NO_EXCEPTIONS
-#    endif
 #  else
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #  endif
@@ -278,9 +272,6 @@
 #    endif
 #    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #      define Q_PACKED __attribute__ ((__packed__))
-#    endif
-#    if !defined(__EXCEPTIONS)
-#      define Q_NO_EXCEPTIONS
 #    endif
 #  endif // __INTEL_COMPILER
 
@@ -376,24 +367,15 @@
    compiler is using its own set of rules. Forget it. */
 #  elif defined(__KCC)
 #    define Q_CC_KAI
-#    if !defined(_EXCEPTIONS)
-#      define Q_NO_EXCEPTIONS
-#    endif
 #    define Q_NO_USING_KEYWORD
 
 /* Using the `using' keyword avoids Intel C++ for Linux warnings */
 #  elif defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
-#    if !defined(__EXCEPTIONS)
-#      define Q_NO_EXCEPTIONS
-#    endif
 
 /* The Portland Group compiler is based on EDG and does define __EDG__ */
 #  elif defined(__PGI)
 #    define Q_CC_PGI
-#    if !defined(__EXCEPTIONS)
-#      define Q_NO_EXCEPTIONS
-#    endif
 
 /* Never tested! */
 #  elif defined(__ghs)
@@ -418,9 +400,6 @@
 #  elif defined(sinix)
 #    define Q_CC_CDS
 #    define Q_NO_USING_KEYWORD
-#    if defined(__cplusplus) && (__cplusplus < 2) /* Cfront C++ mode */
-#      define Q_NO_EXCEPTIONS
-#    endif
 
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
@@ -987,17 +966,6 @@ class QDataStream;
 #ifndef Q_COMPAT_EXPORT
 #  define Q_COMPAT_EXPORT
 #endif
-
-//
-// Some platform specific stuff
-//
-
-#if defined(Q_WS_WIN)
-extern bool qt_winunicode;
-Q_CORE_EXPORT bool qt_winUnicode();
-#endif
-
-
 
 //
 // System information
