@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#162 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -271,21 +271,21 @@ static struct {
     const char * name;
     QFont::CharSet cs;
 } encoding_names[] = {
-    { "ISO8859-1", QFont::ISO_8859_1 },
-    { "ISO8859-2", QFont::ISO_8859_2 },
-    { "ISO8859-3", QFont::ISO_8859_3 },
-    { "ISO8859-4", QFont::ISO_8859_4 },
-    { "ISO8859-5", QFont::ISO_8859_5 },
-    { "ISO8859-6", QFont::ISO_8859_6 },
-    { "ISO8859-7", QFont::ISO_8859_7 },
-    { "ISO8859-8", QFont::ISO_8859_8 },
-    { "ISO8859-9", QFont::ISO_8859_9 },
-    { "ISO8859-10", QFont::ISO_8859_10 },
-    { "ISO8859-11", QFont::ISO_8859_11 },
-    { "ISO8859-12", QFont::ISO_8859_12 },
-    { "ISO8859-13", QFont::ISO_8859_13 },
-    { "ISO8859-14", QFont::ISO_8859_14 },
-    { "ISO8859-15", QFont::ISO_8859_15 },
+    { "ISO 8859-1", QFont::ISO_8859_1 },
+    { "ISO 8859-2", QFont::ISO_8859_2 },
+    { "ISO 8859-3", QFont::ISO_8859_3 },
+    { "ISO 8859-4", QFont::ISO_8859_4 },
+    { "ISO 8859-5", QFont::ISO_8859_5 },
+    { "ISO 8859-6", QFont::ISO_8859_6 },
+    { "ISO 8859-7", QFont::ISO_8859_7 },
+    { "ISO 8859-8", QFont::ISO_8859_8 },
+    { "ISO 8859-9", QFont::ISO_8859_9 },
+    { "ISO 8859-10", QFont::ISO_8859_10 },
+    { "ISO 8859-11", QFont::ISO_8859_11 },
+    { "ISO 8859-12", QFont::ISO_8859_12 },
+    { "ISO 8859-13", QFont::ISO_8859_13 },
+    { "ISO 8859-14", QFont::ISO_8859_14 },
+    { "ISO 8859-15", QFont::ISO_8859_15 },
     { "KOI8-R", QFont::KOI8R },
     { "eucJP", QFont::Set_Ja },
     { "SJIS", QFont::Set_Ja },

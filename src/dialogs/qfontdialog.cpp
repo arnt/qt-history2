@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#35 $
 **
 ** Implementation of QFontDialog
 **
@@ -102,6 +102,7 @@ struct QFontDialogPrivate
 
     QStringList familyNames;
     QStringList charSetNames;
+    QStringList charSetSamples;
     bool usingStandardSizes;
 };
 
@@ -192,7 +193,11 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sample = new QHGroupBox( tr("sample"), this, "sample text" );
     d->sample->setTitle( tr("Sample") );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
-    d->sampleEdit->setText( tr("AaBbYyZz") );
+
+    // Note that the sample text is *not* translated with tr(), as the
+    // characters used depend on the charset encoding.
+    d->sampleEdit->setText( "AaBbYyZz" );
+
     d->sampleEdit->setAlignment( AlignCenter );
 
     d->scriptCombo = new QExpandingComboBox( TRUE, this, "font encoding" );
@@ -626,6 +631,7 @@ void QFontDialog::familyHighlighted( int i )
 void QFontDialog::scriptHighlighted( int index )
 {
     scriptHighlighted( d->charSetNames[index] );
+    d->sampleEdit->setText( d->fdb.charSetSample( d->charSetNames[index] ) );
 }
 
 void QFontDialog::scriptHighlighted( const QString &s )

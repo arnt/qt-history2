@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#6 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#7 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -110,6 +110,7 @@ const QStringList charSets( const QString &familyName,
     QString styleString( const QFont &);
 
 static QString verboseCharSetName( const QString & charSetName );
+static QString charSetSample( const QString & charSetName );
 
 private:
     static void createDatabase();

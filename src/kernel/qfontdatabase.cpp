@@ -1126,6 +1126,117 @@ QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 	return charSetName;
 }
 
+
+static QString getCharSetSample( QFont::CharSet cs )
+{
+    // Note that sample is *NOT* translated.
+    QString sample = "AaBb";
+    switch( cs ) {
+    case QFont::ISO_8859_1:
+	sample += QChar(0x00C3);
+	sample += QChar(0x00E1);
+	sample += "Zz";
+	break;
+    case QFont::ISO_8859_2:
+	sample += QChar(0x00A4);
+	sample += QChar(0x0104);
+	sample += QChar(0x02D8);
+	sample += QChar(0x0141);
+	break;
+    case QFont::ISO_8859_3:
+	sample += QChar(0x00A4);
+	sample += QChar(0x0104);
+	sample += QChar(0x016C);
+	sample += QChar(0x0121);
+	break;
+    case QFont::ISO_8859_4:
+	sample += QChar(0x00A4);
+	sample += QChar(0x0104);
+	sample += QChar(0x0169);
+	sample += QChar(0x013C);
+	break;
+    case QFont::ISO_8859_5:
+	sample += QChar(0x0401);
+	sample += QChar(0x0402);
+	sample += QChar(0x0403);
+	sample += QChar(0x0404);
+	break;
+    case QFont::ISO_8859_6:
+	sample += QChar(0x0621);
+	sample += QChar(0x0622);
+	sample += QChar(0x0623);
+	sample += QChar(0x0624);
+	break;
+    case QFont::ISO_8859_7:
+	sample += QChar(0x02BD);
+	sample += QChar(0x0384);
+	sample += QChar(0x0385);
+	sample += QChar(0x0386);
+	break;
+    case QFont::ISO_8859_8:
+	sample += QChar(0x05D0);
+	sample += QChar(0x05D1);
+	sample += QChar(0x05D2);
+	sample += QChar(0x05D3);
+	break;
+    case QFont::ISO_8859_9:
+	sample += QChar(0x00B0);
+	sample += QChar(0x00B1);
+	sample += QChar(0x011E);
+	sample += QChar(0x011F);
+	break;
+    case QFont::ISO_8859_10:
+	sample += "YyZz";
+	break;
+    case QFont::ISO_8859_11:
+	sample += "YyZz";
+	break;
+    case QFont::ISO_8859_12:
+	sample += "YyZz";
+	break;
+    case QFont::ISO_8859_13:
+	sample += "YyZz";
+	break;
+    case QFont::ISO_8859_14:
+	sample += "YyZz";
+	break;
+    case QFont::ISO_8859_15:
+	sample += "Zz";
+	sample += QChar(0x00A4);
+	sample += QChar(0x20AC);
+	break;
+    case QFont::KOI8R:
+	sample += QChar(0x0414);
+	sample += QChar(0x0434);
+	sample += QChar(0x0436);
+	sample += QChar(0x2560);
+	break;
+    case QFont::Unicode:
+	sample = "Aa";
+	sample += QChar(0x01A7); // Latin B
+	sample += QChar(0x0414); // Cyrillic
+	sample += QChar(0x263A); // Symbol :-)
+	sample += QChar(0x6ACB); // G/B/C
+	sample += QChar(0x6B7D); // J
+	sample += QChar(0xACDF); // Hangul
+	break;
+    default:
+	qWarning( "getCharSetSample: Internal error, unknown charset (%i).", cs );
+	sample = "Unknown";
+	break;
+    }
+    return sample;
+}
+
+QString QFontDatabase::charSetSample( const QString &charSetName )
+{
+    QFont::CharSet cs = getCharSet( charSetName );
+    if ( cs == QFont::AnyCharSet )
+        cs = QFont::ISO_8859_1;
+    return getCharSetSample( cs );
+}
+
+
 QString QFontDatabase::styleString( const QFont &f )  // ### fttb
 {
     
