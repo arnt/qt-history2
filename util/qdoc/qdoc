@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#129 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#130 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1253,11 +1253,13 @@ sub makenames {
     local($_, $dum, $ferdig, $anchor, %total);
 
     foreach ( sort keys %name ) {
-	$anchor{$name{$_}} = $_ unless 
-	    (defined($anchor{$name{$_}}) ||
-	     defined($overload{$_}) ||
-	     (!defined($doc{$_})) ||
-	     ($doc{$_} =~ /^\s*$/s));
+	unless (defined($anchor{$name{$_}}) ||
+		defined($overload{$_}) ||
+		(!defined($doc{$_})) ||
+		($doc{$_} =~ /^\s*$/s)) {
+	    $anchor{$name{$_}} = $_ ;
+	    $export{%name{$_}}++;
+	}
     }
 
     # next, we do a good imitation of c++ inheritance... subclasses:
@@ -2187,8 +2189,8 @@ if ( defined( $keyfile ) && open( O, "> $keyfile" ) ) {
     }
 
     print O "-anchors\n";
-    foreach ( sort keys %anchor ) {
-	print $_, ": ", $anchor{$_}, "\n";
+    foreach ( sort keys %export ) {
+	print $_, ": ", $anchor{$_}, "\n" if ( defined( $anchor{$_} ) );
     }
 
     close O;
