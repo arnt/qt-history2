@@ -293,9 +293,9 @@ QFile::setFileName(const QString &name)
 {
     if (isOpen()) {
         qWarning("QFile::setFileName: file is already opened");
-        return;
+        close();
     }
-    if(d->fileEngine) {
+    if(d->fileEngine) { //get a new file engine later
         delete d->fileEngine;
         d->fileEngine = 0;
     }
