@@ -78,9 +78,9 @@ static const int windowsCheckMarkHMargin	=  2; // horiz. margins of check mark
 static const int windowsRightBorder		= 12; // right border on windows
 static const int windowsCheckMarkWidth		= 12; // checkmarks width on windows
 
-
 static bool use2000style = TRUE;
 
+enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
 /*!
   \class QWindowsStyle qwindowsstyle.h
@@ -1562,8 +1562,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		// *43210*
 		// **410**
 		// ***0***
-		enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
-
 		const QColor c0 = cg.shadow();
 		const QColor c1 = cg.dark();
 		// const QColor c2 = g.button();
@@ -1597,7 +1595,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    drawPrimitive( PE_FocusRect, p, re, cg );
 		}
 
-		SliderDir dir;
+		QSliderDirection dir;
 
 		if ( orient == Horizontal )
 		    if ( tickAbove )
