@@ -45,9 +45,6 @@
 
 #include "../shared/types.h"
 
-//#define QAX_PROPERTYPAGES
-//#define QAX_VIEWOBJECTEX
-
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 struct IAxServerBase : public IUnknown
 {
@@ -98,21 +95,13 @@ class QAxServerBase :
     public IDispatch,
     public IOleObject,
     public IOleControl,
-#ifdef QAX_VIEWOBJECTEX
-    public IViewObjectEx,
-#else
     public IViewObject2,
-#endif
     public IOleInPlaceObject,
     public IOleInPlaceActiveObject,
     public IProvideClassInfo2,
     public IConnectionPointContainer,
     public IPersistStorage,
     public IPersistPropertyBag
-#ifdef QAX_PROPERTYPAGES
-    , public ISpecifyPropertyPages,
-    public IPropertyPage2
-#endif
 {
 public:
     typedef QMap<QUuid,IConnectionPoint*> ConnectionPoints;
@@ -220,16 +209,6 @@ public:
 // IViewObject2
     STDMETHOD(GetExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel );
 
-#ifdef QAX_VIEWOBJECTEX
-    // IViewObjectEx
-    STDMETHOD(GetRect)( DWORD dwAspect, LPRECTL pRect );
-    STDMETHOD(GetViewStatus)( DWORD *pdwStatus );
-    STDMETHOD(QueryHitPoint)( DWORD dwAspect, LPCRECT pRectBounds, POINT ptlLoc, LONG lCloseHint, DWORD *pHitResult );
-    STDMETHOD(QueryHitRect)( DWORD dwAspect, LPCRECT pRectBounds, LPCRECT prcLoc, LONG lCloseHint, DWORD *pHitResult );
-    STDMETHOD(GetNaturalExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, HDC hicTargetDev, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel );
-    DECLARE_VIEW_STATUS()
-#endif
-
 // IOleControl
     STDMETHOD(FreezeEvents)(BOOL);
     STDMETHOD(GetControlInfo)(LPCONTROLINFO);
@@ -276,27 +255,6 @@ public:
     STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad );
     STDMETHOD(SaveCompleted)( IStorage *pStgNew );
     STDMETHOD(HandsOffStorage)();
-
-#ifdef QAX_PROPERTYPAGES
-// ISpecifyPropertyPages
-    STDMETHOD(GetPages)( CAUUID *pPages );
-
-// IPropertyPage
-    STDMETHOD(SetPageSite)( IPropertyPageSite *pPageSite );
-    STDMETHOD(Activate)( HWND hWndParent, LPCRECT pRect, BOOL bModal );
-    STDMETHOD(Deactivate)();
-    STDMETHOD(GetPageInfo)( PROPPAGEINFO *pPageInfo );
-    STDMETHOD(SetObjects)( ULONG cObjects, IUnknown **ppUnk );
-    STDMETHOD(Show)( UINT nCmdShow );
-    STDMETHOD(Move)( LPCRECT pRect );
-    STDMETHOD(IsPageDirty)();
-    STDMETHOD(Apply)();
-    STDMETHOD(Help)( LPCOLESTR pszHelpDir );
-    STDMETHOD(TranslateAccelerator)( MSG *pMsg );
-
-// IPropertyPage2
-    STDMETHOD(EditProperty)( DISPID prop );
-#endif
 
 // QObject
     bool qt_emit( int, QUObject* );
@@ -872,10 +830,6 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 	    *iface = (IViewObject*)this;
 	else if ( iid == IID_IViewObject2)
 	    *iface = (IViewObject2*)this;
-#ifdef QAX_VIEWOBJECTEX
-	else if ( iid == IID_IViewObjectEx)
-	    *iface = (IViewObjectEx*)this;
-#endif
 	else if ( iid == IID_IOleControl)
 	    *iface = (IOleControl*)this;
 	else if ( iid == IID_IOleWindow)
@@ -894,14 +848,6 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 	    *iface = (IPersistStorage*)this;
 	else if ( iid == IID_IPersistPropertyBag)
 	    *iface = (IPersistPropertyBag*)this;
-#ifdef QAX_PROPERTYPAGES
-	else if ( iid == IID_ISpecifyPropertyPages)
-	    *iface = (ISpecifyPropertyPages*)this;
-	else if ( iid == IID_IPropertyPage)
-	    *iface = (IPropertyPage*)this;
-	else if ( iid == IID_IPropertyPage2)
-	    *iface = (IPropertyPage2*)this;
-#endif
 	else
 	    return E_NOINTERFACE;
     }
@@ -1752,7 +1698,7 @@ void QAxServerBase::emitPropertyChanged( long dispId )
 }
 
 //**** IProvideClassInfo
-/*!
+/*
     Provide the ITypeInfo implementation for the COM class.
 */
 HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
@@ -1767,7 +1713,7 @@ HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
 }
 
 //**** IProvideClassInfo2
-/*!
+/*
     Provide the ID of the event interface.
 */
 HRESULT WINAPI QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
@@ -1784,7 +1730,7 @@ HRESULT WINAPI QAxServerBase::GetGUID(DWORD dwGuidKind, GUID* pGUID)
 }
 
 //**** IDispatch
-/*!
+/*
     Returns the number of class infos for this IDispatch.
 */
 HRESULT WINAPI QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
@@ -1796,7 +1742,7 @@ HRESULT WINAPI QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
     return S_OK;
 }
 
-/*!
+/*
     Provides the ITypeInfo for this IDispatch implementation.
 */
 HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
@@ -1820,7 +1766,7 @@ HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pp
     return res;
 }
 
-/*!
+/*
     Provides the names of the methods implemented in this IDispatch implementation.
 */
 HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames,
@@ -1838,7 +1784,7 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
     return m_spTypeInfo->GetIDsOfNames( rgszNames, cNames, rgdispid );
 }
 
-/*!
+/*
     Map the COM call to the Qt slot/property for \a dispidMember.
 */
 HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
@@ -1993,7 +1939,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 }
 
 //**** IConnectionPointContainer
-/*!
+/*
     Provide the IEnumConnectionPoints implemented in the QAxSignalVec class.
 */
 HRESULT WINAPI QAxServerBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
@@ -2005,7 +1951,7 @@ HRESULT WINAPI QAxServerBase::EnumConnectionPoints( IEnumConnectionPoints **epoi
     return S_OK;
 }
 
-/*!
+/*
     Provide the IConnectionPoint implemented in the QAxConnection for \a iid.
 */
 HRESULT WINAPI QAxServerBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoint )
@@ -2023,7 +1969,7 @@ HRESULT WINAPI QAxServerBase::FindConnectionPoint( REFIID iid, IConnectionPoint 
 }
 
 //**** IPersistPropertyBag
-/*!
+/*
     Initialize the properties of the Qt widget.
 */
 HRESULT WINAPI QAxServerBase::InitNew()
@@ -2040,7 +1986,7 @@ HRESULT WINAPI QAxServerBase::InitNew()
     return S_OK;
 }
 
-/*!
+/*
     Set the properties of the Qt widget to the values provided in the \a bag.
 */
 HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
@@ -2073,7 +2019,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
     return error ? E_FAIL : S_OK;
 }
 
-/*!
+/*
     Save the properties of the Qt widget into the \a bag.
 */
 HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL /*saveAll*/ )
@@ -2104,7 +2050,7 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL
 }
 
 //**** IPersistStorage
-/*!
+/*
     \reimp
 
     See documentation of IPersistStorage::IsDirty.
@@ -2301,7 +2247,7 @@ HRESULT WINAPI QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect,
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::GetColorSet( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
@@ -2310,7 +2256,7 @@ HRESULT WINAPI QAxServerBase::GetColorSet( DWORD dwDrawAspect, LONG lindex, void
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::Freeze( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze )
@@ -2318,7 +2264,7 @@ HRESULT WINAPI QAxServerBase::Freeze( DWORD dwAspect, LONG lindex, void *pvAspec
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::Unfreeze( DWORD dwFreeze )
@@ -2326,7 +2272,7 @@ HRESULT WINAPI QAxServerBase::Unfreeze( DWORD dwFreeze )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Stores the provided advise sink.
 */
 HRESULT WINAPI QAxServerBase::SetAdvise( DWORD /*aspects*/, DWORD /*advf*/, IAdviseSink *pAdvSink )
@@ -2340,7 +2286,7 @@ HRESULT WINAPI QAxServerBase::SetAdvise( DWORD /*aspects*/, DWORD /*advf*/, IAdv
     return S_OK;
 }
 
-/*!
+/*
     Returns the advise sink.
 */
 HRESULT WINAPI QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IAdviseSink **ppAdvSink )
@@ -2355,7 +2301,7 @@ HRESULT WINAPI QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IA
 }
 
 //**** IViewObject2
-/*!
+/*
     Returns the current size.
 */
 HRESULT WINAPI QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel )
@@ -2365,67 +2311,8 @@ HRESULT WINAPI QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DV
     return S_OK;
 }
 
-#ifdef QAX_VIEWOBJECTEX
-//**** IViewObjectEx
-/*!
-    Not implemented.
-*/
-HRESULT WINAPI QAxServerBase::GetRect( DWORD dwAspect, LPRECTL pRect )
-{
-    return E_NOTIMPL;
-}
-
-/*!
-    Returns the default value.
-*/
-HRESULT WINAPI QAxServerBase::GetViewStatus( DWORD *pdwStatus )
-{
-    *pdwStatus = VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE;
-    return S_OK;
-}
-
-/*!
-    Tests whether ptlLoc is in pRectBounds.
-*/
-HRESULT WINAPI QAxServerBase::QueryHitPoint( DWORD dwAspect, LPCRECT pRectBounds, POINT ptlLoc, LONG /*lCloseHint*/, DWORD *pHitResult )
-{
-    if (dwAspect != DVASPECT_CONTENT)
-	return E_FAIL;
-
-    *pHitResult = PtInRect(pRectBounds, ptlLoc) ? HITRESULT_HIT : HITRESULT_OUTSIDE;
-    return S_OK;
-}
-
-/*!
-    Tests whether prcLoc intersects with pRectBounds.
-*/
-HRESULT WINAPI QAxServerBase::QueryHitRect( DWORD dwAspect, LPCRECT pRectBounds, LPCRECT prcLoc, LONG /*lCloseHint*/, DWORD *pHitResult )
-{
-    if (dwAspect != DVASPECT_CONTENT)
-	return E_FAIL;
-
-    RECT rc;
-    *pHitResult = UnionRect(&rc, pRectBounds, prcLoc) ? HITRESULT_HIT : HITRESULT_OUTSIDE;
-    return S_OK;
-}
-
-/*!
-    Provides the "size hint".
-*/
-HRESULT WINAPI QAxServerBase::GetNaturalExtent( DWORD dwAspect, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, HDC /*hicTargetDev*/, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel )
-{
-    if ( pExtentInfo == 0 || pSizel == 0 )
-	return E_POINTER;
-    if ( dwAspect != DVASPECT_CONTENT || pExtentInfo->dwExtentMode != DVEXTENT_CONTENT )
-	return E_FAIL;
-
-    *pSizel = sizeExtent;
-    return S_OK;
-}
-#endif
-
 //**** IOleControl
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::GetControlInfo( LPCONTROLINFO )
@@ -2433,7 +2320,7 @@ HRESULT WINAPI QAxServerBase::GetControlInfo( LPCONTROLINFO )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Turns event firing on and off.
 */
 HRESULT WINAPI QAxServerBase::FreezeEvents( BOOL bFreeze )
@@ -2447,7 +2334,7 @@ HRESULT WINAPI QAxServerBase::FreezeEvents( BOOL bFreeze )
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::OnMnemonic( LPMSG )
@@ -2455,7 +2342,7 @@ HRESULT WINAPI QAxServerBase::OnMnemonic( LPMSG )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Update the ambient properties of the Qt widget.
 */
 HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
@@ -2556,7 +2443,7 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 }
 
 //**** IOleWindow
-/*!
+/*
     Returns the HWND of the control.
 */
 HRESULT WINAPI QAxServerBase::GetWindow( HWND *pHwnd )
@@ -2567,7 +2454,7 @@ HRESULT WINAPI QAxServerBase::GetWindow( HWND *pHwnd )
     return S_OK;
 }
 
-/*!
+/*
     Enters What's This mode.
 */
 HRESULT WINAPI QAxServerBase::ContextSensitiveHelp( BOOL fEnterMode )
@@ -2580,7 +2467,7 @@ HRESULT WINAPI QAxServerBase::ContextSensitiveHelp( BOOL fEnterMode )
 }
 
 //**** IOleInPlaceObject
-/*!
+/*
     Deactivates the control in place.
 */
 HRESULT WINAPI QAxServerBase::InPlaceDeactivate()
@@ -2604,7 +2491,7 @@ HRESULT WINAPI QAxServerBase::InPlaceDeactivate()
     return S_OK;
 }
 
-/*!
+/*
     Deactivates the control's user interface.
 */
 HRESULT WINAPI QAxServerBase::UIDeactivate()
@@ -2652,7 +2539,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
     return S_OK;
 }
 
-/*!
+/*
     Positions the control, and applies requested clipping.
 */
 HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
@@ -2680,7 +2567,7 @@ HRESULT WINAPI QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::ReactivateAndUndo()
@@ -2785,7 +2672,7 @@ static inline LPOLESTR QStringToOLESTR( const QString &qstring )
     return olestr;
 }
 
-/*!
+/*
     \reimp
 
     See documentation of IOleObject::GetUserType.
@@ -2813,7 +2700,7 @@ HRESULT WINAPI QAxServerBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserT
     return S_OK;
 }
 
-/*!
+/*
     Returns the status flags registered for this control.
 */
 HRESULT WINAPI QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
@@ -2821,7 +2708,7 @@ HRESULT WINAPI QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
     return OleRegGetMiscStatus( qAxFactory()->classID( class_name ), dwAspect, pdwStatus);
 }
 
-/*!
+/*
     Stores the provided advise sink.
 */
 HRESULT WINAPI QAxServerBase::Advise( IAdviseSink* pAdvSink, DWORD* pdwConnection )
@@ -2834,7 +2721,7 @@ HRESULT WINAPI QAxServerBase::Advise( IAdviseSink* pAdvSink, DWORD* pdwConnectio
     return hr;
 }
 
-/*!
+/*
     Closes the control.
 */
 HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
@@ -2861,7 +2748,7 @@ HRESULT WINAPI QAxServerBase::Close( DWORD dwSaveOption )
     return S_OK;
 }
 
-/*!
+/*
     Executes the steps to activate the control.
 */
 HRESULT QAxServerBase::internalActivate()
@@ -2973,7 +2860,7 @@ HRESULT QAxServerBase::internalActivate()
     return S_OK;
 }
 
-/*!
+/*
     Executes the "verb" \a iVerb.
 */
 HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/,
@@ -3018,7 +2905,7 @@ HRESULT WINAPI QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSit
     return hr;
 }
 
-/*!
+/*
     Returns the list of advise connections.
 */
 HRESULT WINAPI QAxServerBase::EnumAdvise( IEnumSTATDATA** ppenumAdvise )
@@ -3029,7 +2916,7 @@ HRESULT WINAPI QAxServerBase::EnumAdvise( IEnumSTATDATA** ppenumAdvise )
     return hRes;
 }
 
-/*!
+/*
     Returns an enumerator for the verbs registered for this class.
 */
 HRESULT WINAPI QAxServerBase::EnumVerbs( IEnumOLEVERB** ppEnumOleVerb )
@@ -3039,7 +2926,7 @@ HRESULT WINAPI QAxServerBase::EnumVerbs( IEnumOLEVERB** ppEnumOleVerb )
     return OleRegEnumVerbs(qAxFactory()->classID( class_name ), ppEnumOleVerb);
 }
 
-/*!
+/*
     Returns the current client site..
 */
 HRESULT WINAPI QAxServerBase::GetClientSite( IOleClientSite** ppClientSite )
@@ -3052,7 +2939,7 @@ HRESULT WINAPI QAxServerBase::GetClientSite( IOleClientSite** ppClientSite )
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::GetClipboardData( DWORD, IDataObject** )
@@ -3060,7 +2947,7 @@ HRESULT WINAPI QAxServerBase::GetClipboardData( DWORD, IDataObject** )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Returns the current size.
 */
 HRESULT WINAPI QAxServerBase::GetExtent( DWORD dwDrawAspect, SIZEL* psizel )
@@ -3073,7 +2960,7 @@ HRESULT WINAPI QAxServerBase::GetExtent( DWORD dwDrawAspect, SIZEL* psizel )
     return GetExtent( 0, 0, 0, psizel );
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::GetMoniker( DWORD, DWORD, IMoniker**  )
@@ -3081,7 +2968,7 @@ HRESULT WINAPI QAxServerBase::GetMoniker( DWORD, DWORD, IMoniker**  )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Returns the CLSID of this class.
 */
 HRESULT WINAPI QAxServerBase::GetUserClassID( CLSID* pClsid )
@@ -3092,7 +2979,7 @@ HRESULT WINAPI QAxServerBase::GetUserClassID( CLSID* pClsid )
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::InitFromData( IDataObject*, BOOL, DWORD )
@@ -3100,7 +2987,7 @@ HRESULT WINAPI QAxServerBase::InitFromData( IDataObject*, BOOL, DWORD )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::IsUpToDate()
@@ -3108,7 +2995,7 @@ HRESULT WINAPI QAxServerBase::IsUpToDate()
     return S_OK;
 }
 
-/*!
+/*
     Stores the client site.
 */
 HRESULT WINAPI QAxServerBase::SetClientSite( IOleClientSite* pClientSite )
@@ -3122,7 +3009,7 @@ HRESULT WINAPI QAxServerBase::SetClientSite( IOleClientSite* pClientSite )
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::SetColorScheme( LOGPALETTE* )
@@ -3130,7 +3017,7 @@ HRESULT WINAPI QAxServerBase::SetColorScheme( LOGPALETTE* )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Tries to set the size of the control.
 */
 HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
@@ -3164,7 +3051,7 @@ HRESULT WINAPI QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::SetHostNames( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj )
@@ -3172,7 +3059,7 @@ HRESULT WINAPI QAxServerBase::SetHostNames( LPCOLESTR szContainerApp, LPCOLESTR 
     return S_OK;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::SetMoniker( DWORD, IMoniker* )
@@ -3180,7 +3067,7 @@ HRESULT WINAPI QAxServerBase::SetMoniker( DWORD, IMoniker* )
     return E_NOTIMPL;
 }
 
-/*!
+/*
     Disconnects an advise sink.
 */
 HRESULT WINAPI QAxServerBase::Unadvise( DWORD dwConnection )
@@ -3191,434 +3078,13 @@ HRESULT WINAPI QAxServerBase::Unadvise( DWORD dwConnection )
     return hRes;
 }
 
-/*!
+/*
     Not implemented.
 */
 HRESULT WINAPI QAxServerBase::Update()
 {
     return S_OK;
 }
-
-#ifdef QAX_PROPERTYPAGES
-//**** ISpecifyPropertyPages
-/*!
-    Returns information about a single property page.
-    The page has the same ID as the object (CLSID).
-*/
-HRESULT WINAPI QAxServerBase::GetPages( CAUUID *pPages )
-{
-    if ( !pPages )
-	return E_POINTER;
-
-    int pages = 1;
-    pPages->cElems = pages;
-    pPages->pElems = (GUID*)CoTaskMemAlloc( sizeof(GUID) * pages );
-    *(pPages->pElems) = qAxFactory()->classID( class_name );
-
-    return S_OK;
-}
-
-//**** IPropertyPage
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qheader.h>
-#include <qlistview.h>
-#include <qlineedit.h>
-#include <qpushbutton.h>
-
-/*
-    Helper class that provides a QWidget that docks into the COM property site.
-*/
-class QAxPropertyPage : public QWidget
-{
-    Q_OBJECT
-public:
-    QAxPropertyPage( HWND parent, QAxServerBase *base )
-	: QWidget( 0, "prop page" ), hWndParent( parent ), that( base )
-    {
-	topData()->ftop = 0;
-	topData()->fright = 0;
-	topData()->fleft = 0;
-	topData()->fbottom = 0;
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
-	    ::SetWindowLong( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-	else
-#endif
-	    ::SetWindowLongA( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-
-	QVBoxLayout *vbox = new QVBoxLayout( this );
-	QHBoxLayout *hbox = new QHBoxLayout( 0 );
-
-	listProperties = new QListView( this );
-	listProperties->setAllColumnsShowFocus( TRUE );
-	listProperties->addColumn( tr("Property") );
-	listProperties->addColumn( tr("Value") );
-	listProperties->header()->setClickEnabled( FALSE );
-
-	QLabel *valueLabel = new QLabel( "Property &Value: ", this );
-	editValue = new QLineEdit( this );
-	QPushButton *setButton = new QPushButton( "&Set Value", this );
-
-	valueLabel->setBuddy( editValue );
-
-	hbox->addWidget( valueLabel );
-	hbox->addWidget( editValue );
-	hbox->addWidget( setButton );
-
-	vbox->addWidget( listProperties );
-	vbox->addLayout( hbox );
-
-	connect( setButton, SIGNAL(clicked()), this, SLOT(setValue()) );
-	connect( listProperties, SIGNAL(currentChanged(QListViewItem*)), this, SLOT(currentChanged(QListViewItem*)) );
-    }
-
-    void updateProperties()
-    {
-	listProperties->clear();
-
-	QPtrListIterator<IAxServerBase> it( that->propObjects );
-	while ( it.current() ) {
-	    IAxServerBase *ibase = it.current();
-	    ++it;
-
-	    QWidget *activex = ibase->widget();
-	    const QMetaObject *mo = activex->metaObject();
-
-	    QString topclass = qAxFactory()->exposeToSuperClass( activex->className() );
-	    QMetaObject *pmo = mo;
-	    do {
-		pmo = pmo->superClass();
-	    } while ( pmo && topclass != pmo->className() );
-	    int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
-
-	    const int numprops = mo->numProperties( TRUE );
-	    for ( int i = propoff; i < numprops; ++i ) {
-		const QMetaProperty *property = mo->property( i, TRUE );
-		Q_ASSERT( property );
-		if ( !property || !property->writable() || !property->designable( activex ) ||
-		      property->testFlags( QMetaProperty::Override ) )
-		    continue;
-		QListViewItem *item = listProperties->findItem( property->name(), 0 );
-		if ( !item ) {
-		    item = new QListViewItem( listProperties, property->name(), "qax_unset" );
-		}
-		QVariant var = activex->property( property->name() );
-		QString valueText;
-
-		switch ( var.type() ) {
-		case QVariant::Color:
-		    {
-			QColor col = var.toColor();
-			valueText = col.name();
-		    }
-		    break;
-		case QVariant::Font:
-		    {
-			QFont fnt = var.toFont();
-			valueText = fnt.toString();
-		    }
-		    break;
-
-		default:
-		    valueText = var.toString();
-		    break;
-		}
-		if ( item->text( 1 ) == "qax_unset" ) {
-		    item->setText( 1, valueText );
-		} else if ( item->text( 1 ) != valueText ) {
-		    item->setText( 1, QString::null );
-		}
-	    }
-	}
-	listProperties->setCurrentItem( listProperties->firstChild() );
-    }
-
-    void applyChanged()
-    {
-	QListViewItemIterator itemit( listProperties );
-	while ( itemit.current() ) {
-	    QListViewItem *item = itemit.current();
-	    ++itemit;
-
-	    QPtrListIterator<IAxServerBase> it( that->propObjects );
-	    IAxServerBase *ibase = it.current();
-	    QWidget *activex = ibase->widget();
-
-	    QVariant var = activex->property( item->text( 0 ) );
-	    switch ( var.type() ) {
-	    case QVariant::Color:
-		{
-		    QColor col;
-		    col.setNamedColor( item->text(1) );
-		    if ( !col.isValid() )
-			continue;
-		    var = col;
-		}
-		break;
-	    case QVariant::Font:
-		{
-		    QFont fnt;
-		    if ( !fnt.fromString( item->text(1) ) )
-			continue;
-
-		    var = fnt;
-		}
-		break;
-
-	    default:
-		var = item->text(1);
-		break;
-	    }
-
-	    while ( it.current() ) {
-		ibase = it.current();
-		++it;
-
-		activex = ibase->widget();
-		activex->setProperty( item->text(0), var );
-	    }
-	}
-    }
-
-    HWND hWndParent;
-
-protected slots:
-    void setValue()
-    {
-	QListViewItem *current = listProperties->currentItem();
-	if ( !current )
-	    return;
-
-	QVariant var = that->widget()->property( current->text( 0 ) );
-	switch( var.type() ) {
-	case QVariant::Color:
-	    {
-		QColor col;
-		col.setNamedColor( editValue->text() );
-		if ( !col.isValid() )
-		    return;
-	    }
-	    break;
-	case QVariant::Font:
-	    {
-		QFont fnt;
-		if ( !fnt.fromString( editValue->text() ) )
-		    return;
-	    }
-	    break;
-	}
-	if ( editValue->text() != var.toString() ) {
-	    current->setText( 1, editValue->text() );
-	    that->propPageSite->OnStatusChange( PROPPAGESTATUS_DIRTY );
-	}
-    }
-
-    void currentChanged( QListViewItem *current )
-    {
-	if ( !current )
-	    return;
-
-	editValue->setText( current->text( 1 ) );
-    }
-
-protected:
-    void showEvent( QShowEvent *e )
-    {
-	updateProperties();
-
-	QWidget::showEvent( e );
-    }
-
-private:
-    QAxServerBase *that;
-    QListView *listProperties;
-    QLineEdit *editValue;
-
-};
-
-#include "qaxserverbase.moc"
-
-/*!
-    Sets the property page site.
-
-    The property page calls OnStatusChange on that site.
-*/
-HRESULT WINAPI QAxServerBase::SetPageSite( IPropertyPageSite *pPageSite )
-{
-    if ( !pPageSite && !propPageSite )
-	return E_UNEXPECTED;
-
-    if ( propPageSite )
-	propPageSite->Release();
-
-    propPageSite = pPageSite;
-    if ( propPageSite )
-	propPageSite->AddRef();
-
-    return S_OK;
-}
-
-/*!
-    Creates the property pages.
-*/
-HRESULT WINAPI QAxServerBase::Activate( HWND hWndParent, LPCRECT pRect, BOOL bModal )
-{
-    if ( !pRect )
-	return E_POINTER;
-
-    propPage = new QAxPropertyPage( hWndParent, this );
-    propPage->setGeometry( pRect->left, pRect->top, pRect->right-pRect->left, pRect->bottom-pRect->top );
-
-    QAxBindable *qaxbind = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-    QWidget *page = /*qaxbind ? qaxbind->propertyPage() :*/ 0;
-    if ( page )
-	page->reparent( propPage, QPoint(0,0) );
-
-    return S_OK;
-}
-
-/*!
-    Destroys the property pages.
-*/
-HRESULT WINAPI QAxServerBase::Deactivate()
-{
-    SetObjects( 0, 0 );
-    delete propPage;
-    propPage = 0;
-
-    return S_OK;
-}
-
-/*!
-    Returns page information.
-*/
-HRESULT WINAPI QAxServerBase::GetPageInfo( PROPPAGEINFO *pPageInfo )
-{
-    if ( !pPageInfo )
-	return E_POINTER;
-
-    pPageInfo->cb = sizeof(PROPPAGEINFO);
-    pPageInfo->size.cx = 100;
-    pPageInfo->size.cy = 100;
-
-    pPageInfo->pszTitle = QStringToOLESTR( "The Title" );
-    pPageInfo->pszDocString = QStringToOLESTR( "The DocString" );
-    pPageInfo->pszHelpFile = QStringToOLESTR( "The HelpFile" );
-    pPageInfo->dwHelpContext = 0;
-
-    return S_OK;
-}
-
-/*!
-    Sets the objects the property page should display the properties for.
-*/
-HRESULT WINAPI QAxServerBase::SetObjects( ULONG cObjects, IUnknown **ppUnk )
-{
-    QPtrListIterator<IAxServerBase> it( propObjects );
-    while ( it.current() ) {
-	it.current()->Release();
-	++it;
-    }
-    propObjects.clear();
-
-    if ( !ppUnk )
-	return E_POINTER;
-    for ( uint o = 0; o < cObjects; ++o ) {
-	IUnknown *obj = ppUnk[o];
-	IAxServerBase *iface;
-	obj->QueryInterface( IID_IAxServerBase, (void**)&iface );
-	if ( !iface )
-	    return E_NOINTERFACE;
-	propObjects.append( iface );
-    }
-
-    return S_OK;
-}
-
-/*!
-    Shows and hides the page.
-*/
-HRESULT WINAPI QAxServerBase::Show( UINT nCmdShow )
-{
-    if ( !propPage )
-	return E_UNEXPECTED;
-    if ( nCmdShow == SW_HIDE ) {
-	propPage->hide();
-    } else {
-	QRect g = propPage->geometry();
-	::SetParent( propPage->winId(), propPage->hWndParent );
-	propPage->setGeometry( g );
-	propPage->raise();
-	propPage->show();
-    }
-
-    return S_OK;
-}
-
-/*!
-    Places the page.
-*/
-HRESULT WINAPI QAxServerBase::Move( LPCRECT pRect )
-{
-    if ( !pRect )
-	return E_POINTER;
-    if ( !propPage )
-	return E_UNEXPECTED;
-
-    propPage->setGeometry( pRect->left, pRect->top, pRect->right-pRect->left, pRect->bottom-pRect->top );
-
-    return S_OK;
-}
-
-/*!
-    Returns S_OK when the page is dirty (ie. values differ from object values).
-*/
-HRESULT WINAPI QAxServerBase::IsPageDirty()
-{
-    return S_OK; //S_FALSE
-}
-
-/*!
-   Returns S_OK when changes have been applied to the objects.
-*/
-HRESULT WINAPI QAxServerBase::Apply()
-{
-    if ( !propPage )
-	return E_UNEXPECTED;
-
-    propPage->applyChanged();
-    return S_OK; //S_FALSE(?)
-}
-
-/*!
-    Not implemented.
-*/
-HRESULT WINAPI QAxServerBase::Help( LPCOLESTR pszHelpDir )
-{
-    return E_NOTIMPL;
-}
-
-/*!
-    Not implemented.
-*/
-HRESULT WINAPI QAxServerBase::EditProperty( DISPID dispID )
-{
-    return E_NOTIMPL;
-}
-
-/*!
-    Not implemented.
-*/
-HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
-{
-    if ( !pMsg )
-	return E_POINTER;
-
-    return E_NOTIMPL;
-}
-
-#endif
 
 static int mapModifiers( int state )
 {
@@ -3633,7 +3099,7 @@ static int mapModifiers( int state )
     return ole;
 }
 
-/*!
+/*
     \reimp
 */
 bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
