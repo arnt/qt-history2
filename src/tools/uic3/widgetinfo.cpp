@@ -14,7 +14,18 @@
 #include "widgetinfo.h"
 
 #include <QtGui/QtGui>
-#include <Qt3Support/Qt3Support>
+#include <Qt3Support/Q3DateEdit>
+#include <Qt3Support/Q3TimeEdit>
+#include <Qt3Support/Q3DateTimeEdit>
+#include <Qt3Support/Q3ListBox>
+#include <Qt3Support/Q3ListView>
+#include <Qt3Support/Q3TextEdit>
+#include <Qt3Support/Q3WidgetStack>
+#include <Qt3Support/Q3Wizard>
+#include <Qt3Support/Q3TextView>
+#include <Qt3Support/Q3MainWindow>
+#include <Qt3Support/Q3GroupBox>
+#include <Qt3Support/Q3ButtonGroup>
 
 WidgetInfo::WidgetInfo()
 {
