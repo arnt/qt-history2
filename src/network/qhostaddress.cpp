@@ -236,6 +236,24 @@ QHostAddress::QHostAddress()
 {
 }
 
+QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
+    : d(new QHostAddressPrivate)
+{
+    setAddress(ip4Addr);
+}
+
+QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
+    : d(new QHostAddressPrivate)
+{
+    setAddress(ip6Addr);
+}
+
+QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
+    : d(new QHostAddressPrivate)
+{
+    setAddress(ip6Addr);
+}
+
 /*!
     Creates an IPv4 or IPv6 address based on the string \a address
     (e.g., "127.0.0.1").
