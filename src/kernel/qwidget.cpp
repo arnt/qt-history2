@@ -79,8 +79,8 @@
   A widget that isn't embedded in a parent widget is called a
   top-level widget. Usually, top-level widgets are windows with a
   frame and a title bar (though it is also possible to create top
-  level widgets without such decoration by the use of \link
-  qt.html#WidgetFlags-enum widget flags\endlink).  In Qt, QMainWindow and
+  level widgets without such decoration by the use of
+  widget flags).  In Qt, QMainWindow and
   the various subclasses of QDialog are the most common top-level
   windows.
 
@@ -281,7 +281,7 @@
   it using the name in your code).  The dumpObjectTree() debugging
   function also uses it.
   \i \c{WFlags f = 0} (where available) sets the
-  \link qt.html#WidgetFlags widget flags\endlink; the default is good
+  widget flags; the default is good
   for almost all widgets, but to get e.g. top-level widgets without a
   window system frame, you must use special flags.
   \endlist
@@ -540,7 +540,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 /*! \enum Qt::WidgetFlags
 
-\keyword widget flags
+\keyword widget flag
 
 This enum type is used to specify various window-system properties
 of the widget.  They are fairly unusual but necessary in a
