@@ -17,6 +17,8 @@
 #ifndef _SQLITE_OS_H_
 #define _SQLITE_OS_H_
 
+#include "config.h"
+
 /*
 ** Figure out if we are dealing with Unix, Windows or MacOS.
 **
