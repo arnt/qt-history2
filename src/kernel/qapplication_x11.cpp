@@ -55,6 +55,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qcolor_p.h"
+#include "qcursor.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qobjectlist.h"
@@ -2981,8 +2982,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 			amw->setActiveWindow();
 		    }
 		}
+#ifndef QT_NO_WHATSTHIS
 	    } else if ( a == qt_net_wm_context_help ) {
 		QWhatsThis::enterWhatsThisMode();
+#endif // QT_NO_WHATSTHIS
 	    }
 	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 	    widget->translateScrollDoneEvent(event);
