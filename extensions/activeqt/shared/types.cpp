@@ -20,7 +20,6 @@
 #include <qcolormap.h>
 #include <qcursor.h>
 #include <qpixmap.h>
-#include <qpaintdevicemetrics.h>
 #include <qpainter.h>
 #include <qobject.h>
 #ifdef QAX_SERVER
@@ -148,12 +147,11 @@ QPixmap IPictureToQPixmap(IPicture *ipic)
         return QPixmap();
     
     QPixmap pm(1,1);
-    QPaintDeviceMetrics pdm(&pm);
     OLE_XSIZE_HIMETRIC pWidth, pHeight;
     ipic->get_Width(&pWidth);
     ipic->get_Height(&pHeight);
-    QSize sz(MAP_LOGHIM_TO_PIX(pWidth, pdm.logicalDpiX()),
-        MAP_LOGHIM_TO_PIX(pHeight, pdm.logicalDpiY()));
+    QSize sz(MAP_LOGHIM_TO_PIX(pWidth, pm.logicalDpiX()),
+        MAP_LOGHIM_TO_PIX(pHeight, pm.logicalDpiY()));
     
     pm.resize(sz);
 	HDC hdc = pm.getDC();

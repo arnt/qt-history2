@@ -27,7 +27,6 @@
 #include <qmenu.h>
 #include <qmetaobject.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
 #include <qsignal.h>
 #include <qstatusbar.h>
@@ -1760,10 +1759,9 @@ void QAxServerBase::updateGeometry()
 
     QSize sizeHint = qt.widget->sizeHint();
     if (sizeHint.isValid()) {
-	QPaintDeviceMetrics pmetric(qt.widget);
 
-	sizeExtent.cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), pmetric.logicalDpiX());
-	sizeExtent.cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), pmetric.logicalDpiY());
+	sizeExtent.cx = MAP_PIX_TO_LOGHIM(sizeHint.width(), qt.widget->logicalDpiX());
+	sizeExtent.cy = MAP_PIX_TO_LOGHIM(sizeHint.height(), qt.widget->logicalDpiY());
     }
 }
 
@@ -3726,11 +3724,9 @@ HRESULT WINAPI QAxServerBase::SetExtent(DWORD dwDrawAspect, SIZEL* psizel)
 
     QSize minSizeHint = qt.widget->minimumSizeHint();
     if (minSizeHint.isValid()) {
-	QPaintDeviceMetrics pmetric(qt.widget);
-
 	SIZEL minSize;
-	minSize.cx = MAP_PIX_TO_LOGHIM(minSizeHint.width(), pmetric.logicalDpiX());
-	minSize.cy = MAP_PIX_TO_LOGHIM(minSizeHint.height(), pmetric.logicalDpiY());
+	minSize.cx = MAP_PIX_TO_LOGHIM(minSizeHint.width(), qt.widget->logicalDpiX());
+	minSize.cy = MAP_PIX_TO_LOGHIM(minSizeHint.height(), qt.widget->logicalDpiY());
 
 	psizel->cx = qMax(minSize.cx, psizel->cx);
 	psizel->cy = qMax(minSize.cy, psizel->cy);
@@ -3793,9 +3789,8 @@ HRESULT WINAPI QAxServerBase::GetData(FORMATETC *pformatetcIn, STGMEDIUM *pmediu
     if ((pformatetcIn->tymed & TYMED_MFPICT) == 0)
 	return DATA_E_FORMATETC;
 
-    QPaintDeviceMetrics pmetric(qt.widget);
-    int width = MAP_LOGHIM_TO_PIX(sizeExtent.cx, pmetric.logicalDpiX());
-    int height = MAP_LOGHIM_TO_PIX(sizeExtent.cy, pmetric.logicalDpiY());
+    int width = MAP_LOGHIM_TO_PIX(sizeExtent.cx, qt.widget->logicalDpiX());
+    int height = MAP_LOGHIM_TO_PIX(sizeExtent.cy, qt.widget->logicalDpiY());
     RECTL rectl = {0, 0, width, height};
 
     HDC hdc = CreateMetaFile(0);

@@ -22,7 +22,6 @@
 #include <qmetaobject.h>
 #include <qmenu.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
 #include <qpointer.h>
 #include <qregexp.h>
 #include <qstatusbar.h>
@@ -474,18 +473,17 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
             spViewObject->Release();
         
         m_spOleObject->SetHostNames(OLESTR("AXWIN"), 0);
-        QPaintDeviceMetrics pdm(widget);
         
         if (!(dwMiscStatus & OLEMISC_INVISIBLEATRUNTIME)) {
             SIZEL hmSize;
-            hmSize.cx = MAP_PIX_TO_LOGHIM(250, pdm.logicalDpiX());
-            hmSize.cy = MAP_PIX_TO_LOGHIM(250, pdm.logicalDpiY());
+            hmSize.cx = MAP_PIX_TO_LOGHIM(250, widget->logicalDpiX());
+            hmSize.cy = MAP_PIX_TO_LOGHIM(250, widget->logicalDpiY());
             
             m_spOleObject->SetExtent(DVASPECT_CONTENT, &hmSize);
             m_spOleObject->GetExtent(DVASPECT_CONTENT, &hmSize);
             
-            sizehint.setWidth(MAP_LOGHIM_TO_PIX(hmSize.cx, pdm.logicalDpiX()));
-            sizehint.setHeight(MAP_LOGHIM_TO_PIX(hmSize.cy, pdm.logicalDpiY()));
+            sizehint.setWidth(MAP_LOGHIM_TO_PIX(hmSize.cx, widget->logicalDpiX()));
+            sizehint.setHeight(MAP_LOGHIM_TO_PIX(hmSize.cy, widget->logicalDpiY()));
         } else {
             sizehint = QSize(0, 0);
             host->hide();
@@ -941,9 +939,8 @@ static int menuItemEntry(HMENU menu, int index, MENUITEMINFOA item, QString &tex
         SIZE bmsize;
         GetBitmapDimensionEx(hbm, &bmsize);
         QPixmap pixmap(1,1);
-        QPaintDeviceMetrics pdm(&pixmap);
-        QSize sz(MAP_LOGHIM_TO_PIX(bmsize.cx, pdm.logicalDpiX()),
-            MAP_LOGHIM_TO_PIX(bmsize.cy, pdm.logicalDpiY()));
+        QSize sz(MAP_LOGHIM_TO_PIX(bmsize.cx, pixmap.logicalDpiX()),
+            MAP_LOGHIM_TO_PIX(bmsize.cy, pixmap.logicalDpiY()));
         
         pixmap.resize(bmsize.cx, bmsize.cy);
         if (!pixmap.isNull()) {
@@ -1194,9 +1191,8 @@ QSize QAxHostWindow::minimumSizeHint() const
     m_spOleObject->SetExtent(DVASPECT_CONTENT, &sz);
     HRESULT res = m_spOleObject->GetExtent(DVASPECT_CONTENT, &sz);
     if (SUCCEEDED(res)) {
-        QPaintDeviceMetrics pmetric(widget);
-        return QSize(MAP_LOGHIM_TO_PIX(sz.cx, pmetric.logicalDpiX()),
-            MAP_LOGHIM_TO_PIX(sz.cy, pmetric.logicalDpiY()));
+        return QSize(MAP_LOGHIM_TO_PIX(sz.cx, widget->logicalDpiX()),
+            MAP_LOGHIM_TO_PIX(sz.cy, widget->logicalDpiY()));
     }
     return QSize();
 }
@@ -1247,11 +1243,10 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
     if (!axhost)
         return;
     
-    QPaintDeviceMetrics pdm(this);
     
     SIZEL hmSize;
-    hmSize.cx = MAP_PIX_TO_LOGHIM(width(), pdm.logicalDpiX());
-    hmSize.cy = MAP_PIX_TO_LOGHIM(height(), pdm.logicalDpiY());
+    hmSize.cx = MAP_PIX_TO_LOGHIM(width(), logicalDpiX());
+    hmSize.cy = MAP_PIX_TO_LOGHIM(height(), logicalDpiY());
     
     if (axhost->m_spOleObject)
         axhost->m_spOleObject->SetExtent(DVASPECT_CONTENT, &hmSize);
