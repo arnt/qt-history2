@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#53 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#53 $");
 
 
 /*!
@@ -135,8 +135,14 @@ void QCheckBox::drawButton( QPainter *paint )
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
-    pmkey.sprintf( "$qt_check_%d_%d_%d_%d", gs, palette().serialNumber(),
-		   isDown(), isOn() );
+    int kf = 0;
+    if ( isDown() )
+	kf |= 1;
+    if ( isOn() )
+	kf |= 2;
+    if ( isEnabled() )
+	kf |= 4;
+    pmkey.sprintf( "$qt_check_%d_%d_%d", gs, palette().serialNumber(), kf );
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
