@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#56 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#56 $");
 
 
 /*!
@@ -56,7 +56,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#55 $");
   color and save it in the internal table.
   </ol>
 
-  \sa QPalette, QColorGroup
+  \sa QPalette, QColorGroup, QApplication::setColorMode()
 */
 
 /*****************************************************************************
@@ -272,9 +272,9 @@ void QColor::hsv( int *h, int *s, int *v ) const
     int delta = max-min;
     *v = max;					// calc value
     *s = max ? (510*delta+max)/(2*max) : 0;
-    if ( *s == 0 )
+    if ( *s == 0 ) {
 	*h = -1;				// undefined hue
-    else {
+    } else {
 	switch ( whatmax ) {
 	    case 0:				// red is max component
 		if ( g >= b )
@@ -317,9 +317,9 @@ void QColor::setHsv( int h, int s, int v )
     }
 #endif
     int r=v, g=v, b=v;
-    if ( s == 0 || h == -1 )			// achromatic case
+    if ( s == 0 || h == -1 ) {			// achromatic case
 	;
-    else {					// chromatic case
+    } else {					// chromatic case
 	if ( (uint)h >= 360 )
 	    h %= 360;
 	uint f = h%60;
@@ -501,7 +501,7 @@ QColor QColor::dark( int factor ) const
 
   Lazy color allocation is enabled by default.
 
-  \sa lazyAlloc()
+  \sa lazyAlloc(), pixel(), alloc()
 */
 
 void QColor::setLazyAlloc( bool enable )
@@ -516,6 +516,8 @@ void QColor::setLazyAlloc( bool enable )
 
   This value is used by the underlying window system to refer to a color.
   It can be thought of as an index into the display hardware's color table.
+
+  \sa setLazyAlloc(), alloc()
 */
 
 
