@@ -437,7 +437,7 @@
                                     </item>
                                     <item row="1" column="1" >
                                         <widget class="QComboBox" name="Combo Box" widgetboxicon="combobox.png">
-                                            <property name="insertionPolicy" >
+                                            <property name="insertPolicy" >
                                                 <enum>QComboBox::AtBottom</enum>
                                             </property>
                                             <property name="geometry" >
