@@ -25,6 +25,15 @@
 #include "qt_mac.h"
 #undef check
 
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec); //qglobal.cpp
+
+
+/*****************************************************************************
+  Internal variables and functions
+ *****************************************************************************/
 class QAuServerMac : public QAuServer {
     Q_OBJECT
 
@@ -58,71 +67,29 @@ QAuServerMac::~QAuServerMac()
 	ExitMovies();
 }
 
-// The FSpLocationFromFullPath function is descended from Apple Source Code,
-// but changes have been made.
-QMAC_PASCAL OSErr FSpLocationFromFullPath(short fullPathLength, const void *fullPath, FSSpec *spec)
-{
-    AliasHandle alias;
-    OSErr result;
-    Boolean wasChanged;
-    Str32 nullString;
-	
-    /* Create a minimal alias from the full pathname */
-    nullString[0] = 0;	/* null string to indicate no zone or server name */
-    result = NewAliasMinimalFromFullPath(fullPathLength, fullPath, nullString, nullString, &alias);
-    if(result == noErr) {
-	result = ResolveAlias(NULL, alias, spec, &wasChanged); 	// Let the Alias Manager resolve the alias.
-	if(!spec->vRefNum) {	// work around Alias Mgr sloppy volume matching bug 
-	    /* invalidate wrong FSSpec */
-	    spec->parID = 0;
-	    spec->name[0] =  0;
-	    result = nsvErr;
-	}
-	DisposeHandle((Handle)alias);	// Free up memory used
-    }
-    return result;
-}
-
 static Movie get_movie(const QString &filename, QPixmap *offscreen) 
 {
-    OSErr err;
     FSSpec fileSpec;
+    if(qt_mac_create_fsspec(filename, &fileSpec) != noErr) {
+	qDebug("Qt: internal: bogus %d", __LINE__);
+	return NULL;
+    }
+
     short movieResFile;
     Movie aMovie = nil;
-
-    FSRef fref;
-    QByteArray utfs = filename.toUtf8();
-    err = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
-    if(err != noErr) {
-	qDebug("Qt: internal: bogus %d", __LINE__);
-	return NULL;
-    }
-    err = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL);
-    if(err != noErr) {
-	qDebug("Qt: internal: bogus %d", __LINE__);
-	return NULL;
-    }
-
-    err = OpenMovieFile (&fileSpec, &movieResFile, fsRdPerm);
-    if(err != noErr)
+    if(OpenMovieFile(&fileSpec, &movieResFile, fsRdPerm) != noErr)
 	return NULL;
 
     short           movieResID = 0;         /* want first movie */
     Str255          movieName;
     Boolean         wasChanged;
-    err = NewMovieFromFile (&aMovie, movieResFile,
-			    &movieResID,
-			    movieName, 
-			    newMovieActive,         /* flags */
-			    &wasChanged);
+    if(NewMovieFromFile(&aMovie, movieResFile, &movieResID, movieName, newMovieActive, &wasChanged) != noErr)
+	return NULL;
+
     // If a movie soundtrack is played then the movie will be played on
     // the current graphics port. So create an offscreen graphics port.
     SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0);
-
-    if(err != noErr) 
-	return NULL;
-
-    CloseMovieFile (movieResFile);
+    CloseMovieFile(movieResFile);
     return aMovie;
 }
 

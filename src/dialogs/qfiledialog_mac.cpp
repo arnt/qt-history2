@@ -205,14 +205,9 @@ static const NavEventUPP make_navProcUPP()
 
 
 const unsigned char * p_str(const char *, int len=-1);
-QMAC_PASCAL OSErr FSpLocationFromFullPath(short fullPathLength,
-				      const void *fullPath,
-				      FSSpec *spec);
+OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal.cpp
 
-
-
-
-QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
+QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd,
 					     QWidget *parent, const char* /*name*/,
 					     const QString& caption, QString *selectedFilter,
 					     bool multi, bool directory)
@@ -289,6 +284,15 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
 	    return retstrl;
 	}
     }
+    if(pwd && !pwd->isEmpty()) {
+	FSSpec spec;
+	if(qt_mac_create_fsspec(*pwd, &spec) == noErr) {
+	    AEDesc desc;
+	    if(AECreateDesc(typeFSS, &spec, sizeof(FSSpec), &desc) == noErr) 
+		NavCustomControl(dlg, kNavCtlSetLocation, (void*)&desc);
+	}
+    }
+    
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
 	QWidget modal_widg(parent, __FILE__ "__modal_dlg", 

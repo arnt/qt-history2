@@ -150,10 +150,7 @@ inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
-// Paint event clipping magic - qpainter_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp

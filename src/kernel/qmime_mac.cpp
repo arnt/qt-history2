@@ -34,7 +34,7 @@ static QList<QMacMime*> mimes;
 //functions
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 unsigned char * p_str(const QString &s); //qglobal.cpp
-OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
+OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal_mac.cpp
 
 /*!
   \class QMacMime
@@ -725,8 +725,8 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
     hfs.fileType = 'TEXT';
     hfs.fileCreator = 'CUTE';
     hfs.fdFlags = 0;
-    FSpLocationFromFullPath(data.size(), data.data(), &hfs.fileSpec);
-    ret.append(data);
+    if(qt_mac_create_fsspec(QString(data), &hfs.fileSpec) == noErr)
+	ret.append(data);
     return ret;
 }
 

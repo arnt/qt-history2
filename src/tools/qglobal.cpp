@@ -315,6 +315,19 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 
 
 #ifdef Q_OS_MAC
+// This function has descended from Apple Source Code (FSpLocationFromFullPath),
+// but changes have been made. [Creates a minimal alias from the full pathname]
+OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
+{
+    FSRef fref;
+    QByteArray utfs = file.utf8();
+    OSErr ret = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
+    if(ret == noErr)
+	ret = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, spec, NULL);
+    return ret;
+}
+
+
 CFStringRef qstring2cfstring(const QString &str)
 {
     return CFStringCreateWithCharacters(0, (UniChar *)str.unicode(), str.length());

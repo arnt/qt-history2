@@ -88,7 +88,6 @@ inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
 
 //functions
 extern uint qGlobalPostedEventsCount();
-OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage, WindowPtr,
 						  void *, DragReference);
 void qt_macdnd_unregister(QWidget *, QWExtra *);
