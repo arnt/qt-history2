@@ -728,7 +728,7 @@ void QFileDialog::accept()
         QFileInfo info(fn);
         if (info.isDir())
             return;
-        if (!info.exists())
+        if (!info.exists() || acceptMode() == AcceptOpen)
             QDialog::accept();
         else if (QMessageBox::warning(this, windowTitle(),
                                       fn + tr(" already exists.\nDo you want to replace it?"),
