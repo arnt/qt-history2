@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#414 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#415 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2847,14 +2847,18 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    case Button1: button = LeftButton;   goto DoFocus;
 	    case Button2: button = MidButton;    goto DoFocus;
 	    case Button3: button = RightButton;       DoFocus:
-		if ( isEnabled() &&
-		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
-		     : (focusPolicy() & ClickFocus ) ) {
-		    setFocus();
-		    QWidget* active_window = topLevelWidget();
-		    if (active_window && active_window->extra->topextra->embedded) {
-			((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
-			XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+		if ( isEnabled() ) {
+		    QWidget* w = this;
+		    while ( w->focusProxy() )
+			w = w->focusProxy();
+		    if ( w->focusPolicy() & QWidget::ClickFocus ) {
+			w->setFocus();
+			// inform parent in case we are an embedded window
+			QWidget* active_window = topLevelWidget();
+			if (active_window && active_window->extra->topextra->embedded) {
+			    ((XEvent*)event)->xfocus.window = active_window->extra->topextra->parentWinId;
+			    XSendEvent(appDpy, active_window->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+			}
 		    }
 		}
 		break;
@@ -3174,7 +3178,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     if ( type == QEvent::KeyPress ) {
 	if ( xim ) {
 	    QWidget* tlw = topLevelWidget();
-	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0; 
+	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0;
 	    if ( !xd ) {
 		tlw->createTLExtra();
 		xd = tlw->extraData()->topextra;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#235 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1207,9 +1207,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( widget->isEnabled() &&
 	     (message == WM_LBUTTONDOWN ||
 	      message == WM_MBUTTONDOWN ||
-	      message == WM_RBUTTONDOWN) &&
-	     (widget->focusPolicy() & QWidget::ClickFocus) )
-	    widget->setFocus();
+	      message == WM_RBUTTONDOWN) ) {
+	    QWidget* w = widget;
+	    while ( w->focusProxy() )
+		w = w->focusProxy();
+	    if ( w->focusPolicy() & QWidget::ClickFocus )  
+		w->setFocus();
+	}
 	widget->translateMouseEvent( msg );	// mouse event
     } else
     switch ( message ) {
