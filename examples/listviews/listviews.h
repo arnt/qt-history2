@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.h#2 $
+** $Id: //depot/qt/main/examples/listviews/listviews.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -51,8 +51,8 @@ protected:
 class Message
 {
 public:
-    enum State {Read = 0,
-                Unread};
+    enum State { Read = 0,
+                 Unread};
 
     Message( const MessageHeader &mh, const QString &_body )
         : mheader( mh ), mbody( _body ), mstate( Unread )
@@ -85,7 +85,7 @@ public:
     Folder( Folder *parent, const QString &name );
     ~Folder()
     {}
-    
+
     void addMessage( Message *m )
     { lstMessages.append( m ); }
 
@@ -144,7 +144,7 @@ public:
     ListViews( QWidget *parent = 0, const char *name = 0 );
     ~ListViews()
     {}
-    
+
 protected:
     void initFolders();
     void initFolder( Folder *folder, unsigned int &count );
@@ -160,24 +160,6 @@ protected slots:
     void slotMessageChanged( QListViewItem* );
 
 };
-
-// -----------------------------------------------------------------
-
-inline MessageHeader::MessageHeader( const MessageHeader &mh )
-{
-    msender = mh.msender;
-    msubject = mh.msubject;
-    mdatetime = mh.mdatetime;
-}
-
-inline MessageHeader &MessageHeader::operator=( const MessageHeader &mh )
-{
-    msender = mh.msender;
-    msubject = mh.msubject;
-    mdatetime = mh.mdatetime;
-
-    return *this;
-}
 
 #endif
 

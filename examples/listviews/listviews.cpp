@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#2 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -14,6 +14,24 @@
 #include <qpainter.h>
 #include <qpalette.h>
 #include <qobjectlist.h>
+
+// -----------------------------------------------------------------
+
+MessageHeader::MessageHeader( const MessageHeader &mh )
+{
+    msender = mh.msender;
+    msubject = mh.msubject;
+    mdatetime = mh.mdatetime;
+}
+
+MessageHeader &MessageHeader::operator=( const MessageHeader &mh )
+{
+    msender = mh.msender;
+    msubject = mh.msubject;
+    mdatetime = mh.mdatetime;
+
+    return *this;
+}
 
 // -----------------------------------------------------------------
 
@@ -101,6 +119,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     messages->addColumn( "Sender" );
     messages->addColumn( "Subject" );
     messages->addColumn( "Date" );
+    messages->setAllColumnsShowFocus( TRUE );
     messages->resize( 0, 200 );
     vsplitter->setResizeMode( messages, QSplitter::KeepSize );
 
