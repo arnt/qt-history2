@@ -1,15 +1,15 @@
 #ifndef QWIDGETINTERFACE_H
 #define QWIDGETINTERFACE_H
 
-#include <qplugininterface.h>
+#include <qcomponentinterface.h>
 #include <qiconset.h>
 
 class QWidget;
 
-class WidgetInterface : public QPlugInInterface
+class WidgetInterface : public QUnknownInterface
 {
 public:
-    QString queryInterface() const { return "WidgetInterface"; }
+    virtual QStringList featureList() = 0;
 
     virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
 
@@ -20,6 +20,8 @@ public:
     virtual QString toolTip( const QString& ) = 0;
     virtual QString whatsThis( const QString& ) = 0;
     virtual bool isContainer( const QString& ) = 0;
+
+    static QString interfaceID() { return "WidgetInterface_QtDesigner_Trolltech_05102000_0516"; }
 };
 
 #endif //QWIDGETINTERFACE_H
