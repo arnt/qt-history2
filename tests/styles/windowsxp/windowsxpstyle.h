@@ -7,7 +7,7 @@
 
 #ifndef QT_NO_STYLE_WINDOWSXP
 
-#if defined(QT_PLUGIN_STYLE_WINDOWSXP)
+#if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_WINDOWSXP
 #else
 #define Q_EXPORT_STYLE_WINDOWSXP Q_EXPORT
@@ -30,7 +30,7 @@ public:
 			const QRect &r,
 			const QColorGroup &cg,
 			SFlags flags = Style_Default,
-			void **data = 0 ) const;
+			const QStyleOption& = QStyleOption::Default ) const;
 
     void drawControl( ControlElement element,
 		      QPainter *p,
@@ -38,7 +38,7 @@ public:
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
-		      void **data = 0 ) const;
+		      const QStyleOption& = QStyleOption::Default ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
@@ -50,7 +50,7 @@ public:
 			     SFlags flags = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
-			     void **data = 0 ) const;
+			     const QStyleOption& = QStyleOption::Default ) const;
 
 
     int pixelMetric( PixelMetric metic,
@@ -59,11 +59,11 @@ public:
     QSize sizeFromContents( ContentsType contents,
 			    const QWidget *w,
 			    const QSize &contentsSize,
-			    void **data ) const;
+			    const QStyleOption& = QStyleOption::Default ) const;
 
     QPixmap stylePixmap( StylePixmap stylepixmap,
 			 const QWidget * = 0,
-			 void **data = 0 ) const;
+			 const QStyleOption& = QStyleOption::Default ) const;
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );

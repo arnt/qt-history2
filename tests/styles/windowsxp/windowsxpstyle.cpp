@@ -40,11 +40,7 @@ public:
     {
         if ( !init_xp && qWinVersion() == Qt::WV_XP ) {
 	    init_xp = TRUE;
-	    if ( SearchPathA( NULL, "uxtheme.dll", NULL, 0, NULL, NULL ) ) {
-		use_xp = IsThemeActive() && IsAppThemed();
-	    } else {
-		use_xp = FALSE;
-	    }
+	    use_xp = IsThemeActive() && IsAppThemed();
 	}
 	if ( use_xp )
 	    ref++;
@@ -207,7 +203,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 				    const QRect &r,
 				    const QColorGroup &cg,
 				    SFlags flags,
-				    void **data ) const
+				    const QStyleOption &data ) const
 {
     if ( !use_xp ) {
 	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, data );
@@ -406,7 +402,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  SFlags flags,
-				  void **data ) const
+				  const QStyleOption &data ) const
 {
     if ( !use_xp ) {
 	QWindowsStyle::drawControl( element, p, widget, r, cg, flags, data );
@@ -460,7 +456,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	name = L"TAB";
 	{
 	    QTabBar *bar = (QTabBar*)widget;
-	    QTab *t = data ? (QTab*)data[0] : 0;
+	    QTab *t = data.tab();
 	    Q_ASSERT(t);
 	    partId = TABP_TABITEM;
     
@@ -506,7 +502,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 					 SFlags flags,
 					 SCFlags sub,
 					 SCFlags subActive,
-					 void **data ) const
+					 const QStyleOption &data ) const
 {
     if ( !use_xp ) {
 	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, data );
@@ -527,7 +523,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    theme.name = L"SPIN";
 
 	    if ( sub & SC_SpinWidgetFrame )
-		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, 0 );
+		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, data );
 
 	    if ( sub & SC_SpinWidgetUp ) {
 		theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetUp, data );
@@ -561,7 +557,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     case CC_ComboBox:
         {
 	    if ( sub & SC_ComboBoxEditField )
-		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, 0 );
+		drawPrimitive( PE_Panel, p, w->rect(), cg, Style_Default, data );
 
 	    if ( sub & SC_ComboBoxArrow ) {
 		XPThemeData theme;
@@ -886,7 +882,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 					const QWidget *w,
 					const QSize &contentsSize,
-					void **data ) const
+					const QStyleOption &data ) const
 {
     if ( !use_xp )
 	return QWindowsStyle::sizeFromContents( contents, w, contentsSize, data );
@@ -899,7 +895,7 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 
 QPixmap QWindowsXPStyle::stylePixmap( StylePixmap stylepixmap,
 				     const QWidget * w,
-				     void **data ) const
+				     const QStyleOption &data ) const
 {
     if ( !use_xp )
 	return QWindowsStyle::stylePixmap( stylepixmap, w, data );
