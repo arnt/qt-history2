@@ -2134,7 +2134,7 @@ bool operator>=(const QString &s1, const QString &s2)
 bool operator==(const QString &s1, const char *s2)
 {
     if (!s2)
-	return false;
+	return (s1 == QString());
 
     int len = s1.length();
     const QChar *uc = s1.unicode();
@@ -2148,14 +2148,6 @@ bool operator==(const QString &s1, const char *s2)
     return !*s2;
 }
 
-bool operator==(const char *s1, const QString &s2)
-{ return (s2 == s1); }
-
-bool operator!=(const QString &s1, const char *s2)
-{ return !(s1==s2); }
-
-bool operator!=(const char *s1, const QString &s2)
-{ return !(s1==s2); }
 
 bool operator<(const QString &s1, const char *s2)
 { return ucstrcmp(s1,s2) < 0; }

@@ -537,16 +537,16 @@ Q_EXPORT bool operator==(const QString &s1, const QString &s2);
 Q_EXPORT bool operator>(const QString &s1, const QString &s2);
 Q_EXPORT bool operator>=(const QString &s1, const QString &s2);
 #ifndef QT_NO_CAST_TO_ASCII
-Q_EXPORT bool operator!=(const QString &s1, const char *s2);
+Q_EXPORT bool operator==(const QString &s1, const char *s2);
+inline bool operator==(const char *s1, const QString &s2) { return (s2 == s1); }
+inline bool operator!=(const QString &s1, const char *s2) { return !(s1==s2); }
+inline bool operator!=(const char *s1, const QString &s2) { return !(s2==s1); }
 Q_EXPORT bool operator<(const QString &s1, const char *s2);
 Q_EXPORT bool operator<=(const QString &s1, const char *s2);
-Q_EXPORT bool operator==(const QString &s1, const char *s2);
 Q_EXPORT bool operator>(const QString &s1, const char *s2);
 Q_EXPORT bool operator>=(const QString &s1, const char *s2);
-Q_EXPORT bool operator!=(const char *s1, const QString &s2);
 Q_EXPORT bool operator<(const char *s1, const QString &s2);
 Q_EXPORT bool operator<=(const char *s1, const QString &s2);
-Q_EXPORT bool operator==(const char *s1, const QString &s2);
 Q_EXPORT bool operator>(const char *s1, const QString &s2);
 Q_EXPORT bool operator>=(const char *s1, const QString &s2);
 #endif
