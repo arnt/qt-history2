@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#8 $
+** $Id: //depot/qt/main/src/tools/qtl.h#9 $
 **
 ** Definition of Qt template library classes
 **
@@ -30,24 +30,24 @@
 
 
 template <class T>
-class QStreamIterator
+class QTextOStreamIterator
 {
 protected:
-  QTextStream& stream;
+  QTextOStream& stream;
   QString separator;
 
 public:
-  QStreamIterator( QTextStream& s) : stream( s ) {}
-  QStreamIterator( QTextStream& s, const QString& sep ) : stream( s ), separator( sep )  {}
-  QStreamIterator<T>& operator= ( const T& x ) { 
+  QTextOStreamIterator( QTextOStream& s) : stream( s ) {}
+  QTextOStreamIterator( QTextOStream& s, const QString& sep ) : stream( s ), separator( sep )  {}
+  QTextOStreamIterator<T>& operator= ( const T& x ) { 
     stream << x;
     if ( !separator.isEmpty() )
       stream << separator;
     return *this;
   }
-  QStreamIterator<T>& operator*() { return *this; }
-  QStreamIterator<T>& operator++() { return *this; } 
-  QStreamIterator<T>& operator++(int) { return *this; } 
+  QTextOStreamIterator<T>& operator*() { return *this; }
+  QTextOStreamIterator<T>& operator++() { return *this; } 
+  QTextOStreamIterator<T>& operator++(int) { return *this; } 
 };
 
 template <class InputIterator, class OutputIterator>
