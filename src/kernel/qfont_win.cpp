@@ -27,6 +27,11 @@
 **
 **********************************************************************/
 
+// the miscrosoft platform SDK says that the Unicode versions of
+// TextOut and GetTextExtentsPoint32 are supported on all platforms, so we use them
+// exclusively to simplify code, save a lot of conversions into the local encoding
+// and have generally better unicode support :)
+
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qcomplextext_p.h"
@@ -615,22 +620,21 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
     int width = 0;
     SIZE s = {0,0};
-    QString substr = str.mid( pos, len );
-    const TCHAR* tc = (const TCHAR*)qt_winTchar( substr, FALSE );
+    const QChar *uc = str.unicode()+pos;
+    const wchar_t* tc = (const wchar_t*)uc;
     int i;
     int last = 0;
-    const QChar *uc = substr.unicode();
     for ( i = 0; i < len; i++ ) {
 	if ( uc->combiningClass() != 0 && pos + i > 0 ) {
 	    if ( i - last > 0 ) {
-		GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+		GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
 		width += s.cx;
 	    }
 	    last = i + 1;
 	}
 	uc++;
     }
-    BOOL res = GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+    BOOL res = GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontPrivate:textWidth: GetTextExtentPoint32 failed" );
@@ -642,34 +646,6 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     return width;
 
 }
-
-// we don't use qt_winTchar here for performance reasons
-// pay attention when using the function. You'll have to delete the
-// returned TCHAR when !(defined(UNICODE) && !defined(QT_WIN32BYTESWAP))
-static inline TCHAR* tchar(const QChar *uc, int len)
-{
-#ifdef UNICODE
-#  if defined(QT_WIN32BYTESWAP)
-    TCHAR *buf = new TCHAR[len];
-    for ( int i = 0; i < len; i++ ) {
-        buf[i] = uc->row() << 8 | uc->cell();
-	uc++;
-    }
-    return buf;
-#  else
-    Q_UNUSED(len)
-    return (TCHAR *)uc;
-#  endif
-#else
-    TCHAR *buf = new TCHAR[len];
-    for ( int i = 0; i < len; i++ ) {
-        buf[i] = uc->row() ? '?' : uc->cell();
-	uc++;
-    }
-    return buf;
-#endif
-}
-
 
 void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
 {
@@ -694,9 +670,8 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    int length = i - lasts;
 	    cache->setParams( width, 0, 0, qc, length,
 		singlePrint ? QFont::Hebrew : QFont::NoScript );
-	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
-	    BOOL res = GetTextExtentPoint32( hdc ? hdc : fin->dc(), cache->mapped, length, &s );
+	    BOOL res = GetTextExtentPoint32W( hdc ? hdc : fin->dc(), (wchar_t *)cache->string, length, &s );
 #ifndef QT_NO_DEBUG
 	    if ( !res )
 		qSystemWarning( "QFontPrivate::buildCache: GetTextExtentPoint32 failed" );
@@ -716,7 +691,6 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    int length = i - lasts;
 	    cache->setParams( width + p.x(), p.y(), 0, qc, length,
 		singlePrint ? QFont::Hebrew : QFont::NoScript );
-	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
 	    cache->next = new QFontPrivate::TextRun();
 	    cache = cache->next;
@@ -736,19 +710,13 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	cache->setParams( width, 0, 0, qc, length,
 	    singlePrint ? QFont::Hebrew : QFont::NoScript );
     }
-    cache->mapped = tchar( qc, length );
 }
 
 void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
 {
-    // the miscrosoft platform SDK says about TextOut:
-    // "Although not true in general, Windows 95/98 supports the Unicode version 
-    //  of this function as well as the ANSI version."
-    // we used the Unicode version in 2.x, so I assume it's no big problem
-
     while ( cache ) {
 	if ( cache->script != QFont::Hebrew )
-	    TextOut( hdc, x + cache->xoff, y + cache->yoff, cache->mapped, cache->length );
+	    TextOutW( hdc, x + cache->xoff, y + cache->yoff, (wchar_t *)cache->string, cache->length );
 	else 
 	{
 	    // we need to print every character by itself to keep the bidi
@@ -757,8 +725,8 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 	    int xadd = 0;
 	    SIZE s = {0,0};
 	    while( l < cache->length ) {
-		TextOut( hdc, x + cache->xoff + xadd, y + cache->yoff, cache->mapped + l, 1 );
-		BOOL res = GetTextExtentPoint32( hdc, cache->mapped + l, 1, &s );
+		TextOutW( hdc, x + cache->xoff + xadd, y + cache->yoff, (wchar_t *)(cache->string + l), 1 );
+		BOOL res = GetTextExtentPoint32W( hdc, (wchar_t *)(cache->string + l), 1, &s );
 #ifndef QT_NO_DEBUG
 		if ( !res )
 		    qSystemWarning( "QFontPrivate::drawText: GetTextExtentPoint32 failed" );
@@ -1115,12 +1083,8 @@ int QFontMetrics::width( QChar ch ) const
 	return 0;
 
     SIZE s = {0,0};
-#ifdef UNICODE
-    TCHAR tc = ch.unicode();
-#else
-    TCHAR tc = ch.latin1();
-#endif
-    BOOL res = GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    wchar_t tc = ch.unicode();
+    BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontMetrics::width: GetTextExtentPoint32 failed" );
@@ -1152,12 +1116,8 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     if ( !ch.unicode() )
 		return 0;
     SIZE s = {0,0};
-#ifdef UNICODE
-    TCHAR tc = ch.unicode();
-#else
-    TCHAR tc = ch.latin1();
-#endif
-    BOOL res = GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    wchar_t tc = ch.unicode();
+    BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontMatrics::charWidth: GetTextExtentPoint32 failed" );
