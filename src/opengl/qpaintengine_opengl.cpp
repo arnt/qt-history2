@@ -64,8 +64,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
 
     dgl->makeCurrent();
-    // ### Shouldn't this be handled already by updateBackground...2
-//     dgl->qglClearColor(state->bgBrush.color());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
@@ -78,6 +77,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 bool QOpenGLPaintEngine::end()
 {
+    dgl->makeCurrent();
     glFlush();
     dgl->swapBuffers();
     return true;
@@ -338,6 +338,7 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
         dense6_pat, dense7_pat, hor_pat, ver_pat, cross_pat, bdiag_pat,
         fdiag_pat, dcross_pat };
 
+    dgl->makeCurrent();
     d->cbrush = brush;
     int bs = d->cbrush.style();
     if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
@@ -597,7 +598,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
     DRAW_GL_POLYGON(pa, index, npoints);
-    glEnd();
     dgl->qglColor(d->cpen.color());
     if (d->cpen.style() != NoPen) {
         int x1, y1, x2, y2; // connect last to first point
