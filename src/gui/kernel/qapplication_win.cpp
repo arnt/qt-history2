@@ -471,7 +471,6 @@ static void qt_set_windows_resources()
                   QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))));
 
     QApplication::setPalette(pal);
-    *qt_std_pal = pal;
 
     QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
@@ -3545,7 +3544,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
     if (QColormap::instance().depth() < 16)
         return false;
 
-    if (!effect_override && desktopSettingsAware() 
+    if (!effect_override && desktopSettingsAware()
         && !(QSysInfo::WindowsVersion == QSysInfo::WV_95 || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {
         // we know that they can be used when we are here
         BOOL enabled = false;
