@@ -435,7 +435,7 @@ public:
         // emit the generic signal
         int index = meta->indexOfSignal("propertyChanged(QString)");
         if (index != -1) {
-            QLatin1String propnameString(propname);
+            QString propnameString = QString::fromLatin1(propname);
             void *argv[] = {0, &propnameString};
             combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
         }
@@ -557,6 +557,8 @@ public:
             metaobj = new QAxMetaObject;
         return metaobj;
     }
+
+    mutable QMap<QString, LONG> verbs;
 
     QAxMetaObject *metaobj;
     QMetaObject *staticMetaObject;
@@ -1061,6 +1063,43 @@ void QAxBase::clear()
         d->metaobj = 0;
     }
 }
+
+/*!
+    Returns the list of verbs that the COM object can execute. If
+    the object does not implement IOleObject, or does not support
+    any verbs, then this function returns an empty stringlist.
+
+    Note that the OLE default verbs (OLEIVERB_SHOW etc) are not 
+    included in the list.
+*
+QStringList QAxBase::verbs() const
+{
+    if (d->verbs.isEmpty()) {
+        IOleObject *ole = 0;
+        d->ptr->QueryInterface(IID_IOleObject, (void**)&ole);
+        if (ole) {
+            IEnumOLEVERB *enumVerbs = 0;
+            ole->EnumVerbs(&enumVerbs);
+            if (enumVerbs) {
+                enumVerbs->Reset();
+                ULONG c;
+                OLEVERB verb;
+                while (enumVerbs->Next(1, &verb, &c) == S_OK) {
+                    if (!verb.lpszVerbName)
+                        continue;
+                    QString verbName = QString::fromUtf16(verb.lpszVerbName);
+                    if (!verbName.isEmpty())
+                        d->verbs.insert(verbName, verb.lVerb);
+                }
+                enumVerbs->Release();
+            }
+            ole->Release();
+        }
+    }
+
+    return d->verbs.keys();
+}
+*/
 
 /*!
     This virtual function is called by setControl() and creates the
