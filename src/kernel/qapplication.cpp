@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#27 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#27 $";
 #endif
 
 
@@ -25,14 +25,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#26 $";
 \class QApplication qapp.h
 \brief The QApplication class manages the application event queue.
 
-The QApplication class is very central in Qt.  It receives events from
-the underlying window system and sends them to appropriate widgets.
-An application object must be created before widgets can be created!
+The QApplication class is central to Qt.  It receives events from
+the underlying window system and sends them to the destination widgets.
+An application object must be created before any widgets can be created!
 
 Only one single QApplication objects should be created, and this is
 normally done in the main() function.  When a QApplication object has
-been created, <code>qApp</code> (defined as
-<code>extern QApplication *qApp</code>) will refer to this object.
+been created, \c qApp (defined as <code>extern QApplication
+*qApp</code>) will refer to this object.
 
 Here is a complete Qt application:
 \code
@@ -51,11 +51,13 @@ int main( int argc, char **argv )
 Notice that the QApplication object must be created before the widget is
 defined!
 
+(The pedantic reader will note that modal widgets like QMessageBox can
+in certain circumstances be used even without a QApplication.  This is
+a special case.)
 
 \header qkeycode.h
 \header qwindefs.h
-\header qglobal.h
-*/
+\header qglobal.h */
 
 
 void qt_init( int *, char ** );			// defined in qapp_???.cpp
