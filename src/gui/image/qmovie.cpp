@@ -548,7 +548,7 @@ void QMoviePrivate::pollForData()
 #endif
         }
     } else if(int space = bufferSpace()) {
-        int avail = source->readBlock((char*)buffer, space);
+        int avail = source->read((char*)buffer, space);
         if(avail > 0)
             receive(buffer, avail);
         if(avail == -1)
