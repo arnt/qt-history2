@@ -37,7 +37,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 CXXFLAGS = @QMAKE_CXXFLAGS@ \
 	   -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	   -I@SOURCE_PATH@/src/core/arch/generic -I@BUILD_PATH@/include -I@BUILD_PATH@/include/QtCore \
-	   -I@SOURCE_PATH@/include -I@SOURCE_PATH@/include/QtCore \
+	   -I@SOURCE_PATH@/include -I@SOURCE_PATH@/include/QtCore -I@BUILD_PATH@/src/core/global \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL -DQT_BUILD_QMAKE \
 	   -DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT \
            $(OPENSOURCE_CXXFLAGS)
