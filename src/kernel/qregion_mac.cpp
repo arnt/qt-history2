@@ -116,7 +116,7 @@ RgnHandle qt_mac_get_rgn() {
     if(!rgncache_init) {
 	rgncache_used = 0;
 	rgncache_init = TRUE;
-	for(int i = 0; i < RGN_CACHE_SIZE; i++) 
+	for(int i = 0; i < RGN_CACHE_SIZE; i++)
 	    rgncache[i] = 0;
 	qAddPostRoutine(qt_mac_cleanup_rgncache);
     } else if(rgncache_used) {
@@ -130,7 +130,7 @@ RgnHandle qt_mac_get_rgn() {
 	    }
 	}
     }
-    if(!ret) 
+    if(!ret)
 	ret = NewRgn();
     return ret;
 }
@@ -173,7 +173,7 @@ QRegion::QRegion()
     data->ref();
 }
 
-void 
+void
 QRegion::rectifyRegion()
 {
     if(!data->is_rect)
@@ -186,7 +186,7 @@ QRegion::rectifyRegion()
     data->rgn = qt_mac_get_rgn();
     if(!data->rect.isEmpty()) {
 	Rect rect;
-	SetRect(&rect, data->rect.x(), data->rect.y(), 
+	SetRect(&rect, data->rect.x(), data->rect.y(),
 		data->rect.right()+1, data->rect.bottom()+1);
 	OpenRgn();
 	FrameRect(&rect);
@@ -194,10 +194,13 @@ QRegion::rectifyRegion()
     }
 }
 
+/*!
+    \internal
+*/
 RgnHandle
 QRegion::handle(bool require_rgn) const
 {
-    if(require_rgn && data->is_rect) 
+    if(require_rgn && data->is_rect)
 	((QRegion *)this)->rectifyRegion();
     return data->is_rect ? NULL : data->rgn;
 }
@@ -374,9 +377,9 @@ QRegion &QRegion::operator=(const QRegion &r)
 
 QRegion QRegion::copy() const
 {
-    if(data->is_null) 
+    if(data->is_null)
 	return QRegion(TRUE);
-     else if(data->is_rect) 
+     else if(data->is_rect)
 	return QRegion(data->rect);
 
     QRegion r(FALSE);
@@ -402,7 +405,7 @@ bool QRegion::contains(const QPoint &p) const
 {
     if(data->is_null)
 	return FALSE;
-    else if(data->is_rect) 
+    else if(data->is_rect)
 	return data->rect.contains(p);
 
     Point point;
@@ -415,7 +418,7 @@ bool QRegion::contains(const QRect &r) const
 {
     if(data->is_null)
 	return FALSE;
-    else if(data->is_rect) 
+    else if(data->is_rect)
 	return data->rect.intersects(r);
 
     Rect rect;
@@ -428,7 +431,7 @@ void QRegion::translate(int x, int y)
     if (data == empty_region->data)
 	return;
     detach();
-    if(data->is_rect) 
+    if(data->is_rect)
 	data->rect.moveBy(x, y);
     else
 	OffsetRgn(data->rgn, x, y);
@@ -436,13 +439,13 @@ void QRegion::translate(int x, int y)
 
 QRegion QRegion::unite(const QRegion &r) const
 {
-    if(data->is_null || r.data->is_null) 
+    if(data->is_null || r.data->is_null)
 	return (!data->is_null ? this : &r)->copy();
 
     if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect))
 	return copy();
 
-    if(data->is_rect) 
+    if(data->is_rect)
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
@@ -453,15 +456,15 @@ QRegion QRegion::unite(const QRegion &r) const
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-    if(data->is_null || r.data->is_null ) 
+    if(data->is_null || r.data->is_null )
 	return QRegion();
 
-    if(data->is_rect && r.data->is_rect) 
+    if(data->is_rect && r.data->is_rect)
 	return QRegion(data->rect & r.data->rect);
 
-    if(data->is_rect) 
+    if(data->is_rect)
 	((QRegion *)this)->rectifyRegion();
-    if(r.data->is_rect) 
+    if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
     QRegion result( FALSE );
     SectRgn( data->rgn, r.data->rgn, result.data->rgn );
@@ -470,10 +473,10 @@ QRegion QRegion::intersect( const QRegion &r ) const
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
-    if(data->is_null || r.data->is_null ) 
+    if(data->is_null || r.data->is_null )
 	return (!data->is_null ? this : &r)->copy();
 
-    if(data->is_rect) 
+    if(data->is_rect)
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
@@ -484,10 +487,10 @@ QRegion QRegion::subtract( const QRegion &r ) const
 
 QRegion QRegion::eor(const QRegion &r) const
 {
-    if(data->is_null || r.data->is_null) 
+    if(data->is_null || r.data->is_null)
 	return (!data->is_null ? this : &r)->copy();
 
-    if(data->is_rect) 
+    if(data->is_rect)
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
@@ -502,7 +505,7 @@ QRect QRegion::boundingRect() const
 	return data->rect;
     Rect r;
     GetRegionBounds(data->rgn, &r);
-    return QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top)); 
+    return QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top));
 }
 
 typedef QValueList<QRect> RectList;
@@ -510,7 +513,7 @@ static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, voi
 {
     if(msg == kQDRegionToRectsMsgParse) {
 	RectList *rl = (RectList *)myd;
-	rl->append(QRect(rect->left, rect->top, (rect->right - rect->left), 
+	rl->append(QRect(rect->left, rect->top, (rect->right - rect->left),
 			 (rect->bottom - rect->top)));
     }
     return noErr;
@@ -532,13 +535,13 @@ QMemArray<QRect> QRegion::rects() const
     DisposeRegionToRectsUPP(cbk);
 
     //check for error
-    if(oss != noErr) 
+    if(oss != noErr)
 	return QMemArray<QRect>(0);
 
     //turn list into array
     QMemArray<QRect> ret(rl.count());
     int cnt = 0;
-    for(RectList::Iterator it = rl.begin(); it != rl.end(); ++it) 
+    for(RectList::Iterator it = rl.begin(); it != rl.end(); ++it)
 	ret[cnt++] = (*it);
 
     return ret; //done

@@ -34,7 +34,7 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 
-QPaintDevice *g_cur_paintdev = 0; 
+QPaintDevice *g_cur_paintdev = 0;
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
@@ -85,7 +85,7 @@ int QPaintDevice::fontInf( QFont *, int ) const
 QPoint posInWindow(QWidget *w);
 
 void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
-	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool imask)
 {
     if(rop == Qt::NotROP) { //this is the only way we can get a NotROP
@@ -107,7 +107,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
     }
 
-    if(!sw || !sh) 
+    if(!sw || !sh)
 	return;
 
     if(!dst || !src) {
@@ -150,8 +150,8 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sw = pm->width();
 	if(sh < 0)
 	    sh = pm->height();
-    } 
-	
+    }
+
     switch ( dst->devType() ) {
     case QInternal::Printer: // OK, can blt to these
     case QInternal::Widget:
@@ -170,7 +170,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     int dstoffx=0, dstoffy=0;
     const BitMap *dstbitmap=NULL;
     if(dst->devType() == QInternal::Widget) {
-	
+
 	/* special case when you widget->widget blt */
 	if(src != dst && src->devType() == QInternal::Widget) {
 	    qDebug("I don't really know if this will work, I'll need to find a test case FIXME! %s:%d",
@@ -213,7 +213,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		    tmp->setMask( mask );
 		}
 		pm = tmp;
-	    } 
+	    }
 	} else if ( src->devType() == QInternal::Widget ) {// bitBlt to temp pixmap
 	    tmp_pm = TRUE;
 	    pm = new QPixmap( sw, sh );
@@ -252,7 +252,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     default:
     case Qt::CopyROP:   copymode = srcCopy; break;
     case Qt::OrROP:     copymode = srcOr; break;
-    case Qt::XorROP:    copymode = srcXor; break; 
+    case Qt::XorROP:    copymode = srcXor; break;
     case Qt::NotAndROP: copymode = srcBic; break;
     case Qt::NotCopyROP:copymode = notSrcCopy; break;
     case Qt::NotOrROP:  copymode = notSrcOr; break;
@@ -274,7 +274,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
     Rect r2;
     SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
-	
+
     if(srcbitmask && !imask) {
 	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcbitmask->handle());
 	CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &r, &r2, copymode, 0);
@@ -286,25 +286,25 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 #ifndef QMAC_ONE_PIXEL_LOCK
     if(dst->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)dst;
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));    
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
     }
-#endif 
+#endif
 }
 
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
-		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		      const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		      Qt::RasterOp rop, bool imask)
 {
     unclippedScaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
 }
 
 void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
-		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		   const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		   Qt::RasterOp rop, bool imask)
 {
   //at the end of this function this will go out of scope and the destructor will restore the state
-  QMacSavedPortInfo saveportstate(dst); 
-    
+  QMacSavedPortInfo saveportstate(dst);
+
   if(dst && dst->devType() == QInternal::Widget) {
       QMacSavedPortInfo::setClipRegion(((QWidget *)dst)->clippedRegion());
   } else if(dst && dst->devType() == QInternal::Pixmap) {
@@ -315,7 +315,7 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 }
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
-	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool imask)
 {
     scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
@@ -331,18 +331,21 @@ Qt::HANDLE QPaintDevice::handle() const
 void QPaintDevice::setResolution( int )
 {
 }
- 
+
 int QPaintDevice::resolution() const
 {
     return metric( QPaintDeviceMetrics::PdmDpiY );
 }
 
 #ifndef QMAC_NO_QUARTZ
+/*!
+    \internal
+*/
 CGContextRef QPaintDevice::macCGContext(bool) const
 {
 #if 0
     QPaintDevice *that = (QPaintDevice *)this;
-    if(!that->ctx) 
+    if(!that->ctx)
 	CreateCGContextForPort((GWorldPtr)hd, &that->ctx);
 #endif
     return ctx;

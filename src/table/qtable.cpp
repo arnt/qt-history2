@@ -252,6 +252,14 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 	     s.lCol == lCol && s.rCol == rCol );
 }
 
+/*!
+    \fn bool QTableSelection::operator!=( const QTableSelection &s ) const
+
+    Returns TRUE if \a s does not include the same cells as the
+    selection; otherwise returns FALSE.
+*/
+
+
 /*! \fn int QTableSelection::topRow() const
 
   Returns the top row of the selection.
@@ -2514,7 +2522,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
     efficiency. If you want clipping, use code like this:
 
     \code
-    p->setClipRect( cellRect(row, col), QPainter::ClipPainter );
+    p->setClipRect( cellRect(row, col), QPainter::CoordPainter );
     //... your drawing code
     p->setClipping( FALSE );
     \endcode
@@ -5026,6 +5034,11 @@ void QTable::takeItem( QTableItem *i )
     add the widget to the internal data structure. To use your own data
     structure reimplement insertWidget(), cellWidget() and
     clearCellWidget().
+
+    Cell widgets are created dynamically with the 'new' operator. The
+    cell widgets are destroyed automatically once the table is
+    destroyed; the table takes ownership of the widget when using
+    setCellWidget.
 
 */
 

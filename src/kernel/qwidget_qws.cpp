@@ -1674,6 +1674,9 @@ void QWidget::setName( const char *name )
     }
 }
 
+/*!
+    \internal
+*/
 QGfx * QWidget::graphicsContext(bool clip_children) const
 {
     QGfx * qgfx_qws;
@@ -1721,6 +1724,9 @@ void QWidget::updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const
 #endif
 }
 
+/*!
+    \internal
+*/
 unsigned char * QWidget::scanLine(int i) const
 {
     // Should add widget x() here, maybe
@@ -1730,6 +1736,9 @@ unsigned char * QWidget::scanLine(int i) const
     return base;
 }
 
+/*!
+    \internal
+*/
 int QWidget::bytesPerLine() const
 {
     return qt_screen->linestep();

@@ -3425,6 +3425,9 @@ void QApplication::wakeUpGuiThread()
 #endif
 }
 
+/*!
+    \internal
+*/
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
     QETWidget *widget = (QETWidget*)w;

@@ -59,6 +59,9 @@ static void qt_setFontWeight( int &weight, QString &weightString )
 static QtFontFoundry *qt_ttffoundry=0;
 static QtFontFoundry *qt_bdffoundry=0;
 
+/*!
+    \internal
+*/
 void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf )
 {
     if ( !db )

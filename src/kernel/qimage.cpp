@@ -498,14 +498,17 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 #ifdef Q_WS_QWS
 
 /*!
-  Constructs an image that uses an existing memory buffer.
-  The buffer must remain valid for the life of the QImage.  The image
-  does not delete the buffer at destruction.
+  Constructs an image that uses an existing memory buffer. The buffer
+  must remain valid for the life of the QImage. The image does not
+  delete the buffer at destruction. The buffer is passed as \a
+  yourdata. The image's width is \a w and its height is \a h. The
+  color depth is \a depth. \a bpl specifies the number of bytes per
+  line.
 
-  \a bpl specifies the number of bytes per line.
+  If \a colortable is 0, a color table sufficient for \a numColors
+  will be allocated (and destructed later).
 
-  If colortable is 0, a color table sufficient for \a numColors will be
-  allocated (and destructed later).
+  The endian-ness is specified by \a bitOrder.
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		int bpl, QRgb* colortable, int numColors,
@@ -6124,6 +6127,9 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 #endif // QT_NO_IMAGE_TEXT
 
 #ifdef Q_WS_QWS
+/*!
+    \internal
+*/
 QGfx * QImage::graphicsContext()
 {
     QGfx * ret=0;

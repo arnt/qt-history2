@@ -520,7 +520,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
         } else
-#endif	    
+#endif
 	    data->hasAlpha = TRUE;
     }
     data->uninit = FALSE;
@@ -698,6 +698,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #endif // QT_NO_PIXMAP_TRANSFORMATION
 
 // CALLER DELETES
+/*!
+    \internal
+*/
 QGfx * QPixmap::graphicsContext(bool) const
 {
     if(isNull()) {
@@ -722,6 +725,9 @@ QGfx * QPixmap::graphicsContext(bool) const
     return ret;
 }
 
+/*!
+    \internal
+*/
 unsigned char * QPixmap::scanLine(int i) const
 {
     uchar * p;
@@ -731,6 +737,9 @@ unsigned char * QPixmap::scanLine(int i) const
     return p;
 }
 
+/*!
+    \internal
+*/
 int QPixmap::bytesPerLine() const
 {
     uchar * p;
@@ -739,11 +748,17 @@ int QPixmap::bytesPerLine() const
     return linestep;
 }
 
+/*!
+    \internal
+*/
 QRgb * QPixmap::clut() const
 {
     return data->clut;
 }
 
+/*!
+    \internal
+*/
 int QPixmap::numCols() const
 {
     return data->numcols;

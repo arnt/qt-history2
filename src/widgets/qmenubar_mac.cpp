@@ -24,7 +24,7 @@ void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 //internal class
 class QMenuBar::MacPrivate {
 public:
-    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL), 
+    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL),
 	apple_menu(NULL), in_apple(0), dirty(1) { }
     ~MacPrivate() { clear(); delete popups; delete commands; }
 
@@ -70,7 +70,7 @@ static QMenuBar* activeMenuBar = NULL; //The current global menubar
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
 //event callbacks
-QMAC_PASCAL OSStatus 
+QMAC_PASCAL OSStatus
 QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 {
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
@@ -152,10 +152,10 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 	{ kEventClassMenu, kEventMenuMeasureItemHeight },
 	{ kEventClassMenu, kEventMenuDrawItemContent }
     };
-    if(!mac_menubarEventUPP) 
+    if(!mac_menubarEventUPP)
 	mac_menubarEventUPP = NewEventHandlerUPP(qt_mac_menubar_event);
-    InstallMenuEventHandler(ref, mac_menubarEventUPP, 
-			    GetEventTypeCount(menu_events), menu_events, NULL, 
+    InstallMenuEventHandler(ref, mac_menubarEventUPP,
+			    GetEventTypeCount(menu_events), menu_events, NULL,
 			    &mac_menubarEventHandler);
     qAddPostRoutine( qt_mac_clean_menubar_event );
 }
@@ -169,7 +169,7 @@ static const CFStringRef no_ampersands(QString i) {
 }
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-uint QMenuBar::isCommand(QMenuItem *it) 
+uint QMenuBar::isCommand(QMenuItem *it)
 {
     if(it->popup() || it->custom() || it->isSeparator())
 	return 0;
@@ -178,7 +178,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
     for(int w = 0; (w=t.find('&', w)) != -1; )
 	t.remove(w, 1);
     int st = t.findRev('\t');
-    if(st != -1) 
+    if(st != -1)
 	t.remove(st, t.length()-st);
     t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
@@ -186,9 +186,9 @@ uint QMenuBar::isCommand(QMenuItem *it)
     if(t.find("about", 0, FALSE) == 0) {
 	if(t.find(QRegExp("qt$", FALSE)) == -1)
 	    ret = kHICommandAbout;
-	else 
+	else
 	    ret = 'CUTE';
-    } else if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
+    } else if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 ||
 	      t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0 ||
 	      t.find("setup", 0, FALSE) == 0 ) {
 	ret = kHICommandPreferences;
@@ -196,7 +196,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
 	ret = kHICommandQuit;
     }
     //shall we?
-    if(ret && activeMenuBar && 
+    if(ret && activeMenuBar &&
        (!activeMenuBar->mac_d->commands || activeMenuBar->mac_d->commands->find(ret))) {
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
@@ -204,7 +204,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
 		for(int w = 0; (w=text.find('&', w)) != -1; )
 		    text.remove(w, 1);
 		int st = text.findRev('\t');
-		if(st != -1) 
+		if(st != -1)
 		    text.remove(st, text.length()-st);
 		text.replace(QRegExp("\\.*$"), ""); //no ellipses
 #ifdef Q_WS_MACX
@@ -213,12 +213,12 @@ uint QMenuBar::isCommand(QMenuItem *it)
 		    text += " " + prog.section('/', -1, -1);;
 		}
 #endif
-		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu, 
-					       no_ampersands(text), 
-					       activeMenuBar->mac_d->in_apple++, 
+		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
+					       no_ampersands(text),
+					       activeMenuBar->mac_d->in_apple++,
 					       kMenuItemAttrAutoRepeat, ret);
 	    }
-	} 
+	}
 	EnableMenuCommand(NULL, ret);
     } else {
 	ret = 0;
@@ -242,12 +242,12 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    }
 #endif
 	    QMenuItem *item = d->findItem(d->idAt(x));
-	
+
 #if defined(QMAC_QMENUBAR_NO_EVENT)
-	    if(item->custom()) 
+	    if(item->custom())
 		continue;
 #endif
-	    if(item->widget()) 
+	    if(item->widget())
 		continue;
 
 	    QString text = "empty", accel; //Yes I need this, stupid!
@@ -258,7 +258,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			activeMenuBar->mac_d->commands = new QIntDict<QMenuBar::MacPrivate::CommandBinding>();
 			activeMenuBar->mac_d->commands->setAutoDelete(TRUE);
 		    }
-		    activeMenuBar->mac_d->commands->insert(cmd, 
+		    activeMenuBar->mac_d->commands->insert(cmd,
 							   new QMenuBar::MacPrivate::CommandBinding(d, x));
 		    continue;
 		}
@@ -269,7 +269,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    accel = text.right(text.length()-(st+1));
 		    text.remove(st, text.length()-st);
 		}
-	    } 
+	    }
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
 	    else if(x != (int)d->count()-1 &&
 		    ((x == (int)d->count() - 2 || d->findItem(d->idAt(x+2))->isSeparator()) &&
@@ -279,7 +279,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 
 	    MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
-	    if(item->custom()) 
+	    if(item->custom())
 		attr |= kMenuItemAttrCustomDraw;
 #endif
 	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id,  attr, item->id());
@@ -304,15 +304,15 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), FALSE));
 		} else {
 		    int k = item->key();
-		    if(k == Qt::Key_unknown && !accel.isEmpty()) 
+		    if(k == Qt::Key_unknown && !accel.isEmpty())
 			k = QAccel::stringToKey(accel);
 		    if( k != Qt::Key_unknown ) {
 			char mod = 0;
-			if ( (k & Qt::CTRL) != Qt::CTRL ) 
+			if ( (k & Qt::CTRL) != Qt::CTRL )
 			    mod |= kMenuNoCommandModifier;
-			if ( (k & Qt::ALT) == Qt::ALT ) 
+			if ( (k & Qt::ALT) == Qt::ALT )
 			    mod |= kMenuOptionModifier;
-			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
+			if ( (k & Qt::SHIFT) == Qt::SHIFT )
 			    mod |= kMenuShiftModifier;
 			int keycode = (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
 			if(keycode) {
@@ -324,7 +324,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 				keycode = kMenuTabRightGlyph;
 			    else if(keycode == Qt::Key_Backspace)
 				keycode = kMenuDeleteLeftGlyph;
-			    else if(keycode == Qt::Key_Escape) 
+			    else if(keycode == Qt::Key_Escape)
 				keycode = kMenuEscapeGlyph;
 			    else if(keycode == Qt::Key_PageUp)
 				keycode = kMenuPageUpGlyph;
@@ -340,14 +340,14 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 				keycode = kMenuRightArrowGlyph;
 			    else if(keycode == Qt::Key_CapsLock)
 				keycode = kMenuCapsLockGlyph;
-			    else if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15) 
+			    else if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15)
 				keycode = (keycode - Qt::Key_F1) + kMenuF1Glyph;
 			    else {
 				do_glyph = FALSE;
 				if(keycode < 127)
 				    SetItemCmd(ret, id, (CharParameter)keycode );
 				else
-				    qDebug("%s:%d Not sure how to handle %d", 
+				    qDebug("%s:%d Not sure how to handle %d",
 					   __FILE__, __LINE__, keycode);
 			    }
 			    if(do_glyph)
@@ -362,7 +362,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
     return TRUE;
 }
 
-MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
+MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 {
     static int mid = 0;
     MenuAttributes attr = 0;
@@ -381,23 +381,23 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
     qt_mac_install_menubar_event(ret);
 #endif
-    activeMenuBar->mac_d->popups->insert((int)mid, 
-					 new QMenuBar::MacPrivate::PopupBinding(d, ret, 
+    activeMenuBar->mac_d->popups->insert((int)mid,
+					 new QMenuBar::MacPrivate::PopupBinding(d, ret,
 										top_level));
     if(1 || do_sync)
 	syncPopups(ret, d);
     return ret;
 }
-	
-bool QMenuBar::updateMenuBar() 
+
+bool QMenuBar::updateMenuBar()
 {
-    if(this != activeMenuBar) 
+    if(this != activeMenuBar)
 	qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
     ClearMenuBar();
     if(mac_d)
 	mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
-	SetMenuTitleWithCFString(mac_d->apple_menu, 
+	SetMenuTitleWithCFString(mac_d->apple_menu,
 				 no_ampersands(QString(QChar(0x14))));
 	InsertMenu(mac_d->apple_menu, 0);
     }
@@ -424,7 +424,7 @@ bool QMenuBar::activateCommand(uint cmd)
     if(activeMenuBar && activeMenuBar->mac_d->commands) {
 	if(MacPrivate::CommandBinding *mcb = activeMenuBar->mac_d->commands->find(cmd)) {
 #ifdef DEBUG_MENUBAR_ACTIVATE
-	    qDebug("ActivateCommand: activating internal merging '%s'", 
+	    qDebug("ActivateCommand: activating internal merging '%s'",
 		   mcb->qpopup->text(mcb->qpopup->idAt(mcb->index)).latin1());
 #endif
 	    mcb->qpopup->activateItemAt(mcb->index);
@@ -447,7 +447,7 @@ bool QMenuBar::activateCommand(uint cmd)
 	QMessageBox::aboutQt(NULL);
 	HiliteMenu(0);
 	return TRUE;
-    } 
+    }
     HiliteMenu(0);
     return FALSE;
 }
@@ -471,7 +471,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 	       mpb->qpopup->text(cmd).latin1(), highlight);
 #endif
 	if(highlight) {
-	    if(mpb->qpopup->isItemEnabled(cmd)) 
+	    if(mpb->qpopup->isItemEnabled(cmd))
 		mpb->qpopup->hilitSig(cmd);
 	} else {
 	    mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
@@ -488,11 +488,11 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
   Internal function that cleans up the menubar.
 */
 static QIntDict<QMenuBar> *menubars = NULL;
-void QMenuBar::macCreateNativeMenubar() 
+void QMenuBar::macCreateNativeMenubar()
 {
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
-    if(p && (!menubars || !menubars->find((int)topLevelWidget())) && 
+    if(p && (!menubars || !menubars->find((int)topLevelWidget())) &&
        ((p->isDialog() && p->isTopLevel()) || p->inherits("QToolBar") ||
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
 	mac_eaten_menubar = 1;
@@ -509,7 +509,7 @@ void QMenuBar::macRemoveNativeMenubar()
 {
     if(mac_eaten_menubar && menubars) {
 	QMenuBar *mb = menubars->find((int)topLevelWidget());
-	if(mb == this) 
+	if(mb == this)
 	    menubars->remove((int)topLevelWidget());
     }
     mac_eaten_menubar = FALSE;
@@ -531,10 +531,16 @@ void QMenuBar::macDirtyNativeMenubar()
     }
 }
 
+/*!
+    \internal
+*/
 void QMenuBar::initialize()
 {
 }
 
+/*!
+    \internal
+*/
 void QMenuBar::cleanup()
 {
     delete menubars;
@@ -543,7 +549,7 @@ void QMenuBar::cleanup()
 
 void QMenuBar::macUpdateMenuBar()
 {
-    if(!menubars) 
+    if(!menubars)
 	return;
     QWidget *w = qApp->activeWindow();
     if(!w) {
@@ -584,8 +590,8 @@ void QMenuBar::macUpdateMenuBar()
 
 		InvalMenuBar();
 	    }
-	} 
-    } 
+	}
+    }
 }
 
 void QMenuBar::macUpdatePopup(MenuRef mr)
@@ -603,7 +609,7 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
 		activeMenuBar->syncPopups(mr, mpb->qpopup);
 	    }
 	}
-    } 
+    }
 }
 
 #endif //WS_MAC

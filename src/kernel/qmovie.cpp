@@ -692,6 +692,9 @@ void QMovie::pushData(const uchar* data, int length)
 }
 
 #ifdef Q_WS_QWS // ##### Temporary performance experiment
+/*!
+    \internal
+*/
 void QMovie::setDisplayWidget(QWidget * w)
 {
     d->display_widget=w;

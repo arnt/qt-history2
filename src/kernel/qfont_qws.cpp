@@ -324,6 +324,9 @@ void QFont::cleanup()
 
 // This function is needed for Qt/X11 and does nothing in Qt/Embedded.
 
+/*!
+    \internal
+*/
 void QFont::cacheStatistics()
 {
 }

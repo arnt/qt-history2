@@ -4961,6 +4961,9 @@ bool QWidget::macEvent( MSG * )
   \sa QApplication::winEventFilter()
 */
 
+/*!
+    \internal
+*/
 bool QWidget::winEvent( MSG * )
 {
     return FALSE;
@@ -4968,6 +4971,9 @@ bool QWidget::winEvent( MSG * )
 
 #elif defined(Q_WS_X11)
 
+/*!
+    \internal
+*/
 bool QWidget::x11Event( XEvent * )
 {
     return FALSE;
@@ -4989,6 +4995,9 @@ bool QWidget::x11Event( XEvent * )
   \sa QApplication::qwsEventFilter()
 */
 
+/*!
+    \internal
+*/
 bool QWidget::qwsEvent( QWSEvent * )
 {
     return FALSE;

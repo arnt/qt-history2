@@ -2237,6 +2237,9 @@ bool QApplication::processNextEvent( bool canWait )
     return (nevents > 0);
 }
 
+/*!
+    \internal
+*/
 int QApplication::qwsProcessEvent( QWSEvent* event )
 {
     if ( qwsEventFilter(event) )			// send through app filter
@@ -2555,7 +2558,7 @@ QWSDecoration &QApplication::qwsDecoration()
 
 /*!
   Set the QWSDecoration derived class to use for decorating the Qt/Embedded
-  windows.
+  windows to \a d.
 
   This method is non-portable.  It is available \e only in Qt/Embedded.
 

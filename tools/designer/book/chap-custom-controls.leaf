@@ -571,6 +571,14 @@ We have two recommendations that you should consider when creating a
 	found and loaded by \QD the next time \QD is run. Use your
 	custom widget just like any other. 
 
+	If you want to use the plugin in another of your projects you
+	can link against it by adding an appropriate line to the
+	project, e.g. by adding a line like this to the project's \c
+	.pro file:
+\code
+LIBS += filechooser.lib
+\endcode
+
 	When you want to distribute your application, include the
 	compiled plugin with the executable. Install the plugin in
 	\c{$QTDIR/plugins/widgets}. If you don't want to use the

@@ -1374,6 +1374,9 @@ void QWSServer::setDefaultKeyboard( const char *k )
 
 static bool prevWin;
 
+/*!
+    \internal
+*/
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
     qwsServer->showCursor();
@@ -1393,7 +1396,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->move(pos.x(),pos.y());
 
-    // Arrow cursor over desktop 
+    // Arrow cursor over desktop
     // prevWin remembers if the last event was over a window
     if (!win && prevWin) {
 	if ( !qwsServer->mouseGrabber )
@@ -1568,9 +1571,9 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
 
     event.simpleData.window = win ? win->winId() : 0;
 
-    event.simpleData.unicode = 
+    event.simpleData.unicode =
 #ifndef QT_NO_QWS_KEYBOARD
-	unicode < 0 ? keyUnicode(keycode) : 
+	unicode < 0 ? keyUnicode(keycode) :
 #endif
 	unicode;
     event.simpleData.keycode = keycode;

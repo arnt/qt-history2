@@ -921,6 +921,9 @@ QCalibratedMouseHandler::QCalibratedMouseHandler()
     readCalibration();
 }
 
+/*!
+    \internal
+*/
 void QCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
 {
     QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];

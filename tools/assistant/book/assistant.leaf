@@ -34,21 +34,21 @@ documentation set:
 
 \list
 
-\i The \link classes.html \e {All Classes}\endlink page lists every class
+\i The \link classes.html All Classes\endlink page lists every class
 in Qt's public API, and consists of several hundred classes.
 
-\i The \link mainclasses.html \e {Main Classes}\endlink page lists the
+\i The \link mainclasses.html Main Classes\endlink page lists the
 classes you're most likely to use most often, and provides a much
 shorter and more managable list than the All Classes list.
 
-\i The \link groups.html \e {Grouped Classes}\endlink page presents a list
+\i The \link groups.html Grouped Classes\endlink page presents a list
 of groups, each of which leads to a list of related classes, for
 example, the \link advanced.html Advanced Widgets\endlink list.
 
-\i The \link hierarchy.html \e {Inheritance Hierarchy}\endlink page
+\i The \link hierarchy.html Inheritance Hierarchy\endlink page
 presents a list of classes in terms of the hierarchy of Qt classes.
 
-\i The \link functions.html \e {All Functions}\endlink page lists all the
+\i The \link functions.html All Functions\endlink page lists all the
 functions provided by Qt classes, each one with links to the class(es)
 in which it appears.
 

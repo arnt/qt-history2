@@ -286,6 +286,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     delete mygfx;
 }
 
+/*!
+    \internal
+*/
 QWSDisplay *QPaintDevice::qwsDisplay()
 {
     return qt_fbdpy;
@@ -296,11 +299,17 @@ Qt::HANDLE QPaintDevice::handle() const
     return 0;
 }
 
+/*!
+    \internal
+*/
 unsigned char *QPaintDevice::scanLine(int) const
 {
     return 0;
 }
 
+/*!
+    \internal
+*/
 int QPaintDevice::bytesPerLine() const
 {
     return 0;
@@ -308,7 +317,9 @@ int QPaintDevice::bytesPerLine() const
 
 // We should maybe return an extended-device Gfx by default here
 // at the moment, it appears to return 0.
-
+/*!
+    \internal
+*/
 QGfx * QPaintDevice::graphicsContext(bool) const
 {
     //qFatal("QGfx requested for QPaintDevice");
@@ -318,7 +329,7 @@ QGfx * QPaintDevice::graphicsContext(bool) const
 void QPaintDevice::setResolution( int )
 {
 }
- 
+
 int QPaintDevice::resolution() const
 {
     return metric( QPaintDeviceMetrics::PdmDpiY );
