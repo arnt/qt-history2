@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#135 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1217,7 +1217,7 @@ void QComboBox::popup()
 	int x  = pos.x();
 	int y  = pos.y();
 	int w  = width();
-	int h  = height();
+	int h  = d->listBox->height();
 	if ( x+w > sw )				// the complete widget must
 	    x = sw - w;				//   be visible
 	if ( y+h > sh )

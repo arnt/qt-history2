@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#74 $
 **
 ** Implementation of QLabel widget class
 **
@@ -87,7 +87,7 @@ static void cleanupLabel()
   Both lines are flush with the right side of the label.
 
   <img src=qlabel-m.gif> <img src=qlabel-w.gif>
-  
+
   \sa QLineEdit QMovie
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
