@@ -162,23 +162,27 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 #if OLDSTYLE
 	    out() << "<ul>\n";
 #else
-	    out() << "<table>\n";	    
+	    out() << "<table"
+		     " align=\"center\""
+		     " border=\"1\" cellpadding=\"2\"" " cellspacing=\"1\""
+		     " width=\"95%\">\n"
+		     "<col width=\"20%\">\n";
 #endif
 	} else {
             out() << "<ol type=";
             if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
-        	out() << "A";
+		out() << "A";
             } else if ( atom->string() == ATOM_LIST_LOWERALPHA ) {
-        	out() << "a";
+		out() << "a";
             } else if ( atom->string() == ATOM_LIST_UPPERROMAN ) {
-        	out() << "I";
+		out() << "I";
             } else if ( atom->string() == ATOM_LIST_LOWERROMAN ) {
-        	out() << "i";
+		out() << "i";
             } else { // ( atom->string() == ATOM_LIST_NUMERIC )
-        	out() << "1";
+		out() << "1";
             }
             if ( atom->next() != 0 && atom->next()->string().toInt() != 1 )
-        	out() << " start=" << atom->next()->string();
+		out() << " start=" << atom->next()->string();
             out() << ">\n";
 	}
 	break;
@@ -191,7 +195,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 #if OLDSTYLE
 	    out() << "<li>";
 #else
-	    out() << "<tr><td>";
+	    out() << "<tr><td valign=\"top\">";
 #endif
 	}
 	break;
@@ -207,8 +211,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	    if ( !matchAhead(atom, Atom::ListItemRight) )
 		out() << " -- ";
 #else
-	    if ( !matchAhead(atom, Atom::ListItemRight) )
-		out() << "</td><td>";
+	    out() << "</td><td>"; // Need a cell, empty or not, for the border
 #endif
 	} else {
 	    out() << "<li>";
