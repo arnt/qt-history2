@@ -38,7 +38,12 @@
 
 \title Qt Network Module
 
-This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+This module is part of the \link editions.html Qt Enterprise Edition \endlink.
+
+\tableofcontents
+
+
+\section1 Introduction
 
 The network module offers classes to make network programming easier
 and portable. Basically there are three sets of classes, first very
@@ -66,8 +71,9 @@ hierarchical structure and can be accessed using URLs. This could be
 e.g. a protocol which can read pictures from a digital camera using a
 serial connection.
 
-<h2>Working Network Protocol independent with QUrlOperator and
-QNetworkOperation</h2>
+
+
+\section1 Working Network Protocol independent with QUrlOperator and QNetworkOperation
 
 To just use existing network protocol implementations and operate on
 URLs using them is quite easy. E.g. downloading a file from an FTP
@@ -113,7 +119,7 @@ signal comes.
 
 Some of these operations send a \c start() signal at the beginning (depending if it makes
 sense or not), then some of them send some signals during processing the operation,
-and <b>all</b> operations send a \c finished() signal after they are done. Now, finished
+and \e all operations send a \c finished() signal after they are done. Now, finished
 could mean that the operation has been successfully finished or that it failed. To find
 that out you can use the \c QNetworkOperation pointer you got with the \c finished()
 signal. If \c QNetworkOperation::state() equals \c QNetworkProtocol::StDone the
@@ -188,7 +194,9 @@ void MyClass::slotFinished( QNetworkOperation *operation )
 These examples explained now how to use the \c QUrlOperator and \c QNetworkOperations.
 The network extension will contain some good examples for this too.
 
-<h2>Implementing your own Network Protocol</h2>
+
+
+\section2 Implementing your own Network Protocol
 
 \c QNetworkProtocol provides a base class for implementations
 of network protocols and an architecture to a dynamic registration
@@ -318,7 +326,7 @@ name filter and everything else of the URL)
 </ul>
 
 So, to sum it up: If you reimplement such an operation method, you
-have to emit some special signals and <b>always</b> at the end a
+have to emit some special signals and \e always at the end a
 \c finished() signal, either on success or on failure. Also you have to change
 the state of the \c QNetworkOperation during processing it and can get
 and set arguments of the operation as well.
@@ -394,7 +402,9 @@ Finally as example for a network protocol implementation you could look at the
 implementation of QLocalFs. The network extension will also contain an example
 implementation of a network protocol
 
-<h2>Error Handling</h2>
+
+
+\section 2 Error Handling
 
 Error handling is important for both, implementing new network protocols and using
 them (through \c QUrlOperator). So first some words about error handling when using
