@@ -40,6 +40,9 @@ Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
 #endif
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
+TimerVec  *timerVec = 0;
+TimerDict *timerDict = 0;
+
 static bool	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
@@ -157,7 +160,7 @@ static bool dispatchTimer( uint timerId, MSG *msg )
 
 static bool activateTimer( uint id )		// activate timer
 {
-    if ( !timerVec )				// should never happen
+    if ( !QEventLoopPrivate::timerVec )				// should never happen
 	return FALSE;
     register TimerInfo *t = timerDict->find( id );
     if ( !t )					// no such timer id
@@ -169,7 +172,7 @@ static bool activateTimer( uint id )		// activate timer
 
 static void activateZeroTimers()		// activate full-speed timers
 {
-    if ( !timerVec )
+    if ( !QEventLoopPrivate::timerVec )
 	return;
     uint i=0;
     register TimerInfo *t = 0;

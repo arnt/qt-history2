@@ -1468,7 +1468,7 @@ void QPixmap::convertToAlphaPixmap( bool initAlpha )
 	    QImage msk = mask()->convertToImage();
 	    int i = 0;
 	    int w = width();
-	    int backgroundIndex = msk.color(0) == Qt::color0.rgb() ? 0 : 1;
+	    int backgroundIndex = msk.color(0) == QColor(Qt::color0).rgb() ? 0 : 1;
 	    while ( p < pe ) {
 		if ( msk.pixelIndex( i%w, i/w ) == backgroundIndex )
 		    *p = 0x00;

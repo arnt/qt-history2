@@ -87,6 +87,8 @@ class QBitArray;
 #endif // Q_OS_UNIX
 
 #if defined(Q_WS_WIN)
+#include <qptrvector.h>
+#include <qintdict.h>
 struct QSockNot {
     QSocketNotifier *obj;
     int fd;
@@ -147,14 +149,14 @@ public:
     timeval *timerWait();
     void     timerInsert(const TimerInfo *);
     void     timerRepair(const timeval &);
-    
+
 #endif
 
 #ifdef Q_WS_WIN
     // pending socket notifiers list
     QList<QSockNot *> sn_pending_list;
-    TimerVec  *timerVec  = 0;		// timer vector
-    TimerDict *timerDict = 0;		// timer dict
+    static TimerVec  *timerVec;		// timer vector
+    static TimerDict *timerDict;	// timer dict
 #endif // Q_WS_WIN
 
 };
