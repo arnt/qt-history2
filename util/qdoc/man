@@ -225,7 +225,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
-.\\\" Copyright 1992-1996 Troll Tech AS.  All rights reserved.  See the
+.\\\" Copyright 1992-1997 Troll Tech AS.  All rights reserved.  See the
 .\\\" LICENSE file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
@@ -237,7 +237,7 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 ".SH \"SEE ALSO\"
 .BR http://www.troll.no/qt/", $url, "
 .SH COPYRIGHT
-Copyright 1992-1996 Troll Tech AS.  See the LICENSE file included in
+Copyright 1992-1997 Troll Tech AS.  See the LICENSE file included in
 the distribution for a complete license statement.
 .SH AUTHOR
 Generated automatically from the source code.
