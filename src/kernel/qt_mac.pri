@@ -6,7 +6,7 @@ mac {
 		       /System/Library/Frameworks/HIToolbox.framework/Headers \
 		       /System/Library/Frameworks/PrintCore.framework/Headers \
           /System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/Headers/
-	LIBS += $$QMAKE_LIBS_QT_FRAMEWORKS
+	LIBS += -framework Carbon -framework QuickTime
   }
   macx-g++: QMAKE_LFLAGS_SHLIB += -prebind -seg1addr 0x90000000
   *-mwerks:INCLUDEPATH += compat
