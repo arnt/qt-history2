@@ -96,7 +96,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
     GetAvailableWindowPositioningBounds(d->devs[screen], &r);
     //we use avail_rects to avoid returning a reference to a temporary. This API is just WRONG!!! We
     //it should not assume the platform returns a const reference.
-    return d->avail_rects[screen] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+    return const_cast<QRect &>(d->avail_rects[screen]) = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 }
 
 const QRect& QDesktopWidget::screenGeometry(int screen) const
@@ -137,7 +137,7 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
     QDesktopWidgetPrivate *old_d = d;
-    d = new QDesktopWidgetPrivate;
+    d_ptr = new QDesktopWidgetPrivate;
     for(int i = 0; i < d->screenCount; i++) {
         if(i > old_d->screenCount || d->rects[i] != old_d->rects[i])
             emit resized(i);
