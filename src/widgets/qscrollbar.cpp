@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#59 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#59 $");
 
 
 /*!
@@ -105,8 +105,8 @@ public:
 #undef PRIV
 #define PRIV	((QScrollBar_Private *)this)
 
-const int thresholdTime = 500;
-const int repeatTime	= 100;
+static const int thresholdTime = 500;
+static const int repeatTime	= 100;
 
 #define HORIZONTAL	(orientation() == Horizontal)
 #define VERTICAL	!HORIZONTAL
