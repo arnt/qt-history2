@@ -1012,7 +1012,7 @@ void QMacStylePrivate::setFocusWidget(QWidget *w)
             top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
         if (qt_cast<QMainWindow *>(top)) {
-            QWidget *central = static_cast<QMainWindow *>(top)->centerWidget();
+            QWidget *central = static_cast<QMainWindow *>(top)->centralWidget();
             for (const QWidget *par = w; par; par = par->parentWidget()) {
                 if (par == central) {
                     top = central;
@@ -4643,7 +4643,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #ifndef QT_NO_MAINWINDOW
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
-                   && static_cast<QMainWindow *>(widget->parentWidget())->centerWidget() == widget))
+                   && static_cast<QMainWindow *>(widget->parentWidget())->centralWidget() == widget))
                 && (qt_cast<const QViewport *>(widget)
 #ifdef QT_COMPAT
                     || widget->inherits("QScrollView")
