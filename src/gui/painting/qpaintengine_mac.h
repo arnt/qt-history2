@@ -55,6 +55,8 @@ public:
     static void initialize();
     static void cleanup();
 
+    void setupQDPort(bool force=false, QPoint *off=NULL, QRegion *rgn=NULL);
+
 protected:
     QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps=0);
     void setClippedRegionInternal(QRegion *);
@@ -62,7 +64,6 @@ protected:
     void setupQDFont();
     void setupQDBrush();
     void setupQDPen();
-    void setupQDPort(bool force=false, QPoint *off=NULL, QRegion *rgn=NULL);
 
     friend class QFontEngineMac;
 
