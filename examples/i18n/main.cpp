@@ -49,11 +49,11 @@ public:
 		    const QString& mid2=QString::null,
 		    const QString& mid3=QString::null)
     {
-	addButton(ok.isNull() ? tr("OK") : ok, 1);
+	addButton(ok.isNull() ? QObject::tr("OK") : ok, 1);
 	if ( !mid1.isNull() ) addButton(mid1,2);
 	if ( !mid2.isNull() ) addButton(mid2,3);
 	if ( !mid3.isNull() ) addButton(mid3,4);
-	addButton(cancel.isNull() ? tr("Cancel") : cancel, 0);
+	addButton(cancel.isNull() ? QObject::tr("Cancel") : cancel, 0);
     }
 
     void addButton( const QString& text, int result )
