@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#26 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#27 $
 **
 ** Implementation of QDns class.
 **
@@ -37,24 +37,23 @@
 
 #include "qglobal.h"
 #if defined(Q_OS_LINUX)
-// This is gory!
-// <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using 'u_char'
-// and includes <sys/types.h>. Now the problem is that <sys/types.h> defines
-// 'u_char' only if __USE_BSD is defined. __USE_BSD is defined in <features.h>
-// if _BSD_SOURCE is defined.
-// Alas "qdns.h" includes "qcstring.h" which includes <string.h> which
-// includes <features.h>. So _BSD_SOURCE has to be defined before "qdns.h"...
-// One more good reason to centralize even platform-dependant specification
-// macros like _BSD_SOURCE in "qglobal.h".
+// DNS system header files are a mess!
+// <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using
+// 'u_char' and includes <sys/types.h>.  Now the problem is that
+// <sys/types.h> defines 'u_char' only if __USE_BSD is defined.
+// __USE_BSD is defined in <features.h> if _BSD_SOURCE is defined.
+// The conclusion is that _BSD_SOURCE needs to be defined before
+// <features.h> is included.
+// Now "qdns.h" includes "qcstring.h" which includes <string.h>
+// which includes <features.h>.  So _BSD_SOURCE has to be defined
+// before "qdns.h".
 #  define _BSD_SOURCE
 #endif
 #if defined(Q_OS_OSF)
-// Same problem here...
+// Exact same problem here: 'u_char' and other BSD unsigned things
+// used in <arpa/nameser.h> are undefined on Tru64 4.0f unless we
+// define _OSF_SOURCE before "qdns.h".
 #  define _OSF_SOURCE
-#endif
-#if defined(Q_OS_MACX)
-#  include <nameser.h>
-#  include <netinet/in.h>
 #endif
 
 #include "qdns.h"
@@ -1963,23 +1962,23 @@ QString QDns::canonicalName() const
 // struct __res_state is part of the API.  Normally not used, it
 // says.  But we use it, to get various information.
 
-#if 1
-// should be included by default... if not, please document!
-// ...
-// the BSDs don't include these by default in the header files - XPG
-// unfortunately doesn't say anything about res_* :/
+// DNS header files are not fully covered by X/Open specifications.
+// In particular nothing is said about res_* :/
+// The following header files <sys/types.h>, <netinet/in.h>, and
+// <arpa/nameser.h> are included by <resolv.h> on some systems.
+// But BSDs do not include them automatically. So let's always
+// include them...
 #include <sys/types.h>
 #include <netinet/in.h>
-#include <arpa/nameser.h>
-#endif
-
 #if defined (Q_OS_SCO) // SCO OpenServer 5.0.5
 #  define class c_class
 #endif
-#include <resolv.h>
+#include <arpa/nameser.h>
 #if defined (Q_OS_SCO)
 #  undef class
 #endif
+
+#include <resolv.h>
 
 #if defined (Q_OS_SOLARIS)
 // According to changelog 23685, this was introduced to fix a problem
