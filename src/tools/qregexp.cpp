@@ -60,254 +60,532 @@
   \ingroup misc
   \ingroup shared
 
-  Regular expressions are found in such tools as grep, lex, awk and perl.  They
-  help users and programmers accomplish simple tasks such as these:
 
-  <ul plain>
-  <li> Validate input:  Check whether or not the user entered a valid email
-       address, a valid number, etc.
-  <li> Search text:  Look for all Bills and Williams in a Unix password file.
-  <li> Search-and-replace text:  Replace all occurrences of <tt>\&</tt> by
-       <tt>\&amp;</tt>.
-  </ul>
+    Regular expressions, "regexps", provide a way to find patterns
+    within text. This is useful in many contexts, for example:
 
-  Regular expressions are a generalization of character strings (\l QString).
-  Indeed, the most basic regular expressions are just plain strings that avoid
-  certain special characters.  Thus, the regular expression <b>begin</b> means
-  precisely the same as the string <tt>begin</tt>.  (We will use bold to
-  distinguish regular expressions from ordinary strings.)
+    <ol>
+    <li>\e Validation. A regexp can be used to check whether a piece of
+    text meets some criteria, e.g. is an integer or contains no
+    whitespace.
+    <li>\e Searching. Regexps provide a much more powerful means of
+    searching text than simple string matching does. For example we can
+    create a regexp which says "find one of the words 'mail', 'letter'
+    or 'correspondence' but not any of the words 'email', 'mailman'
+    'mailer', 'letterbox' etc."
+    <li><em>Search and Replace.</em> A regexp can be used to replace a
+    pattern with a piece of text, for example replace all occurrences of
+    '&' with '\&amp;' except where the '&' is already followed by
+    'amp;'.
+    <li><em>String Splitting.</em> A regexp can be used to identify
+    where a string should be split into its component fields, e.g.
+    splitting tab delimited strings.
+    </ol>
 
-  But regular expressions are much more general; they can specify a
-  whole family of strings.  For example, <b>Bill|William</b> (read
-  "Bill or William") denotes the family consisting of <tt>Bill</tt>
-  and <tt>William</tt>, and <b>\w+tion</b> denotes the infinite family
-  of all the words ending in <tt>tion</tt> (such as
-  <tt>information</tt> and <tt>fffgfgftion</tt>).  Idiomatically, we
-  can say that <b>Bill|William</b> matches <tt>Bill</tt>.  It also
-  matches <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
+    We present a very brief introduction to regexps, a description of
+    Qt's regexp language, some code examples, and finally the function
+    documentation. QRegExp is modelled on Perl's regexp engine and fully
+    supports Unicode. QRegExp may also be used in the weaker 'wildcard'
+    (globbing) mode which works in a similar way to command shells. A
+    good text on regexps is <i>Mastering Regular Expressions: Powerful
+    Techniques for Perl and Other Tools</i> by Jeffrey E. Friedl, ISBN
+    1565922573. 
 
-  QRegExp's regular expression flavor combines Perl's power and
-  Unicode support.  QRegExp also supports the weaker wildcard notation
-  (as in <b>*.cpp</b> and <b>chapter[1-5].tex</b>) found in many
-  command interpreters.  More on this later.
+    Experienced regexp users may prefer to skip the introduction and
+    go directly to the relevant information:
 
-  Now to the nitty-gritty of regular expression syntax.  You can use
-  any of these atoms to match a single character:
+    <ul>
+    <li><a href="#characters-and-abbreviations-for-sets-of-characters">
+    Characters and Abbreviations for Sets of Characters</a>
+    <li><a href="#sets-of-characters">Sets of Characters</a>
+    <li><a href="#quantifiers">Quantifiers</a>
+    <li><a href="#capturing-text">Capturing Text</a>
+    <li><a href="#assertions">Assertions</a>
+    <li><a href="#wildcard-matching">Wildcard Matching (globbing)</a>
+    <li><a href="#code-examples">Code Examples</a>
+    <li><a href="#member-function-documentation">Member Function Documentation</a>
+    </ul>
 
-  <ul plain>
-  <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
-  <li> <b>&#92;c</b> matches the character <tt><em>c</em></tt>, even
-       if it is one that QRegExp normally assigns meaning to, such as
-       <tt>$</tt> or <tt>&#92;</tt>.  (Note that in C++, this must be
-       written as <tt>&#92;&#92;c</tt> since the compiler
-       transforms <tt>&#92;&#92;c</tt> into <tt>&#92;c</tt>.)
-  <li> <b>&#92;a</b> matches the ASCII bell character (BEL, 0x07)
-  <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
-  <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known
-       as Unix newline
-  <li> <b>\r</b> matches the ASCII carriage return character (CR, 0x0D)
-  <li> <b>\t</b> matches the ASCII horizontal tabulation character (HT, 0x09)
-  <li> <b>\v</b> matches the ASCII vertical tabulation character (VT, 0x0B)
-  <li> <b>\x\e hhhh </b> matches the Unicode character corresponding to the
-       hexadecimal number \e hhhh (between 0x0000 and 0xFFFF)
-  <li> <b>\0\e ooo </b> (i.e., \ zero <em>ooo</em>) matches the ASCII/Latin-1
-       character corresponding to the octal number \e ooo (between
-       0 and 0377)
-  <li> <b>.</b> (dot) matches any character (including newline)
-  <li> <b>\d</b> matches a digit (see QChar::isDigit())
-  <li> <b>\D</b> matches a non-digit
-  <li> <b>\s</b> matches a whitespace (see QChar::isSpace())
-  <li> <b>\S</b> matches a non-whitespace
-  <li> <b>\w</b> matches a word character (see QChar::isLetterOrNumber())
-  <li> <b>\W</b> matches a non-word character.
-  </ul>
+    <b>Introduction</b>
 
-  To count backslashes in a string:
+    Regexps are built up from expressions, quantifiers and assertions.
+    The simplest form of expression is simply a character, e.g. <b>x</b>
+    or <b>5</b>. An expression can also be a set of characters. For
+    example, <b>[ABCD]</b>, will match an <b>A</b> or a <b>B</b> or a
+    <b>C</b> or a <b>D</b>. As a shorthand we could write this as
+    <b>[A-D]</b>. If we want to match any of the captital letters in the
+    English alphabet we can write <b>[A-Z]</b>. A quantifier tells the
+    regexp engine how many occurrences of the expression we want, e.g.
+    <b>x{1,1}</b> means match an <b>x</b> which occurs at least once and
+    at most once. We'll look at assertions and more complex expressions
+    later. Note that regexps cannot be used to check for balanced
+    brackets or tags (unless you know the maximum level of nesting). 
+    
 
-  \code
-    QRegExp rx( "\\\\" );               // strlen( "\\\\" ) == 2
-    int pos = 0;
-    int count = 0;
-    do {
-	pos = rx.search( string, pos ); // search for next backslash
-	if ( pos >= 0 ) {               // and count it if it exists
-	    pos++;
-	    count++;
+    We'll start by writing a regexp to match integers in the range 0 to
+    99. We will require at least one digit so we will start with
+    <b>[0-9]{1,1}</b> which means match a digit exactly once. This
+    regexp alone will match integers in the range 0 to 9. To match one
+    or two digits we can increase the maximum number of occurrences so
+    the regexp becomes <b>[0-9]{1,2}</b> meaning match a digit at least
+    once and at most twice. However, this regexp as it stands will not
+    match correctly. This regexp will match one or two digits \e within
+    a string. To ensure that we match against the whole string we must
+    use the anchor assertions. We need <b>^</b> (caret) which when it is
+    the first character in the regexp means that the regexp must match
+    from the beginning of the string. And we also need <b>$</b> (dollar)
+    which when it is the last character in the regexp means that the
+    regexp must match until the end of the string. So now our regexp is
+    <b>^[0-9]{1,2}$</b>. Note that assertions do not match any
+    characters.
+
+    If you've seen regexps elsewhere they may have looked different from
+    the one above. This is because some sets of characters and some
+    quantifiers are so common that they have special symbols to
+    represent them. <b>[0-9]</b> can be replaced with the symbol
+    <b>\d</b>. The quantifier to match exactly one occurrence,
+    <b>{1,1}</b>, can be replaced with the expression itself. This means
+    that <b>x{1,1}</b> is exactly the same as <b>x</b> alone. So our 0
+    to 99 matcher could be written: <b>^\d{1,2}$</b>, although most
+    people would write it <b>^\d\d?$</b>. The <b>?</b> is the same as
+    the quantifier <b>{0,1}</b>, i.e. a minimum of no occurrences a
+    maximum of one occurrence. This is used to make an expression
+    optional. The regexp <b>^\d\d?$</b> means "from the beginning of the
+    string match one digit followed by zero or one digits and then the
+    end of the string".
+
+    Our second example is matching the words 'mail', 'letter' or
+    'correspondence' but without matching 'email', 'mailman', 'mailer',
+    'letterbox' etc. We'll start by just matching 'mail'. In full the
+    regexp is, <b>m{1,1}a{1,1}i{1,1}l{1,1}</b>, but since an expression
+    itself is automatically quantified by <b>{1,1}</b> we can simply
+    write this as <b>mail</b>; an 'm' followed by an 'a' followed by an
+    'i' followed by an 'l'. The symbol '|' (bar) is used for \e
+    alternation, so our regexp now becomes
+    <b>mail|letter|correspondence</b> which means match 'mail' \e or
+    'letter' \e or 'correspondence'. Whilst this regexp will find the
+    words we want it will also find words we don't want such as 'email'.
+    We will start by putting our regexp in parenthesis
+    <b>(mail|letter|correspondence)</b>. Parenthesis have two effects,
+    firstly they group expressions together and secondly they identify
+    parts of the regexp that we wish to <a href="#capturing-text">capture</a>.
+    Our regexp still matches any of the three words but now they are
+    grouped together as a unit. This is useful for building up more
+    complex regexps. It is also useful because it allows us to examine
+    which of the words actually matched. We need to use another
+    assertion, this time <b>\b</b> "word boundary":
+    <b>\b(mail|letter|correspondence)\b</b>. This regexp means "match a
+    word boundary followed by the expression in parenthesis followed by
+    another word boundary". The <b>\b</b> assertion matches at a \e
+    position in the regexp not a \e character in the regexp. A word
+    boundary is any non-word character such as a space a newline or the
+    beginning or end of the string. 
+
+    For our third example we want to replace ampersands with the HTML
+    entity '\&amp;'. The regexp to match is simple: <b>\&</b>, i.e.
+    match one ampersand. Unfortunately this will mess up our text if
+    some of the ampersands have already been turned into HTML entities.
+    So what we really want to say is replace an ampersand providing it
+    is not followed by 'amp;'. For this we need the negative lookahead
+    assertion and our regexp becomes: <b>\&(?!amp;)</b>. The negative
+    lookahead assertion is introduced with '(?!' and finishes at the
+    ')'. It means that the text it contains, 'amp;' in our example, must
+    \e not follow the expression that preceeds it. 
+
+    Regexps provide a rich language that can be used in a variety of
+    ways. For example suppose we want to count all the occurrences of
+    'Eric' and 'Eirik' in a string. Two valid regexps to match these are
+    <b>\\</b><b>b(Eric|Eirik)</b><b>\\</b><b>b</b> and
+    <b>\\</b><b>bEi?ri[ck]</b><b>\\</b><b>b</b>. We need the word boundary
+    '\b' so we don't get 'Ericsson' etc. The second regexp actually
+    matches more than we want, 'Eric', 'Erik', 'Eiric' and 'Eirik'.
+
+    We will implement some the examples above in the 
+    <a href="#code-examples">code examples</a> section.
+
+    <a name="characters-and-abbreviations-for-sets-of-characters">
+    <b>Characters and Abbreviations for Sets of Characters</b></a>
+
+    <ul>
+
+    <li><b>c</b> Any character represents itself unless it has a special regexp
+    meaning. Thus <b>c</b> matches the character \e c.
+
+    <li><b>\\</b><b>c</b> A character that follows a backslash matches the
+    character itself except where mentioned below. For example if you
+    wished to match a literal caret at the beginning of a string you
+    would write <b>\^</b>. 
+
+    <li><b>\\</b><b>a</b> This matches the ASCII bell character (BEL, 0x07).
+    <li><b>\\</b><b>f</b> This matches the ASCII form feed character (FF, 0x0C).
+    <li><b>\\</b><b>n</b> This matches the ASCII line feed character (LF, 0x0A), (Unix newline).
+    <li><b>\\</b><b>r</b> This matches the ASCII carriage return character (CR, 0x0D).
+    <li><b>\\</b><b>t</b> This matches the ASCII horizontal tab character (HT, 0x09).
+    <li><b>\\</b><b>v</b> This matches the ASCII vertical tab character (VT, 0x0B).
+    <li><b>\\</b><b>xhhhh</b> This matches the Unicode character corresponding
+    to the hexadecimal number hhhh (between 0x0000 and 0xFFFF). \0ooo
+    (i.e., \zero ooo) matches the ASCII/Latin-1 character corresponding
+    to the octal number ooo (between 0 and 0377).
+    <li><b>. (dot)</b> This matches any character (including newline).
+    <li><b>\\</b><b>d</b> This matches a digit (see QChar::isDigit()).
+    <li><b>\\</b><b>D</b> This matches a non-digit.
+    <li><b>\\</b><b>s</b> This matches a whitespace (see QChar::isSpace()).
+    <li><b>\\</b><b>S</b> This matches a non-whitespace.
+    <li><b>\\</b><b>w</b> This matches a word character (see QChar::isLetterOrNumber()).
+    <li><b>\\</b><b>W</b> This matches a non-word character.
+    <li><b>\\</b><b>n</b> The n<sup>th</sup> 
+    <a href="#capturing-text">backreference</a>, e.g. \1, \2, etc. 
+    </ul>
+
+    <em>Note that the C++ compiler transforms backslashes in strings so
+    to include a <b>\\</b> in a regexp you will need to enter it twice,
+    e.g. <b>\\</b><b>\\</b>.</em>
+
+    <a name="sets-of-characters"><b>Sets of Characters</b></a>
+
+    Square brackets are used to match any character in the set of
+    characters contained within the square brackets. All the character
+    set abbreviations described above can be used within square
+    brackets. Apart from the character set abbreviations and the
+    following two exceptions no characters have special meanings in
+    square brackets.
+
+    <ul>
+
+    <li><b>^</b> The caret negates the character set if it occurs as the
+    first character, i.e. immediately after the opening square bracket.
+    For example, <b>[abc]</b> matches 'a' or 'b' or 'c', but
+    <b>[^abc]</b> matches anything \e except 'a' or 'b' or 'c'.
+
+    <li><b>-</b> The dash is used to indicate a range of characters, for
+    example <b>[W-Z]</b> matches 'W' or 'X' or 'Y' or 'Z'. 
+
+    </ul>
+    
+    Using the predefined character set abbreviations is more portable
+    than using character ranges across platforms and languages. For
+    example, <b>[0-9]</b> matches a digit in Western alphabets but
+    <b>\d</b> matches a digit in \e any alphabet. 
+
+    Note that in most regexp literature sets of characters are called
+    "character classes". 
+
+    <a name="quantifiers"><b>Quantifiers</b></a>
+
+    By default an expression is automatically quantified by
+    <b>{1,1}</b>, i.e. it should occur exactly once. In the following
+    list <b><i>E</i></b> stands for any expression. An expression is a
+    character or an abbreviation for a set of characters or a set of
+    characters in square brackets or any parenthesised expression.
+
+    <ul>
+
+    <li><b><i>E</i>?</b> Matches zero or one occurrence of <i>E</i>.
+    This quantifier means "the previous expression is optional" since it
+    will match whether or not the expression occurs in the string.
+    It is the same as <b><i>E</i>{0,1}</b>. For example <b>dents?</b>
+    will match 'dent' and 'dents'.
+
+    <li><b><i>E</i>+</b> Matches one or more occurrences of <i>E</i>.
+    This is the same as <b><i>E</i>{1,MAXINT}</b>. For example,
+    <b>0+</b> will match '0', '00', '000', etc.
+
+    <li><b><i>E</i>*</b> Matches zero or more occurrences of <i>E</i>.
+    This is the same as <b><i>E</i>{0,MAXINT}</b>. The <b>*</b>
+    quantifier is often used by a mistake. Since it matches \e zero or
+    more occurrences it will match no occurrences at all. For example if
+    we want to match strings that end in whitespace and use the regexp
+    <b>\s*$</b> we would get a match on every string. This is because we
+    have said find zero or more whitespace followed by the end of line,
+    so even strings that don't end in whitespace will match. The regexp
+    we want in this case is <b>\s+$</b> to match strings that have at
+    least one whitespace at the end.
+
+    <li><b><i>E</i>{n}</b> Matches exactly \e n occurrences of the
+    expression. This is the same as repeating the expression \e n times.
+    For example, <b>x{5}</b> is the same as <b>xxxxx</b>. It is also the
+    same as <b>{n,n}</b>, e.g. <b>x{5,5}</b>.
+
+    <li><b><i>E</i>{n,}</b> Matches at least \e n occurrences of the
+    expression. This is the same as <b>{n,MAXINT}</b>.
+
+    <li><b><i>E</i>{,m}</b> Matches at most \e m occurrences of the
+    expression. This is the same as <b>{0,m}</b>.
+
+    <li><b><i>E</i>{n,m}</b> Matches at least \e n occurrences of the
+    expression and at most \e m occurrences of the expression.
+
+    </ul>
+
+    (MAXINT is implementation dependent but will not be smaller than
+    16384.)
+
+    If we wish to apply a quantifier to more than just the preceeding
+    character we can use parenthesis to group characters together in an
+    expression. For example, <b>tag+</b> matches a 't' followed by an
+    'a' followed by at least one 'g', whereas <b>(tag)+</b> matches at
+    least one occurrence of 'tag'.
+
+    Note that quantifiers are "greedy", they will match as much text as
+    they can. For example, <b>0+</b> will match '0.<u>000</u>5'.
+    Quantifiers can be made non-greedy, see setMinimal().
+
+    <a name="capturing-text"><b>Capturing Text</b></a>
+
+    Parenthesis allow us to group elements together so that we can
+    quantify and capture them. For example if we have the expression
+    <b>mail|letter|correspondence</b> that matches a string we know that
+    \e one of the words matched but not which one. Using  parenthesis
+    allows us to "capture" whatever is matched within their bounds, so
+    if we used <b>(mail|letter|correspondence)</b> and matched this
+    regexp against the string "I sent you some email" we can use the
+    cap() or capturedTexts() functions to extract the matched
+    characters, in this case "mail".
+
+    We can use captured text within the regexp itself. To refer to the
+    captured text we use \e backreferences which are indexed from 1 the
+    same as for cap(). For example we could search for duplicate words
+    in a string using <b>\b(\w+)\s+\1\b</b> which means match a word
+    boundary followed by one or more word characters followed by one or
+    more whitespaces followed by the same text as the first
+    parenthesised expression followed by a word boundary.
+
+    If we want to use parenthesis purely for grouping and not for
+    capturing we use the non-capturing syntax, e.g.
+    <b>(?:green|blue)</b>. Non-capturing parenthesis begin '(?:' and end
+    ')'. In this example we match either 'green' or 'blue' but we do not
+    capture the match so we can only know whether or not we matched but
+    not which color we actually found. Using non-capturing parenthesis
+    is more efficient than using capturing parenthesis.
+
+    Both capturing and non-capturing parenthesis may be nested.
+
+    <a name="assertions"><b>Assertions</b></a>
+
+    Assertions make some statement about the text at the point where
+    they occur in the regexp but they do not match any characters.
+    In the following list <b><i>E</i></b> stands for any expression. 
+
+    <ul>
+    <li><b>^</b> If the caret is the first character in the regexp
+    (apart from opening parenthesis) it signifies the beginning of the
+    string. It has no special meaning elsewhere (except as the first
+    character of a set of characters in square brackets). For example,
+    <b>^#include</b> will only match strings which \e begin with the
+    characters '#include'.
+
+    <li><b>$</b> If the dollar is the last character in the regexp
+    (apart from closing parenthesis) it signifies the end of the string.
+    It has no special meaning elsewhere. For example, <b>\d\s*$</b>
+    will match strings which end with a digit optionally followed by
+    whitespace.
+
+    <li><b>\\</b><b>b</b> A word boundary. For example the regexp
+    <b>\\</b><b>bOK</b>\\</b><b>b</b> means match immediately after a
+    word boundary (e.g. start of string or whitespace) the letter 'O'
+    then the letter 'K' immediately before another word boundary (e.g.
+    end of string or whitespace). But note that the assertion does not
+    actually match any whitespace so if we write
+    <b>(</b><b>\\</b><b>bOK</b>\\</b><b>b)</b> and we have a match it
+    will only contain 'OK' even if the string is "Its <u>OK</u> now".
+
+    <li><b>\\</b><b>B</b> A non-word boundary. This assertion is true
+    wherever <b>\\</b><b>b</b> is false. For example if we searched for
+    <b>\\</b><b>Bon</b>\\</b><b>B</b> in "Left on" the match would fail
+    (space and end of string aren't non-word boundaries), but it would
+    match in "t<u>on</u>ne".
+
+    <li><b>(?=<i>E</i>)</b> Positive lookahead. This assertion is true
+    if the expression matches at this point in the regex. This assertion
+    does not match any characters. For example,
+    <b>^#define\s+(\w+)(?=MAX)</b> will match strings which begin with
+    '#define' followed by at least one whitespace followed by at least
+    one word character followed by 'MAX'. The first set of parenthesis
+    will capture the word character(s) matched. This regexp will not
+    match '#define DEBUG' but will match '#define <u>INT</u>MAX
+    32767'.
+
+    <li><b>(?!<i>E</i>)</b> Negative lookahead. This assertion is true
+    if the expression does not match at this point in the regex. This
+    assertion does not match any characters. For example,
+    <b>^#define\s+(\w+)\s*$</b> will match strings which begin with
+    '#define' followed by at least one whitespace followed by at least
+    one word character optionally followed by whitespace. This regexp
+    will match define's that exist but have no value, i.e. it will not
+    match '#define INTMAX 32767' but it will match '#define <u>DEBUG</u>'.
+
+    </ul>
+
+    <a name="wildcard-matching"><b>Wildcard Matching (globbing)</b></a>
+
+    Most command shells such as \e bash or \e cmd support "file
+    globbing", the ability to identify a group of files by using
+    wildcards. Wildcard matching is much simpler than full regexps and
+    has only four features:
+
+    <ul>
+
+    <li><b>c</b> Any character represents itself. Thus <b>c</b> matches
+    the character \e c.
+
+    <li><b>?</b> This matches any single character. It is the same as
+    <b>.?</b> in full regexps.
+
+    <li><b>*</b> This matches zero or more of any characters. It is the
+    same as <b>.*</b> in full regexps.
+
+    <li><b>[...]</b> Sets of characters can be represented in square
+    brackets the same as for full regexps.
+
+    <!-- JASMIN: Are the character classes, \w, etc supported in
+    wildcards? -->
+
+    </ul>
+
+    For example if we are in wildcard mode and have strings which
+    contain filenames we could identify HTML files with <b>*.html?</b>.
+    This will match zero or more characters followed by a dot followed
+    by 'h', 't', 'm' and optionally 'l'. 
+
+    <a name="code-examples"><b>Code Examples</b></a>
+
+    \code
+    QRegExp rx( "^\\d\\d?$" );	// Match integers 0 to 99
+    rx.match( "123" );		// Returns FALSE
+    rx.match( "-6" );		// Returns FALSE
+    rx.match( "6" );		// Returns TRUE 
+    \endcode
+
+    The third string matches '<u>6</u>'. This is a simple validation
+    regexp for integers in the range 0 to 99. 
+
+    \code
+    QRegExp rx( "^\\S+$" );	// Match strings which have no whitespace
+    rx.match( "Hello world" );	// Returns FALSE
+    rx.match( "This_is-OK" );	// Returns TRUE 
+    \endcode
+
+    The second string matches '<u>This_is-OK</u>'. We've used the
+    character set abbreviation '\S' (non-whitespace) and the anchors to
+    match strings which contain no whitespace.
+
+    In the following example we match strings containing 'mail' or
+    'letter' or 'correspondence' but only match whole words i.e. not
+    'email'
+
+    \code
+    QRegExp rx( "\\b(mail|letter|correspondence)\\b" );
+    rx.match( "I sent you an email" );	    // Returns FALSE
+    rx.match( "Please write the letter" );  // Returns TRUE 
+    \endcode
+
+    The second string matches "Please write the <u>letter</u>". The word
+    'letter' is also captured (because of the parenthesis). We can see
+    what text we've captured like this:
+
+    \code
+    QString captured = rx.cap( 1 ); // captured contains "letter"
+    \endcode
+    
+    This will capture the text from the first set of capturing
+    parenthesis (counting capturing left parenthesis from left to
+    right). The parenthesis are counted from 1 since cap( 0 ) is the
+    whole matched regexp (equivalent to '&' in most regexp engines).
+
+    \code
+    QRegExp rx( "&(?!amp;)" );	    // Match ampersands but not &amp;
+    QString line1 = "This & that";
+    line1.replace( rx, "&amp;" );
+    // line1 == "This &amp; that"
+    QString line2 = "His &amp; hers & theirs";
+    line2.replace( rx, "&amp;" );
+    // line2 == "His &amp; hers &amp; theirs"
+    \endcode
+
+    Here we've passed the QRegExp to QString's replace() function to
+    replace the matched text with new text.
+
+    \code
+    QString str = "One Eric another Eirik, and an Ericsson. How many Eiriks, Eric?";
+    QRegExp rx( "\\b(Eric|Eirik)\\b" );	// Match Eric or Eirik
+    int pos = 0;    // Where we are in the string
+    int count = 0;  // How many Eric and Eirik's we've counted
+    while ( pos >= 0 ) {
+	pos = rx.search( str, pos );
+	if ( pos >= 0 ) {
+	    pos++;	// Move along in str
+	    count++;	// Count our Eric or Eirik
 	}
-    } while( pos >= 0 );
-  \endcode
+    }
+    \endcode
 
-  \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100" up to "999"
-    rx.match( "476" );                  // returns TRUE
-    rx.match( "1492" );                 // returns FALSE
-  \endcode
+    We've used the search() function to repeatedly match the regexp in
+    the string. Note that instead of moving forward by one character at
+    a time <tt>pos++</tt> we could have written <tt>pos +=
+    rx.matchedLength()</tt> to skip over the already matched string. The
+    count will equal 3, matching 'One <u>Eric</u> another <u>Eirik</u>,
+    and an Ericsson. How many Eiriks, <u>Eric</u>?'; it doesn't match
+    'Ericsson' or 'Eiriks' because they are not bounded by non-word
+    boundaries.
 
-  The atom <b>[</b>...<b>]</b> that matches one of the characters
-  within the brackets.  For instance, <b>[BSD]</b> matches any of
-  <tt>B</tt>, <tt>D</tt> and <tt>S</tt>.  Only the following characters
-  have special meaning in a set:
+    One common use of regexps is to split lines of delimited data into
+    their component fields.
 
-  <ul plain>
-  <li> <b>&#92;</b> behaves the same way as elsewhere
-  <li> <b>^</b> negates the character set so that it matches any character
-       not in the set, when it is placed first in the list
-  <li> <b>-</b> defines a range of characters
-  <li> <b>]</b> ends the character set.
-  </ul>
+    \code
+    str = "Trolltech AS\twww.trolltech.com\tNorway";
+    QString company, web, country;
+    rx.setPattern( "^([^\t]+)\t([^\t]+)\t([^\t]+)$" );
+    if ( rx.match( str ) ) {
+	company = rx.cap( 1 );
+	web	= rx.cap( 2 );
+	country = rx.cap( 3 );
+    }
+    \endcode
 
-  Thus, <b>[a-zA-Z0-9.\-]</b> matches upper- and lower-case ASCII letters,
-  digits, dot and hyphen (but not backslash); whereas <b>[^\s]</b> matches
-  anything except white-space (same as <b>\S</b>).
+    In this example our input lines have the format company name, web
+    address and country. Unfortunately the regexp is rather long and not
+    very versatile -- the code will break if we add any more fields. A
+    simpler and better solution is to look for the separator, '\t' in
+    this case, and take the surrounding text. The QStringList split()
+    function can take a separator string or regexp as an argument and
+    split a string accordingly.
 
-  Let's see some more complex examples.  To match an integer between 100 and
-  999, you can use the regular expression <b>[1-9][0-9][0-9]</b>, like this:
+    \code
+    QStringList field = QStringList::split( "\t", str );
+    \endcode
 
-  \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
-    rx.match( "476" );                  // returns TRUE
-    rx.match( "1492" );                 // returns FALSE
-  \endcode
+    Here field[0] is the country, field[1] the web address and so on.
 
-  If you are searching for such a number in a text, search() or searchRev() are
-  the appropriate choices:
+    To immitate the matching of a shell we can use wildcard mode.
 
-  \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
-    rx.search( "503 1511" );            // returns 0 (the position of "503")
-    rx.searchRev( "503 1511" );         // returns 5 (the position of "511")
-  \endcode
+    \code 
+    QRegExp rx( "*.html" );	// Invalid regexp: * doesn't quantify anything
+    rx.setWildcard( TRUE );	// Now its a valid wildcard regexp
+    rx.match( "index.html" );	// Returns TRUE
+    rx.match( "default.htm" );	// Returns FALSE
+    rx.match( "readme.txt" );	// Returns FALSE
+    \endcode
 
-  Notice that <tt>511</tt> is found, even though it's part of a larger number
-  (<tt>1511</tt>).  We will soon see how to avoid that.
+    Wildcard matching can be convenient because of its simplicity, but
+    any wildcard regex can be defined using full regexps, e.g.
+    <b>.*\.html$</b>. Notice that we can't match both \c .html and \c
+    .htm files with a wildcard unless we use <b>*.htm*</b> which will
+    also match 'test.html.bak'. A full regexp gives us the precision we
+    need, <b>.*\.html?$</b>.
 
-  Another example:  You want to find lines in your text files that contain a
-  trailing space.  Solution:  Use <b>\s\n</b>.
-
-  The following atoms are called anchors.  They make an assertion without
-  consuming any input:
-
-  <ul plain>
-  <li> <b>\b</b> matches at a word boundary
-  <li> <b>\B</b> matches wherever <b>\b</b> doesn't match
-  <li> <b>^</b> matches at the beginning of input
-  <li> <b>$</b> matches at the end of input
-  <li> <b>(?=<em>E</em>)</b> matches if the next characters of input match the
-       regular expression <b><em>E</em></b> (positive lookahead)
-  <li> <b>(?!<em>E</em>)</b> matches if the next characters of input do not
-       match the regular expression <b><em>E</em></b> (negative lookahead).
-  </ul>
-
-  Anchors are useful to provide some context for the regular expression.  For
-  example, if you want to replace all occurrences of <tt>which</tt> by
-  <tt>that</tt>, the regular expression <b>\bwhich\b</b> is a better choice than
-  <b>which</b>, because it leaves <tt>whichever</tt> alone.
-
-  Lookaheads push the idea of anchors further.  If you want to changes all
-  occurrences of <tt>Donald</tt> to <tt>Don</tt>, except for <tt>Donald
-  Duck</tt>, you might write
-
-  \code
-    QRegExp rx( "Donald(?!\sDuck)" );
-    QString text = "Donald Knuth, Donald Duck and Ronald McDonald";
-    text.replace( rx, "Don" );
-    // text == "Don Knuth, Donald Duck and Ronald McDon"
-  \endcode
-
-  Oops!  It changed <tt>McDonald</tt> into <tt>McDon</tt>.  We can fix that by
-  using word-boundary anchors: <b>\bDonald\b(?!\sDuck\b)</b>.
-
-  Sometimes, you might have to match many occurrences in a row of an atom
-  <b><em>A</em></b>.  The following quantifiers do just that:
-
-  <ul plain>
-  <li> <b><em>A</em>*</b> matches 0 or more occurrences of <b><em>A</em></b>
-  <li> <b><em>A</em>?</b> matches 0 or 1 occurrences of <b><em>A</em></b>
-  <li> <b><em>A</em>+</b> matches 1 or more occurrences of <b><em>A</em></b>
-  <li> <b><em>A</em>{<em>m</em>}</b> matches exactly \e m occurrences of
-     <b><em>A</em></b>
-  <li> <b><em>A</em>{<em>m</em>,<em>n</em>}</b> matches between \e m and \e n
-      occurrences of <b><em>A</em></b>
-  <li> <b><em>A</em>{<em>m</em>,}</b> matches at least \e m occurrences of
-      <b><em>A</em></b>
-  <li> <b><em>A</em>{,<em>n</em>}</b> matches at most \e n occurrences of
-      <b><em>A</em></b>.
-  </ul>
-
-  The Donald Duck example above fails miserably if <tt>Donald</tt> and
-  <tt>Duck</tt> are separated by more than one space.  With quantifiers, we can
-  now write <b>\bDonald\b(?!\s+Duck\b)</b>, where <b>\s+</b> means 1 or more
-  white-space characters.
-
-  One problem we have so far is that there's no way to apply a quantifier to,
-  say, <b>ha</b>.  If we write <b>ha+</b>, only the <b>a</b> is covered by the
-  <b>+</b>.  This can be solved by enclosing a regular expression with
-  parentheses:
-
-  <ul plain>
-  <li> <b>(<em>E</em>)</b> matches the subexpression <b><em>E</em></b> and
-      captures the matched text, making it available via back-references and
-      capturedTexts() (or cap())
-  <li> <b>(?:<em>E</em>)</b> matches the subexpression <b><em>E</em></b>
-      without capturing anything.
-  </ul>
-
-  To match between 3 and 5 occurrences of <tt>ha</tt>, you can write
-  <b>(ha){3,5}</b> or <b>(?:ha){3,5}</b>.  The former is slower, because it
-  forces QRegExp to do some book-keeping for capturedTexts().
-
-  Back-references are expressions of the form <b>&#92;<em>X</em></b> that stand
-  for the <em>X</em>th substring matched by the <em>X</em>th parenthesized
-  subexpression.  Use <b>(.)(.)\2\1</b> to match the palindromes of length 4
-  (e.g., <tt>anna</tt>).  Back-references make many things possible, such as
-  matching a Fibonacci number of <tt>a</tt>'s (e.g., <tt>aaaaaaaa</tt>).
-  <!-- If you doubt this claim, write to Jasmin Blanchette
-  (jasmin@trolltech.com). -->
-
-  If <b><em>E</em></b> and <b><em>F</em></b> are two regular
-  expressions, you can also write <b><em>E</em>|<em>F</em></b> to
-  match either <b><em>E</em></b> or <b><em>F</em></b>.  Thus, a
-  mathematician <!-- or a lunatic --> might write
-  <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt>
-  or <tt>optimum</tt>.
-
-  When writing regular expressions in C++ code, remember that the C++
-  compiler transforms <tt>&#92;</tt> characters.  For example, to match a
-  <tt>$</tt> character, you must write <tt>"&#92;&#92;$"</tt> in C++
-  source, not <tt>"&#92;$"</tt>.  To match a <tt>&#92;</tt> character,
-  you must write <tt>"&#92;&#92;&#92;&#92;"</tt>.
-
-  If you want to know more about regular expressions, read Jeffrey Friedl's
-  <em>Mastering Regular Expressions</em> (O'Reilly).
-
-  That's all, folks!  Well, almost.  We haven't seen wildcard mode yet.  In
-  wildcard mode, there are only four primitives:
-
-  <ul plain>
-  <li> <b><em>c</em></b> matches the character <tt><em>c</em></tt>
-  <li> <b>?</b> matches any character
-  <li> <b>*</b> matches any sequence of characters
-  <li> <b>[<em>...</em>]</b> matches a defined set of characters.
-  </ul>
-
-  Here's an example of wildcard syntax:
-
-  \code
-    QRegExp rx( "chapter??.*" );
-    rx.setWildcard( TRUE );
-    rx.match( "chapter01.tex" );        // returns TRUE
-    rx.match( "chapter123.doc" );       // returns FALSE
-  \endcode
-
-  Here's the same example with regular expression syntax:
-
-  \code
-    QRegExp rx( "chapter..\\..*" );
-    rx.match( "chapter01.tex" );        // returns TRUE
-    rx.match( "chapter123.doc" );       // returns FALSE
-  \endcode
+    QRegExp can match case insensitively using setCaseSensitive(), and
+    can use non-greedy matching, see setMinimal(). By default QRegExp
+    uses full regexps but this can be changed with setWildcard().
+    Searching can be forward with search() or backward with searchRev().
+    Captured text can be accessed using capturedTexts() which returns a
+    string list of all captured strings, or using cap() which returns
+    the captured string for the given index. The pos() function takes a
+    parenthesis index and returns the position in the string where the
+    match was made (or -1 if there was no match).
 
   \sa QRegExpValidator QString QStringList
+
+    <a name="member-function-documentation"/>
 */
 
 static const int NumBadChars = 128;
