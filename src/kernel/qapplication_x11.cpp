@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#415 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#416 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -183,6 +183,7 @@ static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
 static Atom 	qt_resource_manager;   	// X11 Resource manager
+static bool 	use_x11_resource_manager = TRUE;
 Atom 		qt_sizegrip;		// sizegrip
 Atom 		qt_wm_client_leader;
 
@@ -485,21 +486,24 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     int l = 0, r, i;
     QCString item, key, value;
     QCString resFont, resFG, resBG;
-    while( (unsigned) l < res.length()) {
-	r = res.find( "\n", l );
-	if ( r < 0 )
-	    r = res.length();
-	item = res.mid( l, r - l ).simplifyWhiteSpace();
-	l = r + 1;
-	i = item.find( ":" );
-	key = item.left( i ).stripWhiteSpace();
-	value = item.right( item.length() - i - 1 ).stripWhiteSpace();
-	if ( !font && key == "*font")
-	    resFont = value.copy();
-	else if  ( !fg &&  key == "*foreground" )
-	    resFG = value.copy();
-	else if ( !bg && key == "*background")
-	    resBG = value.copy();
+    
+    if (use_x11_resource_manager) {
+	while( (unsigned) l < res.length()) {
+	    r = res.find( "\n", l );
+	    if ( r < 0 )
+		r = res.length();
+	    item = res.mid( l, r - l ).simplifyWhiteSpace();
+	    l = r + 1;
+	    i = item.find( ":" );
+	    key = item.left( i ).stripWhiteSpace();
+	    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+	    if ( !font && key == "*font")
+		resFont = value.copy();
+	    else if  ( !fg &&  key == "*foreground" )
+		resFG = value.copy();
+	    else if ( !bg && key == "*background")
+		resBG = value.copy();
+	}
     }
 
     if ( resFont.isEmpty() )
@@ -1883,7 +1887,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( event->type == PropertyNotify ) {	// some properties changed
 	if ( event->xproperty.window == appRootWin ) {
-	    if ( event->xproperty.atom == qt_resource_manager)
+	    if ( event->xproperty.atom == qt_resource_manager && use_x11_resource_manager )
 		qt_set_x11_resources();
 	}
 	return 0;
@@ -2225,6 +2229,19 @@ void QApplication::exit_loop()
 bool QApplication::x11EventFilter( XEvent * )
 {
     return FALSE;
+}
+
+
+/*!
+  This function is only implemented under X11.
+
+  Per default, Qt observes the X11 resource settings for both the
+  background and foreground color. This behaviour can be switched off
+  with this function.
+*/
+void QApplication::useXResourceManager( bool arg)
+{
+    use_x11_resource_manager = arg;
 }
 
 

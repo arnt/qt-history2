@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#103 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#104 $
 **
 ** Definition of QApplication class
 **
@@ -85,18 +85,6 @@ public:
     static void	     setFont( const QFont &, bool updateAllWidgets=FALSE, const char* className = 0 );
     static QFontMetrics fontMetrics();
 
-//     enum SystemFont { NormalFont, MenuFont };
-//     void setSystemFont(SystemFont, const QFont&);
-//     QFont systemFont(SystemFont) const;
-
-//     enum SystemColor { ColorForeground, ColorButton, ColorLight,
-// 		       ColorMidlight, ColorDark, ColorMid,
-// 		       ColorText, ColorBrightText, ColorBase,
-// 		       ColorBackground, ColorShadow, ColorSelection,
-// 		       ColorSelectedText, ColorMenu };	
-//     void setSystemColor(SystemColor, const QBrush&);
-
-
     QWidget	    *mainWidget()  const;
     virtual void     setMainWidget( QWidget * );
     virtual void     polish( QWidget * );
@@ -160,6 +148,7 @@ public:
 #elif defined(_WS_X11_)
     virtual bool     x11EventFilter( XEvent * );
     int              x11ProcessEvent( XEvent* );
+    void useXResourceManager( bool );
 #endif
 
 #if defined(_WS_WIN_)
