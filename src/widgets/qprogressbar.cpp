@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#5 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#5 $");
 
 /*!
   \class QProgressBar qprogbar.h
@@ -50,7 +50,7 @@ QProgressBar::QProgressBar( int total_steps,
     percentage( -1 )
 {
     if ( style() == MotifStyle ) {
-	setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
 	setLineWidth( 2 );
     }
 }
@@ -127,7 +127,7 @@ bool QProgressBar::setIndicator( QString& indicator, int progress, int totalstep
 QSize QProgressBar::sizeHint() const
 {
     QFontMetrics fm = fontMetrics();
-    return QSize(fm.width("100%")*2, fm.height()+8);
+    return QSize(-1, fm.height()+8);
 }
 
 /*!
