@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#223 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -252,6 +252,7 @@ static void qt_set_windows_resources()
 			  NULL);
 
     QString menuFontName = qt_winQString(ncm.lfMenuFont.lfFaceName);
+    debug("load menu font %s", menuFontName.data() );
     QFont menuFont(menuFontName);
     if (ncm.lfMenuFont.lfItalic)
 	menuFont.setItalic( TRUE );
@@ -264,7 +265,7 @@ static void qt_set_windows_resources()
 
     if (menuFont != QFont::defaultFont()) {
 	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
-	QApplication::setFont( menuFont, TRUE, "QMenuBar");
+ 	QApplication::setFont( menuFont, TRUE, "QMenuBar");
     }
 
     // same technique could apply to set the statusbar or tooltip
@@ -1276,6 +1277,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
 		return 0;			// otherwise: FALL THROUGH!
 
+	case WM_SETTINGCHANGE:
+	    qt_set_windows_resources();
+	    break;
 	case WM_QUERYNEWPALETTE:		// realize own palette
 	    if ( QColor::hPal() ) {
 		HDC hdc = GetDC( widget->winId() );
