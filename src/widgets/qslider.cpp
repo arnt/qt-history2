@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#34 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#34 $");
 
 
 static const int motifBorder = 2;
@@ -492,10 +492,24 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
 void QSlider::reallyMoveSlider( int newPos )
 {
-    QRect updateR = sliderRect();
+    QRect oldR = sliderRect();
     sliderPos = newPos;
-    updateR = updateR.unite( sliderRect() );
-    repaint( updateR );
+    QRect newR = sliderRect();
+    //since sliderRect isn't virtual, I know that oldR and newR
+    // are the same size.
+    if ( orient == Horizontal ) {
+	if ( oldR.left() < newR.left() )
+	    oldR.setRight( QMIN ( oldR.right(), newR.left()));
+	else           //oldR.right() >= newR.right() 
+	    oldR.setLeft( QMAX ( oldR.left(), newR.right()));
+    } else {
+	if ( oldR.top() < newR.top() )
+	    oldR.setBottom( QMIN ( oldR.bottom(), newR.top()));
+	else           //oldR.bottom() >= newR.bottom() 
+	    oldR.setTop( QMAX ( oldR.top(), newR.bottom()));
+    }
+    repaint( oldR );
+    repaint( newR, FALSE );
 }
 
 
