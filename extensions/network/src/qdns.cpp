@@ -38,7 +38,7 @@
 #include "qptrdict.h"
 
 
-//#define DEBUG_QDNS
+#define DEBUG_QDNS
 
 
 static Q_UINT16 id; // ### start somewhere random
@@ -544,7 +544,7 @@ void QDnsAnswer::parse()
 	pp = pp + 10;
 	if ( clas != 1 ) {
 #if defined(DEBUG_QDNS)
-	    qDebug( "DNS Manager: class $d (not internet) for %s",
+	    qDebug( "DNS Manager: class %d (not internet) for %s",
 		    clas, label.isNull() ? "." : label.ascii() );
 #endif
 	} else {
@@ -578,7 +578,7 @@ void QDnsAnswer::parse()
 	    default:
 		// something we don't know
 #if defined(DEBUG_QDNS)
-		qDebug( "DNS Manager: type $d for %s", type,
+		qDebug( "DNS Manager: type %d for %s", type,
 			label.isNull() ? "." : label.ascii() );
 #endif
 		break;
@@ -634,7 +634,7 @@ void QDnsAnswer::notify()
 	if ( notified.find( (void*)dns ) == 0 &&
 	     q->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
-	    QValueList<QString> n = dns->qualifiedNames();
+	    QStringList n = dns->qualifiedNames();
 	    int i = n.count();
 	    bool found = FALSE;
 	    while( i-- > 0 && !found ) // ######## O(n*n)!! should use iterator!
@@ -1032,7 +1032,7 @@ void QDnsDomain::add( const QString & label, QDnsRR * rr )
 QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 {
     QDnsManager * m = QDnsManager::manager();
-    QValueList<QString> n = r->qualifiedNames();
+    QStringList n = r->qualifiedNames();
     QValueListIterator<QString> it = n.begin();
     QValueListIterator<QString> end = n.end();
     QList<QDnsRR> * l = new QList<QDnsRR>;
@@ -1323,7 +1323,7 @@ void QDns::setLabel( const QString & label )
 }
 
 /*!
-  \fn QValueList<QString> QDns::qualifiedNames() const
+  \fn StringList QDns::qualifiedNames() const
 
   Returns a list of the fully qualified names label() maps to.
 */
@@ -1478,6 +1478,98 @@ QValueList<QHostAddress> QDns::addresses() const
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain )
 	    result.append( rr->address );
+	cached->next();
+    }
+    delete cached;
+    return result;
+}
+
+
+/*!
+  Returns a list of mail servers if the record type is \c Mx. The struct
+  \c QDns::MailServer contains the following variables:
+  <ul>
+  <li> \c QString QDns::MailServer::name
+  <li> \c Q_UINT16 QDns::MailServer::priority
+  </ul>
+*/
+QValueList<QDns::MailServer> QDns::mailServers() const
+{
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns::mailServers (%s)", l.ascii() );
+#endif
+    QValueList<QDns::MailServer> result;
+    if ( t != Mx )
+	return result;
+
+    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+
+    QDnsRR * rr;
+    while( (rr=cached->current()) != 0 ) {
+	if ( rr->current && !rr->nxdomain ) {
+	    MailServer ms( rr->target, rr->priority );
+	    result.append( ms );
+	}
+	cached->next();
+    }
+    delete cached;
+    return result;
+}
+
+
+/*!
+  Returns a list of servers if the record type is \c Srv. The struct \c
+  QDns::Server contains the following variables:
+  <ul>
+  <li> \c QString QDns::Server::name;
+  <li> \c Q_UINT16 QDns::Server::priority;
+  <li> \c Q_UINT16 QDns::Server::weight;
+  </ul>
+*/
+QValueList<QDns::Server> QDns::servers() const
+{
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns::servers (%s)", l.ascii() );
+#endif
+    QValueList<QDns::Server> result;
+    if ( t != Srv )
+	return result;
+
+    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+
+    QDnsRR * rr;
+    while( (rr=cached->current()) != 0 ) {
+	if ( rr->current && !rr->nxdomain ) {
+	    Server s( rr->target, rr->priority, rr->weight );
+	    result.append( s );
+	}
+	cached->next();
+    }
+    delete cached;
+    return result;
+}
+
+
+/*!
+  Returns a list of texts if the record type is \c Txt.
+*/
+QStringList QDns::texts() const
+{
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns::texts (%s)", l.ascii() );
+#endif
+    QStringList result;
+    if ( t != Txt )
+	return result;
+
+    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+
+    QDnsRR * rr;
+    while( (rr=cached->current()) != 0 ) {
+	if ( rr->current && !rr->nxdomain ) {
+	    QString t( rr->text );
+	    result.append( t );
+	}
 	cached->next();
     }
     delete cached;

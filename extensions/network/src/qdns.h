@@ -65,53 +65,45 @@ public:
     // to query for replies
     QValueList<QHostAddress> addresses() const;
 
-#if 0
     class MailServer {
     public:
-	MailServer( const QString & n_, Q_UINT16 p_):n(n_),p(p_){}
-	QString name() const { return n; }
-	Q_UINT16 priority() const { return p; }
+	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
+	    :name(n), priority(p) {}
+	QString name;
+	Q_UINT16 priority;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const MailServer& ) const;
 	MailServer();
 #endif
-    private:
-	QString n;
-	Q_UINT16 p;
     };
-
-    QValueList<MailServer> mailServers() const;
+    QValueList<QDns::MailServer> mailServers() const;
 
     class Server {
     public:
-	Server(const QString&n_,Q_UINT16 p_,Q_UINT16 w_):n(n_),p(p_),w(w_){}
-	QString name() const { return n; }
-	Q_UINT16 priority() const { return p; }
-	Q_UINT16 weight() const { return w; }
+	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0 )
+	    : name(n), priority(p), weight(w) {}
+	QString name;
+	Q_UINT16 priority;
+	Q_UINT16 weight;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const Server& ) const;
 	Server();
 #endif
-    private:
-	QString n;
-	Q_UINT16 p, w;
     };
-
-    QValueList<Server> Servers() const;
+    QValueList<QDns::Server> servers() const;
 
     QStringList texts() const;
-#endif
 
     QString canonicalName() const; // ### real-world but uncommon: QStringList
 
-    QValueList<QString> qualifiedNames() const { return n; }
+    QStringList qualifiedNames() const { return n; }
 
 signals:
     void resultsReady();
 
 private:
     QString l;
-    QValueList<QString> n;
+    QStringList n;
     RecordType t;
     QDnsPrivate * d;
 };
