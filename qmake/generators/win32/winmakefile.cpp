@@ -553,7 +553,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     writeMakeQmake(t);
 
-    QStringList dist_files = Option::mkfile::project_files;
+    QStringList dist_files = fileFixify(Option::mkfile::project_files);
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
         dist_files += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
     if(!project->isEmpty("TRANSLATIONS"))

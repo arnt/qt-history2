@@ -673,8 +673,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     QString ddir;
+    QString packageName(project->first("QMAKE_ORIG_TARGET"));
+    if(!project->isActiveConfig("no_dist_version"))
+        packageName += var("VERSION");
     if (project->isEmpty("QMAKE_DISTDIR"))
-        ddir = project->first("QMAKE_ORIG_TARGET");
+        ddir = packageName;
     else
         ddir = project->first("QMAKE_DISTDIR");
 
@@ -685,16 +688,22 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(COPY_FILE) --parents $(SOURCES) $(DIST) " << ddir_c << Option::dir_sep << " && ";
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
         const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it)
-            t << "$(COPY_FILE) --parents " << project->variables()[(*it)+".input"].join(" ")
-              << "$(DIST) " << ddir_c << Option::dir_sep << " && ";
+        for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+            const QStringList &var = project->variables()[(*it)+".input"];
+            for(QStringList::ConstIterator var_it = var.begin(); var_it != var.end(); ++var_it) {
+                const QStringList &val = project->variables()[(*var_it)];
+                if(val.isEmpty())
+                    continue;
+                t << "$(COPY_FILE) --parents " << val.join(" ") << " " << ddir_c << Option::dir_sep << " && ";
+            }
+        }
     }
     if(!project->isEmpty("TRANSLATIONS"))
         t << "$(COPY_FILE) --parents " << var("TRANSLATIONS") << " " << ddir_c << Option::dir_sep << " && ";
     t << "(cd `dirname " << ddir_c << "` && "
-      << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
-      << "$(COMPRESS) " << var("QMAKE_ORIG_TARGET") << ".tar) && "
-      << "$(MOVE) `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
+      << "$(TAR) " << packageName << ".tar " << ddir << " && "
+      << "$(COMPRESS) " << packageName << ".tar) && "
+      << "$(MOVE) `dirname " << ddir_c << "`" << Option::dir_sep << packageName << ".tar.gz . && "
       << "$(DEL_FILE) -r " << ddir_c
       << endl << endl;
 
