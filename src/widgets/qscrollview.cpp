@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#37 $
 **
 ** Implementation of QScrollView class
 **
@@ -102,7 +102,7 @@ struct QScrollViewData {
     }
     void deleteChildRec(ChildRec* r)
     {
-	childDict.remove(r);
+	childDict.remove(r->child);
 	children.removeRef(r);
 	delete r;
     }
@@ -120,8 +120,9 @@ struct QScrollViewData {
     }
     void deleteAll()
     {
-	for (ChildRec *r = children.first(); r; r=children.next())
+	for (ChildRec *r = children.first(); r; r=children.next()) {
 	    delete r;
+	}
     }
     bool anyVisibleChildren()
     {
@@ -200,6 +201,8 @@ Destructs the QScrollView.  Any QWidget set with setContents() will be destructe
 */
 QScrollView::~QScrollView()
 {
+    // Be careful not to get all those useless events...
+    d->viewport.removeEventFilter( this );
     QScrollViewData * d2 = d;
     d = 0;
     delete d2;
@@ -551,7 +554,7 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
 */
 void QScrollView::removeChild(QWidget* child)
 {
-    if ( !d )
+    if ( !d ) // In case we are destructing
 	return;
 
     ChildRec *r = d->rec(child);
@@ -630,6 +633,7 @@ void QScrollView::showChild(QWidget* child, bool y)
 
 bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 {
+    if (!d) return; // we are destructing
     if ( obj == &d->viewport ) {
 	switch ( e->type() ) {
 	  case Event_Paint:
@@ -652,6 +656,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 				me->button(), me->state() );
 		qApp->sendEvent( this, &myme );
 	    } break;
+	  case Event_ChildRemoved:
+	    removeChild(((QChildEvent*)e)->child());
+	    break;
 	}
     } else {
 	// must be a child
@@ -664,13 +671,6 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	}
     }
     return FALSE;  // always continue with standard event processing
-}
-
-bool QScrollView::event( QEvent *e )
-{
-    if ( e->type() == Event_ChildRemoved )
-	removeChild(((QChildEvent*)e)->child());
-    return QFrame::event(e);
 }
 
 /*!
@@ -1125,14 +1125,18 @@ bool QScrollView::focusNextPrevChild( bool next )
 	r = d->ancestorRec(candidate);
 
 	if ( r ) {
-	    QPoint cp = candidate->mapToGlobal(QPoint(0,0));
-	    QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
-	    ensureVisible( r->x+cr.x()+candidate->width()/2,
-			   r->y+cr.y()+candidate->height()/2,
-			   candidate->width()/2,
-			   candidate->height()/2 );
-	    if ( candidate )
+	    if ( candidate->isVisibleTo( r->child ) ) {
+		QPoint cp = candidate->mapToGlobal(QPoint(0,0));
+		QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
+		ensureVisible( r->x+cr.x()+candidate->width()/2,
+			       r->y+cr.y()+candidate->height()/2,
+			       candidate->width()/2,
+			       candidate->height()/2 );
 		candidate->setFocus();
+		break;
+	    }
+	} else if ( candidate->isVisible() ) {
+	    candidate->setFocus();
 	    break;
 	}
     }
