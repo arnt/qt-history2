@@ -368,6 +368,12 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    DisableMenuItem(ret, 0);
 	ChangeMenuAttributes(ret, !d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0,
 			     d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0);
+		if(qMacVersion() >= MV_PANTHER) { //insert a separator
+		    static int sep_id = 'SEP0';
+		    InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
+						   0, activeMenuBar->mac_d->in_apple++,
+						   kMenuItemAttrSeparator, sep_id++);
+		}
 	int id = 1;
 	
 	for (int index = 0; index < d->mitems->size(); ++index) {
