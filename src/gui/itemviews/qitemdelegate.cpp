@@ -142,7 +142,6 @@ void QItemDelegate::paint(QPainter *painter,
     QFontMetrics fontMetrics(opt.font);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    textRect.adjust(-textMargin, -textMargin, textMargin, textMargin);
 
     value = model->data(index, QAbstractItemModel::CheckStateRole);
     QRect checkRect = check(opt, value);
@@ -185,7 +184,6 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QFontMetrics fontMetrics(fnt);
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    textRect.adjust(-textMargin, -textMargin, textMargin, textMargin);
     QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
@@ -308,7 +306,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     QFont font = painter->font();
     painter->setFont(option.font);
-    QRect textRect = rect.adjusted(textMargin, textMargin, -textMargin, -textMargin);
+    QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     if (painter->fontMetrics().width(text) > textRect.width())
         painter->drawText(textRect, option.displayAlignment,
                           ellipsisText(painter->fontMetrics(), textRect.width(),
@@ -388,6 +386,7 @@ void QItemDelegate::drawCheck(QPainter *painter,
         opt.state |= QStyle::State_On;
         break;
     }
+
     QApplication::style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, painter);
 }
 
@@ -403,6 +402,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int x = option.rect.left();
     int y = option.rect.top();
     int w, h;
+
+    textRect->adjust(-textMargin, 0, textMargin, 0); // add width padding
 
     QSize pm(0, 0);
     if (pixmapRect->isValid())
