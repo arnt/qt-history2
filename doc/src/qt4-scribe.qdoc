@@ -101,38 +101,41 @@
     behavior is currently implemented in a private class.
 
 
-    \section1 The State of Scribe
+    \section1 What's Changed Since Technology Preview 1?
 
-    The new Scribe classes are functioning, but some parts are still
-    incomplete. Plain text layout through the QTextLayout class should
-    be working fine, but we are interested in receiving feedback on the
-    public API, usability, and bugs. Rich text support is currently
-    incomplete.
+    Some parts of the Scribe framework are still incomplete.
+    Rich text support has been improved to allow HTML documents to be
+    rendered by \c QTextEdit and \c QTextBrowser, but we are still
+    interested in receiving feedback on the public API, usability, and
+    any bugs that you find. Plain text support is considered to be
+    complete.
+
+    \section1 The Current State of Scribe
 
     The following features are mostly complete:
 
     \list
-    \i The document structure: QTextDocument, QTextBlock,
-       QTextFragment, QTextObject, and derived classes.
+    \i The document structure: \c QTextDocument, \c QTextBlock,
+       \c QTextFragment, \c QTextObject, and derived classes.
     \i Undo/redo.
-    \i Lists: QTextList.
-    \i QTextFormat and related structure is complete and working. We are
-       mainly interested in feedback on the public API of the QText*
-       group of classes.
-    \i Most editing operations using QTextCursor.
+    \i Lists: \c QTextList.
+    \i \c QTextFormat and its related structure is complete and working.
+       We are mainly interested in feedback on the public API of the
+       \c QText group of classes.
+    \i Most editing operations using \c QTextCursor.
     \endlist
 
-    The rich text module still has a few missing features:
+    There are a few known problems with the framework:
 
     \list
-    \i Layout of documents is still somewhat limited
-    \i Laying out text using design metrics (WYSIWYG) is currently disabled.
+    \i Support for varied document layouts is still being improved.
+    \i Text layout using design metrics (WYSIWYG) is disabled.
     \i Memory consumption is still rather high (though lower than in Qt
        3). The reasons are known to us and will be fixed before the release
        of Qt 4.
-    \i The API of QAbstractTextDocumentLayout is subject to change.
+    \i The API of \c QAbstractTextDocumentLayout is subject to change.
        The class is not guaranteed to be present in Qt 4.
-    \i HTML export.
+    \i HTML export is not yet complete.
     \endlist
 
 
@@ -188,48 +191,13 @@
     approach. The following example shows a simple calendar in a
     QTextEdit widget with bold headers for the days of the week:
 
-    \code
-        QTextEdit *edit = new QTextEdit();
-        edit->show();
-
-        QTextCursor cursor(edit->textCursor());
-        cursor.movePosition(QTextCursor::Start); 
-
-        QTextCharFormat format(cursor.charFormat());
-        format.setFontFamily("Courier");
-        format.setFontWeight(QFont::Bold);
-
-        cursor.insertBlock();
-        cursor.insertText(" ", format);
-
-        QDate date = QDate::currentDate();
-        int year = date.year();
-        int month = date.month();
-
-        for (int weekDay = 1; weekDay <= 7; ++weekDay) {
-            cursor.insertText(QString("%1 ").arg(QDate::shortDayName(weekDay), 3),
-                              format);
-        }
-
-        cursor.insertBlock();
-        format.setFontWeight(QFont::Normal);
-        cursor.insertText(" ", format);
-
-        for (int column = 1; column < QDate(year, month, 1).dayOfWeek(); ++column) {
-            cursor.insertText("    ", format);
-        }
-
-        for (int day = 1; day <= date.daysInMonth(); ++day) {
-            int weekDay = QDate(year, month, day).dayOfWeek();
-
-            cursor.insertText(QString("%1 ").arg(day, 3), format);
-
-            if (weekDay == 7) {
-                cursor.insertBlock();
-                cursor.insertText(" ", format);
-            }
-        }
-    \endcode
+    \quotefromfile snippets/textdocument-blocks/mainwindow.cpp
+    \skipto editor = new QTextEdit(this);
+    \printuntil editor = new QTextEdit(this);
+    \skipto QTextCursor cursor(editor->textCursor());
+    \printuntil for (int day = 1; day <= date.daysInMonth(); ++day) {
+    \printuntil }
+    \printuntil }
 
     The above example demonstrates how simple it is to quickly generate new
     rich text documents using a minimum amount of code. Although we have

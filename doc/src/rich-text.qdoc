@@ -149,11 +149,21 @@ percentage of the available width.
 
 Table cells are automatically created when the table is constructed or
 when extra rows or columns are added. Text can be added to the table by
-navigating to each cell with the cursor and inserting text. We can create
-a simple timetable by 
+navigating to each cell with the cursor and inserting text.
 
 \skipto cell = table->cellAt(0, 0);
 \printuntil cellCursor.insertText(tr("Week"));
+
+We can create a simple timetable by following this approach:
+
+\skipto for (column = 1; column < columns; ++column) {
+\printuntil if ((row-1) % 3 == column-1) {
+\printuntil }
+\printuntil }
+\printuntil }
+
+Since cells contain other regular elements, they too can be formatted and
+styled to give the document an appropriate appearance.
 
 \section2 Lists
 
@@ -173,7 +183,17 @@ in each level of the list.
 
 \section2 Images
 
+Inline images are added to documents through the cursor in the usual manner.
+Unlike many other elements, all of the image properties are specified by the
+image's format. This means that a \c QTextImageFormat object has to be
+created before an image can be inserted:
 
+\quotefromfile snippets/textdocument-images/main.cpp
+\skipto QTextImageFormat imageFormat;
+\printuntil cursor.insertImage(imageFormat);
+
+The image name refers to an entry in the application's resource file.
+How this name is derived is beyond the scope of this document.
 
 \section1 Cursor-based editing
 
