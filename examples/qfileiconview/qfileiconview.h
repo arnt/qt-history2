@@ -125,8 +125,7 @@ protected slots:
 	QIconView::alignItemsInGrid( TRUE );
     }
 
-    void slotItemRightClicked( QIconViewItem *item );
-    void slotViewportRightClicked();
+    void slotRightPressed( QIconViewItem *item );
 
 protected:
     void readDir( const QDir &dir );
@@ -172,7 +171,7 @@ public:
 
     virtual void setText( const QString &text );
     virtual QPixmap *pixmap() const;
-    
+
     virtual void dragEntered();
     virtual void dragLeft();
 
@@ -187,7 +186,7 @@ protected:
     bool checkSetText;
     QTimer timer;
     QtFileIconView::ViewMode vm;
-    
+
 protected slots:
     void openFolder();
 

@@ -659,10 +659,8 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 	     this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ),
 	     this, SLOT( slotDropped( QDropEvent * ) ) );
-    connect( this, SIGNAL( itemRightPressed( QIconViewItem * ) ),
-	     this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
-    connect( this, SIGNAL( viewportRightPressed() ),
-	     this, SLOT( slotViewportRightClicked() ) );
+    connect( this, SIGNAL( rightButtonPressed( QIconViewItem *, const QPoint & ) ),
+	     this, SLOT( slotRightPressed( QIconViewItem * ) ) );
 
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( Auto );
@@ -878,51 +876,47 @@ void QtFileIconView::itemTextWordWrap()
     setWordWrapIconText( TRUE );
 }
 
-void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
+void QtFileIconView::slotRightPressed( QIconViewItem *item )
 {
-    if ( !item )
-	return;
+    if ( !item ) { // right pressed on viewport
+	QPopupMenu menu( this );
 
-    QPopupMenu *menu = new QPopupMenu( this );
+	menu.insertItem( "&Large View", this, SLOT( viewLarge() ) );
+	menu.insertItem( "&Small View", this, SLOT( viewSmall() ) );
+	menu.insertSeparator();
+	menu.insertItem( "Text at the &bottom", this, SLOT( viewBottom() ) );
+	menu.insertItem( "Text at the &right", this, SLOT( viewRight() ) );
+	menu.insertSeparator();
+	menu.insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
+	menu.insertItem( "Items flow to the &South", this, SLOT( flowSouth() ) );
+	menu.insertSeparator();
+	menu.insertItem( "&Truncate Item Text", this, SLOT( itemTextTruncate() ) );
+	menu.insertItem( "&Wordwrap Item Text", this, SLOT( itemTextWordWrap() ) );
+	menu.insertSeparator();
+	menu.insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
+	menu.insertSeparator();
+	menu.insertItem( "Sort &Ascending", this, SLOT( sortAscending() ) );
+	menu.insertItem( "Sort &Descending", this, SLOT( sortDescending() ) );
 
-    int RENAME_ITEM = menu->insertItem( "Rename Item" );
-    int REMOVE_ITEM = menu->insertItem( "Remove Item" );
+	menu.setMouseTracking( TRUE );
+	menu.exec( QCursor::pos() );
+    } else { // on item
+	QPopupMenu menu( this );
 
-    menu->setMouseTracking( TRUE );
-    int id = menu->exec( QCursor::pos() );
+	int RENAME_ITEM = menu.insertItem( "Rename Item" );
+	int REMOVE_ITEM = menu.insertItem( "Remove Item" );
 
-    if ( id == -1 )
-	return;
+	menu.setMouseTracking( TRUE );
+	int id = menu.exec( QCursor::pos() );
 
-    if ( id == RENAME_ITEM && item->renameEnabled() )
-	item->rename();
-    else if ( id == REMOVE_ITEM )
-	QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
-}
+	if ( id == -1 )
+	    return;
 
-void QtFileIconView::slotViewportRightClicked()
-{
-    QPopupMenu *menu = new QPopupMenu( this );
-
-    menu->insertItem( "&Large View", this, SLOT( viewLarge() ) );
-    menu->insertItem( "&Small View", this, SLOT( viewSmall() ) );
-    menu->insertSeparator();
-    menu->insertItem( "Text at the &bottom", this, SLOT( viewBottom() ) );
-    menu->insertItem( "Text at the &right", this, SLOT( viewRight() ) );
-    menu->insertSeparator();
-    menu->insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
-    menu->insertItem( "Items flow to the &South", this, SLOT( flowSouth() ) );
-    menu->insertSeparator();
-    menu->insertItem( "&Truncate Item Text", this, SLOT( itemTextTruncate() ) );
-    menu->insertItem( "&Wordwrap Item Text", this, SLOT( itemTextWordWrap() ) );
-    menu->insertSeparator();
-    menu->insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
-    menu->insertSeparator();
-    menu->insertItem( "Sort &Ascending", this, SLOT( sortAscending() ) );
-    menu->insertItem( "Sort &Descending", this, SLOT( sortDescending() ) );
-
-    menu->setMouseTracking( TRUE );
-    menu->exec( QCursor::pos() );
+	if ( id == RENAME_ITEM && item->renameEnabled() )
+	    item->rename();
+	else if ( id == REMOVE_ITEM )
+	    QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
+    }
 }
 
 void QtFileIconView::initDragEnter( QDropEvent *e )

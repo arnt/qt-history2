@@ -194,6 +194,8 @@ signals:
     void returnPressed( QListBoxItem * );
     void rightButtonClicked( QListBoxItem *, const QPoint & );
     void rightButtonPressed( QListBoxItem *, const QPoint & );
+    void mouseButtonPressed( int, QListBoxItem*, const QPoint& );
+    void mouseButtonClicked( int, QListBoxItem*, const QPoint& );
 
     void onItem( QListBoxItem *item );
     void onViewport();
@@ -240,7 +242,7 @@ private slots:
     void refreshSlot();
     void doAutoScroll();
     void adjustItems();
-    
+
 private:
     void tryGeometry( int, int ) const;
     int currentRow() const;

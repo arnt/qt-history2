@@ -380,11 +380,6 @@ signals:
     void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
 
-    void itemRightClicked( QIconViewItem *item );
-    void itemRightPressed( QIconViewItem *item );
-    void viewportRightPressed();
-    void viewportRightClicked();
-
     void dropped( QDropEvent *e );
     void moved();
     void onItem( QIconViewItem *item );

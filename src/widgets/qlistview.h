@@ -273,6 +273,8 @@ signals:
     void returnPressed( QListViewItem * );
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
     void rightButtonPressed( QListViewItem *, const QPoint&, int );
+    void mouseButtonPressed( int, QListViewItem *, const QPoint& , int );
+    void mouseButtonClicked( int, QListViewItem *,  const QPoint&, int );
 
     void onItem( QListViewItem *item );
     void onViewport();

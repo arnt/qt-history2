@@ -99,6 +99,8 @@ public:
     QListBox *listBox;
     QString currInputString;
     QTimer *inputTimer;
+    
+    QListBoxItem *pressedItem;
 };
 
 
@@ -671,7 +673,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->inputTimer = new QTimer( this, "listbox input timer" );
     d->resizeTimer = new QTimer( this, "listbox resize timer" );
     d->clearing = FALSE;
-
+    d->pressedItem = 0;
+    
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -744,6 +747,34 @@ QListBox::~QListBox()
   into the listbox.
   \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
   \a pnt is the position where the user has clicked.
+
+  Note that you may not delete any QListBoxItem objects in slots
+  connected to this signal.
+*/
+
+/*!
+  \fn void QLixtBox::mouseButtonClicked (int button, QLixtBoxItem * item, const QPoint & pos)
+
+  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  into the listbox.
+  \a button is the mouse button, which the user pressed.
+  \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
+  \a pos is the position where the user has clicked.
+
+  Note that you may not delete any QListBoxItem objects in slots
+  connected to this signal.
+*/
+
+/*!
+  \fn void QIconView::mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos)
+
+  This signal is emitted whenever the user presses the mouse button
+  on a listbox.
+  \a button is the mouse button, which the user pressed.
+  \a item is the pointer to the listbox item onto which the user pressed the
+  mouse button or NULL, if the user didn't press the mouse on an item.
+  \a pos is the position of the mouse cursor where the mouse cursor was
+  when the user pressed the mouse button.
 
   Note that you may not delete any QListBoxItem objects in slots
   connected to this signal.
@@ -1545,12 +1576,17 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     if ( i ) {
 	d->mousePressColumn = d->currentColumn;
 	d->mousePressRow = d->currentRow;
+    } else {
+	d->mousePressColumn = -1;
+	d->mousePressRow = -1;
     }
     d->ignoreMoves = FALSE;
 
+    d->pressedItem = i;
     emit pressed( i );
     emit pressed( i, e->globalPos() );
-
+    emit mouseButtonPressed( e->button(), i, e->globalPos() );
+    
     if ( e->button() == RightButton )
 	emit rightButtonPressed( i, e->globalPos() );
 }
@@ -1574,13 +1610,18 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     d->scrollTimer = 0;
     emitChangedSignal( FALSE );
     d->ignoreMoves = FALSE;
+    QListBoxItem * i = itemAt( e->pos() );
+    bool emitClicked = d->mousePressColumn != -1 && d->mousePressRow != -1 || !d->pressedItem;
+    emitClicked = emitClicked && d->pressedItem == i;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
-    QListBoxItem * i = itemAt( e->pos() );
-    emit clicked( i );
-    emit clicked( i, e->globalPos() );
-    if ( e->button() == RightButton )
-	emit rightButtonClicked( i, e->globalPos() );
+    if ( emitClicked ) {
+	emit clicked( i );
+	emit clicked( i, e->globalPos() );
+	emit mouseButtonClicked( e->button(), i, e->globalPos() );
+	if ( e->button() == RightButton )
+	    emit rightButtonClicked( i, e->globalPos() );
+    }
 }
 
 

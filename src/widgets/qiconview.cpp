@@ -51,7 +51,7 @@
 
 // MOC_SKIP_BEGIN
 template class QList<QIconViewItem>;
-// MOC_SKIP_END                                                                
+// MOC_SKIP_END
 
 static const char *unknown[] = {
     "32 32 11 1",
@@ -1848,25 +1848,6 @@ void QIconViewItem::calcTmpText()
   \a item is the item which was current while return or enter was pressed.
 */
 
-/*! \fn void  QIconView::itemRightPressed (QIconViewItem * item)
-  This signal is emitted, if the user pressed on the item \a item using the right mouse button.
-*/
-
-/*! \fn void  QIconView::viewportRightPressed ()
-  This signal is emitted, when the user pressed with the right mouse button onto the viewport
-  (not on an item)
-*/
-
-/*! \fn void  QIconView::itemRightClicked (QIconViewItem * item)
-  This signal is emitted, if the user clicked (pressed + released) on the
-  item \a item using the right mouse button.
-*/
-
-/*! \fn void  QIconView::viewportRightClicked ()
-  This signal is emitted, when the user clicked (pressed + released) with
-  the right mouse button onto the viewport (not on an item)
-*/
-
 /*! \fn void  QIconView::selectionChanged ()
   This signal is emitted when the selection has been changed. It's emitted
   in each selection mode.
@@ -3472,10 +3453,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
     if ( e->button() == RightButton ) {
 	emit rightButtonPressed( item, e->globalPos() );
-	if ( item )
-	    emit itemRightPressed( item );
-	else
-	    emit viewportRightPressed();
     }
 }
 
@@ -3487,9 +3464,9 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     QIconViewItem *item = findItem( e->pos() );
 
+    bool emitClicked = d->mousePressed;
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
-    bool emitClicked = TRUE;
 
     if ( d->rubber ) {
 	QPainter p;
@@ -3502,9 +3479,11 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 	p.end();
 
+	if ( ( d->rubber->topLeft() - d->rubber->bottomRight() ).manhattanLength() > 
+	     QApplication::startDragDistance() )
+	    emitClicked = FALSE;
 	delete d->rubber;
 	d->rubber = 0;
-	emitClicked = FALSE;
     }
 
     if ( d->scrollTimer ) {
@@ -3518,14 +3497,9 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	emit mouseButtonClicked( e->button(), item, e->globalPos() );
 	emit clicked( item );
 	emit clicked( item, e->globalPos() );
-    }
-
-    if ( e->button() == RightButton ) {
-	emit rightButtonClicked( item, e->globalPos() );
-	if ( item )
-	    emit itemRightClicked( item );
-	else
-	    emit viewportRightClicked();
+	if ( e->button() == RightButton ) {
+	    emit rightButtonClicked( item, e->globalPos() );
+	}
     }
 }
 

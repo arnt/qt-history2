@@ -176,7 +176,8 @@ struct QListViewPrivate
 
     // holds a list of iterators
     QList<QListViewItemIterator> *iterators;
-
+    QListViewItem *pressedItem;
+    
     QTimer *scrollTimer;
 
     bool clearing;
@@ -1706,7 +1707,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->minRightBearing = fontMetrics().minRightBearing();
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->highlighted = 0;
-
+    d->pressedItem = 0;
+    
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -2867,6 +2869,32 @@ void QListViewItem::widthChanged( int c ) const
   connected to this signal.
 */
 
+/*!
+  \fn void QListView::mouseButtonClicked(int button, QListViewItem * item, const QPoint & pos, int c)
+
+  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  into the listview. \a button is the mouse button which the user pressed,
+  \a item is the pointer to the clicked listview item or NULL, if the user didn't click on an item, and
+  \a c the listview column into which the user pressed (this argument is only valid, if \a item
+  is not NULL!)
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
+/*!
+  \fn void QListView::mouseButtonPressed(int button, QListViewItem * item, const QPoint & pos, int c)
+
+  This signal is emitted whenever the user pressed the mouse button
+  onto the listview. \a button is the mouse button which the user pressed,
+  \a item is the pointer to the pressed listview item or NULL, if the user didn't press on an item, and
+  \a c the listview column into which the user pressed (this argument is only valid, if \a item
+  is not NULL!)
+
+  Note that you may not delete any QListViewItem objects in slots
+  connected to this signal.
+*/
+
 /*! \fn void QListView::clicked( QListViewItem *item, const QPoint &pnt, int c )
 
   This signal is emitted whenever the user clicks (moues pressed + mouse released)
@@ -2925,7 +2953,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;
-
+    
     QListViewItem * i = itemAt( vp );
     QListViewItem *oldCurrent = currentItem();
     if ( !i )
@@ -3005,14 +3033,16 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
  emit_signals:
 
+    if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
+	i = 0;
+    d->pressedItem = i;
+    
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+    emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), 
+			     i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
 
-    if ( e->button() == RightButton ) {
-	QListViewItem * i = 0;
-	if ( viewport()->rect().contains( vp ) )
-	    i = itemAt( vp );
-
+    if ( e->button() == RightButton && i == d->pressedItem ) {
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
@@ -3030,6 +3060,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
+    bool emitClicked = !d->pressedItem || d->buttonDown;
     d->buttonDown = FALSE;
     // delete and disconnect autoscroll timer, if we have one
     if ( d->scrollTimer ) {
@@ -3044,24 +3075,28 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 	return;
 
     QPoint vp = contentsToViewport(e->pos());
-
-    if ( e->button() == RightButton ) {
-	QListViewItem * i = 0;
-	if ( viewport()->rect().contains( vp ) )
-	    i = itemAt( vp );
-
-	if ( !i ) {
-	    clearSelection();
-	    emit rightButtonClicked( 0, viewport()->mapToGlobal( vp ), -1 );
-	}
-
-	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
-	emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
-    }
-
     QListViewItem *i = itemAt( vp );
-    emit clicked( i );
-    emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+    if ( i && vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
+	i = 0;
+    emitClicked = emitClicked && d->pressedItem == i;
+    d->pressedItem = 0;
+    
+    if ( emitClicked ) {
+	emit clicked( i );
+	emit clicked( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+	emit mouseButtonClicked( e->button(), i, viewport()->mapToGlobal( vp ), 
+				 i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1 );
+
+	if ( e->button() == RightButton ) {
+	    if ( !i ) {
+		clearSelection();
+		emit rightButtonClicked( 0, viewport()->mapToGlobal( vp ), -1 );
+	    }
+
+	    int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	    emit rightButtonClicked( i, viewport()->mapToGlobal( vp ), c );
+	}
+    }    
 }
 
 
@@ -3465,7 +3500,8 @@ QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
     while( c && c->i && c->y + c->i->height() <= g )
 	c = d->drawables->next();
 
-    return (c && c->y <= g) ? c->i : 0;
+    QListViewItem *i = (c && c->y <= g) ? c->i : 0;
+    return i;
 }
 
 
