@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#181 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1105,11 +1105,10 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     QCString bestName;
     char *tokens[fontFields];
 
-    if ( bestScalable.score >= exactScore ||
-	 ( bestScalable.score > best.score ||
+    if ( bestScalable.score > best.score ||
 	   bestScalable.score == best.score &&
 	   ( best.pointDiff != 0 ||
-	     bestScalable.weightDiff < best.weightDiff ) ) ) {
+	     bestScalable.weightDiff < best.weightDiff ) ) {
 	strcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
 	    // X will scale the font accordingly
