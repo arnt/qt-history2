@@ -36,6 +36,7 @@
 #include "qregexp.h"
 #include "qt_windows.h"
 
+//#define QT_QPROCESS_DEBUG
 
 /***********************************************************************
  *
@@ -272,6 +273,9 @@ bool QProcess::start( QStringList *env )
 	    args += ' ' + tmp;
 	}
     }
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcess::start(): args [%s]", args.latin1() );
+#endif
 
     // CreateProcess()
     bool success;
