@@ -50,6 +50,7 @@ static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
 
 QByteArray qMakeOraDate( const QDateTime& dt );
+QDateTime qMakeDate( const char* oraDate );
 QString qOraWarn( const QOCIPrivate* d );
 
 class QOCIPrivate
@@ -151,7 +152,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) ba->data(),
+					   (dvoid *) ba->data(),
 					   ba->size(),
 					   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -160,7 +161,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) &it.data().value.asInt(),
+					   (dvoid *) &it.data().value.asInt(),
 					   sizeof(int),
 					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -169,7 +170,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) &it.data().value.asDouble(),
+					   (dvoid *) &it.data().value.asDouble(),
 					   sizeof(double),
 					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -180,7 +181,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) str->data(),
+					   (dvoid *) str->data(),
 					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -193,7 +194,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) str->data(),
+					   (dvoid *) str->data(),
 					   str->length() + 1,
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -243,7 +244,7 @@ public:
 			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) ba->data(),
+					  (dvoid *) ba->data(),
 					  ba->size(),
 					  SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -251,7 +252,7 @@ public:
 		    case QVariant::Int:
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) &ext->values[ it.data() ].value.asInt(), // avoid deep cpy
+					  (dvoid *) &ext->values[ it.data() ].value.asInt(), // avoid deep cpy
 					  sizeof(int),
 					  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -259,7 +260,7 @@ public:
 		    case QVariant::Double:
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) &ext->values[ it.data() ].value.asDouble(), // avoid deep cpy
+					  (dvoid *) &ext->values[ it.data() ].value.asDouble(), // avoid deep cpy
 					  sizeof(double),
 					  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -269,7 +270,7 @@ public:
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) str->data(),
+					  (dvoid *) str->data(),
 					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -281,7 +282,7 @@ public:
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) str->data(),
+					  (dvoid *) str->data(),
 					  str->length() + 1, // oracle uses this as a limit to find the terminating 0..
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -295,6 +296,59 @@ public:
 	    }
 	}
 	return r;
+    }
+    
+    void outValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
+    {
+	QSqlExtension::ValueMap::Iterator it;
+	for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
+	    sb2* indPtr = qAutoDeleterData( (QAutoDeleter<sb2>*)tmpStorage.getFirst() );
+	    if ( !indPtr )
+		return;
+	    bool isNull = (*indPtr == -1);
+	    tmpStorage.removeFirst();
+
+	    if ( isNull ) {
+		QVariant v;
+		v.cast( it.data().value.type() );
+		it.data().value = v;
+	    }
+
+	    switch ( it.data().value.type() ) {
+		case QVariant::ByteArray:
+		case QVariant::CString:
+		case QVariant::Int:
+		case QVariant::Double:
+		    break;
+		case QVariant::Time:
+		case QVariant::Date:
+		case QVariant::DateTime:
+		    if ( !isNull ) {
+			QByteArray* ba = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+			if ( !ba )
+			    return;
+			QDateTime dt = qMakeDate( ba->data() );
+			if ( it.data().value.type() == QVariant::DateTime )
+			    it.data().value = dt;
+			else if ( it.data().value.type() == QVariant::Date )
+			    it.data().value = dt.date();
+			else if ( it.data().value.type() == QVariant::Time )
+			    it.data().value = dt.time();
+		    }
+		    tmpStorage.removeFirst();
+		    break;
+		case QVariant::String:
+		default: {
+		    if ( !isNull ) {
+			QCString* str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+			if ( !str )
+			    return;
+			it.data().value = *str;
+		    }
+		    tmpStorage.removeFirst();
+		    break; }
+	    }
+	}
     }
 };
 
@@ -622,6 +676,22 @@ QByteArray qMakeOraDate( const QDateTime& dt )
     ba[5]= dt.time().minute() + 1;
     ba[6]= dt.time().second() + 1;
     return ba;
+}
+
+QDateTime qMakeDate( const char* oraDate )
+{
+    int century = oraDate[0];
+    if( century >= 100 ){
+	int year    = (unsigned char)oraDate[1];
+	year = ( (century-100)*100 ) + (year-100);
+	int month = oraDate[2];
+	int day   = oraDate[3];
+	int hour  = oraDate[4] - 1;
+	int min   = oraDate[5] - 1;
+	int sec   = oraDate[6] - 1;
+	return QDateTime( QDate(year,month,day), QTime(hour,min,sec) );
+    }
+    return QDateTime();
 }
 
 class QOCIResultPrivate
@@ -1016,23 +1086,9 @@ public:
     {
 	QVariant v;
 	switch ( type(i) ) {
-	case QVariant::DateTime: {
-	    int century = at(i)[0];
-	    if( century >= 100 ){
-		int year    = (unsigned char)at(i)[1];
-		year = ((century-100)*100) + (year-100);
-		int month = at(i)[2];
-		int day   = at(i)[3];
-		int hour  = at(i)[4] - 1;
-		int min   = at(i)[5] - 1;
-		int sec   = at(i)[6] - 1;
-		v = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
-	    } else {
-		// ### Handle BCE dates here
-		v = QVariant( QDateTime() );
-	    }
+	case QVariant::DateTime:
+	    v = QVariant( qMakeDate( at(i) ) );
 	    break;
-	}
 	case QVariant::String:
 	    v = QVariant( QString::fromUtf8( at(i) ) );
 	    break;
@@ -1365,7 +1421,7 @@ bool QOCIResult::exec()
     
     // bind placeholders
     if ( extension()->values.count() > 0 && 
-	 d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
+	d->bindValues( extension(), tmpStorage ) != OCI_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QOCIResult::exec: unable to bind value: " + qOraWarn( d ) );
 #endif
@@ -1392,9 +1448,9 @@ bool QOCIResult::exec()
 			    OCI_DEFAULT );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCIResult::exec: unable to execute statement: " + qOraWarn( d ) );
+	    qWarning( "QOCIResult::exec: unable to execute select statement: " + qOraWarn( d ) );
 #endif
-	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1436,7 +1492,10 @@ bool QOCIResult::exec()
 	setSelect( FALSE );
     }
     setAt( QSql::BeforeFirst );
-    setActive( TRUE);
+    setActive( TRUE );
+    
+    d->outValues( extension(), tmpStorage );
+    
     return TRUE;
 }
 
@@ -1730,9 +1789,9 @@ bool QOCI9Result::exec()
 			    mode );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QOCI9Result::reset: unable to execute statement: " + qOraWarn( d ) );
+	    qWarning( "QOCI9Result::reset: unable to execute select statement: " + qOraWarn( d ) );
 #endif
-	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1776,6 +1835,9 @@ bool QOCI9Result::exec()
     }
     setAt( QSql::BeforeFirst );
     setActive( TRUE);
+    
+    d->outValues( extension(), tmpStorage );
+    
     return TRUE;
 }
 
