@@ -408,9 +408,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     while (y < h && i < c) {
         // prepare
         index = items[i].index;
-        option.state = state;
-        option.state |= (d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
-        option.state |= (index == current ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
         option.rect.setRect(0, y, 0, delegate->sizeHint(fontMetrics, option, index).height());
         d->current = i;
         // draw row
