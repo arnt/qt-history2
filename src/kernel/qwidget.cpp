@@ -3230,7 +3230,8 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    d->focus_child->clearFocus();
+    if(d->focus_child)
+	d->focus_child->clearFocus();
 
     // seperate the focus chain
     QWidget *w = this;
@@ -3249,7 +3250,8 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 	    n = w;
 	}
     }
-    o->d->focus_next = firstOld;
+    if(o)
+	o->d->focus_next = firstOld;
 
     if (!isTopLevel()) {
 	//insert chain
