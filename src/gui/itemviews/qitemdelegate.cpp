@@ -292,13 +292,15 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
                                 const QRect &rect, const QString &text) const
 {
     QPen pen = painter->pen();
+    QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+                              ? QPalette::Normal : QPalette::Disabled;
     if (option.state & QStyle::Style_Selected) {
         QRect fill(rect.x() - border, rect.y() - border,
                    rect.width() + border * 2, rect.height() + border * 2);
-        painter->fillRect(fill, option.palette.highlight());
-        painter->setPen(option.palette.highlightedText());
+        painter->fillRect(fill, option.palette.color(cg, QPalette::Highlight));
+        painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
     } else {
-        painter->setPen(option.palette.text());
+        painter->setPen(option.palette.color(cg, QPalette::Text));
     }
     QFont font = painter->font();
     painter->setFont(option.font);
@@ -323,7 +325,9 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
     if (!pixmap.isNull() && !rect.isEmpty()) {
         painter->drawPixmap(rect.topLeft(), pixmap);
         if (option.state & QStyle::Style_Selected) {
-            QColor col = option.palette.highlight();
+            bool enabled = option.state & QStyle::Style_Enabled;
+            QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
+                                              QPalette::Highlight);
             col.setRgb(col.red(), col.green(), col.blue(), 127);
             QPen pen = painter->pen();
             painter->setPen(col);
@@ -347,10 +351,12 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
                        rect.width() + border * 2, rect.height() + border * 2);
         o.palette = option.palette;
         o.state = QStyle::Style_Default;
+        QPalette::ColorGroup cg = option.state & QStyle::Style_Enabled
+                                  ? QPalette::Normal : QPalette::Disabled;
         if (option.state & QStyle::Style_Selected)
-            o.backgroundColor = option.palette.highlight();
+            o.backgroundColor = option.palette.color(cg, QPalette::Highlight);
         else
-            o.backgroundColor = option.palette.background();
+            o.backgroundColor = option.palette.color(cg, QPalette::Background);
         QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &o, painter);
     }
 }
