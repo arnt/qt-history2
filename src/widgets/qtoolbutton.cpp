@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#27 $
 **
 ** Implementation of QToolButton class
 **
@@ -39,7 +39,7 @@ class QToolButtonPrivate
   This means that it implements the ridiculous Microsoft auto-raise
   feature using QIconSet.  Apart from that, it's pretty much like a
   QPushButton.  The two classes may at some point be merged.
-
+  
   \sa QPushButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
@@ -76,9 +76,6 @@ void QToolButton::init()
   The tool button will display \a pm, with text label or tool tip \a
   textLabel and status-bar message \a grouptext, connected to \a slot
   in object \a receiver, and returns the button.
-
-  Note that \a grouptext is not used unless \a parent is managed by a
-  QMainWindow.
 */
 
 QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
@@ -92,16 +89,20 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     setTextLabel( textLabel );
     if ( receiver && slot )
 	connect( this, SIGNAL(clicked()), receiver, slot );
-    if ( parent->parentWidget() ) {
-	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
+    if ( parent->mainWindow() ) {
+	connect( parent->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
 		 this, SLOT(setUsesBigPixmap(bool)) );
 	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
     } else {
 	setUsesBigPixmap( FALSE );
     }
-    if ( grouptext && *grouptext )
-	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
-		 name, grouptext );
+    if ( textLabel && *textLabel ) {
+	if ( grouptext && *grouptext )
+	    QToolTip::add( this, textLabel,
+			   parent->mainWindow()->toolTipGroup(), grouptext );
+	else
+	    QToolTip::add( this, textLabel );
+    }
 }
 
 
@@ -111,9 +112,6 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
   The tool button will display \a s, with text label or tool tip \a
   textLabel and status-bar message \a grouptext, connected to \a slot
   in object \a receiver, and returns the button.
-
-  Note that \a grouptext is not used unless \a parent is managed by a
-  QMainWindow.
 */
 
 QToolButton::QToolButton( QIconSet s, const char * textLabel,
@@ -125,18 +123,22 @@ QToolButton::QToolButton( QIconSet s, const char * textLabel,
     init();
     setIconSet( s );
     setTextLabel( textLabel );
-    connect( this, SIGNAL(clicked()), receiver, slot );
-    if ( parent->parentWidget() ) {
-	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
+    if ( receiver && slot )
+	connect( this, SIGNAL(clicked()), receiver, slot );
+    if ( parent->mainWindow() ) {
+	connect( parent->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
 		 this, SLOT(setUsesBigPixmap(bool)) );
 	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
     } else {
 	setUsesBigPixmap( FALSE );
     }
-    if ( grouptext && *grouptext )
-	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
-		 name, grouptext );
-
+    if ( textLabel && *textLabel ) {
+	if ( grouptext && *grouptext )
+	    QToolTip::add( this, textLabel,
+			   parent->mainWindow()->toolTipGroup(), grouptext );
+	else
+	    QToolTip::add( this, textLabel );
+    }
 }
 
 
@@ -219,7 +221,7 @@ QSize QToolButton::sizeHint() const
 
 /*!  Sets this button to use the big pixmaps provided by its QIconSet
   if \a enable is TRUE, and to use the small ones else.
-  
+
   QToolButton automatically connects this slot to the relevant signal
   in the QMainWindow in which is resides.
 */
@@ -246,7 +248,7 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
 /*!  Sets this button to draw a text label below the icon if \a enable
   is TRUE, and to not draw it if \a enable is FALSE.
-  
+
   QToolButton automatically connects this slot to the relevant signal
   in the QMainWindow in which is resides.
 */
