@@ -60,6 +60,8 @@
     The supported formats are GIF (if Qt is configured with GIF
     support enabled).
 
+    \img qmovie.png QMovie
+
     \legalese
 
     Qt supports GIF reading if it is configured that way during
@@ -76,8 +78,6 @@
     patent will have expired world-wide by the end of 2004.
     Nonetheless, GIF support may be removed completely in a future
     version of Qt. We recommend using the PNG format instead.
-
-    \img qmovie.png QMovie
 
     \sa QLabel::setMovie()
 */
