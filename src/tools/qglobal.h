@@ -1133,7 +1133,7 @@ Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
   void*, const void* and function pointers are special, since deleting
   them is undefined.
 */
-template <> inline void qDelete<void*>(void *&) { }
+template <> inline void qDelete<void>(void *&) { }
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
 #if defined(Q_CC_BOR)
