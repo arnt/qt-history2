@@ -10,13 +10,16 @@ class QItemSelectionRange
 {
 
 public:
+    inline QItemSelectionRange() :
+        t(-1), l(-1), b(-1), r(-1) {}
     inline QItemSelectionRange(const QItemSelectionRange &other)
         : p(other.p), t(other.t), l(other.l), b(other.b), r(other.r) {}
-    inline QItemSelectionRange(int top = 1, int left = 1, int bottom = -1, int right = -1)
-        : t(top), l(left), b(bottom), r(right) {}
     inline QItemSelectionRange(const QModelIndex &parent,
-                               int top = 1, int left = 1, int bottom = -1, int right = -1)
+                               int top, int left, int bottom, int right)
         : p(parent), t(top), l(left), b(bottom), r(right) {}
+    inline QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
+        : p(parent), t(index.row()), l(index.column()),
+          b(index.row()), r(index.column()) {}
 
     inline int top() const { return t; }
     inline int left() const { return l; }
@@ -50,7 +53,7 @@ public:
                 && b == other.b && r == other.r);
     }
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
-    inline bool isValid() const { return (t <= b && l <= r); }
+    inline bool isValid() const { return (t <= b && l <= r && t > -1 && l > -1); }
 
     QModelIndexList items(const QAbstractItemModel *model) const;
 

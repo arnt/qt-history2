@@ -4,7 +4,7 @@
 #include <qapplication.h>
 #include <qscrollbar.h>
 #include <qpainter.h>
-#include <qvector.h>
+#include <qstack.h>
 #include <qstyle.h>
 #include <qevent.h>
 #include <qpen.h>
@@ -414,16 +414,62 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
 
 void QGenericTreeView::setSelection(const QRect &rect, int command)
 {
-    QModelIndex tl = itemAt(rect.left(), rect.top());
-    QModelIndex br = itemAt(rect.right(), rect.bottom());
-    selectionModel()->select(QItemSelection(tl, br, model()), command);
+    int start = d->viewIndex(itemAt(rect.left(), rect.top()));
+    int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));
+
+    QModelIndex prevItem;
+    QItemSelectionRange currentRange;
+    QStack<QItemSelectionRange> rangeStack;
+    QItemSelection selection;
+    for (int i=start; i<=stop; ++i) {
+        QModelIndex item = d->modelIndex(i);
+        if (prevItem.isValid() &&
+            model()->parent(item) == model()->parent(prevItem)) {
+            // same parent
+            currentRange = QItemSelectionRange(currentRange.parent(),
+                                               currentRange.top(),
+                                               currentRange.left(),
+                                               item.row(),
+                                               item.column());
+        } else if (prevItem.isValid() &&
+                   model()->parent(item) ==
+                   model()->sibling(prevItem.row(), 0, prevItem)) {
+            // item is child of prevItem
+            rangeStack.push(currentRange);
+            currentRange = QItemSelectionRange(model()->parent(item), item);
+        } else {
+            if (currentRange.isValid())
+                selection.append(currentRange);
+            if (rangeStack.isEmpty()) {
+                currentRange = QItemSelectionRange(model()->parent(item), item);
+            } else {
+                currentRange = rangeStack.pop();
+                if (model()->parent(item) == currentRange.parent()) {
+                    currentRange = QItemSelectionRange(currentRange.parent(),
+                                                       currentRange.top(),
+                                                       currentRange.left(),
+                                                       item.row(),
+                                                       item.column());
+                } else {
+                    selection.append(currentRange);
+                    currentRange = QItemSelectionRange(model()->parent(item), item);
+                }
+            }
+        }
+        prevItem = item;
+    }
+    if (currentRange.isValid())
+        selection.append(currentRange);
+    for (int i=0; i<rangeStack.count(); ++i)
+        selection.append(rangeStack.at(i));
+    selectionModel()->select(selection, command);
 }
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (!selection.count())
         return QRect();
-        
+
     QModelIndex bottomRight = model()->bottomRight(root());
     int top = d->items.count();
     int bottom = 0;
@@ -442,7 +488,7 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
     int bottomHeight = itemDelegate()->sizeHint(fontMetrics(), options, bottomIndex).height();
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
-    
+
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
 }
 
@@ -578,7 +624,7 @@ void QGenericTreeView::updateGeometries()
          max += 1 + (verticalFactor() * -h /
                      itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(item)).height());
     verticalScrollBar()->setRange(0, max);
-    
+
     int w = viewport()->width();
     int col = model()->columnCount(0);
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -712,7 +758,7 @@ void QGenericTreeViewPrivate::open(int i)
     int c = q->model()->rowCount(index);
     if (c <= 0)
         return;
-    layout(i);    
+    layout(i);
 
     // make sure we open children that are already open
 //    for (int j = 0; j < opened.count(); ++j) {
@@ -737,7 +783,7 @@ void QGenericTreeViewPrivate::close(int i)
 
     int j = opened.indexOf(index);
     opened.remove(j);
-    
+
     int idx = i;
     while (index.isValid()) {
         items[idx].total -= total;
@@ -759,7 +805,7 @@ void QGenericTreeViewPrivate::layout(int i)
         items.resize(count);
     else
         qExpand<QGenericTreeViewItem>(items, i, count);
-    
+
     int level = i >= 0 ? items.at(i).level + 1 : 0;
     int first = i + 1;
     for (int j = first; j < first + count; ++j) {
