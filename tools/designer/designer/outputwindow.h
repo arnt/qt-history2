@@ -29,6 +29,8 @@ private:
     QTextEdit *debugView;
     QListView *errorView;
 
+    DesignerOutputDock *iface;
+
     QtMsgHandler oldMsgHandler;
 };
 

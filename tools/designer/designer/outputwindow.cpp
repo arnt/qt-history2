@@ -15,6 +15,7 @@ OutputWindow::OutputWindow( QWidget *parent )
 {
     setupDebug();
     setupError();
+    iface = new DesignerOutputDockImpl( this );
 }
 
 OutputWindow::~OutputWindow()
@@ -22,6 +23,7 @@ OutputWindow::~OutputWindow()
     debugoutput = debugView = 0;
     errorView = 0;
     qInstallMsgHandler( oldMsgHandler );
+    delete iface;
 }
 
 void OutputWindow::setupError()
@@ -72,7 +74,7 @@ void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList
 
 DesignerOutputDock *OutputWindow::iFace()
 {
-    return new DesignerOutputDockImpl( this );
+    return iface;
 }
 
 void OutputWindow::appendDebug( const QString &text )
