@@ -88,8 +88,10 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     QTextDocumentPrivate *priv = cursor.d->priv;
     QTextImportHelper importHelper(this, priv);
 
-    if (cursor.selectionStart() == 0 && cursor.selectionEnd() == priv->length() - 1)
+    if (cursor.selectionStart() == 0 && cursor.selectionEnd() == priv->length() - 1) {
         containsCompleteDocument = true;
+        rootFrameFormat = priv->rootFrame()->frameFormat();
+    }
 
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
@@ -202,6 +204,9 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         c.movePosition(QTextCursor::Start);
         c.deleteChar();
     }
+
+    if (containsCompleteDocument)
+        destPieceTable->rootFrame()->setFrameFormat(rootFrameFormat);
 
     // ### UNDO
     if (hasTitle)
@@ -470,6 +475,10 @@ void QTextHTMLImporter::import()
         if (node->id == Html_style) {
             // ignore the body of style tags
             continue;
+        } else if (node->id == Html_body) {
+            d->containsCompleteDocument = true;
+            if (node->bgColor.isValid())
+                d->rootFrameFormat.setBackgroundColor(node->bgColor);
         } else if (node->isListStart) {
 
             QTextListFormat::Style style = node->listStyle;

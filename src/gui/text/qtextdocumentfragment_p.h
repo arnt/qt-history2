@@ -93,6 +93,8 @@ public:
     qint8 hasTitle;
     QString title;
 
+    QTextFrameFormat rootFrameFormat;
+
     uint containsCompleteDocument : 1;
     uint setMarkerForHtmlExport : 1;
 };

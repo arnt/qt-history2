@@ -1185,7 +1185,7 @@ void QTextHtmlParser::parseAttributes()
             } else if (key == QLatin1String("height")) {
                 setIntAttribute(&node->imageHeight, value);
             }
-        } else if (node->id == Html_tr) {
+        } else if (node->id == Html_tr || node->id == Html_body) {
             if (key == QLatin1String("bgcolor"))
                 node->bgColor.setNamedColor(value);
         } else if (node->isTableCell) {

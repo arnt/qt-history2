@@ -434,15 +434,17 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->restore();
     }
 
-    if (table) {
-        const QColor bgCol = table->format().backgroundColor();
+    {
+        const QColor bgCol = frame->frameFormat().backgroundColor();
         if (bgCol.isValid()) {
             QRect bgRect = QRect(off, fd->size);
             const int margin = fd->margin + fd->border;
             bgRect.addCoords(margin, margin, -margin, -margin);
             painter->fillRect(bgRect, bgCol);
         }
+    }
 
+    if (table) {
         const int rows = table->rows();
         const int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
