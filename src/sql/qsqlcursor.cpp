@@ -293,19 +293,18 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 
 /*!
   Sets the cursor mode to \a mode.  This value can be an OR'ed
-  combination of SQL modes.  The available modes are: <ul> <li>
-  SQL_ReadOnly <li> SQL_Insert <li> SQL_Update <li> SQL_Delete <li>
-  SQL_Writeable </ul>
-
+  combination of QSqlCursor Modes.  
+  
   For example,
 
   \code
   QSqlCursor cursor( "emp" );
-  cursor.setMode( SQL_Writeable ); // allow insert/update/delete
+  cursor.setMode( QSqlCursor::Writeable ); // allow insert/update/delete
   ...
-  cursor.setMode( SQL_Insert | SQL_Update ); // allow inserts and updates
+  cursor.setMode( QSqlCursor::Insert | QSqlCursor::Update ); // allow inserts and updates
   ...
-  cursor.setMode( SQL_ReadOnly ); // no inserts/updates/deletes allowed
+  cursor.setMode( QSqlCursor::ReadOnly ); // no inserts/updates/deletes allowed
+  
   \endcode
 */
 
@@ -531,13 +530,13 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	exec( q );
 	d->lastAt = QSqlResult::BeforeFirst;
-	ar = numRowsAffected();
+	if ( exec( q ) )	
+	    ar = numRowsAffected();
     } else {
 	QSqlQuery sql( driver()->createQuery() );
-	sql.exec( q );
-	ar = sql.numRowsAffected();
+	if ( sql.exec( q ) )
+	    ar = sql.numRowsAffected();
     }
     return ar;
 }
