@@ -136,17 +136,19 @@ public:
 #endif
         inresize( FALSE )
     {
-        l_marg = r_marg = t_marg = b_marg = 0;
-        viewport->setBackgroundMode( QWidget::PaletteDark );
-        vMode = QScrollView::Auto;
-        hMode = QScrollView::Auto;
-        corner = 0;
-        vbar->setSteps( 20, 1/*set later*/ );
-        hbar->setSteps( 20, 1/*set later*/ );
-        policy = QScrollView::Default;
-        signal_choke = FALSE;
-        static_bg = FALSE;
-        fake_scroll = FALSE;
+	l_marg = r_marg = t_marg = b_marg = 0;
+	viewport->setBackgroundMode( QWidget::PaletteDark );
+	vMode = QScrollView::Auto;
+	hMode = QScrollView::Auto;
+	corner = 0;
+	defaultCorner = new QWidget( parent, "qt_default_corner" );
+	defaultCorner->hide();
+	vbar->setSteps( 20, 1/*set later*/ );
+	hbar->setSteps( 20, 1/*set later*/ );
+	policy = QScrollView::Default;
+	signal_choke = FALSE;
+	static_bg = FALSE;
+	fake_scroll = FALSE;
     }
     ~QScrollViewData()
     {
@@ -299,7 +301,7 @@ public:
     int         flags;
     QPtrList<QSVChildRec>       children;
     QPtrDict<QSVChildRec>       childDict;
-    QWidget*    corner;
+    QWidget*    corner, *defaultCorner;
     int         vx, vy, vwidth, vheight; // for drawContents-style usage
     int         l_marg, r_marg, t_marg, b_marg;
     QScrollView::ResizePolicy policy;
@@ -883,18 +885,20 @@ void QScrollView::updateScrollBars()
                                  w-lmarg-rmarg, bottom-tmarg-bmarg );
         d->viewportResized( w-lmarg-rmarg, bottom-tmarg-bmarg );
     }
-    if ( d->corner ) {
-        if ( style() == WindowsStyle )
-            d->corner->setGeometry( xpos,
-                                    h-hsbExt-fw,
-                                    vsbExt,
-                                    hsbExt );
-        else
-            d->corner->setGeometry( xpos,
-                                    h-hsbExt,
-                                    vsbExt,
-                                    hsbExt );
-    }
+
+    QWidget *corner = d->corner;
+    if ( !d->corner )
+	corner = d->defaultCorner;
+    if ( style() == WindowsStyle )
+	corner->setGeometry( xpos,
+			     h-hsbExt-fw,
+			     vsbExt,
+			     hsbExt );
+    else
+	corner->setGeometry( xpos,
+			     h-hsbExt,
+			     vsbExt,
+			     hsbExt );
 
     d->signal_choke=sc;
 
@@ -904,7 +908,7 @@ void QScrollView::updateScrollBars()
         if ( reverse )
             x =QMIN(0,contentsWidth()-visibleWidth());
         else
-#endif	    
+#endif	
             x =QMAX(0,contentsWidth()-visibleWidth());
         d->hbar->setValue(x);
         // Do it even if it is recursive
@@ -981,7 +985,7 @@ void QScrollView::resizeEvent( QResizeEvent* event )
         d->fake_scroll = FALSE;
     }
 #endif
-    
+
     bool inresize = d->inresize;
     d->inresize = TRUE;
     updateScrollBars();
