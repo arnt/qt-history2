@@ -8,3 +8,4 @@ QTDIR_build:REQUIRES        = thread "contains(QT_CONFIG, full-config)"
 HEADERS		=
 SOURCES		= main.cpp
 INTERFACES	=
+QT	+= compat

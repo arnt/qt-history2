@@ -25,6 +25,8 @@
 #  error Thread support not enabled.
 #endif
 
+using namespace Qt;
+
 // Use pointers to create semaphores after QApplication object!
 QSemaphore* yellowSem, *greenSem;
 
