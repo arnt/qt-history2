@@ -13,19 +13,13 @@
 
 #include "qplatformdefs.h"
 
-#include "qstring.h"
 #include "qthread.h"
 #include "qthreadstorage.h"
-#include "qmutexpool_p.h"
 #include "qthread_p.h"
 
 #include <sched.h>
 #include <errno.h>
 #include <string.h>
-
-#define d d_func()
-#define q q_func()
-
 
 
 /*
@@ -79,7 +73,7 @@ void *QThreadPrivate::start(void *arg)
     pthread_cleanup_push(QThreadPrivate::finish, arg);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData::setCurrent(&thr->d->data);
+    QThreadData::setCurrent(&thr->d_func()->data);
 
     emit thr->started();
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -93,20 +87,21 @@ void *QThreadPrivate::start(void *arg)
 void QThreadPrivate::finish(void *arg)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QMutexLocker locker(&thr->d->mutex);
+    QThreadPrivate *d = thr->d_func();
+    QMutexLocker locker(&d->mutex);
 
-    thr->d->running = false;
-    thr->d->finished = true;
-    if (thr->d->terminated)
+    d->running = false;
+    d->finished = true;
+    if (d->terminated)
         emit thr->terminated();
-    thr->d->terminated = false;
+    d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(thr->d->data.tls);
-    thr->d->data.tls = 0;
+    QThreadStorageData::finish(d->data.tls);
+    d->data.tls = 0;
 
-    thr->d->thread_id = 0;
-    thr->d->thread_done.wakeAll();
+    d->thread_id = 0;
+    d->thread_done.wakeAll();
 }
 
 
@@ -221,6 +216,7 @@ void QThread::usleep(unsigned long usecs)
 */
 void QThread::start(Priority priority)
 {
+    Q_D(QThread);
     QMutexLocker locker(&d->mutex);
     if (d->running)
         d->thread_done.wait(locker.mutex());
@@ -351,6 +347,7 @@ void QThread::start(Priority priority)
 */
 void QThread::terminate()
 {
+    Q_D(QThread);
     QMutexLocker locker(&d->mutex);
 
     if (!d->thread_id)
@@ -383,6 +380,7 @@ void QThread::terminate()
 */
 bool QThread::wait(unsigned long time)
 {
+    Q_D(QThread);
     QMutexLocker locker(&d->mutex);
 
     if (d->thread_id == pthread_self()) {
