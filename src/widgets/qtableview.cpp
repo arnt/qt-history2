@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#39 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#39 $");
 
 
 const int sbDim = 16;
@@ -2006,7 +2006,7 @@ void QTableView::updateScrollBars( uint f )
     if ( testTableFlags(Tbl_hScrollBar) && (sbDirty & horMask) != 0 ) {
 	if ( sbDirty & horGeometry )
 	    hScrollBar->setGeometry( 0,height() - sbDim,
-				     viewWidth() + frameWidth()*2, sbDim );
+				     viewWidth() + frameWidth()*2+1, sbDim );
 
 	if ( sbDirty & horSteps ) {
 	    if ( cellW )
@@ -2029,7 +2029,7 @@ void QTableView::updateScrollBars( uint f )
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
 	    vScrollBar->setGeometry( width() - sbDim, 0,
-				     sbDim, viewHeight() + frameWidth()*2 );
+				     sbDim, viewHeight() + frameWidth()*2+1 );
 
 	if ( sbDirty & verSteps ) {
 	    if ( cellH )
