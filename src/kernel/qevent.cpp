@@ -128,7 +128,7 @@
   \value ShowNormal Widget should be shown normally.
   \value ShowMaximized Widget should be shown maximized.
   \value ShowMinimized Widget should be shown minimized.
-  \value ShowWindowRequest Widget's window should be shown.
+  \value ShowWindowRequest Widget's window should be shown. \obsolete
   \value DeferredDelete The object will be deleted after it has
   cleaned up.
   \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.

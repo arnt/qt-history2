@@ -987,8 +987,6 @@ void QWidget::showWindow()
 
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	//ick, this is needed because layouts are updated by it and mac paints immediatly..
-	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
 #if defined( Q_WS_MACX ) && 0 //handle transition
 	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
