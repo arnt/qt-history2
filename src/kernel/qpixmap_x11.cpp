@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#138 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -30,15 +30,13 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include <stdlib.h>
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
 #ifdef MITSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
 #endif
+
 
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.

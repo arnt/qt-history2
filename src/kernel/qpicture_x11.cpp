@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#17 $
 **
 ** Implementation of QPicture class for X11
 **
@@ -22,10 +22,8 @@
 *****************************************************************************/
 
 #include "qpicture.h"
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
+
 
 QPicture::QPicture()
     : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type

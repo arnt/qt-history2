@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#270 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#271 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -32,10 +32,8 @@
 #include "qtextcodec.h"
 #include <ctype.h>
 #include <stdlib.h>
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
+
 
 /*****************************************************************************
   Trigonometric function for QPainter

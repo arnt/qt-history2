@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#86 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -26,10 +26,8 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
+
 
 /*!
   \class QPaintDevice qpaintdevice.h

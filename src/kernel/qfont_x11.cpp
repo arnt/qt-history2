@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#130 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -31,11 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#define GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-#include <X11/Xatom.h>
+#include "qt_x11.h"
+
 
 static const int fontFields = 14;
 

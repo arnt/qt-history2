@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#65 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -31,11 +31,8 @@
 #include "qkeycode.h"
 #include "qbitmap.h"
 
+#include "qt_x11.h"
 
-#include <X11/X.h> // for Atom
-#include <X11/Xlib.h> // for XEvent
-#include <X11/Xatom.h> // for XA_STRING and friends
-#include <X11/extensions/shape.h>
 
 // conflict resolution
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#288 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#289 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -33,18 +33,8 @@
 #include "qdragobject.h"
 #include "qfocusdata.h"
 #include "qabstractlayout.h"
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-#include <X11/Xatom.h>
-#include <X11/extensions/shape.h>
-#if !defined(XlibSpecificationRelease)
-#define X11R4
-typedef char *XPointer;
-#else
-#undef  X11R4
-#endif
+#include "qt_x11.h"
+
 
 void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---

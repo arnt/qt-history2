@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#43 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -24,10 +24,8 @@
 #include "qregion.h"
 #include "qpointarray.h"
 #include "qbuffer.h"
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
+
 
 static QRegion *empty_region = 0;
 

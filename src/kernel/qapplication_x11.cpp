@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#377 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#378 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -49,15 +49,8 @@
 #if defined(_OS_WIN32_)
 #undef gettimeofday
 #endif
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-#include <X11/Xatom.h>
-#if !defined(XlibSpecificationRelease)
-#define X11R4
-typedef char *XPointer;
-#else
-#undef  X11R4
+#include "qt_x11.h"
+#ifndef X11R4
 #include <X11/Xlocale.h>
 #endif
 

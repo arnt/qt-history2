@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#5 $
 **
 ** Implementation of Qt calls to X11
 **
@@ -22,10 +22,8 @@
 *****************************************************************************/
 
 #include "qwidget.h"
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
+#include "qt_x11.h"
+
 
 /*
   Internal Qt functions to create X windows.  We have put them in
