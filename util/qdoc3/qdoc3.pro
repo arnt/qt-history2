@@ -1,7 +1,7 @@
 TEMPLATE = app
 DEFINES += QDOC2_COMPAT
 QT += compat
-CONFIG  += debug
+CONFIG  += debug console
 CONFIG -= resource_fork
 HEADERS += archiveextractor.h \
 	   atom.h \
