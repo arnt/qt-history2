@@ -373,7 +373,10 @@ void Uic::createFormDecl( const QDomElement &e )
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
-	    out << indent << "virtual " << type << " " << (*it) << ";" << endl;
+	    if ( (*it) != "init()" && (*it) != "destroy()" )
+		out << indent << "virtual " << type << " " << (*it) << ";" << endl;
+	    else
+		out << indent << type << " " << (*it) << ";" << endl;
 	}
 	if ( needPolish )
 	    out << indent << "void polish();" << endl;
@@ -934,7 +937,8 @@ void Uic::createFormImpl( const QDomElement &e )
 
     }
 
-    if ( protectedSlots.find( "init()" ) != protectedSlots.end() )
+    if ( protectedSlots.find( "init()" ) != protectedSlots.end() ||
+	 publicSlots.find( "init()" ) != publicSlots.end() )
 	out << indent << "init();" << endl;
 
     // end of constructor
@@ -947,7 +951,8 @@ void Uic::createFormImpl( const QDomElement &e )
     out << " */" << endl;
     out << nameOfClass << "::~" << nameOfClass << "()" << endl;
     out << "{" << endl;
-    if ( protectedSlots.find( "destroy()" ) != protectedSlots.end() )
+    if ( protectedSlots.find( "destroy()" ) != protectedSlots.end() ||
+	 publicSlots.find( "destroy()" ) != publicSlots.end() )
 	out << indent << "destroy();" << endl;
     out << indent << "// no need to delete child widgets, Qt does it all for us" << endl;
     out << "}" << endl;
