@@ -1,7 +1,7 @@
 /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of Qt Designer.
+** This file is part of Qt Configuration.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software

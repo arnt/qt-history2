@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -21,9 +21,8 @@
 #ifndef DESIGNERAPP_H
 #define DESIGNERAPP_H
 
-#include <qapplication.h>
-
 class QLabel;
+
 
 #include <qapplication.h>
 
