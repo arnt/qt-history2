@@ -18,7 +18,7 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
-#include <qlistview.h>
+#include <qlistwidget.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
 #include <qpainter.h>
@@ -44,46 +44,6 @@ public:
     {
         return QSize(100, 30);
     }
-};
-
-class ItemModel : public QAbstractListModel
-{
-public:
-    QVariant data(const QModelIndex &index, int role) const {
-        if ((role == DisplayRole)
-            && index.isValid()
-            && index.row() < rowCount()
-            && index.column() < columnCount()) {
-            if (role == DisplayRole)
-                return list.at(index.row());
-        }
-        return QVariant::Invalid;
-    }
-
-    int rowCount() const {
-        return list.count();
-    }
-
-    bool setData(const QModelIndex &index, int role, const QVariant &value) {
-        if (role == DisplayRole) {
-            list[index.row()] = value.toString();
-            emit dataChanged(index, index);
-            return true;
-        }
-        return false;
-    }
-
-    bool insertRows(int row, const QModelIndex &parent, int count) {
-        if (parent.isValid() || count < 1 || row < 0 || row > rowCount())
-            return false;
-        while (count--)
-            list.insert(row, QString());
-        emit rowsInserted(parent, row, row+count-1);
-        return true;
-    }
-
-private:
-    QList<QString> list;
 };
 
 void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
@@ -139,8 +99,8 @@ DemoViewer::DemoViewer(QWidget *parent)
     vbox->setSpacing(6);
     QGroupBox *categories = new QGroupBox("Categories", vbox);
     QBoxLayout *glayout = new QBoxLayout(QBoxLayout::TopToBottom, categories);
-    listView = new QListView(categories);
-    glayout->addWidget(listView);
+    listWidget = new QListWidget(categories);
+    glayout->addWidget(listWidget);
 
     layout->addWidget(horSplit);
 
@@ -172,10 +132,9 @@ DemoViewer::DemoViewer(QWidget *parent)
     horSplit->setSizes(l);
 
     // Setting it up...
-    listView->setModel(new ItemModel);
-    listView->setSelectionMode(QAbstractItemView::SingleSelection);
-    listView->setItemDelegate(new ItemDelegate(listView->model()));
-    connect(listView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+    listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    listWidget->setItemDelegate(new ItemDelegate(listWidget->model()));
+    connect(listWidget->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(itemSelected()));
     connect(antialias, SIGNAL(toggled(bool)), this, SLOT(antialiasChanged(bool)));
     connect(alpha, SIGNAL(toggled(bool)), this, SLOT(alphaChanged(bool)));
@@ -189,11 +148,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
 {
-    QAbstractItemModel *model = listView->model();
-    model->insertRows(model->rowCount(QModelIndex()), QModelIndex(), 1);
-    model->setData(model->index(model->rowCount(QModelIndex()) - 1, 0),
-                   QAbstractItemModel::DisplayRole, name);
-
+    listWidget->appendItem(name);
     widget->setParent(widgets);
     widget->setAttributes(attributes);
 
@@ -207,7 +162,7 @@ QSize DemoViewer::sizeHint() const
 
 void DemoViewer::itemSelected()
 {
-    QString name = listView->model()->data(listView->selectionModel()->currentIndex()).toString();
+    QString name = listWidget->model()->data(listWidget->selectionModel()->currentIndex()).toString();
 
     Q_ASSERT(!name.isEmpty());
     DemoWidget *demoWidget = widgetByName[name];
@@ -238,8 +193,8 @@ void DemoViewer::fillModeChanged(int mode)
 
 void DemoViewer::showEvent(QShowEvent *)
 {
-    if (!listView->currentIndex().isValid()) {
-        listView->selectionModel()->setCurrentIndex(listView->model()->index(0, 0),
+    if (!listWidget->currentIndex().isValid()) {
+        listWidget->selectionModel()->setCurrentIndex(listWidget->model()->index(0, 0),
 						    QItemSelectionModel::ClearAndSelect);
     }
     itemSelected();
