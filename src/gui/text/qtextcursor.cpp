@@ -1115,7 +1115,7 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
         return 0;
 
     int pos = d->position;
-    QTextTable *t = QTextTablePrivate::createTable(d->pieceTable,d->position, rows, cols, format);
+    QTextTable *t = QTextTablePrivate::createTable(d->pieceTable, d->position, rows, cols, format);
     setPosition(pos+1);
     return t;
 }
