@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#81 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#82 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -42,6 +42,7 @@
 #include "qradiobutton.h"
 #include "qspinbox.h"
 #include "qapplication.h"
+#include "qheader.h"
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -778,7 +779,12 @@ QGroupBox * QPrintDialog::setupDestination()
 	delete[] etcLpDefault;
 #endif
 
-    d->printers->setMinimumSize( 404, fontMetrics().height() * 5 );
+    int h = fontMetrics().height();
+    if ( d->printers->firstChild() )
+	h = d->printers->firstChild()->height();
+    d->printers->setMinimumSize( d->printers->sizeHint().width(),
+				 d->printers->header()->height() + 
+				  3 * h );
     horiz->addWidget( d->printers, 3 );
 
     tll->addSpacing( 6 );
