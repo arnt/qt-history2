@@ -653,8 +653,6 @@ QPainterPath::~QPainterPath()
     elements, the function does nothing. A new subpath is automatically
     begun when the current subpath is closed. The current point of the
     new path is (0, 0).
-
-    \sa beginSubpath()
  */
 void QPainterPath::closeSubpath()
 {
@@ -755,6 +753,8 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
     \a sweepLength degrees anti-clockwise.
     Angles are specified in degrees. This function connects the current point
     to the starting point of the arc if they are not already connected.
+
+    \sa QPainter::drawArc
 */
 
 /*!
@@ -764,6 +764,8 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
     \a startAngle and extending \a sweepLength degrees anti-clockwise.
     Angles are specified in degrees. This function connects the current point
     to the starting point of the arc if they are not already connected.
+
+    \sa QPainter::drawArc
 */
 void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
@@ -843,6 +845,8 @@ QPainterPath::FillMode QPainterPath::fillMode() const
 }
 
 /*!
+    \fn void QPainterPath::setFillMode(FillMode fillMode)
+
     Sets the fill mode of the painter path to \a fillMode.
 
     \sa FillMode, fillMode
