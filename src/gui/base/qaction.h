@@ -96,10 +96,10 @@ public:
     void activate(ActionEvent event);
 
 #ifdef QT_COMPAT
-    inline bool isOn() const { return isCheckable(); }
-    inline void setOn(bool b) { setCheckable(b); }
+    inline bool isOn() const { return isChecked(); }
+    inline void setOn(bool b) { setChecked(b); }
     inline bool isToggleAction() const { return isCheckable(); }
-    inline void setToggleAction(bool b) { setChecked(b); }
+    inline void setToggleAction(bool b) { setCheckable(b); }
     inline void setIconSet(const QIconSet &i) { setIcon(i); }
     inline QIconSet iconSet() const { return icon(); }
     inline bool addTo(QWidget *w) { w->addAction(this); return true; }
