@@ -507,6 +507,9 @@ multiple transactions. If you try to read/write on a resource from different
 transactions, your application might freeze until one transaction commits
 or rolls back.
 
+SQLite has no support for types, every value is treated as character data.
+BLOBs are therefore not supported.
+
 You can find information about SQLite on \l{http://www.sqlite.org}.
 
 SQLite is shipped as third party library within Qt. It can be built by
