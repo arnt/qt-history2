@@ -83,5 +83,6 @@ class DummyClass
     typedef std::bidirectional_iterator_tag i;
     typedef std::ptrdiff_t d;
     // typename implemented ?
-    typedef typename std::map<K,T>& m;
+    typedef typename std::map<K,T>::iterator MyIterator;
 };
+
