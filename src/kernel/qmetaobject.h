@@ -43,6 +43,10 @@
 #include "qstrlist.h"
 #endif // QT_H
 
+#ifndef Q_MOC_OUTPUT_REVISION
+#define Q_MOC_OUTPUT_REVISION 12
+#endif
+
 class QObject;
 
 struct QMetaData				// - member function meta data
@@ -161,13 +165,13 @@ public:
 
     int 		findSlot( const char *, bool super = FALSE ) const;
     int 		findSignal( const char *, bool super = FALSE ) const;
-    
+
     QMetaData	*slot( int index, bool super = FALSE ) const;
     QMetaData	*signal( int index, bool super = FALSE ) const;
 
     QStrList	slotNames( bool super = FALSE ) const;
     QStrList	signalNames( bool super = FALSE ) const;
-    
+
     int 		slotOffset() const;
     int 		signalOffset() const;
 

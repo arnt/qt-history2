@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#210 $
+** $Id: //depot/qt/main/src/moc/moc.y#211 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -52,7 +52,7 @@
 *****************************************************************************/
 
 %{
-#define MOC_YACC_CODE    
+#define MOC_YACC_CODE
 void yyerror( const char *msg );
 
 #include "qlist.h"
@@ -313,6 +313,8 @@ int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
 const int  formatRevision = 12;			// moc output format revision
+
+// if the format revision changes, you HAVE to change it in qmetaobject.h too
 
 %}
 
@@ -1426,7 +1428,7 @@ bool isRelativePath( const QString &path )
   int len = path.length();
   if ( len == 0 )
     return TRUE;
-  
+
   int i = 0;
 #ifdef WIN32
   if ( path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
@@ -1440,10 +1442,10 @@ QString cleanDirPath( const QCString &filePath )
 {
   QString name = filePath;
   QString newPath;
-  
+
   if ( name.isEmpty() )
     return name;
-  
+
   // already done before calling this function
   // slashify( name );
 
@@ -1454,13 +1456,13 @@ QString cleanDirPath( const QCString &filePath )
   } else {
     addedSeparator = FALSE;
   }
-  
+
   int ePos, pos, upLevel;
-  
+
   pos = ePos = name.length();
   upLevel = 0;
   int len;
-  
+
   while ( pos && (pos = name.findRev('/',--pos)) != -1 ) {
     len = ePos - pos - 1;
     if ( len == 2 && name.at(pos + 1) == '.'
@@ -2450,7 +2452,7 @@ int generateProps()
 	    }
 
 	    QCString flags;
-	
+
 	    // Is it an enum of this class ?
 	    if ( enumpos != -1 )
 		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
@@ -2487,16 +2489,16 @@ int generateProps()
 	    // OVERRIDE but no DESIGNABLE ?
 	    if ( it.current()->override && it.current()->designable == -1 )
 		flags += "QMetaProperty::UnresolvedDesignable|";
-	
+
 	    if ( it.current()->stdSet() )
 		flags += "QMetaProperty::StdSet|";
-	
+
 	    if (!flags.isEmpty() ) {
 		if ( flags[ (int) flags.length() - 1] == '|' )
 		    flags.remove( flags.length()-1, 1);
 		fprintf( out, "    props_tbl[%d].setFlags(%s);\n", entry, flags.data() );
 	    }
-	
+
 	    ++entry;
 	    count += 3;
 	}
@@ -2533,7 +2535,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#210 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#211 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2574,17 +2576,16 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
 	fprintf( out, "#define Q_MOC_%s\n", className.data() );
-	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n" );
-	fprintf( out, "#define Q_MOC_OUTPUT_REVISION %d\n", formatRevision );
-	fprintf( out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", formatRevision );
-	fprintf( out, "#error \"Moc format conflict - "
-		 "please regenerate all moc files\"\n" );
-	fprintf( out, "#endif\n\n" );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)qtPath );
-	fprintf( out, "#include <%sqapplication.h>\n", (const char*)qtPath );
-	fprintf( out, "\n\n" );
+	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)qtPath );
+	fprintf( out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", formatRevision );
+	fprintf( out, "#error \"This file was generated using the moc from %s."
+		 " It\"\n#error \"cannot be used with the include files from"
+		 " this version of Qt.\"\n#error \"(The moc has changed too"
+		 " much.)\"\n", QT_VERSION_STR );
+	fprintf( out, "#endif\n\n" );
     } else {
 	fprintf( out, "\n\n" );
     }
