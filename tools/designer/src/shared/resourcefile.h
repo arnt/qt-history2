@@ -29,6 +29,8 @@ public:
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
         
+    static QString fixPrefix(const QString &prefix);
+
 private:
     typedef QMap<QString, QStringList> ResourceMap;
     ResourceMap m_resource_map;

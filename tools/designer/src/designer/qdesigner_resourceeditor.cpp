@@ -33,11 +33,8 @@ QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
 
     QToolBar *tool_bar = new QToolBar(this);
     addToolBar(tool_bar);
-    tool_bar->addAction(widget->addResourceAction());
-    tool_bar->addAction(widget->addPrefixAction());
-    tool_bar->addAction(widget->editPrefixAction());
-    tool_bar->addAction(widget->addFileAction());
-    tool_bar->addAction(widget->deleteAction());
+    tool_bar->addAction(widget->actionInsert());
+    tool_bar->addAction(widget->actionDelete());
 }
 
 QDesignerResourceEditor::~QDesignerResourceEditor()

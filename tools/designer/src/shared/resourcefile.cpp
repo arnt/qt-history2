@@ -2,6 +2,7 @@
 #include <QtXml/QDomDocument>
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
+#include <QtCore/qdebug.h>
 
 #include "resourcefile.h"
 
@@ -138,29 +139,33 @@ QStringList ResourceFile::prefixList() const
 
 QStringList ResourceFile::fileList(const QString &prefix)
 {
-    return m_resource_map.value(prefix);
+    return m_resource_map.value(fixPrefix(prefix));
 }
 
 void ResourceFile::addPrefix(const QString &prefix)
 {
-    m_resource_map.insert(prefix, QStringList());
+    QString fixed_prefix = fixPrefix(prefix);
+    if (m_resource_map.contains(fixed_prefix))
+        return;
+    m_resource_map.insert(fixed_prefix, QStringList());
 }
 
 void ResourceFile::addFile(const QString &prefix, const QString &file)
 {
-    m_resource_map[prefix].append(relativePath(file));
+    m_resource_map[fixPrefix(prefix)].append(relativePath(file));
 }
 
 void ResourceFile::removePrefix(const QString &prefix)
 {
-    m_resource_map.remove(prefix);
+    m_resource_map.remove(fixPrefix(prefix));
 }
 
 void ResourceFile::removeFile(const QString &prefix, const QString &file)
 {
-    if (!m_resource_map.contains(prefix))
+    QString fixed_prefix = fixPrefix(prefix);
+    if (!m_resource_map.contains(fixed_prefix))
         return;
-    m_resource_map[prefix].removeAll(file);
+    m_resource_map[fixed_prefix].removeAll(file);
 }
 
 QString ResourceFile::relativePath(const QString &abs_path) const
@@ -182,22 +187,41 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
 
 bool ResourceFile::contains(const QString &prefix) const
 {
-    return m_resource_map.contains(prefix);
+    return m_resource_map.contains(fixPrefix(prefix));
 }
 
 bool ResourceFile::contains(const QString &prefix, const QString &file) const
 {
-    QStringList file_list = m_resource_map.value(prefix);
-    return file_list.contains(file);
+    QStringList file_list = m_resource_map.value(fixPrefix(prefix));
+    return file_list.contains(relativePath(file));
 }
 
 void ResourceFile::changePrefix(const QString &old_prefix, const QString &new_prefix)
 {
-    if (!m_resource_map.contains(old_prefix))
+    QString fixed_old_prefix = fixPrefix(old_prefix);
+    QString fixed_new_prefix = fixPrefix(new_prefix);
+
+    if (!m_resource_map.contains(fixed_old_prefix))
         return;
-    if (m_resource_map.contains(new_prefix))
+    if (m_resource_map.contains(fixed_new_prefix))
         return;
-    QStringList file_list = m_resource_map.value(old_prefix);
-    m_resource_map.remove(old_prefix);
-    m_resource_map.insert(new_prefix, file_list);
+    QStringList file_list = m_resource_map.value(fixed_old_prefix);
+    m_resource_map.remove(fixed_old_prefix);
+    m_resource_map.insert(fixed_new_prefix, file_list);
+}
+
+QString ResourceFile::fixPrefix(const QString &prefix)
+{
+    QString result = QLatin1String("/");
+    for (int i = 0; i < prefix.size(); ++i) {
+        QChar c = prefix.at(i);
+        if (c == QLatin1Char('/') && result.at(result.size() - 1) == QLatin1Char('/'))
+            continue;
+        result.append(c);
+    }
+        
+    if (result.size() > 1 && result.endsWith(QLatin1String("/")))
+        result = result.mid(0, result.size() - 1);
+
+    return result;
 }
