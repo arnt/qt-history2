@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.0 1996/09/24 10:15:14 agulbra Exp $
+** $Id: metaobjects.doc,v 2.1 1996/09/24 12:29:25 eiriken Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -16,23 +16,41 @@ Qt toolkit - Meta Object Compiler description
 <h1 align=center>Signals, Slots and the Meta Object Compiler</h1>
 
 Signals and slots are used for communication between objects.  The
-signal/slot mechanism is a central feature of Qt, and is implemented
-using the <a href="moc.html">moc</a> (Meta Object Compiler) and some
-preprocessor defines.
+signal/slot mechanism is a central feature of Qt and is the part that
+probably differs most from other toolkits.
 
 In most GUI toolkits widgets have a callback for each action they can
 trigger. This callback is a pointer to a function. In Qt, signals and
 slots have taken over for these messy function pointers.
 
-All classes that contain signals and/or slots must inherit \l QObject or
-one of its subclasses, and must mention Q_OBJECT in its declaration.
+Signals and slots can take any number of arguments of any type. They are
+completely typesafe, no more callback core dumps!
+
+All classes that inherit from QObject or one of its subclasses
+(e.g. QWidget) can contain signals and/or slots. Signals are emitted by
+objects when they change their state in a way that can be interesting to
+the outside world. This is all the object does to communicate. It does not
+know if somebody is receiving the signal at the other end. This is true
+information encapsulation, and ensures that the object can be used as a
+software component.
+
+Slots can be connected to signals, they are also normal member
+functions. A slot does not know if it has any signal(s) connected to
+it. Again, the object does not know about the communication mechanism and
+can be used as a true software component.
+
+You can connect as many signals as you want to a single slot, and a signal
+can be connected to as many slots as you desire.
+
+Together, signals and slots make up a powerful component programming
+mechanism.
 
 <h2>A Small Example</h2>
 
 A minimal C++ class declaration might read:
 
 \code
-    class Foo : public Bar
+    class Foo
     {
     public:
 	Foo();
@@ -67,8 +85,8 @@ signals and slots: This class can tell the outside world that its state
 has changed by emitting a signal, <code>valueChanged()</code>, and it has
 a slot which other objects may send signals to.
 
-To emit a signal, you say <code>emit signal(arguments)</code>.The next
-code fragment shows how.
+All classes that contain signals and/or slots must mention Q_OBJECT in
+their declaration.
 
 Slots are implemented by the application programmer (that's you).
 Here is a possible implementation of Foo::setValue():
@@ -83,7 +101,11 @@ Here is a possible implementation of Foo::setValue():
     }
 \endcode
 
-Here is one way to connect two of these already useless objects together:
+The line <code>emit valueChanged(v)</code> emits the signal
+<code>valueChanged</code> from the object. As you can see, you emit a
+signal by using <code>emit signal(arguments)</code>.
+
+Here is one way to connect two of these objects together:
 
 \code
     Foo a, b;
@@ -96,12 +118,12 @@ Here is one way to connect two of these already useless objects together:
 Calling <code>a.setValue(79)</code> will make <code>a</code> emit a
 signal, which <code>b</code> will receive,
 i.e. <code>b.setValue(79)</code> is invoked. <code>b</code> will in turn
-emit the same signal, which nobody receives, so it disappears into
-hyperspace.
+emit the same signal, which nobody receives, since no slot has been
+connected to it, so it disappears into hyperspace.
 
 Note that the <code>setValue()</code> function sets the value and emits
 the signal only if <code>v != val</code>. This prevents infinite looping
-in the case of cyclic connections (if <code>b.valueChanged()</code>
+in the case of cyclic connections (e.g. if <code>b.valueChanged()</code>
 were connected to <code>a.setValue()</code>).
 
 This example illustrates that objects can work together without knowing
@@ -196,7 +218,7 @@ QObject::className() class name\endlink. You can also check if an object
 
 <h2>A Real Example</h2>
 
-Here is a simple commented example (code fragments from \l qlcdnum.h).
+Here is a simple commented example (code fragments from \l qlcdnum.h ).
 
 \code
     #include "qframe.h"
@@ -319,6 +341,6 @@ brevity.
 
 One function is generated for each signal, and at present it almost always
 is a single call to the internal Qt function activate_signal(), which
-finds the appropriate slot or slots and passes on the call.
-It is not recommented to call activated_signal() directly.
+finds the appropriate slot or slots and passes on the call.  It is not
+recommended to call activated_signal() directly.  
 */
