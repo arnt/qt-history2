@@ -265,14 +265,29 @@ QUnknownInterface* QLibrary::load()
 	pHnd = qt_load_library( libfile );
 
     if ( pHnd && !info ) {
+#if defined(QT_DEBUG_COMPONENT)
+	qDebug( "%s has been loaded.", libfile.latin1() );
+#endif
 	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
-
+#if defined(QT_DEBUG_COMPONENT)
+	if ( !infoProc )
+	    qDebug( "Symbol \"qt_load_interface\" not found." );
+#endif
 	info = infoProc ? infoProc() : 0;
 	if ( info )
 	    info->addRef();
+#if defined(QT_DEBUG_COMPONENT)
+	else
+	    qDebug( "No interface implemented." );
+#endif
     }
+#if defined(QT_DEBUG_COMPONENT)
+    else {
+	qDebug( "%s could not be loaded.", libfile.latin1() );
+    }
+#endif
 
     return info;
 }
@@ -301,6 +316,9 @@ bool QLibrary::unload( bool force )
     if ( pHnd ) {
 	if ( info ) {
 	    if ( info->release() ) {
+#if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
+		qDebug( "%s is still in use!", libfile.latin1() );
+#endif
 		if ( force ) {
 		    delete info;
 		    info = 0;
@@ -312,7 +330,16 @@ bool QLibrary::unload( bool force )
 	    }
 	}
 	if ( !qt_free_library( pHnd ) )
+#if defined(QT_DEBUG_COMPONENT)
+	{
+	    qDebug( "%s could not be unloaded.", libfile.latin1() );
+#endif
 	    return FALSE;
+#if defined(QT_DEBUG_COMPONENT)
+	} else {
+	    qDebug( "%s has been unloaded.", libfile.latin1() );
+	}
+#endif
     }
     pHnd = 0;
     return TRUE;
@@ -360,7 +387,7 @@ QUnknownInterface* QLibrary::queryInterface( const QGuid& request )
 	if ( libPol != Manual )
 	    load();
 	else {
-#if defined(QT_DEBUG)
+#if defined(QT_CHECK_NULL)
 	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
 #endif
 	    return 0;
