@@ -589,9 +589,7 @@ void HelpDialog::insertContents()
     delete lst;
 
 
-    QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/book1.html";
-    if ( !QFile::exists( manualdir ) )
-	manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer/book1.html";
+    QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";
     QFile file( manualdir );
     if ( !file.open( IO_ReadOnly ) )
 	return;
@@ -600,7 +598,7 @@ void HelpDialog::insertContents()
     text = text.simplifyWhiteSpace();
     QValueList<Entry> entries;
 
-    int i = text.find( "Table of Contents" );
+    int i = text.find( "Qt Designer Manual" );
 
     QString link, title;
     int depth = 0;

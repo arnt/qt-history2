@@ -44,22 +44,22 @@
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
 </variables>
 <slots>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">init()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">about()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">aboutQt()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">find()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">goHome()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showLinguistHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">print()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">setupBookmarkMenu()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showBookmark( int id )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showDesignerHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showQtHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showSettingsDialog()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">hide()</slot>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+    <slot>about()</slot>
+    <slot>aboutQt()</slot>
+    <slot>find()</slot>
+    <slot>goHome()</slot>
+    <slot>showLinguistHelp()</slot>
+    <slot>print()</slot>
+    <slot>setupBookmarkMenu()</slot>
+    <slot>showBookmark( int id )</slot>
+    <slot>showDesignerHelp()</slot>
+    <slot>showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot>showQtHelp()</slot>
+    <slot>setFamily( const QString &amp; f )</slot>
+    <slot>showSettingsDialog()</slot>
+    <slot>hide()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QMainWindow">
@@ -389,55 +389,55 @@
     </image>
 </images>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>actionGoHome</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>goHome()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionAbout</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>about()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionAboutQt</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>aboutQt()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionEditFind</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>find()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionFilePrint</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>print()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionGoDesigner</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showDesignerHelp()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionGoQt</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showQtHelp()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionGoLinguist</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showLinguistHelp()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>actionSettings</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>

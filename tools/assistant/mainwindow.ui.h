@@ -10,8 +10,6 @@ void MainWindow::init()
     settings = 0L;
 
     // #### hardcoded paths - probably should read the settings from somewhere
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
-    browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
 
@@ -222,7 +220,7 @@ void MainWindow::showBookmark( int id )
 
 void MainWindow::showDesignerHelp()
 {
-    showLink( "book1.html", tr( "Qt Designer Manual" ) );
+    showLink( "designer-manual.html", tr( "Qt Designer Manual" ) );
 }
 
 void MainWindow::showLink( const QString & link, const QString & title )
