@@ -887,12 +887,12 @@ QTextCodec* QTextCodec::codecForLocale()
 
 
 /*!
-  Searches all installed QTextCodec objects and returns the one
-  which best matches \a name.  Returns a null pointer if no codec's
-  heuristicNameMatch() reports a match better than \a accuracy, or
-  if \a name is a null string.
+    Searches all installed QTextCodec objects and returns the one
+    which best matches \a name; the match is case-insensitive. Returns
+    0 if no codec's heuristicNameMatch() reports a match better than
+    \a accuracy, or if \a name is a null string.
 
-  \sa heuristicNameMatch()
+    \sa heuristicNameMatch()
 */
 
 QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
