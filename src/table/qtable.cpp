@@ -863,8 +863,10 @@ QSize QTableItem::sizeHint() const
     }
 
     if ( !wordwrap )
-	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10, QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
-    QRect r = table()->fontMetrics().boundingRect( 0, 0, table()->columnWidth( col() ), 0, wordwrap ? (alignment() | WordBreak) : alignment(), txt );
+	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10,
+		      QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
+    QRect r = table()->fontMetrics().boundingRect( 0, 0, table()->columnWidth( col() ), 0,
+						   wordwrap ? (alignment() | WordBreak) : alignment(), txt );
     return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
 }
 
@@ -3656,7 +3658,7 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     if ( pressedRow == curRow && pressedCol == curCol )
 	emit clicked( curRow, curCol, e->button(), e->pos() );
-    
+
     mousePressed = FALSE;
     if ( e->button() != LeftButton )
 	return;
