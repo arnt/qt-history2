@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#52 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#53 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -207,7 +207,7 @@ find extensions -print
 rm -f extensions/*/doc.conf,v
 rm -rf makefiles tmake
 rm -f src/Makefile.win32-dll,v
-rm -f src/*.pro,v
+rm -f src/*internal*.pro,v
 # Real source should be packaged and deleted by now, but
 # this gets anything left in the Attic, etc.
 find $base/cvs/qt -name '*_win.*' | xargs -r rm -f
