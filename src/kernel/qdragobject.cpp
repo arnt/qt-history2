@@ -344,7 +344,7 @@ void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 */
 void QDragObject::setPixmap(QPixmap pm)
 {
-    setPixmap(pm,QPoint(pm.width()/2,pm.height()/2));
+    setPixmap(pm,QPoint(-10, -10));
 }
 
 /*!
