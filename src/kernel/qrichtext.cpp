@@ -3823,6 +3823,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     }
 }
 
+//#define BIDI_DEBUG
+
 void QTextParag::drawParagString( QPainter &painter, const QString &s, int start, int len, int startX,
 				      int lastY, int baseLine, int bw, int h, bool drawSelections,
 				      QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
@@ -3857,12 +3859,24 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    }
 	}
     }
-    QPainter::TextDirection dir = QPainter::LTR;
-    if ( rightToLeft )
-	dir = QPainter::RTL;
+    
+    QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
+
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
 	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+#ifdef BIDI_DEBUG
+	    painter.save();
+	    painter.setPen ( Qt::red );
+	    painter.drawLine( startX, lastY, startX, lastY + baseLine );
+	    painter.drawLine( startX, lastY + baseLine/2, startX + 10, lastY + baseLine/2 );
+	    QConstString cstr( str.unicode() + start, len );
+	    int w = painter.fontMetrics().width( cstr.string() );
+	    painter.setPen ( Qt::blue );
+	    painter.drawLine( startX + w - 1, lastY, startX + w - 1, lastY + baseLine );
+	    painter.drawLine( startX + w - 1, lastY + baseLine/2, startX + w - 1 - 10, lastY + baseLine/2 );
+	    painter.restore();
+#endif
 	} else if ( lastFormat->vAlign() == QTextFormat::AlignSuperScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
@@ -4485,10 +4499,6 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 	}
     }
     int toAdd = 0;
-
-    // in rtl text the leftmost character is usually a space
-    // this space should not take up visible space on the left side, to get alignment right.
-    // the following bool is used for that purpose
     bool first = TRUE;
     QTextRun *r = runs->first();
     int xmax = -0xffffff;
@@ -4503,12 +4513,8 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		    toAdd += s;
 		    space -= s;
 		    numSpaces--;
-		}
-		if ( first ) {
-		    if ( c->c == ' ' || c->c == '\n' )
-			x -= text->width( pos );
-		    else
-			first = FALSE;
+		} else {
+		    first = FALSE;
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
@@ -4532,12 +4538,8 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		    toAdd += s;
 		    space -= s;
 		    numSpaces--;
-		}
-		if ( first ) {
-		    if ( c->c == ' ' || c->c == '\n' )
-			x -= text->width( pos );
-		    else
-			first = FALSE;
+		} else {
+		    first = FALSE;
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = FALSE;
@@ -4554,7 +4556,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		pos++;
 	    }
 	}
-	text->at( r->start ).startOfRun = TRUE;
+	text->at( r->start + start ).startOfRun = TRUE;
 	r = runs->next();
     }
 
