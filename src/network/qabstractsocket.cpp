@@ -1284,7 +1284,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
         d->startConnecting(QDns::getHostByName(d->hostName));
     }
 
-    bool timedOut = false;
+    bool timedOut = true;
 #if defined (QABSTRACTSOCKET_DEBUG)
     int attempt = 1;
 #endif
