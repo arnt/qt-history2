@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#248 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#249 $
 **
 ** Implementation of QFileDialog class
 **
@@ -704,7 +704,8 @@ void QFileListBox::viewportDragMoveEvent( QDragMoveEvent *e )
 	    default:
             ;
         }
-        setCurrentDropItem( e->pos() );
+        if ( oldDragPos != e->pos() )
+            setCurrentDropItem( e->pos() );
     } else {
         changeDirTimer->stop();
         e->ignore();
@@ -1101,7 +1102,8 @@ void QFileListView::viewportDragMoveEvent( QDragMoveEvent *e )
     }
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
-        setCurrentDropItem( e->pos() );
+        if ( oldDragPos != e->pos() )
+            setCurrentDropItem( e->pos() );
         switch ( e->action() ) {
 	    case QDropEvent::Copy:
             e->acceptAction();
@@ -3390,7 +3392,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     QStringList filters;
     if ( !filter.isEmpty() )
         filters = makeFiltersList( filter );
-    
+
     makeVariables();
 
     if ( workingDirectory->isNull() )
