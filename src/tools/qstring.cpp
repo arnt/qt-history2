@@ -1082,10 +1082,8 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
     if (from > delta)
 	from = delta;
 
-#if QT_MACOSX_VERSION >= 0x1020
     if (sl == 1)
 	return findRev(*(const QChar*) s.d->data, from, cs);
-#endif
 
     const QChar *needle = (const QChar*) s.d->data;
     const QChar *haystack = (const QChar*) d->data + from;
