@@ -527,12 +527,10 @@ static void distributeMultiBox( QVector<QLayoutStruct> &chain, int spacing,
     int w = 0;
     int wh = 0;
     int max = 0;
-    bool exp = FALSE;
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
 	wh += chain[i].sizeHint;
 	max += chain[i].maximumSize;
-	exp = exp || chain[i].expansive;
 	chain[i].empty = FALSE;
 	if ( stretchArray[i] == 0 )
 	    chain[i].stretch = qMax(chain[i].stretch,stretch);
