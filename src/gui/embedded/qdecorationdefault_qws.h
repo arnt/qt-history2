@@ -34,6 +34,8 @@ public:
                        DecorationState state = Normal);
 
 protected:
+    virtual int titleBarHeight(const QWidget *widget);
+
     virtual void paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
                              DecorationState state, const QPalette &pal);
     virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, int &xoff, int &yoff);

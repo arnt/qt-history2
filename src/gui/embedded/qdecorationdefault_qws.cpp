@@ -300,6 +300,11 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
 #endif
 }
 
+int QDecorationDefault::titleBarHeight(const QWidget *)
+{
+    return 20;
+}
+
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
     bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
@@ -309,7 +314,7 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
     bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
     bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
 
-    int titleHeight = hasTitle ? 20 : 0;
+    int titleHeight = hasTitle ? titleBarHeight(widget) : 0;
     int bw = hasBorder ? BORDER_WIDTH : 0;
     int bbw = hasBorder ? BOTTOM_BORDER_WIDTH : 0;
 
@@ -522,8 +527,8 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
         if (hasTitle) { // reduce flicker
             QRect rect(widget->rect());
-            QRect r(rect.left() + BORDER_WIDTH, rect.top() - titleHeight,
-                    rect.width() - 2 * BORDER_WIDTH, titleHeight);
+            QRect r(rect.left(), rect.top() - titleHeight,
+                    rect.width(), titleHeight);
             painter->setClipRegion(oldClipRegion - r);
         }
         QRect br = QDecoration::region(widget).boundingRect();
