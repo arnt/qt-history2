@@ -1151,6 +1151,16 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
 void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
+    // ### Hack around the text engine drawing squares in <pre> mode. This happens
+    // because the \r is not removed when parsing. This needs to be removed
+    // once the text engine does it properly.
+    if (ti.num_chars == 1) {
+        char c = ti.chars[0].latin1();
+        if (c == '\r') {
+            return;
+        }
+    }
+
     // We cannot render text in GDI+ mode, so turn it of if it is currently used...
     bool usesGdiplus = d->usesGdiplus();
     bool oldForceGdi = d->forceGdi;
