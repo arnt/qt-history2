@@ -4,6 +4,17 @@
 #include <qdir.h>
 #include <qapplication.h>
 #include <zlib/zlib.h>
+#ifdef Q_OS_UNIX
+#  include <unistd.h>
+#  include <sys/types.h>
+#  include <utime.h>
+#endif
+
+enum ChunkType {
+    ChunkDirectory = 0,
+    ChunkFile      = 1,
+    ChunkSymlink   = 2
+};
 
 static bool createDir( const QString& fullPath )
 {
@@ -34,10 +45,8 @@ QArchive::~QArchive()
 void QArchive::setPath( const QString& archivePath )
 {
     QString fullName = archivePath;
-
     if( fullName.right( 4 ) != ".arq" )
 	fullName += ".arq";
-
     arcFile.setName( fullName );
 }
 
@@ -72,11 +81,15 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 	z_stream ztream;
 	bool continueCompressing;
 
-	if( inFile.open( IO_ReadOnly ) ) {
+	if(fi.isSymLink()) {
+	    outStream << (int)ChunkSymlink;
+	    outStream << fi.fileName().latin1();
+	    outStream << fi.readLink().latin1();
+	} else if( inFile.open( IO_ReadOnly ) ) {
 	    if( inBuffer.resize( fi.size() ) ) {
+		outStream << (int)ChunkFile;
 		outStream << fi.fileName().latin1();
 		outStream << fi.lastModified();
-
 	        if( verbosityMode & Source )
 		    emit operationFeedback( "Deflating " + fi.absFilePath() + "... " );
 		else if( verbosityMode & Destination )
@@ -119,10 +132,12 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		outStream.writeRawBytes( outBuffer.data(), ztream.total_out );
 	    }
 	    inFile.close();
-	    return true;
+	    return TRUE;
+	} else {
+	    return FALSE;
 	}
     }
-    return false;
+    return FALSE;
 }
 
 bool QArchive::setDirectory( const QString& dirName )
@@ -132,6 +147,7 @@ bool QArchive::setDirectory( const QString& dirName )
 	QDataStream outStream( &arcFile );
 	if( fullName.right( 1 ) != "/" )
 	    fullName += "/";
+	outStream << (int)ChunkDirectory;
 	outStream << fullName.latin1();
 	return TRUE;
     }
@@ -206,8 +222,8 @@ bool QArchive::readArchive( QString outpath )
     z_stream ztream;
     int totalOut, totalRead;
     bool continueDeCompressing;
-    QString entryName, dirName;
-    int entryLength;
+    QString entryName, dirName, symName;
+    int entryLength, chunktype;
 
     // Set up the initial directory.
     // If the dir does not exist, try to create it
@@ -218,15 +234,17 @@ bool QArchive::readArchive( QString outpath )
     outDir.cd( dirName );
     
     for( QDataStream inStream( &arcFile ); !inStream.atEnd();  ) {
-	inStream >> entryLength;
-	totalRead += sizeof( entryLength );
-	inBuffer.resize( entryLength );
-	inStream.readRawBytes( inBuffer.data(), entryLength );
-	totalRead += entryLength;
-	entryName = inBuffer.data();
-	if( verbosityMode & Progress ) 
-	    emit operationFeedback( QString("Read %1").arg(totalRead) );
-	if( entryName.right( 1 ) == "/" ) {
+	//get our type
+	inStream >> chunktype;
+	totalRead += sizeof( entryLength ) + entryLength;
+	if(chunktype == ChunkDirectory) {
+	    inStream >> entryLength;
+	    totalRead += sizeof( entryLength );
+	    inBuffer.resize( entryLength );
+	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    totalRead += entryLength;
+	    entryName = inBuffer.data();
+
 	    if( verbosityMode & Source )
 		emit operationFeedback( "Directory " + entryName + "... " );
 	    if( entryName == "../" ) {
@@ -241,7 +259,14 @@ bool QArchive::readArchive( QString outpath )
 		    return FALSE;
 		outDir.cd( dirName );
 	    }
-	} else {
+	} else if(chunktype == ChunkFile) {
+	    inStream >> entryLength;
+	    totalRead += sizeof( entryLength );
+	    inBuffer.resize( entryLength );
+	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    totalRead += entryLength;
+	    entryName = inBuffer.data();
+
 	    QDateTime timeStamp;
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
 	    totalOut = 0;
@@ -279,8 +304,46 @@ bool QArchive::readArchive( QString outpath )
 		}
 		inflateEnd( &ztream );
 		outFile.close();
+#ifdef Q_OS_UNIX
+		QDateTime t; t.setTime_t(0); //epoch
+		struct utimbuf tb;
+		tb.actime = tb.modtime = t.secsTo(timeStamp);
+		utime(fileName.latin1(), &tb);
+#else
+#   warning "Do we need to do this on windows!?"
+#endif
 	    }
+	} else if(chunktype == ChunkSymlink) {
+	    inStream >> entryLength;
+	    totalRead += sizeof( entryLength );
+	    inBuffer.resize( entryLength );
+	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    totalRead += entryLength;
+	    entryName = inBuffer.data();
+
+	    inStream >> entryLength;
+	    totalRead += sizeof( entryLength );
+	    inBuffer.resize( entryLength );
+	    inStream.readRawBytes( inBuffer.data(), entryLength );
+	    totalRead += entryLength;
+	    symName = inBuffer.data();
+	    if( verbosityMode & Source )
+		emit operationFeedback( "Linking " + symName + "... " );
+	    else if( verbosityMode & Destination )
+		emit operationFeedback( "Linking " + entryName + "... " );
+
+	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
+#ifdef Q_OS_UNIX
+	    symlink( symName.latin1(), fileName.latin1() );
+#else
+#   warning "How do we symlink on windows?!"
+#endif
+	} else {
+	    if( verbosityMode & Source )
+		emit operationFeedback( QString("Unknown chunk: %d") .arg(chunktype) );
 	}
+	if( verbosityMode & Progress ) 
+	    emit operationFeedback( QString("Read %1").arg(totalRead) );
     }
     return TRUE;
 }
