@@ -130,7 +130,8 @@ void QAuServerNAS::play(const QString& filename)
     if (nas) {
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
-	AuSoundPlayFromFile(nas, filename, AuNone, volume, NULL, NULL, NULL, NULL, NULL, NULL);
+	AuSoundPlayFromFile(nas, filename.local8Bit(), AuNone, volume,
+			    NULL, NULL, NULL, NULL, NULL, NULL);
 	AuFlush(nas);
 	dataReceived();
 	AuFlush(nas);
