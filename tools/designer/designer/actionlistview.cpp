@@ -27,30 +27,40 @@ ActionListView::ActionListView( QWidget *parent, const char *name )
 {
     header()->setFullSize( TRUE );
     setRootIsDecorated( TRUE );
+    setSorting( -1 );
     connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbMenu( QListViewItem *, const QPoint & ) ) );
 }
 
 ActionItem::ActionItem( QListView *lv, QAction *ac )
-    : QListViewItem( lv ), a( 0 ), g( 0 ) 
-{ 
+    : QListViewItem( lv ), a( 0 ), g( 0 )
+{
     if ( ac->inherits( "QActionGroup" ) )
 	g = (QDesignerActionGroup*)ac;
     else
 	a = (QDesignerAction*)ac;
-    setDragEnabled( TRUE ); 
+    setDragEnabled( TRUE );
 }
 
 ActionItem::ActionItem( QListViewItem *i, QAction *ac )
-    : QListViewItem( i ), a( 0 ), g( 0 ) 
-{ 
+    : QListViewItem( i ), a( 0 ), g( 0 )
+{
     if ( ac->inherits( "QActionGroup" ) )
 	g = (QDesignerActionGroup*)ac;
     else
 	a = (QDesignerAction*)ac;
-    setDragEnabled( TRUE ); 
+    setDragEnabled( TRUE );
+    moveToEnd();
 }
 
+void ActionItem::moveToEnd()
+{
+    QListViewItem *i = this;
+    while ( i->nextSibling() )
+	i = i->nextSibling();
+    if ( i != this )
+	moveItem( i );
+}
 
 QDragObject *ActionListView::dragObject()
 {

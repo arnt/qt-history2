@@ -34,12 +34,15 @@ public:
     ActionItem( QListView *lv, QAction *ac );
     ActionItem( QListViewItem *i, QAction *ac );
     ActionItem( ActionItem *parent, bool group = FALSE )
-	: QListViewItem( parent ), 
-	  a( group ? 0 : new QDesignerAction( parent->actionGroup() ) ), 
-	  g( group ? new QDesignerActionGroup( parent->actionGroup() ) : 0 ) { setDragEnabled( TRUE ); }
+	: QListViewItem( parent ),
+	  a( group ? 0 : new QDesignerAction( parent->actionGroup() ) ),
+	  g( group ? new QDesignerActionGroup( parent->actionGroup() ) : 0 ) { setDragEnabled( TRUE ); moveToEnd(); }
 
     QDesignerAction *action() const { return a; }
     QDesignerActionGroup *actionGroup() const { return g; }
+
+private:
+    void moveToEnd();
 
 private:
     QDesignerAction *a;
@@ -50,7 +53,7 @@ private:
 class ActionListView : public QListView
 {
     Q_OBJECT
-    
+
 public:
     ActionListView( QWidget *parent = 0, const char *name = 0 );
 
@@ -59,7 +62,7 @@ protected:
 
 private slots:
     void rmbMenu( QListViewItem *i, const QPoint &p );
-    
+
 signals:
     void insertAction();
     void insertActionGroup();
