@@ -90,7 +90,8 @@ public:
         int row = QListView::currentIndex().row();
         return row < 0 ? QString() : model()->list().at(row);
     }
-    void currentChanged(const QModelIndex &current, const QModelIndex &) {
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) {
+        QListView::currentChanged(current, previous);
         emit highlighted(current.row());
     }
     QString text(int i) const {
