@@ -167,7 +167,12 @@ public:
 	Style_Up =			0x00004000,
 	Style_Selected =	 	0x00008000,
 	Style_Active =			0x00010000,
-	Style_ButtonDefault =		0x00020000
+	Style_ButtonDefault =		0x00020000,
+	
+	Style_Open =			0x00100000,
+	Style_Children = 		0x00200000,
+	Style_Item = 			0x00400000,
+	Style_Sibling = 		0x00800000
     };
     typedef uint SFlags;
 
@@ -241,6 +246,8 @@ public:
 
 	PE_PanelGroupBox,
 	PE_RubberBand,
+
+	PE_TreeBranch,
 
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000

@@ -109,6 +109,34 @@ static const char * const check_list_controller_xpm[] = {
 "                ",
 "                "};
 
+static const char * const tree_branch_open_xpm[] = {
+"9 9 2 1",
+"  c None",
+"# c #000000",
+"#########",
+"#       #",
+"# ##### #",
+"#  ###  #",
+"#  ###  #",
+"#   #   #",
+"#   #   #",
+"#       #",
+"#########"};
+
+static const char * const tree_branch_closed_xpm[] = {
+"9 9 2 1",
+"  c None",
+"# c #000000",
+"#########",
+"#       #",
+"# #     #",
+"# ###   #",
+"# ##### #",
+"# ###   #",
+"# #     #",
+"#       #",
+"#########"};
+
 /*! \reimp */
 void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  QPainter *p,
@@ -565,6 +593,32 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_RubberBand:
 	drawPrimitive(PE_FocusRect, p, r, pal, flags, opt);
 	break;
+
+    case PE_TreeBranch: {
+	static QPixmap open(tree_branch_open_xpm);
+	static QPixmap closed(tree_branch_closed_xpm);
+	static const int decoration_size = 9;
+	int mid_h = r.width() / 2;
+	int mid_v = r.height() / 2;
+  	int bef_h = mid_h;
+  	int bef_v = mid_v;
+ 	int aft_h = mid_h;
+ 	int aft_v = mid_v;
+	if (flags & QStyle::Style_Children) {
+	    int delta = decoration_size / 2;
+	    bef_h -= delta;
+	    bef_v -= delta;
+	    aft_h += delta;
+	    aft_v += delta;
+	    p->drawPixmap(bef_h, bef_v, flags & QStyle::Style_Open ? open : closed);
+	}
+	if (flags & QStyle::Style_Item)
+	    p->drawLine(aft_h, mid_v, r.right(), mid_v);
+	if (flags & QStyle::Style_Sibling)
+	    p->drawLine(mid_h, aft_v, mid_h, r.bottom());
+	if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
+	    p->drawLine(mid_h, r.y(), mid_h, bef_v);
+	break; }
     default:
 	break;
     }
