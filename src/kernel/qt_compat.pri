@@ -7,7 +7,7 @@
 
 # basic internal setup
 internal {
-	MODULES_BASE	= tools kernel widgets dialogs
+	MODULES_BASE	= tools kernel widgets dialogs styles
 	MODULES_PRO	= iconview workspace
 	MODULES_ENT	= network canvas table xml opengl sql
 	# we want everything
