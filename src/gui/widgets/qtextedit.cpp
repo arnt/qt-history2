@@ -420,7 +420,7 @@ void QTextEditPrivate::startDrag()
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 {
-    const int cursorPos = doc->documentLayout()->hitTest(translateCoordinates(pos), Qt::FuzzyHit);
+    const int cursorPos = doc->documentLayout()->hitTest(mapToContents(pos), Qt::FuzzyHit);
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
@@ -1650,7 +1650,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
-    const QPoint pos = d->translateCoordinates(e->pos());
+    const QPoint pos = d->mapToContents(e->pos());
 
     d->mousePressed = true;
     d->mightStartDrag = false;
@@ -1714,7 +1714,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    const QPoint mousePos = d->translateCoordinates(e->pos());
+    const QPoint mousePos = d->mapToContents(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
     if (d->autoScrollTimer.isActive()) {
@@ -2074,7 +2074,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
 {
     Q_D(const QTextEdit);
-    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(pos), Qt::FuzzyHit);
+    int cursorPos = d->doc->documentLayout()->hitTest(d->mapToContents(pos), Qt::FuzzyHit);
     if (cursorPos == -1)
         cursorPos = 0;
     QTextCursor c(d->doc);
@@ -2127,7 +2127,7 @@ QRect QTextEdit::cursorRect() const
 QString QTextEdit::anchorAt(const QPoint& pos) const
 {
     Q_D(const QTextEdit);
-    return d->doc->documentLayout()->anchorAt(d->translateCoordinates(pos));
+    return d->doc->documentLayout()->anchorAt(d->mapToContents(pos));
 }
 
 /*!

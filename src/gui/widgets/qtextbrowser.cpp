@@ -478,12 +478,12 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 /*!
     \reimp
 */
-void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
+void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QTextBrowser);
-    QTextEdit::mouseMoveEvent(ev);
+    QTextEdit::mouseMoveEvent(e);
 
-    QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
+    QString anchor = anchorAt(e->pos());
     if (anchor.isEmpty()) {
         d->viewport->setCursor(Qt::ArrowCursor);
         emit highlighted(QUrl());
@@ -502,15 +502,15 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 /*!
     \reimp
 */
-void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
+void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextBrowser);
-    QTextEdit::mouseReleaseEvent(ev);
+    QTextEdit::mouseReleaseEvent(e);
 
-    if (!(ev->button() & Qt::LeftButton))
+    if (!(e->button() & Qt::LeftButton))
         return;
 
-    QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
+    const QString anchor = anchorAt(e->pos());
     d->activateAnchor(anchor);
 }
 
