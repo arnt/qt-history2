@@ -484,7 +484,7 @@ void QPushButton::drawButton( QPainter *paint )
     int x1, y1, x2, y2;
     style().buttonRect( 0,0,width(),height()).coords( &x1, &y1, &x2, &y2 );	// get coordinates
     if ( hasFocus() ) {
- 	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
+ 	QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
      }
     lastDown = isDown();
