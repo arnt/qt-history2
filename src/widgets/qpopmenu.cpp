@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#52 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#52 $")
 
 
 // Mac style parameters
@@ -110,7 +110,7 @@ static const motifTabSpacing	= 12;		// space between text and tab
 */
 
 QPopupMenu::QPopupMenu( QWidget *, const char *name )
-	: QTableView( 0, name, WType_Popup )
+    : QTableView( 0, name, WType_Popup )
 {
     initMetaObject();
     isPopup = TRUE;
@@ -659,6 +659,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     int cellh	  = cellHeight( row );
     int cellw	  = cellWidth( col );
     GUIStyle gs	  = style();
+    bool act	  = row == actItem;
 
     if ( mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );
@@ -670,11 +671,17 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     int pw = motifItemFrame;
     if ( gs != MotifStyle )
 	pw = 1;
-    if ( row == actItem )			// active item frame
-	drawShadePanel( p, 0, 0, cellw, cellh, g, FALSE, pw );
-    else					// incognito frame
-	drawPlainRect( p, 0, 0, cellw, cellh, g.background(), pw );
-    p->setPen( g.text() );
+    if ( gs == WindowsStyle ) {
+	p->fillRect( 0, 0, cellw, cellh, act ? darkBlue : g.background() );
+	p->setPen( act ? white : g.text() );
+    }
+    else if ( gs == MotifStyle ) {
+	if ( act )				// active item frame
+	    drawShadePanel( p, 0, 0, cellw, cellh, g, FALSE, pw );
+	else					// incognito frame
+	    drawPlainRect( p, 0, 0, cellw, cellh, g.background(), pw );
+	p->setPen( g.text() );
+    }
     if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();
 	if ( pixmap->depth() == 1 )
@@ -710,7 +717,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->setPen( NoPen );
 	    p->drawPolygon( a );
 	}
-	else if ( gs == MotifStyle ) {
+	else {
 	    dim /= 2;
 	    qDrawArrow( p, RightArrow, gs, row == actItem,
 			cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
@@ -897,7 +904,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     }
 
     if ( !ok_key ) {				// send to menu bar
-	register QMenuData *top = this; // find top level
+	register QMenuData *top = this;		// find top level
 	while ( top->parentMenu )
 	    top = top->parentMenu;
 	if ( top->isMenuBar )

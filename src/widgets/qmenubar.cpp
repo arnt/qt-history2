@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#41 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#41 $")
 
 
 /*!
@@ -40,7 +40,7 @@ static const motifBarFrame	= 2;		// menu bar frame width
 static const motifBarHMargin	= 2;		// menu bar hor margin to item
 static const motifBarVMargin	= 2;		// menu bar ver margin to item
 static const motifItemFrame	= 2;		// menu item frame width
-static const motifItemHMargin	= 4;		// menu item hor text margin
+static const motifItemHMargin	= 8;		// menu item hor text margin
 static const motifItemVMargin	= 8;		// menu item ver text margin
 
 /*
@@ -66,8 +66,12 @@ static const motifItemVMargin	= 8;		// menu item ver text margin
 // QMenuBar member functions
 //
 
+/*!
+  Creates a menu bar with a \e parent and a \e name.
+*/
+
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-	: QFrame( parent, name, 0, FALSE )
+    : QFrame( parent, name, 0, FALSE )
 {
     initMetaObject();
     isMenuBar = TRUE;
@@ -84,6 +88,10 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	setFrameStyle( QFrame::NoFrame );
     }
 }
+
+/*!
+  Destroys the menu bar.
+*/
 
 QMenuBar::~QMenuBar()
 {
@@ -410,19 +418,13 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
-	if ( gs == MotifStyle ) {
+	if ( gs == WindowsStyle )
+	    p->fillRect( r, i == actItem ? darkBlue : g.background() );
+	else if ( gs == MotifStyle ) {
 	    if ( i == actItem )				// active item frame
 		drawShadePanel( p, r, g, FALSE, motifItemFrame );
 	    else					// incognito frame
 		drawPlainRect( p, r, g.background(), motifItemFrame );
-	}
-	else {
-	    if ( i == actItem ) {
-		p->fillRect( r, blue );
-	    }
-	    else {
-		p->fillRect( r, g.background() );
-	    }
 	}
 	if ( mi->pixmap() )
 	    p->drawPixmap( r.left() + motifItemFrame,
@@ -432,10 +434,10 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 	    if ( mi->isDisabled() )
 		p->setPen( palette().disabled().text() );
 	    else {
-		p->setPen( g.text() );
-		if ( i == actItem && gs != MotifStyle )
+		if ( i == actItem && gs == WindowsStyle )
 		    p->setPen( white );
-		p->setPen( g.text() );
+		else
+		    p->setPen( g.text() );
 	    }
 	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
 			 mi->string() );
