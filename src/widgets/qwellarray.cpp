@@ -101,7 +101,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 
     if ( !smallStyle )
 	b = 3;
-    
+
     const QColorGroup & g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol &&
@@ -139,14 +139,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	    p->drawRect( 2, 2, w-4, h-4 );
 	    b = 3;
 	} else if ( hasFocus() ) {
-	    if ( style() == MotifStyle ) {
-		int t = 1;
-		if ( row == selRow && col == selCol )
-		    t = 3;
-		p->drawRect(t,t,w-2*t,h-2*t );
-	    } else {
-		p->drawWinFocusRect(0,0,w,h,g.background() );
-	    }
+	    style().drawFocusRect(p, QRect(0,0,w,h), g );
 	}
     }
     drawContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) );
