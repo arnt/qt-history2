@@ -523,7 +523,7 @@ int QSocketDevice::accept()
 #else
     struct sockaddr a;
 #endif
-    SOCKLEN_T l = sizeof(struct sockaddr);
+    SOCKLEN_T l = sizeof(a);
     bool done;
     int s;
     do {
