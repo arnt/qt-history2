@@ -31,6 +31,7 @@
 #include <qmap.h>
 #include <qtextstream.h>
 #include <qcleanuphandler.h>
+#include <qregexp.h>
 
 #include <stdlib.h>
 
@@ -207,7 +208,8 @@ QSettingsGroup QSettingsPrivate::readGroup()
 	initSearchPaths();
       	QStringList::Iterator it = searchPaths->begin();
 	while (it != searchPaths->end()) {
-	    QString fn((*it++) + "/" + heading + "rc");
+	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
+	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
 		hd.read(fn);
 		hd.insert(fn + "cached", QSettingsGroup());
@@ -329,9 +331,9 @@ QDateTime QSettingsPrivate::modificationTime()
 /*!
   Inserts \a path into the settings search path. The semantic of \a path depends
   on the system \a s:
-      
-  When \a s is \e Unix, the search path list will be used when trying to determine a 
-  suitable filename for reading and writing settings files. By default, there 
+
+  When \a s is \e Unix, the search path list will be used when trying to determine a
+  suitable filename for reading and writing settings files. By default, there
   are two entries in the search path:
 
   <ul>
@@ -455,8 +457,9 @@ bool QSettings::sync()
 	initSearchPaths();
 	QStringList::Iterator pit = searchPaths->begin();
 	while (pit != searchPaths->end()) {
+	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
-	    QFileInfo fi((*pit++) + "/" + it.key() + "rc");
+	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
 		(di.isDir() && di.isWritable())) {
