@@ -184,43 +184,43 @@ bool QProcess::start( QStringList *env )
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( comms & Stdin ) {
 	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin, GetCurrentProcess(), &d->pipeStdin[1], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !CloseHandle( tmpStdin ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
     }
     if ( comms & Stdout ) {
 	if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout, GetCurrentProcess(), &d->pipeStdout[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !CloseHandle( tmpStdout ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
     }
     if ( comms & Stderr ) {
 	if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr, GetCurrentProcess(), &d->pipeStderr[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
 	if ( !CloseHandle( tmpStderr ) ) {
-	    d->closeHandles()
+	    d->closeHandles();
 	    return FALSE;
 	}
     }
