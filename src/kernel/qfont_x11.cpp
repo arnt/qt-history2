@@ -1936,6 +1936,7 @@ void QFontPrivate::initFontInfo(QFont::Script script)
     actual.rbearing = SHRT_MIN;
 
     if (exactMatch) {
+	// ### this is not 100% correct for Xft, as the matched font could be of a different family!
 	actual = request;
 	actual.dirty = FALSE;
 
@@ -2214,13 +2215,17 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    // while the application is running
 	    qfs->deref();
 	}
+
+	actual.dirty = TRUE;
     }
 
     QChar sample = sampleCharacter(script);
     // look for a unicode font first, and see if it has the script that we want...
-    if (tryUnicode && loadUnicode(script, sample))
+    if (tryUnicode && loadUnicode(script, sample)) {
+	initFontInfo(script);
 	return;
-
+    }
+    
     QFontStruct *qfs = 0;
     QCString fontname;
     QTextCodec *codec = 0;
@@ -2311,6 +2316,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (qfs != (QFontStruct *) -1) {
 	    qfs->ref();
+	    initFontInfo( script );
 	}
 
 	request.dirty = FALSE;
