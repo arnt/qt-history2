@@ -815,6 +815,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #endif
 			     );
 
+	    // if we fail to load the rawmode font, use a 12pixel box engine instead
+	    if (! fe) fe = new QFontEngineBox( 12 );
 	    return fe;
 	}
 
@@ -868,17 +870,22 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    if ( loop == 2 && family_name.isNull() )
 		load( family->name, script );
 
-	    if ( ! ( family->scripts[script] & QtFontFamily::Supported )
-#ifdef Q_WS_WIN
-		 && ( family_name.isEmpty() || !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) )
-#endif
-		 )
-		continue;
+	    QFont::Script override_script = script;
+	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) ) {
+		if ( family_name.isEmpty() ||
+		     !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) )
+		    // family doesn't support either the specified
+		    // script or the Unicode script
+		    continue;
+
+		// try with the unicode script instead
+		override_script = QFont::Unicode;
+	    }
 
 	    // as we know the script is supported, we can be sure
 	    // to find a matching font here.
 	    unsigned int newscore =
-		bestFoundry( script, score, request.styleStrategy,
+		bestFoundry( override_script, score, request.styleStrategy,
 			     family, foundry_name, styleKey, request.pixelSize, pitch,
 			     &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
@@ -888,7 +895,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    if ( best_foundry == 0 ) {
 		// the specific foundry was not found, so look for
 		// any foundry matching our requirements
-		newscore = bestFoundry( script, score, request.styleStrategy, family,
+		newscore = bestFoundry( override_script, score, request.styleStrategy, family,
 					QString::null, styleKey, request.pixelSize,
 					pitch, &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
@@ -1298,7 +1305,8 @@ QStringList QFontDatabase::families( QFont::Script script ) const
 	QtFontFamily *f = d->families[i];
 	if ( f->count == 0 )
 	    continue;
-	if (!(f->scripts[script] & QtFontFamily::Supported))
+	if (!(f->scripts[script] & QtFontFamily::Supported) &&
+	    !(f->scripts[QFont::Unicode] & QtFontFamily::Supported))
 	    continue;
 	if ( f->count == 1 ) {
 	    flist.append( f->name );
@@ -1384,7 +1392,7 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     \sa isScalable(), isSmoothlyScalable()
 */
 bool QFontDatabase::isBitmapScalable( const QString &family,
-                                       const QString &style) const
+				      const QString &style) const
 {
     bool bitmapScalable = FALSE;
     QString familyName,  foundryName;
