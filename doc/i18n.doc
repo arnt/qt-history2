@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.11 1999/03/11 12:04:42 warwick Exp $
+** $Id: i18n.doc,v 1.12 1999/03/18 02:42:32 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -203,5 +203,54 @@ ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
 +    IMDestroyIC(icp);
  }
 \endcode
+
+
+<h2>Supporting more Input Methods</h2>
+
+While Troll Tech doesn't have the resources or expertise in all
+the languages of the world to immediately include support in Qt,
+we are very keen to work with people who <em>do</em> have the
+expertise.  Over the next few versions, we hope to add support
+for <em>your</em> language of choice, until everyone can use Qt,
+and all the programs developed with Qt, regardless of their
+language.
+
+Initially, languages with uni-directional single-byte encodings
+(European Latin1 and KOI8-R, etc.)
+will be refined.
+Then, the uni-directional multi-byte encodings (East Asian
+EUC-JP, etc.) will be supported. Finally, support for the "complex"
+encodings - those requiring right-to-left input or complex character
+composition (eg. Arabic and Thai script) will be implemented.
+The current state of activity is:
+<dl compact>
+ <dt><b>Latin1</b>
+  <dd>Fully supported, as before.
+ <dt><b>KOI8-R</b>
+  <dd>Fully supported.
+ <dt><b>eucJP, JIS, and ShiftJIS</b>
+  <dd>Supported with the XIMP protocol on X11.
+	Windows NT support under development.
+	Serika Kurusugawa is assisting with this effort.
+	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
+	is the tested input method.
+ <dt><b>eucKR</b>
+  <dd>Under development, 
+	Mizi Research are assisting with this effort.
+	<a href=http://www.mizi.com/>hanIM</a>
+       	is the tested input method.
+</dl>
+
+Eventually, we hope to help Unix become as Unicode-oriented as
+Windows NT is becoming.
+This means better font support in the font servers,
+with new developments like the True Type font servers
+<a href=http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/>xfsft</a>,
+<a href=ftp://sunsite.unc.edu/pub/Linux/X11/fonts>xfstt</a>,
+and
+<a href=http://hawk.ise.chuo-u.ac.jp/student/person/tshiozak/x-tt/>x-tt</a>,
+as well as UTF-8 (a Unicode encoding) filenames such as with the
+<a href=http://www.sun.com/software/white-papers/wp-unicode/>Unicode
+support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
 */
