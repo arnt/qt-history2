@@ -162,7 +162,7 @@
 // Metafiles
 //#define QT_NO_PICTURE
 
-//define QT_NO_LAYOUT
+//#define QT_NO_LAYOUT
 
 // Widgets
 #if defined(QT_NO_PALETTE)
