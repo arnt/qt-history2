@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#42 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#43 $
 **
 ** Definition of layout classes
 **
@@ -37,11 +37,11 @@ class Q_EXPORT QGridLayout : public QLayout
 {
     Q_OBJECT
 public:
-    QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
+    QGridLayout( QWidget *parent, int nRows = 1, int nCols = 1, int border=0,
 		 int space = -1, const char *name=0 );
     QGridLayout( int nRows, int nCols, int space = -1,
 		 const char *name=0 );
-    QGridLayout( QLayout *parentLayout, int nRows, int nCols,
+    QGridLayout( QLayout *parentLayout, int nRows = 1, int nCols = 1,
 		 int space = -1, const char *name=0 );
     ~QGridLayout();
 
