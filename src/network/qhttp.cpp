@@ -21,6 +21,7 @@
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qlist.h"
+#include "qsignal.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qbuffer.h"
@@ -2048,7 +2049,7 @@ int QHttpPrivate::addRequest(QHttpRequest *req)
 
     if (pending.count() == 1) {
         // don't emit the requestStarted() signal before the id is returned
-        QTimer::singleShot(0, q, SLOT(startNextRequest()));
+        qInvokeMetaMember(q, "startNextRequest", Qt::QueuedConnection);
     }
     return req->id;
 }
