@@ -2688,6 +2688,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 #if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
+        delete event;
 	return;
     }
 

@@ -354,7 +354,6 @@ public:
 
 };
 
-
 static void set_winapp_name()
 {
     static bool already_set = FALSE;
@@ -412,7 +411,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     char *p_end = p + strlen(p);
 
     argc = 1;
-    argv[0] = appName;
+    argv[0] = appFileName;
 
     while ( *p && p < p_end ) {				// parse cmd line arguments
 	while ( isspace((uchar) *p) )			// skip white space
@@ -910,6 +909,8 @@ Q_EXPORT const char *qAppFileName()		// get application file name
 
 Q_EXPORT const char *qAppName()			// get application name
 {
+    if ( !appName[0] )
+	set_winapp_name();
     return appName;
 }
 

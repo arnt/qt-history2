@@ -694,7 +694,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	    return nullPixmap;
 	}
 	RECT r;
-	GetWindowRect( window, &r );
+	GetClientRect( window, &r );
 	if ( w < 0 )
 	    w = (r.right - r.left);
 	if ( h < 0 )

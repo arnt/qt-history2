@@ -2598,7 +2598,8 @@ QString QFontPrivate::key() const
 	      2 +  // pixel size
 	      1 +  // font bits
 	      1 +  // weight
-	      1;   // hint
+	      1 +  // hint
+	      2;   // StyleStrategy
 
     QByteArray buf(len);
     uchar *p = (uchar *) buf.data();
@@ -2619,6 +2620,7 @@ QString QFontPrivate::key() const
     *p++ = request.weight;
     *p++ = (request.hintSetByUser ?
 	    (int) request.styleHint : (int) QFont::AnyStyle);
+    *((Q_UINT16 *) p) = request.styleStrategy; p += 2;
 
     return QString((QChar *) buf.data(), buf.size() / 2);
 #else
@@ -2626,9 +2628,11 @@ QString QFontPrivate::key() const
     QString k = request.family;
     if ( request.addStyle.length() )
 	k += request.addStyle;
-    k += "%1/%2/%3/%4/%5";
-    k = k.arg( request.pointSize ).arg( request.pixelSize ).arg( get_font_bits( request ) ).arg( request.weight )
-	.arg( (request.hintSetByUser ? (int) request.styleHint : (int) QFont::AnyStyle) );
+    k += "%1/%2/%3/%4/%5/%6";
+    k = k.arg( request.pointSize ).arg( request.pixelSize ).arg( get_font_bits( request ) )
+	.arg( request.weight )
+	.arg( (request.hintSetByUser ? (int) request.styleHint : (int) QFont::AnyStyle) )
+	.arg( request.styleStrategy );
     return k;
 #endif
 }
