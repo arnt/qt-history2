@@ -446,14 +446,18 @@ void QClipboard::clear()
 }
 
 
-QMimeSource* QClipboard::data() const
+QMimeSource* QClipboard::data( Mode mode ) const
 {
+    if ( mode != Clipboard ) return 0;
+
     QClipboardData *d = clipboardData();
     return d->provider();
 }
 
-void QClipboard::setData( QMimeSource* src )
+void QClipboard::setData( QMimeSource* src, Mode, mode )
 {
+    if ( mode != Clipboard ) return;
+
     if ( !OpenClipboard(clipboardOwner()->winId()) ) {
 #ifndef QT_NO_DEBUG
 	qSystemWarning( "QClipboard: Failed to open clipboard" );

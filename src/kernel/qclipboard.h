@@ -55,35 +55,52 @@ private:
     ~QClipboard();
 
 public:
-    void	clear();
+    enum Mode { Clipboard, Selection };
 
-    bool supportsSelection() const;
-    bool ownsSelection() const;
-    bool ownsClipboard() const;
+    void	clear( Mode mode );	       	// ### default arg = Clipboard in 4.0
+    void	clear();		       	// ### remove 4.0
 
-    void setSelectionMode(bool enable);
-    bool selectionModeEnabled() const;
+    bool	supportsSelection() const;
+    bool	ownsSelection() const;
+    bool	ownsClipboard() const;
+
+    void	setSelectionMode(bool enable);		// ### remove 4.0
+    bool	selectionModeEnabled() const; 		// ### remove 4.0
+
+    // ### default arg mode = Clipboard in 4.0 for all of these
+    QString     text( Mode mode )	 const;
+    QString     text( QCString& subtype, Mode mode ) const;
+    void	setText( const QString &, Mode mode );
 
 #ifndef QT_NO_MIMECLIPBOARD
-    QMimeSource *data() const;
-    void setData( QMimeSource* );
+    QMimeSource *data( Mode mode ) const;
+    void setData( QMimeSource*, Mode mode );
+
+    QImage	image( Mode mode ) const;
+    QPixmap	pixmap( Mode mode ) const;
+    void	setImage( const QImage &, Mode mode );
+    void	setPixmap( const QPixmap &, Mode mode );
 #endif
-    
+
+    // ### remove all of these in 4.0
     QString     text()	 const;
     QString     text(QCString& subtype) const;
     void	setText( const QString &);
-    
+
 #ifndef QT_NO_MIMECLIPBOARD
+    QMimeSource	*data() const;
+    void	setData( QMimeSource* );
+
     QImage	image() const;
     QPixmap	pixmap() const;
     void	setImage( const QImage & );
     void	setPixmap( const QPixmap & );
 #endif
+
 signals:
     void        selectionChanged();
     void	dataChanged();
 
-    
 private slots:
     void	ownerDestroyed();
 

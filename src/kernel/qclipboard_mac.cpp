@@ -95,7 +95,7 @@ public:
 	src = s;
 	delete s2;
     }
-        
+
     QMimeSource *source() const { return src; }
     void clear();
 
@@ -154,11 +154,11 @@ static struct {
 #ifdef DEBUG_MAPPINGS
     const char *mac_type_name;
 #endif
-    const char *qt_type; 
+    const char *qt_type;
 } scrap_map[] = {
     { MAP_FLAVOUR(kScrapFlavorTypeUnicode), "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
     { MAP_FLAVOUR(kScrapFlavorTypeText), "text/plain" },
-    { MAP_FLAVOUR(0), NULL } 
+    { MAP_FLAVOUR(0), NULL }
 };
 
 const char* QClipboardWatcher::format( int n ) const
@@ -171,7 +171,7 @@ const char* QClipboardWatcher::format( int n ) const
     hasScrapChanged();
 
     UInt32 cnt = 0;
-    if(GetScrapFlavorCount(scrap, &cnt) || !cnt) 
+    if(GetScrapFlavorCount(scrap, &cnt) || !cnt)
 	return 0;
 
     infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
@@ -192,14 +192,14 @@ const char* QClipboardWatcher::format( int n ) const
 	    } else {
 		subtract++;
 	    }
-	} 
+	}
     }
 
     for(i = n; i < (int)cnt; i++) {
-	if( ( infos[i].flavorType >> 16 ) == ( 'QTxx' >> 16 ) ) 
+	if( ( infos[i].flavorType >> 16 ) == ( 'QTxx' >> 16 ) )
 	    break;
 	qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
-		char(infos[i].flavorType >> 24), char((infos[i].flavorType >> 16) & 255), 
+		char(infos[i].flavorType >> 24), char((infos[i].flavorType >> 16) & 255),
 		char((infos[i].flavorType >> 8) & 255), char(infos[i].flavorType & 255 ), i );
     }
     if(i >= (int)cnt)
@@ -226,7 +226,7 @@ const char* QClipboardWatcher::format( int n ) const
 	free(buffer);
     return ret;
 }
-    
+
 QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     QByteArray ret;
@@ -264,16 +264,16 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
     for(UInt32 x = 0; x < cnt; x++) {
 	if( ( infos[x].flavorType >> 16 ) != ( 'QTxx' >> 16 ) ) {
 	    qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
-		    char(infos[x].flavorType >> 24), char((infos[x].flavorType >> 16) & 255), 
+		    char(infos[x].flavorType >> 24), char((infos[x].flavorType >> 16) & 255),
 		    char((infos[x].flavorType >> 8) & 255), char(infos[x].flavorType & 255 ), (int) x);
 	    continue;
 	}
 
 	GetScrapFlavorSize(scrap, infos[x].flavorType, &flavorsize);
-	if(buffersize < flavorsize) 
+	if(buffersize < flavorsize)
 	    buffer = (char *)realloc(buffer, buffersize = flavorsize);
 	GetScrapFlavorData(scrap, infos[x].flavorType, &flavorsize, buffer);
-	
+
 	UInt32 mimesz;
 	memcpy(&mimesz, buffer, sizeof(mimesz));
 	if(!qstrnicmp(buffer+sizeof(mimesz), fmt, mimesz)) {
@@ -332,16 +332,20 @@ bool QClipboard::event( QEvent *e )
 }
 
 
-QMimeSource* QClipboard::data() const
+QMimeSource* QClipboard::data( Mode mode ) const
 {
+    if ( mode != Clipboard ) return 0;
+
     QClipboardData *d = clipboardData();
     if ( !d->source() )
 	d->setSource(new QClipboardWatcher());
     return d->source();
 }
 
-void QClipboard::setData( QMimeSource *src )
+void QClipboard::setData( QMimeSource *src, Mode mode )
 {
+    if ( mode != Clipboard ) return;
+
     QByteArray ar;
     QClipboardData *d = clipboardData();
     d->setSource( src );
@@ -352,7 +356,7 @@ void QClipboard::setData( QMimeSource *src )
     const char *fmt;
     for(int i = 0; (fmt = src->format(i)); i++) {
 	bool found_flavour = FALSE;
-	for(int sm = 0; scrap_map[sm].qt_type; sm++) {  
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) {
 	    if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
 #ifdef DEBUG_MAPPINGS
 		qDebug("QClipboard::setData(%s): %s", fmt, scrap_map[sm].mac_type_name);
@@ -374,7 +378,7 @@ void QClipboard::setData( QMimeSource *src )
 	    memcpy(buffer, &mimelen, sizeof(mimelen));
 	    memcpy(buffer+sizeof(mimelen), fmt, mimelen);
 	    memcpy(buffer+sizeof(mimelen)+mimelen, ar.data(), ar.size());
-	    PutScrapFlavor(scrap, (ScrapFlavorType)mactype, 0, 
+	    PutScrapFlavor(scrap, (ScrapFlavorType)mactype, 0,
 			   ar.size()+mimelen+sizeof(mimelen), buffer);
 	}
     }

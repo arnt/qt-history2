@@ -70,7 +70,7 @@ extern const char* qt_xdnd_atom_to_str( Atom );
 
 
 static QWidget * owner = 0;
-static bool inSelectionMode = FALSE;
+static bool inSelectionMode_obsolete = FALSE; // ### remove 4.0
 static bool timer_event_clear = FALSE;
 static int timer_id = 0;
 
@@ -95,13 +95,14 @@ void setupOwner()
 
 class QClipboardWatcher : public QMimeSource {
 public:
-    QClipboardWatcher();
+    QClipboardWatcher( QClipboard::Mode mode );
     ~QClipboardWatcher();
     bool empty() const;
     const char* format( int n ) const;
     QByteArray encodedData( const char* fmt ) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
 
+    Atom atom;
     QValueList<const char *> formatList;
 };
 
@@ -205,13 +206,10 @@ static QClipboardData *selectionData()
   QClipboard member functions for X11.
  *****************************************************************************/
 
-/*!
-    Clears the clipboard contents.
-*/
 
-void QClipboard::clear()
+void QClipboard::clear( Mode mode )
 {
-    setText( QString::null );
+    setText( QString::null, mode );
 }
 
 
@@ -252,7 +250,11 @@ bool QClipboard::ownsClipboard() const
 }
 
 
-/*!
+/*! \obsolete
+
+    Use the QClipboard::data(), QClipboard::setData() and related functions
+    which take a QClipboard::Mode argument.
+
     Sets the clipboard selection mode. If \a enable is TRUE, then
     subsequent calls to QClipboard::setData() and other functions
     which put data into the clipboard will put the data into the mouse
@@ -262,24 +264,27 @@ bool QClipboard::ownsClipboard() const
 */
 void QClipboard::setSelectionMode(bool enable)
 {
-    inSelectionMode = enable;
+    inSelectionMode_obsolete = enable;
 }
 
 
-/*!
+/*! \obsolete
+
+    Use the QClipboard::data(), QClipboard::setData() and related functions
+    which take a QClipboard::Mode argument.
+
     Returns the selection mode.
 
     \sa setSelectionMode(), supportsSelection()
 */
 bool QClipboard::selectionModeEnabled() const
 {
-    return inSelectionMode;
+    return inSelectionMode_obsolete;
 }
 
 
-/*!
-  Internal function to clear mouse selection and clipboard contents.
-  \internal
+/*! \internal
+    Internal function to clear mouse selection and clipboard contents.
 */
 void QClipboard::clobber()
 {
@@ -544,9 +549,8 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 }
 
 
-/*!
-  \internal
-  Internal cleanup for Windows.
+/*! \internal
+    Internal cleanup for Windows.
 */
 
 void QClipboard::ownerDestroyed()
@@ -555,9 +559,8 @@ void QClipboard::ownerDestroyed()
 }
 
 
-/*!
-  \internal
-  Internal optimization for Windows.
+/*! \internal
+    Internal optimization for Windows.
 */
 
 void QClipboard::connectNotify( const char * )
@@ -565,10 +568,8 @@ void QClipboard::connectNotify( const char * )
 }
 
 
-/*!
-    \reimp
-*/
-
+/*! \reimp
+ */
 bool QClipboard::event( QEvent *e )
 {
     if (e->type() == QEvent::Timer) {
@@ -655,10 +656,26 @@ bool QClipboard::event( QEvent *e )
 		   XGetAtomName(req->display, req->target));
 #endif
 
-	    QClipboardData *d =
-		(req->selection == XA_PRIMARY) ? selectionData() : clipboardData();
+	    QClipboardData *d;
+	    Mode m;
+
+	    if ( req->selection == XA_PRIMARY ) {
+		m = Selection;
+		d = selectionData();
+	    } else if ( req->selection == qt_xa_clipboard ) {
+		m = Clipboard;
+		d = clipboardData();
+	    }
+#ifdef QT_CHECK_RANGE
+	    else {
+		qWarning( "QClipboard::event: unknown selection request '%lx'",
+			  req->selection );
+		break;
+	    }
+#endif // QT_CHECK_RANGE
+
 	    if ( !d->source() )
-		d->setSource(new QClipboardWatcher());
+		d->setSource( new QClipboardWatcher( m ) );
 
 	    const char* fmt;
 	    QByteArray data;
@@ -871,8 +888,24 @@ bool QClipboard::event( QEvent *e )
 
 
 
-QClipboardWatcher::QClipboardWatcher()
+QClipboardWatcher::QClipboardWatcher( QClipboard::Mode mode )
 {
+    switch ( mode ) {
+    case QClipboard::Selection:
+	atom = XA_PRIMARY;
+	break;
+
+    case QClipboard::Clipboard:
+	atom = qt_xa_clipboard;
+	break;
+
+#ifdef QT_CHECK_RANGE
+    default:
+	qWarning( "QClipboardWatcher::empty: internal error!" );
+	break;
+#endif // QT_CHECK_RANGE
+    }
+
     setupOwner();
 }
 
@@ -887,8 +920,7 @@ QClipboardWatcher::~QClipboardWatcher()
 bool QClipboardWatcher::empty() const
 {
     Display *dpy = owner->x11Display();
-    Window win = XGetSelectionOwner(dpy, (inSelectionMode ?
-					  XA_PRIMARY : qt_xa_clipboard));
+    Window win = XGetSelectionOwner( dpy, atom );
     return win == None;
 }
 
@@ -997,7 +1029,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 	    XGetAtomName( dpy, fmtatom ) );
 #endif // QCLIPBOARD_DEBUG
 
-    XConvertSelection( dpy, (inSelectionMode) ? XA_PRIMARY : qt_xa_clipboard,
+    XConvertSelection( dpy, atom,
 		       fmtatom, qt_selection_property, win, CurrentTime );
     XFlush( dpy );
 
@@ -1021,27 +1053,28 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 }
 
 
-/*!
-    Returns a reference to a QMimeSource representation of the current
-    clipboard data.
-*/
-QMimeSource* QClipboard::data() const
+QMimeSource* QClipboard::data( Mode mode ) const
 {
     QClipboardData *d;
+    switch ( mode ) {
+    case Selection: d = selectionData(); break;
+    case Clipboard: d = clipboardData(); break;
 
-    if (inSelectionMode)
-	d = selectionData();
-    else
-	d = clipboardData();
+    default:
+#ifdef QT_CHECK_RANGE
+	qWarning( "QClipboard::data: invalid mode '%d'", mode );
+#endif // QT_CHECK_RANGE
+	return 0;
+    }
 
     if ( ! d->source() && ! timer_event_clear ) {
-	if ( inSelectionMode ) {
+	if ( mode == Selection ) {
 	    if ( ! selection_watcher )
-		selection_watcher = new QClipboardWatcher;
+		selection_watcher = new QClipboardWatcher( mode );
 	    d->setSource( selection_watcher );
 	} else {
 	    if ( ! clipboard_watcher )
-		clipboard_watcher = new QClipboardWatcher;
+		clipboard_watcher = new QClipboardWatcher( mode );
 	    d->setSource( clipboard_watcher );
 	}
 
@@ -1059,34 +1092,29 @@ QMimeSource* QClipboard::data() const
     return d->source();
 }
 
-/*!
-    Sets the clipboard data to \a src. Ownership of the data is
-    transferred to the clipboard. If you want to remove the data
-    either call clear() or call setData() again with new data.
 
-    The QDragObject subclasses are reasonable objects to put into the
-    clipboard (but do not try to call QDragObject::drag() on the same
-    object). Any QDragObject placed in the clipboard should have a
-    parent of 0. Do not put QDragMoveEvent or QDropEvent subclasses in
-    the clipboard, as they do not belong to the event handler which
-    receives them.
-
-    The setText() and setPixmap() functions are simpler wrappers for
-    setting text and image data respectively.
-*/
-void QClipboard::setData( QMimeSource* src )
+void QClipboard::setData( QMimeSource* src, Mode mode )
 {
     Atom atom, sentinel_atom;
     QClipboardData *d;
-
-    if (inSelectionMode) {
+    switch ( mode ) {
+    case Selection:
 	atom = XA_PRIMARY;
 	sentinel_atom = qt_selection_sentinel;
 	d = selectionData();
-    } else {
+	break;
+
+    case Clipboard:
 	atom = qt_xa_clipboard;
 	sentinel_atom = qt_clipboard_sentinel;
 	d = clipboardData();
+	break;
+
+    default:
+#ifdef QT_CHECK_RANGE
+	qWarning( "QClipboard::data: invalid mode '%d'", mode );
+#endif // QT_CHECK_RANGE
+	return;
     }
 
     setupOwner();
@@ -1094,7 +1122,7 @@ void QClipboard::setData( QMimeSource* src )
     Display *dpy   = owner->x11Display();
 
     d->setSource( src );
-    if (inSelectionMode)
+    if ( mode == Selection )
 	emit selectionChanged();
     else
 	emit dataChanged();

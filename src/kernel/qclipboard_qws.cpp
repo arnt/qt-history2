@@ -69,14 +69,14 @@ static QString qwsClipboardText()
     qwsInitClipboard();
     QPaintDevice::qwsDisplay()->getProperty( 0, TextClipboard, data, len );
     //    qDebug( "Property received: %d bytes", len );
-	
+
     QString s( (const QChar*)data, len/2 );
     //    qDebug( "Property received: '%s'", s.latin1());
     delete[] data;
     return s;
 }
 
-    
+
 static void qwsSetClipboardText( const QString& s )
 {
     qwsInitClipboard();
@@ -223,14 +223,18 @@ bool QClipboard::event( QEvent *e )
 }
 
 #ifndef QT_NO_MIMECLIPBOARD
-QMimeSource* QClipboard::data() const
+QMimeSource* QClipboard::data( Mode mode ) const
 {
+    if ( mode != Clipboard ) return 0;
+
     QClipboardData *d = clipboardData();
     return d->source();
 }
 
-void QClipboard::setData( QMimeSource* src )
+void QClipboard::setData( QMimeSource* src, Mode mode )
 {
+    if ( mode != Clipboard ) return;
+
     QClipboardData *d = clipboardData();
     setupOwner();
 
