@@ -38,12 +38,12 @@ public slots:
     void hideColumn(int column);
 
 protected slots:
-    void setHorizontalOffset(int value);
-    void columnWidthChanged(int col, int oldSize, int newSize);
+    void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void contentsChanged();
 
 protected:
+    void scrollContentsBy(int dx, int dy);
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -58,7 +58,7 @@ protected:
 
     QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
-    QRect selectionRect(const QItemSelection *selection) const;
+    QRect selectionRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);
     virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;

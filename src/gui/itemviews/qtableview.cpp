@@ -24,80 +24,80 @@ QTableView::~QTableView()
 
 void QTableView::setRowCount(int rows)
 {
-    table()->setRowCount(rows);
+    model()->setRowCount(rows);
 }
 
 void QTableView::setColumnCount(int columns)
 {
-    table()->setColumnCount(columns);
+    model()->setColumnCount(columns);
 }
 
 int QTableView::rowCount() const
 {
-    return table()->rowCount();
+    return model()->rowCount();
 }
 
 int QTableView::columnCount() const
 {
-    return table()->columnCount();
+    return model()->columnCount();
 }
 
 void QTableView::setText(int row, int column, const QString &text)
 {
-    table()->setText(row, column, text);
+    model()->setText(row, column, text);
 }
 
 void QTableView::setIconSet(int row, int column, const QIconSet &iconSet)
 {
-    table()->setIconSet(row, column, iconSet);
+    model()->setIconSet(row, column, iconSet);
 }
 
 QString QTableView::text(int row, int column) const
 {
-    return table()->text(row, column);
+    return model()->text(row, column);
 }
 
 QIconSet QTableView::iconSet(int row, int column) const
 {
-    return table()->iconSet(row, column);
+    return model()->iconSet(row, column);
 }
 
 void QTableView::setRowText(int row, const QString &text)
 {
-    table()->setRowText(row, text);
+    model()->setRowText(row, text);
 }
 
 void QTableView::setRowIconSet(int row, const QIconSet &iconSet)
 {
-    table()->setRowIconSet(row, iconSet);
+    model()->setRowIconSet(row, iconSet);
 }
 
 QString QTableView::rowText(int row) const
 {
-    return table()->rowText(row);
+    return model()->rowText(row);
 }
 
 QIconSet QTableView::rowIconSet(int row) const
 {
-    return table()->rowIconSet(row);
+    return model()->rowIconSet(row);
 }
 
 void QTableView::setColumnText(int column, const QString &text)
 {
-    table()->setColumnText(column, text);
+    model()->setColumnText(column, text);
 }
 
 void QTableView::setColumnIconSet(int column, const QIconSet &iconSet)
 {
-    table()->setColumnIconSet(column, iconSet);
+    model()->setColumnIconSet(column, iconSet);
 }
 
 QString QTableView::columnText(int column) const
 {
-    return table()->columnText(column);
+    return model()->columnText(column);
 }
 
 QIconSet QTableView::columnIconSet(int column) const
 {
-    return table()->columnIconSet(column);
+    return model()->columnIconSet(column);
 }

@@ -20,50 +20,50 @@ QTreeView::QTreeView(QTreeModel *model, QWidget *parent)
 
 void QTreeView::setColumnCount(int columns)
 {
-    tree()->setColumnCount(columns);
+    model()->setColumnCount(columns);
 }
 
 int QTreeView::columnCount() const
 {
-    return tree()->columnCount();
+    return model()->columnCount();
 }
 /*
 void QTreeView::setText(const QModelIndex &item, int column, const QString &text)
 {
-    tree()->setText(item, column, text);
+    model()->setText(item, column, text);
 }
 
 void QTreeView::setIconSet(const QModelIndex &item, int column, const QIconSet &iconSet)
 {
-    tree()->setIconSet(item, column, iconSet);
+    model()->setIconSet(item, column, iconSet);
 }
 
 QString QTreeView::text(const QModelIndex &item, int column) const
 {
-    return tree()->text(item, column);
+    return model()->text(item, column);
 }
 
 QIconSet QTreeView::iconSet(const QModelIndex &item, int column) const
 {
-    return tree()->iconSet(item, column);
+    return model()->iconSet(item, column);
 }
 */
 void QTreeView::setColumnText(int column, const QString &text)
 {
-    tree()->setColumnText(column, text);
+    model()->setColumnText(column, text);
 }
 
 void QTreeView::setColumnIconSet(int column, const QIconSet &iconSet)
 {
-    tree()->setColumnIconSet(column, iconSet);
+    model()->setColumnIconSet(column, iconSet);
 }
 
 QString QTreeView::columnText(int column) const
 {
-    return tree()->columnText(column);
+    return model()->columnText(column);
 }
 
 QIconSet QTreeView::columnIconSet(int column) const
 {
-    return tree()->columnIconSet(column);
+    return model()->columnIconSet(column);
 }

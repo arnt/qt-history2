@@ -329,6 +329,9 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 		    if (joined.at(j).left() <= column && joined.at(j).right() >= column
 			&& toggle.at(i).intersect(joined.at(j)).isValid())
 			return false;
+		}
+	    }
+	}
     }
     QModelIndex item;
     QList<QItemSelectionRange>::const_iterator it;
@@ -336,11 +339,12 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 	joined += d->currentSelection->ranges;
     for (int i = 0; i < model()->rowCount(parent); ++i) {
 	 item = model()->index(i, column, parent);
-	 for (it = joined.begin(); it != joined.end(); ++it)
+	 for (it = joined.begin(); it != joined.end(); ++it) {
 	     if ((*it).contains(item, model())) {
 		 i = (*it).bottom();
 		 break;
 	     }
+	 }
 	 if (it == joined.end())
 	     return false;
      }

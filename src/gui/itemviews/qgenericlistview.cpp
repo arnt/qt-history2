@@ -802,10 +802,10 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
     }
 }
 
-QRect QGenericListView::selectionRect(const QItemSelection *selection) const
+QRect QGenericListView::selectionRect(const QItemSelection &selection) const
 {
     // FIXME: slow temporary fix
-    QList<QModelIndex> items = selection->items(model());
+    QList<QModelIndex> items = selection.items(model());
     QList<QModelIndex>::iterator it = items.begin();
     QRect rect;
     for (; it != items.end(); ++it)

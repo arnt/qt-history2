@@ -61,8 +61,6 @@ QGenericHeader *QGenericTableView::leftHeader() const
 void QGenericTableView::setTopHeader(QGenericHeader *header)
 {
     if (d->topHeader) {
-	QObject::disconnect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-			    this, SLOT(setHorizontalOffset(int)));
 	QObject::disconnect(d->topHeader,SIGNAL(sectionSizeChanged(int,int,int)),
 			    this, SLOT(columnWidthChanged(int,int,int)));
 	QObject::disconnect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -75,8 +73,6 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 
     d->topHeader = header;
 
-    QObject::connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-		     this, SLOT(setHorizontalOffset(int)));
     QObject::connect(d->topHeader,SIGNAL(sectionSizeChanged(int,int,int)),
 		     this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->topHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -94,8 +90,8 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
     if (d->leftHeader) {
-	disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)),
-		   this, SLOT(setVerticalOffset(int)));
+// 	disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)),
+// 		   this, SLOT(setVerticalOffset(int)));
 	disconnect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
 		   this, SLOT(rowHeightChanged(int,int,int)));
 	disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -108,8 +104,8 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 
     d->leftHeader = header;
 
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
-	    this, SLOT(setVerticalOffset(int)));
+//     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
+// 	    this, SLOT(setVerticalOffset(int)));
     connect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
 	    this, SLOT(rowHeightChanged(int,int,int)));
     connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -122,6 +118,23 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
     // FIXME: this needs to be set in setSelectionModel too
     d->leftHeader->setSelectionModel(selectionModel());
     //rowCountChanged(0, d->leftHeader->count());
+}
+
+void QGenericTableView::scrollContentsBy(int dx, int dy)
+{
+    if (dx) { // horizontal
+	int value = horizontalScrollBar()->value();
+	int column = value / horizontalFactor();
+	int left = (value % horizontalFactor()) * columnWidth(column);
+	d->topHeader->setOffset((left / horizontalFactor()) + d->topHeader->sectionPosition(column));
+    }
+    if (dy) { // vetical
+	int value = verticalScrollBar()->value();
+	int row = value / verticalFactor();
+	int above = (value % verticalFactor()) * rowHeight(row);
+	d->leftHeader->setOffset((above / verticalFactor()) + d->leftHeader->sectionPosition(row));
+    }
+    QViewport::scrollContentsBy(dx, dy);
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
@@ -278,7 +291,7 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
     selectionModel()->select(new QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
-QRect QGenericTableView::selectionRect(const QItemSelection *selection) const
+QRect QGenericTableView::selectionRect(const QItemSelection &selection) const
 {
     // We only care about the root level in the model.
     // Also, as the table displays the items as they are stored in the model,
@@ -290,8 +303,8 @@ QRect QGenericTableView::selectionRect(const QItemSelection *selection) const
     int right = 0;
     int rangeTop, rangeLeft, rangeBottom, rangeRight;
     int i;
-    for (i = 0; i < selection->ranges.count(); ++i) {
-        QItemSelectionRange r = selection->ranges.at(i);
+    for (i = 0; i < selection.ranges.count(); ++i) {
+        QItemSelectionRange r = selection.ranges.at(i);
 	if (r.parent().isValid())
 	    continue; // FIXME: table don't know about anything but toplevel items
 	rangeTop = d->leftHeader->index(r.top());
@@ -368,22 +381,6 @@ void QGenericTableView::updateGeometries()
     if (w < 0)
  	max += (horizontalFactor() * -w / d->topHeader->sectionSize(col));
     horizontalScrollBar()->setRange(0, max);
-}
-
-void QGenericTableView::setHorizontalOffset(int value)
-{
-    int column = value / horizontalFactor();
-    int left = (value % horizontalFactor()) * columnWidth(column);
-    d->topHeader->setOffset((left / horizontalFactor()) +
-			    d->topHeader->sectionPosition(column));
-}
-
-void QGenericTableView::setVerticalOffset(int value)
-{
-    int row = value / verticalFactor();
-    int above = (value % verticalFactor()) * rowHeight(row);
-    d->leftHeader->setOffset((above / verticalFactor()) +
-			     d->leftHeader->sectionPosition(row));
 }
 
 int QGenericTableView::rowSizeHint(int row) const

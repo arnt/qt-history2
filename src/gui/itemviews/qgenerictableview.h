@@ -53,10 +53,10 @@ protected slots:
     void columnWidthChanged(int column, int oldWidth, int newWidth);
     void rowCountChanged(int oldCount, int newCount);
     void columnCountChanged(int oldCount, int newCount);
-    void setHorizontalOffset(int value);
-    void setVerticalOffset(int value);
 
 protected:
+    void scrollContentsBy(int dx, int dy);
+    
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
     void paintEvent(QPaintEvent *e);
     
@@ -66,7 +66,7 @@ protected:
     void ensureItemVisible(const QModelIndex &item);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
-    QRect selectionRect(const QItemSelection *selection) const;
+    QRect selectionRect(const QItemSelection &selection) const;
 
     void updateGeometries();
 

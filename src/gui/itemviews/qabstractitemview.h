@@ -93,7 +93,7 @@ protected:
     inline void updateViewport() { viewport()->update(); }
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) = 0;
-    virtual QRect selectionRect(const QItemSelection *selection) const = 0;
+    virtual QRect selectionRect(const QItemSelection &selection) const = 0;
 
     virtual bool startEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);

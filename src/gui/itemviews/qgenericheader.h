@@ -103,7 +103,7 @@ protected:
     QRect itemViewportRect(const QModelIndex &item) const;
     QModelIndex item(int section) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
-    QRect selectionRect(const QItemSelection *selection) const;
+    QRect selectionRect(const QItemSelection &selection) const;
 };
 
 #endif

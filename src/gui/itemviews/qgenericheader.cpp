@@ -702,7 +702,7 @@ QModelIndex QGenericHeader::item(int section) const
     return model()->index(section, 0, 0, QModelIndex::VerticalHeader);
 }
 
-QRect QGenericHeader::selectionRect(const QItemSelection *selection) const
+QRect QGenericHeader::selectionRect(const QItemSelection &selection) const
 {
     QModelIndex bottomRight = model()->bottomRight(0);
     if (orientation() == Horizontal) {
@@ -710,8 +710,8 @@ QRect QGenericHeader::selectionRect(const QItemSelection *selection) const
 	int right = 0;
 	int rangeLeft, rangeRight;
         int i;
-	for (i = 0; i < selection->ranges.count(); ++i) {
-            QItemSelectionRange r = selection->ranges.at(i);
+	for (i = 0; i < selection.ranges.count(); ++i) {
+            QItemSelectionRange r = selection.ranges.at(i);
  	    if (r.parent().isValid())
  		continue; // we only know about toplevel items
 	    // FIXME an item inside the range may be the leftmost or rightmost
@@ -731,8 +731,8 @@ QRect QGenericHeader::selectionRect(const QItemSelection *selection) const
     int bottom = 0;
     int rangeTop, rangeBottom;
     int i;
-    for (i = 0; i < selection->ranges.count(); ++i) {
-        QItemSelectionRange r = selection->ranges.at(i);
+    for (i = 0; i < selection.ranges.count(); ++i) {
+        QItemSelectionRange r = selection.ranges.at(i);
  	if (r.parent().isValid())
  	    continue; // we only know about toplevel items
 	// FIXME an item inside the range may be the leftmost or rightmost

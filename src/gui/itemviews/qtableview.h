@@ -35,7 +35,7 @@ public:
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 
-    inline QTableModel *table() const { return ::qt_cast<QTableModel*>(model()); }
+    inline QTableModel *model() const { return ::qt_cast<QTableModel*>(model()); }
 };
 
 #endif

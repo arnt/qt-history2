@@ -20,7 +20,7 @@ public:
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
-    inline QListModel *list() const { return ::qt_cast<QListModel*>(model()); }
+    inline QListModel *model() const { return ::qt_cast<QListModel*>(model()); }
 };
 
 #endif // QLISTVIEW_H

@@ -17,20 +17,20 @@ QListView_::~QListView_()
 
 void QListView_::setText(int row, const QString &text)
 {
-    list()->setText(row, text);
+    model()->setText(row, text);
 }
 
 void QListView_::setIconSet(int row, const QIconSet &iconSet)
 {
-    list()->setIconSet(row, iconSet);
+    model()->setIconSet(row, iconSet);
 }
 
 QString QListView_::text(int row) const
 {
-    return list()->text(row);
+    return model()->text(row);
 }
 
 QIconSet QListView_::iconSet(int row) const
 {
-    return list()->iconSet(row);
+    return model()->iconSet(row);
 }
