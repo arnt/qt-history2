@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#78 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#79 $
 #
 # this is a massive hack, written very quickly
 #
@@ -241,12 +241,13 @@ sub processdocs {
 	{
 #print $1, " ", $2, " ", $3, " (", $4, ") ", $5, " <=> ", $6, "\n";
 	    $string = $6;
+	    $tryagain = $2 . "::" . $3;
 	    $_ = &manglefn( $1, $2, $3, $4, $5);
 	    if ($type{$_} eq "fn") {
 		sprintf("<a href=%s>%s</a>", $_, $string);
-	    } elsif (defined($anchor{$2 . "::" . $3})) {
+	    } elsif (defined($anchor{$tryagain})) {
 		sprintf("<a href=%s>%s</a>", 
-			$anchor{$2 . "::" . $3}, &html($string));
+			$anchor{$tryagain}, &html($string));
 	    } else {
 		print "SEX: ", $string, "\n";
 		sprintf("%s", $string);
@@ -306,6 +307,7 @@ sub processdocs {
 	$doc =~ s/>\.\n$/>\n/s;
 
 	$doc =~ s-\s*\n\s*\n(?:\s|(?:<p>))*-\n<p>-gs;
+	$doc =~ s-^(?:<p>)+--s;
 	$doc =~ s/<linebreak>//gs;
 
 	undef %word;
@@ -759,9 +761,7 @@ sub readc {
 	    $overload = 0; # defeat too-cool switch optimizer
 	    if ($doc =~ /^\\overload\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
-		$doc = "This is a convenience version of this function\n"
-		    . "which casts its arguments and then calls the real\n"
-		    . "implementation.\n\n" . $2;
+		$doc = "This is an overloaded member function, provided for convenience.  It differs from the above function only what argument(s) it takes.\n\n" . $2;
 		$overload = 1;
 	    } elsif ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
@@ -1211,7 +1211,7 @@ sub printclass {
 			      "><strong>", &html($f), 
 			      "</strong></a> (", &html($a), 
 			      ") ", $c);
-		    $fndocs{$u}++;
+		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
 		        " (",$a,") ", $c, "\n" if ($errmsg++<$maxerr);
@@ -1238,7 +1238,7 @@ sub printclass {
 		if ($type{$u} eq "fn") {
 		    $_ = join("", "operator <a href=", $u, "><strong>",
 			      &html($r), "</strong></a> ()", $c);
-		    $fndocs{$u}++;
+		    $fndocs{$u} = $mode;
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
 		        " () ", $c, "\n" if ($errmsg++<$maxerr);
@@ -1274,10 +1274,17 @@ sub printclass {
 	$documented{$url}++;
 	$countdoc++;
 
-	my ($name, $class, $reimp);
+	my ($name, $class, $reimp, $protection);
 	$class = $url;
 	$class =~ s/\#.*//;
 	$class = $name{$class} . "::";
+	$protection = lc $fndocs{$url};
+	$protection =~ s/s$//;
+	if ($protection eq "public") {
+	    $protection = "";
+	} else {
+	    $protection = " <code>" . $protection . "</code>";
+	}
 	$_ = $def{$url};
 	if ( /$class/ ) {
 	    $name = $url;
@@ -1286,7 +1293,7 @@ sub printclass {
 	    $fnheader = "";
 	    $fntail = "\n";
 	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
-	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
+	    print O "<p><h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
 	    $name = $name{$url};
 	    $class = $name;
