@@ -4945,9 +4945,10 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   \code
   QDomDocument doc( "mydocument" );
   QFile f( "mydocument.xml" );
-  f.open( IO_ReadOnly );
+  if ( !f.open( IO_ReadOnly ) )
+      return;
   doc.setContent( &f );
-  f.close()
+  f.close();
 
   // print out the element names of all elements that are a direct child
   // of the outermost element.
@@ -4957,7 +4958,7 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   while( !n.isNull() ) {
       QDomElement e = n.toElement(); // try to convert the node to an element.
       if( !e.isNull() ) { // the node was really an element.
-          cout << n.tagName() << endl;
+          cout << e.tagName() << endl;
       }
       n = n.nextSibling();
   }
