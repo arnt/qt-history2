@@ -814,7 +814,10 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
-    return toUnicode(a.data(),len);
+    int l = a.size();
+    if( l > 0 && a.data()[l] == '\0' ) l--;
+    l = QMIN( l, len );
+    return toUnicode( a.data(), l );
 }
 
 /*!
@@ -822,7 +825,9 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
-    return toUnicode(a.data(),a.size());
+    int l = a.size();
+    if( l > 0 && a.data()[l] == '\0' ) l--;
+    return toUnicode( a.data(), l );
 }
 
 /*!
