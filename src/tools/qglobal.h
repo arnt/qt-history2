@@ -1075,7 +1075,7 @@ class QTypeInfo
 {
 public:
     enum {
-	isPointer = (1 == sizeof(QTypeInfoNoPartialSpecializationHelper((T(*)())0))),
+	isPointer = (1 == sizeof(QTypeInfoHelper((T(*)())0))),
 	isComplex = !isPointer,
 	isStatic  = !isPointer,
 	isLarge   = (sizeof(T)>sizeof(void*))
@@ -1101,8 +1101,8 @@ enum { // TYPEINFO flags
 };
 
 #define Q_DECLARE_TYPEINFO(TYPE, FLAGS)					       		\
-template <> inline void qInit(TYPE &) { }				       		\
-template <> inline void qDelete(TYPE &) { }				       		\
+template <> inline void qInit<TYPE>(TYPE &) { }				       		\
+template <> inline void qDelete<TYPE>(TYPE &) { }				       	\
 template <>								       		\
 class QTypeInfo<TYPE>									\
 {											\
@@ -1125,7 +1125,7 @@ public:											\
   to work.
 */
 #define Q_DECLARE_SHARED(TYPE) \
-template <> inline bool qIsDetached(TYPE &t) {  return t.isDetached(); }
+template <> inline bool qIsDetached<TYPE>(TYPE &t) {  return t.isDetached(); }
 
 /*
   QTypeInfo primitive specializations
@@ -1141,6 +1141,7 @@ Q_DECLARE_TYPEINFO(unsigned char, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(bool, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
+/*
 Q_DECLARE_TYPEINFO(const long, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const int, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const short, Q_PRIMITIVE_TYPE);
@@ -1152,17 +1153,16 @@ Q_DECLARE_TYPEINFO(const unsigned char, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const bool, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const double, Q_PRIMITIVE_TYPE);
-
+*/
 /*
   void*, const void* and function pointers are special, since deleting
   them is undefined.
 */
-template <> inline void qDelete(const void *&) { }
-template <> inline void qDelete(void *&) { }
+template <> inline void qDelete<void*>(void *&) { }
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
-template <> inline void qDelete(QFunctionPointer &) { }
-template <> inline void qDelete(QFunctionPointerWithArgs &) { }
+template <> inline void qDelete<QFunctionPointer>(QFunctionPointer &) { }
+template <> inline void qDelete<QFunctionPointerWithArgs>(QFunctionPointerWithArgs &) { }
 
 
 void *qMalloc(size_t size);
