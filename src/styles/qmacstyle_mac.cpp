@@ -509,7 +509,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE,
 					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
 	    ((QMacPainter *)p)->setport();
-	    if(pe == PE_PanelLineEdit)
+	    if(pe == PE_PanelLineEdit) 
 		DrawThemeEditTextFrame(rect, tds);
 	    else
 		DrawThemeListBoxFrame(rect, tds);
@@ -1197,8 +1197,9 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	break; }
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
-	if(sub & SC_SpinWidgetFrame)
-	    drawPrimitive(PE_PanelLineEdit, p, r, cg, Style_Sunken);
+	if(sub & SC_SpinWidgetFrame) 
+	    drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame), 
+			  cg, Style_Sunken);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
 		tds = kThemeStateUnavailable;
