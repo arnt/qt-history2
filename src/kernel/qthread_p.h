@@ -323,7 +323,7 @@ public:
 #ifdef QT_CHECK_RANGE
 	    qWarning("Mutex unlocked from different thread than locker");
 	    qWarning("               was locked by %d, unlock attempt from %d",
-		     owner, QThread::currentThread());
+		     (int)owner, (int)QThread::currentThread());
 	    mutex_unlock(&mutex2);
 #endif
 
