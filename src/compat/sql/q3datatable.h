@@ -58,7 +58,7 @@ public:
 			    const QString& label = QString::null,
 			    int width = -1,
 			    const QIconSet& iconset = QIconSet() );
-    virtual void removeColumn( uint col );
+    virtual void removeColumn( int col );
     virtual void setColumn( uint col, const QString& fieldName,
 			    const QString& label = QString::null,
 			    int width = -1,
@@ -191,6 +191,7 @@ private slots:
     void	 doUpdateCurrent();
 
 private:
+    void         drawContents( QPainter *p);
     QString	 fieldToString( const QSqlField * field );
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );

@@ -320,7 +320,7 @@ void Q3DataTable::setColumn( uint col, const QString& fieldName,
     \sa QSqlField
 */
 
-void Q3DataTable::removeColumn( uint col )
+void Q3DataTable::removeColumn( int col )
 {
     if ( d->fld.begin() + col != d->fld.end() ) {
 	d->fld.remove( d->fld.at( col ) );
@@ -2193,6 +2193,13 @@ void Q3DataTable::drawContents( QPainter * p, int cx, int cy, int cw, int ch )
     Q3Table::drawContents( p, cx, cy, cw, ch );
     if ( sqlCursor() && currentRow() >= 0 )
 	sqlCursor()->seek( currentRow() );
+}
+
+/*!
+    \reimp
+ */
+void Q3DataTable::drawContents(QPainter *)
+{
 }
 
 /*!
