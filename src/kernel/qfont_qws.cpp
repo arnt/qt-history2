@@ -146,59 +146,41 @@ void QFontPrivate::load()
   QFontMetrics member functions
  *****************************************************************************/
 
-
-QFontEngine *QFontMetrics::internal() const
-{
-    if (painter) {
-        painter->cfont.d->load();
-        return painter->cfont.d->fin;
-    } else {
-        return d->fin;
-    }
-}
-
-// How to calculate metrics from ink and logical rectangles.
-#define LBEARING(i,l) (i.x+l.x)
-#define RBEARING(i,l) (i.width-l.width)
-#define ASCENT(i,l) (-i.y)
-#define DESCENT(i,l) (i.height+i.y-1)
-
-
 int QFontMetrics::ascent() const
 {
-    return internal()->ascent();
+    return d->fin->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return internal()->descent();
+    return d->fin->descent();
 }
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-    return memorymanager->inFont(((QFontMetrics*)this)->internal()->handle(),ch);
+    return memorymanager->inFont(((QFontMetrics*)this)->d->fin->handle(),ch);
 }
 
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->bearingx;
+    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch)->bearingx;
 }
 
 
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch);
+    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch);
     return metrics->advance - metrics->width - metrics->bearingx;
 }
 
 int QFontMetrics::minLeftBearing() const
 {
-    return internal()->minLeftBearing();
+    return d->fin->minLeftBearing();
 }
 
 int QFontMetrics::minRightBearing() const
 {
-    return internal()->minRightBearing();
+    return d->fin->minRightBearing();
 }
 
 int QFontMetrics::height() const
@@ -208,7 +190,7 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    return internal()->leading();
+    return d->fin->leading();
 }
 
 int QFontMetrics::lineSpacing() const
@@ -218,7 +200,6 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    // #### painter!
     QTextEngine layout( str,  d );
     layout.itemize( FALSE );
     int w = layout.width( pos, 1 );
@@ -228,7 +209,7 @@ int QFontMetrics::width( QChar ch ) const
 {
     if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 
-    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->advance;
+    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch)->advance;
 }
 
 int QFontMetrics::width( const QString &str, int len ) const
@@ -248,12 +229,12 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    return internal()->maxCharWidth();
+    return d->fin->maxCharWidth();
 }
 
 int QFontMetrics::underlinePos() const
 {
-    return internal()->underlinePos();
+    return d->fin->underlinePos();
 }
 
 int QFontMetrics::strikeOutPos() const
@@ -263,7 +244,7 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    return internal()->lineWidth();
+    return d->fin->lineWidth();
 }
 
 

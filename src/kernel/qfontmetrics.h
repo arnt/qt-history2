@@ -96,10 +96,6 @@ public:
 private:
     QFontMetrics( const QPainter * );
 
-#if defined(Q_WS_QWS)
-    QFontEngine *internal() const;
-#endif
-
     friend class QWidget;
     friend class QPainter;
     friend class QTextFormat;
