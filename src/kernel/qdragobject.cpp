@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#7 $
 **
 ** C++ file skeleton
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#7 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -141,7 +141,7 @@ void QDragData::Manager::move( const QPoint & globalPos )
     bool a = TRUE;
 
     int lx, ly;
-    QWidget * w
+    QWidget * w;
 #if defined( _WS_X11_ )
     Window target;
     if ( !XTranslateCoordinates(qt_xdisplay(), qt_xrootwin(), qt_xrootwin(),
