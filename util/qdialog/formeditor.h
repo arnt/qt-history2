@@ -24,7 +24,9 @@ public:
 
   QWidget* widget() { return m_widget; }
 
+  void startMove();
   void move( int _orientation, int _dx, int _dy );
+  void endMove();
 
   void update() { updateSizeHandles(); }
 
@@ -35,6 +37,7 @@ private:
   QWidget* m_widget;
   QWidget* m_sizeHandles[8];
   bool m_selected;
+  QRect m_originalGeometry;  // Used during move
 };
 
 class DSizeHandle : public QWidget
@@ -125,6 +128,7 @@ public:
   void addWidget( QWidget* _w );
 
   void unselectAll() { selectObjectExclusive( 0 ); }
+  void updateSizeHandles();
 
   DObjectInfo* findInfo( QObject* _o ) { return m_widgets.find( _o ); }
 

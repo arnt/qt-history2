@@ -1,6 +1,6 @@
 #include "widgetinfo.h"
 
-#include <qressource.h>
+#include <qresource.h>
 
 DWidgetInfo::DWidgetInfo( const QString& _class, const QPixmap& _pixmap, const QString& _tooltip )
 {
@@ -11,7 +11,7 @@ DWidgetInfo::DWidgetInfo( const QString& _class, const QPixmap& _pixmap, const Q
 
 QSize DWidgetInfo::sizeHint() const
 {
-  QWidget* w = QRessourceFactory::factory()->createWidget( m_className, 0 );
+  QWidget* w = QResourceFactory::factory()->createWidget( m_className, 0 );
   ASSERT( w );
   QSize s = w->sizeHint();
   delete w;

@@ -2,7 +2,7 @@
 
 #include <qlayout.h>
 #include <qpainter.h>
-#include <qressource.h>
+#include <qresource.h>
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qvaluelist.h>
@@ -253,6 +253,16 @@ void DFormEditor::slotApplySizeHint()
   }
 }
 
+void DFormEditor::updateSizeHandles()
+{
+  // Check wether all selected widgets have the same parent
+  QObject* p = 0;
+  QPtrDictIterator<DObjectInfo> it( m_widgets );
+  for( ; it.current(); ++it )
+    if ( it.current()->isSelected() )
+      it.current()->update();
+}
+
 /**********************************************
  *
  * DObjectInfo
@@ -274,91 +284,98 @@ DObjectInfo::~DObjectInfo()
       delete m_sizeHandles[i];
 }
 
+void DObjectInfo::startMove()
+{
+  m_originalGeometry = m_widget->geometry();
+}
+
+void DObjectInfo::endMove()
+{
+}
+
 void DObjectInfo::move( int _orientation, int _dx, int _dy )
 {
   switch( _orientation )
   {
   case 0:
     if ( _dx < 0 )
-      _dx = QMAX( _dx, m_widget->width() - m_widget->maximumWidth() );
+      _dx = QMAX( _dx, m_originalGeometry.width() - m_widget->maximumWidth() );
     else
-      _dx = QMIN( _dx, m_widget->width() - QMAX( 1, m_widget->minimumWidth() ) );
+      _dx = QMIN( _dx, m_originalGeometry.width() - QMAX( 1, m_widget->minimumWidth() ) );
     if ( _dy < 0 )
-      _dy = QMAX( _dy, m_widget->height() - m_widget->maximumHeight() );
+      _dy = QMAX( _dy, m_originalGeometry.height() - m_widget->maximumHeight() );
     else
-      _dy = QMIN( _dy, m_widget->height() - QMAX( 1, m_widget->minimumHeight() ) );
-    debug("Moving by %i %i", _dx, _dy );
-    debug("width=%i minw=%i", m_widget->height(), m_widget->minimumHeight() );
-    m_widget->setGeometry( m_widget->x() + _dx, m_widget->y() + _dy,
-			   m_widget->width() - _dx, m_widget->height() - _dy );
+      _dy = QMIN( _dy, m_originalGeometry.height() - QMAX( 1, m_widget->minimumHeight() ) );
+    m_widget->setGeometry( m_originalGeometry.x() + _dx, m_originalGeometry.y() + _dy,
+			   m_originalGeometry.width() - _dx, m_originalGeometry.height() - _dy );
     break;
   case 1:
     if ( _dy < 0 )
-      _dy = QMAX( _dy, m_widget->height() - m_widget->maximumHeight() );
+      _dy = QMAX( _dy, m_originalGeometry.height() - m_widget->maximumHeight() );
     else
-      _dy = QMIN( _dy, m_widget->height() - QMAX( 1, m_widget->minimumHeight() ) );
-    m_widget->setGeometry( m_widget->x(), m_widget->y() + _dy,
-			   m_widget->width(), m_widget->height() - _dy );
+      _dy = QMIN( _dy, m_originalGeometry.height() - QMAX( 1, m_widget->minimumHeight() ) );
+    m_widget->setGeometry( m_originalGeometry.x(), m_originalGeometry.y() + _dy,
+			   m_originalGeometry.width(), m_originalGeometry.height() - _dy );
     break;
   case 2:
     if ( _dx > 0 )
-      _dx = QMIN( _dx, m_widget->maximumWidth() - m_widget->width() );
+      _dx = QMIN( _dx, m_widget->maximumWidth() - m_originalGeometry.width() );
     else
-      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_widget->width() );
+      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_originalGeometry.width() );
     if ( _dy < 0 )
-      _dy = QMAX( _dy, m_widget->height() - m_widget->maximumHeight() );
+      _dy = QMAX( _dy, m_originalGeometry.height() - m_widget->maximumHeight() );
     else
-      _dy = QMIN( _dy, m_widget->height() - QMAX( 1, m_widget->minimumHeight() ) );
-    m_widget->setGeometry( m_widget->x(), m_widget->y() + _dy,
-			   m_widget->width() + _dx, m_widget->height() - _dy );
+      _dy = QMIN( _dy, m_originalGeometry.height() - QMAX( 1, m_widget->minimumHeight() ) );
+    m_widget->setGeometry( m_originalGeometry.x(), m_originalGeometry.y() + _dy,
+			   m_originalGeometry.width() + _dx, m_originalGeometry.height() - _dy );
     break;
   case 3:
     if ( _dx > 0 )
-      _dx = QMIN( _dx, m_widget->maximumWidth() - m_widget->width() );
+      _dx = QMIN( _dx, m_widget->maximumWidth() - m_originalGeometry.width() );
     else
-      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_widget->width() );
-    m_widget->setGeometry( m_widget->x(), m_widget->y(),
-			   m_widget->width() + _dx, m_widget->height() );
+      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_originalGeometry.width() );
+    m_widget->setGeometry( m_originalGeometry.x(), m_originalGeometry.y(),
+			   m_originalGeometry.width() + _dx, m_originalGeometry.height() );
     break;
   case 4:
     if ( _dx > 0 )
-      _dx = QMIN( _dx, m_widget->maximumWidth() - m_widget->width() );
+      _dx = QMIN( _dx, m_widget->maximumWidth() - m_originalGeometry.width() );
     else
-      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_widget->width() );
+      _dx = QMAX( _dx, QMAX( 1, m_widget->minimumWidth() ) - m_originalGeometry.width() );
     if ( _dy > 0 )
-      _dy = QMIN( _dy, m_widget->maximumHeight() - m_widget->height() );
+      _dy = QMIN( _dy, m_widget->maximumHeight() - m_originalGeometry.height() );
     else
-      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_widget->height() );
-    m_widget->setGeometry( m_widget->x(), m_widget->y(),
-			   m_widget->width() + _dx, m_widget->height() + _dy );
+      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_originalGeometry.height() );
+    m_widget->setGeometry( m_originalGeometry.x(), m_originalGeometry.y(),
+			   m_originalGeometry.width() + _dx, m_originalGeometry.height() + _dy );
     break;
   case 5:
     if ( _dy > 0 )
-      _dy = QMIN( _dy, m_widget->maximumHeight() - m_widget->height() );
+      _dy = QMIN( _dy, m_widget->maximumHeight() - m_originalGeometry.height() );
     else
-      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_widget->height() );
-    m_widget->setGeometry( m_widget->x(), m_widget->y(),
-			   m_widget->width(), m_widget->height() + _dy );
+      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_originalGeometry.height() );
+    m_widget->setGeometry( m_originalGeometry.x(), m_originalGeometry.y(),
+			   m_originalGeometry.width(), m_originalGeometry.height() + _dy );
     break;
   case 6:
     if ( _dx < 0 )
-      _dx = QMAX( _dx, m_widget->width() - m_widget->maximumWidth() );
+      _dx = QMAX( _dx, m_originalGeometry.width() - m_widget->maximumWidth() );
     else
-      _dx = QMIN( _dx, m_widget->width() - QMAX( 1, m_widget->minimumWidth() ) );
+      _dx = QMIN( _dx, m_originalGeometry.width() - QMAX( 1, m_widget->minimumWidth() ) );
     if ( _dy > 0 )
-      _dy = QMIN( _dy, m_widget->maximumHeight() - m_widget->height() );
+      _dy = QMIN( _dy, m_widget->maximumHeight() - m_originalGeometry.height() );
     else
-      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_widget->height() );
-    m_widget->setGeometry( m_widget->x() + _dx, m_widget->y(),
-			   m_widget->width() - _dx, m_widget->height() + _dy );
+      _dy = QMAX( _dy, QMAX( 1, m_widget->minimumHeight() ) - m_originalGeometry.height() );
+    m_widget->setGeometry( m_originalGeometry.x() + _dx, m_originalGeometry.y(),
+			   m_originalGeometry.width() - _dx, m_originalGeometry.height() + _dy );
     break;
   case 7:
     if ( _dx < 0 )
-      _dx = QMAX( _dx, m_widget->width() - m_widget->maximumWidth() );
+      _dx = QMAX( _dx, m_originalGeometry.width() - m_widget->maximumWidth() );
     else
-      _dx = QMIN( _dx, m_widget->width() - QMAX( 1, m_widget->minimumWidth() ) );
-    m_widget->setGeometry( m_widget->x() + _dx, m_widget->y(),
-			   m_widget->width() - _dx, m_widget->height() );
+      _dx = QMIN( _dx, m_originalGeometry.width() - QMAX( 1, m_widget->minimumWidth() ) );
+    m_widget->setGeometry( m_originalGeometry.x() + _dx, m_originalGeometry.y(),
+			   m_originalGeometry.width() - _dx, m_originalGeometry.height() );
     break;
   default:
     ASSERT( 0 );
@@ -399,7 +416,8 @@ void DObjectInfo::setSelected( bool _mode )
 
 void DObjectInfo::updateSizeHandles()
 {
-  ASSERT( m_selected );
+  if ( !m_selected )
+    return;
 
   int x = m_widget->x();
   int y = m_widget->y();
@@ -469,8 +487,8 @@ void DSizeHandle::mousePressEvent( QMouseEvent* _ev )
   if ( !m_active )
     return;
 
-  // m_mousePos = mapToGlobal( _ev->pos() );
-  m_mousePos = _ev->pos();
+  m_mousePos = _ev->globalPos();
+  m_info->startMove();
 }
 
 void DSizeHandle::mouseMoveEvent( QMouseEvent* _ev )
@@ -478,19 +496,17 @@ void DSizeHandle::mouseMoveEvent( QMouseEvent* _ev )
   if ( !m_active )
     return;
 
-  //  QPoint p = mapToGlobal( _ev->pos() );
-  QPoint p = _ev->pos();
+  QPoint p = _ev->globalPos();
 
   int dx = p.x() - m_mousePos.x();
   int dy = p.y() - m_mousePos.y();
 
   m_info->move( m_orientation, dx, dy );
-
-  // m_mousePos = p;
 }
 
 void DSizeHandle::mouseReleaseEvent( QMouseEvent* _ev )
 {
+  m_info->endMove();
 }
 
 /**********************************************
@@ -558,7 +574,7 @@ void DFormWidget::dropEvent( QDropEvent *_ev )
 {
   m_drag = FALSE;
 
-  QWidget* w = QRessourceFactory::factory()->createWidget( m_dragInfo.className, this );
+  QWidget* w = QResourceFactory::factory()->createWidget( m_dragInfo.className, this );
   ASSERT( w != 0 );
   
   m_editor->addWidget( w );
@@ -841,6 +857,8 @@ void DFormWidget::setLayout( DFormWidget::Layout _l, bool _force )
   }
 
   m_layout = _l;
+
+  m_editor->updateSizeHandles();
 }
 
 void DFormWidget::slotAlignVertical()
