@@ -1016,7 +1016,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	    pat->im = new QMacPattern::ImageConv;
 	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
 	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaOnly,
+	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaNone,
 					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
 	}
     } else {
