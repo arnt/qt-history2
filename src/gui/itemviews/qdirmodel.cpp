@@ -860,7 +860,7 @@ QString QDirModel::path(const QModelIndex &index) const
     pth = fileInfo(index).absoluteFilePath();
     if (pth.isEmpty()) // FIXME: this is a wokraround for a bug in QDir
         return "/";
-    return pth;
+    return QDir::cleanDirPath(pth);
 }
 
 /*!

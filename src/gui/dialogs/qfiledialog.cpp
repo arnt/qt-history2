@@ -239,7 +239,7 @@ static int qt_combo_insert_unique(QComboBox *combo, const QString &text)
         return -1;
     QListBox *box = combo->listBox();
     QListBoxItem *itm = box->findItem(text, Qt::ExactMatch);
-    if (itm)
+    if (itm && itm->text() == text) // FIXME: bug in findItem
         return box->index(itm);
     combo->insertItem(text);
     return combo->count() - 1;

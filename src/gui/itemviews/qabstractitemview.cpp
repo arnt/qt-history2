@@ -957,11 +957,11 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
 {
     QModelIndex edit;
 
-    if (d->shouldEdit(action, index)) {
+    if (index.isValid() && d->shouldEdit(action, index)) {
         edit = index;
     } else {
         QModelIndex buddy = d->model->buddy(index);
-        if (d->shouldEdit(action, buddy))
+        if (buddy.isValid() && d->shouldEdit(action, buddy))
             edit = buddy;
     }
 
