@@ -162,7 +162,6 @@ void QAlphaWidget::run( int time )
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
 	anim.start( 1 );
-	grabMouse();
     } else {
 	duration = 0;
 	render();
@@ -465,8 +464,6 @@ void QRollEffect::run( int time )
     if ( !widget )
 	return;
 
-    grabMouse();
-
     duration  = time;
     elapsed = 0;
 
@@ -596,14 +593,8 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
-    if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool |
-				  Qt::WX11BypassWM | Qt::WResizeNoErase |
-				  Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
-    else
-	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup |
-				  Qt::WResizeNoErase | Qt::WRepaintNoErase |
-				  Qt::WStyle_StaysOnTop, orient );
+    q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
+	Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
 
     q_roll->run( time );
 }
@@ -621,14 +612,8 @@ void qFadeEffect( QWidget* w, int time )
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
-    if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool |
-				    Qt::WX11BypassWM | Qt::WResizeNoErase |
-				    Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop );
-    else
-	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup |
-				    Qt::WResizeNoErase | Qt::WRepaintNoErase |
-				    Qt::WStyle_StaysOnTop);
+    q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
+	Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop);
 
     q_blend->run( time );
 }
