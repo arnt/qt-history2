@@ -89,6 +89,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.palette = q->palette();
     bool isCurrent = tab == currentIndex;
     opt.state = QStyle::Style_Default;
+    opt.row = 0;
     // must handle mouse down...
     if (isCurrent)
         opt.state |= QStyle::Style_Selected;

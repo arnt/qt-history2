@@ -78,6 +78,7 @@ struct QStyleOptionTab : public QStyleOption {
     QTabBar::Shape shape;
     QString text;
     QIconSet icon;
+    int row;
     QStyleOptionTab(int version) : QStyleOption(version, SO_Tab) {}
 };
 
