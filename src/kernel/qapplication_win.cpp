@@ -201,7 +201,6 @@ typedef struct tagTRACKMOUSEEVENT {
 #define WM_MOUSELEAVE                   0x02A3
 #endif
 
-extern "C" WINUSERAPI BOOL WINAPI _TrackMouseEvent( IN OUT LPTRACKMOUSEEVENT lpEventTrack);
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 static int translateButtonState( int s, int type, int button );
 
@@ -2475,14 +2474,23 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( curWin != winId() ) {		// new current window
 	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
-	    // We always have to set the tracking, since
-	    // Windows detects more leaves than we do..
-	    TRACKMOUSEEVENT tme;
-	    tme.cbSize = sizeof(TRACKMOUSEEVENT);
-	    tme.dwFlags = 0x00000002; // TME_LEAVE
-	    tme.dwHoverTime = -1; // HOVER_DEFAULT
-	    tme.hwndTrack = curWin; // Track on window receiving msgs
-	    _TrackMouseEvent( &tme );
+	    static bool trackMouseEventLookup = FALSE;
+	    typedef BOOL (WINAPI *PtrTrackMouseEvent)(LPTRACKMOUSEEVENT);
+	    static PtrTrackMouseEvent ptrTrackMouseEvent = 0;
+	    if ( !trackMouseEventLookup ) {
+		trackMouseEventLookup = TRUE;
+		ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve( "comctl32", "_TrackMouseEvent" );
+	    }
+	    if ( ptrTrackMouseEvent ) {
+		// We always have to set the tracking, since
+		// Windows detects more leaves than we do..
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof(TRACKMOUSEEVENT);
+		tme.dwFlags = 0x00000002; // TME_LEAVE
+		tme.dwHoverTime = -1; // HOVER_DEFAULT
+		tme.hwndTrack = curWin; // Track on window receiving msgs
+		ptrTrackMouseEvent( &tme );
+	    }
 	}
 
 	POINT curPos;
