@@ -458,7 +458,10 @@ enum Position {
     Above,
     Below,
     Post,
-    Split
+    Split,
+    Base,
+    Reph,
+    Inherit
 };
 
 static const unsigned char indicPosition[0xe00-0x900] = {
@@ -918,6 +921,99 @@ const uchar scriptProperties[10] = {
     HasSplit
 };
 
+struct IndicOrdering {
+    Form form;
+    Position position;
+};
+
+static const IndicOrdering devanagari_order [] = {
+    { Consonant, Below },
+    { Matra, Below },
+    { VowelMark, Below },
+    { StressMark, Below },
+    { Matra, Above },
+    { Matra, Post },
+    { Consonant, Reph },
+    { VowelMark, Above },
+    { StressMark, Above },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering bengali_order [] = {
+    { Consonant, Below },
+    { Matra, Below },
+    { Matra, Above },
+    { Consonant, Reph },
+    { VowelMark, Above },
+    { Consonant, Post },
+    { Matra, Post },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering gurmukhi_order [] = {
+    { Consonant, Below },
+    { Matra, Below },
+    { Matra, Above },
+    { Consonant, Post },
+    { Matra, Post },
+    { VowelMark, Above },
+    { (Form)0, None }
+};
+
+static const IndicOrdering tamil_order [] = {
+    { Matra, Above },
+    { Matra, Post },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering telugu_order [] = {
+    { Matra, Above },
+    { Matra, Below },
+    { Matra, Post },
+    { Consonant, Below },
+    { Consonant, Post },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering kannada_order [] = {
+    { Matra, Above },
+    { Matra, Post },
+    { Consonant, Below },
+    { Consonant, Post },
+    { LengthMark, Post },
+    { Consonant, Reph },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering malayalam_order [] = {
+    { Consonant, Below },
+    { Matra, Below },
+    { Consonant, Reph },
+    { Consonant, Post },
+    { Matra, Post },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
+static const IndicOrdering * const indic_order[] = {
+    devanagari_order, // Devanagari
+    bengali_order, // Bengali
+    // Gurmukhi
+    devanagari_order, // Gujarati
+    bengali_order, // Oriya
+    tamil_order, // Tamil
+    telugu_order, // Telugu
+    kannada_order, // Kannada
+    malayalam_order, // Malayalam
+    devanagari_order // Sinhala // ### no OT specs available, we use devanagari
+};
+
+
 
 // vowel matras that have to be split into two parts.
 static const unsigned short bengali_o[2]  = { 0x9c7, 0x9be };
@@ -1021,10 +1117,10 @@ inline void splitMatra( int script, unsigned short *reordered, int matra, int &l
 #define IDEBUG if(0) qDebug
 #endif
 
-static void devanagari_shape( int script, const QString &string, int from, int syllableLength,
-			      QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
+static void indic_shape( int script, const QString &string, int from, int syllableLength,
+			 QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
 {
-    assert( script == QFont::Devanagari || script == QFont::Kannada );
+    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
     const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
     const unsigned short ra = script_base + 0x30;
     const unsigned short halant = script_base + 0x4d;
@@ -1039,10 +1135,13 @@ static void devanagari_shape( int script, const QString &string, int from, int s
     GlyphAttributes *glyphAttributes = ga;
     glyph_t gl[64];
     glyph_t *glyphs = gl;
+    unsigned char p[64];
+    unsigned char *position = p;
     if ( len > 60 ) {
 	reordered = (unsigned short *)malloc((len+4)*sizeof(unsigned short));
 	glyphAttributes = (GlyphAttributes *)malloc((len+4)*sizeof(GlyphAttributes));
 	glyphs = (glyph_t *)malloc((len+4)*sizeof(glyph_t));
+	position = (unsigned char*)malloc((len+4)*sizeof(unsigned char));
     }
 
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
@@ -1198,30 +1297,34 @@ static void devanagari_shape( int script, const QString &string, int from, int s
 	    }
 	}
 
-	// all reordering happens now to the chars after (base+(reph halant)_vattu?)
-	// so we move base to there
+	// Rule 5:
+	//
+	// Uniscribe classifies consonants and 'matra' parts as
+	// pre-base, above-base (Reph), below-base or post-base. This
+	// classification exists on the character code level and is
+	// language-dependent, not font-dependent.
+	for (int i = 0; i < base; ++i)
+	    position[i] = Pre;
+	position[base] = Base;
+	for (int i = base+1; i < len; ++i) {
+	    position[i] = indic_position(uc[i]);
+	    // #### replace by adjusting table
+	    if (uc[i] == nukta || uc[i] == halant)
+		position[i] = Inherit;
+	}
+	if (reph > 0) {
+	    position[reph] = Reph;
+	    position[reph+1] = Inherit;
+	}
+
+	// all reordering happens now to the chars after the base
 	int fixed = base+1;
 	if ( fixed < len && uc[fixed] == nukta )
 	    fixed++;
-	if ( fixed < len - 1 && uc[fixed] == ra && uc[fixed+1] == halant )
-	    fixed += 2;
 
 	// we continuosly position the matras and vowel marks and increase the fixed
 	// until we reached the end.
-	static struct {
-	    Form form;
-	    Position position;
-	} finalOrder [] = {
-	    { Matra, Below },
-	    { VowelMark, Below },
-	    { StressMark, Below },
-	    { Matra, Above },
-	    { Matra, Post },
-	    { VowelMark, Above },
-	    { StressMark, Above },
-	    { VowelMark, Post },
-	    { (Form)0, None }
-	};
+	const IndicOrdering *finalOrder = indic_order[script-QFont::Devanagari];
 
 	IDEBUG("    reordering pass:");
 	IDEBUG("        base=%d fixed=%d", base, fixed );
@@ -1230,15 +1333,35 @@ static void devanagari_shape( int script, const QString &string, int from, int s
 	    IDEBUG("        fixed = %d", fixed );
 	    for ( int i = fixed; i < len; i++ ) {
 		if ( form( uc[i] ) == finalOrder[toMove].form &&
-		     indic_position( uc[i] ) == finalOrder[toMove].position ) {
+		     position[i] == finalOrder[toMove].position ) {
 		    // need to move this glyph
 		    int to = fixed;
-		    IDEBUG("         moving from %d to %d", i,  to );
-		    unsigned short ch = uc[i];
-		    for ( int j = i; j > to; j-- )
-			uc[j] = uc[j-1];
-		    uc[to] = ch;
-		    fixed++;
+		    if (i < len-1 && position[i+1] == Inherit) {
+			IDEBUG("         moving two chars from %d to %d", i,  to );
+			unsigned short ch = uc[i];
+			unsigned short ch2 = uc[i+1];
+			unsigned char pos = position[i];
+			for ( int j = i+1; j > to+1; j-- ) {
+			    uc[j] = uc[j-2];
+			    position[j] = uc[j-2];
+			}
+			uc[to] = ch;
+			uc[to+1] = ch2;
+			position[to] = pos;
+			position[to+1] = pos;
+			fixed += 2;
+		    } else {
+			IDEBUG("         moving one char from %d to %d", i,  to );
+			unsigned short ch = uc[i];
+			unsigned char pos = position[i];
+			for ( int j = i; j > to; j-- ) {
+			    uc[j] = uc[j-1];
+			    position[j] = position[j-1];
+			}
+			uc[to] = ch;
+			position[to] = pos;
+			fixed++;
+		    }
 		}
 	    }
 	    toMove++;
@@ -1324,10 +1447,27 @@ static void devanagari_shape( int script, const QString &string, int from, int s
 	    openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'n' ));
 	}
 
-	openType->applyGPOSFeatures();
-
 	int newLen;
 	const int *char_map = openType->mapping(newLen);
+
+	// move the left matra back to it's correct position in malayalam and tamil
+	if ((script == QFont::Malayalam || script == QFont::Tamil) && (form(reordered[0]) == Matra)) {
+	    // need to find the base in the shaped string and move the matra there
+	    int prebase = 0;
+	    while (prebase < newLen && char_map[prebase] < base)
+		prebase++;
+	    if (prebase == newLen)
+		prebase = 0;
+	    if (prebase != 0) {
+		unsigned short *g = openType->glyphs();
+		unsigned short m = g[0];
+		for (int i = 0; i < prebase; ++i)
+		    g[i] = g[i+1];
+		g[prebase] = m;
+	    }
+	}
+
+	openType->applyGPOSFeatures();
 
 	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
 
@@ -1367,34 +1507,10 @@ static void devanagari_shape( int script, const QString &string, int from, int s
 	free(reordered);
 	free(glyphAttributes);
 	free(glyphs);
+	free(position);
     }
     IDEBUG("<<<<<<");
 }
-
-
-
-static void dummy_shape( int script, const QString &, int, int, QTextEngine *, QScriptItem *, QOpenType *, bool )
-{
-    assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-    // ######## implement dummy functionality, basically copiying the input to the script item
-}
-
-
-typedef void (*IndicShapeFunction)( int script, const QString &, int, int, QTextEngine *, QScriptItem *, QOpenType *opentype, bool );
-
-// these take only one syllable and append the shaped result to the script item
-IndicShapeFunction indic_shapeFn[QFont::Sinhala - QFont::Devanagari+1] = {
-    devanagari_shape,
-    dummy_shape,
-    dummy_shape,
-    dummy_shape,
-    dummy_shape,
-    dummy_shape,
-    dummy_shape,
-    devanagari_shape,
-    dummy_shape,
-    dummy_shape
-};
 
 
 /* syllables are of the form:
@@ -1483,7 +1599,6 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     si->num_glyphs = 0;
     int sstart = from;
     int end = sstart + len;
-    IndicShapeFunction shape = indic_shapeFn[script-QFont::Devanagari];
     QOpenType *openType = si->fontEngine->openType();
     if (openType && !openType->supportsScript(script))
 	openType = 0;
@@ -1491,9 +1606,9 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     while ( sstart < end ) {
 	bool invalid;
 	int send = indic_nextSyllableBoundary( script, string, sstart, end, &invalid );
- 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
+ 	IDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
  	       invalid ? "true" : "false" );
-	shape(script, string, sstart, send-sstart, engine, si, openType, invalid);
+	indic_shape(script, string, sstart, send-sstart, engine, si, openType, invalid);
 	sstart = send;
     }
 }
