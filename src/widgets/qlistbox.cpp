@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#93 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#93 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -110,9 +110,6 @@ static inline bool checkIndex( const char *method, int count, int index )
 	return pm.width() + lb->fontMetrics().width( text() ) + 6;
     }
   \endcode
-
-  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can 
-  get keyboard focus both by tabbing and clicking.
 
   \sa QListBox
 */
@@ -332,6 +329,9 @@ int QListBoxPixmap::width( const QListBox * ) const
 
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
+
+  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can 
+  get keyboard focus both by tabbing and clicking.
 
   New items may be inserted using either insertItem(), insertStrList()
   and inSort().
