@@ -842,6 +842,7 @@ uint QTextStream::ts_getline( QChar* buf )
 	    return rnum;
     }
 
+#ifndef QT_NO_TEXTCODEC
     if ( mapper ) {
 	if ( !d->decoder )
 	    d->decoder = mapper->makeDecoder();
@@ -884,7 +885,9 @@ uint QTextStream::ts_getline( QChar* buf )
 	    d->ungetcBuf.append( s.mid( i ) );
 	if ( rnum < getline_buf_size && dev->atEnd() )
 	    buf[rnum++] = QEOF;
-    } else if ( latin1 ) {
+    } else
+#endif
+    if ( latin1 ) {
 	int rlen = getline_buf_size - rnum;
 	rlen = dev->readLine( cbuf, rlen+1 );
 	if ( rlen == -1 )
