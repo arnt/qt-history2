@@ -1,6 +1,20 @@
 #include <qtextblockiterator.h>
 #include "qtextpiecetable_p.h"
 
+/*!
+    \class QTextBlockIterator qtextblockiterator.h
+    \brief The QTextBlockIterator class offers an API to access the block structure of QTextDocuments.
+
+    \ingroup text
+
+    A QTextBlockIterator is an object that provides read-only access to the
+    block/paragraph structure of QTextDocuments. It is mainly interesting if you want to
+    implement your own layouting for the visual representation of a QTextDocument.
+ */
+
+/*!
+    Returns the starting position of the block within the document.
+ */
 int QTextBlockIterator::position() const
 {
     if (!pt || !n)
@@ -9,6 +23,9 @@ int QTextBlockIterator::position() const
     return pt->blockMap().position(n);
 }
 
+/*!
+    Returns the length of the block in characters.
+ */
 int QTextBlockIterator::length() const
 {
     if (!pt || !n)
@@ -17,6 +34,9 @@ int QTextBlockIterator::length() const
     return pt->blockMap().size(n);
 }
 
+/*!
+    Returns true if the given position is located within the block.
+ */
 bool QTextBlockIterator::contains(int position) const
 {
     if (!pt || !n)
@@ -27,6 +47,10 @@ bool QTextBlockIterator::contains(int position) const
     return position >= pos && position < pos + len;
 }
 
+/*!
+    Returns a pointer to the QTextLayout that is used to layout and display the
+    block contents.
+ */
 QTextLayout *QTextBlockIterator::layout() const
 {
     if (!pt || !n)
@@ -80,6 +104,9 @@ QTextLayout *QTextBlockIterator::layout() const
     return b->layout;
 }
 
+/*!
+    Returns the QTextBlockFormat that describes block specific properties.
+ */
 QTextBlockFormat QTextBlockIterator::blockFormat() const
 {
     if (!pt || !n)
@@ -97,6 +124,9 @@ QTextCharFormat QTextBlockIterator::charFormat() const
     return pt->formatCollection()->charFormat(fm.fragment(fm.findNode(pt->blockMap().position(n)))->format);
 }
 
+/*!
+    Returns the paragraph of plain text the block holds.
+ */
 QString QTextBlockIterator::blockText() const
 {
     if (!pt || !n)
@@ -124,6 +154,12 @@ QString QTextBlockIterator::blockText() const
     return text;
 }
 
+/*!
+    Moves the iterator to the next block, unless it is already at the end of the
+    document.
+
+    \sa atEnd()
+ */
 QTextBlockIterator& QTextBlockIterator::operator++()
 {
     if (pt)
@@ -131,10 +167,19 @@ QTextBlockIterator& QTextBlockIterator::operator++()
     return *this;
 }
 
+/*!
+    Moves the iterator to the previous block, unless it is already at the beginning of the
+    document.
+ */
 QTextBlockIterator& QTextBlockIterator::operator--()
 {
     if (pt)
         n = pt->blockMap().prev(n);
     return *this;
 }
+
+/*! \fn bool QTextBlockIterator::atEnd() const
+
+    Returns true of the iterator is at the end of the document.
+ */
 
