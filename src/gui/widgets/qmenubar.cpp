@@ -239,7 +239,8 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     //calculate position
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q),
               vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
-    int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
+    int x = (start == -1) ? hmargin : start + itemSpacing;
+    int y = vmargin;
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
@@ -980,6 +981,15 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
         return false;
     }
 
+    if (object == d->leftWidget || object == d->rightWidget) {
+        switch (event->type()) {
+        case QEvent::ShowToParent:
+        case QEvent::HideToParent:
+            d->updateLayout();
+            break;
+        }
+    }
+
     if (style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this)) {
 
         if (d->altPressed) {
@@ -1180,20 +1190,23 @@ void QMenuBar::setCornerWidget(QWidget *w, Qt::Corner corner)
     Q_D(QMenuBar);
     switch (corner) {
     case Qt::TopLeftCorner:
-        if((d->leftWidget = w)) {
-            d->leftWidget->setParent(this);
-            connect(d->leftWidget, SIGNAL(destroyed()), SLOT(updateLayout()));
-        }
+        if (d->leftWidget)
+            d->leftWidget->removeEventFilter(this);
+        d->leftWidget = w;
         break;
     case Qt::TopRightCorner:
-        if((d->rightWidget = w)) {
-            d->rightWidget->setParent(this);
-            connect(d->rightWidget, SIGNAL(destroyed()), SLOT(updateLayout()));
-        }
+        if (d->rightWidget)
+            d->rightWidget->removeEventFilter(this);
+        d->rightWidget = w;
         break;
     default:
         qWarning("QMenuBar::setCornerWidget: Only TopLeftCorner and TopRightCorner are supported");
-        break;
+        return;
+    }
+
+    if (w) {
+        w->setParent(this);
+        w->installEventFilter(this);
     }
 
     d->updateLayout();
