@@ -1,5 +1,3 @@
-QT += gui
-
 HEADERS +=      gui/qsqlquerymodel.h \
                 gui/qsqlquerymodel_p.h \
                 gui/qsqltablemodel.h \
