@@ -2204,17 +2204,6 @@ void QWorkspaceChild::adjustToFullscreen()
     ((QWorkspaceChild*)childWidget)->setWState( WState_Maximized );
 }
 
-void QWorkspaceChild::adjustSize()
-{
-    ensurePolished();
-
-    QSize prefSize = windowWidget()->sizeHint().expandedTo( windowWidget()->minimumSizeHint() );
-    prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );
-    prefSize += baseSize();
-
-    resize( prefSize );
-}
-
 void QWorkspaceChild::setWindowTitle( const QString& cap )
 {
     if ( titlebar )
