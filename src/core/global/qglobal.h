@@ -1001,6 +1001,7 @@ class QDataStream;
 // System information
 //
 
+class QString;
 class Q_CORE_EXPORT QSysInfo {
 public:
     enum {
@@ -1061,6 +1062,7 @@ public:
     };
     static const MacVersion MacintoshVersion;
 #endif
+    static QString hostName();
 };
 
 Q_CORE_EXPORT const char *qVersion();
