@@ -471,7 +471,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             v = val.toUInt();
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0);
         } else if (opt == "SQL_ATTR_CURRENT_CATALOG") {
-            val.ucs2(); // 0 terminate
+            val.utf16(); // 0 terminate
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_CURRENT_CATALOG,
 #ifdef UNICODE
                                     (SQLWCHAR*) val.unicode(),
@@ -494,7 +494,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
             v = val.toUInt();
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_PACKET_SIZE, (SQLPOINTER) v, 0);
         } else if (opt == "SQL_ATTR_TRACEFILE") {
-            val.ucs2(); // 0 terminate
+            val.utf16(); // 0 terminate
             r = SQLSetConnectAttr(hDbc, SQL_ATTR_TRACEFILE,
 #ifdef UNICODE
                                     (SQLWCHAR*) val.unicode(),
@@ -1098,7 +1098,7 @@ bool QODBCResult::exec()
             case QCoreVariant::String:
                 if (d->unicode) {
                     QString str(val.toString());
-                    str.ucs2();
+                    str.utf16();
                     if (bindValueType(i) & QSql::Out) {
                         QByteArray ba((char*)str.constData(), str.capacity() * sizeof(QChar));
                         r = SQLBindParameter(d->hStmt,
@@ -1197,7 +1197,7 @@ bool QODBCResult::exec()
             case QCoreVariant::String:
                 if (d->unicode) {
                     if (bindValueType(i) & QSql::Out)
-                        values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().constData());
+                        values[i] = QString::fromUtf16((ushort*)tmpStorage.takeFirst().constData());
                     break;
                 }
                 // fall through

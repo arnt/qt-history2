@@ -64,7 +64,7 @@ public:
 static QString qFromTChar(SQLTCHAR* str)
 {
 #ifdef UNICODE
-    return QString::fromUcs2(str);
+    return QString::fromUtf16(str);
 #else
     return QString::fromLocal8Bit((const char*) str);
 #endif
@@ -75,7 +75,7 @@ static QString qFromTChar(SQLTCHAR* str)
 static SQLTCHAR* qToTChar(const QString& str)
 {
 #ifdef UNICODE
-    return (SQLTCHAR*)str.ucs2();
+    return (SQLTCHAR*)str.utf16();
 #else
     return (unsigned char*) str.ascii();
 #endif
@@ -685,7 +685,7 @@ bool QDB2Result::exec()
             {
                 QString str(values.at(i).toString());
                 if (bindValueType(i) & QSql::Out) {
-                    QByteArray ba((char*)str.ucs2(), str.capacity() * sizeof(QChar));
+                    QByteArray ba((char*)str.utf16(), str.capacity() * sizeof(QChar));
                     r = SQLBindParameter(d->hStmt,
                                         i + 1,
                                         qParamType[(QFlag)(bindValueType(i)) & 3],
@@ -698,7 +698,7 @@ bool QDB2Result::exec()
                                         ind);
                     tmpStorage.append(ba);
                 } else {
-                    void *data = (void*)str.ucs2();
+                    void *data = (void*)str.utf16();
                     int len = str.length();
                     r = SQLBindParameter(d->hStmt,
                                         i + 1,
@@ -783,7 +783,7 @@ bool QDB2Result::exec()
             case QCoreVariant::String:
 #ifdef UNICODE
                 if (bindValueType(i) & QSql::Out)
-                    values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().constData());
+                    values[i] = QString::fromUtf16((ushort*)tmpStorage.takeFirst().constData());
                 break;
 #endif
                 // fall through

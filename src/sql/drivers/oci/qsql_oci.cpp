@@ -82,7 +82,7 @@ QOCIPrivate::~QOCIPrivate()
 text* QOCIPrivate::oraText(const QString& str) const
 {
     if (utf16bind)
-        return (text*)str.ucs2();
+        return (text*)str.utf16();
     return (text*)str.ascii();
 }
 
@@ -209,7 +209,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
             default: {
                 QString s = values.at(i).toString();
                 if (isOutValue(i)) {
-                    QByteArray ba((char*)s.ucs2(), s.capacity() * sizeof(QChar));
+                    QByteArray ba((char*)s.utf16(), s.capacity() * sizeof(QChar));
                     r = OCIBindByPos(sql, &hbnd, err,
                                     i + 1,
                                     (dvoid *)ba.constData(),
@@ -218,7 +218,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                     tmpStorage.append(ba);
                 } else {
-                    s.ucs2(); // append 0
+                    s.utf16(); // append 0
                     r = OCIBindByPos(sql, &hbnd, err,
                                     i + 1,
                                     //yes, we cast away the const.
@@ -258,7 +258,7 @@ void QOCIPrivate::outValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
             case QCoreVariant::String:
-                values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().constData());
+                values[i] = QString::fromUtf16((ushort*)tmpStorage.takeFirst().constData());
                 break;
             default:
                 break; //nothing
@@ -295,7 +295,7 @@ QString qOraWarn(const QOCIPrivate* d)
                 (ub4)(sizeof(errbuf)),
                 OCI_HTYPE_ERROR);
     if (d->utf16bind)
-        return QString::fromUcs2((const unsigned short*)errbuf);
+        return QString::fromUtf16((const unsigned short*)errbuf);
     return QString::fromLocal8Bit((const char*)errbuf);
 }
 
@@ -978,7 +978,7 @@ QCoreVariant QOCIResultPrivate::value(int i)
         case QCoreVariant::Double: // when converted to strings
         case QCoreVariant::Int:    // keep these as strings so that we do not lose precision
             if (d->utf16bind)
-                v = QCoreVariant(QString::fromUcs2((const short unsigned int*)at(i)));
+                v = QCoreVariant(QString::fromUtf16((const short unsigned int*)at(i)));
             else
                 v = QCoreVariant(QString::fromUtf8(at(i)));
         break;
@@ -1651,7 +1651,7 @@ bool QOCIDriver::open(const QString & db,
         qWarning("QOCIDriver::open: could not get Oracle server version.");
 #endif
     } else {
-        QString versionStr = d->utf16bind ? QString::fromUcs2((unsigned short*)vertxt)
+        QString versionStr = d->utf16bind ? QString::fromUtf16((unsigned short*)vertxt)
                             : QString::fromUtf8((char*)vertxt, sizeof(vertxt));
         QRegExp vers("([0-9]+)\\.[0-9\\.]+[0-9]");
         if (vers.search(versionStr) >= 0)
