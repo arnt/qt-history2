@@ -123,6 +123,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->ser_no = ++serial;
     data->optim	 = optim;
     data->hasRealAlpha = FALSE;
+    data->realAlphaBits = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -407,8 +408,12 @@ QImage QPixmap::convertToImage() const
     if ( mcp )					// disable multi cell
 	((QPixmap*)this)->freeCell();
 #ifndef Q_OS_TEMP
-    GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi,
-	       DIB_RGB_COLORS );
+    if ( data->hasRealAlpha ) {
+	GdiFlush();
+	memcpy( image.bits(), data->realAlphaBits, image.numBytes() );
+    } else {
+	GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS );
+    }
 #endif
     if ( data->hasRealAlpha ) {
 	// Windows has premultiplied alpha, so revert it
@@ -647,13 +652,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( hasRealAlpha ) {
 	    DeleteObject( DATA_HBM );
 	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
+	    data->realAlphaBits = b;
 	} else {
 	    data->hasRealAlpha = FALSE;
+	    data->realAlphaBits = 0;
 	}
 	DeleteObject( hBitmap );
     }
 #else
     data->hasRealAlpha = FALSE;
+    data->realAlphaBits = 0;
 #endif
 
     if ( !data->hasRealAlpha ) {
@@ -829,8 +837,14 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( mcp )
 	((QPixmap*)this)->freeCell();
 #ifndef Q_OS_TEMP
-    int result = GetDIBits( qt_display_dc(), DATA_HBM, 0, hs,
-			    sptr, bmi, DIB_RGB_COLORS );
+    int result;
+    if ( data->hasRealAlpha ) {
+	GdiFlush();
+	memcpy( sptr, data->realAlphaBits, sbpl*hs );
+	result = 1;
+    } else {
+	result = GetDIBits( qt_display_dc(), DATA_HBM, 0, hs, sptr, bmi, DIB_RGB_COLORS );
+    }
 #else
     int result = 0;
 #endif

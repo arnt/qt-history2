@@ -202,6 +202,7 @@ protected:
 	    QMCPI  *mcpi;   // if mcp == TRUE
 	} hbm_or_mcpi;
 	bool hasRealAlpha;
+	uchar *realAlphaBits;
 #elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;
