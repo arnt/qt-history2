@@ -9,7 +9,7 @@
 #ifndef QT_NO_SQL
 
 class QSqlDriver;
-class QSqlDriverInterface : public QPlugInInterface
+class Q_EXPORT QSqlDriverInterface : public QPlugInInterface
 {
 public:
     QCString queryPlugInInterface() const { return "QSqlDriverInterface"; }

@@ -9,7 +9,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
+class Q_EXPORT QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
 {
 public:
     QSqlDriverPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn=0 );
@@ -19,7 +19,7 @@ public:
     QSqlDriver* create( const QString& name );
 };
 
-class QSqlDriverPlugInManager : public QPlugInManager< QSqlDriverPlugIn >
+class Q_EXPORT QSqlDriverPlugInManager : public QPlugInManager< QSqlDriverPlugIn >
 {
 public:
     QSqlDriverPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",

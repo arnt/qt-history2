@@ -15,7 +15,7 @@
 
 class QSqlDriver;
 class QSqlDatabasePrivate;
-class QSqlDatabase : public QObject
+class Q_EXPORT QSqlDatabase : public QObject
 {
     Q_OBJECT
 public:

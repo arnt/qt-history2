@@ -9,7 +9,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDatabase;
+class Q_EXPORT QSqlDatabase;
 
 class QSqlView : public QSqlRowset
 {
@@ -27,7 +27,7 @@ protected:
 };
 
 /*
-class QSqlRelation
+class Q_EXPORT QSqlRelation
 {
 public:
     QSqlRelation();

@@ -13,7 +13,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlDriver : public QObject
+class Q_EXPORT QSqlDriver : public QObject
 {
     Q_OBJECT
 public:

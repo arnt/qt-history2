@@ -10,7 +10,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlResultField
+class Q_EXPORT QSqlResultField
 {
 public:
     QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
@@ -34,7 +34,7 @@ private:
     int           num;
 };
 
-class QSqlField : public QSqlResultField
+class Q_EXPORT QSqlField : public QSqlResultField
 {
 public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
@@ -61,7 +61,7 @@ private:
 };
 
 template< class T >
-class QSqlFields
+class Q_EXPORT QSqlFields
 {
 public:
     QSqlFields() {}

@@ -16,7 +16,7 @@
 
 class QSqlDatabase;
 
-class QSqlRowset : public QSqlFieldList, public QSql
+class Q_EXPORT QSqlRowset : public QSqlFieldList, public QSql
 {
 public:
     QSqlRowset( QSqlDatabase * db, const QString & table );

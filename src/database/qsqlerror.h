@@ -7,7 +7,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlError
+class Q_EXPORT QSqlError
 {
 public:
     enum Type {

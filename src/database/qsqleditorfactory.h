@@ -10,15 +10,15 @@
 
 class QWidget;
 
-class QSqlEditorFactory
+class Q_EXPORT QSqlEditorFactory
 {
 public:
     static  QSqlEditorFactory * instance();
     virtual QWidget * createEditor( QWidget * parent, QSqlField & field );
-    
+
 protected:
     QSqlEditorFactory();
-    
+
 private:
 };
 

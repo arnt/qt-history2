@@ -9,9 +9,9 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlEditor : public QWidget
+class Q_EXPORT QSqlEditor : public QWidget
 {
-    Q_OBJECT 
+    Q_OBJECT
 public:
     QSqlEditor( QSqlField& field, QWidget * parent=0, const char * name=0, WFlags f=0 );
      ~QSqlEditor();
@@ -26,7 +26,7 @@ private:
 
 
 class QLineEdit;
-class QSqlLineEdit : public QSqlEditor
+class Q_EXPORT QSqlLineEdit : public QSqlEditor
 {
 public:
     QSqlLineEdit ( QWidget * parent, QSqlField& field, const char * name=0 );
@@ -42,7 +42,7 @@ private:
 };
 
 class QSpinBox;
-class QSqlSpinBox : public QSqlEditor
+class Q_EXPORT QSqlSpinBox : public QSqlEditor
 {
 public:
     QSqlSpinBox ( QWidget * parent, QSqlField& field, const char * name = 0 );

@@ -8,7 +8,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlIndex
+class Q_EXPORT QSqlIndex
 {
 public:
     QSqlIndex( const QString& tablename = QString::null, const QString& name = QString::null );

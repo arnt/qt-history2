@@ -15,7 +15,7 @@ class QSql;
 struct QSqlResultShared;
 class QSqlResultInfo;
 
-class QSqlResult
+class Q_EXPORT QSqlResult
 {
 friend class QSql;
 friend struct QSqlResultShared;

@@ -15,7 +15,7 @@ class QSqlDriver;
 class QSqlResult;
 class QSqlResultInfo;
 
-struct QSqlResultShared : public QShared
+struct Q_EXPORT QSqlResultShared : public QShared
 {
     QSqlResultShared( QSqlResult* result = 0 )
     : sqlResult(result)
@@ -24,7 +24,7 @@ struct QSqlResultShared : public QShared
     QSqlResult* sqlResult;
 };
 
-class QSql
+class Q_EXPORT QSql
 {
 public:
     explicit QSql( QSqlResult * r )
