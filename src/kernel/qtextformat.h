@@ -1,9 +1,11 @@
 #ifndef QTEXTFORMAT_H
 #define QTEXTFORMAT_H
 
+#ifndef QT_H
 #include <qcolor.h>
 #include <qstylesheet.h>
 #include <qsharedpointer.h>
+#endif // QT_H
 
 class QString;
 class QByteArray;
