@@ -247,13 +247,16 @@ font are needed.
 
 <p>
 TTF, PFA, and QPF fonts can be rendered as <i>smooth</i> anti-aliased
-fonts to give superior readability. The difference between smooth
-and non-smooth fonts is illustrated below.
+fonts to give superior readability, especially on low-resolution devices.
+The difference between smooth and non-smooth fonts is illustrated below
+(you may need to change your display to low resolution to see the difference).
 
 <center>
-<table>
+<table width=100%>
 <tr align=center>
-<td><img src=smooth.png><td><img src=unsmooth.png>
+<td><img src=smooth.png>
+<td width=10% rowspan=2>
+<td><img src=unsmooth.png>
 <tr align=center>
 <td>Smooth<td>Non-smooth
 </table>
@@ -352,6 +355,8 @@ TrueType and Type1 support.
 <h1>Running Qt/Embedded applications</h1>
 
 (not documented yet)
+Running with -qws.
+Running a server/master and clients.
 */
 
 /*! \page porting-qws.html
@@ -363,5 +368,21 @@ TrueType and Type1 support.
 <h1>Porting your applications to Qt/Embedded</h1>
 
 (not documented yet)
+Not much to do. Just don't use x11Event(), winEvent(), etc.
 */
+
+
+/*! \page pointer-qws.html
+<title>Qt/Embedded Pointer Handling</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1>Qt/Embedded Pointer Handling</h1>
+
+(not documented yet)
+Using gpm.
+Making a new mouse/pen driver.
+*/
+
 
