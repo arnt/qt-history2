@@ -107,7 +107,7 @@ static void doResInit();
 
 class QDnsPrivate {
 public:
-    QDnsPrivate() : startQueryTimer(FALSE)
+    QDnsPrivate() : queryTimer( 0 )
     {
 #if defined(Q_DNS_SYNCHRONOUS)
 #if defined(Q_OS_UNIX)
@@ -117,9 +117,12 @@ public:
 #endif
 #endif
     }
-    ~QDnsPrivate() {}
+    ~QDnsPrivate()
+    {
+	delete queryTimer;
+    }
 private:
-    bool startQueryTimer;
+    QTimer * queryTimer;
 #if defined(Q_DNS_SYNCHRONOUS)
     bool noEventLoop;
 #endif
@@ -195,6 +198,7 @@ public:
     QDnsQuery():
 	id( 0 ), t( QDns::None ), step(0), started(0),
 	dns( new QPtrDict<void>(17) ) {}
+    ~QDnsQuery() { delete dns; }
     Q_UINT16 id;
     QDns::RecordType t;
     QString l;
@@ -1058,20 +1062,27 @@ void QDnsManager::transmitQuery( int i )
     QDnsQuery * q = queries[i];
 
     if ( q && q->step > 8 ) {
-	// okay, we've run out of retransmissions, let's kill it off and say
-	// name-server-is-naughty
+	// okay, we've run out of retransmissions. we fake an NXDomain
+	// with a very short life time...
+	QDnsAnswer answer( q );
+	answer.notify();
+	// and then get rid of the query
 	queries.take( i );
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: giving up on query 0x%04x", q->id );
 #endif
-	// we fake an NXDomain with a very short life time
-	QDnsAnswer answer( q );
-	answer.notify();
 	delete q;
 	QTimer::singleShot( 1000*10, QDnsManager::manager(), SLOT(cleanCache()) );
 	// and don't process anything more
 	return;
     }
+
+    if ( q && !q->dns || q->dns->isEmpty() )
+	// noone currently wants the answer, so there's no point in
+	// retransmitting the query. we keep it, though. an answer may
+	// arrive for an earlier query transmission, and if it does we
+	// may benefit from caching the result.
+	return;
 
     QByteArray p( 12 + q->l.length() + 2 + 4 );
     if ( p.size() > 500 )
@@ -1148,9 +1159,10 @@ void QDnsManager::transmitQuery( int i )
 	    q->id, q->step, q->l.ascii(), q->t,
 	    ns->at( q->step % ns->count() )->toString().ascii() );
 #endif
-    if ( ns->count() > 1 && q->step == 0 ) {
-	// if it's the first time, send nonrecursive queries to the
-	// other name servers too.
+    if ( ns->count() > 1 && q->step == 0 && queries.count() == 1 ) {
+	// if it's the first time, and we don't have any other
+	// outstanding queries, send nonrecursive queries to the other
+	// name servers too.
 	p[2] = 0;
 	QHostAddress * server;
 	while( (server=ns->next()) != 0 ) {
@@ -1165,7 +1177,7 @@ void QDnsManager::transmitQuery( int i )
     // seconds.  the graph becomes steep around that point, and the
     // number of errors rises... so it seems good to retry at that
     // point.
-    q->start( q->step < ns->count() ? 600 : 1500, TRUE );
+    q->start( q->step < ns->count() ? 800 : 1500, TRUE );
 }
 
 
@@ -1562,8 +1574,8 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 
 QDns::~QDns()
 {
-    uint q = 0;
     if ( globalManager ) {
+	uint q = 0;
 	QDnsManager * m = globalManager;
 	while( q < m->queries.size() ) {
 	    QDnsQuery * query=m->queries[q];
@@ -1737,10 +1749,8 @@ void QDns::setRecordType( RecordType rr )
 void QDns::startQuery()
 {
     // isWorking() starts the query (if necessary)
-    if ( !isWorking() ) {
+    if ( !isWorking() )
 	emit resultsReady();
-    }
-    d->startQueryTimer = FALSE;
 }
 
 /*!
@@ -1751,14 +1761,16 @@ void QDns::startQuery()
 void QDns::setStartQueryTimer()
 {
 #if defined(Q_DNS_SYNCHRONOUS)
-    if ( !d->startQueryTimer && !d->noEventLoop )
+    if ( !d->queryTimer && !d->noEventLoop )
 #else
-    if ( !d->startQueryTimer )
+    if ( !d->queryTimer )
 #endif
     {
 	// start the query the next time we enter event loop
-	QTimer::singleShot( 0, this, SLOT(startQuery()) );
-	d->startQueryTimer = TRUE;
+	d->queryTimer = new QTimer( this );
+	connect( d->queryTimer, SIGNAL(timeout()),
+		 this, SLOT(startQuery()) );
+	d->queryTimer->start( 0, TRUE );
     }
 }
 
