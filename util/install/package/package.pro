@@ -4,7 +4,7 @@ SOURCES = main.cpp generatordlgimpl.cpp
 INCLUDEPATH += ../archive $(QTDIR)/include ../keygen
 INTERFACES = generatordlg.ui
 TARGET  = package
-CONFIG += qt
+CONFIG += qt console
 unix:LIBS += -L$(QTDIR)/util/install/archive -larq
 win32:LIBS += ../archive/arq.lib
 
