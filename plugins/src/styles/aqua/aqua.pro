@@ -1,12 +1,15 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on debug plugin
 
-HEADERS		= ../../../../include/qwindowsstyle.h \
-		  ../../../../include/qaquastyle.h
+HEADERS		= ../../../../include/qaquastyle.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/styles/qwindowsstyle.cpp \
 		  ../../../../src/styles/qaquastyle.cpp
+
+!contains(styles, windows) {
+	HEADERS += ../../../../include/qwindowsstyle.h
+	SOURCES += ../../../../src/styles/qwindowsstyle.cpp
+}
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj

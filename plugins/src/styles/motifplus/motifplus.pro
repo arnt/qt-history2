@@ -1,12 +1,15 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_on debug plugin
 
-HEADERS		= ../../../../include/qmotifstyle.h \
-		  ../../../../include/qmotifplusstyle.h 
+HEADERS		= ../../../../include/qmotifplusstyle.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/styles/qmotifstyle.cpp \
 		  ../../../../src/styles/qmotifplusstyle.cpp 
+
+!contains(styles, motif) {
+	HEADERS += ../../../../include/qmotifstyle.h 
+	SOURCES += ../../../../src/styles/qmotifstyle.cpp
+}
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
