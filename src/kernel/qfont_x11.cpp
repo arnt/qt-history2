@@ -334,6 +334,11 @@ void QFontPrivate::load( QFont::Script script )
     // append the default fallback font for the specified script
     // family_list << ... ;
 
+    // add the default family
+    QString defaultFamily = QApplication::font().family();
+    if ( !family_list.contains( defaultFamily ) )
+	family_list << defaultFamily;
+
     // add QFont::defaultFamily() to the list, for compatibility with
     // previous versions
     family_list << QApplication::font().defaultFamily();
