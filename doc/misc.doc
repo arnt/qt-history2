@@ -21,6 +21,95 @@
 **
 *****************************************************************************/
 
+/*! \page aboutqt.html
+<title>About Qt</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>About Qt</h1>
+
+<p>Qt is a multiplatform C++ GUI toolkit from <a
+href="troll.html">Troll Tech</a>.  It provides single-source
+portability across Windows 95/98/NT/2000, Linux, Solaris, HP-UX and
+many other versions of Unix with X11.
+
+<p><strong>Qt Professional Edition</strong> is provided for commercial
+software development. It includes free upgrades and Technical Support
+Service. For the latest prices, please see the Troll Tech web site, <a
+href="http://www.troll.no/pricing.html">Pricing and Availability</a>
+page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
+
+<p><strong>Qt Free Edition</strong> is the Unix/X11 version of Qt
+available for development of <em>free software</em> only. It is
+provided free of charge under the <a href="license.html">Qt Free
+Edition License</a>. The latest version is available for <a
+href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
+*/
+
+/*! \page commonproblems.html
+<title>Common Problems</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>Common Problems</h1>
+<ol>
+
+<li><strong>Link error, complaining about a lack of  about a lack of <code>vtbl</code>,
+<code>_vtbl</code>, <code>__vtbl</code> or similar </strong>
+<p>
+This indicates that you include the Q_OBJECT macro in a class
+declaration and probably also run the moc, but forget to link the
+moc-generated object code into your executable. Read <a
+href="moc.html"> Using the Meta Object Compiler</a> for details on
+how to use moc.
+
+<li><strong>Using different versions of Qt on the same machine</strong>
+<p>
+TODO
+
+</ol>
+*/
+
+/*! \page keyfeatures21.html
+<title>Key Features in Qt 2.1</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>Key Features in Qt 2.1</h1>
+
+TODO: copy from changes21 file
+*/
+
+/*! \page changes21.html
+<title>Change Notes Qt 2.1</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>Change Notes Qt 2.1</h1>
+
+TODO: copy from changes21 file
+*/
+
+/*! \page bughowto.html
+<title>How-To Report A Bug</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>How-To Report A Bug</h1>
+
+TODO
+*/
+
+/*! \page buyhowto.html
+<title>How-To Buy Qt</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align=center>How-To Buy Qt</h1>
+
+TODO
+*/
+
 
 /*! \page license.html
 

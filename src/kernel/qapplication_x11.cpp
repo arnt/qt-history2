@@ -2155,7 +2155,8 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		if ( amw && amw != widget ) {
 		    amw->raise(); //  help broken window managers
 		}
-		qt_x_time = event->xclient.data.l[1];
+		if ( (ulong) event->xclient.data.l[1] > qt_x_time )
+		    qt_x_time = event->xclient.data.l[1];
 		XSetInputFocus( appDpy, (amw?amw:widget)->winId(),
 				RevertToParent, qt_x_time );
 	    } else if ( a == qt_net_wm_context_help ) {

@@ -32,86 +32,110 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 \postheader
 
-<h1 align="center">
-Reference Documentation
-</h1><br clear="all">
-
-<br clear="all"><table border=0 cellpadding=10><tr>
-
-<td width="50%" valign="top">
-
-<strong>The Qt API:</strong><ul>
-<li><a href="porting.html"><b>Porting from Qt 1.x to Qt 2.0</b></a>
-<li><a href="classes.html">Alphabetical Class List</a>
-<li><a href="annotated.html">Annotated Class List</a>
-<li><a href="topicals.html">Structure Overview</a>
-<li><a href="hierarchy.html">Inheritance Hierarchy</a>
-<li><a href="functions.html">Alphabetical Function Index</a> (long)
-<li><a href="headers.html">Header File Index</a>
-<li><a href="pictures.html">Widget Screenshots</a>
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#EEEEFF>
+<tr>
+<th bgcolor=#D0D0FF width=33%>
+General
+</th>
+<th bgcolor=#D0D0FF width=33%>
+Getting Started
+</th>
+<th bgcolor=#D0D0FF width=33%>
+What´s New
+</th>
+</tr>
+<tr>
+<td>
+<ul>
+<li> <a href="aboutqt.html" >About Qt</a>
+<li> <a href="porting.html">  Porting from Qt 1.x to Qt 2.0</a>
+<li> <a href="commonproblems.html">  Common Problems</a>
+</ul>
+</td>
+<td valign=top>
+<ul>
+<li> <a href="tutorial.html">  Tutorial</a>
+<li> <a href="simple-application.html">  Walkthrough</a>
+<li> <a href="examples.html">  Examples</a>
+</ul>
+</td>
+<td valign=top>
+<ul>
+<li> <a href="keyfeatures21.html">  Key Features in Qt-2.1</a>
+<li> <a href="changes21.html">  Detailed Changes Notes</a>
+</ul>
+</td>
+</tr>
+<tr>
+<th  bgcolor=#D0D0FF>
+API Reference
+</th>
+<th colspan=2 bgcolor=#D0D0FF>
+Overviews
+</tr>
+<tr>
+<td valign=top >
+<ul>
+      <li> <a href="classes.html">  Alphabetical Class List</a>
+      <li> <a href="topicals.html">  Structure Overview</a>
+      <li> <a href="annotated.html">  Annotated Class List</a>
+      <li> <a href="hierachy.html">  Inheritance Hierachy</a>
+      <li> <a href="functons.html">  All Functions (long)</a>
+      <li> <a href="headers.html">  Header File Index</a>
+</ul>
+</td>
+<td valign=top>
+<ul>
+<li> <a href="metaobjects.html">  Introduction to Signals and Slots</a>
+<li> <a href="moc.html">  Using the Meta Object Compiler (moc)</a>
+<li> <a href="layout.html">  Geometry Management </a>
+<li> <a href="dnd.html">  Drag and Drop (D'n'D)</a>
 </ul>
 
-<td width="50%" valign="top">
-
-<strong>Using Qt:</strong><ul>
-<li><a href="tutorial.html">Tutorial</a>
-<li><a href="examples.html">Example Programs</a>
-<li><a href="metaobjects.html">Introduction to Signals and Slots</a>
-<li><a href="moc.html">Using the Meta Object Compiler (the moc)</a>
-<li><a href="layout.html">Geometry Management (layout)</a>
-<li><a href="dnd.html">Drag and Drop (D'n'D)</a>
-<li><a href="i18n.html">Internationalization (I18n)</a>
-<li><a href="debug.html">Debugging Techniques</a>
-<li><a href="network.html">Network Programming</a>
+<td valign=top>
+<ul>
+<li> <a href="i18n.html">  Internationalization (i18n) </a>
+<li> <a href="debug.html">  Debugging Techniques</a>
+<li> <a href="network.html">  Network Programming</a>
+<li> <a href="pictures.html">  Widget Screenshots</a>
 </ul>
 
-</td></tr><tr><td width="50%" valign="top">
-
-<strong>Other Troll Tech Products for Qt:</strong><ul>
-<li><a href="opengl.html">Qt OpenGL 3D Graphics</a>
-<li><a href="network.html">Qt Web Development Kit</a>
+</td>
+</tr>
+<tr>
+<th bgcolor=#D0D0FF>
+Troll Tech
+</th>
+<th bgcolor=#D0D0FF>
+Products For Qt
+</th>
+<th bgcolor=#D0D0FF>
+Appendix
+</th>
+</tr>
+<tr>
+<td valign=top>
+<ul>
+<li> <a href="troll.html"> About Troll Tech</a>
+<li> <a href="bughowto.html"> How to report a bug</a>
+<li> <a href="buyhowto.html"> How to buy Qt</a>
+<li> <a href="mailinglists.html"> Mailing List Information</a>
 </ul>
-
-<td width="50%" valign="top">
-
-<strong>Further Information:</strong><ul>
-<li><a href="troll.html">Troll Tech Contact Information</a>
-<li><a href="mailinglists.html">Qt Mailing Lists</a>
-<li><a href="credits.html">Credits</a>
-<li><a href="http://www.troll.no/developer/">Developers' Homepage</a> <small>[external]</small>
+</td>
+<td valign=top>
+<ul>
+  <li> <a href="opengl.html">  Qt OpenGL 3D Graphics</a>
 </ul>
-
-</tr></table>
-
-<h2>Search the documentation</h2>
-<dl>
-<dt><dd>
-<form method=post action="http://www.troll.no/search.cgi">
-<input type=hidden name="version" value="2.00">
-<input type=hidden name="sections" value="api">
-<input size="50" name="search"><input type=submit value="Search">
-(uses <a href="http://www.troll.no">www.troll.no</a>)
-</nobr></form>
-</dl>
-
-<h2 align=center><u>About Qt</u></h2>
-
-<strong>Qt</strong><sup><code>TM</code></sup> is a multi-platform C++
-GUI toolkit. It is a product of <a href="http://www.troll.no/">Troll
-Tech</a>. It is supported on all major variants of Microsoft Windows
-and Unix/X Windows.
-
-<strong>Qt Professional Edition</strong> is provided for commercial
-software development. It includes free upgrades and Technical Support
-Service. For the latest prices, please see the Troll Tech web site, <a
-href="http://www.troll.no/pricing.html">Pricing and Availability</a>
-page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
-
-<strong>Qt Free Edition</strong> is the Unix/X11 version of Qt
-available for development of <em>free software</em> only. It is
-provided free of charge under the <a href="license.html">Qt Free
-Edition License</a>. The latest version is available for <a
-href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
+</td>
+<td valign=top>
+<ul>
+<li> <a href="accelerators.html">  Standard Accelerators</a>
+<li> <a href="license.html">  License Agreement</a>
+<li> <a href="credits.html"> Credits</a>
+</ul>
+</td>
+</tr>
+</table>
 
 */
 

@@ -55,6 +55,31 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
+/*! \example mdi/main.cpp
+
+  <h1 align=center>A MDI Application</h1><br clear="all">
+
+  This example program is just like the application example, but designed as 
+  Multiple Document Interface (MDI).
+
+  <hr>
+
+  Header file:
+
+  \include application/application.h
+
+  <hr>
+
+  Implementation:
+
+  \include application/application.cpp
+
+  <hr>
+
+  Main:
+
+*/
+
 /*! \example buttons_groups/main.cpp
 
   <h1 align=center>Buttons and Groupboxes</h1><br clear="all">
@@ -531,6 +556,18 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
+/*! \example iconview/main.cpp
+
+  <h1 align=center>Iconview</h1><br clear="all">
+
+  This example implements a flexible icon view which can store
+  lots of icon items. It supports Drag'n'Drop, different selection modes,
+  view modes, rubberband selection, etc.
+
+  Main:
+
+*/
+
 /*! \example rangecontrols/main.cpp
 
   <h1 align=center>Rangecontrols</h1><br clear="all">
@@ -989,6 +1026,51 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
+/*! \example helpviewer/main.cpp
+
+  <h1 align=center>Simple HTML Help Browser</h1><br clear="all">
+
+  The HelpViewer example implements a simple HTML help browser using 
+  Qt's richtext capabilities.
+
+  <hr>
+
+  Header file:
+
+  \include helpviewer/helpwindow.h
+
+  <hr>
+
+  Implementation:
+
+  \include helpviewer/helpwindow.cpp
+
+  <hr>
+
+  Main:
+
+*/	
+
+/*! \example helpviewer/main.cpp
+
+  <h1 align=center>Simple HTML Browser</h1><br clear="all">
+
+  The QBrowser exampple implements a simple HTML browser using Qt's Richtext widget.
+
+  <hr>
+
+  Header file:
+
+  \include helpviewer/helpwindow.h
+
+  <hr>
+
+  Implementation:
+
+  \include helpviewer/helpwindow.cpp
+
+  <hr>
+
 /*! \example qdir/qdir.cpp
 
   <h1 align=center>QDir</h1><br clear="all">
@@ -1018,6 +1100,44 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   Implementation:
 
   \include qfd/fontdisplayer.cpp
+
+  <hr>
+
+  Main:
+
+*/	
+
+/*! \example fileiconview/main.cpp
+
+  <h1 align=center>Simple Filemanager</h1><br clear="all">
+
+  This example implements a simple and not full functional filemanager using
+  a widget derived from QIconView to display the current directory and the
+  widget of the DirectoryView example to display the directory tree.
+
+  <hr>
+
+  Header file of the fileiconview:
+
+  \include fileiconview/qfileiconview.h
+
+  <hr>
+
+  Implementation of the fileiconview:
+
+  \include fileiconview/qfileiconview.cpp
+
+  <hr>
+
+  Header file of the mainwindow:
+
+  \include fileiconview/mainwindow.h
+
+  <hr>
+
+  Implementation of the mainwindow:
+
+  \include fileiconview/mainwindow.cpp
 
   <hr>
 
