@@ -895,19 +895,20 @@ void QToolBar::paintToolBar()
     int h = height();
     int hw = w;
     int hh =h;
+    int he = style().toolBarHandleExtend();
     if ( orientation() == Horizontal && w < sizeHint().width() ) {
 	w++;
-	hw = 10;
+	hw = he;
     } else if ( orientation() == Vertical && h < sizeHint().height() ) {
 	h++;
-	hh = 10;
+	hh = he;
     }
     style().drawPanel( &p, 0, 0, w, h,
  		       colorGroup(), FALSE, 1, 0 );
     int xpos;
     if ( QApplication::reverseLayout() && orientation() == Horizontal )
-	xpos = width() - 10;
-    else
+	xpos = width() - he - 2;
+    else 
 	xpos = 0;
     style().drawToolBarHandle( &p, QRect( xpos, 0, hw, hh ),
  			       orientation(), d->moving, colorGroup() );
