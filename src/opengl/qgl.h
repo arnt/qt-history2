@@ -304,7 +304,7 @@ private:
     bool renderCxPm(QPixmap *pixmap);
 
 private:
-    Q_DISABLE_COPY(QGLWidget);
+    Q_DISABLE_COPY(QGLWidget)
 
 #ifdef Q_WS_MAC
     friend class QMacGLWindowChangeEvent;
