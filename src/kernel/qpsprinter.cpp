@@ -1880,6 +1880,107 @@ static const struct {
     { 0, 0, 0 }
 };
 
+
+// ------------------------------End of static data ----------------------------------
+
+// ----------------------------- Internal class declarations -----------------------------
+
+class QPSPrinterFontPrivate;
+
+class QPSPrinterPrivate {
+public:
+    QPSPrinterPrivate( QPrinter *prt, int filedes );
+
+    void matrixSetup( QPainter * );
+    void clippingSetup( QPainter * );
+    void setClippingOff( QPainter * );
+    void orientationSetup();
+    void newPageSetup( QPainter * );
+    void resetDrawingTools( QPainter * );
+    void emitHeader( bool finished );
+    void setFont( const QFont &, int script );
+    void drawImage( QPainter *, const QPoint &, const QImage & );
+
+    QPrinter   *printer;
+    QTextStream stream;
+    int         pageCount;
+    bool        dirtyMatrix;
+    bool        dirtyNewPage;
+    bool        epsf;
+    QString     fontsUsed;
+
+    // stores the descriptions of the first pages. QPSPrinter::stream operates on this buffer
+    // until we call emitHeader
+    QBuffer * buffer;
+    int pagesInBuffer;
+    QIODevice * realDevice;
+    int fd;
+    QDict<QString> headerFontNames;
+    QDict<QString> pageFontNames;
+    QDict<QPSPrinterFontPrivate> fonts;
+    QPSPrinterFontPrivate *currentFontFile;
+    int headerFontNumber;
+    int pageFontNumber;
+    QBuffer * fontBuffer;
+    QTextStream fontStream;
+    bool dirtyClipping;
+    bool firstClipOnPage;
+    QRect boundingBox;
+    QImage * savedImage;
+    QPen cpen;
+    QBrush cbrush;
+    bool dirtypen;
+    bool dirtybrush;
+    QTextCodec * currentFontCodec;
+    QString currentFont;
+    QFontMetrics * fm;
+    int textY;
+    QFont currentUsed;
+    int scriptUsed;
+    QFont currentSet;
+    float scale;
+};
+
+
+class QPSPrinterFontPrivate {
+public:
+    QPSPrinterFontPrivate();
+    virtual ~QPSPrinterFontPrivate() {}
+    virtual QString postScriptFontName() { return psname; }
+    virtual QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
+                             QPSPrinterPrivate *d );
+    virtual void download(QTextStream& s, bool global);
+    virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
+                           const QString &text, QPSPrinterPrivate *d, QPainter *paint);
+    virtual unsigned short mapUnicode( unsigned short unicode );
+    void downloadMapping( QTextStream &s, bool global );
+    virtual QString glyphName(unsigned short glyphindex);
+    virtual void restore();
+
+    virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
+    virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
+    unsigned short insertIntoSubset( unsigned short unicode );
+    virtual bool embedded() { return FALSE; }
+
+protected:
+    QString psname;
+    QStringList replacementList;
+
+    QIntDict<unsigned short> subset;      // unicode subset in the global font
+    QIntDict<unsigned short> page_subset; // subset added in this page
+    int subsetCount;
+    int pageSubsetCount;
+    bool           global_dict;
+  bool           downloaded;
+};
+
+// ------------------- end of class declarations ---------------------------
+
+// --------------------------------------------------------------
+//   beginning of font related methods
+// --------------------------------------------------------------
+
+
 static int getPsFontType( const QFont &f )
 {
     int weight = f.weight();
@@ -2107,96 +2208,10 @@ static void makeFixedStrings()
     *fixed_ps_header = wordwrap( *fixed_ps_header );
 }
 
-class QPSPrinterFontPrivate;
-
-class QPSPrinterPrivate {
-public:
-    QPSPrinterPrivate( QPrinter *prt, int filedes );
-
-    void matrixSetup( QPainter * );
-    void clippingSetup( QPainter * );
-    void setClippingOff( QPainter * );
-    void orientationSetup();
-    void newPageSetup( QPainter * );
-    void resetDrawingTools( QPainter * );
-    void emitHeader( bool finished );
-    void setFont( const QFont &, int script );
-    void drawImage( QPainter *, const QPoint &, const QImage & );
-
-    QPrinter   *printer;
-    QTextStream stream;
-    int         pageCount;
-    bool        dirtyMatrix;
-    bool        dirtyNewPage;
-    bool        epsf;
-    QString     fontsUsed;
-
-    // stores the descriptions of the first pages. QPSPrinter::stream operates on this buffer
-    // until we call emitHeader
-    QBuffer * buffer;
-    int pagesInBuffer;
-    QIODevice * realDevice;
-    int fd;
-    QDict<QString> headerFontNames;
-    QDict<QString> pageFontNames;
-    QDict<QPSPrinterFontPrivate> fonts;
-    QPSPrinterFontPrivate *currentFontFile;
-    int headerFontNumber;
-    int pageFontNumber;
-    QBuffer * fontBuffer;
-    QTextStream fontStream;
-    bool dirtyClipping;
-    bool firstClipOnPage;
-    QRect boundingBox;
-    QImage * savedImage;
-    QPen cpen;
-    QBrush cbrush;
-    bool dirtypen;
-    bool dirtybrush;
-    QTextCodec * currentFontCodec;
-    QString currentFont;
-    QFontMetrics * fm;
-    int textY;
-    QFont currentUsed;
-    int scriptUsed;
-    QFont currentSet;
-    float scale;
-};
 
 
 // ========================== FONT CLASSES  ===============
 
-class QPSPrinterFontPrivate {
-public:
-    QPSPrinterFontPrivate();
-    virtual ~QPSPrinterFontPrivate() {}
-    virtual QString postScriptFontName() { return psname; }
-    virtual QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
-                             QPSPrinterPrivate *d );
-    virtual void download(QTextStream& s, bool global);
-    virtual void drawText( QTextStream &stream, uint spaces, const QPoint &p,
-                           const QString &text, QPSPrinterPrivate *d, QPainter *paint);
-    virtual unsigned short mapUnicode( unsigned short unicode );
-    void downloadMapping( QTextStream &s, bool global );
-    virtual QString glyphName(unsigned short glyphindex);
-    virtual void restore();
-
-    virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
-    virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
-    unsigned short insertIntoSubset( unsigned short unicode );
-    virtual bool embedded() { return FALSE; }
-
-protected:
-    QString psname;
-    QStringList replacementList;
-
-    QIntDict<unsigned short> subset;      // unicode subset in the global font
-    QIntDict<unsigned short> page_subset; // subset added in this page
-    int subsetCount;
-    int pageSubsetCount;
-    bool           global_dict;
-  bool           downloaded;
-};
 
 QPSPrinterFontPrivate::QPSPrinterFontPrivate()
     : subset( 1009 ), page_subset( 1009 )
@@ -2490,7 +2505,6 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 
 // ================== TTF ====================
 
-
 typedef Q_UINT8  BYTE;
 typedef Q_UINT16 USHORT;
 typedef Q_UINT16 uFWord;
@@ -2503,85 +2517,6 @@ typedef struct {
   Q_INT16 whole;
   Q_UINT16 fraction;
 } Fixed; // 16.16 bit fixed-point number
-
-static ULONG getULONG(BYTE *p)
-{
-  int x;
-  ULONG val=0;
-
-  for(x=0; x<4; x++) {
-    val *= 0x100;
-    val += p[x];
-  }
-
-  return val;
-}
-
-static USHORT getUSHORT(BYTE *p)
-{
-  int x;
-  USHORT val=0;
-
-  for(x=0; x<2; x++) {
-    val *= 0x100;
-    val += p[x];
-  }
-
-  return val;
-}
-
-static Fixed getFixed(BYTE *s)
-{
-  Fixed val={0,0};
-
-  val.whole = ((s[0] * 256) + s[1]);
-  val.fraction = ((s[2] * 256) + s[3]);
-
-  return val;
-}
-
-static FWord getFWord(BYTE* s)  { return (FWord)  getUSHORT(s); }
-static uFWord getuFWord(BYTE* s) { return (uFWord) getUSHORT(s); }
-static SHORT getSHORT(BYTE* s)  { return (SHORT)  getUSHORT(s); }
-
-static const char * const Apple_CharStrings[]={
-  ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign",
-  "dollar","percent","ampersand","quotesingle","parenleft","parenright",
-  "asterisk","plus", "comma","hyphen","period","slash","zero","one","two",
-  "three","four","five","six","seven","eight","nine","colon","semicolon",
-  "less","equal","greater","question","at","A","B","C","D","E","F","G","H","I",
-  "J","K", "L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
-  "bracketleft","backslash","bracketright","asciicircum","underscore","grave",
-  "a","b","c","d","e","f","g","h","i","j","k", "l","m","n","o","p","q","r","s",
-  "t","u","v","w","x","y","z","braceleft","bar","braceright","asciitilde",
-  "Adieresis","Aring","Ccedilla","Eacute","Ntilde","Odieresis","Udieresis",
-  "aacute","agrave","acircumflex","adieresis","atilde","aring","ccedilla",
-  "eacute","egrave","ecircumflex","edieresis","iacute","igrave","icircumflex",
-  "idieresis","ntilde","oacute","ograve","ocircumflex","odieresis","otilde",
-  "uacute","ugrave","ucircumflex","udieresis","dagger","degree","cent",
-  "sterling","section","bullet","paragraph","germandbls","registered",
-  "copyright","trademark","acute","dieresis","notequal","AE","Oslash",
-  "infinity","plusminus","lessequal","greaterequal","yen","mu","partialdiff",
-  "summation","product","pi","integral","ordfeminine","ordmasculine","Omega",
-  "ae","oslash","questiondown","exclamdown","logicalnot","radical","florin",
-  "approxequal","Delta","guillemotleft","guillemotright","ellipsis",
-  "nobreakspace","Agrave","Atilde","Otilde","OE","oe","endash","emdash",
-  "quotedblleft","quotedblright","quoteleft","quoteright","divide","lozenge",
-  "ydieresis","Ydieresis","fraction","currency","guilsinglleft","guilsinglright",
-  "fi","fl","daggerdbl","periodcentered","quotesinglbase","quotedblbase",
-  "perthousand","Acircumflex","Ecircumflex","Aacute","Edieresis","Egrave",
-  "Iacute","Icircumflex","Idieresis","Igrave","Oacute","Ocircumflex","apple",
-  "Ograve","Uacute","Ucircumflex","Ugrave","dotlessi","circumflex","tilde",
-  "macron","breve","dotaccent","ring","cedilla","hungarumlaut","ogonek","caron",
-  "Lslash","lslash","Scaron","scaron","Zcaron","zcaron","brokenbar","Eth","eth",
-  "Yacute","yacute","Thorn","thorn","minus","multiply","onesuperior",
-  "twosuperior","threesuperior","onehalf","onequarter","threequarters","franc",
-  "Gbreve","gbreve","Idot","Scedilla","scedilla","Cacute","cacute","Ccaron",
-  "ccaron","dmacron","markingspace","capslock","shift","propeller","enter",
-  "markingtabrtol","markingtabltor","control","markingdeleteltor",
-  "markingdeletertol","option","escape","parbreakltor","parbreakrtol",
-  "newpage","checkmark","linebreakltor","linebreakrtol","markingnobreakspace",
-  "diamond","appleoutline"};
 
 typedef struct {
   int*    epts_ctr;                     /* array of contour endpoints */
@@ -2671,6 +2606,87 @@ private:
   int indexToLocFormat;         /* short or long offsets */
 
 };
+
+
+static ULONG getULONG(BYTE *p)
+{
+  int x;
+  ULONG val=0;
+
+  for(x=0; x<4; x++) {
+    val *= 0x100;
+    val += p[x];
+  }
+
+  return val;
+}
+
+static USHORT getUSHORT(BYTE *p)
+{
+  int x;
+  USHORT val=0;
+
+  for(x=0; x<2; x++) {
+    val *= 0x100;
+    val += p[x];
+  }
+
+  return val;
+}
+
+static Fixed getFixed(BYTE *s)
+{
+  Fixed val={0,0};
+
+  val.whole = ((s[0] * 256) + s[1]);
+  val.fraction = ((s[2] * 256) + s[3]);
+
+  return val;
+}
+
+static FWord getFWord(BYTE* s)  { return (FWord)  getUSHORT(s); }
+static uFWord getuFWord(BYTE* s) { return (uFWord) getUSHORT(s); }
+static SHORT getSHORT(BYTE* s)  { return (SHORT)  getUSHORT(s); }
+
+static const char * const Apple_CharStrings[]={
+  ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign",
+  "dollar","percent","ampersand","quotesingle","parenleft","parenright",
+  "asterisk","plus", "comma","hyphen","period","slash","zero","one","two",
+  "three","four","five","six","seven","eight","nine","colon","semicolon",
+  "less","equal","greater","question","at","A","B","C","D","E","F","G","H","I",
+  "J","K", "L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+  "bracketleft","backslash","bracketright","asciicircum","underscore","grave",
+  "a","b","c","d","e","f","g","h","i","j","k", "l","m","n","o","p","q","r","s",
+  "t","u","v","w","x","y","z","braceleft","bar","braceright","asciitilde",
+  "Adieresis","Aring","Ccedilla","Eacute","Ntilde","Odieresis","Udieresis",
+  "aacute","agrave","acircumflex","adieresis","atilde","aring","ccedilla",
+  "eacute","egrave","ecircumflex","edieresis","iacute","igrave","icircumflex",
+  "idieresis","ntilde","oacute","ograve","ocircumflex","odieresis","otilde",
+  "uacute","ugrave","ucircumflex","udieresis","dagger","degree","cent",
+  "sterling","section","bullet","paragraph","germandbls","registered",
+  "copyright","trademark","acute","dieresis","notequal","AE","Oslash",
+  "infinity","plusminus","lessequal","greaterequal","yen","mu","partialdiff",
+  "summation","product","pi","integral","ordfeminine","ordmasculine","Omega",
+  "ae","oslash","questiondown","exclamdown","logicalnot","radical","florin",
+  "approxequal","Delta","guillemotleft","guillemotright","ellipsis",
+  "nobreakspace","Agrave","Atilde","Otilde","OE","oe","endash","emdash",
+  "quotedblleft","quotedblright","quoteleft","quoteright","divide","lozenge",
+  "ydieresis","Ydieresis","fraction","currency","guilsinglleft","guilsinglright",
+  "fi","fl","daggerdbl","periodcentered","quotesinglbase","quotedblbase",
+  "perthousand","Acircumflex","Ecircumflex","Aacute","Edieresis","Egrave",
+  "Iacute","Icircumflex","Idieresis","Igrave","Oacute","Ocircumflex","apple",
+  "Ograve","Uacute","Ucircumflex","Ugrave","dotlessi","circumflex","tilde",
+  "macron","breve","dotaccent","ring","cedilla","hungarumlaut","ogonek","caron",
+  "Lslash","lslash","Scaron","scaron","Zcaron","zcaron","brokenbar","Eth","eth",
+  "Yacute","yacute","Thorn","thorn","minus","multiply","onesuperior",
+  "twosuperior","threesuperior","onehalf","onequarter","threequarters","franc",
+  "Gbreve","gbreve","Idot","Scedilla","scedilla","Cacute","cacute","Ccaron",
+  "ccaron","dmacron","markingspace","capslock","shift","propeller","enter",
+  "markingtabrtol","markingtabltor","control","markingdeleteltor",
+  "markingdeletertol","option","escape","parbreakltor","parbreakrtol",
+  "newpage","checkmark","linebreakltor","linebreakrtol","markingnobreakspace",
+  "diamond","appleoutline"};
+
 
 
 #ifdef Q_PRINTER_USE_TYPE42
