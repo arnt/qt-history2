@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.18 1999/03/03 13:33:51 warwick Exp $
+** $Id: qlist.doc,v 2.19 1999/03/05 00:49:12 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -165,6 +165,20 @@
 */
 
 /*!
+  \fn void QList::sort() const
+  Sorts the list. The Heap-Sort algorithm is used for sorting. It sorts
+  n items with O(n*logn) compares. This is the asympthotic optimal
+  solution of the sorting problem.
+
+  The sort order depends on the virtual QGList::compareItems() function.
+  If the items in your list support operator< and operator== then you
+  should better use QSortedList since it implements the compareItems
+  function for you using these two operators.
+
+  \sa inSort()
+*/
+
+/*!
   \fn bool QList::isEmpty() const
   Returns TRUE if the list is empty, i.e. count() == 0. Returns FALSE
    otherwise.
@@ -197,7 +211,14 @@
 
   The \e item must not be a null pointer.
 
-  \sa insert(), compareItems(), current()
+  Please note that inSort is slow. If you want to insert lots of items
+  in a list and sort after inserting then you should use \link sort().
+  inSort() takes up to O(n) compares. That means inserting n items in
+  your list will need O(n^2) compares while sort() only needs O(n*logn)
+  for the same task. So you inSort() only if you already have a presorted
+  list and want to insert only few additional items.
+
+  \sa insert(), compareItems(), current(), sort()
 */
 
 /*!
