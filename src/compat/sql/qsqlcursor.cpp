@@ -235,6 +235,18 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 */
 
 /*!
+    \fn QCoreVariant QSqlCursor::value(const QString &name) const
+
+    \overload
+*/
+
+/*!
+    \fn void QSqlCursor::setValue(const QString &name, const QCoreVariant &val)
+
+    \overload
+*/
+
+/*!
     Constructs a cursor on database \a db using table or view \a name.
 
     If \a autopopulate is true (the default), the \a name of the
@@ -478,8 +490,6 @@ void QSqlCursor::remove(int pos)
     the field does not exist, nothing happens. Only fields that have
     \a generated set to true are included in the SQL that is
     generated.
-
-    \sa isGenerated()
 */
 
 void QSqlCursor::setGenerated(const QString& name, bool generated)
@@ -496,8 +506,6 @@ void QSqlCursor::setGenerated(const QString& name, bool generated)
     \overload
 
     Sets the generated flag for the field \a i to \a generated.
-
-    \sa isGenerated()
 */
 void QSqlCursor::setGenerated(int i, bool generated)
 {
@@ -750,7 +758,7 @@ int QSqlCursor::mode() const
     fields do not appear in generated SQL statements sent to the
     database.
 
-    \sa calculateField() QSqlRecord::setGenerated()
+    \sa calculateField()
 */
 
 void QSqlCursor::setCalculated(const QString& name, bool calculated)

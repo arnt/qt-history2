@@ -112,8 +112,8 @@
                         SLOT(printDoc()));           // printDoc() slot
     \endcode
 
-    \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
-    QButton::setAccel() QLabel::setBuddy() QKeySequence
+    \sa QKeyEvent QWidget::keyPressEvent() 
+    QLabel::setBuddy() QKeySequence
     \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
@@ -891,8 +891,7 @@ QKeySequence QAccel::shortcutKey(const QString &str)
     To set What's This help on a menu item (with or without an
     accelerator key), use QMenuData::setWhatsThis().
 
-    \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
-    QMenuData::setWhatsThis(), QAction::setWhatsThis()
+    \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QAction::setWhatsThis()
 */
 void QAccel::setWhatsThis(int id, const QString& text)
 {

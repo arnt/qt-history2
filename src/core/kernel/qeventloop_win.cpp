@@ -477,6 +477,11 @@ bool QEventLoop::hasPendingEvents() const
     return qGlobalPostedEventsCount() || winPeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 }
 
+/*!
+    \internal
+
+    Process the Windows event \a message.
+*/
 void QEventLoop::winProcessEvent(void *message)
 {
     if (d->process_event_handler && d->process_event_handler(message))
@@ -496,6 +501,14 @@ void QEventLoop::winProcessEvent(void *message)
     });
 }
 
+/*!
+    \internal
+
+    Returns true if there is an event filter for the given \a message
+    and this \a message is handled by that filter; otherwise returns
+    false. The result of the event filtering is put in \a result if \a
+    result is not 0.
+*/
 bool QEventLoop::winEventFilter(void *message, long *result)
 {
     if (d->event_filter && d->event_filter(message, result))

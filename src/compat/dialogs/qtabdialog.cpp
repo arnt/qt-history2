@@ -468,8 +468,6 @@ QTabBar* QTabDialog::tabBar() const
 
   \warning If used carelessly, this function can easily surprise or
   confuse the user.
-
-  \sa QTabBar::setCurrentTab()
 */
 
 void QTabDialog::showPage(QWidget * w)
@@ -1050,7 +1048,7 @@ void QTabDialog::changeTab(QWidget *w, const QIconSet& iconset, const QString &l
 
 /*! Removes page \a w from this stack of widgets. Does not
   delete \a w.
-  \sa showPage(), QTabWidget::removePage(), QWidgetStack::removeWidget()
+  \sa showPage(), QWidgetStack::removeWidget()
 */
 void QTabDialog::removePage(QWidget * w)
 {

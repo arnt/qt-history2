@@ -166,7 +166,7 @@ int QAccessibleListView::state(int child) const
     return state;
 }
 
-/*! \reimp
+/* \reimp
 QAccessibleInterface *QAccessibleListView::focusChild(int *child) const
 {
     QListViewItem *item = listView()->currentItem();
@@ -186,7 +186,7 @@ QAccessibleInterface *QAccessibleListView::focusChild(int *child) const
     return 0;
 }
 */
-/*! \reimp
+/* \reimp
 bool QAccessibleListView::setFocus(int child)
 {
     bool res = Q3AccessibleScrollView::setFocus(0);
@@ -363,7 +363,7 @@ int QAccessibleIconView::state(int child) const
     return state;
 }
 
-/*! \reimp
+/* \reimp
 QAccessibleInterface *QAccessibleIconView::focusChild(int *child) const
 {
     QIconViewItem *item = iconView()->currentItem();
@@ -374,7 +374,7 @@ QAccessibleInterface *QAccessibleIconView::focusChild(int *child) const
     return (QAccessibleInterface*)this;
 }
 */
-/*! \reimp
+/* \reimp
 bool QAccessibleIconView::setFocus(int child)
 {
     bool res = Q3AccessibleScrollView::setFocus(0);
@@ -541,6 +541,7 @@ QAccessible::Role QAccessibleTextEdit::role(int child) const
 /*!
   \class QAccessibleWidgetStack qaccessible.h
   \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
+
   \ingroup accessibility
 */
 

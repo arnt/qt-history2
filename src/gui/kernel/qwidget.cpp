@@ -5948,7 +5948,7 @@ const QPixmap *QWidget::icon() const
 #endif // QT_COMPAT
 
 /*!
-    \enum QWidget::WidgetAttribute
+    \enum Qt::WidgetAttribute
 
     \keyword widget attributes
 

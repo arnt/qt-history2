@@ -83,6 +83,16 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
 */
 
+/*!
+    \enum QEventLoop::ProcessEventHandler
+    \internal
+*/
+
+/*!
+    \enum QEventLoop::EventFilter
+    \internal
+*/
+
 /*! \enum QEventLoop::ProcessEvents
 
     This enum controls the types of events processed by the

@@ -118,7 +118,7 @@ The default property mappings used by Qt widgets are:
      \i dateTime
 \row \i \l QTextBrowser
      \i source
-\row \i \l QButton,
+\row \i \l QAbstractButton,
         \l QDial,
         \l QLabel,
         \l QLineEdit,

@@ -815,8 +815,6 @@ const QNetworkOperation *QUrlOperator::put(const QByteArray &data, const QString
 
 /*!
     Sets the name filter of the URL to \a nameFilter.
-
-    \sa QDir::setNameFilter()
 */
 
 void QUrlOperator::setNameFilter(const QString &nameFilter)
@@ -827,7 +825,7 @@ void QUrlOperator::setNameFilter(const QString &nameFilter)
 /*!
     Returns the name filter of the URL.
 
-    \sa QUrlOperator::setNameFilter() QDir::nameFilter()
+    \sa QUrlOperator::setNameFilter()
 */
 
 QString QUrlOperator::nameFilter() const

@@ -155,6 +155,14 @@ void QBuffer::setBuffer(QByteArray *a)
 }
 
 /*!
+    \fn void QBuffer::setData(const char *data, int len)
+
+    \overload
+
+    Sets the data to be the first \a len bytes of the \a data string.
+*/
+
+/*!
     Sets the byte array for the buffer to be \a data.
 
     Does nothing if isOpe() is true. Since \a data is const the buffer

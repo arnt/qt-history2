@@ -2081,6 +2081,12 @@ void QTextEdit::sliderReleased()
     }
 }
 
+/*!
+    \internal
+
+    If \a visible is true, the cursor is shown; otherwise it is
+    hidden.
+*/
 void QTextEdit::drawCursor(bool visible)
 {
     d->cursorRepaintMode = true;
