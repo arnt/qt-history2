@@ -360,6 +360,12 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 			qt_mac_dispose_rgn(rgn);
 		    }
 		    QRegion rpm = widget->extra->mask;
+		    /* This is a gross hack, something is weird with how the Mac is handling this region.
+		       clearly the first paintable pixel is becoming 0,0 of this region, so to compensate
+		       I just force 0,0 to be on - that way I know the region is offset like I want. Of 
+		       course it also means another pixel is showing that the user didn't mean to :( FIXME */
+		    if(!rpm.contains(QPoint(0, 0)))
+			rpm |= QRegion(0, 0, 1, 1);
 		    rpm.translate(x, (y + titlebar.boundingRect().height()));
 		    titlebar += rpm;
 		    CopyRgn(titlebar.handle(TRUE), rgn);
@@ -398,7 +404,6 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	case kWindowStructureRgn: {
 	    QRegion cr;
 	    if(widget) {
-
 		if(widget->extra && !widget->extra->mask.isNull()) {
 		    QRegion rin;
 		    CopyRgn(rgn, rin.handle(TRUE));
