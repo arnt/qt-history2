@@ -110,7 +110,7 @@ private:
 	QString location;
 	Q_DUMMY_COMPARISON_OPERATOR(CustomInclude)
     };
-    QValueList<Buddy> buddies;
+    QList<Buddy> buddies;
 
     QStringList layoutObjects;
     bool isLayout( const QString& name ) const;

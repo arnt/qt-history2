@@ -216,10 +216,10 @@ int main( int argc, char * argv[] )
 	if ( ifile.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &ifile );
 	    QString s = ts.read();
-	    s = s.simplifyWhiteSpace();
+	    s = s.simplified();
 	    images = QStringList::split( ' ', s );
 	    for ( QStringList::Iterator it = images.begin(); it != images.end(); ++it )
-		*it = (*it).simplifyWhiteSpace();
+		*it = (*it).simplified();
 	}
     }
 
@@ -300,7 +300,7 @@ int main( int argc, char * argv[] )
 
     QString protector;
     if ( subcl && className && !impl )
-	protector = QString::fromLocal8Bit( className ).upper() + "_H";
+	protector = QString::fromLocal8Bit( className ).toUpper() + "_H";
 
     if ( !protector.isEmpty() ) {
 	out << "#ifndef " << protector << endl;

@@ -98,7 +98,7 @@ QString Uic::trcall( const QString& sourceText, const QString& comment )
 
 QString Uic::mkStdSet( const QString& prop )
 {
-    return QString( "set" ) + prop[0].upper() + prop.mid(1);
+    return QString( "set" ) + prop[0].toUpper() + prop.mid(1);
 }
 
 
@@ -168,7 +168,7 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
 	nameOfClass = getObjectName( e );
     namespaces = QStringList::split( "::", nameOfClass );
     bareNameOfClass = namespaces.last();
-    namespaces.remove( namespaces.fromLast() );
+    namespaces.removeLast();
 
     if ( subcl ) {
 	if ( decl )
@@ -207,7 +207,7 @@ QString Uic::getFormClassName( const QDomElement& e )
 	if ( n.tagName() == "class" ) {
 	    QString s = n.firstChild().toText().data();
 	    int i;
-	    while ( ( i = s.find(' ' )) != -1 )
+	    while ( ( i = s.indexOf(' ' )) != -1 )
 		s[i] = '_';
 	    cn = s;
 	}
