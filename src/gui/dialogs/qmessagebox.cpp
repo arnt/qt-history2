@@ -23,6 +23,7 @@
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qstyle.h"
+#include "qtextdocument.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -567,7 +568,6 @@ void QMessageBox::init(int button0, int button1, int button2)
     }
     label = new QLabel(this);
     label->setAlignment(Qt::AlignTop);
-    label->setWordWrap(true);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");
@@ -691,6 +691,9 @@ QString QMessageBox::text() const
 void QMessageBox::setText(const QString &text)
 {
     label->setText(text);
+    bool wordwrap = label->textFormat() == Qt::RichText
+                    || (label->textFormat() == Qt::AutoText && QText::mightBeRichText(text));
+    label->setWordWrap(wordwrap);
 }
 
 
@@ -1562,6 +1565,9 @@ Qt::TextFormat QMessageBox::textFormat() const
 void QMessageBox::setTextFormat(Qt::TextFormat format)
 {
     label->setTextFormat(format);
+    bool wordwrap = format == Qt::RichText
+                    || (format == Qt::AutoText && QText::mightBeRichText(label->text()));
+    label->setWordWrap(wordwrap);
 }
 
 
