@@ -1178,7 +1178,7 @@ int QMessageBox::information( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
                                        button0, button1, button2,
-                                       parent, "information" );
+                                       parent, "qt_msgbox_information" );
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
@@ -1221,7 +1221,7 @@ int QMessageBox::warning( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
                                        button0, button1, button2,
-                                       parent, "warning" );
+                                       parent, "qt_msgbox_warning" );
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
@@ -1264,7 +1264,7 @@ int QMessageBox::critical( QWidget *parent,
 {
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
                                        button0, button1, button2,
-                                       parent, "critical" );
+                                       parent, "qt_msgbox_critical" );
     Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
@@ -1298,7 +1298,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
     QMessageBox *mb = new QMessageBox( caption, text,
                                        Information,
                                        Ok + Default, 0, 0,
-                                       parent, "simple about box" );
+                                       parent, "qt_msgbox_simple_about_box" );
     Q_CHECK_PTR( mb );
     QPixmap i;
     if ( parent && parent->icon())
@@ -1351,7 +1351,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 
     QMessageBox *mb = new QMessageBox( caption, text, severity,
                                        b[0], b[1], b[2],
-                                       parent, "information" );
+                                       parent, "qt_msgbox_information" );
     Q_CHECK_PTR( mb );
     if ( button0Text.isEmpty() )
         mb->setButtonText( 1, QMessageBox::tr(mb_texts[QMessageBox::Ok]) );
@@ -1503,7 +1503,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     QString c = caption;
     if ( c.isNull() )
         c = "About Qt";
-    QMessageBox *mb = new QMessageBox( parent, "about qt" );
+    QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
     mb->setText( *translatedTextAboutQt );
     QPixmap pm;
