@@ -2991,12 +2991,6 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	    return;
 	}
     }
-    disconnect( propertyEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		this, SLOT( windowPropertyEditor( bool ) ) );
-    disconnect( hierarchyView->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		this, SLOT( windowHierarchyView( bool ) ) );
-    disconnect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
-		this, SLOT( windowFormList( bool ) ) );
     hide();
     if ( help )
 	help->close();
