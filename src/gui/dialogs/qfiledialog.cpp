@@ -747,8 +747,10 @@ void QFileDialog::accept()
         if (!info.exists() || acceptMode() == AcceptOpen)
             QDialog::accept();
         else if (QMessageBox::warning(this, windowTitle(),
-                                      fn + tr(" already exists.\nDo you want to replace it?"),
-                                      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+                                      fn + tr(" already exists.\n"
+                                              "Do you want to replace it?"),
+                                      QMessageBox::Yes,
+                                      QMessageBox::No) == QMessageBox::Yes)
             QDialog::accept();
         return;}
     case ExistingFile:
@@ -758,7 +760,8 @@ void QFileDialog::accept()
             if (!info.exists()) {
                 QString message = tr("\nFile not found.\nPlease verify the "
                                      "correct file name was given");
-                QMessageBox::warning(this, d->acceptButton->text(), info.fileName() + message);
+                QMessageBox::warning(this, d->acceptButton->text(),
+                                     info.fileName() + message);
                 return;
             }
             if (info.isDir()) {
@@ -814,7 +817,7 @@ void QFileDialog::mkdir()
 {
     QModelIndex parent = d->root();
     QString path = d->model->path(parent);
-    d->listView->clearSelection(); // FIXME: the selection model uses
+    d->listView->clearSelection();
 
     QModelIndex index = d->model->mkdir(parent, "New Folder");
     if (!index.isValid())
@@ -1274,7 +1277,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     QDir::Filters filters = filterForMode(fileMode);
     QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
-    model = new QDirModel(QString::null, cleanedFilter, filters, sort, q);
+    model = new QDirModel(QString(), cleanedFilter, filters, sort, q);
     model->setReadOnly(false);
 
     // Selections
@@ -1679,7 +1682,7 @@ static QString qt_encode_file_name(const QString &filename)
 
     int len = name.length();
     if (!len)
-        return QString::null;
+        return QString();
     for (int i = 0; i < len ;++i) {
         uchar byte = static_cast<uchar>(name.at(i));
         if (byte >= 128 || illegal.contains(byte)) {
@@ -1704,7 +1707,7 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
         if (info.exists()) {
             if (info.isDir()) {
                 if (cwd) *cwd = path;
-                if (sel) *sel = QString::null;
+                if (sel) *sel = QString();
             } else {
                 if (cwd) *cwd = info.absolutePath();
                 if (sel) *sel = info.fileName();
@@ -1784,7 +1787,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names(filter, &qt_working_dir, parent,
                                                        caption, selectedFilter, false, false);
-        return files.isEmpty() ? QString::null : files.first();
+        return files.isEmpty() ? QString() : files.first();
     }
 #endif
 
@@ -1793,7 +1796,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                        caption.isEmpty() ? "Open" : caption,
                                        qt_working_dir,
                                        filter,
-                                       selectedFilter ? *selectedFilter : QString::null,
+                                       selectedFilter ? *selectedFilter : QString(),
                                        initialSelection,
                                        QFileDialog::ExistingFile);
     dlg->setModal(true);
@@ -1962,7 +1965,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(qApp->style())) {
         QStringList files = qt_mac_get_open_file_names("", 0, parent, caption, 0, false, true);
-        return files.isEmpty() ? QString::null : files.first();
+        return files.isEmpty() ? QString() : files.first();
     }
 #endif
 
@@ -1971,9 +1974,9 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     QFileDialog *dlg = new QFileDialog(parent,
                                        caption.isEmpty() ? "Find Directory" : caption,
                                        qt_working_dir,
-                                       QString::null,
-                                       QString::null,
-                                       QString::null,
+                                       QString(),
+                                       QString(),
+                                       QString(),
                                        options & ShowDirsOnly ? DirectoryOnly : Directory);
     dlg->setModal(true);
 //     dlg->d->fileType->clear();
@@ -2072,8 +2075,8 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                        caption.isEmpty() ? "Open" : caption,
                                        qt_working_dir,
                                        filter,
-                                       selectedFilter ? *selectedFilter : QString::null,
-                                       QString::null,
+                                       selectedFilter ? *selectedFilter : QString(),
+                                       QString(),
                                        QFileDialog::ExistingFiles);
     dlg->setModal(true);
 

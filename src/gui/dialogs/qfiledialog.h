@@ -40,11 +40,11 @@ public:
 
     QFileDialog(QWidget *parent, Qt::WFlags f);
     QFileDialog(QWidget *parent = 0,
-                const QString &caption = QString::null,
-                const QString &dir = QString::null,
-                const QString &filter = QString::null,
-                const QString &selectedFilter = QString::null,
-                const QString &selectedFile = QString::null,
+                const QString &caption = QString(),
+                const QString &dir = QString(),
+                const QString &filter = QString(),
+                const QString &selectedFilter = QString(),
+                const QString &selectedFile = QString(),
                 FileMode fileMode = AnyFile);
     ~QFileDialog();
 
@@ -112,9 +112,9 @@ public:
 
 #ifdef QT_COMPAT
     inline static QString QT_COMPAT getOpenFileName(const QString &dir,
-                                                    const QString &filter = QString::null,
+                                                    const QString &filter = QString(),
                                                     QWidget *parent = 0, const char* name = 0,
-                                                    const QString &caption = QString::null,
+                                                    const QString &caption = QString(),
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
         { Q_UNUSED(name);
@@ -122,9 +122,9 @@ public:
                                  resolveSymlinks ? Option(0) : DontResolveSymlinks); }
 
     inline static QString QT_COMPAT getSaveFileName(const QString &dir,
-                                                    const QString &filter = QString::null,
+                                                    const QString &filter = QString(),
                                                     QWidget *parent = 0, const char* name = 0,
-                                                    const QString &caption = QString::null,
+                                                    const QString &caption = QString(),
                                                     QString *selectedFilter = 0,
                                                     bool resolveSymlinks = true)
         { Q_UNUSED(name);
@@ -134,7 +134,7 @@ public:
     inline static QString QT_COMPAT getExistingDirectory(const QString &dir,
                                                          QWidget *parent = 0,
                                                          const char* name = 0,
-                                                         const QString &caption = QString::null,
+                                                         const QString &caption = QString(),
                                                          bool dirOnly = true,
                                                          bool resolveSymlinks = true)
         { Q_UNUSED(name);
@@ -143,10 +143,10 @@ public:
                                       | (dirOnly ? ShowDirsOnly : Option(0)))); }
 
     inline static QStringList QT_COMPAT getOpenFileNames(const QString &filter,
-                                                         const QString &dir = QString::null,
+                                                         const QString &dir = QString(),
                                                          QWidget *parent = 0,
                                                          const char* name = 0,
-                                                         const QString &caption = QString::null,
+                                                         const QString &caption = QString(),
                                                          QString *selectedFilter = 0,
                                                          bool resolveSymlinks = true)
         { Q_UNUSED(name);
