@@ -214,7 +214,7 @@ QTableSelection::QTableSelection()
 {
 }
 
-/*! 
+/*!
     Creates an active selection, starting at \a start_row and \a
     start_col, ending at \a end_row and \a end_col;
 */
@@ -2114,7 +2114,7 @@ QTable::FocusStyle QTable::focusStyle() const
     return focusStl;
 }
 
-/*! 
+/*!
     This functions updates all the header states to be in sync with
     the current selections. This should be called after
     programatically changing, adding or removing selections, so that
@@ -2153,7 +2153,7 @@ void QTable::updateHeaderStates()
     verticalHeader()->repaint( FALSE );
 }
 
-/*! 
+/*!
     Returns the table's top QHeader.
 
     This header contains the column labels.
@@ -4556,6 +4556,26 @@ void QTable::setNumCols( int c )
     if ( isUpdatesEnabled )
 	topHeader->update();
     topHeader->updateCache();
+}
+
+/*! Sets the section labels of the verticalHeader() to \a labels */
+
+void QTable::setRowLabels( const QStringList &labels )
+{
+    int i = 0;
+    for ( QStringList::ConstIterator it = labels.begin();
+	  it != labels.end() && i < numRows(); ++i, ++it )
+	leftHeader->setLabel( 0, *it );
+}
+
+/*! Sets the section labels of the horizontalHeader() to \a labels */
+
+void QTable::setColumnLabels( const QStringList &labels )
+{
+    int i = 0;
+    for ( QStringList::ConstIterator it = labels.begin();
+	  it != labels.end() && i < numCols(); ++i, ++it )
+	topHeader->setLabel( 0, *it );
 }
 
 /*!

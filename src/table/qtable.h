@@ -380,6 +380,9 @@ public slots:
 
     virtual void editCell( int row, int col, bool replace = FALSE );
 
+    void setRowLabels( const QStringList &labels );
+    void setColumnLabels( const QStringList &labels );
+
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
