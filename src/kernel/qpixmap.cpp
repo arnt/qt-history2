@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#91 $
 **
 ** Implementation of QPixmap class
 **
@@ -34,7 +34,7 @@
 
   \ingroup drawing
   \ingroup shared
-  
+
   It is one of the two classes Qt provides for dealing with images,
   the other being QImage.  QPixmap is designed and optimized for
   drawing; QImage is designed and optimized for I/O and for direct
@@ -51,7 +51,7 @@
   <li> Paint the pixmap.
   <li> bitBlt() the pixmap contents onto the widget.
   </ol>
-  
+
   Pixel data in a pixmap is internal and managed by the underlying
   window system.  Pixels can only be accessed through QPainter
   functions, through bitBlt(), and by converting the QPixmap to a
@@ -60,7 +60,7 @@
   You can display a QPixmap on the screen easily using
   e.g. QLabel::setPixmap(), and all the \link QButton button classes
   \endlink support pixmap use.
-  
+
   There are also convenience functions to get and set single pixels
   and to load and save the entire pixmap; these work by converting the
   pixmap to a QImage internally.
@@ -298,7 +298,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 */
 
 /*!
-  \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+  void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
