@@ -1189,7 +1189,10 @@ then
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX", >>$mkfile
 	grep "QMAKE_CFLAGS_QMAKE[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
-	[  "$DEBUG" = "yes" ] && grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
+	[ "$DEBUG" = "yes" ]
+	then
+	    grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
+	fi
 	if [ "$MAC_PLATFORM" = "yes" ]; then
 	    echo "QMAKE_CFLAGS_EXTRA+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
 	    echo "QMAKE_LFLAGS_EXTRA+=-framework Carbon" >> $mkfile
@@ -1493,9 +1496,9 @@ for i in $QMAKE_VARS; do
   if [ "$quoted" = "no" ]
   then
     case "$i" in
-      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE   ;;
-      \"*)   quoted=yes ; tmp=$i   ;;
-      *)   echo $i >>CACHEFILE ;;
+      \"*\") echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE ;;
+      \"*) quoted=yes ; tmp=$i ;;
+      *) echo $i >>CACHEFILE ;;
     esac
   else
     case "$i" in
@@ -1609,7 +1612,7 @@ do
     grep -v $p .sorted.projects > .sorted.projects.new
     mv -f .sorted.projects.new .sorted.projects
 done
-sort .sorted.projects  > .sorted.projects.new
+sort .sorted.projects > .sorted.projects.new
 mv -f .sorted.projects.new .sorted.projects
 uniq .sorted.projects > .sorted.projects.new
 mv -f .sorted.projects.new .sorted.projects
