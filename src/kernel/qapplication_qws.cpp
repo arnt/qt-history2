@@ -1680,8 +1680,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 		--it;
 		continue;
 	    }
-	    if ( w->isVisible() && w->geometry().contains(pos)
-		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
+	    if ( w->isVisible() && w->geometry().contains(pos) 
+		 && w->allocatedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !child )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
