@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#463 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#464 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -598,11 +598,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	resBG = bg;
 
     if ( !resFont.isEmpty() ) {				// set application font
-	QFont font;
-	font.setRawMode( TRUE );
-	font.setFamily( resFont );
-	if ( !QApplication::font() || font != *QApplication::font() )
-	    QApplication::setFont( font, TRUE );
+	//############# fix this with Eng's new fontdatabase: QFont::setRawName(...)
+// 	QFont font;
+// 	font.setRawMode( TRUE );
+// 	font.setFamily( resFont );
+// 	if ( !QApplication::font() || font != *QApplication::font() )
+// 	    QApplication::setFont( font, TRUE );
     }
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
 	QColor btn;
@@ -3392,11 +3393,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	case 0x4f: KOI8(Key_Backtab); break;
 	case 0x52: KOI8(Key_Tab); break;
 	case 0x54: KOI8(Key_Escape); break;
-	case 0x4c: 
-	    if (c == Key_Return ) 
+	case 0x4c:
+	    if (c == Key_Return )
 		;
 	    else
-		KOI8(Key_Backspace); 
+		KOI8(Key_Backspace);
 	    break;
 	}
     }
