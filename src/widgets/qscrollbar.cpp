@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#99 $
 **
 ** Implementation of QScrollBar class
 **
@@ -725,7 +725,7 @@ int QScrollBar_Private::rangeValueToSliderPos( int v ) const
     int sliderMin=smin, sliderMax=smax;
 
     int r;
-    if ( sliderMax * maxValue() * 16 > INT_MAX )
+    if ( 16.0 * sliderMax * maxValue() > INT_MAX )
 	r = (int) (((sliderMax-sliderMin)*2*(v-minValue())+1.0)/
 		   ((maxValue()-minValue())*2)) + sliderMin;
     else
@@ -743,7 +743,7 @@ int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
     if ( pos >= sliderMax )
 	return maxValue();
     int r;
-    if ( sliderMax * maxValue() * 16 > INT_MAX )
+    if ( 16.0 * sliderMax * maxValue() > INT_MAX )
         r = (int) ((maxValue() - minValue() + 1.0)*(pos - sliderMin)/
 		   (sliderMax - sliderMin)) + minValue();
     else
