@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#14 $
 **
 ** Implementation of something useful.
 **
@@ -235,7 +235,7 @@ void QWizard::next()
 	   d->current && d->pages[i]->w != d->current->w )
 	i++;
     i++;
-    while( i < (int)d->pages.count()-1 && !appropriate( d->pages[i]->w ) )
+    while( i <= (int)d->pages.count()-1 && !appropriate( d->pages[i]->w ) )
 	i++;
     if ( i < (int)d->pages.count() ) {
 	d->pages[i]->back = d->current ? d->current->w : 0;
