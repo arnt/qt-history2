@@ -36,9 +36,6 @@ Another change concerns the Qt build system, which has been reworked
 to make it a lot easier to port Qt to new platforms. You can use this
 platform independent build system for your own applications.
 
-The following notes give a more detailed overview of the key new
-features added in the 3.0 series of the Qt toolkit.
-
 
 The Qt Library
 ========================================
@@ -65,7 +62,7 @@ automatically.  Drivers for Oracle, PostgreSQL, MySQL and ODBC are
 available and writing new drivers is straightforward.
 
 Tying the results of SQL queries to GUI components is fully supported
-by the Qt SQL widgets. These classes include a tabular data widget
+by Qt's SQL widgets. These classes include a tabular data widget
 (for spreadsheet-like data presentation with in-place editing), a
 form-based data browser (which provides data navigation and edit
 functions) and a form-based data viewer (which provides read-only
@@ -75,8 +72,8 @@ editing. The SQL module fully supports Qt's signal/slots mechanism,
 making it easy for developers to include their own data validation and
 auditing code.
 
-Qt Designer fully supports the Qt SQL module. All SQL widgets can be
-laid out within the Designer, and relationships can be established
+Qt Designer fully supports Qt's SQL module. All SQL widgets can be
+laid out within Qt Designer, and relationships can be established
 between controls visually. Many interactions can be defined purely in
 terms of Qt's signals/slots mechanism directly in Qt Designer.
 
@@ -94,7 +91,7 @@ QSqlDriverInterface or QTextCodecInterface. It is possible to remove
 unused components from the Qt library, and easy to extend any
 application with 3rd party styles, database drivers or text codecs.
 
-The Qt Designer supports custom widgets in plugins, and will use the
+Qt Designer supports custom widgets in plugins, and will use the
 widgets both when designing and previewing forms.
 
 QComponentFactory makes it easy to register any kind of component in a
@@ -110,7 +107,7 @@ optimized and extended to support editing. It allows editing formatted
 text with different fonts, colors, paragraph styles, tables and
 images. The editor supports different word wrap modes, command-based
 undo/redo, multiple selections, drag and drop, and many other
-features.  The engine is highly optimized for procesing and displaying
+features.  The engine is highly optimized for proccesing and displaying
 large documents quickly and efficiently.
 
 
@@ -130,7 +127,7 @@ develop their applications. This means that developers who developed
 applications using Qt 2.x will automatically gain the full support for
 these languages when switching to Qt 3.0. Developers can rely on their
 application to work for people using writing systems different from
-Latin, without having to worry about the complexities involved with
+Latin1, without having to worry about the complexities involved with
 these scripts, as Qt takes care of this automatically.
 
 
@@ -147,14 +144,14 @@ place them at a convenient place in a dock area, or drag them out of
 the application and have them float freely as top level windows in
 their own right. Dock windows can also be minimized or hidden.
 
-For developer dock windows behave just like ordinary widgets. QToolbar
+For developers, dock windows behave just like ordinary widgets. QToolbar
 for example is now a specialized subclass of a dock window.  The API
 of QMainWindow and QToolBar is source compatible with Qt 2.x, so
-existing code which uses these classes continues to work.
+existing code which uses these classes will continue to work.
 
 
-Regular Expresions
-------------------
+Regular Expressions
+-------------------
 
 Qt has always provided regular expression support, but that support
 was pretty much limited to what was required in common GUI control
@@ -185,8 +182,8 @@ full control over the started program, for example you can redirect
 the input and output of console applications.
 
 
-Accessibility (not part of the beta1)
--------------------------------------
+Accessibility (not part of the beta1 release)
+---------------------------------------------
 
 Accessibility means making software usable and accessible to a wide
 range of users, including those with disabilities. In Qt 3.0, most
@@ -315,13 +312,13 @@ vertically.
 
 In Qt 2.2, many of the dialogs created by Qt Designer had to be
 subclassed to implement functionality beyond the predefined signal and
-slot connections. Whilst the subclassing approach is fully supported,
-Qt Designer now offers an alternative: a plugin for editing C++
+slot connections. Whilst the subclassing approach is still fully supported,
+Qt Designer now offers an alternative: a plugin for editing 
 slots. The editor offers features such as syntax highlighting,
 completion, parentheses matching and incremental search.
 
 The functionality of Qt Designer can now be extended via plugins.
-Using the DesignerInterface or by implementing one of the provided
+Using Qt Designer's interface or by implementing one of the provided
 interfaces in a plugin, a two way communication between plugin and Qt
 Designer can be established. This functionality is used to implement
 plugins for custom widgets, so that they can be used as real widgets
@@ -504,8 +501,6 @@ More sophisticated toString() function that takes a DateFormat, where
 DateFormat can be either TextDate (the default), ISODate (ISO 8601) or
 LocalDate (locale dependent).
 
-The
-
 All new functions:
 	QDate addMonths( int months ) const;
 	QDate addYears( int years ) const;
@@ -545,7 +540,7 @@ applications. Previously, only show and hide events had this flag.
 
 Enter/Leave event generation has been fixed. Previously, a widget
 received a leave event when the mouse pointer entered one of its
-children. This was both innatural and contradictive to the
+children. This was both unnatural and contradictive to the
 documentation.
 
 QWheelevent now carries an orientation to differentiate between
@@ -578,7 +573,11 @@ All new Functions:
 New signals:
 	void filesSelected( const QStringList& );
 	void filterSelected( const QString& );
-	
+
+If you try to specify an invalid file when using getOpenFileName(s), an error message
+will appear and the file will not be accepted.  In 2.x, this function behaved differently
+because users were using getOpenFileName(s) as a Save File Dialog; you should use
+getSaveFileName() when you require a Save File Dialog.	
 
 QCanvas Module
 --------------
@@ -700,7 +699,7 @@ QHeader
 New property: bool stretching
 
 New functions:
-	bool isStretchEnabled(
+	bool isStretchEnabled( int section );
 	void setStretchEnabled( bool b, int section );
 	
 
@@ -795,7 +794,7 @@ New functions:
 	void setDropEnabled( bool allow );
 	bool dragEnabled() const;
 	bool dropEnabled() const;
-	 bool acceptDrop( const QMimeSource *mime ) const;
+	bool acceptDrop( const QMimeSource *mime ) const;
 	void setVisible( bool b );
 	bool isVisible() const;
 	void setRenameEnabled( int col, bool b );
@@ -926,7 +925,7 @@ New functions:
 QSessionManager
 ---------------
 
-Renamed the missnamed setProperty() overloads to setManagerProperty()
+Renamed the misnamed setProperty() overloads to setManagerProperty()
 to resolve the conflict with the now virtual QObject::setProperty().
 
 
@@ -967,17 +966,17 @@ New property:
 	QIconSet iconSet
 
 New functions:
-	QIconSet iconSet() const
-	virtual void setIconSet( const QIconSet & )
+	QIconSet iconSet() const;
+	virtual void setIconSet( const QIconSet & );
 
 QWidget
 -------
 
-New Functions:
+New functions:
 
     const QColor & eraseColor() const;
     virtual void setEraseColor( const QColor & );
-    const QPixmap *	erasePixmap() const;
+    const QPixmap * erasePixmap() const;
     virtual void setErasePixmap( const QPixmap & );
 
 
@@ -996,7 +995,7 @@ New functions:
 QWMatrix
 --------
 
-New Function:
+New function:
 	bool isIdentity() const;
 	
 
@@ -1012,13 +1011,17 @@ New functions:
 QWorkspace Module
 -----------------
 
-A new property scrollbarsEnabled makes it possible to add on-demand
+A new property scrollBarsEnabled makes it possible to add on-demand
 scrollbars to the workspace. We define this property in Qt Designer to
 make designing forms larger than the available space on the desktop
 more comfortable.
 
+New property:
+	bool scrollBarsEnabled
+
 
 QXML Module
+-----------
 Many new functions have been added:
 	QDomImplementation
 		QDomDocumentType createDocumentType( const QString& qName, const QString& publicId, const QString& systemId );
