@@ -424,6 +424,15 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 	    } break;
 	    default:
 		QString txt = ke->text();
+		if ( txt != QString::null && txt[0] == separator()[0] ) {
+		    // do the same thing as KEY_RIGHT when the user presses the separator key
+		    if ( d->focusSection() < 2 ) {
+			if ( cw->setFocusSection( focusSection()+1 ) )
+			    repaint( rect(), FALSE );
+		    }
+		    return TRUE;
+		}
+
 		int num = txt[0].digitValue();
 		if ( num != -1 ) {
 		    cw->addNumber( d->focusSection(), num );
