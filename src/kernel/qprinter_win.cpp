@@ -153,6 +153,21 @@ QPrinter::QPrinter( PrinterMode m )
     hdevmode  = 0;
     hdevnames = 0;
 
+    switch ( m ) {
+    case ScreenResolution:
+	{
+	    HDC dc = GetDC( 0 );
+	    res = GetDeviceCaps( dc, LOGPIXELSY );
+	    ReleaseDC( 0, dc );
+	    break;
+	}
+    case Compatible:
+	devFlags |= QInternal::CompatibilityMode;
+    case PrinterResolution:
+    case HighResolution:
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+    }
+
     QT_WA( {
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
@@ -167,20 +182,6 @@ QPrinter::QPrinter( PrinterMode m )
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlgA( &pd ) != 0 )
             readPdlgA( &pd );
-    } );
-    switch ( m ) {
-    case ScreenResolution:
-	{
-	    HDC dc = GetDC( 0 );
-	    res = GetDeviceCaps( dc, LOGPIXELSY );
-	    ReleaseDC( 0, dc );
-	    break;
-	}
-    case Compatible:
-	devFlags |= QInternal::CompatibilityMode;
-    case PrinterResolution:
-    case HighResolution:
-	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
     setPrinterMapping( hdc, res );    
 }
