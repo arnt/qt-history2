@@ -1488,7 +1488,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     QString prefix = pkgConfigPrefix();
     QString libDir = project->first("QMAKE_PKGCONFIG_LIBDIR");
     if(libDir.isEmpty())
-	libDir = prefix + "/lib";
+	libDir = prefix + Option::dir_sep + "lib" + Option::dir_sep;
     QString includeDir = project->first("QMAKE_PKGCONFIG_INCDIR");
     if(includeDir.isEmpty())
 	includeDir = prefix + "/include";
