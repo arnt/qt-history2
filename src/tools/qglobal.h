@@ -66,7 +66,7 @@
 //   UNIXWARE	- SCO UnixWare
 //   SCO	- SCO of some sort
 //   AIX	- AIX
-//   GNU	- GNU Hurd
+//   HURD	- GNU Hurd
 //   DGUX	- DG/UX
 //   DYNIX	- DYNIX/ptx
 //   RELIANT	- Reliant UNIX
@@ -133,7 +133,7 @@
 #elif defined(_UNIXWARE)
 #  define Q_OS_UNIXWARE
 #elif defined(__GNU__)
-#  define Q_OS_GNU
+#  define Q_OS_HURD
 #elif defined(DGUX)
 #  define Q_OS_DGUX
 #elif defined(__QNX__)
@@ -245,15 +245,14 @@
 #      define Q_C_CALLBACKS
 #    elif defined( __KCC )
 #      define Q_CC_KAI
+#    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
+// mmmh... don't know whether it defines __EDG__ or __EDG for sure!
+#      define Q_CC_OC
 // the new UnixWare 7 compiler is based on EDG and defines __EDG__
 #    elif defined(__USLC__)
 #      define Q_CC_USLC
 #    endif
 #  endif
-#elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
-// don't know whether it defines __EDG__ or __EDG but an EDG compiler for sure
-#  define Q_CC_EDG
-#  define Q_CC_OC
 #elif defined(__USLC__)
 // the older UnixWare compiler is not based on EDG
 #  define Q_CC_USLC
