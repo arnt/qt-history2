@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#132 $
 **
 ** Definition of QIconView widget class
 **
@@ -589,8 +589,12 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
       do_something_with( item );
   \endcode
 
-  As the iconview is designed to use DnD, the iconview has methods for DnD
-  too.
+  To remove an item from an iconview, just delete the item. The
+  destructor of the QIconViewItem does all the work for removing
+  it from the iconview.
+  
+  As the iconview is designed to use DnD, the iconview item methods for DnD
+  too which may be reimplemented.
 
   Subclassing QIconViewItem will provide a big flexibility.
 */
@@ -1574,7 +1578,8 @@ void QIconViewItem::setIconRect( const QRect &r )
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East). The text can be either displayed at the bottom of the icons
-  or the the right of the icons.
+  or the the right of the icons. Items can also be inserted in a sorted order. There
+  are also methodes to rearrange and resort the items after they have been inserted.
 
   There is a variety of selection modes, described in the
   QIconView::SelectionMode documentation. The default is
@@ -1590,6 +1595,27 @@ void QIconViewItem::setIconRect( const QRect &r )
 
   Items can also be in-place renamed.
 
+  The normal way to insert some items is to create QIconViewItems
+  and pass the iconview as parent. But using insertItem(), items 
+  can be inserted manually too. The QIconView offers basic methodes
+  similar to the QListView and QListBox, like removeItem(), clearSelection(),
+  setSelected(), setCurrentItem(), currentItem() and much more.
+  
+  As the internal structure to store the iconview items is linear, no
+  iterator class is needed to iterate over all items. This can be easily
+  done with a code like 
+  
+  \code
+  QIconView *iv = the iconview
+  for ( QIconViewItem *i = iv->firstItem(); i; i = i->nextItem() ) {
+      i->doSmething();
+  }
+  
+  \endcode
+  
+  To notify the application about changes in the iconview there
+  are several signals which are emitted by the QIconView. 
+  
   The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
   the iconview itself using DnD. So the QIconView provides some methods for
   extended DnD too. To use DnD correctly in the iconview, please read following
