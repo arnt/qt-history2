@@ -832,6 +832,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
             uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
+            if (btn->state & (Style_On | Style_Down))
+                ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
+                             pixelMetric(PM_ButtonShiftVertical, opt, widget));
             if (!btn->icon.isNull()) {
                 QIcon::Mode mode = btn->state & Style_Enabled ? QIcon::Normal
                                                               : QIcon::Disabled;
@@ -857,9 +860,6 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             } else {
                 tf |= Qt::AlignHCenter;
             }
-            if (btn->state & (Style_On | Style_Down))
-                ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
-                             pixelMetric(PM_ButtonShiftVertical, opt, widget));
             drawItem(p, ir, tf, btn->palette, (btn->state & Style_Enabled), QPixmap(), btn->text, -1,
                      &(btn->palette.buttonText().color()));
         }
