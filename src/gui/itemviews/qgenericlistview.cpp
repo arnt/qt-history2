@@ -1073,7 +1073,6 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
  	delegate->paint(painter, options, *it);
 	draggedItemsRect |= options.itemRect;
     }
-    painter->drawRect(draggedItemsRect);
 }
 
 QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIndex &item) const
