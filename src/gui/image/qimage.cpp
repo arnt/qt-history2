@@ -166,12 +166,12 @@ QImageData::~QImageData()
     will must do some bit shifts:
 
     \code
-    QImage image;
-    // sets bit at (x,y) to 1
-    if (image.bitOrder() == QImage::LittleEndian)
-        *(image.scanLine(y) + (x >> 3)) |= 1 << (x & 7);
-    else
-        *(image.scanLine(y) + (x >> 3)) |= 1 << (7 - (x & 7));
+        QImage image;
+        // sets bit at (x, y) to 1
+        if (image.bitOrder() == QImage::LittleEndian)
+            image.scanLine(y)[x >> 3] |= 1 << (x & 7);
+        else
+            image.scanLine(y)[x >> 3] |= 1 << (7 - (x & 7));
     \endcode
 
     If this looks complicated, it might be a good idea to convert the
@@ -181,11 +181,13 @@ QImageData::~QImageData()
     because they have a single byte per pixel:
 
     \code
-    QImage image;
-    // set entry 19 in the color table to yellow
-    image.setColor(19, qRgb(255,255,0));
-    // set 8 bit pixel at (x,y) to value yellow (in color table)
-    *(image.scanLine(y) + x) = 19;
+        QImage image;
+
+        // set entry 19 in the color table to yellow
+        image.setColor(19, qRgb(255, 255, 0));
+
+        // set 8 bit pixel at (x,y) to value yellow (in color table)
+        image.scanLine(y)[x] = 19;
     \endcode
 
     32-bpp images ignore the color table; instead, each pixel contains
@@ -193,10 +195,11 @@ QImageData::~QImageData()
     significant byte is reserved for the alpha buffer.
 
     \code
-    QImage image;
-    // sets 32 bit pixel at (x,y) to yellow.
-    uint *p = (uint *)image.scanLine(y) + x;
-    *p = qRgb(255,255,0);
+        QImage image;
+
+        // sets 32 bit pixel at (x,y) to yellow.
+        uint *ptr = reinterpret_cast<uint *>(image.scanLine(y)) + x;
+        *ptr = qRgb(255, 255, 0);
     \endcode
 
     On Qt/Embedded, scanlines are aligned to the pixel depth and may
@@ -225,7 +228,7 @@ QImageData::~QImageData()
     image that is a transformed version of the original. For example,
     copy(), convertBitOrder(), convertDepth(), createAlphaMask(),
     createHeuristicMask(), mirror(), scale(), swapRGB()
-    and xForm(). There are also functions for changing attributes of
+    and transform(). There are also functions for changing attributes of
     an image in-place, for example, setAlphaBuffer(), setColor(),
     setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
 
@@ -235,17 +238,22 @@ QImageData::~QImageData()
     loadFromData(). The lists of supported formats are available from
     QImageIO::inputFormats() and QImageIO::outputFormats().
 
+    When loading an image, the file name can be either refer to an
+    actual file on disk or to one of the application's embedded
+    resources. See the \l{resources.html}{Resource System} overview
+    for details on how to embed images and other resource files in
+    the application's executable.
+
     Strings of text may be added to images using setText().
 
-    The QImage class uses explicit \link shclass.html sharing\endlink,
-    similar to that used by QMemArray.
+    The QImage class uses \l{shclass.html}{implicit sharing}, so you
+    can pass QImage objects around by value.
 
     New image formats can be added as \link plugins-howto.html
     plugins\endlink.
 
-    \sa QImageIO QPixmap QColor \l{shclass.html}{Shared Classes}
+    \sa QImageIO QPixmap QColor {shclass.html}{Shared Classes}
 */
-
 
 /*!
     \enum QImage::Endian
@@ -257,7 +265,9 @@ QImageData::~QImageData()
                          operations that are independent of endianness.
     \value BigEndian     Network byte order, as on SPARC and Motorola CPUs.
     \value LittleEndian  PC/Alpha byte order.
+*/
 
+/*!
     \enum QImage::InvertMode
 
     This enum type is used to describe how pixel values should be
@@ -371,6 +381,12 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     The QImageIO documentation lists the supported image formats and
     explains how to add extra formats.
 
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
+
     \sa load() isNull() QImageIO
 */
 
@@ -394,7 +410,7 @@ extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage 
     by using an unusual declaration:
 
     \code
-        static const char * const start_xpm[]={
+        static const char * const start_xpm[] = {
             "16 15 8 1",
             "a c #cec6bd",
         ....
@@ -1046,7 +1062,6 @@ void QImage::fill(uint pixel)
     }
 }
 
-
 /*!
     Inverts all pixel values in the image.
 
@@ -1084,6 +1099,12 @@ void QImage::invertPixels(InvertMode mode)
     }
 }
 
+/*!
+    \fn void QImage::invertPixels(bool invertAlpha)
+
+    Use the invertPixels() function that takes a QImage::InvertMode
+    parameter instead.
+*/
 
 /*! \fn QImage::Endian QImage::systemByteOrder()
 
@@ -2341,35 +2362,16 @@ bool QImage::isGrayscale() const
 
 
 /*!
-  \fn QImage QImage::smoothScale(int w, int h, Qt::AspectRatioMode mode) const
+    \fn QImage QImage::smoothScale(int width, int height, Qt::AspectRatioMode mode) const
 
-    Returns a smoothly scaled copy of the image. The returned image
-    has a size of width \a w by height \a h pixels if \a mode is \c
-    Qt::IgnoreAspectRatio. The modes \c Qt::KeepAspectRatio and \c
-    Qt::KeepAspectRatioByExpanding may be used to preserve the ratio
-    of the image: if \a mode is \c Qt::KeepAspectRatio, the returned
-    image is guaranteed to fit into the rectangle specified by \a w
-    and \a h (it is as large as possible within the constraints); if
-    \a mode is \c Qt::KeepAspectRatioByExpanding, the returned image
-    fits at least into the specified rectangle (it is a small as
-    possible within the constraints). Note that the algorithm used
-    favors speed rather than smoothness.
-
-    For 32-bpp images and 1-bpp/8-bpp color images the result will be
-    32-bpp, whereas \link allGray() all-gray \endlink images
-    (including black-and-white 1-bpp) will produce 8-bit \link
-    isGrayscale() grayscale \endlink images with the palette spanning
-    256 grays from black to white.
-
-    \sa scale() mirror()
+    Use scale(\a width, \a height, \a mode, Qt::SmoothTransformation) instead.
 */
 
 /*!
-    \fn QImage QImage::smoothScale(const QSize &s, Qt::AspectRatioMode mode) const
-
+    \fn QImage QImage::smoothScale(const QSize &size, Qt::AspectRatioMode mode) const
     \overload
 
-    The requested size of the image is \a s.
+    Use scale(\a size, \a mode, Qt::SmoothTransformation) instead.
 */
 
 /*!
@@ -2393,7 +2395,7 @@ bool QImage::isGrayscale() const
     If either the width \a w or the height \a h is zero or negative,
     this function returns a \l{isNull()}{null} image.
 
-    \sa scaleWidth() scaleHeight() xForm()
+    \sa scaleWidth() scaleHeight() transform()
 */
 
 /*!
@@ -2435,7 +2437,7 @@ QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transfo
     If \a w is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleHeight() xForm()
+    \sa scale() scaleHeight() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleWidth(int w) const
@@ -2462,7 +2464,7 @@ QImage QImage::scaleWidth(int w) const
     If \a h is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleWidth() xForm()
+    \sa scale() scaleWidth() transform()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleHeight(int h) const
@@ -2486,15 +2488,15 @@ QImage QImage::scaleHeight(int h) const
     Returns the actual matrix used for transforming a image with \a w
     width and \a h height and matrix \a matrix.
 
-    When transforming a image with xForm(), the transformation matrix
+    When transforming a image with transform(), the transformation matrix
     is internally adjusted to compensate for unwanted translation,
-    i.e. xForm() returns the smallest image containing all
+    i.e. transform() returns the smallest image containing all
     transformed points of the original image.
 
     This function returns the modified matrix, which maps points
     correctly from the original image into the new image.
 
-    \sa xForm(), QMatrix
+    \sa transform(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
@@ -2556,7 +2558,7 @@ static QImage smoothXForm(const QImageData *src, const QMatrix &matrix);
 QImage QImage::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     // This function uses the same algorithm as (and steals quite some
-    // code from) QPixmap::xForm().
+    // code from) QPixmap::transform().
 
     if (isNull())
         return *this;
@@ -2968,6 +2970,12 @@ QImage QImage::swapRGB() const
     The QImageIO documentation lists the supported image formats and
     explains how to add extra formats.
 
+    The file name can be either refer to an actual file on disk or to
+    one of the application's embedded resources. See the
+    \l{resources.html}{Resource System} overview for details on how
+    to embed images and other resource files in the application's
+    executable.
+
     \sa loadFromData() save() imageFormat() QPixmap::load() QImageIO
 */
 
@@ -3022,7 +3030,7 @@ bool QImage::loadFromData(QByteArray buf, const char *format)
 /*!
     Saves the image to the file \a fileName, using the image file
     format \a format and a quality factor of \a quality. \a quality
-    must be in the range 0..100 or -1. Specify 0 to obtain small
+    must be in the range 0 to 100 or -1. Specify 0 to obtain small
     compressed files, 100 for large uncompressed files, and -1 (the
     default) to use the default settings.
 
@@ -3046,12 +3054,13 @@ bool QImage::save(const QString &fileName, const char* format, int quality) cons
     This function writes a QImage to the QIODevice, \a device. This
     can be used, for example, to save an image directly into a
     QByteArray:
+
     \code
-    QImage image;
-    QByteArray ba;
-    QBuffer buffer(ba);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "PNG"); // writes image into ba in PNG format
+        QImage image;
+        QByteArray ba;
+        QBuffer buffer(ba);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG"); // writes image into ba in PNG format
     \endcode
 */
 
@@ -3481,13 +3490,14 @@ QString QImage::text(const QImageTextKeyLang& kl) const
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
+
     \code
-    QStringList list = myImage.textLanguages();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
+        QStringList list = myImage.textLanguages();
+        QStringList::Iterator it = list.begin();
+        while(it != list.end()) {
+            myProcessing(*it);
+            ++it;
+        }
     \endcode
 
     \sa textList() text() setText() textKeys()
@@ -3502,13 +3512,14 @@ QStringList QImage::textLanguages() const
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
+
     \code
-    QStringList list = myImage.textKeys();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
+        QStringList list = myImage.textKeys();
+        QStringList::Iterator it = list.begin();
+        while(it != list.end()) {
+            myProcessing(*it);
+            ++it;
+        }
     \endcode
 
     \sa textList() text() setText() textLanguages()
@@ -3521,17 +3532,6 @@ QStringList QImage::textKeys() const
 /*!
     Returns a list of QImageTextKeyLang objects that enumerate all the
     texts key/language pairs set by setText() for this image.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QList<QImageTextKeyLang> list = myImage.textList();
-    QList<QImageTextKeyLang>::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
 */
 QList<QImageTextKeyLang> QImage::textList() const
 {
@@ -3605,8 +3605,8 @@ QWSPaintEngine *QImage::paintEngine()
  *****************************************************************************/
 /*
   This internal function contains the common (i.e. platform independent) code
-  to do a transformation of pixel data. It is used by QPixmap::xForm() and by
-  QImage::xForm().
+  to do a transformation of pixel data. It is used by QPixmap::transform() and by
+  QImage::transform().
 
   \a trueMat is the true transformation matrix (see QPixmap::trueMatrix()) and
   \a xoffset is an offset to the matrix.
@@ -4272,10 +4272,8 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
 
 /*!
     \fn QImage QImage::xForm(const QMatrix &matrix) const
-    \compat
 
-    Transforms the image using the given \a matrix and returns the result
-    as a new image.
+    Use transform(\a matrix) instead.
 */
 
 /*!
