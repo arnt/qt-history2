@@ -1555,7 +1555,6 @@ then
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
         fi
 	if [ "$MAC_PLATFORM" = "yes" ]; then
-          echo "CARBON_CFLAGS+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
 	  echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
 	  EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
