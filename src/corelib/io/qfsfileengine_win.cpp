@@ -211,9 +211,14 @@ QFSFileEngine::remove()
 }
 
 bool
-QFSFileEngine::copy(const QString &)
+QFSFileEngine::copy(const QString &copyName)
 {
-    return false;
+    QT_WA({
+        return ::CopyFileW((TCHAR*)d->file.utf16(), (TCHAR*)copyName.utf16(), false) != 0;
+    } , {
+        return ::CopyFileA(QFSFileEnginePrivate::win95Name(d->file),
+                           QFSFileEnginePrivate::win95Name(copyName), false) != 0;
+    });
 }
 
 bool
