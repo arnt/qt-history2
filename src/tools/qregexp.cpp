@@ -3525,6 +3525,9 @@ int QRegExp::search( const QString& str, int start ) const
   Although const, this function sets matchedLength(), capturedTexts()
   and pos().
 
+  \warning Searching backwards is much slower than searching
+  forwards.
+
   \sa search() exactMatch()
 */
 int QRegExp::searchRev( const QString& str, int start ) const
