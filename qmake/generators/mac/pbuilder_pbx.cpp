@@ -875,7 +875,7 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 		if(file.name().isEmpty() || fi.isDir())
 		    output += project->first("TARGET");
 		output += QString(".pbproj") + QDir::separator();
-	    } else if(output.right(1) != QDir::separator()) {
+	    } else if(output[(int)output.length() - 1] != QDir::separator()) {
 		output += QDir::separator();
 	    }
 	    output += QString("project.pbxproj");
