@@ -1,9 +1,10 @@
 #ifndef QAXSCRIPT_H
 #define QAXSCRIPT_H
 
-#include <qaxobject.h>
+#include <qobject.h>
 #include <qvariant.h>
 
+class QAxBase;
 class QAxScriptSite;
 class QAxScriptInstance;
 
