@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#283 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -825,8 +825,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
-    dpy = pdev->dpy;				// get display variable
-    hd	= pdev->hd;				// get handle to drawable
+    dpy = pdev->x11Display();			// get display variable
+    hd	= pdev->handle();			// get handle to drawable
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting

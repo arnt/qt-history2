@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#87 $
 **
 ** Implementation of QColor class for X11
 **
@@ -181,7 +181,7 @@ static int highest_bit( uint v )
 
 int QColor::maxColors()
 {
-    return QPaintDevice::x11Cells();
+    return QPaintDevice::x11AppCells();
 }
 
 /*!
@@ -194,7 +194,7 @@ int QColor::maxColors()
 
 int QColor::numBitPlanes()
 {
-    return QPaintDevice::x11Depth();
+    return QPaintDevice::x11AppDepth();
 }
 
 
@@ -261,14 +261,14 @@ void QColor::initialize()
 	}
     }
 
-    QPaintDevice::x_display   = dpy;
-    QPaintDevice::x_screen    = scr;
-    QPaintDevice::x_depth     = depth;
-    QPaintDevice::x_cells     = ncols;
-    QPaintDevice::x_colormap  = (uint)cmap;
-    QPaintDevice::x_defcmap   = defCmap;
-    QPaintDevice::x_visual    = g_vis;
-    QPaintDevice::x_defvisual = defVis;
+    QPaintDevice::x_appdisplay     = dpy;
+    QPaintDevice::x_appscreen      = scr;
+    QPaintDevice::x_appdepth       = depth;
+    QPaintDevice::x_appcells       = ncols;
+    QPaintDevice::x_appcolormap    = (uint)cmap;
+    QPaintDevice::x_appdefcolormap = defCmap;
+    QPaintDevice::x_appvisual      = g_vis;
+    QPaintDevice::x_appdefvisual   = defVis;
 
     int dictsize;
     if ( g_truecolor ) {			// truecolor
@@ -369,8 +369,9 @@ void QColor::cleanup()
 	delete [] g_carr;
     if ( g_our_alloc )				// Avoid purify complaint
 	delete [] g_our_alloc;
-    if ( !QPaintDevice::x_defcmap )
-	XFreeColormap( QPaintDevice::x__Display(), QPaintDevice::x_colormap );
+    if ( !QPaintDevice::x_appdefcolormap )
+	XFreeColormap( QPaintDevice::x11AppDisplay(),
+		       QPaintDevice::x11AppColormap() );
     if ( colorDict ) {
 	colorDict->setAutoDelete( TRUE );
 	colorDict->clear();
@@ -398,8 +399,8 @@ void QColor::cleanup()
 
 uint QColor::alloc()
 {
-    Display *dpy = QPaintDevice::x__Display();
-    int      scr = QPaintDevice::x11Screen();
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    int      scr = QPaintDevice::x11AppScreen();
     if ( (rgbVal & RGB_INVALID) || !color_init ) {
 	rgbVal = 0;				// invalid color or state
 	pix = dpy ? (uint)BlackPixel(dpy, scr) : 0;
@@ -443,7 +444,7 @@ uint QColor::alloc()
 	try_again = FALSE;
 
 	if ( try_alloc && colors_avail &&
-	     XAllocColor(dpy,QPaintDevice::x11Colormap(),&col) ) {
+	     XAllocColor(dpy,QPaintDevice::x11AppColormap(),&col) ) {
 
 	    // We could allocate the color
 	    pix = (uint)col.pixel;
@@ -458,7 +459,8 @@ uint QColor::alloc()
 	    colors_avail = FALSE;		// no more available colors
 	    if ( g_carr_fetch ) {		// refetch color array
 		g_carr_fetch = FALSE;
-		XQueryColors(dpy, QPaintDevice::x11Colormap(), g_carr,g_cells);
+		XQueryColors( dpy, QPaintDevice::x11AppColormap(), g_carr,
+			      g_cells );
 	    }
 	    int mindist;
 	    i = find_nearest_color( r, g, b, &mindist );
@@ -471,7 +473,7 @@ uint QColor::alloc()
 		int rx = rr - r;
 		int gx = rg - g;
 		int bx = rb - b;
-		int dist = rx*rx + gx*gx + bx*bx;		// calculate distance
+		int dist = rx*rx + gx*gx + bx*bx; // calculate distance
 		if ( dist < mindist ) {
 		    // reduced color is closer - try to alloc it
 		    r = rr;
@@ -483,7 +485,7 @@ uint QColor::alloc()
 		    try_alloc = TRUE;
 		    try_again = TRUE;
 		    colors_avail = TRUE;
-		    continue; // Try alloc reduced colour
+		    continue; // Try alloc reduced color
 		}
 	    }
 
@@ -497,7 +499,7 @@ uint QColor::alloc()
 	    } else {
 		// Try to allocate existing color
 		col = g_carr[i];
-		if ( XAllocColor(dpy,QPaintDevice::x11Colormap(), &col) ) {
+		if ( XAllocColor(dpy,QPaintDevice::x11AppColormap(), &col) ) {
 		    i = (uint)col.pixel;
 		    g_carr[i] = col;		// update color array
 		    if ( current_alloc_context == 0 )
@@ -525,8 +527,7 @@ uint QColor::alloc()
     }
     // All colors outside context 0 must go into the dictionary
     bool many = colorDict->count() >= colorDict->size() * 8;
-    if ( many && colorDict->size() == col_std_dict )
-    {
+    if ( many && colorDict->size() == col_std_dict ) {
 	colorDict->resize( col_large_dict );
     }
     if ( !many || current_alloc_context != 0 ) {
@@ -551,8 +552,8 @@ void QColor::setSystemNamedColor( const char *name )
 	return;
     }
     XColor col, hw_col;
-    if ( XLookupColor(QPaintDevice::x__Display(),
-		      QPaintDevice::x11Colormap(), name, &col, &hw_col) ) {
+    if ( XLookupColor(QPaintDevice::x11AppDisplay(),
+		      QPaintDevice::x11AppColormap(), name, &col, &hw_col) ) {
 	setRgb( col.red>>8, col.green>>8, col.blue>>8 );
 	return;					// success
     }
@@ -732,6 +733,7 @@ void QColor::destroyAllocContext( int context )
 	}
     }
     if ( i )
-	XFreeColors( QPaintDevice::x__Display(), QPaintDevice::x11Colormap(),
+	XFreeColors( QPaintDevice::x11AppDisplay(),
+		     QPaintDevice::x11AppColormap(),
 		     pixels, i, 0 );
 }

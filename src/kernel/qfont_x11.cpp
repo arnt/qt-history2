@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#136 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -168,11 +168,11 @@ inline const QTextCodec *QFontInternal::mapper() const
 inline void QFontInternal::reset()
 {
     if ( f ) {
-	XFreeFont( QPaintDevice::x__Display(), f );
+	XFreeFont( QPaintDevice::x11AppDisplay(), f );
 	f = 0;
     }
     if ( set ) {
-	XFreeFontSet( QPaintDevice::x__Display(), set );
+	XFreeFontSet( QPaintDevice::x11AppDisplay(), set );
 	set = 0;
     }
 }
@@ -615,8 +615,8 @@ void QFont::load() const
 	if ( !s ) {
 	    char** missing=0;
 	    int nmissing;
-	    s = XCreateFontSet( QPaintDevice::x__Display(), n,
-		    &missing, &nmissing, 0 );
+	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
+				&missing, &nmissing, 0 );
 	    if ( missing )
 		XFreeStringList(missing);
 	    d->fin->set = s;
@@ -626,9 +626,10 @@ void QFont::load() const
     } else {
 	XFontStruct *f = d->fin->f;
 	if ( !f ) {					// font not loaded
-	    f = XLoadQueryFont( QPaintDevice::x__Display(), n );
+	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
 	    if ( !f ) {
-		f = XLoadQueryFont( QPaintDevice::x__Display(), lastResortFont());
+		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
+				    lastResortFont() );
 		fn->exactMatch = FALSE;
 #if defined(CHECK_NULL)
 		if ( !f )
@@ -1693,7 +1694,7 @@ static char **getXFontNames( const char *pattern, int *count )
     static int maxFonts = 256;
     char **list;
     while( 1 ) {
-	list = XListFonts( QPaintDevice::x__Display(), (char*)pattern,
+	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
 			   maxFonts, count );
 	if ( *count != maxFonts || maxFonts >= 32768 )
 	    return list;

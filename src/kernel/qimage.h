@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#73 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#74 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -44,6 +44,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const QString &fileName, const char* format=0 );
     QImage( const char *xpm[] );
+    QImage( const QByteArray &data );
     QImage( const QImage & );
    ~QImage();
 
@@ -90,6 +91,7 @@ public:
     void	reset();
 
     void	fill( uint pixel );
+    void	invertPixels( bool invertAlpha = TRUE );
 
     QImage	convertDepth( int ) const;
     QImage	convertDepthWithPalette( int, QRgb* p, int pc, int cf=0 ) const;

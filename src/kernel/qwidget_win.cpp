@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#168 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -977,6 +977,7 @@ void QWidget::deleteTLSysExtra()
 {
 }
 
+
 bool QWidget::acceptDrops() const
 {
     return ( extra && extra->dropTarget );
@@ -1002,7 +1003,8 @@ void QWidget::setAcceptDrops( bool on )
     }
 }
 
-void QWidget::setMask(const QRegion& region)
+
+void QWidget::setMask( const QRegion &region )
 {
     // Since SetWindowRegion takes ownership, and we need to translate,
     // we take a copy.
@@ -1113,7 +1115,7 @@ HRGN bitmapToRegion(QBitmap bitmap)
     return region;
 }
 
-void QWidget::setMask(QBitmap bitmap)
+void QWidget::setMask( const QBitmap &bitmap )
 {
     HRGN wr = bitmapToRegion(bitmap);
     RECT cr;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#201 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -114,8 +114,6 @@
 */
 
 
-extern bool qt_image_native_bmp();
-
 #if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
@@ -227,12 +225,11 @@ QImage::QImage( const char *xpm[] )
 
   \sa loadFromData()
 */
-/* Not until Qt 2.0 - adding conversions break source code
-QImage::QImage( const QByteArray & data )
+
+QImage::QImage( const QByteArray &data )
 {
     loadFromData(data);
 }
-*/
 
 /*!
   Constructs a
@@ -313,6 +310,7 @@ void QImage::detach()
   Returns a
   \link shclass.html deep copy\endlink of the image.
 */
+
 QImage QImage::copy() const
 {
     QImage image;
@@ -331,6 +329,7 @@ QImage QImage::copy() const
 
   \sa bitBlt()
 */
+
 QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
     // Parameter correction
@@ -557,6 +556,24 @@ void QImage::fill( uint pixel )
 	    }
 	}
     }
+}
+
+
+/*!
+  Inverts all pixel values in the image.
+
+  For 32 bit (24 RGB + alpha buffer) images, set \a invertAlpha to
+  FALSE if you want the alpha bits to be unchanged, otherwise they are
+  inverted too.
+*/
+
+void QImage::invertPixels( bool invertAlpha )
+{
+    Q_UINT32 *p = (Q_UINT32*)bits();
+    Q_UINT32 *end = p + numBytes()/4;
+    uint xorbits = invertAlpha && depth() == 32 ? 0x00ffffff : 0xffffffff;
+    while ( p < end )
+	*p++ ^= xorbits;
 }
 
 
@@ -849,7 +866,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		    }
 		} else {
 		    // Cannot be in table
-		    ASSERT ( pix != 256 );		// too many colors
+		    ASSERT ( pix != 256 );	// too many colors
 		    // Insert into table at this unused position
 		    dst->setColor( pix, (*p & amask) );
 		    table[hash].pix = pix++;
@@ -864,7 +881,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
     if ( (conversion_flags & DitherMode_Mask) == PreferDither ) {
 	do_quant = TRUE;
     } else {
-	for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
+	for ( y=0; y<src->height(); y++ ) {	// check if <= 256 colors
 	    p = (QRgb *)src->scanLine(y);
 	    b = dst->scanLine(y);
 	    x = src->width();
@@ -882,7 +899,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			}
 		    } else {
 			// Cannot be in table
-			if ( pix == 256 ) {		// too many colors
+			if ( pix == 256 ) {	// too many colors
 			    do_quant = TRUE;
 			    // Break right out
 			    x = 0;
@@ -896,7 +913,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			break;
 		    }
 		}
-		*b++ = table[hash].pix; // May occur once incorrectly
+		*b++ = table[hash].pix;		// May occur once incorrectly
 		p++;
 	    }
 	}
@@ -1074,7 +1091,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 
 	if ( src->hasAlphaBuffer() ) {
 	    const int trans = 216;
-	    dst->setColor(trans, 0x00000000); // transparent
+	    dst->setColor(trans, 0x00000000);	// transparent
 	    QImage mask = src->createAlphaMask(conversion_flags);
 	    uchar* m;
 	    for ( y=0; y < src->height(); y++ ) {
@@ -1261,10 +1278,10 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 	p = src->bits();
 	end = p + wbytes;
 	b2 = line2;
-	if ( use_gray ) {				// 8 bit image
+	if ( use_gray ) {			// 8 bit image
 	    while ( p < end )
 		*b2++ = gray[*p++];
-	} else {					// 32 bit image
+	} else {				// 32 bit image
 	    if ( fromalpha ) {
 		while ( p < end ) {
 		    *b2++ = 255 - (*(uint*)p >> 24);
@@ -1281,14 +1298,14 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 	for ( y=0; y<h; y++ ) {			// for each scan line...
 	    int *tmp = line1; line1 = line2; line2 = tmp;
 	    bool not_last_line = y < h - 1;
-	    if ( not_last_line ) {			// calc. grayvals for next line
+	    if ( not_last_line ) {		// calc. grayvals for next line
 		p = src->scanLine(y+1);
 		end = p + wbytes;
 		b2 = line2;
-		if ( use_gray ) {			// 8 bit image
+		if ( use_gray ) {		// 8 bit image
 		    while ( p < end )
 			*b2++ = gray[*p++];
-		} else {				// 24 bit image
+		} else {			// 24 bit image
 		    if ( fromalpha ) {
 			while ( p < end ) {
 			    *b2++ = 255 - (*(uint*)p >> 24);
@@ -1310,10 +1327,10 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 	    b2 = line2;
 	    int bit = 7;
 	    for ( x=1; x<=w; x++ ) {
-		if ( *b1 < 128 ) {			// black pixel
+		if ( *b1 < 128 ) {		// black pixel
 		    err = *b1++;
 		    *p |= 1 << bit;
-		} else {				// white pixel
+		} else {			// white pixel
 		    err = *b1++ - 255;
 		}
 		if ( bit == 0 ) {
@@ -1325,11 +1342,11 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 		if ( x < w )
 		    *b1 += (err*7)>>4;		// spread error to right pixel
 		if ( not_last_line ) {
-		    b2[0] += (err*5)>>4;		// pixel below
+		    b2[0] += (err*5)>>4;	// pixel below
 		    if ( x > 1 )
 			b2[-1] += (err*3)>>4;	// pixel below left
 		    if ( x < w )
-			b2[1] += err>>4;		// pixel below right
+			b2[1] += err>>4;	// pixel below right
 		}
 		b2++;
 	    }
@@ -1431,7 +1448,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 		if ( fromalpha ) {
 		    while ( p < end ) {
 			if ( (*p++ >> 24) >= 128 )
-			    *m |= 1 << bit;  // Set mask "on"
+			    *m |= 1 << bit;	// Set mask "on"
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -1442,7 +1459,7 @@ static bool dither_to_1( const QImage *src, QImage *dst,
 		} else {
 		    while ( p < end ) {
 			if ( qGray(*p++) < 128 )
-			    *m |= 1 << bit;  // Set pixel "black"
+			    *m |= 1 << bit;	// Set pixel "black"
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -3291,7 +3308,7 @@ static void read_bmp_image( QImageIO *iio )
     if ( strncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
 	return;
 
-    QImage	image;
+    QImage image;
     if (read_dib( s, bf.bfOffBits, startpos, image )) {
 	iio->setImage( image );
 	iio->setStatus( 0 );			// image ok
@@ -3300,9 +3317,9 @@ static void read_bmp_image( QImageIO *iio )
 
 bool qt_write_dib( QDataStream& s, QImage image )
 {
-    int		nbits;
-    int		bpl_bmp;
-    int		bpl = image.bytesPerLine();
+    int	nbits;
+    int	bpl_bmp;
+    int	bpl = image.bytesPerLine();
 
     QIODevice* d = s.device();
 
@@ -3318,7 +3335,6 @@ bool qt_write_dib( QDataStream& s, QImage image )
     }
 
     BMP_INFOHDR bi;
-
     bi.biSize	       = BMP_WIN;		// build info header
     bi.biWidth	       = image.width();
     bi.biHeight	       = image.height();
@@ -3373,14 +3389,14 @@ bool qt_write_dib( QDataStream& s, QImage image )
 	    }
 	    if ( image.width() & 1 )
 		*b = *p << 4;
-	} else {				// 32 bits: RGB -> BGR
+	} else {				// 32 bits
 	    QRgb *p   = (QRgb *)image.scanLine( y );
 	    QRgb *end = p + image.width();
 	    b = buf;
 	    while ( p < end ) {
-		*b++ = (uchar)(*p >> 16);
+		*b++ = (uchar)(*p);
 		*b++ = (uchar)(*p >> 8);
-		*b++ = (uchar)*p++;
+		*b++ = (uchar)(*p >> 16);
 	    }
 	}
 	d->writeBlock( (char*)buf, bpl_bmp );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#418 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#419 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1016,17 +1016,17 @@ static GC create_gc( bool monochrome )
 	gc = XCreateGC( appDpy, pm, 0, 0 );
 	XFreePixmap( appDpy, pm );
     } else {
-	if ( QPaintDevice::x11DefaultVisual() ) {
+	if ( QPaintDevice::x11AppDefaultVisual() ) {
 	    gc = XCreateGC( appDpy, appRootWin, 0, 0 );
 	} else {
 	    Window w;
 	    XSetWindowAttributes a;
 	    a.background_pixel = Qt::black.pixel();
 	    a.border_pixel = Qt::black.pixel();		
-	    a.colormap = QPaintDevice::x11Colormap();
+	    a.colormap = QPaintDevice::x11AppColormap();
 	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
-			       0, QPaintDevice::x11Depth(), InputOutput,
-			       (Visual*)QPaintDevice::x11Visual(),
+			       0, QPaintDevice::x11AppDepth(), InputOutput,
+			       (Visual*)QPaintDevice::x11AppVisual(),
 			       CWBackPixel|CWBorderPixel|CWColormap,
 			       &a );
 	    gc = XCreateGC( appDpy, w, 0, 0 );
@@ -2843,7 +2843,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
-	while ( XCheckTypedWindowEvent(dpy,winId(),MotionNotify,xevent) )
+	while ( XCheckTypedWindowEvent(x11Display(),winId(),MotionNotify,
+				       xevent) )
 	    ;					// compress motion events
 	type = QEvent::MouseMove;
 	pos.rx() = xevent->xmotion.x;
@@ -2880,13 +2881,14 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    }
 		}
 		break;
-	    case Button4: case Button5:
+	    case Button4:
+	    case Button5:
 		// the fancy mouse wheel.
 		
 		// take care about grabbing.  We do this here since it
 		// is clear that we return anyway
 		if ( qApp->inPopupMode() && popupGrabOk )
-		    XAllowEvents( dpy, SyncPointer, CurrentTime );
+		    XAllowEvents( x11Display(), SyncPointer, CurrentTime );
 		
 		// We are only interested in ButtonPress.
 		if (event->type == ButtonPress ){
@@ -2897,9 +2899,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    // or not)
 		    int delta = 1;
 		    XEvent xevent;
-		    while ( XCheckTypedWindowEvent(dpy,winId(),ButtonPress,&xevent) ){
+		    while ( XCheckTypedWindowEvent(x11Display(),winId(),
+						   ButtonPress,&xevent) ){
 			if (xevent.xbutton.button != event->xbutton.button){
-			    XPutBackEvent(dpy, &xevent);
+			    XPutBackEvent(x11Display(), &xevent);
 			    break;
 			}
 			delta++;
@@ -2951,8 +2954,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	} else {				// mouse button released
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
-		XUngrabPointer( dpy, CurrentTime );
-		XFlush( dpy );
+		XUngrabPointer( x11Display(), CurrentTime );
+		XFlush( x11Display() );
 	    }
 	
 	
@@ -3022,12 +3025,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	
 	if ( qApp->inPopupMode() ) {			// still in popup mode
 	    if ( popupGrabOk )
-		XAllowEvents( dpy, SyncPointer, CurrentTime );
+		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
 	} else {				// left popup mode
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
-		XGrabPointer( dpy, mouseActWindow, FALSE,
+		XGrabPointer( x11Display(), mouseActWindow, FALSE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 			      ButtonMotionMask |
 			      EnterWindowMask | LeaveWindowMask),
@@ -3283,7 +3286,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     }
     if ( qApp->inPopupMode() ) {			// in popup mode
 	if ( popupGrabOk )
-	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
+	    XAllowEvents( x11Display(), SyncKeyboard, CurrentTime );
     }
 
     // convert chars (8bit) to text (unicode).
@@ -3301,23 +3304,26 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   code = -1;
     int	   count = 0;
     int	   state;
-    char       ascii = 0;
+    char   ascii = 0;
 
-     QWidget* tlw = topLevelWidget();
-    if (!grab && tlw && tlw->extra && tlw->extra->topextra && tlw->extra->topextra->embedded) {
+    Display *dpy = x11Display();
+    QWidget *tlw = topLevelWidget();
+
+    if ( !grab && tlw && tlw->extra && tlw->extra->topextra &&
+	 tlw->extra->topextra->embedded ) {
 	((XEvent*)event)->xkey.window = tlw->extra->topextra->parentWinId;
-	XSendEvent(appDpy, tlw->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+	XSendEvent( dpy, tlw->extra->topextra->parentWinId, NoEventMask,
+		    FALSE, (XEvent*)event );
 	return TRUE;
     }
 
 
-    bool   autor = FALSE;
-
-    QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
-
+    QEvent::Type type = (event->type == XKeyPress) ?
+	QEvent::KeyPress : QEvent::KeyRelease;
+    bool    autor = FALSE;
     QString text;
 
-    (void) translateKeyEventInternal( event, count, text, state, ascii, code);
+    translateKeyEventInternal( event, count, text, state, ascii, code );
     bool isAccel = FALSE;
     if (!grab) { // test for accel if the keyboard is not grabbed
 	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
@@ -3327,25 +3333,30 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	isAccel = a.isAccepted();
     }
 
-    if (!isAccel && !text.isEmpty() && keyCompression ) { //the widget wants key compression so it gets it
-	int	   codeIntern = -1;
-	int	   countIntern = 0;
-	int	   stateIntern;
-	char       asciiIntern = 0;
-	XEvent evRelease;
-	XEvent evPress;
+    if (!isAccel && !text.isEmpty() && keyCompression ) {
+	// the widget wants key compression so it gets it
+	int	codeIntern = -1;
+	int	countIntern = 0;
+	int	stateIntern;
+	char	asciiIntern = 0;
+	XEvent	evRelease;
+	XEvent	evPress;
 	while (1) {
 	    QString textIntern;
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,&evRelease))
+	    if ( !XCheckTypedWindowEvent(dpy,event->xkey.window,
+					 XKeyRelease,&evRelease) )
 		break;
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&evPress)) {
+	    if ( !XCheckTypedWindowEvent(dpy,event->xkey.window,
+					 XKeyPress,&evPress) ) {
 		XPutBackEvent(dpy, &evRelease);
 		break;
 	    }
-	    (void) translateKeyEventInternal( &evPress, countIntern, textIntern, stateIntern, asciiIntern, codeIntern);
+	    translateKeyEventInternal( &evPress, countIntern, textIntern,
+				       stateIntern, asciiIntern, codeIntern);
 	    if ( stateIntern == state && !textIntern.isEmpty() ) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
-		    QKeyEvent a( QEvent::AccelAvailable, codeIntern, asciiIntern, stateIntern, textIntern, FALSE,
+		    QKeyEvent a( QEvent::AccelAvailable, codeIntern,
+				 asciiIntern, stateIntern, textIntern, FALSE,
 				 QMAX(countIntern, int(textIntern.length())) );
 		    a.ignore();
 		    QApplication::sendEvent( topLevelWidget(), &a );
@@ -3357,8 +3368,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		}
 		text += textIntern;
 		count += countIntern;
-	    }
-	    else {
+	    } else {
 		XPutBackEvent(dpy, &evRelease);
 		XPutBackEvent(dpy, &evPress);
 		break;
@@ -3377,7 +3387,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     } else {
 	// look ahead for auto-repeat
 	XEvent nextpress;
-	if (XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&nextpress)) {
+	if ( XCheckTypedWindowEvent(dpy,event->xkey.window,
+				    XKeyPress,&nextpress) ) {
 	    autor = nextpress.xkey.time == event->xkey.time;
 	    // Put it back... we COULD send the event now and not need
 	    // the static curr_autorep variable.
@@ -3386,20 +3397,24 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	curr_autorep = autor ? event->xkey.keycode : 0;
     }
 
-    // autorepeat compression makes sense for all widgets (Windows does it automatically .... )
-    if (event->type == XKeyPress && text.length() <= 1) {
+    // autorepeat compression makes sense for all widgets (Windows
+    // does it automatically .... )
+    if ( event->type == XKeyPress && text.length() <= 1 ) {
 	XEvent evPress = *event;
 	XEvent evRelease;
 	while (1) {
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,&evRelease) )
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,
+					&evRelease) )
 		break;
 	    if (evRelease.xkey.keycode != event->xkey.keycode ) {
 		XPutBackEvent(dpy, &evRelease);
 		break;
 	    }
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&evPress))
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,
+					&evPress))
 		break;
-	    if ( evPress.xkey.keycode != event->xkey.keycode || evRelease.xkey.time != evPress.xkey.time){
+	    if ( evPress.xkey.keycode != event->xkey.keycode ||
+		 evRelease.xkey.time != evPress.xkey.time){
 		XPutBackEvent(dpy, &evRelease);
 		XPutBackEvent(dpy, &evPress);
 		break;
@@ -3411,10 +3426,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // process accelerates before popups
-    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(count, int(text.length())) );
+    QKeyEvent e( type, code, ascii, state, text, autor,
+		 QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor, QMAX(count, int(text.length())) );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
+		     QMAX(count, int(text.length())) );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
@@ -3567,8 +3584,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     QRegion paintRegion( paintRect );
 
     if ( merging_okay ) {
-	while ( XCheckIfEvent(dpy,&xevent,isPaintOrScrollDoneEvent,(XPointer)&info)
-	    && !qApp->x11EventFilter(&xevent) )	// send event through filter
+	while ( XCheckIfEvent(x11Display(),&xevent,isPaintOrScrollDoneEvent,
+			      (XPointer)&info) &&
+		!qApp->x11EventFilter(&xevent) ) // send event through filter
 	{
 	    if ( !info.config ) {
 		if ( xevent.type == Expose || xevent.type == GraphicsExpose ) {
@@ -3650,14 +3668,14 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     {
 	XEvent otherEvent;
-	while ( XCheckTypedEvent(dpy, ConfigureNotify, &otherEvent) ) {
+	while ( XCheckTypedEvent(x11Display(),ConfigureNotify,&otherEvent) ) {
 	    if (otherEvent.type != ConfigureNotify
 		|| otherEvent.xconfigure.window != event->xconfigure.window
 		|| otherEvent.xconfigure.event != event->xconfigure.event) {
-		XPutBackEvent( dpy, &otherEvent );
+		XPutBackEvent( x11Display(), &otherEvent );
 		break;
 	    }
-	    if (qApp->x11EventFilter(&otherEvent))
+	    if ( qApp->x11EventFilter(&otherEvent) )
 		break;
 	    newSize.setWidth( otherEvent.xconfigure.width );
 	    newSize.setHeight( otherEvent.xconfigure.height );
@@ -3665,6 +3683,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     }
 
+    Display *dpy = x11Display();
     Window child;
     int	   x, y;
     XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#78 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -33,8 +33,7 @@
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
-bool QPixmap::optimAll = TRUE;
-QPixmap::Optimization QPixmap::defOpt = QPixmap::NormalOptim;
+QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
 
 
 void QPixmap::init( int w, int h, int d )
@@ -45,12 +44,11 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->optim	   = optimAll;
     data->uninit   = TRUE;
     data->bitmap   = FALSE;
     data->selfmask = FALSE;
     data->ser_no   = ++serial;
-    data->opt	   = defOpt;
+    data->optim	   = defOptim;
     data->mask	   = 0;
     data->hbm	   = 0;
     data->bits     = 0;
@@ -80,7 +78,7 @@ void QPixmap::init( int w, int h, int d )
     } else {					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
     }
-    if ( data->optim )
+    if ( data->optim != NoOptim )
 	allocMemDC();
 }
 
@@ -148,7 +146,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	}
     }
     data->hbm = CreateBitmap( w, h, 1, 1, newbits );
-    if ( data->opt != NoOptim )
+    if ( data->optim != NoOptim )
 	allocMemDC();
     delete [] newbits;
 }
@@ -229,9 +227,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
 	data->uninit = FALSE;
-	data->optim  = pixmap.data->optim;	// copy optimization flag
 	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
-	data->opt    = pixmap.data->opt;	// copy optimization setting
+	data->optim  = pixmap.data->optim;	// copy optimization flag
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
@@ -259,10 +256,9 @@ int QPixmap::defaultDepth()
 
 void QPixmap::setOptimization( Optimization optimization )
 {
-    if ( optimization == data->opt )
+    if ( optimization == data->optim )
 	return;
-    data->optim = optimization != NoOptim;	// ### compatibility setting
-    data->opt = optimization;
+    data->optim = optimization;
     if ( paintingActive() )			// wait until QPainter::end()
 	return;
     if ( optimization == NoOptim ) {
@@ -282,31 +278,9 @@ void QPixmap::setOptimization( Optimization optimization )
     }
 }
 
-QPixmap::Optimization QPixmap::defaultOptimization()
-{
-    return defOpt;
-}
-
 void QPixmap::setDefaultOptimization( Optimization optimization )
 {
-    defOpt = optimization;
-    optimAll = optimization != NoOptim;		// ### compatibility setting
-}
-
-
-void QPixmap::optimize( bool enable )
-{
-    setOptimization( enable ? NormalOptim : NoOptim );
-}
-
-bool QPixmap::isGloballyOptimized()
-{
-    return defOpt != NoOptim;
-}
-
-void QPixmap::optimizeGlobally( bool enable )
-{
-    setDefaultOptimization( enable ? NormalOptim : NoOptim );
+    defOptim = optimization;
 }
 
 
@@ -372,9 +346,6 @@ int QPixmap::metric( int m ) const
 }
 
 
-extern bool qt_image_did_native_bmp();		// defined in qpixmap.cpp
-
-
 QImage QPixmap::convertToImage() const
 {
     if ( isNull() ) {
@@ -399,7 +370,6 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
-    bool   native = qt_image_did_native_bmp();
 
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
@@ -418,18 +388,6 @@ QImage QPixmap::convertToImage() const
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
     GetDIBits( handle(), hbm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS );
-    if ( !native && d == 32 ) {
-	for ( int i=0; i<image.height(); i++ ) {
-	    uint *p = (uint*)image.scanLine(i);
-	    uint *end = p + image.width();
-	    while ( p < end ) {
-		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0x0000ff00);
-		p++;
-	    }
-	}
-    }
-
 
 #if 0
     #error "Need to take QPixmap::mask() into account here, "\
@@ -446,10 +404,7 @@ QImage QPixmap::convertToImage() const
     }
     if ( d == 1 ) {
 	// Make image bit 0 come from color0, image bit 1 come form color1
-	int n = image.bytesPerLine() * image.height();
-	uchar* b = image.bits();
-	while (n--)
-	    b[n] ^= 0xff;
+	invertPixels();
 	QRgb c0 = image.color(0);
 	image.setColor(0,image.color(1));
 	image.setColor(1,c0);
@@ -520,17 +475,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     } else {
 	// different size or depth, make a new pixmap
 	QPixmap pm( w, h, d == 1 ? 1 : -1 );
-	pm.data->optim  = data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
-	pm.data->opt	= data->opt;		// keep optimization setting
+	pm.data->optim  = data->optim;		// keep optimization flag
 	*this = pm;
     }
 
     bool tmp_dc = handle() == 0;
     if ( tmp_dc )
 	allocMemDC();
-
-    bool native = qt_image_did_native_bmp();
 
     int	  ncols	   = image.numColors();
     char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(QRgb)*ncols];
@@ -556,30 +508,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
-    if ( !native && d == 32 ) {
-	for ( int i=0; i<image.height(); i++ ) {
-	    uint *p = (uint*)image.scanLine(i);
-	    uint *end = p + image.width();
-	    while ( p < end ) {
-		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0xff00ff00);
-		p++;
-	    }
-	}
-    }
     SetDIBitsToDevice( handle(), 0, 0, w, h, 0, 0, 0, h,
 		       image.bits(), bmi, DIB_RGB_COLORS );
-    if ( !native && d == 32 ) {
-	for ( int i=0; i<image.height(); i++ ) {
-	    uint *p = (uint*)image.scanLine(i);
-	    uint *end = p + image.width();
-	    while ( p < end ) {
-		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0xff00ff00);
-		p++;
-	    }
-	}
-    }
     delete [] bmi_data;
 
     data->uninit = FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#201 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#202 $
 **
 ** Definition of QWidget class
 **
@@ -101,8 +101,9 @@ public:
     void	 setMinimumHeight( int minh );
     void	 setMaximumWidth( int maxw );
     void	 setMaximumHeight( int maxh );
-    virtual void setMask(QBitmap);
-    virtual void setMask(const QRegion&);
+
+    virtual void setMask( const QBitmap & );
+    virtual void setMask( const QRegion & );
     void	 clearMask();
 
     QSize	 sizeIncrement() const;

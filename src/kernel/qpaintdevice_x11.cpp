@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#92 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -80,15 +80,14 @@
 // Some global variables - these are initialized by QColor::initialize()
 //
 
-Display *QPaintDevice::dpy = 0;
-Display *QPaintDevice::x_display = 0;
-int	 QPaintDevice::x_screen;
-int	 QPaintDevice::x_depth;
-int	 QPaintDevice::x_cells;
-HANDLE	 QPaintDevice::x_colormap;
-bool	 QPaintDevice::x_defcmap;
-void	*QPaintDevice::x_visual;
-bool	 QPaintDevice::x_defvisual;
+Display *QPaintDevice::x_appdisplay = 0;
+int	 QPaintDevice::x_appscreen;
+int	 QPaintDevice::x_appdepth;
+int	 QPaintDevice::x_appcells;
+HANDLE	 QPaintDevice::x_appcolormap;
+bool	 QPaintDevice::x_appdefcolormap;
+void	*QPaintDevice::x_appvisual;
+bool	 QPaintDevice::x_appdefvisual;
 
 
 /*!
@@ -106,10 +105,8 @@ QPaintDevice::QPaintDevice( uint devflags )
 	return;
     }
     devFlags = devflags;
-    if ( dpy == 0 )
-	dpy = qt_xdisplay();
     hd	= 0;
-    d = 0;
+    x11Data = 0;
 }
 
 /*!
@@ -123,6 +120,23 @@ QPaintDevice::~QPaintDevice()
 	warning( "QPaintDevice: Cannot destroy paint device that is being "
 		 "painted" );
 #endif
+}
+
+
+/*
+  Copy X11-specific data (which normally is null).
+*/
+
+void QPaintDevice::copyX11Data( const QPaintDevice *fromDevice )
+{
+    if ( fromDevice->x11Data ) {
+	if ( !x11Data )
+	    x11Data = new QPaintDeviceX11Data;
+	*x11Data = *fromDevice->x11Data;
+    } else if ( x11Data ) {
+	delete x11Data;
+	x11Data = 0;
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#96 $
 **
 ** Implementation of QPixmap class
 **
@@ -29,6 +29,7 @@
 #include "qpainter.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
+
 
 /*!
   \class QPixmap qpixmap.h
@@ -168,12 +169,12 @@ QPixmap::QPixmap( const char *xpm[] )
 
   \sa loadFromData()
 */
-/* Not until Qt 2.0 - adding conversions break sourcecode.
+
 QPixmap::QPixmap( const QByteArray & data )
+    : QPaintDevice( QInternal::Pixmap )
 {
     loadFromData(data);
 }
-*/
 
 
 /*!
@@ -186,9 +187,8 @@ QPixmap::QPixmap( const QByteArray & data )
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
-    tmp.data->optim  = data->optim;		// copy optimization flag
     tmp.data->bitmap = data->bitmap;		// copy bitmap flag
-    tmp.data->opt    = data->opt;		// copy optimization setting
+    tmp.data->optim  = data->optim;		// copy optimization setting
     if ( !tmp.isNull() ) {			// copy the bitmap
 	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
 	if ( data->mask )			// copy the mask
@@ -338,9 +338,8 @@ void QPixmap::resize( int w, int h )
 {
     if ( w < 1 || h < 1 ) {			// becomes null
 	QPixmap pm;
-	pm.data->optim	= data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
-	pm.data->opt	= data->opt;		// keep optimization setting
+	pm.data->optim	= data->optim;		// keep optimization setting
 	*this = pm;
 	return;
     }
@@ -355,9 +354,8 @@ void QPixmap::resize( int w, int h )
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h), CopyROP, TRUE );
-    pm.data->optim  = data->optim;		// keep optimization flag
     pm.data->bitmap = data->bitmap;		// keep bitmap flag
-    pm.data->opt    = data->opt;		// keep optimization setting
+    pm.data->optim  = data->optim;		// keep optimization setting
     if ( data->mask ) {				// resize mask as well
 	QBitmap m = *data->mask;
 	m.resize( w, h );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#54 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#55 $
 **
 ** Definition of QColor class
 **
@@ -38,19 +38,19 @@ const QRgb  RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
 Q_EXPORT inline int qRed( QRgb rgb )		// get red part of RGB
-{ return (int)(rgb & 0xff); }
+{ return (int)((rgb >> 16) & 0xff); }
 
 Q_EXPORT inline int qGreen( QRgb rgb )		// get green part of RGB
 { return (int)((rgb >> 8) & 0xff); }
 
 Q_EXPORT inline int qBlue( QRgb rgb )		// get blue part of RGB
-{ return (int)((rgb >> 16) & 0xff); }
+{ return (int)(rgb & 0xff); }
 
 Q_EXPORT inline int qAlpha( QRgb rgb )		// get alpha part of RGBA
 { return (int)((rgb >> 24) & 0xff); }
 
 Q_EXPORT inline QRgb qRgb( int r, int g, int b )// set RGB value
-{ return (uint)(r & 0xff) |((uint)(g & 0xff) << 8) |((uint)(b & 0xff) << 16); }
+{ return (uint)((uint)(r & 0xff) << 16) |((uint)(g & 0xff) << 8) |(b & 0xff); }
 
 Q_EXPORT inline QRgb qRgba( int r, int g, int b, int a )// set RGBA value
 { return qRgb(r,g,b) | ((uint)(a & 0xff) << 24); }

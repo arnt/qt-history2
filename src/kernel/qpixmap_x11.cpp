@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#145 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -74,7 +74,7 @@ static void qt_cleanup_mitshm()
 {
     if ( xshmimg == 0 )
 	return;
-    Display *dpy = QPaintDevice::x__Display();
+    Display *dpy = QPaintDevice::x11AppDisplay();
     if ( xshmpm ) {
 	XFreePixmap( dpy, xshmpm );
 	xshmpm = 0;
@@ -164,27 +164,27 @@ static uchar *flip_bits( const uchar *bits, int len )
     return newdata;
 }
 
+// Returns position of highest bit set or -1 if none
 static int highest_bit( uint v )
 {
     int i;
-    uint b = (uint)1 << 31;			// get pos of highest set bit
+    uint b = (uint)1 << 31;
     for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
 }
 
+// Returns position of lowest set bit in 'v' as an integer (0-31), or -1
 static int lowest_bit( uint v )
 {
-    // returns position of lowest set bit in 'v' as an integer (0-31), or -1
-
-    int i;  unsigned long lb;
-
+    int i;
+    ulong lb;
     lb = 1;
     for (i=0; ((v & lb) == 0) && i<32;  i++, lb<<=1);
-    if (i==32) return -1;
-    else return i;
+    return i==32 ? -1 : i;
 }
 
+// Counts the number of bits set in 'v'
 static uint n_bits( uint v )
 {
     int i = 0;
@@ -194,6 +194,7 @@ static uint n_bits( uint v )
     }
     return i;
 }
+
 
 static uint *red_scale_table   = 0;
 static uint *green_scale_table = 0;
@@ -237,8 +238,7 @@ static void build_scale_table( uint **table, uint nBits )
   QPixmap member functions
  *****************************************************************************/
 
-bool QPixmap::optimAll = TRUE;
-QPixmap::Optimization QPixmap::defOpt = QPixmap::NormalOptim;
+QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
 
 
 /*!
@@ -254,12 +254,11 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->optim	   = optimAll;
     data->uninit   = TRUE;
     data->bitmap   = FALSE;
     data->selfmask = FALSE;
     data->ser_no   = ++serial;
-    data->opt	   = defOpt;
+    data->optim	   = defOptim;
     data->mask	   = 0;
     data->ximage   = 0;
     data->maskgc   = 0;
@@ -283,7 +282,8 @@ void QPixmap::init( int w, int h, int d )
     }
     data->w = w;
     data->h = h;
-    hd = (HANDLE)XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+    hd = (HANDLE)XCreatePixmap( x11Display(), DefaultRootWindow(x11Display()),
+				w, h, data->d );
 }
 
 
@@ -295,7 +295,7 @@ void QPixmap::deref()
 	    data->mask = 0;
 	}
 	if ( data->maskgc ) {
-	    XFreeGC( dpy, (GC)data->maskgc );
+	    XFreeGC( x11Display(), (GC)data->maskgc );
 	    data->maskgc = 0;
 	}
 	if ( data->ximage ) {
@@ -303,7 +303,7 @@ void QPixmap::deref()
 	    data->ximage = 0;
 	}
 	if ( hd && qApp ) {
-	    XFreePixmap( dpy, hd );
+	    XFreePixmap( x11Display(), hd );
 	    hd = 0;
 	}
 	delete data;
@@ -334,8 +334,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	flipped_bits = flip_bits( bits, ((w+7)/8)*h );
 	bits = flipped_bits;
     }
-    hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy),
-				(char *)bits, w, h );
+    hd = (HANDLE)XCreateBitmapFromData( x11Display(),
+					DefaultRootWindow(x11Display()),
+					(char *)bits, w, h );
     if ( flipped_bits )				// Avoid purify complaint
 	delete [] flipped_bits;
 }
@@ -398,7 +399,7 @@ void QPixmap::detach()
 	data->ximage = 0;
     }
     if ( data->maskgc ) {
-	XFreeGC( dpy, (GC)data->maskgc );
+	XFreeGC( x11Display(), (GC)data->maskgc );
 	data->maskgc = 0;
     }
 }
@@ -423,9 +424,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
 	data->uninit = FALSE;
-	data->optim  = pixmap.data->optim;	// copy optimization flag
 	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
-	data->opt    = pixmap.data->opt;	// copy optimization setting
+	data->optim  = pixmap.data->optim;	// copy optimization flag
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
@@ -437,6 +437,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	data = pixmap.data;
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 	hd = pixmap.hd;				// copy QPaintDevice drawable
+	copyX11Data( &pixmap );			// copy x11Data
     }
     return *this;
 }
@@ -450,7 +451,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 
 int QPixmap::defaultDepth()
 {
-    return x11Depth();
+    return x11AppDepth();
 }
 
 
@@ -490,8 +491,8 @@ int QPixmap::defaultDepth()
   operations is not critical to your application.
   <li> \c QPixmap::NormalOptim, normal optimization to make pixmap drawing
   faster. This option is the default and is suitable for most purposes.
-  <li> \c QPixmap::BestOptim, heavily optimized pixmap drawing. Use this
-  option for pixmap drawn extremely frequently.
+  <li> \c QPixmap::BestOptim, heavily optimized pixmap drawing, but may
+  consume more memory. Use this option for pixmap drawn extremely frequently.
   </ul>
 
   Use the setDefaultOptimization() to change the default optimization
@@ -502,10 +503,9 @@ int QPixmap::defaultDepth()
 
 void QPixmap::setOptimization( Optimization optimization )
 {
-    if ( optimization == data->opt )
+    if ( optimization == data->optim )
 	return;
-    data->optim = optimization != NoOptim;	// ### compatibility setting
-    data->opt = optimization;
+    data->optim = optimization;
     if ( optimization == NoOptim && data->ximage ) {
 	qSafeXDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
@@ -519,7 +519,7 @@ void QPixmap::setOptimization( Optimization optimization )
 
 QPixmap::Optimization QPixmap::defaultOptimization()
 {
-    return defOpt;
+    return defOptim;
 }
 
 /*!
@@ -536,41 +536,7 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 
 void QPixmap::setDefaultOptimization( Optimization optimization )
 {
-    defOpt = optimization;
-    optimAll = optimization != NoOptim;		// ### compatibility setting
-}
-
-
-/*!
-  \fn bool QPixmap::isOptimized() const
-  Deprecated function, replaced by optimization();
-*/
-
-/*!
-  Deprecated function, replaced by setOptimization().
-*/
-
-void QPixmap::optimize( bool enable )
-{
-    setOptimization( enable ? NormalOptim : NoOptim );
-}
-
-/*!
-  Deprecated function, replaced by defaultOptimization().
-*/
-
-bool QPixmap::isGloballyOptimized()
-{
-    return defOpt != NoOptim;
-}
-
-/*!
-  Deprecated function, replaced by setDefaultOptimization.
-*/
-
-void QPixmap::optimizeGlobally( bool enable )
-{
-    setDefaultOptimization( enable ? NormalOptim : NoOptim );
+    defOptim = optimization;
 }
 
 
@@ -584,8 +550,8 @@ void QPixmap::fill( const QColor &fillColor )
 	return;
     detach();					// detach other references
     GC gc = qt_xget_temp_gc( depth()==1 );
-    XSetForeground( dpy, gc, fillColor.pixel() );
-    XFillRectangle( dpy, hd, gc, 0, 0, width(), height() );
+    XSetForeground( x11Display(), gc, fillColor.pixel() );
+    XFillRectangle( x11Display(), hd, gc, 0, 0, width(), height() );
 }
 
 
@@ -604,7 +570,8 @@ int QPixmap::metric( int m ) const
 	else
 	    val = height();
     } else {
-	int scr = qt_xscreen();
+	Display *dpy = x11Display();
+	int scr = x11Screen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
 		val = (DisplayWidthMM(dpy,scr)*width())/
@@ -670,7 +637,7 @@ QImage QPixmap::convertToImage() const
 
     XImage *xi = (XImage *)data->ximage;	// any cached ximage?
     if ( !xi )					// fetch data from X server
-	xi = XGetImage( dpy, hd, 0, 0, w, h, AllPlanes,
+	xi = XGetImage( x11Display(), hd, 0, 0, w, h, AllPlanes,
 			mono ? XYPixmap : ZPixmap );
     CHECK_PTR( xi );
 
@@ -883,7 +850,8 @@ QImage QPixmap::convertToImage() const
 	XColor *carr = new XColor[ncells];
 	for ( i=0; i<ncells; i++ )
 	    carr[i].pixel = i;
-	XQueryColors( dpy, cmap, carr, ncells );// get default colormap
+	// Get default colormap
+	XQueryColors( x11Display(), cmap, carr, ncells );
 
 	if (msk) {
 	    int trans;
@@ -926,7 +894,7 @@ QImage QPixmap::convertToImage() const
 	}
 	delete [] carr;
     }
-    if ( data->opt == NoOptim )			// throw away image data
+    if ( data->optim != BestOptim )		// throw away image data
 	qSafeXDestroyImage( xi );
     else					// keep ximage data
 	((QPixmap*)this)->data->ximage = xi;
@@ -980,6 +948,16 @@ QImage QPixmap::convertToImage() const
 		is being converted to 8-bits.
 		This is the default when an image is converted
 		for the purpose of saving to a file.
+    </ul>
+   <dt>Image quality versus conversion speed
+   <dd>
+    <ul>
+     <li> \c PreferQuality - give image quality higher priority     
+		than speed. This is the default when converting
+		to a pixmap and	is recommended for most uses.
+     <li> \c PreferSpeed - sacrifice image quality for conversion
+		speed.  Combine with setOptimization(QPixmap::BestOptim)
+		for even higher speed.
     </ul>
   </dl>
 
@@ -1052,7 +1030,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     if ( d == 1 ) {				// 1 bit pixmap (bitmap)
 	if ( hd )				// delete old X pixmap
-	    XFreePixmap( dpy, hd );
+	    XFreePixmap( x11Display(), hd );
 	char  *bits;
 	uchar *tmp_bits;
 	int    bpl = (w+7)/8;
@@ -1084,7 +1062,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    bits = (char *)image.bits();
 	    tmp_bits = 0;
 	}
-	hd = (HANDLE)XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
+	hd = (HANDLE)XCreateBitmapFromData( x11Display(),
+					    DefaultRootWindow(x11Display()),
+					    bits, w, h );
 	if ( tmp_bits )				// Avoid purify complaint
 	    delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
@@ -1097,6 +1077,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	return TRUE;
     }
 
+    Display *dpy   = x11Display();
     Visual *visual = (Visual *)x11Visual();
     XImage *xi	   = 0;
     bool    trucol = visual->c_class == TrueColor;
@@ -1104,7 +1085,29 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     uchar  *newbits= 0;
     register uchar *p;
 
-    if ( trucol ) {				// truecolor display
+    if ( data->ximage ) {
+	xi = (XImage*)data->ximage;
+	if ( xi->depth == dd && xi->width == w && xi->height == h ) {
+	    newbits = (uchar *)xi->data;
+	} else {
+	    qSafeXDestroyImage( (XImage*)data->ximage );
+	    data->ximage = 0;
+	    xi = 0;
+	}
+    }
+    if ( !xi ) {
+	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
+	CHECK_PTR( xi );
+    }
+    if ( !newbits )
+	newbits = (uchar *)malloc( xi->bytes_per_line*h );
+
+    if ( trucol && 0 && (dd == 24 || dd == 32) ) {
+
+	newbits = image.bits();
+	xi->data = (char *)newbits;
+	    
+    } else if ( trucol ) {			// truecolor display
 	QRgb  pix[256];				// pixel translation table
 	bool  d8 = d == 8;
 	uint  red_mask	  = (uint)visual->red_mask;
@@ -1131,9 +1134,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
 
-	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
-	CHECK_PTR( xi );
-	newbits = (uchar *)malloc( xi->bytes_per_line*h );
 	uchar *src;
 	uchar *dst;
 	QRgb   pixel;
@@ -1142,15 +1142,17 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( bppc > 8 && xi->byte_order == LSBFirst )
 	    bppc++;
 
+	bool contig_bits = n_bits(red_mask) == rbits &&
+			   n_bits(green_mask) == gbits &&
+			   n_bits(blue_mask) == bbits;
 	bool dither_tc =
 		// Want it
 		(conversion_flags & DitherMode_Mask) != AvoidDither &&
+		(conversion_flags & Quality_Mask) != PreferSpeed &&	    
 		// Need it
 		bppc < 24 && !d8 &&
 		// Contiguous bits?
-		n_bits(red_mask) == rbits &&
-		n_bits(green_mask) == gbits &&
-		n_bits(blue_mask) == bbits;
+		contig_bits;
 
 	static bool init=FALSE;
 	static int D[16][16];
@@ -1160,11 +1162,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    The dither matrix, D, is obtained with this formula:
 
 	    D2 = [ 0 2 ]
-	       [ 3 1 ]
+		 [ 3 1 ]
 
 
 	    D2*n = [ 4*Dn       4*Dn+2*Un ]
-		 [ 4*Dn+3*Un  4*Dn+1*Un ]
+		   [ 4*Dn+3*Un  4*Dn+1*Un ]
 	    */
 	    int n,i,j;
 	    init=1;
@@ -1194,71 +1196,106 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
 	    p	= (QRgb *)src;
-	    for ( int x=0; x<w; x++ ) {
-		if ( d8 ) {
-		    pixel = pix[*src++];
-		} else {
-		    r = qRed  ( *p );
-		    g = qGreen( *p );
-		    b = qBlue ( *p++ );
-
-		    if ( dither_tc ) {
-			// Dither truecolor
-			int thres = D[x%16][y%16];
-			if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) & 255)
-				> thres)
-			    r += (1<<(8-rbits));
-			if ( g <= (255-(1<<(8-gbits))) && ((g<<gbits) & 255)
-				> thres)
-			    g += (1<<(8-gbits));
-			if ( b <= (255-(1<<(8-bbits))) && ((b<<bbits) & 255)
-				> thres)
-			    b += (1<<(8-bbits));
+	    if ( 1 ) {
+		// 24 bit image optimization
+		int n = w/4;
+		QRgb *b = (QRgb *)dst;
+		bool little_endian = TRUE;
+		if ( little_endian ) {
+		    while ( n-- ) {
+			b[0] = (p[0] & 0x00ffffff)|((p[1] << 24) & 0xff000000);
+			b[1] = (p[1] >> 8)	  |((p[2] << 16) & 0xffff0000);
+			b[2] = (p[2] >> 16)	  |((p[3] << 8)  & 0xffffff00);
+			b += 3;
+			p += 4;
 		    }
-
-		    r = red_shift   > 0
-			? r << red_shift   : r >> -red_shift;
-		    g = green_shift > 0
-			? g << green_shift : g >> -green_shift;
-		    b = blue_shift  > 0
-			? b << blue_shift  : b >> -blue_shift;
-
-		    pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
+		} else {
+		    while ( n-- ) {
+			b[0] = (p[0] << 8)  | ((p[1] >> 16) & 0x000000ff);
+			b[1] = (p[1] << 16) | ((p[2] >> 8)  & 0x0000ffff);
+			b[2] = (p[2] << 24) |  (p[3]	    & 0x00ffffff);
+			b += 3;
+			p += 4;
+		    }
 		}
-		switch ( bppc ) {
-		    case 8:
-			*dst++ = pixel;
-			break;
-		    case 16:			// 16 bit MSB
-			*dst++ = (pixel >> 8);
-			*dst++ = pixel;
-			break;
-		    case 17:			// 16 bit LSB
-			*dst++ = pixel;
-			*dst++ = pixel >> 8;
-			break;
-		    case 24:			// 24 bit MSB
-			*dst++ = pixel >> 16;
-			*dst++ = pixel >> 8;
-			*dst++ = pixel;
-			break;
-		    case 25:			// 24 bit LSB
-			*dst++ = pixel;
-			*dst++ = pixel >> 8;
-			*dst++ = pixel >> 16;
-			break;
-		    case 32:			// 32 bit MSB
-			*dst++ = pixel >> 24;
-			*dst++ = pixel >> 16;
-			*dst++ = pixel >> 8;
-			*dst++ = pixel;
-			break;
-		    case 33:			// 32 bit LSB
-			*dst++ = pixel;
-			*dst++ = pixel >> 8;
-			*dst++ = pixel >> 16;
-			*dst++ = pixel >> 24;
-			break;
+		if ( (n = w % 4) ) {
+		    uchar *p1 = (uchar *)p;
+		    uchar *b1 = (uchar *)b;
+		    while ( n-- ) {
+			if ( little_endian )
+			    p1++;
+			*b1++ = *p1++;
+			*b1++ = *p1++;
+			*b1++ = *p1++;
+			if ( !little_endian )
+			    p1++;
+		    }
+		}
+	    } else {
+		for ( int x=0; x<w; x++ ) {
+		    if ( d8 ) {
+			pixel = pix[*src++];
+		    } else {
+			r = qRed  ( *p );
+			g = qGreen( *p );
+			b = qBlue ( *p++ );
+			if ( dither_tc ) {
+			    // Dither truecolor
+			    int thres = D[x%16][y%16];
+			    if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) &255)
+				 > thres)
+				r += (1<<(8-rbits));
+			    if ( g <= (255-(1<<(8-gbits))) && ((g<<gbits) &255)
+				 > thres)
+				g += (1<<(8-gbits));
+			    if ( b <= (255-(1<<(8-bbits))) && ((b<<bbits) &255)
+				 > thres)
+			    b += (1<<(8-bbits));
+			}
+			r = red_shift   > 0
+			    ? r << red_shift   : r >> -red_shift;
+			g = green_shift > 0
+			    ? g << green_shift : g >> -green_shift;
+			b = blue_shift  > 0
+			    ? b << blue_shift  : b >> -blue_shift;
+			pixel = (b & blue_mask)|(g & green_mask) |
+			        (r & red_mask);
+		    }
+		    switch ( bppc ) {
+			case 8:
+			    *dst++ = pixel;
+			    break;
+			case 16:		// 16 bit MSB
+			    *dst++ = (pixel >> 8);
+			    *dst++ = pixel;
+			    break;
+			case 17:		// 16 bit LSB
+			    *dst++ = pixel;
+			    *dst++ = pixel >> 8;
+			    break;
+			case 24:		// 24 bit MSB
+			    *dst++ = pixel >> 16;
+			    *dst++ = pixel >> 8;
+			    *dst++ = pixel;
+			    break;
+			case 25:		// 24 bit LSB
+			    *dst++ = pixel;
+			    *dst++ = pixel >> 8;
+			    *dst++ = pixel >> 16;
+			    break;
+			case 32:		// 32 bit MSB
+			    *dst++ = pixel >> 24;
+			    *dst++ = pixel >> 16;
+			    *dst++ = pixel >> 8;
+			    *dst++ = pixel;
+			    break;
+			case 33:		// 32 bit LSB
+			    *dst++ = pixel;
+			    *dst++ = pixel >> 8;
+			    *dst++ = pixel >> 16;
+			    *dst++ = pixel >> 24;
+			    break;
+		    }
 		}
 	    }
 	}
@@ -1386,10 +1423,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    *p = pix[*p];
 	    p++;
 	}
-    }
 
-    if ( !xi ) {				// X image not created
-	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	if ( xi->bits_per_pixel == 16 ) {	// convert 8 bpp ==> 16 bpp
 	    ushort *p2;
 	    int	    p2inc = xi->bytes_per_line/sizeof(ushort);
@@ -1417,15 +1451,19 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = 0;
     }
     if ( !hd )					// create new pixmap
-	hd = (HANDLE)XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, dd );
+	hd = (HANDLE)XCreatePixmap( x11Display(),
+				    DefaultRootWindow(x11Display()),
+				    w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
-    if ( data->opt == NoOptim ) {		// throw away image
+    if ( data->optim != BestOptim ) {		// throw away image
 	qSafeXDestroyImage( xi );
     } else {					// keep ximage that we created
 	data->ximage = xi;
     }
-    data->w = w;  data->h = h;	data->d = dd;
+    data->w = w;
+    data->h = h;
+    data->d = dd;
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
@@ -1462,8 +1500,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-    if ( !x11DefaultVisual() )			// incompatible depth
+    if ( !x11AppDefaultVisual() )		// incompatible depth
 	return QPixmap(0, 0);
+    Display *dpy = x11AppDisplay();
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    QPixmap nullPixmap;
@@ -1564,6 +1603,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
     int	   y;
+    Display *dpy = x11Display();
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
@@ -1629,7 +1669,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #endif
     XImage *xi = (XImage*)data->ximage;		// any cached ximage?
     if ( !xi )
-	xi = XGetImage( dpy, handle(), 0, 0, ws, hs, AllPlanes,
+	xi = XGetImage( x11Display(), handle(), 0, 0, ws, hs, AllPlanes,
 			depth1 ? XYPixmap : ZPixmap );
 
     if ( !xi ) {				// error, return null pixmap
@@ -1819,7 +1859,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	m22ydy += m22;
 	p += p_inc;
     }
-    if ( data->opt == NoOptim ) {		// throw away ximage
+    if ( data->optim == NoOptim ) {		// throw away ximage
 	qSafeXDestroyImage( xi );
     } else {					// keep ximage that we fetched
 	data->ximage = xi;
