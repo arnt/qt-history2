@@ -63,11 +63,11 @@ typedef struct {
   DWORD   fRejectInvalid      :1;
 } SCRIPT_PROPERTIES;
 
-#ifndef ABC
-typedef struct { 
-  int     abcA; 
-  UINT    abcB; 
-  int     abcC; 
+#ifdef Q_OS_TEMP
+typedef struct {
+  int     abcA;
+  UINT    abcB;
+  int     abcC;
 } ABC;
 #endif
 
@@ -664,7 +664,7 @@ QShapedItem *QTextEngine::shape( int item ) const
 		int i;
 		for( i = 0; i < 4; i++ ) {
 		    QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
-		    if ( fe->type() == QFontEngine::Box ) 
+		    if ( fe->type() == QFontEngine::Box )
 			continue;
 
 		    if ( fe->canRender( string.unicode()+from, len ) ) {
