@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#23 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#24 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -401,7 +401,7 @@ bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	if ( p[0].rect->x() )
 	    e.setAttribute( "x", p[0].rect->x() );
 	if ( p[0].point->y() )
-	    e.setAttribute( "y", p[0].rect->y() );
+	    e.setAttribute( "y", p[0].rect->y()+painter->fontMetrics().ascent() );
 	// ### int tf = p[1].ival;
 	e.appendChild( doc.createTextNode( *p[2].str ) );
 	break;
