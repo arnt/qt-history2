@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#342 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#343 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3864,7 +3864,7 @@ void QFileDialog::setPreviewMode( bool info, bool contents )
 
   This widget should implement a public slot
 
-  void showPreview( const QUrlOperator & );
+  void showPreview( const QUrl & );
 
   A signal of the filedialog will then be automatically connected to
   this slot. If the user selects a file then, this signal is emitted,
