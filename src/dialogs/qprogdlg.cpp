@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#20 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#20 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -203,7 +203,8 @@ void QProgressDialog::init( QWidget *creator,
 /*!
   Sets the label. The progress dialog resizes to fit.
   The label becomes owned by the
-  progress dialog and will be deleted when necessary.
+  progress dialog and will be deleted when necessary,
+  so do not pass the address of an object on the stack.
   \sa setLabelText()
 */
 
@@ -211,7 +212,16 @@ void QProgressDialog::setLabel( QLabel *label )
 {
     delete d->label;
     d->label = label;
+    if (label) {
+	if ( label->parentWidget() == this ) {
+	    label->hide(); // until we resize
+	} else {
+	    label->recreate( this, 0, QPoint(0,0), FALSE );
+	}
+    }
     resize(sizeHint());
+    if (label)
+	label->show();
 }
 
 
@@ -231,7 +241,8 @@ void QProgressDialog::setLabelText( const char *text )
 
 /*!
   Sets the cancellation button.  The button becomes owned by the
-  progress dialog and will be deleted when necessary.
+  progress dialog and will be deleted when necessary,
+  so do not pass the address of an object on the stack.
   \sa setCancelButtonText()
 */
 
@@ -239,13 +250,20 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 {
     delete d->cancel;
     d->cancel = cancelButton;
-    if (d->cancel) {
+    if (cancelButton) {
+	if ( cancelButton->parentWidget() == this ) {
+	    cancelButton->hide(); // until we resize
+	} else {
+	    cancelButton->recreate( this, 0, QPoint(0,0), FALSE );
+	}
 	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
 	QAccel *accel = new QAccel( this );
 	accel->connectItem( accel->insertItem(Key_Escape),
 			    d->cancel, SIGNAL(clicked()) );
     }
     resize(sizeHint());
+    if (cancelButton)
+	cancelButton->show();
 }
 
 /*!
@@ -367,7 +385,8 @@ int QProgressDialog::progress() const
   Sets the current amount of progress made to \e prog units of the
   total number of steps.  For the progress dialog to work correctly,
   you must at least call this with the parameter 0 initially, then
-  later with QProgressDialog::totalSteps().
+  later with QProgressDialog::totalSteps(), and you may call it any
+  number of times in between.
 
   \warning If the progress dialog is modal
     (see QProgressDialog::QProgressDialog()),
