@@ -207,6 +207,7 @@ public:
     bool cleared, dropped, clearing;
     int dragItems;
     QPoint oldDragPos;
+    bool oldDragAcceptAction;
     QIconView::Arrangement arrangement;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
@@ -4324,6 +4325,7 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
     d->tmpCurrentItem = 0;
     initDragEnter( e );
     d->oldDragPos = e->pos();
+    d->oldDragAcceptAction = FALSE;
     drawDragShapes( e->pos() );
     d->dropped = FALSE;
 }
@@ -4334,8 +4336,14 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
-    if ( e->pos() == d->oldDragPos )
+    if ( e->pos() == d->oldDragPos ) {
+	if (d->oldDragAcceptAction)
+	    e->acceptAction();
+	else
+	    e->ignore();
 	return;
+    }
+
     drawDragShapes( d->oldDragPos );
     d->dragging = FALSE;
 
@@ -4350,10 +4358,13 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	    repaintItem( old );
 	}
 	item->dragEntered();
-	if ( item->acceptDrop( e ) )
+	if ( item->acceptDrop( e ) ) {
+	    d->oldDragAcceptAction = TRUE;
 	    e->acceptAction();
-	else
+	} else {
+	    d->oldDragAcceptAction = FALSE;
 	    e->ignore();
+	}
 
 	d->tmpCurrentItem = item;
 	QPainter p;
@@ -4363,6 +4374,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	p.end();
     } else {
 	e->acceptAction();
+	d->oldDragAcceptAction = TRUE;
 	if ( old ) {
 	    old->dragLeft();
 	    repaintItem( old );
