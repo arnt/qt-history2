@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#36 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#37 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -439,7 +439,7 @@ bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-// set parent 0 => don't align in grid yet, as aour metrics is not correct yet
+    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
       itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
 {
@@ -792,16 +792,12 @@ void QtFileIconView::viewRight()
 
 void QtFileIconView::flowEast()
 {
-//     setGridX( 100 );
-//     setGridY( -1 );
     setAlignMode( East );
     alignInGrid();
 }
 
 void QtFileIconView::flowSouth()
 {
-//     setGridY( 100 );
-//     setGridX( -1 );
     setAlignMode( South );
     alignInGrid();
 }
