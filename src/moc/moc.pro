@@ -13,6 +13,7 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qcstring.cpp	    \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qdatastream.cpp  \
+		  ../tools/qfile.cpp	    \
 		  ../tools/qgarray.cpp	    \
 		  ../tools/qgdict.cpp	    \
 		  ../tools/qglist.cpp	    \
@@ -20,5 +21,6 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qgvector.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qregexp.cpp	    \
-		  ../tools/qstring.cpp
+		  ../tools/qstring.cpp	    \
+		  ../tools/qtextcodec.cpp
 TARGET		= moc
