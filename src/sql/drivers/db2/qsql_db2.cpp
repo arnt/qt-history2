@@ -940,6 +940,10 @@ bool QDB2Result::fetchLast()
 
 QVariant QDB2Result::data( int field )
 {
+    if ( field >= (int) d->recInf.count() ) {
+	qWarning( "QDB2Result::data: column %d out of range", field );
+	return QVariant();
+    }
     SQLRETURN r = 0;
     SQLINTEGER lengthIndicator = 0;
     const QSqlFieldInfo info = d->recInf[ field ];
