@@ -26,6 +26,21 @@ inline T qAtomicSetPtr(T * volatile pointer, T value)
     return static_cast<T>(qAtomicSetPtr_helper((void**volatile)pointer, value));
 }
 
+template <typename T>
+inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
+{
+    Q_ASSERT(sizeof(T) == 4);
+    unsigned char result;
+    __asm {
+        mov ECX, pointer
+	mov EAX, compare
+	mov EDX, value
+	lock cmpxchg dword ptr[ECX], EDX
+	sete result
+    }
+    return (result != 0);
+}
+
 #if defined(Q_CC_BOR)
 static bool qAtomicInc_helper(volatile int * pointer)
 #else
