@@ -10,12 +10,8 @@
 
 # mac hac fu
 mac {
-     #we always use these
-     CONFIG += zlib png
      #never
-     CONFIG -= nas mng x11 x11sm
-     
-     #CONFIG += shared
+     CONFIG -= nas x11 x11sm
      #CONFIG += sqlcrap
      sql:sqlcrap {
 	sql-drivers += postgres
