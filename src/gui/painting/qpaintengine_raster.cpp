@@ -645,25 +645,17 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &m)
 {
     Q_D(QRasterPaintEngine);
 
-
-    // We need to subtract the redicetion offset, but we cannot use QMatrix::translate()
-    // since that translates by matrix * [dx, dy, 1].
-    QMatrix matrix(m.m11(), m.m12(),
-                   m.m21(), m.m22(),
-                   m.dx() - d->deviceRect.x(),
-                   m.dy() - d->deviceRect.y());
-
-    d->matrix = matrix;
-    if (matrix.m12() != 0 || matrix.m21() != 0)
+    d->matrix = m;
+    if (d->matrix.m12() != 0 || d->matrix.m21() != 0)
         d->txop = QPainterPrivate::TxRotShear;
-    else if (matrix.m11() != 1 || matrix.m22() != 1)
+    else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
         d->txop = QPainterPrivate::TxScale;
-    else if (matrix.dx() != 0 || matrix.dy() != 0)
+    else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
         d->txop = QPainterPrivate::TxTranslate;
     else
         d->txop = QPainterPrivate::TxNone;
 
-    d->outlineMapper->setMatrix(matrix, d->txop);
+    d->outlineMapper->setMatrix(d->matrix, d->txop);
 }
 
 
@@ -1135,6 +1127,13 @@ void QRasterPaintEngine::releaseDC(HDC) const
 {
 }
 #endif
+
+
+QPoint QRasterPaintEngine::coordinateOffset() const
+{
+    Q_D(const QRasterPaintEngine);
+    return QPoint(d->deviceRect.x(), d->deviceRect.y());
+}
 
 
 void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fillData,

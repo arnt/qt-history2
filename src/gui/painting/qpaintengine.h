@@ -150,6 +150,7 @@ public:
     virtual void releaseDC(HDC hdc) const;
 #endif
 
+    virtual QPoint coordinateOffset() const;
 
     enum Type {
         X11,

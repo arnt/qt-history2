@@ -971,6 +971,8 @@ bool QPainter::begin(QPaintDevice *pd)
         }
     }
 
+    d->redirection_offset += d->engine->coordinateOffset();
+
     // Copy painter properties from original paint device,
     // required for QPixmap::grabWidget()
     if (originalDevice->devType() == QInternal::Widget) {

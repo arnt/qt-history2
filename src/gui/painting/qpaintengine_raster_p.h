@@ -90,6 +90,8 @@ public:
 #endif
 
     Type type() const { return Raster; }
+
+    QPoint coordinateOffset() const;
 };
 
 

@@ -1042,4 +1042,19 @@ HDC QPaintEngine::getDC() const
 void QPaintEngine::releaseDC(HDC) const
 {
 }
+
+/*!
+    \internal
+
+    Returns the offset from the painters origo to the engines
+    origo. This value is used by QPainter for engines who have
+    internal double buffering.
+
+    This function only makes sense when the engine is active.
+*/
+QPoint QPaintEngine::coordinateOffset() const
+{
+    return QPoint();
+}
+
 #endif
