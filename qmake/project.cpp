@@ -52,34 +52,10 @@ extern "C" int yyparse();
 
 QMakeProject::QMakeProject()
 {
-    if(Option::debug_level)
-	printf("Config file: reading %s\n", Option::specfile.latin1());
-    
-    QFile qfile(cfile = Option::specfile);
-    if ( qfile.open(IO_ReadOnly) ) {
-	QTextStream t( &qfile );
-	QString s;
-	line_count = 0;
-	while ( !t.eof() ) {
-	    line_count++;
-	    s += t.readLine();
-	    if(s.right(1) == "\\")
-		s.truncate(s.length() - 1);
-	    else {
-		if(!parse(s))
-		    break;
-		s = "";
-	    }
-	}
-	qfile.close();
-    }
-    for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it)
-	parse((*it));
-    base_vars = vars;
 }
 
 bool
-QMakeProject::parse(QString t)
+QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
 
@@ -87,15 +63,9 @@ QMakeProject::parse(QString t)
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
-    int equals = s.find('=');
-    if(equals == -1) {
-	yyerror("Parse error");
-	return FALSE;
-    }
-
     QString scope, var, op;
     QStringList val;
-#define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++;
+#define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
     while(*d && *d != '+' && *d != '-' && *d != '=') {
@@ -131,10 +101,11 @@ QMakeProject::parse(QString t)
 	else var += *d;
 	d++;
     }
-    QStringList &varlist = vars[var.stripWhiteSpace()];
-
     if(!*d)
-	return FALSE;
+	return var.isEmpty(); /* allow just a scope */
+
+    QStringList &varlist = place[var.stripWhiteSpace()];
+
     SKIP_WS(d);
     for( ; *d && op.find('=') == -1; op += *(d++));
     op.replace(QRegExp("\\s"), "");
@@ -152,7 +123,7 @@ QMakeProject::parse(QString t)
 	int rep;
 	while((rep = (*valit).find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
 	    QString torep = (*valit).mid(rep, (*valit).find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
-	    QStringList &l = vars[torep.right(torep.length()-2)];
+	    QStringList &l = place[torep.right(torep.length()-2)];
 	    if(Option::debug_level >= 2)
 		printf("Project parser: (%s) :: %s -> %s\n", (*valit).latin1(), torep.latin1(), l.join(" ").latin1());
 	    if(l.count() > 1) {
@@ -180,26 +151,11 @@ QMakeProject::parse(QString t)
 }
 
 bool
-QMakeProject::read(const char *project)
+QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 {
-    vars = base_vars; /* start with the base */
-    
-    /* parse project file */
-    if(Option::debug_level)
-	printf("Project file: reading %s\n", project);
-
-    pfile = project;
-    if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
-	pfile += ".pro";
-
-    bool ret = FALSE;
-    QFile qfile(pfile = project);
+    bool ret;
+    QFile qfile(file);
     if ( (ret = qfile.open(IO_ReadOnly)) ) {
-	QString projname = project;
-	projname.replace(QRegExp("\\.pro$"), "");
-	vars["PROJECT"].append(projname);
-	vars["TARGET"].append(projname);
-
 	QTextStream t( &qfile );
 	QString s;
 	line_count = 0;
@@ -209,7 +165,7 @@ QMakeProject::read(const char *project)
 	    if(s.right(1) == "\\")
 		s.truncate(s.length() - 1);
 	    else {
-		if(!(ret = parse(s)))
+		if(!(ret = parse(s, place)))
 		    break;
 		s = "";
 	    }
@@ -217,6 +173,42 @@ QMakeProject::read(const char *project)
 	qfile.close();
     }
     return ret;
+}
+
+bool
+QMakeProject::read(const char *project)
+{
+    /* parse mkspec */
+    if(cfile.isEmpty()) {
+	if(Option::debug_level)
+	    printf("MKSPEC file: reading %s\n", Option::specfile.latin1());
+
+	if(!read(Option::specfile, base_vars)) {
+	    fprintf(stderr, "Failure to read MKSPEC file.\n");
+	    return FALSE;
+	}
+	cfile = project;
+	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
+	    if(!parse((*it), base_vars)) {
+		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
+		return FALSE;
+	    }
+	}
+    }
+
+    /* parse project file */
+    if(Option::debug_level)
+	printf("Project file: reading %s\n", project);
+
+    vars = base_vars; /* start with the base */
+    pfile = project;
+    if(!QFile::exists(pfile) && pfile.right(4) != ".pro")
+	pfile += ".pro";
+
+    if(!read(pfile, vars))
+	return FALSE;
+
+    return TRUE;
 }
 
 bool
@@ -252,3 +244,5 @@ QMakeProject::doProjectTest(QString func, const QStringList &args)
     }
     return FALSE;
 }
+
+

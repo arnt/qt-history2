@@ -361,13 +361,13 @@ UnixMakefileGenerator::init()
 	setMocAware(TRUE);
     }
     if ( project->variables()["TMAKE_RUN_CC"].isEmpty() ) {
-	project->variables()["TMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<");
+	project->variables()["TMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src");
     }
     if ( project->variables()["TMAKE_RUN_CC_IMP"].isEmpty() ) {
 	project->variables()["TMAKE_RUN_CC_IMP"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<");
     }
     if ( project->variables()["TMAKE_RUN_CXX"].isEmpty() ) {
-	project->variables()["TMAKE_RUN_CXX"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
+	project->variables()["TMAKE_RUN_CXX"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src");
     }
     if ( project->variables()["TMAKE_RUN_CXX_IMP"].isEmpty() ) {
 	project->variables()["TMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");

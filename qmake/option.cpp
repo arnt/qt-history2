@@ -75,6 +75,7 @@ bool usage(const char *a0)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
+    QString mkspecs = QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator();
     if(argc == 1)
 	return usage(argv[0]);
 
@@ -98,8 +99,11 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::mode = UNIX_MODE;
 	    else if(opt == "win32")
 		Option::mode = WIN_MODE;
-	    else if(opt == "mkspec")
+	    else if(opt == "mkspec") {
 		Option::specfile = argv[++x];
+		if(Option::specfile.find(QDir::separator()) == -1)
+		    Option::specfile.prepend(mkspecs);
+	    }
 	    else if(opt == "v" || opt == "d")
 		Option::debug_level++;
 	    else
@@ -116,7 +120,7 @@ Option::parseCommandLine(int argc, char **argv)
     if(!(Option::output.state() & IO_Open))
 	Option::output.open(IO_WriteOnly, stdout);
     if(Option::specfile.isNull() || Option::specfile.isEmpty())
-	Option::specfile = QString(getenv("TMAKEPATH")) + "tmake.conf";
+	Option::specfile = mkspecs + getenv("MKSPEC");
 
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";
