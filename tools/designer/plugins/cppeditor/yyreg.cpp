@@ -404,7 +404,7 @@ static void appendToType( QString *type, const QString& trailer )
 {
     if ( !type->isEmpty() && !trailer.isEmpty() ) {
 	QString newType = *type;
-	if ( newType[newType.length() - 1].isLetter() ) {
+	if ( newType[(int)newType.length() - 1].isLetter() ) {
 	    if ( trailer[0].isLetter() || trailer[0] == QChar('*') ||
 		 trailer[0] == QChar('&') )
 		*type += QChar( ' ' );
