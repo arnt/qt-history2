@@ -3256,7 +3256,10 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   finished.
 
   After this function, the wiget has a proper font and palette and
-  QApplication::polish() has been called.
+  QApplication::polish() has been called. 
+  
+  Remember to call QWidget's implementation when reimplementing this
+  function.
 
   \sa constPolish(), QApplication::polish()
 */
