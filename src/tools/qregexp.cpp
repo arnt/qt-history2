@@ -555,7 +555,7 @@
     QStringList field = QStringList::split( "\t", str );
     \endcode
 
-    Here field[0] is the country, field[1] the web address and so on.
+    Here field[0] is the company, field[1] the web address and so on.
 
     To immitate the matching of a shell we can use wildcard mode.
 
