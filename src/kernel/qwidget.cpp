@@ -4368,7 +4368,14 @@ void QWidget::wheelEvent( QWheelEvent *e )
   This event handler, for event \a e, can be reimplemented in a
   subclass to receive tablet events for the widget.
 
-  ### More information to come.
+  If you reimplement this handler, it is very important that you \link
+  QTabletEvent ignore()\endlink the event if you do not handle it, so
+  that the widget's parent can interpret it.
+
+  The default implementation ignores the event.
+
+  \sa QTabletEvent::ignore(), QTabletEvent::accept(),
+  event(), QTabletEvent
 */
 
 void QWidget::tabletEvent( QTabletEvent *e )
