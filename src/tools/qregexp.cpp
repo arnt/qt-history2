@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#11 $
 **
 ** Implementation of QRegExp class
 **
@@ -21,7 +21,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#11 $";
 #endif
 
 
@@ -32,7 +32,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#10 $";
 expressions and wildcards.
 
 QRegExp knows these regexp primitives:
-<menu>
+<ul>
 <li> c matches the character 'c'
 <li> . matches any character
 <li> ^ matches start of input (except [^x] matches NOT [x])
@@ -48,13 +48,13 @@ QRegExp knows these regexp primitives:
 <li> \r matches return (13)
 <li> \x12 matches the character hex 12.
 <li> \022 matches the character octal 22.
-</menu>
+</ul>
 
 In wildcard mode, it only knows two primitives:
-<menu>
+<ul>
 <li> ? matches any character
 <li> * matches any sequence of characters
-</menu>
+</ul>
 
 \todo make \s match any white space for regexp mode
 
@@ -134,7 +134,7 @@ QRegExp::QRegExp( const QRegExp &r )
 }
 
 /*!
-Destroys the regular expression and cleans up it internal data.
+Destroys the regular expression and cleans up its internal data.
 */
 
 QRegExp::~QRegExp()
