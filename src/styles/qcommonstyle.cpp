@@ -747,8 +747,13 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_ProgressBarLabel:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+	    QColor penColor = cg.highlightedText();
+	    QColor *pcolor = 0;
+	    if ( progressbar->centerIndicator() && !progressbar->indicatorFollowsStyle() &&
+		 progressbar->progress()*2 >= progressbar->totalSteps() )
+		pcolor = &penColor;
 	    drawItem(p, r, AlignCenter | SingleLine, cg, flags & Style_Enabled, 0,
-		     progressbar->progressString());
+		     progressbar->progressString(), -1, pcolor );
 	}
 	break;
 #endif // QT_NO_PROGRESSBAR
