@@ -1263,8 +1263,14 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
 
 void QTreeWidget::sortItems(int column)
 {
-    if (isSortingEnabled())
-        d->model()->sortAll(column, header()->sortIndicatorOrder());
+    if (isSortingEnabled()) {
+        Qt::SortOrder order = header()->sortIndicatorOrder();
+        int section = header()->sortIndicatorSection();
+        order = (order == Qt::AscendingOrder && column == section
+                 ? Qt::DescendingOrder : Qt::AscendingOrder);
+        header()->setSortIndicator(column, order);
+        d->model()->sortAll(column, order);
+    }
 }
 
 /*!
