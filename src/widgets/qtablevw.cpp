@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#34 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#34 $");
 
 
 const int sbDim = 16;
@@ -156,20 +156,14 @@ QTableView::~QTableView()
 
 
 /*!
-  Reimplements QWidget::setBackgroundColor().
-  Sets the background color for the scroll bars, too.
+  \internal
+  Reimplements QWidget::setBackgroundColor() for binary compatibility.
   \sa setPalette()
 */
 
 void QTableView::setBackgroundColor( const QColor &c )
 {
     QWidget::setBackgroundColor( c );
-    if ( cornerSquare )
-	cornerSquare->setBackgroundColor( c );
-    if ( vScrollBar )
-	vScrollBar->setBackgroundColor( c );
-    if ( hScrollBar )
-	hScrollBar->setBackgroundColor( c );
 }
 
 /*!
