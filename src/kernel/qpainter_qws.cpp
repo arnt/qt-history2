@@ -672,7 +672,7 @@ void QPainter::setClipping( bool enable )
 	param[0].ival = enable;
 	pdev->cmd( QPaintDevice::PdcSetClip, this, param );
 	return;
-    } 
+    }
     gfx->setClipRegion(crgn);
 }
 
@@ -703,7 +703,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
 	    return; // device cannot clip
     }
 
-    setf( ClipOn );    
+    setf( ClipOn );
     gfx->setClipRegion(crgn);
 }
 
@@ -1346,7 +1346,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	int ls=mymask->bytesPerLine();
 	gfx->setAlphaType(QGfx::LittleEndianMask);
 	gfx->setAlphaSource(thebits,ls);
-    } else if (pixmap.depth() == 32){
+    } else if ( (pixmap.depth() == 32) && (qt_screen->depth()!=32) ){
 	gfx->setAlphaType(QGfx::InlineAlpha);
     } else {
 	gfx->setAlphaType(QGfx::IgnoreAlpha);

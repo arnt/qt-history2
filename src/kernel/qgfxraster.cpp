@@ -1216,6 +1216,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);
     srctype=SourceImage;
+    alphatype==IgnoreAlpha;
     if ( p->devType() == QInternal::Widget ) {
 	QWidget * w=(QWidget *)p;
 	srcwidth=w->width();
@@ -2500,72 +2501,147 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 						    unsigned char * alphas)
 {
     if ( depth == 32 ) {
-        // First read in the destination line
+	// First read in the destination line
 	unsigned int * myptr;
 	myptr=(unsigned int *)l;
+
+	int frontadd;
+	int backadd;
+	int count;
+	int loopc2;
+
+	//  Some weird bug - this doesn't work on MIPS
+#ifdef WEIRD_64BIT_BUG
+	frontadd = x2 - x1 + 1;
+	backadd = 0;
+	count = 0;
+#else
+	calcPacking(myptr,x1,x2,frontadd,backadd,count);
+#endif
+
 	int w=x2-x1+1;
 	myptr+=x1;
 	int loopc;
 
 	unsigned char * avp=alphas;
 
-        for(loopc=0;loopc<w;loopc++) {
-	    alphabuf[loopc]=*(myptr++);
+	int myp=0;
+	unsigned int * temppos=myptr;
+
+	QuadByte temp2;
+
+	unsigned int * cp;
+
+	for( loopc2=0;loopc2<frontadd;loopc2++ ) {
+	    alphabuf[myp++]=*temppos;
+	    temppos++;
+	}
+
+	for( loopc2=0;loopc2<count;loopc2++ ) {
+	    temp2=*((QuadByte *)temppos);
+	    cp=(unsigned int *)&temp2;
+	    alphabuf[myp++]=*cp;
+	    alphabuf[myp++]=*(cp+1);
+	    temppos+=2;
+	}
+
+	for( loopc2=0;loopc2<backadd;loopc2++ ) {
+	    alphabuf[myp++]=*temppos;
+	    temppos++;
 	}
 
 	// Now blend with source data
-
-	unsigned char * srcptr;
+	unsigned char * srcptr=srcdata;
 	unsigned int srcval;
+
 	if(srctype==SourceImage) {
 	    srcptr=srcdata;
+	    srcval=0; // Shut up compiler
 	} else {
 	    // SourcePen
-	    srcval=srccol;
+	    unsigned int r,g,b;
+	    r=(srccol & 0x00ff0000);
+	    g=(srccol & 0x0000ff00);
+	    b=(srccol & 0x000000ff);
+	    r=r >> 16;
+	    g=g >> 8;
+	    srcval=(r << 16) | (g << 8) | b;
 	}
 	for(loopc=0;loopc<w;loopc++) {
 	    int r,g,b;
 	    if(srctype==SourceImage)
-		srcval = get_value(32,srcdepth,&srcptr);
-	    unsigned char * srcvalp=(unsigned char *)&srcval;
-	    int av;
+		srcval=get_value(32,srcdepth,&srcptr);
+
+	    unsigned int av;
 	    if(alphatype==InlineAlpha) {
-		av=*(srcvalp+3);
+		av = srcval >> 24;
 	    } else if(alphatype==SolidAlpha) {
 		av=calpha;
 	    } else {
 		av=*(avp++);
 	    }
+
+	    r = (srcval & 0xff0000) >> 16;
+	    g = (srcval & 0xff00) >> 8;
+	    b = srcval & 0xff;
+	    
+	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	    if(av==255) {
-	      alphabuf[loopc]=srcval;
+	      // Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
-	      // Leave alone
+	      r=*(tmp+2);
+	      g=*(tmp+1);
+	      b=*(tmp+0);
 	    } else {
-	        r=*(srcvalp+2);
-	        g=*(srcvalp+1);
-	        b=*(srcvalp+0);
-	        unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	        r-=*(tmp+2);
 	        g-=*(tmp+1);
 	        b-=*(tmp+0);
-
 	        r=(r * av) / 256;
 	        g=(g * av) / 256;
 	        b=(b * av) / 256;
 	        r+=*(tmp+2);
 	        g+=*(tmp+1);
 	        b+=*(tmp+0);
-	        alphabuf[loopc]=(r << 16) | (g << 8) | b;
 	    }
+	    alphabuf[loopc]=(r << 16) | (g << 8) | b;
 	}
 
 	// Now write it all out
 
-	myptr=(unsigned int *)l;
-	myptr+=x1;
-	for(loopc=0;loopc<w;loopc++)
-	    *(myptr++) = alphabuf[loopc];
+	unsigned int * putdata=&alphabuf[0];
 
+	QuadByte put;
+	unsigned int *fun = (unsigned int*)&put;
+
+	myptr=(unsigned int *)l;
+
+#ifdef WEIRD_64BIT_BUG
+	frontadd = x2 - x1 + 1;
+	backadd = 0;
+	count = 0;
+#else
+	calcPacking(myptr,x1,x2,frontadd,backadd,count);
+#endif
+
+	myptr+=x1;
+
+	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
+	    *(myptr++)=*(putdata++);
+	    w--;
+	}
+
+	for ( loopc2=0;loopc2<count;loopc2++ ) {
+	    *(fun) = *(putdata++);
+	    *(fun+1) = *(putdata++);
+	    *((QuadByte*)myptr) = put;
+	    myptr += 2;
+	    w-=2;
+	}
+
+	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
+	    *(myptr++)=*(putdata++);
+	    w--;
+	}
     } else if ( depth == 16 ) {
         // First read in the destination line
 	unsigned short int * myptr;
