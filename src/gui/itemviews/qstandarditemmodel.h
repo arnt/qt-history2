@@ -12,7 +12,8 @@ class ModelRow;
 class QStandardItemModel : public QAbstractItemModel
 {
 public:
-    QStandardItemModel(QObject *parent = 0) : QAbstractItemModel(parent), topLevelColumns(0) {}
+    QStandardItemModel(int rows, int columns, QObject *parent = 0);
+    QStandardItemModel(QObject *parent = 0);
     ~QStandardItemModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -31,10 +32,7 @@ public:
     bool removeRows(int row, const QModelIndex &parent, int count);
     bool removeColumns(int column, const QModelIndex &parent, int count);
 
-    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const
-        {
-            return QAbstractItemModel::flags(index) | QAbstractItemModel::ItemIsEditable;
-        }
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
 private:
     ModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;

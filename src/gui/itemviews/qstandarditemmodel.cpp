@@ -66,6 +66,24 @@ public:
 */
 
 /*!
+    Creates an empty model with no rows or columns.
+*/
+QStandardItemModel::QStandardItemModel(QObject *parent) : QAbstractItemModel(parent),
+                                                              topLevelColumns(0)
+{
+    // nothing
+}
+
+/*!
+    Creates a model with \a rows number of rows and \a columns number of columns.
+*/
+QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent) : QAbstractItemModel(parent)
+{
+    insertColumns(0, QModelIndex::Null, columns);
+    insertRows(0, QModelIndex::Null, rows);
+}
+
+/*!
     Destroys the model.
 */
 QStandardItemModel::~QStandardItemModel()
@@ -317,6 +335,20 @@ bool QStandardItemModel::removeColumns(int column, const QModelIndex &parent, in
         }
     }
     return true;
+}
+
+/*!
+    Returns the item flags for the given \a index.
+
+    This model returns returns a combination of flags that
+    enables the item (\c ItemIsEnabled), allows it to be
+    selected (\c ItemIsSelectable) and edited (\c ItemIsEditable).
+
+    \sa ItemFlag
+*/
+QAbstractItemModel::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
+{
+    return QAbstractItemModel::flags(index) | QAbstractItemModel::ItemIsEditable;
 }
 
 /*!
