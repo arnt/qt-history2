@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#90 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#89 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#90 $";
 #endif
 
 
@@ -165,6 +165,12 @@ bool QWidget::create()				// create widget
 	Atom protocols[1];
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
+#if 0
+	Atom drag[2];
+	drag[0] = XInternAtom( dpy, "XmDRAG_DROP_ONLY", FALSE );
+	drag[1] = XInternAtom( dpy, "XmDRAG_PREREGISTER", FALSE );
+	XSetWMProtocols( dpy, id, drag, 2 );
+#endif
     }
     if ( testWFlags(WResizeNoErase) ) {
 	XSetWindowAttributes v;
