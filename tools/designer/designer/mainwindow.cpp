@@ -90,7 +90,7 @@ extern QString *qwf_language;
 extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
 extern void set_splash_status( const QString &txt );
-static bool tbSettingsRead = FALSE;
+/*### static bool tbSettingsRead = FALSE; */
 
 MainWindow *MainWindow::self = 0;
 
@@ -1192,10 +1192,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	QApplication::sendPostedEvents( qworkspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
-/*	This is BAD code, and it breaks on Windows if there are no toolbar settings saved.
+/*###	This is BAD code, and it breaks on Windows if there are no toolbar settings saved.
 
 	if ( !tbSettingsRead)
-	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );*/
+	    ( (QDockWindow*)qWorkspace()->parentWidget()->parentWidget() )->setFixedExtentHeight( 150 );
+*/
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
@@ -2102,7 +2103,7 @@ void MainWindow::readConfig()
     QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
-	tbSettingsRead = TRUE;
+/*###	tbSettingsRead = TRUE;*/
 	QTextStream ts( &f );
 	ts >> *this;
 	f.close();
