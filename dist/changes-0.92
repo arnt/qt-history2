@@ -36,6 +36,10 @@ QPixmap:
   enableImageCache() renamed to setOptimization().
   Optimization is now default ON.  See doc for other optimization functions.
 
+QImage:
+-------
+  scanline() => scanLine()
+
 QLineEdit/QLCDNumber:
 ---------------------
   signal textChanged( char * ) => textChanged( const char * );
