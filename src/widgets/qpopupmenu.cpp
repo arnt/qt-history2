@@ -870,13 +870,15 @@ void QPopupMenu::updateAccel( QWidget *parent )
     }
     while ( (mi=it.current()) ) {
 	++it;
-	if ( mi->key() ) {
-	    int k = mi->key();
+	int k = mi->key();
+	if ( k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
-	    if ( !mi->text().isNull() || mi->custom() ) {
-		QString s = mi->text();
-		int i = s.find('\t');
+	}
+	if ( !mi->text().isNull() || mi->custom() ) {
+	    QString s = mi->text();
+	    int i = s.find('\t');
+	    if (k) {
 		QString t = QAccel::keyToString( k );
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
@@ -884,10 +886,13 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		    s += '\t';
 		    s += t;
 		}
-		if ( s != mi->text() ) {
-		    mi->setText( s );
-		    badSize = TRUE;
-		}
+	    } else {
+		if ( i >= 0 )
+		    s.truncate( i );
+	    }
+	    if ( s != mi->text() ) {
+		mi->setText( s );
+		badSize = TRUE;
 	    }
 	}
 	if ( mi->popup() && parent ) {		// call recursively
