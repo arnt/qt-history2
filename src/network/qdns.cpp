@@ -263,7 +263,7 @@ void QDnsAgent::run()
     to get the list of IP addresses for the host.
 
     If the lookup failed, error() returns the type of error that
-    occurred. errorString() gives a human readable description of the
+    occurred. errorString() gives a human-readable description of the
     lookup error.
 
     \sa QDns

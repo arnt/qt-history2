@@ -95,7 +95,7 @@
     If you want the data to be human-readable, e.g. for debugging, you
     can set the data stream into printable data mode with
     setPrintableData(). The data is then written slower, in a bloated
-    but human readable format.
+    but human-readable format.
 
     \target versioning
     \section1 Versioning
@@ -418,7 +418,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
 /*!
     \fn void QDataStream::setPrintableData(bool enable)
 
-    If \a enable is true, data will be output in a human readable
+    If \a enable is true, data will be output in a human-readable
     format. If \a enable is false, data will be output in a binary
     format.
 
