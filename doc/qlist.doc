@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.25 1999/03/18 04:11:14 weis Exp $
+** $Id: qlist.doc,v 2.26 1999/04/09 13:40:36 aavit Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -270,7 +270,7 @@
 
 /*!
   \fn bool QList::remove( const type *item )
-  Removes the first occurence of \e item from the list.
+  Removes the first occurrence of \e item from the list.
 
   Returns TRUE if successful, or FALSE if the item could not be found in the
   list.
@@ -295,7 +295,7 @@
 
 /*!
   \fn bool QList::removeRef( const type *item )
-  Removes the first occurence of \e item from the list.
+  Removes the first occurrence of \e item from the list.
 
   Returns TRUE if successful, or FALSE if the item cannot be found in the
   list.
