@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#23 $
 **
 ** Implementation of QScrollView class
 **
@@ -614,9 +614,10 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 
 
 /*!
-  \fn void QScrollView::contentsMoved(int x, int y)
+  \fn void QScrollView::contentsMoving(int x, int y)
 
-  This signal is emitted after the contents is moved.
+  This signal is emitted just before the contents is moved
+  to the given position.
 
   \sa contentsX(), contentsY()
 */
@@ -630,6 +631,7 @@ void QScrollView::moveContents(int x, int y)
 	if (d->contents->pos() == QPoint(x,y))
 	    return; // Nothing to do
 
+	emit contentsMoving( x, y );
 	d->contents->move( x, y );
     } else {
 	int dx = x - d->vx;
@@ -641,6 +643,8 @@ void QScrollView::moveContents(int x, int y)
 	d->vx = x;
 	d->vy = y;
 
+	emit contentsMoving( x, y );
+
 	if ( dx && dy ||
 	     ( QABS(dy) * 5 > d->viewport.height() * 4 ) ||
 	     ( QABS(dx) * 5 > d->viewport.width() * 4 ) )
@@ -648,8 +652,6 @@ void QScrollView::moveContents(int x, int y)
 	else
 	    d->viewport.scroll(dx,dy);
     }
-
-    emit contentsMoved( x, y );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#12 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#13 $
 **
 ** Definition of QScrollView class
 **
@@ -52,7 +52,7 @@ public:
     void	show();
 
 signals:
-    void	contentsMoved(int x, int y);
+    void	contentsMoving(int x, int y);
 
 public slots:
     void        setContentsPos( int x, int y );
