@@ -6121,6 +6121,8 @@ void QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
     }
 
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
+    if ( !cell )
+	return;
     doc = cell->richText();
     parag = doc->firstParag();
     idx = 0;
