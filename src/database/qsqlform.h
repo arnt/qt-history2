@@ -11,7 +11,7 @@
 #ifndef QT_NO_SQL
 
 class QSqlField;
-class QSqlFormPrivate;
+class QSqlPrivate;
 
 class Q_EXPORT QSqlForm : public QWidget
 {
@@ -44,7 +44,7 @@ public slots:
 protected:
 
 private:
-    QSqlFormPrivate * d;
+    QSqlPrivate * d;
     QMap< QWidget *, int > fieldMap;
     QSqlPropertyManager m;
 };

@@ -1,69 +1,11 @@
 #include "qapplication.h"
+#include "qsql_p.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
 #include "qsqlpropertymanager.h"
 #include "qsqleditorfactory.h"
 
 #ifndef QT_NO_SQL
-
-class QSqlTablePrivate
-{
-public:
-    QSqlTablePrivate() : nullTxt("<null>"), haveAllRows(FALSE), s( 0 ) {}
-    ~QSqlTablePrivate() { if ( s ) delete s; }
-
-    enum Mode {
-	Sql,
-	Rowset,
-	View
-    };
-
-    void resetMode( Mode m )
-    {
-	delete s;
-	switch( m ) {
-	case Sql:
-	    s = new QSql();
-	    break;
-	case Rowset:
-	    s = new QSqlRowset();
-	    break;
-	case View:
-	    s = new QSqlView();
-	    break;
-	}
-	mode = m;
-    }
-
-    QSql* sql()
-    {
-	// any mode
-	return s;
-    }
-
-    QSqlRowset* rowset()
-    {
-	if ( mode == Rowset || mode == View )
-	    return (QSqlRowset*)s;
-	return 0;
-    }
-
-    QSqlView* view()
-    {
-	if ( mode == View )
-	    return (QSqlView*)s;
-	return 0;
-    }
-
-    QString      nullTxt;
-    typedef      QValueList< uint > ColIndex;
-    ColIndex     colIndex;
-    bool         haveAllRows;
-
-private:
-    QSql* s;
-    Mode mode;
-};
 
 
 /*!
@@ -102,7 +44,7 @@ private:
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     : QTable(parent,name)
 {
-    d = new QSqlTablePrivate();
+    d = new QSqlPrivate();
     setSelectionMode( NoSelection );
     editorFactory = QSqlEditorFactory::instance();
     connect( this, SIGNAL( currentChanged( int, int ) ),
@@ -157,7 +99,7 @@ void QSqlTable::removeColumn( uint col )
     for ( uint i = col; i < (uint)numCols()-1; ++i )
 	h->setLabel( i, h->label(i+1) );
     setNumCols( numCols()-1 );
-    QSqlTablePrivate::ColIndex::Iterator it = d->colIndex.at( col );
+    QSqlPrivate::ColIndex::Iterator it = d->colIndex.at( col );
     if ( it != d->colIndex.end() )
 	d->colIndex.remove( it );
 }
@@ -315,7 +257,7 @@ void QSqlTable::reset()
 
 int QSqlTable::indexOf( uint i ) const
 {
-    QSqlTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
+    QSqlPrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
     if ( it != d->colIndex.end() )
 	return *it;
     return -1;
@@ -570,7 +512,7 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
     setUpdatesEnabled( FALSE );
     setSorting( FALSE );
     reset();
-    d->resetMode( QSqlTablePrivate::Sql );
+    d->resetMode( QSqlPrivate::Sql );
     QSql* sql = d->sql();
     (*sql) = query;
     if ( autoPopulate )
@@ -604,7 +546,7 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
     setUpdatesEnabled( FALSE );
     reset();
     setSorting( TRUE );
-    d->resetMode( QSqlTablePrivate::Rowset );
+    d->resetMode( QSqlPrivate::Rowset );
     QSqlRowset* rset = d->rowset();
     (*rset) = rowset;
     rset->select( rowset.sort() );
@@ -634,7 +576,7 @@ void QSqlTable::setView( const QSqlView& view, bool autoPopulate )
     setUpdatesEnabled( FALSE );
     reset();
     setSorting( TRUE );
-    d->resetMode( QSqlTablePrivate::View );
+    d->resetMode( QSqlPrivate::View );
     QSqlView* vw = d->view();
     (*vw) = view;
     vw->select( view.sort() );

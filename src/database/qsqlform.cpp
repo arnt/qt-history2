@@ -1,67 +1,8 @@
 #include "qobjcoll.h"
+#include "qsql_p.h"
 #include "qsqlform.h"
 
 #ifndef QT_NO_SQL
-
-class QSqlFormPrivate
-{
-public:
-    QSqlFormPrivate() : nullTxt("<null>"), haveAllRows(FALSE), s( 0 ) {}
-    ~QSqlFormPrivate() { if ( s ) delete s; }
-
-    enum Mode {
-	Sql,
-	Rowset,
-	View
-    };
-
-    void resetMode( Mode m )
-    {
-	delete s;
-	switch( m ) {
-	case Sql:
-	    s = new QSql();
-	    break;
-	case Rowset:
-	    s = new QSqlRowset();
-	    break;
-	case View:
-	    s = new QSqlView();
-	    break;
-	}
-	mode = m;
-    }
-
-    QSql* sql()
-    {
-	// any mode
-	return s;
-    }
-
-    QSqlRowset* rowset()
-    {
-	if ( mode == Rowset || mode == View )
-	    return (QSqlRowset*)s;
-	return 0;
-    }
-
-    QSqlView* view()
-    {
-	if ( mode == View )
-	    return (QSqlView*)s;
-	return 0;
-    }
-
-    QString      nullTxt;
-    typedef      QValueList< uint > ColIndex;
-    ColIndex     colIndex;
-    bool         haveAllRows;
-
-private:
-    QSql* s;
-    Mode mode;
-};
-
 
 /*!
   
@@ -81,7 +22,7 @@ private:
 QSqlForm::QSqlForm( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
-    d = new QSqlFormPrivate();
+    d = new QSqlPrivate();
 }
 /*!
   
@@ -138,7 +79,7 @@ QWidget * QSqlForm::whichWidget( int field ) const
 */
 void QSqlForm::setQuery( const QSql & query )
 {
-    d->resetMode( QSqlFormPrivate::Sql );
+    d->resetMode( QSqlPrivate::Sql );
     QSql * s = d->sql();
     (*s) = query;
 }
@@ -150,7 +91,7 @@ void QSqlForm::setQuery( const QSql & query )
 */
 void QSqlForm::setRowset( const QSqlRowset & rset )
 {
-    d->resetMode( QSqlFormPrivate::Rowset );
+    d->resetMode( QSqlPrivate::Rowset );
     QSqlRowset * r = d->rowset();
     (*r) = rset;
 }
@@ -162,7 +103,7 @@ void QSqlForm::setRowset( const QSqlRowset & rset )
 */
 void QSqlForm::setView( const QSqlView & view )
 {
-    d->resetMode( QSqlFormPrivate::View );
+    d->resetMode( QSqlPrivate::View );
     QSqlView * v = d->view();
     (*v) = view;
 }

@@ -17,7 +17,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlTablePrivate;
+class QSqlPrivate;
 class Q_EXPORT QSqlTable : public QTable
 {
     Q_OBJECT
@@ -79,7 +79,7 @@ private slots:
 
 private:
     void         setNumCols ( int r );
-    QSqlTablePrivate* d;
+    QSqlPrivate* d;
     QSqlEditorFactory * editorFactory;
 };
 
