@@ -1122,7 +1122,7 @@ void Configure::generateConfigfiles()
     QFile::remove( outName );
     QFile outFile( outName );
 
-    if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
+    if(outFile.open(QFile::WriteOnly | QFile::Text)) {
 	outStream.setDevice(&outFile);
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
@@ -1201,6 +1201,7 @@ void Configure::generateConfigfiles()
         for (int i = 0; i < qconfigList.count(); ++i)
             outStream << addDefine(qconfigList.at(i));
 
+        outStream.flush();
 	outFile.close();
         if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
                          dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h")
@@ -1257,6 +1258,7 @@ void Configure::generateConfigfiles()
                   << "#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;"
                   << endl;
 
+        outStream.flush();
         outFile.close();
     }
 
@@ -1289,6 +1291,7 @@ void Configure::generateConfigfiles()
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << endl;
 	outStream << "Translations = "
 		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << endl;
+        outStream.flush();
 	outFile.close();
     }
 
@@ -1350,6 +1353,7 @@ void Configure::generateConfigfiles()
 	outStream << "\t\tEND" << endl;
 	outStream << "\tEND" << endl;
 	outStream << "/* End of Version info */" << endl << endl;
+        outStream.flush();
     }
 }
 #endif
@@ -1929,6 +1933,7 @@ void Configure::saveCmdLine()
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {
 		outStream << (*it) << " " << endl;
 	    }
+            outStream.flush();
 	    outFile.close();
 	}
     }
