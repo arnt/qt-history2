@@ -30,15 +30,12 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
 {
     QPixmap pm;
 
-    QSize size;
+    const bool hasWidth = format.hasProperty(QTextFormat::ImageWidth);
+    const int width = format.width();
+    const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
+    const int height = format.height();
 
-    if (format.hasProperty(QTextFormat::ImageWidth))
-        size.setWidth(format.width());
-
-    if (format.hasProperty(QTextFormat::ImageHeight))
-        size.setHeight(format.height());
-
-    QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(size.width()).arg(size.height());
+    QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(width).arg(height);
     if (!QPixmapCache::find(key, pm)) {
         QImage img;
         const QString name = format.name();
@@ -56,6 +53,11 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
             if (!img.load(name))
                 return pm;
 
+        QSize size = img.size();
+        if (hasWidth)
+            size.setWidth(width);
+        if (hasHeight)
+            size.setHeight(height);
         if (size.isValid() && img.size() != size)
             img = img.scale(size);
 
