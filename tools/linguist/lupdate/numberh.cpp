@@ -203,20 +203,20 @@ void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
     for ( it = all.begin(); it != all.end(); ++it ) {
 	if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
 	    if ( (*it).translation().isEmpty() )
-		untranslated.insert( zeroKey((*it).sourceText()), *it );
+		untranslated.insert(QCString((*it).context()) + "\n" + (*it).sourceText() + "\n"
+				    + (*it).comment(), *it);
 	} else if ( !(*it).translation().isEmpty() ) {
 	    translated.insert( zeroKey((*it).sourceText()), *it );
 	}
     }
 
     for ( u = untranslated.begin(); u != untranslated.end(); ++u ) {
-	t = translated.find( u.key() );
+	t = translated.find( zeroKey((*u).sourceText()) );
 	if ( t != translated.end() && !t.key().isEmpty() &&
 	     qstrcmp((*t).sourceText(), (*u).sourceText()) != 0 ) {
 	    MetaTranslatorMessage m( *u );
-	    m.setTranslation( translationAttempt((*t).translation(),
-						 (*t).sourceText(),
-						 (*u).sourceText()) );
+	    m.setTranslation(translationAttempt((*t).translation(), (*t).sourceText(),
+						(*u).sourceText()));
 	    tor->insert( m );
 	    inserted++;
 	}
