@@ -1426,6 +1426,8 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	if (combobox->editable()) {
 	    int space = (combobox->height() - 13) / 2;
 	    switch (subcontrol) {
+	    case SC_ComboBoxFrame:
+		return QRect();
 	    case SC_ComboBoxEditField: {
 		QRect rect = widget->rect();
 		rect.setWidth(rect.width() - 13 - space * 2);
@@ -1440,6 +1442,8 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	} else {
 	    int space = (combobox->height() - 7) / 2;
 	    switch (subcontrol) {
+	    case SC_ComboBoxFrame:
+		return QRect();
 	    case SC_ComboBoxEditField: {
 		QRect rect = widget->rect();
 		rect.addCoords(3, 3, -3, -3);
@@ -1449,7 +1453,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    default: break;		// shouldn't get here
 	    }
 	}
-	return QRect(); }
+	break; }
 #endif
 
 #ifndef QT_NO_SLIDER
