@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#74 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#73 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#74 $")
 
 
 /*----------------------------------------------------------------------------
@@ -817,10 +817,10 @@ void QObject::removeChild( QObject *obj )
 
 
 /*----------------------------------------------------------------------------
-  Adds an event filter object for this object.
+  Installs an event filter object for this object.
 
   An event filter is an object that receives all events that are sent to
-  this object.  The filter can stop the event or to send it to this
+  this object.  The filter can either stop the event or forward it to this
   object.  The event filter object receives events via the eventFilter()
   function.  The eventFilter() function must return TRUE if the event
   should be stopped, or FALSE if the event should be dispatched normally.
