@@ -724,6 +724,7 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 */
 bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 {
+    Q_UNUSED(vis);
     if(!mr || !activeMenuBar || !qApp)
 	return FALSE;
 
