@@ -18,9 +18,8 @@ SHELL =	/bin/sh
 ####### Compiler, tools and options
 
 INCPATH =	-I$(INCDIR) -I/usr/X11R6/include
-LINK	=	$(CC) -shared
-LIBS	=	$(LFLAGS) -L/usr/X11R6/lib -lMesaGL -lXext -lXmu -lm
 MOC	=	moc
+AR	=	ar q
 
 ####### Files
 
@@ -29,10 +28,7 @@ SOURCES =	qgl.cpp
 OBJECTS =	qgl.o
 SRCMOC	=	moc_qgl.cpp
 OBJMOC	=	moc_qgl.o
-VERSION =	1.0
-VER_MAJ =	1
-VER_MIN =	0
-TARGET	=	libqgl.so.1.0
+TARGET	=	libqgl.a
 
 ####### Implicit rules
 
@@ -47,14 +43,9 @@ all: $(TARGET) include
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGET)
-	$(LINK) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)
+	$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)
 	-rm -f $(QTDIR)/lib/$(TARGET)
 	-mv $(TARGET)  $(QTDIR)/lib
-	( cd $(QTDIR)/lib ; \
-	  rm -f libqgl.so ; \
-	  ln -s libqgl.so.$(VERSION) libqgl.so ; \
-	  rm -f libqgl.so.$(VER_MAJ) ; \
-	  ln -s libqgl.so.$(VERSION) libqgl.so.$(VER_MAJ) )
 
 moc: $(SRCMOC)
 

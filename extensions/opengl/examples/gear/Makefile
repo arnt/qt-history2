@@ -18,8 +18,13 @@ SHELL =	/bin/sh
 
 ####### Compiler, tools and options
 
-INCPATH	=	-I$(INCDIR) -I/usr/X11R6/include
-LIBS	=	$(LFLAGS) -lqgl
+# Include path and libraries for Mesa.
+# For SGI OpenGL: replace MesaGL with GL and MesaGLU with GLU.
+GL_INC	=	-I/usr/X11R6/include
+GL_LIBS =	-L/usr/X11R6/lib -lMesaGL -lMesaGLU -lXmu -lXext -lm
+
+INCOPT	=	-I$(INCDIR) $(GL_INC)
+LIBS	=	$(LFLAGS) -lqgl $(GL_LIBS)
 
 ####### Files
 
@@ -35,10 +40,10 @@ TARGET	=	gear
 .SUFFIXES: .cpp .C
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
+	$(CC) -c $(CFLAGS) $(INCOPT) -o $@ $<
 
 .C.o:
-	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
+	$(CC) -c $(CFLAGS) $(INCOPT) -o $@ $<
 
 ####### Build rules
 
