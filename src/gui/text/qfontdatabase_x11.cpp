@@ -421,8 +421,7 @@ static inline bool isFixedPitch(char **tokens)
   Fills in a font definition (QFontDef) from an XLFD (X Logical Font
   Description).
 
-  Returns true if the the given xlfd is valid.  The fields lbearing
-  and rbearing are not given any values.
+  Returns true if the the given xlfd is valid.
 */
 bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
 {
@@ -473,8 +472,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
   XFontStruct.
 
   Returns true if the QFontDef could be filled with properties from
-  the XFontStruct.  The fields lbearing and rbearing are not given any
-  values.
+  the XFontStruct.
 */
 static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int dpi)
 {
@@ -1460,23 +1458,18 @@ QFontEngine *loadEngine(int script,
 
     FM_DEBUG("    xlfd: '%s'", xlfd.data());
 
-    XFontStruct *xfs;
-    if (! (xfs = XLoadQueryFont(QX11Info::display(), xlfd)))
-        return 0;
-
     QFontEngine *fe = 0;
-    const int mib = xlfd_encoding[encoding->encoding].mib;
-    // ### need to 1) create a real font engine, 2) create a "merging"
-    // ### engine, and then 3) add the real one to the merging one
-#if 0
-
-    if (encoding->encoding <= LAST_LATIN_ENCODING && !forced_encoding) {
-        fe = new QFontEngineLatinXLFD(xfs, xlfd, mib);
-    } else {
+    if (script != QUnicodeTables::Common) {
+        const int mib = xlfd_encoding[encoding->encoding].mib;
+        XFontStruct *xfs;
+        if (! (xfs = XLoadQueryFont(QX11Info::display(), xlfd)))
+            return 0;
         fe = new QFontEngineXLFD(xfs, xlfd, mib);
+    } else {
+        QList<QByteArray> xlfds;
+        xlfds.append(xlfd);
+        fe = new QFontEngineMultiXLFD(xlfds, fp->screen);
     }
     fe->setScale(scale);
-#endif
-
     return fe;
 }
