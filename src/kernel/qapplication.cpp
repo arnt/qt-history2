@@ -2446,7 +2446,7 @@ int QApplication::loopLevel() const
 
 bool QApplication::processNextEvent( bool canWait )
 {
-    return eventLoop()->processNextEvent( canWait, FALSE );
+    return eventLoop()->processNextEvent( QEventLoop::AllEvents, canWait );
 }
 
 
