@@ -152,8 +152,17 @@ public:
 	QPopupMenu* popup;
 	int id;
     };
+    // ComboItem is only necessary for actions that are 
+    // in dropdown/exclusive actiongroups. The actiongroup 
+    // will clean this up
+    struct ComboItem {
+	ComboItem():combo(0), id(0) {}
+	QComboBox* combo;
+	int id;
+    };
     QList<MenuItem> menuitems;
     QList<QToolButton> toolbuttons;
+    QList<ComboItem> comboitems;
 
     enum Update { Everything, Icons, State }; // Everything means everything but icons and state
     void update( Update upd = Everything );
@@ -249,6 +258,14 @@ void QActionPrivate::update( Update upd )
 	    if ( !whatsthis.isEmpty() )
 		QWhatsThis::add( btn, whatsthis );
 	}
+    }
+    // Only used by actiongroup
+    for ( QListIterator<ComboItem> it3( comboitems ); it3.current(); ++it3 ) {
+	ComboItem *ci = it3.current();
+	if ( iconset )
+	    ci->combo->changeItem( iconset->pixmap(), text, ci->id );
+	else
+	    ci->combo->changeItem( text, ci->id );
     }
 }
 
@@ -799,6 +816,18 @@ bool QAction::addTo( QWidget* w )
 	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
 	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	}
+    // Makes only sense when called by QActionGroup::addTo
+    } else if ( w->inherits( "QComboBox" ) ) {
+	if ( qstrcmp( name(), "qt_separator_action" ) ) {
+	    QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
+	    ci->combo = (QComboBox*)w;
+	    ci->id = ci->combo->count();
+	    if ( d->iconset )
+		ci->combo->insertItem( d->iconset->pixmap(), text() );
+	    else
+		ci->combo->insertItem( text() );
+	    d->comboitems.append( ci );
+	}
     } else {
 	qWarning( "QAction::addTo(), unknown object" );
 	return FALSE;
@@ -995,6 +1024,7 @@ public:
     QList<QComboBox> comboboxes;
     QList<QToolButton> menubuttons;
     QList<MenuItem> menuitems;
+    QList<QPopupMenu> popupmenus;
 
     void update( const QActionGroup * );
 };
@@ -1035,6 +1065,19 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	} else {
 	    pu.current()->popup->setEnabled( that->isEnabled() );
 	}
+    }
+    for ( QListIterator<QPopupMenu> pm( popupmenus ); pm.current(); ++pm ) {
+	QPopupMenu *popup = pm.current();
+	QPopupMenu *parent = popup->parentWidget()->inherits( "QPopupMenu" ) ? (QPopupMenu*)popup->parentWidget() : 0;
+	if ( !parent )
+	    continue;
+
+	int index;
+	parent->findPopup( popup, &index );
+	int id = parent->idAt( index );
+	parent->changeItem( id, that->iconSet(), that->menuText() );
+	parent->setItemEnabled( id, that->isEnabled() );
+	parent->setAccel( that->accel(), id );
     }
 }
 
@@ -1169,11 +1212,18 @@ QActionGroup::~QActionGroup()
 	++mbit;
 	mb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
     }
+    QListIterator<QPopupMenu> pmit( d->popupmenus );
+    while ( pmit.current() ) {
+	QPopupMenu *pm = pmit.current();
+	++pmit;
+	pm->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    }
 
     delete d->separatorAction;
     d->menubuttons.setAutoDelete( TRUE );
     d->comboboxes.setAutoDelete( TRUE );
     d->menuitems.setAutoDelete( TRUE );
+    d->popupmenus.setAutoDelete( TRUE );
     delete d;
 }
 
@@ -1373,7 +1423,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    QWhatsThis::add( box, whatsThis() );
 
 		for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-		    box->insertItem( it.current()->iconSet().pixmap(), it.current()->text() );
+		    it.current()->addTo( box );
 		}
 		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
 		return TRUE;
@@ -1384,6 +1434,7 @@ bool QActionGroup::addTo( QWidget* w )
 	if ( d->dropdown ) {
 	    QPopupMenu *menu = (QPopupMenu*)w;
 	    popup = new QPopupMenu( w );
+	    d->popupmenus.append( popup );
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 
 	    int id;
@@ -1663,6 +1714,7 @@ void QActionGroup::objectDestroyed()
 	    break;
 	}
     }
+    d->popupmenus.removeRef( (QPopupMenu*)obj );
     d->comboboxes.removeRef( (QComboBox*)obj );
 }
 
