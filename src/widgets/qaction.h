@@ -68,6 +68,7 @@ class Q_EXPORT QAction : public QObject
 #ifndef QT_NO_ACCEL
     Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
 #endif
+    Q_PROPERTY( bool visible READ isVisible WRITE setVisible )
 
 public:
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );

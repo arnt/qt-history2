@@ -219,7 +219,8 @@ QKeySequence::QKeySequence( int key )
 }
 
 /*!
-    Constructs a key sequence with upto 4 keys.
+    Constructs a key sequence with upto 4 keys \a k1, \a k2,
+    \a k3 and \a k4.
 
     The key codes are listed in \c{qnamespace.h} and can be
     combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c

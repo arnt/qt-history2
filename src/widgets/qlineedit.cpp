@@ -295,7 +295,6 @@ struct QLineEditPrivate {
     \row \i Ctrl+Z \i undoes the last operation.
     \row \i Ctrl+Y \i redoes the last undone operation.
     \endtable
-  \endtable
 
     Any other key sequence, that represents a valid character, will
     cause the character to be inserted into the line.

@@ -84,6 +84,7 @@ static QEventLoop *INSTANCE = 0;
 
 /*!
     Creates a QEventLoop object.
+    \a parent and \a name are propagated to the QObject constructor.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( parent, name )
