@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#3 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -878,7 +878,7 @@ void QtIconView::doAutoScroll()
     QPainter p;
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1, Qt::DashDotLine ) );
+    p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
     p.end();
@@ -898,7 +898,7 @@ void QtIconView::doAutoScroll()
 
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1, Qt::DashDotLine ) );
+    p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
 
@@ -1130,7 +1130,7 @@ void QtIconView::contentsMouseReleaseEvent( QMouseEvent * )
         QPainter p;
         p.begin( viewport() );
         p.setRasterOp( NotROP );
-        p.setPen( QPen( Qt::black, 1, Qt::DashDotLine ) );
+        p.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
         p.setBrush( Qt::NoBrush );
 
         drawRubber( &p );
@@ -1402,7 +1402,7 @@ void QtIconView::selectByRubber( QRect oldRubber )
     int maxx = 0, maxy = 0;
     bool ensureV = FALSE;
     int selected = 0;
-    
+
     QtIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
         if ( item->intersects( oldRubber ) &&
@@ -1476,6 +1476,14 @@ void QtIconView::insertInGrid( QtIconViewItem *item )
         py = item->prev->y();
         pw = item->prev->width();
         ph = item->prev->height();
+        if ( d->rastX != - 1 && pw > d->rastX - 1 ) {
+            px = px + pw - d->rastX;
+            pw = d->rastX - 1;
+        }
+        if ( d->rastY != - 1 && ph > d->rastY - 1 ) {
+            py = py + ph - d->rastY;
+            ph = d->rastY - 1;
+        }
     }
 
     int xpos = 0;
@@ -1495,12 +1503,11 @@ void QtIconView::insertInGrid( QtIconViewItem *item )
             xpos = ( fact + 1 ) * d->rastX;
         else
             xpos = fact * d->rastX;
-        xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
-        if ( xpos + item->width() >= contentsWidth() ) {
+        if ( xpos + d->rastX >= contentsWidth() ) {
             xpos = d->spacing;
             nextRow = TRUE;
-            xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
         }
+        xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
     }
 
     if ( d->rastY == -1 ) {
@@ -1534,6 +1541,6 @@ void QtIconView::emitNewSelectionNumber()
     for ( ; item; item = item->next )
         if ( item->isSelected() )
             ++num;
-               
+
     emit selectionChanged( num );
 }
