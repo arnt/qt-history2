@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#139 $
 **
 ** Implementation of QApplication class
 **
@@ -18,7 +18,7 @@
 /*!
   \class QApplication qapp.h
   \brief The QApplication class manages the application event queue.
-  
+
   \ingroup kernel
 
   The QApplication class is central to Qt.  It receives events from
@@ -96,7 +96,7 @@ int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
 static QPalette *stdPalette = 0;
-static QColor winHighlightColor = darkBlue;
+static QColor * winHighlightColor = 0;
 static int mouseDoubleClickInterval = 400;
 
 
@@ -259,6 +259,8 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
     qt_cleanup();
+    delete winHighlightColor;
+    winHighlightColor = 0;
     delete objectDict;
     qApp = 0;
 }
@@ -835,10 +837,13 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
-    if ( winHighlightColor == c )
+    if ( !winHighlightColor )
+	winHighlightColor = new QColor( darkBlue );
+    
+    if ( *winHighlightColor == c )
 	return;
 
-    winHighlightColor = c;
+    *winHighlightColor = c;
 
     if ( is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -859,7 +864,10 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 */
 const QColor& QApplication::winStyleHighlightColor()
 {
-    return winHighlightColor;
+    if ( !winHighlightColor )
+	winHighlightColor = new QColor( darkBlue );
+
+    return *winHighlightColor;
 }
 
 
