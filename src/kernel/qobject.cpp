@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#4 $
 **
 ** Implementation of QObject class
 **
@@ -16,14 +16,20 @@
 #include "qview.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#4 $";
 #endif
+
+
+// Timer functions, implemented in qapp_xxx.cpp
+
+int   qStartTimer( long interval, QObject *obj );
+bool  qKillTimer( int id );
+bool  qKillTimer( QObject *obj );
 
 
 declare(QDictM,QConnection);			// dictionary of connections
 
 QMetaObject *QObject::metaObj = 0;
-
 
 QObject::QObject( QObject *parent )		// create object with parent
 {
