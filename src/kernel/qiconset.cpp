@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#73 $
 **
 ** Implementation of QIconSet class
 **
@@ -49,6 +49,7 @@
 class QIconSetPrivate: public QShared
 {
 public:
+    QIconSetPrivate() { instantiated = TRUE; }
     struct Variant {
 	Variant(): pm(0), generated(0) {}
 	~Variant()
@@ -84,6 +85,7 @@ public:
 
     static QSize *large_size;
     static QSize *small_size;
+    static bool instantiated; // detect instantiation of QIconSets
 };
 
 // REVISED: not revised
@@ -341,7 +343,7 @@ void QIconSet::reset( const QPixmap & pm, Size size )
 {
     detach();
     if ( size == Small ||
-	 ( size == Automatic && pm.width() <= 22 ) )
+	 ( size == Automatic && pm.width() <= iconSize( Small ).width() ) )
 	setPixmap( pm, Small, Normal );
     else
 	setPixmap( pm, Large, Normal );
@@ -994,19 +996,23 @@ void QIconSet::detach()
 
 QSize *QIconSetPrivate::small_size = 0;
 QSize *QIconSetPrivate::large_size = 0;
+bool   QIconSetPrivate::instantiated = FALSE;
 
 QCleanupHandler<QSize> qt_iconset_sizes_cleanup;
 
 /*!
   Set the preferred size for the large/small generated icons.
   Note that this will not cause cached icon sets to be regenerated, so 
-  you should probably set the preferred icon sizes before creating any 
-  QIconSets.
+  you should set the preferred icon sizes before creating any QIconSets.
   
   \sa iconSize()
 */
 void QIconSet::setIconSize( Size s, const QSize & size )
 {
+    if ( QIconSetPrivate::instantiated )
+	qWarning( "QIconSet: setIconSize() is called after QIconSets have "
+		  "been instantiated." );
+    
     if ( !QIconSetPrivate::small_size ) {
 	QIconSetPrivate::small_size = new QSize( 16, 16 ); // default small size
 	QIconSetPrivate::large_size = new QSize( 32, 32 ); // default large size
