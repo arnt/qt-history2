@@ -1,5 +1,4 @@
 /****************************************************************************
-** $Id: $
 **
 ** Implementation of GLTeapots
 ** This is a QGLWidget displaying a group of teapots and a rubber-band
