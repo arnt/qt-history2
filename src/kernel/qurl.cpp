@@ -997,8 +997,10 @@ QString QUrl::dirPath() const
 {
     if ( path().isEmpty() )
 	return QString::null;
-
-    QString s = QFileInfo( path() ).dirPath();
+    
+    QString s = path();
+    s += "/";
+    s = QFileInfo( s ).dirPath();
     if ( s[ (int)s.length() - 1 ] != '/' )
 	s += "/";
     return s;
