@@ -265,7 +265,7 @@ void ConfigureApp::generateOutputVars()
 void ConfigureApp::generateCachefile()
 {    
     // Generate .qmake.cache
-    QFile cacheFile( ".qmake.cache" );
+    QFile cacheFile( qtDir + "\\.qmake.cache" );
     if( cacheFile.open( IO_WriteOnly ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
@@ -283,7 +283,7 @@ void ConfigureApp::generateCachefile()
     else
 	srcConfig += "staticlib";
     
-    cacheFile.setName( "src/.qmake.cache" );
+    cacheFile.setName( qtDir + "\\src\\.qmake.cache" );
     if( cacheFile.open( IO_WriteOnly ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
 	for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
@@ -488,7 +488,7 @@ void ConfigureApp::qmakeDone()
 	quit();
     else {
 	QString dirPath = *makeListIterator + "/";
-	dirPath.replace( QRegExp( "/" ), "\\" );
+	dirPath = QDir::convertSeparators( dirPath );
 	++makeListIterator;
 	QString projectName = dirPath + (*makeListIterator);
 	++makeListIterator;
@@ -527,7 +527,7 @@ void ConfigureApp::showSummary()
 
 void ConfigureApp::copyDefsFile()
 {
-    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "TRG_MKSPEC" ] + ".h" );
+    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "TRG_MKSPEC" ] + "/qplatformdefs.h" );
     QFile trg( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/include/qplatformdefs.h" );
     
     cout << "Copying platform definition file..." << endl;
