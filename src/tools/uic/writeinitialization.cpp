@@ -216,6 +216,8 @@ void WriteInitialization::accept(DomLayout *node)
 
     if (isMainWindow) {
         output << centralWidget;
+    } else if (isGroupBox) {
+        output << driver->findOrInsertWidget(m_widgetChain.top()) << "->layout()";
     } else if (m_layoutChain.top()) {
         output << driver->findOrInsertLayout(m_layoutChain.top());
     } else {
@@ -223,6 +225,9 @@ void WriteInitialization::accept(DomLayout *node)
     }
 
     output << ");\n";
+
+    if (isGroupBox)
+        output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
 
     if (!properties.contains("margin"))
         output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
