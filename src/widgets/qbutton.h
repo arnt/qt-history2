@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#6 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#7 $
 **
 ** Definition of QButton class
 **
@@ -53,6 +53,7 @@ protected:
     void    mouseReleaseEvent( QMouseEvent * );
     void    mouseMoveEvent( QMouseEvent * );
     void    paintEvent( QPaintEvent * );
+    bool    focusInEvent( QEvent * );
 
     static bool	    acceptPixmap( int, int );
     static QPixMap *findPixmap( const char * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#9 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#9 $";
 #endif
 
 
@@ -190,4 +190,10 @@ void QButton::paintEvent( QPaintEvent * )
     paint.begin( this );
     drawButton( &paint );			// ask subclass to draw button
     paint.end();
+}
+
+
+bool QButton::focusInEvent( QEvent * )
+{
+    return TRUE;
 }
