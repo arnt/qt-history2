@@ -1578,6 +1578,9 @@ void QCanvas::setDoubleBuffering(bool y)
 void QCanvas::setTiles( QPixmap p,
 			int h, int v, int tilewidth, int tileheight )
 {
+    if ( p.width() % tilewidth != 0 || p.height() % tileheight != 0 )
+	return;
+    
     htiles = h;
     vtiles = v;
     delete[] grid;
