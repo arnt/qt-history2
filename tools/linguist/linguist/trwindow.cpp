@@ -179,7 +179,7 @@ TrWindow::TrWindow()
     dwScope->setClosable(true);
     dwScope->setMovable(true);
     dwScope->setFloatable(true);
-    dwScope->setCurrentArea(Qt::DockWindowAreaLeft);
+    dwScope->setArea(Qt::DockWindowAreaLeft);
     dwScope->setWindowTitle(tr("Context"));
 
     lv = new Q3ListView();

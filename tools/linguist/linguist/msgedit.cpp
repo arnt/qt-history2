@@ -389,7 +389,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     topDockWnd->setClosable(true);
     topDockWnd->setMovable(true);
     topDockWnd->setFloatable(true);
-    topDockWnd->setCurrentArea(Qt::DockWindowAreaTop);
+    topDockWnd->setArea(Qt::DockWindowAreaTop);
     topDockWnd->setWindowTitle(tr("Source text"));
 
     srcTextList = new Q3ListView();
@@ -429,7 +429,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     bottomDockWnd->setClosable(true);
     bottomDockWnd->setMovable(true);
     bottomDockWnd->setFloatable(true);
-    bottomDockWnd->setCurrentArea(Qt::DockWindowAreaBottom);
+    bottomDockWnd->setArea(Qt::DockWindowAreaBottom);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
 
