@@ -33,6 +33,7 @@ extern void qt_clear_paintevent_clipping();
 
 extern bool qt_has_accelerated_xrender; // declared in qapplication_x11.cpp
 
+#include <private/qpixmap_p.h>
 #include <private/qpaintengine_x11_p.h>
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
@@ -927,7 +928,7 @@ void QWidgetPrivate::updateSystemBackground()
         XSetWindowBackgroundPixmap(X11->display, q->winId(),
                                    isBackgroundInherited()
                                    ? ParentRelative
-                                   : pix.handle());
+                                   : pix.data->x11ConvertToDefaultDepth());
     } else {
         XSetWindowBackground(X11->display, q->winId(),
                              QColormap::instance(xinfo.screen()).pixel(brush.color()));

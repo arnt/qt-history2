@@ -387,6 +387,8 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	    }
 	}
 
+        if ((aet.size()%2) != 0)
+            return;
         Q_ASSERT(aet.size()%2 == 0);
 
 	// done?
@@ -934,9 +936,10 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
         } else {
             mask |= GCTile;
-            vals.tile = pm.handle();
+            vals.tile = pm.data->x11ConvertToDefaultDepth();
             s = FillTiled;
         }
+
         mask |= GCTileStipXOrigin | GCTileStipYOrigin;
         vals.ts_x_origin = qRound(origin.x());
         vals.ts_y_origin = qRound(origin.y());
@@ -1251,9 +1254,8 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
     }
 
 #ifndef QT_NO_XRENDER
-    if (src_pm && !mono_src && src_pm->data->alphapm && !ignoreMask) {
+    if (src_pm && !mono_src) {
         // use RENDER to do the blit
-        QPixmap *alpha = src_pm->data->alphapm;
 	Qt::HANDLE src_pict, dst_pict;
 	if (src->devType() == QInternal::Widget)
 	    src_pict = static_cast<const QWidget *>(src)->xftPictureHandle();
@@ -1263,7 +1265,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 	    dst_pict = static_cast<const QWidget *>(dst)->xftPictureHandle();
 	else
 	    dst_pict = static_cast<const QPixmap *>(dst)->xftPictureHandle();
-        if (dst_pict && src_pict && alpha->xftPictureHandle()) {
+        if (dst_pict && src_pict) {
             XRenderPictureAttributes pattr;
             ulong picmask = 0;
             if (include_inferiors) {
@@ -1276,7 +1278,8 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
             }
             if (picmask)
                 XRenderChangePicture(dpy, dst_pict, picmask, &pattr);
-            XRenderComposite(dpy, PictOpOver, src_pict, alpha->xftPictureHandle(), dst_pict,
+            XRenderComposite(dpy, (src_pm->data->alpha && !ignoreMask ? PictOpOver : PictOpSrc),
+                             src_pict, XNone, dst_pict,
                              sx, sy, sx, sy, dx, dy, sw, sh);
             // restore attributes
             pattr.subwindow_mode = ClipByChildren;
@@ -1328,9 +1331,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         return;
     }
 
-    gc = qt_xget_temp_gc(dst_xf->screen(), mono_dst);                // get a reusable GC
-
-
+    gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
     if (mono_src && mono_dst && src == dst) { // dst and src are the same bitmap
         XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
     } else if (mono_src) {                        // src is bitmap
@@ -1359,48 +1360,25 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
         gcvals.ts_x_origin = dx - sx;
 	gcvals.ts_y_origin = dy - sy;
 
-	bool clipmask = false;
         if (mask) {
             if (((QPixmap*)src)->data->selfmask) {
                 gcvals.fill_style = FillStippled;
             } else {
                 XSetClipMask(dpy, gc, mask->handle());
                 XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
-		clipmask = true;
 	    }
 	}
 
-	XChangeGC(dpy, gc, valmask, &gcvals);
+        XChangeGC(dpy, gc, valmask, &gcvals);
 	XFillRectangle(dpy, qt_x11Handle(dst), gc, dx, dy, sw, sh);
-
-	valmask = GCFillStyle | GCTileStipXOrigin | GCTileStipYOrigin;
-	gcvals.fill_style  = FillSolid;
-	gcvals.ts_x_origin = 0;
-	gcvals.ts_y_origin = 0;
-	if (include_inferiors) {
-	    valmask |= GCSubwindowMode;
-	    gcvals.subwindow_mode = ClipByChildren;
-	}
-	XChangeGC(dpy, gc, valmask, &gcvals);
-
-	if (clipmask) {
-	    XSetClipOrigin(dpy, gc, 0, 0);
-	    XSetClipMask(dpy, gc, XNone);
-	}
-
     } else {                                        // src is pixmap/widget
 	if (graphics_exposure)                // widget to widget
 	    XSetGraphicsExposures(dpy, gc, True);
-	if (include_inferiors) {
+	if (include_inferiors)
 	    XSetSubwindowMode(dpy, gc, IncludeInferiors);
-	    XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-	    XSetSubwindowMode(dpy, gc, ClipByChildren);
-	} else {
-	    XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
-	}
-	if (graphics_exposure)                // reset graphics exposure
-	    XSetGraphicsExposures(dpy, gc, False);
+        XCopyArea(dpy, qt_x11Handle(src), qt_x11Handle(dst), gc, sx, sy, sw, sh, dx, dy);
     }
+    XFreeGC(dpy, gc);
 }
 
 
@@ -1458,20 +1436,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             }
         } else {
 	    qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::CopyPixmapNoMask ? true : false);
-	    if (mode == Qt::CopyPixmap) {
-		if (pixmap.data->alphapm && d->pdev->devType() == QInternal::Pixmap) {
-		    QPixmap *px = static_cast<QPixmap *>(d->pdev);
-		    if (px->data->alphapm) {
-			GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
-			XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
-				  agc, sx, sy, sw, sh, x, y);
-			XFreeGC(d->dpy, agc);
-		    } else {
-			Q_ASSERT(0); // ### add support for this
-		    }
-		} else {
-		}
-	    }
+            if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
+                QPixmap *px = static_cast<QPixmap *>(d->pdev);
+                px->data->alpha = pixmap.data->alpha;
+            }
         }
         return;
     }
@@ -1523,57 +1491,18 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
-        QPixmap *alpha = pixmap.data->alphapm;
-
-        if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle() &&
-            alpha && alpha->xftPictureHandle()) {
-            XRenderComposite(d->dpy, PictOpOver, pixmap.xftPictureHandle(),
-                             alpha->xftPictureHandle(), pict,
-                             sx, sy, sx, sy, x, y, sw, sh);
+        if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle()) {
+            XRenderComposite(d->dpy, (pixmap.data->alpha ? PictOpOver : PictOpSrc),
+                             pixmap.xftPictureHandle(),
+                             XNone, pict, sx, sy, sx, sy, x, y, sw, sh);
         } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
             {
                 XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-#if !defined(QT_NO_XRENDER) && !defined(QT_NO_XFT)
-                if (mode == Qt::CopyPixmap && pixmap.data->alphapm
-                    && d->pdev->devType() == QInternal::Pixmap) {
+                if (mode == Qt::CopyPixmap && d->pdev->devType() == QInternal::Pixmap) {
                     QPixmap *px = static_cast<QPixmap *>(d->pdev);
-                    if (!px->data->alphapm) {
-#undef d
-                        px->data->alphapm = new QPixmap;
-                        px->data->alphapm->data->w = px->data->w;
-                        px->data->alphapm->data->h = px->data->h;
-                        px->data->alphapm->data->d = 8;
-
-
-                        // create 8bpp pixmap and render picture
-                        px->data->alphapm->data->hd =
-                            XCreatePixmap(px->data->alphapm->data->xinfo.display(),
-                                          RootWindow(px->data->alphapm->data->xinfo.display(),
-                                                     px->data->alphapm->data->xinfo.screen()),
-                                          px->data->alphapm->data->w,
-                                          px->data->alphapm->data->h,
-                                          8);
-
-                        px->data->alphapm->data->xft_hd =
-                            (Qt::HANDLE)
-                            XftDrawCreateAlpha(px->data->alphapm->data->xinfo.display(),
-                                               px->data->alphapm->data->hd, 8);
-
-                        XRenderColor color = { 0xffff, 0xffff, 0xffff, 0xffff };
-                        XRenderFillRectangle(px->data->alphapm->data->xinfo.display(), PictOpSrc,
-                                             px->data->alphapm->xftPictureHandle(),
-                                             &color, 0, 0,
-                                             px->data->alphapm->data->w,
-                                             px->data->alphapm->data->h);
-#define d d_func()
-                    }
-                    GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
-                    XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
-                              agc, sx, sy, sw, sh, x, y);
-                    XFreeGC(d->dpy, agc);
+                    px->data->alpha = pixmap.data->alpha;
                 }
-#endif // !QT_NO_XRENDER && !QT_NO_XFT
             }
     }
 
@@ -1676,9 +1605,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
-        QPixmap *alpha = pixmap.data->alphapm;
-
-        if (pict && pixmap.xftPictureHandle() && alpha && alpha->xftPictureHandle()) {
+        if (pict && pixmap.xftPictureHandle()) {
             // this is essentially drawTile() from above, inlined for
             // the XRenderComposite call
             int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -1694,9 +1621,9 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                     drawW = pixmap.width() - xOff; // Cropping first column
                     if (xPos + drawW > x + w)    // Cropping last column
                         drawW = x + w - xPos;
-                    XRenderComposite(d->dpy, PictOpOver, pixmap.xftPictureHandle(),
-                                     alpha->xftPictureHandle(), pict,
-                                     xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
+                    XRenderComposite(d->dpy, (pixmap.data->alpha ? PictOpOver : PictOpSrc),
+                                     pixmap.xftPictureHandle(), XNone,
+                                     pict, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
                     xPos += drawW;
                     xOff = 0;
                 }

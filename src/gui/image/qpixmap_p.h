@@ -68,9 +68,11 @@ struct QPixmapData { // internal pixmap data
 #elif defined(Q_WS_X11)
     void *ximage;
     void *maskgc;
-    QPixmap *alphapm;
+    bool alpha;
     QX11Info xinfo;
     Qt::HANDLE xft_hd;
+    Qt::HANDLE hd2; // sorted in the default display depth
+    Qt::HANDLE x11ConvertToDefaultDepth();
 #elif defined(Q_WS_MAC)
     CGImageRef cgimage;
     QPixmap *alphapm;
