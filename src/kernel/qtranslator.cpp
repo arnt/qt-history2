@@ -1081,9 +1081,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 #endif
 
 /*!
-    \class QTranslatorMessage qtranslator.h
-
-    \preliminary
+    \class QTranslatorMessage
 
     \brief The QTranslatorMessage class contains a translator message and its
     properties.
