@@ -1404,12 +1404,11 @@ bool QAxWidget::createHostWindow( bool initialized )
     container = new QAxHostWindow( this, initialized );
 
     if ( !hhook ) {
-#if defined(UNICODE)
-	if ( qWinVersion() & Qt::WV_NT_based )
+	QT_WA( {
 	    hhook = SetWindowsHookEx( WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId() );
-	else
-#endif
+	}, {
 	    hhook = SetWindowsHookExA( WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId() );
+	} )
     }
     ++hhookref;
     container->hostWidget()->resize( size() );
