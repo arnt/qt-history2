@@ -10,21 +10,35 @@
 #include <qdict.h>
 #include <qsettings.h>
 
+QDocListItem::QDocListItem( QListViewItem* after, QString text, QString lineNumber ) : QListViewItem( after, text )
+{
+    line = lineNumber;
+}
+
+QDocListItem::~QDocListItem()
+{
+}
+
+QString QDocListItem::key( int column, bool ascending ) const
+{
+    QString key = line;
+    return key.rightJustify( 7, '0' ); 
+}
+
 QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindow( parent, name )
 {
     setCaption( "qdoc GUI" );
     QVBoxLayout* vb = new QVBoxLayout(this);
     vb->setAutoAdd( TRUE );
-    QPushButton *quit = new QPushButton( "&Quit", this );
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
-    QPushButton *redo = new QPushButton( "&Repopulate", this );
-    connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
     classList = new QListView( this );
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
     connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
-    classList->show();
+    QPushButton *redo = new QPushButton( "&Repopulate", this );
+    connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
+    QPushButton *quit = new QPushButton( "&Quit", this );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
     qtdirenv = getenv( "QTDIR" );
     init();
 }
@@ -68,70 +82,66 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     classList->update();
     qApp->processEvents();
     if ( item->text(0).startsWith( "Line" ) ) {
-	if ( editText.isNull() ) {
-	    bool ok = FALSE;
-	    QSettings settings;
-	    settings.insertSearchPath( QSettings::Windows, "/Trolltech/qDocGUI" );
-	    settings.insertSearchPath( QSettings::Unix, "/Trolltech/qDocGUI" );
-	    QString editText = settings.readEntry( "editor" );
-	    if ( editText == QString::null ) {
-		editText = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
+	bool ok = FALSE;
+	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech/qDocGUI" );
+	settings.insertSearchPath( QSettings::Unix, "/Trolltech/qDocGUI" );
+	QString editText = settings.readEntry( "editor" );
+	while ( editText.isNull() ) {
+	    editText = QInputDialog::getText( "Please enter your editor", "Enter editor", QLineEdit::Normal, QString::null, &ok, this );
+	    if ( !editText.isNull() )
 		settings.writeEntry( "editor", editText );
-	    }
+	    else
+		QMessageBox::information( this, "No editor specified", "You didn't specify an editor", QMessageBox::Ok );
 	}
-	if ( !editText.isNull() ) {
-	    if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
-		filename = qtdirenv + '/' + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
-	    else if ( item->parent()->parent()->text(0).startsWith( "include" ) ) {
-		QFile f;
-		QString fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".doc");
-		f.setName(qtdirenv + "/doc/" + fileText);
-		if ( f.exists() )
-		    filename = qtdirenv + "/doc/" + fileText;
-		else {
-		    fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".cpp");
-		    QDir d;
-		    d.setPath( qtdirenv + "/src/" );
-		    QStringList lst = d.entryList( "*", QDir::Dirs );
-		    QStringList::Iterator i = lst.begin();
-		    while ( i != lst.end() ) {
-			f.setName(qtdirenv + "/src/" + (*i) + '/' + fileText);
-			if ( f.exists() ) {
-			    filename = qtdirenv + "/src/" + (*i) + '/' + fileText;
-			    break;
-			}
-			++i;
+	if ( item->parent()->parent()->text(0).startsWith( "doc" ) )
+	    filename = qtdirenv + '/' + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+	else if ( item->parent()->parent()->text(0).startsWith( "include" ) ) {
+	    QFile f;
+	    QString fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".doc");
+	    f.setName(qtdirenv + "/doc/" + fileText);
+	    if ( f.exists() )
+		filename = qtdirenv + "/doc/" + fileText;
+	    else {
+		fileText = item->parent()->text(0).replace(QRegExp( "\\.h$"), ".cpp");
+		QDir d;
+		d.setPath( qtdirenv + "/src/" );
+		QStringList lst = d.entryList( "*", QDir::Dirs );
+		QStringList::Iterator i = lst.begin();
+		while ( i != lst.end() ) {
+		    f.setName(qtdirenv + "/src/" + (*i) + '/' + fileText);
+		    if ( f.exists() ) {
+			filename = qtdirenv + "/src/" + (*i) + '/' + fileText;
+			break;
 		    }
-		} 
-	    } else
-		filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
-	    
-	    QString itemtext = item->text(0);
-	    QRegExp rxp( "(\\d+)" );
-	    int foundpos = rxp.search( itemtext, 5 );
-	    if ( foundpos != -1 ) {
-		// yes! 
-		if ( QDir::home().dirName() == QString("jasmin") ) {
-		    QProcess *p4 = new QProcess( this );
-		    p4->addArgument( QString("p4") );
-		    p4->addArgument( QString("edit") );
-		    p4->addArgument( filename );
-		    p4->start();
+		    ++i;
 		}
-
-		QString linenumber = rxp.cap( 0 );
-		procedit = new QProcess( this );
-		procedit->addArgument( editText );
-		procedit->addArgument( QString("+" + linenumber) );
-		procedit->addArgument( filename );
-		connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
-		if ( !procedit->start() ) {
-		    // Fix for crappy editors
-		}
-		
+	    } 
+	} else
+	    filename = qtdirenv + "/src/" + item->parent()->parent()->text(0) + '/' + item->parent()->text(0);
+	
+	QString itemtext = item->text(0);
+	QRegExp rxp( "(\\d+)" );
+	int foundpos = rxp.search( itemtext, 5 );
+	if ( foundpos != -1 ) {
+	    // yes! 
+	    if ( QDir::home().dirName() == QString("jasmin") ) {
+		QProcess *p4 = new QProcess( this );
+		p4->addArgument( QString("p4") );
+		p4->addArgument( QString("edit") );
+		p4->addArgument( filename );
+		p4->start();
 	    }
-	} else {
-	    qWarning( "You didn't specify an editor..." );
+	    
+	    QString linenumber = rxp.cap( 0 );
+	    procedit = new QProcess( this );
+	    procedit->addArgument( editText );
+	    procedit->addArgument( QString("+" + linenumber) );
+	    procedit->addArgument( filename );
+	    connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
+	    if ( !procedit->start() ) {
+		// Fix for crappy editors
+	    }
 	}
     }
 }
@@ -191,12 +201,14 @@ void QDocMainWindow::finished()
 		classItem = filename[classText];
 	    }
 	    
-	    new QListViewItem( classItem, ( "Line " + linenumber + " - " + warningText ));
+	    new QDocListItem( classItem, ( "Line " + linenumber + " - " + warningText ), linenumber );
 	    count++;
 	}
 	outputText = outputText.right( outputText.length() - ( newLine + 1 ) );
+	classList->sort();
     }
     waitText->hide();
+    
     qDebug( "%d warnings", count );
 }
 
@@ -210,7 +222,7 @@ int main( int argc, char** argv )
     QApplication a( argc, argv );
     
     QDocMainWindow qdmw;
-    qdmw.setGeometry( 0, 0, 350, 500 );
+    qdmw.setGeometry( 50, 50, 350, 500 );
     a.setMainWidget( &qdmw );
     qdmw.show();
     return a.exec();

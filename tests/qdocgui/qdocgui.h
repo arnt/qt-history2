@@ -29,3 +29,13 @@ private:
     QString editText;
 };
 
+class QDocListItem : public QListViewItem
+{
+public:
+    QDocListItem( QListViewItem* after, QString text, QString lineNumber );
+    ~QDocListItem();
+    QString key( int column, bool ascending ) const;
+private:
+    QString line;
+};
+
