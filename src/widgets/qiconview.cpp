@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#9 $
 **
 ** Definition of QIconView widget class
 **
@@ -713,7 +713,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->resizeMode = Fixed;
     d->mostOuter = 0;
     d->dropped = FALSE;
-    
+
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -1259,7 +1259,7 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     if ( !d->dropped )
         drawDragShape( d->oldDragPos );
-    
+
     if ( d->tmpCurrentItem ) {
         repaintItem( d->tmpCurrentItem );
         d->tmpCurrentItem->dragLeft();
@@ -1272,7 +1272,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 {
     d->dropped = TRUE;
     drawDragShape( d->oldDragPos );
-    
+
     if ( d->tmpCurrentItem )
         repaintItem( d->tmpCurrentItem );
 
@@ -1742,11 +1742,11 @@ void QIconView::drawDragShape( const QPoint &pos )
         QPoint coord( 0, 0 );
 
         for ( int i = 0; i < d->dragItems; ++i ) {
-            style().drawFocusRect( &p, QRect( pos.x() + 5 + coord.x() * ( r.width() + 10 ) + 5 ,
-                                              pos.y() + 5 + coord.y() * ( r.height() + 30 ),
+            style().drawFocusRect( &p, QRect( pos.x() + coord.x() * ( r.width() + 10 ) + 5 ,
+                                              pos.y() + coord.y() * ( r.height() + 30 ),
                                               r.width(), r.height() ), colorGroup() );
-            style().drawFocusRect( &p, QRect( pos.x() + 5 + coord.x() * ( r.width() + 10 ),
-                                              pos.y() + 5 + coord.y() * ( r.height() + 30 ) + r.height() + 5,
+            style().drawFocusRect( &p, QRect( pos.x() + coord.x() * ( r.width() + 10 ),
+                                              pos.y() + coord.y() * ( r.height() + 30 ) + r.height() + 5,
                                               r.width() + 10, 20 ), colorGroup() );
             if ( coord.x() == num ) {
                 coord.setX( 0 );
