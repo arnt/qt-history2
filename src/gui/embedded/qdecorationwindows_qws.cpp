@@ -177,11 +177,12 @@ const char **QDecorationWindows::xpmForRegion(int reg)
 
 QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int type)
 {
-    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
-    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
-    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
-    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
-    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+    Qt::WindowFlags flags = widget->windowFlags();
+    bool hasTitle = flags & Qt::WindowTitleHint;
+    bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
+    bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
+    bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
+    bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
     int titleHeight = hasTitle ? 20 : 0;
 
     QRegion region;
@@ -275,7 +276,7 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
 
     bool paintAll = (decorationRegion == int(All));
     if ((paintAll || decorationRegion & Title && titleRect.width() > 0) && state == Normal
-        && widget->testWFlags(Qt::WStyle_Title)) {
+        && (widget->windowFlags() & Qt::WindowTitleHint) ) {
         painter->setClipRegion(oldClipRegion);
         QColor fromBrush, toBrush;
         QPen   titlePen;

@@ -38,7 +38,7 @@ int QDecorationStyled::titleBarHeight(const QWidget *widget)
                       | QStyle::SC_TitleBarMinButton
                       | QStyle::SC_TitleBarMaxButton
                       | QStyle::SC_TitleBarCloseButton;
-    opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+    opt.titleBarFlags = widget->windowFlags();
     opt.direction = QApplication::layoutDirection();
     opt.text = widget->windowTitle();
     opt.icon = widget->windowIcon();
@@ -60,12 +60,13 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     const QPalette pal = widget->palette();
     QRegion oldClipRegion = painter->clipRegion();
 
-    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
-    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
-    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
-    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
-    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
-    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+    Qt::WindowFlags flags = widget->windowFlags();
+    bool hasBorder = !widget->isMaximized();
+    bool hasTitle = flags & Qt::WindowTitleHint;
+    bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
+    bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
+    bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
+    bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
     int  titleHeight = titleBarHeight(widget);
 
     bool paintAll = (DecorationRegion(decorationRegion) == All);
@@ -110,7 +111,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
                               ? QStyle::SC_TitleBarMaxButton : QStyle::SubControl(0))
                           | (decorationRegion & Close
                               ? QStyle::SC_TitleBarCloseButton : QStyle::SubControl(0));
-        opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+        opt.titleBarFlags = widget->windowFlags();
         opt.text = widget->windowTitle();
         opt.palette = pal;
         opt.rect = QRect(widget->rect().x(), -titleHeight, widget->rect().width(), titleHeight);
@@ -153,10 +154,12 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     int titleHeight = titleBarHeight(widget);
     QRect inside(rect.x(), rect.top() - titleHeight, rect.width(), titleHeight);
 
-    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
-    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
-    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
-    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+
+    Qt::WindowFlags flags = widget->windowFlags();
+    bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
+    bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
+    bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
+    bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
 
     QStyleOptionTitleBar opt;
     opt.subControls = QStyle::SC_TitleBarLabel
@@ -164,7 +167,7 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
                       | QStyle::SC_TitleBarMinButton
                       | QStyle::SC_TitleBarMaxButton
                       | QStyle::SC_TitleBarCloseButton;
-    opt.titleBarFlags = widget->testWFlags(Qt::WFlags(~0));
+    opt.titleBarFlags = widget->windowFlags();
     opt.direction = QApplication::layoutDirection();
     opt.text = widget->windowTitle();
     opt.icon = widget->windowIcon();

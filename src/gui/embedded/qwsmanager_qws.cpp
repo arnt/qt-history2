@@ -479,7 +479,7 @@ void QWSManager::maximize()
 bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
 {
     // Check if anything has changed that would affect the region caching
-    if (managed->getWFlags() == cached_region.windowFlags
+    if (managed->windowFlags() == cached_region.windowFlags
         && managed->geometry() == cached_region.windowGeometry
         && cached_region.region.contains(pos))
         return false;
@@ -493,7 +493,7 @@ bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
     cached_region.regionType = reg;
     cached_region.region = QApplication::qwsDecoration().region(d->managed, d->managed->geometry(),
                                                                 reg);
-    cached_region.windowFlags = managed->getWFlags();
+    cached_region.windowFlags = managed->windowFlags();
     cached_region.windowGeometry = managed->geometry();
 //    QRect rec = d->cached_region.region.boundingRect();
 //    qDebug("Updated cached region: 0x%04x (%d, %d)  (%d, %d,  %d, %d)",

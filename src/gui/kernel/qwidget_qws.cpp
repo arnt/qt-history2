@@ -116,23 +116,43 @@ static void paint_hierarchy(QWidget *w, bool update)
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destroyOldWindow*/)
 {
+    Qt::WindowType type = q->windowType();
+    Qt::WindowFlags &flags = data.window_flags;
+    QWidget *parentWidget = q->parentWidget();
+
     data.alloc_region_index = -1;
     data.alloc_region_revision = -1;
     isSettingGeometry = false;
     data.overlapping_children = -1;
 
-#if 0
     // we don't have a "Drawer" window type
     if (type == Qt::Drawer) {
         type = Qt::Widget;
         flags &= ~Qt::WindowType_Mask;
     }
-#endif
 
-    bool topLevel = q->isWindow();
-    bool popup = (q->windowType() == Qt::Popup);
-    bool dialog = (q->windowType() == Qt::Dialog);
-    bool desktop = (q->windowType() == Qt::Desktop);
+
+   bool topLevel = (flags & Qt::Window);
+    bool popup = (type == Qt::Popup);
+    bool dialog = (type == Qt::Dialog
+                   || type == Qt::Sheet
+                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
+    bool desktop = (type == Qt::Desktop);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
+
+    bool customize =  (flags & (
+                                Qt::X11BypassWindowManagerHint
+                                | Qt::FramelessWindowHint
+                                | Qt::WindowTitleHint
+                                | Qt::WindowSystemMenuHint
+                                | Qt::WindowMinimizeButtonHint
+                                | Qt::WindowMaximizeButtonHint
+                                | Qt::WindowContextHelpButtonHint
+                                ));
+
+    // a popup stays on top
+    if (popup)
+        flags |= Qt::WindowStaysOnTopHint;
 
     WId           id;
     QWSDisplay* dpy = q->qwsDisplay();
@@ -140,24 +160,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     if (!window)                                // always initialize
         initializeWindow = true;
 
-    if (popup) {
-        q->setWFlags(Qt::WStyle_Tool); // a popup is a tool window
-        q->setWFlags(Qt::WStyle_StaysOnTop); // a popup stays on top
-    }
-    if (topLevel && q->parentWidget()) {
-        // if our parent has Qt::WStyle_StaysOnTop, so must we
-        QWidget *ptl = q->parentWidget()->window();
-        if (ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
-            q->setWFlags(Qt::WStyle_StaysOnTop);
+    if(topLevel && parentWidget) { // if our parent has Qt::WStyle_StaysOnTop, so must we
+        QWidget *ptl = parentWidget->window();
+        if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
+            flags |= Qt::WindowStaysOnTopHint;
     }
 
     int sw = dpy->width();
     int sh = dpy->height();
-
-    if (dialog || popup || desktop) {                // these are top-level, too
-        topLevel = true;
-        q->setWFlags(Qt::WType_TopLevel);
-    }
 
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
@@ -173,12 +183,15 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         setWinId(window);
     } else if (desktop) {                        // desktop widget
         id = (WId)-2;                                // id = root window
+#if 0
         QWidget *otherDesktop = q->find(id);        // is there another desktop?
         if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
             otherDesktop->d->setWinId(0);        // remove id from widget mapper
             setWinId(id);                        // make sure otherDesktop is
             otherDesktop->d->setWinId(id);        //   found first
-        } else {
+        } else
+#endif
+        {
             setWinId(id);
         }
     } else {
@@ -186,54 +199,25 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         setWinId(id);                                // set widget id/handle + hd
     }
 
-    if (!topLevel) {
-        if (!q->testWFlags(Qt::WStyle_Customize))
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
-    } else if (!(desktop || popup)) {
-        if (q->testWFlags(Qt::WStyle_Customize)) {        // customize top-level widget
-            if (q->testWFlags(Qt::WStyle_NormalBorder)) {
-                // XXX ...
-            } else {
-                if (!q->testWFlags(Qt::WStyle_DialogBorder)) {
-                    // XXX ...
-                }
-            }
-            if ((q->windowType() == Qt::Tool)) {
-                // XXX ...
-            }
-        } else {                                // normal top-level widget
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu |
-                       Qt::WStyle_MinMax);
+
+    bool hasFrame = true;
+    if (topLevel) {
+        if (desktop || popup || tool) {
+            hasFrame = false;
+        } else if (customize) {
+            hasFrame = !(flags & Qt::FramelessWindowHint);
+        } else if (dialog) {
+            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
+        } else {
+            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
         }
+    } else  if (!customize) {
+        flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
     }
 
     data.alloc_region_dirty=false;
     data.paintable_region_dirty=false;
 
-    if (!initializeWindow) {
-        // do no initialization
-    } else if (popup) {                        // popup widget
-    } else if (topLevel && !desktop) {        // top-level widget
-        QWidget *p = q->parentWidget();        // real parent
-        if (p)
-            p = p->window();
-        if (testWFlags(Qt::WStyle_DialogBorder)
-             || testWFlags(Qt::WStyle_StaysOnTop)
-             || (q->windowType() == Qt::Dialog)
-             || (q->windowType() == Qt::Tool)) {
-            // XXX ...
-        }
-
-        // find the real client leader, i.e. a toplevel without parent
-        while (p && p->parentWidget()) {
-            p = p->parentWidget()->window();
-        }
-
-        // XXX ...
-    }
-
-    if (initializeWindow) {
-    }
 
     q->setAttribute(Qt::WA_MouseTracking, true);
     q->setMouseTracking(false);                        // also sets event mask
@@ -257,9 +241,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         createTLExtra();
 #endif
 #ifndef QT_NO_QWS_MANAGER
-        if (q->testWFlags(Qt::WStyle_DialogBorder)
-             || q->testWFlags(Qt::WStyle_NormalBorder))
-        {
+        if (hasFrame) {
             // get size of wm decoration and make the old crect the new frect
             QRect cr = data.crect;
             QRegion r = QApplication::qwsDecoration().region(q, cr);
@@ -880,7 +862,7 @@ void QWidgetPrivate::show_sys()
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
-                q->testWFlags(Qt::WStyle_StaysOnTop) ? 1 : 0, true);
+                                     (q->windowFlags() & Qt::WindowStaysOnTopHint) ? 1 : 0, true);
 
     } else if (!q->window()->data->in_show) {
         updateRequestedRegion(q->mapToGlobal(QPoint(0,0)));
@@ -946,10 +928,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             hide();
             needShow = false;
         } else if (newstate & Qt::WindowFullScreen) {
-            d->topData()->savedFlags = getWFlags();
-            setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-                         // preserve some widget flags
-                      (getWFlags() & 0xffff0000));
+            d->topData()->savedFlags = windowFlags();
+            setParent(0, Qt::FramelessWindowHint);
             const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
             move(screen.topLeft());
             resize(screen.size());
@@ -986,13 +966,8 @@ void QWidgetPrivate::raise_sys()
 {
     if (q->isWindow()) {
 #ifdef QT_NO_WINDOWGROUPHINT
-        if (!(q->windowType() == Qt::Tool))
-            activateWindow();
         qwsDisplay()->setAltitude(q->winId(), 0);
 #else
-        QWidget* act=0;
-        if (!(q->windowType() == Qt::Tool))
-            act=q;
         q->qwsDisplay()->setAltitude(q->winId(), 0);
 
         QObjectList childObjects =  q->children();
@@ -1009,20 +984,10 @@ void QWidgetPrivate::raise_sys()
 
             for (int i = 0; i < toraise.size(); ++i) {
                 QWidget *w = toraise.at(i);
-
-                if (w->isVisible()) {
-                    bool wastool = (w->windowType() == Qt::Tool);
-                    w->setWFlags(Qt::WStyle_Tool); // avoid activateWindow flicker
+                if (w->isVisible())
                     w->raise();
-                    if (!wastool) {
-                        w->clearWFlags(Qt::WStyle_Tool);
-                        act = w;
-                    }
-                }
             }
         }
-        if (act)
-            act->activateWindow();
 #endif // QT_NO_WINDOWGROUPHINT
     } else if (QWidget *p = q->parentWidget()) {
         p->d->setChildrenAllocatedDirty(q->geometry(), q);

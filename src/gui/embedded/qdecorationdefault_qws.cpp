@@ -308,12 +308,13 @@ int QDecorationDefault::titleBarHeight(const QWidget *)
 
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
-    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
-    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
-    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
-    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
-    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
-    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+    Qt::WindowFlags flags = widget->windowFlags();
+    bool hasBorder = !widget->isMaximized();
+    bool hasTitle = flags & Qt::WindowTitleHint;
+    bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
+    bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
+    bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
+    bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
 
     int titleHeight = hasTitle ? titleBarHeight(widget) : 0;
     int bw = hasBorder ? BORDER_WIDTH : 0;
@@ -515,12 +516,14 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     int titleWidth = titleRect.width();
     QRegion oldClipRegion = painter->clipRegion();
 
-    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
-    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
-    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
-    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
-    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
-    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+
+    Qt::WindowFlags flags = widget->windowFlags();
+    bool hasBorder = !widget->isMaximized();
+    bool hasTitle = flags & Qt::WindowTitleHint;
+    bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
+    bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
+    bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
+    bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
 
     bool paintAll = (decorationRegion == int(All));
     bool handled = false;
