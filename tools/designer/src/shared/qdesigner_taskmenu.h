@@ -44,12 +44,14 @@ private slots:
     void changeObjectName();
     void createDockWindow();
     void promoteToCustomWidget();
+    void demoteFromCustomWidget();
 
 private:
     QPointer<QWidget> m_widget;
     QAction *m_changeObjectNameAction;
     QAction *m_createDockWindowAction;
     QAction *m_promoteToCustomWidgetAction;
+    QAction *m_demoteFromCustomWidgetAction;
 };
 
 class QDesignerTaskMenuFactory: public DefaultExtensionFactory

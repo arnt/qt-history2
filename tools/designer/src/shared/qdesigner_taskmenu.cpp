@@ -44,6 +44,13 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
 
     m_promoteToCustomWidgetAction = new QAction(tr("Promote to Custom Widget"), this);
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
+
+    QString demote_string = tr("Demote from Custom Widget");
+    if (QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(widget))
+        demote_string = tr("Demote to ") + promoted->item()->extends();
+    m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
+    connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()),
+            this, SLOT(demoteFromCustomWidget()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -75,8 +82,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
         actions.append(m_createDockWindowAction);
     }
 
-    actions.append(m_promoteToCustomWidgetAction);
-    
+    if (qt_cast<QDesignerPromotedWidget*>(m_widget) == 0)
+        actions.append(m_promoteToCustomWidgetAction);
+    else
+        actions.append(m_demoteFromCustomWidgetAction);
+            
     return actions;
 }
 
@@ -148,6 +158,8 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     AbstractWidgetDataBase *db = core->widgetDataBase();
     WidgetFactory *factory = qt_cast<WidgetFactory*>(core->widgetFactory());
 
+    Q_ASSERT(qt_cast<QDesignerPromotedWidget*>(wgt) == 0);
+        
     QString base_class_name = factory->classNameOf(wgt);
 
     PromoteToCustomWidgetDialog dialog(db, base_class_name);
@@ -185,6 +197,31 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     
     fw->endCommand();
 
+    fw->clearSelection();
+    fw->selectWidget(promoted);
+}
+
+void QDesignerTaskMenu::demoteFromCustomWidget()
+{
+    AbstractFormWindow *fw = formWindow();
+    QWidget *wgt = widget();
+    QWidget *parent = wgt->parentWidget();
+
+    QDesignerPromotedWidget *promoted = qt_cast<QDesignerPromotedWidget*>(wgt);
+    Q_ASSERT(promoted != 0);
+
+    fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
+    
+    ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
+    reparent_cmd->init(promoted->child(), parent);
+    fw->commandHistory()->push(reparent_cmd);
+    
+    DeleteWidgetCommand *delete_cmd = new DeleteWidgetCommand(fw);
+    delete_cmd->init(promoted);
+    fw->commandHistory()->push(delete_cmd);
+    
+    fw->endCommand();
+    
     fw->clearSelection();
     fw->selectWidget(promoted);
 }
