@@ -2721,6 +2721,7 @@ void QTable::setText( int row, int col, const QString &text )
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	itm->setText( text );
+	itm->updateEditor( row, col );
 	updateCell( row, col );
     } else {
 	QTableItem *i = new QTableItem( this, QTableItem::OnTyping,
