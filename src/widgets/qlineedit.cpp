@@ -500,6 +500,8 @@ void QLineEdit::setMaxLength( int m )
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
+    e->accept(); // #### Key events (propergation??) is pretty broken at the moment, remove that when it is fixed again. Ask Reggie for details.
+    
     int cursorPos = cursorPosition();
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 	const QValidator * v = validator();
