@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#3 $
 **
 ** Implementation of QThread class
 **
@@ -65,14 +65,21 @@ QThread::~QThread()
 
 
 /*!
-  \fn QThread::QThread &operator=( const QThread &thread )
-  Assigns \e thread to this thread.
+  \fn QThread &QThread::QThread &operator=( const QThread &thread )
+  Assigns \e thread to this thread and returns a reference to this
+  thread.
 */
 
 /*!
   \fn bool QThread::isValid() const
   Returns TRUE if the thread ID is valid, otherwise FALSE.
   \sa id()
+*/
+
+
+/*!
+  \fn int QThread::id() const
+  Returns the thread identifier.
 */
 
 
@@ -168,6 +175,11 @@ QThreadID QThread::start( QThreadFunction func, void *args,
     return (QThreadID)-1;
 #endif
 }
+
+
+/*!
+  Exits the current thread.
+*/
 
 void QThread::exit( int retcode )
 {

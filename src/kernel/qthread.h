@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#1 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#2 $
 **
 ** Definition of QThread class
 **
@@ -32,13 +32,15 @@ typedef int QThreadID;
 typedef int QThreadID;
 #endif
 
+const QThreadID invalidQThreadID = (QThreadID)-1;
+
 typedef void (*QThreadFunction)(void*);
 
 
 class QThread
 {
 public:
-    QThread( QThreadID id = (QThreadID)-1 );
+    QThread( QThreadID id = invalidQThreadID );
     QThread( QThreadFunction func, void *args=0, int stackSize=-1 );
     QThread( const QThread & );
    ~QThread();
