@@ -78,18 +78,20 @@
 
 	/usr/bin/make
 
-    This technology preview was tested on Mac OS X 10.3 with Xcode Tools 1.2.
-    If your platform or compiler is not supported, please contact us at
-    qt-bugs@trolltech.com so that we can assist you. If it is supported but you
-    have problems, see http://www.trolltech.com/platforms/ for information on
-    known issues.
+    This technology preview was tested on Mac OS X 10.3 with Xcode Tools 1.2
+    and higher.  If your platform or compiler is not supported, please contact
+    us at qt-bugs@trolltech.com so that we can assist you. If it is supported
+    but you have problems, see http://www.trolltech.com/platforms/ for
+    information on known issues.
 
 6.  Launching Qt applications from the Finder.
 
     If you built Qt using the -static option, your executables will contain the
     Qt library and can be run from Finder automatically. Otherwise, your
     executables will need to use the Qt library on your system. You can acheive
-    this by using symbolic links.
+    this by using symbolic links. In the examples below, if you've built a
+    debug version of the Qt libraries, add _debug to the end of the library
+    name, (example libQtCore_debug.4.dylib instead of libQtCore.4.dylib.)
 
     We recommend making these symbolic links:
 
@@ -107,8 +109,7 @@
 
     If you do not have administrator access, or you would prefer to do
     a user install (rather than system install) of the libraries you 
-    can do (if you have configured Qt with -thread [ie threading enabled],
-    please change the libqt below with libqt-mt):
+    can do:
 
     ln -sf $QTDIR/lib/libQtCore.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtGui.4.dylib $HOME/lib
