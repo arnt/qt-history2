@@ -207,7 +207,7 @@ void WriteInitialization::accept(DomLayout *node)
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
 
             isMainWindow = true;
-            centralWidget = driver->findOrInsertName("__qt_central_widget");
+            centralWidget = driver->unique("__qt_central_widget");
             output << option.indent << "QWidget *" << centralWidget << "= new QWidget(" << parent << ");\n";
             output << option.indent << centralWidget << "->setObjectName(" << fixString(centralWidget) << ");\n";
             output << option.indent << parent << "->setCentralWidget(" << centralWidget << ");\n";
@@ -408,6 +408,9 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             output << option.indent << varName << "->setControl("
                    << fixString(p->elementString()) << ");\n";
             continue;
+        } else if (propertyName == QLatin1String("database")
+                    && className == QLatin1String("QDataTable")) {
+            continue;
         }
 
         bool stdset = m_stdsetdef;
@@ -448,7 +451,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             break;
         case DomProperty::Font: {
             DomFont *f = p->elementFont();
-            QString fontName = driver->findOrInsertName("font");
+            QString fontName = driver->unique("font");
             output << option.indent << "QFont " << fontName << ";\n";
             output << option.indent << fontName << ".setFamily(" << fixString(f->elementFamily())
                 << ");\n";
@@ -477,7 +480,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
 
         case DomProperty::Palette: {
             DomPalette *pal = p->elementPalette();
-            QString paletteName = driver->findOrInsertName("palette");
+            QString paletteName = driver->unique("palette");
             output << option.indent << "QPalette " << paletteName << ";\b";
 
             writeColorGroup(pal->elementActive(), QLatin1String("QPalette::Active"), paletteName);
@@ -653,7 +656,7 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
     Q_ASSERT( className.size() != 0 );
 
-    return QLatin1String("(qApp->translate(\"") + className + QLatin1String("\", ") + text + QLatin1String("))");
+    return QLatin1String("qApp->translate(\"") + className + QLatin1String("\", ") + text + QLatin1String(")");
 }
 
 void WriteInitialization::accept(DomLayoutDefault *node)
@@ -711,7 +714,7 @@ void WriteInitialization::initializeIconView(DomWidget *w)
         if (!(text || pixmap))
             continue;
 
-        QString itemName = driver->findOrInsertName("__item");
+        QString itemName = driver->unique("__item");
         output << "\n";
         output << option.indent << "QIconViewItem *" << itemName << " = new QIconViewItem(" << varName << ");\n";
 
@@ -767,7 +770,7 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
 
-        QString itemName = driver->findOrInsertName("__item");
+        QString itemName = driver->unique("__item");
         output << "\n";
         output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
 
@@ -886,8 +889,19 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
         return;
     }
 
-    QString varName = driver->findOrInsertWidget(w) + QLatin1String("Form");
-    // ### generate the initialization for the data table
+    QString varName = driver->findOrInsertWidget(w);
+
+    output << option.indent << "if (!" << varName << "->sqlCursor()) {\n";
+
+    output << option.indent << option.indent << varName << "->setSqlCursor(";
+
+    if (connection == QLatin1String("(default)")) {
+        output << "new QSqlCursor(" << fixString(table) << "), false, true);\n";
+    } else {
+        output << "new QSqlCursor(" << fixString(table) << "), false, true);\n"; // ### fix me!!
+    }
+    output << option.indent << option.indent << varName << "->refresh(QDataTable::RefreshAll);\n";
+    output << option.indent << "}\n";
 }
 
 void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
