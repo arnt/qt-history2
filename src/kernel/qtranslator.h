@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#4 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#5 $
 **
 ** Definition of something or other
 **
@@ -38,16 +38,14 @@ public:
     void squeeze();
     void unsqueeze();
 
-    void insert( uint, const QString & );
-    void remove( uint );
-    bool contains( uint, const char *, const char * ) const;
+    void insert( const char *, const char *, const QString & );
+    void remove( const char *, const char * );
+    bool contains( const char *, const char * ) const;
 
     static uint hash( const char *, const char * );
 
 private:
     QTranslatorPrivate * d;
-
-    friend class QTranslatorIterator;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -55,31 +53,5 @@ private:	// Disabled copy constructor and operator=
     QTranslator &operator=( const QTranslator & );
 #endif
 };
-
-
-class Q_EXPORT QTranslatorIterator
-{
-public:
-    QTranslatorIterator( QTranslator & );
-    ~QTranslatorIterator();
-    uint count() const;
-    bool isEmpty() const;
-    QString * toFirst();
-    operator QString *() const;
-    QString * current() const;
-    uint currentKey() const;
-    QString * operator++();
-    QString * operator+=( uint jump );
-
-private:
-    QIntDictIterator<QString> * it;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTranslatorIterator( const QTranslatorIterator & );
-    QTranslatorIterator &operator=( const QTranslatorIterator & );
-#endif
-};
-
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#7 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -577,10 +577,9 @@ void QTranslatorDialog::save()
 	QListViewItem *sub = it->firstChild();
 	while ( sub ) {
 	    if ( !!sub->text(1) ) {
-		int hash = mf.hash(scope, sub->text(0).latin1());
-		mf.insert( hash, sub->text(1) );
+		mf.insert( scope, sub->text(0).latin1(), sub->text(1) );
 		debug( "QTranslatorDialog::save %d, %s, %s, %s",
-		       hash,
+		       mf.hash( scope, sub->text(0).latin1() ),
 		       scope.data(),
 		       sub->text(0).latin1(),
 		       sub->text(1).latin1() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.h#4 $
+** $Id: //depot/qt/main/src/tools/qcstring.h#5 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -310,6 +310,9 @@ Q_EXPORT inline bool operator!=( const QCString &s1, const char *s2 )
 
 Q_EXPORT inline bool operator!=( const char *s1, const QCString &s2 )
 { return strcmp(s1,s2.data()) != 0; }
+
+Q_EXPORT inline bool operator<( const QCString &s1, const QCString& s2 )
+{ return strcmp(s1.data(),s2.data()) < 0; }
 
 Q_EXPORT inline bool operator<( const QCString &s1, const char *s2 )
 { return strcmp(s1.data(),s2) < 0; }

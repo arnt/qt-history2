@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#13 $
 **
 ** Localization database support.
 **
@@ -41,6 +41,7 @@
 #include "qfile.h"
 #include "qdatastream.h"
 #include "qdict.h"
+#include "qmap.h"
 
 /*
 $ mcookie
@@ -55,26 +56,45 @@ const uchar magic[] = { // magic number for the file.
 
 const int headertablesize = 256; // entries, must be power of two
 
+struct QTranslationDomain {
+    QTranslationDomain() { }
+    QTranslationDomain(const char* s, const char* m) :
+	scope(s), message(m), hash(QTranslator::hash(s,m)) { }
+    QCString scope;
+    QCString message;
+    uint hash;
+    operator <(const QTranslationDomain& o) const
+    {
+	int r = hash - o.hash;
+	if ( r ) return r < 0;
+	r = strcmp(scope,o.scope);
+	return r < 0;
+    }
+};
+
+typedef QMap<QTranslationDomain,QString>::Iterator QTranslatorIteratorPrivate;
 
 class QTranslatorPrivate {
 public:
     QTranslatorPrivate() :
 	messages( 0 ),
-	t( 0 ), l( 0 ),
+	t( 0 ), s( 0 ), l( 0 ),
 	unmapPointer( 0 ), unmapLength( 0 ),
 	byteArray( 0 ) {}
     // note: QTranslator must finalize this before deallocating it.
 
     struct SortableMessage {
-	QString result;
+	QCString scope;
+	QString translation;
 	uint hash;
     };
 
     // for read-write message files
-    QIntDict<QString> * messages;
+    QMap<QTranslationDomain,QString> * messages;
 
     // for read-only files
-    const char * t;
+    const char * t; // hash table
+    const char * s; // scope table
     uint l;
 
     // for mmap'ed files, this is what needs to be unmapped.
@@ -91,8 +111,26 @@ public:
 
 /* format of the data file.
 
+   file                = MAGIC [1] scope-table [2] hash-table .
+   scope-table         = scope-table-size { { CHAR8 } NUL } .
+   scope-table-size    = INT24 .
+   hash-table          = { bucket-offset }*256 { bucket } .
+   bucket-offset       = INT24 .
+   bucket              = first-string-offset offset-list { string } .
+   offset-list         = { rest-of-hash string-length } .
+   first-string-offset = INT24 .
+   rest-of-hash        = INT24 .
+   string-length       = INT24 .
+   string              = scope { CHAR16 } .
+   scope               = INT24 .
+
+   d->s = [1]
+   d->t = [2]
+   d->l = length(hash-table)
+
+   -- old description...
    headertablesize 3-byte offsets
-   headertablezize per-hash structures:
+   headertablesize per-hash structures:
        3-byte offset of first string
        for each message with this hash, sorted by rest-of-hash
            3-byte rest-of-hash
@@ -314,8 +352,10 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
-    d->t = ((const char *) tmp)+16; // 16 being the length of the magic number
-    d->l = d->unmapLength - 16;
+    d->s = ((const char *) tmp)+16; // 16 being the length of the magic number
+    int scope_table_size = readlength( d->s, 0 );
+    d->t = d->s + 3 + scope_table_size;
+    d->l = d->unmapLength - 16 - 3 - scope_table_size;
 #else
     // windows
     fatal("Not written yet -- contact agulbra@troll.no");
@@ -344,28 +384,13 @@ bool QTranslator::save( const QString & filename )
 {
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
-	QDataStream s( &f );
-
 	// magic number
 	if ( f.writeBlock( (const char *)magic, 16 ) < 16 )
 	    return FALSE;
 
-#if 0
-	// header strings
-	s << d->headers.count();
-	QDictIterator<QString> it( d->headers );
-	QString * c;
-	const char * k;
-	while( (c=it.current()) != 0 ) {
-	    k = (const char*)(void*)it.currentKeyLong();
-	    ++it;
-	    s << *k << *c;
-	}
-#endif
-
 	// the rest
 	squeeze();
-	f.writeBlock( d->t, d->l );
+	f.writeBlock( d->s, (d->t - d->s) + d->l );
 	return TRUE;
     }
     return FALSE;
@@ -383,42 +408,55 @@ bool QTranslator::save( const QString & filename )
   in alternative translation techniques.
 */
 
-QString QTranslator::find( uint h, const char*, const char* ) const
+QString QTranslator::find( uint h, const char* scope, const char* message ) const
 {
     if ( d->messages ) {
-	QString * r1 = d->messages->find( h );
-	if ( r1 )
-	    return *r1;
+	QTranslationDomain k(scope,message);
+	QMap<QTranslationDomain,QString>::Iterator it = d->messages->find(k);
+	if ( it !=  d->messages->end() )
+	    return *it;
 	return QString::null;
     }
 	
     if ( !d->t || !d->l )
 	return QString::null;
 
+    const char* s = d->s;
+    const char* t = d->t;
+
     // offset we care about at any instant
-    uint o = readoffset( d->t, 3*(h % headertablesize) );
+    uint o = readoffset( t, 3*(h % headertablesize) );
     // if that bucket is empty, return quickly
     if ( o+10 >= d->l || o < 3*headertablesize )
 	return QString::null;
     // string pointer, first string pointer
     uint fsp, sp;
-    fsp = sp = readoffset( d->t, o );
+    fsp = sp = readoffset( s, o );
     uint base = h % headertablesize;
     o += 3;
     uint r;
-    while ( o+5 < fsp && (r=readhash( d->t, o, base )) < h ) {
+    while ( o+5 < fsp && (r=readhash( s, o, base )) < h ) {
 	// not yet found the one we want
-	sp += 2*readlength( d->t, o+3 );
+	sp += 2*readlength( s, o+3 )+3;
 	o += 6;
     }
     if ( o+5 < fsp && r == h ) {
-	// here it is.  let's return it.
-	int sl = readlength( d->t, o+3 );
+	// match found - check the scope
+	int sl = readlength( s, o+3 )-3;
+	int sc = readoffset( s, sp );
+	if ( strcmp(scope, d->s + 3 + sc)!=0 ) {
+	    // bad match.
+	    return QString::null;
+	}
+	// matched - return it
+	sp += 3;
 	QString result;
+	// ### could use QConstString if byte order is ok, but need somewhere
+	// ###  to keep the QConstString in existence and to reuse it from.
 	int i;
 	for( i=0; i<sl; i++ ) {
-	    uchar row =  d->t[sp++];
-	    uchar cell =  d->t[sp++];
+	    uchar row =  s[sp++];
+	    uchar cell =  s[sp++];
 	    result += QChar( cell, row );
 	}
 	return result;
@@ -553,35 +591,55 @@ void QTranslator::squeeze()
     if ( !d->messages )
 	return;
 
+    QMap<QCString,int> scope_offsets;
+
     uint size = headertablesize * 6;
 
     QTranslatorPrivate::SortableMessage * items
 	= new QTranslatorPrivate::SortableMessage[ d->messages->count() ];
 
-    QIntDictIterator<QString> it( *(d->messages) );
-    QString * s;
     int i = 0;
-    while( (s=it.current()) != 0 ) {
-	items[i].result = *s;
-	items[i].hash = it.currentKey();
-	++it;
-	++i;
-	size = size + 10 + 2*s->length();
+    int scope_table_size = 0;
+    {
+	QMap<QTranslationDomain,QString>::Iterator it = d->messages->begin();
+	while( it != d->messages->end() ) {
+	    items[i].scope = it.key().scope;
+	    items[i].translation = *it;
+	    items[i].hash = it.key().hash;
+	    size += 10 + 3 + 2*it->length();
+	    if ( !scope_offsets.contains(it.key().scope) ) {
+		scope_offsets.insert(it.key().scope, scope_table_size);
+		scope_table_size += it.key().scope.length()+1;
+	    }
+	    ++it;
+	    ++i;
+	}
     }
+    size += scope_table_size + 3;
 
     ::qsort( items, d->messages->count(),
 	     sizeof( QTranslatorPrivate::SortableMessage ), cmp );
 
     QByteArray b( size );
     b.fill( '\0' );
-    uint fp = 3*headertablesize;
-    // this is where the header should be written
+
+    writethreebytes( b, 0, scope_table_size );
+    uint sc = 3 + scope_table_size;
+    uint fp = sc + 3*headertablesize;
+
+    {
+	QMap<QCString,int>::Iterator it = scope_offsets.begin();
+	while ( it != scope_offsets.end() ) {
+	    memcpy( b.data()+3+*it, it.key().data(), it.key().length()+1 );
+	    ++it;
+	}
+    }
 
     i = d->messages->count()-1;
     while( i >= 0 ) {
 	uint bucket = items[i].hash % headertablesize;
 	fp = ((fp-1) | 3)+1;
-	writeoffset( b, 3*bucket, fp );
+	writeoffset( b, sc+3*bucket, fp );
 	int j = 0;
 	while( j <= i && bucket == items[i-j].hash % headertablesize )
 	    j++;
@@ -589,16 +647,18 @@ void QTranslator::squeeze()
 	    uint sp = fp + 4 + (6*j);
 	    writeoffset( b, fp, sp );
 	    fp += 3;
-	    QString res;
+	    QString str;
 	    while( j ) {
+		str = items[i].translation;
 		writethreebytes( b, fp, items[i].hash / headertablesize );
-		writethreebytes( b, fp+3, items[i].result.length() );
+		writethreebytes( b, fp+3, str.length()+3 );
 		fp += 6;
-		res = items[i].result;
 		uint k;
-		for( k=0; k<res.length(); k++ ) {
-		    b[(int)sp++] = res[(int)k].row();
-		    b[(int)sp++] = res[(int)k].cell();
+		writethreebytes( b, sp, scope_offsets[items[i].scope] );
+		sp += 3;
+		for( k=0; k<str.length(); k++ ) {
+		    b[(int)sp++] = str[(int)k].row();
+		    b[(int)sp++] = str[(int)k].cell();
 		}
 		i--;
 		j--;
@@ -610,7 +670,8 @@ void QTranslator::squeeze()
 	b.resize( fp );
     clear();
     d->byteArray = new QByteArray( b );
-    d->t = b.data();
+    d->s = b.data();
+    d->t = d->s+3+scope_table_size;
     d->l = b.size();
 }
 
@@ -628,8 +689,8 @@ void QTranslator::unsqueeze()
 {
     if ( d->messages )
 	return;
-    QIntDict<QString> * messages = new QIntDict<QString>( 4271 );
-    messages->setAutoDelete( TRUE );
+    QMap<QTranslationDomain,QString> * messages =
+	new QMap<QTranslationDomain,QString>;
 
     if ( d->t && d->l ) {
 	int i;
@@ -644,12 +705,17 @@ void QTranslator::unsqueeze()
 		    int sl = readlength( d->t, fp+3 );
 		    QString result;
 		    int k;
+		    int sc = readlength( d->t, sp );
+		    sp += 3;
 		    for( k=0; k<sl; k++ ) {
 			uchar row = d->t[sp++];
 			uchar cell = d->t[sp++];
 			result[k] = QChar( cell, row );
 		    }
-		    messages->insert( (long)h, new QString( result ) );
+		    QTranslationDomain key;
+		    key.scope = d->s + 3 + sc;
+		    key.hash = h;
+		    messages->insert( key, result );
 		    fp += 6;
 		}
 	    }
@@ -666,21 +732,24 @@ void QTranslator::unsqueeze()
   (This is is a one-liner than calls find().)
 */
 
-bool QTranslator::contains( uint h, const char* scope, const char* key ) const
+bool QTranslator::contains( const char* scope, const char* key ) const
 {
+    uint h = hash(scope,key);
     return find( h, scope, key ) != QString::null;
-	
 }
 
 
-/*!  Inserts \a s with hash value \a h into this message file,
-  replacing any current string for \a h.
+/*! Inserts \a translation of \a message
+  into this message file.
 */
 
-void QTranslator::insert( uint h, const QString & s )
+void QTranslator::insert( const char* scope,
+			  const char* message,
+			  const QString& translation )
 {
     unsqueeze();
-    d->messages->replace( (long)h, new QString( s ) );
+    QTranslationDomain k( scope, message );
+    d->messages->replace( k, translation );
 }
 
 
@@ -689,131 +758,11 @@ void QTranslator::insert( uint h, const QString & s )
 
 */
 
-void QTranslator::remove( uint h )
+void QTranslator::remove( const char *scope, const char *message )
 {
     unsqueeze();
-    d->messages->remove( h );
+    QTranslationDomain k( scope, message );
+    d->messages->remove( k );
 }
 
 
-/*! \class QTranslatorIterator qtranslator.h
-
-  \brief The QTranslatorIterator class provides the ability to list QTranslator contents etc.
-
-  This class is a standard iterator, with a few peculiarities due to
-  the dual nature of QTranslator.
-
-  Since it is not easily possible to keep iterators that point to the
-  squeezed format of QTranslator and have the same iteration order as
-  for the unsqueezed format, calling QTranslator::save() or
-  QTranslator::squeeze() sets all iterators to 0, as if the
-  QTranslator were cleared.
-
-  For other information about iterators, see e.g. QDictIterator.
-
-  \sa QTranslator
-*/
-
-/*!  Constructs a QTranslatorIterator that operates on \a m */
-
-QTranslatorIterator::QTranslatorIterator( QTranslator & m )
-{
-    m.unsqueeze();
-    it = new QIntDictIterator<QString>( *(m.d->messages) );
-}
-
-
-/*! Destroys the iterator and frees any allocated resources. */
-
-QTranslatorIterator::~QTranslatorIterator()
-{
-    delete it;
-    it = 0;
-}
-
-
-/*! Returns the number of items in the message file this iterator
-  operates on.
-
-  \sa isEmpty()
-*/
-
-uint QTranslatorIterator::count() const
-{
-    return it->count();
-}
-
-
-/*!  Returns TRUE if the message file on which this iterator operates
-  is empty, and FALSE if it contains at least one message.
-
-*/
-
-bool QTranslatorIterator::isEmpty() const
-{
-    return it->isEmpty();
-}
-
-
-/*! Sets the current iterator item to point to the first item in the
-  message file and returns a pointer to the item.  If the message file
-  is empty it sets the current item to null and returns a null string.
-*/
-
-QString * QTranslatorIterator::toFirst()
-{
-    return it->toFirst();
-}
-
-
-/*! Returns a pointer to the current iterator item. */
-
-QString * QTranslatorIterator::current() const
-{
-    return it->current();
-}
-
-
-/*! Returns the key for the current iterator item. */
-
-uint QTranslatorIterator::currentKey() const
-{
-    return it->currentKey();
-}
-
-
-/*! Cast operator. Returns a pointer to the current iterator item.
-  Same as current(). */
-
-QTranslatorIterator::operator QString *() const
-{
-    return it->current();
-}
-
-
-
-
-/*!  Prefix ++ makes the succeeding item current and returns the new current
-  item.
-
-  If the current iterator item was the last item in the dictionary or if it
-  was null, null is returned.
-*/
-
-QString * QTranslatorIterator::operator++()
-{
-    return ++*it;
-}
-
-
-/*!  Sets the current item to the item \e jump positions after the
-  current item, and returns a pointer to that item.
-
-  If that item is beyond the last item or if the dictionary is  empty,
-  it sets the current item to null and returns null.
-*/
-
-QString * QTranslatorIterator::operator+=( uint jump )
-{
-    return *it += jump;
-}
