@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#20 $
 **
 ** Implementation of tab dialog
 **
@@ -12,7 +12,7 @@
 #include "qpainter.h"
 #include "qstring.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#20 $");
 
 // a small private class to show the tabs on top
 
@@ -73,13 +73,13 @@ QTab::~QTab()
   The pref.cpp example does all this.
 
   If you don't call addTab(), the page you have created will not be
-  visible.  Please don't mistake the object name you supply to the
-  QWidget constructor for the tab string you supply to addTab().
+  visible.  Please don't confuse the object name you supply to the
+  QWidget constructor nad the tab string you supply to addTab().
 
-  You more or less have to connect the applyButtonPressed() signal to
-  something.  applyButtonPressed() is emitted when either OK or Apply
-  is clicked, and your slot must copy the dialog's state into the
-  application.
+  Almost all applications have to connect the applyButtonPressed()
+  signal to something.  applyButtonPressed() is emitted when either OK
+  or Apply is clicked, and your slot must copy the dialog's state into
+  the application.
 
   There are also several other signals which may be useful. <ul> <li>
   cancelButtonPressed() is emitted when the user clicks Cancel; the
@@ -100,7 +100,7 @@ QTab::~QTab()
   visible at the moment you call setTabEnabled().
 
   While tab dialogs can be a very good way to split up a complex
-  dialog, it's also very easy to make a hash of it.  Here is some
+  dialog, it's also very easy to make a royal mess.  Here is some
   advice (greatly inspired from a USENET posting by Jared M. Spool
   \<jared@uie.com\>):
 
@@ -295,6 +295,9 @@ void QTabDialog::setFont( const QFont & font )
   state of the application can change between the time you call
   QTabDialog::QTabDialog() and QTabDialog::show(), you should set the
   dialog's state in a slot and connect this signal to it.
+
+  This applies mainly to QTabDialog objects that are kept around
+  hidden rather than being created, show()n and deleted afterwards.
 
   \sa applyButtonPressed() show() cancelButtonPressed()
 */
