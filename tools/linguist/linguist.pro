@@ -1,8 +1,8 @@
 TEMPLATE	= subdirs
 SUBDIRS		= linguist \
-		  tutorial/tt1 \
-		  tutorial/tt2 \
-		  tutorial/tt3 \
+#		  tutorial/tt1 \
+#		  tutorial/tt2 \
+#		  tutorial/tt3 \
 		  lrelease \
 		  lupdate \
 		  qm2ts
