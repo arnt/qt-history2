@@ -43,7 +43,7 @@ struct qt_XPoint {
 
 struct qt_float_point
 {
-    float x, y;
+    qreal x, y;
     operator qt_XPoint() const
     {
         qt_XPoint pt = { static_cast<short>(qRound(x)),
