@@ -1226,6 +1226,42 @@ char **QCoreApplication::argv() const
     return d->argv;
 }
 
+/*!
+    Sets the name of this \a application and the Internet domain of the \a organization
+    which wrote it.
+
+    These values are used by the QSettings class when it is constructed using the
+    empty constructor. This saves having to repeat this information each time a
+    QSettings object is created.
+
+    \sa QSettings, organization(), application()
+*/
+void QCoreApplication::setProductInfo(const QString &organization,
+                                        const QString &application)
+{
+    d->organization = organization;
+    d->application = application;
+}
+
+/*!
+    Returns the Internet domain of the \a organization which wrote this application.
+
+    \sa setProductInfo(), application()
+*/
+QString QCoreApplication::organization() const
+{
+    return d->organization;
+}
+
+/*!
+    Returns the name of this \a application.
+
+    \sa setProductInfo(), organization()
+*/
+QString QCoreApplication::application() const
+{
+    return d->application;
+}
 
 #ifndef QT_NO_COMPONENT
 

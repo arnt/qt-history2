@@ -610,7 +610,12 @@ static void checkAccess(const QString &name, bool *read, bool *write)
 
 void QConfFileSettingsPrivate::init()
 {
-    checkAccess(confFiles[spec]->name, &readAccess, &writeAccess);
+    if (confFiles[spec] == 0) {
+        readAccess = false;
+        writeAccess = false;
+    } else {
+        checkAccess(confFiles[spec]->name, &readAccess, &writeAccess);
+    }
     if (!readAccess)
         setStatus(QCoreSettings::AccessError);
     cs = Qt::CaseInsensitive;
@@ -632,14 +637,21 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
                                                     const QString &organization,
                                                     const QString &application)
 {
-    const char *extension = ".ini";
     int i;
+    this->format = format;
+    for (i = 0; i < NumConfFiles; ++i)
+        confFiles[i] = 0;
+    cs = Qt::CaseSensitive;
+
+    if (organization.isEmpty()) {
+        setStatus(QCoreSettings::AccessError);
+        return;
+    }
+
+    const char *extension = ".ini";
 
     QString appFile = organization + QDir::separator() + application + QLatin1String(extension);
     QString orgFile = organization + QLatin1String(extension);
-
-    for (i = 0; i < NumConfFiles; ++i)
-        confFiles[i] = 0;
 
     if (scope == Qt::UserScope) {
         if (!application.isEmpty())
@@ -656,9 +668,6 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
             break;
         }
     }
-
-    this->format = format;
-//    init();
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
@@ -668,7 +677,8 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
     for (int i = 1; i < NumConfFiles; ++i)
         confFiles[i] = 0;
     this->format = format;
-//    init();
+    readAccess = writeAccess = false;
+    cs = Qt::CaseSensitive;
 }
 
 QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
@@ -1655,6 +1665,40 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format)
                                             variantToStringCoreImpl, stringToVariantCoreImpl))
 {
 }
+
+#ifndef QT_BUILD_QMAKE
+// qmake doesn't link against qcoreapplication, which this ctor needs
+/*!
+    Constructs a QCoreSettings object for accessing settings of the
+    application and organization set previously with a call to
+    QApplication::setProductInfo().
+
+    The scope is Qt::UserScope and the format is Qt::NativeFormat.
+
+    The following code:
+    \code
+        QCoreSettings settings("www.technopro.co.uk", "Facturo-Pro");
+    \endcode
+    is equivalent to:
+    \code
+        qApp->setProductInfo("www.technopro.co.uk", "Facturo-Pro");
+        QCoreSettings settings;
+    \endcode
+
+    If QApplication::setProductInfo() has not been previously called,
+    the QSettings object will not be able to read or write any settings,
+    and status() will return AccessError.
+
+    \sa \l{Locations for Storing Settings}
+*/
+QCoreSettings::QCoreSettings()
+    : d_ptr(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+                                            QCoreApplication::instance()->organization(),
+                                            QCoreApplication::instance()->application(),
+                                            variantToStringCoreImpl, stringToVariantCoreImpl))
+{
+}
+#endif
 
 /*!
     Destroys the QCoreSettings object.

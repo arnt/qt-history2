@@ -1,6 +1,7 @@
 #include "qsettings.h"
 #include "private/qcoresettings_p.h"
 
+#include "qcoreapplication.h"
 #include "qrect.h"
 #include "qpoint.h"
 #include "qcolor.h"
@@ -41,6 +42,15 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format)
     : QCoreSettings(QCoreSettingsPrivate::create(fileName, format,
                                                     variantToStringGuiImpl,
                                                     stringToVariantGuiImpl))
+{
+}
+
+QSettings::QSettings()
+    : QCoreSettings(QCoreSettingsPrivate::create(Qt::NativeFormat, Qt::UserScope,
+                                                QCoreApplication::instance()->organization(),
+                                                QCoreApplication::instance()->application(),
+                                                variantToStringGuiImpl,
+                                                stringToVariantGuiImpl))
 {
 }
 

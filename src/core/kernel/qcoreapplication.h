@@ -44,6 +44,10 @@ public:
     int                    argc()        const;
     char          **argv()        const;
 
+    void setProductInfo(const QString &organization, const QString &application = QString());
+    QString organization() const;
+    QString application() const;
+
     static QCoreApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 

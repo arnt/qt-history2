@@ -13,6 +13,7 @@ public:
     QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope, const QString &organization,
               const QString &application = QString());
     QSettings(const QString &fileName, Qt::SettingsFormat format);
+    QSettings();
     ~QSettings();
 
     inline void setValue(const QString &key, const QVariant &value)

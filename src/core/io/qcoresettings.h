@@ -28,6 +28,10 @@ public:
     QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
                     const QString &organization, const QString &application = QString());
     QCoreSettings(const QString &fileName, Qt::SettingsFormat format);
+#ifndef QT_BUILD_QMAKE
+     // qmake doesn't link against qcoreapplication, which this ctor needs
+     QCoreSettings();
+#endif
     ~QCoreSettings();
 
     void clear();

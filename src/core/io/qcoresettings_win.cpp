@@ -358,28 +358,33 @@ QWinSettingsPrivate::QWinSettingsPrivate(Qt::SettingsScope scope, const QString 
 {
     deleteWriteHandleOnExit = false;
 
-    QString prefix = QLatin1String("Software\\") + organization;
-    QString orgPrefix = prefix + QLatin1String("\\OrganizationDefaults");
-    QString appPrefix = prefix + QLatin1Char('\\') + application;
+    if (!organization.isEmpty()) {
+        QString prefix = QLatin1String("Software\\") + organization;
+        QString orgPrefix = prefix + QLatin1String("\\OrganizationDefaults");
+        QString appPrefix = prefix + QLatin1Char('\\') + application;
 
-    RegistryLocation loc;
-    if (scope == Qt::UserScope) {
-        if (!application.isEmpty()) {
-            if (createOrOpenKey(HKEY_CURRENT_USER, appPrefix, &loc))
+        RegistryLocation loc;
+        if (scope == Qt::UserScope) {
+            if (!application.isEmpty()) {
+                if (createOrOpenKey(HKEY_CURRENT_USER, appPrefix, &loc))
+                    regList.append(loc);
+            }
+
+            if (createOrOpenKey(HKEY_CURRENT_USER, orgPrefix, &loc))
                 regList.append(loc);
         }
 
-        if (createOrOpenKey(HKEY_CURRENT_USER, orgPrefix, &loc))
+        if (!application.isEmpty()) {
+            if (createOrOpenKey(HKEY_LOCAL_MACHINE, appPrefix, &loc))
+                regList.append(loc);
+        }
+
+        if (createOrOpenKey(HKEY_LOCAL_MACHINE, orgPrefix, &loc))
             regList.append(loc);
     }
 
-    if (!application.isEmpty()) {
-        if (createOrOpenKey(HKEY_LOCAL_MACHINE, appPrefix, &loc))
-            regList.append(loc);
-    }
-
-    if (createOrOpenKey(HKEY_LOCAL_MACHINE, orgPrefix, &loc))
-        regList.append(loc);
+    if (regList.isEmpty())
+        setStatus(QCoreSettings::AccessError);
 }
 
 QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
@@ -406,6 +411,9 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
         if (createOrOpenKey(HKEY_LOCAL_MACHINE, QString(), &loc))
             regList.append(loc);
     }
+
+    if (regList.isEmpty())
+        setStatus(QCoreSettings::AccessError);
 }
 
 bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const

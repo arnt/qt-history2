@@ -41,6 +41,7 @@ public:
     int &argc;
     char **argv;
     QEventLoop *eventLoop;
+    QString organization, application;
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
 #endif
