@@ -1539,7 +1539,8 @@ QSize QCheckTableItem::sizeHint() const
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     sz.setWidth( sz.width() + 6 );
     QSize sh( QTableItem::sizeHint() );
-    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) ).expandedTo( QApplication::globalStrut() );
+    return QSize( sh.width() + sz.width(), QMAX( sh.height(), sz.height() ) ).
+	expandedTo( QApplication::globalStrut() );
 }
 
 /*! \file table/small-table-demo/main.cpp */
@@ -1993,9 +1994,9 @@ void QTable::init( int rows, int cols )
     // Initialize headers
     int i = 0;
     for ( i = 0; i < numCols(); ++i )
-	topHeader->resizeSection( i, QMAX( 100, QApplication::globalStrut().width() ) );
+	topHeader->resizeSection( i, QMAX( 100, QApplication::globalStrut().height() ) );
     for ( i = 0; i < numRows(); ++i )
-	leftHeader->resizeSection( i, QMAX( 20, QApplication::globalStrut().height() ) );
+	leftHeader->resizeSection( i, QMAX( 20, QApplication::globalStrut().width() ) );
     topHeader->setUpdatesEnabled( TRUE );
     leftHeader->setUpdatesEnabled( TRUE );
 
@@ -5469,12 +5470,16 @@ void QTable::adjustColumn( int col )
     w = QMAX( w, 20 );
     for ( int i = 0; i < numRows(); ++i ) {
 	QTableItem *itm = item( i, col );
-	if ( !itm )
-	    continue;
-	if ( itm->colSpan() > 1 )
-	    w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
-	else
-	    w = QMAX( w, itm->sizeHint().width() );
+	if ( !itm ) {
+	    QWidget* widget = cellWidget( i, col );
+	    if ( widget )
+		w = QMAX( w, widget->sizeHint().width() );
+	} else {
+	    if ( itm->colSpan() > 1 )
+		w = QMAX( w, itm->sizeHint().width() / itm->colSpan() );
+	    else
+		w = QMAX( w, itm->sizeHint().width() );
+	}
     }
     w = QMAX( w, QApplication::globalStrut().width() );
     setColumnWidth( col, w );
@@ -5495,12 +5500,16 @@ void QTable::adjustRow( int row )
 	h = QMAX( h, leftHeader->iconSet( row )->pixmap().height() );
     for ( int i = 0; i < numCols(); ++i ) {
 	QTableItem *itm = item( row, i );
-	if ( !itm )
-	    continue;
-	if ( itm->rowSpan() > 1 )
-	    h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
-	else
-	    h = QMAX( h, itm->sizeHint().height() );
+	if ( !itm ) {
+	    QWidget* widget = cellWidget( i, row );
+	    if ( widget )
+		h = QMAX( h, widget->sizeHint().height() );
+	} else {
+	    if ( itm->rowSpan() > 1 )
+		h = QMAX( h, itm->sizeHint().height() / itm->rowSpan() );
+	    else
+		h = QMAX( h, itm->sizeHint().height() );
+	}
     }
     h = QMAX( h, QApplication::globalStrut().height() );
     setRowHeight( row, h );
