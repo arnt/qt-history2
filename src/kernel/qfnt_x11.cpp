@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#95 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#95 $");
 
 
 static const int fontFields = 14;
@@ -427,6 +427,8 @@ void QFont::initFontInfo() const
     QFontInternal *f = d->fin;
     if ( !f->s.dirty )				// already initialized
 	return;
+    f->s.lbearing = SHRT_MIN;
+    f->s.rbearing = SHRT_MIN;
     f->computeLineWidth();
     if ( exactMatch() ) {			// match: copy font description
 	f->s = d->req;
@@ -939,21 +941,18 @@ void *QFontMetrics::fontStruct() const
 #undef  FS
 #define FS (type() == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
 
-
-#undef RETURN_PRINTER_ADJUSTED
-#define RETURN_PRINTER_ADJUSTED(val) \
-    if ( type() == Painter && u.p->device() &&        	\
-	 u.p->device()->devType() == PDT_PRINTER ) {	\
-	QFont fnt =  u.p->font();				\
-	fnt.handle();					\
-	int xres = fnt.d->fin->xResolution();		\
-	return qRound((val)*75.0/(xres*1.0));		\
-    } else {						\
-	return (val);					\
-    }							\
-
-
-
+int QFontMetrics::printerAdjusted(int val) const
+{
+    if ( type() == Painter && u.p->device() &&        	
+	 u.p->device()->devType() == PDT_PRINTER ) {	
+	QFont fnt =  u.p->font();				
+	fnt.handle();					
+	int xres = fnt.d->fin->xResolution();		
+	return qRound(val*75.0/(xres*1.0));		
+    } else {						
+	return val;
+    }							
+}
 
 /*!
   Returns the maximum ascent of the font.
@@ -966,7 +965,7 @@ void *QFontMetrics::fontStruct() const
 
 int QFontMetrics::ascent() const
 {
-    RETURN_PRINTER_ADJUSTED(FS->max_bounds.ascent);
+    return printerAdjusted(FS->max_bounds.ascent);
 }
 
 
@@ -982,7 +981,7 @@ int QFontMetrics::ascent() const
 
 int QFontMetrics::descent() const
 {
-    RETURN_PRINTER_ADJUSTED(FS->max_bounds.descent - 1);
+    return printerAdjusted(FS->max_bounds.descent - 1);
 }
 
 /*!
@@ -1007,7 +1006,7 @@ int QFontMetrics::leftBearing(char ch) const
 {
     if ( !inFont(ch) )
 	ch = FS->default_char;
-    RETURN_PRINTER_ADJUSTED(FS->per_char[ch].lbearing);
+    return printerAdjusted(FS->per_char[ch].lbearing);
 }
 
 /*!
@@ -1022,7 +1021,7 @@ int QFontMetrics::rightBearing(char ch) const
 {
     if ( !inFont(ch) )
 	ch = FS->default_char;
-    RETURN_PRINTER_ADJUSTED(FS->per_char[ch].rbearing);
+    return printerAdjusted(FS->per_char[ch].rbearing);
 }
 
 /*!
@@ -1036,7 +1035,7 @@ int QFontMetrics::rightBearing(char ch) const
 int QFontMetrics::maxLeftBearing() const
 {
     // Don't need def->lbearing, the FS stores it.
-    RETURN_PRINTER_ADJUSTED(FS->min_bounds.lbearing);
+    return printerAdjusted(FS->min_bounds.lbearing);
 }
 
 /*!
@@ -1065,7 +1064,7 @@ int QFontMetrics::maxRightBearing() const
 	def->rbearing = mx;
     }
 
-    RETURN_PRINTER_ADJUSTED(def->rbearing);
+    return printerAdjusted(def->rbearing);
 }
 
 
@@ -1080,7 +1079,7 @@ int QFontMetrics::maxRightBearing() const
 int QFontMetrics::height() const
 {
     XFontStruct *f = FS;
-    RETURN_PRINTER_ADJUSTED(f->max_bounds.ascent + f->max_bounds.descent);
+    return printerAdjusted(f->max_bounds.ascent + f->max_bounds.descent);
 }
 
 /*!
@@ -1097,7 +1096,7 @@ int QFontMetrics::leading() const
     int l = f->ascent		 + f->descent -
 	    f->max_bounds.ascent - f->max_bounds.descent;
     if ( l > 0 ) {
-	RETURN_PRINTER_ADJUSTED(l)
+	return printerAdjusted(l);
     } else {
 	return 0;
     }
@@ -1137,7 +1136,7 @@ int QFontMetrics::width( const char *str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
-    RETURN_PRINTER_ADJUSTED(XTextWidth( FS, str, len ));
+    return printerAdjusted(XTextWidth( FS, str, len ));
 }
 
 
@@ -1161,6 +1160,8 @@ int QFontMetrics::width( const char *str, int len ) const
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
+    // Values are printerAdjusted during calculations.
+
     if ( len < 0 )
 	len = strlen( str );
     XFontStruct    *f = FS;
@@ -1187,6 +1188,13 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     }
 
     XTextExtents( f, str, len, &direction, &ascent, &descent, &overall );
+
+    overall.lbearing = printerAdjusted(overall.lbearing);
+    overall.rbearing = printerAdjusted(overall.rbearing);
+    overall.ascent = printerAdjusted(overall.ascent);
+    overall.descent = printerAdjusted(overall.descent);
+    overall.width = printerAdjusted(overall.width);
+
     int startX = overall.lbearing;
     int width  = overall.rbearing - startX;
     ascent     = overall.ascent;
@@ -1217,18 +1225,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 		ascent = soTop;
 	}
     }
-    if ( type() == Painter && u.p->device() &&
-	 u.p->device()->devType() == PDT_PRINTER ) {
-	QFont fnt =  u.p->font();
-	fnt.handle();
-	int xres = fnt.d->fin->xResolution();
-	return QRect( qRound((startX)*75.0/(xres*1.0)),
-		      qRound((-ascent)*75.0/(xres*1.0)),
-		      qRound((width)*75.0/(xres*1.0)),
-		      qRound((descent + ascent)*75.0/(xres*1.0)) );
-    } else {
-	return QRect( startX, -ascent, width, descent + ascent );
-    }
+    return QRect( startX, -ascent, width, descent + ascent );
 }
 
 
@@ -1238,7 +1235,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    RETURN_PRINTER_ADJUSTED(FS->max_bounds.width);
+    return printerAdjusted(FS->max_bounds.width);
 }
 
 
@@ -1252,7 +1249,7 @@ int QFontMetrics::underlinePos() const
 {
     int pos = (lineWidth()*2 + 3)/6;
     if ( pos ) {
-	RETURN_PRINTER_ADJUSTED(pos);
+	return pos;
     } else {
 	return 1;
     } 
@@ -1269,7 +1266,7 @@ int QFontMetrics::strikeOutPos() const
 {
     int pos = FS->max_bounds.ascent/3;
     if ( pos ) {
-	RETURN_PRINTER_ADJUSTED(pos);
+	return printerAdjusted(pos);
     } else {
 	return 1;
     } 
@@ -1289,7 +1286,7 @@ int QFontMetrics::lineWidth() const
     } else {
 	QFont f = font();
 	f.handle();
-	RETURN_PRINTER_ADJUSTED(f.d->fin->lineWidth());
+	return printerAdjusted(f.d->fin->lineWidth());
     }
 }
 

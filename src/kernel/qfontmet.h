@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#33 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#34 $
 **
 ** Definition of QFontMetrics class
 **
@@ -68,6 +68,7 @@ private:
     HDC hdc() const;
 #elif defined(_WS_X11_)
     void *fontStruct() const;
+    int printerAdjusted(int) const;
 #endif
 
     enum Type { FontInternal, Widget, Painter };
