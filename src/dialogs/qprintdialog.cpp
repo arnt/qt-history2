@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#64 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#65 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -466,7 +466,7 @@ static void parseQconfig( QListView * printers )
 
     QTextStream ts( &qconfig );
     QString line;
-    
+
     QString stanzaName; // either a queue or a device name
     bool up = TRUE; // queue up?  default TRUE, can be FALSE
     QString remoteHost; // null if local
@@ -486,7 +486,7 @@ static void parseQconfig( QListView * printers )
 	line = line.simplifyWhiteSpace();
 
 	if ( indented && line.contains( '=' ) ) { // line in stanza
-	    
+	
 	    int i = line.find( '=' );
 	    QString variable = line.left( i ).simplifyWhiteSpace();
 	    QString value=line.mid( i+1, line.length() ).simplifyWhiteSpace();
@@ -777,7 +777,7 @@ QGroupBox * QPrintDialog::setupDestination()
     d->fileName->setMinimumSize( d->fileName->sizeHint() );
     horiz->addWidget( d->fileName, 1 );
     horiz->addSpacing( 6 );
-    d->browse = new QPushButton( tr("Browse"), g, "browse files" );
+    d->browse = new QPushButton( tr("Browse..."), g, "browse files" );
     d->browse->setMinimumSize( d->browse->sizeHint() );
     connect( d->browse, SIGNAL(clicked()),
 	     this, SLOT(browseClicked()) );
