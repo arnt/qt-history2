@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#366 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#367 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2302,7 +2302,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		setAutoCapture( winId() );
 	} else if ( type == QEvent::MouseButtonRelease && bs == button ) {
 	    if ( QWidget::mouseGrabber() == 0 )
-		releaseAuto1Capture();
+		releaseAutoCapture();
 	}
 
 	QWidget *widget = this;
