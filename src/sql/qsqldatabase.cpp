@@ -230,7 +230,7 @@ QSqlDatabase* QSqlDatabase::database( const QString& name )
      <li>QMYSQL - MySQL Driver
      </ul>
 */
-QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 )
+QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname )
 : QObject(parent, objname)
 {
     init( type, name );
