@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#48 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#48 $");
 
 // ### clean up for 2.0
 
@@ -430,11 +430,13 @@ void QLabel::setAutoResize( bool enable )
     }
 }
 
+
 /*!
   Returns a size which fits the contents of the label.
 
   \bug Does not work well with the WordBreak flag
 */
+
 QSize QLabel::sizeHint() const
 {
     QPainter p;
