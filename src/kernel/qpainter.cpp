@@ -3668,6 +3668,8 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
     The color will only have an effect for monochrome pixmaps, i.e.
     for QPixmap::depth() == 1.
 
+    Pixmap brushes are currently not supported when printing on X11.
+
     \sa setColor(), setPixmap()
 */
 
@@ -3838,6 +3840,8 @@ void QBrush::setColor( const QColor &c )
 
     The current brush color will only have an effect for monochrome
     pixmaps, i.e. for QPixmap::depth() == 1.
+
+    Pixmap brushes are currently not supported when printing on X11.
 
     \sa pixmap(), color()
 */
