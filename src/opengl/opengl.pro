@@ -14,10 +14,14 @@ HEADERS += qgl.h \
 SOURCES	+= qgl.cpp \
 	   qglcolormap.cpp \
 	   qpaintengine_opengl.cpp
-x11:SOURCES += qgl_x11.cpp
-x11:!xft:DEFINES += QT_NO_XFT 
-x11:!xrandr:DEFINES += QT_NO_XRANDR 
-mac { 
+x11 {
+    SOURCES += qgl_x11.cpp
+    !contains(QT_CONFIG, xft):DEFINES += QT_NO_XFT
+    else:INCLUDEPATH += $$FREETYPE2_INCDIR
+    !contains(QT_CONFIG, xrandr):DEFINES += QT_NO_XRANDR
+}
+
+mac {
     SOURCES += qgl_mac.cpp
     LIBS += -framework Carbon
 }
