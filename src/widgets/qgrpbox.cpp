@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#9 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#9 $";
 #endif
 
 
@@ -108,7 +108,7 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
-	    tw = fm.width( str ) + 2*fm.width( ' ' );
+	    tw = fm.width( str, len ) + 2*fm.width( ' ' );
 	    if ( tw < cr.width() )
 		break;
 	    len--;
