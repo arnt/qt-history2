@@ -79,6 +79,51 @@ MetrowerksMakefileGenerator::writeMakefile(QTextStream &t)
 bool
 MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 {
+    //..grrr.. libs!
+    QStringList extra_objs;
+    bool do_libs = TRUE;
+    if(project->first("TEMPLATE") == "app") 
+	extra_objs += project->variables()["QMAKE_CRT_OBJECTS"];
+    else if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("staticlib"))
+	do_libs = FALSE;
+    if(do_libs)
+	extra_objs += project->variables()["QMAKE_LIBS"];
+    for(QStringList::Iterator val_it = extra_objs.begin(); 
+	val_it != extra_objs.end(); ++val_it) {
+	if((*val_it).left(2) == "-L") {
+	    QString dir((*val_it).right((*val_it).length()) - 2);
+	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		project->variables()["INCLUDEPATH"].append(dir);
+	} else if((*val_it).left(2) == "-l") {
+	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + "." + 
+			project->first("QMAKE_EXTENSION_SHLIB"));
+	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
+		project->variables()["LIBRARIES"].append(lib);
+	} else if((*val_it) == "-framework") {
+	    ++val_it;
+	    if(val_it == extra_objs.end())
+		break;
+	    QString frmwrk = (*val_it) + ".framework";
+	    if(project->variables()["FRAMEWORKS"].findIndex(frmwrk) == -1)
+		project->variables()["FRAMEWORKS"].append(frmwrk);
+	} else if((*val_it).left(1) != "-") {
+	    QString lib=(*val_it);
+	    int s = lib.findRev('/');
+	    if(s != -1) {
+		QString dir = lib.left(s);
+		lib = lib.right(lib.length() - s - 1);
+		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		    project->variables()["INCLUDEPATH"].append(dir);
+	    }
+	    project->variables()["LIBRARIES"].append(lib);
+	}
+    }
+    if(!project->isEmpty("DEFINES"))
+	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(project->first("TARGET") + 
+								 "_prefix.h");
+
     QString xmlfile = findTemplate(project->first("QMAKE_XML_TEMPLATE"));
     QFile file(xmlfile);
     if(!file.open(IO_ReadOnly )) {
@@ -368,7 +413,7 @@ MetrowerksMakefileGenerator::init()
     if( !project->isEmpty("LIBS") )
 	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if( project->variables()["QMAKE_EXTENSION_SHLIB"].isEmpty() )
-	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "lib" );
+	project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dylib" );
 
     if ( project->isActiveConfig("moc") ) {
 	project->variables()["MOCS"].append(project->variables()["TARGET"].first() + ".mocs");
@@ -439,51 +484,6 @@ MetrowerksMakefileGenerator::init()
     if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
        project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 	project->variables()["INCLUDEPATH"].append(dir);
-
-    //..grrr.. libs!
-    QStringList extra_objs;
-    bool do_libs = TRUE;
-    if(project->first("TEMPLATE") == "app") 
-	extra_objs += project->variables()["QMAKE_CRT_OBJECTS"];
-    else if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("staticlib"))
-	do_libs = FALSE;
-    if(do_libs)
-	extra_objs += project->variables()["QMAKE_LIBS"];
-    for(QStringList::Iterator val_it = extra_objs.begin(); 
-	val_it != extra_objs.end(); ++val_it) {
-	if((*val_it).left(2) == "-L") {
-	    QString dir((*val_it).right((*val_it).length()) - 2);
-	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
-	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
-		project->variables()["INCLUDEPATH"].append(dir);
-	} else if((*val_it).left(2) == "-l") {
-	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + "." + 
-			project->first("QMAKE_EXTENSION_SHLIB"));
-	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
-		project->variables()["LIBRARIES"].append(lib);
-	} else if((*val_it) == "-framework") {
-	    ++val_it;
-	    if(val_it == extra_objs.end())
-		break;
-	    QString frmwrk = (*val_it) + ".framework";
-	    if(project->variables()["FRAMEWORKS"].findIndex(frmwrk) == -1)
-		project->variables()["FRAMEWORKS"].append(frmwrk);
-	} else if((*val_it).left(1) != "-") {
-	    QString lib=(*val_it);
-	    int s = lib.findRev('/');
-	    if(s != -1) {
-		QString dir = lib.left(s);
-		lib = lib.right(lib.length() - s - 1);
-		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
-		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
-		    project->variables()["INCLUDEPATH"].append(dir);
-	    }
-	    project->variables()["LIBRARIES"].append(lib);
-	}
-    }
-
-    if(!project->isEmpty("DEFINES"))
-	project->variables()["CODEWARRIOR_PREFIX_HEADER"].append(project->first("TARGET") + "_prefix.h");
 
     //set the target up
     project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
@@ -617,4 +617,98 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool exists
     if(p.right(1) != ":")
 	p += ':';
     return TRUE;
+}
+
+void
+MetrowerksMakefileGenerator::processPrlFiles()
+{
+    QPtrList<MakefileDependDir> libdirs;
+    libdirs.setAutoDelete(TRUE);
+    const QString lflags[] = { "QMAKE_LIBS", QString::null };
+    for(int i = 0; !lflags[i].isNull(); i++) {
+	for(bool ret = FALSE; TRUE; ret = FALSE) {
+	    QStringList l_out;
+	    QStringList &l = project->variables()[lflags[i]];
+	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		QString opt = (*it);
+		if(opt.left(1) == "-") {
+		    if(opt.left(2) == "-L") {
+			QString r = opt.right(opt.length() - 2), l = r;
+			fixEnvVariables(l);
+			libdirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""),
+							     l.replace(QRegExp("\""),"")));
+		    } else if(opt.left(2) == "-l") {
+			QString lib = opt.right(opt.length() - 2), prl;
+			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
+			    if(processPrlFile(prl)) {
+				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
+				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
+				QRegExp reg("^.*lib(" + lib + "[^.]*)\\." + 
+					    project->first("QMAKE_EXTENSION_SHLIB") + "$");
+				if(reg.exactMatch(prl))
+				    prl = "-l" + reg.cap(1);
+				opt = prl;
+				ret = TRUE;
+				break;
+			    }
+			}
+		    } else if(opt == "-framework") {
+			l_out.append(opt);
+			++it;
+			opt = (*it);
+			QString prl = "/System/Library/Frameworks/" + opt +
+				      ".framework/" + opt + Option::prl_ext;
+			if(processPrlFile(prl))
+			    ret = TRUE;
+		    }
+		    if(!opt.isEmpty())
+			l_out.append(opt);
+		} else {
+		    if(processPrlFile(opt))
+			ret = TRUE;
+		    if(!opt.isEmpty())
+			l_out.append(opt);
+		}
+	    }
+	    if(ret)
+		l = l_out;
+	    else
+		break;
+	}
+    }
+}
+
+void
+MetrowerksMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
+{
+    if(var == "QMAKE_PRL_LIBS") {
+	QStringList &out = project->variables()["QMAKE_LIBS"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    bool append = TRUE;
+	    if((*it).left(1) == "-") {
+		if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+		    append = out.findIndex((*it)) == -1;
+		} else if((*it).left(2) == "-framework") {
+		    ++it;
+		    for(QStringList::ConstIterator outit = out.begin(); 
+			outit != out.end(); ++it) {
+			if((*outit) == "-framework") {
+			    ++outit;
+			    if((*outit) == (*it)) {
+				append = FALSE;
+				break;
+			    }
+			}
+		    }
+		}
+	    } else if(QFile::exists((*it))) {
+		append = out.findIndex((*it));
+	    }
+	    if(append)
+		out.append((*it));
+	}
+    } else {
+	MakefileGenerator::processPrlVariable(var, l);
+    }
 }

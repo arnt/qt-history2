@@ -58,6 +58,8 @@ public:
 
     QString defaultMakefile() const;
 protected:
+    virtual void processPrlFiles();
+    virtual void processPrlVariable(const QString &var, const QStringList &l);
     virtual bool doDepends() const { return FALSE; } //never necesary
 };
 

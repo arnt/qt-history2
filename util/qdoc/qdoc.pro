@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= warn_on console release qtinc
+CONFIG		= warn_on console release qtinc dylib
 DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE
 INCLUDEPATH	= ../../include
 DEPENDPATH	= ../../include
@@ -71,12 +71,18 @@ SOURCES		= binarywriter.cpp \
 		  ../../src/tools/qregexp.cpp \
 		  ../../src/tools/qstring.cpp \
 		  ../../src/tools/qstringlist.cpp \
-		  ../../src/tools/qtextstream.cpp
+		  ../../src/tools/qtextstream.cpp \
+		  ../../src/tools/qlibrary.cpp
 unix:SOURCES	+= ../../src/tools/qdir_unix.cpp \
 		  ../../src/tools/qfile_unix.cpp \
-		  ../../src/tools/qfileinfo_unix.cpp
-win32:SOURCES	+= ../../src/tools/qdir_win.cpp \
-		  ../../src/tools/qfile_win.cpp \
-		  ../../src/tools/qfileinfo_win.cpp
-win32:LIBS	+= ole32.lib
+		  ../../src/tools/qfileinfo_unix.cpp 
+mac:SOURCES       += ../../src/tools/qlibrary_mac.cpp
+else:unix:SOURCES += ../../src/tools/qlibrary_unix.cpp
+win32 {
+   SOURCES	+= ../../src/tools/qdir_win.cpp \
+	  	   ../../src/tools/qfile_win.cpp \
+		   ../../src/tools/qfileinfo_win.cpp \
+		   ../../src/tools/qlibrary_win.cpp
+   LIBS	        += ole32.lib
+}
 TARGET		= qdoc

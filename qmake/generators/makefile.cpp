@@ -207,7 +207,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 
     QString fndir;
     int dl = fn.findRev(Option::dir_sep);
-    if(dl != -1)
+    if(dl != -1) 
 	fndir = fn.left(dl+1);
 
     int file = open(fn.latin1(), O_RDONLY);
@@ -319,11 +319,14 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
-		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) &&
+		   ((Option::target_mode == Option::TARG_UNIX_MODE || 
+		     Option::target_mode == Option::TARG_MACX_MODE) &&
 		    inc[0] != '/')) {
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
-			if(QFile::exists(mdd->local_dir + QDir::separator() + inc))
+			if(QFile::exists(mdd->local_dir + QDir::separator() + inc)) {
 			    fqn = mdd->real_dir + QDir::separator() + inc;
+			    break;
+			}
 		    }
 		}
 	    }
@@ -381,7 +384,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 
 	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
 	    fileFixify(fqn);
-
+	    debug_msg(4, "Resolved dependancy of %s to %s", inc.latin1(), fqn.latin1());
 	    if(fndeps.findIndex(fqn) == -1)
 		fndeps.append(fqn);
 	}
@@ -673,8 +676,10 @@ MakefileGenerator::init()
 			if(!found_cache_moc || !found_cache_dep) 
 			    write_cache = TRUE;
 		    }
-		    if(!found_cache_dep && sources[x] != "OBJECTS") 
+		    if(!found_cache_dep && sources[x] != "OBJECTS") {
+			debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
 			generateDependencies(deplist, (*val_it), doDepends());
+		    }
 		    if(!found_cache_moc && mocAware() && 
 		       (sources[x] == "SOURCES" || sources[x] == "HEADERS") && 
 		       (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
