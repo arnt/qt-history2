@@ -262,7 +262,7 @@ public:
 		QString type = meta->paramType(signame, p, &out);
 		if (out) {
 		    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
-		    QVariantToVARIANT(varp[p], *arg, type);
+		    QVariantToVARIANT(varp[p], *arg, type, out);
 		}
 	    }
 	    delete [] argv;
@@ -1445,7 +1445,7 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 		str += "&";
 	    else if ( str == "QDateTime" )
 		str += "&";
-	    else if ( str == "QList<QVariant>" )
+	    else if ( str == "QVariantList" )
 		str += "&";
 	    else if ( str == "QByteArray" )
 		str += "&";
@@ -1465,6 +1465,9 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 	    break;
 	} else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
 	    str = "QStringList";
+	    break;
+	} else if (tdesc.lpadesc->tdescElem.vt == VT_VARIANT) {
+	    str = "QVariantList";
 	    break;
 	}
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, function );
