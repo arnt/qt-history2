@@ -16,9 +16,15 @@ Limitations:
 
   aix-g++ and ultrix-g++ do not support shared libraries, use static.
 
+Compilation problems:
+
+  Qt 2.0 has problems compiling on some combinations of operating
+  system versions and compiler versions.  We do not yet know the full
+  extent of these problems, but see http://www.troll.no/platforms/
+
 Example:
 
-  ./configure -platform irix-n32 -shared -debug
+  ./configure -platform irix-64 -shared -debug
 
 Customization:
 
