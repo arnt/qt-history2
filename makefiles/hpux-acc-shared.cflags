@@ -1,8 +1,0 @@
-CC="aCC"
-CFLAGS="-O -w -D__STRICT_ANSI__"
-LIBCFLAGS="+Z"
-YACCCFLAGS=""
-LFLAGS=""
-LIBS="-lqt"
-SHELL="/bin/sh"
-

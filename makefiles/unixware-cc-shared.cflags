@@ -1,7 +1,0 @@
-CC="CC"
-CFLAGS="-O -D_UNIXWARE"
-LIBCFLAGS="-K pic"
-YACCCFLAGS=""
-LFLAGS=""
-LIBS="-lqt"
-SHELL="/bin/sh"
