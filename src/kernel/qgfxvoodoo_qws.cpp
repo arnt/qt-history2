@@ -34,9 +34,15 @@
 
 #ifndef QT_NO_QWS_VOODOO3
 
-#include "qgfxlinuxfb_qws.h"
-
+#include "qgfxvoodoo_qws.h"
+#include "qgfxraster_qws.h"
 #include "qimage.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // This is intended as an example of an accelerated driver, as is
 // Mach64 driver. The Mach64 driver implements more functionality;
@@ -688,24 +694,6 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 // This does card-specific setup and constructs accelerated gfx's and
 // the accelerated cursor
 
-class QVoodooScreen : public QLinuxFbScreen {
-
-public:
-
-    QVoodooScreen( int display_id );
-    virtual ~QVoodooScreen();
-    virtual bool connect( const QString &spec );
-    virtual bool initDevice();
-    virtual void shutdownDevice();
-    virtual int initCursor(void *,bool);
-    virtual bool useOffscreen() { return false; }
-
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-    unsigned char * voodoo_regbase;
-
-};
-
 #ifndef QT_NO_QWS_CURSOR
 class QVoodooCursor : public QScreenCursor
 {
@@ -789,6 +777,8 @@ QVoodooScreen::QVoodooScreen( int display_id  )
     : QLinuxFbScreen( display_id )
 {
 }
+
+bool QVoodooScreen::useOffscreen() { return false; }
 
 bool QVoodooScreen::connect( const QString &spec )
 {
@@ -946,11 +936,6 @@ QGfx * QVoodooScreen::createGfx(unsigned char * b,int w,int h,int d,
 }
 
 extern bool qws_accel;
-
-extern "C" QScreen * qt_get_screen_voodoo3( int display_id )
-{
-    return new QVoodooScreen( display_id );
-}
 
 #ifndef QT_NO_QWS_CURSOR
 

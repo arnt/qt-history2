@@ -16,7 +16,9 @@ public:
     QGfxDriverPlugin();
     ~QGfxDriverPlugin();
 
+#ifndef QT_NO_STRINGLIST
     virtual QStringList keys() const = 0;
+#endif
     virtual QScreen* create( const QString& driver, int displayId ) = 0;
 
 private:

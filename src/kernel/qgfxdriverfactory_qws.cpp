@@ -41,6 +41,7 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxtransformed_qws.h"
 #include "qgfxmach64_qws.h"
+#include "qgfxvoodoo_qws.h"
 #include "qgfxvfb_qws.h"
 #include "qgfxvnc_qws.h"
 #include "qgfxvga16_qws.h"
@@ -103,7 +104,7 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 {
     QString driver = key.lower();
 #ifndef QT_NO_QWS_LINUXFB
-    if ( driver == "linuxfb" )
+    if ( driver == "linuxfb" || driver.isEmpty() ) // also default driver
         return new QLinuxFbScreen( displayId );
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
@@ -113,6 +114,10 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 #ifndef QT_NO_QWS_MACH64
     if ( driver == "mach64" )
         return new QMachScreen( displayId );
+#endif
+#ifndef QT_NO_QWS_VOODOO3
+    if ( driver == "voodoo3" )
+        return new QVoodooScreen( displayId );
 #endif
 #ifndef QT_NO_QWS_VFB
     if ( driver == "qvfb" )
@@ -156,14 +161,6 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 QStringList QGfxDriverFactory::keys()
 {
     QStringList list;
-#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QGfxDriverFactoryPrivate;
-
-    list = QGfxDriverFactoryPrivate::manager->featureList();
-#endif //QT_NO_COMPONENT
-#endif //QT_MAKEDLL
 
 #ifndef QT_NO_QWS_LINUXFB
     if ( !list.contains( "LinuxFb" ) )
@@ -176,6 +173,10 @@ QStringList QGfxDriverFactory::keys()
 #ifndef QT_NO_QWS_MACH64
     if ( !list.contains( "Mach64" ) )
 	list << "Mach64";
+#endif
+#ifndef QT_NO_QWS_VOODOO3
+    if ( !list.contains( "Voodoo3" ) )
+	list << "Voodoo3";
 #endif
 #ifndef QT_NO_QWS_VFB
     if ( !list.contains( "QVFb" ) )
@@ -193,6 +194,15 @@ QStringList QGfxDriverFactory::keys()
     if ( !list.contains( "ShadowFb" ) )
 	list << "ShadowFb";
 #endif
+
+#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
+#ifndef QT_NO_COMPONENT
+    if ( !instance )
+	instance = new QGfxDriverFactoryPrivate;
+
+    list += QGfxDriverFactoryPrivate::manager->featureList();
+#endif //QT_NO_COMPONENT
+#endif //QT_MAKEDLL
 
     return list;
 }

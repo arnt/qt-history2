@@ -17,7 +17,6 @@ embedded {
 		    $$KERNEL_H/qgfxlinuxfb_qws.h \
 		    $$KERNEL_H/qgfxmatroxdefs_qws.h \
 		    $$KERNEL_H/qgfxraster_qws.h \
-		    $$KERNEL_H/qgfxvoodoodefs_qws.h \
 		    $$KERNEL_H/qlock_qws.h \
 		    $$KERNEL_H/qmemorymanager_qws.h \
 		    $$KERNEL_H/qsoundqss_qws.h \
@@ -145,6 +144,13 @@ embedded {
 		SOURCES += $$KERNEL_CPP/qgfxmach64_qws.cpp
 	}
 	else:DEFINES += QT_NO_QWS_MACH64
+
+	contains( gfx-drivers, voodoo ) {
+		HEADERS += $$KERNEL_H/qgfxvoodoo_qws.h \
+			   $$KERNEL_H/qgfxvoodoodefs_qws.h
+		SOURCES += $$KERNEL_CPP/qgfxvoodoo_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_VOODOO3
 
 	contains( gfx-drivers, shadow ) {
 		HEADERS += $$KERNEL_H/qgfxshadow_qws.h

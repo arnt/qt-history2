@@ -38,13 +38,6 @@
 #include "qwsdisplay_qws.h"
 
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
 // Fine! But could you please explain what actually happens here?
@@ -5785,12 +5778,12 @@ bool QScreen::supportsDepth(int d) const
     } else if(d==4) {
 	return TRUE;
 #endif
-#ifndef QT_NO_QWS_DEPTH_16
-    } else if(d==16) {
-	return TRUE;
-#endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if(d==8) {
+	return TRUE;
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+    } else if(d==16) {
 	return TRUE;
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
@@ -5826,13 +5819,13 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
     } else if(d==4) {
 	ret = new QGfxRaster<4,0>(bytes,w,h);
 #endif
-#ifndef QT_NO_QWS_DEPTH_16
-    } else if(d==16) {
-	ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+    } else if(d==16) {
+	ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
     } else if(d==24) {
@@ -5897,10 +5890,6 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #include "qwsgfx_qnx.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_VOODOO3)
-# include "qgfxvoodoo_qws.cpp"
-#endif
-
 #if !defined(QT_NO_QWS_MATROX)
 # include "qgfxmatrox_qws.cpp"
 #endif
@@ -5926,9 +5915,6 @@ struct DriverTable
 #endif
 #if !defined(QT_NO_QWS_REPEATER)
     { "Repeater", qt_get_screen_repeater, 0 },
-#endif
-#if !defined(QT_NO_QWS_VOODOO3)
-    { "Voodoo3", qt_get_screen_voodoo3, 1 },
 #endif
 #if !defined(QT_NO_QWS_MATROX)
     { "Matrox", qt_get_screen_matrox, 1 },
@@ -5981,12 +5967,16 @@ QScreen *qt_get_screen( int display_id, const char *spec )
 	driver.truncate( colon );
 
     bool foundDriver = FALSE;
+    QString driverName = driver;
 
+#ifndef QT_NO_STRINGLIST
     QStringList driverList = QGfxDriverFactory::keys();
     QStringList::Iterator it;
     for ( it = driverList.begin(); it != driverList.end(); ++it ) {
 	if ( driver.isEmpty() || QString( *it ) == driver ) {
-	    qt_screen = QGfxDriverFactory::create( *it, display_id );
+	    driverName = *it;
+#endif
+	    qt_screen = QGfxDriverFactory::create( driverName, display_id );
 	    if ( qt_screen ) {
 		foundDriver = TRUE;
 		if ( qt_screen->connect( spec ) ) {
@@ -5996,15 +5986,17 @@ QScreen *qt_get_screen( int display_id, const char *spec )
 		    qt_screen = 0;
 		}
 	    }
+#ifndef QT_NO_STRINGLIST
 	}
     }
+#endif
 
     if ( driver.isNull() )
 	qFatal( "No suitable driver found" );
     else if ( foundDriver )
-	qFatal( "%s driver not found", driver.latin1() );
+	qFatal( "%s: driver cannot connect", driver.latin1() );
     else
-	qFatal( "%s driver cannot connect", driver.latin1() );
+	qFatal( "%s: driver not found", driver.latin1() );
 
     return 0;
 }
