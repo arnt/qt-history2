@@ -91,6 +91,7 @@
 #include <qtimer.h>
 #include <qlistbox.h>
 #include <stdlib.h>
+#include <qdockwidget.h>
 
 static int forms = 0;
 
@@ -155,6 +156,7 @@ MainWindow::MainWindow( bool asClient )
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
 #else
     layoutToolBar = new QToolBar( this, "Layout" );
+    layoutToolBar->setCloseMode( QDockWidget::Undocked );
 #endif
     addToolBar( layoutToolBar, tr( "Layout" ) );
     setupToolActions();
@@ -343,6 +345,7 @@ void MainWindow::setupEditActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Edit" );
+    tb->setCloseMode( QDockWidget::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Edit toolbar</b>%1").arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "Edit" ) );
@@ -513,6 +516,7 @@ void MainWindow::setupToolActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Tools" );
+    tb->setCloseMode( QDockWidget::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 					
@@ -552,6 +556,7 @@ void MainWindow::setupToolActions()
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, grp.latin1() );
+	tb->setCloseMode( QDockWidget::Undocked );
 #endif
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
@@ -609,6 +614,7 @@ void MainWindow::setupToolActions()
 	tb->setFullSize( FALSE );
 #else
 	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
+	tb->setCloseMode( QDockWidget::Undocked );
 #endif
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
 				 "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> menu to "
@@ -635,6 +641,7 @@ void MainWindow::setupFileActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "File" );
+    tb->setCloseMode( QDockWidget::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "File" ) );
@@ -950,6 +957,7 @@ void MainWindow::setupHelpActions()
     tb->setFullSize( FALSE );
 #else
     QToolBar *tb = new QToolBar( this, "Help" );
+    tb->setCloseMode( QDockWidget::Undocked );
 #endif
     QWhatsThis::add( tb, tr( "<b>The Help toolbar</b>%1" ).arg(tr(toolbarHelp).arg("") ));
     addToolBar( tb, tr( "Help" ) );
@@ -969,11 +977,9 @@ void MainWindow::setupHelpActions()
 
 void MainWindow::setupPropertyEditor()
 {
-    DockWidget *dw = new DockWidget;
+    QDockWidget *dw = new QDockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWidget::Always );
-    connect( dw, SIGNAL( showMe( bool ) ),
-	     this, SLOT( windowPropertyEditor( bool ) ) );
     propertyEditor = new PropertyEditor( dw );
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
@@ -999,11 +1005,9 @@ void MainWindow::setupHierarchyView()
 {
     if ( hierarchyView )
 	return;
-    DockWidget *dw = new DockWidget;
+    QDockWidget *dw = new QDockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWidget::Always );
-    connect( dw, SIGNAL( showMe( bool ) ),
-	     this, SLOT( windowHierarchyView( bool ) ) );
     hierarchyView = new HierarchyView( dw );
     addToolBar( dw, Qt::Right );
     dw->setWidget( hierarchyView );
@@ -1024,11 +1028,9 @@ void MainWindow::setupHierarchyView()
 
 void MainWindow::setupFormList()
 {
-    DockWidget *dw = new DockWidget;
+    QDockWidget *dw = new QDockWidget;
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWidget::Always );
-    connect( dw, SIGNAL( showMe( bool ) ),
-	     this, SLOT( windowFormList( bool ) ) );
     formList = new FormList( dw, this );
     addToolBar( dw, Qt::Bottom );
     dw->setWidget( formList );
@@ -2104,6 +2106,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	correctGeometry( hierarchyView, workspace );
 	correctGeometry( formList, workspace );
 	checkTempFiles();
+	connect( propertyEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		 this, SLOT( windowPropertyEditor( bool ) ) );
+	connect( hierarchyView->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		 this, SLOT( windowHierarchyView( bool ) ) );
+	connect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		 this, SLOT( windowFormList( bool ) ) );
 	return TRUE;
 	break;
     case QEvent::Wheel:
@@ -2982,6 +2990,12 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	    return;
 	}
     }
+    disconnect( propertyEditor->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		this, SLOT( windowPropertyEditor( bool ) ) );
+    disconnect( hierarchyView->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		this, SLOT( windowHierarchyView( bool ) ) );
+    disconnect( formList->parentWidget(), SIGNAL( visibilityChanged( bool ) ),
+		this, SLOT( windowFormList( bool ) ) );
     hide();
     if ( help )
 	help->close();
@@ -3400,6 +3414,7 @@ void MainWindow::setupActionManager()
 	    tb->setFullSize( FALSE, grp.latin1() );
 #else
 	    tb = new QToolBar( this, grp.latin1() );
+	    tb->setCloseMode( QDockWidget::Undocked );
 #endif
 	    addToolBar( tb, grp );
 	}
