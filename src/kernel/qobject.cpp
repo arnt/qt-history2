@@ -1896,7 +1896,7 @@ QMetaObject* QObject::staticMetaObject()
 	{ "RichText", (int) Qt::RichText },
 	{ "AutoText", (int) Qt::AutoText }
     };
-    
+
     static const QMetaEnum::Item enum_3[] = {
         { "FixedColor",  (int) Qt::FixedColor },
         { "FixedPixmap",  (int) Qt::FixedPixmap },
@@ -1925,25 +1925,23 @@ QMetaObject* QObject::staticMetaObject()
 	{ "BackgroundMode", 18, enum_3, FALSE }
     };
 
-    QMetaData *slot_tbl = new QMetaData[1];
-    static const UMethod method_slot_1 = {"cleanupEventFilter", 0,  0 };
-    slot_tbl[0].name = "cleanupEventFilter()";
-    slot_tbl[0].ptr = 0;
-    slot_tbl[0].method = &method_slot_1;
-    slot_tbl[0].access = QMetaData::Private;
-    QMetaData *signal_tbl = new QMetaData[1];
+    static const UMethod method_slot_0 = {"cleanupEventFilter", 0,  0 };
+    int slot_offset = 0;
+    static const QMetaData slot_tbl[] = {
+	{ "cleanupEventFilter()", slot_offset + 0, &method_slot_0, QMetaData::Private }
+    };
     static const UMethod method_signal_0 = {"destroyed", 0,  0 };
-    signal_tbl[0].name = "destroyed()";
-    signal_tbl[0].ptr = 0;
-    signal_tbl[0].method = &method_signal_0;
-    signal_tbl[0].access = QMetaData::Protected;
+    int signal_offset = 0;
+    static const QMetaData signal_tbl[] = {
+	{ "destroyed()", signal_offset + 0, &method_signal_0, QMetaData::Public }
+    };
 #ifndef QT_NO_PROPERTIES
-    QMetaProperty *props_tbl = new QMetaProperty[1];
-    props_tbl[0].t = "QCString";
-    props_tbl[0].n = "name";
-    props_tbl[0].id = 0;
-    props_tbl[0].setFlags(QMetaProperty::Readable|QMetaProperty::Writable|QMetaProperty::StdSet);
-#endif
+    int pid = 0;
+    static QMetaProperty props_tbl[1];
+    QMetaProperty *p = props_tbl;
+    p->t = "QCString"; p->n = "name"; p->id = pid++;
+    p->setFlags(QMetaProperty::Readable|QMetaProperty::Writable|QMetaProperty::StdSet);
+#endif // QT_NO_PROPERTIES
     metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,
 	signal_tbl, 1,

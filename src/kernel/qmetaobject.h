@@ -188,9 +188,6 @@ public:
 					const QMetaEnum *enum_data, int n_enums,
 #endif
 					const QClassInfo * class_info, int n_info );
-#ifndef QT_NO_PROPERTIES
-    static QMetaProperty	*new_metaproperty( int );
-#endif
 
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
 

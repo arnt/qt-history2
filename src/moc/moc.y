@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#245 $
+** $Id: //depot/qt/main/src/moc/moc.y#246 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2171,7 +2171,7 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    while ( a ) {
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
-		if( a->name.isEmpty() ) 
+		if( a->name.isEmpty() )
 		    fprintf( out, "\t{ 0, pUType_%s, %s, UParameter::%s }",
 			     uType( type ).data(), uTypeExtra( type ).data(),
 			     isInOut( type ) ? "InOut" : "In" );
@@ -2187,13 +2187,13 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    fprintf( out, "\n    };\n");
 	}
 	
-	fprintf( out, "    static const UMethod method_%s_%d = {", functype, list->at() );
+	fprintf( out, "    static const UMethod %s_%d = {", functype, list->at() );
 	int n = f->args->count();
 	if ( hasReturnValue )
 	    n++;
-	fprintf( out, "\"%s\", %d, ", f->name.data(), n );
+	fprintf( out, "\"%s\", %d,", f->name.data(), n );
 	if ( n )
-	    fprintf( out, "param_%s_%d };\n", functype, list->at() );
+	    fprintf( out, " param_%s_%d };\n", functype, list->at() );
 	else
 	    fprintf( out, " 0 };\n" );
 	
@@ -2218,12 +2218,12 @@ void generateFuncs( FuncList *list, const char *functype, int num )
     if ( list->count() ) {
 	fprintf( out, "    int %s_offset = parentObject->%sOffset() + parentObject->numS%ss();\n",
 		 functype, functype, functype+1 );
-	fprintf(out,"    static const QMetaData %s_tbl [] = {\n", functype );
+	fprintf(out,"    static const QMetaData %s_tbl[] = {\n", functype );
 	f = list->first();
 	while ( f ) {
 	    fprintf( out, "\t{ \"%s\",", f->signature.data() );
 	    fprintf( out, " %s_offset + %d,", functype, list->at() );
-	    fprintf( out, " &method_%s_%d,", functype, list->at() );
+	    fprintf( out, " &%s_%d,", functype, list->at() );
 	    fprintf( out, " QMetaData::%s }", f->accessAsString() );
 	    f = list->next();
 	    if ( f )
@@ -2547,15 +2547,14 @@ int generateProps()
     //
     if ( g->props.count() )
     {
-	fprintf( out, "    int props_offset = parentObject->propertyOffset() + parentObject->numProperties();\n");
-	fprintf( out, "    QMetaProperty *props_tbl = QMetaObject::new_metaproperty( %d );\n", g->props.count() );
-	int count = 0;
-	int entry = 0;
+	fprintf( out, "    int id = parentObject->propertyOffset() + parentObject->numProperties();\n");
+	fprintf( out, "    static QMetaProperty props_tbl[%d]; ", g->props.count() );
+	fprintf( out, "QMetaProperty *p; int e = 0;\n", g->props.count() );
 	for( QListIterator<Property> it( g->props ); it.current(); ++it ){
 
-	    fprintf( out, "    props_tbl[%d].t = \"%s\";\n", entry,  it.current()->type.data() );
-	    fprintf( out, "    props_tbl[%d].n = \"%s\";\n", entry, it.current()->name.data() );
-	    fprintf( out, "    props_tbl[%d].id = props_offset + %d;\n", entry, entry );
+	    fprintf( out, "    (p=&props_tbl[e++])->t = \"%s\"; ", it.current()->type.data() );
+	    fprintf( out, "p->n = \"%s\"; ", it.current()->name.data() );
+	    fprintf( out, "p->id = id++;\n" );
 
 	    QCString flags;
 	    if ( !isVariantType( it.current()->type ) ) {
@@ -2569,9 +2568,9 @@ int generateProps()
 
 		// Is it an enum of this class ?
 		if ( enumpos != -1 )
-		    fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
+		    fprintf( out, "    p->enumData = &enum_tbl[%i];\n", enumpos );
 		else
-		    fprintf( out, "    props_tbl[%d].enumData = parentObject->enumerator( \"%s\", TRUE );\n", entry, it.current()->type.data() );
+		    fprintf( out, "    p->enumData = parentObject->enumerator( \"%s\", TRUE );\n", it.current()->type.data() );
 	    }
 
 	    if ( it.current()->getfunc )
@@ -2584,11 +2583,11 @@ int generateProps()
 	    if (!flags.isEmpty() ) {
 		if ( flags[ (int) flags.length() - 1] == '|' )
 		    flags.remove( flags.length()-1, 1);
-		fprintf( out, "    props_tbl[%d].setFlags(%s);\n", entry, flags.data() );
+		fprintf( out, "    p->setFlags(%s);\n", flags.data() );
 	    }
 
 	    if ( it.current()->override ) {
-		fprintf( out, "    props_tbl[%d].p = parentObject->property( \"%s\", TRUE);\n", entry, it.current()->name.data() );
+		fprintf( out, "    p->p = parentObject->property( \"%s\", TRUE);\n", it.current()->name.data() );
 		flags = "";
 		if ( !it.current()->getfunc )
 		    flags += "QMetaProperty::Readable|";
@@ -2599,12 +2598,9 @@ int generateProps()
 		if (!flags.isEmpty() ) {
 		    if ( flags[ (int) flags.length() - 1] == '|' )
 			flags.remove( flags.length()-1, 1);
-		    fprintf( out, "    props_tbl[%d].copyFlags(%s);\n", entry, flags.data() );
+		    fprintf( out, "    p->copyFlags(%s);\n", flags.data() );
 		}
 	    }
-	
-	    ++entry;
-	    count += 3;
 	}
     }
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
@@ -2640,7 +2636,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#245 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#246 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2716,7 +2712,7 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate static metaObj variable
 //
-    fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)qualifiedClassName());
+    fprintf( out, "QMetaObject *%s::metaObj = 0;\n", (const char*)qualifiedClassName());
 
 //
 // Generate static cleanup object variable
@@ -2733,7 +2729,7 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate tr member function ### 3.0 one function
 //
-    fprintf( out, "#ifndef QT_NO_TRANSLATION\n\n" );
+    fprintf( out, "#ifndef QT_NO_TRANSLATION\n" );
     fprintf( out, "QString %s::tr(const char* s)\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    return qApp->translate"
@@ -2741,7 +2737,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "QString %s::tr(const char* s, const char * c)\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    return qApp->translate"
-	     "( \"%s\", s, c );\n}\n\n", (const char*)qualifiedClassName() );
+	     "( \"%s\", s, c );\n}\n", (const char*)qualifiedClassName() );
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //
@@ -2996,7 +2992,7 @@ void generateClass()		      // generate C++ source code for a class
 	for ( f = g->signals.first(); f; f = g->signals.next() ) {
 	    signalindex ++;
 	    if ( f->type == "void" && f->args->isEmpty() ) {
-		fprintf( out, "    case %d: %s();break;\n", signalindex, f->name.data() );
+		fprintf( out, "    case %d: %s(); break;\n", signalindex, f->name.data() );
 		continue;
 	    }
 	
@@ -3029,7 +3025,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, ")" );
 	    if ( hasReturn )
 		fprintf( out, ")" );
-	    fprintf( out, ";break;\n" );
+	    fprintf( out, "; break;\n" );
 	}
 	fprintf( out, "    default:\n" );
 	if ( !g->superClassName.isEmpty() )
@@ -3083,13 +3079,13 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 	    if ( it.current()->getfunc ) {
 		if ( it.current()->gspec == Property::Pointer )
-		    fprintf( out, "\tcase 1: if ( %s() ) { QVariant &_v_ = *_v; _v_ = QVariant( %s*%s()%s ); } break;\n",
+		    fprintf( out, "\tcase 1: if ( %s() ) { QVariant &_v_=*_v;_v_= QVariant( %s*%s()%s ); } break;\n",
 			     it.current()->getfunc->name.data(),
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
 		else
-		    fprintf( out, "\tcase 1: { QVariant &_v_ = *_v; _v_ = QVariant( %s%s()%s ); } break;\n",
+		    fprintf( out, "\tcase 1: { QVariant &_v_=*_v;_v_= QVariant( %s%s()%s ); } break;\n",
 			     !isVariantType( it.current()->type ) ? "(int)" : "",
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );

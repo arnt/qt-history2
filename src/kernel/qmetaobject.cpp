@@ -213,10 +213,6 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
  */
 QMetaObject::~QMetaObject()
 {
-#ifndef QT_NO_PROPERTIES
-    if ( d->propData )
-	delete [] d->propData;
-#endif
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
@@ -380,15 +376,6 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 #endif
 			    class_info, n_info );
 }
-
-#ifndef QT_NO_PROPERTIES
-/*!\internal
- */
-QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
-{
-    return numEntries > 0 ? new QMetaProperty[numEntries] : 0;
-}
-#endif
 
 
 /*!\internal
