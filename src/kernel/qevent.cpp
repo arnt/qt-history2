@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#38 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#38 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -375,7 +375,7 @@ void QEvent::peErrMsg()				// posted event error message
 
   The event handler QWidget::paintEvent() receives paint events.
 
-  \sa QWidget::update(), QWidget::repaint()
+  \sa QPainter, QWidget::update(), QWidget::repaint()
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#101 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#101 $");
 
 
 /*!
@@ -591,7 +591,8 @@ void QObject::blockSignals( bool block )
 //
 
 /*!
-  Starts a timer and returns a timer identifier.
+  Starts a timer and returns a timer identifier, or returns zero if
+  it could not start a timer.
 
   A timer event will occur every \e interval milliseconds until killTimer()
   or killTimers() is called.
