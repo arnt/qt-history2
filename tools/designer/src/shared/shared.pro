@@ -15,6 +15,8 @@ LIBS += \
     -L../../lib \
     -luilib
 
+unix:!mac:LIBS += -lm
+
 # Input
 HEADERS += \
     shared_global.h \
