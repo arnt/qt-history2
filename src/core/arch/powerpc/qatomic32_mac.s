@@ -12,9 +12,9 @@ _q_atomic_test_and_set_int:
         bne-   $+20
         stwcx. r5,0,r3
         bne-   $-16
-        addi   r3,r0,1
+        addi   r3,0,1
         blr
-        addi   r3,r0,0
+        addi   r3,0,0
 	blr
 
 	.align 2
@@ -27,9 +27,9 @@ _q_atomic_test_and_set_ptr:
         bne-   $+20
         stwcx. r5,0,r3
         bne-   $-16
-        addi   r3,r0,1
+        addi   r3,0,1
         blr
-        addi   r3,r0,0
+        addi   r3,0,0
 	blr
 
 	.align 2
@@ -37,9 +37,8 @@ _q_atomic_test_and_set_ptr:
         .section __TEXT,__text,regular,pure_instructions
 	.align 2
 _q_atomic_increment:
-	li r4,1
 	lwarx  r4,0,r3
-        add    r4,r4,r2
+        addi   r4,r4,1
         stwcx. r4,0,r3
         bne-   $-12
 	mr     r3,r4
@@ -50,9 +49,8 @@ _q_atomic_increment:
         .section __TEXT,__text,regular,pure_instructions
 	.align 2
 _q_atomic_decrement:
-	li r4,-1
 	lwarx  r4,0,r3
-        add    r4,r4,r2
+        subi   r4,r4,1
         stwcx. r4,0,r3
         bne-   $-12
 	mr     r3,r4
