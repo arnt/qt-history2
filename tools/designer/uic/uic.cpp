@@ -906,7 +906,6 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // database support
-
     if ( dbAware ) {
 	QString defaultTable = getDatabaseInfo( e, "table" );
 	out << endl << indent << "// database support" << endl;
@@ -1437,7 +1436,11 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		    out << indent << parent << "->insert( " << objName << ", " << value << " );" << endl;
 		continue;
 	    }
-
+	    if ( prop == "sort" ) {
+		out << indent << "QStringList " << objName << "Sort;" << endl;
+		out << indent << objName << "Sort << \"" << value << "\";" << endl;
+		value = objName + "Sort";
+	    }
 	    if ( prop == "geometry") {
 		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
 	    } else {
@@ -2159,6 +2162,18 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	}
 	v = "QDateTime( QDate( %1, %2, %3 ), QTime( %4, %5, %6 ) )";
 	v = v.arg(y).arg(mo).arg(d).arg(h).arg(mi).arg(s);
+    } else if ( e.tagName() == "stringlist" ) {
+	if ( prop == "sort" ) {
+	    QStringList l;
+	    QDomElement n3 = e.firstChild().toElement();
+	    while ( !n3.isNull() ) {
+		if ( n3.tagName() == "string" )
+		    l << n3.firstChild().toText().data().simplifyWhiteSpace();
+		n3 = n3.nextSibling().toElement();
+	    }
+	    if ( l.count() )
+		v = l.join( "\" << \"" );
+	}
     }
     return v;
 }
