@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#29 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -18,9 +18,9 @@
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.
   
-  \ingroup images
-
   \internal
+
+  \ingroup images
 
   A QImageConsumer consumes information about changes to the
   QImage maintained by a QImageDecoder.  It represents the
