@@ -56,6 +56,7 @@
 #include "qslider.h"
 #include "qwmatrix.h"
 #include "qprogressbar.h"
+#include "qtextedit.h"
 #include "qlistview.h"
 #include <limits.h>
 #include "private/qtitlebar_p.h"
@@ -396,11 +397,11 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 bool QAquaAnimate::focusable(QWidget *w)
 {
     return (w && w->parentWidget() && (w->inherits("QDateTimeEditor") ||
-	     (w->inherits("QFrame") && /*((QFrame*)w)->frameStyle() != QFrame::NoFrame && */
-	      (w->inherits("QLineEdit") /* &&
+	     (w->inherits("QFrame") && ((QFrame*)w)->frameStyle() != QFrame::NoFrame && 
+	      ((w->inherits("QLineEdit") /* &&
 	      (w->parentWidget()->inherits("QComboBox") || (((QLineEdit*)w)->frame())) */) ||
-	      (w->inherits("QTextEdit") && !w->inherits("QTextView")) ||
-	      w->inherits("QListBox") || w->inherits("QListView"))));
+	      (w->inherits("QTextEdit") && !((QTextEdit*)w)->isReadOnly()) ||
+	      w->inherits("QListBox") || w->inherits("QListView")))));
 }
 
 
