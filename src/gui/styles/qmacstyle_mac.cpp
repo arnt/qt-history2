@@ -1782,8 +1782,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             if (!mi->icon.isNull()) {
                 QIcon::Mode mode = (mi->state & QStyle::Style_Enabled) ? QIcon::Normal
                                                                        : QIcon::Disabled;
-                if (active && !enabled)
-                    mode = QIcon::Active;
+                // Always be normal or disabled to follow the Mac style.
                 QPixmap pixmap = mi->icon.pixmap(Qt::SmallIconSize, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
@@ -3375,9 +3374,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                                  qt_glb_mac_rect(r, p), teFlushDefault, 0);
             }
             if (!mi->icon.isNull()) {              // draw icon
+                // Always be normal or disabled to follow the Mac style.
                 QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
-                if (act && !dis)
-                    mode = QIcon::Active;
                 QPixmap pixmap;
                 pixmap = mi->icon.pixmap(Qt::SmallIconSize, mode);
                 int pixw = pixmap.width();
