@@ -82,6 +82,8 @@ struct DesignerInterface : public QUnknownInterface
 
     virtual void onProjectChange( QObject *receiver, const char *slot ) = 0;
     virtual void onFormChange( QObject *receiver, const char *slot ) = 0;
+
+    virtual bool singleProjectMode() const = 0;
 };
 
 struct DesignerProject

@@ -128,6 +128,11 @@ void DesignerInterfaceImpl::onFormChange( QObject *receiver, const char *slot )
     QObject::connect( mainWindow, SIGNAL( editorChanged() ), receiver, slot );
 }
 
+bool DesignerInterfaceImpl::singleProjectMode() const
+{
+    return mainWindow->singleProjectMode();
+}
+
 
 
 DesignerProjectImpl::DesignerProjectImpl( Project *pr )

@@ -3296,6 +3296,11 @@ bool MainWindow::openProjectSettings( Project *pro )
 	}
     }
 
+    if ( singleProject ) {
+	dia.tabWidget->setTabEnabled( dia.tabSettings, FALSE );
+	dia.tabWidget->setTabEnabled( dia.tabFiles, FALSE );
+    }
+
     int res = dia.exec();
 
     delete senderObject;

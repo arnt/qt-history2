@@ -1,20 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>ProjectSettingsBase</class>
-<includes>
-    <include location="local" impldecl="in implementation">projectsettings.ui.h</include>
-</includes>
-<slots>
-    <slot access="protected">chooseDatabaseFile()</slot>
-    <slot access="protected">chooseProjectFile()</slot>
-    <slot access="protected">destroy()</slot>
-    <slot access="protected">helpClicked()</slot>
-    <slot access="protected">init()</slot>
-    <slot access="protected">languageChanged( const QString &amp; )</slot>
-    <slot>addProject()</slot>
-    <slot access="protected">okClicked()</slot>
-    <slot access="protected">removeProject()</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>ProjectSettingsBase</cstring>
@@ -49,7 +34,7 @@
             </property>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>tab</cstring>
+                    <cstring>tabSettings</cstring>
                 </property>
                 <attribute name="title">
                     <string>&amp;Settings</string>
@@ -129,7 +114,7 @@
                         </property>
                     </widget>
                     <spacer row="3" column="0">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer1</cstring>
                         </property>
                         <property name="orientation">
@@ -160,7 +145,7 @@
             </widget>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>tab</cstring>
+                    <cstring>tabFiles</cstring>
                 </property>
                 <attribute name="title">
                     <string>&amp;Files</string>
@@ -231,7 +216,7 @@
                         </property>
                     </widget>
                     <spacer row="2" column="0">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer2</cstring>
                         </property>
                         <property name="orientation">
@@ -324,7 +309,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name">
+                    <property name="name" stdset="0">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">
@@ -438,4 +423,16 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
+<slots>
+    <slot access="protected">chooseDatabaseFile()</slot>
+    <slot access="protected">chooseProjectFile()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">helpClicked()</slot>
+    <slot access="protected">init()</slot>
+    <slot access="protected">languageChanged( const QString &amp; )</slot>
+    <slot>addProject()</slot>
+    <slot access="protected">okClicked()</slot>
+    <slot access="protected">removeProject()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

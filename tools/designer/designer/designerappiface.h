@@ -48,6 +48,8 @@ public:
     void onProjectChange( QObject *receiver, const char *slot );
     void onFormChange( QObject *receiver, const char *slot );
 
+    bool singleProjectMode() const;
+
     QRESULT queryInterface( const QUuid &uuid, QUnknownInterface** iface );
     Q_REFCOUNT
 
