@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#14 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#15 $
 **
 ** Definition of the abstract layout base class
 **
@@ -150,12 +150,16 @@ public:
     QLayout( int autoBorder=-1, const char *name=0 );
 
     ~QLayout();
-    int defaultBorder() const { return insideSpacing; }
+    int spacing() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
 
+    virtual void setMargin( int );
+    virtual void setSpacing( int );
+    
     enum { unlimited = QCOORD_MAX };
     enum ResizeMode { FreeResize, Minimum, Fixed };
 #if 1 //OBSOLETE
+    int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }
 #endif
@@ -166,7 +170,7 @@ public:
     QWidget *mainWidget();
     QMenuBar *menuBar() const { return menubar; }
     bool isTopLevel() const { return topLevel; }
-    
+
     QRect geometry() const;
     bool activate();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#37 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#38 $
 **
 ** Definition of layout classes
 **
@@ -38,11 +38,11 @@ class Q_EXPORT QGridLayout : public QLayout
     Q_OBJECT
 public:
     QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
-		 int autoBorder = -1, const char *name=0 );
-    QGridLayout( int nRows, int nCols, int autoBorder = -1,
+		 int space = -1, const char *name=0 );
+    QGridLayout( int nRows, int nCols, int space = -1,
 		 const char *name=0 );
     QGridLayout( QLayout *parentLayout, int nRows, int nCols,
-		 int autoBorder = -1, const char *name=0 );
+		 int space = -1, const char *name=0 );
     ~QGridLayout();
 
     QSize sizeHint() const;
@@ -104,12 +104,12 @@ public:
 		     Down = TopToBottom, Up = BottomToTop };
 
     QBoxLayout( QWidget *parent, Direction, int border=0,
-		int autoBorder = -1, const char *name=0 );
+		int space = -1, const char *name=0 );
 
-    QBoxLayout( QLayout *parentLayout, Direction, int autoBorder = -1,
+    QBoxLayout( QLayout *parentLayout, Direction, int space = -1,
 		const char *name=0 );
 
-    QBoxLayout(	Direction, int autoBorder = -1,
+    QBoxLayout(	Direction, int space = -1,
 		const char *name=0 );
 
     ~QBoxLayout();
@@ -143,10 +143,10 @@ class Q_EXPORT QHBoxLayout : public QBoxLayout
     Q_OBJECT
 public:
     QHBoxLayout( QWidget *parent, int border=0,
-		int autoBorder = -1, const char *name=0 );
+		int space = -1, const char *name=0 );
     QHBoxLayout( QLayout *parentLayout,
-		 int autoBorder = -1, const char *name=0 );
-    QHBoxLayout( int autoBorder = -1, const char *name=0 );
+		 int space = -1, const char *name=0 );
+    QHBoxLayout( int space = -1, const char *name=0 );
 
     ~QHBoxLayout();
 };
@@ -158,10 +158,10 @@ class Q_EXPORT QVBoxLayout : public QBoxLayout
     Q_OBJECT
 public:
     QVBoxLayout( QWidget *parent, int border=0,
-		int autoBorder = -1, const char *name=0 );
+		int space = -1, const char *name=0 );
     QVBoxLayout( QLayout *parentLayout,
-		 int autoBorder = -1, const char *name=0 );
-    QVBoxLayout( int autoBorder = -1, const char *name=0 );
+		 int space = -1, const char *name=0 );
+    QVBoxLayout( int space = -1, const char *name=0 );
 
     ~QVBoxLayout();
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#87 $
 **
 ** Implementation of layout classes
 **
@@ -826,16 +826,16 @@ oi76ojAaozI6ozRaozZ6oziaozq6ozzaoz76o0AapEI6pERapJuRAAA7
    and main widget \a  parent.	\a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a autoBorder is the default number of pixels
-  between cells.  If \a autoBorder is -1 the value
+  the managed children.	 \a space is the default number of pixels
+  between cells.  If \a space is -1 the value
   of \a border is used.
 
   \a name is the internal object name.
 */
 
 QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
-			  int autoBorder , const char *name )
-    : QLayout( parent, border, autoBorder, name )
+			  int space , const char *name )
+    : QLayout( parent, border, space, name )
 {
     init( nRows, nCols );
 }
@@ -845,16 +845,16 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 /*!
   Constructs a new grid that is placed inside \a parentLayout,
   with \a nRows rows and \a  nCols columns,
-  If \a autoBorder is -1, this QGridLayout will inherits its parent's
-  defaultBorder(), otherwise \a autoBorder is used.
+  If \a space is -1, this QGridLayout will inherits its parent's
+  spacing(), otherwise \a space is used.
 
   This grid is placed according to  \a parentLayout's default placement
   rules.
 */
 
 QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
-  int autoBorder, const char *name )
-    : QLayout( parentLayout, autoBorder, name )
+  int space, const char *name )
+    : QLayout( parentLayout, space, name )
 {
     init( nRows, nCols );
 }
@@ -862,15 +862,15 @@ QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
 
 /*!
   Constructs a new grid with \a nRows rows and \a  nCols columns,
-  If \a autoBorder is -1, this QGridLayout will inherits its parent's
-  defaultBorder(), otherwise \a autoBorder is used.
+  If \a space is -1, this QGridLayout will inherits its parent's
+  spacing(), otherwise \a space is used.
 
   You have to insert this grid into another layout before using it.
 */
 
 QGridLayout::QGridLayout( int nRows, int nCols,
-			  int autoBorder, const char *name )
-     : QLayout( autoBorder, name )
+			  int space, const char *name )
+     : QLayout( space, name )
 {
     init( nRows, nCols );
 }
@@ -909,7 +909,7 @@ int QGridLayout::numCols() const
 
 QSize QGridLayout::sizeHint() const
 {
-    QSize s =  array->sizeHint( defaultBorder() );
+    QSize s =  array->sizeHint( spacing() );
     if ( isTopLevel() )
 	s += QSize( 2*margin(), 2*margin() );
     return s;
@@ -920,7 +920,7 @@ QSize QGridLayout::sizeHint() const
 
 QSize QGridLayout::minimumSize() const
 {
-    QSize s =  array->minimumSize( defaultBorder() );
+    QSize s =  array->minimumSize( spacing() );
     if ( isTopLevel() )
 	s += QSize( 2*margin(), 2*margin() );
     return s;
@@ -931,7 +931,7 @@ QSize QGridLayout::minimumSize() const
 
 QSize QGridLayout::maximumSize() const
 {
-    QSize s =  array->maximumSize( defaultBorder() );
+    QSize s =  array->maximumSize( spacing() );
     if ( isTopLevel() )
 	s = QSize( QMIN( 2*margin()+s.width(), QCOORD_MAX ),
 	           QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
@@ -957,7 +957,7 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() )
+    return ((QGridLayout*)this)->array->heightForWidth( w, spacing() )
 	+ 2*margin();
 }
 
@@ -983,7 +983,7 @@ bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
 void QGridLayout::setGeometry( const QRect &s )
 {
     QLayout::setGeometry( s );
-    array->distribute( s, defaultBorder() );
+    array->distribute( s, spacing() );
 }
 
 /*!
@@ -1301,8 +1301,8 @@ public:
   parent.  \a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a autoBorder is the default number of pixels
-  between neighbouring children.  If \a autoBorder is -1 the value
+  the managed children.	 \a space is the default number of pixels
+  between neighbouring children.  If \a space is -1 the value
   of \a border is used.
 
   \a name is the internal object name
@@ -1311,8 +1311,8 @@ public:
 */
 
 QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
-			int border, int autoBorder, const char *name )
-    : QGridLayout( parent, 0, 0, border, autoBorder, name )
+			int border, int space, const char *name )
+    : QGridLayout( parent, 0, 0, border, space, name )
 {
     //    data = new QBoxLayoutData;
     dir = d;
@@ -1328,9 +1328,9 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 */
 
-QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int autoBorder,
+QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
  const char *name )
-        : QGridLayout( parentLayout, 0, 0, autoBorder, name )
+        : QGridLayout( parentLayout, 0, 0, space, name )
 {
     dir = d;
     if ( d == RightToLeft || d == BottomToTop )
@@ -1340,15 +1340,15 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int autoBorder,
 
 
 /*!
-  If \a autoBorder is -1, this QBoxLayout will inherit its parent's
-  defaultBorder(), otherwise \a autoBorder is used.
+  If \a space is -1, this QBoxLayout will inherit its parent's
+  spacing(), otherwise \a space is used.
 
   You have to insert this box into another layout before using it.
 */
 
 QBoxLayout::QBoxLayout( Direction d,
-			int autoBorder, const char *name )
-    : QGridLayout( 0, 0, autoBorder, name )
+			int space, const char *name )
+    : QGridLayout( 0, 0, space, name )
 {
     //    data = new QBoxLayoutData;
     dir = d;
@@ -1575,8 +1575,8 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
   Creates a new top-level horizontal box.
  */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
-			  int autoBorder, const char *name )
-    : QBoxLayout( parent, LeftToRight, border, autoBorder, name )
+			  int space, const char *name )
+    : QBoxLayout( parent, LeftToRight, border, space, name )
 {
 
 }
@@ -1587,9 +1587,9 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
   Creates a new horizontal box and adds it to \a parentLayout.
 */
 
-QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int autoBorder,
+QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 			  const char *name )
-    :QBoxLayout( parentLayout, LeftToRight, autoBorder, name )
+    :QBoxLayout( parentLayout, LeftToRight, space, name )
 {
 
 }
@@ -1599,8 +1599,8 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int autoBorder,
   Creates a new horizontal box. You have to add it to another
   layout before using it.
  */
-QHBoxLayout::QHBoxLayout( int autoBorder, const char *name )
-    :QBoxLayout( LeftToRight, autoBorder, name )
+QHBoxLayout::QHBoxLayout( int space, const char *name )
+    :QBoxLayout( LeftToRight, space, name )
 {
 }
 
@@ -1640,8 +1640,8 @@ QHBoxLayout::~QHBoxLayout()
   Creates a new top-level vertical box.
  */
 QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
-			  int autoBorder, const char *name )
-    : QBoxLayout( parent, TopToBottom, border, autoBorder, name )
+			  int space, const char *name )
+    : QBoxLayout( parent, TopToBottom, border, space, name )
 {
 
 }
@@ -1651,9 +1651,9 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
   Creates a new vertical box and adds it to \a parentLayout.
 */
 
-QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int autoBorder,
+QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 			  const char *name )
-    :QBoxLayout( parentLayout, TopToBottom, autoBorder, name )
+    :QBoxLayout( parentLayout, TopToBottom, space, name )
 {
 
 }
@@ -1662,8 +1662,8 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int autoBorder,
   Creates a new vertical box. You have to add it to another
   layout before using it.
  */
-QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
-    :QBoxLayout( TopToBottom, autoBorder, name )
+QVBoxLayout::QVBoxLayout( int space, const char *name )
+    :QBoxLayout( TopToBottom, space, name )
 {
 }
 

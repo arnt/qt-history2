@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#41 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -521,9 +521,9 @@ bool QWidgetItem::isEmpty() const
   parent.  \a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a autoBorder sets the value of defaultBorder(), which
-  is interpreted by subclasses.	 If \a autoBorder is -1 the value
-  of \a border is used.
+  the managed children.  \a space sets the value of spacing(), which
+  gives the spacing between widgets.  The default value for \a space
+  is -1, which means that the value of \a border is used.
 
   \a name is the internal object name
 
@@ -531,7 +531,7 @@ bool QWidgetItem::isEmpty() const
   by QWidget::layout()
 */
 
-QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
+QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     : QObject( parent, name )
 {
     menubar = 0;
@@ -553,10 +553,10 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 	}
     }
     outsideBorder = border;
-    if ( autoBorder < 0 )
+    if ( space < 0 )
 	insideSpacing = border;
     else
-	insideSpacing = autoBorder;
+	insideSpacing = space;
 }
 
 
@@ -605,8 +605,61 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
 /*!
   \fn int QLayout::margin () const
-  returns the border width.
+  returns the width of the outside border of the layout.
+  \sa spacing() setMargin()
  */
+
+
+
+
+/*!
+  \fn int QLayout::defaultBorder() const
+  \obsolete
+  Returns the internal spacing for the geometry manager. Replaced by
+  spacing()
+*/
+
+/*!
+  \fn int QLayout::spacing() const
+  Returns the spacing between widgets inside the layout.
+  \sa margin() setSpacing()
+*/
+
+
+
+
+/*!
+  Sets the outside border of the layout to \a border.
+  
+  \sa margin() setSpacing()
+ */
+
+void QLayout::setMargin( int border )
+{
+    outsideBorder = border;
+    if ( mainWidget() ) {
+	QEvent *lh = new QEvent( QEvent::LayoutHint );
+	QApplication::postEvent( mainWidget(), lh );
+    }
+}
+
+
+/*!
+  Sets the internal spacing of the layout to \a space.
+  
+  \sa spacing() setMargin()
+ */
+//##### bool recursive = FALSE ????
+void QLayout::setSpacing( int space )
+{
+    insideSpacing = space;
+    if ( mainWidget() ) {
+	QEvent *lh = new QEvent( QEvent::LayoutHint );
+	QApplication::postEvent( mainWidget(), lh );
+    }
+}
+
+
 
 
 /*!
@@ -636,36 +689,36 @@ QWidget * QLayout::mainWidget()
   \a parentLayout, using the default placement defined by
   addItem().
 
-  If \a autoBorder is -1, this QLayout inherits \a parentLayout's
-  defaultBorder(), otherwise \a autoBorder is used.
+  If \a space is -1, this QLayout inherits \a parentLayout's
+  spacing(), otherwise \a space is used.
 
 */
 
-QLayout::QLayout( QLayout *parentLayout, int autoBorder, const char *name )
+QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
     : QObject( parentLayout, name )
 
 {
     menubar = 0;
     topLevel = FALSE;
-    insideSpacing = autoBorder < 0 ? parentLayout->insideSpacing : autoBorder;
+    insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
     parentLayout->addItem( this );
 }
 
 
 /*!
   Constructs a new child QLayout,
-  If \a autoBorder is -1, this QLayout inherits its parent's
-  defaultBorder(), otherwise \a autoBorder is used.
+  If \a space is -1, this QLayout inherits its parent's
+  spacing(), otherwise \a space is used.
 
   This layout has to be inserted into another layout before use.
 */
 
-QLayout::QLayout( int autoBorder, const char *name )
+QLayout::QLayout( int space, const char *name )
     : QObject( 0, name )
 {
     menubar = 0;
     topLevel	 = FALSE;
-    insideSpacing = autoBorder;
+    insideSpacing = space;
 }
 
 
@@ -829,10 +882,7 @@ void QLayout::addChildLayout( QLayout *l )
 	l->insideSpacing = insideSpacing;
 }
 
-/*!
-  \fn int QLayout::defaultBorder() const
-  Returns the default border for the geometry manager.
-*/
+
 
 /*!
   \overload void QLayout::freeze()
