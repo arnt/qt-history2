@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#51 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#52 $
 **
 ** Definition of QListBox widget class
 **
@@ -154,6 +154,8 @@ public:
 
     void	setSelected( int, bool );
     bool	isSelected( int ) const;
+
+public slots:
     void	clearSelection();
 
 signals:
