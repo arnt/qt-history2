@@ -801,13 +801,14 @@ bool QApplication::x11_apply_settings()
 
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
-    if ( pal.disabled().buttonText() == pal.active().buttonText() ) {
-	pal.setColor( QPalette::Disabled, QPalette::ButtonText,
-		      pal.disabled().foreground() );
+    if (pal.color(QPalette::Disabled, QPalette::ButtonText)
+	== pal.color(QPalette::Active, QPalette::ButtonText)) {
+	pal.setColor(QPalette::Disabled, QPalette::ButtonText,
+		     pal.color(QPalette::Disabled, QPalette::Foreground));
     }
 
     if (pal != *qt_std_pal && pal != QApplication::palette()) {
-	QApplication::setPalette(pal, TRUE);
+	QApplication::setPalette(pal);
 	*qt_std_pal = pal;
     }
 
@@ -818,7 +819,7 @@ bool QApplication::x11_apply_settings()
 	font.fromString(str);
 
 	if (font != QApplication::font())
-	    QApplication::setFont(font, TRUE);
+	    QApplication::setFont(font);
     }
 
     // read library (ie. plugin) path list
@@ -1107,7 +1108,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	}
 
 	if ( fnt != QApplication::font() ) {
-	    QApplication::setFont( fnt, TRUE );
+	    QApplication::setFont( fnt );
 	}
     }
 
@@ -1119,17 +1120,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if (!resBG.isEmpty())
 	    bg = QColor(QString(resBG));
 	else
-	    bg = qt_std_pal->active().background();
+	    bg = qt_std_pal->color(QPalette::Active, QPalette::Background);
 	if (!resFG.isEmpty())
 	    fg = QColor(QString(resFG));
 	else
-	    fg = qt_std_pal->active().foreground();
+	    fg = qt_std_pal->color(QPalette::Active, QPalette::Foreground);
 	if (button)
 	    btn = QColor( button );
 	else if (!resBG.isEmpty())
 	    btn = bg;
 	else
-	    btn = qt_std_pal->active().button();
+	    btn = qt_std_pal->color(QPalette::Active, QPalette::Button);
 
 	int h,s,v;
 	fg.getHsv(&h,&s,&v);
@@ -1161,7 +1162,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
 	}
 	if (pal != *qt_std_pal && pal != QApplication::palette())
-	    QApplication::setPalette(pal, TRUE);
+	    QApplication::setPalette(pal);
 	*qt_std_pal = pal;
     }
 
@@ -2336,7 +2337,7 @@ GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
     if ( scrn < 0 || scrn >= appScreenCount ) {
 	qDebug("invalid screen %d %d", scrn, appScreenCount );
 	QWidget* bla = 0;
-	bla->setName("hello");
+	bla->setObjectName("hello");
     }
     GC gc;
     if ( monochrome ) {
@@ -2360,7 +2361,7 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
     if ( scrn < 0 || scrn >= appScreenCount ) {
 	qDebug("invalid screen (tmp) %d %d", scrn, appScreenCount );
 	QWidget* bla = 0;
-	bla->setName("hello");
+	bla->setObjectName("hello");
     }
     GC gc;
     if ( monochrome ) {
@@ -2420,14 +2421,14 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	 ! mainWidget->parentWidget()->isDesktop() )
 	qWarning( "QApplication::setMainWidget(): New main widget (%s/%s) "
 		  "has a parent!",
-		  mainWidget->className(), mainWidget->name() );
+		  mainWidget->className(), mainWidget->objectName() );
 #endif
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
-	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
+	XSetWMProperties( main_widget->x11Info()->display(), main_widget->winId(),
 			  0, 0, d->argv, d->argc, 0, 0, 0 );
 	if ( mwTitle )
-	    XStoreName( main_widget->x11Display(), main_widget->winId(), (char*)mwTitle );
+	    XStoreName( main_widget->x11Info()->display(), main_widget->winId(), (char*)mwTitle );
 	if ( mwGeometry ) {			// parse geometry
 	    int x, y;
 	    int w, h;
@@ -2702,8 +2703,8 @@ void qPRCleanup( QWidget *widget )
 	int key = it.key();
 	if ( w == etw ) {                       // found widget
 	    etw->clearWState( Qt::WState_Reparented ); // clear flag
-	    wPRmapper->remove( key );// old window no longer needed
-	    if ( wPRmapper->count() == 0 ) {	// became empty
+	    wPRmapper->erase( key );// old window no longer needed
+	    if ( wPRmapper->size() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
 		wPRmapper = 0;
 	    }
@@ -2750,7 +2751,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 #endif // QT_NO_WHATSTHIS
 	    } else if ( a == ATOM(_NET_WM_PING) ) {
 		// avoid send/reply loops
-		Window root = QX11Info::appRootWindow( w->x11Screen() );
+		Window root = QX11Info::appRootWindow( w->x11Info()->screen() );
 		if (event->xclient.window != root) {
                     event->xclient.window = root;
                     XSendEvent( event->xclient.display, event->xclient.window,
@@ -3056,7 +3057,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	// fall through intended
     case ButtonPress:
-	if (event->xbutton.root != RootWindow(widget->x11Display(), widget->x11Screen())
+	if (event->xbutton.root != RootWindow(widget->x11Info()->display(),
+					      widget->x11Info()->screen())
 	    && ! qt_xdnd_dragging) {
 	    while ( activePopupWidget() )
 		activePopupWidget()->close();
@@ -3199,14 +3201,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	QWidget* enter = 0;
 	XEvent ev;
-	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
+	while ( XCheckMaskEvent( widget->x11Info()->display(), EnterWindowMask
+				 | LeaveWindowMask , &ev )
 		&& !qt_x11EventFilter( &ev )) {
             QWidget* event_widget = QWidget::find( ev.xcrossing.window );
             if( event_widget && event_widget->x11Event( &ev ) )
                 break;
 	    if ( ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal ){
 		enter = event_widget;
-		XPutBackEvent( widget->x11Display(), &ev );
+		XPutBackEvent( widget->x11Info()->display(), &ev );
 		break;
 	    }
 	    if (  ev.xcrossing.mode != NotifyNormal ||
@@ -3264,7 +3267,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	return x11ClientMessage(widget,event,False);
 
     case ReparentNotify:			// window manager reparents
-	while ( XCheckTypedWindowEvent( widget->x11Display(),
+	while ( XCheckTypedWindowEvent( widget->x11Info()->display(),
 					widget->winId(),
 					ReparentNotify,
 					event ) )
@@ -3413,7 +3416,7 @@ void qt_leave_modal( QWidget *widget )
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
 	    QPoint p( QCursor::pos() );
-	    QWidget* w = QApplication::widgetAt( p.x(), p.y(), TRUE );
+	    QWidget* w = QApplication::widgetAt( p.x(), p.y() );
 	    qt_dispatchEnterLeave( w, QWidget::find( curWin ) ); // send synthetic enter event
 	    curWin = w? w->winId() : 0;
 	}
@@ -3476,12 +3479,12 @@ void QApplication::openPopup( QWidget *popup )
 	popupWidgets = new QWidgetList;
     }
     popupWidgets->append( popup );		// add to end of list
-
+    Display *dpy = popup->x11Info()->display();
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	int r = XGrabKeyboard( popup->x11Display(), popup->winId(), FALSE,
+	int r = XGrabKeyboard( dpy, popup->winId(), FALSE,
 			       GrabModeSync, GrabModeAsync, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
-	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+	    r = XGrabPointer( dpy, popup->winId(), TRUE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
 				     LeaveWindowMask | PointerMotionMask),
@@ -3489,12 +3492,12 @@ void QApplication::openPopup( QWidget *popup )
 			      None, None, CurrentTime );
 
 	    if ( (popupGrabOk = (r == GrabSuccess)) )
-		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+		XAllowEvents( dpy, SyncPointer, CurrentTime );
 	    else
-		XUngrabKeyboard( popup->x11Display(), CurrentTime );
+		XUngrabKeyboard( dpy, CurrentTime );
 	}
     } else if ( popupGrabOk ) {
-	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
+	XAllowEvents(  dpy, SyncPointer, CurrentTime );
     }
 
     // popups are not focus-handled by the window system (the first
@@ -3522,17 +3525,17 @@ void QApplication::closePopup( QWidget *popup )
 	delete popupWidgets;
 	popupWidgets = 0;
 	if ( !qt_nograb() && popupGrabOk ) {	// grabbing not disabled
+	    Display *dpy = popup->x11Info()->display();
 	    if ( mouseButtonState != 0
 		 || popup->geometry(). contains(QPoint(mouseGlobalXPos, mouseGlobalYPos) ) )
 		{	// mouse release event or inside
-		    XAllowEvents( popup->x11Display(), AsyncPointer,
-				  CurrentTime );
+		    XAllowEvents( dpy, AsyncPointer, CurrentTime );
 	    } else {				// mouse press event
 		mouseButtonPressTime -= 10000;	// avoid double click
-		XAllowEvents( popup->x11Display(), ReplayPointer,CurrentTime );
+		XAllowEvents( dpy, ReplayPointer,CurrentTime );
 	    }
-	    XUngrabPointer( popup->x11Display(), CurrentTime );
-	    XFlush( popup->x11Display() );
+	    XUngrabPointer( dpy, CurrentTime );
+	    XFlush( dpy );
 	}
 	if ( active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::Popup );
@@ -3555,10 +3558,10 @@ void QApplication::closePopup( QWidget *popup )
 	     aw->setFocus();
 	 QFocusEvent::resetReason();
 	 if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
-	     int r = XGrabKeyboard( aw->x11Display(), aw->winId(), FALSE,
+	     int r = XGrabKeyboard( aw->x11Info()->display(), aw->winId(), FALSE,
 				    GrabModeSync, GrabModeAsync, CurrentTime );
 	     if ( (popupGrabOk = (r == GrabSuccess)) ) {
-		 r = XGrabPointer( aw->x11Display(), aw->winId(), TRUE,
+		 r = XGrabPointer( aw->x11Info()->display(), aw->winId(), TRUE,
 				   (uint)(ButtonPressMask | ButtonReleaseMask |
 					  ButtonMotionMask | EnterWindowMask |
 					  LeaveWindowMask | PointerMotionMask),
@@ -3566,7 +3569,7 @@ void QApplication::closePopup( QWidget *popup )
 				   None, None, CurrentTime );
 
 		 if ( (popupGrabOk = (r == GrabSuccess)) )
-		     XAllowEvents( aw->x11Display(), SyncPointer, CurrentTime );
+		     XAllowEvents( aw->x11Info()->display(), SyncPointer, CurrentTime );
 	     }
 	 }
      }
@@ -3623,7 +3626,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     static int x_root_save = -1, y_root_save = -1;
 
     if ( event->type == MotionNotify ) { // mouse move
-	if (event->xmotion.root != RootWindow(X11->display, x11Screen()) &&
+	if (event->xmotion.root != RootWindow(X11->display, x11Info()->screen()) &&
 	    ! qt_xdnd_dragging )
 	    return FALSE;
 
@@ -3703,7 +3706,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    // take care about grabbing. We do this here since it
 	    // is clear that we return anyway
 	    if ( qApp->inPopupMode() && popupGrabOk )
-		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+		XAllowEvents( x11Info()->display(), SyncPointer, CurrentTime );
 
 	    // We are only interested in ButtonPress.
 	    if (event->type == ButtonPress ){
@@ -3714,10 +3717,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		// or not)
 		int delta = 1;
 		XEvent xevent;
-		while ( XCheckTypedWindowEvent(x11Display(),winId(),
+		while ( XCheckTypedWindowEvent(x11Info()->display(),winId(),
 					       ButtonPress,&xevent) ){
 		    if (xevent.xbutton.button != event->xbutton.button){
-			XPutBackEvent(x11Display(), &xevent);
+			XPutBackEvent(x11Info()->display(), &xevent);
 			break;
 		    }
 		    delta++;
@@ -3784,8 +3787,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #endif
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
-		XUngrabPointer( x11Display(), CurrentTime );
-		XFlush( x11Display() );
+		XUngrabPointer( x11Info()->display(), CurrentTime );
+		XFlush( x11Info()->display() );
 	    }
 
 	    type = QEvent::MouseButtonRelease;
@@ -3815,7 +3818,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 	if ( !popupTarget->isEnabled() ) {
 	    if ( popupGrabOk )
-		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+		XAllowEvents( x11Info()->display(), SyncPointer, CurrentTime );
 	}
 
 	switch ( type ) {
@@ -3831,7 +3834,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    break;				// nothing for mouse move
 	}
 
-	Display* dpy = x11Display(); // store display, send() may destroy us
+	Display* dpy = x11Info()->display(); // store display, send() may destroy us
 
 
 	int oldOpenPopupCount = openPopupCount;
@@ -4218,7 +4221,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 		X11->deferred_map.take( this );
 		XMapWindow( X11->display, winId() );
 	    }
-	} else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Screen())) {
+	} else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Info()->screen())) {
 	    // the window manager has changed the WM State property...
 	    // we are wanting to see if we are withdrawn so that we
 	    // can reuse this window... we only do this check *IF* we
@@ -4896,7 +4899,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
 
-    Display *dpy = x11Display();
+    Display *dpy = x11Info()->display();
 
     if ( !isEnabled() )
 	return TRUE;
@@ -5113,7 +5116,7 @@ bool translateBySips( QWidget* that, QRect& paintRect )
 void QWidgetPrivate::removePendingPaintEvents()
 {
     XEvent xevent;
-    while ( XCheckTypedWindowEvent(q->x11Display(), q->winId(), Expose, &xevent ) &&
+    while ( XCheckTypedWindowEvent(q->x11Info()->display(), q->winId(), Expose, &xevent ) &&
 	    ! qt_x11EventFilter(&xevent)  &&
 	    ! q->x11Event(&xevent)) // send event through filter
 	;
@@ -5138,7 +5141,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     if ( merging_okay ) {
 	// WARNING: this is O(number_of_events * number_of_matching_events)
-	while ( XCheckIfEvent(x11Display(),&xevent,isPaintOrScrollDoneEvent,
+	while ( XCheckIfEvent(x11Info()->display(),&xevent,isPaintOrScrollDoneEvent,
 			      (XPointer)&info) &&
 		!qt_x11EventFilter(&xevent)  &&
 		!x11Event( &xevent ) ) // send event through filter
@@ -5214,7 +5217,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
         if (! d->extra || d->extra->compress_events) {
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
-            while ( XCheckTypedWindowEvent( x11Display(), winId(), ConfigureNotify,
+            while ( XCheckTypedWindowEvent( x11Info()->display(), winId(), ConfigureNotify,
                                             &otherEvent ) ) {
                 if ( qt_x11EventFilter( &otherEvent ) )
                     continue;
@@ -5262,7 +5265,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    }
 	    // remove unnecessary paint events from the queue
 	    XEvent xevent;
-	    while ( XCheckTypedWindowEvent( x11Display(), winId(), Expose, &xevent ) &&
+	    while ( XCheckTypedWindowEvent( x11Info()->display(), winId(), Expose, &xevent ) &&
 		    ! qt_x11EventFilter( &xevent )  &&
 		    ! x11Event( &xevent ) ) // send event through filter
 		;
@@ -5271,7 +5274,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	}
     } else {
 	XEvent xevent;
-	while ( XCheckTypedWindowEvent(x11Display(),winId(), ConfigureNotify,&xevent) &&
+	while ( XCheckTypedWindowEvent(x11Info()->display(),winId(), ConfigureNotify,&xevent) &&
 		!qt_x11EventFilter(&xevent)  &&
 		!x11Event( &xevent ) ) // send event through filter
 	    ;
