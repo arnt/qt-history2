@@ -47,6 +47,7 @@
 // undefine this to prevent initial check of the ODBC driver 
 #define ODBC_CHECK_DRIVER
 
+static const int COLNAMESIZE = 255;
 class QODBCPrivate
 {
 public:
@@ -253,7 +254,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
 
-    SQLTCHAR colName[255];
+    SQLTCHAR colName[COLNAMESIZE];
     r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
@@ -274,7 +275,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     if ( colSize > 65536 ) { // read the field in 64 KB chunks
 	colSize = 65536;
     }
-    SQLTCHAR* buf = new SQLTCHAR[ colSize ];
+    char * buf = new char[ colSize ];
     while ( TRUE ) {
 	r = SQLGetData( hStmt,
 			column+1,
@@ -319,11 +320,11 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
     isNull = FALSE;
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData( hStmt,
-		    column+1,
-		    SQL_C_SLONG,
-		    (SQLPOINTER)&intbuf,
-		    0,
-		    &lengthIndicator );
+			      column+1,
+			      SQL_C_SLONG,
+			      (SQLPOINTER)&intbuf,
+			      0,
+			      &lengthIndicator );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
 	if ( lengthIndicator == SQL_NULL_DATA )
 	    isNull = TRUE;
@@ -354,8 +355,6 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
 
 QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 {
-#define COLNAMESIZE 255
-
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
     SQLUINTEGER colSize;
@@ -399,7 +398,6 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
     			  (int)colScale == 0 ? -1 : (int)colScale,
     			  QVariant(),
     			  (int)colType );
-#undef COLNAMESIZE
 }
 
 void qSplitTableQualifier( const QString & qualifier, QString * catalog,
@@ -948,6 +946,39 @@ bool QODBCResult::exec()
 					  0,
 					  NULL );
 		    break; }
+ 	        case QVariant::ByteArray: {
+		    QByteArray ba = val.toByteArray();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_BINARY,
+					  SQL_LONGVARBINARY,
+					  ba.size(),
+					  0,
+					  (void *) ba.data(),
+					  ba.size(),
+					  NULL );
+		    break; }
+	        case QVariant::String:
+		    if ( d->unicode ) {
+			indicator = SQL_NTS;
+			QString * str = new QString( val.asString() );
+			str->ucs2();
+			int len = str->length()*2;
+			tmpStorage.append( str );
+			r = SQLBindParameter( d->hStmt,
+					      para,
+					      SQL_PARAM_INPUT,
+					      SQL_C_WCHAR,
+					      SQL_WVARCHAR,
+					      str->length(),
+					      0,
+					      (void *) str->unicode(),
+					      len,
+					      &indicator );
+			break;
+		    }
+		    // fall through
 	        default: {
 		    indicator = SQL_NTS;
 		    QCString * str = new QCString( val.asString().local8Bit() );
@@ -1199,8 +1230,6 @@ void QODBCPrivate::checkUnicode()
 bool QODBCPrivate::checkDriver() const
 {
 #ifdef ODBC_CHECK_DRIVER
-
-
     // do not query for SQL_API_SQLFETCHSCROLL because it can't be used at this time
     static const SQLUSMALLINT reqFunc[] = {
 		SQL_API_SQLDESCRIBECOL, SQL_API_SQLGETDATA, SQL_API_SQLCOLUMNS, 
@@ -1252,7 +1281,6 @@ bool QODBCPrivate::checkDriver() const
 	    return TRUE;
 	}
     }
-
 #endif //ODBC_CHECK_DRIVER
 
     return TRUE;
@@ -1273,9 +1301,9 @@ bool QODBCDriver::beginTransaction()
     }
     SQLUINTEGER ac(SQL_AUTOCOMMIT_OFF);
     SQLRETURN r  = SQLSetConnectAttr( d->hDbc,
-			    SQL_ATTR_AUTOCOMMIT,
-			    (SQLPOINTER)ac,
-			    sizeof(ac));
+				      SQL_ATTR_AUTOCOMMIT,
+				      (SQLPOINTER)ac,
+				      sizeof(ac));
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to disable autocommit", QSqlError::Transaction, d ) );
 	return FALSE;
@@ -1292,8 +1320,8 @@ bool QODBCDriver::commitTransaction()
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-				d->hEnv,
-				SQL_COMMIT);
+			      d->hEnv,
+			      SQL_COMMIT);
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError("Unable to commit transaction", QSqlError::Transaction, d ) );
 	return FALSE;
@@ -1310,8 +1338,8 @@ bool QODBCDriver::rollbackTransaction()
 	return FALSE;
     }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-				d->hEnv,
-				SQL_ROLLBACK);
+			      d->hEnv,
+			      SQL_ROLLBACK);
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
 	return FALSE;
@@ -1323,9 +1351,9 @@ bool QODBCDriver::endTrans()
 {
     SQLUINTEGER ac(SQL_AUTOCOMMIT_ON);
     SQLRETURN r  = SQLSetConnectAttr( d->hDbc,
-			    SQL_ATTR_AUTOCOMMIT,
-			    (SQLPOINTER)ac,
-			    sizeof(ac));
+				      SQL_ATTR_AUTOCOMMIT,
+				      (SQLPOINTER)ac,
+				      sizeof(ac));
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to enable autocommit", QSqlError::Transaction, d ) );
 	return FALSE;
