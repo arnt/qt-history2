@@ -3,6 +3,7 @@
 #include "previewframe.h"
 #include "paletteeditoradvanced.h"
 
+#include <qlabel.h>
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qstylefactory.h>
