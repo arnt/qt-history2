@@ -950,13 +950,6 @@ void QPainter::drawRect( int x, int y, int w, int h )
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
-#if 0 //FIXME, this was causing an off by one, I'm not sure if every paint is going to have this
-    //problem or if this calculation is unnecesary, I need to revisit (canonball on t14 exhibited a problem)
-    if ( cpen.style() == NoPen ) {
-	w++;
-        h++;
-    }
-#endif
 
     initPaintDevice();
     Rect rect;
@@ -1140,10 +1133,6 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
-    if ( cpen.style() == NoPen ) {
-        w++;
-        h++;
-    }
 
     initPaintDevice();
     Rect rect;
@@ -1183,10 +1172,6 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
         if ( w == 0 || h == 0 )
             return;
         fix_neg_rect( &x, &y, &w, &h );
-    }
-    if ( cpen.style() == NoPen ) {
-        w++;
-        h++;
     }
 
     initPaintDevice();
@@ -1326,10 +1311,6 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
         if ( w == 0 || h == 0 )
             return;
         fix_neg_rect( &x, &y, &w, &h );
-    }
-    if ( cpen.style() == NoPen ) {
-        w++;
-        h++;
     }
 
     initPaintDevice();
