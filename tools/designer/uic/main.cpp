@@ -19,8 +19,6 @@
 **********************************************************************/
 
 #include "uic.h"
-#include "parser.h"
-#include "widgetdatabase.h"
 #include "domtool.h"
 #include <qapplication.h>
 #include <qfile.h>
@@ -28,10 +26,7 @@
 #include <qdatetime.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <qregexp.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <zlib.h>
 
 // see ### in widgetdatabase.cpp
 extern bool dbnounload;

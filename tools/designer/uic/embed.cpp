@@ -24,9 +24,6 @@
 #include <qstringlist.h>
 #include <qdatetime.h>
 #include <qfileinfo.h>
-#define NO_STATIC_COLORS
-#include <globaldefs.h>
-#include <qregexp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -41,7 +38,7 @@ struct EmbedImage
     bool alpha;
 };
 
-QString convertToCIdentifier( const char *s )
+static QString convertToCIdentifier( const char *s )
 {
     QString r = s;
     int len = r.length();

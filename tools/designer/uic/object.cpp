@@ -20,14 +20,12 @@
 
 #include "uic.h"
 #include "parser.h"
-#include "widgetdatabase.h"
 #include "domtool.h"
 #include <qregexp.h>
 #include <qsizepolicy.h>
 #include <qstringlist.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <zlib.h>
 
 /*!
   Creates a declaration for the object given in \a e.
@@ -274,7 +272,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	}
 	if ( !page.isNull() )
 	    out << indent << objName << "->raiseWidget( " << page << ")," << endl;
-	    
+
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName() ) )
@@ -640,7 +638,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 		out << indent << listname << " << \"" << n3.firstChild().toText().data().simplifyWhiteSpace() << "\";" << endl;
 	    n3 = n3.nextSibling().toElement();
 	}
-	v = listname;	
+	v = listname;
     }
     return v;
 }
