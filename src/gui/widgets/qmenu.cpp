@@ -859,8 +859,6 @@ QSize QMenu::sizeHint() const
         s.setWidth(s.width()+(fw*2));
         s.setHeight(s.height()+(fw*2));
     }
-    s.setWidth(s.width()+d->leftmargin+d->rightmargin);
-    s.setHeight(s.height()+d->topmargin+d->bottommargin);
     s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
     s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
     return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));
