@@ -1035,7 +1035,16 @@ static bool is_seperator( const QChar &c, bool onlySpace )
 	c == '.' ||
 	c == ',' ||
 	c == ':' ||
-	c == ';';
+	c == ';' ||
+	c == '-' ||
+	c == '<' ||
+	c == '>' ||
+	c == '[' ||
+	c == ']' ||
+	c == '(' ||
+	c == ')' ||
+	c == '{' ||
+	c == '}';
 }
 
 void QTextCursor::gotoPreviousWord( bool onlySpace )
