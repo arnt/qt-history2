@@ -6,6 +6,8 @@
 #include "qtextlist_p.h"
 #include "qtexttable_p.h"
 
+#include <stdlib.h>
+
 #define d d_func()
 #define q q_func()
 
