@@ -1490,6 +1490,8 @@ void QCanvas::setBackgroundColor( const QColor& c )
 	bgcolor = c;
 	QCanvasView* view=d->viewList.first();
 	while ( view != 0 ) {
+	    /* XXX this doesn't look right.  Shouldn't this
+	       be more like setBackgroundPixmap? : Ian */
 	    view->viewport()->setEraseColor( bgcolor );
 	    view=d->viewList.next();
 	}
@@ -3436,6 +3438,15 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 	{
 	    viewing->drawCanvasArea(r,p,!d->repaint_from_moving);
 	}
+
+	// check if drawing outside of the canvas.
+	if (viewing->width() < (cx + cw))
+	    p->eraseRect(viewing->width(), cy,
+		    cx + cw - viewing->width(), ch);
+	if (viewing->height() < (cy + ch))
+	    p->eraseRect(cx, viewing->height(), cw, 
+		    cy + ch - viewing->height());
+	
 	d->repaint_from_moving = FALSE;
     } else {
 	p->eraseRect(r);
