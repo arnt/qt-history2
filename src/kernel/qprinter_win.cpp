@@ -48,7 +48,10 @@
 
 
 
-
+// XXX CS097 These should become members of QPrinter:
+static HANDLE hdevmode  = 0;
+static HANDLE hdevnames = 0;
+ 
 
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
@@ -83,6 +86,15 @@ QPrinter::QPrinter()
 
 QPrinter::~QPrinter()
 {
+    if ( hdevmode ) {
+        GlobalFree( hdevmode );
+        hdevmode = 0;
+    }
+    if ( hdevnames ) {
+        GlobalFree( hdevnames );
+        hdevnames = 0;
+    }
+     
     if ( hdc ) {
 	DeleteDC( hdc );
 	hdc = 0;
@@ -261,11 +273,15 @@ void QPrinter::readPdlg( void* pdv )
     }
 
     if ( pd->hDevMode ) {
-	GlobalFree( pd->hDevMode );
+	if ( hdevmode )
+	    GlobalFree( hdevmode );
+	hdevmode = pd->hDevMode;
 	pd->hDevMode = 0;
     }
     if ( pd->hDevNames ) {
-	GlobalFree( pd->hDevNames );
+	if ( hdevnames )
+	    GlobalFree( hdevnames );
+	hdevnames = pd->hDevNames;	
 	pd->hDevNames = 0;
     }
 }
@@ -310,11 +326,15 @@ void QPrinter::readPdlgA( void* pdv )
     }
 
     if ( pd->hDevMode ) {
-	GlobalFree( pd->hDevMode );
+	if ( hdevmode )
+	    GlobalFree( hdevmode );
+	hdevmode = pd->hDevMode;
 	pd->hDevMode = 0;
     }
     if ( pd->hDevNames ) {
-	GlobalFree( pd->hDevNames );
+	if ( hdevnames )
+	    GlobalFree( hdevnames );
+	hdevnames = pd->hDevNames;
 	pd->hDevNames = 0;
     }
 }
@@ -334,8 +354,15 @@ bool QPrinter::setup( QWidget *parent )
 	PRINTDLG pd;
 	memset( &pd, 0, sizeof(PRINTDLG) );
 	pd.lStructSize = sizeof(PRINTDLG);
-	pd.Flags = PD_RETURNDEFAULT;
-	result = PrintDlg( &pd ) != 0;
+
+        pd.hDevMode   = hdevmode;
+        pd.hDevNames  = hdevnames;
+        if (pd.hDevMode)
+            result = TRUE;
+        else {
+	    pd.Flags = PD_RETURNDEFAULT;
+	    result = PrintDlg( &pd ) != 0;
+        }
 
 	if ( result ) {
 	    // writePdlg {
@@ -374,8 +401,15 @@ bool QPrinter::setup( QWidget *parent )
 	PRINTDLGA pd;
 	memset( &pd, 0, sizeof(PRINTDLGA) );
 	pd.lStructSize = sizeof(PRINTDLGA);
-	pd.Flags	 = PD_RETURNDEFAULT;
-	result = PrintDlgA( &pd ) != 0;
+
+	pd.hDevMode   = hdevmode;
+	pd.hDevNames  = hdevnames;
+	if (pd.hDevMode)
+	    result = TRUE;
+        else {
+	    pd.Flags         = PD_RETURNDEFAULT;
+	    result = PrintDlgA( &pd ) != 0;
+        }
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
@@ -503,7 +537,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( ok && fullPage() && !viewOffsetDone ) {
 	    QSize margs = margins();
 	    OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
-	    viewOffsetDone = TRUE;
+	    //XXX CS097 viewOffsetDone = TRUE;
 	}
 	if ( !ok ) {
 	    if ( hdc ) {
