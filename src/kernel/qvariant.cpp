@@ -62,7 +62,6 @@
 #include "qbitarray.h"
 #include "qkeysequence.h"
 #include "qpen.h"
-#include "qcstring.h"
 
 #ifndef DBL_DIG
 #define DBL_DIG 10
@@ -110,10 +109,6 @@ QVariant::Private::Private( Private* d )
 	    break;
 	case QVariant::String:
 	    value.ptr = new QString( *((QString*)d->value.ptr) );
-	    break;
-	case QVariant::CString:
-	    // QCString is explicit shared
-	    value.ptr = new QCString( *((QCString*)d->value.ptr) );
 	    break;
 #ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
@@ -178,6 +173,7 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QDateTime( *((QDateTime*)d->value.ptr) );
 	    break;
 	case QVariant::ByteArray:
+	case QVariant::CString:
 	    value.ptr = new QByteArray( *((QByteArray*)d->value.ptr) );
 	    break;
 	case QVariant::BitArray:
@@ -244,9 +240,6 @@ void QVariant::Private::clear()
 	case QVariant::String:
 	    delete (QString*)value.ptr;
 	    break;
-	case QVariant::CString:
-	    delete (QCString*)value.ptr;
-	    break;
 #ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
 	    delete (QStringList*)value.ptr;
@@ -310,6 +303,7 @@ void QVariant::Private::clear()
 	    delete (QDateTime*)value.ptr;
 	    break;
 	case QVariant::ByteArray:
+	case QVariant::CString:
 	    delete (QByteArray*)value.ptr;
 	    break;
 	case QVariant::BitArray:
@@ -366,8 +360,8 @@ void QVariant::Private::clear()
     type that cannot be generated from the stored type, the result
     depends on the type (see the function documentation for details).
 
-    Note that three data types supported by QVariant are explicitly
-    shared, namely QImage, QPointArray, and QCString, and in these
+    Note that two data types supported by QVariant are explicitly
+    shared, namely QImage and QPointArray, and in these
     cases the toT() methods return a shallow copy. In almost all cases
     you must make a deep copy of the returned values before modifying
     them.
@@ -383,7 +377,7 @@ void QVariant::Private::clear()
     QVariant v(123);          // The variant now contains an int
     int x = v.toInt();        // x = 123
     out << v;                 // Writes a type tag and an int to out
-    v = QVariant("hello");    // The variant now contains a QCString
+    v = QVariant("hello");    // The variant now contains a QByteArray
     v = QVariant(tr("hello"));// The variant now contains a QString
     int y = v.toInt();        // y = 0 since v cannot be converted to an int
     QString s = v.toString(); // s = tr("hello")  (see QObject::tr())
@@ -453,7 +447,6 @@ void QVariant::Private::clear()
     \value Size  a QSize
     \value SizePolicy  a QSizePolicy
     \value String  a QString
-    \value CString  a QCString
     \value StringList  a QStringList
     \value Time  a QTime
     \value UInt  an unsigned int
@@ -518,20 +511,6 @@ QVariant::QVariant( const QString& val )
 }
 
 /*!
-    Constructs a new variant with a C-string value, \a val.
-
-    If you want to modify the QCString after you've passed it to this
-    constructor, we recommend passing a deep copy (see
-    QCString::copy()).
-*/
-QVariant::QVariant( const QCString& val )
-{
-    d = new Private;
-    d->typ = CString;
-    d->value.ptr = new QCString( val );
-}
-
-/*!
     Constructs a new variant with a C-string value of \a val if \a val
     is non-null. The variant creates a deep copy of \a val.
 
@@ -542,8 +521,8 @@ QVariant::QVariant( const char* val )
     d = new Private;
     if ( val == 0 )
 	return;
-    d->typ = CString;
-    d->value.ptr = new QCString( val );
+    d->typ = ByteArray;
+    d->value.ptr = new QByteArray( val );
 }
 
 #ifndef QT_NO_STRINGLIST
@@ -998,7 +977,7 @@ static const char* const type_map[ntypes] =
     "uint",
     "bool",
     "double",
-    "QCString",
+    "QByteArray",
     "QPointArray",
     "QRegion",
     "QBitmap",
@@ -1121,13 +1100,6 @@ void QVariant::load( QDataStream& s )
     case String:
 	{
 	    QString* x = new QString;
-	    s >> *x;
-	    d->value.ptr = x;
-	}
-	break;
-    case CString:
-	{
-	    QCString* x = new QCString;
 	    s >> *x;
 	    d->value.ptr = x;
 	}
@@ -1310,6 +1282,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+    case CString:
     case ByteArray:
 	{
 	    QByteArray* x = new QByteArray;
@@ -1381,9 +1354,6 @@ void QVariant::save( QDataStream& s ) const
 #endif
     case String:
 	s << *((QString*)d->value.ptr);
-	break;
-    case CString:
-	s << *((QCString*)d->value.ptr);
 	break;
 #ifndef QT_NO_STRINGLIST
     case StringList:
@@ -1466,6 +1436,7 @@ void QVariant::save( QDataStream& s ) const
     case DateTime:
 	s << *((QDateTime*)d->value.ptr);
 	break;
+    case CString:
     case ByteArray:
 	s << *((QByteArray*)d->value.ptr);
 	break;
@@ -1599,18 +1570,24 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
     otherwise returns a null iterator.
 */
 
+/*! \fn QByteArray QVariant::toCString() const
+  \obsolete
+    Returns the variant as a QCString if the variant has type()
+    CString or String; otherwise returns 0.
+
+    \sa asCString()
+*/
+
 /*!
     Returns the variant as a QString if the variant has type() String,
-    CString, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
+    ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
     KeySequence, Font or Color; otherwise returns QString::null.
 
     \sa asString()
 */
-const QString QVariant::toString() const
+QString QVariant::toString() const
 {
     switch( d->typ ) {
-    case CString:
-	return QString::fromLatin1( toCString() );
     case Int:
 	return QString::number( toInt() );
     case UInt:
@@ -1635,6 +1612,7 @@ const QString QVariant::toString() const
     case KeySequence:
 	return (QString) *( (QKeySequence*)d->value.ptr );
 #endif
+    case CString:
     case ByteArray:
 	return QString( *((QByteArray*)d->value.ptr) );
     case Font:
@@ -1647,24 +1625,6 @@ const QString QVariant::toString() const
 	return QString::null;
     }
 }
-/*!
-    Returns the variant as a QCString if the variant has type()
-    CString or String; otherwise returns 0.
-
-    \sa asCString()
-*/
-const QCString QVariant::toCString() const
-{
-    switch ( d->typ ) {
-    case CString:
-	return *((QCString*)d->value.ptr);
-    case String:
-	return ((QString*)d->value.ptr)->latin1();
-    default:
-	return 0;
-    }
-}
-
 
 #ifndef QT_NO_STRINGLIST
 /*!
@@ -1685,7 +1645,7 @@ const QCString QVariant::toCString() const
 
     \sa asStringList()
 */
-const QStringList QVariant::toStringList() const
+QStringList QVariant::toStringList() const
 {
     switch ( d->typ ) {
     case StringList:
@@ -1728,7 +1688,7 @@ const QStringList QVariant::toStringList() const
 
     \sa asMap()
 */
-const QMap<QString, QVariant> QVariant::toMap() const
+QMap<QString, QVariant> QVariant::toMap() const
 {
     if ( d->typ != Map )
 	return QMap<QString,QVariant>();
@@ -1742,7 +1702,7 @@ const QMap<QString, QVariant> QVariant::toMap() const
 
   \sa asFont()
 */
-const QFont QVariant::toFont() const
+QFont QVariant::toFont() const
 {
     switch ( d->typ ) {
     case String:
@@ -1764,7 +1724,7 @@ const QFont QVariant::toFont() const
 
     \sa asPixmap()
 */
-const QPixmap QVariant::toPixmap() const
+QPixmap QVariant::toPixmap() const
 {
     if ( d->typ != Pixmap )
 	return QPixmap();
@@ -1792,7 +1752,7 @@ const QImage QVariant::toImage() const
 
     \sa asBrush()
 */
-const QBrush QVariant::toBrush() const
+QBrush QVariant::toBrush() const
 {
     if( d->typ != Brush )
 	return QBrush();
@@ -1806,7 +1766,7 @@ const QBrush QVariant::toBrush() const
 
     \sa asPoint()
 */
-const QPoint QVariant::toPoint() const
+QPoint QVariant::toPoint() const
 {
     if ( d->typ != Point )
 	return QPoint();
@@ -1820,7 +1780,7 @@ const QPoint QVariant::toPoint() const
 
     \sa asRect()
 */
-const QRect QVariant::toRect() const
+QRect QVariant::toRect() const
 {
     if ( d->typ != Rect )
 	return QRect();
@@ -1834,7 +1794,7 @@ const QRect QVariant::toRect() const
 
     \sa asSize()
 */
-const QSize QVariant::toSize() const
+QSize QVariant::toSize() const
 {
     if ( d->typ != Size )
 	return QSize();
@@ -1848,7 +1808,7 @@ const QSize QVariant::toSize() const
 
     \sa asColor()
 */
-const QColor QVariant::toColor() const
+QColor QVariant::toColor() const
 {
     switch ( d->typ ) {
     case String:
@@ -1870,7 +1830,7 @@ const QColor QVariant::toColor() const
 
     \sa asPalette()
 */
-const QPalette QVariant::toPalette() const
+QPalette QVariant::toPalette() const
 {
     if ( d->typ != Palette )
 	return QPalette();
@@ -1884,7 +1844,7 @@ const QPalette QVariant::toPalette() const
 
     \sa asColorGroup()
 */
-const QColorGroup QVariant::toColorGroup() const
+QColorGroup QVariant::toColorGroup() const
 {
     if ( d->typ != ColorGroup )
 	return QColorGroup();
@@ -1899,7 +1859,7 @@ const QColorGroup QVariant::toColorGroup() const
 
     \sa asIconSet()
 */
-const QIconSet QVariant::toIconSet() const
+QIconSet QVariant::toIconSet() const
 {
     if ( d->typ != IconSet )
 	return QIconSet();
@@ -1927,7 +1887,7 @@ const QPointArray QVariant::toPointArray() const
 
     \sa asBitmap()
 */
-const QBitmap QVariant::toBitmap() const
+QBitmap QVariant::toBitmap() const
 {
     if ( d->typ != Bitmap )
 	return QBitmap();
@@ -1941,7 +1901,7 @@ const QBitmap QVariant::toBitmap() const
 
     \sa asRegion()
 */
-const QRegion QVariant::toRegion() const
+QRegion QVariant::toRegion() const
 {
     if ( d->typ != Region )
 	return QRegion();
@@ -1955,7 +1915,7 @@ const QRegion QVariant::toRegion() const
 
     \sa asCursor()
 */
-const QCursor QVariant::toCursor() const
+QCursor QVariant::toCursor() const
 {
 #ifndef QT_NO_CURSOR
     if ( d->typ != Cursor )
@@ -1974,7 +1934,7 @@ const QCursor QVariant::toCursor() const
 
     \sa asDate()
 */
-const QDate QVariant::toDate() const
+QDate QVariant::toDate() const
 {
     switch ( d->typ ) {
     case Date:
@@ -1999,7 +1959,7 @@ const QDate QVariant::toDate() const
 
     \sa asTime()
 */
-const QTime QVariant::toTime() const
+QTime QVariant::toTime() const
 {
     switch ( d->typ ) {
     case Time:
@@ -2025,7 +1985,7 @@ const QTime QVariant::toTime() const
 
     \sa asDateTime()
 */
-const QDateTime QVariant::toDateTime() const
+QDateTime QVariant::toDateTime() const
 {
     switch ( d->typ ) {
     case DateTime:
@@ -2043,15 +2003,13 @@ const QDateTime QVariant::toDateTime() const
 
 /*!
     Returns the variant as a QByteArray if the variant has type()
-    ByteArray or CString; otherwise returns an empty bytearray.
+    ByteArray; otherwise returns an empty bytearray.
 
     \sa asByteArray()
 */
-const QByteArray QVariant::toByteArray() const
+QByteArray QVariant::toByteArray() const
 {
-    if ( d->typ == ByteArray )
-	return *((QByteArray*)d->value.ptr);
-    if ( d->typ == CString )
+    if ( d->typ == ByteArray || d->typ == CString )
 	return *((QByteArray*)d->value.ptr);
     return QByteArray();
 }
@@ -2062,7 +2020,7 @@ const QByteArray QVariant::toByteArray() const
 
     \sa asBitArray()
 */
-const QBitArray QVariant::toBitArray() const
+QBitArray QVariant::toBitArray() const
 {
     if ( d->typ == BitArray )
 	return *((QBitArray*)d->value.ptr);
@@ -2081,7 +2039,7 @@ const QBitArray QVariant::toBitArray() const
 
     \sa asKeySequence()
 */
-const QKeySequence QVariant::toKeySequence() const
+QKeySequence QVariant::toKeySequence() const
 {
     switch ( d->typ ) {
     case KeySequence:
@@ -2103,7 +2061,7 @@ const QKeySequence QVariant::toKeySequence() const
 
     \sa asPen()
 */
-const QPen QVariant::toPen() const
+QPen QVariant::toPen() const
 {
     if ( d->typ != Pen )
 	return QPen();
@@ -2113,7 +2071,7 @@ const QPen QVariant::toPen() const
 
 /*!
     Returns the variant as an int if the variant has type() String,
-    CString, Int, UInt, Double, Bool or KeySequence; otherwise returns
+    Int, UInt, Double, Bool or KeySequence; otherwise returns
     0.
 
     If \a ok is non-null: \a *ok is set to TRUE if the value could be
@@ -2129,8 +2087,9 @@ int QVariant::toInt( bool * ok ) const
     switch ( d->typ ) {
     case String:
 	return ((QString*)d->value.ptr)->toInt( ok );
+    case ByteArray:
     case CString:
-	return ((QCString*)d->value.ptr)->toInt( ok );
+	return QString(*((QByteArray*)d->value.ptr)).toInt( ok );
     case Int:
 	return d->value.i;
     case UInt:
@@ -2154,7 +2113,7 @@ int QVariant::toInt( bool * ok ) const
 
 /*!
     Returns the variant as an unsigned int if the variant has type()
-    String, CString, UInt, Int, Double, or Bool; otherwise returns 0.
+    String, ByteArray, UInt, Int, Double, or Bool; otherwise returns 0.
 
     If \a ok is non-null: \a *ok is set to TRUE if the value could be
     converted to an unsigned int; otherwise \a *ok is set to FALSE.
@@ -2170,7 +2129,8 @@ uint QVariant::toUInt( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toUInt( ok );
     case CString:
-	return ((QCString*)d->value.ptr)->toUInt( ok );
+    case ByteArray:
+	return QString(*((QByteArray*)d->value.ptr)).toUInt( ok );
     case Int:
 	return (uint)d->value.i;
     case UInt:
@@ -2206,8 +2166,9 @@ Q_LLONG QVariant::toLongLong( bool * ok ) const
     switch ( d->typ ) {
     case String:
 	return ((QString*)d->value.ptr)->toLongLong( ok );
+    case ByteArray:
     case CString:
-	return ((QCString*)d->value.ptr)->toInt( ok ); // ### LongLong
+	return QString(*((QByteArray*)d->value.ptr)).toLongLong( ok );
     case Int:
 	return (Q_LLONG)d->value.i;
     case UInt:
@@ -2255,8 +2216,9 @@ Q_ULLONG QVariant::toULongLong( bool * ok ) const
 	return (Q_ULLONG)d->value.b;
     case String:
 	return ((QString*)d->value.ptr)->toULongLong( ok );
+    case ByteArray:
     case CString:
-	// ###	return ((QCString*)d->value.ptr)->toULongLong( ok );
+	return QString(*((QByteArray*)d->value.ptr)).toULongLong( ok );
     default:
 	return 0;
     }
@@ -2298,7 +2260,7 @@ bool QVariant::toBool() const
 
 /*!
     Returns the variant as a double if the variant has type() String,
-    CString, Double, Int, UInt, LongLong, ULongLong or Bool; otherwise
+    ByteArray, Double, Int, UInt, LongLong, ULongLong or Bool; otherwise
     returns 0.0.
 
     If \a ok is non-null: \a *ok is set to TRUE if the value could be
@@ -2315,7 +2277,8 @@ double QVariant::toDouble( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toDouble( ok );
     case CString:
-	return ((QCString*)d->value.ptr)->toDouble( ok );
+    case ByteArray:
+	return QString(*((QByteArray*)d->value.ptr)).toDouble( ok );
     case Double:
 	return d->value.d;
     case Int:
@@ -2355,7 +2318,7 @@ double QVariant::toDouble( bool * ok ) const
 
     \sa asList()
 */
-const QValueList<QVariant> QVariant::toList() const
+QValueList<QVariant> QVariant::toList() const
 {
     if ( d->typ == List )
 	return *((QValueList<QVariant>*)d->value.ptr);
@@ -2392,7 +2355,6 @@ QSizePolicy QVariant::toSizePolicy() const
    if ( d->typ != f ) *this = QVariant( to##f() ); else detach(); return *((Q##f*)d->value.ptr);}
 
 Q_VARIANT_AS(String)
-Q_VARIANT_AS(CString)
 #ifndef QT_NO_STRINGLIST
 Q_VARIANT_AS(StringList)
 #endif
@@ -2439,6 +2401,8 @@ Q_VARIANT_AS(Pen)
 
 /*!
     \fn QCString& QVariant::asCString()
+
+    \obsolete
 
     Tries to convert the variant to hold a string value. If that is
     not possible the variant is set to an empty string.
@@ -3239,8 +3203,6 @@ bool QVariant::isNull() const
 	    return ((QPointArray*) d->value.ptr)->isNull();
 	case QVariant::String:
 	    return ((QString*) d->value.ptr)->isNull();
-	case QVariant::CString:
-	    return ((QCString*) d->value.ptr)->isNull();
 	case QVariant::Pixmap:
 	    return ((QPixmap*) d->value.ptr)->isNull();
 	case QVariant::Image:
@@ -3261,6 +3223,7 @@ bool QVariant::isNull() const
 	    return ((QTime*) d->value.ptr)->isNull();
 	case QVariant::DateTime:
 	    return ((QDateTime*) d->value.ptr)->isNull();
+	case QVariant::CString:
 	case QVariant::ByteArray:
 	    return ((QByteArray*) d->value.ptr)->isNull();
 	case QVariant::BitArray:

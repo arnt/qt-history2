@@ -1462,12 +1462,6 @@ private:
     bool wrapEnabled;
     int wrapColumn;
     bool biw;
-
-#ifdef HAVE_THAI_BREAKS
-    static QCString *thaiCache;
-    static QTextString *cachedString;
-    static ThBreakIterator *thaiIt;
-#endif
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -45,7 +45,6 @@
 
 #ifndef QT_NO_VARIANT
 class QString;
-class QCString;
 class QFont;
 class QPixmap;
 class QBrush;
@@ -104,7 +103,9 @@ public:
 	UInt,
 	Bool,
 	Double,
+#ifndef Q_QDOC
 	CString,
+#endif
 	PointArray,
 	Region,
 	Bitmap,
@@ -128,7 +129,6 @@ public:
     QVariant( QDataStream& s );
 #endif
     QVariant( const QString& );
-    QVariant( const QCString& );
     QVariant( const char* );
 #ifndef QT_NO_STRINGLIST
     QVariant( const QStringList& );
@@ -185,35 +185,34 @@ public:
 
     void clear();
 
-    const QString toString() const;
-    const QCString toCString() const;
+    QString toString() const;
 #ifndef QT_NO_STRINGLIST
-    const QStringList toStringList() const;
+    QStringList toStringList() const;
 #endif
-    const QFont toFont() const;
-    const QPixmap toPixmap() const;
+    QFont toFont() const;
+    QPixmap toPixmap() const;
     const QImage toImage() const;
-    const QBrush toBrush() const;
-    const QPoint toPoint() const;
-    const QRect toRect() const;
-    const QSize toSize() const;
-    const QColor toColor() const;
-    const QPalette toPalette() const;
-    const QColorGroup toColorGroup() const;
-    const QIconSet toIconSet() const;
+    QBrush toBrush() const;
+    QPoint toPoint() const;
+    QRect toRect() const;
+    QSize toSize() const;
+    QColor toColor() const;
+    QPalette toPalette() const;
+    QColorGroup toColorGroup() const;
+    QIconSet toIconSet() const;
     const QPointArray toPointArray() const;
-    const QBitmap toBitmap() const;
-    const QRegion toRegion() const;
-    const QCursor toCursor() const;
-    const QDate toDate() const;
-    const QTime toTime() const;
-    const QDateTime toDateTime() const;
-    const QByteArray toByteArray() const;
-    const QBitArray toBitArray() const;
+    QBitmap toBitmap() const;
+    QRegion toRegion() const;
+    QCursor toCursor() const;
+    QDate toDate() const;
+    QTime toTime() const;
+    QDateTime toDateTime() const;
+    QByteArray toByteArray() const;
+    QBitArray toBitArray() const;
 #ifndef QT_NO_ACCEL
-    const QKeySequence toKeySequence() const;
+    QKeySequence toKeySequence() const;
 #endif
-    const QPen toPen() const;
+    QPen toPen() const;
     int toInt( bool * ok=0 ) const;
     uint toUInt( bool * ok=0 ) const;
     Q_LLONG toLongLong( bool * ok=0 ) const;
@@ -221,8 +220,8 @@ public:
     bool toBool() const;
     double toDouble( bool * ok=0 ) const;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    const QValueList<QVariant> toList() const;
-    const QMap<QString,QVariant> toMap() const;
+    QValueList<QVariant> toList() const;
+    QMap<QString,QVariant> toMap() const;
 #endif
     QSizePolicy toSizePolicy() const;
 
@@ -236,7 +235,6 @@ public:
     QMapConstIterator<QString,QVariant> mapFind( const QString& ) const;
 #endif
     QString& asString();
-    QCString& asCString();
 #ifndef QT_NO_STRINGLIST
     QStringList& asStringList();
 #endif
@@ -283,6 +281,10 @@ public:
     static const char* typeToName( Type typ );
     static Type nameToType( const char* name );
 
+#ifndef QT_NO_COMPAT
+    const QByteArray toCString() const { return toByteArray(); }
+    QByteArray& asCString() { return asByteArray(); }
+#endif
 private:
     void detach();
 
