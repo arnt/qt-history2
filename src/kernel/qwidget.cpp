@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#11 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#11 $";
 #endif
 
 
@@ -261,31 +261,31 @@ void QWidget::setNCRect( const QRect &r )	// set ncrect, update rect
 }
 
 
-QPoint QWidget::mapToGlobal( const QPoint &p ) const
+QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {						// map to global coordinates
     register QWidget *w = (QWidget*)this;
-    QPoint x = p;
+    QPoint p = pos;
     while ( w ) {
-	x += w->rect.topLeft() + w->ncrect.topLeft();
+	p += w->rect.topLeft();
 	w = w->parentWidget();
     }
-    return x;
+    return p;
 }
 
-QPoint QWidget::mapFromGlobal( const QPoint &p ) const
+QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {						// map from global coordinates
     register QWidget *w = (QWidget*)this;
-    QPoint x = p;
+    QPoint p = pos;
     while ( w ) {
-	x -= w->rect.topLeft() + w->ncrect.topLeft();
+	p -= w->rect.topLeft();
 	w = w->parentWidget();
     }
-    return x;
+    return p;
 }
 
 QPoint QWidget::mapToParent( const QPoint &p ) const
 {						// map to parent coordinates
-    return p + ncrect.topLeft();
+    return p + rect.topLeft();
 }
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
