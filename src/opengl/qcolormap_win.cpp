@@ -39,34 +39,58 @@
 #include "qshared.h"
 #include "qarray.h"
 #include "qwidget.h"
+#include "qt_windows.h"
 
 class QColormapPrivate : public QShared
 {
 public:
-    QColormapPrivate() { 
-	valid  = FALSE; 
+    QColormapPrivate( QWidget * w ) { 
+	valid  = FALSE;
+	widget = w;
 	size   = 0;
-	widget = 0;
+
+        LOGPALETTE * lpal = (LOGPALETTE *) malloc( sizeof(LOGPALETTE)
+			    + 256 * sizeof(PALETTEENTRY) );
+
+	lpal->palVersion    = 0x300;
+	lpal->palNumEntries = 256;
+	hpal = CreatePalette( lpal );
+
+	if ( hpal != 0 ) {
+	    size   = 256;
+	    widget = w;
+	    valid  = TRUE;
+	    cells.resize( size );
+	}
+	free( lpal );
     }
     
     ~QColormapPrivate() {
+	if ( widget && hpal ) {
+	    HDC hdc = GetDC( widget->topLevelWidget()->winId() ); 
+	    SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
+			   FALSE );
+	    DeleteObject( hpal );
+	    ReleaseDC( widget->topLevelWidget()->winId(), hdc );
+	}
     }
     
     bool valid;
     int size;
-    QWidget * widget;
+    HPALETTE   hpal;
+    QWidget *  widget;
+    QArray< QRgb > cells;
 };
 
 
-QColormap::QColormap()
+QColormap::QColormap( QWidget * w, const char * name )
+    : QObject( w, name )
 {
-}
-
-QColormap::QColormap( QWidget * w )
-{
+    d = new QColormapPrivate( w );
 }
 
 QColormap::QColormap( const QColormap & map )
+    : QObject( map.d->widget, map.name() )
 {
 }
 
@@ -76,7 +100,7 @@ QColormap::~QColormap()
 
 QColormap & QColormap::operator=( const QColormap & map )
 {
-    QColormap dummy;
+    QColormap dummy( d->widget );
     return dummy;
 }
 
@@ -86,23 +110,42 @@ void QColormap::detach()
 
 void QColormap::setRgb( int idx, QRgb color )
 {    
+    if ( !d->valid ) {
+	return;
+    }
+
+    PALETTEENTRY pe;
+    pe.peRed   = qRed( color );
+    pe.peGreen = qGreen( color );
+    pe.peBlue  = qBlue( color );
+    pe.peFlags = 0;
+
+    SetPaletteEntries( d->hpal, idx, 1, &pe );
+    d->cells[ idx ] = color;
+    HDC hdc = GetDC( d->widget->topLevelWidget()->winId() );
+    SelectPalette( hdc, d->hpal, FALSE );
+    //RealizePalette( hdc );
+    ReleaseDC( d->widget->topLevelWidget()->winId(), hdc );
 }
 
-void QColormap::setColor( int idx, QColor color )
-{    
+void QColormap::setColor( int idx, const QColor & color )
+{
+    setRgb( idx, color.rgb() );
 }
 
 QRgb QColormap::rgb( int idx ) const
 {
+    return 0;
 }
 
 QColor QColormap::color( int idx ) const
 {
+    return QColor();
 }
 
 bool QColormap::isValid() const
 {
-    return FALSE;
+    return d->valid;
 }
 
 Qt::HANDLE QColormap::colormap() const
@@ -112,5 +155,5 @@ Qt::HANDLE QColormap::colormap() const
 
 int QColormap::size() const
 {
-    return 0;
+    return d->size;
 }
