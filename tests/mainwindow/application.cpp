@@ -52,6 +52,8 @@ const char * filePrintText = "Click this button to print the file you "
 "are editing.\n\n"
 "You can also select the Print command from the File menu.";
 
+QToolBar *myTb;
+
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose ),
       cb( 0 ), pb( 0 )
@@ -171,7 +173,8 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 
     if ( name == "file operations" ) {
 	QToolBar* fileTools = new QToolBar( this, "file operations" );
-
+	myTb = fileTools;
+	
 	openIcon = QPixmap( fileopen );
 
  	pb = new QPushButton( fileTools );
@@ -278,7 +281,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 ApplicationWindow::~ApplicationWindow()
 {
     QList<QToolBar> lst;
-    ToolBarDock da[] = { Left, Right, Top, Bottom, Hidden };
+    ToolBarDock da[] = { Left, Right, Top, Bottom, Minimized };
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
@@ -460,6 +463,10 @@ void ApplicationWindow::toggleOpaque()
     debug( "toggleOpaque" );
     setOpaqueMoving( !opaqueMoving() );
     menuBar()->setItemChecked( opaqueId, opaqueMoving() );
+    if ( myTb->isVisible() )
+	myTb->hide();
+    else
+	myTb->show();
 }
 
 void ApplicationWindow::toggleFullScreen()
