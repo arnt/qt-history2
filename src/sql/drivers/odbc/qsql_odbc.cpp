@@ -98,7 +98,7 @@ public:
     int fieldCacheIdx;
 };
 
-static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
+static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode = 0)
 {
     SQLINTEGER nativeCode_;
     SQLSMALLINT msgLen;
@@ -114,6 +114,8 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
                          SQL_MAX_MESSAGE_LENGTH-1, /* in bytes, not in characters */
                          &msgLen);
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
+        if (nativeCode)
+            *nativeCode = nativeCode_;
 #ifdef UNICODE
         return QString((const QChar*)description_, msgLen);
 #else
@@ -122,17 +124,17 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
     return QString();
 }
 
-static QString qODBCWarn(const QODBCPrivate* odbc)
+static QString qODBCWarn(const QODBCPrivate* odbc, int *nativeCode = 0)
 {
     return (qWarnODBCHandle(SQL_HANDLE_ENV, odbc->hEnv) + QLatin1String(" ")
              + qWarnODBCHandle(SQL_HANDLE_DBC, odbc->hDbc) + QLatin1String(" ")
-             + qWarnODBCHandle(SQL_HANDLE_STMT, odbc->hStmt));
+             + qWarnODBCHandle(SQL_HANDLE_STMT, odbc->hStmt, nativeCode));
 }
 
-static QString qODBCWarn(const QODBCDriverPrivate* odbc)
+static QString qODBCWarn(const QODBCDriverPrivate* odbc, int *nativeCode = 0)
 {
     return (qWarnODBCHandle(SQL_HANDLE_ENV, odbc->hEnv) + QLatin1String(" ")
-             + qWarnODBCHandle(SQL_HANDLE_DBC, odbc->hDbc));
+             + qWarnODBCHandle(SQL_HANDLE_DBC, odbc->hDbc, nativeCode));
 }
 
 static void qSqlWarning(const QString& message, const QODBCPrivate* odbc)
@@ -149,13 +151,17 @@ static void qSqlWarning(const QString &message, const QODBCDriverPrivate *odbc)
 
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QODBCPrivate* p)
 {
-    return QSqlError(QLatin1String("QODBC3: ") + err, qODBCWarn(p), type);
+    int nativeCode = -1;
+    QString message = qODBCWarn(p, &nativeCode);
+    return QSqlError(QLatin1String("QODBC3: ") + err, message, type, nativeCode);
 }
 
 static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
                             const QODBCDriverPrivate* p)
 {
-    return QSqlError(QLatin1String("QODBC3: ") + err, qODBCWarn(p), type);
+    int nativeCode = -1;
+    QString message = qODBCWarn(p, &nativeCode);
+    return QSqlError(QLatin1String("QODBC3: ") + err, qODBCWarn(p), type, nativeCode);
 }
 
 template<class T>
