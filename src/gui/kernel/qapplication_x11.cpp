@@ -2371,7 +2371,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
          ! mainWidget->parentWidget()->isDesktop())
         qWarning("QApplication::setMainWidget(): New main widget (%s/%s) "
                   "has a parent!",
-                  mainWidget->className(), mainWidget->objectName().local8Bit());
+                  mainWidget->metaObject()->className(), mainWidget->objectName().local8Bit());
 #endif
     main_widget = mainWidget;
     if (main_widget) {                        // give WM command line

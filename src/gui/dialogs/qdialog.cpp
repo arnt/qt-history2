@@ -33,6 +33,10 @@
 #include "qt_windows.h"
 #endif
 
+#if defined(Q_WS_X11)
+#include "qx11info_x11.h"
+#endif
+
 /*!
     \class QDialog
     \brief The QDialog class is the base class of dialog windows.
@@ -607,7 +611,7 @@ void QDialog::show()
         && qApp->mainWidget() && qApp->mainWidget()->isVisible()
         && !qApp->mainWidget()->isMinimized()) {
         // make sure the transient for hint is set properly for modal dialogs
-        XSetTransientForHint(x11Display(), winId(), qApp->mainWidget()->winId());
+        XSetTransientForHint(x11Info()->display(), winId(), qApp->mainWidget()->winId());
     }
 #endif // Q_WS_X11
 

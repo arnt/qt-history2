@@ -1676,15 +1676,16 @@ void QWidget::setWindowState(uint newstate)
                     if (top->normalGeometry.width() < 0)
                         top->normalGeometry = QRect(pos(), size());
                     top->savedFlags = getWFlags();
-                    reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
-                             // preserve some widget flags
-                             (getWFlags() & 0xffff0000),
-                             mapToGlobal(QPoint(0, 0)));
+		    setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+			      // preserve some widget flags
+			      (getWFlags() & 0xffff0000));
+		    move(mapToGlobal(QPoint(0, 0)));
                     QRect r = qApp->desktop()->screenGeometry(this);
                     move(r.topLeft());
                     resize(r.size());
                 } else {
-                    reparent(0, top->savedFlags, QPoint(0,0));
+		    setParent(0, top->savedFlags);
+		    move(QPoint(0, 0));
                     QRect r = top->normalGeometry;
                     if (r.width() >= 0) {
                         // the widget has been maximized
@@ -1777,7 +1778,7 @@ void QWidget::show_sys()
 
         if (isMaximized() && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                                && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
-	    XMapWindow( x11Display(), winId() );
+	    XMapWindow( x11Info()->display(), winId() );
  	    qt_wait_for_window_manager(this);
 
  	    // if the wm was not smart enough to adjust our size, do that manually
@@ -1801,7 +1802,7 @@ void QWidget::show_sys()
         }
 
 	if (isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
- 	    XMapWindow(x11Display(), winId());
+ 	    XMapWindow(x11Info()->display(), winId());
  	    qt_wait_for_window_manager(this);
 	    return;
 	}
@@ -2207,7 +2208,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName().local8Bit(), className(), QWIDGETSIZE_MAX,
+                 objectName().local8Bit(), metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
         maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -2215,7 +2216,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                objectName().local8Bit(), className(), maxw, maxh);
+                objectName().local8Bit(), metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }
