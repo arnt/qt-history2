@@ -383,8 +383,6 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
-extern bool qt_is_gui_used; // qapplication.cpp
-
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 
 struct QScrollInProgress {

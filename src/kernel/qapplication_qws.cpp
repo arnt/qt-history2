@@ -216,8 +216,6 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 static WId	qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 
-extern bool qt_is_gui_used; // qwidget.cpp
-
 class QWSMouseEvent;
 class QWSKeyEvent;
 

@@ -56,4 +56,6 @@ extern bool qt_modal_state();
 extern void qt_enter_modal( QWidget* );
 extern void qt_leave_modal( QWidget* );
 
+extern bool qt_is_gui_used;
+
 #endif
