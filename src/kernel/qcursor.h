@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qpoint.h"
 #include "qshared.h"
-#include "qnamespace.h"			// Qt::CursorShape
 #endif // QT_H
 
 /*
