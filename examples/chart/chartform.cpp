@@ -57,40 +57,40 @@ ChartForm::ChartForm( const QString& filename )
     fileNewAction = new QAction(
 	    "New Chart", QPixmap( file_new ),
 	    "&New", CTRL+Key_N, this, "new" );
-    connect( fileNewAction, SIGNAL( activated() ) , this, SLOT( fileNew() ) );
+    connect( fileNewAction, SIGNAL( activated() ), this, SLOT( fileNew() ) );
 
     fileOpenAction = new QAction(
 	    "Open Chart", QPixmap( file_open ),
 	    "&Open...", CTRL+Key_O, this, "open" );
-    connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( fileOpen() ) );
+    connect( fileOpenAction, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
 
     fileSaveAction = new QAction(
 	    "Save Chart", QPixmap( file_save ),
 	    "&Save", CTRL+Key_S, this, "save" );
-    connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( fileSave() ) );
+    connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( fileSave() ) );
 
     fileSaveAsAction = new QAction(
 	    "Save Chart As", QPixmap( file_save ),
 	    "Save &As...", 0, this, "save as" );
-    connect( fileSaveAsAction, SIGNAL( activated() ) ,
+    connect( fileSaveAsAction, SIGNAL( activated() ),
 	     this, SLOT( fileSaveAs() ) );
 
     fileSaveAsPixmapAction = new QAction(
 	    "Save Chart As Bitmap", QPixmap( file_save ),
 	    "Save As &Bitmap...", CTRL+Key_B, this, "save as bitmap" );
-    connect( fileSaveAsPixmapAction, SIGNAL( activated() ) ,
+    connect( fileSaveAsPixmapAction, SIGNAL( activated() ),
 	     this, SLOT( fileSaveAsPixmap() ) );
 
     filePrintAction = new QAction(
 	    "Print Chart", QPixmap( file_print ),
 	    "&Print Chart...", CTRL+Key_P, this, "print chart" );
-    connect( filePrintAction, SIGNAL( activated() ) ,
+    connect( filePrintAction, SIGNAL( activated() ),
 	     this, SLOT( filePrint() ) );
 
     optionsSetDataAction = new QAction(
 	    "Set Data", QPixmap( options_setdata ),
 	    "Set &Data...", CTRL+Key_D, this, "set data" );
-    connect( optionsSetDataAction, SIGNAL( activated() ) ,
+    connect( optionsSetDataAction, SIGNAL( activated() ),
 	     this, SLOT( optionsSetData() ) );
 
 
@@ -117,17 +117,17 @@ ChartForm::ChartForm( const QString& filename )
     optionsSetFontAction = new QAction(
 	    "Set Font", QPixmap( options_setfont ),
 	    "Set &Font...", CTRL+Key_F, this, "set font" );
-    connect( optionsSetFontAction, SIGNAL( activated() ) ,
+    connect( optionsSetFontAction, SIGNAL( activated() ),
 	     this, SLOT( optionsSetFont() ) );
 
     optionsSetOptionsAction = new QAction(
 	    "Set Options", QPixmap( options_setoptions ),
 	    "Set &Options...", 0, this, "set options" );
-    connect( optionsSetOptionsAction, SIGNAL( activated() ) ,
+    connect( optionsSetOptionsAction, SIGNAL( activated() ),
 	     this, SLOT( optionsSetOptions() ) );
 
     fileQuitAction = new QAction( "Quit", "&Quit", CTRL+Key_Q, this, "quit" );
-    connect( fileQuitAction, SIGNAL( activated() ) , this, SLOT( fileQuit() ) );
+    connect( fileQuitAction, SIGNAL( activated() ), this, SLOT( fileQuit() ) );
 
 
     QToolBar* fileTools = new QToolBar( this, "file operations" );

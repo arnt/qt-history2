@@ -317,10 +317,15 @@ dynamically, e.g. to provide a common look in a windowmanager.
 <layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
 \endcode
 
-If a layout has no \c margin or \c spacing property specified, the
-default values (\c layoutdefaults) of the form will be used. If there
-are functions, they are used, i.e. functions have a higher
-priority than default values.
+The rules for determining \c maring and \c specified values are these:
+\list 1
+\i If an integer value is specified for \c margin or \c spacing then
+the value is used.
+\i If no integer value is specified and a layout function is specified
+then the function is used. 
+\i If no integer value or function is specified then the default
+value from \c layoutdefaults is used.
+\endlist
 
 
 \target menubar
