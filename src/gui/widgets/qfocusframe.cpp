@@ -40,7 +40,7 @@ void QFocusFramePrivate::update()
     q->setParent(widget->parentWidget());
     updateSize();
     if (q->parentWidget()->rect().contains(q->geometry())) {
-        q->raise();
+        q->stackUnder(widget);
         q->show();
     }
 }

@@ -3006,19 +3006,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::SmallIconSize;
         break;
 
-    case SH_FocusFrame_Mask:
-        ret = 1;
-        if (widget) {
-            ret = 0;
-            QRegion reg = widget->rect();
-            int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
-                hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
-            reg -= QRect(widget->rect().adjusted(hmargin, vmargin, -hmargin, -vmargin));
-            const_cast<QWidget*>(widget)->setMask(reg);
-            //### TODO return region in QStyleHintReturn
-        }
-        break;
-
     case SH_RubberBand_Mask:
         ret = 1;
         if (widget && (opt->state & State_Rectangle)) {
