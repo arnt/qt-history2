@@ -62,12 +62,14 @@ QSize ColorButton::minimumSizeHint() const
 
 void ColorButton::drawButton(QPainter *p)
 {
-    style().drawBevelButton(p, 0, 0, width(), height(), colorGroup(), isDown());
+    style().drawPrimitive(QStyle::PO_ButtonBevel, p, rect(), colorGroup(),
+			  isDown() ? QStyle::PStyle_Sunken : QStyle::PStyle_Default);
     drawButtonLabel(p);
 
     if (hasFocus())
-	style().drawFocusRect(p, style().bevelButtonRect(0, 0, width(), height()),
-			      colorGroup(), &colorGroup().button());
+	style().drawPrimitive(QStyle::PO_FocusRect, p,
+			      style().subRect(QStyle::SR_PushButtonFocusRect, this),
+			      colorGroup(), QStyle::PStyle_Default);
 }
 
 
