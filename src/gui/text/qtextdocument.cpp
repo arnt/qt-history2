@@ -943,6 +943,8 @@ void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos)
         html += QLatin1String(" left;\"");
     else if (pos == QTextFrameFormat::FloatRight)
         html += QLatin1String(" right;\"");
+    else
+        Q_ASSERT_X(0, "QTextHtmlExporter::emitFloatStyle()", "pos should be a valid enum type");
 }
 
 void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)

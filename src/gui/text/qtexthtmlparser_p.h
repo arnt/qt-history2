@@ -144,10 +144,12 @@ struct QTextHtmlParserNode {
     uint fontOverline : 1;
     uint fontStrikeOut : 1;
     uint fontFixedPitch : 1;
-    QTextFrameFormat::Position cssFloat : 2;
+    uint cssFloat : 2;
     uint hasOwnListStyle : 1;
-    QString fontFamily;
     uint hasFontPointSize : 1;
+    uint hasCssBlockIndent : 1;
+    uint hasCssListIndent : 1;
+    QString fontFamily;
     int fontPointSize;
     int fontWeight;
     QColor color;
@@ -167,9 +169,7 @@ struct QTextHtmlParserNode {
     int tableCellPadding;
 
     int cssBlockIndent;
-    uint hasCssBlockIndent : 1;
     int cssListIndent;
-    uint hasCssListIndent : 1;
 
     QTextCharFormat charFormat() const;
 

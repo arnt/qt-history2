@@ -254,7 +254,7 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextDocument *document)
 }
 
 /*!
-    Creates a QTextDocumentFragment from the \a{cursor}'s selection. 
+    Creates a QTextDocumentFragment from the \a{cursor}'s selection.
     If the cursor doesn't have a selection, the created fragment is empty.
 
     \sa isEmpty() QTextCursor::selection()
@@ -509,7 +509,7 @@ void QTextHTMLImporter::import()
 
             int bottomMargin = this->bottomMargin(i);
 
-            // for list items we may want to collapse with the bottom margin of the 
+            // for list items we may want to collapse with the bottom margin of the
             // list.
             if (node->isListItem) {
                 if (node->parent && at(node->parent).isListStart) {
@@ -586,7 +586,7 @@ void QTextHTMLImporter::import()
                 fmt.setWidth(node->imageWidth);
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
-            QTextFrameFormat::Position f = node->cssFloat;
+            QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
             // HTML4 compat
             if (f == QTextFrameFormat::InFlow) {
                 if (node->alignment == Qt::AlignLeft)
@@ -727,7 +727,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
         fmt.setBackgroundColor(node.bgColor);
     else
         fmt.clearBackgroundColor();
-    fmt.setPosition(node.cssFloat);
+    fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
     fmt.setColumns(table->columns);
     fmt.setColumnWidthConstraints(columnWidths);
