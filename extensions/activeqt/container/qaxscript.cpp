@@ -26,7 +26,6 @@
 **********************************************************************/
 
 #include "qaxscript.h"
-#include "../control/qaxfactory.h"
 
 #include <qapplication.h>
 #include <qdict.h>
