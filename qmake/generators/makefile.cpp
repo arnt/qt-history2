@@ -44,6 +44,13 @@
 #include <qregexp.h>
 #include "option.h"
 
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already(FALSE), moc_aware(FALSE)
 {
     QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
@@ -66,49 +73,71 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already
     }
 }
 
+char *gimme_buffer(off_t s)
+{
+    static char *big_buffer = NULL;
+    static int big_buffer_size = 0;
+    if(!big_buffer || big_buffer_size < s)
+	big_buffer = (char *)realloc(big_buffer, s);
+    return big_buffer;
+}
+
 bool
 MakefileGenerator::generateMocList(QString fn_target)
 {
     if(!mocablesToMOC[fn_target].isEmpty())
 	return TRUE;
-
     QString fn_local = Option::fixPathToLocalOS(fn_target);
-    QFile file(fn_local);
-    if ( file.open(IO_ReadOnly) ) {
-	QTextStream t( &file );
-	QString s;
-	while ( !t.eof() ) {
-	    s = t.readLine();
-	    if(s.find(QRegExp("Q_OBJECT")) != -1) {
-		QString mocFile;
-		QFileInfo fi(fn_local);
 
-		if(!project->variables()["MOC_DIR"].isEmpty())
-		    mocFile = project->variables()["MOC_DIR"].first();
-		else
-		    mocFile = fi.dirPath() + Option::dir_sep;
+    int file = open(fn_local.latin1(), O_RDONLY);
+    if(file == -1)
+	return FALSE;
+
+    struct stat fst;
+    if(fstat(file, &fst))
+	return FALSE; //shouldn't happen
+    char *big_buffer = gimme_buffer(fst.st_size);
+
+    int total_size_read;
+    for(int have_read = total_size_read = 0; 
+	have_read = read(file, big_buffer + total_size_read, fst.st_size - total_size_read);
+	total_size_read += have_read);
+    close(file);
+
+#define COMP_LEN 8 //strlen("Q_OBJECT")
+    for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
+	if(*(big_buffer+x) == 'Q' && !strncmp(big_buffer+x, "Q_OBJECT", COMP_LEN)) {
+
+	    int ext_pos = fn_target.findRev('.');
+	    int ext_len = fn_target.length() - ext_pos;
+	    int dir_pos =  fn_target.findRev('/', ext_pos);
+	    QString mocFile;
+	    if(!project->variables()["MOC_DIR"].isEmpty())
+		mocFile = project->variables()["MOC_DIR"].first();
+	    else
+		mocFile = fn_target.left(dir_pos);
+
+	    if(fn_target.right(ext_len) == Option::cpp_ext) {
+		mocFile += fn_target.mid(dir_pos, ext_pos - dir_pos) + Option::moc_ext;
+		depends[fn_target].append(mocFile);
+		project->variables()["_SRCMOC"].append(mocFile);
+	    }
+	    else if(fn_target.right(ext_len) == Option::h_ext &&
+		    project->variables()["HEADERS"].findIndex(fn_target) != -1) {
+		mocFile += Option::moc_mod + fn_target.mid(dir_pos, ext_pos - dir_pos) + Option::cpp_ext;
+		project->variables()["_HDRMOC"].append(mocFile);
+	    }
+
+	    if(!mocFile.isEmpty()) {
 		mocFile = Option::fixPathToTargetOS(mocFile);
-
-		if(fi.extension(FALSE) == (Option::cpp_ext.latin1()+1)) {
-		    mocFile += fi.baseName() + Option::moc_ext;
-		    depends[fn_target].append(mocFile);
-		    project->variables()["_SRCMOC"].append(mocFile);
-		}
-		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) &&
-			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    mocFile += Option::moc_mod + fi.baseName() + Option::cpp_ext;
-		    project->variables()["_HDRMOC"].append(mocFile);
-		}
-		else break;
 		mocablesToMOC[fn_target] = mocFile;
 		mocablesFromMOC[mocFile] = fn_target;
-		file.close();
-		return TRUE;
 	    }
+	    break;
 	}
-	file.close();
     }
-    return FALSE;
+#undef COMP_LEN
+    return TRUE;
 }
 
 
@@ -120,52 +149,73 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	return TRUE;
     fn = Option::fixPathToLocalOS(fn);
 
-    QFile file(fn);
-    if ( file.open(IO_ReadOnly) ) {
-	QTextStream t( &file );
-	QString s, inc;
-	while ( !t.eof() ) {
-	    s = t.readLine().stripWhiteSpace();
-	    if(s.left(9) == "#include ")
-		inc = s.mid(10, s.length() - 11);
-	    else
-		continue;
+    int file = open(fn.latin1(), O_RDONLY);
+    if(file == -1)
+	return FALSE;
 
-	    QString fqn;
-	    if(QFile::exists(inc))
-		fqn = inc;
-	    else if(QDir::isRelativePath(inc)) {
-		bool found=false;
-		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-		    found = QFile::exists((fqn = ((*it) + QDir::separator() + inc)));
-		}
-		if(!found)
+    struct stat fst;
+    if(fstat(file, &fst))
+	return FALSE; //shouldn't happen
+    char *big_buffer = gimme_buffer(fst.st_size);
+
+    int total_size_read;
+    for(int have_read = total_size_read = 0; 
+	have_read = read(file, big_buffer + total_size_read, fst.st_size - total_size_read);
+	total_size_read += have_read);
+    close(file);
+
+    for(int x = 0; x < total_size_read; x++) {
+	if(*(big_buffer + x) == '#') {
+	    x++;
+	    if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
+		x += 8;
+		char term = *(big_buffer + x);
+		if(term == '"');
+		else if(term == '<')
+		    term = '>';
+		else
+		    continue; //wtf?
+		x++;
+
+		int inc_len;
+		for(inc_len = 0; *(big_buffer + x + inc_len) != term; inc_len++);
+		*(big_buffer + x + inc_len) = '\0';
+		
+		QString fqn, inc = big_buffer + x;
+		if(!stat(inc, &fst))
+		    fqn = inc;
+		else if((Option::mode == Option::WIN_MODE && inc[1] != ':') || 
+			(Option::mode == Option::UNIX_MODE && inc[0] != '/')) {
+		    bool found = FALSE;
+		    for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
+			found = QFile::exists((fqn = ((*it) + QDir::separator() + inc)));
+		    }
+		    if(!found)
+			continue;
+		} else {
 		    continue;
-	    } else {
-		continue;
+		}
+		fqn = Option::fixPathToTargetOS(fqn);
+
+		if(fndeps.findIndex(fqn) == -1)
+		    fndeps.append(fqn);
 	    }
-	    fqn = Option::fixPathToTargetOS(fqn);
-
-	    if(fndeps.findIndex(fqn) == -1)
-		fndeps.append(fqn);
-
 	}
-	file.close();
-	for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
-	    generateDependancies(dirs, (*fnit));
-
-	    QStringList &deplist = depends[(*fnit)];
-	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
-		if(fndeps.findIndex((*it)) == -1)
-		    fndeps.append((*it));
-	}
-
-	if(Option::debug_level >= 2)
-	    printf("Dependancies: %s -> %s\n", fn.latin1(), fndeps.join(" :: ").latin1());
-
-	return TRUE;
     }
-    return FALSE;
+
+    for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
+	generateDependancies(dirs, (*fnit));
+
+	QStringList &deplist = depends[(*fnit)];
+	for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
+	    if(fndeps.findIndex((*it)) == -1)
+		fndeps.append((*it));
+    }	
+
+    if(Option::debug_level >= 2)
+	printf("Dependancies: %s -> %s\n", fn.latin1(), fndeps.join(" :: ").latin1());
+
+    return TRUE;
 }
 
 void
