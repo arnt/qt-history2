@@ -375,7 +375,8 @@
     array data \a data, which contains \a size elements. Returns a
     reference to this array.
 
-    Do not delete \a data later; QMemArray will take care of it.
+    Do not delete \a data later; QMemArray will call free() on it
+    at the right time.
 */
 
 /*!
