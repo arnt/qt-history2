@@ -865,7 +865,7 @@ static bool block_set_alignment = false;
 */
 
 Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
-    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
+    : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();
@@ -893,7 +893,7 @@ Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
 
 Q3TextEdit::Q3TextEdit(const QString& text, const QString& context,
                       QWidget *parent, const char *name)
-    : QScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
+    : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();
@@ -939,7 +939,7 @@ void Q3TextEdit::init()
     wPolicy = AtWhiteSpace;
     inDnD = false;
     doc->setFormatter(new Q3TextFormatterBreakWords);
-    doc->formatCollection()->defaultFormat()->setFont(QScrollView::font());
+    doc->formatCollection()->defaultFormat()->setFont(Q3ScrollView::font());
     doc->formatCollection()->defaultFormat()->setColor(palette().color(QPalette::Text));
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
@@ -1198,7 +1198,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
     bool unknownKey = false;
     if (isReadOnly()) {
         if (!handleReadOnlyKeyEvent(e))
-            QScrollView::keyPressEvent(e);
+            Q3ScrollView::keyPressEvent(e);
         changeIntervalTimer->start(100, true);
         return;
     }
@@ -1986,7 +1986,7 @@ void Q3TextEdit::moveCursor(CursorAction action)
 
 void Q3TextEdit::resizeEvent(QResizeEvent *e)
 {
-    QScrollView::resizeEvent(e);
+    Q3ScrollView::resizeEvent(e);
     if (doc->visibleWidth() == 0)
         doResize();
 }
@@ -1997,7 +1997,7 @@ void Q3TextEdit::resizeEvent(QResizeEvent *e)
 
 void Q3TextEdit::viewportResizeEvent(QResizeEvent *e)
 {
-    QScrollView::viewportResizeEvent(e);
+    Q3ScrollView::viewportResizeEvent(e);
     if (e->oldSize().width() != e->size().width()) {
         bool stayAtBottom = e->oldSize().height() != e->size().height() &&
                contentsY() > 0 && contentsY() >= doc->height() - e->oldSize().height();
@@ -2087,7 +2087,7 @@ void Q3TextEdit::contentsWheelEvent(QWheelEvent *e)
             return;
         }
     }
-    QScrollView::contentsWheelEvent(e);
+    Q3ScrollView::contentsWheelEvent(e);
 }
 #endif
 
@@ -2827,7 +2827,7 @@ bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
         }
     }
 
-    return QScrollView::eventFilter(o, e);
+    return Q3ScrollView::eventFilter(o, e);
 }
 
 /*!
@@ -4203,7 +4203,7 @@ QColor Q3TextEdit::color() const
 }
 
 /*!
-    Returns QScrollView::font()
+    Returns Q3ScrollView::font()
 
     \warning In previous versions this function returned the font of
     the current format. This lead to confusion. Please use
@@ -4212,7 +4212,7 @@ QColor Q3TextEdit::color() const
 
 QFont Q3TextEdit::font() const
 {
-    return QScrollView::font();
+    return Q3ScrollView::font();
 }
 
 /*!
@@ -5218,7 +5218,7 @@ void Q3TextEdit::setTabStopWidth(int ts)
 
 QSize Q3TextEdit::sizeHint() const
 {
-    // cf. QScrollView::sizeHint()
+    // cf. Q3ScrollView::sizeHint()
     ensurePolished();
     int f = 2 * frameWidth();
     int h = fontMetrics().height();
@@ -5407,7 +5407,7 @@ QPopupMenu *Q3TextEdit::createPopupMenu()
 
 void Q3TextEdit::zoomIn(int range)
 {
-    QFont f(QScrollView::font());
+    QFont f(Q3ScrollView::font());
     f.setPointSize(f.pointSize() + range);
     setFont(f);
 }
@@ -5422,7 +5422,7 @@ void Q3TextEdit::zoomIn(int range)
 
 void Q3TextEdit::zoomOut(int range)
 {
-    QFont f(QScrollView::font());
+    QFont f(Q3ScrollView::font());
     f.setPointSize(qMax(1, f.pointSize() - range));
     setFont(f);
 }
@@ -5435,7 +5435,7 @@ void Q3TextEdit::zoomOut(int range)
 
 void Q3TextEdit::zoomTo(int size)
 {
-    QFont f(QScrollView::font());
+    QFont f(Q3ScrollView::font());
     f.setPointSize(size);
     setFont(f);
 }
@@ -5456,7 +5456,7 @@ void Q3TextEdit::sync()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
-        QFontMetrics fm(QScrollView::font());
+        QFontMetrics fm(Q3ScrollView::font());
         resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
     } else
 #endif
@@ -5505,7 +5505,7 @@ void Q3TextEdit::changeEvent(QEvent *ev)
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode && (ev->type() == QEvent::ApplicationFontChange
                          || ev->type() == QEvent::FontChange)) {
-        QScrollView::setFont(font());
+        Q3ScrollView::setFont(font());
         doc->setDefaultFormat(font(), doc->formatCollection()->defaultFormat()->color());
         // recalculate the max string width
         QFontMetrics fm(font());
@@ -5521,7 +5521,7 @@ void Q3TextEdit::changeEvent(QEvent *ev)
     }
 #endif
 
-    QScrollView::changeEvent(ev);
+    Q3ScrollView::changeEvent(ev);
 
     if (textFormat() == Qt::PlainText) {
         if (ev->type() == QEvent::ApplicationPaletteChange || ev->type() == QEvent::PaletteChange
@@ -5594,7 +5594,7 @@ int Q3TextEdit::paragraphAt(const QPoint &pos) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode) {
-        QFontMetrics fm(QScrollView::font());
+        QFontMetrics fm(Q3ScrollView::font());
         int parag = pos.y() / fm.lineSpacing();
         if (parag <= d->od->numLines)
             return parag;
@@ -5906,7 +5906,7 @@ void Q3TextEdit::optimSetText(const QString &str)
     d->od->maxLineWidth = 0;
     d->od->len = 0;
     d->od->clearTags();
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     if (!(str.isEmpty() || str.isNull() || d->maxLogLines == 0)) {
         QStringList strl = str.split('\n');
         int lWidth = 0;
@@ -6230,13 +6230,13 @@ void Q3TextEdit::optimAppend(const QString &str)
     QStringList strl = str.split('\n');
     QStringList::Iterator it = strl.begin();
 
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     int lWidth = 0;
     for (; it != strl.end(); ++it) {
         optimParseTags(&*it);
         optimCheckLimit(*it);
         if (optimHasBoldMetrics(d->od->numLines-1)) {
-            QFont fnt = QScrollView::font();
+            QFont fnt = Q3ScrollView::font();
             fnt.setBold(true);
             fm = QFontMetrics(fnt);
         }
@@ -6419,11 +6419,11 @@ void Q3TextEdit::optimInsert(const QString& text, int line, int index)
         d->od->lines[LOGOFFSET(x - 1)] += right;
     }
     // recalculate the pixel width of the longest injected line -
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     int lWidth = 0;
     for (x = line; x < line + numNewLines; x++) {
         if (optimHasBoldMetrics(x)) {
-            QFont fnt = QScrollView::font();
+            QFont fnt = Q3ScrollView::font();
             fnt.setBold(true);
             fm = QFontMetrics(fnt);
         }
@@ -6533,7 +6533,7 @@ void Q3TextEdit::optimSetTextFormat(Q3TextDocument * td, Q3TextCursor * cur,
 void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
                                    int clipw, int cliph)
 {
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     int startLine = clipy / fm.lineSpacing();
 
     // we always have to fetch at least two lines for drawing because the
@@ -6553,7 +6553,7 @@ void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
         str.append(d->od->lines[LOGOFFSET(i)] + "\n");
 
     Q3TextDocument * td = new Q3TextDocument(0);
-    td->setDefaultFormat(QScrollView::font(), QColor());
+    td->setDefaultFormat(Q3ScrollView::font(), QColor());
     td->setPlainText(str);
     td->setFormatter(new Q3TextFormatterBreakWords); // deleted by QTextDoc
     td->formatter()->setWrapEnabled(false);
@@ -6563,7 +6563,7 @@ void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
     td->selectAll(Q3TextDocument::Standard);
     Q3TextFormat f;
     f.setColor(palette().text().color());
-    f.setFont(QScrollView::font());
+    f.setFont(Q3ScrollView::font());
     td->setFormat(Q3TextDocument::Standard, &f,
                    Q3TextFormat::Color | Q3TextFormat::Font);
     td->removeSelection(Q3TextDocument::Standard);
@@ -6701,7 +6701,7 @@ void Q3TextEdit::optimMousePressEvent(QMouseEvent * e)
     if (e->button() != Qt::LeftButton)
         return;
 
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     mousePressed = true;
     mousePos = e->pos();
     d->od->selStart.line = e->y() / fm.lineSpacing();
@@ -6727,7 +6727,7 @@ void Q3TextEdit::optimMouseReleaseEvent(QMouseEvent * e)
     if (scrollTimer->isActive())
         scrollTimer->stop();
     if (!inDoubleClick) {
-        QFontMetrics fm(QScrollView::font());
+        QFontMetrics fm(Q3ScrollView::font());
         d->od->selEnd.line = e->y() / fm.lineSpacing();
         if (d->od->selEnd.line > d->od->numLines-1) {
             d->od->selEnd.line = d->od->numLines-1;
@@ -6769,7 +6769,7 @@ void Q3TextEdit::optimDoAutoScroll()
     if (!mousePressed)
         return;
 
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     QPoint pos(mapFromGlobal(QCursor::pos()));
     bool doScroll = false;
     int xx = contentsX() + pos.x();
@@ -6845,7 +6845,7 @@ void Q3TextEdit::optimDoAutoScroll()
 */
 int Q3TextEdit::optimCharIndex(const QString &str, int mx) const
 {
-    QFontMetrics fm(QScrollView::font());
+    QFontMetrics fm(Q3ScrollView::font());
     int i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
@@ -6967,7 +6967,7 @@ bool Q3TextEdit::optimFind(const QString & expr, bool cs, bool /*wo*/,
         d->od->search.index = idx;
         d->od->search.line = i;
         optimSetSelection(i, idx, i, idx + expr.length());
-        QFontMetrics fm(QScrollView::font());
+        QFontMetrics fm(Q3ScrollView::font());
         int h = fm.lineSpacing();
         int x = fm.width(d->od->lines[LOGOFFSET(i)].left(idx + expr.length())) + 4;
         ensureVisible(x, i * h + h / 2, 1, h / 2 + 2);

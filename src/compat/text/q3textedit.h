@@ -103,7 +103,7 @@ public:
 };
 #endif
 
-class Q_COMPAT_EXPORT Q3TextEdit : public QScrollView
+class Q_COMPAT_EXPORT Q3TextEdit : public Q3ScrollView
 {
     friend class QTextBrowser;
     friend class QSyntaxHighlighter;
