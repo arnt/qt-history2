@@ -220,10 +220,10 @@ QToolBar::~QToolBar()
 }
 
 /*! \property QToolBar::movable
-    \brief whether the user can move the tool bar either within the
-    tool bar area or to another tool bar area.
+    \brief whether the user can move the toolbar within the tool bar area,
+    or between toolbar areas
 
-    By default, this property is true when the QToolBar is added to a
+    By default, this property is true when the toolbar is added to a
     QMainWindow.  This property is always false, and cannot be set to
     true, when the QToolBar is not added to a QMainWindow.
 
