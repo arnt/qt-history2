@@ -464,13 +464,7 @@ QString QHttpHeader::value( const QString& key ) const
 */
 QStringList QHttpHeader::keys() const
 {
-    QStringList lst;
-
-    QMap<QString,QString>::ConstIterator it = values.begin();
-    for( ; it != values.end(); ++it )
-	lst.append( *it );
-
-    return lst;
+    return values.keys();
 }
 
 /*!
