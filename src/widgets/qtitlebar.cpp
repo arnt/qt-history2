@@ -159,7 +159,7 @@ void QTitleBar::getColors()
 	    arightc = aleftc;
 	    irightc = ileftc;
 
-	    bool gradient;
+	    BOOL gradient;
 	    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 	    if ( gradient ) {
 		arightc = qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
