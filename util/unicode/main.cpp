@@ -4,6 +4,7 @@
 #include <qstring.h>
 #include <qchar.h>
 #include <private/qunicodetables_p.h>
+#include <qvector.h>
 
 #if 0
 // accessing properties goes via:
@@ -56,7 +57,7 @@ struct PropertyFlags {
 
 
 struct UnicodeData {
-    UnicodeData(int codepoint) {
+    UnicodeData(int codepoint = 0) {
         p.category = QChar::NoCategory;
         p.combiningClass = 0;
 
@@ -299,7 +300,7 @@ static void readUnicodeData()
             QByteArray nextLine;
             nextLine.resize(1024);
             f.readLine(nextLine.data(), 1024);
-            QList<QByteArray> properties = line.split(';');
+            QList<QByteArray> properties = nextLine.split(';');
             lastCodepoint = properties[UD_Value].toInt(&ok, 16);
         }
 
@@ -1554,7 +1555,7 @@ int main(int, char **)
     QByteArray scriptEnumDeclaration = createScriptEnumDeclaration();
     QByteArray scriptTableDeclaration = createScriptTableDeclaration();
 
-    QFile f("../../src/core/tools/qunicodedata.cpp");
+    QFile f("../../src/corelib/tools/qunicodedata.cpp");
     f.open(QFile::WriteOnly|QFile::Truncate);
 
     QByteArray header =
@@ -1593,7 +1594,7 @@ int main(int, char **)
     f.write(scriptTableDeclaration);
     f.close();
 
-    f.setFileName("../../src/core/tools/qunicodedata_p.h");
+    f.setFileName("../../src/corelib/tools/qunicodedata_p.h");
     f.open(QFile::WriteOnly | QFile::Truncate);
     f.write(header);
     f.write(warning);
