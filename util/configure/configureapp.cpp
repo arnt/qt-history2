@@ -1643,7 +1643,7 @@ void Configure::generateMakefiles()
                     QTextStream txt(&file);
                     txt << "all:\n";
                     txt << "\t" << args.join(" ") << "\n";
-                    txt << "\tnmake -f " << makefileName << "\n";
+                    txt << "\tn" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
                     txt << "first: all\n";
                 } else {
                     if( int r = system( args.join( " " ).latin1() ) ) {
