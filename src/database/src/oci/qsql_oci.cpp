@@ -6,6 +6,7 @@
 #include <oci.h>
 #include <qvector.h>
 #include <qdatetime.h>
+#include <stdlib.h>
 
 class QOCIPrivate
 {
@@ -96,7 +97,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    t.setQuery( stmt.arg( tablename ).arg( fieldname ) );
+    t.setQuery( stmt.arg( tablename.upper() ).arg( fieldname.upper() ) );
     if ( t.next() && (t.value(0).toInt() == 1) )
 	return TRUE;
     return FALSE;
@@ -202,9 +203,9 @@ public:
 	 			&dfn,
 	 			d->err,
          			i,
-	 			create(i-1,dataSize),
-	 			dataSize,
-         			SQLT_DAT,
+	 			create(i-1, sizeof(OCIDate)) ,
+	 			sizeof(OCIDate),
+         			SQLT_ODT,
 	 			(dvoid *) createInd( i-1 ),
          			(ub2 *) 0,
 	 			(ub2 *) 0,
@@ -224,7 +225,7 @@ public:
 	    }
 #ifdef CHECK_RANGE
 	    if ( r != 0 )
-	    	qWarning( "QOCIResultPrivate: " +  qOraWarn( d ) );
+	    	qWarning( "QOCIResultPrivate::bind fields: " + f.name() + " " + QString::number(r) + " " + qOraWarn( d ) );
 #endif
 	}
     }
@@ -692,7 +693,7 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
     QString stmt ("select column_name, data_type " //, data_length, data_precision  "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
-    t.setQuery( stmt.arg( tablename ) );
+    t.setQuery( stmt.arg( tablename.upper() ) );
     QSqlFieldList fil;
     while ( t.next() ) {
 	QSqlField f( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
@@ -712,7 +713,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    t.setQuery( stmt.arg( tablename ) );
+    t.setQuery( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
 	idx.append( QSqlField( t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) ));
