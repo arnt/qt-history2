@@ -3007,6 +3007,7 @@ void QTable::clearCell( int row, int col )
 {
     if ( (int)contents.size() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
+    clearCellWidget( row, col );
     contents.setAutoDelete( TRUE );
     contents.remove( indexOf( row, col ) );
     contents.setAutoDelete( FALSE );
