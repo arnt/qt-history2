@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#31 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#31 $";
 #endif
 
 
@@ -1147,7 +1147,7 @@ void QListBox::updateCellWidth()
 {
     QLBItem *tmp = itemList->first();
     QFontMetrics fm = fontMetrics();
-    int maxW = windowWidth();
+    int maxW = viewWidth();
     int w;
     while ( tmp ) {
 	w = internalItemWidth( tmp, fm );

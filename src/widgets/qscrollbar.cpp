@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#32 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#32 $";
 #endif
 
 
@@ -83,7 +83,7 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QScrollBar::previousLine()
+  \fn void QScrollBar::prevLine()
   This signal is emitted when the scroll bar scrolls one line up/left.
  ----------------------------------------------------------------------------*/
 
@@ -93,7 +93,7 @@ void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void QScrollBar::previousPage()
+  \fn void QScrollBar::prevPage()
   This signal is emitted when the scroll bar scrolls one page up/left.
  ----------------------------------------------------------------------------*/
 
@@ -356,7 +356,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	case SLIDER:
 	    clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
 				    - sliderPos );
-	    slidePreviousVal = value();
+	    slidePrevVal = value();
 	    emit sliderPressed();
 	    break;
 	case NONE:
@@ -391,7 +391,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 	case SLIDER: // Set value directly, we know we don't have to redraw.
 	    directSetValue( calculateValueFromSlider() );
 	    emit sliderReleased();
-	    if ( value() != previousValue() )
+	    if ( value() != prevValue() )
 		emit valueChanged( value() );
 	    break;
 	case ADD_LINE:
@@ -424,13 +424,13 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	    newSliderPos = sliderMax;
 	if ( newSliderPos != sliderPos ) {
 	    int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
-	    if ( newVal != slidePreviousVal )
+	    if ( newVal != slidePrevVal )
 		emit sliderMoved( newVal );
 	    if ( track && newVal != value() ) {
 		directSetValue( newVal ); // Set directly, painting done below
 		emit valueChanged( value() );
 	    }
-	    slidePreviousVal = newVal;
+	    slidePrevVal = newVal;
 	    sliderPos = (QCOORD)newSliderPos;
 	    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 	}
@@ -568,7 +568,7 @@ void QScrollBar_Private::action( ScrollControl control )
 	    addLine();
 	    break;
 	case SUB_LINE:
-	    emit previousLine();
+	    emit prevLine();
 	    subtractLine();
 	    break;
 	case ADD_PAGE:
@@ -576,7 +576,7 @@ void QScrollBar_Private::action( ScrollControl control )
 	    addPage();
 	    break;
 	case SUB_PAGE:
-	    emit previousPage();
+	    emit prevPage();
 	    subtractPage();
 	    break;
 #if defined(CHECK_RANGE)
