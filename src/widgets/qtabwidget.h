@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#4 $
 **
 ** Definition of QTabWidget class
 **
@@ -71,6 +71,7 @@ protected:
     void setTabBar( QTabBar* );
     QTabBar* tabBar() const;
     void styleChange( GUIStyle );
+    void updateMask();
 
 signals:
     void selected( const QString& );

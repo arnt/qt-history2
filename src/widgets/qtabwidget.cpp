@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#9 $
 **
 ** Implementation of QTabWidget class
 **
@@ -29,6 +29,7 @@
 #include "qtabbar.h"
 #include "qapplication.h"
 #include "qwidgetstack.h"
+#include "qbitmap.h"
 /*!
   \class QTabWidget qtabwidget.h
 
@@ -156,7 +157,7 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 
 /*!
   Adds another tab and page to the tab view.
-  
+
   This function is the same as addTab() but with an additional
   iconset.
  */
@@ -369,6 +370,8 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
 	
     d->dirty = FALSE;
+    if ( autoMask() )
+	updateMask();
 }
 
 /*!
@@ -379,7 +382,7 @@ QSize QTabWidget::sizeHint() const
 {
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
-    return QSize( QMAX( s.width(), t.width() ),
+    return QSize( QMAX( s.width(), t.width()),
 		  s.height() + t.height() );
 }
 
@@ -459,4 +462,24 @@ void QTabWidget::styleChange( GUIStyle )
 {
     d->stack->setLineWidth( style().defaultFrameWidth() );
     setUpLayout();
+}
+
+
+/*! \reimp
+ */
+void QTabWidget::updateMask()
+{
+    if ( !autoMask() )
+	return;
+    QBitmap bm( size() );
+    bm.fill( color0 );
+
+    QPainter p;
+    p.begin( &bm, this );
+    p.setBrush(color1);
+    p.setPen(color1);
+    p.drawRect( d->tabs->geometry() );
+    p.drawRect( d->stack->geometry() );
+   p.end();
+   setMask( bm );
 }
