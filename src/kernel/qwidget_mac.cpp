@@ -69,6 +69,8 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
+void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
@@ -836,6 +838,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	mac_window_count--;
 	DisposeWindow((WindowPtr)destroyw);
     }
+    qt_mac_unicode_init(this);
 #ifndef QMAC_NO_QUARTZ
     if(ctx)
 	CGContextRelease(ctx);
@@ -846,6 +849,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     deactivateWidgetCleanup();
+    qt_mac_unicode_cleanup(this);
     if(isDesktop() && hd == qt_root_win && destroyWindow && own_id)
 	qt_root_win_widgets.removeRef(this);
     if(testWState(WState_Created)) {

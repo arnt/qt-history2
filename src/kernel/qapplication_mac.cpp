@@ -154,6 +154,48 @@ QCString p2qstring(const unsigned char *); //qglobal.cpp
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
 
+/* Unicode input entry magic */
+class QTSMDocumentWrapper
+{
+    bool act;
+    TSMDocumentID id;
+public:
+    QTSMDocumentWrapper() : act(FALSE) {
+	InterfaceTypeList itl = { kUnicodeDocument };
+	NewTSMDocument(1, itl, &id, (long)this);
+    }
+    ~QTSMDocumentWrapper() {
+	DeleteTSMDocument(id);
+    }
+    TSMDocumentID document() const { return id; }
+
+    void setActive(bool b) { act = b; }
+    void toggleActive() { act = !act; }
+    bool active() const { return act; }
+};
+static QIntDict<QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
+void qt_mac_unicode_init(QWidget *w) {
+    if(!qt_mac_tsm_dict) {
+	qt_mac_tsm_dict = new QIntDict<QTSMDocumentWrapper>(); 
+	qt_mac_tsm_dict->setAutoDelete(TRUE);
+    } else if(qt_mac_tsm_dict->find((long)w->handle())) {
+	return;
+    }
+    QTSMDocumentWrapper *doc_wrap = new QTSMDocumentWrapper;
+    qt_mac_tsm_dict->insert((long)w->handle(), doc_wrap);
+}
+void qt_mac_unicode_cleanup(QWidget *w) {
+    if(w && qt_mac_tsm_dict && w->isTopLevel())
+	qt_mac_tsm_dict->remove((long)w->handle());
+}
+static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w) 
+{
+    if(!w || !qt_mac_tsm_dict) 
+	return 0;
+    return qt_mac_tsm_dict->find((long)w->handle());
+}
+
+/* Resolution change magic */
 static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
@@ -474,6 +516,8 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestPropagateWindowUpdates },
     { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
 
+    { kEventClassWindow, kEventWindowInit },
+    { kEventClassWindow, kEventWindowDispose },
     { kEventClassWindow, kEventWindowUpdate },
     { kEventClassWindow, kEventWindowDrawContent },
     { kEventClassWindow, kEventWindowActivated },
@@ -495,7 +539,11 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuTargetItem },
 
     { kEventClassKeyboard, kEventRawKeyModifiersChanged },
+#if 0
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
+#endif
+    { kEventClassTextInput, kEventTextInputOffsetToPos },
+    { kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
@@ -1749,7 +1797,69 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     }
     case kEventClassTextInput:
 	handled_event = FALSE;
-	if(ekind == kEventTextInputUnicodeForKeyEvent && (widget=focus_widget)) {
+	if(!(widget=focus_widget)) {
+	    handled_event = FALSE;
+	} else if(ekind == kEventTextInputOffsetToPos) {
+	    QPoint mp(widget->mapToGlobal(QPoint(0, 0)));
+	    Point pt;
+	    pt.h = mp.x();
+	    pt.v = mp.y();
+	    SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint, 
+			      sizeof(pt), &pt);
+	    handled_event = TRUE;
+	} else if(ekind == kEventTextInputUpdateActiveInputArea) {
+	    long refcon;
+	    GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, NULL,
+			      sizeof(refcon), NULL, &refcon);
+	    if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)refcon) {
+		UInt32 unilen;
+		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				  NULL, 0, &unilen, NULL);
+		UniChar *unicode = (UniChar*)NewPtr(unilen);
+		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				  NULL, unilen, NULL, unicode);
+		QString text((QChar*)unicode, unilen / sizeof(UniChar));
+		DisposePtr((char*)unicode);
+		if(!doc->active()) {
+		    QIMEvent imstart(QEvent::IMStart, text, text.length());
+		    QApplication::sendSpontaneousEvent(widget, &imstart);
+		    if(imstart.isAccepted()) {
+			handled_event = TRUE;
+			doc->toggleActive();
+		    }
+		} else if(doc->active()) {
+		    long fixed_length;
+		    GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, NULL,
+				      sizeof(fixed_length), NULL, &fixed_length);
+		    if(fixed_length == -1 || fixed_length == unilen) {
+			doc->toggleActive();
+			QIMEvent imend(QEvent::IMEnd, text, text.length());
+			QApplication::sendSpontaneousEvent(widget, &imend);
+			if(imend.isAccepted()) 
+			    handled_event = TRUE;
+		    } else {
+			if(fixed_length > 0) {
+			    QIMEvent imend(QEvent::IMEnd, text.left(fixed_length), 
+					   fixed_length / sizeof(UniChar));
+			    QApplication::sendSpontaneousEvent(widget, &imend);
+			    if(imend.isAccepted()) {
+				handled_event = TRUE;
+				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length), 
+						 (fix_length - text.length()) / sizeof(UniChar));
+				QApplication::sendSpontaneousEvent(widget, &imstart);
+				if(imstart.isAccepted())
+				    handled_event = TRUE;
+			    }
+			} else {
+			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), text.length());
+			    QApplication::sendSpontaneousEvent(widget, &imcompose);
+			    if(imcompose.isAccepted()) 
+				handled_event = TRUE;
+			}
+		    }
+		}
+	    }
+	} else if(ekind == kEventTextInputUnicodeForKeyEvent) {
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
@@ -1760,7 +1870,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(get_key(0, chr, keyc) == Qt::Key_unknown) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
-		if(imstart.isAccepted()) { //doesn't want the event
+		if(imstart.isAccepted()) { //wants the event
 		    handled_event = TRUE;
 		    UInt32 unilen;
 		    GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
@@ -1774,9 +1884,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QApplication::sendSpontaneousEvent(widget, &imend);
 		}
 	    }
-	    if(!handled_event)
-		return -1;
 	}
+	if(!handled_event) //just bail now
+	    return eventNotHandledErr;
 	break;
     case kEventClassKeyboard: {
 	UInt32 modif;
@@ -2022,6 +2132,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if(ekind == kEventWindowUpdate || ekind == kEventWindowDrawContent) {
 	    remove_context_timer = FALSE;
 	    widget->propagateUpdates(ekind == kEventWindowUpdate);
+	} else if(ekind == kEventWindowDispose) {
+	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowBoundsChanged) {
 	    handled_event = FALSE;
 	    UInt32 flags;
@@ -2059,6 +2171,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
 	    }
 
+	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget)) 
+		ActivateTSMDocument(doc->document());
 	    if(app_do_modal && !qt_try_modal(widget, event)) 
 		break;
 
@@ -2076,7 +2190,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
-	    if(widget && widget == active_window)
+	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
+		DeactivateTSMDocument(doc->document());
+	    if(widget && widget == active_window) 
 		app->setActiveWindow(NULL);
 	} else {
 	    handled_event = FALSE;
