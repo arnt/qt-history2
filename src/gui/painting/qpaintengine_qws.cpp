@@ -502,6 +502,8 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
         int ls=mymask->bytesPerLine();
         d->gfx->setAlphaType(QGfx::LittleEndianMask);
         d->gfx->setAlphaSource(thebits,ls);
+    } else if (mode == Qt::CopyPixmap) {
+        d->gfx->setAlphaType(QGfx::IgnoreAlpha);
     } else if (pixmap.data->hasAlpha){
         d->gfx->setAlphaType(QGfx::InlineAlpha);
     } else {
