@@ -1050,14 +1050,6 @@ void QPainter::drawRect(int x, int y, int w, int h)
 	return;
 
     Rect rect;
-#if 0
-    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
-    }
-#endif
     SetRect(&rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy);
     if(this->brush().style() != NoBrush) {
 	updateBrush();
@@ -1235,14 +1227,6 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 	return;
 
     Rect rect;
-#if 0
-    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
-    }
-#endif
     SetRect(&rect, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy);
     if(this->brush().style() == SolidPattern) {
 	updateBrush();
@@ -1286,14 +1270,6 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 	return;
 
     Rect r;
-#if 1
-    if(this->brush().style() != NoBrush && cpen.style() == NoPen) { // Inset all points?
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
-    }
-#endif
     SetRect(&r, x+d->offx, y+d->offy, x + w+d->offx, y + h+d->offy);
     if(this->brush().style() != NoBrush) {
 	updateBrush();
