@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#62 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#63 $
 **
 ** Definition of event classes
 **
@@ -115,7 +115,7 @@ public:
 	: QEvent(type), p(pos), g(globalPos), b(button),s((ushort)state) {};
 
     const QPoint &pos() const	{ return p; }
-    const QPoint &globalPos() { return g; }
+    const QPoint &globalPos() const { return g; }
     int	   x()		const	{ return p.x(); }
     int	   y()		const	{ return p.y(); }
     int	   globalX()		const	{ return g.x(); }
@@ -124,7 +124,7 @@ public:
     int	   state()	const	{ return s; }
 protected:
     QPoint p;
-    QPoint g; 
+    QPoint g;
     int	   b;
     ushort s;
 };
