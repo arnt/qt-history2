@@ -306,6 +306,8 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     }
 
     if (index.type() == QModelIndex::HorizontalHeader) {
+        if (role != Display)
+            return QVariant();
 	switch (index.column()) {
         case 0: return "Name";
         case 1: return "Size";
@@ -314,6 +316,8 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         default: return QVariant();
         }
     } else if (index.type() == QModelIndex::VerticalHeader) {
+        if (role != Display)
+            return QVariant();
 	return index.row();
     }
 

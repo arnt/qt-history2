@@ -686,6 +686,7 @@ void QFileDialogPrivate::setup()
 
     back = new QToolButton(q);
     back->setIcon(QPixmap(back_xpm));
+    back->setToolTip("Back");
     back->setAutoRaise(true);
     back->setEnabled(false);
     back->setFixedSize(tools);
@@ -694,6 +695,7 @@ void QFileDialogPrivate::setup()
 
     toParent = new QToolButton(q);
     toParent->setIcon(QPixmap(cdtoparent_xpm));
+    toParent->setToolTip("Parent Directory");
     toParent->setAutoRaise(true);
     toParent->setEnabled(model->parent(root()).isValid());
     toParent->setFixedSize(tools);
@@ -702,6 +704,7 @@ void QFileDialogPrivate::setup()
 
     newFolder = new QToolButton(q);
     newFolder->setIcon(QPixmap(newfolder_xpm));
+    newFolder->setToolTip("Create New Folder");
     newFolder->setAutoRaise(true);
     newFolder->setFixedSize(tools);
     QObject::connect(newFolder, SIGNAL(clicked()), q, SLOT(mkdir()));
@@ -709,6 +712,7 @@ void QFileDialogPrivate::setup()
 
     listMode = new QToolButton(q);
     listMode->setIcon(QPixmap(mclistview_xpm));
+    listMode->setToolTip("List View");
     listMode->setAutoRaise(true);
     listMode->setDown(true);
     listMode->setFixedSize(tools);
@@ -717,6 +721,7 @@ void QFileDialogPrivate::setup()
 
     detailMode = new QToolButton(q);
     detailMode->setIcon(QPixmap(detailedview_xpm));
+    detailMode->setToolTip("Detail View");
     detailMode->setAutoRaise(true);
     detailMode->setFixedSize(tools);
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetail()));
