@@ -59,6 +59,9 @@ while($#ARGV >= 0) {
     shift;
 }
 
+$basedir =~ s=\\=/=g;
+$includedir =~ s=\\=/=g;
+
 undef $/;
 
 mkdir $includedir, 0777;
@@ -140,7 +143,7 @@ foreach $dir (keys %dirs) {
 }
 
 
-unless(check_unix()) {
+unless(!check_unix()) {
    symlink_file("$basedir/dist/win/Makefile", "$basedir/Makefile");
    symlink_file("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++");
 }
@@ -154,6 +157,8 @@ exit 0;
 #
 sub sync_header {
     my ($header, $iheader, $library) = @_;
+    $iheader =~ s=\\=/=g;
+    $header =~ s=\\=/=g;
     if(-e "$iheader") {
 	my $iheader_no_basedir = $iheader;
 	$iheader_no_basedir =~ s,^$basedir/?,,;
@@ -211,10 +216,9 @@ sub sync_header {
 #
 sub symlink_file
 {
-    my ($file,$ifile) = @_;
-    my ($fast,$copy,$knowdiff,$filecontents,$ifilecontents);
+    my ($file,$ifile, $fast,$copy,$knowdiff,$filecontents,$ifilecontents) = @_;
 
-    if ( ! check_unix() ) {
+    if (check_unix()) {
 	print "symlink created for $file ";
 	if ( $force_relative && ($ifile =~ /^$basedir/)) {
 	    my $t = `pwd`; 
@@ -227,6 +231,7 @@ sub symlink_file
 	}
 	print "\n";
 	symlink($file, $ifile);
+	return;
     } else {
 	# Bi-directional synchronization
 	open( I, "< " . $file ) || die "Could not open $file for reading";
