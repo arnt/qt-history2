@@ -42,6 +42,7 @@
 #include "qplatformdefs.h"
 
 #include "qfont.h"
+#include "qapplication.h"
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
 #include "qtextengine_p.h"
@@ -330,6 +331,10 @@ void QFontPrivate::load( QFont::Script script )
     // append the default fallback font for the specified script
     // family_list << ... ;
 
+    // add QFont::defaultFamily() to the list, for compatibility with
+    // previous versions
+    family_list << QApplication::font().defaultFamily();
+
     // null family means find the first font matching the specified script
     family_list << QString::null;
 
@@ -486,7 +491,7 @@ void QFont::setRawName( const QString &name )
 */
 QString QFont::lastResortFamily() const
 {
-    return QString::fromLatin1("helvetica");
+    return QString::fromLatin1( "Helvetica" );
 }
 
 /*!
@@ -499,18 +504,18 @@ QString QFont::defaultFamily() const
 {
     switch ( d->request.styleHint ) {
     case QFont::Times:
-	return QString::fromLatin1( "times" );
+	return QString::fromLatin1( "Times" );
 
     case QFont::Courier:
-	return QString::fromLatin1( "courier" );
+	return QString::fromLatin1( "Courier" );
 
     case QFont::Decorative:
-	return QString::fromLatin1( "old english" );
+	return QString::fromLatin1( "Old English" );
 
     case QFont::Helvetica:
     case QFont::System:
     default:
-	return QString::fromLatin1( "helvetica" );
+	return QString::fromLatin1( "Helvetica" );
     }
 }
 
