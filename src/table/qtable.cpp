@@ -4257,17 +4257,20 @@ void QTable::setNumRows( int r )
     QPtrVector<QWidget> tmp2;
     tmp2.resize( widgets.size() );
     int i;
+    bool updateWidgets = widgets.size() > 0;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *item = contents[ i ];
 	if ( item && indexOf( item->row(), item->col() ) == i )
 	    tmp.insert( i, item );
 	else
 	    tmp.insert( i, 0 );
-	QWidget *w = widgets[ i ];
-	if ( w )
-	    tmp2.insert( i, w );
-	else
-	    tmp2.insert( i, 0 );
+	if ( updateWidgets ) {
+	    QWidget *w = widgets[ i ];
+	    if ( w )
+		tmp2.insert( i, w );
+	    else
+		tmp2.insert( i, 0 );
+	}
     }
 
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
@@ -4294,9 +4297,11 @@ void QTable::setNumRows( int r )
     contents.setAutoDelete( FALSE );
     contents.clear();
     contents.setAutoDelete( TRUE );
-    widgets.setAutoDelete( FALSE );
-    widgets.clear();
-    widgets.setAutoDelete( TRUE );
+    if ( updateWidgets ) {
+	widgets.setAutoDelete( FALSE );
+	widgets.clear();
+	widgets.setAutoDelete( TRUE );
+    }
     resizeData( numRows() * numCols() );
 
     for ( i = 0; i < (int)tmp.size(); ++i ) {
@@ -4308,9 +4313,11 @@ void QTable::setNumRows( int r )
 	} else {
 	    delete it;
 	}
-	QWidget *w = tmp2[ i ];
-	if ( w )
-	    widgets.insert( idx, w );
+	if ( updateWidgets ) {
+	    QWidget *w = tmp2[ i ];
+	    if ( w )
+		widgets.insert( idx, w );
+	}
     }
 
     leftHeader->setUpdatesEnabled( isUpdatesEnabled );
@@ -4345,6 +4352,7 @@ void QTable::setNumCols( int c )
     tmp.resize( contents.size() );
     QPtrVector<QWidget> tmp2;
     tmp2.resize( widgets.size() );
+    bool updateWidgets = widgets.size() > 0;
     int i;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *item = contents[ i ];
@@ -4352,11 +4360,13 @@ void QTable::setNumCols( int c )
 	    tmp.insert( i, item );
 	else
 	    tmp.insert( i, 0 );
-	QWidget *w = widgets[ i ];
-	if ( w )
-	    tmp2.insert( i, w );
-	else
-	    tmp2.insert( i, 0 );
+	if ( updateWidgets ) {
+	    QWidget *w = widgets[ i ];
+	    if ( w )
+		tmp2.insert( i, w );
+	    else
+		tmp2.insert( i, 0 );
+	}
     }
 
     bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
@@ -4381,9 +4391,11 @@ void QTable::setNumCols( int c )
     contents.setAutoDelete( FALSE );
     contents.clear();
     contents.setAutoDelete( TRUE );
-    widgets.setAutoDelete( FALSE );
-    widgets.clear();
-    widgets.setAutoDelete( TRUE );
+    if ( updateWidgets ) {
+	widgets.setAutoDelete( FALSE );
+	widgets.clear();
+	widgets.setAutoDelete( TRUE );
+    }
     resizeData( numRows() * numCols() );
 
     for ( i = 0; i < (int)tmp.size(); ++i ) {
@@ -4396,9 +4408,11 @@ void QTable::setNumCols( int c )
 	} else {
 	    delete it;
 	}
-	QWidget *w = tmp2[ i ];
-	if ( w )
-	    widgets.insert( idx, w );
+	if ( updateWidgets ) {
+	    QWidget *w = tmp2[ i ];
+	    if ( w )
+		widgets.insert( idx, w );
+	}
     }
 
     topHeader->setUpdatesEnabled( isUpdatesEnabled );
