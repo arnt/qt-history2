@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#78 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#79 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -66,7 +66,6 @@ public:
     QSize	minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    virtual void setEnabled( bool );
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
 
@@ -99,6 +98,7 @@ public:
     QString	markedText() const;
 
 public slots:
+    virtual void setEnabled( bool );
     virtual void setText( const QString &);
     void	selectAll();
     void	deselect();
