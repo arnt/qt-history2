@@ -891,13 +891,11 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 // First arg should be &menurect, but wacky stuff happens then.
                 HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
-                                         cg,
-                                         kHIThemeOrientationNormal);
+                                         cg, kHIThemeOrientationNormal);
                 break;
             } else {
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
-                                    cg,
-                                    kHIThemeOrientationNormal, &contentRect);
+                                    cg, kHIThemeOrientationNormal, &contentRect);
                 if(ce == CE_MenuEmptyArea)
                     break;
             }
@@ -1014,18 +1012,24 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             HIThemeMenuTitleDrawInfo tdi;
             tdi.version = qt_mac_hitheme_version;
-            tdi.state = kThemeMenuActive;
-            if (!(mi->state & Style_Active))
+            if (!(mi->state & Style_Enabled))
                 tdi.state = kThemeMenuDisabled;
-            if (mi->state & Style_Down)
-                tdi.state = kThemeMenuSelected;
+            else
+                tdi.state = kThemeMenuActive;
+            if (mi->state & Style_Active)
+                tdi.state |= kThemeMenuSelected;
             tdi.attributes = 0;
             tdi.condensedTitleExtra = 0.0;
-            HIRect mbRect = qt_hirectForQRect(mi->menuRect);
-            HIRect rect = qt_hirectForQRect(mi->rect);
+            HIRect mbRect = qt_hirectForQRect(mi->menuRect), textRect;
+            HIRect rect = qt_hirectForQRect(QRect(mi->rect.x(), 0, mi->rect.width(), mi->menuRect.height()), false);
             HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, cg,
-                                 kHIThemeOrientationNormal, 0);
-            QWindowsStyle::drawControl(ce, mi, p, w);
+                                 kHIThemeOrientationNormal, &textRect);
+            //text
+            QPixmap pix = mi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+            drawItem(p, qrectForHIRect(textRect), 
+                     Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine, 
+                     mi->palette, mi->state & Style_Enabled,
+                     pix, mi->text, -1, &mi->palette.buttonText().color());
         }
         break;
     case CE_MenuBarEmptyArea:
