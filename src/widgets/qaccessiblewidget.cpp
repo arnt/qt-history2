@@ -13,6 +13,7 @@
 #include "qlabel.h"
 #include "qlcdnumber.h"
 #include "qprogressbar.h"
+#include "qgroupbox.h"
 
 /*!
   \class QAccessibleWidget qaccessiblewidget.h
@@ -387,7 +388,7 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 QAccessibleButton::QAccessibleButton( QButton *b, Role role, QString description,
 				     QString help )
 : QAccessibleWidget( b, role, QString::null, description, QString::null, 
-		    QString::null, QApplication::tr("Press"), QString::null )
+		    QString::null, QString::null, QString::null )
 {
 }
 
@@ -407,6 +408,17 @@ bool	QAccessibleButton::doDefaultAction( int /*who*/ )
 
 /*!
   \reimp
+*/
+QString QAccessibleButton::defaultAction( int who ) const
+{
+    QString da = QAccessibleWidget::defaultAction( who );
+    if ( da.isNull() )
+	return QButton::tr("Press");
+    return da;
+}
+
+/*!
+  \reimp
 
   If available, returns the first character in the button's text
   that is marked as the accelerator with an ampersand.
@@ -415,19 +427,22 @@ bool	QAccessibleButton::doDefaultAction( int /*who*/ )
 */
 QString	QAccessibleButton::accelerator( int who ) const
 {
-    QString text = ((QButton*)widget())->text();
+    QString acc = QAccessibleWidget::accelerator( who );
+    if ( acc.isNull() ) {
+	QString text = ((QButton*)widget())->text();
 
-    int fa = 0;
-    bool ac = FALSE;
-    while ( ( fa = text.find( "&", fa ) ) != -1 ) {
-	if ( text.at(fa+1) != '&' ) {
-	    ac = TRUE;
-	    break;
+	int fa = 0;
+	bool ac = FALSE;
+	while ( ( fa = text.find( "&", fa ) ) != -1 ) {
+	    if ( text.at(fa+1) != '&' ) {
+		ac = TRUE;
+		break;
+	    }
 	}
+	if ( fa != -1 && ac )
+	    return "ALT+"+text.at(fa + 1);
     }
-    if ( fa != -1 && ac )
-	return "ALT+"+text.at(fa + 1);
-    return QAccessibleWidget::accelerator( who );
+    return acc;
 }
 
 /*!
@@ -437,16 +452,20 @@ QString	QAccessibleButton::accelerator( int who ) const
 
   \sa QButton::text
 */
-QString	QAccessibleButton::name( int /*who*/ ) const
+QString	QAccessibleButton::name( int who ) const
 {
-    QString text = ((QButton*)widget())->text();
+    QString n = QAccessibleWidget::name( who );
+    if ( n.isNull() ) {
+	QString text = ((QButton*)widget())->text();
     
-    for ( uint i = 0; i < text.length(); i++ ) {
-	if ( text[(int)i] == '&' )
-	    text.remove( i, 1 );
+	for ( uint i = 0; i < text.length(); i++ ) {
+	    if ( text[(int)i] == '&' )
+		text.remove( i, 1 );
+	}
+    
+	return text;
     }
-    
-    return text;
+    return n;
 }
 
 /*!
@@ -490,24 +509,27 @@ QAccessibleRangeControl::QAccessibleRangeControl( QWidget *w, Role role, QString
 
 QString QAccessibleRangeControl::value( int who ) const
 {
-    if ( widget()->inherits( "QSlider" ) ) {
-	QSlider *s = (QSlider*)widget();
-	return QString::number( s->value() );
-    } else if ( widget()->inherits( "QDial" ) ) {
-	QDial *d = (QDial*)widget();
-	return QString::number( d->value() );
-    } else if ( widget()->inherits( "QSpinBox" ) ) {
-	QSpinBox *s = (QSpinBox*)widget();
-	return s->text();
-    } else if ( widget()->inherits( "QScrollBar" ) ) {
-	QScrollBar *s = (QScrollBar*)widget();
-	return QString::number( s->value() );
-    } else if ( widget()->inherits( "QProgressBar" ) ) {
-	QProgressBar *p = (QProgressBar*)widget();
-	return QString::number( p->progress() );
+    QString v = QAccessibleWidget::value( who );
+    if ( v.isNull() ) {
+	if ( widget()->inherits( "QSlider" ) ) {
+	    QSlider *s = (QSlider*)widget();
+	    return QString::number( s->value() );
+	} else if ( widget()->inherits( "QDial" ) ) {
+	    QDial *d = (QDial*)widget();
+	    return QString::number( d->value() );
+	} else if ( widget()->inherits( "QSpinBox" ) ) {
+	    QSpinBox *s = (QSpinBox*)widget();
+	    return s->text();
+	} else if ( widget()->inherits( "QScrollBar" ) ) {
+	    QScrollBar *s = (QScrollBar*)widget();
+	    return QString::number( s->value() );
+	} else if ( widget()->inherits( "QProgressBar" ) ) {
+	    QProgressBar *p = (QProgressBar*)widget();
+	    return QString::number( p->progress() );
+	}
     }
 
-    return QAccessibleWidget::value( who );
+    return v;
 }
 
 /*!
@@ -522,11 +544,15 @@ QAccessibleText::QAccessibleText( QWidget *w, Role role, QString name, QString d
 
 QString QAccessibleText::value( int who ) const
 {
-    if ( widget()->inherits( "QLineEdit" ) ) {
-	QLineEdit *l = (QLineEdit*)widget();
-	return l->text();
+    QString v = QAccessibleWidget::value( who );
+    if ( v.isNull() ) {
+	if ( widget()->inherits( "QLineEdit" ) ) {
+	    QLineEdit *l = (QLineEdit*)widget();
+	    return l->text();
+	}
     }
-    return QAccessibleWidget::value( who );
+
+    return v;
 }
 
 /*!
@@ -559,16 +585,23 @@ QAccessible::Role QAccessibleDisplay::role( int who ) const
 
 QString QAccessibleDisplay::name( int who ) const
 {
-    if ( widget()->inherits( "QLabel" ) ) {
-	QLabel *l = (QLabel*)widget();
-	return l->text();
-    } else if ( widget()->inherits( "QLCDNumber" ) ) {
-	QLCDNumber *l = (QLCDNumber*)widget();
-	if ( l->numDigits() )
-	    return QString::number( l->value() );
-	return QString::number( l->intValue() );
+    QString n = QAccessibleWidget::name( who );
+    if ( n.isNull() ) {
+	if ( widget()->inherits( "QLabel" ) ) {
+	    QLabel *l = (QLabel*)widget();
+	    return l->text();
+	} else if ( widget()->inherits( "QLCDNumber" ) ) {
+	    QLCDNumber *l = (QLCDNumber*)widget();
+	    if ( l->numDigits() )
+		return QString::number( l->value() );
+	    return QString::number( l->intValue() );
+	} else if ( widget()->inherits( "QGroupBox" ) ) {
+	    QGroupBox *g = (QGroupBox*)widget();
+	    return g->title();
+	}
     }
-    return QAccessibleWidget::name( who );
+
+    return n;
 }
 
 #endif
