@@ -54,7 +54,8 @@ undef $/;
 mkdir $includedir, 0777;
 mkdir $privatedir, 0777;
 
-my @ignore_files = ( "qconfig.h", "qmodules.h", "qttableview.h", "qtmultilineedit.h" );
+my @ignore_files = ( "qconfig.h", "qmodules.h", "qttableview.h", "qtmultilineedit.h",
+                     "qasyncio.h" );
 
 opendir SRC, "$basedir/src";
 my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
