@@ -61,6 +61,7 @@ protected:
 
 class QTimeEdit : public QDateTimeEditBase 
 {
+    Q_OBJECT
     Q_PROPERTY( QTime time READ time WRITE setTime )
 public:
     QTimeEdit( QWidget * parent = 0, const char * name = 0 );
