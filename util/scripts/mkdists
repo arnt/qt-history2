@@ -416,7 +416,7 @@ if [ "x$DO_ID" = "xyes" ]; then
 fi
 
 #make pregenerated moc files more recent than their sources
-sleep 1
+sleep 2
 touch $DISTDIR/qt/src/moc/moc_lex.cpp $DISTDIR/qt/src/moc/moc_yacc.cpp $DISTDIR/qt/src/moc/moc_yacc.h
 
 public_file () {
