@@ -5247,7 +5247,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 {
     QString title = printer->docName();
     QString creator = printer->creator();
-    if ( !creator )                             // default creator
+    if (creator.count() == 0)                             // default creator
         creator = QString::fromLatin1("Qt " QT_VERSION_STR);
     outDevice = new QFile();
     (void)((QFile *)outDevice)->open( IO_WriteOnly, fd );
@@ -5295,7 +5295,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
             outStream << "\n%%BoundingBox: 0 0 " << w << " " << h;
     }
     outStream << "\n" << wrapDSC( "%%Creator: " + creator );
-    if ( !!title )
+    if (title.count() == 0)
         outStream << wrapDSC( "%%Title: " + title );
     outStream << "%%CreationDate: " << QDateTime::currentDateTime().toString();
     outStream << "\n%%Orientation: ";

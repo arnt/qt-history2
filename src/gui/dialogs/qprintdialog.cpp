@@ -1531,7 +1531,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	printerOrFileSelected( p->outputToFile() );
 
 	// printer name
-	if ( !!p->printerName() ) {
+	if (p->printerName().count()) {
 	    QListViewItem * i = d->printers->firstChild();
 	    while ( i && i->text( 0 ) != p->printerName() )
 		i = i->nextSibling();
