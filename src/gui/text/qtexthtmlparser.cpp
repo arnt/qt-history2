@@ -559,7 +559,13 @@ int QTextHtmlParser::topMargin(int i) const
         // don't collapse margins across list items
         // (the top margin of the list is merged as part of the block
         // merging in documentfragment.cpp)
-        if (node->isListItem || node->isNestedList(this))
+        if (node->isListItem)
+            break;
+
+        // <ul>
+        //  ..
+        //  <ul> <-- this one should not take the first <ul>'s margin into account
+        if (node->isNestedList(this))
             break;
 
         // get previous block
@@ -587,7 +593,13 @@ int QTextHtmlParser::bottomMargin(int i) const
             break;
 
         // don't collapse margins across list items
-        if (node->isListItem || node->isNestedList(this))
+        if (node->isListItem)
+            break;
+
+        // <ul>
+        //  ..
+        //  <ul> <-- this one should not take the first <ul>'s margin into account
+        if (node->isNestedList(this))
             break;
 
         // get next block
