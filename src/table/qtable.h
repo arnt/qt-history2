@@ -19,7 +19,6 @@
 #include "qscrollview.h"
 #include "qpixmap.h"
 #include "qheader.h"
-#include "qmemarray.h"
 #include "qguardedptr.h"
 #include "qshared.h"
 #include "qhash.h"
@@ -360,9 +359,9 @@ public slots:
     virtual void insertRows( int row, int count = 1 );
     virtual void insertColumns( int col, int count = 1 );
     virtual void removeRow( int row );
-    virtual void removeRows( const QMemArray<int> &rows );
+    virtual void removeRows( const QVector<int> &rows );
     virtual void removeColumn( int col );
-    virtual void removeColumns( const QMemArray<int> &cols );
+    virtual void removeColumns( const QVector<int> &cols );
 
     virtual void editCell( int row, int col, bool replace = FALSE );
 

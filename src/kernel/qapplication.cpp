@@ -19,7 +19,7 @@
 #include "qeventloop_p.h"
 #include "qwidget.h"
 #include "qevent.h"
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qcleanuphandler.h"
 
 #include "qtranslator.h"
@@ -437,8 +437,8 @@ void qt_setMaxWindowRect(const QRect& r)
 */
 
 // Default application palettes and fonts (per widget type)
-Q_GUI_EXPORT QAsciiDict<QPalette> *app_palettes = 0;
-Q_GUI_EXPORT QAsciiDict<QFont> *app_fonts = 0;
+Q_GUI_EXPORT QHash<QString, QPalette*> *app_palettes = 0;
+Q_GUI_EXPORT QHash<QString, QFont*> *app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
@@ -1510,15 +1510,13 @@ QPalette QApplication::palette(const QWidget* w)
     }
 
     if ( w && app_palettes ) {
-	QPalette* wp = app_palettes->find( w->className() );
+	QPalette* wp = app_palettes->value( w->className(), 0 );
 	if ( wp )
 	    return *wp;
-	QAsciiDictIterator<QPalette> it( *app_palettes );
-	const char* name;
-	while ( (name=it.currentKey()) != 0 ) {
-	    if ( w->inherits( name ) )
-		return *it.current();
-	    ++it;
+	for (QHash<QString, QPalette *>::ConstIterator it = app_palettes->begin();
+	     it != app_palettes->end(); ++it) {
+	    if (w->inherits(it.key()))
+		return *it.value();
 	}
     }
     return *app_pal;
@@ -1559,10 +1557,10 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 	qt_fix_tooltips();
     } else {
 	if ( !app_palettes ) {
-	    app_palettes = new QAsciiDict<QPalette>;
+	    app_palettes = new QHash<QString, QPalette*>;
 	    app_palettes->setAutoDelete( TRUE );
 	}
-	oldpal = app_palettes->find( className );
+	oldpal = app_palettes->value( className );
 	app_palettes->insert( className, new QPalette( pal ) );
     }
     if ( is_app_running && !is_app_closing ) {
@@ -1589,15 +1587,13 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 QFont QApplication::font( const QWidget *w )
 {
     if ( w && app_fonts ) {
-	QFont* wf = app_fonts->find( w->className() );
+	QFont* wf = app_fonts->value( w->className(), 0 );
 	if ( wf )
 	    return *wf;
-	QAsciiDictIterator<QFont> it( *app_fonts );
-	const char* name;
-	while ( (name=it.currentKey()) != 0 ) {
-	    if ( w->inherits( name ) )
-		return *it.current();
-	    ++it;
+	for (QHash<QString, QFont *>::ConstIterator it = app_fonts->begin();
+	     it != app_fonts->end(); ++it) {
+	    if (w->inherits(it.key()))
+		return *it.value();
 	}
     }
     if ( !app_font ) {
@@ -1634,7 +1630,7 @@ void QApplication::setFont( const QFont &font, const char* className )
 	app_fonts = 0;
     } else {
 	if (!app_fonts){
-	    app_fonts = new QAsciiDict<QFont>;
+	    app_fonts = new QHash<QString, QFont*>;
 	    app_fonts->setAutoDelete( TRUE );
 	}
 	QFont* fnt = new QFont(font);

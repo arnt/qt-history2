@@ -104,9 +104,9 @@ private:
     void resizeArrays( int n );
 
 private:
-    QMemArray<int> states, oldStates;
-    QMemArray<bool> stretchable;
-    QMemArray<int> sectionSizes, sectionPoses;
+    QVector<int> states, oldStates;
+    QVector<bool> stretchable;
+    QVector<int> sectionSizes, sectionPoses;
     bool mousePressed;
     int pressPos, startPos, endPos;
     QTable *table;
@@ -2424,12 +2424,12 @@ bool QTable::rowMovingEnabled() const
     return mRows;
 }
 
-static void resize(QVector<QWidget *> &widgets, int len)
+template <class T> static void resizeList(QVector<T *> *lst, int len)
 {
-    int clen = widgets.size();
-    widgets.resize( len );
-    for (int i=clen; i < len; ++i)
-	widgets[i] = 0;
+    int oldSize = lst->size();
+    lst->resize( len );
+    for (int i=oldSize; i < len; ++i)
+	(*lst)[i] = 0;
 }
 
 /*!
@@ -2443,11 +2443,8 @@ static void resize(QVector<QWidget *> &widgets, int len)
 
 void QTable::resizeData( int len )
 {
-    int clen = contents.size();
-    contents.resize( len );
-    for (int i=clen; i < len; ++i)
-	contents[i] = 0;
-    ::resize(widgets, len);
+    resizeList(&contents, len);
+    resizeList(&widgets, len);
 }
 
 /*!
@@ -4645,19 +4642,19 @@ void QTable::saveContents( QVector<QTableItem *> &tmp,
     tmp.resize( contents.size() );
     tmp2.resize( widgets.size() );
     int i;
-    for ( i = 0; i < (int)tmp.size(); ++i ) {
+    for ( i = 0; i < tmp.size(); ++i ) {
 	QTableItem *item = contents[ i ];
 	if ( item && ( item->row() * nCols) + item->col() == i )
-	    tmp.insert( i, item );
+	    tmp[i] = item;
 	else
-	    tmp.insert( i, 0 );
+	    tmp[i] = 0;
     }
     for ( i = 0; i < (int)tmp2.size(); ++i ) {
 	QWidget *w = widgets[ i ];
 	if ( w )
-	    tmp2.insert( i, new TableWidget( w, i / nCols, i % nCols ) );
+	    tmp2[i] = new TableWidget( w, i / nCols, i % nCols );
 	else
-	    tmp2.insert( i, 0 );
+	    tmp2[i] = 0;
     }
 }
 
@@ -4691,7 +4688,7 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 
     // keep numStretches in sync
     int n = 0;
-    for ( uint i = 0; i < header->stretchable.size(); i++ )
+    for ( int i = 0; i < header->stretchable.size(); i++ )
 	n += ( header->stretchable.at(i) & 1 ); // avoid cmp
      header->numStretches = n;
 }
@@ -4707,7 +4704,7 @@ void QTable::restoreContents( QVector<QTableItem *> &tmp,
 	    int idx = ( it->row() * nCols ) + it->col();
 	    if ( idx < contents.size() &&
 		 it->row() == idx /  nCols && it->col() == idx % nCols ) {
-		contents.insert( idx, it );
+		contents[idx] = it;
 		if ( it->rowSpan() > 1 || it->colSpan() > 1 ) {
 		    int ridx, iidx;
 		    for ( int irow = 0; irow < it->rowSpan(); irow++ ) {
@@ -4715,7 +4712,7 @@ void QTable::restoreContents( QVector<QTableItem *> &tmp,
 			for ( int icol = 0; icol < it->colSpan(); icol++ ) {
 			    iidx = ridx + icol;
 			    if ( idx != iidx && iidx < contents.size() )
-				contents.insert( iidx, it );
+				contents[iidx] = it;
 			}
 		    }
 
@@ -4731,7 +4728,7 @@ void QTable::restoreContents( QVector<QTableItem *> &tmp,
 	    int idx = ( w->row * nCols ) + w->col;
 	    if ( idx < widgets.size() &&
 		 w->row == idx / nCols && w->col == idx % nCols )
-		widgets.insert( idx, w->wid );
+		widgets[idx] = w->wid;
 	    else
 		delete w->wid;
 	    delete w;
@@ -5837,9 +5834,9 @@ void QTable::insertWidget( int row, int col, QWidget *w )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	::resize(widgets, numRows() * numCols() );
+	resizeList(&widgets, numRows() * numCols());
 
-    widgets.insert( indexOf( row, col ), w );
+    widgets[indexOf(row, col)] = w;
 }
 
 /*!
@@ -5858,9 +5855,9 @@ QWidget *QTable::cellWidget( int row, int col ) const
 	return 0;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	::resize(const_cast<QTable *>(this)->widgets, numRows() * numCols());
+	resizeList(&(const_cast<QTable *>(this)->widgets), numRows() * numCols());
 
-    return widgets[ indexOf( row, col ) ];
+    return widgets[indexOf(row, col)];
 }
 
 /*!
@@ -5883,14 +5880,14 @@ void QTable::clearCellWidget( int row, int col )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	::resize(widgets, numRows() * numCols() );
+	resizeList(&widgets, numRows() * numCols());
 
     QWidget *w = cellWidget( row, col );
     if ( w ) {
 	w->removeEventFilter( this );
 	w->deleteLater();
     }
-    widgets[indexOf( row, col )] = 0;
+    widgets[indexOf(row, col)] = 0;
 }
 
 /*!
@@ -6020,21 +6017,21 @@ void QTable::removeRow( int row )
     \sa removeRow() insertRows() removeColumns()
 */
 
-void QTable::removeRows( const QMemArray<int> &rows )
+void QTable::removeRows( const QVector<int> &rows )
 {
-    if ( rows.count() == 0 )
+    if ( rows.size() == 0 )
 	return;
     int i;
-    for ( i = 0; i < (int)rows.count() - 1; ++i ) {
+    for ( i = 0; i < (int)rows.size() - 1; ++i ) {
 	for ( int j = rows[i] - i; j < rows[i + 1] - i - 1; j++ ) {
 	    ( (QTableHeader*)verticalHeader() )->swapSections( j, j + i + 1 );
 	}
     }
 
-    for ( int j = rows[i] - i; j < numRows() - (int)rows.size(); j++)
-	( (QTableHeader*)verticalHeader() )->swapSections( j, j + rows.count() );
+    for ( int j = rows[i] - i; j < numRows() - (int)rows.capacity(); j++)
+	( (QTableHeader*)verticalHeader() )->swapSections( j, j + rows.size() );
 
-    setNumRows( numRows() - rows.count() );
+    setNumRows( numRows() - rows.size() );
 }
 
 /*!
@@ -6070,21 +6067,21 @@ void QTable::removeColumn( int col )
    \sa removeColumn() insertColumns() removeRows()
 */
 
-void QTable::removeColumns( const QMemArray<int> &cols )
+void QTable::removeColumns( const QVector<int> &cols )
 {
-    if ( cols.count() == 0 )
+    if ( cols.size() == 0 )
 	return;
     int i;
-    for ( i = 0; i < (int)cols.count() - 1; ++i ) {
+    for ( i = 0; i < (int)cols.size() - 1; ++i ) {
 	for ( int j = cols[i] - i; j < cols[i + 1] - i - 1; j++ ) {
 	    ( (QTableHeader*)horizontalHeader() )->swapSections( j, j + i + 1 );
 	}
     }
 
-    for ( int j = cols[i] - i; j < numCols() - (int)cols.size(); j++)
-	( (QTableHeader*)horizontalHeader() )->swapSections( j, j + cols.count() );
+    for ( int j = cols[i] - i; j < numCols() - (int)cols.capacity(); j++)
+	( (QTableHeader*)horizontalHeader() )->swapSections( j, j + cols.size() );
 
-    setNumCols( numCols() - cols.count() );
+    setNumCols( numCols() - cols.size() );
 }
 
 /*!

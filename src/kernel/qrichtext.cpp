@@ -6199,10 +6199,10 @@ void QTextFormatCollection::updateKeys()
     cKey.setAutoDelete( FALSE );
     QTextFormat** formats = new QTextFormat*[ cKey.count() + 1 ];
     QTextFormat **f = formats;
-    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
-    for (; it != cKey.end(); ++it, ++f)
+    for (QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+	 it != cKey.end(); ++it, ++f)
 	*f = *it;
-
+    *f = 0;
     cKey.clear();
     for ( f = formats; *f; f++ )
        cKey.insert( (*f)->key(), *f );
