@@ -26,6 +26,6 @@
 //
 
 // implemented in qbytearray.cpp
-int qAllocMore(int alloc, int extra);
+int Q_CORE_EXPORT qAllocMore(int alloc, int extra);
 
 #endif // QTOOLS_P_H
