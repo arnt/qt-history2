@@ -953,17 +953,28 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     case VT_RECORD|VT_BYREF:
 	if (arg.pvRecord && arg.pRecInfo) {
 	    QVariant var = VARIANTToQVariant(arg, 0);
+	    void *reference = static_QUType_varptr.get(obj);
 	    switch(var.type()) {
 	    case QVariant::Rect:
-		static_QUType_varptr.set( obj, new QRect(var.toRect()) );
+		if (reference)
+		    *(QRect*)reference = var.toRect();
+		else
+		    reference = new QRect(var.toRect());
 		break;
 	    case QVariant::Size:
-		static_QUType_varptr.set( obj, new QSize(var.toSize()) );
+		if (reference)
+		    *(QSize*)reference = var.toSize();
+		else
+		    reference = new QSize(var.toSize());
 		break;
 	    case QVariant::Point:
-		static_QUType_varptr.set( obj, new QPoint(var.toPoint()) );
+		if (reference)
+		    *(QPoint*)reference = var.toPoint();
+		else
+		    reference = new QPoint(var.toPoint());
 		break;
 	    }
+	    static_QUType_varptr.set(obj, reference);
 	}
 	break;
     default:
@@ -1393,6 +1404,9 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	case VT_ARRAY|VT_UI1:
 	    if ( *dest.pparray ) SafeArrayDestroy( *dest.pparray );
 	    *dest.pparray = src.parray;
+	    break;
+	case VT_RECORD:
+	    src.pRecInfo->RecordCopy(src.pvRecord, dest.pvRecord);
 	    break;
 	default:
 	    dest = src;
