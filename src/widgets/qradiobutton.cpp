@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#115 $
 **
 ** Implementation of QRadioButton class
 **
@@ -89,7 +89,6 @@ QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 void QRadioButton::init()
 {
     setToggleButton( TRUE );
-    noHit = FALSE;
     if ( parentWidget() && parentWidget()->inherits("QButtonGroup") ) {
 	QButtonGroup *bgrp = (QButtonGroup *)parentWidget();
 	bgrp->setRadioButtonExclusive( TRUE );
@@ -163,7 +162,7 @@ QSizePolicy QRadioButton::sizePolicy() const
 
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
-    return noHit ? FALSE : rect().contains( pos );
+    return rect().contains( pos );
 }
 
 
