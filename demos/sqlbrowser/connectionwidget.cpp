@@ -59,7 +59,7 @@ QModelIndex ConnectionModel::index(int row, int column, const QModelIndex &paren
                                    QModelIndex::Type type) const
 {
     if (!parent.isValid())
-        return QAbstractItemModel::index(row, column, parent, type);
+        return createIndex(row, column, 0, type);
     if (parent.data() || parent.row() >= connections.count())
         return QModelIndex();
     return createIndex(row, column, reinterpret_cast<void*>(parent.row() + 1), type);
