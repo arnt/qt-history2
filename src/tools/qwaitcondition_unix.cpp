@@ -39,17 +39,10 @@
 
 #include "qplatformdefs.h"
 
-#include "qwaitcondition.h"
-#include "qmutex.h"
-#include "qmutex_p.h"
-
-#include <errno.h>
-#include <string.h>
-
 #ifdef    Q_OS_SOLARIS
 // Solaris
 typedef mutex_t Q_MUTEX_T;
-typedef cond_t  Q_COND_T
+typedef cond_t  Q_COND_T;
 
 // helpers
 #define Q_COND_INIT(a)            cond_init((a), NULL, NULL)
@@ -71,6 +64,14 @@ typedef pthread_cond_t  Q_COND_T;
 #define Q_COND_WAIT(a, b)         pthread_cond_wait((a), (b));
 #define Q_COND_TIMEDWAIT(a, b, c) pthread_cond_timedwait((a), (b), (c));
 #endif // Q_OS_SOLARIS
+
+#include "qwaitcondition.h"
+#include "qmutex.h"
+#include "qmutex_p.h"
+
+#include <errno.h>
+#include <string.h>
+
 
 struct QWaitConditionPrivate {
     Q_COND_T cond;
@@ -266,9 +267,9 @@ bool QWaitCondition::wait(unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
-	ret = Q_COND_TIMEDWAIT(&d->cond, &((Q_MUTEX_T) d->mutex.d->handle), &ti);
+	ret = Q_COND_TIMEDWAIT(&d->cond, &d->mutex.d->handle, &ti);
     } else
-	ret = Q_COND_WAIT(&d->cond, &((Q_MUTEX_T) d->mutex.d->handle));
+	ret = Q_COND_WAIT(&d->cond, &d->mutex.d->handle);
 
     d->mutex.unlock();
 
@@ -325,9 +326,9 @@ bool QWaitCondition::wait(QMutex *mtx, unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
-	ret = Q_COND_TIMEDWAIT(&d->cond, &((Q_MUTEX_T) mtx->d->handle), &ti);
+	ret = Q_COND_TIMEDWAIT(&d->cond, &mtx->d->handle, &ti);
     } else
-	ret = Q_COND_WAIT(&d->cond, &((Q_MUTEX_T) mtx->d->handle));
+	ret = Q_COND_WAIT(&d->cond, &mtx->d->handle);
 
 #ifdef QT_CHECK_RANGE
     if (ret)

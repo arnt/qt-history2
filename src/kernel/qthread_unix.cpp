@@ -45,8 +45,9 @@
 #endif
 
 #include "qthread.h"
-#include "qmutex.h"
 #include "qapplication.h"
+#include "qmutex.h"
+#include "qwaitcondition.h"
 #include "qptrlist.h"
 
 #ifndef QT_H

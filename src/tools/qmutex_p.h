@@ -51,7 +51,12 @@
 
 class QMutexPrivate {
 public:
+#if defined(Q_OS_WIN32)
     void *handle;
+#else
+    // Q_MUTEX_T is defined in the various *_unix.cpp files
+    Q_MUTEX_T handle;
+#endif
 
     virtual ~QMutexPrivate();
 

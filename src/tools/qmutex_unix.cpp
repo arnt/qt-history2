@@ -111,11 +111,11 @@ class QRealMutexPrivate : public QMutexPrivate {
 public:
     QRealMutexPrivate(bool = FALSE);
 
-    virtual void lock();
-    virtual void unlock();
-    virtual bool locked();
-    virtual bool trylock();
-    virtual int type() const;
+    void lock();
+    void unlock();
+    bool locked();
+    bool trylock();
+    int type() const;
 
     bool recursive;
 };
@@ -135,7 +135,7 @@ public:
 
     int count;
     unsigned long owner;
-    Q_MUTEX_T mutex2;
+    Q_MUTEX_T handle2;
 };
 #endif // !Q_RECURSIVE_MUTEX_TYPE
 
@@ -145,7 +145,7 @@ public:
 // base destructor
 QMutexPrivate::~QMutexPrivate()
 {
-    int ret = Q_MUTEX_DESTROY(&((Q_MUTEX_T) handle));
+    int ret = Q_MUTEX_DESTROY(&handle);
 
 #ifdef QT_CHECK_RANGE
     if ( ret )
@@ -154,14 +154,14 @@ QMutexPrivate::~QMutexPrivate()
 }
 
 // real mutex class
-QRealMutexPrivate::QRealMutexPrivate(bool recurs = FALSE)
+QRealMutexPrivate::QRealMutexPrivate(bool recurs)
     : recursive(recurs)
 {
     Q_MUTEXATTR_T attr;
     Q_MUTEXATTR_INIT(&attr);
     Q_MUTEX_SET_TYPE(&attr, recursive ? Q_RECURSIVE_MUTEX_TYPE : Q_NORMAL_MUTEX_TYPE);
     Q_UNUSED(recursive);
-    int ret = Q_MUTEX_INIT(&((Q_MUTEX_T) handle), &attr);
+    int ret = Q_MUTEX_INIT(&handle, &attr);
     Q_MUTEXATTR_DESTROY(&attr);
 
 #ifdef QT_CHECK_RANGE
@@ -170,10 +170,9 @@ QRealMutexPrivate::QRealMutexPrivate(bool recurs = FALSE)
 #endif // QT_CHECK_RANGE
 }
 
-
 void QRealMutexPrivate::lock()
 {
-    int ret = Q_MUTEX_LOCK(&((Q_MUTEX_T) handle));
+    int ret = Q_MUTEX_LOCK(&handle);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
@@ -183,7 +182,7 @@ void QRealMutexPrivate::lock()
 
 void QRealMutexPrivate::unlock()
 {
-    int ret = Q_MUTEX_UNLOCK(&((Q_MUTEX_T) handle));
+    int ret = Q_MUTEX_UNLOCK(&handle);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
@@ -193,7 +192,7 @@ void QRealMutexPrivate::unlock()
 
 bool QRealMutexPrivate::locked()
 {
-    int ret = Q_MUTEX_TRYLOCK(&((Q_MUTEX_T) handle));
+    int ret = Q_MUTEX_TRYLOCK(&handle);
 
     if (ret == EBUSY) {
 	return TRUE;
@@ -202,14 +201,14 @@ bool QRealMutexPrivate::locked()
 	qWarning("Mutex locktest failure: %s", strerror(ret));
 #endif
     } else
-	Q_MUTEX_UNLOCK(&((Q_MUTEX_T) handle));
+	Q_MUTEX_UNLOCK(&handle);
 
     return FALSE;
 }
 
 bool QRealMutexPrivate::trylock()
 {
-    int ret = Q_MUTEX_TRYLOCK(&((Q_MUTEX_T) handle));
+    int ret = Q_MUTEX_TRYLOCK(&handle);
 
     if (ret == EBUSY) {
 	return FALSE;
@@ -235,7 +234,7 @@ QRecursiveMutexPrivate::QRecursiveMutexPrivate()
     Q_MUTEXATTR_T attr;
     Q_MUTEXATTR_INIT(&attr);
     Q_MUTEX_SET_TYPE(&attr, Q_NORMAL_MUTEX_TYPE);
-    int ret = Q_MUTEX_INIT(&((Q_MUTEX_T) handle), &attr);
+    int ret = Q_MUTEX_INIT(&handle, &attr);
     Q_MUTEXATTR_DESTROY(&attr);
 
 #  ifdef QT_CHECK_RANGE
@@ -244,7 +243,7 @@ QRecursiveMutexPrivate::QRecursiveMutexPrivate()
 #  endif
 
     Q_MUTEXATTR_INIT(&attr);
-    ret = Q_MUTEX_INIT( &mutex2, &attr );
+    ret = Q_MUTEX_INIT( &handle2, &attr );
     Q_MUTEXATTR_DESTROY(&attr);
 
 #  ifdef QT_CHECK_RANGE
@@ -257,7 +256,7 @@ QRecursiveMutexPrivate::QRecursiveMutexPrivate()
 
 QRecursiveMutexPrivate::~QRecursiveMutexPrivate()
 {
-    int ret = Q_MUTEX_DESTROY(&mutex2);
+    int ret = Q_MUTEX_DESTROY(&handle2);
 
 #  ifdef QT_CHECK_RANGE
     if (ret)
@@ -267,29 +266,29 @@ QRecursiveMutexPrivate::~QRecursiveMutexPrivate()
 
 void QRecursiveMutexPrivate::lock()
 {
-    Q_MUTEX_LOCK(&mutex2);
+    Q_MUTEX_LOCK(&handle2);
 
     if (count > 0 && owner == (unsigned long) Q_THREAD_SELF()) {
 	count++;
     } else {
-	Q_MUTEX_LOCK(&((Q_MUTEX_T) handle));
+	Q_MUTEX_LOCK(&handle);
 	count = 1;
 	owner = (unsigned long) Q_THREAD_SELF();
     }
 
-    Q_MUTEX_UNLOCK(&mutex2);
+    Q_MUTEX_UNLOCK(&handle2);
 }
 
 void QRecursiveMutexPrivate::unlock()
 {
-    Q_MUTEX_LOCK(&mutex2);
+    Q_MUTEX_LOCK(&handle2);
 
     if (owner == (unsigned long) Q_THREAD_SELF()) {
 	// do nothing if the count is already 0... to reflect the behaviour described
 	// in the docs
 	if (count && (--count) < 1) {
 	    count = 0;
-	    Q_MUTEX_UNLOCK(&((Q_MUTEX_T) handle));
+	    Q_MUTEX_UNLOCK(&handle);
 	}
     } else {
 #ifdef QT_CHECK_RANGE
@@ -299,15 +298,15 @@ void QRecursiveMutexPrivate::unlock()
 #endif
     }
 
-    Q_MUTEX_UNLOCK(&mutex2);
+    Q_MUTEX_UNLOCK(&handle2);
 }
 
 bool QRecursiveMutexPrivate::locked()
 {
-    Q_MUTEX_LOCK(&mutex2);
+    Q_MUTEX_LOCK(&handle2);
 
     bool ret;
-    int code = Q_MUTEX_TRYLOCK(&((Q_MUTEX_T) handle));
+    int code = Q_MUTEX_TRYLOCK(&handle);
 
     if (code == EBUSY) {
 	ret = TRUE;
@@ -317,21 +316,21 @@ bool QRecursiveMutexPrivate::locked()
 	    qWarning("Mutex trylock failure: %s", strerror(code));
 #endif
 
-	Q_MUTEX_UNLOCK(&((Q_MUTEX_T) handle));
+	Q_MUTEX_UNLOCK(&handle);
 	ret = FALSE;
     }
 
-    Q_MUTEX_UNLOCK(&mutex2);
+    Q_MUTEX_UNLOCK(&handle2);
 
     return ret;
 }
 
 bool QRecursiveMutexPrivate::trylock()
 {
-    Q_MUTEX_LOCK(&mutex2);
+    Q_MUTEX_LOCK(&handle2);
 
     bool ret;
-    int code = Q_MUTEX_TRYLOCK(&((Q_MUTEX_T) handle));
+    int code = Q_MUTEX_TRYLOCK(&handle);
 
     if (code == EBUSY) {
 	ret = FALSE;
@@ -345,7 +344,7 @@ bool QRecursiveMutexPrivate::trylock()
 	count++;
     }
 
-    Q_MUTEX_UNLOCK(&mutex2);
+    Q_MUTEX_UNLOCK(&handle2);
 
     return ret;
 }
