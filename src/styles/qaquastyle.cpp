@@ -13460,29 +13460,26 @@ void
 QAquaStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 				  uint controls, uint )
 {
-    bool other_controls = FALSE;
-    if(tb->window && ((controls & TitleMaxButton) || (controls & TitleMaxButton) || 
-		      (controls & TitleNormalButton) || (controls & TitleCloseButton))) {
-	QPixmap pm;
-	qAquaPixmap( "win_act_left_controls", pm );
-	p->drawPixmap(0, 0, pm);
-	other_controls = TRUE;
-    }
-    if(controls & TitleLabel) {
-	QPixmap mid, right, left;
-	qAquaPixmap( "win_act_mid", mid );
-	qAquaPixmap( "win_act_right", right );
-	qAquaPixmap( "win_act_left", left );
-	
-	if(!other_controls) 
-	    p->drawPixmap(0, 0, left);
-	int left_size = other_controls ? 70 : left.width();
-	p->drawTiledPixmap( left_size, 0, tb->width() - left_size - right.width(),
-			    mid.height(), mid );
-	p->drawPixmap(tb->width() - right.width(), 0, right);
-	p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
-	p->drawText(left_size, 0, tb->width() - left_size, tb->height(), 
-		    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->cuttext );
+    if(controls) {
+	QPixmap left;
+	if(tb->window)
+	    qAquaPixmap( "win_act_left_controls", left );
+	else
+	    qAquaPixmap( "win_act_left", left );
+	p->drawPixmap(0, 0, left);
+
+	if(controls & TitleLabel) {
+	    QPixmap mid, right;
+	    qAquaPixmap( "win_act_mid", mid );
+	    qAquaPixmap( "win_act_right", right );
+
+	    p->drawTiledPixmap( left.width(), 0, tb->width() - left.width() - right.width(),
+				mid.height(), mid );
+	    p->drawPixmap(tb->width() - right.width(), 0, right);
+	    p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
+	    p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(), 
+			AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->cuttext );
+	}
     }
 }
 
