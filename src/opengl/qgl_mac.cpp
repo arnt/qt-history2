@@ -367,8 +367,6 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 	return;
     if(macInternalDoubleBuffer(FALSE))
         macInternalRecreateContext(req_format);
-    else
-	glcx->fixBufferRect();
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -523,10 +521,8 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	    setContext(new QGLContext(format, gl_pix), NULL, FALSE);
 	}
     } else {
-	if(glcx_dblbuf != dblbuf) {
-	    setEraseColor(black);
-	    setContext(new QGLContext(format, this ), share_ctx, FALSE);
-	}
+	setEraseColor(black);
+	setContext(new QGLContext(format, this ), share_ctx, FALSE);
 	glcx->fixBufferRect();
     }
     if(update)
