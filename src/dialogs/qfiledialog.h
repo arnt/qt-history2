@@ -60,6 +60,20 @@ class Q_EXPORT QFileDialog : public QDialog
     friend class QFileListView;
 
     Q_OBJECT
+    // ##### Why are this readonly properties ?
+    Q_PROPERTY( QString, "selectedFile", selectedFile, 0 )
+    Q_PROPERTY( QString, "selectedFilter", selectedFilter, 0 )
+    Q_PROPERTY( QStringList, "selectedFiles", selectedFiles, 0 )
+    // #### Should not we be able to set the path ?
+    Q_PROPERTY( QString, "dirPath", dirPath, 0 )
+    Q_PROPERTY( bool, "showHiddenFiles", showHiddenFiles, setShowHiddenFiles )
+    Q_PROPERTY( Mode, "mode", mode, setMode )
+    // This property is broken! Since it uses int and not ViewMode.
+    // We are only interested in List or Detail View.
+    // Q_PROPERTY( int, "viewMode", viewMode, setViewMode )
+    Q_PROPERTY( bool, "infoPreview", hasInfoPreview, setInfoPreview )
+    Q_PROPERTY( bool, "contentsPreview", hasContentsPreview, setContentsPreview )
+	
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
                  QWidget *parent=0, const char *name = 0, bool modal = FALSE );
@@ -121,6 +135,11 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     void setPreviewMode( bool info, bool contents );
+    bool hasInfoPreview() const;
+    bool hasContentsPreview() const;
+    void setInfoPreview( bool );
+    void setContentsPreview( bool );
+    
     void setInfoPreviewWidget( QWidget *w );
     void setContentsPreviewWidget( QWidget *w );
 
@@ -172,7 +191,7 @@ private slots:
     void fixupNameEdit();
 
     void doMimeTypeLookup();
-    
+
 protected:
     void resizeEvent( QResizeEvent * );
     void keyPressEvent( QKeyEvent * );

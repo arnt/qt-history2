@@ -4459,8 +4459,8 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 /*!
   Sets the file preview modes. If \a info is TRUE, a widget for
   showing file information can be shown, else not.
-  If \a contents is TRUE, a widget for showing a file preview
-  can be shown, else not.
+  If \a contents is TRUE, a widget for showing a preview of the files
+  content can be shown, else not.
 */
 
 void QFileDialog::setPreviewMode( bool info, bool contents )
@@ -4469,6 +4469,50 @@ void QFileDialog::setPreviewMode( bool info, bool contents )
     d->infoPreview = info;
     d->contentsPreview = contents;
     updateGeometries();
+}
+
+/*!
+  Returns TRUE if the file dialog is allowed to show a
+  preview with file informations.
+  
+  \sa setPreviewMode() setInfoPreview()
+*/
+bool QFileDialog::hasInfoPreview() const
+{
+    return d->infoPreview;
+}
+
+/*!
+  Returns TRUE if the file dialog is allowed to show a
+  preview of the files contents.
+  
+  \sa setPreviewMode() setContentsPreview()
+*/
+
+bool QFileDialog::hasContentsPreview() const
+{
+    return d->contentsPreview;
+}
+
+/*!
+  Sets the file info preview mode. If \a info is TRUE, a widget for
+  showing file information can be shown, else not.
+*/
+
+void QFileDialog::setInfoPreview( bool info )
+{
+    setPreviewMode( info, hasContentsPreview() );
+}
+
+/*!
+  Sets the file content preview mode.
+  If \a contents is TRUE, a widget for showing a preview of the files
+  content can be shown, else not.
+*/
+
+void QFileDialog::setContentsPreview( bool contents )
+{
+    setPreviewMode( hasInfoPreview(), contents );
 }
 
 /*!
