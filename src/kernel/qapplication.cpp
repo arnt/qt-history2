@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#241 $
 **
 ** Implementation of QApplication class
 **
@@ -232,8 +232,9 @@ QApplication *qApp = 0;				// global application object
 QStyle *QApplication::app_style	       = 0;	// default application style
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
-QDict<QPalette>* QApplication::app_palettes = 0; // default application palettes
-QDict<QFont>* QApplication::app_fonts = 0;// default application fonts
+// Default application palettes and fonts (per widget type)
+QAsciiDict<QPalette> *QApplication::app_palettes = 0;
+QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
@@ -792,17 +793,17 @@ QPalette QApplication::palette(const QWidget* w)
     }
     
     if ( w && app_palettes ) {
-        QDictIterator<QPalette> it( *app_palettes );
+        QAsciiDictIterator<QPalette> it( *app_palettes );
         const char* name;
-        while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
-            if ( w->isA(name) )
+        while ( (name=it.currentKey()) != 0 ) {
+	    if ( w->isA(name) )
                 return *it.current();
             ++it; // ### ++it at end of loop, not beginning
         }
-        (void) it.toFirst();
-        while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
-            if ( w->inherits( name ) )
-                return *it.current();
+        it.toFirst();
+        while ( (name=it.currentKey()) != 0 ) {
+	    if ( w->inherits( name ) )
+		return *it.current();
             ++it; // ### ++it at end of loop, not beginning
         }
     }
@@ -845,7 +846,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
     }
     else {
 	if (!app_palettes){
-	    app_palettes = new QDict<QPalette>;
+	    app_palettes = new QAsciiDict<QPalette>;
 	    CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
@@ -877,15 +878,15 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 QFont QApplication::font( const QWidget* w )
 {
     if ( w && app_fonts ) {
-	QDictIterator<QFont> it( *app_fonts );
+	QAsciiDictIterator<QFont> it( *app_fonts );
 	const char* name;
-	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->isA( name ) )
 		return *it.current();
 	    ++it;
 	}
-	(void) it.toFirst();
-	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	it.toFirst();
+	while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->inherits( name ) )
 		return *it.current();
 	    ++it;
@@ -928,7 +929,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
     }
     else {
 	if (!app_fonts){
-	    app_fonts = new QDict<QFont>;
+	    app_fonts = new QAsciiDict<QFont>;
 	    CHECK_PTR( app_fonts );
 	    app_fonts->setAutoDelete( TRUE );
 	}

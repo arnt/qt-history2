@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#22 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#23 $
 **
-** Definition of QIntDict template/macro class
+** Definition of QIntDict template class
 **
 ** Created : 940624
 **
@@ -34,27 +34,27 @@
 template<class type> class Q_EXPORT QIntDict : public QGDict
 {
 public:
-    QIntDict(int size=17) : QGDict(size,0,0,TRUE) {}
+    QIntDict(int size=17) : QGDict(size,IntKey,0,0) {}
     QIntDict( const QIntDict<type> &d ) : QGDict(d) {}
-   ~QIntDict()			{ clear(); }
+   ~QIntDict()				{ clear(); }
     QIntDict<type> &operator=(const QIntDict<type> &d)
 			{ return (QIntDict<type>&)QGDict::operator=(d); }
-    uint  count()   const	{ return QGDict::count(); }
-    uint  size()    const	{ return QGDict::size(); }
-    bool  isEmpty() const	{ return QGDict::count() == 0; }
+    uint  count()   const		{ return QGDict::count(); }
+    uint  size()    const		{ return QGDict::size(); }
+    bool  isEmpty() const		{ return QGDict::count() == 0; }
     void  insert( long k, const type *d )
-				{ QGDict::look((const char*)k,(Item)d,1); }
+					{ QGDict::look_int(k,(Item)d,1); }
     void  replace( long k, const type *d )
-				{ QGDict::look((const char*)k,(Item)d,2); }
-    bool  remove( long k )	{ return QGDict::remove((const char*)k); }
-    type *take( long k )	{ return (type*)QGDict::take((const char*)k); }
-    void  clear()		{ QGDict::clear(); }
-    void  resize( uint n )	{ QGDict::resize(n); }
-    type *find( long k )	const
-	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0); }
+					{ QGDict::look_int(k,(Item)d,2); }
+    bool  remove( long k )		{ return QGDict::remove_int(k); }
+    type *take( long k )		{ return (type*)QGDict::take_int(k); }
+    type *find( long k ) const
+		{ return (type *)((QGDict*)this)->QGDict::look_int(k,0,0); }
     type *operator[]( long k ) const
-	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0); }
-    void  statistics() const	{ QGDict::statistics(); }
+		{ return (type *)((QGDict*)this)->QGDict::look_int(k,0,0); }
+    void  clear()			{ QGDict::clear(); }
+    void  resize( uint n )		{ QGDict::resize(n); }
+    void  statistics() const		{ QGDict::statistics(); }
 private:
     void  deleteItem( Item d )	{ if ( del_item ) delete (type *)d; }
 };
@@ -69,7 +69,7 @@ public:
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *()  const  { return (type *)QGDictIterator::get(); }
     type *current()    const  { return (type *)QGDictIterator::get(); }
-    long  currentKey() const  { return QGDictIterator::getKeyLong(); }
+    long  currentKey() const  { return QGDictIterator::getKeyInt(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}

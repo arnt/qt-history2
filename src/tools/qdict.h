@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#28 $
+** $Id: //depot/qt/main/src/tools/qdict.h#29 $
 **
-** Definition of QDict template/macro class
+** Definition of QDict template class
 **
 ** Created : 920821
 **
@@ -34,7 +34,8 @@
 template<class type> class Q_EXPORT QDict : public QGDict
 {
 public:
-    QDict(int size=17,bool cs=TRUE,bool ck=TRUE) : QGDict(size,cs,ck,0) {}
+    QDict(int size=17, bool caseSensitive=TRUE)
+	: QGDict(size,StringKey,caseSensitive,FALSE) {}
     QDict( const QDict<type> &d ) : QGDict(d) {}
    ~QDict()				{ clear(); }
     QDict<type> &operator=(const QDict<type> &d)
@@ -43,33 +44,22 @@ public:
     uint  size()    const		{ return QGDict::size(); }
     bool  isEmpty() const		{ return QGDict::count() == 0; }
 
-    void  insert( const char *k, const type *d )
-					{ QGDict::look(k,(Item)d,1); }
-    void  replace( const char *k, const type *d )
-					{ QGDict::look(k,(Item)d,2); }
-    bool  remove( const char *k )	{ return QGDict::remove(k); }
-    type *take( const char *k )		{ return (type *)QGDict::take(k); }
-    type *find( const char *k ) const
-		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
-    type *operator[]( const char *k ) const
-		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
-
-    void  insert( const QString& k, const type *d )
-					{ QGDict::look(k,(Item)d,1); }
-    void  replace( const QString& k, const type *d )
-					{ QGDict::look(k,(Item)d,2); }
-    bool  remove( const QString& k )	{ return QGDict::remove(k); }
-    type *take( const QString& k )		{ return (type *)QGDict::take(k); }
-    type *find( const QString& k ) const
-		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
-    type *operator[]( const QString& k ) const
-		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
+    void  insert( const QString &k, const type *d )
+					{ QGDict::look_string(k,(Item)d,1); }
+    void  replace( const QString &k, const type *d )
+					{ QGDict::look_string(k,(Item)d,2); }
+    bool  remove( const QString &k )	{ return QGDict::remove_string(k); }
+    type *take( const QString &k )	{ return (type *)QGDict::take_string(k); }
+    type *find( const QString &k ) const
+		{ return (type *)((QGDict*)this)->QGDict::look_string(k,0,0); }
+    type *operator[]( const QString &k ) const
+		{ return (type *)((QGDict*)this)->QGDict::look_string(k,0,0); }
 
     void  clear()			{ QGDict::clear(); }
     void  resize( uint n )		{ QGDict::resize(n); }
     void  statistics() const		{ QGDict::statistics(); }
 private:
-    void  deleteItem( Item d )	{ if ( del_item ) delete (type *)d; }
+    void  deleteItem( Item d )		{ if ( del_item ) delete (type *)d; }
 };
 
 
@@ -82,11 +72,8 @@ public:
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *() const   { return (type *)QGDictIterator::get(); }
-    type *current()   const   { return (type *)QGDictIterator::get(); }
-    long currentKeyLong() const
-			      { return QGDictIterator::getKeyLong(); }
-    QString currentKey() const
-			      { return QGDictIterator::getKey(); }
+    type   *current() const   { return (type *)QGDictIterator::get(); }
+    QString currentKey() const{ return QGDictIterator::getKeyString(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}

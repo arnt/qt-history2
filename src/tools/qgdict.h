@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#35 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#36 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -35,52 +35,96 @@ class QGDictIterator;
 class QGDItList;
 
 
-class QBucketPrivate					// internal dict node
+class QBaseBucket				// internal dict node
+{    
+public:
+    QCollection::Item	 getData()			{ return data; }
+    QCollection::Item	 setData( QCollection::Item d ) { return data = d; }
+    QBaseBucket		*getNext()			{ return next; }
+    void		 setNext( QBaseBucket *n)	{ next = n; }
+protected:
+    QBaseBucket( QCollection::Item d, QBaseBucket *n ) : data(d), next(n) {}
+    QCollection::Item	 data;
+    QBaseBucket		*next;
+};
+
+class QStringBucket : public QBaseBucket
 {
 public:
-    char   *getKey()		{ return key; }
-    char   *setKey( char *k )	{ return key = k; }
-    QCollection::Item getData() { return data; }
-    QCollection::Item setData( QCollection::Item d ) { return data = d; }
-    QBucketPrivate *getNext()		{ return next; }
-    void    setNext( QBucketPrivate *n){ next = n; }
+    QStringBucket( const QString &k, QCollection::Item d, QBaseBucket *n )
+	: QBaseBucket(d,n), key(k)		{}
+    const QString  &getKey() const		{ return key; }
 private:
-    char   *key;
-    QCollection::Item	    data;
-    QBucketPrivate *next;
+    QString	    key;
+};
+
+class QAsciiBucket : public QBaseBucket
+{
+public:
+    QAsciiBucket( const char *k, QCollection::Item d, QBaseBucket *n )
+	: QBaseBucket(d,n), key(k) {}
+    const char *getKey() const { return key; }
+private:
+    const char *key;
+};
+
+class QIntBucket : public QBaseBucket
+{
+public:
+    QIntBucket( long k, QCollection::Item d, QBaseBucket *n )
+	: QBaseBucket(d,n), key(k) {}
+    long  getKey() const { return key; }
+private:
+    long  key;
+};
+
+class QPtrBucket : public QBaseBucket
+{
+public:
+    QPtrBucket( void *k, QCollection::Item d, QBaseBucket *n )
+	: QBaseBucket(d,n), key(k) {}
+    void *getKey() const { return key; }
+private:
+    void *key;
 };
 
 
 class Q_EXPORT QGDict : public QCollection	// generic dictionary class
 {
-friend class QGDictIterator;
 public:
     uint	count() const	{ return numItems; }
     uint	size()	const	{ return vlen; }
-    Item		look( const char *key, Item, int );
-    Item		look( const QString& key, Item, int );
+    Item	look_string( const QString& key, Item, int );
+    Item	look_ascii( const char *key, Item, int );
+    Item	look_int( long key, Item, int );
+    Item	look_ptr( void *key, Item, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
 
 protected:
-    QGDict( uint len, bool cs, bool ck, bool th );
+    enum KeyType { StringKey, AsciiKey, IntKey, PtrKey };
+
+    QGDict( uint len, KeyType kt, bool cs, bool ck );
     QGDict( const QGDict & );
    ~QGDict();
 
     QGDict     &operator=( const QGDict & );
 
-    bool	remove( const char *key );
-    bool	removeItem( const char *key, Item item );
-    Item		take( const char *key );
-    bool	remove( const QString& key );
-    bool	removeItem( const QString& key, Item item );
-    Item		take( const QString& key );
+    bool	remove_string( const QString &key, Item item=0 );
+    bool	remove_ascii( const char *key, Item item=0 );
+    bool	remove_int( long key, Item item=0 );
+    bool	remove_ptr( void *key, Item item=0 );
+    Item	take_string( const QString &key );
+    Item	take_ascii( const char *key );
+    Item	take_int( long key );
+    Item	take_ptr( void *key );
 
     void	clear();
     void	resize( uint );
 
-    virtual int hashKey( const char * );
+    int		hashKeyString( const QString & );
+    int		hashKeyAscii( const char * );
 
     void	statistics() const;
 
@@ -88,15 +132,20 @@ protected:
     virtual QDataStream &write( QDataStream &, Item ) const;
 
 private:
-    QBucketPrivate   **vec;
+    QBaseBucket **vec;
     uint	vlen;
     uint	numItems;
+    uint	keytype	: 2;
     uint	cases	: 1;
     uint	copyk	: 1;
-    uint	triv	: 1;
     QGDItList  *iterators;
-    QBucketPrivate    *unlink( const char *, Item item = 0 );
-    void        init( uint );
+    void	   unlink_common( int, QBaseBucket *, QBaseBucket * );
+    QStringBucket *unlink_string( const QString &, Item item = 0 );
+    QAsciiBucket  *unlink_ascii( const char *, Item item = 0 );
+    QIntBucket    *unlink_int( long, Item item = 0 );
+    QPtrBucket    *unlink_ptr( void *, Item item = 0 );
+    void	init( uint, KeyType, bool, bool );
+    friend class QGDictIterator;
 };
 
 
@@ -109,24 +158,50 @@ public:
     QGDictIterator &operator=( const QGDictIterator & );
    ~QGDictIterator();
 
-    QCollection::Item		toFirst();
+    QCollection::Item toFirst();
 
-    QCollection::Item		get()	 const { return curNode ? curNode->getData() : 0; }
-    long        getKeyLong() const
-			       { return curNode ? (long)curNode->getKey() : 0; }
-    QString     getKey() const;
+    QCollection::Item get()	     const;
+    QString	      getKeyString() const;
+    const char	     *getKeyAscii()  const;
+    long	      getKeyInt()    const;
+    void	     *getKeyPtr()    const;
 
-    QCollection::Item		operator()();
-    QCollection::Item		operator++();
-    QCollection::Item		operator+=(uint);
+    QCollection::Item operator()();
+    QCollection::Item operator++();
+    QCollection::Item operator+=(uint);
 
 protected:
-    QGDict     *dict;
+    QGDict	     *dict;
 
 private:
-    QBucketPrivate    *curNode;
-    uint	curIndex;
+    QBaseBucket      *curNode;
+    uint	      curIndex;
 };
+
+inline QCollection::Item QGDictIterator::get() const
+{
+    return curNode ? curNode->getData() : 0;
+}
+
+inline QString QGDictIterator::getKeyString() const
+{
+    return curNode ? ((QStringBucket*)curNode)->getKey() : QString::null;
+}
+
+inline const char *QGDictIterator::getKeyAscii() const
+{
+    return curNode ? ((QAsciiBucket*)curNode)->getKey() : 0;
+}
+
+inline long QGDictIterator::getKeyInt() const
+{
+    return curNode ? ((QIntBucket*)curNode)->getKey() : 0;
+}
+
+inline void *QGDictIterator::getKeyPtr() const
+{
+    return curNode ? ((QPtrBucket*)curNode)->getKey() : 0;
+}
 
 
 #endif // QGDICT_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#158 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -211,15 +211,15 @@ static const int fontCacheSize = 1024*1024*4;
 
 
 typedef QCacheIterator<QFontInternal> QFontCacheIt;
-typedef QDict<QFontInternal> QFontDict;
-typedef QDictIterator<QFontInternal> QFontDictIt;
+typedef QDict<QFontInternal>	      QFontDict;
+typedef QDictIterator<QFontInternal>  QFontDictIt;
 
 
 class QFontCache : public QCache<QFontInternal>
 {
 public:
-    QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
-	: QCache<QFontInternal>(maxCost,size,cs,ck) {}
+    QFontCache( int maxCost, int size=17 )
+	: QCache<QFontInternal>(maxCost,size) {}
     void deleteItem( Item );
 };
 
@@ -238,7 +238,6 @@ struct QXFontName
 };
 
 typedef QDict<QXFontName> QFontNameDict;
-
 
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
@@ -273,11 +272,11 @@ void QFont::initialize()
 {
     if ( fontCache )
 	return;
-    fontCache = new QFontCache( fontCacheSize, 29, TRUE, FALSE );
+    fontCache = new QFontCache( fontCacheSize, 29 );
     CHECK_PTR( fontCache );
-    fontDict  = new QFontDict( 29, TRUE, FALSE );
+    fontDict  = new QFontDict( 29 );
     CHECK_PTR( fontDict );
-    fontNameDict = new QFontNameDict( 29, TRUE, TRUE );
+    fontNameDict = new QFontNameDict( 29 );
     CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
     if ( !defFont )

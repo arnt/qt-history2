@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#9 $
+** $Id: //depot/qt/main/src/kernel/qobjectdict.h#10 $
 **
 ** Definition of QObjectDictionary
 **
@@ -28,7 +28,7 @@
 
 #ifndef QT_H
 #include "qmetaobject.h"
-#include "qdict.h"
+#include "qasciidict.h"
 #endif // QT_H
 
 
@@ -38,19 +38,20 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QDict<QMetaObject>;
+template class Q_EXPORT QAsciiDict<QMetaObject>;
 #endif
 
 
-class Q_EXPORT QObjectDictionary : public QDict<QMetaObject>
+class Q_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
 {
 public:
-    QObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE) :
-	QDict<QMetaObject>(size,cs,ck) {}
-    QObjectDictionary( const QObjectDictionary &dict ) : QDict<QMetaObject>(dict) {}
+    QObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE)
+	: QAsciiDict<QMetaObject>(size,cs,ck) {}
+    QObjectDictionary( const QObjectDictionary &dict )
+	: QAsciiDict<QMetaObject>(dict) {}
    ~QObjectDictionary() { clear(); }
     QObjectDictionary &operator=(const QObjectDictionary &dict)
-	{ return (QObjectDictionary&)QDict<QMetaObject>::operator=(dict); }
+	{ return (QObjectDictionary&)QAsciiDict<QMetaObject>::operator=(dict);}
 };
 
 // Global object dictionary defined in qmetaobject.cpp

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#19 $
+** $Id: //depot/qt/main/src/tools/qcache.h#20 $
 **
-** Definition of QCache template/macro class
+** Definition of QCache template class
 **
 ** Created : 950209
 **
@@ -35,37 +35,28 @@ template<class type> class Q_EXPORT QCache : public QGCache
 {
 public:
     QCache( const QCache<type> &c ) : QGCache(c) {}
-    QCache( int maxCost=100, int size=17, bool cs=TRUE, bool ck=TRUE )
-	: QGCache( maxCost, size, cs, ck, FALSE ) {}
-   ~QCache()			      { clear(); }
+    QCache( int maxCost=100, int size=17, bool caseSensitive=TRUE )
+	: QGCache( maxCost, size, StringKey, caseSensitive, FALSE ) {}
+   ~QCache()				{ clear(); }
     QCache<type> &operator=( const QCache<type> &c )
 			{ return (QCache<type>&)QGCache::operator=(c); }
-    int	  maxCost()   const	      { return QGCache::maxCost(); }
-    int	  totalCost() const	      { return QGCache::totalCost(); }
-    void  setMaxCost( int m )	      { QGCache::setMaxCost(m); }
-    uint  count()     const	      { return QGCache::count(); }
-    uint  size()      const	      { return QGCache::size(); }
-    bool  isEmpty()   const	      { return QGCache::count() == 0; }
-    void  clear()		      { QGCache::clear(); }
-
-    bool  insert( const char *k, const type *d, int c=1, int p=0 )
-				      { return QGCache::insert(k,(Item)d,c,p);}
-    bool  remove( const char *k )     { return QGCache::remove(k); }
-    type *take( const char *k )	      { return (type *)QGCache::take(k); }
-    type *find( const char *k, bool ref=TRUE ) const
-				      { return (type *)QGCache::find(k,ref);}
-    type *operator[]( const char *k ) const
-				      { return (type *)QGCache::find(k);}
-
-    bool  insert( const QString& k, const type *d, int c=1, int p=0 )
-				      { return QGCache::insert(k,(Item)d,c,p);}
-    bool  remove( const QString& k )     { return QGCache::remove(k); }
-    type *take( const QString& k )	      { return (type *)QGCache::take(k); }
-    type *find( const QString& k, bool ref=TRUE ) const
-				      { return (type *)QGCache::find(k,ref);}
-    type *operator[]( const QString& k ) const
-				      { return (type *)QGCache::find(k);}
-
+    int	  maxCost()   const		{ return QGCache::maxCost(); }
+    int	  totalCost() const		{ return QGCache::totalCost(); }
+    void  setMaxCost( int m )		{ QGCache::setMaxCost(m); }
+    uint  count()     const		{ return QGCache::count(); }
+    uint  size()      const		{ return QGCache::size(); }
+    bool  isEmpty()   const		{ return QGCache::count() == 0; }
+    void  clear()			{ QGCache::clear(); }
+    bool  insert( const QString &k, const type *d, int c=1, int p=0 )
+			{ return QGCache::insert_string(k,(Item)d,c,p);}
+    bool  remove( const QString &k )
+			{ return QGCache::remove_string(k); }
+    type *take( const QString &k )
+			{ return (type *)QGCache::take_string(k); }
+    type *find( const QString &k, bool ref=TRUE ) const
+			{ return (type *)QGCache::find_string(k,ref);}
+    type *operator[]( const QString &k ) const
+			{ return (type *)QGCache::find_string(k);}
     void  statistics() const	      { QGCache::statistics(); }
 private:
     void  deleteItem( Item d )	      { if ( del_item ) delete (type *)d; }
@@ -89,10 +80,7 @@ public:
     type *toLast()	      { return (type *)QGCacheIterator::toLast(); }
     operator type *() const   { return (type *)QGCacheIterator::get(); }
     type *current()   const   { return (type *)QGCacheIterator::get(); }
-    long currentKeyLong() const
-			      { return QGCacheIterator::getKeyLong();}
-    QString currentKey() const
-			      { return QGCacheIterator::getKey();}
+    QString currentKey() const{ return QGCacheIterator::getKeyString(); }
     type *operator()()	      { return (type *)QGCacheIterator::operator()();}
     type *operator++()	      { return (type *)QGCacheIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGCacheIterator::operator+=(j);}

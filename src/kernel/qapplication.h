@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#119 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#120 $
 **
 ** Definition of QApplication class
 **
@@ -31,7 +31,7 @@
 #include "qlist.h"
 
 #include "qtranslator.h"
-#include "qdict.h"
+#include "qasciidict.h"
 #include "qpalette.h"
 #endif // QT_H
 
@@ -39,6 +39,7 @@ class QSessionManager;
 class QStyle;
 
 extern Q_EXPORT QApplication *qApp;		// global application object
+
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -203,8 +204,8 @@ private:
     QString session_id;
     bool is_session_restored;
 
-    static QDict<QPalette>* app_palettes;
-    static QDict<QFont>* app_fonts;
+    static QAsciiDict<QPalette> *app_palettes;
+    static QAsciiDict<QFont>    *app_fonts;
 
     static QWidgetList *popupWidgets;
     bool	    inPopupMode() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsignalslotimp.h#8 $
 **
 ** Definition of signal/slot collections etc.
 **
@@ -29,7 +29,7 @@
 #ifndef QT_H
 #include "qconnection.h"
 #include "qlist.h"
-#include "qdict.h"
+#include "qasciidict.h"
 #endif // QT_H
 
 
@@ -59,28 +59,30 @@ public:
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QDict<QConnectionList>;
-template class Q_EXPORT QDictIterator<QConnectionList>;
+template class Q_EXPORT QAsciiDict<QConnectionList>;
+template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
 #endif
 
 
-class Q_EXPORT QSignalDict : public QDict<QConnectionList>
+class Q_EXPORT QSignalDict : public QAsciiDict<QConnectionList>
 {
 public:
-    QSignalDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
-	QDict<QConnectionList>(size,cs,ck) {}
-    QSignalDict( const QSignalDict &dict ) : QDict<QConnectionList>(dict) {}
+    QSignalDict(int size=17,bool cs=TRUE,bool ck=TRUE)
+	: QAsciiDict<QConnectionList>(size,cs,ck) {}
+    QSignalDict( const QSignalDict &dict )
+	: QAsciiDict<QConnectionList>(dict) {}
    ~QSignalDict() { clear(); }
     QSignalDict &operator=(const QSignalDict &dict)
-	{ return (QSignalDict&)QDict<QConnectionList>::operator=(dict); }
+	{ return (QSignalDict&)QAsciiDict<QConnectionList>::operator=(dict); }
 };
 
-class Q_EXPORT QSignalDictIt : public QDictIterator<QConnectionList>
+class Q_EXPORT QSignalDictIt : public QAsciiDictIterator<QConnectionList>
 {
 public:
-    QSignalDictIt( const QSignalDict &dict ) : QDictIterator<QConnectionList>(dict) {}
+    QSignalDictIt( const QSignalDict &dict )
+	: QAsciiDictIterator<QConnectionList>(dict) {}
     QSignalDictIt &operator=(const QSignalDictIt &dict)
-	{ return (QSignalDictIt&)QDictIterator<QConnectionList>::operator=(dict); }
+	{ return (QSignalDictIt&)QAsciiDictIterator<QConnectionList>::operator=(dict); }
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#25 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#26 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -38,15 +38,14 @@ class QCListIt;
 class QCDict;
 
 
-/*****************************************************************************
-  QGCache class
- *****************************************************************************/
-
-class Q_EXPORT QGCache : public QCollection		// LRU cache class
+class Q_EXPORT QGCache : public QCollection	// generic LRU cache
 {
 friend class QGCacheIterator;
 protected:
-    QGCache( int maxCost, uint size,bool caseS, bool copyKeys, bool trivial );
+    enum KeyType { StringKey, AsciiKey, IntKey }; // identical to QGDict's
+
+    QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
+	     bool copyKeys );
     QGCache( const QGCache & );			// not allowed, calls fatal()
    ~QGCache();
     QGCache &operator=( const QGCache & );	// not allowed, calls fatal()
@@ -58,33 +57,30 @@ protected:
     void    setMaxCost( int maxCost );
     void    clear();
 
-    bool    insert( const char *key, Item, int cost, int priority );
-    bool    remove( const char *key );
-    Item	    take( const char *key );
-    Item	    find( const char *key, bool ref=TRUE ) const;
+    bool    insert_string( const QString &key, Item, int cost, int priority );
+    bool    insert_other( const char *key, Item, int cost, int priority );
+    bool    remove_string( const QString &key );
+    bool    remove_other( const char *key );
+    Item    take_string( const QString &key );
+    Item    take_other( const char *key );
 
-    bool    insert( const QString& key, Item, int cost, int priority );
-    bool    remove( const QString& key );
-    Item	    take( const QString& key );
-    Item	    find( const QString& key, bool ref=TRUE ) const;
+    Item    find_string( const QString &key, bool ref=TRUE ) const;
+    Item    find_other( const char *key, bool ref=TRUE ) const;
 
-    void    statistics() const;			// output debug statistics
+    void    statistics() const;
 
 private:
     bool    makeRoomFor( int cost, int priority = -1 );
+    KeyType keytype;
     QCList *lruList;
     QCDict *dict;
     int	    mCost;
     int	    tCost;
-    bool    copyK;
+    bool    copyk;
 };
 
 
-/*****************************************************************************
-  QGCacheIterator class
- *****************************************************************************/
-
-class Q_EXPORT QGCacheIterator				// QGCache iterator
+class Q_EXPORT QGCacheIterator			// generic cache iterator
 {
 protected:
     QGCacheIterator( const QGCache & );
@@ -92,20 +88,22 @@ protected:
    ~QGCacheIterator();
     QGCacheIterator &operator=( const QGCacheIterator & );
 
-    uint  count()   const;			// number of items in cache
-    bool  atFirst() const;			// test if at first item
-    bool  atLast()  const;			// test if at last item
-    QCollection::Item toFirst();			// move to first item
-    QCollection::Item toLast();			// move to last item
+    uint	      count()   const;
+    bool	      atFirst() const;
+    bool	      atLast()  const;
+    QCollection::Item toFirst();
+    QCollection::Item toLast();
 
-    QCollection::Item get() const;		// get current item
-    QString getKey() const;			// get current key
-    long getKeyLong() const;			// get current key as a long
-    QCollection::Item operator()();		// get current and move to next
-    QCollection::Item operator++();		// move to next item (prefix)
-    QCollection::Item operator+=( uint );	// move n positions forward
-    QCollection::Item operator--();		// move to prev item (prefix)
-    QCollection::Item operator-=( uint );	// move n positions backward
+    QCollection::Item get() const;
+    QString	      getKeyString() const;
+    const char       *getKeyAscii()  const;
+    long	      getKeyInt()    const;
+
+    QCollection::Item operator()();
+    QCollection::Item operator++();
+    QCollection::Item operator+=( uint );
+    QCollection::Item operator--();
+    QCollection::Item operator-=( uint );
 
 protected:
     QCListIt *it;				// iterator on cache list

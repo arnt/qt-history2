@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#15 $
 **
 ** Implementation of QDeveloper class
 **
@@ -29,6 +29,7 @@
 #include "qhbox.h"
 #include "qlabel.h"
 #include "qlist.h"
+#include "qdict.h"
 #include "qlistview.h"
 #include "qmenubar.h"
 #include "qmetaobject.h"
@@ -66,7 +67,7 @@ public:
 	QListViewItem::setup();
 	if ( childCount() )
 	    return;
-	QDictIterator<QMetaObject> it(*objectDict);
+	QAsciiDictIterator<QMetaObject> it(*objectDict);
 	QMetaObject* child;
 	while ((child = it.current())) {
 	    ++it;

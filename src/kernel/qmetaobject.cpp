@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#45 $
 **
 ** Implementation of QMetaObject class
 **
@@ -54,18 +54,18 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
  *****************************************************************************/
 
 #if defined(QT_DLL)
-template class Q_EXPORT QDict<QMetaData>;
+template class Q_EXPORT QAsciiDict<QMetaData>;
 #endif
 
-class Q_EXPORT QMemberDict : public QDict<QMetaData>
+class Q_EXPORT QMemberDict : public QAsciiDict<QMetaData>
 {
 public:
     QMemberDict(int size=17,bool cs=TRUE,bool ck=TRUE) :
-	QDict<QMetaData>(size,cs,ck) {}
-    QMemberDict( const QMemberDict &dict ) : QDict<QMetaData>(dict) {}
+	QAsciiDict<QMetaData>(size,cs,ck) {}
+    QMemberDict( const QMemberDict &dict ) : QAsciiDict<QMetaData>(dict) {}
    ~QMemberDict() { clear(); }
     QMemberDict &operator=(const QMemberDict &dict)
-	{ return (QMemberDict&)QDict<QMetaData>::operator=(dict); }
+	{ return (QMemberDict&)QAsciiDict<QMetaData>::operator=(dict); }
 };
 
 /*

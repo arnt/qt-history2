@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#47 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -26,12 +26,13 @@
 #include "qgcache.h"
 #include "qlist.h"
 #include "qdict.h"
-#include "qstring.h"				/* used for statistics */
+#include "qstring.h"
+
 
 /*!
   \class QGCache qgcache.h
 
-  \brief The QGCache class is an internal class for implementing QCache and QIntCache.
+  \brief The QGCache class is an internal class for implementing QCache template classes.
 
   QGCache is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QCache and QIntCache.
@@ -44,12 +45,12 @@
 
 struct QCacheItem
 {
-    QCacheItem( const char *k, QCollection::Item d, int c, short p )
+    QCacheItem( void *k, QCollection::Item d, int c, short p )
 	: priority(p), skipPriority(p), cost(c), key(k), data(d), node(0) {}
     short	priority;
     short	skipPriority;
     int		cost;
-    const char *key;
+    void       *key;
     QCollection::Item data;
     QLNode     *node;
 };
@@ -173,17 +174,37 @@ public:
 class QCDict : public QGDict
 {
 public:
-    QCDict( uint size, bool caseSensitive, bool copyKeys, bool trivial )
-	: QGDict( size, caseSensitive, copyKeys, trivial ) {}
+    QCDict( uint size, uint kt, bool caseSensitive, bool copyKeys )
+	: QGDict( size, (KeyType)kt, caseSensitive, copyKeys ) {}
 
-    QCacheItem *find(const char *key) const
-		  { return (QCacheItem*)((QCDict*)this)->look(key, 0, 0); }
-    QCacheItem *take(const char *key)
-		  { return (QCacheItem*)QGDict::take(key); }
-    bool  insert( const char *key, const QCacheItem *ci )
-		  { return QGDict::look(key,(Item)ci,1)!=0;}
-    bool  removeItem( QCacheItem* item ) 
-	          { return QGDict::removeItem( item->key, item ); } 
+    QCacheItem *find_string(const QString &key) const
+	{ return (QCacheItem*)((QCDict*)this)->look_string(key, 0, 0); }
+    QCacheItem *find_ascii(const char *key) const
+	{ return (QCacheItem*)((QCDict*)this)->look_ascii(key, 0, 0); }
+    QCacheItem *find_int(long key) const
+	{ return (QCacheItem*)((QCDict*)this)->look_int(key, 0, 0); }
+
+    QCacheItem *take_string(const QString &key)
+	{ return (QCacheItem*)QGDict::take_string(key); }
+    QCacheItem *take_ascii(const char *key)
+	{ return (QCacheItem*)QGDict::take_ascii(key); }
+    QCacheItem *take_int(long key)
+	{ return (QCacheItem*)QGDict::take_int(key); }
+
+    bool  insert_string( const QString &key, const QCacheItem *ci )
+	{ return QGDict::look_string(key,(Item)ci,1)!=0;}
+    bool  insert_ascii( const char *key, const QCacheItem *ci )
+	{ return QGDict::look_ascii(key,(Item)ci,1)!=0;}
+    bool  insert_int( long key, const QCacheItem *ci )
+	{ return QGDict::look_int(key,(Item)ci,1)!=0;}
+
+    bool  remove_string( QCacheItem *item )
+	{ return QGDict::remove_string(*((QString*)(item->key)),item); }
+    bool  remove_ascii( QCacheItem *item )
+	{ return QGDict::remove_ascii((const char *)item->key,item); }
+    bool  remove_int( QCacheItem *item )
+	{ return QGDict::remove_int((long)item->key,item);}
+
     void  statistics()			{ QGDict::statistics(); }
 };
 
@@ -197,14 +218,15 @@ public:
   Constructs a cache.
 */
 
-QGCache::QGCache( int maxCost, uint size,
-		  bool caseS, bool copyKeys, bool trivial )
+QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
+		  bool copyKeys )
 {
+    keytype = kt;
     lruList = new QCList;
     CHECK_PTR( lruList );
     lruList->setAutoDelete( TRUE );
-    copyK   = copyKeys;
-    dict    = new QCDict( size, caseS, FALSE, trivial );
+    copyk   = ((keytype == AsciiKey) && copyKeys);
+    dict    = new QCDict( size, kt, caseSensitive, FALSE );
     CHECK_PTR( dict );
     mCost   = maxCost;
     tCost   = 0;
@@ -308,14 +330,11 @@ void QGCache::setMaxCost( int maxCost )
   anywhere in the application, or within Qt itself, could cause the
   data to be discarded from the cache, and the pointer to become
   invalid.
-
 */
 
-bool QGCache::insert( const char *key, Item data, int cost, int priority )
+bool QGCache::insert_string( const QString &key, Item data, int cost,
+			     int priority)
 {
-#if defined(CHECK_NULL)
-    ASSERT( key != 0 && data != 0 );
-#endif
     if ( tCost + cost > mCost ) {
 	if ( !makeRoomFor(tCost + cost - mCost, priority) ) {
 #if defined(DEBUG)
@@ -328,32 +347,68 @@ bool QGCache::insert( const char *key, Item data, int cost, int priority )
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
-    if ( copyK )
+    if ( priority < -32768 )
+	priority = -32768;
+    else if ( priority > 32767 )
+	priority = 32677;
+    QCacheItem *ci = new QCacheItem( new QString(key), newItem(data),
+				     cost, (short)priority );
+    CHECK_PTR( ci );
+    lruList->insert( 0, ci );
+    dict->insert_string( key, ci );
+    tCost += cost;
+    return TRUE;
+}
+
+bool QGCache::insert_other( const char *key, Item data, int cost, int priority)
+{
+    if ( tCost + cost > mCost ) {
+	if ( !makeRoomFor(tCost + cost - mCost, priority) ) {
+#if defined(DEBUG)
+	    lruList->insertMisses++;
+#endif
+	    return FALSE;
+	}
+    }
+#if defined(DEBUG)
+    lruList->inserts++;
+    lruList->insertCosts += cost;
+#endif
+    if ( keytype == AsciiKey && copyk )
 	key = qstrdup( key );
     if ( priority < -32768 )
 	priority = -32768;
     else if ( priority > 32767 )
 	priority = 32677;
-    QCacheItem *ci = new QCacheItem( key, newItem(data), cost,
+    QCacheItem *ci = new QCacheItem( (void*)key, newItem(data), cost,
 				     (short)priority );
     CHECK_PTR( ci );
     lruList->insert( 0, ci );
-    dict->insert( key, ci );
+    if ( keytype == AsciiKey )
+	dict->insert_ascii( key, ci );
+    else
+	dict->insert_int( (long)key, ci );
     tCost += cost;
     return TRUE;
 }
+
 
 /*!
   \internal
   Removes an item from the cache.
 */
 
-bool QGCache::remove( const char *key )
+bool QGCache::remove_string( const QString &key )
 {
-#if defined(CHECK_NULL)
-    ASSERT( key != 0 );
-#endif
-    Item d = take( key );
+    Item d = take_string( key );
+    if ( d )
+	deleteItem( d );
+    return d != 0;
+}
+
+bool QGCache::remove_other( const char *key )
+{
+    Item d = take_other( key );
     if ( d )
 	deleteItem( d );
     return d != 0;
@@ -364,23 +419,40 @@ bool QGCache::remove( const char *key )
   Takes an item out of the cache (no delete).
 */
 
-QCollection::Item QGCache::take( const char *key )
+QCollection::Item QGCache::take_string( const QString &key )
 {
-#if defined(CHECK_NULL)
-    ASSERT( key != 0 );
-#endif
-    QCacheItem *ci = dict->take( key );		// take from dict
+    QCacheItem *ci = dict->take_string( key );	// take from dict
     Item d;
     if ( ci ) {
 	d = ci->data;
 	tCost -= ci->cost;
-	if ( copyK )
-	    delete [] (char *)ci->key;
 	lruList->take( ci );			// take from list
+	delete (QString*)ci->key;
 	delete ci;
-    }
-    else
+    } else {
 	d = 0;
+    }
+    return d;
+}
+
+QCollection::Item QGCache::take_other( const char *key )
+{
+    QCacheItem *ci;
+    if ( keytype == AsciiKey )
+	ci = dict->take_ascii( key );
+    else
+	ci = dict->take_int( (long)key );
+    Item d;
+    if ( ci ) {
+	d = ci->data;
+	tCost -= ci->cost;
+	lruList->take( ci );			// take from list
+	if ( copyk )
+	    delete [] (char *)ci->key;
+	delete ci;
+    } else {
+	d = 0;
+    }
     return d;
 }
 
@@ -393,10 +465,21 @@ void QGCache::clear()
 {
     register QCacheItem *ci;
     while ( (ci = lruList->first()) ) {
-	dict->removeItem( ci );			// remove from dict
+	switch ( keytype ) {
+	    case StringKey:
+		dict->remove_string( ci );
+		delete (QString*)ci->key;
+		break;
+	    case AsciiKey:
+		dict->remove_ascii( ci );
+		if ( copyk )
+		    delete [] (char*)ci->key;
+		break;
+	    case IntKey:
+		dict->remove_int( ci );
+		break;
+	}
 	deleteItem( ci->data );			// delete data
-	if ( copyK )
-	    delete [] (char *)ci->key;
 	lruList->removeFirst();			// remove from list
     }
     tCost = 0;
@@ -408,12 +491,28 @@ void QGCache::clear()
   Finds an item in the cache.
 */
 
-QCollection::Item QGCache::find( const char *key, bool ref ) const
+QCollection::Item QGCache::find_string( const QString &key, bool ref ) const
 {
-#if defined(CHECK_NULL)
-    ASSERT( key != 0 );
+    QCacheItem *ci = dict->find_string( key );
+#if defined(DEBUG)
+    lruList->finds++;
 #endif
-    QCacheItem *ci = dict->find( key );
+    if ( ci ) {
+#if defined(DEBUG)
+	lruList->hits++;
+	lruList->hitCosts += ci->cost;
+#endif
+	if ( ref )
+	    lruList->reference( ci );
+	return ci->data;
+    }
+    return 0;
+}
+
+QCollection::Item QGCache::find_other( const char *key, bool ref ) const
+{
+    QCacheItem *ci = keytype == AsciiKey ? dict->find_ascii(key)
+					 : dict->find_int((long)key);
 #if defined(DEBUG)
     lruList->finds++;
 #endif
@@ -460,9 +559,19 @@ bool QGCache::makeRoomFor( int cost, int priority )
 	lruList->dumps++;
 	lruList->dumpCosts += ci->cost;
 #endif
-	dict->removeItem( ci );			// remove from dict
-	if ( copyK )
-	    delete [] (char *)ci->key;
+	switch ( keytype ) {
+	    case StringKey:
+		dict->remove_string( ci );
+		break;
+	    case AsciiKey:
+		dict->remove_ascii( ci );
+		if ( copyk )
+		    delete [] (char *)ci->key;
+		break;
+	    case IntKey:
+		dict->remove_int( ci );
+		break;
+	}
 	deleteItem( ci->data );			// delete data
 	lruList->removeLast();			// remove from list
     }
@@ -635,10 +744,21 @@ QCollection::Item QGCacheIterator::get() const
   Returns the key of the current item.
 */
 
-QString QGCacheIterator::getKey() const
+QString QGCacheIterator::getKeyString() const
 {
     register QCacheItem *item = it->current();
-    return item ? QString::fromUtf8(item->key) : QString::null;
+    return item ? *((QString*)item->key) : QString::null;
+}
+
+/*!
+  \internal
+  Returns the key of the current item, as a \0-terminated C string.
+*/
+
+const char *QGCacheIterator::getKeyAscii() const
+{
+    register QCacheItem *item = it->current();
+    return item ? (const char *)item->key : 0;
 }
 
 /*!
@@ -646,12 +766,11 @@ QString QGCacheIterator::getKey() const
   Returns the key of the current item, as a long.
 */
 
-long QGCacheIterator::getKeyLong() const
+long QGCacheIterator::getKeyInt() const
 {
     register QCacheItem *item = it->current();
-    return item ? (long)item->key : 0L;
+    return item ? (long)item->key : 0;
 }
-
 
 /*!
   \internal
@@ -707,31 +826,3 @@ QCollection::Item QGCacheIterator::operator-=( uint jump )
     register QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;
 }
-
-
-bool QGCache::insert( const QString& key, Item i, int cost, int priority )
-{
-    if ( !copyK )
-	qFatal("QGCache: attempted to insert QString without copying key");
-    QCString kutf8 = key.utf8();
-    return insert( kutf8.data(), i, cost, priority );
-}
-
-bool QGCache::remove( const QString& key )
-{
-    QCString kutf8 = key.utf8();
-    return remove( kutf8.data() );
-}
-
-QGCache::Item QGCache::take( const QString& key )
-{
-    QCString kutf8 = key.utf8();
-    return take( kutf8.data() );
-}
-
-QGCache::Item QGCache::find( const QString& key, bool ref ) const
-{
-    QCString kutf8 = key.utf8();
-    return find( kutf8.data(), ref );
-}
-

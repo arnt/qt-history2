@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#487 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#488 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -381,7 +381,7 @@ static int qt_xio_errhandler( Display * )
 
 // Memory leak: if the app exits before qt_init_internal(), this dict
 // isn't released correctly.
-static QDict<Atom> * atoms_to_be_created = 0;
+static QAsciiDict<Atom> *atoms_to_be_created = 0;
 static bool create_atoms_now = 0;
 
 /*****************************************************************************
@@ -394,7 +394,7 @@ static bool create_atoms_now = 0;
   Neither argument may point to temporary variables.
  *****************************************************************************/
 
-void qt_x11_intern_atom( const char * name, Atom * result)
+void qt_x11_intern_atom( const char *name, Atom *result)
 {
     if ( !name || !result || *result )
 	return;
@@ -403,7 +403,7 @@ void qt_x11_intern_atom( const char * name, Atom * result)
 	*result = XInternAtom(appDpy, name, FALSE );
     } else {
 	if ( !atoms_to_be_created ) {
-	    atoms_to_be_created = new QDict<Atom>;
+	    atoms_to_be_created = new QAsciiDict<Atom>;
 	    atoms_to_be_created->setAutoDelete( FALSE );
 	}
 	atoms_to_be_created->insert( name, result );
@@ -422,11 +422,11 @@ static void qt_x11_process_intern_atoms()
 	char ** names = (char **)malloc( i * sizeof(const char*));
 
 	i = 0;
-	QDictIterator<Atom> it( *atoms_to_be_created );
+	QAsciiDictIterator<Atom> it( *atoms_to_be_created );
 	while( it.current() ) {
 	    res[i] = 0;
 	    resp[i] = it.current();
-	    names[i] = qstrdup((const char*)(void*)it.currentKeyLong());
+	    names[i] = qstrdup(it.currentKey());
 	    i++;
 	    ++it;
 	}
@@ -1671,7 +1671,7 @@ void qPRCleanup( QETWidget *widget )
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearWState( Qt::WState_Reparented ); // clear reparented flag
+	    widget->clearWState( Qt::WState_Reparented ); // clear flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
