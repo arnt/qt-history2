@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#42 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#43 $
 **
 ** Definition of QPopupMenu class
 **
@@ -114,6 +114,8 @@ private:
     bool	accelDisabled;
     int		popupActive;
     int		tabCheck;
+    bool	hasDoubleItem;
+    int		maxPMWidth;
 
 private:	// Disabled copy constructor and operator=
     QPopupMenu( const QPopupMenu & );

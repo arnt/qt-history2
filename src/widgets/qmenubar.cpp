@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#117 $
 **
 ** Implementation of QMenuBar class
 **
@@ -639,10 +639,6 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 }
 
 
-/*# QT_VERSION 200
-  Move the flag for separator usage down from QMenuData to QMenuBar.
-*/
-
 /*!
   When a menubar is used above an unframed widget, it may look better
   with a separating line when displayed with \link QWidget::style()
@@ -985,7 +981,7 @@ void QMenuBar::setActItem( int i, bool clear )
 {
     if ( i == actItem )
 	return;
-    
+
     if ( i < 0 || actItem < 0 ) {
 	// just one item needs repainting
 	int n = QMAX( actItem, i );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#30 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#31 $
 **
 ** Definition of QMenuBar class
 **
@@ -93,6 +93,9 @@ private:
     void	setupAccelerators();
     QAccel     *autoaccel;
     QRect      *irects;
+    
+    uint	mseparator	: 1;
+    uint	windowsaltactive : 1;
 
 private:	// Disabled copy constructor and operator=
     QMenuBar( const QMenuBar & );

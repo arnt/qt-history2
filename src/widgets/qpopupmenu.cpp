@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#162 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -86,59 +86,6 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 }
 
 
-//### How to provide new member variables while keeping binary compatibility:
-#if QT_VERSION == 200
-#error "Remove QPopupMenu dict!"
-#endif
-
-#include "qptrdict.h"
-
-
-struct QPopupMenuExtra {
-    bool hasDoubleItem;
-    int maxPMWidth;
-};
-
-
-static QPtrDict<QPopupMenuExtra> *qpm_extraStuff = 0;
-
-static void cleanupPopupMenu()
-{
-    delete qpm_extraStuff;
-    qpm_extraStuff = 0;
-}
-
-
-static QPopupMenuExtra * makePMDict( QPopupMenu *that )
-{
-    if ( !qpm_extraStuff ) {
-	qpm_extraStuff = new QPtrDict<QPopupMenuExtra>;
-	CHECK_PTR( qpm_extraStuff );
-	qpm_extraStuff->setAutoDelete( TRUE );
-	qAddPostRoutine( cleanupPopupMenu );
-    }
-
-    QPopupMenuExtra *x = (QPopupMenuExtra *)qpm_extraStuff->find( that );
-    if ( !x ) {
-	x = new QPopupMenuExtra;
-	x->hasDoubleItem = FALSE;
-	x->maxPMWidth = 0;
-	qpm_extraStuff->insert( that, x );
-    }
-
-    return x;
-}
-
-
-static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
-{
-    QPopupMenuExtra *x = 0;
-    if ( qpm_extraStuff )
-	x = (QPopupMenuExtra *)qpm_extraStuff->find( (void *)that );
-    return x;
-}
-
-
 
 
 /*!
@@ -185,8 +132,7 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 
 static int getWidthOfCheckCol( QPopupMenu *that, int gs )
 {
-    QPopupMenuExtra *x= lookInPMDict( that );
-    int pmw = x ? x->maxPMWidth : 0;
+    int pmw = maxPMWidth;
     int cmw = 7;   // check mark width
     int w = cmw > pmw ? cmw : pmw;
     if ( gs == MotifStyle )
@@ -386,6 +332,9 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     accelDisabled = FALSE;
     popupActive	  = -1;
     tabCheck	  = 0;
+    hasDoubleItem = FALSE;
+    maxPMWidth = 0;
+    
     setTabMark( 0 );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
@@ -509,7 +458,7 @@ void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
     updateAccel( 0 );
-    updateSize(); // ### SLOW, needs some rework 
+    updateSize(); // ### SLOW, needs some rework
     if ( isVisible() ) {
 	//	updateSize();
 	repaint();
@@ -837,15 +786,11 @@ void QPopupMenu::updateSize()
 	++it;
     }
     if ( hasTextAndPixmapItem ) {
-	QPopupMenuExtra *x = makePMDict( this );
-	x->hasDoubleItem = TRUE;
-	x->maxPMWidth = max_pm_width;
+	hasDoubleItem = TRUE;
+	maxPMWidth = max_pm_width;
     } else {
-	QPopupMenuExtra *x = lookInPMDict( this );
-	if ( x ) {
-	    x->hasDoubleItem = FALSE;
-	    x->maxPMWidth    = 0;
-	}
+	hasDoubleItem = FALSE;
+	maxPMWidth    = 0;
     }
     if ( gs == MotifStyle ) {
 	setCheckableFlag( isCheckable() || hasTextAndPixmapItem );
@@ -1601,7 +1546,7 @@ void QPopupMenu::subMenuTimer() {
     if ( popup->badSize )
 	popup->updateSize();
     if (p.y() + popup->height() > QApplication::desktop()->height()
-	&& p.y() - popup->height() 
+	&& p.y() - popup->height()
 	+ (QCOORD)(popup->cellHeight( popup->count()-1)) >= 0)
 	p.setY( p.y() - popup->height()
 		+ (QCOORD)(popup->cellHeight( popup->count()-1)));

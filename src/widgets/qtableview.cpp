@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#85 $
 **
 ** Implementation of QTableView class
 **
@@ -923,11 +923,8 @@ void QTableView::clearTableFlags( uint f )
   \sa autoUpdate(), repaint()
 */
 
-void QTableView::setAutoUpdate( bool enable )
+void QTableView::setAutoUpdate( bool enable )// ###### Paul fixme fixme
 {
-#if QT_VERSION == 200
-#error "Remove unused flag obsoleteUpd"
-#endif
     obsoleteUpd = enable; //### binary compatibility contortions
     if ( isUpdatesEnabled() == enable )
 	return;
