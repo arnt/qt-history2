@@ -1755,7 +1755,7 @@ static void qt_tablet_cleanup()
 
 void QWidget::setWindowTransparency(double level)
 {
-    if (!isTopLevel())
+    if(!isTopLevel())
 	return;
 
     static bool function_resolved = false;
@@ -1774,11 +1774,11 @@ void QWidget::setWindowTransparency(double level)
 	SetWindowLongA(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
 
     level = QMIN(QMAX(level, 0), 1.0);
-    (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level*255), Q_LWA_ALPHA);
+    (*ptrSetLayeredWindowAttributes)(winId(), 0, 255-(int)(level*255), Q_LWA_ALPHA);
     d->topData()->transparency = (uchar)(level*255);
 }
 
 double QWidget::windowTransparency() const
 {
-    return isTopLevel() ? (d->topData()->transparency/255.0) : 1.0;
+    return isTopLevel() ? (d->topData()->transparency/255.0) : 0.0;
 }

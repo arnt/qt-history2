@@ -2501,12 +2501,13 @@ void QWidget::setWindowTransparency(double level)
 {
     if(!isTopLevel())
 	return;
+
     level = QMIN(QMAX(level, 0), 1.0);
-    QMacSavedPortInfo::setAlphaTransparency(this, level);
+    QMacSavedPortInfo::setAlphaTransparency(this, 255-level);
     d->topData()->transparency = (uchar)(level*255);
 }
 
 double QWidget::windowTransparency() const
 {
-    return isTopLevel() ? ((QWidget*)this)->d->topData()->transparency/255.0 : 1.0;
+    return isTopLevel() ? ((QWidget*)this)->d->topData()->transparency/255.0 : 0.0;
 }

@@ -2559,5 +2559,5 @@ void QWidget::setWindowTransparency(double)
 
 double QWidget::windowTransparency() const
 {
-    return 1.0;
+    return 0.0;
 }

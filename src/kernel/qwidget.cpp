@@ -882,8 +882,8 @@ void QWidgetPrivate::createTLExtra()
 	createExtra();
     if ( !extra->topextra ) {
 	QTLWExtra* x = extra->topextra = new QTLWExtra;
-#ifdef Q_WS_WIN
-	x->transparency = 255;
+#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
+	x->transparency = 0;
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	x->icon = 0;
@@ -5637,10 +5637,13 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 /*!
   \property QWidget::windowTransparency
 
-  \brief the transparency of a toplevel window.
+  \brief the transparency of the window
 
-  The valid range of transparency is from 0 (completly transparent) to
-  1 (completly opaqcue). Only top level windows can be transparent.
+  The valid range of transparency is from 0 (completely opaque) to
+  1 (completely transparency).
+  
+  By default the value of this property is 0, e.g. the window is completely
+  opaque.
 
   This feature is only present on MacOS and Windows 2000 and newer.
 */
