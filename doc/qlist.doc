@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.24 1999/03/08 19:08:45 weis Exp $
+** $Id: qlist.doc,v 2.25 1999/03/18 04:11:14 weis Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -812,20 +812,6 @@
   \fn QListIterator::operator type *() const
   Cast operator. Returns a pointer to the current iterator item.
   Same as current().
-*/
-
-/*!
-  \fn type *QListIterator::operator->()
-  Pointer operator. Returns a pointer to the current iterator item.
-  The great advantage of this operator is that you can treat the
-  iterator like a pointer.
-
-  Example:
-  \code
-	QListIterator<QWidget> it( widgets );
-	for( ; *it; ++it )
-		it->show();
-  \endcode
 */
 
 /*!
