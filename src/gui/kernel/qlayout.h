@@ -30,8 +30,6 @@
 
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
-class QGridLayoutBox;
-class QGridLayoutData;
 class QLayout;
 class QLayoutItem;
 class QMenuBar;
@@ -255,10 +253,12 @@ inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
 #endif
 
 
+class QGridLayoutPrivate;
 
 class Q_GUI_EXPORT QGridLayout : public QLayout
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGridLayout)
 public:
     QGridLayout(QWidget *parent, int nRows = 1, int nCols = 1, int border = 0,
                  int spacing = -1, const char *name = 0);
@@ -316,8 +316,6 @@ private:
     QGridLayout &operator=(const QGridLayout &);
 #endif
 
-    void init(int rows, int cols);
-    QGridLayoutData *data;
 #ifdef QT_COMPAT
 public:
     void expand(int rows, int cols);

@@ -66,8 +66,7 @@ public:
                          item_->widget()->sizePolicy().verStretch() : 0; }
 
 private:
-    friend class QGridLayoutData;
-    friend class QGridLayoutDataIterator;
+    friend class QGridLayoutPrivate;
 
     QLayoutItem *item_;
     int row, col;
@@ -83,19 +82,17 @@ public:
     QLayoutItem *takeItem() { return box_->takeItem(); }
 
 private:
-    friend class QGridLayoutData;
-    friend class QGridLayoutDataIterator;
+    friend class QGridLayoutPrivate;
 
     QGridBox *box_;
     int torow, tocol;
 };
 
-class QGridLayoutData
+class QGridLayoutPrivate : public QLayoutPrivate
 {
+    Q_DECLARE_PUBLIC(QGridLayout)
 public:
-    QGridLayoutData();
-    QGridLayoutData(int nRows, int nCols);
-    ~QGridLayoutData();
+    QGridLayoutPrivate();
 
     void add(QGridBox*, int row, int col);
     void add(QGridBox*, int row1, int row2, int col1, int col2);
@@ -103,7 +100,7 @@ public:
     QSize minimumSize(int) const;
     QSize maximumSize(int) const;
 
-    QSizePolicy::ExpandData expanding(int spacing);
+    QSizePolicy::ExpandData expanding(int spacing) const;
 
     void distribute(QRect, int);
     inline int numRows() const { return rr; }
@@ -164,6 +161,8 @@ public:
         return item;
     }
 
+    void deleteAll();
+
 private:
     void setNextPosAfter(int r, int c);
     void recalcHFW(int w, int s);
@@ -198,16 +197,21 @@ private:
     uint needRecalc        : 1;
     uint has_hfw        : 1;
     uint addVertical        : 1;
-
-    friend class QGridLayoutDataIterator;
 };
 
-QGridLayoutData::QGridLayoutData()
+QGridLayoutPrivate::QGridLayoutPrivate()
 {
-    init();
+    addVertical = false;
+    setDirty();
+    rr = cc = 0;
+    nextR = nextC = 0;
+    hfwData = 0;
+    hReversed = false;
+    vReversed = false;
 }
 
-QGridLayoutData::QGridLayoutData(int nRows, int nCols)
+#if 0
+QGridLayoutPrivate::QGridLayoutPrivate(int nRows, int nCols)
     : rowData(0), colData(0)
 {
     init();
@@ -221,8 +225,9 @@ QGridLayoutData::QGridLayoutData(int nRows, int nCols)
     }
     setSize(nRows, nCols);
 }
+#endif
 
-QGridLayoutData::~QGridLayoutData()
+void QGridLayoutPrivate::deleteAll()
 {
     while (!things.isEmpty())
         delete things.takeFirst();
@@ -231,18 +236,7 @@ QGridLayoutData::~QGridLayoutData()
     delete hfwData;
 }
 
-void QGridLayoutData::init()
-{
-    addVertical = false;
-    setDirty();
-    rr = cc = 0;
-    nextR = nextC = 0;
-    hfwData = 0;
-    hReversed = false;
-    vReversed = false;
-}
-
-bool QGridLayoutData::hasHeightForWidth(int spacing)
+bool QGridLayoutPrivate::hasHeightForWidth(int spacing)
 {
     setupLayoutData(spacing);
     return has_hfw;
@@ -252,7 +246,7 @@ bool QGridLayoutData::hasHeightForWidth(int spacing)
   Assumes that setupLayoutData() has been called, and that
   qGeomCalc() has filled in colData with appropriate values.
 */
-void QGridLayoutData::recalcHFW(int w, int spacing)
+void QGridLayoutPrivate::recalcHFW(int w, int spacing)
 {
     /*
       Go through all children, using colData and heightForWidth()
@@ -282,7 +276,7 @@ void QGridLayoutData::recalcHFW(int w, int spacing)
     hfw_minheight = qMin(QLAYOUTSIZE_MAX, h);
 }
 
-int QGridLayoutData::heightForWidth(int w, int margin, int spacing)
+int QGridLayoutPrivate::heightForWidth(int w, int margin, int spacing)
 {
     setupLayoutData(spacing);
     if (!has_hfw)
@@ -294,13 +288,13 @@ int QGridLayoutData::heightForWidth(int w, int margin, int spacing)
     return hfw_height + 2*margin;
 }
 
-int QGridLayoutData::minimumHeightForWidth(int w, int margin, int spacing)
+int QGridLayoutPrivate::minimumHeightForWidth(int w, int margin, int spacing)
 {
     (void) heightForWidth(w, margin, spacing);
     return has_hfw ? (hfw_minheight + 2*margin) : -1;
 }
 
-bool QGridLayoutData::findWidget(QWidget* w, int *row, int *col)
+bool QGridLayoutPrivate::findWidget(QWidget* w, int *row, int *col)
 {
     int i;
 
@@ -328,9 +322,9 @@ bool QGridLayoutData::findWidget(QWidget* w, int *row, int *col)
     return false;
 }
 
-QSize QGridLayoutData::findSize(QCOORD QLayoutStruct::*size, int spacer) const
+QSize QGridLayoutPrivate::findSize(QCOORD QLayoutStruct::*size, int spacer) const
 {
-    QGridLayoutData *that = (QGridLayoutData *)this;
+    QGridLayoutPrivate *that = const_cast<QGridLayoutPrivate*>(this);
     that->setupLayoutData(spacer);
 
     int w = 0;
@@ -357,9 +351,10 @@ QSize QGridLayoutData::findSize(QCOORD QLayoutStruct::*size, int spacer) const
     return QSize(w, h);
 }
 
-QSizePolicy::ExpandData QGridLayoutData::expanding(int spacing)
+QSizePolicy::ExpandData QGridLayoutPrivate::expanding(int spacing) const
 {
-    setupLayoutData(spacing);
+    QGridLayoutPrivate *that = const_cast<QGridLayoutPrivate*>(this);
+    that->setupLayoutData(spacing);
     int ret = 0;
 
     for (int r = 0; r < rr; r++) {
@@ -377,22 +372,22 @@ QSizePolicy::ExpandData QGridLayoutData::expanding(int spacing)
     return (QSizePolicy::ExpandData) ret;
 }
 
-QSize QGridLayoutData::sizeHint(int spacer) const
+QSize QGridLayoutPrivate::sizeHint(int spacer) const
 {
     return findSize(&QLayoutStruct::sizeHint, spacer);
 }
 
-QSize QGridLayoutData::maximumSize(int spacer) const
+QSize QGridLayoutPrivate::maximumSize(int spacer) const
 {
     return findSize(&QLayoutStruct::maximumSize, spacer);
 }
 
-QSize QGridLayoutData::minimumSize(int spacer) const
+QSize QGridLayoutPrivate::minimumSize(int spacer) const
 {
     return findSize(&QLayoutStruct::minimumSize, spacer);
 }
 
-void QGridLayoutData::setSize(int r, int c)
+void QGridLayoutPrivate::setSize(int r, int c)
 {
     if ((int)rowData.size() < r) {
         int newR = qMax(r, rr * 2);
@@ -426,7 +421,7 @@ void QGridLayoutData::setSize(int r, int c)
     cc = c;
 }
 
-void QGridLayoutData::setNextPosAfter(int row, int col)
+void QGridLayoutPrivate::setNextPosAfter(int row, int col)
 {
     if (addVertical) {
         if (col > nextC || col == nextC && row >= nextR) {
@@ -449,7 +444,7 @@ void QGridLayoutData::setNextPosAfter(int row, int col)
     }
 }
 
-void QGridLayoutData::add(QGridBox *box, int row, int col)
+void QGridLayoutPrivate::add(QGridBox *box, int row, int col)
 {
     expand(row+1, col+1);
     box->row = row;
@@ -459,7 +454,7 @@ void QGridLayoutData::add(QGridBox *box, int row, int col)
     setNextPosAfter(row, col);
 }
 
-void QGridLayoutData::add(QGridBox *box, int row1, int row2, int col1,
+void QGridLayoutPrivate::add(QGridBox *box, int row1, int row2, int col1,
                            int col2 )
 {
     if (row2 >= 0 && row2 < row1)
@@ -482,7 +477,7 @@ void QGridLayoutData::add(QGridBox *box, int row1, int row2, int col1,
     setNextPosAfter(row2, col2);
 }
 
-void QGridLayoutData::addData(QGridBox *box, bool r, bool c)
+void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
 {
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
@@ -600,7 +595,7 @@ static void distributeMultiBox(QVector<QLayoutStruct> &chain, int spacing,
 
 //#define QT_LAYOUT_DISABLE_CACHING
 
-void QGridLayoutData::setupLayoutData(int spacing)
+void QGridLayoutPrivate::setupLayoutData(int spacing)
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
     if (!needRecalc)
@@ -660,7 +655,7 @@ void QGridLayoutData::setupLayoutData(int spacing)
     needRecalc = false;
 }
 
-void QGridLayoutData::addHfwData(QGridBox *box, int width)
+void QGridLayoutPrivate::addHfwData(QGridBox *box, int width)
 {
     QVector<QLayoutStruct> &rData = *hfwData;
     if (box->hasHeightForWidth()) {
@@ -682,7 +677,7 @@ void QGridLayoutData::addHfwData(QGridBox *box, int width)
   instead of sizeHint(). Assumes that setupLayoutData() and
   qGeomCalc(colData) has been called.
 */
-void QGridLayoutData::setupHfwLayoutData(int spacing)
+void QGridLayoutPrivate::setupHfwLayoutData(int spacing)
 {
     QVector<QLayoutStruct> &rData = *hfwData;
     int i;
@@ -727,7 +722,7 @@ void QGridLayoutData::setupHfwLayoutData(int spacing)
         rData[i].expansive = rData[i].expansive || rData[i].stretch > 0;
 }
 
-void QGridLayoutData::distribute(QRect r, int spacing)
+void QGridLayoutPrivate::distribute(QRect r, int spacing)
 {
     bool visualHReversed = hReversed;
     if (QApplication::reverseLayout())
@@ -785,7 +780,7 @@ void QGridLayoutData::distribute(QRect r, int spacing)
     }
 }
 
-QRect QGridLayoutData::cellGeometry(int row, int col) const
+QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
 {
     if (row < 0 || row >= rr || col < 0 || col >= cc)
         return QRect();
@@ -881,9 +876,9 @@ QRect QGridLayoutData::cellGeometry(int row, int col) const
 */
 QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
                           int space, const char *name)
-    : QLayout(parent)
+    : QLayout(*new QGridLayoutPrivate, 0, parent)
 {
-    init(nRows, nCols);
+    d->expand(nRows, nCols);
     setMargin(margin);
     setSpacing(space);
     setObjectName(name);
@@ -900,9 +895,9 @@ QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
 */
 QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
                           int spacing, const char *name)
-    : QLayout(parentLayout)
+    : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
 {
-    init(nRows, nCols);
+    d->expand(nRows, nCols);
     setSpacing(spacing);
     setObjectName(name);
 }
@@ -919,8 +914,9 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
 */
 QGridLayout::QGridLayout(int nRows, int nCols,
                           int spacing, const char *name)
+    : QLayout(*new QGridLayoutPrivate, 0, 0)
 {
-    init(nRows, nCols);
+    d->expand(nRows, nCols);
     setSpacing(spacing);
     setObjectName(name);
 }
@@ -933,7 +929,7 @@ QGridLayout::QGridLayout(int nRows, int nCols,
 */
 QGridLayout::~QGridLayout()
 {
-    delete data;
+    d->deleteAll();
 }
 
 /*!
@@ -941,7 +937,7 @@ QGridLayout::~QGridLayout()
 */
 int QGridLayout::numRows() const
 {
-    return data->numRows();
+    return d->numRows();
 }
 
 /*!
@@ -949,7 +945,7 @@ int QGridLayout::numRows() const
 */
 int QGridLayout::numCols() const
 {
-    return data->numCols();
+    return d->numCols();
 }
 
 /*!
@@ -957,7 +953,7 @@ int QGridLayout::numCols() const
 */
 QSize QGridLayout::sizeHint() const
 {
-    return data->sizeHint(spacing()) + QSize(2 * margin(), 2 * margin());
+    return d->sizeHint(spacing()) + QSize(2 * margin(), 2 * margin());
 }
 
 /*!
@@ -965,7 +961,7 @@ QSize QGridLayout::sizeHint() const
 */
 QSize QGridLayout::minimumSize() const
 {
-    return data->minimumSize(spacing()) + QSize(2 * margin(), 2 * margin());
+    return d->minimumSize(spacing()) + QSize(2 * margin(), 2 * margin());
 }
 
 /*!
@@ -973,7 +969,7 @@ QSize QGridLayout::minimumSize() const
 */
 QSize QGridLayout::maximumSize() const
 {
-    QSize s = data->maximumSize(spacing()) +
+    QSize s = d->maximumSize(spacing()) +
               QSize(2 * margin(), 2 * margin());
     s = s.boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if (alignment() & Qt::AlignHorizontal_Mask)
@@ -989,7 +985,7 @@ QSize QGridLayout::maximumSize() const
 */
 bool QGridLayout::hasHeightForWidth() const
 {
-    return ((QGridLayout*)this)->data->hasHeightForWidth(spacing());
+    return ((QGridLayout*)this)->d->hasHeightForWidth(spacing());
 }
 
 /*!
@@ -998,14 +994,14 @@ bool QGridLayout::hasHeightForWidth() const
 int QGridLayout::heightForWidth(int w) const
 {
     QGridLayout *that = (QGridLayout*)this;
-    return that->data->heightForWidth(w, margin(), spacing());
+    return that->d->heightForWidth(w, margin(), spacing());
 }
 
 /*! \internal */
 int QGridLayout::minimumHeightForWidth(int w) const
 {
     QGridLayout *that = (QGridLayout*)this;
-    return that->data->minimumHeightForWidth(w, margin(), spacing());
+    return that->d->minimumHeightForWidth(w, margin(), spacing());
 }
 
 /*!
@@ -1018,7 +1014,7 @@ int QGridLayout::minimumHeightForWidth(int w) const
 */
 bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
 {
-    return data->findWidget(w, row, col);
+    return d->findWidget(w, row, col);
 }
 
 /*!
@@ -1026,7 +1022,7 @@ bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
 */
 QLayoutItem *QGridLayout::itemAt(int index) const
 {
-    return data->itemAt(index);
+    return d->itemAt(index);
 }
 
 
@@ -1035,7 +1031,7 @@ QLayoutItem *QGridLayout::itemAt(int index) const
 */
 QLayoutItem *QGridLayout::takeAt(int index)
 {
-    return data->takeAt(index);
+    return d->takeAt(index);
 }
 
 
@@ -1044,12 +1040,12 @@ QLayoutItem *QGridLayout::takeAt(int index)
 */
 void QGridLayout::setGeometry(const QRect &r)
 {
-    if (data->isDirty() || r != geometry()) {
+    if (d->isDirty() || r != geometry()) {
         QLayout::setGeometry(r);
         QRect cr = alignment() ? alignmentRect(r) : r;
         QRect s(cr.x() + margin(), cr.y() + margin(),
                  cr.width() - 2 * margin(), cr.height() - 2 * margin());
-        data->distribute(s, spacing());
+        d->distribute(s, spacing());
     }
 }
 
@@ -1064,7 +1060,7 @@ void QGridLayout::setGeometry(const QRect &r)
 */
 QRect QGridLayout::cellGeometry(int row, int col) const
 {
-    return data->cellGeometry(row, col);
+    return d->cellGeometry(row, col);
 }
 #ifdef QT_COMPAT
 /*!
@@ -1075,16 +1071,9 @@ QRect QGridLayout::cellGeometry(int row, int col) const
 */
 void QGridLayout::expand(int nRows, int nCols)
 {
-    data->expand(nRows, nCols);
+    d->expand(nRows, nCols);
 }
 #endif
-/*!
-    Sets up the grid.
-*/
-void QGridLayout::init(int nRows, int nCols)
-{
-    data = new QGridLayoutData(nRows, nCols);
-}
 
 /*!
     \overload
@@ -1094,7 +1083,7 @@ void QGridLayout::init(int nRows, int nCols)
 void QGridLayout::addItem(QLayoutItem *item)
 {
     int r, c;
-    data->getNextPos(r, c);
+    d->getNextPos(r, c);
     addItem(item, r, c);
 }
 
@@ -1110,7 +1099,7 @@ void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int 
 {
     QGridBox *b = new QGridBox(item);
     b->setAlignment(alignment);
-    data->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
+    d->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
     invalidate();
 }
 
@@ -1169,7 +1158,7 @@ void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
     addChildWidget(w);
     QGridBox *b = new QGridBox(w);
     b->setAlignment(alignment);
-    data->add(b, fromRow, toRow, fromCol, toCol);
+    d->add(b, fromRow, toRow, fromCol, toCol);
 }
 
 /*!
@@ -1198,7 +1187,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col, Alignment alignme
     addChildLayout(layout);
     QGridBox *b = new QGridBox(layout);
     b->setAlignment(alignment);
-    data->add(b, row, col);
+    d->add(b, row, col);
 }
 
 /*!
@@ -1213,7 +1202,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col,
     addChildLayout(layout);
     QGridBox *b = new QGridBox(layout);
     b->setAlignment(alignment);
-    data->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
+    d->add(b, row, row + rowSpan - 1, col, col + colSpan - 1);
 }
 
 /*!
@@ -1231,7 +1220,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col,
 */
 void QGridLayout::setRowStretch(int row, int stretch)
 {
-    data->setRowStretch(row, stretch);
+    d->setRowStretch(row, stretch);
 }
 
 /*!
@@ -1241,7 +1230,7 @@ void QGridLayout::setRowStretch(int row, int stretch)
 */
 int QGridLayout::rowStretch(int row) const
 {
-    return data->rowStretch(row);
+    return d->rowStretch(row);
 }
 
 /*!
@@ -1251,7 +1240,7 @@ int QGridLayout::rowStretch(int row) const
 */
 int QGridLayout::colStretch(int col) const
 {
-    return data->colStretch(col);
+    return d->colStretch(col);
 }
 
 /*!
@@ -1273,7 +1262,7 @@ int QGridLayout::colStretch(int col) const
 */
 void QGridLayout::setColStretch(int col, int stretch)
 {
-    data->setColStretch(col, stretch);
+    d->setColStretch(col, stretch);
 }
 
 /*!
@@ -1283,7 +1272,7 @@ void QGridLayout::setColStretch(int col, int stretch)
 */
 void QGridLayout::setRowSpacing(int row, int minSize)
 {
-    data->setRowSpacing(row, minSize);
+    d->setRowSpacing(row, minSize);
 }
 
 /*!
@@ -1293,7 +1282,7 @@ void QGridLayout::setRowSpacing(int row, int minSize)
 */
 int QGridLayout::rowSpacing(int row) const
 {
-    return data->rowSpacing(row);
+    return d->rowSpacing(row);
 }
 
 /*!
@@ -1303,7 +1292,7 @@ int QGridLayout::rowSpacing(int row) const
 */
 void QGridLayout::setColSpacing(int col, int minSize)
 {
-    data->setColSpacing(col, minSize);
+    d->setColSpacing(col, minSize);
 }
 
 /*!
@@ -1313,7 +1302,7 @@ void QGridLayout::setColSpacing(int col, int minSize)
 */
 int QGridLayout::colSpacing(int col) const
 {
-    return data->colSpacing(col);
+    return d->colSpacing(col);
 }
 
 /*!
@@ -1324,7 +1313,7 @@ int QGridLayout::colSpacing(int col) const
 */
 QSizePolicy::ExpandData QGridLayout::expanding() const
 {
-    return data->expanding(spacing());
+    return d->expanding(spacing());
 }
 
 /*!
@@ -1332,7 +1321,7 @@ QSizePolicy::ExpandData QGridLayout::expanding() const
 */
 void QGridLayout::setOrigin(Corner c)
 {
-    data->setReversed(c == BottomLeft || c == BottomRight,
+    d->setReversed(c == BottomLeft || c == BottomRight,
                        c == TopRight || c == BottomRight);
 }
 
@@ -1342,10 +1331,10 @@ void QGridLayout::setOrigin(Corner c)
 */
 QGridLayout::Corner QGridLayout::origin() const
 {
-    if (data->horReversed()) {
-        return data->verReversed() ? BottomRight : TopRight;
+    if (d->horReversed()) {
+        return d->verReversed() ? BottomRight : TopRight;
     } else {
-        return data->verReversed() ? BottomLeft : TopLeft;
+        return d->verReversed() ? BottomLeft : TopLeft;
     }
 }
 
@@ -1354,7 +1343,7 @@ QGridLayout::Corner QGridLayout::origin() const
 */
 void QGridLayout::invalidate()
 {
-    data->setDirty();
+    d->setDirty();
     QLayout::invalidate();
 }
 
@@ -1994,7 +1983,6 @@ void QBoxLayout::insertSpacing(int index, int size)
     if (index < 0)                                // append
         index = d->list.count();
 
-    // hack in QGridLayoutData: spacers do not get insideSpacing
     QLayoutItem *b;
     if (horz(d->dir))
         b = new QSpacerItem(size, 0, QSizePolicy::Fixed,
@@ -2021,7 +2009,6 @@ void QBoxLayout::insertStretch(int index, int stretch)
     if (index < 0)                                // append
         index = d->list.count();
 
-    // hack in QGridLayoutData: spacers do not get insideSpacing
     QLayoutItem *b;
     if (horz(d->dir))
         b = new QSpacerItem(0, 0, QSizePolicy::Expanding,
