@@ -534,10 +534,8 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 ;
 
 
-// QT_CLEAN_NAMESPACE is not defined by default; it would break too
-// much code.
 #if !defined(QT_CLEAN_NAMESPACE)
-// in that case, also define the old ones...
+// source compatibility with Qt 1.x
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
@@ -557,8 +555,8 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif
 ;
 
-// okay, that was debug()/warning()/fatal()
-#endif
+#endif // QT_CLEAN_NAMESPACE
+
 
 #if !defined(ASSERT)
 #if defined(QT_CHECK_STATE)
