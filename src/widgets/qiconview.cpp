@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#166 $
 **
 ** Definition of QIconView widget class
 **
@@ -2250,7 +2250,7 @@ void QIconView::removeItem( QIconViewItem *item )
     }
     if ( item->isSelected() )
 	item->setSelected( FALSE );
-    
+
     if ( item == d->firstItem ) {
 	d->firstItem = d->firstItem->next;
 	if ( d->firstItem )
@@ -2830,7 +2830,7 @@ void QIconView::selectAll( bool select )
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
 	if ( select != item->isSelected() )
-	    item->setSelected( select );
+	    item->setSelected( select, TRUE );
     }
 }
 
