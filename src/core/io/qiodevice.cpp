@@ -412,9 +412,16 @@ void QIODevice::close()
     written to the device. If it returns false, the number of bytes
     that have been written can be checked by calling bytesToWrite()
     before and after the call, or by connecting to bytesWritten().
+
+    Calling this function is equivalent to calling
+    waitForBytesWritten() until bytesToWrite() returns 0.
 */
 bool QIODevice::flush()
 {
+    while (bytesToWrite() > 0) {
+        if (!waitForBytesWritten(0))
+            return false;
+    }
     return true;
 }
 

@@ -541,28 +541,10 @@ bool QProcess::canReadLine() const
 */
 void QProcess::close()
 {
-    closeOutputChannel();
-    closeInputChannel(QProcess::StandardOutput);
-    closeInputChannel(QProcess::StandardError);
+    flush();
+    terminate();
+    waitForFinished(0);
     QIODevice::close();
-}
-
-/*! \reimp
-
-    Calling this function is equivalent to calling
-    waitForBytesWritten() until bytesToWrite() returns false.
-
-    \sa waitForBytesWritten()
-*/
-bool QProcess::flush()
-{
-    Q_D(QProcess);
-
-    while (!d->writeBuffer.isEmpty()) {
-        if (!d->waitForBytesWritten(0))
-            return false;
-    }
-    return true;
 }
 
 /*! \reimp
