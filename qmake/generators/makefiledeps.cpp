@@ -82,7 +82,7 @@ SourceFiles::~SourceFiles()
                 delete next;
                 next = next_next;
             }
-            free(nodes[n]);
+            delete nodes[n];
         }
     }
 }
