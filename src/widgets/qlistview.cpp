@@ -1923,6 +1923,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		//p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		int c = d->h->mapToActual( 0 );
 		QRect r( d->h->cellPos( c ) - ox, current->y - oy, d->h->cellSize( c ), ih );
+		if ( current->i->parentItem )
+		    r.setLeft( r.left() + current->l * treeStepSize() );
 		current->i->paintFocus( p, colorGroup(), r );
 		p->restore();
 	    }
