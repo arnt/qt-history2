@@ -282,8 +282,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	WindowAttributes wattr = kWindowNoAttributes;
 
+#if 0
 	if( wclass == kSheetWindowClass )
 	    wattr |= kWindowNoShadowAttribute;
+#endif
 
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
