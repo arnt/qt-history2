@@ -229,15 +229,14 @@ public:
 */
 
 /*!
-  Constructs an icon set of \link QPixmap::isNull() null\endlink pixmaps.
+  Constructs a null icon set.
   Use setPixmap(), reset(), or operator=() to set some pixmaps.
 
   \sa reset()
 */
 QIconSet::QIconSet()
+: d(0)
 {
-    d = 0;
-    reset( QPixmap(), Automatic );
 }
 
 
@@ -252,8 +251,8 @@ QIconSet::QIconSet()
   \sa reset()
 */
 QIconSet::QIconSet( const QPixmap& pixmap, Size size )
+: d(0)
 {
-    d = 0;
     reset( pixmap, size );
 }
 
@@ -274,8 +273,8 @@ QIconSet::QIconSet( const QIconSet& other )
 */
 
 QIconSet::QIconSet( const QPixmap &smallPix, const QPixmap &largePix )
+: d(0)
 {
-    d = 0;
     reset( smallPix, Small );
     reset( largePix, Large );
 }
@@ -315,13 +314,10 @@ QIconSet &QIconSet::operator=( const QIconSet &other )
 
 /*!
   Returns TRUE if the icon set is empty.
-  
-  \bug Currently, a QIconSet is never empty (although it may contain
-       null pixmaps).
 */
 bool QIconSet::isNull() const
 {
-    return ( d == 0 ); // ###
+    return !d;
 }
 
 /*!
@@ -483,10 +479,8 @@ void QIconSet::setPixmap( const QString &fileName, Size size, Mode mode, State s
 */
 QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 {
-    if ( !d ) {
-	QPixmap r;
-	return r;
-    }
+    if ( !d )
+	return QPixmap();
 
     QImage i;
     QIconSetPrivate * p = ((QIconSet *)this)->d;

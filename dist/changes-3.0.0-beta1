@@ -544,6 +544,11 @@ Active - QIconSet now also supports different pixmaps for a state,
 i.e. On or Off. The functions pixmap() and setPixmap() have been
 extended accordingly.
 
+The default constructor does no longer initialize the iconset to
+contain a null pixmap. QIconSet::isNull() returns TRUE for un-
+initialized iconsets, but pixmap() still returns a null pixmap for
+pixmaps that couldn't be generated.
+
 
 QIconView
 
