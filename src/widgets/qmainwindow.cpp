@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#78 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1350,45 +1350,58 @@ void QMainWindow::styleChange( QStyle& old )
 #ifdef QT_BUILDER
 bool QMainWindow::setConfiguration( const QDomElement& element )
 {
-  QDomElement r = element.firstChild().toElement();
-  for( ; !r.isNull(); r = r.nextSibling().toElement() )
-  {
-    if ( r.tagName() == "ToolBar" )
+    QDomElement r = element.firstChild().toElement();
+    for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
-      if ( !r.firstChild().toElement().toWidget( this ) )
-	return FALSE;
-    }
-    else if ( r.tagName() == "MenuBar" )
-    {
-      QDomElement c = r.firstChild().toElement();
-      if ( c.isNull() )
-	return FALSE;
-      if ( c.tagName() != "QMenuBar" )
-      {
-	// ## Torben: Can we support derived types, too ?
-	warning("Only <QMenuBar> is allowed inside tag <MenuBar>");
-	return FALSE;
-      }
-      QMenuBar* bar = menuBar();
+	if ( r.tagName() == "ToolBar" )
+        {
+	    if ( !r.firstChild().toElement().toWidget( this ) )
+		return FALSE;
+	}
+	else if ( r.tagName() == "MenuBar" )
+        {
+	    QDomElement c = r.firstChild().toElement();
+	    if ( c.isNull() )
+		return FALSE;
+	    if ( c.tagName() != "QMenuBar" )
+            {
+		// ## Torben: Can we support derived types, too ?
+		warning("Only <QMenuBar> is allowed inside tag <MenuBar>");
+		return FALSE;
+	    }
+	    QMenuBar* bar = menuBar();
 
-      if ( !bar->setConfiguration( c ) )
-	return FALSE;
+	    if ( !bar->setConfiguration( c ) )
+		return FALSE;
+	}
+	else if ( r.tagName() == "CentralWidget" )
+        {
+	    QDomElement ch = r.firstChild().toElement();
+	    if ( ch.tagName() == "Widget" )
+	    {
+		QWidget* w = ch.firstChild().toElement().toWidget( this );
+		if ( w == 0 )
+		    return FALSE;
+		setCentralWidget( w );
+	    }
+	    else if ( ch.tagName() == "Layout" )
+	    {
+		QWidget* w = new QWidget( this );
+		QLayout* l = ch.firstChild().toElement().toLayout( w );
+		if ( l == 0 )
+		    return FALSE;
+		setCentralWidget( w );
+	    }
+	    else
+		return FALSE;
+	}
     }
-    else if ( r.tagName() == "CentralWidget" )
-    {
-      QWidget* w = r.firstChild().toElement().toWidget( this );
-      if ( w == 0 )
+
+    // Dont call QWidget configure since we do not accept layouts or
+    // or direct child widget except for bars and the central widget
+    if ( !QObject::setConfiguration( element ) )
 	return FALSE;
-      else
-	setCentralWidget( w );
-    }
-  }
 
-  // Dont call QWidget configure since we do not accept layouts or
-  // or direct child widget except for bars and the central widget
-  if ( !QObject::setConfiguration( element ) )
-    return FALSE;
-
-  return TRUE;
+    return TRUE;
 }
 #endif
