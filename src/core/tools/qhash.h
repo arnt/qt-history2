@@ -177,6 +177,7 @@ public:
     T take(const Key &key);
 
     bool contains(const Key &key) const;
+    const Key key(const T &value) const;
     const T value(const Key &key) const;
     const T value(const Key &key, const T &defaultValue) const;
     T &operator[](const Key &key);
@@ -441,6 +442,21 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::keys(const T &value) const
         ++i;
     }
     return res;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE const Key QHash<Key, T>::key(const T &value) const
+{
+    const_iterator i = begin();
+    while (i != end()) {
+        if (i.value() == value)
+            return i.key();
+        ++i;
+    }
+
+    Key k;
+    qInit(k);
+    return k;
 }
 
 template <class Key, class T>

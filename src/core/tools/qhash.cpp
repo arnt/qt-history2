@@ -29,7 +29,7 @@ uint qHash(const QByteArray &key)
 uint qHash(const QString &key)
 {
     const QChar *p = key.unicode();
-    int n = key.length();
+    int n = key.size();
     uint h = 0;
     uint g;
 
@@ -679,7 +679,7 @@ void QHashData::free()
     items for \a key in the hash, the value of the most recently
     inserted one is returned.
 
-    \sa values(), contains(), operator[]()
+    \sa key(), values(), contains(), operator[]()
 */
 
 /*! \fn const T QHash::value(const Key &key, const T &defaultValue) const
@@ -720,7 +720,7 @@ void QHashData::free()
 
     The order is guaranteed to be the same as that used by values().
 
-    \sa values()
+    \sa values(), key()
 */
 
 /*! \fn QList<Key> QHash::keys(const T &value) const
@@ -755,6 +755,21 @@ void QHashData::free()
     from the most recently inserted to the least recently inserted.
 
     \sa count(), insertMulti()
+*/
+
+/*! \fn Key QHash::key(const T &value) const
+
+    Returns the first key with value \a value.
+
+    If the hash contains no item with value \a value, the function
+    returns a \link {default-constructed value} default-constructed
+    key \endlink.
+
+    This function can be slow (\l{linear time}), because QHash's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
+
+    \sa value(), values()
 */
 
 /*! \fn int QHash::count(const Key &key) const

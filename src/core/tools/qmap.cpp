@@ -518,7 +518,7 @@ void QMapData::dump()
     items for \a key in the map, the value of the most recently
     inserted one is returned.
 
-    \sa values(), contains(), operator[]()
+    \sa key(), values(), contains(), operator[]()
 */
 
 /*! \fn const T QMap::value(const Key &key, const T &defaultValue) const
@@ -558,7 +558,7 @@ void QMapData::dump()
 
     The order is guaranteed to be the same as that used by values().
 
-    \sa values()
+    \sa values(), key()
 */
 
 /*! \fn QList<Key> QMap::keys(const T &value) const
@@ -571,6 +571,21 @@ void QMapData::dump()
     This function can be slow (\l{linear time}), because QMap's
     internal data structure is optimized for fast lookup by key, not
     by value.
+*/
+
+/*! \fn Key QMap::key(const T &value) const
+
+    Returns the first key with value \a value.
+
+    If the map contains no item with value \a value, the function
+    returns a \link {default-constructed value} default-constructed
+    key \endlink.
+
+    This function can be slow (\l{linear time}), because QMap's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
+
+    \sa value(), values()
 */
 
 /*! \fn QList<T> QMap::values() const
