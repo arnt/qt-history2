@@ -19,9 +19,9 @@
     \brief The QButton class is a compatibility base class of button
     widgets
 
-    \ingroup abstractwidgets
+    \compat
 
-    <b>In new code, use QAbstractButton.</b>
+    \bold{In new code, use QAbstractButton.}
 
     To subclass QButton, you must reimplement at least drawButton()
     (to draw the button's outline) and drawButtonLabel() (to draw its

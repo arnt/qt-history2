@@ -28,11 +28,10 @@
 
 /*!
   \class QMultiLineEdit qmultilineedit.h
-  \obsolete
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
-  \ingroup advanced
+  \compat
 
   The QMultiLineEdit was a simple editor widget in former Qt versions.  Qt
   3.0 includes a new richtext engine which obsoletes QMultiLineEdit. It is

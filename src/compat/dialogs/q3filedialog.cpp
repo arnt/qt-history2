@@ -2070,8 +2070,8 @@ static QStringList makeFiltersList(const QString &filter)
 /*!
   \class Q3FileDialog qfiledialog.h
   \brief The Q3FileDialog class provides dialogs that allow users to select files or directories.
-  \ingroup dialogs
-  \mainclass
+
+  \compat
 
   The Q3FileDialog class enables a user to traverse their file system in
   order to select one or many files or a directory.
@@ -4808,7 +4808,7 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
   \brief The Q3FileIconProvider class provides icons for Q3FileDialog to
   use.
 
-  \ingroup misc
+  \compat
 
   By default Q3FileIconProvider is not used, but any application or
   library can subclass it, reimplement pixmap() to return a suitable
@@ -6263,8 +6263,9 @@ void Q3FileDialog::goBack()
 
 /*!
   \class Q3FilePreview qfiledialog.h
-  \ingroup misc
   \brief The Q3FilePreview class provides file previewing in Q3FileDialog.
+
+  \compat
 
   This class is an abstract base class which is used to implement
   widgets that can display a preview of a file in a Q3FileDialog.

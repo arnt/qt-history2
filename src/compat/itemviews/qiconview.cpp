@@ -471,11 +471,10 @@ void QIconViewItemLineEdit::focusOutEvent(QFocusEvent *e)
 
 /*!
     \class QIconDragItem qiconview.h
-    \ingroup draganddrop
 
     \brief The QIconDragItem class encapsulates a drag item.
 
-    \module iconview
+    \compat
 
     The QIconDrag class uses a list of QIconDragItems to support drag
     and drop operations.
@@ -562,8 +561,7 @@ bool QIconDragData::operator==(const QIconDragData &i) const
     \brief The QIconDrag class supports drag and drop operations
     within a QIconView.
 
-    \ingroup draganddrop
-    \module iconview
+    \compat
 
     A QIconDrag object is used to maintain information about the
     positions of dragged items and the data associated with them.
@@ -777,8 +775,7 @@ void QIconDragData::setTextRect(const QRect &r)
     \class QIconViewItem qiconview.h
     \brief The QIconViewItem class provides a single item in a QIconView.
 
-    \ingroup advanced
-    \module iconview
+    \compat
 
     A QIconViewItem contains an icon, a string and optionally a sort
     key, and can display itself in a QIconView.
@@ -2214,9 +2211,7 @@ void QIconViewItem::checkRect()
     \class QIconView qiconview.h
     \brief The QIconView class provides an area with movable labelled icons.
 
-    \module iconview
-    \ingroup advanced
-    \mainclass
+    \compat
 
     A QIconView can display and manage a grid or other 2D layout of
     labelled icons. Each labelled icon is a QIconViewItem. Items

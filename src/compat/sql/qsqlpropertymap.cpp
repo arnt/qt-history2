@@ -31,8 +31,7 @@ public:
     \class QSqlPropertyMap qsqlpropertymap.h
     \brief The QSqlPropertyMap class is used to map widgets to SQL fields.
 
-    \ingroup database
-    \module sql
+    \compat
 
     The SQL module uses Qt \link properties.html object
     properties\endlink to insert and extract values from editor

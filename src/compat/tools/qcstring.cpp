@@ -32,7 +32,7 @@
     \brief The QCString class provides an abstraction of the classic C
     zero-terminated char array (char *).
 
-    \internal
+    \compat
 
     QCString tries to behave like a more convenient \c{const char *}.
     The price of doing this is that some algorithms will perform

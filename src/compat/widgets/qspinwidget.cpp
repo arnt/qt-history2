@@ -50,13 +50,11 @@ public:
 };
 
 /*!
-
     \class QSpinWidget qspinwidget.h
     \brief The QSpinWidget class is an internal range control related class.
 
     \internal
-
-    \ingroup basic
+    \compat
 
     Constructs an empty range control widget with parent \a parent
     called \a name.

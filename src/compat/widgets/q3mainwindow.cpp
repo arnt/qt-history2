@@ -418,8 +418,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     with a menu bar, dock windows (e.g. for toolbars), and a status
     bar.
 
-    \ingroup application
-    \mainclass
+    \compat
 
     Main windows are most often used to provide menus, toolbars and a
     status bar around a large central widget, such as a text edit,

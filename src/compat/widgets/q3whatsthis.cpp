@@ -16,6 +16,10 @@
 #include "qwidget.h"
 #include "qevent.h"
 
+/*! \class Q3WhatsThis
+    \compat
+*/
+
 Q3WhatsThis::Q3WhatsThis(QWidget *w)
     : QObject(w)
 {

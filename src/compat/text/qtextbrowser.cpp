@@ -38,10 +38,7 @@
     \class QTextBrowser qtextbrowser.h
     \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
 
-    \ingroup advanced
-    \ingroup helpsystem
-    \ingroup text
-    \mainclass
+    \compat
 
     This class extends Q3TextEdit (in read-only mode), adding some
     navigation functionality so that users can follow links in

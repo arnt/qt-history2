@@ -68,11 +68,7 @@ public:
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup io
-    \ingroup misc
-    \mainclass
-
-    \module network
+    \compat
 
     This class operates on hierarchical structures (such as
     filesystems) using URLs. Its API facilitates all the common

@@ -35,9 +35,7 @@ public:
     \brief The QDataBrowser class provides data manipulation and
     navigation for data entry forms.
 
-    \ingroup database
-    \mainclass
-    \module sql
+    \compat
 
     A high-level API is provided for navigating through data records
     in a cursor, for inserting, updating and deleting records, and for

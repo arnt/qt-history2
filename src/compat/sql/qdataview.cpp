@@ -29,9 +29,7 @@ public:
     \class QDataView qdataview.h
     \brief The QDataView class provides read-only SQL forms.
 
-    \ingroup database
-    \mainclass
-    \module sql
+    \compat
 
     This class provides a form which displays SQL field data from a
     record buffer. Because QDataView does not support editing it uses

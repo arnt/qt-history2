@@ -423,7 +423,7 @@ int Q3DockAreaLayout::widthForHeight(int h) const
     \class Q3DockArea q3dockarea.h
     \brief The Q3DockArea class manages and lays out Q3DockWindows.
 
-    \ingroup application
+    \compat
 
     A Q3DockArea is a container which manages a list of
     \l{Q3DockWindow}s which it lays out within its area. In cooperation

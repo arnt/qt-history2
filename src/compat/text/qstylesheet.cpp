@@ -54,7 +54,7 @@ public:
     \class QStyleSheetItem qstylesheet.h
     \brief The QStyleSheetItem class provides an encapsulation of a set of text styles.
 
-    \ingroup text
+    \compat
 
     A style sheet item consists of a name and a set of attributes that
     specify its font, color, etc. When used in a \link QStyleSheet
@@ -824,9 +824,7 @@ int QStyleSheetItem::lineSpacing() const
     \brief The QStyleSheet class is a collection of styles for rich text
     rendering and a generator of tags.
 
-    \ingroup text
-    \ingroup multimedia
-    \ingroup helpsystem
+    \compat
 
     By creating QStyleSheetItem objects for a style sheet you build a
     definition of a set of tags. This definition will be used by the

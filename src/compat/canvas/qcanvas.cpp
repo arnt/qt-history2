@@ -312,8 +312,7 @@ Q_DECLARE_TYPEINFO(QCanvasItemPtr, Q_PRIMITIVE_TYPE);
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     QCanvasItemList is a QList of pointers to \l{QCanvasItem}s.
     This class is used by some methods in QCanvas that need to return
@@ -433,10 +432,7 @@ static int scm(int a, int b)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup abstractwidgets
-    \ingroup multimedia
-    \mainclass
-    \module canvas
+    \compat
 
     The QCanvas class manages its 2D graphic area and all the canvas
     items the area contains. The canvas has \e{no visual appearance} of
@@ -1845,8 +1841,7 @@ class QCanvasItemExtra {
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     A variety of QCanvasItem subclasses provide immediately usable
     behavior. This class is a pure abstract superclass providing the
@@ -2460,8 +2455,7 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     A canvas sprite is an object which can contain any number of images
     (referred to as frames), only one of which is current, i.e.
@@ -2776,8 +2770,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     If you want to show a single pixmap on a QCanvas use a
     QCanvasSprite with just one pixmap.
@@ -2905,8 +2898,7 @@ QCanvasPixmap::~QCanvasPixmap()
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     This class is used by QCanvasSprite to hold an array of pixmaps.
     It is used to implement animated sprites, i.e. images that change
@@ -3398,8 +3390,7 @@ void QCanvasSprite::draw(QPainter& painter)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     If you want users to be able to interact with a canvas view, you
     will need to subclass QCanvasView. You might then reimplement some
@@ -3632,8 +3623,6 @@ QSize QCanvasView::sizeHint() const
            .boundedTo(3 * QApplication::desktop()->size() / 4);
 }
 
-// ### Qt 4.0 customer request: operate on doubles rather than int.
-// ### I know, almost impossible due to the use of QRegion etc.
 /*!
     \class QCanvasPolygonalItem qcanvas.h
     \brief The QCanvasPolygonalItem class provides a polygonal canvas item
@@ -3642,8 +3631,7 @@ QSize QCanvasView::sizeHint() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     The mostly rectangular classes, such as QCanvasSprite and
     QCanvasText, use the object's bounding rectangle for movement,
@@ -4037,8 +4025,7 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     Paints a polygon with a QBrush. The polygon's points can be set in
     the constructor or set or changed later using setPoints(). Use
@@ -4129,8 +4116,7 @@ void QCanvasPolygon::moveBy(double dx, double dy)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     A QCanvasSpline is a sequence of 4-point bezier curves joined
     together to make a curved shape.
@@ -4290,8 +4276,7 @@ QPointArray QCanvasPolygon::areaPoints() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     The line inherits functionality from QCanvasPolygonalItem, for
     example the setPen() function. The start and end points of the
@@ -4433,8 +4418,7 @@ void QCanvasLine::moveBy(double dx, double dy)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     This item paints a single rectangle which may have any pen() and
     brush(), but may not be tilted/rotated. For rotated rectangles,
@@ -4570,8 +4554,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     A canvas item that paints an ellipse or ellipse segment with a QBrush.
     The ellipse's height, width, start angle and angle length can be set
@@ -4756,8 +4739,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module canvas
-    \ingroup multimedia
+    \compat
 
     A canvas text item has text with font, color and alignment
     attributes. The text and font can be set in the constructor or set

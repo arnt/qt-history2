@@ -699,8 +699,7 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     inside a Q3DockArea or floated as a top level window on the
     desktop.
 
-    \ingroup application
-    \mainclass
+    \compat
 
     This class handles moving, resizing, docking and undocking dock
     windows. Q3ToolBar is a subclass of Q3DockWindow so the

@@ -32,9 +32,7 @@
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module network
-
-    \ingroup io
+    \compat
 
     This class is derived from QNetworkProtocol. QLocalFs is not
     normally used directly, but rather through a QUrlOperator, for

@@ -80,10 +80,7 @@ public:
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module network
-    \ingroup io
-    \module network
-    \mainclass
+    \compat
 
     This is a base class which should be used for network protocols
     implementations that can then be used in Qt (e.g. in the file
@@ -960,8 +957,7 @@ public:
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module network
-    \ingroup io
+    \compat
 
     An object is created to describe the operation and the current
     state for each operation that a network protocol should process.

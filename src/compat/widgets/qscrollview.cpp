@@ -313,8 +313,7 @@ void QScrollViewPrivate::viewportResized(int w, int h)
     \class QScrollView qscrollview.h
     \brief The QScrollView widget provides a scrolling area with on-demand scroll bars.
 
-    \ingroup abstractwidgets
-    \mainclass
+    \compat
 
     The QScrollView is a large canvas - potentially larger than the
     coordinate system normally supported by the underlying window

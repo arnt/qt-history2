@@ -18,12 +18,11 @@
 #include "qwidget.h"
 
 
-// NOT REVISED
 /*!
   \class QDropSite qdropsite.h
   \brief The QDropSite class provides nothing and does nothing.
 
-  \obsolete
+  \compat
 
   If your code uses it, you can safely delete it.
 

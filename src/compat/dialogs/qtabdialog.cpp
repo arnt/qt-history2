@@ -30,8 +30,7 @@
 
   \brief The QTabDialog class provides a stack of tabbed widgets.
 
-  \ingroup dialogs
-  \mainclass
+  \compat
 
   A tabbed dialog is one in which several "tab pages" are available.
   By clicking on a tab page's tab or by pressing the indicated

@@ -714,6 +714,8 @@ bool Q3DateTimeEditor::setFocusSection(int sec)
     \class Q3DateTimeEditBase
     \brief The Q3DateTimeEditBase class provides an abstraction for date and edit editors.
 
+    \compat
+
     Small abstract class that provides some functions that are common
     for both Q3DateEdit and Q3TimeEdit. It is used internally by
     Q3DateTimeEditor.
@@ -802,9 +804,7 @@ public:
     \class Q3DateEdit q3datetimeedit.h
     \brief The Q3DateEdit class provides a date editor.
 
-    \ingroup advanced
-    \ingroup time
-    \mainclass
+    \compat
 
     Q3DateEdit allows the user to edit dates by using the keyboard or
     the arrow keys to increase/decrease date values. The arrow keys
@@ -1736,9 +1736,7 @@ public:
     \class Q3TimeEdit q3datetimeedit.h
     \brief The Q3TimeEdit class provides a time editor.
 
-    \ingroup advanced
-    \ingroup time
-    \mainclass
+    \compat
 
     Q3TimeEdit allows the user to edit times by using the keyboard or
     the arrow keys to increase/decrease time values. The arrow keys
@@ -2549,9 +2547,7 @@ public:
     \brief The Q3DateTimeEdit class combines a Q3DateEdit and Q3TimeEdit
     widget into a single widget for editing datetimes.
 
-    \ingroup advanced
-    \ingroup time
-    \mainclass
+    \compat
 
     Q3DateTimeEdit consists of a Q3DateEdit and Q3TimeEdit widget placed
     side by side and offers the functionality of both. The user can

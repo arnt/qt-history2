@@ -24,8 +24,7 @@
     \brief The QSyntaxHighlighter class is a base class for
     implementing Q3TextEdit syntax highlighters.
 
-    \ingroup basic
-    \ingroup text
+    \compat
 
     A syntax highligher automatically highlights parts of the text in
     a Q3TextEdit. Syntax highlighters are often used when the user is

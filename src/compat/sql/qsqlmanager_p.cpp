@@ -70,8 +70,7 @@ QSqlIndex indexFromStringList(const QStringList& l, const QSqlCursor* cursor)
   \class QSqlCursorManager qsqlmanager_p.h
   \brief The QSqlCursorManager class manages a database cursor.
 
-  \module sql
-
+  \compat
   \internal
 
   This class provides common cursor management functionality.  This
@@ -636,6 +635,7 @@ public:
   the data-aware widgets.
 
   \internal
+  \compat
 
   QDataManager is a strictly internal class that acts as a base class
   for other data-aware widgets.

@@ -32,9 +32,7 @@
     \brief The Q3Action class provides an abstract user interface
     action that can appear both in menus and tool bars.
 
-    \ingroup basic
-    \ingroup application
-    \mainclass
+    \compat
 
     In GUI applications many commands can be invoked via a menu
     option, a toolbar button and a keyboard accelerator. Since the
@@ -1403,8 +1401,7 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     \class Q3ActionGroup q3action.h
     \brief The Q3ActionGroup class groups actions together.
 
-    \ingroup basic
-    \ingroup application
+    \compat
 
     In some situations it is useful to group actions together. For
     example, if you have a left justify action, a right justify action

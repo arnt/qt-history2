@@ -18,7 +18,7 @@
 /*! \class QTextView
     \brief The QTextView class provides a rich-text viewer.
 
-  \obsolete
+  \compat
 
   This class wraps a read-only \l Q3TextEdit.
   Use a \l Q3TextEdit instead, and call setReadOnly(true)

@@ -33,10 +33,7 @@
     \class QWizard qwizard.h
     \brief The QWizard class provides a framework for wizard dialogs.
 
-    \ingroup abstractwidgets
-    \ingroup organizers
-    \ingroup dialogs
-    \mainclass
+    \compat
 
     A wizard is a special type of input dialog that consists of a
     sequence of dialog pages. A wizard's purpose is to walk the user

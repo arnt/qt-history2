@@ -17,13 +17,10 @@
 /*!
     \class Q3Signal q3signal.h
 
-    \obsolete
-
     \brief The Q3Signal class can be used to send signals for classes
     that don't inherit QObject.
 
-    \ingroup io
-    \ingroup misc
+    \compat
 
     If you want to send signals from a class that does not inherit
     QObject, you can create an internal Q3Signal object to emit the

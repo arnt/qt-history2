@@ -40,9 +40,7 @@ public:
     \brief The QSqlForm class creates and manages data entry forms
     tied to SQL databases.
 
-    \ingroup database
-    \mainclass
-    \module sql
+    \compat
 
     Typical use of a QSqlForm consists of the following steps:
     \list

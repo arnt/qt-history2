@@ -172,8 +172,7 @@ static bool isRowSelection(QTable::SelectionMode selMode)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup advanced
-    \module table
+    \compat
 
     The selection is a rectangular set of cells in a QTable. One of
     the rectangle's cells is called the anchor cell; this is the cell
@@ -389,8 +388,7 @@ int QTableSelection::numCols() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup advanced
-    \module table
+    \compat
 
     For many applications QTableItems are ideal for presenting and
     editing the contents of QTable cells. In situations where you need
@@ -1115,8 +1113,7 @@ bool QTableItem::isEnabled() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup advanced
-    \module table
+    \compat
 
     A QComboTableItem is a table item which looks and behaves like a
     combobox. The advantage of using QComboTableItems rather than real
@@ -1433,8 +1430,7 @@ QSize QComboTableItem::sizeHint() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup advanced
-    \module table
+    \compat
 
     A QCheckTableItem is a table item which looks and behaves like a
     checkbox. The advantage of using QCheckTableItems rather than real
@@ -1623,9 +1619,7 @@ QSize QCheckTableItem::sizeHint() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \mainclass
-    \ingroup advanced
-    \module table
+    \compat
 
     QTable is easy to use, although it does have a large API because
     of the comprehensive functionality that it provides. QTable
@@ -6276,8 +6270,7 @@ void QTable::changeEvent(QEvent *ev)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup advanced
-    \module table
+    \compat
 
 
    QTable uses this subclass of Q3Header for its headers. QTable has a

@@ -16,6 +16,11 @@
 #include "qpainter.h"
 
 
+/*! \class Q3Frame
+
+    \compat
+
+*/
 
 Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     :QFrame(parent, f), marg(0)

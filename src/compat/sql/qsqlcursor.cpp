@@ -106,8 +106,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     \brief The QSqlCursor class provides browsing and editing of SQL
     tables and views.
 
-    \ingroup database
-    \module sql
+    \compat
 
     A QSqlCursor is a database record (see \l QSqlRecord) that
     corresponds to a table or view within an SQL database (see \l

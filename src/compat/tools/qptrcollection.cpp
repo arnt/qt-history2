@@ -18,7 +18,7 @@
     \reentrant
     \brief The QPtrCollection class is the base class of most pointer-based Qt collections.
 
-    \ingroup tools
+    \reentrant
 
     The QPtrCollection class is an abstract base class for the Qt
     collection classes QDict, QPtrList,

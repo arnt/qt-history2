@@ -68,11 +68,7 @@ static void slashify(QString& s, bool allowMultiple = true)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup io
-    \ingroup misc
-    \mainclass
-
-    \module network
+    \compat
 
     The Q3Url class is provided for simple work with URLs. It can
     parse, decode, encode, etc.

@@ -195,8 +195,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     \brief The Q3ToolBar class provides a movable panel containing
     widgets such as tool buttons.
 
-    \ingroup application
-    \mainclass
+    \compat
 
     A toolbar is a panel that contains a set of controls, usually
     represented by small icons. It's purpose is to provide quick

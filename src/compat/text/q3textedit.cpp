@@ -184,9 +184,7 @@ static bool block_set_alignment = false;
     \class Q3TextEdit qtextedit.h
     \brief The Q3TextEdit widget provides a powerful single-page rich text editor.
 
-    \ingroup basic
-    \ingroup text
-    \mainclass
+    \compat
 
     \tableofcontents
 

@@ -28,8 +28,7 @@
     \brief The QSqlEditorFactory class is used to create the editors
     used by QDataTable and QSqlForm.
 
-    \ingroup database
-    \module sql
+    \compat
 
     QSqlEditorFactory is used by QDataTable and QSqlForm to
     automatically create appropriate editors for a given QSqlField.

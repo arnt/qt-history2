@@ -27,11 +27,9 @@ public:
 
 /*!
     \class QSqlSelectCursor qsqlselectcursor.h
-    \brief The QSqlSelectCursor class provides browsing of general SQL
-    SELECT statements.
+    \brief The QSqlSelectCursor class provides browsing of general SQL SELECT statements.
 
-    \ingroup database
-    \module sql
+    \compat
 
     QSqlSelectCursor is a convenience class that makes it possible to
     display result sets from general SQL \c SELECT statements in

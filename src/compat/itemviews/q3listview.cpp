@@ -321,7 +321,7 @@ static QString qEllipsisText(const QString &org, const QFontMetrics &fm, int wid
     \class Q3ListViewItem
     \brief The Q3ListViewItem class implements a list view item.
 
-    \ingroup advanced
+    \compat
 
     A list view item is a multi-column object capable of displaying
     itself in a Q3ListView.
@@ -2370,8 +2370,7 @@ void Q3ListViewItem::ignoreDoubleClick()
     \class Q3ListView
     \brief The Q3ListView class implements a list/tree view.
 
-    \ingroup advanced
-    \mainclass
+    \compat
 
     It can display and control a hierarchy of multi-column items, and
     provides the ability to add new items at any time. The user may
@@ -5837,7 +5836,7 @@ struct QCheckListItemPrivate
     \class QCheckListItem
     \brief The QCheckListItem class provides checkable list view items.
 
-    \ingroup advanced
+    \compat
 
     QCheckListItems are used in \l{Q3ListView}s to provide
     \l{Q3ListViewItem}s that are checkboxes, radio buttons or
@@ -7165,7 +7164,7 @@ bool Q3ListView::isRenaming() const
     \class Q3ListViewItemIterator
     \brief The Q3ListViewItemIterator class provides an iterator for collections of Q3ListViewItems.
 
-    \ingroup advanced
+    \compat
 
     Construct an instance of a Q3ListViewItemIterator, with either a
     Q3ListView* or a Q3ListViewItem* as argument, to operate on the tree

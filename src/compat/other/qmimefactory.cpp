@@ -29,9 +29,7 @@
     \class QMimeSource
     \brief The QMimeSource class is an abstraction of objects which provide formatted data of a certain MIME type.
 
-    \ingroup io
-    \ingroup draganddrop
-    \ingroup misc
+    \compat
 
     \link dnd.html Drag-and-drop\endlink and
     \link QClipboard clipboard\endlink use this abstraction.
@@ -82,8 +80,7 @@ static QImage richTextImageLoader(const QString &name, const QString &context)
     \class QMimeSourceFactory
     \brief The QMimeSourceFactory class is an extensible provider of mime-typed data.
 
-    \ingroup io
-    \ingroup environment
+    \compat
 
     A QMimeSourceFactory provides an abstract interface to a
     collection of information. Each piece of information is

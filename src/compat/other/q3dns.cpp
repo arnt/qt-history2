@@ -1550,8 +1550,7 @@ void Q3DnsSocket::answer()
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \module network
-    \ingroup io
+    \compat
 
     Both Windows and Unix provide synchronous DNS lookups; Windows
     provides some asynchronous support too. At the time of writing
@@ -1980,8 +1979,7 @@ QList<QHostAddress> Q3Dns::addresses() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup io
-
+    \compat
     \internal
 */
 
@@ -2034,8 +2032,7 @@ QList<Q3Dns::MailServer> Q3Dns::mailServers() const
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup io
-
+    \compat
     \internal
 */
 

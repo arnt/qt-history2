@@ -23,10 +23,7 @@
     \class Q3ButtonGroup q3buttongroup.h
     \brief The Q3ButtonGroup widget organizes QButton widgets in a group.
 
-    \ingroup organizers
-    \ingroup geomanagement
-    \ingroup appearance
-    \mainclass
+    \compat
 
     A button group widget makes it easier to deal with groups of
     buttons. Each button in a button group has a unique identifier.

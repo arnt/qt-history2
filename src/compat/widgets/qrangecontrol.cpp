@@ -20,7 +20,7 @@
     \class QRangeControl qrangecontrol.h
     \brief The QRangeControl class provides an integer value within a range.
 
-    \ingroup misc
+    \compat
 
     Although originally designed for the QScrollBar widget, the
     QRangeControl can also be used in conjunction with other widgets

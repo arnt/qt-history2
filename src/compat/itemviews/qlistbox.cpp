@@ -134,7 +134,7 @@ QListBoxPrivate::~QListBoxPrivate()
     \class QListBoxItem qlistbox.h
     \brief The QListBoxItem class is the base class of all list box items.
 
-    \ingroup advanced
+    \compat
 
     This class is an abstract base class used for all list box items.
     If you need to insert customized items into a QListBox you must
@@ -302,7 +302,7 @@ const QPixmap *QListBoxItem::pixmap() const
     \class QListBoxText qlistbox.h
     \brief The QListBoxText class provides list box items that display text.
 
-    \ingroup advanced
+    \compat
 
     The text is drawn in the widget's current font. If you need
     several different fonts, you must implement your own subclass of
@@ -411,7 +411,7 @@ int QListBoxText::rtti() const
     \brief The QListBoxPixmap class provides list box items with a
     pixmap and optional text.
 
-    \ingroup advanced
+    \compat
 
     Items of this class are drawn with the pixmap on the left with the
     optional text to the right of the pixmap.
@@ -579,8 +579,7 @@ int QListBoxPixmap::rtti() const
     \class QListBox qlistbox.h
     \brief The QListBox widget provides a list of selectable, read-only items.
 
-    \ingroup advanced
-    \mainclass
+    \compat
 
     This is typically a single-column list in which either no item or
     one item is selected, but it can also be used in many other ways.

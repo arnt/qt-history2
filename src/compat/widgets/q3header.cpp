@@ -130,7 +130,7 @@ static QStyleOptionHeader getStyleOption(const Q3Header *header, int section)
     \brief The Q3Header class provides a header row or column, e.g. for
     tables and listviews.
 
-    \ingroup advanced
+    \compat
 
     This class provides a header, e.g. a vertical header to display
     row labels, or a horizontal header to display column labels. It is
