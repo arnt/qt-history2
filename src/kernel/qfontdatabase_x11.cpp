@@ -1424,7 +1424,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	scale = (double)px/(double)MAXFONTSIZE_XLFD;
 	px = MAXFONTSIZE_XLFD;
     }
-    if (fp->paintdevice
+    if (fp && fp->paintdevice
 	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY())
 	scale = request.pixelSize/px;
 
