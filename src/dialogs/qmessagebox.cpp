@@ -156,6 +156,77 @@ static const char* critical_xpm[]={
 #define QT_END_TEXT qt_dialog_default_key
 
 
+// the Qt logo, for aboutQt
+static const char *qtlogo_xpm[] = {
+"56 32 30 1",
+"  c #000000",
+". c #000033",
+"X c #330033",
+"o c #333333",
+"O c #000066",
+"+ c #333366",
+"@ c #663366",
+"# c #666633",
+"$ c #666666",
+"% c #333399",
+"& c #3333cc",
+"* c #663399",
+"= c #6633cc",
+"- c #666699",
+"; c #6666cc",
+": c #6666ff",
+"> c #9966cc",
+", c #999966",
+"< c #999999",
+"1 c #9999cc",
+"2 c #9999ff",
+"3 c #99cccc",
+"4 c #cc99cc",
+"5 c #cccc99",
+"6 c #cccccc",
+"7 c #ccccff",
+"8 c #ccffcc",
+"9 c #ffccff",
+"0 c #ffffcc",
+"w c None",
+/* pixels */
+"wwwwwwwwwwwwwwwwwwwwww6$oo o$<6wwwwwwwwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwwww6o         $6wwwwwwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwww<    oooo     <wwwwwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwww$   o$<<<<<o    <wwwwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwww<   $<<6wwww6$    <wwwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwww6   o<<6wwwwwww$    6wwwwwwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwww$   $<wwwwwwwwwwo   owwwwww6wwwwwwwwwwww",
+"wwwwwwwwwwwwwww6   o<6wwwwwwwwww6    <www6$owwwwwwwwwwww",
+"wwwwwwwwwwwwwww$   $<wwwwwwwwwwww#   owww< owwwwwwwwwwww",
+"wwwwwwwwwwwwwwwo .O;;117wwwwwwwww4    6ww< o6wwwwwwwwwww",
+"wwwwwwwwwwwwww7+%&&&;&&&&;17wwwwww    $ww< .6wwwwwwwwwww",
+"wwwwwwwwwww61;;;;;;;1772;&&&:17www+   $0wo  6ww6wwwwwwww",
+"wwwwwwww661111<+.o@;;;;1361%%&&;27-   o6,      6wwwwwww6",
+"wwwww61<6<6761<<<$$<<1--;;131;&&&%+   o1<o  $--6www7916w",
+"www6666w6ww766$o$<<<46611-;;;111;%+.  o7wo  <666w66119ww",
+"w66w6ww7wwwwww<   +<<<<5661;;;;;16-   .%>o  6876;=;7wwww",
+"6wwwwwwwwwwwww6    $<<<<<<6661<---$   +*%.  ---;179wwwww",
+"wwwwwwwwwwwwwww    $6w66<<<<<6671<+   +;1o  -1677wwwwwww",
+"wwwwwwwwwwwwwwwo   o6wwww66<<<<166o   $11o  <6wwwwwwwwww",
+"wwwwwwwwwwwwwww<    <ww6<<6w66<<<<   o<<<o .6wwwwwwwwwww",
+"wwwwwwwwwwwwwwww    $<oo    <ww06<   $<6wo .6wwwwwwwwwww",
+"wwwwwwwwwwwwwwww$    <ww6$   o6wwo  X<6wwo .6wwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwo   o6www6o  o6<   $<wwwo  6wwwwwwwwwww",
+"wwwwwwwwwwwwwwwww6    o6www6   o   #<6wwwo  6ww6wwwwwwww",
+"wwwwwwwwwwwwwwwwww6o   o<www6     o<6ww6w$  $6<owwwwwwww",
+"wwwwwwwwwwwwwwwwwww6$     ooo    o<6www<66     $wwwwwwww",
+"wwwwwwwwwwwwwwwwwwwww6o           $wwww$<w6$o$$<wwwwwwww",
+"wwwwwwwwwwwwwwwwwwwwwww6<$oo$$<    $<6$ <www666wwwwwwwww",
+"wwwwwwwwwwwwwwwwwwwwwwwwwww666w<        <wwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<      o<wwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<o   o<6wwwwwwwwwwwwwww",
+"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww<$<<6wwwwwwwwwwwwwwww",
+};
+
+
+
+
 // NOT REVISED
 /*!
   \class QMessageBox qmessagebox.h
@@ -1237,11 +1308,11 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 
 static const char *textAboutQt =
-"<h3>This program uses Qt.</h3>"
-"<p>Qt " QT_VERSION_STR " is a multiplatform C++ GUI toolkit from Troll Tech. "
-"It provides single-source portability across Windows 95/98/NT/2000, "
+"<h3>About Qt</h3><p>This program uses Qt version " QT_VERSION_STR ", a "
+"multiplatform C++ GUI toolkit from Troll Tech. "
+"Qt provides single-source portability across Windows 95/98/NT/2000, "
 "Linux/X11, Solaris/X11, HP-UX/X11 and many other versions of Unix/X11.</p>"
-"<p>See http://www.troll.no/qt for more information about Qt.</p>";
+"<p>See <tt>http://www.troll.no/qt</tt> for more information.</p>";
 void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
 
@@ -1262,7 +1333,9 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     QMessageBox *mb = new QMessageBox( parent, "about qt" );
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
     mb->setText( qApp->translate( "QMessageBox", textAboutQt ) );
-    //mb->setIconPixmap( Qt icon ); ### Matthias?
+    QPixmap pm;
+    if ( pm.convertFromImage( QImage( qtlogo_xpm ) ) )
+	mb->setIconPixmap( pm );
     mb->setButtonText( 0, tr("OK") );
     if ( mb->mbd && mb->mbd->pb[0] ) {
 	mb->mbd->pb[0]->setAutoDefault( TRUE );
