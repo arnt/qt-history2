@@ -34,6 +34,20 @@
 #include "qmacstyle_mac.h"
 
 #if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC )
+
+//hack, but usefull
+#define private protected //I don't much like doing this.. but I need updateFont(), sorry. -Sam
+#include <qpainter.h>
+#undef private
+class QMacPainter : public QPainter
+{
+public:
+    QMacPainter(QPaintDevice *p) : QPainter(p) { }
+    QPoint domap(int x, int y) { map(x, y, &x, &y); return QPoint(x, y); }
+    void setport() { QPainter::initPaintDevice(TRUE); }
+    void setfont() { QPainter::updateFont(); }
+};
+
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qscrollbar.h>
@@ -79,18 +93,7 @@ static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
 static const int macRightBorder       = 12;   // right border on mac
 
-//hack, but usefull
-#define private protected
-#include <qpainter.h>
-#undef private
-class QMacPainter : public QPainter
-{
-public:
-    QMacPainter(QPaintDevice *p) : QPainter(p) { }
-    QPoint domap(int x, int y) { map(x, y, &x, &y); return QPoint(x, y); }
-    void setport() { QPainter::initPaintDevice(TRUE); }
-    void setfont() { QPainter::updateFont(); }
-};
+// Utility to generate correct rectangles for AppManager internals
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL, 
 					  bool off=TRUE, const QRect &rect=QRect())
 {
