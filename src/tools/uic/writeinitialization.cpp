@@ -255,24 +255,24 @@ void WriteInitialization::accept(DomLayout *node)
             isGroupBox = true;
 
             // special case for group box
-            
+
             int margin = m_defaultMargin;
             int spacing = m_defaultSpacing;
-        
+
             if (properties.contains("margin"))
                 margin = properties.value("margin")->elementNumber();
-        
+
             if (properties.contains("spacing"))
                 spacing = properties.value("spacing")->elementNumber();
 
             output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
-            
+
             if (spacing != INT_MIN)
                 output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
-                
+
             if (margin != INT_MIN)
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
-                
+
         } else if (uic->customWidgetsInfo()->extends(parentWidget, "QMainWindow") ||
                 uic->customWidgetsInfo()->extends(parentWidget, "Q3MainWindow")) {
             QString parent = driver->findOrInsertWidget(m_widgetChain.top());
@@ -307,10 +307,10 @@ void WriteInitialization::accept(DomLayout *node)
 
     if (!m_layoutChain.top() && !properties.contains("margin") && m_defaultMargin != INT_MIN)
             output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
-    
+
     if (!properties.contains("spacing") && m_defaultSpacing != INT_MIN)
         output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
-    
+
 
     writeProperties(varName, className, node->elementProperty());
 
@@ -618,10 +618,10 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::String: {
-            if (p->elementString()->hasAttributeNotr() 
+            if (p->elementString()->hasAttributeNotr()
                     && toBool(p->elementString()->attributeNotr())) {
-                propertyValue = QLatin1String("QString::fromUtf8(") 
-                        + fixString(p->elementString()->text()) 
+                propertyValue = QLatin1String("QString::fromUtf8(")
+                        + fixString(p->elementString()->text())
                         + QLatin1String(")");
             } else {
                 propertyValue = trCall(p->elementString(), className);
@@ -674,11 +674,11 @@ void WriteInitialization::writeProperties(const QString &varName,
 
         if (propertyValue.size()) {
             QTextStream *o = &output;
-            
-            if (p->kind() == DomProperty::String 
+
+            if (p->kind() == DomProperty::String
                     && (!p->elementString()->hasAttributeNotr() || !toBool(p->elementString()->attributeNotr())))
                 o = &refreshOut;
-                
+
             (*o) << option.indent << varName << setFunction << propertyValue;
             if (!stdset)
                 (*o) << ")";
@@ -761,7 +761,7 @@ void WriteInitialization::accept(DomLayoutDefault *node)
 
     if (node->hasAttributeMargin())
         m_defaultMargin = node->attributeMargin();
-        
+
     if (node->hasAttributeSpacing())
         m_defaultSpacing = node->attributeSpacing();
 }
@@ -838,6 +838,8 @@ void WriteInitialization::initializeListView(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
+    refreshOut << option.indent << varName << "->clear();\n";
+
     // columns
     QList<DomColumn*> columns = w->elementColumn();
     for (int i=0; i<columns.size(); ++i) {
@@ -874,8 +876,6 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
 {
     if (items.isEmpty())
         return;
-
-    refreshOut << option.indent << varName << "->clear();\n";
 
     // items
     for (int i=0; i<items.size(); ++i) {
@@ -1082,7 +1082,7 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
 }
 
 QString WriteInitialization::trCall(const DomString *str, const QString &className) const
-{ 
-    return trCall(toString(str), className); 
+{
+    return trCall(toString(str), className);
 }
 
