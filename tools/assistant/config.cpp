@@ -35,7 +35,7 @@ inline QString getVersionString()
 }
 
 Config::Config()
-    : profil( 0 ), fontSiz(-1), maximized(false), hideSidebar( false )
+    : profil( 0 ), fontSiz(-1), maximized(false), hideSidebar( false ), rebuildDocs(true)
 {
     if( !static_configuration ) {
         static_configuration = this;
