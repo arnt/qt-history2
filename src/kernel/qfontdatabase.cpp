@@ -306,7 +306,7 @@ struct QtFontFamily
 #ifdef Q_WS_WIN
 	scriptCheck( FALSE ),
 #endif
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) && !defined(QWS)
 	fixedPitchComputed(FALSE),
 #endif
 	fullyLoaded( FALSE ),
@@ -328,7 +328,7 @@ struct QtFontFamily
 #ifdef Q_WS_WIN
     bool scriptCheck : 1;
 #endif
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) && !defined(QWS)
     bool fixedPitchComputed : 1;
 #endif
     bool fullyLoaded : 1;
@@ -1367,7 +1367,7 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     load( familyName );
 
     QtFontFamily *f = d->family( familyName );
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) && !defined(QWS)
     if (f) {
 	if (!f->fixedPitchComputed) {
 	    QFontMetrics fm(familyName);
