@@ -723,7 +723,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	if(!ret.isEmpty())
 	    ret += "\n\t";
     	if(resource) {
-	    ret += "$(DEL_DIR) \"" + dst_targ + "\"" + "\n\t";
+	    ret += "$(DEL_FILE) -r \"" + dst_targ + "\"" + "\n\t";
 	    ret += "-$(COPY_DIR) \"" + src_targ + "\" \"" + dst_targ + "\"";
         } else {
 	    ret += "-$(COPY) \"" + src_targ + "\" \"" + dst_targ + "\"";
