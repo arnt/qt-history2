@@ -4,10 +4,10 @@
 # script. After that you have the new versions and the patches in the
 # directory.
 
-OLD_VERSION="3.2.1"
-NEW_VERSION="3.2.2"
+OLD_VERSION="3.3.0"
+NEW_VERSION="3.3.1"
 
-PLATFORMS="embedded-commercial embedded-free embedded-academic win-commercial win-academic x11-commercial x11-free x11-academic"
+PLATFORMS="embedded-commercial embedded-free embedded-academic win-commercial win-academic x11-commercial x11-free x11-academic mac-commercial mac-free mac-academic"
 
 rm *.bz2
 
@@ -22,10 +22,10 @@ for i in $PLATFORMS; do
     if [ -f qt-$i-$OLD_VERSION.tar ]; then
 	echo "    ... patch-qt-$i-$NEW_VERSION"
 	xdelta delta qt-$i-$OLD_VERSION.tar qt-$i-$NEW_VERSION.tar patch-qt-$i-$NEW_VERSION
-	echo "    .... create qt-$i-$NEW_VERSION.tar.gz"
-	gzip -c qt-$i-$NEW_VERSION.tar > qt-$i-$NEW_VERSION.tar.gz
-	echo "    .... create qt-$i-$NEW_VERSION.tar.bz2"
-	bzip2 qt-$i-$NEW_VERSION.tar
+# 	echo "    .... create qt-$i-$NEW_VERSION.tar.gz"
+# 	gzip -c qt-$i-$NEW_VERSION.tar > qt-$i-$NEW_VERSION.tar.gz
+# 	echo "    .... create qt-$i-$NEW_VERSION.tar.bz2"
+# 	bzip2 qt-$i-$NEW_VERSION.tar
     fi
 done
 
