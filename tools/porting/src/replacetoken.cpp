@@ -52,13 +52,11 @@ TextReplacements ReplaceToken::getTokenTextReplacements(FileSymbol *inFileSymbol
                 if(!changed)
                     changed = tokenReplacementRule->doReplace(inStream, textReplacements);
                 if(changed)
-                    break;    //can I break from a foreach loop?
+                    break;    
             }
         } else if (isInterestingToken(tokenText.trimmed())) {
-         //   printf("Looking up |%s|\n", tokenText.constData());
-            QMapIterator<QByteArray, TokenReplacement*> i(tokenRuleLookup);
-            while (i.findNextKey(tokenText)) {
-                changed = i.value()->doReplace(inStream, textReplacements);
+            foreach (TokenReplacement* value, tokenRuleLookup.values(tokenText)) {
+                changed = value->doReplace(inStream, textReplacements);
                 if(changed)
                     break;
             }
