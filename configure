@@ -2675,7 +2675,7 @@ QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
 if [ "$CFG_EXCEPTION_SUPPORT" = "no" ]; then
     case "$COMPILER" in
-    g++-*)
+    g++*)
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
@@ -2725,7 +2725,7 @@ fi
 # some compilers generate binary incompatible code between different versions,
 # so we need to generate a build key that is different between these compilers
 case "$COMPILER" in
-g++)
+g++*)
     # GNU C++
     QMAKE_CONF_COMPILER=`grep "QMAKE_CXX[^_A-Z0-9a-z]" $QMAKESPEC/qmake.conf | sed "s,.* *= *\(.*\)$,\1,"`
     COMPILER_VERSION=`${QMAKE_CONF_COMPILER} --version 2>/dev/null`
@@ -3010,7 +3010,7 @@ fi
 #-------------------------------------------------------------------------------
 
 case "$COMPILER" in
-g++-*)
+g++*)
     if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
 	cat <<EOF
 
