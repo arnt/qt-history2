@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#17 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#18 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -38,7 +38,6 @@ class QValidator;
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
     Q_OBJECT
-    Q_BUILDER( "Texteditor", "qmultilineedit.xpm", DefaultInspector )
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();

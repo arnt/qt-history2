@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#51 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#52 $
 **
 ** Definition of QPushButton class
 **
@@ -34,7 +34,6 @@
 class Q_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
-    Q_BUILDER( "A simple button", "qpushbutton.xpm", DefaultInspector )
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
