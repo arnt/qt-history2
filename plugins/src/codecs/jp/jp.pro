@@ -2,11 +2,11 @@ TEMPLATE	= lib
 CONFIG		+= qt warn_on plugin
 REQUIRES	= !bigcodecs
 
-HEADERS		= ../../../../src/codecs/qeucjpcodec.h \
-		  ../../../../src/codecs/qjiscodec.h \
-		  ../../../../src/codecs/qsjiscodec.h \
-		  ../../../../src/codecs/qjpunicode.h \
-		  ../../../../src/codecs/qfontcodecs_p.h
+HEADERS		= ../../../../include/qeucjpcodec.h \
+		  ../../../../include/qjiscodec.h \
+		  ../../../../include/qsjiscodec.h \
+		  ../../../../include/qjpunicode.h \
+		  ../../../../include/private/qfontcodecs_p.h
 
 SOURCES		= ../../../../src/codecs/qeucjpcodec.cpp \
 		  ../../../../src/codecs/qjiscodec.cpp \
