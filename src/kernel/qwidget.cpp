@@ -5290,8 +5290,81 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 }
 
 /*!
-    \property QWidget::ownCursor
-    \brief whether the widget uses its own cursor
+    Repaints the widget directly by calling paintEvent() immediately,
+    unless updates are disabled or the widget is hidden.
+
+    We suggest only using repaint() if you need an immediate repaint,
+    for example during animation. In almost all circumstances update()
+    is better, as it permits Qt to optimize for speed and minimize
+    flicker.
+
+    \warning If you call repaint() in a function which may itself be
+    called from paintEvent(), you may get infinite recursion. The
+    update() function never causes recursion.
+
+    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+*/
+
+void QWidget::repaint()
+{
+#if defined(Q_WS_X11)
+    d->removePendingPaintEvents();
+#endif
+    repaint(d->clipRect());
+}
+
+/*! \overload
+
+    This version repaints a rectangle (\a x, \a y, \a w, \a h) inside
+    the widget.
+
+    If \a w is negative, it is replaced with \c{width() - x}, and if
+    \a h is negative, it is replaced width \c{height() - y}.
+*/
+void QWidget::repaint(int x, int y, int w, int h)
+{
+    if ( x > crect.width() || y > crect.height() )
+	return;
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    repaint(QRegion(QRect(x, y, w, h)));
+}
+
+/*! \overload
+
+    This version repaints a rectangle \a r inside the widget.
+*/
+void QWidget::repaint(const QRect &r)
+{
+    repaint(QRegion(r));
+}
+
+/*! \fn void QWidget::repaint( const QRegion &rgn )
+    \overload
+
+    This version repaints a region \a rgn inside the widget.
+*/
+
+/*! \fn void QWidget::update()
+    Updates the widget unless updates are disabled or the widget is
+    hidden.
+
+    This function does not cause an immediate repaint; instead it
+    schedules a paint event for processing when Qt returns to the main
+    event loop. This permits Qt to optimize for more speed and less
+    flicker than a call to repaint() does.
+
+    Calling update() several times normally results in just one
+    paintEvent() call.
+
+    Qt normally erases the widget's area before the paintEvent() call.
+    If the \c WRepaintNoErase widget flag is set, the widget is
+    responsible for painting all its pixels itself.
+
+    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
+    setWFlags()
 */
 
 /*! \fn void QWidget::update(int x, int y, int w, int h)
