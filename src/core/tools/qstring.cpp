@@ -942,7 +942,7 @@ QString &QString::operator=(QChar ch)
 */
 QString &QString::insert(int i, const QLatin1String &str)
 {
-    uchar *s = (uchar *)str.latin1();
+    const uchar *s = (const uchar *)str.latin1();
     if (i < 0 || !s || !(*s))
         return *this;
     d->cache = 0;
@@ -967,7 +967,7 @@ QString& QString::insert(int i, const QChar *unicode, int size)
         return *this;
     d->cache = 0;
 
-    ushort *s = (ushort *)unicode;
+    const ushort *s = (const ushort *)unicode;
     if (s >= d->data && s < d->data + d->alloc) {
         // Part of me - take a copy
         ushort *tmp = (ushort *)malloc(size * sizeof(QChar));
@@ -1040,14 +1040,14 @@ QString &QString::append(const QString &str)
 */
 QString &QString::append(const QLatin1String &str)
 {
-    const char *s = str.latin1();
+    const uchar *s = (const uchar *)str.latin1();
     if (s) {
         d->cache = 0;
-        int len = strlen(s);
+        int len = strlen((char *)s);
         if (d->ref != 1 || d->size + len > d->alloc)
             realloc(grow(d->size + len));
         ushort *i = d->data + d->size;
-        while ((*i++ = (uchar)*s++))
+        while ((*i++ = *s++))
             ;
         d->size += len;
     }
