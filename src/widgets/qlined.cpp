@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#101 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#101 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -523,9 +523,9 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
   Handles the cursor blinking.
 */
 
-void QLineEdit::focusInEvent( QFocusEvent * )
+void QLineEdit::focusInEvent( QFocusEvent * e )
 {
-    if ( style() == WindowsStyle )
+    if ( style() == WindowsStyle && markAnchor == markDrag )
 	selectAll(); // calls repaint
     killTimers();
     startTimer( blinkTime );
@@ -540,13 +540,15 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
+    if ( style() == WindowsStyle && 
+	 ( focusWidget() != this ||
+	   qApp->focusWidget() == 0 ||
+	   qApp->focusWidget()->topLevelWidget() != topLevelWidget() ) )
+	deselect();
     killTimers();
     cursorOn	  = FALSE;
     dragScrolling = FALSE;
-    if ( style() == WindowsStyle )
-	deselect(); // repaints
-    else
-	repaint( !hasFocus() );
+    repaint( !hasFocus() );
 }
 
 
