@@ -290,7 +290,6 @@ void TextEdit::filePrint()
 	// Check that there is a valid device to print to.
 	if ( !p.device() ) return;
 	QPaintDeviceMetrics metrics( p.device() );
-	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
 	int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
 	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
