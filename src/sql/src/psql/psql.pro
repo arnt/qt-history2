@@ -9,13 +9,9 @@ SOURCES		= main.cpp \
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
 
-unix:INCLUDEPATH += /usr/include/postgresql
-win32:INCLUDEPATH += C:\HOME\DB\SRC\POSTGR~1.2\SRC\INTERF~1\LIBPQ 
-
-unix:TMAKE_LFLAGS += -L/usr/local/pgsql/lib
-
-unix:LIBS       += -lpq 
-win32:LIBS	+= libpqdll.lib 
+isEmpty(LIBS) {
+	message( "No PostgreSQL libraries specified for linking.  See the Qt SQL Module documentation for information on building SQL driver plugins." )
+}
 
 TARGET		= qsqlpsql
 DESTDIR		= ../../../../plugins/sqldrivers

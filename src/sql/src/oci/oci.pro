@@ -7,10 +7,9 @@ SOURCES		= main.cpp \
 win32:OBJECTS_DIR	= obj
 unix:OBJECTS_DIR	= .obj
 
-win32:INCLUDEPATH += c:\oracle\Ora81\OCI\include
-
-win32:LIBS      += oci.lib
-unix:LIBS	+= -lclntsh
+isEmpty(LIBS) {
+	message( "No OCI libraries specified for linking.  See the Qt SQL Module documentation for information on building SQL driver plugins." )
+}
 
 DESTDIR		= ../../../../plugins/sqldrivers
 TARGET		= qsqloci
