@@ -2190,20 +2190,20 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     QString ret;
     int replaced = 0;
     for(int i = 0; i < str.size(); ++i) {
+        const int start_var = i;
         QChar c = str.at(i);
         if(c == QLatin1Char('\\')) {
             if(str.at(i+1) == QLatin1Char('$')) {
                 i++;
-                replaced++;
+                if(!(replaced++))
+                    ret = str.left(start_var);
                 ret.append(str.at(i));
-            } else {
-                if(replaced)
-                    ret.append(c);
+            } else if(replaced) {
+                ret.append(c);
             }
             continue;
         }
         if(c == QLatin1Char('$')) {
-            const int start_var = i;
             c = str.at(++i);
             if(c == QLatin1Char('$')) {
                 QChar term;
