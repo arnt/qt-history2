@@ -582,12 +582,21 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     d->vbar->setValue(y);
 }
 
-QRect QTextEditPrivate::cursorUpdateRect() const
+QRect QTextEditPrivate::cursorRect() const
 {
     QTextFrame *frame = d->cursor.currentFrame();
     QRect r = d->cursor.block().layout()->rect();
     r.moveBy(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
     return r;
+}
+
+void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
+{
+    if (enable)
+        cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
+    else
+        cursorBlinkTimer.stop();
+    update(cursorRect());
 }
 
 /*!
@@ -999,11 +1008,11 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
     // (schedule a repaint of the region of the old cursor
     //  and of the new cursor, so that the old one disappears
     //  and the new one is shown)
-    d->update(d->cursorUpdateRect());
+    d->update(d->cursorRect());
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-    d->update(d->cursorUpdateRect());
+    d->update(d->cursorRect());
 }
 
 /*!
@@ -1222,7 +1231,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
             d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
-        d->update(d->cursorUpdateRect());
+        d->update(d->cursorRect());
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
@@ -1315,7 +1324,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     // want to make sure the old cursor disappears (not noticable when moving
     // only a few pixels but noticable when jumping between cells in tables for
     // example)
-    d->update(d->cursorUpdateRect());
+    d->update(d->cursorRect());
 
     bool updateCurrentFormat = true;
 
@@ -1739,7 +1748,7 @@ void QTextEdit::focusInEvent(QFocusEvent *ev)
             d->viewport->update();
 
         if (!d->readOnly)
-            d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
+            d->setBlinkingCursorEnabled(true);
     }
 
     QViewport::focusInEvent(ev);
@@ -1757,8 +1766,7 @@ void QTextEdit::focusOutEvent(QFocusEvent *ev)
             d->viewport->update();
 
         if (d->cursorBlinkTimer.isActive())
-            d->cursorBlinkTimer.stop();
-
+            d->setBlinkingCursorEnabled(false);
     }
     QViewport::focusOutEvent(ev);
 }
@@ -1876,10 +1884,7 @@ void QTextEdit::setReadOnly(bool ro)
     d->readOnly = ro;
     d->viewport->setCursor(d->readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 
-    if (ro)
-        d->cursorBlinkTimer.stop();
-    else
-        d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
+    d->setBlinkingCursorEnabled(!ro);
 }
 
 /*!

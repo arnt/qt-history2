@@ -69,7 +69,9 @@ public:
 
     void ensureVisible(int documentPosition);
 
-    QRect cursorUpdateRect() const;
+    QRect cursorRect() const;
+
+    void setBlinkingCursorEnabled(bool enable);
 
     QTextDocument *doc;
     bool cursorOn;
