@@ -149,9 +149,8 @@ Dialog::Dialog(QWidget *parent)
 void Dialog::setInteger()
 {
     bool ok;
-    int i = QInputDialog::getInteger(tr("QInputDialog::getInteger()"),
-                                     tr("Percentage:"), 25, 0, 100, 1, &ok,
-                                     this);
+    int i = QInputDialog::getInteger(this, tr("QInputDialog::getInteger()"),
+                                     tr("Percentage:"), 25, 0, 100, 1, &ok);
     if (ok)
         integerLabel->setText(tr("%1%").arg(i));
 }
@@ -159,9 +158,8 @@ void Dialog::setInteger()
 void Dialog::setDouble()
 {
     bool ok;
-    double d = QInputDialog::getDouble(tr("QInputDialog::getDouble()"),
-                                       tr("Amount:"), 37.56, -10000, 10000, 2,
-                                       &ok, this);
+    double d = QInputDialog::getDouble(this, tr("QInputDialog::getDouble()"),
+                                       tr("Amount:"), 37.56, -10000, 10000, 2, &ok);
     if (ok)
         doubleLabel->setText(QString("$%1").arg(d));
 }
@@ -172,9 +170,8 @@ void Dialog::setItem()
     items << tr("Spring") << tr("Summer") << tr("Fall") << tr("Winter");
 
     bool ok;
-    QString item = QInputDialog::getItem(tr("QInputDialog::getItem()"),
-                                         tr("Season:"), items, 0, false, &ok,
-                                         this);
+    QString item = QInputDialog::getItem(this, tr("QInputDialog::getItem()"),
+                                         tr("Season:"), items, 0, false, &ok);
     if (ok && !item.isEmpty())
         itemLabel->setText(item);
 }
@@ -182,9 +179,9 @@ void Dialog::setItem()
 void Dialog::setText()
 {
     bool ok;
-    QString text = QInputDialog::getText(tr("QInputDialog::getText()"),
+    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
                                          tr("User name:"), QLineEdit::Normal,
-                                         QDir::home().dirName(), &ok, this);
+                                         QDir::home().dirName(), &ok);
     if (ok && !text.isEmpty())
         textLabel->setText(text);
 }
@@ -295,7 +292,7 @@ void Dialog::warningMessage()
         warningLabel->setText(tr("Save Again"));
     else
         warningLabel->setText(tr("Continue"));
-    
+
 }
 
 void Dialog::errorMessage()
