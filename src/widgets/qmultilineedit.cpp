@@ -3128,7 +3128,7 @@ int QMultiLineEdit::length() const
 */
 void QMultiLineEdit::setMaxLineLength(int m)
 {
-    bool trunc = d->maxlinelen >= 0 && d->maxlinelen < m;
+    bool trunc = d->maxlinelen < 0 || m < d->maxlinelen;
     d->maxlinelen = m;
     if ( trunc ) {
 	QMultiLineEditRow* r = contents->first();
