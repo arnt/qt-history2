@@ -43,10 +43,10 @@ typedef QList<QObject *> QObjectList;
 class Q_EXPORT QObject: public Qt
 {
     Q_OBJECT
-    Q_PROPERTY( QByteArray name READ name WRITE setName )
+    Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
 
 public:
-    QObject(QObject *parent=0, const char *name=0);
+    QObject(QObject *parent=0);
     virtual ~QObject();
 
     const char *className() const;
@@ -64,10 +64,11 @@ public:
 #endif
 #endif //QT_NO_TRANSLATION
 
-    const char *name() const;
-    const char *name(const char *defaultName) const;
+    const char *objectName() const;
+    const char *objectName(const char *defaultName) const;
+    void setObjectName(const char *name);
+    void setObjectNameConst(const char *name);
 
-    virtual void setName(const char *name);
     inline bool isWidgetType() const { return isWidget; }
 
     inline bool signalsBlocked() const { return blockSig; }
@@ -147,6 +148,7 @@ protected:
 
 #ifndef QT_NO_COMPAT
 public:
+    QObject(QObject *parent, const char *name);
     inline void insertChild(QObject *o)
 	{ if (o) o->setParent(this); }
     inline void removeChild(QObject *o)
@@ -155,6 +157,9 @@ public:
 	{ return qstrcmp(classname, className() ) == 0; }
     inline bool inherits(const char *classname) const
 	{ return metaObject()->inherits(classname); }
+    inline const char *name() const { return objectName(); }
+    inline const char *name(const char *defaultName) const { return objectName(defaultName); }
+    inline void setName(const char *name) { setObjectName(name); }
 protected:
     inline bool checkConnectArgs(const char *signal,
 				  const QObject *,
@@ -174,13 +179,15 @@ private:
     uint pendTimer : 1;
     uint blockSig : 1;
     uint wasDeleted : 1;
+    uint ownObjectName : 1;
     uint hasPostedEvents : 1;
 #ifndef QT_NO_COMPAT
     uint hasPostedChildInsertedEvents : 1;
-#endif
+    uint unused : 25;
+#else
     uint unused : 26;
+#endif
 
-    const char *objname;
     QObject *parentObj;
 
 protected:
@@ -302,7 +309,7 @@ public:
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
 	IconChange = 34,			// icon changed
-	ApplicationFontChange = 36,             // application font changed	
+	ApplicationFontChange = 36,             // application font changed
 	ApplicationPaletteChange = 38,          // application palette changed
 	PaletteChange = 39,			// widget palette changed
 	Clipboard = 40,				// internal clipboard event

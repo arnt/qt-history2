@@ -54,7 +54,9 @@ public:
     QObjectPrivate()
 	:connections(0),
 	 senders(0),
-	 polished(0)
+	 polished(0),
+	 objectName(0),
+	 ownObjectName(false)
 	{
 #ifndef QT_NO_USERDATA
 	    userData.setAutoDelete(true);
@@ -110,6 +112,8 @@ public:
 #endif
 
     mutable const QMetaObject *polished;
+    const char *objectName;
+    uint ownObjectName : 1;
 };
 
 #endif

@@ -122,7 +122,7 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
     by name and optionally type using child() or queryList(), and get
     the list of tree roots using objectTrees().
 
-    Every object has an object name() and can report its className()
+    Every object has an objectName() and can report its className()
     and whether it inherits() another class in the QObject inheritance
     hierarchy.
 
@@ -204,7 +204,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
     if ( !list.isEmpty() ) {
 	for (int i = 0; i < list.size(); ++i) {
 	    QObject *obj = list.at(i);
-	    if ( qstrcmp(name,obj->name()) == 0 && obj->inherits(type) )
+	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
 		return obj;
 	}
     }
@@ -217,7 +217,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
  *****************************************************************************/
 
 /*!
-    Constructs an object called \a name with parent object, \a parent.
+    Constructs an object with parent object \a parent.
 
     The parent of an object may be viewed as the object's owner. For
     instance, a \link QDialog dialog box\endlink is the parent of the
@@ -228,16 +228,10 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
     Setting \a parent to 0 constructs an object with no parent. If the
     object is a widget, it will become a top-level window.
 
-    The object name is some text that can be used to identify a
-    QObject. It's particularly useful in conjunction with \link
-    designer-manual.book <i>Qt Designer</i>\endlink. You can find an
-    object by name (and type) using child(). To find several objects
-    use queryList().
-
-    \sa parent(), name(), child(), queryList()
+    \sa parent(), child(), queryList()
 */
 
-QObject::QObject( QObject *parent, const char *name )
+QObject::QObject(QObject *parent)
     :
     isSignal( FALSE ),				// assume not a signal object
     isWidget( FALSE ), 				// assume not a widget object
@@ -246,7 +240,6 @@ QObject::QObject( QObject *parent, const char *name )
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
     hasPostedChildInsertedEvents( FALSE ),
-    objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by setParent()
     d_ptr( new QObjectPrivate )
 {
@@ -258,10 +251,31 @@ QObject::QObject( QObject *parent, const char *name )
 }
 
 
+#ifndef QT_NO_COMPAT
+QObject::QObject( QObject *parent, const char *name )
+    :
+    isSignal( FALSE ),				// assume not a signal object
+    isWidget( FALSE ), 				// assume not a widget object
+    pendTimer( FALSE ),				// no timers yet
+    blockSig( FALSE ),      			// not blocking signals
+    wasDeleted( FALSE ),       			// double-delete catcher
+    hasPostedEvents( FALSE ),
+    hasPostedChildInsertedEvents( FALSE ),
+    parentObj( 0 ),				// no parent yet. It is set by setParent()
+    d_ptr( new QObjectPrivate )
+{
+    d_ptr->q_ptr = this;
+    if (name)
+	setObjectName(name);
+    setParent(parent);
+    QEvent e( QEvent::Create );
+    QApplication::sendEvent( this, &e );
+    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+}
 
-/*!
-    \internal
-*/
+#endif
+
+/*!\internal*/
 QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     :
     isSignal( FALSE ),				// assume not a signal object
@@ -271,17 +285,19 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
     hasPostedChildInsertedEvents( FALSE ),
-    objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by setParent()
     d_ptr(dd)
 {
     d_ptr->q_ptr = this;
+    if (name)
+	setObjectName(name);
     setParent(parent);
     QEvent e( QEvent::Create );
     QApplication::sendEvent( this, &e );
     QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
+/*!\internal*/
 QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     :
     isSignal(false),
@@ -291,11 +307,12 @@ QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     wasDeleted(false),
     hasPostedEvents(false),
     hasPostedChildInsertedEvents(false),
-    objname(name ? qstrdup(name) : 0),
     parentObj(0),
     d_ptr((QObjectPrivate*)dd)
 {
     d_ptr->q_ptr = this;
+    if (name)
+	setObjectName(name);
     if (parent) {
 	if (qt_cast<QDesktopWidget*>(parent))
 	    return; // QDesktop widget does not take ownership of widget children
@@ -304,7 +321,6 @@ QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     }
     // no events sent here, this is done at the end of the QWidget constructor
 }
-
 
 /*!
     Destroys the object, deleting all its child objects.
@@ -350,9 +366,6 @@ QObject::~QObject()
 	c->guarded = 0;
     }
 
-    if ( objname )
-	delete [] (char*)objname;
-    objname = 0;
     if ( QApplication::eventLoop() && pendTimer )				// might be pending timers
 	QApplication::eventLoop()->unregisterTimers(this);
     if ( parentObj )				// remove it from parent object
@@ -388,6 +401,11 @@ QObject::~QObject()
 	d->children.clear();
     }
     QApplication::removePostedEvents( this );
+
+    if (d->objectName && d->ownObjectName) {
+	delete [] (char*)d->objectName;
+	d->objectName = 0;
+    }
 
     delete d;
 }
@@ -474,38 +492,44 @@ const char *QObject::className() const
     You can find an object by name (and type) using child(). You can
     find a set of objects with queryList().
 
-    The object name is set by the constructor or by the setName()
-    function. The object name is not very useful in the current
-    version of Qt, but will become increasingly important in the
-    future.
-
-    If the object does not have a name, the name() function returns
-    "unnamed", so printf() (used in qDebug()) will not be asked to
-    output a null pointer. If you want a null pointer to be returned
-    for unnamed objects, you can call name( 0 ).
+    If the object does not have a name, the objectName() function
+    returns "unnamed", so printf() (used in qDebug()) will not be
+    asked to output a null pointer. If you want a null pointer to be
+    returned for unnamed objects, you can call objectName( 0 ).
 
     \code
 	qDebug( "MyClass::setPrecision(): (%s) invalid precision %f",
-		name(), newPrecision );
+		objectName(), newPrecision );
     \endcode
 
     \sa className(), child(), queryList()
 */
 
-const char * QObject::name() const
+const char * QObject::objectName() const
 {
-    // If you change the name here, the builder will be broken
-    return objname ? objname : "unnamed";
+    return d->objectName ? d->objectName : "unnamed";
 }
 
 /*!
     Sets the object's name to \a name.
 */
-void QObject::setName( const char *name )
+void QObject::setObjectName( const char *name )
 {
-    if ( objname )
-	delete [] (char*) objname;
-    objname = name ? qstrdup(name) : 0;
+    if (d->objectName && d->ownObjectName)
+	delete [] (char*) d->objectName;
+    d->ownObjectName = true;
+    d->objectName = name ? qstrdup(name) : 0;
+}
+
+/*!
+    Sets the object's name to \a name, not copying the string.
+*/
+void QObject::setObjectNameConst(const char *name)
+{
+    if (d->objectName && d->ownObjectName)
+	delete [] (char*) d->objectName;
+    d->ownObjectName = false;
+    d->objectName = name;
 }
 
 /*!
@@ -515,9 +539,9 @@ void QObject::setName( const char *name )
     does not have a name.
 */
 
-const char * QObject::name( const char * defaultName ) const
+const char * QObject::objectName( const char * defaultName ) const
 {
-    return objname ? objname : defaultName;
+    return d->objectName ? d->objectName : defaultName;
 }
 
 
@@ -544,9 +568,9 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
     for (int i = 0; i < d->children.size(); ++i) {
 	QObject *obj = d->children.at(i);
 	if ( onlyWidgets ) {
-	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
+	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 		return obj;
-	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->name() ) == 0 ) )
+	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 	    return obj;
 	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
 	    return obj;
@@ -930,10 +954,10 @@ static void objSearch( QObjectList &result,
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )
-		ok = ( qstrcmp(objName,obj->name()) == 0 );
+		ok = ( qstrcmp(objName,obj->objectName()) == 0 );
 #ifndef QT_NO_REGEXP
 	    else if ( rx )
-		ok = ( rx->search(QString::fromLatin1(obj->name())) != -1 );
+		ok = ( rx->search(QString::fromLatin1(obj->objectName())) != -1 );
 #endif
 	}
 	if ( ok )				// match!
@@ -1029,7 +1053,7 @@ const QObjectList &QObject::children() const
     without notice (as soon as the user closes a window you may have
     dangling pointers, for example).
 
-    \sa child() children(), parent(), inherits(), name(), QRegExp
+    \sa child() children(), parent(), inherits(), objectName(), QRegExp
 */
 
 QObjectList QObject::queryList( const char *inheritsClass,
@@ -1449,7 +1473,7 @@ static void err_info_about_objects(const char * func,
 				    const QObject * sender,
 				    const QObject * receiver)
 {
-    const char * a = sender->name(), * b = receiver->name();
+    const char * a = sender->objectName(), * b = receiver->objectName();
     if (a)
 	qWarning("Object::%s:  (sender name:   '%s')", func, a);
     if (b)
@@ -2080,7 +2104,7 @@ static void dumpRecursive( int level, QObject *object )
 	buf.fill( '\t', level/2 );
 	if ( level % 2 )
 	    buf += "    ";
-	const char *name = object->name();
+	const char *name = object->objectName();
 	QString flags="";
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';

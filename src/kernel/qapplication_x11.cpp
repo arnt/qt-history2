@@ -5460,7 +5460,6 @@ class QSmSocketReceiver : public QObject
     Q_OBJECT
 public:
     QSmSocketReceiver( int socket )
-	: QObject(0,0)
 	{
 	    QSocketNotifier* sn = new QSocketNotifier( socket, QSocketNotifier::Read, this );
 	    connect( sn, SIGNAL( activated(int) ), this, SLOT( socketActivated(int) ) );
