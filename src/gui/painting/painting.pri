@@ -7,7 +7,6 @@ HEADERS += \
 	painting/qcolor_p.h \
 	painting/qcolormap.h \
 	painting/qdrawutil.h \
-	painting/qline.h \
 	painting/qpaintdevice.h \
 	painting/qpaintengine.h \
 	painting/qpainter.h \
@@ -31,7 +30,6 @@ SOURCES += \
 	painting/qcolor.cpp \
 	painting/qcolor_p.cpp \
 	painting/qdrawutil.cpp \
-	painting/qline.cpp \
 	painting/qpaintengine.cpp \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \

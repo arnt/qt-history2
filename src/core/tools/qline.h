@@ -16,7 +16,7 @@
 
 #include <QtCore/qpoint.h>
 
-class Q_GUI_EXPORT QLineF {
+class Q_CORE_EXPORT QLineF {
 public:
 
     enum IntersectType { NoIntersection, BoundedIntersection, UnboundedIntersection };

@@ -14,7 +14,7 @@
 #ifndef QMATRIX_H
 #define QMATRIX_H
 
-#include "QtGui/qline.h"
+#include "QtCore/qline.h"
 #include "QtCore/qpoint.h"
 #include "QtGui/qpolygon.h"
 #include "QtCore/qrect.h"

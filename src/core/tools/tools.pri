@@ -11,6 +11,7 @@ HEADERS +=  \
 	tools/qdatetime.h \
 	tools/qdatetime_p.h \
 	tools/qhash.h \
+        tools/qline.h \
 	tools/qlinkedlist.h \
 	tools/qlist.h \
 	tools/qlocale.h \
@@ -39,6 +40,7 @@ SOURCES += \
 	tools/qchar.cpp \
 	tools/qdatetime.cpp \
 	tools/qhash.cpp \
+        tools/qline.cpp \
 	tools/qlinkedlist.cpp \
 	tools/qlist.cpp \
 	tools/qlocale.cpp \

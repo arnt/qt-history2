@@ -16,7 +16,7 @@
 
 #include "QtCore/qglobal.h"
 #include "QtCore/qrect.h"
-#include "QtGui/qline.h"
+#include "QtCore/qline.h"
 #include "QtCore/qvector.h"
 #include "QtGui/qmatrix.h"
 
