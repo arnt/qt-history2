@@ -960,15 +960,11 @@ void QDockWindow::init()
 
     // Creating inner layout
     hbox	  = new QVBoxLayout();
-    vbox	  = (QHBoxLayout *)new QBoxLayout( QBoxLayout::LeftToRight );
-    childBox	  = new QBoxLayout( QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
-    if ( QApplication::reverseLayout() ) {
-	vbox->addLayout( childBox );
-	vbox->addWidget( verHandle );
-    } else {
-	vbox->addWidget( verHandle );
-	vbox->addLayout( childBox );
-    }
+    vbox	  = new QHBoxLayout();
+    childBox	  = new QBoxLayout(QBoxLayout::LeftToRight);
+    vbox->addWidget( verHandle );
+    vbox->addLayout( childBox );
+
     hbox->setResizeMode( QLayout::FreeResize );
     hbox->setMargin( isResizeEnabled() || curPlace == OutsideDock ? 2 : 0 );
     hbox->setSpacing( 1 );
@@ -1068,9 +1064,7 @@ void QDockWindow::setOrientation( Orientation o )
 	glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
 	glayout->addMultiCellWidget( vHandleRight,  0, 2, 2, 2 );
     }
-    boxLayout()->setDirection( o == Horizontal ?
-			       (QApplication::reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight)
-			       : QBoxLayout::TopToBottom );
+    boxLayout()->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
     QEvent *e = new QEvent( QEvent::LayoutHint );
     QApplication::postEvent( this, e );
@@ -1285,7 +1279,7 @@ void QDockWindow::updateGui()
 			vHandleRight->hide();
 		    vHandleLeft->hide();
 		} else {
-		    if ( area()->handlePosition() == QDockArea::Normal ) {
+		    if ( (area()->handlePosition() == QDockArea::Normal) != QApplication::reverseLayout() ) {
 			vHandleRight->show();
 			vHandleLeft->hide();
 		    } else {
