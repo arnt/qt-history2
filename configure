@@ -2714,7 +2714,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
 	grep "QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CXXFLAGS,\$(QMAKE_CXXFLAGS)," >>$mkfile
+	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
 	grep "QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	EXTRA_CFLAGS="\$(QMAKE_CFLAGS)"
 	EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
