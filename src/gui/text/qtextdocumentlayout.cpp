@@ -429,6 +429,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                                            const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextFrame *frame) const
 {
+    Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
     Q_ASSERT(!fd->sizeDirty);
     Q_ASSERT(!fd->layoutDirty);
@@ -487,6 +488,10 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             QRectF bgRect = QRectF(off, fd->size);
             const qreal margin = fd->margin + fd->border;
             bgRect.addCoords(margin, margin, -margin, -margin);
+
+            if (frame == q->document()->rootFrame())
+                bgRect = context.clip;
+
             painter->fillRect(bgRect, bgCol);
         }
     }
