@@ -47,8 +47,8 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "GIF" ]		    = "no";
     dictionary[ "ZLIB" ]	    = "yes";
-    dictionary[ "PNG" ]		    = "yes";
-    dictionary[ "JPEG" ]	    = "yes";
+    dictionary[ "PNG" ]		    = "qt";
+    dictionary[ "JPEG" ]	    = "qt";
     dictionary[ "MNG" ]		    = "no";
 
     dictionary[ "LIBPNG" ]	    = "qt";
