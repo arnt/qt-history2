@@ -52,7 +52,7 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 	  C { XINERAMA:: @Node paint { @XineramaColour } Xinerama }
 	  D { GL:: @Node paint { @GLColour } GL }
     @Rowc A { FREETYPE:: @Node paint { @FreetypeColour } freetype }
-	  B { XRENDER:: @Node paint { @XrenderColour } Xrender }
+	  B { XRENDER:: @Node paint { @XrenderColour } XRender }
 	  D { XMUXT:: @Node { Xmu"/"Xt } }
     @Rowd A {
 	@Tbl
@@ -68,20 +68,6 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 	          C { optional }
 	    @Rowa A { C:: @BNode {} } B { D:: @BNode {} }
 	          C { some configurations only }
-#	    @Rowb A { @CNode paint { @FreetypeColour } {} }
-#		  C { -xft or auto-detected }
-#	    @Rowb A { @CNode paint { @XrenderColour } {} }
-#		  C { -xrender or -xft or auto-detected }
-#	    @Rowb A { @CNode paint { @XineramaColour } {} }
-#		  C { -xinerama or auto-detected }
-#	    @Rowb A { @CNode paint { @GLColour } {} }
-#		  C { OpenGL auto-detected }
-#	    @Rowb A { @CNode paint { @SMColour } {} }
-#		  C { -sm or auto-detected }
-#	    @Rowb A { @CNode paint { @PthreadColour } {} }
-#		  C { -thread }
-#	    @Rowb C { needed if OpenGL is threaded }
-#	    @Rowb C { ~ } # Hack
 	}
 	} 
 	  C { XEXT:: @Node Xext } E { SM:: @Node paint { @SMColour } SM }
@@ -119,26 +105,26 @@ macro @MiscColour { rgb { 0.941 0.973 1.000 } }
     @Rowa paint { darkgrey } A { Name } B { Library } C { Notes }
     @Rowb paint { @TTGreenColour } A { qt } B { libqt @I or libqt-mt }
 	C { Qt (libqt-mt is multi-threaded) }
-    @Rowb paint { @FreetypeColour } A { Xft } B { libXft }  
+    @Rowb paint { @FreetypeColour } A { Xft } B { libXft @I or libXft2 }  
 	C { X FreeType Interface; -xft or auto-detected }
     @Rowb paint { @FreetypeColour } A { freetype } B { libfreetype }  
 	C { FreeType; -xft or auto-detected }
-    @Rowb paint { @XrenderColour } A { Xrender } B { libXrender }  
-	C { {red @Colour ?}; -xrender or -xft or auto-detected }
+    @Rowb paint { @XrenderColour } A { XRender } B { libXrender }  
+	C { X Rendering Extension; -xrender or -xft or auto-detected }
     @Rowb paint { @XineramaColour } A { Xinerama } B { libXinerama }
 	C { Multi-head support; -xinerama or auto-detected }
     @Rowb paint { @MiscColour} A { Xext } B { libXext }  
-	C { {red @Colour ?} }
+	C { X Extensions }
     @Rowb paint { @MiscColour} A { X11 } B { libX11 }  
-	C { {red @Colour ?} }
-    @Rowb paint { @GLColour } A { GL } B { red @Colour ? }  
+	C { X Window System }
+    @Rowb paint { @GLColour } A { GL } B { libGL }  
 	C { OpenGL; auto-detected (needs -thread if threaded) }
     @Rowb paint { @MiscColour } A { Xmu"/"Xt }  B { libXmu @I and libXt }  
-	C { {red @Colour ?} }
+	C { X miscellaneous utilities, and X Toolkit; auto-detected }
     @Rowb paint { @SMColour } A { SM } B { libSM }  
 	C { X Session Management; -sm or auto-detected }
     @Rowb paint { @SMColour } A { ICE } B { libICE }  
-	C { Inter-Client Exchange }
+	C { Inter-Client Exchange; -sm or auto-detected }
     @Rowb paint { @PthreadColour } A { pthread } B { libpthread }  
 	C { Multi-threading; -thread (needed if OpenGL is threaded) }
 }
