@@ -1873,7 +1873,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     int signal_index = smeta->indexOfSignal(signal);
     if (signal_index < 0) {
         // check for normalized signatures
-        tmp_signal_name = QMetaObject::normalizedSignature(signal - 1);
+        tmp_signal_name = QMetaObject::normalizedSignature(signal).prepend(*(signal - 1));
         signal = tmp_signal_name.constData() + 1;
         signal_index = smeta->indexOfSignal(signal);
         if (signal_index < 0) {
@@ -1905,9 +1905,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	break;
     }
     if (member_index < 0) {
-        // check for normalizes members
-        tmp_member_name = QMetaObject::normalizedSignature(member - 1);
-        member = tmp_member_name.constData() + 1;
+        // check for normalized members
+        tmp_member_name = QMetaObject::normalizedSignature(member);
+        member = tmp_member_name.constData();
         switch (membcode) {
         case QSLOT_CODE:
             member_index = rmeta->indexOfSlot(member);
