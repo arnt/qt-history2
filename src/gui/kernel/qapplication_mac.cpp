@@ -438,7 +438,7 @@ void qt_mac_update_os_settings()
             ThemeBrush active, inactive;
         } mac_widget_colors[] = {
             { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
-            { "QButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
+            { "QAbstractButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
             { "QHeader", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
             { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
             { "QListView", kThemeTextColorListView, kThemeTextColorDialogInactive },
