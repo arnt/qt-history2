@@ -73,11 +73,11 @@ int main( int argc, char **argv )
 
     cur = QBitmap(sizef_width, sizef_height, sizef_bits, TRUE);
     cur.setMask( cur );
-    lbRight->insertItem( cur, "SizeFDiagCursor" );
+    lbRight->insertItem( cur, "SizeBDiagCursor" );
 
     cur = QBitmap(sizeb_width, sizeb_height, sizeb_bits, TRUE);
     cur.setMask( cur );
-    lbRight->insertItem( cur, "SizeBDiagCursor" );
+    lbRight->insertItem( cur, "SizeFDiagCursor" );
 
     cur = QBitmap(sizeall_width, sizeall_height, sizeall_bits, TRUE);
     cur.setMask( cur );
