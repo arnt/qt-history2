@@ -51,6 +51,13 @@ public:
 
     void requestProperty( const QCString&, QVariant& );
     void requestSetProperty( const QCString&, const QVariant& );
+    void requestConnection( const QCString&, QClientInterface* );
+};
+
+class PlugMenuInterface : public QApplicationInterface
+{
+public:
+    PlugMenuInterface( QObject* o );
 };
 
 class PlugApplication : public QApplication
@@ -66,7 +73,7 @@ public:
     QStrList queryInterfaceList() const;
 
 protected:
-    PlugMainWindowInterface* mwIface;
+    QGuardedPtr<PlugMainWindowInterface> mwIface;
 };
 
 #endif // PLUGMAINWINDOW_H

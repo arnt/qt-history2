@@ -22,21 +22,31 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     QActionFactory::installActionFactory( actionManager = new QActionPlugInManager );
 
     QPopupMenu* file = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
-    if ( file ) {
-	file->insertItem( "&Add", this, SLOT( fileOpen() ) );
-	file->insertItem( "&Remove", this, SLOT( fileClose() ) );
-	file->insertSeparator();
-	file->insertItem( "&Exit", qApp, SLOT( quit() ) );
-	menuBar()->insertItem( "&PlugIn", file );
-    }
+    QToolBar* ft = (QToolBar*)QWidgetFactory::create( "QToolBar", this );
+    ft->setName( "File" );
+
+    QAction* a;
+    a = new QAction( "Add plugin", QIconSet(), "&Add", CTRL+Key_A, this );
+    connect( a, SIGNAL(activated()), this, SLOT(fileOpen()));
+    a->addTo( file );
+    a->addTo( ft );
+    a = new QAction( "Remove plugin", QIconSet(), "&Remove", CTRL+Key_R, this );
+    connect( a, SIGNAL(activated()), this, SLOT(fileClose()));
+    a->addTo( file );
+    a->addTo( ft );
+    file->insertSeparator();
+    a = new QAction( "Exit", QIconSet(), "E&xit", CTRL+Key_X, this );
+    a->addTo( file );
+
     widgetMenu = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
-    if ( widgetMenu ) {
-	menuBar()->insertItem( "&Widgets", widgetMenu );
-	connect( widgetMenu, SIGNAL( activated(int) ), this, SLOT( runWidget(int) ) );
-    }
+    connect( widgetMenu, SIGNAL( activated(int) ), this, SLOT( runWidget(int) ) );
 
     pluginMenu = 0;
     pluginTool = 0;
+
+    menuBar()->insertItem( "&File", file );
+    menuBar()->insertItem( "&Widgets", widgetMenu );
+    addToolBar( ft );
 
     statusBar();
 

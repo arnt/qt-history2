@@ -50,6 +50,19 @@ void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
 	QApplicationInterface::requestProperty( p, v );
 }
 
+void PlugMainWindowInterface::requestConnection( const QCString& request, QClientInterface* ci )
+{
+    if ( request == "PlugMenuInterface" ) {
+	PlugMenuInterface* pmi = new PlugMenuInterface( (QObject*)((PlugMainWindow*)object())->menuBar() );
+	pmi->connectToClient( ci );
+    }
+}
+
+PlugMenuInterface::PlugMenuInterface( QObject* o )
+: QApplicationInterface( o )
+{
+}
+
 int main( int argc, char** argv )
 {
     PlugApplication app( argc, argv );
