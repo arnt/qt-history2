@@ -179,9 +179,9 @@ public:
     QTextString( const QTextString &s );
     virtual ~QTextString();
 
-    QString toString( bool newlineHack = FALSE ) const;
-    static QString toString( const QMemArray<QTextStringChar> &data, bool newlineHack = FALSE );
-    QString toReverseString( bool newlineHack = FALSE ) const;
+    static QString toString( const QMemArray<QTextStringChar> &data );
+    QString toString() const;
+    QString toReverseString() const;
 
     QTextStringChar &at( int i ) const;
     int length() const;
@@ -1397,7 +1397,7 @@ public:
     virtual void setWrapAtColumn( int c );
     virtual void setAllowBreakInWords( bool b ) { biw = b; }
     bool allowBreakInWords() const { return biw; }
-    
+
     int minimumWidth() const { return minw; }
     int widthUsed() const { return wused; }
 
@@ -1972,11 +1972,6 @@ inline void QTextFormat::setStyle( const QString &s )
 inline QTextStringChar &QTextString::at( int i ) const
 {
     return data[ i ];
-}
-
-inline QString QTextString::toString( bool newlineHack ) const
-{
-    return toString( data, newlineHack );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -4116,7 +4116,16 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int tw = 0;
 #endif
 
-    QString qstr = str->toString( !FALSE );
+    QString qstr = str->toString();
+    // ### workaround so that \n are not drawn, actually this should be
+    // fixed in QFont somewhere (under Windows you get ugly boxes
+    // otherwise)
+    QChar* uc = (QChar*) qstr.unicode();
+    for ( int i = 0; i < qstr.length(); i++ ) {
+	if ( uc[i]== '\n' )
+	    uc[i] = 0x20;
+    }
+
 
     const int nSels = hasdoc ? document()->numSelections() : 1;
     QMemArray<int> selectionStarts( nSels );
