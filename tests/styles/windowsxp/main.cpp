@@ -3,7 +3,7 @@
 
 #include "windowsxpstyle.h"
 
-class WindowsXPStyle : public QStyleInterface, public QLibraryInterface
+class WindowsXPStyle : public QStyleFactoryInterface, public QLibraryInterface
 {
 public:
     WindowsXPStyle();
@@ -32,13 +32,13 @@ WindowsXPStyle::WindowsXPStyle()
 
 QRESULT WindowsXPStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    if ( uuid == IID_QUnknownInterface )
-	*iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	*iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QStyleFactory )
+	*iface = (QStyleFactoryInterface*)this;
+    else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
 
     if ( *iface )
