@@ -168,13 +168,13 @@ private:
     QDnsQuery * q;
 
     Q_UINT8 * answer;
-    uint size;
-    uint pp;
+    int size;
+    int pp;
 
     QList<QDnsRR> * rrs;
 
     // convenience
-    uint next;
+    int next;
     int ttl;
     QString label;
     QDnsRR * rr;
@@ -214,7 +214,7 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
     ok = TRUE;
 
     answer = (Q_UINT8 *)(answer_.data());
-    size = answer_.size();
+    size = (int)answer_.size();
     q = query_;
     pp = 0;
     rrs = new QList<QDnsRR>;
@@ -241,7 +241,7 @@ QDnsAnswer::~QDnsAnswer()
 
 QString QDnsAnswer::readString()
 {
-    uint p = pp;
+    int p = pp;
     QString r = QString::null;
     Q_UINT8 b;
     while( TRUE ) {
@@ -266,7 +266,7 @@ QString QDnsAnswer::readString()
 	    ok = FALSE;
 	    return QString::null;
 	case 3:
-	    uint q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
+	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
 	    if ( q >= pp || q >= p ) {
 		ok = FALSE;
 		return QString::null;
@@ -500,7 +500,6 @@ void QDnsAnswer::parse()
     int nscount = ( answer[8] << 8 ) + answer[9];
     int adcount = (answer[10] << 8 ) +answer[11];
 
-    int section = 0;
     pp = 12;
 
     // read query
@@ -522,7 +521,7 @@ void QDnsAnswer::parse()
 	label = readString().lower();
 	if ( !ok )
 	    return;
-	uint rdlength = 0;
+	int rdlength = 0;
 	if ( pp + 10 <= size )
 	    rdlength = ( answer[pp+8] << 8 ) + answer[pp+9];
 	if ( pp + 10 + rdlength > size ) {
@@ -1441,7 +1440,6 @@ QValueList<QHostAddress> QDns::addresses() const
 
 	int maybeIP4 = 0;
 	int bytes = 0;
-	int byte = 0;
 	QString left = l.simplifyWhiteSpace();
 	while( left.length() && bytes < 4 ) {
 	    QString byteString;
@@ -1539,7 +1537,6 @@ static void doResInit()
     res_init();
     int i;
     // find the name servers to use
-    QHostAddress * h;
     for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
 	ns->append( new QHostAddress(
 		             ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );

@@ -118,7 +118,7 @@ QFtp::~QFtp()
   \reimp
 */
 
-void QFtp::operationListChildren( QNetworkOperation *op )
+void QFtp::operationListChildren( QNetworkOperation * )
 {
     errorInListChildren = FALSE;
 #ifdef QFTP_DEBUG
@@ -144,7 +144,7 @@ void QFtp::operationMkDir( QNetworkOperation *op )
   \reimp
 */
 
-void QFtp::operationRemove( QNetworkOperation *op )
+void QFtp::operationRemove( QNetworkOperation * )
 {
     QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
@@ -155,7 +155,7 @@ void QFtp::operationRemove( QNetworkOperation *op )
   \reimp
 */
 
-void QFtp::operationRename( QNetworkOperation *op )
+void QFtp::operationRename( QNetworkOperation * )
 {
     QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
     QString cmd = "CWD " + path + "\r\n";
@@ -166,7 +166,7 @@ void QFtp::operationRename( QNetworkOperation *op )
   \reimp
 */
 
-void QFtp::operationGet( QNetworkOperation *op )
+void QFtp::operationGet( QNetworkOperation * )
 {
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
@@ -175,7 +175,7 @@ void QFtp::operationGet( QNetworkOperation *op )
   \reimp
 */
 
-void QFtp::operationPut( QNetworkOperation *op )
+void QFtp::operationPut( QNetworkOperation * )
 {
     putToWrite = -1;
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
@@ -185,7 +185,7 @@ void QFtp::operationPut( QNetworkOperation *op )
   \reimp
 */
 
-bool QFtp::checkConnection( QNetworkOperation *op )
+bool QFtp::checkConnection( QNetworkOperation * )
 {
 #ifdef QFTP_DEBUG
     qDebug( "QFtp: checkConnection" );
@@ -439,7 +439,7 @@ void QFtp::readyRead()
   currently something couldn't be done and it should be tried later again.
 */
 
-void QFtp::okButTryLater( int code, const QCString & )
+void QFtp::okButTryLater( int, const QCString & )
 {
 }
 
@@ -597,7 +597,7 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
   Handles error messages from the server
 */
 
-void QFtp::errorForNow( int code, const QCString & )
+void QFtp::errorForNow( int, const QCString & )
 {
 }
 
@@ -724,6 +724,12 @@ void QFtp::dataConnected()
 	    }
 	}
     } break;
+    case OpMkdir: {
+    } break;
+    case OpRemove: {
+    } break;
+    case OpRename: {
+    } break;
     }
 }
 
@@ -783,6 +789,14 @@ void QFtp::dataReadyRead()
 	getDoneSize += s.size();
 	emit dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
 	// qDebug( "%s", s.data() );
+    } break;
+    case OpMkdir: {
+    } break;
+    case OpRemove: {
+    } break;
+    case OpRename: {
+    } break;
+    case OpPut: {
     } break;
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#20 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#21 $
 **
 ** Implementation of Network Extension Library
 **
@@ -107,7 +107,7 @@ public:
   \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
   \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
 */
-QSocketDevice::QSocketDevice( int socket, Type type, bool inet )
+QSocketDevice::QSocketDevice( int socket, Type type, bool )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
       d( new QSocketDevicePrivate )
 {

@@ -169,7 +169,7 @@ QServerSocket::~QServerSocket()
 */
 
 
-void QServerSocket::incomingConnection( int socket )
+void QServerSocket::incomingConnection( int )
 {
     int fd = d->s->accept();
     if ( fd >= 0 )

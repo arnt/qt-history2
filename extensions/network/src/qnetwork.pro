@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		= qt staticlib release
+CONFIG		= qt warn_on staticlib release
 HEADERS		= qdns.h \
 		  qftp.h \
 		  qhostaddress.h \
