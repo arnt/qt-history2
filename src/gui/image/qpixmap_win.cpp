@@ -232,7 +232,7 @@ QBitmap QPixmap::mask() const
         uchar *dest = mask.scanLine(y);
         memset(dest, 0, w / 8);
         for (int x=0; x<w; ++x) {
-            if (qAlpha(*src) > 127)
+            if (qAlpha(*src) > 0)
                 dest[x>>3] |= qt_pixmap_bit_mask[x&7];
             ++src;
         }
@@ -267,10 +267,8 @@ void QPixmap::setMask(const QBitmap &mask)
                 uchar *mscan = imageMask.scanLine(y);
                 QRgb *tscan = (QRgb *) data->image.scanLine(y);
                 for (int x=0; x<w; ++x) {
-                    if (mscan[x>>3] & qt_pixmap_bit_mask[x&7])
-                        tscan[x] |= 0xff000000;
-                    else
-                        tscan[x] &= 0x00ffffff;
+                    if (!(mscan[x>>3] & qt_pixmap_bit_mask[x&7]))
+                        tscan[x] = 0;
                 }
             }
             break;
@@ -692,9 +690,14 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
     if (GetDIBits(qt_win_display_dc(), hbitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
         // Create image and copy data into image.
         QImage image(w, h, 32);
-        int bytes_per_line = w * 4;
-        for (int y=0; y<h; ++y)
-            memcpy(image.scanLine(y), data + y * bytes_per_line, bytes_per_line);
+        int bytes_per_line = w * sizeof(QRgb);
+        for (int y=0; y<h; ++y) {
+            QRgb *dest = (QRgb *) image.scanLine(y);
+            const QRgb *src = (const QRgb *) (data + y * bytes_per_line);
+            for (int x=0; x<w; ++x) {
+                dest[x] = src[x] | 0xff000000;
+            }
+        }
         result = image;
     } else {
         qWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap bits");
