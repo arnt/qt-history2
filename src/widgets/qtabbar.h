@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#19 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#20 $
 **
 ** Definition of QTabBar class
 **
@@ -82,8 +82,11 @@ signals:
 
 protected:
     virtual void paint( QPainter *, QTab *, bool ) const;
-    virtual QTab * selectTab( const QPoint & p ) const;
+    virtual void paintLabel( QPainter*, const QRect&, QTab*, bool ) const;
 
+    virtual QTab * selectTab( const QPoint & p ) const;
+    void updateMask();
+    
     void paintEvent( QPaintEvent * );
     void mousePressEvent ( QMouseEvent * );
     void mouseReleaseEvent ( QMouseEvent * );
@@ -95,7 +98,6 @@ private:
     QList<QTab> * l;
     QTabPrivate * d;
 
-    void paintLabel( QPainter*, const QRect&, QTab*, bool ) const;
 };
 
 

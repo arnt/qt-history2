@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#48 $
 **
 ** Implementation of QTabBar class
 **
@@ -22,6 +22,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 #include "qaccel.h"
+#include "qbitmap.h"
 
 #include <ctype.h>
 
@@ -222,6 +223,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 			emit selected( t->id );
 		    }
 		}
+		updateMask();
 		repaint( r );
 	    }
 	    return;
@@ -391,7 +393,6 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
   Paints the label of tab \a t centered in rectangle \a br using
   painter \a p and draws a focus indication iff \a has_focus is TRUE.
 
-  In Qt 2.0, this will be virtual.
 */
 
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
@@ -421,6 +422,34 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	p->drawRect( br );
 }
 
+
+/*!
+  Draws the mask for this tab bar
+
+  This is not totally right.
+*/
+
+void  QTabBar::updateMask()
+{
+    if ( !autoMask() )
+	return;
+    QBitmap bm( size() );
+    bm.fill( color0 );
+
+    QPainter p;
+    p.begin( &bm, this );
+    p.setBrush(color1);
+    p.setPen(color1);
+    
+    QTab *t = l->first();
+    while ( t ) {
+	p.drawRect( t->r );
+	t  = l->next();
+    }
+
+    p.end();
+    setMask( bm );
+}
 
 /*!
   Repaints the tab row.  All the painting is done by paint();
@@ -505,6 +534,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 	    l->append( l->take() );
 
 	d->focus = t->id;
+	updateMask();
 	if ( t->r.intersects( r ) ) {
 	    repaint( r.unite( t->r ) );
 	} else {
@@ -579,6 +609,7 @@ void QTabBar::setCurrentTab( QTab * tab )
 	    l->append( l->take() );
 
 	d->focus = tab->id;
+	updateMask();
 	if ( tab->r.intersects( r ) ) {
 	    repaint( r.unite( tab->r ) );
 	} else {
@@ -654,6 +685,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	    l->append( l->take() );
 	    r = r.unite( t->r );
 	    e->accept();
+	    updateMask();
 	    if ( r.isValid() )
 		repaint( r );
 	    emit selected( t->id );
@@ -701,5 +733,7 @@ void QTabBar::setShape( Shape s )
 	return;
     //######### must recalculate heights
     d->s = s;
+    updateMask();
     repaint();
 }
+
