@@ -447,7 +447,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     // Latin,
     0x0041,
     // Greek,
-    0x0390,
+    0x0391,
     // Cyrillic,
     0x0410,
     // Armenian,
