@@ -91,7 +91,7 @@ echo "Auto-detected the Qt version number -- " $VERSION >&2
 QTDIR=${DISTDIR}/qt
 export QTDIR
 
-echo "Creates symlinks for Qt header files" >&2
+echo "Create symlinks for Qt header files.." >&2
 ${QTDIR}/bin/syncqt > /dev/null
 
 if [ "$nodoc" = "yes" ]; then
@@ -126,6 +126,7 @@ fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 find qt -name doc -type d | xargs rm -rf
+find qt -name GNUmakefile -type d | xargs rm -f
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests qt/tmake
 rm -rf qt/examples/sheet
 rm -rf qt/examples/scrollview
@@ -172,6 +173,8 @@ if [ "${platform}" = "x11" ]; then
   rm bin/*.bat
   find . -name 'Makefile' -o -name 'qtwin.*' | xargs rm -vf
   echo 'Building make files...' >&2
+  mv ${QTDIR}/src/moc/GNUmakefile ${QTDIR}/src/moc/Makefile
+  find ${QTDIR} -name 'GNUmakefile*' -print | xargs rm -vf
   ${QTDIR}/util/scripts/makemake
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
   rm -rf ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
