@@ -2311,9 +2311,6 @@ private:
     setDeclHandler(). The parse itself is started with a call to
     parse().
 
-    For getting started see also the
-    \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
-
     \sa QXmlSimpleReader
 */
 
@@ -2507,8 +2504,6 @@ private:
 
     Documents are parsed with a call to parse().
 
-    See the
-    \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 */
 
 
