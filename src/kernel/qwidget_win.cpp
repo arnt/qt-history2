@@ -224,14 +224,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #  ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
 #  endif
-	    title = (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName()));
+	    title = isTopLevel() ? (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName())) : 
+				   (TCHAR*)qt_winTchar_new(QString::fromLatin1(name()));
 #  ifndef Q_OS_TEMP
 	} else
 #  endif
 #endif
 #ifndef Q_OS_TEMP
 	{
-	    title95 = qAppName();
+	    title95 = isTopLevel() ? qAppName() : name();
 	}
 #endif
     }
