@@ -39,6 +39,13 @@ struct parser_info {
     bool from_file;
 } parser;
 
+static QString remove_quotes(QString arg)
+{
+    if((arg.at(0) == '\'' || arg.at(0) == '"') && arg.at(arg.length()-1) == arg.at(0))
+        return arg.mid(1, arg.length()-2);
+    return arg;
+}
+
 //just a parsable entity
 struct ParsableBlock
 {
@@ -105,7 +112,7 @@ bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, QString &func
     p->variables()["ARGS"] = args;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
-        p->variables()[QString::number(i+1)] = args[i];
+        p->variables()[QString::number(i+1)] = remove_quotes(args[i]);
     }
     bool ret = ParsableBlock::eval(p);
     functionReturn = return_value;
@@ -168,7 +175,7 @@ bool IteratorBlock::exec(QMakeProject *p)
             if(loop_forever)
                 p->variables()[variable] = QString::number(iterate_count);
             else
-                p->variables()[variable] = (*it);
+                p->variables()[variable] = remove_quotes((*it));
         }
         //do the iterations
         bool succeed = true;
@@ -1401,7 +1408,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no);
             return false;
         }
-        QString file = args.first();
+        QString file = remove_quotes(args.first());
         file = Option::fixPathToLocalOS(file);
 
         if(QFile::exists(file))
@@ -1614,7 +1621,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no, func.latin1());
             return false;
         }
-        QString msg = args.first();
+        QString msg = remove_quotes(args.first());
         fixEnvVariables(msg);
         fprintf(stderr, "Project %s: %s\n", func.toUpper().latin1(), msg.latin1());
         if(func == "error")
