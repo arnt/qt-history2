@@ -42,11 +42,40 @@ protected:
 
 private:
     void reset( Tree *tree );
+    void readToken();
+    const Location& location();
+    QString previousLexeme();
+    QString lexeme();
 
-    CppCodeParserPrivate *priv;
+    bool match( int target );
+    bool matchTemplateAngles( CodeChunk *type = 0 );
+    bool matchTemplateHeader();
+    bool matchDataType( CodeChunk *type, QString *var = 0 );
+    bool matchParameter( FunctionNode *func );
+    bool matchFunctionDecl( InnerNode *parent, QStringList *pathPtr = 0,
+			    FunctionNode **funcPtr = 0 );
+
+    bool matchBaseSpecifier( ClassNode *classe );
+    bool matchBaseList( ClassNode *classe );
+    bool matchClassDecl( InnerNode *parent );
+    bool matchEnumItem( EnumNode *enume );
+    bool matchEnumDecl( InnerNode *parent );
+    bool matchTypedefDecl( InnerNode *parent );
+    bool matchProperty( InnerNode *parent );
+    bool matchDeclList( InnerNode *parent );
+
+    bool matchDocsAndStuff();
+
+    void makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
+			   FunctionNode **funcPtr );
+
     QMap<QString, Node::Type> nodeTypeMap;
-
-    friend class CppCodeParserPrivate;
+    Tree *tree;
+    Tokenizer *tokenizer;
+    int tok;
+    Node::Access access;
+    FunctionNode::Metaness metaness;
+    QStringList lastPath;
 };
 
 #endif

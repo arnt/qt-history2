@@ -31,66 +31,251 @@
 #define COMMAND_RELATED      Doc::alias( "related" )
 #define COMMAND_TYPEDEF      Doc::alias( "typedef" )
 
-class CppCodeParserPrivate
+CppCodeParser::CppCodeParser()
 {
-public:
-    CppCodeParser *parser;
-    Tree *tree;
-    Tokenizer *tokenizer;
-    int tok;
-    Node::Access access;
-    FunctionNode::Metaness metaness;
-    QStringList lastPath;
+    reset( 0 );
+}
 
-    void readToken();
-    const Location& location();
-    QString previousLexeme();
-    QString lexeme();
+CppCodeParser::~CppCodeParser()
+{
+}
 
-    bool match( int target );
-    bool matchTemplateAngles( CodeChunk *type = 0 );
-    bool matchTemplateHeader();
-    bool matchDataType( CodeChunk *type, QString *var = 0 );
-    bool matchParameter( FunctionNode *func );
-    bool matchFunctionDecl( InnerNode *parent, QStringList *pathPtr = 0,
-			    FunctionNode **funcPtr = 0 );
+void CppCodeParser::initializeParser( const Config& config )
+{
+    nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
+    nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
+    nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
+    nodeTypeMap.insert( COMMAND_TYPEDEF, Node::Typedef );
+    nodeTypeMap.insert( COMMAND_FN, Node::Function );
+    nodeTypeMap.insert( COMMAND_PROPERTY, Node::Property );
+    CodeParser::initializeParser( config );
+}
 
-    bool matchBaseSpecifier( ClassNode *classe );
-    bool matchBaseList( ClassNode *classe );
-    bool matchClassDecl( InnerNode *parent );
-    bool matchEnumItem( EnumNode *enume );
-    bool matchEnumDecl( InnerNode *parent );
-    bool matchTypedefDecl( InnerNode *parent );
-    bool matchProperty( InnerNode *parent );
-    bool matchDeclList( InnerNode *parent );
+void CppCodeParser::terminateParser()
+{
+    CodeParser::terminateParser();
+    nodeTypeMap.clear();
+}
 
-    bool matchDocsAndStuff();
+QString CppCodeParser::language()
+{
+    return "C++";
+}
 
-    void makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
-			   FunctionNode **funcPtr );
-};
+void CppCodeParser::parseHeaderFile( const Location& location,
+				     const QString& filePath, Tree *tree )
+{
+    FILE *in = fopen( QFile::encodeName(filePath), "r" );
+    if ( in == 0 ) {
+	Messages::error( location,
+			 Qdoc::tr("Cannot open C++ header file '%1'")
+			 .arg(filePath) );
+	return;
+    }
 
-void CppCodeParserPrivate::readToken()
+    reset( tree );
+    Location fileLocation( filePath );
+    FileTokenizer fileTokenizer( fileLocation, in );
+    tokenizer = &fileTokenizer;
+    readToken();
+    matchDeclList( tree->root() );
+    fclose( in );
+}
+
+void CppCodeParser::parseSourceFile( const Location& location,
+				     const QString& filePath, Tree *tree )
+{
+    FILE *in = fopen( QFile::encodeName(filePath), "r" );
+    if ( in == 0 ) {
+	Messages::error( location,
+			 Qdoc::tr("Cannot open C++ source file '%1'")
+			 .arg(filePath) );
+	return;
+    }
+
+    reset( tree );
+    Location fileLocation( filePath );
+    FileTokenizer fileTokenizer( fileLocation, in );
+    tokenizer = &fileTokenizer;
+    readToken();
+    matchDocsAndStuff();
+    fclose( in );
+}
+
+const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
+						     Tree *tree )
+{
+    QStringList path;
+    FunctionNode *clone = 0;
+    FunctionNode *func = 0;
+
+    reset( tree );
+    makeFunctionNode( synopsis, &path, &clone );
+    if ( clone != 0 ) {
+	func = tree->findFunctionNode( path, clone );
+	delete clone;
+    }
+    return func;
+}
+
+Set<QString> CppCodeParser::topicCommands()
+{
+    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE
+			  << COMMAND_FN << COMMAND_GROUP << COMMAND_MODULE
+			  << COMMAND_PAGE << COMMAND_PROPERTY
+			  << COMMAND_TYPEDEF;
+}
+
+Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
+					  const QString& arg )
+{
+    if ( command == COMMAND_FN ) {
+	QStringList path;
+	FunctionNode *func = 0;
+	FunctionNode *clone = 0;
+
+	makeFunctionNode( arg, &path, &clone );
+	if ( clone == 0 )
+	    makeFunctionNode( "void " + arg, &path, &clone );
+
+	if ( clone == 0 ) {
+	    Messages::warning( doc->location(),
+			       Qdoc::tr("Invalid syntax in '\\%1'")
+			       .arg(COMMAND_FN) );
+	} else {
+	    func = tree->findFunctionNode( path, clone );
+	    if ( func == 0 ) {
+		if ( path.isEmpty() && !lastPath.isEmpty() )
+		    func = tree->findFunctionNode( lastPath, clone );
+		if ( func == 0 ) {
+		    Messages::warning( doc->location(),
+				       Qdoc::tr("Cannot resolve '%1' in '\\%2'")
+				       .arg(clone->name() + "()")
+				       .arg(COMMAND_FN) );
+		} else {
+		    Messages::warning( doc->location(),
+				       Qdoc::tr("Missing '%1::' for '%2' in"
+						" '\\%3'")
+				       .arg(lastPath.join("::"))
+				       .arg(clone->name() + "()")
+				       .arg(COMMAND_FN) );
+		}
+	    } else {
+		lastPath = path;
+	    }
+
+	    if ( func != 0 )
+		func->borrowParameterNames( clone );
+	    delete clone;
+	}
+	return func;
+    } else if ( nodeTypeMap.contains(command) ) {
+	QStringList args = QStringList::split( ' ', arg );
+	Node *node = 0;
+
+	if ( args.isEmpty() ) {
+	    Messages::warning( doc->location(),
+			       Qdoc::tr("Expected name after '\\%1'")
+			       .arg(command) );
+	} else {
+	    QString name = args[0];
+	    QStringList path = QStringList::split( "::", name );
+	    node = tree->findNode( path, nodeTypeMap[command] );
+	    if ( node == 0 )
+		Messages::warning( doc->location(),
+				   Qdoc::tr("Cannot resolve '%1' specified with"
+					    " '\\%1'")
+				   .arg(name).arg(command) );
+	    lastPath = path;
+	}
+	return node;
+    } else if ( command == COMMAND_FILE ) {
+	return new FakeNode( tree->root(), arg, FakeNode::File );
+    } else if ( command == COMMAND_GROUP ) {
+	return new FakeNode( tree->root(), arg, FakeNode::Group );
+    } else if ( command == COMMAND_MODULE ) {
+	return new FakeNode( tree->root(), arg, FakeNode::Module );
+    } else if ( command == COMMAND_PAGE ) {
+	return new FakeNode( tree->root(), arg, FakeNode::Page );
+    } else {
+	return 0;
+    }
+}
+
+Set<QString> CppCodeParser::otherMetaCommands()
+{
+    return commonMetaCommands() << COMMAND_IMPORTANT << COMMAND_INHEADERFILE
+				<< COMMAND_OVERLOAD << COMMAND_REIMP
+				<< COMMAND_RELATED;
+}
+
+void CppCodeParser::processOtherMetaCommand( Doc *doc, const QString& command,
+					     const QString& arg,
+					     Node *node )
+{
+    if ( command == COMMAND_IMPORTANT ) {
+	/* ... */
+    } else if ( command == COMMAND_INHEADERFILE ) {
+	if ( node != 0 && node->isInnerNode() ) {
+	    ((InnerNode *) node)->addInclude( arg );
+	} else if ( node != 0 && node->parent()->parent() == 0 ) {
+	    /* global function ... */
+	} else {
+	    Messages::warning( doc->location(),
+			       Qdoc::tr("Ignored '\\%1'")
+			       .arg(COMMAND_INHEADERFILE) );
+	}
+    } else if ( command == COMMAND_OVERLOAD ) {
+	if ( node != 0 && node->type() == Node::Function ) {
+	    ((FunctionNode *) node)->setOverload( TRUE );
+	} else {
+	    Messages::warning( doc->location(),
+			       Qdoc::tr("Ignored '\\%1'")
+			       .arg(COMMAND_OVERLOAD) );
+	}
+    } else if ( command == COMMAND_REIMP ) {
+	if ( node != 0 && node->type() == Node::Function ) {
+	    ((FunctionNode *) node)->setReimplementation( TRUE );
+	} else {
+	    Messages::warning( doc->location(),
+			       Qdoc::tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
+	}
+    } else {
+	processCommonMetaCommand( doc->location(), command, arg, node );
+    }
+}
+
+void CppCodeParser::reset( Tree *tree )
+{
+    tree = tree;
+    tokenizer = 0;
+    tok = 0;
+    access = Node::Public;
+    metaness = FunctionNode::Plain;
+    lastPath.clear();
+}
+
+void CppCodeParser::readToken()
 {
     tok = tokenizer->getToken();
 }
 
-const Location& CppCodeParserPrivate::location()
+const Location& CppCodeParser::location()
 {
     return tokenizer->location();
 }
 
-QString CppCodeParserPrivate::previousLexeme()
+QString CppCodeParser::previousLexeme()
 {
     return tokenizer->previousLexeme();
 }
 
-QString CppCodeParserPrivate::lexeme()
+QString CppCodeParser::lexeme()
 {
     return tokenizer->lexeme();
 }
 
-bool CppCodeParserPrivate::match( int target )
+bool CppCodeParser::match( int target )
 {
     if ( tok == target ) {
 	readToken();
@@ -100,7 +285,7 @@ bool CppCodeParserPrivate::match( int target )
     }
 }
 
-bool CppCodeParserPrivate::matchTemplateAngles( CodeChunk *dataType )
+bool CppCodeParser::matchTemplateAngles( CodeChunk *dataType )
 {
     bool matches = ( tok == Tok_LeftAngle );
     if ( matches ) {
@@ -118,13 +303,13 @@ bool CppCodeParserPrivate::matchTemplateAngles( CodeChunk *dataType )
     return matches;
 }
 
-bool CppCodeParserPrivate::matchTemplateHeader()
+bool CppCodeParser::matchTemplateHeader()
 {
     readToken();
     return matchTemplateAngles();
 }
 
-bool CppCodeParserPrivate::matchDataType( CodeChunk *dataType, QString *var )
+bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 {
     /*
       This code is really hard to follow... sorry. The loop is there to match
@@ -247,7 +432,7 @@ bool CppCodeParserPrivate::matchDataType( CodeChunk *dataType, QString *var )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchParameter( FunctionNode *func )
+bool CppCodeParser::matchParameter( FunctionNode *func )
 {
     CodeChunk dataType;
     QString name;
@@ -272,9 +457,8 @@ bool CppCodeParserPrivate::matchParameter( FunctionNode *func )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchFunctionDecl( InnerNode *parent,
-					      QStringList *pathPtr,
-					      FunctionNode **funcPtr )
+bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
+				       FunctionNode **funcPtr )
 {
     QRegExp sep( "(?:<[^>]+>)?::" );
     CodeChunk returnType;
@@ -379,7 +563,7 @@ bool CppCodeParserPrivate::matchFunctionDecl( InnerNode *parent,
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchBaseSpecifier( ClassNode *classe )
+bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
 {
     Node::Access access;
 
@@ -408,7 +592,7 @@ bool CppCodeParserPrivate::matchBaseSpecifier( ClassNode *classe )
     return matches;
 }
 
-bool CppCodeParserPrivate::matchBaseList( ClassNode *classe )
+bool CppCodeParser::matchBaseList( ClassNode *classe )
 {
     for ( ;; ) {
 	if ( !matchBaseSpecifier(classe) )
@@ -420,7 +604,7 @@ bool CppCodeParserPrivate::matchBaseList( ClassNode *classe )
     }
 }
 
-bool CppCodeParserPrivate::matchClassDecl( InnerNode *parent )
+bool CppCodeParser::matchClassDecl( InnerNode *parent )
 {
     bool isClass = ( tok == Tok_class );
     readToken();
@@ -456,7 +640,7 @@ bool CppCodeParserPrivate::matchClassDecl( InnerNode *parent )
     return matches;
 }
 
-bool CppCodeParserPrivate::matchEnumItem( EnumNode * /* enume */ )
+bool CppCodeParser::matchEnumItem( EnumNode * /* enume */ )
 {
     if ( !match(Tok_Ident) )
 	return FALSE;
@@ -477,7 +661,7 @@ bool CppCodeParserPrivate::matchEnumItem( EnumNode * /* enume */ )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchEnumDecl( InnerNode *parent )
+bool CppCodeParser::matchEnumDecl( InnerNode *parent )
 {
     QString name;
 
@@ -505,7 +689,7 @@ bool CppCodeParserPrivate::matchEnumDecl( InnerNode *parent )
     return match( Tok_RightBrace ) && match( Tok_Semicolon );
 }
 
-bool CppCodeParserPrivate::matchTypedefDecl( InnerNode *parent )
+bool CppCodeParser::matchTypedefDecl( InnerNode *parent )
 {
     CodeChunk dataType;
     QString name;
@@ -523,7 +707,7 @@ bool CppCodeParserPrivate::matchTypedefDecl( InnerNode *parent )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchProperty( InnerNode *parent )
+bool CppCodeParser::matchProperty( InnerNode *parent )
 {
     if ( !match(Tok_Q_PROPERTY) && !match(Tok_Q_OVERRIDE) )
 	return FALSE;
@@ -569,7 +753,7 @@ bool CppCodeParserPrivate::matchProperty( InnerNode *parent )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchDeclList( InnerNode *parent )
+bool CppCodeParser::matchDeclList( InnerNode *parent )
 {
     int braceDepth0 = tokenizer->braceDepth();
     if ( tok == Tok_RightBrace ) // prevents failure on empty body
@@ -643,10 +827,10 @@ bool CppCodeParserPrivate::matchDeclList( InnerNode *parent )
     return TRUE;
 }
 
-bool CppCodeParserPrivate::matchDocsAndStuff()
+bool CppCodeParser::matchDocsAndStuff()
 {
-    Set<QString> topicsAvailable = parser->topicCommands();
-    Set<QString> otherMetaCommandsAvailable = parser->otherMetaCommands();
+    Set<QString> topicsAvailable = topicCommands();
+    Set<QString> otherMetaCommandsAvailable = otherMetaCommands();
     Set<QString> metaCommandsAvailable = reunion( topicsAvailable,
 						  otherMetaCommandsAvailable );
 
@@ -699,8 +883,7 @@ bool CppCodeParserPrivate::matchDocsAndStuff()
 		QStringList::ConstIterator a = args.begin();
 		while ( a != args.end() ) {
 		    Doc nodeDoc = doc;
-		    Node *node = parser->processTopicCommand( &nodeDoc, command,
-							      *a );
+		    Node *node = processTopicCommand( &nodeDoc, command, *a );
 		    if ( node != 0 ) {
 			nodes.append( node );
 			docs.append( nodeDoc );
@@ -719,7 +902,7 @@ bool CppCodeParserPrivate::matchDocsAndStuff()
 			args = (*d).metaCommandArgs( *c );
 			QStringList::ConstIterator a = args.begin();
 			while ( a != args.end() ) {
-			    parser->processOtherMetaCommand( &*d, *c, *a, *n );
+			    processOtherMetaCommand( &*d, *c, *a, *n );
 			    ++a;
 			}
 			++c;
@@ -762,9 +945,9 @@ bool CppCodeParserPrivate::matchDocsAndStuff()
     return TRUE;
 }
 
-void CppCodeParserPrivate::makeFunctionNode( const QString& synopsis,
-					     QStringList *pathPtr,
-					     FunctionNode **funcPtr )
+void CppCodeParser::makeFunctionNode( const QString& synopsis,
+				      QStringList *pathPtr,
+				      FunctionNode **funcPtr )
 {
     Tokenizer *outerTokenizer = tokenizer;
     int outerTok = tok;
@@ -778,232 +961,4 @@ void CppCodeParserPrivate::makeFunctionNode( const QString& synopsis,
 
     tokenizer = outerTokenizer;
     tok = outerTok;
-}
-
-CppCodeParser::CppCodeParser()
-{
-    priv = new CppCodeParserPrivate;
-    reset( 0 );
-}
-
-CppCodeParser::~CppCodeParser()
-{
-    delete priv;
-}
-
-void CppCodeParser::initializeParser( const Config& config )
-{
-    nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
-    nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
-    nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
-    nodeTypeMap.insert( COMMAND_TYPEDEF, Node::Typedef );
-    nodeTypeMap.insert( COMMAND_FN, Node::Function );
-    nodeTypeMap.insert( COMMAND_PROPERTY, Node::Property );
-    CodeParser::initializeParser( config );
-}
-
-void CppCodeParser::terminateParser()
-{
-    CodeParser::terminateParser();
-    nodeTypeMap.clear();
-}
-
-QString CppCodeParser::language()
-{
-    return "C++";
-}
-
-void CppCodeParser::parseHeaderFile( const Location& location,
-				     const QString& filePath, Tree *tree )
-{
-    FILE *in = fopen( QFile::encodeName(filePath), "r" );
-    if ( in == 0 ) {
-	Messages::error( location,
-			 Qdoc::tr("Cannot open C++ header file '%1'")
-			 .arg(filePath) );
-	return;
-    }
-
-    reset( tree );
-    Location fileLocation( filePath );
-    FileTokenizer fileTokenizer( fileLocation, in );
-    priv->tokenizer = &fileTokenizer;
-    priv->readToken();
-    priv->matchDeclList( tree->root() );
-    fclose( in );
-}
-
-void CppCodeParser::parseSourceFile( const Location& location,
-				     const QString& filePath, Tree *tree )
-{
-    FILE *in = fopen( QFile::encodeName(filePath), "r" );
-    if ( in == 0 ) {
-	Messages::error( location,
-			 Qdoc::tr("Cannot open C++ source file '%1'")
-			 .arg(filePath) );
-	return;
-    }
-
-    reset( tree );
-    Location fileLocation( filePath );
-    FileTokenizer fileTokenizer( fileLocation, in );
-    priv->tokenizer = &fileTokenizer;
-    priv->readToken();
-    priv->matchDocsAndStuff();
-    fclose( in );
-}
-
-const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
-						     Tree *tree )
-{
-    QStringList path;
-    FunctionNode *clone = 0;
-    FunctionNode *func = 0;
-
-    reset( tree );
-    priv->makeFunctionNode( synopsis, &path, &clone );
-    if ( clone != 0 ) {
-	func = tree->findFunctionNode( path, clone );
-	delete clone;
-    }
-    return func;
-}
-
-Set<QString> CppCodeParser::topicCommands()
-{
-    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE
-			  << COMMAND_FN << COMMAND_GROUP << COMMAND_MODULE
-			  << COMMAND_PAGE << COMMAND_PROPERTY
-			  << COMMAND_TYPEDEF;
-}
-
-Node *CppCodeParser::processTopicCommand( Doc *doc, const QString& command,
-					  const QString& arg )
-{
-    if ( command == COMMAND_FN ) {
-	QStringList path;
-	FunctionNode *func = 0;
-	FunctionNode *clone = 0;
-
-	priv->makeFunctionNode( arg, &path, &clone );
-	if ( clone == 0 )
-	    priv->makeFunctionNode( "void " + arg, &path, &clone );
-
-	if ( clone == 0 ) {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Invalid syntax in '\\%1'")
-			       .arg(COMMAND_FN) );
-	} else {
-	    func = priv->tree->findFunctionNode( path, clone );
-	    if ( func == 0 ) {
-		if ( path.isEmpty() && !priv->lastPath.isEmpty() )
-		    func = priv->tree->findFunctionNode( priv->lastPath,
-							 clone );
-		if ( func == 0 ) {
-		    Messages::warning( doc->location(),
-				       Qdoc::tr("Cannot resolve '%1' in '\\%2'")
-				       .arg(clone->name() + "()")
-				       .arg(COMMAND_FN) );
-		} else {
-		    Messages::warning( doc->location(),
-				       Qdoc::tr("Missing '%1::' for '%2' in"
-						" '\\%3'")
-				       .arg(priv->lastPath.join("::"))
-				       .arg(clone->name() + "()")
-				       .arg(COMMAND_FN) );
-		}
-	    } else {
-		priv->lastPath = path;
-	    }
-
-	    if ( func != 0 )
-		func->borrowParameterNames( clone );
-	    delete clone;
-	}
-	return func;
-    } else if ( nodeTypeMap.contains(command) ) {
-	QStringList args = QStringList::split( ' ', arg );
-	Node *node = 0;
-
-	if ( args.isEmpty() ) {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Expected name after '\\%1'")
-			       .arg(command) );
-	} else {
-	    QString name = args[0];
-	    QStringList path = QStringList::split( "::", name );
-	    node = priv->tree->findNode( path, nodeTypeMap[command] );
-	    if ( node == 0 )
-		Messages::warning( doc->location(),
-				   Qdoc::tr("Cannot resolve '%1' specified with"
-					    " '\\%1'")
-				   .arg(name).arg(command) );
-	    priv->lastPath = path;
-	}
-	return node;
-    } else if ( command == COMMAND_FILE ) {
-	return new FakeNode( priv->tree->root(), arg, FakeNode::File );
-    } else if ( command == COMMAND_GROUP ) {
-	return new FakeNode( priv->tree->root(), arg, FakeNode::Group );
-    } else if ( command == COMMAND_MODULE ) {
-	return new FakeNode( priv->tree->root(), arg, FakeNode::Module );
-    } else if ( command == COMMAND_PAGE ) {
-	return new FakeNode( priv->tree->root(), arg, FakeNode::Page );
-    } else {
-	return 0;
-    }
-}
-
-Set<QString> CppCodeParser::otherMetaCommands()
-{
-    return commonMetaCommands() << COMMAND_IMPORTANT << COMMAND_INHEADERFILE
-				<< COMMAND_OVERLOAD << COMMAND_REIMP
-				<< COMMAND_RELATED;
-}
-
-void CppCodeParser::processOtherMetaCommand( Doc *doc, const QString& command,
-					     const QString& arg,
-					     Node *node )
-{
-    if ( command == COMMAND_IMPORTANT ) {
-	/* ... */
-    } else if ( command == COMMAND_INHEADERFILE ) {
-	if ( node != 0 && node->isInnerNode() ) {
-	    ((InnerNode *) node)->addInclude( arg );
-	} else if ( node != 0 && node->parent()->parent() == 0 ) {
-	    /* global function ... */
-	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'")
-			       .arg(COMMAND_INHEADERFILE) );
-	}
-    } else if ( command == COMMAND_OVERLOAD ) {
-	if ( node != 0 && node->type() == Node::Function ) {
-	    ((FunctionNode *) node)->setOverload( TRUE );
-	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'")
-			       .arg(COMMAND_OVERLOAD) );
-	}
-    } else if ( command == COMMAND_REIMP ) {
-	if ( node != 0 && node->type() == Node::Function ) {
-	    ((FunctionNode *) node)->setReimplementation( TRUE );
-	} else {
-	    Messages::warning( doc->location(),
-			       Qdoc::tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
-	}
-    } else {
-	processCommonMetaCommand( doc->location(), command, arg, node );
-    }
-}
-
-void CppCodeParser::reset( Tree *tree )
-{
-    priv->parser = this;
-    priv->tree = tree;
-    priv->tokenizer = 0;
-    priv->tok = 0;
-    priv->access = Node::Public;
-    priv->metaness = FunctionNode::Plain;
-    priv->lastPath.clear();
 }
