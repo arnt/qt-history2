@@ -100,9 +100,11 @@ FILETIME time_tToFt( time_t tt );
 #define _S_IFDIR		0x0200
 #define _S_IFREG		0x0400
 
-#define EMFILE			0x0800
-#define ENOSPC			0x1000
-#define EACCES			    13
+// Regular Berkeley error constants
+#define EMFILE			ERROR_TOO_MANY_OPEN_FILES   // was 0x0800
+#define ENOSPC			ERROR_DISK_FULL		    // was 0x1000
+#define EACCES			ERROR_ACCESS_DENIED	    // was 13
+#define ENOENT			ERROR_FILE_NOT_FOUND	    // was 2
 
 struct _stat
 {

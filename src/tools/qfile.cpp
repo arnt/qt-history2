@@ -48,7 +48,9 @@
 #endif
 
 #include "qfile.h"
+#ifndef NO_ERRNO_H
 #include <errno.h>
+#endif
 
 // needed for QT_TRANSLATE_NOOP:
 #include "qobject.h"
@@ -701,7 +703,22 @@ void QFile::setErrorStringErrno( int errnum )
 	    d->errorString = QFILEERR_ENOSPC;
 	    break;
 	default:
+#ifndef Q_OS_TEMP
 	    d->errorString = QString::fromLocal8Bit( strerror( errnum ) );
+#else
+	    {
+		unsigned short *string;
+		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			       NULL,
+			       errnum,
+			       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			       (LPTSTR)&string,
+			       0,
+			       NULL );
+		d->errorString = QString::fromUcs2( string );
+	        LocalFree( (HLOCAL)string );
+	    }
+#endif
 	    break;
     }
 }
