@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#194 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -444,18 +444,32 @@ void QPainter::restore()
 
 
 /*!
-  \fn QFontMetrics QPainter::fontMetrics() const
   Returns the font metrics for the painter.
   Font metrics can only be obtained when the painter is active.
   \sa fontInfo(), isActive()
 */
 
+QFontMetrics QPainter::fontMetrics() const
+{
+    if ( pdev && pdev->devType() == QInternal::Picture )
+	return QFontMetrics( cfont );
+
+    return QFontMetrics(this);
+}
+
 /*!
-  \fn QFontInfo QPainter::fontInfo() const
   Returns the font info for the painter.
   Font info can only be obtained when the painter is active.
   \sa fontMetrics(), isActive()
 */
+
+QFontInfo QPainter::fontInfo() const
+{
+    if ( pdev && pdev->devType() == QInternal::Picture )
+	return QFontInfo( cfont );
+
+    return QFontInfo(this);
+}
 
 
 /*!

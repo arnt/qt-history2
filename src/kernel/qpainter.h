@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#133 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#134 $
 **
 ** Definition of QPainter class
 **
@@ -360,16 +360,6 @@ inline QPaintDevice *QPainter::device() const
 inline bool QPainter::isActive() const
 {
     return testf(IsActive);
-}
-
-inline QFontMetrics QPainter::fontMetrics() const
-{
-    return QFontMetrics(this);
-}
-
-inline QFontInfo QPainter::fontInfo() const
-{
-    return QFontInfo(this);
 }
 
 inline const QFont &QPainter::font() const
