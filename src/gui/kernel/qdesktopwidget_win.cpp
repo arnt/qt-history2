@@ -474,8 +474,10 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 */
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
-    QVector<QRect> oldrects = *d->rects;
-    QVector<QRect> oldworkrects = *d->workrects;
+    QVector<QRect> oldrects;
+    oldrects = *d->rects;
+    QVector<QRect> oldworkrects;
+    oldworkrects = *d->workrects;
     int oldscreencount = d->screenCount;
 
     QDesktopWidgetPrivate::cleanup();
