@@ -1137,7 +1137,6 @@ void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
         return; // nothing to do
 
     q->setAttribute(Qt::WA_UpdatesDisabled, !enable);
-    updateSystemBackground();
     if (enable)
         q->update();
 
@@ -1709,9 +1708,10 @@ QList<QAction*> QWidget::actions() const
     \property QWidget::enabled
     \brief whether the widget is enabled
 
-    An enabled widget receives keyboard and mouse events; a disabled
-    widget does not. In fact, an enabled widget only receives keyboard
-    events when it is in focus.
+    An enabled widget handles keyboard and mouse events; a disabled
+    widget does not.
+
+
 
     Some widgets display themselves differently when they are
     disabled. For example a button might draw its label grayed out. If
@@ -2465,7 +2465,6 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     Q_D(QWidget);
     if(m == Qt::NoBackground) {
         setAttribute(Qt::WA_NoSystemBackground, true);
-        d->updateSystemBackground();
         return;
     }
     setAttribute(Qt::WA_NoSystemBackground, false);
@@ -4329,19 +4328,21 @@ QSize QWidget::minimumSizeHint() const
     reimplement this function in a subclass, but we recommend using
     one of the specialized event handlers instead.
 
-    The main event handler first passes an event through all \link
-    QObject::installEventFilter() event filters\endlink that have been
-    installed. If none of the filters intercept the event, it calls
-    one of the specialized event handlers.
-
     Key press and release events are treated differently from other
     events. event() checks for Tab and Shift+Tab and tries to move the
     focus appropriately. If there is no widget to move the focus to
     (or the key press is not Tab or Shift+Tab), event() calls
     keyPressEvent().
 
-    This function returns true if it is able to pass the event over to
-    someone (i.e. someone wanted the event); otherwise returns false.
+    Mouse and tablet event handling is also slightly special: only
+    when the widget is \l enabled, event() will call the specialized
+    handlers such as mousePressEvent(); otherwise it will discard the
+    event.
+
+    This function returns true if the event was recognized, otherwise
+    it returns false.  If the recognized event was accepted (see \l
+    QEvent::accepted), any further processing such as event
+    propagation to the parent widget stops.
 
     \sa closeEvent(), focusInEvent(), focusOutEvent(), enterEvent(),
     keyPressEvent(), keyReleaseEvent(), leaveEvent(),
@@ -4354,6 +4355,25 @@ bool QWidget::event(QEvent *e)
 {
     Q_D(QWidget);
 
+    // ignore mouse events when disabled
+    if (!isEnabled()) {
+        switch(e->type()) {
+        case QEvent::TabletPress:
+        case QEvent::TabletRelease:
+        case QEvent::TabletMove:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseMove:
+        case QEvent::ContextMenu:
+#ifndef QT_NO_WHEELEVENT
+        case QEvent::Wheel:
+#endif
+            return false;
+        default:
+            break;
+        }
+    }
     switch (e->type()) {
     case QEvent::MouseMove:
         mouseMoveEvent((QMouseEvent*)e);

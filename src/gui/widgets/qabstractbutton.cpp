@@ -770,6 +770,27 @@ bool QAbstractButton::event(QEvent *e)
 {
     Q_D(QAbstractButton);
 
+    // as opposed to other widgets, disabled buttons accept mouse
+    // events. This avoids surprising click-through scenarios
+    if (!isEnabled()) {
+        switch(e->type()) {
+        case QEvent::TabletPress:
+        case QEvent::TabletRelease:
+        case QEvent::TabletMove:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseMove:
+        case QEvent::ContextMenu:
+#ifndef QT_NO_WHEELEVENT
+        case QEvent::Wheel:
+#endif
+            return true;
+        default:
+            break;
+        }
+    }
+
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (d->shortcutId != se->shortcutId())

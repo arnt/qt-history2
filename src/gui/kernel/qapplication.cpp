@@ -2979,33 +2979,22 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
         }
 
 
-        // throw away mouse events to disabled widgets
+#ifndef QT_NO_DRAGANDDROP
+        // throw away dnd events to disabled widgets
         if (!widget->isEnabled()) {
             switch(e->type()) {
-            case QEvent::TabletPress:
-            case QEvent::TabletRelease:
-            case QEvent::TabletMove:
-            case QEvent::MouseButtonPress:
-            case QEvent::MouseButtonRelease:
-            case QEvent::MouseButtonDblClick:
-            case QEvent::MouseMove:
-#ifndef QT_NO_WHEELEVENT
-            case QEvent::Wheel:
-#endif
-#ifndef QT_NO_DRAGANDDROP
             case QEvent::DragEnter:
             case QEvent::DragMove:
             case QEvent::DragLeave:
             case QEvent::DragResponse:
             case QEvent::Drop:
-#endif
-            case QEvent::ContextMenu:
                 e->spont = false;
-                return true;
+                return false;
             default:
                 break;
             }
         }
+#endif
     }
 
     // send to all receiver event filters
