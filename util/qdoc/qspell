@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+# really primitive spell checker
+
+use File::Find;
+
+sub addwords {
+    if ( $_ ne "credits.doc" && (/\.cpp$/ || /\.doc$/) && open( I, "< $_" ) ) {
+	my $f = join( "", <I> );
+	my $w;
+	close I;
+	$f =~ s-^.*?/\*!\s*--s;
+	$f =~ s-\*/.*?/\*!--gs;
+	$f =~ s-\s*\*/.*--s;
+	$f =~ s/\\code.*?\\endcode//gs;
+	$f =~ s/\\a\s+\S+//gs;
+	$f =~ s/\\e\s+\S+//gs;
+	$f =~ s/\\fn.*?\n/\n/gs;
+	$f =~ s/\\class.*?\n/\n/gs;
+	$f =~ s/\s+/ /gs;
+	$f =~ s/\\\S+ / /gs;
+	$f =~ s/[:,\.] / /gs;
+	$long = join( " ", $long, $f );
+	foreach $w (split( / /, $f )) {
+	    next if ( $w =~ /[a-z][A-Z]/ );
+	    $w =~ tr/A-Z/a-z/;
+	    $words{$w}++ if ( $w =~ /^[a-z]+$/ );
+	}
+    }
+}
+
+find( \&addwords, $ENV{"QTDIR"} );
+
+open( I, "< /usr/dict/words" ) || die "if six were nine, stopped";
+while( <I> ) {
+    chomp;
+    undef $words{$_};
+}
+
+open( I, "< " . $ENV{"QTDIR"} . "/util/qdoc/words" ) || die "if nine, stopped";
+while( <I> ) {
+    s/\s//g;
+    undef $words{$_};
+}
+
+study $long;
+
+foreach ( sort { $words{$a} <=> $words{$b} || $a cmp $b } keys %words ) {
+    printf( "%d %-15s  %-60s\n", $words{$_}, $_, $& ) 
+      if ( $words{$_} > 0 && $words{$_} < 3 &&
+	   $long =~ /\S+ \S+ $_ \S+ \S+/ );
+}
