@@ -259,16 +259,16 @@
     <forward>class MainWindow;</forward>
 </forwards>
 <variables>
-    <variable>bool fromBegin;</variable>
-    <variable>bool firstRun;</variable>
     <variable>QStatusBar *sb;</variable>
     <variable>bool onceFound;</variable>
     <variable>QString findExpr;</variable>
+    <variable>QTextBrowser *lastBrowser;</variable>
 </variables>
 <slots>
     <slot access="protected">init()</slot>
     <slot access="protected">destroy()</slot>
     <slot>doFind()</slot>
+    <slot>statusMessage(const QString &amp;message)</slot>
 </slots>
 <functions>
     <function specifier="non virtual" returnType="MainWindow *">mainWindow()</function>

@@ -282,6 +282,15 @@ void MainWindow::find()
     findDialog->show();
 }
 
+void MainWindow::findAgain()
+{
+    if (!findDialog) {
+	find();
+	return;
+    }
+    findDialog->doFind();
+}
+
 void MainWindow::goHome()
 {
     showLink( Config::configuration()->homePage() );

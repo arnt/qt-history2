@@ -14,8 +14,7 @@
 
 void FindDialog::init()
 {
-    fromBegin = TRUE;
-    firstRun = TRUE;
+    lastBrowser = 0;
     onceFound = FALSE;
     findExpr = "";
     sb = new QStatusBar( this );
@@ -31,28 +30,34 @@ void FindDialog::doFind()
 {
     QTextBrowser *browser = (QTextBrowser*) mainWindow()->browsers()->currentBrowser();
     sb->clear();
-    if ( comboFind->currentText() != findExpr )
-	onceFound = FALSE;
-    findExpr = comboFind->currentText(); 
 
-    int dummy = radioForward->isChecked() ? 0 : INT_MAX;
-    if ( !fromBegin )
-	fromBegin = !browser->find( findExpr, checkCase->isChecked(),
-			checkWords->isChecked(), radioForward->isChecked() );
-    else
-	fromBegin = !browser->find( findExpr, checkCase->isChecked(),
-			checkWords->isChecked(), radioForward->isChecked(), &dummy, &dummy );
-    if ( fromBegin ) {
-	QApplication::beep();
-	if ( onceFound ) {
-	    if ( radioForward->isChecked() )
-		sb->message( tr( "Search reached end of the document" ) );
+    if (comboFind->currentText() != findExpr || lastBrowser != browser)
+	onceFound = false;
+    findExpr = comboFind->currentText();
+
+    bool found;
+    if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
+	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
+			      radioForward->isChecked());
+    } else {
+	int para = radioForward->isChecked() ? 0 : INT_MAX;
+	int index = radioForward->isChecked() ? 0 : INT_MAX;
+	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
+			      radioForward->isChecked(), &para, &index);
+    }
+
+    if (!found) {
+	if (onceFound) {
+	    if (radioForward->isChecked())
+		statusMessage(tr("Search reached end of the document"));
 	    else
-		sb->message( tr( "Search reached start of the document" ) );
-	} else
-	    sb->message( tr( "Text not found" ) );
-    } else
-	onceFound = TRUE;
+		statusMessage(tr("Search reached start of the document"));
+	} else {
+	    statusMessage(tr( "Text not found" ));
+	}
+    }
+    onceFound |= found;
+    lastBrowser = browser;
 }
 
 
@@ -60,4 +65,13 @@ void FindDialog::doFind()
 MainWindow* FindDialog::mainWindow()
 {
     return (MainWindow*) parent();
+}
+
+void FindDialog::statusMessage(const QString &message)
+{
+    if (isVisible())
+	sb->message(message);
+    else
+	((MainWindow*) parent())->statusBar()->message(message, 2000);
+
 }

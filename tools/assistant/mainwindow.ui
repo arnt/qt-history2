@@ -66,6 +66,7 @@
     <item text="&amp;Edit" name="editMenu">
         <action name="actionEditCopy"/>
         <action name="actionEditFind"/>
+	<action name="actionEditFindAgain"/>
         <separator/>
         <action name="actionSettings"/>
     </item>
@@ -200,6 +201,17 @@
         <property name="accel">
             <string>Ctrl+F</string>
         </property>
+    </action>
+    <action>
+	<property name="name">
+	    <cstring>actionEditFindAgain</cstring>
+	</property>
+	<property name="text">
+	    <string>Find Again</string>
+	</property>
+	<property name="accel">
+	    <string>F3</string>
+	</property>
     </action>
     <action>
         <property name="name">
@@ -475,6 +487,12 @@
         <slot>find()</slot>
     </connection>
     <connection>
+        <sender>actionEditFindAgain</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>findAgain()</slot>
+    </connection>
+    <connection>
         <sender>actionFilePrint</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -580,6 +598,7 @@
     <slot>about()</slot>
     <slot>aboutApplication()</slot>
     <slot>find()</slot>
+    <slot>findAgain()</slot>
     <slot>goHome()</slot>
     <slot>print()</slot>
     <slot>updateBookmarkMenu()</slot>
