@@ -563,6 +563,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
 	    if(qt_mac_is_macsheet(this)) {
+		grp = GetWindowGroupOfClass(kFloatingWindowClass);
 		wclass = kSheetWindowClass;
 	    } else if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
