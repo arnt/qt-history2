@@ -567,6 +567,13 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     return true;
 }
 
+
+int QMainWindowLayout::count() const
+{
+    qWarning("QMainWindowLayout::count()");
+    return 10; //#################################################
+}
+
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
 {
     int x = 0;

@@ -75,6 +75,7 @@ public:
     void setGeometry(const QRect &r);
     QLayoutItem *itemAt(int index) const;
     QLayoutItem *takeAt(int index);
+    int count() const;
 
     QSize sizeHint() const;
     QSize minimumSize() const;

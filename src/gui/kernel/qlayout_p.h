@@ -37,11 +37,9 @@ public:
     int outsideBorder;
     uint topLevel : 1;
     uint enabled : 1;
-    uint frozen : 1;
     uint activated : 1;
-    uint autoMinimum : 1;
-    uint autoResizeMode : 1;
     uint autoNewChild : 1;
+    QLayout::SizeConstraint constraint;
     QRect rect;
     QWidget *menubar;
 };

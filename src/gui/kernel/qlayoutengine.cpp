@@ -264,8 +264,8 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
     QSize s(0, 0);
     QSize sh;
 
-    if (w->sizePolicy().horizontalData() != QSizePolicy::Ignored) {
-        if (w->sizePolicy().mayShrinkHorizontally()) {
+    if (w->sizePolicy().horizontalPolicy() != QSizePolicy::Ignored) {
+        if (w->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag) {
             s.setWidth(w->minimumSizeHint().width());
         } else {
             sh = w->sizeHint();
@@ -273,8 +273,8 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
         }
     }
 
-    if (w->sizePolicy().verticalData() != QSizePolicy::Ignored) {
-        if (w->sizePolicy().mayShrinkVertically()) {
+    if (w->sizePolicy().verticalPolicy() != QSizePolicy::Ignored) {
+        if (w->sizePolicy().verticalPolicy() & QSizePolicy::ShrinkFlag) {
             s.setHeight(w->minimumSizeHint().height());
         } else {
             s.setHeight(sh.isValid() ? sh.height()
@@ -308,11 +308,11 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
         return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
     QSize s = w->maximumSize();
     if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask))
-        if (!w->sizePolicy().mayGrowHorizontally())
+        if (!(w->sizePolicy().horizontalPolicy() & QSizePolicy::GrowFlag))
             s.setWidth(w->sizeHint().width());
 
     if (s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask))
-        if (!w->sizePolicy().mayGrowVertically())
+        if (!(w->sizePolicy().verticalPolicy() & QSizePolicy::GrowFlag))
             s.setHeight(w->sizeHint().height());
 
     s = s.expandedTo(w->minimumSize());

@@ -57,16 +57,28 @@ class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
     Q_OBJECT
     Q_DECLARE_PRIVATE(QLayout)
 
-    Q_ENUMS(ResizeMode)
+    Q_ENUMS(SizeConstraint)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
-    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
+    Q_PROPERTY(SizeConstraint sizeConstraint READ sizeConstraint WRITE setSizeConstraint)
 
 public:
-    enum ResizeMode { Auto, FreeResize, Minimum, Fixed };
+    enum SizeConstraint {
+        SetDefaultConstraint,
+        SetNoConstraint,
+        SetMinimumSize,
+        SetFixedSize,
+        SetMaximumSize,
+        SetMinAndMaxSize
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
+        , Auto = SetDefaultConstraint,
+        FreeResize = SetNoConstraint,
+        Minimum = SetMinimumSize,
+        Fixed = SetFixedSize
+#endif
+    };
 
     QLayout(QWidget *parent);
-    QLayout(QLayout *parentLayout);
     QLayout();
     ~QLayout();
 
@@ -76,14 +88,24 @@ public:
     void setMargin(int);
     void setSpacing(int);
 
-    void setResizeMode(ResizeMode);
-    ResizeMode resizeMode() const;
+    bool setAlignment(QWidget *w, Qt::Alignment alignment);
+    bool setAlignment(QLayout *l, Qt::Alignment alignment);
+#ifdef Q_NO_USING_KEYWORD
+    inline void setAlignment(Qt::Alignment alignment) { QLayoutItem::setAlignment(alignment); }
+#else
+    using QLayoutItem::setAlignment;
+#endif
 
+    void setSizeConstraint(SizeConstraint);
+    SizeConstraint sizeConstraint() const;
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setResizeMode(SizeConstraint s) {setSizeConstraint(s);}
+    inline QT3_SUPPORT SizeConstraint resizeMode() const {return sizeConstraint();}
+#endif
     void setMenuBar(QWidget *w);
     QWidget *menuBar() const;
 
     QWidget *parentWidget() const;
-    bool isTopLevel() const;
 
     void invalidate();
     QRect geometry() const;
@@ -96,12 +118,14 @@ public:
     void removeWidget(QWidget *w);
     void removeItem(QLayoutItem *);
 
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry(const QRect&) = 0;
     virtual QLayoutItem *itemAt(int index) const = 0;
     virtual QLayoutItem *takeAt(int index) = 0;
+    virtual int indexOf(QWidget *) const;
+    virtual int count() const = 0;
     bool isEmpty() const;
 
     int totalHeightForWidth(int w) const;
@@ -113,7 +137,10 @@ public:
     void setEnabled(bool);
     bool isEnabled() const;
 
-    void freeze(int w=0, int h=0);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT void freeze(int w=0, int h=0);
+    QT3_SUPPORT bool isTopLevel() const;
+#endif
 
     static QSize closestAcceptableSize(const QWidget *w, QSize s);
 
@@ -122,7 +149,9 @@ protected:
     void childEvent(QChildEvent *e);
     void addChildLayout(QLayout *l);
     void addChildWidget(QWidget *w);
-    void deleteAllItems();
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT void deleteAllItems();
+#endif
 
     QRect alignmentRect(const QRect&) const;
 protected:
@@ -139,7 +168,7 @@ private:
 public:
     QT3_SUPPORT_CONSTRUCTOR QLayout(QWidget *parent, int margin, int spacing = -1,
                              const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QLayout(int spacing, const char *name = 0);
     inline QT3_SUPPORT QWidget *mainWidget() const { return parentWidget(); }
     inline QT3_SUPPORT void remove(QWidget *w) { removeWidget(w); }

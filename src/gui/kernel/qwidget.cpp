@@ -4212,22 +4212,22 @@ void QWidget::adjustSize()
     QSize s = sizeHint();
 
     if (isWindow()) {
-        QSizePolicy::ExpandData exp;
+        Qt::Orientations exp;
 #ifndef QT_NO_LAYOUT
         if (QLayout *l = layout()) {
             if (l->hasHeightForWidth())
                 s.setHeight(l->totalHeightForWidth(s.width()));
-            exp = l->expanding();
+            exp = l->expandingDirections();
         } else
 #endif
         {
             if (sizePolicy().hasHeightForWidth())
                 s.setHeight(heightForWidth(s.width()));
-            exp = sizePolicy().expanding();
+            exp = sizePolicy().expandingDirections();
         }
-        if (exp & QSizePolicy::Horizontally)
+        if (exp & Qt::Horizontal)
             s.setWidth(qMax(s.width(), 200));
-        if (exp & QSizePolicy::Vertically)
+        if (exp & Qt::Vertical)
             s.setHeight(qMax(s.height(), 150));
 #if defined(Q_WS_X11)
         QRect screen = QApplication::desktop()->screenGeometry(x11Info().screen());

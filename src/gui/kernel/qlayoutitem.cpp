@@ -131,7 +131,7 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
 */
 
 /*!
-    \fn QSizePolicy::ExpandData QLayoutItem::expanding() const
+    \fn Qt::Orientations QLayoutItem::expandingDirections() const
 
     Implemented in subclasses to return the direction(s) this item
     "wants" to expand in (if any).
@@ -411,47 +411,49 @@ int QWidgetItem::heightForWidth(int w) const
 }
 
 /*!
+  \reimp
     Returns the direction in which this spacer item will expand.
 
-    \sa QSizePolicy::ExpandData
 */
-QSizePolicy::ExpandData QSpacerItem::expanding() const
+Qt::Orientations QSpacerItem::expandingDirections() const
 {
-    return sizeP.expanding();
+    return sizeP.expandingDirections();
 }
 
 /*!
+  \reimp
+
     Returns whether this item's widget can make use of more space than
     sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions and \c NoDirection means that
     it doesn't want to grow at all.
 */
-QSizePolicy::ExpandData QWidgetItem::expanding() const
+Qt::Orientations QWidgetItem::expandingDirections() const
 {
     if (isEmpty())
-        return QSizePolicy::NoDirection;
+        return Qt::Orientations(0);
 
-    int e = wid->sizePolicy().expanding();
+    Qt::Orientations e = wid->sizePolicy().expandingDirections();
     /*
       If the layout is expanding, we make the widget expanding, even if
       its own size policy isn't expanding. This behavior should be
       reconsidered in Qt 4.0. (###)
     */
     if (wid->layout()) {
-        if (wid->sizePolicy().mayGrowHorizontally()
-                && (wid->layout()->expanding() & QSizePolicy::Horizontally))
-            e |= QSizePolicy::Horizontally;
-        if (wid->sizePolicy().mayGrowVertically()
-                && (wid->layout()->expanding() & QSizePolicy::Vertically))
-            e |= QSizePolicy::Vertically;
+        if (wid->sizePolicy().horizontalPolicy() & QSizePolicy::GrowFlag
+                && (wid->layout()->expandingDirections() & Qt::Horizontal))
+            e |= Qt::Horizontal;
+        if (wid->sizePolicy().verticalPolicy() & QSizePolicy::GrowFlag
+                && (wid->layout()->expandingDirections() & Qt::Vertical))
+            e |= Qt::Vertical;
     }
 
     if (align & Qt::AlignHorizontal_Mask)
-        e &= ~QSizePolicy::Horizontally;
+        e &= ~Qt::Horizontal;
     if (align & Qt::AlignVertical_Mask)
-        e &= ~QSizePolicy::Vertically;
-    return (QSizePolicy::ExpandData)e;
+        e &= ~Qt::Vertical;
+    return e;
 }
 
 /*!
@@ -459,8 +461,8 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
 */
 QSize QSpacerItem::minimumSize() const
 {
-    return QSize(sizeP.mayShrinkHorizontally() ? 0 : width,
-                  sizeP.mayShrinkVertically() ? 0 : height);
+    return QSize(sizeP.horizontalPolicy() & QSizePolicy::ShrinkFlag ? 0 : width,
+                 sizeP.verticalPolicy() & QSizePolicy::ShrinkFlag ? 0 : height);
 }
 
 /*!
@@ -478,8 +480,8 @@ QSize QWidgetItem::minimumSize() const
 */
 QSize QSpacerItem::maximumSize() const
 {
-    return QSize(sizeP.mayGrowHorizontally() ? QLAYOUTSIZE_MAX : width,
-                  sizeP.mayGrowVertically() ? QLAYOUTSIZE_MAX : height);
+    return QSize(sizeP.horizontalPolicy() & QSizePolicy::GrowFlag ? QLAYOUTSIZE_MAX : width,
+                 sizeP.verticalPolicy() & QSizePolicy::GrowFlag ? QLAYOUTSIZE_MAX : height);
 }
 
 /*!
@@ -512,10 +514,10 @@ QSize QWidgetItem::sizeHint() const
         s = QSize(0, 0);
     } else {
         s = wid->sizeHint();
-        if (wid->sizePolicy().horizontalData() == QSizePolicy::Ignored)
-            s.setWidth(1);
-        if (wid->sizePolicy().verticalData() == QSizePolicy::Ignored)
-            s.setHeight(1);
+        if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
+            s.setWidth(0);
+        if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
+            s.setHeight(0);
         s = s.boundedTo(wid->maximumSize())
             .expandedTo(wid->minimumSize());
     }

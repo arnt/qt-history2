@@ -8115,9 +8115,9 @@ QSize Q3TextTableCell::maximumSize() const
     return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 }
 
-QSizePolicy::ExpandData Q3TextTableCell::expanding() const
+Qt::Orientations Q3TextTableCell::expandingDirections() const
 {
-    return QSizePolicy::BothDirections;
+    return Qt::Horizontal | Qt::Vertical;
 }
 
 bool Q3TextTableCell::isEmpty() const

@@ -94,11 +94,12 @@ public:
     typedef int ButtonState;
 #endif
 
-    // ideally would start at 1, as in QSizePolicy, but that breaks other things
     enum Orientation {
         Horizontal = 0,
         Vertical
     };
+
+    Q_DECLARE_FLAGS(Orientations, Orientation);
 
     enum FocusPolicy {
         NoFocus = 0,
@@ -1191,6 +1192,7 @@ public:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Orientations)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)

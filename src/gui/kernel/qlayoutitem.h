@@ -35,7 +35,7 @@ public:
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
     virtual QSize maximumSize() const = 0;
-    virtual QSizePolicy::ExpandData expanding() const = 0;
+    virtual Qt::Orientations expandingDirections() const = 0;
     virtual void setGeometry(const QRect&) = 0;
     virtual QRect geometry() const = 0;
     virtual bool isEmpty() const = 0;
@@ -59,16 +59,16 @@ class Q_GUI_EXPORT QSpacerItem : public QLayoutItem
 {
 public:
     QSpacerItem(int w, int h,
-                 QSizePolicy::SizeType hData = QSizePolicy::Minimum,
-                 QSizePolicy::SizeType vData = QSizePolicy::Minimum)
+                 QSizePolicy::Policy hData = QSizePolicy::Minimum,
+                 QSizePolicy::Policy vData = QSizePolicy::Minimum)
         : width(w), height(h), sizeP(hData, vData) { }
     void changeSize(int w, int h,
-                     QSizePolicy::SizeType hData = QSizePolicy::Minimum,
-                     QSizePolicy::SizeType vData = QSizePolicy::Minimum);
+                     QSizePolicy::Policy hData = QSizePolicy::Minimum,
+                     QSizePolicy::Policy vData = QSizePolicy::Minimum);
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     bool isEmpty() const;
     void setGeometry(const QRect&);
     QRect geometry() const;
@@ -88,7 +88,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     bool isEmpty() const;
     void setGeometry(const QRect&);
     QRect geometry() const;

@@ -81,7 +81,7 @@ private:
 public: \
     static const QMetaObject staticMetaObject; \
 private:
-#else
+#else // QT_MOC_CPP
 #define slots slots
 #define signals signals
 #define Q_CLASSINFO(name, value) Q_CLASSINFO(name, value)
@@ -96,9 +96,11 @@ private:
 #define Q_OBJECT Q_OBJECT
  /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT_FAKE
+ /* tmake ignore Q_GADGET */
+#define Q_GADGET Q_GADGET
 #define Q_SCRIPTABLE Q_SCRIPTABLE
 #define Q_INVOKABLE Q_INVOKABLE
-#endif
+#endif //QT_MOC_CPP
 
 // macro for naming members
 #ifdef METHOD

@@ -36,7 +36,6 @@ public:
 
     QWidget *currentWidget() const;
     int currentIndex() const;
-    int indexOf(QWidget *) const;
 #ifdef Q_NO_USING_KEYWORD
     inline QWidget *widget() { return QLayout::widget(); }
 #else

@@ -154,7 +154,7 @@ void QBoxLayoutPrivate::setupGeom()
         QSize max = box->item->maximumSize();
         QSize min = box->item->minimumSize();
         QSize hint = box->item->sizeHint();
-        QSizePolicy::ExpandData exp = box->item->expanding();
+        Qt::Orientations exp = box->item->expandingDirections();
         bool empty = box->item->isEmpty();
         // space before non-empties, except the first:
         int space = (empty || first) ? 0 : q->spacing();
@@ -361,26 +361,10 @@ QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
     d->dir = dir;
 }
 
-
-
-/*!
-    \obsolete
-
-    Constructs a new QBoxLayout, with direction \a dir, and inserts it
-    into \a parentLayout.
-
-*/
-QBoxLayout::QBoxLayout(Direction dir, QLayout *parentLayout)
-    : QLayout(*new QBoxLayoutPrivate, parentLayout, 0)
-{
-    Q_D(QBoxLayout);
-    d->dir = dir;
-}
-
 /*!
     Constructs a new QBoxLayout with direction \a dir.
 
-    You must insert this box into another layout.
+    You must insert this box layout into another layout.
 */
 QBoxLayout::QBoxLayout(Direction dir)
     : QLayout(*new QBoxLayoutPrivate, 0, 0)
@@ -557,12 +541,20 @@ void QBoxLayout::invalidate()
 /*!
     \reimp
 */
+int QBoxLayout::count() const
+{
+    Q_D(const QBoxLayout);
+    return d->list.count();
+}
+
+/*!
+    \reimp
+*/
 QLayoutItem *QBoxLayout::itemAt(int index) const
 {
     Q_D(const QBoxLayout);
     return index >= 0 && index < d->list.count() ? d->list.at(index)->item : 0;
 }
-
 
 /*!
     \reimp
@@ -586,7 +578,7 @@ QLayoutItem *QBoxLayout::takeAt(int index)
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 */
-QSizePolicy::ExpandData QBoxLayout::expanding() const
+Qt::Orientations QBoxLayout::expandingDirections() const
 {
     Q_D(const QBoxLayout);
     if (d->dirty)
@@ -891,21 +883,10 @@ void QBoxLayout::addStrut(int size)
 }
 
 /*!
-    Searches for widget \a w in this layout (not including child
-    layouts).
+  \fn int QBoxLayout::findWidget(QWidget* w)
 
-    Returns the index of \a w, or -1 if \a w is not found.
+  Use indexOf() instead
 */
-int QBoxLayout::findWidget(QWidget* w)
-{
-    Q_D(QBoxLayout);
-    const int n = d->list.count();
-    for (int i = 0; i < n; i++) {
-        if (d->list.at(i)->item->widget() == w)
-            return i;
-    }
-    return -1;
-}
 
 /*!
     Sets the stretch factor for widget \a w to \a stretch and returns
@@ -950,48 +931,6 @@ bool QBoxLayout::setStretchFactor(QLayout *l, int stretch)
 }
 
 /*!
-    Sets the alignment for widget \a w to \a alignment and returns
-    true if \a w is found in this layout (not including child
-    layouts); otherwise returns false.
-
-    \sa setStretchFactor()
-*/
-bool QBoxLayout::setAlignment(QWidget *w, Qt::Alignment alignment)
-{
-    Q_D(QBoxLayout);
-    for (int i = 0; i < d->list.size(); ++i) {
-        QBoxLayoutItem *box = d->list.at(i);
-        if (box->item->widget() == w) {
-            box->item->setAlignment(alignment);
-            invalidate();
-            return true;
-        }
-    }
-    return false;
-}
-
-/*!
-  \overload
-
-  Sets the alignment for the layout \a l to \a alignment and
-  returns true if \a l is found in this layout (not including child
-  layouts); otherwise returns false.
-*/
-bool QBoxLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
-{
-    Q_D(QBoxLayout);
-    for (int i = 0; i < d->list.size(); ++i) {
-        QBoxLayoutItem *box = d->list.at(i);
-        if (box->item->layout() == l) {
-            box->item->setAlignment(alignment);
-            invalidate();
-            return true;
-        }
-    }
-    return false;
-}
-
-/*!
     Sets the direction of this layout to \a direction.
 */
 void QBoxLayout::setDirection(Direction direction)
@@ -1009,7 +948,7 @@ void QBoxLayout::setDirection(Direction direction)
             if (box->magic) {
                 QSpacerItem *sp = box->item->spacerItem();
                 if (sp) {
-                    if (sp->expanding() == QSizePolicy::NoDirection) {
+                    if (sp->expandingDirections() == QSizePolicy::NoDirection) {
                         //spacing or strut
                         QSize s = sp->sizeHint();
                         sp->changeSize(s.height(), s.width(),
@@ -1083,15 +1022,6 @@ QHBoxLayout::QHBoxLayout(QWidget *parent)
 }
 
 /*!
-    Constructs a new horizontal box and adds it to
-    \a parentLayout.
-*/
-QHBoxLayout::QHBoxLayout(QLayout *parentLayout)
-    : QBoxLayout(LeftToRight, parentLayout)
-{
-}
-
-/*!
     Constructs a new horizontal box. You must add
     it to another layout.
 */
@@ -1133,7 +1063,7 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
 */
 QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(LeftToRight, parentLayout)
+    : QBoxLayout(parentLayout, LeftToRight)
 {
        setSpacing(spacing);
        setObjectName(name);
@@ -1200,15 +1130,6 @@ QVBoxLayout::QVBoxLayout(QWidget *parent)
 }
 
 /*!
-    Constructs a new vertical box and adds it to
-    \a parentLayout.
-*/
-QVBoxLayout::QVBoxLayout(QLayout *parentLayout)
-    : QBoxLayout(TopToBottom, parentLayout)
-{
-}
-
-/*!
     Constructs a new vertical box. You must add
     it to another layout.
 
@@ -1249,7 +1170,7 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
 */
 QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(TopToBottom, parentLayout)
+    : QBoxLayout(parentLayout, TopToBottom)
 {
     setSpacing(spacing);
     setObjectName(name);

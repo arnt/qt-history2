@@ -326,21 +326,21 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     mainGrid->setColumnStretch(2, 24);
     mainGrid->setColumnStretch(4, 10);
 
-    mainGrid->setColumnSpacing(1, 6);
-    mainGrid->setColumnSpacing(3, 6);
-    mainGrid->setColumnSpacing(5, 6);
+    mainGrid->setColumnMinimumWidth(1, 6);
+    mainGrid->setColumnMinimumWidth(3, 6);
+    mainGrid->setColumnMinimumWidth(5, 6);
 
-    mainGrid->setRowSpacing(3, 12);
+    mainGrid->setRowMinimumHeight(3, 12);
 
     mainGrid->addWidget(d->effects, 4, 0);
 
     mainGrid->addWidget(d->sample, 4, 2, 4, 3);
 
     mainGrid->addWidget(d->writingSystemAccel, 5, 0);
-    mainGrid->setRowSpacing(6, 2);
+    mainGrid->setRowMinimumHeight(6, 2);
     mainGrid->addWidget(d->writingSystemCombo, 7, 0);
 
-    mainGrid->setRowSpacing(8, 12);
+    mainGrid->setRowMinimumHeight(8, 12);
 
     QHBoxLayout *buttonBox = new QHBoxLayout;
     mainGrid->addItem(buttonBox, 9, 0, 1, 5);

@@ -65,8 +65,7 @@ public:
     QSize minimumSize() const;
     QLayoutItem *itemAt(int) const { return 0; } //###
     QLayoutItem *takeAt(int) { return 0; } //###
-
-    QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
+    int count() const { return 0; } //###
 
 protected:
     void setGeometry(const QRect &r) {

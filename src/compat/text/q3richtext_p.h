@@ -575,7 +575,7 @@ public:
     QSize sizeHint() const ;
     QSize minimumSize() const ;
     QSize maximumSize() const ;
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     bool isEmpty() const;
     void setGeometry(const QRect&) ;
     QRect geometry() const;

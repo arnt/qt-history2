@@ -85,18 +85,6 @@ QLayout::QLayout(QWidget *parent)
     }
 }
 
-
-/*!
-    Constructs a new child QLayout, and places it inside \a
-    parentLayout by using the default placement defined by addItem().
-*/
-QLayout::QLayout(QLayout *parentLayout)
-    : QObject(*new QLayoutPrivate,parentLayout)
-{
-    if (parentLayout)
-        parentLayout->addItem(this);
-}
-
 /*!
     Constructs a new child QLayout.
 
@@ -131,8 +119,8 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
 }
 
 QLayoutPrivate::QLayoutPrivate()
-    : QObjectPrivate(), insideSpacing(-1), outsideBorder(-1), topLevel(false), enabled(true), frozen(false),
-      activated(true), autoMinimum(false), autoResizeMode(true), autoNewChild(false)
+    : QObjectPrivate(), insideSpacing(-1), outsideBorder(-1), topLevel(false), enabled(true),
+      activated(true), autoNewChild(false), constraint(QLayout::SetDefaultConstraint)
 #ifndef QT_NO_MENUBAR
       , menubar(0)
 #endif
@@ -244,6 +232,53 @@ void QLayout::addWidget(QWidget *w)
     addChildWidget(w);
     addItem(new QWidgetItem(w));
 }
+
+
+
+/*!
+    Sets the alignment for widget \a w to \a alignment and returns
+    true if \a w is found in this layout (not including child
+    layouts); otherwise returns false.
+*/
+bool QLayout::setAlignment(QWidget *w, Qt::Alignment alignment)
+{
+    int i = 0;
+    QLayoutItem *item = itemAt(i);
+    while (item) {
+        if (item->widget() == w) {
+            item->setAlignment(alignment);
+            invalidate();
+            return true;
+        }
+        ++i;
+        item = itemAt(i);
+    }
+    return false;
+}
+
+/*!
+  \overload
+
+  Sets the alignment for the layout \a l to \a alignment and
+  returns true if \a l is found in this layout (not including child
+  layouts); otherwise returns false.
+*/
+bool QLayout::setAlignment(QLayout *l, Qt::Alignment alignment)
+{
+    int i = 0;
+    QLayoutItem *item = itemAt(i);
+    while (item) {
+        if (item->layout() == l) {
+            item->setAlignment(alignment);
+            invalidate();
+            return true;
+        }
+        ++i;
+        item = itemAt(i);
+    }
+    return false;
+}
+
 /*!
     \fn bool QLayout::isTopLevel() const
 
@@ -303,10 +338,12 @@ int QLayout::spacing() const
     }
 }
 
+#ifdef QT3_SUPPORT
 bool QLayout::isTopLevel() const
 {
     return d->topLevel;
 }
+#endif
 
 void QLayout::setMargin(int margin)
 {
@@ -343,11 +380,19 @@ QWidget *QLayout::parentWidget() const
 
 /*!
     Returns true if this layout is empty. The default implementation
-    returns false.
+    iterates over all items and returns true if all child items are empty.
 */
 bool QLayout::isEmpty() const
 {
-    return false; //### should check
+    int i = 0;
+    QLayoutItem *item = itemAt(i);
+    while (item) {
+        if (!item->isEmpty())
+            return false;
+        ++i;
+        item = itemAt(i);
+    }
+    return true;
 }
 
 /*!
@@ -578,7 +623,7 @@ QSize QLayout::totalMaximumSize() const
     top += menuBarHeightForWidth(d->menubar, s.width());
 #endif
 
-    if (isTopLevel())
+    if (d->topLevel)
         s = QSize(qMin(s.width() + side, QLAYOUTSIZE_MAX),
                    qMin(s.height() + top, QLAYOUTSIZE_MAX));
     return s;
@@ -598,11 +643,12 @@ QLayout::~QLayout()
       This function may be called during the QObject destructor,
       when the parent no longer is a QWidget.
     */
-    if (isTopLevel() && parent() && parent()->isWidgetType() &&
+    if (d->topLevel && parent() && parent()->isWidgetType() &&
          ((QWidget*)parent())->layout() == this)
         ((QWidget*)parent())->d->layout = 0;
 }
 
+#ifdef QT3_SUPPORT
 /*!
     Removes and deletes all items in this layout.
 */
@@ -612,6 +658,7 @@ void QLayout::deleteAllItems()
     while ((l = takeAt(0)))
         delete l;
 }
+#endif
 
 /*!
     This function is called from addLayout() functions in subclasses
@@ -657,14 +704,13 @@ void QLayout::addChildWidget(QWidget *w)
     w->setAttribute(Qt::WA_LaidOut);
 }
 
-
+#ifdef QT3_SUPPORT
 /*!
 
   Sets this layout's parent widget to a fixed size with width \a w and
   height \a h, stopping the user form resizing it, and also prevents the
   layout from resizing it, even if the layout's size hint should
-  change. Does nothing if this is not a toplevel layout (isTopLevel()
-  returns true).
+  change. Does nothing if this is not a toplevel layout (if parent()->isWidgetType()).
 
   As a special case, if both \a w and \a h are 0, then the layout's
   current sizeHint() is used.
@@ -685,11 +731,19 @@ void QLayout::freeze(int w, int h)
         w = s.width();
         h = s.height();
     }
-    setResizeMode(FreeResize); // layout will not change min/max size
+    setSizeConstraint(SetNoConstraint); // layout will not change min/max size
     QWidget *parent = parentWidget();
     if (parent)
         parent->setFixedSize(w, h);
 }
+
+#endif
+
+
+
+
+
+
 
 /*!
     Makes the geometry manager take account of the menu bar \a w. All
@@ -745,14 +799,14 @@ QSize QLayout::maximumSize() const
 /*!
     Returns whether this layout can make use of more space than
     sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
-    to grow in only one dimension, whereas \c BothDirections means that
+    to grow in only one dimension, whereas \c { Qt::Vertical | Qt::Horizontal }  means that
     it wants to grow in both dimensions.
 
-    The default implementation returns \c BothDirections.
+    The default implementation returns  \c { Qt::Vertical | Qt::Horizontal }
 */
-QSizePolicy::ExpandData QLayout::expanding() const
+Qt::Orientations QLayout::expandingDirections() const
 {
-    return QSizePolicy::BothDirections;
+    return Qt::Horizontal | Qt::Vertical;
 }
 
 void QLayout::activateRecursiveHelper(QLayoutItem *item)
@@ -825,22 +879,34 @@ bool QLayout::activate()
     QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
     rect.setTop(rect.top() + mbh);
     setGeometry(rect);
-    if (d->frozen) {
+
+    switch (d->constraint) {
+    case SetFixedSize:
         // will trigger resize
         mw->setFixedSize(totalSizeHint());
-    } else if (d->autoMinimum) {
-        ms = totalMinimumSize();
-    } else if (d->autoResizeMode && mw->isWindow()) {
-        ms = totalMinimumSize();
+        break;
+    case SetMinimumSize:
+        mw->setMinimumSize(totalMinimumSize());
+        break;
+    case SetMaximumSize:
+        mw->setMaximumSize(totalMaximumSize());
+        break;
+    case SetMinAndMaxSize:
+        mw->setMinimumSize(totalMinimumSize());
+        mw->setMaximumSize(totalMaximumSize());
+        break;
+    case SetDefaultConstraint: {
+        QSize ms = totalMinimumSize();
         if (hasHeightForWidth()) {
             int h = minimumHeightForWidth(ms.width());
             if (h > ms.height())
                 ms = QSize(0, 0);
         }
+        break;
     }
-
-    if (ms.isValid())
-        mw->setMinimumSize(ms);
+    case SetNoConstraint:
+        break;
+    }
 
     // ideally only if sizeHint() or sizePolicy() has changed
     mw->updateGeometry();
@@ -902,66 +968,72 @@ bool QLayout::activate()
     \sa QLayout::itemAt()
 */
 
+/*!
+ \fn int *QLayout::count() const
+
+  Must be implemented in subclasses to return the number of items in the layout.
+
+*/
+
+/*!
+      Searches for widget \a w in this layout (not including child
+    layouts).
+
+    Returns the index of \a w, or -1 if \a w is not found.
+
+    The default implementation iterates over all items using itemAt()
+*/
+int QLayout::indexOf(QWidget *w) const
+{
+    int i = 0;
+    QLayoutItem *item = itemAt(i);
+    while (item) {
+        if (item->widget() == w)
+            return i;
+        ++i;
+        item = itemAt(i);
+    }
+    return -1;
+}
 
 
 /*!
-    \enum QLayout::ResizeMode
+    \enum QLayout::SizeConstraint
 
     The possible values are:
 
-    \value Auto  If the main widget is a top-level widget with no
+    \value SetDefaultConstraint  If the main widget is a top-level widget with no
                  height-for-width (hasHeightForWidth()), this is
-                 the same as \c Minimium; otherwise, this is the
-                 same as \c FreeResize.
-    \value Fixed  The main widget's size is set to sizeHint(); it
+                 the same as \c SetMinimumSize; otherwise, this is the
+                 same as \c SetNoConstraint.
+    \value SetFixedSize The main widget's size is set to sizeHint(); it
                   cannot be resized at all.
-    \value Minimum  The main widget's minimum size is set to
+    \value SetMinimumSize  The main widget's minimum size is set to
                     minimumSize(); it cannot be smaller.
-    \value FreeResize  The widget is not constrained.
+    \value SetNoConstraint  The widget is not constrained.
 */
 
 /*!
-    \property QLayout::resizeMode
+    \property QLayout::sizeConstraint
     \brief the resize mode of the layout
 
-    The default mode is \c Auto.
+    The default mode is \c SetDefaultConstraint.
 
-    \sa QLayout::ResizeMode
+    \sa QLayout::SizeConstraint
 */
 
-void QLayout::setResizeMode(ResizeMode mode)
+void QLayout::setSizeConstraint(SizeConstraint constraint)
 {
-    if (mode == resizeMode())
+    if (constraint == d->constraint)
         return;
 
-    switch (mode) {
-    case Auto:
-        d->frozen = false;
-        d->autoMinimum = false;
-        d->autoResizeMode = true;
-        break;
-    case Fixed:
-        d->frozen = true;
-        d->autoMinimum = false;
-        d->autoResizeMode = false;
-        break;
-    case FreeResize:
-        d->frozen = false;
-        d->autoMinimum = false;
-        d->autoResizeMode = false;
-        break;
-    case Minimum:
-        d->frozen = false;
-        d->autoMinimum = true;
-        d->autoResizeMode = false;
-    }
+    d->constraint = constraint;
     invalidate();
 }
 
-QLayout::ResizeMode QLayout::resizeMode() const
+QLayout::SizeConstraint QLayout::sizeConstraint() const
 {
-    return (d->autoResizeMode ? Auto :
-             (d->frozen ? Fixed : (d->autoMinimum ? Minimum : FreeResize)));
+    return d->constraint;
 }
 
 /*!
@@ -982,16 +1054,16 @@ QRect QLayout::alignmentRect(const QRect &r) const
       QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX), the value consistently
       returned by QLayoutItems that have an alignment.
     */
-    QLayout *that = (QLayout *) this;
+    QLayout *that = const_cast<QLayout *>(this);
     that->setAlignment(0);
-    QSize ms = maximumSize();
+    QSize ms = that->maximumSize();
     that->setAlignment(a);
 
-    if ((expanding() & QSizePolicy::Horizontally) ||
+    if ((expandingDirections() & Qt::Horizontal) ||
          !(a & Qt::AlignHorizontal_Mask)) {
         s.setWidth(qMin(r.width(), ms.width()));
     }
-    if ((expanding() & QSizePolicy::Vertically) ||
+    if ((expandingDirections() & Qt::Vertical) ||
          !(a & Qt::AlignVertical_Mask)) {
         s.setHeight(qMin(r.height(), ms.height()));
     } else if (hasHeightForWidth()) {

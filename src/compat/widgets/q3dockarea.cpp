@@ -77,6 +77,12 @@ QLayoutItem *Q3DockAreaLayout::takeAt(int)
     return 0; //###
 }
 
+int Q3DockAreaLayout::count() const
+{
+    return 0; //###
+}
+
+
 QSize Q3DockAreaLayout::sizeHint() const
 {
     if (dockWindows->isEmpty())

@@ -34,7 +34,6 @@ public:
                      Down = TopToBottom, Up = BottomToTop };
 
     explicit QBoxLayout(Direction, QWidget *parent);
-    explicit QBoxLayout(Direction, QLayout *parentLayout);
     explicit QBoxLayout(Direction);
 
 #ifdef QT3_SUPPORT
@@ -63,13 +62,6 @@ public:
 
     bool setStretchFactor(QWidget *w, int stretch);
     bool setStretchFactor(QLayout *l, int stretch);
-    bool setAlignment(QWidget *w, Qt::Alignment alignment);
-    bool setAlignment(QLayout *l, Qt::Alignment alignment);
-#ifdef Q_NO_USING_KEYWORD
-    inline void setAlignment(Qt::Alignment alignment) { QLayoutItem::setAlignment(alignment); }
-#else
-    using QLayoutItem::setAlignment;
-#endif
 
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -79,14 +71,15 @@ public:
     int heightForWidth(int) const;
     int minimumHeightForWidth(int) const;
 
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     void invalidate();
     QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
+    int count() const;
     void setGeometry(const QRect&);
-
-    int findWidget(QWidget* w);
-
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT int findWidget(QWidget* w) {return indexOf(w);}
+#endif
 protected:
     void insertItem(int index, QLayoutItem *);
 
@@ -100,14 +93,13 @@ class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
 public:
     QHBoxLayout();
     explicit QHBoxLayout(QWidget *parent);
-    explicit QHBoxLayout(QLayout *parentLayout);
     ~QHBoxLayout();
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QLayout *parentLayout,
-                 int spacing, const char *name = 0);
+                 int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
 #endif
 
@@ -121,14 +113,13 @@ class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
 public:
     QVBoxLayout();
     explicit QVBoxLayout(QWidget *parent);
-    explicit QVBoxLayout(QLayout *parentLayout);
     ~QVBoxLayout();
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QLayout *parentLayout,
-                 int spacing, const char *name = 0);
+                 int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
 #endif
 

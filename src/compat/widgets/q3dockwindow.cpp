@@ -946,9 +946,9 @@ public:
     Q3DockWindowGridLayout(QWidget *parent, int nRows, int nCols)
         : QGridLayout(parent, nRows, nCols) {};
 
-    QSizePolicy::ExpandData expanding() const
+    Qt::Orientations expandingDirections() const
     {
-        return QSizePolicy::NoDirection;
+        return 0;
     }
 };
 

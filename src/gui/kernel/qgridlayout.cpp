@@ -45,7 +45,7 @@ public:
     QSize sizeHint() const { return item_->sizeHint(); }
     QSize minimumSize() const { return item_->minimumSize(); }
     QSize maximumSize() const { return item_->maximumSize(); }
-    QSizePolicy::ExpandData expanding() const { return item_->expanding(); }
+    Qt::Orientations expandingDirections() const { return item_->expandingDirections(); }
     bool isEmpty() const { return item_->isEmpty(); }
 
     bool hasHeightForWidth() const { return item_->hasHeightForWidth(); }
@@ -97,7 +97,7 @@ public:
     QSize minimumSize(int) const;
     QSize maximumSize(int) const;
 
-    QSizePolicy::ExpandData expanding(int spacing) const;
+    Qt::Orientations expandingDirections(int spacing) const;
 
     void distribute(QRect, int);
     inline int numRows() const { return rr; }
@@ -126,11 +126,9 @@ public:
     int heightForWidth(int, int, int);
     int minimumHeightForWidth(int, int, int);
 
-    bool findWidget(QWidget* w, int *row, int *col);
-
     inline void getNextPos(int &row, int &col) { row = nextR; col = nextC; }
     inline int count() const { return things.count() + multi.count(); }
-    QRect cellGeometry(int row, int col) const;
+    QRect cellRect(int row, int col) const;
 
     inline QLayoutItem *itemAt(int index) const {
         if (index < things.count())
@@ -308,33 +306,6 @@ int QGridLayoutPrivate::minimumHeightForWidth(int w, int margin, int spacing)
     return has_hfw ? (hfw_minheight + 2*margin) : -1;
 }
 
-bool QGridLayoutPrivate::findWidget(QWidget* w, int *row, int *col)
-{
-    int i;
-
-    for (i = 0; i < things.size(); ++i) {
-        QGridBox * box = things.at(i);
-        if (box->item()->widget() == w) {
-            if (row)
-                *row = box->row;
-            if (col)
-                *col = box->col;
-            return true;
-        }
-    }
-    for (i = 0; i < multi.size(); ++i) {
-        QGridMultiBox * mbox = multi.at(i);
-        QGridBox *box = mbox->box();
-        if (box->item()->widget() == w) {
-            if (row)
-                *row = box->row;
-            if (col)
-                *col = box->col;
-            return true;
-        }
-    }
-    return false;
-}
 
 QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
 {
@@ -365,25 +336,25 @@ QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
     return QSize(w, h);
 }
 
-QSizePolicy::ExpandData QGridLayoutPrivate::expanding(int spacing) const
+Qt::Orientations QGridLayoutPrivate::expandingDirections(int spacing) const
 {
     QGridLayoutPrivate *that = const_cast<QGridLayoutPrivate*>(this);
     that->setupLayoutData(spacing);
-    int ret = 0;
+    Qt::Orientations ret;
 
     for (int r = 0; r < rr; r++) {
         if (rowData[r].expansive) {
-            ret |= (int) QSizePolicy::Vertically;
+            ret |= Qt::Vertical;
             break;
         }
     }
     for (int c = 0; c < cc; c++) {
         if (colData[c].expansive) {
-            ret |= (int) QSizePolicy::Horizontally;
+            ret |= Qt::Horizontal;
             break;
         }
     }
-    return (QSizePolicy::ExpandData) ret;
+    return ret;
 }
 
 QSize QGridLayoutPrivate::sizeHint(int spacer) const
@@ -508,7 +479,7 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
 
         qMaxExpCalc(colData[box->col].maximumSize, colData[box->col].expansive,
                      maxS.width(),
-                     box->expanding() & QSizePolicy::Horizontally);
+                     box->expandingDirections() & Qt::Horizontal);
     }
     if (r) {
         if (!rStretch[box->row])
@@ -521,7 +492,7 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
 
         qMaxExpCalc(rowData[box->row].maximumSize, rowData[box->row].expansive,
                      maxS.height(),
-                     box->expanding() & QSizePolicy::Vertically);
+                     box->expandingDirections() & Qt::Vertical);
     }
     if (box->isEmpty()) {
         if (box->item()->widget() != 0) {
@@ -796,7 +767,7 @@ void QGridLayoutPrivate::distribute(QRect r, int spacing)
     }
 }
 
-QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
+QRect QGridLayoutPrivate::cellRect(int row, int col) const
 {
     if (row < 0 || row >= rr || col < 0 || col >= cc)
         return QRect();
@@ -889,22 +860,6 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
 */
 QGridLayout::QGridLayout(QWidget *parent)
     : QLayout(*new QGridLayoutPrivate, 0, parent)
-{
-    Q_D(QGridLayout);
-    d->expand(1, 1);
-}
-
-/*!
-    Constructs a new grid that is placed inside \a parentLayout.  The
-    layout has one row and one column initially, and will expand when
-    new items are inserted, or setColumnCount()/setRowCount() is
-    called.
-
-    This grid is placed according to \a parentLayout's default
-    placement rules.
-*/
-QGridLayout::QGridLayout(QLayout *parentLayout)
-    : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
 {
     Q_D(QGridLayout);
     d->expand(1, 1);
@@ -1105,6 +1060,7 @@ int QGridLayout::minimumHeightForWidth(int w) const
     return that->d_func()->minimumHeightForWidth(w, margin(), spacing());
 }
 
+#ifdef QT3_SUPPORT
 /*!
     Searches for widget \a w in this layout (not including child
     layouts). If \a w is found, it sets \c{*}\a{row} and
@@ -1113,12 +1069,29 @@ int QGridLayout::minimumHeightForWidth(int w) const
 
     If the widget spans multiple rows/columns, the top-left cell
     is returned.
+
+    Use indexOf() and getItemPosition() instead
 */
 bool QGridLayout::findWidget(QWidget* w, int *row, int *column)
 {
     Q_D(QGridLayout);
-    return d->findWidget(w, row, column);
+    int index = indexOf(w);
+    if (index < 0)
+        return false;
+    int dummy1, dummy2;
+    d->getItemPosition(index, row, column, &dummy1, &dummy2);
+    return true;
 }
+#endif
+/*!
+    \reimp
+*/
+int QGridLayout::count() const
+{
+    Q_D(const QGridLayout);
+    return d->count();
+}
+
 
 /*!
     \reimp
@@ -1174,10 +1147,10 @@ void QGridLayout::setGeometry(const QRect &r)
     return valid results until setGeometry() has been called, i.e.
     after the parentWidget() is visible.
 */
-QRect QGridLayout::cellGeometry(int row, int column) const
+QRect QGridLayout::cellRect(int row, int column) const
 {
     Q_D(const QGridLayout);
-    return d->cellGeometry(row, column);
+    return d->cellRect(row, column);
 }
 #ifdef QT3_SUPPORT
 /*!
@@ -1349,7 +1322,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int column,
     The default stretch factor is 0. If the stretch factor is 0 and no
     other row in this table can grow at all, the row may still grow.
 
-    \sa rowStretch(), setRowSpacing(), setColumnStretch()
+    \sa rowStretch(), setRowMinimumHeight(), setColumnStretch()
 */
 void QGridLayout::setRowStretch(int row, int stretch)
 {
@@ -1402,23 +1375,25 @@ void QGridLayout::setColumnStretch(int column, int stretch)
     d->setColStretch(column, stretch);
 }
 
+
+
 /*!
     Sets the minimum height of row \a row to \a minSize pixels.
 
-    \sa rowSpacing(), setColumnSpacing()
+    \sa rowMinimumHeight(), setColumnSpacing()
 */
-void QGridLayout::setRowSpacing(int row, int minSize)
+void QGridLayout::setRowMinimumHeight(int row, int minSize)
 {
     Q_D(QGridLayout);
     d->setRowSpacing(row, minSize);
 }
 
 /*!
-    Returns the row spacing for row \a row.
+    Returns the minimum width set for row \a row.
 
-    \sa setRowSpacing()
+    \sa setRowMinimumHeight()
 */
-int QGridLayout::rowSpacing(int row) const
+int QGridLayout::rowMinimumHeight(int row) const
 {
     Q_D(const QGridLayout);
     return d->rowSpacing(row);
@@ -1427,9 +1402,9 @@ int QGridLayout::rowSpacing(int row) const
 /*!
     Sets the minimum width of column \a column to \a minSize pixels.
 
-    \sa columnSpacing(), setRowSpacing()
+    \sa columnMinimumWidth(), setRowMinimumHeight()
 */
-void QGridLayout::setColumnSpacing(int column, int minSize)
+void QGridLayout::setColumnMinimumWidth(int column, int minSize)
 {
     Q_D(QGridLayout);
     d->setColSpacing(column, minSize);
@@ -1440,7 +1415,7 @@ void QGridLayout::setColumnSpacing(int column, int minSize)
 
     \sa setColumnSpacing()
 */
-int QGridLayout::columnSpacing(int column) const
+int QGridLayout::columnMinimumWidth(int column) const
 {
     Q_D(const QGridLayout);
     return d->colSpacing(column);
@@ -1452,16 +1427,16 @@ int QGridLayout::columnSpacing(int column) const
     to grow in only one dimension, whereas \c BothDirections means that
     it wants to grow in both dimensions.
 */
-QSizePolicy::ExpandData QGridLayout::expanding() const
+Qt::Orientations QGridLayout::expandingDirections() const
 {
     Q_D(const QGridLayout);
-    return d->expanding(spacing());
+    return d->expandingDirections(spacing());
 }
 
 /*!
     Sets the grid's origin corner, i.e. position (0, 0), to \a c.
 */
-void QGridLayout::setOrigin(Qt::Corner c)
+void QGridLayout::setOriginCorner(Qt::Corner c)
 {
     Q_D(QGridLayout);
     d->setReversed(c == Qt::BottomLeftCorner || c == Qt::BottomRightCorner,
@@ -1472,7 +1447,7 @@ void QGridLayout::setOrigin(Qt::Corner c)
     Returns the corner that's used for the grid's origin, i.e. for
     position (0, 0).
 */
-Qt::Corner QGridLayout::origin() const
+Qt::Corner QGridLayout::originCorner() const
 {
     Q_D(const QGridLayout);
     if (d->horReversed()) {

@@ -42,7 +42,7 @@
 
 
 static inline bool canGrow(Qt::Orientation o, const QSizePolicy &sp)
-{ return (o == Qt::Horizontal ? sp.mayGrowHorizontally() : sp.mayGrowVertically()); }
+{ return (o == Qt::Horizontal ? sp.horizontalPolicy() : sp.verticalPolicy()) & QSizePolicy::GrowFlag; }
 
 
 QDockWidgetLayout::QDockWidgetLayout(Qt::DockWidgetArea a, Qt::Orientation o)
@@ -183,6 +183,13 @@ QLayoutItem *QDockWidgetLayout::find(QWidget *widget)
 	    return info.item;
     }
     return 0;
+}
+
+
+int QDockWidgetLayout::count() const
+{
+    qWarning("QDockWidgetLayout::count() is wrong");
+    return layout_info.count();
 }
 
 QLayoutItem *QDockWidgetLayout::itemAt(int index) const

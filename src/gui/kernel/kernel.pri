@@ -61,6 +61,8 @@ SOURCES += \
 	kernel/qwidget.cpp 
 
 
+MOCABLE += kernel/qsizepolicy.h
+
 win32 {
 	SOURCES += \
 		kernel/qapplication_win.cpp \

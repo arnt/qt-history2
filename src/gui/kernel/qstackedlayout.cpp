@@ -241,21 +241,6 @@ QWidget *QStackedLayout::currentWidget() const
 }
 
 /*!
-    Returns the index position of widget \a w in this layout, or -1 if
-    \a w is not in this layout.
-*/
-int QStackedLayout::indexOf(QWidget *w) const
-{
-    for (int i = 0; i < d->list.count(); ++i) {
-        if (d->list.at(i)->widget() == w)
-            return i;
-    }
-    return -1;
-    //return d->list.indexOf(w);
-}
-
-
-/*!
     Returns the widget at position \a index, or 0 if there is no
     widget at the given position.
 */

@@ -1475,7 +1475,7 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
     detailMode->setFixedSize(tools);
     QObject::connect(detailMode, SIGNAL(clicked()), q, SLOT(showDetails()));
     box->addWidget(detailMode);
-    box->setResizeMode(QLayout::Fixed);
+    box->setSizeConstraint(QLayout::SetFixedSize);
 
     grid->addLayout(box, 0, 4, 1, 2);
 }

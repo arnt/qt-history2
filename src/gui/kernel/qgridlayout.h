@@ -31,14 +31,13 @@ class Q_GUI_EXPORT QGridLayout : public QLayout
     Q_DECLARE_PRIVATE(QGridLayout)
 public:
     explicit QGridLayout(QWidget *parent);
-    explicit QGridLayout(QLayout *parentLayout);
     QGridLayout();
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
                                       int spacing = -1, const char *name = 0);
     QT3_SUPPORT_CONSTRUCTOR QGridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols = 1, int spacing = -1,
+    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows =1, int nCols = 1, int spacing = -1,
                                       const char *name = 0);
 #endif
     ~QGridLayout();
@@ -52,20 +51,24 @@ public:
     int rowStretch(int row) const;
     int columnStretch(int column) const;
 
-    void setRowSpacing(int row, int minSize);
-    void setColumnSpacing(int column, int minSize);
-    int rowSpacing(int row) const;
-    int columnSpacing(int column) const;
+    void setRowMinimumHeight(int row, int minSize);
+    void setColumnMinimumWidth(int column, int minSize);
+    int rowMinimumHeight(int row) const;
+    int columnMinimumWidth(int column) const;
 
     int columnCount() const;
     int rowCount() const;
-    QRect cellGeometry(int row, int column) const;
+
+    QRect cellRect(int row, int column) const;
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QRect cellGeometry(int row, int column) const {return cellRect(row, column);}
+#endif
 
     bool hasHeightForWidth() const;
     int heightForWidth(int) const;
     int minimumHeightForWidth(int) const;
 
-    QSizePolicy::ExpandData expanding() const;
+    Qt::Orientations expandingDirections() const;
     void invalidate();
 
     inline void addWidget(QWidget *w) { QLayout::addWidget(w); }
@@ -74,10 +77,16 @@ public:
     void addLayout(QLayout *, int row, int column, Qt::Alignment = 0);
     void addLayout(QLayout *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
 
-    void setOrigin(Qt::Corner);
-    Qt::Corner origin() const;
+    void setOriginCorner(Qt::Corner);
+    Qt::Corner originCorner() const;
+
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setOrigin(Qt::Corner corner) { setOriginCorner(corner); }
+    inline QT3_SUPPORT Qt::Corner origin() const { return originCorner(); }
+#endif
     QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
+    int count() const;
     void setGeometry(const QRect&);
 
     void addItem(QLayoutItem *item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = 0);
@@ -86,7 +95,9 @@ public:
     void getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan);
 
 protected:
+#ifdef QT3_SUPPORT
     bool findWidget(QWidget* w, int *r, int *c);
+#endif
     void addItem(QLayoutItem *);
 
 private:
@@ -108,8 +119,10 @@ public:
     inline QT3_SUPPORT int numCols() const { return columnCount(); }
     inline QT3_SUPPORT void setColStretch(int col, int stretch) {setColumnStretch(col, stretch); }
     inline QT3_SUPPORT int colStretch(int col) const {return columnStretch(col); }
-    inline QT3_SUPPORT void setColSpacing(int col, int minSize) { setColumnSpacing(col, minSize); }
-    inline QT3_SUPPORT int colSpacing(int col) const { return columnSpacing(col); }
+    inline QT3_SUPPORT void setColSpacing(int col, int minSize) { setColumnMinimumWidth(col, minSize); }
+    inline QT3_SUPPORT int colSpacing(int col) const { return columnMinimumWidth(col); }
+    inline QT3_SUPPORT void setRowSpacing(int row, int minSize) {setRowMinimumHeight(row, minSize); }
+    inline QT3_SUPPORT int rowSpacing(int row) const {return rowMinimumHeight(row); }
 #endif
 };
 #endif // QT_NO_LAYOUT

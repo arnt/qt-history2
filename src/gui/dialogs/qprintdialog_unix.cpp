@@ -1089,7 +1089,8 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
     QGroupBox *g = new QGroupBox(q->tr("Options"), q);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
-    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
+    QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down);
+    lay->addLayout(tll);
 
     printRange = new QButtonGroup(q);
     QObject::connect(printRange, SIGNAL(buttonChecked(QAbstractButton *)), q, SLOT(printRangeSelected(QAbstractButton *)));
@@ -1138,7 +1139,8 @@ QGroupBox *QPrintDialogPrivate::setupOptions()
              q, SLOT(setLastPage(int)));
 
     lay->addSpacing(25);
-    tll = new QBoxLayout(QBoxLayout::Down, lay);
+    tll = new QBoxLayout(QBoxLayout::Down);
+    lay->addLayout(tll);
 
     // print order
     firstPageFirst = new QRadioButton(q->tr("Print first page first"), g);

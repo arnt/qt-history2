@@ -408,7 +408,7 @@ public:
 
     QSizePolicy sizePolicy() const;
     void setSizePolicy(QSizePolicy);
-    inline void setSizePolicy(QSizePolicy::SizeType horizontal, QSizePolicy::SizeType vertical);
+    inline void setSizePolicy(QSizePolicy::Policy horizontal, QSizePolicy::Policy vertical);
     virtual int heightForWidth(int) const;
 
     QRegion visibleRegion() const;
@@ -610,7 +610,7 @@ public:
     { setParent(parent, windowFlags() & ~Qt::WindowType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
-    inline QT3_SUPPORT void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
+    inline QT3_SUPPORT void setSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver, bool hfw)
     { QSizePolicy sp(hor, ver); sp.setHeightForWidth(hfw); setSizePolicy(sp);}
     inline QT3_SUPPORT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
@@ -823,7 +823,7 @@ inline int QWidget::height() const
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
 
-inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver)
+inline void QWidget::setSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver)
 { setSizePolicy(QSizePolicy(hor, ver)); }
 
 inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const

@@ -56,7 +56,8 @@ public:
     QSize minimumSize() const;
     QLayoutItem *itemAt(int) const;
     QLayoutItem *takeAt(int);
-    QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
+    int count() const;
+    Qt::Orientations expandingDirections() const { return Qt::Orientations(0); }
     void invalidate();
     Qt::Orientation orientation() const { return orient; }
     QList<QRect> lineList() const { return lines; }

@@ -374,7 +374,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::SizePolicy:
         {
             const QSizePolicy *p = v_cast<QSizePolicy>(d);
-            s << (int) p->horizontalData() << (int) p->verticalData()
+            s << (int) p->horizontalPolicy() << (int) p->verticalPolicy()
               << (qint8) p->hasHeightForWidth();
         }
         break;
