@@ -655,34 +655,31 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
 void QTextView::imStartEvent( QIMEvent *e )
 {
-    int parag;
-    getCursorPosition( parag, d->preeditStart );
+    d->preeditStart = cursor->index();
     e->accept();
 }
 
 void QTextView::imComposeEvent( QIMEvent *e )
 {
-    if (d->preeditLength > 0 && cursor->parag())
-	cursor->parag()->remove(d->preeditStart, d->preeditLength);
-    cursor->setIndex(d->preeditStart);
+    if ( d->preeditLength > 0 && cursor->parag() )
+	cursor->parag()->remove( d->preeditStart, d->preeditLength );
+    cursor->setIndex( d->preeditStart );
     insert( e->text(), TRUE, FALSE );
     d->preeditLength = e->text().length();
-    cursor->setIndex(d->preeditStart + e->cursorPos());
+    cursor->setIndex( d->preeditStart + e->cursorPos() );
     repaintChanged();
-
     e->accept();
 }
 
 void QTextView::imEndEvent( QIMEvent *e )
 {
-    if (d->preeditLength > 0 && cursor->parag())
-	cursor->parag()->remove(d->preeditStart, d->preeditLength);
+    if ( d->preeditLength > 0 && cursor->parag() )
+	cursor->parag()->remove( d->preeditStart, d->preeditLength );
     d->preeditLength = e->text().length();
-    cursor->setIndex(d->preeditStart);
+    cursor->setIndex( d->preeditStart );
     insert( e->text(), TRUE, FALSE );
     d->preeditStart = d->preeditLength = -1;
     repaintChanged();
-
     e->accept();
 }
 
