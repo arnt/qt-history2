@@ -70,7 +70,7 @@
 #include "qt_x11.h"
 
 
-// #define QFONTLOADER_DEBUG
+#define QFONTLOADER_DEBUG
 // #define QFONTLOADER_DEBUG_VERBOSE
 
 
@@ -92,7 +92,7 @@ static const char *qt_x11encodings[][QFont::LastPrivateScript + 1] = {
     { 0                      }, // SpacingModifiers
     { 0                      }, // CombiningMarks
 
-    { "iso8859-8-i"      , 0 }, // Hebrew
+    { "iso8859-8"      , 0 }, // Hebrew
     { "iso8859-6.8x"     , 0 }, // Arabic
     // "iso8859-6" - commented for now since arabic doesn't work at all for iso8859-6
     { 0                      }, // Syriac
@@ -2306,8 +2306,11 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	// get unicode -> font encoding codec
 	if (script < QFont::Unicode) {
-	    codec =
-		QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
+	    if ( script == QFont::Hebrew )
+		codec = QTextCodec::codecForName( "ISO 8859-8-I" );
+	    else
+		codec =
+		    QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
 
 #ifdef QFONTLOADER_DEBUG
 	    if (codec) {
@@ -2479,6 +2482,7 @@ void QFont::initialize()
     (void) new QFontKsc5601Codec;
     (void) new QFontGB2312Codec;
     (void) new QFontBig5Codec;
+    (void) new QFontArabic68Codec;
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
 

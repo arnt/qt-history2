@@ -30,7 +30,8 @@ tools {
 		  $$CODECS_CPP/qutfcodec.cpp \
 		   $$CODECS_CPP/qtextcodecfactory.cpp
 
-	x11:SOURCES += $$CODECS_CPP/qfontcncodec.cpp \
+	x11:SOURCES += $$CODECS_CPP/qfontarcodec.cpp \
+		$$CODECS_CPP/qfontcncodec.cpp \
 	               $$CODECS_CPP/qfontjpcodec.cpp \
 		       $$CODECS_CPP/qfontkrcodec.cpp \
 		       $$CODECS_CPP/qfonttwcodec.cpp
