@@ -33,13 +33,13 @@ public:
     {
         ref = 1;
     }
-    ~QSqlRecordPrivate() {};
-    QSqlRecordPrivate& operator=(const QSqlRecordPrivate& other)
+    QSqlRecordPrivate(const QSqlRecordPrivate &other)
     {
+        ref = 1;
         fi = other.fi;
         cnt = other.cnt;
-        return *this;
     }
+    ~QSqlRecordPrivate() {};
     void append(const QSqlField& field)
     {
         fi.append(field);
@@ -152,11 +152,7 @@ QSqlRecord::QSqlRecord(const QSqlRecord& other)
 
 QSqlRecord& QSqlRecord::operator=(const QSqlRecord& other)
 {
-    QSqlRecordPrivate *x = other.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, other.d);
     return *this;
 }
 
@@ -550,15 +546,7 @@ void QSqlRecord::setValue(const QString& name, const QCoreVariant& val)
 */
 void QSqlRecord::detach()
 {
-    if (d->ref == 1)
-        return;
-
-    QSqlRecordPrivate *x = new QSqlRecordPrivate;
-    *x = *d;
-    x->ref = 1;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicDetach(d);
 }
 
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030

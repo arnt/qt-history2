@@ -164,12 +164,13 @@ public:
         ref = 1;
         key[0] = key[1] = key[2] = key[3] =  0;
     }
-    inline QKeySequencePrivate(QKeySequencePrivate *copy)
+    inline QKeySequencePrivate(const QKeySequencePrivate &copy)
     {
-        key[0] = copy->key[0];
-        key[1] = copy->key[1];
-        key[2] = copy->key[2];
-        key[3] = copy->key[3];
+        ref = 1;
+        key[0] = copy.key[0];
+        key[1] = copy.key[1];
+        key[2] = copy.key[2];
+        key[3] = copy.key[3];
     }
     QAtomic ref;
     int key[4];
@@ -259,14 +260,7 @@ QKeySequence::~QKeySequence()
 void QKeySequence::setKey(int key, int index)
 {
     Q_ASSERT_X(index >= 0 && index < 4, "QKeySequence::setKey", "index out of range");
-    // This is the only place we detach, so no need for a function.
-    if (d->ref != 1) {
-        QKeySequencePrivate *x = new QKeySequencePrivate(d);
-        x->ref = 1;
-        x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
-            delete x;
-    }
+    qAtomicDetach(d);
     d->key[index] = key;
 }
 
@@ -621,11 +615,7 @@ int QKeySequence::operator[](uint index) const
  */
 QKeySequence &QKeySequence::operator=(const QKeySequence &other)
 {
-    QKeySequencePrivate *x = other.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, other.d);
     return *this;
 }
 

@@ -429,11 +429,7 @@ QCursor &QCursor::operator=(const QCursor &c)
 {
     if (!initialized)
         initialize();
-    QCursorData *x = c.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, c.d);
     return *this;
 }
 

@@ -286,11 +286,7 @@ void QSqlQuery::init(const QString& query, QSqlDatabase* db)
 
 QSqlQuery& QSqlQuery::operator=(const QSqlQuery& other)
 {
-    QSqlQueryPrivate *x = other.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, other.d);
     return *this;
 }
 

@@ -540,10 +540,7 @@ void QFont::detach()
         return;
     }
 
-    QFontPrivate *x = new QFontPrivate(*d);
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicDetach(d);
 }
 
 /*!
@@ -622,11 +619,7 @@ QFont::~QFont()
 */
 QFont &QFont::operator=(const QFont &font)
 {
-    QFontPrivate *x = font.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, font.d);
     resolve_mask = font.resolve_mask;
     return *this;
 }
@@ -1940,11 +1933,7 @@ QFontMetrics::~QFontMetrics()
 */
 QFontMetrics &QFontMetrics::operator=(const QFontMetrics &fm)
 {
-    QFontPrivate *x = fm.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, fm.d);
     painter = fm.painter;
     return *this;
 }
@@ -2605,11 +2594,7 @@ QFontInfo::~QFontInfo()
 */
 QFontInfo &QFontInfo::operator=(const QFontInfo &fi)
 {
-    QFontPrivate *x = fi.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (--x->ref)
-        delete x;
+    qAtomicAssign(d, fi.d);
     painter = 0;
     fscript = fi.fscript;
     return *this;

@@ -663,12 +663,7 @@ void QIconSet::detach()
         d = new QIconSetData;
         return;
     }
-    if (d->ref != 1) {
-        QIconSetData *x = new QIconSetData(*d);
-        x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
-            delete x;
-    }
+    qAtomicDetach(d);
 }
 
 /*!

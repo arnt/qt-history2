@@ -719,11 +719,7 @@ bool QMovie::isNull() const
 */
 QMovie& QMovie::operator=(const QMovie& movie)
 {
-    QMoviePrivate *x = movie.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, movie.d);
     return *this;
 }
 

@@ -204,11 +204,7 @@ void QPen::detach_helper()
 
 QPen &QPen::operator=(const QPen &p)
 {
-    QPenData *x = p.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, p.d);
     return *this;
 }
 

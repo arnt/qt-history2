@@ -1053,11 +1053,7 @@ void QPicture::detach_helper()
 
 QPicture& QPicture::operator=(const QPicture &p)
 {
-    QPicturePrivate *x = p.d_ptr;
-    ++x->ref;
-    x = qAtomicSetPtr(&d_ptr, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign<QPicturePrivate>(d_ptr, p.d_ptr);
     return *this;
 }
 

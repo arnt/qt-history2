@@ -157,11 +157,7 @@ QSqlField::QSqlField(const QSqlField& other)
 
 QSqlField& QSqlField::operator=(const QSqlField& other)
 {
-    QSqlFieldPrivate *x = other.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d, other.d);
     val = other.val;
     return *this;
 }
@@ -309,13 +305,7 @@ bool QSqlField::isNull() const
 */
 void QSqlField::detach()
 {
-    if (d->ref == 1)
-        return;
-
-    QSqlFieldPrivate *x = new QSqlFieldPrivate(*d);
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicDetach(d);
 }
 
 int QSqlField::isRequired() const

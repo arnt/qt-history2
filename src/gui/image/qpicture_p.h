@@ -100,12 +100,12 @@ class QPicturePrivate : public QPaintCommands
 
 public:
     inline QPicturePrivate() : q_ptr(0) { ref = 1; }
+    QAtomic ref;
 
 protected:
     bool checkFormat();
     void resetFormat();
 
-    QAtomic ref;
     QBuffer pictb;
     int        trecs;
     bool formatOk;
