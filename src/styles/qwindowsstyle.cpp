@@ -916,6 +916,16 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    ret = GetSystemMetrics( SM_CYCAPTION ) - 1;
 	}
 	break;
+
+    case PM_ScrollBarExtent:
+	{
+	    NONCLIENTMETRICS ncm;
+	    if ( SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0 ) )
+		ret = QMAX( ncm.iScrollHeight, ncm.iScrollWidth );
+	    else
+		ret = QCommonStyle::pixelMetric( metric, widget );
+	}
+	break;
 #endif
 
     case PM_SplitterWidth:
