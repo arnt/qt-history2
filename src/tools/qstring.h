@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#115 $
+** $Id: //depot/qt/main/src/tools/qstring.h#116 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -73,8 +73,15 @@ public:
     // Unicode information
     enum Category
     {
-      NoCategory, Mn, Mc, Nd, No, Zs, Zl, Zp, Cc, Co, Cn, Lu,
-      Ll, Lt, Lm, Lo, Pd, Ps, Pe, Po, Sm, Sc, So
+      NoCategory,
+      Mn, Mc, Me,
+      Nd, Nl, No,
+      Zs, Zl, Zp,
+      Cc, Cf, Cs, Co, Cn,
+
+      Lu, Ll, Lt, Lm, Lo,
+      Pc, Pd, Ps, Pe, Pi, Pf, Po,
+      Sm, Sc, Sk, So
     };
 
     enum Direction
@@ -92,7 +99,7 @@ public:
     enum Joining
     {
       OtherJoining, Dual, Right, Center, Unknown
-    };                                                                         
+    };
 
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
 
@@ -242,6 +249,8 @@ public:
     QString    &operator=( const char * );	// deep copy
 #endif
     QString    &operator=( const QCString& );	// deep copy
+    QString    &operator=( QChar c ) { return *this = QString(c); }
+    QString    &operator=( char c ) { return *this = QString(QChar(c)); }
 
     QT_STATIC_CONST QString null;
 
@@ -352,6 +361,8 @@ public:
     QCharRef at( uint i );
     QCharRef operator[]( int i );
 
+    const QChar& constref(uint i) const
+	{ return at(i); }
     QChar& ref(uint i)
 	{ // Optimized for easy-inlining by simple compilers.
 	    if (d->count!=1 || i>=d->len)
@@ -441,35 +452,35 @@ public:
     QCharRef operator=(uint rc ) { s.ref(p)=rc; return *this; }
     QCharRef operator=(int rc ) { s.ref(p)=rc; return *this; }
 
-    operator const QChar& () const { return ((const QString&)s)[p]; }
+    operator const QChar& () const { return s.constref(p); }
 
     // each function...
-    ushort unicode() const { return (((const QString&)s)[p]).unicode(); }
-    char latin1() const { return (((const QString&)s)[p]).latin1(); }
+    ushort unicode() const { return s.constref(p).unicode(); }
+    char latin1() const { return s.constref(p).latin1(); }
 
     bool isNull() const { return unicode()==0; }
-    bool isPrint() const { return (((const QString&)s)[p]).isPrint(); }
-    bool isPunct() const { return (((const QString&)s)[p]).isPunct(); }
-    bool isSpace() const { return (((const QString&)s)[p]).isSpace(); }
-    bool isMark() const { return (((const QString&)s)[p]).isMark(); }
-    bool isLetter() const { return (((const QString&)s)[p]).isLetter(); }
-    bool isNumber() const { return (((const QString&)s)[p]).isNumber(); }
-    bool isDigit() const { return (((const QString&)s)[p]).isDigit(); }
+    bool isPrint() const { return s.constref(p).isPrint(); }
+    bool isPunct() const { return s.constref(p).isPunct(); }
+    bool isSpace() const { return s.constref(p).isSpace(); }
+    bool isMark() const { return s.constref(p).isMark(); }
+    bool isLetter() const { return s.constref(p).isLetter(); }
+    bool isNumber() const { return s.constref(p).isNumber(); }
+    bool isDigit() const { return s.constref(p).isDigit(); }
 
-    int digitValue() const { return (((const QString&)s)[p]).digitValue(); }
-    QChar lower() { return (((const QString&)s)[p]).lower(); }
-    QChar upper() { return (((const QString&)s)[p]).upper(); }
+    int digitValue() const { return s.constref(p).digitValue(); }
+    QChar lower() { return s.constref(p).lower(); }
+    QChar upper() { return s.constref(p).upper(); }
 
-    QChar::Category category() const { return (((const QString&)s)[p]).category(); }
-    QChar::Direction direction() const { return (((const QString&)s)[p]).direction(); }
-    QChar::Joining joining() const { return (((const QString&)s)[p]).joining(); }
-    bool mirrored() const { return (((const QString&)s)[p]).mirrored(); }
-    QString decomposition() const { return (((const QString&)s)[p]).decomposition(); }
-    QChar::Decomposition decompositionTag() const { return (((const QString&)s)[p]).decompositionTag(); }
+    QChar::Category category() const { return s.constref(p).category(); }
+    QChar::Direction direction() const { return s.constref(p).direction(); }
+    QChar::Joining joining() const { return s.constref(p).joining(); }
+    bool mirrored() const { return s.constref(p).mirrored(); }
+    QString decomposition() const { return s.constref(p).decomposition(); }
+    QChar::Decomposition decompositionTag() const { return s.constref(p).decompositionTag(); }
 
     // Not the non-const ones of these.
-    uchar cell() const { return (((const QString&)s)[p]).cell(); }
-    uchar row() const { return (((const QString&)s)[p]).row(); }
+    uchar cell() const { return s.constref(p).cell(); }
+    uchar row() const { return s.constref(p).row(); }
 };
 
 inline QCharRef QString::at( uint i ) { return QCharRef(this,i); }
@@ -591,7 +602,7 @@ Q_EXPORT bool operator!=( const char *s1, const QString &s2 );
 Q_EXPORT bool operator<( const char *s1, const QString &s2 );
 Q_EXPORT bool operator<=( const char *s1, const QString &s2 );
 Q_EXPORT bool operator==( const char *s1, const QString &s2 );
-Q_EXPORT bool operator>( const char *s1, const QString &s2 );
+//Q_EXPORT bool operator>( const char *s1, const QString &s2 ); // MSVC++
 Q_EXPORT bool operator>=( const char *s1, const QString &s2 );
 #endif
 
