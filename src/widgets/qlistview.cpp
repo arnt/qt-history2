@@ -4818,10 +4818,6 @@ void QListView::setCurrentItem( QListViewItem * i )
 	    repaintItem( prev );
 	emit currentChanged( i );
     }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 

@@ -293,9 +293,6 @@ void QSlider::valueChange()
 	reallyMoveSlider( newPos );
     }
     emit valueChanged(value());
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 

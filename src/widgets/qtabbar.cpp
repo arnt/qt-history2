@@ -650,10 +650,6 @@ void QTabBar::setCurrentTab( QTab * tab )
 	makeVisible( tab );
 	emit selected( tab->id );
     }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 /*! \property QTabBar::keyboardFocusTab

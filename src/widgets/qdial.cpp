@@ -489,10 +489,6 @@ void QDial::valueChange()
     repaintScreen();
     if ( d->tracking || !d->doNotEmit )
 	emit valueChanged( value() );
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 

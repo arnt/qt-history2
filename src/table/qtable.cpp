@@ -2450,10 +2450,6 @@ void QTable::setCurrentCell( int row, int col )
 		cellWidget( itm->row(), itm->col() )->setFocus();
 	}
     }
-
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 /*! Scrolls the table until the cell \a row, \a col becomes
