@@ -72,8 +72,8 @@ public:
 
     Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
 
-    void setDockWindowState(const QString &state);
-    QString dockWindowState() const;
+    QByteArray saveState(int version = 0) const;
+    bool restoreState(const QByteArray &state, int version = 0);
 
     virtual QMenu *createPopupMenu();
 

@@ -62,6 +62,10 @@ public:
     QList<QDockWindowLayoutInfo> *save_layout_info;
 
     QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::Orientation o);
+    ~QDockWindowLayout();
+
+    void saveState(QDataStream &stream) const;
+    void restoreState(QDataStream &stream);
 
     // QLayout interface
     void addItem(QLayoutItem *layoutitem);

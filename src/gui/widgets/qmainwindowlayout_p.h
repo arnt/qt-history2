@@ -61,6 +61,9 @@ class QMainWindowLayout : public QLayout
                          Qt::Orientation orientation);
     Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
 
+    void saveState(QDataStream &stream) const;
+    void restoreState(QDataStream &stream);
+
     // QLayout interface
     void addItem(QLayoutItem *item);
     void setGeometry(const QRect &r);
@@ -117,7 +120,7 @@ class QMainWindowLayout : public QLayout
 	QPoint pos;
 	QSize size;
 	QPoint offset;
-	uint is_dummy : 1;
+        uint is_dummy : 1;
     };
 
     struct ToolBarLineInfo

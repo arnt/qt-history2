@@ -80,6 +80,135 @@ QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::DockWindowArea a, Qt::
       relayout_type(QInternal::RelayoutNormal)
 { connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 
+QDockWindowLayout::~QDockWindowLayout()
+{
+    for (int i = 0; i < layout_info.count(); ++i) {
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
+	if (info.is_sep)
+            delete info.item->widget();
+        delete info.item;
+    }
+}
+
+enum {
+    DockWindowLayoutStart  = 0x20398492,
+    DockWindowLayoutStop   = 0x20398493,
+    DockWindowLayoutWidget = 0x20398494,
+    DockWindowLayoutNested = 0x20398495
+};
+
+void QDockWindowLayout::saveState(QDataStream &stream) const
+{
+    stream << DockWindowLayoutStart;
+    stream << (uchar) orientation;
+    stream << (layout_info.count() + 1) / 2;
+    for (int i = 0; i < layout_info.count(); ++i) {
+	const QDockWindowLayoutInfo &info = layout_info.at(i);
+	if (info.is_sep)
+            continue;
+	if (info.item->widget()) {
+            const QWidget * const widget = info.item->widget();
+            stream << DockWindowLayoutWidget;
+            stream << widget->windowTitle();
+            stream << (uchar) widget->isShown();
+            stream << info.cur_pos;
+            stream << info.cur_size;
+            stream << info.min_size;
+            stream << info.max_size;
+        } else if (info.item->layout()) {
+            stream << DockWindowLayoutNested;
+            stream << info.cur_pos;
+            stream << info.cur_size;
+            stream << info.min_size;
+            stream << info.max_size;
+            const QDockWindowLayout * const layout =
+                qt_cast<const QDockWindowLayout *>(info.item->layout());
+            layout->saveState(stream);
+        }
+    }
+    stream << DockWindowLayoutStop;
+}
+
+void QDockWindowLayout::restoreState(QDataStream &stream)
+{
+    int start, size;
+    stream >> start;
+    Q_ASSERT(start == DockWindowLayoutStart);
+    uchar o;
+    stream >> o;
+    orientation = static_cast<Qt::Orientation>(o);
+    stream >> size;
+
+    qDebug("RESTORE start %x, %d, %d", start, orientation, size);
+    QList<QWidget *> widgets = qFindChildren<QWidget *>(parentWidget());
+    for (int i = 0; i < size; ++i) {
+        int type;
+        stream >> type;
+
+        qDebug("    type %x", type);
+        switch (type) {
+        case DockWindowLayoutWidget:
+            {
+                QString windowTitle;
+                stream >> windowTitle;
+                uchar shown;
+                stream >> shown;
+
+
+
+
+                qDebug("    widget %s, shown %d", windowTitle.local8Bit(), shown);
+
+                // find widget
+                QWidget *widget = 0;
+                for (int t = 0; t < widgets.size(); ++t) {
+                    if (widgets.at(t)->windowTitle() == windowTitle) {
+                        widget = widgets.at(t);
+                        break;
+                    }
+                }
+                if (!widget) {
+                    // discard size/position data
+                    QDockWindowLayoutInfo info(0);
+                    stream >> info.cur_pos;
+                    stream >> info.cur_size;
+                    stream >> info.min_size;
+                    stream >> info.max_size;
+                    continue;
+                }
+
+                QDockWindowLayoutInfo &info = insert(-1, new QWidgetItem(widget));
+                widget->setShown(shown);
+                stream >> info.cur_pos;
+                stream >> info.cur_size;
+                stream >> info.min_size;
+                stream >> info.max_size;
+                break;
+            }
+
+        case DockWindowLayoutNested:
+            {
+                qDebug("    nested layout");
+                QDockWindowLayout *layout = new QDockWindowLayout(this, area, orientation);
+                QDockWindowLayoutInfo &info = insert(-1, layout);
+                stream >> info.cur_pos;
+                stream >> info.cur_size;
+                stream >> info.min_size;
+                stream >> info.max_size;
+                layout->restoreState(stream);
+                break;
+            }
+
+        default:
+            Q_ASSERT(false);
+        }
+    };
+    int stop;
+    stream >> stop;
+    qDebug("stop %x", stop);
+    Q_ASSERT(stop == DockWindowLayoutStop);
+}
+
 QLayoutItem *QDockWindowLayout::find(QWidget *widget)
 {
     for (int i = 0; i < layout_info.count(); ++i) {

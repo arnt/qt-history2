@@ -370,7 +370,7 @@ static bool findWidgetRecursively(QLayoutItem *li, QWidget *w)
 
 Qt::DockWindowArea QMainWindowLayout::dockWindowArea(QDockWindow *dockwindow) const
 {
-    for (int pos = 0; pos < NPOSITIONS; ++pos) {
+    for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
         if (!layout_info[pos].item)
             continue;
         if (findWidgetRecursively(layout_info[pos].item, dockwindow))
@@ -380,6 +380,129 @@ Qt::DockWindowArea QMainWindowLayout::dockWindowArea(QDockWindow *dockwindow) co
                "'dockwindow' is not managed by this main window.");
     return Qt::DockWindowAreaTop;
 
+}
+
+enum { ToolBars = 0xf7001844, DockWindows = 0xf7001845 };
+
+void QMainWindowLayout::saveState(QDataStream &stream) const
+{
+    stream << ToolBars;
+    stream << tb_layout_info.size(); // number of toolbar lines
+    if (!tb_layout_info.isEmpty()) {
+        for (int line = 0; line < tb_layout_info.size(); ++line) {
+            const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+            stream << lineInfo.pos;
+            stream << lineInfo.list.size();
+            for (int i = 0; i < lineInfo.list.size(); ++i) {
+                const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+                stream << info.item->widget()->windowTitle();
+                stream << (uchar) info.item->widget()->isShown();
+                stream << info.pos;
+                stream << info.size;
+                stream << info.offset;
+            }
+        }
+    }
+    stream << DockWindows;
+    int x = 0;
+    for (int i = 0; i < NPOSITIONS - 1; ++i) {
+        if (!layout_info[i].item)
+            continue;
+        ++x;
+    }
+    stream << x;
+    for (int i = 0; i < NPOSITIONS - 1; ++i) {
+        if (!layout_info[i].item) {
+            continue;
+        }
+        stream << i;
+        const QDockWindowLayout * const layout =
+            qt_cast<const QDockWindowLayout *>(layout_info[i].item->layout());
+        Q_ASSERT(layout != 0);
+        layout->saveState(stream);
+        stream << layout_info[i].size;
+    }
+    stream << layout_info[CENTER].size;
+}
+
+void QMainWindowLayout::restoreState(QDataStream &stream)
+{
+    // destroy layout
+    relayout_type = QInternal::RelayoutDragging;
+    for (int line = 0; line < tb_layout_info.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            delete lineInfo.list[i].item;
+    }
+    tb_layout_info.clear();
+    for (int i = 0; i < NPOSITIONS - 1; ++i) {
+        delete layout_info[i].item;
+        if (layout_info[i].sep)
+            delete layout_info[i].sep->widget();
+        delete layout_info[i].sep;
+
+        layout_info[i].item = 0;
+        layout_info[i].sep = 0;
+        layout_info[i].size = QSize();
+        layout_info[i].is_dummy = false;
+    }
+    relayout_type = QInternal::RelayoutNormal;
+
+    // restore toolbar layout
+    int t, lines;
+    stream >> t;
+    stream >> lines;
+    Q_ASSERT(t == ToolBars);
+    const QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(parentWidget());
+    for (int line = 0; line < lines; ++line) {
+        ToolBarLineInfo lineInfo;
+        stream >> lineInfo.pos;
+        int size;
+        stream >> size;
+        for (int i = 0; i < size; ++i) {
+            ToolBarLayoutInfo info;
+            QString windowTitle;
+            stream >> windowTitle;
+            uchar shown;
+            stream >> shown;
+            stream >> info.pos;
+            stream >> info.size;
+            stream >> info.offset;
+
+            // find toolbar
+            QToolBar *toolbar = 0;
+            for (int t = 0; t < toolbars.size(); ++t) {
+                if (toolbars.at(t)->windowTitle() == windowTitle) {
+                    toolbar = toolbars.at(t);
+                    break;
+                }
+            }
+            if (!toolbar)
+                continue;
+
+            info.item = new QWidgetItem(toolbar);
+            toolbar->setShown(shown);
+            lineInfo.list << info;
+        }
+        tb_layout_info << lineInfo;
+    }
+
+    // restore dockwindow layout
+    int d, areas;
+    stream >> d;
+    stream >> areas;
+    Q_ASSERT(d == DockWindows);
+    for (int area = 0; area  < areas; ++area) {
+        int pos;
+        stream >> pos;
+        QDockWindowLayout * const layout =
+            layoutForArea(static_cast<Qt::DockWindowArea>(areaForPosition(pos)));
+        layout->restoreState(stream);
+        stream >> layout_info[pos].size;
+    }
+
+    // restore center widget size
+    stream >> layout_info[CENTER].size;
 }
 
 QLayoutItem *QMainWindowLayout::itemAt(int index) const
@@ -802,7 +925,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	for (int i = 0; i < num_tbs; ++i) {
 	    ToolBarLayoutInfo &info = lineInfo.list[i];
 	    QRect tb(info.pos, info.size);
-	    if (!tb.isEmpty() && (relayout_type == QInternal::RelayoutNormal || info.is_dummy))
+	    if (!tb.isEmpty() && relayout_type == QInternal::RelayoutNormal)
 		info.item->setGeometry(tb);
 	}
     }
@@ -1230,8 +1353,10 @@ void QMainWindowLayout::relayout(QInternal::RelayoutType type)
 
 void QMainWindowLayout::invalidate()
 {
-    if (relayout_type != QInternal::RelayoutDragging)
+    if (relayout_type != QInternal::RelayoutDragging) {
+        qDebug("QMainWindowLayout: invalidated!");
         QLayout::invalidate();
+    }
 }
 
 void QMainWindowLayout::saveLayoutInfo()

@@ -396,23 +396,44 @@ Qt::DockWindowArea QMainWindow::dockWindowArea(QDockWindow *dockwindow) const
 { return d->layout->dockWindowArea(dockwindow); }
 
 /*!
-    \internal
-    Unimplemented: it should set the \a state for the dock window.
+    Saves the current state of this mainwindow's toolbars and
+    dockwindows.  The \a version number is stored as part of the data.
+
+    To restore the saved state, pass the return value and \a version
+    number to restoreState().
+
+    \sa restoreState()
 */
-void QMainWindow::setDockWindowState(const QString &/*state*/)
+QByteArray QMainWindow::saveState(int version) const
 {
-    Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << version;
+    d->layout->saveState(stream);
+    return data;
 }
 
 /*!
-    \internal
+    Restores the \a state of this mainwindow's toolbars and
+    dockwindows.  The \a version number is compared with that stored
+    in \a state.  If they do not match, the mainwindow's state is left
+    unchanged, and this function returns false; otherwise, the state
+    is restored, and this function returns true.
 
-    Unimplemented.
+    \sa saveState()
 */
-QString QMainWindow::dockWindowState() const
+bool QMainWindow::restoreState(const QByteArray &state, int version)
 {
-    Q_ASSERT_X(false, "QMainWindow::dockWindowState", "unimplemented");
-    return QString();
+    QByteArray sd = stateData;
+    QDataStream stream(&sd, QIODevice::ReadOnly);
+    int v;
+    stream >> v;
+    if (v != version)
+        return false;
+    d->layout->restoreState(stream);
+    if (isVisible())
+        d->layout->relayout();
+    return true;
 }
 
 /*! \reimp */
