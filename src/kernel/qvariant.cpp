@@ -1400,9 +1400,11 @@ void QVariant::save( QDataStream& s ) const
     case BitArray:
 	s << *((QBitArray*)d->value.ptr);
 	break;
+#ifndef QT_NO_ACCEL
     case KeySequence:
 	s << *((QKeySequence*)d->value.ptr);
 	break;
+#endif
     case Pen:
 	s << *((QPen*)d->value.ptr);
 	break;

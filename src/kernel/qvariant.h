@@ -150,7 +150,9 @@ public:
     QVariant( const QDateTime& );
     QVariant( const QByteArray& );
     QVariant( const QBitArray& );
+#ifndef QT_NO_ACCEL
     QVariant( const QKeySequence& );
+#endif
     QVariant( const QPen& );
 #ifndef QT_NO_TEMPLATE_VARIANT
     QVariant( const QValueList<QVariant>& );
@@ -203,7 +205,9 @@ public:
     const QDateTime toDateTime() const;
     const QByteArray toByteArray() const;
     const QBitArray toBitArray() const;
+#ifndef QT_NO_ACCEL
     const QKeySequence toKeySequence() const;
+#endif
     const QPen toPen() const;
     int toInt( bool * ok=0 ) const;
     uint toUInt( bool * ok=0 ) const;
