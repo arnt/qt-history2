@@ -13,7 +13,7 @@ unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
 
 TARGET		= qaquastyle
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= $(QTDIR)/plugins/styles
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins

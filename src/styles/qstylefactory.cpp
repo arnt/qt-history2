@@ -74,7 +74,7 @@ QStyleFactoryPrivate::QStyleFactoryPrivate()
 
     QString defpath(getenv("QTDIR"));
     if (! defpath.isNull() && ! defpath.isEmpty()) {
-        manager->addLibraryPath(defpath + "/plugins");
+        manager->addLibraryPath(defpath + "/plugins/styles");
     }
 
     QStringList paths(QApplication::libraryPaths());
