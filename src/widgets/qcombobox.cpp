@@ -1328,7 +1328,6 @@ void QComboBox::popup()
     if ( d->usingListBox() ) {
 			// Send all listbox events to eventFilter():
 	d->listBox()->installEventFilter( this );
-	d->listBox()->viewport()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox()->resize( width(),
 			    listHeight( d->listBox(), d->sizeLimit ) + 2 );
