@@ -1265,11 +1265,9 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
         opt.state |= QStyle::State_Sunken;
 
     if (type != QVariant::Invalid) {
-        opt.percentage = (value - minimum) / (maximum - minimum);
         opt.stepEnabled = q->stepEnabled();
     } else {
         opt.stepEnabled = QAbstractSpinBox::StepNone;
-        opt.percentage = 0.0;
     }
 
     opt.frame = frame;

@@ -980,7 +980,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
     : QStyleOptionComplex(Version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), frame(false)
+      stepEnabled(QAbstractSpinBox::StepNone), frame(false)
 {
 }
 
@@ -989,7 +989,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox()
 */
 QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-      stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), frame(false)
+      stepEnabled(QAbstractSpinBox::StepNone), frame(false)
 {
 }
 
@@ -1006,14 +1006,6 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     \brief Indicates which buttons of the spin box are enabled.
 
     \sa QAbstractSpinBox::StepEnabled
-*/
-
-/*!
-    \property QStyleOptionSpinBox::percentage
-    \brief The percentage of the spin box
-
-    The percentage is the quotient of the current value divided by
-    the maximum value.
 */
 
 /*!

@@ -486,7 +486,6 @@ public:
 
     QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QAbstractSpinBox::StepEnabled stepEnabled;
-    double percentage;
     bool frame;
 
     QStyleOptionSpinBox();
@@ -494,7 +493,6 @@ public:
 
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
-    QDOC_PROPERTY(double percentage)
     QDOC_PROPERTY(bool frame)
 
 protected:

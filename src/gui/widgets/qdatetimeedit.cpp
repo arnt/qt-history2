@@ -76,7 +76,6 @@ public:
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state) const;
     void editorCursorPositionChanged(int lastpos, int newpos);
 
-    QStyleOptionSpinBox getStyleOption() const;
     QVariant valueForPosition(int pos) const;
 
     void clearSection(Section s);
@@ -1480,17 +1479,8 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
         }
     }
 
-    if (s == HourSection && display & AmPmSection) {
-	if (val == 12 && steps > 0) {
-	    val = wrapping ? val + steps : 12;
-	} else if (val == 23 && steps > 0) {
-	    val = wrapping ? val + steps : 23;
-	} else {
-	    val += steps;
-	}
-    } else {
-	val += steps;
-    }
+    val += steps;
+
     const int min = absoluteMin(s);
     const int max = absoluteMax(s);
 
@@ -1966,21 +1956,6 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section 
     }
     return (forward ? last : first);
 }
-
-QStyleOptionSpinBox QDateTimeEditPrivate::getStyleOption() const
-{
-    QStyleOptionSpinBox opt = QAbstractSpinBoxPrivate::getStyleOption();
-
-    double days = (double)minimum.toDateTime().daysTo(value.toDateTime());
-    days += (double)minimum.toDateTime().time().msecsTo(value.toDateTime().time()) / (24 * 3600 * 1000);
-    double totalDays = (double)minimum.toDateTime().daysTo(maximum.toDateTime());
-    totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
-
-    opt.percentage = days / totalDays;
-    return opt;
-}
-
-
 
 /*!
     \internal
