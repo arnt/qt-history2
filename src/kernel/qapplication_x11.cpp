@@ -1422,6 +1422,9 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
+#if QT_VERSION >= 300
+    ASSERT(!mainWidget->parentWidget()); // catch silly error
+#endif
     extern int qwidget_tlw_gravity;		// in qwidget_x11.cpp
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
