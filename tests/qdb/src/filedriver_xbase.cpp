@@ -133,13 +133,30 @@ bool FileDriver::create( const qdb::List& data )
 	QString name = fieldDescription[0].toString();
 	int namelen = QMAX( name.length(), 11 );
 	QVariant::Type type = (QVariant::Type)fieldDescription[1].toInt();
+	if ( type == QVariant::DateTime )
+	    type = QVariant::Date;
 	int len = fieldDescription[2].toInt();
 	int prec = fieldDescription[3].toInt();
 	qstrncpy( x.FieldName, name.latin1(), namelen );
 	x.FieldName[namelen] = 0;
 	x.Type = variantToXbaseType( type );
-	x.FieldLen = len;
-	x.NoOfDecs = prec;
+	switch( x.Type ) {
+	case  XB_DATE_FLD:
+	    x.FieldLen = 8;
+	    x.NoOfDecs = 0;
+	    break;
+	case XB_LOGICAL_FLD:
+	    x.FieldLen = 1;
+	    x.NoOfDecs = 0;
+	    break;
+	default:
+	    x.FieldLen = len;
+	    x.NoOfDecs = prec;
+	    break;
+	}
+	if ( !x.Type ) {
+	    ERROR_RETURN( "internal error:FileDriver::create: unknown type for field:" + name );
+	}
 	xbrec[i] = x;
     }
     memset( &x, 0, sizeof(xbSchema) );
