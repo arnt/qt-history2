@@ -42,6 +42,9 @@ public:
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role);
+    
     bool isDirty(const QModelIndex &index) const;
     void clear();
 

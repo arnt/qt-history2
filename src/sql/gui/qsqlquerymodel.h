@@ -35,7 +35,9 @@ public:
     QSqlRecord record() const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = QAbstractItemModel::DisplayRole) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
     bool insertColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
     bool removeColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);

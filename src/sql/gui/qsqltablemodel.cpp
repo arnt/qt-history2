@@ -240,21 +240,14 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
 
     QModelIndex item = dataIndex(idx);
     if (idx.row() == d->insertIndex) {
-        if (item.type() == QModelIndex::VerticalHeader) {
-            return "*";
-        } else if (item.type() == QModelIndex::View) {
-            QVariant val;
-            if (item.column() < 0 || item.column() >= d->rec.count())
-                return val;
-            val = d->editBuffer.value(idx.column());
-            if (val.type() == QVariant::Invalid)
-                val = QVariant(d->rec.field(item.column()).type());
+        QVariant val;
+        if (item.column() < 0 || item.column() >= d->rec.count())
             return val;
-        }
+        val = d->editBuffer.value(idx.column());
+        if (val.type() == QVariant::Invalid)
+            val = QVariant(d->rec.field(item.column()).type());
+        return val;
     }
-
-    if (item.type() != QModelIndex::View)
-        return QSqlQueryModel::data(item, role);
 
     switch (d->strategy) {
     case OnFieldChange:
@@ -273,6 +266,13 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
         break; }
     }
     return QSqlQueryModel::data(item, role);
+}
+
+QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role)
+{
+    if (orientation == Qt::Vertical)
+        return "*";
+    return QSqlQueryModel::headerData(section, orientation, role);
 }
 
 /*!
@@ -310,9 +310,6 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
  */
 bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    if (index.type() != QModelIndex::View)
-        return QSqlQueryModel::setData(index, role, value);
-
     QSqlRecord rec = query().record();
     if (index.column() >= rec.count())
         return false;
@@ -806,7 +803,7 @@ QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
 {
     QModelIndex it = QSqlQueryModel::dataIndex(item);
     if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
-        return createIndex(it.row() - 1, it.column(), it.data(), it.type());
+        return createIndex(it.row() - 1, it.column(), it.data());
     return it;
 }
 

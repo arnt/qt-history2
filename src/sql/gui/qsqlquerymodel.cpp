@@ -134,15 +134,6 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
     if (!item.isValid())
         return QVariant();
 
-    if (item.type() == QModelIndex::HorizontalHeader) {
-        QVariant val = d->headers.value(item.column());
-        if (val.isValid())
-            return val;
-        return d->rec.fieldName(item.column());
-    }
-    if (item.type() == QModelIndex::VerticalHeader)
-        return QString::number(item.row());
-
     QVariant v;
     if (role & ~(DisplayRole | EditRole))
         return v;
@@ -161,6 +152,16 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
     return d->query.value(dItem.column());
 }
 
+QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        QVariant val = d->headers.value(section);
+        if (val.isValid())
+            return val;
+        return d->rec.fieldName(section);
+    }
+    return QAbstractItemModel::headerData(section, orientation, role);
+}
 
 /*!
     Resets the model and sets the data provider to be the given \a
@@ -231,15 +232,15 @@ void QSqlQueryModel::clear()
 
     \sa data()
  */
-bool QSqlQueryModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation, int role,
+                                   const QVariant &value)
 {
-    if (role != DisplayRole || index.type() != QModelIndex::HorizontalHeader || index.row() <= 0
-        || index.column() < 0)
+    if (role != DisplayRole || orientation != Qt::Horizontal || section <= 0 || section < 0)
         return false;
 
-    if (d->headers.size() <= index.row())
-        d->headers.resize(qMax(index.row() + 1, 16));
-    d->headers[index.row()] = value;
+    if (d->headers.size() <= section)
+        d->headers.resize(qMax(section + 1, 16));
+    d->headers[section] = value;
     return true;
 }
 
@@ -365,6 +366,5 @@ QModelIndex QSqlQueryModel::dataIndex(const QModelIndex &item) const
     if (item.column() < 0 || item.column() >= d->rec.count()
         || !d->rec.isGenerated(item.column()))
         return QModelIndex();
-    return createIndex(item.row(), item.column() - d->colOffsets[item.column()],
-                       item.data(), item.type());
+    return createIndex(item.row(), item.column() - d->colOffsets[item.column()], item.data());
 }
