@@ -32,16 +32,16 @@ FormEditor::FormEditor(QObject *parent)
 {
     WidgetDataBase *widgetDatabase = new WidgetDataBase(this);
     setWidgetDataBase(widgetDatabase);
-    
+
     MetaDataBase *metaDataBase = new MetaDataBase(this);
     setMetaDataBase(metaDataBase);
-    
+
     WidgetFactory *widgetFactory = new WidgetFactory(this);
     setWidgetFactory(widgetFactory);
-    
+
     FormWindowManager *formWindowManager = new FormWindowManager(this, parent);
     setFormManager(formWindowManager);
-    
+
     QExtensionManager *mgr = new QExtensionManager(this);
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(IPropertySheet));
     mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(IContainer));
@@ -52,9 +52,6 @@ FormEditor::FormEditor(QObject *parent)
 
     SignalSlotEditor::registerExtensions(this);
 
-    PluginManager pluginManager;
-    pluginManager.registerPath("/home/rraggi/dev/ide/main/plugins");
-        
     // load the plugins
     widgetDatabase->loadPlugins();
     widgetFactory->loadPlugins();
