@@ -2922,6 +2922,8 @@ bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
     }
     // call the handler
     if ( contentHnd ) {
+	delete d->parseStack;
+	d->parseStack = 0;
 	if ( !contentHnd->endDocument() ) {
 	    reportParseError( contentHnd->errorString() );
 	    return FALSE;
