@@ -583,7 +583,12 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
 
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     oldFocus = qApp->focusWidget();
+// setFocus activates the window, which deactivates the main window
+// not what we want, and not required anyway on Windows
+#ifndef Q_WS_WIN
     setFocus();
+#endif
+
     e->ignore();
     if ( e->button() != LeftButton )
 	return;
@@ -594,7 +599,11 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     offset = e->pos();
     dockWindow->startRectDraw( mapToGlobal( e->pos() ), !opaque );
+// grabMouse resets the Windows mouse press count, so we never receive a double click on Windows
+// not required on Windows, and did work on X11, too, but no problem there in the first place
+#ifndef Q_WS_WIN
     grabMouse();
+#endif
 }
 
 void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
