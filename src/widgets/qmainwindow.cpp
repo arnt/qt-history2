@@ -1741,6 +1741,9 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     if ( !toolBar )
 	return;
 
+    if ( !isDockEnabled( edge ) )
+	return;
+
     // if the toolbar is just moved a bit (offset change), but the order in the dock doesn't change,
     // then don't do the hard work
     if ( relative == toolBar || ipos == QMainWindowPrivate::SameIndex ) {
@@ -2667,14 +2670,14 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    int left = menu.insertItem( tr( "&Left" ) );
 	    menu.setItemEnabled( left, isDockEnabled( Left ) && isDockEnabled( t, Left ) );
 	    int right = menu.insertItem( tr( "&Right" ) );
-	    menu.setItemEnabled( left, isDockEnabled( Right ) && isDockEnabled( t, Right ) );
+	    menu.setItemEnabled( right, isDockEnabled( Right ) && isDockEnabled( t, Right ) );
 	    int top = menu.insertItem( tr( "&Top" ) );
-	    menu.setItemEnabled( left, isDockEnabled( Top ) && isDockEnabled( t, Top ) );
+	    menu.setItemEnabled( top, isDockEnabled( Top ) && isDockEnabled( t, Top ) );
 	    int bottom = menu.insertItem( tr( "&Bottom" ) );
-	    menu.setItemEnabled( left, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) );
+	    menu.setItemEnabled( bottom, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) );
 	    menu.insertSeparator();
 	    int hide = menu.insertItem( tr( "&Hide" ) );
-	    menu.setItemEnabled( left, isDockEnabled( Minimized ) && isDockEnabled( t, Minimized ) );
+	    menu.setItemEnabled( hide, isDockEnabled( Minimized ) && isDockEnabled( t, Minimized ) );
 	    int res = menu.exec( e->globalPos() );
 	    if ( res == left )
 		moveToolBar( t, Left );
@@ -2688,6 +2691,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		moveToolBar( t,  Minimized );
 	    emit endMovingToolBar( t );
 	    d->inMovement = FALSE;
+
+	    triggerLayout();
 	    return;
 	}
 	if ( ( e->button() & MidButton ) ) {
@@ -2729,6 +2734,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->origDock = d->oldDock = dock;
 	d->cursorOffset = t->mapFromGlobal( e->globalPos() );
 
+	triggerLayout();
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease && d->inMovement ) {
 	if ( ( e->button() & RightButton ) ) {
@@ -2818,6 +2824,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	emit endMovingToolBar( t );
 	d->inMovement = FALSE;
+	triggerLayout();
 
 	return;
     } else if ( e->type() == QMouseEvent::MouseMove ) {
