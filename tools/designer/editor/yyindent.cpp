@@ -25,7 +25,7 @@ static int ppContinuationIndentSize = 8;
 static int ppCommentOffset = 2;
 
 static QRegExp braceElse( QString("^\\s*\\}\\s*else\\b") );
-static QRegExp ctlStmtKeyword( QString("\\b(?:do|for|if|while)\\b") );
+static QRegExp ctlStmtKeyword( QString("\\b(?:do|for|if|while|function)\\b") );
 static QRegExp forKeyword( QString("\\bfor\\b") );
 static QRegExp label( QString("^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):(?!:))") );
 
