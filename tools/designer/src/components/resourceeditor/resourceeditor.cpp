@@ -201,6 +201,7 @@ void FormTab::addPrefix()
     QModelIndex idx = model->addNewPrefix();
     view->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
     m_prefix_edit->setFocus();
+    updateUi();
 }
 
 void FormTab::setCurrentPrefix(const QString &prefix)
@@ -214,6 +215,7 @@ void FormTab::setCurrentPrefix(const QString &prefix)
         return;
 
     model->changePrefix(view->currentIndex(), prefix);
+    updateUi();
 }
 
 void FormTab::addFiles()
@@ -237,6 +239,7 @@ void FormTab::addFiles()
         view->setExpanded(model->prefixIndex(view->currentIndex()), true);
         view->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
     }
+    updateUi();
 }
 
 void FormTab::deleteItem()
@@ -261,6 +264,7 @@ void FormTab::deleteItem()
             view->setExpanded(pref_idx, true);
         view->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
     }
+    updateUi();
 }
 
 void FormTab::updateUi()
@@ -370,6 +374,7 @@ void FormTab::saveCurrentView()
     }
     
     model->save();
+    updateUi();
 }
 
 int FormTab::indexOfView(QTreeView *view)
@@ -410,6 +415,7 @@ void FormTab::removeCurrentView()
         setCurrentIndex(idx);
     else if (idx > 0)
         setCurrentIndex(idx - 1);
+    updateUi();
 }
 
 void FormTab::reloadCurrentView()
@@ -419,6 +425,7 @@ void FormTab::reloadCurrentView()
         return;
 
     model->reload();
+    updateUi();
 }
 
 void FormTab::newView()
