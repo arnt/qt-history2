@@ -129,9 +129,6 @@ public:
 
     void updateCell( int row, int col );
 
-    virtual void setDefaultValidator( QValidator *validator );
-    virtual QValidator *defaultValidator() const;
-
     bool eventFilter( QObject * o, QEvent * );
 
     void setCurrentCell( int row, int col );
@@ -179,7 +176,7 @@ public:
     virtual void setCellWidget( int row, int col, QWidget *e );
     QWidget *cellWidget( int row, int col ) const;
     virtual void clearCellWidget( int row, int col );
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -197,11 +194,10 @@ protected:
     virtual void activateNextCell();
     bool focusNextPrevChild( bool next );
     virtual QWidget *createEditor( int row, int col, bool initFromCell ) const;
-    virtual QWidget *createDefaultEditor() const;
     virtual void setCellContentFromEditor( int row, int col );
     virtual QWidget *showEditor( int row, int col, bool replace );
     virtual void hideEditor( int row, int col, bool accept, bool replace );
-    
+
 protected slots:
     virtual void columnWidthChanged( int col );
     virtual void rowHeightChanged( int row );
@@ -249,7 +245,6 @@ private:
     int curRow;
     int curCol;
     QTableHeader *leftHeader, *topHeader;
-    QValidator *defValidator;
     EditMode edMode;
     int editCol, editRow;
     QList<SelectionRange> selections;

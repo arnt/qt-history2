@@ -360,8 +360,8 @@ int QTableItem::colSpan() const
   cells. First it is generally possible to place widgets in cells. See
   setCellWidget(), clearCellWidget() and cellWidget() for further
   details. For in-place editing these functions plus some additional
-  for more specific handling are provided. 
-  
+  for more specific handling are provided.
+
   When in-plcae editing is started showEditor() is called. This
   creates the editor widget for the required cell, places and shows
   it. To create an editor widget this function calls createEditor() for
@@ -400,7 +400,7 @@ int QTableItem::colSpan() const
   realize in-place editing without QTableItems. See the documentation
   of these two functions for details about what you need to know for
   reimplementing them.
-  
+
   QTable also supports all needed selection types like range
   selections, selectiongs through the header, selection with keyboard
   and mouse, etc.
@@ -462,7 +462,7 @@ void QTable::init( int rows, int cols )
 {
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
-    
+
     // Enable clipper and set background mode
     enableClipper( TRUE );
     viewport()->setBackgroundMode( PaletteBase );
@@ -519,7 +519,6 @@ void QTable::init( int rows, int cols )
     setCurrentCell( 0, 0 );
     edMode = NotEditing;
     editRow = editCol = -1;
-    defValidator = 0;
 
     installEventFilter( this );
 
@@ -1248,10 +1247,10 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 
 void QTable::keyPressEvent( QKeyEvent* e )
 {
-    if ( isEditing() && item( editRow, editCol ) && 
+    if ( isEditing() && item( editRow, editCol ) &&
 	 item( editRow, editCol )->editType() == QTableItem::OnActivate )
 	return;
-    
+
     int curRow = QTable::curRow;
     int curCol = QTable::curCol;
     int oldRow = curRow;
@@ -1392,7 +1391,7 @@ void QTable::columnWidthChanged( int col )
     resizeContents( s.width(), s.height() );
     if ( contentsWidth() < w )
 	repaintContents( s.width(), 0, w - s.width() + 1, contentsHeight(), TRUE );
- 
+
     for ( int j = col; j < numCols(); ++j ) {
 	for ( int i = 0; i < numRows(); ++i ) {
 	    QWidget *w = cellWidget( i, j );
@@ -1663,24 +1662,6 @@ void QTable::setNumCols( int c )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 }
 
-/*!  Sets the QValidator which should be used by default for editing
-  cells to \a validator.
-*/
-
-void QTable::setDefaultValidator( QValidator *validator )
-{
-    defValidator = validator;
-}
-
-/*!  Returns the validator which should be used by default for editing
-  table cells.
-*/
-
-QValidator *QTable::defaultValidator() const
-{
-    return defValidator;
-}
-
 /*!  This function returns a widget which should be used as editor for
   the cell \a row, \a col. If \a initFromCell is TRUE, the editor is
   used to edit the current content of the cell (so the editor widget
@@ -1693,19 +1674,27 @@ QValidator *QTable::defaultValidator() const
   QTableItem::isReplacable() of the item is FALSE, the item of
   that cell is asked to create the editor (using QTableItem::createEditor)).
 
-  If this is not the case, createDefaultEditor() is called to get the editor
-  for that cell.
+  If this is not the case, a QLineEdit is created as editor.
 
   So if you want to create your own editor for certain cells,
   implement your own QTableItem and reimplement
-  QTableItem::createEditor(). If you want to use a different editor than a
-  QLineEdit as default editor, reimplement createDefaultEditor().
+  QTableItem::createEditor(). If you want to use a different editor
+  than a QLineEdit as default editor, reimplement this function and
+  use a code like
+  
+  \code
+    QTableItem *i = item( row, col );
+    if ( initFromCell || i && !i->isReplacable() )
+        return QTable::createEditor( row, col, initFromCell );
+    else
+        return ...(create your editor)
+    \endcode
 
-  So normally you do not need to reimplement this function. But if you
-  want e.g. work without QTableItems, you will reimplement this
-  function to create the correct editor for the cells.
+    So normally you do not need to reimplement this function. But if
+    you want e.g. work without QTableItems, you will reimplement this
+    function to create the correct editor for the cells.
 
-  The ownership of the editor widget is transferred to the caller.
+    The ownership of the editor widget is transferred to the caller.
 
   Returning 0 here means that the cell is not editable.
 
@@ -1727,26 +1716,11 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     }
 
     // no contents in the cell yet, so open the default editor
-    if ( !e )
-	e = createDefaultEditor();
-
-    return e;
-}
-
-/*! Returns the editor widget which should be used for editing cells
-  which have no QTableItem. The default implementation returns a
-  QLineEdit which has the defaultValidator() set.
-
-  The ownership of the editor widget is transferred to the caller.
-
-  \sa createEditor()
-*/
-
-QWidget *QTable::createDefaultEditor() const
-{
-    QLineEdit *e = new QLineEdit( viewport() );
-    e->setFrame( FALSE );
-    e->setValidator( defaultValidator() );
+    if ( !e ) {
+	e = new QLineEdit( viewport() );
+	( (QLineEdit*)e )->setFrame( FALSE );
+    }
+    
     return e;
 }
 
@@ -1793,7 +1767,7 @@ QWidget *QTable::showEditor( int row, int col, bool replace )
 
   After that clearCellWidget() is called to get rid of the editor
   widget.
-  
+
   \sa setCellContentFromEditor()
 */
 
@@ -1802,7 +1776,7 @@ void QTable::hideEditor( int row, int col, bool accept, bool replace )
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
-    
+
     if ( !accept ) {
 	if ( row == editRow && col == editCol ) {
 	    editRow = -1;
@@ -1826,13 +1800,13 @@ void QTable::hideEditor( int row, int col, bool accept, bool replace )
 	setCellContentFromEditor( row, col );
     else
 	i->setContentFromEditor( editor );
-    
+
     if ( row == editRow && col == editCol ) {
 	editRow = -1;
 	editCol = -1;
 	edMode = NotEditing;
     }
-    
+
     viewport()->setFocus();
     updateCell( row, col );
 
@@ -2302,14 +2276,14 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return;
-    
+
     if ( (int)widgets.size() != numRows() * numCols() )
 	widgets.resize( numRows() * numCols() );
 
     QWidget *w = cellWidget( row, col );
     if ( w && row == editRow && col == editCol )
  	hideEditor( editRow, editCol, FALSE, edMode == Editing ? FALSE : TRUE );
-    
+
     e->installEventFilter( this );
     clearCellWidget( row, col );
     widgets.insert( indexOf( row, col ), e );
@@ -2328,10 +2302,10 @@ QWidget *QTable::cellWidget( int row, int col ) const
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return 0;
-    
+
     if ( (int)widgets.size() != numRows() * numCols() )
 	( (QTable*)this )->widgets.resize( numRows() * numCols() );
-    
+
     return widgets[ indexOf( row, col ) ];
 }
 
@@ -2343,10 +2317,10 @@ void QTable::clearCellWidget( int row, int col )
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
 	return;
-    
+
     if ( (int)widgets.size() != numRows() * numCols() )
 	widgets.resize( numRows() * numCols() );
-    
+
     QWidget *w = cellWidget( row, col );
     if ( w )
 	w->removeEventFilter( this );
