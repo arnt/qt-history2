@@ -31,6 +31,14 @@
 #include <check-and-patch.h>
 #endif
 
+#if defined(EVAL)
+#  define LICENSE_DEST "LICENSE.EVAL"
+#elif defined(EDU)
+#  define LICENSE_DEST "LICENSE.EDU"
+#else
+#  define LICENSE_DEST "LICENSE"
+#endif
+
 #include "resource.h"
 #include "pages/sidedecorationimpl.h"
 
@@ -890,7 +898,7 @@ void SetupWizardImpl::doFinalIntegration()
 	    QString("-reconfig \"%1\"").arg(globalInformation.qtVersionStr()),
 	    qtDir );
 #endif
-    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + qtDir + "\\LICENSE\"" );
+    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", "\"" + qtDir + "\\" LICENSE_DEST "\"" );
     shell.createShortcut( dirName, common, "Readme", "notepad.exe", "Important information", QString( "\"" ) + qtDir + "\\README\"" );
     shell.createShortcut( dirName, common, "On-line documentation", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
     shell.createShortcut( dirName, common, "Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
@@ -1220,7 +1228,7 @@ void SetupWizardImpl::showPageProgress()
 
 	// install the right LICENSE file
 	QDir installDir( optionsPage->installPath->text() );
-	QFile licenseFile( installDir.filePath("LICENSE") );
+	QFile licenseFile( installDir.filePath( LICENSE_DEST ) );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
 #if defined(EVAL) || defined(EDU)
