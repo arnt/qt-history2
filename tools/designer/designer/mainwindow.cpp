@@ -1808,6 +1808,8 @@ void MainWindow::editPreferences()
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
+    if ( sourceEditors.first() )
+	sourceEditors.first()->save();
     QApplication::setOverrideCursor( WaitCursor );
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
