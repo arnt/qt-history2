@@ -2859,7 +2859,7 @@ bool QXmlSimpleReader::parseContinue()
     if ( d->parseStack == 0 )
 	return FALSE;
     if ( d->parseStack->isEmpty() )
-	return TRUE;
+	return FALSE;
     initData();
     int state = state = d->parseStack->top()->state;
     d->parseStack->remove();
@@ -2871,6 +2871,8 @@ bool QXmlSimpleReader::parseContinue()
 */
 bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
 {
+    bool atEndOrig = atEnd();
+
     if ( state==0 ) {
 	if ( !parseProlog() ) {
 	    if ( incremental && d->error.isNull() ) {
@@ -2907,9 +2909,13 @@ bool QXmlSimpleReader::parseBeginOrContinue( int state, bool incremental )
 	    }
 	}
     }
+    if ( !atEndOrig && incremental ) {
+	// we parsed something at all, so be prepared to come back later
+	pushParseState( 0, 2 );
+	return TRUE;
+    }
     // is stack empty?
     if ( !d->tags.isEmpty() && !d->error.isNull() ) {
-	// ### can this case happen at all?
 	reportParseError( XMLERR_UNEXPECTEDEOF );
 	d->tags.clear();
 	return FALSE;
