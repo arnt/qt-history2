@@ -770,12 +770,9 @@ public:
     };
 
     // documented in qdatetime.cpp
-    enum DateTimeSpec {
+    enum TimeSpec {
 	LocalTime,
-	UniversalTime,
-	GreenwichMeanTime = UniversalTime,
-	UTC = UniversalTime,
-	GMT = GreenwichMeanTime
+	UTC
     };
 
     // documented in qwidget.cpp
