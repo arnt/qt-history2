@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#49 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#49 $");
 
 
 /*****************************************************************************
@@ -189,8 +189,8 @@ QCursor::QCursor( int shape )			// cursor with shape
   <li> B=1 and M=0 gives an undefined result.
   </ol>
 
-  It's best to use the global color \c color0 to draw 0-pixels and \c
-  color1 to draw 1-pixels in the bitmaps.
+  Use the global color \c color0 to draw 0-pixels and \c color1 to draw
+  1-pixels in the bitmaps.
 
   Allowed cursor sizes depend on the display hardware (or the underlying
   window system). We recommend using 32x32 cursors, because this size
