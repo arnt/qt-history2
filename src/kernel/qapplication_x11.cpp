@@ -1597,10 +1597,28 @@ void qt_init_internal( int *argcptr, char **argv,
 	    else
 		QPaintDevice::x_appdefcolormap = !qt_cmap_option;
 
+	    if ( QPaintDevice::x_appdefcolormap ) {
+		XStandardColormap *stdcmap;
+		VisualID vid = XVisualIDFromVisual((Visual *) QPaintDevice::x_appvisual);
+		int i, count;
 
-	    if ( QPaintDevice::x_appdefcolormap )
-		QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
-	    else
+		QPaintDevice::x_appcolormap = 0;
+
+		if (XGetRGBColormaps(appDpy, appRootWin,
+				     &stdcmap, &count, XA_RGB_DEFAULT_MAP)) {
+		    i = 0;
+		    while (i < count && QPaintDevice::x_appcolormap == 0) {
+			if (stdcmap[i].visualid == vid)
+			    QPaintDevice::x_appcolormap = stdcmap[i].colormap;
+			i++;
+		    }
+
+		    XFree(stdcmap);
+		}
+
+		if (QPaintDevice::x_appcolormap == 0)
+		    QPaintDevice::x_appcolormap = DefaultColormap(appDpy,appScreen);
+	    } else
 		QPaintDevice::x_appcolormap = XCreateColormap(appDpy, appRootWin,
 							      vis, AllocNone);
 	} else {
