@@ -46,7 +46,7 @@
 #include <qcursor.h>
 #include <qtimer.h>
 #ifdef Q_WS_MACX
-#include <ApplicationServices/ApplicationServices.h>
+# include <ApplicationServices/ApplicationServices.h>
 #endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>

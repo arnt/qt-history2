@@ -30,9 +30,9 @@
 #include "qgl.h"
 
 #if defined(Q_WS_MAC)
-#include <agl.h>
-#include <gl.h>
-#include <aglRenderers.h>
+#include <AGL/agl.h>
+#include <AGL/aglRenderers.h>
+#include <OpenGL/gl.h>
 
 #include <qt_mac.h>
 #include <qpixmap.h>

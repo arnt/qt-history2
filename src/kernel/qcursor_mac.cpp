@@ -35,7 +35,7 @@
 #include "qnamespace.h"
 #include "qt_mac.h"
 #ifdef Q_WS_MACX
-#include <ApplicationServices/ApplicationServices.h>
+# include <ApplicationServices/ApplicationServices.h>
 #endif
 #include <stdlib.h>
 

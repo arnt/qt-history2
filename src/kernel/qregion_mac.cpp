@@ -34,9 +34,67 @@
 #include "qbitmap.h"
 #include "qt_mac.h"
 
-#define OLD_FALSE FALSE
-#undef FALSE
-#define FALSE (bool)OLD_FALSE
+#if 1
+#define RGN_DATA_SIZE 200
+static struct {
+    bool rgndata_init;
+    int rgndata_used;
+    QRegion::QRegionData *cache[RGN_DATA_SIZE];
+} data_cache = { FALSE, 0, { } };
+static void qt_mac_cleanup_region_data() {
+    data_cache.rgndata_init = FALSE;
+    data_cache.rgndata_used = 0;
+    for(int i = 0; i < RGN_DATA_SIZE; i++) {
+	if(data_cache.cache[i]) {
+	    delete data_cache.cache[i];
+	    data_cache.cache[i] = 0;
+	}
+    }
+}
+static QRegion::QRegionData *get_region_data() {
+    QRegion::QRegionData *data = NULL;
+    if(!data_cache.rgndata_init) {
+	if(!data_cache.rgndata_init) {
+	    data_cache.rgndata_init = TRUE;
+	    for(int i = 0; i < RGN_DATA_SIZE; i++)
+		data_cache.cache[i] = NULL;
+	    qAddPostRoutine(qt_mac_cleanup_region_data);
+	}
+    } else if(data_cache.rgndata_used) {
+	for(int i = 0; i < RGN_DATA_SIZE; i++) {
+	    if(data_cache.cache[i]) {
+		data = data_cache.cache[i];
+		data_cache.cache[i] = NULL;
+		data_cache.rgndata_used--;
+		data->ref();
+		break;
+	    }
+	}
+    }
+    if(!data) {
+	data = new QRegion::QRegionData;
+	Q_CHECK_PTR(data);
+    }
+    return data;
+}
+static void free_region_data(QRegion::QRegionData *data)
+{
+    if(data_cache.rgndata_used < RGN_DATA_SIZE) {
+	for(int i = 0; i < RGN_DATA_SIZE; i++) {
+	    if(!data_cache.cache[i]) {
+		data_cache.cache[i] = data;
+		data_cache.rgndata_used++;
+		break;
+	    }
+	}
+    } else {
+	delete data;
+    }
+}
+#else
+#define get_region_data() (new QRegionData)
+#define free_region_data(x) delete x
+#endif
 
 #ifdef Q_WS_MACX
 #define RGN_CACHE_SIZE 200
@@ -44,6 +102,7 @@ static bool rgncache_init=FALSE;
 static int rgncache_used;
 static RgnHandle rgncache[RGN_CACHE_SIZE];
 static void qt_mac_cleanup_rgncache() {
+    rgncache_init = FALSE;
     for(int i = 0; i < RGN_CACHE_SIZE; i++) {
 	if(rgncache[i]) {
 	    rgncache_used--;
@@ -88,6 +147,7 @@ void qt_mac_dispose_rgn(RgnHandle r) {
 	DisposeRgn(r);
     }
 }
+
 #else
 RgnHandle qt_mac_get_rgn() { return NewRgn(); }
 void qt_mac_dispose_rgn(RgnHandle r) { DisposeRgn(r); }
@@ -96,7 +156,6 @@ void qt_mac_dispose_rgn(RgnHandle r) { DisposeRgn(r); }
 // NOT REVISED
 
 static QRegion *empty_region = 0;
-
 static void cleanup_empty_region()
 {
     delete empty_region;
@@ -145,8 +204,7 @@ QRegion::handle(bool require_rgn) const
 
 QRegion::QRegion( bool is_null )
 {
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
+    data = get_region_data();
     if((data->is_null = is_null)) {
 	data->is_rect = TRUE;
 	data->rect = QRect();
@@ -156,11 +214,10 @@ QRegion::QRegion( bool is_null )
     }
 }
 
-QRegion::QRegion( const QRect &r, RegionType t )
+QRegion::QRegion(const QRect &r, RegionType t)
 {
     QRect rr = r.normalize();
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
+    data = get_region_data();
     data->is_null = FALSE;
     if(t == Rectangle )	{		// rectangular region
 	data->is_rect = TRUE;
@@ -176,26 +233,25 @@ QRegion::QRegion( const QRect &r, RegionType t )
     }
 }
 
-QRegion::QRegion( const QPointArray &a, bool winding)
+QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
+    data = get_region_data();
     data->is_null = FALSE;
     data->is_rect = FALSE;
     data->rgn = qt_mac_get_rgn();
 
     OpenRgn();
-    MoveTo( a[0].x(), a[0].y() );
-    for ( unsigned int loopc = 1; loopc < a.size(); loopc++ ) {
-	LineTo( a[loopc].x(), a[loopc].y() );
-	MoveTo( a[loopc].x(), a[loopc].y() );
+    MoveTo(a[0].x(), a[0].y());
+    for(unsigned int loopc = 1; loopc < a.size(); loopc++) {
+	LineTo(a[loopc].x(), a[loopc].y());
+	MoveTo(a[loopc].x(), a[loopc].y());
     }
-    LineTo( a[0].x(), a[0].y() );
+    LineTo(a[0].x(), a[0].y());
     CloseRgn(data->rgn);
 }
 
 
-QRegion::QRegion( const QRegion &r )
+QRegion::QRegion(const QRegion &r)
 {
     data = r.data;
     data->ref();
@@ -279,10 +335,9 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 }
 
 
-QRegion::QRegion( const QBitmap &bm )
+QRegion::QRegion(const QBitmap &bm)
 {
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
+    data = get_region_data();
     data->is_null = FALSE;
     data->is_rect = FALSE;
 #if 0 //this should work, but didn't
@@ -296,21 +351,21 @@ QRegion::QRegion( const QBitmap &bm )
 
 QRegion::~QRegion()
 {
-    if ( data->deref() ) {
+    if(data->deref()) {
 	if(!data->is_rect)
-	    qt_mac_dispose_rgn( data->rgn );
-	delete data;
+	    qt_mac_dispose_rgn(data->rgn);
+	free_region_data(data);
     }
 }
 
 
-QRegion &QRegion::operator=( const QRegion &r )
+QRegion &QRegion::operator=(const QRegion &r)
 {
     r.data->ref();				// beware of r = r
-    if ( data->deref() ) {
+    if(data->deref()) {
 	if(!data->is_rect)
-	    qt_mac_dispose_rgn( data->rgn );
-	delete data;
+	    qt_mac_dispose_rgn(data->rgn);
+	free_region_data(data);
     }
     data = r.data;
     return *this;
@@ -324,8 +379,8 @@ QRegion QRegion::copy() const
      else if(data->is_rect) 
 	return QRegion(data->rect);
 
-    QRegion r( FALSE );
-    CopyRgn( data->rgn, r.data->rgn);
+    QRegion r(FALSE);
+    CopyRgn(data->rgn, r.data->rgn);
     return r;
 }
 
@@ -343,7 +398,7 @@ bool QRegion::isEmpty() const
     return EmptyRgn(data->rgn);
 }
 
-bool QRegion::contains( const QPoint &p ) const
+bool QRegion::contains(const QPoint &p) const
 {
     if(data->is_null)
 	return FALSE;
@@ -356,7 +411,7 @@ bool QRegion::contains( const QPoint &p ) const
     return PtInRgn(point, data->rgn);
 }
 
-bool QRegion::contains( const QRect &r ) const
+bool QRegion::contains(const QRect &r) const
 {
     if(data->is_null)
 	return FALSE;
@@ -365,23 +420,23 @@ bool QRegion::contains( const QRect &r ) const
 
     Rect rect;
     SetRect(&rect, r.x(), r.y(), r.x() + r.width(), r.y() + r.height());
-    return RectInRgn( &rect, data->rgn );
+    return RectInRgn(&rect, data->rgn);
 }
 
-void QRegion::translate( int x, int y )
+void QRegion::translate(int x, int y)
 {
-    if ( data == empty_region->data )
+    if (data == empty_region->data)
 	return;
     detach();
     if(data->is_rect) 
 	data->rect.moveBy(x, y);
     else
-	OffsetRgn( data->rgn, x, y);
+	OffsetRgn(data->rgn, x, y);
 }
 
-QRegion QRegion::unite( const QRegion &r ) const
+QRegion QRegion::unite(const QRegion &r) const
 {
-    if(data->is_null || r.data->is_null ) 
+    if(data->is_null || r.data->is_null) 
 	return (!data->is_null ? this : &r)->copy();
 
     if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect))
@@ -423,13 +478,13 @@ QRegion QRegion::subtract( const QRegion &r ) const
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
     QRegion result( FALSE );
-    DiffRgn( data->rgn, r.data->rgn, result.data->rgn );
+    DiffRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
 
-QRegion QRegion::eor( const QRegion &r ) const
+QRegion QRegion::eor(const QRegion &r) const
 {
-    if(data->is_null || r.data->is_null ) 
+    if(data->is_null || r.data->is_null) 
 	return (!data->is_null ? this : &r)->copy();
 
     if(data->is_rect) 
@@ -437,7 +492,7 @@ QRegion QRegion::eor( const QRegion &r ) const
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
     QRegion result( FALSE );
-    XorRgn( data->rgn, r.data->rgn, result.data->rgn );
+    XorRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
 
@@ -489,7 +544,7 @@ QMemArray<QRect> QRegion::rects() const
     return ret; //done
 }
 
-void QRegion::setRects( const QRect *rects, int num )
+void QRegion::setRects(const QRect *rects, int num)
 {
     // Could be optimized
     if(num == 1) {
@@ -501,7 +556,7 @@ void QRegion::setRects( const QRect *rects, int num )
 	*this |= rects[i];
 }
 
-bool QRegion::operator==( const QRegion &r ) const
+bool QRegion::operator==(const QRegion &r) const
 {
     if(data == r.data)
 	return TRUE;
@@ -510,6 +565,6 @@ bool QRegion::operator==( const QRegion &r ) const
 	    return data->rect == r.data->rect;
 	return FALSE;
     }
-    return EqualRgn( data->rgn, r.data->rgn );
+    return EqualRgn(data->rgn, r.data->rgn);
 }
 
