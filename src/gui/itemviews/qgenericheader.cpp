@@ -699,7 +699,7 @@ QModelIndex QGenericHeader::item(int section) const
     return model()->index(section, 0, 0, QModelIndex::VerticalHeader);
 }
 
-QRect QGenericHeader::selectionRect(const QItemSelection &selection) const
+QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) const
 {
     QModelIndex bottomRight = model()->bottomRight(0);
     if (orientation() == Horizontal) {

@@ -307,7 +307,7 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
     selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
-QRect QGenericTableView::selectionRect(const QItemSelection &selection) const
+QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
     // We only care about the root level in the model.
     // Also, as the table displays the items as they are stored in the model,

@@ -60,7 +60,7 @@ protected:
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);
 
-    QRect selectionRect(const QItemSelection &selection) const;
+    QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
     void doStaticLayout(const QRect &bounds, int first, int last);

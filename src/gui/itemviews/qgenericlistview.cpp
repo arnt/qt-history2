@@ -450,7 +450,7 @@ void QGenericListView::startDrag()
     QAbstractItemView::startDrag();
     // clear dragged items
     d->draggedItems.clear();
-    d->viewport->update(d->draggedItemsRect); // FIXME: the dragged items rect is in contents coords
+    d->viewport->update(d->draggedItemsRect);
 }
 
 void QGenericListView::getViewOptions(QItemOptions *options) const
@@ -489,8 +489,6 @@ void QGenericListView::paintEvent(QPaintEvent *)
 
     if (!d->draggedItems.isEmpty())
    	d->drawDraggedItems(&painter, d->draggedItemsPos);
-//    if (state() == QAbstractItemView::Selecting)
-// 	drawSelectionRect(painter, dragRect().normalize());
 }
 
 QModelIndex QGenericListView::itemAt(int x, int y) const
@@ -545,11 +543,9 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
 	}
 	break;
     case MovePageUp:
-	// FIXME: take layout into account
 	area.moveTop(area.top() - viewport()->height() + (ih << 1));
 	if (area.top() < 0)
 	    area.moveTop(ch + (ih << 1));
-	// FIXME: if the last line is not filled, it will wrap to the bottom
     case MoveUp:
 	area.moveBottom(area.top() - 1);
 	while (d->intersectVector.count() == 0) {
@@ -567,11 +563,9 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
 	break;
 
     case MovePageDown:
-	// FIXME: take layout into account
- 	area.moveTop(area.top() + viewport()->height() - (ih << 1));
+ 	area.moveTop(area.top() + d->viewport->height() - (ih << 1));
 	if (area.top() > ch)
 	    area.moveTop(ch - (ih << 1));
-	// FIXME: if the last line is not filled, it will wrap to the top
     case MoveDown:
 	area.moveTop(area.bottom() + 1);
 	while (d->intersectVector.count() == 0) {
@@ -657,7 +651,7 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
     }
 }
 
-QRect QGenericListView::selectionRect(const QItemSelection &selection) const
+QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const
 {
     // FIXME: slow temporary fix
     QList<QModelIndex> items = selection.items(model());
@@ -668,6 +662,11 @@ QRect QGenericListView::selectionRect(const QItemSelection &selection) const
     items.clear();
     rect.moveLeft(rect.left() - contentsX());
     rect.moveTop(rect.top() - contentsY());
+    if (d->wrap == QGenericListView::Off && d->movement == QGenericListView::Static)
+	if (d->flow == QGenericListView::TopToBottom)
+ 	    rect.setWidth(d->viewport->width());
+	else
+	    rect.setHeight(d->viewport->height());
     return rect;
 }
 
@@ -1124,7 +1123,7 @@ void QGenericListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
 				      uint visited, void *data)
 {
     QGenericListViewItem *vi;
-    QGenericListViewPrivate *_this = (QGenericListViewPrivate *)data; // FIXME: cast away const
+    QGenericListViewPrivate *_this = static_cast<QGenericListViewPrivate *>(data);
     for (int i = 0; i < (int)leaf.count(); ++i) {
 	int idx = leaf.at(i);
 	if (idx < 0)
@@ -1145,7 +1144,7 @@ void QGenericListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wrap
     ++wraps;
     if ((int)yposVector.size() < (wraps + 2)) {
 	int s = yposVector.size() + delta;
-	yposVector.resize(s); // FIXME: reserve
+	yposVector.resize(s);
 	wrapVector.resize(s);
     }
     yposVector[wraps] = y;
@@ -1161,7 +1160,7 @@ void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &w
     ++wraps;
     if ((int)xposVector.size() < (wraps + 2)) {
 	int s = xposVector.size() + delta;
-	xposVector.resize(s); // FIXME: reserve
+	xposVector.resize(s);
 	wrapVector.resize(s);
     }
     xposVector[wraps] = x;

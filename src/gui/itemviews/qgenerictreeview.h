@@ -62,7 +62,7 @@ protected:
 
     QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
-    QRect selectionRect(const QItemSelection &selection) const;
+    QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);
     virtual void drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const;

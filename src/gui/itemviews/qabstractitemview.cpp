@@ -613,8 +613,8 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 
 void QAbstractItemView::selectionChanged(const QItemSelection &deselected, const QItemSelection &selected)
 {
-    QRect deselectedRect = selectionRect(deselected);
-    QRect selectedRect = selectionRect(selected);
+    QRect deselectedRect = selectionViewportRect(deselected);
+    QRect selectedRect = selectionViewportRect(selected);
     d->viewport->update(deselectedRect.unite(selectedRect));
 }
 

@@ -67,7 +67,7 @@ protected:
     void ensureItemVisible(const QModelIndex &item);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
-    QRect selectionRect(const QItemSelection &selection) const;
+    QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void updateGeometries();
 

@@ -400,7 +400,6 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
     if (!item.isValid())
 	return QRect();
 
-//     QGenericHeader *header = d->header;
     int x = columnViewportPosition(item.column());
     int w = columnWidth(item.column());
     int v = verticalScrollBar()->value();
@@ -505,7 +504,7 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
 }
 
-QRect QGenericTreeView::selectionRect(const QItemSelection &selection) const
+QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
     int index =  d->header->count() - 1;
     int section = d->header->section(index);
