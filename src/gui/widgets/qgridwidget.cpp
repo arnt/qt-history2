@@ -126,13 +126,28 @@ void QGridWidget::childEvent(QChildEvent *e)
 }
 
 /*!
-    Sets the spacing between the child widgets to \a space.
+    Sets the margin around the grid to \a margin (expressed in pixels).
+
+    \sa setSpacing()
 */
 
-void QGridWidget::setSpacing(int space)
+void QGridWidget::setMargin(int margin)
 {
     if (layout())
-        layout()->setSpacing(space);
+        layout()->setMargin(margin);
+}
+
+/*!
+    Sets the spacing between the child widgets to \a space (expressed
+    in pixels).
+
+    \sa setMargin()
+*/
+
+void QGridWidget::setSpacing(int spacing)
+{
+    if (layout())
+        layout()->setSpacing(spacing);
 }
 
 #endif

@@ -23,11 +23,13 @@ class QGridLayout;
 class Q_GUI_EXPORT QGridWidget : public QFrame
 {
     Q_OBJECT
-public:
-    QGridWidget(int n, QWidget* parent=0, Qt::WFlags f = 0);
-    QGridWidget(int n, Qt::Orientation orientation, QWidget* parent=0, Qt::WFlags f = 0);
 
-    void setSpacing(int);
+public:
+    QGridWidget(int n, QWidget *parent = 0, Qt::WFlags f = 0);
+    QGridWidget(int n, Qt::Orientation orientation, QWidget *parent = 0, Qt::WFlags f = 0);
+
+    void setMargin(int margin);
+    void setSpacing(int spacing);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QGridWidget(int n, QWidget* parent, const char* name, Qt::WFlags f);
