@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#24 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -910,7 +910,7 @@ void QPNGFormat::end(png_structp png, png_infop info)
     image->setDotsPerMeterX(png_get_x_pixels_per_meter(png,info));
     image->setDotsPerMeterY(png_get_y_pixels_per_meter(png,info));
     png_textp text_ptr;
-    int num_text;
+    int num_text=0;
     png_get_text(png,info,&text_ptr,&num_text);
     while (num_text--) {
 	image->setText(text_ptr->key,0,text_ptr->text);
