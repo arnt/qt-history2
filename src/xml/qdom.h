@@ -16,12 +16,6 @@
 
 #include "qstring.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_DOM
-#else
-#define QM_EXPORT_DOM Q_XML_EXPORT
-#endif
-
 #ifndef QT_NO_DOM
 
 class QIODevice;
@@ -68,7 +62,7 @@ class QDomEntity;
 class QDomNotation;
 class QDomCharacterData;
 
-class QM_EXPORT_DOM QDomImplementation
+class Q_XML_EXPORT QDomImplementation
 {
 public:
     QDomImplementation();
@@ -93,7 +87,7 @@ private:
     friend class QDomDocument;
 };
 
-class QM_EXPORT_DOM QDomNode
+class Q_XML_EXPORT QDomNode
 {
 public:
     enum NodeType {
@@ -203,7 +197,7 @@ private:
     friend class QDomNamedNodeMap;
 };
 
-class QM_EXPORT_DOM QDomNodeList
+class Q_XML_EXPORT QDomNodeList
 {
 public:
     QDomNodeList();
@@ -229,7 +223,7 @@ private:
     friend class QDomDocument;
 };
 
-class QM_EXPORT_DOM QDomDocumentType : public QDomNode
+class Q_XML_EXPORT QDomDocumentType : public QDomNode
 {
 public:
     QDomDocumentType();
@@ -255,7 +249,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomDocument : public QDomNode
+class Q_XML_EXPORT QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
@@ -308,7 +302,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomNamedNodeMap
+class Q_XML_EXPORT QDomNamedNodeMap
 {
 public:
     QDomNamedNodeMap();
@@ -343,7 +337,7 @@ private:
     friend class QDomElement;
 };
 
-class QM_EXPORT_DOM QDomDocumentFragment : public QDomNode
+class Q_XML_EXPORT QDomDocumentFragment : public QDomNode
 {
 public:
     QDomDocumentFragment();
@@ -360,7 +354,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomCharacterData : public QDomNode
+class Q_XML_EXPORT QDomCharacterData : public QDomNode
 {
 public:
     QDomCharacterData();
@@ -393,7 +387,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomAttr : public QDomNode
+class Q_XML_EXPORT QDomAttr : public QDomNode
 {
 public:
     QDomAttr();
@@ -420,7 +414,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomElement : public QDomNode
+class Q_XML_EXPORT QDomElement : public QDomNode
 {
 public:
     QDomElement();
@@ -473,7 +467,7 @@ private:
     friend class QDomAttr;
 };
 
-class QM_EXPORT_DOM QDomText : public QDomCharacterData
+class Q_XML_EXPORT QDomText : public QDomCharacterData
 {
 public:
     QDomText();
@@ -494,7 +488,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomComment : public QDomCharacterData
+class Q_XML_EXPORT QDomComment : public QDomCharacterData
 {
 public:
     QDomComment();
@@ -511,7 +505,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomCDATASection : public QDomText
+class Q_XML_EXPORT QDomCDATASection : public QDomText
 {
 public:
     QDomCDATASection();
@@ -528,7 +522,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomNotation : public QDomNode
+class Q_XML_EXPORT QDomNotation : public QDomNode
 {
 public:
     QDomNotation();
@@ -549,7 +543,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomEntity : public QDomNode
+class Q_XML_EXPORT QDomEntity : public QDomNode
 {
 public:
     QDomEntity();
@@ -570,7 +564,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomEntityReference : public QDomNode
+class Q_XML_EXPORT QDomEntityReference : public QDomNode
 {
 public:
     QDomEntityReference();
@@ -587,7 +581,7 @@ private:
     friend class QDomNode;
 };
 
-class QM_EXPORT_DOM QDomProcessingInstruction : public QDomNode
+class Q_XML_EXPORT QDomProcessingInstruction : public QDomNode
 {
 public:
     QDomProcessingInstruction();
@@ -612,7 +606,7 @@ private:
 };
 
 
-QM_EXPORT_DOM QTextStream& operator<<(QTextStream&, const QDomNode&);
+Q_XML_EXPORT QTextStream& operator<<(QTextStream&, const QDomNode&);
 
 #endif //QT_NO_DOM
 #endif
