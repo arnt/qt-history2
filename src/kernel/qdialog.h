@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#4 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#5 $
 **
 ** Definition of QDialog class
 **
@@ -16,8 +16,12 @@
 #include "qview.h"
 
 
+class QPushButton;
+
+
 class QDialog : public QView			// modal dialog widget
 {
+friend class QPushButton;
     Q_OBJECT
 public:
     QDialog( QWidget *parent=0, const char *name=0, WFlags f=WType_Modal );
@@ -48,6 +52,7 @@ protected:
     void	keyPressEvent( QKeyEvent * );
 
 private:
+    void	setDefault( QPushButton * );
     int		rescode;
     uint	did_move   : 1;
     uint	did_resize : 1;
