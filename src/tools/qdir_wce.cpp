@@ -37,6 +37,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 #include "qdeepcopy.h"
+#include "qlibrary.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
@@ -64,16 +65,26 @@ QString QDir::homeDirPath()
     HRESULT res = SHGetMalloc( &pIMalloc );
     Q_ASSERT( pIMalloc );
 
-    QString d;
-    LPITEMIDLIST il;
-    if ( NOERROR == SHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) ) {
+    typedef HRESULT (WINAPI *PtrSHGetSpecialFolderLocation)(HWND,int,LPITEMIDLIST*); 
+    static PtrSHGetSpecialFolderLocation ptrSHGetSpecialFolderLocation= 0;
+    static bool shGSFLLookup = FALSE;
+    if ( !shGSFLLookup ) {
+	shGSFLLookup = TRUE;
+	ptrSHGetSpecialFolderLocation = (PtrSHGetSpecialFolderLocation)QLibrary::resolve( "ceshell", "SHGetSpecialFolderLocation" );
+    }
+
+    if ( ptrSHGetSpecialFolderLocation ) {
+	LPITEMIDLIST il;
+	if ( NOERROR != SHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) ) 
+	    return QString::null;
 	TCHAR Path[ MAX_PATH ];
 	SHGetPathFromIDList( il, Path ); 
-	d = QString::fromUcs2( Path );
+	QString d = QString::fromUcs2( Path );
 	pIMalloc->Free( il );
+	slashify( d );
+	return d;
     }
-    slashify( d );
-    return d;
+    return QString::null;
 }
 
 /*!
