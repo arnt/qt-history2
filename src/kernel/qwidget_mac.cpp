@@ -95,12 +95,15 @@ QPoint posInWindow(QWidget *w)
     return w->posInTL;
 }
 
-static void paint_children(QWidget * p,const QRegion& r)
+static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
 {
     if(!p || r.isEmpty())
 	return;
 
-    QApplication::postEvent(p,new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
+    if(now)
+	p->repaint(r);
+    else
+	QApplication::postEvent(p,new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
 
     QObjectList * childObjects=(QObjectList*)p->children();
     if(childObjects) {
@@ -112,7 +115,7 @@ static void paint_children(QWidget * p,const QRegion& r)
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
 			wr.translate(-w->x(),-w->y());
-			paint_children(w,wr);
+			paint_children(w, wr, now);
 		    }
 		}
 	    }
@@ -161,11 +164,15 @@ OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHand
     if(!widget)
 	widget = QWidget::find( (WId)window );
     if ( widget ) {
+#if 0
 	bool unclipped = widget->testWFlags( Qt::WPaintUnclipped );
 	widget->setWFlags( Qt::WPaintUnclipped );
+#endif
 	widget->erase(0, 0, widget->width(), widget->height());
+#if 0
 	if ( !unclipped )
 	    widget->clearWFlags( Qt::WPaintUnclipped );
+#endif
     }
     return 0;
 }
@@ -731,6 +738,10 @@ void QWidget::showWindow()
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 
+	//forces a paint event before the window is shown
+	paint_children(this, QRegion(0, 0, width(), height()), TRUE);
+
+	//handle transition
 	if(parentWidget()) {
 	    WindowClass c;
 	    GetWindowClass((WindowPtr)hd, &c);
@@ -738,9 +749,11 @@ void QWidget::showWindow()
 		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
 					  kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
 	}
+	
+	//now actually show it
 	ShowHide( (WindowPtr)hd, 1 );
 	setActiveWindow();
-    }
+    } 
     update();
 }
 
