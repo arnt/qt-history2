@@ -2094,7 +2094,7 @@ Configure options:
 
     -qt-zlib ........... Use the zlib bundled with Qt.
  *  -system-zlib ....... Use zlib from the operating system.
-			 See http://www.info-zip.org/pub/infozip/zlib
+			 See http://www.gzip.org/zlib
 
     -fast .............. Configure Qt quickly by generating Makefiles only for
 			 library and subdirectory targets.  All other Makefiles
