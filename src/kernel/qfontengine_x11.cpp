@@ -368,17 +368,17 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
     }
     else if ( !_fs->max_byte1 ) {
 	XCharStruct *base = _fs->per_char - _fs->min_char_or_byte2;
-	while ( g-- != glyphs ) {
-	    unsigned int gl = g->glyph;
+	while ( g != glyphs ) {
+	    unsigned int gl = (--g)->glyph;
 	    xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
 		  base + gl : 0;
-	    (--g)->advance = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+	    g->advance = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
 	}
     }
     else {
 	while ( g != glyphs ) {
 	    xcs = charStruct( _fs, (--g)->glyph );
-	    (--g)->advance = (xcs ? xcs->width : _fs->ascent);
+	    g->advance = (xcs ? xcs->width : _fs->ascent);
 	}
     }
     if ( _scale != 1. ) {
