@@ -1047,7 +1047,6 @@ bool QApplication::do_mouse_down( EventRecord* es )
     DragWindow( wp, er->where, 0 );
     break;
   case inContent:
-    SelectWindow(wp);
     in_widget = TRUE;
     break;
   case inGrow:
