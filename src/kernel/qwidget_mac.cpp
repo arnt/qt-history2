@@ -1217,6 +1217,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     if ( testWState( WState_BlockUpdates ) )
 	return;
+
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
@@ -1241,8 +1242,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
-    if ( w > 0 && h > 0 ) 
+    if ( w > 0 && h > 0 ) {
 	bitBlt(this,x2,y2,this,x1,y1,w,h);
+    }
 
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
@@ -1257,7 +1259,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	    ++it;
 	}
     }
-    QRegion copied = clippedRegion();
+
+    QRegion copied = (QRegion(0, 0, width(), height()) ^ clippedRegion());
     QPoint p = mapToGlobal( QPoint() );
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
@@ -1459,7 +1462,7 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 QRegion QWidget::clippedRegion()
 {
-    QPoint mp = posInWindow(this), tmp;
+    QPoint tmp;
     QRegion clippedRgn;
 
     //clip out my children
@@ -1473,7 +1476,6 @@ QRegion QWidget::clippedRegion()
 		}
 	    }
 	}
-
     }
 
     //clip away my siblings
@@ -1492,7 +1494,9 @@ QRegion QWidget::clippedRegion()
 	    }
 	}
     }
-    return QRegion(mp.x(), mp.y(), width(), height()) ^ clippedRgn;
+
+    QPoint mp = posInWindow(this);
+    return QRegion(mp.x(), mp.y(), width(), height()) & clippedRgn;
 }
 
 

@@ -14,10 +14,12 @@ extern const unsigned char * p_str(const char * c);
 
 class QFontInternal {
 public:
+    static short currentFnum;
     FontInfo info;;
     short fnum;
     int psize;
 };
+short QFontInternal::currentFnum = 0;
 
 int QFontMetrics::lineSpacing() const
 {
@@ -30,21 +32,21 @@ int QFontMetrics::lineWidth() const
 }
 
 #undef FI
-#define FI (painter ? painter->cfont.d->fin->info : d->fin->info)
+#define FI (painter ? painter->cfont.d->fin : d->fin)
 
 int QFontMetrics::leading() const
 {
-    return FI.leading;
+    return FI->info.leading;
 }
 
 int QFontMetrics::ascent() const
 {
-    return FI.ascent+2; //2?? fixme!
+    return FI->info.ascent+2; //2?? fixme!
 }
 
 int QFontMetrics::descent() const
 {
-    return FI.descent; //2?? fixme!
+    return FI->info.descent; //2?? fixme!
 }
 
 int char_widths[256];
@@ -64,7 +66,9 @@ int QFontMetrics::width(QChar c) const
     if(char_widths[f]!=-1) {
 	return char_widths[f];
     }
+    TextFont(FI->fnum);
     char_widths[f]=CharWidth(f);
+    TextFont(QFontInternal::currentFnum);
     return char_widths[f];
 }
 
@@ -77,14 +81,16 @@ int QFontMetrics::width(const QString &s,int len) const
     char * buf=new char[len+1];
     strncpy(buf,s.ascii(),len);
     int ret;
+    TextFont(FI->fnum);
     ret=TextWidth(buf,0,len);
+    TextFont(QFontInternal::currentFnum);
     delete[] buf;
     return ret;
 }
 
 int QFontMetrics::maxWidth() const
 {
-    return FI.widMax;
+    return FI->info.widMax;
 }
 
 int QFontMetrics::height() const
@@ -149,6 +155,7 @@ void QFont::macSetFont(QPaintDevice *v)
     short fnum;
     GetFNum(p_str(family().ascii()),&fnum);
     TextFont(fnum);
+    QFontInternal::currentFnum = fnum;
 
     if(d && d->fin)
 	d->fin->fnum = fnum;

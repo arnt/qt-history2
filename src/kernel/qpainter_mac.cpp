@@ -351,7 +351,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
-    bool clip_set = FALSE;
+    savedclip = QRegion(); //empty
     if ( dt == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
@@ -378,7 +378,8 @@ bool QPainter::begin( const QPaintDevice *pd )
             updateBrush();
         }  else {
 	    savedclip = w->clippedRegion();
-	    clip_set = TRUE;
+	    QRegion invr = QRegion(wp.x(), wp.y(), w->width(), w->height()) ^ savedclip;
+	    SetClip((RgnHandle)invr.handle());
 	}
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
@@ -395,17 +396,16 @@ bool QPainter::begin( const QPaintDevice *pd )
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
 	LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+
+	QRegion rgn(0,0,pm->width(),pm->height());
+	SetClip((RgnHandle)rgn.handle());
     } 
 
     if ( testf(ExtDev) ) {               // external device
         // FIXME: Untested modification
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
         wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight ); // sanders
-    } else {
-	if(!clip_set) //clip to the whole region
-	    savedclip = QRegion(0, 0, ww, wh);
-	SetClip((RgnHandle)savedclip.handle());
-    }
+    } 
 
     if ( ww == 0 )
         ww = wh = vw = vh = 1024;
@@ -553,11 +553,11 @@ void QPainter::setBrushOrigin( int, int )
 
 void QPainter::setClipping( bool b )
 {
-//    qDebug("Enabling clipping..");
     QRegion reg = savedclip;
     if(b) {
 	setf(ClipOn);
-	reg += crgn;
+	if(!crgn.isEmpty())
+	    reg = crgn;
     } else {
 	clearf(ClipOn);
     }
@@ -571,12 +571,7 @@ void QPainter::setClipping( bool b )
 
 void QPainter::setClipRect( const QRect &r )
 {
-//    qDebug("Clipping rect %d %d %dx%d", r.x(), r.y(), r.width(), r.height());
-    crgn = QRegion(r);
-    if(testf(ClipOn)) {
-	QRegion reg = crgn + savedclip;
-	SetClip((RgnHandle)reg.handle());
-    }
+    setClipRegion(QRegion(r));
 }
 
 /*!
@@ -591,11 +586,11 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &r )
 {
-//    qDebug("Setting clipping region..");
-    crgn = r;
     if(testf(ClipOn)) {
-	QRegion reg = crgn + savedclip;
-	SetClip((RgnHandle)reg.handle());
+	crgn = r;
+	if(!savedclip.isEmpty())
+	    crgn ^= savedclip;
+	SetClip((RgnHandle)crgn.handle());
     }
 }
 
@@ -788,7 +783,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
         fix_neg_rect( &x, &y, &w, &h );
     }
     if ( cpen.style() == NoPen ) {
-        w++;
+	w++;
         h++;
     }
 

@@ -295,23 +295,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   GDHandle savedhandle;
   GetGWorld(&savedworld, &savedhandle);
   
-  int dstoffx=0, dstoffy=0;
-  BitMap *dstbitmap=NULL;
-  if(dst->devType() == QInternal::Widget) {
-      QWidget *w = (QWidget *)dst;
-      dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
-      SetPortWindowPort((WindowPtr)w->handle()); //wtf?
-      
-      QPoint p(posInWindow(w));
-      dstoffx = p.x();
-      dstoffy = p.y();
-  } else if(dst->devType() == QInternal::Pixmap) {
-      QPixmap *pm = (QPixmap *)dst;
-      SetGWorld((GWorldPtr)pm->handle(),0);
-      LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
-      dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
-  }
-
   int srcoffx = 0, srcoffy = 0;
   BitMap *srcbitmap=NULL;
   if(src->devType() == QInternal::Widget) {
@@ -334,6 +317,32 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	  sw = pm->width();
       if(sh < 0)
 	  sh = pm->height();
+  }
+
+  int dstoffx=0, dstoffy=0;
+  BitMap *dstbitmap=NULL;
+  if(dst->devType() == QInternal::Widget) {
+      QWidget *w = (QWidget *)dst;
+      dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+      SetPortWindowPort((WindowPtr)w->handle()); //wtf?
+
+      QPoint p(posInWindow(w));
+      dstoffx = p.x();
+      dstoffy = p.y();
+
+      QRegion invr = QRegion(p.x(), p.y(), w->width(), w->height()) ^ w->clippedRegion();
+      SetClip((RgnHandle)invr.handle()); //probably shouldn't do this?
+
+  } else if(dst->devType() == QInternal::Pixmap) {
+
+      QPixmap *pm = (QPixmap *)dst;
+      SetGWorld((GWorldPtr)pm->handle(),0);
+      LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+      dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+
+      QRegion rgn(0,0,pm->width(),pm->height());
+      SetClip((RgnHandle)rgn.handle());
+
   }
 
   if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
