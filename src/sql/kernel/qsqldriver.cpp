@@ -303,6 +303,12 @@ QSqlRecord QSqlDriver::record(const QString& ) const
     return QSqlRecord();
 }
 
+/*!
+    \internal
+
+    Returns a WHERE class for the record \a rec, inserting
+    placeholders if it isn't a \a preparedStatement.
+*/
 QString QSqlDriver::whereClause(const QSqlRecord &rec, bool preparedStatement) const
 {
     QString s;
@@ -326,11 +332,6 @@ QString QSqlDriver::whereClause(const QSqlRecord &rec, bool preparedStatement) c
     return s;
 }
 
-
-/*!  \fn QString QSqlDriver::formatValue(const QSqlField *field, bool trimStrings) const
-     \obsolete
-     use QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const instead
- */
 
 /*!
     Returns a string representation of the \a field value for the

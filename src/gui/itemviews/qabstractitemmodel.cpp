@@ -268,6 +268,14 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 */
 
 /*!
+    \fn QModelIndex::QModelIndex()
+
+    \internal
+
+    Creates a new invalid model index.
+*/
+
+/*!
     \fn QModelIndex::QModelIndex(int row, int column, void *data, Type type)
 
     \internal
@@ -465,8 +473,9 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted when rows have been inserted
-    into the model. The new items are those between \a start and \a end inclusive.
+    This signal is emitted when rows have been inserted into the
+    model. The new items are those between \a start and \a end
+    inclusive, under the given \a parent item.
 
     \sa insertRows()
 */
@@ -474,9 +483,9 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted just before rows are removed
-    from the model. The removed items are those between \a start and
-    \a end inclusive.
+    This signal is emitted just before rows are removed from the
+    model. The removed items are those between \a start and \a end
+    inclusive, under the given \a parent item.
 
     \sa removeRows()
 */
@@ -484,8 +493,9 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted when columnss have been inserted
-    into the model. The new items are those between \a start and \a end inclusive.
+    This signal is emitted when columns have been inserted into the
+    model. The new items are those between \a start and \a end
+    inclusive, under the given \a parent item.
 
     \sa insertColumns()
 */
@@ -495,7 +505,7 @@ QAbstractItemModel::~QAbstractItemModel()
 
     This signal is emitted just before columns are removed
     from the model. The removed items are those between \a start and
-    \a end inclusive.
+    \a end inclusive, under the given \a parent item.
 
     \sa removeRows()
 */
@@ -832,6 +842,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     \value MatchExactly The value matches the item exactly.
     \value MatchCase The search is case sensitive.
     \value MatchWrap The search wraps around.
+    \value MatchDefault The default match, which is MatchFromStart|MatchWrap.
 */
 
 /*!
@@ -897,6 +908,24 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 }
 
 /*!
+    \fn QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits, MatchFlags flags) const
+
+    Returns a list of model indexes (which may be empty), for those
+    items at or after the \a start index which match the given \a
+    value in accordance with the match \a flags. The comparison is
+    done against the specified item's \a{role}s.
+*/
+
+/*!
+    \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const
+
+    \internal
+
+    Creates a model index for the given \a row and \c column that
+    points to the given \a data and is of the given \a type.
+*/
+
+/*!
     \internal
 
     Invalidates the persistent indices by setting them to invalid
@@ -914,16 +943,32 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
     }
 }
 
+/*!
+    \internal
+
+    Returns the number of persistent indexes held by this model.
+*/
 int QAbstractItemModel::persistentIndexesCount() const
 {
     return d->persistentIndexes.count();
 }
 
+/*!
+    \internal
+
+    Returns the persistent index at the given \a position.
+*/
 QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
 {
     return d->persistentIndexes.at(position)->index;
 }
 
+/*!
+    \internal
+
+    Sets the model's persistent index at position \a position to \a
+    index.
+*/
 void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &index)
 {
     d->persistentIndexes[position]->index = index;

@@ -213,9 +213,11 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::needMore()
+    \fn void QAbstractItemView::rootChanged(const QModelIndex &old, const QModelIndex &root)
 
-    \internal
+    This signal is emitted when the model's root index changes. The
+    previous index is given by \a old, and the new root index is given
+    by \a root.
 */
 
 /*!
@@ -301,9 +303,9 @@ void QAbstractItemViewPrivate::init()
 
 
 /*!
-    \fn void QAbstractItemView::setSelection(const QRect &rect, int command) = 0
+    \fn void QAbstractItemView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags)
 
-    Applies the selection \a command to the items in or touched by the
+    Applies the selection \a flags to the items in or touched by the
     rectangle, \a rect.
 
     \sa selectionCommand()
@@ -315,14 +317,6 @@ void QAbstractItemViewPrivate::init()
     Returns the rectangle from the viewport of the items in the given
     \a selection.
 */
-
-/*!
-    \fn int QAbstractItemView::selectionCommand(Qt::ButtonState state, const QModelIndex &index, QEvent::Type type, Qt::Key key) const
-
-    Returns a ``selection command'' based on the given button \a
-    state, model item \a index, event \a type, and \a key.
-*/
-
 
 /*!
     Creates a new QAbstractItemView to view the \a model, and with
@@ -1185,7 +1179,7 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
 }
 
 /*!
-    Returns the size hint for the specified \a item.
+    Returns the size hint for the item with the specified \a index.
 */
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
 {
@@ -1261,8 +1255,7 @@ int QAbstractItemView::keyboardInputInterval() const
 }
 
 /*!
-  ### this is a slot, not a signal
-    This signal is emitted if items are changed in the model. The
+    This slot is called when items are changed in the model. The
     changed items are those from \a topLeft to \a bottomRight
     inclusive. If just one item is changed \a topLeft == \a
     bottomRight.
@@ -1281,11 +1274,25 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
         doItemsLayout();
 }
 
+/*!
+    This slot is called when rows are inserted. The new rows are those
+    under the given \a parent from \a start to \a end inclusive. The
+    base class implementation does nothing.
+
+    \sa rowsRemoved()
+*/
 void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 {
     // do nothing
 }
 
+/*!
+    This slot is called when rows are removed. The deleted rows are
+    those under the given \a parent from \a start to \a end inclusive.
+    The base class implementation does nothing.
+
+    \sa rowsInserted()
+*/
 void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
 {
     // do nothing
@@ -1480,12 +1487,13 @@ void QAbstractItemView::doAutoScroll()
 }
 
 /*!
-  Returns the SelectionCommand to be used when
-  updating selections. Reimplement this function to add your own
-  selection behavior.
+    Returns the SelectionFlags to be used when updating selections.
+    Reimplement this function to add your own selection behavior.
 
-  This function is called on user input events like mouse and
-  keyboard events.
+    This function is called on user input events like mouse and
+    keyboard events; the mouse button state is given by \a state, the
+    index of the relevant item by \a index, the even type by \a type,
+    and the key (if a key was pressed) by \a key.
 */
 QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::ButtonState state,
                                                                         const QModelIndex &index,
