@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#8 $
 **
 ** Implementation of something useful.
 **
@@ -51,7 +51,7 @@ public:
 	Page( QWidget * widget, const QString & title ):
 	    w( widget ), t( title ), back( 0 ),
 	    backEnabled( TRUE ), nextEnabled( TRUE ), finishEnabled( FALSE ),
-	    helpEnabled( TRUE ), 
+	    helpEnabled( TRUE ),
 	    isLast( FALSE ), appropriate( TRUE )
 	{}
 	QWidget * w;
@@ -65,29 +65,11 @@ public:
 	bool appropriate;
     };
 
-    class Title: public QWidget {
-    public:
-	Title( QWizard * parent, QWizardPrivate * data ):
-	    QWidget( parent, "title" ),
-	    w( parent ), d ( data )
-	{}
-
-	QSizePolicy sizePolicy() const;
-	QSize sizeHint() const;
-
-    protected:
-	void paintEvent( QPaintEvent * );
-
-    private:
-	QWizard * w;
-	QWizardPrivate * d;
-    };
-
     QVBoxLayout * v;
-    Page * currentPage;
+    Page * current;
     QWidgetStack * ws;
     QVector<Page> pages;
-    Title * title;
+    QLabel * title;
     QPushButton * backButton;
     QPushButton * nextButton;
     QPushButton * finishButton;
@@ -108,28 +90,6 @@ public:
 };
 
 
-QSizePolicy QWizardPrivate::Title::sizePolicy() const
-{
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-}
-
-
-QSize QWizardPrivate::Title::sizeHint() const
-{
-    return QSize( 1, fontMetrics().height() );
-}
-
-
-void QWizardPrivate::Title::paintEvent( QPaintEvent * )
-{
-    if ( !w || d->currentPage )
-	return;
-
-    QPainter p( this );
-    p.drawText( 0, fontMetrics().ascent(), d->currentPage->t );
-}
-
-
 /*!  Constructs an empty wizard dialog. */
 
 QWizard::QWizard( QWidget *parent, const char *name, bool modal,
@@ -137,9 +97,9 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     : QDialog( parent, name, modal, f )
 {
     d = new QWizardPrivate();
-    d->currentPage = 0; // not quite true, but...
+    d->current = 0; // not quite true, but...
     d->ws = new QWidgetStack( this );
-    d->title = new QWizardPrivate::Title( this, d );
+    d->title = 0;
     d->backButton = new QPushButton( this, "back" );
     d->nextButton = new QPushButton( this, "next" );
     d->finishButton = new QPushButton( this, "finish" );
@@ -181,8 +141,8 @@ QWizard::~QWizard()
 
 void QWizard::show()
 {
-    if ( d->currentPage )
-	showPage( d->currentPage->w );
+    if ( d->current )
+	showPage( d->current->w );
     else if ( count() > 0 )
 	showPage( d->pages[0]->w );
     else
@@ -219,9 +179,12 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     }
     int i = count();
+    QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
+    p->backEnabled = ( i > 0 );
+
     d->ws->addWidget( page, i );
     d->pages.resize( i+1 );
-    d->pages.insert( i, new QWizardPrivate::Page( page, title ) );
+    d->pages.insert( i, p );
 }
 
 
@@ -234,7 +197,7 @@ void QWizard::showPage( QWidget * w )
 	setBackEnabled( p->back != 0 );
 	setNextEnabled( TRUE );
 	d->ws->raiseWidget( w );
-	d->currentPage = p;
+	d->current = p;
     }
 
     layOut();
@@ -256,8 +219,8 @@ int QWizard::count() const
 
 void QWizard::back()
 {
-    if ( d->currentPage )
-	showPage( d->currentPage->w );
+    if ( d->current && d->current->back )
+	showPage( d->current->back );
 }
 
 
@@ -269,13 +232,13 @@ void QWizard::next()
 {
     int i = 0;
     while( i < (int)d->pages.count() &&
-	   d->currentPage && d->pages[i]->w != d->currentPage->w )
+	   d->current && d->pages[i]->w != d->current->w )
 	i++;
     i++;
     while( i < (int)d->pages.count()-1 && !appropriate( d->pages[i]->w ) )
 	i++;
     if ( i < (int)d->pages.count() ) {
-	d->pages[i]->back = d->currentPage ? d->currentPage->w : 0;
+	d->pages[i]->back = d->current ? d->current->w : 0;
 	showPage( d->pages[i]->w );
     }
 }
@@ -287,7 +250,7 @@ void QWizard::next()
 
 void QWizard::finish()
 {
-    
+
 }
 
 
@@ -423,12 +386,13 @@ void QWizard::setApproprate( QWidget * w, bool enable )
 
 void QWizard::updateButtons() const
 {
-    if ( !d->currentPage )
+    if ( !d->current )
 	return;
-    d->backButton->setEnabled( d->currentPage->backEnabled );
-    d->nextButton->setEnabled( d->currentPage->nextEnabled );
-    d->finishButton->setEnabled( d->currentPage->finishEnabled );
-    d->helpButton->setEnabled( d->currentPage->helpEnabled );
+    d->backButton->setEnabled( d->current->backEnabled && 
+			       d->current->back != 0 );
+    d->nextButton->setEnabled( d->current->nextEnabled );
+    d->finishButton->setEnabled( d->current->finishEnabled );
+    d->helpButton->setEnabled( d->current->helpEnabled );
 }
 
 
@@ -508,7 +472,7 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 
     h->addSpacing( 6 );
     h->addWidget( d->nextButton );
-    
+
     h->addSpacing( 12 );
     h->addWidget( d->helpButton );
 
@@ -525,6 +489,9 @@ changes.
 
 void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
 {
+    if ( !d->title )
+	d->title = new QLabel( this );
+    d->title->setText( title );
     layout->addWidget( d->title );
     d->title->repaint();
 }
@@ -542,7 +509,7 @@ void QWizard::layOut()
     QHBoxLayout * l;
     l = new QHBoxLayout( 0, 6 );
     d->v->addLayout( l );
-    layOutTitleRow( l, d->currentPage ? d->currentPage->t : QString::null );
+    layOutTitleRow( l, d->current ? d->current->t : QString::null );
 
     if ( ! d->hbar1 ) {
 	d->hbar1 = new QFrame( this, "<hr>", 0, TRUE );
