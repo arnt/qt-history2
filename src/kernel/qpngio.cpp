@@ -1123,6 +1123,10 @@ int QPNGFormat::user_chunk(png_structp png,
 	    return 1;
 	}
     }
+#else
+    Q_UNUSED( png )
+    Q_UNUSED( data )
+    Q_UNUSED( length )
 #endif
 
 #ifndef QT_NO_IMAGE_TEXT
