@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#89 $
 **
 ** Implementation of event classes
 **
@@ -585,7 +585,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \sa bool QPaintEvent::erased()
+  \fn bool QPaintEvent::erased() const
   Returns whether the paint event region (or rectangle) has been
   erased with the widget's background.
 */

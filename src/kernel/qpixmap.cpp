@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#97 $
 **
 ** Implementation of QPixmap class
 **
@@ -164,7 +164,7 @@ QPixmap::QPixmap( const char *xpm[] )
 	convertFromImage( image );
 }
 
-/*
+/*!
   Constructs a pixmaps by loading from \a data.
 
   \sa loadFromData()

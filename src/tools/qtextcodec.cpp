@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#46 $
 **
 ** Implementation of QTextCodec class
 **
@@ -444,7 +444,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
 
 /*!
-  Creates a QTextToUnicode which stores enough state to decode chunks
+  Creates a QTextDecoder which stores enough state to decode chunks
   of char* data to create chunks of Unicode data.  The default implementation
   creates a stateless decoder, which is sufficient for only the simplest
   encodings where each byte corresponds to exactly one Unicode character.
@@ -458,7 +458,7 @@ QTextDecoder* QTextCodec::makeDecoder() const
 
 
 /*!
-  Creates a QTextToUnicode which stores enough state to encode chunks
+  Creates a QTextEncoder which stores enough state to encode chunks
   of Unicode data as char* data.  The default implementation
   creates a stateless encoder, which is sufficient for only the simplest
   encodings where each Unicode character corresponds to exactly one char.
@@ -552,11 +552,43 @@ QString QTextCodec::toUnicode(const char* chars) const
 
 
 /*!
+  \class QTextEncoder qtextcodec.h
+  \brief State-based encoder
+
+  A QTextEncoder converts Unicode into another format, remembering
+  any state that is required between calls.
+
+  \sa QTextCodec::makeEncoder()
+*/
+
+/*!
   Destroys the encoder.
 */
 QTextEncoder::~QTextEncoder()
 {
 }
+/*!
+  \fn QCString QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
+
+  Converts \a lenInOut characters (not bytes) from \a uc, producing
+  a QCString.  \a lenInOut will also be set to the
+  \link QCString::length() length\endlink of the result (in bytes).
+
+  The encoder is free to record state to use when subsequent calls are
+  made to this function (for example, it might change modes with escape
+  sequences if needed during the encoding of one string, then assume that
+  mode applies when a subsequent call begins).
+*/
+
+/*!
+  \class QTextDecoder qtextcodec.h
+  \brief State-based decoder
+
+  A QTextEncoder converts a text format into Unicode, remembering
+  any state that is required between calls.
+
+  \sa QTextCodec::makeEncoder()
+*/
 
 
 /*!
@@ -565,6 +597,17 @@ QTextEncoder::~QTextEncoder()
 QTextDecoder::~QTextDecoder()
 {
 }
+
+/*!
+  \fn QString toUnicode(const char* chars, int len)
+
+  Converts the first \a len bytes at \a chars to Unicode, returning the
+  result.
+
+  If not all characters are used (eg. only part of a multi-byte
+  encoding is at the end of the characters), the decoder remembers
+  enough state to continue with the next call to this function.
+*/
 
 #define CHAINED 0xffff
 

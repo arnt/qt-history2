@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#172 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#173 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -638,6 +638,19 @@ QString QString::arg(ulong a, int fieldwidth, int base) const
     n.setNum(a,base);
     return arg(n,fieldwidth);
 }
+
+/*!
+  \fn QString QString::arg(int a, int fieldwidth, int base) const
+
+  See QString::arg(long a, int fieldwidth, int base).
+*/
+
+/*!
+  \fn QString QString::arg(uint a, int fieldwidth, int base) const
+
+  See QString::arg(ulong a, int fieldwidth, int base).
+*/
+
 
 /*!
   Returns a string equal to this one, but with the first
@@ -1520,6 +1533,14 @@ QString &QString::insert( uint index, QChar c )	// insert char
 */
 
 /*!
+  \fn QString& QString::prepend( char ch )
+  Prepends \a ch to the string and returns a reference to the result.
+
+  \sa insert()
+ */
+
+
+/*!
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
@@ -2055,6 +2076,12 @@ void QString::setExpand( uint index, QChar c )
 /*!
   \fn QString& QString::append( const QString& str )
   Appends \a str to the string and returns a reference to the result.
+  Equivalent to operator+=().
+ */
+
+/*!
+  \fn QString& QString::append( char ch )
+  Appends \a ch to the string and returns a reference to the result.
   Equivalent to operator+=().
  */
 

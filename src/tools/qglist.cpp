@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#51 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -48,7 +48,7 @@
 */
 
 /*!
-  \fn Item QLNode::getData()
+  \fn QCollection::Item QLNode::getData()
   Returns a pointer (\c void*) to the actual data in the list node.
 */
 
@@ -722,7 +722,7 @@ uint QGList::contains( Item d ) const
 
 
 /*!
-  \fn Item QGList::at( uint index )
+  \fn QCollection::Item QGList::at( uint index )
   \internal
   Sets the item at position \e index to the current item.
 */
@@ -740,19 +740,19 @@ uint QGList::contains( Item d ) const
 */
 
 /*!
-  \fn Item QGList::get() const
+  \fn QCollection::Item QGList::get() const
   \internal
   Returns the current item.
 */
 
 /*!
-  \fn Item QGList::cfirst() const
+  \fn QCollection::Item QGList::cfirst() const
   \internal
   Returns the first item in the list.
 */
 
 /*!
-  \fn Item QGList::clast() const
+  \fn QCollection::Item QGList::clast() const
   \internal
   Returns the last item in the list.
 */
@@ -1042,7 +1042,7 @@ QCollection::Item QGListIterator::toLast()
 
 
 /*!
-  \fn Item QGListIterator::get() const
+  \fn QCollection::Item QGListIterator::get() const
   \internal
   Returns the iterator item.
 */
