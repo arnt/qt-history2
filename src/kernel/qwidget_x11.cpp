@@ -635,8 +635,16 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     XReparentWindow( x11Display(), old_winid,
 		     RootWindow( x11Display(), x11Screen() ), 0, 0 );
 
+    if ( isTopLevel() ) {
+        // input contexts are associated with toplevel widgets, so we need
+        // destroy the context here.  if we are reparenting back to toplevel,
+        // then we will have another context created, otherwise we will
+        // use our new toplevel's context
+        destroyInputContext();
+    }
+
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
-	topData()->parentWinId = 0;
+        topData()->parentWinId = 0;
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
