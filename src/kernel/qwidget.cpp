@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#44 $
 **
 ** Implementation of QWidget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#44 $";
 #endif
 
 /*!
@@ -619,25 +619,23 @@ public:
     void setAccel()	  { accel = TRUE; }
 };
 
-/*!
-This is the main event handler.  It passes the incoming events
-through any event filters, and if none of the filters intercept
-the event, calls one of the specialized virtual functions to handle
-each type of event.
+/*! This is the main event handler.  It passes the incoming events
+  through any event filters, and if none of the filters intercept
+  the event, calls one of the specialized virtual functions to handle
+  each type of event.
 
-Key presses are treated specially; after trying the event filters,
-event() looks for an accelerator that can handle the key press,
-finally it tries the widget that has the keyboard focus.
+  Key presses are treated specially; after trying the event filters,
+  event() looks for an accelerator that can handle the key press,
+  finally it tries the widget that has the keyboard focus.
 
-event() returns TRUE if it is able to pass the event over to someone,
-FALSE if nobody wanted the event.
+  event() returns TRUE if it is able to pass the event over to someone,
+  FALSE if nobody wanted the event.
 
-\sa QObject::event(), installEventFilter(), closeEvent(),
-focusInEvent(), focusOutEvent(), hideEvent(), keyPressEvent(),
-keyReleaseEvent(),
-mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
-mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent(),
-showEvent(), timerEvent(). */
+  \sa QObject::event(), installEventFilter(), closeEvent(),
+  focusInEvent(), focusOutEvent(), keyPressEvent(), keyReleaseEvent(),
+  mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
+  mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent(),
+  timerEvent(). */
 
 bool QWidget::event( QEvent *e )		// receive event(), 
 {
@@ -832,18 +830,6 @@ void QWidget::moveEvent( QMoveEvent * )
 /*! This function is virtual and does nothing by default. \sa event() */
 
 void QWidget::resizeEvent( QResizeEvent * )
-{
-}
-
-/*! This function is virtual and does nothing by default. \sa event() */
-
-void QWidget::showEvent( QShowEvent *e )
-{
-}
-
-/*! This function is virtual and does nothing by default. \sa event() */
-
-void QWidget::hideEvent( QHideEvent *e )
 {
 }
 
