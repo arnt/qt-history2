@@ -1136,7 +1136,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	bool do_default = TRUE;
 	const QString root = "$(INSTALL_ROOT)";
-	QString target, dst= fileFixify(project->variables()[pvar].first());
+	QString target, dst= fileFixify(project->variables()[pvar].first(), FileFixifyAbsolute);
 	if(dst.right(1) != Option::dir_sep)
 	    dst += Option::dir_sep;
 	QStringList tmp, uninst = project->variables()[(*it) + ".uninstall"];
@@ -1157,7 +1157,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		target += "\n";
 	    do_default = FALSE;
 	    for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
-		QString wild = Option::fixPathToLocalOS((*wild_it), FALSE), wild_var = fileFixify(wild);
+		QString wild = Option::fixPathToLocalOS((*wild_it), FALSE), wild_var = fileFixify(wild, FileFixifyAbsolute);
 		QString dirstr = QDir::currentDirPath(), filestr = wild;
 		int slsh = filestr.lastIndexOf(Option::dir_sep);
 		if(slsh != -1) {
@@ -1172,14 +1172,13 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    if(!target.isEmpty())
 			target += "\t";
 		    QString cmd =  QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
-				   Option::fixPathToTargetOS(fileFixify(wild, QString::null,
-									QString::null, FALSE, FALSE), FALSE) +
+				   Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, FALSE), FALSE) +
 				   "\" \"" + root + dst + "\"\n";
 		    target += cmd;
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += QString("\t-") + var("QMAKE_STRIP") + " \"" +
-				  root + fileFixify(dst + filestr, QString::null, QString::null, FALSE, FALSE) +
+				  root + fileFixify(dst + filestr, FileFixifyAbsolute, FALSE) +
 				  "\"\n";
 		    if(!uninst.isEmpty())
 			uninst.append("\n\t");
@@ -1189,7 +1188,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
 		    QString("-$(DEL_FILE) -r")
 #endif
-		    + " \"" + root + fileFixify(dst + filestr, QString::null, QString::null, FALSE, FALSE) + "\"");
+		    + " \"" + root + fileFixify(dst + filestr, FileFixifyAbsolute, FALSE) + "\"");
 		    continue;
 		}
 		fixEnvVariables(dirstr);
@@ -1206,20 +1205,19 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
 			QString("-$(DEL_FILE) -r")
 #endif
-			+ " \"" + root + fileFixify(dst + file, QString::null, QString::null, FALSE, FALSE) +
+			+ " \"" + root + fileFixify(dst + file, FileFixifyAbsolute, FALSE) +
 			"\"");
-		    QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file), TRUE));
+		    QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute), TRUE));
 		    if(!target.isEmpty())
 			target += "\t";
 		    QString cmd = QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
-				  Option::fixPathToTargetOS(fileFixify(dirstr + file, QString::null,
-								       QString::null, FALSE, FALSE), FALSE) +
-				  "\" \"" + root + fileFixify(dst) + "\"\n";
+				  Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute, FALSE), FALSE) +
+				  "\" \"" + root + fileFixify(dst, FileFixifyAbsolute) + "\"\n";
 		    target += cmd;
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += QString("\t-") + var("QMAKE_STRIP") + " \"" +
-				  root + fileFixify(dst + file, QString::null, QString::null, FALSE, FALSE) +
+				  root + fileFixify(dst + file, FileFixifyAbsolute, FALSE) +
 				  "\"\n";
 		}
 	    }
@@ -1244,7 +1242,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    t << "\n\t";
 	    const QStringList &dirs = project->variables()[pvar];
 	    for(QStringList::ConstIterator pit = dirs.begin(); pit != dirs.end(); ++pit) {
-		QString tmp_dst = fileFixify((*pit));
+		QString tmp_dst = fileFixify((*pit), FileFixifyAbsolute);
 #ifndef Q_WS_WIN
 		if(tmp_dst.right(1) != Option::dir_sep)
 		    tmp_dst += Option::dir_sep;
@@ -1514,29 +1512,29 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 
 QStringList
 MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, const QString &in_dir,
-			      bool force_fix, bool canon) const
+			      FileFixifyType fix, bool canon) const
 {
     if(files.isEmpty())
 	return files;
     QStringList ret;
     for(QStringList::ConstIterator it = files.begin(); it != files.end(); ++it) {
 	if(!(*it).isEmpty())
-	    ret << fileFixify((*it), out_dir, in_dir, force_fix, canon);
+	    ret << fileFixify((*it), out_dir, in_dir, fix, canon);
     }
     return ret;
 }
 
 QString
-MakefileGenerator::fileFixify(const QString& file0, const QString &out_d,
-			      const QString &in_d, bool force_fix, bool canon) const
+MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const QString &in_d, 
+			      FileFixifyType fix, bool canon) const
 {
     if(file0.isEmpty())
 	return file0;
     QString key = file0;
     if(QDir::isRelativePath(file0))
 	key.prepend(QDir::currentDirPath() + "--");
-    if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix || !canon)
-	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)force_fix) + "--" +
+    if(!in_d.isEmpty() || !out_d.isEmpty() || fix != FileFixifyDefault || !canon)
+	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)fix) + "--" +
 		    QString::number((int)canon) + "-");
     if(fileFixed.contains(key))
 	return fileFixed[key];
@@ -1557,7 +1555,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d,
 	file = file.mid(1, file.length() - 2);
     }
     QString orig_file = file;
-    if(!force_fix && project->isActiveConfig("no_fixpath")) {
+    if(fix == FileFixifyAbsolute || (fix == FileFixifyDefault && project->isActiveConfig("no_fixpath"))) {
 	if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
 	    QString qfile = Option::fixPathToLocalOS(file, TRUE, canon);
 	    if(QDir::isRelativePath(file)) { //already absolute

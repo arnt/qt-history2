@@ -568,7 +568,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
-    targetdir = fileFixify(targetdir);
+    targetdir = fileFixify(targetdir, FileFixifyAbsolute);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
 
@@ -608,7 +608,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(!project->isEmpty("DESTDIR")) {
 		src_lt.prepend(var("DESTDIR"));
 		src_lt = Option::fixPathToLocalOS(fileFixify(src_lt,
-							     QDir::currentDirPath(), Option::output_dir));
+							     QDir::currentDirPath(), Option::output_dir, FileFixifyAbsolute));
 	    }
 	    if(!ret.isEmpty())
 		ret += "\n\t";
@@ -631,7 +631,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(!project->isEmpty("DESTDIR")) {
 		src_pc.prepend(var("DESTDIR"));
 		src_pc = Option::fixPathToLocalOS(fileFixify(src_pc,
-							     QDir::currentDirPath(), Option::output_dir));
+							     QDir::currentDirPath(), Option::output_dir, FileFixifyAbsolute));
 	    }
 	    if(!ret.isEmpty())
 		ret += "\n\t";
@@ -656,7 +656,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	QString src_targ = target;
 	if(src_targ == "$(TARGET)")
 	    src_targ = "$(TARGETL)";
-	QString dst_dir = fileFixify(targetdir);
+	QString dst_dir = fileFixify(targetdir, FileFixifyAbsolute);
 	if(QDir::isRelativePath(dst_dir))
 	    dst_dir = Option::fixPathToTargetOS(Option::output_dir + Option::dir_sep + dst_dir);
 	ret = "-$(LIBTOOL) --mode=install cp \"" + src_targ + "\" \"" + root + dst_dir + "\"";
@@ -665,7 +665,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	QString src_targ = target;
 	if(!destdir.isEmpty())
 	    src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
-	QString dst_targ = root + fileFixify(targetdir + target);
+	QString dst_targ = root + fileFixify(targetdir + target, FileFixifyAbsolute);
 	if(!ret.isEmpty())
 	    ret += "\n\t";
 	if(resource)
@@ -702,7 +702,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		    int lslash = link.lastIndexOf(Option::dir_sep);
 		    if(lslash != -1)
 			link = link.right(link.length() - (lslash + 1));
-		    QString dst_link = root + fileFixify(targetdir + link);
+		    QString dst_link = root + fileFixify(targetdir + link, FileFixifyAbsolute);
 		    ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
 		    if(!uninst.isEmpty())
 			uninst.append("\n\t");

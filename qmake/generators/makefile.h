@@ -96,11 +96,12 @@ protected:
     QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
     QString valList(const QStringList &varList);
 
-
+    enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
-		       const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
+		       const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=TRUE) const;
+    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=TRUE) const { return fileFixify(file, QString::null, QString::null, fix, canon); }
     QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null,
-			   const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
+			   const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=TRUE) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();

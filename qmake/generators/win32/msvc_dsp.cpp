@@ -893,7 +893,7 @@ DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
 {
     if(project->isActiveConfig("flat"))
 	return;
-    fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), TRUE);
+    fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), FileFixifyRelative);
     file = file.section(Option::dir_sep, 0, -2);
     if(file.right(Option::dir_sep.length()) != Option::dir_sep)
 	file += Option::dir_sep;

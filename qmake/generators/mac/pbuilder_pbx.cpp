@@ -117,13 +117,13 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 			    QString name = QDir::currentDirPath();
 			    QString project_key = keyFor(pbxproj + "_PROJECTREF");
 			    if(project->isActiveConfig("flat")) {
-				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
+				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, FileFixifyRelative);
 				if(flat_file.indexOf(Option::dir_sep) != -1) {
 				    QStringList dirs = flat_file.split(Option::dir_sep);
 				    name = dirs.back();
 				}
 			    } else {
-				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
+				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, FileFixifyRelative);
 				if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 				    QString last_grp("QMAKE_PBX_HEIR_GROUP");
 				    QStringList dirs = flat_file.split(Option::dir_sep);
@@ -320,13 +320,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file), name = file;
 	    if(project->isActiveConfig("flat")) {
-		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
+		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
 		if(flat_file.indexOf(Option::dir_sep) != -1) {
 		    QStringList dirs = flat_file.split(Option::dir_sep);
 		    name = dirs.back();
 		}
 	    } else {
-		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
+		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
 		if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
 		    QStringList dirs = flat_file.split(Option::dir_sep);
