@@ -861,7 +861,6 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	arg.uintVal = static_QUType_uint.get( obj );
     } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
 	arg.vt = VT_BSTR;
-	if ( !obj->payload.ptr )
 	arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
     } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
 	arg.vt = VT_BOOL;
