@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#68 $
 **
 ** Implementation of date and time classes
 **
@@ -664,7 +664,7 @@ QTime QTime::currentTime()
 /*!
   Fetches the current time and returns TRUE if the time is within one
   minute after midnight, otherwise FALSE. The return value is used by
-  QDateTime::currentDateTime to ensure that the date there is correct.
+  QDateTime::currentDateTime() to ensure that the date there is correct.
 */
 
 bool QTime::currentTime( QTime *ct )
@@ -707,7 +707,7 @@ bool QTime::currentTime( QTime *ct )
     time_t ltime = tv.tv_sec;
     tm *t = localtime( &ltime );
     ct->ds = (uint)( MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	            1000*t->tm_sec + tv.tv_usec/1000 );
+		     1000*t->tm_sec + tv.tv_usec/1000 );
     return (t->tm_hour== 0 && t->tm_min == 0);
 
 #else
@@ -762,13 +762,21 @@ void QTime::start()
   repeated measurements; call start() to start the first measurement,
   then restart() for each later measurement.
 
+  Note that the counter wraps to zero 24 hours after the last call to
+  start() or restart().
+
+  \warning If the system's local time changes, the result is undefined.
+  This can happen e.g. when daylight saving is turned on or off.
+
   \sa start(), elapsed()
 */
 
 int QTime::restart()
 {
     QTime t = currentTime();
-    int	  n = msecsTo( t );
+    int n = msecsTo( t );
+    if ( n < 0 )				// passed midnight
+	n += 86400*1000;
     *this = t;
     return n;
 }
@@ -776,12 +784,22 @@ int QTime::restart()
 /*!
   Returns the number of milliseconds that have elapsed since start() or
   restart() were called.
+
+  Note that the counter wraps to zero 24 hours after the last call to
+  start() or restart.
+
+  \warning If the system's local time changes, the result is undefined.
+  This can happen e.g. when daylight saving is turned on or off.
+
   \sa start(), restart()
 */
 
 int QTime::elapsed()
 {
-    return msecsTo( currentTime() );
+    int n = msecsTo( currentTime() );
+    if ( n < 0 )				// passed midnight
+	n += 86400*1000;
+    return n;
 }
 
 
