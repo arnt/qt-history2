@@ -70,6 +70,8 @@ table {
 	INTERFACES += widgets/widgetsbase_pro.ui
 }
 
+DEFINES		+= QT_INTERNAL_ICONVIEW
+DEFINES		+= QT_INTERNAL_WORKSPACE
 include( ../../src/qt_professional.pri )
 
 TARGET		= demo
