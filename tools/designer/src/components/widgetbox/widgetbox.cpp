@@ -353,6 +353,9 @@ WidgetCollectionModel::Category WidgetCollectionModel::xmlToCategory(const QDomE
     QDomElement widget_elt = cat_elt.firstChildElement();
     for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {
         QIcon icon = createIconSet(widget_elt.attribute(QLatin1String("icon")));
+        if (icon.isNull()) {
+            icon = createIconSet("qtlogo.png");
+        }
         Widget w(widget_elt.attribute(QLatin1String("name")), domToString(widget_elt), icon);
         result.addWidget(w);
     }
@@ -383,7 +386,13 @@ WidgetCollectionModel::Category WidgetCollectionModel::loadCustomCategory()
         QString dom_xml = c->domXml();
         if (dom_xml.isEmpty())
             continue;
-        result.addWidget(Widget(c->name(), dom_xml, c->icon()));
+
+        QIcon icon = c->icon();
+        if (icon.isNull()) {
+            icon = createIconSet("qtlogo.png");
+        }
+
+        result.addWidget(Widget(c->name(), dom_xml, icon));
     }
 
     return result;

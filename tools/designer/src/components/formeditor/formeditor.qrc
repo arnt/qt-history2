@@ -55,8 +55,10 @@
     <file>images/widgets/progress.png</file>
     <file>images/widgets/pushbutton.png</file>
     <file>images/widgets/radiobutton.png</file>
-    <file>images/widgets/scrollbar.png</file>
-    <file>images/widgets/slider.png</file>
+    <file>images/widgets/vscrollbar.png</file>
+    <file>images/widgets/hscrollbar.png</file>
+    <file>images/widgets/vslider.png</file>
+    <file>images/widgets/hslider.png</file>
     <file>images/widgets/spacer.png</file>
     <file>images/widgets/spinbox.png</file>
     <file>images/widgets/table.png</file>

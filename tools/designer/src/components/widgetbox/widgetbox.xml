@@ -419,7 +419,7 @@
             </property>
         </widget>
 
-        <widget class="QScrollBar" name="Horizontal Scroll Bar" icon="widgets/scrollbar.png">
+        <widget class="QScrollBar" name="Horizontal Scroll Bar" icon="widgets/hscrollbar.png">
             <property name="orientation" >
                 <enum>Qt::Horizontal</enum>
             </property>
@@ -436,39 +436,57 @@
             </property>
         </widget>
 
-        <widget class="QSlider" name="Slider" icon="widgets/slider.png">
-            <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="geometry" >
-                <rect>
-                    <x>0</x>
-                    <y>148</y>
-                    <width>160</width>
-                    <height>16</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">slider</string>
-            </property>
-        </widget>
-
-        <widget class="QScrollBar" name="Vertical Scroll Bar" icon="widgets/scrollbar.png">
+        <widget class="QScrollBar" name="Vertical Scroll Bar" icon="widgets/vscrollbar.png">
             <property name="orientation" >
                 <enum>Qt::Vertical</enum>
             </property>
             <property name="geometry" >
                 <rect>
-                    <x>166</x>
-                    <y>67</y>
+                    <x>0</x>
+                    <y>126</y>
                     <width>16</width>
-                    <height>30</height>
+                    <height>160</height>
                 </rect>
             </property>
             <property name="objectName">
                 <string notr="true">verticalScrollBar</string>
             </property>
         </widget>
+
+        <widget class="QSlider" name="Horizontal Slider" icon="widgets/hslider.png">
+            <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>126</y>
+                    <width>160</width>
+                    <height>16</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">horizontalSlider</string>
+            </property>
+        </widget>
+
+        <widget class="QSlider" name="Vertical Slider" icon="widgets/vslider.png">
+            <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+            </property>
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>126</y>
+                    <width>16</width>
+                    <height>160</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">verticalSlider</string>
+            </property>
+        </widget>
+
     </category>
 
 
