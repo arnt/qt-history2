@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#13 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#14 $
 **
 ** Definition of
 **
@@ -59,6 +59,9 @@ public:
     const QListViewItem * firstChild() const { return childItem; }
     const QListViewItem * nextSibling() const { return siblingItem; }
 
+    QListViewItem * itemAbove();
+    QListViewItem * itemBelow();
+
     QListView *listView() const;
 
     virtual void setSelectable( bool enable );
@@ -114,6 +117,7 @@ public:
 
     QListViewItem * itemAt( QPoint screenPos ) const;
     QRect itemRect( QListViewItem * ) const;
+    int itemPos( QListViewItem * );
 
     virtual void setMultiSelection( bool enable );
     bool isMultiSelection() const;
@@ -122,7 +126,7 @@ public:
 
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
-    
+
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
 
@@ -173,7 +177,7 @@ private:
     void reconfigureItems();
 
     QListViewPrivate * d;
-    
+
     friend QListViewItem;
 };
 

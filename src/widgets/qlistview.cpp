@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#31 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#31 $");
 
 
 const int Unsorted = 32767;
@@ -92,7 +92,7 @@ struct QListViewPrivate
     // sort column and order
     int column;
     bool ascending;
-    
+
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
@@ -177,7 +177,7 @@ void QListViewItem::init()
 {
     ownHeight = 0;
     maybeTotalHeight = -1;
-    open = TRUE;
+    open = FALSE;
 
     childCount = 0;
     parentItem = 0;
@@ -236,7 +236,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
     invalidateHeight();
-    
+
     if ( tbg == listView()->d->currentSelected )
 	listView()->d->currentSelected = 0;
 
@@ -375,7 +375,7 @@ void QListViewItem::invalidateHeight()
 /*!  Sets this item to be open (its children are visible) if \a o is
   TRUE, and to be closed (its children are not visible) if \a o is
   FALSE.
-  
+
   Also does some bookeeping.
 
   \sa ownHeight() totalHeight()
@@ -390,7 +390,7 @@ void QListViewItem::setOpen( bool o )
     if ( !childCount )
 	return;
     invalidateHeight();
-    
+
     if ( !configured ) {
 	QListViewItem * l = this;
 	QStack<QListViewItem> s;
@@ -435,14 +435,14 @@ void QListViewItem::setup()
 
 
 /*! \fn bool QListViewItem::isSelectable() const
-  
+
   Returns TRUE if the item is selectable (as it is by default) and
   FALSE if it isn't. \sa setSelectable() */
 
 
 /*!  Sets this items to be selectable if \a enable is TRUE (the
   default) or not to be selectable if \a enable is FALSE.
-  
+
   The user is not able to select a non-selectable item using either
   the keyboard or mouse.  The application programmer still can, of
   course.  \sa isSelectable() */
@@ -454,7 +454,7 @@ void QListViewItem::setSelectable( bool enable )
 
 
 /*! \fn bool QListViewItem::isExpandable() { return expnadable; }
-  
+
   Returns TRUE if this item is selectable even when it has no
   children.
 */
@@ -528,12 +528,12 @@ int QListViewItem::totalHeight() const
 	that->configured = TRUE;
 	that->setup(); // ### virtual non-const function called in const
     }
-    that->maybeTotalHeight = ownHeight;
+    that->maybeTotalHeight = that->ownHeight;
 
-    if ( !isOpen() || !children() )
-	return ownHeight;
+    if ( !that->isOpen() || !that->children() )
+	return that->ownHeight;
 
-    QListViewItem * child = childItem;
+    QListViewItem * child = that->childItem;
     while ( child != 0 ) {
 	that->maybeTotalHeight += child->totalHeight();
 	child = child->siblingItem;
@@ -760,6 +760,7 @@ QListViewPrivate::Root::Root( QListView * parent )
 {
     lv = parent;
     setHeight( 0 );
+    setOpen( TRUE );
 }
 
 
@@ -810,6 +811,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->column = 0;
     d->ascending = TRUE;
     d->allColumnsShowFocus = FALSE;
+    d->fontMetricsHeight = fontMetrics().height();
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -925,7 +927,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
 				       d->h->mapToLogical( c ), r.width(),
-				       hasFocus() && 
+				       hasFocus() &&
 				       (d->allColumnsShowFocus ||
 					current->i == d->focusItem) );
 		p->restore();
@@ -1192,8 +1194,8 @@ void QListView::triggerUpdate()
 }
 
 
-/*!  Does nothing at present.  Intended to deliver relevant input
-   events to the appropriate QListViewItem. */
+/*!  Redirects events for the viewport to mousePressEvent(),
+  keyPressEvent() and friends. */
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
 {
@@ -1265,6 +1267,75 @@ QListView * QListViewItem::listView() const
     while( l && l->parentItem )
 	l = l->parentItem;
     return ((QListViewPrivate::Root*)l)->lv;
+}
+
+
+/*!  Returns a pointer to the item immediately above this item on the
+  screen.  This is usually the item's closest older sibling, but may
+  also be its parent or its next older sibling's youngest child, or
+  something else if anyoftheabove->height() returns 0.
+  
+  This function assumes that all parents of this item are open
+  (ie. that this item is visible, or can be made visible by
+  scrolling).
+
+  \sa itemBelow() itemRect()
+*/
+
+QListViewItem * QListViewItem::itemAbove()
+{
+    if ( !parentItem )
+	return 0;
+
+    QListViewItem * c = parentItem;
+    if ( c->childItem != this ) {
+	c = c->childItem;
+	while( c && c->siblingItem != this )
+	    c = c->siblingItem;
+	if ( !c )
+	    return 0;
+	while( c->isOpen() && c->childItem ) {
+	    c = c->childItem;
+	    while( c->siblingItem )
+		c = c->siblingItem;		// assign c's sibling to c
+	}
+    }
+    if ( c && !c->height() )
+	return c->itemAbove();
+    return c;
+}
+
+
+/*!  Returns a pointer to the item immediately below this item on the
+  screen.  This is usually the item's eldest child, but may also be
+  its next younger sibling, its parent's next younger sibling,
+  granparent's etc., or something else if anyoftheabove->height()
+  returns 0.
+  
+  This function assumes that all parents of this item are open
+  (ie. that this item is visible, or can be made visible by
+  scrolling).
+
+  \sa itemAbove() itemRect() */
+
+QListViewItem * QListViewItem::itemBelow()
+{
+    QListViewItem * c = 0;
+    if ( childItem ) {
+	c = childItem;
+    } else if ( siblingItem ) {
+	c = siblingItem;
+    } else if ( parentItem ) {
+	c = this;
+	do {
+	    c = c->parentItem;
+	} while( c->parentItem && !c->siblingItem );
+	if ( c )
+	    c = c->siblingItem;
+    }
+    if ( c && !c->height() )
+	return c->itemBelow();
+    return c;
 }
 
 
@@ -1382,7 +1453,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !i );
 	return;
 
-    if ( i->children() &&
+    if ( (i->isExpandable() || i->children()) &&
 	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) == 0 ) ) {
 	int x1 = e->pos().x() - d->h->cellPos( d->h->mapToActual( 0 ) );
 	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
@@ -1395,7 +1466,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 		 i->setOpen( !i->isOpen() );
 	}
     }
-    
+
     if ( i->isSelectable() )
 	setSelected( i, isMultiSelection() ? !i->isSelected() : TRUE );
 
@@ -1536,7 +1607,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	return;
     }
 
-    int y = 0;
+    QRect r( itemRect( i ) );
 
     switch( e->key() ) {
     case Key_Enter:
@@ -1544,37 +1615,51 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	emit returnPressed( currentItem() );
 	return;
     case Key_Down:
-	y = itemRect( i ).bottom() + 1 - contentsY();
+	i = i->itemBelow();
 	break;
     case Key_Up:
-	y = itemRect( i ).top() - 1 - contentsY();
+	i = i->itemAbove();
 	break;
     case Key_Next:
-	y = itemRect( i ).center().y() + viewport()->height() - contentsY();
-	verticalScrollBar()->addPage();
+	// this is window style.  mostif style is probably different.
+	if ( !r.isValid ||
+	     !viewport()->rect().contains( itemRect( i->itemBelow() ) ) )
+	    verticalScrollBar()->addPage();
+	i = itemAt( QPoint( 0, contentsY() + viewport()->height() - 1 ) );
 	break;
     case Key_Prior:
-	y = itemRect( i ).center().y() - viewport()->height() - contentsY();
-	verticalScrollBar()->subtractPage();
+	// this is window style.  mostif style is probably different.
+	if ( !r.isValid() || r.top() <= 0 )
+	    verticalScrollBar()->subtractPage();
+	i = itemAt( QPoint( 0, contentsY() ) );
+	break;
+    case Key_Right:
+	if ( !i->isOpen() && (i->isExpandable() || i->children()) ) {
+	    i->setOpen( TRUE );
+	    triggerUpdate();
+	}
+	if ( i->isOpen() && i->childItem )
+	    i = i->childItem;
+	break;
+    case Key_Left:
+	if ( i->parentItem && i->parentItem != d->r )
+	    i = i->parentItem;
 	break;
     default:
 	e->ignore();
 	return;
     }
 
-    if ( y < 0 )
-	y = 0;
-    else if ( y >= d->r->totalHeight() )
-	y = d->r->totalHeight()-1;
-
-    ensureVisible( viewport()->width()/2 - contentsX(), y, 0, i->height() );
-    i = itemAt( QPoint( 0, y + contentsY() ) );
-    if ( !i ) {
-	warning("QListViewItem::keyPressEvent() no item at %d", y );
+    if ( !i )
 	return;
-    }
 
-    if ( i->isSelectable() && 
+    int y = itemPos( i );
+    if ( y < -contentsY() )
+	verticalScrollBar()->setValue( y );
+    else if ( y + i->height() > viewport()->height() - contentsY() )
+	verticalScrollBar()->setValue( y+i->height() - viewport()->height() );
+
+    if ( i->isSelectable() &&
 	 ((e->state() & ShiftButton) || !isMultiSelection()) )
 	setSelected( i, d->currentSelected
 		     ? d->currentSelected->isSelected()
@@ -1589,6 +1674,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
   the listview's own, much larger, coordinate system.
 
   itemAt() returns 0 if there is no such item.
+  
+  \sa itemPos() itemRect()
 */
 
 QListViewItem * QListView::itemAt( QPoint screenPos ) const
@@ -1603,6 +1690,34 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
 	c = d->drawables->next();
 
     return (c && c->y <= g) ? c->i : 0;
+}
+
+
+/*!  Returns the y coordinate of \a item in the list view's
+  coordinate system.  This functions is normally much slower than
+  itemAt(), but it works for all items, while itemAt() normally works
+  only for items on the screen.
+  
+  \sa itemAt() itemRect()
+*/
+
+int QListView::itemPos( QListViewItem * item )
+{
+    QListViewItem * i = item;
+    QListViewItem * p;
+    int a = 0;
+
+    while( i && i->parentItem ) {
+	p = i->parentItem;
+	a += p->height();
+	p = p->childItem;
+	while( p && p != i ) {
+	    a += p->totalHeight();
+	    p = p->siblingItem;
+	}
+	i = i->parentItem;
+    }
+    return a;
 }
 
 
@@ -1658,7 +1773,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	d->currentSelected = item;
 	r = r.unite( itemRect( item ) );
     }
-    
+
     if ( !d->allColumnsShowFocus ) {
 	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
 		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
@@ -1701,13 +1816,13 @@ void QListView::setCurrentItem( QListViewItem * i )
 
     if ( i )
 	r = r.unite( itemRect( i ) );
-    
+
     if ( !d->allColumnsShowFocus ) {
 	QRect col( d->h->cellPos(d->h->mapToActual(0)), r.top(),
 		   d->h->cellSize(d->h->mapToActual(0)), r.height() );
 	r = r.intersect( col );
     }
-    
+
     viewport()->repaint( r, FALSE );
     if ( i != prev )
 	emit currentChanged( i );
@@ -1728,8 +1843,8 @@ QListViewItem * QListView::currentItem() const
 
 
 /*!  Returns the rectangle on the screen \a i occupies in
-  viewport()'s coordinates, or an invalid rectangle if \a i is not
-  currently visible.
+  viewport()'s coordinates, or an invalid rectangle if \a i is a null
+  pointer or is not currently visible.
 
   The rectangle returned does not include any children of the
   rectangle (ie. it uses QListViewItem::height() rather than
@@ -1854,10 +1969,10 @@ void QListView::setPalette( const QPalette & p )
 /*!  Ensures that setup() are called for all currently visible items,
   and that it will be called for currently invisuble items as soon as
   their parents are opened.
-  
+
   (A visible item, here, is an item whose parents are all open.  The
   item may happen to be offscreen.)
-  
+
   \sa QListViewItem::setup()
 */
 
@@ -1877,7 +1992,7 @@ void QListView::reconfigureItems()
 
   Setting this to TRUE if it isn't necessary can cause noticeable
   flicker.
-  
+
   \sa allColumnsShowFocus()
 */
 
