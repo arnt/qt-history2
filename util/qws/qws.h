@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#8 $
+** $Id: //depot/qt/main/util/qws/qws.h#9 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -70,6 +70,7 @@ public:
     uchar* frameBuffer() { return framebuffer; }
 
     void sendMouseEvent(const QPoint& pos, int state);
+    void sendPropertyNotifyEvent( int property, int state );
     QWSPropertyManager *properties() {
 	return &propertyManager;
     }
@@ -80,7 +81,7 @@ private:
     void invokeAddProperty( QWSAddPropertyCommand *cmd );
     void invokeSetProperty( QWSSetPropertyCommand *cmd );
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
-    
+
 private slots:
     void doClient();
 
@@ -117,6 +118,7 @@ public:
     int socket() const;
 
     void sendMouseEvent(const QPoint& pos, int state);
+    void sendPropertyNotifyEvent( int property, int state );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
 

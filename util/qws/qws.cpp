@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#15 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#16 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -98,6 +98,16 @@ void QWSClient::writeRegion( QRegion reg )
 	rectangle.height = r[i].height();
 	writeBlock( (char*)&rectangle, sizeof(rectangle) );
     }
+}
+
+void QWSClient::sendPropertyNotifyEvent( int property, int state )
+{
+    QWSPropertyNotifyEvent event;
+    event.type = QWSEvent::PropertyNotify;
+    event.window = 0; // not used yet
+    event.property = property;
+    event.state = state;
+    writeBlock( (char*)&event, sizeof( event ) );
 }
 
 /*********************************************************************
@@ -216,6 +226,11 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	(*it)->sendMouseEvent(pos,state);
 }
 
+void QWSServer::sendPropertyNotifyEvent( int property, int state )
+{
+    for ( ClientIterator it = client.begin(); it != client.end(); ++it )
+	( *it )->sendPropertyNotifyEvent( property, state );
+}
 
 static int get_object_id()
 {
@@ -235,7 +250,7 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 {
     qDebug( "QWSServer::invokeRegion" );
-    QWSRegionCommand::Rectangle *rects = 
+    QWSRegionCommand::Rectangle *rects =
 	(QWSRegionCommand::Rectangle*)cmd->rectangles;
     // XXX would be much faster to build the region directly
     QRegion region;
@@ -274,9 +289,11 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
     if ( properties()->setProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    cmd->simpleData.mode,
-				    ba ) )
- 	qDebug( "set property successful" );
-    else
+				    ba ) ) {
+	qDebug( "setting property successful" );
+	sendPropertyNotifyEvent( cmd->simpleData.property,
+				 QWSEvent::PropertyNewValue );
+   } else
  	qDebug( "setting property failed" );
 }
 
@@ -284,9 +301,12 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 {
     qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.windowid,
 	    cmd->simpleData.property );
-    if ( properties()->removeProperty( cmd->simpleData.windowid, cmd->simpleData.property ) )
+    if ( properties()->removeProperty( cmd->simpleData.windowid, 
+				       cmd->simpleData.property ) ) {
  	qDebug( "remove property successful" );
-    else
+	sendPropertyNotifyEvent( cmd->simpleData.property,
+				 QWSEvent::PropertyDeleted );
+    } else
  	qDebug( "removing property failed" );
 }
 
