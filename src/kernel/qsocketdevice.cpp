@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#19 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -36,6 +36,9 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#if defined(_UNIXWARE)
+#include <sys/filio.h>
+#endif
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
