@@ -1040,7 +1040,8 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	case HierarchyItem::VarPrivate:
 	case HierarchyItem::Variable: {
 	    VariableDialog varDia( formWindow, this );
-	    varDia.exec();
+	    if ( varDia.exec() == QDialog::Accepted )
+		formWindow->commandHistory()->setModified( TRUE );
 	    break;
 	}
 	case HierarchyItem::Definition:
@@ -1090,10 +1091,12 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
 	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
 	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	    formWindow->commandHistory()->setModified( TRUE );
 	    MainWindow::self->functionsChanged();
 	} else if ( i->rtti() == HierarchyItem::Variable ) {
 	    MetaDataBase::removeVariable( formWindow, i->text( 0 ) );
 	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	    formWindow->commandHistory()->setModified( TRUE );
 	} else {
 	    QListViewItem *p = i->parent();
 	    delete i;
