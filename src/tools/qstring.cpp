@@ -13540,12 +13540,12 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
     //find start
     int n = length(), m = 0;
     const QChar *begin = uc, *end = NULL;
-    if(field < 0) {
+    if(start < 0) {
 	begin += n;
 	if(count > 0)
-	    count = field + count > 0 ? 0 : field + count;
+	    count = start + count > 0 ? 0 : start + count;
     }
-    while(field) {
+    while(start) {
 	match = FALSE;
 	if(flags & SectionCaseInsensitiveSeps) {
 	    if( begin->lower() == sep )
@@ -13558,18 +13558,18 @@ QString QString::section( QChar sep, int start, int count, int flags ) const
 	    match = FALSE;
 	last_match = match;
 
-	if(field < 0) {
+	if(start < 0) {
 	    if(match) {
 		if(count < 0 && m != count) {
 		    m--;
 		    end = begin + 1;
 		}
-		if(!++field)
+		if(!++start)
 		    break;
 	    }
 	    begin--;
 	} else {
-	    if(match && !--field)
+	    if(match && !--start)
 		    break;
 	    begin++;
 	}
@@ -13650,15 +13650,15 @@ QString QString::section( QString sep, int start, int count, int flags ) const
     //find start
     int n = length(), m = 0, sep_len = sep.length();
     const QChar *begin = uc, *end = NULL;
-    if(field < 0) {
+    if(start < 0) {
 	begin += n;
 	if(count > 0)
-	    count = field + count > 0 ? 0 : field + count;
+	    count = start + count > 0 ? 0 : start + count;
     }
-    while(field) {
+    while(start) {
 	match = FALSE;
 	int c = 0;
-	for(const QChar *tmp = field < 0 ? begin - sep_len : begin;
+	for(const QChar *tmp = start < 0 ? begin - sep_len : begin;
 	    c < sep_len && tmp < uc + n && tmp >= uc; tmp++, c++) {
 	    if(flags & SectionCaseInsensitiveSeps) {
 		if( tmp->lower() != *(uc_sep + c))
@@ -13676,21 +13676,21 @@ QString QString::section( QString sep, int start, int count, int flags ) const
 	    match = FALSE;
 	last_match = match;
 
-	if(field < 0) {
+	if(start < 0) {
 	    if(match) {
 		if(count < 0 && m != count) {
 		    m--;
 		    end = begin;
 		}
 		begin -= sep_len;
-		if(!++field)
+		if(!++start)
 		    break;
 	    } else {
 		begin--;
 	    }
 	} else {
 	    if(match) {
-		if(!--field)
+		if(!--start)
 		    break;
 		begin += sep_len;
 	    } else {
@@ -13787,11 +13787,11 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
     bool match = FALSE;
 
     //find begin
-    if(field < 0) {
+    if(start < 0) {
 	begin = n;
 	if(count > 0)
-	    count = field + count > 0 ? 0 : field + count;
-	while(field) {
+	    count = start + count > 0 ? 0 : start + count;
+	while(start) {
 	    if((begin = sep.searchRev(*this, begin-1)) == -1)
 		return QString();
 	    match = TRUE;
@@ -13799,18 +13799,18 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
 		m--;
 		end = begin;
 	    }
-	    field++;
+	    start++;
 	}
 	real_begin = begin;
 	if(match && !(flags & SectionIncludeLeadingSeps))
 	    	begin += sep.matchedLength();
     } else {
-	while(field) {
+	while(start) {
 	    if((begin = sep.search(*this, begin)) == -1)
 		return QString();
 	    match = TRUE;
 	    begin += sep.matchedLength();
-	    field--;
+	    start--;
 	}
 	real_begin = begin;
 	if(match && (flags & SectionIncludeLeadingSeps))
