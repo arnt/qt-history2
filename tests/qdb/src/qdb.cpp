@@ -22,6 +22,11 @@ public:
     QString err;
 };
 
+/*! \class QDb
+
+  The main database environment. //## more
+*/
+
 
 /*!  Constructs an empty database environment
 
@@ -103,7 +108,7 @@ qdb::Program* QDb::program()
     return &d->pgm;
 }
 
-/* Parses \a commands and creates a new program.  Any previous program
+/*! Parses \a commands and creates a new program.  Any previous program
    is first cleared.  If \a verbose is TRUE, each command processed
    will be echoed.
 
