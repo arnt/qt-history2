@@ -37,19 +37,19 @@
 #define q q_func()
 
 QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : d_ptr(&dd)
-{ 
+{
     d->q_ptr = this;
 }
 
-QFileEngine::~QFileEngine() 
-{ 
-    delete d_ptr; 
-    d_ptr = 0; 
+QFileEngine::~QFileEngine()
+{
+    delete d_ptr;
+    d_ptr = 0;
 }
 
 //**************** QFSFileEnginePrivate
 QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
-{ 
+{
     cachedCharRead = -1;
     fd = -1;
     init();
@@ -91,7 +91,9 @@ QFSFileEngine::open(int mode, const QString &file)
         oflags |= QT_OPEN_TEXT;
     else
 #endif
+#if defined Q_OS_WIN32
         oflags |= QT_OPEN_BINARY;
+#endif
 #if defined(HAS_ASYNC_FILEMODE)
     if (mode & QFile::Async)
         oflags |= QT_OPEN_ASYNC;
@@ -161,7 +163,7 @@ QFSFileEngine::readBlock(char *data, Q_ULONG len)
         len--;
         ret++;
     }
-    if(len > 0) 
+    if(len > 0)
         ret += QT_READ(d->fd, data, len);
     return ret;
 }
@@ -171,7 +173,7 @@ QFSFileEngine::writeBlock(const char *data, Q_ULONG len)
 {
     return QT_WRITE(d->fd, (void *)data, len);
 }
-    
+
 QFile::Offset
 QFSFileEngine::at() const
 {
@@ -207,12 +209,12 @@ QFSFileEngine::seek(QFile::Offset pos)
     if(QT_LSEEK(d->fd, pos, SEEK_SET) == -1) {
         qWarning("QFile::at: Cannot set file position %lld", pos);
         return false;
-    } 
+    }
     d->cachedCharRead = -1;
     return true;
 }
 
-bool 
+bool
 QFSFileEngine::isSequential() const
 {
     return d->sequential;
