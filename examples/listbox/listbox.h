@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox/listbox.h#1 $
+** $Id: //depot/qt/main/examples/listbox/listbox.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -33,7 +33,8 @@ private slots:
     void setColsByWidth();
     void setVariableWidth( bool );
     void setVariableHeight( bool );
-
+    void setMultiSelection( bool );
+    
 private:
     QListBox * l;
     QSpinBox * columns;

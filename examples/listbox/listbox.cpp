@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox/listbox.cpp#2 $
+** $Id: //depot/qt/main/examples/listbox/listbox.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -30,7 +30,8 @@ ListBoxDemo::ListBoxDemo()
 
     l = new QListBox( this );
     g->addWidget( l, 1, 1 );
-
+    l->setFocusPolicy( QWidget::StrongFocus );
+    
     QVBoxLayout * v = new QVBoxLayout;
     g->addLayout( v, 1, 0 );
 
@@ -38,8 +39,8 @@ ListBoxDemo::ListBoxDemo()
     bg = new QButtonGroup( 0 );
 
     b = new QRadioButton( "Fixed number of columns,\n"
-			  "as many rows as needed.",
-			  this );
+                          "as many rows as needed.",
+                          this );
     bg->insert( b );
     v->addWidget( b );
     b->setChecked( TRUE );
@@ -55,8 +56,8 @@ ListBoxDemo::ListBoxDemo()
     v->addSpacing( 12 );
 
     b = new QRadioButton( "As many columns as fit on-screen,\n"
-			  "as many rows as needed.",
-			  this );
+                          "as many rows as needed.",
+                          this );
     bg->insert( b );
     v->addWidget( b );
     connect( b, SIGNAL(clicked()), this, SLOT(setColsByWidth()) );
@@ -64,8 +65,8 @@ ListBoxDemo::ListBoxDemo()
     v->addSpacing( 12 );
 
     b = new QRadioButton( "Fixed number of rows,\n"
-			  "as many columns as needed.",
-			  this );
+                          "as many columns as needed.",
+                          this );
     bg->insert( b );
     v->addWidget( b );
     connect( b, SIGNAL(clicked()), this, SLOT(setNumRows()) );
@@ -81,8 +82,8 @@ ListBoxDemo::ListBoxDemo()
     v->addSpacing( 12 );
 
     b = new QRadioButton( "As many rows as fit on-screen,\n"
-			  "as many columns as needed.",
-			  this );
+                          "as many columns as needed.",
+                          this );
     bg->insert( b );
     v->addWidget( b );
     connect( b, SIGNAL(clicked()), this, SLOT(setRowsByHeight()) );
@@ -99,12 +100,16 @@ ListBoxDemo::ListBoxDemo()
     connect( cb, SIGNAL(toggled(bool)), this, SLOT(setVariableWidth(bool)) );
     v->addWidget( cb );
 
+    cb = new QCheckBox( "Multiselection", this );
+    connect( cb, SIGNAL(toggled(bool)), this, SLOT(setMultiSelection(bool)) );
+    v->addWidget( cb );
+
     v->addStretch( 100 );
 
     int i = 0;
     while( ++i <= 256 )
-	l->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ),
-		       i );
+        l->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ),
+                       i );
     columns->setRange( 1, 256 );
     columns->setValue( 1 );
     rows->setRange( 1, 256 );
@@ -162,4 +167,10 @@ void ListBoxDemo::setVariableWidth( bool b )
 void ListBoxDemo::setVariableHeight( bool b )
 {
     l->setVariableHeight( b );
+}
+
+void ListBoxDemo::setMultiSelection( bool b )
+{
+    l->clearSelection();
+    l->setMultiSelection( b );
 }
