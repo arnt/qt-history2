@@ -240,9 +240,27 @@ QFSDirEngine::setCurrentDirPath(const QString &path)
 }
 
 QString 
-QFSDirEngine::currentDirPath(const QString &path)
+QFSDirEngine::currentDirPath(const QString &fileName)
 {
     QString ret;
+    //if filename is a drive: then get the pwd of that drive
+    if (fileName.length() >=2 && 
+        fileName.at(0).isLetter() && fileName.at(1) == ':') {
+        int drv = fileName.toUpper().at(0).latin1() - 'A' + 1;
+        if (_getdrive() != drv) {
+            QT_WA({
+                TCHAR buf[PATH_MAX];
+                ::_wgetdcwd(drv, buf, PATH_MAX);
+                ret.setUtf16((ushort*)buf, ::wcslen(buf));
+            }, {
+                char buf[PATH_MAX];
+                ::_getdcwd(drv, buf, PATH_MAX);
+                ret = buf;
+            });
+            return QDir::convertSeparators(ret);
+        }
+    }
+    //just the pwd
     QT_WA({
         TCHAR currentName[PATH_MAX];
         if (::_wgetcwd(currentName,PATH_MAX) != 0) {
