@@ -31,6 +31,51 @@
 
 using namespace QPropertyEditor;
 
+class EditorWithReset : public QWidget
+{
+    Q_OBJECT
+public:
+    EditorWithReset(const QString &prop_name, QWidget *parent = 0);
+    void setChildEditor(QWidget *child_editor);
+    QWidget *childEditor() const { return m_child_editor; }
+private slots:
+    void emitResetProperty();
+signals:
+    void sync();
+    void resetProperty(const QString &prop_name);
+private:
+    QWidget *m_child_editor;
+    QHBoxLayout *m_layout;
+    QString m_prop_name;
+};
+
+EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
+    : QWidget(parent)
+{
+    m_prop_name = prop_name;
+    m_child_editor = 0;
+    m_layout = new QHBoxLayout(this);
+    m_layout->setMargin(0);
+    m_layout->setSpacing(0);
+
+    QToolButton *button = new QToolButton(this);
+    button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
+    m_layout->addWidget(button);
+    connect(button, SIGNAL(clicked()), this, SLOT(emitResetProperty()));
+}
+
+void EditorWithReset::emitResetProperty()
+{
+    emit resetProperty(m_prop_name);
+}
+
+void EditorWithReset::setChildEditor(QWidget *child_editor)
+{
+    m_child_editor = child_editor;
+    m_layout->insertWidget(0, m_child_editor);
+    setFocusProxy(m_child_editor);
+}
+
 Delegate::Delegate(QObject *parent)
     : QItemDelegate(parent),
       m_readOnly(false)
@@ -65,7 +110,10 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
             break;
     }
 
-    return QItemDelegate::eventFilter(object->parent(), event);
+    QObject *editor = object;
+    if (qobject_cast<EditorWithReset*>(editor->parent()) != 0)
+        editor = editor->parent();
+    return QItemDelegate::eventFilter(editor, event);
 }
 
 void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
@@ -119,51 +167,6 @@ void Delegate::setReadOnly(bool readOnly)
 {
     // ### close the editor
     m_readOnly = readOnly;
-}
-
-class EditorWithReset : public QWidget
-{
-    Q_OBJECT
-public:
-    EditorWithReset(const QString &prop_name, QWidget *parent = 0);
-    void setChildEditor(QWidget *child_editor);
-    QWidget *childEditor() const { return m_child_editor; }
-private slots:
-    void emitResetProperty();
-signals:
-    void sync();
-    void resetProperty(const QString &prop_name);
-private:
-    QWidget *m_child_editor;
-    QHBoxLayout *m_layout;
-    QString m_prop_name;
-};
-
-EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
-    : QWidget(parent)
-{
-    m_prop_name = prop_name;
-    m_child_editor = 0;
-    m_layout = new QHBoxLayout(this);
-    m_layout->setMargin(0);
-    m_layout->setSpacing(0);
-
-    QToolButton *button = new QToolButton(this);
-    button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
-    m_layout->addWidget(button);
-    connect(button, SIGNAL(clicked()), this, SLOT(emitResetProperty()));
-}
-
-void EditorWithReset::emitResetProperty()
-{
-    emit resetProperty(m_prop_name);
-}
-
-void EditorWithReset::setChildEditor(QWidget *child_editor)
-{
-    m_child_editor = child_editor;
-    m_layout->insertWidget(0, m_child_editor);
-    setFocusProxy(m_child_editor);
 }
 
 QWidget *Delegate::createEditor(QWidget *parent,
