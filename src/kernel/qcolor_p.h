@@ -32,6 +32,7 @@
 
 extern uint qt_get_rgb_val( const char *name );
 extern bool qt_get_named_rgb( const char *, QRgb* );
+extern bool qt_get_hex_rgb(const char *, QRgb *);
 extern void qt_reset_color_avail();
 
 #endif

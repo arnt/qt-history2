@@ -404,21 +404,6 @@ QString QColor::name() const
 #endif
 }
 
-static int hex2int( QChar hexchar )
-{
-    int v;
-    if ( hexchar.isDigit() )
-	v = hexchar.digitValue();
-    else if ( hexchar >= 'A' && hexchar <= 'F' )
-	v = hexchar.cell() - 'A' + 10;
-    else if ( hexchar >= 'a' && hexchar <= 'f' )
-	v = hexchar.cell() - 'a' + 10;
-    else
-	v = 0;
-    return v;
-}
-
-
 /*!
     Sets the RGB value to \a name, which may be in one of these
     formats:
@@ -445,29 +430,9 @@ void QColor::setNamedColor( const QString& name )
 	    d.d32.argb = Invalid;
 	}
     } else if ( name[0] == '#' ) {
-	const QChar *p = name.unicode()+1;
-	int len = name.length()-1;
-	int r, g, b;
-	if ( len == 12 ) {
-	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
-	    g = (hex2int(p[4]) << 4) + hex2int(p[5]);
-	    b = (hex2int(p[8]) << 4) + hex2int(p[9]);
-	} else if ( len == 9 ) {
-	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
-	    g = (hex2int(p[3]) << 4) + hex2int(p[4]);
-	    b = (hex2int(p[6]) << 4) + hex2int(p[7]);
-	} else if ( len == 6 ) {
-	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
-	    g = (hex2int(p[2]) << 4) + hex2int(p[3]);
-	    b = (hex2int(p[4]) << 4) + hex2int(p[5]);
-	} else if ( len == 3 ) {
-	    r = (hex2int(p[0]) << 4) + hex2int(p[0]);
-	    g = (hex2int(p[1]) << 4) + hex2int(p[1]);
-	    b = (hex2int(p[2]) << 4) + hex2int(p[2]);
-	} else {
-	    r = g = b = 0;
-	}
-	setRgb( r, g, b );
+	QRgb rgb;
+	qt_get_hex_rgb(name.latin1(), &rgb);
+	setRgb( rgb );
     } else {
 	setSystemNamedColor( name );
     }

@@ -18,6 +18,49 @@
 
 #include "qcolor.h"
 
+static int hex2int( QChar hexchar )
+{
+    int v;
+    if ( hexchar.isDigit() )
+	v = hexchar.digitValue();
+    else if ( hexchar >= 'A' && hexchar <= 'F' )
+	v = hexchar.cell() - 'A' + 10;
+    else if ( hexchar >= 'a' && hexchar <= 'f' )
+	v = hexchar.cell() - 'a' + 10;
+    else
+	v = 0;
+    return v;
+}
+
+bool qt_get_hex_rgb(const char *name, QRgb *rgb)
+{
+    if(name[0] != '#')
+	return FALSE;
+    name++;
+    int len = qstrlen(name);
+    if ( len == 12 ) {
+	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
+		    (hex2int(name[4]) << 4) + hex2int(name[5]),
+		    (hex2int(name[8]) << 4) + hex2int(name[9]));
+    } else if ( len == 9 ) {
+	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
+		    (hex2int(name[3]) << 4) + hex2int(name[4]),
+		    (hex2int(name[6]) << 4) + hex2int(name[7]));
+    } else if ( len == 6 ) {
+	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
+		    (hex2int(name[2]) << 4) + hex2int(name[3]),
+		    (hex2int(name[4]) << 4) + hex2int(name[5]));
+    } else if ( len == 3 ) {
+	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[0]),
+		    (hex2int(name[1]) << 4) + hex2int(name[1]),
+		    (hex2int(name[2]) << 4) + hex2int(name[2]));
+    } else {
+	*rgb = 0;
+	return FALSE;
+    }
+    return TRUE;
+}
+
 #ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>

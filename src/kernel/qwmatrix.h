@@ -50,7 +50,7 @@ public:
     QPoint	map( const QPoint &p )	const { return operator *( p ); }
     QRect	map( const QRect &r )	const { return mapRect ( r ); }
     QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
-#ifdef QREGION_H //this is no good (but for symbol split) FIXME! ### (sam)
+#ifdef QT_GUI
     QRegion     map( const QRegion &r ) const { return *this * r; }
     QRegion     mapToRegion( const QRect &r ) const { return *this * r; }
 #endif

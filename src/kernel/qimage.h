@@ -68,7 +68,7 @@ public:
     QImage( const QImage & );
    ~QImage();
 
-#ifdef QPIXMAP_H //this is no good (but for symbol split) FIXME! ### (sam)
+#ifdef QT_GUI
     inline QImage &operator=( const QPixmap &pixmap ) {     
 	*this = pixmap.convertToImage();
 	return *this;
@@ -82,7 +82,9 @@ public:
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
     QImage	copy(const QRect&)	const;
 #ifndef QT_NO_MIME
+#ifdef QT_GUI
     static QImage fromMimeSource( const QString& abs_name );
+#endif
 #endif
     bool	isNull()	const	{ return data->bits == 0; }
 

@@ -17,6 +17,7 @@ for(QCONF, QCONFIG) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
       } else {
+         isEqual(QCONF, gui):DEFINES *= QT_GUI
          LIBS   += -l$${qlib}
       }
    }

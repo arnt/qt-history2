@@ -8,6 +8,7 @@ QCONFIG += xml #needed for QSVGDevice (presumably because of qpicture.cpp)
 
 !cups:DEFINES += QT_NO_CUPS
 !nis:DEFINES += QT_NO_NIS
+DEFINES += QT_GUI
 
 #platforms
 include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
@@ -17,7 +18,6 @@ embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
 include($$KERNEL_CPP/qt_gui.pri)
-include($$KERNEL_CPP/qt_gfx.pri)
 include($$CANVAS_CPP/qt_canvas.pri)
 include($$TABLE_CPP/qt_table.pri)
 include($$WIDGETS_CPP/qt_widgets.pri)

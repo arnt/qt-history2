@@ -24,6 +24,7 @@
 #include "qmngio.h"
 #include "qjpegio.h"
 #include "qmap.h"
+#include "qcolor_p.h"
 #include <private/qpluginmanager_p.h>
 #include "qimageformatinterface_p.h"
 #include "qwmatrix.h"
@@ -533,30 +534,6 @@ QImage::~QImage()
 	delete data;
     }
 }
-
-
-
-
-/*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name from the default mime source factory and decodes it
-  to an image.
-
-  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
-*/
-#ifndef QT_NO_MIME
-QImage QImage::fromMimeSource( const QString &abs_name )
-{
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
-    if ( !m ) {
-	qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1() );
-	return QImage();
-    }
-    QImage img;
-    QImageDrag::decode( m, img );
-    return img;
-}
-#endif
-
 
 /*!
     Assigns a \link shclass.html shallow copy\endlink of \a image to
@@ -5685,16 +5662,18 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 		colorMap.insert( index, rgb );
 	    }
 	} else {
+	    QRgb c_rgb;
 	    if ( ((sbuf.length()-1) % 3) && (sbuf[0] == '#') ) {
 		sbuf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+		qt_get_hex_rgb( sbuf, &c_rgb );
+	    } else {
+		qt_get_named_rgb( sbuf, &c_rgb );
 	    }
-	    QColor c( sbuf );
 	    if ( image.depth() == 8 ) {
-		image.setColor( currentColor, 0xff000000 | c.rgb() );
+		image.setColor( currentColor, 0xff000000 | c_rgb );
 		colorMap.insert( index, currentColor );
 	    } else {
-		QRgb rgb = 0xff000000 | c.rgb();
-		colorMap.insert( index, rgb );
+		colorMap.insert( index, 0xff000000 | c_rgb );
 	    }
 	}
     }
