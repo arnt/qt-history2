@@ -2336,6 +2336,7 @@ QTextStream &reset(QTextStream &stream)
     return stream;
 }
 
+#ifndef QT_NO_TEXTCODEC
 /*!
     \fn QTextStream &bom(QTextStream &stream)
     \relates QTextStream
@@ -2349,7 +2350,6 @@ QTextStream &bom(QTextStream &stream)
     return stream;
 }
 
-#ifndef QT_NO_TEXTCODEC
 /*!
     Sets the codec for this stream to \a codec. The codec is used for
     decoding any data that is read from the assigned device, and for
