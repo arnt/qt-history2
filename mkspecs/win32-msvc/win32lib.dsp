@@ -40,15 +40,11 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
-# ADD CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c
-# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD CPP $$MSVCDSP_MTDEF /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c $$MSVCDSP_CXXFLAGS
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo $$MSVCDSP_TARGET
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
@@ -63,15 +59,11 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /c
-# ADD CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c
-# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD CPP $$MSVCDSP_MTDEFD /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c $$MSVCDSP_CXXFLAGS
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
-# ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo $$MSVCDSP_TARGET
 
 !ENDIF 

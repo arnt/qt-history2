@@ -42,18 +42,13 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /FD /c
-# ADD CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES $$MSVCDSP_RELDEFS /FD /c
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD CPP $$MSVCDSP_MTDEF /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES $$MSVCDSP_RELDEFS /FD /c $$MSVCDSP_CXXFLAGS
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /dll /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_DELAYLOAD
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE $$MSVCDSP_VERSION /dll /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /dll $$MSVCDSP_VERSION $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS
 $$MSVCDSP_COPY_DLL
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
@@ -69,18 +64,13 @@ $$MSVCDSP_COPY_DLL
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /FD /c
-# ADD CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES /FD /c
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD CPP $$MSVCDSP_MTDEFD /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES /FD /c $$MSVCDSP_CXXFLAGS
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /dll /debug /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_DELAYLOAD /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /nologo $$MSVCDSP_DLLBASE $$MSVCDSP_VERSION /dll /debug /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET $$MSVCDSP_DELAYLOAD /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS /dll /debug $$MSVCDSP_VERSION $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS /pdbtype:sept
 $$MSVCDSP_COPY_DLL
 
 !ENDIF 

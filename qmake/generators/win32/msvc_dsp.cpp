@@ -421,7 +421,7 @@ DspMakefileGenerator::init()
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["MSVCDSP_DLLBASE"].append("/base:\"0x39D00000\"");
+		project->variables()["QMAKE_LFLAGS"].append("/base:\"0x39D00000\"");
 	    }
 	} else {
 	    if(project->isActiveConfig("thread"))
@@ -450,20 +450,20 @@ DspMakefileGenerator::init()
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
         if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
             || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
-	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
+	    project->variables()["MSVCDSP_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
+	    project->variables()["MSVCDSP_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
 	} else {
 	    // YES we want to use the DLL even in a static build
-	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
-	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
+	    project->variables()["MSVCDSP_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
+	    project->variables()["MSVCDSP_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT"];
 	}
 	if ( !project->variables()["DEFINES"].contains("QT_DLL") && project->first("TARGET") != "qt-mt"
 	    && project->first("TARGET") != "qtmain" )
-	    project->variables()["MSVCDSP_NODEFLIBS"].append("/NODEFAULTLIB:\"libc\"");
+	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
     if ( !project->variables()["DEFINES"].contains("QT_NO_STL") )
-	project->variables()["MSVCDSP_STL"].append("/GX");
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
 
     if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
@@ -491,7 +491,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
 
     if(!project->isActiveConfig("incremental")) {
-	project->variables()["MSVCDSP_LIBS"].append(QString("/incremental:no"));
+	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
 	if ( project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt" )
 	    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /Zi";
     }
@@ -549,10 +549,11 @@ DspMakefileGenerator::init()
         }
     }
     project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
+    project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
+    project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
 						   " /I \"" + Option::mkfile::qmakespec + "\"");
-
 
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
