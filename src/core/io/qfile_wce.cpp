@@ -104,7 +104,7 @@ bool QFile::open(int m)
         if (isAsynchronous())
             oflags |= QT_OPEN_ASYNC;
 #endif
-        d->fd = ::_wopen((TCHAR*)d->fn.ucs2(), oflags, 0666);
+        d->fd = ::_wopen((TCHAR*)d->fn.ucs2(), oflags, _S_IREAD | _S_IWRITE);
     } else {                                        // buffered file I/O
         QCString perm;
         char perm2[4];

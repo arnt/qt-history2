@@ -434,7 +434,13 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
     int f;
 
-    f = qt_open(QFile::encodeName(realname), O_RDONLY, 0666);
+    f = qt_open(QFile::encodeName(realname), O_RDONLY,
+#if defined(Q_OS_WIN)
+            _S_IREAD | _S_IWRITE
+#else
+            0666
+#endif
+            );
     if (f < 0) {
         // qDebug("can't open %s: %s", realname.ascii(), strerror(errno));
         return false;

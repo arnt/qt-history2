@@ -5238,7 +5238,13 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (d->outputToFile) {
         if (d->outputFileName.isEmpty())
             d->outputFileName = "print.ps";
-        d->fd = qt_open( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY, 0666 );
+        d->fd = qt_open( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+#if defined(Q_OS_WIN)
+            _S_IREAD | _S_IWRITE
+#else
+            0666
+#endif
+            );
     } else {
 #if 0
         QString pr;
