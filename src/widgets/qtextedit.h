@@ -70,7 +70,6 @@ class QTextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class QTextEditPrivate;
-class QRichTextDrag;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 class QTextEditOptimPrivate
@@ -474,7 +473,7 @@ private:
     void normalCopy();
 #ifndef QT_NO_MIME
     QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
-    QRichTextDrag *dragObject( QWidget *parent = 0 ) const;
+    QTextDrag *dragObject( QWidget *parent = 0 ) const;
 #endif
 #ifndef QT_NO_MIMECLIPBOARD
     void pasteSpecial(const QPoint&);

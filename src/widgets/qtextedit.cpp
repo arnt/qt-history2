@@ -2896,10 +2896,13 @@ void QTextEdit::repaintChanged()
 }
 
 
-QRichTextDrag *QTextEdit::dragObject( QWidget *parent ) const
+QTextDrag *QTextEdit::dragObject( QWidget *parent ) const
 {
-    if ( !doc->hasSelection( QTextDocument::Standard ) || doc->selectedText( QTextDocument::Standard ).isEmpty() )
+    if ( !doc->hasSelection( QTextDocument::Standard ) ||
+	 doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	return 0;
+    if ( textFormat() != RichText )
+	return new QTextDrag( doc->selectedText( QTextDocument::Standard ), parent );
     QRichTextDrag *drag = new QRichTextDrag( parent );
     drag->setPlainText( doc->selectedText( QTextDocument::Standard ) );
     drag->setRichText( doc->selectedText( QTextDocument::Standard, TRUE ) );
@@ -2920,7 +2923,7 @@ void QTextEdit::cut()
     if ( isReadOnly() )
 	return;
 
-    QRichTextDrag *drag = dragObject();
+    QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
@@ -2930,7 +2933,7 @@ void QTextEdit::cut()
 
 void QTextEdit::normalCopy()
 {
-    QRichTextDrag *drag = dragObject();
+    QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
