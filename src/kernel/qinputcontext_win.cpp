@@ -390,16 +390,12 @@ void QInputContext::setFocusHint( int x, int y, int /*width*/, int height, const
 
 bool QInputContext::endComposition( QWidget *fw )
 {
-    bool result = TRUE;
 #ifdef Q_IME_DEBUG
     qDebug("endComposition!");
 #endif
+    bool result = TRUE;
     if( imePosition == -1 )
 	return result;
-
-    if ( imeComposition )
-	*imeComposition = QString::null;
-    imePosition = -1;
 
     if ( fw ) {
 	HIMC imc = getContext( fw->winId() );
@@ -411,10 +407,13 @@ bool QInputContext::endComposition( QWidget *fw )
 	fw = qApp->focusWidget();
 
     if ( fw ) {
-	qDebug("sending end event to focuswidget");
-	QIMEvent e( QEvent::IMEnd, QString::null, -1 );
+	QIMEvent e( QEvent::IMEnd, imeComposition ? *imeComposition : QString::null, -1 );
 	result = qt_sendSpontaneousEvent( fw, &e );
     }
+
+    if ( imeComposition )
+	*imeComposition = QString::null;
+    imePosition = -1;
 
     return result;
 }
