@@ -15,6 +15,7 @@ void PaintWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setBrush(Qt::white);
+    painter.setPen(Qt::NoPen);
     painter.drawRect(event->rect());
 
     painter.translate(66, 66);
@@ -69,7 +70,7 @@ QSize PaintWidget::minimumSizeHint() const
     return QSize(232, 232);
 }
 
-QList<Operation> PaintWidget::operations() const 
+QList<Operation> PaintWidget::operations() const
 {
     return transforms;
 }
