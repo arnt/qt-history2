@@ -499,7 +499,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(oldPen);
         break; }
     case PE_PanelTabWidget:
-        qDrawShadePanel(p, opt->rect, opt->palette, opt->state & Style_Sunken, 2);
+        qDrawShadePanel(p, opt->rect, opt->palette, opt->state & Style_Sunken, 1);
         break;
     case PE_PanelLineEdit:
     case PE_WindowFrame:
@@ -1062,7 +1062,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QRect tr = tab->rect;
-            if (tab->state & Style_Selected) {
+            bool selected = tab->state & Style_Selected;
+            if (selected) {
                 tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical,
                              tab, widget));
                 tr.setRight(tr.right() - pixelMetric(QStyle::PM_TabBarTabShiftHorizontal,
@@ -1076,7 +1077,23 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             if (tab->state & Style_HasFocus && !tab->text.isEmpty()) {
                 QStyleOptionFocusRect fropt;
-                fropt.rect = tab->rect;
+                const int OFFSET = 3;
+
+                int x1, x2;
+                x1 = tab->rect.left();
+                x2 = tab->rect.right() - 1;
+
+                if (selected) {
+                    x1 -= 2;
+                    x2 += 2;
+                }
+                if (tab->position == QStyleOptionTab::Beginning)
+                    x1 += 2;
+                if (tab->position == QStyleOptionTab::End)
+                    x2 -= 2;
+
+                fropt.rect.setRect(x1 + OFFSET, tab->rect.y() + OFFSET,
+                                   x2 - x1 - 2*OFFSET + 2, tab->rect.height() - 2*OFFSET);
                 fropt.palette = tab->palette;
                 fropt.state = Style_None;
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);

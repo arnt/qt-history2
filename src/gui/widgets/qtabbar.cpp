@@ -105,6 +105,14 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.icon = ptab->icon;
 
     int totalTabs = tabList.size();
+
+    if (tab > 0 && tab - 1 == currentIndex)
+        opt.selectedPosition = QStyleOptionTab::PreviousIsSelected;
+    else if (tab < totalTabs - 1 && tab + 1 == currentIndex)
+        opt.selectedPosition = QStyleOptionTab::NextIsSelected;
+    else
+        opt.selectedPosition = QStyleOptionTab::NotAdjacent;
+
     if (tab == 0) {
         if (totalTabs > 1)
             opt.position = QStyleOptionTab::Beginning;

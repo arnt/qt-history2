@@ -372,7 +372,11 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 QStyleOptionTab::QStyleOptionTab()
-    : QStyleOption(QStyleOptionTab::Version, SO_Tab), row(0)
+    : QStyleOption(QStyleOptionTab::Version, SO_Tab),
+      shape(QTabBar::RoundedAbove),
+      row(0),
+      position(Beginning),
+      selectedPosition(NotAdjacent)
 {
 }
 
@@ -380,7 +384,11 @@ QStyleOptionTab::QStyleOptionTab()
     \internal
 */
 QStyleOptionTab::QStyleOptionTab(int version)
-    : QStyleOption(version, SO_Tab), row(0)
+    : QStyleOption(version, SO_Tab),
+      shape(QTabBar::RoundedAbove),
+      row(0),
+      position(Beginning),
+      selectedPosition(NotAdjacent)
 {
 }
 
@@ -1369,7 +1377,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
             }
             ...
         }
-    \endcode    
+    \endcode
 
     \sa QStyleOption::type, QStyleOption::version
 */

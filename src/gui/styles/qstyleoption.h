@@ -150,12 +150,14 @@ public:
     enum { Version = 1 };
 
     enum TabPosition { Beginning, Middle, End, OnlyOneTab };
+    enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected};
 
     QTabBar::Shape shape;
     QString text;
     QIcon icon;
     int row;
     TabPosition position;
+    SelectedPosition selectedPosition;
 
     QStyleOptionTab();
 

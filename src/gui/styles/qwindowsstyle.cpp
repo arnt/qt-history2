@@ -218,7 +218,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         ret = 2;
         break;
     case PM_MaximumDragDistance:
-        ret = 60;
+        ret = 6;
         break;
 
 #ifndef QT_NO_SLIDER
@@ -1608,58 +1608,65 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
     case CE_TabBarTab:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             bool selected = tab->state & Style_Selected;
+            bool lastTab = tab->position == QStyleOptionTab::End;
+            bool firstTab = tab->position == QStyleOptionTab::Beginning;
             QRect r2(tab->rect);
             if (tab->shape == QTabBar::RoundedAbove) {
-                p->setPen(tab->palette.midlight());
-                p->drawLine(r2.left(), r2.bottom(), r2.right(), r2.bottom());
                 p->setPen(tab->palette.light());
                 p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-                if (r2.left()== 0)
+                if (r2.left() == 0)
                     p->drawPoint(tab->rect.bottomLeft());
 
-                if (selected) {
-                    p->fillRect(QRect(r2.left(), r2.bottom() - 1, r2.width(), 2),
-                            tab->palette.brush(QPalette::Background));
-                    p->setPen(tab->palette.background());
-                    p->drawLine(r2.left() + 1, r2.bottom(), r2.left() + 1, r2.top() + 2);
-                    p->setPen(tab->palette.light());
-                } else {
-                    p->setPen(tab->palette.light());
-                    r2.setRect(r2.left(), r2.top() + 2,
-                            r2.width(), r2.height() - 2);
-                }
+                if (!selected)
+                    r2.setRect(r2.left(), r2.top() + 2, r2.width(), r2.height() - 2);
+
+                p->setPen(tab->palette.light());
                 int x1, x2;
+                const int HOFFSET = 2;
                 x1 = r2.left();
-                x2 = r2.right() - 2;
-                p->drawLine(x1, r2.bottom() - 1, x1, r2.top() + 2);
-                ++x1;
-                p->drawPoint(x1, r2.top() + 1);
-                ++x1;
-                p->drawLine(x1, r2.top(), x2, r2.top());
-                if (r2.left() > 0){
-                    p->setPen(tab->palette.midlight());
-                }
-                x1 = r2.left();
-                p->drawPoint(x1, r2.bottom());
-
-                p->setPen(tab->palette.midlight());
-                ++x1;
-                p->drawLine(x1, r2.bottom(), x1, r2.top() + 2);
-                ++x1;
-                p->drawLine(x1, r2.top() + 1, x2, r2.top() + 1);
-
-                p->setPen(tab->palette.dark());
                 x2 = r2.right() - 1;
-                p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - 1 + (selected ? 1 : -1));
-                p->setPen(tab->palette.shadow());
-                p->drawPoint(x2, r2.top() + 1);
-                p->drawPoint(x2, r2.top() + 1);
-                x2++;
-                p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - (selected ? 1 : 2));
+
+                if (selected) {
+                    x1 -= 2;
+                    x2 += 2;
+                }
+                if (firstTab)
+                    x1 += 2;
+                if (lastTab)
+                    x2 -= 2;
+
+                // Erase the win panel line
+                if (selected) {
+                    p->setPen(opt->palette.background());
+                    p->drawLine(x1, r2.bottom()-1, x2, r2.bottom()-1);
+                    p->setPen(opt->palette.light());
+                }
+
+                // The initial offset
+                if (firstTab && !selected)
+                    p->drawLine(x1 + 1, r2.bottom() - 1, x1 + HOFFSET, r2.bottom() - 1);
+
+                // Draw the left side if previous isn't selected
+                if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected) {
+                    p->drawLine(x1, r2.bottom() - 1, x1, r2.top() + 2);
+                    p->drawPoint(x1+1, r2.top() + 1);
+                }
+
+                // Draw top line
+                p->drawLine(x1 + 2, r2.top(), x2-1, r2.top());
+
+                // Draw the right side shadow if next isn't selected
+                if (tab->selectedPosition != QStyleOptionTab::NextIsSelected) {
+                    p->setPen(tab->palette.dark());
+                    p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - 1 + (selected ? 0 : -1));
+                    p->setPen(tab->palette.shadow());
+                    p->drawPoint(x2, r2.top() + 1);
+                    p->drawPoint(x2, r2.top() + 1);
+                    x2++;
+                    p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - (selected ? 1 : 2));
+                }
             } else if (tab->shape == QTabBar::RoundedBelow){
                 bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget)== Qt::AlignRight;
-                bool lastTab = tab->position == QStyleOptionTab::End;
-                bool firstTab = tab->position == QStyleOptionTab::Beginning;
                 if (selected) {
                     p->fillRect(QRect(r2.left(), r2.top(), r2.width(), 1),
                                 tab->palette.brush(QPalette::Background));
@@ -1685,10 +1692,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->drawPoint(r2.right() - 2, r2.bottom() - 2);
                 p->drawLine(r2.right() - 2, r2.bottom() - 1,
                         r2.left() + 1, r2.bottom() - 1);
-
-                p->setPen(tab->palette.midlight());
-                p->drawLine(r2.left() + 1, r2.bottom() - 2,
-                            r2.left() + 1, r2.top()+ (selected ? 0 : 2));
 
                 p->setPen(tab->palette.shadow());
                 p->drawLine(r2.right(), r2.top()+ (lastTab && rightAligned && selected)? 0 : 1,
