@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#114 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#113 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#114 $")
 
 
 /*****************************************************************************
@@ -988,9 +988,11 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    while ( p && p->fd > sockfd )
 		p = list->next();
 #if defined(DEBUG)
-	    if ( p && p->fd == sockfd )
-		warning( "QSocketNotifier: Multiple registrations "
-			 "for socket %d", sockfd );
+	    if ( p && p->fd == sockfd ) {
+	        static const char *t[] = { "read", "write", "exception" };
+		warning( "QSocketNotifier: Multiple socket notifiers for "
+			 "same socket %d and type %s", sockfd, t[type] );
+	    }
 #endif
 	    list->insert( list->at(), sn );
 	}
