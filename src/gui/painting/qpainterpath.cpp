@@ -85,7 +85,7 @@ static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
         a << QPointF(x, y);
     }
 
-    if (t != 1)
+    if (tm != 1)
         a << p4;
 
     return a;
