@@ -101,7 +101,9 @@
     \section1 OpenGL Examples
 
     \list
+    \o \l{opengl/grabber}{Grabber}
     \o \l{opengl/hellogl}{Hello GL}
+    \o \l{opengl/textures}{Textures}
     \endlist
 
     \section1 XML Examples

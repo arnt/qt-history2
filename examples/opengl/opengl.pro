@@ -1,3 +1,4 @@
 TEMPLATE      = subdirs
-SUBDIRS       = hellogl \
+SUBDIRS       = grabber \
+                hellogl \
                 textures
