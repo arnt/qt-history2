@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#12 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#13 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -13,6 +13,10 @@
 #define QGENERIC_H
 
 #define Q_DECLARE(a,t)		a##declare(t)
+
+#if defined(MOC_CONNECTIONLIST_DECLARED) && !defined(declare)
+#define declare(a,t)		a##declare(t)
+#endif
 
 #endif // QGENERIC_H
 
