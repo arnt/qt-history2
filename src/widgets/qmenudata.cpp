@@ -660,7 +660,7 @@ int QMenuData::insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id
   In a popup menu, a separator is rendered as a horizontal line.  In a
   Motif menubar, a separator is spacing, so the rest of the items
   (just "Help", normally) are drawn right-justified.  In a Windows
-  menubar, all separator are ignored (to comply with the Windows style
+  menubar, separators are ignored (to comply with the Windows style
   guide).
 */
 int QMenuData::insertSeparator( int index )
