@@ -474,6 +474,7 @@ void QPainter::updatePen()
 
 void QPainter::updateBrush()
 {
+#ifndef Q_OS_TEMP
     static short d1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
     static short d2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
     static short d3_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
@@ -483,6 +484,26 @@ void QPainter::updateBrush()
     static short d7_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static short *dense_patterns[]
 	= { d1_pat, d2_pat, d3_pat, d4_pat, d5_pat, d6_pat, d7_pat };
+#else
+    static DWORD d1_pat[]     = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static DWORD d2_pat[]     = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static DWORD d3_pat[]     = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+    static DWORD d4_pat[]     = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+    static DWORD d5_pat[]     = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static DWORD d6_pat[]     = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static DWORD d7_pat[]     = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+    static DWORD *dense_patterns[] 
+	= { d1_pat, d2_pat, d3_pat, d4_pat, d5_pat, d6_pat, d7_pat };
+
+    static DWORD hor_pat[]    = { 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff };
+    static DWORD ver_pat[]    = { 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef };
+    static DWORD cross_pat[]  = { 0xef, 0xef, 0xef, 0x00, 0xef, 0xef, 0xef, 0xef };
+    static DWORD bdiag_pat[]  = { 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe };
+    static DWORD fdiag_pat[]  = { 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f };
+    static DWORD dcross_pat[] = { 0x7e, 0xbd, 0xdb, 0xe7, 0xe7, 0xdb, 0xbd, 0x7e };
+    static DWORD *hatch_patterns[] 
+	= { hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
+#endif
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -538,6 +559,7 @@ void QPainter::updateBrush()
 
     if ( bs == SolidPattern ) {			// create solid brush
 	hbrush = CreateSolidBrush( pix );
+#ifndef Q_OS_TEMP
     } else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
 		(bs == CustomPattern) ) {
 	if ( bs == CustomPattern ) {
@@ -551,8 +573,8 @@ void QPainter::updateBrush()
 	    nocolBrush = TRUE;
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
+	DeleteObject( hbrushbm );
     } else {					// one of the hatch brushes
-#ifndef Q_OS_TEMP
 	int s;
 	switch ( bs ) {
 	    case HorPattern:
@@ -577,8 +599,47 @@ void QPainter::updateBrush()
 		s = HS_HORIZONTAL;
 	}
 	hbrush = CreateHatchBrush( s, pix );
-#endif
+#else
+    } else {
+	if ( bs == CustomPattern ) {
+	    // The brush pixmap can never be a multi cell pixmap
+	    hbrushbm = cbrush.pixmap()->hbm();
+	    pixmapBrush = TRUE;
+	    nocolBrush = cbrush.pixmap()->depth() == 1;
+	    hbrush = CreatePatternBrush( hbrushbm );
+	    DeleteObject( hbrushbm );
+	} else {
+	    struct {
+		BITMAPINFOHEADER bmi;
+		COLORREF palette[2];
+		DWORD bitmapData[8];
+
+	    } bitmapBrush;
+
+	    memset( &bitmapBrush, 0, sizeof( bitmapBrush ) );
+
+	    bitmapBrush.bmi.biSize     = sizeof( BITMAPINFOHEADER );
+	    bitmapBrush.bmi.biWidth    =
+	    bitmapBrush.bmi.biHeight   = 8;
+	    bitmapBrush.bmi.biPlanes   =
+	    bitmapBrush.bmi.biBitCount = 1;
+	    bitmapBrush.bmi.biClrUsed  = 0;
+	    QRgb *coltbl = (QRgb*)bitmapBrush.palette;
+	    coltbl[0] = cbrush.color().rgb();
+	    coltbl[1] = Qt::color0.rgb();
+
+	    static DWORD *pattern = hatch_patterns[ 0 ]; // HorPattern
+
+	    if (bs >= Dense1Pattern && bs <= Dense7Pattern )
+		pattern = dense_patterns[ bs - Dense1Pattern ];
+	    else if (bs >= HorPattern && bs <= DiagCrossPattern )
+		pattern = hatch_patterns[ bs - HorPattern ];
+
+	    memcpy( bitmapBrush.bitmapData, pattern, 64 ); 
+	    hbrush = CreateDIBPatternBrushPt( &bitmapBrush, DIB_RGB_COLORS );
+	}
     }
+#endif
 
     SelectObject( hdc, hbrush );
 
@@ -1324,13 +1385,17 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     if ( plot_pixel )
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 #else
-    if ( plot_pixel ) {
-        POINT pts[2];
-	pts[0].x = x1;  pts[0].y = y1;
-	pts[1].x = x2;  pts[1].y = y2;
-	Polyline( hdc, pts, 2 );
+    POINT pts[2];
+    pts[0].x = x1;  pts[0].y = y1;
+    pts[1].x = x2;  pts[1].y = y2;
+    if ( x1 != x2 )
+	pts[1].x += (x2 > x1 ? 1 : -1 );
+    if ( y1 != y2 )
+	pts[1].y += (y2 > y1 ? 1 : -1 );
+
+    Polyline( hdc, pts, 2 );
+    if ( plot_pixel )
 	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
-    }
     internalCurrentPos = QPoint( x2, y2 );
 #endif
 }
