@@ -32,6 +32,8 @@
 #include "qsocket.h"
 #endif // QT_H
 
+#ifdef QT_FEATURE_DNS
+
 class QDnsPrivate;
 
 class QDns: public QObject {
@@ -125,5 +127,7 @@ private slots:
     virtual void retransmit();
     virtual void answer();
 };
+
+#endif // QT_FEATURE_DNS
 
 #endif // QDNS_H

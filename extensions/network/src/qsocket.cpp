@@ -54,15 +54,20 @@ public:
     int			rindex, windex;		// read/write index
     bool		newline;		// has newline/can read line
     int			ready_read_timer;	// timer for emit read signals
+#ifdef QT_FEATURE_DNS
     QDns	       *dns;
+#endif
 };
 
 QSocketPrivate::QSocketPrivate()
     : state(QSocket::Idle), mode(QSocket::Binary),
       host(QString::fromLatin1("")), port(0),
       socket(0), rsn(0), wsn(0), rsize(0), wsize(0), rindex(0), windex(0),
-      newline(FALSE), ready_read_timer(0), dns(0)
+      newline(FALSE), ready_read_timer(0)
 {
+#ifdef QT_FEATURE_DNS
+    dns = 0;
+#endif
     rba.setAutoDelete( TRUE );
     wba.setAutoDelete( TRUE );
 }
@@ -95,7 +100,7 @@ QSocketPrivate::~QSocketPrivate()
   Creates a QSocket object in \c QSocket::Idle state.
 
   This socket can be used to make a connection to a host using
-  the connectToHost() function.
+  the connectToHost() or connectToLocalFile() functions.
 */
 
 QSocket::QSocket( QObject *parent, const char *name )
@@ -244,6 +249,7 @@ void QSocket::setMode( Mode mode )
 	d->newline = scanNewline();
 }
 
+#ifdef QT_FEATURE_DNS
 
 /*!
   Attempts to make a connection to \a host on the specified \a port.
@@ -287,6 +293,7 @@ void QSocket::connectToHost( const QString &host, int port )
     tryConnecting();
 };
 
+#endif
 
 void QSocket::connectToLocalFile( const QString &filename )
 {
@@ -309,7 +316,9 @@ void QSocket::connectToLocalFile( const QString &filename )
     d->state = HostLookup;
     d->host = QString::null;
     d->port = 0;
+#ifdef QT_FEATURE_DNS
     d->dns = 0;
+#endif
 
     d->state = Connecting;
     if ( d->socket->connect( filename ) == FALSE ) {
@@ -325,7 +334,6 @@ void QSocket::connectToLocalFile( const QString &filename )
     d->wsn->setEnabled( TRUE );
 }
 
-
 /*!
   This private slots continues the connection process where connectToHost()
   leaves off.
@@ -333,6 +341,7 @@ void QSocket::connectToLocalFile( const QString &filename )
 
 void QSocket::tryConnecting()
 {
+#ifdef QT_FEATURE_DNS
     QValueList<QHostAddress> l = d->dns->addresses();
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket (%s)::tryConnecting: host %s, port %d, %d addresses",
@@ -363,6 +372,7 @@ void QSocket::tryConnecting()
 #endif
     // The socket write notifier will fire when the connection succeeds
     d->wsn->setEnabled( TRUE );
+#endif
 }
 
 

@@ -25,6 +25,8 @@
 
 #include "qdns.h"
 
+#ifdef QT_FEATURE_DNS
+
 #include "qdatetime.h"
 #include "qdict.h"
 #include "qlist.h"
@@ -1634,5 +1636,7 @@ static void doResInit()
 	first = last+1;
     } while( first < nameServer.length() );
 }
+
+#endif
 
 #endif

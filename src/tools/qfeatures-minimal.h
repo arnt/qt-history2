@@ -89,7 +89,7 @@
     //#define QT_FEATURE_QWS_MACH64
     //#define QT_FEATURE_QWS_VFB
     //#define QT_FEATURE_QWS_DEPTH_8GRAYSCALE
-    //#define QT_FEATURE_QWS_DEPTH_8
+    #define QT_FEATURE_QWS_DEPTH_8
     //#define QT_FEATURE_QWS_DEPTH_15
     //#define QT_FEATURE_QWS_DEPTH_16
     //#define QT_FEATURE_QWS_DEPTH_32
@@ -97,8 +97,9 @@
 #endif
 
 // network
+//#define QT_FEATURE_DNS
 //#define QT_FEATURE_NETWORKPROTOCOL
-#if defined(QT_FEATURE_NETWORKPROTOCOL)
+#if defined(QT_FEATURE_NETWORKPROTOCOL) && defined(QT_FEATURE_DNS)
     //#define QT_FEATURE_NETWORKPROTOCOL_FTP
     //#define QT_FEATURE_NETWORKPROTOCOL_HTTP
 #endif

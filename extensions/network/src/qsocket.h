@@ -58,7 +58,9 @@ public:
     int		socket() const;
     virtual void setSocket( int, bool inet=TRUE );
 
+#ifdef QT_FEATURE_DNS
     virtual void connectToHost( const QString &host, int port );
+#endif
     virtual void connectToLocalFile( const QString &file );
     QString	 peerName() const;
 
