@@ -465,7 +465,7 @@ inline QByteArray &QByteArray::replace(int index, int len, const char *s)
 inline QByteArray &QByteArray::replace(char before, const char *after)
 { QConstByteArray cb(after, strlen(after)); return replace(before, cb); }
 inline QByteArray &QByteArray::replace(const QByteArray &before, const char *after)
-{ QConstByteArray cb(after, strlen(after)); return replace(before, after); }
+{ QConstByteArray cb(after, strlen(after)); return replace(before, cb); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { QConstByteArray cb(before, strlen(before)); QConstByteArray ca(after, strlen(after)); return replace(cb, ca); }
 
