@@ -2,6 +2,7 @@
 #define LISTVIEWDND_H
 
 #include <qobject.h>
+#include <qptrlist.h>
 
 class QWidget;
 class QListView;
