@@ -111,7 +111,7 @@
     };
 
 
-    void main()
+    int main()
     {
 	typedef QMap<QString,Employee> EmployeeMap;
 	EmployeeMap map;		// map of Employee
@@ -127,6 +127,8 @@
 	EmployeeMap::Iterator it;
 	for( it = map.begin(); it != map.end(); ++it )
 	    printf( "%s, %s earns %d\n", it.key().latin1(), it.data().name().latin1(), it.data().salary() );
+
+	return 0;
     }
   \endcode
 
@@ -527,7 +529,7 @@
     };
 
 
-    void main()
+    int main()
     {
 	typedef QMap<QString,Employee> EmployeeMap;
 	EmployeeMap map;		// map of Employee
@@ -543,6 +545,8 @@
 	EmployeeMap::Iterator it;
 	for( it = map.begin(); it != map.end(); ++it )
 	    printf( "%s, %s earns %d\n", it.key().latin1(), it.data().name().latin1(), it.data().salary() );
+
+	return 0;
     }
   \endcode
 

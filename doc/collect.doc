@@ -127,7 +127,7 @@ them out in the reverse order:
         int         s;
     };
 
-    void main()
+    int main()
     {
 	QPtrList<Employee> list;		// list of pointers to Employee
 	list.setAutoDelete( TRUE );	// delete items when they are removed
@@ -141,6 +141,8 @@ them out in the reverse order:
 	    Employee *emp = it.current();
 	    printf( "%s earns %d\n", emp->name(), emp->salary() );
         }
+
+	return 0;
     }
 \endcode
 

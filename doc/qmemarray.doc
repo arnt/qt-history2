@@ -81,7 +81,7 @@
 	return f;
     }
 
-    void main()
+    int main()
     {
 	QMemArray<int> a = fib( 6 );		// get 6 first fibonaccis
 	int i;
@@ -91,6 +91,8 @@
 
 	printf( "1 is found %d time(s)\n", a.contains(1) );
 	printf( "5 is found at index %d\n", a.find(5) );
+
+	return 0;
     }
   \endcode
 

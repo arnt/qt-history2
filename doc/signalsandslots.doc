@@ -250,28 +250,29 @@ class itself may connect signals to.  This is intended for very
 tightly connected classes, where even subclasses aren't trusted to get
 the connections right.
 
-Of course, you can also define slots to be virtual.  We have found
-this to be very useful.
+You can also define slots to be virtual, which we have found quite
+useful in practice.
 
-Signals and slots are fairly efficient. Of course there's some loss of
-speed compared to "real" callbacks due to the increased flexibility,
-but the loss is fairly small. As a general rule, emitting a signal
-that is connected to some slots is approximately ten times the costs
-of calling the receiveres directly with non-virtual functions
-calls. This is the overhead required to locate the connection object,
-to safely iterate over all connections (i.e. checking that subsequent
-receivers have not been destructed during the emission) and to
-marshall any parameters in a generic fashion. While ten non-virtual
-function calls may sound like a lot, it's much less overhead than any
-'new' or 'delete' operation. The very moment you do a character
-string, vector or list operation that behind the scene requires 'new'
-or 'delete', the signals and slots overhead is only responsable for a
-very small portion of the complete function call costs. The same is
-true whenever you do a system call in a slot - or indirectly call more
-than ten functions. On a i586-500, you can emit circa 2.000.000
-signals per second connected to one receiver, or circa 1.200.000 per
-second connected to two receivers. So the simplicity and flexibility
-the mechanism affords is well worth the costs.
+The signals and slots mechanism is efficient, but not quite as fast as
+"real" callbacks. Signals and slots are slightly slower because of the
+increased flexibility they provide, although the difference for real
+applications is insignificant. In general, emitting a signal that is
+connected to some slots, is approximately ten times slower than calling
+the receivers directly, with non-virtual function calls. This is the
+overhead required to locate the connection object, to safely iterate
+over all connections (i.e. checking that subsequent receivers have not
+been destroyed during the emission) and to marshall any parameters in a
+generic fashion. While ten non-virtual function calls may sound like a
+lot, it's much less overhead than any 'new' or 'delete' operation, for
+example. As soon as you perform a string, vector or list operation that
+behind the scene requires 'new' or 'delete', the signals and slots
+overhead is only responsible for a very small proportion of the complete
+function call costs. The same is true whenever you do a system call in a
+slot - or indirectly call more than ten functions. On an i586-500, you
+can emit around 2,000,000 signals per second connected to one receiver,
+or around 1,200,000 per second connected to two receivers. The
+simplicity and flexibility of the signals and slots mechanism is well
+worth the overhead, which your users won't even notice.
 
 
 <h2>Meta Object Information</h2>

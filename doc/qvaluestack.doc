@@ -64,7 +64,7 @@
     #include <qvaluestack.h>
     #include <stdio.h>
 	
-    void main()
+    int main()
     {
 	QValueStack<int> stack;
 	stack.push( 1 );
@@ -72,6 +72,8 @@
 	stack.push( 3 );
 	while ( !stack.isEmpty() )
 		printf("pop item %d\n", stack.pop() );
+
+	return 0;
   }
   \endcode
 

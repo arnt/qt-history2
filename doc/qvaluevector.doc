@@ -110,7 +110,7 @@
 	int         s;
     };
 
-    void main()
+    int main()
     {
 	typedef QValueVector<Employee> EmployeeVector;
 	EmployeeVector vec( 4 );	// vector of 4 Employees
@@ -126,6 +126,8 @@
 	EmployeeVector::iterator it;
 	for( it = vec.begin(); it != vec.end(); ++it )
 	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary().latin1() );
+
+	return 0;
     }
   \endcode
 

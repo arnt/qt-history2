@@ -60,7 +60,7 @@
     #include <qintdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	QIntDict<char> dict;		// maps long ==> char*
 
@@ -74,6 +74,8 @@
 
 	if ( !dict[39] )
 	    printf( "39 not defined\n" );
+
+	return 0;
     }
   \endcode
 
@@ -116,7 +118,7 @@
     #include <qintdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	QIntDict<char> dict;		// maps long ==> char*
 
@@ -126,6 +128,8 @@
 	printf( "%s\n", dict[7] );
 	dict.remove( 7 );		// Gorbie was here
 	printf( "%s\n", dict[7] );
+
+	return 0;
     }
   \endcode
 
@@ -364,7 +368,7 @@
     #include <qintdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	QIntDict<char> dict;		// maps long ==> char*
 
@@ -378,6 +382,8 @@
 	    printf( "%d -> %s\n", it.currentKey(), it.current() );
 	    ++it;
 	}
+
+	return 0;
     }
   \endcode
 

@@ -60,7 +60,7 @@
     #include <qptrdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	int *a = new int[12];
 	int *b = new int[10];
@@ -79,6 +79,8 @@
 
 	if ( !dict[d] )
 	    printf( "d not in dictionary\n" );
+
+	return 0;
     }
   \endcode
 
@@ -121,7 +123,7 @@
     #include <qptrdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	QPtrDict<char> dict;		// maps char* ==> char*
 
@@ -132,6 +134,8 @@
 	printf( "%s\n", dict[ptr] );
 	dict.remove( ptr );
 	printf( "%s\n", dict[ptr] );
+
+	return 0;
     }
   \endcode
 
@@ -369,7 +373,7 @@
     #include <qptrdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
 	int *a = new int[12];
 	int *b = new int[10];
@@ -388,6 +392,8 @@
 	    printf( "%x -> %s\n", it.currentKey(), it.current() );
 	    ++it;
 	}
+
+	return 0;
     }
   \endcode
 

@@ -61,7 +61,7 @@
     #include <qdict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
       // Creates a dictionary that maps char* ==> char* (case insensitive)
 	QAsciiDict<char> dict( 17, FALSE );
@@ -78,6 +78,8 @@
 
 	if ( !dict["France"] )
 	    printf( "France not defined\n" );
+
+	return 0;
     }
   \endcode
 
@@ -363,7 +365,7 @@
     #include <qasciidict.h>
     #include <stdio.h>
 
-    void main()
+    int main()
     {
       // Creates a dictionary that maps char* ==> char* (case insensitive)
 	QAsciiDict<char> dict( 17, FALSE );
@@ -378,6 +380,8 @@
 	    printf( "%s -> %s\n", it.currentKey(), it.current() );
 	    ++it;
 	}
+
+	return 0;
     }
   \endcode
 
