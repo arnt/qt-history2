@@ -3420,7 +3420,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	c = c->n;
     }
 
-    if ( !remaining.isNull() && !remaining.isEmpty() ) {
+    if (!remaining.isEmpty() ) {
 	p->save();
 	p->resetXForm();
 	if ( d->drawAllBack ) {

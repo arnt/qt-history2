@@ -3212,7 +3212,7 @@ bool QVariant::isNull() const
     case Bitmap:
 	return ((QBitmap*) d->value.ptr)->isNull();
     case Region:
-	return ((QRegion*) d->value.ptr)->isNull();
+	return ((QRegion*) d->value.ptr)->isEmpty();
     case PointArray:
 	return ((QPointArray*) d->value.ptr)->isEmpty();
     case String:
