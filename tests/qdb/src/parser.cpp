@@ -957,6 +957,7 @@ void Parser::matchCreateStatement()
 	    yyProg->append( new PushFieldDesc(0, *col) );
 	    ++col;
 	}
+	yyProg->append( new MakeList(columns.count()) );
 	yyProg->append( new CreateIndex(0, (int) unique) );
 	break;
     case Tok_table:
