@@ -446,8 +446,19 @@ void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 void QWSPaintEngine::drawEllipse(const QRectF &r)
 {
     QPainterPath path;
+#ifndef QT_QWS_NO_STUPID_HACKS
+    if (state->pen.style() == Qt::NoPen) {
+        QPen savePen = state->pen;
+        updatePen(QPen(state->brush.color()));
+        path.addEllipse(r.x(), r.y(), r.width()-1, r.height()-1);
+        drawPolyInternal(path.toSubpathPolygons().at(0).toPointArray());
+        updatePen(savePen);
+    } else
+#endif
+    {
     path.addEllipse(r.x(), r.y(), r.width(), r.height());
     drawPolyInternal(path.toSubpathPolygons().at(0).toPointArray());
+    }
 }
 
 void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
