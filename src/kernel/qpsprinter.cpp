@@ -4836,8 +4836,39 @@ static const psfont Munhwa [] = {
     { "Munhwa-Bold-KSC-EUC-H", 0.2, 100. }
 };
 
+static const psfont MunhwaGothic [] = {
+    { "MunhwaGothic-Regular-KSC-EUC-H", 0, 100. },
+    { "MunhwaGothic-Regular-KSC-EUC-H", 0.2, 100. },
+    { "MunhwaGothic-Bold-KSC-EUC-H", 0, 100. },
+    { "MunhwaGothic-Bold-KSC-EUC-H", 0.2, 100. }
+};
+
+static const psfont MunhwaGungSeo [] = {
+    { "MunhwaGungSeo-Light-KSC-EUC-H", 0, 100. },
+    { "MunhwaGungSeo-Light-KSC-EUC-H", 0.2, 100. },
+    { "MunhwaGungSeo-Bold-KSC-EUC-H", 0, 100. },
+    { "MunhwaGungSeo-Bold-KSC-EUC-H", 0.2, 100. }
+};
+
+static const psfont MunhwaGungSeoHeulim [] = {
+    { "MunhwaGungSeoHeulim-Light-KSC-EUC-H", 0, 100. },
+    { "MunhwaGungSeoHeulim-Light-KSC-EUC-H", 0.2, 100. },
+    { "MunhwaGungSeoHeulim-Bold-KSC-EUC-H", 0, 100. },
+    { "MunhwaGungSeoHeulim-Bold-KSC-EUC-H", 0.2, 100. }
+};
+
+static const psfont MunhwaHoonMin [] = {
+    { "MunhwaHoonMin-Regular-KSC-EUC-H", 0, 100. },
+    { "MunhwaHoonMin-Regular-KSC-EUC-H", 0.2, 100. },
+    { "MunhwaHoonMin-Regular-KSC-EUC-H", 0, 100. },
+    { "MunhwaHoonMin-Regular-KSC-EUC-H", 0.2, 100. }
+};
+
+
+
 static const psfont * const KoreanReplacements[] = {
-    SMGothic, Munhwa, MKai, Helvetica, 0
+    SMGothic, Munhwa, MunhwaGothic, MKai, MunhwaGungSeo, MunhwaGungSeoHeulim, 
+    MunhwaHoonMin, Helvetica, 0
         };
 
 class QPSPrinterFontKorean
@@ -4941,9 +4972,16 @@ static const psfont MOESung [] = {
     { "MOESung-Regular-B5-H", 0.2, 100. },
 };
 
+static const psfont MOEKai [] = {
+    { "MOEKai-Regular-B5-H", 0, 100. },
+    { "MOEKai-Regular-B5-H", 0.2, 100. },
+    { "MOEKai-Regular-B5-H", 0, 100. },
+    { "MOEKai-Regular-B5-H", 0.2, 100. },
+};
+
 static const psfont * const TraditionalReplacements[] = {
     SongB5, ShanHeiSun, MingB5, MSung, FangSongB5, KaiB5, ZenKai, HeiB5,
-    LinGothic, YenRound, MOESung, Helvetica, 0
+    LinGothic, YenRound, MOESung, MOEKai, Helvetica, 0
 	};
 
 #if 0
@@ -4992,8 +5030,6 @@ static const psfont SimplifiedGBK2K [] = {
     { "MKai-Medium-GBK2K-H", 0.2, 100. },
 };
 #endif
-
-#if 0
 
 // GB18030 fonts on Turbolinux
 static const psfont SongGBK2K [] = {
@@ -5064,7 +5100,6 @@ static const psfont * const SimplifiedReplacements[] = {
 static const psfont * const SongGBK2KReplacements[] = {
     SongGBK2K, MSungGBK, BousungEG, Helvetica, 0
 	};
-#endif
 static const psfont * const FangSongGBK2KReplacements[] = {
     FangSongGBK2K, FangSong, Courier, 0
 	};
@@ -5077,33 +5112,6 @@ static const psfont * const HeiGBK2KReplacements[] = {
 
 #endif
 
-
-
-static const psfont Simplified [] = {
-    { "MSung-Light-GBK-EUC-H", 0, 100. },
-    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
-    { "MKai-Medium-GBK-EUC-H", 0, 100. },
-    { "MKai-Medium-GBK-EUC-H", 0.2, 100. },
-};
-
-static const psfont MSungGBK [] = {
-    { "MSung-Light-GBK-EUC-H", 0, 100. },
-    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
-    { "MSung-Light-GBK-EUC-H", 0, 100. },
-    { "MSung-Light-GBK-EUC-H", 0.2, 100. },
-};
-
-static const psfont FangSong [] = {
-    { "CFangSong-Light-GBK-EUC-H", 0, 100. },
-    { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
-    { "CFangSong-Light-GBK-EUC-H", 0, 100. },
-    { "CFangSong-Light-GBK-EUC-H", 0.2, 100. },
-};
-
-static const psfont * const SimplifiedReplacements[] = {
-    Simplified, MSungGBK, FangSong, Helvetica, 0
-        };
-
 class QPSPrinterFontSimplifiedChinese
   : public QPSPrinterFontAsian {
 public:
@@ -5112,9 +5120,10 @@ public:
 
 QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 {
+    codec = QTextCodec::codecForMib( 2025 ); // gbk
     int type = getPsFontType( f );
-    psname = MSungGBK[type].psname;
-    slant = MSungGBK[type].slant;
+    psname = SongGBK2K[type].psname;
+    slant = SongGBK2K[type].slant;
     appendReplacements( replacementList, SimplifiedReplacements, type );
 }
 
@@ -5214,7 +5223,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		break;
 
 	    case 57: // GB 2312-1980
-	    case 2027: // GBK
+	    case 2025: // GBK
 	    case -2500: // GB18030
 	    case 2026: // Big5
 		break;
@@ -5395,7 +5404,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 		QTextCodec *lc = QTextCodec::codecForLocale();
 		switch( lc->mibEnum() ) {
 		    case 57: // GB 2312-1980
-		    case 2027: // GBK
+		    case 2025: // GBK
 		    case -2500:
 			p = new QPSPrinterFontSimplifiedChinese( f );
 			break;
