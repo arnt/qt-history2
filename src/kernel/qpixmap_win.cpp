@@ -922,11 +922,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
 	    return *this;			// identity matrix
+
+	h = qRound( mat.m22()*hs );
+	w = qRound( mat.m11()*ws );
+	h = QABS( h );
+	w = QABS( w );
 	if ( data->realAlphaBits == 0 ) {
-	    h = qRound( mat.m22()*hs );
-	    w = qRound( mat.m11()*ws );
-	    h = QABS( h );
-	    w = QABS( w );
 	    // we have to create the new pixmap before we query the handle of this,
 	    // as the handle might change if this is a multicell pixmap that gets
 	    // expanded by the constructor in the line below.
@@ -962,19 +963,20 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    }
 	    return pm;
 	}
+    } else {
+	// rotation or shearing
+	QPointArray a( QRect(0,0,ws+1,hs+1) );
+	a = mat.map( a );
+	QRect r = a.boundingRect().normalize();
+	w = r.width()-1;
+	h = r.height()-1;
     }
-
-    // rotation or shearing
-    QPointArray a( QRect(0,0,ws+1,hs+1) );
-    a = mat.map( a );
-    QRect r = a.boundingRect().normalize();
-    w = r.width()-1;
-    h = r.height()-1;
 
     mat = trueMatrix( mat, ws, hs ); // true matrix
 
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
+
 
     if ( h == 0 || w == 0 || !invertible ) {	// error, return null pixmap
 	QPixmap pm;
