@@ -3043,8 +3043,9 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "\nvoid* %s::qt_cast( const char* clname )\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n",
-	     (const char*) qualifiedClassName(), (const char*) qualifiedClassName() );
+    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) )\n"
+		  "\treturn this;\n",
+	     (const char*) qualifiedClassName() );
     if ( !g->multipleSuperClasses.isEmpty() ) {
 	for ( const char* cname = g->multipleSuperClasses.first(); cname; cname = g->multipleSuperClasses.next() )
 	    fprintf( out, "    if ( !qstrcmp( clname, \"%s\" ) ) return (%s*)this;\n", cname, cname );
