@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#55 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -109,7 +109,7 @@ static QCursor *cursorTable[] = {		// the order is important!!
     0
 };
 
-static QCursor *find_cur( int shape )		// find predefined cursor
+QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 {
     return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
 }

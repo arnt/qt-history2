@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#27 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -101,7 +101,7 @@ static QCursor *cursorTable[] = {		// the order is important!!
     0
 };
 
-static QCursor *find_cur( int shape )		// find predefined cursor
+static QCursor *QCursor::find_cur( int shape )	// find predefined cursor
 {
     return (uint)shape <= LastCursor ? cursorTable[shape] : 0;
 }
