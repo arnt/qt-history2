@@ -1471,7 +1471,7 @@ void QPainter::drawRect(const QRect &r)
 	return;
     }
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+    if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
   	    drawPolygon(QPointArray(rect));
 #if 0 // NB! keep this golden magic nugget of code
@@ -1496,6 +1496,9 @@ void QPainter::drawRect(const QRect &r)
         }
         rect = xForm(rect);
     }
+
+    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        rect.moveBy(d->state->matrix.dx(), d->state->matrix.dy());
 
     d->engine->drawRect(rect);
 }
@@ -2172,7 +2175,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 
     QPointArray pa = a.mid(index, npoints);
 
-    if (((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+    if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
             && ((d->state->brush.style() == Qt::SolidPattern
                  && d->state->brush.color().alpha() != 255)
@@ -2190,6 +2193,9 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
         drawPath(path);
         return;
     }
+
+    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        pa.translate(d->state->matrix.dx(), d->state->matrix.dy());
 
     d->engine->drawPolygon(pa, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
 }
@@ -2674,8 +2680,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     else
         sy = sy % sh;
 
-    if ((d->state->VxF || d->state->WxF) && d->state->txop > TxTranslate
-        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+    if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
 	QImage img(w, h, 32);
 	img.setAlphaBuffer(true);
         QPixmap pm = img;
@@ -2687,11 +2692,12 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
         return;
     }
 
-    if (d->engine->hasFeature(QPaintEngine::PixmapTransform))
-	d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
-    else
-	d->engine->drawTiledPixmap(QRect(x - d->redirection_offset.x(), y - d->redirection_offset.y(), w, h),
-				   pixmap, QPoint(sx, sy), mode);
+    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+        x += d->state->matrix.dx();
+        y += d->state->matrix.dy();
+    }
+
+    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
 }
 
 /*!
