@@ -356,8 +356,8 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     bool ret_cg_style = QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER;
-    if(ret_cg_style && pdev && pdev->engine())
-        ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
+    if(ret_cg_style && pdev && pdev->paintEngine())
+        ret_cg_style = (pdev->paintEngine()->type() == QPaintEngine::CoreGraphics);
     if(ret_cg_style && !getenv("QT_MAC_USE_APPMANAGER")) {
         if(!cg_style)
             cg_style = new QMacStyleCG();
