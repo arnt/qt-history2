@@ -313,10 +313,13 @@ static void clear(QCoreVariant::Private *d)
         break;
     case QCoreVariant::Point:
         QCLEAR(QPoint);
+        break;
     case QCoreVariant::Size:
         QCLEAR(QSize);
+        break;
     case QCoreVariant::Rect:
         QCLEAR(QRect);
+        break;
     case QCoreVariant::LongLong:
     case QCoreVariant::ULongLong:
     case QCoreVariant::Double:
