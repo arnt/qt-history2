@@ -74,8 +74,9 @@ public:
 #endif
 
     static QString tr( const char *sourceText, const char *comment = 0 );
+#ifndef QT_NO_TEXTCODEC
     static QString trUtf8( const char *sourceText, const char *comment = 0 );
-
+#endif
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
 
@@ -240,10 +241,12 @@ public:
 inline QString QObject::tr( const char *sourceText, const char * ) {
     return QString::fromLatin1( sourceText );
 }
+#ifndef QT_NO_TEXTCODEC
 inline QString QObject::trUtf8( const char *sourceText, const char * ) {
     return QString::fromUtf8( sourceText );
 }
 #endif
+#endif //QT_NO_TRANSLATION
 
 
 #endif // QOBJECT_H

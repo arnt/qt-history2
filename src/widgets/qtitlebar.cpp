@@ -1,6 +1,6 @@
 #include "qtitlebar_p.h"
 
-#if !defined(QT_NO_MAINWINDOW) || !defined(QT_NO_WORKSPACE)
+#ifndef QT_NO_TITLEBAR
 
 #include "qapplication.h"
 #include "../kernel/qapplication_p.h"
@@ -17,7 +17,6 @@
 #include "qplatformdefs.h"
 #endif
 
-#ifndef QT_NO_WORKSPACE
 
 class QTitleBarTip : public QToolTip
 {
@@ -399,6 +398,4 @@ QSize QTitleBar::sizeHint() const
     return QSize( 128, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
 }
 
-#endif
-
-#endif //!QT_NO_MAINWINDOW || !QT_NO_WORKSPACE
+#endif //QT_NO_TITLEBAR

@@ -338,7 +338,9 @@ QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool makeqdevel	 = FALSE;	// developer tool needed?
 static QDesktopWidget *desktopWidget = 0;	// root window widgets
+#ifndef QT_NO_CLIPBOARD
 QClipboard	      *qt_clipboard = 0;	// global clipboard object
+#endif
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
@@ -2686,10 +2688,10 @@ QDesktopWidget *QApplication::desktop()
     return desktopWidget;
 }
 
+#ifndef QT_NO_CLIPBOARD
 /*!
   Returns a pointer to the application global clipboard.
 */
-
 QClipboard *QApplication::clipboard()
 {
     if ( qt_clipboard == 0 ) {
@@ -2698,7 +2700,7 @@ QClipboard *QApplication::clipboard()
     }
     return qt_clipboard;
 }
-
+#endif // QT_NO_CLIPBOARD
 /*!
   By default, Qt will try to get the current standard colors, fonts
   etc. from the underlying window system's desktop settings (resources),

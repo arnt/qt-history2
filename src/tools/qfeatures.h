@@ -936,6 +936,14 @@
 #  define QT_NO_WORKSPACE
 # endif
 #endif
+
+#if defined(QT_NO_WORKSPACE) && defined(QT_NO_MAINWINDOW)
+/*!
+  Internal class QTitleBar, only used by workspace and mainwindow.
+*/
+# define QT_NO_TITLEBAR
+#endif
+
 /*!
     QLCDNumber
 */

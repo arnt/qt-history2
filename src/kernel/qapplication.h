@@ -127,7 +127,9 @@ public:
 
     static QWidget     *activePopupWidget();
     static QWidget     *activeModalWidget();
+#ifndef QT_NO_CLIPBOARD
     static QClipboard  *clipboard();
+#endif
     QWidget	       *focusWidget() const;
     QWidget	       *activeWindow() const;
 
@@ -440,9 +442,11 @@ inline bool QApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event
 inline QString QApplication::translate( const char *, const char *sourceText,
 					const char *, bool utf8 ) const
 {
+#ifndef QT_NO_TEXTCODEC
     if ( utf8 )
 	return QString::fromUtf8( sourceText );
     else
+#endif	
 	return QString::fromLatin1( sourceText );
 }
 #endif

@@ -1961,6 +1961,8 @@ QString QObject::tr( const char *sourceText, const char *comment )
 	return QString::fromLatin1( sourceText );
 }
 
+
+#ifndef QT_NO_TEXTCODEC
 /*!
   Returns a translated version of \a sourceText, or
   QString::fromUtf8(\a sourceText) if there is no apporpriate version.
@@ -1975,8 +1977,8 @@ QString QObject::trUtf8( const char *sourceText, const char *comment )
     else
 	return QString::fromUtf8( sourceText );
 }
-
 #endif
+#endif //QT_NO_TRANSLATION
 
 /*!
   Initializes the \link metaObject() meta object\endlink of this
