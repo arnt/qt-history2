@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#64 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#64 $");
 
 
 /*****************************************************************************
@@ -604,6 +604,116 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 
 
 /*****************************************************************************
+  Socket notifier (type: 0=read, 1=write, 2=exception)
+
+  The QSocketNotifier class (qsocknot.h) provides installable callbacks
+  for select() throught the internal function qt_set_socket_handler().
+ *****************************************************************************/
+
+struct QSockNot {
+    QObject *obj;
+    int	     fd;
+};
+
+typedef Q_DECLARE(QIntDictM,QSockNot)	   QSNDict;
+
+static QSNDict *sn_read	  = 0;
+static QSNDict *sn_write  = 0;
+static QSNDict *sn_except = 0;
+
+static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
+
+static uint	sn_msg    = 0;			// socket notifier message
+static QWidget *sn_win    = 0;			// win msg via this window
+
+
+static void sn_init()
+{
+    if ( sn_win )
+	return;
+    sn_msg = RegisterWindowMessage( "QtSNEvent" );
+    sn_win = qApp->mainWidget();		// use main widget, if any
+    if ( !sn_win ) {				// create internal widget
+	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
+	CHECK_PTR( sn_win );
+    }
+}
+
+
+bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
+{
+    if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QSocketNotifier: Internal error" );
+#endif
+	return FALSE;
+    }
+
+    QSNDict  *dict = *sn_vec[type];
+    QSockNot *sn;
+
+    if ( enable ) {				// enable notifier
+	if ( sn_win == 0 )
+	    sn_init();
+	if ( !dict ) {
+	    dict = new QSNDict;			// create new list
+	    CHECK_PTR( dict );
+	    dict->setAutoDelete( TRUE );
+	    *sn_vec[type] = dict;
+	}
+	sn = new QSockNot;
+	CHECK_PTR( sn );
+	sn->obj = obj;
+	sn->fd	= sockfd;
+	if ( dict->find(sockfd) ) {
+#if defined(DEBUG)
+	    static const char *t[] = { "read", "write", "exception" };
+	    warning( "QSocketNotifier: Multiple socket notifiers for "
+		     "same socket %d and type %s", sockfd, t[type] );
+#endif
+	    return FALSE;
+	}
+	dict->insert( sockfd, sn );
+    } else {					// disable notifier
+	if ( dict == 0 )
+	    return FALSE;
+	if ( dict->remove(sockfd) ) {		// found and removed fd
+	    if ( dict->isEmpty() ) {		// no more notifiers
+		delete dict;			// delete dict
+		*sn_vec[type] = 0;
+	    }
+	} else {
+	    return FALSE;
+	}
+    }
+    int sn_event = 0;
+    if ( sn_read && sn_read->find(sockfd) )
+	sn_event |= FD_READ | FD_CLOSE;
+    if ( sn_write && sn_write->find(sockfd) )
+	sn_event |= FD_WRITE | FD_CONNECT;
+    if ( sn_except && sn_except->find(sockfd) )
+	sn_event |= FD_OOB;
+  // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
+  // This is a BoundsChecker bug and not a Qt bug
+    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? sn_msg : 0, sn_event );
+    return TRUE;
+}
+
+
+static void sn_activate_fd( int sockfd, int type )
+{
+    QSNDict  *dict = *sn_vec[type];
+    QSockNot *sn   = dict ? dict->find(sockfd) : 0;
+    if ( sn ) {
+	QEvent event( Event_SockAct );
+	QApplication::sendEvent( sn->obj, &event );
+    } else {
+	// no notifier to handle this request
+    }
+}
+
+
+/*****************************************************************************
   Main event loop
  *****************************************************************************/
 
@@ -728,7 +838,25 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     int evt_type = Event_None;
     bool result = TRUE;
 
-    if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+    if ( sn_msg && message == sn_msg ) {	// socket notifier message
+	int type = -1;
+	switch ( WSAGETSELECTEVENT(lParam) ) {
+	    case FD_READ:
+	    case FD_CLOSE:
+		type = 0;
+		break;
+	    case FD_WRITE:
+	    case FD_CONNECT:
+	    	type = 1;
+		break;
+	    case FD_OOB:
+	    	type = 2;
+		break;
+	}
+	if ( type >= 0 )
+	    sn_activate_fd( wParam, type );
+    }
+    else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
 	if ( widget->isEnabled() ) {
 	    if ( message == WM_LBUTTONDOWN )
 		widget->setFocus();
