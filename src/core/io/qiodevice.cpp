@@ -422,7 +422,7 @@ Q_LONGLONG QIODevice::pos() const
 */
 Q_LONGLONG QIODevice::size() const
 {
-    return Q_LONGLONG(0);
+    return bytesAvailable();
 }
 
 /*!
