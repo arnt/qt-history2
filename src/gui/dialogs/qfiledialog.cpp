@@ -559,8 +559,7 @@ QDir QFileDialog::directory() const
 }
 
 /*!
-    Selects the given \a filename in both the file dialog and the
-    underlying model.
+    Selects the given \a filename in both the file dialog.
 */
 
 void QFileDialog::selectFile(const QString &filename)
@@ -634,13 +633,13 @@ void QFileDialog::setFilter(const QString &filter)
 }
 
 /*!
-  Sets the \a filters used in the file dialog. Each group
-  of filters must be separated by \c{;;} (\e two semicolons).
+  Sets the \a filters used in the file dialog.
 
   \code
-    QString types("Image files (*.png *.xpm *.jpg);;"
-                  "Text files (*.txt);;"
-                  "Any files (*)");
+    QStringList types;
+    types << "Image files (*.png *.xpm *.jpg)"
+              << "Text files (*.txt)"
+              << "Any files (*)";
     QFileDialog fd = new QFileDialog( this );
     fd->setFilters( types );
     fd->show();
@@ -798,15 +797,6 @@ void QFileDialog::accept()
 }
 
 /*!
-    \reimp
-*/
-
-void QFileDialog::reject()
-{
-    QDialog::reject();
-}
-
-/*!
     \internal
 
     Navigates to the last directory viewed in the dialog.
@@ -848,7 +838,7 @@ void QFileDialog::mkdir()
 {
     QModelIndex parent = d->root();
     QString path = d->model->path(parent);
-    d->lview->clearSelections(); // FIXME: this is because the selection model doesn't use persistent indices yet
+    d->lview->clearSelections(); // FIXME: the selection model doesn't use persistent indices yet
 
     QModelIndex index = d->model->mkdir(parent, "New Folder");
     if (!index.isValid())
@@ -986,21 +976,23 @@ void QFileDialog::fileNameChanged(const QString &text)
     \internal
 
     This is called when the user changes the text in the "Look in"
-    combobox; the new text is passed in \a text. The function updates
-    the model and consequently the file dialog accordingly.
+    combobox; the new text is passed in \a text. The file dialog accordingly.
 */
 
 void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus() && !text.isEmpty()) {
-        QString pth = text.left(text.lastIndexOf('/'));
+        QChar separator = QDir::separator();
+        int key = d->lookInEdit->lastKeyPressed();
+        if (key == separator)
+            return;
+        QString pth = text.left(text.lastIndexOf(separator));
         QModelIndex dirIndex = d->model->index(pth);
-        QString searchText = text.section('/', -1);
+        QString searchText = text.section(separator, -1);
         int rowCount = d->model->rowCount(dirIndex);
         QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
                                                   QAbstractItemModel::Role_Display,
                                                   searchText, rowCount);
-        int key = d->lookInEdit->lastKeyPressed();
         QModelIndex result;
         for (int i = 0; i < indices.count(); ++i) {
             if (d->model->isDir(indices.at(i))) {
@@ -1043,8 +1035,7 @@ void QFileDialog::useFilter(const QString &filter)
     \internal
 
     Changes the file dialog's current directory to the one specified
-    by \a path. This also sets the root of the underlying model to the
-    item holding the \a path.
+    by \a path.
 */
 
 void QFileDialog::setCurrentDir(const QString &path)
@@ -1168,6 +1159,17 @@ void QFileDialog::reload()
 /*!
     \internal
 
+    Sets the current directory to the path showed in the "look in" combobox
+*/
+
+void QFileDialog::lookIn()
+{
+    setDirectory(d->lookIn->currentText());
+}
+
+/*!
+    \internal
+
     Sorts the items in the dialog by name order.
 */
 
@@ -1280,7 +1282,7 @@ void QFileDialogPrivate::setup()
     showHiddenAction = new QAction(tr("Show &hidden files"), q);
     showHiddenAction->setCheckable(true);
 
-
+    // connect signals
     QObject::connect(lview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
                      q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
     QObject::connect(tview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
@@ -1295,7 +1297,6 @@ void QFileDialogPrivate::setup()
     QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
-    // connect signals
     QObject::connect(lview, SIGNAL(doubleClicked(const QModelIndex&, int)),
                      q, SLOT(doubleClicked(const QModelIndex&)));
     QObject::connect(tview, SIGNAL(doubleClicked(const QModelIndex&, int)),
@@ -1313,6 +1314,7 @@ void QFileDialogPrivate::setup()
     QObject::connect(tview->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
                      q, SLOT(headerClicked(int)));
 
+    // labels
     grid->addWidget(new QLabel(tr("Look in:"), q), 0, 0);
     grid->addWidget(new QLabel(tr("File name:"), q), 2, 0);
     grid->addWidget(new QLabel(tr("Files of type:"), q), 3, 0);
@@ -1326,23 +1328,29 @@ void QFileDialogPrivate::setup()
     QObject::connect(reject, SIGNAL(clicked()), q, SLOT(reject()));
     grid->addWidget(reject, 3, 5, Qt::AlignLeft);
 
-    // conboboxes && lineedit
+    // conboboxes && lineedits
     lookIn = new QComboBox(q);
     lookIn->setInsertionPolicy(QComboBox::NoInsertion);
     lookIn->setDuplicatesEnabled(false);
     lookIn->setEditable(true);
+    lookIn->setAutoCompletion(false);
     lookIn->insertItem(QDir::root().absolutePath());
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
+    
     lookInEdit = new QFileDialogLineEdit(lookIn);
     lookIn->setLineEdit(lookInEdit);
     QObject::connect(lookInEdit, SIGNAL(textChanged(const QString&)),
                      q, SLOT(lookInChanged(const QString&)));
+    QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(lookIn()));
+    
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
                      q, SLOT(fileNameChanged(const QString&)));
+    QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
     grid->addWidget(fileName, 2, 2, 1, 3);
+    
     fileType = new QComboBox(q);
     fileType->setDuplicatesEnabled(false);
     fileType->insertStringList(QFileDialog::tr("All Files (*)"));

@@ -137,7 +137,6 @@ public:
 protected:
     void done(int result);
     void accept();
-    void reject();
 
 protected slots:
     void back();
@@ -157,6 +156,7 @@ protected slots:
     void renameCurrent();
     void deleteCurrent();
     void reload();
+    void lookIn();
     void sortByName();
     void sortBySize();
     void sortByDate();
