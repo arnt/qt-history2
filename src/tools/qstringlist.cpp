@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qstringlist.h"
+#include "qstrlist.h"
 #include "qdatastream.h"
 #include "qtl.h"
 
@@ -117,6 +118,8 @@ void QStringList::sort()
   \a allowEmptyEntries is TRUE.
   If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
+
+  \sa join()
 */
 
 QStringList QStringList::split( const QChar &sep, const QString &str, bool allowEmptyEntries )
@@ -134,6 +137,8 @@ QStringList QStringList::split( const QChar &sep, const QString &str, bool allow
   \a allowEmptyEntries is TRUE.
   If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
+
+  \sa join()
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str, bool allowEmptyEntries )
@@ -171,6 +176,8 @@ QStringList QStringList::split( const QString &sep, const QString &str, bool all
   \a allowEmptyEntries is TRUE.
   If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
+
+  \sa join()
 */
 
 QStringList QStringList::split( const QRegExp &sep, const QString &str, bool allowEmptyEntries )
@@ -200,9 +207,10 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str, bool all
 }
 
 /*!
-  Greps in the stringlist for all strings, which contain the string \a expr and returns
-  a stringlist containing all that strings. If \a cs is TRUE, the grep is done case sensitive,
-  else not.
+  Returns a stringlist containing all strings in the list
+  which contain the regular expression \a expr.
+
+  If \a cs is TRUE, the grep is done case sensitively, else not.
 */
 
 QStringList QStringList::grep( const QString &expr, bool cs ) const
@@ -216,8 +224,8 @@ QStringList QStringList::grep( const QString &expr, bool cs ) const
 }
 
 /*!
-  Greps in the stringlist for all strings, which contain the regular expression \a expr and returns
-  a stringlist containing all that strings.
+  Returns a stringlist containing all strings in the list
+  which contain the regular expression \a expr.
 */
 
 QStringList QStringList::grep( const QRegExp &expr ) const
@@ -226,6 +234,24 @@ QStringList QStringList::grep( const QRegExp &expr ) const
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
 	if ( (*it).contains( expr ) )
 	    res << *it;
+
+    return res;
+}
+
+/*!
+  Joins the stringlist into a single string with each element
+  separated by \a sep.
+
+  \sa split()
+*/
+QString QStringList::join( const QString &sep ) const
+{
+    QString res;
+    for ( QStringList::ConstIterator it = begin(); it != end(); ++it ) {
+	if ( !res.isNull() )
+	    res += sep;
+	res += *it;
+    }
 
     return res;
 }
@@ -241,3 +267,15 @@ Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
     return s << (const QValueList<QString>&)l;
 }
 
+
+/*!
+  Converts from a QStrList (ASCII) to a QStringList (Unicode).
+*/
+QStringList QStringList::fromStrList(const QStrList& ascii)
+{
+    QStringList res;
+    const char * s;
+    for ( QStrListIterator it(ascii); (s=it.current()); ++it )
+	res << s;
+    return res;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#17 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#18 $
 **
 ** Definition of QStringList class
 **
@@ -32,6 +32,8 @@
 #include "qregexp.h"
 #endif // QT_H
 
+class QStrList;
+
 class Q_EXPORT QStringList : public QValueList<QString>
 {
 public:
@@ -43,12 +45,14 @@ public:
     QStringList( const char* i ) { append(i); }
 #endif
 
+    static QStringList fromStrList(const QStrList&);
+
     void sort();
-    // ... stringlist-specific convenience functions go here.
 
     static QStringList split( const QString &sep, const QString &str, bool allowEmptyEntries = FALSE );
     static QStringList split(  const QChar &sep, const QString &str, bool allowEmptyEntries = FALSE );
     static QStringList split(  const QRegExp &sep, const QString &str, bool allowEmptyEntries = FALSE );
+    QString join( const QString &sep ) const;
 
     QStringList grep( const QString &expr, bool cs = TRUE ) const;
     QStringList grep( const QRegExp &expr ) const;
