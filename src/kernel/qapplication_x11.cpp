@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#499 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#500 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3232,7 +3232,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     } else {
 	QWidget *widget = this;
 	QWidget *w = QWidget::mouseGrabber();
-	if (!w && qt_button_down)
+	if ( !w && qt_button_down )
 	    w = qt_button_down;
 	if ( w && w != this ) {
 	    widget = w;
@@ -3245,11 +3245,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-	
-	
-
-	QMouseEvent e( type, pos, globalPos, button, state );
-	QApplication::sendEvent( widget, &e );
 
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
@@ -3257,6 +3252,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
 	}
+
+	QMouseEvent e( type, pos, globalPos, button, state );
+	QApplication::sendEvent( widget, &e );
     }
     return TRUE;
 }
