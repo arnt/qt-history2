@@ -886,7 +886,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString destDir = Option::output_dir;
         if (!project->isEmpty("QMAKE_ORIG_DESTDIR"))
             destDir = project->first("QMAKE_ORIG_DESTDIR");
-        destDir = fileInfo(destDir).absoluteFilePath();
+        fixEnvs(destDir);
+        destDir = fileInfo(Option::fixPathToLocalOS(destDir)).absoluteFilePath();
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
         t << "\t\t" << phase_key << " = {\n"
           << "\t\t\tname = \"Project Copy\";\n"
