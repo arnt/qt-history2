@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#272 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#273 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -97,9 +97,16 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
 
   \ingroup realwidgets
 
-  A popup menu ( or pulldown menu) consists of a list of menu items.
-  You add items with insertItem().  An item is either a string, a
-  pixmap or a custom item that provides its own drawing function (see
+  A popup menu widget is a selection menu. It can be both, a pull-down
+  menu in a menu bar or a standalone context menu.  Pull-down menus
+  are shown by the menu bar when the user clicks on the respecitive
+  item or hits the specified shortcut key. Use QMenuBar::insertItem()
+  to insert a popup menu into a menu bar. Show a context menu either
+  asynchronously with popup() or synchronously with exec().
+  
+  Technically, a popup menu consists of a list of menu items. You add
+  items with insertItem().  An item is either a string, a pixmap or a
+  custom item that provides its own drawing function (see
   QCustomMenuItem). In addition, items can have an optional icon drawn
   on the very left side and an accelerator key, like "Ctrl-X".
 
@@ -127,7 +134,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   emits the aboutToShow() signal. You can use this signal to set the
   correct enabled/disabled states of all menu items before the user
   sees it.
-  
+
   You can provide What's This? help for single menu items with
   setWhatsThis(). See QWhatsThis for general information about this
   kind of light-weight online help.
