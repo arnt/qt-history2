@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#146 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#147 $
 **
 ** Definition of QWidget class
 **
@@ -30,10 +30,6 @@ class QWidget : public QObject, public QPaintDevice
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
-    
-    // remove ASAP
-    void setAutoMinimumSize( bool ) {}
-    bool autoMinimumSize() const { return FALSE; }
 
     WId		 winId() const;
 
@@ -132,7 +128,7 @@ public:
 
     PropagationMode palettePropagation() const;
     void	 setPalettePropagation( PropagationMode );
-    
+
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
 
