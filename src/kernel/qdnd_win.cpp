@@ -878,6 +878,8 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 	de.setAction( QDropEvent::Move );
     else if ( *pdwEffect & DROPEFFECT_LINK )
 	de.setAction( QDropEvent::Link );
+    else
+	de.acceptAction();
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
@@ -909,6 +911,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 	de.accept();
     else
 	de.ignore();
+    de.acceptAction(acceptact);
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
