@@ -800,7 +800,7 @@ public:
 	};
 	
 	Char &operator=( const Char & ) {
-abort();
+	    //abort();
 	    return *this;
 	}
 
@@ -1221,7 +1221,7 @@ public:
     QString styleName() const { return style; }
 
     int changed() const { return different; }
-    
+
 private:
     void update();
     void generateKey();
