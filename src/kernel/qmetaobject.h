@@ -53,6 +53,7 @@ public:
 
     int numKeys() const;
     const char *key(int index) const;
+    int value(int index) const;
 
     int keyToValue(const char *key) const;
     const char* valueToKey(int value) const;

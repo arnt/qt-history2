@@ -883,7 +883,7 @@ int QMetaEnum::numKeys() const
     Returns the key with index \a index; or returns 0 if there is no
     such key.
 
-    \sa numKeys()
+    \sa numKeys() value()
 */
 const char *QMetaEnum::key(int index) const
 {
@@ -894,6 +894,23 @@ const char *QMetaEnum::key(int index) const
     if (index >= 0  && index < count)
 	return mobj->d.stringdata + mobj->d.data[data + 2*index];
     return 0;
+}
+
+/*!
+    Returns the value with index \a index; or returns -1 if there is no
+    such value.
+
+    \sa numKeys() key()
+*/
+int QMetaEnum::value(int index) const
+{
+    if (!mobj)
+	return 0;
+    int count = mobj->d.data[handle + 2];
+    int data = mobj->d.data[handle + 3];
+    if (index >= 0  && index < count)
+	return mobj->d.data[data + 2*index + 1];
+    return -1;
 }
 
 
