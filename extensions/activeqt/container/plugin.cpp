@@ -111,6 +111,37 @@ static const char *helpIcon[]={
 ".......a*############a",
 ".......aaaaaaaaaaaaaaa"};
 
+static const char *propIcon[]={
+"22 22 7 1",
+"a c #000000",
+"# c #808080",
+"+ c #aaa5a0",
+"b c #dddddd",
+"* c #d4d0c8",
+"h c #1000ef",
+". c none",
+".........#aa#...#aa#..",
+".........abba...abba..",
+".........abba...abba..",
+".........#aa#...#aa#..",
+"..........aa.....aa...",
+"..........aa.....aa...",
+"..........aa.....aa...",
+".......aaaaaaaaaaaaaaa",
+".......a*************a",
+".......a************#a",
+".......a*hh********+#a",
+".......a*hh*aaaaaa*+#a",
+".......a***********+#a",
+"#aa#...a*hh********+#a",
+"abbaaaaa*hh*aaaaaa*+#a",
+"abbaaaaa***********+#a",
+"#aa#...a*hh********+#a",
+".......a*hh*aaaaaa*+#a",
+".......a***********+#a",
+".......a**++++++++++#a",
+".......a*############a",
+".......aaaaaaaaaaaaaaa"};
 
 class QActiveXPlugin : public QObject,
 		       public QLibraryInterface,
@@ -338,7 +369,7 @@ QAction *QActiveXPlugin::create( const QString &key, QObject *parent )
 	                          "A&xWidget Documentation", 0, actions, "qaxdocu" );
 	connect( actionDocu, SIGNAL(activated()), this, SLOT(onShowDocumentation()) );
 
-	actionDocu = new QAction( "AxWidget Property Pages", QIconSet( helpIcon ),
+	actionDocu = new QAction( "AxWidget Property Pages", QIconSet( propIcon ),
 	                          "A&xWidget Property Pages", 0, actions, "qaxprop" );
 	connect( actionDocu, SIGNAL(activated()), this, SLOT(onShowProperties()) );
 
