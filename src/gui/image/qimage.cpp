@@ -419,6 +419,12 @@ QImage::QImage(int width, int height, Format format)
     d = QImageData::create(QSize(width, height), format, 0);
 }
 
+QImage::QImage(const QSize &size, Format format)
+    : QPaintDevice(QInternal::Image)
+{
+    d = QImageData::create(size, format, 0);
+}
+
 /*!
     Constructs an image with \a w width, \a h height, \a depth bits
     per pixel, \a numColors colors and bit order \a bitOrder.

@@ -61,6 +61,7 @@ public:
     };
 
     QImage();
+    QImage(const QSize &size, Format format);
     QImage(int with, int height, Format format);
 
     QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
