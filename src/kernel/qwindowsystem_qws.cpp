@@ -525,7 +525,9 @@ void QWSServer::doClient( QWSClient *client )
 
 void QWSServer::showCursor()
 {
+#if QT_FEATURE_QWS_CURSOR
     qt_screencursor->show();
+#endif
 }
 
 // ### don't like this
@@ -577,6 +579,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     QWSWindow *win = mouseGrabber ? mouseGrabber : windowAt( pos );
     event.simpleData.window = win ? win->id : 0;
 
+#if QT_FEATURE_QWS_CURSOR
     // Arrow cursor over desktop
     if (!win) {
 	if ( !mouseGrabber )
@@ -584,6 +587,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	else
 	    nextCursor = QWSCursor::systemCursor(ArrowCursor);
     }
+#endif
 
     if ( state && !mouseGrabbing ) {
 	mouseGrabber = win;
@@ -895,6 +899,7 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
 
 void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client )
 {
+#if QT_FEATURE_QWS_CURSOR
     if (cmd->simpleData.height > 64 || cmd->simpleData.width > 64) {
 	qDebug("Cannot define cursor size > 64x64");
 	return;
@@ -910,10 +915,12 @@ void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *clie
 				cmd->simpleData.hotX, cmd->simpleData.hotY);
 
     client->cursors.insert(cmd->simpleData.id, curs);
+#endif
 }
 
 void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client )
 {
+#if QT_FEATURE_QWS_CURSOR
     int id = cmd->simpleData.id;
 //    qDebug( "QWSServer::invokeSelectCursor %d", id);
     QWSCursor *curs = 0;
@@ -945,6 +952,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 	setCursor(curs);
 
     cursorNeedsUpdate = true;
+#endif
 }
 
 void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )

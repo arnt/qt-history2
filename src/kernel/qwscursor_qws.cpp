@@ -6,7 +6,8 @@
 #include "qwindowsystem_qws.h"
 #include "qwscursor_qws.h"
 
-static QWSCursor systemCursorTable[14];
+#if QT_FEATURE_QWS_CURSOR
+static QWSCursor *systemCursorTable[15];
 
 // 16 x 16
 static uchar cur_arrow_bits[] = {
@@ -82,7 +83,7 @@ static uchar cur_blank_bits[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/*
+
 // 20 x 20
 static uchar forbidden_bits[] = {
     0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
@@ -95,7 +96,7 @@ static uchar forbiddenm_bits[] = {
     0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
     0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
     0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
-*/
+
 // 32 x 32
 static uchar wait_data_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -219,115 +220,160 @@ static uchar size_all_mask_bits[] = {
    0x00, 0xc0, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+#endif
 
 void QWSServer::initializeCursor()
 {
     // setup system cursors
-
+#if QT_FEATURE_QWS_CURSOR
     qt_screen->initCursor(sharedram + ramlen,TRUE);
 
-    // 16x16 cursors
-    systemCursorTable[ArrowCursor].set(cur_arrow_bits,
-				    mcur_arrow_bits, 16, 16, 0, 0);
-    systemCursorTable[UpArrowCursor].set(cur_up_arrow_bits,
-				    mcur_up_arrow_bits, 16, 16, 7, 0);
-    systemCursorTable[CrossCursor].set(cur_cross_bits,
-				    mcur_cross_bits, 16, 16, 7, 7);
-    systemCursorTable[IbeamCursor].set(cur_ibeam_bits,
-				    mcur_ibeam_bits, 16, 16, 7, 7);
-    systemCursorTable[SizeVerCursor].set(cur_ver_bits,
-				    mcur_ver_bits, 16, 16, 7, 7);
-    systemCursorTable[SizeHorCursor].set(cur_hor_bits,
-				    mcur_hor_bits, 16, 16, 7, 7);
-    systemCursorTable[SizeBDiagCursor].set(cur_bdiag_bits,
-				    mcur_bdiag_bits, 16, 16, 7, 7);
-    systemCursorTable[SizeFDiagCursor].set(cur_fdiag_bits,
-				    mcur_fdiag_bits, 16, 16, 7, 7);
-    systemCursorTable[BlankCursor].set(cur_blank_bits,
-				    cur_blank_bits, 16, 16, 0, 0);
-
-/* ### uncomment me after merge with 2.1.x adds ForbiddenCursor
-    // 20x20 cursors
-    systemCursorTable[ForbiddenCursor].set(forbidden_bits,
-				    forbiddenm_bits, 20, 20, 10, 10);
-*/
-
-    // 32x32 cursors
-    systemCursorTable[WaitCursor].set(wait_data_bits,
-				    wait_mask_bits, 32, 32, 15, 15);
-    systemCursorTable[SplitVCursor].set(vsplit_bits,
-				    vsplitm_bits, 32, 32, 15, 15);
-    systemCursorTable[SplitHCursor].set(hsplit_bits,
-				    hsplitm_bits, 32, 32, 15, 15);
-    systemCursorTable[SizeAllCursor].set(size_all_data_bits,
-				    size_all_mask_bits, 32, 32, 15, 15);
-    systemCursorTable[PointingHandCursor].set(phand_bits,
-				    phandm_bits, 32, 32, 0, 0);
+    for ( int i = 0; i < LastCursor; i++ )
+	systemCursorTable[i] = 0;
 
     // default cursor
     cursor = QWSCursor::systemCursor(ArrowCursor);
 
-    /*
-    if (probed_card) {
-        probed_card->set_cursor(cursor->image(),
-                                cursor->hotSpot().x(),
-                                cursor->hotSpot().y());
-    }
-    */
-
     setCursor(cursor);
-
+#endif
     setMouse(QPoint(swidth/2, sheight/2), 0);
 }
 
 void QWSServer::setCursor(QWSCursor *curs)
 {
+#if QT_FEATURE_QWS_CURSOR
     //if (cursor == curs)
     //	return;
 
     cursor = curs;
 
-    /*
-    if (probed_card) {
-        probed_card->set_cursor(cursor->image(),
-                                cursor->hotSpot().x(),
-                                cursor->hotSpot().y());
-    }
-    else {
-	qt_set_software_cursor(cursor->image(), cursor->hotSpot().x(), cursor->hotSpot().y());
-    }
-    */
-    
     qt_screencursor->set(cursor->image(),
 			 cursor->hotSpot().x(),
 			 cursor->hotSpot().y());
     qt_screencursor->show();
+#endif
 }
 
 void QWSServer::setMouse(const QPoint& p,int bstate)
 {
+#if QT_FEATURE_QWS_CURSOR
     qt_screencursor->move(p.x(),p.y());
+#endif
     sendMouseEvent( p, bstate );
+}
+
+
+void QWSCursor::createSystemCursor( int id )
+{
+#if QT_FEATURE_QWS_CURSOR
+    switch ( id ) {
+	// 16x16 cursors
+	case ArrowCursor:
+	    systemCursorTable[ArrowCursor] =
+		new QWSCursor(cur_arrow_bits, mcur_arrow_bits, 16, 16, 0, 0);
+	    break;
+	
+	case UpArrowCursor:
+	    systemCursorTable[UpArrowCursor] =
+		new QWSCursor(cur_up_arrow_bits, mcur_up_arrow_bits, 16, 16, 7, 0);
+	    break;
+
+	case CrossCursor:
+	    systemCursorTable[CrossCursor] =
+		new QWSCursor(cur_cross_bits, mcur_cross_bits, 16, 16, 7, 7);
+	    break;
+
+	case IbeamCursor:
+	    systemCursorTable[IbeamCursor] =
+		new QWSCursor(cur_ibeam_bits, mcur_ibeam_bits, 16, 16, 7, 7);
+	    break;
+
+	case SizeVerCursor:
+	    systemCursorTable[SizeVerCursor] =
+		new QWSCursor(cur_ver_bits, mcur_ver_bits, 16, 16, 7, 7);
+	    break;
+
+	case SizeHorCursor:
+	    systemCursorTable[SizeHorCursor] =
+		new QWSCursor(cur_hor_bits, mcur_hor_bits, 16, 16, 7, 7);
+	    break;
+
+	case SizeBDiagCursor:
+	    systemCursorTable[SizeBDiagCursor] =
+		new QWSCursor(cur_bdiag_bits, mcur_bdiag_bits, 16, 16, 7, 7);
+	    break;
+	
+	case SizeFDiagCursor:
+	    systemCursorTable[SizeFDiagCursor] =
+		new QWSCursor(cur_fdiag_bits, mcur_fdiag_bits, 16, 16, 7, 7);
+	    break;
+	
+	case BlankCursor:
+	    systemCursorTable[BlankCursor] =
+		new QWSCursor(cur_blank_bits, cur_blank_bits, 16, 16, 0, 0);
+	    break;
+
+	// 20x20 cursors
+	case ForbiddenCursor:
+	    systemCursorTable[ForbiddenCursor] =
+		new QWSCursor(forbidden_bits, forbiddenm_bits, 20, 20, 10, 10);
+	    break;
+
+	// 32x32 cursors
+	case WaitCursor:
+	    systemCursorTable[WaitCursor] =
+		new QWSCursor(wait_data_bits, wait_mask_bits, 32, 32, 15, 15);
+	    break;
+
+	case SplitVCursor:
+	    systemCursorTable[SplitVCursor] =
+		new QWSCursor(vsplit_bits, vsplitm_bits, 32, 32, 15, 15);
+	    break;
+
+	case SplitHCursor:
+	    systemCursorTable[SplitHCursor] =
+		new QWSCursor(hsplit_bits, hsplitm_bits, 32, 32, 15, 15);
+	    break;
+
+	case SizeAllCursor:
+	    systemCursorTable[SizeAllCursor] =
+		new QWSCursor(size_all_data_bits, size_all_mask_bits, 32, 32, 15, 15);
+	    break;
+
+	case PointingHandCursor:
+	    systemCursorTable[PointingHandCursor] =
+		new QWSCursor(phand_bits, phandm_bits, 32, 32, 0, 0);
+	    break;
+
+	default:
+	    qWarning( "Unknown system cursor %d", id );
+    }
+#endif
 }
 
 QWSCursor *QWSCursor::systemCursor(int id)
 {
     QWSCursor *cursor = 0;
-
+#if QT_FEATURE_QWS_CURSOR
     if (id >= 0 && id <= LastCursor) {
-	cursor = &systemCursorTable[id];
+	if ( !systemCursorTable[id] )
+	    createSystemCursor(id);
+	cursor = systemCursorTable[id];
     }
 
     if (cursor == 0) {
-	cursor = &systemCursorTable[ArrowCursor];
+	if ( !systemCursorTable[ArrowCursor] )
+	    createSystemCursor(ArrowCursor);
+	cursor = systemCursorTable[ArrowCursor];
     }
-
+#endif
     return cursor;
 }
 
 void QWSCursor::set(const uchar *data, const uchar *mask,
 		    int width, int height, int hx, int hy)
 {
+#if QT_FEATURE_QWS_CURSOR
     hot.setX(hx);
     hot.setY(hy);
 
@@ -379,11 +425,13 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 	    createDropShadow(8, 4);
 	}
     }
+#endif
 }
 
 // ### now we're really silly
 void QWSCursor::createDropShadow(int dropx, int dropy)
 {
+#if QT_FEATURE_QWS_CURSOR
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
 	return;
 
@@ -418,5 +466,6 @@ void QWSCursor::createDropShadow(int dropx, int dropy)
     }
 
     cursor = drop;
+#endif
 }
 

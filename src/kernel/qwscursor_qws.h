@@ -48,6 +48,7 @@ public:
     static QWSCursor *systemCursor(int id);
 
 private:
+    static void createSystemCursor( int id );	
     void createDropShadow(int dropx, int dropy);
 
 private:

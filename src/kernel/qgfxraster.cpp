@@ -3518,6 +3518,14 @@ extern bool qws_smoothfonts;
 
 QScreen::QScreen()
 {
+}
+
+QScreen::~QScreen()
+{
+}
+
+void QScreen::connect()
+{
     fd=open("/dev/fb0",O_RDWR);
     if(fd<0) {
 	qFatal("Can't open framebuffer device");
@@ -3586,7 +3594,7 @@ QScreen::QScreen()
     }
 }
 
-QScreen::~QScreen()
+void QScreen::disconnect()
 {
     munmap((char*)data,mapsize);
     close(fd);
@@ -3713,7 +3721,8 @@ bool QScreen::initCard()
 void QScreen::shutdownCard()
 {
     // Set back the original mode
-    qt_screencursor->hide();
+    if ( qt_sw_cursor )
+	qt_screencursor->hide();
 
     // Causing crashes. Not needed.
     //setMode(startupw,startuph,startupd);
@@ -3863,6 +3872,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #elif defined(QWS_VOODOO)
 
 #include "qgfxvoodoo.cpp"
+
+#elif defined(QWS_VFB)
+
+#include "qgfxvfb.cpp"
 
 #else
 
