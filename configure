@@ -681,17 +681,26 @@ case "$QCONFIG" in
     echo >&2 "No such configuration: $QCONFIG"
     HELP=yes
 esac
-chmod +w src/tools/qconfig.h   # KLUDGE - shouldn't be in p4 depot
+rm -f src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
 case "$QCONFIG" in
   full)
-    echo "// Everything" >src/tools/qconfig.h
+    echo "// Everything" >src/tools/qconfig.h.new
     ;;
   *)
     QCONFIGFILE=qconfig-$QCONFIG.h
-    echo "// Copied from $QCONFIGFILE" >src/tools/qconfig.h
-    cat src/tools/$QCONFIGFILE >>src/tools/qconfig.h
+    echo "// Copied from $QCONFIGFILE" >src/tools/qconfig.h.new
+    cat src/tools/$QCONFIGFILE >>src/tools/qconfig.h.new
     ;;
 esac
+QCONF_CHANGES=`diff src/tools/qconfig.h src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
+then
+    rm -f src/tools/qconfig.h.new
+else
+    [ -f src/tools/qconfig.h ] && chmod +w src/tools/qconfig.h
+    mv src/tools/qconfig.h.new src/tools/qconfig.h
+    chmod -w src/tools/qconfig.h
+fi
 
 # Next, emit a usage message if something failed.
 
