@@ -264,6 +264,13 @@ int main( int argc, char * argv[] )
 	return 1;
     }
 
+    QDomElement e = doc.firstChild().toElement();
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.2 ) {
+	qWarning( QString("uic: File generated with too recent version of Qt Designer (%s vs. %s)"),
+		  e.attribute("version").latin1(), QT_VERSION_STR );
+	return 1;
+    }
+
     DomTool::fixDocument( doc );
 
     if ( fix ) {
