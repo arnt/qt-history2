@@ -102,6 +102,7 @@ public:
         forceGdiplus(false),
         noNativeXform(false),
         advancedMode(false),
+        ellipseHack(false),
         penStyle(Qt::SolidLine),
         brushStyle(Qt::SolidPattern),
         pWidth(0),
@@ -132,6 +133,7 @@ public:
     uint forceGdiplus:1;
     uint noNativeXform:1;
     uint advancedMode:1;        // Set if running in advanced graphics mode
+    uint ellipseHack:1;         // Used to work around ellipse bug in GDI
 
     Qt::PenStyle penStyle;
     Qt::BrushStyle brushStyle;

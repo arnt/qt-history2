@@ -381,6 +381,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     setDirty(DirtyBackground);
 
+    d->ellipseHack = false;
+
     return true;
 }
 
@@ -607,10 +609,35 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         return;
     }
 
-    // Fall back to path implementation for gradient and alpha brushes..
-    QPainterPath p;
-    p.addEllipse(r);
-    drawPath(p);
+    if ((d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255)
+        || d->brushStyle == Qt::LinearGradientPattern) {
+        QPainterPath path;
+        path.addEllipse(r.x(), r.y(), r.width(), r.height());
+        drawPath(path);
+    }
+
+    // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
+    // so make sure it is the case.
+    if (!d->ellipseHack) {
+        QMatrix oldMatrix = d->matrix;
+        updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+        updateMatrix(oldMatrix);
+        d->ellipseHack = true;
+    }
+
+    HGDIOBJ oldPen;
+    int reduction = 0;
+    if (d->penStyle == Qt::NoPen) {
+        // ellipse outlines look so much better that this is worth it
+        oldPen = SelectObject(d->hdc, CreatePen(PS_SOLID, 0, d->bColor));
+        reduction = 1;
+    }
+
+    Ellipse(d->hdc, r.x(), r.y(), r.x() + r.width() - reduction, r.y() + r.height() - reduction);
+
+    // Restore the state and delete the temporary pen.
+    if (d->penStyle == Qt::NoPen)
+        DeleteObject(SelectObject(d->hdc, oldPen));
 }
 
 void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
@@ -1238,6 +1265,8 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
     d->matrix = mtx;
 
+    printf("txop: %d\n", d->txop);
+
     XFORM m;
     if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
@@ -1710,6 +1739,7 @@ typedef int (__stdcall *PtrGdipSetClipRegion) (QtGpGraphics *, QtGpRegion *, int
 typedef int (__stdcall *PtrGdipSetClipPath) (QtGpGraphics *, QtGpPath *, int);
 typedef int (__stdcall *PtrGdipResetClip) (QtGpGraphics *);
 typedef int (__stdcall *PtrGdipSetSmoothingMode)(QtGpGraphics *, int);
+typedef int (__stdcall *PtrGdipSetPixelOffsetMode)(QtGpGraphics *, int);
 typedef int (__stdcall *PtrGdipFillEllipse) (QtGpGraphics *, QtGpBrush *,
                                              float x, float y, float w, float h);
 typedef int (__stdcall *PtrGdipFillRectangle) (QtGpGraphics *, QtGpBrush *,
@@ -1799,6 +1829,7 @@ static PtrGdipResetClip GdipResetClip = 0;                   // Graphics::ResetC
 static PtrGdipSetClipRegion GdipSetClipRegion = 0;           // Graphics::SetClipRegion(region)
 static PtrGdipSetClipPath GdipSetClipPath = 0;               // Graphics::SetClipPath(path)
 static PtrGdipSetSmoothingMode GdipSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
+static PtrGdipSetPixelOffsetMode GdipSetPixelOffsetMode = 0; // Graphics::SetPixelOffsetMode(mode)
 static PtrGdipSetTransform GdipSetTransform = 0;             // Graphics::SetTransform(matrix)
 static PtrGdipDrawDriverString GdipDrawDriverString = 0;     // Graphics::DrawDriverString(...)
 
@@ -1872,6 +1903,7 @@ static void qt_resolve_gdiplus()
     GdipSetClipPath              = (PtrGdipSetClipPath)        lib.resolve("GdipSetClipPath");
     GdipResetClip                = (PtrGdipResetClip)          lib.resolve("GdipResetClip");
     GdipSetSmoothingMode         = (PtrGdipSetSmoothingMode)   lib.resolve("GdipSetSmoothingMode");
+    GdipSetPixelOffsetMode       = (PtrGdipSetPixelOffsetMode) lib.resolve("GdipSetPixelOffsetMode");
     GdipFillEllipse              = (PtrGdipFillEllipse)        lib.resolve("GdipFillEllipse");
     GdipFillPath                 = (PtrGdipFillPath)           lib.resolve("GdipFillPath");
     GdipFillPolygon              = (PtrGdipFillPolygon)        lib.resolve("GdipFillPolygon");
@@ -1943,6 +1975,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipSetClipPath);
     Q_ASSERT(GdipResetClip);
     Q_ASSERT(GdipSetSmoothingMode);
+    Q_ASSERT(GdipSetPixelOffsetMode);
     Q_ASSERT(GdipFillEllipse);
     Q_ASSERT(GdipFillPath);
     Q_ASSERT(GdipFillPolygon);
@@ -2019,6 +2052,23 @@ static const int qt_hatchstyle_map[] = {
 };
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *ref = 0);
+
+enum QualityMode
+{
+    QualityModeInvalid   = -1,
+    QualityModeDefault   = 0,
+    QualityModeLow       = 1, // Best performance
+    QualityModeHigh      = 2  // Best rendering quality
+};
+
+enum PixelOffsetMode {
+    PixelOffsetModeInvalid     = QualityModeInvalid,
+    PixelOffsetModeDefault     = QualityModeDefault,
+    PixelOffsetModeHighSpeed   = QualityModeLow,
+    PixelOffsetModeHighQuality = QualityModeHigh,
+    PixelOffsetModeNone,    // No pixel offset
+    PixelOffsetModeHalf     // Offset by -0.5, -0.5 for fast anti-alias perf
+};
 
 QGdiplusPaintEngine::QGdiplusPaintEngine()
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate))
@@ -2248,20 +2298,13 @@ void QGdiplusPaintEngine::drawLine(const QLineF &line)
     }
 }
 
-#define QT_GDIPLUS_SUBTRACT (d->usePen || ((d->renderhints & QPainter::LineAntialiasing) != 0) ? 1 : 0);
-
 void QGdiplusPaintEngine::drawRect(const QRectF &r)
 {
-    int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
-//         d->graphics->FillRectangle(d->brush, r.x(), r.y(),
-//                                    r.width()-subtract, r.height()-subtract);
-        GdipFillRectangle(d->graphics, d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipFillRectangle(d->graphics, d->brush, r.x(), r.y(), r.width(), r.height());
     }
     if (d->usePen) {
-//         d->graphics->DrawRectangle(d->pen, r.x(), r.y(),
-//                                    r.width()-subtract, r.height()-subtract);
-        GdipDrawRectangle(d->graphics, d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+        GdipDrawRectangle(d->graphics, d->pen, r.x(), r.y(), r.width(), r.height());
     }
 }
 
@@ -2273,16 +2316,15 @@ void QGdiplusPaintEngine::drawPoint(const QPointF &p)
 
 void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
 {
-    int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
-//         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+//         d->graphics->FillEllipse(d->brush, r.x(), r.y(), r.width(), r.height());
         GdipFillEllipse(d->graphics, d->brush, r.x(), r.y(),
-                         r.width()-subtract, r.height()-subtract);
+                         r.width(), r.height());
     }
     if (d->usePen) {
-//         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width()-subtract, r.height()-subtract);
+//         d->graphics->DrawEllipse(d->pen, r.x(), r.y(), r.width(), r.height());
         GdipDrawEllipse(d->graphics, d->pen, r.x(), r.y(),
-                         r.width()-subtract, r.height()-subtract);
+                         r.width(), r.height());
     }
 }
 
@@ -2368,7 +2410,14 @@ void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 
 void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    GdipSetSmoothingMode(d->graphics, hints & QPainter::LineAntialiasing ? 2 : 1 );
+    // We switch the pixel offset mode to avoid antialiased edges on rect fills.
+    if (hints & QPainter::LineAntialiasing) {
+        GdipSetSmoothingMode(d->graphics, 2);
+        GdipSetPixelOffsetMode(d->graphics, PixelOffsetModeHalf);
+    } else {
+        GdipSetPixelOffsetMode(d->graphics, PixelOffsetModeDefault);
+        GdipSetSmoothingMode(d->graphics, 1);
+    }
 
     // QPaintEngine::setRenderHints() gets called on QWin32PaintEngine so
     // we make our own local copy..
