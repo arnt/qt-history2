@@ -144,15 +144,6 @@ public:
 #endif
 
     void clipboardChanged();
-
-    //pending matthias' opinions..
-    inline void slotClear() { q_func()->clear(); }
-    inline void slotSelectAll() { q_func()->selectAll(); }
-    inline void slotUndo() { q_func()->undo(); }
-    inline void slotRedo() { q_func()->redo(); }
-    inline void slotCut() { q_func()->cut(); }
-    inline void slotCopy() { q_func()->copy(); }
-    inline void slotPaste() { q_func()->paste(); }
 };
 
 

@@ -1934,25 +1934,25 @@ void QLineEditPrivate::init(const QString& txt)
     cursor = text.length();
 
     actions[UndoAct] = new QAction(q->tr("&Undo") + ACCEL_KEY(Z), q);
-    QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(slotUndo()));
+    QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(undo()));
     actions[RedoAct] = new QAction(q->tr("&Redo") + ACCEL_KEY(Y), q);
-    QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(slotRedo()));
+    QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(redo()));
     //popup->insertSeparator();
     actions[CutAct] = new QAction(q->tr("Cu&t") + ACCEL_KEY(X), q);
-    QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(slotCut()));
+    QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(cut()));
     actions[CopyAct] = new QAction(q->tr("&Copy") + ACCEL_KEY(C), q);
-    QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(slotCopy()));
+    QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(copy()));
     actions[PasteAct] = new QAction(q->tr("&Paste") + ACCEL_KEY(V), q);
-    QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(slotPaste()));
+    QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
     actions[ClearAct] = new QAction(q->tr("Clear"), q);
-    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(slotClear()));
+    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(clear()));
     //popup->insertSeparator();
     actions[SelectAllAct] = new QAction(q->tr("Select All")
 #ifndef Q_WS_X11
                                         + ACCEL_KEY(A)
 #endif
                                         , q);
-    QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(slotSelectAll()));
+    QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(selectAll()));
 }
 
 void QLineEditPrivate::updateTextLayout()

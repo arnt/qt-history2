@@ -114,13 +114,9 @@ public:
     bool hasAcceptableInput() const;
 
 public slots:
-     void setText(const QString &);
-
-public:
+    void setText(const QString &);
     void clear();
     void selectAll();
-    void deselect();
-    void insert(const QString &);
     void undo();
     void redo();
 #ifndef QT_NO_CLIPBOARD
@@ -128,6 +124,10 @@ public:
     void copy() const;
     void paste();
 #endif
+
+public:
+    void deselect();
+    void insert(const QString &);
 
 signals:
     void textChanged(const QString &);
@@ -181,14 +181,6 @@ public:
 
 private:
     Q_PRIVATE_SLOT(void clipboardChanged())
-
-    Q_PRIVATE_SLOT(void slotClear())
-    Q_PRIVATE_SLOT(void slotSelectAll())
-    Q_PRIVATE_SLOT(void slotUndo())
-    Q_PRIVATE_SLOT(void slotRedo())
-    Q_PRIVATE_SLOT(void slotCut())
-    Q_PRIVATE_SLOT(void slotCopy())
-    Q_PRIVATE_SLOT(void slotPaste())
 
 #if defined(Q_DISABLE_COPY)
     QLineEdit(const QLineEdit &);
