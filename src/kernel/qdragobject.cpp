@@ -1425,7 +1425,7 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
     else if (r.length() == 2 && !(r[0].isLetter() && r[1] == ':'))
 	return QCString();
 #else
-    if (!(r.length() >= 1 && r[0] == '/')))
+    if (!(r.length() >= 1 && r[0] == '/'))
 	return QCString();
 #endif
     
