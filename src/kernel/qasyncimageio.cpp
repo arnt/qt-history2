@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#10 $
 **
 ** Implementation of movie classes
 **
@@ -625,7 +625,8 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		    }
 		    needfirst=TRUE;
 		} else if (code==end_code) {
-		    state=ImageDataBlockSize;
+		    bitcount = -32768;
+		    // Left the block end arrive
 		} else {
 		    if (needfirst) {
 			firstcode=oldcode=code;
