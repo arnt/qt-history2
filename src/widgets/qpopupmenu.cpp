@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#158 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -57,6 +57,9 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 // members in 2.0
 static QPopupMenu * syncMenu;
 static int syncMenuId;
+
+// Used to detect motion prior to mouse-release
+static int motion;
 
 // used to provide ONE single-shot timer
 static QTimer * singleSingleShot = 0;
@@ -564,6 +567,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	y = 0;
     move( x, y );
     show();
+    motion=0;
 }
 
 /*!
@@ -1297,7 +1301,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !mouseBtDn && !parentMenu && actItem < 0 )
+    if ( !mouseBtDn && !parentMenu && actItem < 0 && motion < 5 )
 	return;
 
     mouseBtDn = FALSE;
@@ -1332,6 +1336,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
+    motion++;
     if ( parentMenu && parentMenu->isPopupMenu &&
 	 (parentMenu->actItem != ((QPopupMenu *)parentMenu)->popupActive ) ) {
 	// hack it to work: if there's a parent popup, and its active
