@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#421 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#422 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -234,6 +234,21 @@ int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 Window 	qt_window_for_button_down = 0; // the window which receives the mouse events
+
+struct QScrollInProgress {
+    static long serial;
+    QScrollInProgress( QWidget* w, int x, int y ) :
+	id( serial++ ), scrolled_widget( w ), dx( x ), dy( y )
+    {
+    }
+
+    long id;
+    QWidget* scrolled_widget;
+    int dx, dy;
+};
+long QScrollInProgress::serial=0;
+static QList<QScrollInProgress> *sip_list = 0;
+
 
 // stuff in tq_xdnd.cpp
 // setup
@@ -982,6 +997,11 @@ void qt_cleanup()
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
+
+    if ( sip_list ) {
+	delete sip_list;
+	sip_list = 0;
+    }
 
     if ( !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
@@ -3566,21 +3586,8 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 }
 #endif
 
-struct QScrollInProgress {
-    static long serial;
-    QScrollInProgress( QWidget* w, int x, int y ) :
-	id( serial++ ), scrolled_widget( w ), dx( x ), dy( y )
-    {
-    }
 
-    long id;
-    QWidget* scrolled_widget;
-    int dx, dy;
-};
-
-long QScrollInProgress::serial=0;
-
-static QList<QScrollInProgress> *sip_list = 0;
+// declared above: static QList<QScrollInProgress> *sip_list = 0;
 
 void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
 {

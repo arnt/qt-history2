@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#145 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#146 $
 **
 ** Implementation of QFileDialog class
 **
@@ -143,6 +143,8 @@ static void cleanup() {
     multiColumnListViewIcon = 0;
     delete cdToParentIcon;
     cdToParentIcon = 0;
+    delete fifteenTransparentPixels;
+    fifteenTransparentPixels = 0;
     delete tmpString;
     tmpString = 0;
     delete workingDirectory;
