@@ -32,9 +32,6 @@ typedef int Q_PIPE;
 class QSocketNotifier;
 class QWindowsPipeWriter;
 class QTimer;
-#ifdef Q_WS_WIN
-class QWindowsPipeWriter;
-#endif
 
 class QProcessPrivate : public QIODevicePrivate
 {
@@ -103,9 +100,6 @@ public:
 
     void cleanup();
 
-#ifdef Q_WS_WIN
-    QWindowsPipeWriter *pipeWriter;
-#endif
 };
 
 #endif
