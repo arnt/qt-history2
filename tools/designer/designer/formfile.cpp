@@ -169,11 +169,6 @@ QString FormFile::code()
     return txt;
 }
 
-bool FormFile::load()
-{
-    return FALSE;
-}
-
 bool FormFile::save( bool withMsgBox )
 {
     if ( !formWindow() )
@@ -495,7 +490,7 @@ void FormFile::syncCode()
 
 void FormFile::checkTimeStamp()
 {
-    if ( timeStamp.isUpToDate() )
+    if ( !seperateSource || timeStamp.isUpToDate() )
 	return;
     timeStamp.update();
     if ( codeEdited ) {

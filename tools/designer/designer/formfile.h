@@ -58,7 +58,7 @@ public:
     QString code();
     bool isCodeEdited() const;
 
-    bool load();
+    bool loadCode();
     bool save( bool withMsgBox = TRUE );
     bool saveAs();
     bool close();
@@ -89,7 +89,6 @@ private:
     void setFormWindowModified( bool m );
     void setCodeModified( bool m );
     QString codeExtension() const;
-    bool loadCode();
     void parseCode( const QString &txt );
 
 private:
