@@ -612,6 +612,7 @@
     <function type="slot" returnType="MainWindow *">newWindow()</function>
     <function type="slot">saveSettings()</function>
     <function type="slot">saveToolbarSettings()</function>
+    <function type="function" returnType="bool">close( bool )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -278,7 +278,7 @@ int main( int argc, char ** argv )
     delete config;
     config = 0;
 
-    MainWindow *mw = new MainWindow( 0, "Assistant" );
+    MainWindow *mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
 
     if ( server ) {
 	as = new AssistantServer();

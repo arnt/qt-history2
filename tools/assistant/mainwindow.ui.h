@@ -244,6 +244,12 @@ void MainWindow::setObjectsEnabled( bool b )
     helpDock->setEnabled( b );
 }
 
+bool MainWindow::close( bool alsoDelete )
+{
+    saveSettings();
+    return QMainWindow::close( alsoDelete );
+}
+
 void MainWindow::destroy()
 {
     windows->removeRef( this );
@@ -251,7 +257,6 @@ void MainWindow::destroy()
 	delete windows;
 	windows = 0;
     }
-    saveSettings();
 }
 
 void MainWindow::about()
