@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#13 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -426,7 +426,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
-	    setCaret( wm.dx()+cXPos,
+	    setMicroFocusHint( wm.dx()+cXPos,
 		      wm.dy()+cYPos,
 			1, fm.ascent() );
 	}
@@ -648,7 +648,8 @@ QString QMultiLineEdit::markedText() const
 
 
 /*!
-  Returns the text at line number \a line, or 0 if \a line is invalid.
+  Returns the text at line number \a line (possibly the empty string),
+  or a \link QString::operator!() null string\endlink if \a line is invalid.
 */
 
 QString QMultiLineEdit::textLine( int line ) const
@@ -1036,7 +1037,7 @@ void QMultiLineEdit::pageUp( bool mark )
 
 /*
   Scans txt, starting at offset, returning one, setting offset to the
-  start of the next line, 0 if end of text.
+  start of the next line, a null string if end of text.
 
  */
 static QString getOneLine( const QString &txt, uint& offset )
