@@ -800,20 +800,6 @@ bool QPixmap::loadFromData( const QByteArray &buf, const char *format,
 
 /*!
   Saves the pixmap to the file \e fileName, using the image file format
-  \e format.  Returns TRUE if successful, or FALSE if the pixmap could not
-  be saved.
-
-  \sa load(), loadFromData(), imageFormat(), QImage::save(), QImageIO
-*/
-
-bool QPixmap::save( const QString &fileName, const char *format ) const
-{
-    return save( fileName, format, -1 );
-}
-
-
-/*!
-  Saves the pixmap to the file \e fileName, using the image file format
   \e format and a quality factor \e quality.  \e quality must be in the
   range [0,100] or -1.  Specify 0 to obtain small compressed files, 100
   for large uncompressed files and -1 to use the default settings.
