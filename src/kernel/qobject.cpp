@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#32 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#32 $";
 #endif
 
 
@@ -29,14 +29,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#31 $";
   more signals and zero or more slots, and a signal may be connected
   to a slot in any object.
 
-  When an object wants to do whatever it wants do do, it emits a
-  signal and the slot(s) that are connected to that signal get called
-  with the same arguments.
+  When an object has changed in some way that might be interesting, it
+  emits a signal to tell whoever is interested.  If that signal is
+  connected to any slots, those slots get called.
 
-  Ie. the calling or emitting object doesn't need to know or care what
-  slot the signal is connected to.  It works much like the traditional
-  callback mechanism, but it isn't necessary to write null pointer
-  checks or for loops all the time.
+  That is. the calling or emitting object doesn't need to know or care
+  what slot the signal is connected to.  It works much like the
+  traditional callback mechanism, but it isn't necessary to write null
+  pointer checks or for loops all the time.
 
   QScrollBar is a good example.  In order to use it, you create a
   scroll bar, connect its newValue() signal to a slot which
@@ -44,7 +44,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#31 $";
   e.g.  QScrollBar::nextLine() to a suitable slot.  nextLine() is
   useless in most cases but if you need it, it's there.
 
-  \todo actual code example */
+  */
 
 /*! \fn QMetaObject *QObject::metaObject() const
   Returns a pointer to this object's meta object.  The meta object is
@@ -129,19 +129,24 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#31 $";
 
 /* Remove white space from SIGNAL and SLOT names */
 
-static char *rmWS( char *dest, const char *src )
+static QString rmWS( const char *src )
 {
-    register char *d = dest;
+    QString tmp( strlen( src ) + 1 );
+    register char *d = tmp.data();
     register char *s = (char *)src;
+    while( *s && isspace(*s) )
+        s++;
     while ( *s ) {
-	if ( !isspace(*s) )
-	    *d++ = *s;
-	s++;
+        while( *s && !isspace(*s) )
+	    *d++ = *s++;
+        while( *s && isspace(*s) )
+            s++;
+        if ( *s && ( isalpha(*s) || *s == '_' ) )
+            *d++ = ' ';
     }
-    *d = '\0';
-    return dest;
+    tmp.truncate( d - tmp.data() );
+    return tmp;
 }
-
 
 // Event functions, implemented in qapp_xxx.cpp
 
@@ -375,7 +380,6 @@ bool QObject::activate_filters( QEvent *e )	// activate event filters
     return stop;				// don't do anything with it
 }
 
-
 void QObject::blockSignals( bool b )
 {
     blockSig = b;
@@ -408,8 +412,7 @@ QConnectionList *QObject::receivers( const char *signal ) const
 {						// get receiver
     if ( connections && signal ) {
 	if ( *signal == '2' ) {
-	    QString s( strlen(signal) );
-	    rmWS( s.data(), signal+1 );
+	    QString s = rmWS( signal+1 );
 	    return connections->find( s );	    
 	}
 	else
@@ -540,9 +543,9 @@ bool QObject::connect( QObject *sender,         const char *signal,
 #endif
     QString signal_tmp( strlen(signal)+1 );
     QString member_tmp( strlen(member)+1 );
-    rmWS( signal_tmp.data(), signal );		// strip white space
+    signal_tmp = rmWS( signal );		// strip white space
     signal = signal_tmp;
-    rmWS( member_tmp.data(), member );
+    member_tmp = rmWS( member );
     member = member_tmp;
 
     QMetaObject *smeta = sender->queryMetaObject();
@@ -638,7 +641,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
     QObject *r = (QObject *)receiver;
     if ( member ) {
 	member_tmp.resize( strlen(member)+1 );
-	rmWS( member_tmp.data(), member );
+	member_tmp = rmWS( member );
 	member = member_tmp.data();
 	int membcode = member[0] - '0';
 #if defined(CHECK_RANGE)
@@ -690,7 +693,7 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 
     else {					// specific signal
 	signal_tmp.resize( strlen(signal)+1 );
-	rmWS( signal_tmp.data(), signal );
+	signal_tmp = rmWS( signal );
 	signal = signal_tmp.data();
 #if defined(CHECK_RANGE)
         if ( !check_signal_macro( sender, signal, "disconnect", "unbind" ) )
@@ -878,3 +881,229 @@ void QObject::dumpObjectInfo()
 	debug( "\t<None>" );
 #endif
 }
+
+/*! \page metaobjects.html
+
+<title>
+Qt toolkit - Meta Object Compiler description
+</title></head><body>
+
+<h1>Signals, slots and the Meta Object Compiler</h1>
+
+Signals and slots are used for communication between objects.  The
+signal/slot mechanism is a central feature of Qt, and is implemented
+using <dfn>moc</dfn> (Meta Object Compiler) and some preprocessor
+defines.
+
+<h2>Usage</h2>
+
+Syntactically, signals and slots are categories much like private or
+public.  <strong>EIRIK! EIRIK!</strong>
+
+<p>
+
+The preprocessor changes the <code>signals:</code> and
+<code>slots:</code> keywords so the compiler won't see anything it
+can't digest.
+
+<p>
+
+Meta objects require one additional Makefile rule per class and one
+additional C++ source file.  Inside Qt, we have chosen to name the
+meta-source files m*.cpp, the * is derived from the header file name.
+So for QLCDNumber we have one header file, <code>qlcdnum.h</code>, one
+moc-generated C++ file, <code>mlcdnum.cpp</code> and one real source
+file, <code>qlcdnum.cpp</code>.  <code>mlcdnum.cpp</code> is generated
+by this rule:
+
+<pre>
+    mlcdnum.cpp: qlcdnum.h
+    	..somewhere../bin/moc qlcdnum.h -o mlcdnum.cpp
+</pre>
+
+Both C++ files are compiled and linked in the usual way.
+
+<h2>Signals</h2>
+
+Signals are emitted by an object when its internal state has changed
+in some way that might be interesting to the object's client or owner.
+
+<p>
+
+A scrollbar, for instance, sends out a signal when presses the mouse
+button to move the scrollbar by hand.  It isn't always interesting,
+but sometimes it is.  If the signal is intersting to two different
+widgets (for instance, one widget to show the value numerically, one
+to do an action) you just connect the signal to slots in both widgets.
+
+<h2>Slots</h2>
+
+A slot is called when a signal connected to it is emitted.
+
+<p>
+
+Slots take the place of designated callback functions in traditional
+toolkits.  Slots are better than callbacks because a slot can find out
+which object activated it, because Qt does strict argument type
+checking, and finally because it's very wordy to program flexible
+callbacks by hand.
+
+<p>
+
+Signals and slots are fairly efficient.  Of course there's some loss
+of speed compared to "real" callbacks due to the increased
+flexibility, but the loss is fairly small, we measured it to
+approximately 50 microseconds on a SPARC 2, so the simplicity and
+flexibility the mechanism affords is well worth it.
+
+<h2>The Qt Meta Object Compiler</h2>
+
+The meta object compiler (moc) parses a C++ header file and generates
+C++ code that initializes the meta object. The meta object contains
+names of all signal and slot members, as well as pointers to these
+functions.
+
+<h2>Example</h2>
+
+Here is a simple commented example (butchered from qlcddum.h).  Unlike
+most of the Qt documentation, this isn't peppered with links, so if
+you want to read about <a href=qlcdnum.html>QLCDNumber</a> or any of
+its parent classes please do it now, before you go through the
+example.
+
+<pre>
+    #include "qframe.h"
+    #include "qbitarry.h"
+
+    class QLCDNumber : public QFrame
+</pre>
+
+QLCDNumber inherits QObject, which has most of the signal/slot
+knowledge, via QFrame and QWidget, and #include's the relevant
+declarations.
+
+<pre>
+    {
+        Q_OBJECT
+</pre>
+
+Q_OBJECT is expanded by the preprocessor to declare several member
+functions that are implemented by the moc; if you get compiler errors
+along the lines of "virtual function QButton::className not defined"
+you have probably forgotten to mention Q_OBJECT and run the moc.
+
+<pre>
+    public:
+        QLCDNumber( QWidget *parent=0, const char *name=0 );
+        QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
+       ~QLCDNumber();
+</pre>
+
+It's not obviously relevant to to the moc, but if you inherit QWidget
+you almost certainly want to have <em>parent</em> and <em>name</em>
+arguments to your constructors, and pass them to the parent
+constructor.  You have to have a destructor with no arguments since
+QObject has one and it's virtual.
+
+<p>
+
+Some member functions are omitted here, the moc ignores member
+functions.
+
+<pre>
+    signals:
+        void    overflow();
+</pre>
+
+QLCDNumber emits a signal when it is asked to show an impossible value.
+
+<p>
+
+"But I don't care about overflow," or "But I know the number won't
+overflow."  Very well, then you don't connect the signal to any slot,
+and everything will be fine.
+
+<p>
+
+"But I want to call two different error functions when the number
+overflows."  Then you connect the signal to two different slots.  Qt
+will call both (in arbitrary order).
+
+<pre>
+    slots:
+        void    display( int num );
+        void    display( long num );
+        void    display( float num );
+        void    display( double num );
+        void    display( const char *str );
+        void    setMode( Mode );
+        void    smallDecimalPoint( bool );
+</pre>
+
+A slot is a receiving function, used to get information about state
+changes in other widgets.  QLCDNumber uses it, as you can see, to set
+the displayed number.  Several of the example program connect the
+newValue signal of a QScrollBar to the display slot, so the LCD number
+continuously shows the value of the scroll bar.
+
+<p>
+
+(Note that display() is overloaded; Qt will select the appropriate
+version when you connect a signal to the slot.  With callbacks, you'd
+have to find five different names and keep track of the types
+yourself.)
+
+<p>
+
+Some more irrelevant member functions have been omitted from this
+example.
+
+<pre>
+    };
+</pre>
+
+<h2>Moc output</h2>
+
+This is really internal to Qt, but for the curious, here is the meat
+of the resulting mlcdnum.cpp:
+
+<pre>
+    const char *QLCDNumber::className() const
+    {
+        return "QLCDNumber";
+    }
+    
+    QMetaObject *QLCDNumber::metaObj = 0;
+    
+    void QLCDNumber::initMetaObject()
+    {
+        if ( metaObj )
+    	return;
+        if ( !QFrame::metaObject() )
+    	QFrame::initMetaObject();
+</pre>
+
+That last line is because QLCDNumber inherits QFrame.  The next part,
+which sets up the table/signal structures, has been deleted for
+brevity.
+
+<pre>
+    }
+    
+    // SIGNAL overflow
+    void QLCDNumber::overflow()
+    {
+        activate_signal( "overflow()" );
+    }
+</pre>
+
+One function is generated for each signal, and at present it just
+calls activate_signal(), which finds the appropriate slot or slots and
+passes on the call.
+
+<p>
+
+Please don't call activate_signal() directly, we may well move some
+code from activate_signal into the generated signal functions before
+1.0.  More generally, don't use knowledge of Qt's intestines, or risk
+unpredictable results now or later. */
