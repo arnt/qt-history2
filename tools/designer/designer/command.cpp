@@ -2210,6 +2210,8 @@ void AddMenuCommand::execute()
 	popup->setName( n );
 	MetaDataBase::addEntry( popup );
 	mb->insertItem( name, popup, index );
+	index = mb->findItem( popup );
+	item = mb->item( index );
     } else {
 	MetaDataBase::addEntry( item->menu() );
 	mb->insertItem( item, index );
@@ -2219,6 +2221,10 @@ void AddMenuCommand::execute()
 
 void AddMenuCommand::unexecute()
 {
+    if ( !item ) {
+	qWarning( "The AddMenuCommand was created without a menu item." );
+	return;
+    }
     item->menu()->hide();
     int i = mb->findItem( item );
     mb->removeItemAt( i );
