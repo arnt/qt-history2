@@ -1503,7 +1503,7 @@ void QWidget::repaint(const QRegion& rgn)
         QPainter::restoreRedirected(this);
 
     if (double_buffer) {
-        GC gc = qt_xget_temp_gc(d->xinfo.screen(), false);
+        GC gc = XCreateGC(d->xinfo.display(), d->hd, 0, 0);
         QVector<QRect> rects = rgn.rects();
 	if (testAttribute(Qt::WA_PaintUnclipped))
 	    XSetSubwindowMode(X11->display, gc, IncludeInferiors);
@@ -1514,6 +1514,7 @@ void QWidget::repaint(const QRegion& rgn)
                       rr.width(), rr.height(),
                       rr.x(), rr.y());
         }
+        XFreeGC(d->xinfo.display(), gc);
 
         d->hd = old_hd;
         d->xft_hd = old_xft_hd;
@@ -2318,12 +2319,12 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         return;
 
     Display *dpy = X11->display;
-    GC gc = qt_xget_readonly_gc(d->xinfo.screen(), false);
     // Want expose events
     if (w > 0 && h > 0 && !just_update) {
+        GC gc = XCreateGC(dpy, winId(), 0, 0);
         XSetGraphicsExposures(dpy, gc, True);
         XCopyArea(dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
-        XSetGraphicsExposures(dpy, gc, False);
+        XFreeGC(dpy, gc);
     }
 
     if (!valid_rect && !d->children.isEmpty()) {        // scroll children

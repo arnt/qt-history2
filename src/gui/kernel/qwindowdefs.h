@@ -113,8 +113,6 @@ typedef unsigned long  WId;
 Q_GUI_EXPORT Display *qt_xdisplay();
 Q_GUI_EXPORT int         qt_xscreen();
 Q_GUI_EXPORT WId         qt_xrootwin(int scrn = -1); // ### 4.0 add default arg of -1
-Q_GUI_EXPORT GC         qt_xget_readonly_gc(int scrn, bool monochrome);
-Q_GUI_EXPORT GC         qt_xget_temp_gc(int scrn, bool monochrome);
 
 Q_GUI_EXPORT const char *qAppClass();                // get application class
 

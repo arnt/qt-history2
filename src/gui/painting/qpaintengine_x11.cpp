@@ -1540,7 +1540,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
         QBitmap *comb = new QBitmap(sw, sh);
         comb->detach();
-        GC cgc = qt_xget_temp_gc(pixmap.x11Info().screen(), true);   // get temporary mono GC
+        GC cgc = XCreateGC(d->dpy, comb->handle(), 0, 0);
         XSetForeground(d->dpy, cgc, 0);
         XFillRectangle(d->dpy, comb->handle(), cgc, 0, 0, sw, sh);
         XSetBackground(d->dpy, cgc, 0);
@@ -1552,9 +1552,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetStipple(d->dpy, cgc, mask->handle());
         XSetTSOrigin(d->dpy, cgc, -sx, -sy);
         XFillRectangle(d->dpy, comb->handle(), cgc, 0, 0, sw, sh);
-        XSetTSOrigin(d->dpy, cgc, 0, 0);         // restore cgc
-        XSetFillStyle(d->dpy, cgc, FillSolid);
-        XSetClipMask(d->dpy, cgc, XNone);
+        XFreeGC(d->dpy, cgc);
         mask = comb;                            // it's deleted below
 
         XSetClipMask(d->dpy, d->gc, mask->handle());

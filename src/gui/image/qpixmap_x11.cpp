@@ -1690,8 +1690,9 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
 
     }
 
-    XPutImage(dpy, data->hd, qt_xget_readonly_gc(data->xinfo.screen(), false ),
-              xi, 0, 0, 0, 0, w, h);
+    GC gc = XCreateGC(dpy, data->hd, 0, 0);
+    XPutImage(dpy, data->hd, gc, xi, 0, 0, 0, 0, w, h);
+    XFreeGC(dpy, gc);
 
     if (data->optim != BestOptim) {                // throw away image
         qSafeXDestroyImage(xi);
@@ -1809,10 +1810,10 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     } else
 #endif
         {
-            GC gc = qt_xget_temp_gc(scr, false);
+            GC gc = XCreateGC(dpy, pm.handle(), 0, 0);
             XSetSubwindowMode(dpy, gc, IncludeInferiors);
             XCopyArea(dpy, window, pm.handle(), gc, x, y, w, h, 0, 0);
-            XSetSubwindowMode(dpy, gc, ClipByChildren);
+            XFreeGC(dpy, gc);
         }
 
     return pm;
