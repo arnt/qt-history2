@@ -656,10 +656,10 @@ bool QMemoryManager::inFont(FontID id, const QChar& ch) const
 QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
-    if(!font->renderer) {
-	return *(font->defaultGlyph());
-    }
     if ( !font->tree ) {
+	if(!font->renderer) {
+	    return *(font->defaultGlyph());
+	}
 	QChar c = ch;
 	if ( !font->renderer->inFont(c) )
 	    c = ' '; // ### Hope this is inFont()
