@@ -313,6 +313,8 @@ int QProcess::communication() const
 
   \a commFlags is a bitwise OR between the flags defined in \c Communication.
 
+  The default is \c{ Stdin | Stdout | Stderr }.
+
   \sa communication()
 */
 void QProcess::setCommunication( int commFlags )
