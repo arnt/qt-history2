@@ -1938,8 +1938,6 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     switch (m) {
     case PM_TitleBarHeight: {
-	QRect menur = querySubControlMetrics(QStyle::CC_TitleBar, widget,
-					     QStyle::SC_TitleBarSysMenu);
 	ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
 	if ( widget )
 	    ret = QMAX( ret, widget->fontMetrics().lineSpacing() );
