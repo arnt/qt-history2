@@ -273,7 +273,7 @@ public:
 /*!  Adds a database to the list of database connections using the
   driver \a type and the connection name \a connectionName.
 
-  The database connection is referred to by \connectionName.  A
+  The database connection is referred to by \a connectionName.  A
   pointer to the newly added database connection is returned.  This
   pointer is owned by QSqlDatabase and will be deleted on program exit
   or when removeDatabase() is called.  If \a connectionName is not
