@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#203 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#202 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#203 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -121,8 +121,9 @@ typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static int	qt_x_errhandler( Display *, XErrorEvent * );
-static int	qt_xio_errhandler( Display * );
+// commented out until comeau c++ toes the line
+// static int	qt_x_errhandler( Display *, XErrorEvent * );
+// static int	qt_xio_errhandler( Display * );
 
 static void	cleanupPostedEvents();
 
@@ -151,6 +152,23 @@ public:
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
 };
+
+
+extern "C" {
+    static int qt_x_errhandler( Display *dpy, XErrorEvent *err ) {
+	// default X11 error handler
+	char errstr[256];
+	XGetErrorText( dpy, err->error_code, errstr, 256 );
+	fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
+	return 0;
+    }
+    static int qt_xio_errhandler( Display * ) {	// default X11 IO error handler
+	fatal( "%s: Fatal IO error: client killed", appName );
+	return 0;
+    }
+}
+
+
 
 
 /*****************************************************************************
@@ -378,22 +396,6 @@ void qt_save_rootinfo()				// save new root info
 void qt_updated_rootinfo()
 {
     app_save_rootinfo = TRUE;
-}
-
-
-static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
-{						// default X11 error handler
-    char errstr[256];
-    XGetErrorText( dpy, err->error_code, errstr, 256 );
-    fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
-    return 0;
-}
-
-
-static int qt_xio_errhandler( Display * )	// default X11 IO error handler
-{
-    fatal( "%s: Fatal IO error: client killed", appName );
-    return 0;
 }
 
 
@@ -2227,7 +2229,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, NULL );
+    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
     state = translateButtonState( event->xkey.state );
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
@@ -2305,23 +2307,25 @@ struct PaintEventInfo {
     int	   config;
 };
 
-static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
-{
-    PaintEventInfo *info = (PaintEventInfo *)a;
-    if ( ev->type == Expose || ev->type == GraphicsExpose ) {
-	if ( ev->xexpose.window == info->window )
-	    return TRUE;
-    }
-    else if ( ev->type == ConfigureNotify && info->check ) {
-	XConfigureEvent *c = (XConfigureEvent *)ev;
-	if ( c->window == info->window &&
-	     (c->width != info->w || c->height != info->h) ) {
-	    info->config++;
-	    return TRUE;
+extern "C" {
+    static Bool isPaintEvent( Display *, XEvent *ev, XPointer a ) {
+	PaintEventInfo *info = (PaintEventInfo *)a;
+	if ( ev->type == Expose || ev->type == GraphicsExpose ) {
+	    if ( ev->xexpose.window == info->window )
+		return TRUE;
 	}
+	else if ( ev->type == ConfigureNotify && info->check ) {
+	    XConfigureEvent *c = (XConfigureEvent *)ev;
+	    if ( c->window == info->window &&
+		 (c->width != info->w || c->height != info->h) ) {
+		info->config++;
+		return TRUE;
+	    }
+	}
+	return FALSE;
     }
-    return FALSE;
 }
+
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
