@@ -19,7 +19,7 @@
 # Leave -e set - it ensures we don't miss any vital error messages.
 set -e
 # Use this if something mysterious exits
-set -x
+#set -x
 
 release=HEAD
 
@@ -70,57 +70,38 @@ if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
   exit
 fi
 
-DISTDIR=`p4 fstat //depot/qt/$VERSION/doc.conf |
-    awk '/ clientFile / { gsub("/doc.conf",""); print $3 }'`
-if [ -z "$DISTDIR" ]
+BRANCH=${VERSION%.*}
+LABEL="qt/$VERSION"
+DISTDIR=/tmp/mkdist-$$
+T=`p4 fstat //depot/qt/$BRANCH/doc.conf | awk '/ depotFile / { print $3 }'`
+if [ -z "$T" ]
 then
-    T=`p4 fstat //depot/qt/$VERSION/doc.conf | awk '/ depotFile / { print $3 }'`
-    if [ -z "$T" ]
-    then
-	echo "\"//depot/qt/$VERSION/...\" is not in the depot."
-	echo "Branch it, then restart:"
-	echo "      p4 integrate //depot/qt/main/... //depot/qt/$VERSION/..."
-	echo "      p4 submit"
-    else
-	echo "\"//depot/qt/$VERSION/...\" is not in your client view."
-	echo "Add it, then restart:"
-	echo "      p4 client"
-    fi
+    echo "\"//depot/qt/$BRANCH/...\" is not in the depot." >&2
+    echo "Branch it, then restart:" >&2
+    echo "      p4 integrate //depot/qt/main/... //depot/qt/$BRANCH/..." >&2
+    echo "      p4 submit" >&2
+    exit 1
+fi
+if p4 labels | grep -q "^Label $LABEL "
+then
+    true
+else
+    echo "Label $LABEL does not exist. Create it, using the previous" >&2
+    echo "label as a template.  Current labels can be listed with 'p4 laberls'" >&2
     exit 1
 fi
 
-TMP=/tmp/t$$
+echo "Exporting the entire Qt and tmake depots..." >&2
 
-echo "Ensuring ${DISTDIR} is up-to-date..." >&2
-p4 sync $DISTDIR/...
-set +e
-p4 opened $DISTDIR/... 2>&1 |
-    grep -v 'mkdist.' |
-    grep -v 'not opened on this client' >$TMP
-set -e
-if [ -s $TMP ]
-then
-    echo "Some files are still opened.  Fix these:" >&2
-    cat $TMP >&2
-    rm $TMP
-    exit 1
-fi
-rm $TMP
-
-echo "Checking that ${DISTDIR} is clean..." >&2
-
-set +e
-p4 files $DISTDIR/... | perl -p -e "s{^//depot/qt/$VERSION(.*)#.*}{$DISTDIR\$1}" >$TMP
-BAD=`find $DISTDIR -type f | fgrep -v -f $TMP`
-set -e
-cp $TMP /tmp/t
-rm $TMP
-if [ -n "$BAD" ]
-then
-    echo "Not clean!  Remove these files...";
-    echo "$BAD"
-    exit 1
-fi
+TMPCLIENT=qt-release-tmp-$$
+p4 client -t qt-release-$disttype-$platform -o $TMPCLIENT |
+    perl -p -e "
+s{^(Root:).*}{\$1 $DISTDIR};
+s{/qt/main/}{/qt/$BRANCH/};
+" | p4 -s client -i | egrep -v '^(info|exit):'
+p4 -s -c $TMPCLIENT sync $DISTDIR/...@$LABEL 2>&1 |
+	egrep -v '^(info|exit):'
+p4 -s client -d $TMPCLIENT  2>&1 | egrep -v '^(info|exit):'
 
 # echo "Removing and creating new client repository..." >&2
 # rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
@@ -128,51 +109,15 @@ fi
 
 cd ${DISTDIR}
 
-#if [ "$local" = "yes" ]; then
-#  echo "Copying the local Qt archive (doesn't use CVS)..." >&2
-#  cd ${QTDIR}
-#  cd ..
-#  find qt -path 'qt/doc/html' -prune -o \( \( \( -type f -o -type l \) -a ! \( -perm +011 -a \( -path '*examples*' -o -path '*tutorial*' \) \) \) \) -print | \
-#    egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#|\.debug|moc_|\.moc$' | \
-#    tar cfT - - | ( cd ${DISTDIR} ; tar xf - )
-#  rm -f ${DISTDIR}/qt/include/*
-#  rm -f ${DISTDIR}/qt/bin/moc
-#  rm -f ${DISTDIR}/qt/src/moc/moc
-#else
-#  echo "Exporting the entire Qt and tmake depots..." >&2
-#  cvs -Q export -r$release qt
-#  p4 -c qt-release-$platform sync
-#  export TMAKEDIR=$DISTDIR/tmake
-#  export TMAKEPATH=$TMAKEDIR/lib/linux-g++
-#  export PATH=${TMAKEDIR}/bin:${PATH}
-#fi
+export TMAKEDIR=$DISTDIR/tmake
+export TMAKEPATH=$TMAKEDIR/lib/linux-g++
+export PATH=${TMAKEDIR}/bin:${PATH}
 
 
 # At this point, $DISTDIR is a clean checkout
 
-exit 1 # Use the view to do the stuff below
 
-echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
-###tmake qtinternal.pro -e "Expand('INTERNAL')" | xargs rm -fv
-rm -fv	  dialogs/qdeveloper.h \
-	  dialogs/qtranslatordialog.h \
-	  kernel/qproperty.h \
-	  kernel/qresource.h \
-	  widgets/qdial.h \
-	  widgets/qworkspace.h \
-	  widgets/qworkspacechild.h \
-	  tools/qdom.h \
-	  kernel/qdns.h  \
-	  kernel/qproperty.cpp \
-	  kernel/qresource.cpp \
-	  widgets/qdial.cpp \
-	  widgets/qworkspace.cpp \
-	  widgets/qworkspacechild.cpp \
-	  dialogs/qdeveloper.cpp \
-	  dialogs/qtranslatordialog.cpp \
-	  tools/qxml*.*
-
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for i in ${DISTDIR}/qt/extensions/nsplugin/src/np* ${DISTDIR}/qt/extensions/nsplugin/src/jri*
@@ -193,7 +138,7 @@ case "$SRC_VERSION" in
 ;; *)
     SPECIAL=stable
 esac
-if [ "$VERSION" -ne "$SRC_VERSION" ]
+if [ "$VERSION" != "$SRC_VERSION" ]
 then
     echo "Version mismatch:   qglobal.h: $SRC_VERSION   argument: $VERSION"
     exit 1
@@ -201,15 +146,12 @@ fi
 VERSION_SHORT=`echo ${VERSION} | sed -e 's/\.\(.\).*/.\1/'`
 VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//g'`
 
-echo "Auto-detected the Qt version number -- " $VERSION >&2
-
 if [ -z "$noch" -a ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
 then
     echo "You must create qt/dist/changes-$VERSION first (or run with -noch)"
     V=`sed -e s/[^0-9]//g`
-    echo "Tag the release:  cvs update; cvs tag release-$V"
-    echo "Find the logs:    ./changelog dd/mm/yyyy-previous-release-date >changes-$VERSION"
-    echo "Print the logs:   aprint -w80 -4 changes-$VERSION"
+    echo "Find the logs:    p4 ???? ???? # ./changelog dd/mm/yyyy-previous-release-date >changes-$VERSION"
+    echo "Print the logs:   p4 ???? ???? # aprint -w80 -4 changes-$VERSION"
     exit 1
 fi
 
@@ -217,12 +159,15 @@ QTDIR=${DISTDIR}/qt
 export QTDIR
 
 echo "Create symlinks for Qt header files.." >&2
-${QTDIR}/bin/syncqt
+mkdir -p ${QTDIR}/include
+set +e
+${QTDIR}/bin/syncqt | grep -v '^symlink created'
+set -e
 ###${curdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
 rm -f ${QTDIR}/include/qt.h
 
 if [ "$nodoc" = "yes" ]; then
-  echo "Documentation won't be generated" >& 2
+  echo "Documentation NOT generated" >& 2
   mv -f ${DISTDIR}/qt/doc ${DISTDIR}/qt/src
 else
   echo "Generating documentation" >&2
@@ -268,11 +213,11 @@ find . -name '*_x11.c*' -o -name '*_fb.c*' -o -name '*_mac.c*' -o -name '*_win.c
 
 echo "Generate lex and yacc files for moc..." >&2
 cd ${DISTDIR}/qt/src/moc
-make mocgen.cpp
+make mocgen.cpp >/dev/null
 
 echo "Removing internal makefiles" >&2
 cd ${DISTDIR}/qt
-find . -name GNUmakefile -o -name Makefile | xargs rm -vf
+find . -name GNUmakefile -o -name Makefile | xargs rm -f
 rm -f GNUmakefile.inc Makefile.inc
 
 if [ "${platform}" = "win" ]; then
