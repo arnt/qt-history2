@@ -95,7 +95,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     writeMakeQmake(t);
 
     t << "qmake_all:";
-    if( sdirs.count()) {
+    if( sdirs.count() > 0 ) {
 	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	    QString subdir = *sdirit;
 	    int lastSeparator( 0 );
@@ -118,6 +118,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	    }
 	}
     } else {
+	// Borland make does not like empty an empty command section, so insert
+	// a dummy command.
 	t << "\n\t" << "@cd .";
     }
     t << endl << endl;
@@ -127,19 +129,25 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
         t << targs[x] << ":";
 	if(targs[x] == "install")
 	    t << " qmake_all";
-	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
-	    QString subdir = *sdirit;
-	    subLevels = 1;
-	    for( i = 0; i < subdir.length(); i++ ) {
-		if( subdir.at( i ) == '/' ) subLevels++;
+	if ( sdirs.count() > 0 ) {
+	    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+		QString subdir = *sdirit;
+		subLevels = 1;
+		for( i = 0; i < subdir.length(); i++ ) {
+		    if( subdir.at( i ) == '/' ) subLevels++;
+		}
+		t << "\n\t"
+		    << "cd " << subdir << "\n\t"
+		    << "$(MAKE) " << targs[x] << "\n\t"
+		    << "@cd ..";
+		for( i = 1; i < subLevels; i++ ) {
+		    t << "\\..";
+		}
 	    }
-	    t << "\n\t"
-	      << "cd " << subdir << "\n\t"
-	      << "$(MAKE) " << targs[x] << "\n\t"
-	      << "@cd ..";
-	    for( i = 1; i < subLevels; i++ ) {
-		t << "\\..";
-	    }
+	} else {
+	    // Borland make does not like empty an empty command section, so
+	    // insert a dummy command.
+	    t << "\n\t" << "@cd .";
 	}
 	t << endl << endl;
     }
