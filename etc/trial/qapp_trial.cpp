@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#1 $
+** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#2 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -135,7 +135,7 @@ static bool checkTrialInfo( const char* name, const char* company,
 }
 
 
-static bool getTrialData( char* keyString, int* y, int* m, int* d,
+static bool getTrialData( const char* keyString, int* y, int* m, int* d,
 			  int* serialNo )
 {
     static Q_UINT16 g = 0;
@@ -149,9 +149,9 @@ static bool getTrialData( char* keyString, int* y, int* m, int* d,
 	    if ( c < '9' )
 		c = 'Z' + (c - '0');
 	    c -= 'A';
-	    if( !j )
+	    if( !j ) {
 		keyCode[i] = (c << 3);
-	    else {
+	    } else {
 		s |= ((( c & 0x10 ) >> 4) << i);
 		keyCode[i] |= ( c & 0x0f );
 	    }
@@ -209,7 +209,7 @@ static uint julianDay( int y, int m, int d )
 
 
 /*****************************************************************************
-  Trial license routines
+  Trial license data.
  *****************************************************************************/
 
 #include <qlabel.h>

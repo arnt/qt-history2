@@ -10,7 +10,7 @@ diff -u -r2.26 qapp_win.cpp
  
  
 +#if defined(QT_TRIAL)
-+#include "../../etc/trial/qapp_trial.cpp"
++#include "qapp_trial.cpp"
 +#endif // QT_TRIAL
 +
 +

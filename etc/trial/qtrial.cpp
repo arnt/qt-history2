@@ -1,3 +1,18 @@
+/****************************************************************************
+** $Id: //depot/qt/main/etc/trial/qtrial.cpp#2 $
+**
+**		     ***   STRICTLY CONFIDENTIAL   ***
+**
+**	    This file is NOT a part of the official Qt source code!
+**
+** Inserts trial user registration data in qt.lib.
+**
+** Created : 970421
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
 #include <qfile.h>
 #include <qdatetm.h>
 #include <stdio.h>
@@ -246,7 +261,7 @@ int main( int argc, char **argv )
 	bool ok;
 	int offset_num = offset.toInt( &ok );
 	if ( !ok || offset_num <= 0 )
-	    error( "Invalid offset" );
+	    error( "Trial data pattern not found - file probably patched." );
 	int serial_num = serial.toInt( &ok );
 	if ( !ok || serial_num <= 0 || serial_num > 65535)
 	    error( "Invalid serial number" );
@@ -315,6 +330,9 @@ QString patchFile( const QString &file, const QString &name,
     memcpy( p, company.data(), company.size() );
     p += company.size();
     memcpy( p, email.data(), email.size() );
+    p += email.size();
+    if ( (int)p - (int)buf.data() >= 140 )
+	error( "Name + company + email too long" );
 
     setRandomSeed( 79153 );
     scramble( (uchar *)buf.data(), 140 );
