@@ -502,18 +502,19 @@ void HelpDialog::insertContents()
 	setupTitleMap();
 
     listContents->setSorting( -1 );
-    HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu;
+    HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu, *assistantDocu;
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
     qtDocu->setText( 0, tr( "Qt Class Documentation" ) );
     qtDocu->setLink( "index.html" );
-    //    qtDocu->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
     handbook = new HelpNavigationContentsItem( listContents, 0 );
     handbook->setText( 0, tr( "Designer Handbook" ) );
     handbook->setLink( "designer-manual.html" );
-//     handbook->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
     linguistDocu = new HelpNavigationContentsItem( listContents, 0 );
     linguistDocu->setText( 0, tr( "Qt Linguist Manual" ) );
-    linguistDocu->setLink( "qt-translation-tools.html" );
+    linguistDocu->setLink( "linguist-manual.html" );
+    assistantDocu = new HelpNavigationContentsItem( listContents, 0 );
+    assistantDocu->setText( 0, tr( "Qt Assistant" ) );
+    assistantDocu->setLink( "assistant.html" );
 
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
@@ -593,6 +594,8 @@ void HelpDialog::insertContents()
     insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );
     manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/linguist-manual.html";
     insertContents( manualdir, tr( "Qt Linguist Manual" ), lastItem, linguistDocu );
+    manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/assistant.html";
+    insertContents( manualdir, tr( "Qt Assistant" ), lastItem, assistantDocu );
 }
 
 void HelpDialog::insertContents( const QString &filename, const QString &titl,
