@@ -110,7 +110,10 @@ static int getFontWeight( const QString &weightString )
 struct QtFontEncoding
 {
     int encoding : 16;
-    unsigned char pitch   : 8;
+    int xpoint : 16;
+    int xres : 8;
+    int yres : 8;
+    unsigned char pitch : 8;
 };
 #endif // Q_WS_X11
 
@@ -121,14 +124,17 @@ struct QtFontSize
 #ifdef Q_WS_X11
     int count;
     QtFontEncoding *encodings;
-    QtFontEncoding *encodingID( int id, bool add = FALSE );
+    QtFontEncoding *encodingID( int id, int xpoint = 0, int xres = 0,
+				int yres = 0, bool add = FALSE);
 #endif // Q_WS_X11
 };
 
 
 #ifdef Q_WS_X11
-QtFontEncoding *QtFontSize::encodingID( int id, bool add )
+QtFontEncoding *QtFontSize::encodingID( int id, int xpoint, int xres,
+					int yres, bool add )
 {
+    // we don't match using the xpoint, xres and yres parameters, only the id
     for ( int i = 0; i < count; ++i ) {
 	if ( encodings[i].encoding == id )
 	    return encodings + i;
@@ -141,6 +147,9 @@ QtFontEncoding *QtFontSize::encodingID( int id, bool add )
 		    realloc( encodings,
 			     (((count+4) >> 2 ) << 2 ) * sizeof( QtFontEncoding ) );
     encodings[count].encoding = id;
+    encodings[count].xpoint = xpoint;
+    encodings[count].xres = xres;
+    encodings[count].yres = yres;
     encodings[count].pitch = '*';
     return encodings + count++;
 }
@@ -692,37 +701,48 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    continue;
 	}
 
-	int px = pixelSize;
-	if ( style->smoothScalable && ! ( styleStrategy & QFont::PreferBitmap ) )
-	    px = SMOOTH_SCALABLE;
-	else if ( style->bitmapScalable && ( styleStrategy & QFont::PreferMatch ) )
-	    px = 0; // scale it to the required size
+	int px = -1;
+	QtFontSize *size = 0;
 
-	QtFontSize *size = style->pixelSize( px );
-	if ( px != SMOOTH_SCALABLE && !size ) {
-	    // find closest size match
-	    unsigned int distance = ~0;
-	    for ( int x = 0; x < style->count; ++x ) {
-		unsigned int d = QABS( style->pixelSizes[x].pixelSize - pixelSize);
-		if ( d < distance ) {
+	// 1. see if we have an exact matching size
+	if (! (styleStrategy & QFont::ForceOutline)) {
+	    size = style->pixelSize(pixelSize);
+	    if (size) px = size->pixelSize;
+	}
+
+	// 2. see if we have a smoothly scalable font
+	if (! size && style->smoothScalable && ! (styleStrategy & QFont::PreferBitmap)) {
+	    size = style->pixelSize(SMOOTH_SCALABLE);
+	    if (size) px = pixelSize;
+	}
+
+	// 3. see if we have a bitmap scalable font
+	if (! size && style->bitmapScalable && (styleStrategy & QFont::PreferMatch)) {
+	    size = style->pixelSize(0);
+	    if (size) px = pixelSize;
+	}
+
+	// 4. find closest size match
+	if (! size) {
+	    unsigned int distance = ~0u;
+	    for (int x = 0; x < style->count; ++x) {
+		unsigned int d = QABS(style->pixelSizes[x].pixelSize - pixelSize);
+		if (d < distance) {
 		    distance = d;
 		    size = style->pixelSizes + x;
 		}
 	    }
 
-	    if ( style->bitmapScalable &&
-		 ! ( styleStrategy & QFont::PreferQuality ) &&
-		 ( distance * 10 / pixelSize ) > 2 ) {
-		px = 0;
-		size = style->pixelSize( px );
+	    if (style->bitmapScalable && ! (styleStrategy & QFont::PreferQuality) &&
+		(distance * 10 / pixelSize) >= 2) {
+		// the closest size is not close enough, go ahead and
+		// use a bitmap scaled font
+		size = style->pixelSize(0);
+		px = pixelSize;
+	    } else {
+		px = size->pixelSize;
 	    }
-	    Q_ASSERT( size != 0 );
 	}
-
-	if ( style->smoothScalable || ( style->bitmapScalable && px == 0 ) )
-	    px = pixelSize;
-	else
-	    px = size->pixelSize;
 
 #ifdef Q_WS_X11
 	QtFontEncoding *encoding = 0;

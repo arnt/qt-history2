@@ -712,8 +712,10 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 		bitmap_scalable = TRUE;
 	}
 	int pixelSize = atoi( tokens[PixelSize] );
+	int xpointSize = atoi( tokens[PointSize] );
+	int xres = atoi( tokens[ResolutionX] );
+	int yres = atoi( tokens[ResolutionY] );
 	bool fixedPitch = isFixedPitch( tokens );
-
 
 	QtFontFamily *family = fontFamily ? fontFamily : db->family( familyName, TRUE );
 	family->fontFileIndex = -1;
@@ -734,7 +736,8 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	    family->fixedPitch = FALSE;
 
 	QtFontSize *size = style->pixelSize( pixelSize, TRUE );
-	QtFontEncoding *enc = size->encodingID( encoding_id, TRUE );
+	QtFontEncoding *enc =
+	    size->encodingID( encoding_id, xpointSize, xres, yres, TRUE );
 	enc->pitch = *tokens[Spacing];
 	if ( !enc->pitch ) enc->pitch = '*';
 
@@ -859,7 +862,7 @@ static void loadXft()
 	family->fixedPitch = ( spacing_value >= XFT_MONO );
 
 	QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE, TRUE );
-	QtFontEncoding *enc = size->encodingID( -1, TRUE );
+	QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, TRUE );
 	enc->pitch = ( spacing_value >= XFT_CHARCELL ? 'c' :
 		       ( spacing_value >= XFT_MONO ? 'm' : 'p' ) );
     }
@@ -1161,7 +1164,7 @@ static void initializeDb()
 
 		QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE );
 		if ( ! size ) continue; // should not happen
-		QtFontEncoding *enc = size->encodingID( -1, TRUE );
+		QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, TRUE );
 		if ( ! enc ) continue; // should not happen either
 
 		QtFontStyle::Key key = style->key;
@@ -1186,7 +1189,7 @@ static void initializeDb()
 		equiv->smoothScalable = TRUE;
 
 		QtFontSize *equiv_size = equiv->pixelSize( SMOOTH_SCALABLE, TRUE );
-		QtFontEncoding *equiv_enc = equiv_size->encodingID( -1, TRUE );
+		QtFontEncoding *equiv_enc = equiv_size->encodingID( -1, 0, 0, 0, TRUE );
 
 		// keep the same pitch
 		equiv_enc->pitch = enc->pitch;
@@ -1424,9 +1427,9 @@ QFontEngine *loadEngine( QFont::Script script,
     xlfd += "-*-";
 
     int px = size->pixelSize;
-    if ( style->smoothScalable )
+    if ( style->smoothScalable && px == SMOOTH_SCALABLE )
 	px = request.pixelSize;
-    else if ( style->bitmapScalable && ( request.styleStrategy & QFont::PreferMatch ) )
+    else if ( style->bitmapScalable && px == 0 )
 	px = request.pixelSize;
     double scale = 1.;
     if ( px > MAXFONTSIZE ) {
@@ -1435,8 +1438,14 @@ QFontEngine *loadEngine( QFont::Script script,
     }
 
     xlfd += QString::number( px ).latin1();
+    xlfd += "-";
+    xlfd += QString::number( encoding->xpoint );
+    xlfd += "-";
+    xlfd += QString::number( encoding->xres );
+    xlfd += "-";
+    xlfd += QString::number( encoding->yres );
+    xlfd += "-";
 
-    xlfd += "-*-*-*-";
     // ### handle cell spaced fonts
     xlfd += encoding->pitch;
     xlfd += "-*-";
