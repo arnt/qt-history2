@@ -47,6 +47,7 @@ public:
 };
 
 #include "qpaintdevice.h"
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QPaintEngine;
 extern QPaintEngine *qt_mac_current_engine; //qpaintengine_mac.cpp
@@ -87,8 +88,8 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev)
 {
     if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
-	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
-	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), NULL);
+	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
+	    QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), NULL);
 	    return true;
 	}
     }
@@ -101,8 +102,8 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force)
     if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
 	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
-	if(!w->isHidden() || QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
-	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), r.handle(force));
+	if(!w->isHidden() || QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
+	    QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), r.handle(force));
 	    return true;
 	}
     }
@@ -119,7 +120,6 @@ extern "C" {
 inline void
 QMacSavedPortInfo::setWindowAlpha(QWidget *w, float l)
 {
-    extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
     CGSSetWindowAlpha(_CGSDefaultConnection(),
 		      GetNativeWindowFromWindowRef(qt_mac_window_for((HIViewRef)w->winId())), l);
 }
@@ -186,7 +186,7 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 #endif
     qt_mac_current_engine = NULL;
     if(pd->devType() == QInternal::Widget)
-	SetPortWindowPort((WindowPtr)pd->handle());
+	SetPortWindowPort(qt_mac_window_for((HIViewRef)(static_cast<QWidget*>(pd)->winId())));
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
 	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
     else
