@@ -60,7 +60,15 @@ public:
 
   \module sql
 
-  This class //###
+  This class provides common cursor navigation functionality.  This
+  includes saving and applying sorts and filters, refreshing (i.e.,
+  re-selecting) the cursor and searching for records within the
+  cursor.
+
+  QSqlNavigatorBase is not functional on its own. A variety of
+  subclasses provide immediately usable behaviour; this class is a
+  pure abstract superclass providing the behaviour that is shared
+  among all the concrete SQL navigator classes.
 
 */
 
@@ -132,15 +140,15 @@ void QSqlNavigatorBase::refresh()
     cursor->select( currentFilter, newSort );
 }
 
-/*! Returns a pointer to the default cursor used for navigation, or 0
-if there is no default cursor.  The default implementation returns 0.
+/*! \fn QSqlCursor* QSqlNavigatorBase::defaultCursor()
+  Returns a pointer to the default cursor used for navigation, or 0
+  if there is no default cursor.
 
 */
 
-QSqlCursor* QSqlNavigatorBase::defaultCursor()
-{
-    return 0;
-}
+/* Returns TRUE if the \a buf field values that correspond to \idx
+   match the field values in \a idx.
+*/
 
 bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
 {
@@ -157,9 +165,11 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
     return indexEquals;
 }
 
-// return less than, equal to or greater than 0
-// if buf1 is less than, equal to or greater than buf2
-// according to fields described in idx (currently only uses first field)
+/* Return less than, equal to or greater than 0 if buf1 is less than,
+ equal to or greater than buf2 according to fields described in idx
+ (currently only uses first field)
+*/
+
 int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
 {
     int cmp = 0;
@@ -207,9 +217,10 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 edit buffer.  Only the field names specified by \a idx are used to
 determine an exact match of the cursor to the edit buffer. However,
 other fields in the edit buffer are also used during the search,
-therefore all fields in the edit buffer should be primed with
-appropriate values.  This function is typically used to relocate a
-cursor to the correct position after an insert or update.  For example:
+therefore all fields in the edit buffer should be primed with desired
+values for the record being sought.  This function is typically used
+to relocate a cursor to the correct position after an insert or
+update.  For example:
 
 \code
     QSqlCursor* myCursor = myNavigator.defaultCursor();
@@ -220,7 +231,7 @@ cursor to the correct position after an insert or update.  For example:
     ...
     myCursor->update();  // update current record
     myCursor->select();  // refresh the cursor
-    myNavigator.relocate( myCursor->primaryIndex() ); // go to the updated record
+    myNavigator.findBuffer( myCursor->primaryIndex() ); // go to the updated record
 \endcode
 
 */
