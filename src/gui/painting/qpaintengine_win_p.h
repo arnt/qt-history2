@@ -97,6 +97,7 @@ public:
         forceGdiplus(false),
         penAlphaColor(false),
         brushAlphaColor(false),
+        noNativeXform(false),
         penStyle(Qt::SolidLine),
         brushStyle(Qt::SolidPattern),
         pWidth(0),
@@ -127,6 +128,7 @@ public:
     uint forceGdiplus:1;        // Used in drawPixmap to force GDI+, foceGdi has presedence
     uint penAlphaColor:1;       // Set if pen has alpha color
     uint brushAlphaColor:1;     // Set if brush has alpha color
+    uint noNativeXform:1;
 
     Qt::PenStyle penStyle;
     Qt::BrushStyle brushStyle;

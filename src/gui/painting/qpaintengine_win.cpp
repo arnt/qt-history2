@@ -1058,26 +1058,25 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
         SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
+void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool)
 {
     Q_ASSERT(isActive());
 
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
+        d->gdiplusEngine->drawPixmap(r, pixmap, sr, false);
         return;
     } else if (!d->forceGdi
                && (pixmap.hasAlphaChannel()
-                   || (pixmap.hasAlpha() && d->txop > QPainter::TxScale)
-                   || stretch)) {
+                   || (pixmap.hasAlpha() && d->txop > QPainter::TxScale))) {
         // Try to use GDI+ since we don't support alpha in GDI at the moment, and
         // rotated/sheared masked pixmaps looks bad.
         d->forceGdiplus = true;
         d->beginGdiplus();
         d->forceGdiplus = false;
         if (d->usesGdiplus()) {
-            d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
+            d->gdiplusEngine->drawPixmap(r, pixmap, sr, false);
             return;
         }
     }
@@ -1095,15 +1094,15 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         pm_offset = 0;
     }
 
-    if (!imask && mask) {
-        if (stretch || d->pdev->devType() == QInternal::Printer) {
+   if (mask) {
+        if (stretch) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();
             QBitmap tmpbm = imageMask;
             QBitmap bm(sr.width(), sr.height());
             {
                 QPainter p(&bm);
-                p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr, imask);
+                p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr);
             }
             QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
@@ -1127,14 +1126,21 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
                     MAKEROP4(0x00aa0000, SRCCOPY));
         }
     } else {
-        if (stretch)
-            StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
-                       pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
-                       SRCCOPY);
-        else
-            BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-                   pixmap.handle(), sr.x(), sr.y(),
-                   SRCCOPY);
+        if (stretch) {
+            Q_ASSERT((GetDeviceCaps(d->hdc, RASTERCAPS) & RC_STRETCHBLT) != 0);
+            if (!StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
+                            pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
+                            SRCCOPY)) {
+                qSystemWarning("QWin32PaintEngine::drawPixmap, stretch failed");
+            }
+        } else {
+            Q_ASSERT((GetDeviceCaps(d->hdc, RASTERCAPS) & RC_BITBLT) != 0);
+            if (!BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+                        pm_dc, sr.x(), sr.y(),
+                        SRCCOPY)) {
+                qSystemWarning("QWin32PaintEngine::drawPixmap, bitBlt failed");
+            }
+        }
     }
 }
 
@@ -1457,20 +1463,22 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
         d->gdiplusEngine->updateXForm(mtx);
         return;
     }
+
 #ifdef NO_NATIVE_XFORM
     return;
 #endif
 
-    XFORM m;
+    if (mtx.m12() != 0 || mtx.m21() != 0)
+        d->txop = QPainter::TxRotShear;
+    else if (mtx.m11() != 1 || mtx.m22() != 1)
+        d->txop = QPainter::TxScale;
+    else if (mtx.dx() != 0 || mtx.dy() != 0)
+        d->txop = QPainter::TxTranslate;
+    else
+        d->txop = QPainter::TxNone;
 
-//     if (state->WxF) {
-//         if (state->VxF) {
-//             mtx.translate(state->vx, state->vy);
-//             mtx.scale(1.0*state->vw/state->ww, 1.0*state->vh/state->wh);
-//             mtx.translate(-state->wx, -state->wy);
-//             mtx = state->worldMatrix * mtx;
-//         } else {
-//         }
+    XFORM m;
+    if (d->txop >= QPainter::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
         m.eM12 = mtx.m12();
         m.eM21 = mtx.m21();
@@ -1481,13 +1489,13 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
         if (!SetWorldTransform(d->hdc, &m)) {
             qSystemWarning("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed..");
         }
-//     } else {
-//         m.eM11 = m.eM22 = (float)1.0;
-//         m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
-//         SetGraphicsMode(d->hdc, GM_ADVANCED);
-//         ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-//         SetGraphicsMode(d->hdc, GM_COMPATIBLE);
-//     }
+    } else {
+        m.eM11 = m.eM22 = (float)1.0;
+        m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
+        SetGraphicsMode(d->hdc, GM_ADVANCED);
+        ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
+        SetGraphicsMode(d->hdc, GM_COMPATIBLE);
+    }
 }
 
 
