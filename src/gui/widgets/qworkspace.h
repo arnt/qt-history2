@@ -62,6 +62,7 @@ public slots:
     void activatePreviousWindow();
 
 protected:
+    void paintEvent(QPaintEvent *e);
     void changeEvent(QEvent *);
     void childEvent(QChildEvent *);
     void resizeEvent(QResizeEvent *);

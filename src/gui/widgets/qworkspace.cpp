@@ -38,6 +38,7 @@
 #include "qscrollbar.h"
 #include "qstyle.h"
 #include "qbitmap.h"
+#include "qpainter.h"
 
 #define d d_func()
 #define q q_func()
@@ -210,6 +211,7 @@ public:
     QScrollBar *vbar, *hbar;
     QWidget *corner;
     int yoffset, xoffset;
+    QBrush background;
 
 
     void init();
@@ -280,13 +282,13 @@ QWorkspacePrivate::init()
     d->toolPopup = new QPopupMenu(q->parentWidget(), "qt_internal_mdi_popup");
 #endif
 
-    d->actions[QWorkspacePrivate::RestoreAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton)), 
+    d->actions[QWorkspacePrivate::RestoreAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarNormalButton)),
                                                             q->tr("&Restore"), q);
     d->actions[QWorkspacePrivate::MoveAct] = new QAction(q->tr("&Move"), q);
     d->actions[QWorkspacePrivate::ResizeAct] = new QAction(q->tr("&Size"), q);
-    d->actions[QWorkspacePrivate::MinimizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMinButton)), 
+    d->actions[QWorkspacePrivate::MinimizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMinButton)),
                                                              q->tr("Mi&nimize"), q);
-    d->actions[QWorkspacePrivate::MaximizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMaxButton)), 
+    d->actions[QWorkspacePrivate::MaximizeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarMaxButton)),
                                                              q->tr("Ma&ximize"), q);
     d->actions[QWorkspacePrivate::CloseAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
                                                           q->tr("&Close")
@@ -297,7 +299,7 @@ QWorkspacePrivate::init()
     QObject::connect(d->actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
     d->actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
     d->actions[QWorkspacePrivate::StaysOnTopAct]->setChecked(true);
-    d->actions[QWorkspacePrivate::ShadeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)), 
+    d->actions[QWorkspacePrivate::ShadeAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarShadeButton)),
                                                           q->tr("Sh&ade"), q);
 
     QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(operationMenuAboutToShow()));
@@ -342,7 +344,8 @@ QWorkspacePrivate::init()
                     q, SLOT(closeActiveWindow()));
 #endif
 
-    q->setBackgroundRole(QPalette::Dark);
+    background = q->palette().dark();
+    q->setAttribute(QWidget::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     d->topTitle = q->topLevelWidget()->windowTitle();
@@ -371,18 +374,16 @@ QSize QWorkspace::sizeHint() const
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundColor(const QColor & c)
 {
-    QPalette p = palette();
-    p.setColor(backgroundRole(), c);
-    setPalette(p);
+    d->background.setColor(c);
+    update();
 }
 
 
 /*! \reimp */
 void QWorkspace::setPaletteBackgroundPixmap(const QPixmap & pm)
 {
-    QPalette p = palette();
-    p.setBrush(backgroundRole(), QBrush(pm));
-    setPalette(p);
+    d->background.setPixmap(pm);
+    update();
 }
 
 /*! \reimp */
@@ -775,6 +776,13 @@ void QWorkspace::hideEvent(QHideEvent *)
 {
     if (!isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
         d->hideMaximizeControls();
+}
+
+/*! \reimp */
+void QWorkspace::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    p.fillRect(0, 0, width(), height(), d->background);
 }
 
 void QWorkspacePrivate::minimizeWindow(QWidget* w)
@@ -1628,6 +1636,7 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent,
     : QFrame(parent, name,
               WStyle_NoBorder | WStyle_Customize | WDestructiveClose | WNoMousePropagation | WSubWindow)
 {
+    setAttribute(WA_NoBackground, true);
     setMouseTracking(true);
     act = false;
     iconw = 0;
