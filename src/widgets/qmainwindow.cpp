@@ -1220,7 +1220,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
   that window to this.
 */
 
-void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, int index )
+void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, int index, int extraOffset )
 {
     QMainWindowPrivate::ToolBarDock * dl = 0;
     switch ( edge ) {
@@ -1249,6 +1249,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	
     QMainWindowPrivate::ToolBarDock *dummy;
     QMainWindowPrivate::ToolBar *tt = d->findToolbar( toolBar, dummy );
+    tt->specialPos = extraOffset;
     if ( nl && tt )
 	tt->nl = nl;
     if ( !dl ) {
@@ -2335,7 +2336,7 @@ void QMainWindow::styleChange( QStyle& old )
   (e.g. because the toolbar \a tb was not found in this mainwindow)
 */
 
-bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl ) const
+bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl, int &extraOffset ) const
 {
     if ( !tb )
 	return FALSE;
@@ -2363,6 +2364,7 @@ bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool
 
     index = td->findRef( t );
     nl = t->nl;
+    extraOffset = t->specialPos;
 
     return TRUE;
 }

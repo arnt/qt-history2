@@ -63,12 +63,14 @@ ApplicationWindow::ApplicationWindow()
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
+    QMap< QString, int > eos;
     int w = 450, h = 600;
     if ( tbconfig ) {
 	QDataStream s( &f );
 	s >> docks;
 	s >> indices;
 	s >> nls;
+	s >> eos;
 	s >> w >> h;
     }
 
@@ -81,13 +83,14 @@ ApplicationWindow::ApplicationWindow()
 
     if ( tbconfig ) {
 	QMap< QString, int >::Iterator dit, iit;
-	QMap< QString, int >::Iterator nit;
+	QMap< QString, int >::Iterator nit, eit;
 	dit = docks.begin();
 	iit = indices.begin();
 	nit = nls.begin();
-	for ( ; dit != docks.end(); ++dit, ++iit, ++nit ) {
+	eit = eos.begin();
+	for ( ; dit != docks.end(); ++dit, ++iit, ++nit, ++eit ) {
 	    QToolBar *tb = createToolbar( dit.key().mid( 1, 0xFFFFFF ), FALSE );
-	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit );
+	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit, *eit );
 	}
     } else {
 	for ( unsigned int i = 0; i < 4; ++i )
@@ -277,6 +280,7 @@ ApplicationWindow::~ApplicationWindow()
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
+    QMap< QString, int > eos;
     int j = 0;
     for ( unsigned int i = 0; i < 5; ++i ) {
 	lst = toolBars( da[ i ] );
@@ -285,10 +289,12 @@ ApplicationWindow::~ApplicationWindow()
 	    ToolBarDock dock;
 	    int index;
 	    bool nl;
-	    if ( getLocation( tb, dock, index, nl ) ) {
+	    int extraOffset;
+	    if ( getLocation( tb, dock, index, nl, extraOffset ) ) {
 		docks[ QString::number( j ) + tb->name() ] = dock;
 		indices[ QString::number( j ) + tb->name() ] = index;
 		nls[ QString::number( j ) + tb->name() ] = nl;
+		eos[ QString::number( j ) + tb->name() ] = extraOffset;
 		++j;
 	    }
 	    tb = lst.next();
@@ -300,6 +306,7 @@ ApplicationWindow::~ApplicationWindow()
     s << docks;
     s << indices;
     s << nls;
+    s << eos;
     s << width() << height();
 }
 
