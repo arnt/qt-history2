@@ -85,50 +85,71 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
         op = DrawOperation(op&~FillDraw);
 
     // Creates an outline path to handle the stroking.
-     if ((op & StrokeDraw)
+    if ((op & StrokeDraw)
         && (emulationSpecifier & QPaintEngine::PenWidthTransform
             || emulationSpecifier & QPaintEngine::AlphaStroke))
         outlineMode = PathBased;
 
     // Do the filling for gradients or alpha.
     if (op & FillDraw) {
-        if (emulationSpecifier & QPaintEngine::LinearGradients
-            || emulationSpecifier & QPaintEngine::AlphaFill) {
-            QRectF bounds;
-            // set clip to match polygon to fill
-            if (shape != RectangleShape) {
-                q->save();
-                QPainterPath clip;
-                switch (shape) {
-                case EllipseShape:
-                    bounds = *reinterpret_cast<const QRectF*>(data);
-                    clip.addEllipse(bounds);
-                    break;
-                case PathShape:
-                    clip = *reinterpret_cast<const QPainterPath*>(data);
-                    break;
-                default:
-                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
-                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
-                    break;
+        if ((emulationSpecifier & QPaintEngine::LinearGradients)
+            || (emulationSpecifier & QPaintEngine::AlphaFill)) {
+            if (((emulationSpecifier & QPaintEngine::LinearGradients)
+                 && engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
+                || ((emulationSpecifier & QPaintEngine::AlphaFill)
+                    && engine->hasFeature(QPaintEngine::AlphaFillPolygon)))
+            {
+                if (shape == PathShape) {
+                    q->drawPath(*reinterpret_cast<const QPainterPath *>(data));
+                } else {
+                    QPolygon pg = draw_helper_xpolygon(data, shape);
+                    if (outlineMode == PathBased) {
+                        q->save();
+                        q->setPen(Qt::NoPen);
+                        engine->updateState(state);
+                    }
+                    engine->drawPolygon(pg, winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+                    if (outlineMode == PathBased) {
+                        q->restore();
+                    }
                 }
-                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-                q->setClipPath(clip);
             } else {
-                bounds = *reinterpret_cast<const QRectF*>(data);
+                QRectF bounds;
+                // set clip to match polygon to fill
+                if (shape != RectangleShape) {
+                    q->save();
+                    QPainterPath clip;
+                    switch (shape) {
+                    case EllipseShape:
+                        bounds = *reinterpret_cast<const QRectF*>(data);
+                        clip.addEllipse(bounds);
+                        break;
+                    case PathShape:
+                        clip = *reinterpret_cast<const QPainterPath*>(data);
+                        break;
+                    default:
+                        bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
+                        clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                        break;
+                    }
+                    clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+                    q->setClipPath(clip);
+                } else {
+                    bounds = *reinterpret_cast<const QRectF*>(data);
+                }
+                if (emulationSpecifier & QPaintEngine::LinearGradients) {
+                    qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
+                } else { // AlphaFill
+                    const int BUFFERSIZE = 16;
+                    QImage image(BUFFERSIZE, BUFFERSIZE, 32);
+                    image.fill(state->brush.color().rgb());
+                    image.setAlphaBuffer(true);
+                    QPixmap pm(image);
+                    q->drawTiledPixmap(bounds.toRect(), pm);
+                }
+                if (shape != RectangleShape)
+                    q->restore();
             }
-            if (emulationSpecifier & QPaintEngine::LinearGradients) {
-                qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
-            } else { // AlphaFill
-                const int BUFFERSIZE = 16;
-                QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-                image.fill(state->brush.color().rgb());
-                image.setAlphaBuffer(true);
-                QPixmap pm(image);
-                q->drawTiledPixmap(bounds.toRect(), pm);
-            }
-            if (shape != RectangleShape)
-                q->restore();
         } else if (emulationSpecifier & QPaintEngine::CoordTransform) {
             outlineMode = None;
             q->save();
@@ -176,8 +197,8 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
             }
             default:
                 engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data), winding
-                                           ? QPaintEngine::WindingMode
-                                           : QPaintEngine::OddEvenMode);
+                                    ? QPaintEngine::WindingMode
+                                    : QPaintEngine::OddEvenMode);
                 break;
             }
         }
@@ -2024,23 +2045,13 @@ void QPainter::drawEllipse(const QRect &r)
 
     QRectF rect(r.normalize());
 
-    uint emulationSpecifier = d->engine->emulationSpecifier;
-    if ((emulationSpecifier & QPaintEngine::LinearGradients)
-        && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
-        emulationSpecifier &= ~QPaintEngine::LinearGradients;
-
-    if ((emulationSpecifier & QPaintEngine::AlphaFill)
-        && d->engine->hasFeature(QPaintEngine::AlphaFillPolygon))
-        emulationSpecifier &= ~QPaintEngine::AlphaFill;
-
-    if (emulationSpecifier) {
-        if (emulationSpecifier == QPaintEngine::CoordTransform
+    if (d->engine->emulationSpecifier) {
+        if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             d->draw_helper(&rect, false, QPainterPrivate::EllipseShape,
-                           QPainterPrivate::StrokeAndFillDraw,
-                           emulationSpecifier);
+                           QPainterPrivate::StrokeAndFillDraw);
             return;
         }
     }
