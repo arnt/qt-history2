@@ -513,9 +513,7 @@ int QStringBuffer::getch()
 	setStatus( IO_ReadError );
 	return -1;
     }
-//########################################
-//    return (int)((const uchar *)s->unicode())[ioIndex++];
-//########################################
+    return (int)((const uchar *)s->unicode())[ioIndex++];
 }
 
 int QStringBuffer::putch( int ch )
@@ -540,12 +538,10 @@ int QStringBuffer::ungetch( int ch )
     }
 #endif
     if ( ch != -1 ) { // something to do with eof
-//########################################
-//	if ( ioIndex )
-//	    ioIndex--;
-//	else
-//	    ch = -1;
-//########################################
+	if ( ioIndex )
+	    ioIndex--;
+	else
+	    ch = -1;
     }
     return ch;
 }
