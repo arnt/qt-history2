@@ -22,6 +22,11 @@ bool Resolver::warnChangedSinceLastRun( const Location& /* loc */,
     return FALSE;
 }
 
+QString Resolver::relatedProperty( const QString& name ) const
+{
+    return QString::null;
+}
+
 QString Resolver::href( const QString& name, const QString& text ) const
 {
     static const QString opParenParen( "operator()" );

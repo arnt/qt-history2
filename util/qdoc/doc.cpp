@@ -1600,47 +1600,57 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 		    fileName.latin1() );
 }
 
-QString Doc::href( const QString& name, const QString& text )
+QString Doc::href( const QString& name, const QString& text, bool propertize )
 {
     static QRegExp allProtos( QString("(?:f(?:ile|tp)|http|mailto):.*") );
     static QRegExp uglyProtos( QString("(?:file|mailto):(.*)") );
 
-    QString t = text;
-    QString y = res->href( name, t );
-    if ( t.isEmpty() )
-	t = name;
-    if ( y.length() != t.length() )
+    QString namex = name;
+    QString textx = text;
+
+    if ( propertize && namex.endsWith(parenParen) ) {
+	QString prop = res->relatedProperty( name );
+	if ( !prop.isEmpty() ) {
+	    namex = prop;
+	    textx = prop;
+	}
+    }
+
+    QString y = res->href( namex, textx );
+    if ( textx.isEmpty() )
+	textx = namex;
+    if ( y.length() != textx.length() )
 	return y;
 
     // try a keyword
-    QString k = keywordLinks[name];
+    QString k = keywordLinks[namex];
     if ( k.isEmpty() ) {
 	// try without the plural
-	if ( name.right(1) == QChar('s') )
-	    k = keywordLinks[name.left(t.length() - 1)]; 
+	if ( namex.right(1) == QChar('s') )
+	    k = keywordLinks[namex.left(textx.length() - 1)]; 
 	if ( k.isEmpty() ) {
 	    // try an example file
-	    k = includedExampleLinks[name];
+	    k = includedExampleLinks[namex];
 	    if ( k.isEmpty() ) {
-		k = thruwalkedExampleLinks[name];
+		k = thruwalkedExampleLinks[namex];
 		if ( k.isEmpty() ) {
 		    // try a URL
-		    if ( allProtos.exactMatch(name) ) {
-			k = name;
-			if ( t == name && uglyProtos.exactMatch(t) )
-			    t = uglyProtos.cap( 1 );
+		    if ( allProtos.exactMatch(namex) ) {
+			k = namex;
+			if ( textx == namex && uglyProtos.exactMatch(textx) )
+			    textx = uglyProtos.cap( 1 );
 		    }
-		    if ( k.isEmpty() && name.startsWith(QChar('#')) )
-			k = name;
+		    if ( k.isEmpty() && namex.startsWith(QChar('#')) )
+			k = namex;
 		}
 	    }
 	}
     }
 
     if ( k.isEmpty() )
-	return t;
+	return textx;
     else
-	return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( t );
+	return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( textx );
 }
 
 QString Doc::htmlQuoteList()
@@ -2095,7 +2105,7 @@ QString Doc::htmlSeeAlso() const
 	    }
 	}
 
-	QString y = href( name, text );
+	QString y = href( name, text, TRUE );
 	if ( text.isEmpty() )
 	    text = name;
 	if ( y.length() == text.length() && text.startsWith(QString("<a")) )
@@ -2423,8 +2433,6 @@ QString Doc::finalHtml() const
 		link = includedExampleLinks[(*e).fileName()];
 	    else
 		link = thruwalkedExampleLinks[(*e).fileName()];
-if ( link.isEmpty() )
-qWarning( "'%s' included? %d  is empty", (*e).fileName().latin1(), (*e).inInclude() );
 
 	    link = linkBase( link ) + QString( "#x%1" ).arg( (*e).uniqueNum() );
 	    yyOut += QString( "<a href=\"%1\">%2</a>" )

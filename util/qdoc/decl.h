@@ -213,7 +213,7 @@ public:
     void setOverloadNumber( int no );
     void addParameter( const Parameter& param );
     void borrowParameterNames( ParameterList::ConstIterator p );
-    const StringSet& parameterNames() const { return ps; }
+    void setRelatedProperty( PropertyDecl *property ) { prop = property; }
 
     FnDoc *fnDoc() const { return (FnDoc *) doc(); }
     const CodeChunk& returnType() const { return r; }
@@ -227,6 +227,8 @@ public:
     bool isConstructor() const;
     bool isDestructor() const;
     const ParameterList& parameters() const { return pl; }
+    const StringSet& parameterNames() const { return ps; }
+    PropertyDecl *relatedProperty() const { return prop; }
 
     virtual void printHtmlShort( HtmlWriter& out ) const;
     virtual void printHtmlLong( HtmlWriter& out ) const;
@@ -247,6 +249,7 @@ private:
     int ovo;
     QValueList<Parameter> pl;
     StringSet ps;
+    PropertyDecl *prop;
 };
 
 class EnumItemDecl : public Decl

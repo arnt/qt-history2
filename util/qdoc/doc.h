@@ -66,7 +66,8 @@ public:
 					const QString& fileName );
     static const Resolver *resolver() { return res; }
     static QString href( const QString& name,
-			 const QString& text = QString::null );
+			 const QString& text = QString::null,
+			 bool propertize = FALSE );
     static QString htmlQuoteList();
     static QString htmlHeaderFileList();
     static QString htmlClassList();

@@ -30,6 +30,8 @@ public:
 					  const QString& link,
 					  const QString& html ) const;
 
+    virtual QString relatedProperty( const QString& name ) const;
+
     void setCurrentClass( const ClassDecl *classDecl ) { c = classDecl; }
     void setExampleFileList( const StringSet& exampleFiles )
     { eg = exampleFiles; }

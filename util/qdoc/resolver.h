@@ -35,6 +35,7 @@ public:
     virtual bool warnChangedSinceLastRun( const Location& loc,
 					  const QString& link,
 					  const QString& html ) const;
+    virtual QString relatedProperty( const QString& name ) const;
 
     QString href( const QString& name,
 		  const QString& text = QString::null ) const;

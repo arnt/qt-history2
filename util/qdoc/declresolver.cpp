@@ -66,13 +66,26 @@ bool DeclResolver::warnChangedSinceLastRun( const Location& loc,
 	return TRUE;
     } else if ( !(*chk).isSame(html) ) {
 	int delta = html.length() - (*chk).length();
-	warning( 0, loc, "Editorial changes at %s%s (%+d byte%s)",
+	warning( 0, loc, "Editorial change at %s%s (%+d byte%s)",
 		 config->base().latin1(), link.latin1(), delta,
 		 abs(delta) == 1 ? "" : "s" );
 	return TRUE;
     } else {
 	return FALSE;
     }
+}
+
+QString DeclResolver::relatedProperty( const QString& name ) const
+{
+    const Decl *x = c != 0 ? c : r;
+    const Decl *y = x->resolvePlain( name );
+
+    if ( y != 0 && y->kind() == Decl::Function ) {
+	FunctionDecl *func = (FunctionDecl *) y;
+	if ( func->relatedProperty() != 0 )
+	    return func->relatedProperty()->name();
+    }
+    return QString::null;
 }
 
 QString DeclResolver::resolved( const Decl *decl ) const

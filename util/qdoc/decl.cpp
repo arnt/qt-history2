@@ -933,6 +933,7 @@ void ClassDecl::fillInDocsForThis()
 		    func->setDoc( new FnDoc((*q)->location(), html,
 					    QString::null, QString::null,
 					    documentedParams, FALSE) );
+		    func->setRelatedProperty( *q );
 		}
 	    }
 	}
@@ -1219,7 +1220,8 @@ void Parameter::printHtmlLong( HtmlWriter& out, const Decl *context ) const
 FunctionDecl::FunctionDecl( const Location& loc, const QString& name,
 			    Decl *context, const CodeChunk& returnType )
     : Decl( Function, loc, name, context ), r( returnType ), c( FALSE ),
-      st( FALSE ), v( FALSE ), p( FALSE ), si( FALSE ), sl( FALSE ), ovo( 1 )
+      st( FALSE ), v( FALSE ), p( FALSE ), si( FALSE ), sl( FALSE ), ovo( 1 ),
+      prop( 0 )
 {
 }
 
