@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#8 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,7 +12,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#8 $")
 
 
 /*----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#7 $")
   type, which is a \c void*.  The template (or macro) classes that
   create the real collections cast the \c GCI to the required type.
 
-  \sa \link collect.html Collection Classes\endlink
+  \sa \link collection.html Collection Classes\endlink
  ----------------------------------------------------------------------------*/
 
 
