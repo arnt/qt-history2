@@ -567,10 +567,12 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     //mark glyph
     data.whichData |= kMenuItemDataMark;
     if(action->action->isChecked()) {
+#if 0
         if(action->action->actionGroup() &&
            action->action->actionGroup()->isExclusive())
             data.mark = diamondMark;
         else
+#endif
             data.mark = checkMark;
     } else {
         data.mark = noMark;
