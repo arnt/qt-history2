@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#206 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#205 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#206 $");
 
 
 /*!
@@ -1877,8 +1877,7 @@ void QWidget::setFocus()
     }
 
     if ( isActiveWindow() ) {
-	if ( qApp->focus_widget && qApp->focus_widget != this &&
-	     topLevelWidget() == qApp->focus_widget->topLevelWidget() ) {
+	if ( qApp->focus_widget && qApp->focus_widget != this ) {
 	    QWidget * prev = qApp->focus_widget;
 	    qApp->focus_widget = this;
 	    QFocusEvent out( Event_FocusOut );
