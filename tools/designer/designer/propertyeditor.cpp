@@ -242,7 +242,7 @@ void PropertyItem::paintBranches( QPainter * p, const QColorGroup & cg,
 void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r )
 {
     p->save();
-    QApplication::style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg, TRUE, 1 );
+    QApplication::style().drawPrimitive(QStyle::PO_Panel, p, r, cg);
     p->restore();
 }
 
