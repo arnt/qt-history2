@@ -14,8 +14,6 @@
 
 #include <qglobal.h>
 
-#ifndef Q_WS_WIN
-
 #include "qpixmap.h"
 #include "qpixmap_p.h"
 
@@ -1107,8 +1105,6 @@ QPixmap QPixmap::scaledToHeight(int h) const
     wm.scale(factor, factor);
     return transformed(wm);
 }
-
-#endif // !Q_WS_WIN
 
 /*!
     \class QPixmap

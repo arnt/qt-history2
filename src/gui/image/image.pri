@@ -31,12 +31,12 @@ SOURCES += \
 	image/qpaintengine_pic.cpp \
 	image/qpicture.cpp \
 	image/qpictureformatplugin.cpp \
-	image/qpixmap.cpp \
 	image/qpixmapcache.cpp \
 	image/qiconengine.cpp \
 	image/qiconengineplugin.cpp \
 	image/qmovie.cpp
 
+!win32:SOURCES += image/qpixmap.cpp
 win32:SOURCES += image/qpixmap_win.cpp
 unix:x11:SOURCES += image/qpixmap_x11.cpp
 !embedded:!x11:mac:SOURCES += image/qpixmap_mac.cpp
