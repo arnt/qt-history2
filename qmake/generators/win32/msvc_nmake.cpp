@@ -157,9 +157,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	  << "$(OBJECTS) $(OBJMOC)";
     }
     t << endl << "<<" << endl;
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) 
 	t << "\n\t" << "-copy $(TARGET) " << var("DLLDESTDIR");
-    }
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -175,8 +174,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << "$(ZIP) " << var("PROJECT") << ".zip "
       << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(FORMS)" << endl << endl;
 
-    t << "clean:" << "\n"
-      << varGlue("OBJECTS","\t-del ","\n\t-del ","")
+    t << "clean:"
+      << varGlue("OBJECTS","\n\t-del ","\n\t-del ","")
       << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
