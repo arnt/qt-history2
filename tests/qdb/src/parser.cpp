@@ -2546,10 +2546,9 @@ void Parser::matchSelectStatement()
 		if ( f.key() < 0 ) {
 		    usedDynamicFields.insert( f.key(), *g );
 		} else {
-		    resultColumnNos[*g].insert( f.key(), n );
-		    auxColumns.append( resolvedField(ResultId, *g) );
+		    resultColumnNos[*g].insert( f.key(), n++ );
+		    auxColumns.append( resolvedField(f.key(), *g) );
 		    auxColumnNames.append( *g );
-		    n++;
 		}
 		++g;
 	    }
@@ -2566,10 +2565,9 @@ void Parser::matchSelectStatement()
 	while ( s != usedDynamicFields.end() ) {
 	    switch ( resultColumnNos[*s].count() ) {
 	    case 0:
-		resultColumnNos[*s].insert( s.key(), n );
-		auxColumns.append( resolvedField(n, *s) );
+		resultColumnNos[*s].insert( s.key(), n++ );
+		auxColumns.append( resolvedField(s.key(), *s) );
 		auxColumnNames.append( *s );
-		n++;
 		break;
 	    case 1:
 		break;
