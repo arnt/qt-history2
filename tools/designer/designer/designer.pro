@@ -43,7 +43,8 @@ HEADERS	= command.h \
 		  designerappiface.h \
 		  actioninterface.h \
 		  filterinterface.h \
-		  actioneditorimpl.h
+		  actioneditorimpl.h \
+		  actionlistview.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -84,7 +85,8 @@ SOURCES	= command.cpp \
 		  splashloader.cpp \
 		  designerapp.cpp \
 		  designerappiface.cpp \
-		  actioneditorimpl.cpp
+		  actioneditorimpl.cpp \
+		  actionlistview.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \

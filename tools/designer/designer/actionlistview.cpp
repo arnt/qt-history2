@@ -18,39 +18,23 @@
 **
 **********************************************************************/
 
-#ifndef ACTIONEDITOR_H
-#define ACTIONEDITOR_H
+#include "actionlistview.h"
+#include <qdragobject.h>
 
-#include "actioneditor.h"
-
-class QAction;
-class FormWindow;
-
-class ActionEditor : public ActionEditorBase
+ActionListView::ActionListView( QWidget *parent, const char *name )
+    : QListView( parent, name )
 {
-    Q_OBJECT
+}
 
-public:
-    ActionEditor( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
-    void setFormWindow( FormWindow *fw );
-    void updateActionName( QAction *a );
-    void updateActionIcon( QAction *a );
-
-protected:
-    void closeEvent( QCloseEvent *e );
-
-protected slots:
-    void currentActionChanged( QListViewItem * );
-    void deleteAction();
-    void newAction();
-
-signals:
-    void hidden();
-
-private:
-    QAction *currentAction;
-    FormWindow *formWindow;
-
-};
-
-#endif // ACTIONEDITOR_H
+QDragObject *ActionListView::dragObject()
+{
+    ActionItem *i = (ActionItem*)currentItem();
+    if ( !i )
+	return 0;
+    QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", viewport() );
+    QString s;
+    s.sprintf( "%p", i->action() );
+    drag->setEncodedData( QCString( s.latin1() ) );
+    drag->setPixmap( i->action()->iconSet().pixmap() );
+    return drag;
+}

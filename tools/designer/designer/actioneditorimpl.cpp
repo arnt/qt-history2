@@ -21,6 +21,7 @@
 #include "actioneditorimpl.h"
 #include "formwindow.h"
 #include "metadatabase.h"
+#include "actionlistview.h"
 
 #include <qaction.h>
 #include <qlineedit.h>
@@ -30,30 +31,10 @@
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 
-class ActionItem : public QListViewItem
-{
-public:
-    ActionItem( QListView *lv, bool group )
-	: QListViewItem( lv ),
-	  a( group ? new QActionGroup( 0 ) : new QAction( 0 ) ) {}
-    ActionItem( ActionItem *parent )
-	: QListViewItem( parent ),
-	  a( new QAction( parent->action() ) ) {}
-    ActionItem( QListView *lv, QAction *ac ) 
-	: QListViewItem( lv ), a( ac ) {}
-    ActionItem( ActionItem *parent, QAction *ac ) 
-	: QListViewItem( parent ), a( ac ) {}
-
-    QAction *action() const { return a; }
-
-private:
-    QAction *a;
-
-};
-
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )
 {
+    listActions->addColumn( tr( "Actions" ) );
     setEnabled( FALSE );
 }
 
@@ -100,6 +81,11 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) { // ### handle action grpups/childs
 	    ActionItem *i = new ActionItem( listActions, a );
 	    i->setText( 0, a->name() );
+	    i->setPixmap( 0, a->iconSet().pixmap() );
+	}
+	if ( listActions->firstChild() ) {
+	    listActions->setCurrentItem( listActions->firstChild() );
+	    listActions->setSelected( listActions->firstChild(), TRUE );
 	}
     }
 }
@@ -110,6 +96,16 @@ void ActionEditor::updateActionName( QAction *a )
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == a )
 	    ( (ActionItem*)it.current() )->setText( 0, a->name() );
+	++it;
+    }
+}
+
+void ActionEditor::updateActionIcon( QAction *a )
+{
+    QListViewItemIterator it( listActions );
+    while ( it.current() ) {
+	if ( ( (ActionItem*)it.current() )->action() == a )
+	    ( (ActionItem*)it.current() )->setPixmap( 0, a->iconSet().pixmap() );
 	++it;
     }
 }

@@ -333,7 +333,7 @@ class PropertyPixmapItem : public QObject,
 
 public:
     PropertyPixmapItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
-			const QString &propName );
+			const QString &propName, bool isIconSet = FALSE );
     ~PropertyPixmapItem();
 
     virtual void showEditor();
@@ -351,7 +351,8 @@ private:
     QGuardedPtr<QHBox> box;
     QGuardedPtr<QLabel> pixPrev;
     QPushButton *button;
-
+    bool iconSet;
+    
 };
 
 

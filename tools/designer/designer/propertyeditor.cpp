@@ -1140,8 +1140,8 @@ void PropertyCoordItem::childValueChanged( PropertyItem *child )
 // --------------------------------------------------------------
 
 PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
-				      const QString &propName )
-    : PropertyItem( l, after, prop, propName )
+				      const QString &propName, bool isIconSet )
+    : PropertyItem( l, after, prop, propName ), iconSet( isIconSet )
 {
     box = new QHBox( listview->viewport() );
     box->hide();
@@ -1179,7 +1179,10 @@ void PropertyPixmapItem::hideEditor()
 void PropertyPixmapItem::setValue( const QVariant &v )
 {
     QString s;
-    pixPrev->setPixmap( v.toPixmap() );
+    if ( !iconSet )
+	pixPrev->setPixmap( v.toPixmap() );
+    else
+	pixPrev->setPixmap( v.toIconSet().pixmap() );
     PropertyItem::setValue( v );
     repaint();
 }
@@ -1188,7 +1191,10 @@ void PropertyPixmapItem::getPixmap()
 {
     QPixmap pix = qChoosePixmap( listview, listview->propertyEditor()->formWindow(), value().toPixmap() );
     if ( !pix.isNull() ) {
-	setValue( pix );
+	if ( !iconSet )
+	    setValue( pix );
+	else
+	    setValue( QIconSet( pix ) );
 	notifyValueChange();
     }
 }
@@ -1200,7 +1206,7 @@ bool PropertyPixmapItem::hasCustomContents() const
 
 void PropertyPixmapItem::drawCustomContents( QPainter *p, const QRect &r )
 {
-    QPixmap pix( value().toPixmap() );
+    QPixmap pix( !iconSet ? value().toPixmap() : value().toIconSet().pixmap() );
     if ( !pix.isNull() ) {
 	p->save();
 	p->setClipRect( QRect( QPoint( (int)(p->worldMatrix().dx() + r.x()),
@@ -1905,7 +1911,7 @@ void PropertyList::setupProperties()
     QObject *w = editor->widget();
     QStringList valueSet;
     bool parentHasLayout =
-	w->isWidgetType() && 
+	w->isWidgetType() &&
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
     for ( QListIterator<char> it( lst ); it.current(); ++it ) {
@@ -1915,7 +1921,7 @@ void PropertyList::setupProperties()
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );
-	if ( editor->widget()->isWidgetType() && 
+	if ( editor->widget()->isWidgetType() &&
 	     editor->formWindow()->isMainContainer( (QWidget*)editor->widget() ) ) {
 	    if ( qstrcmp( p->name(), "geometry" ) == 0 )
 		continue;
@@ -2093,7 +2099,8 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	item = new PropertyColorItem( this, item, 0, name, TRUE );
 	break;
     case QVariant::Pixmap:
-	item = new PropertyPixmapItem( this, item, 0, name );
+    case QVariant::IconSet:
+	item = new PropertyPixmapItem( this, item, 0, name, t == QVariant::IconSet );
 	break;
     case QVariant::SizePolicy:
 	item = new PropertySizePolicyItem( this, item, 0, name );

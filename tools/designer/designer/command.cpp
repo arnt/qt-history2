@@ -556,10 +556,15 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 		formWindow()->setName( v.toCString() );
 	    }
 	}
-	if ( propName == "name" && widget->inherits( "QAction" ) && 
+	if ( propName == "name" && widget->inherits( "QAction" ) &&
 	     formWindow()->mainContainer() &&
 	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
 	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)widget );
+	}
+	if ( propName == "iconSet" && widget->inherits( "QAction" ) &&
+	     formWindow()->mainContainer() &&
+	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
+	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( (QAction*)widget );
 	}
 	if ( propName == "caption" ) {
 	    if ( formWindow()->isMainContainer( widget ) )
