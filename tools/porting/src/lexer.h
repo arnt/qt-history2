@@ -99,6 +99,9 @@ struct TokenStream
 
     inline bool tokenAtEnd()
     { return m_cursor >= m_tokens.size(); }
+    
+    inline bool isValidIndex(int index)
+    { return (index >=0 && index < m_tokens.count()); }
 
 //private:
     QByteArray m_contents;

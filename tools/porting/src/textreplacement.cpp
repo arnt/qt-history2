@@ -12,7 +12,8 @@
 ****************************************************************************/
 
 #include "textreplacement.h"
-
+#include <iostream>
+using namespace std;
 
 bool TextReplacements::insert(QByteArray newText, int insertPosition, int currentLenght)
 {
@@ -25,7 +26,8 @@ bool TextReplacements::insert(QByteArray newText, int insertPosition, int curren
             break;  //we found the right position
     }
     //++i;
-  //  printf("inserting new text %s at %d overwriting %d bytes at list pos %d\n", newText.constData(), insertPosition, currentLenght, i);
+  //  cout << "inserting new text " << newText.constData() << endl;
+    // %s at %d overwriting %d bytes at list pos %d\n", newText.constData(), insertPosition, currentLenght, i);
     TextReplacement rep;
     rep.newText=newText;
     rep.insertPosition=insertPosition;

@@ -103,7 +103,7 @@ void PortingRules::parseXml()
                      currentRule["Qt4"].text().toLatin1()));
         }
         else if(ruleType == "RenamedClass" || ruleType == "RenamedToken" ) {
-            tokenRules.append(new GenericTokenReplacement(
+            tokenRules.append(new ClassNameReplacement(
                     currentRule["Qt3"].text().toLatin1(),
                     currentRule["Qt4"].text().toLatin1()));
         }

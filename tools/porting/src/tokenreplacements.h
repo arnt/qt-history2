@@ -62,6 +62,28 @@ private:
 };
 
 /*
+    A TokenReplacement that changes tokens that specify class names.
+    In some cases where the class name token is a part of a qualified name
+    it is not correct to rename it. ex:
+
+    QButton::toggleState
+
+    Here it is wrong to rename QButton -> Q3Button, since there is
+    a rule that says QButton::ToggleState -> QCheckBox::ToggleState,
+    but no rule for Q3Button::ToggleState.
+*/
+class ClassNameReplacement : public TokenReplacement
+{
+public:
+    ClassNameReplacement(QByteArray oldToken, QByteArray newToken);
+    bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
+    QByteArray getReplaceKey();
+private:
+    QByteArray oldToken;
+    QByteArray newToken;
+};
+
+/*
    Changes scoped tokens:
    AA::BB -> CC::DD
    oldToken corresponds to the AA::BB part, newToken corresponds CC::DD.
@@ -77,11 +99,25 @@ public:
     bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
-  //  bool findPreTextToken(QByteArray scopeName, TokenStream *tokenStream);
-    int findScopeOperator(TokenStream *tokenStream, int startTokenIndex);
-    int getNextScopeToken(TokenStream *tokenStream, int startTokenIndex);
     QByteArray oldToken;
     QByteArray newToken;
+};
+
+class QualifiedNameParser
+{
+public:
+    QualifiedNameParser(TokenStream *tokenStream, int index);
+    enum Direction { Left=-1, Right=1 };
+    bool isPartOfQualifiedName();
+    bool isQualifier();
+    bool isName();
+    int peek(Direction direction);
+    int move(Direction direction);
+private:
+    int nextScopeToken(Direction direction);
+    int findScopeOperator(Direction direction);
+    TokenStream *tokenStream;
+    int currentIndex;
 };
 
 #endif

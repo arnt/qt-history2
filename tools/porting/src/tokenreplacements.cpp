@@ -17,10 +17,8 @@
 #include "logger.h"
 #include "portingrules.h"
 
-
 using std::cout;
 using std::endl;
-
 
 void TokenReplacement::makeLogEntry(QString text, TokenStream *tokenStream)
 {
@@ -36,6 +34,90 @@ void TokenReplacement::makeLogEntry(QString text, TokenStream *tokenStream)
 }
 
 
+QualifiedNameParser::QualifiedNameParser(TokenStream *tokenStream, int index)
+:tokenStream(tokenStream)
+,currentIndex(index)
+{
+    Q_ASSERT(index < tokenStream->m_tokens.count() && index >= 0);
+}
+
+bool QualifiedNameParser::isPartOfQualifiedName()
+{
+    return ((nextScopeToken(Left) != -1) || (nextScopeToken(Right) != -1));
+}
+
+/*
+    A qualifier is a the leftmost or middle part of a qualified name
+*/
+bool QualifiedNameParser::isQualifier()
+{
+    return (nextScopeToken(Right) != -1);
+}
+
+/*
+    A name is a the rightmost part of a qualified name.
+*/
+bool QualifiedNameParser::isName()
+{
+    return (nextScopeToken(Left) != -1);
+}
+
+/*
+    Peek for a qualifier or name in the given direction
+*/
+int QualifiedNameParser::peek(Direction direction)
+{
+    return nextScopeToken(direction);
+}
+
+/*
+    Look for a qualifier or name in the given direction,update
+    current position if found.
+*/
+int QualifiedNameParser::move(Direction direction)
+{
+    int tokenIndex = nextScopeToken(direction);
+    if(tokenIndex != -1)
+        currentIndex = tokenIndex;
+    return tokenIndex;
+}
+
+/*
+    Looks for "::" starting at currentIndex, returns the token index
+    for it if found. If the first non-whitespace token found is something else,
+    -1 is returned.
+*/
+int QualifiedNameParser::findScopeOperator(Direction direction)
+{
+    int tokenIndex = currentIndex;
+    QByteArray tokenText;
+    //loop until we get a token containg text or we pass the beginning/end of the source
+    while(tokenText.isEmpty() && tokenStream->isValidIndex(tokenIndex + direction)) {
+        tokenIndex += direction;
+        tokenText = tokenStream->tokenText(tokenIndex).trimmed();
+    }
+    if(tokenText=="::")
+       return tokenIndex;
+    else
+       return -1;
+}
+/*
+    Walks a qualified name. Returns the token index
+    for the next identifer in the qualified name, or -1 if its not found.
+*/
+int QualifiedNameParser::nextScopeToken(Direction direction)
+{
+    int tokenIndex  = findScopeOperator(direction);
+    if (tokenIndex == -1)
+        return -1;
+    QByteArray tokenText;
+   //loop until we get a token containg text or we pass the start of the source
+    while(tokenText.isEmpty() && tokenStream->isValidIndex(tokenIndex + direction)) {
+       tokenIndex += direction;
+       tokenText = tokenStream->tokenText(tokenIndex).trimmed();
+    }
+    return tokenIndex;
+}
 
 IncludeTokenReplacement::IncludeTokenReplacement(QByteArray fromFile, QByteArray toFile)
 :fromFile(fromFile)
@@ -85,6 +167,55 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
 }
 
 ///////////////////
+ClassNameReplacement::ClassNameReplacement(QByteArray oldToken, QByteArray newToken)
+:oldToken(oldToken)
+,newToken(newToken)
+{}
+
+QByteArray ClassNameReplacement::getReplaceKey()
+{
+    return QByteArray(oldToken);
+}
+
+/*
+    Replace a class name token. If the class name is a scope specifier (a "qualifier")
+    in a qualified name, we check if qualified name will be replaced by a porting rule.
+    If so, we don't do the class name replacement.
+*/
+bool ClassNameReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
+{
+    QByteArray tokenText = tokenStream->currentTokenText();
+    if(tokenText!=oldToken)
+        return false;
+
+    int replaceTokenIndex = tokenStream->cursor();
+    QualifiedNameParser nameParser(tokenStream, tokenStream->cursor());
+    if(nameParser.isPartOfQualifiedName() &&
+       nameParser.peek(QualifiedNameParser::Right) != -1) {
+        int nameTokenIndex = nameParser.peek(QualifiedNameParser::Right);
+        QByteArray name = tokenStream->tokenText(nameTokenIndex);
+        tokenStream->rewind(nameTokenIndex);
+
+        TextReplacements textReplacements;
+        QList<TokenReplacement*> tokenReplacements
+            = PortingRules::instance()->getNoPreprocessPortingTokenRules();
+        bool changed = false;
+        foreach(TokenReplacement *tokenReplacement, tokenReplacements) {
+            changed = tokenReplacement->doReplace(tokenStream, textReplacements);
+            if(changed)
+                break;
+        }
+        tokenStream->rewind(replaceTokenIndex);
+        if(changed)
+            return false;
+    }
+    Token token = tokenStream->token();
+    makeLogEntry(tokenText + " -> " + newToken, tokenStream);
+    textReplacements.insert(newToken, token.position, tokenText.size());
+    return true;
+}
+
+///////////////////
 
 ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
                                                QByteArray newToken)
@@ -109,9 +240,10 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
     if(tokenText == oldTokenName ){
         //check scope (if any)
         if(!oldTokenScope.isEmpty()) {
-            int scopeTokenIndex = getNextScopeToken(tokenStream, tokenStream->cursor());
-            if(scopeTokenIndex  != -1) {
+            QualifiedNameParser qnp(tokenStream, tokenStream->cursor());
+            if(qnp.isName()) {
                 //token in tokenStream is qualified
+                int scopeTokenIndex = qnp.peek(QualifiedNameParser::Left);
                 QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
 //                 qDebug("scopeText=%s oldTokenScope=%s", scopeText.data(), oldTokenScope.data());
                 if(scopeText != oldTokenScope) {
@@ -192,46 +324,4 @@ QByteArray ScopedTokenReplacement::getReplaceKey()
         return oldToken;
     }
 }
-
-/*
-    looks for "::" backwards from startTokenIndex, returns the token index
-    for it if found. If the first non-whitespace token found is something else,
-    -1 is returned
-*/
-int ScopedTokenReplacement::findScopeOperator(TokenStream *tokenStream, int startTokenIndex)
-{
-   int tokenIndex=startTokenIndex;
-   QByteArray tokenText;
-   //loop until we get a token containg text or we pass the start of the source
-   while(tokenText.isEmpty() && tokenIndex>0) {
-       --tokenIndex;
-       tokenText = tokenStream->tokenText(tokenIndex).trimmed();
-   }
-   if(tokenText=="::")
-       return tokenIndex;
-   else
-       return -1;
-}
-
-/*
-    This function "unwinds" a qualified name like QString::null, by returning
-    the token index for the next class/namespace in the qualifier chain. Thus, if null
-    is the start token, getNextScopeToken will return QString's index.
-
-    returns -1 if the end of the qualifier chain is found.
-*/
-int ScopedTokenReplacement::getNextScopeToken(TokenStream *tokenStream, int startTokenIndex)
-{
-    int tokenIndex  = findScopeOperator(tokenStream, startTokenIndex);
-    if (tokenIndex == -1)
-        return -1;
-    QByteArray tokenText;
-   //loop until we get a token containg text or we pass the start of the source
-    while(tokenText.isEmpty() && tokenIndex>0) {
-       --tokenIndex;
-       tokenText = tokenStream->tokenText(tokenIndex).trimmed();
-    }
-    return tokenIndex;
-}
-
 
