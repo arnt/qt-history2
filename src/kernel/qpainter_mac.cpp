@@ -1912,7 +1912,7 @@ QPoint QPainter::pos() const
     ((QPainter *)this)->initPaintDevice();
     Point pt;
     GetPen(&pt);
-    return QPoint(pt.h - d->offx, pt.v - d->offy);
+    return xFormDev(QPoint(pt.h - d->offx, pt.v - d->offy));
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
