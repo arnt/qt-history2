@@ -26,25 +26,35 @@ QDomDocument *XmlWriter::toXml()
         QDomElement blockElement = document->createElement("block");
         document->appendChild(blockElement);
 
-        QTextBlock::iterator it;
-        for (it = currentBlock.begin(); !(it.atEnd()); ++it) {
-
-            QTextFragment fragment = it.fragment();
-            if (fragment.isValid()) {
-                QDomElement fragmentElement = document->createElement("fragment");
-                blockElement.appendChild(fragmentElement);
-
-                fragmentElement.setAttribute("length", fragment.length());
-                QDomText fragmentText = document->createTextNode(fragment.text());
-
-                fragmentElement.appendChild(fragmentText);
-                /* Include an ellipsis here for easy quoting:
-                ...
-                */
-            }
-        }
+        readFragment(currentBlock, blockElement, document);
+        /* Include an ellipsis here for easy quoting:
+        ...
+        */
         currentBlock = currentBlock.next();
     }
 
     return document;
+}
+
+void XmlWriter::readFragment(const QTextBlock &currentBlock,
+                             QDomElement blockElement,
+                             QDomDocument *document)
+{
+    QTextBlock::iterator it;
+    for (it = currentBlock.begin(); !(it.atEnd()); ++it) {
+
+        QTextFragment fragment = it.fragment();
+        if (fragment.isValid()) {
+            QDomElement fragmentElement = document->createElement("fragment");
+            blockElement.appendChild(fragmentElement);
+
+            fragmentElement.setAttribute("length", fragment.length());
+            QDomText fragmentText = document->createTextNode(fragment.text());
+
+            fragmentElement.appendChild(fragmentText);
+            /* Include an ellipsis here for easy quoting:
+            ...
+            */
+        }
+    }
 }

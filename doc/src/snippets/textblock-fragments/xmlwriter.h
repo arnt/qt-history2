@@ -12,6 +12,9 @@ public:
     QDomDocument *toXml();
 
 private:
+    void readFragment(const QTextBlock &currentBlock, QDomElement blockElement,
+                      QDomDocument *document);
+
     QDomDocument *document;
     QTextDocument *textDocument;
 };
