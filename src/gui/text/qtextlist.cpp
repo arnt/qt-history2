@@ -7,7 +7,7 @@
 #include <qdebug.h>
 
 
-class QTextListPrivate : public QTextFormatGroupPrivate
+class QTextListPrivate : public QTextGroupPrivate
 {
 };
 
@@ -28,7 +28,7 @@ class QTextListPrivate : public QTextFormatGroupPrivate
 /*! \internal
  */
 QTextList::QTextList(QObject *parent)
-    : QTextFormatGroup(*new QTextListPrivate, parent)
+    : QTextGroup(*new QTextListPrivate, parent)
 {
 }
 

@@ -80,9 +80,9 @@ public:
     QTextFormatCollection &operator=(const QTextFormatCollection &rhs);
 
 
-    QTextFormatGroup *createGroup(const QTextFormat &newFormat);
-    QTextFormatGroup *group(int groupIndex) const;
-    int indexForGroup(QTextFormatGroup *group);
+    QTextGroup *createGroup(const QTextFormat &newFormat);
+    QTextGroup *group(int groupIndex) const;
+    int indexForGroup(QTextGroup *group);
 
     int indexForFormat(const QTextFormat &f);
     bool hasFormatCached(const QTextFormat &format) const;
@@ -102,21 +102,21 @@ public:
 
     inline int numFormats() const { return formats.count(); }
 
-    QTextFormatGroup *createGroup(int index);
+    QTextGroup *createGroup(int index);
 
     mutable QAtomic ref;
 
     QTextPieceTable *pieceTable;
-    const QVector<QTextFormatGroup *> &formatGroups() const { return groups; }
+    const QVector<QTextGroup *> &formatGroups() const { return groups; }
 private:
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
-    QVector<QTextFormatGroup *> groups;
+    QVector<QTextGroup *> groups;
 };
 
-class QTextFormatGroupPrivate : public QObjectPrivate
+class QTextGroupPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTextFormatGroup);
+    Q_DECLARE_PUBLIC(QTextGroup);
 public:
     QTextFormatCollection *collection;
     int index;

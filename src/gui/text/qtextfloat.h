@@ -8,7 +8,7 @@
 
 class QTextFloatPrivate;
 
-class Q_GUI_EXPORT QTextFloat : public QTextFormatGroup
+class Q_GUI_EXPORT QTextFloat : public QTextGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextFloat);

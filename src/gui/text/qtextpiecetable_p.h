@@ -87,7 +87,7 @@ public:
         int blockFormat;
         Q_UINT32 length;
         QAbstractUndoItem *custom;
-        QTextFormatGroup *group;
+        QTextGroup *group;
     };
 
     bool tryMerge(const UndoCommand &other);
@@ -158,7 +158,7 @@ public:
     int nextCursorPosition(int position, QTextLayout::CursorMode mode) const;
     int previousCursorPosition(int position, QTextLayout::CursorMode mode) const;
 
-    void changeGroupFormat(QTextFormatGroup *group, int format);
+    void changeGroupFormat(QTextGroup *group, int format);
 
 signals:
     void contentsChanged();

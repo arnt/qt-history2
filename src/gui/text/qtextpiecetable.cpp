@@ -144,7 +144,7 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    QTextFormatGroup *group = formats->format(blockFormat).group();
+    QTextGroup *group = formats->format(blockFormat).group();
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
 
@@ -263,7 +263,7 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
     }
     *blockFormat = blocks.fragment(b)->format;
 
-    QTextFormatGroup *group = formats->format(blocks.fragment(b)->format).group();
+    QTextGroup *group = formats->format(blocks.fragment(b)->format).group();
     if (group)
         group->removeBlock(QTextBlockIterator(this, b));
 
@@ -420,7 +420,7 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
     int newFormatIdx = -1;
     if (mode == SetFormat)
         newFormatIdx = formats->indexForFormat(newFormat);
-    QTextFormatGroup *group = newFormat.group();
+    QTextGroup *group = newFormat.group();
 
     QTextBlockIterator it = from;
     QTextBlockIterator end = to;
@@ -430,7 +430,7 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
     for (; it != end; ++it) {
         int oldFormat = block(it)->format;
         QTextBlockFormat format = formats->blockFormat(oldFormat);
-        QTextFormatGroup *oldGroup = format.group();
+        QTextGroup *oldGroup = format.group();
         if (mode == MergeFormat) {
             format.merge(newFormat);
             newFormatIdx = formats->indexForFormat(format);
@@ -564,8 +564,8 @@ void QTextPieceTable::undoRedo(bool undo)
 
             int oldFormat = block(it)->format;
             block(it)->format = c.format;
-            QTextFormatGroup *oldGroup = formats->blockFormat(oldFormat).group();
-            QTextFormatGroup *group = formats->blockFormat(c.format).group();
+            QTextGroup *oldGroup = formats->blockFormat(oldFormat).group();
+            QTextGroup *group = formats->blockFormat(c.format).group();
             c.format = oldFormat;
             if (group != oldGroup) {
                 if (oldGroup)
@@ -579,7 +579,7 @@ void QTextPieceTable::undoRedo(bool undo)
 	    break;
 	}
 	case UndoCommand::GroupFormatChange: {
-            QTextFormatGroup *group = c.group;
+            QTextGroup *group = c.group;
             int oldFormat = group->d_func()->index;
             group->d_func()->index = c.format;
             changeGroupFormat(group, c.format);
@@ -785,7 +785,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
     return it.layout()->previousCursorPosition(position-start, mode) + start;
 }
 
-void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
+void QTextPieceTable::changeGroupFormat(QTextGroup *group, int format)
 {
     beginEditBlock();
     int oldFormatIndex = group->d_func()->index;

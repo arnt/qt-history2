@@ -22,16 +22,16 @@ class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
 
-class QTextFormatGroupPrivate;
+class QTextGroupPrivate;
 
-class QTextFormatGroup : public QObject
+class QTextGroup : public QObject
 {
-    Q_DECLARE_PRIVATE(QTextFormatGroup);
+    Q_DECLARE_PRIVATE(QTextGroup);
     Q_OBJECT
 protected:
-    QTextFormatGroup(QObject *parent);
-    ~QTextFormatGroup();
-    QTextFormatGroup(QTextFormatGroupPrivate &p, QObject *parent);
+    QTextGroup(QObject *parent);
+    ~QTextGroup();
+    QTextGroup(QTextGroupPrivate &p, QObject *parent);
 public:
     int commonFormatType() const;
     QTextFormat commonFormat() const;
@@ -155,8 +155,8 @@ public:
 
     int type() const;
 
-    QTextFormatGroup *group() const;
-    void setGroup(QTextFormatGroup *group);
+    QTextGroup *group() const;
+    void setGroup(QTextGroup *group);
 
     int groupIndex() const;
     void setGroupIndex(int group);

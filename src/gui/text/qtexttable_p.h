@@ -7,7 +7,7 @@
 #include "qtextpiecetable_p.h"
 #endif
 
-class QTextTablePrivate : public QTextFormatGroupPrivate
+class QTextTablePrivate : public QTextGroupPrivate
 {
     Q_DECLARE_PUBLIC(QTextTable);
 public:

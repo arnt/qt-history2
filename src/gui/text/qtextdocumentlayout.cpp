@@ -61,7 +61,7 @@ public:
         QTextBlockIterator block;
         QRect rect;
     };
-    QHash<QTextFormatGroup *, Float> floats;
+    QHash<QTextGroup *, Float> floats;
 
 #if 0
     struct Page {
@@ -334,7 +334,7 @@ void QTextDocumentLayoutPrivate::floatMargins(int y, int *left, int *right)
 {
     *left = 0;
     *right = d->pageSize.width();
-    for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
+    for (QHash<QTextGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
         QRect r = it->rect;
         r.moveBy(it->block.layout()->position());
         if (r.y() <= y && r.bottom() > y) {
@@ -362,7 +362,7 @@ int QTextDocumentLayoutPrivate::findY(int yfrom, int requiredWidth)
 
         // move float down until we find enough space
         int newY = INT_MAX;
-        for (QHash<QTextFormatGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
+        for (QHash<QTextGroup *, Float>::const_iterator it = floats.constBegin(); it != floats.constEnd(); ++it) {
             QRect r = it->rect;
             r.moveBy(it->block.layout()->position());
             if (r.y() <= yfrom && r.bottom() > yfrom) {
@@ -378,7 +378,7 @@ int QTextDocumentLayoutPrivate::findY(int yfrom, int requiredWidth)
 
 void QTextDocumentLayoutPrivate::removeFloatsForBlock(const QTextBlockIterator &b)
 {
-    for (QHash<QTextFormatGroup *, Float>::iterator it = floats.begin(); it != floats.constEnd();) {
+    for (QHash<QTextGroup *, Float>::iterator it = floats.begin(); it != floats.constEnd();) {
         if (it->block == b)
             it = floats.erase(it);
         else
@@ -464,7 +464,7 @@ void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
     if (!handler.component)
         return;
     QTextFloatFormat::Position pos = QTextFloatFormat::None;
-    QTextFormatGroup *group = f.group();
+    QTextGroup *group = f.group();
     if (group)
         pos = group->commonFormat().toFloatFormat().position();
 
@@ -485,7 +485,7 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     if (!handler.component)
         return;
     QTextFloatFormat::Position pos = QTextFloatFormat::None;
-    QTextFormatGroup *group = f.group();
+    QTextGroup *group = f.group();
     if (group)
         pos = group->commonFormat().toFloatFormat().position();
     if (pos == QTextFloatFormat::None)
@@ -527,7 +527,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFloatFormat::Position pos = QTextFloatFormat::None;
-    QTextFormatGroup *group = f.group();
+    QTextGroup *group = f.group();
     QRect r = rect;
     if (group) {
         pos = group->commonFormat().toFloatFormat().position();

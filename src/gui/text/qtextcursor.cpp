@@ -157,7 +157,7 @@ QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTable
 
 QTextTable *QTextCursorPrivate::tableAt(int position) const
 {
-    const QVector<QTextFormatGroup *> &groups = pieceTable->formatCollection()->formatGroups();
+    const QVector<QTextGroup *> &groups = pieceTable->formatCollection()->formatGroups();
     QTextTable *table = 0;
     int tableStart = -1;
     for (int i = 0; i < groups.size(); ++i) {
@@ -938,7 +938,7 @@ QTextList *QTextCursor::currentList() const
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    QTextFormatGroup *g = b.group();
+    QTextGroup *g = b.group();
     return qt_cast<QTextList *>(g);
 }
 

@@ -45,7 +45,7 @@ private:
     int cSpan;
 };
 
-class Q_GUI_EXPORT QTextTable : public QTextFormatGroup
+class Q_GUI_EXPORT QTextTable : public QTextGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextTable);

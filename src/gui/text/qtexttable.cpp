@@ -124,7 +124,7 @@ QTextTableCellProperties::~QTextTableCellProperties() {}
 /*! \internal
  */
 QTextTable::QTextTable(QObject *parent)
-    : QTextFormatGroup(*new QTextTablePrivate, parent)
+    : QTextGroup(*new QTextTablePrivate, parent)
 {
 }
 
@@ -486,7 +486,7 @@ QTextCursor QTextTable::end() const
 void QTextTable::insertBlock(const QTextBlockIterator &block)
 {
     d->dirty = true;
-    QTextFormatGroup::insertBlock(block);
+    QTextGroup::insertBlock(block);
     if (d->cell_idx == -1 || d->eor_idx == -1) {
 	QTextBlockFormat b = block.blockFormat();
 	int idx = d->pieceTable()->formatCollection()->indexForFormat(b);
@@ -503,7 +503,7 @@ void QTextTable::insertBlock(const QTextBlockIterator &block)
 void QTextTable::removeBlock(const QTextBlockIterator &block)
 {
     d->dirty = true;
-    QTextFormatGroup::removeBlock(block);
+    QTextGroup::removeBlock(block);
 }
 
 void QTextTable::blockFormatChanged(const QTextBlockIterator &)

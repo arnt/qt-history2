@@ -181,7 +181,7 @@ void QTextDocumentFragmentPrivate::readFormatCollection(const QTextFormatCollect
 
         QTextFormat format = collection->format(formatIdx);
 
-        QTextFormatGroup *group = format.group();
+        QTextGroup *group = format.group();
         if (group) {
             QTextFormat groupFormat = group->commonFormat();
             Q_ASSERT(collection->hasFormatCached(groupFormat));
@@ -478,7 +478,7 @@ void QTextHTMLImporter::import()
             }
             QTextFloatFormat ffmt;
             ffmt.setPosition(f);
-            QTextFormatGroup *group = formats.createGroup(ffmt);
+            QTextGroup *group = formats.createGroup(ffmt);
             fmt.setGroup(group);
 
             appendImage(fmt);

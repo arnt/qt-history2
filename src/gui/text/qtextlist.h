@@ -11,7 +11,7 @@ class QTextListPrivate;
 class QTextPieceTable;
 class QTextCursor;
 
-class Q_GUI_EXPORT QTextList : public QTextFormatGroup
+class Q_GUI_EXPORT QTextList : public QTextGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextList);
