@@ -330,14 +330,14 @@ public:
 	if ( !x )
 	    x = d->header.parent;
 	if (!x) {
-	    cout << "empty" << endl;
+	    std::cout << "empty" << std::endl;
 	    return;
 	}
 	if ( x->left )
-	    inorder( d, x->left, level + 1 );
-	cout << level << " this=" << x << " Key=" << key(x) << endl;
+	    inorder( x->left, level + 1 );
+	std::cout << level << " this=" << x << " Key=" << key(x) << std::endl;
 	if ( x->right )
-	    inorder( d, x->right, level + 1 );
+	    inorder( x->right, level + 1 );
     }
     static void inorder( QMapData *d, QMapData::Node* x = 0, int level = 0 ){
 	if ( !x )
@@ -345,7 +345,7 @@ public:
 	if (x) {
 	    if ( x->left )
 		inorder( d, x->left, level + 1 );
-	    cout << level << " this=" << x << endl;
+	    std::cout << level << " this=" << x << std::endl;
 	    if ( x->right )
 		inorder( d, x->right, level + 1 );
 	}
@@ -357,8 +357,10 @@ private:
 
     void detachInternal();
     Node *findNode(const Key& k) const;
-    static inline const Key& key( QMapData::Node* b ) { return static_cast<Node *>(b)->key; }
-    static inline const T& value( QMapData::Node* b ) { return static_cast<Node *>(b)->data; }
+    static inline const Key& key( const QMapData::Node* b )
+	{ return static_cast<const Node *>(b)->key; }
+    static inline const T& value( const QMapData::Node* b )
+	{ return static_cast<const Node *>(b)->data; }
     Node *insertSingle( const Key& k );
     static void free(QMapData *d);
 };
@@ -366,74 +368,82 @@ private:
 template<class Key, class T>
 void QMap<Key,T>::detachInternal()
 {
-    QMapData *x = new QMapData;
-    QMapData::init(x);
+    QMapData *x = QMapData::init(new QMapData);
+
     if (d->node_count) {
-	const QMapData::Node *o = d->header.parent;
-	QMapData::Node *n = new Node(*static_cast<const Node *>(o));
-	x->header.parent = n;
-	x->header.parent->parent = &x->header;
-	x->header.right = 0;
+        const QMapData::Node *o = d->header.parent;
 
-	while (o != &d->header) {
-	    if (o->left) {
-		n->left = new Node(*static_cast<const Node *>(o->left));
-		n->left->parent = n;
-		n = n->left;
-		o = o->left;
-	    } else {
-		n->left = 0;
-		if (!o->right) {
-		    n->right = 0;
-		    while (o->parent != &d->header && o->parent->right == o) {
-			o = o->parent;
-			n = n->parent;
-		    }
-		    o = o->parent;
-		    n = n->parent;
-		}
-		if (o != &d->header && o->right) {
-		    n->right = new Node(*static_cast<const Node *>(o->right));
-		    n->right->parent = n;
-		    n = n->right;
-		    o = o->right;
-		}
-	    }
-	}
+        QMapData::Node *p = &x->header;
 
-	x->header.left = QMapData::minimum(x->header.parent);
-	x->header.right = QMapData::maximum(x->header.parent);
-	x->node_count = d->node_count;
+        bool left = true;
+        while (o != &d->header) {
+            QMapData::Node *n = new Node(*static_cast<const Node *>(o));
+            n->left = n->right = 0;
+            n->parent = p;
+            if (left)
+                p->left = n;
+            else
+                p->right = n;
+
+            if (o->left) {
+                left = true;
+                p = n;
+                n = n->left;
+                o = o->left;
+            } else {
+                left = false;
+                if (!o->right) {
+                    n->right = 0;
+                    while ((!o->parent->right || o->parent->right == o) &&
+			    o->parent != &d->header) {
+                        o = o->parent;
+                        n = n->parent;
+                    }
+                    o = o->parent;
+                    n = n->parent;
+                }
+                if (o->right && o != &d->header) {
+                    p = n;
+                    n = n->right;
+                    o = o->right;
+                }
+            }
+        }
+
+        x->header.parent = x->header.left;
+        x->header.left = QMapData::minimum(x->header.parent);
+        x->header.right = QMapData::maximum(x->header.parent);
+        x->node_count = d->node_count;
     }
 
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	free(x);
+        free(x);
 }
 
 template <class Key, class T>
-QMap<Key, T>::Node *QMap<Key, T>::insertSingle( const Key& k )
+Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::insertSingle( const Key& k )
 {
     // Search correct position in the tree
     QMapData::Node* y = &d->header;
     QMapData::Node* x = y->parent;
     QMapData::Node *left = 0;
     while ( x ) {
-	bool result = (k < key(x));
 	y = x;
-	if (result) {
+	if (k < key(x)) {
 	    x = x->left;
 	} else {
 	    left = x;
 	    x = x->right;
 	}
     }
-    if ( left && left != y && !(key(left) < k)) {
+    if ( left && !(key(left) < k)) {
 	y = left;
-    } else if ( y == &d->header || key(y) < k ) {
+    } else {
 	// have to create a new node
 	Node *z = new Node(k);
-	if (y == &d->header || x != 0 ) {
+	if (y == &d->header || y != left
+	    ) {
 	    y->left = z;                // also makes leftmost = z when y == header
 	    if ( y == &d->header ) {
 		d->header.parent = z;
@@ -456,7 +466,7 @@ QMap<Key, T>::Node *QMap<Key, T>::insertSingle( const Key& k )
 }
 
 template <class Key, class T>
-QMap<Key, T>::Node *QMap<Key, T>::findNode(const Key& k) const
+Q_TYPENAME QMap<Key, T>::Node *QMap<Key, T>::findNode(const Key& k) const
 {
     QMapData::Node* y = &d->header;        // Last node
     QMapData::Node* x = y->parent; // Root node.
@@ -489,6 +499,8 @@ void QMap<Key,T>::free(QMapData *d)
 	    n->left = 0;
 	if ( n->left ) {
 	    n = n->left;
+	    while (!n->right && n->left)
+		n = n->left;
 	    while ( n->right )
 		n = n->right;
 	}
@@ -499,7 +511,7 @@ void QMap<Key,T>::free(QMapData *d)
 }
 
 template<class K, class T>
-QMap<K, T>::Iterator QMap<K, T>::erase( Iterator it )
+Q_TYPENAME QMap<K, T>::Iterator QMap<K, T>::erase( Iterator it )
 {
     detach();
     Iterator n = it;
@@ -653,7 +665,7 @@ Q_INLINE_TEMPLATES QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 template<class Key, class T>
 Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << (Q_UINT32)m.size();
-    QMap<Key,T>::ConstIterator it = m.begin();
+    Q_TYPENAME QMap<Key,T>::ConstIterator it = m.begin();
     for( ; it != m.end(); ++it )
 	s << it.key() << it.data();
     return s;
