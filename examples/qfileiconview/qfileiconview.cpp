@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#29 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#30 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -592,7 +592,6 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     }
 
     setGridX( 100 );
-    setGridY( 75 );
     setResizeMode( Adjust );
 
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
@@ -710,7 +709,7 @@ QDragObject *QtFileIconView::dragObject()
     for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; item = (QtFileIconViewItem*)item->nextItem() )
 	if ( item->isSelected() )
 	    drag->append( QtFileIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
-						     item->iconRect( FALSE ).y() - orig.y(), 
+						     item->iconRect( FALSE ).y() - orig.y(),
 						     item->iconRect().width(), item->iconRect().height() ),
 					      QRect( item->textRect( FALSE ).x() - orig.x(),
 						     item->textRect( FALSE ).y() - orig.y(), 	
