@@ -707,7 +707,8 @@ int QTableItem::col() const
 */
 
 /*!
-  Constructs a table of 10 * 10 cells.
+  Constructs an empty table. 
+  Call \l setNumRows() and \l setNumCols() before populating the table.
 
   Performance is boosted by modifying the widget flags so that only part
   of the QTableItem children is redrawn.  This may be unsuitable for custom

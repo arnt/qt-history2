@@ -49,8 +49,8 @@
     field also contains the value of the database column, which can be
     viewed or changed.
 
-    Field data values are stored as a QVariant type.  All
-    an incompatible type are not permitted.  For example:
+    Field data values are stored as a QVariant type.  Using
+    an incompatible type is not permitted.  For example:
 
     \code
     QSqlField f( "myfield", QVariant::Int );
