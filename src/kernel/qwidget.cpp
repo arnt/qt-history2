@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#392 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#393 $
 **
 ** Implementation of QWidget class
 **
@@ -3549,7 +3549,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 	repaint();
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
-	setMicroFocusHint(width()/2, 0, 1, height());
+	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
     }
 }
 
