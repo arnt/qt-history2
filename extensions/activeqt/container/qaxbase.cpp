@@ -4111,15 +4111,20 @@ QVariant QAxBase::asVariant() const
 
 // internal function that creates a QAxObject from an iface
 // used by type-conversion code (types.cpp)
-void *qax_createObjectWrapper(IUnknown *iface, QObject *parent)
+void *qax_createObjectWrapper(int metaType, IUnknown *iface)
 {
     if (!iface)
         return 0;
 
-    void *result = new QAxObject(iface, parent);
-    iface->Release();
+    QAxObject *object = (QAxObject*)QMetaType::construct(metaType, 0);
+    QAxBasePrivate *d = object->d;
 
-    return result;
+    d->ptr = iface;
+    d->initialized = true;
+
+    // no release, since no addref
+
+    return object;
 }
 
 /*!
