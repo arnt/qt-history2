@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#21 $
+# $Id: //depot/qt/main/GNUmakefile.inc#22 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -184,8 +184,8 @@ depend:
 mocclean:
 	-rm -f */q*.moc */moc_q*.cpp *.moc moc_*.cpp
 
-clean: GNUmakefile.debug
-	$(MAKE) -f GNUmakefile.debug clean
+clean: GNUmakefile$(PROJMAK).debug
+	$(MAKE) -f GNUmakefile$(PROJMAK).debug clean
 	-rm -f GNUmakefile*.*debug GNUmakefile*.*release GNUmakefile*.profile $(MOREDEP) $(MORECLEAN)
 	-rm -f core *~
 	-rm -r -f .obj
