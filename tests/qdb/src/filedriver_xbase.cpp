@@ -153,6 +153,12 @@ public:
     xbShort putField( int i, const QVariant& v )
     {
 	xbShort rc;
+
+	if ( v.type() == QVariant::Invalid ) {
+	    QString n = "NULL";
+	    rc = file.PutField( i, n.latin1() );
+	    return rc;
+	}
 	switch ( xbaseTypeToVariant( file.GetFieldType(i) ) ) {
 	case QVariant::String:
 	case QVariant::CString: {
@@ -263,8 +269,8 @@ bool FileDriver::create( const List& data )
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
 	List fieldDescription = data[i].toList();
-	if ( fieldDescription.count() != 4 ) {
-	    ERROR_RETURN( "Internal error: Unable to create table, expected 4 field descriptors, got " +
+	if ( fieldDescription.count() != 5 ) {
+	    ERROR_RETURN( "Internal error: Unable to create table, expected 5 field descriptors, got " +
 			  QString::number( fieldDescription.count() ) );
 	}
 	QString name = fieldDescription[0].toString();
@@ -295,6 +301,8 @@ bool FileDriver::create( const List& data )
 	    ERROR_RETURN( "Internal error: Unable to create table, unknown type for field:" + name );
 	}
 	xbrec[i] = x;
+	if ( fieldDescription[4].toBool() == TRUE )
+	    d->notnulls.append( i );
     }
     memset( &x, 0, sizeof(xbSchema) );
     xbrec[ data.count() ] = x;
@@ -306,18 +314,6 @@ bool FileDriver::create( const List& data )
     d->file.CloseDatabase();   /* Close database and associated indexes */
     /* not null specification */
     if ( d->notnulls.count() ) {
-	xbSchema notnullrec[] =
-	{
-	    { "FIELDNUM", XB_NUMERIC_FLD,     9, 0 },
-	    { "",0,0,0 }
-	};
-	xbDbf notnullfile( &d->x );
-	rc = notnullfile.CreateDatabase( env->path() + "/" + name().latin1() + "nn.dbf",
-					 notnullrec, XB_OVERLAY );
-	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to create nn table '" + name() + "nn': " + QString( xbStrError( rc ) ) );
-	}
-	notnullfile.CloseDatabase();
 	if ( !appendNotNullInfo( d->notnulls ) ) {
 	    ERROR_RETURN( "Unable to store NOT NULL information: " + QString( xbStrError( rc ) ) );
 	}
@@ -332,10 +328,24 @@ bool FileDriver::appendNotNullInfo( const QValueList<uint>& cols )
 {
     if ( !cols.count() )
 	return TRUE;
+    xbShort rc = XB_NO_ERROR;
     QFileInfo fi( env->path() + "/" + name() );
     QString basename = fi.baseName();
     xbDbf notnullfile( &d->x );
-    xbShort rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
+    if ( !QFile::exists( env->path() + "/" + name().latin1() + "nn.dbf" ) ) {
+	xbSchema notnullrec[] =
+	{
+	    { "FIELDNUM", XB_NUMERIC_FLD,     9, 0 },
+	    { "",0,0,0 }
+	};
+	notnullfile.SetVersion( 4 );   /* dbase IV files */
+	rc = notnullfile.CreateDatabase( env->path() + "/" + name().latin1() + "nn.dbf",
+					 notnullrec, XB_OVERLAY );
+	if ( rc != XB_NO_ERROR )
+	    return FALSE;
+	notnullfile.CloseDatabase();
+    }
+    rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
     if ( rc != XB_NO_ERROR )
 	return FALSE;
     for ( uint i = 0; i < cols.count(); ++i ) {
@@ -532,6 +542,9 @@ bool FileDriver::insert( const List& data )
 	    ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
+	if ( d->notnulls.contains( pos ) && val.type() == QVariant::Invalid ) {
+	    ERROR_RETURN("Unable to insert NULL value in NOT NULL field: " + name );
+	}
 	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
 	    QDate d = val.toDate();
 	    if ( !d.isValid() ) {
@@ -1115,7 +1128,7 @@ bool FileDriver::createIndex( const List& data, bool unique, bool notnull )
 			  QString( v2.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
-	if ( !d->notnulls.contains( fieldnum ) )
+	if ( notnull && !d->notnulls.contains( fieldnum ) )
 	    notnulls.append( fieldnum );
     }
     /* check if index already exists */
