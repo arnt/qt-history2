@@ -21,8 +21,6 @@ public:
     bool connectNotify( QApplication* theApp );
     bool disconnectNotify( QApplication* theApp );
 
-    QString queryInterface() { return "QWidgetInterface"; }
-
     QString name() { return "Test Widgetplugin"; }
     QString description() { return "Test implementation of the QWidgetInterface"; }
     QString author() { return "vohi"; }
