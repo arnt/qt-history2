@@ -1829,6 +1829,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
 	// if the column width changed and this item was not painted since this change
 	if ( ci && ( ci->width != width || ci->text != t || ci->dirty ) ) {
+	    ci->text = t;
 	    ci->dirty = FALSE;
 	    ci->width = width;
 	    ci->truncated = FALSE;
@@ -5935,7 +5936,7 @@ bool QListView::rootIsDecorated() const
 
 void QListView::ensureItemVisible( const QListViewItem * i )
 {
-    if ( !i )
+    if ( !i || !isVisible() )
 	return;
 
     QListViewItem *parent = i->parent();
