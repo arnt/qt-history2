@@ -627,6 +627,12 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	flags |= QStyle::Style_Enabled;
     if (has_focus)
 	flags |= QStyle::Style_HasFocus;
+    if ( selected )
+	flags |= QStyle::Style_Selected;
+    else if(t == d->pressed)
+	flags |= QStyle::Style_Sunken;
+    if(t->rect().contains(mapFromGlobal(QCursor::pos())))
+	flags |= QStyle::Style_MouseOver;
     QPalette pal = palette();
     if(!t->isEnabled())
 	pal.setCurrentColorGroup(QPalette::Disabled);
