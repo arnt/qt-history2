@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#136 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#135 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#136 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -739,7 +739,7 @@ bool QWidget::focusPrevChild()
 
 
 /*----------------------------------------------------------------------------
-  Updates the widget unless updates are disabled.
+  Updates the widget unless updates are disabled or the widget hidden.
 
   Updating the widget will erase the widget contents and generate a paint
   event from the window system. The paint event is processed after the
@@ -756,7 +756,7 @@ void QWidget::update()
 
 /*----------------------------------------------------------------------------
   Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
-  unless updates are disabled.
+  unless updates are disabled or the widget hidden.
 
   Updating the widget erases the widget area \e (x,y,w,h), which in turn
   generates a paint event from the window system. The paint event is
@@ -782,25 +782,14 @@ void QWidget::update( int x, int y, int w, int h )
 
 
 /*----------------------------------------------------------------------------
-  \fn void QWidget::repaint( bool erase )
-  Repaints the widget directly by calling paintEvent() directly,
-  unless updates are disabled.
+  \overload void QWidget::repaint( bool erase )
 
-  Erases the widget contents if \e erase is TRUE.
-
-  Doing a repaint() usually is faster than doing an update(), but
-  calling update() many times in a row will generate a single paint
-  event.
-
-  \warning If you call repaint() in a function which may itself be
-  called from paintEvent(), you may see infinite recursion.
-
-  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+  This version operates on the entire widget.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Repaints the widget directly by calling paintEvent() directly,
-  unless updates are disabled.
+  unless updates are disabled or the widget hidden.
 
   Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
 
