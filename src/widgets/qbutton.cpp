@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#136 $
 **
 ** Implementation of QButton widget class
 **
@@ -30,6 +30,7 @@
 #include "qtimer.h"
 #include "qaccel.h"
 #include "qpixmapcache.h"
+#include "qfocusdata.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
@@ -705,14 +706,57 @@ void QButton::drawButtonLabel( QPainter * )
 
 void QButton::keyPressEvent( QKeyEvent *e )
 {
-    if ( e->key() == Key_Space )
+    if ( e->key() == Key_Space ) {
 	animateClick();
-    else if ( e->key() == Key_Up || e->key() == Key_Left )
+    } else if ( group() &&
+	 ( e->key() == Key_Up ||
+	   e->key() == Key_Left ||
+	   e->key() == Key_Down ||
+	   e->key() == Key_Right ) ) {
+	group()->moveFocus( e->key() );
+	return;
+    } else if ( e->key() == Key_Up || e->key() == Key_Left ) {
 	focusNextPrevChild( FALSE );
-    else if ( e->key() == Key_Down || e->key() == Key_Right )
+    } else if ( e->key() == Key_Down || e->key() == Key_Right ) {
 	focusNextPrevChild( TRUE );
-    else
+    } else {
 	e->ignore();
+    }
+}
+
+
+
+/*! \reimp */
+
+bool QButton::focusNextPrevChild( bool next )
+{
+    if ( !group() || !inherits( "QRadioButton" ) )
+	return QWidget::focusNextPrevChild( next );
+
+    QFocusData *f = focusData();
+
+    QWidget *startingPoint = f->home();
+    QWidget *candidate = 0;
+    QWidget *w = next ? f->prev() : f->next();
+
+    do {
+	if ( w != startingPoint &&
+	     !( w->inherits( "QRadioButton" ) &&
+		((QButton*)w)->group() == group() ) &&
+	     (w->focusPolicy() == TabFocus ||
+	      w->focusPolicy() == StrongFocus)  &&
+	     !w->focusProxy() &&
+	     w->isVisibleToTLW() &&
+	     w->isEnabledToTLW() )
+	    candidate = w;
+	w = next ? f->prev() : f->next();
+    } while( w && !(candidate && w==startingPoint) );
+
+    if ( !candidate )
+	return QButton::focusNextPrevChild( next );
+
+    candidate->setFocus();
+    return TRUE;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#60 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -27,6 +27,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 #include "qradiobutton.h"
+#include "qapplication.h"
 
 
 /*!
@@ -403,4 +404,75 @@ void QButtonGroup::setButton( int id )
 void QButtonGroup::setRadioButtonExclusive( bool on)
 {
     radio_excl = on;
+}
+
+
+/*!  Moves the keyboard focus according to \a key, and if appropriate
+  checks the new focus item.
+
+  This function does nothing unless the keyboard focus points to one
+  of the button group members and \a key is one of \c Key_Up, \c
+  Key_Down, \c Key_Left and \c Key_Right.
+*/
+
+void QButtonGroup::moveFocus( int key )
+{
+    QWidget * f = qApp->focusWidget();
+
+    QButtonItem * i;
+    i = buttons->first();
+    while( i && i->button != f )
+	i = buttons->next();
+
+    if ( !i || !i->button )
+	return;
+
+    QWidget * candidate = 0;
+    int bestScore;
+
+    QPoint goal( f->mapToGlobal( f->geometry().center() ) );
+
+    i = buttons->first();
+    while( i && i->button ) {
+	if ( i->button != f ) {
+	    QPoint p(i->button->mapToGlobal(i->button->geometry().center()));
+	    int score = (p.y() - goal.y())*(p.y() - goal.y()) +
+			(p.x() - goal.x())*(p.x() - goal.x());
+	    switch( key ) {
+	    case Key_Up:
+		if ( p.y() < goal.y() &&
+		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
+		     ( score < bestScore || !candidate ) )
+		    candidate = i->button;
+		break;
+	    case Key_Down:
+		if ( p.y() > goal.y() &&
+		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
+		     ( score < bestScore || !candidate ) )
+		    candidate = i->button;
+		break;
+	    case Key_Left:
+		if ( p.x() < goal.x() &&
+		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
+		     ( score < bestScore || !candidate ) )
+		    candidate = i->button;
+		break;
+	    case Key_Right:
+		if ( p.x() > goal.x() &&
+		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
+		     ( score < bestScore || !candidate ) )
+		    candidate = i->button;
+		break;
+	    }
+	}
+	i = buttons->next();
+    }
+
+    if ( candidate )
+	candidate->setFocus();
+
+    if ( candidate && f && f->inherits( "QRadioButton" ) &&
+	 ((QRadioButton*)f)->isChecked() &&
+	 candidate->inherits( "QRadioButton" ) )
+	((QRadioButton*)candidate)->setChecked( TRUE );
 }

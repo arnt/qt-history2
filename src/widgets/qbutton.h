@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#70 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#71 $
 **
 ** Definition of QButton widget class
 **
@@ -43,9 +43,9 @@ public:
    ~QButton();
 
     QString text() const;
-    virtual void	setText( const QString &);
+    virtual void setText( const QString &);
     const QPixmap *pixmap() const;
-    virtual void	setPixmap( const QPixmap & );
+    virtual void setPixmap( const QPixmap & );
 
     int		accel()	const;
     virtual void	setAccel( int );
@@ -54,7 +54,7 @@ public:
     enum ToggleType { SingleShot, Toggle, Tristate };
     ToggleType	toggleType() const;
 
-    virtual void	setDown( bool );
+    virtual void setDown( bool );
     bool	isDown() const;
 
     bool	isOn() const;
@@ -63,13 +63,15 @@ public:
     ToggleState	state() const;
 
     bool	autoResize() const;
-    virtual void	setAutoResize( bool );
+    virtual void setAutoResize( bool );
 
     bool	autoRepeat() const;
-    virtual void	setAutoRepeat( bool );
+    virtual void setAutoRepeat( bool );
 
     bool	isExclusiveToggle() const;
-    
+
+    bool	focusNextPrevChild( bool next );
+
 public slots:
     void	animateClick();
     void	toggle();

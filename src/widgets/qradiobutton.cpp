@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#100 $
 **
 ** Implementation of QRadioButton class
 **
@@ -125,7 +125,7 @@ void QRadioButton::init()
 */
 void QRadioButton::setChecked( bool check )
 {
-    setOn( check ); 
+    setOn( check );
 }
 
 
@@ -364,4 +364,3 @@ void QRadioButton::updateMask()
     }
     setMask(bm);
 }
-

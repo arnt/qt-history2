@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#33 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#34 $
 **
 ** Definition of QButtonGroup class
 **
@@ -45,15 +45,17 @@ public:
 
     bool	isExclusive() const;
     bool	isRadioButtonExclusive() const { return radio_excl; }
-    virtual void	setExclusive( bool );
-    void	setRadioButtonExclusive( bool );
+    virtual void setExclusive( bool );
+    virtual void setRadioButtonExclusive( bool );
 
     int		insert( QButton *, int id=-1 );
     void	remove( QButton * );
     QButton    *find( int id ) const;
     int		count() const;
 
-    virtual void	setButton( int id );
+    virtual void setButton( int id );
+
+    virtual void moveFocus( int );
 
 signals:
     void	pressed( int id );
