@@ -369,14 +369,14 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QApplication::sendPostedEvents();
         retVal = d->activateTimers() > 0; //send null timers
 
-        while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue())) {
+        do {
             EventRef event;
             if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event) != noErr)
                 break;
             if (!filterEvent(&event) && qt_mac_send_event(flags, event))
                 retVal = true;
             ReleaseEvent(event);
-        }
+        } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
 
         QThreadData *data = QThreadData::current();
         canWait = (!retVal
