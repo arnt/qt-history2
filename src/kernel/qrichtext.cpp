@@ -1784,8 +1784,16 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
-		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
+		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined ) {
 			curtag.wsm = nstyle->whiteSpaceMode();
+
+			// when starting a new paragraph, set it to
+			// non-breakable if we detect non-normal
+			// whitespace ie. when doing <code> or <nobr>
+			if (curtag.wsm != QStyleSheetItem::WhiteSpaceNormal
+			    && curpar->length() == 1)
+				curpar->breakable = FALSE;
+		    }
 
 		    /* netscape compatibility: eat a newline and only a newline if a pre block starts */
 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre &&
@@ -5653,6 +5661,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     int col = 0;
     int ww = 0;
     QChar lastChr;
+    bool lastSpaceWasNonBreakable = !parag->isBreakable();
     for ( ; i < len; ++i, ++col ) {
 	if ( c )
 	    lastChr = c->c;
@@ -5664,6 +5673,14 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	if ( painter )
 	    c->format()->setPainter( painter );
 	c = &string->at( i );
+
+	// hack: keep <nobr> working... we do this by ignoring all
+	// breakpoints preceeded by a non-breakable space
+	if (c->c == QChar::nbsp)
+	    lastSpaceWasNonBreakable = TRUE;
+	else if (c->c.isSpace())
+	    lastSpaceWasNonBreakable = FALSE;
+
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
 	} else {
@@ -5825,7 +5842,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		tminw = marg;
 		continue;
 	    }
-	} else if (lineStart && isBreakable(string, i)) {
+	} else if (lineStart && !lastSpaceWasNonBreakable && isBreakable(string, i)) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
