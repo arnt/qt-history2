@@ -7153,7 +7153,7 @@ void QTableHeader::setLabels(const QStringList & labels)
     setUpdatesEnabled(FALSE);
     for ( QStringList::ConstIterator it = labels.begin();
 	  it != labels.end() && i < count(); ++i, ++it ) {
-	if (i == labels.count() - 1) {
+	if (i == (int)labels.count() - 1) {
 	    setUpdatesEnabled(updates);
 	    setLabel( i, *it );
 	} else {
