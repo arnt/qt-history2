@@ -27,17 +27,6 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 }
 
 /*!
-  \reimpl
-*/
-QStringList QSqlDriverPlugIn::featureList()
-{
-    if ( !use() )
-	return 0;
-
-    return ((QSqlDriverInterface*)plugInterface())->featureList();
-}
-
-/*!
   \class QSqlDriverPlugInManager
 
   \brief Implements a QPlugInManager that handles plugins for SQL drivers
