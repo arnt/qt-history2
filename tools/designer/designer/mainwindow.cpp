@@ -4805,7 +4805,7 @@ void MainWindow::breakPointsChanged()
 	}
     }
 
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+    for ( e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
 	    QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
 	    if ( !bps.isEmpty() )
