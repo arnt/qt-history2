@@ -24,10 +24,10 @@ public:
     QSqlQueryBuilder( const QSqlQueryBuilder& other );
     ~QSqlQueryBuilder();
     
-    QSqlQueryBuilder join( const QString& table, const QString& joinCondition );
-    QSqlQueryBuilder leftOuterJoin( const QString& table, const QString& joinCondition );
-    QSqlQueryBuilder rightOuterJoin( const QString& table, const QString& joinCondition );
-    QSqlQueryBuilder fullOuterJoin( const QString& table, const QString& joinCondition );
+    QSqlQueryBuilder& join( const QString& table, const QString& joinCondition );
+    QSqlQueryBuilder& leftOuterJoin( const QString& table, const QString& joinCondition );
+    QSqlQueryBuilder& rightOuterJoin( const QString& table, const QString& joinCondition );
+    QSqlQueryBuilder& fullOuterJoin( const QString& table, const QString& joinCondition );
     
     QString selectQuery() const;
     QStringList insertQueries() const;
@@ -36,8 +36,8 @@ public:
     QString table( int i ) const;
     QString joinCondition( int i ) const;
     
-    void setTable( int i );
-    void setJoinCondition( int i );
+    void setTable( int i, const QString& table );
+    void setJoinCondition( int i, const QString& condition );
     
     void setFieldList( const QStringList& fields );
     void addField( const QString& field );

@@ -31,35 +31,39 @@ QSqlQueryBuilder::~QSqlQueryBuilder()
     delete d;
 }
 
-QSqlQueryBuilder QSqlQueryBuilder::join( const QString& table, const QString& joinCondition )
+QSqlQueryBuilder& QSqlQueryBuilder::join( const QString& table, const QString& joinCondition )
 {
     d->tables.append( table );
     d->joinConditions.append( joinCondition );
-    d->joinTypes[ d->numJoins++ ] = Natural;
+    d->joinTypes.append( Natural );
+    d->numJoins++;
     return *this;
 }
 
-QSqlQueryBuilder QSqlQueryBuilder::leftOuterJoin( const QString& table, const QString& joinCondition )
+QSqlQueryBuilder& QSqlQueryBuilder::leftOuterJoin( const QString& table, const QString& joinCondition )
 {
     d->tables.append( table );
     d->joinConditions.append( joinCondition );
-    d->joinTypes[ d->numJoins++ ] = LeftOuter;
+    d->joinTypes.append( LeftOuter );
+    d->numJoins++;
     return *this;
 }
 
-QSqlQueryBuilder QSqlQueryBuilder::rightOuterJoin( const QString& table, const QString& joinCondition )
+QSqlQueryBuilder& QSqlQueryBuilder::rightOuterJoin( const QString& table, const QString& joinCondition )
 {
     d->tables.append( table );
     d->joinConditions.append( joinCondition );
-    d->joinTypes[ d->numJoins++ ] = RightOuter;
+    d->joinTypes.append( RightOuter );
+    d->numJoins++;
     return *this;
 }
 
-QSqlQueryBuilder QSqlQueryBuilder::fullOuterJoin( const QString& table, const QString& joinCondition )
+QSqlQueryBuilder& QSqlQueryBuilder::fullOuterJoin( const QString& table, const QString& joinCondition )
 {
     d->tables.append( table );
     d->joinConditions.append( joinCondition );
-    d->joinTypes[ d->numJoins++ ] = FullOuter;
+    d->joinTypes.append( FullOuter );
+    d->numJoins++;
     return *this;
 }
 
@@ -116,12 +120,14 @@ QString QSqlQueryBuilder::joinCondition( int i ) const
     return d->joinConditions[i];
 }
 
-void QSqlQueryBuilder::setTable( int i )
+void QSqlQueryBuilder::setTable( int i, const QString& table )
 {
+    d->tables[i] = table;
 }
 
-void QSqlQueryBuilder::setJoinCondition( int i )
+void QSqlQueryBuilder::setJoinCondition( int i, const QString& condition )
 {
+    d->joinConditions[i] = condition;
 }
 
 void QSqlQueryBuilder::setFieldList( const QStringList& fields )
