@@ -41,9 +41,6 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qshared.h"
-#include "qmap.h"
-#include "qvaluelist.h"
-#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -73,6 +70,9 @@ class QBitArray;
 class QKeySequence;
 class QPen;
 class QVariant;
+class QStringList;
+template <class Type> class QValueList;
+template <class Key, class Type> class QMap;
 
 class Q_EXPORT QVariant
 {
@@ -220,15 +220,6 @@ public:
 #endif
     QSizePolicy toSizePolicy() const;
 
-#if 0 //ndef QT_NO_TEMPLATE_VARIANT
-    QValueListConstIterator<QString> stringListBegin() const;
-    QValueListConstIterator<QString> stringListEnd() const;
-    QValueListConstIterator<QVariant> listBegin() const;
-    QValueListConstIterator<QVariant> listEnd() const;
-    QMap<QString,QVariant>::ConstIterator mapBegin() const;
-    QMap<QString,QVariant>::ConstIterator mapEnd() const;
-    QMap<QString,QVariant>::ConstIterator mapFind( const QString& ) const;
-#endif
     QString& asString();
 #ifndef QT_NO_STRINGLIST
     QStringList& asStringList();
@@ -321,57 +312,6 @@ inline bool QVariant::isValid() const
 {
     return (d->typ != Invalid);
 }
-
-#if 0 //ndef QT_NO_TEMPLATE_VARIANT
-inline QValueListConstIterator<QString> QVariant::stringListBegin() const
-{
-    if ( d->typ != StringList )
-	return QValueListConstIterator<QString>();
-    return ((const QStringList*)d->value.ptr)->begin();
-}
-
-inline QValueListConstIterator<QString> QVariant::stringListEnd() const
-{
-    if ( d->typ != StringList )
-	return QValueListConstIterator<QString>();
-    return ((const QStringList*)d->value.ptr)->end();
-}
-
-inline QValueListConstIterator<QVariant> QVariant::listBegin() const
-{
-    if ( d->typ != List )
-	return QValueListConstIterator<QVariant>();
-    return ((const QValueList<QVariant>*)d->value.ptr)->begin();
-}
-
-inline QValueListConstIterator<QVariant> QVariant::listEnd() const
-{
-    if ( d->typ != List )
-	return QValueListConstIterator<QVariant>();
-    return ((const QValueList<QVariant>*)d->value.ptr)->end();
-}
-
-inline QMap<QString,QVariant>::ConstIterator QVariant::mapBegin() const
-{
-    if ( d->typ != Map )
-	return QMap<QString,QVariant>::ConstIterator();
-    return ((const QMap<QString,QVariant>*)d->value.ptr)->begin();
-}
-
-inline QMap<QString,QVariant>::ConstIterator QVariant::mapEnd() const
-{
-    if ( d->typ != Map )
-	return QMap<QString,QVariant>::ConstIterator();
-    return ((const QMap<QString,QVariant>*)d->value.ptr)->end();
-}
-
-inline QMap<QString,QVariant>::ConstIterator QVariant::mapFind( const QString& key ) const
-{
-    if ( d->typ != Map )
-	return QMap<QString,QVariant>::ConstIterator();
-    return ((const QMap<QString,QVariant>*)d->value.ptr)->find( key );
-}
-#endif
 
 #ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );

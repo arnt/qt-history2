@@ -1520,56 +1520,6 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
     QVariant::Invalid; otherwise returns FALSE.
 */
 
-/*!
-    \fn QValueListConstIterator<QString> QVariant::stringListBegin() const
-
-    Returns an iterator to the first string in the list if the
-    variant's type is StringList; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QValueListConstIterator<QString> QVariant::stringListEnd() const
-
-    Returns the end iterator for the list if the variant's type is
-    StringList; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QValueListConstIterator<QVariant> QVariant::listBegin() const
-
-    Returns an iterator to the first item in the list if the variant's
-    type is appropriate; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QValueListConstIterator<QVariant> QVariant::listEnd() const
-
-    Returns the end iterator for the list if the variant's type is
-    appropriate; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QMapConstIterator<QString, QVariant> QVariant::mapBegin() const
-
-    Returns an iterator to the first item in the map, if the variant's
-    type is appropriate; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QMapConstIterator<QString, QVariant> QVariant::mapEnd() const
-
-    Returns the end iterator for the map, if the variant's type is
-    appropriate; otherwise returns a null iterator.
-*/
-
-/*!
-    \fn QMapConstIterator<QString, QVariant> QVariant::mapFind( const QString& key ) const
-
-    Returns an iterator to the item in the map with \a key as key, if
-    the variant's type is appropriate and \a key is a valid key;
-    otherwise returns a null iterator.
-*/
-
 /*! \fn QByteArray QVariant::toCString() const
   \obsolete
     Returns the variant as a QCString if the variant has type()
@@ -1653,15 +1603,16 @@ QStringList QVariant::toStringList() const
 #ifndef QT_NO_TEMPLATE_VARIANT
     case List:
 	{
-	    QStringList lst;
-	    QValueList<QVariant>::ConstIterator it = listBegin();
-	    QValueList<QVariant>::ConstIterator end = listEnd();
+	    QStringList slst;
+	    QValueList<QVariant> list(toList());
+	    QValueList<QVariant>::ConstIterator it = list.begin();
+	    QValueList<QVariant>::ConstIterator end = list.end();
 	    while( it != end ) {
 		QString tmp = (*it).toString();
 		++it;
-		lst.append( tmp );
+		slst.append( tmp );
 	    }
-	    return lst;
+	    return slst;
 	}
 #endif
     default:
@@ -2325,8 +2276,9 @@ QValueList<QVariant> QVariant::toList() const
 #ifndef QT_NO_STRINGLIST
     if ( d->typ == StringList ) {
 	QValueList<QVariant> lst;
-	QStringList::ConstIterator it = stringListBegin();
-	QStringList::ConstIterator end = stringListEnd();
+	QStringList slist(toStringList());
+	QStringList::ConstIterator it = slist.begin();
+	QStringList::ConstIterator end = slist.end();
 	for( ; it != end; ++it )
 	    lst.append( QVariant( *it ) );
 	return lst;
@@ -2893,8 +2845,9 @@ bool QVariant::canCast( Type t ) const
 #ifndef QT_NO_TEMPLATE_VARIANT
     case StringList:
 	if ( d->typ == List ) {
-	    QValueList<QVariant>::ConstIterator it = listBegin();
-	    QValueList<QVariant>::ConstIterator end = listEnd();
+	    QValueList<QVariant> varlist;
+	    QValueList<QVariant>::ConstIterator it = varlist.begin();
+	    QValueList<QVariant>::ConstIterator end = varlist.end();
 	    for( ; it != end; ++it ) {
 		if ( !(*it).canCast( String ) )
 		    return FALSE;
