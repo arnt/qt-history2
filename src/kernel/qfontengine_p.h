@@ -44,6 +44,7 @@ public:
 	QWS
     };
 
+    QFontEngine() { count = 0; cache_count = 0; }
     virtual ~QFontEngine();
 
     /* returns 0 as glyph index for non existant glyphs */
@@ -79,6 +80,7 @@ public:
 
     QFontDef fontDef;
     int cache_cost;
+    int cache_count;
 
 #ifdef Q_WS_WIN
     HDC dc() const;
