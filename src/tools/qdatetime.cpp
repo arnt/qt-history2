@@ -88,7 +88,7 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 		buf = "12";
 	    else
 		buf = QString::number( dt->hour() );
-        } else if ( f == "hh" ) {
+	} else if ( f == "hh" ) {
 	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
 		buf = QString::number( dt->hour() - 12 ).rightJustify( 2, '0', TRUE );
 	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
@@ -118,25 +118,25 @@ static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate*
 	if ( f == "d" ) {
 	    buf = QString::number( dd->day() );
 	} else if ( f == "dd" ) {
-            buf = QString::number( dd->day() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dd->day() ).rightJustify( 2, '0', TRUE );
 	} else if ( f == "M" ) {
 	    buf = QString::number( dd->month() );
 	} else if ( f == "MM" ) {
-            buf = QString::number( dd->month() ).rightJustify( 2, '0', TRUE );
+	    buf = QString::number( dd->month() ).rightJustify( 2, '0', TRUE );
 #ifndef QT_NO_TEXTDATE
 	} else if ( f == "ddd" ) {
-            buf = dd->shortDayName( dd->dayOfWeek() );
+	    buf = dd->shortDayName( dd->dayOfWeek() );
 	} else if ( f == "dddd" ) {
 	    buf = dd->longDayName( dd->dayOfWeek() );
 	} else if ( f == "MMM" ) {
-            buf = dd->shortMonthName( dd->month() );
+	    buf = dd->shortMonthName( dd->month() );
 	} else if ( f == "MMMM" ) {
-            buf = dd->longMonthName( dd->month() );
+	    buf = dd->longMonthName( dd->month() );
 #endif
 	} else if ( f == "yy" ) {
-            buf = QString::number( dd->year() ).right( 2 );
+	    buf = QString::number( dd->year() ).right( 2 );
 	} else if ( f == "yyyy" ) {
-            buf = QString::number( dd->year() );
+	    buf = QString::number( dd->year() );
 	}
     }
 
@@ -165,23 +165,23 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 	} else {
 	    buf += getFmtString( frm, dt, dd, ap );
 	    frm = QString::null;
-            if ( ( f[ i ] == 'h' ) || ( f[ i ] == 'm' ) || ( f[ i ] == 's' ) || ( f[ i ] == 'z' ) ) {
+	    if ( ( f[ i ] == 'h' ) || ( f[ i ] == 'm' ) || ( f[ i ] == 's' ) || ( f[ i ] == 'z' ) ) {
 		status = f[ i ];
 		frm += f[ i ];
-            } else if ( ( f[ i ] == 'd' ) || ( f[ i ] == 'M' ) || ( f[ i ] == 'y' ) ) {
+	    } else if ( ( f[ i ] == 'd' ) || ( f[ i ] == 'M' ) || ( f[ i ] == 'y' ) ) {
 		status = f[ i ];
 		frm += f[ i ];
 	    } else if ( ( ap ) && ( f[ i ] == 'A' ) ) {
-	        status = 'P';
+		status = 'P';
 		frm += f[ i ];
 	    } else  if( ( ap ) && ( f[ i ] == 'a' ) ) {
-	        status = 'p';
+		status = 'p';
 		frm += f[ i ];
-            } else {
-                buf += f[ i ];
-                status = '0';
-            }
-        }
+	    } else {
+		buf += f[ i ];
+		status = '0';
+	    }
+	}
     }
 
     buf += getFmtString( frm, dt, dd, ap );
@@ -424,44 +424,38 @@ int QDate::daysInYear() const
 
 int QDate::weekNumber( int *yearNumber ) const
 {
-    int weekNum,
-	yearNum,
-	jan1WeekDay,
-	dow,
-	doy,
-	currYear;
-
     if ( !isValid() )
 	return 0;
 
-    currYear = year();
-    jan1WeekDay = QDate( currYear, 1, 1 ).dayOfWeek();
-    dow = dayOfWeek();
-    doy = dayOfYear();
+    int dow = dayOfWeek();
+    int doy = dayOfYear();
+    int currYear = year();
+    int jan1WeekDay = QDate( currYear, 1, 1 ).dayOfWeek();
+    int yearNum;
+    int weekNum;
 
-    // find the jan1WeekDay;
     if ( doy <= (8 - jan1WeekDay) && jan1WeekDay > 4 ) {
 	yearNum = currYear - 1;
-	if ( jan1WeekDay == 5 || (jan1WeekDay == 6 && QDate::leapYear(yearNum)) )
-	    weekNum = 53;
-	else
-	    weekNum = 52;
+	weekNum = 52;
+	if ( jan1WeekDay == 5 ||
+	     (jan1WeekDay == 6 && QDate::leapYear(yearNum)) )
+	    weekNum++;
     } else {
-	yearNum = currYear;
 	int totalDays = 365;
-	if ( QDate::leapYear(yearNum) )
+	if ( QDate::leapYear(currYear) )
 	    totalDays++;
-	if ( ((totalDays - doy) < (4 - dow) )
-	     || (jan1WeekDay == 7) && (totalDays - doy) < 3) {
-	    yearNum++;
+
+	if ( (totalDays - doy < 4 - dow)
+	     || (jan1WeekDay == 7 && totalDays - doy < 3) ) {
+	    yearNum = currYear + 1;
 	    weekNum = 1;
+	} else {
+	    int j = doy + ( 7 - dow ) + ( jan1WeekDay - 1 );
+	    yearNum = currYear;
+	    weekNum = j / 7;
+	    if ( jan1WeekDay > 4 )
+		weekNum--;
 	}
-    }
-    if ( yearNum == currYear ) {
-	int j = doy + (7 - dow) + (jan1WeekDay - 1);
-	weekNum = j / 7;
-	if ( jan1WeekDay > 4 )
-	    weekNum--;
     }
     if ( yearNumber )
 	*yearNumber = yearNum;
@@ -610,7 +604,7 @@ QString QDate::shortDayName( int weekday )
     st.wDay = 21 + st.wDayOfWeek;
     const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
     QT_WA( {
-        TCHAR buf[255];
+	TCHAR buf[255];
 	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, ddd_t, buf, 255 ) )
 	    return QString::fromUcs2( (ushort*)buf );
     } , {
