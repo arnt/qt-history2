@@ -744,7 +744,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(redirectonOffset);
+        d->composeBackground(redirectionOffset);
 
     // Send paint event to self
     QPaintEvent e(rgn);
