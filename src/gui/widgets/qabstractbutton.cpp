@@ -327,6 +327,22 @@ void QAbstractButtonPrivate::moveFocus(int key)
         }
     }
 
+    // loop
+    if (!candidate && buttonList.count()) {
+        switch (key) {
+        case Qt::Key_Up:
+        case Qt::Key_Left:
+            candidate = buttonList.last();
+            break;
+        case Qt::Key_Down:
+        case Qt::Key_Right:
+            candidate = buttonList.first();
+            break;
+        default:
+            break;
+        }
+    }
+
     if (exclusive
         && candidate
         && fb->d->checked
@@ -350,7 +366,7 @@ void QAbstractButtonPrivate::fixFocusPolicy()
         QAbstractButton *b = buttonList.at(i);
         if (!b->isCheckable())
             continue;
-        b->setFocusPolicy((Qt::FocusPolicy) ((b == q)
+        b->setFocusPolicy((Qt::FocusPolicy) ((b == q || !q->isCheckable())
                                          ? (b->focusPolicy() | Qt::TabFocus)
                                          :  (b->focusPolicy() & ~Qt::TabFocus)));
     }
