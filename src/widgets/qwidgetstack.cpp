@@ -143,6 +143,7 @@ void QWidgetStack::init()
    focusWidgets = 0;
    topWidget = 0;
    invisible = new QWidgetStackPrivate::Invisible( this );
+   invisible->hide();
 }
 
 
@@ -260,10 +261,10 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	return;
 
     topWidget = w;
-    if ( !isVisible() )
+    if ( !isVisibleTo(0) )
 	return;
 
-    if ( !invisible->isVisible() ) {
+    if ( invisible->isHidden() ) {
 	invisible->setGeometry( contentsRect() );
 	invisible->lower();
 	invisible->show();
@@ -354,6 +355,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     w->setGeometry( invisible->geometry() );
     w->show();
+    invisible->hide();
 }
 
 /*!
