@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#115 $
 **
 ** Implementation of event classes
 **
@@ -1110,17 +1110,24 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
+  \fn void QDropEvent::setPoint(const QPoint&)
+
+  Sets the drop point. You will not need to use this as it will be
+  set internally before your widget receives the drop event.
+*/
+
+/*!
   \fn bool QDropEvent::isAccepted () const
 
   Returns TRUE if the drop target accepts the event.
 */
 
 /*!
-  \fn void QDropEvent::accept()
+  \fn void QDropEvent::accept(bool y=TRUE)
 
-  Call this to indicate that the event provided data which your widget
-  processed.  Use data(), or preferably, the decode() methods
-  of existing QDragObject subclasses, such as
+  Call this to indicate whether the event provided data which your widget
+  processed.  To get the data, use encodedData(), or preferably, the
+  decode() methods of existing QDragObject subclasses, such as
   QTextDrag::decode(), or your own subclasses.
 
   \sa acceptAction()
@@ -1140,6 +1147,12 @@ QCustomEvent::QCustomEvent( int type )
   Sets the action.  This is used internally, you should not need to
   call this in your code - the \e source decides the action, not the
   target.
+*/
+
+/*!
+  \fn bool QDropEvent::isActionAccepted() const
+
+  Returns TRUE if acceptAction(TRUE) has been called.
 */
 
 /*!
