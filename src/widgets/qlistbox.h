@@ -169,7 +169,8 @@ public:
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
-
+    void invertSelection(); // ######### make virtual
+    
 signals:
     void highlighted( int index );
     void selected( int index );

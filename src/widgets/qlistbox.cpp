@@ -2248,6 +2248,23 @@ void QListBox::clearSelection()
     }
 }
 
+/*!
+  Inverts the selection. Works only in Multi and Extended selection mode.
+*/
+
+void QListBox::invertSelection()
+{
+    if ( d->selectionMode == Single ||
+	 d->selectionMode == NoSelection )
+	return;
+
+    bool b = signalsBlocked();
+    blockSignals( TRUE );
+    for ( int i = 0; i < (int)count(); i++ )
+	setSelected( i, !item( i )->selected() );
+    blockSignals( b );
+    emit selectionChanged();
+}
 
 
 /*!  If \a lazy is FALSE, maybe emit the changed() signal.  If \a lazy

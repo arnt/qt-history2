@@ -227,6 +227,7 @@ public:
 
     virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
+    void invertSelection(); // ###### make virtual
     bool isSelected( const QListViewItem * ) const;
     QListViewItem * selectedItem() const;
     virtual void setOpen( QListViewItem *, bool );
@@ -302,7 +303,7 @@ protected:
 #ifdef QT_BUILDER
     void configureEvent( QConfigureEvent* );
 #endif
-    
+
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
 

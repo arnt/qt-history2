@@ -3623,6 +3623,25 @@ void QListView::clearSelection()
     }
 }
 
+/*!
+  Inverts the selection. Works only in Multi and Extended selection mode.
+*/
+
+void QListView::invertSelection()
+{
+    if ( d->selectionMode == Single ||
+	 d->selectionMode == NoSelection )
+	return;
+
+    bool b = signalsBlocked();
+    blockSignals( TRUE );
+    QListViewItemIterator it( this );
+    for ( ; it.current(); ++it )
+	setSelected( it.current(), !it.current()->isSelected() );
+    blockSignals( b );
+    emit selectionChanged();
+}
+
 
 /*!  Returns \link QListViewItem::isSelected() i->isSelected(). \endlink
 
