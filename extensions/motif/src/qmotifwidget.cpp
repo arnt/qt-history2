@@ -156,10 +156,10 @@ public:
 
     QMotifWidget exists to provide a QWidget that can act as a parent
     for any Xt/Motif widget. Since the QMotifWidget is a proper
-    QWidget, it an be used as a top-level widget (e.g. 0 parent) or as
-    a child of any other QWidget. Note: Since QMotifWidget acts as a
-    parent for Xt/Motif widgets, you should not create QWidgets with a
-    QMotifWidget parent.
+    QWidget, it can be used as a top-level widget (e.g. 0 parent) or
+    as a child of any other QWidget. Note: Since QMotifWidget acts as
+    a parent for Xt/Motif widgets, you should not create QWidgets with
+    a QMotifWidget parent.
 
     An Xt/Motif widget with a top-level QMotifWidget parent can begin
     using the standard Qt dialogs and custom QDialogs while keeping
