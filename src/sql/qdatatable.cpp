@@ -680,7 +680,7 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 	    IdUpdate,
 	    IdDelete
 	};
-	QPopupMenu *popup = new QPopupMenu( this, "qt_datatable_menu" );
+	QGuardedPtr<QPopupMenu> popup = new QPopupMenu( this, "qt_datatable_menu" );
 	int id[ 3 ];
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
