@@ -277,7 +277,7 @@
 #    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #      define Q_PACKED __attribute__ ((__packed__))
 #    endif
-#  endif // __INTEL_COMPILER
+#  endif /* __INTEL_COMPILER */
 
 /* IBM compiler versions are a bit messy. There are actually two products:
    the C product, and the C++ product. The C++ compiler is always packaged
