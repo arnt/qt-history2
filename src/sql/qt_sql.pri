@@ -38,6 +38,10 @@ sql {
 		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqltable.cpp
 
+	contains(sql-driver, all ) {
+		sql-driver += postgres mysql odbc oci
+	}			
+
 	contains(sql-driver, postgres) {
 		HEADERS += $$SQL_H/src/p$$SQL_CPP/qsql_psql.h
 		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
