@@ -555,7 +555,10 @@ const QFileInfoList * QDir::drives()
 
     if ( !knownMemoryLeak ) {
 	knownMemoryLeak = new QFileInfoList;
+	knownMemoryLeak->setAutoDelete( TRUE );
+    }
 
+    if ( !knownMemoryLeak->count() ) {
 #if defined(Q_OS_WIN32)
 	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(Q_OS_OS2EMX)
@@ -575,8 +578,7 @@ const QFileInfoList * QDir::drives()
 
 	while( driveBits ) {
 	    if ( driveBits & 1 )
-		knownMemoryLeak->append(
-		      new QFileInfo( QString::fromLatin1(driveName) ) );
+		knownMemoryLeak->append( new QFileInfo( QString::fromLatin1(driveName) ) );
 	    driveName[0]++;
 	    driveBits = driveBits >> 1;
 	}
