@@ -2221,12 +2221,15 @@ void QPainter::drawText( const QRect &r, int tf,
 		   tabstops, tabarray, tabarraylen, internal, this);
 }
 
+//#define FORMAT_TEXT_DEBUG
 
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     QTextParag **internal, QPainter* painter )
 {
+    Q_UNUSED( len ); // #### use these
+    Q_UNUSED( tabarraylen );
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
 
@@ -2235,14 +2238,16 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
-    //qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
+#if defined(FORMAT_TEXT_DEBUG)
+    qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
+#endif
     QTextParag *parag;
 
     QRect rect = r;
     if( !wordbreak && !decode )
 	rect.setWidth(0x1fffffff);	// max width value
-    
-    if ( decode ) { 
+
+    if ( decode ) {
 	parag = *internal;
     } else {
 	QString parStr = str;
@@ -2257,7 +2262,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    int idx = -1;
 	    int start = 0;
 	    int len = str.length();
-	    QTextFormat *underline = new QTextFormat( *f );
 	    f->setUnderline( TRUE );
 	    int num = 0;
 	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
@@ -2272,13 +2276,15 @@ void qt_format_text( const QFont& font, const QRect &r,
 		start = idx + 2;
 	    }
 	    parag->append( parStr.mid( start ) );
-	} else 
+	} else
 	    parag->append( parStr );
 	if ( expandtabs ) {
 	    parag->setTabArray( tabarray );
 	    parag->setTabStops( tabstops );
 	}
-	//qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
+#if defined(FORMAT_TEXT_DEBUG)
+	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
+#endif
 	parag->setDocumentRect( rect );
 	parag->invalidate( 0 );
 	parag->format();
@@ -2288,10 +2294,12 @@ void qt_format_text( const QFont& font, const QRect &r,
  	painter->save();
 	int xoff = r.x();
 	int yoff = r.y();
+#if defined(FORMAT_TEXT_DEBUG)
 	QRect parRect = parag->rect();
-	//qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+#endif
 	int align = QApplication::horizontalAlignment( tf );
-	if ( align & Qt::AlignRight ) 
+	if ( align & Qt::AlignRight )
 	    xoff += r.width() - parag->rect().width();
 	else if ( align & Qt::AlignHCenter )
 	    xoff += (r.width() - parag->rect().width())/2;
@@ -2305,7 +2313,9 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( brect ) {
 	*brect = parag->rect();
-	//qDebug("par: %d/%d", brect->width(), brect->height() );
+#if defined(FORMAT_TEXT_DEBUG)
+	qDebug("par: %d/%d", brect->width(), brect->height() );
+#endif
     }
     if ( encode ) {
 	*internal = parag;
@@ -2313,7 +2323,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	delete parag;
     }
 }
-    
+
 /*!
 
   Returns the bounding rectangle of the aligned text that would be
