@@ -666,6 +666,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
 
+    case PE_Q3DockWindowHandle:
     case PE_IndicatorToolBarHandle:
         p->save();
         p->translate(opt->rect.x(), opt->rect.y());
