@@ -49,7 +49,7 @@
     Example:
     \code
         QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
-        Q4Menu *fileMenu = new fileMenu(parent);
+        QMenu *fileMenu = new fileMenu(parent);
         fileMenu->addAction("Undo", parent, SLOT(undo()), CTRL+Key_Z);
     \endcode
 

@@ -198,7 +198,7 @@ QKeySequence::QKeySequence()
     translations:
 
     \code
-        Q4Menu *file = new Q4Menu(this);
+        QMenu *file = new QMenu(this);
         file->addAction(tr("&Open..."), this, SLOT(open()),
                           QKeySequence(tr("Ctrl+O", "File|Open")));
     \endcode

@@ -1654,7 +1654,7 @@ QFontMetrics QApplication::fontMetrics()
 
   \code
     // the "Quit" menu entry should try to close all windows
-    Q4Menu* file = new Q4Menu(this);
+    QMenu* file = new Menu(this);
     file->addAction("&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q);
 
     // when the last window is closed, the application should quit
