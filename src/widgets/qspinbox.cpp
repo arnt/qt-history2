@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#18 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -16,21 +16,38 @@
 #include "qkeycode.h"
 #include "qbitmap.h"
 #include "qlined.h"
+#include "qvalidator.h"
 
 /*! \class QSpinBox qspinbox.h
 
   \brief The QSpinBox class provides a spin box, sometimes called
   up-down widget, little arrows widget or spin button.
 
+  The default spin box accepts numeric input; either integer or
+  floating-point numbers.  The API only provides floating-point
+  numbers.
+
+  setRange() or a convenience constructor can be used to set the legal
+  range; current() and setCurrent() provide access to the current
+  value.  QSpinBox emits the selected signal() whenever the current
+  value of the spin box changes.
+
+  Most spin boxes are directional, but some are circular: If the range
+  is 00-99 and the current value is 99, clicking Up can give 00.
+  QSpinBox provides this functionality using setWrapping() and
+  wrapping().
+
+  QSpinBox can easily be subclassed to provide other functionality; to
+  reimplement it you'll problably need to set your own validator
+
   The spin box deviates from Motif look a bit.
 
   <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
 */
 
+
 struct QSpinBoxData {
-    double b, t;
-    int d;
-    double a;
+    QDoubleValidator * v;
 };
 
 
@@ -95,16 +112,13 @@ QSpinBox::~QSpinBox()
 
 void QSpinBox::setRange( double bottom, double top, int decimals )
 {
-    if ( !d )
+    if ( !d ) {
 	d = new QSpinBoxData;
-    d->b = bottom;
-    d->t = top;
-    d->d = 0;
-    d->a = 1;
-    while ( d->d < 8 && d->d < decimals ) {
-	d->a = d->a / 10;
-	d->d++;
+	d->v = new QDoubleValidator( bottom, top, decimals > 8 ? 8 : decimals,
+				     this, "default spin-box validator" );
     }
+    if ( vi && d->v != vi->validator() )
+	vi->setValidator( d->v );
     enableButtons();
 }
 
@@ -125,8 +139,6 @@ void QSpinBox::setWrapping( bool w )
 
   Returns the current setWrapping() value.
 */
-
-
 
 
 /*!  Returns the current value of the spin box, or 0 is the current
@@ -150,25 +162,26 @@ double QSpinBox::current() const
 
 void QSpinBox::next()
 {
-    if ( !d )
+    if ( !d || !d->v )
 	return;
 
     bool ok;
     double c = QString(vi->text()).toDouble( &ok );
 
-    c += d->a;
+    double step = 1;
+    for( int n = d->v->decimals(); n>0; n-- )
+	step = step * 0.1;
 
-    QString f;
-    f.sprintf( "%%.%df", d->d );
+    c += step;
+
     QString s;
-    s.sprintf( f, c );
-    if ( s.toDouble( &ok ) > d->t ) {
-	if ( wrapping() ) {
-	    c = d->b;
-	} else {
-	    c = d->t;
-	}
-    }
+    if ( d->v->decimals() )
+	s.sprintf( "%.*f", d->v->decimals(), c );
+    else
+	s.sprintf( "%f", c );
+
+    if ( s.toDouble( &ok ) > d->v->top() )
+	c = wrapping() ? d->v->bottom() : d->v->top();
 
     setCurrent( c );
 }
@@ -189,19 +202,20 @@ void QSpinBox::prev()
     bool ok;
     double c = QString(vi->text()).toDouble( &ok );
 
-    c -= d->a;
+    double step = 1;
+    for( int n = d->v->decimals(); n>0; n-- )
+	step = step * 0.1;
 
-    QString f;
-    f.sprintf( "%%.%df", d->d );
+    c += step;
+
     QString s;
-    s.sprintf( f, c );
-    if ( s.toDouble( &ok ) < d->b ) {
-	if ( wrapping() ) {
-	    c = d->t;
-	} else {
-	    c = d->b;
-	}
-    }
+    if ( d->v->decimals() )
+	s.sprintf( "%.*f", d->v->decimals(), c );
+    else
+	s.sprintf( "%f", c );
+
+    if ( s.toDouble( &ok ) < d->v->bottom() )
+	c = wrapping() ? d->v->top(): d->v->bottom();
 
     setCurrent( c );
 }
@@ -213,14 +227,15 @@ void QSpinBox::prev()
 
 void QSpinBox::setCurrent( double value )
 {
-    if ( d && value > d->t )
-	value = d->t;
-    else if ( d && value < d->b )
-	value = d->b;
-    QString f;
-    f.sprintf( "%%.%df", d ? d->d : 0 );
+    if ( d && value > d->v->top() )
+	value = d->v->top();
+    else if ( d && value < d->v->bottom() )
+	value = d->v->bottom();
     QString s;
-    s.sprintf( f, value );
+    if ( d->v->decimals() )
+	s.sprintf( "%.*f", d->v->decimals(), value );
+    else
+	s.sprintf( "%f", value );
     vi->setText( s );
     enableButtons();
 }
@@ -251,12 +266,11 @@ QSize QSpinBox::sizeHint() const
 
     QString s( "999.99" );
     if ( d ) {
-	QString f;
-	f.sprintf( "%%.%df", d->d );
-	if ( QABS(d->b) > QABS(d->t) )
-	    s.sprintf( f, d->b );
+	double m = QMAX( QABS(d->v->top()), QABS(d->v->bottom()) );
+	if ( d->v->decimals() )
+	    s.sprintf( "%.*f", d->v->decimals(), m );
 	else
-	    s.sprintf( f, d->t );
+	    s.sprintf( "%f", m );
     }
     w = fm.width( s );
     
@@ -271,20 +285,25 @@ QSize QSpinBox::sizeHint() const
 }
 
 
-/*!  Interprets the up and down keys; ignores everything else.
+/*!  Interprets the up and down keys coming to the embedded QLineEdit.
 */
 
-void QSpinBox::keyPressEvent( QKeyEvent * e )
+bool QSpinBox::eventFilter( QObject * o, QEvent * e )
 {
-    if ( e->key() == Key_Up ) {
+    if ( o != vi || e->type() != Event_KeyPress )
+	return FALSE;
+
+    QKeyEvent * k = (QKeyEvent *)e;
+    if ( k->key() == Key_Up ) {
 	next();
-	e->accept();
-    } else if ( e->key() == Key_Down ) {
+	k->accept();
+	return TRUE;
+    } else if ( k->key() == Key_Down ) {
 	prev();
-	e->accept();
-    } else {
-	e->ignore();
+	k->accept();
+	return TRUE;
     }
+    return FALSE;
 }
 
 
@@ -352,16 +371,57 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
 void QSpinBox::enableButtons()
 {
-    up->setEnabled( wrapping() || (d && current() < d->t) );
-    down->setEnabled( wrapping() || (d && current() > d->b) );
+    up->setEnabled( wrapping() || (d && current() < d->v->top()) );
+    down->setEnabled( wrapping() || (d && current() > d->v->bottom()) );
 }
 
 
-/*!  
-
+/*!  This virtual slot does nothing at present but may be used in the
+  future.
 */
 
 void QSpinBox::textChanged()
 {
-    
+    // nothing
+}
+
+
+/*!  Sets the validator for user input to \a v.  The default is to use
+  a suitable QDoubleValidator.
+*/
+
+void QSpinBox::setValidator( QValidator * v )
+{
+    if ( vi )
+	vi->setValidator( v );
+}
+
+
+/*!  Returns a pointer to the 'up' button, which may be needed by some
+  subclasses.
+*/
+
+QPushButton * QSpinBox::upButton()
+{
+    return up;
+}
+
+
+/*!  Returns a pointer to the 'down' button, which may be needed by some
+  subclasses.
+*/
+
+QPushButton * QSpinBox::downButton()
+{
+    return down;
+}
+
+
+/*!  Returns a pointer to the embedded QLineEdit, which may be needed
+  by some subclasses.
+*/
+
+QLineEdit * QSpinBox::editor()
+{
+    return vi;
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#94 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#94 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -332,8 +332,9 @@ void QLineEdit::setMaxLength( int m )
   The key press event handler converts a key press to some line editor
   action.
 
-  If return or enter is pressed and the current text is valid, the
-  signal returnPressed will be emitted.
+  If return or enter is pressed and the current text is valid (or if
+  the validator can \link QValidator::fixup() make the text
+  valid\endlink), the signal returnPressed is emitted.
 
   Here are the default key bindings:
   <ul>
@@ -363,8 +364,13 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 	QValidator * v = validator();
-	if ( v && v->isValid( tbuf ) )
+	if ( v && v->isValid( tbuf ) ) {
 	    emit returnPressed();
+	} else if ( v ) {
+	    v->fixup( tbuf );
+	    if ( v->isValid( tbuf ) )
+		 emit returnPressed();
+	}
 	e->ignore();
 	return;
     }
