@@ -101,6 +101,9 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *w = ConnectionEdit::widgetAt(pos);
 
+    while (w != 0 && !m_formWindow->isManaged(w))
+        w = w->parentWidget();
+    
     if (state() == Editing) {
         QDesignerLabel *label = qobject_cast<QDesignerLabel*>(w);
         if (label == 0)
