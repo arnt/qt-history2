@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#38 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#39 $
 #
 # this is a massive hack, written very quickly
 #
@@ -212,7 +212,7 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:\w+)))(\()?(?!</a>))|((?:(?:<pre>.*?</pre>)|(?:<.*?>))))-
+	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:[\w\.:]+)))(\()?(?!</a>))|((?:(?:<pre>.*?</pre>)|(?:<.*?>))))-
 	    if ($3 eq "") {
 		if (!defined($word{$1})) {
 		    if ($1 eq "magicwordthatyoushouldavoid") {
@@ -369,7 +369,7 @@ sub getfile {
 
 
 sub readfiles {
-    local($/, $_, $filename);
+    local($/, $_, $h, $w, $filename);
 
     undef $/;
     foreach $filename ( keys %headerfiles ) {
@@ -379,14 +379,25 @@ sub readfiles {
 	s/$/.html/;
 	open(H, "> $outputdir/$_") 
 	    || die "can't open $outputdir/$_ for writing";
-	$_ = <F>;
+	$h = <F>;
 	close(F);
-	$_ = html($_);
-	s@\b(class\s+)([A-Za-z0-9_]+)\b@
-	    if (defined($anchor{$2})) {
-		sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
+	$h = html($h);
+	$h =~ s@\nclass\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
+	    $_ = "";
+	    foreach $w (split(/\b/, $&)) {
+		if (defined($anchor{$w})) {
+		    $_ = join("", $_, "<a href=", $anchor{$w}, ">", $w, "</a>");
+		} else {
+		    $_ = join("", $_, $w);
+		}
+	    }
+	    $_;
+	@egsx;
+	$h =~ s@(\n#include\s+[\<\"])([\w\.]+)([\>\"])@
+	    if (defined($headerfiles{$2})) {
+		sprintf("%s<a href=%s>%s</a>%s", $1, $headerfiles{$2}, $2, $3);
 	    } else {
-		sprintf("%s%s", $1, $2);
+		sprintf("%s%s%s", $1, $2, $3);
 	    }
 	@egsx;
 	print H "
@@ -397,7 +408,7 @@ Qt Toolkit - ", $filename, " include file
 documentation only; the copyright remains with Troll Tech.
 <hr>
 <pre>
-", $_, "
+", $h, "
 </pre>
 <hr><p>
 This file is part of the <a href=qt.html>Qt toolkit</a>,
@@ -695,10 +706,6 @@ sub printout {
     $tail = "";
     $fntail = "";
 
-#    foreach $url ( sort keys %type ) {
-#	print "VOLD: ", $url, "\n";
-#    }
-
     foreach $url ( sort keys %type ) {
 	my($file);
 
@@ -779,7 +786,7 @@ sub printout {
 		my (%m, $mode);
 		if (defined($brief{$url})) {
 		    print O "<p>\n", $brief{$url}, "\n";
-		    print O "<a href=#details>(details.)</a>\n"
+		    print O "<a href=#details>(details)</a>\n"
 			if ($doc{$url} ne "");
 		}
 
@@ -811,7 +818,7 @@ sub printout {
 		    print O "<h2>", $_, "</h2>\n<ul>\n";
 		    foreach (split (/;/, $m{$mode})) {
 			s/\s*([\(\)]+\s*)/ $1 /g;
-			s/\s*([,\*\&]+\s*)/$1 /g;
+			s/\s*([,\*\&]+\s*(?!=))/$1 /g;
 			s-\s*//.*?\n\s*--;
 			s/^\s+//;
 			s/\s+$//;
