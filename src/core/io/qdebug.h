@@ -21,17 +21,18 @@
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
-        Stream() : ts(&buffer, QIODevice::WriteOnly), ref(1), space(true){}
+        Stream(QtMsgType t) : ts(&buffer, QIODevice::WriteOnly), ref(1), type(t), space(true){}
         QTextStream ts;
         QString buffer;
         int ref;
+        QtMsgType type;
         bool space;
     } *stream;
 public:
-    inline QDebug():stream(new Stream){}
+    inline QDebug(QtMsgType t):stream(new Stream(t)){}
     inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
     inline ~QDebug()
-        { if (!--stream->ref) { qt_message_output(QtDebugMsg, stream->buffer.toLocal8Bit().data()); delete stream; } }
+        { if (!--stream->ref) { qt_message_output(stream->type, stream->buffer.toLocal8Bit().data()); delete stream; } }
     inline QDebug &space() { stream->space = true; stream->ts << ' '; return *this; }
     inline QDebug &nospace() { stream->space = false; return *this; }
     inline QDebug &maybeSpace() { if (stream->space) stream->ts << ' '; return *this; }
@@ -82,7 +83,9 @@ inline QDebug operator<<(QDebug debug, const QList<T> &list)
 }
 
 
-inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
+inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
+inline Q_CORE_EXPORT QDebug qWarning() { return QDebug(QtWarningMsg); }
+inline Q_CORE_EXPORT QDebug qCritical() { return QDebug(QtCriticalMsg); }
 
 #else
 
