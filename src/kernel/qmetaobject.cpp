@@ -27,11 +27,7 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qstrlist.h"
-
-#ifdef QT_BUILDER
-#include "qpixmap.h"
 #include "qtl.h"
-#endif
 
 // NOT REVISED
 
@@ -59,7 +55,6 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
   The private object.
  *****************************************************************************/
 
-#ifdef QT_BUILDER
 
 class QMetaObjectPrivate
 {
@@ -71,15 +66,12 @@ public:
     QMetaMetaProperty *metaPropData;
     int		   nMetaPropData;
     QObjectFactory     objectFactory;
-    const char	*commentData;
-    const char **pixmapData;
 };
 
 // Hack to go away with Qt 3.0
 #define DPTR ((QMetaObjectPrivate*)reservedForPropData)
 #define DPTR2( m ) ((QMetaObjectPrivate*)m->reservedForPropData)
 
-#endif // QT_BUILDER
 
 /*****************************************************************************
   Internal dictionary for fast access to class members
@@ -147,7 +139,6 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     superclass =				// get super class meta object
 		 objectDict->find( superclassname );
 
-#ifdef QT_BUILDER
     reservedForPropData = new QMetaObjectPrivate;
     reservedForPropDict = 0;
 
@@ -158,12 +149,8 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     DPTR->metaPropData = 0;
     DPTR->nMetaPropData = 0;
     DPTR->objectFactory = 0;
-    DPTR->commentData = 0;
-    DPTR->pixmapData = 0;
-#endif // QT_BUILDER
 }
 
-#ifdef QT_BUILDER
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
@@ -195,15 +182,12 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     DPTR->metaPropData = meta_prop_data;
     DPTR->nMetaPropData = n_meta_props;
     DPTR->objectFactory = 0;
-    DPTR->commentData = 0;
-    DPTR->pixmapData = 0;
 
     objectDict->insert( classname, this );	// insert into object dict
 
     superclass =				// get super class meta object
 	objectDict->find( superclassname );
 }
-#endif // QT_BUILDER
 
 QMetaObject::~QMetaObject()
 {
@@ -213,12 +197,10 @@ QMetaObject::~QMetaObject()
 	delete [] signalData;			//   initMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
-#ifdef QT_BUILDER
     if ( reservedForPropDict )
 	delete reservedForPropDict;
     if ( reservedForPropData )
 	delete reservedForPropData;
-#endif // QT_BUILDER
 }
 
 
@@ -250,7 +232,6 @@ int QMetaObject::nSignals( bool super ) const	// number of signals
     return n;
 }
 
-#ifdef QT_BUILDER
 int QMetaObject::nProperties( bool super ) const	// number of properties
 {
     if ( !super )
@@ -277,7 +258,6 @@ int QMetaObject::nMetaProperties( bool super ) const	// number of meta propertie
     return n;
 }
 
-#endif // QT_BUILDER
 
 QMetaData *QMetaObject::slot( const char *n, bool super ) const
 {
@@ -299,7 +279,6 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
     return mdata( SIGNAL_CODE, index, super );	// get signal meta data
 }
 
-#ifdef QT_BUILDER
 QMetaObject *QMetaObject::new_metaobject( const char *class_name,
 					  const char *superclass_name,
 					  QMetaData *slot_data,	int n_slots,
@@ -312,7 +291,6 @@ QMetaObject *QMetaObject::new_metaobject( const char *class_name,
 			    signal_data, n_signals, prop_data, n_props,
 			    enum_data, n_enums, meta_prop_data, n_meta_props );
 }
-#endif // QT_BUILDER
 
 QMetaObject *QMetaObject::new_metaobject( const char *class_name,
 					  const char *superclass_name,
@@ -407,7 +385,6 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 #endif
 }
 
-#ifdef QT_BUILDER
 void QMetaObject::fixProperty( QMetaProperty* prop, bool fix_enum_type )
 {
   QMetaObject* super = superclass;
@@ -507,29 +484,9 @@ QMetaProperty* QMetaObject::property( const char* _name, bool _super ) const
   return 0;
 }
 
-QString	QMetaObject::comment() const
-{
-    return QString( DPTR->commentData );
-}
-
-QPixmap QMetaObject::pixmap() const
-{
-    return QPixmap( DPTR->pixmapData );
-}
-
 QObjectFactory QMetaObject::factory() const
 {
     return DPTR->objectFactory;
-}
-
-void QMetaObject::setPixmap( const char* _pixmap[] )
-{
-    DPTR->pixmapData = _pixmap;
-}
-
-void QMetaObject::setComment( const char* _comment )
-{
-    DPTR->commentData = _comment;
 }
 
 void QMetaObject::setFactory( QObjectFactory f )
@@ -640,9 +597,6 @@ QStringList QMetaObject::metaPropertyNames( bool _super ) const
   return l;
 }
 
-#endif // QT_BUILDER
-
-#ifdef QT_BUILDER
 
 struct QMetaInitFunction {
     QMetaInitFunction( QMetaObject*(*fn)(), QMetaInitFunction* n ) : f(fn), f_old(0), next(n) { }
@@ -773,32 +727,3 @@ int QMetaObjectInit::nMetaObjects()
     return init();
 }
 
-#else // QT_BUILDER
-
-struct QMetaInitFunction {
-    QMetaInitFunction( void(*fn)(), QMetaInitFunction* n ) : f(fn), next(n) { }
-    ~QMetaInitFunction() { delete next; }
-    void(*f)();
-    QMetaInitFunction* next;
-};
-
-static QMetaInitFunction* functions_head = 0;
-
-QMetaObjectInit::QMetaObjectInit(void(*f)())
-{
-    functions_head = new QMetaInitFunction(f,functions_head);
-}
-
-int QMetaObjectInit::init()
-{
-    int i=0;
-    for (QMetaInitFunction* f = functions_head; f; f = f->next) {
-	(*(f->f))();
-	i++;
-    }
-    delete functions_head;
-    functions_head = 0;
-    return i;
-}
-
-#endif // QT_BUILDER

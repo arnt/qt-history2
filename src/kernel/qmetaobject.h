@@ -109,7 +109,6 @@ public:
     QMetaData	*slot( int index, bool=FALSE )	    const;
     QMetaData	*signal( int index, bool=FALSE )    const;
 
-#ifdef QT_BUILDER
     bool inherits( const char* _class ) const;
 
     int            nProperties( bool=FALSE ) const;
@@ -123,12 +122,8 @@ public:
     const char        *metaProperty( const char* name, bool super = FALSE ) const;
     QStringList        metaPropertyNames( bool=TRUE ) const;
 
-    QString	   comment() const;
-    QPixmap	   pixmap() const;
-    QObjectFactory factory() const;
-    void setPixmap( const char* _pixmap[] );
-    void setComment( const char* _comment );
     void setFactory( QObjectFactory f );
+    QObjectFactory factory() const;
     void fixProperty( QMetaProperty* prop, bool fix_enum_type = FALSE );
 
     static QMetaObject *new_metaobject( const char *, const char *,
@@ -138,7 +133,6 @@ public:
 					QMetaEnum *enum_data, int n_enums,
 					QMetaMetaProperty* meta_prop_data, int n_meta_props );
 
-#endif // QT_BUILDER
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int );
@@ -174,13 +168,13 @@ public:
 #ifdef QT_BUILDER
     QMetaObjectInit(QMetaObject*(*f)());
 #endif // QT_BUILDER
-    
+
     static int init();
 #ifdef QT_BUILDER
     static QMetaObject* metaObject( const char* _class_name );
     static QMetaObject* metaObject( int index );
     static int          nMetaObjects();
-#endif // QT_BUILDER    
+#endif // QT_BUILDER
 };
 
 #endif // QMETAOBJECT_H
