@@ -52,7 +52,7 @@ protected slots:
     void removeSortField();
     void sortFieldUp();
     void sortFieldDown();
-
+    void nextPageClicked();
 
 private:
     void setupPage1();

@@ -77,12 +77,21 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	mode = View;
     }
 
+    connect( nextButton(), SIGNAL(clicked()), SLOT(switchPage()) );
     setupPage1();
 }
+
 
 SqlFormWizard::~SqlFormWizard()
 {
     appIface->release();
+}
+
+void SqlFormWizard::nextPageClicked()
+{
+    if ( currentPage() == populatePage ) {
+	autoPopulate( TRUE );
+    }
 }
 
 void SqlFormWizard::connectionSelected( const QString &c )
@@ -106,7 +115,6 @@ void SqlFormWizard::connectionSelected( const QString &c )
 void SqlFormWizard::tableSelected( const QString & )
 {
     if ( listBoxTable->currentItem() >= 0 ) {
-	autoPopulate( TRUE );
 	setNextEnabled( databasePage, TRUE );
     } else {
 	setNextEnabled( databasePage, FALSE );
