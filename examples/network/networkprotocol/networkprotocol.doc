@@ -17,11 +17,11 @@ $Id: //depot/qt/main/examples/networkprotocol/networkprotocol.doc#2 $
 
   Header file (nntp.h):
  
-  \include networkprotocol/nntp.h
+  \include network/networkprotocol/nntp.h
 
   <hr>
 
   Implementation (nntp.cpp):
  
-  \include networkprotocol/nntp.cpp
+  \include network/networkprotocol/nntp.cpp
 */

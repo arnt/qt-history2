@@ -142,7 +142,7 @@
 
     A modal dialog.
 
-    \walkthrough networkprotocol/view.cpp
+    \walkthrough network/networkprotocol/view.cpp
     \skipto QFileDialog *dlg
     \printuntil return
 

@@ -1734,7 +1734,7 @@ void QGLWidget::qglClearColor( const QColor& c ) const
   from the texture example. Most of the code is irrelevant, so we just
   quote the few lines we want:
 
-  \walkthrough texture/gltexobj.cpp
+  \walkthrough opengl/texture/gltexobj.cpp
   \skipto tex1
   \printline tex1
   \printline gllogo.bmp

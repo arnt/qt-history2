@@ -17,5 +17,5 @@ $Id: //depot/qt/main/examples/httpd/httpd.doc#2 $
 
   Implementation (httpd.cpp):
  
-  \include httpd/httpd.cpp
+  \include network/httpd/httpd.cpp
 */

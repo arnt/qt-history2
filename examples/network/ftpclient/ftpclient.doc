@@ -16,29 +16,29 @@ $Id: //depot/qt/main/examples/ftpclient/ftpclient.doc#2 $
  
   The API of the FtpMainWindow class (ftpmainwindow.h):
  
-  \include ftpclient/ftpmainwindow.h
+  \include network/ftpclient/ftpmainwindow.h
  
   <hr>
  
   The Implementation of the FtpMainWindow class (ftpmainwindow.cpp):
  
-  \include ftpclient/ftpmainwindow.cpp
+  \include network/ftpclient/ftpmainwindow.cpp
  
   <hr>
  
   The API of the FtpViewItem and FtpView classes (ftpview.h):
  
-  \include ftpclient/ftpview.h
+  \include network/ftpclient/ftpview.h
  
   <hr>
  
   Their Implementation (ftpview.cpp):
  
-  \include ftpclient/ftpview.cpp
+  \include network/ftpclient/ftpview.cpp
  
   <hr>
  
   Main (main.cpp):
  
-  \include ftpclient/main.cpp
+  \include network/ftpclient/main.cpp
 */

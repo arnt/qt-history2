@@ -16,11 +16,11 @@ $Id: //depot/qt/main/examples/mail/mail.doc#2 $
 
   Header file (smtp.h):
  
-  \include mail/smtp.h
+  \include network/mail/smtp.h
 
   <hr>
 
   Implementation (smtp.cpp):
  
-  \include mail/smtp.cpp
+  \include network/mail/smtp.cpp
 */

@@ -29,5 +29,5 @@ $Id: //depot/qt/main/examples/clientserver/clientserver.doc#2 $
 
   Implementation client (client.cpp):
  
-  \include clientserver/client/client.cpp
+  \include network/clientserver/client/client.cpp
 */
