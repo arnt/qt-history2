@@ -186,8 +186,8 @@ int main(int argc, char**argv)
         cout << QDir::convertSeparators(inFileName).toLocal8Bit().constData() <<endl;
         return 1;
     }
-    inFileName = QFileInfo(inFileName).canonicalPath();
-
+    inFileName = QFileInfo(inFileName).canonicalFilePath();
+   
     //determine mode and do the port
     ProjectPorter porter(QDir::currentPath(), includeSearchDirectories);
     if(inFileName.endsWith(".pro") || inFileName.endsWith(".pri"))
