@@ -5,7 +5,7 @@
 #include <qgenericlistview.h>
 #include <qlineedit.h>
 #include <qgenericcombobox.h>
-#include <private/qabstractitemview_p.h>
+#include <private/qwidget_p.h>
 #endif // QT_H
 
 class ComboListView : public QGenericListView
@@ -29,12 +29,13 @@ private:
     bool ignoreMousePress;
 };
 
-class QGenericComboBoxPrivate: public QAbstractItemViewPrivate
+class QGenericComboBoxPrivate: public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGenericComboBox)
 public:
     QGenericComboBoxPrivate()
-        : QAbstractItemViewPrivate(),
+        : QWidgetPrivate(),
+          model(0),
           lineEdit(0),
           listView(0),
           delegate(0),
@@ -52,6 +53,7 @@ public:
     void itemSelected(const QModelIndex &item);
     bool contains(const QString &text, int role);
 
+    QAbstractItemModel *model;
     QLineEdit *lineEdit;
     ComboListView *listView;
     QAbstractItemDelegate *delegate;
@@ -62,6 +64,8 @@ public:
     bool ignoreMousePressEvent;
     bool skipCompletion;
     mutable QSize sizeHint;
+    QPersistentModelIndex currentItem;
+    QPersistentModelIndex root;
 };
 
 #endif //QGENERICCOMBOBOX_P_H
