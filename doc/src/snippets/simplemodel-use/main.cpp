@@ -62,7 +62,5 @@ int main(int argc, char *argv[])
 
     window->setWindowTitle("A simple model example");
     window->show();
-
-    app.setMainWidget(window);
     return app.exec();
 }

@@ -74,7 +74,5 @@ int main(int argc, char *argv[])
     table->setWindowTitle("Selected items in a table model");
     table->show();
     table->resize(460, 280);
-    app.setMainWidget(table);
-
     return app.exec();
 }

@@ -25,6 +25,5 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     Viewer viewer;
     viewer.show();
-    app.setMainWidget(&viewer);
     return app.exec();
 }

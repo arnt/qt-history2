@@ -19,7 +19,5 @@ int main(int argc, char *argv[])
     editor->setWindowTitle(QObject::tr("Text Document Images"));
     editor->resize(320, 480);
     editor->show();
-    app.setMainWidget(editor);
-    
     return app.exec();
 }

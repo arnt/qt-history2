@@ -24,12 +24,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
     QMainWindow *window = new MainWindow;
-
     window->show();
     window->resize(640, 480);
-    app.setMainWidget(window);
-
     return app.exec();
 }

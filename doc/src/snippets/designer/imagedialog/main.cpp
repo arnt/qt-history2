@@ -8,7 +8,6 @@ int main(int argc, char *argv[])
     Ui::ImageDialog ui;
     ui.setupUi(window);
 
-    app.setMainWidget(window);
     window->show();
     return app.exec();
 }

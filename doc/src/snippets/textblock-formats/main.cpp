@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
     editor->setWindowTitle(QObject::tr("Text Block Formats"));
     editor->resize(480, 480);
     editor->show();
-    app.setMainWidget(editor);
     
     return app.exec();
 }

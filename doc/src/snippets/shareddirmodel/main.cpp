@@ -40,7 +40,5 @@ int main(int argc, char *argv[])
 
     splitter->setWindowTitle("Two views onto the same directory model");
     splitter->show();
-    app.setMainWidget(splitter);
-
     return app.exec();
 }

@@ -51,7 +51,5 @@ int main(int argc, char *argv[])
     secondTableView->setWindowTitle("Second table view");
     firstTableView->show();
     secondTableView->show();
-    app.setMainWidget(firstTableView);
-
     return app.exec();
 }

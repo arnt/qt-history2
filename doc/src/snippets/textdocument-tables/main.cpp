@@ -8,7 +8,5 @@ int main(int argc, char *argv[])
     MainWindow *window = new MainWindow;
     window->resize(480, 480);
     window->show();
-    app.setMainWidget(window);
-
     return app.exec();
 }

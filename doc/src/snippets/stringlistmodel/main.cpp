@@ -42,7 +42,5 @@ int main(int argc, char *argv[])
     }
 
     view->show();
-    app.setMainWidget(view);
-
     return app.exec();
 }
