@@ -134,7 +134,7 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 	str += " order by " + sort.toString( nm );
     str += ";";
     srt = sort;
-    return query( str );
+    return setQuery( str );
 }
 
 /*!
@@ -204,9 +204,9 @@ QString QSqlRowset::fieldEqualsValue( const QString& prefix, const QString& fiel
   otherwise returns FALSE.
 
 */
-bool QSqlRowset::query( const QString & str )
+bool QSqlRowset::setQuery( const QString & str )
 {
-    setQuery( str );
+    QSql::setQuery( str );
     return isActive();
 }
 
@@ -257,8 +257,9 @@ void QSqlRowset::sync()
 	for ( ; i < count(); ++i ){
 	    if ( field(i).isCalculated() )
 		setValue( i, calculateField( i ) );
-	    else
+	    else {
 		setValue( i, QSql::value(i) );
+	    }
 	}
     }
 }

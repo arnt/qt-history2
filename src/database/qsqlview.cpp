@@ -178,7 +178,7 @@ int QSqlView::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	query( q );
+	setQuery( q );
 	ar = affectedRows();
     } else {
 	QSql sql( driver()->createResult() );

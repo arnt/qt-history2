@@ -25,7 +25,7 @@ QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
 
 QSqlEditorFactory::~QSqlEditorFactory()
 {
-    
+
 }
 
 /*!
@@ -38,7 +38,6 @@ QSqlEditorFactory::~QSqlEditorFactory()
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 {
     QWidget * w = 0;
-
     switch( v.type() ){
 
 	case QVariant::Invalid:
@@ -89,9 +88,9 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    w = new QLineEdit( parent );
 	    break;
     }
-#ifdef CHECK_RANGE    
+#ifdef CHECK_RANGE
     CHECK_PTR( w );
-#endif    
+#endif
     return w;
 }
 

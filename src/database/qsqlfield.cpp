@@ -228,6 +228,8 @@ QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
     fieldList = other.fieldList;
     fieldListStr = other.fieldListStr;
     posMap = other.posMap;
+    for ( uint i = 0; i < fieldList.count(); ++i )
+	qDebug(fieldList[i].name() + QString(fieldList[i].value().typeName()));
     return *this;
 }
 
@@ -304,11 +306,17 @@ int QSqlFieldList::position( const QString& name ) const
 
 QSqlField& QSqlFieldList::field( int i )
 {
+    qDebug("QSqlFieldList::field( int i )");
+    qDebug("returning field:" + fieldList[i].name() );
+    qDebug("of type:" + QString(fieldList[i].value().typeName()));
     return fieldList[ i ];
 }
 
 const QSqlField& QSqlFieldList::field( int i ) const
 {
+    qDebug("const QSqlFieldList::field( int i )");
+    qDebug("const returning field:" + fieldList[i].name() );
+    qDebug("const of type:" + QString(fieldList[i].value().typeName()));
     return fieldList[ i ];
 }
 

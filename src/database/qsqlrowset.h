@@ -43,7 +43,7 @@ public:
 
 protected:
     QSqlFieldList &   operator=( const QSqlFieldList & list );
-    bool              query( const QString & str );
+    bool              setQuery( const QString & str );
     QString           fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
     QVariant          calculateField( uint fieldNumber );
 
