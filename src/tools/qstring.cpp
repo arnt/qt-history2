@@ -16095,6 +16095,7 @@ const void* qt_winTchar(const QString& str, bool addnul)
 #undef EXTEND
 
 #else
+    Q_UNUSED(addnul)
     // So that the return value lives long enough.
     static QString str_cache;
     str_cache = str;

@@ -411,6 +411,8 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 	if(perms)
 	    chmod(f.latin1(), perms);
     }
+#else
+    Q_UNUSED(f)
 #endif
     return TRUE;
 }

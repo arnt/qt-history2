@@ -305,7 +305,7 @@ bool QFile::at( Q_ULONG pos )
     bool okay;
     if ( isRaw() ) {				// raw file
 	pos = (int)QT_LSEEK(fd, pos, SEEK_SET);
-	okay = pos != -1;
+	okay = pos != (Q_ULONG)-1;
     } else {					// buffered file
 	okay = fseek(fh, pos, SEEK_SET) == 0;
     }
@@ -346,7 +346,7 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	ungetchBuffer.truncate( l - nread );
     }
 
-    if( nread < (int)len ) {
+    if( nread < len ) {
 	if ( isRaw() ) {				// raw file
 	    nread += QT_READ( fd, p, len - nread );
 	    if ( len && nread <= 0 ) {
@@ -386,7 +386,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	nwritten = QT_WRITE( fd, p, len );
     else					// buffered file
 	nwritten = fwrite( p, 1, len, fh );
-    if ( nwritten != (int)len ) {		// write error
+    if ( nwritten != len ) {		// write error
 	if ( errno == ENOSPC )			// disk is full
 	    setStatus( IO_ResourceError );
 	else
