@@ -189,10 +189,10 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 #endif
 
 /* utility functions */
-static const CFStringRef no_ampersands(QString i) {
+void no_ampersands(QString i, CFStringRef *ret) {
     for(int w = 0; (w=i.find('&', w)) != -1; )
 	i.remove(w, 1);
-    return CFStringCreateWithCharacters(NULL, (UniChar *)i.unicode(), i.length());
+    *ret = CFStringCreateWithCharacters(NULL, (UniChar *)i.unicode(), i.length());
 }
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
@@ -240,9 +240,10 @@ uint QMenuBar::isCommand(QMenuItem *it)
 		    text += " " + prog.section('/', -1, -1);;
 		}
 #endif
+		CFStringRef cfref;
+		no_ampersands(text, &cfref);
 		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,
-					       no_ampersands(text),
-					       activeMenuBar->mac_d->in_apple++,
+					       cfref, activeMenuBar->mac_d->in_apple++,
 					       kMenuItemAttrAutoRepeat, ret);
 	    }
 	}
@@ -309,7 +310,9 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(item->custom())
 		attr |= kMenuItemAttrCustomDraw;
 #endif
-	    InsertMenuItemTextWithCFString(ret, no_ampersands(text), id,  attr, item->id());
+	    CFStringRef cfref;
+	    no_ampersands(text, &cfref);
+	    InsertMenuItemTextWithCFString(ret, cfref, id,  attr, item->id());
 	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
 	    } else {
@@ -430,8 +433,9 @@ bool QMenuBar::updateMenuBar()
     if(mac_d)
 	mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
-	SetMenuTitleWithCFString(mac_d->apple_menu,
-				 no_ampersands(QString(QChar(0x14))));
+	CFStringRef cfref;
+	no_ampersands(QString(QChar(0x14)), &cfref);
+	SetMenuTitleWithCFString(mac_d->apple_menu, cfref);
 	InsertMenu(mac_d->apple_menu, 0);
     }
 
@@ -440,7 +444,9 @@ bool QMenuBar::updateMenuBar()
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
-	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
+	CFStringRef cfref;
+	no_ampersands(item->text(), &cfref);
+	SetMenuTitleWithCFString(mp, cfref);
 	InsertMenu(mp, 0);
     }
     return TRUE;

@@ -449,7 +449,7 @@ Q_INLINE_TEMPLATES QMapPrivate<Key,T>::QMapPrivate( const QMapPrivate< Key, T >*
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES QMapPrivate<Key,T>::NodePtr QMapPrivate<Key,T>::copy( QMapPrivate<Key,T>::NodePtr p )
+Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::NodePtr QMapPrivate<Key,T>::copy( QMapPrivate<Key,T>::NodePtr p )
 {
     if ( !p )
 	return 0;
@@ -492,7 +492,7 @@ Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear( QMapPrivate<Key,T>::NodePtr p
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES QMapPrivate<Key,T>::ConstIterator QMapPrivate<Key,T>::find(const Key& k) const
+Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::ConstIterator QMapPrivate<Key,T>::find(const Key& k) const
 {
     QMapNodeBase* y = header;        // Last node
     QMapNodeBase* x = header->parent; // Root node.
@@ -515,7 +515,7 @@ Q_INLINE_TEMPLATES QMapPrivate<Key,T>::ConstIterator QMapPrivate<Key,T>::find(co
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insertSingle( const Key& k )
+Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insertSingle( const Key& k )
 {
     // Search correct position in the tree
     QMapNodeBase* y = header;
@@ -546,7 +546,7 @@ Q_INLINE_TEMPLATES QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insertSingle
 
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k )
+Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k )
 {
     NodePtr z = new Node( k );
     if (y == header || x != 0 || k < key(y) ) {
@@ -605,7 +605,7 @@ public:
     typedef size_t      size_type;
     typedef QMapIterator<Key,T> iterator;
     typedef QMapConstIterator<Key,T> const_iterator;
-    typedef QPair<iterator,bool> insertPair;
+    typedef QPair<iterator,bool> insert_pair;
 
     /**
      * API
@@ -756,7 +756,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= ( const QMap<Key,T>& m )
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>::insertPair QMap<Key,T>::insert( const QMap<Key,T>::value_type& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert( const QMap<Key,T>::value_type& x )
 {
     detach();
     size_type n = size();
@@ -779,7 +779,7 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::erase( const Key& k )
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>::size_type QMap<Key,T>::count( const Key& k ) const
+Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::size_type QMap<Key,T>::count( const Key& k ) const
 {
     const_iterator it( sh->find( k ).node );
     if ( it != end() ) {
@@ -815,7 +815,7 @@ Q_INLINE_TEMPLATES void QMap<Key,T>::clear()
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES QMap<Key,T>::iterator QMap<Key,T>::insert( const Key& key, const T& value, bool overwrite )
+Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::iterator QMap<Key,T>::insert( const Key& key, const T& value, bool overwrite )
 {
     detach();
     size_type n = size();

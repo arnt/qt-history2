@@ -271,7 +271,7 @@ Q_INLINE_TEMPLATES QValueListPrivate<T>::~QValueListPrivate() {
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( QValueListPrivate<T>::Iterator it, const T& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( QValueListPrivate<T>::Iterator it, const T& x )
 {
     NodePtr p = new Node( x );
     p->next = it.node;
@@ -283,7 +283,7 @@ Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( 
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( QValueListPrivate<T>::Iterator it )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( QValueListPrivate<T>::Iterator it )
 {
     Q_ASSERT ( it.node != node );
     NodePtr next = it.node->next;
@@ -296,7 +296,7 @@ Q_INLINE_TEMPLATES QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( 
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( QValueListPrivate<T>::NodePtr start, const T& x ) const
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( QValueListPrivate<T>::NodePtr start, const T& x ) const
 {
     ConstIterator first( start );
     ConstIterator last( node );
@@ -354,7 +354,7 @@ Q_INLINE_TEMPLATES uint QValueListPrivate<T>::remove( const T& x )
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::NodePtr QValueListPrivate<T>::at( size_type i ) const
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::at( size_type i ) const
 {
     Q_ASSERT( i <= nodes );
     NodePtr p = node->next;
@@ -571,7 +571,7 @@ Q_INLINE_TEMPLATES void QValueList<T>::clear()
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueList<T>::iterator QValueList<T>::erase( QValueList<T>::iterator first, QValueList<T>::iterator last )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueList<T>::iterator QValueList<T>::erase( QValueList<T>::iterator first, QValueList<T>::iterator last )
 {
     while ( first != last )
 	erase( first++ );

@@ -36,7 +36,7 @@
 
 #if 1
 #define RGN_DATA_SIZE 200
-static struct {
+static struct qt_mac_rgn_data_cache {
     bool rgndata_init;
     int rgndata_used;
     QRegion::QRegionData *cache[RGN_DATA_SIZE];
@@ -51,7 +51,7 @@ static void qt_mac_cleanup_region_data() {
 	}
     }
 }
-static QRegion::QRegionData *get_region_data() {
+QRegion::QRegionData *qt_mac_get_rgn_data() {
     QRegion::QRegionData *data = NULL;
     if(!data_cache.rgndata_init) {
 	if(!data_cache.rgndata_init) {
@@ -77,7 +77,7 @@ static QRegion::QRegionData *get_region_data() {
     }
     return data;
 }
-static void free_region_data(QRegion::QRegionData *data)
+static void qt_mac_free_rgn_data(QRegion::QRegionData *data)
 {
     if(data_cache.rgndata_used < RGN_DATA_SIZE) {
 	for(int i = 0; i < RGN_DATA_SIZE; i++) {
@@ -92,8 +92,8 @@ static void free_region_data(QRegion::QRegionData *data)
     }
 }
 #else
-#define get_region_data() (new QRegionData)
-#define free_region_data(x) delete x
+#define qt_mac_get_rgn_data() (new QRegionData)
+#define qt_mac_free_rgn_data(x) delete x
 #endif
 
 #ifdef Q_WS_MACX
@@ -207,7 +207,7 @@ QRegion::handle(bool require_rgn) const
 
 QRegion::QRegion( bool is_null )
 {
-    data = get_region_data();
+    data = qt_mac_get_rgn_data();
     if((data->is_null = is_null)) {
 	data->is_rect = TRUE;
 	data->rect = QRect();
@@ -220,7 +220,7 @@ QRegion::QRegion( bool is_null )
 QRegion::QRegion(const QRect &r, RegionType t)
 {
     QRect rr = r.normalize();
-    data = get_region_data();
+    data = qt_mac_get_rgn_data();
     data->is_null = FALSE;
     if(t == Rectangle )	{		// rectangular region
 	data->is_rect = TRUE;
@@ -238,7 +238,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
 
 QRegion::QRegion(const QPointArray &a, bool winding)
 {
-    data = get_region_data();
+    data = qt_mac_get_rgn_data();
     data->is_null = FALSE;
     data->is_rect = FALSE;
     data->rgn = qt_mac_get_rgn();
@@ -334,7 +334,7 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 
 QRegion::QRegion(const QBitmap &bm)
 {
-    data = get_region_data();
+    data = qt_mac_get_rgn_data();
     data->is_null = FALSE;
     data->is_rect = FALSE;
 #if 0 //this should work, but didn't
@@ -351,7 +351,7 @@ QRegion::~QRegion()
     if(data->deref()) {
 	if(!data->is_rect)
 	    qt_mac_dispose_rgn(data->rgn);
-	free_region_data(data);
+	qt_mac_free_rgn_data(data);
     }
 }
 
@@ -362,7 +362,7 @@ QRegion &QRegion::operator=(const QRegion &r)
     if(data->deref()) {
 	if(!data->is_rect)
 	    qt_mac_dispose_rgn(data->rgn);
-	free_region_data(data);
+	qt_mac_free_rgn_data(data);
     }
     data = r.data;
     return *this;

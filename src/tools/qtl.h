@@ -44,13 +44,6 @@
 #include "qstring.h"
 #endif // QT_H
 
-// ### add compilers that don't know about typename
-#if 0
-#define Q_TYPENAME
-#else
-#define Q_TYPENAME typename
-#endif
-
 #ifndef QT_NO_TEXTSTREAM
 template <class T>
 class QTextOStreamIterator

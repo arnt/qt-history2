@@ -104,7 +104,11 @@ typedef struct OpaquePMPageFormat *PMPageFormat;
 typedef struct Point Point;
 typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
 typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
+#ifdef MACOSX_102
+typedef struct __EventLoopTimer*        EventLoopTimerRef;
+#else
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
+#endif
 typedef struct OpaqueEventRef*          EventRef;
 typedef long int OSStatus;
 typedef struct OpaqueScrapRef *ScrapRef;

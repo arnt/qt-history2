@@ -254,6 +254,9 @@
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #  endif
+#  if __GNUC__ == 3
+#    define Q_TYPENAME typename
+#  endif
 /* GCC 2.95 knows "using" but does not support it correctly */
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
 #    define Q_NO_USING_KEYWORD
@@ -287,6 +290,7 @@
               but it is not defined on older compilers like C Set 3.1 */
 #elif defined(__xlC__)
 #  define Q_CC_XLC
+#  define Q_TYPENAME typename
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
@@ -778,6 +782,10 @@ Q_EXPORT int qWinVersion();
 
 #ifndef Q_INLINE_TEMPLATES
 #  define Q_INLINE_TEMPLATES 
+#endif
+
+#ifndef Q_TYPENAME
+#  define Q_TYPENAME
 #endif
 
 //

@@ -112,9 +112,6 @@ private:
 #if defined(Q_WS_WIN)
     QRegion winCombine( const QRegion &, int ) const;
 #endif
-#if defined(Q_WS_MAC)
-    void rectifyRegion();
-#endif
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
 #if defined(Q_WS_WIN)
@@ -131,6 +128,13 @@ private:
 #endif
 	bool   is_null;
     } *data;
+#if defined(Q_WS_MAC)
+    friend struct qt_mac_rgn_data_cache;
+    friend QRegionData *qt_mac_get_rgn_data();
+    friend void qt_mac_free_rgn_data(QRegionData *);
+    void rectifyRegion();
+#endif
+
 };
 
 
