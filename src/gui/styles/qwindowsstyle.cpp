@@ -1547,15 +1547,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
     switch (ce) {
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            int x, y, w, h;
+            menuitem->rect.getRect(&x, &y, &w, &h);
             int tab = menuitem->tabWidth;
             int maxpmw = menuitem->maxIconWidth;
             bool dis = !(menuitem->state & State_Enabled);
             bool checked = menuitem->checkType != QStyleOptionMenuItem::NotCheckable
                             ? menuitem->checked : false;
             bool act = menuitem->state & State_Selected;
-
-            int x, y, w, h;
-            menuitem->rect.getRect(&x, &y, &w, &h);
 
             if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {
                 // space for the checkmarks
@@ -1575,29 +1574,20 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
 
             QBrush fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
-            p->fillRect(x, y, w, h, fill);
+            p->fillRect(menuitem->rect, fill);
 
-            int xpos = x;
-            QRect vrect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y, checkcol, h));
-            int xvis = vrect.x();
+            QRect vCheckRect = visualRect(opt->direction, menuitem->rect, QRect(menuitem->rect.x(), menuitem->rect.y(), checkcol, menuitem->rect.height()));
             if (checked) {
                 if (act && !dis) {
-                    qDrawShadePanel(p, xvis, y, checkcol, h,
+                    qDrawShadePanel(p, vCheckRect,
                                     menuitem->palette, true, 1,
                                     &menuitem->palette.brush(QPalette::Button));
                 } else {
                     QBrush fill(menuitem->palette.light().color(), Qt::Dense4Pattern);
-                    // set the brush origin for the hash pattern to the x/y coordinate
-                    // of the menu item's checkmark... this way, the check marks have
-                    // a consistent look
-                    QPoint origin = p->brushOrigin();
-                    p->setBrushOrigin(xvis, y);
-                    qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, true, 1, &fill);
-                    // restore the previous brush origin
-                    p->setBrushOrigin(origin);
+                    qDrawShadePanel(p, vCheckRect, menuitem->palette, true, 1, &fill);
                 }
             } else if (!act) {
-                p->fillRect(xvis, y, checkcol , h, menuitem->palette.brush(QPalette::Button));
+                p->fillRect(vCheckRect, menuitem->palette.brush(QPalette::Button));
             }
 
             // On Windows Style, if we have a checkable item and an icon we
@@ -1615,16 +1605,12 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !checked)
-                    qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, false, 1,
+                    qDrawShadePanel(p, vCheckRect,  menuitem->palette, false, 1,
                                     &menuitem->palette.brush(QPalette::Button));
                 QRect pmr(0, 0, pixw, pixh);
-                pmr.moveCenter(vrect.center());
+                pmr.moveCenter(vCheckRect.center());
                 p->setPen(menuitem->palette.text().color());
                 p->drawPixmap(pmr.topLeft(), pixmap);
-
-                fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
-                int xp = xpos + checkcol + 1;
-                p->fillRect(visualRect(opt->direction, menuitem->rect, QRect(xp, y, w - checkcol - 1, h)), fill);
             } else if (checked) {
                 QStyleOptionMenuItem newMi = *menuitem;
                 newMi.state = State_None;
@@ -1632,14 +1618,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     newMi.state |= State_Enabled;
                 if (act)
                     newMi.state |= State_On;
-                int xp = xpos + windowsItemFrame;
-                newMi.rect = visualRect(opt->direction, menuitem->rect, QRect(xp, y + windowsItemFrame,
-                                                                              checkcol - 2 * windowsItemFrame, h - 2*windowsItemFrame));
+                newMi.rect = visualRect(opt->direction, menuitem->rect, QRect(menuitem->rect.x() + windowsItemFrame, menuitem->rect.y() + windowsItemFrame,
+                                                                              checkcol - 2 * windowsItemFrame, menuitem->rect.height() - 2*windowsItemFrame));
                 drawPrimitive(PE_IndicatorMenuCheckMark, &newMi, p, widget);
             }
-            p->setPen(act
-                      ? menuitem->palette.highlightedText().color()
-                      : menuitem->palette.buttonText().color());
+            p->setPen(act ? menuitem->palette.highlightedText().color() : menuitem->palette.buttonText().color());
 
             QColor discol;
             if (dis) {
@@ -1648,10 +1631,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
 
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
-            xpos += xm;
-            vrect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y + windowsItemVMargin, w - xm - tab + 1,
-                                     h - 2 * windowsItemVMargin));
-            xvis = vrect.x();
+            int xpos = menuitem->rect.x() + xm;
+            QRect textRect(xpos, y + windowsItemVMargin, w - xm - windowsRightBorder - tab + 1, h - 2 * windowsItemVMargin);
+            QRect vTextRect = visualRect(opt->direction, menuitem->rect, textRect);
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 p->save();
@@ -1659,30 +1641,24 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
-                text_flags |= (opt->direction == Qt::RightToLeft ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= Qt::AlignLeft;
                 if (t >= 0) {
-                    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame - windowsRightBorder + 1;
-                    int xoff = visualRect(opt->direction, menuitem->rect, QRect(xp, y + windowsItemVMargin, tab,
-                                                                                h - 2 * windowsItemVMargin)).x();
+                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect, QRect(textRect.topRight(), menuitem->rect.bottomRight()));
                     if (dis && !act) {
                         p->setPen(menuitem->palette.light().color());
-                        p->drawText(xoff + 1, y + windowsItemVMargin + 1, tab,
-                                    h - 2 * windowsItemVMargin, text_flags, s.mid(t + 1));
+                        p->drawText(vShortcutRect.adjusted(1,1,1,1), text_flags, s.mid(t + 1));
                         p->setPen(discol);
                     }
-                    p->drawText(xoff, y + windowsItemVMargin, tab, h - 2 * windowsItemVMargin,
-                                text_flags, s.mid(t + 1));
+                    p->drawText(vShortcutRect, text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
                 p->setFont(menuitem->font);
                 if (dis && !act) {
                     p->setPen(menuitem->palette.light().color());
-                    p->drawText(xvis + 1, y + windowsItemVMargin + 1, w - xm - tab + 1,
-                                h - 2 * windowsItemVMargin, text_flags, s.left(t));
+                    p->drawText(vTextRect.adjusted(1,1,1,1), text_flags, s.left(t));
                     p->setPen(discol);
                 }
-                p->drawText(xvis, y + windowsItemVMargin, w - xm - tab + 1,
-                            h - 2 * windowsItemVMargin, text_flags, s.left(t));
+                p->drawText(vTextRect, text_flags, s.left(t));
                 p->restore();
             }
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
@@ -1690,9 +1666,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 PrimitiveElement arrow;
                 arrow = QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
                 xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
-                vrect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
+                QRect  vSubMenuRect = visualRect(opt->direction, menuitem->rect, QRect(xpos, y + h / 2 - dim / 2, dim, dim));
                 QStyleOptionMenuItem newMI = *menuitem;
-                newMI.rect = vrect;
+                newMI.rect = vSubMenuRect;
                 newMI.state = dis ? State_None : State_Enabled;
                 if (act)
                     newMI.palette.setColor(QPalette::ButtonText,
@@ -2403,10 +2379,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                               cmb->state & State_Enabled ? &cmb->palette.brush(QPalette::Base)
                                                          : &cmb->palette.brush(QPalette::Background));
 
-                QRect ar =
-                    QStyle::visualRect(opt->direction, opt->rect, QCommonStyle::subControlRect(CC_ComboBox, cmb,
-                                                                            SC_ComboBoxArrow,
-                                                                            widget));
+                QRect ar = visualRect(opt->direction, opt->rect, QCommonStyle::subControlRect(CC_ComboBox, cmb,
+                                                                                              SC_ComboBoxArrow,
+                                                                                              widget));
                 if (cmb->activeSubControls == SC_ComboBoxArrow) {
                     p->setPen(cmb->palette.dark().color());
                     p->setBrush(cmb->palette.brush(QPalette::Button));
@@ -2429,11 +2404,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
             }
             if (cmb->subControls & SC_ComboBoxEditField) {
-                QRect re =
-                    QStyle::visualRect(opt->direction, opt->rect,
-                                       QCommonStyle::subControlRect(CC_ComboBox, cmb,
-                                                                    SC_ComboBoxEditField,
-                                                                    widget));
+                QRect re = visualRect(opt->direction, opt->rect,
+                                      QCommonStyle::subControlRect(CC_ComboBox, cmb,
+                                                                   SC_ComboBoxEditField,
+                                                                   widget));
                 if (cmb->state & State_HasFocus && !cmb->editable)
                     p->fillRect(re.x(), re.y(), re.width(), re.height(),
                                 cmb->palette.brush(QPalette::Highlight));
@@ -2449,8 +2423,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (cmb->state & State_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus;
-                    focus.rect = QStyle::visualRect(opt->direction, opt->rect,
-                                                    subRect(SR_ComboBoxFocusRect, cmb, widget));
+                    focus.rect = visualRect(opt->direction, opt->rect,
+                                            subRect(SR_ComboBoxFocusRect, cmb, widget));
                     focus.palette = cmb->palette;
                     focus.state = State_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();

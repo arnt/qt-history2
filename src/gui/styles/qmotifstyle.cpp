@@ -1040,7 +1040,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int t = s.indexOf('\t');
                 int m = motifItemVMargin;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-                text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
+                text_flags |= Qt::AlignLeft;
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(opt->direction, opt->rect,
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
@@ -1196,17 +1196,17 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 drawPrimitive(PE_PanelButtonCommand, opt, p, widget);
 
-                QRect ar = QStyle::visualRect(opt->direction, opt->rect,
-                                              subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, widget));
+                QRect tr = opt->rect;
+                tr.addCoords(fw, fw, -fw, -fw);
+                get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
+
+                QRect ar = QStyle::visualRect(opt->direction, opt->rect, QRect(ax,ay,awh,awh));
 
                 QStyleOption arrowOpt = *opt;
                 arrowOpt.rect = ar;
                 arrowOpt.state |= State_Enabled;
                 drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
 
-                QRect tr = opt->rect;
-                tr.addCoords(fw, fw, -fw, -fw);
-                get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
 
                 // draws the shaded line under the arrow
                 p->setPen(opt->palette.light().color());
@@ -1582,7 +1582,7 @@ QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *
             QRect cr = opt->rect;
             cr.addCoords(fw, fw, -fw, -fw);
             get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
-            return QRect(ax, ay, awh, awh); }
+            return QRect(QPoint(ax, ay), cr.bottomRight()); }
 
         case SC_ComboBoxEditField: {
             int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);

@@ -1622,7 +1622,7 @@ QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment
 */
 Qt::Alignment QStyle::visualAlignment(Qt::LayoutDirection direction,  Qt::Alignment alignment)
 {
-    if ((alignment & Qt::AlignAbsolute) == 0) {
+    if ((alignment & Qt::AlignAbsolute) == 0 && (alignment & (Qt::AlignLeft | Qt::AlignRight))) {
         if (direction == Qt::RightToLeft)
             alignment ^= (Qt::AlignLeft | Qt::AlignRight);
         alignment |= Qt::AlignAbsolute;

@@ -1021,7 +1021,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(Qt::SmallIconSize,  (mbi->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
             if (!pix.isNull())
-                drawItemPixmap(p, mbi->rect, alignment, mbi->palette, pix, &mbi->palette.buttonText().color());
+                drawItemPixmap(p,mbi->rect, alignment, mbi->palette, pix, &mbi->palette.buttonText().color());
             else
                 drawItemText(p, mbi->rect, alignment, mbi->palette, mbi->state & State_Enabled,
                              mbi->text, &mbi->palette.buttonText().color());
