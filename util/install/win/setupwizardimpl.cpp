@@ -1071,14 +1071,22 @@ void SetupWizardImpl::showPageLicense()
 #endif
 	QMessageBox::critical( this, "Environment problems",
 				     "The installation program can't find the make command '"
-#if defined(Q_OS_WIN32)
-				     "nmake.exe' or 'make.exe"
+#if defined(Q_WS_WIN)
+				     "'nmake.exe' or 'make.exe"
 #else
 				     + makeCmds[ globalInformation.sysId() ] +
 #endif
 				     "'.\nMake sure the path to it "
 				     "is present in the PATH environment variable\n"
-				     "and restart the installation." );
+				     "and restart the installation.\n\n"
+#if defined(Q_WS_WIN)
+				     "You can find the path to the tool using the 'Find' tool "
+				     "and add the location to the environment settings of your "
+				     "system. Please contact your local system administration if "
+				     "you have difficulties finding the files, or if you don't "
+				     "know how to modifiy the environment settings of your system."
+#endif
+				     );
     }
     licenseChanged();
 }
