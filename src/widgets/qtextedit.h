@@ -492,6 +492,7 @@ private:
     void moveCursor( CursorAction action );
     void ensureFormatted( QTextParag *p );
     void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
+    void updateMicroFocusHint();
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     bool checkOptimMode();

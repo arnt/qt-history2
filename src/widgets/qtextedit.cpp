@@ -1420,17 +1420,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() +
-			       frameWidth(), 0, h, TRUE, &f );
-	}
-    }
-
+    updateMicroFocusHint();
     if ( doUpdateCurrentFormat )
 	updateCurrentFormat();
     setModified();
@@ -1570,14 +1560,7 @@ void QTextEdit::removeSelectedText( int selNum )
 #ifndef QT_NO_CURSOR
 	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-	if ( hasFocus() || viewport()->hasFocus() ) {
-	    int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	    if ( !readonly ) {
-		QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-		setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-				   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	    }
-	}
+	updateMicroFocusHint();
     } else {
 	cursor->setDocument( doc );
 	cursor->setParag( doc->firstParag() );
@@ -1635,14 +1618,7 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 
     drawCursor( TRUE );
     updateCurrentFormat();
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
+    updateMicroFocusHint();
 }
 
 /*! \overload
@@ -1690,15 +1666,7 @@ void QTextEdit::moveCursor( CursorAction action )
 	cursor->gotoEnd();
 	break;
     }
-
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
+    updateMicroFocusHint();
     updateCurrentFormat();
 }
 
@@ -2370,6 +2338,12 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
     c->restoreState();
     QTextParag *s = doc->firstParag();
     c->place( pos, s, link );
+    updateMicroFocusHint();
+}
+
+
+void QTextEdit::updateMicroFocusHint()
+{
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
 	if ( !readonly ) {
@@ -2379,6 +2353,8 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
 	}
     }
 }
+
+
 
 void QTextEdit::formatMore()
 {
@@ -2458,16 +2434,7 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    drawCursor( TRUE );
-
-	    if ( !readonly ) {
-		// make sure the micro focus hint is updated...
-		QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-		setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-				   cursor->y() + cursor->parag()->rect().y() -
-				   contentsY() + frameWidth(), 0,
-				   cursor->parag()->lineHeightOfChar( cursor->index() ),
-				   TRUE, &f );
-	    }
+	    updateMicroFocusHint();
 	} else if ( e->type() == QEvent::FocusOut ) {
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
@@ -2587,21 +2554,14 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 	}
     }
 
-    setModified();
-    emit textChanged();
     if ( !removeSelected ) {
 	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
 	doc->setSelectionEnd( QTextDocument::Standard, cursor );
 	repaintChanged();
     }
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
+    updateMicroFocusHint();
+    setModified();
+    emit textChanged();
 }
 
 /*! Inserts \a text in the paragraph \a para and position \a index
@@ -2738,16 +2698,9 @@ void QTextEdit::undo()
     ensureCursorVisible();
     repaintChanged();
     drawCursor( TRUE );
+    updateMicroFocusHint();
     setModified();
     emit textChanged();
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
 }
 
 /*!
@@ -2783,16 +2736,9 @@ void QTextEdit::redo()
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
+    updateMicroFocusHint();
     setModified();
     emit textChanged();
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
 }
 
 /*!
@@ -2810,14 +2756,7 @@ void QTextEdit::paste()
     if ( isReadOnly() )
 	return;
     pasteSubType( "plain" );
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
+    updateMicroFocusHint();
 #endif
 }
 
@@ -2862,14 +2801,7 @@ void QTextEdit::cut()
 	doc->copySelectedText( QTextDocument::Standard );
 	removeSelectedText();
     }
-    if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	if ( !readonly ) {
-	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
-	}
-    }
+    updateMicroFocusHint();
 }
 
 /*! Copies any selected text (from selection 0) to the clipboard.
@@ -3356,7 +3288,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
 	return;
     }
 #endif
-    if ( !isModified() && isReadOnly() && 
+    if ( !isModified() && isReadOnly() &&
 	 this->context() == context && this->text() == text )
 	return;
 
