@@ -1912,7 +1912,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     }
 
     bool selectCurrent = FALSE;
-    
+
     switch ( e->key() ) {
     case Key_Up:
 	selectCurrent = TRUE;
@@ -2148,13 +2148,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
-    
+
     if ( selectCurrent && selectionMode() == Single &&
 	 !d->current->s ) {
 	updateItem( d->current );
-	d->current->s = TRUE;
+	setSelected( d->current, TRUE );
     }
-    
+
     emitChangedSignal( FALSE );
 }
 
