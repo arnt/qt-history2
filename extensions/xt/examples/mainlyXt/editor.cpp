@@ -59,5 +59,16 @@ main(int argc, char** argv)
 	form, args, nargs);
 
     XtRealizeWidget(toplevel);
-    XtAppMainLoop(app);
+
+
+    //XtAppMainLoop(app);
+
+    // or the equivalent:
+
+    XEvent xe;
+    while (1)
+    {
+      XtAppNextEvent(app, &xe);
+      XtDispatchEvent(&xe);
+    }
 }
