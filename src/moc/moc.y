@@ -1849,27 +1849,31 @@ int generateProps()
     //
     // Generate all typedefs
     //
-    int count = 0;
-    for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
-	if ( dit.current()->getfunc )
-	    generateTypedef( dit.current()->getfunc, count );
-	if ( dit.current()->setfunc )
-	    generateTypedef( dit.current()->setfunc, count + 1 );
-	count += 2;
+    {
+	int count = 0;
+	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
+	    if ( dit.current()->getfunc )
+		generateTypedef( dit.current()->getfunc, count );
+	    if ( dit.current()->setfunc )
+		generateTypedef( dit.current()->setfunc, count + 1 );
+	    count += 2;
+	}
     }
 
     //
     // Crazy stuff for crazy compilers
     //
-    count = 0;
-    for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
-	if ( dit.current()->getfunc )
-	    fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count,
-		     Prop_Num, count, (const char*)className,(const char*)dit.current()->getfunc->name);
-	if ( dit.current()->setfunc )
-	    fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count + 1,
-		     Prop_Num, count + 1, (const char*)className,(const char*)dit.current()->setfunc->name);
-	count += 2;
+    {
+	int count = 0;
+	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ) {
+	    if ( dit.current()->getfunc )
+		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count,
+			 Prop_Num, count, (const char*)className,(const char*)dit.current()->getfunc->name);
+	    if ( dit.current()->setfunc )
+		fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", Prop_Num, count + 1,
+			 Prop_Num, count + 1, (const char*)className,(const char*)dit.current()->setfunc->name);
+	    count += 2;
+	}
     }
 
     //
@@ -1877,44 +1881,46 @@ int generateProps()
     //
     if ( pdict.count() )
 	fprintf( out, "    QMetaProperty *props_tbl = new QMetaProperty[%d];\n", pdict.count() );
-    count = 0;
-    int entry = 0;
-    for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ){
-	
-	fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
-		 entry, (const char*)dit.currentKey() );
-	
-	if ( dit.current()->getfunc )
-	    fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
-		     entry, Prop_Num, count );
-	else
-	    fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
-	
-	if ( dit.current()->setfunc )
-	    fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
-		     entry, Prop_Num, count + 1 );
-	else
-	    fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
-	
-	fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)dit.current()->type );
-	fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->gspec ));
-	fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->sspec ));
+    {
+	int count = 0;
+	int entry = 0;
+	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ){
+	    
+	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
+		     entry, (const char*)dit.currentKey() );
+	    
+	    if ( dit.current()->getfunc )
+		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
+			 entry, Prop_Num, count );
+	    else
+		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
+	    
+	    if ( dit.current()->setfunc )
+		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
+			 entry, Prop_Num, count + 1 );
+	    else
+		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
+	    
+	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)dit.current()->type );
+	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->gspec ));
+	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->sspec ));
 
-	int enumpos = -1;
-	int k = 0;
-	QListIterator<Enum> it( enums );
-	for( ; it.current(); ++it, ++k ){
-	    if ( it.current()->name == dit.current()->type )
-		enumpos = k;
+	    int enumpos = -1;
+	    int k = 0;
+	    QListIterator<Enum> it( enums );
+	    for( ; it.current(); ++it, ++k ){
+		if ( it.current()->name == dit.current()->type )
+		    enumpos = k;
+	    }
+
+	    if ( enumpos != -1 )
+		fprintf( out, "    props_tbl[%d].enumType = &enums[%i];\n", entry, enumpos );
+	    else if (!isPropertyType( dit.current()->type ) )
+		fprintf( out, "    props_tbl[%d].setState(QMetaProperty::UnresolvedEnum);\n", entry );
+
+	    ++entry;
+	    count += 2;
 	}
-
-	if ( enumpos != -1 )
-	    fprintf( out, "    props_tbl[%d].enumType = &enums[%i];\n", entry, enumpos );
-	else if (!isPropertyType( dit.current()->type ) )
-	    fprintf( out, "    props_tbl[%d].setState(QMetaProperty::UnresolvedEnum);\n", entry );
-
-	++entry;
-	count += 2;
     }
 
     return pdict.count();
