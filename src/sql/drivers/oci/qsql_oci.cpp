@@ -260,7 +260,7 @@ QString qOraWarn(const QOCIPrivate* d)
 #ifdef QOCI_USES_VERSION_9
     return QString::fromUtf16((const unsigned short *)errbuf);
 #else
-    return QString::fromLocal8Bit(static_cast<const char *>(errbuf));
+    return QString::fromLocal8Bit((const char *)errbuf);
 #endif
 }
 
@@ -1091,7 +1091,7 @@ bool QOCIResult::prepare(const QString& query)
     const int len = query.length() * sizeof(QChar);
 #else
     const QByteArray tmp = query.toAscii();
-    const OraText *txt = static_cast<const OraText *>(tmp.constData());
+    OraText *txt = (OraText *)tmp.constData();
     const int len = tmp.length();
 #endif
     r = OCIStmtPrepare(d->sql,
@@ -1611,18 +1611,18 @@ bool QOCIDriver::open(const QString & db,
                 reinterpret_cast<const OraText *>(db.utf16()),
                 db.length() * sizeof(QChar));
 #else
-    const QByteArray tmpUser = user.toAscii();
-    const QByteArray tmpPassword = password.toAscii();
-    const QByteArray tmpDb = db.toAscii();
-    int r = OCILogon(d->env,
-                     d->err,
-                     &d->svc,
-                     tmpUser.constData(),
-                     tmpUser.length(),
-                     tmpPassword.constData(),
-                     tmpPassword.length(),
-                     tmpDb.constData(),
-                     tmpDb.length());
+    QByteArray tmpUser = user.toAscii();
+    QByteArray tmpPassword = password.toAscii();
+    QByteArray tmpDb = db.toAscii();
+    r = OCILogon(d->env,
+                 d->err,
+                 &d->svc,
+                 (OraText *)tmpUser.data(),
+                 tmpUser.length(),
+                 (OraText *)tmpPassword.data(),
+                 tmpPassword.length(),
+                 (OraText *)tmpDb.data(),
+                 tmpDb.length());
 #endif
     if (r != 0) {
         setLastError(qMakeError(QLatin1String("Unable to logon"), QSqlError::ConnectionError, d));
