@@ -181,6 +181,9 @@ public:
     static void qt_context_timer_callbk(EventLoopTimerRef, void *);
     static bool qt_mac_apply_settings();
 #endif
+#ifdef Q_WS_QWS
+    QPointer<QWSManager> last_manager;
+#endif
 };
 
 #endif // QAPPLICATION_P_H

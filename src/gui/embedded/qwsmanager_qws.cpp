@@ -82,6 +82,9 @@ QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
     d->managed = w;
+
+    previousRegionRepainted = false;
+    cached_region.regionType = 0;
 }
 
 QWSManager::~QWSManager()

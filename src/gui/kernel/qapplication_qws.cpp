@@ -121,7 +121,6 @@ bool qt_override_paint_on_screen = false;
 static int mouse_x_root = -1;
 static int mouse_y_root = -1;
 static int mouse_state = 0;
-static QWSManager *last_manager = 0;
 
 bool qws_overrideCursor = false;
 static bool qws_regionRequest = false;
@@ -2048,13 +2047,13 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
 
     QETWidget *widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
-    if (last_manager && event->type == QWSEvent::Mouse) {
+    if (d->last_manager && event->type == QWSEvent::Mouse) {
         QPoint pos(event->asMouse()->simpleData.x_root, event->asMouse()->simpleData.y_root);
-        if (!last_manager->cachedRegion().contains(pos)) {
+        if (!d->last_manager->cachedRegion().contains(pos)) {
             // MouseEvent not yet delivered, so QCursor::pos() is not yet updated, sending 2 x pos
             QMouseEvent outside(QEvent::MouseMove, pos, pos, Qt::NoButton, 0, 0);
-            QApplication::sendSpontaneousEvent(last_manager, &outside);
-            last_manager = 0;
+            QApplication::sendSpontaneousEvent(d->last_manager, &outside);
+            d->last_manager = 0;
         }
     }
 
@@ -2841,7 +2840,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
                 (*mouseInWidget) = 0;
             }
             QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
-            last_manager = widget->d->topData()->qwsManager;
+            qApp->d->last_manager = widget->d->topData()->qwsManager;
         } else
 #endif
         {
