@@ -24,10 +24,6 @@
 
 class QWSPropertyManager::Data {
 public:
-    Data()
-    {
-	properties.setAutoDelete( TRUE );
-    }
     struct Property {
 	~Property() { if ( data ) delete [] data; }
 	int len;
@@ -57,6 +53,7 @@ QWSPropertyManager::QWSPropertyManager()
 
 QWSPropertyManager::~QWSPropertyManager()
 {
+    d->properties.deleteAll();
     delete d;
 }
 
@@ -128,9 +125,9 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
     if (!wp) return false;
     Data::Property* prop = wp->value(property);
     if (!prop) return false;
-    wp->remove(property);
+    delete wp->take(property);
     if (wp->count() == 0)
-	d->properties.remove(winId);
+	delete d->properties.take(winId);
     return TRUE;
 }
 
@@ -139,7 +136,6 @@ bool QWSPropertyManager::addProperty( int winId, int property )
     QHash<int,Data::Property*>* wp = d->properties.value(winId);
     if (!wp) {
 	d->properties.insert(winId,wp = new QHash<int,Data::Property*>);
-	wp->setAutoDelete(true);
     }
     Data::Property* prop = wp->value(property);
     if (prop) return false;
@@ -179,7 +175,14 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
 
 bool QWSPropertyManager::removeProperties( int winId )
 {
-    return d->properties.remove(winId);
+    QHash<int,Data::Property*>* wp = d->properties.take(winId);
+
+    if (wp) {
+	wp->deleteAll();
+	delete wp;
+    }
+	
+    return wp != 0;
 }
 
 #endif //QT_NO_QWS_PROPERTIES
