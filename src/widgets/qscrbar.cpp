@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#51 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#51 $")
 
 
 /*----------------------------------------------------------------------------
@@ -817,14 +817,15 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 #define CTOP	*cols[ (colspec>>4) & 0xf ]
 #define CBOT	*cols[ colspec & 0xf ]
 
-    QPen   savePen   = p->pen();		// save current pen
-    QBrush saveBrush = p->brush();		// save current brush
-    QPen   pen( NoPen );
-    QBrush brush( CMID );
+    QPen     savePen   = p->pen();		// save current pen
+    QBrush   saveBrush = p->brush();		// save current brush
+    QWMatrix wxm = p->worldMatrix();
+    QPen     pen( NoPen );
+    QBrush   brush( CMID );
 
     p->setPen( pen );
     p->setBrush( brush );
-    p->setWorldMatrix( matrix );		// set transformation matrix
+    p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
     p->drawPolygon( bFill );			// fill arrow
     p->setBrush( NoBrush );			// don't fill
 
@@ -835,7 +836,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
     p->setPen( CBOT );
     p->drawLineSegments( bBot );
 
-    p->setWorldXForm( FALSE );			// turn off xform
+    p->setWorldMatrix( wxm );
     p->setBrush( saveBrush );			// restore brush
     p->setPen( savePen );			// restore pen
 
