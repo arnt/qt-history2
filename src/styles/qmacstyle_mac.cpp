@@ -227,9 +227,44 @@ static int mac_count = 0;
     Manager. This allows your application to be styled by whatever
     theme your Macintosh is using. This is done by having primitives
     in QStyle implemented in terms of what the Macintosh would
-    normally theme (i.e. the Finder). The implementation does have
-    some limitations, generally the same ones described in the
-    QAquaStyle documentation.
+    normally theme (i.e. the Finder). 
+
+    There are additional issues that should be taken
+    into consideration to make an application compatible with the
+    \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+    Aqua Style Guidelines \endlink. Some of these issues are outlined
+    below.
+
+    \list
+
+    \i Layout - The restrictions on window layout are such that some
+    aspects of layout that are style-dependent cannot be achieved
+    using QLayout. Changes are being considered (and feedback would be
+    appreciated) to make layouts QStyle-able. Some of the restrictions
+    involve horizontal and vertical widget alignment and widget size
+    (covered below).
+
+    \i Widget size - Aqua allows widgets to have specific fixed sizes.  Qt
+    does not fully implement this behaviour so as to maintain multiplatform
+    compatibility. As a result some widgets sizes may be inappropriate (and
+    subsequently not rendered correctly by the Appearance Manager).The
+    QWidget::sizeHint() will be return the appropriate size for many
+    managed widgets (widgets enumerated in QStyle::ContentsType).
+
+    \i Effects - QMacStyle (in contrast to QAquaStyle) is not emulating
+    (except where Appearance Manager does not provide certain
+    capabilities), for example QPushButton pulsing effects. In this case a
+    near matching emulation has been implemented, but naturally this will
+    not be as reliable as similar functionality built into the Appearance
+    Manager. Please report any issues you see in effects or non-standard
+    widgets.
+
+    \endlist
+
+    There are other issues that need to be considered in the feel of
+    your application (including the general color scheme to match the
+    Aqua colors). The Guidelines mentioned above will remain current
+    with new advances and design suggestions for Mac OS X.
 
     Note that the functions provided by QMacStyle are
     reimplementations of QStyle functions; see QStyle for their
