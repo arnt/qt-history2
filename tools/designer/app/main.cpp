@@ -28,6 +28,7 @@
 #include <qobjectlist.h>
 #include <qlabel.h>
 #include <qsettings.h>
+#include <qdir.h>
 
 #include <stdlib.h>
 #include <signal.h>
@@ -46,9 +47,6 @@ extern void qt_wait_for_window_manager( QWidget* );
 #endif
 
 #if defined(Q_OS_UNIX)
-#include <sys/types.h>
-#include <unistd.h>
-
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
@@ -108,11 +106,6 @@ static void exitHandler( int )
 
 #if defined(Q_C_CALLBACKS)
 }
-#endif
-
-#if defined(Q_OS_MACX)
-#include <stdlib.h>
-#include <qdir.h>
 #endif
 
 int main( int argc, char *argv[] )
