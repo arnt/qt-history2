@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#82 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#82 $");
 
 
 /*!
@@ -388,6 +388,7 @@ void QMenuBar::openActPopup()
 {
     if ( actItem < 0 )
 	return;
+    windowsaltactive = 0;
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( !popup )
 	return;
@@ -663,11 +664,11 @@ QMenuBar::Separator QMenuBar::separator() const
 void QMenuBar::drawContents( QPainter *p )
 {
     QColorGroup g;
-    int fw = frameWidth();
     GUIStyle gs = style();
     bool e;
 
-    p->setClipRect( fw, fw, width() - 2*fw, height() - 2*fw );
+    p->setClipRect( frameWidth(), frameWidth(),
+		    width() - 2*frameWidth(), height() - 2*frameWidth() );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
@@ -679,29 +680,25 @@ void QMenuBar::drawContents( QPainter *p )
 	    else
 		g = palette().disabled();
 		     
-	    if ( gs == WindowsStyle && i == actItem ) {
-		if ( e ) {
-		    g = QColorGroup ( g.foreground(), g.background(),
-				      g.light(), g.dark(), g.mid(),
-				      white, g.base() );
-		} else {
-		    g = QColorGroup ( g.foreground(), g.background(),
-				      g.light(), g.dark(), g.mid(),
-				      palette().disabled().text(), g.base() );
-		    e = TRUE;
-		}
-	    }
-
-	    if ( gs == WindowsStyle && i == actItem )
-		p->fillRect( r, darkBlue );
-	    else if ( gs == WindowsStyle )
+	    if ( gs == WindowsStyle ) {
 		p->fillRect( r, palette().normal().background() );
-	    else if ( i == actItem ) // motif, active item
-		qDrawShadePanel( p, r, palette().normal(), FALSE,
-				 motifItemFrame );
-	    else // motif, other item
-		qDrawPlainRect( p, r, palette().normal().background(),
-				motifItemFrame );
+		if ( i == actItem ) {
+		    QBrush b( palette().normal().background() );
+		    qDrawShadeRect( p,
+				    r.left(), r.top(), r.width(), r.height(),
+				    g, !windowsaltactive, 1, 0, &b );
+		    if ( !windowsaltactive )
+			r.setRect( r.left()+2, r.top()+2,
+				   r.width()-2, r.height()-2 );
+		}
+	    } else { // motif
+		if ( i == actItem ) // active item
+		    qDrawShadePanel( p, r, palette().normal(), FALSE,
+				     motifItemFrame );
+		else // other item
+		    qDrawPlainRect( p, r, palette().normal().background(),
+				    motifItemFrame );
+	    }
 
 	    qDrawItem( p, gs, r.left(), r.top(), r.width(), r.height(),
 		       AlignCenter|ShowPrefix|DontClip|SingleLine,
@@ -856,10 +853,11 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    mi = mitems->at( actItem );
 	    popup = mi->popup();
 	    if ( popup && mi->isEnabled() ) {
+		windowsaltactive = 0;
 		hidePopups();
 		popup->setFirstItemActive();
 		openActPopup();
-		windowsaltactive = 0;
+		repaint( FALSE );
 	    }
 	}
 	break;
