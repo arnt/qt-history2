@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#18 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#19 $
 **
 ** Definition of QFontInfo class
 **
@@ -36,8 +36,9 @@ public:
     QFont::CharSet	charSet()	const;
     bool		rawMode()	const;
 
+    bool		exactMatch()	const;
+
 #if 1	/* OBSOLETE */
-    bool   exactMatch() const;
     const QFont &font() const;
 #endif
 
@@ -49,7 +50,10 @@ private:
     const QFontDef *spec() const;
 
     enum Type { FontInternal, FontInternalExactMatch, Widget, Painter };
-    Type t;
+    union {
+	Type  t;
+	void *dummy;
+    } type;
     union {
 	QFontInternal *f;
 	QWidget	      *w;

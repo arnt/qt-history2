@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#77 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#77 $");
 
 
 static const int fontFields = 14;
@@ -534,10 +534,10 @@ void QFont::load( HANDLE ) const
 #endif
 	}
 	d->fin->f = f;
+	initFontInfo();
     }
     d->exactMatch = fn->exactMatch;
     d->req.dirty = FALSE;
-    initFontInfo();
 }
 
 
@@ -829,13 +829,13 @@ QString QFont_Private::findFont( bool *exact )
 const QFontDef *QFontMetrics::spec() const
 {
     const QFontDef *s;
-    if ( t == FontInternal ) {
+    if ( type.t == FontInternal ) {
 	s = u.f->spec();
-    } else if ( t == Widget && u.w ) {
+    } else if ( type.t == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	s = f->d->fin->spec();
-    } else if ( t == Painter && u.p ) {
+    } else if ( type.t == Painter && u.p ) {
 	QFont *f = (QFont *)&u.p->font();
 	f->handle();
 	s = f->d->fin->spec();
@@ -851,13 +851,13 @@ const QFontDef *QFontMetrics::spec() const
 
 void *QFontMetrics::fontStruct() const
 {
-    if ( t == FontInternal ) {
+    if ( type.t == FontInternal ) {
 	return u.f->fontStruct();
-    } else if ( t == Widget && u.w ) {
+    } else if ( type.t == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	return f->d->fin->fontStruct();
-    } else if ( t == Painter && u.p ) {
+    } else if ( type.t == Painter && u.p ) {
 	QFont *f = (QFont *)&u.p->font();
 	f->handle();
 	return f->d->fin->fontStruct();
@@ -870,7 +870,7 @@ void *QFontMetrics::fontStruct() const
 }
 
 #undef  FS
-#define FS (t == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
+#define FS (type.t == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
 
 
 /*!
@@ -1048,7 +1048,7 @@ int QFontMetrics::maxWidth() const
 
 int QFontMetrics::underlinePos() const
 {
-    int pos = ( lineWidth()*2 + 3 )/6;
+    int pos = (lineWidth()*2 + 3)/6;
     return pos ? pos : 1;
 }
 
@@ -1074,7 +1074,7 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    if ( t == FontInternal ) {
+    if ( type.t == FontInternal ) {
 	return u.f->lineWidth();
     } else {
 	QFont f = font();
@@ -1091,13 +1091,13 @@ int QFontMetrics::lineWidth() const
 const QFontDef *QFontInfo::spec() const
 {
     const QFontDef *s;
-    if ( t == FontInternal || t == FontInternalExactMatch ) {
+    if ( type.t == FontInternal || type.t == FontInternalExactMatch ) {
 	s = u.f->spec();
-    } else if ( t == Widget && u.w ) {
+    } else if ( type.t == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	s = f->d->fin->spec();
-    } else if ( t == Painter && u.p ) {
+    } else if ( type.t == Painter && u.p ) {
 	QFont *f = (QFont *)&u.p->font();
 	f->handle();
 	s = f->d->fin->spec();
