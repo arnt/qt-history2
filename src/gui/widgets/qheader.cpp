@@ -1097,7 +1097,7 @@ QSize QHeader::sectionSizeHint(int section, const QFontMetrics& fm) const
         bound.setHeight(fm.height() +  fm.lineSpacing() * (lines - 1));
         int w = 0;
         for (int i = 0; i < lines; ++i) {
-            QString s = lines == 1 ? *label : label.section('\n', i, i);
+            QString s = lines == 1 ? label : label.section('\n', i, i);
             int tmpw = fm.width(s);
             w = qMax(w, tmpw);
         }
