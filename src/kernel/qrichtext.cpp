@@ -2371,9 +2371,18 @@ QTextParag::~QTextParag()
 	doc->minwParag = 0;
 	doc->minw = 0;
     }
+    if ( !doc ) {
+	delete pFormatter;
+	delete commandHistory;
+	defFormat->removeRef();
+    }
+    delete str;
     if ( tabArray )
 	delete [] tabArray;
     delete eData;
+    QMap<int, LineStart*>::Iterator it = lineStarts.begin();
+    for ( ; it != lineStarts.end(); ++it )
+	delete *it;
 }
 
 void QTextParag::setNext( QTextParag *s )
