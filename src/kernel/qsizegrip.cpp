@@ -146,7 +146,7 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    return QSize( 14, 20 ).expandedTo( QApplication::globalStrut() );
+    return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
 }
 
 /*!  Paints the resize grip. Resize grips are usually rendered as

@@ -181,16 +181,6 @@ void *QLibrary::resolve( const char* symb )
 
     void *address = d->resolveSymbol( symb );
 
-#ifdef Q_CC_BOR
-    if ( !address ) {
-#if defined(QT_DEBUG_COMPONENT)
-	// resolveSymbol() might give a warning; so let that warning look so fatal
-	qWarning( QString("Trying to resolve symbol \"_%1\" instead").arg( symb ) );
-#endif
-	address = d->resolveSymbol( QString( "_" ) + symb );
-    }
-#endif
-
     return address;
 }
 

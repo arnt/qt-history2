@@ -1237,7 +1237,7 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
     QWidget *paint_on = QApplication::desktop();
 #endif
     unclippedPainter = new QPainter( paint_on, TRUE );
-    unclippedPainter->setPen( QPen( gray, 3 ) );
+    unclippedPainter->setPen( QPen( gray, curPlace == OutsideDock ? 3 : 1 ) );
     unclippedPainter->setRasterOp( XorROP );
     currRect = QRect( realWidgetPos( this ), size() );
     if ( drawRect ) {

@@ -150,7 +150,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     d->waitersCount++;
     d->s.leave();
     mutex->unlock();
-    int result = d->wait(time, FALSE);
+    int result = d->wait(time, FALSE);    
     mutex->lock();
     d->s.enter();
     bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
@@ -197,7 +197,7 @@ void QWaitCondition::wakeAll()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-	if ( !PulseEvent( d->handle ) ) {
+	if ( !SetEvent( d->handle ) ) {
 #ifdef QT_CHECK_RANGE
 	qSystemWarning( "Condition could not be set" );
 #endif
