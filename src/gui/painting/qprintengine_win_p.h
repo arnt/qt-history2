@@ -89,7 +89,6 @@ public:
 
     void setCollateCopies(bool);
     bool collateCopies() const;
-
     void setPaperSource(QPrinter::PaperSource);
     QPrinter::PaperSource paperSource() const;
 
@@ -111,6 +110,9 @@ public:
     int metric(QPaintDevice::PaintDeviceMetric) const;
 
     QPrinter::PrinterState printerState() const;
+
+    HDC getDC() const;
+    void releaseDC(HDC);
 
 private:
     friend class QPrintDialog;

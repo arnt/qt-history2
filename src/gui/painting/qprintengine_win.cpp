@@ -301,7 +301,7 @@ bool QWin32PrintEngine::end()
 	}
     }
     d->state = QPrinter::Idle;
-    return false;
+    return true;
 }
 
 bool QWin32PrintEngine::newPage()
@@ -1051,6 +1051,16 @@ void QWin32PrintEngine::setNumCopies(int copies)
 int QWin32PrintEngine::numCopies() const
 {
     return 1;
+}
+
+HDC QWin32PrintEngine::getDC() const
+{
+    return d->hdc;
+}
+
+void QWin32PrintEngine::releaseDC(HDC)
+{
+
 }
 
 HGLOBAL *QWin32PrintEnginePrivate::createDevNames()

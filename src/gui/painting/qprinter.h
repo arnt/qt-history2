@@ -139,6 +139,11 @@ public:
 
     QPaintEngine *paintEngine() const;
 
+#ifdef Q_WS_WIN
+    HDC getDC() const;
+    void releaseDC(HDC hdc);
+#endif
+
 #if defined (QT_COMPAT)
 #ifdef Q_WS_MAC
     QT_COMPAT bool pageSetup(QWidget *parent = 0);

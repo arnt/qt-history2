@@ -1207,6 +1207,18 @@ QPrinter::PrinterState QPrinter::printerState() const
     Use printerState() == QPrinter::Aborted instead.
 */
 
+#ifdef Q_WS_WIN
+HDC QPrinter::getDC() const
+{
+    return d->printEngine->getDC();
+}
+
+void QPrinter::releaseDC(HDC hdc)
+{
+    d->printEngine->releaseDC(hdc);
+}
+#endif
+
 #ifdef QT_COMPAT
 
 bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *parent)
