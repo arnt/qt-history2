@@ -100,6 +100,14 @@ struct XmlSection
 	keywords = other.keywords;
 	return *this;
     }
+
+    bool operator>( const XmlSection& other ) {
+	return title > other.title;
+    }
+
+    bool operator<=( const XmlSection& other ) {
+	return !operator>(other);
+    }
 };
 
 inline bool operator<( const XmlSection& s1, const XmlSection& s2 )
