@@ -310,6 +310,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 }
 
 static QStrList *enums = 0;
+static QStrList *subtypes = 0;
 
 static const char* const type_map[][2] =
 {
@@ -515,6 +516,334 @@ bool ignoreProps( const char *test )
 
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
 
+static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, bool isBindable, QTextStream &out )
+{
+    int id = 1;
+    int i = 0;
+    if ( !mo )
+	return E_FAIL;
+
+    QString topclass = qAxFactory()->exposeToSuperClass( className );
+    bool hasStockEvents = qAxFactory()->hasStockEvents( className );
+
+    QMetaObject *pmo = mo;
+    do {
+	pmo = pmo->superClass();
+    } while ( pmo && topclass != pmo->className() );
+
+    int slotoff = pmo ? pmo->slotOffset() : mo->slotOffset();
+    int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
+    int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
+
+    QString classID = qAxFactory()->classID( className ).toString().upper();
+    STRIPCB(classID);
+    QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
+    STRIPCB(interfaceID);
+    QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
+    STRIPCB(eventsID);
+
+#if QT_VERSION >= 0x030100
+    QStrList enumerators = mo->enumeratorNames( TRUE );
+    for ( i = 0; i < enumerators.count(); ++i ) {
+	if ( !enums )
+	    enums = new QStrList;
+
+	const char *enumerator = enumerators.at(i);
+	if ( !enumerator )
+	    continue;
+	const QMetaEnum *mEnum = mo->enumerator( enumerator, TRUE );
+	if ( !mEnum )
+	    continue;
+
+	if ( enums->contains( enumerator ) )
+	    continue;
+
+	enums->append( enumerator );
+	
+	out << "\tenum " << enumerator << " {" << endl;
+
+	for ( uint j = 0; j < mEnum->count; ++j ) {
+	    QString key = mEnum->items[j].key;
+	    key = key.leftJustify( 20 );
+	    out << "\t\t" << key << "\t= ";
+	    if ( mEnum->set )
+		out << "0x" << QString::number( mEnum->items[j].value, 16 ).rightJustify( 8, '0' );
+	    else
+		out << mEnum->items[j].value;
+	    if ( j < mEnum->count-1 )
+		out << ", ";
+	    out << endl;
+	}
+	out << "\t};" << endl << endl;
+    }
+#endif
+
+    out << endl;
+    out << "\t[" << endl;
+    out << "\t\tuuid(" << interfaceID << ")," << endl;
+    out << "\t\thelpstring(\"" << className << " Interface\")," << endl;
+    out << "\t]" << endl;
+    out << "\tdispinterface I" << className  << endl;
+    out << "\t{" << endl;
+
+    out << "\tproperties:" << endl;
+    for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
+	const QMetaProperty *property = mo->property( i, TRUE );
+	if ( !property || property->testFlags( QMetaProperty::Override ) )
+	    continue;
+	if ( ignore( property->name(), ignore_props ) )
+	    continue;
+	if ( mo->findProperty( property->name(), TRUE ) > i )
+	    continue;
+
+	bool read = TRUE;
+	bool write = property->writable();
+	bool designable = property->designable( o );
+	bool scriptable = isBindable ? property->scriptable( o ) : FALSE;
+	bool ok = TRUE;
+#if QT_VERSION >= 0x030100
+	QString type = convertTypes( property->type(), &ok );
+#else
+	QString type = convertTypes( property->isEnumType() ? "int" : property->type(), &ok );
+#endif
+	QString name = replaceKeyword( property->name() );
+
+	if ( !ok )
+	    out << "\t/****** Property is of unsupported datatype" << endl;
+
+	if ( read ) {
+	    out << "\t\t[id(" << id << ")";
+	    if ( !write )
+		out << ", readonly";
+	    if ( scriptable )
+		out << ", bindable";
+	    if ( !designable )
+		out << ", nonbrowsable";
+	    if ( isBindable )
+		out << ", requestedit";
+	    out << "] " << type << " " << name << ";" << endl;
+	}
+
+	if ( !ok )
+	    out << "\t******/" << endl;
+	++id;
+    }
+    out << endl;
+    out << "\tmethods:" << endl;
+    for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
+	const QMetaData *slotdata = mo->slot( i, TRUE );
+	if ( !slotdata || slotdata->access != QMetaData::Public )
+	    continue;
+
+	bool ok = TRUE;
+	if ( ignore( slotdata->method->name, ignore_slots ) )
+	    continue;
+
+	QString slot = renameOverloads( replaceKeyword( slotdata->method->name ) );
+	QString returnType = "void ";
+	QString paramType;
+	slot += "(";
+	for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
+	    const QUParameter *param = slotdata->method->parameters + p;
+	    bool returnValue = FALSE;
+
+#if QT_VERSION >= 0x030100
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
+		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+		QCString type = QVariant::typeToName( vartype );
+		paramType = convertTypes( type, &ok );
+	    } else 
+#endif
+	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
+		QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		QCString type = QVariant::typeToName( vartype );
+		paramType = convertTypes( type, &ok );
+	    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		QCString type = (const char*)param->typeExtra;
+		if ( type.right(1) == "&" )
+		    type = type.left( type.length()-1 );
+		paramType = convertTypes( type, &ok );
+		if ( !ok )
+		    paramType = convertTypes( type+"*", &ok );
+		if ( !ok )
+		    ok = subtypes && subtypes->find( type ) != -1;
+	    } else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+		const QUEnum *uenum = (const QUEnum*)param->typeExtra;
+		if ( uenum )
+		    paramType = convertTypes( uenum->name, &ok );
+		else
+		    ok = FALSE;
+	    } else {
+		paramType = convertTypes( param->type->desc(), &ok );
+	    }
+	    paramType += " ";
+
+	    if ( param->inOut == QUParameter::In ) {
+		slot += " [in] " + paramType;
+	    } else if ( param->inOut == QUParameter::Out ) {
+		if ( p ) {
+		    slot += " [out] " + paramType;
+		} else {
+		    returnType = paramType;
+		    returnValue = TRUE;
+		}
+	    } else if ( param->inOut ) {
+		slot += " [in,out] " + paramType;
+	    }
+
+	    if ( returnValue )
+		continue;
+
+	    if ( param->inOut & QUParameter::Out )
+		slot += "*";
+	    if ( param->name )
+		slot += "p_" + replaceKeyword( param->name );
+	    else
+		slot += "p" + QString::number( p );
+	    if ( p+1 < slotdata->method->count )
+		slot += ", ";
+	}
+	slot += ")";
+
+	if ( !ok )
+	    out << "\t/****** Slot parameter uses unsupported datatype" << endl;
+
+	out << "\t\t[id(" << id << ")] ";
+	out << returnType << slot << ";" << endl;
+	
+	if ( !ok )
+	    out << "\t******/" << endl;
+	++id;
+    }
+    out << "\t};" << endl << endl;
+
+    delete mapping;
+    mapping = 0;
+    id = 1;
+
+    out << "\t[" << endl;
+    out << "\t\tuuid(" << eventsID << ")," << endl;
+    out << "\t\thelpstring(\"" << className << " Events Interface\")" << endl;
+    out << "\t]" << endl;
+    out << "\tdispinterface I" << className << "Events" << endl;
+    out << "\t{" << endl;
+    out << "\tproperties:" << endl;
+    out << "\tmethods:" << endl;
+
+    if ( hasStockEvents ) {
+	out << "\t/****** Stock events ******/" << endl;
+	out << "\t\t[id(DISPID_CLICK)] void Click();" << endl;
+	out << "\t\t[id(DISPID_DBLCLICK)] void DblClick();" << endl;
+	out << "\t\t[id(DISPID_KEYDOWN)] void KeyDown(short* KeyCode, short Shift);" << endl;
+	out << "\t\t[id(DISPID_KEYPRESS)] void KeyPress(short* KeyAscii);" << endl;
+	out << "\t\t[id(DISPID_KEYUP)] void KeyUp(short* KeyCode, short Shift);" << endl;
+	out << "\t\t[id(DISPID_MOUSEDOWN)] void MouseDown(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
+	out << "\t\t[id(DISPID_MOUSEMOVE)] void MouseMove(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
+	out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
+    }
+
+    for ( i = signaloff; i < mo->numSignals( TRUE ); ++i ) {
+	const QMetaData *signaldata = mo->signal( i, TRUE );
+	if ( !signaldata )
+	    continue;
+
+	bool ok = TRUE;
+	QString signal = renameOverloads( replaceKeyword( signaldata->method->name ) );
+	QString returnType = "void ";
+	QString paramType;
+	signal += "(";
+	for ( int p = 0; p < signaldata->method->count && ok; ++p ) {
+	    const QUParameter *param = signaldata->method->parameters + p;
+	    bool returnValue = FALSE;
+
+#if QT_VERSION >= 0x030100
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
+		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+		QCString type = QVariant::typeToName( vartype );
+		paramType = convertTypes( type, &ok );
+	    } else 
+#endif
+	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
+		QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		QCString type = QVariant::typeToName( vartype );
+		paramType = convertTypes( type, &ok );
+	    } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		QCString type = (const char*)param->typeExtra;
+		if ( type.right(1) == "&" )
+		    type = type.left( type.length()-1 );
+		paramType = convertTypes( type, &ok );
+		if ( !ok )
+		    ok = subtypes && subtypes->find( type ) != -1;
+	    } else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
+		const QUEnum *uenum = (const QUEnum*)param->typeExtra;
+		if ( uenum )
+		    paramType = convertTypes( uenum->name, &ok );
+		else
+		    ok = FALSE;
+	    } else {
+		paramType = convertTypes( param->type->desc(), &ok );
+	    }
+	    paramType += " ";
+
+	    if ( param->inOut == QUParameter::In ) {
+		signal += " [in] " + paramType;
+	    } else if ( param->inOut == QUParameter::Out ) {
+		if ( p ) {
+		    signal += " [out] " + paramType;
+		} else {
+		    returnType = paramType;
+		    returnValue = TRUE;
+		}
+	    } else if ( param->inOut ) {
+		signal += " [in,out] " + paramType;
+	    }
+
+	    if ( returnValue )
+		continue;
+
+	    if ( param->inOut & QUParameter::Out )
+		signal += "*";
+	    if ( param->name )
+		signal += "p_" + replaceKeyword( param->name );
+	    else
+		signal += "p" + QString::number( p );
+	    if ( p+1 < signaldata->method->count )
+		signal += ", ";
+	}
+	signal += ")";
+
+	if ( !ok )
+	    out << "\t/****** Signal parameter uses unsupported datatype" << endl;
+
+	out << "\t\t[id(" << id << ")] ";
+	out << returnType << signal << ";" << endl;
+
+	if ( !ok )
+	    out << "\t******/" << endl;
+	++id;
+    }
+    out << "\t};" << endl << endl;
+    
+    out << "\t[" << endl;
+    out << "\t\tuuid(" << classID << ")," << endl;
+    out << "\t\thelpstring(\"" << className << " Class\")";
+    const char *classVersion = mo->classInfo( "VERSION" );
+    if ( classVersion ) {
+	out << "," << endl;
+	out << "\t\tversion(" << classVersion << ")" << endl;
+    } else {
+	out << endl;
+    }
+    out << "\t]" << endl;
+    out << "\tcoclass " << className << endl;
+    out << "\t{" << endl;
+    out << "\t\t[default] interface I" << className << ";" << endl;
+    out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
+    out << "\t};" << endl;
+
+    return S_OK;
+}
+
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver )
 #else
@@ -572,338 +901,47 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
     out << "\timportlib(\"stdole32.tlb\");" << endl;
     out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
 
-
     QStringList keys = qAxFactory()->featureList();
     QStringList::Iterator key;
-    for ( key = keys.begin(); key != keys.end(); ++key ) {
-	delete mapping;
-	mapping = 0;
-	int id = 1;
-	int i;
 
+    out << "\t/* Forward declaration of classes that might be used as parameters */" << endl << endl;
+
+    for ( key = keys.begin(); key != keys.end(); ++key ) {
+	QString className = *key;
+	QMetaObject *mo = QMetaObject::metaObject( className );
+	// We have meta object information for this type. Forward declare it.
+	if ( mo ) {
+	    out << "\tcoclass " << className << ";" << endl;
+	    QObject *o = qAxFactory()->create( className );
+	    // It's not a control class, so it is actually a subtype. Define it.
+	    if ( !o ) {
+		if ( !subtypes )
+		    subtypes = new QStrList;
+		subtypes->append( className );
+		subtypes->append( className + "*" );
+		classIDL( 0, mo, className, FALSE, out );
+	    }
+	    delete o;
+	}
+    }
+    out << endl;
+
+    for ( key = keys.begin(); key != keys.end(); ++key ) {
 	QString className = *key;
 	QWidget *w = qAxFactory()->create( className );
+	if ( !w )
+	    continue;
 	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
 	bool isBindable =  bind != 0;
-	QMetaObject *mo = w->metaObject();
-	if ( !mo )
-	    return E_FAIL;
-
-	QString topclass = qAxFactory()->exposeToSuperClass( className );
-	bool hasStockEvents = qAxFactory()->hasStockEvents( className );
-
-	QMetaObject *pmo = mo;
-	do {
-	    pmo = pmo->superClass();
-	} while ( pmo && topclass != pmo->className() );
-
-	int slotoff = pmo ? pmo->slotOffset() : mo->slotOffset();
-	int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
-	int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
-
-	QString classID = qAxFactory()->classID( className ).toString().upper();
-	STRIPCB(classID);
-	QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
-	STRIPCB(interfaceID);
-	QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
-	STRIPCB(eventsID);
-
-#if QT_VERSION >= 0x030100
-	QStrList enumerators = mo->enumeratorNames( TRUE );
-	for ( i = 0; i < enumerators.count(); ++i ) {
-	    if ( !enums )
-		enums = new QStrList;
-
-	    const char *enumerator = enumerators.at(i);
-	    if ( !enumerator )
-		continue;
-	    const QMetaEnum *mEnum = mo->enumerator( enumerator, TRUE );
-	    if ( !mEnum )
-		continue;
-
-	    if ( enums->contains( enumerator ) )
-		continue;
-
-	    enums->append( enumerator );
-	    
-	    out << "\tenum " << enumerator << " {" << endl;
-
-	    for ( uint j = 0; j < mEnum->count; ++j ) {
-		QString key = mEnum->items[j].key;
-		key = key.leftJustify( 20 );
-		out << "\t\t" << key << "\t= ";
-		if ( mEnum->set )
-		    out << "0x" << QString::number( mEnum->items[j].value, 16 ).rightJustify( 8, '0' );
-		else
-		    out << mEnum->items[j].value;
-		if ( j < mEnum->count-1 )
-		    out << ", ";
-		out << endl;
-	    }
-	    out << "\t};" << endl << endl;
-	}
-#endif
-
-	out << endl;
-	out << "\t[" << endl;
-	out << "\t\tuuid(" << interfaceID << ")," << endl;
-	out << "\t\thelpstring(\"" << className << " Interface\")," << endl;
-	out << "\t]" << endl;
-	out << "\tdispinterface I" << className  << endl;
-	out << "\t{" << endl;
-
-	out << "\tproperties:" << endl;
-	for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
-	    const QMetaProperty *property = mo->property( i, TRUE );
-	    if ( !property || property->testFlags( QMetaProperty::Override ) )
-		continue;
-	    if ( ignore( property->name(), ignore_props ) )
-		continue;
-	    if ( mo->findProperty( property->name(), TRUE ) > i )
-		continue;
-
-	    bool read = TRUE;
-	    bool write = property->writable();
-	    bool designable = property->designable( w );
-	    bool scriptable = isBindable ? property->scriptable( w ) : FALSE;
-	    bool ok = TRUE;
-#if QT_VERSION >= 0x030100
-	    QString type = convertTypes( property->type(), &ok );
-#else
-	    QString type = convertTypes( property->isEnumType() ? "int" : property->type(), &ok );
-#endif
-	    QString name = replaceKeyword( property->name() );
-
-	    if ( !ok )
-		out << "\t/****** Property is of unsupported datatype" << endl;
-
-	    if ( read ) {
-		out << "\t\t[id(" << id << ")";
-		if ( !write )
-		    out << ", readonly";
-		if ( scriptable )
-		    out << ", bindable";
-		if ( !designable )
-		    out << ", nonbrowsable";
-		if ( isBindable )
-		    out << ", requestedit";
-		out << "] " << type << " " << name << ";" << endl;
-	    }
-
-	    if ( !ok )
-		out << "\t******/" << endl;
-	    ++id;
-	}
-	out << endl;
-	out << "\tmethods:" << endl;
-	for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
-	    const QMetaData *slotdata = mo->slot( i, TRUE );
-	    if ( !slotdata || slotdata->access != QMetaData::Public )
-		continue;
-
-	    bool ok = TRUE;
-	    if ( ignore( slotdata->method->name, ignore_slots ) )
-		continue;
-
-	    QString slot = renameOverloads( replaceKeyword( slotdata->method->name ) );
-	    QString returnType = "void ";
-	    QString paramType;
-	    slot += "(";
-	    for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
-		const QUParameter *param = slotdata->method->parameters + p;
-		bool returnValue = FALSE;
-
-#if QT_VERSION >= 0x030100
-		if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
-		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-		    QCString type = QVariant::typeToName( vartype );
-		    paramType = convertTypes( type, &ok );
-		} else 
-#endif
-		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
-		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
-		    QCString type = QVariant::typeToName( vartype );
-		    paramType = convertTypes( type, &ok );
-		} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-		    QCString type = (const char*)param->typeExtra;
-		    if ( type.right(1) == "&" )
-			type = type.left( type.length()-1 );
-		    paramType = convertTypes( type, &ok );
-		    if ( !ok )
-			paramType = convertTypes( type+"*", &ok );
-		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
-		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
-		    if ( uenum )
-			paramType = convertTypes( uenum->name, &ok );
-		    else
-			ok = FALSE;
-		} else {
-		    paramType = convertTypes( param->type->desc(), &ok );
-		}
-		paramType += " ";
-
-		if ( param->inOut == QUParameter::In ) {
-		    slot += " [in] " + paramType;
-		} else if ( param->inOut == QUParameter::Out ) {
-		    if ( p ) {
-			slot += " [out] " + paramType;
-		    } else {
-			returnType = paramType;
-			returnValue = TRUE;
-		    }
-		} else if ( param->inOut ) {
-		    slot += " [in,out] " + paramType;
-		}
-
-		if ( returnValue )
-		    continue;
-
-		if ( param->inOut & QUParameter::Out )
-		    slot += "*";
-		if ( param->name )
-		    slot += "p_" + replaceKeyword( param->name );
-		else
-		    slot += "p" + QString::number( p );
-		if ( p+1 < slotdata->method->count )
-		    slot += ", ";
-	    }
-	    slot += ")";
-
-	    if ( !ok )
-		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
-
-	    out << "\t\t[id(" << id << ")] ";
-	    out << returnType << slot << ";" << endl;
-	    
-	    if ( !ok )
-		out << "\t******/" << endl;
-	    ++id;
-	}
-	out << "\t};" << endl << endl;
 
 	delete mapping;
 	mapping = 0;
-	id = 1;
 
-	out << "\t[" << endl;
-	out << "\t\tuuid(" << eventsID << ")," << endl;
-	out << "\t\thelpstring(\"" << className << " Events Interface\")" << endl;
-	out << "\t]" << endl;
-	out << "\tdispinterface I" << className << "Events" << endl;
-	out << "\t{" << endl;
-	out << "\tproperties:" << endl;
-	out << "\tmethods:" << endl;
-
-	if ( hasStockEvents ) {
-	    out << "\t/****** Stock events ******/" << endl;
-	    out << "\t\t[id(DISPID_CLICK)] void Click();" << endl;
-	    out << "\t\t[id(DISPID_DBLCLICK)] void DblClick();" << endl;
-	    out << "\t\t[id(DISPID_KEYDOWN)] void KeyDown(short* KeyCode, short Shift);" << endl;
-	    out << "\t\t[id(DISPID_KEYPRESS)] void KeyPress(short* KeyAscii);" << endl;
-	    out << "\t\t[id(DISPID_KEYUP)] void KeyUp(short* KeyCode, short Shift);" << endl;
-	    out << "\t\t[id(DISPID_MOUSEDOWN)] void MouseDown(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
-	    out << "\t\t[id(DISPID_MOUSEMOVE)] void MouseMove(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
-	    out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
-	}
-
-	for ( i = signaloff; i < mo->numSignals( TRUE ); ++i ) {
-	    const QMetaData *signaldata = mo->signal( i, TRUE );
-	    if ( !signaldata )
-		continue;
-
-	    bool ok = TRUE;
-	    QString signal = renameOverloads( replaceKeyword( signaldata->method->name ) );
-	    QString returnType = "void ";
-	    QString paramType;
-	    signal += "(";
-	    for ( int p = 0; p < signaldata->method->count && ok; ++p ) {
-		const QUParameter *param = signaldata->method->parameters + p;
-		bool returnValue = FALSE;
-
-#if QT_VERSION >= 0x030100
-		if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
-		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
-		    QCString type = QVariant::typeToName( vartype );
-		    paramType = convertTypes( type, &ok );
-		} else 
-#endif
-		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) && param->typeExtra ) {
-		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
-		    QCString type = QVariant::typeToName( vartype );
-		    paramType = convertTypes( type, &ok );
-		} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
-		    QCString type = (const char*)param->typeExtra;
-		    if ( type.right(1) == "&" )
-			type = type.left( type.length()-1 );
-		    paramType = convertTypes( type, &ok );
-		    if ( !ok )
-			paramType = convertTypes( type+"*", &ok );
-		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
-		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
-		    if ( uenum )
-			paramType = convertTypes( uenum->name, &ok );
-		    else
-			ok = FALSE;
-		} else {
-		    paramType = convertTypes( param->type->desc(), &ok );
-		}
-		paramType += " ";
-
-		if ( param->inOut == QUParameter::In ) {
-		    signal += " [in] " + paramType;
-		} else if ( param->inOut == QUParameter::Out ) {
-		    if ( p ) {
-			signal += " [out] " + paramType;
-		    } else {
-			returnType = paramType;
-			returnValue = TRUE;
-		    }
-		} else if ( param->inOut ) {
-		    signal += " [in,out] " + paramType;
-		}
-
-		if ( returnValue )
-		    continue;
-
-		if ( param->inOut & QUParameter::Out )
-		    signal += "*";
-		if ( param->name )
-		    signal += "p_" + replaceKeyword( param->name );
-		else
-		    signal += "p" + QString::number( p );
-		if ( p+1 < signaldata->method->count )
-		    signal += ", ";
-	    }
-	    signal += ")";
-
-	    if ( !ok )
-		out << "\t/****** Signal parameter uses unsupported datatype" << endl;
-
-	    out << "\t\t[id(" << id << ")] ";
-	    out << returnType << signal << ";" << endl;
-
-	    if ( !ok )
-		out << "\t******/" << endl;
-	    ++id;
-	}
-	out << "\t};" << endl << endl;
-	
-	out << "\t[" << endl;
-	out << "\t\tuuid(" << classID << ")," << endl;
-	out << "\t\thelpstring(\"" << className << " Class\")";
-	const char *classVersion = mo->classInfo( "VERSION" );
-	if ( classVersion ) {
-	    out << "," << endl;
-	    out << "\t\tversion(" << classVersion << ")" << endl;
-	} else {
-	    out << endl;
-	}
-	out << "\t]" << endl;
-	out << "\tcoclass " << className << endl;
-	out << "\t{" << endl;
-	out << "\t\t[default] interface I" << className << ";" << endl;
-	out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
-	out << "\t};" << endl;
+	if ( !subtypes )
+	    subtypes = new QStrList;
+	subtypes->append( className );
+	subtypes->append( className + "*" );
+	classIDL( w, w->metaObject(), className, isBindable, out );
 
 	delete w;
     }
@@ -914,6 +952,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
     mapping = 0;
     delete enums;
     enums = 0;
+    delete subtypes;
+    subtypes = 0;
 
     return S_OK;
 }
