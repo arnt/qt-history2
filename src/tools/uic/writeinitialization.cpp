@@ -996,8 +996,8 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
             pixFunc = QLatin1String("QString::fromUtf8");
 
         if (uic->hasExternalPixmap() || !declaredPix)
-            s = QLatin1String("\"") + s + QLatin1String("\"");
-
+			s = fixString(s);
+            
         if (pixFunc.isEmpty() && s == QLatin1String("\"\""))
             s.clear();
 
