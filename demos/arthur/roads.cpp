@@ -47,7 +47,7 @@ void Roads::paintEvent(QPaintEvent *)
     QRect r(offset, offset, width() - 2*offset, height() - 2*offset);
 
     if (backBuffer.size() != size()) {
-        backBuffer.resize(size());
+        backBuffer = QPixmap(size());
         QPainter bp(&backBuffer);
 
         fillBackground(&bp);

@@ -71,7 +71,7 @@ void Paths::paintEvent(QPaintEvent *)
 
 void Paths::resizeEvent(QResizeEvent *)
 {
-    dblBuffer.resize(width(), height());
+    dblBuffer = QPixmap(width(), height());
     QPainter p(&dblBuffer);
     fillBackground(&p);
 }

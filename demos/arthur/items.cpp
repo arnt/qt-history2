@@ -198,7 +198,7 @@ void Items::mouseReleaseEvent(QMouseEvent *)
 
 void Items::resizeEvent(QResizeEvent *)
 {
-    buffer.resize(size());
+    buffer = QPixmap(size());
     drawItems(QRect());
 }
 

@@ -64,7 +64,7 @@ void Warpix::paintEvent(QPaintEvent *)
 
 static void copy_pixmap(const QPixmap *src, QPixmap *dest, int x, int y, int w, int h)
 {
-    dest->resize(w, h);
+    *dest = QPixmap(w, h);
     QPainter pt(dest);
     pt.drawPixmap(0, 0, *src, x, y, w, h, Qt::CopyPixmap);
 }
