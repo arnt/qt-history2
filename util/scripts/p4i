@@ -8,6 +8,7 @@ chomp $userName;
 $change = 0;
 $all = 0;
 $ask = 1;
+$force = 0;
 
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
@@ -29,6 +30,9 @@ for $arg ( @ARGV ) {
   } elsif ( $arg eq "--all" ) {
     $all = 1;
     $ask = 0;
+    $force = 1;
+  } elsif ( $arg eq "--force" ) {
+    $force = 1;
   } else {
     $change = $arg;
   }
@@ -122,7 +126,7 @@ foreach $file ( @fromBranchFiles ) {
 	print STDERR "File $file from product $pathComponents[3], not $product\n";
 	$abort = 1;
     }
-    if ( $pathComponents[4] ne $fromBranch ) {
+    if ( !$force && $pathComponents[4] ne $fromBranch ) {
 	print STDERR "File $file on branch $pathComponents[4], not $fromBranch\n";
 	$abort = 1;
     }
