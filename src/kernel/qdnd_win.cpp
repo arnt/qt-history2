@@ -893,6 +893,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 
     if ( pt.x == last_pt.x && pt.y == last_pt.y &&
 	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
+	if (!acceptact)
+	    *pdwEffect = DROPEFFECT_NONE;
 	return NOERROR;
     }
     last_pt = pt;
@@ -912,6 +914,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
+    if (!acceptact)
+	*pdwEffect = DROPEFFECT_NONE;
     return NOERROR;
 }
 
