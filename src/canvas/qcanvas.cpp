@@ -527,6 +527,9 @@ void qt_unview(QCanvas* c)
 QCanvas::~QCanvas()
 {
     qt_unview(this);
+    delete [] chunks;
+    delete [] grid;
+    delete d;
 }
 
 /*!
@@ -1304,7 +1307,7 @@ void QCanvas::setTiles( QPixmap p,
 {
     htiles = h;
     vtiles = v;
-    delete grid;
+    delete[] grid;
     if ( h && v ) {
 	grid = new ushort[h*v];
 	memset( grid, 0, h*v*sizeof(ushort) );
@@ -2288,7 +2291,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspo
 {
     if (list.count() != hotspots.count()) {
 	qWarning("QCanvasPixmapArray: lists have different lengths");
-	delete [] img;
+	reset();
 	img = 0;
     } else {
 	list.first();

@@ -212,6 +212,7 @@ void QSpinBox::initSpinBox()
 
 QSpinBox::~QSpinBox()
 {
+    delete d;
 }
 
 

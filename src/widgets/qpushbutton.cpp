@@ -156,6 +156,10 @@ public:
     QPushButtonPrivate()
 	:iconset( 0 )
     {}
+    ~QPushButtonPrivate()
+    {
+	delete iconset;
+    }
     QGuardedPtr<QPopupMenu> popup;
     QIconSet* iconset;
 };
@@ -168,6 +172,7 @@ static QPushButtonPrivate* d( const QPushButton* foo )
 {
     if ( !d_ptr ) {
 	d_ptr = new QPtrDict<QPushButtonPrivate>;
+	d_ptr->setAutoDelete( TRUE );
 	qpb_cleanup_private.addCleanUp( d_ptr );
     }
     QPushButtonPrivate* ret = d_ptr->find( (void*)foo );
