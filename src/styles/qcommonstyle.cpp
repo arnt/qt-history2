@@ -1940,7 +1940,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_TitleBarHeight: {
 	QRect menur = querySubControlMetrics(QStyle::CC_TitleBar, widget,
 					     QStyle::SC_TitleBarSysMenu);
-	ret = QMAX( QMAX( menur.height(), 18 ), widget ? widget->fontMetrics().lineSpacing() : 0);
+	ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );
+	if ( widget )
+	    ret = QMAX( ret, widget->fontMetrics().lineSpacing() );
 	break; }
     case PM_ScrollBarSliderMin:
 	ret = 9;

@@ -640,12 +640,7 @@ QSize QTitleBar::sizeHint() const
     constPolish();
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 						 QStyle::SC_TitleBarSysMenu);
-#ifndef Q_CC_BOR
-    // ### This crashes on Win32 Borland
     return QSize( menur.width(), style().pixelMetric( QStyle::PM_TitleBarHeight, this ) );
-#else
-    return QSize( menur.width(), QMAX( QMAX( menur.height(), 18 ), fontMetrics().lineSpacing() ) );
-#endif
 }
 
 #endif //QT_NO_TITLEBAR
