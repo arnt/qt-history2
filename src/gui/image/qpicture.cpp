@@ -15,16 +15,18 @@
 
 #ifndef QT_NO_PICTURE
 
-#include "private/qpaintengine_pic_p.h"
+#include <private/qfactoryloader_p.h>
+#include <private/qpaintengine_pic_p.h>
+
 #include "qdatastream.h"
 #include "qfile.h"
 #include "qimage.h"
+#include "qmutex.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
+#include "qpainterpath.h"
 #include "qpixmap.h"
 #include "qregion.h"
-#include "qmutex.h"
-#include "private/qfactoryloader_p.h"
 
 /*!
     \class QPicture qpicture.h
@@ -503,9 +505,14 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 s >> a >> i_8;
                 painter->drawPolygon(a, i_8);
                 break;
-            case PdcDrawCubicBezier:
+            case PdcDrawCubicBezier: {
                 s >> a;
-                painter->drawCubicBezier(a);
+                QPainterPath path;
+                Q_ASSERT(a.size() == 4);
+                path.moveTo(a.at(0));
+                path.curveTo(a.at(1), a.at(2), a.at(3));
+                painter->strokePath(path, painter->pen());
+            }
                 break;
             case PdcDrawText:
                 s >> p >> str1;

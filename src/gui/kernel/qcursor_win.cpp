@@ -240,8 +240,8 @@ void QCursor::update() const
             int i = d->cshape - Qt::SplitVCursor;
             QBitmap cb(32, 32, cursor_bits32[i * 2], true);
             QBitmap cm(32, 32, cursor_bits32[i * 2 + 1], true);
-            bbits = cb;
-            mbits = cm;
+            bbits = cb.toImage();
+            mbits = cm.toImage();
             if (d->cshape == Qt::PointingHandCursor) {
                 d->hx = 7;
                 d->hy = 0;
@@ -249,8 +249,8 @@ void QCursor::update() const
                 d->hx = d->hy = 16;
             invb = invm = false;
         } else {
-            bbits = *d->bm;
-            mbits = *d->bmm;
+            bbits = d->bm->toImage();
+            mbits = d->bmm->toImage();
             invb = bbits.numColors() > 1 && qGray(bbits.color(0)) < qGray(bbits.color(1));
             invm = mbits.numColors() > 1 && qGray(mbits.color(0)) < qGray(mbits.color(1));
         }

@@ -48,7 +48,7 @@ void QColormap::initialize()
     screenMap->numcolors = -1;
     if (GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE)
         screenMap->numcolors = GetDeviceCaps(dc, SIZEPALETTE);
-    
+
     if (screenMap->numcolors <= 16 || screenMap->numcolors > 256)        // no need to create palette
         return;
 
@@ -106,7 +106,7 @@ void QColormap::cleanup()
     screenMap = 0;
 }
 
-QColormap QColormap::instance(int screen)
+QColormap QColormap::instance(int)
 { return QColormap(); }
 
 QColormap::QColormap()
@@ -136,7 +136,7 @@ uint QColormap::pixel(const QColor &color) const
 {
     const QColor c = color.toRgb();
     COLORREF rgb = RGB(c.red(), c.green(), c.blue());
-    if (d->hpal) 
+    if (d->hpal)
         return PALETTEINDEX(GetNearestPaletteIndex(d->hpal, rgb));
     return rgb;
 }
@@ -144,7 +144,7 @@ uint QColormap::pixel(const QColor &color) const
 const QColor QColormap::colorAt(uint pixel) const
 {
     if (d->hpal) {
-        if (pixel < d->numcolors)
+        if (pixel < uint(d->numcolors))
             return d->palette.at(pixel);
         return QColor();
     }

@@ -636,7 +636,7 @@ void QWidget::setWindowTitle(const QString &caption)
 
 HBITMAP qt_createIconMask(const QBitmap &bitmap)
 {
-    QImage bm = bitmap.convertToImage();
+    QImage bm = bitmap.toImage();
     int w = bm.width();
     int h = bm.height();
     int bpl = ((w+15)/16)*2;                        // bpl, 16 bit alignment

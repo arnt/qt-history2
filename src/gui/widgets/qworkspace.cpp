@@ -464,7 +464,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
 void QWorkspace::childEvent(QChildEvent * e)
 {
 #ifdef QT_COMPAT
-    if (e->inserted() && e->child()->isWidgetType()) {
+    if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
         QWidget* w = static_cast<QWidget*>(e->child());
         if (!w || w->testWFlags(Qt::WSubWindow)
             || !w->testWFlags(Qt::WStyle_Title | Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)
@@ -1929,7 +1929,7 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
             windowWidget()->resize(windowWidget()->maximumSize());
             ((QWorkspace*)windowWidget())->clearWState(Qt::WState_Maximized);
             if (titlebar)
-                titlebar->repaint(false);
+                titlebar->repaint();
             break;
         }
         if (windowWidget()->testWFlags(Qt::WStyle_Maximize) && !windowWidget()->testWFlags(Qt::WStyle_Tool))

@@ -436,10 +436,10 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!(filterSpec & QDir::AllDirs && isDir)) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, 
-                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                QRegExp rx(*sit,
+                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                            QRegExp::Wildcard);
-                if(rx.exactMatch(fname)) 
+                if(rx.exactMatch(fname))
                     matched = true;
             }
             if(!matched)
@@ -521,7 +521,7 @@ QFSFileEngine::currentPath(const QString &fileName)
                 ret = buf;
             });
         }
-    } 
+    }
     if(ret.isEmpty()) {
 	//just the pwd
 	QT_WA({
@@ -1054,20 +1054,17 @@ QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
-bool
-QFSFileEngine::chmod(uint perms)
+bool QFSFileEngine::chmod(uint (/* perms */)
 {
     return false;
 }
 
-bool
-QFSFileEngine::setSize(QIODevice::Offset size)
+bool QFSFileEngine::setSize(QIODevice::Offset /* size */)
 {
     return false;
 }
 
-bool
-QFSFileEngine::link(const QString &newName)
+bool QFSFileEngine::link(const QString & /* newName */)
 {
     return false;
 }

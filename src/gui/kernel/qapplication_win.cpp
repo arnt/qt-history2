@@ -227,7 +227,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
     else if (brush.pixmap()) {
         qt_draw_tiled_pixmap(hdc, x, y, w, h, brush.pixmap(), off_x, off_y);
     } else {
-        HBRUSH hbrush = CreateSolidBrush(brush.color().pixel());
+        HBRUSH hbrush = CreateSolidBrush(QColormap::instance().pixel(brush.color()));
         HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hbrush);
         PatBlt(hdc, x, y, w, h, PATCOPY);
         SelectObject(hdc, oldBrush);

@@ -52,8 +52,8 @@ public:
         cancellation_flag(false),
         showTime(defaultShowTime)
     {
-        label->setAlignment(that->style().styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment,
-                                                    0, that));
+        int align = that->style().styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, that);
+        label->setAlignment(Qt::Alignment(align));
     }
 
     QWidget         *creator;

@@ -472,7 +472,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     QRect rect(targetRect);
     QPainter *paint = painter();
     QPoint pos( rect.x(), rect.y() );
-    QImage  image = pixmap;
+    QImage  image = pixmap.toImage();
 
     int w = pixmap.width();
     int h = pixmap.height();
@@ -494,13 +494,13 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
     double xs = 1.0;                    // x stretch
     double ys = 1.0;                    // y stretch
     if ( paint ) {
-        bool wxf = paint->hasWorldXForm();
+        bool wxf = paint->matrixEnabled();
         bool vxf = paint->hasViewXForm();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
         bool complexWxf = FALSE;
 #endif
         if ( wxf ) {
-            QMatrix m = paint->worldMatrix();
+            QMatrix m = paint->matrix();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
             complexWxf = m.m12() != 0 || m.m21() != 0;
             if ( complexWxf ) {
@@ -516,7 +516,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
 
                 int origW = image.width();
                 int origH = image.height();
-                image = image.xForm( m );
+                image = image.transform( m );
                 w = image.width();
                 h = image.height();
                 rect.setWidth(w);
@@ -534,9 +534,9 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
                 //   transformed image.
                 paint->save();
                 QPoint p1 = QPoint(0,0) * QPixmap::trueMatrix( m, origW, origH );
-                QPoint p2 = pos * paint->worldMatrix();
+                QPoint p2 = pos * paint->matrix();
                 p1 = p2 - p1 - pos;
-                paint->setWorldMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
+                paint->setMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
             } else
 #endif
                 {
@@ -551,7 +551,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
             ys = ys * vr.height() / wr.height();
         }
         if ( wxf || vxf ) {             // map position
-            pos = paint->xForm( pos );
+            pos = pos * paint->matrix();
         }
 #ifndef QT_NO_IMAGE_TRANSFORMATION
         if ( complexWxf )
@@ -577,7 +577,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         xs = dw/(double)image.width();
         ys = dh/(double)image.height();
         if( xs!=1 || ys!=1 )
-            bm = bm.xForm( QMatrix( xs, 0, 0, ys, 0, 0 ) );
+            bm = bm.transform( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
         r.translate( pos.x(), pos.y() );
         if ( paint->hasClipping() )

@@ -839,7 +839,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
         }
     } else if (mask && mode == Qt::ComposePixmap) {
         if (stretch) {
-            QImage imageData(pixmap);
+            QImage imageData = pixmap.toImage();
             QImage imageMask = imageData.createAlphaMask();
             QBitmap tmpbm = imageMask;
             QBitmap bm(sr.width(), sr.height());
@@ -852,7 +852,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
             QMatrix xform = QMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
                                       0, 0);
-            bm = bm.xForm(xform);
+            bm = bm.transform(xform);
             QRegion region(bm);
             region.translate(r.x(), r.y());
             if (state->painter->hasClipping())
@@ -2317,7 +2317,7 @@ void QGdiplusPaintEngine::cleanup()
 }
 
 
-void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int flag)
+void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int /* flag */)
 {
     HDC dc = ti.fontEngine->dc();
     QtGpFont *font;
@@ -2341,7 +2341,7 @@ static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image
         GdipCreateBitmapFromHBITMAP(pixmap->hbm(), HPALETTE(0), &bitmap);
         return bitmap;
     } else { // 1 bit masks or 8 bit alpha...
-        *image = pixmap->convertToImage();
+        *image = pixmap->toImage();
         int pf;
         int depth = image->depth();
 

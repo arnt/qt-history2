@@ -2365,7 +2365,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
             bm_clip.fill(Qt::color1);
             pmx.setMask(bm_clip.transform(mat));
         }
-        map(x, y, &x, &y);        // compute position of pixmap
+        d->state->matrix.map(x, y, &x, &y);        // compute position of pixmap
         int dx, dy;
         mat.map(0, 0, &dx, &dy);
         d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
@@ -2830,7 +2830,7 @@ bool QPainter::hasViewXForm() const
     setWorldXForm()
 */
 
-void QPainter::setWindow_helper(const QRect &r)
+void QPainter::setWindow(const QRect &r)
 {
     if (!isActive()) {
         qWarning("QPainter::setWindow(), painter not active");
@@ -2890,7 +2890,7 @@ QRect QPainter::window() const
     setWorldXForm(), xForm()
 */
 
-void QPainter::setViewport_helper(const QRect &r)
+void QPainter::setViewport(const QRect &r)
 {
     if (!isActive()) {
         qWarning("QPainter::setViewport(), painter not active");
@@ -3537,8 +3537,10 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QPoint gstart = p->xForm(brush.gradientStart());
-    QPoint gstop  = p->xForm(brush.gradientStop());
+    QMatrix matrix = p->matrix();
+
+    QPoint gstart = brush.gradientStart() * matrix;
+    QPoint gstop  = brush.gradientStop() * matrix;;
 
     QPen oldPen = p->pen();
     p->translate(rect.topLeft());

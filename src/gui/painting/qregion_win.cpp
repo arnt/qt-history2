@@ -94,7 +94,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 {
 #ifndef Q_OS_TEMP
     HRGN region=0;
-    QImage image = bitmap.convertToImage();
+    QImage image = bitmap.toImage();
     const int MAXRECT = 256;
     struct RData {
         RGNDATAHEADER header;

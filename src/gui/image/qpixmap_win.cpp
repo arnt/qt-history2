@@ -375,7 +375,7 @@ void QPixmap::fill(const QColor &fillColor)
     } else if (fillColor == Qt::white) {
         PatBlt(dc, 0, 0, data->w, data->h, WHITENESS);
     } else {
-        HBRUSH hbrush = CreateSolidBrush(fillColor.pixel());
+        HBRUSH hbrush = CreateSolidBrush(fillColor.rgb());
         HBRUSH hb_old = (HBRUSH)SelectObject(dc, hbrush);
         PatBlt(dc, 0, 0, data->w, data->h, PATCOPY);
         DeleteObject(SelectObject(dc, hb_old));
@@ -563,7 +563,7 @@ QImage QPixmap::toImage() const
 
     if (m) {
         image.setAlphaBuffer(true);
-        QImage msk = m->convertToImage();
+        QImage msk = m->toImage();
 
         switch (d) {
           case 8: {
@@ -930,7 +930,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 #endif
             StretchBlt(pm_dc, 0, 0, w, h, dc, 0, 0, ws, hs, SRCCOPY);
             if (data->mask) {
-                QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
+                QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->transform(matrix);
                 pm.setMask(bm);
             }
 
@@ -1027,7 +1027,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (depth1)
         memset(dptr, 0xff, dbytes);
     else if (bpp == 8)
-        memset(dptr, QColor(Qt::white).pixel(), dbytes);
+        memset(dptr, QColormap::instance().pixel(QColor(Qt::white)), dbytes);
     else if (data->realAlphaBits)
         memset(dptr, 0x00, dbytes);
     else
@@ -1079,7 +1079,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     delete [] bmi_data;
     delete [] dptr;
     if (data->mask) {
-        QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
+        QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->transform(matrix);
         pm.setMask(bm);
     }
 

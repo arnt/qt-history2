@@ -466,8 +466,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
     d->unmapPointer = new char[d->unmapLength];
     bool ok = false;
     if (f.open(IO_ReadOnly)) {
-        ok = d->unmapLength ==
-             (uint)f.readBlock(d->unmapPointer, d->unmapLength);
+        ok = d->unmapLength == (uint)f.read(d->unmapPointer, d->unmapLength);
         f.close();
     }
     if (!ok) {

@@ -103,7 +103,7 @@ class Q_GUI_EXPORT QPainter
     void restore();
 
 #ifndef QT_NO_TRANSFORMATIONS
-    void setMatrix(const QMatrix &matrix, bool combine);
+    void setMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &matrix() const;
     void resetMatrix();
 
@@ -116,6 +116,17 @@ class Q_GUI_EXPORT QPainter
 #endif
     inline void translate(const QPoint &offset);
     void translate(double dx, double dy);
+
+    QRect window() const;
+    void setWindow(const QRect &window);
+    inline void setWindow(int x, int y, int w, int h);
+
+    QRect viewport() const;
+    void setViewport(const QRect &viewport);
+    inline void setViewport(int x, int y, int w, int h);
+
+    void setViewXForm(bool enable);
+    bool hasViewXForm() const;
 
     // drawing functions
     void strokePath(const QPainterPath &path, const QPen &pen);
@@ -255,19 +266,6 @@ class Q_GUI_EXPORT QPainter
     QT_COMPAT QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
     QT_COMPAT double translationX() const;
     QT_COMPAT double translationY() const;
-
-    QT_COMPAT void setViewXForm(bool enable);
-    QT_COMPAT bool hasViewXForm() const;
-private:
-    void setWindow_helper(const QRect &r);
-    void setViewport_helper(const QRect &r);
-public:
-    QT_COMPAT QRect window() const;
-    inline QT_COMPAT void setWindow(const QRect &window) { setWindow_helper(window); }
-    inline QT_COMPAT void setWindow(int x, int y, int w, int h) { setWindow_helper(QRect(x, y, w, h)); }
-    QT_COMPAT QRect viewport() const;
-    inline QT_COMPAT void setViewport(const QRect &viewport) { setViewport_helper(viewport); }
-    inline QT_COMPAT void setViewport(int x, int y, int w, int h) { setViewport_helper(QRect(x, y, w, h)); }
 #endif
 
 private:
@@ -439,4 +437,13 @@ inline void QPainter::translate(const QPoint &offset)
     translate(offset.x(), offset.y());
 }
 
+inline void QPainter::setViewport(int x, int y, int w, int h)
+{
+    setViewport(QRect(x, y, w, h));
+}
+
+inline void QPainter::setWindow(int x, int y, int w, int h)
+{
+    setWindow(QRect(x, y, w, h));
+}
 #endif // #ifndef QPAINTER_H

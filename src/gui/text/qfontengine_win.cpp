@@ -305,7 +305,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
         transform = true;
     } else if (!p->hasFeature(QPaintEngine::CoordTransform)
                && state->txop == QPainterPrivate::TxTranslate) {
-        state->painter->map(x, y, &x, &y);
+        state->painter->matrix().map(x, y, &x, &y);
     }
 
     if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle) {
@@ -383,7 +383,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
                     int xp = x + qRound(glyphs->offset.x());
                     int yp = y + qRound(glyphs->offset.y());
                     if (transform)
-                        state->painter->map(xp, yp, &xp, &yp);
+                        state->painter->matrix().map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
                     x += qRound(glyphs->advance.x());
                     glyphs++;
@@ -409,7 +409,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
             int xp = x + qRound(glyphs->offset.x());
             int yp = y + qRound(glyphs->offset.y());
             if (transform)
-                state->painter->map(xp, yp, &xp, &yp);
+                state->painter->matrix().map(xp, yp, &xp, &yp);
             ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
             x += qRound(glyphs->advance.x());
         }

@@ -20,7 +20,7 @@
 #include "qpaintengine_p.h"
 #include <private/qpainter_p.h>
 
-#define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
+#define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.rgb())
 
 class QPainterPathPrivate;
 
