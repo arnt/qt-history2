@@ -424,11 +424,11 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix)
     const uint dbpr = nbytes / h;
     const unsigned short sbpr = pix->data->nbytes / pix->data->h;
     uchar *sptr = (uchar*)pix->data->pixels, *srow;
-    for(int yy=0; yy < h; yy++) {
+    for(int yy=0; yy < h; ++yy) {
         drow = dptr + (yy * dbpr);
         srow = sptr + (yy * sbpr);
         for(int xx=0; xx < w*4; xx+=4)
-            *(drow+xx) = *(srow+xx);
+            *(drow+xx) = 255 - qGray(*(srow+xx+1), *(srow+xx+2), *(srow+xx+3));
     }
     macSetHasAlpha(true);
 }
@@ -440,11 +440,11 @@ QPixmapData::macGetAlphaChannel(QPixmap *pix) const
     const uint dbpr = pix->data->nbytes / pix->data->h;
     const unsigned short sbpr = nbytes / h;
     uchar *sptr = (uchar*)pixels, *srow;
-    for(int yy=0; yy < h; yy++) {
+    for(int yy=0; yy < h; ++yy) {
         drow = dptr + (yy * dbpr);
         srow = sptr + (yy * sbpr);
         for(int xx=0; xx < w*4; xx+=4)
-            *(drow+xx) = *(srow+xx);
+            memset(drow+xx, *(srow+xx), 4);
     }
 }
 
