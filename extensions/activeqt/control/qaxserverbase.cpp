@@ -3076,14 +3076,9 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange(DISPID dispID)
 	if (var.vt != VT_DISPATCH || !isWidget)
 	    break;
 	{
-	    IDispatch *d = var.pdispVal;
-	    IFont *f = 0;
-	    d->QueryInterface(IID_IFont, (void**)&f);
-	    if (f) {
-		QFont qfont = IFontToQFont(f);
-		qt.widget->setFont(qfont);
-		f->Release();
-	    }
+            QVariant qvar = VARIANTToQVariant(var, "QFont", QVariant::Font);
+            QFont qfont = qVariantValue<QFont>(qvar);
+            qt.widget->setFont(qfont);
 	}
 	break;
     case DISPID_AMBIENT_LOCALEID:
