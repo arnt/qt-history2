@@ -815,7 +815,8 @@ void QWidget::repaint(const QRegion& rgn)
     if (paintEngine()->type() == QPaintEngine::Raster)
 	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
 
-    qt_set_paintevent_clipping(this, rgn);
+    if (do_clipping)
+        rasterEngine->setSystemClip(rgn);
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
         d->composeBackground(br);
@@ -836,10 +837,8 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-
     if (do_clipping)
-        qt_clear_paintevent_clipping();
-
+        rasterEngine->setSystemClip(QRegion());
 
     setAttribute(Qt::WA_WState_InPaintEvent, false);
     if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())

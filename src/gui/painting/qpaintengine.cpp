@@ -1059,3 +1059,34 @@ QPoint QPaintEngine::coordinateOffset() const
     return QPoint();
 }
 
+/*!
+    \internal
+
+    Sets the system clip for this engine. The system clip defines the
+    basis area that the engine has to draw in. All clips that are
+    set must be an intersection with the system clip.
+
+    Reset the systemclip to no clip by setting an empty region.
+*/
+void QPaintEngine::setSystemClip(const QRegion &region)
+{
+    if (isActive()) {
+        qWarning("QPaintEngine::setSystemClip(), should not be changed while engine is active");
+        return;
+    }
+    d->systemClip = region;
+}
+
+
+/*!
+    \internal
+
+    Returns the system clip. The system clip is read only while the
+    painter is active. An empty region indicates that system clip
+    is not in use.
+*/
+
+QRegion QPaintEngine::systemClip() const
+{
+    return d->systemClip;
+}

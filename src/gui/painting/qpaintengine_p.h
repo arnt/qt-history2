@@ -29,6 +29,7 @@
 #include "private/qobject_p.h"
 #include "qpainter.h"
 #include "qpaintengine.h"
+#include "qregion.h"
 
 class QPaintDevice;
 
@@ -40,6 +41,7 @@ public:
     QPaintDevice *pdev;
     QPaintEngine *q_ptr;
     QPainter::RenderHints renderhints;
+    QRegion systemClip;
 };
 
 #endif // QPAINTENGINE_P_H

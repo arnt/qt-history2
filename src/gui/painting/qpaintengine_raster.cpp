@@ -70,36 +70,6 @@ static void qt_finalize_ft()
 
 }
 
-QRegion* paintEventClipRegion = 0;
-QPaintDevice* paintEventDevice = 0;
-
-#if defined(Q_WS_X11) || defined(Q_WS_MAC)
-#if defined(Q_WS_X11)
-extern "C" {
-#endif
-    void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-    void qt_clear_paintevent_clipping();
-#if defined(Q_WS_X11)
-}
-#endif
-#else
-void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
-{
-    if (!paintEventClipRegion)
-        paintEventClipRegion = new QRegion(region);
-    else
-        *paintEventClipRegion = region;
-    paintEventDevice = dev;
-}
-
-void qt_clear_paintevent_clipping()
-{
-    delete paintEventClipRegion;
-    paintEventClipRegion = 0;
-    paintEventDevice = 0;
-}
-#endif
-
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItem &ti, HDC hdc,
                        QRasterPaintEnginePrivate *d);
@@ -525,9 +495,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     // reset paintevent clip
     d->baseClip = QPainterPath();
     if (device->devType() == QInternal::Widget) {
-        if (paintEventClipRegion) {
-            d->baseClip.addRegion(*paintEventClipRegion);
-            d->deviceRect = paintEventClipRegion->boundingRect();
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
+            d->baseClip.addRegion(sysClip);
+            d->deviceRect = sysClip.boundingRect();
             // Shift the baseclip to absolute
             d->baseClip = d->baseClip * QMatrix(1, 0, 0, 1,
                                                 -d->deviceRect.x(),

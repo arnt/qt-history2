@@ -145,6 +145,9 @@ public:
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
 
+    void setSystemClip(const QRegion &baseClip);
+    QRegion systemClip() const;
+
 #ifdef Q_WS_WIN
     virtual HDC getDC() const;
     virtual void releaseDC(HDC hdc) const;
