@@ -589,7 +589,7 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
-    watcher = new QMacGLWindowChangeEvent(this);
+    watcher = new QMacGLWindowChangeEvent(q);
     glcx = d->olcx = 0;
     autoSwap = true;
 
@@ -597,7 +597,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     q->setContext(context, shareWidget ? shareWidget->context() : 0);
 
     if(q->isValid() && glcx->format().hasOverlay()) {
-        olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
+        olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
         if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
             delete olcx;
             olcx = 0;
