@@ -2632,7 +2632,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 		    QFont nf( font );
 		    int lastPos = 0;
 		    int i = parStr.find( '&' );
-		    while ( i != -1 && i < parStr.length() - 1 ) {
+		    while ( i != -1 && i < (int)parStr.length() - 1 ) {
 			if ( i == (int)parStr.length() - 1 || parStr[ i + 1 ] != '&' ) {
 			    QString part( parStr.mid( lastPos, i - lastPos ) );
 			    painter->drawText( xoff, yoff, part );
