@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#193 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#194 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1807,7 +1807,7 @@ sub printclass {
 		}
 	    } elsif (/^\s*enum\s*\{/s) {
 		$_ = &html($_); # don't do anything, but it's legal
-	    } elsif ( /^\s*typedef\b.*\b([A-Z][a-zA-Z]*)$/s && 
+	    } elsif ( /^\s*typedef\b.*\b([A-Z][a-zA-Z]*)$/s &&
 		      defined( $anchor{$class . "::" . $1} ) ) {
 		my $name = $1;
 		$enumdocs{$file . "#" . $name} = $name;
@@ -2436,7 +2436,6 @@ if ( $internal ) {
 	}
     }
 }
-print "hei\n";
 
 print "Documented ", $countdoc, " member functions, left out ",
     0+$errmsg, " undocumented member functions and ",
