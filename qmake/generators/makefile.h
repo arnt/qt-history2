@@ -82,9 +82,6 @@ protected:
     QString buildArgs();
     QString specdir();
 
-    void setNoIO(bool o);
-    bool noIO() const;
-
     virtual QStringList &findDependencies(const QString &file);
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
 
@@ -126,6 +123,9 @@ public:
     virtual ~MakefileGenerator();
     QMakeProject *projectFile() const;
     void setProjectFile(QMakeProject *p);
+
+    void setNoIO(bool o);
+    bool noIO() const;
 
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();

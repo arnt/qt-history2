@@ -1200,8 +1200,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                     uninst.append(rm_dir_contents + " \"" + filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\"");
                     continue;
                 }
-                QString local_dirstr = dirstr;
-                fixEnvVariables(local_dirstr);
+                QString local_dirstr = Option::fixPathToLocalOS(dirstr, true);
                 QStringList files = QDir(local_dirstr).entryList(QStringList(filestr));
                 for(int x = 0; x < files.count(); x++) {
                     QString file = files[x];
@@ -1383,7 +1382,6 @@ struct ReplaceExtraCompilerCacheKey
         return hash;
     }
 };
-
 uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
 
 QString
@@ -2568,7 +2566,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
         }
     }
     if(QDir::isRelativePath(file.fileName()))
-        file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
+        file.setFileName(Option::output_dir + "/" + file.fileName()); //pwd when qmake was run
     if(!build.isEmpty())
         file.setFileName(file.fileName() + "." + build);
     if(project->isEmpty("QMAKE_MAKEFILE"))
