@@ -51,7 +51,7 @@ EditorCompletion::EditorCompletion( Editor *e )
     curEditor->installEventFilter( this );
 }
 
-EditorCompletion::EditorCompletion()
+EditorCompletion::~EditorCompletion()
 {
     delete completionPopup;
     delete functionLabel;
