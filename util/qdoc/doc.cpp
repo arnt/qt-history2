@@ -896,19 +896,32 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case HASH( 'r', 3 ):
 		// see also \header
-		CONSUME( "row" );
-		if ( inTable ) {
-		    if ( numPendingRows > 0 ) {
-			numPendingRows--;
+		if ( command[1] == QChar('a') ) {
+		    CONSUME( "raw" );
+		    skipRestOfLine( yyIn, yyPos );
+		    end = yyIn.find( QString("\\endraw"), yyPos );
+		    if ( end == -1 ) {
+			yyPos = yyIn.length();
 		    } else {
-			useRowDarkColor = !useRowDarkColor;
+			yyOut += yyIn.mid( yyPos, end - yyPos );
+			yyPos = end + 8;
 		    }
-		    inHeader = FALSE;
-		    yyOut += QString( "<tr bgcolor=\"%1\">" )
-			     .arg( useRowDarkColor ? "#f0f0f0" : "#d0d0d0" );
 		} else {
-		    warning( 2, location(),
-			     "Command '\\row' outside '\\table'" );
+		    CONSUME( "row" );
+		    if ( inTable ) {
+			if ( numPendingRows > 0 ) {
+			    numPendingRows--;
+			} else {
+			    useRowDarkColor = !useRowDarkColor;
+			}
+			inHeader = FALSE;
+			yyOut += QString( "<tr bgcolor=\"%1\">" )
+				 .arg( useRowDarkColor ? "#f0f0f0"
+						       : "#d0d0d0" );
+		    } else {
+			warning( 2, location(),
+				 "Command '\\row' outside '\\table'" );
+		    }
 		}
 		break;
 	    case HASH( 'r', 5 ):

@@ -48,9 +48,24 @@
 static void setLink( DocEmitter *emitter, Doc *doc, const QString& link,
 		     const QString& text )
 {
+    if ( link.startsWith(".") )
+	return;
     if ( !doc->isInternal() && !doc->isObsolete() )
 	emitter->addLink( link, text );
     doc->setLink( link, text );
+}
+
+static void setPropertyLink( DocEmitter *emitter, PropertyDecl *propDecl,
+			     const QString& func )
+{
+    if ( !func.isEmpty() /* && func != propDecl->name() */ &&
+	 !propDecl->isInternal() && !propDecl->isObsolete() ) {
+	QString link = config->classRefHref(
+			       propDecl->relatesContext()->name() ) +
+		       QChar( '#' ) + FunctionDecl::ref( func );
+	QString text = propDecl->context()->fullName() + "::" + func;
+	emitter->addLink( link, text );
+    }
 }
 
 /*
@@ -844,6 +859,18 @@ static void matchDocsAndStuff( DocEmitter *emitter )
 		    PropertyDecl *propDecl = (PropertyDecl *) decl;
 		    decl->setDoc( pd );
 		    deleteDoc = FALSE;
+
+		    setLink( emitter, pd,
+			     config->classRefHref(
+				     decl->relatesContext()->name()) +
+				     QChar('#') + decl->ref(),
+				     decl->fullName() );
+		    setPropertyLink( emitter, propDecl,
+				     propDecl->readFunction() );
+		    setPropertyLink( emitter, propDecl,
+				     propDecl->writeFunction() );
+		    setPropertyLink( emitter, propDecl,
+				     propDecl->resetFunction() );
 
 		    if ( pd->isObsolete() && propDecl->designable() )
 			warning( 1, doc->location(),
