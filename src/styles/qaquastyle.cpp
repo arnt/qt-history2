@@ -1306,15 +1306,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if(!data || !data[0])
 	    break;
 	QListViewItem *item = (QListViewItem *)data[0];
-	int y=r.y(), h=r.height(), bx = r.width() / 2;
+	int y=r.y(), h=r.height();
 	for(QListViewItem *child = item->firstChild(); child && y < h;
 	    y += child->totalHeight(), child = child->nextSibling()) {
 	    if(y + child->height() > 0) {
-		if ( child->isExpandable() || child->childCount() ) {
-		    int linebot = child->height()/2;
-		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight,
-				   p, QRect(bx-3, y+linebot-3, bx+3,linebot+3), cg );
-		}
+		if ( child->isExpandable() || child->childCount() ) 
+		    drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p, 
+				   QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
 	    }
 	}
 	break; }
