@@ -656,7 +656,7 @@ int QTableView::rowSizeHint(int row) const
         index = d->model->index(row, column, root());
         hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).height());
     }
-    return hint + 1; // add space for the grid
+    return d->showGrid ? hint + 1 : hint;
 }
 
 /*!
@@ -679,7 +679,7 @@ int QTableView::columnSizeHint(int column) const
         index = d->model->index(row, column, root());
         hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).width());
     }
-    return hint + 1; // add space for the grid
+    return d->showGrid ? hint + 1 : hint;
 }
 
 /*!
