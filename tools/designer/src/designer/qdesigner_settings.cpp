@@ -157,3 +157,13 @@ void QDesignerSettings::saveHeaderSizesForHelper(const QHeaderView *hv, const QS
     QDesignerSettings settings;
     settings.setValue(key + QLatin1String("/columnSizes"), sizes);
 }
+
+QStringList QDesignerSettings::recentFilesList() const
+{
+    return value("recentFilesList").toStringList();
+}
+
+void QDesignerSettings::setRecentFilesList(const QStringList &sl)
+{
+    setValue("recentFilesList", sl);
+}

@@ -108,6 +108,12 @@ void QDesignerWorkbench::initialize()
     m_fileMenu = m_globalMenuBar->addMenu(tr("&File"));
     foreach (QAction *action, m_actionManager->fileActions()->actions()) {
         m_fileMenu->addAction(action);
+        if (action->text() == QDesignerActions::tr("&Open Form...")) {
+            QMenu *recentFilesMenu = m_fileMenu->addMenu(tr("&Recent Forms"));
+            // Pop the "Recent Files" stuff in here.
+            foreach(QAction *recentAction, m_actionManager->recentFilesActions()->actions())
+                recentFilesMenu->addAction(recentAction);
+        }
     }
 
     m_editMenu = m_globalMenuBar->addMenu(tr("&Edit"));
@@ -466,13 +472,6 @@ void QDesignerWorkbench::initializeCorePlugins()
     }
 }
 
-void QDesignerWorkbench::readInSettings()
-{
-    QDesignerSettings settings;
-    foreach (QDesignerToolWindow *tw, m_toolWindows)
-        settings.setGeometryFor(tw, tw->geometryHint());
-}
-
 void QDesignerWorkbench::saveSettings() const
 {
     QDesignerSettings settings;
@@ -555,8 +554,10 @@ bool QDesignerWorkbench::handleClose()
                }
                break;
             case QMessageBox::No:
-              foreach (QDesignerFormWindow *fw, dirtyForms)
+              foreach (QDesignerFormWindow *fw, dirtyForms) {
                   fw->editor()->setDirty(false);
+                  fw->setWindowModified(false);
+              }
               break;
             }
         }
@@ -568,3 +569,4 @@ bool QDesignerWorkbench::handleClose()
     saveSettings();
     return true;
 }
+

@@ -37,10 +37,11 @@ public:
     AbstractFormEditor *core() const;
 
     bool saveForm(AbstractFormWindow *fw);
-    bool readInForm(const QString &fileName) const;
-    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const;
+    bool readInForm(const QString &fileName);
+    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName);
 
     QActionGroup *fileActions() const;
+    QActionGroup *recentFilesActions() const;
     QActionGroup *editActions() const;
     QActionGroup *formActions() const;
     QActionGroup *windowActions() const;
@@ -100,7 +101,7 @@ public:
 
 public slots:
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
-    
+
 private slots:
     void setWorkbenchVisible(bool visible);
     void createForm();
@@ -113,24 +114,29 @@ private slots:
     void editPreferences();
     void shutdown();
     void editWidgets();
+    void openRecentForm();
+    void clearRecentFiles();
 
-    
 private:
     bool saveFormAs(AbstractFormWindow *fw);
     void fixActionContext();
+    void updateRecentFileActions();
+    void addRecentFile(const QString &fileName);
 
 private:
+    enum { MaxRecentFiles = 10 };
     QDesignerWorkbench *m_workbench;
     AbstractFormEditor *m_core;
 
     QActionGroup *m_fileActions;
+    QActionGroup *m_recentFilesActions;
     QActionGroup *m_editActions;
     QActionGroup *m_formActions;
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
 
     QAction *m_editWidgetsAction;
-    
+
     QAction *m_newFormAction;
     QAction *m_openFormAction;
     QAction *m_saveFormAction;

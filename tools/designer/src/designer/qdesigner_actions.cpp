@@ -15,6 +15,7 @@
 #include "qdesigner_actions.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
+#include "qdesigner_settings.h"
 #include "preferencedialog.h"
 #include "newform.h"
 #include "saveformastemplate.h"
@@ -53,6 +54,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_fileActions = new QActionGroup(this);
     m_fileActions->setExclusive(false);
 
+    m_recentFilesActions = new QActionGroup(this);
+    m_recentFilesActions->setExclusive(false);
+
     m_editActions = new QActionGroup(this);
     m_editActions->setExclusive(false);
 
@@ -78,6 +82,20 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_openFormAction->setShortcut(tr("CTRL+O"));
     connect(m_openFormAction, SIGNAL(triggered()), this, SLOT(openForm()));
     m_fileActions->addAction(m_openFormAction);
+
+    QAction *act;
+    // Need to insert this into the QAction.
+    for (int i = 0; i < MaxRecentFiles; ++i) {
+        act = new QAction(this);
+        act->setVisible(false);
+        connect(act, SIGNAL(triggered()), this, SLOT(openRecentForm()));
+        m_recentFilesActions->addAction(act);
+    }
+    updateRecentFileActions();
+    m_recentFilesActions->addSeparator();
+    act = new QAction(tr("Clear &Menu"), this);
+    connect(act, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
+    m_recentFilesActions->addAction(act);
 
     m_fileActions->addSeparator();
 
@@ -490,7 +508,7 @@ void QDesignerActions::fixActionContext()
     }
 }
 
-bool QDesignerActions::readInForm(const QString &fileName) const
+bool QDesignerActions::readInForm(const QString &fileName)
 {
     // First make sure that we don't have this one open already.
     AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
@@ -500,6 +518,7 @@ bool QDesignerActions::readInForm(const QString &fileName) const
         if (w->fileName() == fileName) {
             w->raise();
             formWindowManager->setActiveFormWindow(w);
+            addRecentFile(fileName);
             return true;
         }
     }
@@ -520,11 +539,11 @@ bool QDesignerActions::readInForm(const QString &fileName) const
         formWindowManager->setActiveFormWindow(editor);
     }
     formWindow->show();
-
+    addRecentFile(fileName);
     return true;
 }
 
-bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveFile) const
+bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
 {
     Q_ASSERT(fw && !saveFile.isEmpty());
     QFile f(saveFile);
@@ -572,7 +591,9 @@ bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveF
                 return false;
         }
     }
+    addRecentFile(saveFile);
     fw->setDirty(false);
+    fw->window()->setWindowModified(false);
     return true;
 }
 
@@ -590,4 +611,69 @@ void QDesignerActions::shutdown()
 void QDesignerActions::activeFormWindowChanged(AbstractFormWindow *formWindow)
 {
     m_editWidgetsAction->setEnabled(formWindow != 0);
+}
+
+void QDesignerActions::updateRecentFileActions()
+{
+    QDesignerSettings settings;
+    QStringList files = settings.recentFilesList();
+    int originalSize = files.size();
+    int numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
+    QList<QAction *> recentFilesActs = m_recentFilesActions->actions();
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        QFileInfo fi(files[i]);
+        // If the file doesn't exist anymore, just remove it from the list so
+        // people don't get confused.
+        if (!fi.exists()) {
+            files.removeAt(i);
+            --i;
+            numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
+            continue;
+        }
+        QString text = fi.fileName();
+        recentFilesActs[i]->setText(text);
+        recentFilesActs[i]->setIconText(files[i]);
+        recentFilesActs[i]->setVisible(true);
+    }
+
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+        recentFilesActs[j]->setVisible(false);
+
+    // If there's been a change, right it back
+    if (originalSize != files.size())
+        settings.setRecentFilesList(files);
+}
+
+void QDesignerActions::openRecentForm()
+{
+    if (QAction *action = qobject_cast<QAction *>(sender())) {
+        if (!readInForm(action->iconText()))
+            updateRecentFileActions(); // File doesn't exist, remove it from settings
+    }
+}
+
+void QDesignerActions::clearRecentFiles()
+{
+    QDesignerSettings settings;
+    settings.setRecentFilesList(QStringList());
+    updateRecentFileActions();
+}
+
+QActionGroup *QDesignerActions::recentFilesActions() const
+{
+    return m_recentFilesActions;
+}
+
+void QDesignerActions::addRecentFile(const QString &fileName)
+{
+    QDesignerSettings settings;
+    QStringList files = settings.recentFilesList();
+    files.removeAll(fileName);
+    files.prepend(fileName);
+    while (files.size() > MaxRecentFiles)
+        files.removeLast();
+
+    settings.setRecentFilesList(files);
+    updateRecentFileActions();
 }

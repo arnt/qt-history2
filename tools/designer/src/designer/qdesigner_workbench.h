@@ -110,7 +110,6 @@ private slots:
 private:
     QWidget *magicalParent() const;
     AbstractFormWindowManager *formWindowManager() const;
-    void readInSettings();
 
 private:
     AbstractFormEditor *m_core;
