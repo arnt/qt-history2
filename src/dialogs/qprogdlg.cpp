@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#3 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#3 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -29,16 +29,20 @@ static const int spacing     = 4;
 
 struct QProgressData
 {
-    QProgressData( QProgressDialog* that ) :
+    QProgressData( QProgressDialog* that, QWidget* cr, const char* lbtext ) :
+	creator(cr),
 	cancel( "", that ),
 	cancellation_flag( TRUE ),
-	label( "", that )
+	label_text( lbtext ),
+	the_label( 0 )
     {
     }
 
+    QWidget	*creator;
     QPushButton	cancel;
     bool	cancellation_flag;
-    QLabel	label;
+    QString	label_text;
+    QWidget	*the_label;
     QTime	starttime;
     QCursor	parentCursor;
 };
@@ -95,21 +99,21 @@ struct QProgressData
     the first file, call setProgress(0), and after examining the last file
     call setProgress(50).
   \arg \e parent, \e name, \e modal, and \e f are sent to the
-    QDialog::QDialog() constructor. Note that \e modal defaults to
-    TRUE, unlike in QDialog::QDialog().
+    QDialog::QDialog() constructor. Note that \e if modal is FALSE (the
+    default), you will need to have an event loop proceeding for any
+    redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
+    events are processed when needed.
 */
 QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
-	QWidget *parent, const char *name, bool modal, WFlags f ) :
-    QDialog( parent, name, modal, f),
+	QWidget *creator, const char *name, bool modal, WFlags f ) :
+    QDialog( 0, name, modal, f),
     the_bar( 0 ),
-    d(new QProgressData(this)),
+    d(new QProgressData(this, creator, label_text)),
     totalsteps( total_steps )
 {
     d->cancel.hide();
     connect( &d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
-    d->label.setAlignment( AlignCenter );
-    setLabel( label_text );
 }
 
 QProgressDialog::~QProgressDialog()
@@ -160,8 +164,7 @@ void QProgressDialog::reset()
     int progress = bar().progress();
 
     if ( progress >= 0 ) {
-	QWidget* p = parentWidget();
-	if ( p ) p->setCursor( d->parentCursor );
+	if ( d->creator ) d->creator->setCursor( d->parentCursor );
     }
     if (isVisible()) {
 	hideNoLoop();
@@ -197,13 +200,12 @@ bool QProgressDialog::setProgress( int prog )
     bar().setProgress(prog);
 
     if ( isVisible() ) {
-	qApp->processEvents();
+	if (testWFlags(WType_Modal)) qApp->processEvents();
     } else {
 	if ( prog == 0 ) {
-	    QWidget* p = parentWidget();
-	    if ( p ) {
-		d->parentCursor = p->cursor();
-		p->setCursor( waitCursor );
+	    if ( d->creator ) {
+		d->parentCursor = d->creator->cursor();
+		d->creator->setCursor( waitCursor );
 	    }
 	    d->starttime.start();
 	} else {
@@ -212,8 +214,11 @@ bool QProgressDialog::setProgress( int prog )
 		int estimate = elapsed * ( totalsteps - prog ) / prog;
 		if ( estimate > showTime ) {
 		    resize(sizeHint());
+		    center();
 		    showNoLoop();
-		    qApp->processEvents();
+		    if (testWFlags(WType_Modal)) {
+			qApp->processEvents();
+		    }
 		}
 	    }
 	}
@@ -226,14 +231,32 @@ bool QProgressDialog::setProgress( int prog )
     return d->cancellation_flag;
 }
 
+void QProgressDialog::center()
+{
+    QPoint p(0,0);
+    QWidget* w;
+    if (d->creator) {
+	p = d->creator->mapToGlobal( p );
+	w = d->creator;
+    } else {
+	w = QApplication::desktop();
+    }
+    setGeometry( p.x() + w->width()/2  - width()/2,
+	  p.y() + w->height()/2 - height()/2, width(), height() );
+}
+
 /*!
   Change the label on the progress dialog.
   The progress dialog resizes to fit.
 */
 void QProgressDialog::setLabel( const char* txt )
 {
-    d->label.setText( txt );
-    if (isVisible()) resize(sizeHint());
+    if (!txt || d->label_text != txt) {
+	d->label_text = txt;
+	delete d->the_label;
+	d->the_label = 0; // will be created when next needed.
+	if (isVisible()) resize(sizeHint());
+    }
 }
 
 /*!
@@ -244,7 +267,7 @@ void QProgressDialog::setLabel( const char* txt )
 
 QSize QProgressDialog::sizeHint() const
 {
-    QSize sh = d->label.sizeHint();
+    QSize sh = label().sizeHint();
     QSize bh = bar().sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
     if ( d->cancel.isVisible() )
@@ -258,9 +281,24 @@ QSize QProgressDialog::sizeHint() const
 */
 void QProgressDialog::resizeEvent( QResizeEvent * )
 {
+    layout();
+}
+
+/*!
+  Ensures layout conforms to style of GUI.
+*/
+void QProgressDialog::styleChange(GUIStyle s)
+{
+    layout();
+    QDialog::styleChange(s);
+}
+
+void QProgressDialog::layout()
+{
     int sp = spacing;
     int mtb = margin_tb;
     int mlr = QMIN(width()/10, margin_lr);
+    const bool centered = (style() != WindowsStyle);
 
     QSize cs = d->cancel.sizeHint();
     QSize bh = bar().sizeHint();
@@ -287,12 +325,13 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
     }
 
     if ( d->cancel.isVisible() ) {
-	d->cancel.setGeometry( width()/2 - cs.width()/2,
+	d->cancel.setGeometry(
+	    centered ? width()/2 - cs.width()/2 : width() - mlr - cs.width(),
 	    height() - mtb - cs.height() + sp,
 	    cs.width(), cs.height() );
     }
 
-    d->label.setGeometry( 0, 0, width(), lh );
+    label().setGeometry( mlr, 0, width()-mlr*2, lh );
     bar().setGeometry( mlr, lh+sp,
 	width()-mlr*2, bh.height() );
 }
@@ -315,7 +354,24 @@ QProgressBar* QProgressDialog::progressBar(int total_steps)
 }
 
 /*!
- \internal
+  This method is called once whenever a QWidget is required for the
+  area above the progress bar.  The widget is recreated whenever the
+  label text is changed or set to 0.
+  Override this if you want to use your own subclass of QWidget.
+  Note that ownership of the widget transfers to the QProgressDialog,
+  so you should pass a newly allocated widget using the given
+  \e text and \e this as the parent.  The default implementation
+  uses a QLabel, aligned according to the style() of the dialog.
+*/
+QWidget* QProgressDialog::labelWidget(const QString& str)
+{
+    QLabel* lbl = new QLabel(str, this, "label");
+    lbl->setAlignment( style() != WindowsStyle
+		? AlignCenter : AlignLeft|AlignVCenter );
+    return lbl;
+}
+
+/*!
  Ensures bar exists.
 */
 QProgressBar& QProgressDialog::bar()
@@ -325,11 +381,28 @@ QProgressBar& QProgressDialog::bar()
 }
 
 /*!
- \internal
  Ensures bar exists.
 */
 const QProgressBar& QProgressDialog::bar() const
 {
     QProgressDialog* non_const_this = (QProgressDialog*)this;
     return non_const_this->bar();
+}
+
+/*!
+ Ensures label exists.
+*/
+QWidget& QProgressDialog::label()
+{
+    if (!d->the_label) d->the_label = labelWidget(d->label_text);
+    return *d->the_label;
+}
+
+/*!
+ Ensures label exists.
+*/
+const QWidget& QProgressDialog::label() const
+{
+    QProgressDialog* non_const_this = (QProgressDialog*)this;
+    return non_const_this->label();
 }

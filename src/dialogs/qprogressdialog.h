@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#3 $
 **
 ** Definition of QProgressDialog class
 **
@@ -25,7 +25,7 @@ class QProgressDialog : public QDialog
     Q_OBJECT
 public:
     QProgressDialog( const char* label, int totalsteps, QWidget *parent=0,
-	const char *name=0, bool modal=TRUE, WFlags f=0 );
+	const char *name=0, bool modal=FALSE, WFlags f=0 );
     ~QProgressDialog();
 
     void	setCancelButton( const char* );
@@ -45,9 +45,12 @@ signals:
 
 protected:
     void	resizeEvent( QResizeEvent * );
-    virtual QProgressBar* progressBar(int totalsteps);
+    virtual QProgressBar*	progressBar(int totalsteps);
+    virtual QWidget*		labelWidget(const QString&);
+    void	styleChange(GUIStyle);
 
 private:
+    void	layout();
     QProgressBar*	the_bar;
     QProgressData*	d;
 
@@ -56,8 +59,11 @@ private:
 private:	// Disabled copy constructor and operator=
     QProgressDialog( const QProgressDialog & ) {}
     QProgressDialog &operator=( const QProgressDialog & ) { return *this; }
+    void center();
     const QProgressBar& bar() const;
     QProgressBar& bar();
+    const QWidget& label() const;
+    QWidget& label();
 };
 
 inline int QProgressDialog::totalSteps() const { return totalsteps; }
