@@ -601,7 +601,6 @@ void WriteInitialization::writeProperties(const QString &varName,
             QString keys = p->elementSet();
             QStringList lst = keys.split(QLatin1Char('|'));
             propertyValue = QLatin1String("int(");
-            QStringList::ConstIterator it = lst.begin();
             for (int i = 0; i < lst.count(); ++i ) {
                 propertyValue += className + QLatin1String("::") + lst.value(i);
                 if (i != lst.count()-1)
