@@ -1,4 +1,3 @@
-CONFIG      = qt
 QT          += xml
 HEADERS     = mainwindow.h \
               xmlwriter.h

@@ -1,4 +1,3 @@
-CONFIG      = qt
 HEADERS     = mainwindow.h
 RESOURCES   = images.qrc
 SOURCES     = main.cpp \
