@@ -12,7 +12,6 @@
 class Trivial : public QNPWidget {
     Q_OBJECT
 public:
-
     void paintEvent(QPaintEvent* event)
     {
 	QPainter p(this);

@@ -148,7 +148,6 @@ static QNPWidget* focussedWidget=0;
 
 #ifdef _WS_WIN_
 // defined in qapp_win.cpp
-extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 extern bool qt_win_use_simple_timers;
 #endif
 
@@ -332,7 +331,7 @@ public:
 
     bool winEventFilter( MSG *msg )
     {
-	return FALSE;
+	return FALSE; // #### feature not debugged
 
 	if (!mousecheck) {
 	    // Only way to get "leave" events is to poll.
@@ -640,6 +639,9 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
+	SetWindowLong( This->window, GWL_WNDPROC,
+		(LONG)This->fDefaultWindowProc );
+
 	if (This->widget) {
 	    This->widget->unsetWindow();
 	    delete This->widget;
@@ -658,16 +660,11 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     return NPERR_NO_ERROR;
 }
 
-#ifdef _WS_WIN_
-const char* gInstanceLookupString = "instance->pdata";
-#endif
-
 
 extern "C" NPError 
 NPP_SetWindow(NPP instance, NPWindow* window)
 {
     if (!qNP) qNP = QNPlugin::create();
-
     NPError result = NPERR_NO_ERROR;
     _NPInstance* This;
 
@@ -682,9 +679,9 @@ NPP_SetWindow(NPP instance, NPWindow* window)
      *    new window, you may wish to compare the new window
      *    info to the previous window (if any) to note window
      *    size changes, etc.
-     */
-    
+     */    
     if (!window) {
+
 	if (This->widget) {
 	    This->widget->unsetWindow();
 	    This->window = 0;
@@ -699,6 +696,11 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 #endif
 #ifdef _WS_WIN_
     } else if (This->window != (HWND) window->window) {
+	if (This->window)
+	    SetWindowLong( This->window, GWL_WNDPROC,
+		(LONG)This->fDefaultWindowProc );
+	This->fDefaultWindowProc =
+	    (WNDPROC)GetWindowLong( (HWND)window->window, GWL_WNDPROC);
 	This->window = (HWND) window->window;
 #endif
 	This->x = window->x;
@@ -737,11 +739,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
 	if (!This->widget) {
 #ifdef _WS_WIN_
-	    // At this point, we will subclass
-	    // window->window so that we can begin drawing and
-	    // receiving window messages.
 	    This->window = (HWND) window->window;
-	    SetProp( This->window, gInstanceLookupString, (HANDLE)This);
 
 	    InvalidateRect( This->window, NULL, TRUE );
 	    UpdateWindow( This->window );
@@ -752,13 +750,19 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 		This->instance->newWindow();
 	} else {
 	    // New window for existing widget, and all its children.
-	    This->widget->setWindow();
+	    This->widget->setWindow(FALSE);
 	}
-    } else {
+    } else if (This->widget) {
 	// ### Maybe need a geometry setter that bypasses some Qt code?
 	// ### position is always (0,0), so we get by by ignoring it.
 	//This->widget->setGeometry(window->x,window->y, window->width, window->height);
-	This->widget->resize(window->width, window->height);
+	if ( This->widget->width() != window->width
+	  || This->widget->height() != window->height )
+	{
+	    This->widget->resize(window->width, window->height);
+	} else {
+	    This->widget->update();
+	}
     }
 
     This->fWindow = window;
@@ -1172,7 +1176,7 @@ QNPWidget::QNPWidget() :
     next_pi->widget = this;
     next_pi = 0;
 
-    setWindow();
+    setWindow(TRUE);
 
     piApp->addQNPWidget(this);
 }
@@ -1254,11 +1258,11 @@ void createNewWindowsForAllChildren(QWidget* parent, int indent=0)
 /*!
   For internal use only.
 */
-void QNPWidget::setWindow()
+void QNPWidget::setWindow(bool delold)
 {
     saveWId = winId(); // ### Don't need this anymore
 
-    create((WId)pi->window, FALSE, FALSE);
+    create((WId)pi->window, FALSE, delold);
 
 #ifdef _WS_X11_
     // It's open.  Believe me.

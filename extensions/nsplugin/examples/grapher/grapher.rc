@@ -23,7 +23,7 @@ BEGIN
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "grapher\0"
             VALUE "LegalCopyright", "Copyright © 1997 Troll Tech AS\0"
-	    VALUE "MIMEType", "graphable/1n\0"
+	    VALUE "MIMEType", "application/x-graphable\0"
             VALUE "OriginalFilename", "grapher.dll\0"
             VALUE "ProductName", "Troll Tech grapher\0"
             VALUE "ProductVersion", "1, 0, 0, 1\0"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#86 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#86 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -239,8 +239,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWFlags( WState_Visible );
     }
 
-    if ( destroyw )
+    if ( destroyw ) {
 	DestroyWindow( destroyw );
+    }
 }
 
 
@@ -267,7 +268,7 @@ void QWidget::destroy( bool destroyWindow )
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
 		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(destroyWindow);
+		    ((QWidget*)obj)->destroy(TRUE);
 	    }
 	}
 	if ( mouseGrb == this )
@@ -278,8 +279,9 @@ void QWidget::destroy( bool destroyWindow )
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
-	if ( destroyWindow && !testWFlags(WType_Desktop) )
+	if ( destroyWindow && !testWFlags(WType_Desktop) ) {
 	    DestroyWindow( winId() );
+	}
 	setWinId( 0 );
     }
 }

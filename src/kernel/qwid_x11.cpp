@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#210 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#209 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#210 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -324,11 +324,12 @@ bool QWidget::create()
 
 
 /*!
-  Destroys the widget window if \a destroyWindow is TRUE.  Frees up
-  window system resources.
+  Frees up window system resources.
+  Destroys the widget window if \a destroyWindow is TRUE.  
 
-  destroy() calls itself recursively for all the child widgets and
-  passes the \a destroyWindow parameter.
+  destroy() calls itself recursively for all the child widgets,
+  pass TRUE for the \a destroyWindow parameter. To have more
+  choice, destroy subwidgets selectively first.
 
   This function is usually called from the QWidget destructor.
 */
@@ -343,7 +344,7 @@ void QWidget::destroy( bool destroyWindow )
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
 		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy(destroyWindow);
+		    ((QWidget*)obj)->destroy(TRUE);
 	    }
 	}
 	if ( mouseGrb == this )

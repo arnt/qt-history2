@@ -38,7 +38,7 @@ public:
     QNPWidget();
     ~QNPWidget();
 
-    void setWindow();
+    void setWindow(bool);
     void unsetWindow();
 
     virtual void enterInstance();
