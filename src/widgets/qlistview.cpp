@@ -5025,12 +5025,13 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 		    indent += treeStepSize();
 		w += indent;
 	    }
-	    if ( w > columnWidth( col ) )
+	    if ( w > columnWidth( col ) && !d->h->fullSize() ) {
+		d->updateHeader = TRUE;
 		setColumnWidth( col, w );
+	    }
 	}
 	col++;
     }
-    d->updateHeader = TRUE;
 }
 
 /*!  Sets this list view to assume that the items show focus and
