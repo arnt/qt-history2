@@ -2294,17 +2294,20 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
 	parag->setDocumentRect( rect );
+	parag->setAlignment( QApplication::horizontalAlignment( tf ) );
 	parag->invalidate( 0 );
 	parag->format();
     }
     int xoff = 0;
     int yoff = 0;
     if ( painter || brect ) {
+#if 0 // ### don't need that anymore, as we just do parag->setAlignment() above. Lars, please check.
 	int align = QApplication::horizontalAlignment( tf );
 	if ( align & Qt::AlignRight )
 	    xoff += r.width() - parag->rect().width();
 	else if ( align & Qt::AlignHCenter )
 	    xoff += (r.width() - parag->rect().width())/2;
+#endif
 	if ( tf & Qt::AlignBottom )
 	    yoff += r.height() - parag->rect().height();
 	else if ( tf & Qt::AlignVCenter )
