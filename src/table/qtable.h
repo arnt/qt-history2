@@ -216,6 +216,8 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool sorting READ sorting WRITE setSorting )
 
     friend class QTableHeader;
+    friend class QComboTableItem;
+    friend class QCheckTableItem;
 
 public:
     QTable( QWidget *parent = 0, const char *name = 0 );

@@ -724,6 +724,7 @@ void QComboTableItem::setContentFromEditor( QWidget *w )
 	    entries << cb->text( i );
 	current = cb->currentItem();
 	setText( currentText() );
+	emit table()->valueChanged( col(), row() );
     }
 }
 
@@ -857,6 +858,7 @@ void QCheckTableItem::setContentFromEditor( QWidget *w )
     if ( w->inherits( "QCheckBox" ) ) {
 	QCheckBox *cb = (QCheckBox*)w;
 	checked = cb->isChecked();
+	emit table()->valueChanged( col(), row() );
     }
 }
 
@@ -3881,7 +3883,7 @@ void QTable::startDrag()
   and QTable::verticalHeader().
 */
 
-/*! \enum QTableHeader::SectionState 
+/*! \enum QTableHeader::SectionState
 
   This enum type denotes the state of a spreadsheet header.
 
@@ -3889,9 +3891,9 @@ void QTable::startDrag()
   \value Bold      The section title appears in bold letters.
   \value Selected  The section itself appears in a sunken fashion
                    ("pressed").
-*/                                 
+*/
 
-/*! Creates a new table header object \a name with \a i sections as a child of 
+/*! Creates a new table header object \a name with \a i sections as a child of
   the widget \a parent and attached to the table \a t.
 */
 
@@ -3932,7 +3934,7 @@ QTableHeader::QTableHeader( int i, QTable *t,
 }
 
 /*! Adds a new section with the section title \a s to \e this
-  QTableHeader. 
+  QTableHeader.
 
   If \a size is non-negative this value is used
   as the section width. With a negative value the section width
@@ -4408,7 +4410,7 @@ void QTableHeader::setCaching( bool b )
   and prevents resizing of \e this section if \a b
   is FALSE.
 
-  \sa isSectionStretchable()  
+  \sa isSectionStretchable()
 */
 
 void QTableHeader::setSectionStretchable( int s, bool b )
