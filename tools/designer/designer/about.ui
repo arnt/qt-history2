@@ -71,7 +71,7 @@
                 <cstring>aboutVersion</cstring>
             </property>
             <property name="text">
-                <string>Version 3.1</string>
+                <string>Version 3.2</string>
             </property>
             <property name="alignment">
                 <set>AlignCenter</set>
