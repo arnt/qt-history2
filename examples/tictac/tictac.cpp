@@ -68,14 +68,14 @@ TicTacGameBoard::TicTacGameBoard( int n, QWidget *parent, const char *name )
     comp_starts = FALSE;			// human starts
     buttons = new TicTacButtons(n);		// create real buttons
     btArray = new TicTacArray(n);		// create button model
-    QGridLayout * grid = new QGridLayout( this, 3, 3, 4 );
+    QGridLayout * grid = new QGridLayout( this, nBoard, nBoard, 4 );
     QPalette p( blue );
     for ( int i=0; i<n; i++ ) {			// create and connect buttons
 	TicTacButton *ttb = new TicTacButton( this );
 	ttb->setPalette( p );
 	ttb->setEnabled( FALSE );
 	connect( ttb, SIGNAL(clicked()), SLOT(buttonClicked()) );
-	grid->addWidget( ttb, i%3, i/3 );
+	grid->addWidget( ttb, i%nBoard, i/nBoard );
 	buttons->insert( i, ttb );
 	btArray->at(i) = TicTacButton::Blank;	// initial button type
     }
