@@ -2738,9 +2738,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 	QString type = d->metaobj->paramType(signature, p, &out);
 	QVariant qvar;
 	if (type == "IDispatch*")
-	    qvar.rawAccess(v[p + 1], (QCoreVariant::Type)1000);
+	    qvar = QVariant(QVariant::UserData(v[p+1], "IDispatch**"));
 	else if (type == "IUnknown*")
-	    qvar.rawAccess(v[p + 1], (QCoreVariant::Type)1001);
+	    qvar = QVariant(QVariant::UserData(v[p+1], "IUnknown**"));
 	else
 	    qvar = QVariant(QVariant::nameToType(type.latin1()), v[p + 1]);
 	QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
@@ -3417,15 +3417,13 @@ QVariant QAxBase::asVariant() const
 	d->initialized = TRUE;
     }
 
-    QVariant var;
-    if ( isNull() )
-	return var;
+    if (d->dispatch()) {
+	return QVariant::UserData(d->dispatch(), "IDispatch*");
+    } else if (d->ptr) {
+	return QVariant::UserData(d->ptr, "IUnknown*");
+    }
 
-    void *iface = d->dispatch();
-    if ( !iface ) 
-	iface = d->ptr;
-    var.rawAccess( iface, (QVariant::Type)1000 );
-    return var;
+    return QVariant();
 }
 
 /*!
