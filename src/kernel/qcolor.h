@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#58 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#59 $
 **
 ** Definition of QColor class
 **
@@ -96,6 +96,8 @@ public:
 
     QColor light( int f = 150 ) const;
     QColor dark( int f = 200 )	const;
+
+    QString name() const;
 
     bool   operator==( const QColor &c ) const;
     bool   operator!=( const QColor &c ) const;
