@@ -142,6 +142,8 @@ QStringList LanguageInterfaceImpl::definitionEntries( const QString &definition,
 	if ( ( (DesignerInterface*)designerIface )->currentForm() )
 	    return ( (DesignerInterface*)designerIface )->currentForm()->forwardDeclarations();
     } else if ( definition == "Class Variables" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    return ( (DesignerInterface*)designerIface )->currentForm()->variables();
     }
     return QStringList();
 }
@@ -158,5 +160,7 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
 	if ( ( (DesignerInterface*)designerIface )->currentForm() )
 	    ( (DesignerInterface*)designerIface )->currentForm()->setForwardDeclarations( entries );
     } else if ( definition == "Class Variables" ) {
+	if ( ( (DesignerInterface*)designerIface )->currentForm() )
+	    ( (DesignerInterface*)designerIface )->currentForm()->setVariables( entries );
     }
 }

@@ -176,6 +176,9 @@ public:
     static void setForwards( QObject *o, const QStringList &fwds );
     static QStringList forwards( QObject *o );
 
+    static void setVariables( QObject *o, const QStringList &vars );
+    static QStringList variables( QObject *o );
+
     static void setMetaInfo( QObject *o, MetaInfo mi );
     static MetaInfo metaInfo( QObject *o );
 

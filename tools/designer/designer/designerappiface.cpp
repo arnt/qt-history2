@@ -593,6 +593,16 @@ void DesignerFormWindowImpl::setForwardDeclarations( const QStringList &lst )
     MetaDataBase::setForwards( formWindow, lst );
 }
 
+QStringList DesignerFormWindowImpl::variables() const
+{
+    return MetaDataBase::variables( formWindow );
+}
+
+void DesignerFormWindowImpl::setVariables( const QStringList &lst )
+{
+    MetaDataBase::setVariables( formWindow, lst );
+}
+
 
 
 

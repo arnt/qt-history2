@@ -158,6 +158,8 @@ public:
     void setDeclarationIncludes( const QStringList &lst );
     QStringList forwardDeclarations() const;
     void setForwardDeclarations( const QStringList &lst );
+    QStringList variables() const;
+    void setVariables( const QStringList &lst );
 
 private:
     FormWindow *formWindow;

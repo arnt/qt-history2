@@ -55,7 +55,7 @@ public:
     QValueList<MetaDataBase::Connection> connections;
     QValueList<MetaDataBase::Slot> slotList;
     QValueList<MetaDataBase::Include> includes;
-    QStringList forwards;
+    QStringList forwards, variables;
     QWidgetList tabOrder;
     MetaDataBase::MetaInfo metaInfo;
     QCursor cursor;
@@ -744,6 +744,32 @@ QStringList MetaDataBase::forwards( QObject *o )
     }
 
     return r->forwards;
+}
+
+void MetaDataBase::setVariables( QObject *o, const QStringList &vars )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->variables = vars;
+}
+
+QStringList MetaDataBase::variables( QObject *o )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QStringList();
+    }
+
+    return r->variables;
 }
 
 void MetaDataBase::setMetaInfo( QObject *o, MetaInfo mi )
