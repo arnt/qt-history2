@@ -1008,6 +1008,10 @@ void QLineEdit::cursorForward( bool mark, int steps )
 	    d->cursor->gotoLeft();
     if ( mark )
 	updateSelection();
+    else {
+	deselect();
+	d->selectionStart = d->cursor->index();
+    }
     update();
 }
 
@@ -1026,6 +1030,7 @@ void QLineEdit::backspace()
 	d->cursor->gotoLeft();
 	d->cursor->remove();
     }
+    d->selectionStart = d->cursor->index();
     update();
 }
 
@@ -1042,6 +1047,7 @@ void QLineEdit::del()
 	removeSelectedText();
     else
 	d->cursor->remove();
+    d->selectionStart = d->cursor->index();
     update();
 }
 
@@ -1056,8 +1062,10 @@ void QLineEdit::home( bool mark )
     d->cursor->gotoHome();
     if( mark )
 	updateSelection();
-    else
+    else {
 	deselect();
+	d->selectionStart = d->cursor->index();
+    }
     update();
 }
 
@@ -1073,8 +1081,10 @@ void QLineEdit::end( bool mark )
     d->cursor->gotoEnd();
     if( mark )
 	updateSelection();
-    else
+    else {
 	deselect();
+	d->selectionStart = d->cursor->index();
+    }
     update();
 }
 
@@ -1451,6 +1461,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     d->selectionStart = newMarkAnchor;
     d->parag->setSelection( QTextDocument::Standard, newMarkAnchor, newMarkDrag );
     update();
+    d->selectionStart = d->cursor->index();
     return TRUE;
 }
 
@@ -1489,6 +1500,7 @@ void QLineEdit::insert( const QString &newText )
 	validateAndSet( text, cp, cp, cp );
     }
     update();
+    d->selectionStart = d->cursor->index();
 }
 
 
@@ -1613,8 +1625,10 @@ void QLineEdit::cursorWordForward( bool mark )
     d->cursor->gotoWordRight();
     if( mark )
 	updateSelection();
-    else
+    else {
 	deselect();
+	d->selectionStart = d->cursor->index();
+    }
     update();
 }
 
@@ -1629,8 +1643,10 @@ void QLineEdit::cursorWordBackward( bool mark )
     d->cursor->gotoWordLeft();
     if( mark )
 	updateSelection();
-    else
+    else {
 	deselect();
+	d->selectionStart = d->cursor->index();
+    }
     update();
 }
 
