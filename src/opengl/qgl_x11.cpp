@@ -668,7 +668,7 @@ uint QGLContext::colorIndex(const QColor& c) const
     return 0;
 }
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 /*! \internal
     This is basically a substitute for glxUseXFont() which can only
     handle XLFD fonts. This version relies on XFT v2 to render the
@@ -777,7 +777,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     QFont f(fnt);
     QFontEngine *engine = f.d->engineForScript(QFont::Latin);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if(engine->type() == QFontEngine::Xft) {
         qgl_use_font((QFontEngineXft *) engine, 0, 256, listBase);
         return;

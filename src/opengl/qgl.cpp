@@ -2117,7 +2117,7 @@ int QGLWidget::displayListBase(const QFont & fnt, int listBase)
     // always regenerate font disp. lists for pixmaps - hw accelerated
     // contexts can't handle this otherwise
     bool regenerate = d->glcx->deviceIsPixmap();
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     // font color needs to be part of the font cache key when using
     // antialiased fonts since one set of glyphs needs to be generated
     // for each font color

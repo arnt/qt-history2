@@ -17,7 +17,7 @@ SOURCES	+= qgl.cpp \
 	   qglcolormap.cpp \
 	   qpaintengine_opengl.cpp
 x11:SOURCES += qgl_x11.cpp
-x11:!xftfreetype:DEFINES += QT_NO_XFTFREETYPE 
+x11:!xft:DEFINES += QT_NO_XFT 
 x11:!xrandr:DEFINES += QT_NO_XRANDR 
 mac { 
     SOURCES += qgl_mac.cpp
