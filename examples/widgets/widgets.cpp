@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#13 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -483,14 +483,6 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     connect(lv, SIGNAL(mySelectionChanged(QListViewItem*) ), this, SLOT( mySelectionChanged(QListViewItem*) ) );
     lv->addColumn( "One" );
     lv->addColumn( "Two" );
-    lv->addColumn( "Three" );
-    lv->addColumn( "Four" );
-    lv->addColumn( "Five" );
-    lv->addColumn( "Six" );
-    lv->addColumn( "Seven" );
-    lv->addColumn( "Eight" );
-    lv->addColumn( "Nine" );
-    lv->addColumn( "Ten" );
     lv->setAllColumnsShowFocus( TRUE );
 
     QListViewItem *lvi=  new QListViewItem( lv, "Text", "Text" );
@@ -717,18 +709,12 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 
 void WidgetView::open()
 {
-    bg->setEnabled( !bg->isEnabled() );
-    //QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
+    QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
 }
 
 
 void WidgetView::dummy()
 {
-    if ( tabs->isVisible() )
-	tabs->hide();
-    else
-	tabs->show();
-    return;
     QMessageBox::information( this, "Sorry", "This function is not implemented" );
 }
 
