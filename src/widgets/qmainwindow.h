@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#15 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#16 $
 **
 ** Definition of QMainWindow class
 **
@@ -49,14 +49,13 @@ public:
 
     void show();
 
-    void setRightJustification( bool );
     bool rightJustification() const;
-
     bool usesBigPixmaps() const;
 
     bool eventFilter( QObject*, QEvent* );
 
 public slots:
+    void setRightJustification( bool );
     void setUsesBigPixmaps( bool );
 
 signals:
