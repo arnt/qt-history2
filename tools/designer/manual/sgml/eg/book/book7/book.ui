@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>510</width>
-            <height>514</height>
+            <width>506</width>
+            <height>512</height>
         </rect>
     </property>
     <property name="caption">
@@ -196,6 +196,7 @@
     dialog-&gt;BookDataBrowser-&gt;seek( BookDataTable-&gt;sqlCursor()-&gt;at() );
     dialog-&gt;exec();
     delete dialog;
+    BookDataTable-&gt;refresh();
 }</function>
     <function name="init()" >{
     

@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>556</width>
-            <height>387</height>
+            <width>540</width>
+            <height>379</height>
         </rect>
     </property>
     <property name="caption">
@@ -331,26 +331,39 @@
     </connection>
     <connection>
         <sender>BookDataBrowser</sender>
-        <signal>primeInsert(QSqlRecord*)</signal>
-        <receiver>EditBookForm</receiver>
-        <slot>primeInsertBook(QSqlRecord*)</slot>
-    </connection>
-    <connection>
-        <sender>BookDataBrowser</sender>
-        <signal>primeInsert(QSqlRecord*)</signal>
-        <receiver>EditBookForm</receiver>
-        <slot>primeInsertBook(QSqlRecord*)</slot>
-    </connection>
-    <connection>
-        <sender>BookDataBrowser</sender>
         <signal>primeUpdate(QSqlRecord*)</signal>
         <receiver>EditBookForm</receiver>
         <slot>primeUpdateBook(QSqlRecord*)</slot>
     </connection>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>beforeUpdate(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>beforeUpdateBook(QSqlRecord*)</slot>
+    </connection>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>beforeInsert(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>beforeUpdateBook(QSqlRecord*)</slot>
+    </connection>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>primeInsert(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>primeInsertBook(QSqlRecord*)</slot>
+    </connection>
+    <connection>
+        <sender>BookDataBrowser</sender>
+        <signal>primeInsert(QSqlRecord*)</signal>
+        <receiver>EditBookForm</receiver>
+        <slot>primeInsertBook(QSqlRecord*)</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">beforeUpdateBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">primeInsertBook( QSqlRecord * )</slot>
-    <slot access="protected" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
+    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
+    <slot access="public" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
 </connections>
 <functions>
     <function name="beforeUpdateBook(QSqlRecord*)" >{
@@ -359,8 +372,10 @@
     if ( query.next() )
 	buffer-&gt;setValue( "authorid", query.value( 0 ) );
 }</function>
+    <function name="destroy()" >{
+    
+}</function>
     <function name="init()" >{
-    // Re-populate the ComboBox (the database may have changed) 
     QSqlQuery query( "SELECT name FROM author_view ORDER BY name;" );    
     while ( query.next() ) 
 	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString()); 
@@ -371,21 +386,32 @@
 	buffer-&gt;setValue( "id", query.value( 0 ) );       
 }</function>
     <function name="primeUpdateBook(QSqlRecord*)" >{
-    // Select this book's author  
-    QSqlQuery query( "SELECT name FROM author_view WHERE id=" +   
-    	buffer-&gt;value( "authorid" ).toString() + ";" ); 
-    QString author = "";
+    // Who is this book's author?
+    QSqlQuery query( "SELECT name FROM author_view WHERE id='" +  
+	buffer-&gt;value( "authorid" ).toString() + "';" ); 
+    QString author = "";    
     if ( query.next() )
-	author = query.value( 0 ).toString();    
-    int i; 
-    for( i = 0; i &lt; ComboBoxAuthor ) { 
-	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString(), i ); 
-	if ( query.value( 0 ).toString() == author ) 
-	    authorIndex = i; 
-	i++; 
-    } 
-    // Scroll ComboBox to show the author 
-    ComboBoxAuthor-&gt;setCurrentItem( authorIndex );    
+	author = query.value( 0 ).toString();
+    // Set the ComboBox to the right author
+    for ( int i = 0; i &lt; ComboBoxAuthor-&gt;count(); i++ ) {
+	if ( ComboBoxAuthor-&gt;text( i ) == author ) {
+	    ComboBoxAuthor-&gt;setCurrentItem( i ) ;
+	    break;
+	}
+    }
 }</function>
 </functions>
+<tabstops>
+    <tabstop>QLineEditTitle</tabstop>
+    <tabstop>QLineEditPrice</tabstop>
+    <tabstop>ComboBoxAuthor</tabstop>
+    <tabstop>PushButtonFirst</tabstop>
+    <tabstop>PushButtonPrev</tabstop>
+    <tabstop>PushButtonNext</tabstop>
+    <tabstop>PushButtonLast</tabstop>
+    <tabstop>PushButtonInsert</tabstop>
+    <tabstop>PushButtonUpdate</tabstop>
+    <tabstop>PushButtonDelete</tabstop>
+    <tabstop>PushButtonClose</tabstop>
+</tabstops>
 </UI>
