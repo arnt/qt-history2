@@ -2386,7 +2386,7 @@ void QLineEditPrivate::setText( const QString& txt )
     deselect();
     QString oldText = text;
     if ( maskData ) {
-	text = maskString( 0, txt );
+	text = maskString( 0, txt, TRUE );
 	text += clearString( text.length(), maxLength - text.length() );
     } else {
 	text = txt.left( maxLength );
