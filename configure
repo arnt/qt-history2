@@ -235,6 +235,7 @@ QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 unset QTDIR
 
 # initalize internal variables
+CFG_CONFIGURE_EXIT_ON_ERROR=yes
 CFG_LAZY_DEPS_ALLOWED=no
 CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
@@ -352,6 +353,10 @@ while [ "$#" -gt 0 ]; do
 	VAL=`echo $1 | sed "s,^-\([^-]*\)-.*,\1,"`
 	;;
     #Options that cannot be generalized
+    -k|-continue)
+	VAR=fatal_error
+	VAL=no
+	;;
     -embedded) 	
 	VAR=embedded
 	# this option may or may not be followed by an argument
@@ -417,6 +422,9 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case $VAR in
+    fatal_error)
+	CFG_CONFIGURE_EXIT_ON_ERROR="$VAL"
+	;;
     lazydeps)
 	CFG_LAZY_DEPS_ALLOWED="$VAL"
 	;;
@@ -1440,19 +1448,40 @@ if echo $MODULES | grep sql >/dev/null; then
 fi
 # auto-detect NIS support
 if [ "$CFG_NIS" != "no" ]; then
-    CFG_NIS=yes
-    $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_NIS=no
+    if $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	if [ "$CFG_NIS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    echo "NIS support cannot be enabled due to functionality tests!"
+	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+	    echo " If you believe this message is in error you may use the continue"
+	    echo " switch (-continue) to $0 to continue."
+	    exit 101
+	else
+	    CFG_NIS=no
+        fi
+    else
+	CFG_NIS=yes
+    fi
 fi
 # auto-detect CUPS support
 if [ "$CFG_CUPS" != "no" ]; then
-    CFG_CUPS=yes
-    $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_CUPS=no
+    if $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	if [ "$CFG_CUPS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    echo "Cups support cannot be enabled due to functionality tests!"
+	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+	    echo " If you believe this message is in error you may use the continue"
+	    echo " switch (-continue) to $0 to continue."
+	    exit 101
+	else
+	    CFG_CUPS=no
+        fi
+    else
+	CFG_CUPS=yes
+    fi
 fi
 
 #mac
 if [ "$PLATFORM_MAC" = "yes" ]; then
     mactests=$relpath/config.tests/mac
-
     $mactests/mac102.test "$OPT_VERBOSE" "$relpath" "$outpath" && D_FLAGS="$D_FLAGS MACOSX_102" #10.2?
 fi
 
@@ -1466,16 +1495,39 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     # auto-detect XRender support
     if [ "$CFG_XRENDER" != "no" ]; then
-	CFG_XRENDER=yes
-	$x11tests/xrender.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_XRENDER=no && CFG_FREETYPE=no
+	if $x11tests/xrender.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "XRender support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_XRENDERER=no
+		CFG_FREETYPE=no
+	    fi
+	else
+	    CFG_XRENDER=yes
+	fi
     else
 	CFG_FREETYPE=no
     fi
     # auto-detect Xft support
     if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_FREETYPE" != "no" ]; then
-	CFG_FREETYPE=yes
 	mkdir -p $outpath/config.tests/x11
-	$x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS && CFG_FREETYPE=no
+	if $x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_FREETYPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "XftFreeType support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_FREETYPE=no
+	    fi
+	else
+	    CFG_FREETYPE=yes
+	fi
     fi
     # add freetype2 include path
     if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.inc ];then
@@ -1489,20 +1541,53 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     rm -f $outpath/config.tests/x11/xfreetype.cfg
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
-	CFG_SM=yes
-	$x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_SM=no
+	if $x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_SM" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "Session Management support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_SM=no
+	    fi
+	else
+	    CFG_SM=yes
+	fi
     fi
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
-	CFG_XINERAMA=yes
-	$x11tests/xinerama.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_XINERAMA=no
+	if $x11tests/xinerama.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "Xinerama support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_XINERAMA=no
+	    fi
+	else
+	    CFG_XINERAMA=yes
+	fi
     fi
     # auto-detect tablet support (currenlty only in IRIX)
     if [ "$CFG_TABLET" = "auto" ]; then
 	case $PLATFORM in
 	irix-*)
-	    CFG_TABLET=yes
-	    $x11tests/xinput.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_TABLET=no
+	    if $x11tests/xinput.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+		if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		    echo "Tablet support cannot be enabled due to functionality tests!"
+		    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		    echo " If you believe this message is in error you may use the continue"
+		    echo " switch (-continue) to $0 to continue."
+		    exit 101
+		else
+		    CFG_TABLET=no
+		fi
+	    else
+		CFG_TABLET=yes
+	    fi
 	    ;;
 	*)
 	    CFG_TABLET=no
@@ -1512,8 +1597,19 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
-	CFG_XKB=yes
-	$x11tests/xkb.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_XKB=no
+	if $x11tests/xkb.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+		echo "XKB support cannot be enabled due to functionality tests!"
+		echo " Turn on verbose messaging (-v) to $0 to see the final report."
+		echo " If you believe this message is in error you may use the continue"
+		echo " switch (-continue) to $0 to continue."
+		exit 101
+	    else
+		CFG_XKB=no
+	    fi
+	else
+	    CFG_XKB=yes
+	fi
     fi
 fi
 
@@ -1682,6 +1778,8 @@ Configure options:
 
     -verbose .............. Print verbose information about each step of the
     -v .................... configure process.
+
+    -continue.............. Continue as far as possible if an error occurs.
 
     -help ................. Print help and usage information.
     -h .................... Print help and usage information.
@@ -2107,14 +2205,36 @@ if [ $PLATFORM = "hpux-acc" -a "$CFG_STL" != "no" ]; then
 fi
 
 if [ "$CFG_STL" = "auto" ]; then
-    CFG_STL=yes
-    $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && CFG_STL=no
+    if $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+	if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    echo "STL support cannot be enabled due to functionality tests!"
+	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+	    echo " If you believe this message is in error you may use the continue"
+	    echo " switch (-k) to $0 to continue."
+	    exit 101
+	else
+	    CFG_STL=no
+	fi
+    else
+	CFG_STL=yes
+    fi
 fi
 
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" = "auto" ]; then
-    CFG_LARGEFILE=yes
-    $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && CFG_LARGEFILE=no
+    if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+	if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	    echo "Large file support cannot be enabled due to functionality tests!"
+	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
+	    echo " If you believe this message is in error you may use the continue"
+	    echo " switch (-k) to $0 to continue."
+	    exit 101
+	else
+	    CFG_LARGEFILE=no
+	fi
+    else
+	CFG_LARGEFILE=yes
+    fi
 fi
 
 
