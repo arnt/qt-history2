@@ -886,7 +886,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	if(!project->isActiveConfig("yacc_no_name_mangle"))
 	    yaccflags += " -p " + fi.baseName();
 	t << impl << ": " << (*it) << "\n\t"
-	  << "$(YACC) " + yaccflags + " " << (*it) << "\n\t"
+	  << ( "$(YACC) " + yaccflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.h " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.c " << impl << endl << endl;
@@ -909,7 +909,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	if(!project->isActiveConfig("yacc_no_name_mangle"))
 	    lexflags += " -P " + fi.baseName();
 	t << impl << ": " << (*it) << " " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(LEX) " + lexflags + " " << (*it) << "\n\t"
+	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex.yy.c " << impl << endl << endl;
     }
