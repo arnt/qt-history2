@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#7 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#8 $
 **
 ** Definition of QMainWindow class
 **
@@ -53,11 +53,6 @@ public:
     void removeToolBar( QToolBar * );
 
     void show();
-
-    bool usesBigPixmaps() const;
-
-public slots:
-    void setUsesBigPixmaps( bool );
 
 protected slots:
     void setUpLayout();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#11 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#11 $");
 
 
 class QMainWindowPrivate {
@@ -43,8 +43,7 @@ public:
 
     QMainWindowPrivate()
 	: top(0), left(0), right(0), bottom(0),
-	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0),
-	  ubp(FALSE)
+	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0)
     {
 	// nothing
     }
@@ -80,8 +79,6 @@ public:
     QTimer * timer;
 
     QBoxLayout * tll;
-
-    bool ubp;
 };
 
 
@@ -194,7 +191,6 @@ QStatusBar * QMainWindow::statusBar() const
     else
 	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
     delete l;
-    s->setAutoMinimumSize( TRUE );
     ((QMainWindow *)this)->setStatusBar( s );
     return s;
 }
@@ -330,9 +326,6 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const char * label,
 
     dl->append( new QMainWindowPrivate::ToolBar( toolBar, label, nl ) );
     d->timer->start( 0, TRUE );
-
-    connect( this, SIGNAL(internalUseBigPixmaps(bool)),
-	     toolBar, SIGNAL(useBigPixmaps(bool)) );
 }
 
 
@@ -472,7 +465,6 @@ void QMainWindow::setUpLayout()
 void QMainWindow::show()
 {
     setUpLayout();
-    emit internalUseBigPixmaps( d->ubp );
     QWidget::show();
 }
 
@@ -498,29 +490,6 @@ void QMainWindow::setCentralWidget( QWidget * w )
 QWidget * QMainWindow::centralWidget() const
 {
     return d->mc;
-}
-
-
-/*!  Sets the tool bars to use big (32 by 32 pixels) if \a enable is
-  TRUE, and to use small (16 by 16 pixels) if \a enable is FALSE.
-*/
-
-void QMainWindow::setUsesBigPixmaps( bool enable )
-{
-    d->ubp = enable;
-    emit internalUseBigPixmaps( enable );
-}
-
-
-/*!  Returns TRUE if the tool bars managed by this window use big
-  pixmaps, else FALSE.
-
-  \sa setUsesBigPixmaps()
-*/
-
-bool QMainWindow::usesBigPixmaps() const
-{
-    return d->ubp;
 }
 
 
