@@ -131,6 +131,7 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 		data->marker = ParagData::NoMarker;
 	    else
 		data->marker = ParagData::Breakpoint;
+	    break;
 	}
 	p = p->next();
     }
