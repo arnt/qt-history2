@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#93 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#93 $");
 
 
 /*****************************************************************************
