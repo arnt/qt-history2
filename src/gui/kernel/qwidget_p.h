@@ -64,69 +64,69 @@ class QStyle;
 
 struct QTLWExtra {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QString  caption;                                // widget caption
-    QString  iconText;                                // widget icon text
-    QString  role;                                // widget role
-    QIcon *icon;                                // widget icon
+    QString caption; // widget caption
+    QString iconText; // widget icon text
+    QString role; // widget role
+    QIcon *icon; // widget icon
     QPixmap *iconPixmap;
 #endif
-    short    incw, inch;                        // size increments
-    // frame strut
-    ulong    fleft, fright, ftop, fbottom;
+    short incw, inch; // size increments
+    ulong fleft, fright, ftop, fbottom; // frame strut
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-    uint     opacity : 8;                        // Stores opacity level on Windows/Mac OS X.
+    uint opacity : 8; // Stores opacity level on Windows/Mac OS X.
 #endif
 #if defined(Q_WS_WIN)
-    ulong savedFlags;                                // Save window flags while showing fullscreen
+    ulong savedFlags; // Save window flags while showing fullscreen
 #else
-    Qt::WFlags savedFlags;                        // Save widget flags while showing fullscreen
+    Qt::WFlags savedFlags; // Save widget flags while showing fullscreen
 #endif
-    short    basew, baseh;                        // base sizes
+    short basew, baseh; // base sizes
 #if defined(Q_WS_X11)
-    WId  parentWinId;                                // parent window Id (valid after reparenting)
-    uint     embedded : 1;                        // window is embedded in another Qt application
-    uint     spont_unmapped: 1;                        // window was spontaneously unmapped
-    uint     reserved: 1;                        // reserved
-    uint     dnd : 1;                                // DND properties installed
-    uint     uspos : 1;                                // User defined position
-    uint     ussize : 1;                        // User defined size
+    WId parentWinId; // parent window Id (valid after reparenting)
+    uint embedded : 1; // window is embedded in another Qt application
+    uint spont_unmapped: 1; // window was spontaneously unmapped
+    uint reserved: 1; // reserved
+    uint dnd : 1; // DND properties installed
+    uint uspos : 1; // User defined position
+    uint ussize : 1; // User defined size
 #endif
 #if defined(Q_WS_MAC)
     WindowGroupRef group;
-    uint     is_moved: 1;
-    uint     resizer : 4;
+    uint is_moved: 1;
+    uint resizer : 4;
 #endif
 #if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
-    QRegion decor_allocated_region;                // decoration allocated region
+    QRegion decor_allocated_region; // decoration allocated region
     QWSManager *qwsManager;
 #endif
 #if defined(Q_WS_WIN)
-    HICON    winIcon;                                // internal Windows icon
+    HICON winIconBig; // internal big Windows icon
+    HICON winIconSmall; // internal small Windows icon
 #endif
-    QRect    normalGeometry;                        // used by showMin/maximized/FullScreen
+    QRect normalGeometry; // used by showMin/maximized/FullScreen
 };
 
 
 // dear user: you can see this struct, but it is internal. do not touch.
 
 struct QWExtra {
-    qint32  minw, minh;                        // minimum size
-    qint32  maxw, maxh;                        // maximum size
+    qint32 minw, minh; // minimum size
+    qint32 maxw, maxh; // maximum size
     QPointer<QWidget> focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;
 #endif
-    QTLWExtra *topextra;                        // only useful for TLWs
+    QTLWExtra *topextra; // only useful for TLWs
 #if defined(Q_WS_WIN)
-    QOleDropTarget *dropTarget;                        // drop target
-    uint shown_mode : 8;                        // widget show mode
+    QOleDropTarget *dropTarget; // drop target
+    uint shown_mode : 8; // widget show mode
 #endif
 #if defined(Q_WS_X11)
-    WId xDndProxy;                                // XDND forwarding to embedded windows
+    WId xDndProxy; // XDND forwarding to embedded windows
     uint children_use_dnd : 1;
     uint compress_events : 1;
 #endif
-    QRegion mask;                                // widget mask
+    QRegion mask; // widget mask
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
@@ -141,8 +141,8 @@ public:
     explicit QWidgetPrivate(int version = QObjectPrivateVersion);
     ~QWidgetPrivate();
 
-    QWExtra        *extraData() const;
-    QTLWExtra        *topData() const;
+    QWExtra *extraData() const;
+    QTLWExtra *topData() const;
 
     void init(Qt::WFlags f);
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
@@ -247,8 +247,8 @@ public:
     friend class QWSPaintEngine;
 #endif
 
-    static int instanceCounter;  // Current number of widget instances
-    static int maxInstances;     // Maximum number of widget instances
+    static int instanceCounter; // Current number of widget instances
+    static int maxInstances; // Maximum number of widget instances
 
     QWidgetData data;
 
@@ -310,10 +310,18 @@ public:
 
 #if defined(Q_WS_X11) || defined (Q_WS_WIN) || defined(Q_WS_MAC)
     void setWSGeometry(bool dontShow=false);
-    inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }
-    inline QPoint mapFromWS(const QPoint &p) const { return p + data.wrect.topLeft(); }
-    inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.translate(-data.wrect.topLeft()); return rr; }
-    inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.translate(data.wrect.topLeft()); return rr; }
+
+    inline QPoint mapToWS(const QPoint &p) const
+    { return p - data.wrect.topLeft(); }
+
+    inline QPoint mapFromWS(const QPoint &p) const
+    { return p + data.wrect.topLeft(); }
+
+    inline QRect mapToWS(const QRect &r) const
+    { QRect rr(r); rr.translate(-data.wrect.topLeft()); return rr; }
+
+    inline QRect mapFromWS(const QRect &r) const
+    { QRect rr(r); rr.translate(data.wrect.topLeft()); return rr; }
 #endif
 
     QPaintEngine *extraPaintEngine;

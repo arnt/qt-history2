@@ -614,30 +614,23 @@ HBITMAP qt_createIconMask(const QBitmap &bitmap)
     return hbm;
 }
 
-
-void QWidgetPrivate::setWindowIcon_sys()
+HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
 {
-#if 0
-    QTLWExtra* x = d->topData();
-    delete x->icon;
-    x->icon = 0;
-    if (x->winIcon) {
-        DestroyIcon(x->winIcon);
-        x->winIcon = 0;
-    }
-    if (!pixmap.isNull()) {                        // valid icon
-        QPixmap pm(pixmap.size(), pixmap.depth(), QPixmap::NormalOptim);
-        QBitmap mask(pixmap.size(), false, QPixmap::NormalOptim);
-        if (pixmap.mask()) {
+    HICON result = 0;
+    if (!icon.isNull()) { // valid icon
+        QSize size = icon.actualSize(QSize(xSize, ySize));
+        QPixmap pm = icon.pixmap(size);
+        if (pm.isNull())
+            return 0;
+
+        QBitmap mask(size, false, QPixmap::NormalOptim);
+        if (pm.mask()) {
             mask.fill(Qt::color0);
             QPainter maskPainter(&mask);
-            maskPainter.drawPixmap(0, 0, *pixmap.mask());
+            maskPainter.drawPixmap(0, 0, *pm.mask());
         } else {
             mask.fill(Qt::color1);
         }
-        QPainter painter(&pm);
-        painter.drawPixmap(0, 0, pixmap);
-        painter.end();
         HBITMAP im = qt_createIconMask(mask);
         ICONINFO ii;
         ii.fIcon    = true;
@@ -645,15 +638,40 @@ void QWidgetPrivate::setWindowIcon_sys()
         ii.hbmColor = pm.hbm();
         ii.xHotspot = 0;
         ii.yHotspot = 0;
-        x->icon = new QPixmap(pixmap);
-        x->winIcon = CreateIconIndirect(&ii);
+        result = CreateIconIndirect(&ii);
+
+        if (cache)
+            *cache = new QPixmap(pm);;
         DeleteObject(im);
     }
-    SendMessageA(q->winId(), WM_SETICON, 0, /* ICON_SMALL */
-                  (long)x->winIcon);
-    SendMessageA(q->winId(), WM_SETICON, 1, /* ICON_BIG */
-                  (long)x->winIcon);
-#endif
+    return result;
+}
+
+void QWidgetPrivate::setWindowIcon_sys()
+{
+    if (extra->topextra->iconPixmap)
+        // already been set
+        return;
+
+    QTLWExtra* x = extra->topextra;
+    if (x->winIconBig) {
+        DestroyIcon(x->winIconBig);
+        x->winIconBig = 0;
+        DestroyIcon(x->winIconSmall);
+        x->winIconSmall = 0;
+    }
+
+    x->winIconSmall = qt_createIcon(q->windowIcon(), 
+                                    GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),
+                                    &(x->iconPixmap));
+    x->winIconBig = qt_createIcon(q->windowIcon(), 
+                                  GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 
+                                  &(x->iconPixmap));
+    if (!x->winIconBig)
+        x->winIconBig = x->winIconSmall;
+
+    SendMessageA(q->winId(), WM_SETICON, 0 /* ICON_SMALL */, (long)x->winIconSmall);
+    SendMessageA(q->winId(), WM_SETICON, 1 /* ICON_BIG */, (long)x->winIconBig);
 }
 
 
@@ -1512,13 +1530,16 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
-    extra->topextra->winIcon = 0;
+    extra->topextra->winIconSmall = 0;
+    extra->topextra->winIconBig = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    if (extra->topextra->winIcon)
-        DestroyIcon(extra->topextra->winIcon);
+    if (extra->topextra->winIconSmall)
+        DestroyIcon(extra->topextra->winIconSmall);
+    if (extra->topextra->winIconBig)
+        DestroyIcon(extra->topextra->winIconBig);
 }
 
 
