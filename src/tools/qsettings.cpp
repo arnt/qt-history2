@@ -1612,6 +1612,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 #endif
 
     QString realkey;
+    int subkeycount = 2;
     if (theKey[0] == '/') {
 	// parse our key
 	QStringList list(QStringList::split('/', theKey));
@@ -1638,12 +1639,25 @@ QStringList QSettings::subkeyList(const QString &key) const
 
 	    realkey = list.join("/");
 	}
+
+	subkeycount = list.count();
     } else
 	realkey = theKey;
 
+    QStringList ret;
+    if ( subkeycount == 1 ) {
+	QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
+	while ( it != d->headings.end() ) {
+	    if ( it.key() != "General" && ! ret.contains( it.key() ) )
+		ret << it.key();
+	    ++it;
+	}
+
+	return ret;
+    }
+
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
-    QStringList ret;
     QString itkey;
     while (it != grp.end()) {
 	itkey = it.key();
