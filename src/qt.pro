@@ -183,6 +183,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qvaluelist.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
+		  $$WIDGETS_H/qcanvas.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
@@ -364,6 +365,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qwmatrix.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
+		  widgets/qcanvas.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
