@@ -46,7 +46,7 @@ public:
 
     bool visible() const;
     void setVisible(bool b);
-    
+
     virtual QRect rect() const = 0;
     virtual bool contains(const QPoint &p) const;
 
@@ -54,18 +54,18 @@ public:
     virtual void update() const;
 
     virtual void move(const QPoint &delta) = 0;
-    
+
     virtual Type type() const;
 
 signals:
     void moved();
-    
-protected:        
+
+protected:
     virtual QColor colorForStatus();
 
     friend class ConnectionEdit;
 
-private:    
+private:
     bool m_visible;
 };
 
@@ -74,7 +74,7 @@ class QT_SHARED_EXPORT CELabelItem : public CEItem
     Q_OBJECT
 public:
     CELabelItem(ConnectionEdit *edit);
-    
+
     QString text() const;
     void setText(const QString &text);
 
@@ -86,11 +86,11 @@ public:
 
     void setAnchorPos(const QPoint &pos);
     QPoint anchorPos() const;
-    
+
     virtual Type type() const;
 
 private:
-    QString m_text;    
+    QString m_text;
     QRect m_rect;
     QPoint m_anchor_pos;
 };
@@ -107,7 +107,7 @@ public:
     virtual void move(const QPoint &delta);
     virtual QPoint pos() const;
     virtual bool selectable() const;
-    
+
     CEEdgeItem *sourceEdge() const;
     CEEdgeItem *destinationEdge() const;
     CEEdgeItem *otherEdge(const CEEdgeItem *e) const;
@@ -119,12 +119,12 @@ public:
     void adjustRatio();
 
     QList<CEEdgeItem*> edgeList() const { return m_edge_list; } // ###
-    
+
     virtual Type type() const;
 
     double xRatio() const;
     double yRatio() const;
-    
+
 public slots:
     virtual void edgeDestroyed(QObject *o);
 
@@ -133,7 +133,7 @@ protected:
 
     typedef QList<CEEdgeItem*> EdgeList;
     EdgeList m_edge_list;
-    
+
     double m_x_ratio, m_y_ratio;
     bool m_have_ratio;
 };
@@ -153,7 +153,7 @@ public:
     virtual Type type() const;
 
     void updateGeometry();
-    
+
 private:
     QRect widgetRect() const;
 
@@ -175,14 +175,14 @@ public:
     virtual void paint(QPainter *p);
     virtual void move(const QPoint &delta);
     virtual bool selectable() const;
-    
+
     void recalculate();
 
     QPoint exitPos() const;
     void setExitPos(const QPoint &pos);
     QPoint enterPos() const;
     void setEnterPos(const QPoint &pos);
-    
+
     virtual Type type() const;
 
 public slots:
@@ -193,8 +193,8 @@ private:
     CEEndPointItem *m_ep1, *m_ep2;
     QPoint m_top, m_side1, m_side2, m_bottom;
     QPoint m_pos1, m_pos2;
-    QPolygon m_arrow_head;    
-    QPoint m_exit_pos, m_enter_pos;    
+    QPolygon m_arrow_head;
+    QPoint m_exit_pos, m_enter_pos;
 };
 
 struct QT_SHARED_EXPORT ConnectionHint
@@ -213,11 +213,11 @@ public:
     enum EndPointStyle { Line, Arrow, Square };
     enum LabelRole { DisplayRole, DecorationRole, CustomRole = 1000 };
     typedef QList<ConnectionHint> HintList;
-    
+
     Connection(ConnectionEdit *edit);
-    
+
     void setEndPointStyle(EndPointStyle source, EndPointStyle dest);
-    
+
     void setVisible(bool b);
     bool visible() const;
 
@@ -225,32 +225,32 @@ public:
     QWidget *destination() const;
     virtual void setSource(QWidget *src);
     virtual void setDestination(QWidget *dest);
-    
+
     void setSourceLabel(LabelRole role, const QVariant &v);
     QVariant sourceLabel(LabelRole role) const;
     void setDestinationLabel(LabelRole role, const QVariant &v);
     QVariant destinationLabel(LabelRole role) const;
-    
+
     CELabelItem *sourceLabelItem() const;
     CELabelItem *destinationLabelItem() const;
     void setLabelItems(CELabelItem *source_label, CELabelItem *destination_label);
-    
+
     HintList hints() const;
-    
+
     ConnectionEdit *edit() const { return m_edit; }
-    
+
 signals:
     void aboutToDelete(Connection*);
     void selected(Connection*);
-    
+
 private:
     QWidget *m_source, *m_destination;
-        
+
     typedef QMap<LabelRole, QVariant> LabelData;
     LabelData m_source_label_data, m_destination_label_data;
-    
+
     CELabelItem *m_source_label_item, *m_destination_label_item;
-    
+
     ConnectionEdit *m_edit;
 };
 
@@ -262,7 +262,7 @@ public:
     ~ConnectionEdit();
     inline QWidget *background() const { return m_bg_widget; }
     void setBackground(QWidget *background);
-    
+
     void setSelected(CEItem *item, bool selected);
     bool isSelected(const CEItem *item) const;
     bool isNew(const CEItem *item) const;
@@ -273,7 +273,7 @@ public:
     int connectionCount() const;
     Connection *connection(int idx) const;
     QList<CEItem*> connectionItems(const Connection *con) const;
-        
+
     void clear();
     void dumpItems() const;
     void updateLines();
@@ -284,13 +284,13 @@ public slots:
     void geometryChanged(QWidget *w);
 
     void deleteItems();
-        
+
 signals:
     void added(Connection*);
     void aboutToRemove(Connection*);
     void selected(Connection*);
     void activated(Connection*);
-    
+
 protected:
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
@@ -299,7 +299,7 @@ protected:
     virtual void paintEvent(QPaintEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
-   
+
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
     void initConnection(Connection *con, const Connection::HintList &hint_list);
 
@@ -314,7 +314,7 @@ private:
     typedef QList<Connection*> ConnectionList;
     typedef QMultiMap<CEItem*, Connection*> ConnectionMap;
     typedef QMap<Connection*, Connection*> ConnectionSet;
-    
+
     ItemList m_new_item_list;
     CEEndPointItem *lastEndPoint() const;
     CEWidgetItem *firstEndPoint() const;
@@ -323,35 +323,35 @@ private:
     SelectedSet m_selected_item_set;
     ConnectionList m_connection_list;
     ConnectionMap m_connection_map;
-    
+
     QList<CEItem*> m_items_under_mouse;
-    
+
     void updateUnderMouse(const QPoint &pos);
-    
+
     CEItem *m_dragged_item, *m_drag_on_move_item;
     bool m_start_draw_on_move;
     bool m_start_drag_on_move;
     QPoint m_last_mouse_pos;
-    
+
     CEItem *draggedItem() const;
-    
+
     enum BorderType { ActiveBorder, SelectedBorder };
     QRect widgetRect(QWidget *w) const;
-    
+
     void abortNewItems();
     void initConnection(Connection *con, const ItemList &item_list);
     void insertEndPoint(const QPoint &pos);
-    
+
     enum Mode { DrawMode, EditMode, DragMode };
-    Mode mode() const;
-    
+    inline Mode mode() const;
+
     void insertItem(CEItem *item);
     void deleteItem(CEItem *item);
     void deleteItems(ItemList item_list);
     void setSelectedItems(const ItemList &item_list, bool selected);
     void deleteWidgetItem(CEWidgetItem *widget_item);
     void checkConnection(Connection *con);
-    
+
     void deleteEndPoint(CEEndPointItem *ep);
 
     enum LineType { TopLoopLine, RightLoopLine, LeftLoopLine, BottomLoopLine,
@@ -361,16 +361,16 @@ private:
     void createLine(LineType type, CEWidgetItem *target, const QPoint &pos);
     LineType classifyLine(CEWidgetItem *source, CEWidgetItem *target, const QPoint &pos) const;
     void addEdgeTo(const QPoint &pos);
-    
+
     void updateLine(Connection *con);
     void updateLine(CEEdgeItem *edge);
-    
+
     void dumpItems();
-    
+
     CEWidgetItem *widgetItem(QWidget *widget) const;
     CEItem *itemUnderMouse(CEItem::Type type) const;
     CEItem *itemUnderMouse() const;
-    
+
     friend class CEItem;
     friend class CEEndPointItem;
     friend class CEWidgetItem;
@@ -405,16 +405,16 @@ inline CEItem::Type CEItem::type() const
 
 inline QRect CELabelItem::rect() const
     { return m_rect; }
-    
+
 inline QPoint CELabelItem::pos() const
     { return m_rect.topLeft(); }
-    
+
 inline bool CELabelItem::selectable() const
     { return true; }
 
 inline QString CELabelItem::text() const
     { return m_text; }
-    
+
 inline QPoint CELabelItem::anchorPos() const
     { return m_anchor_pos; }
 
@@ -467,7 +467,7 @@ inline QWidget *CEWidgetItem::widget() const
 
 inline QPoint CEWidgetItem::pos() const
     { return rect().center(); }
-    
+
 inline CEItem::Type CEWidgetItem::type() const
     { return WidgetItem; }
 
@@ -521,7 +521,7 @@ inline void Connection::setSource(QWidget *src)
 inline void Connection::setDestination(QWidget *dest)
     { m_destination = dest; }
 
-    
+
 /*******************************************************************************
 ** ConnectionEdit
 */
@@ -533,21 +533,21 @@ inline Connection *ConnectionEdit::connection(int idx) const
     { return m_connection_list.at(idx); }
 
 inline ConnectionEdit::Mode ConnectionEdit::mode() const
-{ 
+{
     if (m_dragged_item != 0)
         return DragMode;
     else if (lastEndPoint() != 0)
         return DrawMode;
     else
         return EditMode;
-}    
+}
 
 inline bool ConnectionEdit::isSelected(const CEItem *item) const
     { return m_selected_item_set.contains(const_cast<CEItem*>(item)); }
-    
+
 inline bool ConnectionEdit::isNew(const CEItem *item) const
     { return m_new_item_list.contains(const_cast<CEItem*>(item)); }
-    
+
 inline bool ConnectionEdit::isUnderMouse(const CEItem *item) const
     { return itemUnderMouse() == item; }
 
@@ -562,5 +562,5 @@ inline QList<CEItem*> ConnectionEdit::connectionItems(const Connection *con) con
 
 inline void ConnectionEdit::setBackground(QWidget *background)
 { m_bg_widget = background; updateBackground(); }
-                    
+
 #endif // CONNECTIONEDIT_H
