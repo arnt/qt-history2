@@ -8,3 +8,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
 
 HEADERS		=
 SOURCES		= drawdemo.cpp
+QT	+= compat

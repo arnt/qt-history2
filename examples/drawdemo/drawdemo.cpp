@@ -15,12 +15,12 @@
 #include <qprinter.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qapplication.h>
 #include <math.h>
 
 //
-// First we define the functionality our demo should present 
+// First we define the functionality our demo should present
 // to the user. You might add different demo-modes if you wish so.
 //
 
@@ -114,16 +114,16 @@ struct DrawThing {
 
 //
 // All previously implemented functions are collected
-// in the following "table". 
-// If you implement different functionality, your new draw 
-// function must be assigned here with a function pointer and 
-// description. 
+// in the following "table".
+// If you implement different functionality, your new draw
+// function must be assigned here with a function pointer and
+// description.
 // Leave the zeros at the end, they will be used
-// as markers referring to the end of the array. 
+// as markers referring to the end of the array.
 //
 
 DrawThing ourDrawFunctions[] = {
-// name of the function, title presented to the user 
+// name of the function, title presented to the user
     { drawColorWheel,	"Draw color wheel" },
     { drawFonts,	"Draw fonts" },
     { drawShapes,	"Draw shapes" },
@@ -146,7 +146,7 @@ protected:
     void   resizeEvent( QResizeEvent * );
 private:
     QPrinter	 *printer;
-    QButtonGroup *bgroup;
+    Q3ButtonGroup *bgroup;
     QPushButton	 *print;
     int		  drawindex;
     int		  maxindex;
@@ -160,10 +160,10 @@ private:
 DrawView::DrawView()
 {
     setWindowTitle( "Qt Draw Demo Application" );
-    setBackgroundMode(PaletteBase);
+    setBackgroundMode(Qt::PaletteBase);
 
     // Create a button group to contain all buttons
-    bgroup = new QButtonGroup( this );
+    bgroup = new Q3ButtonGroup( this );
     bgroup->resize( 200, 200 );
     connect( bgroup, SIGNAL(clicked(int)), SLOT(updateIt(int)) );
 
@@ -173,16 +173,16 @@ DrawView::DrawView()
     int i;
     const char *n;
     QFontMetrics fm = bgroup->fontMetrics();
-    
+
     // Find out the longest function description.
-    // Here we make use of the last "0,0"-entry in the 
+    // Here we make use of the last "0,0"-entry in the
     // ourDrawFunctions-array.
     for ( i=0; (n=ourDrawFunctions[i].name) != 0; i++ ) {
         int w = fm.width( n );
         maxwidth = QMAX(w,maxwidth); // QMAX is a macro defined in qglobal.h
                                      // and returns the biggest of to values.
 	// Due to its macro nature one should use it with care and with
-	// constant parameters only. 
+	// constant parameters only.
     }
 
     maxwidth = maxwidth + 30;			// allow 30 pixels for radiobuttons
@@ -199,23 +199,23 @@ DrawView::DrawView()
 
     maxheight += 10;                            // maxheight is now 10 pixels upper margin
     						// plus number_of_drawfunctions * 30
-    						// plus 10 pixels lower margin	
+    						// plus 10 pixels lower margin
 
     drawindex = 0;				// draw first thing
     maxindex  = i;
 
     maxwidth += 20;				// add some margin, this results in the
-   						// final width of bgroup 
+   						// final width of bgroup
 
     bgroup->resize( maxwidth, maxheight );      // resize bgroup to its final size
-  						// when no printersupport is provided  
+  						// when no printersupport is provided
 
 
 // If -- at compile time -- printer support will be disabled,
 // we won't set up printing functionality.
 
 #ifndef QT_NO_PRINTER
-    
+
     printer = new QPrinter;
 
     // Create and setup the print button
@@ -227,7 +227,7 @@ DrawView::DrawView()
     // Resize bgroup to its final size when printersupport is given.
     bgroup->resize( maxwidth, print->y()+print->height()+10 );
 
-#endif    
+#endif
 
     resize( 640,300 );
 }
@@ -271,7 +271,7 @@ void DrawView::printIt()
 {
     if ( printer->setup( this ) ) {
 	QPainter paint;
-	if( !paint.begin( printer ) )               
+	if( !paint.begin( printer ) )
 	    return;
         drawIt( &paint );
     }
