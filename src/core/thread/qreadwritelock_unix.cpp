@@ -100,7 +100,7 @@ void QReadWriteLock::lock(AccessMode mode)
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
-                if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
+                if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1))
                      break;
             } else {
                 report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
@@ -110,7 +110,7 @@ void QReadWriteLock::lock(AccessMode mode)
                     continue;
                 }
                 report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
-                --d->waitingReaders;    
+                --d->waitingReaders;
                 report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                 continue;
             }
@@ -120,7 +120,7 @@ void QReadWriteLock::lock(AccessMode mode)
         for(;;) {
             int localAccessCount(d->accessCount);
             if(localAccessCount == 0){
-                if (q_atomic_test_and_set_int(&d->accessCount, 0, -1))
+                if (d->accessCount.testAndSet(0, -1))
                     break;
             } else {
                 report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
@@ -159,7 +159,7 @@ bool QReadWriteLock::tryLock(AccessMode mode)
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
-                if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1)) {
+                if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1)) {
                     result=true;
                     break;
                 }
@@ -173,7 +173,7 @@ bool QReadWriteLock::tryLock(AccessMode mode)
         for(;;){
             int localAccessCount(d->accessCount);
             if(localAccessCount == 0){
-                if (q_atomic_test_and_set_int(&d->accessCount, 0, -1)) {
+                if (d->accessCount.testAndSet(0, -1)) {
                     result=true;
                     break;
                 }
@@ -204,10 +204,10 @@ void QReadWriteLock::unlock()
             break;
         }
         if (localAccessCount==-1) {
-            if(q_atomic_test_and_set_int(&d->accessCount, -1, 0))
+            if(d->accessCount.testAndSet(-1, 0))
                 break;
         } else {
-            if(q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount - 1 ))
+            if(d->accessCount.testAndSet(localAccessCount, localAccessCount - 1 ))
                 break;
         }
     }
