@@ -209,7 +209,6 @@ static struct
     { 0, empty_encodings },
     // Mongolian
     { 0, empty_encodings },
-gb18030
     // CurrencySymbols
     { 0, empty_encodings },
     // LetterlikeSymbols
