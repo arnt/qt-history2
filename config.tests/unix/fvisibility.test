@@ -7,7 +7,7 @@ VERBOSE=$2
 
 >fvisibility.c
 COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
-$COMPILER -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && PRECOMP_SUPPORT=yes
+$COMPILER -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
 rm -f fvisibility.c fvisibility.o
 
 # done
