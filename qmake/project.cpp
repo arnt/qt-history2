@@ -399,7 +399,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             ++parens;
         } else if(*d == ')') {
             --parens;
-        } else if(*d == '"' || *d == '\'') {
+        } else if(*d == '"' /*|| *d == '\''*/) {
             quote = *d;
         }
 
