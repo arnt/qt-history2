@@ -731,6 +731,10 @@ void MainWindow::previewForm()
         QWidget *shell = new QVBoxWidget(this, Qt::WType_TopLevel);
         shell->setAttribute(Qt::WA_DeleteOnClose, true);
         QWidget *w = formBuilder.load(&stream, shell);
+        if (QDialog *dlg = qt_cast<QDialog *>(w)) {
+            dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+            connect(dlg, SIGNAL(destroyed()), shell, SLOT(close()));
+        }
         shell->setWindowTitle(tr("Preview - %1").arg(w->windowTitle()));
         shell->resize(w->size());
         shell->show();
