@@ -72,6 +72,7 @@ QPrinter::QPrinter()
     to_edge	= FALSE;
     viewOffsetDone = FALSE;
     painter     = 0;
+    doc_name = "document1";
 
     if ( qt_winver & Qt::WV_NT_based ) {
 	PRINTDLG pd;

@@ -414,7 +414,8 @@ void QPrinter::setCreator( const QString &creator )
   \c QPrinter::Landscape.
 
   The printer driver reads this setting and prints using the specified
-  orientation.
+  orientation.  On Windows however, this setting won't take effect until 
+  the printer dialog is shown (using QPrinter::setup() ).
 
   \sa orientation()
 */
