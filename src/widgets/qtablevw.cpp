@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#42 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#42 $");
 
 
 const int sbDim = 16;
@@ -903,8 +903,10 @@ void QTableView::setAutoUpdate( bool enable )
     if ( (bool)doUpdate == enable )
 	return;
     doUpdate = enable;
-    if ( doUpdate )
+    if ( doUpdate ) {
 	showOrHideScrollBars();
+	updateScrollBars();
+    }
 }
 
 
