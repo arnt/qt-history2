@@ -3,6 +3,8 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <qkeycode.h>
+#include <qbitmap.h>
+#include <qdatetime.h>
 
 class Tiles : public QWidget {
 public:
@@ -37,6 +39,12 @@ Tiles::Tiles()
     p.drawLine( t.rect().topLeft(), t.rect().bottomRight() );
     p.drawLine( t.rect().bottomLeft(), t.rect().topRight() );
     p.end();
+
+#if 1
+    QBitmap mask(t.size());
+    mask.fill(color1);
+    t.setMask(mask);
+#endif
 }
 
 void Tiles::paintEvent( QPaintEvent * )
@@ -45,9 +53,33 @@ void Tiles::paintEvent( QPaintEvent * )
     p.drawTiledPixmap( 30, 40, width()-60, height()-80, t, xoff, yoff );
 }
 
+
+int timeIt( const QPixmap &tile )
+{
+    QPixmap buf( 1024, 1024 );
+    buf.fill( white );
+    QApplication::syncX();
+    QTime t;
+    t.start();
+    QPainter p;
+    p.begin(&buf);
+    for ( int i=0; i<100; i++ ) {
+	p.drawTiledPixmap( 10, 10, 1000, 1000, tile );
+    }
+    p.end();
+    QApplication::syncX();
+    return t.elapsed();
+}
+
 void Tiles::keyPressEvent( QKeyEvent *e )
 {
     switch ( e->key() ) {
+	case Key_T: {
+	    QString s;
+	    s.sprintf("TIME = %d", timeIt(t));
+	    setCaption( s );
+	    }
+	    break;
 	case Key_Left:
 	    xoff--; break;
 	case Key_Right:
@@ -59,7 +91,7 @@ void Tiles::keyPressEvent( QKeyEvent *e )
 	default:
 	    return;
     }
-    update();
+    repaint(FALSE);
 }
 
 
