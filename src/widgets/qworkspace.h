@@ -80,7 +80,7 @@ private:
     void hideMaximizeControls();
     void layoutIcons();
     QWorkspaceData* d;
-    void activateClient( QWidget* w, bool change_focus = FALSE);
+    void activateClient( QWidget* w, bool change_focus = TRUE );
     void showClient( QWidget* w);
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);

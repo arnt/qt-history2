@@ -286,6 +286,12 @@ private:
 };
 
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QGuardedPtr<QWorkspaceChildTitleBar>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QWorkspaceChild : public QFrame
 {
     Q_OBJECT
@@ -825,8 +831,6 @@ void QWorkspace::showMaximizeControls()
 				    BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
 
-//     d->maxcontrols->move( b->mapToParent(b->rect().bottomRight())
-// 			  - QPoint(4 + d->maxcontrols->width(), 4 + d->maxcontrols->height() ) );
     if ( d->controlId == -1 )
 	d->controlId = b->insertItem( d->maxcontrols, -1, b->count() );
     if ( d->active && d->menuId == -1 ) {
@@ -1027,7 +1031,7 @@ void QWorkspace::tile()
 	    rows++;
     }
     int add = cols * rows - n;
-    bool used[ cols*rows ];
+    bool* used = new bool[ cols*rows ];
     for ( int i = 0; i < rows*cols; i++ )
 	used[i] = FALSE;
 
@@ -1053,6 +1057,7 @@ void QWorkspace::tile()
 	    }
 	}
     }
+    delete [] used;
 }
 
 
@@ -1836,7 +1841,7 @@ void QWorkspaceChild::doMove()
     moveOffset = mapFromGlobal( QCursor::pos() );
     invertedMoveOffset = rect().bottomRight() - moveOffset;
     grabMouse( arrowCursor );
-    grabKeyboard();
+    grabKeyboard();	
 }
 
 #include "qworkspace.moc"
