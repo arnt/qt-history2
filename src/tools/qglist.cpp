@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#10 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#10 $";
 #endif
 
 
@@ -373,7 +373,7 @@ int QGList::findRef( GCI d, bool fromStart )	// find exact item in list
     }
     if ( n )					// item was found
 	curNode = n;
-    return n ? curIndex=index : -1;		// return position of item
+    return n ? (int)(curIndex=index) : -1;	// return position of item
 }
 
 int QGList::find( GCI d, bool fromStart )	// find equal item in list
@@ -394,7 +394,7 @@ int QGList::find( GCI d, bool fromStart )	// find equal item in list
     }
     if ( n )					// item was found
 	curNode = n;
-    return n ? curIndex=index : -1;		// return position of item
+    return n ? (int)(curIndex=index) : -1;	// return position of item
 }
 
 uint QGList::containsRef( GCI d )		// get number of exact matches

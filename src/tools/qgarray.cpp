@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#11 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#11 $";
 #endif
 
 
@@ -329,7 +329,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 	}
 	ii = i/sz;
     }
-    return i<p->len ? ii : -1;
+    return i<p->len ? (int)ii : -1;
 }
 
 int QGArray::contains( const char *d, uint sz ) const
