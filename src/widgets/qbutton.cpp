@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#103 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#103 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -822,4 +822,13 @@ void QButton::enabledChange( bool e )
     if ( !e )
 	setDown( FALSE );
     QWidget::enabledChange( e );
+}
+
+
+/*!  if this is a toggle button, toggles it. */
+
+void QButton::toggle()
+{
+    if ( isToggleButton() )
+	 setOn( !isOn() );
 }
