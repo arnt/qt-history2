@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -562,7 +562,7 @@ void QApplication::create_xim()
 	    }
 
 	    // qDebug("QApplication: using im style %lx", qt_xim_style);
-	    XFree( styles );
+	    XFree( (char *)styles );
 	}
 
 	if ( qt_xim_style ) {
@@ -1006,7 +1006,7 @@ static bool qt_set_desktop_properties()
 				False, AnyPropertyType, &type, &format, &nitems,
 				&after,  (unsigned char**)&data );
     if ( data )
-	XFree(  (unsigned char*)data );
+	XFree( (char *)data );
     if ( e != Success || !nitems )
 	return FALSE;
 
@@ -1021,7 +1021,7 @@ static bool qt_set_desktop_properties()
 	    offset += nitems / 4;
 	}
 
-	XFree( (unsigned char *) data );
+	XFree( (char *)data );
     }
 
     QDataStream d( properties.buffer(), IO_ReadOnly );
@@ -1095,7 +1095,7 @@ static void qt_set_input_encoding()
     if ( input_mapper->mibEnum() == 11 ) // 8859-8
 	input_mapper = QTextCodec::codecForName( "ISO 8859-8-I");
     if( data )
-	XFree( (unsigned char *) data );
+	XFree( (char *)data );
 }
 
 // set font, foreground and background from x11 resources. The
@@ -1652,7 +1652,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			i++;
 		    }
 
-		    XFree(stdcmap);
+		    XFree( (char *)stdcmap );
 		}
 
 		if (QPaintDevice::x_appcolormap == 0)
