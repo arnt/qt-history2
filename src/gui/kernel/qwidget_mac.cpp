@@ -783,7 +783,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
 
-    if (type == Qt::ToolTip)
+    if (type == Qt::Overlay)
         flags |= Qt::FramelessWindowHint;
 
     bool customize =  (flags & (
@@ -870,7 +870,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             wclass = kModalWindowClass;
         else if(q->testAttribute(Qt::WA_ShowModal))
             wclass = kMovableModalWindowClass;
-        else if(type == Qt::ToolTip)
+        else if(type == Qt::Overlay)
             wclass = kHelpWindowClass;
         else if(tool
                 || (dialog && parentWidget && !parentWidget->window()->windowType() == Qt::Desktop))

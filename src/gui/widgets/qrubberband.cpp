@@ -83,7 +83,7 @@ QStyleOption QRubberBandPrivate::getStyleOption() const
     window only partially opaque.
 */
 QRubberBand::QRubberBand(Shape s, QWidget *p) :
-    QWidget(*new QRubberBandPrivate, p, Qt::WType_TopLevel | Qt::WStyle_ToolTip)
+    QWidget(*new QRubberBandPrivate, p, Qt::Overlay)
 {
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);

@@ -160,7 +160,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (!style)
             qErrnoWarning("QWidget::create: GetWindowLong failed");
         topLevel = false; // #### needed for some IE plugins??
-    } else if (popup || type == Qt::ToolTip) {
+    } else if (popup || type == Qt::Overlay) {
         style = WS_POPUP;
     } else if (!topLevel) {
         if (!customize)
@@ -303,7 +303,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (!id)
             qErrnoWarning("QWidget::create: Failed to create window");
         d->setWinId(id);
-        if ((flags & Qt::WindowStaysOnTopHint) || type == Qt::ToolTip)
+        if ((flags & Qt::WindowStaysOnTopHint) || type == Qt::Overlay)
             SetWindowPos(id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE);
     } else {                                        // create child widget
         QT_WA({
@@ -1196,7 +1196,7 @@ void QWidgetPrivate::show_sys()
             sm = SW_SHOWMAXIMIZED;
     }
     if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup)
-        || q->windowType() == Qt::ToolTip)
+        || q->windowType() == Qt::Overlay)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->winId(), sm);
@@ -1241,7 +1241,7 @@ void QWidget::show_sys()
         d->topData()->showMode = 0; // reset
     }
 
-    if ((windowType() == Qt::Tool) || (windowType() == Qt::Popup) || windowType() == Qt::ToolTip)
+    if ((windowType() == Qt::Tool) || (windowType() == Qt::Popup) || windowType() == Qt::Overlay)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(winId(), sm);

@@ -609,9 +609,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     tool window can be decorated with a somewhat lighter frame. It can
     also be combined with \c WStyle_NoBorder.
 
-    \value WStyle_ToolTip makes the window a tooltip window (typically
-    borderless with black text on a yellow background).
-
     \value WStyle_StaysOnTop  informs the window system that the
     window should stay on top of all other windows. Note that on some
     window managers on X11 you also have to pass \c WX11BypassWM for

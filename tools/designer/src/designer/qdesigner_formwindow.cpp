@@ -124,7 +124,7 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
                 .arg(m_editor->fileName().isEmpty() ? m_editor->windowTitle() : m_editor->fileName()),
                 QMessageBox::Information,
                 QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::WMacSheet);
+                QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::Sheet);
         box.setButtonText(QMessageBox::Yes, m_editor->fileName().isEmpty() ? tr("Save...") : tr("Save"));
         box.setButtonText(QMessageBox::No, tr("Don't Save"));
         switch (box.exec()) {

@@ -822,7 +822,7 @@ WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widg
     m_dom_ui = new DomUI();
     m_dom_ui->setElementWidget(root_dom_widget);
 
-    QLabel *label = new QLabel(0, Qt::ToolTip);
+    QLabel *label = new QLabel(0, Qt::Overlay);
 
     WidgetBoxResource builder(m_core);
     QWidget *w = builder.createWidget(dom_widget, label);

@@ -184,7 +184,7 @@ public:
         Drawer = 0x00000006 | Window,
         Popup = 0x00000008 | Window,
         Tool = 0x0000000a | Window,
-        ToolTip = 0x0000000c | Window,
+        Overlay = 0x0000000c | Window,
         SplashScreen = 0x0000000e | Window,
         Desktop = 0x00000010 | Window,
         SubWindow =  0x00000012,
@@ -239,7 +239,6 @@ public:
         WMacDrawer              = Drawer,
 
         WStyle_Splash           = SplashScreen,
-        WStyle_ToolTip          = ToolTip,
 
         WNoAutoErase           = 0,
         WRepaintNoErase        = 0,
