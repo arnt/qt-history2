@@ -6419,6 +6419,20 @@ Qt::HANDLE QWidget::handle() const
 }
 #endif
 
+
+
+#ifndef QT_NO_STYLE
+void QWidget::styleChange(QStyle&) { }
+#endif
+void QWidget::enabledChange(bool) { }  // compat
+#ifndef QT_NO_PALETTE
+void QWidget::paletteChange(const QPalette &) { }  // compat
+#endif
+void QWidget::fontChange(const QFont &) { }  // compat
+void QWidget::windowActivationChange(bool) { }  // compat
+void QWidget::languageChange() { }  // compat
+
+
 /*!
     \property QWidget::visibleRect
     \brief holds the widget's visible rectangle

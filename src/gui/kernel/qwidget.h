@@ -742,15 +742,15 @@ private:
 
 protected:
 #ifndef QT_NO_STYLE
-    virtual void styleChange(QStyle&) { } // compat
+    virtual void styleChange(QStyle&); // compat
 #endif
-    virtual void enabledChange(bool) { }  // compat
+    virtual void enabledChange(bool);  // compat
 #ifndef QT_NO_PALETTE
-    virtual void paletteChange(const QPalette &) { }  // compat
+    virtual void paletteChange(const QPalette &);  // compat
 #endif
-    virtual void fontChange(const QFont &) { }  // compat
-    virtual void windowActivationChange(bool) { }  // compat
-    virtual void languageChange() { }  // compat
+    virtual void fontChange(const QFont &); // compat
+    virtual void windowActivationChange(bool);  // compat
+    virtual void languageChange();  // compat
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
