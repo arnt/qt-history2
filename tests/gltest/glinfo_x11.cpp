@@ -144,8 +144,7 @@ const char * visual_class_name(int cls)
 
 void get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
 			struct visual_attribs *attribs)
-{
- 
+{ 
     memset(attribs, 0, sizeof(struct visual_attribs));
  
     attribs->id = vInfo->visualid;
@@ -184,6 +183,7 @@ void get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
     attribs->numMultisample = 0;
  
 #if defined(GLX_EXT_visual_rating)
+    const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
     if (ext && strstr(ext, "GLX_EXT_visual_rating")) {
         glXGetConfig(dpy, vInfo, GLX_VISUAL_CAVEAT_EXT, &attribs->visualCaveat);
     }
