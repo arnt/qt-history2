@@ -2296,8 +2296,10 @@ int QDateTimeEditPrivate::maxChange(QDateTimeEditPrivate::Section s)
 
         // Date. unit is day
     case DaySection: return 30;
+    case MonthShortNameSection:
     case MonthSection: return 365 - 31;
     case YearSection: return (7999 - 1753) * 365;
+    case YearTwoDigitsSection: return 100 * 365;
 
     default: break;
     }
