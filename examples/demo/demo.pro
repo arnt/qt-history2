@@ -57,7 +57,7 @@ canvas {
     QT     += canvas
 }
 
-opengl {
+contains(QT_CONFIG, opengl) {
     HEADERS 	+=opengl/glworkspace.h \
 		  opengl/glcontrolwidget.h \
 		  opengl/gltexobj.h \
