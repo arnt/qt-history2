@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#35 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#36 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -304,7 +304,7 @@ bool operator==( const QMap<QString, QString>, const QMap<QString, QString> )
   QXmlErrorHandler interface.
 
   \module XML
-  
+
   The XML subsystem constructs an instance of this class when it
   detects error, and any interested application can access details
   about the error using lineNumber(), fileName() and so on.
@@ -872,16 +872,19 @@ QXmlInputSource::QXmlInputSource()
     init();
 }
 
-/*!
-  Constructs an input source and gets the data from \a dev.
+/*!  Constructs an input source and gets the data from \a dev. If \a
+  dev is not open, it is opened in read-only mode. If \a dev is a null
+  pointer or it is not possible to read from the device, the input
+  source will contain no data.
 
-  \sa setData()
+  \sa setData() QIODevice
 */
 QXmlInputSource::QXmlInputSource( QIODevice *dev )
 {
     init();
     rawData = new QByteArray;
-    *rawData = dev->readAll();
+    if ( dev && ( dev->isOpen() || dev->open( IO_ReadOnly ) ) )
+	*rawData = dev->readAll();
 }
 
 /*! \obsolete
