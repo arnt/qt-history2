@@ -1314,7 +1314,7 @@ void QTextDocument::clear( bool createEmptyParag )
 
 int QTextDocument::widthUsed() const
 {
-    return wused + border_tolerance;
+    return wused + 2*border_tolerance;
 }
 
 int QTextDocument::height() const
