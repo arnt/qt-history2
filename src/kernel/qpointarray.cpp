@@ -509,7 +509,7 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 //   VanAken / Simar, "A Parametric Elliptical Arc Algorithm"
 //
 static void
-qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, double dyQ, double dxK, double dyK, int m)
+elips(QPointArray& a, double dxP, double dyP, double dxQ, double dyQ, double dxK, double dyK, int m)
 {
 #define PIV2  102944     /* fixed point PI/2 */
 #define TWOPI 411775     /* fixed point 2*PI */
@@ -540,15 +540,18 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
     uy -= r >> (2*m + 3);         /* cancel 6th-order error */
     uy += vy >> (m + 1);          /* cancel 1st-order error */
 
-    int n = offset;
-    for (i = (PIV2 >> (16 - m)); i >= 0; --i) {
-	a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+    const int qn = (PIV2 >> (16 - m));
+    a.resize(qn*4);
+    for (i = 0; i < qn; i++) {
+        a[i] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+        a[qn+i] = QPoint((xJ + vy) >> 16, (yJ - vx) >> 16);
+        a[qn*2+i] = QPoint((xJ - vx) >> 16, (yJ - vy) >> 16);
+        a[qn*3+i] = QPoint((xJ - vy) >> 16, (yJ + vx) >> 16);
 	ux -= vx >> m;
 	vx += ux >> m;
 	uy -= vy >> m;
 	vy += uy >> m;
     }
-    offset = n;
 
 #undef PIV2
 #undef TWOPI
@@ -601,60 +604,26 @@ void QPointArray::makeArc( int x, int y, int w, int h,
     int m = 2;
     int max;
     int q = int(QMAX(QABS(xP-xQ),QABS(yP-yQ)));
-    const int arcexpand = 32; // Needs to be this big.  Poor.
     if ( arc )
-	q *= arcexpand;
+	q *= 2;
     do {
 	m++;
 	max = 4*(1 + (PIV2 >> (16 - m)) );
     } while (max < q && m < 16); // 16 limits memory usage on HUGE arcs
-    resize(max);
-
-    int n = 0;
 
     double inc = 1.0/(1<<m);
 
-    int nquad[4];
-    nquad[0]=0;
+    elips(*this, xP, yP, xQ, yQ, xK, yK, m);
 
-    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
-    nquad[1] = n;
-
-    xP = xQ; yP = yQ;
-    xf.map(x, y+h/2.0, &xQ, &yQ);
-    xf.map(x, y, &xK, &yK);
-    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
-    nquad[2] = n;
-
-    xP = xQ; yP = yQ;
-    xf.map(x+w/2.0, y+h, &xQ, &yQ);
-    xf.map(x, y+h, &xK, &yK);
-    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
-    nquad[3] = n;
-
-    xP = xQ; yP = yQ;
-    xf.map(x+w, y+h/2.0, &xQ, &yQ);
-    xf.map(x+w, y+h, &xK, &yK);
-    qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
+    int n = size();
 
     if ( arc ) {
-	// We could merge the sub-ellipse extraction into the above so
-	// that we didn't generate points we don't need, but this is
-	// clearer, and optimizes for the common case.
 	double da1 = double(a1)*Q_PI / (360*8);
 	double da2 = double(a2)*Q_PI / (360*8);
-	int t = 0;
-	while ( da1 > Q_PI/2 ) {
-	    da1 -= Q_PI/2;
-	    t++;
-	}
-
-	int i = nquad[t]+int(da1/inc+0.5);
+	int i = int(da1/inc+0.5);
 	int k = int(da2/inc+0.5);
 	QPointArray r(k);
 	int j = 0;
-
-	// This is rather poor.
 
 	if ( rev ) {
 	    while ( k-- )
@@ -667,7 +636,8 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 	}
 	*this = r;
     } else {
-	resize(n);
+	resize(n+1);
+	setPoint(n,point(0));
     }
 #undef PIV2
 }
