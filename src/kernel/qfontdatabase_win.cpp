@@ -227,8 +227,13 @@ void populate_database(const QString& fam)
                 QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
-        EnumFontFamiliesExA( dummy.handle(), &lf,
+#if 0        
+	EnumFontFamiliesExA( dummy.handle(), &lf,
             (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
+#else
+	EnumFontFamiliesA( dummy.handle(), 0, 
+	    (FONTENUMPROCA)storeFont, (LPARAM)db );
+#endif
     }
 #endif
 
