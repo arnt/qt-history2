@@ -694,6 +694,8 @@ sub public {
 	     || $file =~ /^examples\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any))$/
 	     # all the junk from mpegplay in the kiosk example
 	     || $file =~ /^examples\/kiosk\/.+\..+$/
+	     || $file =~ /^examples\/kiosk\/README.*$/
+	     || $file =~ /^examples\/kiosk\/tags$/
 	     # all the launcher files
 	     || $file =~ /^examples\/launcher\/.*(\.im|\.pl|perpetual_launch|start_demo)$/
 
