@@ -14,8 +14,12 @@
 #include <qvaluelist.h>
 #include <qvaluestack.h>
 #include <qobject.h>
+#include <qdict.h>
+#include <qtextstream.h>
 
 #include <limits.h>
+
+//#define DEBUG_COLLECTION
 
 class QTextEditDocument;
 class QTextEditCommand;
@@ -194,7 +198,7 @@ public:
     bool setSelectionEnd( int id, QTextEditCursor *cursor );
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
-    void setFormat( int id, QTextEditFormat *f );
+    void setFormat( int id, QTextEditFormat *f, int flags );
     QTextEditParag *selectionStart( int id );
     QTextEditParag *selectionEnd( int id );
 
@@ -247,41 +251,10 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextEditFormat
-{
-public:
-    QTextEditFormat( const QFont &f, const QColor &c );
-    QTextEditFormat( const QTextEditFormat &fm );
-    QColor color() const;
-    QFont font() const;
-    int minLeftBearing() const;
-    int minRightBearing() const;
-    int width( const QChar &c ) const;
-    int height() const;
-    int ascent() const;
-    int descent() const;
-
-private:
-    const QFontMetrics *fontMetrics() const;
-    QTextEditFormat() {}
-
-private:
-    QFont fn;
-    QColor col;
-    QFontMetrics *fm;
-    int leftBearing, rightBearing;
-    int widths[ 65536 ];
-    int hei, asc, dsc;
-
-};
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 class QTextEditString
 {
 public:
-    struct Char
-    {
+    struct Char {
     public:
 	Char() : format( 0 ), lineStart( 0 ) {}
 	~Char() { format = 0; }
@@ -307,7 +280,7 @@ public:
     void truncate( int index );
     void remove( int index, int len );
 
-    void setFormat( int index, QTextEditFormat *f, QTextEditFormatCollection *collection );
+    void setFormat( int index, QTextEditFormat *f, bool useCollection );
 
 private:
     QArray<Char> data;
@@ -411,7 +384,7 @@ public:
     int lastLengthForCompletion() const;
     void setLastLengthFotCompletion( int l );
 
-    void setFormat( int index, int len, QTextEditFormat *f, bool useCollection );
+    void setFormat( int index, int len, QTextEditFormat *f, bool useCollection, int flags = -1 );
 
     int leftIndent() const;
     int listDepth() const;
@@ -508,6 +481,69 @@ protected:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+class QTextEditFormat
+{
+    friend class QTextEditFormatCollection;
+    
+public:
+    enum Flags {
+	Bold = 1,
+	Italic = 2,
+	Underline = 4,
+	Family = 8,
+	Size = 16,
+	Color = 32,
+	Font = Bold | Italic | Underline | Family | Size,
+	Format = Font | Color
+    };
+    
+    QTextEditFormat( const QFont &f, const QColor &c );
+    QTextEditFormat( const QTextEditFormat &fm );
+    QColor color() const;
+    QFont font() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
+    int width( const QChar &c ) const;
+    int height() const;
+    int ascent() const;
+    int descent() const;
+
+    void setBold( bool b );
+    void setItalic( bool b );
+    void setUnderline( bool b );
+    void setFamily( const QString &f );
+    void setPointSize( int s );
+    void setFont( const QFont &f );
+    void setColor( const QColor &c );
+
+    bool operator==( const QTextEditFormat &f ) const;    
+    QTextEditFormatCollection *parent() const;
+    QString key() const;
+    
+    void addRef();
+    void removeRef();
+    
+private:
+    void update();
+    void generateKey();
+    const QFontMetrics *fontMetrics() const;
+    QTextEditFormat() {}
+
+private:
+    QFont fn;
+    QColor col;
+    QFontMetrics *fm;
+    int leftBearing, rightBearing;
+    int widths[ 65536 ];
+    int hei, asc, dsc;
+    QTextEditFormatCollection *collection;
+    int ref;
+    QString k;
+    
+};
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 class QTextEditFormatCollection
 {
 public:
@@ -516,11 +552,16 @@ public:
     void setDefaultFormat( QTextEditFormat *f );
     QTextEditFormat *defaultFormat() const;
     QTextEditFormat *format( QTextEditFormat *f );
-    QTextEditFormat *format( const QFont &f, const QColor &c );
-
+    QTextEditFormat *format( QTextEditFormat *of, QTextEditFormat *nf, int flags );
+    void remove( QTextEditFormat *f );
+    
 private:
-    QTextEditFormat *defFormat;
-
+    QTextEditFormat *defFormat, *lastFormat;
+    QDict<QTextEditFormat> cKey;
+    QTextEditFormat *cres;
+    QString kof, knf;
+    int cflags;
+    
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -729,13 +770,15 @@ inline QTextEditFormat::QTextEditFormat( const QFont &f, const QColor &c )
     dsc = fm->descent();
     for ( int i = 0; i < 65536; ++i )
 	widths[ i ] = 0;
+    generateKey();
+    addRef();
 }
 
 inline QTextEditFormat::QTextEditFormat( const QTextEditFormat &f )
 {
     fn = f.fn;
     col = f.col;
-    fm = f.fm;
+    fm = new QFontMetrics( fn );
     leftBearing = f.leftBearing;
     rightBearing = f.rightBearing;
     for ( int i = 0; i < 65536; ++i )
@@ -743,6 +786,21 @@ inline QTextEditFormat::QTextEditFormat( const QTextEditFormat &f )
     hei = f.hei;
     asc = f.asc;
     dsc = f.dsc;
+    generateKey();
+    addRef();
+}
+
+inline void QTextEditFormat::update()
+{
+    *fm = QFontMetrics( fn );
+    leftBearing = fm->minLeftBearing();
+    rightBearing = fm->minRightBearing();
+    hei = fm->height();
+    asc = fm->ascent();
+    dsc = fm->descent();
+    for ( int i = 0; i < 65536; ++i )
+	widths[ i ] = 0;
+    generateKey();
 }
 
 inline const QFontMetrics *QTextEditFormat::fontMetrics() const
@@ -795,6 +853,52 @@ inline int QTextEditFormat::ascent() const
 inline int QTextEditFormat::descent() const
 {
     return dsc;
+}
+
+inline bool QTextEditFormat::operator==( const QTextEditFormat &f ) const 
+{
+    return k == f.k;
+}
+    
+inline QTextEditFormatCollection *QTextEditFormat::parent() const
+{
+    return collection;
+}
+
+inline void QTextEditFormat::addRef()
+{
+    ref++;
+#ifdef DEBUG_COLLECTION
+    qDebug( "add ref of '%s' to %d (%p)", k.latin1(), ref, this ); 
+#endif
+}
+
+inline void QTextEditFormat::removeRef()
+{
+    ref--;
+    if ( !collection )
+	return;
+#ifdef DEBUG_COLLECTION
+    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this ); 
+#endif
+    if ( ref == 0 )
+	collection->remove( this );
+}
+
+inline QString QTextEditFormat::key() const
+{
+    return k;
+}
+
+inline void QTextEditFormat::generateKey()
+{
+    QTextOStream ts( &k );
+    ts << fn.pointSize()
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family();
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

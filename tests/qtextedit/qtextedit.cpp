@@ -86,9 +86,9 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QTextEditString::Char *chr = 0;
     QSize s( doc->firstParag()->rect().size() );
 
-    p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(), 
+    p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
 		 colorGroup().color( QColorGroup::Base ) );
-    
+
     if ( !doubleBuffer ) {
 	doubleBuffer = bufferPixmap( s );
 	if ( painter.isActive() )
@@ -261,10 +261,10 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 			 parag->rect().height(), colorGroup().brush( QColorGroup::Base ) );
 	parag = parag->next();
     }
-    
+
     parag = doc->lastParag();
     if ( parag->rect().y() + parag->rect().height() - contentsY() < visibleHeight() )
-	p->fillRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(), 
+	p->fillRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(),
 		     visibleHeight() - ( parag->rect().y() + parag->rect().height() ),
 		     colorGroup().brush( QColorGroup::Base ) );
 }
@@ -391,38 +391,27 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    } else if ( e->state() & AltButton && !doc->syntaxHighlighter() ) { // ############ just for testing
 		switch ( e->key() ) {
 		case Key_B: {
-		    QFont font = currentFormat->font();
-		    QColor col = currentFormat->color();
-		    font.setBold( !font.bold() );
-		    setFormat( font, col );
+		    setBold( !currentFormat->font().bold() );
 		} break;
 		case Key_I: {
-		    QFont font = currentFormat->font();
-		    QColor col = currentFormat->color();
-		    font.setItalic( !font.italic() );
-		    setFormat( font, col );
+		    setItalic( !currentFormat->font().italic() );
 		} break;
 		case Key_U: {
-		    QFont font = currentFormat->font();
-		    QColor col = currentFormat->color();
-		    font.setUnderline( !font.underline() );
-		    setFormat( font, col );
+		    setUnderline( !currentFormat->font().underline() );
 		} break;
 		case Key_F: {
 		    QFont font = currentFormat->font();
 		    bool ok;
 		    font = QFontDialog::getFont( &ok, font, this );
 		    if ( ok ) {
-			QColor col = currentFormat->color();
-			setFormat( font, col );
+			setFont( font );
 		    }
 		} break;
 		case Key_C: {
 		    QColor col = currentFormat->color();
 		    col = QColorDialog::getColor( col, this );
 		    if ( col.isValid() ) {
-			QFont font = currentFormat->font();
-			setFormat( font, col );
+			setColor( col );
 		    }
 		} break;
 		case Key_L: {
@@ -1093,12 +1082,11 @@ bool QTextEdit::focusNextPrevChild( bool )
     return FALSE;
 }
 
-void QTextEdit::setFormat( const QFont &font, const QColor &color )
+void QTextEdit::setFormat( QTextEditFormat *f, int flags )
 {
-    currentFormat = doc->formatCollection()->format( font, color );
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	drawCursor( FALSE );
-	doc->setFormat( QTextEditDocument::Standard, currentFormat );
+	doc->setFormat( QTextEditDocument::Standard, f, flags );
 
 	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
 	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
@@ -1124,6 +1112,10 @@ void QTextEdit::setFormat( const QFont &font, const QColor &color )
 	
 	repaintChanged();
 	drawCursor( TRUE );
+    }
+    if ( currentFormat && currentFormat->key() != f->key() ) {
+	currentFormat->removeRef();
+	currentFormat = doc->formatCollection()->format( f );
     }
 }
 
@@ -1154,7 +1146,63 @@ void QTextEdit::setParagType( int t )
 
 void QTextEdit::updateCurrentFormat()
 {
-    currentFormat = cursor->parag()->at( cursor->index() )->format;
+    int i = cursor->index();
+    if ( i > 0 )
+	--i;
+    if ( currentFormat->key() != cursor->parag()->at( i )->format->key() && !doc->syntaxHighlighter() ) {
+	if ( currentFormat )
+	    currentFormat->removeRef();
+	currentFormat = doc->formatCollection()->format( cursor->parag()->at( i )->format );
+    }
+}
+
+void QTextEdit::setItalic( bool b )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setItalic( b );
+    setFormat( &f, QTextEditFormat::Italic );
+}
+
+void QTextEdit::setBold( bool b )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setBold( b );
+    setFormat( &f, QTextEditFormat::Bold );
+}
+
+void QTextEdit::setUnderline( bool b )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setUnderline( b );
+    setFormat( &f, QTextEditFormat::Underline );
+}
+
+void QTextEdit::setFamily( const QString &f_ )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setFamily( f_ );
+    setFormat( &f, QTextEditFormat::Family );
+}
+
+void QTextEdit::setPointSize( int s )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setPointSize( s );
+    setFormat( &f, QTextEditFormat::Size );
+}
+
+void QTextEdit::setColor( const QColor &c )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setColor( c );
+    setFormat( &f, QTextEditFormat::Color );
+}
+
+void QTextEdit::setFont( const QFont &f_ )
+{
+    QTextEditFormat f( *currentFormat );
+    f.setFont( f_ );
+    setFormat( &f, QTextEditFormat::Font );
 }
 
 void QTextEdit::UndoRedoInfo::clear()

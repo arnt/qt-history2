@@ -38,8 +38,16 @@ public:
 
     void indent();
 
+    void setItalic( bool b );
+    void setBold( bool b );
+    void setUnderline( bool b );
+    void setFamily( const QString &f );
+    void setPointSize( int s );
+    void setColor( const QColor &c );
+    void setFont( const QFont &f );
+    
 protected:
-    void setFormat( const QFont &font, const QColor &color );
+    void setFormat( QTextEditFormat *f, int flags );
     void setParagType( int );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void keyPressEvent( QKeyEvent *e );
@@ -115,7 +123,7 @@ private:
     QTextEditFormat *currentFormat;
     QPainter painter;
     QPixmap *doubleBuffer;
-    
+
 };
 
 inline QTextEditDocument *QTextEdit::document() const

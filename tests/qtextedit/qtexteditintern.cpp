@@ -919,7 +919,7 @@ QString QTextEditDocument::selectedText( int id ) const
     return buffer;
 }
 
-void QTextEditDocument::setFormat( int id, QTextEditFormat *f )
+void QTextEditDocument::setFormat( int id, QTextEditFormat *f, int flags )
 {
     QMap<int, Selection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
@@ -938,7 +938,7 @@ void QTextEditDocument::setFormat( int id, QTextEditFormat *f )
     while ( p ) {
 	p->setFormat( p->selectionStart( id ),
 		      p->selectionEnd( id ) - p->selectionStart( id ),
-		      f, TRUE );
+		      f, TRUE, flags );
 	if ( p == endParag )
 	    break;
 	p = p->next();
@@ -1139,9 +1139,10 @@ void QTextEditString::remove( int index, int len )
     cache.remove( index, len );
 }
 
-void QTextEditString::setFormat( int index, QTextEditFormat *f, QTextEditFormatCollection * )
+void QTextEditString::setFormat( int index, QTextEditFormat *f, bool useCollection )
 {
-    // ############ use formatcollection here
+    if ( useCollection && data[ index ].format )
+	data[ index ].format->removeRef();
     data[ index ].format = f;
 }
 
@@ -1389,7 +1390,7 @@ QTextEditString::Char *QTextEditParag::lineStartOfLine( int line, int *index ) c
     return 0;
 }
 
-void QTextEditParag::setFormat( int index, int len, QTextEditFormat *f, bool useCollection )
+void QTextEditParag::setFormat( int index, int len, QTextEditFormat *f, bool useCollection, int flags )
 {
     if ( index < 0 )
 	index = 0;
@@ -1404,7 +1405,7 @@ void QTextEditParag::setFormat( int index, int len, QTextEditFormat *f, bool use
     QTextEditFormat *of;
     for ( int i = 0; i < len; ++i ) {
 	of = str->at( i + index ).format;
-	if ( !changed && f != of )
+	if ( !changed && f->key() != of->key() )
 	    changed = TRUE;
 	if ( invalid == -1 &&
 	     ( f->font().family() != of->font().family() ||
@@ -1413,7 +1414,14 @@ void QTextEditParag::setFormat( int index, int len, QTextEditFormat *f, bool use
 	       f->font().italic() != of->font().italic() ) ) {
 	    invalidate( 0 );
 	}
-	str->setFormat( i + index, f, fc );
+	if ( flags == -1 || flags == QTextEditFormat::Format || !fc ) {
+	    if ( fc )
+		f = fc->format( f );
+	    str->setFormat( i + index, f, useCollection );
+	} else {
+	    QTextEditFormat *fm = fc->format( of, f, flags );
+	    str->setFormat( i + index, fm, useCollection );
+	}
     }
 }
 
@@ -1637,15 +1645,158 @@ QTextEditFormatCollection::QTextEditFormatCollection()
 {
     defFormat = new QTextEditFormat( QApplication::font(),
 				     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+    lastFormat = cres = 0;
+    cflags = -1;
+    cKey.setAutoDelete( TRUE );
 }
 
 QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *f )
 {
-    QTextEditFormat *fm = new QTextEditFormat( *f );
-    return fm;
+    if ( f->parent() == this ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', best case!", f->key().latin1() );
+#endif
+	lastFormat = f;
+	lastFormat->addRef();
+	return lastFormat;
+    }
+    
+    if ( f == lastFormat || ( lastFormat && f->key() == lastFormat->key() ) ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', good case!", f->key().latin1() );
+#endif
+	lastFormat->addRef();
+	return lastFormat;
+    }
+
+    QTextEditFormat *fm = cKey.find( f->key() );
+    if ( fm ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "need '%s', normal case!", f->key().latin1() );
+#endif
+	lastFormat = fm;
+	lastFormat->addRef();
+	return lastFormat;
+    }
+    
+#ifdef DEBUG_COLLECTION
+    qDebug( "need '%s', worst case!", f->key().latin1() );
+#endif
+    lastFormat = new QTextEditFormat( *f );
+    lastFormat->collection = this;
+    cKey.insert( lastFormat->key(), lastFormat );
+    return lastFormat;
 }
 
-QTextEditFormat *QTextEditFormatCollection::format( const QFont &f, const QColor &c )
+QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEditFormat *nf, int flags )
 {
-    return new QTextEditFormat( f, c );
+    if ( cres && kof == of->key() && knf == nf->key() && cflags == flags ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, best case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	cres->addRef();
+	return cres;
+    }
+    
+    cres = new QTextEditFormat( *of );
+    kof = of->key();
+    knf = nf->key();
+    cflags = flags;
+    if ( flags & QTextEditFormat::Bold )
+	cres->fn.setBold( nf->fn.bold() );
+    if ( flags & QTextEditFormat::Italic )
+	cres->fn.setItalic( nf->fn.italic() );
+    if ( flags & QTextEditFormat::Underline )
+	cres->fn.setUnderline( nf->fn.underline() );
+    if ( flags & QTextEditFormat::Family )
+	cres->fn.setFamily( nf->fn.family() );
+    if ( flags & QTextEditFormat::Size )
+	cres->fn.setPointSize( nf->fn.pointSize() );
+    if ( flags & QTextEditFormat::Color )
+	cres->col = nf->col;
+    cres->update();
+    
+    QTextEditFormat *fm = cKey.find( cres->key() );
+    if ( !fm ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, worst case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	cres->collection = this;
+	cKey.insert( cres->key(), cres );
+    } else {
+#ifdef DEBUG_COLLECTION
+	qDebug( "mix of '%s' and '%s, good case!", of->key().latin1(), nf->key().latin1() );
+#endif
+	delete cres;
+	cres = fm;
+	cres->addRef();
+    }
+		     		     
+    return cres;
+}
+
+void QTextEditFormatCollection::remove( QTextEditFormat *f )
+{
+    if ( lastFormat == f )
+	lastFormat = 0;
+    if ( cres == f )
+	cres = 0;
+    cKey.remove( f->key() );
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void QTextEditFormat::setBold( bool b )
+{
+    if ( b == fn.bold() )
+	return;
+    fn.setBold( b );
+    update();
+}
+
+void QTextEditFormat::setItalic( bool b )
+{
+    if ( b == fn.italic() )
+	return;
+    fn.setItalic( b );
+    update();
+}
+ 
+void QTextEditFormat::setUnderline( bool b )
+{
+    if ( b == fn.underline() )
+	return;
+    fn.setUnderline( b );
+    update();
+}
+
+void QTextEditFormat::setFamily( const QString &f )
+{
+    if ( f == fn.family() )
+	return;
+    fn.setFamily( f );
+    update();
+}
+
+void QTextEditFormat::setPointSize( int s )
+{
+    if ( s == fn.pointSize() )
+	return;
+    fn.setPointSize( s );
+    update();
+}
+
+void QTextEditFormat::setFont( const QFont &f )
+{
+    if ( f == fn )
+	return;
+    fn = f;
+    update();
+}
+
+void QTextEditFormat::setColor( const QColor &c )
+{
+    if ( c == col )
+	return;
+    col = c;
 }
