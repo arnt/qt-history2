@@ -502,7 +502,8 @@ static Q_INT64 read_int_ascii( QDataStream *s )
 }
 
 /*!
-    \overload QDataStream &QDataStream::operator>>( Q_UINT8 &i )
+    \fn QDataStream &QDataStream::operator>>( Q_UINT8 &i )
+    \overload
 
     Reads an unsigned byte from the stream into \a i, and returns a
     reference to the stream.
@@ -531,7 +532,8 @@ QDataStream &QDataStream::operator>>( Q_INT8 &i )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator>>( Q_UINT16 &i )
+    \fn QDataStream &QDataStream::operator>>( Q_UINT16 &i )
+    \overload
 
     Reads an unsigned 16-bit integer from the stream into \a i, and
     returns a reference to the stream.
@@ -563,7 +565,8 @@ QDataStream &QDataStream::operator>>( Q_INT16 &i )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator>>( Q_UINT32 &i )
+    \fn QDataStream &QDataStream::operator>>( Q_UINT32 &i )
+    \overload
 
     Reads an unsigned 32-bit integer from the stream into \a i, and
     returns a reference to the stream.
@@ -596,7 +599,8 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 }
 
 /*!
-    \overload QDataStream &QDataStream::operator>>( Q_UINT64 &i )
+    \fn QDataStream &QDataStream::operator>>( Q_UINT64 &i )
+    \overload
 
     Reads an unsigned 64-bit integer from the stream, into \a i, and
     returns a reference to the stream.
@@ -638,7 +642,8 @@ QDataStream &QDataStream::operator>>( Q_INT64 &i )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator>>( Q_ULONG &i )
+    \fn QDataStream &QDataStream::operator>>( Q_ULONG &i )
+    \overload
 
     Reads an unsigned integer of the system's word length from the
     stream, into \a i, and returns a reference to the stream.
@@ -834,7 +839,8 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator<<( Q_UINT8 i )
+    \fn QDataStream &QDataStream::operator<<( Q_UINT8 i )
+    \overload
 
     Writes an unsigned byte, \a i, to the stream and returns a
     reference to the stream.
@@ -864,7 +870,8 @@ QDataStream &QDataStream::operator<<( Q_INT8 i )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator<<( Q_UINT16 i )
+    \fn QDataStream &QDataStream::operator<<( Q_UINT16 i )
+    \overload
 
     Writes an unsigned 16-bit integer, \a i, to the stream and returns
     a reference to the stream.
@@ -925,7 +932,8 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
 }
 
 /*!
-    \overload QDataStream &QDataStream::operator<<( Q_UINT64 i )
+    \fn QDataStream &QDataStream::operator<<( Q_UINT64 i )
+    \overload
 
     Writes an unsigned 64-bit integer, \a i, to the stream and returns a
     reference to the stream.
@@ -972,7 +980,8 @@ QDataStream &QDataStream::operator<<( Q_INT64 i )
 }
 
 /*!
-    \overload QDataStream &QDataStream::operator<<( Q_ULONG i )
+    \fn QDataStream &QDataStream::operator<<( Q_ULONG i )
+    \overload
 
     Writes an unsigned integer \a i, of the system's word length, to
     the stream and returns a reference to the stream.
@@ -1008,7 +1017,8 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
 
 
 /*!
-    \overload QDataStream &QDataStream::operator<<( Q_UINT32 i )
+    \fn QDataStream &QDataStream::operator<<( Q_UINT32 i )
+    \overload
 
     Writes an unsigned integer, \a i, to the stream as a 32-bit
     unsigned integer (Q_UINT32). Returns a reference to the stream.

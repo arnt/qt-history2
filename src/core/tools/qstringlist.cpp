@@ -17,35 +17,80 @@
 #include "qregexp.h"
 #include "qalgorithms.h"
 
+/*! \typedef QStringListIterator
+    \relates QStringList
+
+    The QStringListIterator typedef provides a Java-style const
+    iterator for QStringList.
+
+    QStringList provides both \l{Java-style iterators} and
+    \l{STL-style iterators}. The Java-style const iterator is simply
+    a typedef for QListIterator<QString>.
+
+    \sa QStringListMutableIterator, QStringList::const_iterator
+*/
+
+/*! \typedef QStringListMutableIterator
+    \relates QStringList
+
+    The QStringListIterator typedef provides a Java-style non-const
+    iterator for QStringList.
+
+    QStringList provides both \l{Java-style iterators} and
+    \l{STL-style iterators}. The Java-style non-const iterator is
+    simply a typedef for QListMutableIterator<QString>.
+
+    \sa QStringListIterator, QStringList::iterator
+*/
+
 /*!
-    \class QStringList qstringlist.h
-    \reentrant
+    \class QStringList
     \brief The QStringList class provides a list of strings.
 
     \ingroup tools
     \ingroup shared
     \ingroup text
     \mainclass
+    \reentrant
 
-    It is used to store and manipulate strings that logically belong
-    together. Essentially QStringList is a QList of QString
-    objects. Unlike QStrList, which stores pointers to characters,
-    QStringList holds real QString objects. It is the class of choice
-    whenever you work with Unicode strings. QStringList is part of the
-    \link qtl.html Qt Template Library\endlink.
+    QStringList inherits from QList\<QString\> and extends it with
+    four functions: find(), join(), replace(), and sort().
 
-    Like QString itself, QStringList objects are implicitly shared, so
-    passing them around as value-parameters is both fast and safe.
+    Like QList and QString, QStringList is \l{implicitly shared}.
+    Passing string lists around as value parameters is both fast and
+    safe.
 
     Strings can be added to a list using append(), operator+=() or
-    operator<<(), e.g.
+    operator<<(), for example:
     \code
-    QStringList fonts;
-    fonts.append("Times");
-    fonts += "Courier";
-    fonts += "Courier New";
-    fonts << "Helvetica [Cronyx]" << "Helvetica [Adobe]";
+        QStringList fonts;
+        fonts.append("Times");
+        fonts += "Courier";
+        fonts += "Courier New";
+        fonts << "Helvetica [Cronyx]" << "Helvetica [Adobe]";
     \endcode
+
+    To iterate over a string, you can either use index positions or
+    QList's Java-style and STL-style iterator types. Here are
+    examples of each option:
+
+    \code
+	// index position
+        for (int i = 0; i < fonts.size(); ++i)
+	    cout << fonts.at(i).ascii() << endl;
+
+	// Java-style iterator
+	QStringListIterator j(fonts);
+        while (j.hasNext())
+	    cout << j.next().ascii() << endl;
+
+	// STL-style iterator
+	QStringList::const_iterator k;
+        for (k = fonts.constBegin(); k != fonts.end(); ++k)
+	    cout << (*k).ascii() << endl;
+    \endcode
+
+    
 
     String lists have an iterator, QStringList::Iterator(), e.g.
     \code

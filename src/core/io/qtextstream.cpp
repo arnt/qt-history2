@@ -2189,7 +2189,8 @@ QTextStream &QTextStream::operator<<( const void *ptr )
 */
 
 /*!
-    \overload int QTextStream::fill( int f )
+    \fn int QTextStream::fill( int f )
+    \overload
 
     Sets the fill character to \a f. Returns the previous fill character.
 */

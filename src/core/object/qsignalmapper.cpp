@@ -157,7 +157,8 @@ void QSignalMapper::map()
 */
 
 /*!
-    \overload void QSignalMapper::mapped(const QString&)
+    \fn void QSignalMapper::mapped(const QString&)
+    \overload
 
     This signal is emitted when map() is signaled from an object that
     has a string mapping set.

@@ -1776,7 +1776,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 
 
 /*!
-    \overload QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
+    \fn QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
+    \overload
 
     Reads the entry specified by \a key as a string. The \a separator
     is used to create a QStringList by calling entry.split(\a

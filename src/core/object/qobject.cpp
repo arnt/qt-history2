@@ -1946,7 +1946,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
 /*!
     \threadsafe
 
-    \overload bool QObject::connect(const QObject *sender, const char *signal, const char *member) const
+    \fn bool QObject::connect(const QObject *sender, const char *signal, const char *member) const
+    \overload
 
     Connects \a signal from the \a sender object to this object's \a
     member.
@@ -2119,7 +2120,8 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 /*!
     \threadsafe
 
-    \overload bool QObject::disconnect(const char *signal, const QObject *receiver, const char *member)
+    \fn bool QObject::disconnect(const char *signal, const QObject *receiver, const char *member)
+    \overload
 
     Disconnects \a signal from \a member of \a receiver.
 
@@ -2128,7 +2130,8 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 */
 
 /*!
-    \overload bool QObject::disconnect(const QObject *receiver, const char *member)
+    \fn bool QObject::disconnect(const QObject *receiver, const char *member)
+    \overload
 
     Disconnects all signals in this object from \a receiver's \a
     member.

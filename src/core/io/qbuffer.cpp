@@ -303,7 +303,8 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 }
 
 /*!
-    \overload Q_LONG QBuffer::writeBlock( const QByteArray& data )
+    \fn Q_LONG QBuffer::writeBlock( const QByteArray& data )
+    \overload
 
     This convenience function is the same as calling
     \c{writeBlock( data.data(), data.size() )} with \a data.

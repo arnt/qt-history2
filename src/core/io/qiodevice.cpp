@@ -578,7 +578,7 @@ QIODevice::Offset QIODevice::at() const
 
 /*
     The following is a "bad" overload, since it does "not behave essentially
-    the same" like the above. So don't use  \overload in the documentation of
+    the same" like the above. So don't use \overload in the documentation of
     this function and we have to live with the qdoc warning which is generated
     for this.
 */
