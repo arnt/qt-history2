@@ -65,12 +65,9 @@
 //
 
 
-#include "qtableview.h"
-
-
 struct QWellArrayData;
 
-class QWellArray : public QTableView
+class QWellArray : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( int numCols READ numCols )
@@ -93,7 +90,9 @@ public:
 
     virtual void setSelected( int row, int col );
 
-    void setCellSize( int w, int h ) { setCellWidth(w);setCellHeight( h ); }
+    int cellHeight() const { return cellH; }
+    int cellWidth() const { return cellW; }
+    void setCellSize( int w, int h ) { cellW = w; cellH = h; }
 
     QSize sizeHint() const;
 
@@ -107,9 +106,13 @@ signals:
 protected:
     virtual void setCurrent( int row, int col );
 
+    int findRow( int yPos ) const;
+    int findCol( int xPos ) const;
+
     virtual void drawContents( QPainter *, int row, int col, const QRect& );
     void drawContents( QPainter * );
 
+    void updateCell( int row, int column, bool erase=TRUE );
     void paintCell( QPainter*, int row, int col );
     void mousePressEvent( QMouseEvent* );
     void mouseReleaseEvent( QMouseEvent* );
@@ -126,6 +129,8 @@ private:
     int nCols;
     int nRows;
     bool smallStyle;
+    int cellH;
+    int cellW;
     QWellArrayData *d;
 
 private:	// Disabled copy constructor and operator=
@@ -156,8 +161,8 @@ struct QWellArrayData {
 */
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
-    : QTableView( parent, name,
-		  popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 )
+    : QFrame( parent, name,
+	      popup ? (WStyle_Customize|WStyle_Tool|WStyle_NoBorder) : 0 )
 {
     d = 0;
     setFocusPolicy( StrongFocus );
@@ -177,10 +182,8 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 	setMargin( 1 );
 	setLineWidth( 2 );
     }
-    setNumCols( nCols );
-    setNumRows( nRows );
-    setCellWidth( w );
-    setCellHeight( h );
+    cellW = w;
+    cellH = h;
     curCol = 0;
     curRow = 0;
     selCol = -1;
@@ -188,7 +191,6 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 
     if ( smallStyle )
 	setMouseTracking( TRUE );
-    setOffset( 5 , 10 );
 
     resize( sizeHint() );
 
@@ -207,8 +209,8 @@ QSize QWellArray::sizeHint() const
 
 void QWellArray::paintCell( QPainter* p, int row, int col )
 {
-    int w = cellWidth( col );			// width of cell in pixels
-    int h = cellHeight( row );			// height of cell in pixels
+    int w = cellWidth();			// width of cell in pixels
+    int h = cellHeight();			// height of cell in pixels
     int b = 1;
 
     if ( !smallStyle )
@@ -262,7 +264,17 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 */
 void QWellArray::drawContents( QPainter *p )
 {
-    QTableView::drawContents(p);
+    QRect cr = p->clipRegion().boundingRect();
+    QRect cell;
+    for ( int r = 0, y = 0; r < numRows(); r++, y += cellHeight() )
+	for ( int c = 0, x = 0; c < numCols(); c++, x += cellWidth() ) {
+	    cell.setRect( x, y, cellWidth(), cellHeight() );
+	    if ( cell.intersects( cr ) ) {
+		p->translate( x, y );
+		paintCell( p, r, c );
+		p->translate( -x, -y );
+	    }
+	}
 }
 
 /*!
@@ -396,8 +408,6 @@ void QWellArray::setDimension( int rows, int cols )
 	delete d;
 	d = 0;
     }
-    setNumCols( nCols );
-    setNumRows( nRows );
 }
 
 void QWellArray::setCellBrush( int row, int col, const QBrush &b )
@@ -444,37 +454,23 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 {
     switch( e->key() ) {			// Look at the key code
     case Key_Left:				// If 'left arrow'-key,
-	if( curCol > 0 ) {			// and cr't not in leftmost col
+	if( curCol > 0 )			// and cr't not in leftmost col
 	    setCurrent( curRow, curCol - 1);	// set cr't to next left column
-	    int edge = leftCell();		// find left edge
-	    if ( curCol < edge )		// if we have moved off  edge,
-		setLeftCell( edge - 1 );	// scroll view to rectify
-	}
 	break;
     case Key_Right:				// Correspondingly...
-	if( curCol < numCols()-1 ) {
+	if( curCol < numCols()-1 )
 	    setCurrent( curRow, curCol + 1);
-	    int edge = lastColVisible();
-	    if ( curCol >= edge )
-		setLeftCell( leftCell() + 1 );
-	}
 	break;
     case Key_Up:
-	if( curRow > 0 ) {
+	if( curRow > 0 )
 	    setCurrent( curRow - 1, curCol);
-	    int edge = topCell();
-	    if ( curRow < edge )
-		setTopCell( edge - 1 );
-	} else if ( smallStyle )
+	else if ( smallStyle )
 	    focusNextPrevChild( FALSE );
 	break;
     case Key_Down:
-	if( curRow < numRows()-1 ) {
+	if( curRow < numRows()-1 )
 	    setCurrent( curRow + 1, curCol);
-	    int edge = lastRowVisible();
-	    if ( curRow >= edge )
-		setTopCell( topCell() + 1 );
-	} else if ( smallStyle )
+	else if ( smallStyle )
 	    focusNextPrevChild( TRUE );
 	break;
     case Key_Space:
@@ -487,6 +483,23 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	return;
     }
 
+}
+
+int QWellArray::findRow( int yPos ) const
+{
+    return yPos / cellHeight();
+}
+
+int QWellArray::findCol( int xPos ) const
+{
+    return xPos / cellWidth();
+}
+
+void QWellArray::updateCell( int row, int column, bool erase )
+{
+    QRect ur = QRect( column*cellWidth(), row*cellHeight(),
+		      cellWidth(), cellHeight() );
+    repaint( ur, erase );
 }
 
 //////////// QWellArray END
