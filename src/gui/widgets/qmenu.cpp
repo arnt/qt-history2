@@ -385,7 +385,10 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
             QAction *act = actionList.at(i);
             saccum += actionRects.value(act).height();
             if(act == action) {
-                newOffset = (q->height() - botScroll) - saccum;
+                if(location == QMenuScroller::ScrollCenter)
+                    newOffset = ((q->height() / 2) - botScroll) - saccum;
+                else
+                    newOffset = (q->height() - botScroll) - saccum;
                 break;
             }
         }
@@ -1027,6 +1030,17 @@ bool QMenu::isCheckable() const
 }
 
 /*!
+  Sets the currently highlighte daction to \a act.
+*/
+void QMenu::setActiveAction(QAction *act)
+{
+    d->setCurrentAction(act);
+    if(d->scroll) 
+        d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollCenter);
+}
+
+
+/*!
     Returns the currently highlighted action, or 0 if no
     action is currently highlighted.
 */
@@ -1064,15 +1078,12 @@ int QMenu::columnCount() const
 /*!
   \internal
 
-  Returns the item at \a pt; returns 0 if there is no item there, or if it is
-  a separator item (and ignoreSeparator is true).
+  Returns the item at \a pt; returns 0 if there is no item there.
 */
-QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
+QAction *QMenu::actionAtPos(const QPoint &pt) const
 {
-    if(QAction *ret = d->actionAt(pt)) {
-        if(!ignoreSeparator || !ret->isSeparator())
-            return ret;
-    }
+    if(QAction *ret = d->actionAt(pt)) 
+        return ret;
     return 0;
 }
 

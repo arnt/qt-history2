@@ -49,8 +49,10 @@ QRect QAccessibleMenu::rect(int child) const
 
 int QAccessibleMenu::childAt(int x, int y) const
 {
-    QPoint p = menu()->mapFromGlobal(QPoint(x,y));
-    return menu()->actions().indexOf(menu()->actionAtPos(p, false)) + 1;
+    QAction *act = menu()->actionAtPos(menu()->mapFromGlobal(QPoint(x,y)));
+    if(act && act->isSeparator())
+        act = 0;
+    return menu()->actions().indexOf(act) + 1;
 }
 
 /*int QAccessibleMenu::navigate(NavDirection direction, int startControl) const

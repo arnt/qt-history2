@@ -74,6 +74,7 @@ public:
     void setCheckable(bool);
     bool isCheckable() const;
 
+    void setActiveAction(QAction *act);
     QAction *activeAction() const;
 
     void popup(const QPoint &pos, QAction *at=0);
@@ -84,7 +85,7 @@ public:
     QSize sizeHint() const;
 
     QRect actionGeometry(QAction *) const;
-    QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true) const;
+    QAction *actionAtPos(const QPoint &) const;
 
     QAction *menuAction() const;
 
@@ -303,7 +304,10 @@ public:
 
 protected:
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
-        return findIdForAction(actionAtPos(p, ignoreSeparator));
+        QAction *ret = actionAtPos(p);
+        if(ignoreSeparator && ret && ret->isSeparator())
+            return -1;
+        return findIdForAction(ret);
     }
     inline QT_COMPAT int columns() const { return columnCount(); }
     inline QT_COMPAT int itemHeight(int index) {
