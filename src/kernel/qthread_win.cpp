@@ -292,6 +292,8 @@ void QThread::start()
 
     d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
+    // this looks scary, but we want to make sure that we have fired
+    // up the thread and that it is running. This is _not_ an endless loop
     while ( !d->running )
 	;
 
