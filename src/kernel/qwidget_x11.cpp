@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#173 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#172 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#173 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1385,7 +1385,7 @@ void QWidget::scroll( int dx, int dy )
   Writes \e str at position \e x,y.
 
   The \e y position is the base line position of the text.  The text is
-  drawn using the current font and the current foreground color.
+  drawn using the default font and the default foreground color.
 
   This function is provided for convenience.  You will generally get
   more flexible results and often higher speed by using a a \link
