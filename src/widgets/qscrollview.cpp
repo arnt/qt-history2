@@ -211,6 +211,10 @@ public:
     uint inresize : 1;
     uint use_cached_size_hint : 1;
     QSize cachedSizeHint;
+
+    inline int contentsX() const { return -vx; }
+    inline int contentsY() const { return -vy; }
+    inline int contentsWidth() const { return vwidth; }
 };
 
 inline QScrollViewData::~QScrollViewData()
@@ -711,7 +715,7 @@ void QScrollView::fontChange( const QFont &old )
 void QScrollView::hslide( int pos )
 {
     if ( !d->signal_choke ) {
-        moveContents( -pos, -contentsY() );
+        moveContents( -pos, -d->contentsY() );
         QApplication::syncX();
     }
 }
@@ -719,7 +723,7 @@ void QScrollView::hslide( int pos )
 void QScrollView::vslide( int pos )
 {
     if ( !d->signal_choke ) {
-        moveContents( -contentsX(), -pos );
+        moveContents( -d->contentsX(), -pos );
         QApplication::syncX();
     }
 }
@@ -864,7 +868,7 @@ void QScrollView::updateScrollBars()
 
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
         // Do we definitely need the scrollbar?
-        needh = w-lmarg-rmarg < contentsWidth();
+        needh = w-lmarg-rmarg < d->contentsWidth();
         if ( d->inresize )
             needh  = !horizontalScrollBar()->isHidden();
         needv = h-tmarg-bmarg < contentsHeight();
@@ -915,7 +919,7 @@ void QScrollView::updateScrollBars()
             if (d->vMode == Auto)
                 showv=TRUE;
         }
-        if ( showv && !d->inresize && w-hsbExt-lmarg-rmarg < contentsWidth() ) {
+        if ( showv && !d->inresize && w-hsbExt-lmarg-rmarg < d->contentsWidth() ) {
             needh=TRUE;
             if (d->hMode == Auto)
                 showh=TRUE;
@@ -956,7 +960,7 @@ void QScrollView::updateScrollBars()
 	d->vbar->setRange( 0, 0 );
     }
     if ( needh ) {
-	d->hbar->setRange( 0, QMAX(0, contentsWidth()-portw) );
+	d->hbar->setRange( 0, QMAX(0, d->contentsWidth()-portw) );
 	d->hbar->setSteps( QScrollView::d->hbar->lineStep(), portw );
     } else {
 	d->hbar->setRange( 0, 0 );
@@ -1042,23 +1046,23 @@ void QScrollView::updateScrollBars()
 
     d->signal_choke=sc;
 
-    if ( contentsX()+visibleWidth() > contentsWidth() ) {
+    if ( d->contentsX()+visibleWidth() > d->contentsWidth() ) {
         int x;
 #if 0
         if ( reverse )
-            x =QMIN(0,contentsWidth()-visibleWidth());
+            x =QMIN(0,d->contentsWidth()-visibleWidth());
         else
 #endif
-            x =QMAX(0,contentsWidth()-visibleWidth());
+            x =QMAX(0,d->contentsWidth()-visibleWidth());
         d->hbar->setValue(x);
         // Do it even if it is recursive
-        moveContents( -x, -contentsY() );
+        moveContents( -x, -d->contentsY() );
     }
-    if ( contentsY()+visibleHeight() > contentsHeight() ) {
+    if ( d->contentsY()+visibleHeight() > contentsHeight() ) {
         int y=QMAX(0,contentsHeight()-visibleHeight());
         d->vbar->setValue(y);
         // Do it even if it is recursive
-        moveContents( -contentsX(), -y );
+        moveContents( -d->contentsX(), -y );
     }
 
     // Finally, show the scroll bars
@@ -1068,8 +1072,8 @@ void QScrollView::updateScrollBars()
         d->vbar->show();
 
     d->signal_choke=TRUE;
-    d->vbar->setValue( contentsY() );
-    d->hbar->setValue( contentsX() );
+    d->vbar->setValue( d->contentsY() );
+    d->hbar->setValue( d->contentsX() );
     d->signal_choke=FALSE;
 
     QSize newVisibleSize( visibleWidth(), visibleHeight() );
@@ -1668,22 +1672,22 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 	    );
 	r &= rr;
 	if ( r.isValid() ) {
-	    int ex = r.x() + d->clipped_viewport->x() + contentsX();
-	    int ey = r.y() + d->clipped_viewport->y() + contentsY();
+	    int ex = r.x() + d->clipped_viewport->x() + d->contentsX();
+	    int ey = r.y() + d->clipped_viewport->y() + d->contentsY();
 	    int ew = r.width();
 	    int eh = r.height();
 	    drawContentsOffset(&p,
-		contentsX()+d->clipped_viewport->x(),
-		contentsY()+d->clipped_viewport->y(),
+		d->contentsX()+d->clipped_viewport->x(),
+		d->contentsY()+d->clipped_viewport->y(),
 		ex, ey, ew, eh);
 	}
     } else {
 	r &= d->viewport->rect();
-	int ex = r.x() + contentsX();
-	int ey = r.y() + contentsY();
+	int ex = r.x() + d->contentsX();
+	int ey = r.y() + d->contentsY();
 	int ew = r.width();
 	int eh = r.height();
-	drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
+	drawContentsOffset(&p, d->contentsX(), d->contentsY(), ex, ey, ew, eh);
     }
 }
 
@@ -1919,9 +1923,9 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     int pw=visibleWidth();
     int ph=visibleHeight();
 
-    int cx=-contentsX();
-    int cy=-contentsY();
-    int cw=contentsWidth();
+    int cx=-d->contentsX();
+    int cy=-d->contentsY();
+    int cw=d->contentsWidth();
     int ch=contentsHeight();
 
     if ( pw < xmargin*2 )
@@ -1970,7 +1974,7 @@ void QScrollView::setContentsPos( int x, int y )
 #if 0
     // bounds checking...
     if ( QApplication::reverseLayout() )
-        if ( x > contentsWidth() - visibleWidth() ) x = contentsWidth() - visibleWidth();
+        if ( x > d->contentsWidth() - visibleWidth() ) x = d->contentsWidth() - visibleWidth();
     else
 #endif
         if ( x < 0 ) x = 0;
@@ -1988,7 +1992,7 @@ void QScrollView::setContentsPos( int x, int y )
 */
 void QScrollView::scrollBy( int dx, int dy )
 {
-    setContentsPos( QMAX( contentsX()+dx, 0 ), QMAX( contentsY()+dy, 0 ) );
+    setContentsPos( QMAX( d->contentsX()+dx, 0 ), QMAX( d->contentsY()+dy, 0 ) );
 }
 
 /*!
@@ -2036,13 +2040,13 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 void QScrollView::moveContents(int x, int y)
 {
-    if ( -x+visibleWidth() > contentsWidth() )
+    if ( -x+visibleWidth() > d->contentsWidth() )
 #if 0
         if( QApplication::reverseLayout() )
-            x=QMAX(0,-contentsWidth()+visibleWidth());
+            x=QMAX(0,-d->contentsWidth()+visibleWidth());
         else
 #endif
-            x=QMIN(0,-contentsWidth()+visibleWidth());
+            x=QMIN(0,-d->contentsWidth()+visibleWidth());
     if ( -y+visibleHeight() > contentsHeight() )
         y=QMIN(0,-contentsHeight()+visibleHeight());
 
@@ -2069,7 +2073,7 @@ void QScrollView::moveContents(int x, int y)
         if ( viewport()->isUpdatesEnabled() )
             viewport()->update();
         d->moveAllBy(dx,dy);
-    } else if ( !d->fake_scroll || contentsWidth() > visibleWidth() ) {
+    } else if ( !d->fake_scroll || d->contentsWidth() > visibleWidth() ) {
         // Small move
         clipper()->scroll(dx,dy);
     }
@@ -2090,7 +2094,7 @@ void QScrollView::moveContents(int x, int y)
 */
 int QScrollView::contentsX() const
 {
-    return -d->vx;
+    return d->contentsX();
 }
 
 /*!
@@ -2100,7 +2104,7 @@ int QScrollView::contentsX() const
 */
 int QScrollView::contentsY() const
 {
-    return -d->vy;
+    return d->contentsY();
 }
 
 /*!
@@ -2109,7 +2113,7 @@ int QScrollView::contentsY() const
 */
 int QScrollView::contentsWidth() const
 {
-    return d->vwidth;
+    return d->contentsWidth();
 }
 
 /*!
@@ -2149,7 +2153,7 @@ void QScrollView::resizeContents( int w, int h )
             ow = 0;
         if ( w > visibleWidth() )
             w = visibleWidth();
-        clipper()->update( contentsX()+ow, 0, w-ow, visibleHeight() );
+        clipper()->update( d->contentsX()+ow, 0, w-ow, visibleHeight() );
     }
 
     if ( oh > h ) {
@@ -2164,7 +2168,7 @@ void QScrollView::resizeContents( int w, int h )
             oh = 0;
         if ( h > visibleHeight() )
             h = visibleHeight();
-        clipper()->update( 0, contentsY()+oh, visibleWidth(), h-oh);
+        clipper()->update( 0, d->contentsY()+oh, visibleWidth(), h-oh);
     }
 }
 
@@ -2183,8 +2187,8 @@ void QScrollView::updateContents( int x, int y, int w, int h )
     QWidget* vp = viewport();
 
     // Translate
-    x -= contentsX();
-    y -= contentsY();
+    x -= d->contentsX();
+    y -= d->contentsY();
 
     // Clip to QCOORD space
     if ( x < 0 ) {
@@ -2230,7 +2234,7 @@ void QScrollView::updateContents( const QRect& r )
 */
 void QScrollView::updateContents()
 {
-    updateContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    updateContents( d->contentsX(), d->contentsY(), visibleWidth(), visibleHeight() );
 }
 
 /*!
@@ -2253,7 +2257,7 @@ void QScrollView::repaintContents( const QRect& r, bool erase )
 */
 void QScrollView::repaintContents( bool erase )
 {
-    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), erase );
+    repaintContents( d->contentsX(), d->contentsY(), visibleWidth(), visibleHeight(), erase );
 }
 
 
@@ -2273,8 +2277,8 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
     QWidget* vp = viewport();
 
     // Translate logical to clipper()
-    x -= contentsX();
-    y -= contentsY();
+    x -= d->contentsX();
+    y -= d->contentsY();
 
     // Clip to QCOORD space
     if ( x < 0 ) {
@@ -2612,11 +2616,11 @@ bool QScrollView::hasStaticBackground() const
 QPoint QScrollView::contentsToViewport( const QPoint& p ) const
 {
     if ( d->clipped_viewport ) {
-        return QPoint( p.x() - contentsX() - d->clipped_viewport->x(),
-                       p.y() - contentsY() - d->clipped_viewport->y() );
+        return QPoint( p.x() - d->contentsX() - d->clipped_viewport->x(),
+                       p.y() - d->contentsY() - d->clipped_viewport->y() );
     } else {
-        return QPoint( p.x() - contentsX(),
-                       p.y() - contentsY() );
+        return QPoint( p.x() - d->contentsX(),
+                       p.y() - d->contentsY() );
     }
 }
 
@@ -2629,11 +2633,11 @@ QPoint QScrollView::contentsToViewport( const QPoint& p ) const
 QPoint QScrollView::viewportToContents( const QPoint& vp ) const
 {
     if ( d->clipped_viewport ) {
-        return QPoint( vp.x() + contentsX() + d->clipped_viewport->x(),
-                       vp.y() + contentsY() + d->clipped_viewport->y() );
+        return QPoint( vp.x() + d->contentsX() + d->clipped_viewport->x(),
+                       vp.y() + d->contentsY() + d->clipped_viewport->y() );
     } else {
-        return QPoint( vp.x() + contentsX(),
-                       vp.y() + contentsY() );
+        return QPoint( vp.x() + d->contentsX(),
+                       vp.y() + d->contentsY() );
     }
 }
 
@@ -2682,7 +2686,7 @@ QSize QScrollView::sizeHint() const
 		sz += r->child->size();
         }
     } else {
-	sz += QSize( contentsWidth(), contentsHeight() );
+	sz += QSize( d->contentsWidth(), contentsHeight() );
     }
     return sz.expandedTo( QSize(12 * h, 8 * h) )
 	     .boundedTo( QSize(36 * h, 24 * h) );
