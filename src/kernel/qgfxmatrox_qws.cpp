@@ -160,22 +160,10 @@ inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
     int t=linestep();
     t=(t*8)/depth;
 
-    if(tmp->clipleft!=r.left()) {
-      tmp->clipleft=r.left();
-      matrox_regw(CXLEFT,r.left());
-    }
-    if(tmp->cliptop!=r.top()) {
-      tmp->cliptop=r.top();
-      matrox_regw(YTOP,r.top()*t);
-    }
-    if(tmp->clipright!=r.right()) {
-      tmp->clipright=r.right();
-      matrox_regw(CXRIGHT,r.right());
-    }
-    if(tmp->clipbottom!=r.bottom()) {
-      tmp->clipbottom=r.bottom();
-      matrox_regw(YBOT,r.bottom()*t);
-    }
+    matrox_regw(CXLEFT,r.left());
+    matrox_regw(CXRIGHT,r.right());
+    matrox_regw(YTOP,r.top()*t);
+    matrox_regw(YBOT,r.bottom()*t);
 }
 
 template<const int depth,const int type>
@@ -377,7 +365,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     GFX_END
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)	
     QWSDisplay::ungrab();
-#endif   
+#endif
 }
 
 template<const int depth,const int type>
@@ -476,7 +464,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 #if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)	
     QWSDisplay::ungrab();
 #endif
-    
+
     return;
 }
 
