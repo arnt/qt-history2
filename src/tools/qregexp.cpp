@@ -239,7 +239,7 @@
 
     <em>Note that the C++ compiler transforms backslashes in strings so
     to include a <b>\\</b> in a regexp you will need to enter it twice,
-    e.g. <b>\\</b><b>\\</b>.</em>
+    i.e. <b>\\</b><b>\\</b>.</em>
 
     <a name="sets-of-characters"><b>Sets of Characters</b></a>
 
@@ -327,8 +327,9 @@
     least one occurrence of 'tag'.
 
     Note that quantifiers are "greedy", they will match as much text as
-    they can. For example, <b>0+</b> will match '0.<u>000</u>5'.
-    Quantifiers can be made non-greedy, see setMinimal().
+    they can. For example, <b>0+</b> will match as many zeros as it can
+    from the first zero it finds, e.g. '2.<u>000</u>5'. Quantifiers can
+    be made non-greedy, see setMinimal().
 
     <a name="capturing-text"><b>Capturing Text</b></a>
 
@@ -340,7 +341,7 @@
     if we used <b>(mail|letter|correspondence)</b> and matched this
     regexp against the string "I sent you some email" we can use the
     cap() or capturedTexts() functions to extract the matched
-    characters, in this case "mail".
+    characters, in this case 'mail'.
 
     We can use captured text within the regexp itself. To refer to the
     captured text we use \e backreferences which are indexed from 1 the
@@ -425,11 +426,11 @@
 
     <ul>
 
-    <li><b>c</b> Any character represents itself. Thus <b>c</b> matches
-    the character \e c.
+    <li><b>c</b> Any character represents itself apart from those
+    mentioned below. Thus <b>c</b> matches the character \e c.
 
     <li><b>?</b> This matches any single character. It is the same as
-    <b>.?</b> in full regexps.
+    <b>.</b> in full regexps.
 
     <li><b>*</b> This matches zero or more of any characters. It is the
     same as <b>.*</b> in full regexps.
@@ -443,9 +444,9 @@
     </ul>
 
     For example if we are in wildcard mode and have strings which
-    contain filenames we could identify HTML files with <b>*.html?</b>.
+    contain filenames we could identify HTML files with <b>*.html</b>.
     This will match zero or more characters followed by a dot followed
-    by 'h', 't', 'm' and optionally 'l'. 
+    by 'h', 't', 'm' and 'l'. 
 
     <a name="code-examples"><b>Code Examples</b></a>
 
