@@ -37,40 +37,38 @@
 \title Style overview
 
 A style in Qt implements the look & feel found in GUIs on different
-platforms. For instance the Windows style used in Windows and the Motif
-style that are common on many Unix platforms.
-
-Nice pictures of something in windows and motif styles goes here!
+platforms. For instance the Windows style used in Windows and the
+Motif style that are common on many Unix platforms.
 
 This is a short guide that describes the steps that are necessary to
-create and use custom styles with the style API in Qt 3.x.
-First, we go through the steps necessary to create a style: 1) picking
-a base style to inherit from and 2) re-implementing the necessary
-functions in the derived class. Then we show how to use the new style
-within your own applications, or as a plug-in together with existing
-Qt applications without having to re-compile or change the application
-source code.
+get started creating and using custom styles with the style API in Qt
+3.x.  First, we go through the steps necessary to create a style: 1)
+picking a base style to inherit from and 2) re-implementing the
+necessary functions in the derived class. Then we show how to use the
+new style from within your own applications, or as a plugin together
+with existing Qt applications.
 
 \section1 Creating a custom style
 
 1. Pick a base style to inherit from.
 
-The first step is to pick one of the base style to build your custom
-style on. Which of the available styles to start from does of course
-depend on what look & feel you want. Basically you should choose from
-the QWindowsStyle derived classes or QMotifStyle derived
-classes. These are the two base look & feel classes in the Qt style
-engine. Inheriting directly from QCommonStyle is also an option if you
-want to start almost from scratch when implementing your style. In
-this example we will inherit from QWindowsStyle.
+The first step is to pick one of the base styles provided with Qt to
+build your custom style on. Which of the available styles to start
+from does of course depend on what look & feel you want. Basically you
+should choose from the QWindowsStyle derived classes or the
+QMotifStyle derived classes. These are the two base look & feel
+classes in the Qt style engine.
+Inheriting directly from QCommonStyle is also an option if you want to
+start almost from scratch when implementing your style. In this simple
+example we will inherit from QWindowsStyle.
 
 2. Re-implement the necessary functions in your derived class.
 
 Depending on which parts of the base style you want to change, you
 have to re-implement the functions that are used to draw those parts
-of the interface. If you take a look at the QStyle documentation, you
-will find a list of the different primitives, controls and complex
-controls. You'll also find an illustration that shows where the
+of the interface. If you take a look at the \l{QStyle} documentation,
+you will find a list of the different primitives, controls and complex
+controls. You will also find an illustration that shows where the
 different primitives, controls and complex controls are used. In this
 example we will first change the look of the standard arrows that are
 used in the QWindowsStyle. The arrows are PrimitiveElements that are
@@ -88,10 +86,10 @@ public:
 
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
-			const QRect &r,
-			const QColorGroup &cg,
+			const QRect & r,
+			const QColorGroup & cg,
 			SFlags flags = Style_Default,
-			void **data = 0 ) const;
+			const QStyleOption & = QStyleOption::Default ) const;
 
 private:
     // Disabled copy constructor and operator=
@@ -110,6 +108,8 @@ PE_ArrowLeft and PE_ArrowRight are the primitives we need to do
 something with. We get the following in our drawPrimitive() function:
 
 \code
+CustomStyle::CustomStyle()
+{
 }
 
 CustomStyle::~CustomStyle()
@@ -117,11 +117,11 @@ CustomStyle::~CustomStyle()
 }
 
 void CustomStyle::drawPrimitive( PrimitiveElement pe,
-				 QPainter *p,
-				 const QRect &r,
-				 const QColorGroup &cg,
-				 SFlags flags = Style_Default,
-				 void **data = 0 ) const
+				 QPainter * p,
+				 const QRect & r,
+				 const QColorGroup & cg,
+				 SFlags flags,
+				 const QStyleOption & opt ) const
 {
     // we are only interested in the arrows
     if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
@@ -193,116 +193,19 @@ int main( int argc, char ** argv )
 }
 \endcode
 
-Note that you also have to include the customstyle.h and
-customstyle.cpp files in your project.
+Note that you also have to include the \c customstyle.h and
+\c customstyle.cpp files in your project.
 
-2. Creating a pluggable style
+2. Creating and using a pluggable style
 
 You may want to use your custom style in a Qt application that you
-don't want to, or have the opportunity to re-compile. The Qt component
-style interface makes it possible to create styles as plug-ins, which
-can be loaded as a shared object at run-time by Qt itself. This may
-sound a bit scary, but it is a simple and straightforward task thanks
-to the Qt component system. All you have to do is to create a small
-class that inherits from QStyleFactoryInterface and QLibraryInterface.
-This class then re-implements a few functions that are necessary for
-Qt to identify, load and create an instance of your style. The
-following code is the complete implementation of a plug-in for
-CustomStyle:
+don't want to, or have the opportunity to recompile. The Qt Plugin
+system makes it possible to create styles as plugins. Styles created
+as plugins are loaded as shared objects at runtime by Qt itself.
+Please refer to the \link plugins.html Qt Plugin\endlink documentation
+for more information on how to go about creating a style plugin.
 
-\code
-#include <qstyleinterface.h>
-#include <qobjectcleanuphandler.h>
-#include "customstyle.h"
-
-class CustomStyleInterface : 
-    public QStyleFactoryInterface, public QLibraryInterface
-{
-public:
-    Q_REFCOUNT
-
-    CustomStyleInterface();
-    virtual ~CustomStyleInterface() {}
-    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-	
-    QStringList featureList() const;
-    QStyle *create( const QString& );
-
-    bool init();
-    void cleanup();
-    bool canUnload() const;
-
-private:
-    QObjectCleanupHandler styles;
-
-    unsigned long ref;
-};
-
-CustomStyleInterface::CustomStyleInterface()
-: ref( 0 )
-{
-}
-
-QRESULT CustomStyleInterface::queryInterface( const QUuid &uuid,
-					      QUnknownInterface **iface )
-{
-    *iface = 0;
-
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleFactory )
-	*iface = (QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QLibrary )
-	*iface = (QLibraryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList CustomStyleInterface::featureList() const
-{
-    QStringList list;
-    list << "Custom";
-    return list;
-}
-
-QStyle* CustomStyleInterface::create( const QString& s )
-{
-    if ( s.lower() == "custom" ) {
-        QStyle *style = new CustomStyle();
-	styles.add( style );
-	return style;
-    }
-    return 0;
-}
-
-bool CustomStyleInterface::init()
-{
-    return TRUE;
-}
-
-void CustomStyleInterface::cleanup()
-{
-    styles.clear();;
-}
-
-bool CustomStyleInterface::canUnload() const
-{
-    return styles.isEmpty();
-}
-
-Q_EXPORT_INTERFACE()
-{
-    Q_CREATE_INSTANCE( CustomStyleInterface )
-}
-\endcode
-
-Compile it and put it into $QTDIR/plugins/styles (if you use a .pro
-file similar to the one below you don't have to copy it). We now have
+Compile your plugin and put it into $QTDIR/plugins/styles. We now have
 a pluggable style that Qt can load automatically. To use your new
 style with existing applications, simply start the application with
 the following argument:
@@ -313,23 +216,5 @@ the following argument:
 
 The application should appear with the look & feel from the custom
 style you implemented. 
-
-You can use a .pro file similar to the one below to compile your style
-as a plug-in:
-
-\code
-TEMPLATE	= lib
-CONFIG	       += qt warn_on debug plugin
-
-HEADERS		= $(QTDIR)/include/qwindowsstyle.h \
-		  customstyle.h
-
-SOURCES		= main.cpp \
-		  $(QTDIR)/src/styles/qwindowsstyle.cpp \
-		  customstyle.cpp
-
-TARGET		= customstyle
-DESTDIR		= $(QTDIR)/plugins/styles
-\endcode
 
 */
