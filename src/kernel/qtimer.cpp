@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#8 $
 **
 ** Implementation of QTimer class
 **
@@ -14,21 +14,30 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#8 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QTimer qtimer.h
+
   \brief The QTimer class provides timer signals and single-shot timers.
 
-  This class starts an internal \link QTimerEvent timer event\endlink
-  that is received by the event() handler.  Timer events are more
-  low-level and they do not emit signals or provide single-shot timers,
-  which QTimer does.
+  \ingroup time
+  \ingroup event
 
-  The limitation of QTimer is that is can have only one active timer.
- ----------------------------------------------------------------------------*/
+  It uses the \link QTimerEvent timer event \endlink internally to
+  provide a more versatile timer.  QTimer is very easy to use, create
+  a QTimer, call start() to start it and connect its timeout() to the
+  appropriate slots, then when the time is up it will emit timeout().
+
+  Note that a QTimer object is destroyed automatically when its parent
+  object is destroyed.
+
+  \todo add QTimer::timeLeft()
+
+  \sa QTimerEvent QObject::event() QWidget::timerEvent()
+  ----------------------------------------------------------------------------*/
 
 
 const int INV_TIMER = -1;			// invalid timer id

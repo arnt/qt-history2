@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#45 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#45 $";
 #endif
 
 
@@ -34,11 +34,11 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#44 $";
   The drawing capabilities are implemented by the subclasses: QWidget,
   QPixmap, QPicture and QPrinter.
 
-  The default coordinate system of a paint device has its origin located
-  at the top left position. X increases to the left and Y increases to the
-  bottom. The unit is one pixel.
-  There are several ways to set up a user-defined coordinate system using
-  the painter, for example by QPainter::setWorldMatrix().
+  The default coordinate system of a paint device has its origin
+  located at the top left position. X increases to the left and Y
+  increases downwards. The unit is one pixel.  There are several ways
+  to set up a user-defined coordinate system using the painter, for
+  example by QPainter::setWorldMatrix().
 
   Example (draw on a paint device):
   \code
@@ -64,8 +64,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#44 $";
 
   \warning Qt requires that a QApplication object must exist before any paint
   devices can be created.  Paint devices access window system resources, and
-  these resources are not initialized before an application object is created.
-*/
+  these resources are not initialized before an application object is created. */
 
 
 /*!
@@ -103,7 +102,7 @@ QPaintDevice::~QPaintDevice()
 /*!
   \fn int QPaintDevice::devType() const
   Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
-  \c PDT_PRINTER or \c PDT_PICTURE.
+  \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNKNOWN.
 */
 
 /*!
@@ -158,9 +157,8 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 
 /*!
   Internal virtual function that returns paint device metrics.
-  Implemented by all subclasses.
 
-  Use the QPaintDeviceMetrics class instead.
+  Please use the QPaintDeviceMetrics class instead.
 */
 
 long QPaintDevice::metric( int ) const
