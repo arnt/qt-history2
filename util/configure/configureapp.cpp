@@ -1786,15 +1786,6 @@ void Configure::readLicense()
             return;
         }
 
-        // Check for expiry
-        QDate expiryDate = decodedExpiryDate(licenseKey.mid(9));
-        if (expiryDate < QDate::currentDate()) {
-            cout << "Your license has expired" << endl
-                 << "Configuration of Qt aborted" << endl << endl;
-            dictionary["DONE"] = "error";
-            return;
-        }
-
         QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE";
         QString usLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-US";
         QString norLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE";
