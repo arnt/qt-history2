@@ -67,6 +67,17 @@ public:
     virtual QDateTime fileTime(FileTime time) const = 0;
 };
 
+class QFileInfoEngineHandler
+{
+protected:
+    QFileInfoEngineHandler();
+    virtual ~QFileInfoEngineHandler();
+
+    virtual QFileInfoEngine *createFileInfoEngine(const QString &path) = 0;
+
+private:
+    friend QFileInfoEngine *qt_createFileInfoEngine(const QString &);
+};
 
 class QFSFileInfoEnginePrivate;
 class QFSFileInfoEngine : public QFileInfoEngine

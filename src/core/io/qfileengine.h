@@ -17,7 +17,6 @@
 #include "qfile.h"
 
 class QFileEnginePrivate;
-
 class QFileEngine
 {
 protected:
@@ -48,6 +47,18 @@ public:
 
     //maybe
     virtual uchar *map(Q_ULONG len) = 0; //can we implement a mmap?
+};
+
+class QFileEngineHandler
+{
+protected:
+    QFileEngineHandler();
+    virtual ~QFileEngineHandler();
+
+    virtual QFileEngine *createFileEngine(const QString &path) = 0;
+
+private:
+    friend QFileEngine *qt_createFileEngine(const QString &);
 };
 
 class QFSFileEnginePrivate;

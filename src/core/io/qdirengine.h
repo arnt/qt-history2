@@ -18,10 +18,6 @@
 #include "qfileinfo.h"
 
 class QDirEnginePrivate;
-
-/* It seems to me cd/cdup must operate on a string rather than using cwd (or possibly
-   doing cwd if it is a non-virtual file system).
-*/
 class QDirEngine
 {
 protected:
@@ -40,6 +36,18 @@ public:
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
     virtual bool caseSensitive() const = 0;
     virtual bool isRoot() const = 0;
+};
+
+class QDirEngineHandler
+{
+protected:
+    QDirEngineHandler();
+    virtual ~QDirEngineHandler();
+
+    virtual QDirEngine *createDirEngine(const QString &path) = 0;
+
+private:
+    friend QDirEngine *qt_createDirEngine(const QString &);
 };
 
 class QFSDirEnginePrivate;
@@ -65,6 +73,5 @@ public:
     static QString rootDirPath();
     static QFileInfoList drives();
 };
-
 
 #endif /* __QDIRENGINE_H__ */

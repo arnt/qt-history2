@@ -22,6 +22,26 @@
 #define d d_func()
 #define q q_func()
 
+//************* QFileInfoEngineHandler
+static QList<QFileInfoEngineHandler*> fileInfoHandlers;
+QFileInfoEngineHandler::QFileInfoEngineHandler()
+{
+    fileInfoHandlers.append(this);
+}
+
+QFileInfoEngineHandler::~QFileInfoEngineHandler()
+{
+    fileInfoHandlers.removeAll(this);
+}
+QFileInfoEngine *qt_createFileInfoEngine(const QString &path)
+{
+    for(int i = 0; i < fileInfoHandlers.size(); i++) {
+        if(QFileInfoEngine *ret = fileInfoHandlers[i]->createFileInfoEngine(path))
+            return ret;
+    }
+    return new QFSFileInfoEngine(path);
+}
+
 //************* QFileInfoPrivate
 class QFileInfoPrivate
 {
@@ -89,7 +109,7 @@ void QFileInfoPrivate::initFileInfoEngine(const QString &file)
     delete data->fileInfoEngine;
     data->fileInfoEngine = 0;
     data->clear();
-    data->fileInfoEngine = new QFSFileInfoEngine(file);
+    data->fileInfoEngine = qt_createFileInfoEngine(file);
     data->fileName = file;
 }
 

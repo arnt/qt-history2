@@ -24,6 +24,26 @@
 
 #include <stdlib.h>
 
+//************* QDirEngineHandler
+static QList<QDirEngineHandler*> dirHandlers;
+QDirEngineHandler::QDirEngineHandler()
+{
+    dirHandlers.append(this);
+}
+
+QDirEngineHandler::~QDirEngineHandler()
+{
+    dirHandlers.removeAll(this);
+}
+QDirEngine *qt_createDirEngine(const QString &path)
+{
+    for(int i = 0; i < dirHandlers.size(); i++) {
+        if(QDirEngine *ret = dirHandlers[i]->createDirEngine(path))
+            return ret;
+    }
+    return new QFSDirEngine(path);
+}
+
 //************* QDirPrivate
 class QDirPrivate
 {
@@ -222,7 +242,7 @@ void QDirPrivate::initDirEngine(const QString &path)
 
 QDirEngine *QDirPrivate::createDirEngine(const QString &path)
 {
-    return new QFSDirEngine(path);
+    return qt_createDirEngine(path);
 }
 
 void 

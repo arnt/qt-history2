@@ -18,12 +18,32 @@
 #include <private/qiodevice_p.h>
 #include <qfileengine.h>
 #include <qfileinfo.h>
-
+#include <qlist.h>
 
 #include <errno.h>
 
 #define d d_func()
 #define q q_func()
+
+//************* QFileEngineHandler
+static QList<QFileEngineHandler*> fileHandlers;
+QFileEngineHandler::QFileEngineHandler()
+{
+    fileHandlers.append(this);
+}
+
+QFileEngineHandler::~QFileEngineHandler()
+{
+    fileHandlers.removeAll(this);
+}
+QFileEngine *qt_createFileEngine(const QString &path)
+{
+    for(int i = 0; i < fileHandlers.size(); i++) {
+        if(QFileEngine *ret = fileHandlers[i]->createFileEngine(path))
+            return ret;
+    }
+    return new QFSFileEngine;
+}
 
 //************* QFilePrivate
 class QFilePrivate : public QIODevicePrivate
@@ -74,7 +94,7 @@ QFilePrivate::initFileEngine(const QString &file)
     Q_ASSERT(!fileEngine || !fileEngine->isOpen());
     delete fileEngine;
     fileName = file;
-    fileEngine = new QFSFileEngine;
+    fileEngine = qt_createFileEngine(file);
     reset();
 }
 
