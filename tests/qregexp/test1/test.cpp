@@ -7,6 +7,11 @@
 #include <qregexp.h>
 #include <stdio.h>
 
+static const char *nn( const char * s )
+{
+    return s == 0 ? "" : s;
+}
+
 void myMessageOutput( QtMsgType type, const char *msg )
 {
     switch ( type ) {
@@ -47,16 +52,15 @@ int main()
 	    ss += s[1];
 	} while ( /* ss.length() > 0 && ss.length() < 100 */ FALSE );
 	pos = rx.search( ss );
-	printf( "%d: %s # %s # %d %d", lineNo, rx.pattern().latin1(),
-		ss.latin1(), pos, rx.matchedLength() );
+	printf( "%d: %s # %s # %d %d", lineNo, nn(rx.pattern().latin1()),
+		nn(ss.latin1()), pos, rx.matchedLength() );
 
 #ifndef QT_NO_REGEXP_CAPTURE
 	for ( uint i = 1; i < rx.capturedTexts().count(); i++ )
 	    printf( " '%s'", rx.capturedTexts()[i].latin1() );
 #endif
  	printf( "\n" );
-	fprintf( stderr, "%d: %s\n", lineNo,
-		 QString(buf).stripWhiteSpace().latin1() );
+	fprintf( stderr, "%d: %s", lineNo, QString(buf).latin1() );
 
 	printf( "\n" );
 	fprintf( stderr, "\n" );
