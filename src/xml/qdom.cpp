@@ -303,7 +303,7 @@ public:
 class QDomTextPrivate : public QDomCharacterDataPrivate
 {
 public:
-    QDomTextPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value);
+    QDomTextPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& val);
     QDomTextPrivate(QDomTextPrivate* n, bool deep);
 
     QDomTextPrivate* splitText(int offset);
@@ -374,7 +374,7 @@ public:
 class QDomCommentPrivate : public QDomCharacterDataPrivate
 {
 public:
-    QDomCommentPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value);
+    QDomCommentPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& val);
     QDomCommentPrivate(QDomCommentPrivate* n, bool deep);
 
     // Reimplemented from QDomNodePrivate
@@ -387,7 +387,7 @@ public:
 class QDomCDATASectionPrivate : public QDomTextPrivate
 {
 public:
-    QDomCDATASectionPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& value);
+    QDomCDATASectionPrivate(QDomDocumentPrivate*, QDomNodePrivate* parent, const QString& val);
     QDomCDATASectionPrivate(QDomCDATASectionPrivate* n, bool deep);
 
     // Reimplemented from QDomNodePrivate
@@ -2499,7 +2499,7 @@ QDomElement QDomNode::nextSiblingElement(const QString &tagName) const
     is non-empty; otherwise returns any previous sibling element.
     Returns a null element if no such sibling exists.
 
-    \sa firstChildElement(), nextSibilingElement(), lastChildElement()
+    \sa firstChildElement(), nextSiblingElement(), lastChildElement()
 */
 
 QDomElement QDomNode::previousSiblingElement(const QString &tagName) const
@@ -4523,8 +4523,8 @@ QString QDomElement::text() const
  *
  **************************************************************/
 
-QDomTextPrivate::QDomTextPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value)
-    : QDomCharacterDataPrivate(d, parent, value)
+QDomTextPrivate::QDomTextPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& val)
+    : QDomCharacterDataPrivate(d, parent, val)
 {
     name = "#text";
 }
@@ -4658,8 +4658,8 @@ QDomText QDomText::splitText(int offset)
  *
  **************************************************************/
 
-QDomCommentPrivate::QDomCommentPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& value)
-    : QDomCharacterDataPrivate(d, parent, value)
+QDomCommentPrivate::QDomCommentPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& val)
+    : QDomCharacterDataPrivate(d, parent, val)
 {
     name = "#comment";
 }
@@ -4765,8 +4765,8 @@ QDomComment& QDomComment::operator= (const QDomComment& x)
  **************************************************************/
 
 QDomCDATASectionPrivate::QDomCDATASectionPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent,
-                                                    const QString& value)
-    : QDomTextPrivate(d, parent, value)
+                                                    const QString& val)
+    : QDomTextPrivate(d, parent, val)
 {
     name = "#cdata-section";
 }
