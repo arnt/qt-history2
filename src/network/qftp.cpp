@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
+#include "qkernelapplication.h"
 #include "qsocket.h"
 #include "qurlinfo.h"
 #include "qurloperator.h"
