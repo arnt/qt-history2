@@ -272,7 +272,8 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     return ui;
 }
 
-QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties)
+QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
+                                       bool isActionGroup)
 {
     QString name;
     QString text;
@@ -281,6 +282,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties)
     while (it.hasNext()) {
         DomProperty *p = it.next();
         QString pname = p->attributeName();
+
         if (pname == QLatin1String("name")) {
             name = p->elementCstring();
             p->setAttributeName("objectName");
@@ -298,10 +300,14 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties)
         } else if (pname == QLatin1String("accel")) {
             p->setAttributeName("shortcut");
             p->setElementShortcut(p->elementString());
+        } else {
+            fprintf(stderr, "property %s not supported\n", pname.latin1());
+            delete p;
+            it.remove();
         }
     }
 
-    if (text.size()) {
+    if (!isActionGroup && text.size()) {
         DomProperty *ptext = new DomProperty();
         ptext->setAttributeName("text");
         ptext->setElementString(text);
@@ -331,7 +337,7 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
     }
 
     QList<DomProperty*> properties = g->elementProperty();
-    QString name = fixActionProperties(properties);
+    QString name = fixActionProperties(properties, true);
     g->setElementProperty(properties);
 
     if (name.size())
