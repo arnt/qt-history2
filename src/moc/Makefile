@@ -46,6 +46,10 @@ $(TARGET): $(OBJECTS)
 #	strip moc
 #	cp moc $(QTDIR)/bin
 
+staticmoc: $(OBJECTS)
+	make -C ../tools $(LIBDIR)/libqtools.a
+	$(CC) $(OBJECTS) -o $(TARGET) -L$(LIBDIR) -lqtools
+
 rcs:: ./RCS/$$@,v
 
 include: # nothing yet
