@@ -55,9 +55,8 @@
 
 class QSqlDriver;
 
-struct Q_EXPORT QSqlDriverInterface : public QUnknownInterface
+struct Q_EXPORT QSqlDriverInterface : public QFeatureListInterface
 {
-    virtual QStringList featureList() const = 0;
     virtual QSqlDriver* create( const QString& name ) = 0;
 };
 

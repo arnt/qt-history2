@@ -64,6 +64,8 @@ QUnknownInterface *QODBCDriverPlugin::queryInterface( const QUuid &uuid )
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
 	iface = (QUnknownInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QSqlDriverInterface )
 	iface = (QSqlDriverInterface*)this;
 
