@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#57 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#58 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -879,7 +879,8 @@ void QXmlInputSource::init()
     inputDevice = 0;
     inputStream = 0;
 
-    stringData = 0;
+    userStringData = 0;
+    userRawData = 0;
     rawData = 0;
     encStream = 0;
 }
@@ -934,7 +935,8 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 */
 QXmlInputSource::~QXmlInputSource()
 {
-    delete stringData;
+    delete userStringData;
+    delete userRawData;
     delete rawData;
     delete encBuffer;
     delete encStream;
@@ -959,17 +961,30 @@ QXmlInputSource::~QXmlInputSource()
 
   \sa setData() QXmlInputSource()
 */
-QString QXmlInputSource::data() const
+QString QXmlInputSource::data()
 {
+    QString str;
     if ( rawData!=0  && encStream==0 ) {
-	return inputToString();
+	// first call of data()
+	str = inputToString( rawData );
+	return str;
     } else {
-	if ( stringData!=0 ) {
-	    return *stringData;
+	if ( userStringData != 0 ) {
+	    str = *userStringData;
+	    delete userStringData;
+	    userStringData = 0;
+	    return str;
+	} else if ( userRawData != 0 ) {
+	    str = inputToString( userRawData );
+	    delete userRawData;
+	    userRawData = 0;
+	    return str;
 	} else {
 	    getData();
-	    if ( rawData->size() > 0 )
-		return inputToString();
+	    if ( rawData->size() > 0 ) {
+		str = inputToString( rawData );
+		return str;
+	    }
 	}
     }
     return QString::null;
@@ -985,8 +1000,20 @@ QString QXmlInputSource::data() const
 */
 void QXmlInputSource::setData( const QString& dat )
 {
-    delete stringData;
-    stringData = new QString( dat );
+    delete userStringData;
+    delete userRawData;
+    userStringData = new QString( dat );
+}
+
+/*! \overload
+  This function sets the raw data of the input source to \a det. If you get the
+  data with data(), it is sent through the right text-codec.
+*/
+void QXmlInputSource::setData( const QByteArray& dat )
+{
+    delete userStringData;
+    delete userRawData;
+    userRawData = new QByteArray( dat );
 }
 
 /*!
@@ -994,11 +1021,10 @@ void QXmlInputSource::setData( const QString& dat )
   from inputStream (if it is not 0) and stores it in rawData. If rawData is 0,
   it allocates a new QByteArray, otherwise it replaces the new data.
 */
-void QXmlInputSource::getData() const
+void QXmlInputSource::getData()
 {
     if ( rawData == 0 ) {
-	QXmlInputSource *that = (QXmlInputSource*)this;
-	that->rawData = new QByteArray;
+	rawData = new QByteArray;
     }
 
     if ( inputDevice != 0 ) {
@@ -1020,19 +1046,18 @@ void QXmlInputSource::getData() const
 }
 
 /*!
-  This private function reads the XML file from rawData and tries to
+  This private function reads the XML file from \a data and tries to
   recoginize the encoding.
 */
-QString QXmlInputSource::inputToString() const
+QString QXmlInputSource::inputToString( QByteArray *data )
 {
     if ( encStream == 0 ) {
 	QString input;
 	QChar tmp;
 
-	QXmlInputSource *that = (QXmlInputSource*)this;
-	that->encBuffer = new QBuffer( *rawData );
-	that->encBuffer->open( IO_ReadOnly );
-	that->encStream = new QTextStream( encBuffer );
+	encBuffer = new QBuffer( *data );
+	encBuffer->open( IO_ReadOnly );
+	encStream = new QTextStream( encBuffer );
 	// assume UTF8 or UTF16 at first
 	encStream->setEncoding( QTextStream::UnicodeUTF8 );
 	// read the first 5 characters
@@ -1071,7 +1096,7 @@ QString QXmlInputSource::inputToString() const
 		}
 
 		delete encStream;
-		that->encStream = new QTextStream( encBuffer );
+		encStream = new QTextStream( encBuffer );
 		encStream->setCodec( QTextCodec::codecForName( encoding ) );
 		encBuffer->reset();
 		return encStream->read();
@@ -1080,6 +1105,9 @@ QString QXmlInputSource::inputToString() const
 	input += encStream->read();
 	return input;
     }
+    encBuffer->close();
+    encBuffer->setBuffer( *data );
+    encBuffer->open( IO_ReadOnly );
     return encStream->read();
 }
 
@@ -2442,10 +2470,15 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
 }
 
 /*!
-  Continues incremental parsing with the input \a input. If the input source
-  returns an empty string for the function QXmlInputSource::data(), then this
-  means that the end of the XML file is reached; this is quite important,
-  especially if you want to use the reader to parse more than one XML file.
+  Continues incremental parsing; this function reads the input from the
+  QXmlInputSource that was specified with the last parse() command.  To use
+  this function, you must have called parse() with the incremental argument set
+  to TRUE (otherwise this function returns FALSE).
+
+  If the input source returns an empty string for the function
+  QXmlInputSource::data(), then this means that the end of the XML file is
+  reached; this is quite important, especially if you want to use the reader to
+  parse more than one XML file.
 
   This function returns FALSE in the case of a parsing error. The case that the
   end of the XML file is reached without having finished the parsing is also an
@@ -2455,13 +2488,13 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool incremental )
 
   \sa parse()
 */
-bool QXmlSimpleReader::parseContinue( const QXmlInputSource& input )
+bool QXmlSimpleReader::parseContinue()
 {
     if ( d->parseStack == 0 ) {
-	return parse( input, TRUE );
+	return FALSE;
     }
     if ( !d->parseStack->isEmpty() ) {
-	initData( input );
+	initData();
 	int state = state = d->parseStack->top()->state;
 	d->parseStack->pop();
 	return parseBeginOrContinue( state, TRUE );
@@ -6385,13 +6418,15 @@ bool QXmlSimpleReader::parseString()
 
 
 /*
-  Initializes the reader. \a i is the input source to read the data from.
+  This private function initializes the reader. \a i is the input source to
+  read the data from.
 */
 void QXmlSimpleReader::init( const QXmlInputSource& i )
 {
     lineNr = 0;
     columnNr = -1;
-    initData( i );
+    inputSource = &i; // ### not pointer stuff
+    initData();
 
     d->externParameterEntities.clear();
     d->parameterEntities.clear();
@@ -6408,12 +6443,13 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 }
 
 /*
-  Initializes the reader. \a i is the input source to read the data from.
+  This private function initializes the XML data related variables. Especially,
+  it reads the data from the input source.
 */
-void QXmlSimpleReader::initData( const QXmlInputSource& i )
+void QXmlSimpleReader::initData()
 {
-    inputSource = &i;
-    xml = i.data();
+    QXmlInputSource *i = (QXmlInputSource *)inputSource; // ### change this
+    xml = i->data();
     xmlLength = xml.length();
     xmlRef = "";
 

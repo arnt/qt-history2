@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#29 $
+** $Id: //depot/qt/main/src/xml/qxml.h#30 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -157,18 +157,20 @@ public:
     QXmlInputSource( QTextStream& stream ); // obsolete
     virtual ~QXmlInputSource();
 
-    virtual QString data() const;
-    virtual void setData( const QString& d );
+    virtual QString data();
+    virtual void setData( const QString& dat );
+    virtual void setData( const QByteArray& dat );
 
 private:
     void init();
-    void getData() const;
-    QString inputToString() const;
+    void getData();
+    QString inputToString( QByteArray *data );
 
     QIODevice *inputDevice;
     QTextStream *inputStream;
 
-    QString *stringData;
+    QString *userStringData;
+    QByteArray *userRawData;
     QByteArray *rawData;
     QBuffer *encBuffer;
     QTextStream *encStream;
@@ -261,7 +263,7 @@ public:
 
     bool parse( const QXmlInputSource& input );
     virtual bool parse( const QXmlInputSource& input, bool incremental );
-    virtual bool parseContinue( const QXmlInputSource& input );
+    virtual bool parseContinue();
 
 private:
     // variables
@@ -326,7 +328,7 @@ private:
     bool atEnd();
 
     void init( const QXmlInputSource& i );
-    void initData( const QXmlInputSource& i );
+    void initData();
 
     bool entityExist( const QString& ) const;
 

@@ -145,7 +145,9 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	}
     } else {
 	file.reset();
+	bool first = TRUE;
 	QByteArray rawData;
+	QXmlInputSource source;
 	QStringList steps = QStringList::split( ",", incrementalSteps );
 
 	QStringList::Iterator it = steps.begin();
@@ -155,31 +157,32 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	    size = file.readBlock( rawData.data(), size );
 	    rawData.resize( size );
 #if 1
-	    rawData.resize( size + 1 );
-	    rawData[ size ] = 0;
-	    qDebug( rawData );
-	    rawData.resize( size );
+	    source.setData( rawData );
+	    QString tmp = source.data();
+	    qDebug( tmp );
+	    source.setData( tmp );
+#else
+	    //qDebug( rawData );
+	    source.setData( rawData );
 #endif
-	    QBuffer buf( rawData );
-	    QXmlInputSource source( &buf );
-	    if ( parser.parseContinue( source ) ) {
-		errorStatus = "Ok";
+	    if ( first ) {
+		first = FALSE;
+		if ( parser.parse( source, TRUE ) ) {
+		    errorStatus = "Ok";
+		} else {
+		    errorStatus = "Error";
+		    break;
+		}
 	    } else {
-		errorStatus = "Error";
-		break;
+		if ( parser.parseContinue() ) {
+		    errorStatus = "Ok";
+		} else {
+		    errorStatus = "Error";
+		    break;
+		}
 	    }
 	    ++it;
 	}
-#if 0
-	rawData = file.readAll();
-	QBuffer buf( rawData );
-	QXmlInputSource source( &buf );
-	if ( parser.parseContinue( source ) ) {
-	    errorStatus = "Ok";
-	} else {
-	    errorStatus = "Error";
-	}
-#endif
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
