@@ -3,7 +3,7 @@
     \quickify
 */
 
-/*! \quickenum QWidget.BackgroundOrigin
+/* IGNORE ! \quickenum QWidget.BackgroundOrigin
 
     \internal
 

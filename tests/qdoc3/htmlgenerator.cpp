@@ -154,11 +154,16 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 			    relative );
 	break;
     case Atom::ListLeft:
-	if ( atom->string() == ATOM_LIST_BULLET ||
-	     atom->string() == ATOM_LIST_VALUE ) {
+	if ( atom->string() == ATOM_LIST_BULLET ) {
 	    out() << "<ul>\n";
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dl>\n";
+	} else if ( atom->string() == ATOM_LIST_VALUE ) {
+#if OLDSTYLE
+	    out() << "<ul>\n";
+#else
+	    out() << "<table>\n";	    
+#endif
 	} else {
             out() << "<ol type=";
             if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
@@ -183,21 +188,29 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dt>";
 	} else { // ( atom->string() == ATOM_LIST_VALUE )
+#if OLDSTYLE
 	    out() << "<li>";
+#else
+	    out() << "<tr><td>";
+#endif
 	}
 	break;
     case Atom::ListTagRight:
-	if ( atom->string() == ATOM_LIST_TAG ) {
+	if ( atom->string() == ATOM_LIST_TAG )
 	    out() << "</dt>\n";
-	} else { // ( atom->string() == ATOM_LIST_VALUE )
-	    if ( matchAhead(atom, Atom::ListItemLeft) )
-		out() << " -- ";
-	}
 	break;
     case Atom::ListItemLeft:
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "<dd>";
-	} else if ( atom->string() != ATOM_LIST_VALUE ) {
+	} else if ( atom->string() == ATOM_LIST_VALUE ) {
+#if OLDSTYLE
+	    if ( !matchAhead(atom, Atom::ListItemRight) )
+		out() << " -- ";
+#else
+	    if ( !matchAhead(atom, Atom::ListItemRight) )
+		out() << "</td><td>";
+#endif
+	} else {
 	    out() << "<li>";
 	}
 	if ( matchAhead(atom, Atom::ParaLeft) )
@@ -206,16 +219,27 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::ListItemRight:
 	if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dd>\n";
+	} else if ( atom->string() == ATOM_LIST_VALUE ) {
+#if OLDSTYLE
+	    out() << "</li>\n";
+#else
+	    out() << "</td></tr>\n";
+#endif
 	} else {
 	    out() << "</li>\n";
 	}
 	break;
     case Atom::ListRight:
-	if ( atom->string() == ATOM_LIST_BULLET ||
-	     atom->string() == ATOM_LIST_VALUE ) {
+	if ( atom->string() == ATOM_LIST_BULLET ) {
 	    out() << "</ul>\n";
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
 	    out() << "</dl>\n";
+	} else if ( atom->string() == ATOM_LIST_VALUE ) {
+#if OLDSTYLE
+	    out() << "</ul>\n";
+#else
+	    out() << "</table>\n";
+#endif
 	} else {
 	    out() << "</ol>\n";
 	}
@@ -430,7 +454,7 @@ QString HtmlGenerator::fileExtension( const Node * /* node */ )
 void HtmlGenerator::generateHeader( const QString& title,
 				    const Node * /* node */ )
 {
-#if 0
+#if O
     out() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 #endif
     out() << "<!DOCTYPE html\n"

@@ -1186,11 +1186,7 @@ void DocParser::leaveValue()
 	openedLists.push( OpenedList(OpenedList::Value) );
 	append( Atom::ListLeft, ATOM_LIST_VALUE );
     } else {
-	if ( priv->text.lastAtom()->type() == Atom::ListItemLeft ) {
-	    priv->text.stripLastAtom();
-	} else {
-	    append( Atom::ListItemRight, ATOM_LIST_VALUE );
-	}
+	append( Atom::ListItemRight, ATOM_LIST_VALUE );
     }
 }
 
