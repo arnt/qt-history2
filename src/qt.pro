@@ -49,9 +49,10 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmovie.h \
-		  $$KERNEL_H/qobjcoll.h \
-		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobject.h \
+		  $$KERNEL_H/qobjectdefs.h \
+		  $$KERNEL_H/qobjectdict.h \
+		  $$KERNEL_H/qobjectlist.h \
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpainter.h \
@@ -72,8 +73,9 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qtimer.h \
-		  $$KERNEL_H/qwidcoll.h \
 		  $$KERNEL_H/qwidget.h \
+		  $$KERNEL_H/qwidgetintdict.h \
+		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwindow.h \
 		  $$KERNEL_H/qwmatrix.h \
