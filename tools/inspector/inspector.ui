@@ -2,10 +2,9 @@
 <class>InspectorBase</class>
 <include location="local" impldecl="in implementation">qsettings.h</include>
 <include location="local" impldecl="in implementation">cppparser.h</include>
-<include location="local" impldecl="in implementation">quuiddefs.h</include>
 <include location="local" impldecl="in implementation">qfiledialog.h</include>
 <include location="local" impldecl="in implementation">qlibrary.h</include>
-<include location="local" impldecl="in implementation">qcomponentinterface.h</include>
+<include location="local" impldecl="in implementation">qcom.h</include>
 <include location="local" impldecl="in implementation">qregexp.h</include>
 <variable>QStringList headerFiles</variable>
 <widget class="QMainWindow">
@@ -496,7 +495,8 @@
 	while ( iidIt.current() ) { 
 	    QListViewItem *iidItem = iidIt.current(); 
 	    ++iidIt; 
-	    QUnknownInterface *iface = library-&gt;queryInterface( QUuid( iidItem-&gt;text( 1 ) ) ); 
+	    QUnknownInterface *iface;
+	    library-&gt;queryInterface( QUuid( iidItem-&gt;text( 1 ) ), &amp;iface ); 
 	    if ( iface ) { 
 		hasInterface = TRUE; 
 		iface-&gt;release(); 
