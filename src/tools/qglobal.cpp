@@ -115,7 +115,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     si_alreadyDone = TRUE;
 
     si_wordSize = 0;
-    ulong n = (ulong)(~0);
+    Q_ULONG n = (Q_ULONG)(~0);
     while ( n ) {				// detect word size
 	si_wordSize++;
 	n /= 2;
