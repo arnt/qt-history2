@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#90 $
 **
 ** Definition of QIconView widget class
 **
@@ -3232,10 +3232,22 @@ QSizePolicy QIconView::sizePolicy() const
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
+/*!
+  \internal
+  Clears string which is used for setting the current item 
+  when the user types something in
+*/
+
 void QIconView::clearInputString()
 {
     d->currInputString = QString::null;
 }
+
+/*!
+  \internal
+  Finds the first item beginning with \a text and makes
+  it the current one
+*/
 
 void QIconView::findItemByName( const QString text )
 {
@@ -3251,6 +3263,12 @@ void QIconView::findItemByName( const QString text )
 	repaintItem( d->currentItem );
     }
 }
+
+/*!
+  Layouts a row of icons (in AlignMode == South this is a column). Starts
+  layouting with the item \a begin.\a y is the starting coordinate.
+  Returns the last item of the row and sets the new starting coordinate to \a y.
+*/
 
 QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 {
@@ -3414,6 +3432,12 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
     return end;
 }
 
+/*!
+  \internal
+  Calculates how many cells and item of the width \a w needs in a grid with of 
+  \a x and returns the result.
+*/
+
 int QIconView::calcGridNum( int w, int x ) const
 {
     float r = (float)w / (float)x;
@@ -3421,6 +3445,11 @@ int QIconView::calcGridNum( int w, int x ) const
 	r += 1.0;
     return (int)r;
 }
+
+/*!
+  \internal
+  Returns the first item of the row which cntains \a item.
+*/
 
 QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
 {
