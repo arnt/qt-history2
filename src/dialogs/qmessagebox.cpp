@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#102 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#103 $
 **
 ** Implementation of QMessageBox class
 **
@@ -153,6 +153,7 @@ static const char* critical_xpm[]={
 ".........aa********aaaaa........",
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
+#define QT_END_TEXT qt_dialog_default_key
 
 
 /*!
@@ -1262,6 +1263,7 @@ static const char *textAboutQt =
 "  Free Software on the X Window System.</li>"
 "<li>The Professional Edition, which may be used to develop commercial"
 "  software on both X and Microsoft Windows.</li></ul>";
+void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
 
 /*!
@@ -1281,7 +1283,6 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 			.arg(QString::fromLatin1(QT_VERSION_STR))
     );
 }
-
 
 
 #include <qmetaobject.h>
