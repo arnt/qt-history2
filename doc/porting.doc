@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.45 1999/04/29 19:20:06 warwick Exp $
+** $Id: porting.doc,v 1.46 1999/05/03 11:32:14 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -89,6 +89,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#Namespace>Namespace</a></b>
  <li><b><a href=#Virtual>Virtual Functions</a></b>
  <li><b><a href=#Collection>Collection classes</a></b>
+ <li><b><a href=#Misc>Miscellaneous</a></b>
 
  <li><b><a href=#QApplication>QApplication</a></b>
  <li><b><a href=#QClipboard>QClipboard</a></b>
@@ -192,10 +193,21 @@ replace e.g. Q_DECLARE(QCache,QPixmap) with QCache<QPixmap>.
 
 <p> The GCI global typedef is replaced by QCollection::Item.  Only if you
 make your own subclasses of the undocumented generic collection classes
-will you have GCI in you code.
+will you have GCI in your code.
 This change has been made to avoid collisions with other namespaces.
 
 <p> The GCF global typedef is removed (it was not used in Qt).
+
+
+<h3><a name=Misc>Miscellaneous</a></h3>
+
+<p>The ASSERT macro is now a null expression if the CHECK_STATE flag
+is not set (i.e. if the NO_CHECK flag is defined).
+
+<p>The debug() function now outputs nothing if Qt was compiled with
+the DEBUG flag not set (i.e. with the NO_DEBUG flag defined).
+
+
 
 
 <h3><a name=QApplication>QApplication</a></h3>
