@@ -1110,7 +1110,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    request_select_pending = FALSE;
 	    QEventLoop *l = NULL;
 	    if(GetEventParameter(event, kEventParamQEventLoop, typeQEventLoop, NULL, sizeof(l), NULL, &l))
-		l = eventLoop();
+		l = app->eventLoop();
 	    timeval tm;
 	    memset(&tm, '\0', sizeof(tm));
 	    l->macHandleSelect(&tm);
@@ -1153,7 +1153,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventQtRequestTimer) {
 	    TimerInfo *t;
 	    GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL, sizeof(t), NULL, &t);
-	    eventLoop()->macHandleTimer(t);
+	    app->eventLoop()->macHandleTimer(t);
 	} else {
 	    handled_event = FALSE;
 	}

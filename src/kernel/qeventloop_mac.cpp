@@ -725,7 +725,7 @@ void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
     }
 }
 
-bool QEventLoop::hasPendingEvents()
+bool QEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount();
     return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetMainEventQueue());
