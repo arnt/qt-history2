@@ -1,14 +1,12 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QtGui>
-
-#include "wigglywidget.h"
+#include <QDialog>
 
 class Dialog : public QDialog
 {
 public:
-    Dialog();
+    Dialog(QWidget *parent = 0);
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef WIGGLYWIDGET_H
 #define WIGGLYWIDGET_H
 
-#include <QtGui>
+#include <QWidget>
 
 class WigglyWidget : public QWidget
 {
@@ -11,21 +11,16 @@ public:
     WigglyWidget(QWidget *parent);
 
 public slots:
-    void setText(const QString &text) { _text = text; }
-
-signals:
-    void clicked();
+    void setText(const QString &newText) { text = newText; }
 
 protected:
-    void mouseReleaseEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *);
-
-private slots:
-    void animate();
+    void paintEvent(QPaintEvent *event);
+    void timerEvent(QTimerEvent *event);
 
 private:
-    QString _text;
-    int _0to15;
+    QString text;
+    int step;
+    int timerId;
 };
 
 #endif

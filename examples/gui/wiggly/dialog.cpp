@@ -1,22 +1,23 @@
-#include "dialog.h"
+#include <QtGui>
 
-Dialog::Dialog()
-    : QDialog(0)
+#include "dialog.h"
+#include "wigglywidget.h"
+
+Dialog::Dialog(QWidget *parent)
+    : QDialog(parent)
 {
-    WigglyWidget *wiggly = new WigglyWidget(this);
+    WigglyWidget *wigglyWidget = new WigglyWidget(this);
     QLineEdit *lineEdit = new QLineEdit(this);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->addWidget(wiggly, 1);
-    vbox->addWidget(lineEdit);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(wigglyWidget);
+    layout->addWidget(lineEdit);
 
-    connect(lineEdit, SIGNAL(textChanged(const QString&)),
-            wiggly, SLOT(setText(const QString&)));
+    connect(lineEdit, SIGNAL(textChanged(QString)),
+            wigglyWidget, SLOT(setText(QString)));
+
+    lineEdit->setText(tr("Hello world!"));
 
     setWindowTitle(tr("Wiggly"));
-    resize(320, 200);
-
-    lineEdit->setText(tr("Hello World!"));
+    resize(320, 145);
 }
-
-
