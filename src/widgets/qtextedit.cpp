@@ -6394,7 +6394,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     }
 
     // fill the background that is not covered by the document
-    td->doLayout( p, viewport()->width() );
+    td->doLayout( p, contentsWidth() );
     if ( (contentsX() + clipw) > td->width() )
  	p->fillRect( td->width(), clipy, clipw, cliph, colorGroup().base() );
 
