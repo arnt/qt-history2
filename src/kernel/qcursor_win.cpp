@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#45 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -345,37 +345,37 @@ void QCursor::update() const
     };
 
 
-    TCHAR *sh;
+    char *sh;
     switch ( data->cshape ) {			// map to windows cursor
 	case ArrowCursor:
-	    sh = IDC_ARROW;
+	    sh = (char*)IDC_ARROW;
 	    break;
 	case UpArrowCursor:
-	    sh = IDC_UPARROW;
+	    sh = (char*)IDC_UPARROW;
 	    break;
 	case CrossCursor:
-	    sh = IDC_CROSS;
+	    sh = (char*)IDC_CROSS;
 	    break;
 	case WaitCursor:
-	    sh = IDC_WAIT;
+	    sh = (char*)IDC_WAIT;
 	    break;
 	case IbeamCursor:
-	    sh = IDC_IBEAM;
+	    sh = (char*)IDC_IBEAM;
 	    break;
 	case SizeVerCursor:
-	    sh = IDC_SIZENS;
+	    sh = (char*)IDC_SIZENS;
 	    break;
 	case SizeHorCursor:
-	    sh = IDC_SIZEWE;
+	    sh = (char*)IDC_SIZEWE;
 	    break;
 	case SizeBDiagCursor:
-	    sh = IDC_SIZENESW;
+	    sh = (char*)IDC_SIZENESW;
 	    break;
 	case SizeFDiagCursor:
-	    sh = IDC_SIZENWSE;
+	    sh = (char*)IDC_SIZENWSE;
 	    break;
 	case SizeAllCursor:
-	    sh = IDC_SIZEALL;
+	    sh = (char*)IDC_SIZEALL;
 	    break;
 	case BlankCursor:
 	case SplitVCursor:
@@ -433,5 +433,8 @@ void QCursor::update() const
 #endif
 	    return;
     }
-    data->hcurs = LoadCursorA( 0, sh );
+    if ( qt_winver == WV_NT )
+	data->hcurs = LoadCursor( 0, (TCHAR*)sh );
+    else
+	data->hcurs = LoadCursorA( 0, sh );
 }
