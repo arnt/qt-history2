@@ -356,7 +356,7 @@ int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
     int glyphEnd = shaped.d->logClusters[charEnd];
     while ( charEnd < shaped.d->length && shaped.d->logClusters[charEnd] == glyphEnd )
 	charEnd++;
-    glyphEnd = shaped.d->logClusters[charEnd];
+    glyphEnd = (charEnd == shaped.d->length) ? shaped.d->num_glyphs : shaped.d->logClusters[charEnd];
 
     int width = 0;
     for ( int i = glyphStart; i < glyphEnd; i++ )
