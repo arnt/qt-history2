@@ -245,6 +245,13 @@ void FtpMainWindow::ftp_ftpCommandReply( int code, const QString &text )
 	    currentFtpDir = text.mid( 1, text.length()-2 );
 	else
 	    currentFtpDir = text;
+
+	for ( int i = 0; i<remotePath->count(); i++ ) {
+	    // make sure that we don't insert duplicates
+	    if ( remotePath->text( i ) == currentFtpDir )
+		remotePath->removeItem( i );
+	}
 	remotePath->insertItem( currentFtpDir, 0 );
+	remotePath->setCurrentItem( 0 );
     }
 }
