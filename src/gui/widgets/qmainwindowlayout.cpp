@@ -431,11 +431,11 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             continue;
         }
         stream << i;
+        stream << layout_info[i].size;
         const QDockWindowLayout * const layout =
             qt_cast<const QDockWindowLayout *>(layout_info[i].item->layout());
         Q_ASSERT(layout != 0);
         layout->saveState(stream);
-        stream << layout_info[i].size;
     }
 
     // save center widget state
@@ -519,10 +519,13 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     for (int area = 0; area < areas; ++area) {
         int pos;
         stream >> pos;
+        stream >> layout_info[pos].size;
         QDockWindowLayout * const layout =
             layoutForArea(static_cast<Qt::DockWindowArea>(areaForPosition(pos)));
-        layout->restoreState(stream);
-        stream >> layout_info[pos].size;
+        if (!layout->restoreState(stream)) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            break;
+        }
     }
 
     // restore center widget size
@@ -531,10 +534,10 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     if (stream.status() != QDataStream::Ok) {
         // restore failed, get rid of the evidence
         for (int i = 0; i < NPOSITIONS - 1; ++i) {
-            delete layout_info[i].item;
             if (layout_info[i].sep)
                 delete layout_info[i].sep->widget();
             delete layout_info[i].sep;
+            delete layout_info[i].item;
         }
         layout_info = *save_layout_info;
 
@@ -547,10 +550,10 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 
     // replace existing dockwindow layout
     for (int i = 0; i < NPOSITIONS - 1; ++i) {
-        delete (*save_layout_info)[i].item;
         if ((*save_layout_info)[i].sep)
             delete (*save_layout_info)[i].sep->widget();
         delete (*save_layout_info)[i].sep;
+        delete (*save_layout_info)[i].item;
     }
 
     delete save_layout_info;
@@ -1208,7 +1211,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     }
 }
 
-void QMainWindowLayout::addItem(QLayoutItem *item)
+void QMainWindowLayout::addItem(QLayoutItem *)
 { qWarning("QMainWindowLayout: please use the public QMainWindow API instead."); }
 
 QSize QMainWindowLayout::sizeHint() const
