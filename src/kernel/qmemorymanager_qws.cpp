@@ -579,6 +579,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		    d.pointSize = 120;
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
+			qDebug("Doing fallback");
 			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qpf";
 		    }
 		}
@@ -655,6 +656,9 @@ bool QMemoryManager::inFont(FontID id, const QChar& ch) const
 QGlyph QMemoryManager::lockGlyph(FontID id, const QChar& ch)
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
+    if(!font->renderer) {
+	return *(font->defaultGlyph());
+    }
     if ( !font->tree ) {
 	QChar c = ch;
 	if ( !font->renderer->inFont(c) )
