@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#42 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -18,14 +18,14 @@
 #include <ctype.h>
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#42 $")
 
 
 /*****************************************************************************
@@ -66,6 +66,8 @@ static void	initTimers();
 static void	cleanupTimers();
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
+
+QObject	       *qt_clipboard = 0;
 
 static bool	qt_try_modal( QWidget *, MSG * );
 
@@ -142,16 +144,14 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 			;			// yes
 		    else
 			p--;			// treat \ literally
-		}
-		else if ( quote ) {
+		} else if ( quote ) {
 		    if ( *p == quote ) {
 			p++;
 			if ( isspace(*p) )
 			    break;
 			quote = 0;
 		    }
-		}
-		else {
+		} else {
 		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 			quote = *p++;
 			continue;
@@ -322,14 +322,14 @@ const char *qt_reg_winclass( int type )		// register window class
 	className = "QWidget";
 	if ( !widget ) {
 	    widget = TRUE;
-	    style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	    style = CS_DBLCLKS;
 	}
     }
     else if ( type == 1 ) {
 	className = "QPopup";
 	if ( !popup ) {
 	    popup = TRUE;
-	    style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW | CS_SAVEBITS;
+	    style = CS_DBLCLKS | CS_SAVEBITS;
 	}
     }
     else {
@@ -867,6 +867,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    break;
 
+	case WM_CHANGECBCHAIN:
+	case WM_DRAWCLIPBOARD:
+	    if ( qt_clipboard ) {
+		QCustomEvent e( Event_Clipboard, &msg );
+		QApplication::sendEvent( qt_clipboard, &e );
+		return 0;
+	    }
+						// NOTE: fall-through!
 	default:
 	    result = FALSE;			// event was not processed
 	    break;
@@ -944,9 +952,9 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 
     bool block_event = FALSE;
     int	 type  = msg->message;
-    
+
     if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
-	 (type >= WM_KEYFIRST   && type <= WM_KEYLAST) ) {
+	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) ) {
 	block_event = TRUE;
     }
 
@@ -1066,7 +1074,7 @@ static bool activateTimer( uint id )		// activate timer
     register TimerInfo *t = timerDict->find( id );
     if ( !t )					// no such timer id
 	return FALSE;
-    TimerEvent e( t->ind + 1 );
+    QTimerEvent e( t->ind + 1 );
     QApplication::sendEvent( t->obj, &e );	// send event
     return TRUE;				// timer event was processed
 }
@@ -1254,7 +1262,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     if ( type == Event_MouseMove ) {
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
-	    c = QApplication::cursor();
+	    c = QApplication::overrideCursor();
 	if ( c )				// application cursor defined
 	    SetCursor( c->handle() );
 	else					// use widget cursor
@@ -1465,17 +1473,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	setCRect( r );
 	QResizeEvent e( newSize, oldSize );
 	QApplication::sendEvent( this, &e );
-	QWExtra *xtra = extraData();
-	if ( xtra ) {				// update caption/icon text
+	if ( isTopLevel() ) {			// update caption/icon text
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), iconText() );
-	    else
+	    else if ( caption() )
 		SetWindowText( winId(), caption() );
 	}
-	else if ( !testWFlags(WType_TopLevel) )	// manual redraw
-	    update();
-    }
-    else if ( msg.message == WM_MOVE ) {	// move event
+	update();
+    } else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	QPoint newPos( a, b );
 	r.moveTopLeft( newPos );
