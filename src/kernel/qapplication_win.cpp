@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#193 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2391,12 +2391,12 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( isTopLevel() ) {			// update caption/icon text
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		clearWFlags( WState_Visible );
-		QHideEvent e(FALSE);
+		QHideEvent e(TRUE);
 		QApplication::sendEvent( this, &e );
 	    } else if ( !isVisible() && ( msg.wParam == SIZE_RESTORED ||
 					msg.wParam == SIZE_MAXIMIZED ) ) {
 		setWFlags( WState_Visible );
-		QShowEvent e(FALSE);
+		QShowEvent e(TRUE);
 		QApplication::sendEvent( this, &e );
 	    }
 
