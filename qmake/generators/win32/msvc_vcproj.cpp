@@ -1122,7 +1122,7 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
         QString ext = project->first("VCPROJ_EXTENSION");
         if(project->first("TEMPLATE") == "vcsubdirs")
             ext = project->first("VCSOLUTION_EXTENSION");
-        file.setFileName(outdir + project->first("QMAKE_ORIG_TARGET") + ext);
+        file.setFileName(outdir + project->first("TARGET") + ext);
     }
     if(QDir::isRelativePath(file.fileName()))
         file.setFileName(Option::fixPathToLocalOS(QDir::currentPath() + Option::dir_sep + fixFilename(file.fileName())));
