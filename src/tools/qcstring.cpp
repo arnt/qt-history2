@@ -1629,12 +1629,9 @@ QCString &QCString::setNum( ulong n )
   reference to the string.
 */
 
-/*!
-  Sets the string to the printed value of \e n.
-
-  \arg \e f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
-  as sprintf()).
-  \arg \e prec is the precision.
+/*!  Sets the string to the printed value of \a n in format \a f with
+  precision \a prec.  \a f must be one of 'f', 'F', 'e', 'E', 'g' and
+  'G'. The meaning for each character is the same as in sprintf().
 
   Returns a reference to the string.
 */
@@ -1663,16 +1660,7 @@ QCString &QCString::setNum( double n, char f, int prec )
     return sprintf( format, n );
 }
 
-/*!
-  \fn QCString &QCString::setNum( float n, char f, int prec )
-  Sets the string to the printed value of \e n.
-
-  \arg \e f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
-  as sprintf()).
-  \arg \e prec is the precision.
-
-  Returns a reference to the string.
-*/
+/*! \overload QCString &QCString::setNum( float n, char f, int prec ) */
 
 
 /*!
