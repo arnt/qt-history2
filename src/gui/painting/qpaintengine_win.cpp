@@ -367,6 +367,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     QRect r = region ? region->boundingRect() : QRect();
     if (region)
         SelectClipRgn(d->hdc, region->handle());
+//     else
+//         SelectClipRgn(d->hdc, 0);
 
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
@@ -379,8 +381,11 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     updateMatrix(QMatrix());
 
     SetBkMode(d->hdc, TRANSPARENT);
+//     SetBkColor(d->hdc, RGB(191, 191, 191));
     SetTextAlign(d->hdc, TA_BASELINE);
     SetTextColor(d->hdc, RGB(0, 0, 0));
+//     SelectObject(d->hdc, stock_nullBrush);
+//     SelectObject(d->hdc, stock_blackPen);
     return true;
 }
 
@@ -1233,6 +1238,12 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 {
+#ifdef QT_DEBUG_DRAW
+    static int counter = 0;
+    printf("QWin32PaintEngine::updateMatrix(), [%.1f %.1f %.1f %.1f %.1f %.1f], calls=%d\n",
+           mtx.m11(), mtx.m12(), mtx.m21(), mtx.m22(), mtx.dx(), mtx.dy(), ++counter);
+#endif
+
 #ifdef QT_NO_NATIVE_XFORM
     return;
 #endif
@@ -1280,12 +1291,14 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, bounds=[%d, %d, %d, %d]\n",
+    static int counter = 0;
+    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], calls=%d\n",
            region.rects().size(),
            region.boundingRect().x(),
            region.boundingRect().y(),
            region.boundingRect().width(),
-           region.boundingRect().height());
+           region.boundingRect().height(),
+           ++counter);
 #endif
 
     if (d->tryGdiplus()) {
