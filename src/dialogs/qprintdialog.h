@@ -63,8 +63,6 @@ public:
 
     void addButton( QPushButton *but );
 
-    virtual bool setupPrinters ( QListView *printers );
-    
 private slots:
     void browseClicked();
     void okClicked();

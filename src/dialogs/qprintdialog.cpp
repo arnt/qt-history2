@@ -752,32 +752,6 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
 	qpd_cleanup_globaldialog.add( &globalPrintDialog );
 }
 
-/*!
-  This function is used to specify custom printers in the
-  print dialog. On Unix many different printing systems exist, and we
-  cannot support all of them. If you have a custom
-  printing system that Qt does not support (i.e. the autodetection of
-  available printers fails), you can use this method to specify your
-  own printers.
-
-  This virtual method should return FALSE if you couldn't set up the
-  printers in the \a printers list. In this case Qt will try its own
-  mechanisms to scan for printers. Returning TRUE means you have set
-  up the list of printers correctly and Qt does not need to scan for
-  additional printers in the system.
-
-  \warning this function will change or disappear completely in the
-  final release of Qt 3.0.
-
-  \sa setGlobalPrintDialog
-*/
-// ### parameter exposing internal type without docu.
-bool QPrintDialog::setupPrinters ( QListView * )
-{
-    return FALSE;
-}
-
-
 QGroupBox * QPrintDialog::setupPrinterSettings()
 {
     QGroupBox * g = new QGroupBox( tr( "Printer settings"),
@@ -844,12 +818,10 @@ QGroupBox * QPrintDialog::setupDestination()
     etcLpDefault = parseCupsOutput( d->printers );
     if ( d->printers->childCount() == 0 ) {
         // we only use other schemes when cups fails.
-	if ( !setupPrinters( d->printers ) ) {
-	    parsePrintcap( d->printers );
-	    parseEtcLpMember( d->printers );
-	    parseSpoolInterface( d->printers );
-	    parseQconfig( d->printers );
-	}
+	parsePrintcap( d->printers );
+	parseEtcLpMember( d->printers );
+	parseSpoolInterface( d->printers );
+	parseQconfig( d->printers );
 
         QFileInfo f;
         f.setFile( QString::fromLatin1("/etc/lp/printers") );
