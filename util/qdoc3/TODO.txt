@@ -1,6 +1,6 @@
 From Jasmin:
 
-  * Q_OVERRIDE() fix
+  * put images in "/images"
   * implement \target and \keyword
   * expand QObjectList -> QList<QObject *>
   * Drop return type in "List of all members" pages.
@@ -8,12 +8,9 @@ From Jasmin:
   does show up in the docs, but not as a link from the properties in QViewport)
   * qhboxwidget.html#sizeHint is broken (apparently)
 
-
   * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
   * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
-  * put images in "/images"
 
-  * Emit warnings when \sa fails
   * Show in which module/library each class is
   * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * fix resolving \typedef Qt::HANDLE

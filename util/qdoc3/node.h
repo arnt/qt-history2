@@ -348,6 +348,7 @@ public:
     void addFunction(FunctionNode *function, FunctionRole role);
     void setStored( bool stored ) { sto = toTrool( stored ); }
     void setDesignable( bool designable ) { des = toTrool( designable ); }
+    void setOverriddenFrom(const PropertyNode *baseProperty);
 
     const QString& dataType() const { return dt; }
     NodeList functions() const;
@@ -357,6 +358,7 @@ public:
     NodeList resetters() const { return functions(Resetter); }
     bool isStored() const { return fromTrool( sto, storedDefault() ); }
     bool isDesignable() const { return fromTrool( des, designableDefault() ); }
+    const PropertyNode *overriddenFrom() const { return overrides; }
 
 private:
     enum Trool { Trool_True, Trool_False, Trool_Default };
@@ -369,8 +371,9 @@ private:
 
     QString dt;
     NodeList funcs[NumFunctionRoles];
-    Trool sto : 2;
-    Trool des : 2;
+    Trool sto;
+    Trool des;
+    const PropertyNode *overrides;
 };
 
 inline void FunctionNode::setParameters(const QList<Parameter> &parameters)

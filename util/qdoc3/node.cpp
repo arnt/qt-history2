@@ -581,8 +581,21 @@ QStringList FunctionNode::parameterNames() const
 }
 
 PropertyNode::PropertyNode( InnerNode *parent, const QString& name )
-    : LeafNode(Property, parent, name), sto(Trool_Default), des(Trool_Default)
+    : LeafNode(Property, parent, name), sto(Trool_Default), des(Trool_Default), overrides(0)
 {
+}
+
+void PropertyNode::setOverriddenFrom(const PropertyNode *baseProperty)
+{
+    for (int i = 0; i < NumFunctionRoles; ++i) {
+        if (funcs[i].isEmpty())
+            funcs[i] = baseProperty->funcs[i];
+    }
+    if (sto == Trool_Default)
+        sto = baseProperty->sto;
+    if (des == Trool_Default)
+        des = baseProperty->des;
+    overrides = baseProperty;
 }
 
 PropertyNode::Trool PropertyNode::toTrool( bool boolean )

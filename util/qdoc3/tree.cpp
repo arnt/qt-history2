@@ -203,7 +203,9 @@ void Tree::resolveInheritance()
 
 void Tree::resolveProperties()
 {
-    PropertyMap::ConstIterator propEntry = priv->unresolvedPropertyMap.begin();
+    PropertyMap::ConstIterator propEntry;
+    
+    propEntry = priv->unresolvedPropertyMap.begin();
     while (propEntry != priv->unresolvedPropertyMap.end()) {
 	PropertyNode *property = propEntry.key();
         InnerNode *parent = property->parent();
@@ -230,6 +232,16 @@ void Tree::resolveProperties()
         }
 	++propEntry;
     }
+
+    propEntry = priv->unresolvedPropertyMap.begin();
+    while (propEntry != priv->unresolvedPropertyMap.end()) {
+	PropertyNode *property = propEntry.key();
+        // redo it to set the property functions
+        if (property->overriddenFrom())
+            property->setOverriddenFrom(property->overriddenFrom());
+	++propEntry;
+    }
+
     priv->unresolvedPropertyMap.clear();
 }
 
@@ -255,7 +267,9 @@ void Tree::resolveInheritance(int pass, ClassNode *classe)
 			func->setVirtualness( FunctionNode::ImpureVirtual );
 		    func->setReimplementedFrom( from );
 		}
-	    }
+	    } else if ((*c)->type() == Node::Property) {
+                fixPropertyUsingBaseClasses(classe, static_cast<PropertyNode *>(*c));
+            }
 	    ++c;
 	}
     }
@@ -302,6 +316,21 @@ FunctionNode *Tree::findVirtualFunctionInBaseClasses(ClassNode *classe, Function
  	++r;
     }
     return 0;
+}
+
+void Tree::fixPropertyUsingBaseClasses(ClassNode *classe, PropertyNode *property)
+{
+    QList<RelatedClass>::const_iterator r = classe->baseClasses().begin();
+    while (r != classe->baseClasses().end()) {
+	PropertyNode *baseProperty = static_cast<PropertyNode *>(r->node->findNode(property->name(), Node::Property));
+        if (baseProperty) {
+            fixPropertyUsingBaseClasses(r->node, baseProperty);
+            property->setOverriddenFrom(baseProperty);
+        } else {
+            fixPropertyUsingBaseClasses(r->node, property);
+        }
+ 	++r;
+    }
 }
 
 NodeList Tree::allBaseClasses(const ClassNode *classe) const

@@ -50,6 +50,7 @@ public:
 private:
     void resolveInheritance(int pass, ClassNode *classe);
     FunctionNode *findVirtualFunctionInBaseClasses(ClassNode *classe, FunctionNode *clone);
+    void fixPropertyUsingBaseClasses(ClassNode *classe, PropertyNode *property);
     NodeList allBaseClasses(const ClassNode *classe) const;
 
     NamespaceNode roo;
