@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#68 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#67 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#68 $";
 #endif
 
 
@@ -2012,7 +2012,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 }
 
 
-void QPainter::drawPixMap( int x, int y, const QPixmap &pixmap )
+void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 {						// draw pixmap
     if ( !isActive() )
 	return;
@@ -2189,7 +2189,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		QRegion rgn = crgn.copy();
 		rgn.move( -x, -y );
 		paint.setClipRegion( rgn );
-		paint.drawPixMap( 0, 0, *wx_bm );
+		paint.drawPixmap( 0, 0, *wx_bm );
 		paint.end();
 	    }
 	    else
@@ -2642,7 +2642,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( pp ) {				// gray text
 	    pp->cpen.setStyle( NoPen );
 	    pp->drawRect( bx, 0, tw, fheight );
-	    drawPixMap( x, y+yp-fascent, *pm );
+	    drawPixmap( x, y+yp-fascent, *pm );
 	}
 
 	yp += fheight;

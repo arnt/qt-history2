@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#36 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#37 $
 **
 ** Definition of QPainter class
 **
@@ -143,8 +143,8 @@ public:
 			     int index=0, int npoints=-1 );
     void	drawBezier( const QPointArray &,
 			    int index=0, int npoints=-1 );
-    void	drawPixMap( int x, int y, const QPixmap & );
-    void	drawPixMap( const QPoint &, const QPixmap & );
+    void	drawPixmap( int x, int y, const QPixmap & );
+    void	drawPixmap( const QPoint &, const QPixmap & );
     void	drawPicture( const QPicture & );
 
     void	fillRect( int x, int y, int w, int h, const QColor & );
@@ -367,9 +367,9 @@ inline void QPainter::drawChord( const QRect &r, int a1, int a2 )
     drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
-inline void QPainter::drawPixMap( const QPoint &p, const QPixmap &pm )
+inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
-    drawPixMap( p.x(), p.y(), pm );
+    drawPixmap( p.x(), p.y(), pm );
 }
 
 inline void QPainter::fillRect( const QRect &r, const QColor &c )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#20 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#20 $";
 #endif
 
 
@@ -226,7 +226,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 	    case PDC_DRAWPIXMAP: {
 		QPixmap pixmap(8,8,1);
 		s >> p >> pixmap;
-		painter->drawPixMap( p, pixmap );
+		painter->drawPixmap( p, pixmap );
 	        }
 		break;
 	    case PDC_BEGIN:
