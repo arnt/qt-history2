@@ -39,7 +39,7 @@ Qt adds these features to C++:
   event-driven GUI;
 \i hierarchical and queryable \link objecttrees.html object
   trees \endlink that organize object ownership in a natural way;
-\i guarded pointers, \l QGuardedPtr, that are automatically
+\i guarded pointers, \l QPointer, that are automatically
   set to 0 when the referenced object is destroyed, unlike normal C++
   pointers which become "dangling pointers" when their objects are destroyed.
 \endlist
@@ -301,16 +301,16 @@ the enumeration type \c Priority for the property, this type must be
 registered with the property system as well.
 
 There are two exceptions to the above: The type of a property can also
-be either \link QValueList QValueList\<QVariant\>\endlink or \link
+be either \link QList QList\<QVariant\>\endlink or \link
 QMap QMap\<QString,QVariant\>\endlink. In
-these cases the type must be specified as \c QValueList or as \c QMap
+these cases the type must be specified as \c QList or as \c QMap
 (i.e. without their template parameters).
 
 It is possible to set a value by name, like this:
 \code
     obj->setProperty( "priority", "VeryHigh" );
 \endcode
-In the case of \c QValueList and \c QMap properties the value passes
+In the case of \c QList and \c QMap properties the value passes
 is a QVariant whose value is the entire list or map.
 
 Enumeration types are registered with the \c Q_ENUMS macro. Here's the

@@ -310,22 +310,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     See setColorSpec() for full details.
 */
 
-/*!
-    \fn static bool QApplication::hasGlobalMouseTracking()
-
-    Returns TRUE if global mouse tracking is on; otherwise returns FALSE.
-
-    \sa setGlobalMouseTracking()
-*/
-
-/*!
-    \fn static void QApplication::setGlobalMouseTracking(bool on)
-
-    Sets global mouse tracking on if \a on is TRUE.
-
-    \sa hasGlobalMouseTracking()
-*/
-
 /*
   The qt_init() and qt_cleanup() functions are implemented in the
   qapplication_xyz.cpp file.
@@ -1847,26 +1831,6 @@ bool QApplication::event( QEvent *e )
 void QApplication::syncX()	{}		// do nothing
 
 #endif
-
-/*!
-  \fn void QApplication::setWinStyleHighlightColor( const QColor & )
-  \obsolete
-
-  Sets the color used to mark selections in windows style for all widgets
-  in the application. Will repaint all widgets if the color is changed.
-
-  The default color is \c darkBlue.
-  \sa winStyleHighlightColor()
-*/
-
-/*!
-  \fn const QColor& QApplication::winStyleHighlightColor()
-  \obsolete
-
-  Returns the color used to mark selections in windows style.
-
-  \sa setWinStyleHighlightColor()
-*/
 
 #if defined(Q_OS_CYGWIN)
 /*!

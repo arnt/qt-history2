@@ -847,8 +847,9 @@ private:
     own using addWidget(), addLayout() or by the \link
     QLayout::setAutoAdd() auto-add facility\endlink. It is also
     possible for a widget to occupy multiple cells using
-    addMultiCellWidget(). If you do this, QGridLayout will guess how
-    to distribute the size over the columns/rows (based on the stretch
+    the row and column spanning overloads of addItem() and
+    addWidget(). If you do this, QGridLayout will guess how to
+    distribute the size over the columns/rows (based on the stretch
     factors).
 
     To remove a widget from a layout, call remove(). Calling
@@ -880,7 +881,7 @@ private:
 
     Once you have added your layout you can start putting widgets and
     other layouts into the cells of your grid layout using
-    addWidget(), addLayout() and addMultiCellWidget().
+    addWidget(), addItem(), and addLayout().
 
     QGridLayout also includes two margin widths: the border and the
     spacing. The border is the width of the reserved space along each

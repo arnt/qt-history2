@@ -1821,7 +1821,7 @@ QRect QLayout::alignmentRect( const QRect &r ) const
     is the caller's responsibility to give the widget a reasonable
     geometry or to put the widget back into a layout.
 
-    \sa removeItem(), QWidget::setGeometry(), add()
+    \sa removeItem(), QWidget::setGeometry(), addWidget()
 */
 void QLayout::removeWidget( QWidget *widget )
 {
@@ -1844,7 +1844,7 @@ void QLayout::removeWidget( QWidget *widget )
     Notice that \a item can be a layout (since QLayout inherits
     QLayoutItem).
 
-    \sa remove(), addItem()
+    \sa removeWidget(), addItem()
 */
 void QLayout::removeItem( QLayoutItem *item )
 {

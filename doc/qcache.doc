@@ -24,8 +24,6 @@
     \ingroup collection
     \ingroup tools
 
-    \important autoDelete setAutoDelete
-
     A cache is a least recently used (LRU) list of cache items. Each
     cache item has a key and a certain cost. The sum of item costs,
     totalCost(), never exceeds the maximum cache cost, maxCost(). If
@@ -42,9 +40,7 @@
     recently used item.
 
     There are also methods to remove() or take() an object from the
-    cache. Calling setAutoDelete(TRUE) for a cache tells it to delete
-    items that are removed. The default is to not delete items when
-    they are removed (i.e., remove() and take() are equivalent).
+    cache. 
 
     When inserting an item into the cache, only the pointer is copied,
     not the item itself. This is called a shallow copy. It is possible
@@ -191,9 +187,6 @@
 
     Removes the item associated with \a k, and returns TRUE if the
     item was present in the cache; otherwise returns FALSE.
-
-    The item is deleted if auto-deletion has been enabled, i.e., if
-    you have called setAutoDelete(TRUE).
 
     If there are two or more items with equal keys, the one that was
     inserted last is removed.

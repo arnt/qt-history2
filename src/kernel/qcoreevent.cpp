@@ -75,9 +75,7 @@
     \value ActivationChange Widget's top level window activation state has changed
     \value ApplicationFontChange  Default application font changed.
     \value ApplicationPaletteChange  Default application palette changed.
-    \value CaptionChange  Widget's caption changed.
     \value ChildAdded  Object gets a child, \l{QChildEvent}.
-    \value ChildInserted internal.
     \value ChildPolished  Object child gets polished, \l{QChildEvent}.
     \value ChildRemoved  Object loses a child, \l{QChildEvent}.
     \value Clipboard  Clipboard contents have changed.
@@ -104,7 +102,6 @@
     \value IMCompose  Input method composition is taking place.
     \value IMEnd  The end of input method composition.
     \value IMStart  The start of input method composition.
-    \value IconChange  Widget's icon changed.
     \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
     \value IconTextChange Widget's icon text has been changed
     \value InvokeSlot
@@ -112,7 +109,6 @@
     \value KeyRelease  Key release, \l{QKeyEvent}.
     \value LanguageChange  The application translation changed, \l{QTranslator}
     \value LayoutDirectionChange  The direction of layouts changed
-    \value LayoutHint  internal.
     \value LayoutRequest  Widget layout needs to be redone.
     \value Leave  Mouse leaves widget's boundaries.
     \value LocaleChange  The system locale changed

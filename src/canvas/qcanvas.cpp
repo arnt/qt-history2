@@ -2157,12 +2157,6 @@ void QCanvasItem::setVisible(bool yes)
 }
 
 /*!
-    \fn bool QCanvasItem::visible() const
-    \obsolete
-    Use isVisible() instead.
-*/
-
-/*!
     \fn bool QCanvasItem::isVisible() const
 
     Returns TRUE if the canvas item is visible; otherwise returns
@@ -2175,12 +2169,6 @@ void QCanvasItem::setVisible(bool yes)
     obscured by overlaying windows, it would be visible.
 
     \sa setVisible(), z()
-*/
-
-/*!
-    \fn bool QCanvasItem::selected() const
-    \obsolete
-    Use isSelected() instead.
 */
 
 /*!
@@ -2208,12 +2196,6 @@ void QCanvasItem::setSelected(bool yes)
 }
 
 /*!
-    \fn bool QCanvasItem::enabled() const
-    \obsolete
-    Use isEnabled() instead.
-*/
-
-/*!
     \fn bool QCanvasItem::isEnabled() const
 
     Returns TRUE if the QCanvasItem is enabled; otherwise returns FALSE.
@@ -2236,12 +2218,6 @@ void QCanvasItem::setEnabled(bool yes)
 	changeChunks();
     }
 }
-
-/*!
-    \fn bool QCanvasItem::active() const
-    \obsolete
-    Use isActive() instead.
-*/
 
 /*!
     \fn bool QCanvasItem::isActive() const

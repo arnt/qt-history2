@@ -2173,6 +2173,12 @@ QByteArray QString::toAscii() const
 }
 
 /*!
+    \fn const char *QString::local8Bit() const
+
+    See toLocal8Bit().
+*/
+
+/*!
     Returns a local 8-bit representation of the string in a
     QByteArray. The returned value is undefined if the string contains
     characters that are not in the local 8-bit character set. If you

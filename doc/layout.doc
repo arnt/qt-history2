@@ -369,7 +369,8 @@ addItem() implements the default placement strategy for layout items.
 It must be implemented. It is used by QLayout::add(), by the QLayout
 constructor that takes a layout as parent. If your layout
 has advanced placement options that require parameters, you must
-provide extra access functions such as \l QGridLayout::addMultiCell().
+provide extra access functions such as the row and column spanning
+overloads of \l QGridLayout::addItem(), addWidget(), and addLayout().
 
 \code
 void CardLayout::addItem( QLayoutItem *item )

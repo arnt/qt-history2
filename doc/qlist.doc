@@ -11,6 +11,17 @@
     \fn QList::QList(const QList &l)
 */
 
+/*!
+    \fn bool QList::autoDelete() const
+
+    \internal
+*/
+
+/*!
+    \fn void QList::setAutoDelete(bool)
+
+    \internal
+*/
 
 /*!
     \fn QList &QList::operator=(const QList &l)

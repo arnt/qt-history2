@@ -448,16 +448,6 @@ void QColor::setNamedColor( const QString &name )
 #undef min
 
 /*!
-  \fn void QColor::getHsv( int &h, int &s, int &v ) const
-  \obsolete
-*/
-
-/*!
-  \fn void QColor::hsv( int *h, int *s, int *v ) const
-  \obsolete Use getHsv() instead.
- */
-
-/*!
     Returns the current RGB value as HSV. The contents of the \a h, \a
     s and \a v pointers are set to the HSV values. If any of the three
     pointers are null, the function does nothing.
@@ -530,7 +520,7 @@ void QColor::getHsv( int *h, int *s, int *v ) const
     \warning Colors are stored internally as RGB values, so getHSv()
     may return slightly different values to those set by setHsv().
 
-    \sa hsv(), setRgb()
+    \sa getHsv(), setRgb()
 */
 
 void QColor::setHsv( int h, int s, int v )
@@ -579,7 +569,7 @@ void QColor::setHsv( int h, int s, int v )
     For an invalid color, the alpha value of the returned color is
     unspecified.
 
-    \sa setRgb(), hsv(), qRed(), qBlue(), qGreen(), isValid()
+    \sa setRgb(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
 */
 
 /*! \fn void QColor::getRgb( int *r, int *g, int *b ) const
@@ -590,12 +580,6 @@ void QColor::setHsv( int h, int s, int v )
 
     \sa rgb(), setRgb(), getHsv()
 */
-
-/*! \fn void QColor::rgb( int *r, int *g, int *b ) const
-  \obsolete
-  Use getRgb() instead
-*/
-
 
 /*!
     Sets the RGB value to \a r, \a g, \a b. The arguments, \a r, \a g

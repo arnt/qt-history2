@@ -2601,8 +2601,6 @@ QWidget *QApplication::widgetAt(int x, int y)
 /*!
     Synchronizes with the X server in the X11 implementation. This
     normally takes some time. Does nothing on other platforms.
-
-    \sa flushX()
 */
 
 void QApplication::syncX()

@@ -881,52 +881,6 @@ QKeySequence QAccel::shortcutKey(const QString &str)
 }
 
 /*!
-  \fn QString QAccel::keyToString(const QKeySequence &k)
-
-   \obsolete
-
-   Creates an accelerator string for the key \a k.
-   For instance CTRL+Key_O gives "Ctrl+O". The "Ctrl" etc.
-   are translated (using QObject::tr()) in the "QAccel" context.
-
-   The function is superfluous. Cast the QKeySequence \a k to a
-   QString for the same effect.
-*/
-
-/*!
-  \fn QKeySequence QAccel::stringToKey(const QString & s)
-
-  \obsolete
-
-  Returns an accelerator code for the string \a s. For example
-  "Ctrl+O" gives CTRL+'O'. The strings "Ctrl",
-  "Shift", "Alt" are recognized, as well as their translated
-  equivalents in the "QAccel" context (using QObject::tr()). Returns 0
-  if \a s is not recognized.
-
-  This function is typically used with \link QObject::tr() tr
-  \endlink(), so that accelerator keys can be replaced in
-  translations:
-
-  \code
-    QPopupMenu *file = new QPopupMenu(this);
-    file->insertItem(p1, tr("&Open..."), this, SLOT(open()),
-		      QAccel::stringToKey(tr("Ctrl+O", "File|Open")));
-  \endcode
-
-  Notice the \c "File|Open" translator comment. It is by no means
-  necessary, but it provides some context for the human translator.
-
-
-  The function is superfluous. Construct a QKeySequence from the
-  string \a s for the same effect.
-
-  \sa QObject::tr()
-      \link i18n.html Internationalization with Qt \endlink
-*/
-
-
-/*!
     Sets a What's This help text for the accelerator item \a id to \a
     text.
 

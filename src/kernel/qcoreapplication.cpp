@@ -263,6 +263,9 @@ void QCoreApplication::init()
 	(void) new QEventLoop(self);
 }
 
+/*!
+    Destructor.
+*/
 QCoreApplication::~QCoreApplication()
 {
     if ( postRList ) {
@@ -923,54 +926,6 @@ void QCoreApplication::quit()
     exit( 0 );
 }
 
-
-/*! \fn void QCoreApplication::lock()
-    \obsolete
-
-  Lock the Qt Library Mutex. If another thread has already locked the
-  mutex, the calling thread will block until the other thread has
-  unlocked the mutex.
-
-  \sa unlock() locked() \link threads.html Thread Support in Qt\endlink
-*/
-
-
-/*! \fn void QCoreApplication::unlock(bool wakeUpMainThread)
-    \obsolete
-
-  Unlock the Qt Library Mutex. If \a wakeUpMainThread is TRUE (the default),
-  then the main thread will be woken up.
-
-  \sa lock(), locked() \link threads.html Thread Support in Qt\endlink
-*/
-
-
-/*! \fn bool QCoreApplication::locked()
-    \obsolete
-
-  Returns TRUE if the Qt Library Mutex is locked by a different thread;
-  otherwise returns FALSE.
-
-  \warning Due to different implementations of recursive mutexes on
-  the supported platforms, calling this function from the same thread
-  that previously locked the mutex will give undefined results.
-
-  \sa lock() unlock() \link threads.html Thread Support in Qt\endlink
-*/
-
-/*! \fn bool QCoreApplication::tryLock()
-    \obsolete
-
-  Attempts to lock the Qt Library Mutex, and returns immediately. If
-  the lock was obtained, this function returns TRUE. If another thread
-  has locked the mutex, this function returns FALSE, instead of
-  waiting for the lock to become available.
-
-  The mutex must be unlocked with unlock() before another thread can
-  successfully lock it.
-
-  \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
-*/
 
 #if defined(QT_THREAD_SUPPORT) && defined(QT_COMPAT)
 void QCoreApplication::lock()
