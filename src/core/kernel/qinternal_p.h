@@ -34,7 +34,7 @@ class QWidget;
 class QPainter;
 class QPixmap;
 
-class QMembuf
+class Q_CORE_EXPORT QMembuf
 {
 public:
     QMembuf();
@@ -156,7 +156,7 @@ inline void QCircularBuffer::push(char ch)
     buf[start_buff].insert(start_off, ch);
 }
 
-class QRingBuffer
+class Q_CORE_EXPORT QRingBuffer
 {
 public:
     QRingBuffer(int growth = 4096);
