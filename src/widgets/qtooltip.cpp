@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#2 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#2 $");
 
 // what comes out of the dict
 struct QTip
@@ -29,7 +29,7 @@ struct QTip
 
 // the class which does all the work
 // just one instance of this class exists...
-class QTipManager : public QToolTip
+class QTipManager : public QObject
 {
 public:
     QTipManager();
@@ -39,11 +39,10 @@ public:
     void add( QWidget *, const QRect &, const char *, bool );
     void remove( QWidget *, const QRect & );
 
-protected:
-    void maybeTip( const QPoint & = 0 );
-    bool event( QEvent * );
-
 private:
+    void maybeTip( const QPoint & = 0 );
+    void timerEvent( QTimerEvent * );
+
     void up( QWidget *, QTip *, const QPoint & );
     void down();
     void showTip();
@@ -51,7 +50,6 @@ private:
 
     QIntDict<QTip> * tips;
     QTip * currentTip;
-    int counter;
     QLabel * label;
     QPoint pos;
 
@@ -65,14 +63,12 @@ static QTipManager * tipManager;
 
 
 QTipManager::QTipManager()
-    : QToolTip( 0, "tool tip workhorse object" )
+    : QObject( 0, "tool tip workhorse object" )
 {
     tips = new QIntDict<QTip>( 313 );
     currentTip = 0;
-    counter = 0;
     label = 0;
     state = dormant;
-    startTimer( 100 );
 }
 
 
@@ -174,7 +170,9 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
 	}
 	break;
     default:
-	counter = 0;
+	 // is this the right thing to do?
+	killTimers();
+	state = dormant;
 	break;
     }
     return FALSE;
@@ -214,12 +212,14 @@ void QTipManager::up( QWidget * w, QTip * t, const QPoint & p )
 	return;
     }
 
-    counter = 0;
     pos = w->mapToGlobal( p ) + QPoint( 0, 16 );
-    if ( state == dormant )
+    if ( state == dormant ) {
 	state = wakingUp;
-    else
+	startTimer( 1000 );
+    } else {
 	state = wakingUpAgain;
+	startTimer( 100 );
+    }
 }
 
 
@@ -233,32 +233,16 @@ void QTipManager::down()
 }
 
 
-bool QTipManager::event( QEvent * e )
+void QTipManager::timerEvent( QTimerEvent * )
 {
-    if ( e->type() != Event_Timer )
-	return TRUE;
+    killTimers();
 
-    switch( state ) {
-    case wakingUp:
-	if ( counter++ > 10 )
-	    showTip();
-	break;
-    case active:
-	if ( counter++ > 100 )
-	    hideTip();
-	break;
-    case fallingAsleep:
-	if ( counter++ > 200 )
-	    state = dormant;
-	break;
-    case wakingUpAgain:
-	if ( counter++ > 1 )
-	    showTip();
-	break;
-    default:
-	break;
-    }
-    return TRUE;
+    if ( state == fallingAsleep )
+	state = dormant;
+    else if ( state == active )
+	hideTip();
+    else
+	showTip();
 }
 
 
@@ -267,6 +251,7 @@ void QTipManager::showTip()
     if ( !currentTip ) {
 	// error of some sort
 	state = dormant;
+	killTimers();
 	return;
     }
 
@@ -286,8 +271,8 @@ void QTipManager::showTip()
     }
     label->move( pos );
     label->show();
-    state = active;
-    counter = 0;
+    killTimers();
+    startTimer( 5000 );
 }
 
 
@@ -296,12 +281,14 @@ void QTipManager::hideTip()
     if ( label && label->isVisible() )
 	label->hide();
 
-    if ( state == active )
+    killTimers();
+    if ( state == active ) {
 	state = fallingAsleep;
-    else
+	startTimer( 2000 );
+    } else {
 	state = dormant;
+    }
 
-    counter = 0;
     currentTip = 0;
 }
 
@@ -361,22 +348,11 @@ void QTipManager::hideTip()
   \sa maybeHit().
 */
 
-QToolTip::QToolTip( QWidget * parent, const char * name = 0 )
-    : QObject( parent, name )
+QToolTip::QToolTip( QWidget * parent, const char * name )
 {
 
 
 
-}
-
-
-/*!  Destroys the tool tip object.  This need never be called
-  explicitly; Qt will delete it when the parent widget is deleted.
-*/
-
-QToolTip::~QToolTip()
-{
-    // nothing need be done?
 }
 
 
