@@ -657,11 +657,62 @@ void QTextEngine::shapeText( int item ) const
 #endif
     {
 	Q_ASSERT( script < QFont::NScripts );
-	scriptEngines[script].shape( script, string, from, len, (QTextEngine*)this, &si );
+
+	QFontEngine *font = fontEngine(si);
+
+	QShaperItem shaper_item;
+	shaper_item.script = si.analysis.script;
+	shaper_item.string = &string;
+	shaper_item.from = si.position;
+	shaper_item.length = length(item);
+	shaper_item.font = font;
+	shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
+	// ### DesignMetrics
+	shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
+
+    //     qDebug("shaping");
+	while (1) {
+    // 	qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+	    ensureSpace(shaper_item.num_glyphs);
+	    shaper_item.num_glyphs = num_glyphs - used;
+    //  	qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+	    shaper_item.glyphs = glyphs(&si);
+	    shaper_item.log_clusters = logClusters(&si);
+	    if (scriptEngines[shaper_item.script].shape(&shaper_item))
+		break;
+	}
+
+    //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
+	si.num_glyphs = shaper_item.num_glyphs;
+	si.hasPositioning = true; // ##### get rid of me
+
+	used += si.num_glyphs;
+
+	QGlyphLayout *g = shaper_item.glyphs;
+	// ############ general solution needed
+#if 0
+	if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
+	    FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
+	    if (FT_HAS_KERNING(face)) {
+		FT_Vector kerning;
+		bool kern = false;
+		for (int i = 0; i < si.num_glyphs-1; ++i) {
+		    FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
+		    g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
+		    g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
+		    kern |= (kerning.x != 0);
+		    kern |= (kerning.y != 0);
+		}
+		si.hasPositioning |= kern;
+	    }
+	}
+#endif
+
 	si.width = 0;
-	QGlyphLayout *glyphs = this->glyphs( &si );
-	for ( int i = 0; i < si.num_glyphs; i++ )
-	    si.width += glyphs[i].advance.x;
+	QGlyphLayout *end = g + si.num_glyphs;
+	while ( g < end )
+	    si.width += (g++)->advance.x;
+
     }
     QFontEngine *f = fontEngine(si);
     si.ascent = f->ascent();

@@ -242,14 +242,14 @@ QFontEngine::FECaps QFontEngineWin::capabilites() const
 	);
 }
 
-QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
+bool QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
-    getGlyphIndexes( str, len, glyphs, flags & Mirrored );
+    getGlyphIndexes( str, len, glyphs, flags & QTextEngine::RightToLeft );
 
     HDC hdc = dc();
     unsigned int glyph;
@@ -271,7 +271,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGly
     }
 
     *nglyphs = len;
-    return NoError;
+    return true;
 }
 // ### Port properly
 // #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
@@ -683,11 +683,11 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, Flags ) const
+bool QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
-	return OutOfMemory;
+	return false;
     }
 
     for ( int i = 0; i < len; i++ )
@@ -697,7 +697,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     for ( int i = 0; i < len; i++ )
 	(glyphs++)->advance.x = _size;
 
-    return NoError;
+    return true;
 }
 
 void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )

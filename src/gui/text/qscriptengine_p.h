@@ -18,8 +18,8 @@
 #endif // QT_H
 
 class QString;
-class QGlyphLayout;
-class QCharAttributes;
+struct QGlyphLayout;
+struct QCharAttributes;
 
 struct QShaperItem {
     int script;
