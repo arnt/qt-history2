@@ -395,10 +395,8 @@ public:
     bool useMetaObject:1;
 
     QMap<QCString, bool> *propWritable;
-#if QT_VERSION < 0x030100
     QMetaEnum *enums;
     int numEnums;
-#endif
 };
 
 
@@ -719,7 +717,6 @@ void QAxBase::clear()
 	    delete [] (QMetaProperty*)metaobj->property( 0 );
 
 	// clean up enums
-#if QT_VERSION < 0x030100
 	if ( d->enums ) {
 	    for ( i = 0; i < d->numEnums; ++i ) {
 		for ( uint j = 0; j < d->enums[i].count; ++j ) {
@@ -731,7 +728,6 @@ void QAxBase::clear()
 	    }
 	    delete [] (QMetaEnum*)d->enums;
 	}
-#endif
     }
     delete metaobj;
     metaobj = 0;
@@ -1072,10 +1068,8 @@ QMetaObject *QAxBase::metaObject() const
 	    ++index;
 	    ++enum_it;
 	}
-#if QT_VERSION < 0x030100
 	d->enums = enum_data;
 	d->numEnums = enumlist.count();
-#endif
 
 	// read type information
 	while ( info ) {

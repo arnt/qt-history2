@@ -45,6 +45,8 @@ void QActiveXSelect::init()
     }
     ActiveXList->sort();
     QApplication::restoreOverrideCursor();
+
+    ActiveXList->setFocus();
 }
 
 
@@ -56,7 +58,8 @@ void QActiveXSelect::controlSelected( const QString &ctrl )
 void QActiveXSelect::openLater()
 {
     if ( !activex || !activex->isNull() || !designer ) {
-	designer->release();
+	if ( designer )
+	    designer->release();
 	delete this;
 	return;
     }
