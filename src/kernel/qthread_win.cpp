@@ -525,6 +525,7 @@ void QThreadPrivate::internalRun( QThread* that )
 
 QThreadPrivate::QThreadPrivate()
 {
+    handle = 0;
     running = FALSE;
     finished = FALSE;
 }
@@ -535,7 +536,7 @@ QThreadPrivate::~QThreadPrivate()
 	qWarning("QThread object destroyed while thread is still running. Terminating thread...");
 	TerminateThread( handle, 0 );
 	finished = TRUE;
-    } else if ( !CloseHandle( handle ) ) {
+    } else if ( handle && !CloseHandle( handle ) ) {
 #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Thread destroy failure");
 #endif
