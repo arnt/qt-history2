@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#36 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#36 $";
 #endif
 
 
@@ -812,8 +812,9 @@ QString QString::rightJustify( uint width, char fill ) const
   string.  At present it only handles 7-bit ASCII, or whatever the system
   tolower() handles (if $LC_CTYPE is set, most unices do the Right Thing).
 
-  \sa upper().
   \todo Non-ASCII character set support
+
+  \sa upper().
  ----------------------------------------------------------------------------*/
 
 QString &QString::lower()			// convert to lower case
@@ -834,8 +835,9 @@ QString &QString::lower()			// convert to lower case
   system toupper() handles (if $LC_CTYPE is set, most unices do the
   Right Thing).
 
-  \sa lower().
   \todo Non-ASCII character set support
+
+  \sa lower().
  ----------------------------------------------------------------------------*/
 
 QString &QString::upper()			// convert to upper case

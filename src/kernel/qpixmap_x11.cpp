@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#29 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#29 $";
 #endif
 
 
@@ -953,8 +953,9 @@ static inline int d2i_round( double d )		// double -> int, rounded
             &rp, 0, 0, -1, -1 );
   \endcode
 
-  \sa trueMatrix(), Q2DMatrix, QPainter::setWorldMatrix()
   \bug 2 and 4 bits pixmaps not supported.
+
+  \sa trueMatrix(), Q2DMatrix, QPainter::setWorldMatrix()
 */
 
 QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
@@ -1252,6 +1253,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
+
   \sa xForm(), Q2DMatrix
 */
 
