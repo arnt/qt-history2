@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#74 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#74 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -1135,4 +1135,19 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 {
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->mode : Normal;
+}
+
+
+/*!
+  Returns a size which fits the contents of the line edit.
+
+  The width returned tends to be enough for about 15-20 characters.
+*/
+
+QSize QLineEdit::sizeHint() const
+{
+    int h = fontMetrics().height();
+    int margin = frame() ? 8 : 4;
+    debug( "h = %d", h );
+    return QSize( 10*h + margin, h + margin );
 }
