@@ -54,7 +54,7 @@ public:
     inline QLineF midTangent() const;
 
     void split(QBezier *firstHalf, QBezier *secondHalf);
-    int offsetted(QBezier *curveSegments, int maxSegmets, float offset);
+    int shifted(QBezier *curveSegments, int maxSegmets, float offset, float threshold);
 
 private:
     void init();

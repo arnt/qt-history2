@@ -151,6 +151,9 @@ public:
     void setMiterLimit(qreal length);
     qreal miterLimit() const;
 
+    void setCurveThreshold(qreal threshold);
+    qreal curveThreshold() const;
+
     QPainterPath createStroke(const QPainterPath &path) const;
 
 private:

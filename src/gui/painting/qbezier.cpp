@@ -186,7 +186,7 @@ void QBezier::split(QBezier *firstHalf, QBezier *secondHalf)
     secondHalf->valid = true;
 }
 
-int QBezier::offsetted(QBezier *curveSegments, int maxSegments, float offset)
+int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, float threshold)
 {
     Q_ASSERT(curveSegments);
     Q_ASSERT(maxSegments > 0);
@@ -198,10 +198,10 @@ int QBezier::offsetted(QBezier *curveSegments, int maxSegments, float offset)
     QLineF l2(x3, y3, x4, y4);
     QLineF l2n = l2.normalVector().unitVector();
     l2.translate(l2n.vx() * offset, l2n.vy() * offset);
-    QBezier offsetted(l1.start(), l1.end(), l2.start(), l2.end());
+    QBezier shifted(l1.start(), l1.end(), l2.start(), l2.end());
 
     // Locate the center off the offsetted curve.
-    QPointF offsetCenter = offsetted.midPoint();
+    QPointF offsetCenter = shifted.midPoint();
 
     // Calculate where the center of the offsetted curve should be
     QPointF center = midPoint();
@@ -210,14 +210,14 @@ int QBezier::offsetted(QBezier *curveSegments, int maxSegments, float offset)
     center += QPointF(ctn.vx() * offset, ctn.vy() * offset);
 
     // Recurse if the distance between actual and expected is greater than threshold
-    if (QLineF(center, offsetCenter).length() > qAbs(offset/10) && maxSegments > 1) {
+    if (QLineF(center, offsetCenter).length() > qAbs(threshold) && maxSegments > 1) {
         QBezier firstHalf, secondHalf;
         split(&firstHalf, &secondHalf);
-        int num = firstHalf.offsetted(curveSegments, maxSegments / 2, offset);
-        num += secondHalf.offsetted(curveSegments + num, maxSegments - num, offset);
+        int num = firstHalf.shifted(curveSegments, maxSegments / 2, offset, threshold);
+        num += secondHalf.shifted(curveSegments + num, maxSegments - num, offset, threshold);
         return num;
     } else {
-        *curveSegments = offsetted;
+        *curveSegments = shifted;
         return 1;
     }
 }
