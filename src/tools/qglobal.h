@@ -1095,11 +1095,11 @@ Q_CORE_EXPORT void qWarning( const char *, ... )	// print warning message
 ;
 
 class QDebug;
-Q_CORE_EXPORT QDebug qDebug();
+class QNoDebug;
 
 #ifdef QT_NO_DEBUG
-#  define qDebug qt_noop(),1?(void)0:qDebug
-#  define qWarning qt_noop(),1?(void)0:qWarning
+#  define qDebug if(1); else qDebug
+#  define qWarning if(1); else qWarning
 #endif
 
 Q_CORE_EXPORT void qSystemWarning( const char *, ... )	// print system message

@@ -60,19 +60,22 @@ inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
 
 #else
 
-class Q_CORE_EXPORT QDebug
+class Q_CORE_EXPORT QNoDebug
 {
 public:
-    inline QDebug(){}
-    inline QDebug(const QDebug &){}
-    inline ~QDebug(){}
-    template <typename T> inline QDebug &operator<<(const T &) {return *this; }
-    inline QDebug &operator<<(QTSFUNC){ return *this; }
-    inline QDebug &operator<<(QTSManip){ return *this; }
+    inline QNoDebug(){}
+    inline QNoDebug(const QDebug &){}
+    inline ~QNoDebug(){}
+    template <typename T> inline QNoDebug &operator<<(const T &) {return *this; }
+    inline QNoDebug &operator<<(QTSFUNC){ return *this; }
+    inline QNoDebug &operator<<(QTSManip){ return *this; }
+    inline QNoDebug &space() { return *this; }
+    inline QNoDebug &nospace() { return *this; }
+    inline QNoDebug &maybeSpace() { return *this; }
 };
 #undef qDebug
-inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
-#define qDebug qt_noop(),1?(void)0:qDebug
+inline Q_CORE_EXPORT QNoDebug qDebug() { return QNoDebug(); }
+#define qDebug if(1) ; else qDebug
 
 #endif
 
