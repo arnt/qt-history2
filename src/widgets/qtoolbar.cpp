@@ -693,11 +693,11 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	createPopup();
 	if ( d->extensionPopup->count() ) {
 	    if ( orientation() == Horizontal )
-		d->extension->setGeometry( width() - 20, 1, 20, height() - 2 );
+	        d->extension->setGeometry( width() - 20, 1, 20, height() - 2 );
 	    else
-		d->extension->setGeometry( 1, height() - 20, width() - 2, 20 );
+	        d->extension->setGeometry( 1, height() - 20, width() - 2, 20 );
 	    d->extension->show();
-	    d->extension->raise();
+	    d->extension->raise();	    	    
 	} else {
 	    d->extension->hide();
 	}
