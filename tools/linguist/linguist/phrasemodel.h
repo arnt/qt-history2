@@ -25,7 +25,7 @@ class PhraseModel : public QAbstractTableModel
 
 public:
     PhraseModel(QObject *parent = 0)
-        : QAbstractTableModel(parent) {}
+        : QAbstractTableModel(parent), sortColumn(-1) {}
 
     void removePhrases();
     QList<Phrase> phraseList() const {return plist;}

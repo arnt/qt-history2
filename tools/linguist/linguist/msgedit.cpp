@@ -448,6 +448,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     : QScrollArea(parent), tor(t)
 {
     doGuesses = true;
+    canPaste = false;
     topDockWnd = new QDockWidget(parent);
     topDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
     topDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
