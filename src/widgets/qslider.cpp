@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#38 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#38 $");
 
 
 static const int motifBorder = 2;
@@ -356,8 +356,8 @@ static void drawWinPointedSlider( QPainter *p,
     const QColor c0 = black;
     const QColor c1 = g.dark();
     const QColor c2 = g.background();
-    const QColor c3 = g.light();
-    const QColor c4 = g.highlight();
+    const QColor c3 = g.midlight();
+    const QColor c4 = g.light();
 
     int x1 = r.left();
     int x2 = r.right();
