@@ -631,12 +631,10 @@ int QMenuBar::calculateRects( int max_width )
 	    h = mi->pixmap()->height() + 2*motifItemVMargin;
 	} else if ( !mi->text().isNull() ) {	// text item
 	    QString s = mi->text();
-	    w = fm.width(s)
-		    - fm.leftBearing( s[0] )
-		    - fm.rightBearing( s[ (uint) s.length()-1] )
-		    + 2*motifItemHMargin;
-		w -= s.contains('&')*fm.width('&');
-		w += s.contains("&&")*fm.width('&');
+	    w = fm.boundingRect( s ).width()
+		+ 2*motifItemHMargin;
+	    w -= s.contains('&')*fm.width('&');
+	    w += s.contains("&&")*fm.width('&');
 	    h = fm.height() + motifItemVMargin;
 	} else if ( mi->isSeparator() ) {	// separator item
 	    separator = i;
