@@ -14,7 +14,7 @@
 #define QTHREADSTORAGE_H
 
 #ifndef QT_H
-#include "qglobal.h"
+#  include "qglobal.h"
 #endif // QT_H
 
 class Q_EXPORT QThreadStorageData
@@ -101,7 +101,13 @@ private:
     QThreadStorage &operator=(const QThreadStorage &);
 #endif // Q_DISABLE_COPY
 
-    static void deleteData(void *x) { delete reinterpret_cast<T*>(x); }
+    static inline void deleteData(void *x)
+    {
+	if (QTypeInfo<T>::isPointer)
+	    qDelete(reinterpret_cast<T&>(x));
+	else
+	    qDelete(reinterpret_cast<T*&>(x));
+    }
 
 public:
     inline QThreadStorage() : d(deleteData) { }
