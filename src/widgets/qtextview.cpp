@@ -905,6 +905,20 @@ enum {
 
 /*! \reimp */
 
+void QTextView::contentsWheelEvent( QWheelEvent *e )
+{
+    if ( e->state() & ControlButton ) {
+	if ( e->delta() > 0 )
+	    zoomOut();
+	else if ( e->delta() < 0 )
+	    zoomIn();
+	return;
+    }
+    QScrollView::contentsWheelEvent( e );
+}
+
+/*! \reimp */
+
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
 {
     clearUndoRedo();
@@ -1755,9 +1769,14 @@ void QTextView::setText( const QString &text, const QString &context )
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
+
+    if ( qApp->font().pointSize() != QScrollView::font().pointSize() )
+	setFont( QScrollView::font() );
+
     viewport()->repaint( FALSE );
     emit textChanged();
     formatMore();
+
 }
 
 /*! If you used load() to load and set the contents, this function
@@ -2744,6 +2763,39 @@ QPopupMenu *QTextView::createPopupMenu()
 void QTextView::setFont( const QFont &f )
 {
     QScrollView::setFont( f );
+    doc->setMinimumWidth( -1, 0 );
+
+    // ### that is a bit hacky
+    static bool diff = 1;
+    diff *= -1;
+    doc->setWidth( doc->width() + diff );
+
     doc->updateFontSizes( f.pointSize() );
+    lastFormatted = doc->firstParag();
+    formatMore();
     repaintChanged();
+}
+
+/*! Zooms in the text by making the standard font size one point larger
+  and recalculating all fontsizes. This does not change the size of
+  images.
+*/
+
+void QTextView::zoomIn()
+{
+    QFont f( QScrollView::font() );
+    f.setPointSize( f.pointSize() + 1 );
+    setFont( f );
+}
+
+/*! Zooms out the text by making the standard font size one point
+  smaller and recalculating all fontsizes. This does not change the
+  size of images.
+*/
+
+void QTextView::zoomOut()
+{
+    QFont f( QScrollView::font() );
+    f.setPointSize( QMAX( 1, f.pointSize() - 1 ) );
+    setFont( f );
 }

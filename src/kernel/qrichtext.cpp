@@ -1189,6 +1189,8 @@ QTextDocument::QTextDocument( QTextDocument *p )
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextDocument (%p)", this );
 #endif
+    if ( p )
+	p->insertChild( this );
     pProcessor = 0;
     useFC = TRUE;
     pFormatter = 0;
@@ -1255,6 +1257,8 @@ QTextDocument::QTextDocument( QTextDocument *p )
 
 QTextDocument::~QTextDocument()
 {
+    if ( par )
+	par->removeChild( this );
     clear();
     delete commandHistory;
     delete flow_;
@@ -2758,10 +2762,14 @@ void QTextDocument::updateStyles()
 {
     invalidate();
     fCollection->updateStyles();
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->updateStyles();
 }
 
 void QTextDocument::updateFontSizes( int base )
 {
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->updateFontSizes( base );
     invalidate();
     fCollection->updateFontSizes( base );
 }

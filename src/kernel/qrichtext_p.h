@@ -560,6 +560,7 @@ public:
     void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
 
     QBrush *backGround() const { return background; }
+    virtual void invalidate() { cached_width = -1; cached_sizehint = -1; }
 
 private:
     QPainter* painter() const;
@@ -834,6 +835,9 @@ public:
     void clear( bool createEmptyParag = FALSE );
 
     virtual QTextParag *createParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );
+    void insertChild( QTextDocument *d ) { childList.append( d ); }
+    void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
+    QList<QTextDocument> children() const { return childList; }
 
 signals:
     void minimumWidthChanged( int );
@@ -899,6 +903,7 @@ private:
     int tStopWidth;
     int uDepth;
     QString oText;
+    QList<QTextDocument> childList;
 
 };
 

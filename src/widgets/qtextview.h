@@ -170,6 +170,9 @@ public slots:
     virtual void setTabStops( int ts );
     virtual void clear();
 
+    virtual void zoomIn();
+    virtual void zoomOut();
+
 signals:
     void textChanged();
     void selectionChanged();
@@ -186,6 +189,7 @@ protected:
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
+    void contentsWheelEvent( QWheelEvent *e );
 #ifndef QT_NO_DRAGANDDROP
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
