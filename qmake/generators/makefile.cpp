@@ -782,7 +782,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString pvar = (*it) + ".path";
 	if(project->variables()[pvar].isEmpty()) {
-	    warn_msg(LogicWarn, "%s is not defined: install target not created\n", pvar.latin1());
+	    warn_msg(WarnLogic, "%s is not defined: install target not created\n", pvar.latin1());
 	    continue;
 	}
 
@@ -936,7 +936,7 @@ QString MakefileGenerator::build_args()
 	//warnings
 	else if(Option::warn_level == WarnNone)
 	    ret += " -Wnone";
-	else if(Option::warn_level & WarnAll) 
+	else if(Option::warn_level & WarnAll)
 	    ret += " -Wall";
 	else if(Option::warn_level & WarnParser)
 		ret += " -Wparser";
@@ -1085,11 +1085,11 @@ MakefileGenerator::cleanFilePath(const QString &file) const
 
 void MakefileGenerator::logicWarn(const QString &f, const QString &w)
 {
-    if(!(Option::warn_level & WarnLogic)) 
+    if(!(Option::warn_level & WarnLogic))
 	return;
     QString file = f;
     int slsh = f.findRev(Option::dir_sep);
-    if(slsh != -1) 
+    if(slsh != -1)
 	file = file.right(file.length() - slsh - 1);
     QStringList &l = project->variables()[w];
     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
