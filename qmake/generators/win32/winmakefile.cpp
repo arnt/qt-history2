@@ -300,26 +300,28 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             } else {
 		lib_dirs = dirs;
 	    }
-	    if(file.endsWith(".lib")) {
-		file = file.left(file.length() - 4);
-		if(!file.at(file.length()-1).isNumber()) {
-		    for(MakefileDependDir *mdd = lib_dirs.first(); mdd; mdd = lib_dirs.next() ) {
-			QString lib_tmpl(file + "%1" + ".lib");
-			int ver = findHighestVersion(mdd->local_dir, file);
-			if(ver != -1) {
-			    if(ver)
-				lib_tmpl = lib_tmpl.arg(ver);
-			    else
-				lib_tmpl = lib_tmpl.arg("");
-			    if(slsh != -1) {
-				QString dir = mdd->real_dir;
-				if(!dir.endsWith(Option::dir_sep))
-				    dir += Option::dir_sep;
-				lib_tmpl.prepend(dir);
+	    if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
+		if(file.endsWith(".lib")) {
+		    file = file.left(file.length() - 4);
+		    if(!file.at(file.length()-1).isNumber()) {
+			for(MakefileDependDir *mdd = lib_dirs.first(); mdd; mdd = lib_dirs.next() ) {
+			    QString lib_tmpl(file + "%1" + ".lib");
+			    int ver = findHighestVersion(mdd->local_dir, file);
+			    if(ver != -1) {
+				if(ver)
+				    lib_tmpl = lib_tmpl.arg(ver);
+				else
+				     lib_tmpl = lib_tmpl.arg("");
+				if(slsh != -1) {
+				    QString dir = mdd->real_dir;
+				    if(!dir.endsWith(Option::dir_sep))
+					dir += Option::dir_sep;
+				    lib_tmpl.prepend(dir);
+				}
+				modified_opt = TRUE;
+				(*it) = lib_tmpl;
+				break;
 			    }
-			    modified_opt = TRUE;
-			    (*it) = lib_tmpl;
-			    break;
 			}
 		    }
 		}
