@@ -550,7 +550,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    resource = TRUE;
 	}
     } else if(project->first("TEMPLATE") == "lib") {
-	if(project->isActiveConfig("create_prl") && !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
+	if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
+	   !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
 	    QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
 	    int slsh = dst_prl.findRev('/');
 	    if(slsh != -1)
