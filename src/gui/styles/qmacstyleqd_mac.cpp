@@ -18,12 +18,14 @@
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 #include "qmenu.h"
-#include <qpainter.h>
-#include <private/qpainter_p.h>
-#include <qpaintengine_mac.h>
-#include <qmap.h>
-#include <qt_mac.h>
-#include <qrubberband.h>
+#include "qpainter.h"
+#include "private/qpainter_p.h"
+#include "qpaintengine_mac.h"
+#include "qmap.h"
+#include "qt_mac.h"
+#include "qrubberband.h"
+#include "qstyleoption.h"
+
 class QMacStyleQDPainter : public QPainter
 {
 public:
@@ -2771,27 +2773,137 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement , const Q4StyleOption *, QPaint
                            const QWidget *) const
 {
 }
-void QMacStyleQD::drawControl(ControlElement , const Q4StyleOption *, QPainter *,
-                         const QWidget *) const
+
+void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
+                              const QWidget *w) const
 {
+    ThemeDrawState tds = qt_mac_getDrawState(opt->state, opt->palette);
+    switch (ce) {
+    case CE_PushButton:
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
+            if (!(btn->state & (Style_Raised | Style_Down | Style_On)))
+                break;
+            QString pmkey;
+            bool do_draw = false;
+            QPixmap buffer;
+            bool darken = d->animatable(QAquaAnimate::AquaPushButton, w);
+            int frame = d->buttonState.frame;
+            if (btn->state & Style_On) {
+                darken = true;
+                frame = 12;
+                if (btn->state & Style_Down)
+                    frame += 8;
+            } else if (btn->state & Style_Down) {
+                darken = false;
+                frame = 0;
+            }
+            if (darken && qAquaActive(btn->palette)) {
+                QTextOStream os(&pmkey);
+                os << "$qt_mac_pshbtn_" << opt->rect.width() << "x" << opt->rect.height() << "_"
+                   << opt->state << "_" << frame;
+                tds = kThemeStatePressed;
+                if(frame && !QPixmapCache::find(pmkey, buffer)) {
+                    do_draw = true;
+                    buffer = QPixmap(opt->rect.width(), opt->rect.height(), 32);
+                    buffer.fill(color0);
+                }
+            }
+            ThemeButtonKind bkind;
+            if (btn->extras != Q4StyleOptionButton::None)
+                bkind = kThemeBevelButton;
+            else
+                bkind = kThemePushButton;
+            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+            if (opt->state & Style_HasFocus
+                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                info.adornment |= kThemeAdornmentFocus;
+            QRect off_rct;
+            { //The AppManager draws outside my rectangle, so account for that difference..
+                Rect macRect, myRect;
+                SetRect(&myRect, btn->rect.x(), btn->rect.y(), btn->rect.width(),
+                        btn->rect.height());
+                GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+                off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
+                        (myRect.left - macRect.left) + (macRect.right - myRect.right),
+                        (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+            }
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false, off_rct), bkind, &info, 0, 0, 0, 0);
+            if (!buffer.isNull() && bkind == kThemePushButton) {
+                if (do_draw && frame) {
+                    QMacSavedPortInfo savedInfo(&buffer);
+                    const Rect *buff_rct = qt_glb_mac_rect(QRect(0, 0, btn->rect.width(),
+                                                           btn->rect.height()), &buffer, false,
+                                                           off_rct);
+                    DrawThemeButton(buff_rct, bkind, &info, 0, 0, 0, 0);
+                    QPixmap buffer_mask(buffer.size(), 32);
+                    buffer_mask.fill(color0);
+                    ThemeButtonDrawInfo mask_info = info;
+                    mask_info.state = kThemeStateActive;
+                    {
+                        QMacSavedPortInfo savedInfo(&buffer_mask);
+                        DrawThemeButton(buff_rct, bkind, &mask_info, 0, 0, 0, 0);
+                    }
+                    QImage img = buffer.convertToImage(),
+                           maskimg = buffer_mask.convertToImage();
+                    QImage mask_out(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+                    for (int y = 0; y < img.height(); ++y) {
+                        //calculate a mask
+                        for(int maskx = 0; maskx < img.width(); ++maskx) {
+                            QRgb in = img.pixel(maskx, y), out = maskimg.pixel(maskx, y);
+                            int diff = (((qRed(in)-qRed(out))*((qRed(in)-qRed(out)))) +
+                                    ((qGreen(in)-qGreen(out))*((qGreen(in)-qGreen(out)))) +
+                                    ((qBlue(in)-qBlue(out))*((qBlue(in)-qBlue(out)))));
+                            mask_out.setPixel(maskx, y, diff > 100);
+                        }
+                        //pulse the colors
+                        uchar *bytes = img.scanLine(y);
+                        for(int x = 0; x < img.bytesPerLine(); x++)
+                            *(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
+                    }
+                    buffer = img;
+                    QBitmap qmask(mask_out);
+                    buffer.setMask(qmask);
+                }
+                p->drawPixmap(opt->rect, buffer);
+                if (do_draw)
+                    QPixmapCache::insert(pmkey, buffer);
+            }
+            if (btn->extras & Q4StyleOptionButton::HasMenu) {
+                int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+                QRect ir = btn->rect;
+                Q4StyleOptionButton newBtn = *btn;
+                newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+                drawPrimitive(PE_ArrowDown, &newBtn, p, w);
+            }
+        }
+        break;
+    default:
+        QWindowsStyle::drawControl(ce, opt, p, w);
+    }
 }
 
-void QMacStyleQD::drawControlMask(ControlElement , const Q4StyleOption *, QPainter *,
-                             const QWidget *) const
+QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *) const
 {
-}
-
-QRect QMacStyleQD::subRect(SubRect , const Q4StyleOption *, const QWidget *) const
-{
-    return QRect();
+    QRect r = QRect();
+    switch (sr) {
+    case SR_PushButtonContents:
+        if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
+            Rect macRect, myRect;
+            SetRect(&myRect, 0, 0, btn->rect.width(), btn->rect.height());
+            ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+            GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
+            r = QRect(macRect.left, macRect.top,
+                      qMin(btn->rect.width() - 2 * macRect.left, macRect.right - macRect.left),
+                      qMin(btn->rect.height() - 2 * macRect.top, macRect.bottom - macRect.top));
+        }
+        break;
+    }
+    return r;
 }
 
 void QMacStyleQD::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
                                 const QWidget *) const
-{
-}
-
-void QMacStyleQD::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex *, QPainter *, const QWidget *) const
 {
 }
 
@@ -2807,9 +2919,43 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl , const Q4StyleOptionCo
     return QRect();
 }
 
-QSize QMacStyleQD::sizeFromContents(ContentsType , const Q4StyleOption *, const QSize &,
-                                   const QFontMetrics &) const
+QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,
+                                   const QFontMetrics &fm, const QWidget *widget) const
 {
-    return QSize();
+    QSize sz(csz);
+    switch (ct) {
+    case CT_PushButton:
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        sz = QSize(sz.width() + 16, sz.height()); //##
+        break;
+    default:
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+    }
+    QSize macsz;
+    if(qt_aqua_size_constrain(widget, ct, sz, &macsz) != QAquaSizeUnknown) {
+        if(macsz.width() != -1)
+            sz.setWidth(macsz.width());
+        if(macsz.height() != -1)
+            sz.setHeight(macsz.height());
+    }
+    // Adjust size to within Aqua guidelines
+    if(ct == CT_PushButton || ct == CT_ToolButton) {
+        ThemeButtonKind bkind = kThemePushButton;
+        if(ct == CT_ToolButton)
+            bkind = kThemeBevelButton;
+        if(qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+            if(bkind == kThemeBevelButton)
+                bkind = kThemeSmallBevelButton;
+        }
+        ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+        Rect macRect, myRect;
+        SetRect(&myRect, 0, 0, sz.width(), sz.height());
+        GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+        sz.setWidth(sz.width() +
+                (myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
+        sz.setHeight(sz.height() +
+                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+    }
+    return sz;
 }
 #endif

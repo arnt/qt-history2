@@ -179,23 +179,6 @@ static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl cont
     return &tdi;
 }
 
-static inline ThemeDrawState getDrawState(QStyle::SFlags flags, const QPalette &pal)
-{
-    ThemeDrawState tds = kThemeStateActive;
-    if (flags & QStyle::Style_Down) {
-        tds = kThemeStatePressed;
-    } else if (qAquaActive(pal)) {
-        if (!(flags & QStyle::Style_Enabled))
-            tds = kThemeStateUnavailable;
-    } else {
-        if (flags & QStyle::Style_Enabled)
-            tds = kThemeStateInactive;
-        else
-            tds = kThemeStateUnavailableInactive;
-    }
-    return tds;
-}
-
 //utility to figure out the size (from the painter)
 static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
@@ -324,7 +307,7 @@ void QMacStyleCG::polish(QApplication *app)
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
                                 const QPalette &pal, SFlags flags, const QStyleOption &opt) const
 {
-    ThemeDrawState tds = getDrawState(flags, pal);
+    ThemeDrawState tds = qt_mac_getDrawState(flags, pal);
     switch (pe) {
     case PE_RubberBandMask:
         p->fillRect(r, color1);
@@ -583,7 +566,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                               const QRect &r, const QPalette &pal, SFlags how,
                               const QStyleOption &opt) const
 {
-    ThemeDrawState tds = getDrawState(how, pal);
+    ThemeDrawState tds = qt_mac_getDrawState(how, pal);
     switch(element) {
     case CE_PushButton: {
         if (!widget)
@@ -843,7 +826,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
 {
-    ThemeDrawState tds = getDrawState(flags, pal);
+    ThemeDrawState tds = qt_mac_getDrawState(flags, pal);
     switch (control) {
     case CC_Slider:
     case CC_ScrollBar: {
@@ -1610,7 +1593,7 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                            const QWidget *w) const
 {
-    ThemeDrawState tds = getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = qt_mac_getDrawState(opt->state, opt->palette);
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -1699,7 +1682,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
     switch (ce) {
         case CE_PushButton:
             if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
-                if (!btn->state & (Style_Raised | Style_Down | Style_On))
+                if (!(btn->state & (Style_Raised | Style_Down | Style_On)))
                     break;
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;

@@ -29,6 +29,7 @@
 
 #ifndef QT_H
 # include "qstyle.h"
+# include "qt_mac.h"
 # include "qwidget.h"
 #endif // QT_H
 
@@ -113,5 +114,7 @@ enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeMini, QAquaSizeU
 QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
                                        QStyle::ContentsType ct=QStyle::CT_CustomBase,
                                        QSize szHint=QSize(-1, -1), QSize *insz=NULL);
+
+ThemeDrawState qt_mac_getDrawState(QStyle::SFlags flags, const QPalette &pal);
 
 #endif /* QAQUASTYLE_P_H */

@@ -759,3 +759,20 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
     return QAquaSizeUnknown;
 #endif
 }
+
+ThemeDrawState qt_mac_getDrawState(QStyle::SFlags flags, const QPalette &pal)
+{
+    ThemeDrawState tds = kThemeStateActive;
+    if (flags & QStyle::Style_Down) {
+        tds = kThemeStatePressed;
+    } else if (qAquaActive(pal)) {
+        if (!(flags & QStyle::Style_Enabled))
+            tds = kThemeStateUnavailable;
+    } else {
+        if (flags & QStyle::Style_Enabled)
+            tds = kThemeStateInactive;
+        else
+            tds = kThemeStateUnavailableInactive;
+    }
+    return tds;
+}
