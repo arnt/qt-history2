@@ -126,7 +126,7 @@ static QCString qt_fixXLFD( const QCString &xlfd )
 
 typedef QMap<QFont::Script,QString> FallbackMap;
 static FallbackMap *fallbackMap = 0;
-QSingleCleanupHandler<FallbackMap> qt_fallback_font_family_cleanup;
+static QSingleCleanupHandler<FallbackMap> qt_fallback_font_family_cleanup;
 
 static void ensure_fallback_map()
 {

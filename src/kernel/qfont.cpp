@@ -1335,7 +1335,7 @@ void QFont::setDefaultFont( const QFont &f )
 
 typedef QDict<QStringList> QFontSubst;
 static QFontSubst *fontSubst = 0;
-QSingleCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
+static QSingleCleanupHandler<QFontSubst> qfont_cleanup_fontsubst;
 
 
 // create substitution dict
@@ -2855,7 +2855,7 @@ static const int slow_timeout = 300000; //  5m
 QFontCache *QFontCache::instance = 0;
 const uint QFontCache::min_cost = 4*1024; // 4mb
 
-QSingleCleanupHandler<QFontCache> cleanup_fontcache;
+static QSingleCleanupHandler<QFontCache> cleanup_fontcache;
 
 
 QFontCache::QFontCache()
