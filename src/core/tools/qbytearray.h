@@ -204,6 +204,7 @@ public:
     Q_ULLONG toULongLong(bool *ok = 0, int base = 10) const;
     float toFloat(bool *ok = 0) const;
     double toDouble(bool *ok = 0) const;
+    QByteArray toBase64() const;
 
     QByteArray &setNum(short, int base = 10);
     QByteArray &setNum(ushort, int base = 10);
@@ -224,6 +225,7 @@ public:
     static QByteArray number(Q_ULLONG, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
     static QByteArray fromRawData(const char *, int size);
+    static QByteArray fromBase64(const QByteArray &base64);
 
     typedef char *iterator;
     typedef const char *const_iterator;
