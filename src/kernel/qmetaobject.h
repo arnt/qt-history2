@@ -55,7 +55,7 @@ struct QMetaProperty
 {
     QMetaProperty()
 	:name(0),get(0),set(0),type(0),enumType(0),
-	 sspec(Unspecified),gspec(Unspecified),state(0)
+	 gspec(Unspecified),sspec(Unspecified),state(0)
     {
     }
 
