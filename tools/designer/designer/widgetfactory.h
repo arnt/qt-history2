@@ -181,8 +181,11 @@ class QDesignerWizard : public QWizard
     Q_PROPERTY( int currentPage READ currentPageNum WRITE setCurrentPage STORED false DESIGNABLE true )
     Q_PROPERTY( QString pageTitle READ pageTitle WRITE setPageTitle STORED false DESIGNABLE true )
     Q_PROPERTY( QCString pageName READ pageName WRITE setPageName STORED false DESIGNABLE true )
+    Q_OVERRIDE( bool modal READ isModal WRITE setModal )
+
 public:
-    QDesignerWizard( QWidget *parent, const char *name ) : QWizard( parent, name ) {}
+    QDesignerWizard( QWidget *parent, const char *name ) 
+        : QWizard( parent, name ), modal(FALSE) {}
 
     int currentPageNum() const;
     void setCurrentPage( int i );
@@ -196,6 +199,9 @@ public:
     void insertPage( QWidget *p, const QString &t, int index );
     bool isPageRemoved( QWidget *p ) { return (removedPages.find( p ) != 0); }
 
+    bool isModal() const { return modal; }
+    void setModal(bool b) { modal = b; }
+
     void reject() {}
 
 private:
@@ -206,8 +212,8 @@ private:
 	QWidget *p;
 	QString t;
     };
+    bool modal;
     QHash<QWidget *, QWidget *> removedPages;
-
 };
 
 class QLayoutWidget : public QWidget
