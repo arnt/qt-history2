@@ -8,8 +8,7 @@
 #ifndef CANNON_H
 #define CANNON_H
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qwidget.h>
 
 
 class CannonField : public QWidget
@@ -26,7 +25,8 @@ public slots:
 protected:
     void paintEvent( QPaintEvent * );
 private:
-    void paintCannon();
+    void  paintCannon( QPainter * );
+    QRect cannonRect() const;
 
     int ang;
     int f;

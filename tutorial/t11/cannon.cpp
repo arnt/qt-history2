@@ -1,5 +1,5 @@
 /****************************************************************************
-** Implementation of LCDRange class, Qt tutorial 11
+  ** Implementation of LCDRange class, Qt tutorial 11
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
@@ -11,26 +11,33 @@
 
 #include <math.h>
 
-CannonField::CannonField( QWidget *parent=0, const char *name=0 )
+CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    ang      = 0;
-    f        = 0;
-    shooting = FALSE;
+    ang           = 0;
+    f             = 0;
+    shooting      = FALSE;
+    timerCount    = 0;
+    shoot_ang	  = 0;
+    shoot_f	  = 0;
 }
 
 void CannonField::setAngle( int degrees )
 {
-    if ( degrees < 0 )
-	degrees = 0;
-    if ( degrees > 90 )
-	degrees = 90;
+    if ( ang == degrees )
+	return;
+    if ( degrees < 5 )
+	degrees = 5;
+    if ( degrees > 70 )
+	degrees = 70;
     ang = degrees;
-    paintCannon();
+    repaint( cannonRect(), FALSE );
 }
 
 void CannonField::setForce( int newton )
 {
+    if ( f == newton )
+	return;
     if ( newton < 0 )
 	newton = 0;
     if ( newton > 50 )
@@ -51,71 +58,87 @@ void CannonField::shoot()
 
 void CannonField::timerEvent( QTimerEvent * )
 {
-    QRect r = shotRect();
-    if ( r.x() > width() || r.y() > height() ) {
-	warning( "Too bad!" );
-	shooting = FALSE;
-	killTimers();
-	return;
-    }	
     erase( shotRect() );
     timerCount++;
-    paintShot();
+
+    QRect shotR   = shotRect();
+
+    if ( shotR.x() > width() || shotR.y() > height() ) {
+	stopShooting();
+	return;
+    }	
+    repaint( shotRect(), FALSE );
 }
 
 void CannonField::paintEvent( QPaintEvent *e )
 {
-    paintCannon();
-    if ( shooting )
-	paintShot();
-}
-
-void CannonField::paintShot()
-{
+    QRect updateR = e->rect();
     QPainter p;
     p.begin( this );
-    p.setBrush( black );
-    p.drawRect( shotRect() );
+
+    if ( updateR.intersects( cannonRect() ) )
+	paintCannon( &p );
+    if ( shooting &&  updateR.intersects( shotRect() ) )
+	paintShot( &p );
     p.end();
-    
 }
 
-void CannonField::paintCannon()
+void CannonField::stopShooting()
 {
-    QPixmap pix( 50, 50 );
-    QPainter p;
-    QBrush   brush( blue );
-    QPen     pen( blue );
+    shooting = FALSE;
+    killTimers();
+}
+
+void CannonField::paintShot( QPainter *p )
+{
+    p->setBrush( black );
+    p->setPen( NoPen );
+    p->drawRect( shotRect() );
+}
+
+const QRect barrel_rect(33, -4, 15, 8);
+
+void CannonField::paintCannon( QPainter *p )
+{
+    QPixmap  pix( 50, 50 );
+    QPainter tmp;
 
     pix.fill( backgroundColor() );
 
-    p.begin( &pix );
-    p.setBrush( brush );
-    p.setPen( pen );
+    tmp.begin( &pix );
+    tmp.setBrush( blue );
+    tmp.setPen( NoPen );
 
-    p.translate( 0, pix.height() - 1 );
-    p.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
-    p.rotate( -ang );
-    p.drawRect( QRect( 33, -4, 15, 8 ) );
-    p.end();
+    tmp.translate( 0, pix.height() - 1 );
+    tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
+    tmp.rotate( -ang );
+    tmp.drawRect( QRect( barrel_rect ) );
+    tmp.end();
 
-    p.begin( this );
-    p.drawPixmap( 0, rect().bottom() - (pix.height() - 1), pix );
-    p.end();
+    p->drawPixmap( 0, rect().bottom() - (pix.height() - 1), pix );
+}
+
+QRect CannonField::cannonRect() const
+{
+    QRect r( 0, 0, 50, 50 );
+    r.setBottomLeft( rect().bottomLeft() );
+    return r;
 }
 
 QRect CannonField::shotRect() const
 {
     const double gravity = 4;
 
-    double time      = timerCount / 3.0;
+    double time      = timerCount / 4.0;
     double forceFrac = shoot_f/0.7; 
     double radians   = shoot_ang*3.14159265/180;
     
-    double vely      = forceFrac*sin( radians );
     double velx      = forceFrac*cos( radians );
-    int    y         = (int) (55*sin(radians) + vely*time - gravity*time*time);
-    int    x         = (int) (55*cos(radians) + velx*time);
+    double vely      = forceFrac*sin( radians );
+    double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
+    double y0        = ( barrel_rect.right()  + 5 )*sin(radians);
+    int    x         = (int) (x0 + velx*time);
+    int    y         = (int) (y0 + vely*time - gravity*time*time);
 
     QRect r = QRect( 0, 0, 6, 6 );
     r.setCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );

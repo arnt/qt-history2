@@ -8,8 +8,7 @@
 #ifndef CANNON_H
 #define CANNON_H
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qwidget.h>
 
 
 class CannonField : public QWidget

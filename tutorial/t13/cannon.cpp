@@ -5,7 +5,6 @@
 #include "cannon.h"
 #include <qpainter.h>
 #include <qpixmap.h>
-#include <qwmatrix.h>
 #include <qfont.h>
 
 #include <math.h>

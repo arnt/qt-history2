@@ -6,9 +6,9 @@
 *****************************************************************************/
 
 #include "cannon.h"
-#include "qpainter.h"
+#include <qpainter.h>
 
-CannonField::CannonField( QWidget *parent=0, const char *name=0 )
+CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     ang = 0;
@@ -16,10 +16,12 @@ CannonField::CannonField( QWidget *parent=0, const char *name=0 )
 
 void CannonField::setAngle( int degrees )
 {
-    if ( degrees < 0 )
-	degrees = 0;
-    if ( degrees > 90 )
-	degrees = 90;
+    if ( ang == degrees )
+	return;
+    if ( degrees < 5 )
+	degrees = 5;
+    if ( degrees > 70 )
+	degrees = 70;
     ang = degrees;
     repaint();
 }

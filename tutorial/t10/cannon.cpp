@@ -6,27 +6,32 @@
 *****************************************************************************/
 
 #include "cannon.h"
-#include "qpainter.h"
-#include "qpixmap.h"
+#include <qpainter.h>
+#include <qpixmap.h>
 
-CannonField::CannonField( QWidget *parent=0, const char *name=0 )
+CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    ang = 0;
+    ang           = 0;
+    f             = 0;
 }
 
 void CannonField::setAngle( int degrees )
 {
-    if ( degrees < 0 )
-	degrees = 0;
-    if ( degrees > 90 )
-	degrees = 90;
+    if ( ang == degrees )
+	return;
+    if ( degrees < 5 )
+	degrees = 5;
+    if ( degrees > 70 )
+	degrees = 70;
     ang = degrees;
-    paintCannon();
+    repaint( cannonRect(), FALSE );
 }
 
 void CannonField::setForce( int newton )
 {
+    if ( f == newton )
+	return;
     if ( newton < 0 )
 	newton = 0;
     if ( newton > 50 )
@@ -36,29 +41,40 @@ void CannonField::setForce( int newton )
 
 void CannonField::paintEvent( QPaintEvent *e )
 {
-    paintCannon();
+    QRect updateR = e->rect();
+    QPainter p;
+    p.begin( this );
+
+    if ( updateR.intersects( cannonRect() ) )
+	paintCannon( &p );
+    p.end();
 }
 
-void CannonField::paintCannon()
+const QRect barrel_rect(33, -4, 15, 8);
+
+void CannonField::paintCannon( QPainter *p )
 {
-    QPixmap pix( 50, 50 );
-    QPainter p;
-    QBrush   brush( blue );
-    QPen     pen( blue );
+    QPixmap  pix( 50, 50 );
+    QPainter tmp;
 
     pix.fill( backgroundColor() );
 
-    p.begin( &pix );
-    p.setBrush( brush );
-    p.setPen( pen );
+    tmp.begin( &pix );
+    tmp.setBrush( blue );
+    tmp.setPen( NoPen );
 
-    p.translate( 0, pix.height() - 1 );
-    p.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
-    p.rotate( -ang );
-    p.drawRect( QRect( 33, -4, 15, 8 ) );
-    p.end();
+    tmp.translate( 0, pix.height() - 1 );
+    tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
+    tmp.rotate( -ang );
+    tmp.drawRect( QRect( barrel_rect ) );
+    tmp.end();
 
-    p.begin( this );
-    p.drawPixmap( 0, rect().bottom() - (pix.height() - 1), pix );
-    p.end();
+    p->drawPixmap( 0, rect().bottom() - (pix.height() - 1), pix );
+}
+
+QRect CannonField::cannonRect() const
+{
+    QRect r( 0, 0, 50, 50 );
+    r.setBottomLeft( rect().bottomLeft() );
+    return r;
 }
