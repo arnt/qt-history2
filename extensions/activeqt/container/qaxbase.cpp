@@ -1317,8 +1317,6 @@ QMetaObject *QAxBase::metaObject() const
 		cpoint->GetConnectionInterface( &iid );
 		if ( !eventSink && useEventSink )
 		    that->eventSink = new QAxEventSink( that );
-		if ( eventSink )
-		    eventSink->addConnection( cpoint, iid );
 
 		if ( classinfo ) {
 		    CComPtr<ITypeInfo> info;
@@ -1368,6 +1366,9 @@ QMetaObject *QAxBase::metaObject() const
 
 			    // what about other event interfaces?
 			    if ( eventinfo ) {
+				if ( eventSink )
+				    eventSink->addConnection( cpoint, iid );
+
 				TYPEATTR *eventattr;
 				eventinfo->GetTypeAttr( &eventattr );
 				// Number of functions
