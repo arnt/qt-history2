@@ -895,7 +895,6 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
         return d->cachedText;
     }
     QString ret = d->escapedFormat;
-    qDebug() << d->escapedFormat << d->displayFormat;
     for (int i=0; i<d->sections.size(); ++i) {
 	int l = d->sectionSize(d->sections.at(i).section);
 	int pos = d->sections.at(i).pos;
@@ -1138,7 +1137,7 @@ static QString macParseDateLocale(QVariant::Type type)
     CFGregorianDate macGDate;
     macGDate.year = 2999;
     macGDate.month = 11;
-    macGDate.day = 20; // <---- Should be 22, but seems something is wrong.
+    macGDate.day = 22;
     macGDate.hour = 10;
     macGDate.minute = 34;
     macGDate.second = 56.0;
