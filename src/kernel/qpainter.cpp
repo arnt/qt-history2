@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#11 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#11 $";
 #endif
 
 
@@ -99,7 +99,7 @@ void QPainter::save()				// save/push painter state
     ps->pu    = pu;
     ps->sr    = QRect( sx, sy, sw, sh );
     ps->tr    = QRect( tx, ty, tw, th );
-    ps->wm    = *wxmat;
+    ps->wm    = wxmat;
     ps->vxf   = testf(VxF);
     ps->wxf   = testf(WxF);
     ps->rgn   = crgn.copy();
@@ -143,7 +143,7 @@ void QPainter::restore()			// restore/pop painter state
 	setSourceView( ps->sr );
     if ( ps->tr != tr )
 	setTargetView( ps->tr );
-    if ( ps->wm != *wxmat )
+    if ( ps->wm != wxmat )
 	setWorldMatrix( ps->wm );
     if ( ps->vxf != testf(VxF) )
 	setViewXForm( ps->vxf );
