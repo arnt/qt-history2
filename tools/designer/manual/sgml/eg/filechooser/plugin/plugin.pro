@@ -3,7 +3,7 @@ CONFIG		= qt warn_on release plugin
 HEADERS		= plugin.h ../widget/filechooser.h
 SOURCES		= plugin.cpp ../widget/filechooser.cpp
 INTERFACES	=
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= $(QTDIR)/plugins/designer
 INCLUDEPATH     += $(QTDIR)/tools/designer/interfaces
 TARGET		= filechooser
 
