@@ -34,12 +34,14 @@ HelpFindDialog::HelpFindDialog( QWidget *parent )
     checkboxes->addWidget( findWholeWords );
 
     findButton = new QPushButton( tr( "&Find" ), this );
+    findButton->setFixedSize( findButton->sizeHint() );
     findButton->setDefault( TRUE );
     layout->addWidget( findButton, 1, 1 );
     connect( findButton, SIGNAL( clicked() ),
 	     this, SLOT( find() ) );
 
     QPushButton *closeButton = new QPushButton( tr( "&Close" ), this );
+    closeButton->setFixedSize( closeButton->sizeHint() );
     connect( closeButton, SIGNAL( clicked() ),
 	     this, SLOT( reject() ) );
     connect( closeButton, SIGNAL( clicked() ),
@@ -48,6 +50,8 @@ HelpFindDialog::HelpFindDialog( QWidget *parent )
 
     findEdit->setFocus();
     findButton->setEnabled( FALSE );
+    setFixedHeight( sizeHint().height() );
+    resize( sizeHint() );
 }
 
 void HelpFindDialog::closeEvent( QCloseEvent *e )
