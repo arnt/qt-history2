@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#87 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#88 $
 **
 ** Definition of event classes
 **
@@ -385,9 +385,11 @@ protected:
 class Q_EXPORT QCustomEvent : public QEvent
 {
 public:
+    QCustomEvent( int type );
     QCustomEvent( Type type, void *data )
-	: QEvent(type), d(data) {}
+	: QEvent(type), d(data) {};
     void       *data()	const	{ return d; }
+    void	setData( void* data )	{ d = data; }
 private:
     void       *d;
 };

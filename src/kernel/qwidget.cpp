@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#476 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#477 $
 **
 ** Implementation of QWidget class
 **
@@ -3636,6 +3636,10 @@ bool QWidget::event( QEvent *e )
 	    childEvent( (QChildEvent*) e);
 	    break;
 	default:
+	    if ( e->type() >= QEvent::User ) {
+		customEvent( (QCustomEvent*) e );
+		return TRUE;
+	    }
 	    return FALSE;
     }
     return TRUE;
@@ -4061,14 +4065,9 @@ void QWidget::hideEvent( QHideEvent * )
 
 /*!
   This event handler can be reimplemented in a subclass to receive
-  custom events.
-
-  QCustomEvent is a user-defined event type which contains a \c void*.
-
-  \warning
-  This event class is internally used to implement Qt enhancements.  It is
-  not advisable to use QCustomEvent in normal applications, where other
-  event types and the signal/slot mechanism can do the job.
+  custom events. Custom events are user-defined events with a type
+  value at least as large as the "User" item of the QEvent::Type enum,
+  and is typically a QCustomEvent or QCustomEvent subclass.
 
   \sa event(), QCustomEvent
 */
