@@ -364,47 +364,47 @@ void QVariant::Private::clear()
 }
 
 /*!
-  \class QVariant qvariant.h
-  \brief The QVariant class acts like a union for the most common Qt data types.
+    \class QVariant qvariant.h
+    \brief The QVariant class acts like a union for the most common Qt data types.
 
-  \ingroup objectmodel
-  \ingroup misc
-  \mainclass
+    \ingroup objectmodel
+    \ingroup misc
+    \mainclass
 
-  Because C++ forbids unions from including types that have non-default
-  constructors or destructors, most interesting Qt classes cannot be used
-  in unions.  This is a problem when using QObject::property(), among
-  other things.
+    Because C++ forbids unions from including types that have
+    non-default constructors or destructors, most interesting Qt
+    classes cannot be used in unions. Without QVariant, this would be
+    a problem for QObject::property() and for database work, etc.
 
-  This class provides union functionality for property() and most
-  other needs that might be solved by a union including e.g. QWidget.
+    A QVariant object holds a single value of a single type() at a
+    time. (Some type()s are multi-valued, for example a string list.)
+    You can find out what type, T, the variant holds, convert it to a
+    different type using one of the asT() functions, e.g. asSize(),
+    get its value using one of the toT() functions, e.g. toSize(), and
+    check whether the type can be converted to a particular type using
+    canCast().
 
-  A QVariant object can hold any one type() at a time. For example, you can
-  find out what type, T, it holds, convert it to a different type
-  using one of the asT() functions, e.g. asSize(), get its value using
-  one of the toT() functions, e.g. toSize(), and check whether the type
-  can be converted to a particular type using canCast().
+    The methods named toT() (for any supported T, see the \c Type
+    documentation for a list) are const. If you ask for the stored
+    type, they return a copy of the stored object. If you ask for a
+    type that can be generated from the stored type, toT() copies and
+    converts and leaves the object itself unchanged. If you ask for a
+    type that cannot be generated from the stored type, the result
+    depends on the type (see the function documentation for details).
 
-  The methods named toT() (for any supported T, see the Type
-  documentation for a list) are const. If you ask for the stored type,
-  they return a copy of the stored object.  If you ask for a type
-  that can be generated from the stored type, toT() copies and
-  converts and leaves the object itself unchanged.  If you ask for a
-  type that cannot be generated from the stored type, the result
-  depends on the type (see the function documentation for details).
+    Note that three data types supported by QVariant are explicitly
+    shared, namely QImage, QPointArray, and QCString, and in these
+    cases the toT() methods return a shallow copy. In almost all cases
+    you must make a deep copy of the returned values before modifying
+    them.
 
-  Note that three data types supported by QVariant are explicitly
-  shared, namely QImage, QPointArray, and QCString, and in these cases
-  the toT() methods return a shallow copy.  In almost all cases you
-  must make a deep copy of the returned values before modifying them.
+    The asT() functions are not const. They do conversion like the
+    toT() methods, set the variant to hold the converted value, and
+    return a reference to the new contents of the variant.
 
-  The asT() functions are not const. They do conversion like the toT()
-  methods, set the variant to hold the converted value, and return a
-  reference to the new contents of the variant.
+    Here is some example code to demonstrate the use of QVariant:
 
-  Here is example code to demonstrate the use of QVariant:
-
-  \code
+    \code
     QDataStream out(...);
     QVariant v(123);          // The variant now contains an int
     int x = v.toInt();        // x = 123
@@ -419,65 +419,67 @@ void QVariant::Private::clear()
     in >> v;                  // Reads an Int variant
     int z = v.toInt();        // z = 123
     qDebug("Type is %s",      // prints "Type is int"
-           v.typeName());
+	    v.typeName());
     v.asInt() += 100;	      // The variant now hold the value 223.
     v = QVariant( QStringList() );
     v.asStringList().append( "Hello" );
-  \endcode
+    \endcode
 
-  You can even have store QValueList<QVariant>s and
-  QMap<QString,QVariant>s in a variant, so you can easily construct
-  arbitrarily complex data structures of arbitrary types. This is very
-  powerful and versatile, but may prove less memory and speed
-  efficient than storing specific types in standard data structures.
-  (See the \link collection.html Collection Classes\endlink.)
-*/
+    You can even store QValueList<QVariant>s and
+    QMap<QString,QVariant>s in a variant, so you can easily construct
+    arbitrarily complex data structures of arbitrary types. This is
+    very powerful and versatile, but may prove less memory and speed
+    efficient than storing specific types in standard data structures.
 
-/*! \enum QVariant::Type
-
-  This enum type defines the types of variable that a QVariant can
-  contain.  The supported enum values and the associated types are
-
-  \value Invalid  no type
-  \value List  a QValueList<QVariant>
-  \value Map  a QMap<QString,QVariant>
-  \value String  a QString
-  \value StringList  a QStringList
-  \value Font  a QFont
-  \value Pixmap  a QPixmap
-  \value Brush  a QBrush
-  \value Rect  a QRect
-  \value Size  a QSize
-  \value Color  a QColor
-  \value Palette  a QPalette
-  \value ColorGroup  a QColorGroup
-  \value IconSet  a QIconSet
-  \value Point  a QPoint
-  \value Image  a QImage
-  \value Int  an int
-  \value UInt  an unsigned int
-  \value Bool  a bool
-  \value Double  a double
-  \value CString  a QCString
-  \value PointArray  a QPointArray
-  \value Region  a QRegion
-  \value Bitmap  a QBitmap
-  \value Cursor  a QCursor
-  \value Date  a QDate
-  \value Time  a QTime
-  \value DateTime  a QDateTime
-  \value ByteArray  a QByteArray
-  \value BitArray  a QBitArray
-  \value SizePolicy  a QSizePolicy
-  \value KeySequence  a QKeySequence
-  \value Pen  a QPen
-
-  Note that Qt's definition of bool depends on the compiler.
-  qglobal.h has the system-dependent definition of bool.
+    See the \link collection.html Collection Classes\endlink.
 */
 
 /*!
-  Constructs an invalid variant.
+    \enum QVariant::Type
+
+    This enum type defines the types of variable that a QVariant can
+    contain.
+
+    \value Invalid  no type
+    \value BitArray  a QBitArray
+    \value ByteArray  a QByteArray
+    \value Bitmap  a QBitmap
+    \value Bool  a bool
+    \value Brush  a QBrush
+    \value Color  a QColor
+    \value ColorGroup  a QColorGroup
+    \value Cursor  a QCursor
+    \value Date  a QDate
+    \value DateTime  a QDateTime
+    \value Double  a double
+    \value Font  a QFont
+    \value IconSet  a QIconSet
+    \value Image  a QImage
+    \value Int  an int
+    \value KeySequence  a QKeySequence
+    \value List  a QValueList<QVariant>
+    \value Map  a QMap<QString,QVariant>
+    \value Palette  a QPalette
+    \value Pen  a QPen
+    \value Pixmap  a QPixmap
+    \value Point  a QPoint
+    \value PointArray  a QPointArray
+    \value Rect  a QRect
+    \value Region  a QRegion
+    \value Size  a QSize
+    \value SizePolicy  a QSizePolicy
+    \value String  a QString
+    \value CString  a QCString
+    \value StringList  a QStringList
+    \value Time  a QTime
+    \value UInt  an unsigned int
+
+    Note that Qt's definition of bool depends on the compiler.
+    \c qglobal.h has the system-dependent definition of bool.
+*/
+
+/*!
+    Constructs an invalid variant.
 */
 QVariant::QVariant()
 {
@@ -485,12 +487,12 @@ QVariant::QVariant()
 }
 
 /*!
-  Destroys the QVariant and the contained object.
+    Destroys the QVariant and the contained object.
 
-  Note that subclasses that reimplement clear() should reimplement
-  the destructor to call clear().  This destructor calls clear(), but
-  because it is the destructor, QVariant::clear() is called rather than
-  a subclass's clear().
+    Note that subclasses that reimplement clear() should reimplement
+    the destructor to call clear(). This destructor calls clear(), but
+    because it is the destructor, QVariant::clear() is called rather
+    than a subclass's clear().
 */
 QVariant::~QVariant()
 {
@@ -499,9 +501,10 @@ QVariant::~QVariant()
 }
 
 /*!
-  Constructs a copy of the variant, \a p, passed as the argument to this
-  constructor. Usually this is a deep copy, but a shallow copy is made
-  if the stored data type is explicitly shared, as e.g. QImage is.
+    Constructs a copy of the variant, \a p, passed as the argument to
+    this constructor. Usually this is a deep copy, but a shallow copy
+    is made if the stored data type is explicitly shared, as e.g.
+    QImage is.
 */
 QVariant::QVariant( const QVariant& p )
 {
@@ -511,7 +514,7 @@ QVariant::QVariant( const QVariant& p )
 
 #ifndef QT_NO_DATASTREAM
 /*!
-  Reads the variant from the data stream, \a s.
+    Reads the variant from the data stream, \a s.
 */
 QVariant::QVariant( QDataStream& s )
 {
@@ -521,7 +524,7 @@ QVariant::QVariant( QDataStream& s )
 #endif //QT_NO_DATASTREAM
 
 /*!
-  Constructs a new variant with a string value, \a val.
+    Constructs a new variant with a string value, \a val.
 */
 QVariant::QVariant( const QString& val )
 {
@@ -531,11 +534,11 @@ QVariant::QVariant( const QString& val )
 }
 
 /*!
-  Constructs a new variant with a C-string value, \a val.
+    Constructs a new variant with a C-string value, \a val.
 
-  If you want to modify the QCString after you've passed it to this
-  constructor, we recommend passing a deep copy (see
-  QCString::copy()).
+    If you want to modify the QCString after you've passed it to this
+    constructor, we recommend passing a deep copy (see
+    QCString::copy()).
 */
 QVariant::QVariant( const QCString& val )
 {
@@ -545,10 +548,10 @@ QVariant::QVariant( const QCString& val )
 }
 
 /*!
-  Constructs a new variant with a C-string value of \a val if \a val
-  is non-null.  The variant creates a deep copy of \a val.
+    Constructs a new variant with a C-string value of \a val if \a val
+    is non-null. The variant creates a deep copy of \a val.
 
-  If \a val is null, the resulting variant has type Invalid.
+    If \a val is null, the resulting variant has type Invalid.
 */
 QVariant::QVariant( const char* val )
 {
@@ -561,7 +564,7 @@ QVariant::QVariant( const char* val )
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Constructs a new variant with a string list value, \a val.
+    Constructs a new variant with a string list value, \a val.
 */
 QVariant::QVariant( const QStringList& val )
 {
@@ -573,7 +576,7 @@ QVariant::QVariant( const QStringList& val )
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Constructs a new variant with a map of QVariants, \a val.
+    Constructs a new variant with a map of QVariants, \a val.
 */
 QVariant::QVariant( const QMap<QString,QVariant>& val )
 {
@@ -583,7 +586,7 @@ QVariant::QVariant( const QMap<QString,QVariant>& val )
 }
 #endif
 /*!
-  Constructs a new variant with a font value, \a val.
+    Constructs a new variant with a font value, \a val.
 */
 QVariant::QVariant( const QFont& val )
 {
@@ -593,7 +596,7 @@ QVariant::QVariant( const QFont& val )
 }
 
 /*!
-  Constructs a new variant with a pixmap value, \a val.
+    Constructs a new variant with a pixmap value, \a val.
 */
 QVariant::QVariant( const QPixmap& val )
 {
@@ -604,11 +607,11 @@ QVariant::QVariant( const QPixmap& val )
 
 
 /*!
-  Constructs a new variant with an image value, \a val.
+    Constructs a new variant with an image value, \a val.
 
-  Because QImage is explicitly shared, you may need to pass a deep copy
-  to the variant using QImage::copy(), e.g. if you intend changing the
-  image you've passed later on.
+    Because QImage is explicitly shared, you may need to pass a deep
+    copy to the variant using QImage::copy(), e.g. if you intend
+    changing the image you've passed later on.
 */
 QVariant::QVariant( const QImage& val )
 {
@@ -618,7 +621,7 @@ QVariant::QVariant( const QImage& val )
 }
 
 /*!
-  Constructs a new variant with a brush value, \a val.
+    Constructs a new variant with a brush value, \a val.
 */
 QVariant::QVariant( const QBrush& val )
 {
@@ -628,7 +631,7 @@ QVariant::QVariant( const QBrush& val )
 }
 
 /*!
-  Constructs a new variant with a point value, \a val.
+    Constructs a new variant with a point value, \a val.
 */
 QVariant::QVariant( const QPoint& val )
 {
@@ -638,7 +641,7 @@ QVariant::QVariant( const QPoint& val )
 }
 
 /*!
-  Constructs a new variant with a rect value, \a val.
+    Constructs a new variant with a rect value, \a val.
 */
 QVariant::QVariant( const QRect& val )
 {
@@ -648,7 +651,7 @@ QVariant::QVariant( const QRect& val )
 }
 
 /*!
-  Constructs a new variant with a size value, \a val.
+    Constructs a new variant with a size value, \a val.
 */
 QVariant::QVariant( const QSize& val )
 {
@@ -658,7 +661,7 @@ QVariant::QVariant( const QSize& val )
 }
 
 /*!
-  Constructs a new variant with a color value, \a val.
+    Constructs a new variant with a color value, \a val.
 */
 QVariant::QVariant( const QColor& val )
 {
@@ -669,7 +672,7 @@ QVariant::QVariant( const QColor& val )
 
 #ifndef QT_NO_PALETTE
 /*!
-  Constructs a new variant with a color palette value, \a val.
+    Constructs a new variant with a color palette value, \a val.
 */
 QVariant::QVariant( const QPalette& val )
 {
@@ -679,7 +682,7 @@ QVariant::QVariant( const QPalette& val )
 }
 
 /*!
-  Constructs a new variant with a color group value, \a val.
+    Constructs a new variant with a color group value, \a val.
 */
 QVariant::QVariant( const QColorGroup& val )
 {
@@ -690,7 +693,7 @@ QVariant::QVariant( const QColorGroup& val )
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 /*!
-  Constructs a new variant with an icon set value, \a val.
+    Constructs a new variant with an icon set value, \a val.
 */
 QVariant::QVariant( const QIconSet& val )
 {
@@ -700,7 +703,7 @@ QVariant::QVariant( const QIconSet& val )
 }
 #endif //QT_NO_ICONSET
 /*!
-  Constructs a new variant with a region value, \a val.
+    Constructs a new variant with a region value, \a val.
 */
 QVariant::QVariant( const QRegion& val )
 {
@@ -712,7 +715,7 @@ QVariant::QVariant( const QRegion& val )
 }
 
 /*!
-  Constructs a new variant with a bitmap value, \a val.
+    Constructs a new variant with a bitmap value, \a val.
 */
 QVariant::QVariant( const QBitmap& val )
 {
@@ -722,7 +725,7 @@ QVariant::QVariant( const QBitmap& val )
 }
 
 /*!
-  Constructs a new variant with a cursor value, \a val.
+    Constructs a new variant with a cursor value, \a val.
 */
 QVariant::QVariant( const QCursor& val )
 {
@@ -732,11 +735,11 @@ QVariant::QVariant( const QCursor& val )
 }
 
 /*!
-  Constructs a new variant with a point array value, \a val.
+    Constructs a new variant with a point array value, \a val.
 
-  Because QPointArray is explicitly shared, you may need to pass a
-  deep copy to the variant using QPointArray::copy(), e.g. if you
-  intend changing the point array you've passed later on.
+    Because QPointArray is explicitly shared, you may need to pass a
+    deep copy to the variant using QPointArray::copy(), e.g. if you
+    intend changing the point array you've passed later on.
 */
 QVariant::QVariant( const QPointArray& val )
 {
@@ -746,7 +749,7 @@ QVariant::QVariant( const QPointArray& val )
 }
 
 /*!
-  Constructs a new variant with a date value, \a val.
+    Constructs a new variant with a date value, \a val.
 */
 QVariant::QVariant( const QDate& val )
 {
@@ -756,7 +759,7 @@ QVariant::QVariant( const QDate& val )
 }
 
 /*!
-  Constructs a new variant with a time value, \a val.
+    Constructs a new variant with a time value, \a val.
 */
 QVariant::QVariant( const QTime& val )
 {
@@ -766,7 +769,7 @@ QVariant::QVariant( const QTime& val )
 }
 
 /*!
-  Constructs a new variant with a date/time value, \a val.
+    Constructs a new variant with a date/time value, \a val.
 */
 QVariant::QVariant( const QDateTime& val )
 {
@@ -776,7 +779,7 @@ QVariant::QVariant( const QDateTime& val )
 }
 
 /*!
-  Constructs a new variant with a bytearray value, \a val.
+    Constructs a new variant with a bytearray value, \a val.
 */
 QVariant::QVariant( const QByteArray& val )
 {
@@ -786,7 +789,7 @@ QVariant::QVariant( const QByteArray& val )
 }
 
 /*!
-  Constructs a new variant with a bitarray value, \a val.
+    Constructs a new variant with a bitarray value, \a val.
 */
 QVariant::QVariant( const QBitArray& val )
 {
@@ -798,7 +801,7 @@ QVariant::QVariant( const QBitArray& val )
 #ifndef QT_NO_ACCEL
 
 /*!
-  Constructs a new variant with a key sequence value, \a val.
+    Constructs a new variant with a key sequence value, \a val.
 */
 QVariant::QVariant( const QKeySequence& val )
 {
@@ -810,7 +813,7 @@ QVariant::QVariant( const QKeySequence& val )
 #endif
 
 /*!
-  Constructs a new variant with a pen value, \a val.
+    Constructs a new variant with a pen value, \a val.
 */
 QVariant::QVariant( const QPen& val )
 {
@@ -820,7 +823,7 @@ QVariant::QVariant( const QPen& val )
 }
 
 /*!
-  Constructs a new variant with an integer value, \a val.
+    Constructs a new variant with an integer value, \a val.
 */
 QVariant::QVariant( int val )
 {
@@ -830,7 +833,7 @@ QVariant::QVariant( int val )
 }
 
 /*!
-  Constructs a new variant with an unsigned integer value, \a val.
+    Constructs a new variant with an unsigned integer value, \a val.
 */
 QVariant::QVariant( uint val )
 {
@@ -840,8 +843,9 @@ QVariant::QVariant( uint val )
 }
 
 /*!
-  Constructs a new variant with a boolean value, \a val. The integer argument
-  is a dummy, necessary for compatibility with some compilers.
+    Constructs a new variant with a boolean value, \a val. The integer
+    argument is a dummy, necessary for compatibility with some
+    compilers.
 */
 QVariant::QVariant( bool val, int )
 { // this is the comment that does NOT name said compiler.
@@ -852,7 +856,7 @@ QVariant::QVariant( bool val, int )
 
 
 /*!
-  Constructs a new variant with a floating point value, \a val.
+    Constructs a new variant with a floating point value, \a val.
 */
 QVariant::QVariant( double val )
 {
@@ -863,7 +867,7 @@ QVariant::QVariant( double val )
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Constructs a new variant with a list value, \a val.
+    Constructs a new variant with a list value, \a val.
 */
 QVariant::QVariant( const QValueList<QVariant>& val )
 {
@@ -874,7 +878,7 @@ QVariant::QVariant( const QValueList<QVariant>& val )
 #endif
 
 /*!
-  Constructs a new variant with a size policy value, \a val.
+    Constructs a new variant with a size policy value, \a val.
 */
 QVariant::QVariant( QSizePolicy val )
 {
@@ -884,11 +888,11 @@ QVariant::QVariant( QSizePolicy val )
 }
 
 /*!
-  Assigns the value of the variant \a variant to this variant.
+    Assigns the value of the variant \a variant to this variant.
 
-  This is a deep copy of the variant, but note that if the variant
-  holds an explicitly shared type such as QImage, a shallow copy
-  is performed.
+    This is a deep copy of the variant, but note that if the variant
+    holds an explicitly shared type such as QImage, a shallow copy is
+    performed.
 */
 QVariant& QVariant::operator= ( const QVariant& variant )
 {
@@ -904,7 +908,7 @@ QVariant& QVariant::operator= ( const QVariant& variant )
 }
 
 /*!
-  \internal
+    \internal
 */
 void QVariant::detach()
 {
@@ -916,18 +920,19 @@ void QVariant::detach()
 }
 
 /*!
-  Returns the name of the type stored in the variant.
-  The returned strings describe the C++ datatype used to store the
-  data: for example, "QFont", "QString", or "QValueList<QVariant>".
-  An Invalid variant returns 0.
+    Returns the name of the type stored in the variant. The returned
+    strings describe the C++ datatype used to store the data: for
+    example, "QFont", "QString", or "QValueList<QVariant>". An Invalid
+    variant returns 0.
 */
 const char* QVariant::typeName() const
 {
     return typeToName( d->typ );
 }
 
-/*! Convert this variant to type Invalid and free up any resources
-  used.
+/*!
+    Convert this variant to type Invalid and free up any resources
+    used.
 */
 void QVariant::clear()
 {
@@ -988,8 +993,8 @@ static const char* const type_map[ntypes] =
 
 
 /*!
-  Converts the enum representation of the storage type, \a typ, to its
-  string representation.
+    Converts the enum representation of the storage type, \a typ, to
+    its string representation.
 */
 const char* QVariant::typeToName( Type typ )
 {
@@ -1000,11 +1005,11 @@ const char* QVariant::typeToName( Type typ )
 
 
 /*!
-  Converts the string representation of the storage type gven in \a
-  name, to its enum representation.
+    Converts the string representation of the storage type gven in \a
+    name, to its enum representation.
 
-  If the string representation cannot be converted to any enum
-  representation, the variant is set to \c Invalid.
+    If the string representation cannot be converted to any enum
+    representation, the variant is set to \c Invalid.
 */
 QVariant::Type QVariant::nameToType( const char* name )
 {
@@ -1016,10 +1021,11 @@ QVariant::Type QVariant::nameToType( const char* name )
 }
 
 #ifndef QT_NO_DATASTREAM
-/*! Internal function for loading a variant from stream \a s. Use the
- stream operators instead.
+/*!
+    Internal function for loading a variant from stream \a s. Use the
+    stream operators instead.
 
-  \internal
+    \internal
 */
 void QVariant::load( QDataStream& s )
 {
@@ -1281,9 +1287,10 @@ void QVariant::load( QDataStream& s )
 }
 
 /*!
-  Internal function for saving a variant to the stream \a s. Use the
-  stream operators instead.
-  \internal
+    Internal function for saving a variant to the stream \a s. Use the
+    stream operators instead.
+
+    \internal
 */
 void QVariant::save( QDataStream& s ) const
 {
@@ -1412,8 +1419,10 @@ void QVariant::save( QDataStream& s ) const
 }
 
 /*!
-  Reads a variant \a p from the stream \a s.
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Reads a variant \a p from the stream \a s.
+
+    \sa \link datastreamformat.html Format of the QDataStream
+    operators \endlink
 */
 QDataStream& operator>> ( QDataStream& s, QVariant& p )
 {
@@ -1422,8 +1431,10 @@ QDataStream& operator>> ( QDataStream& s, QVariant& p )
 }
 
 /*!
-  Writes a variant \a p to the stream \a s.
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes a variant \a p to the stream \a s.
+
+    \sa \link datastreamformat.html Format of the QDataStream
+    operators \endlink
 */
 QDataStream& operator<< ( QDataStream& s, const QVariant& p )
 {
@@ -1432,7 +1443,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant& p )
 }
 
 /*!
-  Reads a variant type \a p in enum representation from the stream \a s.
+    Reads a variant type \a p in enum representation from the stream \a s.
 */
 QDataStream& operator>> ( QDataStream& s, QVariant::Type& p )
 {
@@ -1444,7 +1455,7 @@ QDataStream& operator>> ( QDataStream& s, QVariant::Type& p )
 }
 
 /*!
-  Writes a variant type \a p to the stream \a s.
+    Writes a variant type \a p to the stream \a s.
 */
 QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 {
@@ -1455,68 +1466,77 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 #endif //QT_NO_DATASTREAM
 
-/*! \fn Type QVariant::type() const
+/*!
+    \fn Type QVariant::type() const
 
-  Returns the storage type of the value stored in the variant. Usually
-  it's best to test with canCast() whether the variant can deliver the
-  data type you are interested in.
-*/
-
-/*! \fn bool QVariant::isValid() const
-
-  Returns TRUE if the storage type of this variant is not
-  QVariant::Invalid; otherwise returns FALSE.
-*/
-
-/*! \fn QValueListConstIterator<QString> QVariant::stringListBegin() const
-
-  Returns an iterator to the first string in the list if the
-  variant's type is StringList, or else a null iterator.
-*/
-
-/*! \fn QValueListConstIterator<QString> QVariant::stringListEnd() const
-
-  Returns the end iterator for the list if the variant's type is
-  StringList, or else a null iterator.
-*/
-
-/*! \fn QValueListConstIterator<QVariant> QVariant::listBegin() const
-
-  Returns an iterator to the first item in the list if the
-  variant's type is appropriate, or else a null iterator.
-*/
-
-/*! \fn QValueListConstIterator<QVariant> QVariant::listEnd() const
-
-  Returns the end iterator for the list if the variant's type is
-  appropriate, or else a null iterator.
-*/
-
-/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapBegin() const
-
-  Returns an iterator to the first item in the map, if the
-  variant's type is appropriate, or else a null iterator.
-*/
-
-/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapEnd() const
-
-  Returns the end iterator for the map, if the variant's type is
-  appropriate, or else a null iterator.
-*/
-
-/*! \fn QMapConstIterator<QString, QVariant> QVariant::mapFind( const QString& key ) const
-
-  Returns an iterator to the item in the map with \a key as key, if the
-  variant's type is appropriate and \a key is a valid key, or else a
-  null iterator.
+    Returns the storage type of the value stored in the variant.
+    Usually it's best to test with canCast() whether the variant can
+    deliver the data type you are interested in.
 */
 
 /*!
-  Returns the variant as a QString if the variant has type()
-  String, CString, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
-  KeySequence, Font or Color, or QString::null otherwise.
+    \fn bool QVariant::isValid() const
 
-  \sa asString()
+    Returns TRUE if the storage type of this variant is not
+    QVariant::Invalid; otherwise returns FALSE.
+*/
+
+/*!
+    \fn QValueListConstIterator<QString> QVariant::stringListBegin() const
+
+    Returns an iterator to the first string in the list if the
+    variant's type is StringList; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QValueListConstIterator<QString> QVariant::stringListEnd() const
+
+    Returns the end iterator for the list if the variant's type is
+    StringList; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QValueListConstIterator<QVariant> QVariant::listBegin() const
+
+    Returns an iterator to the first item in the list if the variant's
+    type is appropriate; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QValueListConstIterator<QVariant> QVariant::listEnd() const
+
+    Returns the end iterator for the list if the variant's type is
+    appropriate; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QMapConstIterator<QString, QVariant> QVariant::mapBegin() const
+
+    Returns an iterator to the first item in the map, if the variant's
+    type is appropriate; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QMapConstIterator<QString, QVariant> QVariant::mapEnd() const
+
+    Returns the end iterator for the map, if the variant's type is
+    appropriate; otherwise returns a null iterator.
+*/
+
+/*!
+    \fn QMapConstIterator<QString, QVariant> QVariant::mapFind( const QString& key ) const
+
+    Returns an iterator to the item in the map with \a key as key, if
+    the variant's type is appropriate and \a key is a valid key;
+    otherwise returns a null iterator.
+*/
+
+/*!
+    Returns the variant as a QString if the variant has type() String,
+    CString, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
+    KeySequence, Font or Color; otherwise returns QString::null.
+
+    \sa asString()
 */
 const QString QVariant::toString() const
 {
@@ -1556,10 +1576,10 @@ const QString QVariant::toString() const
     }
 }
 /*!
-  Returns the variant as a QCString if the variant has type()
-  CString or String, or a 0 otherwise.
+    Returns the variant as a QCString if the variant has type()
+    CString or String; otherwise returns 0.
 
-  \sa asCString()
+    \sa asCString()
 */
 const QCString QVariant::toCString() const
 {
@@ -1574,12 +1594,12 @@ const QCString QVariant::toCString() const
 
 #ifndef QT_NO_STRINGLIST
 /*!
-  Returns the variant as a QStringList if the variant has type()
-  StringList or List of a type that can be converted to QString, or an
-  empty list otherwise.
+    Returns the variant as a QStringList if the variant has type()
+    StringList or List of a type that can be converted to QString;
+    otherwise returns an empty list.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QStringList list = myVariant.toStringList();
     QStringList::Iterator it = list.begin();
@@ -1589,7 +1609,7 @@ const QCString QVariant::toCString() const
     }
     \endcode
 
-  \sa asStringList()
+    \sa asStringList()
 */
 const QStringList QVariant::toStringList() const
 {
@@ -1615,21 +1635,21 @@ const QStringList QVariant::toStringList() const
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Returns the variant as a QMap<QString,QVariant> if the variant has type()
-  Map, or an empty map otherwise.
+    Returns the variant as a QMap<QString,QVariant> if the variant has
+    type() Map; otherwise returns an empty map.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the map, you should iterate
+    over a copy, e.g.
     \code
-    QMap<QString, QVariant> list = myVariant.toMap();
-    QMap<QString, QVariant>::Iterator it = list.begin();
-    while( it != list.end() ) {
+    QMap<QString, QVariant> map = myVariant.toMap();
+    QMap<QString, QVariant>::Iterator it = map.begin();
+    while( it != map.end() ) {
 	myProcessing( *it );
 	++it;
     }
     \endcode
 
-  \sa asMap()
+    \sa asMap()
 */
 const QMap<QString, QVariant> QVariant::toMap() const
 {
@@ -1640,8 +1660,8 @@ const QMap<QString, QVariant> QVariant::toMap() const
 }
 #endif
 /*!
-  Returns the variant as a QFont if the variant has type()
-  Font, or the default font otherwise.
+    Returns the variant as a QFont if the variant has type() Font;
+    otherwise returns the application's default font.
 
   \sa asFont()
 */
@@ -1662,10 +1682,10 @@ const QFont QVariant::toFont() const
 }
 
 /*!
-  Returns the variant as a QPixmap if the variant has type()
-  Pixmap, or a null pixmap otherwise.
+    Returns the variant as a QPixmap if the variant has type() Pixmap;
+    otherwise returns a null pixmap.
 
-  \sa asPixmap()
+    \sa asPixmap()
 */
 const QPixmap QVariant::toPixmap() const
 {
@@ -1676,10 +1696,10 @@ const QPixmap QVariant::toPixmap() const
 }
 
 /*!
-  Returns the variant as a QImage if the variant has type()
-  Image, or a null image otherwise.
+    Returns the variant as a QImage if the variant has type() Image;
+    otherwise returns a null image.
 
-  \sa asImage()
+    \sa asImage()
 */
 const QImage QVariant::toImage() const
 {
@@ -1690,10 +1710,10 @@ const QImage QVariant::toImage() const
 }
 
 /*!
-  Returns the variant as a QBrush if the variant has type()
-  Brush, or a default brush (with all black colors) otherwise.
+    Returns the variant as a QBrush if the variant has type() Brush;
+    otherwise returns a default brush (with all black colors).
 
-  \sa asBrush()
+    \sa asBrush()
 */
 const QBrush QVariant::toBrush() const
 {
@@ -1704,10 +1724,10 @@ const QBrush QVariant::toBrush() const
 }
 
 /*!
-  Returns the variant as a QPoint if the variant has type()
-  Point, or a point (0, 0) otherwise.
+    Returns the variant as a QPoint if the variant has type() Point;
+    otherwise returns a point (0, 0).
 
-  \sa asPoint()
+    \sa asPoint()
 */
 const QPoint QVariant::toPoint() const
 {
@@ -1718,10 +1738,10 @@ const QPoint QVariant::toPoint() const
 }
 
 /*!
-  Returns the variant as a QRect if the variant has type()
-  Rect, or an empty rectangle otherwise.
+    Returns the variant as a QRect if the variant has type() Rect;
+    otherwise returns an empty rectangle.
 
-  \sa asRect()
+    \sa asRect()
 */
 const QRect QVariant::toRect() const
 {
@@ -1732,10 +1752,10 @@ const QRect QVariant::toRect() const
 }
 
 /*!
-  Returns the variant as a QSize if the variant has type()
-  Size, or an invalid size otherwise.
+    Returns the variant as a QSize if the variant has type() Size;
+    otherwise returns an invalid size.
 
-  \sa asSize()
+    \sa asSize()
 */
 const QSize QVariant::toSize() const
 {
@@ -1746,10 +1766,10 @@ const QSize QVariant::toSize() const
 }
 
 /*!
-  Returns the variant as a QColor if the variant has type()
-  Color, or an invalid color otherwise.
+    Returns the variant as a QColor if the variant has type() Color;
+    otherwise returns an invalid color.
 
-  \sa asColor()
+    \sa asColor()
 */
 const QColor QVariant::toColor() const
 {
@@ -1768,10 +1788,10 @@ const QColor QVariant::toColor() const
 }
 #ifndef QT_NO_PALETTE
 /*!
-  Returns the variant as a QPalette if the variant has type()
-  Palette, or a completely black palette otherwise.
+    Returns the variant as a QPalette if the variant has type()
+    Palette; otherwise returns a completely black palette.
 
-  \sa asPalette()
+    \sa asPalette()
 */
 const QPalette QVariant::toPalette() const
 {
@@ -1782,10 +1802,10 @@ const QPalette QVariant::toPalette() const
 }
 
 /*!
-  Returns the variant as a QColorGroup if the variant has type()
-  ColorGroup, or a completely black color group otherwise.
+    Returns the variant as a QColorGroup if the variant has type()
+    ColorGroup; otherwise returns a completely black color group.
 
-  \sa asColorGroup()
+    \sa asColorGroup()
 */
 const QColorGroup QVariant::toColorGroup() const
 {
@@ -1797,10 +1817,10 @@ const QColorGroup QVariant::toColorGroup() const
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 /*!
-  Returns the variant as a QIconSet if the variant has type()
-  IconSet, or an icon set of null pixmaps otherwise.
+    Returns the variant as a QIconSet if the variant has type()
+    IconSet; otherwise returns an icon set of null pixmaps.
 
-  \sa asIconSet()
+    \sa asIconSet()
 */
 const QIconSet QVariant::toIconSet() const
 {
@@ -1811,10 +1831,10 @@ const QIconSet QVariant::toIconSet() const
 }
 #endif //QT_NO_ICONSET
 /*!
-  Returns the variant as a QPointArray if the variant has type()
-  PointArray, or an empty QPointArray otherwise.
+    Returns the variant as a QPointArray if the variant has type()
+    PointArray; otherwise returns an empty QPointArray.
 
-  \sa asPointArray()
+    \sa asPointArray()
 */
 const QPointArray QVariant::toPointArray() const
 {
@@ -1825,10 +1845,10 @@ const QPointArray QVariant::toPointArray() const
 }
 
 /*!
-  Returns the variant as a QBitmap if the variant has type()
-  Bitmap, or a null QBitmap otherwise.
+    Returns the variant as a QBitmap if the variant has type() Bitmap;
+    otherwise returns a null QBitmap.
 
-  \sa asBitmap()
+    \sa asBitmap()
 */
 const QBitmap QVariant::toBitmap() const
 {
@@ -1839,10 +1859,10 @@ const QBitmap QVariant::toBitmap() const
 }
 
 /*!
-  Returns the variant as a QRegion if the variant has type()
-  Region, or an empty QRegion otherwise.
+    Returns the variant as a QRegion if the variant has type() Region;
+    otherwise returns an empty QRegion.
 
-  \sa asRegion()
+    \sa asRegion()
 */
 const QRegion QVariant::toRegion() const
 {
@@ -1853,10 +1873,10 @@ const QRegion QVariant::toRegion() const
 }
 
 /*!
-  Returns the variant as a QCursor if the variant has type()
-  Cursor, or the default arrow cursor otherwise.
+    Returns the variant as a QCursor if the variant has type() Cursor;
+    otherwise returns the default arrow cursor.
 
-  \sa asCursor()
+    \sa asCursor()
 */
 const QCursor QVariant::toCursor() const
 {
@@ -1869,13 +1889,13 @@ const QCursor QVariant::toCursor() const
 }
 
 /*!
-  Returns the variant as a QDate if the variant has type()
-  Date, DateTime or String, or an invalid date otherwise.
+    Returns the variant as a QDate if the variant has type() Date,
+    DateTime or String; otherwise returns an invalid date.
 
-  Note that if the type() is String an invalid date will be returned
-  if the string cannot be parsed as an Qt::ISODate format date.
+    Note that if the type() is String an invalid date will be returned
+    if the string cannot be parsed as a Qt::ISODate format date.
 
-  \sa asDate()
+    \sa asDate()
 */
 const QDate QVariant::toDate() const
 {
@@ -1891,13 +1911,13 @@ const QDate QVariant::toDate() const
 }
 
 /*!
-  Returns the variant as a QTime if the variant has type()
-  Time, DateTime or String, or an invalid time otherwise.
+    Returns the variant as a QTime if the variant has type() Time,
+    DateTime or String; otherwise returns an invalid time.
 
-  Note that if the type() is String an invalid time will be returned
-  if the string cannot be parsed as an Qt::ISODate format time.
+    Note that if the type() is String an invalid time will be returned
+    if the string cannot be parsed as a Qt::ISODate format time.
 
-  \sa asTime()
+    \sa asTime()
 */
 const QTime QVariant::toTime() const
 {
@@ -1913,14 +1933,14 @@ const QTime QVariant::toTime() const
 }
 
 /*!
-  Returns the variant as a QDateTime if the variant has type()
-  DateTime or String, or an invalid date/time otherwise.
+    Returns the variant as a QDateTime if the variant has type()
+    DateTime or String; otherwise returns an invalid date/time.
 
-  Note that if the type() is String an invalid date/time will be
-  returned if the string cannot be parsed as an Qt::ISODate format
-  date/time.
+    Note that if the type() is String an invalid date/time will be
+    returned if the string cannot be parsed as a Qt::ISODate format
+    date/time.
 
-  \sa asDateTime()
+    \sa asDateTime()
 */
 const QDateTime QVariant::toDateTime() const
 {
@@ -1936,10 +1956,10 @@ const QDateTime QVariant::toDateTime() const
 }
 
 /*!
-  Returns the variant as a QByteArray if the variant has type()
-  ByteArray, or an empty bytearray otherwise.
+    Returns the variant as a QByteArray if the variant has type()
+    ByteArray; otherwise returns an empty bytearray.
 
-  \sa asByteArray()
+    \sa asByteArray()
 */
 const QByteArray QVariant::toByteArray() const
 {
@@ -1949,10 +1969,10 @@ const QByteArray QVariant::toByteArray() const
 }
 
 /*!
-  Returns the variant as a QBitArray if the variant has type()
-  BitArray, or an empty bitarray otherwise.
+    Returns the variant as a QBitArray if the variant has type()
+    BitArray; otherwise returns an empty bitarray.
 
-  \sa asBitArray()
+    \sa asBitArray()
 */
 const QBitArray QVariant::toBitArray() const
 {
@@ -1964,13 +1984,14 @@ const QBitArray QVariant::toBitArray() const
 #ifndef QT_NO_ACCEL
 
 /*!
-  Returns the variant as a QKeySequence if the variant has type()
-  KeySequence, Int or String, or an empty key sequence otherwise.
+    Returns the variant as a QKeySequence if the variant has type()
+    KeySequence, Int or String; otherwise returns an empty key
+    sequence.
 
-  Note that not all Ints and Strings are valid key sequences and in
-  such cases an empty key sequence will be returned.
+    Note that not all Ints and Strings are valid key sequences and in
+    such cases an empty key sequence will be returned.
 
-  \sa asKeySequence()
+    \sa asKeySequence()
 */
 const QKeySequence QVariant::toKeySequence() const
 {
@@ -1986,10 +2007,10 @@ const QKeySequence QVariant::toKeySequence() const
 #endif // QT_NO_ACCEL
 
 /*!
-  Returns the variant as a QPen if the variant has type()
-  Pen, or an empty QPen otherwise.
+    Returns the variant as a QPen if the variant has type()
+    Pen; otherwise returns an empty QPen.
 
-  \sa asPen()
+    \sa asPen()
 */
 const QPen QVariant::toPen() const
 {
@@ -2000,13 +2021,14 @@ const QPen QVariant::toPen() const
 }
 
 /*!
-  Returns the variant as an int if the variant has type()
-  String, CString, Int, UInt, Double, Bool or KeySequence; or 0 otherwise.
+    Returns the variant as an int if the variant has type() String,
+    CString, Int, UInt, Double, Bool or KeySequence; otherwise returns
+    0.
 
-  If \a ok is non-null, \a *ok is set to TRUE if the value could be
-  converted to an int and FALSE otherwise.
+    If \a ok is non-null: \a *ok is set to TRUE if the value could be
+    converted to an int; otherwise \a *ok is set to FALSE.
 
-  \sa asInt() canCast()
+    \sa asInt() canCast()
 */
 int QVariant::toInt( bool * ok ) const
 {
@@ -2033,13 +2055,13 @@ int QVariant::toInt( bool * ok ) const
 }
 
 /*!
-  Returns the variant as an unsigned int if the variant has type()
-  String, CString, UInt, Int, Double, or Bool; or 0 otherwise.
+    Returns the variant as an unsigned int if the variant has type()
+    String, CString, UInt, Int, Double, or Bool; otherwise returns 0.
 
-  If \a ok is non-null, \a *ok is set to TRUE if the value could be
-  converted to a uint and FALSE otherwise.
+    If \a ok is non-null: \a *ok is set to TRUE if the value could be
+    converted to an unsigned int; otherwise \a *ok is set to FALSE.
 
-  \sa asUInt()
+    \sa asUInt()
 */
 uint QVariant::toUInt( bool * ok ) const
 {
@@ -2061,12 +2083,13 @@ uint QVariant::toUInt( bool * ok ) const
     return 0;
 }
 
-/*!  Returns the variant as a bool if the variant has type() Bool.
+/*!
+    Returns the variant as a bool if the variant has type() Bool.
 
-  Returns TRUE if the variant has type Int, UInt or Double and its value
-  is non-zero; otherwise returns FALSE.
+    Returns TRUE if the variant has type Int, UInt or Double and its
+    value is non-zero; otherwise returns FALSE.
 
-  \sa asBool()
+    \sa asBool()
 */
 bool QVariant::toBool() const
 {
@@ -2083,13 +2106,13 @@ bool QVariant::toBool() const
 }
 
 /*!
-  Returns the variant as a double if the variant has type()
-  String, CString, Double, Int, UInt, or Bool; or 0.0 otherwise.
+    Returns the variant as a double if the variant has type() String,
+    CString, Double, Int, UInt, or Bool; otherwise returns 0.0.
 
-  If \a ok is non-null, \a *ok is set to TRUE if the value could be
-  converted to a double and FALSE otherwise.
+    If \a ok is non-null: \a *ok is set to TRUE if the value could be
+    converted to a double; otherwise \a *ok is set to FALSE.
 
-  \sa asDouble()
+    \sa asDouble()
 */
 double QVariant::toDouble( bool * ok ) const
 {
@@ -2112,11 +2135,11 @@ double QVariant::toDouble( bool * ok ) const
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Returns the variant as a QValueList<QVariant> if the variant has type()
-  List or StringList, or an empty list otherwise.
+    Returns the variant as a QValueList<QVariant> if the variant has
+    type() List or StringList; otherwise returns an empty list.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QValueList<QVariant> list = myVariant.toList();
     QValueList<QVariant>::Iterator it = list.begin();
@@ -2126,7 +2149,7 @@ double QVariant::toDouble( bool * ok ) const
     }
     \endcode
 
-  \sa asList()
+    \sa asList()
 */
 const QValueList<QVariant> QVariant::toList() const
 {
@@ -2146,8 +2169,10 @@ const QValueList<QVariant> QVariant::toList() const
 }
 #endif
 
-/*! Returns the variant as a QSizePolicy if the variant has type()
-SizePolicy, or an undefined (but legal) size policy otherwise.
+/*!
+    Returns the variant as a QSizePolicy if the variant has type()
+    SizePolicy; otherwise returns an undefined (but legal) size
+    policy.
 */
 
 QSizePolicy QVariant::toSizePolicy() const
@@ -2197,35 +2222,38 @@ Q_VARIANT_AS(KeySequence)
 #endif
 Q_VARIANT_AS(Pen)
 
-/*! \fn QString& QVariant::asString()
+/*!
+    \fn QString& QVariant::asString()
 
-  Tries to convert the variant to hold a string value. If that
-  is not possible the variant is set to an empty string.
+    Tries to convert the variant to hold a string value. If that is
+    not possible the variant is set to an empty string.
 
-  Returns a reference to the stored string.
+    Returns a reference to the stored string.
 
-  \sa toString()
+    \sa toString()
 */
 
-/*! \fn QCString& QVariant::asCString()
+/*!
+    \fn QCString& QVariant::asCString()
 
-  Tries to convert the variant to hold a string value. If that
-  is not possible the variant is set to an empty string.
+    Tries to convert the variant to hold a string value. If that is
+    not possible the variant is set to an empty string.
 
-  Returns a reference to the stored string.
+    Returns a reference to the stored string.
 
-  \sa toCString()
+    \sa toCString()
 */
 
-/*! \fn QStringList& QVariant::asStringList()
+/*!
+    \fn QStringList& QVariant::asStringList()
 
-  Tries to convert the variant to hold a QStringList value. If that
-  is not possible the variant is set to an empty string list.
+    Tries to convert the variant to hold a QStringList value. If that
+    is not possible the variant is set to an empty string list.
 
-  Returns a reference to the stored string list.
+    Returns a reference to the stored string list.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should
+    iterate over a copy, e.g.
     \code
     QStringList list = myVariant.asStringList();
     QStringList::Iterator it = list.begin();
@@ -2235,225 +2263,247 @@ Q_VARIANT_AS(Pen)
     }
     \endcode
 
-  \sa toStringList()
+    \sa toStringList()
 */
 
-/*! \fn QFont& QVariant::asFont()
+/*!
+    \fn QFont& QVariant::asFont()
 
-  Tries to convert the variant to hold a QFont. If that
-  is not possible the variant is set to a default font.
+    Tries to convert the variant to hold a QFont. If that is not
+    possible the variant is set to the application's default font.
 
-  Returns a reference to the stored font.
+    Returns a reference to the stored font.
 
-  \sa toFont()
+    \sa toFont()
 */
 
-/*! \fn QPixmap& QVariant::asPixmap()
+/*!
+    \fn QPixmap& QVariant::asPixmap()
 
-  Tries to convert the variant to hold a pixmap value. If that
-  is not possible the variant is set to a null pixmap.
+    Tries to convert the variant to hold a pixmap value. If that is
+    not possible the variant is set to a null pixmap.
 
-  Returns a reference to the stored pixmap.
+    Returns a reference to the stored pixmap.
 
-  \sa toPixmap()
+    \sa toPixmap()
 */
 
-/*! \fn QImage& QVariant::asImage()
+/*!
+    \fn QImage& QVariant::asImage()
 
-  Tries to convert the variant to hold an image value. If that
-  is not possible the variant is set to a null image.
+    Tries to convert the variant to hold an image value. If that is
+    not possible the variant is set to a null image.
 
-  Returns a reference to the stored image.
+    Returns a reference to the stored image.
 
-  \sa toImage()
+    \sa toImage()
 */
 
-/*! \fn QBrush& QVariant::asBrush()
+/*!
+    \fn QBrush& QVariant::asBrush()
 
-  Tries to convert the variant to hold a brush value. If that
-  is not possible the variant is set to a default black brush.
+    Tries to convert the variant to hold a brush value. If that is not
+    possible the variant is set to a default black brush.
 
-  Returns a reference to the stored brush.
+    Returns a reference to the stored brush.
 
-  \sa toBrush()
+    \sa toBrush()
 */
 
-/*! \fn QPoint& QVariant::asPoint()
+/*!
+    \fn QPoint& QVariant::asPoint()
 
-  Tries to convert the variant to hold a point value. If that
-  is not possible the variant is set to a null point.
+    Tries to convert the variant to hold a point value. If that is not
+    possible the variant is set to a (0, 0) point.
 
-  Returns a reference to the stored point.
+    Returns a reference to the stored point.
 
-  \sa toPoint()
+    \sa toPoint()
 */
 
-/*! \fn QRect& QVariant::asRect()
+/*!
+    \fn QRect& QVariant::asRect()
 
-  Tries to convert the variant to hold a rectangle value. If that
-  is not possible the variant is set to an empty rectangle.
+    Tries to convert the variant to hold a rectangle value. If that is
+    not possible the variant is set to an empty rectangle.
 
-  Returns a reference to the stored rectangle.
+    Returns a reference to the stored rectangle.
 
-  \sa toRect()
+    \sa toRect()
 */
 
-/*! \fn QSize& QVariant::asSize()
+/*!
+    \fn QSize& QVariant::asSize()
 
-  Tries to convert the variant to hold a QSize value. If that
-  is not possible the variant is set to an invalid size.
+    Tries to convert the variant to hold a QSize value. If that is not
+    possible the variant is set to an invalid size.
 
-  Returns a reference to the stored size.
+    Returns a reference to the stored size.
 
-  \sa toSize() QSize::isValid()
+    \sa toSize() QSize::isValid()
 */
 
-/*!  \fn QSizePolicy& QVariant::asSizePolicy()
+/*!
+    \fn QSizePolicy& QVariant::asSizePolicy()
 
-  Tries to convert the variant to hold a QSizePolicy value.  If that
-  fails, the variant is set to an arbitrary size policy.
+    Tries to convert the variant to hold a QSizePolicy value. If that
+    fails, the variant is set to an arbitrary (valid) size policy.
 */
 
 
-/*! \fn QColor& QVariant::asColor()
+/*!
+    \fn QColor& QVariant::asColor()
 
-  Tries to convert the variant to hold a QColor value. If that
-  is not possible the variant is set to an invalid color.
+    Tries to convert the variant to hold a QColor value. If that is
+    not possible the variant is set to an invalid color.
 
-  Returns a reference to the stored color.
+    Returns a reference to the stored color.
 
-  \sa toColor() QColor::isValid()
+    \sa toColor() QColor::isValid()
 */
 
-/*! \fn QPalette& QVariant::asPalette()
+/*!
+    \fn QPalette& QVariant::asPalette()
 
-  Tries to convert the variant to hold a QPalette value. If that
-  is not possible the variant is set to a palette with black colors only.
+    Tries to convert the variant to hold a QPalette value. If that is
+    not possible the variant is set to a palette of black colors.
 
-  Returns a reference to the stored palette.
+    Returns a reference to the stored palette.
 
-  \sa toString()
+    \sa toString()
 */
 
-/*! \fn QColorGroup& QVariant::asColorGroup()
+/*!
+    \fn QColorGroup& QVariant::asColorGroup()
 
-  Tries to convert the variant to hold a QColorGroup value. If that
-  is not possible the variant is set to a color group with all colors
-  set to black.
+    Tries to convert the variant to hold a QColorGroup value. If that
+    is not possible the variant is set to a color group of all black
+    colors.
 
-  Returns a reference to the stored color group.
+    Returns a reference to the stored color group.
 
-  \sa toColorGroup()
+    \sa toColorGroup()
 */
 
-/*! \fn QIconSet& QVariant::asIconSet()
+/*!
+    \fn QIconSet& QVariant::asIconSet()
 
-  Tries to convert the variant to hold a QIconSet value. If that
-  is not possible the variant is set to an empty iconset.
+    Tries to convert the variant to hold a QIconSet value. If that is
+    not possible the variant is set to an empty iconset.
 
-  Returns a reference to the stored iconset.
+    Returns a reference to the stored iconset.
 
-  \sa toIconSet()
+    \sa toIconSet()
 */
 
-/*! \fn QPointArray& QVariant::asPointArray()
+/*!
+    \fn QPointArray& QVariant::asPointArray()
 
-  Tries to convert the variant to hold a QPointArray value. If that
-  is not possible the variant is set to an empty point array.
+    Tries to convert the variant to hold a QPointArray value. If that
+    is not possible the variant is set to an empty point array.
 
-  Returns a reference to the stored point array.
+    Returns a reference to the stored point array.
 
-  \sa toPointArray()
+    \sa toPointArray()
 */
 
-/*! \fn QBitmap& QVariant::asBitmap()
+/*!
+    \fn QBitmap& QVariant::asBitmap()
 
-  Tries to convert the variant to hold a bitmap value. If that
-  is not possible the variant is set to a null bitmap.
+    Tries to convert the variant to hold a bitmap value. If that is
+    not possible the variant is set to a null bitmap.
 
-  Returns a reference to the stored bitmap.
+    Returns a reference to the stored bitmap.
 
-  \sa toBitmap()
+    \sa toBitmap()
 */
 
-/*! \fn QRegion& QVariant::asRegion()
+/*!
+    \fn QRegion& QVariant::asRegion()
 
-  Tries to convert the variant to hold a QRegion value. If that
-  is not possible the variant is set to a null region.
+    Tries to convert the variant to hold a QRegion value. If that is
+    not possible the variant is set to a null region.
 
-  Returns a reference to the stored region.
+    Returns a reference to the stored region.
 
-  \sa toRegion()
+    \sa toRegion()
 */
 
-/*! \fn QCursor& QVariant::asCursor()
+/*!
+    \fn QCursor& QVariant::asCursor()
 
-  Tries to convert the variant to hold a QCursor value. If that
-  is not possible the variant is set to a default arrow cursor.
+    Tries to convert the variant to hold a QCursor value. If that is
+    not possible the variant is set to a default arrow cursor.
 
-  Returns a reference to the stored cursor.
+    Returns a reference to the stored cursor.
 
-  \sa toCursor()
+    \sa toCursor()
 */
 
-/*! \fn QDate& QVariant::asDate()
+/*!
+    \fn QDate& QVariant::asDate()
 
-  Tries to convert the variant to hold a QDate value. If that
-  is not possible then the variant is set to an invalid date.
+    Tries to convert the variant to hold a QDate value. If that is not
+    possible then the variant is set to an invalid date.
 
-  Returns a reference to the stored date.
+    Returns a reference to the stored date.
 
-  \sa toDate()
+    \sa toDate()
 */
 
-/*! \fn QTime& QVariant::asTime()
+/*!
+    \fn QTime& QVariant::asTime()
 
-  Tries to convert the variant to hold a QTime value. If that
-  is not possible then the variant is set to an invalid time.
+    Tries to convert the variant to hold a QTime value. If that is not
+    possible then the variant is set to an invalid time.
 
-  Returns a reference to the stored time.
+    Returns a reference to the stored time.
 
-  \sa toTime()
+    \sa toTime()
 */
 
-/*! \fn QDateTime& QVariant::asDateTime()
+/*!
+    \fn QDateTime& QVariant::asDateTime()
 
-  Tries to convert the variant to hold a QDateTime value. If that
-  is not possible then the variant is set to an invalid date/time.
+    Tries to convert the variant to hold a QDateTime value. If that is
+    not possible then the variant is set to an invalid date/time.
 
-  Returns a reference to the stored date/time.
+    Returns a reference to the stored date/time.
 
-  \sa toDateTime()
+    \sa toDateTime()
 */
 
-/*! \fn QByteArray& QVariant::asByteArray()
+/*!
+    \fn QByteArray& QVariant::asByteArray()
 
-  Tries to convert the variant to hold a QByteArray value. If that
-  is not possible then the variant is set to an empty bytearray.
+    Tries to convert the variant to hold a QByteArray value. If that
+    is not possible then the variant is set to an empty bytearray.
 
-  Returns a reference to the stored bytearray.
+    Returns a reference to the stored bytearray.
 
-  \sa toByteArray()
+    \sa toByteArray()
 */
 
-/*! \fn QBitArray& QVariant::asBitArray()
+/*!
+    \fn QBitArray& QVariant::asBitArray()
 
-  Tries to convert the variant to hold a QBitArray value. If that
-  is not possible then the variant is set to an empty bitarray.
+    Tries to convert the variant to hold a QBitArray value. If that is
+    not possible then the variant is set to an empty bitarray.
 
-  Returns a reference to the stored bitarray.
+    Returns a reference to the stored bitarray.
 
-  \sa toBitArray()
+    \sa toBitArray()
 */
 
-/*! \fn QKeySequence& QVariant::asKeySequence()
+/*!
+    \fn QKeySequence& QVariant::asKeySequence()
 
-  Tries to convert the variant to hold a QKeySequence value. If that
-  is not possible then the variant is set to an empty key sequence.
+    Tries to convert the variant to hold a QKeySequence value. If that
+    is not possible then the variant is set to an empty key sequence.
 
-  Returns a reference to the stored key sequence.
+    Returns a reference to the stored key sequence.
 
-  \sa toKeySequence()
+    \sa toKeySequence()
 */
 
 /*! \fn QPen& QVariant::asPen()
@@ -2467,7 +2517,7 @@ Q_VARIANT_AS(Pen)
 */
 
 /*!
-  Returns the variant's value as int reference.
+    Returns the variant's value as int reference.
 */
 int& QVariant::asInt()
 {
@@ -2482,7 +2532,7 @@ int& QVariant::asInt()
 }
 
 /*!
-  Returns the variant's value as unsigned int reference.
+    Returns the variant's value as unsigned int reference.
 */
 uint& QVariant::asUInt()
 {
@@ -2497,7 +2547,7 @@ uint& QVariant::asUInt()
 }
 
 /*!
-  Returns the variant's value as bool reference.
+    Returns the variant's value as bool reference.
 */
 bool& QVariant::asBool()
 {
@@ -2512,7 +2562,7 @@ bool& QVariant::asBool()
 }
 
 /*!
-  Returns the variant's value as double reference.
+    Returns the variant's value as double reference.
 */
 double& QVariant::asDouble()
 {
@@ -2527,10 +2577,10 @@ double& QVariant::asDouble()
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-  Returns the variant's value as variant list reference.
+    Returns the variant's value as variant list reference.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the list, you should iterate
+    over a copy, e.g.
     \code
     QValueList<QVariant> list = myVariant.asList();
     QValueList<QVariant>::Iterator it = list.begin();
@@ -2548,14 +2598,14 @@ QValueList<QVariant>& QVariant::asList()
 }
 
 /*!
-  Returns the variant's value as variant map reference.
+    Returns the variant's value as variant map reference.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+    Note that if you want to iterate over the map, you should iterate
+    over a copy, e.g.
     \code
-    QMap<QString, QVariant> list = myVariant.asMap();
-    QMap<QString, QVariant>::Iterator it = list.begin();
-    while( it != list.end() ) {
+    QMap<QString, QVariant> map = myVariant.asMap();
+    QMap<QString, QVariant>::Iterator it = map.begin();
+    while( it != map.end() ) {
 	myProcessing( *it );
 	++it;
     }
@@ -2570,27 +2620,29 @@ QMap<QString, QVariant>& QVariant::asMap()
 #endif
 
 /*!
-  Returns TRUE if the variant's type can be cast to the requested
-  type, \a t. Such casting is done automatically when calling the
-  toInt(), toBool(), ... or asInt(), asBool(), ... methods.
+    Returns TRUE if the variant's type can be cast to the requested
+    type, \a t. Such casting is done automatically when calling the
+    toInt(), toBool(), ... or asInt(), asBool(), ... methods.
 
-  The following casts are done automatically:
-  \list
-  \i Bool => Double, Int, UInt
-  \i CString => String
-  \i Color => String
-  \i Date => String
-  \i DateTime => String, Date, Time
-  \i Double => String, Int, Bool, UInt
-  \i Font => String
-  \i Int => String, Double, Bool, UInt
-  \i List => StringList (if the list contains strings or something
-       that can be cast to a string)
-  \i String => CString, Int, Uint, Double, Date, Time, DateTime, KeySequence, Font, Color
-  \i StringList => List
-  \i Time => String
-  \i UInt => String, Double, Bool, Int
-  \endlist
+    The following casts are done automatically:
+    \table
+    \header \i Type \i Automatically Cast To
+    \row \i Bool \i Double, Int, UInt
+    \row \i Color \i String
+    \row \i Date \i String
+    \row \i DateTime \i String, Date, Time
+    \row \i Double \i String, Int, Bool, UInt
+    \row \i Font \i String
+    \row \i Int \i String, Double, Bool, UInt
+    \row \i List \i StringList (if the list contains strings or
+    something that can be cast to a string)
+    \row \i String \i CString, Int, Uint, Double, Date, Time,
+    DateTime, KeySequence, Font, Color
+    \row \i CString \i String
+    \row \i StringList \i List
+    \row \i Time \i String
+    \row \i UInt \i String, Double, Bool, Int
+    \endtable
 */
 bool QVariant::canCast( Type t ) const
 {
@@ -2639,14 +2691,14 @@ bool QVariant::canCast( Type t ) const
 }
 
 /*!
-  Casts the variant to the requested type.  If the cast cannot be
-  done, the variant is set to the default value of the requested type
-  (e.g. an empty string if the requested type \a t is
-  QVariant::String, an empty point array if the requested type \a t is
-  QVariant::PointArray, etc).  Returns TRUE if the current type of the
-  variant was successfully casted; otherwise returns FALSE.
+    Casts the variant to the requested type. If the cast cannot be
+    done, the variant is set to the default value of the requested
+    type (e.g. an empty string if the requested type \a t is
+    QVariant::String, an empty point array if the requested type \a t
+    is QVariant::PointArray, etc). Returns TRUE if the current type of
+    the variant was successfully cast; otherwise returns FALSE.
 
-  \sa canCast()
+    \sa canCast()
 */
 
 bool QVariant::cast( Type t )
@@ -2765,8 +2817,9 @@ bool QVariant::cast( Type t )
     return canCast( t );
 }
 
-/*!  Compares this QVariant with \a v and returns TRUE if they are
-  equal; otherwise returns FALSE.
+/*!
+    Compares this QVariant with \a v and returns TRUE if they are
+    equal; otherwise returns FALSE.
 */
 
 bool QVariant::operator==( const QVariant &v ) const
@@ -2866,8 +2919,9 @@ bool QVariant::operator==( const QVariant &v ) const
     return FALSE;
 }
 
-/*!  Compares this QVariant with \a v and returns TRUE if they are
-  not equal; otherwise returns FALSE.
+/*!
+    Compares this QVariant with \a v and returns TRUE if they are not
+    equal; otherwise returns FALSE.
 */
 
 bool QVariant::operator!=( const QVariant &v ) const

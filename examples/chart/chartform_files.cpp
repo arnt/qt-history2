@@ -74,6 +74,8 @@ void ChartForm::fileSave()
 	if ( m_elements[i].isValid() )
 	    ts << m_elements[i];
 
+    file.close();
+
     setCaption( QString( "Chart -- %1" ).arg( m_filename ) );
     statusBar()->message( QString( "Saved \'%1\'" ).arg( m_filename ), 2000 );
     m_changed = false;
