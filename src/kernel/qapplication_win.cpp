@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#126 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#126 $");
 
 
 /*****************************************************************************
@@ -920,10 +920,13 @@ int QApplication::enter_loop()
     loop_level++;
     quit_now = FALSE;
 
+    bool old_app_exit_loop = app_exit_loop;
+    app_exit_loop = FALSE;
+
     while ( !quit_now && !app_exit_loop )
 	processNextEvent( TRUE );
 
-    app_exit_loop = FALSE;
+    app_exit_loop = old_app_exit_loop;
     loop_level--;
 
     return 0;
