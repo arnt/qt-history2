@@ -286,7 +286,7 @@ private:
     friend class QWidgetPrivate;
     friend class QETWidget;
     friend class QDialog;
-    friend class QAccelManager;
+    friend class Q3AccelManager;
     friend class QTranslator;
     friend class QShortcut;
     friend class QAction;

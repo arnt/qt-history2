@@ -46,6 +46,9 @@ public:
         NoMatch,
         PartialMatch,
         ExactMatch
+#ifdef QT_COMPAT
+        , Identical = ExactMatch
+#endif
     };
 
     SequenceMatch matches(const QKeySequence &seq) const;
@@ -76,7 +79,7 @@ private:
 
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QKeySequence &ks);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QKeySequence &ks);
-    friend class QAccelManager;
+    friend class Q3AccelManager;
     friend class QShortcutMap;
     friend class QShortcut;
 };

@@ -48,7 +48,6 @@ class QImage;
 class QImageIO;
 class QPicture;
 class QPrinter;
-class QAccel;
 class QTimer;
 class QTime;
 class QClipboard;
