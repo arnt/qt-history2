@@ -36,14 +36,17 @@ static void init_colors()
 {
     if ( backColor1 )
 	return;
+
+#if 0 // a calculated alternative for backColor1
     QColorGroup myCg = qApp->palette().active();
     int h1, s1, v1;
     int h2, s2, v2;
     myCg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
     myCg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
     QColor c( h1, s1, ( v1 + v2 ) / 2, QColor::Hsv );
+#endif
 
-    backColor1 = new QColor( c );
+    backColor1 = new QColor(  250, 248, 235 );
     backColor2 = new QColor( 255, 255, 255 );
     selectedBack = new QColor( 230, 230, 230 );
 }
