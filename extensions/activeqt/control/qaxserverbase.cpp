@@ -930,15 +930,15 @@ bool QAxServerBase::internalCreate()
     if ( activeqt )
 	return TRUE;
 
-    const QMetaObject *mo = qAxFactory()->metaObject( class_name );
+     QMetaObject::metaObject( class_name );
 
-    activeqt = qAxFactory()->create( class_name );
     hasStockEvents = qAxFactory()->hasStockEvents( class_name );
     stayTopLevel = qAxFactory()->stayTopLevel( class_name );
 
     Q_ASSERT(activeqt);
     if ( !activeqt )
 	return FALSE;
+    const QMetaObject *mo = activeqt->metaObject();
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
     if ( axb ) {
 	// no addref; this is aggregated
@@ -1343,7 +1343,7 @@ void QAxServerBase::readMetaData()
 	proplist = new QIntDict<QMetaProperty>;
 	proplist2 = new QMap<int,DISPID>;
 
-	QMetaObject *mo = activeqt->metaObject();
+	const QMetaObject *mo = activeqt->metaObject();
 	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
 	    const QMetaData *slot = mo->slot( islot, TRUE );
 
@@ -2945,7 +2945,7 @@ HRESULT QAxServerBase::internalActivate()
 	    }
 	    statusBar = activeqt ? (QStatusBar*)activeqt->child( 0, "QStatusBar" ) : 0;
 	    if ( statusBar ) {
-		int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
+		const int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
 		connectInternal( statusBar, index, (QObject*)this, 2, -1 );
 		statusBar->hide();
 	    }
@@ -3274,7 +3274,7 @@ public:
 	    ++it;
 
 	    QWidget *activex = ibase->widget();
-	    QMetaObject *mo = activex->metaObject();
+	    const QMetaObject *mo = activex->metaObject();
 
 	    QString topclass = qAxFactory()->exposeToSuperClass( activex->className() );
 	    QMetaObject *pmo = mo;

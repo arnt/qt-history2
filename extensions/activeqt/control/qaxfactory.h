@@ -45,7 +45,6 @@ struct QAxFactoryInterface : public QFeatureListInterface
 public:
 #ifndef Q_QDOC
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
-    virtual QMetaObject *metaObject( const QString &key ) const = 0;
 
     virtual QUuid classID( const QString &key ) const = 0;
     virtual QUuid interfaceID( const QString &key ) const = 0;
@@ -74,7 +73,6 @@ public:
     virtual QStringList featureList() const = 0;
 
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
-    virtual QMetaObject *metaObject( const QString &key ) const = 0;
 
     virtual QUuid classID( const QString &key ) const = 0;
     virtual QUuid interfaceID( const QString &key ) const = 0;
@@ -123,12 +121,6 @@ private:
 	{ \
 	    if ( key == #Class ) \
 		return new Class( parent, name ); \
-	    return 0; \
-	} \
-	QMetaObject *metaObject( const QString &key ) const \
-	{ \
-	    if ( key == #Class ) \
-		return Class::staticMetaObject(); \
 	    return 0; \
 	} \
 	QUuid appID() const \

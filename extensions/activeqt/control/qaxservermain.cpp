@@ -190,19 +190,25 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	    const QString classId = qAxFactory()->classID(*key).toString().upper();
-	    const QString eventId = qAxFactory()->eventsID(*key).toString().upper();
-	    const QString ifaceId = qAxFactory()->interfaceID(*key).toString().upper();
 	    const QString className = *key;
-	    
-	    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
-	    settings.writeEntry( "/" + module + "." + className + ".1/CLSID/.", classId );
-	    settings.writeEntry( "/" + module + "." + className + ".1/Insertable/.", QString::null );
-	    
+	    const QMetaObject *mo = QMetaObject::metaObject( className.latin1() );
+
+	    const QString classId = qAxFactory()->classID(className).toString().upper();
+	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
+	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
+	    QString classVersion = mo ? mo->classInfo( "VERSION" ) : QString::null;
+	    if ( classVersion.isNull() )
+		classVersion = "1.0";
+	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
+
+	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
+	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId );
+	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
+
 	    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
 	    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
-	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
-	    
+	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion );
+
 	    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
 	    if ( file.right( 3 ).lower() == "exe" )
 		settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
@@ -217,38 +223,44 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
 	    settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
 	    settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
-	    settings.writeEntry( "/CLSID/" + classId + "/Version/.", "1.0" );
+	    settings.writeEntry( "/CLSID/" + classId + "/Version/.", classVersion );
 	    settings.writeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className );
 	    settings.writeEntry( "/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1" );
-	    
+
 	    settings.writeEntry( "/Interface/" + ifaceId + "/.", "I" + className );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/.", libId );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", "1.0" );
-	    
+
 	    settings.writeEntry( "/Interface/" + eventId + "/.", "I" + className + "Events" );
 	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/.", libId );
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
-	    
-	    qAxFactory()->registerClass( *key, &settings );
+
+	    qAxFactory()->registerClass( className, &settings );
 	}
     } else {
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	    const QString classId = qAxFactory()->classID(*key).toString().upper();
-	    const QString eventId = qAxFactory()->eventsID(*key).toString().upper();
-	    const QString ifaceId = qAxFactory()->interfaceID(*key).toString().upper();
 	    const QString className = *key;
+	    const QMetaObject *mo = QMetaObject::metaObject( className.latin1() );
 
-	    qAxFactory()->unregisterClass( *key, &settings );
-	    
-	    settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
-	    settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
-	    settings.removeEntry( "/" + module + "." + className + ".1/." );
-	    
+	    const QString classId = qAxFactory()->classID(className).toString().upper();
+	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
+	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
+	    QString classVersion = mo ? mo->classInfo( "VERSION" ) : QString::null;
+	    if ( classVersion.isNull() )
+		classVersion = "1.0";
+	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
+
+	    qAxFactory()->unregisterClass( className, &settings );
+
+	    settings.removeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/." );
+	    settings.removeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/." );
+	    settings.removeEntry( "/" + module + "." + className + "." + classMajorVersion + "/." );
+
 	    settings.removeEntry( "/" + module + "." + className + "/CLSID/." );
 	    settings.removeEntry( "/" + module + "." + className + "/CurVer/." );
 	    settings.removeEntry( "/" + module + "." + className + "/." );
@@ -267,13 +279,13 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.removeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/." );
 	    settings.removeEntry( "/CLSID/" + classId + "/ProgID/." );
 	    settings.removeEntry( "/CLSID/" + classId + "/." );
-	    
+
 	    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/." );
 	    settings.removeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/." );
 	    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/Version" );
 	    settings.removeEntry( "/Interface/" + ifaceId + "/TypeLib/." );
 	    settings.removeEntry( "/Interface/" + ifaceId + "/." );
-	    
+
 	    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid/." );
 	    settings.removeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/." );
 	    settings.removeEntry( "/Interface/" + eventId + "/TypeLib/Version" );
@@ -282,7 +294,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	}
 	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
 	settings.removeEntry( "/AppID/" + appId + "/." );
-    
+
 	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/win32/." );
 	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/." );
 	settings.removeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/." );
@@ -311,6 +323,7 @@ static const char* const type_map[][2] =
     { "QFont",		"IFontDisp*" },
     { "QPixmap",	"IPictureDisp*" },
     { "QVariant",	"VARIANT" },
+    { "QValueList<QVariant>", "SAFEARRAY(VARIANT)" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
@@ -839,7 +852,14 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	
 	out << "\t[" << endl;
 	out << "\t\tuuid(" << classID << ")," << endl;
-	out << "\t\thelpstring(\"" << className << " Class\")" << endl;
+	out << "\t\thelpstring(\"" << className << " Class\")";
+	const char *classVersion = mo->classInfo( "VERSION" );
+	if ( classVersion ) {
+	    out << "," << endl;
+	    out << "\t\tversion(" << classVersion << ")" << endl;
+	} else {
+	    out << endl;
+	}
 	out << "\t]" << endl;
 	out << "\tcoclass " << className << endl;
 	out << "\t{" << endl;

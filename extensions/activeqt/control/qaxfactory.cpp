@@ -121,14 +121,6 @@
 	return 0;
     }
 
-    QMetaObject *ActiveQtFactory::metaObject( const QString &key ) const
-    {
-        if ( key == "ActiveX1" )
-	    return ActiveX1::staticMetaObject();
-	...
-	return 0;
-    }
-
     QUuid ActiveQtFactory::classID( const QString &key ) const
     {
         if ( key == "ActiveX1" )
@@ -234,17 +226,6 @@ QUuid QAxFactory::appID() const
     returned by the featureList() implementation. Propagate \a parent
     and \a name to the QWidget constructor. Return 0 if this factory
     doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QMetaObject *QAxFactory::metaObject( const QString &key ) const
-
-    Reimplement this function to return the QMetaObject for each \a
-    key returned by the featureList() implementation. Use the
-    QObject::staticMetaObject() function to get the QMetaObject for a
-    class. The class implementing the ActiveX control must use the
-    \c Q_OBJECT macro to generate meta object information. Return 0 if
-    this factory doesn't support the value of \a key.
 */
 
 /*!
