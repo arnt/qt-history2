@@ -590,17 +590,13 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
     if ( e->state() & Qt::LeftButton ) {
 	if ( ( e->pos() - mousePressPos ).manhattanLength() > 3 ) {
 	    draggedItem = item( findItem( mousePressPos ) );
-
-	    if ( draggedItem == &addItem ) {
+	    if ( draggedItem == &addItem || draggedItem == &addSeparator ) {
 		draggedItem = 0;
 		return;
-	    }
-	    
+	    }	    
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
-
 	    hideItem();
-
 	    draggedItem->setVisible( FALSE );
 	    update();
 
@@ -608,19 +604,14 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    //  we will have two instances of the same pointer
 	    // in the list.
 	    itemList.find( draggedItem );
-	    QLNode * node = itemList.currentNode();
-	    
+	    QLNode * node = itemList.currentNode();	    
 	    d->dragCopy(); // dragevents and stuff happens
-
-	    if ( draggedItem ) { // item was not dropped
-		
+	    if ( draggedItem ) { // item was not dropped		
 		hideItem();
 		draggedItem->setVisible( TRUE );
 		draggedItem = 0;
-		showItem();
-		
+		showItem();		
 	    } else { // item was dropped
-
 		hideItem();
 		//FIXME: move to centralized node management
 		itemList.takeNode( node )->setVisible( TRUE );		
