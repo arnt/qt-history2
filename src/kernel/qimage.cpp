@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#352 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#353 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2684,8 +2684,9 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     // compute size of target image
     QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
     if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
-	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
+	if ( mat.m11() == 1.0F && mat.m22() == 1.0F ) {
 	    return *this;			// identity matrix
+	}
 	hd = qRound( mat.m22()*hs );
 	wd = qRound( mat.m11()*ws );
 	hd = QABS( hd );
@@ -2706,8 +2707,9 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	return im;
     }
 
+#if 1
     // create target image (some of the code is from QImage::create())
-    QImage dImage = copy();
+    QImage dImage( copy() );
     dImage.freeBits();
 #ifdef Q_WS_QWS
     dbpl = (wd*bpp+7)/8;
@@ -2731,6 +2733,14 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	d += dbpl;
     }
     dImage.data->alpha = alpha;
+#else
+    // create target image (some of the code is from QImage::copy())
+    QImage dImage( wd, hd, depth(), numColors(), bitOrder() );
+    memcpy( dImage.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
+    dImage.setAlphaBuffer( hasAlphaBuffer() );
+    dImage.data->dpmx = dotsPerMeterX();
+    dImage.data->dpmy = dotsPerMeterY();
+#endif
     switch ( bpp ) {
 	// initizialize the data
 	case 1:
@@ -2739,7 +2749,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	case 8:
 	    if ( dImage.data->ncols < 256 ) {
 		// colors are left in the color table, so pick that one as transparent
-		dImage.data->ncols++;
+		dImage.setNumColors( dImage.data->ncols+1 );
 		dImage.setColor( dImage.data->ncols-1, 0x00 );
 		memset( dImage.bits(), dImage.data->ncols-1, dImage.numBytes() );
 	    } else {
