@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#124 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1101,8 +1101,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 {
     if ( f.d->deref() )
 	delete f.d;
-    f.d = new QFontData;
-    CHECK_PTR( f.d );
+    f.init();
 
     Q_INT16 pointSize;
     Q_UINT8 styleHint, charSet, weight, bits;
