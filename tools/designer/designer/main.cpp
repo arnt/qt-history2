@@ -134,9 +134,9 @@ static void crashHandler( int )
 int main( int argc, char *argv[] )
 {
 #ifdef Q_OS_MACX
-    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + 
-				      ".." + QDir::separator() + "bin") + ":" + getenv("PATH");
-    setenv("PATH", qdir.latin1(), 0);
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + "..");
+    setenv("QTDIR", qdir, 0);
+    setenv("PATH",  qdir + QDir::separator() + "bin" + ":" + getenv("PATH"), 0);
 #endif
 
 #if defined(QT_NO_DEBUG)
