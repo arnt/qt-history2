@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#8 $
 **
 ** Implementation of QWidget class
 **
@@ -14,12 +14,13 @@
 *****************************************************************************/
 
 #define	 NO_WARNINGS
-#include "qview.h"
+#include "qwidget.h"
+#include "qobjcoll.h"
 #include "qapp.h"
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#8 $";
 #endif
 
 
@@ -101,7 +102,7 @@ inline bool QWidgetMapper::remove( WId id )
 // QWidget member functions
 //
 
-QWidget::QWidget( QView *parent, const char *name, WFlags f )
+QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name )
 {
     initMetaObject();				// initialize meta object
@@ -118,6 +119,15 @@ QWidget::~QWidget()
 {
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
+    if ( children() ) {
+	QObjectListIt it(*children());
+	while ( it ) {				// show all widget children
+	    QObject *object = it.current();
+	    if ( object->isWidgetType() )
+		((QWidget*)object)->destroy();
+	    ++it;
+	}	
+    }
     destroy();					// platform-dependent cleanup
     delete extra;
 }

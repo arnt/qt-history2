@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#7 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -11,6 +11,7 @@
 *****************************************************************************/
 
 #include "qview.h"
+#include "qobjcoll.h"
 #include "qapp.h"
 #include "qcolor.h"
 #include "qpixmap.h"
@@ -21,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#7 $";
 #endif
 
 
@@ -207,6 +208,15 @@ bool QWidget::show()				// show widget
 {
     if ( testFlag( WState_Visible ) )
 	return FALSE;
+    if ( children() ) {
+	QObjectListIt it(*children());
+	while ( it ) {				// show all widget children
+	    QObject *object = it.current();
+	    if ( object->isWidgetType() )
+		((QWidget*)object)->show();
+	    ++it;
+	}	
+    }
     XMapWindow( dpy, ident );
     setFlag( WState_Visible );
     return TRUE;

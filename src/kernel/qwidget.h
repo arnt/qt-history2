@@ -1,15 +1,13 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#11 $
 **
 ** Definition of QWidget class
 **
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
-** --------------------------------------------------------------------------
-** The QWidget class is the base class of all user interface objects in Qt.
 *****************************************************************************/
 
 #ifndef QWIDGET_H
@@ -30,7 +28,7 @@ friend class QApplication;
 friend class QPainter;
     Q_OBJECT
 public:
-    QWidget( QView *parent=0, const char *name=0, WFlags f=0 );
+    QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
 
     WId	     id()		const	{ return ident; }
