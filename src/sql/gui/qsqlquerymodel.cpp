@@ -35,10 +35,12 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         bottom = q->createIndex(limit, bottom.column());
     } else {
         // fetch as far as we can
-        if (!query.last())
-            error = query.lastError();
-        else
+        if (query.last()) {
             bottom = q->createIndex(query.at(), bottom.column());
+        } else {
+            error = query.lastError();
+            bottom = q->createIndex(-1, bottom.column());
+        }
         atEnd = true; // this is the end.
     }
     if (bottom.row() > oldBottom.row())
