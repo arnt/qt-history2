@@ -1019,7 +1019,7 @@ void QWidget::grabMouse()
 #if defined(QT_CHECK_STATE)
 	int status =
 #endif
-	    XGrabPointer( x11Display(), winId(), True,
+	    XGrabPointer( x11Display(), winId(), False,
 			  (uint)( ButtonPressMask | ButtonReleaseMask |
 				  PointerMotionMask | EnterWindowMask |
 				  LeaveWindowMask ),
@@ -1061,7 +1061,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 #if defined(QT_CHECK_STATE)
 	int status =
 #endif
-	XGrabPointer( x11Display(), winId(), True,
+	XGrabPointer( x11Display(), winId(), False,
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
@@ -1118,7 +1118,7 @@ void QWidget::grabKeyboard()
     if ( !qt_nograb() ) {
 	if ( keyboardGrb )
 	    keyboardGrb->releaseKeyboard();
-	XGrabKeyboard( x11Display(), winid, True, GrabModeAsync, GrabModeAsync,
+	XGrabKeyboard( x11Display(), winid, False, GrabModeAsync, GrabModeAsync,
 		       qt_x_time );
 	keyboardGrb = this;
     }
