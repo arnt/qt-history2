@@ -38,11 +38,12 @@
 #ifndef QLAYOUT_H
 #define QLAYOUT_H
 
+#include <limits.h>
+
 #ifndef QT_H
 #include "qobject.h"
 #include "qsizepolicy.h"
 #include "qwidget.h"
-#include <limits.h>
 #endif // QT_H
 
 #ifndef QT_NO_LAYOUT
