@@ -15057,8 +15057,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
   of the string.
 
   Note: If the QString is not const (i.e. const QString) or const& (i.e.
-  const QString &), then the non-const overload of operator[] will be
-  used instead.
+  const QString &), then the non-const overload of at() will be used instead.
 
 */
 
