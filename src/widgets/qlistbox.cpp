@@ -2452,13 +2452,14 @@ void QListBox::invertSelection()
 
 void QListBox::emitChangedSignal( bool lazy )
 {
-    if ( changedListBox && (!lazy || changedListBox != this) ) {
-	emit changedListBox->selectionChanged();
-	if ( d->selectionMode == Single )
-	    emit changedListBox->selectionChanged( item( currentItem() ) );
-    }
-
+    QListBox* tmp = changedListBox;
     changedListBox = lazy ? this : 0;
+
+    if ( tmp && (!lazy || tmp != this) ) {
+	emit tmp->selectionChanged();
+	if ( d->selectionMode == Single )
+	    emit tmp->selectionChanged( item( currentItem() ) );
+    }
 }
 
 
