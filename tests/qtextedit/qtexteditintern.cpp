@@ -1295,23 +1295,19 @@ void QTextEditParag::format( int start, bool doMove )
 	r.setWidth( c->x + c->format->width( c->c ) );
     }
 
-    if ( y != r.height() ) {
-	int oh = r.height();
-	r.setHeight( y );
-	if ( doMove && n && n->invalid == -1 ) {
-	    int dy;
-	    if ( !firstFormat )
-		dy = r.height() - oh;
-	    else
-		dy = r.height();
-	    QTextEditParag *s = n;
-	    while ( s ) {
-		s->move( dy );
-		s = s->n;
-	    }
+    if ( y != r.height() )
+	r.setHeight( y ); 
+    
+    if ( n && doMove && n->invalid == -1 && r.y() + r.height() != n->r.y() ) {
+	int dy = ( r.y() + r.height() ) - n->r.y();
+	QTextEditParag *s = n;
+	qDebug( "move" );
+	while ( s ) {
+	    s->move( dy );
+	    s = s->n;
 	}
     }
-
+    
     firstFormat = FALSE;
     changed = TRUE;
     invalid = -1;

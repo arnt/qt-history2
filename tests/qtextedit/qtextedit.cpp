@@ -155,7 +155,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		if ( lastBaseLine == 0 )
 		    lastBaseLine = baseLine;
 	    }
-	    
+	
 	    if ( line == 0 && parag->type() == QTextEditParag::BulletList ) {
 		painter.save();
 		int ext = QMIN( doc->listIndent( 0 ), h );
@@ -167,7 +167,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		    painter.drawEllipse( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
 		} break;
 		case QTextEditDocument::FilledSquare: {
-		    painter.fillRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext, 
+		    painter.fillRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext,
 				      colorGroup().brush( QColorGroup::Foreground ) );
 		} break;
 		case QTextEditDocument::OutlinedCircle: {
@@ -183,7 +183,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		}
 		painter.restore();
 	    }
-	    
+	
 	    if ( parag == cursor->parag() && i == cursor->index() ) {
 		curx = chr->x;
 		curh = h;
@@ -1108,6 +1108,7 @@ void QTextEdit::setParagType( int t )
     } else {
 	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
 	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
+	lastFormatted = start;
 	while ( start ) {
 	    start->setType( type );
 	    start->setListDepth( cursor->parag()->listDepth() );
