@@ -510,7 +510,6 @@ QFSFileInfoEngine::fileName(FileName file) const
 bool
 QFSFileInfoEngine::isRelativePath() const
 {
-    qDebug("::isRelativePath() (%s:%d:%d)", d->file.latin1(), d->file.count(), d->file.size());
     if (d->file.length() >= 2) {
         return !((d->file.at(0).isLetter() && d->file.at(1) == ':') ||
                  (d->file.at(0) == '\\' && d->file.at(1) == '\\') ||
