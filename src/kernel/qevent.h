@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#8 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#9 $
 **
 ** Definition of event classes
 **
@@ -120,6 +120,8 @@ class QFocusEvent : public QEvent		// widget focus event
 public:
     QFocusEvent( int type )
 	: QEvent(type)		{}
+    bool   gotFocus()   const	{ return type() == Event_FocusIn; }
+    bool   lostFocus()  const	{ return type() == Event_FocusOut; }
 };
 
 #define Q_FOCUS_EVENT(x)	((QFocusEvent*)x)
