@@ -341,7 +341,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 }
                 sectionNumber.last() = QString::number(sectionNumber.last().toInt() + 1);
             }
-            out() << "<a name=\"sec." << sectionNumber.join(".") << "\">\n";
+            out() << "<a name=\"sec." << sectionNumber.join(".") << "\"></a>\n";
         }
 	break;
     case Atom::SectionRight:
@@ -484,7 +484,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"/>\n";
+	out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"></a>\n";
 	out() << "<h3>" << protect((*s).name) << "</h3>\n";
 
 	generateSectionList(*s, inner, marker, CodeMarker::Summary);
@@ -511,7 +511,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 	++s;
     }
 
-    out() << "<a name=\"" << registerRef( "details" ) << "\"/>\n";
+    out() << "<a name=\"" << registerRef( "details" ) << "\"></a>\n";
 
     if ( !inner->doc().isEmpty() ) {
 	out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
@@ -570,7 +570,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     sections = marker->nonclassSections(fake, CodeMarker::Summary);
     s = sections.begin();
     while (s != sections.end()) {
-	out() << "<a name=\"" << registerRef((*s).name) << "\"/>\n";
+	out() << "<a name=\"" << registerRef((*s).name) << "\"></a>\n";
 	out() << "<h3>" << protect((*s).name) << "</h3>\n";
 	generateSectionList(*s, fake, marker, CodeMarker::Summary);
 	++s;
@@ -578,7 +578,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 
     Text brief = fake->doc().briefText();
     if (!brief.isEmpty())
-	out() << "<a name=\"" << registerRef("details") << "\"/>\n";
+	out() << "<a name=\"" << registerRef("details") << "\"></a>\n";
 
     if (!fake->doc().isEmpty()) {
 	if (!brief.isEmpty())
@@ -1129,11 +1129,16 @@ QString HtmlGenerator::registerRef( const QString& ref )
 
 QString HtmlGenerator::protect( const QString& string )
 {
+    if (string.isEmpty())
+        return string;
+
     QString html = string;
     html.replace( "&", "&amp;" );
     html.replace( "<", "&lt;" );
     html.replace( ">", "&gt;" );
     html.replace( "\"", "&quot;" );
+    if (html.at(0) == QLatin1Char(' '))
+        html.replace(0, 1, "&nbsp;");
     return html;
 }
 
@@ -1299,14 +1304,14 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
     if (node->type() == Node::Enum
             && (enume = static_cast<const EnumNode *>(node))->flagsType()) {
         out() << "<h3 class=\"flags\">";
-        out() << "<a name=\"" + refForNode( node ) + "\"/>";
+        out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis(enume, relative, marker, CodeMarker::Detailed);
         out() << "<br>";
         generateSynopsis(enume->flagsType(), relative, marker, CodeMarker::Detailed);
         out() << "</h3>\n";
     } else {
         out() << "<h3 class=\"fn\">";
-        out() << "<a name=\"" + refForNode( node ) + "\"/>";
+        out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis( node, relative, marker, CodeMarker::Detailed );
         out() << "</h3>\n";
     }
