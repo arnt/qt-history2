@@ -63,31 +63,30 @@ public:
 };
 
 /*!
-  \class QInputDialog qinputdialog.h
-  \brief The QInputDialog class provides a simple convenience dialog to get a single value from the user.
-  \ingroup dialogs
-  \mainclass
+    \class QInputDialog
+    \brief The QInputDialog class provides a simple convenience dialog to get a single value from the user.
+    \ingroup dialogs
+    \mainclass
 
-  The input value can be a string, a number or an item from a list. A
-  label must be set to tell the user what they should enter.
+    The input value can be a string, a number or an item from a list. A
+    label must be set to tell the user what they should enter.
 
-  Four static convenience functions are provided:
-  getText(), getInteger(), getDouble() and getItem(). All the
-  functions can be used in a similar way, for example:
-  \code
-  bool ok = FALSE;
-  QString text = QInputDialog::getText(
-		    tr( "Application name" ),
-		    tr( "Please enter your name" ),
-		    QLineEdit::Normal, QString::null, &ok, this );
-  if ( ok && !text.isEmpty() )
-      ;// user entered something and pressed OK
-  else
-      ;// user entered nothing or pressed Cancel
-  \endcode
+    Four static convenience functions are provided:
+    getText(), getInteger(), getDouble() and getItem(). All the
+    functions can be used in a similar way, for example:
+    \code
+    bool ok;
+    QString text = QInputDialog::getText(
+	    "MyApp 3000", "Enter your name:", QLineEdit::Normal,
+	    QString::null, &ok, this );
+    if ( ok && !text.isEmpty() ) {
+	// user entered something and pressed OK
+    } else {
+	// user entered nothing or pressed Cancel
+    }
+    \endcode
 
-  \img inputdialogs.png Input Dialogs
-
+    \img inputdialogs.png Input Dialogs
 */
 
 /*!
@@ -272,32 +271,32 @@ QInputDialog::~QInputDialog()
 }
 
 /*!
-  Static convenience function to get a string from the user. \a
-  caption is the text which is displayed in the title bar of the
-  dialog. \a label is the text which is shown to the user (it should
-  say what should be entered). \a text is the default text which is
-  placed in the line edit. The \a mode is the echo mode the line edit
-  will use. If \a ok is not-null \e *\a ok will be set to TRUE if the
-  user pressed OK and to FALSE if the user pressed Cancel. The
-  dialog's parent is \a parent; the dialog is called \a name. The
-  dialog will be modal.
+    Static convenience function to get a string from the user. \a
+    caption is the text which is displayed in the title bar of the
+    dialog. \a label is the text which is shown to the user (it should
+    say what should be entered). \a text is the default text which is
+    placed in the line edit. The \a mode is the echo mode the line edit
+    will use. If \a ok is not-null \e *\a ok will be set to TRUE if the
+    user pressed OK and to FALSE if the user pressed Cancel. The
+    dialog's parent is \a parent; the dialog is called \a name. The
+    dialog will be modal.
 
-  This function returns the text which has been entered in the line
-  edit. It will not return an empty string.
+    This function returns the text which has been entered in the line
+    edit. It will not return an empty string.
 
-  Use this static function like this:
+    Use this static function like this:
 
-  \code
-  bool ok = FALSE;
-  QString text = QInputDialog::getText(
-		    tr( "Application name" ),
-		    tr( "Please enter your name" ),
-		    QLineEdit::Normal, QString::null, &ok, this );
-  if ( ok && !text.isEmpty() )
-      ;// user entered something and pressed OK
-  else
-      ;// user entered nothing or pressed Cancel
-  \endcode
+    \code
+    bool ok;
+    QString text = QInputDialog::getText(
+	    "MyApp 3000", "Enter your name:", QLineEdit::Normal,
+	    QString::null, &ok, this );
+    if ( ok && !text.isEmpty() ) {
+	// user entered something and pressed OK
+    } else {
+	// user entered nothing or pressed Cancel
+    }
+    \endcode
 */
 
 QString QInputDialog::getText( const QString &caption, const QString &label,
@@ -327,34 +326,35 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 }
 
 /*!
-  Static convenience function to get an integer input from the user. \a
-  caption is the text which is displayed in the title bar of the dialog.
-  \a label is the text which is shown to the user (it should say
-  what should be entered). \a num is the default integer which the
-  spinbox will be set to.
-  \a from and \a to are the minimum and maximum values the user may
-  choose, and \a step is the amount by which the values change as the
-  user presses the arrow buttons to increment or decrement the value.
+    Static convenience function to get an integer input from the user. \a
+    caption is the text which is displayed in the title bar of the dialog.
+    \a label is the text which is shown to the user (it should say
+    what should be entered). \a num is the default integer which the
+    spinbox will be set to.
+    \a from and \a to are the minimum and maximum values the user may
+    choose, and \a step is the amount by which the values change as the
+    user presses the arrow buttons to increment or decrement the value.
 
-  If \a ok is not-null \e *\a ok will be set to TRUE if the user
-  pressed OK and to FALSE if the user pressed Cancel. The dialog's
-  parent is \a parent; the dialog is called \a name. The dialog will
-  be modal.
+    If \a ok is not-null *\a ok will be set to TRUE if the user
+    pressed OK and to FALSE if the user pressed Cancel. The dialog's
+    parent is \a parent; the dialog is called \a name. The dialog will
+    be modal.
 
-  This function returns the integer which has been entered by the user.
+    This function returns the integer which has been entered by the user.
 
-  Use this static function like this:
+    Use this static function like this:
 
-  \code
-  bool ok = FALSE;
-  int res = QInputDialog::getInteger(
-		tr( "Application name" ),
-		tr( "Please enter a number" ), 22, 0, 1000, 2, &ok, this );
-  if ( ok )
-      ;// user entered something and pressed OK
-  else
-      ;// user pressed Cancel
-  \endcode
+    \code
+    bool ok;
+    int res = QInputDialog::getInteger(
+	    "MyApp 3000", "Enter a number:", 22, 0, 1000, 2,
+	    &ok, this );
+    if ( ok ) {
+	// user entered something and pressed OK
+    } else {
+	// user pressed Cancel
+    }
+    \endcode
 */
 
 int QInputDialog::getInteger( const QString &caption, const QString &label,
@@ -383,36 +383,36 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 }
 
 /*!
-  Static convenience function to get a floating point number from the
-  user. \a caption is the text which is displayed in the title bar of
-  the dialog. \a label is the text which is shown to the user (it
-  should say what should be entered). \a num is the default floating
-  point number that the line edit will be set to. \a from and \a to
-  are the minimum and maximum values the user may choose, and \a
-  decimals is the maximum number of decimal places the number may
-  have.
+    Static convenience function to get a floating point number from the
+    user. \a caption is the text which is displayed in the title bar of
+    the dialog. \a label is the text which is shown to the user (it
+    should say what should be entered). \a num is the default floating
+    point number that the line edit will be set to. \a from and \a to
+    are the minimum and maximum values the user may choose, and \a
+    decimals is the maximum number of decimal places the number may
+    have.
 
-  If \a ok is not-null \e *\a ok will be set to TRUE if the user
-  pressed OK and to FALSE if the user pressed Cancel. The dialog's
-  parent is \a parent; the dialog is called \a name. The dialog will
-  be modal.
+    If \a ok is not-null \e *\a ok will be set to TRUE if the user
+    pressed OK and to FALSE if the user pressed Cancel. The dialog's
+    parent is \a parent; the dialog is called \a name. The dialog will
+    be modal.
 
-  This function returns the floating point number which has been
-  entered by the user.
+    This function returns the floating point number which has been
+    entered by the user.
 
-  Use this static function like this:
+    Use this static function like this:
 
-  \code
-  bool ok = FALSE;
-  double res = QInputDialog::getDouble(
-		tr( "Application name" ),
-		tr( "Please enter a decimal number" ),
-		33.7, 0, 1000, 2, &ok, this );
-  if ( ok )
-      ;// user entered something and pressed OK
-  else
-      ;// user pressed Cancel
-  \endcode
+    \code
+    bool ok;
+    double res = QInputDialog::getDouble(
+	    "MyApp 3000", "Enter a decimal number:", 33.7, 0,
+	    1000, 2, &ok, this );
+    if ( ok ) {
+	// user entered something and pressed OK
+    } else {
+	// user pressed Cancel
+    }
+    \endcode
 */
 
 double QInputDialog::getDouble( const QString &caption, const QString &label,
@@ -458,10 +458,10 @@ double QInputDialog::getDouble( const QString &caption, const QString &label,
     \code
     QStringList lst;
     lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
-    bool ok = FALSE;
+    bool ok;
     QString res = QInputDialog::getItem(
-		      tr( "Application name" ),
-		      tr( "Please select an item" ), lst, 1, TRUE, &ok, this );
+	    "MyApp 3000", "Select an item:", lst, 1, TRUE, &ok,
+	    this );
     if ( ok ) {
 	// user selected an item and pressed OK
     } else {
