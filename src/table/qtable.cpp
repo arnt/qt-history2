@@ -6251,12 +6251,12 @@ void QTableHeader::swapSections( int oldIdx, int newIdx )
     QString l = label( oldIdx );
     if ( iconSet( newIdx ) )
 	setLabel( oldIdx, *iconSet( newIdx ), label( newIdx ) );
-    else
+    else if ( !label( newIdx ).isNull() )
 	setLabel( oldIdx, label( newIdx ) );
 
     if ( his )
 	setLabel( newIdx, is, l );
-    else
+    else if ( !l.isNull() )
 	setLabel( newIdx, l );
 
     int w1 = sectionSize( oldIdx );
