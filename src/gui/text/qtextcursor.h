@@ -113,6 +113,9 @@ public:
 
     void insertImage(const QTextImageFormat &format);
 
+    void beginEditBlock();
+    void endEditBlock();
+
     bool operator!=(const QTextCursor &rhs) const;
     bool operator<(const QTextCursor &rhs) const;
     bool operator<=(const QTextCursor &rhs) const;

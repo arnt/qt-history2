@@ -1046,4 +1046,47 @@ bool QTextCursor::operator>(const QTextCursor &rhs) const
     return d->position > rhs.d->position;
 }
 
+/*!
+    Indicates the start of a block of editor operations on the document that should
+    appear as one single operation from an undo point of view.
+
+    For example:
+
+    \code
+    QTextCursor cursor(textDocument);
+    cursor.beginEditBlock();
+    cursor.insertText("Hello");
+    cursor.insertText("World");
+    cursor.endEditBlock();
+
+    textDocument->undo();
+    \endcode
+
+    The call to undo() will cause both insertions to be undone and therefore
+    causing "World" and "Hello" to be removed.
+
+    \sa endEditBlock()
+ */
+void QTextCursor::beginEditBlock()
+{
+    if (!d)
+	return;
+
+    d->pieceTable->beginEditBlock();
+}
+
+/*!
+    Indicates the end of a block of editor operations on the document that should
+    appear as one single operation from an undo point of view.
+
+    \sa beginEditBlock()
+ */
+
+void QTextCursor::endEditBlock()
+{
+    if (!d)
+	return;
+
+    d->pieceTable->endEditBlock();
+}
 
