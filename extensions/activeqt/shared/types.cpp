@@ -12,6 +12,8 @@
 **
 ****************************************************************************/
 
+#define QT_NO_CAST_TO_ASCII
+
 #include <ocidl.h>
 #include <olectl.h>
 
@@ -28,9 +30,9 @@ extern ITypeLib *qAxTypeLibrary;
 CLSID CLSID_QRect = { 0x34030f30, 0xe359, 0x4fe6, {0xab, 0x82, 0x39, 0x76, 0x6f, 0x5d, 0x91, 0xee } };
 CLSID CLSID_QSize = { 0xcb5f84b3, 0x29e5, 0x491d, {0xba, 0x18, 0x54, 0x72, 0x48, 0x8e, 0xef, 0xba } };
 CLSID CLSID_QPoint = { 0x3be838a3, 0x3fac, 0xbfc4, {0x4c, 0x6c, 0x37, 0xc4, 0x4d, 0x03, 0x02, 0x52 } };
-#endif
 
 GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
+#endif
 
 IFontDisp *QFontToIFont( const QFont &font )
 {
@@ -220,19 +222,19 @@ QColor OLEColorToQColor( uint col )
     - QAxBase::internalInvoke( properties )
     - IPropertyBag::Read.
 */
-bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
+bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type )
 {
     arg.vt = VT_EMPTY;
 
     QVariant qvar = var;
     // "type" is the expected type, so coerce if necessary
-    QVariant::Type proptype = type ? QVariant::nameToType( type ) : QVariant::Invalid;
+    QVariant::Type proptype = type ? QVariant::nameToType(type.latin1()) : QVariant::Invalid;
     if ( proptype != QVariant::Invalid && proptype != qvar.type() ) {
 	if ( qvar.canCast( proptype ) )
 	    qvar.cast( proptype );
     }
 
-    switch ( (int)qvar.type() ) {
+    switch ((int)qvar.type()) {
     case QVariant::String:
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( qvar.toString() );
@@ -398,7 +400,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 #endif // QAX_SERVER
 
     case 1000: // rawAccess in QAxBase::toVariant
-	if ( type && !qstrcmp(type, "IDispatch*") ) {
+	if (type == "IDispatch*") {
 	    arg.vt = VT_DISPATCH;
 	    arg.pdispVal = (IDispatch*)qvar.rawAccess();
 	    if ( arg.pdispVal )
@@ -1106,7 +1108,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     - IDispatch::Invoke( PropertyPut )
     - IPersistPropertyBag::Load
 */
-QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
+QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 {
     QVariant var;
     switch( arg.vt ) {
@@ -1135,13 +1137,13 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	var = *arg.piVal;
 	break;
     case VT_I4:
-	if ( !qstrcmp( hint, "QColor" ) )
+	if (hint == "QColor")
 	    var = OLEColorToQColor( arg.lVal );
 	else
 	    var = (int)arg.lVal;
 	break;
     case VT_I4|VT_BYREF:
-	if ( !qstrcmp( hint, "QColor" ) )
+	if (hint == "QColor")
 	    var = OLEColorToQColor( (int)*arg.plVal );
 	else
 	    var = (int)*arg.plVal;
@@ -1165,13 +1167,13 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	var = *arg.puiVal;
 	break;
     case VT_UI4:
-	if ( !qstrcmp( hint, "QColor" ) )
+	if (hint == "QColor")
 	    var = OLEColorToQColor( arg.ulVal );
 	else
 	    var = (int)arg.ulVal;
 	break;
     case VT_UI4|VT_BYREF:
-	if ( !qstrcmp( hint, "QColor" ) )
+	if (hint == "QColor")
 	    var = OLEColorToQColor( (uint)*arg.pulVal );
 	else
 	    var = (int)*arg.pulVal;
@@ -1221,7 +1223,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		disp = *arg.ppdispVal;
 	    else
 		disp = arg.pdispVal;
-	    if ( !qstrcmp( hint, "QFont" ) ) {
+	    if (hint == "QFont") {
 		IFont *ifont = 0;
 		if ( disp )
 		    disp->QueryInterface( IID_IFont, (void**)&ifont );
@@ -1231,7 +1233,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		} else {
 		    var = QFont();
 		}
-	    } else if ( !qstrcmp( hint, "QPixmap" ) ) {
+	    } else if (hint == "QPixmap") {
 		IPicture *ipic = 0;
 		if ( disp )
 		    disp->QueryInterface( IID_IPicture, (void**)&ipic );
@@ -1381,7 +1383,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	break;
     }
 
-    QVariant::Type proptype = hint ? QVariant::nameToType( hint ) : QVariant::Invalid;
+    QVariant::Type proptype = hint ? QVariant::nameToType(hint.latin1()) : QVariant::Invalid;
     if ( proptype != QVariant::Invalid && var.type() != proptype ) {
 	if ( var.canCast( proptype ) ) {
 	    var.cast( proptype );

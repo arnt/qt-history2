@@ -10,6 +10,8 @@
 **
 ****************************************************************************/
 
+#define QT_NO_CAST_TO_ASCII
+
 #include <qapplication.h>
 #include <qbuffer.h>
 #include <qdatastream.h>
@@ -2520,10 +2522,10 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
 	qtstream >> value;
 	qtstream >> more;
 
-	int idx = mo->indexOfProperty(propname);
+	int idx = mo->indexOfProperty(propname.latin1());
 	QMetaProperty property = mo->property(idx);
 	if (property && property.isWritable())
-	    qt.object->setProperty(propname, value);
+	    qt.object->setProperty(propname.latin1(), value);
     }
     return S_OK;
 }
@@ -2543,7 +2545,7 @@ HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
 	if ( !isPropertyExposed( prop ) )
 	    continue;
 	QString property = mo->property(prop).name();
-	QVariant qvar = qt.object->property( property );
+	QVariant qvar = qt.object->property(property.latin1());
 	if ( qvar.isValid() ) {
 	    qtstream << int(1);
 	    qtstream << property;
