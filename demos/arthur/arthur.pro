@@ -33,3 +33,6 @@ contains(QT_CONFIG, opengl) {
 
 
 TARGET = arthur
+
+QMAKE_RESOURCE_PREFIX = /res
+RESOURCES = bg1.jpg qtlogo.png cubelogo.png chux.png pathexample.png diagonalGradient.png alphafill.png antialiased.png beat.wav text.html

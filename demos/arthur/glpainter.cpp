@@ -51,7 +51,7 @@ void GLWidget::initializeGL()
 {
     // cubeList
     QImage tex;
-    tex.load("cubelogo.png");
+    tex.load(":/res/cubelogo.png");
 
     tex = QGLWidget::convertToGLFormat(tex);  // flipped 32bit RGBA
 

@@ -101,9 +101,9 @@ that takes two points and two colors, as sketched below:
   painter.setBrush(diagonalGradient);
   painter.drawRect(0, 0, width(), height());
   </pre>
- 
+
 <p> The code shown above produces a pattern as show in the following pixmap:
-<p> <center><img src="diagonalGradient.png" width="100" height="100"></center> 
+<p> <center><img src=":/res/diagonalGradient.png" width="100" height="100"></center>
 <p> <p>See also <a href="qbrush.html">QBrush</a>.
 
 <p> <h3> Alphablended drawing
@@ -119,9 +119,9 @@ channel of a color is specified through <a href="qcolor.html">QColor</a>.
   painter.setBrush(QColor(0, 0, 255, 127));
   painter.drawRect(0, 0, width(), height()/2);
   </pre>
- 
+
 <p> The code shown above produces the following output.
-<p> <center><img src="alphafill.png" width="100" height="100"></center> 
+<p> <center><img src=":/res/alphafill.png" width="100" height="100"></center>
 <p> Alphablended drawing is supported on Windows, Mac OS X and X11
 systems with X Render extension installed.
 <p> <h3> <a href="qpainter.html">QPainter</a> and <a href="qglwidget.html">QGLWidget</a>
@@ -143,9 +143,9 @@ primitives.
   painter.setRenderHints(QPainter::LineAntialiasing);
   painter.drawLine(width()/2, 0, width()/2, height());
   </pre>
- 
+
 <p> This produces the following output.
-<p> <center><img src="antialiased.png" width="100" height="100"></center> 
+<p> <center><img src=":/res/antialiased.png" width="100" height="100"></center>
 <p> Supported platforms are currently Mac OS X,  Windows if GDI+ is
 installed and OpenGL.
 <p> <h3> Extensive use of native graphics operations
@@ -178,9 +178,9 @@ two bezier curves along.
   path.addBezier(99, 99,  0, 99,  50, 50,  0, 0);
   painter.drawPath(path);
   </pre>
- 
+
 <p> The code above produces the following output:
-<p> <center><img src="pathexample.png" width="100" height="100"></center> 
+<p> <center><img src=":/res/pathexample.png" width="100" height="100"></center>
 <p> <h3> Widget double buffering
 </h3>
 <a name="2-7"></a><p> In Qt 4, all widgets are double buffered by default.
@@ -196,7 +196,7 @@ screen. e.g.
   painter.end();
   <a href="qimage.html#bitBlt">bitBlt</a>(this, 0, 0, &amp;buffer);
   </pre>
- 
+
 <p> Since the double buffering is handled by <a href="qwidget.html">QWidget</a> internally this now becomes:
 <p> <pre>
   <a href="qpainter.html">QPainter</a> painter(this);
@@ -205,13 +205,13 @@ screen. e.g.
 
   painter.end();
   </pre>
- 
+
 <p> Double buffering is turned on by default, but can be turned off by
 setting the widget attribute Qt::WA_PaintOnScreen.
 <p> <pre>
   unbufferedWidget-&gt;setAttribute(Qt::WA_PaintOnScreen);
   </pre>
- 
+
 <p> <h2> More to come
 </h2>
 <a name="3"></a><p> The Qt 4 Painting Framework is mostly completed, but there is still
@@ -227,7 +227,7 @@ features we mention:
 <li> Transformation of pen widths.
 <li> Transformation of fill patterns.
 </ul>
-<p> 
+<p>
 <!-- eof -->
 <p><address><hr><div align="center">
 <table width="100%" cellspacing="0" border="0"><tr>

@@ -20,9 +20,9 @@
 Warpix::Warpix(QWidget *parent)
     : DemoWidget(parent)
 {
-    setPixmap(QPixmap("chux.png"));
+    setPixmap(QPixmap(":/res/chux.png"));
 
-    beat = new QSound("beat.wav");
+    beat = new QSound(":/res/beat.wav");
     beat->setLoops(-1);
 
     clickPos = QPoint(-1, -1);

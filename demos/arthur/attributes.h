@@ -29,8 +29,8 @@ public:
     {
         color = Qt::white;
         secondaryColor = Qt::black;
-        pattern.load("bg1.jpg");
-        tile.load("qtlogo.png");
+        pattern.load(":/res/bg1.jpg");
+        tile.load(":/res/qtlogo.png");
     }
 
     bool antialias;
