@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#4 $
 **
 ** Localization database support.
 **
@@ -254,40 +254,46 @@ QString QMessageFile::find( uint h ) const
 }
 
 
-/*!  Returns a
-
+/*!  Returns a hash og \a scope and \a name.  Neither of the two may
+  be null (though hash() does not crash if they are).  The result of
+  the hash function is never 0.
+  
+  This function will not change; you may rely on its output to remain
+  the same in future versions of Qt.
 */
 
-uint QMessageFile::hash( const QString & key1, const QString & key2 )
+uint QMessageFile::hash( const char * scope, const char * name )
 {
+    const char *k;
     uint h = 0;
     uint g;
-    int i;
 
-    QChar c;
-
-    // key1
-    for( i=key1.length()-1; i >= 0; i-- ) {
-	c = key1[i];
-	h = (h<<4) + (c.row << 8) + c.cell;
-	if ( (g = h & 0xf0000000) )
-	    h ^= g >> 16;
-	h &= ~g;
+    // scope
+    if ( scope ) {
+	k = scope;
+	while ( *k ) {
+	    h = (h<<4) + *k++;
+	    if ( (g = h & 0xf0000000) )
+		h ^= g >> 24;
+	    h &= ~g;
+	}
     }
 
     // null between the two
     h = h<<4;
     if ( (g = h & 0xf0000000) )
-	h ^= g >> 16;
+	h ^= g >> 24;
     h &= ~g;
 
-    // key2
-    for( i=key2.length()-1; i >= 0; i-- ) {
-	c = key2[i];
-	h = (h<<4) + (c.row << 8) + c.cell;
-	if ( (g = h & 0xf0000000) )
-	    h ^= g >> 16;
-	h &= ~g;
+    // scope
+    if ( name ) {
+	k = name;
+	while ( *k ) {
+	    h = (h<<4) + *k++;
+	    if ( (g = h & 0xf0000000) )
+		h ^= g >> 24;
+	    h &= ~g;
+	}
     }
 
     if ( !h )

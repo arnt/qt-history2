@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.h#2 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.h#3 $
 **
 ** Definition of something or other
 **
@@ -33,12 +33,12 @@ public:
 
     void squeeze();
     void unsqueeze();
-    
+
     void insert( uint, const QString & );
     void remove( uint );
     bool contains( uint ) const;
 
-    static uint hash( const QString & key1, const QString & key2 );
+    static uint hash( const char *, const char * );
 
 private:
     QMessageFilePrivate * d;

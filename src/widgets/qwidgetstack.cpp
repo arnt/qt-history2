@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#22 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -267,10 +267,10 @@ void QWidgetStack::show()
 	while( (o=it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() )
-		if ( o != topWidget )
-		    ((QWidget *)o)->hide();
-		else
+		if ( o == topWidget )
 		    ((QWidget *)o)->show();
+		else
+		    ((QWidget *)o)->hide();
 	}
     }
 
