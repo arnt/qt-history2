@@ -1,0 +1,83 @@
+\chapter Styles and Themes
+
+Qt applications have a native 'look and feel' and respect user
+preferences for colors, fonts, sounds, etc. Qt programmers are free
+to use any of the supplied styles and can override any preferences.
+Programmers can also implement their own variations using Qt's
+powerful style engine.
+
+\section1 Built-in Styles
+
+  \img combobox-style.png
+  \caption Combobox in Window and Motif styles
+
+A \e style implements the 'look and feel' of the user interface on a
+particular platform. A style is a \Class QStyle subclass that
+implements basic drawing functions such as "draw a frame", "draw a
+button", etc. Qt performs all the widget drawing itself for maximum
+speed and flexibility.
+
+Qt provides the following built-in styles: Windows, Platinum, Motif,
+MotifPlus, SGI and Aqua (on the Macintosh). By default, Qt uses the
+appropriate style for the user's platform and desktop environment.
+The style can also be chosen programmatically, or with the \c -style
+command-line option on Unix.
+
+A style is complemented by a \e theme which encapsulates the user's
+preferences for colors, fonts, sounds, etc. Qt automatically adapts
+to the computer's active theme. For example, Qt supports scroll and
+fade transitions effects for menus and tool tips on Windows.
+
+\section1 Style-aware Widgets
+
+Qt's built-in widgets are style aware. Custom widgets and dialogs are
+almost always combinations of built-in widgets and layouts, and are
+automatically style aware. On the rare occasions when it is necessary
+to write a custom widget from scratch, developers can use \Class
+QStyle to draw primitive user-interface elements rather than drawing
+raw rectangles directly.
+
+\section1 Custom Styles
+
+Custom styles are used to provide a distinct look to an application
+or family of applications. For example, Ericsson created their own
+style for their Qt/Embedded Webphone.
+
+  \img ericsson-style.png Ericsson's Webphone
+
+Custom styles can be defined by subclassing \Class QStyle, \Class
+QCommonStyle or any other descendent of \Class QCommonStyle. It is
+easy to make small modifications to existing styles by reimplementing
+one or two virtual functions from the appropriate base class.
+
+The full \Class QStyle class hierarchy follows:
+\list
+\i QStyle
+	\list
+	\i QCommonStyle
+		\list
+		\i QMotifStyle
+			\list
+			\i QCDEStyle
+			\i QMotifPlusStyle
+			\i QSGIStyle
+			\endlist
+		\i QWindowsStyle
+			\list
+			\i QAquaStyle 
+			\i QPlatinumStyle
+			\endlist
+		\endlist
+	\endlist
+\endlist
+
+An application's style can be set like this:
+\code
+    QApplication::setStyle( new MyCustomStyle() );
+\endcode
+
+A style can also be compiled as a \l plugin. Plugins make it possible
+to preview a form in a custom style in \l {Qt Designer} without
+recompiling Qt or \l {Qt Designer}. The style of an existing Qt
+application can be changed using a style plugin without recompiling
+the application.

@@ -1,10 +1,3 @@
-\omit
-###
-Dynamic loading allows applications to compartmentalize functionality
-into independent components. 
-\endomit
-
-
 \chapter Component Model
 
 \section1 Concepts
@@ -70,7 +63,7 @@ print_str symbol from the \c mylib library.
 \endcode
 Calling a function this way is not type safe, and only symbols with C
 linkage are supported (due to C++ name mangling). These limitations
-are removed by the Qt Component Model.
+are removed by using Qt components.
 
 \section1 Using Components
 

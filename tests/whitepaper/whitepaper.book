@@ -1,6 +1,6 @@
 \title Qt Whitepaper
 
-\input component-model.leaf
+\input styles-and-themes.leaf
 
 \omit
 \input signals-and-slots.leaf
@@ -9,3 +9,4 @@
 \input layouts.leaf
 \input internationalization.leaf
 \input collection-classes.leaf
+\input component-model.leaf
