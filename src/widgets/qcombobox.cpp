@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#87 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#87 $");
 
 
 /*!
@@ -719,19 +719,18 @@ void QComboBox::setAutoResize( bool enable )
 */
 QSize QComboBox::sizeHint() const
 {
-    int dist, buttonH, buttonW;
-    getMetrics( &dist, &buttonW, &buttonH );
-
     int i, w, h;
-    int maxW = 0;
-    int maxH = 0;
     const char *tmp;
+    QFontMetrics fm = fontMetrics();
+
+    int extraW = 20;
+    int maxW = 0;
+    int maxH = QMAX( fm.height(), style()==WindowsStyle ? 16 : 18 );
+    
     for( i = 0 ; i < count() ; i++ ) {
 	tmp = text( i );
 	if ( tmp ) {
-	    QFontMetrics fm = fontMetrics();
 	    w = fm.width( tmp );
-	    h = fm.lineSpacing() + 1;
 	} else {
 	    const QPixmap *pix = pixmap( i );
 	    if ( pix ) {
@@ -747,7 +746,7 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
-    return QSize( 4 + 4 + maxW + 2*dist + buttonW, maxH + 5 + 5 );
+    return QSize( 4 + 4 + maxW + extraW, maxH + 5 + 5 );
 }
 
 
