@@ -104,7 +104,7 @@
     QWidget::mouseReleaseEvent(), QWidget::mouseDoubleClickEvent(),
     and QWidget::mouseMoveEvent() receive mouse events.
 
-    \sa QWidget::setMouseTracking(), QWidget::grabMouse(),
+    \sa QWidget::setMouseTracking() QWidget::grabMouse()
     QCursor::pos()
 */
 
@@ -147,7 +147,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     or \c QEvent::MouseMove.
 
     The \a position is the mouse cursor's position relative to the
-    receiving widget. The cursor's position in absolute coordinates
+    receiving widget. The cursor's position in global coordinates
     is given by \a globalPos.
     The \a button that caused the event is given as a value from
     the \l Qt::ButtonState enum. If the event \a type is
@@ -168,7 +168,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     global position returned by globalPos() to avoid a shaking
     motion.
 
-    \sa x(), y(), globalPos()
+    \sa x() y() globalPos()
 */
 
 /*!
@@ -181,7 +181,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     pointer position QCursor::pos(), and from
     QWidget::mapToGlobal(pos()).
 
-    \sa globalX(), globalY()
+    \sa globalX() globalY()
 */
 
 /*!
@@ -190,7 +190,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     Returns the x position of the mouse cursor, relative to the
     widget that received the event.
 
-    \sa y(), pos()
+    \sa y() pos()
 */
 
 /*!
@@ -199,7 +199,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     Returns the y position of the mouse cursor, relative to the
     widget that received the event.
 
-    \sa x(), pos()
+    \sa x() pos()
 */
 
 /*!
@@ -208,7 +208,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     Returns the global x position of the mouse cursor at the time of
     the event.
 
-    \sa globalY(), globalPos()
+    \sa globalY() globalPos()
 */
 
 /*!
@@ -217,7 +217,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     Returns the global y position of the mouse cursor at the time of
     the event.
 
-    \sa globalX(), globalPos()
+    \sa globalX() globalPos()
 */
 
 /*!
@@ -280,7 +280,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     \ingroup events
 
-    Wheel events are sent to the widget under the mouse cursor, and
+    Wheel events are sent to the widget under the mouse cursor, but
     if that widget does not handle the event they are sent to the
     focus widget. The rotation distance is provided by delta().
     The functions pos() and globalPos() return the mouse cursor's
@@ -296,7 +296,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     The event handler QWidget::wheelEvent() receives wheel events.
 
-    \sa QMouseEvent, QWidget::grabMouse()
+    \sa QMouseEvent QWidget::grabMouse()
 */
 
 /*!
@@ -310,13 +310,13 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
     Constructs a wheel event object.
 
-    The mouse cursor's position when the event occurred is given in
-    \a pos. The globalPos() is initialized to QCursor::pos() which is
-    usually, but not always, correct. Use the other constructor if you
-    need to specify the global position explicitly. \a delta contains
-    the rotation distance, \a state holds the keyboard modifier flags
-    at the time of the event, and \a orient holds the wheel's
-    orientation.
+    The \a position provides the location of the mouse cursor within
+    the widget. The globalPos() is initialized to QCursor::pos()
+    which is usually, but not always, correct.
+    Use the other constructor if you need to specify the global
+    position explicitly. \a delta contains the rotation distance,
+    \a state holds the keyboard modifier flags at the time of the
+    event, and \a orient holds the wheel's orientation.
 
     \sa pos() delta() state()
 */
@@ -328,12 +328,13 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 }
 #endif
 /*!
-    \fn QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint &globalPos, int delta, int state, Orientation orient = Vertical )
+    \fn QWheelEvent::QWheelEvent(const QPoint &position, const QPoint &globalPos, int delta, int state, Orientation orient = Vertical )
 
     Constructs a wheel event object.
 
-    The mouse cursor's position when the event occurred is given in \a pos
-    and \a globalPos. \a delta contains the rotation distance, \a state
+    The \a position provides the location of the mouse cursor
+    within the widget. The position in global coordinates is given by
+    \a globalPos. \a delta contains the rotation distance, \a state
     holds the keyboard modifier flags at the time of the event, and
     \a orient holds the wheel's orientation.
 
@@ -365,7 +366,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     If you move your widgets around in response to mouse events,
     use globalPos() instead of this function.
 
-    \sa x(), y(), globalPos()
+    \sa x() y() globalPos()
 */
 
 /*!
@@ -374,7 +375,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     Returns the x position of the mouse cursor, relative to the
     widget that received the event.
 
-    \sa y(), pos()
+    \sa y() pos()
 */
 
 /*!
@@ -383,7 +384,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     Returns the y position of the mouse cursor, relative to the
     widget that received the event.
 
-    \sa x(), pos()
+    \sa x() pos()
 */
 
 
@@ -396,7 +397,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     mouse events, globalPos() can differ a lot from the current
     cursor position returned by QCursor::pos().
 
-    \sa globalX(), globalY()
+    \sa globalX() globalY()
 */
 
 /*!
@@ -405,7 +406,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     Returns the global x position of the mouse cursor at the time of
     the event.
 
-    \sa globalY(), globalPos()
+    \sa globalY() globalPos()
 */
 
 /*!
@@ -414,14 +415,14 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
     Returns the global y position of the mouse cursor at the time of
     the event.
 
-    \sa globalX(), globalPos()
+    \sa globalX() globalPos()
 */
 
 
 /*!
     \fn ButtonState QWheelEvent::state() const
 
-    Returns the keyboard modifier flags of the event.
+    Returns the keyboard modifier flags at the time of the event.
 
     The returned value is a selection of the following values,
     combined using the logical OR operator:
@@ -432,8 +433,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation or
 /*!
     \enum Qt::Modifier
 
-    This enum type describes the keyboard modifier keys supported by
-    Qt.
+    This enum describes the keyboard modifier keys supported by Qt.
 
     \value SHIFT The Shift keys provided on all standard keyboards.
     \value META The Meta keys.
@@ -1458,20 +1458,20 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 
 /*!
     \class QTabletEvent qevent.h
-    \brief The QTabletEvent class contains parameters that describe a Tablet
-    event.
+    \brief The QTabletEvent class contains parameters that describe a Tablet event.
 
     \ingroup events
 
-    Tablet Events are generated from a Wacom&copy; tablet. Most of
+    Tablet Events are generated from a Wacom tablet. Most of
     the time you will want to deal with events from the tablet as if
-    they were events from a mouse, for example retrieving the position
-    with x(), y(), pos(), globalX(), globalY() and globalPos(). In
-    some situations you may wish to retrieve the extra information
-    provided by the tablet device driver, for example, you might want
-    to adjust color brightness based on pressure. QTabletEvent allows
-    you to get the pressure(), the xTilt() and yTilt(), as well as the
-    type of device being used with device() (see \l{TabletDevice}).
+    they were events from a mouse; for example, you would retrieve the
+    cursor position with x(), y(), pos(), globalX(), globalY(), and
+    globalPos(). In some situations you may wish to retrieve the extra
+    information provided by the tablet device driver; for example, you
+    might want to adjust color brightness based on pressure.
+    QTabletEvent allows you to read the pressure(), the xTilt(), and
+    yTilt(), as well as the type of device being used with device()
+    (see \l{TabletDevice}).
 
     A tablet event contains a special accept flag that indicates
     whether the receiver wants the event. You should call
@@ -1481,11 +1481,11 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     The QWidget::setEnabled() function can be used to enable or
     disable mouse and keyboard events for a widget.
 
-    The event handler QWidget::tabletEvent() receives all three types of tablet
-    events.  Qt will first send a tabletEvent and then, if it is not accepted,
-    it will send a mouse event.  This allows applications that don't utilize
-    tablets to use a tablet like a mouse while also enabling those who want to
-    use both tablets and mouses differently.
+    The event handler QWidget::tabletEvent() receives all three types of
+    tablet events. Qt will first send a tabletEvent then, if it is not
+    accepted, it will send a mouse event.  This allows applications that
+    don't utilize tablets to use a tablet like a mouse, while also
+    enabling those who want to use both tablets and mouses differently.
 
 */
 
@@ -1504,23 +1504,24 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent(Type t, const QPoint &pos,
+  \fn QTabletEvent::QTabletEvent(Type type, const QPoint &position,
                                   const QPoint &globalPos, int device,
                                   int pressure, int xTilt, int yTilt,
                                   const QPair<int,int> &uId)
 
-  Construct a tablet event of \c Type \a t.  The position where the
-  event occurred is given in \a pos and in \a globalPos. \a device
-  contains the \link TabletDevice device type\endlink, \a pressure
-  contains the pressure exerted on the \a device, \a xTilt and \a
-  yTilt contain \a device's degree of tilt from the X and Y axis
-  respectively. The \a uId contains an event id.
+  Construct a tablet event of the given \a type. The \a position
+  indicates where the event occurred in the widget; \a globalPos is
+  the corresponding position in absolute coordinates. The \a device
+  contains the \link TabletDevice device type \endlink; \a pressure
+  contains the pressure exerted on the \a device; \a xTilt and \a
+  yTilt contain the device's degree of tilt from the X and Y axes
+  respectively. The \a uId contains an event ID.
 
   On Irix, \a globalPos will contain the high-resolution coordinates
   received from the tablet device driver, instead of from the
   windowing system.
 
-  \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
+  \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
 */
 
 QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, int device,
@@ -1546,21 +1547,23 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     occurred is is given in \a pos and \a globalPos. \a device
     contains the \link TabletDevice device type\endlink, \a pressure
     contains the pressure exerted on the \a device, \a xTilt and \a
-    yTilt contain the \a device's degrees of tilt from the X and Y
+    yTilt contain the \a device's degrees of tilt from the x and y
     axis respectively. The \a uId contains an event id.
 
     On Irix, \a globalPos will contain the high-resolution coordinates
     received from the tablet device driver, instead of from the
     windowing system.
 
-  \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
+  \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
 */
 
 /*!
     \fn TabletDevices QTabletEvent::device() const
 
-    Returns the type of device that generated the event. Useful if you
-    want one end of the pen to do something different than the other.
+    Returns the type of device that generated the event.
+
+    This is useful if you want to know which end of a pen was used
+    to draw on the tablet.
 
     \sa TabletDevice
 */
@@ -1568,10 +1571,11 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn int QTabletEvent::pressure() const
 
-    Returns the pressure that is exerted on the device. This number is
-    a value from 0 (no pressure) to 255 (maximum pressure). The
-    pressure is always scaled to be within this range no matter how
-    many pressure levels the underlying hardware supports.
+    Returns the pressure that is exerted on the device. This number
+    is a value from 0 (no pressure) to 255 (maximum pressure)
+    inclusive. The pressure is always scaled to be within this range
+    no matter how many pressure levels the underlying hardware
+    supports.
 */
 
 /*!
@@ -1603,25 +1607,25 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     If you move widgets around in response to mouse events, use
     globalPos() instead of this function.
 
-    \sa x(), y(), globalPos()
+    \sa x() y() globalPos()
 */
 
 /*!
     \fn int QTabletEvent::x() const
 
-    Returns the x-position of the device, relative to the widget that
+    Returns the x position of the device, relative to the widget that
     received the event.
 
-    \sa y(), pos()
+    \sa y() pos()
 */
 
 /*!
     \fn int QTabletEvent::y() const
 
-    Returns the y-position of the device, relative to the widget that
+    Returns the y position of the device, relative to the widget that
     received the event.
 
-    \sa x(), pos()
+    \sa x() pos()
 */
 
 /*!
@@ -1633,25 +1637,25 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     globalPos() can differ significantly from the current position
     QCursor::pos().
 
-    \sa globalX(), globalY()
+    \sa globalX() globalY()
 */
 
 /*!
     \fn int QTabletEvent::globalX() const
 
-    Returns the global x-position of the mouse pointer at the time of
+    Returns the global x position of the mouse pointer at the time of
     the event.
 
-    \sa globalY(), globalPos()
+    \sa globalY() globalPos()
 */
 
 /*!
     \fn int QTabletEvent::globalY() const
 
-    Returns the global y-position of the mouse pointer at the time of
+    Returns the global y position of the mouse pointer at the time of
     the event.
 
-    \sa globalX(), globalPos()
+    \sa globalX() globalPos()
 */
 
 /*!
@@ -1664,9 +1668,10 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     the device. Each combination of these values is unique.
 
     Note that the \c first value will vary due to different driver
-    implementations on each platform.
+    implementations on each platform supported by Qt.
 
-    It is possible to generate a unique ID for any Wacom(TM) device.
+    It is possible to generate a unique ID for any Wacom device.
+
 */
 
 /*!
