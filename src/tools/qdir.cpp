@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#85 $
 **
 ** Implementation of QDir class
 **
@@ -47,7 +47,7 @@
 #include <tchar.h>
 #endif
 #if defined(_OS_OS2EMX_)
-extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
+extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #define NO_ERROR 0
 #endif
 
