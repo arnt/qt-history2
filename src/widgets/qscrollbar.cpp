@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#25 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#25 $";
 #endif
 
 
@@ -220,20 +220,28 @@ QScrollBar::Horizontal.
 Enables scroll bar tracking if \e enable is TRUE, or disables tracking
 if \e enable is FALSE.
 
-If tracking is enabled, the scroll bar emits the valueChanged() signal
-whenever the slider is dragged.
+If tracking is enabled (default), the scroll bar emits the valueChanged()
+signal whenever the slider is dragged.
 If tracking is disabled, the scroll bar emits the valueChanged() signal
 not before the user relases the mouse button.
 
 \sa tracking().
 */
 
+/*!
+\fn bool QScrollBar::tracking() const
+Returns TRUE if tracking is enabled, or FALSE if tracking is disabled.
+
+Tracking is initially enabled.
+
+\sa setTracking().
+*/
+
 
 /*!
 Reimplements the virtual function QWidget::setPalette().
 
-Sets the palette for both the combo box button and the
-combo box popup list.
+Sets the background color to the mid color for Motif style scroll bars.
 */
 
 void QScrollBar::setPalette( const QPalette &p )
@@ -279,6 +287,10 @@ void QScrollBar::rangeChange()
     PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 }
 
+
+/*!
+Handles timer events for the scroll bar.
+*/
 
 void QScrollBar::timerEvent( QTimerEvent * )
 {
