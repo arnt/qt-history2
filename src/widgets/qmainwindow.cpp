@@ -120,6 +120,7 @@ static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 // ------------------------ QMainWindowPrivate  -----------------------
 //************************************************************************************************
 class HideDock;
+class QToolLayout;
 class QMainWindowPrivate {
 public:
     struct ToolBar {
@@ -156,7 +157,8 @@ public:
 	dockable[ (int)QMainWindow::Unmanaged ] = TRUE;
 	dockable[ (int)QMainWindow::Hidden ] = TRUE;
 	dockable[ (int)QMainWindow::TornOff ] = TRUE;
-
+	lLeft = lRight = 0;
+	
 	movable = TRUE;
     }
 
@@ -196,7 +198,8 @@ public:
     }
 
     ToolBarDock * top, * left, * right, * bottom, * tornOff, * unmanaged, *hidden;
-
+    QToolLayout *lLeft, *lRight;
+    
     QMenuBar * mb;
     QStatusBar * sb;
     QToolTipGroup * ttg;
@@ -286,6 +289,7 @@ public:
     void addItem( QLayoutItem *item);
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
+    int widthForHeight( int ) const;
     QSize sizeHint() const;
     QSize minimumSize() const;
     QLayoutIterator iterator();
@@ -296,8 +300,10 @@ public:
     void setRightJustified( bool on ) { fill = on; }
     bool rightJustified() const { return fill; }
     void invalidate();
+
 protected:
     void setGeometry( const QRect& );
+
 private:
     void init();
     int layoutItems( const QRect&, bool testonly = FALSE );
@@ -307,6 +313,8 @@ private:
     bool fill;
     int cached_width;
     int cached_hfw;
+
+    friend class QMainWindowLayout;
 };
 
 
@@ -377,19 +385,6 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     Qt::Orientation o = dock->first()->t->orientation();
 
     QMainWindowPrivate::ToolBar *t = dock->first(), *t2 = 0;
-
-    // #### We have to get working vertical layouts correctly too, at the moment
-    // #### just align them in one row
-    if ( o == Qt::Vertical ) {
-	int y = r.y();
-	while ( t ) {
-	    t->t->setGeometry( r.x(), y, t->t->sizeHint().width(), t->t->sizeHint().height() );
-	    y += t->t->sizeHint().height();
-	    t = dock->next();
-	}
-	return y;
-    }
-
 
     QList<QMainWindowPrivate::ToolBar> row;
     row.setAutoDelete( FALSE );
@@ -484,6 +479,17 @@ int QToolLayout::heightForWidth( int w ) const
     return cached_hfw;
 }
 
+int QToolLayout::widthForHeight( int h ) const
+{
+//     if ( cached_width != w ) {
+	//Not all C++ compilers support "mutable" yet:
+	QToolLayout * mthis = (QToolLayout*)this;
+	int w = mthis->layoutItems( QRect( 0, 0, 0, h ), TRUE );
+	return w;
+//     }
+//     return cached_hfw;
+}
+
 void QToolLayout::addItem( QLayoutItem * /*item*/ )
 {
     //evil
@@ -514,6 +520,129 @@ void QToolLayout::setGeometry( const QRect &r )
 {
     QLayout::setGeometry( r );
     layoutItems( r );
+}
+
+//************************************************************************************************
+// --------------------------------- QMainWindowLayout -----------------------
+//************************************************************************************************
+
+class QMainWindowLayout : public QLayout
+{
+public:
+    QMainWindowLayout( QLayout* parent = 0 );
+    ~QMainWindowLayout() {}
+
+    void addItem( QLayoutItem *item);
+    void setLeftDock( QToolLayout *l );
+    void setRightDock( QToolLayout *r );
+    void setCentralWidget( QWidget *w );
+    bool hasHeightForWidth() const { return FALSE; }
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QLayoutIterator iterator();
+    QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
+    void invalidate() {}
+    
+protected:
+    void setGeometry( const QRect &r ) {
+	QLayout::setGeometry( r );
+	layoutItems( r );
+    }
+
+private:
+    int layoutItems( const QRect&, bool testonly = FALSE );
+    int cached_height;
+    int cached_wfh;
+    QToolLayout *left, *right;
+    QWidget *central;
+    
+};
+
+QSize QMainWindowLayout::sizeHint() const 
+{ 
+    // #### TODO
+    return QSize( 0, 0 ); 
+}
+
+QSize QMainWindowLayout::minimumSize() const 
+{
+    // #### TODO
+    return QSize( 0, 0 ); 
+}
+
+QMainWindowLayout::QMainWindowLayout( QLayout* parent )
+    : QLayout( parent ), left( 0 ), right( 0 ), central( 0 )
+{
+    cached_height = -1; cached_wfh = -1; 
+}
+
+void QMainWindowLayout::setLeftDock( QToolLayout *l ) 
+{
+    left = l; 
+}
+
+void QMainWindowLayout::setRightDock( QToolLayout *r ) 
+{
+    right = r; 
+}
+
+void QMainWindowLayout::setCentralWidget( QWidget *w ) 
+{
+    central = w; 
+}
+
+int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
+{
+    if ( !left && !central && !right )
+	return 0;
+    
+    int wl = 0, wr = 0;
+    if ( left )
+	wl = left->widthForHeight( r.height() );
+    if ( right )
+	wr = right->widthForHeight( r.height() );
+    int w = r.width() - wr - wl;
+    if ( w < 0 )
+	w = 0;
+    
+    if ( !testonly ) {
+	QRect g( geometry() );
+	if ( left )
+	    left->setGeometry( QRect( g.x(), g.y(), wl, r.height() ) );
+	if ( right )
+	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y(), wr, r.height() ) );
+	if ( central )
+	    central->setGeometry( g.x() + wl, g.y(), w, r.height() );
+    }
+    
+    w = wl + wr;
+    if ( central )
+	w += central->minimumSize().width();
+    return w;
+}
+
+void QMainWindowLayout::addItem( QLayoutItem * /*item*/ )
+{
+}
+
+
+class QMainWindowLayoutIterator : public QGLayoutIterator
+{
+public:
+    QMainWindowLayoutIterator( QList<QLayoutItem> *l ) :idx(0), list(l)  {}
+    uint count() const { return list ? list->count() : 0; }
+    QLayoutItem *current() { return list && idx < (int)count() ? list->at(idx) : 0;  }
+    QLayoutItem *next() { idx++; return current(); }
+    QLayoutItem *takeCurrent() { return list ? list->take( idx ) : 0; }
+private:
+    int idx;
+    QList<QLayoutItem> *list;
+};
+
+QLayoutIterator QMainWindowLayout::iterator()
+{
+    //This is evil. Pretend you didn't see this.
+    return QLayoutIterator( new QMainWindowLayoutIterator( 0/*&list*/ ) );
 }
 
 //************************************************************************************************
@@ -748,12 +877,17 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     Qt::Orientation o = dock == QMainWindow::Top || dock == QMainWindow::Bottom ?
 			Qt::Horizontal : Qt::Vertical;
     QMainWindowPrivate::ToolBarDock * dl = 0;
+    int dy = 0;
     switch ( dock ) {
     case QMainWindow::Left:
 	dl = d->left;
+	if ( d->lLeft )
+	    dy = d->lLeft->geometry().y();
 	break;
     case QMainWindow::Right:
 	dl = d->right;
+	if ( d->lRight )
+	    dy = d->lRight->geometry().y();
 	break;
     case QMainWindow::Top:
 	dl = d->top;
@@ -836,7 +970,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     QMainWindowPrivate::ToolBarDock *dummy;
     t = d->findToolbar( tb, dummy );
     QMainWindowPrivate::ToolBar *me = t;
-    t->extraOffset = rect_pos( d->oldPosRect, o ) + rect_pos( dockArea, o ); // ##### vertical extraOffset is wrong!!
+    t->extraOffset = rect_pos( d->oldPosRect, o ) + rect_pos( dockArea, o ) - dy;
     if ( rows.isEmpty() ) {
 	relative = 0;
     } else {
@@ -924,6 +1058,9 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 #endif
 		    }
 		    if ( !relative && hasMyself ) {
+#ifdef QMAINWINDOW_DEBUG
+			qDebug( "...no relative and have myself => self index" );
+#endif
 			relative = tb;
 			ipos = QMainWindowPrivate::SameIndex;
 		    } else if ( !relative ) {
@@ -943,7 +1080,11 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		rect_pos( dockArea, o, TRUE ) + rect_extend( d->oldPosRect, o, TRUE ) && last ) {
 	relative = last->t;
 	ipos = QMainWindowPrivate::Below;
-    }	
+    } else {
+	relative = 0;
+	ipos = QMainWindowPrivate::Before;
+    }
+
 }
 
 
@@ -1684,21 +1825,21 @@ void QMainWindow::setUpLayout()
 	d->hideDock->hide();
     }
 
-    (void) new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
+    (void)new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
 
-    QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
+    QMainWindowLayout *mwl = new QMainWindowLayout( d->tll );
 
-    d->tll->addLayout( mwl, 100 );
-    (void) new QToolLayout( mwl, d->left, QBoxLayout::LeftToRight, d->justify );
-
+    d->tll->setStretchFactor( mwl, 100 );
+    d->lLeft = new QToolLayout( mwl, d->left, QBoxLayout::LeftToRight, d->justify );
+    mwl->setLeftDock( d->lLeft );
+        
     if ( centralWidget() &&
 	 !centralWidget()->testWState(Qt::WState_ForceHide) )
-	mwl->addWidget( centralWidget(), 100 );
-    else
-	mwl->addStretch( 100 );
-    (void) new QToolLayout( mwl, d->right, QBoxLayout::LeftToRight, d->justify );
+	mwl->setCentralWidget( centralWidget() );
+    d->lRight = new QToolLayout( mwl, d->right, QBoxLayout::LeftToRight, d->justify );
+    mwl->setRightDock( d->lRight );
 
-    (void) new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
+    (void)new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
 
     if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
 	d->tll->addWidget( d->sb, 0 );
@@ -2467,3 +2608,4 @@ bool QMainWindow::toolBarsMovable() const
 {
     return d->movable;
 }
+
