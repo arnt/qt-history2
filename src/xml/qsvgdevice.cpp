@@ -1535,4 +1535,36 @@ void QSvgDevice::applyTransform( QDomElement *e ) const
     e->setAttribute( "transform", s );
 }
 
+/* Statically initialized, so it is created if you link to this */
+#include <qpicture.h>
+class QSVGIO {
+public:
+    QSVGIO() { QPictureIO::defineIOHandler("svg", "<svg>", 0, read_svg, write_svg);  }
+
+    static void read_svg(QPictureIO *);
+    static void write_svg(QPictureIO *);
+};
+void QSVGIO::read_svg(QPictureIO *io)
+{
+    QSvgDevice svg;
+    if ( svg.load( io->ioDevice() ) ) {
+	QPicture pic;
+	pic.setBoundingRect(svg.boundingRect());
+	QPainter p( &pic );
+	svg.play( &p );
+	io->setPicture(pic);
+    }
+}
+void QSVGIO::write_svg(QPictureIO *io)
+{
+    QSvgDevice svg;
+    QPainter p( &svg );
+    QPicture pic = io->picture();
+    if ( pic.play( &p ) ) {
+	svg.setBoundingRect( pic.boundingRect() );
+	svg.save( io->ioDevice() );
+    }
+}
+QSVGIO svgio_init;
+
 #endif // QT_NO_SVG
