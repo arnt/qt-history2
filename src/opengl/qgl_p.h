@@ -30,34 +30,35 @@ class QGLWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QGLWidget)
 public:
-    QGLWidgetPrivate():        QWidgetPrivate() {}
+    QGLWidgetPrivate() : QWidgetPrivate() {}
     ~QGLWidgetPrivate() {}
 
-    QGLContext* glcx;
+    QGLContext *glcx;
     bool autoSwap;
 
     QGLColormap cmap;
     QMap<QString, int> displayListCache;
 
 #if defined(Q_WS_WIN)
-    QGLContext* olcx;
+    QGLContext *olcx;
 #elif defined(Q_WS_X11)
-    QGLOverlayWidget*        olw;
+    QGLOverlayWidget *olw;
 #elif defined(Q_WS_MAC)
-    QGLContext* olcx;
+    QGLContext *olcx;
     void updatePaintDevice();
     QMacWindowChangeEvent *watcher;
 #endif
+
 };
 
 class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
-	public:
+public:
     QGLContextPrivate() {}
     ~QGLContextPrivate() {}
 
-#if  defined(Q_WS_WIN)
+#if defined(Q_WS_WIN)
     HGLRC rc;
     HDC dc;
     WId        win;
@@ -77,9 +78,8 @@ class QGLContextPrivate
     uint sharing : 1;
     uint initDone : 1;
     uint crWin : 1;
-    QPaintDevice* paintDevice;
+    QPaintDevice *paintDevice;
     QColor transpColor;
-
     QGLContext *q_ptr;
 };
 #endif
