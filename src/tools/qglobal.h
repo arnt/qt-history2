@@ -44,7 +44,7 @@
 
 /*
    The operating system, must be one of: (Q_OS_x)
-  
+
      MACX	- Mac OS X
      MAC9	- Mac OS 9
      MSDOS	- MS-DOS and Windows
@@ -165,9 +165,9 @@
 #endif
 
 
-/* 
+/*
    The compiler, must be one of: (Q_CC_x)
-  
+
      SYM	- Symantec C++ for both PC and Macintosh
      MPW	- MPW C++
      MWERKS	- Metrowerks CodeWarrior
@@ -187,7 +187,7 @@
      KAI	- KAI C++
      HIGHC	- MetaWare High C/C++
      INTEL	- Intel C++
-  
+
    Should be sorted most-authoritative to least-authoritative
 */
 
@@ -245,13 +245,11 @@
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
-#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 /* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
 /* __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
-#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
@@ -336,7 +334,7 @@
 
 /*
    The window system, must be one of: (Q_WS_x)
-  
+
      MACX	- Mac OS X
      MAC9	- Mac OS 9
      QWS	- Qt/Embedded
