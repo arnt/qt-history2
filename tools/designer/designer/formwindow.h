@@ -285,6 +285,9 @@ private:
     QList<QAction> actions;
     Project *proj;
     DesignerFormWindow *iface;
+    QWidget* targetContainer;
+    QColor restoreColor;
+    bool hadOwnPalette;
 
 };
 

@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include <iostream.h>
 #include "formwindow.h"
 #include "defs.h"
 #include "mainwindow.h"
@@ -171,6 +172,8 @@ void FormWindow::init()
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this );
     setMainContainer( w );
     propertyWidget = w;
+    targetContainer = 0;
+    hadOwnPalette = false;
 }
 
 void FormWindow::setMainWindow( MainWindow *w )
@@ -515,6 +518,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		origPressPos = oldPressPos;
 		checkedSelectionsForMove = FALSE;
 		moving.clear();
+		targetContainer = w->parentWidget();
 	    } else if ( e->button() == RightButton ) { // RMB menu
 		if ( mainContainer()->inherits( "QMainWindow" ) &&
 		     ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
@@ -683,8 +687,35 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		    }
 		    checkSelectionsForMove( w );
 		}
+		
+		// check whether we would have to reparent the selection and highlight the possible new parent container
+		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)moving.begin().key() ) );
+		if ( wa  && !wa->inherits( "QDesignerDialog" ) ) {
+		    wa = WidgetFactory::containerOfWidget( wa );
+		    // ok, looks like we moved onto a container
 
-		// finally move the selected widgets and show/update preview lable
+		    if ( wa != targetContainer ) {
+			if ( targetContainer ) {
+			    if ( hadOwnPalette )
+				targetContainer->setBackgroundColor( restoreColor );
+			    else
+				targetContainer->unsetPalette();
+			}
+			targetContainer = wa;
+			hadOwnPalette = wa->ownPalette();
+			restoreColor = wa->backgroundColor();
+			wa->setBackgroundColor( wa->colorGroup().mid() );
+		    }
+		}
+		else if ( targetContainer ) {
+		    if( hadOwnPalette )
+			targetContainer->setBackgroundColor( restoreColor );
+		    else
+			targetContainer->unsetPalette();
+		    targetContainer = 0;
+		}
+		
+		// finally move the selected widgets and show/update preview label
 		moveSelectedWidgets( x - p.x(), y - p.y() );
 		sizePreviewLabel->setText( tr( "%1/%2" ).arg( w->pos().x() ).arg( w->pos().y() ) );
 		sizePreviewLabel->adjustSize();
@@ -716,7 +747,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	    newReceiver = wid;
 	if ( newReceiver &&
 	     ( newReceiver->inherits( "QLayoutWidget" ) || newReceiver->inherits( "Spacer" ) ) )
-	     newReceiver = (QWidget*)connectReceiver;
+	    newReceiver = (QWidget*)connectReceiver;
 	drawRecRect = newReceiver != connectReceiver;
 	currentConnectPos = mapFromGlobal( e->globalPos() );
 	if ( newReceiver &&
@@ -751,6 +782,15 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 
 	    if ( moving.isEmpty() || w->pos() == *moving.find( (ulong)w ) )
 		break;
+	
+	    // restore targetContainer
+	    if ( targetContainer ) {
+		if( hadOwnPalette )
+		    targetContainer->setBackgroundColor( restoreColor );
+		else
+		    targetContainer->unsetPalette();
+	    }
+	
 	    // tell property editor to update
 	    if ( propertyWidget && propertyWidget->isWidgetType() && !isMainContainer( propertyWidget ) )
 		emitUpdateProperties( propertyWidget );
