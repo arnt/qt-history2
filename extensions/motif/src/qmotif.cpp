@@ -591,8 +591,8 @@ bool QMotif::processEvents( ProcessEventsFlags flags )
     if ( ! ( flags & 0x08 ) && d->activate_timers ) {
 	// 0x08 == ExcludeTimers in 3.2
 	nevents += activateTimers();
+	d->activate_timers = FALSE;
     }
-    d->activate_timers = FALSE;
 
     return ( canWait || ( pendingmask != 0 ) || nevents > 0 );
 }
