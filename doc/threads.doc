@@ -250,9 +250,9 @@ other than the event thread. For instance:
   qApp->unlock();
   \endcode
 
-Calling function in Qt without holding a mutex will generally result
-in unpredictable behavior. Calling a GUI-related function in Qt from a
-different thread requires holding the Qt library mutex.  In this
+Calling a function in Qt without holding a mutex will generally result
+in unpredictable behavior.  Calling a GUI-related function in Qt from
+a different thread requires holding the Qt library mutex.  In this
 context, all functions that may ultimately access any graphics or
 window system resources are GUI-related.  Using container classes,
 strings and I/O classes does not require any mutex if that object is
