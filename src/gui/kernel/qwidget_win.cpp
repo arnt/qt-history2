@@ -1727,7 +1727,6 @@ int QWidget::metric(int m) const
             val = 0;
             qWarning("QWidget::metric: Invalid metric command");
         }
-        ReleaseDC(0, gdc);
     }
     return val;
 }
