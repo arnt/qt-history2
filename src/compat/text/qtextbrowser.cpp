@@ -336,7 +336,7 @@ void QTextBrowser::setSource(const QString& name)
 /*!
     \fn void QTextBrowser::anchorClicked( const QString& name, const QString &link)
 
-    This signal is emitted when the user clicks a an anchor. The \a link is
+    This signal is emitted when the user clicks an anchor. The \a link is
     the value of the \c href i.e. the name of the target document.  The \a name
     is the name of the anchor.
 
