@@ -8,3 +8,7 @@ DEFINES += QT_EXTENSION_LIBRARY
 
 include(extension/extension.pri)
 include(sdk/sdk.pri)
+
+target.path=$$libs.path
+INSTALLS        += target
+

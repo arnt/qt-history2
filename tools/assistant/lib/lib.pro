@@ -15,9 +15,9 @@ include( ../../../src/qt_professional.pri )
 DESTDIR                = ../../../lib
 
 unix {
-        target.path=$$libs.path
         QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
         QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
+        target.path=$$libs.path
         INSTALLS        += target
 }
 
