@@ -2088,7 +2088,8 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 		    selectAll( FALSE );
 		unselect = FALSE;
 	    }
-	    if ( unselect && ( e->button() == RightButton || isMultiSelection() ) )
+	    if ( unselect && ( e->button() == RightButton ||
+			       ( selectionMode() == Multi || selectionMode() == Extended ) ) )
 		clearSelection();
 	}
     }
@@ -2730,7 +2731,8 @@ void QListBox::setSelectionMode( SelectionMode mode )
     if ( d->selectionMode == mode )
 	return;
 
-    if ( isMultiSelection() && ( mode == QListBox::Single || mode == QListBox::NoSelection ) ){
+    if ( ( selectionMode() == Multi || selectionMode() == Extended )
+	 && ( mode == QListBox::Single || mode == QListBox::NoSelection ) ){
 	clearSelection();
 	if ( ( mode == QListBox::Single ) && currentItem() )
 	    setSelected( currentItem(), TRUE );
@@ -2941,7 +2943,7 @@ void QListBox::clearSelection()
 
 void QListBox::selectAll( bool select )
 {
-    if ( isMultiSelection() ) {
+    if ( selectionMode() == Multi || selectionMode() == Extended ) {
 	bool b = signalsBlocked();
 	blockSignals( TRUE );
 	for ( int i = 0; i < (int)count(); i++ )

@@ -4543,8 +4543,8 @@ void QFileDialog::setMode( Mode newMode )
 	d->mode = newMode;
 	QString sel = d->currentFileName;
 	if ( isDirectoryMode( newMode ) ) {
-	    files->setMultiSelection( FALSE );
-	    d->moreFiles->setMultiSelection( FALSE );
+	    files->setSelectionMode( QListView::Single );
+	    d->moreFiles->setSelectionMode( QListBox::Single );
 	    if ( sel.isNull() )
 		sel = QString::fromLatin1(".");
 	    d->types->setEnabled( FALSE );
@@ -4553,8 +4553,8 @@ void QFileDialog::setMode( Mode newMode )
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
 	    d->types->setEnabled( TRUE );
 	} else {
-	    files->setMultiSelection( FALSE );
-	    d->moreFiles->setMultiSelection( FALSE );
+	    files->setSelectionMode( QListView::Single );
+	    d->moreFiles->setSelectionMode( QListBox::Single );
 	    d->types->setEnabled( TRUE );
 	}
 	rereadDir();
@@ -5312,7 +5312,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    deleteFile( d->moreFiles->item( c )->text() );
 	((QKeyEvent *)e)->accept();
 	return TRUE;
-    } else if ( o == files && e->type() == QEvent::FocusOut && files->currentItem() ) { 
+    } else if ( o == files && e->type() == QEvent::FocusOut && files->currentItem() ) {
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress && d->mode != AnyFile ) {
@@ -5845,7 +5845,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 #if defined(Q_WS_WIN)
 	// Workaround a Windows bug, '..' is apparantly hidden in directories
 	// that are one level away from root
-	if ( !bShowHiddenFiles && inf.name() != ".." ) { 
+	if ( !bShowHiddenFiles && inf.name() != ".." ) {
 	    if ( d->url.isLocalFile() ) {
 		QString file = d->url.path();
 		if ( !file.endsWith( "/" ) )
