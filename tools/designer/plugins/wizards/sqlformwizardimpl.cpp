@@ -118,12 +118,14 @@ void SqlFormWizard::autoPopulate( bool populate )
     listBoxSelectedField->clear();
     if ( populate ) {
 	for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
-	    if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
+	    if ( d->name() == editConnection->text() ||
+		 ( ( d->name() == "(default)" || d->name().isEmpty() ) &&
+		 editConnection->text() == "(default)" ) ) {
 		QStringList lst = *d->fields().find( editTable->text() );
 		// remove primary index fields, if any
-		d->open();
+		d->open( FALSE );
 #ifndef QT_NO_SQL
-		QSqlCursor tab( editTable->text() );
+		QSqlCursor tab( editTable->text(), TRUE, d->connection() );
 		QSqlIndex pIdx = tab.primaryIndex();
 		for ( uint i = 0; i < pIdx.count(); i++ ) {
 		    listBoxField->insertItem( pIdx.field( i )->name() );
@@ -326,11 +328,11 @@ void SqlFormWizard::accept()
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
 	    database = d;
-	    d->open();
+	    d->open( FALSE );
 	    break;
 	}
     }
-    QSqlCursor tab( editTable->text() );
+    QSqlCursor tab( editTable->text(), TRUE, database->connection() );
     int columns = 2;
 
     QSqlEditorFactory * f = QSqlEditorFactory::defaultFactory();
