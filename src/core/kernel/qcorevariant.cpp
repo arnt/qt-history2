@@ -90,7 +90,7 @@ template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
 // takes a type, returns the internal void* pointer casted
 // to a pointer of the input type
 template <typename T>
-inline static const T *v_cast(const QCoreVariant::Private *d)
+inline static const T *v_cast(const QCoreVariant::Private *d, T *t = 0)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
@@ -99,7 +99,7 @@ inline static const T *v_cast(const QCoreVariant::Private *d)
 }
 
 template <typename T>
-inline static T *v_cast(QCoreVariant::Private *d)
+inline static T *v_cast(QCoreVariant::Private *d, T *t = 0)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data))
         // this is really a static_cast, but gcc 2.95 complains about it.
@@ -108,7 +108,7 @@ inline static T *v_cast(QCoreVariant::Private *d)
 }
 
 template <class T>
-inline static void v_construct(QCoreVariant::Private *x)
+inline static void v_construct(QCoreVariant::Private *x, T* t = 0)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
         x->data.shared = new QCoreVariant::PrivateShared(new T);
@@ -119,7 +119,7 @@ inline static void v_construct(QCoreVariant::Private *x)
 }
 
 template <class T>
-inline static void v_construct(QCoreVariant::Private *x, const void *copy)
+inline static void v_construct(QCoreVariant::Private *x, const void *copy, T *t = 0)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
         x->data.shared = new QCoreVariant::PrivateShared(new T(*static_cast<const T *>(copy)));
@@ -284,7 +284,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
 }
 
 template <class T>
-inline static void v_clear(QCoreVariant::Private *d)
+inline static void v_clear(QCoreVariant::Private *d, T* t = 0)
 {
     if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
         delete v_cast<T>(d);
