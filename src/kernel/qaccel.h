@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#13 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#14 $
 **
 ** Definition of QAccel class
 **
@@ -79,37 +79,37 @@ inline bool QAccel::isEnabled() const
 }
 
 #if defined(OBSOLETE)
-void QAccel::enable()
+inline void QAccel::enable()
 {
     qObsolete( "QAccel", "enable", "setEnabled(TRUE)" );
     setEnabled( TRUE );
 }
 
-void QAccel::disable()
+inline void QAccel::disable()
 {
     qObsolete( "QAccel", "disable", "setEnabled(FALSE)" );
     setEnabled( FALSE );
 }
 
-bool QAccel::isDisabled() const
+inline bool QAccel::isDisabled() const
 {
     qObsolete( "QAccel", "isDisabled", "!isEnabled()" );
     return !isEnabled();
 }
 
-bool QAccel::isItemDisabled( int id ) const
+inline bool QAccel::isItemDisabled( int id ) const
 {
     qObsolete( "QAccel", "isItemDisabled", "!isItemEnabled(id)" );
     return !isItemEnabled(id);
 }
 
-void QAccel::enableItem( int id )
+inline void QAccel::enableItem( int id )
 {
     qObsolete( "QAccel", "enableItem", "setItemEnabled(id,TRUE)" );
     setItemEnabled( id, TRUE );
 }
 
-void QAccel::disableItem( int id )
+inline void QAccel::disableItem( int id )
 {
     qObsolete( "QAccel", "disableItem", "setItemEnabled(id,FALSE)" );
     setItemEnabled( id, FALSE );
