@@ -1126,7 +1126,10 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 /*!
     Returns the block character format of the block the cursor is in.
 
-    \sa setBlockFormat() charFormat()
+    The block char format is the format used when inserting text at the
+    beginning of a block.
+
+    \sa setBlockCharFormat()
  */
 QTextCharFormat QTextCursor::blockCharFormat() const
 {
@@ -1136,6 +1139,12 @@ QTextCharFormat QTextCursor::blockCharFormat() const
     return d->block().charFormat();
 }
 
+/*!
+    Sets the block char format of the current block (or all blocks that
+    are contained in the selection) to \a format.
+
+    \sa blockCharFormat()
+*/
 void QTextCursor::setBlockCharFormat(const QTextCharFormat &format)
 {
     if (!d || !d->priv)
@@ -1144,6 +1153,13 @@ void QTextCursor::setBlockCharFormat(const QTextCharFormat &format)
     d->setBlockCharFormat(format, QTextDocumentPrivate::SetFormat);
 }
 
+/*!
+    Modifies the block char format of the current block (or all blocks that
+    are contained in the selection) with the block format specified by
+    \a modifier.
+
+    \sa setBlockCharFormat()
+*/
 void QTextCursor::mergeBlockCharFormat(const QTextCharFormat &modifier)
 {
     if (!d || !d->priv)
