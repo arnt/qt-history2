@@ -73,6 +73,7 @@ if [ "$local" = "yes" ]; then
   find qt \( -type f -o -type l \) -print | \
     egrep -v 'CVS|.cvsignore|.depend|core$|\.o$|\.a$|\.so|~|#' | \
     tar cfT - - | (cd ${DISTDIR} ; tar xf - )
+  rm -f ${DISTDIR}/qt/include/*  
 else
   echo "Exporting the entire Qt archive..." >&2
   cvs -Q export -rHEAD qt
