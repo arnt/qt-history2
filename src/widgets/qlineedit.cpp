@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#181 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#182 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -401,7 +401,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
 	}
-#if defined(_OS_LINUX_)
+#if defined(_CC_GNU_)
 #warning "Arnt: must fix this" // fix what?
 #endif
 	// ### 2.0 must fix this
