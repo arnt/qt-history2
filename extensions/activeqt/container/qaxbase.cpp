@@ -183,6 +183,18 @@ public:
     
     void addSignal(DISPID memid, const char *name)
     {
+	QString signalname = name;
+	int pi = signalname.find('(');
+	int i = pi;
+	while ((i = signalname.find("short", i)) != -1)
+	    signalname.replace(i, 5, "int");
+	i = pi;
+	while ((i = signalname.find("char", i)) != -1)
+	    signalname.replace(i, 4, "int");
+	i = pi;
+	while ((i = signalname.find("float", i)) != -1)
+	    signalname.replace(i, 5, "double");
+
         sigs.insert(memid, name);
         QMap<DISPID,QByteArray>::ConstIterator it;
         DISPID id = -1;
@@ -268,6 +280,7 @@ public:
         if (((QAxObject*)qobject)->receivers(SIGNAL(signal(QString,int,void*))))
             index = meta->indexOfSignal("signal(QString,int,void*)");
 
+        Q_ASSERT(index != -1);
         if (index != -1) {
             QString nameString(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
@@ -278,6 +291,7 @@ public:
 
         // get the signal information from the metaobject
         index = -1;
+        Q_ASSERT(meta->indexOfSignal(signame) != -1);
         if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame))
             index = meta->indexOfSignal(signame);
         if (index != -1) {
