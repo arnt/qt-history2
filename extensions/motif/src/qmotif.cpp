@@ -623,8 +623,10 @@ static void qmotif_wakeup_handler(XtPointer, XtIntervalId *id)
 void QMotif::wakeUp()
 {
     Q_D(QMotif);
-    // start a zero timer to for the Xt to wake up
-    XtAppAddTimeOut(d->appContext, 0, qmotif_wakeup_handler, 0);
+    if (d->appContext) {
+        // start a zero timer to for the Xt to wake up
+        XtAppAddTimeOut(d->appContext, 0, qmotif_wakeup_handler, 0);
+    }
 }
 
 /*! \reimp
