@@ -11,7 +11,7 @@ CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/incl
 LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
-	$(CXX) -o $@ $^ $(LFLAGS)
+	$(CXX) -o $@ $(OBJS) $(QOBJS) $(LFLAGS)
 	rm -f @OUT_QTDIR@/bin/$@
 	ln -s @OUT_QTDIR@/qmake/$@ @OUT_QTDIR@/bin/$@
 
