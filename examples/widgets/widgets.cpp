@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#10 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -486,14 +486,15 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 		      "<b>bold</b> text, via an XML subset.</p> "
 		      "<p>Style sheets are supported.</p>",
  				  "", split );
-    qmlv->setFont(QFont("Times",12));
+    qmlv->setFont(QFont("Charter",11));
     qmlv->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
     // Create an label and a message in the status bar
     // The message is updated when buttons are clicked etc.
     msg = new QLabel( statusBar(), "message" );
     msg->setAlignment( AlignCenter );
-    msg->setFont( QFont("Times",12,QFont::Bold) );
+    QFont boldfont; boldfont.setWeight(QFont::Bold);
+    msg->setFont( boldfont );
     msg->setText( "Message" );
     msg->setMinimumHeight( msg->sizeHint().height() );
     msg->setText( "" );
