@@ -122,6 +122,7 @@
     \section1 Qt Designer Examples
 
     \list
+    \o \l{designer/calculatorbuilder}{Calculator Builder}\raisedaster
     \o \l{designer/calculatorform}{Calculator Form}\raisedaster
     \o \l{designer/customwidget}{Custom Widget}\raisedaster
     \endlist

@@ -11,7 +11,7 @@
 
     \section1 Preparation
 
-    The \l{examples/calculatorform}{Calculator Form} example defines a user
+    The \l{designer/calculatorform}{Calculator Form} example defines a user
     interface that we can use without modification. In this example, we use a
     \l{The Qt Resource System}{resource file} to contain the \c{calculatorform.ui}
     file created in the previous example, but it could be stored on disk instead.
@@ -83,6 +83,18 @@
     \skipto QVBoxLayout
     \printuntil /^\}/
 
-    The two slots that modify the 
+    The two slots that modify widgets provided by the form are defined
+    in a similar way to those in the \l{designer/calculatorform}{Calculator
+    Form} example, except that we read the values from the spin boxes and
+    write the result to the output widget via the pointers we recorded in
+    the constructor:
 
+    \skipto on_inputSpinBox1
+    \printuntil /^\}/
+    \printline
+    \printuntil /^\}/
+
+    The advantage of this approach is that we can replace the form when the
+    application is run, but we can still manipulate the widgets it contains
+    as long as they are given appropriate names.
 */
