@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#168 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#169 $
 **
 ** Implementation of QListView widget class
 **
@@ -774,7 +774,7 @@ void QListViewItem::setSelectable( bool enable )
 }
 
 
-/*! \fn bool QListViewItem::isExpandable() { return expnadable; }
+/*! \fn bool QListViewItem::isExpandable() const { return expnadable; }
 
   Returns TRUE if this item is expandable even when it has no
   children.
@@ -1122,7 +1122,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     p->fillRect( 0, 0, w, h, cg.base() );
     QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
-    
+
     int dotoffset = (itemPos() + height() - y) %2;
 
     // each branch needs at most two lines, ie. four end points
@@ -2720,7 +2720,7 @@ QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
   coordinate system.  This functions is normally much slower than
   itemAt(), but it works for all items, while itemAt() normally works
   only for items on the screen.
-  
+
   This is a thin wrapper around QListViewItem::itemPos().
 
   \sa itemAt() itemRect()
