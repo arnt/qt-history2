@@ -40,7 +40,7 @@ void ResourceEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Resources"), this);
-//    m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/buddytool.png")));
+    m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/resourceeditortool.png")));
     m_action->setEnabled(false);
 
     setParent(core);
