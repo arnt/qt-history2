@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#46 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#46 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -510,17 +510,29 @@ bool QFontMetrics::inFont(char ch) const
 
 int QFontMetrics::leftBearing(char ch) const
 {
-    ABC abc;
-    GetCharABCWidths(hdc(),ch,ch,&abc);
-    return abc.abcA;
+    if (TM->tmPitchAndFamily & TMPF_TRUETYPE ) {
+	ABC abc;
+	GetCharABCWidths(hdc(),ch,ch,&abc);
+	return abc.abcA;
+    } else {
+	ABCFLOAT abc;
+	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
+	return abc.abcA;
+    }
 }
 
 
 int QFontMetrics::rightBearing(char ch) const
 {
-    ABC abc;
-    GetCharABCWidths(hdc(),ch,ch,&abc);
-    return abc.abcC;
+    if (TM->tmPitchAndFamily & TMPF_TRUETYPE ) {
+	ABC abc;
+	GetCharABCWidths(hdc(),ch,ch,&abc);
+	return abc.abcC;
+    } else {
+	ABCFLOAT abc;
+	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
+	return abc.abcC;
+    }
 }
 
 
@@ -545,13 +557,28 @@ int QFontMetrics::minRightBearing() const
     if ( def->rbearing == SHRT_MIN ) {
 	TEXTMETRIC *tm = TM;
 	int n = tm->tmLastChar - tm->tmFirstChar+1;
-	ABC *abc = new ABC[n];
-	GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
-	int ml = abc[0].abcA;
-	int mr = abc[0].abcC;
-	for (int i=1; i<n; i++) {
-	    ml = QMIN(ml,abc[i].abcA);
-	    mr = QMIN(mr,abc[i].abcC);
+	int ml;
+	int mr;
+	if (tm->tmPitchAndFamily & TMPF_TRUETYPE ) {
+	    ABCFLOAT *abc = new ABCFLOAT[n];
+	    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+	    float fml = abc[0].abcA;
+	    float fmr = abc[0].abcC;
+	    for (int i=1; i<n; i++) {
+		fml = QMIN(ml,abc[i].abcA);
+		fmr = QMIN(mr,abc[i].abcC);
+	    }
+	    ml = int(fml-0.9999);
+	    mr = int(fmr-0.9999);
+	} else {
+	    ABC *abc = new ABC[n];
+	    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+	    ml = abc[0].abcA;
+	    mr = abc[0].abcC;
+	    for (int i=1; i<n; i++) {
+		ml = QMIN(ml,abc[i].abcA);
+		mr = QMIN(mr,abc[i].abcC);
+	    }
 	}
 	def->lbearing = ml;
 	def->rbearing = mr;
