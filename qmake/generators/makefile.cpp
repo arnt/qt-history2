@@ -114,7 +114,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 
 	    int ext_pos = fn_target.findRev('.');
 	    int ext_len = fn_target.length() - ext_pos;
-	    int dir_pos =  fn_target.findRev('/', ext_pos);
+	    int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
 	    QString mocFile;
 	    if(!project->variables()["MOC_DIR"].isEmpty())
 		mocFile = project->variables()["MOC_DIR"].first();
