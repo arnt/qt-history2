@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#276 $
 **
 ** Implementation of QApplication class
 **
@@ -256,7 +256,6 @@ static QWidget *desktopWidget	= 0;		// root window widget
 static QTextCodec *default_codec	= 0;		// root window widget
 bool QApplication::app_exit_loop = FALSE;	// flag to exit local loop
 bool QApplication::is_gui_used;
-
 
 //Definitions for posted events.
 struct QPostEvent {
