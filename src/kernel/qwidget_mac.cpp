@@ -733,6 +733,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
         while ( (obj=it.current()) ) {
             if ( obj->isWidgetType() ) {
                 QWidget *w = (QWidget *)obj;
+		w->mytop=mytop;
+		w->winid=winid;
             }
             ++it;
         }
