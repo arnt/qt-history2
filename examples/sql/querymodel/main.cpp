@@ -17,9 +17,12 @@ void initializeModel(QSqlQueryModel *model)
 
 void createView(const QString &title, QSqlQueryModel *model)
 {
+    static int delta = 0;
     QTableView *view = new QTableView;
     view->setModel(model);
     view->setWindowTitle(title);
+    view->move(100 + delta, 100 + delta);
+    delta += 20;
     view->show();
 }
 
