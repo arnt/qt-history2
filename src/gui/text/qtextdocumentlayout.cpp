@@ -23,8 +23,8 @@
 #define DEC_INDENT debug_indent = debug_indent.left(debug_indent.length()-2)
 #else
 #define LDEBUG if(0) qDebug()
-#define INC_INDENT if(0)
-#define DEC_INDENT if(0)
+#define INC_INDENT do {} while(0)
+#define DEC_INDENT do {} while(0)
 #endif
 
 // ################ should probably add frameFormatChange notification!
