@@ -40,7 +40,7 @@ private:
     static QSettings *findConfiguration();
 public:
     //~QLibraryInfoPrivate() { cleanup(); }
-    static void cleanup() { if(qt_library_settings) { delete qt_library_settings; qt_library_settings = 0; } }
+    static void cleanup() { if (static_cast<QSettings *>(qt_library_settings)) { delete static_cast<QSettings *>(qt_library_settings); qt_library_settings = 0; } }
     static QSettings *configuration() {
         if(!qt_library_settings) {
 #ifndef QT_NO_QOBJECT
@@ -63,7 +63,7 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
         return (new QSettings(*qt_library_config_file(), QSettings::IniFormat));
 
     { //look in the binary itself
-        const QString qtconfig = ":/qt/etc/qt.conf";
+        const QString qtconfig = QLatin1String(":/qt/etc/qt.conf");
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
@@ -150,12 +150,12 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
     }
 #ifdef Q_OS_UNIX
     { //look in the /etc
-        const QString qtconfig = "/etc/qt.conf";
+        const QString qtconfig = QLatin1String("/etc/qt.conf");
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
     { //look in the /usr/local/etc
-        const QString qtconfig = "/usr/local/etc/qt.conf";
+        const QString qtconfig = QLatin1String("/usr/local/etc/qt.conf");
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
