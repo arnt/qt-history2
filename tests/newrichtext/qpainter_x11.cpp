@@ -2992,7 +2992,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[3];
 	    QPoint p(x, y);
-	    QString string( str );
+	    QString string = str;
 	    param[0].point = &p;
 	    param[1].str = &string;
 	    param[2].ival = QFont::Latin;// #######
@@ -3102,34 +3102,33 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     int end = items.size();
     if ( pos != 0 || len != (int)str.length() ) {
 	// subset of the string requested
-	while ( start < items.size() && pos < items[start].position )
+	while ( start < items.size()-1 && pos >= items[start+1].position )
 	    start++;
-	while ( end > 0 && pos+len > items[end-1].position )
+	while ( end > 0 && pos+len <= items[end-1].position )
 	    end--;
-	end++;
     }
 
     int numItems = end-start;
     int visualOrder[256];
     if ( dir == Auto ) {
 	unsigned char levels[256];
-	for ( int i = start; i < numItems; i++ )
-	    levels[i] = items[i].analysis.bidiLevel;
-	TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
+	for ( int i = 0; i < numItems; i++ )
+	    levels[i] = items[i+start].analysis.bidiLevel;
+	TextLayout::instance()->bidiReorder( numItems, (unsigned char *)levels, (int *)visualOrder );
     } else if ( dir == LTR ) {
-	for ( int i = start; i < numItems; i++ )
+	for ( int i = 0; i < numItems; i++ )
 	    visualOrder[i] = i;
     } else {
 	int j = numItems;
-	for ( int i = start; i < numItems; i++ )
+	for ( int i = 0; i < numItems; i++ )
 	    visualOrder[i] = --j;
     }
 
     int xpos = x;
 
-//     qDebug("QPainter::drawText: num items=%d (start=%d, end=%d)",  numItems, start, end );
-    for ( int i = start; i < end; i++ ) {
-	int current = visualOrder[i]+start;
+//     qDebug("QPainter::drawText( pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",  pos, len, numItems, start, items[start].position, end, items[end].position );
+    for ( int i = 0; i < numItems; i++ ) {
+	int current = visualOrder[i] + start;
 	const ScriptItem &it = items[ current ];
 	ShapedItem shaped;
 	layout->shape( shaped, cfont, str, items, current );
@@ -3151,7 +3150,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	int length = shaped.count() - from;
 	if ( it.position + from + length > pos + len )
 	    length = pos + len - it.position - from;
-//  	qDebug("drawing item %d (from: %d, length: %d), script=%d, fe=%p", current, from, length, script, fe );
+//  	qDebug("drawing item %d (from: %d, length: %d), shaped.count=%d", current, from, length, shaped.count() );
 
 	from = shaped.d->logClusters[from];
 	length = (from+length >= shaped.d->num_glyphs) ?
