@@ -2155,7 +2155,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 #endif
     if (res)
-        const_cast<QObject*>(sender)->disconnectNotify(signal);
+        const_cast<QObject*>(sender)->disconnectNotify(signal - 1);
     return res;
 }
 
