@@ -144,6 +144,7 @@ public:
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
     QRgb * clut() const;
+    int numCols() const;
 #endif
 
 protected:
@@ -181,6 +182,7 @@ protected:
 #elif defined(_WS_QWS_)
 	int id;
 	QRgb * clut;
+	int numcols;
 #endif
 	Optimization optim;
     } *data;

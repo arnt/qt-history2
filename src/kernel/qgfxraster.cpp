@@ -429,6 +429,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     widgetrgn=QRegion(0,0,w,h);
     cliprect=0;
     alphatype=IgnoreAlpha;
+    alphabuf = 0;
     ismasking=false;
     maskcol=0;
     srclinestep=0;
@@ -443,6 +444,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     backcolor=QColor(0,0,0);
     globalRegionRevision = 0;
     src_normal_palette=true;
+    clutcols = 0;
     update_clip();
 }
 
@@ -1106,6 +1108,12 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	if(backadd<0)
 	    backadd=0;
     } else if(depth==8) {
+	frontadd = x2-x1+1;
+	backadd = 0;
+	count = 0;
+	return;
+
+	// ### 8bpp packing doesn't work
 	unsigned char * myptr=(unsigned char *)m;
 	if( (x2-x1+1)<8 ) {
 	    frontadd=x2-x1+1;
@@ -1209,7 +1217,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	src_normal_palette=true;
 #else
 	if(srcdepth<=8)
-	    buildSourceClut(pix->clut(),0);
+	    buildSourceClut(pix->clut(), pix->numCols());
 #endif
     } else {
 	// This is a bit ugly #### I'll say!
@@ -2335,7 +2343,6 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		}
 		while ( frontadd-- )
 		    *(myptr--)=get_value(depth,srcdepth,&srcdata,true);
-		
 	    } else {
 		// 64-bit writes
 		int frontadd;
@@ -3212,9 +3219,12 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 
     GFX_START(cursRect);
 
-    bool reverse = rx>srcoffs.x() && srctype==SourceImage;
+    bool reverse = rx>srcoffs.x() && srctype==SourceImage && srcbits == buffer;
 
-    alphabuf=new unsigned int[w];
+    if ( alphatype == InlineAlpha || alphatype == SolidAlpha ||
+	 alphatype == SeparateAlpha ) {
+	alphabuf = new unsigned int[w];
+    }
 
     int dl = linestep();
     int dj = 1;
@@ -3288,7 +3298,10 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 	}
     }
     srcdepth=osrcdepth;
-    delete [] alphabuf;
+    if ( alphabuf ) {
+	delete [] alphabuf;
+	alphabuf = 0;
+    }
     GFX_END
 }
 

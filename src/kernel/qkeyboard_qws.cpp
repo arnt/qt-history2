@@ -220,9 +220,11 @@ void QWSServer::openKeyboard()
 
 #endif
 
-    kbNotifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
-    connect( kbNotifier, SIGNAL(activated(int)),this, 
-	     SLOT(readKeyboardData()) );
+    if ( kbdFD >= 0 ) {
+	kbNotifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
+	connect( kbNotifier, SIGNAL(activated(int)),this, 
+		 SLOT(readKeyboardData()) );
+    }
 
     server = this;
 }

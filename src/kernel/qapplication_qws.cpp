@@ -506,7 +506,7 @@ QWSRegionManager *QWSDisplay::regionManager()
 bool QWSDisplay::eventPending() const
 {
     d->fillQueue();
-    return d->queueNotEmpty() > 0;
+    return d->queueNotEmpty();
 }
 
 

@@ -91,10 +91,15 @@ void MouseHandlerPrivate::readMouseData()
     static QPoint prev;
     static int prev_pressure = 0;
     static bool pressed = FALSE;
+    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
 
     #define EMIT_MOUSE \
 	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \
 			  (prev.y()+addy)*qt_screen->height()/(bry-tly)); \
+	if ( reverse ) { \
+	    q.setX( qt_screen->width()-q.x() ); \
+	    q.setY( qt_screen->height()-q.y() ); \
+	} \
 	if ( q != mousePos ) { \
 	    mousePos = q; \
 	    emit mouseChanged(mousePos, Qt::LeftButton); \

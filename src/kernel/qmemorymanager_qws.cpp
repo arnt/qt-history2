@@ -419,7 +419,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		    d.pointSize = 120;
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
-			filename = "helvetica_120_50.qpf";
+			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qpf";
 		    }
 		}
 	    }

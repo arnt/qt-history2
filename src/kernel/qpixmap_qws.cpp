@@ -155,6 +155,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
+    data->clut=0;
+    data->numcols = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -162,10 +164,12 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     else if ( d < 0 || d == dd )		// def depth pixmap
 	data->d = dd;
     else
-	data->d=d;
+	data->d = d;
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	hd = 0;
-	data->id=0;
+	data->id = 0;
+	data->w = 0;
+	data->h = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null ) {
 	    qWarning( "QPixmap: Invalid pixmap parameters, %d %d %d",w,h,data->d);
@@ -178,10 +182,13 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->h = h;
 
     if(data->d<=8) {
-	data->clut=new QRgb[256];
-    } else {
-	data->clut=0;
-    }
+	if ( qt_screen->numCols() ) {
+	    data->numcols = qt_screen->numCols();
+	    data->clut = new QRgb[qt_screen->numCols()];
+	    for ( int i = 0; i < qt_screen->numCols(); i++ )
+		data->clut[i] = qt_screen->clut()[i];
+	}
+    } 
 
     data->id=memorymanager->newPixmap(w,h,data->d);
 }
@@ -346,6 +353,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #endif
 	return FALSE;
     }
+
     detach();					// detach other references
     QImage  image = img;
     int	 w   = image.width();
@@ -400,23 +408,24 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     memorymanager->deletePixmap(data->id);
 
-    if(image.hasAlphaBuffer()) {
+    if ( image.hasAlphaBuffer() ) { //&& dd > 8 ) {
 	dd=32;
     }
 
-    if(image.colorTable() && dd<=8) {
+    if (image.colorTable() && dd<=8) {
 	delete[] data->clut;
 	data->clut=new QRgb[image.numColors()];
+	data->numcols = image.numColors();
 	int loopc;
-	for(loopc=0;loopc<image.numColors();loopc++) {
-	    data->clut[loopc]=image.colorTable()[loopc];
+	for (loopc=0; loopc<image.numColors(); loopc++) {
+	    data->clut[loopc] = image.colorTable()[loopc];
 	}
     }
 
     data->w = w;
     data->h = h;
     data->d = dd;
-    data->id=memorymanager->newPixmap(data->w,data->h,data->d);
+    data->id = memorymanager->newPixmap(data->w,data->h,data->d);
 
     QGfx * mygfx=graphicsContext();
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -425,12 +434,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     mygfx->blt(0,0,data->w,data->h);
     delete mygfx;
 
-    data->w=width();
-    data->h=height();
-
     if ( image.hasAlphaBuffer() ) {
-	if(data->d==32) {
-	} else {
+	if ( data->d != 32 ) {
 	    QBitmap m;
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
@@ -733,19 +738,13 @@ QGfx * QPixmap::graphicsContext() const
 
     QGfx * ret=QGfx::createGfx( depth(), mydata, data->w,data->h, linestep );
     if(data->d<=8) {
-	int nc;
-	// FIXME: this isn't right
-	if(data->d==8) {
-	    nc=256;
-	} else {
-	    nc=2;
-	}
 	if(data->d==1 && !(data->clut)) {
 	    data->clut=new QRgb[2];
 	    data->clut[0]=qRgb(255,255,255);
 	    data->clut[1]=qRgb(0,0,0);
+	    data->numcols = 2;
 	}
-	ret->setClut(data->clut,nc);
+	ret->setClut(data->clut,data->numcols);
     }
     return ret;
 }
@@ -770,4 +769,9 @@ int QPixmap::bytesPerLine() const
 QRgb * QPixmap::clut() const
 {
     return data->clut;
+}
+
+int QPixmap::numCols() const
+{
+    return data->numcols;
 }
