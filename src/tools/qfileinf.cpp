@@ -1,103 +1,26 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#2 $
 **
-** Implementation of QFile class
+** Implementation of QFileInfo class
 **
-** Author  : Haavard Nord
+** Author  : Eirik Eng
 ** Created : 950628
 **
-** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qfileinf.h"
+#include "qfildefs.h"
 #include "qdatetm.h"
 #include "qdir.h"
 
-#if !defined(_OS_MAC_)
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-#include <fcntl.h>
-#include <errno.h>
-#if defined(UNIX)
-#include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
-#endif
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-#include <io.h>
-#endif
-#include <limits.h>
+
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinf.cpp#1 $";
-#endif
-
-
- // The following macros were copied from qfile.cpp
-
-#undef STATBUF
-#undef STAT
-#undef STAT_REG
-#undef STAT_DIR
-#undef STAT_LNK
-#undef OPEN
-#undef CLOSE
-#undef LSEEK
-#undef READ
-#undef WRITE
-#undef OPEN_RDONLY
-#undef OPEN_WRONLY
-#undef OPEN_CREAT
-#undef OPEN_TRUNC
-#undef OPEN_APPEND
-#undef OPEN_TEXT
-
-#if defined(_CC_MSC_) || defined(_CC_SYM_)
-#define STATBUF	 _stat				// non-ANSI defs
-#define STAT	 _stat
-#define STAT_REG _S_IFREG
-#define STAT_DIR _S_IFDIR
-#if defined(_S_IFLNK)
-#define STAT_LNK _S_IFLNK
-#endif
-#define OPEN	::_open
-#define CLOSE	::_close
-#define LSEEK	_lseek
-#define READ	_read
-#define WRITE	_write
-#define OPEN_RDONLY	_O_RDONLY
-#define OPEN_WRONLY	_O_WRONLY
-#define OPEN_RDWR	_O_RDWR
-#define OPEN_CREAT	_O_CREAT
-#define OPEN_TRUNC	_O_TRUNC
-#define OPEN_APPEND	_O_APPEND
-#define OPEN_TEXT	_O_TEXT
-
-#else						// all other systems
-
-#define STATBUF	 stat
-#define STAT	 ::stat
-#define STAT_REG S_IFREG
-#define STAT_DIR S_IFDIR
-#if defined(S_IFLNK)
-#define STAT_LNK S_IFLNK
-#endif
-#define OPEN	::open
-#define CLOSE	::close
-#define LSEEK	::lseek
-#define READ	::read
-#define WRITE	::write
-#define OPEN_RDONLY	O_RDONLY
-#define OPEN_WRONLY	O_WRONLY
-#define OPEN_RDWR	O_RDWR
-#define OPEN_CREAT	O_CREAT
-#define OPEN_TRUNC	O_TRUNC
-#define OPEN_APPEND	O_APPEND
-#if defined(O_TEXT)
-#define OPEN_TEXT	O_TEXT
-#endif
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinf.cpp#2 $";
 #endif
 
 static bool getStat( const char *fn, struct STATBUF *st )
@@ -110,6 +33,11 @@ static bool getStat( const char *fn, struct STATBUF *st )
     return STAT( fn, st )==0 ? TRUE : FALSE;
 #endif
 }
+
+struct QFileInfoCache 
+{
+    struct STATBUF st;
+};
 
 
 /*! \class QFileInfo qfileinf.h
@@ -126,116 +54,257 @@ static bool getStat( const char *fn, struct STATBUF *st )
 
 QFileInfo::QFileInfo()
 {
+    fic = 0;
 }
 
-QFileInfo::QFileInfo( const  QFileInfo &fi )
+QFileInfo::QFileInfo( const QFileInfo &fi )
 {
-    f = fi.f;
+    fn  = fi.fn;
+    fic = fi.fic;
 }
 
-QFileInfo::QFileInfo( const  QFile &file )
+QFileInfo::QFileInfo( const QFile &file )
 {
-    f = file;
+    fn  = file.name();
+    fic = 0;
 }
 
 QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
 {
-    f.setFileName( d, fileName );
+    fn  = QDir::cleanPathName( d.fullPathName( fileName ) );
+    fic = 0;    
 }
 
-QFileInfo::QFileInfo( const char *fullPathFileName )
+QFileInfo::QFileInfo( const char *relativeOrAbsoluteFileName )
 {
-    f.setFileName( fullPathFileName );
+    fn  = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    fic = 0;
 }
 
 QFileInfo::~QFileInfo()
 {
-}
-
-void QFileInfo::setFile( const char *fullPathFileName )
-{
-    f.setFileName( fullPathFileName );
-}
-
-void QFileInfo::setFile( const QDir &d, const char *fileName )
-{
-    f.setFileName( d, fileName );
-}
-
-const char *QFileInfo::fullPathFileName() const
-{
-    return f.fileName();
+    delete fic;
 }
 
 bool QFileInfo::exists() const
 {
-    return f.exists();
+    if ( !fn.isNull() )
+        return ( access( fn.data(), F_OK ) == 0 );
+    else
+        return FALSE;
+}
+
+void QFileInfo::refresh() const
+{
+    QFileInfo *This = ((QFileInfo*)this);
+    if ( !fic )
+        This->fic = new QFileInfoCache;
+    if ( STAT( fn.data(), &This->fic->st ) != 0 ) {
+        delete This->fic;
+        This->fic = 0;
+    }
+}
+
+void QFileInfo::setFile( const QFile &file )
+{
+    fn  = file.name();
+    delete fic;
+    fic = 0;
+}
+
+void QFileInfo::setFile( const  QDir &d, const char *fileName )
+{
+    fn  = QDir::cleanPathName( d.fullPathName( fileName ) );
+    delete fic;
+    fic = 0;    
+}
+
+void QFileInfo::setFile( const char *relativeOrAbsoluteFileName )
+{
+    fn  = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    delete fic;
+    fic = 0;
+}
+
+QString QFileInfo::name() const
+{
+    return fn;
+}
+
+QString QFileInfo::fileName() const
+{
+    int pos = fn.findRev( QDir::separator() );
+    if ( pos == -1 )
+        return fn;
+    else
+        return fn.right( fn.length() - pos - 1 );
+}
+
+QString QFileInfo::fullPathName() const
+{
+    if ( QDir::isRelativePath(fn) ) {
+        QString tmp = QDir::currentDirString();
+        tmp.detach();
+        tmp += QDir::separator();
+        tmp += fn;
+        return QDir::cleanPathName( tmp.data() );
+    } else {
+        return fn;
+    }
+}
+
+QString QFileInfo::baseName() const
+{
+    QString tmp = fileName();
+    int pos = tmp.find( '.' );
+    if ( pos == -1 )
+        return tmp;
+    else
+        return tmp.left( pos );
+}
+
+QString QFileInfo::extension() const
+{
+    QString tmp = fileName();
+    int pos = tmp.find( '.' );
+    if ( pos == -1 )
+        return QString("");
+    else
+        return tmp.right( tmp.length() - pos - 1 );
+}
+
+QString QFileInfo::dirName( bool fullPath ) const
+{
+    QString tmp = fullPath ? fullPathName() : fn;
+    int pos = tmp.findRev( QDir::separator() );
+    if ( pos == -1 )
+        return ".";
+    else
+        return tmp.left( pos );
+}
+
+QDir QFileInfo::dir( bool fullPath ) const
+{
+    return QDir( dirName(fullPath) );
 }
 
 bool QFileInfo::isReadable() const
 {
-    if ( f.fileName() )
-        return ( access( f.fileName(), R_OK ) == 0 );
+    if ( !fn.isNull() )
+        return ( access( fn.data(), R_OK ) == 0 );
     else
         return FALSE;
 }
 
 bool QFileInfo::isWritable() const
 {
-    if ( f.fileName() )
-        return ( access( f.fileName(), W_OK ) == 0 );
+    if ( !fn.isNull() )
+        return ( access( fn.data(), W_OK ) == 0 );
     else
         return FALSE;
 }
 
 bool QFileInfo::isExecutable() const
 {
-    if ( f.fileName() )
-        return ( access( f.fileName(), X_OK ) == 0 );
+    if ( !fn.isNull() )
+        return ( access( fn.data(), X_OK ) == 0 );
     else
         return FALSE;
+}
 
+  /*!
+  Returns TRUE if the file path name is relative to the current directory,
+  FALSE if the path is absolute (e.g. under UNIX a path is relative if it
+  does not start with a '/').
+
+  According to Einstein this function should always return TRUE.
+  */
+bool QFileInfo::isRelative() const
+{
+    return QDir::isRelativePath( fn.data() );    
 }
 
 bool QFileInfo::isFile() const
 {
-    return f.isFile();
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
+    if ( !fic )
+        refresh();
+    if ( fic )    
+        return ( fic->st.st_mode & STAT_REG) == STAT_REG;
+    else
+        return FALSE;
+#endif
 }
 
 bool QFileInfo::isDir() const
 {
-    return f.isDir();
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
+    if ( !fic )
+        refresh();
+    if ( fic )    
+        return ( fic->st.st_mode & STAT_DIR) == STAT_DIR;
+    else
+        return FALSE;
+#endif
 }
 
 bool QFileInfo::isSymLink() const
 {
-    return f.isSymLink();
+#if defined(_OS_MAC_)
+    return FALSE;
+#else
+    if ( !fic )
+        refresh();
+    if ( fic )    
+        return ( fic->st.st_mode & STAT_LNK) == STAT_LNK;
+    else
+        return FALSE;
+#endif
 }
 
+  /*!
+  Returns the owner of the file. On systems where files do not have owners
+  this function returns 0. Note that this function can be time-consuming
+  under UNIX. (in the order of milliseconds on a 486 DX266
+  running Linux).
+  */
 const char *QFileInfo::owner() const
 {
 #if defined(UNIX)
-    const passwd *tmp = getpwuid( ownerId() );
+    passwd *tmp = getpwuid( ownerId() );
     return tmp ? tmp->pw_name : 0;
 #else
     return 0;
 #endif
 }
 
-// Advanced programming in the UNIX environment, page 146:
+// Advanced programming in the UNIX environment, page 146: 65534
+// Slackware: -1 
+// Arnt: -2
 
-static const uint nobodyID = 65534;   
+static const uint nobodyID = (uint) -2;   
 
 uint QFileInfo:: ownerId() const
 {
 #if defined(UNIX)
-    struct STATBUF st;
-    if ( getStat( f.fileName(), &st ) )
-        return st.st_uid;
+    if ( !fic )
+        refresh();
+    if ( fic )    
+        return fic->st.st_uid;
 #endif
     return nobodyID;
 }
 
+  /*!
+  Returns the group the file belongs to. On systems where files do not have
+  groups this function returns 0. Note that this function can be
+  time-consuming under UNIX (in the order of milliseconds on a 486 DX266
+  running Linux).
+  */
 const char *QFileInfo::group() const
 {
 #if defined(UNIX)
@@ -249,9 +318,10 @@ const char *QFileInfo::group() const
 uint QFileInfo:: groupId() const
 {
 #if defined(UNIX)
-    struct STATBUF st;
-    if ( getStat( f.fileName(), &st ) )
-        return st.st_gid;
+    if ( !fic )
+        refresh();
+    if ( fic )    
+        return fic->st.st_gid;
 #endif
     return nobodyID;
 }
@@ -259,8 +329,9 @@ uint QFileInfo:: groupId() const
 bool QFileInfo::permission( int permissionSpec ) const
 {
 #if defined(UNIX)
-    struct STATBUF st;
-    if ( getStat( f.fileName(), &st ) ) {
+    if ( !fic )
+        refresh();
+    if ( fic ) {
         ulong mask = 0;
         if ( permissionSpec & ReadUser)
             mask |= S_IRUSR;
@@ -281,7 +352,7 @@ bool QFileInfo::permission( int permissionSpec ) const
         if ( permissionSpec & ExeOther)
             mask |= S_IXOTH;
 	if ( mask ) {
-           return ( st.st_mode & mask) == mask;
+           return ( fic->st.st_mode & mask) == mask;
         } else {
 #if defined(CHECK_NULL)
            warning("QFileInfo::permission: permissionSpec is 0.");
@@ -298,9 +369,10 @@ bool QFileInfo::permission( int permissionSpec ) const
 
 long QFileInfo::size() const
 {
-    struct STATBUF st;
-    if ( getStat( f.fileName(), &st ) )
-        return st.st_size;
+    if ( !fic )
+        refresh();
+    if ( fic )
+        return fic->st.st_size;
     else
         return -1;
 }
@@ -308,20 +380,22 @@ long QFileInfo::size() const
 QDateTime QFileInfo::lastModified() const
 {
     QDateTime dt;
-    struct STATBUF st;
 
-    if ( getStat( f.fileName(), &st ) )
-        dt.setTime_t( st.st_mtime );
+    if ( !fic )
+        refresh();
+    if ( fic )
+        dt.setTime_t( fic->st.st_mtime );
     return dt;
 }
 
 QDateTime QFileInfo::lastRead() const
 {
     QDateTime dt;
-    struct STATBUF st;
 
-    if ( getStat( f.fileName(), &st ) )
-        dt.setTime_t( st.st_atime );
+    if ( !fic )
+        refresh();
+    if ( fic )
+        dt.setTime_t( fic->st.st_atime );
     return dt;
 }
 

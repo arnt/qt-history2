@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#15 $
 **
 ** Implementation of QFile class
 **
@@ -13,25 +13,14 @@
 #include "qfile.h"
 #include "qfileinf.h"
 #include "qdir.h"
-#if !defined(_OS_MAC_)
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-#include <fcntl.h>
-#include <errno.h>
-#if defined(UNIX)
-#include <unistd.h>
-#endif
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
-#include <io.h>
-#endif
+#include "qfildefs.h"
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#15 $";
 #endif
 
-/*! \class QFile qfile.h
+  /*! \class QFile qfile.h
 
   \brief The QFile class provides system-independent file access and
   related functions.
@@ -40,31 +29,41 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#14 $";
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  current version of Qt.
+  */
 
+
+  /*!
+  /fn QFile::name()
+  Returns the name set by setName().
+
+  This is NOT a function that always returns a pure file name (i.e. without
+  path information).
+
+  \sa setName(), QFileInfo::fileName().  
+  */
 
 QFile::QFile()
 {
     init();
 }
 
-QFile::QFile( const char *fullPathFileName )
+QFile::QFile( const char *relativeOrAbsoluteFileName )
 {
     init();
-    fn = fullPathFileName;
+    fn = QDir::cleanPathName( relativeOrAbsoluteFileName );
 }
 
 QFile::QFile( const QDir &d, const char *fileName )
 {
     init();
-    fn = d.fullPathName( fileName );
+    fn = QDir::cleanPathName( d.fullPathName( fileName ) );
 }
 
 QFile::~QFile()
 {
     close();					// close file
 }
-
 
 void QFile::init()				// initialize internal data
 {
@@ -76,84 +75,43 @@ void QFile::init()				// initialize internal data
     index  = 0;
 }
 
-void QFile::setFileName( const char *fileName ) // set file name
+  /*!
+  Sets the name of the file, the name can include an absolute directory
+  path or it can be a name or a path relative to the current directory.
+  Note that if the name is relative it will NOT be associated with the current
+  directory, thus changing the current directory before doing
+  open() will change the location of the QFile.
+
+  \sa name(), fullPathName(), QFileInfo::fileName(), QDir::setCurrent()
+  */
+void QFile::setName( const char *relativeOrAbsoluteFileName )
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
-	warning( "QFile::setFileName: File is open" );
+	warning( "QFile::setName: File is open" );
 #endif
         close();
     }
-    fn = fileName;
+    fn = QDir::cleanPathName( relativeOrAbsoluteFileName );
 }
 
-void QFile::setFileName(  const QDir &d, const char *fileName )// set file name
+  /*!
+  Sets the name of the file, and the directory it is/is going to be in.
+  If the file is open a warning is given and the file is closed.
+
+  \sa name(), QDir::rename(), QFileInfo::fullPathName, QFileInfo::fileName
+  */
+
+void QFile::setName(  const QDir &d, const char *fileName )
 {
-    setFileName(  d.fullPathName( fileName ) );
+    if ( isOpen() ) {
+#if defined(CHECK_STATE)
+	warning( "QFile::setName: File is open" );
+#endif
+        close();
+    }
+    fn = QDir::cleanPathName( d.fullPathName( fileName ) );
 }
-
-#undef STATBUF
-#undef STAT
-#undef STAT_REG
-#undef STAT_DIR
-#undef STAT_LNK
-#undef OPEN
-#undef CLOSE
-#undef LSEEK
-#undef READ
-#undef WRITE
-#undef OPEN_RDONLY
-#undef OPEN_WRONLY
-#undef OPEN_CREAT
-#undef OPEN_TRUNC
-#undef OPEN_APPEND
-#undef OPEN_TEXT
-
-#if defined(_CC_MSC_) || defined(_CC_SYM_)
-#define STATBUF	 _stat				// non-ANSI defs
-#define STAT	 _stat
-#define STAT_REG _S_IFREG
-#define STAT_DIR _S_IFDIR
-#if defined(_S_IFLNK)
-#define STAT_LNK _S_IFLNK
-#endif
-#define OPEN	::_open
-#define CLOSE	::_close
-#define LSEEK	_lseek
-#define READ	_read
-#define WRITE	_write
-#define OPEN_RDONLY	_O_RDONLY
-#define OPEN_WRONLY	_O_WRONLY
-#define OPEN_RDWR	_O_RDWR
-#define OPEN_CREAT	_O_CREAT
-#define OPEN_TRUNC	_O_TRUNC
-#define OPEN_APPEND	_O_APPEND
-#define OPEN_TEXT	_O_TEXT
-
-#else						// all other systems
-
-#define STATBUF	 stat
-#define STAT	 ::stat
-#define STAT_REG S_IFREG
-#define STAT_DIR S_IFDIR
-#if defined(S_IFLNK)
-#define STAT_LNK S_IFLNK
-#endif
-#define OPEN	::open
-#define CLOSE	::close
-#define LSEEK	::lseek
-#define READ	::read
-#define WRITE	::write
-#define OPEN_RDONLY	O_RDONLY
-#define OPEN_WRONLY	O_WRONLY
-#define OPEN_RDWR	O_RDWR
-#define OPEN_CREAT	O_CREAT
-#define OPEN_TRUNC	O_TRUNC
-#define OPEN_APPEND	O_APPEND
-#if defined(O_TEXT)
-#define OPEN_TEXT	O_TEXT
-#endif
-#endif
 
 long QFile::get_stat( bool lnk ) const		// get file stat, 0 if error
 {
@@ -175,82 +133,12 @@ long QFile::get_stat( bool lnk ) const		// get file stat, 0 if error
 
 bool QFile::exists() const			// test if current file exists
 {
-    return get_stat() != 0;
+    return access( fn.data(), F_OK ) == 0;
 }
 
-bool QFile::isFile() const			// is it a regular file?
+bool QFile::exists( const char *fileName )
 {
-#if defined(_OS_MAC_)
-    return FALSE;
-#else
-    return (get_stat() & STAT_REG) == STAT_REG;
-#endif
-}
-
-bool QFile::isDir() const			// is it a directory?
-{
-#if defined(_OS_MAC_)
-    return FALSE;
-#else
-    return (get_stat() & STAT_DIR) == STAT_DIR;
-#endif
-}
-
-bool QFile::isSymLink() const			// is it a symbolic link?
-{
-#if defined(_OS_MAC_)
-    return FALSE;
-#else
-#if defined(UNIX) || defined(STAT_LNK)
-    return (get_stat(TRUE) & STAT_LNK) == STAT_LNK;
-#else
-    return FALSE;
-#endif
-#endif
-}
-
-
-#if defined(UNIX)
-#define FILENAME_CASE 1				// case-sensisive filenames
-#else
-#define FILENAME_CASE 0				// case-insensitive filenames
-#endif
-
-bool QFile::remove()	// remove file
-{
-    close();					// close file if open
-    return remove( fn.data()  );
-}
-
-bool QFile::remove( const QDir &d, const char *fileName )  // remove file
-{
-    return remove( d.fullPathName( fileName ) );
-}
-
-bool QFile::remove( const char *fileName )	// remove file
-{
-    if ( fileName == 0 || fileName[0] == '\0' ) {
-#if defined(CHECK_NULL)
-	warning( "QFile::remove: Empty or NULL file name." );
-#endif
-	return FALSE;
-    }
-#if defined(UNIX)
-    return unlink( fileName ) == 0;		// unlink more common in UNIX
-#else
-    return ::remove( fileName ) == 0;		// use standard ANSI remove
-#endif
-}
-
-bool QFile::exists( const char *fullPathFileName )
-{
-    QFile f( fullPathFileName );
-    return f.exists();
-}
-
-bool QFile::exists( const QDir &d, const char *fileName )
-{
-    return exists( d.fullPathName( fileName ) );
+    return access( QDir::cleanPathName( fileName), F_OK ) == 0;
 }
 
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
@@ -311,7 +199,7 @@ bool QFile::open( int m )			// open file
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-	fd = OPEN( (const char *)fn, oflags );
+	fd = OPEN( (const char *)fn, oflags, 0666 );
 	if ( fd != -1 ) {			// open successful
 	    length = LSEEK( fd, 0, SEEK_END );	// get size of file
 	    if ( !(flags() & IO_Append) )	// reset file position

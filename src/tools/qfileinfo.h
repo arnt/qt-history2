@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#1 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#2 $
 **
 ** Definition of QFileInfo class
 **
@@ -15,54 +15,68 @@
 
 #include "qfile.h"
 #include "qdatetm.h"
-class QFile;
 class QDir;
 
+struct QFileInfoCache;
 
 class QFileInfo                            // file information class
 {
 public:
     enum PermissionSpec
-           { ReadUser  = 0x001, WriteUser  = 0x002, ExeUser  = 0x004,
-             ReadGroup = 0x008, WriteGroup = 0x010, ExeGroup = 0x020,
-             ReadOther = 0x040, WriteOther = 0x080, ExeOther = 0x100 };
+           { ReadUser  = 0400, WriteUser  = 0200, ExeUser  = 0100,
+             ReadGroup = 0040, WriteGroup = 0020, ExeGroup = 0010,
+             ReadOther = 0004, WriteOther = 0002, ExeOther = 0001 };
 
 
     QFileInfo();
     QFileInfo( const QFileInfo & );
     QFileInfo( const QFile & );
     QFileInfo( const QDir &, const char *fileName );
-    QFileInfo( const char *fullPathfileName );
+    QFileInfo( const char *relativeOrAbsoluteFileName );
    ~QFileInfo();
 
-    void  setFile( const char *fullPathfileName );
-    void  setFile( const QDir &, const char *fileName );
-    const char *fullPathFileName() const;
+    bool    exists()         const;
+    void    refresh()        const;
 
-    bool  exists()	  const;
-    bool  isReadable()	  const;
-    bool  isWritable()	  const;
-    bool  isExecutable()  const;
+    void setFile( const QFile & );
+    void setFile( const QDir &, const char *fileName );
+    void setFile( const char *relativeOrAbsoluteFileName );
 
-    bool  isFile()        const;
-    bool  isDir()	  const;
-    bool  isSymLink()	  const;
+    QString name()           const;
+    QString fileName()       const;
+    QString fullPathName()   const;
+    QString baseName()       const;
+    QString extension()      const;
 
-    const char *owner()   const;
-    uint        ownerId() const;
-    const char *group()   const;
-    uint        groupId() const;
+    QString dirName( bool fullPath = FALSE )  const;
+    QDir    dir( bool fullPath = FALSE )      const;
+
+    bool    isReadable()     const;
+    bool    isWritable()     const;
+    bool    isExecutable()   const;
+
+    bool    isRelative()     const;
+
+    bool    isFile()         const;
+    bool    isDir()	     const;
+    bool    isSymLink()	     const;
+
+    const char *owner()      const;
+    uint        ownerId()    const;
+    const char *group()      const;
+    uint        groupId()    const;
 
     bool permission( int permissionSpec ) const;
 
-    long  size() const;			        // get file size
+    long        size()       const;
 
     QDateTime lastModified() const;
     QDateTime lastRead()     const;
 
 private:
     void  init();
-    QFile f;
+    QString fn;
+    QFileInfoCache *fic;
 };
 
 

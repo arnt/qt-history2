@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#4 $
 **
 ** Implementation of QDir class
 **
@@ -12,6 +12,7 @@
 
 #include "qdir.h"
 #include "qfileinf.h"
+#include "qfildefs.h"
 #include "qregexp.h"
 
 #include<stdlib.h>
@@ -20,35 +21,9 @@
 #include<unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#4 $";
 #endif
 
-
-static QString rootDirString()
-{
-    QString tmp = QDir::separator();
-    return tmp;
-}
-
-static QString homeDirString()
-{
-    QString tmp( PATH_MAX );
-
-    tmp = getenv("HOME");
-    if ( tmp.isNull() )
-        tmp = rootDirString();
-    return tmp;
-}
-
-static QString currentDirString()
-{
-    QString tmp( PATH_MAX );
-
-    if ( getcwd( tmp.data(), PATH_MAX ) )
-        return tmp;
-    else
-        return QString();
-}
 
 
   /*! \class QDir qdir.h
@@ -107,7 +82,7 @@ static QString currentDirString()
 
 QDir::QDir()
 {
-    dPath = cleanPathName( currentDirString() );
+    dPath = ".";
     init();
 }
 
@@ -120,7 +95,8 @@ QDir::QDir( const char *pathName )
 QDir::QDir( const QDir &d )
 {
     dPath    = d.dPath;
-    l        = 0;
+    fList    = 0;
+    fiList   = 0;
     nameFilt = d.nameFilt;
     dirty    = TRUE;
     allDirs  = d.allDirs;
@@ -130,7 +106,8 @@ QDir::QDir( const QDir &d )
 
 void QDir::init()
 {
-    l        = 0;
+    fList     = 0;
+    fiList    = 0;
     nameFilt = "*";
     dirty    = TRUE;
     allDirs  = FALSE;
@@ -140,8 +117,43 @@ void QDir::init()
 
 QDir::~QDir()
 {
-    if ( l )
-       delete l;
+    if ( fList )
+       delete fList;
+    if ( fiList )
+       delete fiList;
+}
+
+  /*!
+  Sets the path of the directory. The path is cleaned of ".", ".."
+  and multiple separators. No check is made to ensure that a directory
+  with this path exists.
+
+  \sa path(), absolutePath(), exists, cleanPathName(), dirName(), fullPathName()
+  */
+void QDir::setPath( const char *relativeOrAbsolutePath )
+{
+    dPath = cleanPathName( relativeOrAbsolutePath );
+    dirty = TRUE;
+}
+
+  /*!
+  \fn  QDir::path()
+  Returns the path, this may contain symbolic links, but never contains
+  redundant ".", ".." or multiple separators.
+   \sa  setPath(), absolutePath(), exists(), cleanPathName(), dirName(),
+       fullPathName()
+  */
+
+QString QDir::fullPath() const
+{
+    if ( QDir::isRelativePath(dPath) ) {
+        QString tmp = currentDirString();
+        tmp += separator();
+        tmp += dPath;
+        return cleanPathName( tmp.data() );
+    } else {
+        return dPath;
+    }
 }
 
   /*!
@@ -166,31 +178,6 @@ QString QDir::absolutePath() const
 }
 
   /*!
-  Returns the path, this may contain symbolic links, but never contains
-  ".", ".." or multiple separators.
-   \sa  setPath(), absolutePath(), exists(), cleanPathName(), dirName(),
-       fullPathName()
-  */
-
-QString QDir::path() const
-{
-    return dPath;
-}
-
-  /*!
-  Sets the path of the directory. The path is cleaned of ".", ".."
-  and multiple separators. No check is made to ensure that a directory
-  with this path exists.
-
-  \sa path(), absolutePath(), exists, cleanPathName(), dirName(), fullPathName()
-  */
-void QDir::setPath( const char *pathName )
-{
-    dPath = cleanPathName( pathName );
-    dirty = TRUE;
-}
-
-  /*!
   Returns the name of the directry, this is NOT the same as the path, e.g.
   a directory with the name "mail", might have the path "/var/spool/mail".
   If the directory has no name (e.g. the root directory) a null string is
@@ -207,14 +194,23 @@ QString QDir::dirName() const
     return dPath.right( dPath.length() - pos - 1 );
 }
 
+QString QDir::pathName( const char *fileName ) const
+{
+    QString tmp = dPath.copy();
+    if ( tmp[ tmp.length() - 1 ] != separator() )
+        tmp += separator();
+    tmp += fileName;
+    return tmp;
+}
+
   /*!
-   Returns the full path to a file in the directory. Does NOT check if
+   Returns the full path name of a file in the directory. Does NOT check if
    the file actually exists in the directory.
   */
 
 QString QDir::fullPathName( const char *fileName ) const
 {
-    QString tmp = dPath.copy();
+    QString tmp = fullPath();
     if ( tmp[ tmp.length() - 1 ] != separator() )
         tmp += separator();
     tmp += fileName;
@@ -258,7 +254,6 @@ QString QDir::fullPathName( const char *fileName ) const
 
 bool QDir::cd( const char *dirName )
 {
-    dirty = TRUE;
     if ( strcmp( dirName, ".." ) == 0 ) {
         dPath = absolutePath();
         return cdUp();
@@ -266,14 +261,15 @@ bool QDir::cd( const char *dirName )
     if ( strcmp( dirName, "." ) == 0 ) {
         return TRUE;
     }
-    QString old = dPath.copy();
+    QString old = dPath;
+    dPath.detach();
     dPath += separator();
     dPath += dirName;
     if ( !exists() ) {
         dPath = old;
-        dirty = FALSE;
         return FALSE;
     }
+    dirty = TRUE;
     return TRUE;
 }
 
@@ -298,20 +294,16 @@ bool QDir::cd( const char *dirName )
 
 bool QDir::cdUp()
 {
+    QString old = dPath;
+    dPath.detach();
+    dPath += Q_SEPARATOR "..";
+    dPath = cleanPathName( dPath.data() );
+    if ( !exists() ) {
+        dPath = old;
+        return FALSE;
+    }
     dirty = TRUE;
-    int i = dPath.length();
-    while ( i-- && dPath.at(i) != separator() )
-        ;
-    if ( i == -1 ) {
-        dPath = ".";
-        return TRUE;
-    }
-    if ( i == 0 ) {
-        dPath = separator();
-        return TRUE;
-    }
-    dPath = dPath.left( i );
-    return exists();
+    return TRUE;
 }
 
 void QDir::setNameFilter( const char *nameFilter )
@@ -360,7 +352,7 @@ const QStrList *QDir::entries( int filterSpec, int sortSpec ) const
 {
     if ( !dirty && filterSpec == (int)DefaultFilter && 
                    sortSpec   == (int)DefaultSort )
-        return l;
+        return fList;
     return entries( nameFilt, filterSpec, sortSpec );
 }
 
@@ -371,26 +363,49 @@ const QStrList *QDir::entries( const char *nameFilter,
         filterSpec = filtS;
     if ( sortSpec == (int)DefaultSort )
         sortSpec = sortS;
-    QDir *This = (QDir*) this;         // mutable function
-    if ( l )
-        delete This->l;
-    This->l = readDirEntries( nameFilter, filterSpec, sortSpec );
-    This->dirty = FALSE;
-    return l;
+    QDir *This = (QDir*) this;		// Mutable function
+    if ( This->readDirEntries( nameFilter, filterSpec, sortSpec ) )
+        return fList;
+    else
+        return 0;
+}
+
+const QFileInfoList *QDir::entryInfos( int filterSpec, int sortSpec ) const
+{
+    if ( !dirty && filterSpec == (int)DefaultFilter && 
+                   sortSpec   == (int)DefaultSort )
+        return fiList;
+    return entryInfos( nameFilt, filterSpec, sortSpec );
+}
+
+const QFileInfoList *QDir::entryInfos( const char *nameFilter,
+                                       int filterSpec, int sortSpec ) const
+{
+    if ( filterSpec == (int)DefaultFilter )
+        filterSpec = filtS;
+    if ( sortSpec == (int)DefaultSort )
+        sortSpec = sortS;
+    QDir *This = (QDir*) this;		// Mutable function
+    if ( This->readDirEntries( nameFilter, filterSpec, sortSpec ) )
+        return fiList;
+    else
+        return 0;
 }
 
 bool QDir::mkdir( const char *dirName )
 {
-    dirName = dirName;
-    return TRUE;
-    //###
+    if ( ::mkdir( pathName( dirName ) , 0777 ) == 0 )
+        return TRUE;
+    else
+        return FALSE;
 }
 
 bool QDir::rmdir( const char *dirName )
 {
-    dirName = dirName;
-    return TRUE;
-    //###
+    if ( rmdir( pathName( dirName ) ) == 0 )
+        return TRUE;
+    else
+        return FALSE;
 }
 
   /*!
@@ -401,9 +416,7 @@ bool QDir::rmdir( const char *dirName )
   */
 bool QDir::isReadable() const
 {
-    QFileInfo fi( dPath );
-    return fi.isReadable();
-//    return access( dPath, R_OK | X_OK ) == 0; // should be in QFile ###
+    return access( dPath.data(), R_OK | X_OK ) == 0;
 }
 
   /*!
@@ -418,18 +431,29 @@ bool QDir::exists() const
 }
 
   /*!
-   Returns TRUE if the directory is the root directory.
+  Returns TRUE if the directory is the root directory, FALSE otherwise. 
+  Note: If the directory is a symbolic link to the root directory this
+  function returns FALSE. If you want to test for this you can use
+  absolutePath():
+  \code
+  QDir d( Q_SEPARATOR "yo" Q_SEPARATOR "root_link" );
+  if ( d.absolutePath().isRoot() )
+    warning( "It IS a root link!" );
+  \endcode
   */
 bool QDir::isRoot() const
 {
-    QString tmp = absolutePath();
-    return tmp == Q_SEPARATOR;
+    if ( dPath == Q_SEPARATOR )   // UNIX test only ###
+        return TRUE;
+    else
+        return FALSE;
 }
 
 QDir &QDir::operator=( const QDir &d )
 {
     dPath    = d.dPath;
-    l        = 0;
+    fList    = 0;
+    fiList   = 0;
     nameFilt = d.nameFilt;
     dirty    = TRUE;
     allDirs  = d.allDirs;
@@ -451,6 +475,63 @@ bool QDir::operator==( const QDir &d )
 }
 
   /*!
+  Sets the the current directory to be this directory. 
+  Returns TRUE if successful.
+  */
+bool QDir::setToCurrent() const
+{
+    return setCurrent( dPath.data() );
+}
+
+bool QDir::remove( const char *fileName )
+{
+    if ( fileName == 0 || fileName[0] == '\0' ) {
+#if defined(CHECK_NULL)
+	warning( "QFile::remove: Empty or NULL file name." );
+#endif
+	return FALSE;
+    }
+    QString tmp = cleanPathName( pathName( fileName ) );
+#if defined(UNIX)
+    return unlink( tmp ) == 0;			// unlink more common in UNIX
+#else
+    return ::remove( tmp ) == 0;		// use standard ANSI remove
+#endif
+}
+
+bool QDir::rename( const char *name, const char *newName  )
+{
+/*    if ( fileName == 0 || fileName[0] == '\0' ) {
+#if defined(CHECK_NULL)
+	warning( "QFile::remove: Empty or NULL file name." );
+#endif
+	return FALSE;
+    }
+    QString tmp = cleanPathName( pathName( fileName ) );
+#if defined(UNIX)
+    return unlink( tmp ) == 0;			// unlink more common in UNIX
+#else
+    return ::remove( tmp ) == 0;		// use standard ANSI remove
+#endif */
+}
+
+bool QDir::exists( const char *name )
+{
+/*    if ( fileName == 0 || fileName[0] == '\0' ) {
+#if defined(CHECK_NULL)
+	warning( "QFile::remove: Empty or NULL file name." );
+#endif
+	return FALSE;
+    }
+    QString tmp = cleanPathName( pathName( fileName ) );
+#if defined(UNIX)
+    return unlink( tmp ) == 0;			// unlink more common in UNIX
+#else
+    return ::remove( tmp ) == 0;		// use standard ANSI remove
+#endif*/
+}
+
+  /*!
   Returns the directory separator in paths on the current platform, e.g.
   "/" under UNIX and "\" under MS-DOS. 
   */ // "
@@ -467,23 +548,6 @@ char QDir::separator()
 }
 
   /*!
-  Returns the current directory.
-  */
-QDir QDir::current()
-{
-    return QDir( currentDirString() );
-}
-
-  /*!
-  Sets the the current directory to be this directory. 
-  Returns TRUE if successful.
-  */
-void QDir::setToCurrent() const
-{
-    setCurrent( dPath.data() );
-}
-
-  /*!
   Sets the the current directory. Returns TRUE if successful.
   */
 bool QDir::setCurrent( const char *path )
@@ -492,6 +556,14 @@ bool QDir::setCurrent( const char *path )
         return TRUE;
     else
         return FALSE;
+}
+
+  /*!
+  Returns the current directory.
+  */
+QDir QDir::current()
+{
+    return QDir( currentDirString() );
 }
 
   /*!
@@ -508,6 +580,56 @@ QDir QDir::home()
 QDir QDir::root()
 {
     return QDir( rootDirString() );
+}
+
+QString QDir::currentDirString()
+{
+#if 0
+    static bool forcecwd = TRUE;
+    static ino_t cINode;
+    static dev_t cDevice;
+    static QString currentName( PATH_MAX );
+
+    struct stat st;
+
+    if ( STAT( ".", &st ) == 0 ) {
+        if ( forcecwd || cINode != st.st_ino || cDevice != st.st_dev ) {
+            if ( getcwd( currentName.data(), PATH_MAX ) == 0 ) {
+                currentName.resize( strlen( currentName.data() ) + 1 );
+                cINode   = st.st_ino;
+                cDevice  = st.st_dev;
+                forcecwd = FALSE;
+            } else {
+                warning("QDir::currentDirString: getcwd() failed!");
+                currentName = 0;
+                forcecwd    = TRUE;
+	    }
+	}
+    } else {
+        warning("QDir::currentDirString: stat(/"./") failed!");
+        currentName = 0;
+        forcecwd    = TRUE;
+    }
+    return currentName;
+#else
+    QString currentName( PATH_MAX );
+#endif
+}
+
+QString QDir::homeDirString()
+{
+    QString tmp( PATH_MAX );
+
+    tmp = getenv("HOME");
+    if ( tmp.isNull() )
+        tmp = rootDirString();
+    return tmp;
+}
+
+QString QDir::rootDirString()
+{
+    QString tmp = QDir::separator();
+    return tmp;
 }
 
 bool QDir::match( const char * filter, const char *fileName )
@@ -574,25 +696,33 @@ QString QDir::cleanPathName( const char *pathName )
     return newPath;
 }
 
-typedef declare(QListM,QFileInfo) QFileInfoList;
+bool QDir::isRelativePath( const char *pathName )
+{
+    return ( pathName && pathName[0] == separator() );   // ### UNIX only!
+}
 
-static void dirInSort( QStrList *l, QFileInfoList *il, const char *fileName,
+static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
                        const QFileInfo &fi, int sortSpec )
 {
+    QFileInfo *newFi = new QFileInfo( fi );
+    CHECK_PTR( newFi );
     int sortBy = sortSpec & QDir::SortByMask;
     if ( sortBy == QDir::Unsorted ) {
-        if ( sortSpec & QDir::Reversed )
-            l->insert( fileName );
-        else
-            l->append( fileName );
+        if ( sortSpec & QDir::Reversed ) {
+            fl ->insert( fileName );
+            fil->insert( newFi );
+        } else {
+            fl ->append( fileName );
+            fil->append( newFi );
+	}
         return;
     }
 
     char      *tmp1;
     QFileInfo *tmp2;
-    tmp1 = ( sortSpec & QDir::Reversed ) ? l->last() : l->first();
+    tmp1 = ( sortSpec & QDir::Reversed ) ? fl->last() : fl->first();
     if ( sortBy != QDir::Name )
-        tmp2 = ( sortSpec & QDir::Reversed ) ? il->last() : il->first();
+        tmp2 = ( sortSpec & QDir::Reversed ) ? fil->last() : fil->first();
     bool stop = FALSE;
     while ( tmp1 ) {
         switch( sortBy ) {
@@ -616,40 +746,40 @@ static void dirInSort( QStrList *l, QFileInfoList *il, const char *fileName,
 	}
         if (stop)
             break;
-        tmp1 = ( sortSpec & QDir::Reversed ) ? l->prev() : l->next();
+        tmp1 = ( sortSpec & QDir::Reversed ) ? fl->prev() : fl->next();
         if ( sortBy != QDir::Name )
-            tmp2 = ( sortSpec & QDir::Reversed ) ? il->prev() : il->next();
+            tmp2 = ( sortSpec & QDir::Reversed ) ? fil->prev() : fil->next();
     }
     int pos;
     if ( stop )
-        pos = l->at() + ( ( sortSpec & QDir::Reversed ) ? 1 : 0 );
+        pos = fl->at() + ( ( sortSpec & QDir::Reversed ) ? 1 : 0 );
     else
-        pos = ( sortSpec & QDir::Reversed ) ? 0 : l->count();
-    l->insert( pos, fileName );
-    if ( sortBy != QDir::Name )
-        il->insert( pos, new QFileInfo( fi ) );
+        pos = ( sortSpec & QDir::Reversed ) ? 0 : fl->count();
+    fl ->insert( pos, fileName );
+    fil->insert( pos, newFi );
 }
 
-QStrList *QDir::readDirEntries( const QString &nameFilter,
-                                int filterSpec, int sortSpec ) const
+bool QDir::readDirEntries( const QString &nameFilter,
+                                int filterSpec, int sortSpec )
 {
-    QStrList *fList = new QStrList;
-    QStrList *dList = 0;
-    if ( sortSpec & DirsFirst )
-        dList = new QStrList;
-    QFileInfoList *fil, *dil = 0;
-    if ( (sortSpec & SortByMask) != Name && 
-         (sortSpec & SortByMask) != Unsorted ) {
-        fil = new QFileInfoList;
-        fil->setAutoDelete( TRUE );
-        if ( sortSpec & DirsFirst ) {
-            dil = new QFileInfoList;
-            dil->setAutoDelete( TRUE );
-	}
-    } else {
-        fil = 0;
+    if ( !fList ) {
+        fList  = new QStrList;
+        CHECK_PTR( fList );
+        fiList = new QFileInfoList;
+        CHECK_PTR( fiList );
+        fiList->setAutoDelete( TRUE );
     }
-    CHECK_PTR( fList );
+    fList->clear();
+    fiList->clear();
+    QStrList      *dList  = 0;
+    QFileInfoList *diList = 0;
+    
+    if ( sortSpec & DirsFirst ) {
+        dList = new QStrList;
+        CHECK_PTR( dList );
+        diList   = new QFileInfoList;  // NOT autodelete, will be emptied here!
+        CHECK_PTR( dList );
+    }
 
     DIR    *dir;
     dirent *file;
@@ -658,7 +788,7 @@ QStrList *QDir::readDirEntries( const QString &nameFilter,
     if ( !dir ) {
         warning("QDir::readDirEntries: Cannot read the directory:\n\t%s",
                 (char*) dPath);
-        return 0;
+        return FALSE;
     }
     QFileInfo fi;
 
@@ -670,7 +800,7 @@ QStrList *QDir::readDirEntries( const QString &nameFilter,
         fi.setFile( *this, file->d_name );
         if ( tmp.match( file->d_name ) == -1 && ( !allDirs || !fi.isDir() ) )
             continue;
-        if  ( ( (filterSpec  & Dirs) && fi.isDir() ) ||
+        if  ( ( (filterSpec & Dirs) && fi.isDir() ) ||
               ( (filterSpec & Files) && fi.isFile() ) ) {
             if ( (filterSpec & NoSymLinks) && fi.isSymLink() )
                 continue;
@@ -684,30 +814,35 @@ QStrList *QDir::readDirEntries( const QString &nameFilter,
                  ( file->d_name[1] != '.' || file->d_name[2] != '\0' ) )
                 continue;
             if ( (sortSpec & DirsFirst) && fi.isDir() )
-                dirInSort( dList, dil, file->d_name, fi, sortSpec );
+                dirInSort( dList, diList , file->d_name, fi, sortSpec );
             else
-                dirInSort( fList, fil, file->d_name, fi, sortSpec );
+                dirInSort( fList, fiList, file->d_name, fi, sortSpec );
 	}
     }
     if ( closedir( dir ) != 0 )
         warning("QDir::readDirEntries: Cannot close the directory:\n\t%s",
                 (char*) dPath);
-    if ( (sortSpec & SortByMask) != Name && 
-         (sortSpec & SortByMask) != Unsorted ) {
-        delete fil;
-        if ( sortSpec & DirsFirst )
-            delete dil;
-    }
     if ( sortSpec & DirsFirst ) {
-        char *tmp = dList->last();
+        char      *tmp   = dList ->last();
+        QFileInfo *fiTmp = diList->last();
         while( tmp ) {
             fList->insert( tmp );
             tmp = dList->prev();
+            fiList->insert( fiTmp );
+            fiTmp = diList->prev();
 	}
         delete dList;
+        delete diList;
     }
-    return fList;
+    if ( filterSpec == (FilterSpec) filtS &&
+         sortSpec   == (SortSpec)   sortS &&
+         nameFilter == nameFilt )
+        dirty = FALSE;
+    else
+        dirty = TRUE;
+    return TRUE;
 }
+
 
 
 
