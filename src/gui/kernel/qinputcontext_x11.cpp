@@ -156,6 +156,16 @@ extern "C" {
             return 0;
         }
 
+        if (send_imstart) {
+#ifdef QT_XIM_DEBUG
+            qDebug("sending IMStart to %p", qic->focusWidget);
+#endif // QT_XIM_DEBUG
+
+            qt_compose_emptied = false;
+            QIMEvent startevent(QEvent::IMStart, QString::null, -1);
+            QApplication::sendEvent(qic->focusWidget, &startevent);
+        }
+
         XIMPreeditDrawCallbackStruct *drawstruct =
             (XIMPreeditDrawCallbackStruct *) call_data;
         XIMText *text = (XIMText *) drawstruct->text;
@@ -235,16 +245,6 @@ extern "C" {
                 // cancelled the compose or deleted all chars).
                 return 0;
             }
-        }
-
-        if (send_imstart) {
-#ifdef QT_XIM_DEBUG
-            qDebug("sending IMStart to %p", qic->focusWidget);
-#endif // QT_XIM_DEBUG
-
-            qt_compose_emptied = false;
-            QIMEvent startevent(QEvent::IMStart, QString::null, -1);
-            QApplication::sendEvent(qic->focusWidget, &startevent);
         }
 
 #ifdef QT_XIM_DEBUG
