@@ -522,7 +522,7 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 QTextCodec* QTextCodec::codecForIndex(int i)
 {
     setup();
-    return (uint)i >= all->count() ? 0 : *all->at(i);
+    return (int)i >= all->count() ? 0 : *all->at(i);
 }
 
 

@@ -380,7 +380,7 @@ void QSqlForm::sync()
     if ( d->dirty ) {
 	clearMap();
 	if ( d->buf ) {
-	    for ( uint i = 0; i < d->fld.count(); ++i )
+	    for ( int i = 0; i < d->fld.count(); ++i )
 		insert( d->wgt[ d->fld[ i ] ], d->buf->field( d->fld[ i ] ) );
 	}
     }

@@ -262,7 +262,7 @@ public:
     {
 	cursor->place( p + QPoint( offset, 0 ), parag );
 	int idx = cursor->index();
-	for ( uint i = 0; i < sections.count(); ++i ) {
+	for ( int i = 0; i < sections.count(); ++i ) {
 	    if ( idx >= sections[i].selectionStart() &&
 		 idx <= sections[i].selectionEnd() )
 		return i;
@@ -287,7 +287,7 @@ public:
 
     bool inSectionSelection( int idx )
     {
-	for ( uint i = 0; i < sections.count(); ++i ) {
+	for ( int i = 0; i < sections.count(); ++i ) {
 	    if ( idx >= sections[i].selectionStart() &&
 		 idx <= sections[i].selectionEnd() )
 		return TRUE;

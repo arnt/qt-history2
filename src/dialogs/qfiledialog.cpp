@@ -4635,7 +4635,7 @@ void QFileDialog::done( int i )
 {
     if ( i == QDialog::Accepted && (d->mode == ExistingFile || d->mode == ExistingFiles) ) {
 	QStringList selection = selectedFiles();
-	for ( uint f = 0; f < selection.count(); f++ ) {
+	for ( int f = 0; f < selection.count(); f++ ) {
 	    QString file = selection[f];
 	    if ( file.isNull() )
 		continue;

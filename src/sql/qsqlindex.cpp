@@ -257,7 +257,7 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
 QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cursor )
 {
     QSqlIndex newSort;
-    for ( uint i = 0; i < l.count(); ++i ) {
+    for ( int i = 0; i < l.count(); ++i ) {
 	QString f = l[ i ];
 	bool desc = FALSE;
 	if ( f.mid( f.length()-3 ) == "ASC" )

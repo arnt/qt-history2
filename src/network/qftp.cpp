@@ -494,7 +494,7 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 	info->setName( lst[ 8 ].stripWhiteSpace() );
     else {
 	QString n;
-	for ( uint i = 8; i < lst.count(); ++i )
+	for ( int i = 8; i < lst.count(); ++i )
 	    n += lst[ i ] + " ";
 	n = n.stripWhiteSpace();
 	info->setName( n );
@@ -1187,7 +1187,7 @@ static void delete_d( const QFtp* foo )
     Constructs a QFtp object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 */
-QFtp::QFtp( QObject *parent, const char *name ) 
+QFtp::QFtp( QObject *parent, const char *name )
 : QNetworkProtocol( parent, name )
 {
     init();
