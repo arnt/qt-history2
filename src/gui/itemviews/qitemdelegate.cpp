@@ -353,7 +353,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
                              QRect *textRect, bool hint) const
 {
     if (pixmapRect && textRect) {
-        static const int spacing = 2;
+        static const int spacing = 0; // FIXME: for now
         int x = option.rect.left();
         int y = option.rect.top();
         int b = border * 2;
