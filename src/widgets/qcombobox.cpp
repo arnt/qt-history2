@@ -330,7 +330,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 	d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
 	d->listBox()->setLineWidth( 1 );
 	d->listBox()->resize( 100, 10 );
-	
+
 	connect( d->listBox(), SIGNAL(selected(int)),
 			     SLOT(internalActivate(int)) );
 	connect( d->listBox(), SIGNAL(highlighted(int)),
@@ -381,7 +381,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox()->setLineWidth( 1 );
     d->listBox()->resize( 100, 10 );
-	
+
     connect( d->listBox(), SIGNAL(selected(int)),
 	     SLOT(internalActivate(int)) );
     connect( d->listBox(), SIGNAL(highlighted(int)),
@@ -497,7 +497,7 @@ void QComboBox::setStyle( GUIStyle s )
     }
     if ( d->ed )
 	d->ed->setFrame( s == MotifStyle );
-	
+
 }
 
 */
@@ -921,7 +921,7 @@ void QComboBox::setCurrentItem( int index )
 }
 
 
-/*!
+/*! \obsolete
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
 
@@ -935,7 +935,7 @@ bool QComboBox::autoResize() const
     return d->autoresize;
 }
 
-/*!
+/*! \obsolete
   Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
@@ -1206,13 +1206,13 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 	QRect tmpR = style().comboButtonRect(0,0,width(),height());
 	QRect textR(tmpR.x()+1, tmpR.y()+1, tmpR.width()-2, tmpR.height()-2);
-	
+
 	if ( hasFocus()) {
 	    if (!d->ed) {
 		p.fillRect( textR.x(), textR.y(),
 			    textR.width(), textR.height(),
 			    g.brush( QColorGroup::Highlight ) );
-		
+
 	    }
 	    style().drawFocusRect(&p, style().comboButtonFocusRect(0,0,width(),height()), g, &g.highlight());
 	}

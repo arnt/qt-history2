@@ -101,11 +101,6 @@ public:
   (the QLineEdit) when the user presses <dfn>Alt-P.</dfn> You can also
   use the setBuddy() function to accomplish the same.
 
-  For QLabel widgets that are not managed by a QLayout (e.g. top-level
-  widgets), the setAutoResize() function can be used to request that
-  the widget automatically resizes itself to fit the contents whenever
-  the contents change.
-
   <img src=qlabel-m.png> <img src=qlabel-w.png>
 
   \sa QLineEdit, QTextView, QPixmap, QMovie,
@@ -119,7 +114,7 @@ public:
   The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 
-  \sa setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
+  \sa setAlignment(), setFrameStyle(), setIndent()
 */
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
@@ -135,7 +130,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
   The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 
-  \sa setText(), setAlignment(), setFrameStyle(), setIndent(), setAutoResize()
+  \sa setText(), setAlignment(), setFrameStyle(), setIndent()
 */
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
@@ -156,7 +151,7 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
   constructor.
 
   \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
-  setIndent(), setAutoResize()
+  setIndent()
 */
 
 QLabel::QLabel( QWidget *buddy,  const QString &text,
@@ -226,7 +221,7 @@ void QLabel::init()
   only. For large documents, use QTextView instead. It will flicker
   less on resize and can also provide a scrollbar if necessary.
 
-  \sa text(), setTextFormat(), setBuddy(), setAlignment, setAutoResize()
+  \sa text(), setTextFormat(), setBuddy(), setAlignment()
 */
 
 void QLabel::setText( const QString &text )
@@ -284,7 +279,7 @@ void QLabel::clear()
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setBuddy(), setAutoResize()
+  \sa pixmap(), setBuddy()
 */
 
 void QLabel::setPixmap( const QPixmap &pixmap )
@@ -309,7 +304,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setText(), QString::setNum(), setBuddy(), setAutoResize()
+  \sa setText(), QString::setNum(), setBuddy()
 */
 
 void QLabel::setNum( int num )
@@ -328,7 +323,7 @@ void QLabel::setNum( int num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setText(), QString::setNum(), setBuddy(), setAutoResize()
+  \sa setText(), QString::setNum(), setBuddy()
 */
 
 void QLabel::setNum( double num )
@@ -412,8 +407,10 @@ void QLabel::setIndent( int indent )
 }
 
 
-/*!
+/*! 
   \fn bool QLabel::autoResize() const
+
+  \obsolete
 
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing
   is disabled.
@@ -423,7 +420,7 @@ void QLabel::setIndent( int indent )
   \sa setAutoResize()
 */
 
-/*!
+/*! \obsolete
   Enables auto-resizing if \a enable is TRUE, or disables it if \a
   enable is FALSE.
 
@@ -881,7 +878,7 @@ void QLabel::movieResized( const QSize& size )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa movie(), setBuddy(), setAutoResize()
+  \sa movie(), setBuddy()
 */
 
 void QLabel::setMovie( const QMovie& movie )
