@@ -30,11 +30,109 @@ by German users, will require that the software operate not only in
 different languages, but use different input techniques, character
 encodings and presentation conventions.
 
+Qt tries to take this burden away from the developer as much as
+possible. All input widgets and text drawing methods in Qt offer
+builtin support for all supported languages. The built-in font engine
+takes care to render even text using mixed writing systems as good as
+possible. 
+
+Qt does support most of the languages spoken nowadays. The list below
+offers an overview over what is supported nowadays:
+
+\list
+\i All western languages (using Latin script)
+\i Cyrillic languages (Russian)
+\i Greek
+\i All east Asian languages (Chinese, Japanese and Korean)
+\i Arabic
+\i Hebrew
+\i Thai and Lao
+\i All scripts in Unicode 3.2 that do not require special processing
+\endlist
+
+On Windows NT/2000/XP and Unix/X11 with Xft (client side font) support the
+following languages are supported in addition:
+
+\list
+\i Bengali
+\i Devanagari
+\i Divehi (Win XP only)
+\i Gujarati
+\i Gurmukhi
+\i Kannada
+\i Khmer
+\i Malayalam (X11 only)
+\i Syriac
+\i Tamil
+\i Telugu
+\i Tibetan (X11 only)
+\i Thaana
+\endlist
+
+Many of these writing systems exhibit special features:
+
+\list
+
+\i Special line breaking behavior. Some of the Asian languages are
+written without spaces between words. Line breaking can occur either
+after every character (with exceptions) as in Chinese, Japanese and
+Korean, or after logical word boundaries as in Thai.
+
+\i Bidirectional writing. Arabic and Hebrew are written from right to
+left, except for numbers and embedded English text which is written
+left to right. The exact behavior is defined in the \link
+http://www.unicode.org/unicode/reports/tr9/ Unicode Technical Report
+#9 \endlink.
+
+\i Non spacing or diacritical marks (accents or umlauts in European
+languages). Some languages such as Vietnamese make extensive use of
+these marks and some characters can have a few marks at the same time
+to clarify pronunciation.
+
+\i Ligatures. In special contexts, some characters following each
+other directly get replaced by a combined glyph forming a 
+ligature. Common examples are the fl and fi ligatures used in
+typesetting US and European books.
+
+\endlist
+
+Qt tries to take care of all the special features listed above. You
+will usually never have to worry about these features as long as you
+use Qt's input (e.g. QLineEdit, QTextView or derived classes) and
+displaying controls (e.g. QLabel).
+
+Support for these writing systems is transparent to the programmer
+and completely encapsulated in Qt's text engine. This means that you
+don't need to have any knowledge about the writing system used in a
+particular language, except for a couple of small things listed below.
+
+\list
+
+\i QPainter::drawText( int x, int y, const QString &str ) will always
+draw the string with it's left edge at the position specified with
+the x, y parameters. This will usually give you left aligned strings.
+Arabic and Hebrew application strings are usually right
+aligned, so for these languages use the version of drawText() that
+takes a QRect since this will align in accordance with the language.
+
+\i When you write your own text input controls, use \l
+QFontMetrics::charWidth() to determine the width of a character in a
+string. In some languages (e.g. Arabic or languages from the indian
+subcontinent), the width and shape of a glyph changes depending on the
+surrounding characters. Writing input controls usually requires a
+certain knowledge of the scripts it is going to be used in. Usually
+the easiest way is to subclass QLineEdit or QTextView.
+
+\endlist
+
+The following sections give some information on the status
+of the internationalization (i18n) support in Qt.
+
 See also the \link linguist-manual.book Qt Linguist\endlink manual.
 
 \section1 Step by Step
 
-Writing multiplatform international software with Qt is a gentle,
+Writing multi-platform international software with Qt is a gentle,
 incremental process. Your software can become internationalized in
 the following stages:
 
@@ -325,7 +423,7 @@ available: the \link QString::local8Bit() local8Bit\endlink() method
 of QString returns such 8-bit data. Another useful shortcut is the
 \link QString::utf8() utf8\endlink() method, which returns text in the
 8-bit UTF-8 encoding: this perfectly preserves Unicode information
-while looking like plain US-ASCII if the Unicode is wholly US-ASCII.
+while looking like plain US-ASCII if the text is wholly US-ASCII.
 
 For converting the other way, there are the QString::fromUtf8() and
 QString::fromLocal8Bit() convenience functions, or the general code,
@@ -352,16 +450,20 @@ returned by QTextCodec::codecForLocale(), as this is the one the user
 is most likely to need for communicating with other people and
 applications (this is the codec used by local8Bit()).
 
-Since most Unix systems do not have built-in support for converting
-between local 8-bit encodings and Unicode, it may be necessary to
-write your own QTextCodec subclass. Depending on the urgency, it may
-be useful to contact Trolltech technical support or ask on the
-\c qt-interest mailing list to see if someone else is already working
-on supporting the encoding. A useful interim measure can be to use the
-QTextCodec::loadCharmapFile() function to build a data-driven codec,
-although this approach has a memory and speed penalty, especially with
-dynamically loaded libraries. For details of writing your own
-QTextCodec, see the main QTextCodec class documentation.
+Qt supports most of the more frequently used encodings natively. For a
+complete list of supported encodings see the \link QTextcodec
+QTextCodec \endlink documentation.
+
+In some cases and for less frequently used encodings it may be
+necessary to write your own QTextCodec subclass. Depending on the
+urgency, it may be useful to contact Trolltech technical support or
+ask on the \c qt-interest mailing list to see if someone else is
+already working on supporting the encoding. A useful interim measure
+can be to use the QTextCodec::loadCharmapFile() function to build a
+data-driven codec, although this approach has a memory and speed
+penalty, especially with dynamically loaded libraries. For details of
+writing your own QTextCodec, see the main QTextCodec class
+documentation.
 
 \keyword localization
 
@@ -389,11 +491,11 @@ stretched metaphors.
 
 \section1 System Support
 
-Operating systems and window systems supporting Unicode are still in
-the early stages of development. The level of support available in the
-underlying system influences the support Qt provides on that platform,
-but applications written with Qt need not generally be too concerned
-with the actual limitations.
+Some of the operating systems and window systems Qt runs on have a
+rather limited support of Unicode. The level of support available in
+the underlying system does somewhat influences the support Qt provides
+on that platform, but applications written with Qt need not generally
+be too concerned with the actual limitations.
 
 \section2 Unix/X11
 
@@ -425,83 +527,6 @@ with the actual limitations.
     are portable between Windows 95/98 and Windows NT.
     \e {You do not need different binaries to support Unicode.}
 \endlist
-
-\section1 Supporting More Input Methods
-
-While Trolltech doesn't have the resources or expertise in all the
-languages of the world to immediately include support in Qt, we are
-very keen to work with people who do have the expertise. Over the next
-few minor version numbers, we hope to add support for your language of
-choice, until everyone can use Qt and all the programs developed with
-Qt, regardless of their language.
-
-Languages with single-byte encodings (European Latin1 and KOI8-R,
-etc.) and multi-byte encodings (East Asian EUC-JP, etc.) are
-supported. Support for the "complex" encodings: those requiring
-right-to-left input or complex character composition (e.g. Arabic,
-Hebrew, and Thai script) is implemented, but the range of Indic
-scripts (Hindi, Devanagari, Bengali, etc.) is still under development.
-The current state of activity is:
-
-\table
-\header \i Encodings \i Status
-\row 
-\i All encodings on Windows
-\i The local encoding is always supported.
-\row
-\i ISO standard encodings
-	ISO 8859-1,
-	ISO 8859-2,
-	ISO 8859-3,
-	ISO 8859-4,
-	ISO 8859-5,
-	ISO 8859-7,
-	ISO 8859-9, and
-	ISO 8859-15
-\i Fully supported.
-\row
-\i KOI8-R
-\i Fully supported.
-\row
-\i eucJP, JIS, and ShiftJIS
-\i Fully supported. Uses eucJP with the XIM protocol on X11,
-	and the IME Windows NT in Japanese Windows NT.
-	Serika Kurusugawa and others are assisting with this effort.
-	\link ftp://ftp.sra.co.jp/pub/x11/kinput2/ kinput2 \endlink
-	is the tested input method for X11.
-\row
-\i eucKR
-\i Supported.
-	Mizi Research are assisting with this effort.
-	\link http://www.mizi.com hanIM \endlink
-       	is the tested input method.
-\row
-\i Big5
-\i Qt contains a Big5 codec developed by Ming Che-Chuang.
-	Testing is underway with the xcin (2.5.x) XIM server.
-\row
-\i eucTW
-\i Under external development.
-\endtable
-
-More information on the support of different writing systems in Qt can
-be found in \link scripts.html the documentation about writing systems
-\endlink.
-
-If you are interested in contributing to existing efforts, or
-supporting new encodings beyond those mentioned above, your work can
-be considered for inclusion in the official Qt distribution, or just
-included with your application.
-
-Eventually, we hope to help Unix become as Unicode-oriented as Windows
-is becoming. This means better font support in the font servers, with
-new developments like the True Type font servers \link
-http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/ xfsft \endlink, \link
-ftp://sunsite.unc.edu/pub/Linux/X11/fonts/ xfstt \endlink, and x-tt,
-as well as \link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink (a
-Unicode encoding) filenames such as with the \link
-http://www.sun.com/software/white-papers/wp-unicode/ Unicode support
-in Solaris 7 \endlink.
 
 \section1 Note about Locales on X11
 
