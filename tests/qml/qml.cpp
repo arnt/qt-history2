@@ -1059,7 +1059,7 @@ void QMLCursor::insert(QPainter* p, const QString& s)
     for (unsigned int i = 1; i < s.length(); i++) {
 	last->next = new QMLNode;
 	last = last->next;
-	last->c = s[i];
+	last->c = s[int(i)];
     }
     
     if (nodeParent->child == node) {
@@ -1489,8 +1489,6 @@ QMLView::QMLView()
     cursorTimer = new QTimer( this );
     cursorTimer->start(200, TRUE);
     connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
-    updateTimer = new QTimer( this );
-    connect( updateTimer, SIGNAL( timeout() ), this, SLOT( updateTimerDone() ));
     backgroundPixmap = 0;
     //backgroundPixmap = new QPixmap("bg.ppm");
 	
@@ -1633,77 +1631,35 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	if (e->key() == Key_Return || e->key() == Key_Enter ) {
 	    {
 		QPainter p( viewport() );
-		debug("enter");
-		doc->cursor->enter( &p );
-		QRegion r(0, 0, viewport()->width(), viewport()->height());
-		doc->draw(&p, 0, 0, contentsX(), contentsY(),
-			  contentsX(), contentsY(),
-			  viewport()->width(), viewport()->height(),
-			  r, colorGroup(), backgroundPixmap, TRUE);
-		p.setClipRegion(r);
-		if (backgroundPixmap)
-		    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				      *backgroundPixmap, contentsX(), contentsY());
-		else
-		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+		for (int i = 0; i < QMIN(4, e->count()); i++) 
+		    doc->cursor->enter( &p ); // can be optimized
 	    }
+	    updateScreen();
 	}
 	else if (e->key() == Key_Delete) {
-	    QPainter p( viewport() );
-	    doc->cursor->del( &p );
-	    QRegion r(0, 0, viewport()->width(), viewport()->height());
-	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
-		      contentsX(), contentsY(),
-		      viewport()->width(), viewport()->height(),
-		      r, colorGroup(), backgroundPixmap, TRUE);
-	    p.setClipRegion(r);
-	    if (backgroundPixmap)
-		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				  *backgroundPixmap, contentsX(), contentsY());
-	    else
-		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+	    {
+		QPainter p( viewport() );
+		for (int i = 0; i <  QMIN(4, e->count()); i++)
+		    doc->cursor->del( &p ); // can be optimized
+	    }
+	    updateScreen();
 	}
 	else if (e->key() == Key_Backspace) {
-	    QPainter p( viewport() );
-	    doc->cursor->backSpace( &p );
-	    QRegion r(0, 0, viewport()->width(), viewport()->height());
-	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
-		      contentsX(), contentsY(),
-		      viewport()->width(), viewport()->height(),
-		      r, colorGroup(), backgroundPixmap, TRUE);
-	    p.setClipRegion(r);
-	    if (backgroundPixmap)
-		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				  *backgroundPixmap, contentsX(), contentsY());
-	    else
-		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+	    {
+		QPainter p( viewport() );
+		for (int i = 0; i < QMIN(4, e->count()); i++){
+		    doc->cursor->backSpace( &p ); // can be optimized
+		}
+	    }
+	    updateScreen();
 	}
 	else if (!e->text().isEmpty() ){
-	    textToInsert += e->text();
-	    updateTimer->start(0, TRUE);
-	    return;
-    /*
-	    // other keys
+	    {
 		QPainter p( viewport() );
 		doc->cursor->insert( &p, e->text());
-		QRegion r(0, 0, viewport()->width(), 
-			  doc->cursor->rowY+doc->cursor->rowHeight - 1 - contentsY());
-		doc->draw(&p, 0, 0, contentsX(), contentsY(),
-			  contentsX(), contentsY(),
-			  viewport()->width(), 
-			  doc->cursor->rowY + doc->cursor->rowHeight - 1- contentsY(),
-			  r, colorGroup(), backgroundPixmap, TRUE);
-		p.setClipRegion(r);
-		if (backgroundPixmap)
-		    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				      *backgroundPixmap, contentsX(), contentsY());
-		else
-		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
-    */
+	    }
+	    updateScreen();
 	}
-	showCursor();
-	resizeContents(doc->width, doc->height);
-	ensureVisible(doc->cursor->x, doc->cursor->y);
     }
 }
 
@@ -1828,12 +1784,11 @@ void QMLView::hideCursor()
 }
 
 
-void QMLView::updateTimerDone()
+
+void QMLView::updateScreen()
 {
     {
 	QPainter p( viewport() );
-	doc->cursor->insert( &p, textToInsert);
-	textToInsert = "";
 	QRegion r(0, 0, viewport()->width(), viewport()->height());
 	doc->draw(&p, 0, 0, contentsX(), contentsY(),
 		  contentsX(), contentsY(),
@@ -1850,7 +1805,6 @@ void QMLView::updateTimerDone()
     resizeContents(doc->width, doc->height);
     ensureVisible(doc->cursor->x, doc->cursor->y);
 }
-
 
 void QMLView::resizeEvent(QResizeEvent*e)
 {

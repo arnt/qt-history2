@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#12 $
+** $Id: //depot/qt/main/tests/qml/qml.h#13 $
 **
 ** Definition of something or other
 **
@@ -316,18 +316,16 @@ protected:
 
  private slots:
     void cursorTimerDone();
-    void updateTimerDone();
-
 
 private:
     QMLDocument* doc;
     bool cursor_hidden;
     QPixmap* backgroundPixmap;
     QTimer* cursorTimer;
-    QTimer* updateTimer;
-    QString textToInsert;
 
     void updateSelection(int oldY=-1, int newY=-1);
+    
+    void updateScreen();
 
 
 };
