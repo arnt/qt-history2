@@ -402,7 +402,7 @@ void QDnsAnswer::parseNs()
     // parse, but ignore
 
 #if defined(DEBUG_QDNS)
-    qDebug( "QDns: saw %s IN NS %s (ttl %d)", label.ascii(), 
+    qDebug( "QDns: saw %s IN NS %s (ttl %d)", label.ascii(),
 	    target.ascii(), ttl );
 #endif
 }
@@ -1029,11 +1029,12 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
     QValueListIterator<QString> it = n.begin();
     QValueListIterator<QString> end = n.end();
     QList<QDnsRR> * l = new QList<QDnsRR>;
-    bool nxdomain = FALSE;
+    bool nxdomain;
     int cnamecount = 0;
     while( it != end ) {
 	QString s = *it;
 	it++;
+	nxdomain = FALSE;
 #if defined(DEBUG_QDNS)
 	qDebug( "looking at cache for %s (%s %d)",
 		s.ascii(), r->label().ascii(), r->recordType() );
