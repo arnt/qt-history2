@@ -23,6 +23,8 @@
 **
 *****************************************************************************/
 
+#ifdef QT_THREAD_SUPPORT
+
 #include "qthread.h"
 #include <pthread.h>
 #include <errno.h>
@@ -32,6 +34,7 @@
 #include <qapplication.h>
 #include <qsocketnotifier.h>
 #include <qobject.h>
+#include <sys/time.h>
 
 class QMutexPrivate {
 
@@ -292,11 +295,15 @@ void QThreadEvent::wait()
 
 void QThreadEvent::wait(const QTime & t)
 {
+    // This is probably grotty
+    timeval now;
     timespec ti;
-    ti.tv_sec=t.second();
-    ti.tv_nsec=t.msec()*1000000;
+    gettimeofday(&now,0);
+    ti.tv_sec=now.tv_sec+t.second();
+    ti.tv_nsec=((now.tv_usec/1000)+t.msec())*1000000;
     int ret=pthread_cond_timedwait (&( d->mycond ),
-				    ( pthread_mutex_t * )( d->m.handle() ), &ti);
+				    ( pthread_mutex_t * )( d->m.handle() ),
+				    &ti);
 
     if(ret) {
 	qWarning("Threadevent timed wait error:%s",strerror(ret));
@@ -323,3 +330,5 @@ THREADEVENT_HANDLE QThreadEvent::handle()
 {
     return (unsigned long) &( d->mycond );
 }
+
+#endif

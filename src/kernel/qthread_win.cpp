@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 
+#ifdef QT_THREAD_SUPPORT
 
 #include "qthread.h"
 #include "qt_windows.h"
@@ -33,15 +34,15 @@ class QMutexPrivate {
 };
 
 class QThreadPrivate {
-    
+
 public:
-    
+
 };
 
 class QThreadEventPrivate {
-    
+
 public:
-    
+
 };
 
 // Stub implementation
@@ -238,4 +239,6 @@ THREADEVENT_HANDLE QThreadEvent::handle()
 {
     return 0;
 }
+
+#endif
 

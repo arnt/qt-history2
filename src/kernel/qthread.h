@@ -1,4 +1,4 @@
-/****************************************************************************
+/u/****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qthread.h#16 $
 **
 ** Definition of QThread class
@@ -26,6 +26,8 @@
 
 #ifndef QTHREAD_H
 #define QTHREAD_H
+
+#ifdef QT_THREAD_SUPPORT
 
 #include <qglobal.h>
 #include <qobject.h>
@@ -119,6 +121,8 @@ private:
 #endif
 
 };
+
+#endif
 
 #endif
 
