@@ -50,7 +50,7 @@ The \Class QMainWindow class lays out a set of related widgets to
 provide a framework for typical application main windows.
 
   \index size grip
-  \img main-window.png An application main window
+  \img mainwindow.png An application main window
 
   \index MDI
   \index SDI

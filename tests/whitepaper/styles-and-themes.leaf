@@ -51,7 +51,7 @@ the appropriate style for the user's platform and desktop
 environment. The style can also be chosen programmatically, or with
 the \c -style command-line option on Unix.
 
-  \img combobox-style.png
+  \img combobox.png
   \caption Comboboxes in the different built-in styles
 
   \index fade effect

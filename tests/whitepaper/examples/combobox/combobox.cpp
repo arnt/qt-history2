@@ -23,7 +23,7 @@ void create_combobox( QWidget *parent, const QString& name, QStyle *style )
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    QGrid *grid = new QGrid( 4, Qt::Vertical );
+    QGrid *grid = new QGrid( 4 );
     grid->setMargin( 11 );
     grid->setSpacing( 6 );
 
@@ -34,6 +34,8 @@ int main( int argc, char **argv )
     create_combobox( grid, "Platinum", new QPlatinumStyle );
     create_combobox( grid, "SGI", new QSGIStyle );
     create_combobox( grid, "Aqua", new QAquaStyle );
+
+    grid->setBackgroundColor( QColor(0xec, 0xec, 0xec) );
 
     grid->show();
     app.setMainWidget( grid );

@@ -184,8 +184,8 @@ build tool generates the correct Makefiles for the target platform.
   \index run-time type information
   \index translations
 
-In addition to handling signals and slots, \Cmd moc supports Qt's \l
-{translation mechanism}, its property system and extended run-time type
+In addition to handling signals and slots, \Cmd moc supports Qt's
+translation mechanism, its property system and extended run-time type
 information. The \Cmd moc also makes the cross-platform introspection
 of C++ programs possible.
 
