@@ -32,9 +32,10 @@ even more customization, e.g. for an Oracle database, you can set up
 the connection yourself and instantiate a Qt driver object on top of
 it. An extended SQL cursor class has been added that makes it more
 convenient to display result sets from general SQL queries
-(QSqlSelectCursor). In addition, you can add custom database drivers
-without compiling them as plugins (see
-QSqlDatabase::registerSqlDriver()).
+(QSqlSelectCursor). QSqlDatabase::tables() is now capable to return
+tables, views and/or system tables. In addition, you can add custom
+database drivers without compiling them as plugins
+(see QSqlDatabase::registerSqlDriver()).
 
 QLineEdit, the one-line text editor, now supports validation input
 masks. The feature complements the previous QValidator concept and
