@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#70 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -79,7 +79,7 @@ int QPaintDevice::fontInf( QFont *, int ) const
 }
 
 
-bool qt_bitblt_bsm = TRUE;			// use black source method
+Q_EXPORT bool qt_bitblt_bsm = FALSE;		// use black source method
 uint qt_bitblt_foreground = 0;			// bitBlt foreground color
 
 
