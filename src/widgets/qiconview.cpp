@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#30 $
 **
 ** Definition of QIconView widget class
 **
@@ -90,32 +90,6 @@ static const char *unknown[] = {
 
 /*****************************************************************************
  *
- * Class QIconViewItemDrag
- *
- *****************************************************************************/
-
-// class QIconViewItemDrag : public QDragObject
-// {
-// public:
-//     QIconViewItemDrag( QWidget *source = 0, const char *name = 0 )
-// 	: QDragObject( source, name )  {}
-
-//     virtual const char *format( int ) const
-//     { return 0; }
-
-//     virtual QByteArray encodedData( const char * ) const
-//     { return QByteArray(); }
-
-//     virtual bool provides( const char *mime ) const {
-// 	if ( QString( mime ) == "application/iconview-items" )
-// 	    return TRUE;
-// 	return FALSE;
-//     }
-
-// };
-
-/*****************************************************************************
- *
  * Struct QIconViewPrivate
  *
  *****************************************************************************/
@@ -162,7 +136,8 @@ signals:
 
 protected:
     void keyPressEvent( QKeyEvent *e );
-
+    void focusOutEvent( QFocusEvent *e );
+    
 protected:
     QIconViewItem *item;
     QString startText;
@@ -186,6 +161,11 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 	emit returnPressed();
     else
 	QLineEdit::keyPressEvent( e ) ;
+}
+
+void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
+{
+    emit escapePressed();
 }
 
 /*****************************************************************************
