@@ -70,27 +70,25 @@ FtpViewItem::FtpViewItem( QListView *parent, const QUrlInfo &i )
 {
 }
 
-QString FtpViewItem::key( int c, bool ) const
+int FtpViewItem::compare( QListViewItem * i, int col, bool ascending ) const
 {
-    switch ( c ) {
-    case 0:
-	if ( info.isDir() )
-	    return "0000" + info.name();
-	return info.name();
-    case 1: {
-	QString s;
-	s.sprintf( "%08d", info.size() );
-	return s;
-    }
-    case 2: {
-	QDateTime epoch( QDate( 1980, 1, 1 ) );
-	QString s;
-	s.sprintf( "%08d", epoch.secsTo( info.lastModified() ) );
-	return s;
-    }
-    }
-
-    return text( c );
+    FtpViewItem *other = (FtpViewItem*)i;
+    switch ( col ) {
+    case 1:
+	if ( info.size() == other->info.size() )
+	    return 0;
+	else
+	    return info.size() < other->info.size() ? -1 : 1;
+    case 2:
+	if ( info.lastModified() == other->info.lastModified() )
+	    return 0;
+	else
+	    return info.lastModified() < other->info.lastModified() ? -1 : 1;
+	break;
+    default:
+	// use default method for colum 0 and others added in the future
+	return QListViewItem::compare( i, col, ascending );
+    };
 }
 
 QString FtpViewItem::text( int c ) const

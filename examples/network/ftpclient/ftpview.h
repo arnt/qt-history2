@@ -20,7 +20,7 @@ class FtpViewItem : public QListViewItem
 public:
     FtpViewItem( QListView *parent, const QUrlInfo &i );
     
-    QString key( int c, bool ) const;
+    int compare( QListViewItem * i, int col, bool ascending ) const;
     QString text( int c ) const;
     const QPixmap* pixmap( int c ) const;
     
