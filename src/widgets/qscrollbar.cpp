@@ -618,8 +618,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 */
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !clickedAt || !( e->button() == LeftButton ||
-			  e->button() == MidButton ) )
+    if ( !clickedAt )
 	return;
 
     if ( e->stateAfter() & MouseButtonMask ) // some other button is still pressed
