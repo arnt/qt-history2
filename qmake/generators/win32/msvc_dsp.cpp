@@ -617,12 +617,7 @@ DspMakefileGenerator::init()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-            if(project->isActiveConfig("activeqt")) {
-                project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-                project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
-                if(project->isActiveConfig("dll"))
-                    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
-            }
+
             if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) {
                 project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
             }
@@ -739,12 +734,6 @@ DspMakefileGenerator::init()
     QString dest;
     QString postLinkStep;
     QString copyDllStep;
-    QString activeQtStepPreCopyDll;
-    QString activeQtStepPostCopyDll;
-    QString activeQtStepPreCopyDllDebug;
-    QString activeQtStepPostCopyDllDebug;
-    QString activeQtStepPreCopyDllRelease;
-    QString activeQtStepPostCopyDllRelease;
 
     if(!project->variables()["QMAKE_POST_LINK"].isEmpty())
         postLinkStep += var("QMAKE_POST_LINK");
@@ -772,61 +761,18 @@ DspMakefileGenerator::init()
         }
     }
 
-    if(project->isActiveConfig("activeqt")) {
-        QString idl = project->variables()["QMAKE_IDL"].first();
-        QString idc = project->variables()["QMAKE_IDC"].first();
-        QString version;
-        if(!project->variables()["VERSION"].isEmpty())
-            version = project->variables()["VERSION"].first();
-        if(version.isEmpty())
-            version = "1.0";
-        project->variables()["MSVCDSP_IDLSOURCES"].append(var("OBJECTS_DIR") + targetfilename + ".idl");
-        if(project->isActiveConfig("dll")) {
-            activeQtStepPreCopyDll +=
-                             "\t" + idc + " %1 -idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version +
-                             "\t" + idl + " /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb" +
-                             "\t" + idc + " %2 /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb";
-            activeQtStepPostCopyDll +=
-                             "\t" + idc + " %1 /regserver\n";
-
-            QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".dll";
-            activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
-            activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
-
-            executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + targetfilename + ".dll";
-            activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
-            activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
-        } else {
-            activeQtStepPreCopyDll +=
-                             "\t%1 -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version +
-                             "\t" + idl + " /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb" +
-                             "\t" + idc + " %2 /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb";
-            activeQtStepPostCopyDll +=
-                             "\t%1 -regserver\n";
-            QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".exe";
-            activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
-            activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
-
-            executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + targetfilename + ".exe";
-            activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
-            activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
-        }
-
-    }
-
-
-    if(!postLinkStep.isEmpty() || !copyDllStep.isEmpty() || !activeQtStepPreCopyDllDebug.isEmpty() || !activeQtStepPreCopyDllRelease.isEmpty()) {
+    if(!postLinkStep.isEmpty() || !copyDllStep.isEmpty()) {
         project->variables()["MSVCDSP_POST_LINK_DBG"].append(
             "# Begin Special Build Tool\n"
             "SOURCE=$(InputPath)\n"
             "PostBuild_Desc=Post Build Step\n"
-            "PostBuild_Cmds=" + postLinkStep + activeQtStepPreCopyDllDebug + copyDllStep + activeQtStepPostCopyDllDebug + "\n"
+            "PostBuild_Cmds=" + postLinkStep + copyDllStep + "\n"
             "# End Special Build Tool\n");
         project->variables()["MSVCDSP_POST_LINK_REL"].append(
             "# Begin Special Build Tool\n"
             "SOURCE=$(InputPath)\n"
             "PostBuild_Desc=Post Build Step\n"
-            "PostBuild_Cmds=" + postLinkStep + activeQtStepPreCopyDllRelease + copyDllStep + activeQtStepPostCopyDllRelease + "\n"
+            "PostBuild_Cmds=" + postLinkStep + copyDllStep + "\n"
             "# End Special Build Tool\n");
     }
 

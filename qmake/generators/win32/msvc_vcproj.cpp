@@ -938,13 +938,7 @@ void VcprojGenerator::initOld()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-            if(project->isActiveConfig("activeqt")) {
-                project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-                project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
-                if(project->isActiveConfig("dll")) {
-                    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
-                }
-            }
+
             if(!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
                 project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
         }
@@ -1076,68 +1070,6 @@ void VcprojGenerator::initOld()
 
         project->variables()["MSVCPROJ_COPY_DLL"].append(copydll);
         project->variables()["MSVCPROJ_COPY_DLL_DESC"].append(deststr);
-    }
-
-    // ACTIVEQT ------------------------------------------------------
-    if(project->isActiveConfig("activeqt")) {
-        QString idl = project->variables()["QMAKE_IDL"].first();
-        QString idc = project->variables()["QMAKE_IDC"].first();
-        QString version;
-        if(!project->variables()["VERSION"].isEmpty())
-            version = project->variables()["VERSION"].first();
-        if(version.isEmpty())
-            version = "1.0";
-
-        QString objdir = project->first("OBJECTS_DIR");
-        project->variables()["MSVCPROJ_IDLSOURCES"].append(objdir + targetfilename + ".idl");
-        if(project->isActiveConfig("dll")) {
-            QString regcmd = "# Begin Special Build Tool\n"
-                            "TargetPath=" + targetfilename + "\n"
-                            "SOURCE=$(InputPath)\n"
-                            "PostBuild_Desc=Finalizing ActiveQt server...\n"
-                            "PostBuild_Cmds=" +
-                            idc + " %1 -idl " + objdir + targetfilename + ".idl -version " + version +
-                            "\t" + idl + " /nologo " + objdir + targetfilename + ".idl /tlb " + objdir + targetfilename + ".tlb" +
-                            "\t" + idc + " %1 /tlb " + objdir + targetfilename + ".tlb"
-                            "\tregsvr32 /s %1\n"
-                            "# End Special Build Tool";
-
-
-            QString executable;
-            if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
-                executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
-            executable += project->variables()["TARGET"].first();
-            project->variables()["MSVCPROJ_COPY_DLL_REL"].append(regcmd.arg(executable));
-
-            executable = "";
-            if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
-                executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
-            executable += project->variables()["TARGET"].first();
-            project->variables()["MSVCPROJ_COPY_DLL_DBG"].append(regcmd.arg(executable));
-        } else {
-            QString regcmd = "# Begin Special Build Tool\n"
-                            "TargetPath=" + targetfilename + "\n"
-                            "SOURCE=$(InputPath)\n"
-                            "PostBuild_Desc=Finalizing ActiveQt server...\n"
-                            "PostBuild_Cmds="
-                            "%1 -dumpidl " + objdir + targetfilename + ".idl -version " + version +
-                            "\t" + idl + " /nologo " + objdir + targetfilename + ".idl /tlb " + objdir + targetfilename + ".tlb"
-                            "\t" + idc + " %1 /tlb " + objdir + targetfilename + ".tlb"
-                            "\t%1 -regserver\n"
-                            "# End Special Build Tool";
-
-            QString executable;
-            if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
-                executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
-            executable += project->variables()["TARGET"].first();
-            project->variables()["MSVCPROJ_REGSVR_REL"].append(regcmd.arg(executable));
-
-            executable = "";
-            if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
-                executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
-            executable += project->variables()["TARGET"].first();
-            project->variables()["MSVCPROJ_REGSVR_DBG"].append(regcmd.arg(executable));
-        }
     }
 
     if (!project->variables()["DEF_FILE"].isEmpty())

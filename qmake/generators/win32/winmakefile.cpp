@@ -583,11 +583,6 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
 
-    if(project->isActiveConfig("activeqt")) {
-        t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".idl");
-        t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".tlb");
-    }
-
     if(!project->isEmpty("IMAGES"))
         t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
@@ -698,24 +693,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         }
     }
 
-    QString targetfilename = project->variables()["TARGET"].value(0);
-    if(project->isActiveConfig("activeqt")) {
-        QString version = project->variables()["VERSION"].value(0);
-        if(version.isEmpty())
-            version = "1.0";
-
-        if(project->isActiveConfig("dll")) {
-            t << "\n\t" << ("-$(IDC) $(TARGET) /idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
-            t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-            t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-            t << "\n\t" << ("-$(IDC) $(TARGET) /regserver");
-        } else {
-            t << "\n\t" << ("-$(TARGET) -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
-            t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-            t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
-            t << "\n\t" << "-$(TARGET) -regserver";
-        }
-    }
     t << endl << endl;
 
     writeRcFilePart(t);

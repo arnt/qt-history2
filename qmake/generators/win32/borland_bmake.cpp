@@ -132,11 +132,6 @@ void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
 
-    if(project->isActiveConfig("activeqt")) {
-        t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".idl");
-        t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + project->variables()["TARGET"].first() + ".tlb");
-    }
-
     if(!project->isEmpty("IMAGES"))
         t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
