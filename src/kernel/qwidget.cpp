@@ -5104,7 +5104,7 @@ void QWidget::hideEvent( QHideEvent * )
     \sa QApplication::macEventFilter()
 */
 
-bool QWidget::macEvent( MSG * )
+bool QWidget::macEvent( EventHandlerCallRef, EventRef )
 {
     return FALSE;
 }
