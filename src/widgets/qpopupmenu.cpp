@@ -1650,7 +1650,7 @@ void QPopupMenu::setActiveItem( int i )
 	mi->widget()->setFocus();
     else
 	setFocus();
-    if ( mi->id() != 0 )
+    if ( mi->id() != -1 )
 	hilitSig( mi->id() );
 }
 

@@ -62,7 +62,7 @@ SYSCONF_LINK_LIB_SHARED	= #${
 	$text .= " \\\n\t\t\t\t";
 	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
 		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
-		    . ' rm -f lib$(TARGET).sl lib$(TARGET).$(VER_MAJ);' . " \\\n\t\t\t\t"
+		    . ' rm -f lib$(TARGET).sl;' . " \\\n\t\t\t\t"
 		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).sl';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {

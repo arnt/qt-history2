@@ -141,6 +141,12 @@
 #  endif /* __linux__ */
 #endif /* PNG_SETJMP_SUPPORTED */
 
+/* This was added by Troll Tech to work around a bug of the IBM preprocessor */
+#ifdef __xlC__
+#  ifdef __STR__
+#    undef __STR__
+#  endif
+#endif /* __xlC__ */
 #ifdef BSD
 #include <strings.h>
 #else

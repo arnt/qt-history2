@@ -1111,7 +1111,7 @@ void newWinFont( void * p )
     const TCHAR* tc = f->elfLogFont.lfFaceName;
 
     QString familyName;
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	familyName = qt_winQString((void*)tc);
     } else {
 	familyName = QString::fromLocal8Bit((const char*)tc);
@@ -1141,7 +1141,7 @@ void newWinFont( void * p )
     tc = (TCHAR*)f->elfStyle;
 
     QString styleName;
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	styleName = qt_winQString((void*)tc);
     } else {
 	styleName = QString::fromLocal8Bit((const char*)tc);
@@ -1186,7 +1186,7 @@ void populate_database(const QString& fam)
     QWidget dummy;
     QPainter p( &dummy );
 
-    if ( qt_winver == Qt::WV_NT ) {
+    if ( qt_winver & Qt::WV_NT_based ) {
 	LOGFONT lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	if ( fam.isNull() ) {
@@ -1196,7 +1196,7 @@ void populate_database(const QString& fam)
 		sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	}
 	lf.lfPitchAndFamily = 0;
-#if 1
+#if 0
 	EnumFontFamiliesEx( dummy.handle(), &lf,
 	    (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
 #else

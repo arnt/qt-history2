@@ -731,6 +731,11 @@ void QObject::childEvent( QChildEvent * )
   The reimplementation of this virtual function must return TRUE if the
   event should be stopped, or FALSE if the event should be dispatched normally.
 
+  \warning
+  If you delete the receiver object in this function, be sure to return TRUE.
+  If you return FALSE, Qt sends the event to the deleted object and the
+  program will crash.
+
   \sa installEventFilter()
 */
 
@@ -1105,11 +1110,11 @@ void QObject::removeChild( QObject *obj )
 
 
 /*!
-  Installs an event filter object for this object.
+  Installs an event filter \e obj for this object.
 
   An event filter is an object that receives all events that are sent to
   this object.	The filter can either stop the event or forward it to this
-  object.  The event filter object receives events via the eventFilter()
+  object.  The event filter \e obj receives events via its eventFilter()
   function.  The eventFilter() function must return TRUE if the event
   should be stopped, or FALSE if the event should be dispatched normally.
 

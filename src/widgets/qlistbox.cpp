@@ -2322,7 +2322,7 @@ void QListBox::toggleCurrentItem()
   appropriately.
 
   If the listbox is a single-selection listbox and and \a select is TRUE,
-  setCurrentItem will be called.
+  setCurrentItem() will be called.
 
   If the listbox is a single-selection listbox and and \a select is FALSE,
   clearSelection() will be called if \a index is the currently selected
@@ -2342,7 +2342,7 @@ void QListBox::setSelected( int index, bool select )
   is FALSE, and repaints the item appropriately.
 
   If the listbox is a single-selection listbox and and \a select is TRUE,
-  setCurrentItem is called.
+  setCurrentItem() is called.
 
   If the listbox is a single-selection listbox and and \a select is
   FALSE, clearSelection() is called if \a index is the currently
@@ -2562,6 +2562,8 @@ void QListBox::triggerUpdate( bool doLayout )
   The row layout mode implicitly becomes \c Variable.
 
   If \a mode is \c Variable, this function returns without doing anything.
+
+  \sa setRowMode() columnMode()
 */
 
 void QListBox::setColumnMode( LayoutMode mode )
@@ -2599,6 +2601,8 @@ void QListBox::setColumnMode( int columns )
   The column layout mode implicitly becomes \c Variable.
 
   If \a mode is \c Variable, this function returns without doing anything.
+
+  \sa setColumnMode() rowMode()
 */
 
 void QListBox::setRowMode( LayoutMode mode )
@@ -3871,6 +3875,7 @@ void QListBox::sort( bool ascending )
 	    item = items[ i ].item;
 	    if ( item ) {
 		item->p = prev;
+		item->dirty = TRUE;
 		if ( item->p )
 		    item->p->n = item;
 		item->n = 0;
@@ -3884,6 +3889,7 @@ void QListBox::sort( bool ascending )
 	    item = items[ i ].item;
 	    if ( item ) {
 		item->p = prev;
+		item->dirty = TRUE;
 		if ( item->p )
 		    item->p->n = item;
 		item->n = 0;
@@ -3895,8 +3901,8 @@ void QListBox::sort( bool ascending )
     }
 
     delete [] items;
-    d->layoutDirty = TRUE;
-    viewport()->repaint( TRUE );
+    setContentsPos( 0, contentsHeight() - visibleHeight() );
+    setContentsPos( 0, 0 );
 }
 
 void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )

@@ -2320,6 +2320,13 @@ void pnmscale(const QImage& src, QImage& dst)
 */
 QImage QImage::smoothScale(int w, int h) const
 {
+    if ( isNull() ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QImage::smoothScale: Image is a null image" );
+#endif
+	return *this;
+    }
+
     if ( w == width() && h == height() )
 	return *this; // nothing to do
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#185 $
+** $Id: qt/src/widgets/qiconview.cpp   2.1.1   edited 2000-04-24 $
 **
 ** Implementation of QIconView widget class
 **
@@ -225,7 +225,6 @@ public:
     bool resortItemsWhenInsert, sortDirection;
     bool wordWrapIconText;
     int cachedContentsX, cachedContentsY;
-    int resizeEvents;
     QBrush itemTextBrush;
     bool drawAllBack;
     QRegion clipRegion;
@@ -2259,7 +2258,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->cachedContentsX = d->cachedContentsY = -1;
     d->clearing = FALSE;
     d->fullRedrawTimer = new QTimer( this );
-    d->resizeEvents = 0;
     d->itemTextBrush = NoBrush;
     d->drawAllBack = TRUE;
     QFont fo( font() );
@@ -4130,17 +4128,12 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 
 void QIconView::resizeEvent( QResizeEvent* e )
 {
-    d->resizeEvents++;
-    if ( d->resizeMode == Adjust )
-	d->oldSize = e->oldSize();
     QScrollView::resizeEvent( e );
     if ( d->resizeMode == Adjust ) {
+	d->oldSize = e->oldSize();
 	if ( d->adjustTimer->isActive() )
 	    d->adjustTimer->stop();
-	if ( d->resizeEvents > 2 )
-	    d->adjustTimer->start( 100, TRUE );
-	else
-	    arrangeItemsInGrid( FALSE );
+	d->adjustTimer->start( 100, TRUE );
     }
 }
 

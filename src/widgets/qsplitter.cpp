@@ -1052,7 +1052,10 @@ QValueList<int> QSplitter::sizes() const
 
 /*!
   Sets the size parameters to the values given in \a list.
-  Extra values in \a list are ignored.
+  If the splitter is horizontal, the values set the sizes from
+  left to right. If it is vertical, the sizes are applied from
+  top to bottom.
+  Extra values in \a list are ignored. 
 
   If \a list contains to few values, the result is undefined
   but the program will still be well-behaved.

@@ -889,7 +889,7 @@ void QWorkspace::closeActiveWindow()
     if ( w )
 	w->close();
 
-    activateNextWindow();
+    activatePreviousWindow();
 
     if (d->active && isMax && !d->active->isHidden() ) 
 	d->active->showMaximized();

@@ -1553,7 +1553,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	    (*reverseMap)[i] = (char)i;
 	for( ;i < m; i++ )
 	    (*reverseMap)[i] = '?';
-	for( i=128; i<255; i++ ) {
+	for( i=128; i<256; i++ ) {
 	    int u = unicodevalues[forwardIndex].values[i-128];
 	    if ( u < m )
 		(*reverseMap)[u] = (char)(unsigned char)(i);

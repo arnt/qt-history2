@@ -4,7 +4,7 @@ win32:SOURCES	= kernel/qtinit_win.cpp \
 		  kernel/qtmain_win.cpp
 DEFINES		= QT_DLL
 TARGET		= qtmain
-VERSION		= 2.10
+VERSION		= 2.11
 DESTDIR		= ../lib
 
 win32:TMAKE_CFLAGS     += -DUNICODE
