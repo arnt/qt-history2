@@ -712,7 +712,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
     undoRedoInfo.clear();
     QTextEditCursor c = *cursor;
     mousePos = e->pos();
-    
+
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
 	drawCursor( FALSE );
@@ -799,14 +799,30 @@ void QTextEdit::doAutoScroll()
 
     QPoint pos( mapFromGlobal( QCursor::pos() ) );
     drawCursor( FALSE );
+    QTextEditCursor oldCursor = *cursor;
     placeCursor( viewportToContents( pos ) );
     if ( inDoubleClick ) {
-	if ( mousePos.y() > oldMousePos.y() ||
-	     mousePos.y() == oldMousePos.y() &&
-	     mousePos.x() > oldMousePos.x() )
-	    cursor->gotoWordRight();
+	QTextEditCursor cl = *cursor;
+	cl.gotoWordLeft();
+	QTextEditCursor cr = *cursor;
+	cr.gotoWordRight();
+	
+	int diff = QABS( oldCursor.parag()->at( oldCursor.index() )->x - mousePos.x() );
+	int ldiff = QABS( cl.parag()->at( cl.index() )->x - mousePos.x() );
+	int rdiff = QABS( cr.parag()->at( cr.index() )->x - mousePos.x() );
+	
+	
+	if ( cursor->parag()->lineStartOfChar( cursor->index() ) !=
+	     oldCursor.parag()->lineStartOfChar( oldCursor.index() ) )
+	    diff = 0xFFFFFF;
+	
+	if ( rdiff < diff && rdiff < ldiff )
+	    *cursor = cr;
+	else if ( ldiff < diff && ldiff < rdiff )
+	    *cursor = cl;
 	else
-	    cursor->gotoWordLeft();
+	    *cursor = oldCursor;
+	
     }
     ensureCursorVisible();
 
