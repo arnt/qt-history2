@@ -44,6 +44,7 @@ void readTextLines(QIODevice& f)
 
 int main()
 {
+    printf( "Your home dir is %s\n", QDir::homeDirPath().ascii());
     printf("Testing QDir::canonicalPath(.)..\n");
     {
 	QDir d("/home/warwick/local");;
