@@ -26,14 +26,8 @@
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
-static const ub2 CSID_UTF8 = 871; // UTF-8 not defined in Oracle 8 libraries
 static const ub1 CSID_NCHAR = SQLCS_NCHAR;
-
-#ifdef OCI_UTF16ID
-static const ub2 CSID_UTF16 = OCI_UTF16ID;
-#else
-static const ub2 CSID_UTF16 = 0;
-#endif
+static const ub2 qOraCharset = OCI_UCS2ID;
 
 typedef QVarLengthArray<sb2, 32> IndicatorArray;
 
@@ -55,14 +49,8 @@ public:
     OCIStmt *sql;
     bool transaction;
     int serverVersion;
-    bool utf8;  // db charset
-    bool nutf8; // national charset
-    bool utf16bind;
     QString user;
 
-    text* oraText(const QString& str) const;
-    sb4 oraTextLength(const QString& str) const;
-    sb4 oraByteLength(const QString& str) const;
     void setCharset(OCIBind* hbnd);
     int bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
@@ -72,34 +60,12 @@ public:
 };
 
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
-        svc(0), sql(0), transaction(false), serverVersion(-1),
-        utf8(false), nutf8(false), utf16bind(false)
+        svc(0), sql(0), transaction(false), serverVersion(-1)
 {
 }
 
 QOCIPrivate::~QOCIPrivate()
 {
-}
-
-text* QOCIPrivate::oraText(const QString& str) const
-{
-    if (utf16bind)
-        return (text*)str.utf16();
-    return (text*)str.ascii();
-}
-
-sb4 QOCIPrivate::oraTextLength(const QString& str) const
-{
-    if (utf16bind)
-        return (sb4)((str.length() + 1) * sizeof(QChar));
-    return (sb4)(str.length() + 1);
-}
-
-sb4 QOCIPrivate::oraByteLength(const QString& str) const
-{
-    if (utf16bind)
-        return (sb4)((str.length()) * sizeof(QChar));
-    return (sb4)str.length();
 }
 
 void QOCIPrivate::setCharset(OCIBind* hbnd)
@@ -108,7 +74,7 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
 
     Q_ASSERT(hbnd);
 #ifdef QOCI_USES_VERSION_9
-    if (serverVersion > 8 && !CSID_UTF16) {
+    if (serverVersion > 8) {
 
         r = OCIAttrSet((void*)hbnd,
                         OCI_HTYPE_BIND,
@@ -117,24 +83,19 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
                         (ub4) OCI_ATTR_CHARSET_FORM,
                         err);
 
-#ifdef QT_CHECK_RANGE
         if (r != 0)
             qOraWarning("QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this);
-#endif
     }
 #endif //QOCI_USES_VERSION_9
 
-    const ub2* csid = utf16bind ? &CSID_UTF16 : &CSID_UTF8;
     r = OCIAttrSet((void*)hbnd,
                     OCI_HTYPE_BIND,
-                    (void*) &csid,
+                    (void*) &qOraCharset,
                     (ub4) 0,
                     (ub4) OCI_ATTR_CHARSET_ID,
                     err);
-#ifdef QT_CHECK_RANGE
     if (r != 0)
         qOraWarning("QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this);
-#endif
 }
 
 bool QOCIPrivate::isOutValue(int i) const
@@ -213,22 +174,22 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                 if (isOutValue(i)) {
                     QByteArray ba((char*)s.utf16(), s.capacity() * sizeof(QChar));
                     r = OCIBindByPos(sql, &hbnd, err,
-                                    i + 1,
-                                    (dvoid *)ba.constData(),
-                                    ba.size(),
-                                    SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-                                    (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                                     i + 1,
+                                     (dvoid *)ba.constData(),
+                                     ba.size(),
+                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                     tmpStorage.append(ba);
                 } else {
                     s.utf16(); // append 0
                     r = OCIBindByPos(sql, &hbnd, err,
-                                    i + 1,
-                                    //yes, we cast away the const.
-                                    // But Oracle should'nt touch IN values
-                                    (dvoid *)s.constData(),
-                                    (s.length() + 1) * sizeof(QChar),
-                                    SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-                                    (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                                     i + 1,
+                                     //yes, we cast away the const.
+                                     // But Oracle shouldn't touch IN values
+                                     (dvoid *)s.constData(),
+                                     (s.length() + 1) * sizeof(QChar),
+                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 }
                 setCharset(hbnd);
                 break; }
@@ -296,9 +257,11 @@ QString qOraWarn(const QOCIPrivate* d)
                 errbuf,
                 (ub4)(sizeof(errbuf)),
                 OCI_HTYPE_ERROR);
-    if (d->utf16bind)
-        return QString::fromUtf16((const unsigned short*)errbuf);
-    return QString::fromLocal8Bit((const char*)errbuf);
+#ifdef QOCI_USES_VERSION_9
+    return QString::fromUtf16((const unsigned short *)errbuf);
+#else
+    return QString::fromLocal8Bit(static_cast<const char *>(errbuf));
+#endif
 }
 
 void qOraWarning(const char* msg, const QOCIPrivate* d)
@@ -778,7 +741,7 @@ void QOCIResultPrivate::setCharset(OCIDefine* dfn)
 
     Q_ASSERT(dfn);
 #ifdef QOCI_USES_VERSION_9
-    if (d->serverVersion > 8 && !CSID_UTF16) {
+    if (d->serverVersion > 8) {
 
         r = OCIAttrSet((void*)dfn,
                         OCI_HTYPE_DEFINE,
@@ -793,15 +756,14 @@ void QOCIResultPrivate::setCharset(OCIDefine* dfn)
 #endif //QOCI_USES_VERSION_9
 
     if (d->serverVersion > 8) {
-        const ub2* csid = d->utf16bind ? &CSID_UTF16 : &CSID_UTF8;
         r = OCIAttrSet((void*)dfn,
                         OCI_HTYPE_DEFINE,
-                        (void*) &csid,
+                        (void*) &qOraCharset,
                         (ub4) 0,
                         (ub4) OCI_ATTR_CHARSET_ID,
                         d->err);
-//        if (r != 0)
-//            qOraWarning("QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d);
+        if (r != 0)
+            qOraWarning("QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d);
     }
 }
 
@@ -984,25 +946,21 @@ QCoreVariant QOCIResultPrivate::value(int i)
     switch (type(i)) {
         case QCoreVariant::DateTime:
             v = QCoreVariant(qMakeDate(at(i)));
-        break;
+            break;
         case QCoreVariant::String:
         case QCoreVariant::Double: // when converted to strings
         case QCoreVariant::Int:    // keep these as strings so that we do not lose precision
-            if (d->utf16bind)
-                v = QCoreVariant(QString::fromUtf16((const short unsigned int*)at(i)));
-            else
-                v = QCoreVariant(QString::fromUtf8(at(i)));
-        break;
+            v = QCoreVariant(QString::fromUtf16((const short unsigned int*)at(i)));
+            break;
         case QCoreVariant::ByteArray: {
             int len = length(i);
             if (len > 0)
                 return QByteArray(at(i), len);
             return QCoreVariant(QByteArray());
-        break;
         }
         default:
-        qWarning("QOCIResultPrivate::value: unknown data type");
-        break;
+            qWarning("QOCIResultPrivate::value: unknown data type");
+            break;
     }
     return v;
 }
@@ -1128,12 +1086,20 @@ bool QOCIResult::prepare(const QString& query)
         setLastError(qMakeError(QLatin1String("Unable to alloc statement"), QSqlError::StatementError, d));
         return false;
     }
+#ifdef QOCI_USES_VERSION_9
+    const OraText *txt = (const OraText *)query.utf16();
+    const int len = query.length() * sizeof(QChar);
+#else
+    const QByteArray tmp = query.toAscii();
+    const OraText *txt = static_cast<const OraText *>(tmp.constData());
+    const int len = tmp.length();
+#endif
     r = OCIStmtPrepare(d->sql,
-                        d->err,
-                        (OraText*)query.unicode(),
-                        query.length() * sizeof(QChar),
-                        OCI_NTV_SYNTAX,
-                        OCI_DEFAULT);
+                       d->err,
+                       txt,
+                       len,
+                       OCI_NTV_SYNTAX,
+                       OCI_DEFAULT);
     if (r != 0) {
         qOraWarning("QOCIResult::prepare: unable to prepare statement:", d);
         setLastError(qMakeError(QLatin1String("Unable to prepare statement"), QSqlError::StatementError, d));
@@ -1439,12 +1405,20 @@ bool QOCI9Result::prepare(const QString& query)
         qOraWarning("QOCI9Result::reset: unable to alloc statement: ", d);
         return false;
     }
+#ifdef QOCI_USES_VERSION_9
+    const OraText *txt = (const OraText *)query.utf16();
+    const int len = query.length() * sizeof(QChar);
+#else
+    const QByteArray tmp = query.toAscii();
+    const OraText *txt = static_cast<const OraText *>(tmp.constData());
+    const int len = tmp.length();
+#endif
     r = OCIStmtPrepare(d->sql,
-                        d->err,
-                        (const OraText*)query.unicode(),
-                        query.length() * sizeof(QChar),
-                        OCI_NTV_SYNTAX,
-                        OCI_DEFAULT);
+                       d->err,
+                       txt,
+                       len,
+                       OCI_NTV_SYNTAX,
+                       OCI_DEFAULT);
     if (r != 0) {
         qOraWarning("QOCI9Result::reset: unable to prepare statement: ", d);
         return false;
@@ -1555,15 +1529,19 @@ QOCIDriver::QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* pare
 void QOCIDriver::init()
 {
     d = new QOCIPrivate();
+#ifdef QOCI_USES_VERSION_9
+    static const ub4 mode = OCI_UTF16 | OCI_OBJECT;
+#else
+    static const ub4 mode = OCI_OBJECT;
+#endif
     int r = OCIEnvCreate(&d->env,
-                            OCI_UTF16 | OCI_OBJECT,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            0,
-                            NULL);
-    d->utf16bind = true;
+                         mode,
+                         NULL,
+                         NULL,
+                         NULL,
+                         NULL,
+                         0,
+                         NULL);
     if (r != 0)
         qOraWarning("QOCIDriver: unable to create environment:", d);
     r = OCIHandleAlloc((dvoid *) d->env,
@@ -1581,7 +1559,8 @@ void QOCIDriver::init()
     if (r != 0)
         qOraWarning("QOCIDriver: unable to alloc service context:", d);
     if (r != 0)
-        setLastError(qMakeError(QLatin1String("Unable to initialize"), QSqlError::ConnectionError, d));
+        setLastError(qMakeError(QLatin1String("Unable to initialize"),
+                     QSqlError::ConnectionError, d));
 }
 
 QOCIDriver::~QOCIDriver()
@@ -1617,17 +1596,34 @@ bool QOCIDriver::open(const QString & db,
                        int,
                        const QString &)
 {
+    int r;
+
     if (isOpen())
         close();
+#ifdef QOCI_USES_VERSION_9
+   r = OCILogon(d->env,
+                d->err,
+                &d->svc,
+                reinterpret_cast<const OraText *>(user.utf16()),
+                user.length() * sizeof(QChar),
+                reinterpret_cast<const OraText *>(password.utf16()),
+                password.length() * sizeof(QChar),
+                reinterpret_cast<const OraText *>(db.utf16()),
+                db.length() * sizeof(QChar));
+#else
+    const QByteArray tmpUser = user.toAscii();
+    const QByteArray tmpPassword = password.toAscii();
+    const QByteArray tmpDb = db.toAscii();
     int r = OCILogon(d->env,
                      d->err,
                      &d->svc,
-                     (OraText*) user.unicode(),
-                     user.length() * sizeof(QChar),
-                     (OraText*)password.unicode(),
-                     password.length() * sizeof(QChar),
-                     (OraText*)db.unicode(),
-                     db.length() * sizeof(QChar));
+                     tmpUser.constData(),
+                     tmpUser.length(),
+                     tmpPassword.constData(),
+                     tmpPassword.length(),
+                     tmpDb.constData(),
+                     tmpDb.length());
+#endif
     if (r != 0) {
         setLastError(qMakeError(QLatin1String("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
@@ -1635,49 +1631,31 @@ bool QOCIDriver::open(const QString & db,
     }
 
     // get server version
-    text vertxt[512];
+    char vertxt[512];
     r = OCIServerVersion(d->svc,
                           d->err,
-                          vertxt,
+                          reinterpret_cast<OraText *>(vertxt),
                           sizeof(vertxt),
                           OCI_HTYPE_SVCCTX);
     if (r != 0) {
-#ifdef QT_CHECKRANGE
         qWarning("QOCIDriver::open: could not get Oracle server version.");
-#endif
     } else {
-        QString versionStr = d->utf16bind ? QString::fromUtf16((unsigned short*)vertxt)
-                            : QString::fromUtf8((char*)vertxt, sizeof(vertxt));
+        QString versionStr;
+#ifdef QOCI_USES_VERSION_9
+        versionStr = QString::fromUtf16(reinterpret_cast<unsigned short *>(vertxt));
+#else
+        versionStr = QString::fromLocal8Bit(static_cast<char *>(vertxt), sizeof(vertxt));
+#endif
         QRegExp vers(QLatin1String("([0-9]+)\\.[0-9\\.]+[0-9]"));
         if (vers.indexIn(versionStr) >= 0)
             d->serverVersion = vers.cap(1).toInt();
         if (d->serverVersion == 0)
             d->serverVersion = -1;
-}
+    }
+
     setOpen(true);
     setOpenError(false);
     d->user = user.toUpper();
-
-    QSqlQuery q = createQuery();
-    q.setForwardOnly(true);
-    if (q.exec(QLatin1String("select parameter, value from nls_database_parameters "
-                 "where parameter = 'NLS_CHARACTERSET' "
-                 "or parameter = 'NLS_NCHAR_CHARACTERSET'"))) {
-        while (q.next()) {
-            // qDebug("NLS: " + q.value(0).toString()); // ###
-            if (q.value(0).toString() == QLatin1String("NLS_CHARACTERSET") &&
-                 q.value(1).toString().toUpper().startsWith(QLatin1String("UTF8"))) {
-                d->utf8 = true;
-            } else if (q.value(0).toString() == QLatin1String("NLS_NCHAR_CHARACTERSET") &&
-                 q.value(1).toString().toUpper().startsWith(QLatin1String("UTF8"))) {
-                d->nutf8 = true;
-            }
-        }
-    } else {
-#ifdef QT_CHECKRANGE
-        qWarning("QOCIDriver::open: could not get Oracle server character set.");
-#endif
-    }
 
     return true;
 }
