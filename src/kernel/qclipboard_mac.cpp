@@ -142,7 +142,6 @@ const char* QClipboardWatcher::format(int n) const
 		if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &sz) == noErr)
 		    qmt = QMacMime::MIME_QT_CONVERTOR;
 	    }
-
 	    bool sawSBText = FALSE;
 	    for(int i = 0; i < (int)cnt; i++) {
 		if(infos[i].flavorType == kScrapFlavorTypeText) {
