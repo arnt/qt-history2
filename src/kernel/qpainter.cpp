@@ -2242,7 +2242,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
-    bool simple = !decode & singleline & !showprefix & !expandtabs;
+    bool simple = !decode && singleline && !showprefix && !expandtabs;
     if ( simple )
 	simple &= str.simpleText();
 
