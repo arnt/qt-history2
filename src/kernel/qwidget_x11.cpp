@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#75 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#74 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#75 $";
 #endif
 
 
@@ -359,7 +359,7 @@ QFontInfo will tell you what font is actually being used.
 \sa setFont(), fontMetrics() and fontInfo().
 */
 
-QFont &QWidget::font()
+const QFont &QWidget::font()
 {
     return fnt;
 }
