@@ -14,7 +14,7 @@ void create_db()
     /* get the default app database */
     QSqlDatabase* db = QSqlDatabase::database();
 
-    QSqlRecord* buf = 0;    
+    QSqlRecord* buf = 0;
     /* create sample database with some sample data */
     db->exec("create table CUSTOMER "
 	     "(ID numeric(10) primary key,"
@@ -71,7 +71,7 @@ void create_db()
     buf = invoice.insertBuffer();
     buf->setValue( "CUSTOMERID",  customer.value("id") );
     buf->setValue( "NUM",  1 );
-    buf->setValue( "PAID",  TRUE );
+    buf->setValue( "PAID",  QVariant( TRUE, TRUE ) );
     buf->setValue( "CREATEDATE",  QDate(2000,1,1) );
     buf->setValue( "TAX",  0 );
     buf->setValue( "SHIPPING",  0 );

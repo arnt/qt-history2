@@ -4,6 +4,8 @@
 #include <qsqldriver.h>
 #include <qsqlcursor.h>
 #include <qapplication.h>
+#include <qimage.h>
+#include <qcstring.h>
 #include <stdio.h>
 
 #include <time.h>
@@ -149,7 +151,7 @@ void TestTrans()
 	QSqlQuery recsRemaining("select count(1) from " + TABLE_NAME + ";");
 	recsRemaining.next();
 	qDebug("Records in table:" + recsRemaining.value(0).toString() );
-	
+
 	database->transaction();
 	for ( int i=0; i<TEST_RECS; ++i ) {
 	    database->exec( "insert into " + TABLE_NAME + " (id) values (" + QString::number(i) + ");");
@@ -170,6 +172,16 @@ void TestTrans()
     qDebug("Done.");
 }
 
+void qt_debug_buffer( const QString& msg, QSqlCursor* cursor )
+{
+    qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    qDebug(msg);
+    for ( uint j = 0; j < cursor->count(); ++j ) {
+	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+    }
+}
+
+
 int main( int argc, char** argv )
 {
     QApplication a( argc, argv, FALSE );
@@ -183,6 +195,42 @@ int main( int argc, char** argv )
     db->setPassword( qApp->argv()[4] );
     db->setHostName( qApp->argv()[5] );
     db->open();
+
+    
+    db->exec("create table b"
+	     "(id number primary key,"
+	     "l long raw);");
+    
+    QSqlCursor cursor( "b" );
+    
+    cursor["ID"] = 1;
+    QImage img("/tmp/radio_t.xpm", "XPM" );
+    QByteArray b;
+    b.duplicate( (char*)img.bits(), img.numBytes() );
+    cursor["L"] = b;
+    cursor.insert();
+    
+    cursor.select();
+    while( cursor.next() ) {
+	qt_debug_buffer("", &cursor );
+	QByteArray ba = cursor["L"].toByteArray();
+	qDebug("Binary data size:" + QString::number(ba.size()));
+	QString res;
+	static const char hexchars[] = "0123456789abcdef";
+	for ( uint i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[i];
+	    res += hexchars[s >> 4];
+	    res += hexchars[s & 0x0f];
+	}
+	qDebug("hex data:" +  res );
+    }
+    
+    QSqlQuery q("select l from b;");
+    while ( q.next() )
+	qDebug("rawtohex:" + q.value(0).toString() );
+        
+    db->exec("drop table b;");
+    return 0;
     
     qDebug("++++++++++++++");
     TestCreateTable();
@@ -195,9 +243,9 @@ int main( int argc, char** argv )
     qDebug("++++++++++++++");
     TestTrans();
     qDebug("++++++++++++++");
-    
+
     qDebug("Dropping sample table...");
-    //    db->exec( "drop table " + TABLE_NAME + ";" );
+    db->exec( "drop table " + TABLE_NAME + ";" );
     qDebug("++++++++++++++");
     qDebug("Done.");
     return 0;
