@@ -93,6 +93,8 @@ public:
     inline void setSelectable(bool enable) { selectable = enable; }
     inline bool isCheckable() const { return checkable; }
     inline void setCheckable(bool enable) { checkable = enable; }
+    inline bool isEnabled() const { return enabled; }
+    inline void setEnabled(bool enable) { enabled = enable; }
 
     inline bool operator ==(const QTreeWidgetItem &other) const
         { return par == other.par && children == other.children; }
@@ -121,6 +123,7 @@ private:
     uint editable : 1;
     uint selectable : 1;
     uint checkable : 1;
+    uint enabled : 1;
 };
 
 class QTreeWidgetPrivate;
@@ -143,6 +146,24 @@ public:
     QIconSet columnIcon(int column) const;
     void setColumnIcon(int column, const QIconSet &icon);
 
+    QString columnStatusTip(int column) const;
+    void setColumnStatusTip(int column, const QString &statusTip);
+
+    QString columnToolTip(int column) const;
+    void setColumnToolTip(int column, const QString &toolTip);
+
+    QString columnWhatsThis(int column) const;
+    void setColumnWhatsThis(int column, const QString &whatsThis);
+
+    QFont columnFont(int column) const;
+    void setColumnFont(int column, const QFont &font);
+
+    QColor columnBackgroundColor(int column) const;
+    void setColumnBackgroundColor(int column, const QColor &color);
+
+    QColor columnTextColor(int column) const;
+    void setColumnTextColor(int column, const QColor &color);
+    
     QVariant columnData(int column, int role) const;
     void setColumnData(int column, int role, const QVariant &value);
 
