@@ -329,7 +329,7 @@ struct XPThemeData
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else if ( name == "TREEVIEW" ) {
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
-	} else if ( name == "EDIT" ) {
+	} else if ( name == "EDIT" && ::qt_cast<QComboBox*>(widget) == 0 ) {
 	    // We assume upto 2px border on the lineedit
 	    // pixmap, and clip the rest to avoid flicker
 	    HRGN hr1 = CreateRectRgn( rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1 );
