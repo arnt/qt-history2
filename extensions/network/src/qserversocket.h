@@ -33,44 +33,30 @@
 
 
 class QServerSocketPrivate;
+
+
 class QServerSocket : public QObject
 {
     Q_OBJECT
 public:
-    QServerSocket( QObject *parent=0, const char *name=0 );
-    QServerSocket( int port, QObject *parent=0, const char *name=0 );
+    QServerSocket( int port, int backlog = 0,
+		   QObject *parent=0, const char *name=0 );
+    QServerSocket( const QHostAddress & address, int port, int backlog = 0,
+		   QObject *parent=0, const char *name=0 );
     ~QServerSocket();
 
-    int		 port() const;
-    QSocket *socket() const;
-    void	 setPort( int port );
+    uint port();
+    QHostAddress address();
 
-    bool start(int backlog=4);
+    virtual void newConnection( int socket ) = 0;
 
-    virtual void newConnection( int socket );
-
-protected:
-    QSocketDevice *socketDevice();
-    virtual bool accept() const;
-
-protected slots:
-    void	 incomingConnection( int socket );
+private slots:
+    void incomingConnection( int socket );
 
 private:
     QServerSocketPrivate *d;
-    QSocket	*sd;
+    void init( const QHostAddress & address, int port, int backlog );
 };
-
-
-// inline int QServerSocket::port() const
-// {
-//     return sd->port();
-// }
-
-inline QSocket *QServerSocket::socket() const
-{
-    return sd;
-}
 
 
 #endif // QSERVERSOCKET_H

@@ -28,11 +28,10 @@
 
 class QServerSocketPrivate {
 public:
-    QServerSocketPrivate() { socket=0; sn=0; }
-    QSocketDevice *socket;
-    QHostAddress addr;
-    uint port;
-    QSocketNotifier *sn;
+    QServerSocketPrivate(): s(0), n(0) {}
+    ~QServerSocketPrivate() { delete s; delete n; }
+    QSocketDevice *s;
+    QSocketNotifier *n;
 };
 
 
@@ -42,64 +41,69 @@ public:
 
   \ingroup kernel
 
-  This class is not yet documented.
+  This class is a convenience class for accepting incoming TCP
+  connections.  You can specify port or have QSocketServer pick one,
+  and listen on just one address or on all the addresses of the
+  machine.
+
+  The API is very simple: Subclass it, call the constructor of your
+  choice, and implement newConnection() to handle new incoming
+  connections.  There is nothing more to do.
+
+  (Note that due to lack of support in the underlying APIs,
+  QServerSocket cannot accept or reject connections conditionally.)
 
   \sa QSocket, QSocketDevice, QSocketAddress, QSocketNotifier
 */
 
 
 /*!
-  Creates a server socket object, but does not start any server yet.
-  The server is not started until start() is called.
+  Creates a server socket object, that will serve the given \a port on
+  all the addresses of this host.  If \a port is 0, QServerSocket
+  picks a suitable port in in a system-dependent manner.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
 */
 
-QServerSocket::QServerSocket( QObject *parent, const char *name )
+QServerSocket::QServerSocket( int port, int backlog,
+			      QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QServerSocketPrivate;
+    init( QHostAddress(), port, backlog );
 }
 
 
 /*!
-  Creates a server socket object, that will server the given \a port.
-  The server is not started until start() is called.
+  Creates a server socket object, that will serve the given \a port
+  on just \a address.
 
   The \a parent and \a name arguments are passed on as usual
   to the QObject constructor.
 */
 
-QServerSocket::QServerSocket( int port, QObject *parent,
-			      const char *name )
+QServerSocket::QServerSocket( const QHostAddress & address, int port,
+			      int backlog,
+			      QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QServerSocketPrivate;
-    d->socket = new QSocketDevice;
-    d->addr = QHostAddress( 0 );
-    d->port = port;
-    
+    init( address, port, backlog );
 }
 
-/*!
-  Starts servicing the configured port(). \a backlog is the number of
-  clients which may successfully attempt connect while the server is busy
-  (the slower your server, and the more clients you are expecting, the
-  higher this number must be if you wish to avoid failed connections).
 
-  Returns TRUE if the server succeeds in binding to the required resources.
-*/
-bool QServerSocket::start( int backlog )
+/*!  The common bit of the constructors. */
+
+void QServerSocket::init( const QHostAddress & address, int port, int backlog )
 {
-    if ( !d->socket->bind( d->addr, d->port ) )
-	return FALSE;
-    d->socket->listen( backlog );
-    d->sn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read, 
-				 this, "accepting new connections" );
-    connect( d->sn, SIGNAL(activated(int)),
+    d->s = new QSocketDevice;
+    d->s->bind( address, port );
+    d->s->listen( backlog );
+    d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
+				this, "accepting new connections" );
+    connect( d->n, SIGNAL(activated(int)),
 	     this, SLOT(incomingConnection(int)) );
-    return TRUE;
 }
 
 
@@ -108,7 +112,7 @@ bool QServerSocket::start( int backlog )
 
   This brutally severes any backlogged connections (connections that
   have reached the host, but not yet been completely set up by calling
-  accept()).
+  QSocketDevice::accept()).
 
   Existing connections continue to exist; this only affects acceptance
   of new connections.
@@ -120,41 +124,42 @@ QServerSocket::~QServerSocket()
 }
 
 
-int QServerSocket::port() const
-{
-    return d->port;
-}
+/*! \fn void QServerSocket::newConnection( int socket )
 
-
-void QServerSocket::setPort( int port )
-{
-}
-
-
-void QServerSocket::newConnection( int socket )
-{
-    QSocketDevice s( socket, QSocketDevice::Stream );
-    s.close();
-}
-
-
-/*!
-  Returns the QSocketDevice used by this server.
+  This pure virtual function is responsible for setting up a new
+  incoming connection.  \a socket is the fd of the newly accepted
+  connection.
 */
-QSocketDevice *QServerSocket::socketDevice()
-{
-    return d->socket;
-}
-
-
-bool QServerSocket::accept() const
-{
-    return TRUE;
-}
 
 
 void QServerSocket::incomingConnection( int socket )
 {
-    int fd = d->socket->accept();
-    newConnection( fd );
+    int fd = d->s->accept();
+    if ( fd >= 0 )
+	newConnection( fd );
+}
+
+
+/*!  Returns the port number on which this object listens.  This is
+always non-zero; if you specify 0 in the constructor, QServerSocket
+picks a port itself and port() returns its number.
+
+\sa address() QSocketDevice::port()
+*/
+
+uint QServerSocket::port()
+{
+    return d->s->port();
+}
+
+
+/*!  Returns the address on which this object listens, or 0.0.0.0 if
+this object listens on more than one address.
+
+\sa port() QSocketDevice::address()
+*/
+
+QHostAddress QServerSocket::address()
+{
+    return d->s->address();
 }
