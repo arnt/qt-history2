@@ -646,7 +646,6 @@ bool QLineEdit::hasSelectedText() const
 QString QLineEdit::selectedText() const
 {
     return selectedText( TRUE );
-//     return d->parag->string()->toString().mid( d->parag->selectionStart( QTextDocument::Standard ), d->parag->selectionEnd( QTextDocument::Standard ) - d->parag->selectionStart( QTextDocument::Standard ) );
 }
 
 /* IGNORE!
@@ -658,6 +657,9 @@ QString QLineEdit::selectedText() const
     If truncation occurs any selected text will be unselected, the
     cursor position is set to 0 and the first part of the string is
     shown.
+
+    If a mask has been set setMaxLength() is disabled since the
+    maxLength has been set by the mask itself.
 */
 
 int QLineEdit::maxLength() const
@@ -2266,6 +2268,8 @@ void QLineEdit::removeSelectedText()
 
 /* IGNORE!
     Undoes the last operation.
+
+    If a mask has been set, undo is disabled.
 */
 
 void QLineEdit::undo()
@@ -2284,6 +2288,8 @@ void QLineEdit::undo()
 
 /* IGNORE!
     Redoes the last operation.
+
+    If a mask has been set, undo is disabled.
 */
 
 void QLineEdit::redo()
@@ -2379,13 +2385,6 @@ bool QLineEdit::dragEnabled() const
 bool QLineEdit::getSelection( int *start, int *end )
 {
     return getSelection( start, end, TRUE );
-//     if ( !start || !end )
-// 	return FALSE;
-//     if ( !hasSelectedText( FALSE ) )
-// 	return FALSE;
-//     *start = d->parag->selectionStart( QTextDocument::Standard );
-//     *end = d->parag->selectionEnd( QTextDocument::Standard );
-//     return TRUE;
 }
 
 /* IGNORE! \reimp */
@@ -2477,6 +2476,8 @@ bool QLineEdit::isRedoAvailable() const
   \endlist
 
   To get range control (like with an IP address) use masks together with validators.
+
+  \sa mask() hasMask()
 */
 void QLineEdit::setMask( const QString &mask )
 {
@@ -2493,7 +2494,9 @@ bool QLineEdit::hasMask() const
 
 /*!
   Clears the set mask.
-  Convenience function, same as calling setMask with an empty string.
+  Convenience function, same as calling setMask() with an empty string.
+
+  \sa setMask()
 */
 void QLineEdit::clearMask()
 {
@@ -2503,6 +2506,8 @@ void QLineEdit::clearMask()
 
 /*!
   Returns the set mask. Return a nullstring if there is no mask set.
+
+  \sa setMask() hasMask()
 */
 QString QLineEdit::mask() const
 {
@@ -3100,7 +3105,11 @@ bool QLineEdit::hasSelectedText( bool ignore ) const
 	    d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/* in maskmode this retuns if the selection is an 'overwrite'/cursor selection */
+/*
+  In maskmode this retuns if the selection is an 'overwrite'/cursor selection.
+  An overWriteSelection is when we are in maskmode, the selection is of length one
+  and the cursor is at the same position as the selectionStart.
+ */
 bool QLineEdit::hasOverWriteSelection() const
 {
     return ( hasMask() &&
