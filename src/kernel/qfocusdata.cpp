@@ -118,3 +118,21 @@ QWidget* QFocusData::prev()
 	r = focusWidgets.last();
     return r;
 }
+
+/*!
+    Returns the last widget in the focus chain.
+    The cursor is not modified.
+*/
+QWidget *QFocusData::last() const
+{
+    return focusWidgets.getLast();
+}
+
+/*!
+    Returns the first widget in the focus chain.
+    The cursor is not modified.
+*/
+QWidget *QFocusData::first() const
+{
+    return focusWidgets.getFirst();
+}

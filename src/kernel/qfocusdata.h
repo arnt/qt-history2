@@ -50,6 +50,8 @@ public:
     QWidget* home();
     QWidget* next();
     QWidget* prev();
+    QWidget* first() const;
+    QWidget* last() const;
     int count() const { return focusWidgets.count(); }
 
 private:
