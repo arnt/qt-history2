@@ -480,6 +480,11 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~PenWidthTransform;
     }
 
+    if (testDirty(DirtyBackground)) {
+        updateBackground(s->bgMode, s->bgBrush);
+        clearDirty(DirtyBackground);
+    }
+
     if (testDirty(DirtyBrush)) {
         updateBrush(s->brush, s->bgOrigin);
         clearDirty(DirtyBrush);
@@ -496,11 +501,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyFont)) {
         updateFont(s->font);
         clearDirty(DirtyFont);
-    }
-
-    if (testDirty(DirtyBackground)) {
-        updateBackground(s->bgMode, s->bgBrush);
-        clearDirty(DirtyBackground);
     }
 
     if (testDirty(DirtyClipPath)) {

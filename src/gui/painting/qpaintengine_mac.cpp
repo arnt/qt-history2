@@ -824,8 +824,10 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 
 //pattern handling (tiling)
 struct QMacPattern {
-    QMacPattern() : as_mask(false), image(0) { data.bytes = 0; }
+    QMacPattern() : opaque(true), as_mask(false), image(0) { data.bytes = 0; }
     //input
+    QColor background, foreground;
+    bool opaque;
     bool as_mask;
     struct {
         QPixmap pixmap;
@@ -839,16 +841,36 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     QMacPattern *pat = (QMacPattern*)info;
     int w = 0, h = 0;
     if (!pat->image) {
+        CGImageRef image = 0;
         if (pat->as_mask) {
             w = h = 8;
             CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->data.bytes, 64, 0);
-            pat->image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
+            image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
             CGDataProviderRelease(provider);
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap,
-                                               pat->data.pixmap.isQBitmap());
+            image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap,
+                                          pat->data.pixmap.isQBitmap());
+        }
+        if(pat->opaque && CGImageIsMask(image)) {
+            QPixmap tmp(w, h);
+            CGRect rect = CGRectMake(0, 0, w, h);
+            CGContextRef ctx = qt_macCreateCGHandle(&tmp);
+            CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->background.red()),
+                                     qt_mac_convert_color_to_cg(pat->background.green()),
+                                     qt_mac_convert_color_to_cg(pat->background.blue()),
+                                     qt_mac_convert_color_to_cg(pat->background.alpha()));
+            CGContextFillRect(ctx, rect);
+            CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->foreground.red()),
+                                     qt_mac_convert_color_to_cg(pat->foreground.green()),
+                                     qt_mac_convert_color_to_cg(pat->foreground.blue()),
+                                     qt_mac_convert_color_to_cg(pat->foreground.alpha()));
+            HIViewDrawCGImage(ctx, &rect, image);
+            pat->image = qt_mac_create_cgimage(tmp, Qt::CopyPixmap, false);
+            CGImageRelease(image);
+        } else {
+            pat->image = image;
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
@@ -1132,6 +1154,10 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
             components[2] = qt_mac_convert_color_to_cg(col.blue());
             base_colorspace = CGColorSpaceCreateDeviceRGB();
         }
+        qpattern->opaque = (d->current.bg.mode == Qt::OpaqueMode);
+        qpattern->foreground = brush.color();
+        qpattern->background = d->current.bg.brush.color();
+
         CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
         CGContextSetFillColorSpace(d->hd, fill_colorspace);
 
@@ -1251,12 +1277,12 @@ QCoreGraphicsPaintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
-    CGContextBeginPath(d->hd);
     CGMutablePathRef path = 0;
     if(d->current.brush.style() == Qt::LinearGradientPattern) {
         path = CGPathCreateMutable();
         CGPathAddRect(path, 0, d->adjustedRect(r));
     } else {
+        CGContextBeginPath(d->hd);
         CGContextAddRect(d->hd, d->adjustedRect(r));
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke,
@@ -1410,6 +1436,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->data.pixmap = pixmap;
+    qpattern->opaque = false;
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
