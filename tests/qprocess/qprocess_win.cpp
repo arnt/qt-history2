@@ -7,10 +7,9 @@
 #include "qprocess.h"
 
 
-void QProcess::init()
+QProcessPrivate::QProcessPrivate()
 {
     stdinBufRead = 0;
-
 #if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	notifierStdin = 0;
@@ -39,6 +38,28 @@ void QProcess::init()
 	lookup = new QTimer( this );
 	connect( lookup, SIGNAL(timeout()),
 		this, SLOT(timeout()) );
+    }
+
+    exitStat = 0;
+    exitNormal = FALSE;
+}
+
+QProcessPrivate::~QProcessPrivate()
+{
+#if defined ( RMS_USE_SOCKETS )
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+    } else
+#endif
+    {
+	while ( !stdinBuf.isEmpty() ) {
+	    delete stdinBuf.dequeue();
+	}
+	if( pipeStdin[1] != 0 )
+	    close( pipeStdin[1] );
+	if( pipeStdout[0] != 0 )
+	    close( pipeStdout[0] );
+	if( pipeStderr[0] != 0 )
+	    close( pipeStderr[0] );
     }
 }
 
@@ -160,8 +181,8 @@ bool QProcess::start()
 
 	// construct the arguments for CreateProcess()
 	QString args;
-	args = command.latin1();
-	for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
+	args = d->command.latin1();
+	for ( QStringList::Iterator it = d->arguments.begin(); it != d->arguments.end(); ++it ) {
 	    args += QString( " \'" ) + (*it).latin1() + QString( "\'" );
 	}
 
@@ -175,7 +196,7 @@ bool QProcess::start()
 	    0, 0, 0,
 	    (HANDLE)(socketStdin[0]), (HANDLE)(socketStdout[1]), (HANDLE)(socketStderr[1]) };
 
-	if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, workingDir.absPath().latin1(), &startupInfo, &pid ) ) {
+	if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, d->workingDir.absPath().latin1(), &startupInfo, &d->pid ) ) {
 	    delete[] argsC;
 	    return FALSE;
 	}
@@ -211,27 +232,27 @@ bool QProcess::start()
 	// to avoid non-closable handles
 	SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
 	HANDLE tmpStdin, tmpStdout, tmpStderr;
-	if ( !CreatePipe( &pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
+	if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	    return FALSE;
 	}
-	if ( !CreatePipe( &tmpStdout, &pipeStdout[1], &secAtt, 0 ) ) {
+	if ( !CreatePipe( &tmpStdout, &d->pipeStdout[1], &secAtt, 0 ) ) {
 	    return FALSE;
 	}
-	if ( !CreatePipe( &tmpStderr, &pipeStderr[1], &secAtt, 0 ) ) {
+	if ( !CreatePipe( &tmpStderr, &d->pipeStderr[1], &secAtt, 0 ) ) {
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin,
-	    GetCurrentProcess(), &pipeStdin[1],
+	    GetCurrentProcess(), &d->pipeStdin[1],
 	    0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout,
-	    GetCurrentProcess(), &pipeStdout[0],
+	    GetCurrentProcess(), &d->pipeStdout[0],
 	    0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    return FALSE;
 	}
 	if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr,
-	    GetCurrentProcess(), &pipeStderr[0],
+	    GetCurrentProcess(), &d->pipeStderr[0],
 	    0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
 	    return FALSE;
 	}
@@ -247,8 +268,8 @@ bool QProcess::start()
 
 	// construct the arguments for CreateProcess()
 	QString args;
-	args = command.latin1();
-	for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
+	args = d->command.latin1();
+	for ( QStringList::Iterator it = d->arguments.begin(); it != d->arguments.end(); ++it ) {
 	    args += QString( " \'" ) + (*it).latin1() + QString( "\'" );
 	}
 
@@ -260,19 +281,19 @@ bool QProcess::start()
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
 	    0, 0, 0,
-	    pipeStdin[0], pipeStdout[1], pipeStderr[1] };
+	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1] };
 
-	if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, workingDir.absPath().latin1(), &startupInfo, &pid ) ) {
+	if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, d->workingDir.absPath().latin1(), &startupInfo, &d->pid ) ) {
 	    delete[] argsC;
 	    return FALSE;
 	}
 	delete[] argsC;
-	CloseHandle( pipeStdin[0] );
-	CloseHandle( pipeStdout[1] );
-	CloseHandle( pipeStderr[1] );
+	CloseHandle( d->pipeStdin[0] );
+	CloseHandle( d->pipeStdout[1] );
+	CloseHandle( d->pipeStderr[1] );
 
 	// start the timer
-	lookup->start( 100 );
+	d->lookup->start( 100 );
 
 	// cleanup and return
 	return TRUE;
@@ -280,9 +301,14 @@ bool QProcess::start()
 }
 
 
+bool QProcess::hangUp()
+{
+    return TRUE;
+}
+
 bool QProcess::kill()
 {
-    TerminateProcess( pid.hProcess, 0 );
+    TerminateProcess( d->pid.hProcess, 0 );
     return TRUE;
 }
 
@@ -293,7 +319,7 @@ bool QProcess::isRunning()
 
 void QProcess::dataStdin( const QByteArray& buf )
 {
-    stdinBuf.enqueue( new QByteArray(buf) );
+    d->stdinBuf.enqueue( new QByteArray(buf) );
 #if defined ( RMS_USE_SOCKETS )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	if ( notifierStdin != 0 ) {
@@ -319,9 +345,9 @@ void QProcess::closeStdin( )
     } else
 #endif
     {
-	if ( pipeStdin[1] != 0 ) {
-            CloseHandle( pipeStdin[1] );
-	    pipeStdin[1] = 0;
+	if ( d->pipeStdin[1] != 0 ) {
+            CloseHandle( d->pipeStdin[1] );
+	    d->pipeStdin[1] = 0;
 	}
     }
 }
@@ -338,7 +364,7 @@ void QProcess::socketRead( int fd )
 	// get the number of bytes that are waiting to be read
 	unsigned long i, r;
 	char dummy;
-	PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	PeekNamedPipe( d->pipeStdout[0], &dummy, 1, &r, &i, 0 );
 	if ( i > 0 ) {
 	    QByteArray buffer=readStdout();
 	    int sz = buffer.size();
@@ -361,33 +387,33 @@ void QProcess::socketWrite( int fd )
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
 	if ( fd != socketStdin[1] || socketStdin[1] == 0 )
 	    return;
-	if ( stdinBuf.isEmpty() ) {
+	if ( d->stdinBuf.isEmpty() ) {
 	    notifierStdin->setEnabled( FALSE );
 	    return;
 	}
 	if ( !WriteFile( (HANDLE)(socketStdin[1]),
-	    stdinBuf.head()->data() + stdinBufRead,
-	    stdinBuf.head()->size() - stdinBufRead,
+	    d->stdinBuf.head()->data() + d->stdinBufRead,
+	    d->stdinBuf.head()->size() - d->stdinBufRead,
 	    &written, 0 ) ) {//&overlapStdin ) ) {
 	    return;
 	}
     } else
 #endif
     {
-	if ( stdinBuf.isEmpty() ) {
+	if ( d->stdinBuf.isEmpty() ) {
 	    return;
 	}
-	if ( !WriteFile( pipeStdin[1],
-	    stdinBuf.head()->data() + stdinBufRead,
-	    stdinBuf.head()->size() - stdinBufRead,
+	if ( !WriteFile( d->pipeStdin[1],
+	    d->stdinBuf.head()->data() + d->stdinBufRead,
+	    d->stdinBuf.head()->size() - d->stdinBufRead,
 	    &written, 0 ) ) {
 	    return;
 	}
     }
-    stdinBufRead += written;
-    if ( stdinBufRead == stdinBuf.head()->size() ) {
-	stdinBufRead = 0;
-	delete stdinBuf.dequeue();
+    d->stdinBufRead += written;
+    if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
+	d->stdinBufRead = 0;
+	delete d->stdinBuf.dequeue();
 	socketWrite( fd );
     }
 
@@ -418,8 +444,8 @@ void QProcess::timeout()
 {
 //    socketWrite( 0 );
     socketRead( 0 );
-    if ( WaitForSingleObject( pid.hProcess, 0) == WAIT_OBJECT_0 ) {
-	lookup->stop();
+    if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
+	d->lookup->stop();
 	emit processExited();
     }
 }
@@ -432,7 +458,7 @@ QByteArray QProcess::readStdout( ulong bytes )
 	unsigned long r, i = 2;
 	QByteArray readBuffer( i );
 	if ( i > 0 ) {
-	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	    ReadFile( d->pipeStdout[0], readBuffer.data(), i, &r, 0 );
 	}
         return readBuffer;
     } else
@@ -442,7 +468,7 @@ QByteArray QProcess::readStdout( ulong bytes )
 	if ( bytes == 0 ) {
 	    // get the number of bytes that are waiting to be read
 	    char dummy;
-	    if ( !PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 ) ) {
+	    if ( !PeekNamedPipe( d->pipeStdout[0], &dummy, 1, &r, &i, 0 ) ) {
 //		emit processExited();
 		i = 0;
 	    }
@@ -452,7 +478,7 @@ QByteArray QProcess::readStdout( ulong bytes )
 	// and read it!
 	QByteArray readBuffer( i );
 	if ( i > 0 ) {
-	    ReadFile( pipeStdout[0], readBuffer.data(), i, &r, 0 );
+	    ReadFile( d->pipeStdout[0], readBuffer.data(), i, &r, 0 );
 	    if ( r != i ) {
 		readBuffer.resize( r );
 	    }

@@ -20,17 +20,19 @@
 /*!
   Constructs a QProcess.
 */
-QProcess::QProcess()
+QProcess::QProcess( QObject *parent, const char *name )
+    : QObject( parent, name )
 {
-    init();
+    d = new QProcessPrivate;
 }
 
 /*!
   Constructs a QProcess with the given command (but does not start it).
 */
-QProcess::QProcess( const QString& com )
+QProcess::QProcess( const QString& com, QObject *parent, const char *name )
+    : QObject( parent, name )
 {
-    init();
+    d = new QProcessPrivate;
     setCommand( com );
 }
 
@@ -38,9 +40,10 @@ QProcess::QProcess( const QString& com )
   Constructs a QProcess with the given command and arguments (but does not
   start it).
 */
-QProcess::QProcess( const QString& com, const QStringList& args )
+QProcess::QProcess( const QString& com, const QStringList& args, QObject *parent, const char *name )
+    : QObject( parent, name )
 {
-    init();
+    d = new QProcessPrivate;
     setCommand( com );
     setArguments( args );
 }
@@ -50,50 +53,59 @@ QProcess::QProcess( const QString& com, const QStringList& args )
 */
 QProcess::~QProcess()
 {
-    while ( !stdinBuf.isEmpty() ) {
-	delete stdinBuf.dequeue();
-    }
+    delete d;
 }
 
 
 /*!
-  \fn void QProcess::setCommand( const QString& com )
   Set the command that should be executed.
 */
+void QProcess::setCommand( const QString& com )
+{
+    d->command = com;
+}
+
 /*!
-  \fn void QProcess::setArguments( const QStringList& args )
   Set the arguments for the command. Previous set arguments will get deleted
   first.
 */
+void QProcess::setArguments( const QStringList& args )
+{
+    d->arguments = args;
+}
+
 /*!
-  \fn void QProcess::addArgument( const QString& args )
   Add a argument to the end of the existing list of arguments.
 */
+void QProcess::addArgument( const QString& arg )
+{
+    d->arguments.append( arg );
+}
+
 /*!
-  \fn void QProcess::setWorkingDirectory( const QDir& dir )
   Set a working directory in which the command is executed.
 */
+void QProcess::setWorkingDirectory( const QDir& dir )
+{
+    d->workingDir = dir;
+}
 
 
 /*!
   \fn bool QProcess::start()
+
   Start the program.
 
   Return TRUE on success, otherwise FALSE.
 */
-
-
 /*!
+  \fn bool QProcess::hangUp()
+
   Ask the process to terminate. If this does not work you can try \l kill()
   instead.
 
   Return TRUE on success, otherwise FALSE.
 */
-bool QProcess::hangUp()
-{
-    return TRUE;
-}
-
 /*!
   \fn bool QProcess::kill()
 
@@ -102,7 +114,6 @@ bool QProcess::hangUp()
 
   Return TRUE on success, otherwise FALSE.
 */
-
 /*!
   \fn bool QProcess::isRunning()
 
@@ -115,7 +126,7 @@ bool QProcess::hangUp()
 */
 bool QProcess::normalExit()
 {
-    return TRUE;
+    return d->exitNormal;
 }
 
 /*!
@@ -124,7 +135,7 @@ bool QProcess::normalExit()
 */
 int QProcess::exitStatus()
 {
-    return 0;
+    return d->exitStat;
 }
 
 

@@ -21,50 +21,12 @@
 // this class is under development; so don't look at all the
 // ugly defines (RMS_*); just for testing...
 
-//class Q_EXPORT QProcess : public QObject
-class QProcess : public QObject
+class QProcessPrivate
 {
-    Q_OBJECT
-public:
-    QProcess();
-    QProcess( const QString& com );
-    QProcess( const QString& com, const QStringList& args );
-    ~QProcess();
-
-    // set the command, arguments, etc.
-    void setCommand( const QString& com );
-    void setArguments( const QStringList& args );
-    void addArgument( const QString& args );
-    void setWorkingDirectory( const QDir& dir );
-
-    // control the execution
-    bool start();
-    bool hangUp();
-    bool kill();
-
-    // inquire the status
-    bool isRunning();
-    bool normalExit();
-    int exitStatus();
-
-signals:
-    // output
-    void dataStdout( const QString& buf );
-    void dataStdout( const QByteArray& buf );
-    void dataStderr( const QString& buf );
-    void dataStderr( const QByteArray& buf );
-
-    // notification stuff
-    void processExited();
-    void wroteStdin();
-
-public slots:
-    // input
-    void dataStdin( const QByteArray& buf );
-    void dataStdin( const QString& buf );
-    void closeStdin();
-
 private:
+    QProcessPrivate();
+    ~QProcessPrivate();
+
     QString     command;
     QDir        workingDir;
     QStringList arguments;
@@ -99,9 +61,59 @@ private:
     pid_t pid;
     ssize_t stdinBufRead;
 #endif
+    int exitStat;
+    bool exitNormal;
+
+    friend class QProcess;
+};
+
+//class Q_EXPORT QProcess : public QObject
+class QProcess : public QObject
+{
+    Q_OBJECT
+public:
+    QProcess( QObject *parent=0, const char *name=0 );
+    QProcess( const QString& com, QObject *parent=0, const char *name=0 );
+    QProcess( const QString& com, const QStringList& args, QObject *parent=0, const char *name=0 );
+    ~QProcess();
+
+    // set the command, arguments, etc.
+    void setCommand( const QString& com );
+    void setArguments( const QStringList& args );
+    void addArgument( const QString& arg );
+    void setWorkingDirectory( const QDir& dir );
+
+    // control the execution
+    bool start();
+    bool hangUp();
+    bool kill();
+
+    // inquire the status
+    bool isRunning();
+    bool normalExit();
+    int exitStatus();
+
+signals:
+    // output
+    void dataStdout( const QString& buf );
+    void dataStdout( const QByteArray& buf );
+    void dataStderr( const QString& buf );
+    void dataStderr( const QByteArray& buf );
+
+    // notification stuff
+    void processExited();
+    void wroteStdin();
+
+public slots:
+    // input
+    void dataStdin( const QByteArray& buf );
+    void dataStdin( const QString& buf );
+    void closeStdin();
 
 private:
-    void init();
+    QProcessPrivate *d;
+
+private:
 #if defined( _WS_WIN_ )
     QByteArray readStdout( ulong bytes = 0 );
 #endif
@@ -111,22 +123,5 @@ private slots:
     void socketWrite( int fd );
     void timeout();
 };
-
-
-/*****************************************************************************
-  QProcess inline functions
- *****************************************************************************/
-
-inline void QProcess::setCommand( const QString& com )
-{ command = com; }
-
-inline void QProcess::setArguments( const QStringList& args )
-{ arguments = args; }
-
-inline void QProcess::addArgument( const QString& args )
-{ arguments.append( args ); }
-
-inline void QProcess::setWorkingDirectory( const QDir& dir )
-{ workingDir = dir; }
 
 #endif // QPROCESS_H
