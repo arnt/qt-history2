@@ -1432,7 +1432,7 @@ void qt_leave_modal(QWidget *widget)
             app_do_modal = false;
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
             qt_dispatchEnterLeave(w, qt_mouseover); // send synthetic enter event
-            qt_mouseover = w? w->winId() : 0;
+            qt_mouseover = w;
         }
     }
 #ifdef DEBUG_MODAL_EVENTS
