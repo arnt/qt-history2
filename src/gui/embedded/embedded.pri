@@ -55,7 +55,8 @@ embedded {
 		    embedded/qwssocket_qws.cpp \
 		    embedded/qwswindowsdecoration_qws.cpp
 
-	ft:SOURCES += \
+	contains(QT_CONFIG, ft) {
+	    SOURCES += \
 		../3rdparty/freetype/builds/unix/ftsystem.c \
 		../3rdparty/freetype/src/base/ftdebug.c \
 		../3rdparty/freetype/src/base/ftinit.c \
@@ -82,14 +83,16 @@ embedded {
 		../3rdparty/freetype/src/gzip/ftgzip.c \
 		../3rdparty/freetype/src/winfonts/winfnt.c
 
-	ft:INCLUDEPATH += \
+	    INCLUDEPATH += \
 		../3rdparty/freetype/src \
 		../3rdparty/freetype/include \
 		../3rdparty/freetype/builds/unix
 
-	else:DEFINES += QT_NO_FREETYPE
-
-	ft:DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
+	    DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
+	} else {
+	    DEFINES += QT_NO_FREETYPE
+	}
+	
 
 	qnx6 { 
 		HEADERS += embedded/qwsgfx_qnx6.h
