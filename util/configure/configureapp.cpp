@@ -192,6 +192,9 @@ void ConfigureApp::parseCmdLine()
 		    break;
 		}
 	    }
+	}
+	else if( (*args).left( 5 ) == "-sql-" )
+	{
 	    for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
 		if( (*args) == QString( "-sql-" ) + (*sql) ) {
 		    qmakeSql += (*sql);
