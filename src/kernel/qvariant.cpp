@@ -2193,7 +2193,7 @@ Q_LLONG QVariant::toLongLong( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toLongLong( ok );
     case CString:
-	return ((QCString*)d->value.ptr)->toInt( ok ); // ### LongLOng
+	return ((QCString*)d->value.ptr)->toInt( ok ); // ### LongLong
     case Int:
 	return (Q_LLONG)d->value.i;
     case UInt:
@@ -2883,11 +2883,11 @@ bool QVariant::canCast( Type t ) const
 	       d->typ == Int || d->typ == LongLong || d->typ == ULongLong;
     case LongLong:
 	return d->typ == String || d->typ == Double || d->typ == Bool ||
-	       d->typ == UInt || d->typ == ULongLong ||
+	       d->typ == Int || d->typ == UInt || d->typ == ULongLong ||
 	       d->typ == KeySequence;
     case ULongLong:
 	return d->typ == String || d->typ == Double || d->typ == Bool ||
-	       d->typ == Int || d->typ == LongLong;
+	       d->typ == Int || d->typ == UInt || d->typ == LongLong;
     case Double:
 	return d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt;
     case CString:
