@@ -15,6 +15,8 @@
 #define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")
 
+static bool showBrokenLinks = false;
+
 HtmlGenerator::HtmlGenerator()
     : inLink(false), inTableHeader(false), numTableRows(0), funcLeftParen("\\S(\\()"), tre(0)
 {
@@ -212,7 +214,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	if ( atom->string() == ATOM_FORMATTING_LINK ) {
             if (inLink) {
 	        if ( link.isEmpty() ) {
-		    out() << "</b>";
+                    if (showBrokenLinks)
+                        out() << "</b>";
 	        } else {
 		    out() << "</a>";
 	        }
@@ -279,7 +282,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
 
 	if ( link.isEmpty() ) {
-	    out() << "<b>";
+            if (showBrokenLinks)
+                out() << "<b>";
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
@@ -290,7 +294,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	link = linkForNode( CodeMarker::nodeForString(atom->string()),
 			    relative );
 	if ( link.isEmpty() ) {
-	    out() << "<b>";
+            if (showBrokenLinks)
+                out() << "<b>";
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
@@ -1364,7 +1369,8 @@ void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, 
 	int k = funcLeftParen.pos( 1 );
 	out() << protect( atom->string().left(k) );
 	if ( link.isEmpty() ) {
-	    out() << "</b>";
+            if (showBrokenLinks)
+                out() << "</b>";
 	} else {
 	    out() << "</a>";
 	}
