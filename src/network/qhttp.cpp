@@ -101,6 +101,8 @@ public:
     { }
 
     virtual void start( QHttp * ) = 0;
+    virtual bool hasRequestHeader();
+    virtual QHttpRequestHeader requestHeader();
 
     int id;
 
@@ -109,6 +111,16 @@ private:
 };
 
 int QHttpRequest::idCounter = 0;
+
+bool QHttpRequest::hasRequestHeader()
+{
+    return FALSE;
+}
+
+QHttpRequestHeader QHttpRequest::requestHeader()
+{
+    return QHttpRequestHeader();
+}
 
 /****************************************************
  *
@@ -140,6 +152,8 @@ public:
     }
 
     void start( QHttp * );
+    bool hasRequestHeader();
+    QHttpRequestHeader requestHeader();
 
 private:
     QHttpRequestHeader header;
@@ -179,6 +193,16 @@ void QHttpNormalRequest::start( QHttp *http )
 	http->d->toDevice = 0;
 
     http->sendRequest();
+}
+
+bool QHttpNormalRequest::hasRequestHeader()
+{
+    return TRUE;
+}
+
+QHttpRequestHeader QHttpNormalRequest::requestHeader()
+{
+    return header;
 }
 
 /****************************************************
@@ -1234,6 +1258,7 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
 */
 void QHttp::abort()
 {
+    clearPendingRequests();
     d->socket->clearPendingData();
     close();
 }
@@ -1313,6 +1338,62 @@ QByteArray QHttp::readAll()
     return QByteArray();
 }
 
+/*!
+  Returns the identifier of the HTTP request currently executed or 0 if there is
+  no unfinished request.
+
+  \sa currentRequest()
+*/
+int QHttp::currentId() const
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r == 0 )
+	return 0;
+    return r->id;
+}
+
+/*!
+  Returns the request header of the HTTP request currently executed. If the
+  request is one issued by setHost() or closeConnection(), it returns an
+  invalid request header, i.e. QHttpRequestHeader::isValid() returns FALSE.
+
+  \sa currentId()
+*/
+QHttpRequestHeader QHttp::currentRequest() const
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r != 0 && r->hasRequestHeader() )
+	return r->requestHeader();
+    return QHttpRequestHeader();
+}
+
+/*!
+    Returns TRUE if there are any requests scheduled, but not executed yet;
+    otherwise it returns FALSE.
+
+    The request that is currently executed is not considered as a scheduled
+    request.
+
+    \sa clearPendingRequests() currentId() currentRequest()
+*/
+bool QHttp::hasPendingRequests() const
+{
+    return d->pending.count() > 1;
+}
+
+/*!
+    Deletes all pending requests from the list of scheduled requests. This does
+    not affect the request that is currently executed. If you want to stop this
+    this as well, use abort().
+
+    \sa hasPendingRequests() abort()
+*/
+void QHttp::clearPendingRequests()
+{
+    QHttpRequest *r = d->pending.take( 0 );
+    d->pending.clear();
+    d->pending.append( r );
+}
 
 /*!
     Sets the HTTP server that is used for requests to \a hostname on port \a
@@ -1649,7 +1730,7 @@ QHttp::State QHttp::state() const
     about the failure when receiving a requestFinished() or a done() signal
     with the \c error argument \c FALSE.
 
-    If you start a new command, the error status is reset to \c NoError.
+    If you start a new request, the error status is reset to \c NoError.
 */
 QHttp::Error QHttp::error() const
 {

@@ -224,12 +224,10 @@ public:
     Q_LONG readBlock( char *data, Q_ULONG maxlen );
     QByteArray readAll();
 
-#if 0
     int currentId() const;
-    Command currentCommand() const;
-    bool hasPendingCommands() const;
-    void clearPendingCommands();
-#endif
+    QHttpRequestHeader currentRequest() const;
+    bool hasPendingRequests() const;
+    void clearPendingRequests();
 
     State state() const;
 
