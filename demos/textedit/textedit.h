@@ -90,6 +90,7 @@ private:
     QTabWidget *tabWidget;
     QMap<QTextEdit*, QString> filenames;
 
+    QToolBar *tb;
     QPointer<QTextEdit> currentEditor;
 };
 

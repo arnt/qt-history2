@@ -743,7 +743,7 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (isVisible() && isUpdatesEnabled()) {
         InvalidateRect(winId(), 0, false);
         setAttribute(Qt::WA_PendingUpdate);
     }
@@ -751,7 +751,7 @@ void QWidget::update()
 
 void QWidget::update(const QRegion &rgn)
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
+    if (isVisible() && isUpdatesEnabled()) {
         if (!rgn.isEmpty()) {
             InvalidateRgn(winId(), rgn.handle(), false);
             setAttribute(Qt::WA_PendingUpdate);
@@ -761,8 +761,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h &&
-         (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (w && h && isVisible() && isUpdatesEnabled()) {
         RECT r;
         r.left = x;
         r.top  = y;
@@ -871,14 +870,12 @@ extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, in
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+        return;
+
     setAttribute(Qt::WA_PendingUpdate, false);
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
-
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible
-        || !testAttribute(Qt::WA_Mapped)
-        || rgn.isEmpty())
-        return;
 
     ValidateRgn(winId(),rgn.handle());
 
@@ -1593,7 +1590,7 @@ void QWidget::setBaseSize(int w, int h)
 
 void QWidget::scroll(int dx, int dy)
 {
-    if (testWState(Qt::WState_BlockUpdates) && children().size() == 0)
+    if (!isUpdatesEnabled() && children().size() == 0)
         return;
     UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
     if (!testAttribute(Qt::WA_NoBackground))
@@ -1605,7 +1602,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (testWState(Qt::WState_BlockUpdates))
+    if (!isUpdatesEnabled())
         return;
     UINT flags = SW_INVALIDATE;
     if (!testAttribute(Qt::WA_NoBackground))

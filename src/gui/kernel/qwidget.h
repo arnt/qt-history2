@@ -76,9 +76,7 @@ public:
     uint im_enabled : 1;
     uint context_menu_policy : 3;
     QRect crect;
-#ifndef QT_NO_PALETTE
     mutable QPalette pal;
-#endif
     QFont fnt;
 #if defined(Q_WS_QWS)
     QRegion req_region;                 // Requested region
@@ -125,9 +123,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(int maximumHeight READ maximumHeight WRITE setMaximumHeight STORED false DESIGNABLE false)
     Q_PROPERTY(QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement)
     Q_PROPERTY(QSize baseSize READ baseSize WRITE setBaseSize)
-#ifndef QT_NO_PALETTE
     Q_PROPERTY(QPalette palette READ palette WRITE setPalette)
-#endif
     Q_PROPERTY(QFont font READ font WRITE setFont)
 #ifndef QT_NO_CURSOR
     Q_PROPERTY(QCursor cursor READ cursor WRITE setCursor RESET unsetCursor)
@@ -247,7 +243,6 @@ public:
 
     QWidget *topLevelWidget() const;
 
-#ifndef QT_NO_PALETTE
     // Widget appearance functions
     const QPalette &palette() const;
     void setPalette(const QPalette &);
@@ -257,7 +252,6 @@ public:
 
     void setForegroundRole(QPalette::ColorRole);
     QPalette::ColorRole foregroundRole() const;
-#endif
 
     const QFont &font() const;
     void setFont(const QFont &);
@@ -643,7 +637,6 @@ public:
     const QT_COMPAT QColor &foregroundColor() const;
     const QT_COMPAT QPixmap *erasePixmap() const;
     void QT_COMPAT setErasePixmap(const QPixmap &);
-#ifndef QT_NO_PALETTE
     const QT_COMPAT QColor &paletteForegroundColor() const;
     void QT_COMPAT setPaletteForegroundColor(const QColor &);
     const QT_COMPAT QColor &paletteBackgroundColor() const;
@@ -654,15 +647,12 @@ public:
     const QT_COMPAT QColor &backgroundColor() const;
     const QT_COMPAT QPixmap *backgroundPixmap() const;
     void QT_COMPAT setBackgroundPixmap(const QPixmap &);
-#endif
     QT_COMPAT void setBackgroundColor(const QColor &);
     QT_COMPAT QColorGroup colorGroup() const;
     QT_COMPAT QWidget *parentWidget(bool sameWindow) const;
     inline QT_COMPAT void setKeyCompression(bool b) { setAttribute(Qt::WA_KeyCompression, b); }
     inline QT_COMPAT void setFont(const QFont &f, bool) { setFont(f); }
-#ifndef QT_NO_PALETTE
     inline QT_COMPAT void setPalette(const QPalette &p, bool) { setPalette(p); }
-#endif
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
     inline QT_COMPAT void setBackgroundOrigin(BackgroundOrigin){};
     inline QT_COMPAT BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
@@ -706,13 +696,9 @@ private:
 #endif
 
 protected:
-#ifndef QT_NO_STYLE
     virtual void styleChange(QStyle&); // compat
-#endif
     virtual void enabledChange(bool);  // compat
-#ifndef QT_NO_PALETTE
     virtual void paletteChange(const QPalette &);  // compat
-#endif
     virtual void fontChange(const QFont &); // compat
     virtual void windowActivationChange(bool);  // compat
     virtual void languageChange();  // compat
@@ -810,7 +796,7 @@ inline bool QWidget::underMouse() const
 { return testAttribute(Qt::WA_UnderMouse); }
 
 inline bool QWidget::isUpdatesEnabled() const
-{ return !testWState(Qt::WState_BlockUpdates); }
+{ return !testAttribute(Qt::WA_UpdatesDisabled); }
 
 inline void QWidget::update(int x, int y, int w, int h)
 { update(QRect(x, y, w, h)); }
@@ -888,7 +874,6 @@ inline QWidget *QWidget::parentWidget(bool sameWindow) const
         return 0;
     return static_cast<QWidget *>(QObject::parent());
 }
-#ifndef QT_NO_PALETTE
 inline QColorGroup QWidget::colorGroup() const
 { return QColorGroup(palette()); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c)
@@ -915,9 +900,6 @@ inline const QPixmap *QWidget::paletteBackgroundPixmap() const
 { return 0; }
 inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &pm)
 { QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
-#else
-inline QT_COMPAT void QWidget::setBackgroundColor(const QColor &) {}
-#endif
 inline QT_COMPAT void QWidget::erase() { erase_helper(0, 0, data->crect.width(), data->crect.height()); }
 inline QT_COMPAT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y(), r.width(), r.height()); }
 #endif

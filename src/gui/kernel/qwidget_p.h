@@ -177,6 +177,8 @@ public:
     void updateInheritedBackground(bool force = false);
     void updatePropagatedBackground(const QRegion * = 0);
 
+    void setUpdatesEnabled_helper(bool );
+
     QRect clipRect() const;
 
     enum CloseMode {

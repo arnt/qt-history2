@@ -623,20 +623,20 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
+    if (isVisible() && isUpdatesEnabled())
         QApplication::postEvent(this, new QWSUpdateEvent(visibleRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-     if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
+    if (isVisible() && isUpdatesEnabled())
          QApplication::postEvent(this, new QWSUpdateEvent(rgn & visibleRegion()));
 }
 
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (w && h && isVisible() && isUpdatesEnabled()) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -725,14 +725,11 @@ static void qt_qws_release_double_buffer(QWSDoubleBuffer **db)
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+        return;
+
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
-
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible)
-        return;
-
-    if (rgn.isEmpty())
-        return;
 
     setWState(Qt::WState_InPaintEvent);
 
@@ -1359,7 +1356,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (testWState(Qt::WState_BlockUpdates) && children().isEmpty())
+    if (!isUpdatesEnabled() && children().size() == 0)
         return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();

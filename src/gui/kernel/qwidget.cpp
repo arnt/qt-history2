@@ -64,10 +64,8 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,layout(0)
 #endif
         ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
-#ifndef QT_NO_PALETTE
         ,fg_role(QPalette::Foreground)
         ,bg_role(QPalette::Background)
-#endif
         ,hd(0)
 #if defined(Q_WS_X11)
         ,xft_hd(0)
@@ -469,7 +467,6 @@ static QFont qt_naturalWidgetFont(QWidget* w) {
     return naturalfont;
 }
 
-#ifndef QT_NO_PALETTE
 static QPalette qt_naturalWidgetPalette(QWidget* w) {
     QPalette naturalpalette = QApplication::palette(w);
     if (! w->isTopLevel()) {
@@ -481,7 +478,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     naturalpalette.resolve(0);
     return naturalpalette;
 }
-#endif
 
 
 /*****************************************************************************
@@ -844,6 +840,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
         // propagate enabled state
         if (!parentWidget->isEnabled())
             q->setAttribute(Qt::WA_Disabled, true);
+        // propgate updates enabled state
+        if (!parentWidget->isUpdatesEnabled())
+            q->setAttribute(Qt::WA_UpdatesDisabled, true);
         //propagate layout direction
         if (parentWidget->testAttribute(Qt::WA_RightToLeft))
             q->setAttribute(Qt::WA_RightToLeft);
@@ -1014,9 +1013,7 @@ void QWidgetPrivate::createExtra()
         extra->curs = 0;
 #endif
         extra->topextra = 0;
-#ifndef QT_NO_STYLE
         extra->style = 0;
-#endif
         extra->size_policy = QSizePolicy(QSizePolicy::Preferred,
                                           QSizePolicy::Preferred);
         createSysExtra();
@@ -1125,10 +1122,8 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
     Q_Q(QWidget);
     if (!q->isVisible() || !isBackgroundInherited())
         return;
-#ifndef QT_NO_PALETTE
     if (!force)
         force = (!q->palette().brush(q->backgroundRole()).texture().isNull() || isTransparent());
-#endif
     if (force) {
         q->repaint();
         for (int i = 0; i < children.size(); ++i)
@@ -1167,6 +1162,30 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 #endif
 }
 
+
+void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
+{
+    Q_Q(QWidget);
+
+    if (enable && !q->isTopLevel() && q->parentWidget() && !q->parentWidget()->isUpdatesEnabled())
+        return; // nothing we can do
+
+    if (enable != q->testAttribute(Qt::WA_UpdatesDisabled))
+        return; // nothing to do
+
+    q->setAttribute(Qt::WA_UpdatesDisabled, !enable);
+    updateSystemBackground();
+    if (enable)
+        q->update();
+
+    Qt::WidgetAttribute attribute = enable ? Qt::WA_ForceUpdatesDisabled : Qt::WA_UpdatesDisabled;
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = static_cast<QWidget *>(children.at(i));
+        if (w->isWidgetType() && !w->testAttribute(attribute))
+            w->d_func()->setUpdatesEnabled_helper(enable);
+    }
+}
+
 void QWidgetPrivate::propagatePaletteChange()
 {
     Q_Q(QWidget);
@@ -1177,12 +1196,10 @@ void QWidgetPrivate::propagatePaletteChange()
             QWidget *w = static_cast<QWidget*>(children.at(i));
             if(!w->isWidgetType() || w->isTopLevel())
                 continue;
-#ifndef QT_NO_PALETTE
             w->d_func()->resolvePalette();
-#endif
         }
     }
-#if defined(QT_COMPAT) && !defined(QT_NO_PALETTE)
+#if defined(QT_COMPAT)
     q->paletteChange(q->palette()); // compatibility
 #endif
 }
@@ -1236,11 +1253,7 @@ void QPixmap::fill( const QWidget *widget, const QPoint &offset )
         w = w->parentWidget();
         parents += w;
     }
-#ifndef QT_NO_PALETTE
     QBrush brush = widget->palette().brush(w->d_func()->bg_role);
-#else
-    QBrush brush(red); //############
-#endif
 
     if (brush.style() == Qt::SolidPattern) {
         fill(brush.color());
@@ -1352,7 +1365,6 @@ QWidget *QWidget::find(WId id)
     \sa find()
 */
 
-#ifndef QT_NO_STYLE
 /*!
     Returns the GUI style for this widget
 
@@ -1415,7 +1427,6 @@ QStyle* QWidget::setStyle(const QString &style)
     setStyle(s);
     return s;
 }
-#endif
 #endif
 
 /*!
@@ -2509,7 +2520,6 @@ QWidget *QWidget::topLevelWidget() const
 */
 Qt::BackgroundMode QWidget::backgroundMode() const
 {
-#ifndef QT_NO_PALETTE
     if (testAttribute(Qt::WA_NoSystemBackground))
         return Qt::NoBackground;
     switch(backgroundRole()) {
@@ -2548,7 +2558,6 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     default:
         break;
     }
-#endif
     return Qt::NoBackground;
 }
 
@@ -2570,7 +2579,6 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     }
     setAttribute(Qt::WA_NoSystemBackground, false);
     setAttribute(Qt::WA_SetForegroundRole, false);
-#ifndef QT_NO_PALETTE
     QPalette::ColorRole role = d->bg_role;;
     switch(m) {
     case Qt::FixedColor:
@@ -2632,7 +2640,6 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
         break;
     }
     setBackgroundRole(role);
-#endif // QT_NO_PALETTE
 }
 
 QT_COMPAT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
@@ -2645,7 +2652,6 @@ QT_COMPAT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 
   \sa setBackgroundRole(), foregroundRole()
  */
-#ifndef QT_NO_PALETTE
 QPalette::ColorRole QWidget::backgroundRole() const
 {
     const QWidget *w = this;
@@ -2769,7 +2775,6 @@ void QWidgetPrivate::setPalette_helper(const QPalette &palette)
     propagatePaletteChange();
 }
 
-#endif // QT_NO_PALETTE
 
 /*!
     \property QWidget::font
@@ -3366,7 +3371,6 @@ bool QWidget::isActiveWindow() const
        tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
         return true;
 #endif
-#ifndef QT_NO_STYLE
     if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
         if((tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
            !tlw->testWFlags(Qt::WShowModal) &&
@@ -3383,7 +3387,6 @@ bool QWidget::isActiveWindow() const
                 return true;
         }
     }
-#endif
 #if defined(Q_WS_WIN32)
     HWND parent = tlw->winId();
     HWND topparent = GetActiveWindow();
@@ -3792,30 +3795,37 @@ void QWidget::setFocusPolicy(Qt::FocusPolicy policy)
     \property QWidget::updatesEnabled
     \brief whether updates are enabled
 
-    Calling update() and repaint() has no effect if updates are
-    disabled. Paint events from the window system are processed
-    normally even if updates are disabled.
+    An updates enabled widget receives paint events and has a system
+    background; a disabled widget does not. This also implies that
+    calling update() and repaint() has no effect if updates are
+    disabled.
 
     setUpdatesEnabled() is normally used to disable updates for a
     short period of time, for instance to avoid screen flicker during
-    large changes.
+    large changes. In Qt, widgets normally do not generate screen
+    flicker, but on X11 the server might erase regions on the screen
+    when widgets get hidden before they can be replaced by other
+    widgets. Disabling updates solves this.
 
     Example:
     \code
         setUpdatesEnabled(false);
         bigVisualChanges();
         setUpdatesEnabled(true);
-        repaint();
     \endcode
 
-    \sa update(), repaint(), paintEvent()
+    Disabling a widget implicitly disables all its children. Enabling
+    respectively enables all child widgets unless they have been
+    explicitly disabled. Re-enabling updates implicitly calls update()
+    on the widget.
+
+    \sa paintEvent()
 */
 void QWidget::setUpdatesEnabled(bool enable)
 {
-    if (enable)
-        clearWState(Qt::WState_BlockUpdates);
-    else
-        setWState(Qt::WState_BlockUpdates);
+    Q_D(QWidget);
+    setAttribute(Qt::WA_ForceUpdatesDisabled, !enable);
+    d->setUpdatesEnabled_helper(enable);
 }
 
 /*!
@@ -4650,10 +4660,8 @@ bool QWidget::event(QEvent *e)
         setWState(Qt::WState_Polished);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
-#ifndef QT_NO_PALETTE
         if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
             d->resolvePalette();
-#endif
 #ifdef QT_COMPAT
         if(d->sendChildEvents)
             QApplication::sendPostedEvents(this, QEvent::ChildInserted);
@@ -4764,12 +4772,10 @@ bool QWidget::event(QEvent *e)
     case QEvent::ApplicationFontChange:
         d->resolveFont();
         break;
-#ifndef QT_NO_PALETTE
     case QEvent::ApplicationPaletteChange:
         if (!isDesktop())
             d->resolvePalette();
         break;
-#endif
     case QEvent::ToolBarChange:
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
@@ -4789,7 +4795,6 @@ bool QWidget::event(QEvent *e)
 #ifdef QT_COMPAT
         windowActivationChange(e->type() != QEvent::WindowActivate);
 #endif
-#ifndef QT_NO_PALETTE
         if (isVisible()) {
             for(int role=0; role < (int)QPalette::NColorRoles; role++) {
                 if(data->pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
@@ -4805,7 +4810,6 @@ bool QWidget::event(QEvent *e)
                 }
             }
         }
-#endif
         QList<QObject*> childList = d->children;
         for (int i = 0; i < childList.size(); ++i) {
             QObject *o = childList.at(i);
@@ -5953,9 +5957,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     d->resolveFont();
-#ifndef QT_NO_PALETTE
     d->resolvePalette();
-#endif
     d->resolveLayoutDirection();
     if (parent && d->sendChildEvents){
         const QMetaObject *polished = d->polished;
@@ -6081,7 +6083,7 @@ void QWidget::repaint(const QRect &r)
 */
 void QWidget::erase_helper(int x, int y, int w, int h)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground) || !testWState(Qt::WState_Visible))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) ||  !testWState(Qt::WState_Visible))
         return;
     if (w < 0)
         w = data->crect.width()  - x;
@@ -6104,7 +6106,7 @@ void QWidget::erase_helper(int x, int y, int w, int h)
 */
 void QWidget::erase(const QRegion& rgn)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground)||!testWState(Qt::WState_Visible))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) || !testWState(Qt::WState_Visible))
         return;
 
     QPainter p(this);
@@ -6187,6 +6189,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         QApplication::sendEvent(this, &e);
         break; }
     case Qt::WA_NoSystemBackground:
+    case Qt::WA_UpdatesDisabled:
         d->updateSystemBackground();
         break;
     case Qt::WA_ContentsPropagated:
@@ -6553,13 +6556,9 @@ void QWidget::stackUnder(QWidget* w)
     QApplication::sendEvent(this, &e);
 }
 
-#ifndef QT_NO_STYLE
 void QWidget::styleChange(QStyle&) { }
-#endif
 void QWidget::enabledChange(bool) { }  // compat
-#ifndef QT_NO_PALETTE
 void QWidget::paletteChange(const QPalette &) { }  // compat
-#endif
 void QWidget::fontChange(const QFont &) { }  // compat
 void QWidget::windowActivationChange(bool) { }  // compat
 void QWidget::languageChange() { }  // compat

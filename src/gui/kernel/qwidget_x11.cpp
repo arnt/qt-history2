@@ -907,7 +907,7 @@ void QWidgetPrivate::setFont_sys(QFont *)
 void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
-    if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground)) {
+    if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground) || q->testAttribute(Qt::WA_UpdatesDisabled)) {
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
     } else if (!brush.texture().isNull()) {
         QPixmap pix = brush.texture();
@@ -1303,7 +1303,7 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (isVisible() && isUpdatesEnabled()) {
 //         d->removePendingPaintEvents(); // ### this is far too slow to go in
         d->invalidated_region = d->clipRect();
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
@@ -1312,7 +1312,7 @@ void QWidget::update()
 
 void QWidget::update(const QRegion &rgn)
 {
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (isVisible() && isUpdatesEnabled()) {
         d->invalidated_region |= (rgn & d->clipRect());
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
@@ -1321,7 +1321,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && (data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {
+    if (w && h && isVisible() && isUpdatesEnabled()) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -1433,15 +1433,12 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
 
 void QWidget::repaint(const QRegion& rgn)
 {
+    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+        return;
+
     if (testWState(Qt::WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) != Qt::WState_Visible
-         || !testAttribute(Qt::WA_Mapped))
-        return;
-
-    if (rgn.isEmpty())
-        return;
 
     if (!d->invalidated_region.isEmpty())
         d->invalidated_region -= rgn;
@@ -2307,7 +2304,7 @@ void QWidget::scroll(int dx, int dy)
 */
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (testWState(Qt::WState_BlockUpdates) && d->children.isEmpty())
+    if (!isUpdatesEnabled() && children().size() == 0)
         return;
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();

@@ -311,6 +311,7 @@ public:
         WA_LaidOut,
         WA_PaintOnScreen,
         WA_NoSystemBackground,
+        WA_UpdatesDisabled,
         WA_Mapped,
         WA_MacNoClickThrough, //mac only
         WA_PaintOutsidePaintEvent,
@@ -343,6 +344,7 @@ public:
         WA_RightToLeft,
         WA_SetLayoutDirection,
         WA_NoChildEventsForParent,
+        WA_ForceUpdatesDisabled,
 
         // Add new attributes above this!
         WA_AttributeCount

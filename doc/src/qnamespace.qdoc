@@ -687,6 +687,17 @@
     events). Setting this flag implicitly disables double buffering
     for the widget. This is set/cleared by the widget's author.
 
+    \value WA_UpdatesDisabled Indicates that updates are blocked
+    (including the system background). This flag must never be
+    set/cleared by the widget author. It is set/cleared by the Qt
+    kernel.
+
+    \value WA_ForceUpdatesDisabled Indicates that the widget is
+    explicitly updates disabled, i.e. it will remain disabled even
+    when all its ancestors are set to the updates enabled state. This
+    implies WA_UpdatesDisabled. This is set/cleared by
+    QWidget::setUpdatesEnabled().
+
     \value WA_StaticContents Indicates that the widget contents
     are north-west aligned and static. On resize, such a widget will
     receive paint events only for the newly visible part of itself.
@@ -751,14 +762,17 @@
     insertion widgets like splitters and layouts. This is set by a
     widget's author.
 
+    \value WA_MouseTracking Indicates that the widget has mouse tracking
+    enabled. See QWidget::mouseTracking.
+
+    \omitvalue WA_ForegroundInherited
     \omitvalue WA_SetWindowIcon
     \omitvalue WA_PendingUpdate
-    \omitvalue WA_MouseTracking
     \omitvalue WA_LaidOut
     \omitvalue WA_GrabbedShortcut
-    \omitvalue WA_ForegroundInherited
     \omitvalue WA_TransparentForMouseEvents
     \omitvalue WA_InvalidSize
+    \omitvalue WA_ForceUpdatesDisabled
 
     \omitvalue WA_AttributeCount
 */

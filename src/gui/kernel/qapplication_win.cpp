@@ -3011,7 +3011,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             // see comment above
             if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
                 code = Qt::Key_Backtab;
-            
+
             k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, text);
             if (code == Qt::Key_Alt)
                 k0 = true; // don't let window see the meta key
@@ -3419,7 +3419,7 @@ bool QETWidget::translateCloseEvent(const MSG &)
 
 void QETWidget::eraseWindowBackground(HDC hdc)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::BlockSystemBackground))
         return;
 
     const QWidget *w = this;
