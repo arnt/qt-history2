@@ -12,6 +12,7 @@ class CppToQsConverter
 public:
     CppToQsConverter() { }
 
+    ClassNode *findClassNode( Tree *qsTree, const QString& qtName );
     QString convertedDataType( Tree *qsTree, const QString& leftType,
 			       const QString& rightType = "" );
     QString convertedCode( Tree *qsTree, const QString& code );

@@ -26,6 +26,15 @@ int CppToQsConverter::columnForIndex( const QString& str, int index )
     return column;
 }
 
+ClassNode *CppToQsConverter::findClassNode( Tree *qsTree,
+					    const QString& qtName )
+{
+    ClassNode *classe = (ClassNode *) qsTree->findNode( qtName, Node::Class );
+    if ( classe == 0 )
+	classe = (ClassNode *) qsTree->findNode( qtName.mid(1), Node::Class );
+    return classe;
+}
+
 QString CppToQsConverter::convertedDataType( Tree *qsTree,
 					     const QString& leftType,
 					     const QString& /* rightType */ )
@@ -42,10 +51,7 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 	if ( s == "QCString" ) {
 	    return "String";
 	} else {
-	    Node *node = qsTree->findNode( s, Node::Class );
-	    if ( node == 0 )
-		node = qsTree->findNode( s.mid(1), Node::Class );
-
+	    Node *node = findClassNode( qsTree, s );
 	    if ( node == 0 ) {
 		return "";
 	    } else {

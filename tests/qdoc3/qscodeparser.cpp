@@ -410,20 +410,25 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 
     QValueList<RelatedClass>::ConstIterator b = qtClass->baseClasses().begin();
     while ( b != qtClass->baseClasses().end() ) {
-	quickClass->addBaseClass( (*b).access, (*b).node, (*b).templateArgs );
+	ClassNode *quickBaseClass = cpp2qs.findClassNode( qsTre,
+							  (*b).node->name() );
+	if ( quickBaseClass != 0 )
+	    quickClass->addBaseClass( (*b).access, quickBaseClass,
+				      (*b).templateArgs );
 	++b;
     }
 
-    Set<QString> blackList;
+    Set<QString> funcBlackList;
+    Set<QString> propertyBlackList;
 
-    NodeList children = qtClass->childNodes();
+    NodeList children;
     if ( wrapperClass != 0 ) {
-	children += wrapperClass->childNodes();
+	children = wrapperClass->childNodes();
 
-	// we don't want the wrapper class constructor and destructor
-	blackList.insert( wrapperClass->name() );
-	blackList.insert( "~" + wrapperClass->name() );
+	funcBlackList.insert( wrapperClass->name() );
+	funcBlackList.insert( "~" + wrapperClass->name() );
     }
+    children += qtClass->childNodes();
 
     for ( int pass = 0; pass < 2; pass++ ) {
 	NodeList::ConstIterator c = children.begin();
@@ -435,15 +440,18 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 			EnumNode *enume = (EnumNode *) *c;
 			quickifyEnum( quickClass, enume );
 		    } else if ( (*c)->type() == Node::Property ) {
-			PropertyNode *property = (PropertyNode *) *c;
-			quickifyProperty( quickClass, qtClass, property );
-			blackList.insert( property->getter() );
-			blackList.insert( property->setter() );
-			blackList.insert( property->resetter() );
+			if ( !propertyBlackList.contains((*c)->name()) ) {
+			    PropertyNode *property = (PropertyNode *) *c;
+			    quickifyProperty( quickClass, qtClass, property );
+			    funcBlackList.insert( property->getter() );
+			    funcBlackList.insert( property->setter() );
+			    funcBlackList.insert( property->resetter() );
+			    propertyBlackList.insert( property->name() );
+			}
 		    }
 		} else {
 		    if ( (*c)->type() == Node::Function &&
-			  !blackList.contains((*c)->name()) )  {
+			  !funcBlackList.contains((*c)->name()) )  {
 			FunctionNode *func = (FunctionNode *) *c;
 			quickifyFunction( quickClass, qtClass, func );
 		    }

@@ -224,7 +224,8 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 			    insert( functions, *c );
 			}
 		    } else if ( (*c)->type() == Node::Property ) {
-			const PropertyNode *property = (const PropertyNode *) *c;
+			const PropertyNode *property =
+				(const PropertyNode *) *c;
 			if ( property->setter().isEmpty() ) {
 			    insert( readOnlyProperties, *c );
 			} else {
