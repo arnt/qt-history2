@@ -272,6 +272,10 @@ void qt_mac_clear_mouse_state()
 
 void qt_mac_update_os_settings()
 {
+    if(!qApp)
+	return;
+    if(!QApplication::startingUp())
+	qApp->style().polish(qApp);
     { //setup the global peltte
 	QColor qc;
 	RGBColor c;
