@@ -196,7 +196,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "moc $(MOC): \n\t"
       << "make -C $(QTDIR)/src/moc" << "\n\t"
-      << "cp $(QTDIR)/src/moc $(MOC)" << endl << endl;
+      << "cp $(QTDIR)/src/moc/moc $(MOC)" << endl << endl;
 
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
