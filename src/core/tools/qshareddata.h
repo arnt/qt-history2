@@ -71,7 +71,7 @@ public:
     inline void detach() { if (d && d->ref != 1) detach_helper(); }
     inline T *operator->() { detach(); return d; }
     inline const T *operator->() const { return d; }
-    inline operator T *() { detach(); return 0; }
+    inline operator T *() { detach(); return d; }
     inline operator const T *() const { return d; }
     inline T *data() { detach(); return d; }
     inline const T *data() const { return d; }
