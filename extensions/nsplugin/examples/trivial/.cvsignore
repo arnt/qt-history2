@@ -1,0 +1,3 @@
+Makefile.shareddbg
+*.debug
+GNUmakefile.static
