@@ -53,9 +53,9 @@ been extended to allow creating of COM objects on remote machines via
 DCOM, to create controls requiring a license key and to connect to
 already running objects.  The implementation of QAxBase::dynamicCall()
 has been improved to support passing of parameter values directly in
-the function string. Two new classes, QAxScript and QAxScriptEngine,
-can be used to script COM objects from within Qt applications using 
-Windows Script Host.
+the function string. Three new classes, QAxScript, QAxScriptManager
+and QAxScriptEngine, can be used to script COM objects from within Qt
+applications using Windows Script Host.
 
 SAFEARRAY(BSTR) parameters are supported as QStringList. Calling of
 COM object methods with out-parameters of type short is now supported
