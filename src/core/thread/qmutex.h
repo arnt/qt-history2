@@ -33,17 +33,14 @@ public:
     bool tryLock();
     void unlock();
 
-    inline bool isLocked()
+#if defined(QT_COMPAT)
+    inline QT_COMPAT bool locked()
     {
         if (!tryLock())
             return true;
         unlock();
         return false;
     }
-
-#if defined(QT_COMPAT)
-    inline QT_COMPAT bool locked()
-    { return isLocked(); }
 #endif
 
 private:
@@ -88,8 +85,6 @@ public:
     static inline void lock() {}
     static inline bool tryLock() { return true; }
     static void unlock() {}
-
-    static bool isLocked() { return false; }
 
 #if defined(QT_COMPAT)
     static inline QT_COMPAT bool locked()

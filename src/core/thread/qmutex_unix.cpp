@@ -235,7 +235,8 @@ void QMutex::unlock()
     }
 }
 
-/*! \fn bool QMutex::isLocked()
+/*! \obsolete
+    \fn bool QMutex::locked()
 
     Returns true if the mutex is locked by another thread; otherwise
     returns false.
@@ -245,12 +246,6 @@ void QMutex::unlock()
     previously locked the mutex will return undefined results.
 
     \sa lock(), unlock()
-*/
-
-/*! \obsolete
-    \fn bool QMutex::locked()
-
-    Use isLocked() instead.
 */
 
 /*!
