@@ -186,7 +186,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe, QPainter *p,
 	    if ( !img1 ) {
 		img1 = new QImage( metal_xpm );
 	    }
-	    
+	
 	    QImage scaledImage = img1->smoothScale( r.width(), r.height() );
 	    QPixmap pix;
 	    pix.convertFromImage( scaledImage );
@@ -194,9 +194,13 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe, QPainter *p,
 	    QColorGroup g2;
 	    g2.setColor( QColorGroup::Light, white );
 	    g2.setColor( QColorGroup::Dark, black );
-	    qDrawShadePanel( p, r, g2, 
-			     flags & (Style_Sunken | Style_On | Style_Down),
-			     flags & (Style_Sunken | Style_On | Style_Down)?2:1);
+	    if ( flags & 
+		 (Style_Raised | Style_Down | Style_On | Style_Sunken ) ) {
+		qDrawShadePanel( p, r, g2,
+				 flags & (Style_Sunken | Style_On | Style_Down),
+				 flags & (Style_Sunken | Style_On | Style_Down)?2:1);
+	    } else  // flat buttons...
+		p->fillRect( r, g2.brush(QColorGroup::Button) );
 	    break;
 	}
     default:
@@ -217,16 +221,16 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 	    const QPushButton *btn;
 	    btn = (const QPushButton *)widget;
 
-	    
+	
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
-	    
+	
 	    p->setPen( cg.foreground() );
 	    p->setBrush( QBrush(cg.button(), NoBrush) );
-	    
+	
 	    QBrush fill;
 	    SFlags flags = Style_Default;
-	    
+	
 	    if ( btn->isDown() ) {
 		fill = cg2.brush( QColorGroup::Mid );
 		flags |= Style_Down;
@@ -236,8 +240,11 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 	    } else
 		fill = cg2.brush( QColorGroup::Button );
 	    
+	    if ( ! btn->isFlat() && !(flags & Style_Down) )
+		flags |= Style_Raised;
+	
 	    cg2.setBrush( QColorGroup::Button, fill );
-	    
+	
 	    if ( btn->isDefault() ) {
 		flags |= Style_Default;
 		QPointArray a;
@@ -252,7 +259,7 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 		x2 -= 2;
 		y2 -= 2;
 	    }
-	    
+	
 	    drawPrimitive( PE_ButtonCommand, p, QRect(x1, y1, x2 - x1 + 1,
 						      y2 - y1 + 1),
 			   cg2,	flags );
@@ -263,7 +270,7 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 		drawPrimitive( PE_ArrowDown, p, QRect( x2 - dx, dx, y1, y2 - y1),
 			       cg, flags );
 	    }
-	    
+	
 	    if ( p->brush().style() != NoBrush )
 		p->setBrush( NoBrush );
 	    break;
@@ -274,7 +281,7 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 	        x1, y1, x2, y2,
 		dx = 0,
 		dy = 0;
-	    
+	
 	    const QPushButton *btn;
 	    btn = (const QPushButton*)widget;
 
@@ -288,7 +295,7 @@ void MetalStyle::drawControl( ControlElement ce, QPainter *p,
 	    }
 	    if ( dx || dy )
 		p->translate( dx, dy );
-	    
+	
 	    x += 2;
 	    y += 2;
 	    w -= 4;
