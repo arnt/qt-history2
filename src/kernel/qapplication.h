@@ -219,7 +219,7 @@ public:
 
 #if defined(Q_WS_MAC)
     bool	     do_mouse_down(Point *);
-    virtual bool     macEventFilter( MSG * );
+    virtual bool     macEventFilter( EventRef );
     static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
 #elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );

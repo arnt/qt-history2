@@ -79,17 +79,13 @@ QPoint posInWindow(QWidget *w)
 {
     if(w->isTopLevel())
 	return QPoint(0, 0);
-
-    if(w->posInTLChanged) {
-	int x = 0, y = 0;
-	if(w->parentWidget()) {
-	    QPoint p = posInWindow(w->parentWidget());
-	    x = p.x() + w->x();
-	    y = p.y() + w->y();
-	}
-	w->posInTL = QPoint(x, y);
+    int x = 0, y = 0;
+    if(w->parentWidget()) {
+	QPoint p = posInWindow(w->parentWidget());
+	x = p.x() + w->x();
+	y = p.y() + w->y();
     }
-    return w->posInTL;
+    return QPoint(x, y);
 }
 
 static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
@@ -162,16 +158,17 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHandle, void *w)
+OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
+			 RgnHandle, void *w)
 {
-
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
 
-    //I shouldn't be painting the whole region, but instead just what I'm told to paint, FIXME!
+    //I shouldn't be painting the whole region, but instead just what
+    //I'm told to paint, FIXME!
     if ( widget ) 
-	paint_children(widget, QRegion(0, 0, widget->width(), widget->height()), TRUE );
+	paint_children(widget, QRegion(0, 0, widget->width(), widget->height()), TRUE);
     return 0;
 }
 
@@ -269,6 +266,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
 	WindowClass wclass = kSheetWindowClass;
+
 	if(testWFlags(WShowModal)) 
 	    wclass = kMovableModalWindowClass;
 	else if(testWFlags(WType_Dialog) ) 
@@ -338,7 +336,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     clearWState(WState_Visible);
     dirtyClippedRegion(TRUE);
     macDropEnabled = false;
-    posInTLChanged = TRUE;
 
     if ( destroyw ) {
 	mac_window_count--;
@@ -463,10 +460,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
-	    if(((WId)w->hd) == old_winid) {
+	    if(((WId)w->hd) == old_winid) 
 		w->hd = hd; //all my children hd's are now mine!
-		w->posInTLChanged = TRUE;
-	    }
 	}
     }
     delete accelerators;
@@ -751,22 +746,23 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
+	//handle transition
+	bool dotrans = FALSE;
+	if(parentWidget()) {
+	    WindowClass c;
+	    GetWindowClass((WindowPtr)hd, &c);
+	    dotrans = (c == kMovableModalWindowClass) && 
+		      qApp->style().inherits("QAquaStyle");
+	}
 	//I'm not sure I should be doing this here, but it fixes some problems
 	//I need to make sure all events have been processed before painting
 	//the newly shown dialog. This fixes problems like weirdnesses when showing
 	//a dialog with a child that has been reparented (ala qdockareas) FIXME?
 	qApp->sendPostedEvents();
-
-	//handle transition
-	if(parentWidget()) {
-	    WindowClass c;
-	    GetWindowClass((WindowPtr)hd, &c);
-	    if(c == kMovableModalWindowClass) {
-		if( ( qApp->style().inherits("QAquaStyle") ) )
-		    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-					      kWindowSheetTransitionEffect,
-					      kWindowShowTransitionAction, NULL);
-	    }
+	if(dotrans) {
+	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
+				      kWindowSheetTransitionEffect,
+				      kWindowShowTransitionAction, NULL);
 	}
 
 	//now actually show it
@@ -936,15 +932,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
-
-    if(isVisible() && isMove) { //I have moved flag..
-	posInTLChanged = TRUE;
-	QObjectList	*objs = queryList();
-	QObjectListIt it( *objs );
-	for ( QObject *obj; (obj=it.current()); ++it )
-	    if(obj->isWidgetType()) 			
-		((QWidget *)obj)->posInTLChanged = TRUE;
-    }
     dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() && isMove && own_id )
@@ -1312,11 +1299,10 @@ void QWidget::setName( const char * )
 }
 
 
-//FIXME: this function still accepts an x and y, so we can do dirty children later.
-void QWidget::propagateUpdates(int , int , int w, int h)
+void QWidget::propagateUpdates()
 {
     SetPortWindowPort((WindowPtr)handle());
-    QRect paintRect( 0, 0, w, h );
+    QRect paintRect( 0, 0, width(), height());
     setWState( WState_InPaintEvent );
     QPaintEvent e( paintRect );
 
@@ -1330,7 +1316,7 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 	    if ( (*it)->isWidgetType() ) {
 		childWidget = (QWidget *)(*it);
 		if(childWidget->isVisible())
-		    childWidget->propagateUpdates( 0, 0, childWidget->width(), childWidget->height() );
+		    childWidget->propagateUpdates();
 	    }
 	}	
     }

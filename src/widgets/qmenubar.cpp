@@ -176,6 +176,15 @@ static const int motifItemVMargin       = 4;    // menu item ver text margin
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0 )
 {
+#if defined(Q_WS_MAC)
+    if( parent && parent->isTopLevel() ) {
+	setFixedWidth(qApp->desktop()->width());
+	setFixedHeight(22);
+	reparent( parent, WType_Dialog | WStyle_Customize | WStyle_NoBorder,
+		  QPoint(0, 0) );
+    }
+#endif
+
     isMenuBar = TRUE;
 #ifndef QT_NO_ACCEL
     autoaccel = 0;

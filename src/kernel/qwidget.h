@@ -459,13 +459,8 @@ protected:
     QPixmap * bg_pix;
 
     //mac event functions
-    void propagateUpdates(int x,int y,int x2,int y2);
+    void propagateUpdates();
     friend OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
-
-    //just store this value rather than calculating since mac needs it a lot
-    bool posInTLChanged;
-    QPoint posInTL;
-    friend QPoint posInWindow(QWidget *w);
 
 #elif defined(Q_WS_WIN)
     virtual bool winEvent( MSG * );		// Windows event

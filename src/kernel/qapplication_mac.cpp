@@ -67,7 +67,7 @@
 #include "qwindowsstyle.h" // ######## dependency
 #include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
-
+#include "qmenubar.h"
 
 #include <sys/time.h>
 #include <sys/select.h>
@@ -153,48 +153,6 @@ void qt_remove_postselect_handler( VFPTR handler )
 //timer stuff
 static void	initTimers();
 static void	cleanupTimers();
-static timeval	watchtime;			// watch if time is turned back
-timeval		*qt_wait_timer();
-timeval 	*qt_wait_timer_max = 0;
-int 		qt_activate_timers();
-
-struct QSockNot {
-    QObject *obj;
-    int	     fd;
-    fd_set  *queue;
-};
-
-typedef QList<QSockNot> QSNList;
-typedef QListIterator<QSockNot> QSNListIt;
-
-static int	sn_highest = -1;
-static QSNList *sn_read	   = 0;
-static QSNList *sn_write   = 0;
-static QSNList *sn_except  = 0;
-
-static fd_set	sn_readfds;			// fd set for reading
-static fd_set	sn_writefds;			// fd set for writing
-static fd_set	sn_exceptfds;			// fd set for exceptions
-static fd_set	sn_queued_read;
-static fd_set	sn_queued_write;
-static fd_set	sn_queued_except;
-
-static fd_set	app_readfds;			// fd set for reading
-static fd_set	app_writefds;			// fd set for writing
-static fd_set	app_exceptfds;			// fd set for exceptions
-
-static struct SN_Type {
-    QSNList **list;
-    fd_set   *fdspec;
-    fd_set   *fdres;
-    fd_set   *queue;
-} sn_vec[3] = {
-    { &sn_read,	  &sn_readfds,	 &app_readfds,   &sn_queued_read },
-    { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
-    { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
-
-static QSNList *sn_act_list = 0;
-
 
 // one day in the future we will be able to have static objects in libraries....
 struct QScrollInProgress {
@@ -216,56 +174,44 @@ public:
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
 };
 
-
-UnsignedWide thesecs;
-
 void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 {
-    char *p;
-
     // Set application name
-
-    p = strrchr( argv[0], '/' );
+    char *p = strrchr( argv[0], '/' );
     appName = p ? p + 1 : argv[0];
 
-// FIXME: which of these are needed and why?
-//	InitGraf(&qd.thePort);
-//	InitWindows();
-	InitCursor();
-//	InitMenus();
-//	InitFonts();
     if ( qt_is_gui_used ) {
+        qApp->setName( appName );
         QColor::initialize();
         QFont::initialize();
         QCursor::initialize();
         QPainter::initialize();
+
+	static EventTypeSpec events[] = {
+	    { kEventClassMouse, kEventMouseDragged },
+	    { kEventClassMouse, kEventMouseMoved },
+	    { kEventClassMouse, kEventMouseDown },
+	    { kEventClassMouse, kEventMouseUp }, 
+	    { kEventClassMouse, kEventMouseWheelMoved },
+
+	    { kEventClassKeyboard, kEventRawKeyUp },
+	    { kEventClassKeyboard, kEventRawKeyDown },
+	    { kEventClassKeyboard, kEventRawKeyRepeat },
+
+	    { kEventClassWindow, kEventWindowUpdate },
+	    { kEventClassWindow, kEventWindowActivated },
+	    { kEventClassWindow, kEventWindowDeactivated },
+	    { kEventClassWindow, kEventWindowShown },
+	    { kEventClassWindow, kEventWindowHidden },
+
+	    { kEventClassApplication, kEventAppActivated }, 
+	    { kEventClassApplication, kEventAppDeactivated }
+	};
+	InstallEventHandler( GetApplicationEventTarget(), 
+			     QApplication::globalEventProcessor, 
+			     GetEventTypeCount(events), events, 
+			     (void *)qApp, NULL);
     }
-    Microseconds( &thesecs );
-    if ( qt_is_gui_used ) {
-        qApp->setName( appName );
-    }
-
-    static EventTypeSpec events[] = {
-	{ kEventClassMouse, kEventMouseDragged },
-	{ kEventClassMouse, kEventMouseMoved },
-	{ kEventClassMouse, kEventMouseDown },
-	{ kEventClassMouse, kEventMouseUp }, 
-	{ kEventClassMouse, kEventMouseWheelMoved },
-
-	{ kEventClassKeyboard, kEventRawKeyUp },
-	{ kEventClassKeyboard, kEventRawKeyDown },
-	{ kEventClassKeyboard, kEventRawKeyRepeat },
-
-	{ kEventClassWindow, kEventWindowUpdate },
-	{ kEventClassWindow, kEventWindowActivated },
-	{ kEventClassWindow, kEventWindowDeactivated },
-
-	{ kEventClassApplication, kEventAppActivated }, 
-	{ kEventClassApplication, kEventAppDeactivated }
-    };
-    InstallEventHandler( GetApplicationEventTarget(), 
-			 QApplication::globalEventProcessor, 
-			 GetEventTypeCount(events), events, (void *)qApp, NULL);
 }
 
 
@@ -286,7 +232,6 @@ void qt_cleanup()
 	delete postRList;
 	postRList = 0;
     }
-
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
@@ -409,7 +354,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
     for(it.toLast(); it.current(); --it) {
 	if((*it)->isWidgetType()) {
 	    QWidget *curwidg=(QWidget *)(*it);
-	    if(curwidg->isVisible()) {
+	    if(curwidg->isVisible() && !curwidg->isTopLevel()) {
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
 		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
@@ -474,216 +419,27 @@ int QApplication::exec()
     return quit_code;
 }
 
-
-//
-// Internal data structure for timers
-//
-
-struct TimerInfo {				// internal timer info
-    int	     id;				// - timer identifier
-    timeval  interval;				// - timer interval
-    timeval  timeout;				// - when to sent event
-    QObject *obj;				// - object to receive event
+/* timer code */
+struct TimerInfo {
+    QObject *obj;
+    EventLoopTimerRef id;
 };
-
 typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
-
-static QBitArray *timerBitVec;			// timer bit vector
 static TimerList *timerList	= 0;		// timer list
 
-
-//
-// Internal operator functions for timevals
-//
-
-static inline bool operator<( const timeval &t1, const timeval &t2 )
+/* timer call back */
+static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
-    return t1.tv_sec < t2.tv_sec ||
-	  (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec);
+    TimerInfo *t = (TimerInfo *)data;
+    QTimerEvent e( (int)t->id );
+    QApplication::sendEvent( t->obj, &e );	// send event
 }
-
-static inline timeval &operator+=( timeval &t1, const timeval &t2 )
-{
-    t1.tv_sec += t2.tv_sec;
-    if ( (t1.tv_usec += t2.tv_usec) >= 1000000 ) {
-	t1.tv_sec++;
-	t1.tv_usec -= 1000000;
-    }
-    return t1;
-}
-
-static inline timeval operator+( const timeval &t1, const timeval &t2 )
-{
-    timeval tmp;
-    tmp.tv_sec = t1.tv_sec + t2.tv_sec;
-    if ( (tmp.tv_usec = t1.tv_usec + t2.tv_usec) >= 1000000 ) {
-	tmp.tv_sec++;
-	tmp.tv_usec -= 1000000;
-    }
-    return tmp;
-}
-
-static inline timeval operator-( const timeval &t1, const timeval &t2 )
-{
-    timeval tmp;
-    tmp.tv_sec = t1.tv_sec - t2.tv_sec;
-    if ( (tmp.tv_usec = t1.tv_usec - t2.tv_usec) < 0 ) {
-	tmp.tv_sec--;
-	tmp.tv_usec += 1000000;
-    }
-    return tmp;
-}
-
-
-//
-// Internal functions for manipulating timer data structures.
-// The timerBitVec array is used for keeping track of timer identifiers.
-//
-
-static int allocTimerId()			// find avail timer identifier
-{
-    int i = timerBitVec->size()-1;
-    while ( i >= 0 && (*timerBitVec)[i] )
-	i--;
-    if ( i < 0 ) {
-	i = timerBitVec->size();
-	timerBitVec->resize( 4 * i );
-	for( int j=timerBitVec->size()-1; j > i; j-- )
-	    timerBitVec->clearBit( j );
-    }
-    timerBitVec->setBit( i );
-    return i+1;
-}
-
-static void insertTimer( const TimerInfo *ti )	// insert timer info into list
-{
-    TimerInfo *t = timerList->first();
-    int index = 0;
-    while ( t && t->timeout < ti->timeout ) {	// list is sorted by timeout
-	t = timerList->next();
-	index++;
-    }
-    timerList->insert( index, ti );		// inserts sorted
-}
-
-static inline void getTime( timeval &t )	// get time of day
-{
-    gettimeofday( &t, 0 );
-    while ( t.tv_usec >= 1000000 ) {		// NTP-related fix
-	t.tv_usec -= 1000000;
-	t.tv_sec++;
-    }
-    while ( t.tv_usec < 0 ) {
-	if ( t.tv_sec > 0 ) {
-	    t.tv_usec += 1000000;
-	    t.tv_sec--;
-	} else {
-	    t.tv_usec = 0;
-	    break;
-	}
-    }
-}
-
-static void repairTimer( const timeval &time )	// repair broken timer
-{
-    if ( !timerList )				// not initialized
-	return;
-    timeval diff = watchtime - time;
-    register TimerInfo *t = timerList->first();
-    while ( t ) {				// repair all timers
-	t->timeout = t->timeout - diff;
-	t = timerList->next();
-    }
-}
-
-
-//
-// Timer activation functions (called from the event loop)
-//
-
-/*
-  Returns the time to wait for the next timer, or null if no timers are
-  waiting.
-*/
-
-timeval *qt_wait_timer()
-{
-    //FIXME!!!!
-    return NULL;
-
-    static timeval tm;
-    bool first = TRUE;
-    timeval currentTime;
-    if ( timerList && timerList->count() ) {	// there are waiting timers
-	getTime( currentTime );
-	if ( first ) {
-	    if ( currentTime < watchtime )	// clock was turned back
-		repairTimer( currentTime );
-	    first = FALSE;
-	    watchtime = currentTime;
-	}
-	TimerInfo *t = timerList->first();	// first waiting timer
-	if ( currentTime < t->timeout ) {	// time to wait
-	    tm = t->timeout - currentTime;
-	} else {
-	    tm.tv_sec  = 0;			// no time to wait
-	    tm.tv_usec = 0;
-	}
-	return &tm;
-    }
-    return 0;					// no timers
-}
-
-/*
-  Activates the timer events that have expired. Returns the number of timers
-  (not 0-timer) that were activated.
-*/
-
-int qt_activate_timers()
-{
-    if ( !timerList || !timerList->count() )	// no timers
-	return 0;
-    bool first = TRUE;
-    timeval currentTime;
-    int maxcount = timerList->count();
-    int n_act = 0;
-    register TimerInfo *t;
-    while ( maxcount-- ) {			// avoid starvation
-	getTime( currentTime );			// get current time
-	if ( first ) {
-	    if ( currentTime < watchtime )	// clock was turned back
-		repairTimer( currentTime );
-	    first = FALSE;
-	    watchtime = currentTime;
-	}
-	t = timerList->first();
-	if ( !t || currentTime < t->timeout )	// no timer has expired
-	    break;
-	timerList->take();			// unlink from list
-	t->timeout += t->interval;
-	if ( t->timeout < currentTime )
-	    t->timeout = currentTime + t->interval;
-	insertTimer( t );			// relink timer
-	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
-	    n_act++;
-	QTimerEvent e( t->id );
-	QApplication::sendEvent( t->obj, &e );	// send event
-    }
-    return n_act;
-}
-
 
 //
 // Timer initialization and cleanup routines
 //
-
 static void initTimers()			// initialize timers
 {
-    timerBitVec = new QBitArray( 128 );
-    Q_CHECK_PTR( timerBitVec );
-    int i = timerBitVec->size();
-    while( i-- > 0 )
-	timerBitVec->clearBit( i );
     timerList = new TimerList;
     Q_CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
@@ -694,63 +450,51 @@ static void cleanupTimers()			// cleanup timer data structure
     if ( timerList ) {
 	delete timerList;
 	timerList = 0;
-	delete timerBitVec;
-	timerBitVec = 0;
     }
 }
 
 //
 // Main timer functions for starting and killing timers
 //
-
 int qStartTimer( int interval, QObject *obj )
 {
     if ( !timerList )				// initialize timer data
 	initTimers();
-    int id = allocTimerId();			// get free timer id
-    if ( id <= 0 ||
-	 id > (int)timerBitVec->size() || !obj )// cannot create timer
-	return 0;
-    timerBitVec->setBit( id-1 );		// set timer active
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
-    t->id = id;
-    t->interval.tv_sec  = interval/1000;
-    t->interval.tv_usec = (interval%1000)*1000;
-    timeval currentTime;
-    getTime( currentTime );
-    t->timeout = currentTime + t->interval;
-    t->obj = obj;
-    insertTimer( t );				// put timer in list
-    return id;
+    EventTimerInterval mint = ((EventTimerInterval)interval) / 1000;
+    if(! InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
+			       qt_activate_timers, t, &t->id) ) {
+	t->obj = obj;
+	timerList->append(t);
+	return (int)t->id;
+    }
+    delete t;
+    return 0;
 }
 
 bool qKillTimer( int id )
 {
-    register TimerInfo *t;
-    if ( !timerList || id <= 0 ||
-	 id > (int)timerBitVec->size() || !timerBitVec->testBit( id-1 ) )
+    if ( !timerList || id <= 0)
 	return FALSE;				// not init'd or invalid timer
-    t = timerList->first();
-    while ( t && t->id != id )			// find timer info in list
+    register TimerInfo *t = timerList->first();
+    while ( t && t->id != (EventLoopTimerRef)id ) // find timer info in list
 	t = timerList->next();
-    if ( t ) {					// id found
-	timerBitVec->clearBit( id-1 );		// set timer inactive
+    if ( t ) { 					// id found
+	RemoveEventLoopTimer(t->id);
 	return timerList->remove();
     }
-    else					// id not found
-	return FALSE;
+    return FALSE; // id not found
 }
 
 bool qKillTimer( QObject *obj )
 {
-    register TimerInfo *t;
     if ( !timerList )				// not initialized
 	return FALSE;
-    t = timerList->first();
+    register TimerInfo *t = timerList->first();
     while ( t ) {				// check all timers
 	if ( t->obj == obj ) {			// object found
-	    timerBitVec->clearBit( t->id-1 );
+	    RemoveEventLoopTimer(t->id);
 	    timerList->remove();
 	    t = timerList->current();
 	} else {
@@ -759,6 +503,45 @@ bool qKillTimer( QObject *obj )
     }
     return TRUE;
 }
+
+#ifdef Q_OS_MACX
+//socket stuff
+struct QSockNot {
+    QObject *obj;
+    int	     fd;
+    fd_set  *queue;
+};
+
+typedef QList<QSockNot> QSNList;
+typedef QListIterator<QSockNot> QSNListIt;
+
+static int	sn_highest = -1;
+static QSNList *sn_read	   = 0;
+static QSNList *sn_write   = 0;
+static QSNList *sn_except  = 0;
+
+static fd_set	sn_readfds;			// fd set for reading
+static fd_set	sn_writefds;			// fd set for writing
+static fd_set	sn_exceptfds;			// fd set for exceptions
+static fd_set	sn_queued_read;
+static fd_set	sn_queued_write;
+static fd_set	sn_queued_except;
+
+static fd_set	app_readfds;			// fd set for reading
+static fd_set	app_writefds;			// fd set for writing
+static fd_set	app_exceptfds;			// fd set for exceptions
+
+static struct SN_Type {
+    QSNList **list;
+    fd_set   *fdspec;
+    fd_set   *fdres;
+    fd_set   *queue;
+} sn_vec[3] = {
+    { &sn_read,	  &sn_readfds,	 &app_readfds,   &sn_queued_read },
+    { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
+    { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
+
+static QSNList *sn_act_list = 0;
 
 static void sn_cleanup()
 {
@@ -856,7 +639,13 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 
     return TRUE;
 }
-
+#else
+bool qt_set_socket_handler( int, int, QObject *, bool )
+{
+    return FALSE;
+}
+#warning "need to implement sockets on mac9"
+#endif
 
 //
 // We choose a random activation order to be more fair under high load.
@@ -913,7 +702,8 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
-	/* this gives QD a chance to flush buffers, I don't like doing it, FIXME!! */
+	/* this gives QD a chance to flush buffers, I don't like doing it 
+	   FIXME!! */
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
 
@@ -944,15 +734,17 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     sendPostedEvents();
 
-#ifdef Q_OS_MACX
-    static timeval zerotm;
-    timeval *tm = qt_wait_timer();		// wait for timer or X event
-    if ( !canWait || !tm ) {
-	if ( !tm )
-	    tm = &zerotm;
-	tm->tv_sec  = 0;			// no time to wait
-	tm->tv_usec = 0;
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator end = qt_preselect_handler->end();
+	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); 
+	      it != end; ++it )
+	    (**it)();
     }
+
+#ifdef Q_OS_MACX
+    timeval tm;
+    tm.tv_sec  = 0;			// no time to wait
+    tm.tv_usec = 0;
     if ( sn_highest >= 0 ) {			// has socket notifier(s)
 	if ( sn_read )
 	    app_readfds = sn_readfds;
@@ -965,24 +757,17 @@ bool QApplication::processNextEvent( bool canWait )
     } else {
 	FD_ZERO( &app_readfds );
     }
-#else
-#warning "Need to implmenet timers on mac9"
-#endif
-
-    if ( qt_preselect_handler ) {
-	QVFuncList::Iterator end = qt_preselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
-	    (**it)();
-    }
-
-#ifdef Q_OS_MACX
-    int nsel = select( sn_highest + 1, (&app_readfds), (sn_write  ? &app_writefds  : 0), (sn_except ? &app_exceptfds : 0), tm );
+    int nsel = select( sn_highest + 1, (&app_readfds), 
+		       (sn_write  ? &app_writefds  : 0), 
+		       (sn_except ? &app_exceptfds : 0), &tm );
 #else
 #warning "need to implement sockets on mac9"
 #endif
+
     if ( qt_postselect_handler ) {
 	QVFuncList::Iterator end = qt_postselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
+	for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); 
+	      it != end; ++it )
 	    (**it)();
     }
 
@@ -997,12 +782,9 @@ bool QApplication::processNextEvent( bool canWait )
     } else if ( nsel > 0 && sn_highest >= 0 ) {
 	nevents += sn_activate();
     }
-
-    nevents += qt_activate_timers();		// activate timers
 #else
-#warning "Need to implement final timer activation on mac9"
+#warning "need to implement sockets on mac9"
 #endif
-    //  qt_reset_color_avail();			// color approx. optimization
 
     return (nevents > 0);
 }
@@ -1265,8 +1047,11 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 OSStatus 
 QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
-    QWidget *widget = NULL;
     QApplication *app = (QApplication *)data;
+    if ( app->macEventFilter( event ) )
+	return 1;
+
+    QWidget *widget = NULL;
 
     UInt32 ekind = GetEventKind(event);
     switch(GetEventClass(event))
@@ -1301,7 +1086,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL, 
 			  sizeof(where), NULL, &where);
 
-	bool handle_it = TRUE;
 	switch(ekind) {
 	case kEventMouseDown:
 	{
@@ -1313,8 +1097,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		etype = QEvent::MouseButtonDblClick;
 	    else
 		etype = QEvent::MouseButtonPress;
-	    if((handle_it = app->do_mouse_down( &where ))) 
-		mouse_button_state = button;
+	    mouse_button_state = button;
 	    break;
 	}
 	case kEventMouseUp:
@@ -1368,98 +1151,107 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 	}
 
-	if(qt_button_down || mac_mouse_grabber || handle_it) {
+	//figure out which widget to send it to
+	if( ekind != kEventMouseDown && qt_button_down )
+	    widget = qt_button_down;
+	else if( mac_mouse_grabber )
+	    widget = mac_mouse_grabber;
+	else
+	    widget = QApplication::widgetAt( where.h, where.v, true );
 
-	    //figure out which widget to send it to
-	    if( ekind != kEventMouseDown && qt_button_down )
-		widget = qt_button_down;
-	    else if( mac_mouse_grabber )
-		widget = mac_mouse_grabber;
-	    else
-		widget = QApplication::widgetAt( where.h, where.v, true );
-
-	    switch(ekind) {
-	    case kEventMouseDragged:
-	    case kEventMouseMoved:
-	    {
-		//set the cursor up
-		Cursor *n = NULL;
-		if(!widget) //not over the app, don't set a cursor..
-		    ;
-		else if(widget->extra && widget->extra->curs)
-		    n = (Cursor *)widget->extra->curs->handle();
-		else if(cursorStack)
-		    n = (Cursor *)app_cursor->handle();
-		if(!n)
-		    n = (Cursor *)arrowCursor.handle(); //I give up..
-		if(currentCursor != n)
-		    SetCursor(currentCursor = n);
-		if ( qt_mouseover != widget ) {
-		    qt_dispatchEnterLeave( widget, qt_mouseover );
-		    qt_mouseover = widget;
-		}
-		break;
+	switch(ekind) {
+	case kEventMouseDragged:
+	case kEventMouseMoved:
+	{
+	    //set the cursor up
+	    Cursor *n = NULL;
+	    if(!widget) //not over the app, don't set a cursor..
+		;
+	    else if(widget->extra && widget->extra->curs)
+		n = (Cursor *)widget->extra->curs->handle();
+	    else if(cursorStack)
+		n = (Cursor *)app_cursor->handle();
+	    if(!n)
+		n = (Cursor *)arrowCursor.handle(); //I give up..
+	    if(currentCursor != n)
+		SetCursor(currentCursor = n);
+	    if ( qt_mouseover != widget ) {
+		qt_dispatchEnterLeave( widget, qt_mouseover );
+		qt_mouseover = widget;
 	    }
-	    case kEventMouseDown:
-		qt_button_down = widget;
-		break;     
-	    case kEventMouseUp:
-		qt_button_down = NULL;
-		break;     
-	    }
+	    break;
+	}
+	case kEventMouseDown:
+	    qt_button_down = widget;
+	    break;     
+	case kEventMouseUp:
+	    qt_button_down = NULL;
+	    break;     
+	}
 
-	    //finally send the event to the widget if its not the popup
-	    if ( widget && widget != popupwidget ) {
-		if ( app_do_modal && !qt_try_modal(widget, event) )
-		    return 1;
+	//finally send the event to the widget if its not the popup
+	if ( widget && widget != popupwidget ) {
+	    if ( app_do_modal && !qt_try_modal(widget, event) )
+		return 1;
 
-		if(ekind == kEventMouseDown) {
-		    QWidget* w = widget;
-		    while ( w->focusProxy() )
-			w = w->focusProxy();
-		    if ( w->focusPolicy() & QWidget::ClickFocus ) {
-			QFocusEvent::setReason( QFocusEvent::Mouse);
-			w->setFocus();
-			QFocusEvent::resetReason();
-		    }
-		    if(QWidget *tlw = widget->topLevelWidget()) {
-			tlw->raise();
-			if(tlw->isTopLevel() && !tlw->isPopup() && 
-			   (tlw->isModal() || !tlw->isDialog()))
-			    app->setActiveWindow(tlw);
+	    if(ekind == kEventMouseDown) {
+		QWidget* w = widget;
+		while ( w->focusProxy() )
+		    w = w->focusProxy();
+		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    w->setFocus();
+		    QFocusEvent::resetReason();
+		}
+		if(QWidget *tlw = widget->topLevelWidget()) {
+		    tlw->raise();
+		    if(tlw->isTopLevel() && !tlw->isPopup() && 
+		       (tlw->isModal() || !tlw->isDialog())) {
+			if(IsMenuBarVisible()) {
+			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
+				QMenuBar *bar = (QMenuBar *)mb;
+				if(bar->isTopLevel() && bar->isVisible()) 
+				    HideMenuBar();
+			    }
+			}
+			app->setActiveWindow(tlw);
 		    }
 		}
+
+		if(!app->do_mouse_down( &where )) {
+		    qt_button_down = NULL;
+		    mouse_button_state = 0;
+		    return 0;
+		}
+	    }
 
 #if 0
-		char *desc = NULL;
-		switch(ekind) {
-		case kEventMouseDown: desc = "MouseButtonPress"; break;
-		case kEventMouseUp: desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged: 
-		case kEventMouseMoved: desc = "MouseMove"; break;
-		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
-		}
-		qDebug("Would send (%s) event to %s %s (%d %d %d)", desc, 
-		       widget->name(), widget->className(), button|keys, state|keys, wheel_delta);
+	    char *desc = NULL;
+	    switch(ekind) {
+	    case kEventMouseDown: desc = "MouseButtonPress"; break;
+	    case kEventMouseUp: desc = "MouseButtonRelease"; break;
+	    case kEventMouseDragged: 
+	    case kEventMouseMoved: desc = "MouseMove"; break;
+	    case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
+	    }
+	    qDebug("Would send (%s) event to %s %s (%d %d %d)", desc, 
+		   widget->name(), widget->className(), button|keys, state|keys, 
+		   wheel_delta);
 #endif
-		QPoint p( where.h, where.v );
-		QPoint plocal(widget->mapFromGlobal( p ));
-		if(wheel_delta) {
-		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
-		    QApplication::sendEvent( widget, &qwe);
-		} else {
-		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
-		    QApplication::sendEvent( widget, &qme );
-		}
+	    QPoint p( where.h, where.v );
+	    QPoint plocal(widget->mapFromGlobal( p ));
+	    if(wheel_delta) {
+		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
+		QApplication::sendEvent( widget, &qwe);
+	    } else {
+		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		QApplication::sendEvent( widget, &qme );
 	    }
 	}
 	break;
     }
     case kEventClassKeyboard:
     {
-	if ( app_do_modal && !qt_try_modal(widget, event) )
-	    return 1;
-
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
@@ -1477,15 +1269,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    widget = focus_widget;
 
 	if(widget) {
+	    if ( app_do_modal && !qt_try_modal(widget, event) )
+		return 1;
+
 	    bool isAccel = FALSE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
 		QKeyEvent aa(QEvent::AccelOverride, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
-			      mystr.length());
+			     mystr.length());
 		aa.ignore();
 		QApplication::sendEvent( widget, &aa );
 		if ( !aa.isAccepted() ) {
 		    QKeyEvent a(QEvent::Accel, mychar, mychar, modifiers, mystr, ekind == kEventRawKeyRepeat,
-				 mystr.length());
+				mystr.length());
 		    a.ignore();
 		    QApplication::sendEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() ) 
@@ -1516,26 +1311,37 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		
 		QMacSavedPortInfo savedInfo;
 		BeginUpdate((WindowPtr)widget->handle());
-		widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
+		widget->propagateUpdates();
 		EndUpdate((WindowPtr)widget->handle());
 	    } else if(ekind == kEventWindowActivated) {
 		if(widget) {
 		    widget->raise();
 		    QWidget *tlw = widget->topLevelWidget();
 		    if(tlw->isTopLevel() && !tlw->isPopup() && 
-		       (tlw->isModal() || !tlw->isDialog()))
-			app->setActiveWindow(widget);
+		       (tlw->isModal() || !tlw->isDialog())) {
+			if(IsMenuBarVisible()) {
+			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
+				QMenuBar *bar = (QMenuBar *)mb;
+				if(bar->isTopLevel() && bar->isVisible()) 
+				    HideMenuBar();	
+			    }
+			}
+			app->setActiveWindow(tlw);
+		    }
 		    if (widget->focusWidget())
 			widget->focusWidget()->setFocus();
 		    else
 			widget->setFocus();
 		}
 	    } else if(ekind == kEventWindowDeactivated) {
-		if(active_window && widget == active_window) 
+		if(active_window && widget == active_window) {
 		    app->setActiveWindow(NULL);
+		} 
 		while(app->inPopupMode())
 		    app->activePopupWidget()->close();
+	    } else if(ekind == kEventWindowShown /*|| ekind == kEventWindowHidden*/) {
 	    }
+
 	    break;
 	}
     case kEventClassApplication:
@@ -1562,7 +1368,7 @@ void QApplication::processEvents( int maxtime)
     }
 }
 
-bool QApplication::macEventFilter( void ** )
+bool QApplication::macEventFilter( EventRef )
 {
     return 0;
 }
