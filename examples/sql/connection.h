@@ -14,6 +14,7 @@
 #define CONNECTION_H
 
 #include <qsqldatabase.h>
+#include <qsqlerror.h>
 #include <qsqlquery.h>
 
 /* This file defines a helper function to open a connection to
@@ -28,7 +29,7 @@ static void createConnection()
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
     if (!db.open()) {
-        qWarning("This example requires the QSQLITE driver");
+        qWarning("Error opening the SQLITE Qt driver: %s", db.lastError().text().ascii());
         return;
     }
 
