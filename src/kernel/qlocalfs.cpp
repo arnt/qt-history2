@@ -252,39 +252,41 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 
     QByteArray s;
     emit dataTransferProgress( 0, f.size(), op );
-    int blockSize = calcBlockSize( f.size() );
-    if ( (int)f.size() < blockSize ) {
-	s.resize( f.size() );
-	f.readBlock( s.data(), f.size() );
-	emit data( s, op );
-	emit dataTransferProgress( f.size(), f.size(), op );
+    if ( f.size() != 0 ) {
+	int blockSize = calcBlockSize( f.size() );
+	if ( (int)f.size() < blockSize ) {
+	    s.resize( f.size() );
+	    f.readBlock( s.data(), f.size() );
+	    emit data( s, op );
+	    emit dataTransferProgress( f.size(), f.size(), op );
 #ifdef QLOCALFS_DEBUG
-	qDebug( "QLocalFs: got all %d bytes at once", f.size() );
+	    qDebug( "QLocalFs: got all %d bytes at once", f.size() );
 #endif
-    } else {
-	s.resize( blockSize );
-	int remaining = f.size();
-	while ( remaining > 0 ) {
-	    if ( operationInProgress() != op )
-		return;
-	    if ( remaining >= blockSize ) {
-		f.readBlock( s.data(), blockSize );
-		emit data( s, op );
-		emit dataTransferProgress( f.size() - remaining, f.size(), op );
-		remaining -= blockSize;
-	    } else {
-		s.resize( remaining );
-		f.readBlock( s.data(), remaining );
-		emit data( s, op );
-		emit dataTransferProgress( f.size() - remaining, f.size(), op );
-		remaining -= remaining;
+	} else {
+	    s.resize( blockSize );
+	    int remaining = f.size();
+	    while ( remaining > 0 ) {
+		if ( operationInProgress() != op )
+		    return;
+		if ( remaining >= blockSize ) {
+		    f.readBlock( s.data(), blockSize );
+		    emit data( s, op );
+		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
+		    remaining -= blockSize;
+		} else {
+		    s.resize( remaining );
+		    f.readBlock( s.data(), remaining );
+		    emit data( s, op );
+		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
+		    remaining -= remaining;
+		}
+		qApp->processEvents();
 	    }
-	    qApp->processEvents();
-	}
 #ifdef QLOCALFS_DEBUG
-	qDebug( "QLocalFs: got all %d bytes step by step", f.size() );
+	    qDebug( "QLocalFs: got all %d bytes step by step", f.size() );
 #endif
-	emit dataTransferProgress( f.size(), f.size(), op );
+	    emit dataTransferProgress( f.size(), f.size(), op );
+	}
     }
     op->setState( StDone );
     f.close();
