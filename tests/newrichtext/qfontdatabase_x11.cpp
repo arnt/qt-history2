@@ -42,7 +42,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#define QFONTDATABASE_DEBUG
+// #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
 #endif // QFONTDATABASE_DEBUG
@@ -715,4 +715,75 @@ void QFontDatabase::createDatabase()
 	}
     }
 #endif // QFONTDATABASE_DEBUG
+}
+
+
+bool QFontDatabase::findFont( int script, int styleStrategy,
+			      QString &family, QString &foundry,
+			      int &weight, bool &italic, bool &oblique, int &pixelSize,
+			      bool &xlfd_uses_regular, QCString &encoding )
+{
+    QtFontScript &scr = db->scripts[script];
+    QtFontFamily *fam = 0;
+    if ( family.isEmpty() && scr.count )
+	fam = scr.families[0];
+    else
+	fam = scr.family( family );
+    if ( !fam ) return FALSE;
+    family = fam->name;
+
+    QtFontFoundry *fnd = 0;
+    if ( !foundry.isEmpty() ) {
+	fnd = fam->foundry( foundry );
+
+    }
+    // ### iterate over all foundries if not found/specified to find
+    // ### the best match in all foundries
+    if ( !fnd )
+	fnd = fam->foundries[0];
+    foundry = fnd->name;
+
+    QtFontStyle::Key styleKey;
+    styleKey.italic = italic;
+    styleKey.weight = weight;
+    QtFontStyle *sty = fnd->style( styleKey );
+    if ( !sty && italic ) {
+	styleKey.italic = FALSE;
+	styleKey.oblique = TRUE;
+	sty = fnd->style( styleKey );
+    }
+    if ( !sty ) {
+	// ### do some matching here
+	sty = fnd->styles[0];
+    }
+
+    italic  = sty->key.italic;
+    oblique = sty->key.oblique;
+    weight  = sty->key.weight;
+
+    xlfd_uses_regular = sty->xlfd_uses_regular;
+
+    int px = pixelSize;
+    if ( sty->smoothScalable )
+	px = SMOOTH_SCALABLE;
+    else if ( sty->bitmapScalable && ( styleStrategy & QFont::PreferMatch ) )
+	px = 0;
+
+    QtFontSize *size = sty->pixelSize( px );
+    if ( !size ) {
+	// find closest size match
+	unsigned int distance = ~0;
+	for ( int x = 0; x < sty->count; ++x ) {
+	    unsigned int d = QABS( sty->pixelSizes[x].pixelSize - pixelSize);
+	    if ( d < distance ) {
+		distance = d;
+		size = sty->pixelSizes + x;
+	    }
+	}
+    }
+
+    pixelSize = size->pixelSize;
+
+    encoding = xlfd_for_id( size->encodings[0] );
+    return TRUE;
 }

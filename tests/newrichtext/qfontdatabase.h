@@ -111,11 +111,18 @@ public:
 
 #endif // QT_NO_COMPAT
 
+#ifdef Q_WS_X11
+    static bool findFont( int script, int styleStrategy,
+			  QString &family, QString &foundry,
+			  int &weight, bool &italic, bool &oblique, int &pixelSize,
+			  bool &xlfd_uses_regular, QCString &encoding );
+#endif // Q_WS_X11
 
 private:
     static void createDatabase();
 
     static void parseFontName(const QString &, QString &, QString &);
+
 
     friend class QFontDatabasePrivate;
 
