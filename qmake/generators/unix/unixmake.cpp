@@ -136,7 +136,7 @@ UnixMakefileGenerator::init()
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) 
+	if ( !project->isActiveConfig("debug") )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
@@ -337,12 +337,16 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     bool resource = FALSE;
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=project->first("DESTDIR");
+    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
+
+    fileFixify( destdir );
+    fileFixify( targetdir );
+
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
-    QString targetdir = Option::fixPathToTargetOS(QString("$(INSTALL_ROOT)") + 
-						  project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
+    targetdir = QString("$(INSTALL_ROOT)") + targetdir;
 
     QStringList links;
     QString target="$(TARGET)";
@@ -377,8 +381,6 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(!destdir.isEmpty())
 	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
     QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
-    fileFixify(src_targ);
-    fileFixify(dst_targ);
     if(!ret.isEmpty())
 	ret += "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
