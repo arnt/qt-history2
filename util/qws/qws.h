@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#7 $
+** $Id: //depot/qt/main/util/qws/qws.h#8 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -31,6 +31,26 @@
 const int QTFB_PORT=0x4642; // FB
 
 class QWSClient;
+
+class QWSWindow
+{
+public:
+    QWSWindow(int i, QWSClient* c) : id(i), client(c) { }
+
+    int winId() const { return id; }
+    bool forClient(const QWSClient* c) const { return client==c; }
+    QRegion allocation() const { return allocated_region; }
+
+    void addAllocation( QRegion );
+    bool removeAllocation( QRegion );
+
+private:
+    int id;
+    QWSClient* client;
+
+    QRegion requested_region;
+    QRegion allocated_region;
+};
 
 /*********************************************************************
  *
@@ -72,7 +92,16 @@ private:
     uchar* framebuffer;
     ClientMap client;
     QWSPropertyManager propertyManager;
+
+    // Window management
+    QList<QWSWindow> windows; // first=topmost
+    void newWindow(int id, QWSClient* client);
+    QWSWindow* findWindow(int windowid);
+    void setWindowRegion(QWSWindow*, QRegion r);
+    int pending_region_acks;
 };
+
+
 
 /*********************************************************************
  *
@@ -89,8 +118,9 @@ public:
 
     void sendMouseEvent(const QPoint& pos, int state);
     QWSCommand* readMoreCommand();
+    void writeRegion( QRegion reg );
 
-public:
+private:
     int s; // XXX QSocket::d::socket->socket() is this value
     QTime timer;
     QWSCommand* command;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#14 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#15 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -81,6 +81,25 @@ void QWSClient::sendMouseEvent(const QPoint& pos, int state)
     writeBlock((char*)&event,sizeof(event));
 }
 
+void QWSClient::writeRegion( QRegion reg )
+{
+    // XXX when the protocol is finalized, we should
+    // XXX make it possible to write reg.rects directly
+    QArray<QRect> r = reg.rects();
+    if ( r.size() == 0 )
+	return;
+    struct {
+        int x, y, width, height;
+    } rectangle;
+    for (uint i=0; i<r.size(); i++) {
+	rectangle.x = r[i].x();
+	rectangle.y = r[i].x();
+	rectangle.width = r[i].width();
+	rectangle.height = r[i].height();
+	writeBlock( (char*)&rectangle, sizeof(rectangle) );
+    }
+}
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -88,7 +107,8 @@ void QWSClient::sendMouseEvent(const QPoint& pos, int state)
  *********************************************************************/
 
 QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
-    QServerSocket(QTFB_PORT,parent,name)
+    QServerSocket(QTFB_PORT,parent,name),
+    pending_region_acks(0)
 {
     shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
 			IPC_CREAT|IPC_EXCL|0666);
@@ -217,16 +237,21 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
     qDebug( "QWSServer::invokeRegion" );
     QWSRegionCommand::Rectangle *rects = 
 	(QWSRegionCommand::Rectangle*)cmd->rectangles;
-    for ( unsigned int i = 0; i < cmd->simpleData.nrectangles; ++i ) {
+    // XXX would be much faster to build the region directly
+    QRegion region;
+    for ( int i = 0; i < cmd->simpleData.nrectangles; ++i ) {
+	QRect rc(rects[ i ].x, rects[ i ].y, rects[ i ].width, rects[ i ].height);
+	region |= rc;
 	QWSRegionCommand::Rectangle r = rects[ i ];
 	qDebug( "    rect: %d %d %d %d", r.x, r.y, r.width, r.height );
     }
-    /* XXX
-    QWSRegionEvent event;
-    event.type = QWSEvent::Region;
-    event.objectid = get_object_id();
-    client->writeBlock( (char*)&event, sizeof(event) );
-    */
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid);
+    if ( !changingw ) return;
+    if ( !changingw->forClient(client) ) {
+	qWarning("Disabled: clients changing other client's window region");
+	return;
+    }
+    setWindowRegion( changingw, region );
 }
 
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
@@ -264,6 +289,106 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
     else
  	qDebug( "removing property failed" );
 }
+
+
+void QWSWindow::addAllocation(QRegion r)
+{
+    allocated_region |= r;
+
+    QWSRegionAddEvent event;
+    event.type = QWSEvent::RegionAdd;
+    event.window = id;
+    event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
+    client->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+    client->writeRegion( r );
+}
+
+bool QWSWindow::removeAllocation(QRegion r)
+{
+    QRegion nr = allocated_region - r;
+    if ( allocated_region != nr ) {
+	allocated_region = nr;
+
+	static int not_used_yet = 0; // protocol doesn't use this.
+
+	QWSRegionRemoveEvent event;
+	event.type = QWSEvent::RegionRemove;
+	event.eventid = not_used_yet++;;
+	event.window = id;
+	event.nrectangles = r.rects().count(); // XXX MAJOR WASTAGE
+	client->writeBlock( (char*)&event, sizeof(event)-sizeof(event.rectangles) );
+	client->writeRegion( r );
+
+	return TRUE; // ack required
+    }
+    return FALSE;
+}
+
+void QWSServer::newWindow(int id, QWSClient* client)
+{
+    // Make a new window, put it on top.
+    QWSWindow* w = new QWSWindow(id,client);
+    windows.prepend(w);
+}
+
+QWSWindow* QWSServer::findWindow(int windowid)
+{
+    for (uint i=0; i<windows.count(); i++) {
+	QWSWindow* w = windows.at(i);
+	if ( w->winId() == windowid )
+	    return w;
+    }
+    return 0;
+}
+
+/*!
+  Changes the requested region of window \a windowid to \a r,
+  sends appropriate region change events to all appropriate
+  clients, and waits for all required acknowledgements.
+*/
+void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
+{
+    QRegion allocation;
+    QRegion exposed = changingw->allocation() - r;
+    uint windex;
+
+    // First, take the region away from whichever windows currently have it...
+    bool deeper = FALSE;
+    for (uint i=0; i<windows.count(); i++) {
+	QWSWindow* w = windows.at(i);
+	if ( w == changingw ) {
+	    windex = i;
+	    if ( w->removeAllocation(exposed) )
+		pending_region_acks++;
+	    allocation = r;
+	    deeper = TRUE;
+	} else if ( deeper ) {
+	    if ( w->removeAllocation(r) )
+		pending_region_acks++;
+	    r -= w->allocation();
+	} else {
+	    r -= w->allocation();
+	    if ( r.isEmpty() )
+		return; // Nothing left for deeper windows
+	}
+    }
+
+    // Give the region to the window...
+    changingw->addAllocation(allocation);
+
+    // Wait for acknowledgements
+
+    // Then, give anything exposed...
+    for (uint i=windex+1; i<windows.count(); i++) {
+	QWSWindow* w = windows.at(i);
+	w->addAllocation(exposed);
+	exposed -= w->allocation();
+	if ( exposed.isEmpty() )
+	    return; // Nothing left for deeper windows
+    }
+}
+
+
 
 class Main : public QWidget {
     QImage img;

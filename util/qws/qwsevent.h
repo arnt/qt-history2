@@ -37,9 +37,19 @@ struct QWSKeyEvent {
     uint is_auto_repeat:1;
 };
 
-struct QWSRegionEvent {
+struct QWSRegionAddEvent {
     int type;
     int window;
+    int nrectangles;
+    struct {
+	int x, y, width, height;
+    } rectangles[1];
+};
+
+struct QWSRegionRemoveEvent {
+    int type;
+    int window;
+    int eventid;
     int nrectangles;
     struct {
 	int x, y, width, height;
@@ -54,7 +64,8 @@ struct QWSCreationEvent {
 union QWSEvent {
     enum Type {
 	NoEvent,
-	Mouse, Focus, Key, Region,
+	Mouse, Focus, Key,
+	RegionAdd, RegionRemove,
 	Creation,
 	NEvent
     };
@@ -64,7 +75,8 @@ union QWSEvent {
     QWSMouseEvent mouse;
     QWSFocusEvent focus;
     QWSKeyEvent key;
-    QWSRegionEvent region;
+    QWSRegionAddEvent region_add;
+    QWSRegionRemoveEvent region_remove;
 };
 
 struct EventRec {

@@ -84,10 +84,26 @@ The possible events are:
     always be the identifier of the window which most recently received focus.
     All clients <font color=red>[this may change]</font> get this message.
     </p>
-  <dt>QWSRegionEvent
+  <dt>QWSRegionAddEvent
     <dd>
     <pre>
-    int type = QWSEvent::Region;
+    int type = QWSEvent::RegionAdd;
+    int windowid;
+    int nrectangles;
+    struct {
+	int x, y, width, height;
+    } rectangles[nrectangles]; </pre>
+    This event is sent to the client whenever rectangles are added to
+    the allocated region of the window.
+    These events are also called "exposure" or "paint" events in other window
+    systems, as the client is responsible for painting the new area.
+    <p>
+    The <i>rectangles</i> are in <a href=#yxbanded>YXBanded</a> format.
+    </p>
+  <dt>QWSRegionRemoveEvent
+    <dd>
+    <pre>
+    int type = QWSEvent::RegionRemove;
     int windowid;
     int eventid;
     int nrectangles;
@@ -95,11 +111,10 @@ The possible events are:
 	int x, y, width, height;
     } rectangles[nrectangles]; </pre>
     This event is sent to the client whenever the set of rectangles allocated
-    to the window changes. The client must acknowledge receipt of this event
+    to the window shrinks. The client must acknowledge receipt of this event
     as soon as possible by sending a QWSRegionAck command with the same
-    <i>eventid</i>. Note that there are no "exposure" events in QWS - when the
-    region allocated to a window changes, the client is responsible for painting
-    any new area (and for <em>not</em> painting outside that area).
+    <i>eventid</i>. Once acknowledged,,
+    the client must not paint on the given rectangles.
     <p>
     The <i>rectangles</i> are in <a href=#yxbanded>YXBanded</a> format.
     </p>
