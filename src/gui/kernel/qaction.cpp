@@ -75,8 +75,8 @@ void QActionPrivate::sendDataChanged()
 
 
 /*!
-    Constructs an action with parent \a parent. This will
-    automatically insert the QAction into the group \a parent.
+    Constructs an action with a \a parent action group. The action will
+    be automatically inserted into the \a parent.
 */
 QAction::QAction(QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -87,8 +87,8 @@ QAction::QAction(QActionGroup* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. This will not
-    automatically insert the QAction into the widget \a parent.
+    Constructs an action with a \a parent widget. The action will \e not
+    be automatically inserted into the \a parent widget.
 */
 QAction::QAction(QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -125,9 +125,9 @@ QAction::QAction(const QString &text, QActionGroup* parent)
 }
 
 /*!
-    Constructs an action with parent \a parent. The text will be set
-    to \a text and an icon set to \a icon. This will automatically
-    insert the QAction into the group \a parent.
+    Constructs an action with a \a parent action group, some \a text,
+    and an \a icon. The action will be automatically inserted into the
+    \a parent action group.
 */
 QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -815,7 +815,7 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    Constructs an action group with parent \a parent.
+    Constructs an action group for the \a parent object.
 
     The action group is exclusive by default. Call setExclusive(false) to make
     the action group non-exclusive.
@@ -832,10 +832,12 @@ QActionGroup::~QActionGroup()
 }
 
 /*!
-    Adds action \a action to this group.
+    \fn QAction *QActionGroup::addAction(QAction *action)
+
+    Adds the \a action to this group.
 
     Normally an action is added to a group by creating it with the
-    group as parent, so this function is not usually used.
+    group as its parent, so this function is not usually used.
 
     \sa QAction::setActionGroup()
 */
@@ -863,7 +865,7 @@ QAction *QActionGroup::addAction(QAction* a)
 }
 
 /*!
-    Adds an action with text set to \a text and an shortcut of \a
+    Adds an action with \a text and an shortcut of \a
     shortcut. This newly created action's parent is set to this action
     group and it is returned.
 
@@ -878,12 +880,12 @@ QAction *QActionGroup::addAction(const QString &text, const QKeySequence &shortc
 }
 
 /*!
-    Adds an action with text set to \a text, icon set to \a icon, and
-    an shortcut of \a shortcut. This newly created action's parent is
-    set to this action group and it is returned.
+    Creates and returns an action with \a text, an \a icon, and
+    a \a shortcut. The newly created action is a child of this action
+    group.
 
     Normally an action is added to a group by creating it with the
-    group as parent, so this function is not usually used.
+    group as its parent, so this function is not usually used.
 
     \sa QAction::setActionGroup()
 */
