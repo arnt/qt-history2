@@ -48,7 +48,7 @@
   \ingroup misc
 
   On Unix systems, QSettings uses text files to store settings. On
-  Windows systems, QSettings uses the registry.
+  Windows systems, QSettings uses the system registry.
 
   Each setting comprises an identifying key and the data associated with
   the key. A key is a unicode string which consists of \e two or more
@@ -70,6 +70,7 @@
     /MyCompany/MyApplication/recent files/2
     /MyCompany/MyApplication/recent files/3
     \endcode
+    Each line above is a complete key, made up of subkeys.
 
     A typical usage pattern for application startup:
     \code
@@ -97,23 +98,23 @@
 
     \code
     QStringList keys = entryList( "/MyApplication" );
+    // keys contains 'background color' and 'foreground color'.
     \endcode
-    \c keys contains 'background color' and 'foreground color'.
 
     \code
     QStringList keys = entryList( "/MyApplication/recent files" );
+    // keys contains '1', '2' and '3'.
     \endcode
-    \c keys contains '1', '2' and '3'.
 
     \code
     QStringList subkeys = subkeyList( "/MyApplication" );
+    // subkeys contains 'geometry' and 'recent files'
     \endcode
-    \c subkeys contains 'geometry' and 'recent files'
 
     \code
     QStringList subkeys = subkeyList( "/MyApplication/recent files" );
+    // subkeys is empty.
     \endcode
-    \c subkeys is empty.
 
     If you wish to use a different search path call insertSearchPath()
     as often as necessary to add your preferred paths. Call
@@ -125,24 +126,28 @@
     <li>A subkey may not exceed 255 characters.
     <li>An entry's value may not exceed 16,300 characters.
     <li>All the values of a key (for example, all the 'recent files'
-    subkeys values), may not exceed 64K characters.
+    subkeys values), may not exceed 64,535 characters.
     </ul>
+
+    These limitations are not enforced on Unix.
 
     <b>Notes for Unix Applications</b>
 
     There is no universally accepted place for storing application
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
-    <ul>
+    <ol>
     <li>$QTDIR/etc
     <li>/opt/MyCompany/share/MyApplication
     <li>$HOME/.qt
-    </ul>
+    </ol>
     The settings file will be called 'myapplicationrc'. Settings will be
-    read from each file in turn with settings from later files
-    overriding settings from earlier files, the final values being the
-    ones returned. Files for which the user does not have access rights
-    will be skipped.
+    read from each file working forwards, in the order shown, with
+    settings from later files overriding settings from earlier files,
+    the final values being the ones returned. Files for which the user
+    does not have access rights will be skipped. When settings are
+    saved the first file that the user has access rights to will be
+    used, working backwards up the list.
 
     For cross-platform applications you should ensure that the Windows
     size limitations are not exceeded.
@@ -468,23 +473,28 @@ QDateTime QSettingsPrivate::modificationTime()
   \endcode
     This will try to write the subkey "Tip of the day" into the \e first
     of the registry folders listed below that is found and for which the
-    user has write permission:
-  <ul>
+    user has write permission. The folders are searched backwards from
+    the last folder shown to the first:
+  <ol>
   <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
   <li>HKEY_LOCAL_MACHINE/Software/MyApplication
   <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
   <li>HKEY_CURRENT_USER/Software/MyApplication
-  </ul>
+  </ol>
+  When reading settings the folders are searched forwards from the first
+  folder listed to the last, with later settings overriding settings
+  found earlier, and ignoring any folders for which the user doesn't
+  have read permission.
 
   When \a s is \e Unix, and the execution environment is Unix, the
   search path list will be used when trying to determine a suitable
   filename for reading and writing settings files. By default, there are
   two entries in the search path:
 
-  <ul>
+  <ol>
   <li>$QTDIR/etc - where $QTDIR is the directory where Qt was installed.
   <li>$HOME/.qt/ - where $HOME is the user's home directory.
-  </ul>
+  </ol>
 
   All insertions into the search path will go before $HOME/.qt/.
   For example:
@@ -495,12 +505,17 @@ QDateTime QSettingsPrivate::modificationTime()
   // ...
   \endcode
   Will result in a search path of:
-  <ul>
+  <ol>
   <li>$QTDIR/etc
   <li>/opt/MyCompany/share/etc
   <li>/opt/MyCompany/share/MyApplication/etc
   <li>$HOME/.qt
-  </ul>
+  </ol>
+  When reading settings the files are searched in the order shown above,
+  with later settings overriding earlier settings. Files for which the
+  user doesn't have read permission are ignored. When saving settings
+  QSettings works backwards from the last file to the first, writing to
+  the first file for which the user has write permission. 
 
   The file searched for will be 'myapplicationrc'.
 
@@ -521,8 +536,9 @@ void QSettings::insertSearchPath( System s, const QString &path)
 
 
 /*!
-  Removes all occurrences of \a path from the settings search path for
-  system \a s. Note that the default search paths cannot be removed.
+  Removes all occurrences of \a path (using exact matching) from the
+  settings search path for system \a s. Note that the default search
+  paths cannot be removed.
 
   \sa insertSearchPath()
 */
@@ -658,8 +674,8 @@ bool QSettings::sync()
 
 
 /*!
-  Reads the entry specified by \a key, and returns a bool, or \a def
-  if the entry couldn't be read.
+  Reads the entry specified by \a key, and returns a bool, or the
+  default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
@@ -684,8 +700,8 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 
 
 /*!
-  Reads the entry specified by \a key, and returns a double, or \a def
-  if the entry couldn't be read.
+  Reads the entry specified by \a key, and returns a double, or the
+  default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
@@ -699,8 +715,8 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 
 
 /*!
-  Reads the entry specified by \a key, and returns an integer, or \a def
-  if the entry couldn't be read.
+  Reads the entry specified by \a key, and returns an integer, or the
+  default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
@@ -714,8 +730,8 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 
 
 /*!
-  Reads the entry specified by \a key, and returns a QString, or \a def
-  if the entry couldn't be read.
+  Reads the entry specified by \a key, and returns a QString, or the
+  default value, \a def, if the entry couldn't be read.
   If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
   otherwise.
 
@@ -935,8 +951,8 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     created if it doesn't exist. Any previous value is overwritten by \a
     value. The list is stored as a sequence of strings separated by \a
     separator, so none of the strings in the list should contain the
-    separator. If the list is empty the key's value will be an empty
-    string.
+    separator. If the list is empty or null the key's value will be an
+    empty string.
 
     If an error occurs the settings are left unchanged and FALSE is
     returned; otherwise TRUE is returned.
@@ -1026,6 +1042,11 @@ bool QSettings::removeEntry(const QString &key)
     \c keys contains 'background color' and 'foreground color'. It does
     not contain 'geometry' because this key contains keys not entries.
 
+    To access the geometry values could either use subkeyList() to read
+    the keys and then read each entry, or simply read each entry
+    directly by specifying its full key, e.g.
+    "/MyCompany/MyApplication/geometry/y".
+
   \sa subkeyList()
 */
 QStringList QSettings::entryList(const QString &key) const
@@ -1112,7 +1133,8 @@ QStringList QSettings::entryList(const QString &key) const
     \endcode
     \c keys contains 'geometry' and 'recent files'. It does not contain
     'background color' or 'foreground color' because they are keys which
-    contain entries not keys.
+    contain entries not keys. To get a list of keys that have values
+    rather than subkeys use entryList().
 
   \sa entryList()
 */
