@@ -182,6 +182,8 @@ UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
+PLATFORM_NOTES=""
+
 if [ -z "$PLATFORM" ]
 then
     ##### Generate?  Look in configs/?
@@ -195,6 +197,9 @@ then
      AIX*)
         #PLATFORM=aix-g++
 	PLATFORM=aix-xlc
+	PLATFORM_NOTES="
+	    - Also available: aix-g++
+	"
 	;;
      QNX:*)
 	PLATFORM=qnx-g++
@@ -228,15 +233,24 @@ then
 	#PLATFORM=irix-g++
 	PLATFORM=irix-n32
 	#PLATFORM=irix-o32
+	PLATFORM_NOTES="
+	    - Also available for IRIX: irix-dcc irix-g++ irix-o32
+	"
 	;;
      HP-UX:*)
 	#PLATFORM=hpux-acc
 	#PLATFORM=hpux-cc
 	PLATFORM=hpux-g++
+	PLATFORM_NOTES="
+	    - Also available for HP-UX: hpux-acc hpux-cc
+	"
 	;;
      OSF1:*)
 	#PLATFORM=osf1-cxx
 	PLATFORM=osf1-g++
+	PLATFORM_NOTES="
+	    - Also available for OSF1: osf1-cxx
+	"
 	;;
      Linux:*)
 	PLATFORM=linux-g++
@@ -244,14 +258,24 @@ then
      SunOS:5*)
 	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
+	PLATFORM_NOTES="
+	    - Sun C++ 5 is not supported (it is too buggy)
+	    - Mixing GNU C and SunPRO C++ is not supported
+	"
 	;;
      SunOS:4*)
 	PLATFORM=sunos-g++
+	PLATFORM_NOTES="
+	    - Mixing GNU C and SunPRO C++ is not supported
+	"
 	;;
      UNIX_SV:4.2*)
 	PLATFORM=unixware-g++
 	#PLATFORM=unixware7-cc
 	#PLATFORM=unixware7-g++
+	PLATFORM_NOTES="
+	    - Also available for UNIX_SV:4.2: unixware7-cc unixware7-g++
+	"
 	;;
      *:3.2)
 	PLATFORM=sco-g++
@@ -355,10 +379,16 @@ QTDIR='$(QTDIR)'
 
 echo
 echo "Build type:    $TARGET"
+if [ -n "$PLATFORM_NOTES" ]
+then
+    echo "Platform notes:"
+    echo "$PLATFORM_NOTES"
+else
+    echo
+fi
 echo "Compile flags: $QT_CXX $I_FLAGS"
 echo "Link flags:    $QT_LIBS"
 echo "GIF supports:  $GIF"
-echo
 echo Creating makefiles...
 
 for a in `find . -name Makefile.in -print | sort` ; do
