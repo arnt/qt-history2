@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#61 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1917,6 +1917,8 @@ void QMultiLineEdit::setWidth( int w )
   The parameters are adjusted to lie within the legal range.
 
   If \a mark is FALSE, the selection is cleared. otherwise it is extended
+
+  \sa cursorPosition()
 */
 
 void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
@@ -1942,6 +1944,24 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 /*!
   Sets \a line to the current line and \a col to the current character 
   position within that line.
+
+  \sa setCursorPosition()
+*/
+
+void QMultiLineEdit::cursorPosition( int *line, int *col ) const
+{
+    if ( line )
+	*line = cursorY;
+    if ( col )
+	*col = cursorX;
+}
+
+
+/*!
+  Sets \a line to the current line and \a col to the current character 
+  position within that line.
+
+  OBSOLETE - Use cursorPosition() instead.
 */
 
 void QMultiLineEdit::getCursorPosition( int *line, int *col )
@@ -2000,14 +2020,14 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
   Returns the top center point where the cursor is drawn
 */
 
-QPoint QMultiLineEdit::cursorPoint()
+QPoint QMultiLineEdit::cursorPoint() const
 {
     QPoint cp( 0, 0 );
 
     QFontMetrics fm( font() );
     int col, row;
     col = row = 0;
-    getCursorPosition( &row, &col );
+    cursorPosition( &row, &col );
     const char* line = textLine( row );
     ASSERT( line );
     cp.setX( BORDER + textWidthWithTabs( fm, line, col ) - 1 );
