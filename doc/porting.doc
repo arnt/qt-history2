@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.26 1999/02/17 21:33:08 warwick Exp $
+** $Id: porting.doc,v 1.27 1999/02/18 14:55:48 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -360,15 +360,15 @@ All occurrences of the translation of "Okay" will be shared.
 
 <h3>QLayout</h3>
 
+<p> Resize(0,0) or resize(1,1) will no longer work magically. Remove
+all such calls. The default size of toplevel widgets will be
+sizeHint().
 
-<p>
-QLayout, QBoxLayout, QGridLayout
-Don't set minimumSize(). resize(0,0) or resize(1,1) will work unless
-QT_NO_LAYOUT_COMPAT is defined.
-The layout classes will use sizeHint() if minimumSize() is not set.
-The class QGManager is removed. Subclasses of QLayout need to be rewritten
+<p> The class QGManager is removed. Subclasses of QLayout need to be rewritten
 to use the new, much simpler API.
 
+<p> For typical layouts, all use of setMinimumSize() and setFixedSize()
+can be removed.  Activate() is no longer necessary.
 
 <h3>QMultiLineEdit</h3>
 
