@@ -131,8 +131,6 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     return opt;
 }
 
-
-
 /*!
     \class QTabBar
     \brief The QTabBar class provides a tab bar, e.g. for use in tabbed dialogs.
@@ -628,11 +626,14 @@ QSize QTabBar::minimumSizeHint() const
 QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QSize iconSize = tab->icon.pixmapSize(Qt::SmallIconSize);
+        QSize iconSize = tab->icon.isNull() ? QSize()
+                                            : tab->icon.pixmapSize(Qt::SmallIconSize);
         const QFontMetrics fm = fontMetrics();
-        QSize csz(fm.width(tab->text) + iconSize.width() + 5,
-                  qMax(fm.height() + 10, iconSize.height()));
         QStyleOptionTab opt = d->getStyleOption(index);
+        int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
+        int vframe  = style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt, this);
+        QSize csz(fm.width(tab->text) + iconSize.width() + hframe,
+                  qMax(fm.height(), iconSize.height()) + vframe);
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
     return QSize();
