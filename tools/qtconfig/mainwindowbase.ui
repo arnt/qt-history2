@@ -10,7 +10,7 @@
             <x>0</x>
             <y>0</y>
             <width>650</width>
-            <height>518</height>
+            <height>540</height>
         </rect>
     </property>
     <property name="caption">
@@ -660,10 +660,10 @@
                         <cstring>unnamed</cstring>
                     </property>
                     <property name="margin">
-                        <number>4</number>
+                        <number>11</number>
                     </property>
                     <property name="spacing">
-                        <number>4</number>
+                        <number>6</number>
                     </property>
                     <widget class="QGroupBox">
                         <property name="name">
@@ -694,6 +694,17 @@
                                 </property>
                                 <property name="minValue">
                                     <number>10</number>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>dcibuddy</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Double Click Interval:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>dcispin</cstring>
                                 </property>
                             </widget>
                             <widget class="QSpinBox" row="1" column="1">
@@ -746,15 +757,12 @@
                                     <cstring>wslspin</cstring>
                                 </property>
                             </widget>
-                            <widget class="QLabel" row="0" column="0">
+                            <widget class="QCheckBox" row="3" column="0" rowspan="1" colspan="2">
                                 <property name="name">
-                                    <cstring>dcibuddy</cstring>
+                                    <cstring>resolvelinks</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Double Click Interval:</string>
-                                </property>
-                                <property name="buddy" stdset="0">
-                                    <cstring>dcispin</cstring>
+                                    <string>Resolve symlinks in URLs</string>
                                 </property>
                             </widget>
                         </grid>
@@ -1289,7 +1297,7 @@
 <menubar>
     <property name="name">
         <cstring>menubar</cstring>
-    </property>	
+    </property>
     <item text="&amp;File" name="PopupMenu">
         <action name="fileSaveAction"/>
         <separator/>
@@ -1416,252 +1424,260 @@
     </image>
 </images>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>fileSave()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fileExitAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>fileExit()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>helpAboutAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>helpAbout()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>effectcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>effectbase</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>btnAdvanced</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>tunePalette()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>paletteCombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>paletteSelected(int)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>gstylecombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>styleSelected(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>stylecombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildFont()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>psizecombo</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildFont()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>familycombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>familySelected(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonMainColor</sender>
         <signal>colorChanged(const QColor &amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildPalette()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonMainColor2</sender>
         <signal>colorChanged(const QColor &amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>buildPalette()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>familysubcombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>substituteSelected(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton4</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeSubstitute()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton3</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downSubstitute()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upSubstitute()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton7</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton8</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton6</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton9</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton5</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>browseLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>helpAboutQtAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>helpAboutQt()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addSubstitute()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>xftcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>dcispin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>cfispin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>wslspin</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>menueffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>comboeffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>tooltipeffect</sender>
         <signal>activated(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>strutwidth</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>strutheight</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>effectcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>TabWidget3</sender>
         <signal>currentChanged(QWidget*)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>pageChanged(QWidget*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton11</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>upFontpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton12</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>downFontpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton13</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>removeFontpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton14</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>browseFontpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton15</sender>
         <signal>clicked()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addFontpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>libpathlineedit</sender>
         <signal>returnPressed()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addLibpath()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fontpathlineedit</sender>
         <signal>returnPressed()</signal>
         <receiver>MainWindowBase</receiver>
         <slot>addFontpath()</slot>
     </connection>
+    <connection language="C++">
+        <sender>resolvelinks</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindowBase</receiver>
+        <slot>somethingModified()</slot>
+    </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">addFontpath()</slot>
     <slot access="public" language="C++" returnType="void">addLibpath()</slot>
     <slot access="public" language="C++" returnType="void">addSubstitute()</slot>
@@ -1669,7 +1685,6 @@
     <slot access="public" language="C++" returnType="void">browseLibpath()</slot>
     <slot access="public" language="C++" returnType="void">buildFont()</slot>
     <slot access="public" language="C++" returnType="void">buildPalette()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">downFontpath()</slot>
     <slot access="public" language="C++" returnType="void">downLibpath()</slot>
     <slot access="public" language="C++" returnType="void">downSubstitute()</slot>
@@ -1678,7 +1693,6 @@
     <slot access="public" language="C++" returnType="void">fileSave()</slot>
     <slot access="public" language="C++" returnType="void">helpAbout()</slot>
     <slot access="public" language="C++" returnType="void">helpAboutQt()</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">new_slot()</slot>
     <slot access="public" language="C++" returnType="void">pageChanged(QWidget *)</slot>
     <slot access="public" language="C++" returnType="void">paletteSelected( int )</slot>
@@ -1694,6 +1708,11 @@
     <slot access="public" language="C++" returnType="void">upSubstitute()</slot>
 </connections>
 <functions>
+    <function name="init()" >{
+}</function>
+    <function name="destroy()" >{
+
+}</function>
     <function name="" ></function>
     <function name="addLibpath()" >{
 
@@ -1709,9 +1728,6 @@
 
 }</function>
     <function name="buildPalette()" >{
-
-}</function>
-    <function name="destroy()" >{
 
 }</function>
     <function name="" ></function>
@@ -1735,8 +1751,6 @@
 }</function>
     <function name="helpAboutQt()" >{
 
-}</function>
-    <function name="init()" >{
 }</function>
     <function name="" ></function>
     <function name="" ></function>

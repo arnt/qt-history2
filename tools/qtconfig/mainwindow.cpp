@@ -20,7 +20,10 @@
 #include <qtextview.h>
 
 
+// from qapplication.cpp and qapplication_x11.cpp - These are NOT for external use
+// ignore them
 extern bool qt_has_xft;
+extern bool qt_resolve_symlinks;
 
 
 static const char *appearance_text =
@@ -62,6 +65,11 @@ static const char *interface_text =
 "say anything more here?  It should be pretty obvious what the Feel spin "
 "boxes and Effects comboboxes do.  Tell us your opinion, Dear User, at "
 "<b>qt-bugs@trolltech.com</b>).</p>"
+"<p>The Resolve Symlinks settings controls how Qt follows symlinks when "
+"handling URLs.  For example, in the file dialog, if this setting is turned "
+"on and /usr/tmp is a symlink to /var/tmp, entering the /usr/tmp directory "
+"will cause the file dialog to change to /var/tmp.  With this setting turned "
+"off, symlinks are not resolved and followed.</p>"
 "<p>The Global Strut setting is useful for people that require a "
 "minimum size for all widgets (e.g. when using a touch panel or for users "
 "that have visual impairments).  Leaving the Global Strut width and height "
@@ -190,6 +198,7 @@ MainWindow::MainWindow()
     dcispin->setValue(QApplication::doubleClickInterval());
     cfispin->setValue(QApplication::cursorFlashTime());
     wslspin->setValue(QApplication::wheelScrollLines());
+    resolvelinks->setChecked(qt_resolve_symlinks);
 
     effectcheckbox->setChecked(QApplication::isEffectEnabled(UI_General));
     effectbase->setEnabled(effectcheckbox->isChecked());
@@ -323,6 +332,7 @@ void MainWindow::fileSave()
 					     dcispin->value());
 	settings.writeEntry("/qt/cursorFlashTime", cfispin->value());
 	settings.writeEntry("/qt/wheelScrollLines", wslspin->value());
+	settings.writeEntry("/qt/resolveSymlinks", resolvelinks->isChecked());
 
 	QStringList strut;
 	strut << QString::number(strutwidth->value());
