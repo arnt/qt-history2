@@ -484,13 +484,29 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	} else {
 	    CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	}
-	if(testWFlags(WStyle_StaysOnTop)) {
+	{
 	    createTLExtra();
 	    if(extra->topextra->group)
 		ReleaseWindowGroup(extra->topextra->group);
 	    CreateWindowGroup(kWindowActivationScopeNone, &extra->topextra->group);
-	    SetWindowGroupLevel(extra->topextra->group, 666);
 	    SetWindowGroup((WindowPtr)id, extra->topextra->group);
+
+	    SInt32 lvl = kCGNormalWindowLevel;
+	    WindowGroupRef gr = GetWindowGroupOfClass(wclass);
+	    if(gr)
+		lvl = GetWindowGroupLevel(gr, &lvl);
+	    if(parentWidget() && parentWidget()->topData()->group) {
+		gr = parentWidget()->topData()->group;
+		lvl = kCGFloatingWindowLevel;
+	    } else {
+		gr = GetWindowGroupOfClass(kAllWindowClasses);
+	    }
+	    if(testWFlags(WStyle_StaysOnTop))
+		lvl = kCGMaximumWindowLevelKey;
+	    else if(testWFlags(WShowModal) || popup)
+		lvl = kCGModalPanelWindowLevelKey;
+	    SetWindowGroupLevel(extra->topextra->group, lvl);
+	    SetWindowGroupParent(extra->topextra->group, gr);
 	}
 
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);

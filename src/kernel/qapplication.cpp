@@ -2734,34 +2734,12 @@ void QApplication::setActiveWindow( QWidget* act )
 
     // first the activation / deactivation events
     if ( old_active ) {
-#if defined( Q_WS_MAC )
-	if(const QObjectList *chldnlst=active_window->children()) {
-	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-		if((*it)->isWidgetType()) {
-		    QWidget *w = (QWidget *)(*it);
-		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow"))
-			ShowHide((WindowPtr)w->handle(), 0);
-		}
-	    }
-	}
-#endif
 	active_window = 0;
 	QEvent e( QEvent::WindowDeactivate );
 	QApplication::sendSpontaneousEvent( old_active, &e );
     }
     active_window = window;
     if ( active_window ) {
-#if defined( Q_WS_MAC )
-	if(const QObjectList *chldnlst=active_window->children()) {
-	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-		if((*it)->isWidgetType()) {
-		    QWidget *w = (QWidget *)(*it);
-		    if(w->isTopLevel() && w->isVisible() && w->inherits("QDockWindow"))
-			ShowHide((WindowPtr)w->handle(), 1);
-		}
-	    }
-	}
-#endif
 	QEvent e( QEvent::WindowActivate );
 	QApplication::sendSpontaneousEvent( active_window, &e );
     }
