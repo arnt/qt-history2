@@ -101,13 +101,13 @@ public:
     {
 	p->setFont ( font );
 	p->drawText( x, y, w, h,
-		     AlignLeft | AlignVCenter | ShowPrefix | DontClip,
+		     AlignAuto | AlignVCenter | ShowPrefix | DontClip,
 		     string );
     }
 
     QSize sizeHint()
     {
-	return QFontMetrics( font ).size( AlignLeft | AlignVCenter |
+	return QFontMetrics( font ).size( AlignAuto | AlignVCenter |
 					  ShowPrefix | DontClip,  string );
     }
 private:

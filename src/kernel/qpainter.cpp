@@ -2253,6 +2253,15 @@ void qt_format_text( const QFont& font, const QRect &r,
 	QString parStr = str;
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
+	QTextFormatter *formatter;
+	if ( wordbreak ) {
+	    formatter = new QTextFormatterBreakInWords;
+	} else {
+	    formatter = new QTextFormatterBreakWords;
+	    if( singleline )
+		formatter->setWrapEnabled( FALSE );
+	}
+	parag->setFormatter( formatter );
 	QTextFormat *f = new QTextFormat( font, painter ? painter->pen().color() : QColor() );
 	if ( singleline ) {
 	    parStr.replace(QRegExp("[\n\r]"), " ");

@@ -742,6 +742,7 @@ public:
     int documentX() const;
     int documentY() const;
     QTextFormatCollection *formatCollection() const;
+    void setFormatter( QTextFormatter *f );
     QTextFormatter *formatter() const;
     int minimumWidth() const;
 
@@ -2258,6 +2259,13 @@ inline QTextFormatter *QTextParag::formatter() const
     if ( pFormatter )
 	return pFormatter;
     return ( ( (QTextParag*)this )->pFormatter = new QTextFormatterBreakWords );
+}
+
+inline void QTextParag::setFormatter( QTextFormatter *f )
+{
+    if ( doc ) return;
+    if ( pFormatter ) delete pFormatter;
+    pFormatter = f;
 }
 
 inline int QTextParag::minimumWidth() const
