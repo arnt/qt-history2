@@ -1,4 +1,4 @@
-<UI version="4.0" stdSetDef="1" >
+<UI version="4.0" stdsetdef="1" >
   <class>MainWindow</class>
   <widget class="QMainWindow" name="MainWindow" >
     <property name="objectName" >

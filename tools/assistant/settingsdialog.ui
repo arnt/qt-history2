@@ -1,4 +1,4 @@
-<UI version="4.0" stdSetDef="1" >
+<UI version="4.0" stdsetdef="1" >
  <class>SettingsDialog</class>
  <widget class="QDialog" name="SettingsDialog" >
   <property name="objectName" >

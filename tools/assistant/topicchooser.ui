@@ -1,4 +1,4 @@
-<UI version="4.0" stdSetDef="1" >
+<UI version="4.0" stdsetdef="1" >
  <class>TopicChooser</class>
  <widget class="QDialog" name="TopicChooser" >
   <property name="objectName" >

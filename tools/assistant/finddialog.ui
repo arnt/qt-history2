@@ -1,4 +1,4 @@
-<UI version="4.0" stdSetDef="1" >
+<UI version="4.0" stdsetdef="1" >
  <class>FindDialog</class>
  <widget class="QDialog" name="FindDialog" >
   <property name="objectName" >
@@ -34,7 +34,7 @@
       <property name="margin" >
        <number>11</number>
       </property>
-      <item row="1" colSpan="1" column="1" rowSpan="2" >
+      <item row="1" colspan="1" column="1" rowspan="2" >
        <widget class="Q3ButtonGroup" name="ButtonGroup2" >
         <property name="objectName" >
          <cstring>ButtonGroup2</cstring>
@@ -78,7 +78,7 @@
         </layout>
        </widget>
       </item>
-      <item row="0" colSpan="2" column="0" rowSpan="1" >
+      <item row="0" colspan="2" column="0" rowspan="1" >
        <widget class="QWidget" name="Layout1" >
         <property name="objectName" >
          <cstring>Layout1</cstring>
@@ -159,7 +159,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" colSpan="1" column="0" rowSpan="2" >
+      <item row="1" colspan="1" column="0" rowspan="2" >
        <widget class="Q3ButtonGroup" name="ButtonGroup1" >
         <property name="objectName" >
          <cstring>ButtonGroup1</cstring>
