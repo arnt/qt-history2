@@ -12,7 +12,7 @@
 	$(MOC) -o tmp/qt.cpp tmp/moc_qt.h
 	perl -pi -e 's/"moc_qt.h"/"qt.h"/' tmp/qt.cpp
 
-#{
+#${
     $l = '$$OBJECTS_DIR/libfreetype.a';
     $l .= ' $$OBJECTS_DIR/libz.a' if Config("png");
     $l .= ' $$OBJECTS_DIR/libmng.a' if Config("mng");
@@ -20,7 +20,7 @@
     $l .= ' $$OBJECTS_DIR/libjpeg.a' if Config("jpeg");
     
     Substitute('$$DESTDIR_TARGET: '.$l );
-#}
+#$}
 
 #$ Substitute('$$OBJECTS_DIR/libfreetype.a:');
 #$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../$$OBJECTS_DIR ../../$$OBJECTS_DIR/libfreetype.a');
