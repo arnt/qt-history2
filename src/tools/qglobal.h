@@ -876,14 +876,9 @@ Q_EXPORT int qWinVersion();
 
 #ifndef QT_NO_DEBUG
 #  define qDebug qt_debug
-#  ifndef QT_NO_FATAL_WARNINGS
-#    define qWarning qt_warning
-#  else
-#    define qWarning qt_fatal
-#  endif
+#  define qWarning qt_warning
 #else
 #  define qDebug if (false) qt_debug
-#  define qInformation if (false) qt_debug
 #  define qWarning if (false) qt_warning
 #endif
 

@@ -282,8 +282,8 @@ Qt::WindowsVersion qt_winver = (Qt::WindowsVersion)qWinVersion();
     exits.  If no message handler has been installed, the message is
     printed to stderr. Under Windows, the message is sent to the
     debugger.  This function does nothing if \c QT_NO_DEBUG was
-    defined during compilation; it does not exit if \c
-    QT_NO_FATAL_WARNINGS was defined.
+    defined during compilation; it does not exit if the environment
+    variable \c QT_NO_FATAL_WARNINGS is defined.
 
     This function takes a format string and a list of arguments,
     similar to the C printf() function.
@@ -429,6 +429,22 @@ void qt_warning( const char *msg, ... )
 	fprintf( stderr, "\n" );		// add newline
 #endif
     }
+
+    static bool fatalWarnings = (getenv("QT_NO_FATAL_WARNINGS") == 0);
+    if (!fatalWarnings)
+	return;
+
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+    abort();				// trap; generates core dump
+#elif defined(Q_OS_TEMP) && defined(_DEBUG)
+    QString fstr;
+    fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+    OutputDebugString( fstr.ucs2() );
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+    _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
+#else
+    exit( 1 );				// goodbye cruel world
+#endif
 }
 
 
