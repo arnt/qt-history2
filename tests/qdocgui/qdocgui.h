@@ -49,6 +49,7 @@ private:
     int msgCount;
     QString editor;
     int warnings;
+    int prevWarnings;
     QStringList _defines;
 };
 

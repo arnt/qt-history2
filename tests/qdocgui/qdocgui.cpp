@@ -39,7 +39,7 @@ QString QDocListItem::key( int, bool ) const
 QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
 				QWidget* parent, const char* name )
     : QDialog( parent, name ),
-      _defines(defines)
+      warnings(0), prevWarnings(0), _defines(defines)
 {
     if ( qtdir.isEmpty() )
 	qtdirenv = getenv( "QTDIR" );
@@ -379,7 +379,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 
 void QDocMainWindow::editorFinished()
 {
-    QString msg = QString( "%1 warnings" ).arg( warnings );
+    QString msg = QString( "%1 (%2) warnings" )
+		    .arg( warnings ).arg( prevWarnings );
 }
 
 
@@ -453,9 +454,10 @@ void QDocMainWindow::finished()
     version->setEnabled( TRUE );
     stop->setEnabled( FALSE );
     warnings = count;
-    QString msg = QString( "%1 warnings" ).arg( count );
+    QString msg = QString( "%1 (%2) warnings" ).arg( warnings ).arg( prevWarnings );
     statusBar->setText( msg );
     qDebug( msg );
+    prevWarnings = warnings;
 }
 
 
