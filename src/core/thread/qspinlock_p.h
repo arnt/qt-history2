@@ -54,7 +54,7 @@ public:
 class Q_CORE_EXPORT QSpinLockPrivate
 {
 public:
-    HANDLE event;
+    Qt::HANDLE event;
 
     void initialize();
     void cleanup();

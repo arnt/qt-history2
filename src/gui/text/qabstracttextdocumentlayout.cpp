@@ -63,6 +63,7 @@ void QAbstractTextDocumentLayout::invalidate(const QRegion &r)
 
 QTextLayout *QAbstractTextDocumentLayout::layoutAt(int position) const
 {
+    return 0;
 }
 
 
