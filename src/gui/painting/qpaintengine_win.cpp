@@ -962,8 +962,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             if (haveOffsets || transform) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
-                    float xp = x + glyphs->offset.x();
-                    float yp = y + glyphs->offset.y();
+                    qReal xp = x + glyphs->offset.x();
+                    qReal yp = y + glyphs->offset.y();
                     if (transform)
                         state->painter->matrix().map(xp, yp, &xp, &yp);
                     ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);

@@ -73,7 +73,7 @@ QFontEngine::~QFontEngine()
 }
 
 // ##### get these from windows
-float QFontEngine::lineThickness() const
+qReal QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -87,7 +87,7 @@ float QFontEngine::lineThickness() const
 }
 
 // ##### get these from windows
-float QFontEngine::underlinePosition() const
+qReal QFontEngine::underlinePosition() const
 {
     return (lineThickness() * 2 + 3) / 6.0;
 }
@@ -293,22 +293,22 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
     return glyph_metrics_t();
 }
 
-float QFontEngineWin::ascent() const
+qReal QFontEngineWin::ascent() const
 {
     return tm.w.tmAscent;
 }
 
-float QFontEngineWin::descent() const
+qReal QFontEngineWin::descent() const
 {
     return tm.w.tmDescent;
 }
 
-float QFontEngineWin::leading() const
+qReal QFontEngineWin::leading() const
 {
     return tm.w.tmExternalLeading;
 }
 
-float QFontEngineWin::maxCharWidth() const
+qReal QFontEngineWin::maxCharWidth() const
 {
     return tm.w.tmMaxCharWidth;
 }
@@ -339,7 +339,7 @@ static const ushort char_table[] = {
 static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
 
 
-float QFontEngineWin::minLeftBearing() const
+qReal QFontEngineWin::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
         minRightBearing(); // calculates both
@@ -347,7 +347,7 @@ float QFontEngineWin::minLeftBearing() const
     return lbearing;
 }
 
-float QFontEngineWin::minRightBearing() const
+qReal QFontEngineWin::minRightBearing() const
 {
 #ifdef Q_OS_TEMP
         return 0;
@@ -488,7 +488,7 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #define GGO_UNHINTED 0x0100
 #endif
 
-void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
+void QFontEngineWin::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path)
 {
     QPointF oset(x, y);
@@ -661,23 +661,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
 
 
 
-float QFontEngineBox::ascent() const
+qReal QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-float QFontEngineBox::descent() const
+qReal QFontEngineBox::descent() const
 {
     return 0;
 }
 
-float QFontEngineBox::leading() const
+qReal QFontEngineBox::leading() const
 {
     int l = qRound(_size * 0.15);
     return (l > 0) ? l : 1;
 }
 
-float QFontEngineBox::maxCharWidth() const
+qReal QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }
