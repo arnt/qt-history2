@@ -79,7 +79,9 @@ public:
 
     void openPersistentEditor();
     void closePersistentEditor();
+
     bool isSelected() const;
+    void setSelected(bool select);
 
 protected:
     struct Data {
@@ -136,6 +138,7 @@ public:
     void closePersistentEditor(QTableWidgetItem *item);
 
     bool isSelected(const QTableWidgetItem *item) const;
+    void setSelected(const QTableWidgetItem *item, bool select);
 
 signals:
     void clicked(QTableWidgetItem *item, int button);

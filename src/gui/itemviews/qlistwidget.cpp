@@ -280,6 +280,15 @@ bool QListWidgetItem::isSelected() const
     return (view && view->isSelected(this));
 }
 
+void QListWidgetItem::setSelected(bool select)
+{
+    if (!model)
+        return;
+    QObject *parent = static_cast<QObject*>(model)->parent();
+    QListWidget *view = ::qt_cast<QListWidget*>(parent);
+    view->setSelected(this, select);
+}
+
 /*!
     \fn QString QListWidgetItem::text() const
 
@@ -664,6 +673,12 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     return selectionModel()->isSelected(index);
+}
+
+void QListWidget::setSelected(const QListWidgetItem *item, bool select)
+{
+    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
 /*!

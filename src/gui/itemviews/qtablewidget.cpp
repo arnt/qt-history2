@@ -418,6 +418,15 @@ bool QTableWidgetItem::isSelected() const
     return (view && view->isSelected(this));
 }
 
+void QTableWidgetItem::setSelected(bool select)
+{
+    if (!model)
+        return;
+    QObject *parent = static_cast<QObject*>(model)->parent();
+    QTableWidget *view = ::qt_cast<QTableWidget*>(parent);
+    view->setSelected(this, select);
+}
+
 /*!
     \class QTableWidget qtablewidget.h
     \brief The QTableWidget class provides a table view that uses the
@@ -675,6 +684,12 @@ bool QTableWidget::isSelected(const QTableWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(item);
     return selectionModel()->isSelected(index);
+}
+
+void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
+{
+    QModelIndex index = d->model()->index(item);
+    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
 void QTableWidget::removeItem(QTableWidgetItem *item)

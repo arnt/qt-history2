@@ -82,6 +82,7 @@ public:
     void closePersistentEditor();
 
     bool isSelected() const;
+    void setSelected(bool select);
 
 protected:
     struct Data {
@@ -124,7 +125,9 @@ public:
 
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
+
     bool isSelected(const QListWidgetItem *item) const;
+    void setSelected(const QListWidgetItem *item, bool select);
 
 signals:
     void clicked(QListWidgetItem *item, int button);
