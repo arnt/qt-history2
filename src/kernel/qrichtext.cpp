@@ -1662,10 +1662,21 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		}
 
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
-		if ( nstyle ) {
-		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
+		
+		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+		    if ( tagname == "br" ) {
+			// our standard br emty-tag handling breaks
+			// inside list items, we would get another
+			// list item in this case. As workaround, fake
+			// a new paragraph instead
+			tagname = "p";
+			nstyle = sheet_->item( tagname );
+		    }
+		    if ( nstyle )
 			hasNewPar = FALSE; // we want empty paragraphs in this case
-
+		}
+		
+		if ( nstyle ) {
 		    // we might have to close some 'forgotten' tags
 		    while ( !nstyle->allowedInContext( curtag.style ) ) {
 			QString msg;
@@ -5583,7 +5594,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX(minw, wused);
-    
+
     thisminw = minw;
     thiswused = wused;
     return y;
