@@ -664,7 +664,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 		avWidth = tm.tmAveCharWidth;
 	    } );
 #ifndef QT_NO_DEBUG
-	    if ( res )
+	    if ( !res )
 		qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
 
