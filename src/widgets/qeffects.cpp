@@ -277,11 +277,6 @@ void QAlphaWidget::alphaBlend()
 		}
 	    }
 	}
-	break;
-    case 24:
-	break;
-    case 16:
-	break;
     default:
 	break;
     }

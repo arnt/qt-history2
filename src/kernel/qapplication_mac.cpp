@@ -2165,12 +2165,16 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     case UI_AnimateMenu:
 	return animate_menu;
     case UI_FadeMenu:
+	if ( QColor::numBitPlanes() < 16 )
+	    return FALSE;
 	return fade_menu;
     case UI_AnimateCombo:
 	return animate_combo;
     case UI_AnimateTooltip:
 	return animate_tooltip;
     case UI_FadeTooltip:
+	if ( QColor::numBitPlanes() < 16 )
+	    return FALSE;
 	return fade_tooltip;
     default:
 	return animate_ui;
