@@ -1735,7 +1735,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
-            if (btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+            if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+                || (btn->rect.width() < 50 || btn->rect.height() < 30))
                 bdi.kind = kThemeBevelButton;
             else
                 bdi.kind = kThemePushButton;
@@ -3397,7 +3398,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 }
             }
             ThemeButtonKind bkind;
-            if ((btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+            if (((btn->features & (QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+                || (btn->rect.width() < 50 || btn->rect.height() < 30))
                 bkind = kThemeBevelButton;
             else
                 bkind = kThemePushButton;
