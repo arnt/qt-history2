@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#77 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -44,11 +44,13 @@
 // only function/variable declarations are currently allowed, and
 // stripHeader knows a bit about the names of some functions.
 static const char *ps_header[] = {
-"/D  {bind def} bind def",
-"/ED {exch def} D",
+"/d  /def load def",
+"/D  {bind d} bind d",
+"/ED {exch d} D",
+"/D0 {0 ED} D",
 "/LT {lineto} D",
 "/MT {moveto} D",
-"/ND /.notdef def",
+"/ND /.notdef d",
 "/S  {stroke} D",
 "/F  {setfont} D",
 "/SW {setlinewidth} D",
@@ -63,19 +65,19 @@ static const char *ps_header[] = {
 "/GS {gsave} D",
 "/GR {grestore} D",
 "",
-"/BSt 0 def",				// brush style
-"/LWi 1 def",				// line width
-"/PSt 1 def",				// pen style
-"/Cx  0 def",				// current x position
-"/Cy  0 def",				// current y position
-"/WFi false def",			// winding fill
-"/OMo false def",			// opaque mode (not transparent)
+"/BSt 0 d",				// brush style
+"/LWi 1 d",				// line width
+"/PSt 1 d",				// pen style
+"/Cx  0 d",				// current x position
+"/Cy  0 d",				// current y position
+"/WFi false d",			// winding fill
+"/OMo false d",			// opaque mode (not transparent)
 "",
-"/BCol  [ 1 1 1 ] def",			// brush color
-"/PCol  [ 0 0 0 ] def",			// pen color
-"/BkCol [ 1 1 1 ] def",			// background color
+"/BCol  [ 1 1 1 ] d",			// brush color
+"/PCol  [ 0 0 0 ] d",			// pen color
+"/BkCol [ 1 1 1 ] d",			// background color
 "",
-"/nS 0 def",				// number of saved painter states
+"/nS 0 d",				// number of saved painter states
 "",
 "/LArr[",					// Pen styles:
 "    []		     []",			//   solid line
@@ -83,7 +85,7 @@ static const char *ps_header[] = {
 "    [ 3 3 ]	     [ 3 3 ]",			//   dot line
 "    [ 5 3 3 3 ]	     [ 3 5 3 3 ]",	//   dash dot line
 "    [ 5 3 3 3 3 3 ]  [ 3 5 3 3 3 3 ]",		//   dash dot dot line
-"] def",
+"] d",
 "",
 "",//
 "",// Returns the line pattern (from pen style PSt).
@@ -140,29 +142,35 @@ static const char *ps_header[] = {
 "",
 "/BDArr[",				// Brush dense patterns:
 "    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
-"] def",
+"] d",
 "",
-"/ArcDict 8 dict def",
-"ArcDict begin",
-"    /tmp matrix def",
-"end",
+"", // for arc
+"/mat matrix d",
+"/ang1 D0 /ang2 D0",
+"/w D0 /h D0",
+"/x D0 /y D0",
 "",
 "/ARC {",				// Generic ARC function [ X Y W H ang1 ang2 ]
-"    ArcDict begin",
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
-"    tmp CM pop",
+"    mat CM pop",
 "    x w 2 div add y h 2 div add TR",
 "    1 h w div neg scale",
 "    ang2 0 ge",
 "    {0 0 w 2 div ang1 ang1 ang2 add arc }",
 "    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse",
-"    tmp SM",
-"    end",
+"    mat SM",
 "} D",
 "",
+"/defM D0",
+"",
+"/QLS {", // set up landscape
+"  PageW 0 TR 90 rotate\n",
+"  /defM matrix CM d\n",
+"  PageW PageH/PageW d/PageH d\n",
+"} D",
 "",
 "/QI {",
-"    /savedContext save def",
+"    /savedContext save d",
 "    clippath pathbbox",
 "    3 index /PageX ED",
 "    0 index /PageY ED",
@@ -173,11 +181,11 @@ static const char *ps_header[] = {
 "",
 "    PageX PageY TR",
 "    1 -1 scale",
-"    /defM matrix CM def",		// default transformation matrix
-"    /Cx  0 def",			// reset current x position
-"    /Cy  0 def",			// reset current y position
+"    /defM matrix CM d",		// default transformation matrix
+"    /Cx  0 d",				// reset current x position
+"    /Cy  0 d",				// reset current y position
 "    255 255 255 BC",
-"    /OMo false def",
+"    /OMo false d",
 "    1 0 0 0 0 PE",
 "    0 0 0 0 B",
 "} D",
@@ -219,9 +227,7 @@ static const char *ps_header[] = {
 "    QS",
 "} D",
 "",
-"/RDict 5 dict def",
 "/R {",					// PDC_DRAWRECT [x y w h]
-"    RDict begin",
 "    /h ED /w ED /y ED /x ED",
 "    NP",
 "    x y MT",
@@ -231,23 +237,19 @@ static const char *ps_header[] = {
 "    CP",
 "    QF",
 "    QS",
-"    end",
 "} D",
 "",
-"/ACRDict 5 dict def",
 "/ACR {",					// add clip rect
-"    ACRDict begin",
 "    /h ED /w ED /y ED /x ED",
 "    x y MT",
 "    0 h RL",
 "    w 0 RL",
 "    0 h neg RL",
 "    CP",
-"    end",
 "} D",
 "",
 "/CLSTART {",				// clipping start
-"    /clipTmp matrix CM def",		// save current matrix
+"    /clipTmp matrix CM d",		// save current matrix
 "    defM SM",				// Page default matrix
 "    NP",
 "} D",
@@ -264,19 +266,20 @@ static const char *ps_header[] = {
 "    defM SM",				// set coordsys (defensive progr.)
 "} D",
 "",
-"/RRDict 11 dict def",
+"/xr D0 /yr D0",
+"/rx D0 /ry D0 /rx2 D0 /ry2 D0",
+"",
 "/RR {",				// PDC_DRAWROUNDRECT [x y w h xr yr]
-"    RRDict begin",
 "    /yr ED /xr ED /h ED /w ED /y ED /x ED",
 "    xr 0 le yr 0 le or",
 "    {x y w h R}",		    // Do rect if one of rounding values is less than 0.
 "    {xr 100 ge yr 100 ge or",
 "	{x y w h E}",			 // Do ellipse if both rounding values are larger than 100
 "	{",
-"	 /rx xr w mul 200 div def",
-"	 /ry yr h mul 200 div def",
-"	 /rx2 rx 2 mul def",
-"	 /ry2 ry 2 mul def",
+"	 /rx xr w mul 200 div d",
+"	 /ry yr h mul 200 div d",
+"	 /rx2 rx 2 mul d",
+"	 /ry2 ry 2 mul d",
 "	 NP",
 "	 x rx add y MT",
 "	 x w add rx2 sub y		 rx2 ry2 90  -90 ARC",
@@ -288,26 +291,19 @@ static const char *ps_header[] = {
 "	 QS",
 "	} ifelse",
 "    } ifelse",
-"    end",
 "} D",
 "",
 "",
-"/EDict 5 dict def",
-"EDict begin",
-"/tmp matrix def",
-"end",
 "/E {",				// PDC_DRAWELLIPSE [x y w h]
-"    EDict begin",
 "    /h ED /w ED /y ED /x ED",
-"    tmp CM pop",
+"    mat CM pop",
 "    x w 2 div add y h 2 div add translate",
 "    1 h w div scale",
 "    NP",
 "    0 0 w 2 div 0 360 arc",
-"    tmp SM",
+"    mat SM",
 "    QF",
 "    QS",
-"    end",
 "} D",
 "",
 "",
@@ -319,9 +315,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/PieDict 7 dict def",
 "/PIE {",				// PDC_DRAWPIE [x y w h ang1 ang2]
-"    PieDict begin",
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
 "    NP",
 "    x w 2 div add y h 2 div add MT",
@@ -329,7 +323,6 @@ static const char *ps_header[] = {
 "    CP",
 "    QF",
 "    QS",
-"    end",
 "} D",
 "",
 "/CH {",				// PDC_DRAWCHORD [x y w h ang1 ang2]
@@ -357,7 +350,7 @@ static const char *ps_header[] = {
 "",
 "/SV {",				// Save painter state
 "    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol",
-"    /nS nS 1 add def",
+"    /nS nS 1 add d",
 "    GS",
 "} D",
 "",
@@ -366,7 +359,7 @@ static const char *ps_header[] = {
 "    { GR",
 "      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED",
 "      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED",
-"      /nS nS 1 sub def",
+"      /nS nS 1 sub d",
 "    } if",
 "",
 "} D",
@@ -399,7 +392,7 @@ static const char *ps_header[] = {
 "  findfont dup length dict begin",
 "  {",
 "    1 index /FID ne",
-"    {def}{pop pop}ifelse",
+"    {d}{pop pop}ifelse",
 "  } forall",
 "  /Encoding ED currentdict end",
 "  definefont pop",
@@ -407,21 +400,20 @@ static const char *ps_header[] = {
 "",
 "/DF {",				// newname pointsize fontmame
 "  findfont",
-"  /FONTSIZE 3 -1 roll def [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont",
-"  def",
+"  /FONTSIZE 3 -1 roll d [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont",
+"  d",
 "} D",
 "",
 "",
 "",// isn't this important enough to try to avoid the SC?
 "",
 "/T {",					// PDC_DRAWTEXT2 [string x y]
-"    MT",				// !!!! Uff
+"    MT",				// ### Uff
 "    PCol SC",				// set pen/text color
 "    show",
 "} D",
 "",
 "",
-"/BFDict 3 dict def",
 "/BF {",				// brush fill
 "    BSt 9 ge BSt 14 le and",		// valid brush pattern?
 "    {",
@@ -471,45 +463,43 @@ static const char *ps_header[] = {
 "	 { NP dup 0 exch MT w add w exch LT S } for } ifelse",
 "     } if",
 "     GR",
-"     end",
 "    } if",
 "} D",
 "",
 "", // slower implementation than the old one, but strippable by stripHeader
-"/QCIDict 25 dict def",
+"/sl D0",
+"/QCIFunction D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex",
 "/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
 "    pop",
 "    false 3 colorimage",
 "  }{", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
-"    QCIDict begin",
-"      /Function ED",
-"      /Matrix ED",
-"      /Bcomp ED",
-"      /Height ED",
-"      /Width ED",
-"      /Bycomp Bcomp 7 add 8 idiv def",
-"      Width Height Bcomp Matrix",
-"      /Gstr sl length 3 idiv string def",
-"      { Function exec",
-"	 /Cstr ED",
-"	 0 1 Cstr length 3 idiv 1 sub {",
-"	   /I ED",
-"	   /X I 3 mul def",
-"	   Gstr I",
-"	   Cstr X       get 0.30 mul",
-"	   Cstr X 1 add get 0.59 mul",
-"	   Cstr X 2 add get 0.11 mul",
-"	   add add cvi",
-"	   put",
-"	 } for",
-"	 Gstr",
-"      }",
-"      image",
-"    end",
+"    /QCIFunction ED",
+"    /mat ED",
+"    /Bcomp ED",
+"    /h ED",
+"    /w ED",
+"    /Bycomp Bcomp 7 add 8 idiv d",
+"    w h Bcomp mat",
+"    /QCIstr2 sl length 3 idiv string d",
+"    { Function exec",
+"      /QCIstr1 ED",
+"      0 1 QCIstr1 length 3 idiv 1 sub {",
+"        /QCIindex ED",
+"        /x QCIindex 3 mul d",
+"        QCIstr2 QCIindex",
+"        QCIstr1 x       get 0.30 mul",
+"        QCIstr1 x 1 add get 0.59 mul",
+"        QCIstr1 x 2 add get 0.11 mul",
+"        add add cvi",
+"        put",
+"      } for",
+"      QCIstr2",
+"    }",
+"    image",
 "  } ifelse",
 "} D",
-0};
+0 };
 
 
 
@@ -1701,7 +1691,7 @@ static struct {
 	0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F,
 	0x2116, 0x0451, 0x0452, 0x0453, 0x0454, 0x0455, 0x0456, 0x0457,
 	0x0458, 0x0459, 0x045A, 0x045B, 0x045C, 0x00A7, 0x045E, 0x045F } },
-    { QFont::Latin6,
+    { QFont::ISO_8859_6,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1718,7 +1708,7 @@ static struct {
 	0x0648, 0x0649, 0x064A, 0x064B, 0x064C, 0x064D, 0x064E, 0x064F,
 	0x0650, 0x0651, 0x0652, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD } },
-    { QFont::Latin7,
+    { QFont::ISO_8859_7,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1735,7 +1725,7 @@ static struct {
 	0x03B8, 0x03B9, 0x03BA, 0x03BB, 0x03BC, 0x03BD, 0x03BE, 0x03BF,
 	0x03C0, 0x03C1, 0x03C2, 0x03C3, 0x03C4, 0x03C5, 0x03C6, 0x03C7,
 	0x03C8, 0x03C9, 0x03CA, 0x03CB, 0x03CC, 0x03CD, 0x03CE, 0xFFFD } },
-    { QFont::Latin8,
+    { QFont::ISO_8859_8,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1752,8 +1742,8 @@ static struct {
 	0x05D8, 0x05D9, 0x05DA, 0x05DB, 0x05DC, 0x05DD, 0x05DE, 0x05DF,
 	0x05E0, 0x05E1, 0x05E2, 0x05E3, 0x05E4, 0x05E5, 0x05E6, 0x05E7,
 	0x05E8, 0x05E9, 0x05EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD } },
-    // makeFixedStrings() below assumes that latin9 is last
-    { QFont::Latin9,
+    // makeFixedStrings() below assumes that this is last
+    { QFont::ISO_8859_9,
       { 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
@@ -1902,11 +1892,11 @@ static void makeFixedStrings()
 	    vector += " /";
 	    vector += glyphname;
 	}
-	vector += " ] def";
+	vector += " ] d";
 	vector = wordwrap( vector );
 	font_vectors->insert( (int)(unicodevalues[i].cs),
 			      new QString( vector ) );
-    } while ( unicodevalues[i++].cs != QFont::Latin9 );
+    } while ( unicodevalues[i++].cs != QFont::ISO_8859_9 );
 }
 
 
@@ -2161,6 +2151,7 @@ static void hexOut( QTextStream &stream, int i )
 }
 
 
+#if 0
 static void ps_dumpTransparentBitmapData( QTextStream &stream,
 					  const QImage &img )
 {
@@ -2185,6 +2176,7 @@ static void ps_dumpTransparentBitmapData( QTextStream &stream,
 
     stream.setf( QTextStream::dec, QTextStream::basefield );
 }
+#endif
 
 
 static void ps_dumpPixmapData( QTextStream &stream, QImage img,
@@ -2377,7 +2369,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    if ( p[0].ptarr->size() > 2 ) {
 		QPointArray a = *p[0].ptarr;
 		if ( p[1].ival )
-		    stream << "/WFi true def\n";
+		    stream << "/WFi true d\n";
 		QPoint pt = a.point(0);
 		stream << "NP\n";
 		stream << XCOORD(pt.x()) << ' '
@@ -2389,7 +2381,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		}
 		stream << "CP PF QS\n";
 		if ( p[1].ival )
-		    stream << "/WFi false def\n";
+		    stream << "/WFi false d\n";
 	    }
 	    break;
 	case PDC_DRAWQUADBEZIER:
@@ -2449,9 +2441,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETBKMODE:
 	    if ( p[0].ival == Qt::TransparentMode )
-		stream << "/OMo false def\n";
+		stream << "/OMo false d\n";
 	    else
-		stream << "/OMo true def\n";
+		stream << "/OMo true d\n";
 	    break;
 	case PDC_SETROP:
 #if defined(DEBUG)
@@ -2534,7 +2526,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     if ( width * height > 21840 ) { // 65535/3, tolerance for broken printers
 	delete d->savedImage;
 	d->savedImage = 0;
-	stream << "/sl " << width*3 << " string def\n"
+	stream << "/sl " << width*3 << " string d\n"
 	       << width << ' ' << height << " 8[1 0 0 1 0 0]"
 	       << "{currentfile sl readhexstring pop}QCI\n";
 	ps_dumpPixmapData( stream, img, fgCol, bgCol );
@@ -2543,7 +2535,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     } else {
 	if ( !d->savedImage ||
 	     d->savedImage->width()*d->savedImage->height() != width*height )
-	    stream << "/sl " << width*3*height << " string def\n";
+	    stream << "/sl " << width*3*height << " string d\n";
 	stream << "currentfile sl readhexstring\n";
 	ps_dumpPixmapData( stream, img, fgCol, bgCol );
 	stream << "pop pop\n";
@@ -2581,9 +2573,7 @@ void QPSPrinter::matrixSetup( QPainter *paint )
 void QPSPrinter::orientationSetup()
 {
     if ( printer->orientation() == QPrinter::Landscape )
-	stream << "PageW 0 TR 90 rotate\n"
-	    "/defM matrix CM def\n"
-	    "PageW PageH /PageW def /PageH def\n";
+	stream << "QLS\n";
 }
 
 
@@ -2668,11 +2658,11 @@ static QString stripHeader( QString header, const char * data, int len,
 		ids.insert( id, (void*)(i-1) );
 		used[i-1] = 0x20000000;
 		i = j+1;
-	    } else if ( !qstrncmp( header.ascii()+j, "def", 3 ) &&
-			!isalnum( header[j+3] ) ) {
+	    } else if ( !qstrncmp( header.ascii()+j, "d", 1 ) &&
+			!isalnum( header[j+1] ) ) {
 		ids.insert( id, (void*)(i-1) );
 		used[i-1] = 0x20000000;
-		i = j+3;
+		i = j+1;
 	    } else {
 		i = j;
 	    }
@@ -2776,11 +2766,18 @@ void QPSPrinter::emitHeader( bool finished )
 	QPaintDeviceMetrics m( printer );
 	if ( !d->boundingBox.isValid() )
 	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
-	stream << " EPSF-3.0\n%%BoundingBox: "
-	       << d->boundingBox.left() << " "
-	       << m.height() - d->boundingBox.bottom() - 1 << " "
-	       << d->boundingBox.right() + 1 << " "
-	       << m.height() - d->boundingBox.top();
+	if ( printer->orientation() == QPrinter::Landscape ) // ARNT
+	    stream << " EPSF-3.0\n%%BoundingBox: "
+		   << d->boundingBox.left() << " "
+		   << m.height() - d->boundingBox.bottom() - 1 << " "
+		   << d->boundingBox.right() + 1 << " "
+		   << m.height() - d->boundingBox.top();
+	else
+	    stream << " EPSF-3.0\n%%BoundingBox: "
+		   << d->boundingBox.left() << " "
+		   << m.height() - d->boundingBox.bottom() - 1 << " "
+		   << d->boundingBox.right() + 1 << " "
+		   << m.height() - d->boundingBox.top();
     }
     stream << "\n%%Creator: " << creator;
     if ( title )
@@ -2795,7 +2792,7 @@ void QPSPrinter::emitHeader( bool finished )
     stream << "\n%%EndComments\n\n";
 
     if ( printer->numCopies() > 1 )
-	stream << "/#copies " << printer->numCopies() << " def\n";
+	stream << "/#copies " << printer->numCopies() << " d\n";
 
     if ( !fixed_ps_header )
 	makeFixedStrings();
