@@ -12,4 +12,4 @@ SOURCES	= qws.cpp qwsproperty.cpp qws_gui.cpp qws_linuxfb.cpp main.cpp \
 	  qwsaccel.cpp qwsmach64.cpp qws_linuxmouse.cpp qws_linuxkb.cpp \
 	  qws_cursor.cpp
 TARGET		= qws
-TMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
+!win32:TMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
