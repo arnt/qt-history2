@@ -1902,13 +1902,12 @@ void MainWindow::editPreferences()
 	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
 	shStartDialog = dia->checkBoxStartDialog->isChecked();
 	autoSaveEnabled = dia->checkBoxAutoSave->isChecked();
-	if ( autoSaveEnabled ) {
-	    QTime time = dia->timeEditAutoSave->time();
-	    autoSaveInterval = time.hour() * 3600 + time.minute() * 60 + time.second();
+	QTime time = dia->timeEditAutoSave->time();
+	autoSaveInterval = time.hour() * 3600 + time.minute() * 60 + time.second();
+	if ( autoSaveEnabled )
 	    autoSaveTimer->start( autoSaveInterval * 1000 );
-	} else {
+	else
 	    autoSaveTimer->stop();
-	}
     }
     delete senderObject;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
