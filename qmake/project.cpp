@@ -67,7 +67,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	return TRUE;
     }
     else if(!(scope_flag & (0x01 << scope_block))) {
-	for(int i = s.contains('{'); i; i--)
+	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
 	if(Option::debug_level >= 1)
 	    printf("Project Parser: %s:%d : Ignored due to block being false.\n", file.latin1(), line_count);
