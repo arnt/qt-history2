@@ -298,9 +298,9 @@ QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 	case kWindowContentRgn: {
 	    if(QWidget *widget = QWidget::find( (WId)window )) {
 		QRegion cr;
-		if(widget->extra && !widget->extra->mask.isNull())
+		if(widget->extra && !widget->extra->mask.isNull()) 
 		    cr = widget->extra->mask;
-		else
+		else 
 		    cr = QRegion(widget->rect());
 		cr.translate(widget->x(), widget->y());
 		CopyRgn(cr.handle(TRUE), s->winRgn);
@@ -365,7 +365,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
  *****************************************************************************/
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
-    own_id = 0;
+    use_wdef = own_id = 0;
     HANDLE destroyw = 0;
     setWState( WState_Created );                        // set created flag
 
@@ -487,6 +487,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
 	    if(CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	    use_wdef = 1;
 	} else {
 	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
@@ -1665,8 +1666,17 @@ void QWidget::setMask( const QRegion &region )
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
-    if ( isTopLevel() )
+    if ( isTopLevel() && use_wdef) {
+	/* We do this because the X/Y seems to move to the first paintable point
+	   (ie the bounding rect of the mask). We must offset everything or else
+	   we have big problems.
+	*/
+	QRect r = region.boundingRect();
+	QMacSavedPortInfo mp(this);
+	SetOrigin(r.x(), r.y());
+	//now let the wdef take it
 	ReshapeCustomWindow((WindowPtr)hd);
+    }
 }
 
 void QWidget::setMask( const QBitmap &bitmap )

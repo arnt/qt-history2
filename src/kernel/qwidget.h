@@ -550,11 +550,13 @@ private:
     void	 checkChildrenDnd();
 #elif defined(Q_WS_MAC)
     uint    own_id : 1; //owns the winid
+    uint    use_wdef : 1; //uses a wdef
     //mac event functions
     void propagateUpdates();
     //friends, way too many - fix this immediatly!
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
+    friend QPoint posInWindow(QWidget *);
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
