@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#4 $
+** $Id: //depot/qt/main/src/tools/qstring.h#5 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -42,6 +42,11 @@ extern "C" int strncasecmp( const char *, const char *, uint );
 #elif defined(_CC_MSC_)
 #define stricmp	 _stricmp
 #define strnicmp _strnicmp
+
+#elif defined(_CC_BOR_)
+extern "C" int stricmp( const char *, const char * );
+extern "C" int strnicmp( const char *, const char *, uint );
+
 #endif
 
 
