@@ -1551,9 +1551,13 @@ void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool f
 	p->gfx->drawPolyline(points,0, 5);
 }
 
-void qt_draw_background( QPainter *p,
-			 int x, int y, int w,  int h )
+void qt_draw_background( QPainter *p, int x, int y, int w,  int h )
 {
+    if (p->testf(QPainter::ExtDev)) {
+	if (p->pdev->devType() == QInternal::Printer)
+	    p->fillRect(x, y, w, h, p->bg_col);
+	return;
+    }
     p->gfx->setPen( QPen::NoPen );
     p->gfx->setBrush( QBrush(p->backgroundColor()) );
     qt_draw_transformed_rect( p, x, y, w, h, TRUE);

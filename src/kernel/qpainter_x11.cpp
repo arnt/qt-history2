@@ -2845,9 +2845,13 @@ void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool f
 	XDrawLines( p->dpy, p->hd, p->gc, points, 5, CoordModeOrigin );
 }
 
-void qt_draw_background( QPainter *p,
-			 int x, int y, int w,  int h )
+void qt_draw_background( QPainter *p, int x, int y, int w,  int h )
 {
+    if (p->testf(QPainter::ExtDev)) {
+	if (p->pdev->devType() == QInternal::Printer)
+	    p->fillRect(x, y, w, h, p->bg_col);
+	return;
+    }
     XSetForeground( p->dpy, p->gc, p->bg_brush.color().pixel(p->scrn) );
     qt_draw_transformed_rect( p, x, y, w, h, TRUE);
     XSetForeground( p->dpy, p->gc, p->cpen.color().pixel(p->scrn) );
