@@ -2933,6 +2933,7 @@ void QFontCache::clear()
 	    if ( data->engine )
 		data->engine->deref();
 	    data->engine = 0;
+	    ++it;
 	}
     }
 
