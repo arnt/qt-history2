@@ -99,6 +99,7 @@ if [ "$XFT" = "yes" ]; then
     FREETYPE_MAJOR=`grep "#define FREETYPE_MAJOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
     FREETYPE_MINOR=`grep "#define FREETYPE_MINOR" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
     FREETYPE_PATCH=`grep "#define FREETYPE_PATCH" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
+    test -z "$FREETYPE_PATCH" && FREETYPE_PATCH="0"
     if [ "$FREETYPE_MAJOR" -eq "2" ] \
         && [ "$FREETYPE_MINOR" -ge "0" -a "$FREETYPE_PATCH" -ge "9" ] \
         || [ "$FREETYPE_MINOR" -ge "1" ]; then
