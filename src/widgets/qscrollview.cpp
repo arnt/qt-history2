@@ -231,7 +231,7 @@ struct QScrollViewData {
     }
     void autoResize(QScrollView* sv)
     {
-	if ( policy == QScrollView::AutoOne ) {
+	if ( policy > QScrollView::Manual ) {
 	    QSVChildRec* r = children.first();
 	    if (r)
 	        sv->resizeContents(r->child->width(),r->child->height());
@@ -244,6 +244,21 @@ struct QScrollViewData {
 	    if (r) {
                 QSize s = r->child->sizeHint();
 	        if ( s.isValid() )
+		    r->child->resize(s);
+	    }
+	}
+    }
+    void autoResizeFit()
+    {
+	if ( policy == QScrollView::AutoOneFit ) {
+	    QSVChildRec* r = children.first();
+	    if (r) {
+		QSize s = r->child->sizeHint();
+		if ( s.height() < viewport.height() )
+		    s.setHeight( viewport.height() );
+		if ( s.width() < viewport.width() )
+		    s.setWidth( viewport.width() );
+		if ( s.isValid() )
 		    r->child->resize(s);
 	    }
 	}
@@ -420,7 +435,7 @@ covered up by the viewport, clipper, or scrollbars.
 /*! \enum QScrollView::ResizePolicy
 
   This enum type is used to control QScrollView's reaction to resize
-  events.  There are three possible settings:<ul>
+  events.  There are four possible settings:<ul>
 
   <li> \c Default - QScrollView selects one of the other settings
   automatically when it has to.  At the time of writing, QScrollView
@@ -431,6 +446,9 @@ covered up by the viewport, clipper, or scrollbars.
 
   <li> \c AutoOne - if there is only only child widget, the view stays
   the size of that widget.  Otherwise, the behaviour is undefined.
+
+  <li> \c AutoOneFit - this is similar to AutoOne.  The widget is enlarged
+  as much as possible to fit the viewport.
 
   </ul>
 */
@@ -564,7 +582,7 @@ QSize QScrollView::viewportSize( int x, int y ) const
     int hsbExt = horizontalScrollBar()->sizeHint().height();
     int vsbExt = verticalScrollBar()->sizeHint().width();
 
-    if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
+    if ( d->policy != AutoOne && d->policy != AutoOneFit || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < x;
 	needv = h-tmarg-bmarg < y;
@@ -631,7 +649,7 @@ void QScrollView::updateScrollBars()
     int hsbExt = horizontalScrollBar()->sizeHint().height();
     int vsbExt = verticalScrollBar()->sizeHint().width();
 
-    if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
+    if ( d->policy != AutoOne && d->policy != AutoOneFit || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
 	needv = h-tmarg-bmarg < contentsHeight();
@@ -839,6 +857,10 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     // the time when making a window smaller.
     if ( u )
 	updateScrollBars();
+    if ( d->policy == AutoOneFit ) {
+	d->autoResizeFit();
+	d->autoResize(this);
+    }
     d->hideOrShowAll(this);
     setUpdatesEnabled( u );
 }
@@ -1052,7 +1074,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
     if ( d->children.isEmpty() && d->policy == Default ) {
 	setResizePolicy( AutoOne );
 	child->installEventFilter( this );
-    } else if ( d->policy == AutoOne ) {
+    } else if ( d->policy > Manual ) {
 	child->removeEventFilter( this );
     }
     if ( child->parentWidget() != viewport() ) {
@@ -1183,6 +1205,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
 	case QEvent::LayoutHint:
+	    d->autoResizeFit();
 	    d->autoResizeHint();
 	    break;
 	default:
@@ -2203,7 +2226,7 @@ QSize QScrollView::sizeHint() const
 {
     constPolish();
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
-    if ( d->policy == QScrollView::AutoOne ) {
+    if ( d->policy > Manual ) {
 	QSVChildRec* r = d->children.first();
 	if (r)
 	{

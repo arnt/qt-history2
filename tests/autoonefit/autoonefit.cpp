@@ -99,7 +99,7 @@ void MyScrollView::setResizePolicy( ResizePolicy r ) {
 		s = "AutoOneFit";
 		break;
 	};
-	qDebug( "QScrollView::setResizePolicy( %s )", s );
+	qDebug( "MyScrollView::setResizePolicy( %s )", s );
 	QScrollView::setResizePolicy( r );
 }
 
@@ -162,8 +162,6 @@ int main( int argc, char* argv[] )
 
 	MyScrollView* sv = new MyScrollView( 0, "sv" );
 	Fit* fit = new Fit( sv->viewport(), "fit" );
-	sv->setResizePolicy( QScrollView::AutoOne );
-	//sv->setResizePolicy( QScrollView::AutoOneFit );
 	sv->addChild( fit );
 	sv->show();
 
@@ -173,8 +171,8 @@ int main( int argc, char* argv[] )
 	QRadioButton* b2 = new QRadioButton( "AutoOneFit", bg, "autoonefit" );
 	QObject::connect( bg, SIGNAL(clicked(int)),
 		sv, SLOT(setResizePolicySlot(int)) );
-//	sv->setResizePolicySlot(0);
-	b1->setChecked( TRUE );
+	sv->setResizePolicy( QScrollView::AutoOneFit );
+	b2->setChecked( TRUE );
 	bg->resize( bg->sizeHint() );
 	bg->show();
 
