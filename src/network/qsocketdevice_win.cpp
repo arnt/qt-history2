@@ -41,7 +41,7 @@
 // Only the new version is the correct one, so always
 // use this structure.
 struct alt_in6_addr {
-    u_char s6_addr[16];
+    u_char alt_s6_addr[16];
 };
 struct alt_sockaddr_in6 {
     short   sin6_family;            /* AF_INET6 */
@@ -355,7 +355,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	a6.sin6_family = AF_INET6;
 	a6.sin6_port = htons( port );
 	Q_IPV6ADDR tmp = addr.ip6Addr();
-	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
+	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
 
     	setFamily( Ipv6 );
 	aalen = sizeof( a6 );
@@ -379,7 +379,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	aa = (struct sockaddr *)&a4;
     }
 
-    int r = ::connect( createSocket(), aa, aalen );
+    int r = ::connect( socket(), aa, aalen );
 
     if ( r == SOCKET_ERROR )
     {
@@ -462,7 +462,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 
 	Q_IPV6ADDR tmp = address.ip6Addr();
 
-	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
+	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
 	setFamily( Ipv6 );
 
 	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(SOCKADDR_STORAGE) );
@@ -662,7 +662,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	memset( &a, 0, sizeof(a) );
 	SOCKLEN_T sz;
 	sz = sizeof( a );
-	r = ::recvfrom( createSocket(), data, maxlen, 0, (struct sockaddr *)&a, &sz );
+	r = ::recvfrom( socket(), data, maxlen, 0, (struct sockaddr *)&a, &sz );
 #if !defined(QT_NO_IPV6)
 	// Check the family type, and translate the remote address
 	// accordingly.
@@ -670,7 +670,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	if (ap->sa_family == AF_INET6) {
 	    struct alt_sockaddr_in6 *a6 = (struct alt_sockaddr_in6 *)&a;
 	    Q_IPV6ADDR tmp;
-	    memcpy( &tmp, &a6->sin6_addr.s6_addr, sizeof(tmp) );
+	    memcpy( &tmp, &a6->sin6_addr.alt_s6_addr, sizeof(tmp) );
 
 	    pp = ntohs(a6->sin6_port);
 	    pa = QHostAddress(tmp);
@@ -682,7 +682,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    pa = QHostAddress( ntohl( a4->sin_addr.s_addr ) );
 	}
     } else {
-	r = ::recv( createSocket(), data, maxlen, 0 );
+	r = ::recv( socket(), data, maxlen, 0 );
     }
     if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
@@ -757,7 +757,7 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     Q_LONG r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
-	r = ::send( createSocket(), data, ( len>64*1024 ? 64*1024 : len ), 0 );
+	r = ::send( socket(), data, ( len>64*1024 ? 64*1024 : len ), 0 );
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( WSAGetLastError() ) {
@@ -846,7 +846,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 	a6.sin6_port = htons( port );
 	Q_IPV6ADDR tmp = host.ip6Addr();
 	for ( int i = 0; i < 16; ++i )
-	    a6.sin6_addr.s6_addr[i] = tmp.c[i];
+	    a6.sin6_addr.alt_s6_addr[i] = tmp.c[i];
 
 	slen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
@@ -877,7 +877,7 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
     bool done = FALSE;
     Q_LONG r = 0;
     while ( !done ) {
-	r = ::sendto( createSocket(), data, len, 0, aa, slen );
+	r = ::sendto( socket(), data, len, 0, aa, slen );
 	done = TRUE;
 	if ( r == SOCKET_ERROR && e == NoError ) {//&& e != EAGAIN ) {
 	    switch( WSAGetLastError() ) {
@@ -947,7 +947,7 @@ void QSocketDevice::fetchConnectionParameters()
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getsockname( createSocket(), (struct sockaddr *)(&sa), &sz ) ) {
+    if ( !::getsockname( socket(), (struct sockaddr *)(&sa), &sz ) ) {
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sap = (struct sockaddr *)&sa;
 	if (sap->sa_family == AF_INET6) {
@@ -955,7 +955,7 @@ void QSocketDevice::fetchConnectionParameters()
 	    p = ntohs( sa6->sin6_port );
 	    Q_IPV6ADDR tmp;
 	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.s6_addr[i];
+		tmp.c[i] = sa6->sin6_addr.alt_s6_addr[i];
 
 	    a = QHostAddress(tmp);
 	} else
@@ -983,7 +983,7 @@ void QSocketDevice::fetchPeerConnectionParameters()
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getpeername( createSocket(), (struct sockaddr *)(&sa), &sz ) ) {
+    if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) ) {
 #if !defined (QT_NO_IPV6)
 	struct sockaddr *sa4 = (struct sockaddr *)&sa;
 	if (sa4->sa_family == AF_INET6) {
@@ -991,7 +991,7 @@ void QSocketDevice::fetchPeerConnectionParameters()
 	    p = ntohs( sa6->sin6_port );
 	    Q_IPV6ADDR tmp;
 	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.s6_addr[i];
+		tmp.c[i] = sa6->sin6_addr.alt_s6_addr[i];
 
 	    a = QHostAddress(tmp);
 	} else
