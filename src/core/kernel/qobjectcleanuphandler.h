@@ -14,7 +14,6 @@
 #ifndef QOBJECTCLEANUPHANDLER_H
 #define QOBJECTCLEANUPHANDLER_H
 
-#include "qlist.h"
 #include "qobject.h"
 
 
