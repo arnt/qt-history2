@@ -166,7 +166,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     t << endl << endl;
 
     QStringList targs;
-    targs << "clean" << "install_subdirs" << "mocables" << "uicables" << "uiclean" << "mocclean";
+    targs << "clean" << "distclean" << "install_subdirs" << "mocables" << "uicables"
+          << "uiclean" << "mocclean";
     targs += project->values("SUBDIR_TARGETS");
     for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
         t << (*targ_it) << ": qmake_all";
