@@ -16,7 +16,7 @@
 \title Qt Plugins HOWTO
 
 Qt provides a simple plugin interface which makes it easy to create
-custom database drivers, image formats, text codecs, styles and
+custom database drivers, image formats, text codecs, and styles.
 
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
