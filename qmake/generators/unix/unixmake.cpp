@@ -587,7 +587,8 @@ UnixMakefileGenerator::processPrlFiles()
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				opt = linkLib(prl, lib);
-				processed.insert(opt, (void*)1);
+				if(!opt.isNull())
+				    processed.insert(opt, (void*)1);
 				ret = TRUE;
 				break;
 			    }
@@ -608,7 +609,7 @@ UnixMakefileGenerator::processPrlFiles()
 		    if(!opt.isEmpty())
 			l_out.append(opt);
 		    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
-		} else {
+		} else if(!opt.isNull()) {
 		    QString lib = opt;
 		    if(!processed[lib] && processPrlFile(lib)) {
 		      processed.insert(lib, (void*)1);
