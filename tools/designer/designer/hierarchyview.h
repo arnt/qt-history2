@@ -129,6 +129,9 @@ private slots:
     void showRMBMenu( QListViewItem *, const QPoint & );
     void renamed( QListViewItem *i );
 
+private:
+    bool popupOpen;
+
 };
 
 

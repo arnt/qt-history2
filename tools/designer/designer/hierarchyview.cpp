@@ -554,10 +554,13 @@ FunctionList::FunctionList( QWidget *parent, FormWindow *fw )
     removeColumn( 1 );
     connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
 	     this, SLOT( renamed( QListViewItem * ) ) );
+    popupOpen = FALSE;
 }
 
 void FunctionList::setup()
 {
+    if ( popupOpen )
+	return;
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
     }
@@ -585,6 +588,8 @@ void FunctionList::setup()
 
 void FunctionList::refreshFunctions( bool doDelete )
 {
+    if ( popupOpen )
+	return;
     if ( !formWindow )
 	return;
     if ( doDelete ) {
@@ -672,7 +677,9 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	menu.insertItem( tr( "Properties..." ), PROPS );
 	menu.insertItem( tr( "Goto Implementation" ), EDIT );
 	menu.insertItem( tr( "Delete" ), REMOVE );
+	popupOpen = TRUE;
 	int res = menu.exec( pos );
+	popupOpen = FALSE;
 	if ( res == PROPS ) {
 	    EditSlots dlg( this, formWindow );
 	    dlg.setCurrentSlot( MetaDataBase::normalizeSlot( i->text( 0 ) ) );
@@ -697,7 +704,9 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
 	forceChild = TRUE;
     }
+    popupOpen = TRUE;
     int res = menu.exec( pos );
+    popupOpen = FALSE;
     if ( res == NEW_ITEM ) {
 	HierarchyItem *item = new HierarchyItem( ( !forceChild && i->parent() ) ? i->parent() : i,
 						 QString::null, QString::null, QString::null );
