@@ -890,13 +890,14 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
+    QueryDrop(grfKeyState, pdwEffect);
+
     if ( pt.x == last_pt.x && pt.y == last_pt.y &&
 	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
 	if (!acceptact)
 	    *pdwEffect = DROPEFFECT_NONE;
 	return NOERROR;
     }
-    QueryDrop(grfKeyState, pdwEffect);
 
     last_pt = pt;
     last_effect = *pdwEffect;
