@@ -109,8 +109,16 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
     if ( !f.open( IO_ReadOnly ) )
 	return 0;
 
+    return QWidgetFactory::create( &f, connector, parent, name );
+}
+
+/*!  \overload
+ */
+
+QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
+{
     QDomDocument doc;
-    if ( !doc.setContent( &f ) )
+    if ( !doc.setContent( dev ) )
 	return 0;
 
     DomTool::fixDocument( doc );
@@ -189,6 +197,13 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
 {
     widgetFactories.append( factory );
 }
+
+/*! If your form uses database aware widgets, you have to have the
+  database connections opened, which are needed by the widget. If you
+  used a Qt Designer project to design the form, the project saved a
+  description of the database connection(s) you used. You can pass
+  that description file here to open these database connections.
+*/
 
 bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
 {

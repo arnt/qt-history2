@@ -23,9 +23,10 @@ public:
     virtual ~QWidgetFactory() {}
 
     static QWidget *create( const QString &uiFile, QObject *connector = 0, QWidget *parent = 0, const char *name = 0 );
+    static QWidget *create( QIODevice *dev, QObject *connector = 0, QWidget *parent = 0, const char *name = 0 );
     static void addWidgetFactory( QWidgetFactory *factory );
     static bool openDatabaseConnections( const QString &dbFileName );
-    
+
     virtual QWidget *createWidget( const QString &className, QWidget *parent, const char *name ) const;
 
 private:
@@ -61,7 +62,7 @@ private:
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;
     QString defConnection, defTable;
-    
+
 };
 
 #endif
