@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qeventdispatcher_unix.h"
+#include <private/qeventdispatcher_unix_p.h>
 
 class QEventDispatcherX11Private;
 

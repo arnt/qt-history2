@@ -52,7 +52,7 @@ win32 {
 		kernel/qcoreapplication_win.cpp \
 		kernel/qwineventnotifier_p.cpp
 	HEADERS += \
-		kernel/qeventdispatcher_win.h \
+		kernel/qeventdispatcher_win_p.h \
 		kernel/qwineventnotifier_p.h
 }
 
@@ -68,7 +68,7 @@ unix {
 		kernel/qeventdispatcher_unix.cpp
 	HEADERS += \
 		kernel/qcrashhandler_p.h \
-		kernel/qeventdispatcher_unix.h
+		kernel/qeventdispatcher_unix_p.h
 }
 
 embedded:SOURCES += kernel/qsharedmemory_p.cpp

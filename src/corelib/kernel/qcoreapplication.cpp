@@ -31,10 +31,10 @@
 #include <qlibraryinfo.h>
 
 #ifdef Q_OS_UNIX
-#  include "qeventdispatcher_unix.h"
+#  include "qeventdispatcher_unix_p.h"
 #endif
 #ifdef Q_OS_WIN
-#  include "qeventdispatcher_win.h"
+#  include "qeventdispatcher_win_p.h"
 #endif
 
 #include <stdlib.h>

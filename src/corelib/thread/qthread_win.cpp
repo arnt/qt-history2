@@ -15,7 +15,7 @@
 #include "qthread_p.h"
 #include "qthreadstorage.h"
 
-#include "qeventdispatcher_win.h"
+#include <private/qeventdispatcher_win_p.h>
 #include <qcoreapplication.h>
 #include <qpointer.h>
 

@@ -25,9 +25,12 @@
 // We mean it.
 //
 
+#include "QtCore/qabstracteventdispatcher.h"
 #include "qabstracteventdispatcher_p.h"
 #include <qbitarray.h>
 #include <qlist.h>
+#include <sys/types.h>
+#include <sys/time.h>
 
 // internal timer info
 struct QTimerInfo;
@@ -83,6 +86,42 @@ public:
     QList<QSockNot*> sn_pending_list;
 
     bool interrupt;
+};
+
+class Q_CORE_EXPORT QEventDispatcherUNIX : public QAbstractEventDispatcher
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QEventDispatcherUNIX)
+
+public:
+    explicit QEventDispatcherUNIX(QObject *parent = 0);
+    ~QEventDispatcherUNIX();
+
+    bool processEvents(QEventLoop::ProcessEventsFlags flags);
+    bool hasPendingEvents();
+
+    void registerSocketNotifier(QSocketNotifier *notifier);
+    void unregisterSocketNotifier(QSocketNotifier *notifier);
+
+    int registerTimer(int timerInterval, QObject *object);
+    bool unregisterTimer(int timerId);
+    bool unregisterTimers(QObject *object);
+
+    void wakeUp();
+    void interrupt();
+    void flush();
+
+protected:
+    QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &dd, QObject *parent = 0);
+
+    void setSocketNotifierPending(QSocketNotifier *notifier);
+
+    int activateTimers();
+    int activateSocketNotifiers();
+
+    virtual int select(int nfds,
+                       fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+                       timeval *timeout);
 };
 
 #endif // QEVENTDISPATCHER_UNIX_P_H

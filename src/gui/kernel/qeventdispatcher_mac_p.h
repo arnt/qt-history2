@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qeventdispatcher_unix.h"
+#include <private/qeventdispatcher_unix_p.h>
 #include "qwindowdefs.h"
 #include <private/qt_mac_p.h>
 

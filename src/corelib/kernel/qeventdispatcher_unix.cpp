@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-#include "qeventdispatcher_unix.h"
 
 #include "qbitarray.h"
 #include "qcoreapplication.h"

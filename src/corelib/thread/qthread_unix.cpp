@@ -15,7 +15,7 @@
 
 #include "qplatformdefs.h"
 
-#include "qeventdispatcher_unix.h"
+#include <private/qeventdispatcher_unix_p.h>
 #include "qthreadstorage.h"
 
 #include "qthread_p.h"

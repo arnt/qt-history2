@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qeventdispatcher_win.h"
+#include "qeventdispatcher_win_p.h"
 
 #include "qcoreapplication.h"
 #include "qhash.h"

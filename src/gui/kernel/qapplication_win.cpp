@@ -14,7 +14,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qeventdispatcher_win.h"
+#include <private/qeventdispatcher_win_p.h>
 #include "qeventloop.h"
 #include "qclipboard.h"
 #include "qcursor.h"
