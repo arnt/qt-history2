@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#53 $
 **
 ** Implementation of QRegExp class
 **
@@ -830,9 +830,8 @@ void QRegExp::compile()
 
 int QString::find( const QRegExp &rx, int index ) const
 {
-    char* a = ascii();
+    const char* a = ascii();
     int r = (uint)index >= length() ? -1 : rx.match( a, index );
-    delete [] a;
     return r;
 }
 
@@ -848,17 +847,15 @@ int QString::find( const QRegExp &rx, int index ) const
 
 int QString::findRev( const QRegExp &rx, int index ) const
 {
-    char* a = ascii();
+    const char* a = ascii();
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( length() ) {
 	    index = strlen( a );
 	} else {				// empty string
-	    delete [] a;
 	    return -1;
 	}
     }
     else if ( (uint)index >= length() ) {		// bad index
-	delete [] a;
 	return -1;
     }
     while( index >= 0 ) {
@@ -866,7 +863,6 @@ int QString::findRev( const QRegExp &rx, int index ) const
 	    return index;
 	index--;
     }
-    delete [] a;
     return -1;
 }
 
@@ -887,7 +883,7 @@ int QString::contains( const QRegExp &rx ) const
 {
     if ( isEmpty() )
 	return 0;
-    char* a = ascii();
+    const char* a = ascii();
     int count = 0;
     int index = -1;
     int len = length();
@@ -897,7 +893,6 @@ int QString::contains( const QRegExp &rx ) const
 	    break;
 	count++;
     }
-    delete [] a;
     return count;
 }
 
@@ -927,7 +922,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     int index = 0;
     int slen  = strlen( str );
     int len;
-    char * a=ascii();
+    const char * a=ascii();
     while ( index < (int)length()-1 ) {
 	if ( (index = rx.match(a, index, &len)) >= 0 ) {
 	    remove( index, len );
@@ -937,7 +932,6 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	else
 	    break;
     }
-    delete [] a;
     return *this;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#116 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#117 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -629,11 +629,15 @@ QString::~QString()
 
 void QString::real_detach()
 {
-    int newlen = d->len;
-    ushort * nd = new ushort[newlen];
-    memcpy( nd, d->unicode, sizeof(ushort)*newlen );
-    deref();
-    d = new Data(nd,newlen,newlen);
+    if ( d->count != 1 ) {
+	int newlen = d->len;
+	ushort * nd = new ushort[newlen];
+	memcpy( nd, d->unicode, sizeof(ushort)*newlen );
+	deref();
+	d = new Data(nd,newlen,newlen);
+    } else {
+	d->dirtyascii = 1;
+    }
 }
 
 void QString::deref()
@@ -1627,11 +1631,10 @@ uint QString::toUInt( bool *ok ) const
 double QString::toDouble( bool *ok ) const
 {
     char *end;
-    char *a = ascii();
+    const char *a = ascii();
     double val = strtod( a ? a : "", &end );
     if ( ok )
 	*ok = ( a && *a && ( end == 0 || *end == '\0' ) );
-    delete [] a;
     return val;
 }
 
@@ -1851,11 +1854,20 @@ QString &QString::operator+=( ushort c )
 }
 
 /*!
-  Caller must delete [] the result.
+  Result remains valid so long as one unmodified
+  copy of the string exists, or the function is not called again.
 */
-char* QString::ascii() const
+const char* QString::ascii() const
 {
-    return unicodeToAscii( d->unicode, d->len );
+    if ( d->ascii ) {
+	if ( d->dirtyascii )
+	    delete [] d->ascii;
+	else
+	    return d->ascii;
+    }
+    d->ascii = unicodeToAscii( d->unicode, d->len );
+    d->dirtyascii = 0;
+    return d->ascii;
 }
 
 /*!
@@ -1866,27 +1878,10 @@ char* QString::ascii() const
 */
 
 /*!
-  Warning - result will be deleted after 1000 calls to this function.
+  \fn QString::operator const char *() const
+
+  Returns ascii().
 */
-QString::operator const char *() const
-{
-    char* a = ascii();
-
-    // ###### make ring global and cleanup at termination.
-    static const int ringsize=1000;
-    static char* ring[ringsize];
-    static int ncalls=-1;
-    if ( ncalls<0 ) {
-	for (int i=0; i<ringsize; i++)
-	    ring[i]=0;
-    }
-    ncalls = (ncalls+1)%ringsize;
-    if ( ring[ncalls] )
-	delete [] ring[ncalls];
-    ring[ncalls] = a;
-
-    return a;
-}
 
 /*!
   \fn ushort QString::at( uint ) const

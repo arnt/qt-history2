@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#57 $
+** $Id: //depot/qt/main/src/tools/qstring.h#58 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -233,7 +233,6 @@ public:
 
     void	setExpand( uint index, ushort c );
 
-		operator const char *() const;
     QString    &operator+=( const QString&str );
     QString    &operator+=( ushort c );
 
@@ -244,7 +243,8 @@ public:
     ushort& operator[]( int i ) { return at(i); }
 
     const ushort* unicode() const { return d->unicode; }
-    char* ascii() const;
+    const char* ascii() const;
+		operator const char *() const { return ascii(); }
 
     static ushort* asciiToUnicode( const char*, uint& len );
     static ushort* asciiToUnicode( const QByteArray&, uint& len );
@@ -253,7 +253,7 @@ public:
     friend QDataStream &operator>>( QDataStream &, QString & );
 
 #ifndef QT_NO_COMPAT
-    const char* data() const { return *this; }
+    const char* data() const { return ascii(); }
     void detach() { }
     uint size() const;
 #endif
@@ -263,12 +263,17 @@ private:
     void real_detach();
 
     struct Data : public QShared {
-	Data() : unicode(0), len(0), maxl(0) { }
-	Data(ushort *u, uint l, uint m) : unicode(u), len(l), maxl(m) { }
-	~Data() { if ( unicode ) delete [] unicode; }
+	Data() :
+	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { }
+	Data(ushort *u, uint l, uint m) :
+	    unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
+	~Data() { if ( unicode ) delete [] unicode;
+		  if ( ascii ) delete [] ascii; }
 	ushort *unicode;
+	char *ascii;
 	uint len;
-	uint maxl;
+	uint maxl:30;
+	uint dirtyascii:1;
     };
     Data *d;
     static Data shared_empty;
