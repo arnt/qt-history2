@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#54 $
 **
 ** Implementation of QMainWindow class
 **
@@ -658,6 +658,7 @@ void QMainWindow::setUpLayout()
     d->timer->stop();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
+    d->tll->setResizeMode( QLayout::FreeResize );//############# we need floating layout with height for width here!!!!
 
     if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) )
 	d->tll->setMenuBar( d->mb );
