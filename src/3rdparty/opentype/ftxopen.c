@@ -963,7 +963,7 @@
   }
 
 
-  static inline FT_Error  Coverage_Index( TTO_Coverage*  c,
+  FT_Error  Coverage_Index( TTO_Coverage*  c,
                             FT_UShort      glyphID,
                             FT_UShort*     index )
   {
