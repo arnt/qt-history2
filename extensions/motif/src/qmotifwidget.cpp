@@ -461,9 +461,13 @@ void qmotif_widget_shell_change_managed( Widget w )
 	     widget->d->shell->core.height ),
 	d = widget->geometry();
     if ( d != r ) {
-	if ( ! widget->isTopLevel() && widget->parentWidget() &&
-	     widget->parentWidget()->layout() != 0 ) {
-	    // the widget is most likely resized by a layout
+	// ### perhaps this should be a property that says "the
+	// ### initial size of the QMotifWidget should be taken from
+	// ### the motif widget, otherwise use the size from the
+	// ### parent widget (i.e. we are in a layout)"
+	if ((! widget->isTopLevel() && widget->parentWidget() && widget->parentWidget()->layout())
+	    || widget->testWState(Qt::WState_Resized)) {
+	    // the widget is most likely resized a) by a layout or b) explicitly
 	    XtMoveWidget( w, d.x(), d.y() );
 	    XtResizeWidget( w, d.width(), d.height(), 0 );
 	    widget->setGeometry( d );
