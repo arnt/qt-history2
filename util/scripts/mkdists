@@ -1024,7 +1024,7 @@ for plat in mac win x11 qnx6 embedded; do
 	       fi
 
 	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
-	           -e "s,%UNPACK_NAME%,$pack_name,g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
+	           -e "s,%UNPACK_NAME%,$(basename $pack_name),g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
 		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
 		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
 	       if [ "$TYPE" = "snapshot" ]; then
