@@ -1981,17 +1981,17 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
 	    break;
 #endif
-
-	case WM_SETFOCUS:
-	    if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
-		widget->setFocus();
-	    result = FALSE;
-	    break;
-
 	case WM_KILLFOCUS:
-	    if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
-		widget->clearFocus();
-	    result = FALSE;
+	    if ( !QWidget::find( (HWND)wParam ) ) { // we don't get focus, so unset it now
+		if ( ::IsChild( widget->winId(), ::GetFocus() ) )
+		    result = FALSE;
+		else {
+		    widget->clearFocus();
+		    result = TRUE;
+		}
+	    } else {
+		result = FALSE;
+	    }
 	    break;
 
 	case WM_THEMECHANGED:
