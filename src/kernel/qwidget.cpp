@@ -825,6 +825,7 @@ QWidget::~QWidget()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
+	    childObjects->removeRef( obj );
 	    delete obj;
 	}
 	delete childObjects;
