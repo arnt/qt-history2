@@ -193,8 +193,9 @@
 
 // add comments about delete, ok and apply
 
-struct QTabDialog::QTabPrivate
+class QTabDialog::QTabPrivate
 {
+public:
     QTabPrivate();
 
     QTabWidget* tw;

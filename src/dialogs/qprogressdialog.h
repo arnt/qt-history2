@@ -116,7 +116,7 @@ private:
     void	   layout();
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;
-    struct QProgressData;
+    class QProgressData;
     QProgressData *d;
     QTimer	  *forceTimer;
 

@@ -61,8 +61,9 @@ static const int margin_tb   = 10;
 static const int spacing     = 4;
 
 
-struct QProgressDialog::QProgressData
+class QProgressDialog::QProgressData
 {
+public:
     QProgressData( QProgressDialog* that, QWidget* parent,
 		   const QString& labelText,
 		   int totalSteps ) :

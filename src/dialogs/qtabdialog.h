@@ -130,7 +130,7 @@ private:
     void setSizes();
     void setUpLayout();
 
-    struct QTabPrivate;
+    class QTabPrivate;
     QTabPrivate *d;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -45,7 +45,6 @@
 
 #ifndef QT_NO_WIZARD
 
-class QWizard;
 class QHBoxLayout;
 
 class Q_EXPORT QWizard : public QDialog
