@@ -1269,11 +1269,14 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     int section = mapToSection( index );
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
-			       colorGroup(), QStyle::Style_Raised );
+			       colorGroup(), QStyle::Style_Raised |
+			       (isEnabled() ? QStyle::Style_Enabled : 0));
 	return;
     }
 
     QStyle::SFlags flags = QStyle::Style_Raised;
+    if(isEnabled())
+	flags |= QStyle::Style_Enabled;
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
 	    flags = QStyle::Style_Down;
@@ -1387,8 +1390,16 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    tw = fr.width() - tw;
 	    ew = fr.width() - ew - tw;
 	}
-	style().drawPrimitive( QStyle::PE_HeaderArrow, p, QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
-			       colorGroup(), d->sortDirection ? QStyle::Style_Down : QStyle::Style_Up);
+	QStyle::SFlags flags = QStyle::Style_Default;
+	if(isEnabled())
+	    flags |= QStyle::Style_Enabled;
+	if(d->sortDirection)
+	    flags |= QStyle::Style_Down;
+	else
+	    flags |= QStyle::Style_Up;
+	style().drawPrimitive( QStyle::PE_HeaderArrow, p, 
+			       QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
+			       colorGroup(), flags );
     }
 }
 

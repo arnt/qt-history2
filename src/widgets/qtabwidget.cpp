@@ -169,6 +169,8 @@ protected:
 		flags |= QStyle::Style_Top;
 	    if ( t->tabPosition() == QTabWidget::Bottom )
 		flags |= QStyle::Style_Bottom;
+	    if(parentWidget()->isEnabled())
+		flags |= QStyle::Style_Enabled;
 
 	    style().drawPrimitive( QStyle::PE_TabBarBase, &p, rect(),
 				   colorGroup(), flags );

@@ -40,11 +40,11 @@
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qscrollbar.h>
-#include <qslider.h>
 #include <qt_mac.h>
 #include <qtabbar.h>
 #include "private/qtitlebar_p.h"
 #include <Appearance.h>
+#include <qbitmap.h>
 
 #include <qpainter.h>
 class QMacPainter : public QPainter
@@ -71,6 +71,10 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     return &r;
 }
 
+#define private public //ugh, what I'll do..
+#include <qslider.h>
+#undef private
+
 static int mac_count = 0;
 QMacStyle::QMacStyle(  )  : QAquaStyle()
 {
@@ -93,17 +97,25 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 			       const QStyleOption& opt ) const
 {
     ThemeDrawState tds = 0;
-    if(!qAquaActive(cg))
-	tds |= kThemeStateInactive;
-    else
+    if(flags & Style_Enabled)
 	tds |= kThemeStateActive;
+    else
+	tds |= kThemeStateInactive;
     if(flags & Style_Down)
 	tds = kThemeStatePressed;
 
     switch(pe) {
+    case PE_TabBarBase: 
+	DrawThemeTabPane(qt_glb_mac_rect(r, p->device()), tds);
+	break; 
+    case PE_Splitter:
+	DrawThemeSeparator(qt_glb_mac_rect(r, p->device()), tds & ~(kThemeStatePressed));
+	break;
     case PE_HeaderArrow: 
     case PE_HeaderSection: {
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+	if(flags & Style_Down)
+	    info.state |= kThemeStatePressed;
 	if(flags & Style_Sunken)
 	    info.value = kThemeButtonOn;
 	if(pe == PE_HeaderArrow && (flags & Style_Up))
@@ -118,6 +130,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	if(pe == PE_ExclusiveIndicator) {
+	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->noop();
 	    DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeRadioButton, 
 			    &info, NULL, NULL, NULL, 0);
@@ -139,6 +152,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	else if(flags & Style_On)
 	    info.value = kThemeButtonOn;
 	if(pe == PE_Indicator) {
+	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->noop();
 	    DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeCheckBox,
 			    &info, NULL, NULL, NULL, 0);
@@ -168,10 +182,10 @@ void QMacStyle::drawControl( ControlElement element,
 				 const QStyleOption& opt ) const
 {
     ThemeDrawState tds = 0;
-    if(!qAquaActive(cg))
-	tds |= kThemeStateInactive;
-    else
+    if(how & Style_Enabled)
 	tds |= kThemeStateActive;
+    else
+	tds |= kThemeStateInactive;
     if(how & Style_Down)
 	tds = kThemeStatePressed;
     
@@ -180,13 +194,19 @@ void QMacStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	if(how & Style_Sunken)
-	    tds = kThemeStatePressed;
+	    tds |= kThemeStatePressed;
 	QTabBar * tb = (QTabBar *) widget;
 	ThemeTabStyle tts = kThemeTabNonFront;
-	if(how & Style_Selected) 
-	    tts = kThemeTabFront;
-	else if((how & Style_Sunken) && (how & Style_MouseOver)) 
+	if(how & Style_Selected) {
+	    if(!(how & Style_Enabled))
+		tts = kThemeTabFrontInactive;
+	    else
+		tts = kThemeTabFront;
+	} else if(!(how & Style_Enabled)) {
 	    tts = kThemeTabNonFrontPressed;
+	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
+	    tts = kThemeTabNonFrontPressed;
+	}
 	ThemeTabDirection ttd = kThemeTabNorth;
 	if( tb->shape() == QTabBar::RoundedBelow )
 	    ttd = kThemeTabSouth;
@@ -214,10 +234,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QStyleOption& opt ) const
 {
     ThemeDrawState tds = 0;
-    if(!qAquaActive(cg))
-	tds |= kThemeStateInactive;
-    else
+    if(flags & Style_Enabled)
 	tds |= kThemeStateActive;
+    else
+	tds |= kThemeStateInactive;
 
     switch(ctrl) {
     case CC_SpinWidget: {
@@ -319,7 +339,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p->device());
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
-	ttdi.value = sldr->value();
+	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
@@ -355,6 +375,12 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_TabBarTabHSpace:
+	ret = kThemeLargeTabHeight;
+	break;
+    case PM_TabBarBaseOverlap:
+	ret = kThemeTabPaneOverlap;
+	break;
     case PM_IndicatorHeight:
 	GetThemeMetric(kThemeMetricCheckBoxHeight, &ret);
 	break;
@@ -426,7 +452,7 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
-	ttdi.value = sldr->value();
+	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
