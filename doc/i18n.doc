@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.30 1999/07/13 13:08:14 warwick Exp $
+** $Id: i18n.doc,v 1.31 1999/07/13 13:23:58 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -400,9 +400,8 @@ The current state of activity is:
 	<a href=http://www.mizi.com/>hanIM</a>
        	is the tested input method.
  <dt><b>Big5</b>
-  <dd>Qt contains a Big5 codec developed by Ming Che-Chuang, but we have
-	not tested this significantly; we are not aware of an XIM-compliant
-	Chinese input method for X11.
+  <dd>Qt contains a Big5 codec developed by Ming Che-Chuang.
+	Testing is underway with the xcin (2.5.x) XIM server.
  <dt><b>eucTW</b>
   <dd>Under external development.
 </dl>
