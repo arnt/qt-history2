@@ -27,7 +27,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 
-// NOT REVISED
+// BEING REVISED: paul
 
 /*!
   \relates QPainter
