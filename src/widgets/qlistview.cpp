@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#32 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#32 $");
 
 
 const int Unsorted = 32767;
@@ -1274,7 +1274,7 @@ QListView * QListViewItem::listView() const
   screen.  This is usually the item's closest older sibling, but may
   also be its parent or its next older sibling's youngest child, or
   something else if anyoftheabove->height() returns 0.
-  
+
   This function assumes that all parents of this item are open
   (ie. that this item is visible, or can be made visible by
   scrolling).
@@ -1311,7 +1311,7 @@ QListViewItem * QListViewItem::itemAbove()
   its next younger sibling, its parent's next younger sibling,
   granparent's etc., or something else if anyoftheabove->height()
   returns 0.
-  
+
   This function assumes that all parents of this item are open
   (ie. that this item is visible, or can be made visible by
   scrolling).
@@ -1321,7 +1321,7 @@ QListViewItem * QListViewItem::itemAbove()
 QListViewItem * QListViewItem::itemBelow()
 {
     QListViewItem * c = 0;
-    if ( childItem ) {
+    if ( isOpen() && childItem ) {
 	c = childItem;
     } else if ( siblingItem ) {
 	c = siblingItem;
@@ -1634,16 +1634,20 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	i = itemAt( QPoint( 0, contentsY() ) );
 	break;
     case Key_Right:
-	if ( !i->isOpen() && (i->isExpandable() || i->children()) ) {
+	if ( i->isOpen() && i->childItem ) {
+	    i = i->childItem;
+	} else if (  !i->isOpen() && (i->isExpandable() || i->children()) ) {
 	    i->setOpen( TRUE );
 	    triggerUpdate();
 	}
-	if ( i->isOpen() && i->childItem )
-	    i = i->childItem;
 	break;
     case Key_Left:
-	if ( i->parentItem && i->parentItem != d->r )
+	if ( i->isOpen() && i->childItem ) {
+	    i->setOpen( FALSE );
+	    triggerUpdate();
+	} else if ( i->parentItem && i->parentItem != d->r ) {
 	    i = i->parentItem;
+	}
 	break;
     default:
 	e->ignore();
@@ -1674,7 +1678,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
   the listview's own, much larger, coordinate system.
 
   itemAt() returns 0 if there is no such item.
-  
+
   \sa itemPos() itemRect()
 */
 
@@ -1697,7 +1701,7 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
   coordinate system.  This functions is normally much slower than
   itemAt(), but it works for all items, while itemAt() normally works
   only for items on the screen.
-  
+
   \sa itemAt() itemRect()
 */
 
