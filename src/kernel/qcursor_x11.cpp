@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#69 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -159,7 +159,29 @@ QCursor::QCursor()
 
 
 /*!
-  Constructs a cursor with the specified \e shape.
+  Constructs a cursor with the specified \a shape.
+
+  \a shape can be one of
+  <ul>
+  <li> ArrowCursor - standard arrow cursor
+  <li> UpArrowCursor - upwards arrow
+  <li> CrossCursor - crosshair
+  <li> WaitCursor - hourglass/watch
+  <li> IbeamCursor - ibeam/text entry
+  <li> SizeVerCursor - vertical resize
+  <li> SizeHorCursor - horizontal resize
+  <li> SizeBDiagCursor - diagonal resize (/)
+  <li> SizeFDiagCursor - diagonal resize (\)
+  <li> SizeAllCursor - all directions resize
+  <li> BlankCursor - blank/invisible cursor
+  <li> SplitVCursor - vertical splitting
+  <li> SplitHCursor - horziontal splitting
+  <li> PointingHandCursor - a pointing hand
+  <li> BitmapCursor - userdefined bitmap cursor
+  </ul>
+
+  These correspond to the <a href="#cursors">predefined</a>
+  global QCursor objects.
 */
 
 QCursor::QCursor( int shape )
@@ -207,7 +229,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 
 
 /*!
-  Constructs a copy of the cursor \e c.
+  Constructs a copy of the cursor \a c.
 */
 
 QCursor::QCursor( const QCursor &c )
@@ -230,7 +252,7 @@ QCursor::~QCursor()
 
 
 /*!
-  Assigns \e c to this cursor and returns a reference to this cursor.
+  Assigns \a c to this cursor and returns a reference to this cursor.
 */
 
 QCursor &QCursor::operator=( const QCursor &c )
@@ -246,8 +268,29 @@ QCursor &QCursor::operator=( const QCursor &c )
 
 
 /*!
-  Returns the cursor shape identifer. If a custom bitmap has been set,
-  \c BitmapCursor is returned.
+  Returns the cursor shape identifer. The return value is one of
+  following values (casted to an int)
+
+  <ul>
+  <li> ArrowCursor - standard arrow cursor
+  <li> UpArrowCursor - upwards arrow
+  <li> CrossCursor - crosshair
+  <li> WaitCursor - hourglass/watch
+  <li> IbeamCursor - ibeam/text entry
+  <li> SizeVerCursor - vertical resize
+  <li> SizeHorCursor - horizontal resize
+  <li> SizeBDiagCursor - diagonal resize (/)
+  <li> SizeFDiagCursor - diagonal resize (\)
+  <li> SizeAllCursor - all directions resize
+  <li> BlankCursor - blank/invisible cursor
+  <li> SplitVCursor - vertical splitting
+  <li> SplitHCursor - horziontal splitting
+  <li> PointingHandCursor - a pointing hand
+  <li> BitmapCursor - userdefined bitmap cursor
+  </ul>
+
+  These correspond to the <a href="#cursors">predefined</a>
+  global QCursor objects.
 
   \sa setShape()
 */
@@ -260,13 +303,28 @@ int QCursor::shape() const
 }
 
 /*!
-  Sets the cursor to the shape identified by \e shape.
+  Sets the cursor to the shape identified by \a shape.
 
-  The allowed shapes are: \c ArrowCursor, \c UpArrowCursor, \c
-  CrossCursor, \c WaitCursor, \c IbeamCursor, \c SizeVerCursor, \c
-  SizeHorCursor, \c SizeBDiagCursor, \c SizeFDiagCursor, \c
-  SizeAllCursor, \c BlankCursor. These correspond to the <a
-  href="#cursors">predefined</a> global QCursor objects.
+  <ul>
+  <li> ArrowCursor - standard arrow cursor
+  <li> UpArrowCursor - upwards arrow
+  <li> CrossCursor - crosshair
+  <li> WaitCursor - hourglass/watch
+  <li> IbeamCursor - ibeam/text entry
+  <li> SizeVerCursor - vertical resize
+  <li> SizeHorCursor - horizontal resize
+  <li> SizeBDiagCursor - diagonal resize (/)
+  <li> SizeFDiagCursor - diagonal resize (\)
+  <li> SizeAllCursor - all directions resize
+  <li> BlankCursor - blank/invisible cursor
+  <li> SplitVCursor - vertical splitting
+  <li> SplitHCursor - horziontal splitting
+  <li> PointingHandCursor - a pointing hand
+  <li> BitmapCursor - userdefined bitmap cursor
+  </ul>
+
+  These correspond to the <a href="#cursors">predefined</a>
+  global QCursor objects.
 
   \sa shape()
 */
@@ -358,7 +416,7 @@ QPoint QCursor::pos()
 }
 
 /*!
-  Moves the cursor (hot spot) to the global screen position \e (x,y).
+  Moves the cursor (hot spot) to the global screen position \a x and \a y.
 
   You can call QWidget::mapToGlobal() to translate widget coordinates
   to global screen coordinates.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#35 $
 **
 ** Implementation of QCursor class
 **
@@ -43,31 +43,39 @@
   cursor.
 
   Qt has a number of standard cursor shapes, but you can also make
-  custom cursor shapes based on a \link QBitmap bitmap \endlink, a
-  mask and a hotspot.
+  custom cursor shapes based on a QBitmap, a mask and a hotspot.
 
   To associate a cursor with a widget, use QWidget::setCursor().
   To associate a cursor with all widgets (maybe for a short period of time),
   use QApplication::setOverrideCursor().
 
-  The <a name=cursors>predefined cursor</a> objects are:
+  To set a cursor shape use QCursor::setShape() or use the QCursor constructor
+  which takes the shape as argument, or use one of the \e predefined cursors:
+  
   <ul>
-  <li> arrowCursor : standard arrow cursor
-  <li> upArrowCursor : upwards arrow
-  <li> crossCursor : crosshair
-  <li> waitCursor : hourglass/watch
-  <li> ibeamCursor : ibeam/text entry
-  <li> sizeVerCursor : vertical resize
-  <li> sizeHorCursor : horizontal resize
-  <li> sizeBDiagCursor : diagonal resize (/)
-  <li> sizeFDiagCursor : diagonal resize (\)
-  <li> sizeAllCursor : all directions resize
-  <li> blankCursor : blank/invisible cursor
-  <li> splitVCursor :vertical splitting
-  <li> splitHCursor :horziontal splitting
-  <li> pointingHandCursor : a pointing hand
+  <li> arrowCursor - standard arrow cursor
+  <li> upArrowCursor - upwards arrow
+  <li> crossCursor - crosshair
+  <li> waitCursor - hourglass/watch
+  <li> ibeamCursor - ibeam/text entry
+  <li> sizeVerCursor - vertical resize
+  <li> sizeHorCursor - horizontal resize
+  <li> sizeBDiagCursor - diagonal resize (/)
+  <li> sizeFDiagCursor - diagonal resize (\)
+  <li> sizeAllCursor - all directions resize
+  <li> blankCursor - blank/invisible cursor
+  <li> splitVCursor - vertical splitting
+  <li> splitHCursor - horziontal splitting
+  <li> pointingHandCursor - a pointing hand
   </ul>
 
+  If you want to create a cursor with an own shape, use either the QCursor
+  constructor which takes a a bitmap and a mask or the constructor which
+  takes a pixmap as arguments.
+  
+  To set or get the position of the mouse cursor use the static methods
+  QCursor::pos() and QCursor::setPos().
+  
   \sa QWidget
   <a href="guibooks.html#fowler">GUI Design Handbook: Cursors.</a>
 */
@@ -79,7 +87,7 @@
 
 /*!
   \relates QCursor
-  Writes a cursor to the stream.
+  Writes the cursor \a c to the stream \a s.
 */
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
@@ -94,7 +102,7 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
 
 /*!
   \relates QCursor
-  Reads a cursor from the stream.
+  Reads a cursor from the stream \a s and sets \a c to the read data.
 */
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
@@ -116,13 +124,13 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 /*!
   Constructs a custom pixmap cursor.
 
-  \arg \e pixmap is the image
-	    (usually it should have a \link QPixmap::setMask() mask\endlink)
-  \arg \e hotX and
-  \arg \e hotY define the hot spot of this cursor.
+  \a pixmap is the image
+	    (usually it should have a mask (set using QPixmap::setMask())
+  \a hotX and
+  \a hotY define the hot spot of this cursor.
 
-  If \e hotX is negative, it is set to the pixmap().width()/2.
-  If \e hotY is negative, it is set to the pixmap().height()/2.
+  If \a hotX is negative, it is set to the pixmap().width()/2.
+  If \a hotY is negative, it is set to the pixmap().height()/2.
 
   Allowed cursor sizes depend on the display hardware (or the underlying
   window system). We recommend using 32x32 cursors, because this size
@@ -130,6 +138,8 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
   and 64x64 cursors.
 
   Currently, only black-and-white pixmaps can be used.
+  
+  \sa QPixmap::QPixmap(), QPixmap::setMask()
 */
 
 QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
@@ -151,15 +161,15 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
 /*!
   Constructs a custom bitmap cursor.
 
-  \arg \e bitmap and
-  \arg \e mask make up the bitmap.
-  \arg \e hotX and
-  \arg \e hotY define the hot spot of this cursor.
+  \a bitmap and
+  \a mask make up the bitmap.
+  \a hotX and
+  \a hotY define the hot spot of this cursor.
 
-  If \e hotX is negative, it is set to the bitmap().width()/2.
-  If \e hotY is negative, it is set to the bitmap().height()/2.
+  If \a hotX is negative, it is set to the bitmap().width()/2.
+  If \a hotY is negative, it is set to the bitmap().height()/2.
 
-  The cursor \e bitmap (B) and \e mask (M) bits are combined this way:
+  The cursor \a bitmap (B) and \a mask (M) bits are combined this way:
   <ol>
   <li> B=1 and M=1 gives black.
   <li> B=0 and M=1 gives white.
@@ -174,6 +184,8 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
   window system). We recommend using 32x32 cursors, because this size
   is supported on all platforms. Some platforms also support 16x16, 48x48
   and 64x64 cursors.
+  
+  \sa QBitmap::QBitmap(), QBitmap::setMask()
 */
 
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
