@@ -147,7 +147,10 @@ QPrinter:
 
 QRect:
 ------
-  move() is obsolete, use translate() instead.
+  move() is obsolete, use moveBy() instead.
+  setTopLeft(), setTopRight(), setBottomLeft(), setBottomRight() and
+  setCenter() is obsolete, use moveTopLeft(), moveTopRight(),
+  moveBottomLeft(), moveBottomRight() and moveCenter() instead.
 
 
 QRegion:
