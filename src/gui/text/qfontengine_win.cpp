@@ -708,7 +708,7 @@ QFontEngineMultiWin::QFontEngineMultiWin(QFontEngineWin *first, const QStringLis
 {
     ttf = false;
     engines[0] = first;
-    ++first->ref;
+    first->ref.ref();
 }
 
 void QFontEngineMultiWin::loadEngine(int at)
@@ -736,7 +736,7 @@ void QFontEngineMultiWin::loadEngine(int at)
         stockFont = true;
     }
     engines[at] = new QFontEngineWin(fam, hfont, stockFont, lf);
-    ++engines[at]->ref;
+    engines[at]->ref.ref();
 }
 
 

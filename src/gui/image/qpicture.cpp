@@ -127,7 +127,7 @@ QPicture::QPicture(int formatVersion)
 QPicture::QPicture(const QPicture &pic)
     : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice), d_ptr(pic.d_ptr)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*! \internal */
@@ -143,7 +143,7 @@ QPicture::QPicture(QPicturePrivate &dptr)
 */
 QPicture::~QPicture()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -769,7 +769,7 @@ void QPicture::detach_helper()
     x->formatMinor = d->formatMinor;
     x->brect = boundingRect();
     x = qAtomicSetPtr(&d_ptr, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 

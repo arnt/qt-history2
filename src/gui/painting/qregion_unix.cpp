@@ -2171,7 +2171,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 QRegion::QRegion()
     : d(&shared_empty)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -2188,7 +2188,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
 {
     if (r.isEmpty()) {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     } else {
         d = new QRegionData;
         d->ref.init(1);
@@ -2236,7 +2236,7 @@ QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
                                   fillRule == Qt::WindingFill ? WindingRule : EvenOddRule);
     } else {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     }
 }
 
@@ -2248,7 +2248,7 @@ QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
 QRegion::QRegion(const QRegion &r)
 {
     d = r.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 
@@ -2266,7 +2266,7 @@ QRegion::QRegion(const QBitmap &bm)
 {
     if (bm.isNull()) {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     } else {
         d = new QRegionData;
         d->ref.init(1);
@@ -2301,7 +2301,7 @@ void QRegion::cleanUp(QRegion::QRegionData *x)
 
 QRegion::~QRegion()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         cleanUp(d);
 }
 
@@ -2313,9 +2313,9 @@ QRegion::~QRegion()
 QRegion &QRegion::operator=(const QRegion &r)
 {
     QRegionData *x = r.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanUp(x);
     return *this;
 }
@@ -2343,7 +2343,7 @@ QRegion QRegion::copy() const
     else
         x->qt_rgn = new QRegionPrivate;
     x = qAtomicSetPtr(&r.d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanUp(x);
     return r;
 }

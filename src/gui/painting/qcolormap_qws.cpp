@@ -20,11 +20,9 @@
 class QColormapPrivate
 {
 public:
-    QColormapPrivate()
-        : mode(QColormap::Direct), depth(0), numcolors(0)
-    { ref = 0; }
-    ~QColormapPrivate()
-    {}
+    inline QColormapPrivate()
+        : ref(0), mode(QColormap::Direct), depth(0), numcolors(0)
+    { }
 
     QAtomic ref;
 
@@ -63,15 +61,15 @@ QColormap QColormap::instance(int /*screen*/)
 
 QColormap::QColormap()
     : d(screenMap)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 QColormap::QColormap(const QColormap &colormap)
     :d (colormap.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 QColormap::~QColormap()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -53,11 +53,11 @@ class QVector
     union { QVectorData *p; QVectorTypedData<T> *d; };
 
 public:
-    inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
+    inline QVector() : p(&QVectorData::shared_null) { d->ref.ref(); }
     explicit QVector(int size);
     QVector(int size, const T &t);
-    inline QVector(const QVector &v) : d(v.d) { ++d->ref; if (!d->sharable) detach_helper(); }
-    inline ~QVector() { if (!d) return; if (!--d->ref) free(d); }
+    inline QVector(const QVector &v) : d(v.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
+    inline ~QVector() { if (!d) return; if (!d->ref.deref()) free(d); }
     QVector &operator=(const QVector &v);
     bool operator==(const QVector &v) const;
     inline bool operator!=(const QVector &v) const { return !(*this == v); }
@@ -170,7 +170,7 @@ public:
     inline std::vector<T> toStdVector() const
     { std::vector<T> tmp; qCopy(constBegin(), constEnd(), std::back_inserter(tmp)); return tmp; }
 #endif
-    
+
 private:
     void detach_helper();
     QVectorData *malloc(int alloc);
@@ -236,9 +236,9 @@ template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {
     typename QVector::Data *x = v.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         free(x);
     if (!d->sharable)
         detach_helper();
@@ -364,7 +364,7 @@ void QVector<T>::realloc(int size, int alloc)
     x.d->alloc = alloc;
     if (d != x.d) {
         x.d = qAtomicSetPtr(&d, x.d);
-        if (!--x.d->ref)
+        if (!x.d->ref.deref())
             free(x.d);
     }
 }

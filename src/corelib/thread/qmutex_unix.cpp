@@ -186,7 +186,7 @@ void QMutex::lock()
     void *self = (void *) pthread_self();
     void *none = 0;
 
-    ++d->waiters;
+    d->waiters.ref();
     if (!d->owner.testAndSet(none, self)) {
         if (!d->recursive || d->owner != self) {
             if (d->owner == self) {
@@ -200,7 +200,7 @@ void QMutex::lock()
             report_error(pthread_mutex_unlock(&d->mutex), "QMutex::lock()", "mutex unlock");
         }
     }
-    --d->waiters;
+    d->waiters.deref();
     ++d->count;
 }
 

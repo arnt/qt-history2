@@ -47,7 +47,7 @@ QListData::Data *QListData::detach()
         x->begin = x->end = 0;
 
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         return x;
     return 0;
 }

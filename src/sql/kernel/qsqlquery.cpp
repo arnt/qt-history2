@@ -38,8 +38,9 @@ public:
 
 QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 {
+    // ### this is not thread safe... consider using Q_GLOBAL_STATIC instead -Brad
     static QSqlQueryPrivate null(0);
-    ++null.ref;
+    null.ref.ref();
     return &null;
 }
 
@@ -209,7 +210,7 @@ QSqlQuery::QSqlQuery(QSqlResult *result)
 
 QSqlQuery::~QSqlQuery()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -220,7 +221,7 @@ QSqlQuery::~QSqlQuery()
 QSqlQuery::QSqlQuery(const QSqlQuery& other)
 {
     d = other.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -348,10 +349,10 @@ bool QSqlQuery::exec(const QString& query)
     The fields are numbered from left to right using the text of the
     \c SELECT statement, e.g. in
 
-    \code    
+    \code
         SELECT forename, surname FROM people;
     \endcode
-    
+
     field 0 is \c forename and field 1 is \c
     surname. Using \c{SELECT *} is not recommended because the order
     of the fields in the query is undefined.

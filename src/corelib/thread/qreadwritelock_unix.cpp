@@ -73,7 +73,7 @@ static void report_error(int code, const char *where, const char *what)
     \endcode
 
     To ensure that writers aren't blocked forever by readers, readers
-    attempting to obtain a lock will not succeed if there is a blocked 
+    attempting to obtain a lock will not succeed if there is a blocked
     writer waiting for access, even if the lock is currently only
     accessed by other readers. Also, if the lock is accessed by a
     writer and another writer comes in, that writer will have
@@ -177,7 +177,7 @@ bool QReadWriteLock::tryLockForRead()
  */
 void QReadWriteLock::lockForWrite()
 {
-    ++d->waitingWriters;
+    d->waitingWriters.ref();
     for(;;) {
         int localAccessCount(d->accessCount);
         if(localAccessCount == 0){
@@ -194,7 +194,7 @@ void QReadWriteLock::lockForWrite()
             continue;
         }
     }
-    --d->waitingWriters;
+    d->waitingWriters.deref();
 }
 
 /*!
@@ -212,7 +212,7 @@ void QReadWriteLock::lockForWrite()
 bool QReadWriteLock::tryLockForWrite()
 {
     bool result;
-    ++d->waitingWriters;
+    d->waitingWriters.ref();
     for(;;){
         int localAccessCount(d->accessCount);
         if(localAccessCount == 0){
@@ -225,7 +225,7 @@ bool QReadWriteLock::tryLockForWrite()
             break;
         }
     }
-    --d->waitingWriters;
+    d->waitingWriters.deref();
     return result;
 }
 
@@ -243,7 +243,7 @@ void QReadWriteLock::unlock()
 
     bool unlocked = d->accessCount.testAndSet(-1, 0);
     if (!unlocked) {
-        unlocked = !--d->accessCount;
+        unlocked = !d->accessCount.deref();
         if (!unlocked)
             return; // still locked, can't wake anyone up
     }

@@ -206,7 +206,7 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
         qWarning("Qt: QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
         QCursorData *c = qt_cursorTable[0];
-        ++c->ref;
+        c->ref.ref();
         d = c;
         return;
     }
@@ -253,7 +253,7 @@ void QCursor::setPos(int x, int y)
        ideally this would not really need to be faked --Sam
     */
     QWidget *widget = 0;
-    if(QWidget *grb = QWidget::mouseGrabber()) 
+    if(QWidget *grb = QWidget::mouseGrabber())
         widget = grb;
     else
         widget = QApplication::widgetAt(QPoint(x, y));

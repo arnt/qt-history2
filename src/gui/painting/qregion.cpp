@@ -106,7 +106,7 @@
 QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 {
     QRegion tmp(QRect(x, y, w, h), t);
-    ++tmp.d->ref;
+    tmp.d->ref.ref();
     d = tmp.d;
 }
 

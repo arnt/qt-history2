@@ -383,10 +383,10 @@ QTextLayout::~QTextLayout()
 */
 void QTextLayout::setFont(const QFont &font)
 {
-    if (d->fnt && !--d->fnt->ref)
+    if (d->fnt && !d->fnt->ref.deref())
         delete d->fnt;
     d->fnt = font.d;
-    ++d->fnt->ref;
+    d->fnt->ref.ref();
 }
 
 /*!

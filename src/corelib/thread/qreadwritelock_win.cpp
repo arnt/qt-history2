@@ -70,7 +70,7 @@ bool QReadWriteLock::tryLockForRead()
 
 void QReadWriteLock::lockForWrite()
 {
-    ++d->waitingWriters;
+    d->waitingWriters.ref();
     for(;;) {
         int localAccessCount(d->accessCount);
         if(localAccessCount == 0){
@@ -80,13 +80,13 @@ void QReadWriteLock::lockForWrite()
             WaitForSingleObject(d->writerWait, INFINITE);
         }
     }
-    --d->waitingWriters;
+    d->waitingWriters.deref();
 }
 
 bool QReadWriteLock::tryLockForWrite()
 {
     bool result;
-    ++d->waitingWriters;
+    d->waitingWriters.ref();
     for(;;){
         int localAccessCount(d->accessCount);
         if(localAccessCount == 0){
@@ -99,7 +99,7 @@ bool QReadWriteLock::tryLockForWrite()
             break;
         }
     }
-    --d->waitingWriters;
+    d->waitingWriters.deref();
     return result;
 }
 

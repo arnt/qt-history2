@@ -1206,7 +1206,7 @@ void QDirModelPrivate::savePersistentIndexes()
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         QModelIndex idx = persistentIndexes.at(i)->index;
         saved.append(qMakePair(q->filePath(idx), idx.column()));
-        ++persistentIndexes.at(i)->ref; // save
+        persistentIndexes.at(i)->ref.ref(); // save
         persistentIndexes[i]->index = QModelIndex(); // invalidated
     }
 }
@@ -1218,7 +1218,7 @@ void QDirModelPrivate::restorePersistentIndexes()
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         persistentIndexes[i]->index = q->index(saved.at(i).first,
                                                saved.at(i).second);
-        if (!--persistentIndexes.at(i)->ref)
+        if (!persistentIndexes.at(i)->ref.deref())
             deleteList.append(persistentIndexes.at(i));
     }
     saved.clear();

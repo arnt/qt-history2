@@ -351,7 +351,7 @@ QImage::QImage()
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -368,7 +368,7 @@ QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
     create(w, h, depth, numColors, bitOrder);
 }
 
@@ -385,7 +385,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
     create(size, depth, numColors, bitOrder);
 }
 
@@ -418,7 +418,7 @@ QImage::QImage(const QString &fileName, const char *format)
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
     load(fileName, format);
 }
 
@@ -457,7 +457,7 @@ QImage::QImage(const char *fileName, const char *format)
     // constructor, remove this constructor as well. The constructor here
     // exists so that QImage("foo.png") compiles without ambiguity.
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
     load(QString::fromAscii(fileName), format);
 }
 
@@ -487,7 +487,7 @@ QImage::QImage(const char * const xpm[])
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
 
     QImage image;
     if (!qt_read_xpm_image_or_array(0, xpm, image)) {
@@ -525,7 +525,7 @@ QImage::QImage(const QImage &image)
     : QPaintDevice(QInternal::Image)
 {
     d = image.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -545,7 +545,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
 
     if (w <= 0 || h <= 0 || depth <= 0 || numColors < 0)
         return;                                        // invalid parameter(s)
@@ -590,7 +590,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
     : QPaintDevice(QInternal::Image)
 {
     d = new QImageData;
-    ++d->ref;
+    d->ref.ref();
 
     if (!data || w <= 0 || h <= 0 || depth <= 0 || numColors < 0)
         return;                                        // invalid parameter(s)
@@ -618,7 +618,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
 
 QImage::~QImage()
 {
-    if (d && !--d->ref)
+    if (d && !d->ref.deref())
         delete d;
 }
 
@@ -632,9 +632,9 @@ QImage::~QImage()
 QImage &QImage::operator=(const QImage &image)
 {
     QImageData *x = image.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
     return *this;
 }

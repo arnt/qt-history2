@@ -349,8 +349,8 @@ QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
 {
     if (QLibraryPrivate *lib = libraryMap()->value(fileName)) {
-        ++lib->libraryUnloadCount;
-        ++lib->libraryRefCount;
+        lib->libraryUnloadCount.ref();
+        lib->libraryRefCount.ref();
         return lib;
     }
     return new QLibraryPrivate(fileName);
@@ -387,7 +387,7 @@ bool QLibraryPrivate::unload()
 {
     if (!pHnd)
         return true;
-    if (!--libraryUnloadCount) // only unload if ALL QLibrary instance wanted to
+    if (!libraryUnloadCount.deref()) // only unload if ALL QLibrary instance wanted to
         if  (unload_sys())
             pHnd = 0;
     return (pHnd == 0);
@@ -395,7 +395,7 @@ bool QLibraryPrivate::unload()
 
 void QLibraryPrivate::release()
 {
-    if (!--libraryRefCount)
+    if (!libraryRefCount.deref())
         delete this;
 }
 

@@ -145,7 +145,7 @@ QSqlField::QSqlField(const QString& fieldName, QVariant::Type type)
 QSqlField::QSqlField(const QSqlField& other)
 {
     d = other.d;
-    ++d->ref;
+    d->ref.ref();
     val = other.val;
 }
 
@@ -182,7 +182,7 @@ bool QSqlField::operator==(const QSqlField& other) const
 
 QSqlField::~QSqlField()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -249,7 +249,7 @@ QKeySequence::QKeySequence(int k1, int k2, int k3, int k4)
 QKeySequence::QKeySequence(const QKeySequence& keysequence)
     : d(keysequence.d)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 
@@ -258,7 +258,7 @@ QKeySequence::QKeySequence(const QKeySequence& keysequence)
  */
 QKeySequence::~QKeySequence()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -165,7 +165,7 @@ QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, 
 QPen::QPen(const QPen &p)
 {
     d = p.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 
@@ -175,7 +175,7 @@ QPen::QPen(const QPen &p)
 
 QPen::~QPen()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -199,7 +199,7 @@ void QPen::detach_helper()
     x->capStyle = d->capStyle;
     x->joinStyle = d->joinStyle;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 

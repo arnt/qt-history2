@@ -38,7 +38,7 @@ void QMutex::lock()
     const int self = GetCurrentThreadId();
     const int none = 0;
 
-    ++d->waiters;
+    d->waiters.ref();
     while (!q_atomic_test_and_set_int(&d->owner, none, self)) {
         if (d->recursive && d->owner == self) {
             break;
@@ -48,7 +48,7 @@ void QMutex::lock()
 
         WaitForSingleObject(d->event, INFINITE);
     }
-    --d->waiters;
+    d->waiters.deref();
     ++d->count;
 }
 

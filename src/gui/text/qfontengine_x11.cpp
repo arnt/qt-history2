@@ -91,7 +91,7 @@ void QFontEngineMultiXLFD::loadEngine(int at)
         fontEngine = QFontDatabase::findFont(QUnicodeTables::Common, 0, req, encoding);
     }
     Q_ASSERT(fontEngine != 0);
-    ++fontEngine->ref;
+    fontEngine->ref.ref();
     engines[at] = fontEngine;
 }
 
@@ -451,7 +451,7 @@ void QFontEngineMultiXft::loadEngine(int at)
         fontEngine->fontDef = fontDef;
         QFontCache::instance->insertEngine(key, fontEngine);
     }
-    ++fontEngine->ref;
+    fontEngine->ref.ref();
     engines[at] = fontEngine;
 }
 

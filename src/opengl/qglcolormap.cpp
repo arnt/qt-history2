@@ -92,7 +92,7 @@ QGLColormap::QGLColormapData QGLColormap::shared_null = { Q_ATOMIC_INIT(1), 0, 0
 QGLColormap::QGLColormap()
     : d(&shared_null)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 
@@ -102,7 +102,7 @@ QGLColormap::QGLColormap()
 QGLColormap::QGLColormap(const QGLColormap &map)
     : d(map.d)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -111,7 +111,7 @@ QGLColormap::QGLColormap(const QGLColormap &map)
 */
 QGLColormap::~QGLColormap()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         cleanup(d);
 }
 
@@ -128,9 +128,9 @@ void QGLColormap::cleanup(QGLColormap::QGLColormapData *x)
 QGLColormap & QGLColormap::operator=(const QGLColormap &map)
 {
     QGLColormapData *x = map.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanup(x);
     return *this;
 }
@@ -151,7 +151,7 @@ void QGLColormap::detach_helper()
         *x->cells = *d->cells;
     }
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanup(x);
 }
 

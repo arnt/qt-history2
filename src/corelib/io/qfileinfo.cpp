@@ -76,7 +76,7 @@ public:
 QFileInfoPrivate::QFileInfoPrivate(const QFileInfo *copy)
 {
     if(copy) {
-        ++copy->d->data->ref;
+        copy->d->data->ref.ref();
         data = copy->d->data;
     } else {
         data = new QFileInfoPrivate::Data;
@@ -86,7 +86,7 @@ QFileInfoPrivate::QFileInfoPrivate(const QFileInfo *copy)
 
 QFileInfoPrivate::~QFileInfoPrivate()
 {
-    if (!--data->ref)
+    if (!data->ref.deref())
         delete data;
     data = 0;
 }

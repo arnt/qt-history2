@@ -69,8 +69,8 @@ class QList
     union { QListData p; QListData::Data *d; };
 
 public:
-    inline QList() : d(&QListData::shared_null) { ++d->ref; }
-    inline QList(const QList &l) : d(l.d) { ++d->ref; if (!d->sharable) detach_helper(); }
+    inline QList() : d(&QListData::shared_null) { d->ref.ref(); }
+    inline QList(const QList &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach_helper(); }
     ~QList();
     QList &operator=(const QList &l);
     bool operator==(const QList &l) const;
@@ -253,7 +253,7 @@ public:
     inline std::list<T> toStdList() const
     { std::list<T> tmp; qCopy(constBegin(), constEnd(), std::back_inserter(tmp)); return tmp; }
 #endif
-    
+
 private:
     void detach_helper();
     void free(QListData::Data *d);
@@ -310,9 +310,9 @@ Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
 {
     if (d != l.d) {
         QListData::Data *x = l.d;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             free(x);
         if (!d->sharable)
             detach_helper();
@@ -472,7 +472,7 @@ Q_OUTOFLINE_TEMPLATE QList<T>::~QList()
         return;
     QListData::Data *x = &QListData::shared_null;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         free(x);
 }
 

@@ -301,9 +301,9 @@ public:
     // ASCII compatibility
 #ifndef QT_NO_CAST_FROM_ASCII
     inline QString(const char *ch) : d(&shared_null)
-    { ++d->ref; *this = fromAscii(ch); }
+    { d->ref.ref(); *this = fromAscii(ch); }
     inline QString(const QByteArray &a) : d(&shared_null)
-    { ++d->ref; *this = fromAscii(a); }
+    { d->ref.ref(); *this = fromAscii(a); }
     inline QString &operator=(const char *ch)
     { return (*this = fromAscii(ch)); }
     inline QString &operator=(const QByteArray &a)
@@ -374,7 +374,7 @@ public:
     // compatibility
     struct Null { };
     static const Null null;
-    inline QString(const Null &): d(&shared_null) { ++d->ref; }
+    inline QString(const Null &): d(&shared_null) { d->ref.ref(); }
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
 
@@ -528,7 +528,7 @@ private:
 
 
 inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
-{ ++d->ref; *this = fromLatin1(latin1.latin1()); }
+{ d->ref.ref(); *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
 { return d->size; }
 inline const QChar QString::at(int i) const
@@ -559,7 +559,7 @@ inline QString &QString::operator=(const QLatin1String &s)
 inline void QString::clear()
 { if (!isNull()) *this = QString(); }
 inline QString::QString(const QString &s) : d(s.d)
-{ Q_ASSERT(&s != this); ++d->ref; }
+{ Q_ASSERT(&s != this); d->ref.ref(); }
 inline int QString::capacity() const
 { return d->alloc; }
 inline QString &QString::setNum(short n, int base)
@@ -672,8 +672,8 @@ public:
 #endif
     const ushort unicode() const { return QChar(*this).unicode(); }
 };
-inline QString::QString() : d(&shared_null) { ++d->ref; }
-inline QString::~QString() { if (!--d->ref) free(d); }
+inline QString::QString() : d(&shared_null) { d->ref.ref(); }
+inline QString::~QString() { if (!d->ref.deref()) free(d); }
 inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QCharRef QString::operator[](uint i)

@@ -737,9 +737,9 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 QByteArray &QByteArray::operator=(const QByteArray & other)
 {
     Data *x = other.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         qFree(x);
     return *this;
 }
@@ -766,9 +766,9 @@ QByteArray &QByteArray::operator=(const char *str)
         memcpy(x->data, str, len + 1); // include null terminator
         x->size = len;
     }
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
          qFree(x);
     return *this;
 }
@@ -1165,7 +1165,7 @@ QByteArray::QByteArray(const char *str)
             memcpy(d->array, str, len+1); // include null terminator
         }
     }
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -1197,7 +1197,7 @@ QByteArray::QByteArray(const char *data, int size)
             d->array[size] = '\0';
         }
     }
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -1223,7 +1223,7 @@ QByteArray::QByteArray(int size, char ch)
             memset(d->array, ch, size);
         }
     }
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -1243,9 +1243,9 @@ void QByteArray::resize(int size)
 {
     if (size <= 0) {
         Data *x = &shared_empty;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             qFree(x);
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
@@ -1297,7 +1297,7 @@ void QByteArray::realloc(int alloc)
         x->alloc = alloc;
         x->data = x->array;
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             qFree(x);
     } else {
         Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc));
@@ -2404,10 +2404,10 @@ QByteArray QByteArray::toUpper() const
 
 void QByteArray::clear()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         qFree(d);
     d = &shared_null;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*! \relates QByteArray
@@ -2857,7 +2857,7 @@ QByteArray QByteArray::trimmed() const
     }
     int l = end - start + 1;
     if (l <= 0) {
-        ++shared_empty.ref;
+        shared_empty.ref.ref();
         return QByteArray(&shared_empty, 0, 0);
     }
     return QByteArray(s+start, l);

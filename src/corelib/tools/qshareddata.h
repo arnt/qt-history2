@@ -44,17 +44,17 @@ public:
     inline const T *constData() const { return d; }
 
     inline QExplicitlySharedDataPointer() { d = 0; }
-    inline ~QExplicitlySharedDataPointer() { if (d && !--d->ref) delete d; }
+    inline ~QExplicitlySharedDataPointer() { if (d && !d->ref.deref()) delete d; }
 
-    explicit inline QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
+    explicit inline QExplicitlySharedDataPointer(T *data) : d(data) { if (d) d->ref.ref(); }
     inline QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d)
-    { if (d) ++d->ref; }
+    { if (d) d->ref.ref(); }
     inline QExplicitlySharedDataPointer &operator=(const QExplicitlySharedDataPointer &o) {
         if (o.d != d) {
             T *x = o.d;
-            if (x) ++x->ref;
+            if (x) x->ref.ref();
             x = qAtomicSetPtr(&d, x);
-            if (x && !--x->ref)
+            if (x && !x->ref.deref())
                 delete x;
         }
         return *this;
@@ -62,9 +62,9 @@ public:
     inline QExplicitlySharedDataPointer &operator=(T *o) {
         if (o != d) {
             T *x = o;
-            if (x) ++x->ref;
+            if (x) x->ref.ref();
             x = qAtomicSetPtr(&d, x);
-            if (x && !--x->ref)
+            if (x && !x->ref.deref())
                 delete x;
         }
         return *this;
@@ -89,21 +89,21 @@ public:
     inline T *data() { detach(); return d; }
     inline const T *data() const { return d; }
     inline const T *constData() const { return d; }
-    
+
     inline bool operator==(const QSharedDataPointer<T> &other) const { return d == other.d; }
     inline bool operator!=(const QSharedDataPointer<T> &other) const { return d != other.d; }
 
     inline QSharedDataPointer() { d = 0; }
-    inline ~QSharedDataPointer() { if (d && !--d->ref) delete d; }
+    inline ~QSharedDataPointer() { if (d && !d->ref.deref()) delete d; }
 
-    explicit QSharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
-    inline QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
+    explicit QSharedDataPointer(T *data) : d(data) { if (d) d->ref.ref(); }
+    inline QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) d->ref.ref(); }
     inline QSharedDataPointer & operator=(const QSharedDataPointer &o) {
         if (o.d != d) {
             T *x = o.d;
-            if (x) ++x->ref;
+            if (x) x->ref.ref();
             x = qAtomicSetPtr(&d, x);
-            if (x && !--x->ref)
+            if (x && !x->ref.deref())
                 delete x;
         }
         return *this;
@@ -111,9 +111,9 @@ public:
     inline QSharedDataPointer &operator=(T *o) {
         if (o != d) {
             T *x = o;
-            if (x) ++x->ref;
+            if (x) x->ref.ref();
             x = qAtomicSetPtr(&d, x);
-            if (x && !--x->ref)
+            if (x && !x->ref.deref())
                 delete x;
         }
         return *this;
@@ -131,9 +131,9 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach_helper()
 {
     T *x = new T(*d);
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 

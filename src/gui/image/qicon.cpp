@@ -424,7 +424,7 @@ QIcon::QIcon(const QIcon &other)
     :d(other.d)
 {
     if (d)
-        ++d->ref;
+        d->ref.ref();
 }
 
 /*!
@@ -472,7 +472,7 @@ QIcon::QIcon(QIconEngine *engine)
 */
 QIcon::~QIcon()
 {
-    if (d && !--d->ref)
+    if (d && !d->ref.deref())
         delete d;
 }
 
@@ -484,9 +484,9 @@ QIcon &QIcon::operator=(const QIcon &other)
 {
     QIconPrivate *x = other.d;
     if (x)
-        ++x->ref;
+        x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (x && !--x->ref)
+    if (x && !x->ref.deref())
         delete x;
     return *this;
 }

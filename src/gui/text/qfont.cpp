@@ -142,7 +142,7 @@ QFontPrivate::QFontPrivate(const QFontPrivate &other)
 QFontPrivate::~QFontPrivate()
 {
     if (engineData)
-        --engineData->ref;
+        -engineData->ref.deref();
     engineData = 0;
 }
 
@@ -216,7 +216,7 @@ QFontEngineData::~QFontEngineData()
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
         if (engines[i])
-            --engines[i]->ref;
+            engines[i]->ref.deref();
         engines[i] = 0;
     }
 #else
@@ -423,7 +423,7 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
         d->screen = screen;
     } else {
         d = font.d;
-        ++d->ref;
+        d->ref.ref();
     }
 }
 
@@ -433,7 +433,7 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
 QFont::QFont(QFontPrivate *data)
 {
     d = data;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*! \internal
@@ -443,7 +443,7 @@ void QFont::detach()
 {
     if (d->ref == 1) {
         if (d->engineData)
-            --d->engineData->ref;
+            d->engineData->ref.deref();
         d->engineData = 0;
         return;
     }
@@ -459,7 +459,7 @@ void QFont::detach()
 QFont::QFont()
     :d(QApplication::font().d), resolve_mask(0)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -509,7 +509,7 @@ QFont::QFont(const QString &family, int pointSize, int weight, bool italic)
 QFont::QFont(const QFont &font)
 {
     d = font.d;
-    ++d->ref;
+    d->ref.ref();
     resolve_mask = font.resolve_mask;
 }
 
@@ -518,7 +518,7 @@ QFont::QFont(const QFont &font)
 */
 QFont::~QFont()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -1682,7 +1682,7 @@ QDataStream &operator<<(QDataStream &s, const QFont &font)
 */
 QDataStream &operator>>(QDataStream &s, QFont &font)
 {
-    if (!--font.d->ref)
+    if (!font.d->ref.deref())
         delete font.d;
 
     font.d = new QFontPrivate;
@@ -1788,21 +1788,21 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
 */
 QFontInfo::QFontInfo(const QFont &font)
     : d(font.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 /*!
     Constructs a copy of \a fi.
 */
 QFontInfo::QFontInfo(const QFontInfo &fi)
     : d(fi.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 /*!
     Destroys the font info object.
 */
 QFontInfo::~QFontInfo()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

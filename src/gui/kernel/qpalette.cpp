@@ -18,10 +18,10 @@
 #include "qcleanuphandler.h"
 #include "qvariant.h"
 
-static QBasicAtomic qt_palette_count = Q_ATOMIC_INIT(1);
+static int qt_palette_count = 1;
 class QPalettePrivate {
 public:
-    QPalettePrivate():ser_no(++qt_palette_count) { ref = 1; }
+    QPalettePrivate() : ref(1), ser_no(qt_palette_count++) { }
     QAtomic ref;
     QBrush br[QPalette::NColorGroups][QPalette::NColorRoles];
     int ser_no;
@@ -458,7 +458,7 @@ QPalette::QPalette()
       current_group(Active),
       resolve_mask(0)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 static void qt_palette_from_color(QPalette &pal, const QColor & button)
@@ -587,7 +587,7 @@ QPalette::QPalette(const QColor &button, const QColor &background)
 QPalette::QPalette(const QPalette &p)
 {
     d = p.d;
-    ++d->ref;
+    d->ref.ref();
     resolve_mask = p.resolve_mask;
     current_group = p.current_group;
 }
@@ -597,7 +597,7 @@ QPalette::QPalette(const QPalette &p)
 */
 QPalette::~QPalette()
 {
-    if(!--d->ref)
+    if(!d->ref.deref())
         delete d;
 }
 
@@ -617,11 +617,11 @@ void QPalette::init() {
 QPalette &QPalette::operator=(const QPalette &p)
 {
     QPalettePrivate *x = p.d;
-    ++x->ref;
+    x->ref.ref();
     resolve_mask = p.resolve_mask;
     current_group = p.current_group;
     x = qAtomicSetPtr(&d, x);
-    if(!--x->ref)
+    if(!x->ref.deref())
         delete x;
     return *this;
 }
@@ -719,7 +719,7 @@ void QPalette::detach()
                 x->br[grp][role] = d->br[grp][role];
         }
         x = qAtomicSetPtr(&d, x);
-        if(!--x->ref)
+        if(!x->ref.deref())
             delete x;
     }
 }

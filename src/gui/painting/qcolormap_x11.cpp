@@ -492,11 +492,11 @@ QColormap::QColormap()
 
 QColormap::QColormap(const QColormap &colormap)
     :d (colormap.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 QColormap::~QColormap()
 {
-    if (!--d->ref) {
+    if (!d->ref.deref()) {
         if (!d->defaultColormap)
             XFreeColormap(QX11Info::display(), d->colormap);
         delete d;

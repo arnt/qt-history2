@@ -62,7 +62,7 @@ struct QBasicAtomic
         atomic = x;
     }
 
-    inline bool operator++()
+    inline bool ref()
     {
         while (q_atomic_lock(&lock) != 0)
             ;
@@ -71,7 +71,7 @@ struct QBasicAtomic
         return ret;
     }
 
-    inline bool operator--()
+    inline bool deref()
     {
         while (q_atomic_lock(&lock) != 0)
             ;

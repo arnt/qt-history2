@@ -42,8 +42,8 @@ class QLinkedList
     union { QLinkedListData *d; QLinkedListNode<T> *e; };
 
 public:
-    inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; }
-    inline QLinkedList(const QLinkedList &l) : d(l.d) { ++d->ref; if (!d->sharable) detach(); }
+    inline QLinkedList() : d(&QLinkedListData::shared_null) { d->ref.ref(); }
+    inline QLinkedList(const QLinkedList &l) : d(l.d) { d->ref.ref(); if (!d->sharable) detach(); }
     ~QLinkedList();
     QLinkedList<T> &operator=(const QLinkedList &);
     bool operator==(const QLinkedList &l) const;
@@ -192,7 +192,7 @@ inline QLinkedList<T>::~QLinkedList()
 {
     if (!d)
         return;
-    if (!--d->ref)
+    if (!d->ref.deref())
         free(d);
 }
 
@@ -214,7 +214,7 @@ void QLinkedList<T>::detach_helper()
     j->n = x.e;
     x.e->p = j;
     x.d = qAtomicSetPtr(&d, x.d);
-    if (!--x.d->ref)
+    if (!x.d->ref.deref())
         free(x.d);
 }
 
@@ -244,9 +244,9 @@ QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
 {
     if (d != l.d) {
         QLinkedListData *x = l.d;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             free(x);
         if (!d->sharable)
             detach_helper();

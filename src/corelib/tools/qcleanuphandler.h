@@ -40,7 +40,7 @@ public:
     {
         if (!p.d) {
             p.d = &QListData::shared_null;
-            ++p.d->ref;
+            p.d->ref.ref();
             p.detach();
         }
         *p.prepend() =  object;

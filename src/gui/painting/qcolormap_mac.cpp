@@ -18,8 +18,9 @@
 class QColormapPrivate
 {
 public:
-    QColormapPrivate() { ref = 0; }
-    ~QColormapPrivate() { }
+    inline QColormapPrivate()
+        : ref(0)
+    { }
 
     QAtomic ref;
 };
@@ -45,11 +46,11 @@ QColormap::QColormap() : d(new QColormapPrivate)
 { d->ref = 1; }
 
 QColormap::QColormap(const QColormap &colormap) :d (colormap.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 QColormap::~QColormap()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -811,7 +811,7 @@ QTextEngine::QTextEngine(const QString &str, QFontPrivate *f)
     init(this);
     setText(str);
     if (fnt)
-        ++fnt->ref;
+        fnt->ref.ref();
 }
 
 
@@ -823,7 +823,7 @@ void QTextEngine::setText(const QString &str)
 
 QTextEngine::~QTextEngine()
 {
-    if (fnt && !--fnt->ref)
+    if (fnt && !fnt->ref.deref())
         delete fnt;
     delete layoutData;
 }

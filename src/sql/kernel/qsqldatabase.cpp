@@ -575,7 +575,7 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver)
 QSqlDatabase::QSqlDatabase()
 {
     d = QSqlDatabasePrivate::shared_null();
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -584,7 +584,7 @@ QSqlDatabase::QSqlDatabase()
 QSqlDatabase::QSqlDatabase(const QSqlDatabase &other)
 {
     d = other.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -679,7 +679,7 @@ void QSqlDatabasePrivate::init(const QString &type)
 
 QSqlDatabase::~QSqlDatabase()
 {
-    if (!--d->ref) {
+    if (!d->ref.deref()) {
         close();
         delete d;
     }

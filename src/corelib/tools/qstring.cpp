@@ -662,10 +662,10 @@ QString::QString(const QChar *unicode, int size)
 {
    if (!unicode) {
         d = &shared_null;
-        ++d->ref;
+        d->ref.ref();
     } else if (size <= 0) {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
         d->ref.init(1);
@@ -688,7 +688,7 @@ QString::QString(int size, QChar ch)
 {
    if (size <= 0) {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
         d->ref.init(1);
@@ -817,9 +817,9 @@ void QString::resize(int size)
 {
     if (size <= 0) {
         Data *x = &shared_empty;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             free(x);
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
@@ -907,7 +907,7 @@ void QString::realloc(int alloc)
         x->righttoleft = d->righttoleft;
         x->data = x->array;
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             free(x);
     } else {
 #ifdef QT3_SUPPORT
@@ -958,9 +958,9 @@ void QString::expand(int i)
 QString &QString::operator=(const QString &other)
 {
     Data *x = other.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         free(x);
     return *this;
 }
@@ -3017,10 +3017,10 @@ QString QString::fromLatin1(const char *str, int size)
     Data *d;
     if (!str) {
         d = &shared_null;
-        ++d->ref;
+        d->ref.ref();
     } else if (size == 0 || (!*str && size < 0)) {
         d = &shared_empty;
-        ++d->ref;
+        d->ref.ref();
     } else {
         if (size < 0)
             size = qstrlen(str);
@@ -3452,7 +3452,7 @@ QString QString::trimmed() const
     }
     int l = end - start + 1;
     if (l <= 0) {
-        ++shared_empty.ref;
+        shared_empty.ref.ref();
         return QString(&shared_empty, 0);
     }
     return QString(s + start, l);

@@ -1,4 +1,4 @@
-/****************************************************************************
+ /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -50,10 +50,10 @@ struct QBasicAtomic {
     void init(int x = 0)
     { atomic = x; }
 
-    inline bool operator++()
+    inline bool ref()
     { return q_atomic_increment(&atomic) != 0; }
 
-    inline bool operator--()
+    inline bool deref()
     { return q_atomic_decrement(&atomic) != 0; }
 
     inline bool operator==(int x) const
@@ -182,9 +182,9 @@ public:
 template <typename T>
 inline void qAtomicAssign(T *&d, T *x)
 {
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 
@@ -194,9 +194,9 @@ inline void qAtomicAssign(T *&d, T *x)
 template <typename T>
 inline void qAtomicAssign(QBasicAtomicPointer<T> &d, T *x)
 {
-    ++x->ref;
+    x->ref.ref();
     x = d.exchange(x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 
@@ -224,7 +224,7 @@ inline void qAtomicDetach(T *&d)
         return;
     T *x = new T(*d);
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 
@@ -238,7 +238,7 @@ inline void qAtomicDetach(QBasicAtomicPointer<T> &d)
         return;
     T *x = new T(*d);
     x = d.exchange(x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         delete x;
 }
 

@@ -301,8 +301,8 @@ private:
     friend class QString;
 };
 
-inline QByteArray::QByteArray(): d(&shared_null) { ++d->ref; }
-inline QByteArray::~QByteArray() { if (!--d->ref) qFree(d); }
+inline QByteArray::QByteArray(): d(&shared_null) { d->ref.ref(); }
+inline QByteArray::~QByteArray() { if (!d->ref.deref()) qFree(d); }
 inline int QByteArray::size() const
 { return d->size; }
 inline const char QByteArray::at(int i) const
@@ -328,10 +328,10 @@ inline void QByteArray::detach()
 inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 #ifdef QT3_SUPPORT
 inline QByteArray::QByteArray(int size) : d(&shared_null)
-{ ++d->ref; if (size > 0) fill('\0', size); }
+{ d->ref.ref(); if (size > 0) fill('\0', size); }
 #endif
 
 inline int QByteArray::capacity() const

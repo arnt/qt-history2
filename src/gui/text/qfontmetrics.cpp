@@ -141,7 +141,7 @@ QFontMetrics::QFontMetrics(const QFont &font)
         d->dpi = dpi;
         d->screen = 0;
     } else {
-        ++d->ref;
+        d->ref.ref();
     }
 }
 
@@ -173,7 +173,7 @@ QFontMetrics::QFontMetrics(const QFont &font, QPaintDevice *paintdevice)
         d->screen = screen;
     } else {
         d = font.d;
-        ++d->ref;
+        d->ref.ref();
     }
 
 }
@@ -183,7 +183,7 @@ QFontMetrics::QFontMetrics(const QFont &font, QPaintDevice *paintdevice)
 */
 QFontMetrics::QFontMetrics(const QFontMetrics &fm)
     : d(fm.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 /*!
     Destroys the font metrics object and frees all allocated
@@ -191,7 +191,7 @@ QFontMetrics::QFontMetrics(const QFontMetrics &fm)
 */
 QFontMetrics::~QFontMetrics()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -854,7 +854,7 @@ QFontMetricsF::QFontMetricsF(const QFont &font)
         d->dpi = dpi;
         d->screen = 0;
     } else {
-        ++d->ref;
+        d->ref.ref();
     }
 }
 
@@ -885,7 +885,7 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QPaintDevice *paintdevice)
         d->screen = screen;
     } else {
         d = font.d;
-        ++d->ref;
+        d->ref.ref();
     }
 
 }
@@ -895,7 +895,7 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QPaintDevice *paintdevice)
 */
 QFontMetricsF::QFontMetricsF(const QFontMetricsF &fm)
     : d(fm.d)
-{ ++d->ref; }
+{ d->ref.ref(); }
 
 /*!
     Destroys the font metrics object and frees all allocated
@@ -903,7 +903,7 @@ QFontMetricsF::QFontMetricsF(const QFontMetricsF &fm)
 */
 QFontMetricsF::~QFontMetricsF()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -283,7 +283,7 @@ QCursor::QCursor()
         QCursorData::initialize();
     }
     QCursorData *c = qt_cursorTable[0];
-    ++c->ref;
+    c->ref.ref();
     d = c;
 }
 
@@ -330,12 +330,12 @@ void QCursor::setShape(Qt::CursorShape shape)
     QCursorData *c = uint(shape) <= Qt::LastCursor ? qt_cursorTable[shape] : 0;
     if (!c)
         c = qt_cursorTable[0];
-    ++c->ref;
+    c->ref.ref();
     if (!d) {
         d = c;
     } else {
         c = qAtomicSetPtr(&d, c);
-        if (!--c->ref)
+        if (!c->ref.deref())
             delete c;
     }
 }
@@ -384,7 +384,7 @@ QCursor::QCursor(const QCursor &c)
     if (!QCursorData::initialized)
         QCursorData::initialize();
     d = c.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -393,7 +393,7 @@ QCursor::QCursor(const QCursor &c)
 
 QCursor::~QCursor()
 {
-    if (d && !--d->ref)
+    if (d && !d->ref.deref())
         delete d;
 }
 

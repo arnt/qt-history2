@@ -1304,7 +1304,7 @@ void QVariant::create(int type, const void *copy)
 
 QVariant::~QVariant()
 {
-    if (!d.is_shared || !--d.data.shared->ref)
+    if (!d.is_shared || !d.data.shared->ref.deref())
         handler->clear(&d);
 }
 
@@ -1323,7 +1323,7 @@ QVariant::QVariant(const QVariant &p)
     d.is_shared = p.d.is_shared;
     if (d.is_shared) {
         d.data.shared = p.d.data.shared;
-        ++d.data.shared->ref;
+        d.data.shared->ref.ref();
     } else {
         handler->construct(&d, p.constData());
     }
@@ -1597,7 +1597,7 @@ QVariant& QVariant::operator=(const QVariant &variant)
 
     clear();
     if (variant.d.is_shared) {
-        ++variant.d.data.shared->ref;
+        variant.d.data.shared->ref.ref();
         d = variant.d;
     } else {
         d.type = variant.d.type;
@@ -1623,7 +1623,7 @@ void QVariant::detach()
     dd.type = d.type;
     handler->construct(&dd, constData());
     dd.data.shared = qAtomicSetPtr(&d.data.shared, dd.data.shared);
-    if (!--dd.data.shared->ref)
+    if (!dd.data.shared->ref.deref())
         handler->clear(&dd);
 }
 
@@ -1650,7 +1650,7 @@ const char *QVariant::typeName() const
 */
 void QVariant::clear()
 {
-    if (!d.is_shared || !--d.data.shared->ref)
+    if (!d.is_shared || !d.data.shared->ref.deref())
         handler->clear(&d);
     d.type = Invalid;
     d.is_null = true;

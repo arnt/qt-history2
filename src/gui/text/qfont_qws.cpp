@@ -112,7 +112,7 @@ void QFontPrivate::load(int)
             engineData = new QFontEngineData;
             QFontCache::instance->insertEngineData(key, engineData);
         } else {
-            ++engineData->ref;
+            engineData->ref.ref();
         }
     }
 
@@ -168,6 +168,6 @@ void QFontPrivate::load(int)
         }
     }
 
-    ++engine->ref;
+    engine->ref.ref();
     engineData->engine = engine;
 }

@@ -175,7 +175,7 @@ QBrush::QBrush()
         shared_default_cleanup.add(&shared_default);
     }
     d = shared_default;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -265,7 +265,7 @@ QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
 QBrush::QBrush(const QBrush &b)
 {
     d = b.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 QBrush::QBrush(const QGradient &gradient)
@@ -287,7 +287,7 @@ QBrush::QBrush(const QGradient &gradient)
 
 QBrush::~QBrush()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         cleanUp(d);
 }
 
@@ -335,7 +335,7 @@ void QBrush::detach(Qt::BrushStyle newStyle)
     x->style = newStyle;
     x->color = d->color;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanUp(x);
 }
 
@@ -347,9 +347,9 @@ void QBrush::detach(Qt::BrushStyle newStyle)
 QBrush &QBrush::operator=(const QBrush &b)
 {
     QBrushData *x = b.d;
-    ++x->ref;
+    x->ref.ref();
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         cleanUp(x);
     return *this;
 }

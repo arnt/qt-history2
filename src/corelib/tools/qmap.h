@@ -116,9 +116,10 @@ class QMap
         return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - Payload);
     }
 public:
-    inline QMap() : d(&QMapData::shared_null) { ++d->ref; }
-    inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; if (!d->sharable) detach(); }
-    inline ~QMap() { if (!d) return; if (!--d->ref) freeData(d); }
+    inline QMap() : d(&QMapData::shared_null) { d->ref.ref(); }
+    inline QMap(const QMap<Key, T> &other) : d(other.d)
+    { d->ref.ref(); if (!d->sharable) detach(); }
+    inline ~QMap() { if (!d) return; if (!d->ref.deref()) freeData(d); }
 
     QMap<Key, T> &operator=(const QMap<Key, T> &other);
 #ifndef QT_NO_STL
@@ -320,9 +321,9 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const QMap<Key, T> &othe
 {
     if (d != other.d) {
         QMapData *x = other.d;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             freeData(x);
         if (!d->sharable)
             detach_helper();
@@ -627,7 +628,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
         x.d->insertInOrder = false;
     }
     x.d = qAtomicSetPtr(&d, x.d);
-    if (!--x.d->ref)
+    if (!x.d->ref.deref())
         freeData(x.d);
 }
 

@@ -86,7 +86,7 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 QPersistentModelIndex::QPersistentModelIndex()
     : d(&QPersistentModelIndexData::shared_null)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -99,7 +99,7 @@ QPersistentModelIndex::QPersistentModelIndex()
 QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
     : d(other.d)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -111,7 +111,7 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index)
 {
     if (index.isValid())
         d = QPersistentModelIndexData::create(index);
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -122,7 +122,7 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index)
 
 QPersistentModelIndex::~QPersistentModelIndex()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = 0;
 }
@@ -158,10 +158,10 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -171,13 +171,13 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 
 void QPersistentModelIndex::operator=(const QModelIndex &other)
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     if (other.isValid())
         d = QPersistentModelIndexData::create(other);
     else
         d = &QPersistentModelIndexData::shared_null;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!

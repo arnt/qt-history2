@@ -173,9 +173,9 @@ class QHash
     }
 
 public:
-    inline QHash() : d(&QHashData::shared_null) { ++d->ref; }
-    inline QHash(const QHash<Key, T> &other) : d(other.d) { ++d->ref; if (!d->sharable) detach(); }
-    inline ~QHash() { if (!--d->ref) freeData(d); }
+    inline QHash() : d(&QHashData::shared_null) { d->ref.ref(); }
+    inline QHash(const QHash<Key, T> &other) : d(other.d) { d->ref.ref(); if (!d->sharable) detach(); }
+    inline ~QHash() { if (!d->ref.deref()) freeData(d); }
 
     QHash<Key, T> &operator=(const QHash<Key, T> &other);
 
@@ -441,7 +441,7 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
     QHashData *x = d->detach_helper(duplicateNode);
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if (!x->ref.deref())
         freeData(x);
 }
 
@@ -450,9 +450,9 @@ Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash<Key, T> &o
 {
     if (d != other.d) {
         QHashData *x = other.d;
-        ++x->ref;
+        x->ref.ref();
         x = qAtomicSetPtr(&d, x);
-        if (!--x->ref)
+        if (!x->ref.deref())
             freeData(x);
         if (!d->sharable)
             detach_helper();

@@ -2207,7 +2207,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
 
     if (qt_signal_spy_callback_set.slot_begin_callback != 0)
         qt_signal_spy_callback_set.slot_begin_callback(receiver, member, argv);
-    
+
 #if defined(QT_NO_EXCEPTIONS)
     receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv);
 #else
@@ -2225,7 +2225,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
 
     if (qt_signal_spy_callback_set.slot_end_callback != 0)
         qt_signal_spy_callback_set.slot_end_callback(receiver, member);
-    
+
     list->lock.lockForRead();
     if (c.receiver) {
         receiver = static_cast<QPublicObject *>(c.receiver);
@@ -2248,19 +2248,19 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
     if (it == list->sendersHash.end())
         return;
     void *empty_argv[] = { 0 };
-    
+
     if (qt_signal_spy_callback_set.signal_begin_callback != 0)
         qt_signal_spy_callback_set.signal_begin_callback(obj, signal_index, argv ? argv : empty_argv);
-        
-    ++list->invariant;
+
+    list->invariant.ref();
     QThreadData *data = QThreadData::current();
     ::activate(static_cast<QPublicObject *>(obj), signal_index, argv ? argv : empty_argv,
                data ? data->id : 0, it, list->sendersHash.end());
-    
+
     if (qt_signal_spy_callback_set.signal_end_callback != 0)
         qt_signal_spy_callback_set.signal_end_callback(obj, signal_index);
-    
-    --list->invariant;
+
+    list->invariant.deref();
 }
 
 /*!\internal

@@ -90,7 +90,7 @@ void QFontPrivate::load(int script)
         engineData = new QFontEngineData;
         QFontCache::instance->insertEngineData(key, engineData);
     } else {
-        ++engineData->ref;
+        engineData->ref.ref();
     }
     if(engineData->engine) // already loaded
         return;
@@ -101,7 +101,7 @@ void QFontPrivate::load(int script)
     QFontEngineMac *engine = 0;
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
         Q_ASSERT(e->type() == QFontEngine::Mac);
-        ++e->ref;
+        e->ref.ref();
         engineData->engine = e;
         engine = static_cast<QFontEngineMac *>(e);
         return; // the font info and fontdef should already be filled
@@ -119,7 +119,7 @@ void QFontPrivate::load(int script)
 
     engine = new QFontEngineMac;
     engineData->engine = engine;
-    ++engine->ref; //a ref for the engineData->engine
+    engine->ref.ref(); //a ref for the engineData->engine
     if(!engine->familyref) {
         //find the font
         QStringList family_list = req.family.split(',');

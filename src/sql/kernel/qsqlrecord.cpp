@@ -109,7 +109,7 @@ QSqlRecord::QSqlRecord()
 QSqlRecord::QSqlRecord(const QSqlRecord& other)
 {
     d = other.d;
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -131,7 +131,7 @@ QSqlRecord& QSqlRecord::operator=(const QSqlRecord& other)
 
 QSqlRecord::~QSqlRecord()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 

@@ -115,7 +115,7 @@ QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
 #endif
 {
     if(copy) {
-        ++copy->d_func()->data->ref;
+        copy->d_func()->data->ref.ref();
         data = copy->d_func()->data;
     } else {
         data = new QDirPrivate::Data;
@@ -125,7 +125,7 @@ QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
 
 QDirPrivate::~QDirPrivate()
 {
-    if (!--data->ref)
+    if (!data->ref.deref())
         delete data;
     data = 0;
     q_ptr = 0;

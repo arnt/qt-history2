@@ -1412,7 +1412,7 @@ QUrl::QUrl() : d(new QUrlPrivate)
 */
 QUrl::QUrl(const QUrl &copy) : d(copy.d)
 {
-    ++d->ref;
+    d->ref.ref();
 }
 
 /*!
@@ -1420,7 +1420,7 @@ QUrl::QUrl(const QUrl &copy) : d(copy.d)
 */
 QUrl::~QUrl()
 {
-    if (!--d->ref)
+    if (!d->ref.deref())
         delete d;
 }
 
@@ -1457,8 +1457,8 @@ bool QUrl::isEmpty() const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed))
         return d->encodedOriginal.isEmpty();
-    else 
-        return d->scheme.isEmpty() 
+    else
+        return d->scheme.isEmpty()
         && d->userName.isEmpty()
         && d->password.isEmpty()
         && d->host.isEmpty()
@@ -2298,7 +2298,7 @@ inline char toHex(char c)
 */
 QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclude, const QByteArray &include)
 {
-    
+
     QByteArray tmp = input.toUtf8();
     QVarLengthArray<char> output(tmp.size() * 3);
 
@@ -2309,7 +2309,7 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclu
 
     const char * dontEncode = 0;
     if (!exclude.isEmpty()) dontEncode = exclude.constData();
-    
+
 
     if (include.isEmpty()) {
         for (int i = 0; i < len; ++i) {
@@ -2321,7 +2321,7 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclu
                 || c == 0x2E // .
                 || c == 0x5F // _
                 || c == 0x7E // ~
-                || q_strchr(dontEncode, c)) { 
+                || q_strchr(dontEncode, c)) {
                 data[length++] = c;
             } else {
                 data[length++] = '%';

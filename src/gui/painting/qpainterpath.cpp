@@ -215,7 +215,7 @@ QPainterPath::QPainterPath(const QPainterPath &other)
     : d_ptr(other.d_ptr)
 {
     if (d)
-        ++d->ref;
+        d->ref.ref();
 }
 
 /*!
@@ -236,7 +236,7 @@ void QPainterPath::detach_helper()
 {
     QPainterPathPrivate *data = new QPainterPathData(*d);
     data = qAtomicSetPtr(&d_ptr, data);
-    if (data && !--data->ref)
+    if (data && !data->ref.deref())
         delete (QPainterPathData *) data;
 }
 
@@ -249,7 +249,7 @@ void QPainterPath::ensureData_helper()
     QPainterPath::Element e = { 0, 0, QPainterPath::MoveToElement };
     data->elements << e;
     data = qAtomicSetPtr(&d_ptr, data);
-    if (data && !--data->ref)
+    if (data && !data->ref.deref())
         delete (QPainterPathData *) data;
 }
 
@@ -260,9 +260,9 @@ QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 {
     if (other.d != d) {
         QPainterPathPrivate *data = other.d;
-        if (data) ++data->ref;
+        if (data) data->ref.ref();
         data = qAtomicSetPtr(&d_ptr, data);
-        if (data && !--data->ref)
+        if (data && !data->ref.deref())
             delete (QPainterPathData *) data;
     }
     return *this;
@@ -273,7 +273,7 @@ QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 */
 QPainterPath::~QPainterPath()
 {
-    if (d && !--d->ref)
+    if (d && !d->ref.deref())
         delete d;
 }
 
