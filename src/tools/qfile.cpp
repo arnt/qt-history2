@@ -728,7 +728,7 @@ QDataStream &operator>>( QDataStream &s, QOffset &o )
 #if defined(QT_LARGEFILE_SUPPORT)
     o = value;
 #else
-    if ( value > Q_UINT64_C(UINT_MAX) ) {
+    if ( value > UINT_MAX ) {
 	qWarning("Large files are not supported on this platform");
 	o = UINT_MAX;
     } else
