@@ -45,46 +45,71 @@
 #include "qaxwidget.h"
 #include "qactivexselect.h"
 
+
 /* XPM */
 static const char *widgetIcon[]={
-"15 13 4 1",
+"22 22 6 1",
 "a c #000000",
 "# c #808080",
-". c #d4d0c8",
-"b c #ffffff",
-"......#a#.#a#..",
-"......aba.aba..",
-"......#a#.#a#..",
-".......a...a...",
-"....aaaaaaaaaaa",
-"....a.........a",
-"....a........#a",
-"#a#.a.a.aaaa.#a",
-"abaaaaaa.a.a.#a",
-"#a#.aa.a.a.aa#a",
-"....a........#a",
-"....a.########a",
-"....aaaaaaaaaaa"};
+"+ c #aaa5a0",
+"b c #dddddd",
+"* c #d4d0c8",
+". c none",
+".........#aa#...#aa#..",
+".........abba...abba..",
+".........abba...abba..",
+".........#aa#...#aa#..",
+"..........aa.....aa...",
+"..........aa.....aa...",
+"..........aa.....aa...",
+".......aaaaaaaaaaaaaaa",
+".......a*************a",
+".......a************#a",
+".......a***********+#a",
+".......a***********+#a",
+".......a***********+#a",
+"#aa#...a***********+#a",
+"abbaaaaa***********+#a",
+"abbaaaaa***********+#a",
+"#aa#...a***********+#a",
+".......a***********+#a",
+".......a***********+#a",
+".......a**++++++++++#a",
+".......a*############a",
+".......aaaaaaaaaaaaaaa"};
 
 static const char *helpIcon[]={
-"15 13 4 1",
+"22 22 7 1",
 "a c #000000",
 "# c #808080",
-". c #d4d0c8",
-"b c #ffffff",
-"......#a#.#a#..",
-"......aba.aba..",
-"......#a#.#a#..",
-".......a...a...",
-"....aaaaaaaaaaa",
-"....a.........a",
-"....a........#a",
-"#a#.a.a.aaaa.#a",
-"abaaaaaa.a.a.#a",
-"#a#.aa.a.a.aa#a",
-"....a........#a",
-"....a.########a",
-"....aaaaaaaaaaa"};
+"+ c #aaa5a0",
+"b c #dddddd",
+"* c #d4d0c8",
+"h c #1000ef",
+". c none",
+".........#aa#...#aa#..",
+".........abba...abba..",
+".........abba...abba..",
+".........#aa#...#aa#..",
+"..........aa.....aa...",
+"..........aa.....aa...",
+"..........aa.....aa...",
+".......aaaaaaaaaaaaaaa",
+".......a*************a",
+".......a*****hhh****#a",
+".......a****hhhhh**+#a",
+".......a***hhh*hhh*+#a",
+".......a***hh***hh*+#a",
+"#aa#...a****h**hh**+#a",
+"abbaaaaa******hh***+#a",
+"abbaaaaa*****hh****+#a",
+"#aa#...a***********+#a",
+".......a*****hh****+#a",
+".......a*****hh****+#a",
+".......a**++++++++++#a",
+".......a*############a",
+".......aaaaaaaaaaaaaaa"};
+
 
 class QActiveXPlugin : public QObject,
 		       public QLibraryInterface,
@@ -245,8 +270,8 @@ QStringList QActiveXPlugin::featureList() const
 QAction *QActiveXPlugin::create( const QString &key, QObject *parent )
 {
     if ( key == "QAxWidget" ) {
-	actionDocu = new QAction( "QAxWidget Documentation", QIconSet( helpIcon ),
-	                          "QA&xWidget Documentation", 0, parent, "qaxdocu" );
+	actionDocu = new QAction( "AxWidget Documentation", QIconSet( helpIcon ),
+	                          "A&xWidget Documentation", 0, parent, "qaxdocu" );
 	actionDocu->setEnabled( FALSE );
 	objects.add( actionDocu );
 	connect( actionDocu, SIGNAL(activated()), this, SLOT(onShowDocumentation()) );
