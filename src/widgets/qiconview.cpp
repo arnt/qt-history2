@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#65 $
 **
 ** Definition of QIconView widget class
 **
@@ -1391,7 +1391,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->currInputString = QString::null;
     d->dirty = FALSE;
     d->rearrangeEnabled = TRUE;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -2085,11 +2085,20 @@ int QIconView::maxItemTextLength() const
     return d->maxItemTextLength;
 }
 
+/*!
+  If \a b is TRUE, the user can rearrange icons in the iconview (moving them with the mouse),
+  if \a b is FALSE, the user is not allowed to do that.
+*/
+
 void QIconView::setRearrangeEnabled( bool b )
 {
     d->rearrangeEnabled = b;
 }
 
+/*!
+  Returns TRUE, if the user is allowed to rearrange icons in the iconview,
+  else FALSE;
+*/
 
 bool QIconView::rearrangeEnabled() const
 {
