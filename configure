@@ -2034,10 +2034,10 @@ if [ "$Edition" = "free" ]; then
 	    echo "Do you accept the terms of $affix license? \c"
 	fi
 	read acceptance
+	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
 	elif [ "$acceptance" = "no" ]; then
-	    echo
 	    echo "You are not licensed to use this software."
 	    echo
 	    exit 0
@@ -2078,10 +2078,10 @@ elif [ "$Edition" = "eval" ]; then
 	    echo "Do you accept the terms of the license? \c"
 	fi
 	read acceptance
+	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
 	elif [ "$acceptance" = "no" ] ;then
-	    echo
 	    echo "You are not licensed to use this software."
 	    echo
 	    exit 0
@@ -2159,10 +2159,10 @@ else
 	    echo "Do you accept the terms of the $Platform License? \c"
 	fi
 	read acceptance
+	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
 	elif [ "$acceptance" = "no" ]; then
-	    echo
 	    echo "You are not licensed to use this software."
 	    echo
 	    exit 0
