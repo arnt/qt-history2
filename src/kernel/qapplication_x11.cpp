@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#286 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#287 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#286 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#287 $");
 
 
 /*****************************************************************************
@@ -1230,6 +1230,24 @@ void qt_x11SendPostedEvents()			// transmit posted events
     QPostEvent *pe;
     while ( (pe=it.current()) ) {
 	if ( pe->event ) {
+	    if ( pe->event->type() == Event_LayoutHint ) {
+		// layout hints are idempotent and can cause quite
+		// expensive processing, so make sure to deliver just
+		// one per receiver.
+		QPostEventListIt it2( *postedEvents );
+		it2 = it;
+		++it2;
+		QPostEvent * pe2;
+		while ( (pe2=it2.current()) != 0 ) {
+		    ++it2;
+		    if ( pe2->event &&
+			 pe2->event->type() == Event_LayoutHint &&
+			 pe2->receiver == pe->receiver ) {
+			((QPEvent*)pe2->event)->clearPostedFlag();
+			postedEvents->removeRef( pe2 );
+		    }
+		}
+	    }
 	    QApplication::sendEvent( pe->receiver, pe->event );
 	    if ( pe == it.current() ) {
 		((QPEvent*)pe->event)->clearPostedFlag();
