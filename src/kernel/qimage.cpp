@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#212 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2008,6 +2008,9 @@ void pnmscale(const QImage& src, QImage& dst)
 */
 QImage QImage::smoothScale(int w, int h) const
 {
+    if ( w == width() && h == height() )
+	return *this; // nothing to do
+    
     if (depth()==32) {
 	QImage img(w, h, 32);
 	// 32-bpp to 32-bpp
@@ -2218,7 +2221,7 @@ QImage QImage::swapRGB() const
 		    p++;
 		    q++;
 		}
-	    }    
+	    }
 	}
     }
     return res;
