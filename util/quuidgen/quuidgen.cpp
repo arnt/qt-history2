@@ -8,10 +8,11 @@
 #if defined(Q_WS_WIN32)
 #include <objbase.h>
 #else
+#include <uuid/uuid.h>
 #endif
 
 QUuidGen::QUuidGen()
-: QUuidBase( 0, 0, TRUE )
+    : QUuidBase( 0, 0, TRUE )
 {
     formatMacro->setChecked( TRUE );
     newUuid();
@@ -35,7 +36,16 @@ void QUuidGen::newUuid()
     for ( int i = 2; i < 8; i++ )
 	result += temp.setNum( guid.Data4[i], 16 );
 #else
+    uuid_t uuid;
+    uuid_generate( uuid );
 
+    result = QString::number( uuid[ 0 ], 16 ) + QString::number( uuid[ 1 ], 16 ) + QString::number( uuid[ 2 ], 16 ) + QString::number( uuid[ 3 ], 16 ) + "-";
+    result += QString::number( uuid[ 4 ], 16 ) + QString::number( uuid[ 5 ], 16 ) + "-";
+    result += QString::number( uuid[ 6 ], 16 ) + QString::number( uuid[ 7 ], 16 ) + "-";
+    result += QString::number( uuid[ 8 ], 16 ) + QString::number( uuid[ 9 ], 16 ) + "-";
+    for ( int i = 10; i < 16; ++i )
+	result += QString::number( uuid[ i ], 16 );
+	
 #endif
 
     formatChanged( formats->id( formats->selected() ) );
