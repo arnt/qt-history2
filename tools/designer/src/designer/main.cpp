@@ -85,6 +85,10 @@ int main(int argc, char *argv[])
         }
     } else {
         QSettings settings;
+        if (settings.value("firstTime", true).toBool()) {
+            settings.setValue("firstTime", false);
+            mw.showTheNewStuff();
+        }
         if (settings.value("newFormDialog/ShowOnStartup", true).toBool())
             mw.newForm();
     }
