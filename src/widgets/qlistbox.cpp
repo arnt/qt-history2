@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#256 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#257 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1234,13 +1234,13 @@ void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * e )
 
 void QListBox::mouseDoubleClickEvent( QMouseEvent * )
 {
-    if ( selectionMode() == Single && d->current ) {
-	QListBoxItem * i = d->current;
-	QString tmp = d->current->text();
-	emit selected( currentItem() );
-	emit selected( i );
-	if ( !tmp.isNull() )
-	    emit selected( tmp );
+    if ( d->current ) {
+        QListBoxItem * i = d->current;
+        QString tmp = d->current->text();
+        emit selected( currentItem() );
+        emit selected( i );
+        if ( !tmp.isNull() )
+            emit selected( tmp );
     }
     d->ignoreMoves = TRUE;
 }
