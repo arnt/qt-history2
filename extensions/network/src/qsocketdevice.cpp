@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#19 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#20 $
 **
 ** Implementation of Network Extension Library
 **
@@ -53,42 +53,50 @@ public:
 
 /*! \enum QSocketDevice::Error
 
-This enum type describes the error states of QSocketDevice.  At
-present these errors are defined: <ul>
+  This enum type describes the error states of QSocketDevice.  At present these
+  errors are defined:
 
-<li> \c NoError - all is fine.
+  <ul>
+  <li> \c NoError - all is fine.
 
-<li> \c AlreadyBound - bind() said so.
+  <li> \c AlreadyBound - bind() said so.
 
-<li> \c Inaccessible - the operating system or firewall prohibits something.
+  <li> \c Inaccessible - the operating system or firewall prohibits something.
 
-<li> \c NoResources - the operating system ran out of something.
+  <li> \c NoResources - the operating system ran out of something.
 
-<li> \c Bug - there seems to be a bug in QSocketDevice.
+  <li> \c Bug - there seems to be a bug in QSocketDevice.
 
-<li> \c Impossible - the impossible happened, usually because you confused
-QSocketDevice horribly.  Simple example:
-\code
-    ::close( sd->socket() );
-    sd->writeBlock( someData, 42 );
-\endcode
-The libc ::close() closes the socket, but QSocketDevice is not aware
-of that.  So when you call writeBlock(), the impossible happens.
+  <li> \c Impossible - the impossible happened, usually because you confused
+  QSocketDevice horribly.  Simple example:
+  \code
+  ::close( sd->socket() );
+  sd->writeBlock( someData, 42 );
+  \endcode
+  The libc ::close() closes the socket, but QSocketDevice is not aware
+  of that.  So when you call writeBlock(), the impossible happens.
 
-<li> \c NoFiles - the operating system will not let QSocketDevice open
-another file.
+  <li> \c NoFiles - the operating system will not let QSocketDevice open
+  another file.
 
-<li> \c ConnectionRefused - a connection attempt was rejected by the
-peer.
+  <li> \c ConnectionRefused - a connection attempt was rejected by the
+  peer.
 
-<li> \c NetworkFailure - there is a network failure between this host
-and... and whatever.
+  <li> \c NetworkFailure - there is a network failure between this host
+  and... and whatever.
 
-<li> \c UnknownError - the operating system reacted in a way that the
-Qt developers did not foresee.
+  <li> \c UnknownError - the operating system reacted in a way that the
+  Qt developers did not foresee.
+  </ul>
+*/
 
-</ul>
+/*! \enum QSocketDevice::Type
 
+  This enum type describes the type of the socket:
+  <ul>
+  <li> \c Stream - a stream socket
+  <li> \c Datagram - a datagram socket
+  </ul>
 */
 
 

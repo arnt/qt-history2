@@ -76,7 +76,7 @@ QSocketPrivate::QSocketPrivate( QSocket *o )
 
 QSocketPrivate::~QSocketPrivate()
 {
-    if ( ready_read_timer )
+    if ( ready_read_timer != 0 )
 	owner->killTimer( ready_read_timer );
     // Order is important here - the socket notifiers must go away
     // before the socket does.

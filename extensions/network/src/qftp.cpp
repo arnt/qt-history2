@@ -828,6 +828,10 @@ void QFtp::reinitCommandSocket()
 {
 }
 
+/*!
+  \reimp
+*/
+
 void QFtp::error( int code )
 {
     if ( code == QSocket::ErrHostNotFound ||

@@ -53,7 +53,7 @@ public:
   (Note that due to lack of support in the underlying APIs,
   QServerSocket cannot accept or reject connections conditionally.)
 
-  \sa QSocket, QSocketDevice, QSocketAddress, QSocketNotifier
+  \sa QSocket, QSocketDevice, QHostAddress, QSocketNotifier
 */
 
 
@@ -189,6 +189,10 @@ uint QServerSocket::port()
 {
     return d->s->port();
 }
+
+
+/*! Returns the operating system socket.
+*/
 
 int QServerSocket::socket()
 {

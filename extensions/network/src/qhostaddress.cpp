@@ -26,7 +26,7 @@
 
 
 /*!
-  \class QHostAddress qsocketdevice.h
+  \class QHostAddress qhostaddress.h
   \brief QHostAddress provides an IP address.
 
   \ingroup kernel
