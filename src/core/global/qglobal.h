@@ -1669,6 +1669,52 @@ for (QForeachMemory _container_ = qForeachContainerNew(container, _container_); 
          qForeachContainer(container, _container_)->brk;                         \
          --qForeachContainer(container, _container_)->brk)
 
+#elif defined(Q_OS_IRIX) && defined(Q_CC_MIPS)
+
+template <typename T>
+class QForeachContainer  {
+public:
+    inline QForeachContainer(const T& t): c(t), brk(0), i(c.begin()), e(c.end()){ };
+    const T c;
+    typename T::const_iterator i, e;
+    mutable int brk;
+    inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer(); return false; }
+};
+
+template <int size>
+struct QForeachMemory {
+    inline QForeachMemory(void *) : brk(false) {}
+    union {
+        void *dummy;
+        char padding[size];
+    };
+    bool brk;
+};
+
+template<typename T>
+QForeachContainer<T> qForeachSizeofContainerHelper(const T &);
+
+template <typename T, typename U>
+inline QForeachContainer<T> *qForeachContainer(const T &, U &memory)
+{ return reinterpret_cast<QForeachContainer<T>*>(memory.padding); }
+
+template <typename T, typename U>
+inline void qForeachContainerNew(const T& t, U &memory)
+{   
+    new (memory.padding) QForeachContainer<T>(t); 
+}
+
+#define Q_FOREACH(variable, container) \
+for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container_(0); \
+     !_container_.brk; _container_.brk=true)                               \
+    for (qForeachContainerNew(container, _container_);                               \
+         qForeachContainer(container, _container_)->condition();                       \
+         ++qForeachContainer(container, _container_)->i)                               \
+        for (variable = *qForeachContainer(container, _container_)->i;                 \
+             qForeachContainer(container, _container_)->brk;                           \
+             --qForeachContainer(container, _container_)->brk)
+
+
 #else
 
 template <typename T>
