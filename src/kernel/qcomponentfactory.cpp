@@ -103,16 +103,16 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
     if ( !ok )// #### || !QFile::exists( file ) )
 	return QE_NOCOMPONENT;
 
-    QLibrary *library = new QLibrary( file );
+    QLibrary library( file, QLibrary::Manual );
 
     QComponentFactoryInterface *cfIface =0;
-    library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
+    library.queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
     if ( cfIface ) {
 	QRESULT res = cfIface->createInstance( cid, iid, iface, outer );
 	cfIface->release();
 	return res;
     }
-    return library->queryInterface( iid, iface );
+    return library.queryInterface( iid, iface );
 }
 
 /*!

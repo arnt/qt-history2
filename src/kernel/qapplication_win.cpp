@@ -2287,8 +2287,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 		    if ( !oleaccChecked ) {
 			oleaccChecked = TRUE;
-			QLibrary library( "oleacc.dll", QLibrary::Manual );
-			ptrLresultFromObject = (PtrLresultFromObject)library.resolve( "LresultFromObject" );
+			ptrLresultFromObject = (PtrLresultFromObject)QLibrary::resolve( "oleacc.dll", "LresultFromObject" );
 		    }
 		    if ( ptrLresultFromObject ) {
 			QAccessibleInterface *acc = 0;
@@ -4032,7 +4031,9 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
     if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 || qt_winver == Qt::WV_XP ) ) {
-    // we know that they can be used when we are here
+	if ( QColor::numBitPlanes() < 16 )
+	    return FALSE;
+	// we know that they can be used when we are here
 	BOOL enabled = FALSE;
 	UINT api;
 	switch (effect) {
@@ -4041,8 +4042,6 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    break;
 	case UI_FadeMenu:
 	    if ( qt_winver == WV_98 )
-		return FALSE;
-	    if ( QColor::numBitPlanes() < 16 )
 		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
@@ -4057,8 +4056,6 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    break;
 	case UI_FadeTooltip:
 	    if ( qt_winver == WV_98 )
-		return FALSE;
-	    if ( QColor::numBitPlanes() < 16 )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;
@@ -4078,20 +4075,18 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 #endif
 	return enabled;
     } else {
+	if ( QColor::numBitPlanes() < 16 )
+	    return FALSE;
 	switch( effect ) {
 	case UI_AnimateMenu:
 	    return animate_menu;
 	case UI_FadeMenu:
-	    if ( QColor::numBitPlanes() < 16 )
-		return FALSE;
 	    return fade_menu;
 	case UI_AnimateCombo:
 	    return animate_combo;
 	case UI_AnimateTooltip:
 	    return animate_tooltip;
 	case UI_FadeTooltip:
-	    if ( QColor::numBitPlanes() < 16 )
-		return FALSE;
 	    return fade_tooltip;
 	default:
 	    return animate_ui;
