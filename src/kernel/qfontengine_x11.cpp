@@ -1293,8 +1293,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
 	    FT_UInt glyph = *(glyphs + i);
-	    if ( glyph < widthCacheSize )
-		advances[i] = widthCache[glyph];
+	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	    if ( !advances[i] ) {
 		XGlyphInfo gi;
 		XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
@@ -1328,8 +1327,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
 	    XftChar16 glyph = *(glyphs + i);
-	    if ( glyph < widthCacheSize )
-		advances[i] = widthCache[glyph];
+	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	    if ( !advances[i] ) {
 		XGlyphInfo gi;
 		XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
@@ -1356,8 +1354,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 #ifdef QT_XFT2
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt glyph = *(glyphs + i);
-	if ( glyph < widthCacheSize )
-	    advances[i] = widthCache[glyph];
+	advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	if ( !advances[i] ) {
 	    XGlyphInfo gi;
 	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
@@ -1373,8 +1370,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 #else
     for ( int i = 0; i < len; i++ ) {
 	XftChar16 glyph = *(glyphs + i);
-	if ( glyph < widthCacheSize )
-	    advances[i] = widthCache[glyph];
+	advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
 	if ( !advances[i] ) {
 	    XGlyphInfo gi;
 	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi);
