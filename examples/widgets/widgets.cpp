@@ -713,21 +713,21 @@ void WidgetView::dummy()
 
 void WidgetView::selectionChanged()
 {
-    qDebug("selectionChanged");
+    //qDebug("selectionChanged");
 }
-void WidgetView::selectionChanged( QListViewItem* item)
+void WidgetView::selectionChanged( QListViewItem* /*item*/)
 {
-    qDebug("selectionChanged %p", item );
-}
-
-void WidgetView::clicked( QListViewItem* item )
-{
-    qDebug("clicked %p", item );
+    //qDebug("selectionChanged %p", item );
 }
 
-void WidgetView::mySelectionChanged( QListViewItem* item )
+void WidgetView::clicked( QListViewItem* /*item*/ )
 {
-    qDebug("mySelectionChanged %p", item );
+    //qDebug("clicked %p", item );
+}
+
+void WidgetView::mySelectionChanged( QListViewItem* /*item*/ )
+{
+    //qDebug("mySelectionChanged %p", item );
 }
 
 void WidgetView::showProperties()
