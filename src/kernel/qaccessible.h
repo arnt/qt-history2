@@ -14,10 +14,10 @@ class QObject;
 class Q_EXPORT QAccessible
 {
 public:
-    enum Reason {
+    enum Event {
 	SoundPlayed	    = 0x0001,
 	Alert		    = 0x0002,
-	ForegroundChange    = 0x0003,
+	ForegroundChanged   = 0x0003,
 	MenuStart	    = 0x0004,
 	MenuEnd		    = 0x0005,
 	PopupMenuStart	    = 0x0006,
@@ -38,15 +38,15 @@ public:
 	SelectionAdd	    = 0x8007,
 	SelectionRemove	    = 0x8008,
 	SelectionWithin	    = 0x8009,
-	StateChange	    = 0x800A,
-	LocationChange	    = 0x800B,
-	NameChange	    = 0x800C,
-	DescriptionChange   = 0x800D,
-	ValueChange	    = 0x800E,
-	ParentChange	    = 0x800F,
-	HelpChange	    = 0x80A0,
-	DefaultActionChange = 0x80B0,
-	AcceleratorChange   = 0x80C0
+	StateChanged	    = 0x800A,
+	LocationChanged	    = 0x800B,
+	NameChanged	    = 0x800C,
+	DescriptionChanged  = 0x800D,
+	ValueChanged	    = 0x800E,
+	ParentChanged	    = 0x800F,
+	HelpChanged	    = 0x80A0,
+	DefaultActionChanged= 0x80B0,
+	AcceleratorChanged  = 0x80C0
     };
 
     enum State {
@@ -85,72 +85,83 @@ public:
     };
 
     enum Role {
+	NoRole		= 0x0,
 	Client		= 0x01
-
     };
 };
 
+// {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}
+#define IID_QAccessible QUuid( 0xec86cb9c, 0x5da0, 0x4c43, 0xa7, 0x39, 0x13, 0xeb, 0xdf, 0x1c, 0x6b, 0x14 )
+
 struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterface
 {
+#ifdef Q_DOC
+    enum Event {
+    };
+    enum State {
+    };
+    enum Role {
+    };
+#endif
     // navigation and hierarchy
-    virtual int		hitTest( int x, int y ) const = 0;
+//    virtual int		hitTest( int x, int y ) const = 0;
     virtual QRect	location( int who ) const = 0;
-    virtual bool	navigate( int dir, int start ) const = 0;
+/*    virtual bool	navigate( int dir, int start ) const = 0;
     virtual QAccessibleInterface* child( int who ) const = 0;
     virtual int		childCount() const = 0;
     virtual QAccessibleInterface* parent() const = 0;
-
+*/
     // descriptive properties and methods
-    virtual void	doDefaultAction() = 0;
-    virtual QString	defaultAction() const = 0;
-    virtual QString	description() const = 0;
-    virtual QString	help() const = 0;
-    virtual QString	accelerator() const = 0;
-    virtual QString	name() const = 0;
-    virtual QString	value() const = 0;
-
-    virtual Role	role() const = 0;
-    virtual State	state() const = 0;
-
+    virtual bool	doDefaultAction( int who ) = 0;
+    virtual QString	defaultAction( int who ) const = 0;
+    virtual QString	description( int who ) const = 0;
+    virtual QString	help( int who ) const = 0;
+    virtual QString	accelerator( int who ) const = 0;
+    virtual QString	name( int who ) const = 0;
+    virtual QString	value( int who ) const = 0;
+    virtual Role	role( int who ) const = 0;
+    virtual State	state( int who ) const = 0;
+/*
     // selection and focus
     virtual void	select( int how, int who ) = 0;
     virtual bool	hasFocus() const = 0;
     virtual int		selection() const = 0;
-
+*/
 };
 
 class Q_EXPORT QAccessibleObject : public QAccessibleInterface
 {
 public:
-    QAccessibleObject( QObject * );
+    QAccessibleObject();
+    virtual ~QAccessibleObject();
 
-    void setState( State state );
-    State state() const;
-
-    void setName( const QString &name );
-    QString name() const;
-
-    void setDescription( const QString &description );
-    QString description() const;
-
-    void setHelp( const QString &help );
-    QString help() const;
-
-    void setValue( const QString &value );
-    QString value() const;
-
-    void setDefaultAction( const QString &def );
-    QString defaultAction() const;
+    void queryInterface( const QUuid &, QUnknownInterface** );
+    ulong addRef();
+    ulong release();
 
 private:
-    QObject *object;
+    ulong ref;
+};
 
-    State state_;
-    QString name_;
-    QString descr_;
-    QString help_;
-    QString value_;
-    QString default_;    
+class Q_EXPORT QAccessibleWidget : public QAccessibleObject
+{
+public:
+    QAccessibleWidget( QWidget *w );
+
+    QRect	location( int who ) const;
+    
+    bool	doDefaultAction( int who );
+    QString	defaultAction( int who ) const;
+    QString	description( int who ) const;
+    QString	help( int who ) const;
+    QString	accelerator( int who ) const;
+    QString	name( int who ) const;
+    QString	value( int who ) const;
+    Role	role( int who ) const;
+    State	state( int who ) const;
+
+private:
+    QWidget *widget;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

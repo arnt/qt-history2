@@ -178,8 +178,8 @@ HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
 	if ( p == widget )
 	    break;
     }
-    if ( p == widget ) {
-	QWindowsAccessible* acc = new QWindowsAccessible( w );
+    if ( p == widget && w->accessibilityInterface() ) {
+	QWindowsAccessible* acc = new QWindowsAccessible( w->accessibilityInterface() );
 	IDispatch *iface;
 	acc->QueryInterface( IID_IDispatch, (void**)&iface );
 	if ( iface ) {
@@ -198,16 +198,11 @@ HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
 
 HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID )
 { 
-#if 0
-    if ( varID.lVal == CHILDID_SELF ) {
-	QPoint wpos = widget->mapToGlobal( QPoint( 0, 0 ) );
-	*pxLeft = wpos.x();
-	*pyTop = wpos.y();
-	*pcxWidth = widget->width();
-	*pcyHeight = widget->height();
-    } else {
-    }
-#endif
+    QRect rect = accessible->location( varID.lVal );
+    *pxLeft = rect.x();
+    *pyTop = rect.y();
+    *pcxWidth = rect.width();
+    *pcyHeight = rect.height();
     return S_OK;
 }
 
@@ -287,56 +282,50 @@ HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
     return S_FALSE;
 }
 
+/*!
+  Properties and methods
+*/
 HRESULT QWindowsAccessible::accDoDefaultAction( VARIANT varID )
 {
-    if ( varID.lVal == CHILDID_SELF ) {
-    } else {
-    }
+    if ( accessible->doDefaultAction( varID.lVal ) )
+	return S_OK;
 
     return DISP_E_MEMBERNOTFOUND;
 }
 
 HRESULT QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaultAction )
 { 
-    *pszDefaultAction = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString def = accessible->defaultAction();
-	if ( !!def ) {
-	    *pszDefaultAction = SysAllocString( (TCHAR*)qt_winTchar( def, TRUE ) );
-	    return S_OK;
-	}
-    } else {
+    QString def = accessible->defaultAction( varID.lVal );
+    if ( !!def ) {
+	*pszDefaultAction = SysAllocString( (TCHAR*)qt_winTchar( def, TRUE ) );
+	return S_OK;
     }
+
+    *pszDefaultAction = NULL;
     return S_FALSE;
 }
 
 HRESULT QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescription )
 { 
-    *pszDescription = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString descr = accessible->description();
-	if ( !!descr ) {
-	    *pszDescription = SysAllocString( (TCHAR*)qt_winTchar( descr, TRUE ) );
-	    return S_OK;
-	}
-    } else {
+    QString descr = accessible->description( varID.lVal );
+    if ( !!descr ) {
+	*pszDescription = SysAllocString( (TCHAR*)qt_winTchar( descr, TRUE ) );
+	return S_OK;
     }
 
+    *pszDescription = NULL;
     return S_FALSE;
 }
 
 HRESULT QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *pszHelp )
 {
-    *pszHelp = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString help = accessible->help();
-	if ( !!help ) {
-	    *pszHelp = SysAllocString( (TCHAR*)qt_winTchar( help, TRUE ) );
-	    return S_OK;
-	}
-    } else {
+    QString help = accessible->help( varID.lVal );
+    if ( !!help ) {
+	*pszHelp = SysAllocString( (TCHAR*)qt_winTchar( help, TRUE ) );
+	return S_OK;
     }
     
+    *pszHelp = NULL;
     return S_FALSE;
 }
 
@@ -347,31 +336,25 @@ HRESULT QWindowsAccessible::get_accHelpTopic( BSTR *pszHelpFile, VARIANT varChil
 
 HRESULT QWindowsAccessible::get_accKeyboardShortcut( VARIANT varID, BSTR *pszKeyboardShortcut )
 { 
-    *pszKeyboardShortcut = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString sc;
-	if ( !!sc ) {
-	    // ?
-	    return S_OK;
-	}
-    } else {
+    QString sc = accessible->accelerator( varID.lVal );
+    if ( !!sc ) {
+	*pszKeyboardShortcut = SysAllocString( (TCHAR*)qt_winTchar( sc, TRUE ) );
+	return S_OK;
     }
 
+    *pszKeyboardShortcut = NULL;
     return S_FALSE;
 }
 
 HRESULT QWindowsAccessible::get_accName( VARIANT varID, BSTR* pszName )
 {
-    *pszName = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString n = accessible->name();
-	if ( !!n ) {
-	    *pszName = SysAllocString( (TCHAR*)qt_winTchar( n, TRUE ) );
-	    return S_OK;
-	}
-    } else {
+    QString n = accessible->name( varID.lVal );
+    if ( !!n ) {
+	*pszName = SysAllocString( (TCHAR*)qt_winTchar( n, TRUE ) );
+	return S_OK;
     }
 
+    *pszName = NULL;
     return S_FALSE;
 }
 
@@ -382,42 +365,32 @@ HRESULT QWindowsAccessible::put_accName( VARIANT varID, BSTR szName )
 
 HRESULT QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
 { 
-    if ( varID.lVal == CHILDID_SELF ) {
+    int role = accessible->role( varID.lVal );
+    if ( role != QAccessible::NoRole ) {
+	(*pvarRole).lVal = 
 	(*pvarRole).vt = VT_I4;
-	return S_OK;
     } else {
 	(*pvarRole).vt = VT_EMPTY;
-	return S_FALSE;
     }
-
-    return S_FALSE;
+    return S_OK;
 }
 
 HRESULT QWindowsAccessible::get_accState( VARIANT varID, VARIANT *pvarState )
 {
-    if ( varID.lVal == CHILDID_SELF ) {
-	(*pvarState).vt = VT_I4;
-	(*pvarState).lVal = 0;
-	return S_OK;
-    } else {
-	return S_FALSE;
-    }
-
-    return S_FALSE;
+    (*pvarState).vt = VT_I4;
+    (*pvarState).lVal = accessible->state( varID.lVal );
+    return S_OK;
 }
 
 HRESULT QWindowsAccessible::get_accValue( VARIANT varID, BSTR* pszValue )
 { 
-    *pszValue = NULL;
-    if ( varID.lVal == CHILDID_SELF ) {
-	QString value = accessible->value();
-	if ( !value.isNull() ) {
-	    *pszValue = SysAllocString( (TCHAR*)qt_winTchar( value, TRUE ) );
-	    return S_OK;
-	}
-    } else {
+    QString value = accessible->value( varID.lVal );
+    if ( !value.isNull() ) {
+	*pszValue = SysAllocString( (TCHAR*)qt_winTchar( value, TRUE ) );
+	return S_OK;
     }
 
+    *pszValue = NULL;
     return S_FALSE;
 }
 
@@ -457,7 +430,7 @@ HRESULT QWindowsAccessible::get_accFocus( VARIANT *pvarID )
 	(*pvarID).vt = VT_EMPTY;
     }	
 */
-    return S_OK;
+    return DISP_E_MEMBERNOTFOUND;
 }
 
 HRESULT QWindowsAccessible::get_accSelection( VARIANT *pvarChildren )
