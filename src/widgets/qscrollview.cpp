@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#26 $
 **
 ** Implementation of QScrollView class
 **
@@ -69,7 +69,7 @@ struct QScrollViewData {
     QScrollViewData(QWidget* parent) :
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
-	viewport( parent, "qt_viewport" ),
+	viewport( parent, "qt_viewport", WPaintClever ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
@@ -477,8 +477,13 @@ void QScrollView::setCornerWidget(QWidget* corner)
     if (oldcorner != corner) {
 	if (oldcorner) oldcorner->hide();
 	d->corner = corner;
-	if ( corner && corner->parentWidget() != this )
-	    corner->recreate( this, 0, QPoint(0,0), FALSE );
+
+	if ( corner && corner->parentWidget() != this ) {
+	    // #### No clean way to get current WFlags
+	    corner->recreate( this, (((QScrollView*)corner))->getWFlags(),
+			      QPoint(0,0), FALSE );
+	}
+
 	updateScrollBars();
 	if ( corner ) corner->show();
     }
@@ -889,17 +894,33 @@ void QScrollView::resizeContents( int w, int h )
     if ( d->children.isEmpty() && d->policy == Default )
 	setResizePolicy( Manual );
 
-    if ( ow > w ) { int t=w; w=ow; ow=t; }
+    if ( ow > w ) {
+	// Swap
+	int t=w;
+	w=ow;
+	ow=t;
+    }
+    // Refresh area ow..w
     if ( ow < viewport()->width() && w >= 0 ) {
-	if ( ow < 0 ) ow = 0;
-	if ( w > viewport()->width() < 0 ) w = viewport()->width();
+	if ( ow < 0 )
+	    ow = 0;
+	if ( w > viewport()->width() )
+	    w = viewport()->width();
 	viewport()->update( contentsX()+ow, 0, w-ow, viewport()->height() );
     }
 
-    if ( oh > h ) { int t=h; h=oh; oh=t; }
+    if ( oh > h ) {
+	// Swap
+	int t=h;
+	h=oh;
+	oh=t;
+    }
+    // Refresh area oh..h
     if ( oh < viewport()->height() && h >= 0 ) {
-	if ( oh < 0 ) oh = 0;
-	if ( h > viewport()->height() < 0 ) h = viewport()->height();
+	if ( oh < 0 )
+	    oh = 0;
+	if ( h > viewport()->height() )
+	    h = viewport()->height();
 	viewport()->update( 0, contentsY()+oh, viewport()->width(), h-oh);
     }
 }
