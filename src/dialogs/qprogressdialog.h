@@ -40,14 +40,14 @@
 
 #ifndef QT_H
 #include "qsemimodal.h"
-#include "qpushbutton.h"
-#include "qlabel.h"
-#include "qprogressbar.h"
+#include "qlabel.h"       // ### remove or keep for users' convenience?
+#include "qprogressbar.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
 #ifndef QT_NO_PROGRESSDIALOG
 
 struct QProgressData;
+class QPushButton;
 class QTimer;
 
 class Q_EXPORT QProgressDialog : public QSemiModal

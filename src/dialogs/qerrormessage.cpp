@@ -19,6 +19,7 @@
 #include "qmessagebox.h"
 #include "qstylesheet.h"
 #include "qlayout.h"
+#include "qdict.h"
 
 #include <stdio.h>
 
@@ -186,5 +187,3 @@ void QErrorMessage::message( const QString & m )
     if ( nextPending() )
 	show();
 }
-
-

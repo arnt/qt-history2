@@ -38,14 +38,12 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qtimer.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
 
 
 class QTipManager;
-class QLabel;
 class QIconViewToolTip;
 
 class Q_EXPORT QToolTipGroup: public QObject

@@ -12,6 +12,8 @@
 #define IMAGEFIP_H
 
 #include <qfiledialog.h>
+#include <qstrlist.h>
+#include <qpixmap.h>
 
 class ImageIconProvider : public QFileIconProvider
 {

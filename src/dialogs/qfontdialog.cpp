@@ -49,7 +49,6 @@
 #include "qlayout.h"
 #include "qvgroupbox.h"
 #include "qhgroupbox.h"
-#include "qhbox.h"
 #include "qlabel.h"
 #include "qapplication.h"
 #include "qfontdatabase.h"

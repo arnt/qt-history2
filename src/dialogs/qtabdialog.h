@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qdialog.h"
-#include "qiconset.h"
+#include "qiconset.h" // QPixmap->QIconSet conversion
 #endif // QT_H
 
 #ifndef QT_NO_TABDIALOG

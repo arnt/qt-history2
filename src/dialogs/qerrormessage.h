@@ -13,8 +13,6 @@
 #define QERRORHANDLER_H
 
 #ifndef QT_H
-#include "qglobal.h"
-#include "qdict.h"
 #include "qdialog.h"
 #endif // QT_H
 
@@ -23,6 +21,7 @@ class QCheckBox;
 class QLabel;
 class QTextView;
 class QStringList;
+template<class type> class QDict;
 
 
 class QErrorMessage: public QDialog {

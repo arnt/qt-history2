@@ -46,13 +46,13 @@ class QFileDialog;
 class QTimer;
 class QNetworkOperation;
 class QFileListView;
+class QLineEdit;
+class QListViewItem;
+class QListBoxItem;
 
 #ifndef QT_H
 #include "qdir.h"
 #include "qdialog.h"
-#include "qlistbox.h"
-#include "qlineedit.h"
-#include "qlistview.h"
 #include "qurloperator.h"
 #include "qurlinfo.h"
 #endif // QT_H

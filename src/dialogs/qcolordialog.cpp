@@ -50,11 +50,10 @@
 #include "qvalidator.h"
 #include "qdragobject.h"
 #include "qapplication.h"
-#include "qdragobject.h"
 
 //////////// QWellArray BEGIN
 
-#include "qobjectdict.h"
+// #include "qobjectdict.h"
 
 //
 //  W A R N I N G
@@ -88,16 +87,8 @@ public:
     QString cellContent( int row, int col ) const;
     // ### Paul !!! virtual void setCellContent( int row, int col, const QString &);
 
-    // ##### Obsolete since not const
-    int numCols() { return nCols; }
-    int numRows() { return nRows; }
-
     int numCols() const { return nCols; }
     int numRows() const { return nRows; }
-
-    // ##### Obsolete since not const
-    int selectedColumn() { return selCol; }
-    int selectedRow() { return selRow; }
 
     int selectedColumn() const { return selCol; }
     int selectedRow() const { return selRow; }

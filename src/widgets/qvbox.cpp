@@ -38,7 +38,6 @@
 
 #include "qvbox.h"
 #ifndef QT_NO_COMPLEXWIDGETS
-#include "qlayout.h"
 
 // NOT REVISED
 /*!

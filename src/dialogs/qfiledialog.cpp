@@ -41,6 +41,8 @@
 
 #include "qlineedit.h"
 #include "qcombobox.h"
+#include "qlistview.h"
+#include "qlistbox.h"
 #include "qlabel.h"
 #include "qpushbutton.h"
 #include "qtoolbutton.h"

@@ -40,8 +40,8 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qregexp.h"
-#include "qstring.h"
+#include "qstring.h" // char*->QString conversion
+#include "qregexp.h" // QString->QRegExp conversion
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS

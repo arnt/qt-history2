@@ -57,7 +57,6 @@
 #include "qspinbox.h"
 #include "qapplication.h"
 #include "qheader.h"
-#include "qcombobox.h"
 
 #include "qstring.h"
 #include "qregexp.h"
