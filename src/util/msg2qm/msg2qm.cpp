@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#1 $
+** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#2 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -169,7 +169,7 @@ void translate( const QString& filename, const QString& qmfile )
 		    QString charset = msgstr.mid( cpos, i-cpos );
 		    QTextCodec *codec = QTextCodec::codecForName( charset.ascii() );
 		    if ( codec ) {
-			debug( "codec for %s is %s", 
+		        debug( "PO file character set: %s. Codec: %s", 
 			       charset.ascii(), codec->name() );
 			t.setCodec( codec );		      
 		    } else {
