@@ -655,7 +655,7 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
             char* buffer = new char[ba.size() * 2 + 1];
             int escapedSize = (int)mysql_escape_string(buffer, ba.data(), ba.size());
             r.reserve(escapedSize + 3);
-            r.append(QLatin1Char('\'')).append(QLatin1String(buffer)).append(QLatin1Char('\''));
+            r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
             delete[] buffer;
         }
         break;
