@@ -93,6 +93,7 @@ public:
     virtual void removeDockWindow( QDockWindow * );
 
     void show();
+    void hide();
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 

@@ -1432,6 +1432,26 @@ void QMainWindow::show()
 }
 
 
+/*! \reimp
+*/
+void QMainWindow::hide()
+{
+    if ( isVisible() ) {
+	QObjectList *list = queryList( "QDockWindow" );
+	QObjectListIt it( *list );
+	while ( it.current() ) {
+	    QDockWindow *dw = (QDockWindow*)it.current();
+	    ++it;
+	    if ( dw->isTopLevel() && dw->isVisible() )
+		dw->hide();
+	}
+	delete list;
+    }
+
+    QWidget::hide();
+}
+
+
 /*!  \reimp */
 QSize QMainWindow::sizeHint() const
 {
