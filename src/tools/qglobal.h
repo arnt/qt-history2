@@ -217,10 +217,31 @@
 #    define Q_PACKED __attribute__ ((packed))
 #  endif
 #elif defined(__xlC__)
+/* IBM compiler versions are a bit messy. There are actually two products:
+   the C product, and the C++ product. The C++ compiler is always packaged
+   with the latest version of the C compiler. Version numbers do not always
+   match. This little table (I'm not sure it's accurate) should be helpful:
+
+	    C++ product               C product
+	
+   	     C Set 3.1              C Compiler 3.0
+   	       ...                       ...
+   	 C++ Compiler 3.6.6         C Compiler 4.3
+   	       ...                       ...
+   	 Visual Age C++ 4.0              ...
+   	       ...                       ...
+   	 Visual Age C++ 5.0         C Compiler 5.0
+
+   Now:
+   __xlC__    is the version of the C compiler - it's only an approximation
+              of the C++ compiler version (hexadecimal notation)
+   __IBMCPP__ is the version of the C++ compiler - but it's not defined
+              on older compilers like C Set 3.1 (decimal notation) */
 #  define Q_CC_XLC
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 /* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
