@@ -163,8 +163,8 @@ QMutex *QThreadPrivate::mutex() const
     Constructs a new thread. The thread does not begin executing until
     start() is called.
 */
-QThread::QThread()
-    : QObject(*(new QThreadPrivate), 0)
+QThread::QThread(QObject *parent)
+    : QObject(*(new QThreadPrivate), parent)
 { }
 
 /*!

@@ -36,7 +36,7 @@ public:
     static void initialize();
     static void cleanup();
 
-    QThread();
+    QThread(QObject *parent = 0);
     virtual ~QThread();
 
     enum Priority {
