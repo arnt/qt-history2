@@ -73,9 +73,18 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *w = ConnectionEdit::widgetAt(pos);
     
-    if (state() == Editing && qt_cast<QLabel*>(w) == 0)
-        return 0;
-        
+    if (state() == Editing) {
+        QLabel *label = qt_cast<QLabel*>(w);
+        if (label == 0)
+            return 0;
+        int cnt = connectionCount();
+        for (int i = 0; i < cnt; ++i) {
+            Connection *con = connection(i);
+            if (con->widget(EndPoint::Source) == w)
+                return 0;
+        }
+    }
+            
     return w;
 }
 
