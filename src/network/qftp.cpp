@@ -1115,6 +1115,11 @@ public:
     QFtp::Error error;
     QString errorString;
     QFtpListener *listener;
+
+    QString host;
+    Q_UINT16 port;
+    QString proxyHost;
+    Q_UINT16 proxyPort;
 };
 
 int QFtpPrivate::addCommand(QFtpCommand *cmd)
@@ -1571,6 +1576,20 @@ int QFtp::setTransferMode(TransferMode mode)
 }
 
 /*!
+    Enables use of the FTP proxy on host \a host and port \a
+    port. Calling this function with \a host empty disables proxying.
+
+    QFtp does not support FTP-over-HTTP proxy servers. Use QHttp for
+    this.
+*/
+int QFtp::setProxy(const QString &host, Q_UINT16 port)
+{
+    QStringList args;
+    args << host << QString::number(port);
+    return d->addCommand(new QFtpCommand(SetProxy, args));
+}
+
+/*!
     Lists the contents of directory \a dir on the FTP server. If \a
     dir is empty, it lists the contents of the current directory.
 
@@ -2015,11 +2034,32 @@ void QFtp::startNextCommand()
         readAll(); // clear the data
     emit commandStarted(c->id);
 
+    // Proxy support, replace the Login argument in place, then fall
+    // through.
+    if (c->command == Login && !d->proxyHost.isEmpty()) {
+        QString loginString = c->rawCmds.first().trimmed();
+        loginString += "@" + d->host;
+        if (d->port && d->port != 21)
+            loginString += ":" + QString::number(d->port);
+        loginString += "\r\n";
+        c->rawCmds[0] = loginString;
+    }
+
     if (c->command == SetTransferMode) {
-        d->pending.takeFirst();
-        qInvokeSlot(this, "startNextCommand", QueuedConnection);
+        piFinished("Transfer mode set");
+    } else if (c->command == SetProxy) {
+        d->proxyHost = c->rawCmds[0];
+        d->proxyPort = c->rawCmds[1].toUInt();
+        c->rawCmds.clear();
+        piFinished("Proxy set to " + d->proxyHost + ":" + QString::number(d->proxyPort));
     } else if (c->command == ConnectToHost) {
-        d->pi.connectToHost(c->rawCmds[0], c->rawCmds[1].toUInt());
+        if (!d->proxyHost.isEmpty()) {
+            d->host = c->rawCmds[0];
+            d->port = c->rawCmds[1].toUInt();
+            d->pi.connectToHost(d->proxyHost, d->proxyPort);
+        } else {
+            d->pi.connectToHost(c->rawCmds[0], c->rawCmds[1].toUInt());
+        }
     } else {
         if (c->command == Put) {
             if (c->is_ba) {

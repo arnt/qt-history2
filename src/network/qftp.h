@@ -58,6 +58,7 @@ public:
     enum Command {
         None,
         SetTransferMode,
+        SetProxy,
         ConnectToHost,
         Login,
         Close,
@@ -76,6 +77,7 @@ public:
         Passive
     };
 
+    int setProxy(const QString &host, Q_UINT16 port);
     int connectToHost(const QString &host, Q_UINT16 port=21);
     int login(const QString &user=QString::null, const QString &password=QString::null);
     int close();
