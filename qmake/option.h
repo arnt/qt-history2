@@ -48,6 +48,9 @@ struct Option
     static QString moc_ext;
     static QString cpp_ext;
     static QString obj_ext;
+    static QString moc_mod;
+    static QString lex_mod;
+    static QString yacc_mod;
     static QString dir_sep;
 
     static int debug_level;

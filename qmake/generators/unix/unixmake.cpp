@@ -75,8 +75,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC      = " << var("TMAKE_CC") << endl;
     t << "CXX     = " << var("TMAKE_CXX") << endl;
+    t << "LEX     = " << var("TMAKE_LEX") << endl;
+    t << "YACC    = " << var("TMAKE_YACC") << endl;
     t << "CFLAGS  = " << var("TMAKE_CFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
     t << "CXXFLAGS= " << var("TMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "LEXFLAGS=" << var("TMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS=" << var("TMAKE_YACCFLAGS") << endl;
     t << "INCPATH = " << varGlue("INCLUDEPATH","-I", " -I", "") << endl;
     if(!project->isActiveConfig("staticlib")) {
 	t << "LINK  = " << var("TMAKE_LINK") << endl;
@@ -191,7 +195,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!Option::output.name())
+    if (Option::output.name())
 	t << " -o " << Option::output.name();
     t << endl << endl;
 
@@ -250,13 +254,13 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!Option::output.name())
+    if (Option::output.name())
 	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "tmake_all:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
-//      << "$(TMAKE) $$i.pro -o $(MAKEFILE); "
+      << "[ ! -f $(MAKEFILE) ] && $(TMAKE) $$i.pro -o $(MAKEFILE); "
       << "grep \"TEMPLATE.*subdirs\" $$i.pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) tmake_all || true; fi; ) ; done" << endl << endl;
 
@@ -277,7 +281,7 @@ UnixMakefileGenerator::init()
     if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) /* no point */
 	return;
 
-    QStringList &configs = project->variables()["CONFIG"];
+     QStringList &configs = project->variables()["CONFIG"];
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->variables()["TEMPLATE"].first() == "app")

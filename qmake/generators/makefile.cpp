@@ -77,7 +77,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		}
 		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) && 
 			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    mocFile += "moc_" + fi.baseName() + Option::cpp_ext;
+		    mocFile += Option::moc_mod + fi.baseName() + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
 		else break;
@@ -201,7 +201,8 @@ MakefileGenerator::init()
 	}
 
 
-	QString sources[] = { QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
+	QString sources[] = { QString("LEXSOURCES"), QString("YACCSOURCES"),
+				  QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
 	for(int x = 0; sources[x] != QString::null; x++) {
 	    QStringList &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -219,6 +220,7 @@ MakefileGenerator::init()
     v["OBJECTS"].clear();
     v["OBJECTS"] += createObjectList("SOURCES");
 
+    //UI files
     {
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["INTERFACES"];
@@ -230,18 +232,60 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    depends[impl].append(decl);
 
-	    QString mocable;
-	    if(!v["MOC_DIR"].isEmpty())
-		mocable = v["MOC_DIR"].first() + "/moc_" + fi.baseName() + Option::cpp_ext;
-	    else
-		mocable = fi.dirPath() + Option::dir_sep + "moc_" + fi.baseName() + Option::cpp_ext;
-	    v["_UIMOC"].append(mocable);
+	    QString mocable = (v["MOC_DIR"].isEmpty() ? fi.dirPath() : v["MOC_DIR"].first()) +
+			      Option::dir_sep + Option::moc_mod + fi.baseName() + Option::cpp_ext;
 	    mocablesToMOC[decl] = mocable;
 	    mocablesFromMOC[mocable] = decl;
+	    v["_UIMOC"].append(mocable);
 	}
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("INTERFACES"));
     }
 
+#if 1
+//this is defined for now because moc would have to change to get this done properly, I will
+//revisit this once the build process soldifies, FIXME
+#define MOC_YACC_LEX_HACKS
+#endif
+
+    //lex files
+    {
+	QStringList &impls = v["LEXIMPLS"];
+	QStringList &l = v["LEXSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	    impls.append(impl);
+#ifndef MOC_YACC_LEX_HACKS 
+	    v["SOURCES"].append(impl); 
+#endif
+	}
+#ifndef MOC_YACC_LEX_HACKS
+	v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
+#endif
+    }
+    //yacc files
+    {
+	QStringList &decls = v["YACCCDECLS"], &impls = v["YACCIMPLS"];
+	QStringList &l = v["YACCSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
+	    decls.append(decl);
+	    impls.append(impl);
+	    v["SOURCES"].append(impl);
+	    depends[impl].append(decl);
+
+#ifdef MOC_YACC_LEX_HACKS
+	    QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	    if(v["LEXIMPLS"].findIndex(leximpl) != -1)
+		depends[impl].append(leximpl);
+#endif
+	}
+	v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
+    }
+
+    //moc files
     if ( mocAware() ) {
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
@@ -356,6 +400,41 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     }
 }
 
+void
+MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
+{
+    QStringList &l = project->variables()[src];    
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	QFileInfo fi((*it));
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
+	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
+
+	t << impl << ": " << (*it) << " \\\n\t\t"  
+	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
+	  << "-rm -f " << impl << " " << decl << "\n\t"
+	  << "-mv y.tab.h " << decl << "\n\t"
+	  << "-mv y.tab.c " << impl << endl << endl;
+
+	t << decl << ": " << impl << endl << endl;
+    }
+}
+
+void
+MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
+{
+    QStringList &l = project->variables()[src];    
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	QFileInfo fi((*it));
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+
+	t << impl << ": " << (*it) << " \\\n\t\t"  
+	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
+	  << "-rm -f " << impl << " " << "\n\t"
+	  << "-mv lex.yy.c " << impl << endl << endl;
+    }
+}
 
 QString
 MakefileGenerator::var(const QString &var)
@@ -413,6 +492,9 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeMocSrc(t, "UICDECLS");
+    writeMocSrc(t, "UICDELCS");
+    writeYaccSrc(t, "YACCSOURCES");
+    writeLexSrc(t, "LEXSOURCES");
 }
 
 

@@ -45,6 +45,9 @@ QString Option::moc_ext;
 QString Option::cpp_ext;
 QString Option::obj_ext;
 QString Option::dir_sep;
+QString Option::moc_mod;
+QString Option::yacc_mod;
+QString Option::lex_mod;
 #ifdef WIN32
 Option::QMODE Option::mode = Option::WIN_MODE;
 #else
@@ -127,6 +130,9 @@ Option::parseCommandLine(int argc, char **argv)
     if(Option::cachefile.isNull() || Option::cachefile.isEmpty()) 
 	Option::cachefile = ".qmake.cache";
 
+    Option::moc_mod = "moc_";
+    Option::lex_mod = "_lex";
+    Option::yacc_mod = "_yacc";
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";

@@ -8,6 +8,10 @@ TEMPLATE		= app
 CONFIG			= qt warn_on release
 
 TMAKE_CC		= sc
+TMAKE_LEX               = flex
+TMAKE_LEXFLAGS  = 
+TMAKE_YACC              = byacc
+TMAKE_YACCFLAGS  = -d
 TMAKE_CFLAGS		= -mn -w2
 TMAKE_CFLAGS_WARN_ON	=
 TMAKE_CFLAGS_WARN_OFF	= -w

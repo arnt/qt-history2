@@ -60,8 +60,12 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC	=	" << var("TMAKE_CC") << endl;
     t << "CXX	=	" << var("TMAKE_CXX") << endl;
+    t << "LEX     = " << var("TMAKE_LEX") << endl;
+    t << "YACC    = " << var("TMAKE_YACC") << endl;
     t << "CFLAGS	=	" << var("TMAKE_CFLAGS") << " " <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << " CXXFLAGS=	" << var("TMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CXXFLAGS=	" << var("TMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "LEXFLAGS=" << var("TMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS=" << var("TMAKE_YACCFLAGS") << endl;
     t << "INCPATH	=	" << varGlue("INCLUDEPATH","-I\"","\" -I\"","\"") << endl;
     if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("TMAKE_LINK") << endl;
@@ -123,7 +127,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!Option::output.name())
+    if (Option::output.name())
 	t << " -o " << Option::output.name();
     t << endl << endl;
 

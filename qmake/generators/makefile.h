@@ -51,6 +51,8 @@ class MakefileGenerator
     void writeUicSrc(QTextStream &, const QString &ui);
     void writeMocObj(QTextStream &, const QString &obj, const QString &src);
     void writeMocSrc(QTextStream &, const QString &src);
+    void writeLexSrc(QTextStream &, const QString &lex);
+    void writeYaccSrc(QTextStream &, const QString &yac);
 
 protected:
 
