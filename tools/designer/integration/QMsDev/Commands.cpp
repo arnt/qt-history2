@@ -854,12 +854,14 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		    else if ( fileext == "ts" )
 			group = "TRANSLATIONS";
 		    else
-			break;
-		    CString temp;
-		    filelists.Lookup( group, temp );
-		    filepath.Replace( "\\", "/" );
-		    temp += " \\\n\t\t" + filepath + filename + "." + fileext;
-		    filelists.SetAt( group, temp );
+			ignore = TRUE;
+		    if ( !ignore ) {
+			CString temp;
+			filelists.Lookup( group, temp );
+			filepath.Replace( "\\", "/" );
+			temp += " \\\n\t\t" + filepath + filename + "." + fileext;
+			filelists.SetAt( group, temp );
+		    }
 		}
 	    } else if ( !group.IsEmpty() && string.Find( "# End Group" ) == 0 ) {
 		group.Empty();
