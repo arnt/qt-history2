@@ -3,5 +3,6 @@ your qt directory (or, for example, /usr) and type:
 
 	tar xf .../qt-0.96-bin-linux.tar
 
-This will put the moc into the bin directory and the library into the lib
-directory
+This will put the moc into the bin directory and the library into the
+lib directory. Run /sbin/ldconfig as root afterwards to make the
+appropriate symlinks.
