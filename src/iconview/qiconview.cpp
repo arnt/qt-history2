@@ -1616,8 +1616,13 @@ QRect QIconViewItem::pixmapRect( bool relative ) const
 
 bool QIconViewItem::contains( const QPoint& pnt ) const
 {
-    return ( textRect( FALSE ).contains( pnt ) ||
-	     pixmapRect( FALSE ).contains( pnt ) );
+    QRect textArea = textRect( FALSE );
+    QRect pixmapArea = pixmapRect( FALSE );
+    if ( iconView()->itemTextPos() == QIconView::Bottom )
+	textArea.setTop( pixmapArea.bottom() );
+    else
+	textArea.setLeft( pixmapArea.right() );
+    return textArea.contains( pnt ) || pixmapArea.contains( pnt );
 }
 
 /*!
