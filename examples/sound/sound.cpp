@@ -1,0 +1,72 @@
+//
+// Very simple example of QSound::play(filename)
+//
+// 99% of this program is just boilerplate Qt code to put up a nice
+// window so you think something special is happening.
+//
+
+#include "sound.h"
+#include <qmessagebox.h>
+#include <qmenubar.h>
+
+SoundPlayer::SoundPlayer() :
+    QMainWindow(),
+    bucket3("sounds/3.wav"),
+    bucket4("sounds/4.wav")
+{
+    if (!QSound::available()) {
+	// Bail out.  Programs in which sound is not critical
+	// could just silently (hehe) ignore the lack of a server.
+	//
+	QMessageBox::warning(this,"No Sound",
+		"<p><b>Sorry, you are not running the Network Audio System.</b>"
+		"<p>If you have the `au' command, run it in the backgrounded before this program. "
+		"The latest release of the Network Audio System can be obtained from:"
+		"<pre>\n"
+		" &nbsp;\n"
+		"   ftp.ncd.com:/pub/ncd/technology/src/nas\n"
+		"   ftp.x.org:/contrib/audio/nas\n"
+		"</pre>"
+		"<p>Release 1.2 of NAS is also included with the X11R6"
+		"contrib distribution."
+		"<p>After installing NAS, you will then need to reconfigure Qt with NAS sound support");
+    }
+
+    QPopupMenu *file = new QPopupMenu;
+    file->insertItem("Play &1",  this, SLOT(doPlay1()), CTRL+Key_1);
+    file->insertItem("Play &2",  this, SLOT(doPlay2()), CTRL+Key_2);
+    file->insertItem("Play from bucket &3",  this, SLOT(doPlay3()), CTRL+Key_3);
+    file->insertItem("Play from bucket &4",  this, SLOT(doPlay4()), CTRL+Key_4);
+    file->insertItem("E&xit",  qApp, SLOT(quit()));
+    menuBar()->insertItem("&File", file);
+}
+
+void SoundPlayer::doPlay1()
+{
+    QSound::play("sounds/1.wav");
+}
+
+void SoundPlayer::doPlay2()
+{
+    QSound::play("sounds/2.wav");
+}
+
+void SoundPlayer::doPlay3()
+{
+    bucket3.play();
+}
+
+void SoundPlayer::doPlay4()
+{
+    bucket4.play();
+}
+
+main(int argc, char** argv)
+{
+    QApplication app(argc,argv);
+    SoundPlayer sp;
+    app.setMainWidget(&sp);
+    sp.show();
+    return app.exec();
+}
+

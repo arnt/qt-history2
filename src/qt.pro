@@ -8,10 +8,15 @@ CONFIG		+= png zlib
 # Also define QT_BUILDER in qglobal.h
 CONFIG		+= builder
 
+# Uncomment the next line if you want to use NAS sound
+unix:DEFINES    += QT_NAS_SUPPORT
+unix:LIBS	+= -laudio -lXt
+
 # Uncomment the next line if you want to use jpeglib
-DEFINES += QT_JPEG_SUPPORT
+unix:DEFINES += QT_JPEG_SUPPORT
 unix:LIBS	+= -ljpeg
-win32:LIBS	+= jpeg.lib
+#win32:DEFINES += QT_JPEG_SUPPORT
+#win32:LIBS	+= jpeg.lib
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
@@ -128,6 +133,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
 		  $$KERNEL_H/qsocketnotifier.h \
+		  $$KERNEL_H/qsound.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qthread.h \
@@ -264,6 +270,7 @@ win32:SOURCES	= tools/qdir_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
+		  kernel/qsound_win.cpp \
 		  kernel/qwidget_win.cpp \
 		  kernel/qthread_win.cpp \
 		  dialogs/qfiledialog_win.cpp
@@ -285,6 +292,7 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qpaintdevice_x11.cpp \
 		  kernel/qpainter_x11.cpp \
 		  kernel/qregion_x11.cpp \
+		  kernel/qsound_x11.cpp \
 		  kernel/qwidget_x11.cpp \
 		  kernel/qthread_unix.cpp
 
@@ -374,6 +382,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qstyle.cpp \
 		  kernel/qsocketnotifier.cpp \
+		  kernel/qsound.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qurl.cpp \

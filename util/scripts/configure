@@ -43,6 +43,7 @@ SM=no
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
+NAS_SOUND=no
 I_FLAGS=
 L_FLAGS=
 l_FLAGS=
@@ -95,6 +96,12 @@ while [ -n "$1" ]; do
 	;;
    -system-jpeg)
        JPEG=yes
+	;;
+   -no-nas-sound)
+       NAS_SOUND=no
+	;;
+   -system-nas-sound)
+       NAS_SOUND=yes
 	;;
    -h | -help | --help)
        HELP=yes
@@ -161,7 +168,10 @@ each option:
     -system-libpng ..... Use a libpng from the operating system.
 
  *  -no-jpeg ........... Do not compile in JPEG I/O support.
-    -system-jpeg ....... Use a libjpeg from the operating system.
+    -system-jpeg ....... Use libjpeg from the operating system.
+
+ *  -no-nas-sound ...... Do not compile in NAS sound support.
+    -system-nas-sound .. Use NAS libaudio from the operating system.
 
     -platform target ... See the PLATFORMS file for a list of supported
                          operating systems and compilers.
@@ -359,6 +369,7 @@ fi
 QT_CXX=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
 [ "x$JPEG" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_JPEG_SUPPORT"
+[ "x$NAS_SOUND" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_NAS_SUPPORT"
 [ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SM_SUPPORT"
 [ "x$ZLIB" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/zlib"
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
@@ -372,6 +383,7 @@ QT_ZLIB=""
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
 [ "x$JPEG" = "xyes" ] && QT_LIBS="${QT_LIBS} -ljpeg"
+[ "x$NAS_SOUND" = "xyes" ] && QT_LIBS="${QT_LIBS} -laudio -lXt" # Xt junk in audio library
 QT_LIBS="$L_FLAGS $QT_LIBS $l_FLAGS"
 
 
