@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#287 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#288 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13067,6 +13067,9 @@ QCString QString::local8Bit() const
 #ifdef _WS_WIN_
     return qt_winQString2MB( *this );
 #endif
+#ifdef _WS_FB_
+    return utf8();
+#endif
 }
 
 /*!
@@ -13104,6 +13107,10 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 	return qt_winMB2QString(s);
     }
     return qt_winMB2QString( local8Bit );
+#endif
+#ifdef _WS_FB_
+    if ( len < 0 ) len = strlen(local8Bit);
+    return QString::fromUtf8(local8Bit,len);
 #endif
 }
 
