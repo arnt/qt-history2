@@ -728,7 +728,7 @@ QByteArray qt_motifdnd_obtain_data( const char *mimeType )
     QByteArray result;
 
     // try to convert the selection to the requested property
-    qDebug( "trying to convert to '%s'", mimeType );
+    // qDebug( "trying to convert to '%s'", mimeType );
 
     int n=0;
     const char* f;
@@ -748,8 +748,8 @@ QByteArray qt_motifdnd_obtain_data( const char *mimeType )
 	conversion_type = XA_STRING;
     } else {
 	conversion_type = *qt_xdnd_str_to_atom( f );
-	qDebug( "found format '%s' 0x%lx '%s'", f, conversion_type,
-		qt_xdnd_atom_to_str( conversion_type ) );
+	// qDebug( "found format '%s' 0x%lx '%s'", f, conversion_type,
+	// qt_xdnd_atom_to_str( conversion_type ) );
     }
 
     if ( XGetSelectionOwner( qt_xdisplay(),
