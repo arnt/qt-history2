@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qfiledialog.h"
+#include "q3filedialog.h"
 
 #ifndef QT_NO_FILEDIALOG
 

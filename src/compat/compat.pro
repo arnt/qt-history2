@@ -15,7 +15,7 @@ include(sql/sql.pri)
 include(other/other.pri)
 include(itemviews/itemviews.pri)
 include(widgets/widgets.pri)
-# include(dialogs/dialogs.pri) # disabled until we have renamed QFileDialog to Q3FileDialog
+include(dialogs/dialogs.pri)
 
 mac:LIBS += -framework Carbon
 
