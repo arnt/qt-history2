@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#185 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#186 $
 #
 # this is a massive hack, written very quickly
 #
@@ -805,7 +805,6 @@ sub manglefn {
     unless (defined($urls{$url})) {
 	$home = &mangleclass($class) unless ($home =~ /\S/);
 	$uniqkeys{$home} ||= "a0";
-	print  "md5sum --string='" . $url . "' |\n";
 	open( MD5, "md5sum --string='" . $url . "' |" );
 	$md5sum = <MD5>;
 	close MD5;
