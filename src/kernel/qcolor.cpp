@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#37 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ QColor::QColor( int r, int g, int b )
   QColor::Rgb.  \e x (red), \e y (green) and \e z (blue) must be in the
   range 0..255.
 
-  The \e (x,y,z) triplet defines an HSV value if \e colorSpec == \c
+  The \e (x,y,z) triplet defines a HSV value if \e colorSpec == \c
   QColor::Hsv.  \e x (hue) must be in the range -1..360 (-1 means
   achromatic), and \e y (saturation) and \e z (value) must be in the range
   0..255.
