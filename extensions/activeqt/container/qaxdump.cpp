@@ -196,17 +196,21 @@ QString qax_generateDocumentation(QAxBase *that)
             if (1) {
                 detail += "<p>Or call the function directly:<pre>\n";
 
-                if (params != "()")
+                bool hasParams = params != "()";
+                if (hasParams)
                     detail += "\tQVariantList params = ...\n";
                 detail += "\t";
                 QString functionToCall = "dynamicCall";
                 if (returntype == "IDispatch*" || returntype == "IUnknown*") {
-                    functionToCall = "querySubObject(";
+                    functionToCall = "querySubObject";
                     returntype = "QAxObject *";
                 }
                 if (returntype != "void")
                     detail += returntype + " result = ";
-                detail += "object->" + functionToCall + "(\"" + name + params + "\")";
+                detail += "object->" + functionToCall + "(\"" + name + params + "\"";
+                if (hasParams)
+                    detail += ", params";
+                detail += ")";
                 if (returntype != "void" && returntype != "QAxObject *" && returntype != "QVariant")
                     detail += "." + toType(returntype);
 	        detail += ";</pre>\n";
