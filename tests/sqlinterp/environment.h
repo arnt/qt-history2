@@ -15,6 +15,10 @@ typedef QMap< QVariant, QValueList<int> > ColumnKey;
 
 namespace Interpreter {
 
+    struct Parser {
+	//## todo
+    };
+
     struct ResultSet
     {
 	virtual void clear() = 0;
