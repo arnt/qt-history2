@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#104 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#103 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#104 $";
 #endif
 
 
@@ -799,7 +799,7 @@ QPainter::~QPainter()
 }
 
 /*!
-  \fn const QFont &QPainter::font()
+  \fn const QFont &QPainter::font() const
   Returns the current painter font.
   \sa setFont(), QFont
 */
@@ -822,7 +822,7 @@ void QPainter::setFont( const QFont &font )	// set current font
 }
 
 /*!
-  \fn const QPen &QPainter::pen()
+  \fn const QPen &QPainter::pen() const
   Returns the current painter pen.
   \sa setPen()
 */
@@ -886,7 +886,7 @@ void QPainter::setPen( const QColor &color )	// set solid pen with color
 }
 
 /*!
-  \fn const QBrush &QPainter::brush()
+  \fn const QBrush &QPainter::brush() const
   Returns the current painter brush.
   \sa QPainter::setBrush()
 */
