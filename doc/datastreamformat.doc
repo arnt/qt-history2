@@ -138,6 +138,7 @@ and how they are represented.
 	\endlist
 \i QFont
 	\list
+	\i The family (QCString)
 	\i The point size (Q_INT16)
 	\i The style hint (Q_UINT8)
 	\i The char set (Q_UINT8)
