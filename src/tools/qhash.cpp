@@ -76,21 +76,27 @@ static int countBits(int hint)
 	numBits++;
     }
 
-    if (numBits >= (int) sizeof(prime_deltas)) {
+    if (numBits >= (int)sizeof(prime_deltas)) {
 	numBits = sizeof(prime_deltas) - 1;
     } else if (primeForNumBits(numBits) < hint) {
-	numBits++;
+	++numBits;
     }
     return numBits;
 }
 
 /*
-    A QHash has initially around pow(2, MinNumBits) buckets. If
-    MinNumBits is 4, it has 17 buckets.
+    A QHash has initially around pow(2, MinNumBits) buckets. For
+    example, if MinNumBits is 4, it has 17 buckets.
 */
 const int MinNumBits = 4;
 
-QHashData QHashData::shared_null = { 0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0 };
+QHashData QHashData::shared_null = {
+    0,
+#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
+    0,
+#endif
+    0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0
+};
 
 QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
 {
@@ -100,6 +106,9 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     };
     d = new QHashData;
     d->fakeNext = 0;
+#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
+    d->fakeH = numBuckets - 1;
+#endif
     d->buckets = 0;
     d->ref = 1;
     d->size = size;
@@ -147,6 +156,9 @@ void QHashData::rehash(int hint)
 
 	numBits = hint;
 	numBuckets = primeForNumBits(hint);
+#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
+        fakeH = numBuckets - 1;
+#endif
 	buckets = new Node *[numBuckets];
 	for (int i = 0; i < numBuckets; i++)
 	    buckets[i] = e;
