@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#12 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#12 $";
 #endif
 
 
@@ -134,7 +134,7 @@ bool QRect::isEmpty() const
 }
 
 /*!
-Returns if the rectangle is value, or FALSE if it is invalid.
+Returns if the rectangle is valid, or FALSE if it is invalid.
 
 A valid rectangle has a left() <= right() and top() <= bottom().
 */

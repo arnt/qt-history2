@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#25 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#25 $";
 #endif
 
 
@@ -479,7 +479,7 @@ int QString::find( const char *str, int index, bool cs ) const
 
 /*! Finds the first occurrence of the character \e c, starting at
   position \e index and searching backwards.  The search is case
-  sensitive pif \e cs is TRUE and case insensitive if \e cs is FALSE.
+  sensitive if \e cs is TRUE and case insensitive if \e cs is FALSE.
 
   Returns the position of \e c, or -1 if \e c could not be found.*/
 
