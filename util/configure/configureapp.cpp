@@ -45,12 +45,6 @@ Configure::Configure( int& argc, char** argv )
 {
     int i;
 
-    processorArchitecture = QString(getenv("PROCESSOR_ARCHITEW6432")).toLower();
-    if (processorArchitecture.isEmpty())
-        processorArchitecture = QString(getenv("PROCESSOR_ARCHITECTURE")).toLower();
-    if (processorArchitecture.isEmpty() || processorArchitecture == "x86")
-        processorArchitecture = "i386";
-
     /*
     ** Set up the initial state, the default
     */
@@ -1017,7 +1011,7 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-        cacheStream << "ARCH=" << processorArchitecture << endl;
+        cacheStream << "ARCH=windows" << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
@@ -1191,7 +1185,7 @@ void Configure::generateConfigfiles()
 
     
 
-    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/" + processorArchitecture + "/arch/qatomic.h";
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/windows/arch/qatomic.h";
     QDir archhelper;
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch");
     if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h", FALSE))
@@ -1201,7 +1195,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../src/core/arch/") + processorArchitecture + QString("/arch/qatomic.h\"\n");
+    QString atomicContents = QString("#include \"../../src/core/arch/windows/arch/qatomic.h\"\n");
     if (!writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
