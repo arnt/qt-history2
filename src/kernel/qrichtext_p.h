@@ -291,7 +291,7 @@ public:
     QTextCursor( QTextDocument *d = 0 );
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
-    virtual ~QTextCursor() {}
+    virtual ~QTextCursor();
 
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }

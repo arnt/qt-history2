@@ -416,6 +416,10 @@ QTextCursor::QTextCursor( const QTextCursor &c )
     valid = c.valid;
 }
 
+QTextCursor::~QTextCursor()
+{
+}
+
 QTextCursor &QTextCursor::operator=( const QTextCursor &c )
 {
     ox = c.ox;
