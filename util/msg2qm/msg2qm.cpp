@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#1 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#2 $
 **
-** This is a utility program for converting findtr msgfiles to 
+** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
 **
 ** Author  : Matthias Ettrich
@@ -82,7 +82,6 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 	else {
 	    translator->insert( hash, msgstr.ascii() );
 	}
-	debug("%s <---> %s <---> %s", scope.ascii(), id.ascii(), msgstr.ascii());
     }
 }
 
