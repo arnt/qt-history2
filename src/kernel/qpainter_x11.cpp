@@ -3217,7 +3217,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-                paint.drawTextItem( -ti.x(), -ti.y()+ti.ascent(), ti, ulChars, nUlChars );
+                paint.drawTextItem( -ti.x(), -ti.y()+ti.ascent(), ti, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
