@@ -4,6 +4,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmutex.h>
+#include <qpointer.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qthread.h>
