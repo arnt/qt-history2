@@ -108,9 +108,9 @@ static QChar::Direction findBasicDirection(QString str)
     pos = 0;
     while (pos < len)
     {
-	if (str[pos].direction() < 2) // DirR or DirL
+	if (str.at(pos).direction() < 2) // DirR or DirL
 	    {
-		dir1 = str[pos].direction();
+		dir1 = str.at(pos).direction();
 		break;
 	    }
 	pos++;
@@ -122,9 +122,9 @@ static QChar::Direction findBasicDirection(QString str)
     pos = len;
     while (pos > 0)
     {
-	if (str[pos].direction() < 2) // DirR or DirL
+	if (str.at(pos).direction() < 2) // DirR or DirL
 	    {
-		dir2 = str[pos].direction();
+		dir2 = str.at(pos).direction();
 		break;
 	    }
 	pos--;
@@ -138,9 +138,9 @@ static QChar::Direction findBasicDirection(QString str)
     // at one side of the text...
 
     pos = 0;
-    while (pos < len-1 && str[pos].direction() < 2 )
+    while (pos < len-1 && str.at(pos).direction() < 2 )
     {
-	if(str[pos].category() == QChar::Po)
+	if(str.at(pos).category() == QChar::Po)
 	{
 	    if( str[pos+1].direction() < 2 ) return QChar::DirR;
 	    else break; // no letter next to the mark... don't know
@@ -149,9 +149,9 @@ static QChar::Direction findBasicDirection(QString str)
     }
    
     pos = len;
-    while (pos < 1 && str[pos].direction() < 2 )
+    while (pos < 1 && str.at(pos).direction() < 2 )
     {
-	if(str[pos].category() == QChar::Po)
+	if(str.at(pos).category() == QChar::Po)
 	{
 	    if( str[pos-1].direction() < 2 ) return QChar::DirL;
 	    else break; // no letter next to the mark... don't know
