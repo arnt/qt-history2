@@ -226,7 +226,7 @@ XPLATFORM=
 FROMMAKE=
 QT_CXX=""
 QMAKE_PROJECTS=""
-
+CONCURRENT=0
 
 # Parse the arguments, setting things to "yes" or "no".
 while [ -n "$1" ]; do
@@ -366,6 +366,9 @@ while [ -n "$1" ]; do
        [ "x$VERBOSE" = "xyes" ] && QMAKE_ARGS="$QMAKE_ARGS -d"
        VERBOSE=yes
         ;;
+   -j?*)
+	CONCURRENT="`echo $1 | sed 's,-j,,'`"
+	;;
    -D?*)
 	D_FLAGS="$D_FLAGS `echo $1 | sed 's,-D,,'`"
 	;;
@@ -917,6 +920,8 @@ fi
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_ARGS"
 echo Creating makefiles...
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
+PROCS=1
+PIPE=""
 for a in $QMAKE_PROJECTS ; do
     dir=`dirname $a`
     file=`basename $a`
@@ -932,12 +937,31 @@ for a in $QMAKE_PROJECTS ; do
     *) CONF=$XMKSPEC
     esac
 
-    EXEC="$QTDIR/bin/qmake $QMAKE_ALL_ARGS -o $MFILE -mkspec $CONF $file"
+    PIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS -o $dir/$MFILE -mkspec $CONF $a"
+    if [ "x$CONCURRENT" = "x0" ]
+    then
+	EXEC=$PIPE
+    else
+	if [ ! "x$PROCS" = "x$CONCURRENT" ]
+	then
+	    PROCS=`expr $PROCS + 1`
+	    EXEC="$EXEC ($PIPE & ) ;"
+	else
+	    PROCS=1
+	fi
+    fi
+
     echo "  Creating $N (`basename $CONF`)"
     if [ "$VERBOSE" = "yes" ]; then
 	echo $EXEC
     fi
-    (cd $dir; [ -f $MFILE ] && chmod +w $MFILE; /bin/sh -c "$EXEC")
+    [ -f $dir/$MFILE ] && chmod +w $dir/$MFILE
+
+    if [ "x$PROCS" = "x1" ]
+    then
+	(/bin/sh -c "$EXEC")
+	EXEC=""
+    fi
 done
 
 if echo $LD_LIBRARY_PATH | grep >/dev/null $QTDIR/lib
