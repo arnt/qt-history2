@@ -365,8 +365,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 				int d = s.findRev(Option::dir_sep) + 1;
 			    if(!project->isEmpty("UI_DIR")) 
 				s = project->first("UI_DIR") + s.right(s.length()-d);
-			    else if(!project->isEmpty("UI_DIR_HEADERS")) 
-				s = project->first("UI_DIR_HEADERS") + s.right(s.length()-d);
+			    else if(!project->isEmpty("UI_HEADERS_DIR")) 
+				s = project->first("UI_HEADERS_DIR") + s.right(s.length()-d);
 				
 			    if(s.find(QRegExp(uip)) != -1) {
 				fqn = s.left(s.length()-3) + inc.right(inc.length()-extn);
@@ -456,8 +456,8 @@ MakefileGenerator::initOutPaths()
 		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 	}
 	QString currentDir = QDir::currentDirPath();
-	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_DIR_HEADERS"), 
-			   QString("UI_DIR_SOURCES"), QString("UI_DIR"), QString("DESTDIR"), 
+	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_HEADERS_DIR"), 
+			   QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString("DESTDIR"), 
 			   QString("SUBLIBS_DIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
@@ -740,8 +740,8 @@ MakefileGenerator::init()
 		       << "QMAKE_ABSOLUTE_SOURCE_PATH = " << var("QMAKE_ABSOLUTE_SOURCE_PATH") << "\n"
 		       << "MOC_DIR = " << var("MOC_DIR") << "\n"
 		       << "UI_DIR = " <<  var("UI_DIR") << "\n"
-		       << "UI_DIR_HEADERS = " <<  var("UI_DIR_HEADERS") << "\n"
-		       << "UI_DIR_SOURCES = " <<  var("UI_DIR_SOURCES") << "\n";
+		       << "UI_HEADERS_DIR = " <<  var("UI_HEADERS_DIR") << "\n"
+		       << "UI_SOURCES_DIR = " <<  var("UI_SOURCES_DIR") << "\n";
 		cachet << "[depend]" << endl;
 		for(QMap<QString, QStringList>::Iterator it = depends.begin(); 
 		    it != depends.end(); ++it) 
@@ -840,8 +840,8 @@ MakefileGenerator::init()
     {
 	if(!project->isEmpty("UI_DIR"))
 	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR"));
-	else if(!project->isEmpty("UI_DIR_HEADERS"))
-	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR_HEADERS"));
+	else if(!project->isEmpty("UI_HEADERS_DIR"))
+	    project->variables()["INCLUDEPATH"].append(project->first("UI_HEADERS_DIR"));
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["FORMS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -856,8 +856,8 @@ MakefileGenerator::init()
 		if( !project->variables()["INCLUDEPATH"].contains(d))
 		    project->variables()["INCLUDEPATH"].append(d);
 	    } else {
-		if(decl.isEmpty() && !project->isEmpty("UI_DIR_HEADERS")) {
-		    decl = project->first("UI_DIR_HEADERS");
+		if(decl.isEmpty() && !project->isEmpty("UI_HEADERS_DIR")) {
+		    decl = project->first("UI_HEADERS_DIR");
 		    QString d = fi.dirPath();
 		    if( d == ".")
 			d = QDir::currentDirPath();
@@ -865,8 +865,8 @@ MakefileGenerator::init()
 		    if( !project->variables()["INCLUDEPATH"].contains(d))
 			project->variables()["INCLUDEPATH"].append(d);
 		}
-		if(impl.isEmpty() && !project->isEmpty("UI_DIR_SOURCES")) 
-		    impl = project->first("UI_DIR_SOURCES");
+		if(impl.isEmpty() && !project->isEmpty("UI_SOURCES_DIR")) 
+		    impl = project->first("UI_SOURCES_DIR");
 		if(fi.dirPath() != ".") {
 		    if(impl.isEmpty())
 			impl = fi.dirPath() + Option::dir_sep;
@@ -901,11 +901,11 @@ MakefileGenerator::init()
 	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection" + Option::cpp_ext.first());
 	QString imgfile = project->first("QMAKE_IMAGE_COLLECTION");
 	Option::fixPathToTargetOS(imgfile);
-	if(!project->isEmpty("UI_DIR") || !project->isEmpty("UI_DIR_SOURCES")) {
+	if(!project->isEmpty("UI_DIR") || !project->isEmpty("UI_SOURCES_DIR")) {
 	    if(imgfile.find(Option::dir_sep) != -1)
 		imgfile = imgfile.right(imgfile.findRev(Option::dir_sep) + 1);
-	    imgfile.prepend( (project->isEmpty("UI_DIR") ? project->first("UI_DIR_SOURCES") : 
-			    project->first("UI_DIR")) );
+	    imgfile.prepend((project->isEmpty("UI_DIR") ? project->first("UI_SOURCES_DIR") : 
+			    project->first("UI_DIR")));
 	    v["QMAKE_IMAGE_COLLECTION"] = QStringList(imgfile);
 	}
 	logicWarn(imgfile, "SOURCES");
@@ -1194,10 +1194,10 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 		decl = project->first("UI_DIR") + decl.right(decl.length() - dlen);
 		impl = project->first("UI_DIR") + impl.right(impl.length() - dlen);
 	    } else {
-		if(!project->isEmpty("UI_DIR_HEADERS"))
-		    decl = project->first("UI_DIR_HEADERS") + decl.right(decl.length() - dlen);
-		if(!project->isEmpty("UI_DIR_SOURCES"))
-		    impl = project->first("UI_DIR_SOURCES") + impl.right(impl.length() - dlen);
+		if(!project->isEmpty("UI_HEADERS_DIR"))
+		    decl = project->first("UI_HEADERS_DIR") + decl.right(decl.length() - dlen);
+		if(!project->isEmpty("UI_SOURCES_DIR"))
+		    impl = project->first("UI_SOURCES_DIR") + impl.right(impl.length() - dlen);
 	    }
 	}
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
@@ -1321,7 +1321,7 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
         QString src(project->first("QMAKE_IMAGE_COLLECTION"));
 	t << (*oit) << ": " << src;
 	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") ||
-	     !project->isEmpty("UI_DIR_SOURCES") || project->isEmpty("QMAKE_RUN_CXX_IMP")) {
+	     !project->isEmpty("UI_SOURCES_DIR") || project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( regexpSrc, src);
 	    p.replace( regexpObj, (*oit));
