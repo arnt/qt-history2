@@ -5,9 +5,11 @@ include( compat.qdoc )
 project		= QSA
 language	= Qt Script
 headers		= qsa/quickclasslist
-sourcedirs	= qsa
+sourcedirs	= qsa $QTDIR/tools/assistant/lib $QTDIR/doc
 exampledirs	= $QUICK/examples
 imagedirs	= $QTDIR/gif
 outputdir	= output/qsa
 outputformats	= HTML
 quick.replaces	= /([Mm]ark)/\\bold{\\1}/
+quick.replaces	= /<b>([^<]+)<\\/b>/\\bold{\\1}/
+sources		= qmap.doc
