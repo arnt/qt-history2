@@ -8,8 +8,9 @@ $Id$
 
 \title Walkthrough: A Tiny Editor Illustrating QActionGroup
 
-In the following we will step through a very rudimental editor
-program that shows one of the most common uses of the \l QActionGroup class:
+In the following we will step through a very rudimental 
+\link tinyeditor-example.html editor program \endlink
+that shows one of the most common uses of the \l QActionGroup class:
 how to combine several toggle actions in a way that allows one-of-many choices.
 
 If you're not yet familiar with the concept of \e actions,
@@ -19,7 +20,10 @@ Walkthrough featuring QAction</A>.
 
 <h2>A tiny main program</h2>
 
-\include action/actiongroup/tiny_editor.cpp
+\walkthrough action/actiongroup/tiny_editor.cpp
+\skipto include
+\printline include
+\printuntil }
 
 As its name, \e tiny_editor, suggests this is a very small program. It might
 be unusual for an editor but it does not even provide the possibility  
@@ -41,7 +45,10 @@ Before implementing the \e Editor class we should think about what it
 is supposed to do. Fortunately Qt provides a full-featured rich text editor
 class, \l QTextEdit. The only thing left for us is to give it a user interface.
 
-\include action/actiongroup/editor.h
+\walkthrough action/actiongroup/editor.h
+\skipto include
+\printline include
+\printuntil };
 
 As we look for a means to implement one-of-many choices, a nice example would
 involve two buttons that make the user change the font color: If he or she
