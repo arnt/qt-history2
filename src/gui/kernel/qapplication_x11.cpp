@@ -1233,6 +1233,12 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->visual = reinterpret_cast<Visual *>(visual);
     X11->colormap = colormap;
 
+#ifndef QT_NO_XRENDER
+    memset(X11->solid_fills, 0, sizeof(X11->solid_fills));
+    for (int i = 0; i < X11->solid_fill_count; ++i)
+        X11->solid_fills[i].screen = -1;
+#endif
+
     int argc = priv->argc;
     char **argv = priv->argv;
 
@@ -1834,6 +1840,12 @@ void qt_cleanup()
         QColormap::cleanup();
     }
 
+#ifndef QT_NO_XRENDER
+    for (int i = 0; i < X11->solid_fill_count; ++i) {
+        if (X11->solid_fills[i].picture)
+            XRenderFreePicture(X11->display, X11->solid_fills[i].picture);
+    }
+#endif
 #if !defined (QT_NO_TABLET_SUPPORT)
     TabletDeviceDataList *devices = qt_tablet_devices();
     for (int i = 0; i < devices->size(); ++i)

@@ -489,9 +489,7 @@ QFontEngineXft::QFontEngineXft(XftFont *font)
     // if the Xft font is not antialiased, it uses bitmaps instead of
     // 8-bit alpha maps... adjust the cache_cost to reflect this
     Bool antialiased = true;
-    if (XftPatternGetBool(_font->pattern, XFT_ANTIALIAS,
-			  0, &antialiased) == XftResultMatch &&
-	! antialiased) {
+    if (FcPatternGetBool(_font->pattern, XFT_ANTIALIAS, 0, &antialiased) == FcResultMatch && !antialiased) {
         cache_cost /= 8;
     }
     lbearing = SHRT_MIN;
@@ -530,12 +528,10 @@ QFontEngine::FECaps QFontEngineXft::capabilites() const
     return (_face->face_flags & FT_FACE_FLAG_SCALABLE) ? FullTransformations : NoTransformations;
 }
 
-static glyph_t getAdobeCharIndex(XftFont *font, int cmap, uint ucs4)
+static inline glyph_t getAdobeCharIndex(FT_Face _face, int cmap, uint ucs4)
 {
-    FT_Face _face = XftLockFace( font );
     FT_Set_Charmap(_face, _face->charmaps[cmap]);
     glyph_t g = FT_Get_Char_Index(_face, ucs4);
-    XftUnlockFace(font);
     return g;
 }
 
@@ -559,6 +555,8 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         return false;
     }
 
+    FT_Face _face = XftLockFace(_font);
+
     bool mirrored = flags & QTextEngine::RightToLeft;
     int glyph_pos = 0;
     if (_cmap != -1) {
@@ -566,9 +564,9 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
            unsigned int uc = getChar(str, i, len);
            glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
            if ( !glyphs[glyph_pos].glyph ) {
-               glyph_t glyph = XftCharIndex(0, _font, uc);
+               glyph_t glyph = FT_Get_Char_Index(_face, uc);
                if (!glyph)
-                   glyph = getAdobeCharIndex(_font, _cmap, uc);
+                   glyph = getAdobeCharIndex(_face, _cmap, uc);
               glyphs[glyph_pos].glyph = glyph;
                if ( uc < cmapCacheSize )
                    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -582,7 +580,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             if (!glyphs[glyph_pos].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
-                glyph_t glyph = XftCharIndex(0, _font, uc);
+                glyph_t glyph = FT_Get_Char_Index(_face, uc);
                 glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -596,7 +594,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             if (!glyphs[glyph_pos].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
-                glyph_t glyph = XftCharIndex(0, _font, uc);
+                glyph_t glyph = FT_Get_Char_Index(_face, uc);
                 glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -604,6 +602,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             ++glyph_pos;
         }
     }
+    XftUnlockFace(_font);
 
     *nglyphs = glyph_pos;
     recalcAdvances(*nglyphs, glyphs, flags);
@@ -682,9 +681,9 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
     Q_ASSERT(_face->face_flags & FT_FACE_FLAG_SCALABLE);
 
     XftFont *fnt = 0;
-    XftMatrix *mat = 0;
-    XftPatternGetMatrix(_font->pattern, XFT_MATRIX, 0, &mat);
-    XftMatrix m2;
+    FcMatrix *mat = 0;
+    FcPatternGetMatrix(_font->pattern, XFT_MATRIX, 0, &mat);
+    FcMatrix m2;
     qreal scale = matrix.det();
     scale = sqrt(qAbs(scale));
 #ifdef QT_USE_FIXED_POINT
@@ -730,26 +729,26 @@ XftFont *QFontEngineXft::transformedFont(const QMatrix &matrix)
         fnt = trf->xft_font;
     } else {
         if (mat)
-            XftMatrixMultiply(&m2, &m2, mat);
+            FcMatrixMultiply(&m2, &m2, mat);
         if (scale > 0) {
 #ifdef QT_USE_FIXED_POINT
-            XftMatrixScale(&m2, (1/scale).toDouble(), (1/scale).toDouble());
+            FcMatrixScale(&m2, (1/scale).toDouble(), (1/scale).toDouble());
 #else
-            XftMatrixScale(&m2, 1/scale, 1/scale);
+            FcMatrixScale(&m2, 1/scale, 1/scale);
 #endif
         }
-        XftPattern *pattern = XftPatternDuplicate(_font->pattern);
-        XftPatternDel(pattern, XFT_MATRIX);
-        XftPatternAddMatrix(pattern, XFT_MATRIX, &m2);
+        FcPattern *pattern = FcPatternDuplicate(_font->pattern);
+        FcPatternDel(pattern, XFT_MATRIX);
+        FcPatternAddMatrix(pattern, XFT_MATRIX, &m2);
         double size;
-        XftPatternGetDouble(_font->pattern, XFT_PIXEL_SIZE, 0, &size);
-        XftPatternDel(pattern, XFT_SIZE);
-        XftPatternDel(pattern, XFT_PIXEL_SIZE);
+        FcPatternGetDouble(_font->pattern, XFT_PIXEL_SIZE, 0, &size);
+        FcPatternDel(pattern, XFT_SIZE);
+        FcPatternDel(pattern, XFT_PIXEL_SIZE);
 //             qDebug("setting new size: orig=%f, scale=%f, new=%f", size, scale, size*scale);
 #ifdef QT_USE_FIXED_POINT
-        XftPatternAddDouble(pattern, XFT_PIXEL_SIZE, (size*scale).toDouble());
+        FcPatternAddDouble(pattern, XFT_PIXEL_SIZE, (size*scale).toDouble());
 #else
-        XftPatternAddDouble(pattern, XFT_PIXEL_SIZE, size*scale);
+        FcPatternAddDouble(pattern, XFT_PIXEL_SIZE, size*scale);
 #endif
         fnt = XftFontOpenPattern(QX11Info::display(), pattern);
         TransformedFont *trf = new TransformedFont;
@@ -995,17 +994,19 @@ bool QFontEngineXft::canRender(const QChar *string, int len)
 {
     bool allExist = true;
     if (_cmap != -1) {
+        FT_Face face = XftLockFace(_font);
         for ( int i = 0; i < len; i++ ) {
             unsigned int uc = getChar(string, i, len);
-            if (!XftCharExists(0, _font, uc) && getAdobeCharIndex(_font, _cmap, uc) == 0) {
+            if (!FcCharSetHasChar (_font->charset, uc) && getAdobeCharIndex(face, _cmap, uc) == 0) {
                 allExist = false;
                 break;
             }
         }
+        XftUnlockFace(_font);
     } else {
         for ( int i = 0; i < len; i++ ) {
             unsigned int uc = getChar(string, i, len);
-            if (!XftCharExists(0, _font, uc)) {
+            if (!FcCharSetHasChar (_font->charset, uc)) {
                 allExist = false;
                 break;
             }

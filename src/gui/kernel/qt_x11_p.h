@@ -362,6 +362,15 @@ struct QX11Data
     Visual *visual;
     Colormap colormap;
 
+#ifndef QT_NO_XRENDER
+    enum { solid_fill_count = 16 };
+    struct SolidFills {
+        XRenderColor color;
+        int screen;
+        Picture picture;
+    } solid_fills[solid_fill_count];
+#endif
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
         // window-manager <-> client protocols

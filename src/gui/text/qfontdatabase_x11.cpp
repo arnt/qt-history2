@@ -861,17 +861,27 @@ static void loadXft()
     FcChar8 *foundry_value;
     FcBool scalable;
 
-    fonts =
-        XftListFonts(QX11Info::display(),
-                     QX11Info::appScreen(),
-                     (const char *)0,
-                     FC_FAMILY, FC_WEIGHT, FC_SLANT,
-                     FC_SPACING, FC_FILE, FC_INDEX,
-                     FC_LANG, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
+    {
+        FcObjectSet *os = FcObjectSetCreate();
+        FcPattern *pattern = FcPatternCreate();
+        const char *properties [] = {
+            FC_FAMILY, FC_WEIGHT, FC_SLANT,
+            FC_SPACING, FC_FILE, FC_INDEX,
+            FC_LANG, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
 #if FC_VERSION >= 20193
-                     FC_WIDTH,
+            FC_WIDTH,
 #endif
-                     (const char *)0);
+            (const char *)0
+        };
+        const char **p = properties;
+        while (*p) {
+            FcObjectSetAdd(os, *p);
+            ++p;
+        }
+        fonts = FcFontList(0, pattern, os);
+        FcObjectSetDestroy(os);
+        FcPatternDestroy(pattern);
+    }
 
     for (int i = 0; i < fonts->nfont; i++) {
         if (FcPatternGetString(fonts->fonts[i], FC_FAMILY, 0, &value) != FcResultMatch)
@@ -1371,7 +1381,7 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             scale = request.pixelSize/px;
         }
 #else
-        double scale = request.pixelSize / size_value;
+        double scale = size_value > 0 ? request.pixelSize / size_value : 1.;
 #endif
         fe->setScale(scale);
         fe->fontDef = request;

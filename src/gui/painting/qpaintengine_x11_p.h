@@ -36,6 +36,7 @@
 class QX11PaintEnginePrivate;
 
 typedef struct _XftDraw XftDraw;
+typedef unsigned long Picture;
 #include "qx11info_x11.h"
 
 struct qt_XPoint {
@@ -148,8 +149,10 @@ public:
     Qt::HANDLE hd;
 #if !defined (QT_NO_XFT)
     XftDraw *xft_hd;
+    Picture picture;
 #else
     Qt::HANDLE xft_hd;
+    Qt::HANDLE picture;
 #endif
     GC gc;
     GC gc_brush;
