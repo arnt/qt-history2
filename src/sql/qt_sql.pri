@@ -53,7 +53,7 @@ sql {
 	}			
 
 	contains(sql-drivers, psql) {
-		HEADERS += $$SQL_H/drivers/psql/qsql_psql.h
+		HEADERS += $$SQL_CPP/drivers/psql/qsql_psql.h
 		SOURCES += $$SQL_CPP/drivers/psql/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
 		unix {
@@ -65,7 +65,7 @@ sql {
 	}
 
 	contains(sql-drivers, mysql) {
-		HEADERS += $$SQL_H/drivers/mysql/qsql_mysql.h
+		HEADERS += $$SQL_CPP/drivers/mysql/qsql_mysql.h
 		SOURCES += $$SQL_CPP/drivers/mysql/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
 		unix {
@@ -77,7 +77,7 @@ sql {
 	}
 	
 	contains(sql-drivers, odbc) {
-		HEADERS += $$SQL_H/drivers/odbc/qsql_odbc.h
+		HEADERS += $$SQL_CPP/drivers/odbc/qsql_odbc.h
 		SOURCES += $$SQL_CPP/drivers/odbc/qsql_odbc.cpp
 		DEFINES += QT_SQL_ODBC
 		unix {
@@ -90,7 +90,7 @@ sql {
 	}
 
 	contains(sql-drivers, oci) {
-		HEADERS += $$SQL_H/drivers/oci/qsql_oci.h
+		HEADERS += $$SQL_CPP/drivers/oci/qsql_oci.h
 		SOURCES += $$SQL_CPP/drivers/oci/qsql_oci.cpp
 		DEFINES += QT_SQL_OCI
 		unix {
@@ -102,7 +102,7 @@ sql {
 	}
 
 	contains(sql-drivers, tds) {
-		HEADERS += $$SQL_H/drivers/tds/qsql_tds.h
+		HEADERS += $$SQL_CPP/drivers/tds/qsql_tds.h
 		SOURCES += $$SQL_CPP/drivers/tds/qsql_tds.cpp
 		DEFINES += QT_SQL_TDS
 		unix {
