@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#5 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -970,7 +970,8 @@ void QMultiLineEdit::markWord( int pos )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
-    
+    if ( !isInputEnabled )
+	return;
     int newY = findRow( m->pos().y() );
     if ( newY < 0 )
 	return;
@@ -1008,7 +1009,7 @@ bool QMultiLineEdit::partiallyInvisible( int row )
 void QMultiLineEdit::makeVisible()
 {
     if ( partiallyInvisible( cursorY ) ) {
-	if ( cursorY > lastRowVisible() )
+	if ( cursorY >= lastRowVisible() )
 	    // ### one too many...
 	    setTopCell( topCell() + cursorY - lastRowVisible() + 1 ); 
 	else
