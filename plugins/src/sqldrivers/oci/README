@@ -38,8 +38,8 @@ ort.h
 
 Issue the following commands to build the plugin
 
-cd $QTDIR/src/sql/src/oci
-qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
 make
 
 Replace the paths corresponding to where the libraries and headers have been
@@ -55,8 +55,8 @@ Oracle Client Installation CD is sufficient to build the plugin.
 To build the plugins the following commands are neccesarry (assuming
 that QT was installed in C:\QT and Oracle Client in C:\ORACLE):
 
-cd %QTDIR%\src\sql\src\oci
-qmake -o Makefile "INCLUDEPATH=C:\ORACLE\OCI\INCLUDE" oci.pro
+cd %QTDIR%\plugins\src\sqldrivers\oci
+qmake -o Makefile "INCLUDEPATH+=C:\ORACLE\OCI\INCLUDE" oci.pro
 nmake
 
 If you are using a Borland compiler, replace "nmake" with "make" in the statement

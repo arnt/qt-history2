@@ -12,8 +12,8 @@ You need the MySQL include files and shared libraries. Depending
 on your Linux distribution it should be a package called 
 "MySQL-devel". Install it and tell qmake where to find the files:
 
-cd $QTDIR/src/sql/src/mysql
-qmake -o Makefile "INCLUDEPATH=/usr/local/include" "LIBS=-L/usr/local/libs -lmysqlclient" mysql.pro 
+cd $QTDIR/plugins/src/sqldrivers/mysql
+qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/libs -lmysqlclient" mysql.pro 
 make
 
 The Plugin needs the MySQL include files as well as the library "libmysqlclient.so"
@@ -24,10 +24,10 @@ Notes on Windows:
 
 You need to get the MySQL installation files. Run SETUP.EXE and
 choose "Custom Install". Install the "Libs & Include Files" Module.
-Change to your QT SQL Driver directory (usually C:\QT\SRC\SQL\SRC\MYSQL)
+Change to your QT SQL Driver directory (usually C:\QT\PLUGINS\SRC\SQLDRIVERS\MYSQL)
 and run qmake as follows (assuming that MySQL is installed in C:\MYSQL):
 
-qmake -o Makefile "INCLUDEPATH=C:\MYSQL\INCLUDE" "LIBS=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
+qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
 
 Finally call "nmake" (or a similar "make" utility) to build the plugin.
 

@@ -14,12 +14,12 @@ script once (there is no need to build it if you already
 installed a binary distribution).
 
 Then go into the QT psql module directory (usually it is
-$QTDIR/src/sql/src/psql) and start qmake with the following
+$QTDIR/plugins/src/sqldrivers/psql) and start qmake with the following
 parameters (it is assumed that you extracted the PostgreSQL
 source code in /usr/src/psql and the libpq.so library is
 installed in /usr/lib)
 
-qmake -o Makefile "INCLUDEPATH=/usr/src/psql/src/include 
-/usr/src/psql/src/interfaces/libpq" "LIBS=-L/usr/lib -lpq" psql.pro
+qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include 
+/usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
 
 Finally run make to build the PostgreSQL plugin.

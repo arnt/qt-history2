@@ -14,14 +14,14 @@ you have to define Q_USE_SYBASE (look at qsql_tds.cpp).
 Under Unix, two libraries are available which support the TDS protocol:
 
 - FreeTDS, a free implementation of the TDS protocol. (www.freetds.org)
-  Note that FreeTDS is not yet stable and may crash frequently.
+  Note that FreeTDS is not yet stable and may crash.
 
 - Sybase Open Client, available from www.sybase.com
   Note for Linux users: Get the Open Client RPM from linux.sybase.com
 
 Regardless of which library you use, the library "libsybdb.so" is needed.
-set the SYBASE environment variable to the directory of the library and
-execute qmake as follows:
+set the SYBASE environment variable to point to the directory where you
+installed the library and execute qmake:
 
 qmake -o Makefile "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
 
