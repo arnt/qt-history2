@@ -261,6 +261,12 @@ static inline void qt_mac_polish_font( QWidget *w )
 #endif
 }    
 
+// Detects sizes to comply with QAquaStyle
+enum AquaSize { AquaSizeLarge, AquaSizeSmall, AquaSizeUnknown };
+AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix);
+static inline AquaSize qt_aqua_size_constrain(const QWidget *w) 
+{ return qt_aqua_size_constrain((QWidget*)w, FALSE); }
+
 #ifdef QT_AQUA_XPM
 #include <qpixmapcache.h>
 

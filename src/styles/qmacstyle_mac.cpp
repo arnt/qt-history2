@@ -118,6 +118,14 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
+//utility to figure out the size
+AquaSize qt_mac_get_size_for_painter(QPainter *p)
+{
+    if(p && p->device()->devType() == QInternal::Widget) 
+	return qt_aqua_size_constrain((QWidget*)p->device());
+    return AquaSizeUnknown;
+}
+
 //private
 class QMacStyleFocusWidget : public QAquaFocusWidget
 {
@@ -281,8 +289,10 @@ void QMacStyle::polish( QApplication* app )
 /*! \reimp */
 void QMacStyle::polish( QWidget* w )
 {
-    d->addWidget(w);
     qt_mac_polish_font(w);
+    qt_aqua_size_constrain(w, TRUE);
+    d->addWidget(w);
+
     if(w->inherits("QLineEdit")) {
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
@@ -512,15 +522,18 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
+	ThemeButtonKind bkind = kThemeRadioButton;
+	if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+	    bkind = kThemeSmallRadioButton;
 	if(pe == PE_ExclusiveIndicator) {
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p), kThemeRadioButton, 
+	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind, 
 			    &info, NULL, NULL, NULL, 0);
 	} else {
 	    p->save();
 	    QRegion rgn;
-	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), kThemeRadioButton,
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind,
 				 &info, rgn.handle(TRUE));
 	    p->setClipRegion(rgn);
 	    p->fillRect(r, color1);
@@ -534,15 +547,19 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	    info.value = kThemeButtonMixed;
 	else if(flags & Style_On)
 	    info.value = kThemeButtonOn;
+	ThemeButtonKind bkind = kThemeCheckBox;
+	if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+	    bkind = kThemeSmallCheckBox;
+
 	if(pe == PE_Indicator) {
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(r, p), kThemeCheckBox,
+	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
 			    &info, NULL, NULL, NULL, 0);
 	} else {
 	    p->save();
 	    QRegion rgn;
-	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), kThemeCheckBox,
+	    GetThemeButtonRegion(qt_glb_mac_rect(r, p), bkind,
 				 &info, rgn.handle(TRUE));
 	    p->setClipRegion(rgn);
 	    p->fillRect(r, color1);
@@ -1118,6 +1135,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    ttdi.kind = kThemeSmallSlider;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
@@ -1233,18 +1252,30 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_TabBarBaseOverlap:
 	ret = kThemeTabPaneOverlap;
 	break;
-    case PM_IndicatorHeight:
-	GetThemeMetric(kThemeMetricCheckBoxHeight, &ret);
-	break;
-    case PM_IndicatorWidth:
-	GetThemeMetric(kThemeMetricCheckBoxWidth, &ret);
-	break;
-    case PM_ExclusiveIndicatorHeight:
-	GetThemeMetric(kThemeMetricRadioButtonHeight, &ret);
-	break;
-    case PM_ExclusiveIndicatorWidth:
-	GetThemeMetric(kThemeMetricRadioButtonWidth, &ret);
-	break;
+    case PM_IndicatorHeight: {
+	ThemeMetric tm = kThemeMetricCheckBoxHeight;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    tm = kThemeMetricSmallCheckBoxHeight;
+	GetThemeMetric(tm, &ret);
+	break; }
+    case PM_IndicatorWidth: {
+	ThemeMetric tm = kThemeMetricCheckBoxWidth;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    tm = kThemeMetricSmallCheckBoxWidth;
+	GetThemeMetric(tm, &ret);
+	break; }
+    case PM_ExclusiveIndicatorHeight: {
+	ThemeMetric tm = kThemeMetricRadioButtonHeight;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    tm = kThemeMetricSmallRadioButtonHeight;
+	GetThemeMetric(tm, &ret);
+	break; }
+    case PM_ExclusiveIndicatorWidth: {
+	ThemeMetric tm = kThemeMetricRadioButtonWidth;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    tm = kThemeMetricSmallRadioButtonWidth;
+	GetThemeMetric(tm, &ret);
+	break; }
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
@@ -1310,6 +1341,8 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
+	if(qt_aqua_size_constrain(w) == AquaSizeSmall)
+	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = scrollbar->minValue();
 	ttdi.max = scrollbar->maxValue();
@@ -1345,6 +1378,8 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumSlider;
+	if(qt_aqua_size_constrain(w) == AquaSizeSmall)
+	    ttdi.kind = kThemeSmallSlider;
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
@@ -1416,6 +1451,8 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect());
 	ttdi.min = scrollbar->minValue();
 	ttdi.max = scrollbar->maxValue();

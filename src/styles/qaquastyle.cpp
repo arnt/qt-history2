@@ -73,6 +73,13 @@
 #define QT_AQUA_XPM
 #include "private/qaquastyle_p.h"
 
+#define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
+
+/*****************************************************************************
+  QAquaStyle debug facilities
+ *****************************************************************************/
+//#define DEBUG_SIZE_CONSTRAINT
+
 static const int aquaSepHeight         = 10;    // separator height
 static const int aquaItemFrame         = 2;    // menu item frame width
 static const int aquaItemHMargin       = 3;    // menu item hor text margin
@@ -442,6 +449,229 @@ void QAquaStylePrivate::doFocus(QWidget *w)
     focusWidget->setFocusWidget( w );
 }
 
+#if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
+static AquaSize qt_aqua_size(QWidget *widg, QSize large, QSize small)
+{
+    if(widg->topLevelWidget()->inherits("QDockWindow") || getenv("QWIDGET_ALL_SMALL")) {
+	if(small.width() != -1 || small.height() != -1)
+	    return AquaSizeSmall;
+    }
+    int large_delta=0;
+    if(large.width() != -1) {
+	int delta = large.width() - widg->width();
+	large_delta += delta * delta;
+    }
+    if(large.height() != -1) {
+	int delta = large.height() - widg->height();
+	large_delta += delta * delta;
+    }
+#if 0
+    int small_delta=0;
+    if(small.width() != -1) {
+	int delta = small.width() - widg->width();
+	small_delta += delta * delta;
+    }
+    if(small.height() != -1) {
+	int delta = small.height() - widg->height();
+	small_delta += delta * delta;
+    }
+    if(small_delta < large_delta) 
+	return AquaSizeSmall;
+#endif
+    return AquaSizeLarge;
+}
+static AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix, QSize large, QSize small=QSize())
+{
+    AquaSize ret = qt_aqua_size(widg, large, small);
+    QSize *sz = NULL;
+    if(ret == AquaSizeSmall)
+	sz = &small;
+    else if(ret == AquaSizeLarge)
+	sz = &large;
+    if(sz && fix && ((sz->width() != -1 && sz->width() != widg->width()) || 
+		     (sz->height() != -1 && sz->height() != widg->height()))) {
+#ifdef DEBUG_SIZE_CONSTRAINT
+	const char *size_desc = "Unknown";
+	if(ret == AquaSizeSmall)
+	    size_desc = "Small";
+	else if(ret == AquaSizeLarge)
+	    size_desc = "Large";
+	qDebug("%s - %s: %s %staken (%d, %d) [ %d, %d ]", widg->name(), widg->className(), 
+	       size_desc, fix ? "" : "not ", widg->width(), widg->height(), 
+	       sz->width(), sz->height());
+#endif
+#ifdef QMAC_QAQUASTYLE_SIZE_CONSTRAIN
+	if(sz->width() != -1)
+	    widg->setFixedWidth(sz->width());
+	if(sz->height() != -1)
+	    widg->setFixedHeight(sz->height());
+#endif
+    }
+    return ret;
+}
+#ifdef Q_WS_MAC
+static int qt_mac_aqua_get_metric(ThemeMetric met)
+{
+    SInt32 ret;
+    GetThemeMetric(met, &ret);
+    return ret;
+}
+#endif
+static QSize qt_aqua_size_constraints(QWidget *widg, AquaSize sz)
+{
+    QSize ret(-1, -1);
+    const int shadow_height = 3;
+    if(sz == AquaSizeUnknown) {
+	qDebug("Not sure how to return this..");
+	return ret;
+    }
+    if(widg->inherits("QPushButton")) {
+	int minw = -1;
+	if(widg->caption() == widg->tr("OK") || widg->caption() == widg->tr("Cancel"))
+	    minw = 69;
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge)
+	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight) + shadow_height);
+	else
+	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight) + shadow_height);
+#else
+	if(sz == AquaSizeLarge)
+	    ret = QSize(minw, 20 + shadow_height);
+	else
+	    ret = QSize(minw, 17 + shadow_height);
+#endif
+    } else if(widg->inherits("QRadioButton")) {
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight) + shadow_height);
+	else 
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallRadioButtonHeight) + shadow_height);
+#else
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, 18 + shadow_height);
+	else 
+	    ret = QSize(-1, 15 + shadow_height);
+#endif
+    } else if(widg->inherits("QCheckBox")) {
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricCheckBoxHeight) + shadow_height);
+	else 
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallCheckBoxHeight) + shadow_height);
+#else
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, 18 + shadow_height);
+	else 
+	    ret = QSize(-1, 16 + shadow_height);
+#endif
+    } else if(widg->inherits("QComboBox")) {
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight));
+	else 
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight));
+#else
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, 20);
+	else 
+	    ret = QSize(-1, 17);
+#endif
+    } else if(widg->inherits("QToolButton")) {
+	if(sz == AquaSizeSmall)
+	    ret = QSize(20, 20);
+    } else if(widg->inherits("QSlider")) {
+	int w = -1;
+	QSlider *sld = (QSlider*)widg;
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge) {
+	    if(sld->orientation() == Qt::Horizontal) {
+		w = qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
+		if(sld->tickmarks() != QSlider::NoMarks) 
+		    w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
+	    } else {
+		w = qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
+		if(sld->tickmarks() != QSlider::NoMarks) 
+		    w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
+	    }
+	} else {
+	    if(sld->orientation() == Qt::Horizontal) {
+		w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
+		if(sld->tickmarks() != QSlider::NoMarks) 
+		    w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
+	    } else {
+		w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
+		if(sld->tickmarks() != QSlider::NoMarks) 
+		    w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
+	    }
+	}
+#else
+	if(sld->tickmarks() == QSlider::NoMarks) {
+	    if(sz == AquaSizeLarge)
+		w = 18;
+	    else 
+		w = 16;
+	} else {
+	    if(sz == AquaSizeLarge)
+		w = 25;
+	    else 
+		w = 18;
+	}
+	if(sld->orientation() == Qt::Horizontal) 
+	    ret.setHeight(w);
+	else
+	    ret.setWidth(w);
+#endif
+    } else if(widg->inherits("QProgressBar")) {
+#ifdef Q_WS_MAC
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness));
+	else 
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness));
+#else
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, 16);
+	else 
+	    ret = QSize(-1, 10);
+#endif
+    } else if(widg->inherits("QLineEdit")) {
+	if(!widg->parentWidget() || !widg->parentWidget()->inherits("QComboBox")) {
+	    //should I take into account the font dimentions of the lineedit? -Sam
+	    if(sz == AquaSizeLarge)
+		ret = QSize(-1, 22);
+	    else 
+		ret = QSize(-1, 19);
+	}
+    }
+#ifdef Q_WS_MAC
+    else if(widg->inherits("QHeader")) {
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
+    }
+#if 0
+    else if(widg->inherits("QTabBar")) {
+	if(sz == AquaSizeLarge)
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallTabHeight));
+    }
+#endif
+#endif
+    return ret;
+}
+#endif
+AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix)
+{
+#if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
+    if(!widg)
+	return AquaSizeUnknown;
+    return qt_aqua_size_constrain(widg, fix,
+				  qt_aqua_size_constraints(widg, AquaSizeLarge),
+				  qt_aqua_size_constraints(widg, AquaSizeSmall));
+#else
+    Q_UNUSED(widg);
+    Q_UNUSED(fix);
+    return AquaSizeUnknown;
+#endif
+}
+
 /*!
   \class QAquaStyle qaquastyle.h
   \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
@@ -529,6 +759,8 @@ void QAquaStyle::polish( QApplication* app )
 /*! \reimp */
 void QAquaStyle::polish( QWidget * w )
 {
+    qt_mac_polish_font(w);
+    qt_aqua_size_constrain(w, TRUE);
     d->addWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
@@ -561,7 +793,6 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    qt_mac_polish_font(w);
     if( w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
