@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#73 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#74 $
 **
 ** Macros and definitions related to QObject
 **
@@ -59,6 +59,13 @@
 # define QT_TR_FUNCTIONS
 #endif
 
+#ifndef QT_NO_PROPERTIES
+# define QT_PROP_FUNCTIONS \
+    virtual bool qt_property( const QMetaProperty*, int, QVariant* );
+#else
+# define QT_PROP_FUNCTIONS
+#endif
+
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
 struct QUObject;
@@ -95,7 +102,7 @@ public:									\
     virtual const char *className() const;				\
     virtual bool qt_invoke( int, QUObject* ); 				\
     virtual bool qt_emit( int, QUObject* ); 				\
-    virtual bool qt_property( const QMetaProperty*, int, QVariant* );	\
+    QT_PROP_FUNCTIONS							\
     static QMetaObject* staticMetaObject();				\
     QObject* qObject() { return this; } 				\
     QT_TR_FUNCTIONS							\

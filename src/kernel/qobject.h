@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#137 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#138 $
 **
 ** Definition of QObject class
 **
@@ -129,9 +129,9 @@ public:
     virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 #ifdef QT_NO_TRANSLATION
-    QString QObject::tr( const char *sourceText, const char * );
+    QString tr( const char *sourceText, const char * );
 #ifndef QT_NO_TEXTCODEC
-    QString QObject::trUtf8( const char *sourceText, const char * );
+    QString trUtf8( const char *sourceText, const char * );
 #endif
 #endif //QT_NO_TRANSLATION
 
