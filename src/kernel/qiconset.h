@@ -48,6 +48,7 @@
 class QIconFactory;
 class QIconSetPrivate;
 
+// ### Remove all 'virtual' functions in QIconSet (but not QIconFactory) in Qt 4.0
 class Q_EXPORT QIconSet
 {
 public:
