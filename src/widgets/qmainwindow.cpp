@@ -1252,26 +1252,45 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     left = right = top = bottom = 30;
     int h1 = d->mb ? d->mb->height() : 0;
     int h2 = d->sb ? d->sb->height() : 0;
+    bool hasTop, hasBottom, hasLeft, hasRight;
+    hasTop = hasBottom = hasLeft= hasRight = FALSE;
     if ( d->mc ) {
-	if ( d->mc->x() > 0 )
+	if ( d->mc->x() > 0 ) {
+	    hasLeft = TRUE;
 	    left = d->mc->x();
-	if ( d->mc->x() + d->mc->width() < width() )
+	}
+	if ( d->mc->x() + d->mc->width() < width() ) {
+	    hasRight = TRUE;
 	    right = width() - ( d->mc->x() + d->mc->width() );
-	if ( d->mc->y() > h1 )
+	}
+	if ( d->mc->y() > h1 ) {
+	    hasTop = TRUE;
 	    top = d->mc->y() - h1;
-	if ( d->mc->y() + d->mc->height() < height() - h2  )
+	}
+	if ( d->mc->y() + d->mc->height() < height() - h2  ) {
+	    hasBottom = TRUE;
 	    bottom = height() - ( d->mc->y() + d->mc->height() ) - h2;
+	}
     }
 
-    if ( left < 20 )
+    // some checks...
+    if ( left < 20 ) {
+	hasLeft = FALSE;
 	left = 30;
-    if ( right < 20 )
+    }
+    if ( right < 20 ) {
+	hasRight = FALSE;
 	right = 30;
-    if ( top < 20 )
+    }
+    if ( top < 20 ) {
+	hasTop = FALSE;
 	top = 30;
-    if ( bottom < 20 )
+    }
+    if ( bottom < 20 ) {
+	hasBottom = FALSE;
 	bottom = 30;
-    
+    }
+
     // calculate the docking areas
     QRect leftArea( 0, h1, left, height() - h1 - h2 );
     QRect topArea( 0, h1, width(), top );
@@ -1282,6 +1301,16 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     QRect rightTop = rightArea.intersect( topArea );
     QRect rightBottom = rightArea.intersect( bottomArea );
 
+    // now polish the docking areas a bit... (subtract interstections)
+    if ( hasTop )
+	leftArea = QRegion( leftArea ).subtract( leftTop ).boundingRect();
+    if ( hasBottom )
+	leftArea = QRegion( leftArea ).subtract( leftBottom ).boundingRect();
+    if ( hasTop )
+	rightArea = QRegion( rightArea ).subtract( rightTop ).boundingRect();
+    if ( hasBottom )
+	rightArea = QRegion( rightArea ).subtract( rightBottom ).boundingRect();
+    
     // find the docking area into which the toolbar should/could be moved
 
     // if the mouse is in a rect which belongs to two docking areas (intersection),
