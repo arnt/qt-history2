@@ -62,9 +62,9 @@ for a in tools kernel widgets dialogs ; do
     ln -s `make -s showheaders showsources | sed $beta | fmt -1 | sed 's-^-../../../src/'${a}'/-'` ${BASE}/arch/template/library
 done
 
-# make moc_gen.cpp
+# make mocgen.cpp
 cd ${BASE}/src/moc
-make -s moc_gen.cpp
+make -s mocgen.cpp
 
 cd ${BASE}/examples
 for a in `make -s showdirs` ; do
