@@ -343,9 +343,10 @@ We construct a directory model in the same way as before:
 \skipto QDirModel *model
 \printuntil int numRows
 
-In this case, we ensure that all files and directories are reported by
-the model by setting the file filter, and we count the number of rows
-in the model using the \l{QDirModel::rowCount()}{rowCount()} function.
+In this case, we set up a default QDirModel, obtain a parent index using
+a specific implementation of \l{QDirModel::index()}{index()} provided by
+that model, and we count the number of rows in the model using the
+\l{QDirModel::rowCount()}{rowCount()} function.
 
 For simplicity, we are only interested in the items in the first column
 of the model. We examine each row in turn, obtaining a model index for
