@@ -680,7 +680,7 @@ void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
     if (QABS(alen) < 90*16) {
         if ((xS == xE) && (yS == yE)) {
             // don't draw a whole circle
-            return; //### should we draw a point?
+            return;
         }
     }
 #ifndef Q_OS_TEMP
@@ -728,7 +728,7 @@ void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
     if (QABS(alen) < 90*16) {
         if ((xS == xE) && (yS == yE)) {
             // don't draw a whole circle
-            return; //### should we draw something?
+            return;
         }
     }
     if (d->nocolBrush)
@@ -772,7 +772,7 @@ void QWin32PaintEngine::drawChord(const QRect &r, int a, int alen)
     if (QABS(alen) < 90*16) {
         if ((xS == xE) && (yS == yE)) {
             // don't draw a whole circle
-            return; //### should we draw something?
+            return;
         }
     }
     if (d->nocolBrush)
@@ -1166,14 +1166,6 @@ void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int t
 
     if (usesGdiplus)
         d->forceGdi = oldForceGdi;
-}
-
-
-HDC QWin32PaintEngine::handle() const
-{
-    Q_ASSERT(isActive());
-    Q_ASSERT(d->hdc);
-    return d->hdc;
 }
 
 
@@ -2276,11 +2268,6 @@ void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, bool enabled)
 //         d->graphics->ResetClip();
         GdipResetClip(d->graphics);
     }
-}
-
-HDC QGdiplusPaintEngine::handle() const
-{
-    return 0;
 }
 
 void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)

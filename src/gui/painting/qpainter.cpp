@@ -655,11 +655,6 @@ bool QPainter::end()
 
 QFontMetrics QPainter::fontMetrics() const
 {
-    // ### port properly
-//     if (pdev && pdev->devType() == QInternal::Picture)
-//         return QFontMetrics(cfont);
-
-//     return QFontMetrics(this);
     if (d->engine)
         d->engine->updateState(d->state);
     return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font);
@@ -677,11 +672,6 @@ QFontMetrics QPainter::fontMetrics() const
 
 QFontInfo QPainter::fontInfo() const
 {
-    // ### port properly
-//     if (pdev && pdev->devType() == QInternal::Picture)
-//         return QFontInfo(cfont);
-
-//     return QFontInfo(this);
     if (d->engine)
         d->engine->updateState(d->state);
     return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
@@ -718,7 +708,6 @@ QPoint QPainter::brushOrigin() const
 
 void QPainter::setBrushOrigin(int x, int y)
 {
-    // ### updateBrush in gc probably does not deal with offset.
     d->state->bgOrigin = QPoint(x, y) - d->redirection_offset;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
@@ -791,7 +780,7 @@ QRegion QPainter::clipRegion() const
 
     Sets the clip region of the rectange \a rect.
 */
-void QPainter::setClipRect(const QRect &rect) // ### inline?
+void QPainter::setClipRect(const QRect &rect)
 {
     setClipRegion(QRegion(rect));
 }
@@ -815,10 +804,8 @@ void QPainter::setClipRegion(const QRegion &r)
 
     d->engine->updateState(d->state);
 
-//     qDebug() << "QPainter::setClipRegion() unchanged.." << r.boundingRect();
     d->state->clipRegion = r;
     if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-//         qDebug() << "QPainter::setClipRegion() xformed.." << r.boundingRect();
 	d->state->clipRegionXFormed = d->state->matrix * r;
     }
     d->state->clipEnabled = true;
@@ -1284,7 +1271,7 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
     d->engine->updateState(d->state);
 
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
-        && (d->state->pen.style() != Qt::NoPen 
+        && (d->state->pen.style() != Qt::NoPen
             && d->state->pen.color().alpha() != 255)) {
         QRect bounds(0, 0, 0, 0);
         bounds.setWidth((p1.x() > p2.x()) ? (p1.x()-p2.x()) : (p2.x()-p1.x()));
@@ -1769,7 +1756,7 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen 
+            || (d->state->pen.style() != Qt::NoPen
                 && d->state->pen.color().alpha() != 255))) {
         QT_ALPHA_BLEND(rect,
                        drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
@@ -1790,9 +1777,6 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
             int y = rect.y();
             int w = rect.width();
             int h = rect.height();
-
-            w--; // ###?
-            h--; // ###?
             int rxx = w*xRnd/200;
             int ryy = h*yRnd/200;
             // were there overflows?
@@ -1807,7 +1791,6 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
             a[1].makeArc(x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, d->state->matrix);
             a[2].makeArc(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, d->state->matrix);
             a[3].makeArc(x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, d->state->matrix);
-            // ### is there a better way to join QPointArrays?
             QPointArray aa;
             aa.resize(a[0].size() + a[1].size() + a[2].size() + a[3].size());
             uint j = 0;
@@ -1848,7 +1831,7 @@ void QPainter::drawEllipse(const QRect &r)
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen 
+            || (d->state->pen.style() != Qt::NoPen
                 && d->state->pen.color().alpha() != 255))) {
         QT_ALPHA_BLEND(rect,
                        drawEllipse(0, 0, rect.width(), rect.height()),
@@ -1962,7 +1945,7 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen 
+            || (d->state->pen.style() != Qt::NoPen
                 && d->state->pen.color().alpha() != 255))) {
         QT_ALPHA_BLEND(rect,
                        drawPie(0, 0, rect.width(), rect.height(), a, alen),
@@ -2030,7 +2013,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen 
+            || (d->state->pen.style() != Qt::NoPen
                 && d->state->pen.color().alpha() != 255))) {
         QT_ALPHA_BLEND(rect,
                        drawChord(0, 0, rect.width(), rect.height(), a, alen),
@@ -2170,7 +2153,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
-            || (d->state->pen.style() != Qt::NoPen 
+            || (d->state->pen.style() != Qt::NoPen
                 && d->state->pen.color().alpha() != 255))) {
         QRect bounds = a.boundingRect();
         QPointArray copy(a);
@@ -2422,32 +2405,20 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 */
 
 /*!
-  \internal
-  ### remove when combining QImage/QPixmap
+  \fn void QPainter::drawImage(const QRect &r, const QImage &image)
+
+  \overload
 */
 
-void QPainter::drawImage(int, int, const QImage &, int, int, int, int, int)
-{
-    if (!isActive())
-        return;
-    d->engine->updateState(d->state);
 
-    qWarning("QPainter::drawImage(), %d", __LINE__);
-}
+/*! \fn void QPainter::drawImage(int x, int y, const QImage &image,
+                                 int sx = 0, int sy = 0, int sw = -1, int sh = -1,
+                                 int conversionFlags = 0)
 
-
-/*!
-  \internal
-  ### remove when combining QImage/QPixmap
+    \overload
 */
-void QPainter::drawImage(const QRect &, const QImage &)
-{
-    if (!isActive())
-        return;
-    d->engine->updateState(d->state);
 
-    qWarning("QPainter::drawImage(), %d", __LINE__);
-}
+
 
 /*!
     \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
@@ -2513,7 +2484,6 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     if (d->state->font.overline()) textFlags |= Qt::Overline;
     if (d->state->font.strikeOut()) textFlags |= Qt::StrikeOut;
 
-    // ### call fill rect here...
 #if defined(Q_WS_X11)
     extern void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h);
     if (backgroundMode() == Qt::OpaqueMode)
@@ -3328,7 +3298,6 @@ void qt_format_text(const QFont& font, const QRect &_r,
     int underlinePositionStack[32];
     int *underlinePositions = underlinePositionStack;
 
-        // ### port properly
     QFont fnt(painter
               ? (painter->d->state->pfont
                  ? *painter->d->state->pfont

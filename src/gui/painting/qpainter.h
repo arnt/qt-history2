@@ -176,13 +176,6 @@ public:
                     Qt::BlendMode mode = Qt::AlphaBlend);
     void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode = Qt::AlphaBlend);
 
-    void drawImage(int x, int y, const QImage &,
-                   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
-                   int conversionFlags = 0);
-    void drawImage(const QPoint &, const QImage &, const QRect &sr, int c2onversionFlags = 0);
-    void drawImage(const QPoint &, const QImage &, int conversion_flags = 0);
-    void drawImage(const QRect &, const QImage &);
-
     void drawText(int x, int y, const QString &, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
     { drawText(p.x(), p.y(), s, dir); }
@@ -200,8 +193,19 @@ public:
         { drawText(p, s.left(len), dir); }
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
+    inline QT_COMPAT void drawImage(const QPoint &p, const QImage &image, const QRect &sr,
+                                    int conversionFlags = 0)
+        { QPixmap pm; pm.convertFromImage(image, conversionFlags); drawPixmap(p, pm, sr); }
+    inline QT_COMPAT void drawImage(const QRect &r, const QImage &image)
+        { drawPixmap(r, QPixmap(image)); }
+    inline QT_COMPAT void drawImage(int x, int y, const QImage &image,
+                                    int sx = 0, int sy = 0, int sw = -1, int sh = -1,
+                                    int conversionFlags = 0)
+        { QPixmap pm; pm.convertFromImage(image, conversionFlags);
+        drawPixmap(QPoint(x, y), pm, QRect(sx, sy, sw, sh)); }
+    inline void QT_COMPAT drawImage(const QPoint &p, const QImage &image)
+        { drawPixmap(p, QPixmap(image)); }
 #endif
-
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
                   QRect *br=0);
     void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0);
@@ -426,17 +430,6 @@ inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QStr
                                 int len, QRect *br)
 {
     drawText(QRect(x, y, w, h), flags, str, len, br);
-}
-
-inline void QPainter::drawImage(const QPoint &p, const QImage &i, const QRect &sr,
-                                 int conversionFlags)
-{
-    drawImage(p.x(), p.y(), i, sr.x(), sr.y(), sr.width(), sr.height(), conversionFlags);
-}
-
-inline void QPainter::drawImage(const QPoint &p, const QImage &i, int conversion_flags)
-{
-    drawImage(p.x(), p.y(), i, 0, 0, i.width(), i.height(), conversion_flags);
 }
 
 inline void QPainter::drawEdges(int x, int y, int w, int h, Qt::RectangleEdges edges)

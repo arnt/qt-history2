@@ -24,8 +24,7 @@ class QTextEngine;
 class QTextLayout;
 class QWin32PaintEnginePrivate;
 
-// ### Remove EXPORT once Q4Printer is integrated into main
-class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
+class QWin32PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PaintEngine)
 public:
@@ -65,7 +64,6 @@ public:
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     void drawPath(const QPainterPath &path);
 
-    HDC handle() const; // ### Still not liking this...
     inline Type type() const { return QPaintEngine::Windows; }
 
     static void initialize();
@@ -125,7 +123,6 @@ public:
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
-    HDC handle() const;
     Type type() const { return Gdiplus; }
 
 #ifndef QT_NO_BEZIER

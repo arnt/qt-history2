@@ -121,11 +121,10 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
     \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
-// ### DOC: Is this true?
 /*!
     \fn QColor QBrush::gradientColor() const
 
-    Returns the gradient's average color.
+    Returns the gradient's secondary color.
 
     \sa gradientStart() gradientStop()
 */

@@ -79,17 +79,7 @@ static void qDrawTransparentPixmap(HDC hdc_dest, bool destIsPixmap,
     HBITMAP  hbm_buf, hbm_buf_old;
     int             nx, ny;
 
-#if 0
-    // ### background colors get modified
-    if (destIsPixmap) {                        // blt directly into pixmap
-        hdc = hdc_dest;
-        hdc_buf = 0;
-        nx = dx;
-        ny = dy;
-    } else
-#else
     Q_UNUSED(destIsPixmap)
-#endif                                        // use off-screen buffer
     {
         hdc_buf = CreateCompatibleDC(hdc_dest);
         hbm_buf = CreateCompatibleBitmap(hdc_dest, sw, sh);
@@ -216,38 +206,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         else
             return;
     }
-
-#if 0 // ### port
-    if (dst->paintingActive() && dst->isExtDev()) {
-        QPixmap *pm;                                // output to picture/printer
-        bool         tmp_pm = true;
-        if (ts == QInternal::Pixmap) {
-            pm = (QPixmap*)src;
-            if (sx != 0 || sy != 0 ||
-                 sw != pm->width() || sh != pm->height()) {
-                QPixmap *pm_new = new QPixmap(sw, sh, pm->depth());
-                bitBlt(pm_new, 0, 0, pm, sx, sy, sw, sh);
-                pm = pm_new;
-            } else {
-                tmp_pm = false;
-            }
-        } else if (ts == QInternal::Widget) {        // bitBlt to temp pixmap
-            pm = new QPixmap(sw, sh);
-            bitBlt(pm, 0, 0, src, sx, sy, sw, sh);
-        } else {
-            qWarning("bitBlt: Cannot bitBlt from device");
-            return;
-        }
-        QPDevCmdParam param[3];
-        QPoint p(dx,dy);
-        param[0].point        = &p;
-        param[1].pixmap = pm;
-        dst->cmd(QPaintDevice::PdcDrawPixmap, 0, param);
-        if (tmp_pm)
-            delete pm;
-        return;
-    }
-#endif
 
     switch (ts) {
         case QInternal::Widget:

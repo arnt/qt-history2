@@ -199,7 +199,6 @@ private:
     void freeBits();
 
     struct QImageData {        // internal image data
-        // ### move to QAtomic/implicit sharing
         QImageData() : count(1) { }
         void ref() { ++count; }
         bool deref() { return !--count; }
@@ -299,7 +298,7 @@ private:
     QByteArray frmt;         // image format
     QIODevice *iodev;        // IO device
     QString fname;           // file name
-    char *params;            // image parameters //### change to QImageIOData *d in 3.0
+    char *params;            // image parameters
     QString descr;           // image description
     QImageIOData *d;
 

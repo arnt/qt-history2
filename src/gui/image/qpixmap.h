@@ -184,7 +184,6 @@ protected:
 #endif
 
     struct QPixmapData {        // internal pixmap data
-        // ### move to QAtomic/implicit sharing
         QPixmapData() : count(1) { }
         void ref()                { ++count; }
         bool deref()        { return !--count; }
@@ -221,7 +220,7 @@ protected:
         QPixmap *alphapm;
         Qt::HANDLE cg_hd;
 #elif defined(Q_WS_QWS)
-        int id; // ### should use QPaintDevice::hd, since it is there
+        int id;
         QRgb * clut;
         int numcols;
         int rw;

@@ -15,15 +15,16 @@
 #ifndef QMOVIE_H
 #define QMOVIE_H
 
-#ifndef QT_H
-#include "qpixmap.h" // ### remove or keep for users' convenience?
-#endif // QT_H
-
 #ifndef QT_NO_MOVIE
 
+class QColor;
 class QIODevice;
-class QObject;
 class QMoviePrivate;
+class QObject;
+class QObject;
+class QPixmap;
+class QRect;
+class QWidget;
 
 class Q_GUI_EXPORT QMovie {
 public:
