@@ -4,9 +4,9 @@
 
 ####### Directories
 
-SRCDIR		= $(QTDIR)/src
-INCDIR		= $(SRCDIR)/include
-LIBDIR		= $(SRCDIR)/lib
+BASEDIR		= $(QTDIR)
+INCDIR		= $(BASEDIR)/include
+LIBDIR		= $(BASEDIR)/lib
 
 ####### Compiler
 
@@ -14,10 +14,16 @@ LIBDIR		= $(SRCDIR)/lib
 CFLAGS		= -O2
 CC		= gcc
 
+LEX		= flex
+YACC		= yacc -d
+
 ####### Files
 
 SOURCES		= moc.l		moc.y
-LEXYACC		= lex.yy.c	moc.cpp
+LEX_FILE	= lex.yy.c
+YACC_FILE	= y.tab.c
+YACC_HDR_FILE	= y.tab.h
+CPP_FILE	= moc.cpp
 OBJECTS		= moc.o
 TARGET		= moc
 
@@ -33,7 +39,7 @@ TARGET		= moc
 
 all: $(SOURCES) $(TARGET)
 
-$(TARGET): $(OBJECTS) $(LEXYACC)
+$(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(TARGET) -L$(LIBDIR) -lqtools
 	strip moc
 	cp moc $(QTDIR)/bin
@@ -45,38 +51,38 @@ depend: $(SRCMETA)
 
 clean:
 	/bin/rm -f *.o *.bak *BAK *~ *% #*
-	/bin/rm -f $(LEXYACC) $(TARGET) y.output y.tab.h
+	/bin/rm -f $(TARGET) $(LEX_FILE) $(YACC_HDR_FILE) $(CPP_FILE)
 
-####### Programs
+####### Lex/yacc etc.
 
-lex.yy.c: moc.l
-	flex moc.l
- 
-moc.cpp: moc.y
-	yacc -d moc.y
-	mv y.tab.c moc.cpp
+$(LEX_FILE): moc.l
+	$(LEX) moc.l
+
+$(CPP_FILE): moc.y $(LEX_FILE)
+	$(YACC) moc.y
+	mv $(YACC_FILE) $(CPP_FILE)
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-moc.o: /home/popcorn/home/hanord/qt/src/include/qstring.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qarray.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qgarray.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qshared.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qglobal.h
-moc.o: /usr/include/string.h /usr/include/features.h /usr/include/sys/cdefs.h
+moc.o: /home/popcorn/home/hanord/qt/include/qstring.h
+moc.o: /home/popcorn/home/hanord/qt/include/qarray.h
+moc.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+moc.o: /home/popcorn/home/hanord/qt/include/qshared.h
+moc.o: /home/popcorn/home/hanord/qt/include/qglobal.h /usr/include/string.h
+moc.o: /usr/include/features.h /usr/include/sys/cdefs.h
 moc.o: /usr/local/lib/gcc-include/stddef.h /usr/include/malloc.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qlist.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qglist.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qcollect.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qglobal.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qstring.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qarray.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qgarray.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qshared.h
-moc.o: /usr/include/string.h /usr/include/features.h /usr/include/sys/cdefs.h
+moc.o: /home/popcorn/home/hanord/qt/include/qlist.h
+moc.o: /home/popcorn/home/hanord/qt/include/qglist.h
+moc.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+moc.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+moc.o: /home/popcorn/home/hanord/qt/include/qstring.h
+moc.o: /home/popcorn/home/hanord/qt/include/qarray.h
+moc.o: /home/popcorn/home/hanord/qt/include/qgarray.h
+moc.o: /home/popcorn/home/hanord/qt/include/qshared.h /usr/include/string.h
+moc.o: /usr/include/features.h /usr/include/sys/cdefs.h
 moc.o: /usr/local/lib/gcc-include/stddef.h
-moc.o: /home/popcorn/home/hanord/qt/src/include/qdatetm.h
-moc.o: /usr/include/ctype.h /usr/include/stdio.h /usr/include/libio.h
-moc.o: /usr/include/stdlib.h /usr/include/errno.h /usr/include/linux/errno.h
-moc.o: /usr/local/lib/gcc-include/float.h lex.yy.c /usr/include/malloc.h
+moc.o: /home/popcorn/home/hanord/qt/include/qdatetm.h /usr/include/ctype.h
+moc.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/stdlib.h
+moc.o: /usr/include/errno.h /usr/include/linux/errno.h
+moc.o: /usr/local/lib/gcc-include/float.h
