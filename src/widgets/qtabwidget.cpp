@@ -396,7 +396,9 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
-    d->tabs->setCurrentTab( 0 );
+    QTab* ft = d->tabs->tabAt( 0 );
+    if ( ft )
+	d->tabs->setCurrentTab( ft->identifier() );
     d->tabs->setCurrentTab( ct );
     d->tabs->blockSignals( block );
 
@@ -428,7 +430,9 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
-    d->tabs->setCurrentTab( 0 );
+    QTab* ft = d->tabs->tabAt( 0 );
+    if ( ft )
+	d->tabs->setCurrentTab( ft->identifier() );
     d->tabs->setCurrentTab( ct );
     d->tabs->blockSignals( block );
 
@@ -1027,7 +1031,9 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
-    d->tabs->setCurrentTab( 0 );
+    QTab* ft = d->tabs->tabAt( 0 );
+    if ( ft )
+	d->tabs->setCurrentTab( ft->identifier() );
     d->tabs->setCurrentTab( ct );
     d->tabs->blockSignals( block );
 
