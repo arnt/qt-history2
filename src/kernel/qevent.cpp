@@ -660,6 +660,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 
   Key code 0 means that the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
+
+  When key event compression is turned on, this function's return
+  value is undefined.  See QWidget::setKeyCompression() for details
+  on key event compression.
 */
 
 /*!
