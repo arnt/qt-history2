@@ -579,10 +579,13 @@ Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
 	sockAddrPtr = (struct sockaddr *)&sockAddrIPv4;
     }
 
+    // ignore the SIGPIPE signal
+    qt_ignore_sigpipe();
+
     ssize_t sentBytes;
     do {
         sentBytes = ::sendto(socketDescriptor, data, len,
-                             MSG_NOSIGNAL, sockAddrPtr, sockAddrSize);
+                             0, sockAddrPtr, sockAddrSize);
     } while (sentBytes == -1 && errno == EINTR);
 
     if (sentBytes < 0)
