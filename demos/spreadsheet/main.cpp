@@ -272,7 +272,9 @@ void SpreadSheet::selectColor()
     QList<QTableWidgetItem*> selected = table->selectedItems();
     if (selected.count() == 0)
         return;
-    QColor col = QColorDialog::getColor(selected.last()->backgroundColor(), this);
+    QTableWidgetItem *item = table->currentItem();
+    QColor col = item ? item->backgroundColor() : table->palette().base().color();
+    col = QColorDialog::getColor(col, this);
     if (!col.isValid())
         return;
     foreach(QTableWidgetItem *i, selected)
