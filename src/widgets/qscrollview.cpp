@@ -108,7 +108,7 @@ public:
         inresize( FALSE ), use_cached_size_hint( TRUE )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
-	viewport->polish();
+	viewport->ensurePolished();
 	viewport->setPalettePolicy( QPalette::Dark );
 	parent->setPalettePolicy( QPalette::Background );
 	vMode = QScrollView::Auto;
@@ -1356,7 +1356,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	qWarning( "QScrollView::addChild(): Cannot add null child" );
 	return;
     }
-    child->polish();
+    child->ensurePolished();
     child->setBackgroundOrigin(WidgetOrigin);
 
     if ( child->parentWidget() == viewport() ) {
