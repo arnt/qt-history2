@@ -560,7 +560,7 @@ QVariant& QVariant::operator= ( const QVariant& variant )
 {
     clear();
 
-    QVariant& other( (QVariant&)variant );
+    QVariant& other = (QVariant&)variant;
 
     switch( other.type() )
 	{
