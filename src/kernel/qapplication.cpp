@@ -735,7 +735,7 @@ QApplication::~QApplication()
     qt_cleanup();
     delete app_cursor;
     app_cursor = 0;
-    
+
     /*
     Cannot delete objectDict, as then all Class::metaObj variables
     become invalid.  We could make a separate function to do this
@@ -1008,7 +1008,7 @@ void QApplication::setColorSpec( int spec )
   can be interacted with should be smaller than the provided
   size. This should be considered when reimplementing items
   that may be used on touch-screens or with similar IO-devices.
-  
+
   Example:
   \code
   QSize& WidgetClass::sizeHint() const
@@ -1226,7 +1226,7 @@ void QApplication::polish( QWidget *w )
 	qdevel->addTopLevelWidget(tlw);
 #endif
 
-    app_style->polish( w );
+    w->style().polish( w );
 }
 
 

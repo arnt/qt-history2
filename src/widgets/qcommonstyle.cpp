@@ -323,7 +323,8 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     int h = btn->height();
     const QColorGroup &g = btn->colorGroup();
     bool sunken = ( btn->isOn() && !btn->son ) || btn->isDown();
-    QBrush fill = btn->colorGroup().brush( QColorGroup::Button );
+    QBrush fill = btn->colorGroup().brush( btn->backgroundMode() == QToolButton::PaletteBackground ? 
+					   QColorGroup::Background : QColorGroup::Button );
     if ( guiStyle() == WindowsStyle && btn->isOn() )
 	fill = QBrush( g.light(), Dense4Pattern );
 #if defined(_WS_WIN_)

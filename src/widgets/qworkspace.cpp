@@ -833,7 +833,7 @@ void QWorkspace::showMaximizeControls()
 	    restoreB->setAutoRaise( TRUE );
 	    closeB->setAutoRaise( TRUE );
 	}
-
+	    
 	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2+2*d->maxcontrols->frameWidth(),
 				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
@@ -1129,7 +1129,11 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
 	closeB->setAutoRaise( TRUE );
 	maxB->setAutoRaise( TRUE );
 	iconB->setAutoRaise( TRUE );
+	closeB->setBackgroundMode( PaletteBackground );
+	maxB->setBackgroundMode( PaletteBackground );
+	iconB->setBackgroundMode( PaletteBackground );
     }
+    
     if ( imode ) {
 	iconB->setIconSet( QPixmap( (const char **)normalize_xpm ) );
 	connect( iconB, SIGNAL( clicked() ),
