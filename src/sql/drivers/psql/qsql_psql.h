@@ -16,7 +16,6 @@
 #define QSQL_PSQL_H
 
 #include <qsqlresult.h>
-#include <qsqlfield.h>
 #include <qsqldriver.h>
 #include <libpq-fe.h>
 
@@ -32,7 +31,6 @@ class QSqlRecordInfo;
 
 class QPSQLResult : public QSqlResult
 {
-    friend class QPSQLDriver;
 public:
     QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p );
     ~QPSQLResult();
@@ -47,6 +45,8 @@ protected:
     bool		reset ( const QString& query );
     int			size();
     int			numRowsAffected();
+    QSqlRecord record() const;
+
 private:
     int			currentSize;
     QPSQLPrivate*	d;
@@ -78,9 +78,6 @@ public:
     QStringList		tables( const QString& user ) const;
     QSqlIndex		primaryIndex( const QString& tablename ) const;
     QSqlRecord		record( const QString& tablename ) const;
-    QSqlRecord		record( const QSqlQuery& query ) const;
-    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
 
     Protocol            protocol() const { return pro; }
     PGconn*             connection();

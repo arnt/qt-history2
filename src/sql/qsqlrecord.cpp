@@ -22,6 +22,8 @@
 #include "qnamespace.h"
 #include "qatomic.h"
 
+#include "qsqlfield.h"
+
 class QSqlRecordPrivate
 {
 public:
@@ -624,93 +626,5 @@ void QSqlRecord::detach()
     if (!--x->ref)
 	delete x;
 }
-
-/******************************************/
-/*******     QSqlRecordInfo Impl     ******/
-/******************************************/
-
-/*!
-    \class QSqlRecordInfo qsqlrecord.h
-    \brief The QSqlRecordInfo class encapsulates a set of database field meta data.
-
-    \ingroup database
-    \module sql
-
-    This class is a QList that holds a set of database field meta
-    data. Use contains() to see if a given field name exists in the
-    record, and use find() to get a QSqlFieldInfo record for a named
-    field.
-
-    \sa QList, QSqlFieldInfo
-*/
-
-
-/*!
-    Constructs a QSqlRecordInfo object based on the fields in the
-    QSqlRecord \a other.
-*/
-QSqlRecordInfo::QSqlRecordInfo( const QSqlRecord& other )
-{
-    for ( int i = 0; i < other.count(); ++i ) {
-	push_back( QSqlFieldInfo( *(other.field( i )), other.isGenerated( i ) ) );
-    }
-}
-
-/*!
-    Returns the number of times a field called \a fieldName occurs in
-    the record. Returns 0 if no field by that name could be found.
-*/
-QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) const
-{
-   size_type i = 0;
-   QString fName = fieldName.toUpper();
-   for( const_iterator it = begin(); it != end(); ++it ) {
-	if ( (*it).name().toUpper() == fName ) {
-	    ++i;
-	}
-    }
-    return i;
-}
-
-/*!
-    Returns a QSqlFieldInfo object for the first field in the record
-    which has the field name \a fieldName. If no matching field is
-    found then an empty QSqlFieldInfo object is returned.
-*/
-QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
-{
-   QString fName = fieldName.toUpper();
-   for( const_iterator it = begin(); it != end(); ++it ) {
-	if ( (*it).name().toUpper() == fName ) {
-	    return *it;
-	}
-    }
-    return QSqlFieldInfo();
-}
-
-/*!
-    Returns an empty QSqlRecord based on the field information
-    in this QSqlRecordInfo.
-*/
-QSqlRecord QSqlRecordInfo::toRecord() const
-{
-   QSqlRecord buf;
-   for( const_iterator it = begin(); it != end(); ++it ) {
-	buf.append( (*it).toField() );
-   }
-   return buf;
-}
-
-/*!
-    \fn QSqlRecordInfo::QSqlRecordInfo()
-
-    Constructs an empty record info object
-*/
-
-/*!
-    \fn QSqlRecordInfo::QSqlRecordInfo( const QSqlFieldInfoList& other )
-
-    Constructs a copy of \a other.
-*/
 
 #endif

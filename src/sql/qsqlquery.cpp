@@ -832,6 +832,13 @@ void QSqlQuery::setForwardOnly( bool forward )
 	d->sqlResult->setForwardOnly( forward );
 }
 
+QSqlRecord QSqlQuery::record() const
+{
+    if (d->sqlResult)
+	return d->sqlResult->record();
+    return QSqlRecord();
+}
+
 /*!
   \internal
 */

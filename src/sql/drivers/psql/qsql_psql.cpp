@@ -429,6 +429,37 @@ int QPSQLResult::numRowsAffected()
     return QString( PQcmdTuples( d->result ) ).toInt();
 }
 
+QSqlRecord QPSQLResult::record() const
+{
+    QSqlRecord info;
+    if (!isActive() || !isSelect())
+	return info;
+    
+    int count = PQnfields(d->result);
+    for ( int i = 0; i < count; ++i ) {
+	QString name;
+	if (d->isUtf8)
+	    name = QString::fromUtf8(PQfname(d->result, i));
+	else
+	    name = QString::fromLocal8Bit(PQfname(d->result, i));
+	int len = PQfsize( d->result, i );
+	int precision = PQfmod( d->result, i );
+	// swap length and precision if length == -1
+	if ( len == -1 && precision > -1 ) {
+	    len = precision - 4;
+	    precision = -1;
+	}
+	info.append( QSqlField( name,
+				qDecodePSQLType( PQftype( d->result, i ) ),
+				-1,
+				len,
+				precision,
+				QVariant(),
+				PQftype( d->result, i ) ) );
+    }
+    return info;
+}
+
 ///////////////////////////////////////////////////////////////////
 
 static bool setEncodingUtf8( PGconn* connection )
@@ -735,70 +766,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 
 QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 {
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    QString stmt;
-    switch( pro ) {
-    case QPSQLDriver::Version6:
-	stmt = "select pg_attribute.attname, int(pg_attribute.atttypid) "
-			"from pg_class, pg_attribute "
-			"where lower(pg_class.relname) = '%1' "
-			"and pg_attribute.attnum > 0 "
-			"and pg_attribute.attrelid = pg_class.oid ";
-	break;
-    case QPSQLDriver::Version7:
-    case QPSQLDriver::Version71:
-	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
-			"from pg_class, pg_attribute "
-			"where lower(pg_class.relname) = '%1' "
-			"and pg_attribute.attnum > 0 "
-			"and pg_attribute.attrelid = pg_class.oid ";
-	break;
-    case QPSQLDriver::Version73:
-	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
-			"from pg_class, pg_attribute "
-			"where lower(pg_class.relname) = '%1' "
-			"and pg_attribute.attnum > 0 "
-			"and pg_attribute.attisdropped = false "
-			"and pg_attribute.attrelid = pg_class.oid ";
-	break;
-    }
-
-    QSqlQuery fi = createQuery();
-    fi.exec( stmt.arg( tablename.toLower() ) );
-    while ( fi.next() ) {
-	QSqlField f( fi.value(0).toString(), qDecodePSQLType( fi.value(1).toInt() ) );
-	fil.append( f );
-    }
-    return fil;
-}
-
-QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
-{
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    if ( query.isActive() && query.driver() == this ) {
-	QPSQLResult* result = (QPSQLResult*)query.result();
-	int count = PQnfields( result->d->result );
-	for ( int i = 0; i < count; ++i ) {
-	    QString name;
-	    if (d->isUtf8)
-		name = QString::fromUtf8(PQfname(result->d->result, i));
-	    else
-		name = QString::fromLocal8Bit(PQfname(result->d->result, i));
-	    QVariant::Type type = qDecodePSQLType( PQftype( result->d->result, i ) );
-	    QSqlField rf( name, type );
-	    fil.append( rf );
-	}
-    }
-    return fil;
-}
-
-QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
-{
-    QSqlRecordInfo info;
+    QSqlRecord info;
     if ( !isOpen() )
 	return info;
 
@@ -857,13 +825,13 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	    QString defVal = query.value( 5 ).toString();
 	    if ( !defVal.isEmpty() && defVal.startsWith( "'" ) )
 		defVal = defVal.mid( 1, defVal.length() - 2 );
-	    info.append( QSqlFieldInfo( query.value( 0 ).toString(),
-					qDecodePSQLType( query.value( 1 ).toInt() ),
-					query.value( 2 ).toBool(),
-					len,
-					precision,
-					defVal,
-					query.value( 1 ).toInt() ) );
+	    info.append( QSqlField( query.value( 0 ).toString(),
+				    qDecodePSQLType( query.value( 1 ).toInt() ),
+				    query.value( 2 ).toBool(),
+				    len,
+				    precision,
+				    defVal,
+				    query.value( 1 ).toInt() ) );
 	}
     } else {
 	// Postgres < 7.1 cannot handle outer joins
@@ -884,49 +852,16 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 		len = precision - 4;
 		precision = -1;
 	    }
-	    info.append( QSqlFieldInfo( query.value( 0 ).toString(),
-					qDecodePSQLType( query.value( 1 ).toInt() ),
-					query.value( 2 ).toBool(),
-					len,
-					precision,
-					defVal,
-					query.value( 1 ).toInt() ) );
+	    info.append( QSqlField( query.value( 0 ).toString(),
+				    qDecodePSQLType( query.value( 1 ).toInt() ),
+				    query.value( 2 ).toBool(),
+				    len,
+				    precision,
+				    defVal,
+				    query.value( 1 ).toInt() ) );
 	}
     }
 
-    return info;
-}
-
-QSqlRecordInfo QPSQLDriver::recordInfo( const QSqlQuery& query ) const
-{
-    QSqlRecordInfo info;
-    if ( !isOpen() )
-	return info;
-    if ( query.isActive() && query.driver() == this ) {
-	QPSQLResult* result = (QPSQLResult*)query.result();
-	int count = PQnfields( result->d->result );
-	for ( int i = 0; i < count; ++i ) {
-	    QString name;
-	    if (d->isUtf8)
-		name = QString::fromUtf8(PQfname(result->d->result, i));
-	    else
-		name = QString::fromLocal8Bit(PQfname(result->d->result, i));
-	    int len = PQfsize( result->d->result, i );
-	    int precision = PQfmod( result->d->result, i );
-	    // swap length and precision if length == -1
-	    if ( len == -1 && precision > -1 ) {
-		len = precision - 4;
-		precision = -1;
-	    }
-	    info.append( QSqlFieldInfo( name,
-					qDecodePSQLType( PQftype( result->d->result, i ) ),
-					-1,
-					len,
-					precision,
-					QVariant(),
-					PQftype( result->d->result, i ) ) );
-	}
-    }
     return info;
 }
 

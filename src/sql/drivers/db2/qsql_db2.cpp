@@ -58,7 +58,7 @@ public:
     
     const QDB2DriverPrivate* dp;
     SQLHANDLE hStmt;
-    QSqlRecordInfo recInf;
+    QSqlRecord recInf;
     QVector<QVariant*> valueCache;
 };
 
@@ -188,7 +188,7 @@ static QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
     return type;
 }
 
-static QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
+static QSqlField qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 {
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
@@ -209,7 +209,7 @@ static QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 
     if ( r != SQL_SUCCESS ) {
 	qSqlWarning( QString("qMakeFieldInfo: Unable to describe column %1").arg(i), d );
-	return QSqlFieldInfo();
+	return QSqlField();
     }
     QString qColName( qFromTChar( colName ) );
     // nullable can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
@@ -220,13 +220,13 @@ static QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 	required = 0;
     }
     QVariant::Type type = qDecodeDB2Type( colType );
-    return QSqlFieldInfo( qColName,
-			  type,
-			  required,
-			  (int) colSize == 0 ? -1 : (int) colSize,
-			  (int) colScale == 0 ? -1 : (int) colScale,
-			  QVariant(),
-			  (int) colType );
+    return QSqlField( qColName,
+		      type,
+		      required,
+		      (int) colSize == 0 ? -1 : (int) colSize,
+		      (int) colScale == 0 ? -1 : (int) colScale,
+		      QVariant(),
+		      (int) colType );
 }
 
 static int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
@@ -414,9 +414,9 @@ static void qSplitTableQualifier( const QString & qualifier, QString * catalog,
     }
 }
 
-// creates a QSqlFieldInfo from a valid hStmt generated
+// creates a QSqlField from a valid hStmt generated
 // by SQLColumns. The hStmt has to point to a valid position.
-static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
+static QSqlField qMakeFieldInfo( const SQLHANDLE hStmt )
 {
     bool isNull;
     QString fname = qGetStringData( hStmt, 3, -1, isNull );
@@ -432,7 +432,7 @@ static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
     }
     int size = qGetIntData( hStmt, 6, isNull ); // column size
     int prec = qGetIntData( hStmt, 8, isNull ); // precision
-    return QSqlFieldInfo( fname, qDecodeDB2Type( type ), required, size, prec, QVariant(), type );
+    return QSqlField( fname, qDecodeDB2Type( type ), required, size, prec, QVariant(), type );
 }
 
 static bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly, bool setForwardOnly = TRUE )
@@ -898,16 +898,16 @@ bool QDB2Result::fetchLast()
 
 QVariant QDB2Result::data( int field )
 {
-    if ( field >= (int) d->recInf.count() ) {
+    if ( field >= d->recInf.count() ) {
 	qWarning( "QDB2Result::data: column %d out of range", field );
 	return QVariant();
     }
     SQLRETURN r = 0;
     SQLINTEGER lengthIndicator = 0;
-    const QSqlFieldInfo info = d->recInf[ field ];
     bool isNull = FALSE;
+    const QSqlField* info = d->recInf.field(field);
     
-    if ( field >= (int)d->valueCache.size() )
+    if ( !info || field >= (int)d->valueCache.size() )
 	return QVariant();
     
     if ( d->valueCache[ field ] )
@@ -915,7 +915,7 @@ QVariant QDB2Result::data( int field )
 
 
     QVariant* v = 0;
-    switch ( info.type() ) {
+    switch ( info->type() ) {
 	case QVariant::LongLong:
 	    v = new QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, field, isNull ) );
 	    break;
@@ -972,19 +972,19 @@ QVariant QDB2Result::data( int field )
 	    v = new QVariant( qGetBinaryData( d->hStmt, field, lengthIndicator, isNull ) );
 	    break;
 	case QVariant::Double:
-	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC )
+	    if ( info->typeID() == SQL_DECIMAL || info->typeID() == SQL_NUMERIC )
 		// length + 1 for the comma
-		v = new QVariant( qGetStringData( d->hStmt, field, info.length() + 1, isNull ) );
+		v = new QVariant( qGetStringData( d->hStmt, field, info->length() + 1, isNull ) );
 	    else
 		v = new QVariant( qGetDoubleData( d->hStmt, field, isNull ) );
 	    break;
 	case QVariant::String:
 	default:
-	    v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
+	    v = new QVariant( qGetStringData( d->hStmt, field, info->length(), isNull ) );
 	    break;
     }
     if ( isNull )
-	*v = QVariant(info.type());
+	*v = QVariant(info->type());
     d->valueCache.insert( field, v );
     return *v;
 }
@@ -1013,6 +1013,13 @@ int QDB2Result::numRowsAffected()
 int QDB2Result::size()
 { 
     return -1;
+}
+
+QSqlRecord QDB2Result::record() const
+{ 
+    if (isActive())
+	return d->recInf;
+    return QSqlRecord();
 }
 
 /************************************/
@@ -1166,17 +1173,7 @@ QSqlQuery QDB2Driver::createQuery() const
 
 QSqlRecord QDB2Driver::record( const QString& tableName ) const
 {
-    return recordInfo( tableName ).toRecord();
-}
-
-QSqlRecord QDB2Driver::record( const QSqlQuery& query ) const
-{ 
-    return recordInfo( query ).toRecord();
-}
-
-QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
-{
-    QSqlRecordInfo fil;
+    QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
 
@@ -1226,17 +1223,6 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
 	qSqlWarning( "QDB2Driver: Unable to free statement handle " + QString::number(r), d );
 
     return fil;
-}
-
-QSqlRecordInfo QDB2Driver::recordInfo( const QSqlQuery& query ) const
-{
-    if ( !isOpen() )
-	return QSqlRecord();
-    if ( query.isActive() && query.driver() == this ) {
-	QDB2Result* result = (QDB2Result*) query.result();
-	return result->d->recInf;
-    }
-    return QSqlRecord();
 }
 
 QStringList QDB2Driver::tables( const QString& typeName ) const

@@ -984,8 +984,6 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
     the table (or view) called \a tablename. The order in which the
     fields appear in the record is undefined. If no such table (or
     view) exists, an empty record is returned.
-
-    \sa recordInfo()
 */
 
 QSqlRecord QSqlDatabase::record( const QString& tablename ) const
@@ -994,47 +992,17 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 }
 
 
-/*!
-    \overload
+/*! \fn QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
+    \obsolete use QSqlQuery::record() instead
 
-    Returns a QSqlRecord populated with the names of all the fields
-    used in the SQL \a query. If the query is a "SELECT *" the order
-    in which fields appear in the record is undefined.
-
-    \sa recordInfo()
 */
 
-QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
-{
-    return d->driver->record( query );
-}
-
-/*!
-    Returns a QSqlRecordInfo populated with meta data about the table
-    or view \a tablename. If no such table (or view) exists, an empty
-    record is returned.
-
-    \sa QSqlRecordInfo, QSqlFieldInfo, record()
+/*! \fn QSqlRecord QSqlDatabase::recordInfo( const QString& tablename ) const
 */
-QSqlRecordInfo QSqlDatabase::recordInfo( const QString& tablename ) const
-{
-    return d->driver->recordInfo( tablename );
-}
 
-/*!
-    \overload
-
-    Returns a QSqlRecordInfo object with meta data for the QSqlQuery
-    \a query. Note that this overloaded function may return less
-    information than the recordInfo() function which takes the name of
-    a table as parameter.
-
-    \sa QSqlRecordInfo, QSqlFieldInfo, record()
+/*! \fn QSqlRecord QSqlDatabase::recordInfo( const QSqlQuery& query ) const
+    \obsolete use QSqlRecord::record() instead  
 */
-QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
-{
-    return d->driver->recordInfo( query );
-}
 
 /*!
     \property QSqlDatabase::connectOptions

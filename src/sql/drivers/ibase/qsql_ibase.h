@@ -48,7 +48,6 @@ class QIBaseDriver;
 
 class QIBaseResult : public QtSqlCachedResult
 {
-    friend class QIBaseDriver;
     friend class QIBaseResultPrivate;
 
 public:
@@ -63,6 +62,7 @@ protected:
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
+    QSqlRecord record() const;
 
 private:
     QIBaseResultPrivate* d;
@@ -72,7 +72,6 @@ class QIBaseDriver : public QSqlDriver
 {
     friend class QIBaseDriverPrivate;
     friend class QIBaseResultPrivate;
-    friend class QIBaseResult;
 public:
     QIBaseDriver(QObject *parent = 0);
     QIBaseDriver(void *connection, QObject *parent = 0);
@@ -97,10 +96,7 @@ public:
     QStringList tables(const QString& typeName) const;
 
     QSqlRecord record(const QString& tablename) const;
-    QSqlRecordInfo recordInfo(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
-    QSqlRecord record(const QSqlQuery& query) const;
-    QSqlRecordInfo recordInfo(const QSqlQuery& query) const;
 
     QString formatValue(const QSqlField* field, bool trimStrings) const;
     

@@ -17,8 +17,6 @@
 
 #include <qsqldriver.h>
 #include <qsqlresult.h>
-#include <qsqlfield.h>
-#include <qsqlindex.h>
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
@@ -46,16 +44,18 @@ public:
 
     MYSQL_RES* result();
 protected:
-    void		cleanup();
-    bool		fetch( int i );
-    bool		fetchNext();
-    bool		fetchLast();
-    bool		fetchFirst();
-    QVariant		data( int field );
-    bool		isNull( int field );
-    bool		reset ( const QString& query );
-    int			size();
-    int			numRowsAffected();
+    void cleanup();
+    bool fetch( int i );
+    bool fetchNext();
+    bool fetchLast();
+    bool fetchFirst();
+    QVariant data( int field );
+    bool isNull( int field );
+    bool reset ( const QString& query );
+    int size();
+    int numRowsAffected();
+    QSqlRecord record() const;
+
 private:
     QMYSQLResultPrivate* d;
 };
@@ -67,31 +67,28 @@ public:
     QMYSQLDriver(QObject *parent=0);
     QMYSQLDriver(MYSQL *con, QObject * parent=0);
     ~QMYSQLDriver();
-    bool		hasFeature( DriverFeature f ) const;
-    bool		open( const QString & db,
-			      const QString & user,
-			      const QString & password,
-			      const QString & host,
-			      int port,
-			      const QString& connOpts );
-    void		close();
-    QSqlQuery		createQuery() const;
-    QStringList		tables( const QString& user ) const;
-    QSqlIndex		primaryIndex( const QString& tablename ) const;
-    QSqlRecord		record( const QString& tablename ) const;
-    QSqlRecord		record( const QSqlQuery& query ) const;
-    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
-    QString		formatValue( const QSqlField* field,
+    bool hasFeature( DriverFeature f ) const;
+    bool open( const QString & db,
+	       const QString & user,
+	       const QString & password,
+	       const QString & host,
+	       int port,
+	       const QString& connOpts );
+    void close();
+    QSqlQuery createQuery() const;
+    QStringList tables( const QString& user ) const;
+    QSqlIndex primaryIndex( const QString& tablename ) const;
+    QSqlRecord record( const QString& tablename ) const;
+    QString formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
-    MYSQL*		mysql();
+    MYSQL *mysql();
     
 protected:
-    bool		beginTransaction();
-    bool		commitTransaction();
-    bool		rollbackTransaction();
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
 private:
-    void		init();
+    void init();
     QMYSQLDriverPrivate* d;
 };
 

@@ -21,7 +21,8 @@
 #include "qdatetime.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "qmap.h"
+#include "qsqlrecordinfo.h"
+#include "qsqlfieldinfo.h"
 
 class QSqlCursorPrivate
 {

@@ -20,6 +20,9 @@
 #include "qstring.h"
 #include "qsqlquery.h"
 #include "qstringlist.h"
+#ifdef QT_COMPAT
+#include "qsqlrecord.h"
+#endif
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -72,9 +75,14 @@ public:
     QStringList		tables( QSql::TableType type ) const;
     QSqlIndex		primaryIndex( const QString& tablename ) const;
     QSqlRecord		record( const QString& tablename ) const;
-    QSqlRecord		record( const QSqlQuery& query ) const;
-    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QSqlRecord record( const QSqlQuery& query ) const
+    { return query.record(); }
+    inline QT_COMPAT QSqlRecord recordInfo( const QString& tablename ) const
+    { return record(tablename); }
+    inline QT_COMPAT QSqlRecord recordInfo( const QSqlQuery& query ) const
+    { return query.record(); }
+#endif
     QSqlQuery		exec( const QString& query = QString() ) const;
     QSqlError		lastError() const;
 

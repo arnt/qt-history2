@@ -47,6 +47,7 @@ protected:
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
+    QSqlRecord record() const;
 
 private:
     QSQLiteResultPrivate* d;
@@ -79,10 +80,7 @@ public:
     QStringList tables(const QString& user) const;
 
     QSqlRecord record(const QString& tablename) const;
-    QSqlRecordInfo recordInfo(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
-    QSqlRecord record(const QSqlQuery& query) const;
-    QSqlRecordInfo recordInfo(const QSqlQuery& query) const;
 
 private:
     QSQLiteDriverPrivate* d;

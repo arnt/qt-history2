@@ -32,6 +32,7 @@
 
 class QSqlDatabase;
 class QSqlCursorPrivate;
+class QSqlFieldInfo;
 
 class QM_EXPORT_SQL QSqlCursor : public QSqlRecord, public QSqlQuery
 {

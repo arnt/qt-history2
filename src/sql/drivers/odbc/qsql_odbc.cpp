@@ -20,10 +20,10 @@
 #include <qapplication.h>
 #endif
 #include <qdatetime.h>
+#include <qsqlfield.h>
 #include <private/qinternal_p.h>
 
-
-// undefine this to prevent initial check of the ODBC driver 
+// undefine this to prevent initial check of the ODBC driver
 #define ODBC_CHECK_DRIVER
 
 #if defined(Q_ODBC_VERSION_2)
@@ -57,7 +57,7 @@ public:
     QVariant::Type sql_varchar_type;
     QVariant::Type sql_longvarchar_type;
 
-    QSqlRecordInfo rInf;
+    QSqlRecord rInf;
 
     bool checkDriver() const;
     void checkUnicode();
@@ -342,9 +342,9 @@ static SQLBIGINT qGetBigIntData( SQLHANDLE hStmt, int column, bool& isNull )
     return lngbuf;
 }
 
-// creates a QSqlFieldInfo from a valid hStmt generated
+// creates a QSqlField from a valid hStmt generated
 // by SQLColumns. The hStmt has to point to a valid position.
-static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
+static QSqlField qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* p )
 {
     bool isNull;
     QString fname = qGetStringData( hStmt, 3, -1, isNull, p->unicode );
@@ -360,10 +360,10 @@ static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt, const QODBCPrivate* 
     }
     int size = qGetIntData( hStmt, 6, isNull ); // column size
     int prec = qGetIntData( hStmt, 8, isNull ); // precision
-    return QSqlFieldInfo( fname, qDecodeODBCType( type, p ), required, size, prec, QVariant(), type );
+    return QSqlField( fname, qDecodeODBCType( type, p ), required, size, prec, QVariant(), type );
 }
 
-static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
+static QSqlField qMakeFieldInfo( const QODBCPrivate* p, int i  )
 {
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
@@ -384,7 +384,7 @@ static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 
     if ( r != SQL_SUCCESS ) {
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
-	return QSqlFieldInfo();
+	return QSqlField();
     }
 #ifdef UNICODE
     QString qColName( (const QChar*)colName, (uint)colNameLen );
@@ -399,13 +399,13 @@ static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 	required = 0;
     }
     QVariant::Type type = qDecodeODBCType( colType, p );
-    return QSqlFieldInfo( qColName,
-    			  type,
-    			  required,
-    			  (int)colSize == 0 ? -1 : (int)colSize,
-    			  (int)colScale == 0 ? -1 : (int)colScale,
-    			  QVariant(),
-    			  (int)colType );
+    return QSqlField( qColName,
+		      type,
+		      required,
+		      (int)colSize == 0 ? -1 : (int)colSize,
+		      (int)colScale == 0 ? -1 : (int)colScale,
+		      QVariant(),
+		      (int)colType );
 }
 
 bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
@@ -779,8 +779,8 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); ++current ) {
-	const QSqlFieldInfo info = d->rInf[ current ];
-	switch ( info.type() ) {
+	const QSqlField *info = d->rInf.field( current );
+	switch ( info->type() ) {
 	case QVariant::LongLong:
 	    fieldCache[ current ] = QVariant( (Q_LLONG) qGetBigIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
@@ -846,14 +846,14 @@ QVariant QODBCResult::data( int field )
 	case QVariant::String:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
-					      info.length(), isNull, TRUE ) );
+					      info->length(), isNull, TRUE ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Double:
-	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC )
+	    if ( info->typeID() == SQL_DECIMAL || info->typeID() == SQL_NUMERIC )
 		// bind Double values as string to prevent loss of precision
 		fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
-						  info.length() + 1, isNull, FALSE ) ); // length + 1 for the comma
+						  info->length() + 1, isNull, FALSE ) ); // length + 1 for the comma
 	    else
 		fieldCache[ current ] = QVariant( qGetDoubleData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
@@ -862,7 +862,7 @@ QVariant QODBCResult::data( int field )
 	default:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current, 
-					      info.length(), isNull, FALSE ) );
+					      info->length(), isNull, FALSE ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	}
@@ -1204,6 +1204,13 @@ bool QODBCResult::exec()
     }
         
     return TRUE;
+}
+
+QSqlRecord QODBCResult::record() const
+{
+    if (!isActive() || !isSelect())
+	return QSqlRecord();
+    return d->rInf;
 }
 
 ////////////////////////////////////////
@@ -1736,17 +1743,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 
 QSqlRecord QODBCDriver::record( const QString& tablename ) const
 {
-    return recordInfo( tablename ).toRecord();
-}
-
-QSqlRecord QODBCDriver::record( const QSqlQuery& query ) const
-{
-    return recordInfo( query ).toRecord();
-}
-
-QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
-{
-    QSqlRecordInfo fil;
+    QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
 
@@ -1804,18 +1801,6 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
     if ( r!= SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
 
-    return fil;
-}
-
-QSqlRecordInfo QODBCDriver::recordInfo( const QSqlQuery& query ) const
-{
-    QSqlRecordInfo fil;
-    if ( !isOpen() )
-	return fil;
-    if ( query.isActive() && query.driver() == this ) {
-	QODBCResult* result = (QODBCResult*)query.result();
-	fil = result->d->rInf;
-    }
     return fil;
 }
 

@@ -55,9 +55,14 @@ public:
     virtual QStringList		tables( const QString& tableType ) const;
     virtual QSqlIndex		primaryIndex( const QString& tableName ) const;
     virtual QSqlRecord		record( const QString& tableName ) const;
-    virtual QSqlRecord		record( const QSqlQuery& query ) const;
-    virtual QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    virtual QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QSqlRecord record(const QSqlQuery& query) const
+    { return query.record(); }    
+    inline QT_COMPAT QSqlRecord recordInfo( const QString& tablename ) const
+    { return record(tablename); }
+    inline QT_COMPAT QSqlRecord recordInfo( const QSqlQuery& query ) const
+    { return query.record(); }
+#endif
     virtual QString		nullText() const;
     virtual QString		formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
     QSqlError			lastError() const;

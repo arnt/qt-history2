@@ -16,9 +16,7 @@
 #define QSQL_OCI_H
 
 #include <qsqlresult.h>
-#include <qsqlfield.h>
 #include <qsqldriver.h>
-#include <qstring.h>
 
 #include <oci.h>
 
@@ -58,6 +56,7 @@ protected:
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
+    QSqlRecord record() const;
 
 private:
     QOCIPrivate*	d;
@@ -88,6 +87,7 @@ protected:
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
+    QSqlRecord record() const;
 
 private:
     QOCIPrivate*	d;
@@ -113,9 +113,6 @@ public:
     QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlRecord          record( const QString& tablename ) const;
-    QSqlRecord          record( const QSqlQuery& query ) const;
-    QSqlRecordInfo      recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo      recordInfo( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QString             formatValue( const QSqlField* field,
 				     bool trimStrings ) const;

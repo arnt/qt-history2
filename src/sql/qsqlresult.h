@@ -16,12 +16,8 @@
 #define QSQLRESULT_H
 
 #ifndef QT_H
-#include "qstring.h"
-#include "qvariant.h"
 #include "qsqlerror.h"
-#include "qsqlfield.h"
 #include "qsql.h"
-#include "qvector.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -31,6 +27,12 @@
 #endif
 
 #ifndef QT_NO_SQL
+
+class QString;
+class QSqlRecord;
+template <typename T> class QVector;
+class QVariant;
+
 
 class QSqlDriver;
 class QSql;
@@ -94,6 +96,7 @@ protected:
     virtual bool    fetchLast() = 0;
     virtual int     size() = 0;
     virtual int     numRowsAffected() = 0;
+    virtual QSqlRecord record() const;
     
 private:
     QSqlResultPrivate* d;

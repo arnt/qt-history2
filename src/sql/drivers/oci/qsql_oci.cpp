@@ -566,7 +566,7 @@ public:
     void setCharset( OCIDefine* dfn );
     int readPiecewise( QSqlRecord& res );
     int readLOBs( QSqlRecord& res );
-    void getOraFields( QSqlRecordInfo &rinf );
+    void getOraFields( QSqlRecord &rinf );
     char* at( int i );
     int size();
     bool isNull( int i );
@@ -968,7 +968,7 @@ int QOCIResultPrivate::readLOBs( QSqlRecord& res )
     return r;
 }
 
-void QOCIResultPrivate::getOraFields( QSqlRecordInfo &rinf )
+void QOCIResultPrivate::getOraFields( QSqlRecord &rinf )
 {
     OCIParam* param = 0;
     ub4 count = 1;
@@ -980,7 +980,7 @@ void QOCIResultPrivate::getOraFields( QSqlRecordInfo &rinf )
     
     while ( parmStatus == OCI_SUCCESS ) {
 	OraFieldInfo ofi = qMakeOraField( d, param );
-	QSqlFieldInfo inf( ofi.name, ofi.type, (int)ofi.oraIsNull == 0 ? 1 : 0, (int)ofi.oraFieldLength,
+	QSqlField inf( ofi.name, ofi.type, (int)ofi.oraIsNull == 0 ? 1 : 0, (int)ofi.oraFieldLength,
 			   (int)ofi.oraPrecision, QVariant(), (int)ofi.oraType );
 	rinf.append( inf );
 	count++;
@@ -1394,6 +1394,16 @@ bool QOCIResult::exec()
     return TRUE;
 }
 
+QSqlRecord QOCIResult::record() const
+{
+///    qDebug( "*** recordInfo Query" );
+    QSqlRecord inf;
+    if ( !isActive() || !isSelect() || !cols )
+	return inf;
+    cols->getOraFields( inf );
+    return inf;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 #ifdef QOCI_USES_VERSION_9
@@ -1718,6 +1728,16 @@ bool QOCI9Result::exec()
     return TRUE;
 }
 
+QSqlRecord QOCI9Result::record() const
+{
+///    qDebug( "*** recordInfo Query" );
+    QSqlRecord inf;
+    if ( !isActive() || !isSelect() || !cols )
+	return inf;
+    cols->getOraFields( inf );
+    return inf;
+}
+
 #endif //QOCI_USES_VERSION_9
 ////////////////////////////////////////////////////////////////////////////
 
@@ -2028,76 +2048,8 @@ void qSplitTableAndOwner( const QString & tname, QString * tbl,
 
 QSqlRecord QOCIDriver::record( const QString& tablename ) const
 {
-//    qDebug( "*** record QString" );
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    QSqlQuery t = createQuery();
-    // using two separate queries for this is A LOT faster than using
-    // eg. a sub-query on the sys.synonyms table
-    QString stmt( "select column_name, data_type, data_length, "
-		  "data_precision, data_scale from all_tab_columns "
-		  "where table_name=%1" );
-    bool buildRecord = FALSE;
-    QString table, owner, tmpStmt;
-    qSplitTableAndOwner( tablename, &table, &owner );
-    tmpStmt = stmt.arg( "'" + table + "'" );
-    if ( owner.isEmpty() ) {
-	owner = d->user;
-    }
-    tmpStmt += " and owner='" + owner + "'";
-    t.setForwardOnly( TRUE );
-    t.exec( tmpStmt );
-    if ( !t.next() ) { // check to see if this is a synonym instead
-	stmt = stmt.arg( "(select tname from sys.synonyms where sname='"
-			 + table +"' and creator=owner)" );
-	t.setForwardOnly( TRUE );
-	t.exec( stmt );
-	if ( t.next() )
-	    buildRecord = TRUE;
-    } else {
-	buildRecord = TRUE;
-    }
-    
-    if ( buildRecord ) {
-	do {
-	    QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(),
-						t.value(3).toInt(), t.value(4).toInt() );
-	    QSqlField f( t.value(0).toString(), ty );
-	    fil.append( f );
-	} while ( t.next() );
-    }
-    return fil;
-}
-
-QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
-{
-//    qDebug( "*** record Query" );
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    if ( !query.isActive() )
-	return fil;
-    if ( query.isActive() && query.driver() == this ) {
-#ifdef QOCI_USES_VERSION_9
-	if ( d->serverVersion >= 9 ) {
-	    QOCI9Result* result = (QOCI9Result*)query.result();
-	    if ( result && result->cols )
-		fil = result->cols->fs;
-	    return fil;
-	}
-#endif
-	QOCIResult* result = (QOCIResult*)query.result();
-	if ( result && result->cols )
-	    fil = result->cols->fs;
-    }
-    return fil;
-}
-
-QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
-{
 //    qDebug( "*** recordInfo QString" );
-    QSqlRecordInfo fil;
+    QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
     
@@ -2108,11 +2060,10 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 		  "data_precision, data_scale, nullable, data_default%1"
 		  "from all_tab_columns "
 		  "where table_name=%2" );
-    if ( d->serverVersion >= 9 ) {
+    if ( d->serverVersion >= 9 )
 	stmt = stmt.arg( ", char_length " );
-    } else {
+    else
 	stmt = stmt.arg( " " );
-    }
     bool buildRecordInfo = FALSE;
     QString table, owner, tmpStmt;
     qSplitTableAndOwner( tablename, &table, &owner );
@@ -2146,31 +2097,11 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
 		// Oracle9: data_length == size in bytes, char_length == amount of characters
 		size = t.value( 7 ).toInt();
 	    }
-	    QSqlFieldInfo f( t.value(0).toString(), ty, required, size, prec, t.value( 6 ) );
+	    QSqlField f( t.value(0).toString(), ty, required, size, prec, t.value( 6 ) );
 	    fil.append( f );
 	} while (t.next() );
     }
     return fil;
-}
-
-QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
-{
-///    qDebug( "*** recordInfo Query" );
-    QSqlRecordInfo inf;
-    if ( query.isActive() && query.driver() == this ) {
-#ifdef QOCI_USES_VERSION_9
-	if ( d->serverVersion >= 9 ) {
-	    QOCI9Result* result = (QOCI9Result*)query.result();
-	    if ( result && result->cols )
-		result->cols->getOraFields( inf );
-	    return inf;
-	}
-#endif
-	QOCIResult* result = (QOCIResult*)query.result();
-	if ( result && result->cols )
-	    result->cols->getOraFields( inf );
-    }
-    return inf;
 }
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const

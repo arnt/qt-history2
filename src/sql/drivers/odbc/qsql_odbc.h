@@ -15,12 +15,9 @@
 #ifndef QSQL_ODBC_H
 #define QSQL_ODBC_H
 
-#include <qmap.h>
-#include <qstring.h>
 #include <qsqldriver.h>
-#include <qsqlfield.h>
 #include <qsqlresult.h>
-#include <qsqlindex.h>
+#include <qmap.h>
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
@@ -64,7 +61,6 @@ class QSqlRecordInfo;
 
 class QODBCResult : public QSqlResult
 {
-    friend class QODBCDriver;
 public:
     QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
     ~QODBCResult();
@@ -84,12 +80,14 @@ protected:
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
+    QSqlRecord record() const;
+
 private:
-    QODBCPrivate*	d;
     typedef QMap<int,QVariant> FieldCache;
     FieldCache fieldCache;
     typedef QMap<int,bool> NullCache;
     NullCache nullCache;
+    QODBCPrivate *d;
 };
 
 class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
@@ -103,9 +101,6 @@ public:
     QSqlQuery		createQuery() const;
     QStringList		tables( const QString& user ) const;
     QSqlRecord		record( const QString& tablename ) const;
-    QSqlRecord		record( const QSqlQuery& query ) const;
-    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
     QSqlIndex		primaryIndex( const QString& tablename ) const;
     SQLHANDLE		environment();
     SQLHANDLE		connection();

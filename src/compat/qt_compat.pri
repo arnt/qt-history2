@@ -32,6 +32,8 @@ compat {
 		  $$COMPAT_H/qurloperator.h \
 		  $$COMPAT_H/qlocalfs.h \
 		  $$COMPAT_H/qnetworkprotocol.h \
+		  $$COMPAT_H/qsqlfieldinfo.h \
+		  $$COMPAT_H/qsqlrecordinfo.h \
 		  $$DIALOGS_H/qfiledialog.h 
 
 	SOURCES += $$COMPAT_CPP/qcstring.cpp \

@@ -41,7 +41,6 @@ class QTDSDriver;
 
 class QTDSResult : public QSqlCachedResult
 {
-    friend class QTDSDriver;
 public:
     QTDSResult( const QTDSDriver* db, const QTDSPrivate* p );
     ~QTDSResult();
@@ -51,6 +50,8 @@ protected:
     int			size();
     int			numRowsAffected();
     bool		gotoNext();
+    QSqlRecord record() const;
+
 private:
     QTDSPrivate*	d;
 };
@@ -71,10 +72,7 @@ public:
     void		close();
     QStringList         tables( const QString& user ) const;
     QSqlQuery		createQuery() const;
-    QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlRecord          record( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 
     QString		formatValue( const QSqlField* field,

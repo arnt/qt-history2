@@ -294,40 +294,17 @@ QSqlRecord QSqlDriver::record( const QString&  ) const
     return QSqlRecord();
 }
 
-/*!
-    \overload
-
-    Returns a QSqlRecord populated with the names of the fields in the
-    SQL \a query. The default implementation returns an empty record.
+/*! \fn QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
+    \obsolete use QSqlResult::record() instead
 */
 
-QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
-{
-   return QSqlRecord();
-}
-
-/*!
-    Returns a QSqlRecordInfo object with meta data about the table \a
-    tablename.
+/*!  \fn QSqlRecord QSqlDriver::recordInfo( const QString& tablename ) const
+    \obsolete use record() instead
 */
-QSqlRecordInfo QSqlDriver::recordInfo( const QString& tablename ) const
-{
-    return QSqlRecordInfo( record( tablename ) );
-}
 
-/*!
-    \overload
-
-    Returns a QSqlRecordInfo object with meta data for the QSqlQuery
-    \a query. Note that this overloaded function may return less
-    information than the recordInfo() function which takes the name of
-    a table as parameter.
+/*! \fn QSqlRecord QSqlDriver::recordInfo( const QSqlQuery& query ) const
+    \obsolete use QSqlQuery::record instead
 */
-QSqlRecordInfo QSqlDriver::recordInfo( const QSqlQuery& query ) const
-{
-    return QSqlRecordInfo( record( query ) );
-}
-
 
 /*!
     Returns a string representation of the NULL value for the

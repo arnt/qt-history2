@@ -22,17 +22,15 @@
 #endif
 
 #include "qsqlresult.h"
-#include "qsqlrecord.h"
 #include "qsqldriver.h"
 
 class QDB2Driver;
 class QDB2DriverPrivate;
 class QDB2ResultPrivate;
-class QSqlRecordInfo;
+class QSqlRecord;
 
 class QDB2Result : public QSqlResult
 {
-    friend class QDB2Driver;
 public:
     QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp );
     ~QDB2Result();
@@ -49,6 +47,8 @@ protected:
     bool isNull( int i );
     int size();
     int numRowsAffected();
+    QSqlRecord record() const;    
+    
 private:
     QDB2ResultPrivate* d;
 };
@@ -62,9 +62,6 @@ public:
     bool hasFeature( DriverFeature ) const;
     void close();
     QSqlRecord record( const QString& tableName ) const;
-    QSqlRecord record( const QSqlQuery& query ) const;
-    QSqlRecordInfo recordInfo( const QString& tablename ) const;
-    QSqlRecordInfo recordInfo( const QSqlQuery& query ) const;
     QStringList tables( const QString& /* user */ ) const;
     QSqlQuery createQuery() const;
     QSqlIndex primaryIndex( const QString& tablename ) const;

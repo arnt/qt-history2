@@ -83,7 +83,7 @@ public:
     QtSqlCachedResult::RowCache *skipRow;
     
     uint utf8: 1;
-    QSqlRecordInfo rInf;
+    QSqlRecord rInf;
 };
 
 static const uint initial_cache_size = 128;
@@ -134,7 +134,7 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols, QtSqlCachedRes
     for (int i = 0; i < numCols; ++i) {
         const char* lastDot = strrchr(cnames[i], '.');
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
-        rInf.append(QSqlFieldInfo(fieldName, nameToType(cnames[i+numCols])));
+        rInf.append(QSqlField(fieldName, nameToType(cnames[i+numCols])));
     }
     // skip the first fetch
     if (row && !*row) {
@@ -271,6 +271,13 @@ int QSQLiteResult::size()
 int QSQLiteResult::numRowsAffected()
 {
     return sqlite_changes(d->access);
+}
+
+QSqlRecord QSQLiteResult::record() const
+{
+    if (!isActive() || !isSelect())
+	return QSqlRecord();
+    return d->rInf;
 }
 
 /////////////////////////////////////////////////////////
@@ -440,7 +447,7 @@ QStringList QSQLiteDriver::tables(const QString &typeName) const
 
 QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 {
-    QSqlRecordInfo rec(recordInfo(tblname)); // expensive :(
+    QSqlRecord rec(record(tblname)); // expensive :(
 
     if (!isOpen())
         return QSqlIndex();
@@ -466,45 +473,19 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 	QString name = q.value(2).toString();
 	QSqlVariant::Type type = QSqlVariant::Invalid;
 	if (rec.contains(name))
-	    type = rec.find(name).type();
+	    type = rec.field(name)->type();
 	index.append(QSqlField(name, type));
     }
     return index;
 }
 
-QSqlRecordInfo QSQLiteDriver::recordInfo(const QString &tbl) const
-{
-    if (!isOpen())
-        return QSqlRecordInfo();
-
-    QSqlQuery q = createQuery();
-    q.setForwardOnly(TRUE);
-    q.exec("SELECT * FROM " + tbl + " LIMIT 1");
-    return recordInfo(q);
-}
-
-QSqlRecord QSQLiteDriver::record(const QString &tblname) const
+QSqlRecord QSQLiteDriver::record(const QString &tbl) const
 {
     if (!isOpen())
         return QSqlRecord();
 
-    return recordInfo(tblname).toRecord();
-}
-
-QSqlRecord QSQLiteDriver::record(const QSqlQuery& query) const
-{
-    if (query.isActive() && query.driver() == this) {
-        QSQLiteResult* result = (QSQLiteResult*)query.result();
-        return result->d->rInf.toRecord();
-    }
-    return QSqlRecord();
-}
-
-QSqlRecordInfo QSQLiteDriver::recordInfo(const QSqlQuery& query) const
-{
-    if (query.isActive() && query.driver() == this) {
-        QSQLiteResult* result = (QSQLiteResult*)query.result();
-        return result->d->rInf;
-    }
-    return QSqlRecordInfo();
+    QSqlQuery q = createQuery();
+    q.setForwardOnly(TRUE);
+    q.exec("SELECT * FROM " + tbl + " LIMIT 1");
+    return q.record();
 }

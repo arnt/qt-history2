@@ -16,17 +16,23 @@
 #define QSQLRECORD_H
 
 #ifndef QT_H
-#include "qshared.h"
-#include "qsqlfield.h"
-#include "qstringlist.h"
-#include "qvariant.h"
+#include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
+class QSqlField;
+class QStringList;
+class QVariant;
 class QSqlRecordPrivate;
 
-class Q_SQL_EXPORT QSqlRecord
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_SQL_EXPORT
+#endif
+
+class QM_EXPORT_SQL QSqlRecord
 {
 public:
     QSqlRecord();
@@ -74,26 +80,6 @@ private:
     void detach();
     QSqlRecordPrivate* d;
 };
-
-/******************************************/
-/*******     QSqlRecordInfo Class    ******/
-/******************************************/
-
-typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
-
-class Q_SQL_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
-{
-public:
-    QSqlRecordInfo(): QSqlFieldInfoList() {}
-    QSqlRecordInfo( const QSqlFieldInfoList& other ): QSqlFieldInfoList( other ) {}
-    QSqlRecordInfo( const QSqlRecord& other );
-
-    size_type contains( const QString& fieldName ) const;
-    QSqlFieldInfo find( const QString& fieldName ) const;
-    QSqlRecord toRecord() const;
-
-};
-
 
 #endif	// QT_NO_SQL
 #endif

@@ -296,6 +296,29 @@ int QMYSQLResult::numRowsAffected()
     return (int)mysql_affected_rows( d->mysql );
 }
 
+QSqlRecord QMYSQLResult::record() const
+{
+    QSqlRecord info;
+    if (!isActive() || !isSelect())
+	return info;
+    if (!mysql_errno(d->mysql)) {
+	MYSQL_FIELD* field = mysql_fetch_field(d->result);
+	while(field) {
+	    info.append ( QSqlField( d->tc->toUnicode( field->name ),
+					 qDecodeMYSQLType( (int)field->type, field->flags ),
+					 IS_NOT_NULL( field->flags ),
+					 (int)field->length,
+					 (int)field->decimals,
+					 QVariant(),
+					 (int)field->type ) );
+	    field = mysql_fetch_field( d->result );		
+	}
+    }
+    mysql_field_seek(d->result, 0);
+    return info;
+}
+
+
 /////////////////////////////////////////////////////////
 
 static void qServerInit()
@@ -521,48 +544,7 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 
 QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
 {
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit(), 0);
-    if ( !r ) {
-	return fil;
-    }
-    MYSQL_FIELD* field;
-    while ( (field = mysql_fetch_field( r ))) {
-	QSqlField f ( d->tc->toUnicode( field->name ) , qDecodeMYSQLType( (int)field->type, field->flags ) );
-	fil.append ( f );
-    }
-    mysql_free_result( r );
-    return fil;
-}
-
-QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
-{
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    if ( query.isActive() && query.isSelect() && query.driver() == this ) {
-	QMYSQLResult* result =  (QMYSQLResult*)query.result();
-	QMYSQLResultPrivate* p = result->d;
-	if ( !mysql_errno( p->mysql ) ) {
-	    for ( ;; ) {
-		MYSQL_FIELD* f = mysql_fetch_field( p->result );
-		if ( f ) {
-		    QSqlField fi( d->tc->toUnicode((const char*)f->name), qDecodeMYSQLType( f->type, f->flags ) );
-		    fil.append( fi  );
-		} else
-		    break;
-	    }
-	}
-	mysql_field_seek( p->result, 0 );
-    }
-    return fil;
-}
-
-QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
-{
-    QSqlRecordInfo info;
+    QSqlRecord info;
     if ( !isOpen() )
 	return info;
     MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit(), 0);
@@ -571,7 +553,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
     }
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
-	info.append ( QSqlFieldInfo( d->tc->toUnicode( field->name ),
+	info.append ( QSqlField( d->tc->toUnicode( field->name ),
 				qDecodeMYSQLType( (int)field->type, field->flags ),
 				IS_NOT_NULL( field->flags ),
 				(int)field->length,
@@ -580,35 +562,6 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
 				(int)field->type ) );
     }
     mysql_free_result( r );
-    return info;
-}
-
-QSqlRecordInfo QMYSQLDriver::recordInfo( const QSqlQuery& query ) const
-{
-    QSqlRecordInfo info;
-    if ( !isOpen() )
-	return info;
-    if ( query.isActive() && query.isSelect() && query.driver() == this ) {
-	QMYSQLResult* result =  (QMYSQLResult*)query.result();
-	QMYSQLResultPrivate* p = result->d;
-	if ( !mysql_errno( p->mysql ) ) {
-	    for ( ;; ) {
-		MYSQL_FIELD* field = mysql_fetch_field( p->result );
-		if ( field ) {
-		    info.append ( QSqlFieldInfo( d->tc->toUnicode( field->name ),
-				qDecodeMYSQLType( (int)field->type, field->flags ),
-				IS_NOT_NULL( field->flags ),
-				(int)field->length,
-				(int)field->decimals,
-				QVariant(),
-				(int)field->type ) );
-		
-		} else
-		    break;
-	    }
-	}
-	mysql_field_seek( p->result, 0 );
-    }
     return info;
 }
 

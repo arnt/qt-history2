@@ -416,6 +416,20 @@ int QTDSResult::numRowsAffected()
 #endif
 }
 
+QSqlRecord QTDSResult::record() const
+{
+    QSqlRecord info;
+    if ( !isActive() || !isSelect() )
+	return info;
+    
+    int count = dbnumcols (d->dbproc);
+    for (int i = 0; i < count; ++i) {
+	info.append(QSqlField(dbcolname(d->dbproc, i+1), 
+			      qDecodeTDSType( dbcoltype(d->dbproc, i+1) ) ) );
+    }
+    return info;
+}
+
 ///////////////////////////////////////////////////////////////////
 
 QTDSDriver::QTDSDriver(QObject* parent)
@@ -650,76 +664,24 @@ bool QTDSDriver::rollbackTransaction()
 */
 }
 
-QSqlRecord QTDSDriver::record( const QSqlQuery& query ) const
+QSqlRecord QTDSDriver::record(const QString& tablename) const
 {
-    QSqlRecord fil;
+    QSqlRecord info;
     if ( !isOpen() )
-	return fil;
-    if ( query.isActive() && query.driver() == this ) {
-	QTDSResult* result = (QTDSResult*)query.result();
-	int count = dbnumcols ( result->d->dbproc );
-	for ( int i = 0; i < count; ++i ) {
-	    QString name = dbcolname( result->d->dbproc, i+1 );
-	    QVariant::Type type = qDecodeTDSType( dbcoltype( result->d->dbproc, i+1 ) );
-	    QSqlField rf( name, type );
-	    fil.append( rf );
-	}
-    }
-    return fil;
-}
-
-QSqlRecord QTDSDriver::record( const QString& tablename ) const
-{
-    QSqlRecord fil;
-    if ( !isOpen() )
-	return fil;
-    QSqlQuery t = createQuery();
-    t.setForwardOnly( TRUE );
-    QString stmt ( "select name,type from syscolumns where id = (select id from sysobjects where name = '%1')" );
-    t.exec( stmt.arg( tablename ) );
-    while ( t.next() ) {
-	QVariant::Type ty = qDecodeTDSType( t.value(1).toInt() );
-	QSqlField f( t.value(0).toString().simplified(), ty );
-	fil.append( f );
-    }
-    return fil;
-}
-
-QSqlRecordInfo QTDSDriver::recordInfo( const QSqlQuery& query ) const
-{
-	QSqlRecordInfo info;
-	if ( !isOpen() )
-	    return info;
-
-	if ( query.isActive() && query.driver() == this ) {
-	    QTDSResult* result = (QTDSResult*) query.result();
-	    int count = dbnumcols ( result->d->dbproc );
-	    for ( int i = 0; i < count; ++i ) {
-		info.append( QSqlField( dbcolname( result->d->dbproc, i+1 ), 
-					qDecodeTDSType( dbcoltype( result->d->dbproc, i+1 ) ) ) );
-	    }
-	}
 	return info;
-}
-
-QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
-{
-    QSqlRecordInfo info;
-    if ( !isOpen() )
-		return info;
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
     QString stmt ( "select name, type, length, prec from syscolumns "
 		   "where id = (select id from sysobjects where name = '%1')" );
     t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
-	info.append( QSqlFieldInfo( t.value(0).toString().simplified(),
-				    qDecodeTDSType( t.value(1).toInt() ),
-				    -1,
-				    t.value(2).toInt(),
-				    t.value(3).toInt(),
-				    QVariant(),
-				    t.value(1).toInt() ) );
+	info.append( QSqlField( t.value(0).toString().simplified(),
+				qDecodeTDSType( t.value(1).toInt() ),
+				-1,
+				t.value(2).toInt(),
+				t.value(3).toInt(),
+				QVariant(),
+				t.value(1).toInt() ) );
     }
     return info;
 }

@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qsql.h"
 #include "qsqlerror.h"
-#include "qsqlfield.h"
 #include "qstring.h"
 #include "qvariant.h"
 #endif // QT_H
@@ -29,6 +28,7 @@ class QSqlDriver;
 class QSqlResult;
 class QSqlResultInfo;
 class QSqlDatabase;
+class QSqlRecord;
 
 class QSqlResultShared;
 
@@ -55,6 +55,7 @@ public:
     const QSqlResult*   result() const;
     bool		isForwardOnly() const;
     void		setForwardOnly( bool forward );
+    QSqlRecord		record() const;
 
     virtual bool	exec ( const QString& query );
     virtual QVariant    value( int i ) const;

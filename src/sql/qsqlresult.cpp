@@ -607,5 +607,10 @@ bool QSqlResult::hasOutValues() const
     return FALSE;
 }
 
+QSqlRecord QSqlResult::record() const
+{
+    return QSqlRecord();
+}
+
 
 #endif // QT_NO_SQL

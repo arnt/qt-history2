@@ -14,6 +14,7 @@
 
 #include "qsqlselectcursor.h"
 #include "qsqldriver.h"
+#include "qsqlrecordinfo.h"
 
 #ifndef QT_NO_SQL
 
