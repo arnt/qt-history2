@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#210 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#211 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1690,6 +1690,30 @@ int QListBox::numRows() const
 
 void QListBox::doLayout() const
 {
+
+
+
+
+
+
+
+
+
+
+
+                                      return;
+
+
+
+
+
+
+
+
+
+
+
+
     if ( !d->layoutDirty )
 	return;
 
