@@ -141,11 +141,13 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qkoi8codec.h \
 		  $$TOOLS_H/qlist.h \
-		  $$TOOLS_H/qsortedlist.h \
+		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
 		  $$TOOLS_H/qregexp.h \
+		  $$TOOLS_H/qtlcodec.h \
 		  $$TOOLS_H/qshared.h \
+		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qstack.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstrlist.h \
@@ -155,7 +157,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
 		  $$TOOLS_H/qvaluelist.h \
-		  $$TOOLS_H/qmap.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcheckbox.h \
@@ -250,9 +251,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qdir.cpp \
 		  tools/qeucjpcodec.cpp \
 		  tools/qeuckrcodec.cpp \
-		  tools/qjiscodec.cpp \
-		  tools/qjpunicode.cpp \
-		  tools/qsjiscodec.cpp \
 		  tools/qfile.cpp \
 		  tools/qfileinfo.cpp \
 		  tools/qgarray.cpp \
@@ -262,13 +260,17 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qglobal.cpp \
 		  tools/qgvector.cpp \
 		  tools/qiodevice.cpp \
+		  tools/qjiscodec.cpp \
+		  tools/qjpunicode.cpp \
 		  tools/qkoi8codec.cpp \
+		  tools/qmap.cpp \
 		  tools/qregexp.cpp \
+		  tools/qrtlcodec.cpp \
+		  tools/qsjiscodec.cpp \
 		  tools/qstring.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
-		  tools/qmap.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
