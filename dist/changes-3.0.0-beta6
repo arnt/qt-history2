@@ -2,7 +2,7 @@ Qt 3.0 Beta6 is not binary compatible with Beta5; any programs linked
 against Beta5 must be recompiled.
 
 Below you will find a description of general changes in the Qt
-Library and Qt Designer followed by a detailed list of changes in the
+Library, Qt Designer and Qt Assistant.  Followed by a detailed list of changes in the
 API.
 
 
@@ -15,7 +15,7 @@ The Qt Library
 Qt Designer
 ========================================
 
- - Improvements of the designer reference manual.
+ - Improvements to the Designer reference manual.
 
  - Improved the C++ code indenter in the editor for numbers and handling of
    parenthesis.
@@ -36,7 +36,7 @@ Qt Functions
 QAccel
 ------
 
- - Make sure accelerators continue to work when a toplevel is reparented
+ - Make sure accelerators continue to work when a top level widget is reparented
    into another window.
 
 QColor
@@ -185,12 +185,12 @@ QStyle
    controls, etc. -- this allows custom widgets to use the new style
    engine.
  - Fixed spacing problem for custom menu items.
- - Improved the look of the motif plus and the SGI style.
+ - Improved the look of the Motif plus and the SGI style.
 
 QTable
 ------
 
- - Fixed crash when drag source is the current table editor widget.
+ - Fixed a crash when drag source is the current table editor widget.
  - Fixed a bug that prevented having different colors in different cells.
 
 QTabletEvent
@@ -201,8 +201,8 @@ QTabletEvent
 QTextEdit
 ---------
 
- - Better handling for font-sizes in the font-tag.
- - Parse the qt-tag again.
+ - Better handling for font sizes in the font tag.
+ - Parse the qt tag again.
  - Fixed text() for read-only documents.
  - Improved right mouse button menu handling.
  - New function to pass the position to the createPopupMenu() function for
@@ -241,6 +241,6 @@ QWorkspace
 ----------
 
  - Update the titlebar when toggling shaded/non-shaded.
- - Update the titlebar to be deactive when the application's activation
+ - Update the titlebar to be deactivated when the application's activation
    status changes.
  - Improve placement of document windows.
