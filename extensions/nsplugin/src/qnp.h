@@ -117,7 +117,8 @@ public:
     virtual const char* getPluginNameString() const=0;
     virtual const char* getPluginDescriptionString() const=0;
 
-    virtual void* getJavaClass() const;
+    virtual void* getJavaClass();
+    virtual void unuseJavaClass();
     void* getJavaEnv() const;
 
 protected:

@@ -484,6 +484,8 @@ NPP_Initialize(void)
     return NPERR_NO_ERROR;
 }
 
+static jref plugin_java_class = 0;
+
 /*
 ** NPP_GetJavaClass is called during initialization to ask your plugin
 ** what its associated Java class is. If you don't have one, just return
@@ -495,7 +497,9 @@ NPP_Initialize(void)
 extern "C" jref
 NPP_GetJavaClass(void)
 {
-    return qNP->getJavaClass();
+    if (!qNP) qNP = QNPlugin::create();
+    plugin_java_class = qNP->getJavaClass();
+    return plugin_java_class;
 }
 
 /*
@@ -507,6 +511,13 @@ NPP_GetJavaClass(void)
 extern "C" void
 NPP_Shutdown(void)
 {
+    if (qNP) {
+	if (plugin_java_class)
+	    qNP->unuseJavaClass();
+	delete qNP;
+	qNP = 0;
+    }
+
     if (piApp) {
 #ifdef _WS_X11_
 	qt_np_remove_timeoutcb(np_do_timers);
@@ -532,14 +543,6 @@ NPP_Shutdown(void)
 #ifdef _WS_WIN_
 	delete qApp;
 #endif
-    }
-}
-
-static void early_shutdown(QNPInstance* /*from*/)
-{
-    if (qNP) {
-	delete qNP;
-	qNP = 0;
     }
 }
 
@@ -674,7 +677,6 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
         instance->pdata = NULL;
 
 	instance_count--;
-	if (!instance_count) early_shutdown(This->instance);
     }
 
     return NPERR_NO_ERROR;
@@ -743,7 +745,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	if (!piApp) {
 #ifdef _WS_X11_
 	    if (!qApp) {
-		// Thou Shalt No Unload Qt
+		// Thou Shalt Not Unload Qt
 		// Increment the reference count...
 		// dlopen("libqt.so.1", RTLD_LAZY);
 		// ... and never close it.
@@ -786,7 +788,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     } else {
 	// ### Need a geometry setter that bypasses some Qt code,
 	// ### but first need to know when netscape does this.
-	//This->widget->setGeometry(window->x,window->y, window->width, window->height);
+	This->widget->setGeometry(window->x,window->y, window->width, window->height);
     }
 
     This->fWindow = window;
@@ -1312,6 +1314,8 @@ void QNPWidget::setWindow()
 #endif
 
     createNewWindowsForAllChildren(this);
+
+    setGeometry( pi->x, pi->y, pi->width, pi->height );
 }
 
 /*!
@@ -1877,6 +1881,9 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
   Override to return a reference to the Java class that represents
   the plugin.  The default returns 0, indicating no class.
 
+  If you override this class, you must also override
+  QNPlugin::unuseJavaClass().
+
   The return value is actually a <tt>jref</tt> we use <tt>void*</tt> so
   as to avoid burdening plugins which do not require Java.
 
@@ -1884,9 +1891,22 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
       <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgja.htm#nppgetjavaclass>
       Netscape: NPP_GetJavaClass</a>
 */
-void* QNPlugin::getJavaClass() const
+void* QNPlugin::getJavaClass()
 {
     return NULL;
+}
+
+/*!
+  This function is called when the plugin is shutting down,
+  with \a jc set to the value returned earlier by getJavaClass().
+  The function should \e unuse the Java class and return 0.
+
+  \sa <a href=http://home.netscape.com/eng/mozilla/3.0/handbook/plugins/wr3.htm#Assoc>
+    Netscape: Associating a Class with your Plug-in</a>
+*/
+void QNPlugin::unuseJavaClass()
+{
+    fatal("QNPlugin::unuseJavaClass() must overridden along with getJavaClass()");
 }
 
 /*!
