@@ -93,10 +93,10 @@ public:
     void             removeTranslator(QTranslator *);
 #endif
     enum Encoding { DefaultCodec, UnicodeUTF8 };
-    QString             translate(const char * context,
+    static QString translate(const char * context,
                                 const char * key,
                                 const char * comment = 0,
-                                Encoding encoding = DefaultCodec) const;
+                                Encoding encoding = DefaultCodec);
 
     static void flush();
 
@@ -159,14 +159,15 @@ inline void QCoreApplication::processEvents() { processEvents(3000); }
 #ifdef QT_NO_TRANSLATION
 // Simple versions
 inline QString QCoreApplication::translate(const char *, const char *sourceText,
-                                        const char *, Encoding encoding) const
+                                           const char *, Encoding encoding)
 {
 #ifndef QT_NO_TEXTCODEC
     if (encoding == UnicodeUTF8)
         return QString::fromUtf8(sourceText);
-    else
+#else
+    Q_UNUSED(encoding)
 #endif
-        return QString::fromLatin1(sourceText);
+    return QString::fromLatin1(sourceText);
 }
 #endif
 

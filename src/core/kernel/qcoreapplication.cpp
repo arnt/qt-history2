@@ -1050,27 +1050,27 @@ void QCoreApplication::removeTranslator(QTranslator * mf)
   techniques by subclassing \l QTranslator.
 
   \warning This method is reentrant only if all translators are
-  installed \e before calling this method.  Installing or removing
-  translators while performing translations is not supported.  Doing
+  installed \e before calling this method. Installing or removing
+  translators while performing translations is not supported. Doing
   so will most likely result in crashes or other undesirable behavior.
 
   \sa QObject::tr() installTranslator() defaultCodec()
 */
 
-QString QCoreApplication::translate(const char * context, const char * sourceText,
-                                       const char * comment, Encoding encoding) const
+QString QCoreApplication::translate(const char *context, const char *sourceText,
+                                    const char *comment, Encoding encoding)
 {
     if (!sourceText)
         return QString();
 
-    if (!d->translators.isEmpty()) {
+    if (self && !self->d->translators.isEmpty()) {
         QList<QTranslator*>::ConstIterator it;
-        QTranslator * mf;
+        QTranslator *mf;
         QString result;
-        for (it = d->translators.constBegin(); it != d->translators.constEnd(); ++it) {
+        for (it = self->d->translators.constBegin(); it != self->d->translators.constEnd(); ++it) {
             mf = *it;
             result = mf->findMessage(context, sourceText, comment).translation();
-            if (!result.isNull())
+            if (!result.isEmpty())
                 return result;
         }
     }
@@ -1249,15 +1249,15 @@ int QCoreApplication::argc() const
 
 
 /*!
-    Returns the command line argument vector.
+    Returns the command-line argument array.
 
-    \c argv()[0] is the program name, \c argv()[1] is the first
-    argument and \c argv()[argc()-1] is the last argument.
+    argv()[0] is the program name, argv()[1] is the first
+    argument, and argv()[argc() - 1] is the last argument.
 
     A QApplication object is constructed by passing \e argc and \e
     argv from the \c main() function. Some of the arguments may be
     recognized as Qt options and removed from the argument vector. For
-    example, the X11 version of Qt knows about \c -display, \c -font
+    example, the X11 version of Qt knows about \c -display, \c -font,
     and a few more options.
 
     Example:
@@ -1281,7 +1281,7 @@ int QCoreApplication::argc() const
 
     If you run \c{showargs -display unix:0 -font 9x15bold hello world}
     under X11, the list box contains the three strings "showargs",
-    "hello" and "world".
+    "hello", and "world".
 
     Qt provides a global pointer, \c qApp, that points to the
     QApplication object, and through which you can access argc() and
