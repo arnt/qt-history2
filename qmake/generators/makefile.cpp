@@ -1121,6 +1121,14 @@ MakefileGenerator::init()
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
     }
 
+    //Translation files
+    if(!project->isEmpty("TRANSLATIONS")) {
+	QStringList &trf = project->variables()["TRANSLATIONS"];
+	for(QStringList::Iterator it = trf.begin(); it != trf.end(); ++it) {
+	    (*it) = Option::fixPathToLocalOS((*it));
+	}
+    }
+
     //Image files
     if(!project->isEmpty("IMAGES")) {
 	if(project->isEmpty("QMAKE_IMAGE_COLLECTION"))
