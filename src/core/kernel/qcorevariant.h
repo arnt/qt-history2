@@ -18,7 +18,6 @@
 #include "qatomic.h"
 #include "qbytearray.h"
 #include "qlist.h"
-#include "qmetaobject.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -245,6 +244,8 @@ protected:
     { handler->clear(p); delete p; }
     void *castOrDetach(Type t);
 };
+
+#include "qmetaobject.h"
 
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
