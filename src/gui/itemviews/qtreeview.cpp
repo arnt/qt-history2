@@ -525,6 +525,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     while (y < h && i < c) {
         s = d->height(i);
+        //qDebug("height s %d", s);
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
             option.state = state|(viewItems.at(i).open ? QStyle::Style_Open : QStyle::Style_None);
@@ -880,7 +881,6 @@ QModelIndexList QTreeView::selectedIndexes() const
 
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
-
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
     int maxDeltaY = verticalFactor() * qMin(d->viewItems.count(), viewCount);
@@ -1117,11 +1117,21 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = d->viewport->width();
     int height = 0;
+    // only check the visible columns
     int start = d->header->visualIndexAt(0);
     int end = d->header->visualIndexAt(width);
 
-    start = start == -1 ? 0 : start;
-    end = end == -1 ? d->header->count() - 1 : end;
+    if (QApplication::reverseLayout()) {
+        start = start == -1 ? d->header->count() - 1 : start;
+        end = end == -1 ? 0 : end;
+    } else {
+        start = start == -1 ? 0 : start;
+        end = end == -1 ? d->header->count() - 1 : end;
+    }
+
+    int tmp = start;
+    start = qMin(start, end);
+    end = qMax(tmp, end);
 
     QModelIndex parent = d->model->parent(left);
     const QVector<QTreeViewItem> viewItems = d->viewItems;
