@@ -897,8 +897,8 @@ void QAquaStyle::drawControl( ControlElement element,
 	    break;
 
 	QMenuItem *mi = (QMenuItem *)data[0];
-	bool down = flags & Style_Down;
-	bool active = flags & Style_On;
+	bool down = how & Style_Down;
+	bool active = how & Style_Active;
 	if( down && active ){
 	    QPixmap px;
 	    qAquaPixmap( "sel_back", px );
