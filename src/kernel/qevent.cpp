@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#64 $
 **
 ** Implementation of event classes
 **
@@ -251,13 +251,14 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn const QPoint &QMouseEvent::globalPos() const Returns the global
-  position of the mouse pointer \e at \e the \e time of the
-  event. This is important on asynchronous window systems like X11:
-  Whenever you move your widgets around in response to mouse evens,
-  globalPos() can differ a lot from the current pointer position \link
-  QCursor::pos().
+  \fn const QPoint &QMouseEvent::globalPos() const 
   
+  Returns the global position of the mouse pointer \e at \e the \e
+  time of the event. This is important on asynchronous window systems
+  like X11: Whenever you move your widgets around in response to mouse
+  evens, globalPos() can differ a lot from the current pointer
+  position QCursor::pos().
+
   \sa globalX(), globalY()
 */
 
