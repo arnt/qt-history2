@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#124 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#124 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1726,7 +1726,7 @@ void QListBox::setMaxItemWidth( int len )
 
   Single- and multi-selections modes work the same, except that the
   highlighed() and selected() signals are emitted at different times,
-  and that the setSelected() and isSelected() functions are available
+  and that the setSelected() and toggleCurrentItem() functions are available
   only in multi-selection mode.
 
   \sa isMultiSelection()
