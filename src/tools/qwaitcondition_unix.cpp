@@ -274,7 +274,7 @@ bool QWaitCondition::wait(unsigned long time)
     d->mutex.unlock();
 
 #ifdef QT_CHECK_RANGE
-    if (ret)
+    if (ret && ret != ETIMEDOUT)
 	qWarning("Wait condition wait failure: %s",strerror(ret));
 #endif
 
@@ -331,7 +331,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 	ret = Q_COND_WAIT(&d->cond, &mutex->d->handle);
 
 #ifdef QT_CHECK_RANGE
-    if (ret)
+    if (ret && ret != ETIMEDOUT)
 	qWarning("Wait condition wait failure: %s",strerror(ret));
 #endif
 
