@@ -61,6 +61,19 @@ ListBoxEditor::ListBoxEditor( QWidget *parent, QWidget *editWidget, FormWindow *
 		      editorDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
 
     ListBoxRename *editorRename = new ListBoxRename( preview );
+
+    QObjectList *l = parent->queryList( "QLineEdit", "itemText" );
+    QObjectListIt it( *l );
+    QObject *obj;
+    while ( (obj = it.current()) != 0 ) {
+        ++it;
+	QObject::connect( editorRename,
+			  SIGNAL( itemTextChanged( const QString & ) ),
+			  obj,
+			  SLOT( setText( const QString & ) ) );
+    }
+    delete l;
+    
 }
 
 void ListBoxEditor::insertNewItem()

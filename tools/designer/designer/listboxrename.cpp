@@ -67,7 +67,8 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
 		( ((QMouseEvent *) event)->state() & Qt::LeftButton ) ) {
 	activity = TRUE;  // drag
     } else if ( (event->type() == QEvent::KeyPress ) &&
-		( ((QKeyEvent *) event)->key() == Qt::Key_F2 ) ) {	
+		( ((QKeyEvent *) event)->key() == Qt::Key_F2 ) ) {
+	activity = FALSE;
 	showLineEdit();
     }
     return FALSE;
@@ -84,6 +85,7 @@ void ListBoxRename::showLineEdit()
     ed->setText( clickedItem->text() );
     ed->selectAll();
     ed->show();
+    ed->setFocus();
 }
 
 void ListBoxRename::renameClickedItem()

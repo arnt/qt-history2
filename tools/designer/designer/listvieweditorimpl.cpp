@@ -60,23 +60,60 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 	itemsPreview->setSelected( itemsPreview->firstChild(), TRUE );
     }
 
+    // Clamp on drag and drop to QListView
     ListViewDnd *itemsDnd = new ListViewDnd( itemsPreview );
     itemsDnd->setDragMode( ListViewDnd::Internal | ListViewDnd::Move );
     QObject::connect( itemsDnd, SIGNAL( dropped( QListViewItem * ) ),
 		      itemsDnd, SLOT( confirmDrop( QListViewItem * ) ) );
 
+    // Enable rename for all QListViewItems
+    QListViewItemIterator it = ((QListView *)itemsPreview)->firstChild();
+    for ( ; *it; it++ )
+	(*it)->setRenameEnabled( 0, TRUE );
+
+    // Connect listview signal to signal-relay
+    QObject::connect( itemsPreview,
+		      SIGNAL( itemRenamed( QListViewItem*, int, const QString & ) ),
+		      this,
+		      SLOT( emitItemRenamed(QListViewItem*, int, const QString&) ) );
+
+    // Connect signal-relay to QLineEdit "itemText"
+    QObjectList *l = parent->queryList( "QLineEdit", "itemText" );
+    QObject *obj;
+    QObjectListIt itemsLineEditIt( *l );
+    while ( (obj = itemsLineEditIt.current()) != 0 ) {
+        ++itemsLineEditIt;
+	QObject::connect( this,
+			  SIGNAL( itemRenamed( const QString & ) ),
+			  obj,
+			  SLOT( setText( const QString & ) ) );
+    }
+    delete l;
+
+    // Clamp on drag and drop to QListBox
     ListBoxDnd *columnsDnd = new ListBoxDnd( colPreview );
     columnsDnd->setDragMode( ListBoxDnd::Internal | ListBoxDnd::Move );
     QObject::connect( columnsDnd, SIGNAL( dropped( QListBoxItem * ) ),
 		      columnsDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
 
-    QListViewItemIterator it = ((QListView *)itemsPreview)->firstChild();
-    for ( ; *it; it++ )
-	(*it)->setRenameEnabled( 0, TRUE );
-
+    // Clamp on rename to QListBox
     ListBoxRename *columnsRename = new ListBoxRename( colPreview );
-    QObject::connect( columnsRename, SIGNAL( itemTextChanged( const QString & ) ),
-		      this, SLOT( columnTextChanged( const QString & ) ) );
+    QObject::connect( columnsRename,
+		      SIGNAL( itemTextChanged( const QString & ) ),
+		      this,
+		      SLOT( columnTextChanged( const QString & ) ) );
+
+    // Find QLineEdit "colText" and connect
+    l = parent->queryList( "QLineEdit", "colText" );
+    QObjectListIt columnsLineEditIt( *l );
+    while ( (obj = columnsLineEditIt.current()) != 0 ) {
+        ++columnsLineEditIt;
+	QObject::connect( columnsRename,
+			  SIGNAL( itemTextChanged( const QString & ) ),
+			  obj,
+			  SLOT( setText( const QString & ) ) );
+    }
+    delete l;
 }
 
 void ListViewEditor::applyClicked()
@@ -597,4 +634,9 @@ void ListViewEditor::initTabPage( const QString &page )
 	    itemNewSub->setEnabled( TRUE );
 	}
     }
+}
+
+void ListViewEditor::emitItemRenamed( QListViewItem *, int, const QString & text )
+{
+    emit itemRenamed( text ); // Relay signal ( to QLineEdit )
 }

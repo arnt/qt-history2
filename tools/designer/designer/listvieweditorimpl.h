@@ -36,6 +36,9 @@ class ListViewEditor : public ListViewEditorBase
 public:
     ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw );
 
+signals:
+    void itemRenamed(const QString &);
+
 protected slots:
     void applyClicked();
     void columnClickable(bool);
@@ -61,7 +64,8 @@ protected slots:
     void itemRightClicked();
     void newColumnClicked();
     void okClicked();
-    void initTabPage( const QString &page );
+    void initTabPage(const QString &page);
+    void emitItemRenamed(QListViewItem*, int, const QString&); // signal relay
 
 private:
     struct Column
