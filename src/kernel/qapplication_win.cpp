@@ -717,14 +717,12 @@ bool qt_nograb()				// application no-grab option
 #endif
 }
 
-
-static QHash<QString, int*> *winclassNames = 0;
+static QHash<QString, int> winclassNames;
 
 const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 {
-    if ( !winclassNames ) {
-	winclassNames = new QHash<QString, int*>;
-    }
+    winclassNames.ensure_constructed();
+
     uint style;
     bool icon;
     QString cname;
@@ -760,7 +758,7 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
     cname = QString::number( appUniqueID );
 #endif
 
-    if ( winclassNames->value(cname.latin1()) )		// already registered
+    if ( winclassNames.contains(cname.latin1()) )	// already registered
 	return cname;
 
 #ifndef Q_OS_TEMP
@@ -830,16 +828,15 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 
 #endif
 
-    winclassNames->insert( cname.latin1(), (int*)1 );
+    winclassNames->insert(cname.latin1(), 1);
     return cname;
 }
 
 static void unregWinClasses()
 {
-    if ( !winclassNames )
-	return;
-    QHash<QString, int*>::ConstIterator it = winclassNames->begin();
-    while ( it != winclassNames->end() ) {
+    winclassNames.ensure_constructed();
+    QHash<QString, int*>::ConstIterator it = winclassNames.constBegin();
+    while ( it != winclassNames.constEnd() ) {
 	const char *k = it.key();
 	QT_WA( {
 	    UnregisterClass( (TCHAR*)QString::fromLatin1(k).ucs2(), (HINSTANCE)qWinAppInst() );
@@ -848,8 +845,7 @@ static void unregWinClasses()
 	} );
 	++it;
     }
-    delete winclassNames;
-    winclassNames = 0;
+    winclassNames.clear();
 }
 
 
