@@ -101,7 +101,8 @@ class QTable : public QScrollView
 public:
     enum EditMode { NotEditing, Editing, Replacing };
 
-    QTable( int numRows, int numCols, QWidget* parent=0, const char* name=0 );
+    QTable( QWidget *parent = 0, const char *name = 0 );
+    QTable( int numRows, int numCols, QWidget *parent = 0, const char *name = 0 );
     ~QTable();
 
     QHeader *horizontalHeader() const;
@@ -185,6 +186,7 @@ public:
 
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
+    virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     void contentsMousePressEvent( QMouseEvent* );
     void contentsMouseMoveEvent( QMouseEvent* );
     void contentsMouseDoubleClickEvent( QMouseEvent* );
@@ -227,7 +229,6 @@ private:
 	int anchorRow, anchorCol;
     };
 
-    void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
     void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
@@ -237,6 +238,8 @@ private:
     void fixCol( int &col, int x );
     void editTypeChanged( QTableItem *i, QTableItem::EditType old );
 
+    void init( int numRows, int numCols );
+    
 private:
     QVector<QTableItem> contents;
     int curRow;

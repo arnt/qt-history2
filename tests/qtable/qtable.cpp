@@ -434,6 +434,17 @@ int QTableItem::columnSpan() const
   </ul>
  */
 
+/*!  Constructs a table with a range of 10 * 10 cells.
+*/
+
+QTable::QTable( QWidget *parent = 0, const char *name = 0 )
+    : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
+      currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
+      lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
+{
+    init( 10, 10 );
+}
+
 /*!  Constructs a table with a range of \a numRows * \a numCols cells.
 */
 
@@ -441,6 +452,14 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
       currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
+{
+    init( numRows, numCols );
+}
+
+/*! \internal
+ */
+
+void QTable::init( int numRows, int numCols )
 {
     // Enable clipper and set background mode
     enableClipper( TRUE );
