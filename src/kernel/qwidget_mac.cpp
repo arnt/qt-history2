@@ -1682,8 +1682,8 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     extra->has_dirty_area = FALSE;
+    extra->child_serial = extra->clip_serial = 1;
     extra->child_dirty = extra->clip_dirty = TRUE;
-    extra->child_serial = extra->clip_serial = 0;
     extra->macDndExtra = 0;
 }
 
@@ -1819,8 +1819,11 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(dirty_myself) {
 	//dirty myself
-	if(extra)
+	if(extra) {
+	    extra->child_serial++;
+	    extra->clip_serial++;
 	    extra->child_dirty = extra->clip_dirty = TRUE;
+	}
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
 	    QObjectListIt it(*chldn);
@@ -1828,8 +1831,10 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		if(obj->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(w->topLevelWidget() == topLevelWidget() &&
-		       !w->isTopLevel() && w->isVisible() && w->extra)
+		       !w->isTopLevel() && w->isVisible() && w->extra) {
+			w->extra->clip_serial++;
 			w->extra->clip_dirty = TRUE;
+		    }
 		}
 	    }
 	    delete chldn;
@@ -1843,8 +1848,10 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     for(QWidget *widg = parentWidget(); widg; last = widg, widg = widg->parentWidget()) {
 	QPoint widgp(posInWindow(widg));
 	myr = myr.intersect(QRect(widgp.x(), widgp.y(), widg->width(), widg->height()));
-	if(widg->extra)
+	if(widg->extra) {
+	    widg->extra->child_serial++;
 	    widg->extra->child_dirty = TRUE;
+	}
 
 	if(const QObjectList *chldn = widg->children()) {
 	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
@@ -1853,16 +1860,20 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		    if(w->topLevelWidget() == topLevelWidget() && !w->isTopLevel() && w->isVisible()) {
 			QPoint wp(posInWindow(w));
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
-			    if(w->extra)
+			    if(w->extra) {
+				w->extra->clip_serial++;
 				w->extra->clip_dirty = TRUE;
+			    }
 			    if(QObjectList *chldn2 = w->queryList()) {
 				QObjectListIt it2(*chldn2);
 				for(QObject *obj; (obj = it2.current()); ++it2 ) {
 				    if(obj->isWidgetType()) {
 					QWidget *w = (QWidget *)(*it2);
 					if(w->topLevelWidget() == topLevelWidget() &&
-					   !w->isTopLevel() && w->isVisible() && w->extra)
+					   !w->isTopLevel() && w->isVisible() && w->extra) {
+					    w->extra->clip_serial++;
 					    w->extra->clip_dirty = TRUE;
+					}
 				    }
 				}
 				delete chldn2;
@@ -1904,7 +1915,6 @@ CGContextRef QWidget::macCGClippedContext(bool do_children) const
 
 uint QWidget::clippedSerial(bool do_children)
 {
-    clippedRegion(do_children);
     return do_children ? extra->child_serial : extra->clip_serial;
 }
 
@@ -1936,7 +1946,6 @@ QRegion QWidget::clippedRegion(bool do_children)
     //clip out my children
     if(do_children && extra->child_dirty) {
 	extra->child_dirty = FALSE;
-	extra->child_serial++;
 	extra->clip_children = QRegion(0, 0, width(), height());
 	if(const QObjectList *chldnlst=children()) {
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
@@ -2010,7 +2019,6 @@ QRegion QWidget::clippedRegion(bool do_children)
     QRegion chldrgns = extra->clip_children;
     QPoint mp = posInWindow(this);
     chldrgns.translate(mp.x(), mp.y());
-    extra->clip_serial++;
     extra->clip_saved = extra->clip_sibs & chldrgns;
     if(do_children)
 	return extra->clip_saved;
