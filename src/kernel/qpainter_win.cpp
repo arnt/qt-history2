@@ -2448,7 +2448,7 @@ QPoint QPainter::pos() const
     }
     return  xFormDev( p );
 #else
-    return internalCurrentPos;
+    return xFormDev( internalCurrentPos );
 #endif
 }
 
