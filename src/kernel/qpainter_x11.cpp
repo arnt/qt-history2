@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#308 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#309 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2566,9 +2566,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QFont dfont( cfont );
 	    QWMatrix mat2;
 	    if ( txop == TxScale ) {
-		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
-		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
-		dfont.setPointSize( newSize );
+		double newSize = m22() * cfont.pointSizeFloat();
+		newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
+		dfont.setPointSizeFloat( newSize );
 		QFontMetrics fm2( dfont );
 		QRect abbox = fm2.boundingRect( str, len );
 		aw = abbox.width();
@@ -2577,8 +2577,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
-		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
-		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
+		double rx = mat1.m11() * cfont.pointSizeFloat() / newSize;
+		double ry = mat1.m22() * cfont.pointSizeFloat() / newSize;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
 	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
