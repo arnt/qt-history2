@@ -5931,9 +5931,7 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 	blockSignals( block );
 	d->currentItem->setSelected( TRUE, TRUE );
     } else if ( d->selectionMode == Extended ) {
-	if ( control ) {
-	    // nothing
-	} else if ( shift ) {
+	 if ( shift ) {
 	    if ( !d->selectAnchor ) {
 		if ( old && !old->selected && old->isSelectable() ) {
 		    old->selected = TRUE;
@@ -5989,7 +5987,7 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift, bool control )
 		if ( changed )
 		    emit selectionChanged();
 	    }
-	} else {
+	} else if ( !control ) {
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
 	    blockSignals( FALSE );
@@ -6028,7 +6026,7 @@ void QIconView::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-    
+
     if ( !isVisible() )
 	return;
 

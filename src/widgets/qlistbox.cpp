@@ -2018,9 +2018,6 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 		    }
 		    setSelected( i, TRUE );
 		    d->dragging = TRUE; // always assume dragging
-		} else if ( e->state() & ControlButton ) {
-		    setSelected( i, !i->isSelected() );
-		    d->pressedSelected = FALSE;
 		} else if ( e->state() & ShiftButton ) {
 		    d->pressedSelected = FALSE;
 		    QListBoxItem *oldCurrent = item( currentItem() );
@@ -2049,6 +2046,9 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
 		    }
 		    blockSignals( blocked );
 		    emit selectionChanged();
+		} else if ( e->state() & ControlButton ) {
+		    setSelected( i, !i->isSelected() );
+		    d->pressedSelected = FALSE;
 		}
 		setCurrentItem( i );
 	    }
@@ -2491,7 +2491,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 		if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
 		    d->selectAnchor = d->current;
-	    } 
+	    }
 	    break;
 	case Key_Prior:
 	    {
@@ -2515,7 +2515,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 		if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
 		    d->selectAnchor = d->current;
-	    } 
+	    }
 	    break;
 	case Key_Space:
 	    {
@@ -2555,7 +2555,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		    d->selectAnchor = d->current;
 	    }
 	    break;
-	case Key_End: 
+	case Key_End:
 	    {
 		selectCurrent = TRUE;
 		d->currInputString = QString::null;
@@ -2566,7 +2566,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		    d->selectAnchor = d->current;
 	    }
 	    break;
-	default: 
+	default:
 	    {
 		if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
 		    d->findItemByName( e->text() );
@@ -4460,12 +4460,10 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
     if ( d->selectionMode == Single ) {
 	// nothing
     } else if ( d->selectionMode == Extended ) {
-	if ( control ) {
-	    // nothing
-	} else if ( shift ) {
+	if ( shift ) {
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
 			 d->current, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
-	} else {
+	} else if ( !control ) {
 	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
@@ -4549,7 +4547,7 @@ void QListBox::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-    
+
     if ( !isVisible() )
 	return;
 

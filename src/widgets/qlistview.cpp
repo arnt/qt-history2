@@ -4127,7 +4127,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->pressedSelected = FALSE;
-		if ( e->state() & ControlButton && i ) {
+		if ( (e->state() & ControlButton) && !(e->state() & ShiftButton) && i ) {
 		    i->setSelected( !i->isSelected() );
 		    changed = TRUE;
 		    d->pressedSelected = FALSE;
@@ -4546,7 +4546,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 void QListView::focusOutEvent( QFocusEvent *e )
 {
     Q_UNUSED(e) // I need this to get rid of a Borland warning
-	
+
     if ( e->reason() == QFocusEvent::Popup && d->buttonDown )
 	d->buttonDown = FALSE;
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
@@ -6751,12 +6751,10 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
     if ( d->selectionMode == Single ) {
 	// nothing
     } else if ( d->selectionMode == Extended ) {
-	if ( control ) {
-	    // nothing
-	} else if ( shift ) {
+	if ( shift ) {
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
 			 d->focusItem, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
-	} else {
+	} else if ( !control ) {
 	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
@@ -6915,7 +6913,7 @@ void QListView::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-    
+
     if ( !isVisible() )
 	return;
 
