@@ -32,6 +32,7 @@
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 #include "qtextstream.h"
+#include "qapplication.h"
 
 // NOT REVISED
 /*!
@@ -160,7 +161,7 @@ QSize QRadioButton::sizeHint() const
 
     return sz + QSize( bmsz.width()
 			+ (text().isEmpty() ? 0 : gutter+margin),
-			4 );
+			4 ).expandedTo( QApplication::globalStrut() );
 }
 
 
