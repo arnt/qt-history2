@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#105 $
 **
 ** Implementation of QMenuData class
 **
@@ -287,19 +287,19 @@ void QMenuData::setAllDirty( bool  )
 /*!
   The family of insertItem() functions inserts menu items into a
   popup menu or a menu bar.
-  
+
   A menu item is usually either a text string or a a pixmap, both with
   an optional icon or keyboard accelerator. As special cases it is
   also possible to insert custom items (see QCustomMenuItem) or even
   widgets into popup menus.
-  
+
   Some insertItem() members take a popup menu as additional
   argument. Use these to insert submenus to existing menus or pulldown
   menus to a menu bar.
-  
+
   The amount of insert functions may look confusing, but is actually
   quite handy to use.
-  
+
   This default version inserts a menu item with a text, an accelerator
   key, an id and an optional index and connects it to an object/slot.
 
@@ -311,7 +311,7 @@ void QMenuData::setAllDirty( bool  )
     fileMenu->insertItem( "Open", myView, SLOT(open()),    CTRL+Key_O );
     mainMenu->insertItem( "File", fileMenu );
   \endcode
-  
+
   Not all insert functions take an object/slot parameter or an
   accelerator key. Use connectItem() and setAccel() on these items.
 
@@ -324,7 +324,7 @@ void QMenuData::setAllDirty( bool  )
 
   In the example above, pressing CTRL+N or selecting "open" from the
   menu activates the myView->open() function.
-  
+
   Some insert functions take a QIconSet parameter to specify the
   little menu item icon. Note that you can always pass a QPixmap
   object instead.
@@ -370,7 +370,7 @@ int QMenuData::insertItem( const QString &text,
   Inserts a menu item with an icon, a text, an accelerator key, an id
   and an optional index and connects it to an object/slot. The icon
   will be displayed to the left of the text in the item.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
 */
@@ -395,7 +395,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   provide a mask, see QPixmap::mask().
 
   Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -420,7 +420,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   provide a mask, see QPixmap::mask().
 
   Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
 */
@@ -440,7 +440,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 /*!\overload
   Inserts a menu item with a text.  Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -465,7 +465,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 /*!\overload
   Inserts a menu item with a text and a sub menu.
-  
+
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
@@ -483,14 +483,14 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 
 /*!\overload
   Inserts a menu item with an icon, a text and a sub menu. The icon
-  will be displayed to the left of the text in the item. 
+  will be displayed to the left of the text in the item.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
   Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -539,7 +539,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   the menu is deleted.
 
   Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -552,14 +552,14 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
 /*!\overload
   Inserts a menu item with an icon, a pixmap and a sub menu. The icon
-  will be displayed to the left of the pixmap in the item. 
+  will be displayed to the left of the pixmap in the item.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
   Returns the menu item identifier.
-  
+
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
 
@@ -1283,7 +1283,7 @@ void QCustomMenuItem::setFont( const QFont&  )
 }
 
 
-/*! \fn void paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h );
+/*! \fn void QCustomMenuItem::paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h );
 
   Paints this item. When this function is invoked, the painter \a p is
   set to the right font and the right foreground color suitable for a
@@ -1297,7 +1297,7 @@ void QCustomMenuItem::setFont( const QFont&  )
  */
 
 
-/*! \fn QSize sizeHint();
+/*! \fn QSize QCustomMenuItem::sizeHint();
 
   Returns the size hint of this item.
  */
