@@ -1471,7 +1471,7 @@ struct Q_EXPORT Tag {
     QStyleSheetItem::WhiteSpaceMode wsm;
     QTextFormat format;
     int alignment : 16;
-    QChar::Direction direction : 5;
+    int direction : 5;
     QStyleSheetItem::ListStyle liststyle;
 
     Tag(  const Tag& t ) {
@@ -1762,7 +1762,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			else if ( dir == "ltr" )
 			    curtag.direction = QChar::DirL;
 		    }
-		    curpar->setDirection( curtag.direction );
+		    curpar->setDirection( (QChar::Direction)curtag.direction );
 		}
 	    } else {
 		QString tagname = parseCloseTag( doc, pos );

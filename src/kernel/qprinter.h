@@ -181,14 +181,14 @@ private:
     QString     doc_name;
     QString     creator_name;
 
-    PageSize    page_size : 8;
-    PaperSource paper_source : 8;
-    PageOrder   page_order : 1;
-    ColorMode   color_mode : 1;
-    Orientation orient : 1;
-    bool        to_edge : 1;
-    bool	appcolcopies : 1;
-    bool        usercolcopies : 1;
+    PageSize    page_size;
+    PaperSource paper_source;
+    PageOrder   page_order;
+    ColorMode   color_mode;
+    Orientation orient;
+    uint	to_edge : 1;
+    uint	appcolcopies : 1;
+    uint	usercolcopies : 1;
     short       from_pg, to_pg;
     short       min_pg,  max_pg;
     short       ncopies;
