@@ -1,4 +1,3 @@
-
 /****************************************************************************
 ** $Id$
 **
@@ -2803,7 +2802,7 @@ QString QLocalePrivate::doubleToString(double d,
     	if (zero().unicode() != '0') {
 	    ushort z = zero().unicode() - '0';
 	    for (int i = 0; i < digits.length(); ++i)
-		((QChar&)digits[i]).unicode() += z;
+		((ushort *) digits.data())[i] += z;
 	}
 
 	if (buff != 0)
@@ -3048,12 +3047,12 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    if (l_num.length() < idx + nan().length())
 		l_num.resize(idx + nan().length());
 	    for (int i = idx; i < idx + nan().length(); ++i)
-	    	(QChar&)l_num[i] = l_num.unicode()[i].toLower();
+		l_num[i] = l_num.unicode()[i].toLower();
 	    idx += nan().length();
 	    break;
 	}
 
-	QChar &c = (QChar&)l_num[idx];
+	QChar &c = l_num.data()[idx];
 
 	if (c == plus()) {
     	    c.unicode() = '+';
@@ -3070,13 +3069,13 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	}
 	else if (compareSubstr(l_num, idx, infinity().toUpper())) {
 	    for (int i = idx; i < idx + infinity().length(); ++i)
-	    	(QChar&)l_num[i] = l_num.unicode()[i].toLower();
+	    	l_num[i] = l_num.unicode()[i].toLower();
 	    idx += infinity().length();
 	    break;
 	}
 
 	while (idx < l_num.length()) {
-            QChar &c = (QChar&)l_num[idx];
+	    QChar &c = l_num.data()[idx];
 
             if (isDigit(c))
 		c = digitToCLocale(zero(), c);
