@@ -23,6 +23,9 @@
 #include <qscrbar.h>
 #include <qslider.h>
 #include <qtabbar.h>
+#include <qviewp.h>
+
+#include <life.h>
 
 #include <qtstream.h>
 #include <qimage.h>
@@ -465,6 +468,37 @@ public:
     }
 };
 
+class EgQViewport : public QViewport {
+    LifeWidget life;
+public:
+    EgQViewport() :
+	life(portHole())
+    {
+	life.resize(400,400);
+	life.setBackgroundColor(QColor(170,180,170));
+
+	life.setPoint(10,15);
+	life.setPoint(11,15);
+	life.setPoint(12,15);
+	life.setPoint(12,16);
+	life.setPoint(11,17);
+
+	life.setPoint(16,16);
+	life.setPoint(17,16);
+	life.setPoint(16,17);
+	life.setPoint(17,17);
+
+	life.nextGeneration();
+	life.nextGeneration();
+	life.nextGeneration();
+	life.nextGeneration();
+
+	centerOn(100,100);
+
+	resize(190,160);
+    }
+};
+
 
 int main( int argc, char **argv )
 {
@@ -482,7 +516,6 @@ int main( int argc, char **argv )
 
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
-	//sleep(5);
 	DEPICT( EgQGroupBox, "qgrpbox", "QGroupBox" );
 	DEPICT( EgQCheckBox, "qchkbox", "QCheckBox" );
 	DEPICT( EgQPushButton, "qpushbt", "QPushButton" );
@@ -506,6 +539,7 @@ int main( int argc, char **argv )
 	DEPICT( EgQSlider, "qslider", "QSlider" );
 	DEPICT( EgQTabBar, "qtabbar", "QTabBar" );
 	DEPICT( EgQProgressBar, "qprogbar", "QProgressBar" );
+	DEPICT( EgQViewport, "qviewp", "QViewport" );
 
 	if ( !first ) break;
 

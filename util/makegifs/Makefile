@@ -3,7 +3,7 @@
 #######     on ...
 
 INCDIR = $(QTDIR)/include
-CFLAGS =  -g -Wall -W
+CFLAGS =  -g -Wall -W -I$(QTDIR)/examples/life
 LIBCFLAGS = -fPIC
 YACCCFLAGS = -Wno-unused -Wno-parentheses
 LFLAGS = -L$(QTDIR)/lib -lqt
@@ -18,10 +18,10 @@ SHELL =	/bin/sh
 
 ####### Files
 
-SOURCES	=	makeppms.cpp
-OBJECTS	=	makeppms.o
-SRCMETA	=	
-OBJMETA =	
+SOURCES	=	makeppms.cpp $(QTDIR)/examples/life/life.cpp
+OBJECTS	=	makeppms.o $(QTDIR)/examples/life/life.o
+SRCMETA	=	moc_life.cpp
+OBJMETA =	moc_life.o
 TARGET	=	makeppms
 
 ####### Implicit rules
@@ -35,6 +35,7 @@ TARGET	=	makeppms
 
 all:
 	@echo "make gifs  - generate widget gifs in $(QTDIR)/gif/"
+	@echo "make $(TARGET)  - generate ppm generator"
 
 gifs: $(TARGET)
 	./$(TARGET)
@@ -53,7 +54,13 @@ clean:
 
 ####### Explicit dependencies
 
+life.o: $(QTDIR)/examples/life/life.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
+
 ####### Meta objects
+
+moc_life.cpp: $(QTDIR)/examples/life/life.h
+	$(MOC) $(QTDIR)/examples/life/life.h -o moc_life.cpp
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
