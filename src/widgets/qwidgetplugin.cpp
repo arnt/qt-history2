@@ -35,12 +35,35 @@
 **
 **********************************************************************/
 
+#if CONTAINER_CUSTOM_WIDGETS
+
+// This should fgo into the .h file when it becomes public
+class QWidgetContainerPluginPrivate;
+
+class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
+{
+    Q_OBJECT
+
+public:
+    QWidgetContainerPlugin();
+    ~QWidgetContainerPlugin();
+
+    virtual QWidget* containerOfWidget( QWidget *widget ) const;
+    virtual QWidgetList containersOf( QWidget *widget ) const;
+    virtual bool isPassiveInteractor( QWidget *widget ) const;
+
+};
+#endif
+
 #include "qwidgetplugin.h"
 
 #ifndef QT_NO_WIDGETPLUGIN
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
+#if CONTAINER_CUSTOM_WIDGETS
+#include "qwidgetlist.h"
+#endif
 
 /*!
     \class QWidgetPlugin qwidgetplugin.h
@@ -67,7 +90,11 @@
     supplied with \link designer-manual.book Qt Designer\endlink.
 */
 
-class QWidgetPluginPrivate : public QWidgetFactoryInterface, private QLibraryInterface
+class QWidgetPluginPrivate : public QWidgetFactoryInterface,
+#if CONTAINER_CUSTOM_WIDGETS
+			     public QWidgetContainerInterfacePrivate,
+#endif
+			     private QLibraryInterface
 {
 public:
     QWidgetPluginPrivate( QWidgetPlugin *p )
@@ -88,6 +115,11 @@ public:
     QString toolTip( const QString &widget ) const;
     QString whatsThis( const QString &widget ) const;
     bool isContainer( const QString &widget ) const;
+#if CONTAINER_CUSTOM_WIDGETS
+    QWidget* containerOfWidget( QWidget *widget ) const;
+    QWidgetList containersOf( QWidget *widget ) const;
+    bool isPassiveInteractor( QWidget *widget ) const;
+#endif
 
     bool init();
     void cleanup();
@@ -110,6 +142,10 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 	*iface = (QWidgetFactoryInterface*)this;
     else if ( iid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
+#if CONTAINER_CUSTOM_WIDGETS
+    else if ( iid == IID_QWidgetContainer )
+	*iface = (QWidgetContainerInterfacePrivate*)this;
+#endif
     else
 	return QE_NOINTERFACE;
 
@@ -201,6 +237,31 @@ bool QWidgetPluginPrivate::canUnload() const
     return widgets.isEmpty();
 }
 
+#if CONTAINER_CUSTOM_WIDGETS
+QWidget* QWidgetPluginPrivate::containerOfWidget( QWidget *widget ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->containerOfWidget( widget );
+    return widget;
+}
+
+QWidgetList QWidgetPluginPrivate::containersOf( QWidget *widget ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->containersOf( widget );
+    return QWidgetList();
+}
+
+bool QWidgetPluginPrivate::isPassiveInteractor( QWidget *widget ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->isPassiveInteractor( widget );
+    return FALSE;
+}
+#endif
 
 /*!
     Constructs a widget plugin. This is invoked automatically by the
@@ -289,5 +350,33 @@ bool QWidgetPlugin::isContainer( const QString & ) const
 {
     return FALSE;
 }
+
+#if CONTAINER_CUSTOM_WIDGETS
+QWidgetContainerPlugin::QWidgetContainerPlugin()
+    : QWidgetPlugin()
+{
+}
+
+QWidgetContainerPlugin::~QWidgetContainerPlugin()
+{
+}
+
+QWidget* QWidgetContainerPlugin::containerOfWidget( QWidget *widget ) const
+{
+    return widget;
+}
+
+QWidgetList QWidgetContainerPlugin::containersOf( QWidget *widget ) const
+{
+    Q_UNUSED( widget )
+    return QWidgetList();
+}
+
+bool QWidgetContainerPlugin::isPassiveInteractor( QWidget *widget ) const
+{
+    Q_UNUSED( widget )
+    return FALSE;
+}
+#endif
 
 #endif //QT_NO_WIDGETPLUGIN
