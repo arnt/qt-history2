@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#230 $
+** $Id: //depot/qt/main/src/moc/moc.y#231 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2128,7 +2128,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    a = f->args->next();
 	}
 	fprintf( out, "    typedef %s (%s::*m%d_t%d)(%s)%s;\n",
-		 (const char*)f->type, (const char*)qualifiedClassName(),
+		 (const char*)f->type, (const char*)pureClassName(),
 		 num, list->at(),
 		 (const char*)typstr,  (const char*)f->qualifier );
 	fprintf( out, "    typedef %s (QObject::*om%d_t%d)(%s)%s;\n",
@@ -2141,9 +2141,9 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	f->type += ")";
     }
     for ( f=list->first(); f; f=list->next() ) {
-	fprintf( out, "    m%d_t%d v%d_%d = &%s;\n",
+	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n",
 		 num, list->at(), num, list->at(),
-		 (const char*)f->name);
+		 g->className, (const char*)f->name);
 	fprintf( out, "    om%d_t%d ov%d_%d = (om%d_t%d)v%d_%d;\n",
 		 num, list->at(), num, list->at(),
 		 num, list->at(), num, list->at());
@@ -3119,7 +3119,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#230 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#231 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
