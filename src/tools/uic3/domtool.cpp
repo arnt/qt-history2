@@ -156,7 +156,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
         qVariantSet(v, var, "Variant");
     } else if (e.tagName() == QLatin1String("font")) {
         QDomElement n3 = e.firstChild().toElement();
-        Font f; // ### initialize f with defValue
+        Font f;
         f.init();
         while (!n3.isNull()) {
             if (n3.tagName() == QLatin1String("family"))
