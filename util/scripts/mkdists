@@ -747,9 +747,9 @@ for plat in mac win x11 embedded; do
 	case $edition in
 	free)
 	    #remove non-GPL sql stuff
-	    rm -rf $PLATDIR/src/sql/src/oci
-	    rm -rf $PLATDIR/src/sql/src/tds
-	    rm -rf $PLATDIR/src/sql/src/shared
+	    rm -rf $PLATDIR/src/sql/drivers/oci
+	    rm -rf $PLATDIR/src/sql/drivers/tds
+	    rm -rf $PLATDIR/src/sql/drivers/shared
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
