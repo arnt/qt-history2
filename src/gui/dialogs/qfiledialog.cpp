@@ -607,7 +607,7 @@ QFileDialog::~QFileDialog()
 }
 
 /*!
-    \fn void QFileDialog::setDirectory(const QString &directory)
+    \fn void QFileDialog::setDirectory(const QDir &directory)
 
     \overload
 */
@@ -616,9 +616,9 @@ QFileDialog::~QFileDialog()
     Sets the file dialog's current \a directory.
 */
 
-void QFileDialog::setDirectory(const QDir &directory)
+void QFileDialog::setDirectory(const QString &directory)
 {
-    QModelIndex index = d->model->index(directory.absolutePath());
+    QModelIndex index = d->model->index(directory);
     d->setRoot(index);
     d->updateButtons(index);
 }

@@ -52,8 +52,8 @@ public:
                 FileMode fileMode = AnyFile);
     ~QFileDialog();
 
-    void setDirectory(const QDir &directory);
-    inline void setDirectory(const QString &directory) { setDirectory(QDir(directory)); }
+    void setDirectory(const QString &directory);
+    inline void setDirectory(const QDir &directory) { setDirectory(directory.absolutePath()); }
     QDir directory() const;
 
     void selectFile(const QString &filename);
