@@ -2437,11 +2437,33 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
     {
 	QTextCursor c1 = *cursor;
 	QTextCursor c2 = *cursor;
+#if defined(Q_OS_MAC)
+	QTextParagraph *para = cursor->paragraph();
+	if ( cursor->isValid() ) {
+	    if ( para->at( cursor->index() )->c.isLetterOrNumber() ) {
+		while ( c1.index() > 0 && 
+		        c1.paragraph()->at( c1.index()-1 )->c.isLetterOrNumber() )
+		    c1.gotoPreviousLetter();
+		while ( c2.paragraph()->at( c2.index() )->c.isLetterOrNumber() &&
+		        !c2.atParagEnd() )
+		    c2.gotoNextLetter();
+	    } else if ( para->at( cursor->index() )->c.isSpace() ) {
+		while ( c1.index() > 0 && 
+		        c1.paragraph()->at( c1.index()-1 )->c.isSpace() )
+		    c1.gotoPreviousLetter();
+		while ( c2.paragraph()->at( c2.index() )->c.isSpace() &&
+		        !c2.atParagEnd() )
+		    c2.gotoNextLetter();		
+	    } else if ( !c2.atParagEnd() ) {
+		c2.gotoNextLetter();
+	    }
+	}
+#else
 	if ( cursor->index() > 0 && !cursor->paragraph()->at( cursor->index()-1 )->c.isSpace() )
 	    c1.gotoPreviousWord();
 	if ( !cursor->paragraph()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
 	    c2.gotoNextWord();
-
+#endif 
 	doc->setSelectionStart( QTextDocument::Standard, c1 );
 	doc->setSelectionEnd( QTextDocument::Standard, c2 );
 
