@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#27 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#27 $");
 
 
 /*!
@@ -46,6 +46,35 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#26 $");
 
   The QDataStream and QTextStream provide binary and text operations
   on QIODevice objects.
+
+  QIODevice provides numerous pure virtual functions, so subclassing
+  it can be a bit of a bother.  Here's a skeleton subclass:
+
+  \code
+  class YourClass : public QIODevice
+  {
+  public:
+      YourClass();
+      ~YourClass();
+
+      bool open( int mode );
+      void close();
+      void flush();
+
+      uint size() const;
+      int at() const; // not a pure virtual function
+      bool at( int ); // not a pure virtual function
+      bool atEnd() const; // not a pure virtual function
+
+      int readBlock( char *data, uint len );
+      int writeBlock( const char *data, uint len );
+      int readLine( char *data, uint maxlen );
+
+      int getch();
+      int putch( int );
+      int ungetch( int );
+  };
+  \endcode
 
   \sa QDataStream, QTextStream
 */
