@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#20 $
 **
 ** Implementation of QSlider class
 **
@@ -15,16 +15,16 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#20 $");
 
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
-static const int motifThickness = 16;
 static const int winLength = 10;
-static const int winThickness = 20;
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
+
+static const bool funnyWindowsStyle = FALSE;
 
 static int sliderStartVal = 0; //##### class member?
 
@@ -105,11 +105,30 @@ void QSlider::init()
     sliderPos = 0;
     state = Idle;
     track = TRUE;
-    tickOffset = 0; //###
     tickmarksAbove = tickmarksBelow = FALSE;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
     setFocusPolicy( NoFocus );
+    initTicks();
+}
+
+
+/*!
+  Does what's needed when someone changes the tickmark status
+*/
+
+void QSlider::initTicks()
+{
+    int space = (orient == Horizontal) ? height() : width();
+    if ( tickmarksBelow == tickmarksAbove ) {
+	tickOffset = ( space - thickness() ) / 2;
+    } else if ( tickmarksAbove ) {
+	tickOffset = space - thickness();
+    } else {
+	tickOffset = 0;
+    }
+	
+
 }
 
 
@@ -242,27 +261,7 @@ void QSlider::valueChange()
 void QSlider::resizeEvent( QResizeEvent * )
 {
     rangeChange();
-
-    //#### put this into tickChange function...
-    int thick;
-    switch ( style() ) {
-    case WindowsStyle:
-	thick = winThickness;
-	break;
-    case MotifStyle:
-    default:
-	thick = motifThickness;
-	break;
-    }
-    int space = (orient == Horizontal) ? height() : width();
-    if ( tickmarksBelow == tickmarksAbove ) {
-	tickOffset = ( space - thick ) / 2;
-    } else if ( tickmarksAbove ) {
-	tickOffset = space - thick;
-    } else {
-	tickOffset = 0;
-    }
-	
+    initTicks();
 }
 
 
@@ -314,22 +313,132 @@ QRect QSlider::sliderRect() const
     case WindowsStyle:
 	if (orient == Horizontal )
 	    r.setRect( sliderPos, tickOffset, 
-		       winLength, winThickness  );
+		       winLength, thickness()  );
 	else
 	    r.setRect ( tickOffset, sliderPos,
-			winThickness, winLength  );
+			thickness(), winLength  );
 	break;
     default:
     case MotifStyle:
 	if (orient == Horizontal )
 	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder, 
-			motifLength, motifThickness - 2 * motifBorder );
+			motifLength, thickness() - 2 * motifBorder );
 	else
 	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder, 
-			motifThickness - 2 * motifBorder, motifLength );
+			thickness() - 2 * motifBorder, motifLength );
 	break;
     }
     return r;
+}
+enum Dir {Up,Down,Left,Right};
+
+static void drawWinPointedSlider( QPainter *p,
+				const QRect r,
+				const QColorGroup &g,
+				Dir dir)
+{
+    const QColor c1 = g.light();
+    const QColor c2 = black;
+    const QColor c3 = g.background();
+    const QColor c4 = g.dark();
+
+    int x1 = r.left();
+    int x2 = r.right();
+    int y1 = r.top();
+    int y2 = r.bottom();
+
+
+    QBrush oldBrush = p->brush();
+    p->setBrush( c3 );
+    p->setPen( NoPen );
+    p->drawRect( r );
+    p->setBrush( oldBrush );
+
+
+    switch ( dir ) {
+    case Up:
+	y1 = y1 + r.width()/2;
+	break;
+    case Down:
+	y2 = y2 - r.width()/2;
+	break;
+    case Left:
+	x1 = x1 + r.height()/2;
+	break;
+    case Right:
+	x2 = x2 - r.height()/2;
+	break;
+    }
+
+    if ( dir != Up ) {
+	p->setPen( c1 );
+	p->drawLine( x1, y1, x2, y1 );
+    }
+    if ( dir != Left ) {
+	p->setPen( c1 );
+	p->drawLine( x1, y1, x1, y2 );
+    }
+    if ( dir != Right ) {
+	p->setPen( c2 );
+	p->drawLine( x2, y1, x2, y2 );
+	p->setPen( c4 );
+	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
+    }
+    if ( dir != Down ) {
+	p->setPen( c2 );
+	p->drawLine( x1, y2, x2, y2 );
+	p->setPen( c4 );
+	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
+    }
+
+    int d = 0;
+    switch ( dir ) {
+    case Up:
+	p->setPen( c1 );
+	d =  (r.width() + 1) / 2 - 1;
+	p->drawLine( x1, y1, x1+d, y1-d);
+	p->setPen( c2 );
+	d = r.width() - d - 1;
+	p->drawLine( x2, y1, x2-d, y1-d);
+	p->setPen( c4 );
+	d--;
+	p->drawLine( x2-1, y1, x2-1-d, y1-d);
+	break;
+    case Down:
+	p->setPen( c1 );
+	d =  (r.width() + 1) / 2 - 1;
+	p->drawLine( x1, y2, x1+d, y2+d);
+	p->setPen( c2 );
+	d = r.width() - d - 1;
+	p->drawLine( x2, y2, x2-d, y2+d);
+	p->setPen( c4 );
+	d--;
+	p->drawLine( x2-1, y2, x2-1-d, y2+d);
+	break;
+    case Left:
+	p->setPen( c1 );
+	d =  (r.height() + 1) / 2 - 1;
+	p->drawLine( x1, y1, x1-d, y1+d);
+	p->setPen( c2 );
+	d = r.height() - d - 1;
+	p->drawLine( x1, y2, x1-d, y2-d);
+	p->setPen( c4 );
+	d--;
+	p->drawLine( x1, y2-1, x1-d, y2-1-d);
+	break;
+    case Right:
+	p->setPen( c1 );
+	d =  (r.height() + 1) / 2 - 1;
+	p->drawLine( x2, y1, x2+d, y1+d);
+	p->setPen( c2 );
+	d = r.height() - d - 1;
+	p->drawLine( x2, y2, x2+d, y2-d);
+	p->setPen( c4 );
+	d--;
+	p->drawLine( x2, y2-1, x2+d, y2-1-d);
+	break;
+    }
+
 }
 
 /*!
@@ -345,14 +454,13 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
     switch ( style() ) {
     case WindowsStyle:
-	if ( orient == Horizontal ) {
-	    int d = r.width() / 4;
-	    qDrawWinButton( p, r.x() , r.y() + d, r.width(), r.height() -2*d,
-			    g, FALSE, &fill );
+	if ( tickmarksAbove == tickmarksBelow ) {
+	    qDrawWinButton( p, r, g, FALSE, &fill );
 	} else {
-	    int d = r.height() / 4;
-	    qDrawWinButton( p, r.x() + d, r.y(), r.width() - 2*d, r.height(),
-			    g, FALSE, &fill );
+	    Dir d = ( orient == Horizontal ) ?
+		      tickmarksAbove ? Up : Down
+		    : tickmarksAbove ? Left : Right;
+	    drawWinPointedSlider( p, r, g, d );
 	}
 	break;
     default:
@@ -424,41 +532,55 @@ void QSlider::paintEvent( QPaintEvent * )
 	if ( hasFocus() ) {
 	    QRect r;
 	    if ( orient == Horizontal )
-		r.setRect( 0, tickOffset, width(), winThickness );
+		r.setRect( 0, tickOffset, width(), thickness() );
 	    else
-		r.setRect( tickOffset, 0, winThickness, height() );
+		r.setRect( tickOffset, 0, thickness(), height() );
 	    r = r.intersect( rect() );
 	    qDrawPlainRect( &p, r, g.background() );
 	    p.drawWinFocusRect( r );
 	}
-	drawWinGroove( &p, tickOffset + winThickness/2 );
+	drawWinGroove( &p, tickOffset + thickness()/2 );
 	paintSlider( &p, sliderR );
 	break;
     default:
     case MotifStyle:
 	if ( orient == Horizontal ) {
-	    qDrawShadePanel( &p, 0, tickOffset, width(), motifThickness,
+	    qDrawShadePanel( &p, 0, tickOffset, width(), thickness(),
 			     g, TRUE );
 	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
-	    p.fillRect( 0, tickOffset + motifThickness + 1,
+	    p.fillRect( 0, tickOffset + thickness(),
 			width(), height()/*###*/, g.background() ); 
 	} else {
-	    qDrawShadePanel( &p, tickOffset, 0, motifThickness, height(),
+	    qDrawShadePanel( &p, tickOffset, 0, thickness(), height(),
 			     g, TRUE );
 	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
-	    p.fillRect( tickOffset + motifThickness + 1, 0,
+	    p.fillRect( tickOffset + thickness(), 0,
 			width()/*###*/, height(), g.background() ); 
 	}
 
 	if ( hasFocus() ) {
 	    p.setPen( black );
 	    if ( orient == Horizontal )
-		p.drawRect(  1, tickOffset + 1, width() - 2, motifThickness - 2 );
+		p.drawRect(  1, tickOffset + 1, width() - 2, thickness() - 2 );
 	    else
-		p.drawRect( tickOffset + 1, 1, motifThickness - 2, height() - 2 );
+		p.drawRect( tickOffset + 1, 1, thickness() - 2, height() - 2 );
 	}
 	paintSlider( &p, sliderR );
 	break;
+    }
+
+
+    int interval = lineStep();
+    if ( positionFromValue( interval ) - positionFromValue( 0 ) < 3 )
+	interval = pageStep();
+
+    if ( tickmarksAbove )
+	drawTicks( &p, 0, tickOffset - 2, interval );
+	
+    if ( tickmarksBelow ) {
+	int avail = (orient == Horizontal) ? height() : width();
+	avail -= tickOffset + thickness();
+	drawTicks( &p, tickOffset + thickness() + 1, avail - 2, interval );
     }
     p.end();
 }
@@ -485,7 +607,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
-    } else if ( style()   == WindowsStyle) {
+    } else if ( funnyWindowsStyle && style() == WindowsStyle) {
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength() / 2 );
 	state = Dragging;
@@ -732,7 +854,6 @@ int QSlider::goodPart( const QPoint &p )
     return (orient == Horizontal) ?  p.x() : p.y();
 }
 
-
 /*!  
   Returns the recommended size of the slider. Only the thickness is
   relevant.
@@ -740,19 +861,68 @@ int QSlider::goodPart( const QPoint &p )
 
 QSize QSlider::sizeHint() const
 {
-    const int length = 42;
-    int thickness;
-    switch ( style() ) {
-    case WindowsStyle:
-	thickness = winThickness;
-	break;
-    case MotifStyle:
-    default:
-	thickness = motifThickness;
-	break;
-    }
+    const int length = 84;
+    int thick = 16;
+
+    if ( tickmarksAbove )
+	thick += 4;
+
+    if ( tickmarksBelow )
+	thick += 4;
+
+    if ( style() == WindowsStyle && tickmarksBelow != tickmarksAbove )
+	thick += winLength / 4;
+
     if ( orient == Horizontal )
-	return QSize( length, thickness );
+	return QSize( length, thick );
     else
-	return QSize( thickness, length );
+	return QSize( thick, length );
+}
+
+
+/*!
+  Returns the number of pixels to use for the business part of the 
+  slider (i.e. the non-tickmark portion). 
+*/
+
+int QSlider::thickness() const
+{
+    int thick = 16;
+    int space = (orient == Horizontal) ? height() : width();
+    return QMIN( space, thick );
+}
+
+
+/*!  
+  Using \a p, draws tickmarks at a distance of \a d from the edge
+  of the widget, using \a w pixels and with an interval of \a i.  
+*/
+
+void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
+{
+    p->setPen( colorGroup().foreground() );
+    int val = minValue();
+    int fudge = slideLength() / 2 - 1;
+    while ( val <= maxValue() ) {
+	int pos = positionFromValue( val ) + fudge;
+	if ( orient == Horizontal )
+	    p->drawLine( pos, d, pos, d + w );
+	else
+	    p->drawLine( d, pos, d + w, pos );
+	val += i;
+    }
+}
+
+
+
+/*!
+  The slider will display tickmarks above (or to the left) if \a above is TRUE
+  and below (or to the right) if \a below is TRUE.
+*/
+
+void QSlider::setTickmarks( bool above, bool below )
+{
+    tickmarksAbove = above;
+    tickmarksBelow = below;
+    initTicks();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#11 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#12 $
 **
 ** Definition of QSlider class
 **
@@ -40,6 +40,8 @@ public:
     QRect	sliderRect() const;
     QSize	sizeHint() const;
 
+    virtual void setTickmarks( bool above, bool below );
+
 public slots:
     void	setValue( int );
     void	pageUp();
@@ -65,6 +67,9 @@ protected:
 
     virtual void paintSlider( QPainter *, const QRect & );
     void	drawWinGroove( QPainter *, QCOORD );
+    void	drawTicks( QPainter *, int, int, int=1 ) const;
+
+    virtual int	thickness() const;
 
 private slots:
     void	repeatTimeout();
@@ -72,7 +77,7 @@ private slots:
 private:
     enum State { Idle, Dragging, TimingUp, TimingDown };
 
-    void	init();
+        void	init();
     int		positionFromValue( int ) const;
     int		valueFromPosition( int ) const;
     void	moveSlider( int );
@@ -81,8 +86,9 @@ private:
     int		slideLength() const;
     int		available() const;
     int		goodPart( const QPoint& );
+    void	initTicks();
 
-    QSliderData *d;
+    QSliderData *extra;
     QTimer	*timer;
     QCOORD	sliderPos;
     QCOORD	clickOffset;
