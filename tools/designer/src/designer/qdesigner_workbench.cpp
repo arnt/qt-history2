@@ -92,6 +92,8 @@ void QDesignerWorkbench::initialize()
 {
     m_core = new FormEditor(this);
 
+    initializeCorePlugins();
+
     m_toolActions = new QActionGroup(this);
     m_toolActions->setExclusive(false);
 
@@ -154,8 +156,6 @@ void QDesignerWorkbench::initialize()
             this, SLOT(updateWorkbench(AbstractFormWindow*, const QString&, const QVariant& )));
 
     m_taskMenuComponent = new TaskMenuComponent(core(), this);
-
-    initializeCorePlugins();
 
     // create the toolbars
     m_editToolBar = new QToolBar;
