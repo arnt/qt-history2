@@ -50,10 +50,6 @@ public:
     int activeRegion;
     QWidget *managed;
     QMenu *popup;
-    QWSButton *menuBtn;
-    QWSButton *closeBtn;
-    QWSButton *minimizeBtn;
-    QWSButton *maximizeBtn;
 
     enum MenuAction {
         NormalizeAction,
@@ -76,8 +72,7 @@ QPoint QWSManagerPrivate::lastMousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
-    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0), menuBtn(0),
-      closeBtn(0), minimizeBtn(0), maximizeBtn(0)
+    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0)
 {
 }
 
@@ -89,10 +84,6 @@ QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
     d->managed = w;
-    d->menuBtn = new QWSButton(this, QDecoration::Menu);
-    d->closeBtn = new QWSButton(this, QDecoration::Close);
-    d->minimizeBtn = new QWSButton(this, QDecoration::Minimize);
-    d->maximizeBtn = new QWSButton(this, QDecoration::Maximize, true);
 }
 
 QWSManager::~QWSManager()
@@ -101,10 +92,6 @@ QWSManager::~QWSManager()
     if (d->popup)
         delete d->popup;
 #endif
-    delete d->menuBtn;
-    delete d->closeBtn;
-    delete d->minimizeBtn;
-    delete d->maximizeBtn;
     if (d->managed == QWSManagerPrivate::active)
         QWSManagerPrivate::active = 0;
 }
@@ -163,22 +150,8 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     d->mousePressPos = e->globalPos();
     d->lastMousePos = d->mousePressPos;
     d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePressPos);
-    switch (d->activeRegion) {
-    case QDecoration::Menu:
+    if (d->activeRegion == QDecoration::Menu)
         menu(d->managed->geometry().topLeft());
-        break;
-    case QDecoration::Close:
-        setClicked(d->closeBtn, true);
-        break;
-    case QDecoration::Minimize:
-        setClicked(d->minimizeBtn, true);
-        break;
-    case QDecoration::Maximize:
-        setClicked(d->maximizeBtn, true);
-        break;
-    default:
-        break;
-    }
     if (d->activeRegion != QDecoration::None &&
          d->activeRegion != QDecoration::Menu) {
         d->active = d->managed;
@@ -206,19 +179,16 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
         d->active = 0;
         switch (activatedItem) {
             case QDecoration::Close:
-                setClicked(d->closeBtn, false);
                 if (itm == QDecoration::Close) {
                     close();
                     return;
                 }
                 break;
             case QDecoration::Minimize:
-                setClicked(d->minimizeBtn, false);
                 if (itm == QDecoration::Minimize)
                     minimize();
                 break;
             case QDecoration::Maximize:
-                setClicked(d->maximizeBtn, false);
                 if (itm == QDecoration::Maximize)
                     toggleMaximize();
                 break;
@@ -285,13 +255,6 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     }
 
     handleMove(g);
-
-    // button regions
-    int r = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
-    setMouseOver(d->menuBtn, r == QDecoration::Menu);
-    setMouseOver(d->closeBtn, r == QDecoration::Close);
-    setMouseOver(d->minimizeBtn, r == QDecoration::Minimize);
-    setMouseOver(d->maximizeBtn, r == QDecoration::Maximize);
 }
 
 void QWSManager::handleMove(const QPoint &g)
@@ -514,85 +477,18 @@ void QWSManager::minimize()
     QApplication::qwsDecoration().minimize(d->managed);
 }
 
-
 void QWSManager::maximize()
 {
     QApplication::qwsDecoration().maximize(d->managed);
-    setOn(d->maximizeBtn,true);
 }
 
 void QWSManager::toggleMaximize()
 {
     if (!d->managed->isMaximized()) {
         d->managed->showMaximized();
-        setOn(d->maximizeBtn,true);
     } else {
         d->managed->showNormal();
-        setOn(d->maximizeBtn,false);
     }
-}
-
-void QWSManager::setMouseOver(QWSButton *b, bool m)
-{
-    if (b->setMouseOver(m))
-        repaintButton(b);
-}
-void QWSManager::setClicked(QWSButton *b, bool c)
-{
-    if (b->setClicked(c))
-        repaintButton(b);
-}
-void QWSManager::setOn(QWSButton *b, bool o)
-{
-    if (b->setOn(o))
-        repaintButton(b);
-}
-
-void QWSManager::repaintButton(QWSButton *b)
-{
-    if (!d->managed->isVisible())
-        return;
-    QDecoration &dec = QApplication::qwsDecoration();
-    if (d->managed->testWState(Qt::WState_InPaintEvent))
-        qWarning("QWSManager::repaintButton() recursive paint event detected");
-    d->managed->setWState(Qt::WState_InPaintEvent);
-    //### This isn't really inside a paint event
-    //optimization instead of calling paintEvent()
-    QPainter painter(d->managed);
-    painter.setClipRegion(dec.region(d->managed, d->managed->geometry()));
-//    dec.paintButton(&painter, d->managed, b->type(), b->state());
-    d->managed->clearWState(Qt::WState_InPaintEvent);
-}
-
-/*
-*/
-QWSButton::QWSButton(QWSManager *m,int decorationRegion, bool tb)
-    : flags(0), toggle(tb), typ(decorationRegion), manager(m)
-{
-}
-
-bool QWSButton::setMouseOver(bool m)
-{
-    int s = state();
-    if (m) flags |= MouseOver;
-    else flags &= ~MouseOver;
-    return (state() != s);
-}
-
-bool QWSButton::setClicked(bool c)
-{
-    int s = state();
-    if (c) flags |= Clicked;
-    else flags &= ~Clicked;
-    return (state() != s);
-}
-
-bool QWSButton::setOn(bool o)
-{
-    int s = state();
-    if (o) flags |= On;
-    else flags &= ~On;
-    return (state() != s);
 }
 
 #endif //QT_NO_QWS_MANAGER

@@ -584,10 +584,10 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
     int xoff = 2;
     int yoff = 2;
 
-    const QPixmap pm = pixmapFor(widget, buttonRegion, state & QWSButton::On, xoff, yoff);
+    const QPixmap pm = pixmapFor(widget, buttonRegion, state, xoff, yoff);
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
 
-    if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
+    if ((state & QDecoration::Hover) && (state & QDecoration::Pressed)) {
         qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1, brect.height()-1,
                     pal, true, &pal.brush(QPalette::Background));
         ++xoff;

@@ -27,7 +27,6 @@ class QWidget;
 class QPopupMenu;
 class QRegion;
 class QMouseEvent;
-class QWSButton;
 class QWSManagerPrivate;
 
 class QWSManager : public QObject
@@ -65,32 +64,6 @@ protected:
     void minimize();
     void toggleMaximize();
 
-private:
-    void setMouseOver(QWSButton *, bool);
-    void setClicked(QWSButton *, bool);
-    void setOn(QWSButton *, bool);
-    void repaintButton(QWSButton *);
-
-
-};
-
-class QWSButton
-{
-public:
-    QWSButton(QWSManager *m, int decorationRegion, bool tb = false);
-
-    enum State { MouseOver = 0x01, Clicked = 0x02, On = 0x04 };
-    int state() { return flags; }
-    int type() { return typ; }
-    bool setMouseOver(bool);
-    bool setClicked(bool);
-    bool setOn(bool);
-
-private:
-    int  flags;
-    bool toggle;
-    int  typ;
-    QWSManager *manager;
 };
 
 #include "qdecorationdefault_qws.h"
