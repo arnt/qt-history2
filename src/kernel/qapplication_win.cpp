@@ -297,10 +297,9 @@ Q_EXPORT VFPTR qt_set_postselect_handler( VFPTR handler )
 }
 
 typedef int (*QWinEventFilter) (MSG*);
-QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
-
 static QWinEventFilter qt_win_event_filter = 0;
-QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
+
+Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
 {
     QWinEventFilter old_filter = qt_win_event_filter;
     qt_win_event_filter = filter;
