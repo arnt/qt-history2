@@ -41,6 +41,7 @@ public:
 #endif
 
     QLabel *showSplash();
+    static void closeSplash();
 
     static QString settingsKey() { return "/Qt Designer/3.0/"; }
 

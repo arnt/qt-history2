@@ -100,6 +100,11 @@ QLabel *DesignerApplication::showSplash()
     return splash;
 }
 
+void DesignerApplication::closeSplash()
+{
+    splash->hide();
+}
+
 #if defined(Q_WS_WIN)
 bool DesignerApplication::winEventFilter( MSG *msg )
 {

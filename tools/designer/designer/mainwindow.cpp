@@ -2535,6 +2535,7 @@ void MainWindow::checkTempFiles()
     QString baseName = s+ "/saved-form-";
     if ( !QFile::exists( baseName + "1.ui" ) )
 	return;
+    DesignerApplication::closeSplash();
     QDir d( s );
     d.setNameFilter( "*.ui" );
     QStringList lst = d.entryList();
