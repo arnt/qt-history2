@@ -69,6 +69,7 @@ struct QHeaderData
 	move = TRUE;
 	sortColumn = -1;
 	sortDirection = TRUE;
+	positionsDirty = TRUE;
     }
 
 
@@ -88,10 +89,11 @@ struct QHeaderData
     bool sortDirection;
     int sortColumn;
     int count;
-
+    bool positionsDirty;
 
     void calculatePositions(){
 	// positions is sorted by index, not by section
+	positionsDirty = FALSE;
 	int p = 0;
 	for ( int i = 0; i < count; i++ ) {
 	    positions[i] = p;
@@ -1322,6 +1324,8 @@ int QHeader::sectionSize( int section ) const
 
 int QHeader::sectionPos( int section ) const
 {
+    if ( d->positionsDirty )
+	d->calculatePositions();
     if ( section < 0 || section >= count()  )
 	return 0;
     return d->positions[ d->s2i[section] ];
