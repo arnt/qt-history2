@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#175 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#174 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#175 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -57,16 +57,23 @@ const uint stdWidgetEventMask =			// X event mask
 
 
 /*!
-  \internal
-  Creates a new widget window if \e window is null, otherwise sets the
-  widget's window.
+  Creates a new widget window if \a window is null, otherwise sets the
+  widget's window to \a window.
 
-  Destroys the old window if \e destroyOldWindow is TRUE.  If \e
+  Initializes the window (sets the geometry etc.) if \a initializeWindow
+  is TRUE.  If \a initializeWindow is FALSE, no initialization is
+  performed.  This parameter makes only sense if \a window is a valid
+  window.
+
+  Destroys the old window if \a destroyOldWindow is TRUE.  If \a
   destroyOldWindow is FALSE, you are responsible for destroying
-  the window later (using platform native code).  
+  the window yourself (using platform native code).
+
+  The QWidget constructor calls create(0,TRUE,TRUE) to create a window for
+  this widget.
 */
 
-void QWidget::create( WId window, bool destroyOldWindow )
+void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
     if ( testWFlags(WState_Created) && window == 0 )
 	return;
@@ -85,6 +92,9 @@ void QWidget::create( WId window, bool destroyOldWindow )
     Window root_win = RootWindow(dpy,scr);
     Window parentw, destroyw = 0;
     WId	   id;
+
+    if ( !window )				// always initialize
+	initializeWindow = TRUE;
 
     if ( popup )				// a popup is a tool window
 	setWFlags(WStyle_Tool);
@@ -162,7 +172,7 @@ void QWidget::create( WId window, bool destroyOldWindow )
 	    if ( testWFlags(WStyle_NormalBorder) ) {
 		;				// ok, we already have it
 	    } else {
-		if ( testWFlags(WStyle_DialogBorder) ) {
+		if ( testWFlags(WStyle_DialogBorder) && initializeWindow ) {
 		    XSetTransientForHint( dpy, id, root_win );
 		} else {			// no border
 		    wsa.override_redirect = TRUE;
@@ -173,7 +183,7 @@ void QWidget::create( WId window, bool destroyOldWindow )
 		wsa.save_under = TRUE;
 		wsa_mask |= CWSaveUnder;
 	    }
-	    if ( wsa_mask )
+	    if ( wsa_mask && initializeWindow )
 		XChangeWindowAttributes( dpy, id, wsa_mask, &wsa );
 	} else {				// normal top-level widget
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
@@ -181,7 +191,9 @@ void QWidget::create( WId window, bool destroyOldWindow )
 	}
     }
 
-    if ( popup ) {				// popup widget
+    if ( !initializeWindow ) {
+	// do no initialization
+    } else if ( popup ) {			// popup widget
 	XSetTransientForHint( dpy, id, parentw );
 	wsa.override_redirect = TRUE;
 	wsa.save_under = TRUE;
@@ -224,17 +236,19 @@ void QWidget::create( WId window, bool destroyOldWindow )
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
 
-    if ( testWFlags(WResizeNoErase) ) {
+    if ( testWFlags(WResizeNoErase) && initializeWindow ) {
 	wsa.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
+
     setWFlags( WState_TrackMouse );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWFlags( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
 	QCursor *oc = QApplication::overrideCursor();
-	XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
+	if ( initializeWindow )
+	    XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
     }
 
@@ -270,7 +284,7 @@ void QWidget::create( WId window, bool destroyOldWindow )
 
 void QWidget::create( WId window )
 {
-    create( window, TRUE );
+    create( window, TRUE, TRUE );
 }
 
 
@@ -282,7 +296,7 @@ void QWidget::create( WId window )
 
 bool QWidget::create()
 {
-    create( 0, TRUE );
+    create( 0, TRUE, TRUE );
     return TRUE;
 }
 
@@ -326,6 +340,10 @@ bool QWidget::destroy()
     return TRUE;
 }
 
+
+#if QT_VERSION == 200
+#error "Rename recreate to reparent"
+#endif
 
 /*!
   This function is provided in case a widget should feel \e really
@@ -417,7 +435,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-/*!  Tells the window system what color to clear this widget to when
+/*!
+  Tells the window system what color to clear this widget to when
   sending a paint event.
 
   To minimize flicker, this should be the most common color in the
@@ -464,6 +483,7 @@ void QWidget::setBackgroundColor( const QColor &color )
     }
     backgroundColorChange( old );
 }
+
 
 /*!
   Sets the background pixmap of the widget to \e pixmap.
