@@ -425,6 +425,11 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentPath();
 
+    // Make sure that all temp projects are configured
+    // for release so that the depends are created
+    // without the debug <lib>dxxx.lib name mangling
+    QStringList old_after_vars = Option::after_user_vars;
+    Option::after_user_vars.append("CONFIG+=release");
 
     for(int i = 0; i < subdirs.size(); ++i) {
         QString tmp = subdirs.at(i);
@@ -552,6 +557,9 @@ nextfile:
     t << _slnGlobalBeg;
     t << _slnSolutionConf;
     t << _slnProjDepBeg;
+
+    // Restore previous after_user_var options
+    Option::after_user_vars = old_after_vars;
 
     // Figure out dependencies
     for(QList<VcsolutionDepend*>::Iterator it = solution_cleanup.begin(); it != solution_cleanup.end(); ++it) {
