@@ -424,7 +424,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 #endif
     Q_UINT8     c;                      // command id
     Q_UINT8     tiny_len;               // 8-bit length descriptor
-    Q_INT32     len, i1_32, i2_32;      // 32-bit length descriptor
+    Q_INT32     len;                    // 32-bit length descriptor
     Q_INT16     i_16, i1_16, i2_16;     // parameters...
     Q_INT8      i_8;
     Q_UINT32    ul;
