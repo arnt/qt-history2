@@ -91,6 +91,8 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
 {
+    QMacSavedPortInfo savedInfo;
+
     if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) {
 	sw=src->metric(QPaintDeviceMetrics::PdmWidth)-sx;
     }

@@ -449,6 +449,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
   mac_p.h = mp.x() + pos.x();
   mac_p.v = mp.y() + pos.y();
   if(handle()) {
+    QMacSavedPortInfo savedInfo;
     SetPortWindowPort((WindowPtr)handle());
     LocalToGlobal(&mac_p);
   }
@@ -462,6 +463,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   mac_p.h = pos.x();
   mac_p.v = pos.y();
   if(handle()) {
+    QMacSavedPortInfo savedInfo;
     SetPortWindowPort((WindowPtr)handle());
     GlobalToLocal(&mac_p);
   }
@@ -492,6 +494,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
     }
 
     if(isTopLevel()) {
+	QMacSavedPortInfo savedInfo;
 	SetPortWindowPort((WindowPtr)hd);
 	RGBColor f;
 	f.red = bg_col.red() * 256;

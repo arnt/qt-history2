@@ -407,27 +407,28 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 
 QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
-  //find the tld
-  Point p;
-  p.h=x;
-  p.v=y;
-  WindowPtr wp;
-  FindWindow(p,&wp);
-  SetPortWindowPort( wp );
+    //find the tld
+    Point p;
+    p.h=x;
+    p.v=y;
+    WindowPtr wp;
+    FindWindow(p,&wp);
 
-  //get that widget
-  QWidget * widget=QWidget::find((WId)wp);
-  if(!widget) {
-    qWarning("Couldn't find %d",(int)wp);
-    return 0;
-  }
+    //get that widget
+    QWidget * widget=QWidget::find((WId)wp);
+    if(!widget) {
+	qWarning("Couldn't find %d",(int)wp);
+	return 0;
+    }
 
-  //find the child
-  if(child) {
-    GlobalToLocal( &p ); //now map it to the window
-    widget = recursive_match(widget, p.h, p.v);
-  }
-  return widget;
+    //find the child
+    if(child) {
+	QMacSavedPortInfo savedInfo;
+	SetPortWindowPort( wp );
+	GlobalToLocal( &p ); //now map it to the window
+	widget = recursive_match(widget, p.h, p.v);
+    }
+    return widget;
 }
 
 void QApplication::beep()
@@ -1095,9 +1096,11 @@ bool QApplication::do_mouse_down( EventRecord* es )
   case inZoomOut:
     if( TrackBox( wp, er->where, windowPart ) == true ) {
       Rect bounds;
-      SetPortWindowPort( wp );
       GetPortBounds( GetWindowPort( wp ), &bounds );
+#if 0
+      SetPortWindowPort( wp );
       EraseRect( &bounds );
+#endif
       ZoomWindow( wp, windowPart, false);
       InvalWindowRect( wp, &bounds );
     }
@@ -1237,6 +1240,7 @@ int QApplication::macProcessEvent(MSG * m)
 
 	    BeginUpdate((WindowPtr)widget->handle());
 	    qt_set_paintevent_clipping( widget, QRegion( 0, 0, widget->width(), widget->height() ));
+	    QMacSavedPortInfo savedInfo;
 	    widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
 	    qt_clear_paintevent_clipping( widget );
 	    EndUpdate((WindowPtr)widget->handle());
@@ -1319,6 +1323,8 @@ int QApplication::macProcessEvent(MSG * m)
 	    //handle popup's first
 	    QWidget *popupwidget = NULL;
 	    if( inPopupMode() ) {
+		QMacSavedPortInfo savedInfo;
+
 		popupwidget = activePopupWidget();
 		SetPortWindowPort((WindowPtr)popupwidget->handle());
 		Point gp = er->where;
@@ -1376,6 +1382,8 @@ int QApplication::macProcessEvent(MSG * m)
 	    short part = FindWindow( er->where, &wp );
 	    if( part == inContent ) {
 		if( inPopupMode() ) {
+		    QMacSavedPortInfo savedInfo;
+
 		    widget = activePopupWidget();
 		    SetPortWindowPort((WindowPtr)widget->handle());
 		    Point p = er->where;
