@@ -470,13 +470,13 @@ void QFileDialog::selectFile(const QString &filename)
 {
     QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
     int r = entries.indexOf(filename);
-    if (r < 0)
-        return;
-    QModelIndex index = d->model->index(r, 0, d->root());
-    if (index.isValid())
+    QModelIndex index = r > 0 ? d->model->index(r, 0, d->root()) : QModelIndex();
+    if (index.isValid()) {
         d->selections->select(index, QItemSelectionModel::Select);
-    else
+    } else {
+        d->selections->clear();
         d->fileName->setText(filename);
+    }
 }
 
 /*!
@@ -1628,19 +1628,19 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
 {
     if (!path.isEmpty()) {
         QFileInfo info(qt_encode_file_name(path));
-         if (info.exists()) {
-             if (info.isDir()) {
-                 if (cwd) *cwd = path;
-                 if (sel) *sel = QString::null;
-             } else {
-                 if (cwd) *cwd = info.absolutePath();
-                 if (sel) *sel = info.fileName();
-             }
-             return;
-         }
+        if (info.exists()) {
+            if (info.isDir()) {
+                if (cwd) *cwd = path;
+                if (sel) *sel = QString::null;
+            } else {
+                if (cwd) *cwd = info.absolutePath();
+                if (sel) *sel = info.fileName();
+            }
+            return;
+        }
     }
     if (cwd) *cwd = QDir::currentPath();
-    if (sel) *sel = QString::null;
+    if (sel) *sel = QString();
 }
 
 /*!
@@ -1814,8 +1814,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                        caption.isEmpty() ? "Save As" : caption,
                                        qt_working_dir,
                                        filter,
-                                       selectedFilter ? *selectedFilter : QString::null,
-                                       initialSelection,
+                                       selectedFilter ? *selectedFilter : QString(),
+                                       initialSelection.isEmpty() ? dir : QString(),
                                        QFileDialog::AnyFile);
     dlg->setModal(true);
     dlg->setAcceptMode(QFileDialog::AcceptSave);
