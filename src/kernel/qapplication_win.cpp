@@ -2441,8 +2441,13 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 #ifndef Q_OS_TEMP
 			|| type == WM_NCMOUSEMOVE
 #endif
-		)
-	  SetCursor( Qt::arrowCursor.handle() );
+			) {
+	  QCursor *c = qt_grab_cursor();
+	  if ( !c )
+	      c = QApplication::overrideCursor();
+	  if ( c )				// application cursor defined
+	      SetCursor( c->handle() );
+      }
       block_event = TRUE;
     }
 #ifndef Q_OS_TEMP

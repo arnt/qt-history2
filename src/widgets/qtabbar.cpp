@@ -521,7 +521,7 @@ QSize QTabBar::sizeHint() const
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	return r.size().expandedTo( QApplication::globalStrut() );
+	return r.size().boundedTo( QSize(200,200) ).expandedTo( QApplication::globalStrut() );
     } else {
 	return QSize( 0, 0 ).expandedTo( QApplication::globalStrut() );
     }
@@ -1034,10 +1034,33 @@ void QTabBar::layoutTabs()
   \reimp
 */
 
+bool QTabBar::event( QEvent *e )
+{
+    if ( e->type() == QEvent::LanguageChange ) {
+	const int arrowWidth = 16;
+	if ( QApplication::reverseLayout() ) {
+	    d->rightB->setGeometry( arrowWidth, 0, arrowWidth, height() );
+	    d->leftB->setGeometry( 0, 0, arrowWidth, height() );
+	} else {
+	    d->rightB->setGeometry( width() - arrowWidth, 0, arrowWidth, height() );
+	    d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
+	}
+	layoutTabs();
+	updateArrowButtons();
+	makeVisible( tab( currentTab() ));
+    }
+
+    return QWidget::event( e );
+}
+
+/*!
+  \reimp
+*/
+
 void QTabBar::styleChange( QStyle& old )
 {
-	layoutTabs();
-	QWidget::styleChange( old );
+    layoutTabs();
+    QWidget::styleChange( old );
 }
 
 /*!

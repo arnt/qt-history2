@@ -151,6 +151,8 @@ protected:
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
     void fontChange ( const QFont & );
+
+    bool event( QEvent *e );
     
     QPtrList<QTab> * tabList();
 
