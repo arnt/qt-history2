@@ -218,28 +218,31 @@ static QStringList split_arg_list(QString params)
 {
     QChar quote = 0;
     QStringList args;
-    if(params.length() > 2 && params.at(0) == '"' && params.at(params.length()-1) == params.at(0))
-        params = params.mid(1, params.length()-1);
     for(int x = 0, last = 0, parens = 0; x <= (int)params.length(); x++) {
         if(x == (int)params.length()) {
             QString mid = params.mid(last, x - last).trimmed();
             if(quote.unicode()) {
-                if(mid[(int)mid.length()-1] == quote)
-                    mid = mid.left(mid.length()-1);
-                if(!last && mid[0] == quote)
-                    mid = mid.mid(1);
+                if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
+                    mid = mid.mid(1, mid.length()-2);
+                quote = 0;
             }
             args << mid;
         } else if(params[x] == ')') {
             parens--;
         } else if(params[x] == '(') {
             parens++;
-        } else if(params[x] == quote) {
+        } else if(!quote.unicode() && params[x] == quote) {
             quote = 0;
         } else if(params[x] == '\'' || params[x] == '"') {
             quote = params[x];
         } else if(!parens && !quote.unicode() && params[x] == ',') {
-            args << params.mid(last, x - last).trimmed();
+            QString mid = params.mid(last, x - last).trimmed();
+            if(quote.unicode()) {
+                if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
+                    mid = mid.mid(1, mid.length()-2);
+                quote = 0;
+            }
+            args << mid;
             last = x+1;
         }
     }
