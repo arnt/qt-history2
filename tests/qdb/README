@@ -35,7 +35,8 @@ CREATE TABLE
 CREATE INDEX
 DROP TABLE
 
-Sub-selects, are not currently supported.
+Sub-selects are not currently supported.  See README.SQL for more
+information on exactly what is and is not supported.
 
 LocalSQL requires Qt 3.0-snapshot or higher:
 
@@ -71,8 +72,8 @@ LocalSQL can be used as a database driver for Qt (compiled with SQL
 support).  Just drop the library into $QTDIR/plugins/sqldrivers and Qt
 will automatically load it.  See the Qt documentation for details.
 
-LocalSQL also has a command line tool for manipulating data called
-'lsql'.  For more information, type:
+LocalSQL also has a command line tool called 'lsql' for manipulating
+data.  For more information, type:
 
 	lsql --help
 

@@ -86,33 +86,37 @@ Unique column constraints are supported, for example:
 	create table t
 	(id int unique);
 
-However, NOT NULL, PRIMARY KEY, FOREIGN KEY and CHECK contraints are
-not fully supported.  For example:
+NOT NULL, and PRIMARY KEY are also supported:
 
 	create table t
-	(id int not null);
+	(id int primary key,
+	 name not null);
 
-The above issues a warning, but creates the table anyway.
+The above example creates a unique index on 'id' and a NOT NULL
+constraint on both 'id' and 'name'.
 
-	create table t
-	(id int primary key);
-
-The above issues a warning, but creates a unique index anyway.
+However, FOREIGN KEY and CHECK contraints are not fully supported.
+For example:
 
 	create table t
 	(id int foreign key);
 
-The above issues a warning, but creates an index anyway.
+The above issues a warning, but creates the table and a non-unique
+index on the 'id' field anyway.
 
 	create table t
 	(id int check ...);
 
-The above issues a warning, but creates the table anyway.
+The above issues a warning that CHECK constraints are not supported,
+but creates the table anyway.
 
 
 Note on strings
 ---------------
-Unicode ##?
+
+All string data is saved as utf8, therefore the length of a string
+column should be adjusted if multi-byte characters are being saved.
+
 
 Stuff not supported
 -------------------
@@ -146,11 +150,3 @@ ADD|DROP TABLE CONSTRAINT is not supported.
 VIEWs are not supported.
 DOMAINs are not supported.
 Temporary tables are not supported.
-
-
-
-
-
-
-
-
