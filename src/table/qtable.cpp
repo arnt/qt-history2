@@ -4645,7 +4645,7 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 
     // keep numStretches in sync
     int n = 0;
-    for ( int i = 0; i < (int)header->stretchable.size(); i++ )
+    for ( uint i = 0; i < header->stretchable.size(); i++ )
 	n += ( header->stretchable[i] & 1 ); // avoid cmp
      header->numStretches = n;
 }

@@ -543,7 +543,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcDrawLineSegments:
 	{
 	    a = *p[0].ptarr;
-	    int end = a.size() / 2;
+	    uint end = a.size() / 2;
 	    for (uint i = 0; i < end; i++) {
 		e = doc.createElement( "line" );
 		e.setAttribute( "x1", a[int(2*i)].x() );
