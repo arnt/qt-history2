@@ -56,16 +56,16 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, Mode mode, QWidget * pare
     QString op;
     switch ( mMode ) {
     case Insert:
-	setCaption( "Insert match results" );		
+	setCaption( "Insert Match Result" );
 	op = "&Insert";
-	break;	
+	break;
     case Update:
-	setCaption( "Update match results" );	
-	op = "&Update";	
+	setCaption( "Update Match Result" );
+	op = "&Update";
 	break;
     case Delete:
-	setCaption( "Delete match results" );	
-	op = "&Delete";		
+	setCaption( "Delete Match Result" );
+	op = "&Delete";
 	break;
     }
 
@@ -129,7 +129,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, Mode mode, QWidget * pare
 
     g->setMargin( 3 );
 
-    QLabel * label = new QLabel( "Update match results", this );
+    QLabel * label = new QLabel( caption(), this );
     QFont f = font();
     f.setBold( TRUE );
     label->setFont( f );
