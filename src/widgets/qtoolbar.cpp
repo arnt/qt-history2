@@ -591,6 +591,7 @@ void QToolBar::createPopup()
     QObjectList *childlist = queryList( "QWidget", 0, FALSE, TRUE );
     QObjectListIt it( *childlist );
     bool hide = FALSE;
+    bool doHide = FALSE;
     int id;
     while ( it.current() ) {
         int j = 2;
@@ -605,13 +606,14 @@ void QToolBar::createPopup()
 	hide = FALSE;
 	QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
 	if ( orientation() == Horizontal ) {
-	    if ( p.x() > width()-d->extension->width()/j )
+	    if ( p.x() > ( doHide ? width() - d->extension->width() / j : width() ) )
 	        hide = TRUE;
 	} else {
-	    if ( p.y() > height()-d->extension->height()/j )
+	    if ( p.y() > ( doHide ? height()- d->extension->height() / j : height() ) )
 	        hide = TRUE;
 	}
 	if ( hide && !w->isHidden() ) {
+	    doHide = TRUE;	    
 	    if ( w->inherits( "QToolButton" ) ) {
 	        QToolButton *b = (QToolButton*)w;
 	        QString s = b->textLabel();
