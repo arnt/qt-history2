@@ -1565,7 +1565,8 @@ QBoxLayout *QDockWindow::boxLayout()
 QSize QDockWindow::sizeHint() const
 {
     QSize sh( QFrame::sizeHint() );
-    sh = sh.expandedTo( fixedExtent() );
+    if ( place() == InDock )
+	sh = sh.expandedTo( fixedExtent() );
     sh = sh.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
@@ -1582,7 +1583,8 @@ QSize QDockWindow::sizeHint() const
 QSize QDockWindow::minimumSize() const
 {
     QSize ms( QFrame::minimumSize() );
-    ms = ms.expandedTo( fixedExtent() );
+    if ( place() == InDock )
+	ms = ms.expandedTo( fixedExtent() );
     ms = ms.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
@@ -1599,7 +1601,8 @@ QSize QDockWindow::minimumSize() const
 QSize QDockWindow::minimumSizeHint() const
 {
     QSize msh( QFrame::minimumSize() );
-    msh = msh.expandedTo( fixedExtent() );
+    if ( place() == InDock )
+	msh = msh.expandedTo( fixedExtent() );
     msh = msh.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )

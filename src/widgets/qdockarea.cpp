@@ -671,8 +671,12 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	else
 	    mse = QMAX( QMAX( dw->fixedExtent().height(), dw->height() ), mse );
     }
-    if ( !hasResizable && w->isResizeEnabled() )
-	mse = 200;
+    if ( !hasResizable && w->isResizeEnabled() ) {
+	if ( orientation() != Qt::Horizontal )
+	    mse = QMAX( w->fixedExtent().width(), mse );
+	else
+	    mse = QMAX( w->fixedExtent().height(), mse );
+    }
 
     QDockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow( w );
@@ -889,8 +893,6 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
     QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
-    w->setFixedExtentWidth( -1 );
-    w->setFixedExtentHeight( -1 );
     if ( makeFloating )
 	dockWindow->reparent( topLevelWidget(), WType_Dialog | WStyle_Customize | WStyle_NoBorder, QPoint( 0, 0 ), FALSE );
     if ( swap )
