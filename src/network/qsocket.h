@@ -94,7 +94,8 @@ public:
     bool	 atEnd() const;
 
     Q_ULONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
-    Q_ULONG	 waitForMore( int msecs ) const;
+    Q_ULONG	 waitForMore( int msecs, bool *timeout  ) const;
+    Q_ULONG	 waitForMore( int msecs ) const; // ### Qt 4.0: merge the two overloads
     Q_ULONG	 bytesToWrite() const;
     void	 clearPendingData();
 

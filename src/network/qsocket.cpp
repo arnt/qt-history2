@@ -816,22 +816,35 @@ Q_ULONG QSocket::bytesAvailable() const
 
     Returns the number of bytes available.
 
+    If \a timeout is non-null and no error occurred (i.e. it does not
+    return -1): this function sets \a *timeout to TRUE, if the reason
+    for returning was that the timeout was reached; otherwise it sets
+    \a *timeout to FALSE. This is useful to find out if the peer
+    closed the connection.
+
     \warning This is a blocking call and should be avoided in event
     driven applications.
 
     \sa bytesAvailable()
 */
 
-Q_ULONG QSocket::waitForMore( int msecs ) const
+Q_ULONG QSocket::waitForMore( int msecs, bool *timeout ) const
 {
     if ( d->socket == 0 )
 	return 0;
     QSocket * that = (QSocket *)this;
-    if ( that->d->socket->waitForMore( msecs ) > 0 )
+    if ( that->d->socket->waitForMore( msecs, timeout ) > 0 )
 	(void)that->sn_read( TRUE );
     return that->d->rsize;
 }
 
+/*! \overload
+*/
+
+Q_ULONG QSocket::waitForMore( int msecs ) const
+{
+    return waitForMore( msecs, 0 );
+}
 
 /*!
     Returns the number of bytes that are waiting to be written, i.e.
