@@ -10,7 +10,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
 		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP
 CXXFLAGS    =   $(CFLAGS)
-LFLAGS	    =	/DEBUG
+LFLAGS	    =	
 LIBS	    =	ole32.lib advapi32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
@@ -43,7 +43,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
 	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
-	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj \
+	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qhash.obj \
 	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj qlinkedlist.obj
 
 
@@ -85,6 +85,9 @@ qglobal.obj: ..\src\tools\qglobal.cpp
 
 qgdict.obj: ..\src\compat\qgdict.cpp
 	$(CXX) $(CXXFLAGS) ..\src\compat\qgdict.cpp
+
+qhash.obj: ..\src\tools\qhash.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qhash.cpp
 
 qbytearray.obj: ..\src\tools\qbytearray.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qbytearray.cpp

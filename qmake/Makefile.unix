@@ -7,7 +7,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
 #qt code
 QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qbytearray.o qcstring.o \
       qdatastream.o qgarray.o qbuffer.o qglist.o qlist.o qptrcollection.o qfile.o \
-      qfile_unix.o qregexp.o qgvector.o qvector.o qbitarray.o qdir.o quuid.o \
+      qfile_unix.o qregexp.o qgvector.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
       qconfig.o qunicodetables.o qsettings.o qlinkedlist.o @QMAKE_QTOBJS@
 
@@ -32,7 +32,8 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   @SOURCE_PATH@/src/tools/qdatetime.cpp @SOURCE_PATH@/src/tools/qstringlist.cpp \
 	   @SOURCE_PATH@/src/tools/qmap.cpp @SOURCE_PATH@/src/tools/qconfig.cpp \
 	   @SOURCE_PATH@/src/tools/qsettings.cpp @SOURCE_PATH@/src/tools/qurl.cpp \
-	   @SOURCE_PATH@/src/tools/qsettings_mac.cpp @SOURCE_PATH@/src/tools/qlinkedlist.cpp
+	   @SOURCE_PATH@/src/tools/qsettings_mac.cpp @SOURCE_PATH@/src/tools/qlinkedlist.cpp \
+	   @SOURCE_PATH@/src/tools/qhash.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -157,6 +158,9 @@ qstringlist.o: @SOURCE_PATH@/src/tools/qstringlist.cpp
 
 qmap.o: @SOURCE_PATH@/src/tools/qmap.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qmap.cpp
+
+qhash.o: @SOURCE_PATH@/src/tools/qhash.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qhash.cpp
 
 qconfig.o: @BUILD_PATH@/src/tools/qconfig.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @BUILD_PATH@/src/tools/qconfig.cpp
