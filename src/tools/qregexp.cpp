@@ -873,7 +873,7 @@ public:
     bool caseSensitive() const { return cs; }
     int numCaptures() const { return officialncap; }
     QMemArray<int> match( const QString& str, int pos, bool minimal,
-		       bool oneTest );
+			  bool oneTest );
     int matchedLength() const { return mmMatchedLen; }
 
     int createState( QChar ch );
@@ -1230,7 +1230,7 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 	    matched = matchHere();
 	} else {
 	    if ( mmPos <= mmLen - minl ) {
-		if ( caretAnchored || oneTest ) {
+		if ( caretAnchored ) {
 		    matched = matchHere();
 		} else if ( useGoodStringHeuristic ) {
 		    matched = goodStringMatch();
