@@ -499,6 +499,13 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
 
     // Qt::ShortcutOnActiveWindow:
     QWidget *active_window = qApp->activeWindow();
+
+    // popups do not become the active window, 
+    // so we fake it here to get the correct context
+    // for the shortcut system.
+    if (qApp->activePopupWidget())
+        active_window = qApp->activePopupWidget();
+        
     if (!active_window)
         return false;
 
